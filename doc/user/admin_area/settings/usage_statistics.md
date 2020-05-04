@@ -185,6 +185,7 @@ but commented out to help encourage others to add to it in the future. -->
 |auto_devops_disabled|counts||
 |deploy_keys|counts||
 |deployments|counts||
+|dast_jobs|counts||
 |successful_deployments|counts||
 |failed_deployments|counts||
 |environments|counts||
@@ -303,8 +304,10 @@ but commented out to help encourage others to add to it in the future. -->
 |licenses_list_views|counts||
 |user_preferences_group_overview_details|counts||
 |user_preferences_group_overview_security_dashboard|counts||
+|ingress_modsecurity_logging|counts||
 |ingress_modsecurity_blocking|counts||
 |ingress_modsecurity_disabled|counts||
+|ingress_modsecurity_not_installed|counts||
 |dependency_list_usages_total|counts||
 |epics|counts||
 |feature_flags|counts||

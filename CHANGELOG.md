@@ -2,6 +2,39 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 12.10.2 (2020-04-30)
+
+### Security (8 changes)
+
+- Ensure MR diff exists before codeowner check.
+- Apply CODEOWNERS validations to web requests.
+- Prevent unauthorized access to default branch.
+- Do not return private project ID without permission.
+- Fix doorkeeper CVE-2020-10187.
+- Change GitHub service integration token input to password.
+- Return only safe urls for mirrors.
+- Validate workhorse 'rewritten_fields' and properly use them during multipart uploads.
+
+
+## 12.10.1 (2020-04-24)
+
+### Fixed (5 changes)
+
+- Fix bug creating project from git ssh. !29771
+- Fix Web IDE handling of deleting newly added files. !29783
+- Fix null dereference in /import status REST endpoint. !29886
+- Fix Service Templates missing Active toggle. !29936
+- Fix 500 error on accessing restricted levels. !30313
+
+### Changed (1 change)
+
+- Move Group Deploy Tokens to new Group-scoped Repository settings. !29290
+
+### Other (1 change)
+
+- Migration of dismissals to vulnerabilities. !29711
+
+
 ## 12.10.0 (2020-04-22)
 
 ### Removed (3 changes)
@@ -442,6 +475,21 @@ entry.
 - Add Gitlab User-Agent to ContainerRegistry::Client. !29294 (Sashi Kumar)
 - Improve error message in DAST CI template. !29388
 - Remove store_mentions! in Snippets::CreateService. !29581 (Sashi Kumar)
+
+
+## 12.9.5 (2020-04-30)
+
+### Security (9 changes)
+
+- Ensure MR diff exists before codeowner check.
+- Apply CODEOWNERS validations to web requests.
+- Prevent unauthorized access to default branch.
+- Do not return private project ID without permission.
+- Fix doorkeeper CVE-2020-10187.
+- Prevent ES credentials leak.
+- Change GitHub service integration token input to password.
+- Return only safe urls for mirrors.
+- Validate workhorse 'rewritten_fields' and properly use them during multipart uploads.
 
 
 ## 12.9.4 (2020-04-16)
@@ -960,6 +1008,19 @@ entry.
 - Add confidential attribute to notes table.
 - Replace content_viewer_spec setTimeouts with semantic actions / events. (Oregand)
 - Improvement in token reference.
+
+
+## 12.8.10 (2020-04-30)
+
+### Security (7 changes)
+
+- Ensure MR diff exists before codeowner check.
+- Prevent unauthorized access to default branch.
+- Do not return private project ID without permission.
+- Fix doorkeeper CVE-2020-10187.
+- Prevent ES credentials leak.
+- Return only safe urls for mirrors.
+- Validate workhorse 'rewritten_fields' and properly use them during multipart uploads.
 
 
 ## 12.8.9 (2020-04-14)

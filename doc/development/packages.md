@@ -110,7 +110,7 @@ The way new package systems are integrated in GitLab is using an [MVC](https://a
 Required actions are all the additional requests that GitLab will need to handle so the corresponding package manager CLI can work properly. It could be a search feature or an endpoint providing meta information about a package. For example:
 
 - For NuGet, the search request was implemented during the first MVC iteration, to support Visual Studio.
-- For NPM, there is a metadata endpoint used by `npm` to get the tarball url.
+- For NPM, there is a metadata endpoint used by `npm` to get the tarball URL.
 
 For the first MVC iteration, it's recommended to stay at the project level of the [remote hierarchy](#remote-hierarchy). Other levels can be tackled with [future Merge Requests](#future-work).
 
@@ -139,7 +139,7 @@ During this phase, the idea is to collect as much information as possible about 
 - **Requests**: Which requests are needed to have a working MVC. Ideally, produce
   a list of all the requests needed for the MVC (including required actions). Further
   investigation could provide an example for each request with the request and the response bodies.
-- **Upload**: Carefully analyse how the upload process works. This will probably be the most
+- **Upload**: Carefully analyze how the upload process works. This will probably be the most
   complex request to implement. A detailed analysis is desired here as uploads can be
   encoded in different ways (body or multipart) and can even be in a totally different
   format (for example, a JSON structure where the package file is a Base64 value of

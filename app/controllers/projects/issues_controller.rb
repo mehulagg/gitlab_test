@@ -154,7 +154,10 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   def related_branches
-    @related_branches = Issues::RelatedBranchesService.new(project, current_user).execute(issue)
+    @related_branches = Issues::RelatedBranchesService
+      .new(project, current_user)
+      .execute(issue)
+      .map { |branch| branch.merge(link: branch_link(branch)) }
 
     respond_to do |format|
       format.json do
@@ -193,7 +196,8 @@ class Projects::IssuesController < Projects::ApplicationController
     ExportCsvWorker.perform_async(current_user.id, project.id, finder_options.to_h) # rubocop:disable CodeReuse/Worker
 
     index_path = project_issues_path(project)
-    redirect_to(index_path, notice: "Your CSV export has started. It will be emailed to #{current_user.notification_email} when complete.")
+    message = _('Your CSV export has started. It will be emailed to %{email} when complete.') % { email: current_user.notification_email }
+    redirect_to(index_path, notice: message)
   end
 
   def import_csv
@@ -304,6 +308,10 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   private
+
+  def branch_link(branch)
+    project_compare_path(project, from: project.default_branch, to: branch[:name])
+  end
 
   def create_rate_limit
     key = :issues_create

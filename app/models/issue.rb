@@ -29,9 +29,12 @@ class Issue < ApplicationRecord
   SORTING_PREFERENCE_FIELD = :issues_sort
 
   belongs_to :project
-  belongs_to :moved_to, class_name: 'Issue'
   belongs_to :duplicated_to, class_name: 'Issue'
   belongs_to :closed_by, class_name: 'User'
+  belongs_to :sprint
+
+  belongs_to :moved_to, class_name: 'Issue'
+  has_one :moved_from, class_name: 'Issue', foreign_key: :moved_to_id
 
   has_internal_id :iid, scope: :project, track_if: -> { !importing? }, init: ->(s) { s&.project&.issues&.maximum(:iid) }
 
@@ -46,8 +49,15 @@ class Issue < ApplicationRecord
   has_many :zoom_meetings
   has_many :user_mentions, class_name: "IssueUserMention", dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
   has_many :sent_notifications, as: :noteable
+  has_many :designs, class_name: 'DesignManagement::Design', inverse_of: :issue
+  has_many :design_versions, class_name: 'DesignManagement::Version', inverse_of: :issue do
+    def most_recent
+      ordered.first
+    end
+  end
 
   has_one :sentry_issue
+  has_one :alert_management_alert, class_name: 'AlertManagement::Alert'
 
   accepts_nested_attributes_for :sentry_issue
 
@@ -328,6 +338,10 @@ class Issue < ApplicationRecord
 
   def previous_updated_at
     previous_changes['updated_at']&.first || updated_at
+  end
+
+  def design_collection
+    @design_collection ||= ::DesignManagement::DesignCollection.new(self)
   end
 
   private

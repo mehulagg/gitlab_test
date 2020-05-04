@@ -78,21 +78,56 @@ RSpec.describe Packages::Package, type: :model do
       it { is_expected.to allow_value("my/domain/com/my-app").for(:name) }
       it { is_expected.to allow_value("my.app-11.07.2018").for(:name) }
       it { is_expected.not_to allow_value("my(dom$$$ain)com.my-app").for(:name) }
+
+      context 'conan package' do
+        subject { create(:conan_package) }
+
+        let(:fifty_one_characters) {'f_b' * 17}
+
+        it { is_expected.to allow_value('foo+bar').for(:name) }
+        it { is_expected.to allow_value('foo_bar').for(:name) }
+        it { is_expected.to allow_value('foo.bar').for(:name) }
+        it { is_expected.not_to allow_value(fifty_one_characters).for(:name) }
+        it { is_expected.not_to allow_value('+foobar').for(:name) }
+        it { is_expected.not_to allow_value('.foobar').for(:name) }
+        it { is_expected.not_to allow_value('%foo%bar').for(:name) }
+      end
     end
 
     describe '#version' do
-      context 'npm package' do
-        subject { create(:npm_package) }
+      RSpec.shared_examples 'validating version to be SemVer compliant for' do |factory_name|
+        context "for #{factory_name}" do
+          subject { create(factory_name) }
 
-        it { is_expected.to allow_value('1.2.3').for(:version) }
+          it { is_expected.to allow_value('1.2.3').for(:version) }
+          it { is_expected.to allow_value('1.2.3-beta').for(:version) }
+          it { is_expected.to allow_value('1.2.3-alpha.3').for(:version) }
+          it { is_expected.not_to allow_value('1').for(:version) }
+          it { is_expected.not_to allow_value('1.2').for(:version) }
+          it { is_expected.not_to allow_value('1./2.3').for(:version) }
+          it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
+          it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
+        end
+      end
+
+      context 'conan package' do
+        subject { create(:conan_package) }
+
+        let(:fifty_one_characters) {'1.2' * 17}
+
+        it { is_expected.to allow_value('1.2').for(:version) }
         it { is_expected.to allow_value('1.2.3-beta').for(:version) }
-        it { is_expected.to allow_value('1.2.3-alpha.3').for(:version) }
+        it { is_expected.to allow_value('1.2.3-pre1+build2').for(:version) }
         it { is_expected.not_to allow_value('1').for(:version) }
-        it { is_expected.not_to allow_value('1.2').for(:version) }
+        it { is_expected.not_to allow_value(fifty_one_characters).for(:version) }
         it { is_expected.not_to allow_value('1./2.3').for(:version) }
-        it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
+        it { is_expected.not_to allow_value('.1.2.3').for(:version) }
+        it { is_expected.not_to allow_value('+1.2.3').for(:version) }
         it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
       end
+
+      it_behaves_like 'validating version to be SemVer compliant for', :npm_package
+      it_behaves_like 'validating version to be SemVer compliant for', :nuget_package
     end
 
     describe '#package_already_taken' do
@@ -188,9 +223,11 @@ RSpec.describe Packages::Package, type: :model do
     end
 
     describe '.has_version' do
-      let!(:package4) { create(:nuget_package, version: nil) }
-
       subject { described_class.has_version }
+
+      before do
+        create(:maven_metadatum).package.update!(version: nil)
+      end
 
       it 'includes only packages with version attribute' do
         is_expected.to match_array([package1, package2, package3])

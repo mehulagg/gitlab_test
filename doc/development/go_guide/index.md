@@ -70,8 +70,14 @@ projects:
 
 - Avoid global variables, even in packages. By doing so you will introduce side
   effects if the package is included multiple times.
-- Use `go fmt` before committing ([Gofmt](https://golang.org/cmd/gofmt/) is a
-  tool that automatically formats Go source code).
+- Use `goimports` before committing.
+  [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports)
+  is a tool that automatically formats Go source code using
+  [Gofmt](https://golang.org/cmd/gofmt/), in addition to formatting import lines,
+  adding missing ones and removing unreferenced ones.
+
+  Most editors/IDEs will allow you to run commands before/after saving a file, you can set it
+  up to run `goimports` so that it's applied to every file when saving.
 - Place private methods below the first caller method in the source file.
 
 ### Automatic linting
@@ -368,13 +374,13 @@ Once you've picked a new Go version to use, the steps to update Omnibus and CNG
 are:
 
 - [Create a merge request in the CNG project](https://gitlab.com/gitlab-org/build/CNG/edit/master/ci_files/variables.yml?branch_name=update-go-version),
-   updating the `GO_VERSION` in `ci_files/variables.yml`.
+  updating the `GO_VERSION` in `ci_files/variables.yml`.
 - Create a merge request in the [`gitlab-omnibus-builder` project](https://gitlab.com/gitlab-org/gitlab-omnibus-builder),
-   updating every file in the `docker/` directory so the `GO_VERSION` is set
-   appropriately. [Here's an example](https://gitlab.com/gitlab-org/gitlab-omnibus-builder/-/merge_requests/125/diffs).
+  updating every file in the `docker/` directory so the `GO_VERSION` is set
+  appropriately. [Here's an example](https://gitlab.com/gitlab-org/gitlab-omnibus-builder/-/merge_requests/125/diffs).
 - Tag a new release of `gitlab-omnibus-builder` containing the change.
-- [Create a merge request in the `gitlab-omnibus` project](https://gitlab.com/gitlab-org/omnibus-gitlab/edit/master/.gitlab-ci.yml?branch_name=update-gitlab-omnibus-builder-version),
-   updating the `BUILDER_IMAGE_REVISION` to match the newly-created tag.
+- [Create a merge request in the `omnibus-gitlab` project](https://gitlab.com/gitlab-org/omnibus-gitlab/edit/master/.gitlab-ci.yml?branch_name=update-gitlab-omnibus-builder-version),
+  updating the `BUILDER_IMAGE_REVISION` to match the newly-created tag.
 
 To reduce unnecessary differences between two distribution methods, Omnibus and
 CNG **should always use the same Go version**.

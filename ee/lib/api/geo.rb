@@ -33,10 +33,17 @@ module API
         authorize_geo_transfer!(replicable_name: params[:replicable_name], id: params[:id])
 
         decoded_params = jwt_decoder.decode
-        service = Geo::BlobUploadService.new(replicable_name: params[:replicable_name],
-                                             blob_id: params[:id],
-                                             decoded_params: decoded_params)
-        service.execute
+        service = ::Geo::BlobUploadService.new(replicable_name: params[:replicable_name],
+                                               blob_id: params[:id],
+                                               decoded_params: decoded_params)
+        response = service.execute
+
+        if response[:code] == :ok
+          file = response[:file]
+          present_carrierwave_file!(file)
+        else
+          error! response, response.delete(:code)
+        end
       end
 
       # Verify the GitLab Geo transfer request is valid

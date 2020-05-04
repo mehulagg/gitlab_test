@@ -58,6 +58,10 @@ module EE
           attrs << :npm_package_requests_forwarding
         end
 
+        if License.feature_available?(:default_branch_protection_restriction_in_groups)
+          attrs << :group_owners_can_manage_default_branch_protection
+        end
+
         attrs
       end
 
@@ -71,7 +75,7 @@ module EE
 
         respond_to do |format|
           format.html do
-            seat_link_json = JSON.pretty_generate(data)
+            seat_link_json = ::Gitlab::Json.pretty_generate(data)
 
             render html: ::Gitlab::Highlight.highlight('payload.json', seat_link_json, language: 'json')
           end

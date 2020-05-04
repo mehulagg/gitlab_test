@@ -36,6 +36,9 @@ The results are sorted by the priority of the vulnerability:
 1. Unknown
 1. Everything else
 
+NOTE: **Note:**
+A pipeline consists of multiple jobs, including SAST and DAST scanning. If any job fails to finish for any reason, the security dashboard will not show SAST scanner output. For example, if the SAST job finishes but the DAST job fails, the security dashboard will not show SAST results. The analyzer will output an [exit code](../../../development/integrations/secure.md#exit-code) on failure.
+
 ## Use cases
 
 - Your code has a potentially dangerous attribute in a class, or unsafe code
@@ -115,7 +118,7 @@ The included template will create a `sast` job in your CI/CD pipeline and scan
 your project's source code for possible vulnerabilities.
 
 The results will be saved as a
-[SAST report artifact](../../../ci/yaml/README.md#artifactsreportssast-ultimate)
+[SAST report artifact](../../../ci/pipelines/job_artifacts.md#artifactsreportssast-ultimate)
 that you can later download and analyze. Due to implementation limitations, we
 always take the latest SAST artifact available. Behind the scenes, the
 [GitLab SAST Docker image](https://gitlab.com/gitlab-org/security-products/sast)
@@ -456,8 +459,8 @@ the report JSON unless stated otherwise. Presence of optional fields depends on 
 | `vulnerabilities[].message`             | A short text that describes the vulnerability, it may include the occurrence's specific information. Optional. |
 | `vulnerabilities[].description`         | A long text that describes the vulnerability. Optional. |
 | `vulnerabilities[].cve`                 | (**DEPRECATED - use `vulnerabilities[].id` instead**) A fingerprint string value that represents a concrete occurrence of the vulnerability. It's used to determine whether two vulnerability occurrences are same or different. May not be 100% accurate. **This is NOT a [CVE](https://cve.mitre.org/)**.                                                                                                                                      |
-| `vulnerabilities[].severity`            | How much the vulnerability impacts the software. Possible values: `Undefined` (an analyzer has not provided this information), `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`. |
-| `vulnerabilities[].confidence`          | How reliable the vulnerability's assessment is. Possible values: `Undefined` (an analyzer has not provided this information), `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`. |
+| `vulnerabilities[].severity`            | How much the vulnerability impacts the software. Possible values: `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`. |
+| `vulnerabilities[].confidence`          | How reliable the vulnerability's assessment is. Possible values: `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`. |
 | `vulnerabilities[].solution`            | Explanation of how to fix the vulnerability. Optional. |
 | `vulnerabilities[].scanner`             | A node that describes the analyzer used to find this vulnerability. |
 | `vulnerabilities[].scanner.id`          | Id of the scanner as a snake_case string. |

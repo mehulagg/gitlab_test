@@ -5,11 +5,11 @@ import * as actions from 'ee/analytics/code_review_analytics/store/modules/merge
 import * as types from 'ee/analytics/code_review_analytics/store/modules/merge_requests/mutation_types';
 import getInitialState from 'ee/analytics/code_review_analytics/store/modules/merge_requests/state';
 import createFlash from '~/flash';
-import mockMergeRequests from '../../../mock_data';
+import { mockMergeRequests } from '../../../mock_data';
 
 jest.mock('~/flash', () => jest.fn());
 
-describe('Code review analytics actions', () => {
+describe('Code review analytics mergeRequests actions', () => {
   let state;
   let mock;
 
@@ -32,7 +32,13 @@ describe('Code review analytics actions', () => {
   };
 
   beforeEach(() => {
-    state = getInitialState();
+    state = {
+      filters: {
+        milestones: { selected: null },
+        labels: { selected: [] },
+      },
+      ...getInitialState(),
+    };
     mock = new MockAdapter(axios);
   });
 
@@ -140,26 +146,6 @@ describe('Code review analytics actions', () => {
       ).then(() => {
         expect(createFlash).toHaveBeenCalled();
       }));
-  });
-
-  describe('setFilters', () => {
-    const milestoneTitle = 'my milestone';
-    const labelName = ['first label', 'second label'];
-
-    it('commits the SET_FILTERS mutation', () => {
-      testAction(
-        actions.setFilters,
-        { milestone_title: milestoneTitle, label_name: labelName },
-        state,
-        [
-          {
-            type: types.SET_FILTERS,
-            payload: { milestoneTitle, labelName },
-          },
-        ],
-        [{ type: 'fetchMergeRequests' }],
-      );
-    });
   });
 
   describe('setPage', () => {

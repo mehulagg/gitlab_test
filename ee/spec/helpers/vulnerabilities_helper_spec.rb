@@ -74,7 +74,7 @@ describe VulnerabilitiesHelper do
 
     describe 'when pipeline exists' do
       let(:pipeline) { create(:ci_pipeline) }
-      let(:pipelineData) { JSON.parse(subject[:pipeline_json]) }
+      let(:pipelineData) { Gitlab::Json.parse(subject[:pipeline_json]) }
 
       include_examples 'vulnerability properties'
 
@@ -150,6 +150,7 @@ describe VulnerabilitiesHelper do
         vulnerability.finding.save
 
         expect(subject).not_to include('#L')
+        expect(subject).not_to match(/#{vulnerability.finding.location['file']}:\d*/)
       end
     end
   end

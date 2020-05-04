@@ -91,7 +91,7 @@ The included template will create a `dependency_scanning` job in your CI/CD
 pipeline and scan your project's source code for possible vulnerabilities.
 
 The results will be saved as a
-[Dependency Scanning report artifact](../../../ci/yaml/README.md#artifactsreportsdependency_scanning-ultimate)
+[Dependency Scanning report artifact](../../../ci/pipelines/job_artifacts.md#artifactsreportsdependency_scanning-ultimate)
 that you can later download and analyze. Due to implementation limitations, we
 always take the latest Dependency Scanning artifact available.
 
@@ -384,8 +384,8 @@ the report JSON unless stated otherwise. Presence of optional fields depends on 
 | `vulnerabilities[].message`                          | A short text that describes the vulnerability, it may include occurrence's specific information. Optional. |
 | `vulnerabilities[].description`                      | A long text that describes the vulnerability. Optional. |
 | `vulnerabilities[].cve`                              | (**DEPRECATED - use `vulnerabilities[].id` instead**) A fingerprint string value that represents a concrete occurrence of the vulnerability. It's used to determine whether two vulnerability occurrences are same or different. May not be 100% accurate. **This is NOT a [CVE](https://cve.mitre.org/)**.                                                                                                                                      |
-| `vulnerabilities[].severity`                         | How much the vulnerability impacts the software. Possible values: `Undefined` (an analyzer has not provided this information), `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`. |
-| `vulnerabilities[].confidence`                       | How reliable the vulnerability's assessment is. Possible values: `Undefined` (an analyzer has not provided this information), `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`. |
+| `vulnerabilities[].severity`                         | How much the vulnerability impacts the software. Possible values: `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`. |
+| `vulnerabilities[].confidence`                       | How reliable the vulnerability's assessment is. Possible values: `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`. |
 | `vulnerabilities[].solution`                         | Explanation of how to fix the vulnerability. Optional. |
 | `vulnerabilities[].scanner`                          | A node that describes the analyzer used to find this vulnerability. |
 | `vulnerabilities[].scanner.id`                       | Id of the scanner as a snake_case string. |
@@ -491,6 +491,7 @@ For every language and package manager, add the following to the variables secti
 
 ```yaml
 GEMNASIUM_DB_REMOTE_URL: "gitlab.example.com/gemnasium-db.git"
+GIT_SSL_NO_VERIFY: "true"
 ```
 
 See the following sections for additional instructions on specific languages and package managers.
@@ -520,7 +521,7 @@ When using self-signed certificates, add the following job section to the `.gitl
 ```yaml
 gemnasium-maven-dependency_scanning:
   variables:
-    MAVEN_CLI_OPTS: "-Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+    MAVEN_CLI_OPTS: "-s settings.xml -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
 ```
 
 #### Java (Gradle) projects
@@ -565,7 +566,7 @@ Add the following job section to `.gitlab-ci.yml`:
 ```yaml
 gemnasium-python-dependency_scanning:
   before_script:
-    - mkdir ~/.config/pip
+    - mkdir -p ~/.config/pip
     - cp pip.conf ~/.config/pip/pip.conf
 ```
 

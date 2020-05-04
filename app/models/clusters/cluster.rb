@@ -26,6 +26,8 @@ module Clusters
     KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'
     APPLICATIONS_ASSOCIATIONS = APPLICATIONS.values.map(&:association_name).freeze
 
+    self.reactive_cache_work_type = :external_dependency
+
     belongs_to :user
     belongs_to :management_project, class_name: '::Project', optional: true
 
@@ -33,6 +35,7 @@ module Clusters
     has_many :projects, through: :cluster_projects, class_name: '::Project'
     has_one :cluster_project, -> { order(id: :desc) }, class_name: 'Clusters::Project'
     has_many :deployment_clusters
+    has_many :deployments, inverse_of: :cluster
 
     has_many :cluster_groups, class_name: 'Clusters::Group'
     has_many :groups, through: :cluster_groups, class_name: '::Group'

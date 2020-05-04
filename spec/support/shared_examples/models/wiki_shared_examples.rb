@@ -95,13 +95,14 @@ RSpec.shared_examples 'wiki model' do
     let(:wiki_pages) { subject.list_pages }
 
     before do
-      create_page('index', 'This is an index')
-      create_page('index2', 'This is an index2')
-      create_page('an index3', 'This is an index3')
+      subject.create_page('index', 'This is an index')
+      subject.create_page('index2', 'This is an index2')
+      subject.create_page('an index3', 'This is an index3')
     end
 
     it 'returns an array of WikiPage instances' do
-      expect(wiki_pages.first).to be_a WikiPage
+      expect(wiki_pages).to be_present
+      expect(wiki_pages).to all(be_a(WikiPage))
     end
 
     it 'does not load WikiPage content by default' do
@@ -147,9 +148,47 @@ RSpec.shared_examples 'wiki model' do
     end
   end
 
+  describe '#sidebar_entries' do
+    before do
+      (1..5).each { |i| create(:wiki_page, wiki: wiki, title: "my page #{i}") }
+      (6..10).each { |i| create(:wiki_page, wiki: wiki, title: "parent/my page #{i}") }
+      (11..15).each { |i| create(:wiki_page, wiki: wiki, title: "grandparent/parent/my page #{i}") }
+    end
+
+    def total_pages(entries)
+      entries.sum do |entry|
+        entry.is_a?(WikiDirectory) ? entry.pages.size : 1
+      end
+    end
+
+    context 'when the number of pages does not exceed the limit' do
+      it 'returns all pages grouped by directory and limited is false' do
+        entries, limited = subject.sidebar_entries
+
+        expect(entries.size).to be(7)
+        expect(total_pages(entries)).to be(15)
+        expect(limited).to be(false)
+      end
+    end
+
+    context 'when the number of pages exceeds the limit' do
+      before do
+        create(:wiki_page, wiki: wiki, title: 'my page 16')
+      end
+
+      it 'returns 15 pages grouped by directory and limited is true' do
+        entries, limited = subject.sidebar_entries
+
+        expect(entries.size).to be(8)
+        expect(total_pages(entries)).to be(15)
+        expect(limited).to be(true)
+      end
+    end
+  end
+
   describe '#find_page' do
     before do
-      create_page('index page', 'This is an awesome Gollum Wiki')
+      subject.create_page('index page', 'This is an awesome Gollum Wiki')
     end
 
     it 'returns the latest version of the page if it exists' do
@@ -176,7 +215,7 @@ RSpec.shared_examples 'wiki model' do
 
     context 'pages with multibyte-character title' do
       before do
-        create_page('autre pagé', "C'est un génial Gollum Wiki")
+        subject.create_page('autre pagé', "C'est un génial Gollum Wiki")
       end
 
       it 'can find a page by slug' do
@@ -188,7 +227,7 @@ RSpec.shared_examples 'wiki model' do
 
     context 'pages with invalidly-encoded content' do
       before do
-        create_page('encoding is fun', "f\xFCr".b)
+        subject.create_page('encoding is fun', "f\xFCr".b)
       end
 
       it 'can find the page' do
@@ -201,11 +240,11 @@ RSpec.shared_examples 'wiki model' do
 
   describe '#find_sidebar' do
     before do
-      create_page(described_class::SIDEBAR, 'This is an awesome Sidebar')
+      subject.create_page(described_class::SIDEBAR, 'This is an awesome Sidebar')
     end
 
     it 'finds the page defined as _sidebar' do
-      page = subject.find_page('_sidebar')
+      page = subject.find_sidebar
 
       expect(page.content).to eq('This is an awesome Sidebar')
     end
@@ -284,58 +323,59 @@ RSpec.shared_examples 'wiki model' do
   end
 
   describe '#update_page' do
-    before do
-      create_page('update-page', 'some content')
-      @gitlab_git_wiki_page = subject.wiki.page(title: 'update-page')
+    let(:page) { create(:wiki_page, wiki: subject, title: 'update-page') }
+
+    def update_page
       subject.update_page(
-        @gitlab_git_wiki_page,
+        page.page,
         content: 'some other content',
         format: :markdown,
         message: 'updated page'
       )
-      @page = subject.list_pages(load_content: true).first.page
     end
 
     it 'updates the content of the page' do
-      expect(@page.raw_data).to eq('some other content')
+      update_page
+      page = subject.find_page('update-page')
+
+      expect(page.raw_content).to eq('some other content')
     end
 
     it 'sets the correct commit message' do
-      expect(@page.version.message).to eq('updated page')
+      update_page
+      page = subject.find_page('update-page')
+
+      expect(page.version.message).to eq('updated page')
     end
 
     it 'sets the correct commit email' do
+      update_page
+
       expect(user.commit_email).not_to eq(user.email)
       expect(commit.author_email).to eq(user.commit_email)
       expect(commit.committer_email).to eq(user.commit_email)
     end
 
     it 'updates container activity' do
+      page
+
       expect(subject).to receive(:update_container_activity)
 
-      subject.update_page(
-        @gitlab_git_wiki_page,
-        content: 'Yet more content',
-        format: :markdown,
-        message: 'Updated page again'
-      )
+      update_page
     end
   end
 
   describe '#delete_page' do
-    before do
-      create_page('index', 'some content')
-      @page = subject.wiki.page(title: 'index')
-    end
+    let(:page) { create(:wiki_page, wiki: wiki) }
 
     it 'deletes the page' do
-      subject.delete_page(@page)
+      subject.delete_page(page)
 
       expect(subject.list_pages.count).to eq(0)
     end
 
     it 'sets the correct commit email' do
-      subject.delete_page(@page)
+      subject.delete_page(page)
 
       expect(user.commit_email).not_to eq(user.email)
       expect(commit.author_email).to eq(user.commit_email)
@@ -343,9 +383,11 @@ RSpec.shared_examples 'wiki model' do
     end
 
     it 'updates container activity' do
+      page
+
       expect(subject).to receive(:update_container_activity)
 
-      subject.delete_page(@page)
+      subject.delete_page(page)
     end
   end
 
@@ -377,24 +419,5 @@ RSpec.shared_examples 'wiki model' do
       expect(subject.hook_attrs).to be_a Hash
       expect(subject.hook_attrs.keys).to contain_exactly(:web_url, :git_ssh_url, :git_http_url, :path_with_namespace, :default_branch)
     end
-  end
-
-  private
-
-  def create_temp_repo(path)
-    FileUtils.mkdir_p path
-    system(*%W(#{Gitlab.config.git.bin_path} init --quiet --bare -- #{path}))
-  end
-
-  def remove_temp_repo(path)
-    FileUtils.rm_rf path
-  end
-
-  def commit_details
-    Gitlab::Git::Wiki::CommitDetails.new(user.id, user.username, user.name, user.commit_email, 'test commit')
-  end
-
-  def create_page(name, content)
-    subject.wiki.write_page(name, :markdown, content, commit_details)
   end
 end
