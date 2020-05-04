@@ -34,7 +34,7 @@ describe('AlertDetails', () => {
         });
 
         it('shows an empty state', () => {
-          expect(wrapper.find({ ref: 'tabGroup' }).exists()).toBe(false);
+          expect(wrapper.find('[data-testid="tabGroup"]').exists()).toBe(false);
         });
       });
     });

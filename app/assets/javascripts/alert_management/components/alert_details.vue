@@ -45,7 +45,7 @@ export default {
 <template>
   <div>
     <div class="d-flex justify-content-between">
-      <gl-tabs v-if="alert" ref="tabGroup">
+      <gl-tabs v-if="alert" data-testid="tabGroup">
         <gl-tab data-testid="overviewTab" :title="$options.i18n.overviewTitle">
           <ul class="pl-3">
             <li data-testid="startTimeItem" class="font-weight-bold mb-3 mt-2">
