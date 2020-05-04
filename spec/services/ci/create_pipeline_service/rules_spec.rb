@@ -259,5 +259,40 @@ describe Ci::CreatePipelineService do
         end
       end
     end
+
+    context 'with CI_MERGE_REQUEST_MODIFIED_PATHS' do
+      let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+      let(:source)        { :merge_request_event }
+      let(:pipeline)      { service.execute(source, merge_request: merge_request) }
+
+      let(:config) do
+        <<-EOYML
+          workflow:
+            rules:
+              - if: $CI_MERGE_REQUEST_MODIFIED_PATHS =~ /models\\\/something/
+
+          regular-job:
+            script: 'echo Hello, World!'
+        EOYML
+      end
+
+      context 'and there is a matching modified file' do
+        before do
+          allow(merge_request).to receive(:modified_paths).and_return(['app/models/something.rb,spec/models/something.rb'])
+        end
+
+        it 'saves a pending pipeline' do
+          expect(pipeline).to be_pending
+          expect(pipeline).to be_persisted
+        end
+      end
+
+      context 'and there is no matching modified_file' do
+        it 'invalidates the pipeline with a workflow rules error' do
+          expect(pipeline.errors[:base]).to include('Pipeline filtered out by workflow rules.')
+          expect(pipeline).not_to be_persisted
+        end
+      end
+    end
   end
 end
