@@ -15,7 +15,7 @@ export default {
       required: false,
       type: Boolean,
       default: true,
-    }
+    },
   },
   computed: {
     confidentialityOnWarning() {
@@ -38,10 +38,7 @@ export default {
       <div>
         <p v-if="!isConfidential" v-html="confidentialityOnWarning"></p>
         <p v-else v-html="confidentialityOffWarning"></p>
-        <edit-form-buttons
-          :is-confidential="isConfidential"
-          :loading="loading"
-        />
+        <edit-form-buttons :is-confidential="isConfidential" :loading="loading" />
       </div>
     </div>
   </div>

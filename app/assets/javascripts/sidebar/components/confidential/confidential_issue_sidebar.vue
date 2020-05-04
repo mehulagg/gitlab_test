@@ -49,11 +49,11 @@ export default {
     },
   },
   created() {
-    eventHub.$on('updateConfidentialAttribute', this.updateConfidentialAttribute)
+    eventHub.$on('updateConfidentialAttribute', this.updateConfidentialAttribute);
     eventHub.$on('closeConfidentialityForm', this.toggleForm);
   },
   beforeDestroy() {
-    eventHub.$off('updateConfidentialAttribute', this.updateConfidentialAttribute)
+    eventHub.$off('updateConfidentialAttribute', this.updateConfidentialAttribute);
     eventHub.$off('closeConfidentialityForm', this.toggleForm);
   },
   methods: {
