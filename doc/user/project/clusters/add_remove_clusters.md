@@ -175,7 +175,7 @@ To add a Kubernetes cluster to your project, group, or instance:
      We will use the certificate created by default, which you can obtain by running this command:
 
      ```shell
-     kubectl get secret $(kubectl get secrets | awk '/default-token/ {print $1}') -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
+     kubectl get secret $(kubectl get secrets | awk '/default-token/ {print $1}') --output jsonpath="{['data']['ca\.crt']}" | base64 --decode
      ```
 
      NOTE: **Note:**
