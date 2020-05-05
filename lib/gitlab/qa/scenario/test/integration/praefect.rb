@@ -15,7 +15,7 @@ module Gitlab
                   gitlab.volumes = volumes
                   gitlab.exec_commands = ['gitlab-psql -d template1 -c "CREATE DATABASE praefect_production OWNER gitlab"']
 
-                  gitlab.act(omnibus_config_with_praefect) do |new_config|
+                  gitlab.act do
                     prepare
                     start
                     reconfigure
@@ -34,6 +34,7 @@ module Gitlab
                   gitlab.omnibus_config = omnibus_config_with_praefect
 
                   gitlab.act do
+                    prepare_gitlab_omnibus_config
                     start
                     reconfigure
                     wait
