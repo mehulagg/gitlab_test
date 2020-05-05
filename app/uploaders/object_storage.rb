@@ -26,6 +26,7 @@ module ObjectStorage
   TMP_UPLOAD_PATH = 'tmp/uploads'
 
   module Store
+    INVALID = 0
     LOCAL = 1
     REMOTE = 2
   end

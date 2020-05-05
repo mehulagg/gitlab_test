@@ -7,7 +7,7 @@ class AddDefaultValueForFileStoreToLfsObjects < ActiveRecord::Migration[6.0]
 
   def up
     with_lock_retries do
-      change_column_default :lfs_objects, :file_store, 1
+      change_column_default :lfs_objects, :file_store, 0
     end
   end
 

@@ -7,7 +7,7 @@ class AddDefaultValueForFileStoreToCiJobArtifacts < ActiveRecord::Migration[6.0]
 
   def up
     with_lock_retries do
-      change_column_default :ci_job_artifacts, :file_store, 1
+      change_column_default :ci_job_artifacts, :file_store, 0
     end
   end
 

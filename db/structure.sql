@@ -1101,7 +1101,7 @@ CREATE TABLE public.ci_job_artifacts (
     updated_at timestamp with time zone NOT NULL,
     expire_at timestamp with time zone,
     file character varying,
-    file_store integer DEFAULT 1,
+    file_store integer DEFAULT 0,
     file_sha256 bytea,
     file_format smallint,
     file_location smallint,
@@ -3625,7 +3625,7 @@ CREATE TABLE public.lfs_objects (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     file character varying,
-    file_store integer DEFAULT 1
+    file_store integer DEFAULT 0
 );
 
 CREATE SEQUENCE public.lfs_objects_id_seq
@@ -6428,7 +6428,7 @@ CREATE TABLE public.uploads (
     model_type character varying,
     uploader character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    store integer DEFAULT 1,
+    store integer DEFAULT 0,
     mount_point character varying,
     secret character varying
 );
