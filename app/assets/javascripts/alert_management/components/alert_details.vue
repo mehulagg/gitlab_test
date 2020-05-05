@@ -2,6 +2,7 @@
 import { GlTabs, GlTab } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
+import { fetchPolicies } from '~/lib/graphql';
 
 export default {
   i18n: {
@@ -24,7 +25,7 @@ export default {
   },
   apollo: {
     alert: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: fetchPolicies.CACHE_AND_NETWORK,
       query,
       variables() {
         return {
