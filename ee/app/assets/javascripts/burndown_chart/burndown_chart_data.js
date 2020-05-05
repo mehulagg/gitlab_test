@@ -21,35 +21,46 @@ export default class BurndownChartData {
     this.burndownEvents = this.processRawEvents(burndownEvents);
   }
 
-  generateBurnupTimeseries({ initialScope = 0, milestoneId } = {}) {
+  generateBurnupTimeseries({ milestoneId } = {}) {
     const chartData = [];
+
+    let openIssuesCount = 0;
+    let carriedIssuesCount = 0;
 
     for (
       let date = this.localStartDate;
       date <= this.localEndDate;
       date.setDate(date.getDate() + 1)
     ) {
-      let todaysTotal = initialScope;
-
       const dateString = dateFormat(date, this.dateFormatMask);
 
-      const todaysMilestoneEvents = this.burndownEvents.filter(e => e.created_at === dateString);
+      const openedIssuesToday = this.filterAndSummarizeBurndownEvents(
+        event =>
+          event.created_at === dateString &&
+          event.milestone_id === milestoneId &&
+          event.action === 'add',
+      );
 
-      todaysMilestoneEvents.forEach(event => {
-        if (event.action === 'add') {
-          if (event.milestone_id === milestoneId) {
-            todaysTotal += 1;
-          } else {
-            todaysTotal -= 1;
-          }
-        }
+      const closedIssuesToday = this.filterAndSummarizeBurndownEvents(
+        event =>
+          event.created_at === dateString &&
+          ((event.action === 'remove' && event.milestone_id === milestoneId) ||
+            (event.action === 'add' && event.milestone_id !== milestoneId)),
+      );
 
-        if (event.action === 'remove') {
-          todaysTotal -= 1;
-        }
-      });
+      openIssuesCount += openedIssuesToday.count - closedIssuesToday.count;
 
-      chartData.push([dateString, todaysTotal]);
+      if (openIssuesCount + carriedIssuesCount < 0) {
+        carriedIssuesCount += openIssuesCount;
+
+        openIssuesCount = 0;
+      } else {
+        openIssuesCount += carriedIssuesCount;
+
+        carriedIssuesCount = 0;
+      }
+
+      chartData.push([dateString, openIssuesCount]);
     }
 
     return {

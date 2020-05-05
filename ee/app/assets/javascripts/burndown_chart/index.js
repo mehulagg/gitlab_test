@@ -37,15 +37,13 @@ export default () => {
         const burndownEvents = burndownResponse.data;
         const chartData = new BurndownChartData(burndownEvents, startDate, dueDate).generate();
 
-        const initialScope = chartData[0][1];
-
         const burnupEvents = burnupResponse.data;
 
         const { burnupScope } = new BurndownChartData(
           burnupEvents,
           startDate,
           dueDate,
-        ).generateBurnupTimeseries({ initialScope, milestoneId });
+        ).generateBurnupTimeseries({ milestoneId });
 
         const openIssuesCount = chartData.map(d => [d[0], d[1]]);
         const openIssuesWeight = chartData.map(d => [d[0], d[2]]);

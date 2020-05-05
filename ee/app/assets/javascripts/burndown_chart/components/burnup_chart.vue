@@ -76,7 +76,7 @@ export default {
       this.tooltip.title = dateFormat(params.value, 'dd mmm yyyy');
 
       const text = __('%{total} open issues');
-      
+
       this.tooltip.content = sprintf(text, {
         total: seriesData.value[1],
       });
@@ -91,11 +91,7 @@ export default {
       <h3>{{ __('Burnup chart') }}</h3>
     </div>
     <resizable-chart-container class="burndown-chart">
-      <gl-line-chart
-        :data="dataSeries"
-        :option="options"
-        :format-tooltip-text="formatTooltipText"
-      >
+      <gl-line-chart :data="dataSeries" :option="options" :format-tooltip-text="formatTooltipText">
         <template slot="tooltipTitle">{{ tooltip.title }}</template>
         <template slot="tooltipContent">{{ tooltip.content }}</template>
       </gl-line-chart>

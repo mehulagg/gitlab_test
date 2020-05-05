@@ -215,19 +215,18 @@ describe('BurndownChartData', () => {
       return new BurndownChartData(events, startDate, dueDate);
     };
 
-    it('generates an array of arrays with date, issue count and weight', () => {
+    it('generates an array of arrays with date and issue count', () => {
       const { burnupScope } = burndownChartData().generateBurnupTimeseries({ milestoneId });
 
-      expect(burnupScope).toEqual([['2017-03-01', 2], ['2017-03-02', -1], ['2017-03-03', -2]]);
+      expect(burnupScope).toEqual([['2017-03-01', 2], ['2017-03-02', 1], ['2017-03-03', 0]]);
     });
 
-    it('starts from initialScope', () => {
+    it('starts from 0', () => {
       const { burnupScope } = burndownChartData().generateBurnupTimeseries({
-        initialScope: 20,
         milestoneId,
       });
 
-      expect(burnupScope[0][1]).toEqual(22);
+      expect(burnupScope[0][1]).toEqual(2);
     });
 
     it('ignores removed from other milestones', () => {
@@ -250,7 +249,7 @@ describe('BurndownChartData', () => {
 
       const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
 
-      expect(burnupScope[0][1]).toEqual(0);
+      expect(burnupScope[0][1]).toEqual(1);
     });
   });
 });
