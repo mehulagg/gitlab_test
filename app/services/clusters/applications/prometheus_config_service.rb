@@ -105,14 +105,15 @@ module Clusters
         {
           'receiver' => 'gitlab',
           'group_wait' => '30s',
-          'group_interval' => '5m',
+          'group_interval' => '1m',
           'repeat_interval' => '4h'
         }
       end
 
       def notify_url
-        ::Gitlab::Routing.url_helpers
-          .notify_project_prometheus_alerts_url(project, format: :json)
+        # ::Gitlab::Routing.url_helpers
+        #   .notify_project_prometheus_alerts_url(project, format: :json)
+        "http://dosuken.ap.ngrok.io/#{project.full_path}/prometheus/alerts/notify.json"
       end
 
       def has_alerts?

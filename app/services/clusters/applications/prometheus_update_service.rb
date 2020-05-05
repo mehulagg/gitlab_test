@@ -13,6 +13,7 @@ module Clusters
       def execute
         app.make_updating!
 
+        puts "#{self.class.name} - #{__callee__}: values: #{values}"
         helm_api.update(patch_command(values))
 
         ::ClusterWaitForAppUpdateWorker.perform_in(::ClusterWaitForAppUpdateWorker::INTERVAL, app.name, app.id)

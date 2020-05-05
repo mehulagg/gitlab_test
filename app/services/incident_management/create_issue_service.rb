@@ -87,8 +87,13 @@ module IncidentManagement
       alert.alert_markdown
     end
 
+    def rollback_page
+      alert.rollback_page
+    end
+
     def alert
       strong_memoize(:alert) do
+        puts "#{self.class.name} - #{__callee__}: params: #{params.inspect}"
         Gitlab::Alerting::Alert.new(project: project, payload: params).present
       end
     end

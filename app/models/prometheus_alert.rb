@@ -53,7 +53,7 @@ class PrometheusAlert < ApplicationRecord
     {
       "alert" => title,
       "expr" => full_query,
-      "for" => "5m",
+      "for" => "1m",
       "labels" => {
         "gitlab" => "hook",
         "gitlab_alert_id" => prometheus_metric_id,

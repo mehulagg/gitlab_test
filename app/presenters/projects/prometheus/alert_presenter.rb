@@ -73,12 +73,17 @@ module Projects
         metadata = []
 
         metadata << list_item('Start time', starts_at) if starts_at
+        metadata << list_item('rollback_page', rollback_page) if rollback_page
         metadata << list_item('full_query', backtick(full_query)) if full_query
         metadata << list_item(service.label.humanize, service.value) if service
         metadata << list_item(monitoring_tool.label.humanize, monitoring_tool.value) if monitoring_tool
         metadata << list_item(hosts.label.humanize, host_links) if hosts
 
         metadata.join(MARKDOWN_LINE_BREAK)
+      end
+
+      def rollback_page
+        project_environment_url(project, environment)
       end
 
       def alert_details

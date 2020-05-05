@@ -15,12 +15,14 @@ module IncidentManagement
       parsed_alert = Gitlab::Alerting::Alert.new(project: project, payload: alert_hash)
       event = find_prometheus_alert_event(parsed_alert)
 
+      puts "#{self.class.name} - #{__callee__}: event: #{event.inspect}"
       if event&.resolved?
         issue = event.related_issues.order_created_at_desc.detect(&:opened?)
 
         close_issue(project, issue)
       else
         issue = create_issue(project, alert_hash)
+        cancel_deployment_jobs(project, alert_hash)
 
         relate_issue_to_event(event, issue)
       end
@@ -65,6 +67,12 @@ module IncidentManagement
         .new(project, alert)
         .execute
         .dig(:issue)
+    end
+
+    def cancel_deployment_jobs(project, alert)
+      IncidentManagement::CancelDeploymentJobsService
+        .new(project, alert)
+        .execute
     end
 
     def close_issue(project, issue)
