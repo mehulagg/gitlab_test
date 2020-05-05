@@ -174,15 +174,13 @@ To add a Kubernetes cluster to your project, group, or instance:
    - **CA certificate** (required) - A valid Kubernetes certificate is needed to authenticate to the cluster.
      We will use the certificate created by default, which you can obtain by running this command:
 
-       ```shell
+     ```shell
+     kubectl get secret $(kubectl get secrets | awk '/default-token/ {print $1}') -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
+     ```
 
-       kubectl get secret $(kubectl get secrets | awk '/default-token/ {print $1}') -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
-
-       ```
-
-       NOTE: **Note:**
-       If the command returns the entire certificate chain, you need copy the *root ca*
-       certificate at the bottom of the chain.
+     NOTE: **Note:**
+     If the command returns the entire certificate chain, you need copy the *root ca*
+     certificate at the bottom of the chain.
 
    - **Token** -
      GitLab authenticates against Kubernetes using service tokens, which are
