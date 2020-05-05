@@ -398,6 +398,8 @@ module ObjectStorage
         CarrierWave::Storage::Fog.new(self)
       when Store::LOCAL
         CarrierWave::Storage::File.new(self)
+      when Store::INVALID
+        nil
       else
         raise UnknownStoreError
       end
