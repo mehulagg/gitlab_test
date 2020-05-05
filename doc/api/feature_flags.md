@@ -154,12 +154,15 @@ POST /projects/:id/feature_flags
 | Attribute           | Type             | Required   | Description                                                                            |
 | ------------------- | ---------------- | ---------- | ---------------------------------------------------------------------------------------|
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding).       |
-| `name`              | string           | yes        | The name of the feature flag. |
-| `description`       | string           | no         | The description of the feature flag. |
-| `scopes`            | JSON             | no         | The [feature flag specs](../user/project/operations/feature_flags.md#define-environment-specs) of the feature flag. |
-| `scopes:environment_scope` | string           | no         | The [environment spec](../ci/environments.md#scoping-environments-with-specs). |
-| `scopes:active`            | boolean          | no         | Whether the spec is active. |
-| `scopes:strategies`        | JSON             | no         | The [strategies](../user/project/operations/feature_flags.md#feature-flag-strategies) of the feature flag spec. |
+| `name`              | string           | yes        | The name of the feature flag.                                                          |
+| `description`       | string           | no         | The description of the feature flag.                                                   |
+| `version`           | string           | no         | The version of feature flag. One of: `legacy_flag` or `new_version_flag`. Defaults to `legacy_flag`. [Scheduled for removal in GitLab 14.0](https://gitlab.com/gitlab-org/gitlab/-/issues/213369) when the default and only allowable value will be `new_version_flag`. |
+| `scopes`            | JSON             | no         | The [feature flag specs](../user/project/operations/feature_flags.md#define-environment-specs) of the feature flag. Only for legacy flags (when `version` is `legacy_flag`). (Deprecated) Use `strategies` instead for new version flags. |
+| `scopes:environment_scope` | string    | no         | The [environment spec](../ci/environments.md#scoping-environments-with-specs). Only for legacy flags (when `version` is `legacy_flag`). (Deprecated) Use `strategies` instead for new version flags. |
+| `scopes:active`     | boolean          | no         | Whether the spec is active. Only for legacy flags (when `version` is `legacy_flag`). (Deprecated) Use `strategies` instead for new version flags. |
+| `scopes:strategies` | JSON             | no         | The [strategies](../user/project/operations/feature_flags.md#feature-flag-strategies) of the feature flag spec. Only for legacy flags (when `version` is `legacy_flag`). (Deprecated) Use `strategies` instead for new version flags. |
+| `strategies`        | JSON             | no         | The [strategies](../user/project/operations/feature_flags.md#feature-flag-strategies) of the feature flag. Only for new flags (when `version` is `new_version_flag`). |
+| `strategies:scopes` | string           | no         | The [environment spec](../ci/environments.md#scoping-environments-with-specs). Only for new flags (when `version` is `new_version_flag`). |
 
 ```shell
 curl https://gitlab.example.com/api/v4/projects/1/feature_flags \
