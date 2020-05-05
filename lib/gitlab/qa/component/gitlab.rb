@@ -98,11 +98,23 @@ module Gitlab
         alias_method :launch_and_teardown_instance, :instance
 
         def prepare
+          prepare_gitlab_omnibus_config
+          prepare_docker_image
+          prepare_network
+        end
+
+        def prepare_gitlab_omnibus_config
           setup_disable_animations if disable_animations
           set_formless_login_token
+        end
 
-          @docker.pull(image, tag) unless Runtime::Env.skip_pull?
+        def prepare_docker_image
+          return if Runtime::Env.skip_pull?
 
+          @docker.pull(image, tag)
+        end
+
+        def prepare_network
           return if @docker.network_exists?(network)
 
           @docker.network_create(network)
