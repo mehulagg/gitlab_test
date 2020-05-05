@@ -123,8 +123,3 @@ Enable and configure GitLab Pages on your own instance (GitLab Community Edition
 the [admin guide](../../../administration/pages/index.md).
 
 **<i class="fa fa-youtube-play youtube" aria-hidden="true"></i> Watch a [video tutorial](https://www.youtube.com/watch?v=dD8c7WNcc6s) for getting started with GitLab Pages admin!**
-
-## More information about GitLab Pages
-
-- Announcement (2016-12-24): ["We're bringing GitLab Pages to CE"](https://about.gitlab.com/releases/2016/12/24/were-bringing-gitlab-pages-to-community-edition/)
-- Announcement (2017-03-06): ["We are changing the IP of GitLab Pages on GitLab.com"](https://about.gitlab.com/releases/2017/03/06/we-are-changing-the-ip-of-gitlab-pages-on-gitlab-com/)
