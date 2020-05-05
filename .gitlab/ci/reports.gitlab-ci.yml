@@ -81,6 +81,8 @@ eslint-sast:
 
 nodejs-scan-sast:
   extends: .sast
+  before_script:
+    - chmod +r /builds/gitlab-org/gitlab/app/assets/javascripts/GitLab-SAST-NodeJsScan-out 2>&1 >/dev/null
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
 
