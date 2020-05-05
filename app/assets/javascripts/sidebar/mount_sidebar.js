@@ -10,7 +10,7 @@ import sidebarParticipants from './components/participants/sidebar_participants.
 import sidebarSubscriptions from './components/subscriptions/sidebar_subscriptions.vue';
 import Translate from '../vue_shared/translate';
 import createDefaultClient from '~/lib/graphql';
-import store from '~/notes/stores';
+import { singletonNotesStore as store } from '~/notes/stores';
 
 Vue.use(Translate);
 Vue.use(VueApollo);

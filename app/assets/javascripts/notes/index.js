@@ -2,9 +2,10 @@ import Vue from 'vue';
 import notesApp from './components/notes_app.vue';
 import initDiscussionFilters from './discussion_filters';
 import initSortDiscussions from './sort_discussions';
-import store from './stores';
+import { singletonNotesStore } from './stores';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const store = singletonNotesStore;
   // eslint-disable-next-line no-new
   new Vue({
     el: '#js-vue-notes',
