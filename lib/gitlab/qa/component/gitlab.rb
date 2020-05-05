@@ -13,7 +13,7 @@ module Gitlab
 
         attr_reader :release, :docker
         attr_accessor :volumes, :network, :environment, :tls, :disable_animations
-        attr_writer :name, :relative_path, :exec_commands
+        attr_writer :name, :relative_path, :exec_commands, :skip_check
 
         def_delegators :release, :tag, :image, :edition
 
@@ -26,6 +26,7 @@ module Gitlab
           @volumes = {}
           @network_aliases = []
           @disable_animations = true
+          @skip_check = false
 
           @volumes[CERTIFICATES_PATH] = SSL_PATH
 
@@ -87,7 +88,7 @@ module Gitlab
           prepare
           start
           reconfigure
-          wait
+          wait unless @skip_check
           process_exec_commands
 
           yield self if block_given?
