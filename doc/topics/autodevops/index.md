@@ -186,7 +186,7 @@ To make full use of Auto DevOps, you will need:
 If you do not have Kubernetes or Prometheus installed, then Auto Review Apps,
 Auto Deploy, and Auto Monitoring will be silently skipped.
 
-Once all requirements are met, you can go ahead and [enable Auto DevOps](#enablingdisabling-auto-devops).
+After all requirements are met, you can go ahead and [enable Auto DevOps](#enablingdisabling-auto-devops).
 
 ## Auto DevOps base domain
 
