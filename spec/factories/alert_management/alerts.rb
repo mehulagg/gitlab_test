@@ -24,7 +24,7 @@ FactoryBot.define do
     end
 
     trait :with_host do
-      hosts { FFaker::Internet.ip_v4_address }
+      hosts { [FFaker::Internet.ip_v4_address] }
     end
 
     trait :with_ended_at do
@@ -35,6 +35,22 @@ FactoryBot.define do
       status { :resolved }
     end
 
+    trait :with_payload do
+      payload do
+        {
+          labels: {
+            alertname: 'GitalyFileServerDown',
+            channel: 'gitaly',
+            severity: 's1'
+          }
+        }
+      end
+    end
+
+    trait :with_description do
+      description { FFaker::Lorem.sentence }
+    end
+
     trait :all_fields do
       with_issue
       with_fingerprint
@@ -42,6 +58,8 @@ FactoryBot.define do
       with_monitoring_tool
       with_host
       with_ended_at
+      with_payload
+      with_description
     end
   end
 end

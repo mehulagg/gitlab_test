@@ -54,15 +54,20 @@ Describes an alert from the project's Alert Management
 
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
+| `createdAt` | Time | Timestamp the alert was created |
+| `description` | String | Description of the alert |
 | `endedAt` | Time | Timestamp the alert ended |
 | `eventCount` | Int | Number of events of this alert |
+| `hosts` | String! => Array | Hosts the alert was raised on |
 | `iid` | ID! | Internal ID of the alert |
 | `monitoringTool` | String | Monitoring tool the alert came from |
+| `payload` | JSON | Raw payload of the alert |
 | `service` | String | Service the alert came from |
 | `severity` | AlertManagementSeverity | Severity of the alert |
 | `startedAt` | Time | Timestamp the alert was raised |
 | `status` | AlertManagementStatus | Status of the alert |
 | `title` | String | Title of the alert |
+| `updatedAt` | Time | Timestamp the alert was last updated |
 
 ## AwardEmoji
 

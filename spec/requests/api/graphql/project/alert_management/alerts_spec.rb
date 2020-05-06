@@ -59,9 +59,14 @@ describe 'getting Alert Management Alerts' do
           'status' => alert_2.status.upcase,
           'monitoringTool' => alert_2.monitoring_tool,
           'service' => alert_2.service,
+          'payload' => alert_2.payload,
+          'description' => alert_2.description,
+          'hosts' => alert_2.hosts,
           'eventCount' => alert_2.events,
           'startedAt' => alert_2.started_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
-          'endedAt' => alert_2.ended_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+          'endedAt' => alert_2.ended_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
+          'createdAt' => alert_2.created_at.strftime('%Y-%m-%dT%H:%M:%SZ'),
+          'updatedAt' => alert_2.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
         )
       end
 
