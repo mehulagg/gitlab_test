@@ -76,6 +76,7 @@ module QA
         resource.fetch(:web_url) do
           raise ResourceURLMissingError, "API resource for #{self.class.name} does not expose a `web_url` property: `#{resource}`."
         end
+        "#{Runtime::Scenario.gitlab_address}#{URI.parse(resource.fetch(:web_url)).request_uri}"
       end
 
       def api_get
