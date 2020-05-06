@@ -148,8 +148,7 @@ export default {
     <div class="d-flex flex-column align-items-start flex-shrink-0 mr-4 mb-3 js-issues-container">
       <span class="mb-1">
         {{ __('Issues') }}
-        <!-- TODO: check bold works -->
-        <gl-badge variant="muted" class="font-weight-bold">{{ totalIssuesCount }}</gl-badge>
+        <gl-badge variant="muted" size="sm" class="font-weight-bold">{{ totalIssuesCount }}</gl-badge>
       </span>
       <div class="d-flex">
         <gl-link v-if="openIssuesPath" ref="openIssuesLink" :href="openIssuesPath">
