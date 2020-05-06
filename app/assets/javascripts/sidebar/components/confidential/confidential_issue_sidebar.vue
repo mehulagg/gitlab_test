@@ -93,7 +93,8 @@ export default {
         data-track-label="right_sidebar"
         data-track-property="confidentiality"
         @click.prevent="toggleForm"
-      >{{ __('Edit') }}</a>
+        >{{ __('Edit') }}</a
+      >
     </div>
     <div class="value sidebar-item-value hide-collapsed">
       <edit-form
