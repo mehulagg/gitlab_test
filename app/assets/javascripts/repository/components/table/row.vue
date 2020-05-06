@@ -148,7 +148,7 @@ export default {
         /><span class="position-relative">{{ fullPath }}</span>
       </component>
       <!-- eslint-disable-next-line @gitlab/vue-require-i18n-strings -->
-      <gl-badge v-if="lfsOid" variant="neutral" class="label-lfs ml-1">LFS</gl-badge>
+      <gl-badge v-if="lfsOid" variant="muted" size="sm" class="ml-1">LFS</gl-badge>
       <template v-if="isSubmodule">
         @ <gl-link :href="submoduleTreeUrl" class="commit-sha">{{ shortSha }}</gl-link>
       </template>
