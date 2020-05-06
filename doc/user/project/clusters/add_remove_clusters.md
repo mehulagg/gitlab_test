@@ -2,8 +2,8 @@
 
 GitLab offers integrated cluster creation for the following Kubernetes providers:
 
-- Google Kubernetes Engine (GKE).
-- Amazon Elastic Kubernetes Service (EKS).
+- [Amazon Elastic Kubernetes Service (EKS)](add_eks_clusters.md).
+- [Google Kubernetes Engine (GKE)](add_gke_clusters.md).
 
 GitLab can also integrate with any standard Kubernetes provider, either on-premise or hosted.
 
@@ -131,8 +131,8 @@ If you don't want to use GitLab Runner in privileged mode, either:
 
 New clusters can be created using GitLab for:
 
-- [Google Kubernetes Engine (GKE)](add_gke_clusters.md).
 - [Amazon Elastic Kubernetes Service (EKS)](add_eks_clusters.md).
+- [Google Kubernetes Engine (GKE)](add_gke_clusters.md).
 
 ## Add existing cluster
 
