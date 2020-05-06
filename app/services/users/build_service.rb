@@ -5,7 +5,7 @@ module Users
     delegate :user_default_internal_regex_enabled?,
              :user_default_internal_regex_instance,
              to: :'Gitlab::CurrentSettings.current_application_settings'
-    attr_reader :identity_params
+    attr_accessor :identity_params
 
     def initialize(current_user, params = {})
       @current_user = current_user
