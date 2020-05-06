@@ -131,6 +131,7 @@ RSpec.describe Gitlab::Json do
 
       expect(JSON).to receive(:generate).with(*args)
 
+      puts args
       subject.generate(*args)
     end
   end
@@ -141,6 +142,7 @@ RSpec.describe Gitlab::Json do
 
       expect(JSON).to receive(:pretty_generate).with(*args)
 
+      puts args
       subject.pretty_generate(*args)
     end
   end

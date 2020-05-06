@@ -7,7 +7,10 @@ module Gitlab
     class << self
       def parse(string, *args, **named_args)
         legacy_mode = legacy_mode_enabled?(named_args.delete(:legacy_mode))
-        data = adapter.parse(string, *args, **named_args)
+
+        data = benchmark(method: "parse") do
+          adapter.parse(string, *args, **named_args)
+        end
 
         handle_legacy_mode!(data) if legacy_mode
 
@@ -16,7 +19,10 @@ module Gitlab
 
       def parse!(string, *args, **named_args)
         legacy_mode = legacy_mode_enabled?(named_args.delete(:legacy_mode))
-        data = adapter.parse!(string, *args, **named_args)
+
+        data = benchmark(method: "parse!") do
+          adapter.parse!(string, *args, **named_args)
+        end
 
         handle_legacy_mode!(data) if legacy_mode
 
@@ -24,15 +30,27 @@ module Gitlab
       end
 
       def dump(*args)
-        adapter.dump(*args)
+        benchmark(method: "dump") do
+          adapter.dump(*args)
+        end
       end
 
       def generate(*args)
-        adapter.generate(*args)
+        puts args
+
+        benchmark(method: "generate") do
+          puts args
+          adapter.generate(*args)
+        end
       end
 
       def pretty_generate(*args)
-        adapter.pretty_generate(*args)
+        puts args
+
+        benchmark(method: "pretty_generate") do
+          puts args
+          adapter.pretty_generate(*args)
+        end
       end
 
       private
@@ -53,6 +71,29 @@ module Gitlab
         return data unless Feature.enabled?(:json_wrapper_legacy_mode, default_enabled: true)
 
         raise parser_error if INVALID_LEGACY_TYPES.any? { |type| data.is_a?(type) }
+      end
+
+      def histogram
+        @histogram ||= Gitlab::Metrics.histogram(
+          :gitlab_json_seconds,
+          "Measurement of time spent processing JSON in Ruby"
+        )
+      end
+
+      def benchmark(opts = {}, &block)
+        opts = { processor: adapter.to_s }.merge(opts)
+        puts opts
+        return_value = nil
+
+        time = Benchmark.realtime do
+          return_value = block.call
+        end
+
+        puts time
+
+        histogram.observe(opts, time)
+
+        return_value
       end
     end
   end
