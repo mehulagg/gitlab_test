@@ -7,6 +7,8 @@ module QA
         module Show
           extend QA::Page::PageConcern
 
+          ApprovalConditionsError = Class.new(RuntimeError)
+
           def self.prepended(base)
             super
 
@@ -59,6 +61,14 @@ module QA
                 element :approve_button
               end
 
+              view 'ee/app/assets/javascripts/vue_merge_request_widget/components/approvals/approvals_footer.vue' do
+                element :view_eligible_approvers_button
+              end
+
+              view 'ee/app/assets/javascripts/vue_merge_request_widget/components/approvals/approvals_list.vue' do
+                element :approvers_section
+              end
+
               view 'ee/app/assets/javascripts/vue_merge_request_widget/components/approvals/approvals_summary.vue' do
                 element :approvals_summary_content
               end
@@ -99,7 +109,10 @@ module QA
           end
 
           def approvals_required_from
-            approvals_content.match(/approvals? from (.*)/)[1]
+            match = approvals_content.match(/approvals? from (.*)/)
+            return match[1] if match
+
+            raise ApprovalConditionsError, 'The expected approval conditions were not found.'
           end
 
           def approved?
@@ -116,6 +129,15 @@ module QA
             click_element :approve_button
 
             find_element :approve_button, text: "Revoke approval"
+          end
+
+          def has_eligible_approver?(name, in_section:, for:)
+            within_element(:approvers_section, title: in_section) do
+            end
+          end
+
+          def view_eligible_approvers
+            click_element(:view_eligible_approvers_button)
           end
 
           def start_review
@@ -293,7 +315,7 @@ module QA
           end
 
           def merge_via_merge_train
-            raise ElementNotFound, "Not ready to merge" unless ready_to_merge?
+            wait_until_ready_to_merge
 
             click_element(:merge_button, text: "Start merge train")
 

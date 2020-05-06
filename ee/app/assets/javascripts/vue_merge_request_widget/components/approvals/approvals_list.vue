@@ -93,7 +93,13 @@ export default {
         <th>{{ s__('MRApprovals|Approved by') }}</th>
       </tr>
     </thead>
-    <tbody v-for="{ id, title, rules } in sections" :key="id" class="border-top-0">
+    <tbody
+      v-for="{ id, title, rules } in sections"
+      :key="id"
+      class="border-top-0"
+      data-qa-selector="approvers_section"
+      :data-qa-title="title"
+    >
       <tr v-if="title" class="js-section-title">
         <td class="w-0"></td>
         <td colspan="99">

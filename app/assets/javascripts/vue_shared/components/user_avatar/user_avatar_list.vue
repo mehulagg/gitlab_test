@@ -80,6 +80,8 @@ export default {
       :img-alt="item.name"
       :tooltip-text="item.name"
       :img-size="imgSize"
+      :data-qa-name="item.name"
+      data-qa-selector="user_avatar_name_content"
     />
     <template v-if="hasBreakpoint">
       <gl-deprecated-button v-if="hasHiddenItems" variant="link" @click="expand">

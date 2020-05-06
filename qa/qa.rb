@@ -422,6 +422,7 @@ module QA
       autoload :ConfirmModal, 'qa/page/component/confirm_modal'
       autoload :CustomMetric, 'qa/page/component/custom_metric'
       autoload :DesignManagement, 'qa/page/component/design_management'
+      autoload :UserAvatarList, 'qa/page/component/user_avatar_list'
 
       module Issuable
         autoload :Common, 'qa/page/component/issuable/common'

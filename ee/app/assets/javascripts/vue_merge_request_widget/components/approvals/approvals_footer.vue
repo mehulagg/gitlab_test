@@ -79,9 +79,12 @@ export default {
       </button>
       <template v-if="isCollapsed">
         <user-avatar-list :items="suggestedApproversTrimmed" :breakpoint="0" empty-text="" />
-        <gl-deprecated-button variant="link" @click="toggle">{{
-          __('View eligible approvers')
-        }}</gl-deprecated-button>
+        <gl-deprecated-button
+          variant="link"
+          data-qa-selector="view_eligible_approvers_button"
+          @click="toggle"
+          >{{ __('View eligible approvers') }}</gl-deprecated-button
+        >
       </template>
       <template v-else>
         <gl-deprecated-button variant="link" @click="toggle">{{
