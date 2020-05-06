@@ -3,6 +3,7 @@ stages:
   - prepare
   - build-images
   - fixtures
+  - early-warning
   - test
   - post-test
   - review-prepare
@@ -45,6 +46,24 @@ workflow:
     - if: '$CI_COMMIT_BRANCH =~ /^[\d-]+-stable(-ee)?$/'
     - if: '$CI_COMMIT_BRANCH =~ /^\d+-\d+-auto-deploy-\d+$/'
     - if: '$CI_COMMIT_BRANCH =~ /^security\//'
+
+rspec-changes-based-triage:
+  stage: early-warning
+  script:
+    - rspec $(ruby -e "ARGV[0].split(',').map do |path|
+        if path =~ /app\/(.*)\.rb/
+          path.sub(/app\/(.*)\.rb/, 'spec/\1_spec.rb')
+        elsif path =~ /app\/(.*)\.html\.haml/
+          path.sub(/app\/(.*)\.html\.haml/, 'spec/\1.html.haml_spec.rb')
+        elsif File.fnmatch?('spec/**/*_spec.rb', path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_EXTGLOB)
+          path
+        end
+      end.uniq.select do |guess|
+        puts guess if FileTest.exist?(guess)
+      end.join(' ')" $MODIFIED_PATHS)
+
+  rules:
+    - if: $CI_MERGE_REQUEST_TITLE =~ /early\-warning/
 
 variables:
   RAILS_ENV: "test"
