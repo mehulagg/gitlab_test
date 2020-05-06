@@ -49,7 +49,8 @@ To add a new feature flag:
    or an underscore (`_`).
 
 1. Give it a description (optional, 255 characters max).
-1. Define environment [specs](#define-environment-specs). If you want the flag on by default, enable the catch-all [wildcard spec (`*`)](#define-environment-specs)
+1. Define [strategies](#feature-flag-strategies).
+1. Define environment [specs](#define-environment-specs).
 1. Click **Create feature flag**.
 
 Once a feature flag is created, the list of existing feature flags will be presented
