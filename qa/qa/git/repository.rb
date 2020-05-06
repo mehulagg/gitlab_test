@@ -43,6 +43,7 @@ module QA
       end
 
       def uri=(address)
+        address = "#{Runtime::Scenario.gitlab_address}#{address.request_uri}"
         @uri = URI(address)
       end
 
