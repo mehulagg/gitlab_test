@@ -1,0 +1,6 @@
+---
+title: Add description, hosts, payload, timestamps to GraphQL AlertManagement's Alert
+  Type
+merge_request: 31170
+author:
+type: added
