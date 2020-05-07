@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+describe 'Burnup charts', :js do
+  let_it_be(:burnup_chart_selector) { '.js-burnup-chart' }
+
+  let_it_be(:user) { create(:user) }
+  let_it_be(:group) { create(:group) }
+  let_it_be(:project) { create(:project, namespace: group) }
+  let_it_be(:milestone) { create(:milestone, :with_dates, group: group, title: 'Milestone', description: 'burnup sample', start_date: '2020-01-30', due_date: '2020-02-10') }
+  let_it_be(:issue_1) { create(:issue, created_at: '2020-01-30', project: project, milestone: milestone, weight: 2) }
+  let_it_be(:issue_2) { create(:issue, created_at: '2020-01-30', project: project, milestone: milestone, weight: 3) }
+  let_it_be(:issue_3) { create(:issue, created_at: '2020-01-30', project: project, milestone: milestone, weight: 2) }
+
+  let_it_be(:event1) { create(:resource_milestone_event, issue: issue_1, milestone: milestone, action: 'add', created_at: '2020-02-01') }
+  let_it_be(:event2) { create(:resource_milestone_event, issue: issue_1, milestone: nil, action: 'remove', created_at: '2020-02-02') }
+  let_it_be(:event3) { create(:resource_milestone_event, issue: issue_3, milestone: milestone, action: 'add', created_at: '2020-02-01') }
+
+  before do
+    group.add_developer(user)
+    sign_in(user)
+  end
+
+  describe 'licensed feature available' do
+    before do
+      stub_licensed_features(group_burndown_charts: true)
+    end
+
+    it 'shows burnup chart' do
+      visit group_milestone_path(milestone.group, milestone)
+
+      expect(burnup_chart_points.count).to be(12)
+    end
+  end
+
+  describe 'licensed feature not available' do
+    before do
+      stub_licensed_features(group_burndown_charts: false)
+    end
+
+    it 'shows burnup chart' do
+      visit group_milestone_path(milestone.group, milestone)
+
+      expect(page).not_to have_selector(burnup_chart_selector)
+    end
+  end
+
+  def burnup_chart_points
+    fill_color = "#1f75cb"
+    points = burnup_chart.all("path[fill='#{fill_color}']", count: 12)
+  end
+
+  def burnup_chart
+    page.find(burnup_chart_selector)
+  end
+end
