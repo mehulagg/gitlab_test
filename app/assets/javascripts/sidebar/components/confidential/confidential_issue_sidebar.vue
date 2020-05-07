@@ -1,5 +1,5 @@
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { __ } from '~/locale';
 import Flash from '~/flash';
 import tooltip from '~/vue_shared/directives/tooltip';
@@ -8,7 +8,7 @@ import eventHub from '~/sidebar/event_hub';
 import EditForm from './edit_form.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import updateIssueConfidentialMutation from './queries/update_issue_confidential.mutation.graphql';
-import { mapState, mapActions } from 'vuex';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
   components: {
@@ -18,7 +18,7 @@ export default {
   directives: {
     tooltip,
   },
-  mixins: [recaptchaModalImplementor],
+  mixins: [glFeatureFlagsMixin(), recaptchaModalImplementor],
   props: {
     iid: {
       required: true,
@@ -31,6 +31,10 @@ export default {
     isEditable: {
       required: true,
       type: Boolean,
+    },
+    service: {
+      required: true,
+      type: Object,
     },
   },
   data() {
@@ -64,8 +68,24 @@ export default {
     closeForm() {
       this.edit = false;
     },
-    updateConfidentialAttribute() {
-      // find a way to FF
+    updateConfidential() {
+      // TODO: rm when FF is defaulted to on.
+      const confidential = !this.confidential;
+      this.service
+        .update('issue', { confidential })
+        .then(({ data }) => this.checkForSpam(data))
+        .then(() => window.location.reload())
+        .catch(error => {
+          if (error.name === 'SpamError') {
+            this.openRecaptcha();
+          } else {
+            Flash(__('Something went wrong trying to change the confidentiality of this issue'));
+          }
+        });
+    },
+    updateConfidentialAttributeApollo() {
+      // TODO: move logic to renderless component.
+
       this.loading = true;
       const confidential = !this.confidential;
 
@@ -93,6 +113,13 @@ export default {
             Flash(__('Something went wrong trying to change the confidentiality of this issue'));
           }
         });
+    },
+    updateConfidentialAttribute() {
+      if(gon.features.confidentialApolloSidebar) {
+        this.updateConfidentialAttributeApollo();
+      } else {
+        this.updateConfidential();
+      }
     },
   },
 };

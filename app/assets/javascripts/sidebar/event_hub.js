@@ -1,8 +1,13 @@
-import Vue from 'vue';
+import mitt from 'mitt';
 
-const eventHub = new Vue();
+const eventHub =  () => {
+  const emitter = mitt();
 
-// TODO: remove eventHub hack after code splitting refactor
-window.emitSidebarEvent = (...args) => eventHub.$emit(...args);
+  emitter.$on = emitter.on;
+  emitter.$off = emitter.off;
+  emitter.$emit = emitter.emit;
 
-export default eventHub;
+  return emitter;
+};
+
+export default eventHub();

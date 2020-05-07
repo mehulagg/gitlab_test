@@ -19,6 +19,8 @@ export default {
   },
   computed: {
     toggleButtonText() {
+      if (this.loading) return __('Applying');
+
       return this.isConfidential ? __('Turn Off') : __('Turn On');
     },
   },

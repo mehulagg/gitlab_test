@@ -49,7 +49,7 @@ function mountAssigneesComponent(mediator) {
   });
 }
 
-function mountConfidentialComponent() {
+function mountConfidentialComponent(mediator) {
   const el = document.getElementById('js-confidential-entry-point');
   const apolloProvider = new VueApollo({
     defaultClient: createDefaultClient(),
@@ -67,11 +67,11 @@ function mountConfidentialComponent() {
   new ConfidentialComp({
     store,
     apolloProvider,
-    store,
     propsData: {
       iid: String(iid),
       fullPath,
       isEditable: initialData.is_editable,
+      service: mediator.service,
     },
   }).$mount(el);
 }
@@ -153,7 +153,7 @@ function mountTimeTrackingComponent() {
 
 export function mountSidebar(mediator) {
   mountAssigneesComponent(mediator);
-  mountConfidentialComponent();
+  mountConfidentialComponent(mediator);
   mountLockComponent(mediator);
   mountParticipantsComponent(mediator);
   mountSubscriptionsComponent(mediator);
