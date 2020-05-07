@@ -11,7 +11,7 @@ import {
   GlDeprecatedBadge as GlBadge,
 } from '@gitlab/ui';
 import { TEST_HOST } from 'helpers/test_constants';
-import setWindowLocation from 'helpers/set_window_location_helper';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 import { REPORT_STATUS } from 'ee/license_compliance/store/modules/list/constants';
 
@@ -94,6 +94,8 @@ const createComponent = ({ state, props, options }) => {
 const findByTestId = testId => wrapper.find(`[data-testid="${testId}"]`);
 
 describe('Project Licenses', () => {
+  useWindowLocation();
+
   afterEach(() => {
     wrapper.destroy();
     wrapper = null;
@@ -212,10 +214,8 @@ describe('Project Licenses', () => {
     `(
       'when window.location contains the hash "$givenLocationHash"',
       ({ givenLocationHash, expectedActiveTab }) => {
-        const originalLocation = window.location;
-
         beforeEach(() => {
-          setWindowLocation(`http://foo.com/index${givenLocationHash}`);
+          window.location.href = `http://foo.com/index${givenLocationHash}`;
 
           createComponent({
             state: {
@@ -237,10 +237,6 @@ describe('Project Licenses', () => {
               mount: true,
             },
           });
-        });
-
-        afterEach(() => {
-          window.location = originalLocation;
         });
 
         it(`sets the active tab to be "${expectedActiveTab}"`, () => {

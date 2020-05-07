@@ -12,29 +12,47 @@
  *
  * @param url
  */
-export default function setWindowLocation(url) {
+
+const locationProps = [
+  'hash',
+  'host',
+  'hostname',
+  'href',
+  'origin',
+  'pathname',
+  'port',
+  'protocol',
+  'search',
+];
+
+const parseUrl = url => {
   const parsedUrl = new URL(url);
 
-  const newLocationValue = [
-    'hash',
-    'host',
-    'hostname',
-    'href',
-    'origin',
-    'pathname',
-    'port',
-    'protocol',
-    'search',
-  ].reduce(
+  return locationProps.reduce(
     (location, prop) => ({
       ...location,
       [prop]: parsedUrl[prop],
     }),
     {},
   );
+};
 
-  Object.defineProperty(window, 'location', {
-    value: newLocationValue,
-    writable: true,
+const useWindowLocation = () => {
+  const originalLocationValue = window.location;
+  const newLocationValue = {};
+
+  afterEach(() => {
+    window.location = originalLocationValue;
   });
-}
+
+  locationProps.forEach(locationProp => {
+    delete Object.defineProperty(window.location, locationProp, {
+      get: () => newLocationValue[locationProp] || originalLocationValue[locationProp] || undefined,
+      set: newValue => {
+        newLocationValue[locationProp] = newValue;
+      },
+    });
+  });
+};
+
+export default useWindowLocation;
