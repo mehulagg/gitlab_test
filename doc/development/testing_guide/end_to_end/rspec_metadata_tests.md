@@ -15,3 +15,4 @@ This is a partial list of the [RSpec metadata](https://relishapp.com/rspec/rspec
 | `:requires_admin` | The test requires an admin account. Tests with the tag are excluded when run against Canary and Production environments. |
 | `:runner`         | The test depends on and will set up a GitLab Runner instance, typically to run a pipeline. |
 | `:skip_live_env`  | The test will be excluded when run against live deployed environments such as Staging, Canary, and Production. |
+| `:jira`           | The test requires a Jira Server. [GitLab-QA](https://gitlab.com/gitlab-org/gitlab-qa) will provision the Jira Server in a docker container when the `Test::Integration::Jira` test scenario is run.
