@@ -18,9 +18,13 @@ FactoryBot.define do
     active { true }
     push_events { true }
     tag_push_events { true }
+    integration_properties do
+      {
+        recipients: 'test@example.com'
+      }
+    end
     properties do
       {
-        recipients: 'test@example.com',
         disable_diffs: true,
         send_from_committer_email: true
       }

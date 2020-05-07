@@ -4,6 +4,18 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
+CREATE FUNCTION public.jsonb_merge_accum(jsonb, jsonb) RETURNS jsonb
+    LANGUAGE sql STRICT
+    AS $_$
+SELECT $1 || $2;
+$_$;
+
+CREATE AGGREGATE public.jsonb_merge(jsonb) (
+    SFUNC = public.jsonb_merge_accum,
+    STYPE = jsonb,
+    INITCOND = '{}'
+);
+
 CREATE TABLE public.abuse_reports (
     id integer NOT NULL,
     reporter_id integer,
@@ -3257,6 +3269,76 @@ CREATE SEQUENCE public.insights_id_seq
 
 ALTER SEQUENCE public.insights_id_seq OWNED BY public.insights.id;
 
+CREATE TABLE public.services (
+    id integer NOT NULL,
+    type character varying,
+    title character varying,
+    project_id integer,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
+    active boolean DEFAULT false NOT NULL,
+    properties text,
+    push_events boolean DEFAULT true,
+    issues_events boolean DEFAULT true,
+    merge_requests_events boolean DEFAULT true,
+    tag_push_events boolean DEFAULT true,
+    note_events boolean DEFAULT true NOT NULL,
+    category character varying DEFAULT 'common'::character varying NOT NULL,
+    "default" boolean DEFAULT false,
+    wiki_page_events boolean DEFAULT true,
+    pipeline_events boolean DEFAULT false NOT NULL,
+    confidential_issues_events boolean DEFAULT true NOT NULL,
+    commit_events boolean DEFAULT true NOT NULL,
+    job_events boolean DEFAULT false NOT NULL,
+    confidential_note_events boolean DEFAULT true,
+    deployment_events boolean DEFAULT false NOT NULL,
+    description character varying(500),
+    comment_on_event_enabled boolean DEFAULT true NOT NULL,
+    template boolean DEFAULT false,
+    instance boolean DEFAULT false NOT NULL,
+    comment_detail smallint,
+    integration_properties jsonb
+);
+
+CREATE VIEW public.integrations AS
+ WITH RECURSIVE services_with_parent AS (
+         SELECT services.id,
+            services.project_id,
+            services.integration_properties,
+            regexp_replace((services.type)::text, 'Service'::text, 'Integration'::text) AS type,
+            NULLIF(parent.id, services.id) AS parent_id
+           FROM (public.services
+             JOIN public.services parent ON ((((services.type)::text = (parent.type)::text) AND (parent.instance IS TRUE))))
+        ), recursive_services AS (
+         SELECT services_with_parent.id,
+            services_with_parent.project_id,
+            services_with_parent.integration_properties,
+            services_with_parent.type,
+            services_with_parent.parent_id,
+            services_with_parent.integration_properties AS settings,
+            1 AS level
+           FROM services_with_parent
+          WHERE (services_with_parent.parent_id IS NULL)
+        UNION ALL
+         SELECT services_with_parent.id,
+            services_with_parent.project_id,
+            services_with_parent.integration_properties,
+            services_with_parent.type,
+            services_with_parent.parent_id,
+            public.jsonb_merge_accum(recursive_services_1.integration_properties, services_with_parent.integration_properties) AS settings,
+            (recursive_services_1.level + 1) AS level
+           FROM (recursive_services recursive_services_1
+             JOIN services_with_parent ON ((recursive_services_1.id = services_with_parent.parent_id)))
+        )
+ SELECT recursive_services.id,
+    recursive_services.project_id,
+    recursive_services.integration_properties,
+    recursive_services.type,
+    recursive_services.parent_id,
+    recursive_services.settings,
+    recursive_services.level
+   FROM recursive_services;
+
 CREATE TABLE public.internal_ids (
     id bigint NOT NULL,
     project_id integer,
@@ -5992,36 +6074,6 @@ CREATE TABLE public.service_desk_settings (
     issue_template_key character varying(255),
     outgoing_name character varying(255),
     project_key character varying(255)
-);
-
-CREATE TABLE public.services (
-    id integer NOT NULL,
-    type character varying,
-    title character varying,
-    project_id integer,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone,
-    active boolean DEFAULT false NOT NULL,
-    properties text,
-    push_events boolean DEFAULT true,
-    issues_events boolean DEFAULT true,
-    merge_requests_events boolean DEFAULT true,
-    tag_push_events boolean DEFAULT true,
-    note_events boolean DEFAULT true NOT NULL,
-    category character varying DEFAULT 'common'::character varying NOT NULL,
-    "default" boolean DEFAULT false,
-    wiki_page_events boolean DEFAULT true,
-    pipeline_events boolean DEFAULT false NOT NULL,
-    confidential_issues_events boolean DEFAULT true NOT NULL,
-    commit_events boolean DEFAULT true NOT NULL,
-    job_events boolean DEFAULT false NOT NULL,
-    confidential_note_events boolean DEFAULT true,
-    deployment_events boolean DEFAULT false NOT NULL,
-    description character varying(500),
-    comment_on_event_enabled boolean DEFAULT true NOT NULL,
-    template boolean DEFAULT false,
-    instance boolean DEFAULT false NOT NULL,
-    comment_detail smallint
 );
 
 CREATE SEQUENCE public.services_id_seq
@@ -13708,5 +13760,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200429181955
 20200429182245
 20200506125731
+20200506190642
+20200508191230
 \.
 

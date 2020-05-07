@@ -22,7 +22,7 @@ describe EmailsOnPushService do
   end
 
   context 'when properties is missing branches_to_be_notified' do
-    subject { described_class.new(properties: {}) }
+    subject { described_class.new(integration_properties: {}) }
 
     it 'sets the default value to all' do
       expect(subject.branches_to_be_notified).to eq('all')
@@ -30,7 +30,7 @@ describe EmailsOnPushService do
   end
 
   context 'when branches_to_be_notified is already set' do
-    subject { described_class.new(properties: { branches_to_be_notified: 'protected' }) }
+    subject { described_class.new(integration_properties: { branches_to_be_notified: 'protected' }) }
 
     it 'does not overwrite it with the default value' do
       expect(subject.branches_to_be_notified).to eq('protected')
