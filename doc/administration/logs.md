@@ -732,6 +732,29 @@ Each line contains a JSON line that can be ingested by Elasticsearch. For exampl
 }
 ```
 
+## `unleash.log`
+
+> Introduced in GitLab MILESTONE_GOES_HERE.
+
+This file lives in
+`/var/log/gitlab/gitlab-rails/unleash.log` for Omnibus GitLab
+packages or in `/home/git/gitlab/log/unleash.log` for installations
+from source.
+
+It logs information related to the Unleash integration including errors.
+
+Each line contains a JSON line that can be ingested by services like Elasticsearch and Splunk.
+Line breaks have been added to the following example line for clarity:
+
+```json
+{
+  "severity":"DEBUG",
+  "time":"2020-04-07T20:35:15.488Z",
+  "correlation_id":"trOgcyWNPq",
+  "message":"FeatureToggle (enabled:true default_result:false and Strategies combined returned true)"
+}
+```
+
 ## `geo.log` **(PREMIUM ONLY)**
 
 > Introduced in 9.5.
