@@ -87,10 +87,10 @@ export default {
 
 <template>
   <div data-qa-selector="burnup_chart">
-    <div class="burn-header d-flex align-items-center">
+    <div class="burndown-header d-flex align-items-center">
       <h3>{{ __('Burnup chart') }}</h3>
     </div>
-    <resizable-chart-container class="burndown-chart js-burnup-chart">
+    <resizable-chart-container class="js-burnup-chart">
       <gl-line-chart :data="dataSeries" :option="options" :format-tooltip-text="formatTooltipText">
         <template slot="tooltipTitle">{{ tooltip.title }}</template>
         <template slot="tooltipContent">{{ tooltip.content }}</template>
