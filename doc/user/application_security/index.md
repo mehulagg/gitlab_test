@@ -197,7 +197,7 @@ This threshold is defined as `high`, `critical`, or `unknown` severity. When any
 present within a merge request, an approval is required from the `Vulnerability-Check` approver
 group.
 
-### Enabling Security Approvals within a project
+### Enabling Security Approvals within a project 
 
 To enable Security Approvals, a [project approval rule](../project/merge_requests/merge_request_approvals.md#multiple-approval-rules-premium)
 must be created with the case-sensitive name `Vulnerability-Check`. This approval group must be set
