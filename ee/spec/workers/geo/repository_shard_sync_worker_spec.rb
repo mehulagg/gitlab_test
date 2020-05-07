@@ -27,6 +27,12 @@ describe Geo::RepositoryShardSyncWorker, :geo, :geo_fdw, :clean_gitlab_redis_cac
       Gitlab::ShardHealthCache.update([shard_name])
     end
 
+    describe 'logging' do
+      let(:perform) { subject.perform(shard_name) }
+
+      it_behaves_like 'logs trigger info', 'backfill'
+    end
+
     it 'performs Geo::ProjectSyncWorker for each project' do
       expect(Geo::ProjectSyncWorker).to receive(:perform_async).twice.and_return(spy)
 

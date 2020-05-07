@@ -19,6 +19,12 @@ describe Geo::FileDownloadDispatchWorker, :geo, :geo_fdw, :use_sql_query_cache_f
     WebMock.stub_request(:get, /primary-geo-node/).to_return(status: 200, body: "", headers: {})
   end
 
+  describe 'logging' do
+    let(:perform) { subject.perform }
+
+    it_behaves_like 'logs trigger info', 'backfill'
+  end
+
   it 'does not schedule anything when tracking database is not configured' do
     create(:lfs_object, :with_file)
 

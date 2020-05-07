@@ -23,6 +23,12 @@ describe Geo::Secondary::RepositoryBackfillWorker, :geo, :geo_fdw, :clean_gitlab
   end
 
   describe '#perform' do
+    describe 'logging' do
+      let(:perform) { subject.perform(shard_name) }
+
+      it_behaves_like 'logs trigger info', 'backfill'
+    end
+
     it 'does not schedule jobs when Geo database is not configured' do
       create(:project)
 

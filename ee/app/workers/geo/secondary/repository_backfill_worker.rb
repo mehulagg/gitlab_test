@@ -117,6 +117,10 @@ module Geo
           .select(:id)
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      def trigger_log_data
+        { trigger_type: 'backfill' }
+      end
     end
   end
 end

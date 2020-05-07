@@ -15,6 +15,10 @@ module Gitlab
           container_repository_name: container_repository.name
         }.compact
       end
+
+      def trigger_log_data
+        { trigger_type: 'rescheduled' }
+      end
     end
   end
 end

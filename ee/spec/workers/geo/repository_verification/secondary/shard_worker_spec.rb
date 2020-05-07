@@ -22,6 +22,12 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :geo, :geo_fdw, :r
       Gitlab::ShardHealthCache.update([shard_name])
     end
 
+    describe 'logging' do
+      let(:perform) { subject.perform(shard_name) }
+
+      it_behaves_like 'logs trigger info', 'backfill'
+    end
+
     context 'shard worker scheduler' do
       it 'acquires lock namespacing it per shard name' do
         subject.perform(shard_name)

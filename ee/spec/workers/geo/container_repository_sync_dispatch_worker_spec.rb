@@ -18,6 +18,12 @@ describe Geo::ContainerRepositorySyncDispatchWorker, :geo, :geo_fdw, :use_sql_qu
     stub_registry_replication_config(enabled: true)
   end
 
+  describe 'logging' do
+    let(:perform) { subject.perform }
+
+    it_behaves_like 'logs trigger info', 'backfill'
+  end
+
   it 'does not schedule anything when tracking database is not configured' do
     create(:container_repository)
 

@@ -83,6 +83,10 @@ module Geo
         super(message).merge(worker_metadata)
       end
 
+      def trigger_log_data
+        { trigger_type: 'backfill' }
+      end
+
       def db_retrieve_batch_size
         DB_RETRIEVE_BATCH_SIZE
       end

@@ -15,4 +15,14 @@ describe Geo::RepositoryBaseSyncService do
       expect(subject.lease_key).to eq('geo_sync_service:wiki:999')
     end
   end
+
+  describe '#execute' do
+    let(:perform) { subject.execute }
+
+    before do
+      allow(subject).to receive(:sync_repository).and_return(true)
+    end
+
+    it_behaves_like 'logs trigger info', 'rescheduled'
+  end
 end

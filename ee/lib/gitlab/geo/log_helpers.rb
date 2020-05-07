@@ -26,7 +26,13 @@ module Gitlab
           host: Gitlab.config.gitlab.host,
           message: message,
           job_id: get_sidekiq_job_id
-        }.merge(extra_log_data).compact
+        }.merge(extra_log_data)
+        .merge(trigger_log_data)
+        .compact
+      end
+
+      def trigger_log_data
+        {}
       end
 
       # Intended to be overidden elsewhere

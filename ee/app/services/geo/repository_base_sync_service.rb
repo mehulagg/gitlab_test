@@ -257,5 +257,9 @@ module Geo
       checksum = project.repository_state.public_send("#{type}_verification_checksum") # rubocop:disable GitlabSecurity/PublicSend
       checksum && checksum != Gitlab::Git::Repository::EMPTY_REPOSITORY_CHECKSUM
     end
+
+    def trigger_log_data
+      { trigger_type: 'rescheduled' }
+    end
   end
 end

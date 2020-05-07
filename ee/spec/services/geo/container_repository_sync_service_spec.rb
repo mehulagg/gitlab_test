@@ -81,6 +81,12 @@ describe Geo::ContainerRepositorySyncService, :geo do
 
       expect(registry.synced?).to be_truthy
     end
+
+    describe 'logging' do
+      let(:perform) { described_class.new(container_repository).execute }
+
+      it_behaves_like 'logs trigger info', 'rescheduled'
+    end
   end
 
   context 'race condition when ContainerRepositoryUpdatedEvent was processed during a sync' do
