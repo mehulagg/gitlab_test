@@ -6,9 +6,12 @@ module EE
     extend ::Gitlab::Utils::Override
 
     prepended do
+      include CrudPolicyHelpers
+
       with_scope :subject
       condition(:ldap_synced) { @subject.ldap_synced? }
       condition(:epics_available) { @subject.feature_available?(:epics) }
+      condition(:iterations_available) { @subject.feature_available?(:iterations) }
       condition(:subepics_available) { @subject.feature_available?(:subepics) }
       condition(:contribution_analytics_available) do
         @subject.feature_available?(:contribution_analytics)
@@ -67,6 +70,13 @@ module EE
         License.feature_available?(:cluster_health)
       end
 
+      rule { public_group | logged_in_viewable }.policy do
+        enable :read_wiki
+        enable :download_wiki_code
+      end
+
+      rule { guest }.enable :read_wiki
+
       rule { reporter }.policy do
         enable :admin_list
         enable :admin_board
@@ -74,11 +84,13 @@ module EE
         enable :view_productivity_analytics
         enable :view_type_of_work_charts
         enable :read_group_timelogs
+        enable :download_wiki_code
       end
 
       rule { maintainer }.policy do
         enable :create_jira_connect_subscription
         enable :maintainer_access
+        enable :admin_wiki
       end
 
       rule { owner }.policy do
@@ -105,6 +117,13 @@ module EE
         .enable :admin_dependency_proxy
 
       rule { can?(:read_group) & epics_available }.enable :read_epic
+
+      rule { can?(:read_group) & iterations_available }.enable :read_iteration
+
+      rule { developer & iterations_available }.policy do
+        enable :create_iteration
+        enable :admin_iteration
+      end
 
       rule { reporter & epics_available }.policy do
         enable :create_epic
@@ -152,6 +171,7 @@ module EE
       end
 
       rule { developer }.policy do
+        enable :create_wiki
         enable :admin_merge_request
       end
 
@@ -181,6 +201,14 @@ module EE
       rule { ~(admin | allow_to_manage_default_branch_protection) }.policy do
         prevent :update_default_branch_protection
       end
+
+      desc "Group has wiki disabled"
+      condition(:wiki_disabled, score: 32) { !feature_available?(:wiki) }
+
+      rule { wiki_disabled }.policy do
+        prevent(*create_read_update_admin_destroy(:wiki))
+        prevent(:download_wiki_code)
+      end
     end
 
     override :lookup_access_level!
@@ -188,6 +216,21 @@ module EE
       return ::GroupMember::NO_ACCESS if needs_new_sso_session?
 
       super
+    end
+
+    # TODO: Extract this into a helper shared with ProjectPolicy, once we implement group-level features.
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/208412
+    def feature_available?(feature)
+      return false unless feature == :wiki
+
+      case subject.wiki_access_level
+      when ::ProjectFeature::DISABLED
+        false
+      when ::ProjectFeature::PRIVATE
+        admin? || access_level >= ::ProjectFeature.required_minimum_access_level(feature)
+      else
+        true
+      end
     end
 
     def ldap_lock_bypassable?

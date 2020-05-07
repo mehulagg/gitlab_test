@@ -322,7 +322,9 @@ class Project < ApplicationRecord
   has_many :import_failures, inverse_of: :project
   has_many :jira_imports, -> { order 'jira_imports.created_at' }, class_name: 'JiraImportState', inverse_of: :project
 
-  has_many :daily_report_results, class_name: 'Ci::DailyReportResult'
+  has_many :daily_build_group_report_results, class_name: 'Ci::DailyBuildGroupReportResult'
+
+  has_many :repository_storage_moves, class_name: 'ProjectRepositoryStorageMove'
 
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
@@ -1519,6 +1521,10 @@ class Project < ApplicationRecord
     end
   end
 
+  def bots
+    users.project_bot
+  end
+
   # Filters `users` to return only authorized users of the project
   def members_among(users)
     if users.is_a?(ActiveRecord::Relation) && !users.loaded?
@@ -2069,7 +2075,12 @@ class Project < ApplicationRecord
 
     raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
 
-    run_after_commit { ProjectUpdateRepositoryStorageWorker.perform_async(id, new_repository_storage_key) }
+    storage_move = repository_storage_moves.create!(
+      source_storage_name: repository_storage,
+      destination_storage_name: new_repository_storage_key
+    )
+    storage_move.schedule!
+
     self.repository_read_only = true
   end
 

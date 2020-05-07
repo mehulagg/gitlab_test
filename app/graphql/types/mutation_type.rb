@@ -7,9 +7,11 @@ module Types
     graphql_name 'Mutation'
 
     mount_mutation Mutations::Admin::SidekiqQueues::DeleteJobs
+    mount_mutation Mutations::AlertManagement::UpdateAlertStatus
     mount_mutation Mutations::AwardEmojis::Add
     mount_mutation Mutations::AwardEmojis::Remove
     mount_mutation Mutations::AwardEmojis::Toggle
+    mount_mutation Mutations::Branches::Create, calls_gitaly: true
     mount_mutation Mutations::Issues::SetConfidential
     mount_mutation Mutations::Issues::SetDueDate
     mount_mutation Mutations::Issues::Update

@@ -25,7 +25,7 @@ describe Gitlab::BackgroundMigration::BackfillSnippetRepositories, :migration, s
                  confirmed_at: 1.day.ago)
   end
 
-  let!(:admin) { users.create(id: 2, email: 'admin@example.com', projects_limit: 10, username: 'admin', name: 'Admin', admin: true, state: 'active') }
+  let(:migration_bot) { User.migration_bot }
   let!(:snippet_with_repo) { snippets.create(id: 1, type: 'PersonalSnippet', author_id: user.id, file_name: file_name, content: content) }
   let!(:snippet_with_empty_repo) { snippets.create(id: 2, type: 'PersonalSnippet', author_id: user.id, file_name: file_name, content: content) }
   let!(:snippet_without_repo) { snippets.create(id: 3, type: 'PersonalSnippet', author_id: user.id, file_name: file_name, content: content) }
@@ -88,34 +88,34 @@ describe Gitlab::BackgroundMigration::BackfillSnippetRepositories, :migration, s
       end
 
       context 'when author cannot update snippet or use git' do
-        shared_examples 'admin user commits files' do
+        shared_examples 'migration_bot user commits files' do
           it do
             subject
 
             last_commit = raw_repository(snippet).commit
 
-            expect(last_commit.author_name).to eq admin.name
-            expect(last_commit.author_email).to eq admin.email
+            expect(last_commit.author_name).to eq migration_bot.name
+            expect(last_commit.author_email).to eq migration_bot.email
           end
         end
 
         context 'when user is blocked' do
           let(:user_state) { 'blocked' }
 
-          it_behaves_like 'admin user commits files'
+          it_behaves_like 'migration_bot user commits files'
         end
 
         context 'when user is deactivated' do
           let(:user_state) { 'deactivated' }
 
-          it_behaves_like 'admin user commits files'
+          it_behaves_like 'migration_bot user commits files'
         end
 
         context 'when user is a ghost' do
           let(:ghost) { true }
           let(:user_type) { 'ghost' }
 
-          it_behaves_like 'admin user commits files'
+          it_behaves_like 'migration_bot user commits files'
         end
       end
     end
@@ -174,6 +174,48 @@ describe Gitlab::BackgroundMigration::BackfillSnippetRepositories, :migration, s
           expect(repository_exists?(snippet_with_repo)).to be_falsey
           expect(repository_exists?(snippet_without_repo)).to be_falsey
           expect(repository_exists?(snippet_with_empty_repo)).to be_falsey
+        end
+      end
+    end
+
+    context 'with invalid file names' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:invalid_file_name, :converted_file_name) do
+        'filename.js // with comment'       | 'filename-js-with-comment'
+        '.git/hooks/pre-commit'             | 'git-hooks-pre-commit'
+        'https://gitlab.com'                | 'https-gitlab-com'
+        'html://web.title%mp4/mpg/mpeg.net' | 'html-web-title-mp4-mpg-mpeg-net'
+        '../../etc/passwd'                  | 'etc-passwd'
+        '.'                                 | 'snippetfile1.txt'
+      end
+
+      with_them do
+        let!(:snippet_with_invalid_path) { snippets.create(id: 4, type: 'PersonalSnippet', author_id: user.id, file_name: invalid_file_name, content: content) }
+        let!(:snippet_with_valid_path) { snippets.create(id: 5, type: 'PersonalSnippet', author_id: user.id, file_name: file_name, content: content) }
+        let(:ids) { [4, 5] }
+
+        after do
+          raw_repository(snippet_with_invalid_path).remove
+          raw_repository(snippet_with_valid_path).remove
+        end
+
+        it 'checks for file path errors when errors are raised' do
+          expect(service).to receive(:set_file_path_error).once.and_call_original
+
+          subject
+        end
+
+        it 'converts invalid filenames' do
+          subject
+
+          expect(blob_at(snippet_with_invalid_path, converted_file_name)).to be
+        end
+
+        it 'does not convert valid filenames on subsequent migrations' do
+          subject
+
+          expect(blob_at(snippet_with_valid_path, file_name)).to be
         end
       end
     end

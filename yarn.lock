@@ -782,15 +782,15 @@
     eslint-plugin-vue "^6.2.1"
     vue-eslint-parser "^7.0.0"
 
-"@gitlab/svgs@1.121.0":
-  version "1.121.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.121.0.tgz#77083a68f72e9aa0e294da7715f378eef13b839e"
-  integrity sha512-scz/6Y/eED7RMFLAlhT6PwXwe0Wj8ivnRsyulk9NXKoqUmAqZliNmBmzYsHy5bFf9NB6xVV/rOk1/92nbi/Yaw==
+"@gitlab/svgs@1.125.0":
+  version "1.125.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.125.0.tgz#59c667dae8f7e4c80b482f5f6cc35367c016387b"
+  integrity sha512-MKfFYa8f+9P2tJ/JN/E9oDBSSo/gRz2zuGui4XHQPoaw/DkIMn7EyAzeSpRgbgs1LgMcEqqKsIEx+spCga3jsQ==
 
-"@gitlab/ui@13.6.1":
-  version "13.6.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-13.6.1.tgz#dbf1941ed762381e83f557c5ee6cc860dacee03b"
-  integrity sha512-r8R5O8xPQUxi0yrzT5svbFhtHiZkdaf+GcXALF5oRgDTut6qOqWZ7RllHPo7RNBlyBbP30FiFvXjZlvN3PZaWQ==
+"@gitlab/ui@14.0.0":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-14.0.0.tgz#d478b1454659c0f54b72cdecce1c2014fc5f8564"
+  integrity sha512-R+unP0mOBYQ+uRJLm/tI+2znsbsHY2rumSYtMqM3vGCXasteySQIMZ8huWGa5Cf4ZUdy1lNa0J/zxKj6TLdjCQ==
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
@@ -803,8 +803,6 @@
     portal-vue "^2.1.6"
     resize-observer-polyfill "^1.5.1"
     url-search-params-polyfill "^5.0.0"
-    vue "^2.6.10"
-    vue-loader "^15.4.2"
     vue-runtime-helpers "^1.1.2"
 
 "@gitlab/visual-review-tools@1.6.1":
@@ -985,6 +983,11 @@
     consola "^2.10.1"
     node-fetch "^2.6.0"
 
+"@rails/actioncable@^6.0.2-2":
+  version "6.0.2-2"
+  resolved "https://registry.yarnpkg.com/@rails/actioncable/-/actioncable-6.0.2-2.tgz#237907f8111707950381387c273b19ac25958408"
+  integrity sha512-0sKStf8hnberH1TKup10PJ92JT2dVqf3gf+OT4lJ7DiYSBEuDcvICHxWsyML2oWTpjUhC4kLvUJ3pXL2JJrJuQ==
+
 "@sentry/browser@^5.10.2":
   version "5.10.2"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.10.2.tgz#0bbb05505c58ea998c833cffec3f922fe4b4fa58"
@@ -1037,10 +1040,10 @@
     "@sentry/types" "5.10.0"
     tslib "^1.9.3"
 
-"@sourcegraph/code-host-integration@0.0.37":
-  version "0.0.37"
-  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.37.tgz#87f9a602e2a60520b6038311a67face2ece86827"
-  integrity sha512-GQvNuPORLjsMhto57Ue1umeSV3cir+hMEaGxwCKmmq+cc9ZSZpuXa8RVBXuT5azN99K9/8zFps4woyPJ8wrjYA==
+"@sourcegraph/code-host-integration@0.0.46":
+  version "0.0.46"
+  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.46.tgz#05e4cda671ed00450be12461e6a3caff473675aa"
+  integrity sha512-ghzfaV5ydSWTamLPIDLl5tRvTtM2MBDRmQbWTPg9ZoCP/eHk61uCTAFEq02lsefDQHISZHldeClqRYhZvGDZfw==
 
 "@toast-ui/editor@^2.0.1":
   version "2.0.1"
@@ -7966,6 +7969,11 @@ mississippi@^3.0.0:
     stream-each "^1.1.0"
     through2 "^2.0.0"
 
+mitt@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/mitt/-/mitt-1.2.0.tgz#cb24e6569c806e31bd4e3995787fe38a04fdf90d"
+  integrity sha512-r6lj77KlwqLhIUku9UWYes7KJtsczvolZkzp8hbaDPPaE24OmWl5s539Mytlj22siEQKosZ26qCBgda2PKwoJw==
+
 mixin-deep@^1.2.0:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/mixin-deep/-/mixin-deep-1.3.2.tgz#1120b43dc359a785dce65b55b82e257ccf479566"
@@ -11857,7 +11865,7 @@ vue-jest@^4.0.0-beta.2:
     source-map "^0.5.6"
     ts-jest "^23.10.5"
 
-vue-loader@^15.4.2, vue-loader@^15.9.0:
+vue-loader@^15.9.0:
   version "15.9.0"
   resolved "https://registry.yarnpkg.com/vue-loader/-/vue-loader-15.9.0.tgz#5d4b0378a4606188fc83e587ed23c94bc3a10998"
   integrity sha512-FeDHvTSpwyLeF7LIV1PYkvqUQgTJ8UmOxhSlCyRSxaXCKk+M6NF4tDQsLsPPNeDPyR7TfRQ8MLg6v+8PsDV9xQ==

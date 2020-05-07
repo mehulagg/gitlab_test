@@ -89,7 +89,7 @@ or over the size limit, you can [reduce your repository size with Git](../projec
 | Repository size including LFS | 10G         | Unlimited     |
 
 NOTE: **Note:**
-A single `git push` is limited to 5GB. LFS is not affected by this limit.
+`git push` and GitLab project imports are limited to 5GB per request. Git LFS and imports other than a file upload are not affected by this limit.
 
 ## IP range
 
@@ -157,7 +157,7 @@ can be used for:
 - Downloading assets from a CDN
 - Any other commands that must run before the `git init`
 
-To use this feature, define a [CI/CD variable](../../ci/variables/README.md#via-the-ui) called
+To use this feature, define a [CI/CD variable](../../ci/variables/README.md#create-a-custom-variable-in-the-ui) called
 `CI_PRE_CLONE_SCRIPT` that contains a bash script.
 
 [This example](../../development/pipelines.md#pre-clone-step)

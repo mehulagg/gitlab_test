@@ -73,12 +73,14 @@ describe Spam::SpamActionService do
   describe '#execute' do
     let(:request) { double(:request, env: env) }
     let(:fake_verdict_service) { double(:spam_verdict_service) }
+    let(:allowlisted) { false }
 
     let_it_be(:existing_spam_log) { create(:spam_log, user: user, recaptcha_verified: false) }
 
     subject do
       described_service = described_class.new(spammable: issue, request: request)
-      described_service.execute(user_id: user.id, api: nil, recaptcha_verified: recaptcha_verified, spam_log_id: existing_spam_log.id)
+      allow(described_service).to receive(:allowlisted?).and_return(allowlisted)
+      described_service.execute(user: user, api: nil, recaptcha_verified: recaptcha_verified, spam_log_id: existing_spam_log.id)
     end
 
     before do
@@ -119,6 +121,16 @@ describe Spam::SpamActionService do
       context 'when spammable attributes have changed' do
         before do
           issue.description = 'SPAM!'
+        end
+
+        context 'if allowlisted' do
+          let(:allowlisted) { true }
+
+          it 'does not perform spam check' do
+            expect(Spam::SpamVerdictService).not_to receive(:new)
+
+            subject
+          end
         end
 
         context 'when disallowed by the spam verdict service' do

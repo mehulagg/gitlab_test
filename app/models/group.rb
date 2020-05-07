@@ -15,7 +15,6 @@ class Group < Namespace
   include WithUploads
   include Gitlab::Utils::StrongMemoize
   include GroupAPICompatibility
-  include HasWiki
 
   ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT = 10
 
@@ -477,16 +476,6 @@ class Group < Namespace
 
   def adjourned_deletion?
     false
-  end
-
-  def wiki_access_level
-    # TODO: Remove this method once we implement group-level features.
-    # https://gitlab.com/gitlab-org/gitlab/-/issues/208412
-    if Feature.enabled?(:group_wiki, self)
-      ProjectFeature::ENABLED
-    else
-      ProjectFeature::DISABLED
-    end
   end
 
   private

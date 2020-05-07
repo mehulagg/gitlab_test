@@ -89,7 +89,7 @@ downtime_check:
       - rspec_profiling/
       - tmp/capybara/
       - tmp/memory_test/
-      - junit_rspec.xml
+      - log/*.log
     reports:
       junit: junit_rspec.xml
 
@@ -141,9 +141,10 @@ db:migrate:reset:
     - bundle exec rake db:migrate:reset
 
 db:check-schema:
-  extends: .db-job-base
+  extends:
+    - .db-job-base
+    - .rails:rules:ee-mr-and-master-only
   script:
-    - scripts/regenerate-schema
     - source scripts/schema_changed.sh
 
 db:migrate-from-v11.11.0:

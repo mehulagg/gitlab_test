@@ -214,6 +214,11 @@ msgid_plural "%d tags"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d unresolved thread"
+msgid_plural "%d unresolved threads"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%d vulnerability dismissed"
 msgid_plural "%d vulnerabilities dismissed"
 msgstr[0] ""
@@ -234,6 +239,9 @@ msgid "%{commit_author_link} authored %{commit_timeago}"
 msgstr ""
 
 msgid "%{completedWeight} of %{totalWeight} weight completed"
+msgstr ""
+
+msgid "%{containerScanningLinkStart}Container Scanning%{containerScanningLinkEnd} and/or %{dependencyScanningLinkStart}Dependency Scanning%{dependencyScanningLinkEnd} must be enabled. %{securityBotLinkStart}GitLab-Security-Bot%{securityBotLinkEnd} will be the author of the auto-created merge request. %{moreInfoLinkStart}More information%{moreInfoLinkEnd}."
 msgstr ""
 
 msgid "%{cores} cores"
@@ -1351,7 +1359,7 @@ msgstr ""
 msgid "Adds an issue to an epic."
 msgstr ""
 
-msgid "Adjust your filters/search criteria above."
+msgid "Adjust your filters/search criteria above. If you believe this may be an error, please refer to the %{linkStart}Geo Troubleshooting%{linkEnd} documentation for more information."
 msgstr ""
 
 msgid "Admin Area"
@@ -1692,13 +1700,16 @@ msgid_plural "Alerts"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Alert Details"
-msgstr ""
-
 msgid "AlertManagement|Acknowledged"
 msgstr ""
 
 msgid "AlertManagement|Alert"
+msgstr ""
+
+msgid "AlertManagement|Alert detail"
+msgstr ""
+
+msgid "AlertManagement|Alerts"
 msgstr ""
 
 msgid "AlertManagement|Authorize external service"
@@ -1825,6 +1836,9 @@ msgid "All projects"
 msgstr ""
 
 msgid "All security scans are enabled because %{linkStart}Auto DevOps%{linkEnd} is enabled on this project"
+msgstr ""
+
+msgid "All threads resolved"
 msgstr ""
 
 msgid "All users"
@@ -2751,6 +2765,27 @@ msgstr ""
 msgid "AuditEvents|Target"
 msgstr ""
 
+msgid "AuditLogs|(removed)"
+msgstr ""
+
+msgid "AuditLogs|Action"
+msgstr ""
+
+msgid "AuditLogs|Author"
+msgstr ""
+
+msgid "AuditLogs|Date"
+msgstr ""
+
+msgid "AuditLogs|IP Address"
+msgstr ""
+
+msgid "AuditLogs|Object"
+msgstr ""
+
+msgid "AuditLogs|Target"
+msgstr ""
+
 msgid "Aug"
 msgstr ""
 
@@ -2880,6 +2915,9 @@ msgstr ""
 msgid "Automatic certificate management using Let's Encrypt"
 msgstr ""
 
+msgid "Automatically create merge requests for vulnerabilities that have fixes available."
+msgstr ""
+
 msgid "Automatically marked as default internal user"
 msgstr ""
 
@@ -2893,6 +2931,9 @@ msgid "Autosave|Note"
 msgstr ""
 
 msgid "Available"
+msgstr ""
+
+msgid "Available for dependency and container scanning"
 msgstr ""
 
 msgid "Available group Runners: %{runners}"
@@ -3379,12 +3420,6 @@ msgid "Business"
 msgstr ""
 
 msgid "Business metrics (Custom)"
-msgstr ""
-
-msgid "Buy EE"
-msgstr ""
-
-msgid "Buy GitLab Enterprise Edition"
 msgstr ""
 
 msgid "Buy more Pipeline minutes"
@@ -5564,16 +5599,7 @@ msgstr ""
 msgid "Connection timed out"
 msgstr ""
 
-msgid "Contact an owner of group %{namespace_name} to upgrade the plan."
-msgstr ""
-
-msgid "Contact owner %{link_start}%{owner_name}%{link_end} to upgrade the plan."
-msgstr ""
-
 msgid "Contact sales to upgrade"
-msgstr ""
-
-msgid "Contact your Administrator to upgrade your license."
 msgstr ""
 
 msgid "Container Registry"
@@ -5687,6 +5713,9 @@ msgstr ""
 msgid "ContainerRegistry|Regular expressions such as %{codeStart}.*-test%{codeEnd} or %{codeStart}dev-.*%{codeEnd} are supported. To select all tags, use %{codeStart}.*%{codeEnd}"
 msgstr ""
 
+msgid "ContainerRegistry|Remember to run %{docLinkStart}garbage collection%{docLinkEnd} to remove the stale data from storage."
+msgstr ""
+
 msgid "ContainerRegistry|Remove repository"
 msgstr ""
 
@@ -5701,12 +5730,6 @@ msgstr[1] ""
 msgid "ContainerRegistry|Retention policy has been Enabled"
 msgstr ""
 
-msgid "ContainerRegistry|Something went wrong while deleting the tag."
-msgstr ""
-
-msgid "ContainerRegistry|Something went wrong while deleting the tags."
-msgstr ""
-
 msgid "ContainerRegistry|Something went wrong while fetching the expiration policy."
 msgstr ""
 
@@ -5714,6 +5737,12 @@ msgid "ContainerRegistry|Something went wrong while fetching the repository list
 msgstr ""
 
 msgid "ContainerRegistry|Something went wrong while fetching the tags list."
+msgstr ""
+
+msgid "ContainerRegistry|Something went wrong while marking the tag for deletion."
+msgstr ""
+
+msgid "ContainerRegistry|Something went wrong while marking the tags for deletion."
 msgstr ""
 
 msgid "ContainerRegistry|Something went wrong while scheduling %{title} for deletion. Please try again."
@@ -5725,16 +5754,16 @@ msgstr ""
 msgid "ContainerRegistry|Tag"
 msgstr ""
 
-msgid "ContainerRegistry|Tag deleted successfully"
-msgstr ""
-
 msgid "ContainerRegistry|Tag expiration policy"
 msgstr ""
 
 msgid "ContainerRegistry|Tag expiration policy is designed to:"
 msgstr ""
 
-msgid "ContainerRegistry|Tags deleted successfully"
+msgid "ContainerRegistry|Tag successfully marked for deletion."
+msgstr ""
+
+msgid "ContainerRegistry|Tags successfully marked for deletion."
 msgstr ""
 
 msgid "ContainerRegistry|Tags with names matching this regex pattern will %{italicStart}be preserved:%{italicEnd}"
@@ -5765,9 +5794,6 @@ msgid "ContainerRegistry|There are no container images stored for this project"
 msgstr ""
 
 msgid "ContainerRegistry|There was an error during the deletion of this image repository, please try again."
-msgstr ""
-
-msgid "ContainerRegistry|This Registry contains deleted image tag data. Remember to run  %{docLinkStart}garbage collection%{docLinkEnd} to remove the stale data from storage."
 msgstr ""
 
 msgid "ContainerRegistry|This image has no active tags"
@@ -6046,6 +6072,9 @@ msgstr ""
 msgid "Could not revoke personal access token %{personal_access_token_name}."
 msgstr ""
 
+msgid "Could not revoke project access token %{project_access_token_name}."
+msgstr ""
+
 msgid "Could not save group ID"
 msgstr ""
 
@@ -6101,6 +6130,9 @@ msgid "Create a merge request"
 msgstr ""
 
 msgid "Create a new branch"
+msgstr ""
+
+msgid "Create a new deploy key for this project"
 msgstr ""
 
 msgid "Create a new file as there are no files yet. Afterwards, you'll be able to commit your changes."
@@ -6591,6 +6623,9 @@ msgstr ""
 msgid "CycleAnalytics|stage dropdown"
 msgstr ""
 
+msgid "DAG"
+msgstr ""
+
 msgid "DNS"
 msgstr ""
 
@@ -6955,6 +6990,9 @@ msgid "Deploy Keys"
 msgstr ""
 
 msgid "Deploy key was successfully updated."
+msgstr ""
+
+msgid "Deploy keys allow read-only or read-write (if enabled) access to your repository. Deploy keys can be used for CI, staging or production servers. You can create a deploy key or add an existing one."
 msgstr ""
 
 msgid "Deploy progress not found. To see pods, ensure your environment matches %{linkStart}deploy board criteria%{linkEnd}."
@@ -8315,6 +8353,9 @@ msgstr ""
 msgid "Epics|Something went wrong while fetching group epics."
 msgstr ""
 
+msgid "Epics|Something went wrong while moving item."
+msgstr ""
+
 msgid "Epics|Something went wrong while ordering item."
 msgstr ""
 
@@ -8351,7 +8392,10 @@ msgstr ""
 msgid "Error creating label."
 msgstr ""
 
-msgid "Error deleting  %{issuableType}"
+msgid "Error creating new iteration"
+msgstr ""
+
+msgid "Error deleting %{issuableType}"
 msgstr ""
 
 msgid "Error deleting project. Check logs for error details."
@@ -8526,9 +8570,6 @@ msgid "Errors:"
 msgstr ""
 
 msgid "Estimated"
-msgstr ""
-
-msgid "Event Actions"
 msgstr ""
 
 msgid "EventFilterBy|Filter by all"
@@ -9278,6 +9319,9 @@ msgstr ""
 msgid "Filter by user"
 msgstr ""
 
+msgid "Filter pipelines"
+msgstr ""
+
 msgid "Filter projects"
 msgstr ""
 
@@ -9288,6 +9332,9 @@ msgid "Filter results by group"
 msgstr ""
 
 msgid "Filter results by project"
+msgstr ""
+
+msgid "Filter results..."
 msgstr ""
 
 msgid "Filter your projects by name"
@@ -9743,16 +9790,19 @@ msgstr ""
 msgid "Geo|%{name} is scheduled for re-verify"
 msgstr ""
 
-msgid "Geo|All"
+msgid "Geo|Adjust your filters/search criteria above. If you believe this may be an error, please refer to the %{linkStart}Geo Troubleshooting%{linkEnd} documentation for more information."
+msgstr ""
+
+msgid "Geo|All %{replicable_name}"
 msgstr ""
 
 msgid "Geo|All projects"
 msgstr ""
 
-msgid "Geo|All projects are being scheduled for re-sync"
+msgid "Geo|All projects are being scheduled for resync"
 msgstr ""
 
-msgid "Geo|All projects are being scheduled for re-verify"
+msgid "Geo|All projects are being scheduled for reverify"
 msgstr ""
 
 msgid "Geo|Could not remove tracking entry for an existing project."
@@ -9861,6 +9911,9 @@ msgid "Geo|The database is currently %{db_lag} behind the primary node."
 msgstr ""
 
 msgid "Geo|The node is currently %{minutes_behind} behind the primary node."
+msgstr ""
+
+msgid "Geo|There are no %{replicable_type} to show"
 msgstr ""
 
 msgid "Geo|Tracking database entry will be removed. Are you sure?"
@@ -10977,13 +11030,10 @@ msgstr ""
 msgid "ID:"
 msgstr ""
 
-msgid "IDE|Allow live previews of JavaScript projects in the Web IDE using CodeSandbox client side evaluation."
+msgid "IDE|Allow live previews of JavaScript projects in the Web IDE using CodeSandbox Live Preview."
 msgstr ""
 
 msgid "IDE|Back"
-msgstr ""
-
-msgid "IDE|Client side evaluation"
 msgstr ""
 
 msgid "IDE|Commit"
@@ -11083,9 +11133,6 @@ msgid "If this was a mistake you can leave the %{source_type}."
 msgstr ""
 
 msgid "If using GitHub, you’ll see pipeline statuses on GitHub for your commits and pull requests. %{more_info_link}"
-msgstr ""
-
-msgid "If you believe this may be an error, please refer to the %{linkStart}Geo Troubleshooting%{linkEnd} documentation for more information."
 msgstr ""
 
 msgid "If you lose your recovery codes you can generate new ones, invalidating all previous codes."
@@ -11256,9 +11303,6 @@ msgstr ""
 msgid "Improve Merge Requests and customer support with GitLab Enterprise Edition."
 msgstr ""
 
-msgid "Improve issues management with Issue weight and GitLab Enterprise Edition."
-msgstr ""
-
 msgid "Improve search with Advanced Global Search and GitLab Enterprise Edition."
 msgstr ""
 
@@ -11361,6 +11405,12 @@ msgstr ""
 msgid "Insights"
 msgstr ""
 
+msgid "Insights|Some items are not visible beacuse the project was filtered out in the insights.yml file (see the projects.only config for more information)."
+msgstr ""
+
+msgid "Insights|This project is filtered out in the insights.yml file (see the projects.only config for more information)."
+msgstr ""
+
 msgid "Install"
 msgstr ""
 
@@ -11409,6 +11459,30 @@ msgid "Integrations"
 msgstr ""
 
 msgid "Integrations allow you to integrate GitLab with other applications"
+msgstr ""
+
+msgid "Integrations|All details"
+msgstr ""
+
+msgid "Integrations|Comment detail:"
+msgstr ""
+
+msgid "Integrations|Comment settings:"
+msgstr ""
+
+msgid "Integrations|Enable comments"
+msgstr ""
+
+msgid "Integrations|Includes Standard plus entire commit message, commit hash, and issue IDs"
+msgstr ""
+
+msgid "Integrations|Includes commit title and branch"
+msgstr ""
+
+msgid "Integrations|Standard"
+msgstr ""
+
+msgid "Integrations|When a Jira issue is mentioned in a commit or merge request a remote link and comment (if enabled) will be created."
 msgstr ""
 
 msgid "Interested parties can even contribute by pushing commits if they want to."
@@ -11712,6 +11786,12 @@ msgid "Jira integration not configured."
 msgstr ""
 
 msgid "Jira project: %{importProject}"
+msgstr ""
+
+msgid "JiraService| on branch %{branch_link}"
+msgstr ""
+
+msgid "JiraService|%{user_link} mentioned this issue in %{entity_link} of %{project_link}%{branch}:{quote}%{entity_message}{quote}"
 msgstr ""
 
 msgid "JiraService|Events for %{noteable_model_name} are disabled."
@@ -12139,6 +12219,9 @@ msgstr ""
 msgid "Learn more about Web Terminal"
 msgstr ""
 
+msgid "Learn more about X.509 signed commits"
+msgstr ""
+
 msgid "Learn more about adding certificates to your project by following the %{docs_link_start}documentation on GitLab Pages%{docs_link_end}."
 msgstr ""
 
@@ -12158,9 +12241,6 @@ msgid "Learn more about signing commits"
 msgstr ""
 
 msgid "Learn more about the dependency list"
-msgstr ""
-
-msgid "Learn more about x509 signed commits"
 msgstr ""
 
 msgid "Learn more in the"
@@ -12450,9 +12530,6 @@ msgid "List your Bitbucket Server repositories"
 msgstr ""
 
 msgid "Live preview"
-msgstr ""
-
-msgid "Load more vulnerabilities"
 msgstr ""
 
 msgid "Loading"
@@ -13177,7 +13254,7 @@ msgstr ""
 msgid "Metrics|For grouping similar metrics"
 msgstr ""
 
-msgid "Metrics|Go back"
+msgid "Metrics|Go back (Esc)"
 msgstr ""
 
 msgid "Metrics|Invalid time range, please verify."
@@ -13679,6 +13756,9 @@ msgstr ""
 msgid "New issue title"
 msgstr ""
 
+msgid "New iteration created"
+msgstr ""
+
 msgid "New label"
 msgstr ""
 
@@ -13752,9 +13832,6 @@ msgid "No %{header} for this request."
 msgstr ""
 
 msgid "No %{providerTitle} repositories found"
-msgstr ""
-
-msgid "No %{replicableType} match this filter"
 msgstr ""
 
 msgid "No Epic"
@@ -13938,15 +14015,6 @@ msgid "No test coverage"
 msgstr ""
 
 msgid "No thanks, don't show this again"
-msgstr ""
-
-msgid "No vulnerabilities found for this group"
-msgstr ""
-
-msgid "No vulnerabilities found for this pipeline"
-msgstr ""
-
-msgid "No vulnerabilities found for this project"
 msgstr ""
 
 msgid "No vulnerabilities present"
@@ -14374,6 +14442,9 @@ msgstr ""
 msgid "Operation failed. Check pod logs for %{pod_name} for more details."
 msgstr ""
 
+msgid "Operation not allowed"
+msgstr ""
+
 msgid "Operation timed out. Check pod logs for %{pod_name} for more details."
 msgstr ""
 
@@ -14506,6 +14577,9 @@ msgstr ""
 msgid "PackageRegistry|Conan Command"
 msgstr ""
 
+msgid "PackageRegistry|Copy .pypirc content"
+msgstr ""
+
 msgid "PackageRegistry|Copy Conan Command"
 msgstr ""
 
@@ -14525,6 +14599,9 @@ msgid "PackageRegistry|Copy NuGet Command"
 msgstr ""
 
 msgid "PackageRegistry|Copy NuGet Setup Command"
+msgstr ""
+
+msgid "PackageRegistry|Copy Pip command"
 msgstr ""
 
 msgid "PackageRegistry|Copy and paste this inside your %{codeStart}pom.xml%{codeEnd} %{codeStart}dependencies%{codeEnd} block."
@@ -14560,6 +14637,12 @@ msgstr ""
 msgid "PackageRegistry|For more information on the NuGet registry, %{linkStart}see the documentation%{linkEnd}."
 msgstr ""
 
+msgid "PackageRegistry|For more information on the PyPi registry, %{linkStart}see the documentation%{linkEnd}."
+msgstr ""
+
+msgid "PackageRegistry|If you haven't already done so, you will need to add the below to your %{codeStart}.pypirc%{codeEnd} file."
+msgstr ""
+
 msgid "PackageRegistry|If you haven't already done so, you will need to add the below to your %{codeStart}pom.xml%{codeEnd} file."
 msgstr ""
 
@@ -14588,6 +14671,9 @@ msgid "PackageRegistry|NuGet"
 msgstr ""
 
 msgid "PackageRegistry|NuGet Command"
+msgstr ""
+
+msgid "PackageRegistry|Pip Command"
 msgstr ""
 
 msgid "PackageRegistry|Pipeline %{linkStart}%{linkEnd} triggered %{timestamp} by %{author}"
@@ -14651,6 +14737,9 @@ msgid "PackageType|NPM"
 msgstr ""
 
 msgid "PackageType|NuGet"
+msgstr ""
+
+msgid "PackageType|PyPi"
 msgstr ""
 
 msgid "Packages"
@@ -14744,6 +14833,9 @@ msgid "Password was successfully updated. Please login with it"
 msgstr ""
 
 msgid "Past due"
+msgstr ""
+
+msgid "Paste a machine public key here. Read more about how to generate it"
 msgstr ""
 
 msgid "Paste a machine public key here. Read more about how to generate it %{link_start}here%{link_end}"
@@ -14879,6 +14971,9 @@ msgid "Pipeline triggers"
 msgstr ""
 
 msgid "Pipeline: %{status}"
+msgstr ""
+
+msgid "PipelineCharts|CI / CD Analytics"
 msgstr ""
 
 msgid "PipelineCharts|Failed:"
@@ -15074,6 +15169,9 @@ msgid "Pipeline|Stop pipeline"
 msgstr ""
 
 msgid "Pipeline|Stop pipeline #%{pipelineId}?"
+msgstr ""
+
+msgid "Pipeline|Trigger author"
 msgstr ""
 
 msgid "Pipeline|Triggerer"
@@ -16054,9 +16152,6 @@ msgstr ""
 msgid "ProjectService|Comment will be posted on each event"
 msgstr ""
 
-msgid "ProjectService|Last edit"
-msgstr ""
-
 msgid "ProjectService|Perform common operations on GitLab project: %{project_name}"
 msgstr ""
 
@@ -16612,10 +16707,28 @@ msgstr ""
 msgid "Promoted issue to an epic."
 msgstr ""
 
+msgid "Promotions|Buy EE"
+msgstr ""
+
+msgid "Promotions|Buy GitLab Enterprise Edition"
+msgstr ""
+
+msgid "Promotions|Contact an owner of group %{namespace_name} to upgrade the plan."
+msgstr ""
+
+msgid "Promotions|Contact owner %{link_start}%{owner_name}%{link_end} to upgrade the plan."
+msgstr ""
+
+msgid "Promotions|Contact your Administrator to upgrade your license."
+msgstr ""
+
 msgid "Promotions|Don't show me this again"
 msgstr ""
 
 msgid "Promotions|Epics let you manage your portfolio of projects more efficiently and with less effort by tracking groups of issues that share a theme, across projects and milestones."
+msgstr ""
+
+msgid "Promotions|Improve issues management with Issue weight and GitLab Enterprise Edition."
 msgstr ""
 
 msgid "Promotions|Learn more"
@@ -16624,10 +16737,19 @@ msgstr ""
 msgid "Promotions|See the other features in the %{subscription_link_start}bronze plan%{subscription_link_end}"
 msgstr ""
 
+msgid "Promotions|Start GitLab Ultimate trial"
+msgstr ""
+
 msgid "Promotions|This feature is locked."
 msgstr ""
 
 msgid "Promotions|Upgrade plan"
+msgstr ""
+
+msgid "Promotions|Upgrade your plan"
+msgstr ""
+
+msgid "Promotions|Weight"
 msgstr ""
 
 msgid "Promotions|Weighting your issue"
@@ -17746,6 +17868,9 @@ msgstr ""
 msgid "Revoked personal access token %{personal_access_token_name}!"
 msgstr ""
 
+msgid "Revoked project access token %{project_access_token_name}!"
+msgstr ""
+
 msgid "RightSidebar|adding a"
 msgstr ""
 
@@ -18195,99 +18320,6 @@ msgstr ""
 msgid "Security Dashboard"
 msgstr ""
 
-msgid "Security Dashboard|Error fetching the vulnerability counts. Please check your network connection and try again."
-msgstr ""
-
-msgid "Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again."
-msgstr ""
-
-msgid "Security Dashboard|Issue Created"
-msgstr ""
-
-msgid "Security Reports|Comment added to '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Comment deleted on '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Comment edited on '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Create issue"
-msgstr ""
-
-msgid "Security Reports|Dismiss Selected"
-msgstr ""
-
-msgid "Security Reports|Dismiss vulnerability"
-msgstr ""
-
-msgid "Security Reports|Dismissed '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view."
-msgstr ""
-
-msgid "Security Reports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
-msgstr ""
-
-msgid "Security Reports|False positive"
-msgstr ""
-
-msgid "Security Reports|Learn more about setting up your dashboard"
-msgstr ""
-
-msgid "Security Reports|More info"
-msgstr ""
-
-msgid "Security Reports|Oops, something doesn't seem right."
-msgstr ""
-
-msgid "Security Reports|Security reports can only be accessed by authorized users."
-msgstr ""
-
-msgid "Security Reports|Select a reason"
-msgstr ""
-
-msgid "Security Reports|There was an error adding the comment."
-msgstr ""
-
-msgid "Security Reports|There was an error creating the issue."
-msgstr ""
-
-msgid "Security Reports|There was an error creating the merge request."
-msgstr ""
-
-msgid "Security Reports|There was an error deleting the comment."
-msgstr ""
-
-msgid "Security Reports|There was an error dismissing the vulnerabilities."
-msgstr ""
-
-msgid "Security Reports|There was an error dismissing the vulnerability."
-msgstr ""
-
-msgid "Security Reports|There was an error reverting the dismissal."
-msgstr ""
-
-msgid "Security Reports|There was an error reverting this dismissal."
-msgstr ""
-
-msgid "Security Reports|Undo dismiss"
-msgstr ""
-
-msgid "Security Reports|Won't fix / Accept risk"
-msgstr ""
-
-msgid "Security Reports|You do not have sufficient permissions to access this report"
-msgstr ""
-
-msgid "Security Reports|You must sign in as an authorized user to see this report"
-msgstr ""
-
-msgid "Security Reports|[No reason]"
-msgstr ""
-
 msgid "Security configuration help link"
 msgstr ""
 
@@ -18318,85 +18350,202 @@ msgstr ""
 msgid "SecurityConfiguration|Status"
 msgstr ""
 
-msgid "SecurityDashboard|%{firstProject} and %{secondProject}"
+msgid "SecurityReports|%{firstProject} and %{secondProject}"
 msgstr ""
 
-msgid "SecurityDashboard|%{firstProject}, %{secondProject}, and %{rest}"
+msgid "SecurityReports|%{firstProject}, %{secondProject}, and %{rest}"
 msgstr ""
 
-msgid "SecurityDashboard|Add a project to your dashboard"
+msgid "SecurityReports|Add a project to your dashboard"
 msgstr ""
 
-msgid "SecurityDashboard|Add or remove projects from your dashboard"
+msgid "SecurityReports|Add or remove projects from your dashboard"
 msgstr ""
 
-msgid "SecurityDashboard|Add projects"
+msgid "SecurityReports|Add projects"
 msgstr ""
 
-msgid "SecurityDashboard|Each vulnerability now has a unique page that can be directly linked to, shared, referenced, and tracked as the single source of truth. Vulnerability occurrences also persist across scanner runs, which improves tracking and visibility and reduces duplicates between scans."
+msgid "SecurityReports|Comment added to '%{vulnerabilityName}'"
 msgstr ""
 
-msgid "SecurityDashboard|Edit dashboard"
+msgid "SecurityReports|Comment deleted on '%{vulnerabilityName}'"
 msgstr ""
 
-msgid "SecurityDashboard|Hide dismissed"
+msgid "SecurityReports|Comment edited on '%{vulnerabilityName}'"
 msgstr ""
 
-msgid "SecurityDashboard|Introducing standalone vulnerabilities"
+msgid "SecurityReports|Create issue"
 msgstr ""
 
-msgid "SecurityDashboard|Learn More"
+msgid "SecurityReports|Dismiss Selected"
 msgstr ""
 
-msgid "SecurityDashboard|Monitor vulnerabilities in your code"
+msgid "SecurityReports|Dismiss vulnerability"
 msgstr ""
 
-msgid "SecurityDashboard|More information"
+msgid "SecurityReports|Dismissed '%{vulnerabilityName}'"
 msgstr ""
 
-msgid "SecurityDashboard|No vulnerabilities found for dashboard"
+msgid "SecurityReports|Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view."
 msgstr ""
 
-msgid "SecurityDashboard|Pipeline %{pipelineLink} triggered %{timeago} by %{user}"
+msgid "SecurityReports|Each vulnerability now has a unique page that can be directly linked to, shared, referenced, and tracked as the single source of truth. Vulnerability occurrences also persist across scanner runs, which improves tracking and visibility and reduces duplicates between scans."
 msgstr ""
 
-msgid "SecurityDashboard|Project"
+msgid "SecurityReports|Edit dashboard"
 msgstr ""
 
-msgid "SecurityDashboard|Projects added"
+msgid "SecurityReports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
 msgstr ""
 
-msgid "SecurityDashboard|Remove project from dashboard"
+msgid "SecurityReports|Error fetching the vulnerability counts. Please check your network connection and try again."
 msgstr ""
 
-msgid "SecurityDashboard|Report type"
+msgid "SecurityReports|Error fetching the vulnerability list. Please check your network connection and try again."
 msgstr ""
 
-msgid "SecurityDashboard|Return to dashboard"
+msgid "SecurityReports|False positive"
 msgstr ""
 
-msgid "SecurityDashboard|Security Dashboard"
+msgid "SecurityReports|Hide dismissed"
 msgstr ""
 
-msgid "SecurityDashboard|Select a project to add by using the project search field above."
+msgid "SecurityReports|Introducing standalone vulnerabilities"
 msgstr ""
 
-msgid "SecurityDashboard|Severity"
+msgid "SecurityReports|Issue Created"
 msgstr ""
 
-msgid "SecurityDashboard|Status"
+msgid "SecurityReports|Learn More"
 msgstr ""
 
-msgid "SecurityDashboard|The security dashboard displays the latest security findings for projects you wish to monitor. Select \"Edit dashboard\" to add and remove projects."
+msgid "SecurityReports|Learn more about setting up your dashboard"
 msgstr ""
 
-msgid "SecurityDashboard|The security dashboard displays the latest security report. Use it to find and fix vulnerabilities."
+msgid "SecurityReports|Load more vulnerabilities"
 msgstr ""
 
-msgid "SecurityDashboard|There was an error while generating the report."
+msgid "SecurityReports|Monitor vulnerabilities in your code"
 msgstr ""
 
-msgid "SecurityDashboard|Unable to add %{invalidProjects}"
+msgid "SecurityReports|More info"
+msgstr ""
+
+msgid "SecurityReports|More information"
+msgstr ""
+
+msgid "SecurityReports|No vulnerabilities found for dashboard"
+msgstr ""
+
+msgid "SecurityReports|No vulnerabilities found for this group"
+msgstr ""
+
+msgid "SecurityReports|No vulnerabilities found for this pipeline"
+msgstr ""
+
+msgid "SecurityReports|No vulnerabilities found for this project"
+msgstr ""
+
+msgid "SecurityReports|Oops, something doesn't seem right."
+msgstr ""
+
+msgid "SecurityReports|Pipeline %{pipelineLink} triggered %{timeago} by %{user}"
+msgstr ""
+
+msgid "SecurityReports|Project"
+msgstr ""
+
+msgid "SecurityReports|Projects added"
+msgstr ""
+
+msgid "SecurityReports|Remove project from dashboard"
+msgstr ""
+
+msgid "SecurityReports|Report type"
+msgstr ""
+
+msgid "SecurityReports|Return to dashboard"
+msgstr ""
+
+msgid "SecurityReports|Security Dashboard"
+msgstr ""
+
+msgid "SecurityReports|Security reports can only be accessed by authorized users."
+msgstr ""
+
+msgid "SecurityReports|Select a project to add by using the project search field above."
+msgstr ""
+
+msgid "SecurityReports|Select a reason"
+msgstr ""
+
+msgid "SecurityReports|Severity"
+msgstr ""
+
+msgid "SecurityReports|Status"
+msgstr ""
+
+msgid "SecurityReports|The security dashboard displays the latest security findings for projects you wish to monitor. Select \"Edit dashboard\" to add and remove projects."
+msgstr ""
+
+msgid "SecurityReports|The security dashboard displays the latest security report. Use it to find and fix vulnerabilities."
+msgstr ""
+
+msgid "SecurityReports|There was an error adding the comment."
+msgstr ""
+
+msgid "SecurityReports|There was an error creating the issue."
+msgstr ""
+
+msgid "SecurityReports|There was an error creating the merge request."
+msgstr ""
+
+msgid "SecurityReports|There was an error deleting the comment."
+msgstr ""
+
+msgid "SecurityReports|There was an error dismissing the vulnerabilities."
+msgstr ""
+
+msgid "SecurityReports|There was an error dismissing the vulnerability."
+msgstr ""
+
+msgid "SecurityReports|There was an error reverting the dismissal."
+msgstr ""
+
+msgid "SecurityReports|There was an error reverting this dismissal."
+msgstr ""
+
+msgid "SecurityReports|There was an error while generating the report."
+msgstr ""
+
+msgid "SecurityReports|Unable to add %{invalidProjects}"
+msgstr ""
+
+msgid "SecurityReports|Undo dismiss"
+msgstr ""
+
+msgid "SecurityReports|While it's rare to have no vulnerabilities for your group, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly."
+msgstr ""
+
+msgid "SecurityReports|While it's rare to have no vulnerabilities for your pipeline, it can happen. In any event, we ask that you double check your settings to make sure all security scanning jobs have passed successfully."
+msgstr ""
+
+msgid "SecurityReports|While it's rare to have no vulnerabilities for your project, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly."
+msgstr ""
+
+msgid "SecurityReports|While it's rare to have no vulnerabilities, it can happen. In any event, we ask that you please double check your settings to make sure you've set up your dashboard correctly."
+msgstr ""
+
+msgid "SecurityReports|Won't fix / Accept risk"
+msgstr ""
+
+msgid "SecurityReports|You do not have sufficient permissions to access this report"
+msgstr ""
+
+msgid "SecurityReports|You must sign in as an authorized user to see this report"
+msgstr ""
+
+msgid "SecurityReports|[No reason]"
 msgstr ""
 
 msgid "See GitLab's %{password_policy_guidelines}"
@@ -19181,6 +19330,9 @@ msgstr ""
 msgid "Snippets"
 msgstr ""
 
+msgid "Snippets with non-text files can only be edited via Git."
+msgstr ""
+
 msgid "SnippetsEmptyState|Code snippets"
 msgstr ""
 
@@ -19353,6 +19505,9 @@ msgid "Something went wrong while resolving this discussion. Please try again."
 msgstr ""
 
 msgid "Something went wrong while stopping this environment. Please try again."
+msgstr ""
+
+msgid "Something went wrong while toggling auto-fix settings, please try again later."
 msgstr ""
 
 msgid "Something went wrong while updating a requirement."
@@ -19683,9 +19838,6 @@ msgid "Starrers"
 msgstr ""
 
 msgid "Stars"
-msgstr ""
-
-msgid "Start GitLab Ultimate trial"
 msgstr ""
 
 msgid "Start Web Terminal"
@@ -20120,7 +20272,13 @@ msgstr ""
 msgid "Suggest code changes which can be immediately applied in one click. Try it out!"
 msgstr ""
 
+msgid "Suggested Solutions"
+msgstr ""
+
 msgid "Suggested change"
+msgstr ""
+
+msgid "Suggested solutions help link"
 msgstr ""
 
 msgid "SuggestedColors|Bright green"
@@ -20873,6 +21031,9 @@ msgstr ""
 msgid "The vulnerability is no longer detected. Verify the vulnerability has been remediated before changing its status."
 msgstr ""
 
+msgid "There are no %{replicableType} to show"
+msgstr ""
+
 msgid "There are no GPG keys associated with this account."
 msgstr ""
 
@@ -20946,6 +21107,9 @@ msgid "There is no data available. Please change your selection."
 msgstr ""
 
 msgid "There was a problem communicating with your device."
+msgstr ""
+
+msgid "There was a problem fetching project users."
 msgstr ""
 
 msgid "There was a problem refreshing the data, please try again"
@@ -22014,7 +22178,7 @@ msgstr ""
 msgid "Too many projects enabled. You will need to manage them via the console or the API."
 msgstr ""
 
-msgid "Topics"
+msgid "Topics (optional)"
 msgstr ""
 
 msgid "Total"
@@ -22549,9 +22713,6 @@ msgid "Updating"
 msgstr ""
 
 msgid "Upgrade plan to unlock Canary Deployments feature"
-msgstr ""
-
-msgid "Upgrade your plan"
 msgstr ""
 
 msgid "Upgrade your plan to activate Advanced Global Search."
@@ -23437,6 +23598,9 @@ msgstr ""
 msgid "VulnerabilityStatusTypes|Resolved"
 msgstr ""
 
+msgid "Vulnerability|%{scannerName} (version %{scannerVersion})"
+msgstr ""
+
 msgid "Vulnerability|Class"
 msgstr ""
 
@@ -23470,7 +23634,10 @@ msgstr ""
 msgid "Vulnerability|Project"
 msgstr ""
 
-msgid "Vulnerability|Report Type"
+msgid "Vulnerability|Scanner Provider"
+msgstr ""
+
+msgid "Vulnerability|Scanner Type"
 msgstr ""
 
 msgid "Vulnerability|Severity"
@@ -23635,15 +23802,6 @@ msgid "When using the <code>http://</code> or <code>https://</code> protocols, p
 msgstr ""
 
 msgid "When:"
-msgstr ""
-
-msgid "While it's rare to have no vulnerabilities for your group, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly."
-msgstr ""
-
-msgid "While it's rare to have no vulnerabilities for your pipeline, it can happen. In any event, we ask that you double check your settings to make sure all security scanning jobs have passed successfully."
-msgstr ""
-
-msgid "While it's rare to have no vulnerabilities for your project, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly."
 msgstr ""
 
 msgid "While it's rare to have no vulnerabilities, it can happen. In any event, we ask that you please double check your settings to make sure you've set up your dashboard correctly."
@@ -24448,6 +24606,9 @@ msgid "Your new SCIM token"
 msgstr ""
 
 msgid "Your new personal access token has been created."
+msgstr ""
+
+msgid "Your new project access token has been created."
 msgstr ""
 
 msgid "Your password isn't required to view this page. If a password or any other personal details are requested, please contact your administrator to report abuse."
@@ -25553,6 +25714,9 @@ msgstr[1] ""
 msgid "project avatar"
 msgstr ""
 
+msgid "projects"
+msgstr ""
+
 msgid "push to your repository, create pipelines, create issues or add comments. To reduce storage capacity, delete unused repositories, artifacts, wikis, issues, and pipelines."
 msgstr ""
 
@@ -25702,11 +25866,6 @@ msgstr ""
 msgid "this document"
 msgstr ""
 
-msgid "thread resolved"
-msgid_plural "threads resolved"
-msgstr[0] ""
-msgstr[1] ""
-
 msgid "to help your contributors communicate effectively!"
 msgstr ""
 
@@ -25732,6 +25891,9 @@ msgid "updated %{timeAgo}"
 msgstr ""
 
 msgid "updated %{time_ago}"
+msgstr ""
+
+msgid "uploads"
 msgstr ""
 
 msgid "user avatar"

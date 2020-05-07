@@ -11,6 +11,7 @@ class ProjectPolicy < BasePolicy
     milestone
     snippet
     wiki
+    design
     note
     pipeline
     pipeline_schedule
@@ -105,6 +106,11 @@ class ProjectPolicy < BasePolicy
       @subject.external_authorization_classification_label,
       @subject.full_path
     )
+  end
+
+  with_scope :subject
+  condition(:design_management_disabled) do
+    !@subject.design_management_enabled?
   end
 
   # We aren't checking `:read_issue` or `:read_merge_request` in this case
@@ -234,6 +240,7 @@ class ProjectPolicy < BasePolicy
     enable :read_prometheus
     enable :read_metrics_dashboard_annotation
     enable :read_alert_management_alerts
+    enable :update_alert_management_alerts
     enable :metrics_dashboard
   end
 
@@ -299,6 +306,8 @@ class ProjectPolicy < BasePolicy
     enable :create_metrics_dashboard_annotation
     enable :delete_metrics_dashboard_annotation
     enable :update_metrics_dashboard_annotation
+    enable :create_design
+    enable :destroy_design
   end
 
   rule { can?(:developer_access) & user_confirmed? }.policy do
@@ -510,6 +519,17 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { admin }.enable :change_repository_storage
+
+  rule { can?(:read_issue) }.policy do
+    enable :read_design
+  end
+
+  # Design abilities could also be prevented in the issue policy.
+  rule { design_management_disabled }.policy do
+    prevent :read_design
+    prevent :create_design
+    prevent :destroy_design
+  end
 
   private
 

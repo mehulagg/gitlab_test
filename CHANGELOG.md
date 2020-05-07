@@ -2,6 +2,13 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 12.10.4 (2020-05-05)
+
+### Fixed (1 change)
+
+- Add a Project's group to list of groups when parsing for codeowner entries. !30934
+
+
 ## 12.10.2 (2020-04-30)
 
 ### Security (8 changes)
@@ -475,6 +482,13 @@ entry.
 - Add Gitlab User-Agent to ContainerRegistry::Client. !29294 (Sashi Kumar)
 - Improve error message in DAST CI template. !29388
 - Remove store_mentions! in Snippets::CreateService. !29581 (Sashi Kumar)
+
+
+## 12.9.6 (2020-05-05)
+
+### Fixed (1 change)
+
+- Add a Project's group to list of groups when parsing for codeowner entries. !30934
 
 
 ## 12.9.5 (2020-04-30)

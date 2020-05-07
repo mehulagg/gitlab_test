@@ -21,6 +21,52 @@ describe GroupPolicy do
     it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :destroy_epic) }
   end
 
+  context 'when iterations feature is disabled' do
+    let(:current_user) { owner }
+
+    before do
+      stub_licensed_features(iterations: false)
+    end
+
+    it { is_expected.to be_disallowed(:read_iteration, :create_iteration, :admin_iteration) }
+  end
+
+  context 'when iterations feature is enabled' do
+    before do
+      stub_licensed_features(iterations: true)
+    end
+
+    context 'when user is a developer' do
+      let(:current_user) { developer }
+
+      it { is_expected.to be_allowed(:read_iteration, :create_iteration, :admin_iteration) }
+    end
+
+    context 'when user is a guest' do
+      let(:current_user) { guest }
+
+      it { is_expected.to be_allowed(:read_iteration) }
+      it { is_expected.to be_disallowed(:create_iteration, :admin_iteration) }
+    end
+
+    context 'when user is logged out' do
+      let(:current_user) { nil }
+
+      it { is_expected.to be_disallowed(:read_iteration, :create_iteration, :admin_iteration) }
+    end
+
+    context 'when project is private' do
+      let(:group) { create(:group, :public, :owner_subgroup_creation_only) }
+
+      context 'when user is logged out' do
+        let(:current_user) { nil }
+
+        it { is_expected.to be_allowed(:read_iteration) }
+        it { is_expected.to be_disallowed(:create_iteration, :admin_iteration) }
+      end
+    end
+  end
+
   context 'when cluster deployments is available' do
     let(:current_user) { maintainer }
 
@@ -834,6 +880,29 @@ describe GroupPolicy do
 
           it { is_expected.to be_allowed(:update_default_branch_protection) }
         end
+      end
+    end
+  end
+
+  it_behaves_like 'model with wiki policies' do
+    let_it_be(:container) { create(:group) }
+    let_it_be(:user) { owner }
+
+    def set_access_level(access_level)
+      allow(container).to receive(:wiki_access_level).and_return(access_level)
+    end
+
+    before do
+      stub_feature_flags(group_wiki: true)
+    end
+
+    context 'when the feature flag is disabled' do
+      before do
+        stub_feature_flags(group_wiki: false)
+      end
+
+      it 'does not include the wiki permissions' do
+        expect_disallowed(*wiki_permissions[:all])
       end
     end
   end

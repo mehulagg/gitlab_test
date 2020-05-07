@@ -90,6 +90,7 @@ dotenv
 downvoted
 downvotes
 Dpl
+Dreamweaver
 Elasticsearch
 enablement
 enqueued
@@ -121,6 +122,8 @@ Gzip
 hardcode
 hardcoded
 hardcodes
+heatmap
+heatmaps
 Helm
 Heroku
 Herokuish
@@ -133,6 +136,7 @@ hotfixes
 hotfixing
 http
 https
+idempotence
 Ingress
 initializer
 initializers
@@ -177,6 +181,7 @@ mergeable
 Microsoft
 middleware
 middlewares
+Minikube
 MinIO
 mitmproxy
 misconfigure
@@ -196,6 +201,8 @@ namespaced
 namespaces
 Nanoc
 NGINX
+npm
+Nurtch
 OAuth
 Okta
 offboarded
@@ -208,6 +215,8 @@ Packagist
 parallelization
 parallelizations
 performant
+Pipfile
+Pipfiles
 Piwik
 PgBouncer
 plaintext
@@ -242,6 +251,7 @@ rebase
 rebased
 rebases
 rebasing
+Redcarpet
 Redis
 Redmine
 reCAPTCHA
@@ -252,6 +262,7 @@ reindexed
 reindexes
 reindexing
 relicensing
+remediations
 Repmgr
 Repmgrd
 requeue
@@ -271,6 +282,7 @@ resync
 reverified
 reverifies
 reverify
+Rubix
 runbook
 runbooks
 runit
@@ -278,11 +290,13 @@ runtime
 runtimes
 Salesforce
 SAML
+sbt
 Sendmail
 Sentry
 serverless
 Sidekiq
 sharding
+shfmt
 Shibboleth
 sanitization
 serializer
@@ -292,13 +306,18 @@ Slack
 Slony
 SMTP
 Sourcegraph
+spidering
 Splunk
 SSH
 storable
 strace
+strikethrough
+strikethroughs
 subpath
 subfolder
 subfolders
+subgraph
+subgraphs
 sublicense
 sublicensed
 sublicenses
@@ -340,6 +359,7 @@ unchecking
 unchecks
 uncomment
 uncommented
+uncommenting
 unencode
 unencoded
 unencoder
@@ -358,12 +378,14 @@ unoptimize
 unoptimized
 unoptimizes
 unoptimizing
+unprioritized
 unprotect
 unprotects
 unprotected
 unpublish
 unpublished
 unpublishes
+unpublishing
 unreferenced
 unresolve
 unresolved
@@ -373,6 +395,9 @@ unstage
 unstaged
 unstages
 unstaging
+unstash
+unstashed
+unstashing
 untarred
 untracked
 untrusted

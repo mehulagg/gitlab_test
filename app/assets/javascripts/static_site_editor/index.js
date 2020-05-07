@@ -1,10 +1,14 @@
 import Vue from 'vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
-import StaticSiteEditor from './components/static_site_editor.vue';
+import App from './components/app.vue';
 import createStore from './store';
+import createRouter from './router';
+import createApolloProvider from './graphql';
 
 const initStaticSiteEditor = el => {
-  const { isSupportedContent, projectId, path: sourcePath, returnUrl } = el.dataset;
+  const { isSupportedContent, projectId, path: sourcePath, baseUrl } = el.dataset;
+  const { current_username: username } = window.gon;
+  const returnUrl = el.dataset.returnUrl || null;
 
   const store = createStore({
     initialState: {
@@ -12,18 +16,28 @@ const initStaticSiteEditor = el => {
       projectId,
       returnUrl,
       sourcePath,
-      username: window.gon.current_username,
+      username,
     },
+  });
+  const router = createRouter(baseUrl);
+  const apolloProvider = createApolloProvider({
+    isSupportedContent: parseBoolean(isSupportedContent),
+    projectId,
+    returnUrl,
+    sourcePath,
+    username,
   });
 
   return new Vue({
     el,
     store,
+    router,
+    apolloProvider,
     components: {
-      StaticSiteEditor,
+      App,
     },
     render(createElement) {
-      return createElement('static-site-editor', StaticSiteEditor);
+      return createElement('app');
     },
   });
 };

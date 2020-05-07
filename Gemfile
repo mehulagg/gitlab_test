@@ -419,7 +419,7 @@ end
 gem 'octokit', '~> 4.15'
 
 # https://gitlab.com/gitlab-org/gitlab/issues/207207
-gem 'gitlab-mail_room', '~> 0.0.3', require: 'mail_room'
+gem 'gitlab-mail_room', '~> 0.0.4', require: 'mail_room'
 
 gem 'email_reply_trimmer', '~> 0.1'
 gem 'html2text'
@@ -445,7 +445,7 @@ gem 'sys-filesystem', '~> 1.1.6'
 gem 'net-ntp'
 
 # SSH host key support
-gem 'net-ssh', '~> 5.2'
+gem 'net-ssh', '~> 6.0'
 gem 'sshkey', '~> 2.0'
 
 # Required for ED25519 SSH host key support
@@ -495,3 +495,6 @@ gem 'mail', '= 2.7.1'
 
 # File encryption
 gem 'lockbox', '~> 0.3.3'
+
+# Email validation
+gem 'valid_email', '~> 0.1'

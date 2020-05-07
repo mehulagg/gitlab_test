@@ -15,12 +15,15 @@ module Gitlab
           next if repository_present?(snippet)
 
           retry_index = 0
+          @invalid_path_error = false
 
           begin
             create_repository_and_files(snippet)
 
             logger.info(message: 'Snippet Migration: repository created and migrated', snippet: snippet.id)
           rescue => e
+            set_file_path_error(e)
+
             retry_index += 1
 
             retry if retry_index < MAX_RETRIES
@@ -73,7 +76,10 @@ module Gitlab
       end
 
       def filename(snippet)
-        snippet.file_name.presence || empty_file_name
+        file_name = snippet.file_name
+        file_name = file_name.parameterize if @invalid_path_error
+
+        file_name.presence || empty_file_name
       end
 
       def empty_file_name
@@ -92,17 +98,26 @@ module Gitlab
       # because it is blocked, internal, ghost, ... we cannot commit
       # files because these users are not allowed to, but we need to
       # migrate their snippets as well.
-      # In this scenario an admin user will be the one that will commit the files.
+      # In this scenario the migration bot user will be the one that will commit the files.
       def commit_author(snippet)
         if Gitlab::UserAccessSnippet.new(snippet.author, snippet: snippet).can_do_action?(:update_snippet)
           snippet.author
         else
-          admin_user
+          migration_bot_user
         end
       end
 
-      def admin_user
-        @admin_user ||= User.admins.active.first
+      def migration_bot_user
+        @migration_bot_user ||= User.migration_bot
+      end
+
+      # We sometimes receive invalid path errors from Gitaly if the Snippet filename
+      # cannot be parsed into a valid git path.
+      # In this situation, we need to parameterize the file name of the Snippet so that
+      # the migration can succeed, to achieve that, we'll identify in migration retries
+      # that the path is invalid
+      def set_file_path_error(error)
+        @invalid_path_error = error.is_a?(SnippetRepository::InvalidPathError)
       end
     end
   end

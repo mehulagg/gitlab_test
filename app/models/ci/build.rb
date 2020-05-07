@@ -486,8 +486,7 @@ module Ci
     end
 
     def requires_resource?
-      Feature.enabled?(:ci_resource_group, project, default_enabled: true) &&
-        self.resource_group_id.present?
+      self.resource_group_id.present?
     end
 
     def has_environment?
@@ -868,6 +867,14 @@ module Ci
           Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, test_suite, job: self)
         end
       end
+    end
+
+    def collect_accessibility_reports!(accessibility_report)
+      each_report(Ci::JobArtifact::ACCESSIBILITY_REPORT_FILE_TYPES) do |file_type, blob|
+        Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, accessibility_report)
+      end
+
+      accessibility_report
     end
 
     def collect_coverage_reports!(coverage_report)

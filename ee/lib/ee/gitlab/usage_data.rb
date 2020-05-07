@@ -37,8 +37,6 @@ module EE
 
         override :uncached_data
         def uncached_data
-          return super if ::Feature.disabled?(:usage_activity_by_stage, default_enabled: true)
-
           time_period = { created_at: 28.days.ago..Time.current }
           usage_activity_by_stage_monthly = usage_activity_by_stage(:usage_activity_by_stage_monthly, time_period)
           super.merge(usage_activity_by_stage).merge(usage_activity_by_stage_monthly)
@@ -82,6 +80,14 @@ module EE
           end
 
           usage_data
+        end
+
+        def requirements_counts
+          return {} unless ::License.feature_available?(:requirements)
+
+          {
+            requirements_created: count(RequirementsManagement::Requirement)
+          }
         end
 
         # rubocop: disable CodeReuse/ActiveRecord
@@ -142,7 +148,7 @@ module EE
           super.tap do |usage_data|
             usage_data[:counts].merge!(
               {
-                dependency_list_usages_total: ::Gitlab::UsageCounters::DependencyList.usage_totals[:total],
+                dependency_list_usages_total: redis_usage_data { ::Gitlab::UsageCounters::DependencyList.usage_totals[:total] },
                 epics: count(::Epic),
                 feature_flags: count(Operations::FeatureFlag),
                 geo_nodes: count(::GeoNode),
@@ -150,7 +156,7 @@ module EE
                 issues_with_health_status: count(::Issue.with_health_status),
                 ldap_keys: count(::LDAPKey),
                 ldap_users: count(::User.ldap, 'users.id'),
-                pod_logs_usages_total: ::Gitlab::UsageCounters::PodLogs.usage_totals[:total],
+                pod_logs_usages_total: redis_usage_data { ::Gitlab::UsageCounters::PodLogs.usage_totals[:total] },
                 projects_enforcing_code_owner_approval: count(::Project.without_deleted.non_archived.requiring_code_owner_approval),
                 merge_requests_with_optional_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_optional, :merge_request_id),
                 merge_requests_with_required_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_required, :merge_request_id),
@@ -162,6 +168,7 @@ module EE
                 status_page_issues: count(::Issue.on_status_page),
                 template_repositories: count(::Project.with_repos_templates) + count(::Project.with_groups_level_repos_templates)
               },
+              requirements_counts,
               service_desk_counts,
               security_products_usage,
               epics_deepest_relationship_level,

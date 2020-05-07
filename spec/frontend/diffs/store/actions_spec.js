@@ -44,6 +44,7 @@ import {
   setExpandedDiffLines,
   setSuggestPopoverDismissed,
   changeCurrentCommit,
+  moveToNeighboringCommit,
 } from '~/diffs/store/actions';
 import eventHub from '~/notes/event_hub';
 import * as types from '~/diffs/store/mutation_types';
@@ -313,7 +314,7 @@ describe('DiffsStoreActions', () => {
 
     describe('fetchDiffFilesMeta', () => {
       it('should fetch diff meta information', done => {
-        const endpointMetadata = '/fetch/diffs_meta?';
+        const endpointMetadata = '/fetch/diffs_meta';
         const mock = new MockAdapter(axios);
         const data = { diff_files: [] };
         const res = { data };
@@ -1403,6 +1404,46 @@ describe('DiffsStoreActions', () => {
         );
 
         return expect(actionReturn).rejects.toStrictEqual(err);
+      },
+    );
+  });
+
+  describe('moveToNeighboringCommit', () => {
+    it.each`
+      direction     | expected         | currentCommit
+      ${'next'}     | ${'NEXTSHA'}     | ${{ next_commit_id: 'NEXTSHA' }}
+      ${'previous'} | ${'PREVIOUSSHA'} | ${{ prev_commit_id: 'PREVIOUSSHA' }}
+    `(
+      'for the direction "$direction", dispatches the action to move to the SHA "$expected"',
+      ({ direction, expected, currentCommit }) => {
+        return testAction(
+          moveToNeighboringCommit,
+          { direction },
+          { commit: currentCommit },
+          [],
+          [{ type: 'changeCurrentCommit', payload: { commitId: expected } }],
+        );
+      },
+    );
+
+    it.each`
+      direction     | diffsAreLoading | currentCommit
+      ${'next'}     | ${false}        | ${{ prev_commit_id: 'PREVIOUSSHA' }}
+      ${'next'}     | ${true}         | ${{ prev_commit_id: 'PREVIOUSSHA' }}
+      ${'next'}     | ${false}        | ${undefined}
+      ${'previous'} | ${false}        | ${{ next_commit_id: 'NEXTSHA' }}
+      ${'previous'} | ${true}         | ${{ next_commit_id: 'NEXTSHA' }}
+      ${'previous'} | ${false}        | ${undefined}
+    `(
+      'given `{ "isloading": $diffsAreLoading, "commit": $currentCommit }` in state, no actions are dispatched',
+      ({ direction, diffsAreLoading, currentCommit }) => {
+        return testAction(
+          moveToNeighboringCommit,
+          { direction },
+          { commit: currentCommit, isLoading: diffsAreLoading },
+          [],
+          [],
+        );
       },
     );
   });

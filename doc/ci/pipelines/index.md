@@ -74,7 +74,7 @@ You can also configure specific aspects of your pipelines through the GitLab UI.
 
 - [Pipeline settings](settings.md) for each project.
 - [Pipeline schedules](schedules.md).
-- [Custom CI/CD variables](../variables/README.md#creating-a-custom-environment-variable).
+- [Custom CI/CD variables](../variables/README.md#custom-environment-variables).
 
 ### View pipelines
 
@@ -373,7 +373,7 @@ the pipeline view, *not* the play (**{play}**) button.
 This is useful when you want to alter the execution of a job that uses
 [custom environment variables](../variables/README.md#custom-environment-variables).
 Adding a variable name (key) and value here will override the value defined in
-[the UI or `.gitlab-ci.yml`](../variables/README.md#creating-a-custom-environment-variable),
+[the UI or `.gitlab-ci.yml`](../variables/README.md#custom-environment-variables),
 for a single run of the manual job.
 
 ![Manual job variables](img/manual_job_variables.png)
@@ -549,15 +549,3 @@ To illustrate its life cycle:
    even if the commit history of the `example` branch has been overwritten by force-push.
 1. GitLab Runner fetches the persistent pipeline ref and gets source code from the checkout-SHA.
 1. When the pipeline finished, its persistent ref is cleaned up in a background process.
-
-NOTE: **NOTE**: At this moment, this feature is on by default and can be manually disabled
-by disabling `depend_on_persistent_pipeline_ref` feature flag. If you're interested in
-manually disabling this behavior, please ask the administrator
-to execute the following commands in rails console.
-
-```shell
-> sudo gitlab-rails console                                        # Login to Rails console of GitLab instance.
-> project = Project.find_by_full_path('namespace/project-name')    # Get the project instance.
-> Feature.disable(:depend_on_persistent_pipeline_ref, project)     # Disable the feature flag for specific project
-> Feature.disable(:depend_on_persistent_pipeline_ref)              # Disable the feature flag system-wide
-```
