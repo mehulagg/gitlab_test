@@ -1,41 +1,54 @@
+---
+stage: Package
+group: Package
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Package Registry
 
-GitLab Packages allows organizations to utilize GitLab as a private repository
-for a variety of common package managers. Users are able to build and publish
-packages, which can be easily consumed as a dependency in downstream projects.
+Every project in GitLab has a space where you can privately store images or packages.
+It's called the *Package Registry*.
 
-The Packages feature allows GitLab to act as a repository for the following:
+You can use it like a private repository, where you publish images that were built with
+any of the following package managers. When you store an image in the Package Registry,
+it can be consumed as a dependency in downstream projects.
 
-| Software repository | Description | Available in GitLab version |
-| ------------------- | ----------- | --------------------------- |
-| [Container Registry](container_registry/index.md)   | The GitLab Container Registry enables every project in GitLab to have its own space to store [Docker](https://www.docker.com/) images. | 8.8+ |
-| [Dependency Proxy](dependency_proxy/index.md) **(PREMIUM)** | The GitLab Dependency Proxy sets up a local proxy for frequently used upstream images/packages. | 11.11+ |
-| [Conan Repository](conan_repository/index.md) **(PREMIUM)** | The GitLab Conan Repository enables every project in GitLab to have its own space to store [Conan](https://conan.io/) packages. | 12.6+ |
-| [Maven Repository](maven_repository/index.md) **(PREMIUM)** | The GitLab Maven Repository enables every project in GitLab to have its own space to store [Maven](https://maven.apache.org/) packages. | 11.3+ |
-| [NPM Registry](npm_registry/index.md) **(PREMIUM)**  | The GitLab NPM Registry enables every project in GitLab to have its own space to store [NPM](https://www.npmjs.com/) packages. | 11.7+ |
-| [NuGet Repository](nuget_repository/index.md) **(PREMIUM)**  | The GitLab NuGet Repository will enable every project in GitLab to have its own space to store [NuGet](https://www.nuget.org/) packages. | 12.8+ |
-| [PyPi Repository](pypi_repository/index.md) **(PREMIUM)**  | The GitLab PyPi Repository will enable every project in GitLab to have its own space to store [PyPi](https://pypi.org/) packages. | 12.10+ |
+| Software repository                                         | Description                                                           | Available in GitLab version |
+|-------------------------------------------------------------|-----------------------------------------------------------------------|-----------------------------|
+| [Container Registry](container_registry/index.md)           | Use for [Docker](https://www.docker.com/) images.                     | 8.8+                        |
+| [Dependency Proxy](dependency_proxy/index.md) **(PREMIUM)** | Use as a local proxy for frequently-used upstream images or packages. | 11.11+                      |
+| [Conan Repository](conan_repository/index.md) **(PREMIUM)** | Use for [Conan](https://conan.io/) packages.                          | 12.6+                       |
+| [Maven Repository](maven_repository/index.md) **(PREMIUM)** | Use for [Maven](https://maven.apache.org/) packages.                  | 11.3+                       |
+| [NPM Registry](npm_registry/index.md) **(PREMIUM)**         | Use for [NPM](https://www.npmjs.com/) packages.                       | 11.7+                       |
+| [NuGet Repository](nuget_repository/index.md) **(PREMIUM)** | Use for [NuGet](https://www.nuget.org/) packages.                     | 12.8+                       |
+| [PyPi Repository](pypi_repository/index.md) **(PREMIUM)**   | Use for [PyPi](https://pypi.org/) packages.                           | 12.10+                      |
+
+You can also:
+
+- [Use one specific project to store your packages](./workflows/project_registry.md) or
+- Publish multiple packages from [one monorepo project](./workflows/monorepo.md).
 
 ## Enable the Package Registry for your project
 
-If you cannot find the **{package}** **Packages > List** entry under your
-project's sidebar, it is not enabled in your GitLab instance. Ask your
-administrator to enable GitLab Package Registry following the [administration
+If the **{package}** **Packages > List** isn't visible on your
+project's sidebar, it's not enabled in your GitLab instance. Ask your
+administrator to enable the Package Registry by using the [administration
 documentation](../../administration/packages/index.md).
 
-Once enabled for your GitLab instance, to enable Package Registry for your
+After it's enabled for your GitLab instance, enable the Package Registry for your
 project:
 
-1. Go to your project's **Settings > General** page.
+1. Go to your project's **{settings}** **Settings > General** page.
 1. Expand the **Visibility, project features, permissions** section and enable the
-**Packages** feature on your project.
-1. Press **Save changes** for the changes to take effect. You should now be able to
-see the **Packages > List** link in the sidebar.
+**Packages** feature.
+1. Click **Save changes**.
+
+The **{package}** **Packages > List** is visible in the sidebar.
 
 ### View Packages for your project
 
-Navigating to your project's **{package}** **Packages > List** will show a list
-of all packages that have been added to your project.
+To view all packages that have been added to your project,
+go to your project's **{package}** **Packages > List**.
 
 ![Project Packages list](img/project_packages_list_v12_10.png)
 
@@ -50,23 +63,23 @@ On this page, you can:
 
 ### View Packages for your group
 
-You can view all packages belonging to a group by navigating to **{package}**
-**Packages > List** from the group sidebar.
+To view all packages that belong to a group, from the group sidebar,
+go to **{package}** **Packages > List**.
 
 ![Group Packages list](img/group_packages_list_v12_10.png)
 
 On this page, you can:
 
 - View all the packages that have been uploaded to each of the groups projects.
-- Sort the packages list by created date, version, name or project.
+- Sort the packages list by created date, version, name, or project.
 - Filter the list by package name.
 - Change tabs to display packages of a certain type.
 - Navigate to specific package detail page.
 
 ### View additional package information
 
-Additional package information can be viewed by browsing to the package details
-page from the either the project or group list.
+To view additional package information, from the either the project or group list,
+go to the package details page.
 
 ![Package detail](img/package_detail_v12_10.png)
 
@@ -116,10 +129,3 @@ are adding support for [PHP](https://gitlab.com/gitlab-org/gitlab/-/merge_reques
 | [RubyGems](https://gitlab.com/gitlab-org/gitlab/issues/803) | Use GitLab to host your own gems. |
 | [SBT](https://gitlab.com/gitlab-org/gitlab/issues/36898) | Resolve dependencies from and deploy build output to SBT repositories when running SBT builds. |
 | [Vagrant](https://gitlab.com/gitlab-org/gitlab/issues/36899) | Securely host your Vagrant boxes in local repositories. |
-
-## Package workflows
-
-Learning how to use the GitLab Package Registry will help you build your own custom package workflow.
-
-- [Use a project as a package registry](./workflows/project_registry.md) to publish all of your packages to one project.
-- [Working with a monorepo](./workflows/monorepo.md): Learn how to publish multiple different packages from one monorepo project.
