@@ -11,7 +11,7 @@ import {
  * This will be removed once we add support for free text variables
  * via the dashboard yaml files in https://gitlab.com/gitlab-org/gitlab/-/issues/215689
  */
-export const dashboardParams = ['dashboard', 'group', 'title', 'y_label'];
+export const dashboardParams = ['dashboard', 'group', 'title', 'y_label', 'embedded'];
 
 /**
  * This method is used to validate if the graph data format for a chart component
@@ -133,7 +133,15 @@ export const promCustomVariablesFromUrl = (search = window.location.search) => {
   const params = queryToObject(search);
   const paramsToRemove = timeRangeParamNames.concat(dashboardParams);
 
-  return omit(params, paramsToRemove);
+  const removedNonCustomVariables = omit(params, paramsToRemove);
+
+  Object.keys(removedNonCustomVariables).forEach(key => {
+    if (key.startsWith(window.location.origin)) {
+      delete removedNonCustomVariables[key];
+    }
+  });
+
+  return removedNonCustomVariables;
 };
 
 /**
@@ -197,12 +205,19 @@ export const expandedPanelPayloadFromUrl = (dashboard, search = window.location.
  * bookmark or share highlighting a specific panel.
  *
  * @param {String} dashboardPath - Dashboard path used as identifier
+ * @param {?Object} promVariables - Custom variables that came from the URL
  * @param {String} group - Group Identifier
  * @param {?Object} panel - Panel object from the dashboard
  * @param {?String} url - Base URL including current search params
  * @returns Dashboard URL which expands a panel (chart)
  */
-export const panelToUrl = (dashboardPath, group, panel, url = window.location.href) => {
+export const panelToUrl = (
+  dashboardPath,
+  promVariables = {},
+  group,
+  panel,
+  url = window.location.href,
+) => {
   if (!group || !panel) {
     return null;
   }
@@ -212,6 +227,7 @@ export const panelToUrl = (dashboardPath, group, panel, url = window.location.hr
       group,
       title: panel.title,
       y_label: panel.y_label,
+      ...promVariables,
     },
     value => value != null,
   );

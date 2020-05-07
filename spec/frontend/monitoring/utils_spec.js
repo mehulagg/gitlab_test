@@ -312,7 +312,7 @@ describe('monitoring/utils', () => {
     const [panel] = panelGroup.panels;
 
     it('returns URL for a panel when query parameters are given', () => {
-      const [, query] = panelToUrl(dashboard, panelGroup.group, panel).split('?');
+      const [, query] = panelToUrl(dashboard, {}, panelGroup.group, panel).split('?');
       const params = urlUtils.queryToObject(query);
 
       expect(params).toEqual({
@@ -320,6 +320,19 @@ describe('monitoring/utils', () => {
         group: panelGroup.group,
         title: panel.title,
         y_label: panel.y_label,
+      });
+    });
+
+    it('returns URL for a panel when query paramters are given including custom variables', () => {
+      const [, query] = panelToUrl(dashboard, { pod: 'pod' }, panelGroup.group, panel).split('?');
+      const params = urlUtils.queryToObject(query);
+
+      expect(params).toEqual({
+        dashboard,
+        group: panelGroup.group,
+        title: panel.title,
+        y_label: panel.y_label,
+        pod: 'pod',
       });
     });
 

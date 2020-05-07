@@ -331,7 +331,7 @@ export default {
     },
     generatePanelUrl(groupKey, panel) {
       const dashboardPath = this.currentDashboard || this.firstDashboard.path;
-      return panelToUrl(dashboardPath, groupKey, panel);
+      return panelToUrl(dashboardPath, this.promVariables, groupKey, panel);
     },
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();

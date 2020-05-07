@@ -3,7 +3,7 @@ import { mapState, mapActions } from 'vuex';
 import DashboardPanel from '~/monitoring/components/dashboard_panel.vue';
 import { convertToFixedRange } from '~/lib/utils/datetime_range';
 import { defaultTimeRange } from '~/vue_shared/constants';
-import { timeRangeFromUrl, removeTimeRangeParams } from '../../utils';
+import { timeRangeFromUrl, removeTimeRangeParams, promCustomVariablesFromUrl } from '../../utils';
 import { sidebarAnimationDuration } from '../../constants';
 
 let sidebarMutationObserver;
@@ -67,6 +67,7 @@ export default {
     this.setInitialState({
       dashboardEndpoint: removeTimeRangeParams(this.dashboardUrl),
     });
+    this.setVariables(promCustomVariablesFromUrl(this.dashboardUrl));
     this.setShowErrorBanner(false);
     this.setTimeRange(this.timeRange);
     this.fetchDashboard();
@@ -98,6 +99,9 @@ export default {
       },
       setShowErrorBanner(dispatch, payload) {
         return dispatch(`${this.namespace}/setShowErrorBanner`, payload);
+      },
+      setVariables(dispatch, payload) {
+        return dispatch(`${this.namespace}/setVariables`, payload);
       },
     }),
     chartHasData(chart) {
