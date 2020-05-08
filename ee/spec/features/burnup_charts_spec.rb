@@ -53,7 +53,7 @@ describe 'Burnup charts', :js do
 
   def burnup_chart_points
     fill_color = "#1f75cb"
-    points = burnup_chart.all("path[fill='#{fill_color}']", count: 12)
+    burnup_chart.all("path[fill='#{fill_color}']", count: 12)
   end
 
   def burnup_chart
