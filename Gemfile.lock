@@ -713,9 +713,9 @@ GEM
       faraday (~> 0.8)
     faraday_middleware (0.12.2)
       faraday (>= 0.7.4, < 1.0)
-    faraday_middleware-aws-signers-v4 (0.2.0.beta)
-      aws-sdk-resources (~> 3.0.0.rc2)
-      faraday (~> 0.9)
+    faraday_middleware-aws-sigv4 (0.3.0)
+      aws-sigv4 (~> 1.0)
+      faraday (>= 0.15)
     faraday_middleware-multi_json (0.0.6)
       faraday_middleware
       multi_json
@@ -1638,7 +1638,7 @@ DEPENDENCIES
   escape_utils (~> 1.1)
   factory_bot_rails (~> 5.1.0)
   faraday (~> 0.12)
-  faraday_middleware-aws-signers-v4
+  faraday_middleware-aws-sigv4
   fast_blank
   ffaker (~> 2.10)
   flipper (~> 0.17.1)
