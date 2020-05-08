@@ -132,7 +132,7 @@ gem 'seed-fu', '~> 2.3.7'
 gem 'elasticsearch-model', '~> 6.1'
 gem 'elasticsearch-rails', '~> 6.1', require: 'elasticsearch/rails/instrumentation'
 gem 'elasticsearch-api',   '~> 6.8'
-gem 'aws-sdk'
+gem 'aws-sdk', '~> 3'
 gem 'faraday_middleware-aws-signers-v4'
 
 # Markdown and HTML processing
