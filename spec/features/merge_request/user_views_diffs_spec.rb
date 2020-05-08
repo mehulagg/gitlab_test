@@ -91,4 +91,19 @@ describe 'User views diffs', :js do
 
     include_examples 'unfold diffs'
   end
+
+  context 'with diff notes' do
+    before do
+      create(:diff_note_on_merge_request, project: project, noteable: merge_request)
+      visit(diffs_project_merge_request_path(project, merge_request, view: view))
+    end
+
+    it 'shows notes in to Overview tab' do  
+      page.within('.merge-request-tabs-holder') do
+        click_link 'Overview'
+      end
+  
+      expect(page).to have_css('.note')
+    end
+  end
 end
