@@ -1,0 +1,5 @@
+---
+title: Adjust wrong reactive cache workers retry amount
+merge_request: 31520
+author:
+type: fixed

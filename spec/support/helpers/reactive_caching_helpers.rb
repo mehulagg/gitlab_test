@@ -11,8 +11,10 @@ module ReactiveCachingHelpers
 
   def stub_reactive_cache(subject = nil, data = nil, *qualifiers)
     ReactiveCaching::WORK_TYPE.values.each do |worker|
-      allow(worker).to receive(:perform_async)
-      allow(worker).to receive(:perform_in)
+      worker_klass = worker.constantize
+
+      allow(worker_klass).to receive(:perform_async)
+      allow(worker_klass).to receive(:perform_in)
     end
 
     write_reactive_cache(subject, data, *qualifiers) unless subject.nil?

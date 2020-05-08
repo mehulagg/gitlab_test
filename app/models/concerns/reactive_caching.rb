@@ -9,8 +9,8 @@ module ReactiveCaching
   ExceededReactiveCacheLimit = Class.new(StandardError)
 
   WORK_TYPE = {
-    default: ReactiveCachingWorker,
-    external_dependency: ExternalServiceReactiveCachingWorker
+    default: 'ReactiveCachingWorker',
+    external_dependency: 'ExternalServiceReactiveCachingWorker'
   }.freeze
 
   included do
@@ -156,7 +156,7 @@ module ReactiveCaching
     end
 
     def worker_class
-      WORK_TYPE.fetch(self.class.reactive_cache_work_type.to_sym)
+      WORK_TYPE.fetch(self.class.reactive_cache_work_type.to_sym).constantize
     end
 
     def check_exceeded_reactive_cache_limit!(data)
