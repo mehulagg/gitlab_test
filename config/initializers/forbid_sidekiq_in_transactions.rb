@@ -16,7 +16,9 @@ module Sidekiq
 
     module ClassMethods
       module NoEnqueueingFromTransactions
-        %i(perform_async perform_at perform_in).each do |name|
+        %i(perform_async perform_at perform_in
+           bulk_perform_async bulk_perform_in
+           bulk_perform_and_wait bulk_perform_inline).each do |name|
           define_method(name) do |*args|
             if !Sidekiq::Worker.skip_transaction_check && Gitlab::Database.inside_transaction?
               begin
