@@ -154,6 +154,12 @@ class ProjectPolicy < BasePolicy
     ::Feature.enabled?(:build_service_proxy, @subject)
   end
 
+  # Need to check if the User is an user because
+  # deploy tokens can be injected instead of users
+  condition(:token_prevents_access) do
+    user&.is_a?(User) && !token_allows_access?
+  end
+
   features = %w[
     merge_requests
     issues
@@ -268,6 +274,8 @@ class ProjectPolicy < BasePolicy
     enable :public_user_access
     enable :read_project_for_iids
   end
+
+  rule { token_prevents_access }.prevent_all
 
   rule { can?(:public_user_access) }.policy do
     enable :public_access
@@ -660,6 +668,10 @@ class ProjectPolicy < BasePolicy
 
   def project
     @subject
+  end
+
+  def token_allows_access?
+    AccessTokenValidationService.from_user(@user).allows?(project)
   end
 end
 
