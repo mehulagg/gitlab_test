@@ -8,4 +8,8 @@ class ProjectAccessToken < ApplicationRecord
   validates :project, presence: true
   validates :personal_access_token, presence: true
   validates :user, presence: true
+
+  def self.allowing(project)
+    where(project: project)
+  end
 end
