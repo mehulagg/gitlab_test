@@ -255,7 +255,7 @@ describe 'layouts/nav/sidebar/_project' do
 
     context 'when packages are disabled' do
       before do
-        stub_licensed_features(packages: false)
+        allow(Gitlab.config.packages).to receive(:enabled).and_return(false)
       end
 
       it 'packages list link is not visible' do
@@ -299,7 +299,7 @@ describe 'layouts/nav/sidebar/_project' do
 
     context 'when both packages and container registry are disabled' do
       before do
-        stub_licensed_features(packages: false)
+        allow(Gitlab.config.packages).to receive(:enabled).and_return(false)
         stub_container_registry_config(enabled: false)
       end
 

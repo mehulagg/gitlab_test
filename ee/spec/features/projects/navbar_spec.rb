@@ -60,8 +60,7 @@ describe 'Project navbar' do
 
   context 'when packages are available' do
     before do
-      stub_config(packages: { enabled: true }, registry: { enabled: false })
-      stub_licensed_features(packages: true)
+      allow(Gitlab.config.packages).to receive(:enabled).and_return(true)
 
       insert_after_nav_item(
         _('Operations'),

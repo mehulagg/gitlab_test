@@ -17,7 +17,6 @@ describe API::NpmPackages do
 
   before do
     project.add_developer(user)
-    stub_licensed_features(packages: true)
   end
 
   shared_examples 'a package that requires auth' do
@@ -134,14 +133,6 @@ describe API::NpmPackages do
       end
     end
 
-    it 'rejects request if feature is not in the license' do
-      stub_licensed_features(packages: false)
-
-      get_package(package)
-
-      expect(response).to have_gitlab_http_status(:forbidden)
-    end
-
     def get_package(package, params = {}, headers = {})
       get api("/packages/npm/#{package.name}"), params: params, headers: headers
     end
@@ -219,14 +210,6 @@ describe API::NpmPackages do
       end
 
       it_behaves_like 'a package file that requires auth'
-    end
-
-    it 'rejects request if feature is not in the license' do
-      stub_licensed_features(packages: false)
-
-      get_file(package_file)
-
-      expect(response).to have_gitlab_http_status(:forbidden)
     end
 
     def get_file(package_file, params = {})
@@ -424,52 +407,38 @@ describe API::NpmPackages do
 
     subject { get api(url) }
 
-    context 'with packages feature enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with public project' do
+      context 'with authenticated user' do
+        subject { get api(url, personal_access_token: personal_access_token) }
+
+        it_behaves_like 'returns package tags', :maintainer
+        it_behaves_like 'returns package tags', :developer
+        it_behaves_like 'returns package tags', :reporter
+        it_behaves_like 'returns package tags', :guest
       end
 
-      context 'with public project' do
-        context 'with authenticated user' do
-          subject { get api(url, personal_access_token: personal_access_token) }
-
-          it_behaves_like 'returns package tags', :maintainer
-          it_behaves_like 'returns package tags', :developer
-          it_behaves_like 'returns package tags', :reporter
-          it_behaves_like 'returns package tags', :guest
-        end
-
-        context 'with unauthenticated user' do
-          it_behaves_like 'returns package tags', :no_type
-        end
-      end
-
-      context 'with private project' do
-        before do
-          project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
-        end
-
-        context 'with authenticated user' do
-          subject { get api(url, personal_access_token: personal_access_token) }
-
-          it_behaves_like 'returns package tags', :maintainer
-          it_behaves_like 'returns package tags', :developer
-          it_behaves_like 'returns package tags', :reporter
-          it_behaves_like 'rejects package tags access', :guest, :forbidden
-        end
-
-        context 'with unauthenticated user' do
-          it_behaves_like 'rejects package tags access', :no_type, :forbidden
-        end
+      context 'with unauthenticated user' do
+        it_behaves_like 'returns package tags', :no_type
       end
     end
 
-    context 'with packages feature disabled' do
+    context 'with private project' do
       before do
-        stub_licensed_features(packages: false)
+        project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
       end
 
-      it_behaves_like 'rejects package tags access', :no_type, :forbidden
+      context 'with authenticated user' do
+        subject { get api(url, personal_access_token: personal_access_token) }
+
+        it_behaves_like 'returns package tags', :maintainer
+        it_behaves_like 'returns package tags', :developer
+        it_behaves_like 'returns package tags', :reporter
+        it_behaves_like 'rejects package tags access', :guest, :forbidden
+      end
+
+      context 'with unauthenticated user' do
+        it_behaves_like 'rejects package tags access', :no_type, :forbidden
+      end
     end
   end
 
@@ -482,52 +451,38 @@ describe API::NpmPackages do
 
     subject { put api(url), env: { 'api.request.body': version } }
 
-    context 'with packages feature enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with public project' do
+      context 'with authenticated user' do
+        subject { put api(url, personal_access_token: personal_access_token), env: { 'api.request.body': version } }
+
+        it_behaves_like 'create package tag', :maintainer
+        it_behaves_like 'create package tag', :developer
+        it_behaves_like 'rejects package tags access', :reporter, :forbidden
+        it_behaves_like 'rejects package tags access', :guest, :forbidden
       end
 
-      context 'with public project' do
-        context 'with authenticated user' do
-          subject { put api(url, personal_access_token: personal_access_token), env: { 'api.request.body': version } }
-
-          it_behaves_like 'create package tag', :maintainer
-          it_behaves_like 'create package tag', :developer
-          it_behaves_like 'rejects package tags access', :reporter, :forbidden
-          it_behaves_like 'rejects package tags access', :guest, :forbidden
-        end
-
-        context 'with unauthenticated user' do
-          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
-        end
-      end
-
-      context 'with private project' do
-        before do
-          project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
-        end
-
-        context 'with authenticated user' do
-          subject { put api(url, personal_access_token: personal_access_token), env: { 'api.request.body': version } }
-
-          it_behaves_like 'create package tag', :maintainer
-          it_behaves_like 'create package tag', :developer
-          it_behaves_like 'rejects package tags access', :reporter, :forbidden
-          it_behaves_like 'rejects package tags access', :guest, :forbidden
-        end
-
-        context 'with unauthenticated user' do
-          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
-        end
+      context 'with unauthenticated user' do
+        it_behaves_like 'rejects package tags access', :no_type, :unauthorized
       end
     end
 
-    context 'with packages feature disabled' do
+    context 'with private project' do
       before do
-        stub_licensed_features(packages: false)
+        project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
       end
 
-      it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+      context 'with authenticated user' do
+        subject { put api(url, personal_access_token: personal_access_token), env: { 'api.request.body': version } }
+
+        it_behaves_like 'create package tag', :maintainer
+        it_behaves_like 'create package tag', :developer
+        it_behaves_like 'rejects package tags access', :reporter, :forbidden
+        it_behaves_like 'rejects package tags access', :guest, :forbidden
+      end
+
+      context 'with unauthenticated user' do
+        it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+      end
     end
   end
 
@@ -540,52 +495,38 @@ describe API::NpmPackages do
 
     subject { delete api(url) }
 
-    context 'with packages feature enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with public project' do
+      context 'with authenticated user' do
+        subject { delete api(url, personal_access_token: personal_access_token) }
+
+        it_behaves_like 'delete package tag', :maintainer
+        it_behaves_like 'rejects package tags access', :developer, :forbidden
+        it_behaves_like 'rejects package tags access', :reporter, :forbidden
+        it_behaves_like 'rejects package tags access', :guest, :forbidden
       end
 
-      context 'with public project' do
-        context 'with authenticated user' do
-          subject { delete api(url, personal_access_token: personal_access_token) }
-
-          it_behaves_like 'delete package tag', :maintainer
-          it_behaves_like 'rejects package tags access', :developer, :forbidden
-          it_behaves_like 'rejects package tags access', :reporter, :forbidden
-          it_behaves_like 'rejects package tags access', :guest, :forbidden
-        end
-
-        context 'with unauthenticated user' do
-          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
-        end
-      end
-
-      context 'with private project' do
-        before do
-          project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
-        end
-
-        context 'with authenticated user' do
-          subject { delete api(url, personal_access_token: personal_access_token) }
-
-          it_behaves_like 'delete package tag', :maintainer
-          it_behaves_like 'rejects package tags access', :developer, :forbidden
-          it_behaves_like 'rejects package tags access', :reporter, :forbidden
-          it_behaves_like 'rejects package tags access', :guest, :forbidden
-        end
-
-        context 'with unauthenticated user' do
-          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
-        end
+      context 'with unauthenticated user' do
+        it_behaves_like 'rejects package tags access', :no_type, :unauthorized
       end
     end
 
-    context 'with packages feature disabled' do
+    context 'with private project' do
       before do
-        stub_licensed_features(packages: false)
+        project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
       end
 
-      it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+      context 'with authenticated user' do
+        subject { delete api(url, personal_access_token: personal_access_token) }
+
+        it_behaves_like 'delete package tag', :maintainer
+        it_behaves_like 'rejects package tags access', :developer, :forbidden
+        it_behaves_like 'rejects package tags access', :reporter, :forbidden
+        it_behaves_like 'rejects package tags access', :guest, :forbidden
+      end
+
+      context 'with unauthenticated user' do
+        it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+      end
     end
   end
 

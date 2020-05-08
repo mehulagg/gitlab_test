@@ -2534,44 +2534,27 @@ describe Project do
       it { is_expected.to be false }
     end
 
-    context 'with packages disabled' do
-      before do
-        stub_licensed_features(packages: false)
-      end
-
-      it_behaves_like 'returning false examples' do
-        let!(:package) { create(:maven_package, project: project) }
+    context 'with maven packages' do
+      it_behaves_like 'returning true examples' do
         let(:package_type) { :maven }
       end
     end
 
-    context 'with packages enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with npm packages' do
+      it_behaves_like 'returning true examples' do
+        let(:package_type) { :npm }
       end
+    end
 
-      context 'with maven packages' do
-        it_behaves_like 'returning true examples' do
-          let(:package_type) { :maven }
-        end
+    context 'with conan packages' do
+      it_behaves_like 'returning true examples' do
+        let(:package_type) { :conan }
       end
+    end
 
-      context 'with npm packages' do
-        it_behaves_like 'returning true examples' do
-          let(:package_type) { :npm }
-        end
-      end
-
-      context 'with conan packages' do
-        it_behaves_like 'returning true examples' do
-          let(:package_type) { :conan }
-        end
-      end
-
-      context 'with no package type' do
-        it_behaves_like 'returning false examples' do
-          let(:package_type) { nil }
-        end
+    context 'with no package type' do
+      it_behaves_like 'returning false examples' do
+        let(:package_type) { nil }
       end
     end
   end

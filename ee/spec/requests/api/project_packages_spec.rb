@@ -18,80 +18,58 @@ describe API::ProjectPackages do
 
     subject { get api(url) }
 
-    context 'packages feature enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'project is public' do
+      it_behaves_like 'returns packages', :project, :no_type
+    end
+
+    context 'project is private' do
+      let(:project) { create(:project, :private) }
+
+      context 'for unauthenticated user' do
+        it_behaves_like 'rejects packages access', :project, :no_type, :not_found
       end
 
-      context 'project is public' do
-        it_behaves_like 'returns packages', :project, :no_type
-      end
+      context 'for authenticated user' do
+        subject { get api(url, user) }
 
-      context 'project is private' do
-        let(:project) { create(:project, :private) }
+        it_behaves_like 'returns packages', :project, :maintainer
+        it_behaves_like 'returns packages', :project, :developer
+        it_behaves_like 'returns packages', :project, :reporter
+        it_behaves_like 'rejects packages access', :project, :no_type, :not_found
+        it_behaves_like 'rejects packages access', :project, :guest, :forbidden
 
-        context 'for unauthenticated user' do
-          it_behaves_like 'rejects packages access', :project, :no_type, :not_found
-        end
+        context 'user is a maintainer' do
+          before do
+            project.add_maintainer(user)
+          end
 
-        context 'for authenticated user' do
-          subject { get api(url, user) }
+          it 'returns the destroy url' do
+            subject
 
-          it_behaves_like 'returns packages', :project, :maintainer
-          it_behaves_like 'returns packages', :project, :developer
-          it_behaves_like 'returns packages', :project, :reporter
-          it_behaves_like 'rejects packages access', :project, :no_type, :not_found
-          it_behaves_like 'rejects packages access', :project, :guest, :forbidden
-
-          context 'user is a maintainer' do
-            before do
-              project.add_maintainer(user)
-            end
-
-            it 'returns the destroy url' do
-              subject
-
-              expect(json_response.first['_links']).to include('delete_api_path')
-            end
+            expect(json_response.first['_links']).to include('delete_api_path')
           end
         end
       end
+    end
+
+    context 'with pagination params' do
+      let!(:package3) { create(:maven_package, project: project) }
+      let!(:package4) { create(:maven_package, project: project) }
 
       context 'with pagination params' do
-        let!(:package3) { create(:maven_package, project: project) }
-        let!(:package4) { create(:maven_package, project: project) }
+        let!(:package3) { create(:npm_package, project: project) }
+        let!(:package4) { create(:npm_package, project: project) }
 
-        context 'with pagination params' do
-          let!(:package3) { create(:npm_package, project: project) }
-          let!(:package4) { create(:npm_package, project: project) }
-
-          it_behaves_like 'returns paginated packages'
-        end
+        it_behaves_like 'returns paginated packages'
       end
+    end
 
-      context 'with sorting' do
-        let(:package3) { create(:maven_package, project: project, version: '1.1.1', name: 'zzz') }
+    context 'with sorting' do
+      let(:package3) { create(:maven_package, project: project, version: '1.1.1', name: 'zzz') }
 
-        before do
-          travel_to(1.day.ago) do
-            package3
-          end
-        end
-
-        it_behaves_like 'package sorting', 'name' do
-          let(:packages) { [package1, package2, package3] }
-        end
-
-        it_behaves_like 'package sorting', 'created_at' do
-          let(:packages) { [package3, package1, package2] }
-        end
-
-        it_behaves_like 'package sorting', 'version' do
-          let(:packages) { [package3, package2, package1] }
-        end
-
-        it_behaves_like 'package sorting', 'type' do
-          let(:packages) { [package3, package1, package2] }
+      before do
+        travel_to(1.day.ago) do
+          package3
         end
       end
 
@@ -103,23 +81,45 @@ describe API::ProjectPackages do
         it 'returns the named package' do
           url = package_filter_url(:name, 'nuget')
           get api(url, user)
+        end
+      end
 
-          expect(json_response.length).to eq(1)
-          expect(json_response.first['name']).to include(package2.name)
+      it_behaves_like 'package sorting', 'version' do
+        let(:packages) { [package3, package2, package1] }
+      end
+    end
+
+    context 'filtering on package_type' do
+      let_it_be(:package1) { create(:conan_package, project: project) }
+      let_it_be(:package2) { create(:maven_package, project: project) }
+      let_it_be(:package3) { create(:npm_package, project: project) }
+      let_it_be(:package4) { create(:nuget_package, project: project) }
+
+      context 'for each type' do
+        %w[conan maven npm nuget].each do |package_type|
+          it "returns #{package_type} packages" do
+            url = package_filter_url(:type, package_type)
+            get api(url, user)
+
+            expect(json_response.length).to eq(1)
+            expect(json_response.map { |package| package['package_type'] }).to contain_exactly(package_type)
+          end
         end
       end
     end
 
-    context 'packages feature disabled' do
-      before do
-        stub_licensed_features(packages: false)
-      end
-
-      it 'returns 403' do
+    context 'filtering on package_name' do
+      it 'returns the named package' do
+        url = package_filter_url(:name, 'nuget')
         get api(url, user)
 
-        expect(response).to have_gitlab_http_status(:forbidden)
+        expect(json_response.length).to eq(1)
+        expect(json_response.first['name']).to include(package2.name)
       end
+    end
+
+    def package_filter_url(filter, param)
+      "/projects/#{project.id}/packages?package_#{filter}=#{param}"
     end
   end
 
@@ -142,12 +142,49 @@ describe API::ProjectPackages do
       end
     end
 
-    context 'packages feature enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'project is public' do
+      it 'returns 200 and the package information' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
       end
 
-      context 'project is public' do
+      it 'returns 404 when the package does not exist' do
+        get api(no_package_url, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns 404 for the package from a different project' do
+        get api(wrong_package_url, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it_behaves_like 'no destroy url'
+    end
+
+    context 'project is private' do
+      let(:project) { create(:project, :private) }
+
+      it 'returns 404 for non authenticated user' do
+        get api(package_url)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns 404 for a user without access to the project' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      context 'user is a developer' do
+        before do
+          project.add_developer(user)
+        end
+
         it 'returns 200 and the package information' do
           subject
 
@@ -155,165 +192,92 @@ describe API::ProjectPackages do
           expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
         end
 
-        it 'returns 404 when the package does not exist' do
-          get api(no_package_url, user)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
-        it 'returns 404 for the package from a different project' do
-          get api(wrong_package_url, user)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
         it_behaves_like 'no destroy url'
       end
 
-      context 'project is private' do
-        let(:project) { create(:project, :private) }
-
-        it 'returns 404 for non authenticated user' do
-          get api(package_url)
-
-          expect(response).to have_gitlab_http_status(:not_found)
+      context 'user is a maintainer' do
+        before do
+          project.add_maintainer(user)
         end
 
-        it 'returns 404 for a user without access to the project' do
-          subject
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
-        context 'user is a developer' do
-          before do
-            project.add_developer(user)
-          end
-
-          it 'returns 200 and the package information' do
-            subject
-
-            expect(response).to have_gitlab_http_status(:ok)
-            expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
-          end
-
-          it_behaves_like 'no destroy url'
-        end
-
-        context 'user is a maintainer' do
-          before do
-            project.add_maintainer(user)
-          end
-
-          it_behaves_like 'destroy url'
-        end
-
-        context 'with pipeline' do
-          let!(:package1) { create(:npm_package, :with_build, project: project) }
-
-          it 'returns the pipeline info' do
-            project.add_developer(user)
-
-            get api(package_url, user)
-
-            expect(response).to have_gitlab_http_status(:ok)
-            expect(response).to match_response_schema('public_api/v4/packages/package_with_build', dir: 'ee')
-          end
-        end
-      end
-    end
-
-    context 'packages feature disabled' do
-      before do
-        stub_licensed_features(packages: false)
+        it_behaves_like 'destroy url'
       end
 
-      it 'returns 403' do
-        subject
+      context 'with pipeline' do
+        let!(:package1) { create(:npm_package, :with_build, project: project) }
 
-        expect(response).to have_gitlab_http_status(:forbidden)
+        it 'returns the pipeline info' do
+          project.add_developer(user)
+
+          get api(package_url, user)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('public_api/v4/packages/package_with_build', dir: 'ee')
+        end
       end
     end
   end
 
   describe 'DELETE /projects/:id/packages/:package_id' do
-    context 'packages feature enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'project is public' do
+      it 'returns 403 for non authenticated user' do
+        delete api(package_url)
+
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
 
-      context 'project is public' do
-        it 'returns 403 for non authenticated user' do
-          delete api(package_url)
-
-          expect(response).to have_gitlab_http_status(:forbidden)
-        end
-
-        it 'returns 403 for a user without access to the project' do
-          delete api(package_url, user)
-
-          expect(response).to have_gitlab_http_status(:forbidden)
-        end
-      end
-
-      context 'project is private' do
-        let(:project) { create(:project, :private) }
-
-        it 'returns 404 for non authenticated user' do
-          delete api(package_url)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
-        it 'returns 404 for a user without access to the project' do
-          delete api(package_url, user)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
-        it 'returns 404 when the package does not exist' do
-          project.add_maintainer(user)
-
-          delete api(no_package_url, user)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
-        it 'returns 404 for the package from a different project' do
-          project.add_maintainer(user)
-
-          delete api(wrong_package_url, user)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
-
-        it 'returns 403 for a user without enough permissions' do
-          project.add_developer(user)
-
-          delete api(package_url, user)
-
-          expect(response).to have_gitlab_http_status(:forbidden)
-        end
-
-        it 'returns 204' do
-          project.add_maintainer(user)
-
-          delete api(package_url, user)
-
-          expect(response).to have_gitlab_http_status(:no_content)
-        end
-      end
-    end
-
-    context 'packages feature disabled' do
-      before do
-        stub_licensed_features(packages: false)
-      end
-
-      it 'returns 403' do
+      it 'returns 403 for a user without access to the project' do
         delete api(package_url, user)
 
         expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
+    context 'project is private' do
+      let(:project) { create(:project, :private) }
+
+      it 'returns 404 for non authenticated user' do
+        delete api(package_url)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns 404 for a user without access to the project' do
+        delete api(package_url, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns 404 when the package does not exist' do
+        project.add_maintainer(user)
+
+        delete api(no_package_url, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns 404 for the package from a different project' do
+        project.add_maintainer(user)
+
+        delete api(wrong_package_url, user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns 403 for a user without enough permissions' do
+        project.add_developer(user)
+
+        delete api(package_url, user)
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+
+      it 'returns 204' do
+        project.add_maintainer(user)
+
+        delete api(package_url, user)
+
+        expect(response).to have_gitlab_http_status(:no_content)
       end
     end
   end

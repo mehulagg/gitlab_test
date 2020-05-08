@@ -28,7 +28,6 @@ describe API::MavenPackages do
 
   before do
     project.add_developer(user)
-    stub_licensed_features(packages: true)
   end
 
   shared_examples 'tracking the file download event' do
@@ -194,14 +193,6 @@ describe API::MavenPackages do
       it_behaves_like 'downloads with a deploy token'
     end
 
-    it 'rejects request if feature is not in the license' do
-      stub_licensed_features(packages: false)
-
-      download_file(package_file.file_name)
-
-      expect(response).to have_gitlab_http_status(:forbidden)
-    end
-
     context 'project name is different from a package name' do
       before do
         maven_metadatum.update!(path: "wrong_name/#{package.version}")
@@ -319,14 +310,6 @@ describe API::MavenPackages do
       it_behaves_like 'downloads with a deploy token'
     end
 
-    it 'rejects request if feature is not in the license' do
-      stub_licensed_features(packages: false)
-
-      download_file(package_file.file_name)
-
-      expect(response).to have_gitlab_http_status(:forbidden)
-    end
-
     def download_file(file_name, params = {}, request_headers = headers)
       get api("/groups/#{group.id}/-/packages/maven/#{maven_metadatum.path}/#{file_name}"), params: params, headers: request_headers
     end
@@ -397,14 +380,6 @@ describe API::MavenPackages do
       it_behaves_like 'downloads with a job token'
 
       it_behaves_like 'downloads with a deploy token'
-    end
-
-    it 'rejects request if feature is not in the license' do
-      stub_licensed_features(packages: false)
-
-      download_file(package_file.file_name)
-
-      expect(response).to have_gitlab_http_status(:forbidden)
     end
 
     def download_file(file_name, params = {}, request_headers = headers)
@@ -501,14 +476,6 @@ describe API::MavenPackages do
       upload_file
 
       expect(response).to have_gitlab_http_status(:unauthorized)
-    end
-
-    it 'rejects request if feature is not in the license' do
-      stub_licensed_features(packages: false)
-
-      upload_file_with_token
-
-      expect(response).to have_gitlab_http_status(:forbidden)
     end
 
     context 'when params from workhorse are correct' do

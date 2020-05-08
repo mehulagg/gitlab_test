@@ -25,7 +25,6 @@ module EE
       ]
     end
 
-    # rubocop: disable Metrics/CyclomaticComplexity
     override :get_project_nav_tabs
     def get_project_nav_tabs(project, current_user)
       nav_tabs = super
@@ -69,7 +68,6 @@ module EE
 
       nav_tabs
     end
-    # rubocop: enable Metrics/CyclomaticComplexity
 
     override :tab_ability_map
     def tab_ability_map

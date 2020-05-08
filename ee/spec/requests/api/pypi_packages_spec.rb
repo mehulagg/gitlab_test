@@ -17,55 +17,47 @@ describe API::PypiPackages do
 
     subject { get api(url) }
 
-    context 'with packages features enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with valid project' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
+        'PUBLIC'  | :developer  | true  | true  | 'PyPi package versions' | :success
+        'PUBLIC'  | :guest      | true  | true  | 'PyPi package versions' | :success
+        'PUBLIC'  | :developer  | true  | false | 'PyPi package versions' | :success
+        'PUBLIC'  | :guest      | true  | false | 'PyPi package versions' | :success
+        'PUBLIC'  | :developer  | false | true  | 'PyPi package versions' | :success
+        'PUBLIC'  | :guest      | false | true  | 'PyPi package versions' | :success
+        'PUBLIC'  | :developer  | false | false | 'PyPi package versions' | :success
+        'PUBLIC'  | :guest      | false | false | 'PyPi package versions' | :success
+        'PUBLIC'  | :anonymous  | false | true  | 'PyPi package versions' | :success
+        'PRIVATE' | :developer  | true  | true  | 'PyPi package versions' | :success
+        'PRIVATE' | :guest      | true  | true  | 'process PyPi api request' | :forbidden
+        'PRIVATE' | :developer  | true  | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :guest      | true  | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :developer  | false | true  | 'process PyPi api request' | :not_found
+        'PRIVATE' | :guest      | false | true  | 'process PyPi api request' | :not_found
+        'PRIVATE' | :developer  | false | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :guest      | false | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
       end
 
-      context 'with valid project' do
-        using RSpec::Parameterized::TableSyntax
+      with_them do
+        let(:token) { user_token ? personal_access_token.token : 'wrong' }
+        let(:headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
 
-        where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
-          'PUBLIC'  | :developer  | true  | true  | 'PyPi package versions' | :success
-          'PUBLIC'  | :guest      | true  | true  | 'PyPi package versions' | :success
-          'PUBLIC'  | :developer  | true  | false | 'PyPi package versions' | :success
-          'PUBLIC'  | :guest      | true  | false | 'PyPi package versions' | :success
-          'PUBLIC'  | :developer  | false | true  | 'PyPi package versions' | :success
-          'PUBLIC'  | :guest      | false | true  | 'PyPi package versions' | :success
-          'PUBLIC'  | :developer  | false | false | 'PyPi package versions' | :success
-          'PUBLIC'  | :guest      | false | false | 'PyPi package versions' | :success
-          'PUBLIC'  | :anonymous  | false | true  | 'PyPi package versions' | :success
-          'PRIVATE' | :developer  | true  | true  | 'PyPi package versions' | :success
-          'PRIVATE' | :guest      | true  | true  | 'process PyPi api request' | :forbidden
-          'PRIVATE' | :developer  | true  | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :guest      | true  | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :developer  | false | true  | 'process PyPi api request' | :not_found
-          'PRIVATE' | :guest      | false | true  | 'process PyPi api request' | :not_found
-          'PRIVATE' | :developer  | false | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :guest      | false | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
+        subject { get api(url), headers: headers }
+
+        before do
+          project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
         end
 
-        with_them do
-          let(:token) { user_token ? personal_access_token.token : 'wrong' }
-          let(:headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
-
-          subject { get api(url), headers: headers }
-
-          before do
-            project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
-          end
-
-          it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
-        end
+        it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
       end
-
-      it_behaves_like 'deploy token for package GET requests'
-
-      it_behaves_like 'rejects PyPI access with unknown project id'
     end
 
-    it_behaves_like 'rejects PyPI packages access with packages features disabled'
+    it_behaves_like 'deploy token for package GET requests'
+
+    it_behaves_like 'rejects PyPI access with unknown project id'
   end
 
   describe 'POST /api/v4/projects/:id/packages/pypi/authorize' do
@@ -76,54 +68,46 @@ describe API::PypiPackages do
 
     subject { post api(url), headers: headers }
 
-    context 'with packages features enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with valid project' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
+        'PUBLIC'  | :developer  | true  | true  | 'process PyPi api request' | :success
+        'PUBLIC'  | :guest      | true  | true  | 'process PyPi api request' | :forbidden
+        'PUBLIC'  | :developer  | true  | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :guest      | true  | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :developer  | false | true  | 'process PyPi api request' | :forbidden
+        'PUBLIC'  | :guest      | false | true  | 'process PyPi api request' | :forbidden
+        'PUBLIC'  | :developer  | false | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :guest      | false | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :developer  | true  | true  | 'process PyPi api request' | :success
+        'PRIVATE' | :guest      | true  | true  | 'process PyPi api request' | :forbidden
+        'PRIVATE' | :developer  | true  | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :guest      | true  | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :developer  | false | true  | 'process PyPi api request' | :not_found
+        'PRIVATE' | :guest      | false | true  | 'process PyPi api request' | :not_found
+        'PRIVATE' | :developer  | false | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :guest      | false | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
       end
 
-      context 'with valid project' do
-        using RSpec::Parameterized::TableSyntax
+      with_them do
+        let(:token) { user_token ? personal_access_token.token : 'wrong' }
+        let(:user_headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
+        let(:headers) { user_headers.merge(workhorse_header) }
 
-        where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
-          'PUBLIC'  | :developer  | true  | true  | 'process PyPi api request' | :success
-          'PUBLIC'  | :guest      | true  | true  | 'process PyPi api request' | :forbidden
-          'PUBLIC'  | :developer  | true  | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :guest      | true  | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :developer  | false | true  | 'process PyPi api request' | :forbidden
-          'PUBLIC'  | :guest      | false | true  | 'process PyPi api request' | :forbidden
-          'PUBLIC'  | :developer  | false | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :guest      | false | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :developer  | true  | true  | 'process PyPi api request' | :success
-          'PRIVATE' | :guest      | true  | true  | 'process PyPi api request' | :forbidden
-          'PRIVATE' | :developer  | true  | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :guest      | true  | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :developer  | false | true  | 'process PyPi api request' | :not_found
-          'PRIVATE' | :guest      | false | true  | 'process PyPi api request' | :not_found
-          'PRIVATE' | :developer  | false | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :guest      | false | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
+        before do
+          project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
         end
 
-        with_them do
-          let(:token) { user_token ? personal_access_token.token : 'wrong' }
-          let(:user_headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
-          let(:headers) { user_headers.merge(workhorse_header) }
-
-          before do
-            project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
-          end
-
-          it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
-        end
+        it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
       end
-
-      it_behaves_like 'deploy token for package uploads'
-
-      it_behaves_like 'rejects PyPI access with unknown project id'
     end
 
-    it_behaves_like 'rejects PyPI packages access with packages features disabled'
+    it_behaves_like 'deploy token for package GET requests'
+
+    it_behaves_like 'rejects PyPI access with unknown project id'
   end
 
   describe 'POST /api/v4/projects/:id/packages/pypi' do
@@ -147,67 +131,59 @@ describe API::PypiPackages do
       )
     end
 
-    context 'with packages features enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with valid project' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
+        'PUBLIC'  | :developer  | true  | true  | 'PyPi package creation'    | :created
+        'PUBLIC'  | :guest      | true  | true  | 'process PyPi api request' | :forbidden
+        'PUBLIC'  | :developer  | true  | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :guest      | true  | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :developer  | false | true  | 'process PyPi api request' | :forbidden
+        'PUBLIC'  | :guest      | false | true  | 'process PyPi api request' | :forbidden
+        'PUBLIC'  | :developer  | false | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :guest      | false | false | 'process PyPi api request' | :unauthorized
+        'PUBLIC'  | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :developer  | true  | true  | 'process PyPi api request' | :created
+        'PRIVATE' | :guest      | true  | true  | 'process PyPi api request' | :forbidden
+        'PRIVATE' | :developer  | true  | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :guest      | true  | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :developer  | false | true  | 'process PyPi api request' | :not_found
+        'PRIVATE' | :guest      | false | true  | 'process PyPi api request' | :not_found
+        'PRIVATE' | :developer  | false | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :guest      | false | false | 'process PyPi api request' | :unauthorized
+        'PRIVATE' | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
       end
 
-      context 'with valid project' do
-        using RSpec::Parameterized::TableSyntax
-
-        where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
-          'PUBLIC'  | :developer  | true  | true  | 'PyPi package creation'    | :created
-          'PUBLIC'  | :guest      | true  | true  | 'process PyPi api request' | :forbidden
-          'PUBLIC'  | :developer  | true  | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :guest      | true  | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :developer  | false | true  | 'process PyPi api request' | :forbidden
-          'PUBLIC'  | :guest      | false | true  | 'process PyPi api request' | :forbidden
-          'PUBLIC'  | :developer  | false | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :guest      | false | false | 'process PyPi api request' | :unauthorized
-          'PUBLIC'  | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :developer  | true  | true  | 'process PyPi api request' | :created
-          'PRIVATE' | :guest      | true  | true  | 'process PyPi api request' | :forbidden
-          'PRIVATE' | :developer  | true  | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :guest      | true  | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :developer  | false | true  | 'process PyPi api request' | :not_found
-          'PRIVATE' | :guest      | false | true  | 'process PyPi api request' | :not_found
-          'PRIVATE' | :developer  | false | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :guest      | false | false | 'process PyPi api request' | :unauthorized
-          'PRIVATE' | :anonymous  | false | true  | 'process PyPi api request' | :unauthorized
-        end
-
-        with_them do
-          let(:token) { user_token ? personal_access_token.token : 'wrong' }
-          let(:user_headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
-          let(:headers) { user_headers.merge(workhorse_header) }
-
-          before do
-            project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
-          end
-
-          it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
-        end
-      end
-
-      context 'with an invalid package' do
-        let(:token) { personal_access_token.token }
-        let(:user_headers) { build_basic_auth_header(user.username, token) }
+      with_them do
+        let(:token) { user_token ? personal_access_token.token : 'wrong' }
+        let(:user_headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
         let(:headers) { user_headers.merge(workhorse_header) }
 
         before do
-          params[:name] = '.$/@!^*'
-          project.add_developer(user)
+          project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
         end
 
-        it_behaves_like 'returning response status', :bad_request
+        it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
       end
-
-      it_behaves_like 'deploy token for package uploads'
-
-      it_behaves_like 'rejects PyPI access with unknown project id'
     end
 
-    it_behaves_like 'rejects PyPI packages access with packages features disabled'
+    context 'with an invalid package' do
+      let(:token) { personal_access_token.token }
+      let(:user_headers) { build_basic_auth_header(user.username, token) }
+      let(:headers) { user_headers.merge(workhorse_header) }
+
+      before do
+        params[:name] = '.$/@!^*'
+        project.add_developer(user)
+      end
+
+      it_behaves_like 'returning response status', :bad_request
+    end
+
+    it_behaves_like 'deploy token for package uploads'
+
+    it_behaves_like 'rejects PyPI access with unknown project id'
   end
 
   describe 'GET /api/v4/projects/:id/packages/pypi/files/:sha256/*file_identifier' do
@@ -218,66 +194,58 @@ describe API::PypiPackages do
 
     subject { get api(url) }
 
-    context 'with packages features enabled' do
-      before do
-        stub_licensed_features(packages: true)
+    context 'with valid project' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
+        'PUBLIC'  | :developer  | true  | true  | 'PyPi package download' | :success
+        'PUBLIC'  | :guest      | true  | true  | 'PyPi package download' | :success
+        'PUBLIC'  | :developer  | true  | false | 'PyPi package download' | :success
+        'PUBLIC'  | :guest      | true  | false | 'PyPi package download' | :success
+        'PUBLIC'  | :developer  | false | true  | 'PyPi package download' | :success
+        'PUBLIC'  | :guest      | false | true  | 'PyPi package download' | :success
+        'PUBLIC'  | :developer  | false | false | 'PyPi package download' | :success
+        'PUBLIC'  | :guest      | false | false | 'PyPi package download' | :success
+        'PUBLIC'  | :anonymous  | false | true  | 'PyPi package download' | :success
+        'PRIVATE' | :developer  | true  | true  | 'PyPi package download' | :success
+        'PRIVATE' | :guest      | true  | true  | 'PyPi package download' | :success
+        'PRIVATE' | :developer  | true  | false | 'PyPi package download' | :success
+        'PRIVATE' | :guest      | true  | false | 'PyPi package download' | :success
+        'PRIVATE' | :developer  | false | true  | 'PyPi package download' | :success
+        'PRIVATE' | :guest      | false | true  | 'PyPi package download' | :success
+        'PRIVATE' | :developer  | false | false | 'PyPi package download' | :success
+        'PRIVATE' | :guest      | false | false | 'PyPi package download' | :success
+        'PRIVATE' | :anonymous  | false | true  | 'PyPi package download' | :success
       end
 
-      context 'with valid project' do
-        using RSpec::Parameterized::TableSyntax
+      with_them do
+        let(:token) { user_token ? personal_access_token.token : 'wrong' }
+        let(:headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
 
-        where(:project_visibility_level, :user_role, :member, :user_token, :shared_examples_name, :expected_status) do
-          'PUBLIC'  | :developer  | true  | true  | 'PyPi package download' | :success
-          'PUBLIC'  | :guest      | true  | true  | 'PyPi package download' | :success
-          'PUBLIC'  | :developer  | true  | false | 'PyPi package download' | :success
-          'PUBLIC'  | :guest      | true  | false | 'PyPi package download' | :success
-          'PUBLIC'  | :developer  | false | true  | 'PyPi package download' | :success
-          'PUBLIC'  | :guest      | false | true  | 'PyPi package download' | :success
-          'PUBLIC'  | :developer  | false | false | 'PyPi package download' | :success
-          'PUBLIC'  | :guest      | false | false | 'PyPi package download' | :success
-          'PUBLIC'  | :anonymous  | false | true  | 'PyPi package download' | :success
-          'PRIVATE' | :developer  | true  | true  | 'PyPi package download' | :success
-          'PRIVATE' | :guest      | true  | true  | 'PyPi package download' | :success
-          'PRIVATE' | :developer  | true  | false | 'PyPi package download' | :success
-          'PRIVATE' | :guest      | true  | false | 'PyPi package download' | :success
-          'PRIVATE' | :developer  | false | true  | 'PyPi package download' | :success
-          'PRIVATE' | :guest      | false | true  | 'PyPi package download' | :success
-          'PRIVATE' | :developer  | false | false | 'PyPi package download' | :success
-          'PRIVATE' | :guest      | false | false | 'PyPi package download' | :success
-          'PRIVATE' | :anonymous  | false | true  | 'PyPi package download' | :success
+        subject { get api(url), headers: headers }
+
+        before do
+          project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
         end
 
-        with_them do
-          let(:token) { user_token ? personal_access_token.token : 'wrong' }
-          let(:headers) { user_role == :anonymous ? {} : build_basic_auth_header(user.username, token) }
-
-          subject { get api(url), headers: headers }
-
-          before do
-            project.update!(visibility_level: Gitlab::VisibilityLevel.const_get(project_visibility_level, false))
-          end
-
-          it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
-        end
+        it_behaves_like params[:shared_examples_name], params[:user_role], params[:expected_status], params[:member]
       end
-
-      context 'with deploy token headers' do
-        let(:headers) { build_basic_auth_header(deploy_token.username, deploy_token.token) }
-
-        context 'valid token' do
-          it_behaves_like 'returning response status', :success
-        end
-
-        context 'invalid token' do
-          let(:headers) { build_basic_auth_header('foo', 'bar') }
-
-          it_behaves_like 'returning response status', :success
-        end
-      end
-
-      it_behaves_like 'rejects PyPI access with unknown project id'
     end
 
-    it_behaves_like 'rejects PyPI packages access with packages features disabled'
+    context 'with deploy token headers' do
+      let(:headers) { build_basic_auth_header(deploy_token.username, deploy_token.token) }
+
+      context 'valid token' do
+        it_behaves_like 'returning response status', :success
+      end
+
+      context 'invalid token' do
+        let(:headers) { build_basic_auth_header('foo', 'bar') }
+
+        it_behaves_like 'returning response status', :success
+      end
+    end
+
+    it_behaves_like 'rejects PyPI access with unknown project id'
   end
 end
