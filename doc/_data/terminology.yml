@@ -1,20 +1,33 @@
-# data file to (somehow) call from tooltips or popovers
+# Data file to call from terminology tooltips or popovers by `title` and `descrioption`.
+# Build a regex with `{data_title}` and/or `{data_description}`.
 
-gitlab:
-  namespace: |
+namespace:
+  title: "namespace"
+  description: |
     Either a **user name** or a **group name**.
 
-git:
-  repository: |
+repository:
+  title: "repository"
+  description: |
     Where your files live. Often referred by "repo".
-  remote_repository: |
-    Where your files live in GitLab. In your computer it's called **local** repository.
-  fork: |
+
+remote_repository:
+  title: "remote repository"
+  description: |
+    Where your files live in GitLab. In your computer it's called **local**
+    repository.
+
+fork:
+  title: "fork"
+  description: |
     When you want to copy someone else's repository, you **fork**
     the project. By forking it, you'll create a copy of the project into your own
     namespace to have read and write permissions to modify the project files
     and settings.
-  clone: |
+
+clone:
+  title: "clone"
+  description: |
     To create a copy of a remote repository files in your computer, you can either
     **download** or **clone** it. If you download it, you cannot sync it with the
     remote repository on GitLab.
@@ -23,10 +36,15 @@ git:
     computer, but preserve the Git connection with the remote repository so you
     can work on the its files in your computer and then "upload" the changes to
     GitLab.
-  push: |
+
+push:
+  title: "push"
+  description: |
     From a local repository, "upload" the changes to GitLab, in analogy to the
     command `git push`.
-  pull: |
-    Update your local repository with the changes in the remote repository,
-    in analogy to the command `git pull`.
 
+pull:
+  title: "pull"
+  description: |
+    "Download" updates from the remote repository into your local repository,
+    in analogy to the command `git pull`.
