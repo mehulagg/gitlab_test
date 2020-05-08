@@ -27,9 +27,12 @@ export default {
     },
   },
   apollo: {
-    iterations: {
+    data: {
       query: GroupIterationQuery,
-      update: data => data.group.sprints.nodes,
+      update: data => ({
+        iterations: data.group.sprints.nodes,
+        pageInfo: data.group.sprints.pageInfo,
+      }),
       variables() {
         return {
           fullPath: this.groupPath,
@@ -40,7 +43,10 @@ export default {
   },
   data() {
     return {
-      iterations: [],
+      data: {
+        iterations: [],
+        pageInfo: {},
+      },
       loading: 0,
       tabIndex: 0,
     };
@@ -63,12 +69,13 @@ export default {
 
 <template>
   <gl-tabs v-model="tabIndex">
-    <gl-tab class="milestones">
+    <gl-tab>
       <template #title>
         {{ s__('Open') }}
       </template>
       <iterations-list
-        :iterations="iterations"
+        :iterations="data.iterations"
+        :page-info="data.pageInfo"
         :loading="loading"
       />
     </gl-tab>
@@ -77,7 +84,8 @@ export default {
         {{ s__('Closed') }}
       </template>
       <iterations-list
-        :iterations="iterations"
+        :iterations="data.iterations"
+        :page-info="data.pageInfo"
         :loading="loading"
       />
     </gl-tab>
@@ -86,7 +94,8 @@ export default {
         {{ s__('All') }}
       </template>
       <iterations-list
-        :iterations="iterations"
+        :iterations="data.iterations"
+        :page-info="data.pageInfo"
         :loading="loading"
       />
     </gl-tab>
