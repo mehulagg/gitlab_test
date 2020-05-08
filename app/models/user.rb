@@ -94,6 +94,9 @@ class User < ApplicationRecord
   # Virtual attribute for impersonator
   attr_accessor :impersonator
 
+  # Virtual attribute to get the from the 'current_user' the current_personal_access_token
+  attr_accessor :current_personal_access_token
+
   #
   # Relations
   #
