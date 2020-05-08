@@ -1,0 +1,32 @@
+# data file to (somehow) call from tooltips or popovers
+
+gitlab:
+  namespace: |
+    Either a **user name** or a **group name**.
+
+git:
+  repository: |
+    Where your files live. Often referred by "repo".
+  remote_repository: |
+    Where your files live in GitLab. In your computer it's called **local** repository.
+  fork: |
+    When you want to copy someone else's repository, you **fork**
+    the project. By forking it, you'll create a copy of the project into your own
+    namespace to have read and write permissions to modify the project files
+    and settings.
+  clone: |
+    To create a copy of a remote repository files in your computer, you can either
+    **download** or **clone** it. If you download it, you cannot sync it with the
+    remote repository on GitLab.
+
+    By cloning a repository, you'll download a copy of its files to your local
+    computer, but preserve the Git connection with the remote repository so you
+    can work on the its files in your computer and then "upload" the changes to
+    GitLab.
+  push: |
+    From a local repository, "upload" the changes to GitLab, in analogy to the
+    command `git push`.
+  pull: |
+    Update your local repository with the changes in the remote repository,
+    in analogy to the command `git pull`.
+
