@@ -24,7 +24,7 @@ module QA
         end
 
         it 'runs auto devops' do
-          Flow::Login.sign_in
+          Flow::Login.formless_login
 
           # Set an application secret CI variable (prefixed with K8S_SECRET_)
           Resource::CiVariable.fabricate! do |resource|
@@ -99,7 +99,7 @@ module QA
 
     describe 'Auto DevOps', :smoke do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project.visit!
 

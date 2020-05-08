@@ -6,7 +6,7 @@ module QA
   context 'Release', :docker, :runner do
     describe 'Git clone using a deploy key' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @runner_name = "qa-runner-#{Time.now.to_i}"
 

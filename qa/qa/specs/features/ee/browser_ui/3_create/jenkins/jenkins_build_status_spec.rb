@@ -116,7 +116,7 @@ module QA
       end
 
       def login_to_gitlab
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       def patch_host_name(host_name, container_name)

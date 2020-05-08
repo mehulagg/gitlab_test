@@ -25,7 +25,7 @@ module QA
       end
 
       it 'users creates a pipeline which gets processed', :smoke do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Repository::Commit.fabricate_via_api! do |commit|
           commit.project = project

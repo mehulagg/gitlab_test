@@ -8,7 +8,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'displays a graph' do

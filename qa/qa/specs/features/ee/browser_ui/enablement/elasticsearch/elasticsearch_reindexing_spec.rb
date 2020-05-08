@@ -20,7 +20,7 @@ module QA
           project.name = project_name
         end
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Repository::ProjectPush.fabricate! do |push|
           push.project = @project

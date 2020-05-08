@@ -9,7 +9,7 @@ module QA
       let(:key_title) { "key for ssh tests #{Time.now.to_f}" }
 
       it 'user adds an ssh key and pushes code to the repository' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         key = Resource::SSHKey.fabricate_via_api! do |resource|
           resource.title = key_title

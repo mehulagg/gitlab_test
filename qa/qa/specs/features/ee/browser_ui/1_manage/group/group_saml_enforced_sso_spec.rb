@@ -29,7 +29,7 @@ module QA
       end
 
       it 'user clones and pushes to project within a group using Git HTTP' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @project = Resource::Project.fabricate! do |project|
           project.name = 'project-in-saml-enforced-group'

@@ -14,7 +14,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         create_group_board(board_1)
         create_group_board(board_2)

@@ -12,7 +12,7 @@ module QA
       let(:weight_for_issue_2) { 3 }
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Issue.fabricate_via_api! do |issue|
           issue.project = label_board_list.project

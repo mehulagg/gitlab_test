@@ -22,7 +22,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'relates and unrelates one issue to/from another' do

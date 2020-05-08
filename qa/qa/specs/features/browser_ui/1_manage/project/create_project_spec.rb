@@ -4,7 +4,7 @@ module QA
   context 'Manage', :smoke do
     describe 'Project creation' do
       it 'user creates a new project' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         created_project = Resource::Project.fabricate_via_browser_ui! do |project|
           project.name = 'awesome-project'

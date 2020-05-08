@@ -15,7 +15,7 @@ module QA
       end
 
       it 'user registers a new specific runner' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         runner.project.visit!
 

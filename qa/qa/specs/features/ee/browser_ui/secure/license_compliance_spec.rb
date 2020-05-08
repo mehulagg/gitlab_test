@@ -9,7 +9,7 @@ module QA
 
     describe 'License Compliance settings page' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @project = Resource::Project.fabricate_via_api! do |project|
           project.name = Runtime::Env.auto_devops_project_name || 'project-with-secure'
@@ -48,7 +48,7 @@ module QA
       before do
         @executor = "qa-runner-#{Time.now.to_i}"
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @project = Resource::Project.fabricate_via_api! do |project|
           project.name = Runtime::Env.auto_devops_project_name || 'project-with-secure'

@@ -61,7 +61,7 @@ module QA
           CI
         end
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::MergeRequest.fabricate_via_api! do |merge_request|
           merge_request.project = upstream_project

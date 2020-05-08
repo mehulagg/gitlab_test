@@ -17,7 +17,7 @@ module QA
 
       around do |example|
         # Create an SSH key to be used with Git, then remove it after the test
-        Flow::Login.sign_in
+        Flow::Login.formless_login
         ssh_key
 
         example.run

@@ -44,7 +44,7 @@ module QA
         it "user adds #{template[:file_name]} via file template #{template[:name]}" do
           content = fetch_template_from_api(template[:api_path], template[:api_key])
 
-          Flow::Login.sign_in
+          Flow::Login.formless_login
 
           @project.visit!
 

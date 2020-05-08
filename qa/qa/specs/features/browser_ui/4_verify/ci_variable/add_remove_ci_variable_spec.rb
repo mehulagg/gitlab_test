@@ -11,7 +11,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
         add_ci_variable
         open_ci_cd_settings
       end

@@ -4,7 +4,7 @@ module QA
   context 'Plan', :reliable do
     describe 'Issues weight visualization' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       let(:milestone) do

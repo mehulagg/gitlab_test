@@ -13,7 +13,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         weight_of_two = 2
 

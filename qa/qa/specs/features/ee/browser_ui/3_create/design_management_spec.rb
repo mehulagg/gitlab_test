@@ -9,7 +9,7 @@ module QA
       let(:annotation) { "This design is great!" }
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'user adds a design and annotation' do

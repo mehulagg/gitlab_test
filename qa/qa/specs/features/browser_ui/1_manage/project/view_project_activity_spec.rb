@@ -4,7 +4,7 @@ module QA
   context 'Manage' do
     describe 'Project activity' do
       it 'user creates an event in the activity page upon Git push' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Repository::ProjectPush.fabricate! do |push|
           push.file_name = 'README.md'

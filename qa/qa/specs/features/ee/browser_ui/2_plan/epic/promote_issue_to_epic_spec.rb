@@ -4,7 +4,7 @@ module QA
   context 'Plan', :reliable do
     describe 'promote issue to epic' do
       it 'promotes issue to epic' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'promote-issue-to-epic'

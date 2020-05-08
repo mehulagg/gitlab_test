@@ -107,7 +107,7 @@ module QA
 
       context 'group level', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/211528', type: :bug } do
         before do
-          Flow::Login.sign_in
+          Flow::Login.formless_login
 
           Page::Main::Menu.perform(&:go_to_groups)
           Page::Dashboard::Groups.perform { |groups| groups.click_group(Runtime::Namespace.sandbox_name) }

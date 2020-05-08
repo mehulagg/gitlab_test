@@ -4,7 +4,7 @@ module QA
   context 'Configure', :orchestrated, :mattermost do
     describe 'Mattermost support' do
       it 'user creates a group with a mattermost team' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
         Page::Main::Menu.perform(&:go_to_groups)
 
         Page::Dashboard::Groups.perform do |groups|

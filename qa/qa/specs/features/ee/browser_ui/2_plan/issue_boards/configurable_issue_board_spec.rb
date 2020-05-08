@@ -8,7 +8,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
         label_board_list.project.visit!
         Page::Project::Menu.perform(&:go_to_boards)
       end

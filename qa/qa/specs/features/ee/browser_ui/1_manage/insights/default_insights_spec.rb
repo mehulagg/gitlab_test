@@ -18,7 +18,7 @@ module QA
 
     context 'group insights page' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Group.fabricate_via_api!.visit!
 
@@ -30,7 +30,7 @@ module QA
 
     context 'project insights page' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'project-insights'

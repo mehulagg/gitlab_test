@@ -6,7 +6,7 @@ module QA
       let(:my_first_reply) { 'My first reply' }
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Issue.fabricate_via_api!.visit!
 

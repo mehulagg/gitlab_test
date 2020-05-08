@@ -4,7 +4,7 @@ module QA
   context 'Plan', :reliable do
     describe 'Project issue boards' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       let(:issue_title) { 'Issue to test board list' }

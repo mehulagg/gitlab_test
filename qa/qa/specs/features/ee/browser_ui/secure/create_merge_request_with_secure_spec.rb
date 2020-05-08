@@ -20,7 +20,7 @@ module QA
       before do
         @executor = "qa-runner-#{Time.now.to_i}"
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @project = Resource::Project.fabricate_via_api! do |p|
           p.name = Runtime::Env.auto_devops_project_name || 'project-with-secure'

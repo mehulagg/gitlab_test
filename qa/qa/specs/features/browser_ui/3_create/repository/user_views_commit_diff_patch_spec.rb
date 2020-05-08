@@ -31,7 +31,7 @@ module QA
       end
 
       def view_commit
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @project.visit!
         Page::Project::Show.perform do |show|

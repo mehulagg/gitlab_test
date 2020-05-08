@@ -16,7 +16,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'is received by a user for project invitation' do

@@ -11,7 +11,7 @@ module QA
       end
 
       it 'views the merge request email patches' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @merge_request.visit!
         Page::MergeRequest::Show.perform(&:view_email_patches)
@@ -22,7 +22,7 @@ module QA
       end
 
       it 'views the merge request plain diff' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @merge_request.visit!
         Page::MergeRequest::Show.perform(&:view_plain_diff)

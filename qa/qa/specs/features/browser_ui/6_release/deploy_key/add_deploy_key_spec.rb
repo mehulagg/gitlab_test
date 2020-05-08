@@ -4,7 +4,7 @@ module QA
   context 'Release' do
     describe 'Deploy key creation' do
       it 'user adds a deploy key' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         key = Runtime::Key::RSA.new
         deploy_key_title = 'deploy key title'

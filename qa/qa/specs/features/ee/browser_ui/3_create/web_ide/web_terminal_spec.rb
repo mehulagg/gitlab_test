@@ -42,7 +42,7 @@ module QA
           END
         end
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project.visit!
       end

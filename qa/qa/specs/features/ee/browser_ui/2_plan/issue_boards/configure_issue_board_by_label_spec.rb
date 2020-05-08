@@ -14,7 +14,7 @@ module QA
       let(:issue_2) { 'Issue 2' }
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         fabricate_issue_with_label(label_board_list.project, issue_1, doing)
         fabricate_issue_with_label(label_board_list.project, issue_2, ready_for_dev)

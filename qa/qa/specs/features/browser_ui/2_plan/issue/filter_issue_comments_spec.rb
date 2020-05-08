@@ -4,7 +4,7 @@ module QA
   context 'Plan', :reliable do
     describe 'filter issue comments activities' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Issue.fabricate_via_api!.visit!
       end

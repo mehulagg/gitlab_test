@@ -12,7 +12,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         label_board_list.project.add_member(qa_user, Resource::Members::AccessLevel::GUEST)
 

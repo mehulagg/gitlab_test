@@ -170,7 +170,7 @@ module QA
       end
 
       def prepare
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @creator = Resource::User.fabricate_via_api! do |user|
           user.username = Runtime::User.username

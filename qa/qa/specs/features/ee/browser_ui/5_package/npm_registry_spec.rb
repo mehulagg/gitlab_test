@@ -9,7 +9,7 @@ module QA
       let(:package_name) { "@#{registry_scope}/#{project.name}" }
       let(:auth_token) do
         unless Page::Main::Menu.perform(&:signed_in?)
-          Flow::Login.sign_in
+          Flow::Login.formless_login
         end
 
         Resource::PersonalAccessToken.fabricate!.access_token

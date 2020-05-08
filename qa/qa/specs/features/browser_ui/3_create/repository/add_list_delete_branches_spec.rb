@@ -16,7 +16,7 @@ module QA
       commit_message_of_third_branch = "Add #{file_third_branch}"
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project = Resource::Project.fabricate_via_api! do |proj|
           proj.name = 'project-qa-test'

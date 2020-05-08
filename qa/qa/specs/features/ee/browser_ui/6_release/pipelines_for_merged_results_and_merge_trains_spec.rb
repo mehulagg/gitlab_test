@@ -42,7 +42,7 @@ module QA
           )
         end
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
         project.visit!
 
         Page::Project::Menu.perform(&:go_to_general_settings)

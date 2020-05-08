@@ -19,7 +19,7 @@ module QA
 
         Page::Main::Menu.perform(&:sign_out) if Page::Main::Menu.perform { |p| p.has_personal_area?(wait: 0) }
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'xss-test-for-mentions-project'

@@ -4,7 +4,7 @@ module QA
   context 'Plan' do
     describe 'Epics Management' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'creates an epic', :reliable do

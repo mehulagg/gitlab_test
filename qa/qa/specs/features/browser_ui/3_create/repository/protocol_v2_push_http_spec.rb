@@ -4,7 +4,7 @@ module QA
   context 'Create' do
     describe 'Push over HTTP using Git protocol version 2', :requires_git_protocol_v2 do
       it 'user pushes to the repository' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         # Create a project to push to
         project = Resource::Project.fabricate_via_api! do |project|

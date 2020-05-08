@@ -4,7 +4,7 @@ module QA
   context 'Manage' do
     describe 'Add project member' do
       it 'user adds project member' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         user = Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
 

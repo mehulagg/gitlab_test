@@ -4,7 +4,7 @@ module QA
   context 'Create' do
     describe 'Wiki management' do
       it 'user creates, edits, clones, and pushes to the wiki' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         wiki = Resource::Wiki.fabricate_via_browser_ui! do |resource|
           resource.title = 'Home'

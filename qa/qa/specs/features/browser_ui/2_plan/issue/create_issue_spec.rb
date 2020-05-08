@@ -4,7 +4,7 @@ module QA
   context 'Plan', :smoke do
     describe 'Issue creation' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'creates an issue', :reliable do

@@ -24,7 +24,7 @@ module QA
       end
 
       it 'user imports a GitHub repo' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         imported_project # import the project
 

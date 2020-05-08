@@ -17,7 +17,7 @@ module QA
       end
 
       it 'user submits a non-diff review' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         merge_request.visit!
 
@@ -38,7 +38,7 @@ module QA
       end
 
       it 'user submits a diff review' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         merge_request.visit!
 

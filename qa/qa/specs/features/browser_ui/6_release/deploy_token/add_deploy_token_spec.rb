@@ -4,7 +4,7 @@ module QA
   context 'Release', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/213222', type: :flaky } do
     describe 'Deploy token creation' do
       it 'user adds a deploy token' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         deploy_token_name = 'deploy token name'
         one_week_from_now = Date.today + 7

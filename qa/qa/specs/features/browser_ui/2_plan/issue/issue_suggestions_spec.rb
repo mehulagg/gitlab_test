@@ -6,7 +6,7 @@ module QA
       let(:issue_title) { 'Issue Lists are awesome' }
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         Resource::Issue.fabricate_via_api! do |issue|
           issue.title = issue_title

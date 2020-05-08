@@ -119,7 +119,7 @@ module QA
 
       def sign_in
         unless Page::Main::Menu.perform { |p| p.has_personal_area?(wait: 0) }
-          Flow::Login.sign_in
+          Flow::Login.formless_login
         end
       end
     end

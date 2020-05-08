@@ -21,7 +21,7 @@ module QA
         page.visit Runtime::Scenario.gitlab_address
         Page::Main::Menu.perform(&:sign_out_if_signed_in)
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
       end
 
       it 'User logs in to group with SAML SSO' do

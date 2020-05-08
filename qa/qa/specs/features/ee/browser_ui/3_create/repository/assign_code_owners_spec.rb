@@ -19,7 +19,7 @@ module QA
         project.add_member(approver, Resource::Members::AccessLevel::DEVELOPER)
         project.add_member(non_approver, Resource::Members::AccessLevel::DEVELOPER)
 
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         project.visit!
       end

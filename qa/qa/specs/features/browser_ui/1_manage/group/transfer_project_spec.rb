@@ -4,7 +4,7 @@ module QA
   context 'Manage' do
     describe 'Project transfer between groups' do
       it 'user transfers a project between groups' do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         source_group = Resource::Group.fabricate_via_api! do |group|
           group.path = 'source-group'

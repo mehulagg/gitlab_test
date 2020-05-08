@@ -6,7 +6,7 @@ module QA
   context 'Plan' do
     describe 'Group issue boards' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         group = QA::Resource::Group.fabricate_via_api!
 

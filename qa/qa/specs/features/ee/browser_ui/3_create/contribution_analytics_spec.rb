@@ -29,7 +29,7 @@ module QA
       end
 
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         issue.visit!
         Page::Project::Issue::Show.perform(&:click_close_issue_button)
