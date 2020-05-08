@@ -217,6 +217,8 @@ An approval is optional when a security report:
 - Contains no new vulnerabilities.
 - Contains only new vulnerabilities of `low` or `medium` severity.
 
+## Run Security Scans on a schedule or as a one time scan
+
 ## Enabling License Approvals within a project
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13067) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.3.
