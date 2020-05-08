@@ -4,8 +4,6 @@ module SubscriptionsHelper
   include ::Gitlab::Utils::StrongMemoize
 
   def subscription_message
-    return unless ::Gitlab.com?
-
     entity = @project || @group
     namespace = @project&.namespace || @group
 

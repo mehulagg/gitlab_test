@@ -94,15 +94,8 @@ describe SubscriptionsHelper do
     let(:message_mock) { double(:message_mock) }
     let(:user) { double(:user_mock) }
 
-    it 'if it is not Gitlab.com? it returns nil' do
-      allow(Gitlab).to receive(:com?).and_return(false)
-
-      expect(helper.subscription_message).to be_nil
-    end
-
     shared_examples 'subscription message' do
       it 'calls Gitlab::ExpiringSubscriptionMessage and SubscriptionPresenter if is Gitlab.com?' do
-        allow(Gitlab).to receive(:com?).and_return(true)
         allow(helper).to receive(:signed_in?).and_return(true)
         allow(helper).to receive(:current_user).and_return(user)
         allow(helper).to receive(:can?).with(user, :owner_access, entity).and_return(true)
