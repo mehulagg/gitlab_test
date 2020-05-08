@@ -20,7 +20,7 @@ describe('Burnup chart', () => {
         ...props,
       },
       stubs: {
-        'resizable-chart-container': ResizableChartContainer,
+        ResizableChartContainer,
       },
     });
   };
@@ -31,9 +31,9 @@ describe('Burnup chart', () => {
         openIssuesCount: [{ '2019-08-07T00:00:00.000Z': 100 }],
       });
 
-      const data = wrapper.vm.dataSeries;
+      const data = wrapper.find(GlLineChart).props('data');
       expect(data.length).toBe(1);
-      expect(data[0].name).not.toBe('Guideline');
+      expect(data[0].name).toBe('Total');
     });
   });
 
@@ -49,7 +49,6 @@ describe('Burnup chart', () => {
 
       const data = wrapper.find(GlLineChart).props('data');
       expect(data.length).toBe(1);
-      expect(data[0].name).toBe('Issues');
     });
   });
 });

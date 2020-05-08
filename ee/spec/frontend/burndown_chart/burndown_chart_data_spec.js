@@ -1,6 +1,6 @@
 import dateFormat from 'dateformat';
 import timezoneMock from 'timezone-mock';
-import BurndownChartData from 'ee/burndown_chart/burndown_chart_data';
+import BurndownChartData from 'ee/burndown_chart/burn_chart_data';
 
 describe('BurndownChartData', () => {
   const startDate = '2017-03-01';
@@ -16,7 +16,7 @@ describe('BurndownChartData', () => {
     { created_at: '2017-03-03T00:00:00.000Z', weight: 2, action: 'reopened' },
   ];
 
-  describe('generate', () => {
+  describe('generateBurndownTimeseries', () => {
     let burndownChartData;
 
     beforeEach(() => {
@@ -24,7 +24,7 @@ describe('BurndownChartData', () => {
     });
 
     it('generates an array of arrays with date, issue count and weight', () => {
-      expect(burndownChartData.generate()).toEqual([
+      expect(burndownChartData.generateBurndownTimeseries()).toEqual([
         ['2017-03-01', 2, 4],
         ['2017-03-02', 1, 2],
         ['2017-03-03', 3, 6],
@@ -41,7 +41,7 @@ describe('BurndownChartData', () => {
       });
 
       it('has the right start and end dates', () => {
-        expect(burndownChartData.generate()).toEqual([
+        expect(burndownChartData.generateBurndownTimeseries()).toEqual([
           ['2017-03-01', 1, 2],
           ['2017-03-02', 3, 6],
           ['2017-03-03', 3, 6],
@@ -59,7 +59,7 @@ describe('BurndownChartData', () => {
       });
 
       it('generates an array of arrays with date, issue count and weight', () => {
-        expect(burndownChartData.generate()).toEqual([
+        expect(burndownChartData.generateBurndownTimeseries()).toEqual([
           ['2017-03-01', 3, 6],
           ['2017-03-02', 2, 4],
           ['2017-03-03', 4, 8],
@@ -80,7 +80,7 @@ describe('BurndownChartData', () => {
       });
 
       it('counts until today if milestone due date > date today', () => {
-        const chartData = burndownChartData.generate();
+        const chartData = burndownChartData.generateBurndownTimeseries();
 
         expect(dateFormat(Date.now(), 'yyyy-mm-dd')).toEqual('2017-03-02');
         expect(chartData[chartData.length - 1][0]).toEqual('2017-03-02');
@@ -101,7 +101,7 @@ describe('BurndownChartData', () => {
         });
 
         it('generates an array where the first two days counts are zero', () => {
-          expect(burndownChartData.generate()).toEqual([
+          expect(burndownChartData.generateBurndownTimeseries()).toEqual([
             ['2017-03-01', 0, 0],
             ['2017-03-02', 0, 0],
             ['2017-03-03', 1, 2],
@@ -126,7 +126,7 @@ describe('BurndownChartData', () => {
         });
 
         it('generates an array where the middle day count is zero', () => {
-          expect(burndownChartData.generate()).toEqual([
+          expect(burndownChartData.generateBurndownTimeseries()).toEqual([
             ['2017-03-01', 1, 2],
             ['2017-03-02', 0, 0],
             ['2017-03-03', 1, 2],
@@ -151,7 +151,7 @@ describe('BurndownChartData', () => {
         });
 
         it('generates an array where all counts are zero', () => {
-          expect(burndownChartData.generate()).toEqual([
+          expect(burndownChartData.generateBurndownTimeseries()).toEqual([
             ['2017-03-01', 0, 0],
             ['2017-03-02', 0, 0],
             ['2017-03-03', 0, 0],

@@ -36,7 +36,7 @@ export default {
     dataSeries() {
       const series = [
         {
-          name: __('Issues'),
+          name: __('Total'),
           data: this.scope,
         },
       ];

@@ -1,7 +1,7 @@
 import dateFormat from 'dateformat';
 
-export default class BurndownChartData {
-  constructor(burndownEvents, startDate, dueDate) {
+export default class BurnChartData {
+  constructor(events, startDate, dueDate) {
     this.dateFormatMask = 'yyyy-mm-dd';
     this.startDate = startDate;
     this.dueDate = dueDate;
@@ -18,7 +18,7 @@ export default class BurndownChartData {
     this.localStartDate = new Date(`${this.startDate}T00:00:00`);
     this.localEndDate = new Date(`${this.endDate}T00:00:00`);
 
-    this.burndownEvents = this.processRawEvents(burndownEvents);
+    this.events = this.processRawEvents(events);
   }
 
   generateBurnupTimeseries({ milestoneId } = {}) {
@@ -68,7 +68,7 @@ export default class BurndownChartData {
     };
   }
 
-  generate() {
+  generateBurndownTimeseries() {
     let openIssuesCount = 0;
     let openIssuesWeight = 0;
 
@@ -136,7 +136,7 @@ export default class BurndownChartData {
   }
 
   filterAndSummarizeBurndownEvents(filter) {
-    const issues = this.burndownEvents.filter(filter);
+    const issues = this.events.filter(filter);
 
     return {
       count: issues.length,
