@@ -15,14 +15,12 @@ describe 'Burnup charts', :js do
   let_it_be(:issue_2) { create(:issue, created_at: '2020-01-30', project: project, milestone: milestone, weight: 3) }
   let_it_be(:issue_3) { create(:issue, created_at: '2020-01-30', project: project, milestone: milestone, weight: 2) }
 
-  let_it_be(:issue4) { create(:closed_issue, created_at: '2020-01-04', project: project, milestone: milestone, weight: 2) }
-
   let_it_be(:event1) { create(:resource_milestone_event, issue: issue_1, milestone: milestone, action: 'add', created_at: '2020-01-30') }
   let_it_be(:event2) { create(:resource_milestone_event, issue: issue_2, milestone: milestone, action: 'add', created_at: '2020-01-30') }
   let_it_be(:event3) { create(:resource_milestone_event, issue: issue_3, milestone: milestone, action: 'add', created_at: '2020-01-30') }
 
   let_it_be(:event4) { create(:resource_milestone_event, issue: issue_2, milestone: milestone, action: 'remove', created_at: '2020-02-06') }
-  let_it_be(:event5) { create(:resource_milestone_event, issue: issue_3, milestone: milestone, action: 'remove', created_at: '2020-02-06') }
+  let_it_be(:event5) { create(:resource_milestone_event, issue: issue_3, milestone: other_milestone, action: 'add', created_at: '2020-02-06') }
 
   before do
     group.add_developer(user)
