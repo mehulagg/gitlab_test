@@ -8,6 +8,8 @@ You accept and agree to the following terms and conditions for Your present and 
 
   "Contribution" shall mean any original work of authorship, including any modifications or additions to an existing work, that is intentionally submitted by You to GitLab B.V. for inclusion in, or documentation of, any of the products owned or managed by GitLab B.V. (the "Work"). For the purposes of this definition, "submitted" means any form of electronic, verbal, or written communication sent to GitLab B.V. or its representatives, including but not limited to communication on electronic mailing lists, source code control systems, and issue tracking systems that are managed by, or on behalf of, GitLab B.V. for the purpose of discussing and improving the Work, but excluding communication that is conspicuously marked or otherwise designated in writing by You as "Not a Contribution."
 
+  "Other Contributors" shall mean individuals or entities other than You making Contributions under this license.
+
 - **Grant of Copyright License:**
 
   Subject to the terms and conditions of this Agreement, You hereby grant to GitLab B.V. and to recipients of software distributed by GitLab B.V. a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute Your Contributions and such derivative works.
@@ -26,6 +28,10 @@ You accept and agree to the following terms and conditions for Your present and 
 
   You are not expected to provide support for Your Contributions, except to the extent You desire to provide support. You may provide support for free, for a fee, or not at all. Unless required by applicable law or agreed to in writing, You provide Your Contributions on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON- INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE.
 
-You agree to notify GitLab B.V. of any facts or circumstances of which you become aware that would make these representations inaccurate in any respect.
+  You agree to notify GitLab B.V. of any facts or circumstances of which you become aware that would make these representations inaccurate in any respect.
+
+- **Conveyance to Other Contributors:**
+
+  GitLab B.V. grants to Other Contributors a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce and prepare derivative works of contributions made under this license for the purpose of submitting said derivative works to GitLab B.V.
 
 This text is licensed under the [Creative Commons Attribution 3.0 License](https://creativecommons.org/licenses/by/3.0/) and the original source is the Google Open Source Programs Office.
