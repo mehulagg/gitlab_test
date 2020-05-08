@@ -48,7 +48,11 @@ class PersonalAccessToken < ApplicationRecord
   end
 
   def restricted_to_projects?
-    project_access_tokens.exists?
+    project_access_tokens.any?
+  end
+
+  def allows_project?(project)
+    !restricted_to_projects? || project_access_tokens.allowing(project).present?
   end
 
   def self.redis_getdel(user_id)

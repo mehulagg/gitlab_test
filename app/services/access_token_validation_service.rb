@@ -52,4 +52,15 @@ class AccessTokenValidationService
       end
     end
   end
+
+  def allows?(project)
+    return true unless @token
+    return true unless @token.respond_to?(:restricted_to_projects?) && @token.restricted_to_projects?
+
+    @token.allows_project?(project)
+  end
+
+  def self.from_user(user)
+    new(user.current_personal_access_token)
+  end
 end
