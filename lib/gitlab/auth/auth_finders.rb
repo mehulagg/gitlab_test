@@ -104,7 +104,10 @@ module Gitlab
 
         ::PersonalAccessTokens::LastUsedService.new(access_token).execute
 
-        access_token.user || raise(UnauthorizedError)
+        user = access_token.user
+        user&.current_personal_access_token = access_token
+
+        user || raise(UnauthorizedError)
       end
 
       # This returns a deploy token, not a user since a deploy token does not
