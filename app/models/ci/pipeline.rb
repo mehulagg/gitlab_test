@@ -683,6 +683,8 @@ module Ci
           variables.concat(merge_request.predefined_variables)
         end
 
+        variables.append(key: 'CI_KUBERNETES_ACTIVE', value: 'true') if has_kubernetes_active?
+
         if external_pull_request_event? && external_pull_request
           variables.concat(external_pull_request.predefined_variables)
         end
@@ -808,6 +810,14 @@ module Ci
     def test_reports_count
       Rails.cache.fetch(['project', project.id, 'pipeline', id, 'test_reports_count'], force: false) do
         test_reports.total_count
+      end
+    end
+
+    def accessibility_reports
+      Gitlab::Ci::Reports::AccessibilityReports.new.tap do |accessibility_reports|
+        builds.latest.with_reports(Ci::JobArtifact.accessibility_reports).each do |build|
+          build.collect_accessibility_reports!(accessibility_reports)
+        end
       end
     end
 

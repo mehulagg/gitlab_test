@@ -321,6 +321,9 @@ msgstr ""
 msgid "%{firstLabel} +%{labelCount} more"
 msgstr ""
 
+msgid "%{firstMilestoneName} + %{numberOfOtherMilestones} more"
+msgstr ""
+
 msgid "%{global_id} is not a valid id for %{expected_type}."
 msgstr ""
 
@@ -1712,6 +1715,9 @@ msgstr ""
 msgid "AlertManagement|Alerts"
 msgstr ""
 
+msgid "AlertManagement|All alerts"
+msgstr ""
+
 msgid "AlertManagement|Authorize external service"
 msgstr ""
 
@@ -1740,6 +1746,9 @@ msgid "AlertManagement|No alerts available to display. If you think you're seein
 msgstr ""
 
 msgid "AlertManagement|No alerts to display."
+msgstr ""
+
+msgid "AlertManagement|Open"
 msgstr ""
 
 msgid "AlertManagement|Overview"
@@ -2135,6 +2144,9 @@ msgstr ""
 msgid "An error occurred while loading merge requests."
 msgstr ""
 
+msgid "An error occurred while loading milestones"
+msgstr ""
+
 msgid "An error occurred while loading terraform report"
 msgstr ""
 
@@ -2208,6 +2220,9 @@ msgid "An error occurred while saving the approval settings"
 msgstr ""
 
 msgid "An error occurred while saving the template. Please check if the template exists."
+msgstr ""
+
+msgid "An error occurred while searching for milestones"
 msgstr ""
 
 msgid "An error occurred while subscribing to notifications."
@@ -5707,7 +5722,7 @@ msgstr ""
 msgid "ContainerRegistry|Quick Start"
 msgstr ""
 
-msgid "ContainerRegistry|Regular expressions such as %{codeStart}.*-test%{codeEnd} or %{codeStart}dev-.*%{codeEnd} are supported"
+msgid "ContainerRegistry|Regular expressions such as %{codeStart}.*-master%{codeEnd} or %{codeStart}release-.*%{codeEnd} are supported"
 msgstr ""
 
 msgid "ContainerRegistry|Regular expressions such as %{codeStart}.*-test%{codeEnd} or %{codeStart}dev-.*%{codeEnd} are supported. To select all tags, use %{codeStart}.*%{codeEnd}"
@@ -6208,6 +6223,9 @@ msgid "Create merge request and branch"
 msgstr ""
 
 msgid "Create milestone"
+msgstr ""
+
+msgid "Create new"
 msgstr ""
 
 msgid "Create new board"
@@ -6886,11 +6904,6 @@ msgid_plural "Dependencies|%d additional vulnerabilities not shown"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Dependencies|%d vulnerability"
-msgid_plural "Dependencies|%d vulnerabilities"
-msgstr[0] ""
-msgstr[1] ""
-
 msgid "Dependencies|%d vulnerability detected"
 msgid_plural "Dependencies|%d vulnerabilities detected"
 msgstr[0] ""
@@ -6926,12 +6939,6 @@ msgstr ""
 msgid "Dependencies|Packager"
 msgstr ""
 
-msgid "Dependencies|Safe"
-msgstr ""
-
-msgid "Dependencies|Status"
-msgstr ""
-
 msgid "Dependencies|The %{codeStartTag}dependency_scanning%{codeEndTag} job has failed and cannot generate the list. Please ensure the job is running properly and run the pipeline again."
 msgstr ""
 
@@ -6939,9 +6946,6 @@ msgid "Dependencies|Toggle vulnerability list"
 msgstr ""
 
 msgid "Dependencies|Unsupported file(s) detected"
-msgstr ""
-
-msgid "Dependencies|Version"
 msgstr ""
 
 msgid "Dependencies|Vulnerable components"
@@ -7217,13 +7221,25 @@ msgstr ""
 msgid "DesignManagement|Adding a design with the same filename replaces the file in a new version."
 msgstr ""
 
+msgid "DesignManagement|Are you sure you want to cancel changes to this comment?"
+msgstr ""
+
 msgid "DesignManagement|Are you sure you want to cancel creating this comment?"
 msgstr ""
 
 msgid "DesignManagement|Are you sure you want to delete the selected designs?"
 msgstr ""
 
+msgid "DesignManagement|Cancel changes"
+msgstr ""
+
 msgid "DesignManagement|Cancel comment confirmation"
+msgstr ""
+
+msgid "DesignManagement|Cancel comment update confirmation"
+msgstr ""
+
+msgid "DesignManagement|Comment"
 msgstr ""
 
 msgid "DesignManagement|Could not add a new comment. Please try again."
@@ -7233,6 +7249,9 @@ msgid "DesignManagement|Could not create new discussion. Please try again."
 msgstr ""
 
 msgid "DesignManagement|Could not update discussion. Please try again."
+msgstr ""
+
+msgid "DesignManagement|Could not update note. Please try again."
 msgstr ""
 
 msgid "DesignManagement|Delete"
@@ -7262,10 +7281,16 @@ msgstr ""
 msgid "DesignManagement|Go to previous design"
 msgstr ""
 
+msgid "DesignManagement|Keep changes"
+msgstr ""
+
 msgid "DesignManagement|Keep comment"
 msgstr ""
 
 msgid "DesignManagement|Requested design version does not exist. Showing latest version instead"
+msgstr ""
+
+msgid "DesignManagement|Save comment"
 msgstr ""
 
 msgid "DesignManagement|Select all"
@@ -11524,6 +11549,12 @@ msgstr ""
 msgid "Invalid URL"
 msgstr ""
 
+msgid "Invalid container_name"
+msgstr ""
+
+msgid "Invalid cursor parameter"
+msgstr ""
+
 msgid "Invalid cursor value provided"
 msgstr ""
 
@@ -11560,10 +11591,16 @@ msgstr ""
 msgid "Invalid pin code"
 msgstr ""
 
+msgid "Invalid pod_name"
+msgstr ""
+
 msgid "Invalid query"
 msgstr ""
 
 msgid "Invalid repository path"
+msgstr ""
+
+msgid "Invalid search parameter"
 msgstr ""
 
 msgid "Invalid server response"
@@ -12703,6 +12740,9 @@ msgstr ""
 msgid "Manage labels"
 msgstr ""
 
+msgid "Manage milestones"
+msgstr ""
+
 msgid "Manage project labels"
 msgstr ""
 
@@ -13054,6 +13094,9 @@ msgstr ""
 msgid "MergeRequests|Add a reply"
 msgstr ""
 
+msgid "MergeRequests|An error occurred while checking whether another squash is in progress."
+msgstr ""
+
 msgid "MergeRequests|An error occurred while saving the draft comment."
 msgstr ""
 
@@ -13267,6 +13310,9 @@ msgid "Metrics|Legend label (optional)"
 msgstr ""
 
 msgid "Metrics|Link contains an invalid time window, please verify the link to see the requested time range."
+msgstr ""
+
+msgid "Metrics|Link contains invalid chart information, please verify the link to see the expanded panel."
 msgstr ""
 
 msgid "Metrics|Max"
@@ -13961,6 +14007,9 @@ msgid "No merge requests found"
 msgstr ""
 
 msgid "No messages were logged"
+msgstr ""
+
+msgid "No milestone"
 msgstr ""
 
 msgid "No milestones to show"
@@ -15051,6 +15100,9 @@ msgstr ""
 msgid "Pipelines for merge requests are configured. A detached pipeline runs in the context of the merge request, and not against the merged result. Learn more in the documentation for Pipelines for Merged Results."
 msgstr ""
 
+msgid "Pipelines must succeed for merge requests to be eligible to merge. Please enable pipelines for this project to continue. For more information, see the %{linkStart}documentation.%{linkEnd}"
+msgstr ""
+
 msgid "Pipelines settings for '%{project_name}' were successfully updated."
 msgstr ""
 
@@ -15114,7 +15166,7 @@ msgstr ""
 msgid "Pipeline|Commit"
 msgstr ""
 
-msgid "Pipeline|Could not retrieve the pipeline status. For troubleshooting steps, read the %{linkStart}documentation.%{linkEnd}"
+msgid "Pipeline|Could not retrieve the pipeline status. For troubleshooting steps, read the %{linkStart}documentation%{linkEnd}."
 msgstr ""
 
 msgid "Pipeline|Coverage"
@@ -15139,6 +15191,9 @@ msgid "Pipeline|Merge train pipeline"
 msgstr ""
 
 msgid "Pipeline|Merged result pipeline"
+msgstr ""
+
+msgid "Pipeline|No pipeline has been run for this commit."
 msgstr ""
 
 msgid "Pipeline|Pipeline"
@@ -18121,6 +18176,9 @@ msgid "Search"
 msgstr ""
 
 msgid "Search Button"
+msgstr ""
+
+msgid "Search Milestones"
 msgstr ""
 
 msgid "Search an environment spec"
@@ -24982,6 +25040,9 @@ msgstr ""
 msgid "connecting"
 msgstr ""
 
+msgid "container_name can contain only lowercase letters, digits, '-', and '.' and must start and end with an alphanumeric character"
+msgstr ""
+
 msgid "container_name cannot be larger than %{max_length} chars"
 msgstr ""
 
@@ -25687,6 +25748,9 @@ msgid "per day"
 msgstr ""
 
 msgid "pipeline"
+msgstr ""
+
+msgid "pod_name can contain only lowercase letters, digits, '-', and '.' and must start and end with an alphanumeric character"
 msgstr ""
 
 msgid "pod_name cannot be larger than %{max_length} chars"

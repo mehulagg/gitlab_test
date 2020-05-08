@@ -219,6 +219,19 @@ describe Project do
         end
       end
     end
+
+    describe '.has_vulnerabilities' do
+      let_it_be(:project_1) { create(:project) }
+      let_it_be(:project_2) { create(:project) }
+
+      before do
+        create(:vulnerability, project: project_1)
+      end
+
+      subject { described_class.has_vulnerabilities }
+
+      it { is_expected.to contain_exactly(project_1) }
+    end
   end
 
   describe 'validations' do
@@ -849,7 +862,7 @@ describe Project do
     with_them do
       let(:project) { build(:project, :mirror, import_url: import_url, import_data_attributes: { auth_method: auth_method } ) }
 
-      it do
+      specify do
         expect(project.repository).to receive(:fetch_upstream).with(expected, forced: false)
 
         project.fetch_mirror
@@ -2522,31 +2535,6 @@ describe Project do
 
   describe '#license_compliance' do
     it { expect(subject.license_compliance).to be_instance_of(::SCA::LicenseCompliance) }
-  end
-
-  describe '#expire_caches_before_rename' do
-    let(:project) { create(:project, :repository) }
-    let(:repo)    { double(:repo, exists?: true, before_delete: true) }
-    let(:wiki)    { double(:wiki, exists?: true, before_delete: true) }
-    let(:design)  { double(:design, exists?: true) }
-
-    it 'expires the caches of the design repository' do
-      allow(Repository).to receive(:new)
-        .with('foo', project, shard: project.repository_storage)
-        .and_return(repo)
-
-      allow(Repository).to receive(:new)
-        .with('foo.wiki', project, shard: project.repository_storage, repo_type: Gitlab::GlRepository::WIKI)
-        .and_return(wiki)
-
-      allow(Repository).to receive(:new)
-        .with('foo.design', project, shard: project.repository_storage, repo_type: ::Gitlab::GlRepository::DESIGN)
-        .and_return(design)
-
-      expect(design).to receive(:before_delete)
-
-      project.expire_caches_before_rename('foo')
-    end
   end
 
   describe '#template_source?' do
