@@ -9,9 +9,11 @@ class AddSettingsToServices < ActiveRecord::Migration[6.0]
 
   def up
     add_column :services, :integration_properties, :jsonb, null: true
+    add_column :services, :group_id, :integer, null: true
   end
 
   def down
     remove_column :services, :integration_properties
+    remove_column :services, :group_id
   end
 end
