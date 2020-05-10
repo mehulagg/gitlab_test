@@ -34,22 +34,24 @@ let autoEntriesCount = 0;
 let watchAutoEntries = [];
 const defaultEntries = ['./main'];
 
+// generate automatic entry points
 function generateEntries() {
-  // generate automatic entry points
-  const autoEntries = {};
-  const autoEntriesMap = {};
-  const pageEntries = glob.sync('pages/**/index.js', {
-    cwd: path.join(ROOT_PATH, 'app/assets/javascripts'),
-  });
-  watchAutoEntries = [path.join(ROOT_PATH, 'app/assets/javascripts/pages/')];
-
+  // auxiliary methods
   function generateAutoEntries(path, prefix = '.') {
     const chunkPath = path.replace(/\/index\.js$/, '');
     const chunkName = chunkPath.replace(/\//g, '.');
     autoEntriesMap[chunkName] = `${prefix}/${path}`;
   }
 
+  const autoEntries = {};
+  const autoEntriesMap = {};
+
+  // deprecated page entries
+  const pageEntries = glob.sync('pages/**/index.js', {
+    cwd: path.join(ROOT_PATH, 'app/assets/javascripts'),
+  });
   pageEntries.forEach(path => generateAutoEntries(path));
+  watchAutoEntries = [path.join(ROOT_PATH, 'app/assets/javascripts/pages/')];
 
   if (IS_EE) {
     const eePageEntries = glob.sync('pages/**/index.js', {
@@ -59,10 +61,25 @@ function generateEntries() {
     watchAutoEntries.push(path.join(ROOT_PATH, 'ee/app/assets/javascripts/pages/'));
   }
 
+  // webpacker-compatible app/javascript/packs
+  const packEntries = glob.sync('packs/**/index.js', {
+    cwd: path.join(ROOT_PATH, 'app/javascript/packs'),
+  });
+  packEntries.forEach(path => generateAutoEntries(path));
+  watchAutoEntries.push(path.join(ROOT_PATH, 'app/javascript/packs/'));
+
+  if (IS_EE) {
+    const eePackEntries = glob.sync('packs/**/index.js', {
+      cwd: path.join(ROOT_PATH, 'ee/app/javascript/packs'),
+    });
+    eePackEntries.forEach(path => generateAutoEntries(path));
+    watchAutoEntries.push(path.join(ROOT_PATH, 'ee/app/javascript/packs/'));
+  }
+
+  // import ancestor entrypoints within their children
   const autoEntryKeys = Object.keys(autoEntriesMap);
   autoEntriesCount = autoEntryKeys.length;
 
-  // import ancestor entrypoints within their children
   autoEntryKeys.forEach(entry => {
     const entryPaths = [autoEntriesMap[entry]];
     const segments = entry.split('.');
