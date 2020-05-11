@@ -24,6 +24,7 @@ queues_config_hash[:namespace] = Gitlab::Redis::Queues::SIDEKIQ_NAMESPACE
 
 # Default is to retry 25 times with exponential backoff. That's too much.
 Sidekiq.default_worker_options = { retry: 3 }
+Rails.logger.info("***** DEBUG - default_worker_options: #{Sidekiq.default_worker_options}, caller: #{caller.first(10).inspect} ****")
 
 if Rails.env.development?
   Sidekiq.default_worker_options[:backtrace] = true

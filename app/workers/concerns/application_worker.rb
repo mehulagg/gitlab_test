@@ -34,6 +34,9 @@ module ApplicationWorker
     def set_queue
       queue_name = [queue_namespace, base_queue_name].compact.join(':')
 
+      Rails.logger.info("***** SETTING QUEUE #{queue_name}, caller: #{caller.first(10).inspect} *****")
+      Rails.logger.info("***** set_queue CURRENT OPTIONS #{sidekiq_options} *****")
+
       sidekiq_options queue: queue_name # rubocop:disable Cop/SidekiqOptionsQueue
     end
 
