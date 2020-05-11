@@ -166,48 +166,62 @@ describe('BurndownChartData', () => {
     const milestoneEvents = [
       // day 1: add two issues to the milestone
       {
-        created_at: '2017-03-01T00:00:00.000Z',
         action: 'add',
-        milestone_id: milestoneId,
+        created_at: '2017-03-01T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 1,
+        milestone_id: milestoneId,
+        weight: null,
       },
       {
-        created_at: '2017-03-01T00:00:00.000Z',
         action: 'add',
-        milestone_id: milestoneId,
+        created_at: '2017-03-01T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 2,
+        milestone_id: milestoneId,
+        weight: null,
       },
       // day 2: remove both issues we added yesterday, add a different issue
       {
-        created_at: '2017-03-02T00:00:00.000Z',
         action: 'remove',
-        milestone_id: milestoneId,
+        created_at: '2017-03-02T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 2,
+        milestone_id: milestoneId,
+        weight: null,
       },
       {
-        created_at: '2017-03-02T00:00:00.000Z',
         action: 'add',
-        milestone_id: milestoneId,
+        created_at: '2017-03-02T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 3,
+        milestone_id: milestoneId,
+        weight: null,
       },
       {
-        created_at: '2017-03-02T00:00:00.000Z',
         action: 'remove',
-        milestone_id: milestoneId,
+        created_at: '2017-03-02T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 1,
+        milestone_id: milestoneId,
+        weight: null,
       },
       // day 3: remove yesterday's issue, also remove an issue that didn't have an `add` event
       {
-        created_at: '2017-03-03T00:00:00.000Z',
         action: 'remove',
-        milestone_id: milestoneId,
+        created_at: '2017-03-03T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 2,
+        milestone_id: milestoneId,
+        weight: null,
       },
       {
-        created_at: '2017-03-03T00:00:00.000Z',
         action: 'remove',
-        milestone_id: milestoneId,
+        created_at: '2017-03-03T00:00:00.000Z',
+        event_type: 'milestone',
         issue_id: 4,
+        milestone_id: milestoneId,
+        weight: null,
       },
     ];
 
@@ -222,17 +236,50 @@ describe('BurndownChartData', () => {
     });
 
     it('starts from 0', () => {
-      const { burnupScope } = burndownChartData().generateBurnupTimeseries({
+      const { burnupScope } = burndownChartData([]).generateBurnupTimeseries({
         milestoneId,
       });
 
-      expect(burnupScope[0][1]).toEqual(2);
+      expect(burnupScope[0]).toEqual(
+        ['2017-03-01', 0],
+        ['2017-03-01', 0],
+        ['2017-03-01', 0],
+      );
+    });
+
+    it('does not go below zero with extra remove events', () => {
+      const { burnupScope } = burndownChartData([
+        {
+          action: 'remove',
+          created_at: '2017-03-02T00:00:00.000Z',
+          event_type: 'milestone',
+          issue_id: 2,
+          milestone_id: milestoneId,
+          weight: null,
+        },
+        {
+          action: 'remove',
+          created_at: '2017-03-02T00:00:00.000Z',
+          event_type: 'milestone',
+          issue_id: 1,
+          milestone_id: milestoneId,
+          weight: null,
+        },
+      ]).generateBurnupTimeseries({
+        milestoneId,
+      });
+
+      expect(burnupScope).toEqual([
+        ['2017-03-01', 0],
+        ['2017-03-02', 0],
+        ['2017-03-03', 0],
+      ]);
+
     });
 
     it('ignores removed from other milestones', () => {
       const differentMilestoneId = 600;
       const events = [
-        // day 1: add two issues to the milestone
         {
           created_at: '2017-03-01T00:00:00.000Z',
           action: 'add',
@@ -249,7 +296,11 @@ describe('BurndownChartData', () => {
 
       const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
 
-      expect(burnupScope[0][1]).toEqual(1);
+      expect(burnupScope).toEqual([
+        ['2017-03-01', 1],
+        ['2017-03-02', 1],
+        ['2017-03-03', 1],        
+      ]);
     });
   });
 });

@@ -32,7 +32,7 @@ describe 'Burnup charts', :js do
       stub_licensed_features(group_burndown_charts: true)
     end
 
-    it 'shows burnup chart' do
+    it 'shows burnup chart, with a point per day' do
       visit group_milestone_path(milestone.group, milestone)
 
       expect(burnup_chart_points.count).to be(12)
