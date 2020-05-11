@@ -35,7 +35,11 @@ export default () => {
     Promise.all(fetchData)
       .then(([burndownResponse, burnupResponse]) => {
         const burndownEvents = burndownResponse.data;
-        const burndownChartData = new BurndownChartData(burndownEvents, startDate, dueDate).generateBurndownTimeseries();
+        const burndownChartData = new BurndownChartData(
+          burndownEvents,
+          startDate,
+          dueDate,
+        ).generateBurndownTimeseries();
 
         const burnupEvents = burnupResponse.data;
 
