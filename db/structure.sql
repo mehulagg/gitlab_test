@@ -3442,11 +3442,7 @@ CREATE VIEW public.integrations AS
             services.group_id,
             services.integration_properties,
             regexp_replace((services.type)::text, 'Service'::text, 'Integration'::text) AS type,
-            NULLIF(COALESCE(parent.id, instance.id), services.id) AS parent_id,
-                CASE
-                    WHEN (groupo.type IS NULL) THEN NULL::integer
-                    ELSE groupo.id
-                END AS associated_group_id
+            NULLIF(COALESCE(parent.id, instance.id), services.id) AS parent_id
            FROM ((((public.services
              LEFT JOIN public.projects project ON ((services.project_id = project.id)))
              LEFT JOIN public.namespaces groupo ON ((project.namespace_id = groupo.id)))
@@ -3463,9 +3459,7 @@ CREATE VIEW public.integrations AS
             services_with_parent.integration_properties,
             services_with_parent.type,
             services_with_parent.parent_id,
-            services_with_parent.associated_group_id,
-            services_with_parent.integration_properties AS settings,
-            1 AS level
+            services_with_parent.integration_properties AS settings
            FROM services_with_parent
           WHERE (services_with_parent.parent_id IS NULL)
         UNION ALL
@@ -3475,9 +3469,7 @@ CREATE VIEW public.integrations AS
             services_with_parent.integration_properties,
             services_with_parent.type,
             services_with_parent.parent_id,
-            services_with_parent.associated_group_id,
-            public.jsonb_merge_accum(recursive_services_1.integration_properties, services_with_parent.integration_properties) AS settings,
-            (recursive_services_1.level + 1) AS level
+            public.jsonb_merge_accum(recursive_services_1.integration_properties, services_with_parent.integration_properties) AS settings
            FROM (recursive_services recursive_services_1
              JOIN services_with_parent ON ((recursive_services_1.id = services_with_parent.parent_id)))
         )
@@ -3487,9 +3479,7 @@ CREATE VIEW public.integrations AS
     recursive_services.integration_properties,
     recursive_services.type,
     recursive_services.parent_id,
-    recursive_services.associated_group_id,
-    recursive_services.settings,
-    recursive_services.level
+    recursive_services.settings
    FROM recursive_services;
 
 CREATE TABLE public.internal_ids (
