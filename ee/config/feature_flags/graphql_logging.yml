@@ -1,0 +1,8 @@
+---
+name: graphql_logging
+introduced_by_url: 
+rollout_issue_url: 
+author: 
+group: 
+type: other
+default_enabled: true

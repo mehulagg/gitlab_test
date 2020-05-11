@@ -1,0 +1,11 @@
+---
+name: group_activity_analytics
+introduced_by_url: 
+rollout_issue_url: 
+author: 
+group: 
+type: other
+# This default is undefined as
+# it is often executed by `feature_available?` with `default_enabled: true`
+# it is often executed by `beta_feature_available?` with `default_enabled: false`
+default_enabled: [false, true]

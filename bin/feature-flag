@@ -1,0 +1,338 @@
+#!/usr/bin/env ruby
+#
+# Generate a feature flag entry file in the correct location.
+#
+# Automatically stages the file and amends the previous commit if the `--amend`
+# argument is used.
+
+require 'optparse'
+require 'yaml'
+require 'fileutils'
+require 'cgi'
+
+Options = Struct.new(
+  :amend,
+  :author,
+  :dry_run,
+  :force,
+  :introduced_by_url,
+  :rollout_issue_url,
+  :name,
+  :group,
+  :type,
+  :ee
+)
+INVALID_TYPE = -1
+
+module FeatureFlagHelpers
+  Abort = Class.new(StandardError)
+  Done = Class.new(StandardError)
+
+  MAX_FILENAME_LENGTH = 99 # GNU tar has a 99 character limit
+
+  def capture_stdout(cmd)
+    output = IO.popen(cmd, &:read)
+    fail_with "command failed: #{cmd.join(' ')}" unless $?.success?
+    output
+  end
+
+  def fail_with(message)
+    raise Abort, "\e[31merror\e[0m #{message}"
+  end
+end
+
+class FeatureFlagOptionParser
+  extend FeatureFlagHelpers
+
+  Type = Struct.new(:name, :description, :ask_issue)
+  TYPES = [
+    Type.new('licensed', 'Licensed feature', false),
+    Type.new('config', 'Feature flag used to configure features', false),
+    Type.new('development', 'Temporary feature flag used for feature development', true),
+    Type.new('other', 'Other', false)
+  ].freeze
+
+  TYPES_OFFSET = 1
+
+  class << self
+    def parse(argv)
+      options = Options.new
+
+      parser = OptionParser.new do |opts|
+        opts.banner = "Usage: #{__FILE__} [options] <name>\n\n"
+
+        # Note: We do not provide a shorthand for this in order to match the `git
+        # commit` interface
+        opts.on('--amend', 'Amend the previous commit') do |value|
+          options.amend = value
+        end
+
+        opts.on('-f', '--force', 'Overwrite an existing entry') do |value|
+          options.force = value
+        end
+
+        opts.on('-m', '--introductionary-merge-request [string]', Integer, 'URL to Merge Request introducing Feature Flag') do |value|
+          options.introduction_merge_request = value
+        end
+
+        opts.on('-i', '--removal-issue [string]', Integer, 'URL to Issue removing Feature Flag') do |value|
+          options.introduction_merge_request = value
+        end
+
+        opts.on('-n', '--dry-run', "Don't actually write anything, just print") do |value|
+          options.dry_run = value
+        end
+
+        opts.on('-u', '--git-username', 'Use Git user.name configuration as the author') do |value|
+          options.author = git_user_name if value
+        end
+
+        opts.on('-g', '--group [string]', String, "The group introducing a feature flag, like: `group::apm`") do |value|
+          options.type = parse_type(value)
+        end
+
+        opts.on('-t', '--type [string]', String, "The category of the change, valid options are: #{TYPES.map(&:name).join(', ')}") do |value|
+          options.type = parse_type(value)
+        end
+
+        opts.on('-e', '--ee', 'Generate a changelog entry for GitLab EE') do |value|
+          options.ee = value
+        end
+
+        opts.on('-h', '--help', 'Print help message') do
+          $stdout.puts opts
+          raise Done.new
+        end
+      end
+
+      parser.parse!(argv)
+
+      unless argv.one?
+        $stdout.puts parser.help
+        $stdout.puts
+        raise Abort, 'only one argument is allowed'
+      end
+
+      # Name is a first name
+      options.name = argv.first
+
+      options
+    end
+
+    def read_group
+      $stdout.puts ">> Please specify the group introducing feature flag, like `group::apm`:"
+
+      loop do
+        $stdout.print "\n?> "
+        group = $stdin.gets.strip
+        group = nil if group.empty?
+
+        return group if group.nil? || group.start_with?('group::')
+
+        $stdout.puts "Group needs to include `group::`"
+      end
+    end
+
+    def read_type
+      read_type_message
+
+      type = $stdin.gets
+      type = TYPES[type.to_i - TYPES_OFFSET]
+      assert_valid_type!(type)
+
+      type.name
+    end
+
+    def read_issue_url(options)
+      return unless find_type(options.type)&.ask_issue
+
+      url = "https://gitlab.com/gitlab-org/gitlab/-/issues/new"
+      title = "[Feature flag] Rollout of `#{options.name}``"
+      description = File.read('.gitlab/issue_templates/Feature Flag Roll Out.md')
+      description.sub!(':feature_name', options.name)
+
+      issue_new_url = url + "?" +
+        "issue[title]=" + CGI.escape(title) + "&"
+        # TODO: We should be able to pick `issueable_template`
+        # + "issue[description]=" + CGI.escape(description)
+
+      $stdout.puts ">> Open this URL and fill the rest of details:"
+      $stdout.puts issue_new_url
+      $stdout.puts
+
+      $stdout.puts ">> Paste URL here, or enter to skip:"
+
+      loop do
+        $stdout.print "\n?> "
+        created_url = $stdin.gets.strip
+        created_url = nil if created_url.empty?
+        return created_url if created_url.nil? || created_url.start_with?('https://')
+
+        $stdout.puts "URL needs to start with https://"
+      end
+    end
+
+    private
+
+    def find_type(name)
+      TYPES.find do |type|
+        type.name == name
+      end
+    end
+
+    def parse_type(name)
+      type_found = find_type(name)
+      type_found ? type_found.name : INVALID_TYPE
+    end
+
+    def read_type_message
+      $stdout.puts ">> Please specify the index for the category of your change:"
+      $stdout.puts
+      TYPES.each_with_index do |type, index|
+        $stdout.puts "#{index + TYPES_OFFSET}. #{type.name}: #{type.description}"
+      end
+      $stdout.print "\n?> "
+    end
+
+    def assert_valid_type!(type)
+      unless type
+        raise Abort, "Invalid category index, please select an index between 1 and #{TYPES.length}"
+      end
+    end
+
+    def git_user_name
+      capture_stdout(%w[git config user.name]).strip
+    end
+  end
+end
+
+class FeatureFlagEntry
+  include FeatureFlagHelpers
+
+  attr_reader :options
+
+  def initialize(options)
+    @options = options
+  end
+
+  def execute
+    assert_feature_branch!
+    assert_name!
+    assert_new_file!
+
+    # Read type from $stdin unless is already set
+    options.type ||= FeatureFlagOptionParser.read_type
+    options.group ||= FeatureFlagOptionParser.read_group
+    assert_valid_type!
+    options.rollout_issue_url ||= FeatureFlagOptionParser.read_issue_url(options)
+
+    $stdout.puts "\e[32mcreate\e[0m #{file_path}"
+    $stdout.puts contents
+
+    unless options.dry_run
+      write
+      amend_commit if options.amend
+    end
+
+    if editor
+      system("#{editor} '#{file_path}'")
+    end
+  end
+
+  private
+
+  def contents
+    yaml_content = YAML.dump(
+      'name'                          => options.name,
+      'introduced_by_url' => options.introduced_by_url,
+      'rollout_issue_url'                 => options.rollout_issue_url,
+      'author'                        => options.author,
+      'group'                         => options.group,
+      'type'                          => options.type,
+      'default_enabled'               => false
+    )
+    remove_trailing_whitespace(yaml_content)
+  end
+
+  def write
+    FileUtils.mkdir_p(File.dirname(file_path))
+    File.write(file_path, contents)
+  end
+
+  def editor
+    ENV['EDITOR']
+  end
+
+  def amend_commit
+    fail_with "git add failed" unless system(*%W[git add #{file_path}])
+
+    Kernel.exec(*%w[git commit --amend])
+  end
+
+  def assert_feature_branch!
+    return unless branch_name == 'master'
+
+    fail_with "Create a branch first!"
+  end
+
+  def assert_new_file!
+    return unless File.exist?(file_path)
+    return if options.force
+
+    fail_with "#{file_path} already exists! Use `--force` to overwrite."
+  end
+
+  def assert_name!
+    return if options.name.match(/\A[a-z0-9_-]+\Z/)
+
+    fail_with "Provide a name for the feature flag that is [a-z0-9_-]"
+  end
+
+  def assert_valid_type!
+    return unless options.type && options.type == INVALID_TYPE
+
+    fail_with 'Invalid category given!'
+  end
+
+  def file_path
+    base_path = File.join(
+      feature_flags_path,
+      options.name)
+
+    # Add padding for .yml extension
+    base_path[0..MAX_FILENAME_LENGTH - 5] + '.yml'
+  end
+
+  def feature_flags_path
+    path = File.join('config', 'feature_flags')
+    path = File.join('ee', path) if ee?
+
+    path
+  end
+
+  def ee?
+    options.ee
+  end
+
+  def branch_name
+    @branch_name ||= capture_stdout(%w[git symbolic-ref --short HEAD]).strip
+  end
+
+  def remove_trailing_whitespace(yaml_content)
+    yaml_content.gsub(/ +$/, '')
+  end
+end
+
+if $0 == __FILE__
+  begin
+    options = FeatureFlagOptionParser.parse(ARGV)
+    FeatureFlagEntry.new(options).execute
+  rescue FeatureFlagHelpers::Abort => ex
+    $stderr.puts ex.message
+    exit 1
+  rescue FeatureFlagHelpers::Done
+    exit
+  end
+end
+
+# vim: ft=ruby

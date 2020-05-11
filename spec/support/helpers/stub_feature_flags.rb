@@ -71,4 +71,8 @@ module StubFeatureFlags
 
     StubFeatureGate.new(object)
   end
+
+  def allow_undefined_feature_flags
+    allow(Feature).to receive(:validate_feature_flag!).and_return(false)
+  end
 end

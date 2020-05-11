@@ -5,6 +5,10 @@ require 'spec_helper'
 describe StubFeatureFlags do
   let(:feature_name) { :test_feature }
 
+  before do
+    allow_undefined_feature_flags
+  end
+
   describe '#stub_feature_flags' do
     using RSpec::Parameterized::TableSyntax
 

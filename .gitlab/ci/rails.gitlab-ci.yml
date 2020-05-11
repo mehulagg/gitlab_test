@@ -86,6 +86,8 @@ downtime_check:
       - rspec_profiling/
       - tmp/capybara/
       - tmp/memory_test/
+      - config/feature_flags
+      - ee/config/feature_flags
       - log/*.log
     reports:
       junit: junit_rspec.xml
@@ -231,6 +233,8 @@ rspec:coverage:
       - coverage/index.html
       - coverage/assets/
       - tmp/memory_test/
+      - config/feature_flags
+      - ee/config/feature_flags
 # EE/FOSS: default refs (MRs, master, schedules) jobs #
 #######################################################
 

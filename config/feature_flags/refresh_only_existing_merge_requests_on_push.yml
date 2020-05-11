@@ -1,0 +1,8 @@
+---
+name: refresh_only_existing_merge_requests_on_push
+introduced_by_url: 
+rollout_issue_url: 
+author: 
+group: 
+type: other
+default_enabled: true

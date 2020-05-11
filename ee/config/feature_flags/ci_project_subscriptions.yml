@@ -1,0 +1,10 @@
+---
+name: ci_project_subscriptions
+introduced_by_url: 
+rollout_issue_url: 
+author: 
+group: 
+type: other
+# This feature flag is used as licensed feature with `default_enabled: true`
+# and is used as development feature flag with `default_enabled: false`
+default_enabled: [false, true]

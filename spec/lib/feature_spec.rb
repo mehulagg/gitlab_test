@@ -6,6 +6,7 @@ describe Feature, stub_feature_flags: false do
   before do
     # reset Flipper AR-engine
     Feature.reset
+    allow_undefined_feature_flags
   end
 
   describe '.get' do

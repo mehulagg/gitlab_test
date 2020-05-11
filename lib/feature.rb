@@ -73,6 +73,8 @@ class Feature
           raise InvalidFeatureFlagError,
             "The thing '#{thing.class.name}' for feature flag '#{key}' needs to include `FeatureGate` or implement `flipper_id`"
         end
+
+        Feature::Definition.valid_usage!(key, default_enabled: default_enabled)
       end
 
       # During setup the database does not exist yet. So we haven't stored a value
@@ -140,6 +142,12 @@ class Feature
     # to register Flipper groups.
     # See https://docs.gitlab.com/ee/development/feature_flags.html#feature-groups
     def register_feature_groups
+    end
+
+    def register_definitions
+      return unless check_feature_flags_definition?
+
+      Feature::Definition.load_all!
     end
 
     private

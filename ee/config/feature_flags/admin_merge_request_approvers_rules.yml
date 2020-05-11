@@ -1,0 +1,8 @@
+---
+name: admin_merge_request_approvers_rules
+introduced_by_url: 
+rollout_issue_url: 
+author: 
+group: 
+type: other
+default_enabled: true
