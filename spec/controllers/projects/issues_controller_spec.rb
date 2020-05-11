@@ -187,6 +187,33 @@ describe Projects::IssuesController do
         expect(assigns(:issue)).to be_a_new(Issue)
       end
 
+      where(:conf_value, :conf_result) do
+        [
+          [true, true],
+          ['true', true],
+          ['TRUE', true],
+          [false, false],
+          ['false', false],
+          ['FALSE', false]
+        ]
+      end
+
+      with_them do
+        it 'sets the confidential flag to the expected value' do
+          get :new, params: {
+            namespace_id: project.namespace,
+            project_id: project,
+            issue: {
+              confidential: conf_value
+            }
+          }
+
+          assigned_issue = assigns(:issue)
+          expect(assigned_issue).to be_a_new(Issue)
+          expect(assigned_issue.confidential).to eq conf_result
+        end
+      end
+
       it 'fills in an issue for a merge request' do
         project_with_repository = create(:project, :repository)
         project_with_repository.add_developer(user)
@@ -1688,6 +1715,33 @@ describe Projects::IssuesController do
             expect(json_response_note_ids).not_to include(branch_note.id)
           end
         end
+      end
+    end
+  end
+
+  describe 'GET #designs' do
+    context 'when project has moved' do
+      let(:new_project) { create(:project) }
+      let(:issue) { create(:issue, project: new_project) }
+
+      before do
+        sign_in(user)
+
+        project.route.destroy
+        new_project.redirect_routes.create!(path: project.full_path)
+        new_project.add_developer(user)
+      end
+
+      it 'redirects from an old issue/designs correctly' do
+        get :designs,
+            params: {
+              namespace_id: project.namespace,
+              project_id: project,
+              id: issue
+            }
+
+        expect(response).to redirect_to(designs_project_issue_path(new_project, issue))
+        expect(response).to have_gitlab_http_status(:found)
       end
     end
   end

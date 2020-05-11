@@ -151,6 +151,7 @@ module EE
       scope :with_designs, -> { where(id: DesignManagement::Design.select(:project_id)) }
       scope :with_deleting_user, -> { includes(:deleting_user) }
       scope :with_compliance_framework_settings, -> { preload(:compliance_framework_setting) }
+      scope :has_vulnerabilities, -> { joins(:vulnerabilities).group(:id) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
@@ -167,7 +168,7 @@ module EE
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled?, to: :ci_cd_settings
-      delegate :gitlab_subscription, to: :namespace
+      delegate :closest_gitlab_subscription, to: :namespace
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -312,7 +313,7 @@ module EE
     end
 
     def first_class_vulnerabilities_enabled?
-      ::Feature.enabled?(:first_class_vulnerabilities, self)
+      ::Feature.enabled?(:first_class_vulnerabilities, self, default_enabled: true)
     end
 
     def feature_available?(feature, user = nil)
@@ -653,17 +654,6 @@ module EE
 
     def feature_usage
       super.presence || build_feature_usage
-    end
-
-    override(:expire_caches_before_rename)
-    def expire_caches_before_rename(old_path)
-      super
-
-      design = ::Repository.new("#{old_path}#{::Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: ::Gitlab::GlRepository::DESIGN)
-
-      if design.exists?
-        design.before_delete
-      end
     end
 
     def package_already_taken?(package_name)

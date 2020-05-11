@@ -21,6 +21,52 @@ describe GroupPolicy do
     it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :destroy_epic) }
   end
 
+  context 'when iterations feature is disabled' do
+    let(:current_user) { owner }
+
+    before do
+      stub_licensed_features(iterations: false)
+    end
+
+    it { is_expected.to be_disallowed(:read_iteration, :create_iteration, :admin_iteration) }
+  end
+
+  context 'when iterations feature is enabled' do
+    before do
+      stub_licensed_features(iterations: true)
+    end
+
+    context 'when user is a developer' do
+      let(:current_user) { developer }
+
+      it { is_expected.to be_allowed(:read_iteration, :create_iteration, :admin_iteration) }
+    end
+
+    context 'when user is a guest' do
+      let(:current_user) { guest }
+
+      it { is_expected.to be_allowed(:read_iteration) }
+      it { is_expected.to be_disallowed(:create_iteration, :admin_iteration) }
+    end
+
+    context 'when user is logged out' do
+      let(:current_user) { nil }
+
+      it { is_expected.to be_disallowed(:read_iteration, :create_iteration, :admin_iteration) }
+    end
+
+    context 'when project is private' do
+      let(:group) { create(:group, :public, :owner_subgroup_creation_only) }
+
+      context 'when user is logged out' do
+        let(:current_user) { nil }
+
+        it { is_expected.to be_allowed(:read_iteration) }
+        it { is_expected.to be_disallowed(:create_iteration, :admin_iteration) }
+      end
+    end
+  end
+
   context 'when cluster deployments is available' do
     let(:current_user) { maintainer }
 
@@ -59,9 +105,7 @@ describe GroupPolicy do
       subject { described_class.new(non_group_member, private_group) }
 
       context 'when user is not invited to any of the group projects' do
-        it do
-          is_expected.not_to be_allowed(:read_group_contribution_analytics)
-        end
+        it { is_expected.not_to be_allowed(:read_group_contribution_analytics) }
       end
 
       context 'when user is invited to a group project, but not to the group' do
@@ -71,9 +115,7 @@ describe GroupPolicy do
           private_project.add_guest(non_group_member)
         end
 
-        it do
-          is_expected.not_to be_allowed(:read_group_contribution_analytics)
-        end
+        it { is_expected.not_to be_allowed(:read_group_contribution_analytics) }
       end
     end
   end
@@ -628,7 +670,7 @@ describe GroupPolicy do
         stub_licensed_features(security_dashboard: true)
       end
 
-      it do
+      specify do
         expect_allowed(:read_group)
         expect_allowed(:read_group_security_dashboard)
         expect_disallowed(:upload_file)

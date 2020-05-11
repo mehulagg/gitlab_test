@@ -1,6 +1,17 @@
 import { mount } from '@vue/test-utils';
-import { GlEmptyState, GlTable, GlAlert, GlLoadingIcon, GlNewDropdown, GlIcon } from '@gitlab/ui';
+import {
+  GlEmptyState,
+  GlTable,
+  GlAlert,
+  GlLoadingIcon,
+  GlNewDropdown,
+  GlBadge,
+  GlIcon,
+  GlTab,
+} from '@gitlab/ui';
+import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import AlertManagementList from '~/alert_management/components/alert_management_list.vue';
+import { ALERTS_STATUS_TABS } from '../../../../app/assets/javascripts/alert_management/constants';
 
 import mockAlerts from '../mocks/alerts.json';
 
@@ -12,6 +23,9 @@ describe('AlertManagementList', () => {
   const findAlert = () => wrapper.find(GlAlert);
   const findLoader = () => wrapper.find(GlLoadingIcon);
   const findStatusDropdown = () => wrapper.find(GlNewDropdown);
+  const findStatusFilterTabs = () => wrapper.findAll(GlTab);
+  const findNumberOfAlertsBadge = () => wrapper.findAll(GlBadge);
+  const findDateFields = () => wrapper.findAll(TimeAgo);
 
   function mountComponent({
     props = {
@@ -20,6 +34,8 @@ describe('AlertManagementList', () => {
     },
     data = {},
     loading = false,
+    alertListStatusFilteringEnabled = false,
+    stubs = {},
   } = {}) {
     wrapper = mount(AlertManagementList, {
       propsData: {
@@ -27,6 +43,9 @@ describe('AlertManagementList', () => {
         enableAlertManagementPath: '/link',
         emptyAlertSvgPath: 'illustration/path',
         ...props,
+      },
+      provide: {
+        glFeatures: { alertListStatusFilteringEnabled },
       },
       data() {
         return data;
@@ -40,6 +59,7 @@ describe('AlertManagementList', () => {
           },
         },
       },
+      stubs,
     });
   }
 
@@ -56,6 +76,56 @@ describe('AlertManagementList', () => {
   describe('alert management feature renders empty state', () => {
     it('shows empty state', () => {
       expect(wrapper.find(GlEmptyState).exists()).toBe(true);
+    });
+  });
+
+  describe('Status Filter Tabs', () => {
+    describe('alertListStatusFilteringEnabled feature flag enabled', () => {
+      beforeEach(() => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: { alerts: mockAlerts },
+          loading: false,
+          alertListStatusFilteringEnabled: true,
+          stubs: {
+            GlTab: true,
+          },
+        });
+      });
+
+      it('should display filter tabs for all statuses', () => {
+        const tabs = findStatusFilterTabs().wrappers;
+        tabs.forEach((tab, i) => {
+          expect(tab.text()).toContain(ALERTS_STATUS_TABS[i].title);
+        });
+      });
+
+      it('should have number of items badge along with status tab', () => {
+        expect(findNumberOfAlertsBadge().length).toEqual(ALERTS_STATUS_TABS.length);
+        expect(
+          findNumberOfAlertsBadge()
+            .at(0)
+            .text(),
+        ).toEqual(`${mockAlerts.length}`);
+      });
+    });
+
+    describe('alertListStatusFilteringEnabled feature flag disabled', () => {
+      beforeEach(() => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: { alerts: mockAlerts },
+          loading: false,
+          alertListStatusFilteringEnabled: false,
+          stubs: {
+            GlTab: true,
+          },
+        });
+      });
+
+      it('should NOT display tabs', () => {
+        expect(findStatusFilterTabs()).not.toExist();
+      });
     });
   });
 
@@ -128,6 +198,46 @@ describe('AlertManagementList', () => {
             .find(GlIcon)
             .classes('icon-critical'),
         ).toBe(true);
+      });
+    });
+
+    describe('handle date fields', () => {
+      it('should display time ago dates when values provided', () => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: {
+            alerts: [
+              {
+                iid: 1,
+                startedAt: '2020-03-17T23:18:14.996Z',
+                endedAt: '2020-04-17T23:18:14.996Z',
+                severity: 'high',
+              },
+            ],
+            errored: false,
+          },
+          loading: false,
+        });
+        expect(findDateFields().length).toBe(2);
+      });
+
+      it('should not display time ago dates when values not provided', () => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: {
+            alerts: [
+              {
+                iid: 1,
+                startedAt: null,
+                endedAt: null,
+                severity: 'high',
+              },
+            ],
+            errored: false,
+          },
+          loading: false,
+        });
+        expect(findDateFields().exists()).toBe(false);
       });
     });
   });

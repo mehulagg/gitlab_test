@@ -44,7 +44,7 @@ module QA
           mr.source_branch = 'license-management-mr'
           mr.target_branch = 'master'
           mr.target = 'master'
-          mr.file_name = 'gl-license-management-report.json'
+          mr.file_name = 'gl-license-scanning-report.json'
           mr.file_content =
             <<~FILE_UPDATE
             {

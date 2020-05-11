@@ -138,7 +138,7 @@ module Vulnerabilities
 
     def state
       return 'dismissed' if dismissal_feedback.present?
-      return 'detected' unless Feature.enabled?(:first_class_vulnerabilities, project)
+      return 'detected' unless Feature.enabled?(:first_class_vulnerabilities, project, default_enabled: true)
 
       if vulnerability.nil?
         'detected'
@@ -256,6 +256,14 @@ module Vulnerabilities
 
     def evidence
       metadata.dig('evidence', 'summary')
+    end
+
+    def message
+      metadata.dig('message')
+    end
+
+    def cve
+      metadata.dig('cve')
     end
 
     alias_method :==, :eql? # eql? is necessary in some cases like array intersection

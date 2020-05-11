@@ -121,14 +121,14 @@ describe ProjectsHelper do
       subject { helper.project_security_dashboard_config(project, pipeline) }
 
       it 'checks if first vulnerability class is enabled' do
-        expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project)
+        expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project, default_enabled: true)
 
         subject
       end
 
       context 'when first first class vulnerabilities is enabled for project' do
         before do
-          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project).and_return(true)
+          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project, default_enabled: true).and_return(true)
         end
 
         it 'checks if first vulnerability class is enabled' do
@@ -141,7 +141,7 @@ describe ProjectsHelper do
 
       context 'when first first class vulnerabilities is disabled for project' do
         before do
-          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project).and_return(false)
+          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project, default_enabled: true).and_return(false)
         end
 
         it 'checks if first vulnerability class is enabled' do
@@ -235,60 +235,6 @@ describe ProjectsHelper do
                          ab_feature_enabled? && !security_dashboard_feature_available? && can_admin_namespace?
 
         expect(helper.show_discover_project_security?(project)).to eq(expected_value)
-      end
-    end
-  end
-
-  describe '#subscription_message' do
-    let(:gitlab_subscription) { double(:gitlab_subscription) }
-    let(:decorated_mock) { double(:decorated_mock) }
-    let(:message_mock) { double(:message_mock) }
-    let(:user) { double(:user_mock) }
-
-    it 'if it is not Gitlab.com? it returns nil' do
-      allow(Gitlab).to receive(:com?).and_return(false)
-
-      expect(helper.subscription_message).to be_nil
-    end
-
-    it 'calls Gitlab::ExpiringSubscriptionMessage and SubscriptionPresenter if is Gitlab.com?' do
-      allow(Gitlab).to receive(:com?).and_return(true)
-      allow(helper).to receive(:signed_in?).and_return(true)
-      allow(helper).to receive(:current_user).and_return(user)
-      allow(helper).to receive(:can?).with(user, :owner_access, project).and_return(true)
-      allow(project).to receive(:gitlab_subscription).and_return(gitlab_subscription)
-
-      expect(SubscriptionPresenter).to receive(:new).with(gitlab_subscription).and_return(decorated_mock)
-      expect(::Gitlab::ExpiringSubscriptionMessage).to receive(:new).with(
-        subscribable: decorated_mock,
-        signed_in: true,
-        is_admin: true,
-        namespace: project.namespace
-      ).and_return(message_mock)
-      expect(message_mock).to receive(:message).and_return('hey yay yay yay')
-
-      expect(helper.subscription_message).to eq('hey yay yay yay')
-    end
-  end
-
-  describe '#decorated_subscription' do
-    subject { helper.decorated_subscription }
-
-    context 'when a subscription exists' do
-      let(:gitlab_subscription) { build_stubbed(:gitlab_subscription) }
-
-      it 'returns a decorator' do
-        allow(project).to receive(:gitlab_subscription).and_return(gitlab_subscription)
-
-        expect(subject).to be_a(SubscriptionPresenter)
-      end
-    end
-
-    context 'when no subscription exists' do
-      it 'returns a nil object' do
-        allow(project).to receive(:gitlab_subscription).and_return(nil)
-
-        expect(subject).to be_nil
       end
     end
   end

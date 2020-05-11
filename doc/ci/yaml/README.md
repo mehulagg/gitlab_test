@@ -756,7 +756,7 @@ Note that `script: rake test` has been overwritten by `script: rake rspec`.
 
 If you do want to include the `rake test`, see [`before_script` and `after_script`](#before_script-and-after_script).
 
-`.tests` in this example is a [hidden key](#hide-jobs), but it's
+`.tests` in this example is a [hidden job](#hide-jobs), but it's
 possible to inherit from regular jobs as well.
 
 `extends` supports multi-level inheritance, however it's not recommended to
@@ -1101,9 +1101,9 @@ useful is not available, please
 ### `only`/`except` (basic)
 
 NOTE: **Note:**
-The [`rules`](#rules) syntax is now the preferred method of setting job policies.
-`only` and `except` are [candidates for deprecation](https://gitlab.com/gitlab-org/gitlab/issues/27449),
-and may be removed in the future.
+The [`rules`](#rules) syntax is an improved, more powerful solution for defining
+when jobs should run or not. Consider using `rules` instead of `only/except` to get
+the most out of your pipelines.
 
 `only` and `except` are two parameters that set a job policy to limit when
 jobs are created:
@@ -2240,7 +2240,12 @@ globally and all jobs will use that definition.
 Use the `paths` directive to choose which files or directories will be cached. Paths
 are relative to the project directory (`$CI_PROJECT_DIR`) and can't directly link outside it.
 Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
-patterns and [`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
+patterns and:
+
+- In [GitLab Runner 13.0](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2620) and later,
+[`doublestar.Glob`](https://pkg.go.dev/github.com/bmatcuk/doublestar@v1.2.2?tab=doc#Match).
+- In GitLab Runner 12.10 and earlier,
+[`filepath.Match`](https://pkg.go.dev/path/filepath/#Match).
 
 Cache all files in `binaries` that end in `.apk` and the `.config` file:
 

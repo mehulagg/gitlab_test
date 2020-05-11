@@ -438,7 +438,12 @@ CREATE TABLE public.application_settings (
     container_expiration_policies_enable_historic_entries boolean DEFAULT false NOT NULL,
     issues_create_limit integer DEFAULT 300 NOT NULL,
     push_rule_id bigint,
-    group_owners_can_manage_default_branch_protection boolean DEFAULT true NOT NULL
+    group_owners_can_manage_default_branch_protection boolean DEFAULT true NOT NULL,
+    container_registry_vendor text DEFAULT ''::text NOT NULL,
+    container_registry_version text DEFAULT ''::text NOT NULL,
+    container_registry_features text[] DEFAULT '{}'::text[] NOT NULL,
+    CONSTRAINT check_d03919528d CHECK ((char_length(container_registry_vendor) <= 255)),
+    CONSTRAINT check_e5aba18f02 CHECK ((char_length(container_registry_version) <= 255))
 );
 
 CREATE SEQUENCE public.application_settings_id_seq
@@ -1025,6 +1030,25 @@ CREATE SEQUENCE public.ci_builds_runner_session_id_seq
 
 ALTER SEQUENCE public.ci_builds_runner_session_id_seq OWNED BY public.ci_builds_runner_session.id;
 
+CREATE TABLE public.ci_daily_build_group_report_results (
+    id bigint NOT NULL,
+    date date NOT NULL,
+    project_id bigint NOT NULL,
+    last_pipeline_id bigint NOT NULL,
+    ref_path text NOT NULL,
+    group_name text NOT NULL,
+    data jsonb NOT NULL
+);
+
+CREATE SEQUENCE public.ci_daily_build_group_report_results_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.ci_daily_build_group_report_results_id_seq OWNED BY public.ci_daily_build_group_report_results.id;
+
 CREATE TABLE public.ci_daily_report_results (
     id bigint NOT NULL,
     date date NOT NULL,
@@ -1044,6 +1068,25 @@ CREATE SEQUENCE public.ci_daily_report_results_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.ci_daily_report_results_id_seq OWNED BY public.ci_daily_report_results.id;
+
+CREATE TABLE public.ci_freeze_periods (
+    id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    freeze_start character varying(998) NOT NULL,
+    freeze_end character varying(998) NOT NULL,
+    cron_timezone character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+CREATE SEQUENCE public.ci_freeze_periods_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.ci_freeze_periods_id_seq OWNED BY public.ci_freeze_periods.id;
 
 CREATE TABLE public.ci_group_variables (
     id integer NOT NULL,
@@ -1101,7 +1144,7 @@ CREATE TABLE public.ci_job_artifacts (
     updated_at timestamp with time zone NOT NULL,
     expire_at timestamp with time zone,
     file character varying,
-    file_store integer,
+    file_store integer DEFAULT 1,
     file_sha256 bytea,
     file_format smallint,
     file_location smallint,
@@ -3625,7 +3668,7 @@ CREATE TABLE public.lfs_objects (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     file character varying,
-    file_store integer
+    file_store integer DEFAULT 1
 );
 
 CREATE SEQUENCE public.lfs_objects_id_seq
@@ -4597,6 +4640,12 @@ CREATE SEQUENCE public.packages_maven_metadata_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.packages_maven_metadata_id_seq OWNED BY public.packages_maven_metadata.id;
+
+CREATE TABLE public.packages_nuget_dependency_link_metadata (
+    dependency_link_id bigint NOT NULL,
+    target_framework text NOT NULL,
+    CONSTRAINT packages_nuget_dependency_link_metadata_target_framework_constr CHECK ((char_length(target_framework) <= 255))
+);
 
 CREATE TABLE public.packages_package_files (
     id bigint NOT NULL,
@@ -6468,7 +6517,7 @@ CREATE TABLE public.uploads (
     model_type character varying,
     uploader character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    store integer,
+    store integer DEFAULT 1,
     mount_point character varying,
     secret character varying
 );
@@ -7285,7 +7334,11 @@ ALTER TABLE ONLY public.ci_builds_metadata ALTER COLUMN id SET DEFAULT nextval('
 
 ALTER TABLE ONLY public.ci_builds_runner_session ALTER COLUMN id SET DEFAULT nextval('public.ci_builds_runner_session_id_seq'::regclass);
 
+ALTER TABLE ONLY public.ci_daily_build_group_report_results ALTER COLUMN id SET DEFAULT nextval('public.ci_daily_build_group_report_results_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ci_daily_report_results ALTER COLUMN id SET DEFAULT nextval('public.ci_daily_report_results_id_seq'::regclass);
+
+ALTER TABLE ONLY public.ci_freeze_periods ALTER COLUMN id SET DEFAULT nextval('public.ci_freeze_periods_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ci_group_variables ALTER COLUMN id SET DEFAULT nextval('public.ci_group_variables_id_seq'::regclass);
 
@@ -7954,8 +8007,14 @@ ALTER TABLE ONLY public.ci_builds
 ALTER TABLE ONLY public.ci_builds_runner_session
     ADD CONSTRAINT ci_builds_runner_session_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.ci_daily_build_group_report_results
+    ADD CONSTRAINT ci_daily_build_group_report_results_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.ci_daily_report_results
     ADD CONSTRAINT ci_daily_report_results_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.ci_freeze_periods
+    ADD CONSTRAINT ci_freeze_periods_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.ci_group_variables
     ADD CONSTRAINT ci_group_variables_pkey PRIMARY KEY (id);
@@ -8451,6 +8510,9 @@ ALTER TABLE ONLY public.packages_dependency_links
 
 ALTER TABLE ONLY public.packages_maven_metadata
     ADD CONSTRAINT packages_maven_metadata_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.packages_nuget_dependency_link_metadata
+    ADD CONSTRAINT packages_nuget_dependency_link_metadata_pkey PRIMARY KEY (dependency_link_id);
 
 ALTER TABLE ONLY public.packages_package_files
     ADD CONSTRAINT packages_package_files_pkey PRIMARY KEY (id);
@@ -9148,7 +9210,11 @@ CREATE INDEX index_ci_builds_project_id_and_status_for_live_jobs_partial2 ON pub
 
 CREATE UNIQUE INDEX index_ci_builds_runner_session_on_build_id ON public.ci_builds_runner_session USING btree (build_id);
 
+CREATE INDEX index_ci_daily_build_group_report_results_on_last_pipeline_id ON public.ci_daily_build_group_report_results USING btree (last_pipeline_id);
+
 CREATE INDEX index_ci_daily_report_results_on_last_pipeline_id ON public.ci_daily_report_results USING btree (last_pipeline_id);
+
+CREATE INDEX index_ci_freeze_periods_on_project_id ON public.ci_freeze_periods USING btree (project_id);
 
 CREATE UNIQUE INDEX index_ci_group_variables_on_group_id_and_key ON public.ci_group_variables USING btree (group_id, key);
 
@@ -9356,6 +9422,8 @@ CREATE UNIQUE INDEX index_container_repositories_on_project_id_and_name ON publi
 
 CREATE INDEX index_container_repository_on_name_trigram ON public.container_repositories USING gin (name public.gin_trgm_ops);
 
+CREATE UNIQUE INDEX index_daily_build_group_report_results_unique_columns ON public.ci_daily_build_group_report_results USING btree (project_id, ref_path, date, group_name);
+
 CREATE UNIQUE INDEX index_daily_report_results_unique_columns ON public.ci_daily_report_results USING btree (project_id, ref_path, param_type, date, title);
 
 CREATE INDEX index_dependency_proxy_blobs_on_group_id_and_file_name ON public.dependency_proxy_blobs USING btree (group_id, file_name);
@@ -9527,8 +9595,6 @@ CREATE UNIQUE INDEX index_feature_flags_clients_on_project_id_and_token_encrypte
 CREATE UNIQUE INDEX index_feature_gates_on_feature_key_and_key_and_value ON public.feature_gates USING btree (feature_key, key, value);
 
 CREATE UNIQUE INDEX index_features_on_key ON public.features USING btree (key);
-
-CREATE INDEX index_for_migrating_user_highest_roles_table ON public.users USING btree (id) WHERE (((state)::text = 'active'::text) AND (user_type IS NULL) AND (bot_type IS NULL) AND (ghost IS NOT TRUE));
 
 CREATE INDEX index_for_resource_group ON public.ci_builds USING btree (resource_group_id, id) WHERE (resource_group_id IS NOT NULL);
 
@@ -10077,6 +10143,8 @@ CREATE UNIQUE INDEX index_packages_dependencies_on_name_and_version_pattern ON p
 CREATE INDEX index_packages_dependency_links_on_dependency_id ON public.packages_dependency_links USING btree (dependency_id);
 
 CREATE INDEX index_packages_maven_metadata_on_package_id_and_path ON public.packages_maven_metadata USING btree (package_id, path);
+
+CREATE INDEX index_packages_nuget_dl_metadata_on_dependency_link_id ON public.packages_nuget_dependency_link_metadata USING btree (dependency_link_id);
 
 CREATE INDEX index_packages_package_files_on_package_id_and_file_name ON public.packages_package_files USING btree (package_id, file_name);
 
@@ -10765,6 +10833,8 @@ CREATE INDEX index_vulnerability_occurrence_identifiers_on_identifier_id ON publ
 CREATE UNIQUE INDEX index_vulnerability_occurrence_identifiers_on_unique_keys ON public.vulnerability_occurrence_identifiers USING btree (occurrence_id, identifier_id);
 
 CREATE INDEX index_vulnerability_occurrence_pipelines_on_pipeline_id ON public.vulnerability_occurrence_pipelines USING btree (pipeline_id);
+
+CREATE INDEX index_vulnerability_occurrences_on_id_and_confidence_eq_zero ON public.vulnerability_occurrences USING btree (id) WHERE (confidence = 0);
 
 CREATE INDEX index_vulnerability_occurrences_on_primary_identifier_id ON public.vulnerability_occurrences USING btree (primary_identifier_id);
 
@@ -11469,6 +11539,9 @@ ALTER TABLE ONLY public.events
 ALTER TABLE ONLY public.ip_restrictions
     ADD CONSTRAINT fk_rails_04a93778d5 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.ci_daily_build_group_report_results
+    ADD CONSTRAINT fk_rails_0667f7608c FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.ci_subscriptions_projects
     ADD CONSTRAINT fk_rails_0818751483 FOREIGN KEY (downstream_project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -11624,6 +11697,9 @@ ALTER TABLE ONLY public.geo_repository_updated_events
 
 ALTER TABLE ONLY public.protected_branch_unprotect_access_levels
     ADD CONSTRAINT fk_rails_2d2aba21ef FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.ci_freeze_periods
+    ADD CONSTRAINT fk_rails_2e02bbd1a6 FOREIGN KEY (project_id) REFERENCES public.projects(id);
 
 ALTER TABLE ONLY public.saml_providers
     ADD CONSTRAINT fk_rails_306d459be7 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
@@ -12273,6 +12349,9 @@ ALTER TABLE ONLY public.user_canonical_emails
 ALTER TABLE ONLY public.project_repositories
     ADD CONSTRAINT fk_rails_c3258dc63b FOREIGN KEY (shard_id) REFERENCES public.shards(id) ON DELETE RESTRICT;
 
+ALTER TABLE ONLY public.packages_nuget_dependency_link_metadata
+    ADD CONSTRAINT fk_rails_c3313ee2e4 FOREIGN KEY (dependency_link_id) REFERENCES public.packages_dependency_links(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.merge_request_user_mentions
     ADD CONSTRAINT fk_rails_c440b9ea31 FOREIGN KEY (note_id) REFERENCES public.notes(id) ON DELETE CASCADE;
 
@@ -12413,6 +12492,9 @@ ALTER TABLE ONLY public.ci_daily_report_results
 
 ALTER TABLE ONLY public.cluster_providers_aws
     ADD CONSTRAINT fk_rails_ed1fdfaeb2 FOREIGN KEY (created_by_user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY public.ci_daily_build_group_report_results
+    ADD CONSTRAINT fk_rails_ee072d13b3 FOREIGN KEY (last_pipeline_id) REFERENCES public.ci_pipelines(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.label_priorities
     ADD CONSTRAINT fk_rails_ef916d14fa FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
@@ -13608,6 +13690,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200407182205
 20200407222647
 20200408110856
+20200408125046
 20200408133211
 20200408153842
 20200408154331
@@ -13656,6 +13739,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200420172927
 20200420201933
 20200421092907
+20200421111005
 20200421233150
 20200422091541
 20200422213749
@@ -13669,7 +13753,17 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200424043515
 20200424050250
 20200424101920
+20200424135319
 20200427064130
 20200429015603
+20200429181335
+20200429181955
+20200429182245
+20200505164958
+20200505171834
+20200505172405
+20200506085748
+20200506125731
+20200507221434
 \.
 

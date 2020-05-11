@@ -148,7 +148,7 @@ module EE
     end
 
     def first_class_vulnerabilities_available?(project)
-      ::Feature.enabled?(:first_class_vulnerabilities, project)
+      ::Feature.enabled?(:first_class_vulnerabilities, project, default_enabled: true)
     end
 
     def merge_pipelines_available?
@@ -178,25 +178,6 @@ module EE
       show_lfs = project.lfs_enabled? ? 'including files in LFS' : ''
 
       "The total size of this project's repository #{show_lfs} will be limited to this size. 0 for unlimited. Leave empty to inherit the group/global value."
-    end
-
-    def subscription_message
-      return unless ::Gitlab.com?
-
-      ::Gitlab::ExpiringSubscriptionMessage.new(
-        subscribable: decorated_subscription,
-        signed_in: signed_in?,
-        is_admin: can?(current_user, :owner_access, @project),
-        namespace: @project.namespace
-      ).message
-    end
-
-    def decorated_subscription
-      subscription = @project.gitlab_subscription
-
-      return unless subscription
-
-      SubscriptionPresenter.new(subscription)
     end
 
     override :membership_locked?
