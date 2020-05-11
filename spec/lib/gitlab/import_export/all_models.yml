@@ -258,6 +258,7 @@ deploy_keys:
 - projects
 services:
 - project
+- group
 - service_hook
 - jira_tracker_data
 - issue_tracker_data

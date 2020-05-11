@@ -46,8 +46,9 @@ class AddIntegrationsView < ActiveRecord::Migration[6.0]
   def down
     # Should this be in a transaction?
     execute <<~SQL
-      DROP VIEW integrations CASCADE;
-      DROP FUNCTION jsonb_merge_accum CASCADE;
+      DROP VIEW integrations;
+      DROP AGGREGATE jsonb_merge(jsonb);
+      DROP FUNCTION jsonb_merge_accum(jsonb, jsonb);
     SQL
   end
 end

@@ -45,12 +45,12 @@ class Service < ApplicationRecord
   has_one :service_hook
 
   # validates :project_id, presence: true, unless: -> { template? || instance? }
-  # validates :project_id, absence: true, if: -> { template? || instance? }
-  # validates :type, uniqueness: { scope: :project_id }, unless: -> { template? || instance? }, on: :create
-  # validates :type, presence: true
-  # validates :template, uniqueness: { scope: :type }, if: -> { template? }
-  # validates :instance, uniqueness: { scope: :type }, if: -> { instance? }
-  # validate :validate_is_instance_or_template
+  validates :project_id, absence: true, if: -> { template? || instance? }
+  validates :type, uniqueness: { scope: :project_id }, unless: -> { template? || instance? }, on: :create
+  validates :type, presence: true
+  validates :template, uniqueness: { scope: :type }, if: -> { template? }
+  validates :instance, uniqueness: { scope: :type }, if: -> { instance? }
+  validate :validate_is_instance_or_template
 
   scope :visible, -> { where.not(type: 'GitlabIssueTrackerService') }
   scope :issue_trackers, -> { where(category: 'issue_tracker') }
