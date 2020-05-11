@@ -6,6 +6,10 @@
     padding-top: 0;
   }
 
+  tbody tr:nth-child(odd) td:not(.shortcut) {
+    background-color: $help-shortcut-strip-color;
+  }
+
   th {
     padding-top: 15px;
     line-height: 1.5;
