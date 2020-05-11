@@ -28,12 +28,6 @@ module Gitlab
       CYCLE_ANALYTICS_FEATURE_FLAG => :development
     }.freeze
 
-    FEATURE_FLAGS_TYPE = {
-      # TODO: it seems that we use a licensed "feature"
-      PRODUCTIVITY_ANALYTICS_FEATURE_FLAG => :licensed,
-      CYCLE_ANALYTICS_FEATURE_FLAG => :development
-    }.freeze
-
     def self.any_features_enabled?
       FEATURE_FLAGS.any? do |flag|
         feature_enabled?(flag)

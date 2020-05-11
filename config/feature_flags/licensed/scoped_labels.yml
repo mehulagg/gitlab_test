@@ -1,0 +1,7 @@
+---
+name: scoped_labels
+# There's a collision between
+# - push_frontend_feature_flag
+# - Feature.enabled?
+default_enabled: [false, true]
+type: licensed

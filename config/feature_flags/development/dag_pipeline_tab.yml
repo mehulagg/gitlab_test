@@ -1,0 +1,6 @@
+name: dag_pipeline_tab
+# There's a collision between
+# - app/controllers/projects/pipelines_controller.rb
+# - app/views/projects/pipelines/_with_tabs.html.haml
+default_enabled: [false, true]
+type: development

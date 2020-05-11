@@ -29,7 +29,7 @@ RSpec.describe Autocomplete::MoveToProjectFinder do
 
         finder = described_class.new(user, project_id: project.id)
 
-        expect(finder.execute.to_a).to eq([reporter_project, developer_project, maintainer_project])
+        expect(finder.execute.to_a).to contain_exactly(reporter_project, developer_project, maintainer_project)
       end
 
       it 'does not include the source project' do
@@ -88,10 +88,10 @@ RSpec.describe Autocomplete::MoveToProjectFinder do
         wadus_project.add_maintainer(user)
 
         expect(described_class.new(user, project_id: project.id).execute.to_a)
-          .to eq([foo_project, wadus_project])
+          .to contain_exactly(foo_project, wadus_project)
 
         expect(described_class.new(user, project_id: project.id, search: 'wadus').execute.to_a)
-          .to eq([wadus_project])
+          .to contain_exactly(wadus_project)
       end
 
       it 'allows searching by parent namespace' do

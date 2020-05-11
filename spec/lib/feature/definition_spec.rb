@@ -13,6 +13,10 @@ RSpec.describe Feature::Definition do
   let(:definition) { described_class.new(path, attributes) }
   let(:yaml_content) { attributes.deep_stringify_keys.to_yaml }
 
+  before do
+    stub_env('LAZILY_CREATE_FEATURE_FLAG', '0')
+  end
+
   describe '#key' do
     subject { definition.key }
 

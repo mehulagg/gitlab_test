@@ -1,0 +1,6 @@
+name: managed_apps_local_tiller
+# There's a collision between
+# - app/controllers/clusters/base_controller.rb
+# - app/models/clusters/cluster.rb
+default_enabled: [false, true]
+type: development

@@ -7,6 +7,10 @@ load File.expand_path('../../bin/feature-flag', __dir__)
 RSpec.describe 'bin/feature-flag' do
   using RSpec::Parameterized::TableSyntax
 
+  before do
+    stub_env('LAZILY_CREATE_FEATURE_FLAG', 'false')
+  end
+
   describe FeatureFlagCreator do
     let(:argv) { %w[feature-flag-name -t development -g group::memory -i https://url] }
     let(:options) { FeatureFlagOptionParser.parse(argv) }
