@@ -1,0 +1,6 @@
+name: gitaly_ruby_remote_branches_ls_remote
+# There's a collision between
+# - Feature::Gitaly.server_feature_flags
+# - API::Internal::Base#check_allowed
+default_enabled: [false, true]
+type: development

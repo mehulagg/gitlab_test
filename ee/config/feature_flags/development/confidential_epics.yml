@@ -1,0 +1,5 @@
+name: confidential_epics
+type: development
+# This feature flag is used as feature with `default_enabled: true`
+# and is used as feature flag with `default_enabled: false`
+default_enabled: [false, true]
