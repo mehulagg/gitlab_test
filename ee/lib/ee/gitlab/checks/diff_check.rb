@@ -12,7 +12,7 @@ module EE
         def path_validations
           validations = [super].flatten
 
-          if !updated_from_web? && project.branch_requires_code_owner_approval?(branch_name)
+          if project.branch_requires_code_owner_approval?(branch_name)
             validations << validate_code_owners
           end
 
@@ -20,13 +20,17 @@ module EE
         end
 
         def validate_code_owners
+
           lambda do |paths|
             loader = ::Gitlab::CodeOwners::Loader.new(project, branch_name, paths)
 
+            # 1. Validations pass if there are no entries to apply
+            # 2. Any web updates should instead follow the merge request workflow
+            # 3. Any entries available after this point from the `CODEOWNERS` file 
+            #    should only be mergeable once approval rules are satisfied
+            
             return if loader.entries.blank?
-            return if loader.members.include?(change_access.user_access.user)
-
-            assemble_error_msg_for_codeowner_matches(loader)
+            return assemble_error_msg_for_codeowner_matches(loader) if updated_from_web?
           end
         end
 
@@ -34,11 +38,13 @@ module EE
           matched_rules = loader.entries.collect { |e| "- #{e.pattern}" }
           code_owner_path = project.repository.code_owners_blob(ref: branch_name).path || "CODEOWNERS"
 
-          "Pushes to protected branches that contain changes to files that\n" \
+          msg = "Pushes to protected branches that contain changes to files that\n" \
             "match patterns defined in `#{code_owner_path}` are disabled for\n" \
             "this project. Please submit these changes via a merge request.\n\n" \
             "The following pattern(s) from `#{code_owner_path}` were matched:\n" \
             "#{matched_rules.join('\n')}\n"
+
+          updated_from_web? ? msg.tr("\n", " ") : msg
         end
 
         def validate_path_locks?
