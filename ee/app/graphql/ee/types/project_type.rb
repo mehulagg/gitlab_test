@@ -22,7 +22,7 @@ module EE
                description: 'Counts for each severity of vulnerability of the project',
                resolve: -> (obj, _args, ctx) do
                  Hash.new(0).merge(
-                   obj.vulnerabilities.with_states([:detected, :confirmed]).counts_by_severity
+                   obj.vulnerabilities.active.counts_by_severity
                  )
                end
 
