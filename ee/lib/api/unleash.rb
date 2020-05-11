@@ -43,6 +43,14 @@ module API
             # not supported yet
             status :ok
           end
+
+          get :test do
+            if Gitlab::Unleash.enabled?(:test_minimal_unleash_client)
+              status :ok
+            else
+              not_found!
+            end
+          end
         end
       end
     end
