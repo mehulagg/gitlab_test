@@ -127,11 +127,33 @@ class Feature
       end
 
       def valid_usage!(key, type:, default_enabled:)
+        lazily_create!(key, type: type, default_enabled: default_enabled)
+
         if definition = definitions[key.to_sym]
           definition.valid_usage!(user_type: type, user_default_enabled: default_enabled)
         elsif !self::TYPES.dig(type, :optional)
           raise InvalidFeatureFlagError, "Missing feature definition for `#{key}`"
         end
+      end
+
+      # TODO: Temporary code to lazily create feature flags
+      def lazily_create!(key, type:, default_enabled:)
+        return unless Gitlab::Utils.to_boolean(ENV.fetch('LAZILY_CREATE_FEATURE_FLAG', '1').to_s)
+        return if definitions[key.to_sym]
+
+        dir = File.dirname(paths.first) # strip /*.yml
+        dir = File.dirname(dir) # strip /**/
+        path = File.join(dir, type.to_s, key.to_s + '.yml')
+        return if File.exist?(path)
+
+        definition = Feature::Definition.new(
+          path,
+          name: key.to_s,
+          type: type.to_s,
+          default_enabled: default_enabled
+        ).tap(&:save!)
+
+        definitions[definition.key] = definition
       end
     end
   end

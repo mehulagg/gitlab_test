@@ -1,0 +1,7 @@
+---
+name: merge_ref_head_comments
+# There's a collision between
+# - push_frontend_feature_flag
+# - Feature.enabled?
+default_enabled: [false, true]
+type: development
