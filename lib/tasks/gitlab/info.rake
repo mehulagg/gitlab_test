@@ -22,8 +22,11 @@ namespace :gitlab do
 
       # check Git version
       git_version = run_and_match([Gitlab.config.git.bin_path, '--version'], /git version ([\d\.]+)/).to_a
+
       # check Go version
-      go_version = run_and_match(%w(go version), /go version (.+)/).to_a
+      unless omnibus_gitlab?
+        go_version = run_and_match(%w(go version), /go version (.+)/).to_a
+      end
 
       puts ""
       puts "System information".color(:yellow)
@@ -43,7 +46,10 @@ namespace :gitlab do
       puts "Redis Version:\t#{redis_version[1] || "unknown".color(:red)}"
       puts "Git Version:\t#{git_version[1] || "unknown".color(:red)}"
       puts "Sidekiq Version:#{Sidekiq::VERSION}"
-      puts "Go Version:\t#{go_version[1] || "unknown".color(:red)}"
+
+      unless omnibus_gitlab?
+        puts "Go Version:\t#{go_version[1] || "unknown".color(:red)}"
+      end
 
       project = Group.new(path: "some-group").projects.build(path: "some-project")
       # construct clone URLs
