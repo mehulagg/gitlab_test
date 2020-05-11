@@ -1,5 +1,4 @@
 <script>
-import $ from 'jquery';
 import eventHub from '../../event_hub';
 import { __ } from '~/locale';
 
@@ -25,7 +24,6 @@ export default {
   methods: {
     closeForm() {
       eventHub.$emit('closeConfidentialityForm');
-      $(this.$el).trigger('hidden.gl.dropdown');
     },
     submitForm() {
       this.closeForm();
