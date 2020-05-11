@@ -21,7 +21,7 @@ module Vulnerabilities
       # Overrides ActiveRecord::ModelSchema's method to do not inherit
       # all the attributes from vulnerabilities table.
       def ignored_columns
-        Vulnerability.columns.map(&:name) - INHERITED_COLUMNS
+        @ignored_columns ||= Vulnerability.columns.map(&:name) - INHERITED_COLUMNS
       end
 
       private
@@ -33,8 +33,12 @@ module Vulnerabilities
       end
 
       def build_select_clause_for(severity, enum)
-        "COUNT(*) FILTER (WHERE severity = #{enum}) as #{severity}_severity"
+        "COUNT(*) FILTER (WHERE severity = #{enum}) as #{severity}"
       end
+    end
+
+    def as_json(*)
+      super(only: Vulnerability.severities.keys)
     end
   end
 end

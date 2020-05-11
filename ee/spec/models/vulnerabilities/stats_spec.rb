@@ -15,20 +15,20 @@ describe Vulnerabilities::Stats do
       subject(:stats) { described_class.all }
 
       it 'returns `vulnerability` records grouped by project_id for all projects' do
-        expect(stats.to_a.length).to eql(3)
+        expect(stats.to_a.length).to be(3)
       end
     end
 
     context 'when the relation is scoped to a project' do
-      subject(:stats) { described_class.where(project: project_1).first }
+      subject(:stats) { described_class.find_by(project: project_1) }
 
       it 'returns the stats only for scoping project', :aggregate_failures do
-        expect(stats.info_severity).to eql(0)
-        expect(stats.unknown_severity).to eql(0)
-        expect(stats.low_severity).to eql(0)
-        expect(stats.medium_severity).to eql(1)
-        expect(stats.high_severity).to eql(0)
-        expect(stats.critical_severity).to eql(2)
+        expect(stats.info).to be(0)
+        expect(stats.unknown).to be(0)
+        expect(stats.low).to be(0)
+        expect(stats.medium).to be(1)
+        expect(stats.high).to be(0)
+        expect(stats.critical).to be(2)
       end
     end
   end
@@ -56,11 +56,30 @@ describe Vulnerabilities::Stats do
 
     context 'when the object is already persisted' do
       let(:vulnerability) { create(:vulnerability) }
-      let(:stats) { described_class.where(project: vulnerability.project).first }
+      let(:stats) { described_class.find_by(project: vulnerability.project) }
 
       it 'raises `ActiveRecord::ReadOnlyRecord` error' do
         expect { save_stats }.to raise_error(ActiveRecord::ReadOnlyRecord)
       end
     end
+  end
+
+  describe '#as_json' do
+    let!(:vulnerability) { create(:vulnerability, :critical) }
+    let(:stats) { vulnerability.project.vulnerability_stats }
+    let(:expected_hash) do
+      {
+        info: 0,
+        unknown: 0,
+        low: 0,
+        medium: 0,
+        high: 0,
+        critical: 1
+      }
+    end
+
+    subject { stats.as_json.symbolize_keys }
+
+    it { is_expected.to eql(expected_hash) }
   end
 end
