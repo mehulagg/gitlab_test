@@ -1,28 +1,13 @@
-# Feature Flags **(PREMIUM)**
+# Legacy Feature Flags **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/7433) in GitLab 11.4.  [Updated](https://gitlab.com/gitlab-org/gitlab/-/issues/35555) in GitLab 13.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/7433) in GitLab 11.4.
+
+CAUTION: **Deprecation**
+Legacy feature flags are deprecated and [scheduled for removal in GitLab 14.0](https://gitlab.com/gitlab-org/gitlab/-/issues/213369).
+Please use [the new Feature Flags](feature_flags.md)
 
 Feature flags allow you to ship a project in different flavors by
 dynamically toggling certain functionality.
-
-Legacy feature flags are [documented here](legacy_feature_flags.md).
-
-This new version is under development and not ready for production use. It is
-deployed behind a feature flag that is **disabled by default**.
-[GitLab administrators with access to the GitLab Rails console](../../../administration/feature_flags.md)
-can enable it for your instance.
-
-To enable it:
-
-```ruby
-Feature.enable(:feature_flags_new_version)
-```
-
-To disable it:
-
-```ruby
-Feature.disable(:feature_flags_new_version)
-```
 
 ## Overview
 
@@ -269,7 +254,7 @@ func main() {
 
 Here's an example of how to integrate the feature flags in a Ruby application.
 
-The Unleash client is given a user ID for use with a **Percent rollout (logged in users)** rollout strategy or a list of **Target Users**.
+The Unleash client is given a user id for use with a **Percent rollout (logged in users)** rollout strategy or a list of **Target Users**.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -301,5 +286,5 @@ end
 You can create, update, read, and delete Feature Flags via API
 to control them in an automated flow:
 
-- [Feature Flags API](../../../api/feature_flags.md)
-- [Feature Flag User Lists API](../../../api/feature_flag_user_lists.md)
+- [Legacy Feature Flags API](../../../api/legacy_feature_flags.md)
+- [Feature Flag Specs API](../../../api/feature_flag_specs.md)
