@@ -107,7 +107,7 @@ describe('Markdown field header component', () => {
 
   it('renders suggestion template', () => {
     expect(findToolbarButtonByProp('buttonTitle', 'Insert suggestion').props('tag')).toEqual(
-      '```suggestion:-0+0\n{text}\n```',
+      '~~~suggestion:-0+0\n{text}\n~~~',
     );
   });
 

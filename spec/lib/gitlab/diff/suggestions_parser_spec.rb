@@ -30,19 +30,19 @@ describe Gitlab::Diff::SuggestionsParser do
     context 'single-line suggestions' do
       let(:markdown) do
         <<-MARKDOWN.strip_heredoc
-          ```suggestion
+          ~~~suggestion
             foo
             bar
-          ```
+          ~~~
 
           ```
             nothing
           ```
 
-          ```suggestion
+          ~~~suggestion
             xpto
             baz
-          ```
+          ~~~
 
           ```thing
             this is not a suggestion, it's a thing
@@ -73,21 +73,21 @@ describe Gitlab::Diff::SuggestionsParser do
     context 'multi-line suggestions' do
       let(:markdown) do
         <<-MARKDOWN.strip_heredoc
-          ```suggestion:-2+1
+          ~~~suggestion:-2+1
             # above and below
-          ```
+          ~~~
 
           ```
             nothing
           ```
 
-          ```suggestion:-3
+          ~~~suggestion:-3
             # only above
-          ```
+          ~~~
 
-          ```suggestion:+3
+          ~~~suggestion:+3
             # only below
-          ```
+          ~~~
 
           ```thing
             this is not a suggestion, it's a thing

@@ -126,9 +126,9 @@ describe DraftNotes::PublishService do
 
     let(:suggestion_note) do
       <<-MARKDOWN.strip_heredoc
-        ```suggestion
+        ~~~suggestion
           foo
-        ```
+        ~~~
       MARKDOWN
     end
 

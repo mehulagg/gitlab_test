@@ -25,7 +25,7 @@ describe PreviewMarkdownService do
     let(:merge_request) do
       create(:merge_request, target_project: project, source_project: project)
     end
-    let(:text) { "```suggestion\nfoo\n```" }
+    let(:text) { "~~~suggestion\nfoo\n~~~" }
     let(:params) do
       suggestion_params.merge(text: text,
                               target_type: 'MergeRequest',

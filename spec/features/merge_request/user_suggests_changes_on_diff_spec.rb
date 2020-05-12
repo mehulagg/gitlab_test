@@ -48,7 +48,7 @@ describe 'User comments on a diff', :js do
       click_diff_line(find("[id='#{sample_compare.changes[1][:line_code]}']"))
 
       page.within('.js-discussion-note-form') do
-        fill_in('note_note', with: "```suggestion\n# change to a comment\n```")
+        fill_in('note_note', with: "~~~suggestion\n# change to a comment\n~~~")
         click_button('Add comment now')
       end
 
@@ -76,7 +76,7 @@ describe 'User comments on a diff', :js do
       click_diff_line(find("[id='#{sample_compare.changes[1][:line_code]}']"))
 
       page.within('.js-discussion-note-form') do
-        fill_in('note_note', with: "```suggestion\n# change to a comment\n```")
+        fill_in('note_note', with: "~~~suggestion\n# change to a comment\n~~~")
         click_button('Add comment now')
       end
 
@@ -118,7 +118,7 @@ describe 'User comments on a diff', :js do
         click_diff_line(find("[id='#{changes.first[:line_code]}']"))
 
         page.within('.js-discussion-note-form') do
-          fill_in('note_note', with: "```suggestion\n# change to a comment\n```")
+          fill_in('note_note', with: "~~~suggestion\n# change to a comment\n~~~")
           click_button('Add comment now')
           wait_for_requests
         end
@@ -126,7 +126,7 @@ describe 'User comments on a diff', :js do
         click_diff_line(find("[id='#{changes.last[:line_code]}']"))
 
         page.within('.js-discussion-note-form') do
-          fill_in('note_note', with: "```suggestion\n# 2nd change to a comment\n```")
+          fill_in('note_note', with: "~~~suggestion\n# 2nd change to a comment\n~~~")
           click_button('Add comment now')
           wait_for_requests
         end
@@ -157,7 +157,7 @@ describe 'User comments on a diff', :js do
       click_diff_line(find("[id='#{sample_compare.changes[1][:line_code]}']"))
 
       page.within('.js-discussion-note-form') do
-        fill_in('note_note', with: "```suggestion\n# change to a comment\n```\n```suggestion:-2\n# or that\n# heh\n```")
+        fill_in('note_note', with: "~~~suggestion\n# change to a comment\n~~~\n~~~suggestion:-2\n# or that\n# heh\n~~~")
         click_button('Add comment now')
       end
 
@@ -200,7 +200,7 @@ describe 'User comments on a diff', :js do
       click_diff_line(find("[id='#{sample_compare.changes[1][:line_code]}']"))
 
       page.within('.js-discussion-note-form') do
-        fill_in('note_note', with: "```suggestion:-3+5\n# change to a\n# comment\n# with\n# broken\n# lines\n```")
+        fill_in('note_note', with: "~~~suggestion:-3+5\n# change to a\n# comment\n# with\n# broken\n# lines\n~~~")
         click_button('Add comment now')
       end
 

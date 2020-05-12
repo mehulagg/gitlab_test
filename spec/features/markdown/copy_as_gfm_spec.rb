@@ -431,19 +431,19 @@ describe 'Copy as GFM', :js do
         'SuggestionFilter: suggestion as converted from GFM to HTML',
 
         <<~GFM
-          ```suggestion
+          ~~~suggestion
           New
             And newer
-          ```
+          ~~~
         GFM
       )
 
       aggregate_failures('SuggestionFilter: suggestion as transformed from HTML to Vue component') do
         gfm = <<~GFM
-          ```suggestion
+          ~~~suggestion
           New
             And newer
-          ```
+          ~~~
         GFM
 
         html = <<~HTML

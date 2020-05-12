@@ -21,9 +21,9 @@ If this merge request [doesn't need a CHANGELOG entry](https://docs.gitlab.com/e
 MSG
 
 SUGGEST_MR_COMMENT = <<~SUGGEST_COMMENT
-```suggestion
+~~~suggestion
 merge_request: %<mr_iid>s
-```
+~~~
 
 #{SEE_DOC}
 SUGGEST_COMMENT

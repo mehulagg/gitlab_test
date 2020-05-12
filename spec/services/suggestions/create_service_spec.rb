@@ -23,31 +23,31 @@ describe Suggestions::CreateService do
 
   let(:markdown) do
     <<-MARKDOWN.strip_heredoc
-        ```suggestion
+        ~~~suggestion
           foo
           bar
-        ```
+        ~~~
 
-        ```
+        ~~~
           nothing
-        ```
+        ~~~
 
-        ```suggestion
+        ~~~suggestion
           xpto
           baz
-        ```
+        ~~~
 
-        ```thing
+        ~~~thing
           this is not a suggestion, it's a thing
-        ```
+        ~~~
 
-        ```suggestion:-3+2
+        ~~~suggestion:-3+2
           # multi-line suggestion 1
-        ```
+        ~~~
 
-        ```suggestion:-5
+        ~~~suggestion:-5
           # multi-line suggestion 1
-        ```
+        ~~~
     MARKDOWN
   end
 
@@ -155,8 +155,8 @@ describe Suggestions::CreateService do
       context 'when a patch removes an empty line' do
         let(:markdown) do
           <<-MARKDOWN.strip_heredoc
-              ```suggestion
-              ```
+              ~~~suggestion
+              ~~~
           MARKDOWN
         end
         let(:position) { build_position(new_line: 13) }

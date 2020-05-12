@@ -39,13 +39,13 @@ describe Notes::UpdateService do
     context 'suggestions' do
       it 'refreshes note suggestions' do
         markdown = <<-MARKDOWN.strip_heredoc
-          ```suggestion
+          ~~~suggestion
             foo
-          ```
+          ~~~
 
-          ```suggestion
+          ~~~suggestion
             bar
-          ```
+          ~~~
         MARKDOWN
 
         suggestion = create(:suggestion)

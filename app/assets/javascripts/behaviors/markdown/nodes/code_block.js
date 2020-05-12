@@ -86,14 +86,28 @@ export default class CodeBlock extends BaseCodeBlock {
       return;
     }
 
-    state.write('```');
+    // Suggestions use tildes instead of backticks
+    // https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31706
+    if (lang === 'suggestion') {
+      state.write('~~~');
+    } else {
+      state.write('```');
+    }
+
     if (lang !== PLAINTEXT_LANG) state.write(lang);
 
     state.ensureNewLine();
     state.text(text, false);
     state.ensureNewLine();
 
-    state.write('```');
+    // Suggestions use tildes instead of backticks
+    // https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31706
+    if (lang === 'suggestion') {
+      state.write('~~~');
+    } else {
+      state.write('```');
+    }
+
     state.closeBlock(node);
   }
 }
