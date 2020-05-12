@@ -865,6 +865,8 @@ module Ci
     end
 
     def collect_test_reports!(test_reports)
+      raise 'hell'
+
       test_reports.get_suite(group_name).tap do |test_suite|
         each_report(Ci::JobArtifact::TEST_REPORT_FILE_TYPES) do |file_type, blob|
           Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, test_suite, job: self)
