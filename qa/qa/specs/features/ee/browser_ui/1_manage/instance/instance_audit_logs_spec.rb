@@ -2,7 +2,7 @@
 require 'securerandom'
 
 module QA
-  context 'Manage', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/207741', type: :flaky } do
+  context 'Manage' do
     shared_examples 'audit event' do |expected_events|
       it 'logs audit events for UI operations' do
         sign_in
