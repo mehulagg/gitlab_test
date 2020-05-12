@@ -3451,7 +3451,7 @@ CREATE VIEW public.integrations AS
                     WHEN (groupo.type IS NULL) THEN '-1'::integer
                     ELSE groupo.id
                 END = parent.group_id))))
-             JOIN public.services instance ON ((((services.type)::text = (instance.type)::text) AND (instance.instance IS TRUE))))
+             LEFT JOIN public.services instance ON ((((services.type)::text = (instance.type)::text) AND (instance.instance IS TRUE))))
         ), recursive_services AS (
          SELECT services_with_parent.id,
             services_with_parent.project_id,

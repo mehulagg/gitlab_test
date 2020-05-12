@@ -40,7 +40,7 @@ class AddIntegrationsView < ActiveRecord::Migration[6.0]
           LEFT JOIN namespaces groupo ON project.namespace_id = groupo.id
           -- Set group.id to -1 if NULL to avoud matching NULL = NULL
           LEFT JOIN services parent ON services.type = parent.type AND CASE WHEN groupo.type IS NULL THEN -1 ELSE groupo.id END = parent.group_id
-          JOIN services instance ON services.type = instance.type AND instance.instance IS TRUE
+          LEFT JOIN services instance ON services.type = instance.type AND instance.instance IS TRUE
         )
       SELECT * FROM recursive_services;
     SQL
