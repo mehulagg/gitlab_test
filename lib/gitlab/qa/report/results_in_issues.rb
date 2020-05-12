@@ -271,7 +271,7 @@ module Gitlab
           # This error could be raised in assert_user_permission!
           # If so, we want it to terminate at that point
           raise
-        rescue Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Net::ReadTimeout => e
+        rescue SystemCallError, OpenSSL::SSL::SSLError, Net::ReadTimeout, Gitlab::Error::Parsing => e
           @retry_backoff += RETRY_BACK_OFF_DELAY
 
           raise if @retry_backoff > RETRY_BACK_OFF_DELAY * MAX_RETRY_ATTEMPTS
