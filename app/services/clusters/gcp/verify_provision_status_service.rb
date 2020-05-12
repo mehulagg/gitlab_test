@@ -35,7 +35,7 @@ module Clusters
       end
 
       def elapsed_time_from_creation(operation)
-        Time.current.utc - operation.start_time.to_time.utc
+        Time.current.utc - operation.start_time.in_time_zone.utc
       end
 
       def finalize_creation

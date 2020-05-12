@@ -51,7 +51,7 @@ describe 'Group milestones' do
 
       click_button 'Create milestone'
 
-      expect(find('.start_date')).to have_content(Date.today.at_beginning_of_month.strftime('%b %-d, %Y'))
+      expect(find('.start_date')).to have_content(Date.current.at_beginning_of_month.strftime('%b %-d, %Y'))
     end
 
     it 'description input does not support autocomplete' do

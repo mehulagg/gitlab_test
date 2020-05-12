@@ -319,7 +319,7 @@ describe API::Internal::Base do
           expect(json_response["status"]).to be_truthy
           expect(json_response["gl_project_path"]).to eq(project.wiki.full_path)
           expect(json_response["gl_repository"]).to eq("wiki-#{project.id}")
-          expect(user.reload.last_activity_on).to eql(Date.today)
+          expect(user.reload.last_activity_on).to eql(Date.current)
         end
       end
 
@@ -360,7 +360,7 @@ describe API::Internal::Base do
           expect(json_response["status"]).to be_truthy
           expect(json_response["gl_project_path"]).to eq(personal_snippet.repository.full_path)
           expect(json_response["gl_repository"]).to eq("snippet-#{personal_snippet.id}")
-          expect(user.reload.last_activity_on).to eql(Date.today)
+          expect(user.reload.last_activity_on).to eql(Date.current)
         end
       end
 
@@ -390,7 +390,7 @@ describe API::Internal::Base do
           expect(json_response["status"]).to be_truthy
           expect(json_response["gl_project_path"]).to eq(project_snippet.repository.full_path)
           expect(json_response["gl_repository"]).to eq("snippet-#{project_snippet.id}")
-          expect(user.reload.last_activity_on).to eql(Date.today)
+          expect(user.reload.last_activity_on).to eql(Date.current)
         end
       end
 
@@ -413,7 +413,7 @@ describe API::Internal::Base do
           expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
           expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
           expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-mep-mep' => 'true')
-          expect(user.reload.last_activity_on).to eql(Date.today)
+          expect(user.reload.last_activity_on).to eql(Date.current)
         end
       end
 

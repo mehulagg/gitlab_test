@@ -12,7 +12,7 @@ describe API::API do
     let(:user) { create(:user, last_activity_on: Date.yesterday) }
 
     it 'updates the users last_activity_on to the current date' do
-      expect { get api('/groups', user) }.to change { user.reload.last_activity_on }.to(Date.today)
+      expect { get api('/groups', user) }.to change { user.reload.last_activity_on }.to(Date.current)
     end
   end
 

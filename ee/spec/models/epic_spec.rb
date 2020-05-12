@@ -284,7 +284,7 @@ describe Epic do
     end
 
     it 'returns false when start_date is in the past' do
-      epic = build(:epic, start_date: Date.today.prev_year)
+      epic = build(:epic, start_date: Date.current.prev_year)
 
       expect(epic.upcoming?).to be_falsey
     end
@@ -292,13 +292,13 @@ describe Epic do
 
   describe '#expired?' do
     it 'returns true when due_date is in the past' do
-      epic = build(:epic, end_date: Date.today.prev_year)
+      epic = build(:epic, end_date: Date.current.prev_year)
 
       expect(epic.expired?).to be_truthy
     end
 
     it 'returns false when due_date is in the future' do
-      epic = build(:epic, end_date: Date.today.next_year)
+      epic = build(:epic, end_date: Date.current.next_year)
 
       expect(epic.expired?).to be_falsey
     end

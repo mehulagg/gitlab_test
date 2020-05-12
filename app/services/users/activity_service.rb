@@ -25,7 +25,7 @@ module Users
     def record_activity
       return if Gitlab::Database.read_only?
 
-      today = Date.today
+      today = Date.current
 
       return if @user.last_activity_on == today
 

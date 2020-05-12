@@ -15,7 +15,7 @@ describe API::ProjectStatistics do
     let!(:fetch_statistics2) { create(:project_daily_statistic, project: public_project, fetch_count: 4, date: 3.days.ago) }
     let!(:fetch_statistics3) { create(:project_daily_statistic, project: public_project, fetch_count: 3, date: 2.days.ago) }
     let!(:fetch_statistics4) { create(:project_daily_statistic, project: public_project, fetch_count: 2, date: 1.day.ago) }
-    let!(:fetch_statistics5) { create(:project_daily_statistic, project: public_project, fetch_count: 1, date: Date.today) }
+    let!(:fetch_statistics5) { create(:project_daily_statistic, project: public_project, fetch_count: 1, date: Date.current) }
     let!(:fetch_statistics_other_project) { create(:project_daily_statistic, project: create(:project), fetch_count: 29, date: 29.days.ago) }
 
     it 'returns the fetch statistics of the last 30 days' do

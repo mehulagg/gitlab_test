@@ -58,7 +58,7 @@ describe 'Update of user activity' do
 
           get path
 
-          expect(user.last_activity_on).to eq(Date.today)
+          expect(user.last_activity_on).to eq(Date.current)
         end
 
         context 'when calling it twice' do
@@ -81,7 +81,7 @@ describe 'Update of user activity' do
 
             get path
 
-            expect(user.last_activity_on).to eq(Date.today)
+            expect(user.last_activity_on).to eq(Date.current)
           end
         end
 
@@ -93,13 +93,13 @@ describe 'Update of user activity' do
           it 'updates the last activity date' do
             get path
 
-            expect(user.last_activity_on).to eq(Date.today)
+            expect(user.last_activity_on).to eq(Date.current)
           end
         end
 
         context 'when last_activity_on is up to date' do
           before do
-            user.update_attribute(:last_activity_on, Date.today)
+            user.update_attribute(:last_activity_on, Date.current)
           end
 
           it 'does not try to update it' do

@@ -81,7 +81,7 @@ describe Gitlab::Vulnerabilities::Summary do
         severity:    options[:severity] || :high,
         pipelines:   [pipeline],
         project:     project,
-        created_at:  options[:created_at] || Date.today
+        created_at:  options[:created_at] || Date.current
       )
     end
   end

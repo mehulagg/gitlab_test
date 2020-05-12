@@ -73,7 +73,7 @@ module Gitlab
         attr_reader :to, :from
 
         def initialize(*)
-          @to     = Date.today.end_of_month.end_of_day
+          @to     = Date.current.end_of_month.end_of_day
           @from   = @to.years_ago(1).beginning_of_month.beginning_of_day
           @format = '%d %B %Y'
 
@@ -86,7 +86,7 @@ module Gitlab
         attr_reader :to, :from
 
         def initialize(*)
-          @to     = Date.today.end_of_day
+          @to     = Date.current.end_of_day
           @from   = 1.month.ago.beginning_of_day
           @format = '%d %B'
 
@@ -99,7 +99,7 @@ module Gitlab
         attr_reader :to, :from
 
         def initialize(*)
-          @to     = Date.today.end_of_day
+          @to     = Date.current.end_of_day
           @from   = 1.week.ago.beginning_of_day
           @format = '%d %B'
 

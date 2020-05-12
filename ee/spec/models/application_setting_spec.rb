@@ -569,7 +569,7 @@ describe ApplicationSetting do
       end
 
       it 'is in days_from_now' do
-        expect(subject.to_date - Date.today).to eq days_from_now
+        expect(subject.to_date - Date.current).to eq days_from_now
       end
     end
 

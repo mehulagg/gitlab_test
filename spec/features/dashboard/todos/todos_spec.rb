@@ -6,7 +6,7 @@ describe 'Dashboard Todos' do
   let(:user)    { create(:user, username: 'john') }
   let(:author)  { create(:user) }
   let(:project) { create(:project, :public) }
-  let(:issue)   { create(:issue, due_date: Date.today, title: "Fix bug") }
+  let(:issue)   { create(:issue, due_date: Date.current, title: "Fix bug") }
 
   context 'User does not have todos' do
     before do

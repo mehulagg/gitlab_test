@@ -26,7 +26,7 @@ module Analytics
     validate :validate_merged_after
 
     def initialize(params = {})
-      params[:merged_before] ||= Date.today.at_end_of_day
+      params[:merged_before] ||= Date.current.at_end_of_day
       params[:merged_after] ||= default_merged_after
 
       super(params)
@@ -104,7 +104,7 @@ module Analytics
 
     # Providing default value for `merged_after` and prevent setting the value to a datetime where we don't have data (`productivity_analytics_start_date`).
     def default_merged_after
-      default_value = DEFAULT_DATE_RANGE.ago.to_time.utc.beginning_of_day
+      default_value = DEFAULT_DATE_RANGE.ago.in_time_zone.utc.beginning_of_day
 
       if productivity_analytics_start_date && productivity_analytics_start_date > default_value
         productivity_analytics_start_date

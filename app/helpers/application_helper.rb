@@ -154,8 +154,8 @@ module ApplicationHelper
 
     element = content_tag :time, l(time, format: "%b %d, %Y"),
       class: css_classes.join(' '),
-      title: l(time.to_time.in_time_zone, format: :timeago_tooltip),
-      datetime: time.to_time.getutc.iso8601,
+      title: l(time.in_time_zone, format: :timeago_tooltip),
+      datetime: time.in_time_zone.getutc.iso8601,
       data: {
         toggle: 'tooltip',
         placement: placement,

@@ -19,7 +19,7 @@ module QA
 
       ITEMS_PER_PAGE = '100'
 
-      def initialize(title_portion: 'E2E test key:', delete_before: Date.today.to_s, dry_run: false)
+      def initialize(title_portion: 'E2E test key:', delete_before: Date.current.to_s, dry_run: false)
         raise ArgumentError, "Please provide GITLAB_ADDRESS" unless ENV['GITLAB_ADDRESS']
         raise ArgumentError, "Please provide GITLAB_QA_ACCESS_TOKEN" unless ENV['GITLAB_QA_ACCESS_TOKEN']
 

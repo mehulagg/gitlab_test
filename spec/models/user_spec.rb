@@ -2329,9 +2329,9 @@ describe User, :do_not_mock_admin_mode do
   describe '#sort_by_attribute' do
     before do
       described_class.delete_all
-      @user = create :user, created_at: Date.today, current_sign_in_at: Date.today, name: 'Alpha'
-      @user1 = create :user, created_at: Date.today - 1, current_sign_in_at: Date.today - 1, name: 'Omega'
-      @user2 = create :user, created_at: Date.today - 2, name: 'Beta'
+      @user = create :user, created_at: Date.current, current_sign_in_at: Date.current, name: 'Alpha'
+      @user1 = create :user, created_at: Date.current - 1, current_sign_in_at: Date.current - 1, name: 'Omega'
+      @user2 = create :user, created_at: Date.current - 2, name: 'Beta'
     end
 
     context 'when sort by recent_sign_in' do
@@ -2381,7 +2381,7 @@ describe User, :do_not_mock_admin_mode do
       let(:user) { create(:user, last_activity_on: last_activity_on) }
 
       it 'returns `last_activity_on` with current time zone' do
-        expect(user.last_active_at).to eq(last_activity_on.to_time.in_time_zone)
+        expect(user.last_active_at).to eq(last_activity_on.in_time_zone)
       end
     end
 
@@ -2397,7 +2397,7 @@ describe User, :do_not_mock_admin_mode do
       let(:user) { create(:user, current_sign_in_at: current_sign_in_at, last_activity_on: last_activity_on) }
 
       it 'returns the latest among `current_sign_in_at` & `last_activity_on`' do
-        latest_event = [current_sign_in_at, last_activity_on.to_time.in_time_zone].max
+        latest_event = [current_sign_in_at, last_activity_on.in_time_zone].max
         expect(user.last_active_at).to eq(latest_event)
       end
     end

@@ -111,8 +111,8 @@ class BurnupChartService
   def assign_dates_by_milestone
     @start_date = milestone.start_date
     @due_date = milestone.due_date
-    @end_date = if due_date.blank? || due_date > Date.today
-                  Date.today
+    @end_date = if due_date.blank? || due_date > Date.current
+                  Date.current
                 else
                   due_date
                 end

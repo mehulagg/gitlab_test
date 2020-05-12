@@ -12,8 +12,8 @@ describe 'Groups::ProductivityAnalytics' do
       author_username: 'user',
       label_name: %w[label1 label2],
       milestone_title: 'user',
-      merged_after: Date.yesterday.to_time,
-      merged_before: Date.today.to_time,
+      merged_after: Date.yesterday.in_time_zone,
+      merged_before: Date.current.in_time_zone,
       project_id: project.full_path
     }
   end

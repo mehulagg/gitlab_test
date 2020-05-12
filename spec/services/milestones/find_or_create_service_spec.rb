@@ -13,8 +13,8 @@ describe Milestones::FindOrCreateService do
       {
         title: '1.0',
         description: 'First Release',
-        start_date: Date.today,
-        due_date: Date.today + 1.month
+        start_date: Date.current,
+        due_date: Date.current + 1.month
       }.with_indifferent_access
     end
 
@@ -55,7 +55,7 @@ describe Milestones::FindOrCreateService do
 
         context 'when params are not valid' do
           before do
-            params[:start_date] = Date.today + 2.months
+            params[:start_date] = Date.current + 2.months
           end
 
           it 'returns nil' do

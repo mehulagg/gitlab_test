@@ -9,8 +9,8 @@ describe GitlabSubscription do
 
   describe 'default values' do
     it do
-      Timecop.freeze(Date.today + 30) do
-        expect(subject.start_date).to eq(Date.today)
+      Timecop.freeze(Date.current + 30) do
+        expect(subject.start_date).to eq(Date.current)
       end
     end
   end

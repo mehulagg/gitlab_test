@@ -15,7 +15,7 @@ module Projects
 
         expect(created_stat.fetch_count).to eq(1)
         expect(created_stat.project).to eq(project)
-        expect(created_stat.date).to eq(Date.today)
+        expect(created_stat.date).to eq(Date.current)
       end
 
       it "doesn't increment previous days statistics" do
@@ -25,7 +25,7 @@ module Projects
       end
 
       context 'when the record already exists for today' do
-        let!(:project_daily_stat) { create(:project_daily_statistic, fetch_count: 5, project: project, date: Date.today) }
+        let!(:project_daily_stat) { create(:project_daily_statistic, fetch_count: 5, project: project, date: Date.current) }
 
         it 'increments the today record count by 1' do
           expect { subject }.to change { project_daily_stat.reload.fetch_count }.to(6)

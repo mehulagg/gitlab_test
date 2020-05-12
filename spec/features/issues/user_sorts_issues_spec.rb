@@ -147,9 +147,9 @@ describe "User sorts issues" do
     end
 
     it 'filters by due this week' do
-      issue1.update(due_date: Date.today.beginning_of_week + 2.days)
-      issue2.update(due_date: Date.today.end_of_week)
-      issue3.update(due_date: Date.today - 8.days)
+      issue1.update(due_date: Date.current.beginning_of_week + 2.days)
+      issue2.update(due_date: Date.current.end_of_week)
+      issue3.update(due_date: Date.current - 8.days)
 
       visit project_issues_path(project, due_date: Issue::DueThisWeek.name)
 
@@ -161,9 +161,9 @@ describe "User sorts issues" do
     end
 
     it 'filters by due this month' do
-      issue1.update(due_date: Date.today.beginning_of_month + 2.days)
-      issue2.update(due_date: Date.today.end_of_month)
-      issue3.update(due_date: Date.today - 50.days)
+      issue1.update(due_date: Date.current.beginning_of_month + 2.days)
+      issue2.update(due_date: Date.current.end_of_month)
+      issue3.update(due_date: Date.current - 50.days)
 
       visit project_issues_path(project, due_date: Issue::DueThisMonth.name)
 
@@ -175,8 +175,8 @@ describe "User sorts issues" do
     end
 
     it 'filters by overdue' do
-      issue1.update(due_date: Date.today + 2.days)
-      issue2.update(due_date: Date.today + 20.days)
+      issue1.update(due_date: Date.current + 2.days)
+      issue2.update(due_date: Date.current + 20.days)
       issue3.update(due_date: Date.yesterday)
 
       visit project_issues_path(project, due_date: Issue::Overdue.name)
@@ -189,8 +189,8 @@ describe "User sorts issues" do
     end
 
     it 'filters by due next month and previous two weeks' do
-      issue1.update(due_date: Date.today - 4.weeks)
-      issue2.update(due_date: (Date.today + 2.months).beginning_of_month)
+      issue1.update(due_date: Date.current - 4.weeks)
+      issue2.update(due_date: (Date.current + 2.months).beginning_of_month)
       issue3.update(due_date: Date.yesterday)
 
       visit project_issues_path(project, due_date: Issue::DueNextMonthAndPreviousTwoWeeks.name)

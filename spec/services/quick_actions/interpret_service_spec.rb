@@ -294,7 +294,7 @@ describe QuickActions::InterpretService do
 
     shared_examples 'remove_due_date command' do
       before do
-        issuable.update!(due_date: Date.today)
+        issuable.update!(due_date: Date.current)
       end
 
       it 'populates due_date: nil if content contains /remove_due_date' do

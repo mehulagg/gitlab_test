@@ -526,7 +526,7 @@ describe 'Git HTTP requests' do
                   expect(user.last_activity_on).to be_nil
 
                   download(path, env) do |response|
-                    expect(user.reload.last_activity_on).to eql(Date.today)
+                    expect(user.reload.last_activity_on).to eql(Date.current)
                   end
                 end
               end

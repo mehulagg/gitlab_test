@@ -7,7 +7,7 @@ describe "Licenses app", :js do
   let!(:licenses) do
     [
       create(:license, data: build(:gitlab_license, restrictions: { active_user_count: 2000 }).export),
-      create(:license, data: build(:gitlab_license, expires_at: Date.today - 10, restrictions: { active_user_count: 2000, plan: 'ultimate' }).export)
+      create(:license, data: build(:gitlab_license, expires_at: Date.current - 10, restrictions: { active_user_count: 2000, plan: 'ultimate' }).export)
     ]
   end
 

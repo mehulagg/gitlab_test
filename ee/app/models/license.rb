@@ -424,7 +424,7 @@ class License < ApplicationRecord
   def remaining_days
     return 0 if expired?
 
-    (expires_at - Date.today).to_i
+    (expires_at - Date.current).to_i
   end
 
   def overage(user_count = nil)

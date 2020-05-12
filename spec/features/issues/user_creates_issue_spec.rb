@@ -119,7 +119,7 @@ describe "User creates issue" do
 
     context 'with due date', :js do
       it 'saves with due date' do
-        date = Date.today.at_beginning_of_month
+        date = Date.current.at_beginning_of_month
 
         fill_in 'issue_title', with: 'bug 345'
         fill_in 'issue_description', with: 'bug description'

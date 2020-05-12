@@ -9,7 +9,7 @@ module Gitlab
         include ActiveModel::Attributes
 
         MAX_RANGE_DAYS = 180.days.freeze
-        DEFAULT_DATE_RANGE = 29.days # 30 including Date.today
+        DEFAULT_DATE_RANGE = 29.days # 30 including Date.current
 
         attr_writer :project_ids
 

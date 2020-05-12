@@ -102,7 +102,7 @@ class DeployToken < ApplicationRecord
   def expired?
     return false unless expires_at
 
-    expires_at < Date.today
+    expires_at < Date.current
   end
 
   def ensure_at_least_one_scope

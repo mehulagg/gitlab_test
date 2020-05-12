@@ -127,7 +127,7 @@ describe EventCreateService do
     end
 
     it 'updates user last activity' do
-      expect { subject }.to change { user.last_activity_on }.to(Date.today)
+      expect { subject }.to change { user.last_activity_on }.to(Date.current)
     end
 
     it 'caches the last push event for the user' do

@@ -35,7 +35,7 @@ describe 'Projects > Members > Maintainer adds member with expiration date', :js
   it 'change expiration date' do
     travel_to Time.zone.parse('2016-08-06 08:00') do
       date = 3.days.from_now
-      project.team.add_users([new_member.id], :developer, expires_at: Date.today.to_s(:medium))
+      project.team.add_users([new_member.id], :developer, expires_at: Date.current.to_s(:medium))
       visit project_project_members_path(project)
 
       page.within "#project_member_#{new_member.project_members.first.id}" do

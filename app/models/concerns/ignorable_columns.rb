@@ -5,7 +5,7 @@ module IgnorableColumns
 
   ColumnIgnore = Struct.new(:remove_after, :remove_with) do
     def safe_to_remove?
-      Date.today > remove_after
+      Date.current > remove_after
     end
 
     def to_s

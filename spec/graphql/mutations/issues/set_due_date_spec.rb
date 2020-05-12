@@ -27,7 +27,7 @@ describe Mutations::Issues::SetDueDate do
 
       it 'returns the issue with updated due date' do
         expect(mutated_issue).to eq(issue)
-        expect(mutated_issue.due_date).to eq(Date.today + 2.days)
+        expect(mutated_issue.due_date).to eq(Date.current + 2.days)
         expect(subject[:errors]).to be_empty
       end
 

@@ -139,7 +139,7 @@ describe 'Contributions Calendar', :js do
       it 'displays calendar activity square for 1 contribution', :sidekiq_might_not_need_inline do
         expect(find('#js-overview')).to have_selector(get_cell_color_selector(contribution_count), count: 1)
 
-        today = Date.today.strftime(date_format)
+        today = Date.current.strftime(date_format)
         expect(find('#js-overview')).to have_selector(get_cell_date_selector(contribution_count, today), count: 1)
       end
     end
@@ -196,7 +196,7 @@ describe 'Contributions Calendar', :js do
       end
 
       it 'displays calendar activity square for today' do
-        today = Date.today.strftime(date_format)
+        today = Date.current.strftime(date_format)
         expect(find('#js-overview')).to have_selector(get_cell_date_selector(1, today), count: 1)
       end
     end

@@ -599,7 +599,7 @@ describe Projects::IssuesController do
         go(id: issue.iid)
 
         expect(json_response).to include('updated_at')
-        expect(json_response['updated_at']).to eq(issue.last_edited_at.to_time.iso8601)
+        expect(json_response['updated_at']).to eq(issue.last_edited_at.in_time_zone.iso8601)
       end
     end
 

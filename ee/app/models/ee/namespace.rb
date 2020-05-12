@@ -267,7 +267,7 @@ module EE
     end
 
     def trial_active?
-      trial? && trial_ends_on.present? && trial_ends_on >= Date.today
+      trial? && trial_ends_on.present? && trial_ends_on >= Date.current
     end
 
     def never_had_trial?
@@ -276,7 +276,7 @@ module EE
 
     def trial_expired?
       trial_ends_on.present? &&
-        trial_ends_on < Date.today &&
+        trial_ends_on < Date.current &&
         actual_plan_name == ::Plan::FREE
     end
 

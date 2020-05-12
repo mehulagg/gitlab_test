@@ -60,7 +60,7 @@ describe EntityDateHelper do
     end
 
     context 'when milestone due date is today' do
-      let(:milestone_remaining) { date_helper_class.remaining_days_in_words(Date.today) }
+      let(:milestone_remaining) { date_helper_class.remaining_days_in_words(Date.current) }
 
       it 'returns today' do
         expect(milestone_remaining).to eq("<strong>Today</strong>")

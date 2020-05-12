@@ -370,7 +370,7 @@ module Issuable
   end
 
   def today?
-    Date.today == created_at.to_date
+    Date.current == created_at.to_date
   end
 
   def new?

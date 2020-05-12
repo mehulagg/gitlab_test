@@ -5,7 +5,7 @@ namespace :gitlab do
     desc 'GitLab | License | Gather license related information'
     task info: :gitlab_environment do
       license = Gitlab::UsageData.license_usage_data
-      puts "Today's Date: #{Date.today}"
+      puts "Today's Date: #{Date.current}"
       puts "Current User Count: #{license[:active_user_count]}"
       puts "Max Historical Count: #{license[:historical_max_users]}"
       puts "Max Users in License: #{license[:license_user_count]}"

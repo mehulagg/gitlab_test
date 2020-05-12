@@ -8,8 +8,8 @@ describe Analytics::ProductivityAnalyticsRequestParams do
       author_username: 'user',
       label_name: %w[label1 label2],
       milestone_title: 'user',
-      merged_after: 5.days.ago.to_time,
-      merged_before: Date.today.to_time,
+      merged_after: 5.days.ago.in_time_zone,
+      merged_before: Date.current.in_time_zone,
       group: Group.new
     }
   end
@@ -24,8 +24,8 @@ describe Analytics::ProductivityAnalyticsRequestParams do
     describe '`merged_at` params' do
       context 'when `merged_before` is earlier than `merged_after`' do
         before do
-          params[:merged_after] = Date.today.to_time
-          params[:merged_before] = 5.days.ago.to_time
+          params[:merged_after] = Date.current.in_time_zone
+          params[:merged_before] = 5.days.ago.in_time_zone
         end
 
         it 'is invalid' do
@@ -36,11 +36,11 @@ describe Analytics::ProductivityAnalyticsRequestParams do
 
       context 'when `merged_after` is earlier than `productivity_analytics_start_date`' do
         before do
-          params[:merged_after] = 5.days.ago.to_time
+          params[:merged_after] = 5.days.ago.in_time_zone
 
           allow(ApplicationSetting)
             .to receive(:current)
-            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: Date.today.to_time))
+            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: Date.current.in_time_zone))
         end
 
         it 'is invalid' do
@@ -51,11 +51,11 @@ describe Analytics::ProductivityAnalyticsRequestParams do
 
       context 'when `merged_before` is earlier than `productivity_analytics_start_date`' do
         before do
-          params[:merged_before] = 5.days.ago.to_time
+          params[:merged_before] = 5.days.ago.in_time_zone
 
           allow(ApplicationSetting)
             .to receive(:current)
-            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: Date.today.to_time))
+            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: Date.current.in_time_zone))
         end
 
         it 'is invalid' do
@@ -73,7 +73,7 @@ describe Analytics::ProductivityAnalyticsRequestParams do
 
     describe '`merged_before`' do
       it 'defaults to today date' do
-        expect(described_class.new.merged_before).to eq(Date.today.at_end_of_day)
+        expect(described_class.new.merged_before).to eq(Date.current.at_end_of_day)
       end
     end
 
@@ -82,7 +82,7 @@ describe Analytics::ProductivityAnalyticsRequestParams do
         before do
           allow(ApplicationSetting)
             .to receive(:current)
-            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: 15.days.ago.to_time))
+            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: 15.days.ago.in_time_zone))
         end
 
         it 'defaults to `productivity_analytics_start_date`' do
@@ -94,11 +94,11 @@ describe Analytics::ProductivityAnalyticsRequestParams do
         before do
           allow(ApplicationSetting)
             .to receive(:current)
-            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: 45.days.ago.to_time))
+            .and_return(ApplicationSetting.build_from_defaults(productivity_analytics_start_date: 45.days.ago.in_time_zone))
         end
 
         it 'defaults to 30 days ago' do
-          expect(described_class.new.merged_after).to eq(30.days.ago.to_time.utc.beginning_of_day)
+          expect(described_class.new.merged_after).to eq(30.days.ago.in_time_zone.utc.beginning_of_day)
         end
       end
     end

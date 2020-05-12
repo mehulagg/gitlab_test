@@ -10,7 +10,7 @@ describe Gitlab::Ci::Charts do
     subject { chart.to }
 
     it 'goes until the end of the current month (including the whole last day of the month)' do
-      is_expected.to eq(Date.today.end_of_month.end_of_day)
+      is_expected.to eq(Date.current.end_of_month.end_of_day)
     end
 
     it 'starts at the beginning of the current year' do
@@ -25,7 +25,7 @@ describe Gitlab::Ci::Charts do
     subject { chart.to }
 
     it 'includes the whole current day' do
-      is_expected.to eq(Date.today.end_of_day)
+      is_expected.to eq(Date.current.end_of_day)
     end
 
     it 'starts one month ago' do
@@ -40,7 +40,7 @@ describe Gitlab::Ci::Charts do
     subject { chart.to }
 
     it 'includes the whole current day' do
-      is_expected.to eq(Date.today.end_of_day)
+      is_expected.to eq(Date.current.end_of_day)
     end
 
     it 'starts one week ago' do

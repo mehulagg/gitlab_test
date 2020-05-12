@@ -238,7 +238,7 @@ class Deployment < ApplicationRecord
   end
 
   def formatted_deployment_time
-    deployed_at&.to_time&.in_time_zone&.to_s(:medium)
+    deployed_at&.in_time_zone&.to_s(:medium)
   end
 
   def deployed_by

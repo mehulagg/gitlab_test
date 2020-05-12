@@ -18,7 +18,7 @@ describe 'Admin Broadcast Messages' do
     fill_in 'broadcast_message_color', with: '#f2dede'
     fill_in 'broadcast_message_target_path', with: '*/user_onboarded'
     fill_in 'broadcast_message_font', with: '#b94a48'
-    select Date.today.next_year.year, from: 'broadcast_message_ends_at_1i'
+    select Date.current.next_year.year, from: 'broadcast_message_ends_at_1i'
     click_button 'Add broadcast message'
 
     expect(current_path).to eq admin_broadcast_messages_path
@@ -32,7 +32,7 @@ describe 'Admin Broadcast Messages' do
     fill_in 'broadcast_message_message', with: 'Application update from **4:00 CST to 5:00 CST**'
     fill_in 'broadcast_message_target_path', with: '*/user_onboarded'
     select 'Notification', from: 'broadcast_message_broadcast_type'
-    select Date.today.next_year.year, from: 'broadcast_message_ends_at_1i'
+    select Date.current.next_year.year, from: 'broadcast_message_ends_at_1i'
     click_button 'Add broadcast message'
 
     expect(current_path).to eq admin_broadcast_messages_path

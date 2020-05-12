@@ -28,13 +28,13 @@ module Milestoneish
   def remaining_days
     return 0 if !due_date || expired?
 
-    (due_date - Date.today).to_i
+    (due_date - Date.current).to_i
   end
 
   def elapsed_days
     return 0 if !start_date || start_date.future?
 
-    (Date.today - start_date).to_i
+    (Date.current - start_date).to_i
   end
 
   def issues_visible_to_user(user)

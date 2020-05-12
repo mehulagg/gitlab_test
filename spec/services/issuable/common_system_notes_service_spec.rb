@@ -136,7 +136,7 @@ describe Issuable::CommonSystemNotesService do
     end
 
     it 'creates a system note for due_date set' do
-      issuable.due_date = Date.today
+      issuable.due_date = Date.current
       issuable.save
 
       expect { subject }.to change { issuable.notes.count }.from(0).to(1)

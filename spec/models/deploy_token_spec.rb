@@ -110,7 +110,7 @@ describe DeployToken do
 
     context "when it hasn't been revoked and is expired" do
       it 'returns true' do
-        deploy_token.update_attribute(:expires_at, Date.today - 5.days)
+        deploy_token.update_attribute(:expires_at, Date.current - 5.days)
         expect(deploy_token.active?).to be_falsy
       end
     end
@@ -307,7 +307,7 @@ describe DeployToken do
     end
 
     context 'when using a personalized date' do
-      let(:expires_at) { Date.today + 5.months }
+      let(:expires_at) { Date.current + 5.months }
       let(:deploy_token) { create(:deploy_token, expires_at: expires_at) }
 
       it 'returns the personalized date' do
@@ -326,7 +326,7 @@ describe DeployToken do
     end
 
     context 'when passing a value' do
-      let(:expires_at) { Date.today + 5.months }
+      let(:expires_at) { Date.current + 5.months }
       let(:deploy_token) { create(:deploy_token, expires_at: expires_at) }
 
       it 'respects the value' do

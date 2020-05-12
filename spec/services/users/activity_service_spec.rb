@@ -15,18 +15,18 @@ describe Users::ActivityService do
 
       it 'updates last_activity_on for the user' do
         expect { subject.execute }
-          .to change(user, :last_activity_on).from(last_activity_on).to(Date.today)
+          .to change(user, :last_activity_on).from(last_activity_on).to(Date.current)
       end
     end
 
     context 'when last activity is in the past' do
-      let(:last_activity_on) { Date.today - 1.week }
+      let(:last_activity_on) { Date.current - 1.week }
 
       it 'updates last_activity_on for the user' do
         expect { subject.execute }
           .to change(user, :last_activity_on)
                 .from(last_activity_on)
-                .to(Date.today)
+                .to(Date.current)
       end
 
       it 'tries to obtain ExclusiveLease' do
@@ -49,7 +49,7 @@ describe Users::ActivityService do
     end
 
     context 'when last activity is today' do
-      let(:last_activity_on) { Date.today }
+      let(:last_activity_on) { Date.current }
 
       it 'does not update last_activity_on' do
         expect { subject.execute }.not_to change(user, :last_activity_on)

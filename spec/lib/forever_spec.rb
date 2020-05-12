@@ -8,7 +8,7 @@ describe Forever do
 
     it 'returns Postgresql future date' do
       Timecop.travel(Date.new(2999, 12, 31)) do
-        is_expected.to be > Date.today
+        is_expected.to be > Date.current
       end
     end
   end

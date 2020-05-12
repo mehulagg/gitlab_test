@@ -66,7 +66,7 @@ module Gitlab
     def expired_message
       return block_changes_message if subscribable.block_changes?
 
-      remaining_days = pluralize((subscribable.block_changes_at - Date.today).to_i, 'day')
+      remaining_days = pluralize((subscribable.block_changes_at - Date.current).to_i, 'day')
 
       _('No worries, you can still use all the %{strong}%{plan_name}%{strong_close} features for now. You have %{remaining_days} to renew your subscription.') % { plan_name: plan_name, remaining_days: remaining_days, strong: strong, strong_close: strong_close }
     end
@@ -112,7 +112,7 @@ module Gitlab
       return true unless subscribable.expired?
 
       expired_at = subscribable.expires_at
-      (expired_at..(expired_at + 30.days)).cover?(Date.today)
+      (expired_at..(expired_at + 30.days)).cover?(Date.current)
     end
 
     def plan_name

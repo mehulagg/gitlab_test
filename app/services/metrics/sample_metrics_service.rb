@@ -30,7 +30,7 @@ module Metrics
     end
 
     def convert_range_minutes(range_start, range_end)
-      ((range_end.to_time - range_start.to_time) / 1.minute).to_i
+      ((range_end.in_time_zone - range_start.in_time_zone) / 1.minute).to_i
     end
   end
 end

@@ -40,7 +40,7 @@ describe AuditEventService do
         described_class.new(user, project, {
           action: :update,
           old_access_level: 'Reporter',
-          old_expiry: Date.today
+          old_expiry: Date.current
         })
       end
 
@@ -48,7 +48,7 @@ describe AuditEventService do
         event = service.for_member(project_member).security_event
 
         expect(event[:details][:change]).to eq('access_level')
-        expect(event[:details][:expiry_from]).to eq(Date.today)
+        expect(event[:details][:expiry_from]).to eq(Date.current)
         expect(event[:details][:expiry_to]).to eq(1.day.from_now.to_date)
       end
     end

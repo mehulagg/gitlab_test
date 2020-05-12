@@ -17,7 +17,7 @@ module EE
           end
 
           def trial_active?
-            trial_ends_on.present? && trial_ends_on >= Date.today
+            trial_ends_on.present? && trial_ends_on >= Date.current
           end
         end
 

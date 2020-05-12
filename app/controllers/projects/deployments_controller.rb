@@ -7,7 +7,7 @@ class Projects::DeploymentsController < Projects::ApplicationController
   # rubocop: disable CodeReuse/ActiveRecord
   def index
     deployments = environment.deployments.reorder(created_at: :desc)
-    deployments = deployments.where('created_at > ?', params[:after].to_time) if params[:after]&.to_time
+    deployments = deployments.where('created_at > ?', params[:after].in_time_zone) if params[:after]&.in_time_zone
 
     render json: { deployments: DeploymentSerializer.new(project: project)
                                   .represent_concise(deployments) }

@@ -65,7 +65,7 @@ describe Issues::CreateService do
           end
 
           context 'with epic and milestone in commands only' do
-            let(:milestone) { create(:milestone, group: group, start_date: Date.today, due_date: 7.days.from_now) }
+            let(:milestone) { create(:milestone, group: group, start_date: Date.current, due_date: 7.days.from_now) }
             let(:params) do
               {
                 title: 'Awesome issue',

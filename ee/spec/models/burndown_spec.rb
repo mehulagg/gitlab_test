@@ -67,9 +67,9 @@ describe Burndown do
       expect(subject).to eq([])
     end
 
-    it "counts until today if milestone due date > Date.today" do
+    it "counts until today if milestone due date > Date.current" do
       Timecop.travel(milestone.due_date - 1.day) do
-        expect(subject.max_by { |event| event[:created_at] }[:created_at].to_date).to eq(Date.today)
+        expect(subject.max_by { |event| event[:created_at] }[:created_at].to_date).to eq(Date.current)
       end
     end
 
@@ -251,18 +251,18 @@ describe Burndown do
         # Create one issue each day
         issues << create(:issue, issue_params_for_date)
 
-        if Date.today == milestone.start_date - 1.day
+        if Date.current == milestone.start_date - 1.day
           # Close issue created before milestone start date to make sure issues
           # and events created before the milestone starts are included
           close_issue(issues.first)
         end
 
-        if Date.today == milestone.start_date
+        if Date.current == milestone.start_date
           # Create one confidential issue to assist in testing issue visibility.
           confidential_issues << create(:issue, :confidential, issue_params_for_date)
         end
 
-        if Date.today == milestone.start_date + 1.day
+        if Date.current == milestone.start_date + 1.day
           # Close issue created on milestone start date
           close_issue(issues.second)
 
@@ -270,7 +270,7 @@ describe Burndown do
           close_issue(confidential_issues.first)
         end
 
-        if Date.today == milestone.start_date + 2.days
+        if Date.current == milestone.start_date + 2.days
           # Reopen issue created on milestone start date
           reopen_issue(issues.second)
         end
