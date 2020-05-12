@@ -150,9 +150,9 @@ module Gitlab
 
         attributes =
           if wiki?
-            { last_wiki_commit: sha, wiki_indexed_at: Time.now }
+            { last_wiki_commit: sha, wiki_indexed_at: Time.current }
           else
-            { last_commit: sha, indexed_at: Time.now }
+            { last_commit: sha, indexed_at: Time.current }
           end
 
         @index_status.update(attributes)

@@ -174,7 +174,7 @@ class Gitlab::Seeder::CycleAnalytics
   end
 
   def suffix
-    @suffix ||= Time.now.to_i
+    @suffix ||= Time.current.to_i
   end
 
   def start_time
@@ -182,7 +182,7 @@ class Gitlab::Seeder::CycleAnalytics
   end
 
   def end_time
-    @end_time ||= Time.now
+    @end_time ||= Time.current
   end
 
   def within_end_time(time)

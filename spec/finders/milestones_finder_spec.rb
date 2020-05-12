@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe MilestonesFinder do
-  let(:now) { Time.now }
+  let(:now) { Time.current }
   let(:group) { create(:group) }
   let(:project_1) { create(:project, namespace: group) }
   let(:project_2) { create(:project, namespace: group) }

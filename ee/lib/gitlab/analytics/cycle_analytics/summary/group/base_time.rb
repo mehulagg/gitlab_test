@@ -42,7 +42,7 @@ module Gitlab
                 stage: stage,
                 params: {
                   from: @options[:from],
-                  to: @options[:to] || DateTime.now,
+                  to: @options[:to] || DateTime.current,
                   project_ids: @options[:projects]
                 }
               )

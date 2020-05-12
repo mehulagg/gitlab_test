@@ -104,7 +104,7 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
 
     context 'self-managed alert' do
       let(:alert_name) { 'alert' }
-      let(:starts_at) { Time.now.rfc3339 }
+      let(:starts_at) { Time.current.rfc3339 }
 
       let!(:prometheus_alert_event) do
         payload_key = SelfManagedPrometheusAlertEvent.payload_key_for(starts_at, alert_name, 'vector(1)')

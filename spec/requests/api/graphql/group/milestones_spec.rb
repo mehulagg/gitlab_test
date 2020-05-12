@@ -6,7 +6,7 @@ describe 'Milestones through GroupQuery' do
   include GraphqlHelpers
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:now) { Time.now }
+  let_it_be(:now) { Time.current }
   let_it_be(:group) { create(:group, :private) }
   let_it_be(:milestone_1) { create(:milestone, group: group) }
   let_it_be(:milestone_2) { create(:milestone, group: group, state: :closed, start_date: now, due_date: now + 1.day) }

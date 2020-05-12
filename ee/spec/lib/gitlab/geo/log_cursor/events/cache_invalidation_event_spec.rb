@@ -9,7 +9,7 @@ describe Gitlab::Geo::LogCursor::Events::CacheInvalidationEvent, :clean_gitlab_r
   let(:cache_invalidation_event) { event_log.cache_invalidation_event }
   let(:cache_key) { cache_invalidation_event.key }
 
-  subject { described_class.new(cache_invalidation_event, Time.now, logger) }
+  subject { described_class.new(cache_invalidation_event, Time.current, logger) }
 
   around do |example|
     Sidekiq::Testing.fake! { example.run }

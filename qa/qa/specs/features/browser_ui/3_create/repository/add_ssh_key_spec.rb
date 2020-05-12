@@ -3,7 +3,7 @@
 module QA
   context 'Create' do
     describe 'SSH keys support' do
-      let(:key_title) { "key for ssh tests #{Time.now.to_f}" }
+      let(:key_title) { "key for ssh tests #{Time.current.to_f}" }
 
       it 'user adds and then removes an SSH key', :smoke do
         Flow::Login.sign_in

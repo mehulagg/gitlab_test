@@ -9,7 +9,7 @@ describe Resolvers::MilestoneResolver do
     let_it_be(:current_user) { create(:user) }
 
     context 'for group milestones' do
-      let_it_be(:now) { Time.now }
+      let_it_be(:now) { Time.current }
       let_it_be(:group) { create(:group, :private) }
 
       def resolve_group_milestones(args = {}, context = { current_user: current_user })

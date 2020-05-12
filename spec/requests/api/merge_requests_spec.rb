@@ -5,7 +5,7 @@ require "spec_helper"
 describe API::MergeRequests do
   include ProjectForksHelper
 
-  let(:base_time)   { Time.now }
+  let(:base_time)   { Time.current }
   let_it_be(:user)  { create(:user) }
   let_it_be(:user2) { create(:user) }
   let_it_be(:admin) { create(:user, :admin) }

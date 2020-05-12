@@ -14,7 +14,7 @@ module QA
       private
 
       def current_date
-        DateTime.now
+        DateTime.current
       end
     end
   end

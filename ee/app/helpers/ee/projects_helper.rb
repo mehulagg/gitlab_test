@@ -123,7 +123,7 @@ module EE
     def remove_project_message(project)
       return super unless project.feature_available?(:adjourned_deletion_for_projects_and_groups)
 
-      date = permanent_deletion_date(Time.now.utc)
+      date = permanent_deletion_date(Time.current.utc)
       _("Removing a project places it into a read-only state until %{date}, at which point the project will be permanantly removed. Are you ABSOLUTELY sure?") %
         { date: date }
     end

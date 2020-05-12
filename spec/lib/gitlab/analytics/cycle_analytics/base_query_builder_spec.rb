@@ -18,7 +18,7 @@ describe Gitlab::Analytics::CycleAnalytics::BaseQueryBuilder do
 
   before do
     mr1.metrics.update!(merged_at: 1.month.ago)
-    mr2.metrics.update!(merged_at: Time.now)
+    mr2.metrics.update!(merged_at: Time.current)
   end
 
   around do |example|

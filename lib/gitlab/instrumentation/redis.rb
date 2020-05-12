@@ -6,10 +6,10 @@ module Gitlab
   module Instrumentation
     module RedisInterceptor
       def call(*args, &block)
-        start = Time.now
+        start = Time.current
         super(*args, &block)
       ensure
-        duration = (Time.now - start)
+        duration = (Time.current - start)
 
         if ::RequestStore.active?
           ::Gitlab::Instrumentation::Redis.increment_request_count

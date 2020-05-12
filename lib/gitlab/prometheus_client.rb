@@ -49,13 +49,13 @@ module Gitlab
       handle_querying_api_response(ex.response)
     end
 
-    def query(query, time: Time.now)
+    def query(query, time: Time.current)
       get_result('vector') do
         json_api_get('query', query: query, time: time.to_f)
       end
     end
 
-    def query_range(query, start_time: 8.hours.ago, end_time: Time.now)
+    def query_range(query, start_time: 8.hours.ago, end_time: Time.current)
       start_time = start_time.to_f
       end_time = end_time.to_f
       step = self.class.compute_step(start_time, end_time)
@@ -75,7 +75,7 @@ module Gitlab
       json_api_get("label/#{name}/values")
     end
 
-    def series(*matches, start_time: 8.hours.ago, end_time: Time.now)
+    def series(*matches, start_time: 8.hours.ago, end_time: Time.current)
       json_api_get('series', 'match': matches, start: start_time.to_f, end: end_time.to_f)
     end
 

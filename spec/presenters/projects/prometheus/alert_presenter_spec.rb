@@ -32,7 +32,7 @@ describe Projects::Prometheus::AlertPresenter do
     end
 
     context 'with valid datetime' do
-      let(:datetime) { Time.now }
+      let(:datetime) { Time.current }
       let(:starts_at) { datetime.rfc3339 }
 
       it { is_expected.to eq(datetime.rfc3339) }

@@ -139,7 +139,7 @@ module NotesHelper
     {
       notesUrl: notes_url,
       notesIds: @noteable.notes.pluck(:id), # rubocop: disable CodeReuse/ActiveRecord
-      now: Time.now.to_i,
+      now: Time.current.to_i,
       diffView: diff_view,
       enableGFM: {
         emojis: true,
@@ -172,7 +172,7 @@ module NotesHelper
       reopenPath: reopen_issuable_path(issuable),
       notesPath: notes_url,
       prerenderedNotesCount: issuable.capped_notes_count(MAX_PRERENDERED_NOTES),
-      lastFetchedAt: Time.now.to_i
+      lastFetchedAt: Time.current.to_i
     }
   end
 

@@ -41,7 +41,7 @@ describe Vulnerabilities::Export do
         vulnerability_export.start!
       end
 
-      it { is_expected.to have_attributes(status: 'running', started_at: Time.now) }
+      it { is_expected.to have_attributes(status: 'running', started_at: Time.current) }
     end
 
     context 'when the export is running' do
@@ -52,7 +52,7 @@ describe Vulnerabilities::Export do
           vulnerability_export.finish!
         end
 
-        it { is_expected.to have_attributes(status: 'finished', finished_at: Time.now) }
+        it { is_expected.to have_attributes(status: 'finished', finished_at: Time.current) }
       end
 
       context 'and it fails' do
@@ -62,7 +62,7 @@ describe Vulnerabilities::Export do
           vulnerability_export.failed!
         end
 
-        it { is_expected.to have_attributes(status: 'failed', finished_at: Time.now) }
+        it { is_expected.to have_attributes(status: 'failed', finished_at: Time.current) }
       end
     end
   end

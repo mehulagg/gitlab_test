@@ -24,14 +24,14 @@ describe Gitlab::ContributionsCalendar do
     end
   end
 
-  let(:today) { Time.now.utc.to_date }
+  let(:today) { Time.current.utc.to_date }
   let(:yesterday) { today - 1.day }
   let(:tomorrow)  { today + 1.day }
   let(:last_week) { today - 7.days }
   let(:last_year) { today - 1.year }
 
   before do
-    travel_to Time.now.utc.end_of_day
+    travel_to Time.current.utc.end_of_day
   end
 
   after do

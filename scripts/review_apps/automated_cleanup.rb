@@ -168,7 +168,7 @@ class AutomatedCleanup
   end
 
   def threshold_time(days:)
-    Time.now - days * 24 * 3600
+    Time.current - days * 24 * 3600
   end
 
   def ignore_exception?(exception_message, exceptions_ignored)
@@ -181,9 +181,9 @@ class AutomatedCleanup
 end
 
 def timed(task)
-  start = Time.now
+  start = Time.current
   yield(self)
-  puts "#{task} finished in #{Time.now - start} seconds.\n"
+  puts "#{task} finished in #{Time.current - start} seconds.\n"
 end
 
 automated_cleanup = AutomatedCleanup.new

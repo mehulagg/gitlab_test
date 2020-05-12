@@ -66,7 +66,7 @@ module CycleAnalyticsHelpers
                 allow(self).to receive(:project) { other_project }
 
                 data = data_fn[self]
-                start_time = Time.now
+                start_time = Time.current
                 end_time = rand(1..10).days.from_now
 
                 start_time_conditions.each do |condition_name, condition_fn|
@@ -89,7 +89,7 @@ module CycleAnalyticsHelpers
             context "when the end condition happens before the start condition" do
               it 'returns nil' do
                 data = data_fn[self]
-                start_time = Time.now
+                start_time = Time.current
                 end_time = start_time + rand(1..5).days
 
                 # Run `before_end_fn` at the midpoint between `start_time` and `end_time`
@@ -132,7 +132,7 @@ module CycleAnalyticsHelpers
           context "end condition NOT PRESENT: #{end_time_conditions.map(&:first).to_sentence}" do
             it "returns nil" do
               data = data_fn[self]
-              start_time = Time.now
+              start_time = Time.current
 
               start_time_conditions.each do |condition_name, condition_fn|
                 Timecop.freeze(start_time) { condition_fn[self, data] }

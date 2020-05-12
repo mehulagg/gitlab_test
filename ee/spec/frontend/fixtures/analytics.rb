@@ -128,7 +128,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
   describe Analytics::CycleAnalytics::StagesController, type: :controller do
     render_views
 
-    let(:params) { { created_after: 3.months.ago, created_before: Time.now, group_id: group.full_path } }
+    let(:params) { { created_after: 3.months.ago, created_before: Time.current, group_id: group.full_path } }
 
     before do
       stub_feature_flags(Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG => true)
@@ -187,7 +187,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
   describe Analytics::CycleAnalytics::SummaryController, type: :controller do
     render_views
 
-    let(:params) { { created_after: 3.months.ago, created_before: Time.now, group_id: group.full_path } }
+    let(:params) { { created_after: 3.months.ago, created_before: Time.current, group_id: group.full_path } }
 
     before do
       stub_feature_flags(Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG => true)

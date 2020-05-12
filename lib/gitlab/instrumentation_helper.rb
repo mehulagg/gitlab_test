@@ -56,7 +56,7 @@ module Gitlab
     #
     # @param [Time] start
     def self.elapsed_by_absolute_time(start)
-      (Time.now - start).to_f.round(6)
+      (Time.current - start).to_f.round(6)
     end
     private_class_method :elapsed_by_absolute_time
 

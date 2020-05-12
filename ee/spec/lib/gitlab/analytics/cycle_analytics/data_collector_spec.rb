@@ -81,7 +81,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
         end
 
         def create_data_for_end_event(issue, example_class)
-          issue.metrics.update!(first_mentioned_in_commit_at: Time.now)
+          issue.metrics.update!(first_mentioned_in_commit_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -108,12 +108,12 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
 
         def create_data_for_start_event(example_class)
           issue = create(:issue, :opened, project: example_class.project)
-          issue.metrics.update!(first_mentioned_in_commit_at: Time.now)
+          issue.metrics.update!(first_mentioned_in_commit_at: Time.current)
           issue
         end
 
         def create_data_for_end_event(resource, example_class)
-          resource.metrics.update!(first_associated_with_milestone_at: Time.now)
+          resource.metrics.update!(first_associated_with_milestone_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -128,7 +128,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
         end
 
         def create_data_for_end_event(resource, example_class)
-          resource.metrics.update!(first_added_to_board_at: Time.now)
+          resource.metrics.update!(first_added_to_board_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -143,7 +143,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
         end
 
         def create_data_for_end_event(resource, example_class)
-          resource.update!(last_edited_at: Time.now)
+          resource.update!(last_edited_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -247,7 +247,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
         end
 
         def create_data_for_end_event(mr, example_class)
-          mr.metrics.update!(merged_at: Time.now)
+          mr.metrics.update!(merged_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -259,12 +259,12 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
 
         def create_data_for_start_event(example_class)
           create(:merge_request, :closed, source_project: example_class.project).tap do |mr|
-            mr.metrics.update!(merged_at: Time.now)
+            mr.metrics.update!(merged_at: Time.current)
           end
         end
 
         def create_data_for_end_event(mr, example_class)
-          mr.metrics.update!(first_deployed_to_production_at: Time.now)
+          mr.metrics.update!(first_deployed_to_production_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -276,12 +276,12 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
 
         def create_data_for_start_event(example_class)
           create(:merge_request, :closed, source_project: example_class.project).tap do |mr|
-            mr.metrics.update!(latest_build_started_at: Time.now)
+            mr.metrics.update!(latest_build_started_at: Time.current)
           end
         end
 
         def create_data_for_end_event(mr, example_class)
-          mr.metrics.update!(latest_build_finished_at: Time.now)
+          mr.metrics.update!(latest_build_finished_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -296,7 +296,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
         end
 
         def create_data_for_end_event(resource, example_class)
-          resource.metrics.update!(latest_closed_at: Time.now)
+          resource.metrics.update!(latest_closed_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'
@@ -311,7 +311,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
         end
 
         def create_data_for_end_event(resource, example_class)
-          resource.update!(last_edited_at: Time.now)
+          resource.update!(last_edited_at: Time.current)
         end
 
         it_behaves_like 'custom cycle analytics stage'

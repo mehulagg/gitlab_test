@@ -4,11 +4,11 @@ require 'spec_helper'
 
 describe Gitlab::Ci::CronParser do
   shared_examples_for "returns time in the future" do
-    it { is_expected.to be > Time.now }
+    it { is_expected.to be > Time.current }
   end
 
   describe '#next_time_from' do
-    subject { described_class.new(cron, cron_timezone).next_time_from(Time.now) }
+    subject { described_class.new(cron, cron_timezone).next_time_from(Time.current) }
 
     context 'when cron and cron_timezone are valid' do
       context 'when specific time' do

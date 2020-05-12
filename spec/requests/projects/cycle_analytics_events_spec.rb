@@ -12,7 +12,7 @@ describe 'value stream analytics events' do
       project.add_developer(user)
 
       3.times do |count|
-        Timecop.freeze(Time.now + count.days) do
+        Timecop.freeze(Time.current + count.days) do
           create_cycle
         end
       end

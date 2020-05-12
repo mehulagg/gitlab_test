@@ -44,7 +44,7 @@ module Gitlab
 
       def license_usage_data
         {
-          recorded_at: Time.now, # should be calculated very first
+          recorded_at: Time.current, # should be calculated very first
           uuid: alt_usage_data { Gitlab::CurrentSettings.uuid },
           hostname: alt_usage_data { Gitlab.config.gitlab.host },
           version: alt_usage_data { Gitlab::VERSION },
@@ -56,7 +56,7 @@ module Gitlab
 
       def recording_ce_finish_data
         {
-          recording_ce_finished_at: Time.now
+          recording_ce_finished_at: Time.current
         }
       end
 

@@ -8,7 +8,7 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
   let(:from) { 1.day.ago }
   let(:user) { create(:user, :admin) }
 
-  subject { described_class.new(group, options: { from: Time.now, current_user: user }).data }
+  subject { described_class.new(group, options: { from: Time.current, current_user: user }).data }
 
   describe "#new_issues" do
     context 'with from date' do
@@ -38,7 +38,7 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
           Timecop.freeze(5.days.from_now) { create(:issue, project: create(:project, namespace: group)) }
         end
 
-        subject { described_class.new(group, options: { from: Time.now, current_user: user, projects: [project.id, project_2.id] }).data }
+        subject { described_class.new(group, options: { from: Time.current, current_user: user, projects: [project.id, project_2.id] }).data }
 
         it 'finds issues from those projects' do
           expect(subject.first[:value]).to eq('2')
@@ -46,7 +46,7 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
       end
 
       context 'when `from` and `to` parameters are provided' do
-        subject { described_class.new(group, options: { from: 10.days.ago, to: Time.now, current_user: user }).data }
+        subject { described_class.new(group, options: { from: 10.days.ago, to: Time.current, current_user: user }).data }
 
         it 'finds issues from 5 days ago' do
           expect(subject.first[:value]).to eq('2')
@@ -99,7 +99,7 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
           end
         end
 
-        subject { described_class.new(group, options: { from: Time.now, current_user: user, projects: [project.id, project_2.id] }).data }
+        subject { described_class.new(group, options: { from: Time.current, current_user: user, projects: [project.id, project_2.id] }).data }
 
         it 'shows deploys from those projects' do
           expect(subject.second[:value]).to eq('2')
@@ -107,7 +107,7 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
       end
 
       context 'when `from` and `to` parameters are provided' do
-        subject { described_class.new(group, options: { from: 10.days.ago, to: Time.now, current_user: user }).data }
+        subject { described_class.new(group, options: { from: 10.days.ago, to: Time.current, current_user: user }).data }
 
         it 'finds deployments from 5 days ago' do
           expect(subject.second[:value]).to eq('2')

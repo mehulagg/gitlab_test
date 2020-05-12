@@ -25,7 +25,7 @@ FactoryBot.define do
       association :project, :repository
 
       trait :resolved do
-        resolved_at { Time.now }
+        resolved_at { Time.current }
         resolved_by { create(:user) }
       end
     end
@@ -77,7 +77,7 @@ FactoryBot.define do
       end
 
       trait :resolved do
-        resolved_at { Time.now }
+        resolved_at { Time.current }
         resolved_by { create(:user) }
       end
 

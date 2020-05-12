@@ -11,7 +11,7 @@ describe Gitlab::Geo::LogCursor::Events::HashedStorageAttachmentsEvent, :clean_g
   let(:old_attachments_path) { hashed_storage_attachments_event.old_attachments_path }
   let(:new_attachments_path) { hashed_storage_attachments_event.new_attachments_path }
 
-  subject { described_class.new(hashed_storage_attachments_event, Time.now, logger) }
+  subject { described_class.new(hashed_storage_attachments_event, Time.current, logger) }
 
   around do |example|
     Sidekiq::Testing.fake! { example.run }

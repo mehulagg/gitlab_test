@@ -87,7 +87,7 @@ describe Gitlab::Git::Commit, :seed_helper do
     it { expect(commit.parent_ids).to eq(gitaly_commit.parent_ids) }
 
     context 'non-UTC dates' do
-      let(:seconds) { Time.now.to_i }
+      let(:seconds) { Time.current.to_i }
 
       it 'sets timezones correctly' do
         gitaly_commit.author.date.seconds = seconds

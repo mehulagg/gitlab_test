@@ -87,7 +87,7 @@ describe API::Releases do
     end
 
     it 'returns an upcoming_release status for a future release' do
-      tomorrow = Time.now.utc + 1.day
+      tomorrow = Time.current.utc + 1.day
       create(:release, project: project, tag: 'v0.1', author: maintainer, released_at: tomorrow)
 
       get api("/projects/#{project.id}/releases", maintainer)
@@ -97,7 +97,7 @@ describe API::Releases do
     end
 
     it 'returns an upcoming_release status for a past release' do
-      yesterday = Time.now.utc - 1.day
+      yesterday = Time.current.utc - 1.day
       create(:release, project: project, tag: 'v0.1', author: maintainer, released_at: yesterday)
 
       get api("/projects/#{project.id}/releases", maintainer)
@@ -260,7 +260,7 @@ describe API::Releases do
         end
 
         it '#collected_at' do
-          Timecop.freeze(Time.now.round) do
+          Timecop.freeze(Time.current.round) do
             get api("/projects/#{project.id}/releases/v0.1", maintainer)
 
             expect(json_response['evidences'].first['collected_at'].to_datetime.to_i).to be_within(1.minute).of(release.evidences.first.created_at.to_i)
@@ -782,7 +782,7 @@ describe API::Releases do
         it 'sets `released_at` to the current dttm' do
           subject
 
-          expect(last_release.updated_at).to be_like_time(Time.now)
+          expect(last_release.updated_at).to be_like_time(Time.current)
         end
 
         it 'queues CreateEvidenceWorker' do

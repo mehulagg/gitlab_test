@@ -92,11 +92,11 @@ class WikiPage
     end
 
     def update_columns(attrs = {})
-      super(attrs.reverse_merge(updated_at: Time.now.utc))
+      super(attrs.reverse_merge(updated_at: Time.current.utc))
     end
 
     def self.update_all(attrs = {})
-      super(attrs.reverse_merge(updated_at: Time.now.utc))
+      super(attrs.reverse_merge(updated_at: Time.current.utc))
     end
 
     private
@@ -106,7 +106,7 @@ class WikiPage
     end
 
     def insert_slugs(strings, is_new, canonical_slug)
-      creation = Time.now.utc
+      creation = Time.current.utc
 
       slug_attrs = strings.map do |slug|
         {

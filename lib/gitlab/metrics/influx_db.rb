@@ -97,13 +97,13 @@ module Gitlab
 
           return yield unless trans
 
-          real_start = Time.now.to_f
+          real_start = Time.current.to_f
           cpu_start = System.cpu_time
 
           retval = yield
 
           cpu_stop = System.cpu_time
-          real_stop = Time.now.to_f
+          real_stop = Time.current.to_f
 
           real_time = (real_stop - real_start)
           cpu_time = cpu_stop - cpu_start

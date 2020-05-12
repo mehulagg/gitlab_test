@@ -177,7 +177,7 @@ describe API::ProjectTemplates do
       content = json_response['content']
 
       expect(content).to include('Project Placeholder')
-      expect(content).to include("Copyright (C) #{Time.now.year}  Fullname Placeholder")
+      expect(content).to include("Copyright (C) #{Time.current.year}  Fullname Placeholder")
     end
   end
 end

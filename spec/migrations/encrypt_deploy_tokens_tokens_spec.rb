@@ -8,7 +8,7 @@ describe EncryptDeployTokensTokens do
   let(:migration) { described_class.new }
   let(:deployment_tokens) { table(:deploy_tokens) }
   let(:plaintext) { "secret-token" }
-  let(:expires_at) { DateTime.now + 1.year }
+  let(:expires_at) { DateTime.current + 1.year }
   let(:ciphertext) { Gitlab::CryptoHelper.aes256_gcm_encrypt(plaintext) }
 
   describe '#up' do

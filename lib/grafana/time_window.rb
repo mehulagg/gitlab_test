@@ -66,7 +66,7 @@ module Grafana
     private
 
     def apply_defaults!
-      @to ||= @from ? relative_end : Timestamp.new(Time.now)
+      @to ||= @from ? relative_end : Timestamp.new(Time.current)
       @from ||= relative_start
     end
 

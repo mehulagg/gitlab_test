@@ -68,7 +68,7 @@ module ApplicationWorker
     end
 
     def bulk_perform_in(delay, args_list)
-      now = Time.now.to_i
+      now = Time.current.to_i
       schedule = now + delay.to_i
 
       if schedule <= now

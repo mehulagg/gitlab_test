@@ -21,7 +21,7 @@ describe Gitlab::Ci::Jwt do
 
     it 'has correct values for the standard JWT attributes' do
       Timecop.freeze do
-        now = Time.now.to_i
+        now = Time.current.to_i
 
         aggregate_failures do
           expect(payload[:iss]).to eq(Settings.gitlab.host)

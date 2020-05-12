@@ -964,7 +964,7 @@ describe API::Jobs do
     context 'artifacts did not expire' do
       let(:job) do
         create(:ci_build, :trace_artifact, :artifacts, :success,
-               project: project, pipeline: pipeline, artifacts_expire_at: Time.now + 7.days)
+               project: project, pipeline: pipeline, artifacts_expire_at: Time.current + 7.days)
       end
 
       it 'keeps artifacts' do

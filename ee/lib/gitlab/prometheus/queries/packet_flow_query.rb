@@ -7,7 +7,7 @@ module Gitlab
         FORWARDED = "FORWARDED".freeze
         DROPPED   = "DROPPED".freeze
 
-        def query(namespace, interval = "hour", from = 1.day.ago.to_s, to = Time.now.to_s)
+        def query(namespace, interval = "hour", from = 1.day.ago.to_s, to = Time.current.to_s)
           from = Time.parse(from)
           to = Time.parse(to)
           rate_interval = to_prometheus_interval(interval)

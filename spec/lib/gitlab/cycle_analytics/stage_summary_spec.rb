@@ -36,7 +36,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
       end
 
       it "doesn't find any record" do
-        options[:to] = Time.now
+        options[:to] = Time.current
 
         expect(subject).to eq('-')
       end
@@ -79,7 +79,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
       end
 
       it "doesn't find any record" do
-        options[:to] = Time.now
+        options[:to] = Time.current
 
         expect(subject).to eq('-')
       end
@@ -136,7 +136,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
       end
 
       it "doesn't find any record" do
-        options[:to] = Time.now
+        options[:to] = Time.current
 
         expect(subject).to eq('-')
       end
@@ -201,9 +201,9 @@ describe Gitlab::CycleAnalytics::StageSummary do
 
       context 'when `from` and `to` are within a day' do
         it 'returns the number of deployments made on that day' do
-          Timecop.freeze(Time.now) do
+          Timecop.freeze(Time.current) do
             create(:deployment, :success, project: project)
-            options[:from] = options[:to] = Time.now
+            options[:from] = options[:to] = Time.current
 
             expect(subject).to eq('1')
           end

@@ -34,7 +34,7 @@ module Gitlab
               created_at,
               'Design repository update',
               project_id: event.project_id,
-              scheduled_at: Time.now,
+              scheduled_at: Time.current,
               skippable: skippable?,
               job_id: job_id)
           end

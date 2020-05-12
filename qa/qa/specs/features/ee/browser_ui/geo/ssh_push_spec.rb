@@ -7,7 +7,7 @@ module QA
 
       context 'regular git commit' do
         it "is replicated to the secondary" do
-          key_title = "key for ssh tests #{Time.now.to_f}"
+          key_title = "key for ssh tests #{Time.current.to_f}"
           file_content = 'This is a Geo project! Commit from primary.'
           project = nil
           key = nil
@@ -76,7 +76,7 @@ module QA
 
       context 'git-lfs commit' do
         it "is replicated to the secondary" do
-          key_title = "key for ssh tests #{Time.now.to_f}"
+          key_title = "key for ssh tests #{Time.current.to_f}"
           file_content = 'The rendered file could not be displayed because it is stored in LFS.'
           project = nil
           key = nil

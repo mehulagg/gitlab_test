@@ -64,7 +64,7 @@ describe VulnerabilitiesHelper do
         has_mr: anything,
         vulnerability_feedback_help_path: kind_of(String),
         finding_json: kind_of(String),
-        timestamp: Time.now.to_i
+        timestamp: Time.current.to_i
       )
     end
   end

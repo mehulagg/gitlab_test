@@ -232,7 +232,7 @@ RSpec.shared_examples 'a timebox' do |timebox_type|
   end
 
   it_behaves_like 'within_timeframe scope' do
-    let_it_be(:now) { Time.now }
+    let_it_be(:now) { Time.current }
     let_it_be(:project) { create(:project, :empty_repo) }
     let_it_be(:resource_1) { create(timebox_type, project: project, start_date: now - 1.day, due_date: now + 1.day) }
     let_it_be(:resource_2) { create(timebox_type, project: project, start_date: now + 2.days, due_date: now + 3.days) }

@@ -15,7 +15,7 @@ describe FillProductivityAnalyticsStartDate do
     it 'sets start_date to NOW' do
       expect { migrate! }.to change {
         settings_table.first&.productivity_analytics_start_date
-      }.to(be_like_time(Time.now))
+      }.to(be_like_time(Time.current))
     end
   end
 

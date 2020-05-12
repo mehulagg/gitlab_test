@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Gitlab::JsonLogger do
   subject { described_class.new('/dev/null') }
 
-  let(:now) { Time.now }
+  let(:now) { Time.current }
 
   describe '#format_message' do
     before do

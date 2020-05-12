@@ -104,7 +104,7 @@ describe Gitlab::LfsToken, :clean_gitlab_redis_shared_state do
           expired_token = lfs_token.token
           # Needs to be at least 1860 seconds, because the default expiry is
           # 1800 seconds with an additional 60 second leeway.
-          Timecop.freeze(Time.now + 1865) do
+          Timecop.freeze(Time.current + 1865) do
             expect(lfs_token.token_valid?(expired_token)).to be_falsey
           end
         end

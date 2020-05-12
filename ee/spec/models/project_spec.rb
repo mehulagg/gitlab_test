@@ -302,7 +302,7 @@ describe Project do
             project.save
           end.to change { ProjectImportState.count }.by(1)
 
-          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
         end
       end
     end
@@ -317,7 +317,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id, import_url: generate(:url))
             end.to change { ProjectImportState.count }.by(1)
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -331,7 +331,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id)
             end.not_to change { ProjectImportState.count }
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -339,7 +339,7 @@ describe Project do
   end
 
   describe '.mirrors_to_sync' do
-    let(:timestamp) { Time.now }
+    let(:timestamp) { Time.current }
 
     context 'when mirror is scheduled' do
       it 'returns empty' do

@@ -9,7 +9,7 @@ class PagesDomainsVerificationGracePeriod < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def up
-    now = Time.now
+    now = Time.current
     grace = now + 30.days
 
     PagesDomain.each_batch do |relation|

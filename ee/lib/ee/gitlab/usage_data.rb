@@ -46,7 +46,7 @@ module EE
 
         def recording_ee_finish_data
           {
-            recording_ee_finished_at: Time.now
+            recording_ee_finished_at: Time.current
           }
         end
 

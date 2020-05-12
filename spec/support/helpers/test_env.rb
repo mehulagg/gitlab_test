@@ -458,7 +458,7 @@ module TestEnv
 
   def component_timed_setup(component, install_dir:, version:, task:)
     puts "\n==> Setting up #{component}..."
-    start = Time.now
+    start = Time.current
 
     ensure_component_dir_name_is_correct!(component, install_dir)
 
@@ -481,7 +481,7 @@ module TestEnv
     FileUtils.rm_rf(install_dir)
     exit 1
   ensure
-    puts "    #{component} set up in #{Time.now - start} seconds...\n"
+    puts "    #{component} set up in #{Time.current - start} seconds...\n"
   end
 
   def ci?

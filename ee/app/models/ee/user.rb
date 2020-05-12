@@ -230,7 +230,7 @@ module EE
     def any_namespace_with_trial?
       ::Namespace
         .from("(#{namespace_union_for_owned(:trial_ends_on)}) #{::Namespace.table_name}")
-        .where('trial_ends_on > ?', Time.now.utc)
+        .where('trial_ends_on > ?', Time.current.utc)
         .any?
     end
 
@@ -305,7 +305,7 @@ module EE
     end
 
     def admin_unsubscribe!
-      update_column :admin_email_unsubscribed_at, Time.now
+      update_column :admin_email_unsubscribed_at, Time.current
     end
 
     override :allow_password_authentication_for_web?

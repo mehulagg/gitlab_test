@@ -8,7 +8,7 @@ describe Gitlab::CycleAnalytics::UsageData do
       # Since git commits only have second precision, round up to the
       # nearest second to ensure we have accurate median and standard
       # deviation calculations.
-      current_time = Time.at(Time.now.to_i)
+      current_time = Time.at(Time.current.to_i)
 
       Timecop.freeze(current_time) do
         user = create(:user, :admin)

@@ -9,7 +9,7 @@ module QA
           wiki_content = 'This tests replication of wikis via SSH'
           push_content = 'This is from the Geo wiki push via SSH!'
           project_name = "geo-wiki-project-#{SecureRandom.hex(8)}"
-          key_title = "key for ssh tests #{Time.now.to_f}"
+          key_title = "key for ssh tests #{Time.current.to_f}"
           project = nil
           key = nil
 
