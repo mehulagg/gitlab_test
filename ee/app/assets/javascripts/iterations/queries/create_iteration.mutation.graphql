@@ -4,7 +4,8 @@ mutation createIteration($input: CreateIterationInput!) {
       title,
       description,
       startDate,
-      dueDate 
+      dueDate,
+      webUrl
     }
     errors
   }

@@ -29,8 +29,8 @@ export default {
       loading: 0,
       title: 'test',
       description: 'test desc',
-      startDate: '2020-05-02',
-      dueDate: '2020-05-10',
+      startDate: '2020-05-27',
+      dueDate: '2020-05-28',
     };
   },
   mounted() {
@@ -51,6 +51,13 @@ export default {
         },
       }).then(({ data, error }) => {
         console.log(data, error)
+        // data.createIteration.iteration.webUrl
+
+
+        // data.createIteration.errors 
+        // ["Start date cannot be in the past", "Due date cannot be in the past"]
+        // 0: "Title already being used for another group or project sprint."
+        // 1: "Dates cannot overlap with other existing Iterations"
       }).catch(e => {
         console.log(e)
       })
