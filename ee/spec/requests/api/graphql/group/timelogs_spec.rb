@@ -38,8 +38,8 @@ describe 'Timelogs through GroupQuery' do
 
       it 'contains correct data' do
         username = timelog_array.map {|data| data['user']['username'] }
-        date = timelog_array.map { |data| data['date'].to_time }
-        spent_at = timelog_array.map { |data| data['spentAt'].to_time }
+        date = timelog_array.map { |data| data['date'].in_time_zone }
+        spent_at = timelog_array.map { |data| data['spentAt'].in_time_zone }
         time_spent = timelog_array.map { |data| data['timeSpent'] }
         issue_title = timelog_array.map {|data| data['issue']['title'] }
         milestone_title = timelog_array.map {|data| data['issue']['milestone']['title'] }

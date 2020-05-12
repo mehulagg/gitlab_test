@@ -26,8 +26,8 @@ class Analytics::TasksByTypeController < Analytics::ApplicationController
       subject: params[:subject],
       label_ids: Array(params[:label_ids]),
       project_ids: Array(params[:project_ids]),
-      created_after: @created_after.to_time.utc.beginning_of_day,
-      created_before: @created_before.to_time.utc.end_of_day
+      created_after: @created_after.in_time_zone.utc.beginning_of_day,
+      created_before: @created_before.in_time_zone.utc.end_of_day
     })
   end
 
@@ -39,7 +39,7 @@ class Analytics::TasksByTypeController < Analytics::ApplicationController
     @created_after = parse_date(params[:created_after])
     return respond_422 unless @created_after
 
-    @created_before = parse_date(params[:created_before]) || Date.today
+    @created_before = parse_date(params[:created_before]) || Date.current
 
     return respond_422 if @created_after > @created_before
   end

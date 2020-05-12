@@ -11,7 +11,7 @@ describe ::SystemNotes::TimeTrackingService do
   describe '#change_due_date' do
     subject { described_class.new(noteable: noteable, project: project, author: author).change_due_date(due_date) }
 
-    let(:due_date) { Date.today }
+    let(:due_date) { Date.current }
 
     it_behaves_like 'a note with overridable created_at'
 

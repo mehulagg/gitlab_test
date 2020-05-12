@@ -22,7 +22,7 @@ describe Groups::MilestonesController do
   let(:milestone_params) do
     {
       title: title,
-      start_date: Date.today,
+      start_date: Date.current,
       due_date: 1.month.from_now.to_date
     }
   end

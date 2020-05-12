@@ -36,7 +36,7 @@ describe HistoricalData do
       described_class.track!
 
       data = described_class.last
-      expect(data.date).to eq(Date.today)
+      expect(data.date).to eq(Date.current)
       expect(data.active_user_count).to eq(5)
     end
   end

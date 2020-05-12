@@ -173,7 +173,7 @@ describe SessionsController do
         it 'updates the user activity' do
           expect do
             post(:create, params: { user: user_params })
-          end.to change { user.reload.last_activity_on }.to(Date.today)
+          end.to change { user.reload.last_activity_on }.to(Date.current)
         end
       end
 

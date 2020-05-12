@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'Milestones on EE' do
   let(:user) { create(:user) }
   let(:project) { create(:project, name: 'test', namespace: user.namespace) }
-  let(:milestone) { create(:milestone, project: project, start_date: Date.today, due_date: 7.days.from_now) }
+  let(:milestone) { create(:milestone, project: project, start_date: Date.current, due_date: 7.days.from_now) }
 
   before do
     login_as(user)

@@ -17,7 +17,7 @@ describe Gitlab::Analytics::TypeOfWork::TasksByType do
   let(:params) do
     {
       group: group,
-      params: { label_ids: [label.id, label_for_subgroup.id], created_after: 10.days.ago, created_before: Date.today },
+      params: { label_ids: [label.id, label_for_subgroup.id], created_after: 10.days.ago, created_before: Date.current },
       current_user: user
     }
   end

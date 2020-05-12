@@ -61,7 +61,7 @@ describe Emails::Issues do
     end
 
     it 'generates a useful filename' do
-      expect(attachment.filename).to include(Date.today.year.to_s)
+      expect(attachment.filename).to include(Date.current.year.to_s)
       expect(attachment.filename).to include('issues')
       expect(attachment.filename).to include('myproject')
       expect(attachment.filename).to end_with('.csv')

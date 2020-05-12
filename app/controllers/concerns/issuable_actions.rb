@@ -71,7 +71,7 @@ module IssuableActions
     }
 
     if issuable.edited?
-      response[:updated_at] = issuable.last_edited_at.to_time.iso8601
+      response[:updated_at] = issuable.last_edited_at.in_time_zone.iso8601
       response[:updated_by_name] = issuable.last_edited_by.name
       response[:updated_by_path] = user_path(issuable.last_edited_by)
     end

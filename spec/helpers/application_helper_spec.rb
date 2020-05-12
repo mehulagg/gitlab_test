@@ -130,7 +130,7 @@ describe ApplicationHelper do
     end
 
     it 'converts to Time' do
-      expect { helper.time_ago_with_tooltip(Date.today) }.not_to raise_error
+      expect { helper.time_ago_with_tooltip(Date.current) }.not_to raise_error
     end
 
     it 'add class for the short format' do

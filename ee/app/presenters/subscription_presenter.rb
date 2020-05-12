@@ -27,7 +27,7 @@ class SubscriptionPresenter < Gitlab::View::Presenter::Delegated
   def remaining_days
     return unless end_date
 
-    (end_date - Date.today).to_i
+    (end_date - Date.current).to_i
   end
 
   def will_block_changes?

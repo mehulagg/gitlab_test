@@ -51,7 +51,7 @@ describe "Issues > User edits issue", :js do
       end
 
       it 'saves with due date' do
-        date = Date.today.at_beginning_of_month.tomorrow
+        date = Date.current.at_beginning_of_month.tomorrow
 
         fill_in 'issue_title', with: 'bug 345'
         fill_in 'issue_description', with: 'bug description'
@@ -241,7 +241,7 @@ describe "Issues > User edits issue", :js do
 
     context 'update due date' do
       it 'adds due date to issue' do
-        date = Date.today.at_beginning_of_month + 2.days
+        date = Date.current.at_beginning_of_month + 2.days
 
         page.within '.due_date' do
           click_link 'Edit'
@@ -257,7 +257,7 @@ describe "Issues > User edits issue", :js do
       end
 
       it 'removes due date from issue' do
-        date = Date.today.at_beginning_of_month + 2.days
+        date = Date.current.at_beginning_of_month + 2.days
 
         page.within '.due_date' do
           click_link 'Edit'

@@ -7,7 +7,7 @@ module QA
         Flow::Login.sign_in
 
         deploy_token_name = 'deploy token name'
-        one_week_from_now = Date.today + 7
+        one_week_from_now = Date.current + 7
 
         deploy_token = Resource::DeployToken.fabricate_via_browser_ui! do |resource|
           resource.name = deploy_token_name

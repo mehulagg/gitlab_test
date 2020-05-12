@@ -37,7 +37,7 @@ class Gitlab::Seeder::Burndown
       title: "Sprint - #{FFaker::Lorem.sentence}",
       description: FFaker::Lorem.sentence,
       state: 'active',
-      start_date: Date.today,
+      start_date: Date.current,
       due_date: rand(5..10).days.from_now
     }
 

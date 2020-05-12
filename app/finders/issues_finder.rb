@@ -87,13 +87,13 @@ class IssuesFinder < IssuableFinder
     if params.filter_by_no_due_date?
       items.without_due_date
     elsif params.filter_by_overdue?
-      items.due_before(Date.today)
+      items.due_before(Date.current)
     elsif params.filter_by_due_this_week?
-      items.due_between(Date.today.beginning_of_week, Date.today.end_of_week)
+      items.due_between(Date.current.beginning_of_week, Date.current.end_of_week)
     elsif params.filter_by_due_this_month?
-      items.due_between(Date.today.beginning_of_month, Date.today.end_of_month)
+      items.due_between(Date.current.beginning_of_month, Date.current.end_of_month)
     elsif params.filter_by_due_next_month_and_previous_two_weeks?
-      items.due_between(Date.today - 2.weeks, (Date.today + 1.month).end_of_month)
+      items.due_between(Date.current - 2.weeks, (Date.current + 1.month).end_of_month)
     end
   end
 end

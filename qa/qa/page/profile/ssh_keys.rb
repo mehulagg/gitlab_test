@@ -23,7 +23,7 @@ module QA
           fill_element(:key_public_key_field, public_key)
           fill_element(:key_title_field, title)
           # Expire in 2 days just in case the key is created just before midnight
-          fill_expiry_date(Date.today + 2)
+          fill_expiry_date(Date.current + 2)
 
           click_element(:add_key_button)
         end

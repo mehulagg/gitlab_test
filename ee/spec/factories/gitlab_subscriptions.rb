@@ -5,8 +5,8 @@ FactoryBot.define do
     namespace
     association :hosted_plan, factory: :gold_plan
     seats { 10 }
-    start_date { Date.today }
-    end_date { Date.today.advance(years: 1) }
+    start_date { Date.current }
+    end_date { Date.current.advance(years: 1) }
     trial { false }
 
     trait :free do

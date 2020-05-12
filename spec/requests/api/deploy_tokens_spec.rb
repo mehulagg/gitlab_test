@@ -244,7 +244,7 @@ describe API::DeployTokens do
           expect(json_response['name']).to eq('Foo')
           expect(json_response['scopes']).to eq(['read_repository'])
           expect(json_response['username']).to eq('Bar')
-          expect(json_response['expires_at'].to_time.to_i).to eq(expires_time.to_i)
+          expect(json_response['expires_at'].in_time_zone.to_i).to eq(expires_time.to_i)
         end
 
         context 'with no optional params given' do

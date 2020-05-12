@@ -33,7 +33,7 @@ describe API::License, api: true do
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['user_limit']).to eq 0
       expect(Date.parse(json_response['starts_at'])).to eq Date.new(1970, 1, 1)
-      expect(Date.parse(json_response['expires_at'])).to eq Date.today + 11.months
+      expect(Date.parse(json_response['expires_at'])).to eq Date.current + 11.months
       expect(json_response['active_users']).to eq 1
       expect(json_response['licensee']).not_to be_empty
       expect(json_response['add_ons']).to eq(license.add_ons)
@@ -52,7 +52,7 @@ describe API::License, api: true do
       expect(response).to have_gitlab_http_status(:created)
       expect(json_response['user_limit']).to eq 0
       expect(Date.parse(json_response['starts_at'])).to eq Date.new(1970, 1, 1)
-      expect(Date.parse(json_response['expires_at'])).to eq Date.today + 11.months
+      expect(Date.parse(json_response['expires_at'])).to eq Date.current + 11.months
       expect(json_response['active_users']).to eq 1
       expect(json_response['licensee']).not_to be_empty
     end
@@ -71,7 +71,7 @@ describe API::License, api: true do
   end
 
   describe 'DELETE /license/:id' do
-    let(:license) { create(:license, created_at: Time.now, data: build(:gitlab_license, starts_at: Date.today, expires_at: Date.today, restrictions: { add_ons: { 'GitLab_DeployBoard' => 1 }, active_user_count: 2 }).export) }
+    let(:license) { create(:license, created_at: Time.current, data: build(:gitlab_license, starts_at: Date.current, expires_at: Date.current, restrictions: { add_ons: { 'GitLab_DeployBoard' => 1 }, active_user_count: 2 }).export) }
     let(:endpoint) { "/license/#{license.id}" }
 
     it 'destroys a license and returns 204' do
@@ -100,8 +100,8 @@ describe API::License, api: true do
   describe 'GET /licenses' do
     let(:endpoint) { '/licenses' }
     let(:gl_licenses) do
-      [build(:gitlab_license, starts_at: Date.today - 10, expires_at: Date.today - 1, restrictions: { add_ons: { 'GitLab_FileLocks' => 1 }, active_user_count: 10 }),
-       build(:gitlab_license, starts_at: Date.today - 20, expires_at: Date.today + 1, restrictions: { add_ons: { 'GitLab_DeployBoard' => 1 }, active_user_count: 20 })]
+      [build(:gitlab_license, starts_at: Date.current - 10, expires_at: Date.current - 1, restrictions: { add_ons: { 'GitLab_FileLocks' => 1 }, active_user_count: 10 }),
+       build(:gitlab_license, starts_at: Date.current - 20, expires_at: Date.current + 1, restrictions: { add_ons: { 'GitLab_DeployBoard' => 1 }, active_user_count: 20 })]
     end
     let!(:licenses) do
       [create(:license, created_at: Time.now + 30, data: gl_licenses[0].export),

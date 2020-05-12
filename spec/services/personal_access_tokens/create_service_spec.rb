@@ -7,7 +7,7 @@ describe PersonalAccessTokens::CreateService do
     context 'with valid params' do
       it 'creates personal access token record' do
         user = create(:user)
-        params = { name: 'Test token', impersonation: true, scopes: [:api], expires_at: Date.today + 1.month }
+        params = { name: 'Test token', impersonation: true, scopes: [:api], expires_at: Date.current + 1.month }
 
         response = described_class.new(user, params).execute
         personal_access_token = response.payload[:personal_access_token]

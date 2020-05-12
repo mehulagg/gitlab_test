@@ -258,11 +258,11 @@ describe 'Issue Boards', :js do
       page.within('.due_date') do
         click_link 'Edit'
 
-        click_button Date.today.day
+        click_button Date.current.day
 
         wait_for_requests
 
-        expect(page).to have_content(Date.today.to_s(:medium))
+        expect(page).to have_content(Date.current.to_s(:medium))
       end
     end
   end

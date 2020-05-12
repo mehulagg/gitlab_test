@@ -281,7 +281,7 @@ describe Epics::UpdateService do
 
     context 'filter out start_date and end_date' do
       it 'ignores start_date and end_date' do
-        expect { update_epic(start_date: Date.today, end_date: Date.today) }.not_to change { Note.count }
+        expect { update_epic(start_date: Date.current, end_date: Date.current) }.not_to change { Note.count }
 
         expect(epic).to be_valid
         expect(epic).to have_attributes(start_date: nil, due_date: nil)
@@ -293,7 +293,7 @@ describe Epics::UpdateService do
         it 'calls UpdateDatesService' do
           expect(Epics::UpdateDatesService).to receive(:new).with([epic]).and_call_original
 
-          update_epic(start_date_is_fixed: true, start_date_fixed: Date.today)
+          update_epic(start_date_is_fixed: true, start_date_fixed: Date.current)
           epic.reload
           expect(epic.start_date).to eq(epic.start_date_fixed)
         end

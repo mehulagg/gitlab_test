@@ -8,9 +8,9 @@ describe API::GroupMilestones do
   let(:project) { create(:project, namespace: group) }
   let!(:group_member) { create(:group_member, group: group, user: user) }
   let!(:closed_milestone) { create(:closed_milestone, group: group, title: 'version1', description: 'closed milestone') }
-  let!(:milestone) { create(:milestone, group: group, title: 'version2', description: 'open milestone', start_date: Date.today, due_date: Date.today + 3.days) }
-  let!(:issue1) { create(:issue, created_at: Date.today.beginning_of_day, weight: 2, project: project, milestone: milestone) }
-  let!(:issue2) { create(:issue, created_at: Date.today.middle_of_day, weight: 5, project: project, milestone: milestone) }
+  let!(:milestone) { create(:milestone, group: group, title: 'version2', description: 'open milestone', start_date: Date.current, due_date: Date.current + 3.days) }
+  let!(:issue1) { create(:issue, created_at: Date.current.beginning_of_day, weight: 2, project: project, milestone: milestone) }
+  let!(:issue2) { create(:issue, created_at: Date.current.middle_of_day, weight: 5, project: project, milestone: milestone) }
   let(:issues_route) { "/groups/#{group.id}/milestones/#{milestone.id}/issues" }
 
   before do

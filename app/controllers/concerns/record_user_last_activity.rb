@@ -20,7 +20,7 @@ module RecordUserLastActivity
     return unless Feature.enabled?(:set_user_last_activity, default_enabled: true)
     return if Gitlab::Database.read_only?
 
-    if current_user && current_user.last_activity_on != Date.today
+    if current_user && current_user.last_activity_on != Date.current
       Users::ActivityService.new(current_user).execute
     end
   end

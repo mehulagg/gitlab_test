@@ -14,11 +14,11 @@ describe Bitbucket::Representation::Comment do
   end
 
   describe '#created_at' do
-    it { expect(described_class.new('created_on' => Date.today).created_at).to eq(Date.today) }
+    it { expect(described_class.new('created_on' => Date.current).created_at).to eq(Date.current) }
   end
 
   describe '#updated_at' do
-    it { expect(described_class.new('updated_on' => Date.today).updated_at).to eq(Date.today) }
-    it { expect(described_class.new('created_on' => Date.today).updated_at).to eq(Date.today) }
+    it { expect(described_class.new('updated_on' => Date.current).updated_at).to eq(Date.current) }
+    it { expect(described_class.new('created_on' => Date.current).updated_at).to eq(Date.current) }
   end
 end

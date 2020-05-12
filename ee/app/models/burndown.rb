@@ -8,8 +8,8 @@ class Burndown
   def initialize(issues, start_date, due_date)
     @start_date = start_date
     @due_date = due_date
-    @end_date = if due_date.blank? || due_date > Date.today
-                  Date.today
+    @end_date = if due_date.blank? || due_date > Date.current
+                  Date.current
                 else
                   due_date
                 end

@@ -109,7 +109,7 @@ describe ResourceAccessTokens::CreateService do
           end
 
           context 'when user provides value' do
-            let_it_be(:params) { { expires_at: Date.today + 1.month } }
+            let_it_be(:params) { { expires_at: Date.current + 1.month } }
 
             it 'overrides the default value' do
               response = subject

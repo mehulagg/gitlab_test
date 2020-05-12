@@ -34,10 +34,10 @@ describe MergeRequestDiffCommit do
       [
         {
           "message": "Add submodule from gitlab.com\n\nSigned-off-by: Dmitriy Zaporozhets \u003cdmitriy.zaporozhets@gmail.com\u003e\n",
-          "authored_date": "2014-02-27T10:01:38.000+01:00".to_time,
+          "authored_date": "2014-02-27T10:01:38.000+01:00".in_time_zone,
           "author_name": "Dmitriy Zaporozhets",
           "author_email": "dmitriy.zaporozhets@gmail.com",
-          "committed_date": "2014-02-27T10:01:38.000+01:00".to_time,
+          "committed_date": "2014-02-27T10:01:38.000+01:00".in_time_zone,
           "committer_name": "Dmitriy Zaporozhets",
           "committer_email": "dmitriy.zaporozhets@gmail.com",
           "merge_request_diff_id": merge_request_diff_id,
@@ -46,10 +46,10 @@ describe MergeRequestDiffCommit do
         },
         {
           "message": "Change some files\n\nSigned-off-by: Dmitriy Zaporozhets \u003cdmitriy.zaporozhets@gmail.com\u003e\n",
-          "authored_date": "2014-02-27T09:57:31.000+01:00".to_time,
+          "authored_date": "2014-02-27T09:57:31.000+01:00".in_time_zone,
           "author_name": "Dmitriy Zaporozhets",
           "author_email": "dmitriy.zaporozhets@gmail.com",
-          "committed_date": "2014-02-27T09:57:31.000+01:00".to_time,
+          "committed_date": "2014-02-27T09:57:31.000+01:00".in_time_zone,
           "committer_name": "Dmitriy Zaporozhets",
           "committer_email": "dmitriy.zaporozhets@gmail.com",
           "merge_request_diff_id": merge_request_diff_id,

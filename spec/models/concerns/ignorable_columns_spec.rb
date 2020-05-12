@@ -79,7 +79,7 @@ describe IgnorableColumns do
       end
 
       context 'before remove_after date has passed' do
-        let(:remove_after) { Date.today }
+        let(:remove_after) { Date.current }
 
         it 'returns false (not safe to remove)' do
           expect(subject.safe_to_remove?).to be_falsey

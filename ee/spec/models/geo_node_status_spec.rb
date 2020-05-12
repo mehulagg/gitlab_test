@@ -1026,7 +1026,7 @@ describe GeoNodeStatus, :geo, :geo_fdw do
     end
 
     it 'returns the latest event' do
-      created_at = Date.today.to_time(:utc)
+      created_at = Date.current.in_time_zone.utc
       event = create(:geo_event_log, created_at: created_at)
 
       expect(subject.last_event_id).to eq(event.id)

@@ -63,7 +63,7 @@ describe ImportExportCleanUpService do
         dir = File.join(tmpdir, tmp_import_export_folder, 'subfolder')
         FileUtils.mkdir_p(dir)
 
-        files = FileUtils.touch(file_list(dir) + [dir], mtime: mtime.to_time)
+        files = FileUtils.touch(file_list(dir) + [dir], mtime: mtime.in_time_zone)
 
         yield(dir, files)
       end

@@ -17,7 +17,7 @@ class IssuablesAnalytics
     @months_back = months_back.to_i - 1 if months_back.present?
     @months_back ||= 12
     @start_date = @months_back.months.ago.beginning_of_month.to_date
-    @end_date = Date.today
+    @end_date = Date.current
   end
 
   def data

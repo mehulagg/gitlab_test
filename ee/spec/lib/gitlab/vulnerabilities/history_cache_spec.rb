@@ -29,8 +29,8 @@ describe Gitlab::Vulnerabilities::HistoryCache do
         Timecop.freeze(today) do
           fetched_history = described_class.new(vulnerable, project.id).fetch(Gitlab::Vulnerabilities::History::HISTORY_RANGE)
 
-          expect(fetched_history[:total]).to eq( Date.today => 1 )
-          expect(fetched_history[:high]).to eq( Date.today => 1 )
+          expect(fetched_history[:total]).to eq( Date.current => 1 )
+          expect(fetched_history[:high]).to eq( Date.current => 1 )
         end
       end
 
@@ -39,8 +39,8 @@ describe Gitlab::Vulnerabilities::HistoryCache do
           described_class.new(vulnerable, project.id).fetch(Gitlab::Vulnerabilities::History::HISTORY_RANGE)
           fetched_history = described_class.new(vulnerable, project.id).fetch(Gitlab::Vulnerabilities::History::HISTORY_RANGE)
 
-          expect(fetched_history[:total]).to eq( Date.today => 1 )
-          expect(fetched_history[:high]).to eq( Date.today => 1 )
+          expect(fetched_history[:total]).to eq( Date.current => 1 )
+          expect(fetched_history[:high]).to eq( Date.current => 1 )
         end
       end
 

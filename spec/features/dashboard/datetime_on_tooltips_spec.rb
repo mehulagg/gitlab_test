@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'Tooltips on .timeago dates', :js do
   let(:user)            { create(:user) }
   let(:project)         { create(:project, name: 'test', namespace: user.namespace) }
-  let(:created_date)    { Date.yesterday.to_time }
+  let(:created_date)    { Date.yesterday.in_time_zone }
   let(:expected_format) { created_date.in_time_zone.strftime('%b %-d, %Y %l:%M%P') }
 
   context 'on the activity tab' do

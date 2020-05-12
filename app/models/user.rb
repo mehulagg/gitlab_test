@@ -1651,7 +1651,7 @@ class User < ApplicationRecord
   end
 
   def last_active_at
-    last_activity = last_activity_on&.to_time&.in_time_zone
+    last_activity = last_activity_on&.in_time_zone
     last_sign_in = current_sign_in_at
 
     [last_activity, last_sign_in].compact.max

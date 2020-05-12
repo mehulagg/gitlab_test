@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GitlabSubscription < ApplicationRecord
-  default_value_for(:start_date) { Date.today }
+  default_value_for(:start_date) { Date.current }
   before_update :log_previous_state_for_update
   after_destroy_commit :log_previous_state_for_destroy
 
@@ -45,7 +45,7 @@ class GitlabSubscription < ApplicationRecord
   def expired?
     return false unless end_date
 
-    end_date < Date.today
+    end_date < Date.current
   end
 
   def upgradable?

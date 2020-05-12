@@ -32,8 +32,8 @@ describe API::Metrics::Dashboard::Annotations do
 
                 expect(response).to have_gitlab_http_status(:created)
                 expect(json_response["#{source_type}_id"]).to eq(source.id)
-                expect(json_response['starting_at'].to_time).to eq(starting_at.to_time)
-                expect(json_response['ending_at'].to_time).to eq(ending_at.to_time)
+                expect(json_response['starting_at'].in_time_zone).to eq(starting_at.in_time_zone)
+                expect(json_response['ending_at'].in_time_zone).to eq(ending_at.in_time_zone)
                 expect(json_response['description']).to eq(params[:description])
                 expect(json_response['dashboard_path']).to eq(dashboard)
               end

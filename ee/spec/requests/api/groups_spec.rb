@@ -671,7 +671,7 @@ describe API::Groups do
             group.reload
 
             expect(response).to have_gitlab_http_status(:accepted)
-            expect(group.marked_for_deletion_on).to eq(Date.today)
+            expect(group.marked_for_deletion_on).to eq(Date.current)
             expect(group.deleting_user).to eq(user)
           end
 
