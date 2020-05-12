@@ -7,7 +7,7 @@
   }
 
   tbody tr:nth-child(odd) td:not(.shortcut) {
-    background-color: $help-shortcut-strip-color;
+    background-color: $gray-100;
   }
 
   th {
