@@ -9,10 +9,8 @@ Values for the project visibility level are:
 
 - `private`:
   Project access must be granted explicitly for each user.
-
 - `internal`:
   The project can be cloned by any logged in user.
-
 - `public`:
   The project can be accessed without any authentication.
 
@@ -22,11 +20,9 @@ There are currently three options for `merge_method` to choose from:
 
 - `merge`:
   A merge commit is created for every merge, and merging is allowed as long as there are no conflicts.
-
 - `rebase_merge`:
   A merge commit is created for every merge, but merging is only allowed if fast-forward merge is possible.
   This way you could make sure that if this merge request would build, after merging to target branch it would also build.
-
 - `ff`:
   No merge commits are created and all merges are fast-forwarded, which means that merging is only allowed if the branch could be fast-forwarded.
 
@@ -162,7 +158,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "merge_method": "merge",
     "autoclose_referenced_issues": true,
     "suggestion_commit_message": null,
-    "marked_for_deletion_at": "2020-04-03", // to be deprecated in GitLab 13.0 in favor of marked_for_deletion_on
+    "marked_for_deletion_at": "2020-04-03", // Deprecated and will be removed in API v5 in favor of marked_for_deletion_on
     "marked_for_deletion_on": "2020-04-03",
     "statistics": {
       "commit_count": 37,
@@ -288,7 +284,7 @@ When the user is authenticated and `simple` is not set this returns something li
 ```
 
 NOTE: **Note:**
-For users on GitLab [Silver, Premium, or higher](https://about.gitlab.com/pricing/) the `marked_for_deletion_at` attribute will be deprecated in GitLab 13.0 in favor of the `marked_for_deletion_on` attribute.
+For users on GitLab [Silver, Premium, or higher](https://about.gitlab.com/pricing/) the `marked_for_deletion_at` attribute has been deprecated and will be removed in API v5 in favor of the `marked_for_deletion_on` attribute.
 
 Users on GitLab [Starter, Bronze, or higher](https://about.gitlab.com/pricing/) will also see
 the `approvals_before_merge` parameter:
@@ -411,7 +407,7 @@ This endpoint supports [keyset pagination](README.md#keyset-based-pagination) fo
     "merge_method": "merge",
     "autoclose_referenced_issues": true,
     "suggestion_commit_message": null,
-    "marked_for_deletion_at": "2020-04-03", // to be deprecated in GitLab 13.0 in favor of marked_for_deletion_on
+    "marked_for_deletion_at": "2020-04-03", // Deprecated and will be removed in API v5 in favor of marked_for_deletion_on
     "marked_for_deletion_on": "2020-04-03",
     "statistics": {
       "commit_count": 37,
@@ -879,7 +875,7 @@ GET /projects/:id
   "service_desk_address": null,
   "autoclose_referenced_issues": true,
   "suggestion_commit_message": null,
-  "marked_for_deletion_at": "2020-04-03", // to be deprecated in GitLab 13.0 in favor of marked_for_deletion_on
+  "marked_for_deletion_at": "2020-04-03", // Deprecated and will be removed in API v5 in favor of marked_for_deletion_on
   "marked_for_deletion_on": "2020-04-03",
   "statistics": {
     "commit_count": 37,

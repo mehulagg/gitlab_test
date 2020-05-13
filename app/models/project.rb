@@ -302,6 +302,7 @@ class Project < ApplicationRecord
   has_many :project_deploy_tokens
   has_many :deploy_tokens, through: :project_deploy_tokens
   has_many :resource_groups, class_name: 'Ci::ResourceGroup', inverse_of: :project
+  has_many :freeze_periods, class_name: 'Ci::FreezePeriod', inverse_of: :project
 
   has_one :auto_devops, class_name: 'ProjectAutoDevops', inverse_of: :project, autosave: true
   has_many :custom_attributes, class_name: 'ProjectCustomAttribute'
@@ -524,12 +525,14 @@ class Project < ApplicationRecord
   def self.public_or_visible_to_user(user = nil, min_access_level = nil)
     min_access_level = nil if user&.admin?
 
-    if user
+    return public_to_user unless user
+
+    if user.is_a?(DeployToken)
+      user.projects
+    else
       where('EXISTS (?) OR projects.visibility_level IN (?)',
             user.authorizations_for_projects(min_access_level: min_access_level),
             Gitlab::VisibilityLevel.levels_for_user(user))
-    else
-      public_to_user
     end
   end
 
@@ -1436,20 +1439,12 @@ class Project < ApplicationRecord
 
   # Expires various caches before a project is renamed.
   def expire_caches_before_rename(old_path)
-    repo = Repository.new(old_path, self, shard: repository_storage)
-    wiki = Repository.new("#{old_path}.wiki", self, shard: repository_storage, repo_type: Gitlab::GlRepository::WIKI)
-    design = Repository.new("#{old_path}#{Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: Gitlab::GlRepository::DESIGN)
+    project_repo = Repository.new(old_path, self, shard: repository_storage)
+    wiki_repo = Repository.new("#{old_path}#{Gitlab::GlRepository::WIKI.path_suffix}", self, shard: repository_storage, repo_type: Gitlab::GlRepository::WIKI)
+    design_repo = Repository.new("#{old_path}#{Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: Gitlab::GlRepository::DESIGN)
 
-    if repo.exists?
-      repo.before_delete
-    end
-
-    if wiki.exists?
-      wiki.before_delete
-    end
-
-    if design.exists?
-      design.before_delete
+    [project_repo, wiki_repo, design_repo].each do |repo|
+      repo.before_delete if repo.exists?
     end
   end
 

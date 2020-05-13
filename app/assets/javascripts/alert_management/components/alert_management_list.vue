@@ -5,7 +5,6 @@ import {
   GlLoadingIcon,
   GlTable,
   GlAlert,
-  GlIcon,
   GlNewDropdown,
   GlNewDropdownItem,
   GlTabs,
@@ -30,11 +29,6 @@ export default {
     ),
   },
   fields: [
-    {
-      key: 'severity',
-      label: s__('AlertManagement|Severity'),
-      tdClass: `${tdClass} rounded-top text-capitalize`,
-    },
     {
       key: 'startedAt',
       label: s__('AlertManagement|Start time'),
@@ -78,7 +72,6 @@ export default {
     TimeAgo,
     GlNewDropdown,
     GlNewDropdownItem,
-    GlIcon,
     GlTabs,
     GlTab,
     GlBadge,
@@ -184,24 +177,12 @@ export default {
         fixed
         stacked="md"
       >
-        <template #cell(severity)="{ item }">
-          <div class="d-inline-flex align-items-center justify-content-between">
-            <gl-icon
-              class="mr-2"
-              :size="12"
-              :name="`severity-${item.severity.toLowerCase()}`"
-              :class="`icon-${item.severity.toLowerCase()}`"
-            />
-            {{ item.severity }}
-          </div>
-        </template>
-
         <template #cell(startedAt)="{ item }">
-          <time-ago :time="item.startedAt" />
+          <time-ago v-if="item.startedAt" :time="item.startedAt" />
         </template>
 
         <template #cell(endedAt)="{ item }">
-          <time-ago :time="item.endedAt" />
+          <time-ago v-if="item.endedAt" :time="item.endedAt" />
         </template>
 
         <template #cell(title)="{ item }">
@@ -209,7 +190,7 @@ export default {
         </template>
 
         <template #cell(status)="{ item }">
-          <gl-new-dropdown class="w-100" :text="item.status">
+          <gl-new-dropdown :text="item.status">
             <gl-new-dropdown-item v-for="(label, field) in $options.statuses" :key="field">
               {{ label }}
             </gl-new-dropdown-item>

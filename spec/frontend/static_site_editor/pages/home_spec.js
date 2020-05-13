@@ -1,22 +1,17 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlSkeletonLoader } from '@gitlab/ui';
-
 import createState from '~/static_site_editor/store/state';
-
+import { SUCCESS_ROUTE } from '~/static_site_editor/router/constants';
 import Home from '~/static_site_editor/pages/home.vue';
-import RichContentEditor from '~/vue_shared/components/rich_content_editor/rich_content_editor.vue';
-import EditHeader from '~/static_site_editor/components/edit_header.vue';
+import SkeletonLoader from '~/static_site_editor/components/skeleton_loader.vue';
+import EditArea from '~/static_site_editor/components/edit_area.vue';
 import InvalidContentMessage from '~/static_site_editor/components/invalid_content_message.vue';
-import PublishToolbar from '~/static_site_editor/components/publish_toolbar.vue';
 import SubmitChangesError from '~/static_site_editor/components/submit_changes_error.vue';
-import SavedChangesMessage from '~/static_site_editor/components/saved_changes_message.vue';
 
 import {
   returnUrl,
-  sourceContent,
-  sourceContentTitle,
-  savedContentMeta,
+  sourceContent as content,
+  sourceContentTitle as title,
   submitChangesError,
 } from '../mock_data';
 
@@ -27,20 +22,19 @@ localVue.use(Vuex);
 describe('static_site_editor/pages/home', () => {
   let wrapper;
   let store;
-  let loadContentActionMock;
+  let $apollo;
+  let $router;
   let setContentActionMock;
   let submitChangesActionMock;
   let dismissSubmitChangesErrorActionMock;
 
   const buildStore = ({ initialState, getters } = {}) => {
-    loadContentActionMock = jest.fn();
     setContentActionMock = jest.fn();
     submitChangesActionMock = jest.fn();
     dismissSubmitChangesErrorActionMock = jest.fn();
 
     store = new Vuex.Store({
       state: createState({
-        isSupportedContent: true,
         ...initialState,
       }),
       getters: {
@@ -48,161 +42,115 @@ describe('static_site_editor/pages/home', () => {
         ...getters,
       },
       actions: {
-        loadContent: loadContentActionMock,
         setContent: setContentActionMock,
         submitChanges: submitChangesActionMock,
         dismissSubmitChangesError: dismissSubmitChangesErrorActionMock,
       },
     });
   };
-  const buildContentLoadedStore = ({ initialState, getters } = {}) => {
-    buildStore({
-      initialState: {
-        isContentLoaded: true,
-        ...initialState,
+
+  const buildApollo = (queries = {}) => {
+    $apollo = {
+      queries: {
+        sourceContent: {
+          loading: false,
+        },
+        ...queries,
       },
-      getters: {
-        ...getters,
-      },
-    });
+    };
   };
 
-  const buildWrapper = () => {
+  const buildRouter = () => {
+    $router = {
+      push: jest.fn(),
+    };
+  };
+
+  const buildWrapper = (data = {}) => {
     wrapper = shallowMount(Home, {
       localVue,
       store,
-      provide: {
-        glFeatures: { richContentEditor: true },
+      mocks: {
+        $apollo,
+        $router,
+      },
+      data() {
+        return {
+          appData: { isSupportedContent: true, returnUrl },
+          ...data,
+        };
       },
     });
   };
 
-  const findRichContentEditor = () => wrapper.find(RichContentEditor);
-  const findEditHeader = () => wrapper.find(EditHeader);
+  const findEditArea = () => wrapper.find(EditArea);
   const findInvalidContentMessage = () => wrapper.find(InvalidContentMessage);
-  const findPublishToolbar = () => wrapper.find(PublishToolbar);
-  const findSkeletonLoader = () => wrapper.find(GlSkeletonLoader);
+  const findSkeletonLoader = () => wrapper.find(SkeletonLoader);
   const findSubmitChangesError = () => wrapper.find(SubmitChangesError);
-  const findSavedChangesMessage = () => wrapper.find(SavedChangesMessage);
 
   beforeEach(() => {
+    buildApollo();
+    buildRouter();
     buildStore();
-    buildWrapper();
   });
 
   afterEach(() => {
     wrapper.destroy();
-  });
-
-  it('renders the saved changes message when changes are submitted successfully', () => {
-    buildStore({ initialState: { returnUrl, savedContentMeta } });
-    buildWrapper();
-
-    expect(findSavedChangesMessage().exists()).toBe(true);
-    expect(findSavedChangesMessage().props()).toEqual({
-      returnUrl,
-      ...savedContentMeta,
-    });
-  });
-
-  describe('when content is not loaded', () => {
-    it('does not render rich content editor', () => {
-      expect(findRichContentEditor().exists()).toBe(false);
-    });
-
-    it('does not render edit header', () => {
-      expect(findEditHeader().exists()).toBe(false);
-    });
-
-    it('does not render toolbar', () => {
-      expect(findPublishToolbar().exists()).toBe(false);
-    });
-
-    it('does not render saved changes message', () => {
-      expect(findSavedChangesMessage().exists()).toBe(false);
-    });
+    wrapper = null;
+    $apollo = null;
   });
 
   describe('when content is loaded', () => {
-    const content = sourceContent;
-    const title = sourceContentTitle;
-
     beforeEach(() => {
-      buildContentLoadedStore({ initialState: { content, title } });
-      buildWrapper();
+      buildStore({ initialState: { isSavingChanges: true } });
+      buildWrapper({ sourceContent: { title, content } });
     });
 
-    it('renders the rich content editor', () => {
-      expect(findRichContentEditor().exists()).toBe(true);
+    it('renders edit area', () => {
+      expect(findEditArea().exists()).toBe(true);
     });
 
-    it('renders the edit header', () => {
-      expect(findEditHeader().exists()).toBe(true);
-    });
-
-    it('does not render skeleton loader', () => {
-      expect(findSkeletonLoader().exists()).toBe(false);
-    });
-
-    it('passes page content to the rich content editor', () => {
-      expect(findRichContentEditor().props('value')).toBe(content);
-    });
-
-    it('passes page title to edit header', () => {
-      expect(findEditHeader().props('title')).toBe(title);
-    });
-
-    it('renders toolbar', () => {
-      expect(findPublishToolbar().exists()).toBe(true);
+    it('provides source content, returnUrl, and isSavingChanges to the edit area', () => {
+      expect(findEditArea().props()).toMatchObject({
+        title,
+        content,
+        returnUrl,
+        savingChanges: true,
+      });
     });
   });
 
-  it('sets toolbar as saveable when content changes', () => {
-    buildContentLoadedStore({
-      getters: {
-        contentChanged: () => true,
+  it('does not render edit area when content is not loaded', () => {
+    buildWrapper({ sourceContent: null });
+
+    expect(findEditArea().exists()).toBe(false);
+  });
+
+  it('renders skeleton loader when content is not loading', () => {
+    buildApollo({
+      sourceContent: {
+        loading: true,
       },
     });
-    buildWrapper();
-
-    expect(findPublishToolbar().props('saveable')).toBe(true);
-  });
-
-  it('displays skeleton loader when loading content', () => {
-    buildStore({ initialState: { isLoadingContent: true } });
     buildWrapper();
 
     expect(findSkeletonLoader().exists()).toBe(true);
   });
 
-  it('does not display submit changes error when an error does not exist', () => {
-    buildContentLoadedStore();
-    buildWrapper();
-
-    expect(findSubmitChangesError().exists()).toBe(false);
-  });
-
-  it('sets toolbar as saving when saving changes', () => {
-    buildContentLoadedStore({
-      initialState: {
-        isSavingChanges: true,
+  it('does not render skeleton loader when content is not loading', () => {
+    buildApollo({
+      sourceContent: {
+        loading: false,
       },
     });
     buildWrapper();
 
-    expect(findPublishToolbar().props('savingChanges')).toBe(true);
-  });
-
-  it('displays invalid content message when content is not supported', () => {
-    buildStore({ initialState: { isSupportedContent: false } });
-    buildWrapper();
-
-    expect(findInvalidContentMessage().exists()).toBe(true);
+    expect(findSkeletonLoader().exists()).toBe(false);
   });
 
   describe('when submitting changes fail', () => {
     beforeEach(() => {
-      buildContentLoadedStore({
+      buildStore({
         initialState: {
           submitChangesError,
         },
@@ -227,24 +175,40 @@ describe('static_site_editor/pages/home', () => {
     });
   });
 
-  it('dispatches load content action', () => {
-    expect(loadContentActionMock).toHaveBeenCalled();
-  });
-
-  it('dispatches setContent action when rich content editor emits input event', () => {
-    buildContentLoadedStore();
+  it('does not display submit changes error when an error does not exist', () => {
     buildWrapper();
 
-    findRichContentEditor().vm.$emit('input', sourceContent);
-
-    expect(setContentActionMock).toHaveBeenCalledWith(expect.anything(), sourceContent, undefined);
+    expect(findSubmitChangesError().exists()).toBe(false);
   });
 
-  it('dispatches submitChanges action when toolbar emits submit event', () => {
-    buildContentLoadedStore();
-    buildWrapper();
-    findPublishToolbar().vm.$emit('submit');
+  it('displays invalid content message when content is not supported', () => {
+    buildWrapper({ appData: { isSupportedContent: false } });
 
-    expect(submitChangesActionMock).toHaveBeenCalled();
+    expect(findInvalidContentMessage().exists()).toBe(true);
+  });
+
+  describe('when edit area emits submit event', () => {
+    const newContent = `new ${content}`;
+
+    beforeEach(() => {
+      submitChangesActionMock.mockResolvedValueOnce();
+
+      buildWrapper({ sourceContent: { title, content } });
+      findEditArea().vm.$emit('submit', { content: newContent });
+    });
+
+    it('dispatches setContent property', () => {
+      expect(setContentActionMock).toHaveBeenCalledWith(expect.anything(), newContent, undefined);
+    });
+
+    it('dispatches submitChanges action', () => {
+      expect(submitChangesActionMock).toHaveBeenCalled();
+    });
+
+    it('pushes success route when submitting changes succeeds', () => {
+      return wrapper.vm.$nextTick().then(() => {
+        expect($router.push).toHaveBeenCalledWith(SUCCESS_ROUTE);
+      });
+    });
   });
 });

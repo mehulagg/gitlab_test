@@ -4,6 +4,19 @@ const metricsIdsInPanel = panel =>
   panel.metrics.filter(metric => metric.metricId && metric.result).map(metric => metric.metricId);
 
 /**
+ * Returns a reference to the currently selected dashboard
+ * from the list of dashboards.
+ *
+ * @param {Object} state
+ */
+export const selectedDashboard = state => {
+  const { allDashboards } = state;
+  return (
+    allDashboards.find(({ path }) => path === state.currentDashboard) || allDashboards[0] || null
+  );
+};
+
+/**
  * Get all state for metric in the dashboard or a group. The
  * states are not repeated so the dashboard or group can show
  * a global state.
@@ -95,6 +108,18 @@ export const filteredEnvironments = state =>
   state.environments.filter(env =>
     env.name.toLowerCase().includes((state.environmentsSearchTerm || '').trim().toLowerCase()),
   );
+
+/**
+ * Maps an variables object to an array
+ * @param {Object} variables - Custom variables provided by the user
+ * @returns {Array} The custom variables array to be send to the API
+ * in the format of [variable1, variable1_value]
+ */
+
+export const getCustomVariablesArray = state =>
+  Object.entries(state.promVariables)
+    .flat()
+    .map(encodeURIComponent);
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

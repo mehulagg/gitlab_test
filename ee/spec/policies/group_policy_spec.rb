@@ -134,8 +134,7 @@ describe GroupPolicy do
     let(:current_user) { developer }
 
     before do
-      allow(Feature).to receive(:enabled?).with(:group_activity_analytics, group).and_return(false)
-
+      stub_feature_flags(group_activity_analytics: true)
       stub_licensed_features(group_activity_analytics: true)
     end
 
@@ -146,9 +145,7 @@ describe GroupPolicy do
     let(:current_user) { developer }
 
     before do
-      allow(Feature).to receive(:enabled?).with(:group_activity_analytics, group).and_return(false)
-      allow(Feature).to receive(:enabled?).with(:group_activity_analytics).and_return(true)
-
+      stub_feature_flags(group_activity_analytics: false)
       stub_licensed_features(group_activity_analytics: false)
     end
 
@@ -877,6 +874,27 @@ describe GroupPolicy do
           it { is_expected.to be_allowed(:update_default_branch_protection) }
         end
       end
+    end
+  end
+
+  describe ':read_ci_minutes_quota' do
+    using RSpec::Parameterized::TableSyntax
+
+    let(:policy) { :read_ci_minutes_quota }
+
+    where(:role, :allowed) do
+      :guest      | false
+      :reporter   | false
+      :developer  | false
+      :maintainer | true
+      :owner      | true
+      :admin      | true
+    end
+
+    with_them do
+      let(:current_user) { public_send(role) }
+
+      it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
     end
   end
 

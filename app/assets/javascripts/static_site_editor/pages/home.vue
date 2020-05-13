@@ -1,107 +1,88 @@
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
-import { GlSkeletonLoader } from '@gitlab/ui';
-
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
-import RichContentEditor from '~/vue_shared/components/rich_content_editor/rich_content_editor.vue';
+import { mapState, mapActions } from 'vuex';
+import SkeletonLoader from '../components/skeleton_loader.vue';
 import EditArea from '../components/edit_area.vue';
-import EditHeader from '../components/edit_header.vue';
-import SavedChangesMessage from '../components/saved_changes_message.vue';
-import PublishToolbar from '../components/publish_toolbar.vue';
 import InvalidContentMessage from '../components/invalid_content_message.vue';
 import SubmitChangesError from '../components/submit_changes_error.vue';
+import { SUCCESS_ROUTE } from '../router/constants';
+import appDataQuery from '../graphql/queries/app_data.query.graphql';
+import sourceContentQuery from '../graphql/queries/source_content.query.graphql';
+import createFlash from '~/flash';
+import { LOAD_CONTENT_ERROR } from '../constants';
 
 export default {
   components: {
-    RichContentEditor,
+    SkeletonLoader,
     EditArea,
-    EditHeader,
     InvalidContentMessage,
-    GlSkeletonLoader,
-    SavedChangesMessage,
-    PublishToolbar,
     SubmitChangesError,
   },
-  mixins: [glFeatureFlagsMixin()],
-  computed: {
-    ...mapState([
-      'content',
-      'isLoadingContent',
-      'isSavingChanges',
-      'isContentLoaded',
-      'isSupportedContent',
-      'returnUrl',
-      'title',
-      'submitChangesError',
-      'savedContentMeta',
-    ]),
-    ...mapGetters(['contentChanged']),
+  apollo: {
+    appData: {
+      query: appDataQuery,
+    },
+    sourceContent: {
+      query: sourceContentQuery,
+      update: ({
+        project: {
+          file: { title, content },
+        },
+      }) => {
+        return { title, content };
+      },
+      variables() {
+        return {
+          project: this.appData.project,
+          sourcePath: this.appData.sourcePath,
+        };
+      },
+      skip() {
+        return !this.appData.isSupportedContent;
+      },
+      error() {
+        createFlash(LOAD_CONTENT_ERROR);
+      },
+    },
   },
-  mounted() {
-    if (this.isSupportedContent) {
-      this.loadContent();
-    }
+  computed: {
+    ...mapState(['isSavingChanges', 'submitChangesError']),
+    isLoadingContent() {
+      return this.$apollo.queries.sourceContent.loading;
+    },
+    isContentLoaded() {
+      return Boolean(this.sourceContent);
+    },
   },
   methods: {
-    ...mapActions(['loadContent', 'setContent', 'submitChanges', 'dismissSubmitChangesError']),
+    ...mapActions(['setContent', 'submitChanges', 'dismissSubmitChangesError']),
+    onSubmit({ content }) {
+      this.setContent(content);
+
+      return this.submitChanges().then(() => this.$router.push(SUCCESS_ROUTE));
+    },
   },
 };
 </script>
 <template>
-  <div class="d-flex justify-content-center h-100 pt-2">
-    <!-- Success view -->
-    <saved-changes-message
-      v-if="savedContentMeta"
-      class="w-75"
-      :branch="savedContentMeta.branch"
-      :commit="savedContentMeta.commit"
-      :merge-request="savedContentMeta.mergeRequest"
-      :return-url="returnUrl"
-    />
-
-    <!-- Main view -->
-    <template v-else-if="isSupportedContent">
-      <div v-if="isLoadingContent" class="w-50 h-50">
-        <gl-skeleton-loader :width="500" :height="102">
-          <rect width="500" height="16" rx="4" />
-          <rect y="20" width="375" height="16" rx="4" />
-          <rect x="380" y="20" width="120" height="16" rx="4" />
-          <rect y="40" width="250" height="16" rx="4" />
-          <rect x="255" y="40" width="150" height="16" rx="4" />
-          <rect x="410" y="40" width="90" height="16" rx="4" />
-        </gl-skeleton-loader>
-      </div>
-      <div v-if="isContentLoaded" class="d-flex flex-grow-1 flex-column">
-        <submit-changes-error
-          v-if="submitChangesError"
-          class="w-75 align-self-center"
-          :error="submitChangesError"
-          @retry="submitChanges"
-          @dismiss="dismissSubmitChangesError"
-        />
-        <edit-header class="w-75 align-self-center py-2" :title="title" />
-        <rich-content-editor
-          v-if="glFeatures.richContentEditor"
-          class="w-75 gl-align-self-center"
-          :value="content"
-          @input="setContent"
-        />
-        <edit-area
-          v-else
-          class="w-75 h-100 shadow-none align-self-center"
-          :value="content"
-          @input="setContent"
-        />
-        <publish-toolbar
-          :return-url="returnUrl"
-          :saveable="contentChanged"
-          :saving-changes="isSavingChanges"
-          @submit="submitChanges"
-        />
-      </div>
+  <div class="container d-flex gl-flex-direction-column pt-2 h-100">
+    <template v-if="appData.isSupportedContent">
+      <skeleton-loader v-if="isLoadingContent" class="w-75 gl-align-self-center gl-mt-5" />
+      <submit-changes-error
+        v-if="submitChangesError"
+        :error="submitChangesError"
+        @retry="submitChanges"
+        @dismiss="dismissSubmitChangesError"
+      />
+      <edit-area
+        v-if="isContentLoaded"
+        :title="sourceContent.title"
+        :content="sourceContent.content"
+        :saving-changes="isSavingChanges"
+        :return-url="appData.returnUrl"
+        @submit="onSubmit"
+      />
     </template>
 
-    <!-- Error view -->
     <invalid-content-message v-else class="w-75" />
   </div>
 </template>

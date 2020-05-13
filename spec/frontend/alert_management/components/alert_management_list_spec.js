@@ -6,9 +6,9 @@ import {
   GlLoadingIcon,
   GlNewDropdown,
   GlBadge,
-  GlIcon,
   GlTab,
 } from '@gitlab/ui';
+import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import AlertManagementList from '~/alert_management/components/alert_management_list.vue';
 import { ALERTS_STATUS_TABS } from '../../../../app/assets/javascripts/alert_management/constants';
 
@@ -24,6 +24,7 @@ describe('AlertManagementList', () => {
   const findStatusDropdown = () => wrapper.find(GlNewDropdown);
   const findStatusFilterTabs = () => wrapper.findAll(GlTab);
   const findNumberOfAlertsBadge = () => wrapper.findAll(GlBadge);
+  const findDateFields = () => wrapper.findAll(TimeAgo);
 
   function mountComponent({
     props = {
@@ -182,20 +183,41 @@ describe('AlertManagementList', () => {
       expect(findStatusDropdown().exists()).toBe(true);
     });
 
-    it('shows correct severity icons', () => {
-      mountComponent({
-        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
-        loading: false,
+    describe('handle date fields', () => {
+      it('should display time ago dates when values provided', () => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: {
+            alerts: [
+              {
+                iid: 1,
+                startedAt: '2020-03-17T23:18:14.996Z',
+                endedAt: '2020-04-17T23:18:14.996Z',
+              },
+            ],
+            errored: false,
+          },
+          loading: false,
+        });
+        expect(findDateFields().length).toBe(2);
       });
 
-      return wrapper.vm.$nextTick().then(() => {
-        expect(wrapper.find(GlTable).exists()).toBe(true);
-        expect(
-          findAlertsTable()
-            .find(GlIcon)
-            .classes('icon-critical'),
-        ).toBe(true);
+      it('should not display time ago dates when values not provided', () => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: {
+            alerts: [
+              {
+                iid: 1,
+                startedAt: null,
+                endedAt: null,
+              },
+            ],
+            errored: false,
+          },
+          loading: false,
+        });
+        expect(findDateFields().exists()).toBe(false);
       });
     });
   });

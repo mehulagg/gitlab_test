@@ -19,6 +19,8 @@ describe Project do
     it { is_expected.to delegate_method(:shared_runners_minutes_used?).to(:shared_runners_limit_namespace) }
     it { is_expected.to delegate_method(:shared_runners_remaining_minutes_below_threshold?).to(:shared_runners_limit_namespace) }
 
+    it { is_expected.to delegate_method(:closest_gitlab_subscription).to(:namespace) }
+
     it { is_expected.to belong_to(:deleting_user) }
 
     it { is_expected.to have_one(:import_state).class_name('ProjectImportState') }
@@ -995,7 +997,7 @@ describe Project do
 
         context 'and :ci_minutes_track_for_public_projects FF is disabled' do
           before do
-            stub_feature_flags(ci_minutes_track_for_public_projects: { enabled: false, thing: project.shared_runners_limit_namespace })
+            stub_feature_flags(ci_minutes_track_for_public_projects: false)
           end
 
           it { is_expected.to be_falsey }
@@ -1727,6 +1729,41 @@ describe Project do
       expect(wiki_updated_service).not_to receive(:execute)
 
       project.after_import
+    end
+
+    context 'elasticsearch indexing disabled for this project' do
+      before do
+        expect(project).to receive(:use_elasticsearch?).and_return(false)
+      end
+
+      it 'does not index the wiki repository' do
+        expect(ElasticCommitIndexerWorker).not_to receive(:perform_async)
+
+        project.after_import
+      end
+    end
+
+    context 'elasticsearch indexing enabled for this project' do
+      before do
+        expect(project).to receive(:use_elasticsearch?).and_return(true)
+      end
+
+      it 'schedules a full index of the wiki repository' do
+        expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, nil, nil, true)
+
+        project.after_import
+      end
+
+      context 'when project is forked' do
+        before do
+          expect(project).to receive(:forked?).and_return(true)
+        end
+        it 'does not index the wiki repository' do
+          expect(ElasticCommitIndexerWorker).not_to receive(:perform_async)
+
+          project.after_import
+        end
+      end
     end
   end
 
@@ -2599,25 +2636,6 @@ describe Project do
         expect(project.jira_import?).to be false
         expect { project.remove_import_data }.not_to change { ProjectImportData.count }
       end
-    end
-  end
-
-  describe '#gitlab_subscription' do
-    subject { project.gitlab_subscription }
-
-    let(:project) { create(:project, namespace: namespace) }
-
-    context 'has a gitlab subscription' do
-      let(:namespace) { subscription.namespace }
-      let(:subscription) { create(:gitlab_subscription) }
-
-      it { is_expected.to eq(subscription) }
-    end
-
-    context 'does not have a gitlab subscription' do
-      let(:namespace) { create(:namespace) }
-
-      it { is_expected.to be_nil }
     end
   end
 end

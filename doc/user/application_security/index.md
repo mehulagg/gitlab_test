@@ -44,6 +44,12 @@ To add Container Scanning, follow the steps listed in the [Container Scanning do
 
 To further configure any of the other scanners, refer to each scanner's documentation.
 
+### Override the default registry base address
+
+By default, GitLab security scanners use `registry.gitlab.com/gitlab-org/security-products/analyzers` as the
+base address for Docker images. You can override this globally by setting the variable
+`SECURE_ANALYZERS_PREFIX` to another location. Note that this affects all scanners at once.
+
 ## Security scanning tools
 
 GitLab uses the following tools to scan and report known vulnerabilities found in your project.
@@ -392,6 +398,31 @@ spotbugs-sast:
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_MERGE_REQUEST_ID
+```
+
+If your override is aimed at limiting jobs to only run on branches, not tags,
+it would look similar to:
+
+```yaml
+include:
+  - template: SAST.gitlab-ci.yml
+
+# Ensure that the scanning is not executed on tags
+spotbugs-sast:
+  except:
+    - tags
+```
+
+To transition to the new `rules` syntax, the override would be rewritten as:
+
+```yaml
+include:
+  - template: SAST.gitlab-ci.yml
+
+# Ensure that the scanning is not executed on tags
+spotbugs-sast:
+  rules:
+    - if: $CI_COMMIT_TAG == null
 ```
 
 [Learn more on the usage of `rules`](../../ci/yaml/README.md#rules).

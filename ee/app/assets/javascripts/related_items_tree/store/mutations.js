@@ -14,6 +14,7 @@ export default {
       projectsEndpoint,
       userSignedIn,
       allowSubEpics,
+      allowIssuableHealthStatus,
     },
   ) {
     state.epicsEndpoint = epicsEndpoint;
@@ -23,6 +24,7 @@ export default {
     state.projectsEndpoint = projectsEndpoint;
     state.userSignedIn = userSignedIn;
     state.allowSubEpics = allowSubEpics;
+    state.allowIssuableHealthStatus = allowIssuableHealthStatus;
   },
 
   [types.SET_INITIAL_PARENT_ITEM](state, data) {
@@ -142,17 +144,20 @@ export default {
 
     state.showAddItemForm = toggleState;
     state.showCreateEpicForm = false;
+    state.showCreateIssueForm = false;
   },
 
   [types.TOGGLE_CREATE_EPIC_FORM](state, { toggleState }) {
     state.showCreateEpicForm = toggleState;
     state.showAddItemForm = false;
+    state.showCreateIssueForm = false;
     state.issuableType = issuableTypesMap.EPIC;
   },
 
   [types.TOGGLE_CREATE_ISSUE_FORM](state, { toggleState }) {
     state.showCreateIssueForm = toggleState;
     state.showAddItemForm = false;
+    state.showCreateEpicForm = false;
   },
 
   [types.SET_PENDING_REFERENCES](state, references) {

@@ -53,6 +53,29 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '#set_status' do
+    where(:from_status, :to_status) do
+      from_status_names = described_class.state_machines[:status].states.map(&:name)
+      to_status_names = from_status_names - [:created] # we never want to transition into created
+
+      from_status_names.product(to_status_names)
+    end
+
+    with_them do
+      it do
+        pipeline.status = from_status.to_s
+
+        if from_status != to_status
+          expect(pipeline.set_status(to_status.to_s))
+            .to eq(true)
+        else
+          expect(pipeline.set_status(to_status.to_s))
+            .to eq(false), "loopback transitions are not allowed"
+        end
+      end
+    end
+  end
+
   describe '.processables' do
     before do
       create(:ci_build, name: 'build', pipeline: pipeline)
@@ -726,7 +749,7 @@ describe Ci::Pipeline, :mailer do
           allow(pipeline).to receive(:has_kubernetes_active?).and_return(true)
         end
 
-        it "is incldued with value 'true'" do
+        it "is included with value 'true'" do
           expect(subject.to_hash).to include('CI_KUBERNETES_ACTIVE' => 'true')
         end
       end

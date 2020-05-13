@@ -36,6 +36,7 @@ class License < ApplicationRecord
     repository_mirrors
     repository_size_limit
     seat_link
+    send_emails_from_admin_area
     service_desk
     scoped_issue_board
     usage_quotas
@@ -267,11 +268,7 @@ class License < ApplicationRecord
     def load_license
       return unless self.table_exists?
 
-      license = self.last
-
-      return unless license && license.valid?
-
-      license
+      self.order(id: :desc).limit(100).find { |license| license.valid? && license.started? }
     end
 
     def global_feature?(feature)

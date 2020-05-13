@@ -87,10 +87,8 @@ The following table depicts the various user permission levels in a project.
 | Create new merge request                          |         | ✓          | ✓           | ✓        | ✓      |
 | View metrics dashboard annotations                |         | ✓          | ✓           | ✓        | ✓      |
 | Create/edit requirements **(ULTIMATE)**           |         | ✓          | ✓           | ✓        | ✓      |
-| Pull [packages](packages/index.md)                |         | ✓          | ✓           | ✓        | ✓      |
-| Publish [packages](packages/index.md)             |         |            | ✓           | ✓        | ✓      |
-| Pull from [Conan repository](packages/conan_repository/index.md), [Maven repository](packages/maven_repository/index.md), or [NPM registry](packages/npm_registry/index.md) **(PREMIUM)** |         | ✓          | ✓           | ✓        | ✓      |
-| Publish to [Conan repository](packages/conan_repository/index.md), [Maven repository](packages/maven_repository/index.md), or [NPM registry](packages/npm_registry/index.md) **(PREMIUM)** |         |            | ✓           | ✓        | ✓      |
+| Pull [packages](packages/index.md) **(PREMIUM)**  |         | ✓          | ✓           | ✓        | ✓      |
+| Publish [packages](packages/index.md) **(PREMIUM)**|         |            | ✓           | ✓        | ✓      |
 | Upload [Design Management](project/issues/design_management.md) files |  |  | ✓        | ✓        | ✓      |
 | Create/edit/delete [Releases](project/releases/index.md)|   |            | ✓           | ✓        | ✓      |
 | Create new branches                               |         |            | ✓           | ✓        | ✓      |
@@ -148,6 +146,7 @@ The following table depicts the various user permission levels in a project.
 | Delete wiki pages                                 |         |            |             | ✓        | ✓      |
 | View project Audit Events                         |         |            |             | ✓        | ✓      |
 | Manage [push rules](../push_rules/push_rules.md)  |         |            |             | ✓        | ✓      |
+| Manage [project access tokens](./project/settings/project_access_tokens.md) **(CORE ONLY)** |         |            |             | ✓        | ✓      |
 | Switch visibility level                           |         |            |             |          | ✓      |
 | Transfer project to another namespace             |         |            |             |          | ✓      |
 | Remove fork relationship                          |         |            |             |          | ✓      |
@@ -234,6 +233,8 @@ group.
 | Create/edit group epic **(ULTIMATE)**                  |       | ✓        | ✓         | ✓          | ✓     |
 | Manage group labels                                    |       | ✓        | ✓         | ✓          | ✓     |
 | See a container registry                               |       | ✓        | ✓         | ✓          | ✓     |
+| Pull [packages](packages/index.md) **(PREMIUM)**     |       | ✓        | ✓         | ✓          | ✓     |
+| Publish [packages](packages/index.md) **(PREMIUM)**  |       |          | ✓         | ✓          | ✓     |
 | View metrics dashboard annotations                     |       | ✓        | ✓         | ✓          | ✓     |
 | Create project in group                                |       |          | ✓ (3)     | ✓ (3)      | ✓ (3) |
 | Create/edit/delete group milestones                    |       |          | ✓         | ✓          | ✓     |
@@ -402,7 +403,9 @@ instance and project. In addition, all admins can use the admin interface under
 | See events in the system              |                 |             |          | ✓      |
 | Admin interface                       |                 |             |          | ✓      |
 
-1. Only if the job was triggered by the user
+1. Only if the job was:
+   - Triggered by the user
+   - [Since GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/35069), not run for a protected branch
 
 ### Job permissions
 

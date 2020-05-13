@@ -2844,7 +2844,7 @@ describe Project do
     end
 
     it 'schedules the transfer of the repository to the new storage and locks the project' do
-      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'test_second_storage', repository_storage_move_id: anything)
+      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'test_second_storage', anything)
 
       project.change_repository_storage('test_second_storage')
       project.save!
@@ -3634,6 +3634,24 @@ describe Project do
         projects = described_class.all.public_or_visible_to_user(user, Gitlab::Access::REPORTER)
 
         expect(projects).to contain_exactly(public_project)
+      end
+    end
+
+    context 'with deploy token users' do
+      let_it_be(:private_project) { create(:project, :private) }
+
+      subject { described_class.all.public_or_visible_to_user(user) }
+
+      context 'deploy token user without project' do
+        let_it_be(:user) { create(:deploy_token) }
+
+        it { is_expected.to eq [] }
+      end
+
+      context 'deploy token user with project' do
+        let_it_be(:user) { create(:deploy_token, projects: [private_project]) }
+
+        it { is_expected.to include(private_project) }
       end
     end
   end

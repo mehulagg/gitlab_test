@@ -313,7 +313,12 @@ export default {
             <template slot="button-content">
               <gl-icon name="ellipsis_v" class="text-secondary" />
             </template>
-            <gl-dropdown-item v-if="expandBtnAvailable" ref="expandBtn" @click="onExpand">
+            <gl-dropdown-item
+              v-if="expandBtnAvailable"
+              ref="expandBtn"
+              :href="clipboardText"
+              @click.prevent="onExpand"
+            >
               {{ s__('Metrics|Expand panel') }}
             </gl-dropdown-item>
             <gl-dropdown-item
@@ -345,6 +350,7 @@ export default {
               ref="copyChartLink"
               v-track-event="generateLinkToChartOptions(clipboardText)"
               :data-clipboard-text="clipboardText"
+              data-qa-selector="generate_chart_link_menu_item"
               @click="showToast(clipboardText)"
             >
               {{ __('Copy link to chart') }}

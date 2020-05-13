@@ -148,7 +148,7 @@ module EE
       scope :aimed_for_deletion, -> (date) { where('marked_for_deletion_at <= ?', date).without_deleted }
       scope :with_repos_templates, -> { where(namespace_id: ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id) }
       scope :with_groups_level_repos_templates, -> { joins("INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id") }
-      scope :with_designs, -> { where(id: DesignManagement::Design.select(:project_id)) }
+      scope :with_designs, -> { where(id: ::DesignManagement::Design.select(:project_id)) }
       scope :with_deleting_user, -> { includes(:deleting_user) }
       scope :with_compliance_framework_settings, -> { preload(:compliance_framework_setting) }
       scope :has_vulnerabilities, -> { joins(:vulnerabilities).group(:id) }
@@ -168,7 +168,7 @@ module EE
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled?, to: :ci_cd_settings
-      delegate :gitlab_subscription, to: :namespace
+      delegate :closest_gitlab_subscription, to: :namespace
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -303,8 +303,7 @@ module EE
     #   it. This is the case when we're ready to enable a feature for anyone
     #   with the correct license.
     def beta_feature_available?(feature)
-      ::Feature.enabled?(feature, self) ||
-        (::Feature.enabled?(feature) && feature_available?(feature))
+      ::Feature.enabled?(feature) ? feature_available?(feature) : ::Feature.enabled?(feature, self)
     end
     alias_method :alpha_feature_available?, :beta_feature_available?
 
@@ -596,6 +595,10 @@ module EE
       repository.log_geo_updated_event
       wiki.repository.log_geo_updated_event
       design_repository.log_geo_updated_event
+
+      # Index the wiki repository after import of non-forked projects only, the project repository is indexed
+      # in ProjectImportState so ElasticSearch will get project repository changes when mirrors are updated
+      ElasticCommitIndexerWorker.perform_async(id, nil, nil, true) if use_elasticsearch? && !forked?
     end
 
     override :import?
