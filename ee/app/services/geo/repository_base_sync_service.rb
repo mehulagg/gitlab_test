@@ -67,10 +67,6 @@ module Geo
     def redownload_repository
       log_info("Redownloading #{type}")
 
-      return if fetch_snapshot
-
-      log_info("Attempting to fetch repository via git")
-
       # `git fetch` needs an empty bare repository to fetch into
       temp_repo.create_repository
       fetch_geo_mirror(temp_repo)
@@ -102,28 +98,6 @@ module Geo
 
     def remote_url
       Gitlab::Utils.append_path(Gitlab::Geo.primary_node.internal_url, "#{repository.full_path}.git")
-    end
-
-    # Use snapshotting for redownloads *only* when enabled.
-    #
-    # If writes happen to the repository while snapshotting, it may be
-    # returned in an inconsistent state. However, a subsequent git fetch
-    # will be enqueued by the log cursor, which should resolve any problems
-    # it is possible to fix.
-    def fetch_snapshot
-      # Snapshots will miss the data that are shared in object pools, and snapshotting should
-      # be avoided to guard against data loss.
-      return if project.pool_repository
-
-      log_info("Attempting to fetch repository via snapshot")
-
-      temp_repo.create_from_snapshot(
-        ::Gitlab::Geo.primary_node.snapshot_url(temp_repo),
-        ::Gitlab::Geo::RepoSyncRequest.new(scope: ::Gitlab::Geo::API_SCOPE).authorization
-      )
-    rescue => err
-      log_error('Snapshot attempt failed', err)
-      false
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

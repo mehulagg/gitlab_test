@@ -400,15 +400,6 @@ describe Geo::RepositorySyncService do
         end
       end
     end
-
-    it_behaves_like 'sync retries use the snapshot RPC' do
-      let(:repository) { project.repository }
-      let(:retry_count) { Geo::ProjectRegistry::RETRIES_BEFORE_REDOWNLOAD }
-
-      def registry_with_retry_count(retries)
-        create(:geo_project_registry, project: project, repository_retry_count: retries, wiki_retry_count: retries)
-      end
-    end
   end
 
   context 'repository housekeeping' do

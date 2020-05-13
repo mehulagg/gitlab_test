@@ -196,13 +196,6 @@ class GeoNode < ApplicationRecord
     geo_api_url('status')
   end
 
-  def snapshot_url(repository)
-    url = api_url("projects/#{repository.project.id}/snapshot")
-    url += "?wiki=1" if repository.repo_type.wiki?
-
-    url
-  end
-
   def oauth_callback_url
     Gitlab::Routing.url_helpers.oauth_geo_callback_url(url_helper_args)
   end

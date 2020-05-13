@@ -134,15 +134,6 @@ describe Geo::DesignRepositorySyncService do
 
       expect(Geo::DesignRegistry.last.state).to eq 'failed'
     end
-
-    it_behaves_like 'sync retries use the snapshot RPC' do
-      let(:repository) { project.design_repository }
-      let(:retry_count) { Geo::DesignRegistry::RETRIES_BEFORE_REDOWNLOAD }
-
-      def registry_with_retry_count(retries)
-        create(:geo_design_registry, project: project, retry_count: retries)
-      end
-    end
   end
 
   context 'race condition when RepositoryUpdatedEvent was processed during a sync' do
