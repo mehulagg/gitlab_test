@@ -967,7 +967,7 @@ describe Project do
     let(:project) { create(:project, has_external_issue_tracker: nil) }
 
     it 'stores true if there is any external_issue_tracker' do
-      services = double(:service, external_issue_trackers: [RedmineService.new])
+      services = double(:service, issue_trackers: [RedmineService.new])
       expect(project).to receive(:services).and_return(services)
 
       expect do
@@ -976,7 +976,7 @@ describe Project do
     end
 
     it 'stores false if there is no external_issue_tracker' do
-      services = double(:service, external_issue_trackers: [])
+      services = double(:service, issue_trackers: [])
       expect(project).to receive(:services).and_return(services)
 
       expect do

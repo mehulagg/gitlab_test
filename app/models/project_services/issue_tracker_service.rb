@@ -175,7 +175,7 @@ class IssueTrackerService < Service
     return if template? || instance?
     return if project.blank?
 
-    if project.services.external_issue_trackers.where.not(id: id).any?
+    if project.services.issue_trackers.where.not(id: id).any?
       errors.add(:base, _('Another issue tracker is already in use. Only one issue tracker service can be active at a time'))
     end
   end
