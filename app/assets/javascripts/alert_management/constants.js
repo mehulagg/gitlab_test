@@ -9,6 +9,16 @@ export const ALERTS_SEVERITY_LABELS = {
   UNKNOWN: s__('AlertManagement|Unknown'),
 };
 
+export const ALERT_STATUS_LABELS = {
+  OPEN: s__('AlertManagement|Open'),
+  TRIGGERED: s__('AlertManagement|Triggered'),
+  ACKNOWLEDGED: s__('AlertManagement|Acknowledged'),
+  RESOLVED: s__('AlertManagement|Resolved'),
+  ALL: s__('AlertManagement|All alerts'),
+};
+
+export const CLICKABLE_STATUSES = ['TRIGGERED', 'ACKNOWLEDGED', 'RESOLVED'];
+
 export const ALERTS_STATUS = {
   OPEN: 'open',
   TRIGGERED: 'triggered',
@@ -17,25 +27,7 @@ export const ALERTS_STATUS = {
   ALL: 'all',
 };
 
-export const ALERTS_STATUS_TABS = [
-  {
-    title: s__('AlertManagement|Open'),
-    status: ALERTS_STATUS.OPEN,
-  },
-  {
-    title: s__('AlertManagement|Triggered'),
-    status: ALERTS_STATUS.TRIGGERED,
-  },
-  {
-    title: s__('AlertManagement|Acknowledged'),
-    status: ALERTS_STATUS.ACKNOWLEDGED,
-  },
-  {
-    title: s__('AlertManagement|Resolved'),
-    status: ALERTS_STATUS.RESOLVED,
-  },
-  {
-    title: s__('AlertManagement|All alerts'),
-    status: ALERTS_STATUS.ALL,
-  },
-];
+export const ALERTS_STATUS_TABS = Object.keys(ALERT_STATUS_LABELS).map(key => ({
+  title: ALERT_STATUS_LABELS[key],
+  status: ALERTS_STATUS[key],
+}));

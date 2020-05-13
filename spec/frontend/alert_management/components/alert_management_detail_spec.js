@@ -1,8 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlAlert, GlLoadingIcon } from '@gitlab/ui';
+import { GlAlert, GlDropdown, GlDropdownItem, GlLoadingIcon } from '@gitlab/ui';
+import createFlash from '~/flash';
 import AlertDetails from '~/alert_management/components/alert_details.vue';
+import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert_status.graphql';
 
 import mockAlerts from '../mocks/alerts.json';
+
+jest.mock('~/flash');
 
 const mockAlert = mockAlerts[0];
 
@@ -18,7 +22,7 @@ describe('AlertDetails', () => {
     wrapper = shallowMount(AlertDetails, {
       propsData: {
         alertId: 'alertId',
-        projectPath: 'projectPath',
+        projectPath: 'gitlab-org/gitlab',
         newIssuePath,
       },
       data() {
@@ -29,6 +33,7 @@ describe('AlertDetails', () => {
       },
       mocks: {
         $apollo: {
+          mutate: jest.fn(),
           queries: {
             alert: {
               loading,
@@ -46,6 +51,8 @@ describe('AlertDetails', () => {
   });
 
   const findCreatedIssueBtn = () => wrapper.find('[data-testid="createIssueBtn"]');
+  const findStatusDropdown = () => wrapper.find(GlDropdown);
+  const findFirstStatusOption = () => findStatusDropdown().find(GlDropdownItem);
 
   describe('Alert details', () => {
     describe('when alert is null', () => {
@@ -147,6 +154,56 @@ describe('AlertDetails', () => {
       it('does not display an error when dismissed', () => {
         mountComponent({ data: { errored: true, isErrorDismissed: true } });
         expect(wrapper.find(GlAlert).exists()).toBe(false);
+      });
+    });
+
+    describe('alert status dropdown', () => {
+      it('displays the current status', () => {
+        mountComponent({ data: { alert: { status: 'ACKNOWLEDGED' } } });
+        expect(findStatusDropdown().attributes().text).toBe('Acknowledged');
+      });
+    });
+
+    describe('updating the alert status', () => {
+      const iid = '1527542';
+      const mockUpdatedMutationResult = {
+        data: {
+          updateAlertStatus: {
+            alert: {
+              iid,
+              status: 'ACKNOWLEDGED',
+            },
+          },
+        },
+      };
+
+      beforeEach(() => {
+        mountComponent({ data: { alert: mockAlert } });
+      });
+
+      it('calls `$apollo.mutate` with `updateAlertStatus` mutation and variables containing `iid`, `status`, & `projectPath`', () => {
+        jest.spyOn(wrapper.vm.$apollo, 'mutate').mockResolvedValue(mockUpdatedMutationResult);
+        findFirstStatusOption().vm.$emit('click');
+
+        expect(wrapper.vm.$apollo.mutate).toHaveBeenCalledWith({
+          mutation: updateAlertStatus,
+          variables: {
+            iid,
+            status: 'TRIGGERED',
+            projectPath: 'gitlab-org/gitlab',
+          },
+        });
+      });
+
+      it('calls `createFlash` when request fails', () => {
+        jest.spyOn(wrapper.vm.$apollo, 'mutate').mockReturnValue(Promise.reject(new Error()));
+        findFirstStatusOption().vm.$emit('click');
+
+        setImmediate(() => {
+          expect(createFlash).toHaveBeenCalledWith(
+            'There was an error while updating the status of the alert. Please try again.',
+          );
+        });
       });
     });
   });

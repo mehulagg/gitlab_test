@@ -2,25 +2,25 @@
 import * as Sentry from '@sentry/browser';
 import {
   GlAlert,
+  GlIcon,
   GlLoadingIcon,
-  GlNewDropdown,
-  GlNewDropdownItem,
+  GlDropdown,
+  GlDropdownItem,
   GlTabs,
   GlTab,
   GlButton,
 } from '@gitlab/ui';
 import timeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
+import createFlash from '~/flash';
 import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
 import { fetchPolicies } from '~/lib/graphql';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql';
+import { ALERT_STATUS_LABELS, CLICKABLE_STATUSES } from '../constants';
 
 export default {
-  statuses: {
-    triggered: s__('AlertManagement|Triggered'),
-    acknowledged: s__('AlertManagement|Acknowledged'),
-    resolved: s__('AlertManagement|Resolved'),
-  },
+  statuses: CLICKABLE_STATUSES,
   i18n: {
     errorMsg: s__(
       'AlertManagement|There was an error displaying the alert. Please refresh the page to try again.',
@@ -28,11 +28,13 @@ export default {
     fullAlertDetailsTitle: s__('AlertManagement|Full alert details'),
     overviewTitle: s__('AlertManagement|Overview'),
   },
+  statusLabels: ALERT_STATUS_LABELS,
   components: {
     GlAlert,
+    GlIcon,
     GlLoadingIcon,
-    GlNewDropdown,
-    GlNewDropdownItem,
+    GlDropdown,
+    GlDropdownItem,
     timeAgoTooltip,
     GlTab,
     GlTabs,
@@ -87,6 +89,24 @@ export default {
     dismissError() {
       this.isErrorDismissed = true;
     },
+    updateAlertStatus(status, iid) {
+      this.$apollo
+        .mutate({
+          mutation: updateAlertStatus,
+          variables: {
+            iid,
+            status,
+            projectPath: this.projectPath,
+          },
+        })
+        .catch(() => {
+          createFlash(
+            s__(
+              'AlertManagement|There was an error while updating the status of the alert. Please try again.',
+            ),
+          );
+        });
+    },
   },
 };
 </script>
@@ -115,15 +135,24 @@ export default {
       class="gl-display-flex gl-justify-content-space-between gl-align-items-center"
     >
       <h2 data-testid="title">{{ alert.title }}</h2>
-      <gl-new-dropdown right>
-        <gl-new-dropdown-item
-          v-for="(label, field) in $options.statuses"
+      <gl-dropdown :text="$options.statusLabels[alert.status]" right>
+        <gl-dropdown-item
+          v-for="field in $options.statuses"
           :key="field"
           data-testid="statusDropdownItem"
           class="align-middle"
-          >{{ label }}
-        </gl-new-dropdown-item>
-      </gl-new-dropdown>
+          @click="updateAlertStatus(field, alert.iid)"
+        >
+          <span class="d-flex">
+            <gl-icon
+              class="flex-shrink-0 append-right-4"
+              :class="{ invisible: field !== alert.status }"
+              name="mobile-issue-close"
+            />
+            {{ $options.statusLabels[field] }}
+          </span>
+        </gl-dropdown-item>
+      </gl-dropdown>
     </div>
     <gl-tabs v-if="alert" data-testid="alertDetailsTabs">
       <gl-tab data-testid="overviewTab" :title="$options.i18n.overviewTitle">
