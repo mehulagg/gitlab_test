@@ -1,6 +1,7 @@
-# Deploy Boards **(PREMIUM)**
+# Deploy Boards
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/1589) in [GitLab Premium](https://about.gitlab.com/pricing/) 9.0.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/1589) in [GitLab Premium](https://about.gitlab.com/pricing/) 9.0.
+> - [Moved](<https://gitlab.com/gitlab-org/gitlab/-/issues/212320>) to GitLab Core in 13.0.
 
 GitLab's Deploy Boards offer a consolidated view of the current health and
 status of each CI [environment](../../ci/environments.md) running on [Kubernetes](https://kubernetes.io), displaying the status

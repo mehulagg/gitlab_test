@@ -31,7 +31,7 @@ Using the GitLab project Kubernetes integration, you can:
 - Detect and [monitor Kubernetes](#kubernetes-monitoring).
 - Use it with [Auto DevOps](#auto-devops).
 - Use [Web terminals](#web-terminals).
-- Use [Deploy Boards](#deploy-boards-premium). **(PREMIUM)**
+- Use [Deploy Boards](#deploy-boards).
 - Use [Canary Deployments](#canary-deployments-premium). **(PREMIUM)**
 - View [Logs](#logs).
 - Run serverless workloads on [Kubernetes with Knative](serverless/index.md).
@@ -54,7 +54,7 @@ Currently, GitLab supports the following Kubernetes versions:
 NOTE: **Note:**
 Some GitLab features may support versions outside the range provided here.
 
-### Deploy Boards **(PREMIUM)**
+### Deploy Boards
 
 GitLab's Deploy Boards offer a consolidated view of the current health and
 status of each CI [environment](../../../ci/environments.md) running on Kubernetes,
