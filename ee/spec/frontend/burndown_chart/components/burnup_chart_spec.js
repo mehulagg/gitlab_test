@@ -9,8 +9,6 @@ describe('Burnup chart', () => {
   const defaultProps = {
     startDate: '2019-08-07T00:00:00.000Z',
     dueDate: '2019-09-09T00:00:00.000Z',
-    openIssuesCount: [],
-    openIssuesWeight: [],
   };
 
   const createComponent = (props = {}) => {
@@ -25,30 +23,19 @@ describe('Burnup chart', () => {
     });
   };
 
-  describe('with single point', () => {
-    it('does not show guideline', () => {
-      createComponent({
-        openIssuesCount: [{ '2019-08-07T00:00:00.000Z': 100 }],
-      });
+  it.each`
+    scope
+    ${[{ '2019-08-07T00:00:00.000Z': 100 }]}
+    ${[{ '2019-08-07T00:00:00.000Z': 100 }, { '2019-08-08T00:00:00.000Z': 99 }, { '2019-09-08T00:00:00.000Z': 1 }]}
+  `('renders the lineChart correctly', ({ scope }) => {
+    createComponent({ scope });
+    const chartData = wrapper.find(GlLineChart).props('data');
 
-      const data = wrapper.find(GlLineChart).props('data');
-      expect(data.length).toBe(1);
-      expect(data[0].name).toBe('Total');
-    });
-  });
-
-  describe('with multiple points', () => {
-    it('shows guideline', () => {
-      createComponent({
-        openIssuesCount: [
-          { '2019-08-07T00:00:00.000Z': 100 },
-          { '2019-08-08T00:00:00.000Z': 99 },
-          { '2019-09-08T00:00:00.000Z': 1 },
-        ],
-      });
-
-      const data = wrapper.find(GlLineChart).props('data');
-      expect(data.length).toBe(1);
-    });
+    expect(chartData).toEqual([
+      {
+        name: 'Total',
+        data: scope,
+      },
+    ]);
   });
 });
