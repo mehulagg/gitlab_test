@@ -10,7 +10,7 @@ Templating variables can be used to make your dashboard more versatile.
 
 ## Templating variable types
 
-`templating` is a top-level key in the [dashboard YAML](../integrations/prometheus.md#dashboard-top-level-properties).
+`templating` is a top-level key in the [dashboard YAML](dashboard_yaml.md#dashboard-top-level-properties).
 
 The `variables` key under `templating` is where all your variables should be defined.
 
