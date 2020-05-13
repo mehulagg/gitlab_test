@@ -44,7 +44,7 @@ RSpec.describe PostReceive do
       it 'does not log an error' do
         expect(Gitlab::GitLogger).not_to receive(:error)
         expect(Gitlab::GitPostReceive).to receive(:new).and_call_original
-        expect_next(described_class, to_receive: :process_snippet_changes)
+        expect_next(described_class).to receive(:process_snippet_changes)
 
         perform
       end
@@ -67,7 +67,7 @@ RSpec.describe PostReceive do
       let(:changes) { "123456 789012 refs/heads/tést1\n" }
 
       before do
-        allow_next(Gitlab::GitPostReceive, to_receive: :identify, returning: empty_project.owner)
+        allow_next(Gitlab::GitPostReceive).to receive(:identify).and_return(empty_project.owner)
         # Need to mock here so we can expect calls on project
         allow(Gitlab::GlRepository).to receive(:parse).and_return([empty_project, empty_project, Gitlab::GlRepository::PROJECT])
       end
@@ -99,7 +99,7 @@ RSpec.describe PostReceive do
     context 'empty changes' do
       it 'does not call any PushService but runs after project hooks' do
         expect(Git::ProcessRefChangesService).not_to receive(:new)
-        expect_next(SystemHooksService, to_receive: :execute_hooks)
+        expect_next(SystemHooksService).to receive(:execute_hooks)
 
         perform(changes: "")
       end
@@ -121,7 +121,7 @@ RSpec.describe PostReceive do
       let(:push_service) { double(execute: true) }
 
       before do
-        allow_next(Gitlab::GitPostReceive, to_receive: :identify, returning: project.owner)
+        allow_next(Gitlab::GitPostReceive).to receive(:identify).and_return(project.owner)
         allow(Gitlab::GlRepository).to receive(:parse).and_return([project, project, Gitlab::GlRepository::PROJECT])
       end
 
@@ -157,7 +157,7 @@ RSpec.describe PostReceive do
         end
 
         it 'calls Git::ProcessRefChangesService' do
-          expect_service(Git::ProcessRefChangesService)
+          expect_execution(Git::ProcessRefChangesService)
 
           perform
         end
@@ -217,7 +217,7 @@ RSpec.describe PostReceive do
         end
 
         it 'calls Git::ProcessRefChangesService' do
-          expect_service(Git::ProcessRefChangesService)
+          expect_execution(Git::ProcessRefChangesService)
 
           perform
         end
@@ -251,13 +251,13 @@ RSpec.describe PostReceive do
         before do
           allow(Gitlab::DataBuilder::Repository).to receive(:update).and_return(fake_hook_data)
           # silence hooks so we can isolate
-          allow_next(Key, to_receive: :post_create_hook, returning: true)
-          expect_service(Git::ProcessRefChangesService)
+          allow_next(Key).to receive(:post_create_hook).and_return(true)
+          expect_execution(Git::ProcessRefChangesService)
         end
 
         it 'calls SystemHooksService' do
-          expect_next(SystemHooksService, to_receive: :execute_hooks,
-                      with: [fake_hook_data, :repository_update_hooks], returning: true)
+          expect_next(SystemHooksService)
+            .to receive(:execute_hooks).with(fake_hook_data, :repository_update_hooks)
 
           perform
         end
@@ -308,7 +308,7 @@ RSpec.describe PostReceive do
       let(:raw_repo) { double('RawRepo') }
 
       it 'processes the changes on the master branch' do
-        expect_next(Git::WikiPushService, to_receive: :process_changes)
+        expect_next(Git::WikiPushService).to receive(:process_changes)
 
         perform
       end
@@ -323,7 +323,7 @@ RSpec.describe PostReceive do
       end
 
       before do
-        allow_next(Git::WikiPushService, to_receive: :process_changes)
+        allow_next(Git::WikiPushService).to receive(:process_changes)
       end
 
       it 'expires the branches cache' do
@@ -349,7 +349,7 @@ RSpec.describe PostReceive do
     end
 
     it "does not run if the author is not in the project" do
-      allow_next(Gitlab::GitPostReceive, to_receive: :identify_using_ssh_key, returning: nil)
+      allow_next(Gitlab::GitPostReceive).to receive(:identify_using_ssh_key).and_return(nil)
       expect(project).not_to receive(:execute_hooks)
 
       expect(perform).to be_falsey
@@ -368,9 +368,8 @@ RSpec.describe PostReceive do
 
     it 'enqueues a UpdateMergeRequestsWorker job' do
       allow(Project).to receive(:find_by).and_return(project)
-      expect_next_instance_of(MergeRequests::PushedBranchesService) do |service|
-        expect(service).to receive(:execute).and_return(%w(tést))
-      end
+      expect_next(MergeRequests::PushedBranchesService)
+        .to receive(:execute).and_return(%w(tést))
 
       expect(UpdateMergeRequestsWorker).to receive(:perform_async).with(project.id, project.owner.id, any_args)
 

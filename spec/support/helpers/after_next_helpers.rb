@@ -1,30 +1,51 @@
 # frozen_string_literal: true
 
 module AfterNextHelpers
-  def allow_next(klass, to_receive:, returning: nil)
-    allow_next_instance_of(klass) do |instance|
-      allow(instance).to receive(to_receive).and_return(returning)
+  class DeferredExpectation
+    include NextInstanceOf
+    include ::RSpec::Matchers
+    include ::RSpec::Mocks::ExampleMethods
+
+    attr_reader :klass, :args, :level
+
+    def initialize(klass, args, level:)
+      @klass = klass
+      @args = args
+      @level = level
+    end
+
+    def to(condition)
+      run_condition(condition, asserted: true)
+    end
+
+    def not_to(condition)
+      run_condition(condition, asserted: false)
+    end
+
+    private
+
+    def run_condition(condition, asserted:)
+      msg = asserted ? :to : :not_to
+      case level
+      when :expect
+        expect_next_instance_of(@klass, *args) { |instance| expect(instance).send(msg, condition) }
+      when :allow
+        allow_next_instance_of(@klass, *args) { |instance| allow(instance).send(msg, condition) }
+      else
+        raise "Unknown level: #{@level}"
+      end
     end
   end
 
-  def expect_next(klass, to_receive: nil, not_to_receive: nil, returning: nil, times: nil, with: nil)
-    if to_receive
-      expect_next_instance_of(klass) do |instance|
-        expectation = receive(to_receive).and_return(returning)
-        expectation = expectation.with(*with) if with
-        expectation = expectation.exactly(times).times if times
-        expect(instance).to expectation
-      end
-    end
-
-    if not_to_receive
-      allow_next_instance_of(klass) do |instance|
-        expect(instance).not_to receive(not_to_receive)
-      end
-    end
+  def allow_next(klass, *args)
+    DeferredExpectation.new(klass, args, level: :allow)
   end
 
-  def expect_service(klass)
-    expect_next(klass, to_receive: :execute, returning: true)
+  def expect_next(klass, *args)
+    DeferredExpectation.new(klass, args, level: :expect)
+  end
+
+  def expect_execution(service_class, *args)
+    expect_next(service_class, *args).to receive(:execute)
   end
 end
