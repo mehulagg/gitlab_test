@@ -6,10 +6,6 @@
     padding-top: 0;
   }
 
-  tbody tr:nth-child(odd) td:not(.shortcut) {
-    background-color: $gray-100;
-  }
-
   th {
     padding-top: 15px;
     line-height: 1.5;
@@ -22,6 +18,10 @@
     padding-bottom: 3px;
     vertical-align: top;
     line-height: 20px;
+  }
+
+  tr:nth-child(odd) td:not(.shortcut) {
+    background-color: $gray-100;
   }
 
   .shortcut {
