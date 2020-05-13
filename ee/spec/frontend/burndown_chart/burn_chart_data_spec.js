@@ -240,11 +240,7 @@ describe('BurndownChartData', () => {
         milestoneId,
       });
 
-      expect(burnupScope[0]).toEqual(
-        ['2017-03-01', 0],
-        ['2017-03-01', 0],
-        ['2017-03-01', 0],
-      );
+      expect(burnupScope[0]).toEqual(['2017-03-01', 0], ['2017-03-01', 0], ['2017-03-01', 0]);
     });
 
     it('does not go below zero with extra remove events', () => {
@@ -269,12 +265,7 @@ describe('BurndownChartData', () => {
         milestoneId,
       });
 
-      expect(burnupScope).toEqual([
-        ['2017-03-01', 0],
-        ['2017-03-02', 0],
-        ['2017-03-03', 0],
-      ]);
-
+      expect(burnupScope).toEqual([['2017-03-01', 0], ['2017-03-02', 0], ['2017-03-03', 0]]);
     });
 
     it('ignores removed from other milestones', () => {
@@ -296,11 +287,7 @@ describe('BurndownChartData', () => {
 
       const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
 
-      expect(burnupScope).toEqual([
-        ['2017-03-01', 1],
-        ['2017-03-02', 1],
-        ['2017-03-03', 1],        
-      ]);
+      expect(burnupScope).toEqual([['2017-03-01', 1], ['2017-03-02', 1], ['2017-03-03', 1]]);
     });
   });
 });

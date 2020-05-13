@@ -35,6 +35,8 @@ describe 'Burnup charts', :js do
     it 'shows burnup chart, with a point per day' do
       visit group_milestone_path(milestone.group, milestone)
 
+      live_debug
+
       expect(burnup_chart_points.count).to be(12)
     end
   end
@@ -52,7 +54,7 @@ describe 'Burnup charts', :js do
   end
 
   def burnup_chart_points
-    fill_color = "#1f75cb"
+    fill_color = "#5772ff"
     burnup_chart.all("path[fill='#{fill_color}']", count: 12)
   end
 
