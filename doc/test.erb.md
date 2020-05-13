@@ -1,11 +1,8 @@
 ---
-title: Hello world
 stage: "DevOps Create"
 ---
 
-<% if @item[:title] %>
-  <h1><%= @item[:title] %></h1>
-<% end %>
+# Hello world
 
 <% if @item[:stage] %>
   <div class="badge-display badge-gitlab"><%= @item[:stage] %></div>
@@ -13,7 +10,7 @@ stage: "DevOps Create"
 
 ## Heading
 
-Normal markdown content.
+Normal Markdown content.
 
 _Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus reprehenderit at architecto, eveniet repellendus eligendi quia itaque harum possimus excepturi, dolorem magnam laboriosam velit qui expedita vero sit quas laudantium necessitatibus incidunt maiores dolores dolore porro voluptas._
 
