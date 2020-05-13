@@ -25,8 +25,6 @@ export default {
     errorMsg: s__(
       'AlertManagement|There was an error displaying the alert. Please refresh the page to try again.',
     ),
-    fullAlertDetailsTitle: s__('AlertManagement|Full alert details'),
-    overviewTitle: s__('AlertManagement|Overview'),
   },
   components: {
     GlAlert,
@@ -125,28 +123,23 @@ export default {
         </gl-new-dropdown-item>
       </gl-new-dropdown>
     </div>
-    <gl-tabs v-if="alert" data-testid="alertDetailsTabs">
-      <gl-tab data-testid="overviewTab" :title="$options.i18n.overviewTitle">
-        <ul class="pl-4 mb-n1">
-          <li v-if="alert.startedAt" class="my-2">
-            <strong class="bold">{{ s__('AlertManagement|Start time') }}:</strong>
-            <time-ago-tooltip data-testid="startTimeItem" :time="alert.startedAt" />
-          </li>
-          <li v-if="alert.eventCount" class="my-2">
-            <strong class="bold">{{ s__('AlertManagement|Events') }}:</strong>
-            <span data-testid="eventCount">{{ alert.eventCount }}</span>
-          </li>
-          <li v-if="alert.monitoringTool" class="my-2">
-            <strong class="bold">{{ s__('AlertManagement|Tool') }}:</strong>
-            <span data-testid="monitoringTool">{{ alert.monitoringTool }}</span>
-          </li>
-          <li v-if="alert.service" class="my-2">
-            <strong class="bold">{{ s__('AlertManagement|Service') }}:</strong>
-            <span data-testid="service">{{ alert.service }}</span>
-          </li>
-        </ul>
-      </gl-tab>
-      <gl-tab data-testid="fullDetailsTab" :title="$options.i18n.fullAlertDetailsTitle" />
-    </gl-tabs>
+    <ul v-if="alert" class="pl-4 mb-n1">
+      <li v-if="alert.startedAt" class="my-2">
+        <strong class="bold">{{ s__('AlertManagement|Start time') }}:</strong>
+        <time-ago-tooltip data-testid="startTimeItem" :time="alert.startedAt" />
+      </li>
+      <li v-if="alert.eventCount" class="my-2">
+        <strong class="bold">{{ s__('AlertManagement|Events') }}:</strong>
+        <span data-testid="eventCount">{{ alert.eventCount }}</span>
+      </li>
+      <li v-if="alert.monitoringTool" class="my-2">
+        <strong class="bold">{{ s__('AlertManagement|Tool') }}:</strong>
+        <span data-testid="monitoringTool">{{ alert.monitoringTool }}</span>
+      </li>
+      <li v-if="alert.service" class="my-2">
+        <strong class="bold">{{ s__('AlertManagement|Service') }}:</strong>
+        <span data-testid="service">{{ alert.service }}</span>
+      </li>
+    </ul>
   </div>
 </template>

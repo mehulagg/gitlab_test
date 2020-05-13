@@ -54,21 +54,13 @@ describe('AlertDetails', () => {
       });
 
       it('shows an empty state', () => {
-        expect(wrapper.find('[data-testid="alertDetailsTabs"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="startTimeItem"]').exists()).toBe(false);
       });
     });
 
     describe('when alert is present', () => {
       beforeEach(() => {
         mountComponent({ data: { alert: mockAlert } });
-      });
-
-      it('renders a tab with overview information', () => {
-        expect(wrapper.find('[data-testid="overviewTab"]').exists()).toBe(true);
-      });
-
-      it('renders a tab with full alert information', () => {
-        expect(wrapper.find('[data-testid="fullDetailsTab"]').exists()).toBe(true);
       });
 
       it('renders a title', () => {
