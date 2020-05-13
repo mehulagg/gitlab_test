@@ -626,3 +626,25 @@ questions that you know someone might ask.
 Each scenario can be a third-level heading, e.g. `### Getting error message X`.
 If you have none to add when creating a doc, leave this section in place
 but commented out to help encourage others to add to it in the future. -->
+
+## Troubleshooting
+
+### Invalid group name errors
+
+The group name validation was recently changed and, as a result, some existing group names are now
+considered invalid. Certain actions performed on these groups may fail and throw the validation error in the
+[logs](../../administration/logs.html):
+
+```sh
+ActiveRecord::RecordInvalid (Validation failed: Name can contain only letters, digits, emojis, '_', '.', dash, space, parenthesis. It must start with letter, digit, emoji or '_'.):
+```
+
+Your group's current name can be seen on the top of your group's landing page. Please note that the
+name (example: **My Team**) is different from the path (example: `my-org/my-team` from
+`gitlab.example.com/my-org/my-team`). These are the requirements it has to meet:
+
+>Name can contain only letters, digits, emojis, '_', '.', dash, space, parenthesis. It must start with letter, digit, emoji or '_'.
+
+The easiest way to update this value is to go to your **Group Settings -> General** page,
+update the **Group name** field with a valid name, and press **Save changes**. Only a valid group
+name will be accepted and saved.
