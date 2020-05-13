@@ -38,7 +38,7 @@ end
 # https://gitlab.com/gitlab-org/gitlab-docs/issues/154.
 #
 def create_remote_branch
-  Gitlab.create_branch(GITLAB_DOCS_REPO, docs_branch, 'master')
+  Gitlab.create_branch(GITLAB_DOCS_REPO, docs_branch, 'fm-data-into-doc')
   puts "=> Remote branch '#{docs_branch}' created"
 
   pipelines = nil
