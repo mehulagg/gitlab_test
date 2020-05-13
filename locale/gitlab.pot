@@ -4181,6 +4181,9 @@ msgstr ""
 msgid "Clear chart filters"
 msgstr ""
 
+msgid "Clear due date"
+msgstr ""
+
 msgid "Clear input"
 msgstr ""
 
@@ -4191,6 +4194,9 @@ msgid "Clear search"
 msgstr ""
 
 msgid "Clear search input"
+msgstr ""
+
+msgid "Clear start date"
 msgstr ""
 
 msgid "Clear templates search input"
@@ -7574,6 +7580,9 @@ msgid "Downvotes"
 msgstr ""
 
 msgid "Drop your designs to start your upload."
+msgstr ""
+
+msgid "Due Date"
 msgstr ""
 
 msgid "Due date"
@@ -18620,6 +18629,9 @@ msgstr ""
 msgid "Select branch/tag"
 msgstr ""
 
+msgid "Select due date"
+msgstr ""
+
 msgid "Select group or project"
 msgstr ""
 
@@ -18663,6 +18675,9 @@ msgid "Select shards to replicate"
 msgstr ""
 
 msgid "Select source branch"
+msgstr ""
+
+msgid "Select start date"
 msgstr ""
 
 msgid "Select strategy activation method"
