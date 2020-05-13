@@ -141,14 +141,65 @@ module IssuableActions
 
     notes = prepare_notes_for_rendering(notes)
     notes = notes.select { |n| n.readable_by?(current_user) }
+    discussions = discussion_serializer.represent(
+      Discussion.build_collection(notes, issuable),
+      context: self
+    )
 
-    discussions = Discussion.build_collection(notes, issuable)
+    try_stream = Feature.enabled?(:stream_discussions, default_enabled: true)
+    hijackable = request.env['rack.hijack?']
 
-    render json: discussion_serializer.represent(discussions, context: self)
+    Rails.logger.warn("Streaming on but Rack hijacking off") if try_stream && !hijackable # rubocop:disable Gitlab/RailsLogger
+
+    return render(json: discussions) unless try_stream && hijackable
+
+    stream_chunked_json_array(discussions)
   end
   # rubocop:enable CodeReuse/ActiveRecord
 
   private
+
+  def stream_chunked_json_array(array)
+    request.env['rack.hijack'].call
+    stream = request.env['rack.hijack_io']
+
+    stream.write([
+      "HTTP/1.1 200 OK",
+      "Content-Type: application/json",
+      "X-Accel-Buffering: no",
+      "Transfer-Encoding: chunked",
+      "Cache-Control: no-cache"
+    ].join("\r\n") + "\r\n\r\n") # Each header terminated with newline, followed by empty line
+
+    # Chunked encoding gives size in hex, newline, raw data, newline
+    count = array.count
+    array.each_with_index do |item, index|
+      first = (index == 0)
+      last = (index + 1 == count)
+
+      data = item.to_json
+      size = data.bytesize + 1 # closing brace or interstitial comma
+      size += 1 if first # opening brace
+
+      stream.write("#{size.to_s(16)}\r\n") # Size is transmitted in hex
+      stream.write("[") if first
+      stream.write(data)
+
+      if last
+        stream.write("]")
+      else
+        stream.write(",")
+      end
+
+      stream.write("\r\n") # End of chunk. Not included in the count
+    end
+
+    stream.write("0\r\n\r\n") # Finish with a zero-length chunk, then empty line
+  ensure
+    f&.close
+    stream&.close
+    response.close
+  end
 
   def notes_filter
     strong_memoize(:notes_filter) do
