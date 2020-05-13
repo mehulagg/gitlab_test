@@ -274,12 +274,14 @@ describe('BurndownChartData', () => {
         {
           created_at: '2017-03-01T00:00:00.000Z',
           action: 'add',
+          event_type: 'milestone',
           milestone_id: milestoneId,
           issue_id: 1,
         },
         {
           created_at: '2017-03-01T00:00:00.000Z',
           action: 'remove',
+          event_type: 'milestone',
           milestone_id: differentMilestoneId,
           issue_id: 1,
         },
@@ -288,6 +290,62 @@ describe('BurndownChartData', () => {
       const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
 
       expect(burnupScope).toEqual([['2017-03-01', 1], ['2017-03-02', 1], ['2017-03-03', 1]]);
+    });
+
+    it('only adds milestone event_type', () => {
+      const events = [
+        {
+          created_at: '2017-03-01T00:00:00.000Z',
+          action: 'add',
+          event_type: 'weight',
+          milestone_id: milestoneId,
+          issue_id: 1,
+          weight: 2,
+        },
+        {
+          created_at: '2017-03-02T00:00:00.000Z',
+          action: 'add',
+          event_type: 'milestone',
+          milestone_id: milestoneId,
+          issue_id: 1,
+          weight: null,
+        },
+      ];
+
+      const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
+
+      expect(burnupScope).toEqual([['2017-03-01', 0], ['2017-03-02', 1], ['2017-03-03', 1]]);
+    });
+
+    it('only removes milestone event_type', () => {
+      const events = [
+        {
+          created_at: '2017-03-01T00:00:00.000Z',
+          action: 'add',
+          event_type: 'milestone',
+          milestone_id: milestoneId,
+          issue_id: 1,
+        },
+        {
+          created_at: '2017-03-02T00:00:00.000Z',
+          action: 'remove',
+          event_type: 'weight',
+          milestone_id: milestoneId,
+          issue_id: 1,
+          weight: 2,
+        },
+        {
+          created_at: '2017-03-03T00:00:00.000Z',
+          action: 'remove',
+          event_type: 'milestone',
+          milestone_id: milestoneId,
+          issue_id: 1,
+        },
+      ];
+
+      const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
+
+      expect(burnupScope).toEqual([['2017-03-01', 1], ['2017-03-02', 1], ['2017-03-03', 0]]);
     });
   });
 });

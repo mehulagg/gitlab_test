@@ -37,6 +37,7 @@ export default class BurnChartData {
       const openedIssuesToday = this.filterAndSummarizeBurndownEvents(
         event =>
           event.created_at === dateString &&
+          event.event_type === 'milestone' &&
           event.milestone_id === milestoneId &&
           event.action === 'add',
       );
@@ -44,6 +45,7 @@ export default class BurnChartData {
       const closedIssuesToday = this.filterAndSummarizeBurndownEvents(
         event =>
           event.created_at === dateString &&
+          event.event_type === 'milestone' &&
           ((event.action === 'remove' && event.milestone_id === milestoneId) ||
             (event.action === 'add' && event.milestone_id !== milestoneId)),
       );
