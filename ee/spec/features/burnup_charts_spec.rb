@@ -35,8 +35,6 @@ describe 'Burnup charts', :js do
     it 'shows burnup chart, with a point per day' do
       visit group_milestone_path(milestone.group, milestone)
 
-      live_debug
-
       expect(burnup_chart_points.count).to be(12)
     end
   end
