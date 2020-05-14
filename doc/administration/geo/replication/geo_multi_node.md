@@ -1,12 +1,17 @@
-# Geo High Availability **(PREMIUM ONLY)**
+# Geo multi node cluster configuration **(PREMIUM ONLY)**
 
 This document describes a minimal reference architecture for running Geo
-in a high availability configuration. If your HA setup differs from the one
+in a multi node cluster configuration on a single site. If your setup differs from the one
 described, it is possible to adapt these instructions to your needs.
+
+NOTE: **Note:**
+GitLab is providing [Reference Architecture documentation](../../reference_architectures/index.md) to ensure the configuration
+matches your use case.
+
 
 ## Architecture overview
 
-![Geo HA Diagram](../../high_availability/img/geo-ha-diagram.png)
+![Geo multi node diagram](../../high_availability/img/geo-ha-diagram.png)
 
 _[diagram source - GitLab employees only](https://docs.google.com/drawings/d/1z0VlizKiLNXVVVaERFwgsIOuEgjcUqDTWPdQYsE7Z4c/edit)_
 
@@ -35,7 +40,7 @@ Support for PostgreSQL on **secondary** nodes in high availability configuration
 [is planned](https://gitlab.com/groups/gitlab-org/-/epics/2536).
 
 Because of the additional complexity involved in setting up this configuration
-for PostgreSQL and Redis, it is not covered by this Geo HA documentation.
+for PostgreSQL and Redis, it is not covered by this Geo multi node documentation.
 
 For more information about setting up a highly available PostgreSQL cluster and Redis cluster using the omnibus package see the high availability documentation for
 [PostgreSQL](../../high_availability/database.md) and
@@ -44,15 +49,15 @@ For more information about setting up a highly available PostgreSQL cluster and 
 NOTE: **Note:**
 It is possible to use cloud hosted services for PostgreSQL and Redis, but this is beyond the scope of this document.
 
-## Prerequisites: Two working GitLab HA clusters
+## Prerequisites: Two working GitLab multi node clusters
 
 One cluster will serve as the **primary** node. Use the
-[GitLab HA documentation](../../reference_architectures/index.md) to set this up. If
+[GitLab Reference Architecture documentation](../../reference_architectures/index.md) to set this up. If
 you already have a working GitLab instance that is in-use, it can be used as a
 **primary**.
 
 The second cluster will serve as the **secondary** node. Again, use the
-[GitLab HA documentation](../../reference_architectures/index.md) to set this up.
+[GitLab Reference Architecture documentation](../../reference_architectures/index.md) to set this up.
 It's a good idea to log in and test it, however, note that its data will be
 wiped out as part of the process of replicating from the **primary**.
 
@@ -85,7 +90,7 @@ After making these changes, [reconfigure GitLab](../../restart_gitlab.md#omnibus
 
 NOTE: **Note:** PostgreSQL and Redis should have already been disabled on the
 application servers, and connections from the application servers to those
-services on the backend servers configured, during normal GitLab HA set up. See
+services on the backend servers configured, during normal GitLab multi node set up. See
 high availability configuration documentation for
 [PostgreSQL](../../high_availability/database.md#configuring-the-application-nodes)
 and [Redis](../../high_availability/redis.md#example-configuration-for-the-gitlab-application).
@@ -103,7 +108,7 @@ and [Redis](../../high_availability/redis.md#example-configuration-for-the-gitla
 
 ## Configure a **secondary** node
 
-A **secondary** cluster is similar to any other GitLab HA cluster, with two
+A **secondary** cluster is similar to any other GitLab cluster, with two
 major differences:
 
 - The main PostgreSQL database is a read-only replica of the **primary** node's
@@ -112,7 +117,7 @@ major differences:
   called the "tracking database", which tracks the synchronization state of
   various resources.
 
-Therefore, we will set up the HA components one-by-one, and include deviations
+Therefore, we will set up the individual components one-by-one, and include deviations
 from the normal HA setup. However, we highly recommend first configuring a
 brand-new cluster as if it were not part of a Geo setup so that it can be
 tested and verified as a working cluster. And only then should it be modified
