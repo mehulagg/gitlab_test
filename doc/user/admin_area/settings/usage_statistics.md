@@ -40,7 +40,7 @@ secure.
 If you disable version check, this information will not be collected. Enable or
 disable the version check in **Admin Area > Settings > Metrics and profiling > Usage statistics**.
 
-### Request flow example
+### Version check request flow example
 
 The following example shows a basic request/response flow between the self-managed GitLab instance
 and the GitLab Version Application:
@@ -75,10 +75,9 @@ You can view the exact JSON payload in the administration panel. To view the pay
 1. Expand the **Usage statistics** section.
 1. Click the **Preview payload** button.
 
-
 Usage ping is important to GitLab as we use it to calculate our [Action Monthly Active Users (AMAU)](https://about.gitlab.com/handbook/product/metrics/#action-monthly-active-users-amau) which helps us measure the success of our features.
 
-### Request flow example
+### Usage Ping request flow example
 
 The following example shows a basic request/response flow between the self-managed GitLab instance, GitLab Version Application,
 GitLab License Application and Salesforce:
