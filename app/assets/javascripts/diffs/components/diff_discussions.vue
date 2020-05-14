@@ -85,7 +85,7 @@ export default {
           :help-page-path="helpPagePath"
           @noteDeleted="deleteNoteHandler"
         >
-          <template  v-if="renderAvatarBadge" #avatar-badge>
+          <template v-if="renderAvatarBadge" #avatar-badge>
             <span class="badge badge-pill">
               {{ index + 1 }}
             </span>
