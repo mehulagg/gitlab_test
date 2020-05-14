@@ -1,0 +1,10 @@
+- page_title "Product Analytics"
+
+= render "links"
+
+%p
+  Number of events for this project: #{@number_of_events.inspect}
+%ol
+  - @events.each do |event|
+    %li
+      %code= event.as_json.keep_if { |key, value| value }.inspect

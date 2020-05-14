@@ -1,0 +1,20 @@
+= render "links"
+
+%h3
+  Project ID: #{@project_id}
+
+%p
+  Between 2.5 and 2.10 Snowplow goes from GET to POST requests.
+  %br
+  You need to initialize the tracker and track an event to trigger a request.
+  %br
+  This page sends a payload.
+
+%p
+  Last item before this page loaded in your browser:
+
+%code
+  = @event.as_json.keep_if { |key, value| value }.inspect if @event
+
+:javascript
+  #{render "tracker"}
