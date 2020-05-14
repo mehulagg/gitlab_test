@@ -104,6 +104,7 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Dependency List](../application_security/dependency_list/index.md): view project dependencies. **(ULTIMATE)**
 - [Requirements](requirements/index.md): Requirements allow you to create criteria to check your products against. **(ULTIMATE)**
 - [Static Site Editor](static_site_editor/index.md): quickly edit content on static websites without prior knowledge of the codebase or Git commands.
+- [Monitoring dashboards](monitoring_dashboards/index.md): Create monitoring dashboards (also known as custom dashboards) to monitor your application.
 
 ### Project integrations
 
