@@ -1,5 +1,6 @@
 <script>
 import { getIdenticonBackgroundClass, getIdenticonTitle } from '~/helpers/avatar_helper';
+import gqHelpers from '~/helpers/graphql_helper';
 
 export default {
   props: {
@@ -16,10 +17,16 @@ export default {
       required: false,
       default: 's40',
     },
+    isGQL: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   computed: {
     identiconBackgroundClass() {
-      return getIdenticonBackgroundClass(this.entityId);
+      const id = this.isGQL ? gqHelpers.convertId(this.entityId) : this.entityId;
+      return getIdenticonBackgroundClass(id);
     },
     identiconTitle() {
       return getIdenticonTitle(this.entityName);
