@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Database::PartitioningMigrationHelpers do
+describe Gitlab::Database::PartitioningMigrationHelpers::ForeignKeyHelpers do
   let(:model) do
     ActiveRecord::Migration.new.extend(described_class)
   end
