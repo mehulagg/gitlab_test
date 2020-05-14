@@ -286,6 +286,26 @@ describe ::SystemNotes::IssuablesService do
         end
       end
 
+      context 'with external issue' do
+        let(:noteable) { ExternalIssue.new('EXT-1234', project) }
+
+        specify do
+          expect { subject }.not_to raise_error
+        end
+
+        context 'when project has an external issue tracker' do
+          let(:jira_service) { build(:jira_service, project: project) }
+
+          specify do
+            allow(noteable).to receive(:project).and_return(project)
+            allow(project).to receive(:external_issue_tracker).and_return(jira_service)
+            expect(jira_service).to receive(:create_cross_reference_note)
+
+            subject
+          end
+        end
+      end
+
       it_behaves_like 'a system note' do
         let(:action) { 'cross_reference' }
       end

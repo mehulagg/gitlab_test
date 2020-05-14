@@ -128,6 +128,8 @@ module SystemNotes
       body = cross_reference_note_content(gfm_reference)
 
       if noteable.is_a?(ExternalIssue)
+        return unless noteable.project.has_external_issue_tracker?
+
         noteable.project.external_issue_tracker.create_cross_reference_note(noteable, mentioner, author)
       else
         create_note(NoteSummary.new(noteable, noteable.project, author, body, action: 'cross_reference'))
