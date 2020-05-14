@@ -1,0 +1,5 @@
+---
+title: 'I18n: externalize strings from ./app/views/users/calendar_activities.html.haml'
+merge_request:
+author: Gilang Gumilar
+type: changed

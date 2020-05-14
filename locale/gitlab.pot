@@ -25013,6 +25013,9 @@ msgstr ""
 msgid "assign yourself"
 msgstr ""
 
+msgid "at"
+msgstr ""
+
 msgid "at risk"
 msgstr ""
 
@@ -25592,6 +25595,9 @@ msgid "locked by %{path_lock_user_name} %{created_at}"
 msgstr ""
 
 msgid "log in"
+msgstr ""
+
+msgid "made a private contribution"
 msgstr ""
 
 msgid "manual"
