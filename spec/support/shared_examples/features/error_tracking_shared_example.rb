@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples 'error tracking index page' do
+shared_examples 'error tracking index page', :quarantine do
   it 'renders the error index page' do
     within('div.js-title-container') do
       expect(page).to have_content(project.namespace.name)
