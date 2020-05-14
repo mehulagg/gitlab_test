@@ -1,0 +1,12 @@
+= render "links"
+
+%script{:src => "https://cdnjs.cloudflare.com/ajax/libs/echarts/4.6.0/echarts-en.min.js"}
+
+%p
+  Showing graphs based on events of the last #{@timerange} days.
+%p
+  - @graphs.each_slice(2) do |pair|
+    .row
+      - pair.each do |g|
+        .col-md-6{:id => g[:id], :style => "width: 500px; height: 350px;"}
+        = render 'graph', graph: g

@@ -1,0 +1,19 @@
+<%- g = local_assigns.fetch(:graph) %>
+
+<script>
+  var chart = document.getElementById('<%= g[:id] -%>');
+  var myChart = echarts.init(chart);
+  var option = {
+    title: { text: '<%= g[:id] -%>' },
+    tooltip: { },
+    legend: { data: [ '<%= g[:id] -%>' ] },
+    xAxis: { data: <%= g[:keys].to_json.html_safe -%> },
+    yAxis: { },
+    series: [{
+      name: 'Platform usage',
+      type: 'bar',
+      data: <%= g[:values].to_json.html_safe -%>
+    }]
+  };
+  myChart.setOption(option);
+</script>
