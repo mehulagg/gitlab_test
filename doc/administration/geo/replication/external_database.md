@@ -133,7 +133,7 @@ To configure the connection to the external read-replica database and enable Log
 
    gitlab_rails['db_username'] = 'gitlab'
    gitlab_rails['db_host'] = '<database_read_replica_host>'
-   
+
    # Disable the bundled Omnibus PostgreSQL, since we are
    # using an external PostgreSQL
    postgresql['enable'] = false
