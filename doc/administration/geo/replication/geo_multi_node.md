@@ -8,7 +8,6 @@ NOTE: **Note:**
 GitLab is providing [Reference Architecture documentation](../../reference_architectures/index.md) to ensure the configuration
 matches your use case.
 
-
 ## Architecture overview
 
 ![Geo multi node diagram](../../high_availability/img/geo-ha-diagram.png)
