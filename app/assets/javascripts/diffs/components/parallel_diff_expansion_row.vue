@@ -43,14 +43,15 @@ export default {
 <template>
   <tr class="line_expansion match">
     <template v-if="isMatchLineLeft || isMatchLineRight">
-      <diff-expansion-cell
-        :file-hash="fileHash"
-        :context-lines-path="contextLinesPath"
-        :line="line.left"
-        :is-top="isTop"
-        :is-bottom="isBottom"
-        :colspan="6"
-      />
+      <td colspan="6" class="text-center">
+        <diff-expansion-cell
+          :file-hash="fileHash"
+          :context-lines-path="contextLinesPath"
+          :line="line.left"
+          :is-top="isTop"
+          :is-bottom="isBottom"
+        />
+      </td>
     </template>
   </tr>
 </template>

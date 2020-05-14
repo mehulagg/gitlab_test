@@ -40,12 +40,14 @@ export default {
 
 <template>
   <tr v-if="isMatchLine" class="line_expansion match">
-    <diff-expansion-cell
-      :file-hash="fileHash"
-      :context-lines-path="contextLinesPath"
-      :line="line"
-      :is-top="isTop"
-      :is-bottom="isBottom"
-    />
+    <td class="text-center">
+      <diff-expansion-cell
+        :file-hash="fileHash"
+        :context-lines-path="contextLinesPath"
+        :line="line"
+        :is-top="isTop"
+        :is-bottom="isBottom"
+      />
+    </td>
   </tr>
 </template>
