@@ -1,13 +1,17 @@
 <script>
 import { GlButton, GlFormInput } from '@gitlab/ui';
+import createFlash from '~/flash';
+import { visitUrl } from '~/lib/utils/url_utility';
+import { __ } from '~/locale';
 import MarkdownField from '~/vue_shared/components/markdown/field.vue';
 import { timeRanges } from '~/vue_shared/constants';
 import createIteration from '../queries/create_iteration.mutation.graphql';
-import DueDateSelectors from '~/due_date_select';
+import DatePicker from './date_picker.vue';
 
 export default {
   timeRanges,
   components: {
+    DatePicker,
     GlButton,
     GlFormInput,
     MarkdownField,
@@ -33,9 +37,6 @@ export default {
       dueDate: '2020-05-28',
     };
   },
-  mounted() {
-    new DueDateSelectors();
-  },
   methods: {
     save() {
       this.$apollo.mutate({
@@ -49,17 +50,23 @@ export default {
             dueDate: this.dueDate,
           },
         },
-      }).then(({ data, error }) => {
-        console.log(data, error)
-        // data.createIteration.iteration.webUrl
+      }).then(({ data }) => {
+        console.log(data)
+        const { errors, iteration } = data.createIteration;
+        if (errors) {
+          createFlash(errors[0]);
+          return;
+        }
 
-
+        visitUrl(iteration.webUrl);        
+        
         // data.createIteration.errors 
         // ["Start date cannot be in the past", "Due date cannot be in the past"]
         // 0: "Title already being used for another group or project sprint."
         // 1: "Dates cannot overlap with other existing Iterations"
       }).catch(e => {
-        console.log(e)
+        console.error(e)
+        createFlash(__('Unable to save iteration. Please try again'));
       })
     },
     cancel() {
@@ -123,7 +130,7 @@ export default {
             <label for="milestone_start_date">{{ __('Start date') }}</label>
           </div>
           <div class="col-sm-10">
-            <gl-form-input
+            <date-picker
               id="milestone_start_date"
               v-model="startDate"
               class="datepicker form-control"
@@ -153,6 +160,10 @@ export default {
           </div>
         </div>
       </div>
+    </section>
+
+    <section ref="errorContainer">
+      <div class="flash-container"></div>
     </section>
     
     <div class="form-actions d-flex">
