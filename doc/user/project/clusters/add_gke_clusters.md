@@ -74,6 +74,8 @@ To create and add a new Kubernetes cluster to your project, group, or instance:
 After a couple of minutes, your cluster will be ready to go. You can now proceed
 to install some [pre-defined applications](index.md#installing-applications).
 
+**Note:** You will need to enable autoscaling on the cluster in order to scale beyond a default setup.
+
 ### Cloud Run for Anthos
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/16566) in GitLab 12.4.
