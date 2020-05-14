@@ -1,5 +1,5 @@
 ---
-title: 'I18n: externalize strings from ./app/views/users/calendar_activities.html.haml'
-merge_request:
+title: Externalize i18n strings from ./app/views/users/calendar_activities.html.haml
+merge_request: 32094
 author: Gilang Gumilar
 type: changed
