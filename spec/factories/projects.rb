@@ -265,17 +265,6 @@ FactoryBot.define do
       end
     end
 
-    trait :broken_wiki_repo do
-      after(:create) do |project|
-        wiki_repo = project.wiki.repository
-        Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-          FileUtils.rm_rf(wiki_repo.path)
-        end
-        # exists is cached using cache_method_asymmetrically
-        wiki_repo.clear_memoization(:exists)
-      end
-    end
-
     trait :read_only do
       repository_read_only { true }
     end

@@ -62,11 +62,26 @@ RSpec.describe Gitlab::GitAccessWiki do
         end
       end
 
-      context 'when the wiki repository does not exist' do
-        let(:project) { create(:project, :broken_wiki_repo) }
+      context 'when wiki feature is enabled' do
+        it 'gives access to download wiki code' do
+          expect { subject }.not_to raise_error
+        end
 
-        it_behaves_like 'not-found git access' do
-          let(:message) { include('for this wiki') }
+        context 'when the wiki repository does not exist' do
+          let(:project) { create(:project) }
+
+          before do
+            wiki_repo = project.wiki.repository
+            Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+              FileUtils.rm_rf(wiki_repo.path)
+            end
+            # exists is cached using cache_method_asymmetrically
+            wiki_repo.clear_memoization(:exists)
+          end
+
+          it_behaves_like 'not-found git access' do
+            let(:message) { include('for this wiki') }
+          end
         end
       end
     end
