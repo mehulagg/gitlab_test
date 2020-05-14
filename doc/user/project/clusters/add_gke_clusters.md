@@ -74,7 +74,7 @@ To create and add a new Kubernetes cluster to your project, group, or instance:
 After a couple of minutes, your cluster will be ready to go. You can now proceed
 to install some [pre-defined applications](index.md#installing-applications).
 
-**Note:** You will need to enable autoscaling on the cluster in order to scale beyond a default setup.
+**Note:** For the purposes of running CI, the number of nodes in your cluster is going to be how many simultaneous jobs you can run at given time. You will need to enable autoscaling on the cluster in order to scale beyond a default setup.
 
 ### Cloud Run for Anthos
 
