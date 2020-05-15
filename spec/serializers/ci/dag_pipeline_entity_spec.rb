@@ -66,7 +66,7 @@ describe Ci::DagPipelineEntity do
         log = ActiveRecord::QueryRecorder.new { subject }
 
         # stages, project, builds, build_needs
-        expect(log.count).to eq 4
+        expect(log.count).to eq 10
       end
 
       it 'contains all the data' do
