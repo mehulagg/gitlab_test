@@ -19234,8 +19234,6 @@ CREATE UNIQUE INDEX index_feature_gates_on_feature_key_and_key_and_value ON publ
 
 CREATE UNIQUE INDEX index_features_on_key ON public.features USING btree (key);
 
-CREATE INDEX index_for_migrating_user_highest_roles_table ON public.users USING btree (id) WHERE (((state)::text = 'active'::text) AND (user_type IS NULL) AND (bot_type IS NULL) AND (ghost IS NOT TRUE));
-
 CREATE INDEX index_for_resource_group ON public.ci_builds USING btree (resource_group_id, id) WHERE (resource_group_id IS NOT NULL);
 
 CREATE INDEX index_for_status_per_branch_per_project ON public.merge_trains USING btree (target_project_id, target_branch, status);
