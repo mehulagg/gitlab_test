@@ -40,6 +40,8 @@ There are two kinds of events logged:
 
 Impersonation is where an administrator uses credentials to perform an action as a different user.
 
+You'll find impersonation data with other [instance events](#instance-events-premium-only).
+
 ### Group events **(STARTER)**
 
 NOTE: **Note:**
