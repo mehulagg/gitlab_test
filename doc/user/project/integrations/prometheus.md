@@ -158,29 +158,11 @@ You can view the performance dashboard for an environment by [clicking on the mo
 
 ### Adding custom metrics
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/3799) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.6.
-> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/28527) to [GitLab Core](https://about.gitlab.com/pricing/) 12.10.
+This document was moved to [another location](../metrics/custom_metrics.md).
 
-Custom metrics can be monitored by adding them on the monitoring dashboard page. Once saved, they will be displayed on the environment performance dashboard provided that either:
+### Query Variables
 
-- A [connected Kubernetes cluster](../clusters/add_remove_clusters.md) with the environment scope of `*` is used and [Prometheus installed on the cluster](#enabling-prometheus-integration)
-- Prometheus is [manually configured](#manual-configuration-of-prometheus).
-
-![Add New Metric](img/prometheus_add_metric.png)
-
-A few fields are required:
-
-- **Name**: Chart title
-- **Type**: Type of metric. Metrics of the same type will be shown together.
-- **Query**: Valid [PromQL query](https://prometheus.io/docs/prometheus/latest/querying/basics/).
-- **Y-axis label**: Y axis title to display on the dashboard.
-- **Unit label**: Query units, for example `req / sec`. Shown next to the value.
-
-Multiple metrics can be displayed on the same chart if the fields **Name**, **Type**, and **Y-axis label** match between metrics. For example, a metric with **Name** `Requests Rate`, **Type** `Business`, and **Y-axis label** `rec / sec` would display on the same chart as a second metric with the same values. A **Legend label** is suggested if this feature is used.
-
-#### Query Variables
-
-##### Predefined variables
+#### Predefined variables
 
 GitLab supports a limited set of [CI variables](../../../ci/variables/README.md) in the Prometheus query. This is particularly useful for identifying a specific environment, for example with `ci_environment_slug`. The supported variables are:
 
@@ -194,11 +176,11 @@ GitLab supports a limited set of [CI variables](../../../ci/variables/README.md)
 NOTE: **Note:**
 Variables for Prometheus queries must be lowercase.
 
-##### User-defined variables
+#### User-defined variables
 
 [Variables can be defined](#templating-templating-properties) in a custom dashboard YAML file.
 
-##### Using variables
+#### Using variables
 
 Variables can be specified using double curly braces, such as `"{{ci_environment_slug}}"` ([added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20793) in GitLab 12.7).
 
@@ -206,7 +188,7 @@ Support for the `"%{ci_environment_slug}"` format was
 [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31581) in GitLab 13.0.
 Queries that continue to use the old format will show no data.
 
-#### Query Variables from URL
+### Query Variables from URL
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/214500) in GitLab 13.0.
 
@@ -223,7 +205,7 @@ The URL for this query would be:
 http://gitlab.com/<user>/<project>/-/environments/<environment_id>/metrics?dashboard=.gitlab%2Fdashboards%2Fcustom.yml&pod=POD
 ```
 
-#### Editing additional metrics from the dashboard
+### Editing additional metrics from the dashboard
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/208976) in GitLab 12.9.
 
