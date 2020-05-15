@@ -5,11 +5,7 @@ import FooterApp from 'ee/vulnerabilities/components/footer.vue';
 
 function createHeaderApp() {
   const el = document.getElementById('js-vulnerability-header');
-  const initialVulnerability = JSON.parse(el.dataset.vulnerabilityJson);
-  const pipeline = JSON.parse(el.dataset.pipelineJson);
-  const finding = JSON.parse(el.dataset.findingJson);
-
-  const { projectFingerprint, createIssueUrl, createMrUrl } = el.dataset;
+  const vulnerability = JSON.parse(el.dataset.vulnerability);
 
   return new Vue({
     el,
@@ -17,12 +13,7 @@ function createHeaderApp() {
     render: h =>
       h(HeaderApp, {
         props: {
-          createMrUrl,
-          initialVulnerability,
-          finding,
-          pipeline,
-          projectFingerprint,
-          createIssueUrl,
+          initialVulnerability: vulnerability,
         },
       }),
   });
@@ -46,13 +37,19 @@ function createFooterApp() {
     return false;
   }
 
-  const { vulnerabilityFeedbackHelpPath, hasMr, discussionsUrl, notesUrl } = el.dataset;
-  const vulnerability = JSON.parse(el.dataset.vulnerabilityJson);
-  const finding = JSON.parse(el.dataset.findingJson);
-  const { issue_feedback: feedback, remediation, solution } = finding;
-  const hasDownload = Boolean(
-    vulnerability.state !== 'resolved' && remediation?.diff?.length && !hasMr,
-  );
+  const {
+    vulnerabilityFeedbackHelpPath,
+    hasMr,
+    discussions_url: discussionsUrl,
+    state,
+    issue_feedback: feedback,
+    project,
+    remediation,
+    solution,
+  } = JSON.parse(el.dataset.vulnerability);
+
+  const hasDownload = Boolean(state !== 'resolved' && remediation?.diff?.length && !hasMr);
+  const hasRemediation = Boolean(remediation);
 
   const props = {
     discussionsUrl,
@@ -62,14 +59,14 @@ function createFooterApp() {
       remediation,
       hasDownload,
       hasMr,
-      hasRemediation: Boolean(remediation),
+      hasRemediation,
       vulnerabilityFeedbackHelpPath,
       isStandaloneVulnerability: true,
     },
     feedback,
     project: {
-      url: finding.project.full_path,
-      value: finding.project.full_name,
+      url: project.full_path,
+      value: project.full_name,
     },
   };
 
