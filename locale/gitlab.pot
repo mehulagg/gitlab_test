@@ -23496,6 +23496,12 @@ msgstr ""
 msgid "UserProfile|Your projects can be available publicly, internally, or privately, at your choice."
 msgstr ""
 
+msgid "UserProfile|at"
+msgstr ""
+
+msgid "UserProfile|made a private contribution"
+msgstr ""
+
 msgid "Username (optional)"
 msgstr ""
 
@@ -25013,9 +25019,6 @@ msgstr ""
 msgid "assign yourself"
 msgstr ""
 
-msgid "at"
-msgstr ""
-
 msgid "at risk"
 msgstr ""
 
@@ -25595,9 +25598,6 @@ msgid "locked by %{path_lock_user_name} %{created_at}"
 msgstr ""
 
 msgid "log in"
-msgstr ""
-
-msgid "made a private contribution"
 msgstr ""
 
 msgid "manual"
