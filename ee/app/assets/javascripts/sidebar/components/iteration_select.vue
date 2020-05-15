@@ -74,8 +74,9 @@ export default {
         };
       },
       update(data) {
-        // if data.group.sprints.nodes.length == 0
-        return data.group.iterations.nodes; // map the ids and convert?
+        // TODO: when nodes.length === 0, need to add a place holder to the dropdown
+        // TODO: need to map and convert gid at a later point.
+        return data.group.iterations.nodes;
       },
     },
   },
@@ -83,11 +84,14 @@ export default {
     return {
       searchTerm: '',
       editing: false,
+      currentIteration: null,
+      iterations: [],
     };
   },
   computed: {
     selectedIteration() {
       if (this.iterations) {
+        console.log(this.iteration)
         return this.iteration;
       }
     },
@@ -121,6 +125,8 @@ export default {
       });
     }, 250),
     setIteration(iterationId) {
+      if (iterationId === this.currentIteration) return;
+
       this.editing = false;
 
       this.$apollo
@@ -186,11 +192,11 @@ export default {
       data-toggle="dropdown"
       :text="selectedIteration"
       class="dropdown w-100"
-      :class="editing && 'show'"
+      :class="{ show: editing }"
     >
       <gl-new-dropdown-header>{{ __('Assign Iteration') }}</gl-new-dropdown-header>
       <gl-new-dropdown-divider />
-      <gl-search-box-by-type :value="searchTerm" @input="search" />
+      <gl-search-box-by-type ref="input" :value="searchTerm" @input="search" />
       <gl-new-dropdown-item
         :is-checked="isIterationChecked()"
         :active="true"
