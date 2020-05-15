@@ -176,8 +176,8 @@ Read more on [how to use private Maven repositories](../index.md#using-private-m
 
 ### Enabling Docker-in-Docker
 
-If needed, you can enable Docker-in-Docker to restore the SAST behavior that existed prior to %13.0.
-Follow these steps to do so:
+If needed, you can enable Docker-in-Docker to restore the SAST behavior that existed prior to GitLab
+13.0. Follow these steps to do so:
 
 1. Configure GitLab Runner with Docker-inDocker in [privileged mode](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
 1. Set the variable `SAST_DISABLE_DIND` set to `false`:
