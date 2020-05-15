@@ -113,7 +113,7 @@ The following API resources are available outside of project and group contexts 
 
 | Resource                                           | Available endpoints                                                     |
 |:---------------------------------------------------|:------------------------------------------------------------------------|
-| [Instance-level CI/CD variables](admin_ci_instance_level_variables.md) | `/admin/ci/variables`                               |
+| [Instance-level CI/CD variables](instance_level_ci_variables.md) | `/admin/ci/variables`                                     |
 | [Admin Sidekiq queues](admin_sidekiq_queues.md)    | `/admin/sidekiq/queues/:queue_name`                                     |
 | [Appearance](appearance.md) **(CORE ONLY)**        | `/application/appearance`                                               |
 | [Applications](applications.md)                    | `/applications`                                                         |
@@ -139,6 +139,7 @@ The following API resources are available outside of project and group contexts 
 | [Notification settings](notification_settings.md)  | `/notification_settings` (also available for groups and projects)       |
 | [Pages domains](pages_domains.md)                  | `/pages/domains` (also available for projects)                          |
 | [Projects](projects.md)                            | `/users/:id/projects` (also available for projects)                     |
+| [Project Repository Storage Moves](project_repository_storage_moves.md) | `/project_repository_storage_moves`                |
 | [Runners](runners.md)                              | `/runners` (also available for projects)                                |
 | [Search](search.md)                                | `/search` (also available for groups and projects)                      |
 | [Settings](settings.md) **(CORE ONLY)**            | `/application/settings`                                                 |

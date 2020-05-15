@@ -24,7 +24,8 @@ module API
                     Gitlab::GrapeLogging::Loggers::ExceptionLogger.new,
                     Gitlab::GrapeLogging::Loggers::QueueDurationLogger.new,
                     Gitlab::GrapeLogging::Loggers::PerfLogger.new,
-                    Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new
+                    Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new,
+                    Gitlab::GrapeLogging::Loggers::ContextLogger.new
                   ]
 
     allow_access_with_scope :api
@@ -141,6 +142,7 @@ module API
       mount ::API::Events
       mount ::API::Features
       mount ::API::Files
+      mount ::API::FreezePeriods
       mount ::API::GroupBoards
       mount ::API::GroupClusters
       mount ::API::GroupExport
@@ -180,6 +182,7 @@ module API
       mount ::API::ProjectImport
       mount ::API::ProjectHooks
       mount ::API::ProjectMilestones
+      mount ::API::ProjectRepositoryStorageMoves
       mount ::API::Projects
       mount ::API::ProjectSnapshots
       mount ::API::ProjectSnippets

@@ -153,9 +153,15 @@ To configure the connection to the external read-replica database and enable Log
 **Secondary** nodes use a separate PostgreSQL installation as a tracking
 database to keep track of replication status and automatically recover from
 potential replication issues. Omnibus automatically configures a tracking database
-when `roles ['geo_secondary_role']` is set. For high availability,
-refer to [Geo High Availability](../../reference_architectures/index.md).
+when `roles ['geo_secondary_role']` is set.
 If you want to run this database external to Omnibus, please follow the instructions below.
+
+If you are using a cloud-managed service for the tracking database, you may need
+to grant additional roles to your tracking database user (by default, this is
+`gitlab_geo`):
+
+- Amazon RDS requires the [`rds_superuser`](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.html#Appendix.PostgreSQL.CommonDBATasks.Roles) role.
+- Azure Database for PostgreSQL requires the [`azure_pg_admin`](https://docs.microsoft.com/en-us/azure/postgresql/howto-create-users#how-to-create-additional-admin-users-in-azure-database-for-postgresql) role.
 
 The tracking database requires an [FDW](https://www.postgresql.org/docs/11/postgres-fdw.html)
 connection with the **secondary** replica database for improved performance.

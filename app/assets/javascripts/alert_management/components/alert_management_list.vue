@@ -10,7 +10,6 @@ import {
   GlDropdownItem,
   GlTabs,
   GlTab,
-  GlBadge,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
@@ -87,7 +86,6 @@ export default {
     GlIcon,
     GlTabs,
     GlTab,
-    GlBadge,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -118,7 +116,7 @@ export default {
       variables() {
         return {
           projectPath: this.projectPath,
-          status: this.statusFilter,
+          statuses: this.statusFilter,
         };
       },
       update(data) {
@@ -135,7 +133,7 @@ export default {
       errored: false,
       isAlertDismissed: false,
       isErrorAlertDismissed: false,
-      statusFilter: this.$options.statusTabs[0].status,
+      statusFilter: this.$options.statusTabs[4].filters,
     };
   },
   computed: {
@@ -150,8 +148,8 @@ export default {
     },
   },
   methods: {
-    filterALertsByStatus(tabIndex) {
-      this.statusFilter = this.$options.statusTabs[tabIndex].status;
+    filterAlertsByStatus(tabIndex) {
+      this.statusFilter = this.$options.statusTabs[tabIndex].filters;
     },
     capitalizeFirstCharacter,
     updateAlertStatus(status, iid) {
@@ -186,13 +184,10 @@ export default {
         {{ $options.i18n.errorMsg }}
       </gl-alert>
 
-      <gl-tabs v-if="glFeatures.alertListStatusFilteringEnabled" @input="filterALertsByStatus">
+      <gl-tabs v-if="glFeatures.alertListStatusFilteringEnabled" @input="filterAlertsByStatus">
         <gl-tab v-for="tab in $options.statusTabs" :key="tab.status">
           <template slot="title">
             <span>{{ tab.title }}</span>
-            <gl-badge v-if="alerts" size="sm" class="gl-tab-counter-badge">
-              {{ alerts.length }}
-            </gl-badge>
           </template>
         </gl-tab>
       </gl-tabs>

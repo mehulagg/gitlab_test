@@ -4668,9 +4668,9 @@ CREATE TABLE public.packages_package_files (
     file_sha256 bytea,
     verification_retry_at timestamp with time zone,
     verified_at timestamp with time zone,
-    verification_checksum character varying(255),
     verification_failure character varying(255),
-    verification_retry_count integer
+    verification_retry_count integer,
+    verification_checksum bytea
 );
 
 CREATE SEQUENCE public.packages_package_files_id_seq
@@ -5252,7 +5252,9 @@ CREATE TABLE public.project_settings (
     project_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    push_rule_id bigint
+    push_rule_id bigint,
+    show_default_award_emojis boolean DEFAULT true,
+    CONSTRAINT check_bde223416c CHECK ((show_default_award_emojis IS NOT NULL))
 );
 
 CREATE TABLE public.project_statistics (
@@ -6242,11 +6244,11 @@ CREATE TABLE public.sprints (
     group_id bigint,
     iid integer NOT NULL,
     cached_markdown_version integer,
-    state smallint,
     title text NOT NULL,
     title_html text,
     description text,
     description_html text,
+    state_enum smallint DEFAULT 1 NOT NULL,
     CONSTRAINT sprints_must_belong_to_project_or_group CHECK ((((project_id <> NULL::bigint) AND (group_id IS NULL)) OR ((group_id <> NULL::bigint) AND (project_id IS NULL)))),
     CONSTRAINT sprints_title CHECK ((char_length(title) <= 255))
 );
@@ -13659,6 +13661,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200319203901
 20200320112455
 20200320123839
+20200320212400
 20200323011225
 20200323011955
 20200323071918
@@ -13738,6 +13741,8 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200408175424
 20200408212219
 20200409085956
+20200409105455
+20200409105456
 20200409211607
 20200410104828
 20200410232012
@@ -13789,6 +13794,8 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200424101920
 20200424135319
 20200427064130
+20200429001827
+20200429002150
 20200429015603
 20200429181335
 20200429181955
@@ -13808,10 +13815,14 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200511121549
 20200511121610
 20200511121620
+20200511130129
+20200511130130
 20200511145545
 20200511162057
 20200511162115
 20200512085150
+20200512164334
+20200513160930
 20200513234502
 20200513235347
 20200513235532

@@ -8,7 +8,7 @@ describe GroupPolicy do
   context 'when epics feature is disabled' do
     let(:current_user) { owner }
 
-    it { is_expected.to be_disallowed(:read_epic, :create_epic, :admin_epic, :destroy_epic) }
+    it { is_expected.to be_disallowed(:read_epic, :create_epic, :admin_epic, :destroy_epic, :read_confidential_epic) }
   end
 
   context 'when epics feature is enabled' do
@@ -16,9 +16,51 @@ describe GroupPolicy do
       stub_licensed_features(epics: true)
     end
 
-    let(:current_user) { owner }
+    context 'when user is owner' do
+      let(:current_user) { owner }
 
-    it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :destroy_epic) }
+      it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :destroy_epic, :read_confidential_epic) }
+    end
+
+    context 'when user is maintainer' do
+      let(:current_user) { maintainer }
+
+      it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :read_confidential_epic) }
+      it { is_expected.to be_disallowed(:destroy_epic) }
+    end
+
+    context 'when user is developer' do
+      let(:current_user) { developer }
+
+      it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :read_confidential_epic) }
+      it { is_expected.to be_disallowed(:destroy_epic) }
+    end
+
+    context 'when user is reporter' do
+      let(:current_user) { reporter }
+
+      it { is_expected.to be_allowed(:read_epic, :create_epic, :admin_epic, :read_confidential_epic) }
+      it { is_expected.to be_disallowed(:destroy_epic) }
+    end
+
+    context 'when user is guest' do
+      let(:current_user) { guest }
+
+      it { is_expected.to be_allowed(:read_epic) }
+      it { is_expected.to be_disallowed(:create_epic, :admin_epic, :destroy_epic, :read_confidential_epic) }
+    end
+
+    context 'when user is not member' do
+      let(:current_user) { create(:user) }
+
+      it { is_expected.to be_disallowed(:read_epic, :create_epic, :admin_epic, :destroy_epic, :read_confidential_epic) }
+    end
+
+    context 'when user is anonymous' do
+      let(:current_user) { nil }
+
+      it { is_expected.to be_disallowed(:read_epic, :create_epic, :admin_epic, :destroy_epic, :read_confidential_epic) }
+    end
   end
 
   context 'when iterations feature is disabled' do
@@ -418,8 +460,15 @@ describe GroupPolicy do
       context 'admin' do
         let(:current_user) { admin }
 
-        it { is_expected.to be_allowed(:override_group_member) }
-        it { is_expected.to be_allowed(:update_group_member) }
+        context 'when admin mode enabled', :enable_admin_mode do
+          it { is_expected.to be_allowed(:override_group_member) }
+          it { is_expected.to be_allowed(:update_group_member) }
+        end
+
+        context 'when admin mode disabled' do
+          it { is_expected.to be_disallowed(:override_group_member) }
+          it { is_expected.to be_disallowed(:update_group_member) }
+        end
       end
 
       context 'owner' do
@@ -801,7 +850,13 @@ describe GroupPolicy do
             stub_ee_application_setting(group_owners_can_manage_default_branch_protection: false)
           end
 
-          it { is_expected.to be_allowed(:update_default_branch_protection) }
+          context 'when admin mode is enabled', :enable_admin_mode do
+            it { is_expected.to be_allowed(:update_default_branch_protection) }
+          end
+
+          context 'when admin mode is disabled' do
+            it { is_expected.to be_disallowed(:update_default_branch_protection) }
+          end
         end
       end
 

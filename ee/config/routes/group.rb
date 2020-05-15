@@ -36,6 +36,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
             end
           end
           resource :summary, controller: :summary, only: :show
+          get '/time_summary' => 'summary#time_summary'
         end
         get '/cycle_analytics', to: redirect('-/analytics/value_stream_analytics')
       end
@@ -108,6 +109,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         post :bulk_update
       end
     end
+
+    resources :iterations, only: [:index, :new, :show], constraints: { id: /\d+/ }
 
     resources :issues, only: [] do
       collection do
