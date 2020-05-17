@@ -47,6 +47,7 @@ export default class Shortcuts {
     Mousetrap.bind('shift+g', () => findAndFollowLink('.dashboard-shortcuts-groups'));
     Mousetrap.bind('shift+l', () => findAndFollowLink('.dashboard-shortcuts-milestones'));
     Mousetrap.bind('shift+s', () => findAndFollowLink('.dashboard-shortcuts-snippets'));
+    Mousetrap.bind('shift+u', () => findAndFollowLink('.dashboard-shortcuts-security'));
 
     Mousetrap.bind(['ctrl+shift+p', 'command+shift+p'], Shortcuts.toggleMarkdownPreview);
 

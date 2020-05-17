@@ -22,6 +22,7 @@ export default class ShortcutsNavigation extends Shortcuts {
     Mousetrap.bind('g k', () => findAndFollowLink('.shortcuts-kubernetes'));
     Mousetrap.bind('g e', () => findAndFollowLink('.shortcuts-environments'));
     Mousetrap.bind('g l', () => findAndFollowLink('.shortcuts-metrics'));
+    Mousetrap.bind('g u', () => findAndFollowLink('.shortcuts-security-dashboard'));
     Mousetrap.bind('i', () => findAndFollowLink('.shortcuts-new-issue'));
   }
 }
