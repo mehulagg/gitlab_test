@@ -133,11 +133,11 @@ export default {
     <div v-if="loading"><gl-loading-icon size="lg" class="gl-mt-5" /></div>
     <div v-if="alert" class="alert-management-details gl-relative">
       <div
-        class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
+        class="gl-display-flex gl-justify-content-space-between gl-align-items-center gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
       >
         <div data-testid="alert-header" class="gl-display-flex gl-align-items-center">
           <gl-icon
-            class="gl-mr-3 align-middle"
+            class="gl-mr-3"
             :size="12"
             :name="`severity-${alert.severity.toLowerCase()}`"
             :class="`icon-${alert.severity.toLowerCase()}`"
@@ -156,7 +156,7 @@ export default {
           </span>
         </div>
         <gl-button
-          v-if="true"
+          v-if="glFeatures.createIssueFromAlertEnabled"
           class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline"
           data-testid="createIssueBtn"
           :href="newIssuePath"
