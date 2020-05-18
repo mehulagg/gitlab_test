@@ -1,3 +1,11 @@
+GIT
+  remote: https://gitlab.com/gitlab-org/gitaly.git
+  revision: fb1544e67b827544e4e330415a29f713786c7b72
+  branch: jc-streaming-backup-create-full
+  specs:
+    gitaly (13.0.0.pre.rc1)
+      grpc (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -377,8 +385,6 @@ GEM
       po_to_json (>= 1.0.0)
       rails (>= 3.2.0)
     git (1.5.0)
-    gitaly (13.0.0.pre.rc1)
-      grpc (~> 1.0)
     github-markup (1.7.0)
     gitlab-chronic (0.10.5)
       numerizer (~> 0.2)
@@ -1234,7 +1240,7 @@ DEPENDENCIES
   gettext (~> 3.2.2)
   gettext_i18n_rails (~> 1.8.0)
   gettext_i18n_rails_js (~> 1.3)
-  gitaly (~> 13.0.0.pre.rc1)
+  gitaly!
   github-markup (~> 1.7.0)
   gitlab-chronic (~> 0.10.5)
   gitlab-labkit (= 0.12.0)

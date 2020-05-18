@@ -454,7 +454,8 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 13.0.0.pre.rc1'
+gem 'gitaly', git: 'https://gitlab.com/gitlab-org/gitaly.git', branch: 'jc-streaming-backup-create-full'
+#gem 'gitaly'
 
 gem 'grpc', '~> 1.24.0'
 

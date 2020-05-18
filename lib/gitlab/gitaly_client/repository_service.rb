@@ -359,6 +359,20 @@ module Gitlab
         GitalyClient.call(@storage, :repository_service, :remove_repository, request, timeout: GitalyClient.long_timeout)
       end
 
+      def create_full_backup(url, token)
+        request = Gitaly::CreateBackupRequest.new(repository: @gitaly_repo, post_url: url, token: token)
+
+        resp = GitalyClient.call(@storage, :repository_service, :create_backup, request, timeout: GitalyClient.long_timeout)
+
+        resp.object_url
+      end
+
+      def restore_from_backup(url, token)
+        request = Gitaly::RestoreFromBackupRequest.new(repository: @gitaly_repo, url: url, token: token)
+
+        GitalyClient.call(@storage, :repository_service, :restore_from_backup, request, timeout: GitalyClient.long_timeout)
+      end
+
       def replicate(source_repository)
         request = Gitaly::ReplicateRepositoryRequest.new(
           repository: @gitaly_repo,

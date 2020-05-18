@@ -439,6 +439,7 @@ CREATE TABLE public.application_settings (
     issues_create_limit integer DEFAULT 300 NOT NULL,
     push_rule_id bigint,
     group_owners_can_manage_default_branch_protection boolean DEFAULT true NOT NULL,
+    repository_storages_weighted jsonb,
     container_registry_vendor text DEFAULT ''::text NOT NULL,
     container_registry_version text DEFAULT ''::text NOT NULL,
     container_registry_features text[] DEFAULT '{}'::text[] NOT NULL,
@@ -1072,11 +1073,14 @@ ALTER SEQUENCE public.ci_daily_report_results_id_seq OWNED BY public.ci_daily_re
 CREATE TABLE public.ci_freeze_periods (
     id bigint NOT NULL,
     project_id bigint NOT NULL,
-    freeze_start character varying(998) NOT NULL,
-    freeze_end character varying(998) NOT NULL,
-    cron_timezone character varying(255) NOT NULL,
+    freeze_start text NOT NULL,
+    freeze_end text NOT NULL,
+    cron_timezone text NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    CONSTRAINT check_4a7939e04e CHECK ((char_length(freeze_end) <= 998)),
+    CONSTRAINT check_a92607bd2b CHECK ((char_length(freeze_start) <= 998)),
+    CONSTRAINT check_b14055adc3 CHECK ((char_length(cron_timezone) <= 255))
 );
 
 CREATE SEQUENCE public.ci_freeze_periods_id_seq
@@ -5253,8 +5257,7 @@ CREATE TABLE public.project_settings (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     push_rule_id bigint,
-    show_default_award_emojis boolean DEFAULT true,
-    CONSTRAINT check_bde223416c CHECK ((show_default_award_emojis IS NOT NULL))
+    show_default_award_emojis boolean DEFAULT true NOT NULL
 );
 
 CREATE TABLE public.project_statistics (
@@ -13809,6 +13812,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200506154421
 20200507221434
 20200508091106
+20200508203901
 20200511092714
 20200511115430
 20200511115431
