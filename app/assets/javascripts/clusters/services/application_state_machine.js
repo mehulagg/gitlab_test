@@ -1,3 +1,4 @@
+import { transition } from '../../lib/utils/finite_state_machine';
 import { APPLICATION_STATUS, UPDATE_EVENT, INSTALL_EVENT, UNINSTALL_EVENT } from '../constants';
 
 const {
@@ -16,168 +17,87 @@ const {
   PRE_INSTALLED,
 } = APPLICATION_STATUS;
 
-const applicationStateMachine = {
-  /* When the application initially loads, it will have `NO_STATUS`
-   * It will transition from `NO_STATUS` once the async backend call is completed
-   */
+function exitContext(before, event) {
+  const contextKey = `${before}:${event}`;
+  const extraContext = {
+    [`${NO_STATUS}:${ERROR}`]: { installFailed: true },
+    [`${NO_STATUS}:${UPDATE_ERRORED}`]: { updateFailed: true },
+    [`${NO_STATUS}:${UNINSTALL_ERRORED}`]: { uninstallFailed: true },
+    [`${INSTALLABLE}:${INSTALL_EVENT}`]: { installFailed: false },
+    [`${INSTALLING}:${ERROR}`]: { installFailed: true },
+    [`${INSTALLED}:${UPDATE_EVENT}`]: { updateFailed: false, updateSuccessful: false },
+    [`${INSTALLED}:${UNINSTALL_EVENT}`]: { uninstallFailed: false, uninstallSuccessful: false },
+    [`${PRE_INSTALLED}:${UPDATE_EVENT}`]: { updateFailed: false, updateSuccessful: false },
+    [`${PRE_INSTALLED}:${UNINSTALL_EVENT}`]: { uninstallFailed: false, uninstallSuccessful: false },
+    [`${UPDATING}:${UPDATED}`]: { updateSuccessful: true },
+    [`${UPDATING}:${UPDATE_ERRORED}`]: { updateFailed: true },
+    [`${UNINSTALLING}:${INSTALLABLE}`]: { uninstallSuccessful: true },
+    [`${UNINSTALLING}:${UNINSTALL_ERRORED}`]: { uninstallFailed: true },
+  };
+
+  return extraContext[contextKey] || {};
+}
+
+const states = {
   [NO_STATUS]: {
     on: {
-      [SCHEDULED]: {
-        target: INSTALLING,
-      },
-      [NOT_INSTALLABLE]: {
-        target: NOT_INSTALLABLE,
-      },
-      [INSTALLABLE]: {
-        target: INSTALLABLE,
-      },
-      [INSTALLING]: {
-        target: INSTALLING,
-      },
-      [INSTALLED]: {
-        target: INSTALLED,
-      },
-      [ERROR]: {
-        target: INSTALLABLE,
-        effects: {
-          installFailed: true,
-        },
-      },
-      [UPDATING]: {
-        target: UPDATING,
-      },
-      [UPDATED]: {
-        target: INSTALLED,
-      },
-      [UPDATE_ERRORED]: {
-        target: INSTALLED,
-        effects: {
-          updateFailed: true,
-        },
-      },
-      [UNINSTALLING]: {
-        target: UNINSTALLING,
-      },
-      [UNINSTALL_ERRORED]: {
-        target: INSTALLED,
-        effects: {
-          uninstallFailed: true,
-        },
-      },
-      [PRE_INSTALLED]: {
-        target: PRE_INSTALLED,
-      },
+      [SCHEDULED]: INSTALLING,
+      [NOT_INSTALLABLE]: NOT_INSTALLABLE,
+      [INSTALLABLE]: INSTALLABLE,
+      [INSTALLING]: INSTALLING,
+      [INSTALLED]: INSTALLED,
+      [ERROR]: INSTALLABLE,
+      [UPDATING]: UPDATING,
+      [UPDATED]: INSTALLED,
+      [UPDATE_ERRORED]: INSTALLED,
+      [UNINSTALLING]: UNINSTALLING,
+      [UNINSTALL_ERRORED]: INSTALLED,
+      [PRE_INSTALLED]: PRE_INSTALLED,
     },
   },
   [NOT_INSTALLABLE]: {
     on: {
-      [INSTALLABLE]: {
-        target: INSTALLABLE,
-      },
+      [INSTALLABLE]: INSTALLABLE,
     },
   },
   [INSTALLABLE]: {
     on: {
-      [INSTALL_EVENT]: {
-        target: INSTALLING,
-        effects: {
-          installFailed: false,
-        },
-      },
-      [NOT_INSTALLABLE]: {
-        target: NOT_INSTALLABLE,
-      },
+      [INSTALL_EVENT]: INSTALLING,
+      [NOT_INSTALLABLE]: NOT_INSTALLABLE,
       // This is possible in artificial environments for E2E testing
-      [INSTALLED]: {
-        target: INSTALLED,
-      },
+      [INSTALLED]: INSTALLED,
     },
   },
   [INSTALLING]: {
     on: {
-      [INSTALLED]: {
-        target: INSTALLED,
-      },
-      [ERROR]: {
-        target: INSTALLABLE,
-        effects: {
-          installFailed: true,
-        },
-      },
+      [INSTALLED]: INSTALLED,
+      [ERROR]: INSTALLABLE,
     },
   },
   [INSTALLED]: {
     on: {
-      [UPDATE_EVENT]: {
-        target: UPDATING,
-        effects: {
-          updateFailed: false,
-          updateSuccessful: false,
-        },
-      },
-      [NOT_INSTALLABLE]: {
-        target: NOT_INSTALLABLE,
-      },
-      [UNINSTALL_EVENT]: {
-        target: UNINSTALLING,
-        effects: {
-          uninstallFailed: false,
-          uninstallSuccessful: false,
-        },
-      },
+      [UPDATE_EVENT]: UPDATING,
+      [NOT_INSTALLABLE]: NOT_INSTALLABLE,
+      [UNINSTALL_EVENT]: UNINSTALLING,
     },
   },
   [PRE_INSTALLED]: {
     on: {
-      [UPDATE_EVENT]: {
-        target: UPDATING,
-        effects: {
-          updateFailed: false,
-          updateSuccessful: false,
-        },
-      },
-      [NOT_INSTALLABLE]: {
-        target: NOT_INSTALLABLE,
-      },
-      [UNINSTALL_EVENT]: {
-        target: UNINSTALLING,
-        effects: {
-          uninstallFailed: false,
-          uninstallSuccessful: false,
-        },
-      },
+      [UPDATE_EVENT]: UPDATING,
+      [NOT_INSTALLABLE]: NOT_INSTALLABLE,
+      [UNINSTALL_EVENT]: UNINSTALLING,
     },
   },
   [UPDATING]: {
     on: {
-      [UPDATED]: {
-        target: INSTALLED,
-        effects: {
-          updateSuccessful: true,
-        },
-      },
-      [UPDATE_ERRORED]: {
-        target: INSTALLED,
-        effects: {
-          updateFailed: true,
-        },
-      },
+      [UPDATED]: INSTALLED,
+      [UPDATE_ERRORED]: INSTALLED,
     },
   },
   [UNINSTALLING]: {
     on: {
-      [INSTALLABLE]: {
-        target: INSTALLABLE,
-        effects: {
-          uninstallSuccessful: true,
-        },
-      },
-      [UNINSTALL_ERRORED]: {
-        target: INSTALLED,
-        effects: {
-          uninstallFailed: true,
-        },
-      },
+      [INSTALLABLE]: INSTALLABLE,
+      [UNINSTALL_ERRORED]: INSTALLED,
     },
   },
 };
@@ -191,14 +111,13 @@ const applicationStateMachine = {
  * @param {*} event
  */
 const transitionApplicationState = (application, event) => {
-  const stateMachine = applicationStateMachine[application.status];
-  const newState = stateMachine !== undefined ? stateMachine.on[event] : false;
+  const state = transition({ states }, application.status, event);
 
-  return newState
+  return state !== application.status
     ? {
         ...application,
-        status: newState.target,
-        ...newState.effects,
+        status: state,
+        ...exitContext(application.status, event),
       }
     : application;
 };
