@@ -168,8 +168,8 @@ describe('AlertDetails', () => {
       describe('individual header fields', () => {
         describe.each`
           severity    | createdAt                     | monitoringTool | result
-          ${'MEDIUM'} | ${'2020-04-17T23:18:14.996Z'} | ${null}        | ${'Medium • Reported now'}
-          ${'INFO'}   | ${'2020-04-17T23:18:14.996Z'} | ${'Datadog'}   | ${'Info • Reported now by Datadog'}
+          ${'MEDIUM'} | ${'2020-04-17T23:18:14.996Z'} | ${null}        | ${'Medium  Reported now'}
+          ${'INFO'}   | ${'2020-04-17T23:18:14.996Z'} | ${'Datadog'}   | ${'Info  Reported now by Datadog'}
         `(
           `When severity=$severity, createdAt=$createdAt, monitoringTool=$monitoringTool`,
           ({ severity, createdAt, monitoringTool, result }) => {
