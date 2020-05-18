@@ -135,22 +135,17 @@ export default {
       <div
         class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
       >
-        <div
-          data-testid="alert-header"
-          class="gl-display-flex gl-align-items-center gl-justify-content-center"
-        >
-          <div
-            class="gl-display-inline-flex gl-align-items-center gl-justify-content-space-between"
-          >
-            <gl-icon
-              class="gl-mr-3 align-middle"
-              :size="12"
-              :name="`severity-${alert.severity.toLowerCase()}`"
-              :class="`icon-${alert.severity.toLowerCase()}`"
-            />
-            <strong>{{ $options.severityLabels[alert.severity] }}</strong>
-          </div>
-          <span class="mx-2">&bull;</span>
+        <div data-testid="alert-header" class="gl-display-flex gl-align-items-center">
+          <gl-icon
+            class="gl-mr-3 align-middle"
+            :size="12"
+            :name="`severity-${alert.severity.toLowerCase()}`"
+            :class="`icon-${alert.severity.toLowerCase()}`"
+          />
+          <strong>{{ $options.severityLabels[alert.severity] }}</strong>
+          <svg class="gl-flex-shrink-0" height="21" width="21">
+            <circle cx="10.5" cy="10.5" r="2" />
+          </svg>
           <span>
             <gl-sprintf :message="reportedAtMessage">
               <template #when>
@@ -161,7 +156,7 @@ export default {
           </span>
         </div>
         <gl-button
-          v-if="glFeatures.createIssueFromAlertEnabled"
+          v-if="true"
           class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline"
           data-testid="createIssueBtn"
           :href="newIssuePath"
