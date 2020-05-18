@@ -1,0 +1,5 @@
+---
+title: Fix vertical alignment for Alert Detail header
+merge_request: 32398
+author:
+type: fixed
