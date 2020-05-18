@@ -590,7 +590,7 @@ See the following sections for additional instructions on specific languages and
 
 When using self-signed certificates or a custom cert authority, you may need to
 configure Maven with relaxed certificate checks when pulling from remote
-repositories. Please see the 
+repositories. Please see the
 [Maven Wagon documentation for available options.](https://maven.apache.org/wagon/wagon-providers/wagon-http/)
 
 Additionally, please see the
