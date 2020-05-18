@@ -10466,6 +10466,9 @@ msgstr ""
 msgid "Go to repository graph"
 msgstr ""
 
+msgid "Go to security dashboard"
+msgstr ""
+
 msgid "Go to snippets"
 msgstr ""
 
@@ -10500,6 +10503,9 @@ msgid "Go to your merge requests"
 msgstr ""
 
 msgid "Go to your projects"
+msgstr ""
+
+msgid "Go to your security dashboard"
 msgstr ""
 
 msgid "Go to your snippets"
