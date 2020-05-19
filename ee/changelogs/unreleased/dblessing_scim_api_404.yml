@@ -1,0 +1,5 @@
+---
+title: Allow SCIM API to return SAML identities again
+merge_request: 32578
+author:
+type: changed

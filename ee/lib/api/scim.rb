@@ -91,9 +91,13 @@ module API
 
         def find_user_identity(group, extern_uid)
           return unless group.saml_provider
-          return group.scim_identities.with_extern_uid(extern_uid).first if scim_identities_enabled?
+          scim_identity = group.scim_identities.with_extern_uid(extern_uid).first
 
-          GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: extern_uid)
+          return scim_identity if scim_identity.present? && scim_identities_enabled?
+
+          if !scim_identities_enabled? || ::Feature.enabled?(:scim_saml_identity_fallback, group)
+            GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: extern_uid)
+          end
         end
 
         def scim_identities_enabled?

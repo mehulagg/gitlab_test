@@ -549,5 +549,31 @@ describe API::Scim do
       it_behaves_like 'SCIM API endpoints'
       it_behaves_like 'SCIM API endpoints with scim_identities enabled'
     end
+
+    describe 'GET api/scim/v2/groups/:group/Users/:id' do
+      let(:group) { identity.saml_provider.group }
+      let(:identity) { create(:group_saml_identity, user: user, extern_uid: generate(:username)) }
+
+      context 'when scim_saml_identity_fallback is disabled' do
+        it 'returns not found when scim identity does not exist but saml identity does' do
+          stub_feature_flags(scim_saml_identity_fallback: false)
+
+          get scim_api("scim/v2/groups/#{group.full_path}/Users/#{identity.extern_uid}")
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      context 'when scim_saml_identity_fallback is enabled' do
+        it 'returns the saml identity when scim identity does not exist but saml identity does' do
+          stub_feature_flags(scim_saml_identity_fallback: true)
+
+          get scim_api("scim/v2/groups/#{group.full_path}/Users/#{identity.extern_uid}")
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['id']).to eq(identity.extern_uid)
+        end
+      end
+    end
   end
 end
