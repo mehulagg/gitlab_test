@@ -792,5 +792,3 @@ On GitLab.com, we have DangerBot setup to monitor Telemetry related files and Da
 |ci_triggers|usage_activity_by_stage|verify|
 |clusters_applications_runner|usage_activity_by_stage|verify|
 |projects_reporting_ci_cd_back_to_github: 0|usage_activity_by_stage|verify|
-
-
