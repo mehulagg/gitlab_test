@@ -559,6 +559,12 @@ will not be deleted by the expiration policy.
 
 ## Troubleshooting the GitLab Container Registry
 
+## Known Issues
+
+### Can't Delete Image in Web UI
+
+Currently there is an open [issue](https://gitlab.com/gitlab-org/gitlab/-/issues/19521) with deleting images in the Web UI failing. [Workarounds](https://gitlab.com/gitlab-org/gitlab/-/issues/19521#possible-workarounds) for this issue are included in the issue description.  
+
 ### Docker connection error
 
 A Docker connection error can occur when there are special characters in either the group,
