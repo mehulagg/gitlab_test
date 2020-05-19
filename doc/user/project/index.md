@@ -297,3 +297,10 @@ There are numerous [APIs](../../api/README.md) to use with your projects:
 - [Traffic](../../api/project_statistics.md)
 - [Variables](../../api/project_level_variables.md)
 - [Aliases](../../api/project_aliases.md)
+
+## Troubleshooting the GitLab Container Registry
+
+## Known Issues
+
+### Incaccurate Project Last Updated time
+  Currently there is an open [issue](https://gitlab.com/gitlab-org/gitlab/-/issues/18279) with project's last updated time not being updated properly in the project list view. There are not currently any workarounds, please continue discussion and follow this issue to keep it updated.  
