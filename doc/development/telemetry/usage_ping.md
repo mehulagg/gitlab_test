@@ -247,8 +247,6 @@ Here is an example of the payload structure
 }
 ```
 
-
-
 ## Disabling usage ping
 
 The usage ping is opt-out. If you want to deactivate this feature, go to the Settings page of your administration panel and uncheck the Usage Ping checkbox.
@@ -489,7 +487,6 @@ Examples of query optimization work:
 ### 4. Ask for a Telemetry Review
 
 On GitLab.com, we have DangerBot setup to monitor Telemetry related files and DangerBot will recommend a Telemetry review. Simply `@gitlab-org/growth/telemetry/engineers` in your MR for a review.
-
 
 ## Usage Statistics Definitions
 
