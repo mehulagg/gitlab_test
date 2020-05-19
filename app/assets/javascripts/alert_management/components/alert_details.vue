@@ -1,31 +1,15 @@
 <script>
 import * as Sentry from '@sentry/browser';
-import {
-  GlAlert,
-  GlIcon,
-  GlLoadingIcon,
-  GlDropdown,
-  GlDropdownItem,
-  GlSprintf,
-  GlTabs,
-  GlTab,
-  GlButton,
-} from '@gitlab/ui';
-import createFlash from '~/flash';
+import { GlAlert, GlIcon, GlLoadingIcon, GlSprintf, GlTabs, GlTab, GlButton } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
 import { fetchPolicies } from '~/lib/graphql';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { ALERTS_SEVERITY_LABELS } from '../constants';
-import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql';
+import AlertAttributeSidebar from './alert_attribute_sidebar.vue';
 
 export default {
-  statuses: {
-    TRIGGERED: s__('AlertManagement|Triggered'),
-    ACKNOWLEDGED: s__('AlertManagement|Acknowledged'),
-    RESOLVED: s__('AlertManagement|Resolved'),
-  },
   i18n: {
     errorMsg: s__(
       'AlertManagement|There was an error displaying the alert. Please refresh the page to try again.',
@@ -41,12 +25,11 @@ export default {
     GlIcon,
     GlLoadingIcon,
     GlSprintf,
-    GlDropdown,
-    GlDropdownItem,
     GlTab,
     GlTabs,
     GlButton,
     TimeAgoTooltip,
+    AlertAttributeSidebar,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -83,7 +66,7 @@ export default {
     },
   },
   data() {
-    return { alert: null, errored: false, isErrorDismissed: false };
+    return { alert: null, errored: false, isErrorDismissed: false, sidebarCollapsed: true };
   },
   computed: {
     loading() {
@@ -102,23 +85,8 @@ export default {
     dismissError() {
       this.isErrorDismissed = true;
     },
-    updateAlertStatus(status) {
-      this.$apollo
-        .mutate({
-          mutation: updateAlertStatus,
-          variables: {
-            iid: this.alertId,
-            status: status.toUpperCase(),
-            projectPath: this.projectPath,
-          },
-        })
-        .catch(() => {
-          createFlash(
-            s__(
-              'AlertManagement|There was an error while updating the status of the alert. Please try again.',
-            ),
-          );
-        });
+    toggleSidebar() {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
     },
   },
 };
@@ -157,6 +125,16 @@ export default {
               <template #tool>{{ alert.monitoringTool }}</template>
             </gl-sprintf>
           </span>
+          <gl-button
+            :aria-label="__('Toggle sidebar')"
+            category="primary"
+            variant="default"
+            class="d-sm-none position-absolute toggle-sidebar-mobile-button"
+            type="button"
+            @click="toggleSidebar"
+          >
+            <i class="fa fa-angle-double-left"></i>
+          </gl-button>
         </div>
         <gl-button
           v-if="glFeatures.createIssueFromAlertEnabled"
@@ -175,24 +153,6 @@ export default {
       >
         <h2 data-testid="title">{{ alert.title }}</h2>
       </div>
-      <gl-dropdown :text="$options.statuses[alert.status]" class="gl-absolute gl-right-0" right>
-        <gl-dropdown-item
-          v-for="(label, field) in $options.statuses"
-          :key="field"
-          data-testid="statusDropdownItem"
-          class="gl-vertical-align-middle"
-          @click="updateAlertStatus(label)"
-        >
-          <span class="d-flex">
-            <gl-icon
-              class="flex-shrink-0 append-right-4"
-              :class="{ invisible: label.toUpperCase() !== alert.status }"
-              name="mobile-issue-close"
-            />
-            {{ label }}
-          </span>
-        </gl-dropdown-item>
-      </gl-dropdown>
       <gl-tabs v-if="alert" data-testid="alertDetailsTabs">
         <gl-tab data-testid="overviewTab" :title="$options.i18n.overviewTitle">
           <ul class="pl-4 mb-n1">
@@ -224,6 +184,12 @@ export default {
           </ul>
         </gl-tab>
       </gl-tabs>
+      <alert-attribute-sidebar
+        :project-path="projectPath"
+        :alert="alert"
+        :sidebar-collapsed="sidebarCollapsed"
+        @toggle-sidebar="toggleSidebar"
+      />
     </div>
   </div>
 </template>

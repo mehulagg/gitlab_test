@@ -1748,6 +1748,9 @@ msgstr ""
 msgid "AlertManagement|Alert detail"
 msgstr ""
 
+msgid "AlertManagement|Alert status"
+msgstr ""
+
 msgid "AlertManagement|Alerts"
 msgstr ""
 

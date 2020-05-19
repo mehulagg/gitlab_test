@@ -1,0 +1,43 @@
+<script>
+import ToggleSidebar from '~/vue_shared/components/sidebar/toggle_sidebar.vue';
+
+import SidebarTodo from './sidebar_todo.vue';
+
+export default {
+  components: {
+    ToggleSidebar,
+    SidebarTodo,
+  },
+  props: {
+    sidebarCollapsed: {
+      type: Boolean,
+      required: true,
+    },
+    isUserSignedIn: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  methods: {
+    toggleSidebar() {
+      this.$emit('toggle-sidebar');
+    },
+  },
+};
+</script>
+
+<template>
+  <div class="block">
+    <span class="issuable-header-text hide-collapsed float-left">{{ __('To Do') }}</span>
+    <toggle-sidebar
+      :collapsed="sidebarCollapsed"
+      css-classes="float-right"
+      @toggle="toggleSidebar()"
+    />
+    <sidebar-todo
+      v-if="!sidebarCollapsed"
+      :sidebar-collapsed="sidebarCollapsed"
+      :is-user-signed-in="isUserSignedIn"
+    />
+  </div>
+</template>
