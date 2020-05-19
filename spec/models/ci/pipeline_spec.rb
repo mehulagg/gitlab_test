@@ -688,6 +688,16 @@ describe Ci::Pipeline, :mailer do
             'CI_MERGE_REQUEST_EVENT_TYPE' => pipeline.merge_request_event_type.to_s)
       end
 
+      context 'with "modified_paths_ci_variable" shut off' do
+        before do
+          stub_feature_flags(modified_paths_ci_variable: false)
+        end
+
+        it 'does not included CI_MERGE_REQUEST_MODIFIED_PATHS' do
+          expect(subject.to_hash.keys).not_to include('CI_MERGE_REQUEST_MODIFIED_PATHS')
+        end
+      end
+
       context 'when source project does not exist' do
         before do
           merge_request.update_column(:source_project_id, nil)

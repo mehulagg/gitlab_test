@@ -683,7 +683,11 @@ module Ci
           variables.append(key: 'CI_MERGE_REQUEST_EVENT_TYPE', value: merge_request_event_type.to_s)
           variables.append(key: 'CI_MERGE_REQUEST_SOURCE_BRANCH_SHA', value: source_sha.to_s)
           variables.append(key: 'CI_MERGE_REQUEST_TARGET_BRANCH_SHA', value: target_sha.to_s)
-          variables.append(key: 'CI_MERGE_REQUEST_MODIFIED_PATHS', value: merge_request.modified_paths.join(','))
+
+          if Feature.enabled?(:modified_paths_ci_variable, project)
+            variables.append(key: 'CI_MERGE_REQUEST_MODIFIED_PATHS', value: merge_request.modified_paths.join(','))
+          end
+
           variables.concat(merge_request.predefined_variables)
         end
 
