@@ -45,6 +45,10 @@ bind 'unix:///home/git/gitlab.socket'
 
 workers 2
 
+# With this setting turned on, puma clears the Thread's local store
+# to have a clean state of the thread after each request.
+clean_thread_locals true
+
 require_relative "/home/git/gitlab/lib/gitlab/cluster/lifecycle_events"
 
 on_restart do
