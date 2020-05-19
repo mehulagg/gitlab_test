@@ -1,0 +1,9 @@
+vr-poc:
+  stage: post-qa
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  variables:
+    TARGET_PATH: $CI_PROJECT_PATH
+    TARGET_REF: $CI_COMMIT_SHA
+  trigger:
+    - project: gitlab-org/secure/vulnerability-research/poc-trigger
