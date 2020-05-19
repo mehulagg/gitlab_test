@@ -95,8 +95,7 @@ module Issuable
           .except('id')
           .merge(entity_key => new_entity.id,
                  'milestone_id' => milestone&.id,
-                 'action' => ResourceMilestoneEvent.actions[event.action],
-                 'state' => ResourceMilestoneEvent.states[event.state])
+                 'action' => ResourceMilestoneEvent.actions[event.action])
       end
 
       def copy_events(table_name, events_to_copy)

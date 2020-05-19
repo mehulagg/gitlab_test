@@ -6,7 +6,6 @@ FactoryBot.define do
     merge_request { nil }
     milestone
     action { :add }
-    state { :opened }
     user { issue&.author || merge_request&.author || create(:user) }
   end
 end

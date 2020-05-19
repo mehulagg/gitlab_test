@@ -28,7 +28,6 @@ module ResourceEvents
         user_id: user.id,
         created_at: event_created_at,
         milestone_id: action == :add ? milestone&.id : old_milestone&.id,
-        state: ResourceMilestoneEvent.states[resource.state],
         action: ResourceMilestoneEvent.actions[action],
         key => resource.id
       }

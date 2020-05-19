@@ -5840,7 +5840,7 @@ CREATE TABLE public.resource_milestone_events (
     merge_request_id bigint,
     milestone_id bigint,
     action smallint NOT NULL,
-    state smallint NOT NULL,
+    state smallint,
     created_at timestamp with time zone NOT NULL
 );
 

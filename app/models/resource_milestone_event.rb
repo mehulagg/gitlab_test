@@ -20,6 +20,7 @@ class ResourceMilestoneEvent < ResourceEvent
   enum state: Issue.available_states.merge(MergeRequest.available_states)
 
   ignore_columns %i[reference reference_html cached_markdown_version], remove_with: '13.1', remove_after: '2020-06-22'
+  ignore_column :state, remove_with: '13.3', remove_after: '2020-08-22'
 
   def self.issuable_attrs
     %i(issue merge_request).freeze

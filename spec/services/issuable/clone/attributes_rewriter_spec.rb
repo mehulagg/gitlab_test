@@ -99,9 +99,9 @@ describe Issuable::Clone::AttributesRewriter do
         new_issue_milestone_events = new_issue.reload.resource_milestone_events
         expect(new_issue_milestone_events.count).to eq(3)
 
-        expect_milestone_event(new_issue_milestone_events.first, milestone: milestone1_project2, action: 'add', state: 'opened')
-        expect_milestone_event(new_issue_milestone_events.second, milestone: milestone2_project2, action: 'add', state: 'opened')
-        expect_milestone_event(new_issue_milestone_events.third, milestone: nil, action: 'remove', state: 'opened')
+        expect_milestone_event(new_issue_milestone_events.first, milestone: milestone1_project2, action: 'add')
+        expect_milestone_event(new_issue_milestone_events.second, milestone: milestone2_project2, action: 'add')
+        expect_milestone_event(new_issue_milestone_events.third, milestone: nil, action: 'remove')
       end
 
       def create_event(milestone, action = 'add')
@@ -111,7 +111,6 @@ describe Issuable::Clone::AttributesRewriter do
       def expect_milestone_event(event, expected_attrs)
         expect(event.milestone_id).to eq(expected_attrs[:milestone]&.id)
         expect(event.action).to eq(expected_attrs[:action])
-        expect(event.state).to eq(expected_attrs[:state])
       end
     end
 

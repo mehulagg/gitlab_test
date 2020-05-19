@@ -39,20 +39,6 @@ describe ResourceMilestoneEvent, type: :model do
     end
   end
 
-  describe 'states' do
-    [Issue, MergeRequest].each do |klass|
-      klass.available_states.each do |state|
-        it "supports state #{state.first} for #{klass.name.underscore}" do
-          model = create(klass.name.underscore, state: state[0])
-          key = model.class.name.underscore
-          event = build(described_class.name.underscore.to_sym, key => model, state: model.state)
-
-          expect(event.state).to eq(state[0])
-        end
-      end
-    end
-  end
-
   shared_examples 'a milestone action queryable resource event' do |expected_results_for_actions|
     [Issue, MergeRequest].each do |klass|
       expected_results_for_actions.each do |action, expected_result|
