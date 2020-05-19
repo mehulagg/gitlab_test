@@ -5,7 +5,7 @@ module Gitlab
         include Scenario::Actable
 
         ELASTIC_IMAGE = 'docker.elastic.co/elasticsearch/elasticsearch'.freeze
-        ELASTIC_IMAGE_TAG = '6.4.2'.freeze
+        ELASTIC_IMAGE_TAG = ENV['ELASTIC_VERSION'].freeze || '6.4.2'.freeze
 
         attr_reader :docker
         attr_accessor :environment, :network
