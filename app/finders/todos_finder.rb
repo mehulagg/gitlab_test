@@ -58,7 +58,7 @@ class TodosFinder
   # Returns `true` if the current user has any todos for the given target with the optional given state.
   #
   # target - The value of the `target_type` column, such as `Issue`.
-  # state - The value of the `state` column, such as `pending` or `done`.
+  # state - The value of the `state` column; `pending`, `done` or `closed`.
   def any_for_target?(target, state = nil)
     current_user.todos.any_for_target?(target, state)
   end

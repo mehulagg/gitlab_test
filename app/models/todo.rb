@@ -54,6 +54,7 @@ class Todo < ApplicationRecord
   scope :for_ids, -> (ids) { where(id: ids) }
   scope :pending, -> { with_state(:pending) }
   scope :done, -> { with_state(:done) }
+  scope :closed, -> { with_state(:closed) }
   scope :for_action, -> (action) { where(action: action) }
   scope :for_author, -> (author) { where(author: author) }
   scope :for_user, -> (user) { where(user: user) }
@@ -71,8 +72,13 @@ class Todo < ApplicationRecord
       transition [:pending] => :done
     end
 
+    event :closed do
+      transition [:pending] => :closed
+    end
+
     state :pending
     state :done
+    state :closed
   end
 
   after_save :keep_around_commit, if: :commit_id
@@ -165,6 +171,10 @@ class Todo < ApplicationRecord
 
   def done?
     state == 'done'
+  end
+
+  def closed?
+    state == 'closed'
   end
 
   def action_name

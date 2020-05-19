@@ -1464,6 +1464,12 @@ class User < ApplicationRecord
     end
   end
 
+  def todos_closed_count(force: false)
+    Rails.cache.fetch(['users', id, 'todos_closed_count'], force: force, expires_in: 20.minutes) do
+      TodosFinder.new(self, state: :closed).execute.count
+    end
+  end
+
   def personal_projects_count(force: false)
     Rails.cache.fetch(['users', id, 'personal_projects_count'], force: force, expires_in: 24.hours, raw: true) do
       personal_projects.count
@@ -1473,6 +1479,7 @@ class User < ApplicationRecord
   def update_todos_count_cache
     todos_done_count(force: true)
     todos_pending_count(force: true)
+    todos_closed_count(force: true)
   end
 
   def invalidate_cache_counts
@@ -1480,6 +1487,7 @@ class User < ApplicationRecord
     invalidate_merge_request_cache_counts
     invalidate_todos_done_count
     invalidate_todos_pending_count
+    invalidate_todos_closed_count
     invalidate_personal_projects_count
   end
 
@@ -1497,6 +1505,10 @@ class User < ApplicationRecord
 
   def invalidate_todos_pending_count
     Rails.cache.delete(['users', id, 'todos_pending_count'])
+  end
+
+  def invalidate_todos_closed_count
+    Rails.cache.delete(['users', id, 'todos_closed_count'])
   end
 
   def invalidate_personal_projects_count

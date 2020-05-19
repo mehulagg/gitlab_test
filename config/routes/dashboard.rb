@@ -21,6 +21,7 @@ resource :dashboard, controller: 'dashboard', only: [] do
       collection do
         delete :destroy_all
         patch :bulk_restore
+        delete :close_all
       end
       member do
         patch :restore

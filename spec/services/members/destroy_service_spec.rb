@@ -50,11 +50,13 @@ describe Members::DestroyService do
       create(:merge_request, source_project: group_project, assignees: [member_user])
       create(:todo, :pending, project: group_project, user: member_user)
       create(:todo, :done, project: group_project, user: member_user)
+      create(:todo, :closed, project: group_project, user: member_user)
 
       expect(member_user.assigned_open_merge_requests_count).to be(1)
       expect(member_user.assigned_open_issues_count).to be(1)
       expect(member_user.todos_pending_count).to be(1)
       expect(member_user.todos_done_count).to be(1)
+      expect(member_user.todos_closed_count).to be(1)
 
       described_class.new(current_user).execute(member, opts)
 
@@ -62,6 +64,7 @@ describe Members::DestroyService do
       expect(member_user.assigned_open_issues_count).to be(0)
       expect(member_user.todos_pending_count).to be(0)
       expect(member_user.todos_done_count).to be(0)
+      expect(member_user.todos_closed_count).to be(0)
     end
   end
 

@@ -44,6 +44,10 @@ FactoryBot.define do
     trait :done do
       state { :done }
     end
+
+    trait :closed do
+      state { :closed }
+    end
   end
 
   factory :on_commit_todo, class: 'Todo' do

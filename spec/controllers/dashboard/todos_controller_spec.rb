@@ -131,7 +131,7 @@ describe Dashboard::TodosController do
 
       expect(todo.reload).to be_pending
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response).to eq({ "count" => 1, "done_count" => 0 })
+      expect(json_response).to eq({ 'count' => 1, 'done_count' => 0, 'closed_count' => 0 })
     end
   end
 
@@ -145,7 +145,26 @@ describe Dashboard::TodosController do
         expect(todo.reload).to be_pending
       end
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response).to eq({ 'count' => 2, 'done_count' => 0 })
+      expect(json_response).to eq({ 'count' => 2, 'done_count' => 0, 'closed_count' => 0 })
+    end
+  end
+
+  describe 'DELETE #close_all' do
+    let!(:todo_1) { create(:todo, :pending, user: user, project: project, author: author) }
+    let!(:todo_2) { create(:todo, :done, user: user, project: project, author: author) }
+
+    it 'changes the state of pending todos to closed' do
+      delete :close_all, format: :json
+
+      expect(todo_1.reload).to be_closed
+      expect(todo_2.reload).to be_done
+      expect(json_response).to eq({ 'count' => 0, 'done_count' => 1, 'closed_count' => 1, 'updated_ids' => [todo_1.id] })
+    end
+
+    it 'redirects to dashboard todos page' do
+      delete :close_all, format: :html
+
+      expect(response).to redirect_to(dashboard_todos_path)
     end
   end
 end

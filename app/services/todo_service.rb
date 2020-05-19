@@ -169,6 +169,10 @@ class TodoService
     update_todos_state(todos, current_user, :done)
   end
 
+  def mark_todos_as_closed(todos, current_user)
+    update_todos_state(todos, current_user, :closed)
+  end
+
   def mark_todos_as_done_by_ids(ids, current_user)
     todos = todos_by_ids(ids, current_user)
     mark_todos_as_done(todos, current_user)
@@ -177,6 +181,11 @@ class TodoService
   def mark_all_todos_as_done_by_user(current_user)
     todos = TodosFinder.new(current_user).execute
     mark_todos_as_done(todos, current_user)
+  end
+
+  def mark_all_todos_as_closed_by_user(current_user)
+    todos = TodosFinder.new(current_user).execute
+    mark_todos_as_closed(todos, current_user)
   end
 
   def mark_todo_as_done(todo, current_user)

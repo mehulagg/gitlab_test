@@ -8792,6 +8792,9 @@ msgstr ""
 msgid "Everyone can contribute"
 msgstr ""
 
+msgid "Everything on your to-do list is marked as done or closed."
+msgstr ""
+
 msgid "Everything on your to-do list is marked as done."
 msgstr ""
 

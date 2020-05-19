@@ -72,6 +72,27 @@ describe Todo do
     end
   end
 
+  describe '#closed' do
+    it 'changes state to closed' do
+      todo = create(:todo, state: :pending)
+
+      expect { todo.closed }.to change(todo, :state).from('pending').to('closed')
+    end
+
+    it 'does not raise error when is already closed' do
+      todo = create(:todo, state: :closed)
+
+      expect { todo.closed }.not_to raise_error
+    end
+
+    it 'does not change state from done to closed' do
+      todo = create(:todo, state: :done)
+
+      expect { todo.closed }.not_to raise_error
+      expect(todo.state).to eq("done")
+    end
+  end
+
   describe '#for_commit?' do
     it 'returns true when target is a commit' do
       subject.target_type = 'Commit'
@@ -173,6 +194,7 @@ describe Todo do
   describe '#done?' do
     let_it_be(:todo1) { create(:todo, state: :pending) }
     let_it_be(:todo2) { create(:todo, state: :done) }
+    let_it_be(:todo3) { create(:todo, state: :closed) }
 
     it 'returns true for todos with done state' do
       expect(todo2.done?).to be_truthy
@@ -180,6 +202,28 @@ describe Todo do
 
     it 'returns false for todos with state pending' do
       expect(todo1.done?).to be_falsey
+    end
+
+    it 'returns false for todos with state closed' do
+      expect(todo3.done?).to be_falsey
+    end
+  end
+
+  describe '#closed?' do
+    let_it_be(:todo1) { create(:todo, state: :pending) }
+    let_it_be(:todo2) { create(:todo, state: :closed) }
+    let_it_be(:todo3) { create(:todo, state: :done) }
+
+    it 'returns true for todos with closed state' do
+      expect(todo2.closed?).to be_truthy
+    end
+
+    it 'returns false for todos with state pending' do
+      expect(todo1.closed?).to be_falsey
+    end
+
+    it 'returns false for todos with state done' do
+      expect(todo3.closed?).to be_falsey
     end
   end
 

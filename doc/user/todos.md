@@ -128,6 +128,10 @@ You can also mark a To Do as done by clicking the **Mark as done** button in the
 You can mark all your To-Do items as done at once by clicking the **Mark all as
 done** button.
 
+## Marking To Do items as closed
+
+You can mark all your To-Do items as closed at once by clicking the **Close all** button.
+
 ## Filtering your To-Do List
 
 There are four kinds of filters you can use on your To-Do List.

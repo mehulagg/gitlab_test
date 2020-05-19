@@ -13,6 +13,11 @@ module TodosHelper
     @todos_done_count ||= current_user.todos_done_count
   end
 
+  # TODO is that needed? for the tab on dashboard I guess, is it needed?
+  def todos_closed_count
+    @todos_closed_count ||= current_user.todos_closed_count
+  end
+
   def todo_action_name(todo)
     case todo.action
     when Todo::ASSIGNED then todo.self_added? ? 'assigned' : 'assigned you'

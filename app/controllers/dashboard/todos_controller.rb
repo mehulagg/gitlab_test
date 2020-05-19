@@ -6,7 +6,7 @@ class Dashboard::TodosController < Dashboard::ApplicationController
 
   before_action :authorize_read_project!, only: :index
   before_action :authorize_read_group!, only: :index
-  before_action :find_todos, only: [:index, :destroy_all]
+  before_action :find_todos, only: [:index, :destroy_all, :close_all]
 
   def index
     @sort = params[:sort]
@@ -35,6 +35,16 @@ class Dashboard::TodosController < Dashboard::ApplicationController
 
     respond_to do |format|
       format.html { redirect_to dashboard_todos_path, status: :found, notice: _('Everything on your to-do list is marked as done.') }
+      format.js { head :ok }
+      format.json { render json: todos_counts.merge(updated_ids: updated_ids) }
+    end
+  end
+
+  def close_all
+    updated_ids = TodoService.new.mark_todos_as_closed(@todos, current_user)
+
+    respond_to do |format|
+      format.html { redirect_to dashboard_todos_path, status: :found, notice: _('Everything on your to-do list is marked as done or closed.') }
       format.js { head :ok }
       format.json { render json: todos_counts.merge(updated_ids: updated_ids) }
     end
@@ -79,7 +89,8 @@ class Dashboard::TodosController < Dashboard::ApplicationController
   def todos_counts
     {
       count: current_user.todos_pending_count,
-      done_count: current_user.todos_done_count
+      done_count: current_user.todos_done_count,
+      closed_count: current_user.todos_closed_count
     }
   end
 
