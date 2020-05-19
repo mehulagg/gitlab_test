@@ -121,11 +121,11 @@ also reduce pressure on the system as a whole.
 
 ## Refreshing import JIDs
 
-GitLab includes a worker called `StuckImportJobsWorker` that will periodically
+GitLab includes a worker called `StuckProjectImportJobsWorker` that will periodically
 run and mark project imports as failed if they have been running for more than
 15 hours. For GitHub projects, this poses a bit of a problem: importing large
 projects could take several hours depending on how often we hit the GitHub rate
-limit (more on this below), but we don't want `StuckImportJobsWorker` to mark
+limit (more on this below), but we don't want `StuckProjectImportJobsWorker` to mark
 our import as failed because of this.
 
 To prevent this from happening we periodically refresh the expiration time of

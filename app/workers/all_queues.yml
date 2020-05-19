@@ -129,11 +129,25 @@
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
+- :name: cronjob:import_stuck_project_import_jobs
+  :feature_category: :importers
+  :has_external_dependencies: 
+  :urgency: :low
+  :resource_boundary: :cpu
+  :weight: 1
+  :idempotent: 
 - :name: cronjob:issue_due_scheduler
   :feature_category: :issue_tracking
   :has_external_dependencies: 
   :urgency: :low
   :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: 
+- :name: cronjob:jira_import_stuck_jira_import_jobs
+  :feature_category: :importers
+  :has_external_dependencies: 
+  :urgency: :low
+  :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
 - :name: cronjob:namespaces_prune_aggregation_schedules
@@ -249,13 +263,6 @@
   :weight: 1
   :idempotent: 
 - :name: cronjob:stuck_export_jobs
-  :feature_category: :importers
-  :has_external_dependencies: 
-  :urgency: :low
-  :resource_boundary: :cpu
-  :weight: 1
-  :idempotent: 
-- :name: cronjob:stuck_import_jobs
   :feature_category: :importers
   :has_external_dependencies: 
   :urgency: :low

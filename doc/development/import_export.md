@@ -44,10 +44,10 @@ WARN: Work still in progress <struct with JID>
 
 ### Timeouts
 
-Timeout errors occur due to the `StuckImportJobsWorker` marking the process as failed:
+Timeout errors occur due to the `StuckImportJob` workers marking the process as failed:
 
 ```ruby
-class StuckImportJobsWorker
+module StuckImportJob
   include ApplicationWorker
   include CronjobQueue
 

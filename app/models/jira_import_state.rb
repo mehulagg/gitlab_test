@@ -102,4 +102,16 @@ class JiraImportState < ApplicationRecord
   def self.finished_imports_count
     finished.sum(:imported_issues_count)
   end
+
+  def mark_as_failed(error_message)
+    original_errors = errors.dup
+    sanitized_message = Gitlab::UrlSanitizer.sanitize(error_message)
+
+    do_fail
+    update_column(:error_message, error_message)
+  rescue ActiveRecord::ActiveRecordError => e
+    Gitlab::AppLogger.error("Error setting import status to failed: #{e.message}. Original error: #{sanitized_message}")
+  ensure
+    @errors = original_errors
+  end
 end
