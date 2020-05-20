@@ -6,7 +6,6 @@ class EmailsOnPushService < Service
   boolean_accessor :send_from_committer_email
   boolean_accessor :disable_diffs
   prop_accessor :recipients, :branches_to_be_notified
-  validates :recipients, presence: true, if: :valid_recipients?
 
   def title
     s_('EmailsOnPushService|Emails on push')

@@ -6149,7 +6149,8 @@ CREATE TABLE public.services (
     template boolean DEFAULT false,
     instance boolean DEFAULT false NOT NULL,
     comment_detail smallint,
-    inherit_from_id bigint
+    inherit_from_id bigint,
+    group_id integer
 );
 
 CREATE SEQUENCE public.services_id_seq
@@ -13792,5 +13793,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200528054112
 20200528123703
 20200603073101
+20200529081642
 \.
 

@@ -41,6 +41,7 @@ class Service < ApplicationRecord
   after_commit :cache_project_has_external_wiki
 
   belongs_to :project, inverse_of: :services
+  belongs_to :group
   has_one :service_hook
 
   validates :project_id, presence: true, unless: -> { template? || instance? }

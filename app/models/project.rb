@@ -1356,7 +1356,7 @@ class Project < ApplicationRecord
   def execute_services(data, hooks_scope = :push_hooks)
     # Call only service hooks that are active for this scope
     run_after_commit_or_now do
-      services.public_send(hooks_scope).each do |service| # rubocop:disable GitlabSecurity/PublicSend
+      ProjectServicesWithInheritance.new(self).hooks(hooks_scope).each do |service|
         service.async_execute(data)
       end
     end
@@ -1367,7 +1367,7 @@ class Project < ApplicationRecord
   end
 
   def has_active_services?(hooks_scope = :push_hooks)
-    services.public_send(hooks_scope).any? # rubocop:disable GitlabSecurity/PublicSend
+    ProjectServicesWithInheritance.new(self).hooks(hooks_scope).any? # rubocop:disable GitlabSecurity/PublicSend
   end
 
   # Is overridden in EE
