@@ -54,7 +54,7 @@ best place to integrate your own product and its results into GitLab.
 ## How to onboard
 
 This section describes the steps you need to complete to onboard as a partner
-and complete an intgration with the Secure stage.
+and to complete an intgration with the Secure stage.
 
 1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/).
 1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
@@ -62,6 +62,7 @@ and complete an intgration with the Secure stage.
 1. Get a test account to begin developing your integration. You can
    request a [GitLab.com Gold Subscription Sandbox](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request)
    or an [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd).
+>Note: Right now, our security offerings are designed for Gold / Ultimate users and the DevSecOps use case. All of the features live in that tier. This includes providing the APIs and standard reporting framework needed to provide a consistent experience for users to easily bring their preferred security tools into Ultimate / Gold. We ask that our integration partners focus their work on those license tiers so that we can provide the most value to our mutual customers, rather than on other GitLab tiers that don't have the security features needed for a more cohesive experience.
 1. Provide a [pipeline job](../../development/pipelines.md)
    template that users could integrate into their own GitLab pipelines.
 1. Create a report artifact with your pipeline jobs.
