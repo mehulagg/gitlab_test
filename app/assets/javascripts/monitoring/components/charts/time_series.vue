@@ -17,6 +17,7 @@ const timestampToISODate = timestamp => new Date(timestamp).toISOString();
 
 const events = {
   datazoom: 'datazoom',
+  chartclick: 'chartclick',
 };
 
 export default {
@@ -103,6 +104,7 @@ export default {
       svgs: {},
       primaryColor: null,
       throttledDatazoom: null,
+      chartDomClickListener: null,
     };
   },
   computed: {
@@ -312,13 +314,17 @@ export default {
           console.error('SVG could not be rendered correctly: ', e);
         });
     },
+
     onChartUpdated(eChart) {
       [this.primaryColor] = eChart.getOption().color;
     },
     onChartCreated(eChart) {
+      this.addDatazoomHandler(eChart);
+      this.addChartClickHandler(eChart);
+    },
+    addDatazoomHandler(eChart) {
       // Emit a datazoom event that corresponds to the eChart
       // `datazoom` event.
-
       if (this.throttledDatazoom) {
         // Chart can be created multiple times in this component's
         // lifetime, remove previous handlers every time
@@ -344,6 +350,26 @@ export default {
 
       eChart.off('datazoom');
       eChart.on('datazoom', this.throttledDatazoom);
+    },
+    addChartClickHandler(eChart) {
+      // Chart can be created multiple times in this component's
+      // lifetime, remove previous handlers every time
+      // chart is created.
+      if (this.chartDomClickListener) {
+        eChart.getDom().removeEventListener('click', this.chartDomClickListener);
+      }
+      this.chartDomClickListener = event => {
+        const { zrX, zrY } = event;
+        // only emit on clicks on the chart grid
+        if (eChart.containPixel('grid', [zrX, zrY])) {
+          const value = eChart.convertFromPixel('grid', [zrX, zrY]);
+          this.$emit(events.chartclick, {
+            event,
+            value,
+          });
+        }
+      };
+      eChart.getDom().addEventListener('click', this.chartDomClickListener);
     },
     onResize() {
       if (!this.$refs.chart) return;
