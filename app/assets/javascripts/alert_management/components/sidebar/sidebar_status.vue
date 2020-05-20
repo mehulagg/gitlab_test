@@ -43,8 +43,8 @@ export default {
     tooltipText() {
       let tooltipText = s__('AlertManagement|Alert status');
 
-      if (this.status) {
-        tooltipText += `: ${this.statusText}`;
+      if (this.alert.status) {
+        tooltipText += `: ${this.alert.status}`;
       }
 
       return tooltipText;
@@ -62,7 +62,7 @@ export default {
       }
     },
     isSelected(status) {
-      return this.status === status;
+      return this.alert.status === status;
     },
     updateAlertStatus(status) {
       this.isUpdating = true;
