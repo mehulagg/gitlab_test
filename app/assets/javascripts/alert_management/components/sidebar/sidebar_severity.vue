@@ -38,8 +38,8 @@ export default {
     tooltipText() {
       let tooltipText = s__('AlertManagement|Alert severity');
 
-      if (this.status) {
-        tooltipText += `: ${this.statusText}`;
+      if (this.alert.severity) {
+        tooltipText += `: ${this.alert.severity.toLowerCase()}`;
       }
 
       return tooltipText;
