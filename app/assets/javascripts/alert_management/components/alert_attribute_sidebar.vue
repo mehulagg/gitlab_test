@@ -2,12 +2,14 @@
 import SidebarHeader from './sidebar/sidebar_header.vue';
 import SidebarTodo from './sidebar/sidebar_todo.vue';
 import SidebarStatus from './sidebar/sidebar_status.vue';
+import SidebarSeverity from './sidebar/sidebar_severity.vue';
 
 export default {
   components: {
     SidebarHeader,
     SidebarTodo,
     SidebarStatus,
+    SidebarSeverity,
   },
   props: {
     sidebarCollapsed: {
@@ -59,6 +61,7 @@ export default {
         :is-user-signed-in="isUserSignedIn"
       />
       <sidebar-status :project-path="projectPath" :alert="alert" @toggle-sidebar="toggleSidebar" />
+      <sidebar-severity :severity="alert.severity" />
       <!-- TODO: Remove after adding extra attribute blocks to sidebar -->
       <div class="block"></div>
     </div>
