@@ -134,7 +134,7 @@ export default {
           @hide="hideDropdown"
         >
           <div class="dropdown-title">
-            <span class="health-title">{{ s__('AlertManagement|Assign health status') }}</span>
+            <span class="alert-title">{{ s__('AlertManagement|Assign alert status') }}</span>
             <gl-button
               :aria-label="__('Close')"
               variant="link"
