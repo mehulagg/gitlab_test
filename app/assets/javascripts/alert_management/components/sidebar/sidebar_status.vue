@@ -43,8 +43,8 @@ export default {
     tooltipText() {
       let tooltipText = s__('AlertManagement|Alert status');
 
-      if (this.status) {
-        tooltipText += `: ${this.statusText}`;
+      if (this.alert.status) {
+        tooltipText += `: ${this.alert.status}`;
       }
 
       return tooltipText;
@@ -62,7 +62,7 @@ export default {
       }
     },
     isSelected(status) {
-      return this.status === status;
+      return this.alert.status === status;
     },
     updateAlertStatus(status) {
       this.isUpdating = true;
@@ -170,7 +170,7 @@ export default {
         class="value m-0"
         :class="{ 'no-value': !$options.statuses[alert.status] }"
       >
-        <span v-if="$options.statuses[alert.status]" class="text-plain bold">{{
+        <span v-if="$options.statuses[alert.status]" class="text-plain">{{
           $options.statuses[alert.status]
         }}</span>
         <span v-else>
