@@ -49,8 +49,16 @@ module Gitlab
 
       # @param [Teammate] person
       # @return [Boolean]
+      def director?(person)
+        return false if person.role.nil?
+
+        person.role.match(/director/i)
+      end
+
+      # @param [Teammate] person
+      # @return [Boolean]
       def valid_person?(person)
-        !mr_author?(person) && person.available?
+        !mr_author?(person) && person.available? & !director?(person)
       end
 
       # @param [Teammate] person

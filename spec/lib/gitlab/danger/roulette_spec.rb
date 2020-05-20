@@ -105,12 +105,14 @@ describe Gitlab::Danger::Roulette do
     let(:author) { Gitlab::Danger::Teammate.new('username' => 'filipa') }
     let(:ooo) { Gitlab::Danger::Teammate.new('username' => 'jacopo-beschi') }
     let(:no_capacity) { Gitlab::Danger::Teammate.new('username' => 'uncharged') }
+    let(:director) { Gitlab::Danger::Teammate.new('username' => 'timzallmann', 'role' => 'Director of Engineering') }
 
     before do
       stub_person_status(person1, message: 'making GitLab magic')
       stub_person_status(person2, message: 'making GitLab magic')
       stub_person_status(ooo, message: 'OOO till 15th')
       stub_person_status(no_capacity, message: 'At capacity for the next few days', emoji: 'red_circle')
+      stub_person_status(director, message: 'Building a spaceship panel')
       # we don't stub Filipa, as she is the author and
       # we should not fire request checking for her
 
@@ -131,6 +133,10 @@ describe Gitlab::Danger::Roulette do
 
     it 'excludes mr.author' do
       expect(subject.spin_for_person([author], random: Random.new)).to be_nil
+    end
+
+    it 'excludes directors' do
+      expect(subject.spin_for_person([director], random: Random.new)).to be_nil
     end
 
     it 'excludes person with no capacity' do
