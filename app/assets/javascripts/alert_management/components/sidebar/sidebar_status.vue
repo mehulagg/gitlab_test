@@ -36,7 +36,7 @@ export default {
   data() {
     return {
       isDropdownShowing: false,
-      isUpdating: false
+      isUpdating: false,
     };
   },
   computed: {
@@ -118,7 +118,7 @@ export default {
           @click="toggleFormDropdown"
           @keydown.esc="hideDropdown"
         >
-          {{ __('Edit') }}
+          {{ s__('AlertManagement|Edit') }}
         </a>
       </p>
 
@@ -134,7 +134,7 @@ export default {
           @hide="hideDropdown"
         >
           <div class="dropdown-title">
-            <span class="health-title">{{ s__('Sidebar|Assign health status') }}</span>
+            <span class="health-title">{{ s__('AlertManagement|Assign health status') }}</span>
             <gl-button
               :aria-label="__('Close')"
               variant="link"
@@ -173,7 +173,9 @@ export default {
         <span v-if="$options.statuses[alert.status]" class="text-plain bold">{{
           $options.statuses[alert.status]
         }}</span>
-        <span v-else>{{ __('None') }}</span>
+        <span v-else>
+          {{ s__('AlertManagement|None') }}
+        </span>
       </p>
     </div>
   </div>
