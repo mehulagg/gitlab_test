@@ -30,16 +30,9 @@ regular users won't impact your integration.
 
 ## Requirements
 
-### Self-managed GitLab
-
-If you are using self-managed GitLab, make sure your GitLab instance is accessible by Jira.
-
-- If you are connecting to Jira Cloud, make sure your instance is accessible via the internet.
-- If you are using Jira Server, make sure your instance is accessible however your network is set up.
-
-### GitLab.com
-
-There are no special requirements if you are using GitLab.com.
+- If you are using **self-managed GitLab**, make sure your GitLab instance is accessible by Jira.
+- If you are connecting to Jira Cloud, make sure your **GitLab** instance is accessible via the internet.
+- If you are using **Jira Server**, make sure your instance is accessible however your network is set up. Especially, when you're trying to connect to **GitLab.com**.
 
 ## GitLab Configuration
 
@@ -70,7 +63,7 @@ There are no special requirements if you are using GitLab.com.
 
 ## Jira Configuration
 
-### GitLab self-managed
+### Jira Server to Self-managed GitLab or GitLab.com
 
 1. In Jira, go to **Jira Settings > Applications > DVCS accounts**, then click **Link GitHub Enterprise account** to start creating a new integration.
    (We are pretending to be GitHub in this integration until there is further platform support from Jira.)
@@ -115,7 +108,7 @@ There are no special requirements if you are using GitLab.com.
 To connect additional GitLab projects from other GitLab top-level groups (or personal namespaces), repeat the above
 steps with additional Jira DVCS accounts.
 
-### GitLab.com
+### Jira Cloud to GitLab.com
 
 You can integrate GitLab.com and Jira Cloud using the **GitLab for Jira** App in the [Atlassian Marketplace](https://marketplace.atlassian.com/apps/1221011/gitlab-for-jira).
 
