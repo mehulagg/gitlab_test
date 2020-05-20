@@ -63,7 +63,7 @@ regular users won't impact your integration.
 
 ## Jira Configuration
 
-### Jira Server to Self-managed GitLab or GitLab.com
+### Jira Server/Cloud to Self-managed GitLab or Jira Server to GitLab.com
 
 1. In Jira, go to **Jira Settings > Applications > DVCS accounts**, then click **Link GitHub Enterprise account** to start creating a new integration.
    (We are pretending to be GitHub in this integration until there is further platform support from Jira.)
