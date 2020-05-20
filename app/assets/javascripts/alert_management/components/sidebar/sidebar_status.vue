@@ -134,7 +134,7 @@ export default {
           @hide="hideDropdown"
         >
           <div class="dropdown-title">
-            <span class="health-title">{{ s__('AlertManagement|Assign health status') }}</span>
+            <span class="alert-title">{{ s__('AlertManagement|Assign alert status') }}</span>
             <gl-button
               :aria-label="__('Close')"
               variant="link"
@@ -170,7 +170,7 @@ export default {
         class="value m-0"
         :class="{ 'no-value': !$options.statuses[alert.status] }"
       >
-        <span v-if="$options.statuses[alert.status]" class="text-plain bold">{{
+        <span v-if="$options.statuses[alert.status]" class="text-plain">{{
           $options.statuses[alert.status]
         }}</span>
         <span v-else>

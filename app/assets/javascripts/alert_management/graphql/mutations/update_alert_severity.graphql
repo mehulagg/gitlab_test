@@ -1,0 +1,9 @@
+mutation ($projectPath: ID!, $status: AlertManagementSeverity!, $iid: String!) {
+  updateAlertSeverity(input: { iid: $iid, severity: $severity, projectPath: $projectPath }) {
+    errors
+    alert {
+      iid,
+      severity,
+    }
+  }
+}

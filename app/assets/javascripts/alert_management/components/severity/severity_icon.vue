@@ -1,19 +1,19 @@
 <script>
-  import {  GlIcon } from '@gitlab/ui';
-  import { ALERTS_SEVERITY_LABELS } from '../../constants';
+import { GlIcon } from '@gitlab/ui';
+import { ALERTS_SEVERITY_LABELS } from '../../constants';
 
-  export default {
-    severityLabels: ALERTS_SEVERITY_LABELS,
-    components: {
-      GlIcon
+export default {
+  severityLabels: ALERTS_SEVERITY_LABELS,
+  components: {
+    GlIcon,
+  },
+  props: {
+    severity: {
+      type: String,
+      required: true,
     },
-    props: {
-      severity: {
-        type: String,
-        required: true,
-      },
-    },
-  };
+  },
+};
 </script>
 
 <template>

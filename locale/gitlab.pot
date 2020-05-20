@@ -1748,6 +1748,9 @@ msgstr ""
 msgid "AlertManagement|Alert detail"
 msgstr ""
 
+msgid "AlertManagement|Alert severity"
+msgstr ""
+
 msgid "AlertManagement|Alert status"
 msgstr ""
 
@@ -1757,7 +1760,10 @@ msgstr ""
 msgid "AlertManagement|All alerts"
 msgstr ""
 
-msgid "AlertManagement|Assign health status"
+msgid "AlertManagement|Assign alert severity"
+msgstr ""
+
+msgid "AlertManagement|Assign alert status"
 msgstr ""
 
 msgid "AlertManagement|Authorize external service"
@@ -1842,6 +1848,9 @@ msgid "AlertManagement|There was an error displaying the alert. Please refresh t
 msgstr ""
 
 msgid "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear."
+msgstr ""
+
+msgid "AlertManagement|There was an error while updating the severity of the alert. Please try again."
 msgstr ""
 
 msgid "AlertManagement|There was an error while updating the status of the alert. Please try again."

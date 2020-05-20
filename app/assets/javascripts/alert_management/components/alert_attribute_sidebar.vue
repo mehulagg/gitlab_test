@@ -61,7 +61,7 @@ export default {
         :is-user-signed-in="isUserSignedIn"
       />
       <sidebar-status :project-path="projectPath" :alert="alert" @toggle-sidebar="toggleSidebar" />
-      <sidebar-severity :severity="alert.severity" />
+      <sidebar-severity :alert="alert" />
       <!-- TODO: Remove after adding extra attribute blocks to sidebar -->
       <div class="block"></div>
     </div>
