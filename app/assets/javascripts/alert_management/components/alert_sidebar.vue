@@ -23,17 +23,12 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {};
-  },
-  computed: {
-    isUserSignedIn() {
-      return Boolean(gon.current_user_id);
-    },
-  },
   methods: {
     toggleSidebar() {
       this.$emit('toggle-sidebar');
+    },
+    handleAlertSidebarError(errorMessage) {
+      this.$emit('alert-sidebar-error', errorMessage);
     },
   },
 };
@@ -48,17 +43,14 @@ export default {
     class="right-sidebar alert-sidebar"
   >
     <div class="issuable-sidebar js-issuable-update">
-      <sidebar-header
-        :sidebar-collapsed="sidebarCollapsed"
-        :is-user-signed-in="isUserSignedIn"
+      <sidebar-header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
+      <sidebar-todo v-if="sidebarCollapsed" :sidebar-collapsed="sidebarCollapsed" />
+      <sidebar-status
+        :project-path="projectPath"
+        :alert="alert"
         @toggle-sidebar="toggleSidebar"
+        @alert-sidebar-error="handleAlertSidebarError"
       />
-      <sidebar-todo
-        v-if="sidebarCollapsed && isUserSignedIn"
-        :sidebar-collapsed="sidebarCollapsed"
-        :is-user-signed-in="isUserSignedIn"
-      />
-      <sidebar-status :project-path="projectPath" :alert="alert" @toggle-sidebar="toggleSidebar" />
       <!-- TODO: Remove after adding extra attribute blocks to sidebar -->
       <div class="block"></div>
     </div>

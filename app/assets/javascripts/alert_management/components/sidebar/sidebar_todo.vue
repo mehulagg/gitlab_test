@@ -10,10 +10,6 @@ export default {
       type: Boolean,
       required: true,
     },
-    isUserSignedIn: {
-      type: Boolean,
-      required: true,
-    },
   },
   methods: {
     toggleTodo() {},
@@ -22,7 +18,7 @@ export default {
 </script>
 
 <template>
-  <div :class="{ 'block todo': isUserSignedIn && sidebarCollapsed }">
+  <div :class="{ 'block todo': sidebarCollapsed }">
     <!-- TODO: Implement after or as part of: https://gitlab.com/gitlab-org/gitlab/-/issues/215946 -->
     <todo
       :collapsed="sidebarCollapsed"

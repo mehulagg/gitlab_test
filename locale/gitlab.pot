@@ -1748,7 +1748,7 @@ msgstr ""
 msgid "AlertManagement|Alert detail"
 msgstr ""
 
-msgid "AlertManagement|Alert status"
+msgid "AlertManagement|Alert status: %{status}"
 msgstr ""
 
 msgid "AlertManagement|Alerts"

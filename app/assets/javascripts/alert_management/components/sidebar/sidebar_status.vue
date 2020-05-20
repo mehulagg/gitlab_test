@@ -1,7 +1,14 @@
 <script>
-import { GlIcon, GlDropdown, GlDropdownItem, GlLoadingIcon, GlTooltip, GlButton } from '@gitlab/ui';
+import {
+  GlIcon,
+  GlDropdown,
+  GlDropdownItem,
+  GlLoadingIcon,
+  GlTooltip,
+  GlButton,
+  GlSprintf,
+} from '@gitlab/ui';
 import { s__ } from '~/locale';
-import createFlash from '~/flash';
 import updateAlertStatus from '../../graphql/mutations/update_alert_status.graphql';
 
 export default {
@@ -17,6 +24,7 @@ export default {
     GlLoadingIcon,
     GlTooltip,
     GlButton,
+    GlSprintf,
   },
   props: {
     projectPath: {
@@ -38,17 +46,6 @@ export default {
       isDropdownShowing: false,
       isUpdating: false,
     };
-  },
-  computed: {
-    tooltipText() {
-      let tooltipText = s__('AlertManagement|Alert status');
-
-      if (this.alert.status) {
-        tooltipText += `: ${this.alert.status}`;
-      }
-
-      return tooltipText;
-    },
   },
   methods: {
     hideDropdown() {
@@ -80,7 +77,8 @@ export default {
           this.isUpdating = false;
         })
         .catch(() => {
-          createFlash(
+          this.$emit(
+            'alert-sidebar-error',
             s__(
               'AlertManagement|There was an error while updating the status of the alert. Please try again.',
             ),
@@ -101,14 +99,18 @@ export default {
       <gl-icon name="severity-critical" :size="14" />
 
       <gl-loading-icon v-if="isUpdating" />
-      <p v-else class="collapse-truncated-title px-1">{{ $options.statuses[alert.status] }}</p>
+      <p v-else class="collapse-truncated-title gl-px-2">{{ $options.statuses[alert.status] }}</p>
     </div>
     <gl-tooltip :target="() => $refs.status" boundary="viewport" placement="left">
-      {{ tooltipText }}
+      <gl-sprintf :message="s__('AlertManagement|Alert status: %{status}')">
+        <template #status>
+          {{ alert.status.toLowerCase() }}
+        </template>
+      </gl-sprintf>
     </gl-tooltip>
 
     <div class="hide-collapsed">
-      <p class="title d-flex justify-content-between">
+      <p class="title gl-display-flex justify-content-between">
         {{ s__('AlertManagement|Status') }}
         <a
           v-if="isEditable"
@@ -151,9 +153,9 @@ export default {
               class="gl-vertical-align-middle"
               @click="updateAlertStatus(label)"
             >
-              <span class="d-flex">
+              <span class="gl-display-flex">
                 <gl-icon
-                  class="flex-shrink-0 append-right-4"
+                  class="gl-flex-shrink-0 append-right-4"
                   :class="{ invisible: label.toUpperCase() !== alert.status }"
                   name="mobile-issue-close"
                 />
