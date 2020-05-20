@@ -2,7 +2,909 @@ SET search_path=public;
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
+CREATE SCHEMA partitions;
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+CREATE TABLE public.audit_events_part_5fc467ac26 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+)
+PARTITION BY RANGE (created_at);
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201412 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201412 FOR VALUES FROM ('2014-12-01 00:00:00') TO ('2015-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201501 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201501 FOR VALUES FROM ('2015-01-01 00:00:00') TO ('2015-02-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201502 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201502 FOR VALUES FROM ('2015-02-01 00:00:00') TO ('2015-03-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201503 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201503 FOR VALUES FROM ('2015-03-01 00:00:00') TO ('2015-04-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201504 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201504 FOR VALUES FROM ('2015-04-01 00:00:00') TO ('2015-05-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201505 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201505 FOR VALUES FROM ('2015-05-01 00:00:00') TO ('2015-06-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201506 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201506 FOR VALUES FROM ('2015-06-01 00:00:00') TO ('2015-07-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201507 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201507 FOR VALUES FROM ('2015-07-01 00:00:00') TO ('2015-08-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201508 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201508 FOR VALUES FROM ('2015-08-01 00:00:00') TO ('2015-09-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201509 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201509 FOR VALUES FROM ('2015-09-01 00:00:00') TO ('2015-10-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201510 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201510 FOR VALUES FROM ('2015-10-01 00:00:00') TO ('2015-11-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201511 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201511 FOR VALUES FROM ('2015-11-01 00:00:00') TO ('2015-12-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201512 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201512 FOR VALUES FROM ('2015-12-01 00:00:00') TO ('2016-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201601 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201601 FOR VALUES FROM ('2016-01-01 00:00:00') TO ('2016-02-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201602 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201602 FOR VALUES FROM ('2016-02-01 00:00:00') TO ('2016-03-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201603 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201603 FOR VALUES FROM ('2016-03-01 00:00:00') TO ('2016-04-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201604 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201604 FOR VALUES FROM ('2016-04-01 00:00:00') TO ('2016-05-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201605 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201605 FOR VALUES FROM ('2016-05-01 00:00:00') TO ('2016-06-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201606 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201606 FOR VALUES FROM ('2016-06-01 00:00:00') TO ('2016-07-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201607 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201607 FOR VALUES FROM ('2016-07-01 00:00:00') TO ('2016-08-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201608 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201608 FOR VALUES FROM ('2016-08-01 00:00:00') TO ('2016-09-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201609 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201609 FOR VALUES FROM ('2016-09-01 00:00:00') TO ('2016-10-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201610 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201610 FOR VALUES FROM ('2016-10-01 00:00:00') TO ('2016-11-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201611 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201611 FOR VALUES FROM ('2016-11-01 00:00:00') TO ('2016-12-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201612 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201612 FOR VALUES FROM ('2016-12-01 00:00:00') TO ('2017-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201701 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201701 FOR VALUES FROM ('2017-01-01 00:00:00') TO ('2017-02-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201702 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201702 FOR VALUES FROM ('2017-02-01 00:00:00') TO ('2017-03-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201703 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201703 FOR VALUES FROM ('2017-03-01 00:00:00') TO ('2017-04-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201704 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201704 FOR VALUES FROM ('2017-04-01 00:00:00') TO ('2017-05-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201705 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201705 FOR VALUES FROM ('2017-05-01 00:00:00') TO ('2017-06-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201706 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201706 FOR VALUES FROM ('2017-06-01 00:00:00') TO ('2017-07-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201707 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201707 FOR VALUES FROM ('2017-07-01 00:00:00') TO ('2017-08-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201708 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201708 FOR VALUES FROM ('2017-08-01 00:00:00') TO ('2017-09-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201709 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201709 FOR VALUES FROM ('2017-09-01 00:00:00') TO ('2017-10-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201710 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201710 FOR VALUES FROM ('2017-10-01 00:00:00') TO ('2017-11-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201711 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201711 FOR VALUES FROM ('2017-11-01 00:00:00') TO ('2017-12-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201712 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201712 FOR VALUES FROM ('2017-12-01 00:00:00') TO ('2018-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201801 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201801 FOR VALUES FROM ('2018-01-01 00:00:00') TO ('2018-02-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201802 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201802 FOR VALUES FROM ('2018-02-01 00:00:00') TO ('2018-03-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201803 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201803 FOR VALUES FROM ('2018-03-01 00:00:00') TO ('2018-04-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201804 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201804 FOR VALUES FROM ('2018-04-01 00:00:00') TO ('2018-05-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201805 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201805 FOR VALUES FROM ('2018-05-01 00:00:00') TO ('2018-06-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201806 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201806 FOR VALUES FROM ('2018-06-01 00:00:00') TO ('2018-07-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201807 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201807 FOR VALUES FROM ('2018-07-01 00:00:00') TO ('2018-08-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201808 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201808 FOR VALUES FROM ('2018-08-01 00:00:00') TO ('2018-09-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201809 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201809 FOR VALUES FROM ('2018-09-01 00:00:00') TO ('2018-10-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201810 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201810 FOR VALUES FROM ('2018-10-01 00:00:00') TO ('2018-11-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201811 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201811 FOR VALUES FROM ('2018-11-01 00:00:00') TO ('2018-12-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201812 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201812 FOR VALUES FROM ('2018-12-01 00:00:00') TO ('2019-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201901 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201901 FOR VALUES FROM ('2019-01-01 00:00:00') TO ('2019-02-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201902 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201902 FOR VALUES FROM ('2019-02-01 00:00:00') TO ('2019-03-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201903 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201903 FOR VALUES FROM ('2019-03-01 00:00:00') TO ('2019-04-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201904 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201904 FOR VALUES FROM ('2019-04-01 00:00:00') TO ('2019-05-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201905 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201905 FOR VALUES FROM ('2019-05-01 00:00:00') TO ('2019-06-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201906 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201906 FOR VALUES FROM ('2019-06-01 00:00:00') TO ('2019-07-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201907 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201907 FOR VALUES FROM ('2019-07-01 00:00:00') TO ('2019-08-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201908 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201908 FOR VALUES FROM ('2019-08-01 00:00:00') TO ('2019-09-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201909 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201909 FOR VALUES FROM ('2019-09-01 00:00:00') TO ('2019-10-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201910 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201910 FOR VALUES FROM ('2019-10-01 00:00:00') TO ('2019-11-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201911 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201911 FOR VALUES FROM ('2019-11-01 00:00:00') TO ('2019-12-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_201912 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201912 FOR VALUES FROM ('2019-12-01 00:00:00') TO ('2020-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202001 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202001 FOR VALUES FROM ('2020-01-01 00:00:00') TO ('2020-02-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202002 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202002 FOR VALUES FROM ('2020-02-01 00:00:00') TO ('2020-03-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202003 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202003 FOR VALUES FROM ('2020-03-01 00:00:00') TO ('2020-04-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202004 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202004 FOR VALUES FROM ('2020-04-01 00:00:00') TO ('2020-05-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202005 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202005 FOR VALUES FROM ('2020-05-01 00:00:00') TO ('2020-06-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202006 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202006 FOR VALUES FROM ('2020-06-01 00:00:00') TO ('2020-07-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202007 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202007 FOR VALUES FROM ('2020-07-01 00:00:00') TO ('2020-08-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202008 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202008 FOR VALUES FROM ('2020-08-01 00:00:00') TO ('2020-09-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202009 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202009 FOR VALUES FROM ('2020-09-01 00:00:00') TO ('2020-10-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202010 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202010 FOR VALUES FROM ('2020-10-01 00:00:00') TO ('2020-11-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202011 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202011 FOR VALUES FROM ('2020-11-01 00:00:00') TO ('2020-12-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202012 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202012 FOR VALUES FROM ('2020-12-01 00:00:00') TO ('2021-01-01 00:00:00');
+
+CREATE TABLE partitions.audit_events_part_5fc467ac26_202101 (
+    id integer NOT NULL,
+    author_id integer NOT NULL,
+    type character varying NOT NULL,
+    entity_id integer NOT NULL,
+    entity_type character varying NOT NULL,
+    details text,
+    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL
+);
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26 ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202101 FOR VALUES FROM ('2021-01-01 00:00:00') TO ('2021-02-01 00:00:00');
 
 CREATE TABLE public.abuse_reports (
     id integer NOT NULL,
@@ -7911,6 +8813,231 @@ ALTER TABLE ONLY public.x509_issuers ALTER COLUMN id SET DEFAULT nextval('public
 
 ALTER TABLE ONLY public.zoom_meetings ALTER COLUMN id SET DEFAULT nextval('public.zoom_meetings_id_seq'::regclass);
 
+ALTER TABLE ONLY public.audit_events_part_5fc467ac26
+    ADD CONSTRAINT audit_events_part_5fc467ac26_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201412
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201412_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201501
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201501_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201502
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201502_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201503
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201503_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201504
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201504_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201505
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201505_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201506
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201506_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201507
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201507_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201508
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201508_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201509
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201509_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201510
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201510_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201511
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201511_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201512
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201512_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201601
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201601_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201602
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201602_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201603
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201603_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201604
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201604_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201605
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201605_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201606
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201606_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201607
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201607_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201608
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201608_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201609
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201609_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201610
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201610_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201611
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201611_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201612
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201612_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201701
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201701_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201702
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201702_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201703
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201703_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201704
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201704_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201705
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201705_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201706
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201706_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201707
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201707_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201708
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201708_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201709
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201709_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201710
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201710_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201711
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201711_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201712
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201712_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201801
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201801_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201802
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201802_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201803
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201803_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201804
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201804_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201805
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201805_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201806
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201806_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201807
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201807_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201808
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201808_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201809
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201809_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201810
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201810_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201811
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201811_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201812
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201812_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201901
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201901_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201902
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201902_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201903
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201903_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201904
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201904_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201905
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201905_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201906
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201906_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201907
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201907_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201908
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201908_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201909
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201909_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201910
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201910_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201911
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201911_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_201912
+    ADD CONSTRAINT audit_events_part_5fc467ac26_201912_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202001
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202001_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202002
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202002_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202003
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202003_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202004
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202004_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202005
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202005_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202006
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202006_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202007
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202007_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202008
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202008_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202009
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202009_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202010
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202010_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202011
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202011_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202012
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202012_pkey PRIMARY KEY (id, created_at);
+
+ALTER TABLE ONLY partitions.audit_events_part_5fc467ac26_202101
+    ADD CONSTRAINT audit_events_part_5fc467ac26_202101_pkey PRIMARY KEY (id, created_at);
+
 ALTER TABLE ONLY public.abuse_reports
     ADD CONSTRAINT abuse_reports_pkey PRIMARY KEY (id);
 
@@ -10996,6 +12123,154 @@ CREATE UNIQUE INDEX vulnerability_feedback_unique_idx ON public.vulnerability_fe
 
 CREATE UNIQUE INDEX vulnerability_occurrence_pipelines_on_unique_keys ON public.vulnerability_occurrence_pipelines USING btree (occurrence_id, pipeline_id);
 
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201412_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201501_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201502_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201503_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201504_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201505_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201506_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201507_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201508_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201509_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201510_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201511_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201512_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201601_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201602_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201603_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201604_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201605_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201606_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201607_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201608_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201609_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201610_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201611_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201612_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201701_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201702_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201703_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201704_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201705_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201706_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201707_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201708_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201709_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201710_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201711_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201712_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201801_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201802_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201803_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201804_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201805_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201806_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201807_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201808_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201809_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201810_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201811_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201812_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201901_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201902_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201903_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201904_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201905_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201906_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201907_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201908_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201909_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201910_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201911_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_201912_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202001_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202002_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202003_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202004_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202005_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202006_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202007_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202008_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202009_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202010_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202011_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202012_pkey;
+
+ALTER INDEX public.audit_events_part_5fc467ac26_pkey ATTACH PARTITION partitions.audit_events_part_5fc467ac26_202101_pkey;
+
 ALTER TABLE ONLY public.chat_names
     ADD CONSTRAINT fk_00797a2bf9 FOREIGN KEY (service_id) REFERENCES public.services(id) ON DELETE CASCADE;
 
@@ -13870,5 +15145,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200514000340
 20200515155620
 20200519115908
+20200520103620
 \.
 

@@ -48,7 +48,7 @@ module Gitlab
           change_column_default(table_name, primary_key, nil)
         end
 
-        def create_range_partitions(table_name, column_name, min_time, max_time)
+        def create_range_partitions(table_name, column_name, min_time, max_time, schema: 'partitions')
           min_date = min_time.beginning_of_month.to_date
           max_date = max_time.next_month.beginning_of_month.to_date
 
@@ -59,7 +59,7 @@ module Gitlab
             upper_bound = next_date.strftime('%Y-%m-%d')
 
             execute(<<~SQL)
-              CREATE TABLE #{partition_name} PARTITION OF #{table_name}
+              CREATE TABLE #{schema}.#{partition_name} PARTITION OF #{table_name}
               FOR VALUES FROM ('#{lower_bound}') TO ('#{upper_bound}')
             SQL
 
