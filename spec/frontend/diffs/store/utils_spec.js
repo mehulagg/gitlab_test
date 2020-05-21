@@ -19,15 +19,6 @@ import { noteableDataMock } from '../../notes/mock_data';
 const getDiffFileMock = () => JSON.parse(JSON.stringify(diffFileMockData));
 
 describe('DiffsStoreUtils', () => {
-  describe('findDiffFile', () => {
-    const files = [{ file_hash: 1, name: 'one' }];
-
-    it('should return correct file', () => {
-      expect(utils.findDiffFile(files, 1).name).toEqual('one');
-      expect(utils.findDiffFile(files, 2)).toBeUndefined();
-    });
-  });
-
   describe('getReversePosition', () => {
     it('should return correct line position name', () => {
       expect(utils.getReversePosition(LINE_POSITION_RIGHT)).toEqual(LINE_POSITION_LEFT);
