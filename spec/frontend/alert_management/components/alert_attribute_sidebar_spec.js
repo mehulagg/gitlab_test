@@ -1,12 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { GlDropdownItem } from '@gitlab/ui';
-import AlertAttributeSidebar from '~/alert_management/components/alert_attribute_sidebar.vue';
+import AlertSidebar from '~/alert_management/components/alert_sidebar.vue';
 import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert_status.graphql';
-import createFlash from '~/flash';
 import mockAlerts from '../mocks/alerts.json';
 
 const mockAlert = mockAlerts[0];
-jest.mock('~/flash');
 
 describe('Alert Details Sidebar', () => {
   let wrapper;
@@ -19,7 +17,7 @@ describe('Alert Details Sidebar', () => {
     mountMethod = mount,
     stubs = {},
   } = {}) {
-    wrapper = mountMethod(AlertAttributeSidebar, {
+    wrapper = mountMethod(AlertSidebar, {
       propsData: {
         alert: { ...mockAlert },
         ...data,
@@ -80,12 +78,14 @@ describe('Alert Details Sidebar', () => {
       });
     });
 
-    it('calls `createFlash` when request fails', () => {
+    it('emits an error when request fails', () => {
+      jest.spyOn(wrapper.vm, '$emit').mockImplementation(() => {});
       jest.spyOn(wrapper.vm.$apollo, 'mutate').mockReturnValue(Promise.reject(new Error()));
       findStatusDropdownItem().vm.$emit('click');
 
       setImmediate(() => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith(
+          'alert-sidebar-error',
           'There was an error while updating the status of the alert. Please try again.',
         );
       });

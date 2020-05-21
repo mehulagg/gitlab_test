@@ -1751,7 +1751,7 @@ msgstr ""
 msgid "AlertManagement|Alert severity"
 msgstr ""
 
-msgid "AlertManagement|Alert status"
+msgid "AlertManagement|Alert status: %{status}"
 msgstr ""
 
 msgid "AlertManagement|Alerts"
@@ -1763,7 +1763,7 @@ msgstr ""
 msgid "AlertManagement|Assign alert severity"
 msgstr ""
 
-msgid "AlertManagement|Assign alert status"
+msgid "AlertManagement|Assign status"
 msgstr ""
 
 msgid "AlertManagement|Authorize external service"

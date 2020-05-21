@@ -1,7 +1,14 @@
 <script>
-import { GlIcon, GlDropdown, GlDropdownItem, GlLoadingIcon, GlTooltip, GlButton } from '@gitlab/ui';
+import {
+  GlIcon,
+  GlDropdown,
+  GlDropdownItem,
+  GlLoadingIcon,
+  GlTooltip,
+  GlButton,
+  GlSprintf,
+} from '@gitlab/ui';
 import { s__ } from '~/locale';
-import createFlash from '~/flash';
 import updateAlertStatus from '../../graphql/mutations/update_alert_status.graphql';
 
 export default {
@@ -17,6 +24,7 @@ export default {
     GlLoadingIcon,
     GlTooltip,
     GlButton,
+    GlSprintf,
   },
   props: {
     projectPath: {
@@ -38,17 +46,6 @@ export default {
       isDropdownShowing: false,
       isUpdating: false,
     };
-  },
-  computed: {
-    tooltipText() {
-      let tooltipText = s__('AlertManagement|Alert status');
-
-      if (this.alert.status) {
-        tooltipText += `: ${this.alert.status}`;
-      }
-
-      return tooltipText;
-    },
   },
   methods: {
     hideDropdown() {
@@ -80,7 +77,8 @@ export default {
           this.isUpdating = false;
         })
         .catch(() => {
-          createFlash(
+          this.$emit(
+            'alert-sidebar-error',
             s__(
               'AlertManagement|There was an error while updating the status of the alert. Please try again.',
             ),
@@ -98,17 +96,19 @@ export default {
 <template>
   <div class="block alert-status">
     <div ref="status" class="sidebar-collapsed-icon" @click="onClickCollapsedIcon">
-      <gl-icon name="severity-critical" :size="14" />
-
+      <gl-icon name="status" :size="14" />
       <gl-loading-icon v-if="isUpdating" />
-      <p v-else class="collapse-truncated-title px-1">{{ $options.statuses[alert.status] }}</p>
     </div>
     <gl-tooltip :target="() => $refs.status" boundary="viewport" placement="left">
-      {{ tooltipText }}
+      <gl-sprintf :message="s__('AlertManagement|Alert status: %{status}')">
+        <template #status>
+          {{ alert.status.toLowerCase() }}
+        </template>
+      </gl-sprintf>
     </gl-tooltip>
 
     <div class="hide-collapsed">
-      <p class="title d-flex justify-content-between">
+      <p class="title gl-display-flex justify-content-between">
         {{ s__('AlertManagement|Status') }}
         <a
           v-if="isEditable"
@@ -130,18 +130,21 @@ export default {
           ref="dropdown"
           :text="$options.statuses[alert.status]"
           class="w-100"
+          toggle-class="dropdown-menu-toggle"
+          variant="outline-default"
           @keydown.esc.native="hideDropdown"
           @hide="hideDropdown"
         >
           <div class="dropdown-title">
-            <span class="alert-title">{{ s__('AlertManagement|Assign alert status') }}</span>
-            <gl-button
-              :aria-label="__('Close')"
-              variant="link"
+            <span class="alert-title">{{ s__('AlertManagement|Assign status') }}</span>
+            <button
               class="dropdown-title-button dropdown-menu-close"
-              icon="close"
+              :aria-label="__('Close')"
+              type="button"
               @click="hideDropdown"
-            />
+            >
+              <i aria-hidden="true" class="fa fa-times dropdown-menu-close-icon"> </i>
+            </button>
           </div>
           <div class="dropdown-content dropdown-body">
             <gl-dropdown-item
@@ -149,16 +152,11 @@ export default {
               :key="field"
               data-testid="statusDropdownItem"
               class="gl-vertical-align-middle"
+              :active="label.toUpperCase() === alert.status"
+              :active-class="'is-active'"
               @click="updateAlertStatus(label)"
             >
-              <span class="d-flex">
-                <gl-icon
-                  class="flex-shrink-0 append-right-4"
-                  :class="{ invisible: label.toUpperCase() !== alert.status }"
-                  name="mobile-issue-close"
-                />
-                {{ label }}
-              </span>
+              {{ label }}
             </gl-dropdown-item>
           </div>
         </gl-dropdown>
@@ -170,7 +168,7 @@ export default {
         class="value m-0"
         :class="{ 'no-value': !$options.statuses[alert.status] }"
       >
-        <span v-if="$options.statuses[alert.status]" class="text-plain">{{
+        <span v-if="$options.statuses[alert.status]" class="gl-text-gray-700">{{
           $options.statuses[alert.status]
         }}</span>
         <span v-else>

@@ -7,7 +7,7 @@ import { fetchPolicies } from '~/lib/graphql';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { ALERTS_SEVERITY_LABELS } from '../constants';
-import AlertAttributeSidebar from './alert_attribute_sidebar.vue';
+import AlertSidebar from './alert_sidebar.vue';
 
 export default {
   i18n: {
@@ -29,7 +29,7 @@ export default {
     GlTabs,
     GlButton,
     TimeAgoTooltip,
-    AlertAttributeSidebar,
+    AlertSidebar,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -66,7 +66,13 @@ export default {
     },
   },
   data() {
-    return { alert: null, errored: false, isErrorDismissed: false, sidebarCollapsed: true };
+    return {
+      alert: null,
+      errored: false,
+      isErrorDismissed: false,
+      sidebarCollapsed: false,
+      sidebarErrorMessage: '',
+    };
   },
   computed: {
     loading() {
@@ -84,9 +90,14 @@ export default {
   methods: {
     dismissError() {
       this.isErrorDismissed = true;
+      this.sidebarErrorMessage = '';
     },
     toggleSidebar() {
       this.sidebarCollapsed = !this.sidebarCollapsed;
+    },
+    handleAlertSidebarError(errorMessage) {
+      this.errored = true;
+      this.sidebarErrorMessage = errorMessage;
     },
   },
 };
@@ -94,7 +105,7 @@ export default {
 <template>
   <div>
     <gl-alert v-if="showErrorMsg" variant="danger" @dismiss="dismissError">
-      {{ $options.i18n.errorMsg }}
+      {{ sidebarErrorMessage || $options.i18n.errorMsg }}
     </gl-alert>
     <div v-if="loading"><gl-loading-icon size="lg" class="gl-mt-5" /></div>
     <div v-if="alert" class="alert-management-details gl-relative">
@@ -184,11 +195,12 @@ export default {
           </ul>
         </gl-tab>
       </gl-tabs>
-      <alert-attribute-sidebar
+      <alert-sidebar
         :project-path="projectPath"
         :alert="alert"
         :sidebar-collapsed="sidebarCollapsed"
         @toggle-sidebar="toggleSidebar"
+        @alert-sidebar-error="handleAlertSidebarError"
       />
     </div>
   </div>

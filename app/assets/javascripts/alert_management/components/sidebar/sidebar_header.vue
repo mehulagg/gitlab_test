@@ -13,10 +13,6 @@ export default {
       type: Boolean,
       required: true,
     },
-    isUserSignedIn: {
-      type: Boolean,
-      required: true,
-    },
   },
   methods: {
     toggleSidebar() {
@@ -34,10 +30,6 @@ export default {
       css-classes="float-right"
       @toggle="toggleSidebar()"
     />
-    <sidebar-todo
-      v-if="!sidebarCollapsed"
-      :sidebar-collapsed="sidebarCollapsed"
-      :is-user-signed-in="isUserSignedIn"
-    />
+    <sidebar-todo v-if="!sidebarCollapsed" :sidebar-collapsed="sidebarCollapsed" />
   </div>
 </template>
