@@ -57,6 +57,7 @@ describe('Dashboard Panel', () => {
   const findCtxMenu = () => wrapper.find({ ref: 'contextualMenu' });
   const findMenuItems = () => wrapper.findAll(GlDropdownItem);
   const findMenuItemByText = text => findMenuItems().filter(i => i.text() === text);
+  const findDropdownWrapper = () => wrapper.find('[data-testid="dropdown-wrapper"]');
 
   const createWrapper = (props, options) => {
     wrapper = shallowMount(DashboardPanel, {
@@ -210,6 +211,28 @@ describe('Dashboard Panel', () => {
 
     it('includes a default group id', () => {
       expect(wrapper.vm.groupId).toBe('dashboard-panel');
+    });
+
+    describe('keyboard shortcuts', () => {
+      let shortcutMethodSpy;
+
+      it.each`
+        method                                | keyShortcut
+        ${'showAlertModal'}                   | ${'a'}
+        ${'onExpand'}                         | ${'e'}
+        ${'visitLogsPage'}                    | ${'l'}
+        ${'downloadCsvFromKeyboardShortcut'}  | ${'d'}
+        ${'copyChartLinkFromKeyboardShotcut'} | ${'c'}
+      `('calls the $method function when $keyShortcut is pressed', ({ method, keyShortcut }) => {
+        shortcutMethodSpy = jest.spyOn(wrapper.vm, method).mockImplementation();
+        const dropdownWrapper = findDropdownWrapper();
+
+        dropdownWrapper.trigger('keyup', {
+          key: keyShortcut,
+        });
+
+        expect(shortcutMethodSpy).toHaveBeenCalled();
+      });
     });
 
     describe('Supports different panel types', () => {

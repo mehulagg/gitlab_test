@@ -2,6 +2,7 @@
 import { mapState } from 'vuex';
 import { pickBy } from 'lodash';
 import invalidUrl from '~/lib/utils/invalid_url';
+import { relativePathToAbsolute, getBaseURL, visitUrl, isSafeURL } from '~/lib/utils/url_utility';
 import {
   GlResizeObserverDirective,
   GlIcon,
@@ -29,7 +30,6 @@ import MonitorStackedColumnChart from './charts/stacked_column.vue';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import AlertWidget from './alert_widget.vue';
 import { timeRangeToUrl, downloadCSVOptions, generateLinkToChartOptions } from '../utils';
-import { isSafeURL } from '~/lib/utils/url_utility';
 
 const events = {
   timeRangeZoom: 'timerangezoom',
@@ -292,6 +292,24 @@ export default {
     safeUrl(url) {
       return isSafeURL(url) ? url : '#';
     },
+    showAlertModal() {
+      this.$root.$emit('bv::show::modal', `alert-modal-${this.graphData.id}`);
+    },
+    visitLogsPage() {
+      if (this.logsPathWithTimeRange) {
+        visitUrl(relativePathToAbsolute(this.logsPathWithTimeRange, getBaseURL()));
+      }
+    },
+    downloadCsvFromKeyboardShortcut() {
+      if (this.csvText) {
+        this.$refs.downloadCsvLink.$el.firstChild.click();
+      }
+    },
+    copyChartLinkFromKeyboardShotcut() {
+      if (this.clipboardText) {
+        this.$refs.copyChartLink.$el.firstChild.click();
+      }
+    },
   },
   panelTypes,
 };
@@ -328,7 +346,15 @@ export default {
         ref="contextualMenu"
         data-qa-selector="prometheus_graph_widgets"
       >
-        <div class="d-flex align-items-center">
+        <div
+          data-testid="dropdown-wrapper"
+          class="d-flex align-items-center"
+          @keyup.e="onExpand"
+          @keyup.l="visitLogsPage"
+          @keyup.a="showAlertModal"
+          @keyup.d="downloadCsvFromKeyboardShortcut"
+          @keyup.c="copyChartLinkFromKeyboardShotcut"
+        >
           <gl-dropdown
             v-gl-tooltip
             toggle-class="shadow-none border-0"
