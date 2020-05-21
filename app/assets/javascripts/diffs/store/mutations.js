@@ -1,6 +1,5 @@
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import {
-  findDiffFile,
   addLineReferences,
   removeMatchLine,
   addContextLines,
@@ -8,6 +7,7 @@ import {
   isDiscussionApplicableToLine,
   updateLineInFile,
 } from './utils';
+import { getByIdentifier } from './diff_file';
 import * as types from './mutation_types';
 
 function updateDiffFilesInState(state, files) {
@@ -128,7 +128,7 @@ export default {
   [types.ADD_CONTEXT_LINES](state, options) {
     const { lineNumbers, contextLines, fileHash, isExpandDown, nextLineNumbers } = options;
     const { bottom } = options.params;
-    const diffFile = findDiffFile(state.diffFiles, fileHash);
+    const diffFile = getByIdentifier({ diffFiles: state.diffFiles, identifier: fileHash });
 
     removeMatchLine(diffFile, lineNumbers, bottom);
 
@@ -334,18 +334,18 @@ export default {
   [types.TOGGLE_FILE_FINDER_VISIBLE](state, visible) {
     state.fileFinderVisible = visible;
   },
-  [types.REQUEST_FULL_DIFF](state, filePath) {
-    const file = findDiffFile(state.diffFiles, filePath, 'file_path');
+  [types.REQUEST_FULL_DIFF](state, identifier) {
+    const file = getByIdentifier({ diffFiles: state.diffFiles, identifier });
 
     file.isLoadingFullFile = true;
   },
-  [types.RECEIVE_FULL_DIFF_ERROR](state, filePath) {
-    const file = findDiffFile(state.diffFiles, filePath, 'file_path');
+  [types.RECEIVE_FULL_DIFF_ERROR](state, identifier) {
+    const file = getByIdentifier({ diffFiles: state.diffFiles, identifier });
 
     file.isLoadingFullFile = false;
   },
-  [types.RECEIVE_FULL_DIFF_SUCCESS](state, { filePath }) {
-    const file = findDiffFile(state.diffFiles, filePath, 'file_path');
+  [types.RECEIVE_FULL_DIFF_SUCCESS](state, { identifier }) {
+    const file = getByIdentifier({ diffFiles: state.diffFiles, identifier });
 
     file.isShowingFullFile = true;
     file.isLoadingFullFile = false;
@@ -383,8 +383,8 @@ export default {
 
     file.renderingLines = !file.renderingLines;
   },
-  [types.SET_DIFF_FILE_VIEWER](state, { filePath, viewer }) {
-    const file = findDiffFile(state.diffFiles, filePath, 'file_path');
+  [types.SET_DIFF_FILE_VIEWER](state, { identifier, viewer }) {
+    const file = getByIdentifier({ diffFiles: state.diffFiles, identifier });
 
     file.viewer = viewer;
   },

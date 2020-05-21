@@ -35,8 +35,6 @@ import {
   setRenderTreeList,
   setShowWhitespace,
   setRenderIt,
-  requestFullDiff,
-  receiveFullDiffSucess,
   receiveFullDiffError,
   fetchFullDiff,
   toggleFullDiff,
@@ -1136,34 +1134,8 @@ describe('DiffsStoreActions', () => {
     });
   });
 
-  describe('requestFullDiff', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
-      testAction(
-        requestFullDiff,
-        'file',
-        {},
-        [{ type: types.REQUEST_FULL_DIFF, payload: 'file' }],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveFullDiffSucess', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
-      testAction(
-        receiveFullDiffSucess,
-        { filePath: 'test' },
-        {},
-        [{ type: types.RECEIVE_FULL_DIFF_SUCCESS, payload: { filePath: 'test' } }],
-        [],
-        done,
-      );
-    });
-  });
-
   describe('receiveFullDiffError', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
+    it('updates state with the file that did not load', done => {
       testAction(
         receiveFullDiffError,
         'file',
@@ -1191,21 +1163,17 @@ describe('DiffsStoreActions', () => {
         mock.onGet(`${gl.TEST_HOST}/context`).replyOnce(200, ['test']);
       });
 
-      it('dispatches receiveFullDiffSucess', done => {
+      it('commits the success and dispatches an action to expand the new lines', done => {
         const file = {
           context_lines_path: `${gl.TEST_HOST}/context`,
-          file_path: 'test',
           file_hash: 'test',
         };
         testAction(
           fetchFullDiff,
           file,
           null,
-          [],
-          [
-            { type: 'receiveFullDiffSucess', payload: { filePath: 'test' } },
-            { type: 'setExpandedDiffLines', payload: { file, data: ['test'] } },
-          ],
+          [{ type: types.RECEIVE_FULL_DIFF_SUCCESS, payload: { identifier: 'test' } }],
+          [{ type: 'setExpandedDiffLines', payload: { file, data: ['test'] } }],
           done,
         );
       });
@@ -1219,10 +1187,14 @@ describe('DiffsStoreActions', () => {
       it('dispatches receiveFullDiffError', done => {
         testAction(
           fetchFullDiff,
-          { context_lines_path: `${gl.TEST_HOST}/context`, file_path: 'test', file_hash: 'test' },
+          {
+            context_lines_path: `${gl.TEST_HOST}/context`,
+            file_path: 'testpath',
+            file_hash: 'testhash',
+          },
           null,
           [],
-          [{ type: 'receiveFullDiffError', payload: 'test' }],
+          [{ type: 'receiveFullDiffError', payload: 'testhash' }],
           done,
         );
       });
@@ -1234,7 +1206,7 @@ describe('DiffsStoreActions', () => {
 
     beforeEach(() => {
       state = {
-        diffFiles: [{ file_path: 'test', isShowingFullFile: false }],
+        diffFiles: [{ file_path: 'test', file_hash: 'testhash', isShowingFullFile: false }],
       };
     });
 
@@ -1243,11 +1215,8 @@ describe('DiffsStoreActions', () => {
         toggleFullDiff,
         'test',
         state,
-        [],
-        [
-          { type: 'requestFullDiff', payload: 'test' },
-          { type: 'fetchFullDiff', payload: state.diffFiles[0] },
-        ],
+        [{ type: types.REQUEST_FULL_DIFF, payload: 'testhash' }],
+        [{ type: 'fetchFullDiff', payload: state.diffFiles[0] }],
         done,
       );
     });
@@ -1255,12 +1224,13 @@ describe('DiffsStoreActions', () => {
 
   describe('switchToFullDiffFromRenamedFile', () => {
     const SUCCESS_URL = 'fakehost/context.success';
+    const testFileHash = 'testhash';
     const testFilePath = 'testpath';
     const updatedViewerName = 'testviewer';
     const preparedLine = { prepared: 'in-a-test' };
     const testFile = {
       file_path: testFilePath,
-      file_hash: 'testhash',
+      file_hash: testFileHash,
       alternate_viewer: { name: updatedViewerName },
     };
     const updatedViewer = { name: updatedViewerName, collapsed: false };
@@ -1298,7 +1268,7 @@ describe('DiffsStoreActions', () => {
             [
               {
                 type: types.SET_DIFF_FILE_VIEWER,
-                payload: { filePath: testFilePath, viewer: updatedViewer },
+                payload: { identifier: testFileHash, viewer: updatedViewer },
               },
               {
                 type: types.SET_CURRENT_VIEW_DIFF_FILE_LINES,

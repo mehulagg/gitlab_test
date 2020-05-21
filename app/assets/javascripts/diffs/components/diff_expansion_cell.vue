@@ -5,6 +5,7 @@ import { s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import { UNFOLD_COUNT, INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE } from '../constants';
 import * as utils from '../store/utils';
+import { getByIdentifier } from '../store/diff_file';
 import tooltip from '../../vue_shared/directives/tooltip';
 
 const EXPAND_ALL = 0;
@@ -76,7 +77,7 @@ export default {
   methods: {
     ...mapActions('diffs', ['loadMoreLines']),
     getPrevLineNumber(oldLineNumber, newLineNumber) {
-      const diffFile = utils.findDiffFile(this.diffFiles, this.fileHash);
+      const diffFile = getByIdentifier({ diffFiles: this.diffFiles, identifier: this.fileHash });
       const lines = {
         [INLINE_DIFF_VIEW_TYPE]: diffFile.highlighted_diff_lines,
         [PARALLEL_DIFF_VIEW_TYPE]: diffFile.parallel_diff_lines,

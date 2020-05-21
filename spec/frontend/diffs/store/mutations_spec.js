@@ -4,6 +4,7 @@ import * as types from '~/diffs/store/mutation_types';
 import { INLINE_DIFF_VIEW_TYPE } from '~/diffs/constants';
 import diffFileMockData from '../mock_data/diff_file';
 import * as utils from '~/diffs/store/utils';
+import * as diffFileModule from '~/diffs/store/diff_file';
 
 describe('DiffsStoreMutations', () => {
   describe('SET_BASE_CONFIG', () => {
@@ -200,14 +201,18 @@ describe('DiffsStoreMutations', () => {
       const state = { diffFiles: [diffFile], diffViewType: 'viewType' };
       const lines = [{ old_line: 1, new_line: 1 }];
 
-      jest.spyOn(utils, 'findDiffFile').mockImplementation(() => diffFile);
+      jest.spyOn(diffFileModule, 'getByIdentifier').mockImplementation(() => diffFile);
+
       jest.spyOn(utils, 'removeMatchLine').mockImplementation(() => null);
       jest.spyOn(utils, 'addLineReferences').mockImplementation(() => lines);
       jest.spyOn(utils, 'addContextLines').mockImplementation(() => null);
 
       mutations[types.ADD_CONTEXT_LINES](state, options);
 
-      expect(utils.findDiffFile).toHaveBeenCalledWith(state.diffFiles, options.fileHash);
+      expect(diffFileModule.getByIdentifier).toHaveBeenCalledWith({
+        diffFiles: state.diffFiles,
+        identifier: options.fileHash,
+      });
       expect(utils.removeMatchLine).toHaveBeenCalledWith(
         diffFile,
         options.lineNumbers,
@@ -876,7 +881,7 @@ describe('DiffsStoreMutations', () => {
   describe('REQUEST_FULL_DIFF', () => {
     it('sets isLoadingFullFile to true', () => {
       const state = {
-        diffFiles: [{ file_path: 'test', isLoadingFullFile: false }],
+        diffFiles: [{ file_hash: 'test', isLoadingFullFile: false }],
       };
 
       mutations[types.REQUEST_FULL_DIFF](state, 'test');
@@ -888,7 +893,7 @@ describe('DiffsStoreMutations', () => {
   describe('RECEIVE_FULL_DIFF_ERROR', () => {
     it('sets isLoadingFullFile to false', () => {
       const state = {
-        diffFiles: [{ file_path: 'test', isLoadingFullFile: true }],
+        diffFiles: [{ file_hash: 'test', isLoadingFullFile: true }],
       };
 
       mutations[types.RECEIVE_FULL_DIFF_ERROR](state, 'test');
@@ -902,7 +907,7 @@ describe('DiffsStoreMutations', () => {
       const state = {
         diffFiles: [
           {
-            file_path: 'test',
+            file_hash: 'test',
             isLoadingFullFile: true,
             isShowingFullFile: false,
             highlighted_diff_lines: [],
@@ -911,7 +916,7 @@ describe('DiffsStoreMutations', () => {
         ],
       };
 
-      mutations[types.RECEIVE_FULL_DIFF_SUCCESS](state, { filePath: 'test', data: [] });
+      mutations[types.RECEIVE_FULL_DIFF_SUCCESS](state, { identifier: 'test', data: [] });
 
       expect(state.diffFiles[0].isLoadingFullFile).toBe(false);
     });
@@ -920,7 +925,7 @@ describe('DiffsStoreMutations', () => {
       const state = {
         diffFiles: [
           {
-            file_path: 'test',
+            file_hash: 'test',
             isLoadingFullFile: true,
             isShowingFullFile: false,
             highlighted_diff_lines: [],
@@ -929,7 +934,7 @@ describe('DiffsStoreMutations', () => {
         ],
       };
 
-      mutations[types.RECEIVE_FULL_DIFF_SUCCESS](state, { filePath: 'test', data: [] });
+      mutations[types.RECEIVE_FULL_DIFF_SUCCESS](state, { identifier: 'test', data: [] });
 
       expect(state.diffFiles[0].isShowingFullFile).toBe(true);
     });
@@ -1045,14 +1050,14 @@ describe('DiffsStoreMutations', () => {
     it("should update the correct diffFile's viewer property", () => {
       const state = {
         diffFiles: [
-          { file_path: 'SearchString', viewer: 'OLD VIEWER' },
-          { file_path: 'OtherSearchString' },
-          { file_path: 'SomeOtherString' },
+          { file_hash: 'SearchString', viewer: 'OLD VIEWER' },
+          { file_hash: 'OtherSearchString' },
+          { file_hash: 'SomeOtherString' },
         ],
       };
 
       mutations[types.SET_DIFF_FILE_VIEWER](state, {
-        filePath: 'SearchString',
+        identifier: 'SearchString',
         viewer: 'NEW VIEWER',
       });
 
@@ -1061,7 +1066,7 @@ describe('DiffsStoreMutations', () => {
       expect(state.diffFiles[2].viewer).not.toBeDefined();
 
       mutations[types.SET_DIFF_FILE_VIEWER](state, {
-        filePath: 'OtherSearchString',
+        identifier: 'OtherSearchString',
         viewer: 'NEW VIEWER',
       });
 

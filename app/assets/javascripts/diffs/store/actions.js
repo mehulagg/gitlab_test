@@ -507,11 +507,8 @@ export const cacheTreeListWidth = (_, size) => {
   localStorage.setItem(TREE_LIST_WIDTH_STORAGE_KEY, size);
 };
 
-export const requestFullDiff = ({ commit }, filePath) => commit(types.REQUEST_FULL_DIFF, filePath);
-export const receiveFullDiffSucess = ({ commit }, { filePath }) =>
-  commit(types.RECEIVE_FULL_DIFF_SUCCESS, { filePath });
-export const receiveFullDiffError = ({ commit }, filePath) => {
-  commit(types.RECEIVE_FULL_DIFF_ERROR, filePath);
+export const receiveFullDiffError = ({ commit }, fileHash) => {
+  commit(types.RECEIVE_FULL_DIFF_ERROR, fileHash);
   createFlash(s__('MergeRequest|Error loading full diff. Please try again.'));
 };
 
@@ -600,7 +597,7 @@ export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
   }
 };
 
-export const fetchFullDiff = ({ dispatch }, file) =>
+export const fetchFullDiff = ({ commit, dispatch }, file) =>
   axios
     .get(file.context_lines_path, {
       params: {
@@ -609,20 +606,21 @@ export const fetchFullDiff = ({ dispatch }, file) =>
       },
     })
     .then(({ data }) => {
-      dispatch('receiveFullDiffSucess', { filePath: file.file_path });
+      commit(types.RECEIVE_FULL_DIFF_SUCCESS, { identifier: file.file_hash });
+
       dispatch('setExpandedDiffLines', { file, data });
     })
-    .catch(() => dispatch('receiveFullDiffError', file.file_path));
+    .catch(() => dispatch('receiveFullDiffError', file.file_hash));
 
-export const toggleFullDiff = ({ dispatch, getters, state }, filePath) => {
+export const toggleFullDiff = ({ dispatch, commit, getters, state }, filePath) => {
   const file = state.diffFiles.find(f => f.file_path === filePath);
 
-  dispatch('requestFullDiff', filePath);
+  commit(types.REQUEST_FULL_DIFF, file.file_hash);
 
   if (file.isShowingFullFile) {
     dispatch('loadCollapsedDiff', file)
       .then(() => dispatch('assignDiscussionsToDiff', getters.getDiffFileDiscussions(file)))
-      .catch(() => dispatch('receiveFullDiffError', filePath));
+      .catch(() => dispatch('receiveFullDiffError', file.file_hash));
   } else {
     dispatch('fetchFullDiff', file);
   }
@@ -647,7 +645,7 @@ export function switchToFullDiffFromRenamedFile({ commit, dispatch, state }, { d
       );
 
       commit(types.SET_DIFF_FILE_VIEWER, {
-        filePath: diffFile.file_path,
+        identifier: diffFile.file_hash,
         viewer: {
           ...diffFile.alternate_viewer,
           collapsed: false,
