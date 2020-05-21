@@ -5,7 +5,6 @@ import {
   GlDropdownItem,
   GlLoadingIcon,
   GlTooltip,
-  GlButton,
   GlSprintf,
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
@@ -23,7 +22,6 @@ export default {
     GlDropdownItem,
     GlLoadingIcon,
     GlTooltip,
-    GlButton,
     GlSprintf,
   },
   props: {
