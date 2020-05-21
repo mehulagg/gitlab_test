@@ -38,6 +38,8 @@ module QA
       def enabled?(key, project: nil)
         feature = JSON.parse(get_features).find { |flag| flag['name'] == key }
 
+        QA::Runtime::Logger.debug(feature)
+
         return false unless feature
         return true if feature['state'] == 'on'
 

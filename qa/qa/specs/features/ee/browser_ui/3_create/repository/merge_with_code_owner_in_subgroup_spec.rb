@@ -8,16 +8,18 @@ module QA
   #  - the tests will not require admin access, and
   #  - the tests can be run in live environments
   # Tracked in https://gitlab.com/gitlab-org/quality/team-tasks/-/issues/511
-  context 'Create', :requires_admin, :skip_live_env do
+  context 'Create' do #, :requires_admin, :skip_live_env do
     describe 'Codeowners' do
       before(:context) do
         @feature_flag = 'skip_web_ui_code_owner_validations'
         @feature_flag_enabled = Runtime::Feature.enabled?(@feature_flag)
         Runtime::Feature.enable_and_verify(@feature_flag) unless @feature_flag_enabled
+        Service::Shellout.shell(%(docker exec gitlab bash -c 'echo "Feature.enabled?(:skip_web_ui_code_owner_validations)" | gitlab-rails console'))
       end
 
       after(:context) do
         Runtime::Feature.disable_and_verify(@feature_flag) unless @feature_flag_enabled
+        Service::Shellout.shell(%(docker exec gitlab bash -c 'echo "Feature.enabled?(:skip_web_ui_code_owner_validations)" | gitlab-rails console'))
       end
 
       context 'when the project is in a subgroup' do
@@ -27,8 +29,12 @@ module QA
             project.initialize_with_readme = true
           end
         end
+        # let(:feature_flag) { 'skip_web_ui_code_owner_validations' }
+        # let(:feature_flag_enabled) { Runtime::Feature.enabled?(feature_flag, project: project) }
 
         before do
+          # Runtime::Feature.enable_and_verify(feature_flag, project: project) unless feature_flag_enabled
+
           project.group.sandbox.add_member(approver, Resource::Members::AccessLevel::MAINTAINER)
 
           Flow::Login.sign_in
@@ -38,6 +44,7 @@ module QA
 
         after do
           project.group.sandbox.remove_member(approver)
+          # Runtime::Feature.disable_and_verify(feature_flag, project: project) unless @feature_flag_enabled
         end
 
         context 'and the code owner is the root group' do
@@ -46,7 +53,7 @@ module QA
           it_behaves_like 'code owner merge request'
         end
 
-        context 'and the code owner is the subgroup' do
+        context 'and the code owner is the subgroup', :focus do
           let(:codeowner) { project.group.full_path }
 
           it_behaves_like 'code owner merge request'

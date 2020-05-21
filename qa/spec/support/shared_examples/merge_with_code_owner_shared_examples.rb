@@ -8,12 +8,12 @@ module QA
 
     it 'is approved and merged' do
       # Require one approval from any eligible user on any branch
-      Page::Project::Menu.perform(&:go_to_general_settings)
-      Page::Project::Settings::Main.perform do |main|
-        main.expand_merge_request_approvals_settings do |settings|
-          settings.set_default_number_of_approvals_required(1)
-        end
-      end
+      # Page::Project::Menu.perform(&:go_to_general_settings)
+      # Page::Project::Settings::Main.perform do |main|
+      #   main.expand_merge_request_approvals_settings do |settings|
+      #     settings.set_default_number_of_approvals_required(1)
+      #   end
+      # end
 
       Resource::Repository::Commit.fabricate_via_api! do |commit|
         commit.project = project
@@ -58,10 +58,10 @@ module QA
         merge_request.visit!
 
         Page::MergeRequest::Show.perform do |merge_request|
-          expect(merge_request.approvals_required_from).to include('Code Owners')
-          expect(merge_request).not_to be_mergeable
+          # expect(merge_request.approvals_required_from).to include('Code Owners')
+          # expect(merge_request).not_to be_mergeable
 
-          merge_request.click_approve
+          # merge_request.click_approve
           merge_request.merge!
 
           expect(merge_request).to be_merged
