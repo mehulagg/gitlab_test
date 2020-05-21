@@ -161,7 +161,7 @@ describe Emails::Profile do
     let_it_be(:user) { create(:user) }
     let_it_be(:ip) { '169.0.0.1' }
 
-    subject { Notify.unknown_sign_in_email(user, ip) }
+    subject { Notify.unknown_sign_in_email(user, ip, Time.now) }
 
     it_behaves_like 'an email sent from GitLab'
     it_behaves_like 'it should not have Gmail Actions links'
@@ -172,26 +172,30 @@ describe Emails::Profile do
     end
 
     it 'has the correct subject' do
-      expect(subject).to have_subject /^Unknown sign-in from new location$/
+      expect(subject).to have_subject "#{Gitlab.config.gitlab.host} sign-in from new location"
     end
 
     it 'mentions the unknown sign-in IP' do
-      expect(subject).to have_body_text /A sign-in to your account has been made from the following IP address: #{ip}./
+      expect(subject).to have_body_text ip
     end
 
-    it 'includes a link to the change password page' do
-      expect(subject).to have_body_text /#{edit_profile_password_path}/
+    it 'includes a link to the change password documentation' do
+      expect(subject).to have_body_text 'https://docs.gitlab.com/ee/user/profile/#changing-your-password'
     end
 
     it 'mentions two factor authentication when two factor is not enabled' do
-      expect(subject).to have_body_text /two-factor authentication/
+      expect(subject).to have_body_text 'two-factor authentication'
+    end
+
+    it 'includes a link to two-factor authentication documentation' do
+      expect(subject).to have_body_text 'https://docs.gitlab.com/ee/user/profile/account/two_factor_authentication.html'
     end
 
     context 'when two factor authentication is enabled' do
       it 'does not mention two factor authentication' do
         two_factor_user = create(:user, :two_factor)
 
-        expect( Notify.unknown_sign_in_email(two_factor_user, ip) )
+        expect( Notify.unknown_sign_in_email(two_factor_user, ip, Time.now) )
           .not_to have_body_text /two-factor authentication/
       end
     end
