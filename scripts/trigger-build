@@ -119,7 +119,7 @@ module Trigger
     private
 
     def downstream_project_path
-      ENV['OMNIBUS_PROJECT_PATH'] || 'gitlab-org/build/omnibus-gitlab-mirror'
+      ENV['OMNIBUS_PROJECT_PATH'] || 'gitlab-org/quality/omnibus-gitlab-mirror'
     end
 
     def ref
