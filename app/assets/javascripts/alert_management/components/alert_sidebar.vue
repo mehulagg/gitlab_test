@@ -25,10 +25,12 @@ export default {
       required: true,
     },
   },
-  methods: {
-    toggleSidebar() {
-      this.$emit('toggle-sidebar');
+  computed: {
+    sidebarCollapsedClass() {
+      return this.sidebarCollapsed ? 'right-sidebar-collapsed' : 'right-sidebar-expanded';
     },
+  },
+  methods: {
     handleAlertSidebarError(errorMessage) {
       this.$emit('alert-sidebar-error', errorMessage);
     },
@@ -37,20 +39,17 @@ export default {
 </script>
 
 <template>
-  <aside
-    :class="{
-      'right-sidebar-expanded': !sidebarCollapsed,
-      'right-sidebar-collapsed': sidebarCollapsed,
-    }"
-    class="right-sidebar alert-sidebar"
-  >
+  <aside :class="sidebarCollapsedClass" class="right-sidebar alert-sidebar">
     <div class="issuable-sidebar js-issuable-update">
-      <sidebar-header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
+      <sidebar-header
+        :sidebar-collapsed="sidebarCollapsed"
+        @toggle-sidebar="$emit('toggle-sidebar')"
+      />
       <sidebar-todo v-if="sidebarCollapsed" :sidebar-collapsed="sidebarCollapsed" />
       <sidebar-status
         :project-path="projectPath"
         :alert="alert"
-        @toggle-sidebar="toggleSidebar"
+        @toggle-sidebar="$emit('toggle-sidebar')"
         @alert-sidebar-error="handleAlertSidebarError"
       />
       <sidebar-severity :alert="alert" @alert-sidebar-error="handleAlertSidebarError" />

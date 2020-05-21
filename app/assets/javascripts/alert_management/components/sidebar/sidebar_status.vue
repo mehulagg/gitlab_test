@@ -45,6 +45,11 @@ export default {
       isUpdating: false,
     };
   },
+  computed: {
+    dropdownClass() {
+      return this.isDropdownShowing ? 'show' : 'd-none';
+    },
+  },
   methods: {
     hideDropdown() {
       this.isDropdownShowing = false;
@@ -72,7 +77,6 @@ export default {
         })
         .then(() => {
           this.hideDropdown();
-          this.isUpdating = false;
         })
         .catch(() => {
           this.$emit(
@@ -81,11 +85,10 @@ export default {
               'AlertManagement|There was an error while updating the status of the alert. Please try again.',
             ),
           );
+        })
+        .finally(() => {
           this.isUpdating = false;
         });
-    },
-    onClickCollapsedIcon() {
-      this.$emit('toggle-sidebar');
     },
   },
 };
@@ -93,7 +96,7 @@ export default {
 
 <template>
   <div class="block alert-status">
-    <div ref="status" class="sidebar-collapsed-icon" @click="onClickCollapsedIcon">
+    <div ref="status" class="sidebar-collapsed-icon" @click="$emit('toggle-sidebar')">
       <gl-icon name="status" :size="14" />
       <gl-loading-icon v-if="isUpdating" />
     </div>
@@ -120,10 +123,7 @@ export default {
         </a>
       </p>
 
-      <div
-        class="dropdown dropdown-menu-selectable"
-        :class="{ show: isDropdownShowing, 'd-none': !isDropdownShowing }"
-      >
+      <div class="dropdown dropdown-menu-selectable" :class="dropdownClass">
         <gl-dropdown
           ref="dropdown"
           :text="$options.statuses[alert.status]"
