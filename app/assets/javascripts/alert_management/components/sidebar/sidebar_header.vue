@@ -14,11 +14,6 @@ export default {
       required: true,
     },
   },
-  methods: {
-    toggleSidebar() {
-      this.$emit('toggle-sidebar');
-    },
-  },
 };
 </script>
 
@@ -28,7 +23,7 @@ export default {
     <toggle-sidebar
       :collapsed="sidebarCollapsed"
       css-classes="float-right"
-      @toggle="toggleSidebar()"
+      @toggle="$emit('toggle-sidebar')"
     />
     <sidebar-todo v-if="!sidebarCollapsed" :sidebar-collapsed="sidebarCollapsed" />
   </div>

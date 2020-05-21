@@ -11,9 +11,6 @@ export default {
       required: true,
     },
   },
-  methods: {
-    toggleTodo() {},
-  },
 };
 </script>
 
@@ -27,7 +24,7 @@ export default {
       :is-action-active="false"
       issuable-type="alert"
       class="disabled"
-      @toggleTodo="toggleTodo"
+      @toggleTodo="() => {}"
     />
   </div>
 </template>

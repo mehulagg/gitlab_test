@@ -1,23 +1,24 @@
-import { mount } from '@vue/test-utils';
-import { GlDropdownItem } from '@gitlab/ui';
-import AlertSidebar from '~/alert_management/components/alert_sidebar.vue';
+import { shallowMount } from '@vue/test-utils';
+import { GlDropdownItem, GlLoadingIcon } from '@gitlab/ui';
+import AlertSidebarStatus from '~/alert_management/components/sidebar/sidebar_status.vue';
 import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert_status.graphql';
 import mockAlerts from '../mocks/alerts.json';
 
 const mockAlert = mockAlerts[0];
 
-describe('Alert Details Sidebar', () => {
+describe('Alert Details Sidebar Status', () => {
   let wrapper;
   const findStatusDropdownItem = () => wrapper.find(GlDropdownItem);
+  const findStatusLoadingIcon = () => wrapper.find(GlLoadingIcon);
 
   function mountComponent({
     data,
     sidebarCollapsed = true,
     loading = false,
-    mountMethod = mount,
+    mountMethod = shallowMount,
     stubs = {},
   } = {}) {
-    wrapper = mountMethod(AlertSidebar, {
+    wrapper = mountMethod(AlertSidebarStatus, {
       propsData: {
         alert: { ...mockAlert },
         ...data,
@@ -78,17 +79,11 @@ describe('Alert Details Sidebar', () => {
       });
     });
 
-    it('emits an error when request fails', () => {
-      jest.spyOn(wrapper.vm, '$emit').mockImplementation(() => {});
+    it('stops updating when the request fails', () => {
       jest.spyOn(wrapper.vm.$apollo, 'mutate').mockReturnValue(Promise.reject(new Error()));
       findStatusDropdownItem().vm.$emit('click');
-
-      setImmediate(() => {
-        expect(wrapper.vm.$emit).toHaveBeenCalledWith(
-          'alert-sidebar-error',
-          'There was an error while updating the status of the alert. Please try again.',
-        );
-      });
+      expect(findStatusLoadingIcon().exists()).toBe(false);
+      expect(wrapper.find('.gl-text-gray-700').text()).toBe('Triggered');
     });
   });
 });
