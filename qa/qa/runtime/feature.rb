@@ -9,14 +9,14 @@ module QA
       SetFeatureError = Class.new(RuntimeError)
       AuthorizationError = Class.new(RuntimeError)
 
-      def enable(key)
+      def enable(key, project: nil)
         QA::Runtime::Logger.info("Enabling feature: #{key}")
-        set_feature(key, true)
+        set_feature(key, true, project: project)
       end
 
-      def disable(key)
+      def disable(key, project: nil)
         QA::Runtime::Logger.info("Disabling feature: #{key}")
-        set_feature(key, false)
+        set_feature(key, false, project: project)
       end
 
       def remove(key)
@@ -27,17 +27,21 @@ module QA
         end
       end
 
-      def enable_and_verify(key)
-        set_and_verify(key, enable: true)
+      def enable_and_verify(key, project: nil)
+        set_and_verify(key, enable: true, project: project)
       end
 
-      def disable_and_verify(key)
-        set_and_verify(key, enable: false)
+      def disable_and_verify(key, project: nil)
+        set_and_verify(key, enable: false, project: project)
       end
 
-      def enabled?(key)
-        feature = JSON.parse(get_features).find { |flag| flag["name"] == key }
-        feature && feature["state"] == "on"
+      def enabled?(key, project: nil)
+        feature = JSON.parse(get_features).find { |flag| flag['name'] == key }
+
+        return false unless feature
+        return true if feature['state'] == 'on'
+
+        feature['state'] == 'conditional' && enabled_for_project?(feature, project)
       end
 
       def get_features
@@ -67,18 +71,22 @@ module QA
         end
       end
 
+      def enabled_for_project?(feature, project)
+        feature['gates'].find { |gate| gate['key'] == 'actors' }.fetch('value').include?("Project:#{project.id}")
+      end
+
       # Change a feature flag and verify that the change was successful
       # Arguments:
       #   key: The feature flag to set (as a string)
       #   enable: `true` to enable the flag, `false` to disable it
-      def set_and_verify(key, enable:)
+      def set_and_verify(key, enable:, project: nil)
         Support::Retrier.retry_on_exception(sleep_interval: 2) do
-          enable ? enable(key) : disable(key)
+          enable ? enable(key, project: project) : disable(key, project: project)
 
           is_enabled = nil
 
           QA::Support::Waiter.wait_until(sleep_interval: 1) do
-            is_enabled = enabled?(key)
+            is_enabled = enabled?(key, project: project)
             is_enabled == enable
           end
 
@@ -88,11 +96,17 @@ module QA
         end
       end
 
-      def set_feature(key, value)
+      def set_feature(key, value, project: nil)
         request = Runtime::API::Request.new(api_client, "/features/#{key}")
-        response = post(request.url, { value: value })
+        data = { value: value }
+        if project
+          data[:project] = project.full_path
+          QA::Runtime::Logger.info("Feature flag set for project: #{project.full_path}")
+        end
+
+        response = post(request.url, data)
         unless response.code == QA::Support::Api::HTTP_STATUS_CREATED
-          raise SetFeatureError, "Setting feature flag #{key} to #{value} failed with `#{response}`."
+          raise SetFeatureError, "Setting feature flag #{key} with #{data} failed with `#{response}`."
         end
       end
     end
