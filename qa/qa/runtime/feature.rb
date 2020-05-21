@@ -43,7 +43,7 @@ module QA
         return false unless feature
         return true if feature['state'] == 'on'
 
-        feature['state'] == 'conditional' && enabled_for_project?(feature, project)
+        feature['state'] == 'conditional' && project && enabled_for_project?(feature, project)
       end
 
       def get_features
