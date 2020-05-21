@@ -40,6 +40,11 @@ export default {
       isUpdating: false,
     };
   },
+  computed: {
+    dropdownClass() {
+      return this.isDropdownShowing ? 'show' : 'd-none';
+    },
+  },
   methods: {
     hideDropdown() {
       this.isDropdownShowing = false;
@@ -67,7 +72,6 @@ export default {
         })
         .then(() => {
           this.hideDropdown();
-          this.isUpdating = false;
         })
         .catch(() => {
           this.$emit(
@@ -76,11 +80,10 @@ export default {
               'AlertManagement|There was an error while updating the severity of the alert. Please try again.',
             ),
           );
+        })
+        .finally(() => {
           this.isUpdating = false;
         });
-    },
-    onClickCollapsedIcon() {
-      this.$emit('toggle-sidebar');
     },
   },
 };
@@ -88,7 +91,7 @@ export default {
 
 <template>
   <div class="block alert-severity">
-    <div ref="severity" class="sidebar-collapsed-icon" @click="onClickCollapsedIcon">
+    <div ref="severity" class="sidebar-collapsed-icon" @click="$emit('toggle-sidebar')">
       <gl-icon
         :size="14"
         :name="`severity-${alert.severity.toLowerCase()}`"
@@ -125,7 +128,7 @@ export default {
 
       <div
         class="dropdown dropdown-menu-selectable"
-        :class="{ show: isDropdownShowing, 'd-none': !isDropdownShowing }"
+        :class="dropdownClass"
       >
         <gl-dropdown
           ref="dropdown"
