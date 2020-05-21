@@ -126,10 +126,7 @@ export default {
         </a>
       </p>
 
-      <div
-        class="dropdown dropdown-menu-selectable"
-        :class="dropdownClass"
-      >
+      <div class="dropdown dropdown-menu-selectable" :class="dropdownClass">
         <gl-dropdown
           ref="dropdown"
           :text="$options.severityLabels[alert.severity]"
