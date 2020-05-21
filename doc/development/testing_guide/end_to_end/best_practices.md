@@ -139,3 +139,60 @@ end
 NOTE: **Note:**
 A few exceptions for using a `ProjectPush` would be when your test calls for testing SSH integration or
 using the Git CLI.
+
+## Write actions, not commands
+
+An action is a named task that can be performed on the frontend.
+
+Take
+
+For example:
+
+```ruby
+# Creating an access token
+  # GOOD
+
+    Page::Profile::PersonalAccessTokens.perform do |tokens|
+      tokens.create_token(name: 'Name', expiry: Date.tomorrow)
+    end
+
+    # where
+
+    def create_token(name:, expiry:)
+      fill_element(:access_token_name_field, name)
+      fill_element(:expiry_date_field, expiry)
+      click_element(:create_token_button, Some::Page)
+    end
+
+  # BAD
+
+    Page::Profile::PersonalAccessTokens.perform do |tokens|
+      tokens.fill_token_name('Name')
+      tokens.fill_expiry_date(Date.tomorrow)
+      tokens.click_create_token_button
+    end
+
+    # where
+
+    def fill_token_name(name)
+      fill_element(:access_token_name_field, name)
+    end
+
+    def fill_expiry_date(expiry)
+      fill_element(:expiry_date_field, expiry)
+    end
+
+    def click_create_token_button
+      click_element(:create_token_button, Some::Page)
+    end
+
+#
+  # GOOD
+
+```
+
+Why:
+
+- Creating methods for specific actions is redundant.
+- Requires new methods for any other mutation on said element (clicking, hovering, setting text)
+- More readable
