@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Monitor', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/217705', type: :flaky } do
-    describe 'with Prometheus Gitlab-managed cluster', :orchestrated, :kubernetes, :docker, :runner do
+  context 'Monitor' do
+    describe 'with Prometheus Gitlab-managed cluster', :orchestrated, :kubernetes, :skip_live_env do
       before :all do
         Flow::Login.sign_in
-        @project, @runner = deploy_project_with_prometheus
+        @project = deploy_project_with_prometheus
       end
 
       before do
@@ -14,7 +14,6 @@ module QA
       end
 
       after :all do
-        @runner.remove_via_api!
         @cluster.remove!
       end
 
@@ -68,11 +67,6 @@ module QA
           project.description = 'Cluster with Prometheus'
         end
 
-        runner = Resource::Runner.fabricate_via_api! do |runner|
-          runner.project = project
-          runner.name = project.name
-        end
-
         @cluster = Service::KubernetesCluster.new.create!
 
         cluster_props = Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster_settings|
@@ -80,6 +74,7 @@ module QA
           cluster_settings.cluster = @cluster
           cluster_settings.install_helm_tiller = true
           cluster_settings.install_ingress = true
+          cluster_settings.install_runner = true
           cluster_settings.install_prometheus = true
         end
 
@@ -101,7 +96,7 @@ module QA
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
         Page::Project::Pipeline::Index.perform(&:wait_for_latest_pipeline_success_or_retry)
 
-        [project, runner]
+        project
       end
 
       def verify_add_custom_metric
