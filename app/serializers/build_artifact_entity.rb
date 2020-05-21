@@ -28,4 +28,8 @@ class BuildArtifactEntity < Grape::Entity
   expose :browse_path do |artifact|
     fast_browse_project_job_artifacts_path(artifact.project, artifact.job)
   end
+
+  expose :locked, if: -> (*) { job.job_artifacts_archive.present? } do |job|
+    job.job_artifacts_archive.locked?
+  end
 end
