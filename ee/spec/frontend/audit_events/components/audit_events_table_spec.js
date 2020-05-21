@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { GlPagination, GlTable } from '@gitlab/ui';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 import AuditEventsTable from 'ee/audit_events/components/audit_events_table.vue';
 import createEvents from '../mock_data';
@@ -7,6 +8,8 @@ import createEvents from '../mock_data';
 const EVENTS = createEvents();
 
 describe('AuditEventsTable component', () => {
+  useWindowLocation();
+
   let wrapper;
 
   const createComponent = (props = {}) => {
@@ -30,8 +33,7 @@ describe('AuditEventsTable component', () => {
   };
 
   beforeEach(() => {
-    delete window.location;
-    window.location = new URL('https://localhost');
+    window.location.href = 'https://localhost';
 
     wrapper = createComponent();
   });

@@ -1,10 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
 import { GlDaterangePicker } from '@gitlab/ui';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 import DateRangeField from 'ee/audit_events/components/date_range_field.vue';
 import { parsePikadayDate } from '~/lib/utils/datetime_utility';
 
 describe('DateRangeField component', () => {
+  useWindowLocation();
+
   const DATE = '1970-01-01';
   let wrapper;
 
@@ -18,8 +21,7 @@ describe('DateRangeField component', () => {
   };
 
   beforeEach(() => {
-    delete window.location;
-    window.location = { search: '' };
+    window.location.search = '';
   });
 
   afterEach(() => {

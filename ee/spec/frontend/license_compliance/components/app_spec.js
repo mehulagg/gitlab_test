@@ -215,7 +215,7 @@ describe('Project Licenses', () => {
       'when window.location contains the hash "$givenLocationHash"',
       ({ givenLocationHash, expectedActiveTab }) => {
         beforeEach(() => {
-          window.location.href = `http://foo.com/index${givenLocationHash}`;
+          window.location.hash = givenLocationHash;
 
           createComponent({
             state: {

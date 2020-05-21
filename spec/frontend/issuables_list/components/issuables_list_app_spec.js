@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { shallowMount } from '@vue/test-utils';
 import { GlEmptyState, GlPagination, GlSkeletonLoading } from '@gitlab/ui';
 import waitForPromises from 'helpers/wait_for_promises';
+import useWindowLocation from 'helpers/set_window_location_helper';
 import { TEST_HOST } from 'helpers/test_constants';
 import flash from '~/flash';
 import IssuablesListApp from '~/issuables_list/components/issuables_list_app.vue';
@@ -35,7 +36,8 @@ const MOCK_ISSUES = Array(PAGE_SIZE_MANUAL)
   }));
 
 describe('Issuables list component', () => {
-  let oldLocation;
+  useWindowLocation();
+
   let mockAxios;
   let wrapper;
   let apiSpy;
@@ -64,19 +66,12 @@ describe('Issuables list component', () => {
 
   beforeEach(() => {
     mockAxios = new MockAdapter(axios);
-
-    oldLocation = window.location;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: { href: '', search: '' },
-    });
     window.location.href = TEST_LOCATION;
   });
 
   afterEach(() => {
     wrapper.destroy();
     mockAxios.restore();
-    window.location = oldLocation;
   });
 
   describe('with failed issues response', () => {

@@ -1,10 +1,13 @@
 import { GlFilteredSearch } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 import AuditEventsFilter from 'ee/audit_events/components/audit_events_filter.vue';
 import { AVAILABLE_TOKEN_TYPES } from 'ee/audit_events/constants';
 
 describe('AuditEventsFilter', () => {
+  useWindowLocation();
+
   let wrapper;
   const formElement = document.createElement('form');
   formElement.submit = jest.fn();
@@ -51,8 +54,7 @@ describe('AuditEventsFilter', () => {
     const id = '1';
 
     beforeEach(() => {
-      delete window.location;
-      window.location = { search: `entity_type=${type}&entity_id=${id}` };
+      window.location.search = `entity_type=${type}&entity_id=${id}`;
       initComponent();
     });
 
@@ -70,8 +72,7 @@ describe('AuditEventsFilter', () => {
 
   describe('when the URL query is empty', () => {
     beforeEach(() => {
-      delete window.location;
-      window.location = { search: '' };
+      window.location.search = '';
       initComponent();
     });
 

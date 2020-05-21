@@ -141,9 +141,9 @@ describe('Insights component', () => {
     });
 
     it('selects the first tab if invalid', () => {
-      window.location.hash = '#/invalid';
+      window.location.hash = '/invalid';
 
-      jest.runOnlyPendingTimers();
+      // jest.runOnlyPendingTimers();
 
       return vm.$nextTick(() => {
         expect(store.dispatch).toHaveBeenCalledWith('insights/setActiveTab', defaultKey);
@@ -151,7 +151,7 @@ describe('Insights component', () => {
     });
 
     it('selects the specified tab if valid', () => {
-      window.location.hash = `#/${selectedKey}`;
+      window.location.hash = `/${selectedKey}`;
 
       jest.runOnlyPendingTimers();
 

@@ -1,9 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import { GlPagination } from '@gitlab/ui';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 import Pagination from 'ee/compliance_dashboard/components/pagination.vue';
 
 describe('MergeRequest component', () => {
+  useWindowLocation();
+
   let wrapper;
 
   const findGlPagination = () => wrapper.find(GlPagination);
@@ -23,8 +26,7 @@ describe('MergeRequest component', () => {
   };
 
   beforeEach(() => {
-    delete window.location;
-    window.location = new URL('https://localhost');
+    window.location.href = 'https://localhost';
   });
 
   afterEach(() => {
