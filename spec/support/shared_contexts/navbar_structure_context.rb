@@ -70,6 +70,12 @@ RSpec.shared_context 'project navbar structure' do
           _('Kubernetes')
         ]
       },
+      {
+        nav_item: _('Packages'),
+        nav_sub_items: [
+          _('List')
+        ]
+      },
       analytics_nav_item,
       {
         nav_item: _('Wiki'),
