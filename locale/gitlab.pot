@@ -1757,7 +1757,7 @@ msgstr ""
 msgid "AlertManagement|All alerts"
 msgstr ""
 
-msgid "AlertManagement|Assign alert status"
+msgid "AlertManagement|Assign status"
 msgstr ""
 
 msgid "AlertManagement|Authorize external service"

@@ -70,7 +70,7 @@ export default {
       alert: null,
       errored: false,
       isErrorDismissed: false,
-      sidebarCollapsed: true,
+      sidebarCollapsed: false,
       sidebarErrorMessage: '',
     };
   },

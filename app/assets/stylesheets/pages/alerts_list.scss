@@ -117,4 +117,10 @@
   .toggle-sidebar-mobile-button {
     right: 0;
   }
+
+  .dropdown-menu-toggle {
+    &:hover {
+      background-color: transparent;
+    }
+  }
 }

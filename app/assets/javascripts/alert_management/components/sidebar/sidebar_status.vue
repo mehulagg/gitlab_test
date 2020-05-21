@@ -96,10 +96,8 @@ export default {
 <template>
   <div class="block alert-status">
     <div ref="status" class="sidebar-collapsed-icon" @click="onClickCollapsedIcon">
-      <gl-icon name="severity-critical" :size="14" />
-
+      <gl-icon name="status" :size="14" />
       <gl-loading-icon v-if="isUpdating" />
-      <p v-else class="collapse-truncated-title gl-px-2">{{ $options.statuses[alert.status] }}</p>
     </div>
     <gl-tooltip :target="() => $refs.status" boundary="viewport" placement="left">
       <gl-sprintf :message="s__('AlertManagement|Alert status: %{status}')">
@@ -132,18 +130,21 @@ export default {
           ref="dropdown"
           :text="$options.statuses[alert.status]"
           class="w-100"
+          toggle-class="dropdown-menu-toggle"
+          variant="outline-default"
           @keydown.esc.native="hideDropdown"
           @hide="hideDropdown"
         >
           <div class="dropdown-title">
-            <span class="alert-title">{{ s__('AlertManagement|Assign alert status') }}</span>
-            <gl-button
-              :aria-label="__('Close')"
-              variant="link"
+            <span class="alert-title">{{ s__('AlertManagement|Assign status') }}</span>
+            <button
               class="dropdown-title-button dropdown-menu-close"
-              icon="close"
+              :aria-label="__('Close')"
+              type="button"
               @click="hideDropdown"
-            />
+            >
+              <i aria-hidden="true" class="fa fa-times dropdown-menu-close-icon"> </i>
+            </button>
           </div>
           <div class="dropdown-content dropdown-body">
             <gl-dropdown-item
@@ -151,16 +152,11 @@ export default {
               :key="field"
               data-testid="statusDropdownItem"
               class="gl-vertical-align-middle"
+              :active="label.toUpperCase() === alert.status"
+              :active-class="'is-active'"
               @click="updateAlertStatus(label)"
             >
-              <span class="gl-display-flex">
-                <gl-icon
-                  class="gl-flex-shrink-0 append-right-4"
-                  :class="{ invisible: label.toUpperCase() !== alert.status }"
-                  name="mobile-issue-close"
-                />
-                {{ label }}
-              </span>
+              {{ label }}
             </gl-dropdown-item>
           </div>
         </gl-dropdown>
@@ -172,7 +168,7 @@ export default {
         class="value m-0"
         :class="{ 'no-value': !$options.statuses[alert.status] }"
       >
-        <span v-if="$options.statuses[alert.status]" class="text-plain">{{
+        <span v-if="$options.statuses[alert.status]" class="gl-text-gray-700">{{
           $options.statuses[alert.status]
         }}</span>
         <span v-else>
