@@ -53,7 +53,7 @@ export default {
         @toggle-sidebar="toggleSidebar"
         @alert-sidebar-error="handleAlertSidebarError"
       />
-      <sidebar-severity :alert="alert" />
+      <sidebar-severity :alert="alert" @alert-sidebar-error="handleAlertSidebarError" />
       <!-- TODO: Remove after adding extra attribute blocks to sidebar -->
       <div class="block"></div>
     </div>

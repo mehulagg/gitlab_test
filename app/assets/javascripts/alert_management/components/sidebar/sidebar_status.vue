@@ -23,7 +23,6 @@ export default {
     GlDropdownItem,
     GlLoadingIcon,
     GlTooltip,
-    GlButton,
     GlSprintf,
   },
   props: {

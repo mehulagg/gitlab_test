@@ -1,7 +1,13 @@
 <script>
-import { GlIcon, GlDropdown, GlDropdownItem, GlLoadingIcon, GlTooltip, GlButton } from '@gitlab/ui';
+import {
+  GlIcon,
+  GlDropdown,
+  GlDropdownItem,
+  GlLoadingIcon,
+  GlTooltip,
+  GlSprintf,
+} from '@gitlab/ui';
 import { s__ } from '~/locale';
-import createFlash from '~/flash';
 import { ALERTS_SEVERITY_LABELS } from '../../constants';
 import updateAlertSeverity from '../../graphql/mutations/update_alert_severity.graphql';
 import SeverityIcon from '../severity/severity_icon.vue';
@@ -14,7 +20,7 @@ export default {
     GlDropdownItem,
     GlLoadingIcon,
     GlTooltip,
-    GlButton,
+    GlSprintf,
     SeverityIcon,
   },
   props: {
@@ -33,17 +39,6 @@ export default {
       isDropdownShowing: false,
       isUpdating: false,
     };
-  },
-  computed: {
-    tooltipText() {
-      let tooltipText = s__('AlertManagement|Alert severity');
-
-      if (this.alert.severity) {
-        tooltipText += `: ${this.alert.severity.toLowerCase()}`;
-      }
-
-      return tooltipText;
-    },
   },
   methods: {
     hideDropdown() {
@@ -75,7 +70,8 @@ export default {
           this.isUpdating = false;
         })
         .catch(() => {
-          createFlash(
+          this.$emit(
+            'alert-sidebar-error',
             s__(
               'AlertManagement|There was an error while updating the severity of the alert. Please try again.',
             ),
@@ -105,11 +101,15 @@ export default {
       </p>
     </div>
     <gl-tooltip :target="() => $refs.severity" boundary="viewport" placement="left">
-      {{ tooltipText }}
+      <gl-sprintf :message="s__('AlertManagement|Alert severity: %{severity}')">
+        <template #severity>
+          {{ alert.severity.toLowerCase() }}
+        </template>
+      </gl-sprintf>
     </gl-tooltip>
 
     <div class="hide-collapsed">
-      <p class="title d-flex justify-content-between">
+      <p class="title gl-display-flex justify-content-between">
         {{ s__('AlertManagement|Severity') }}
         <a
           v-if="isEditable"
@@ -131,18 +131,21 @@ export default {
           ref="dropdown"
           :text="$options.severityLabels[alert.severity]"
           class="w-100"
+          toggle-class="dropdown-menu-toggle"
+          variant="outline-default"
           @keydown.esc.native="hideDropdown"
           @hide="hideDropdown"
         >
           <div class="dropdown-title">
-            <span class="health-title">{{ s__('AlertManagement|Assign alert severity') }}</span>
-            <gl-button
-              :aria-label="__('Close')"
-              variant="link"
+            <span class="severity-title">{{ s__('AlertManagement|Assign severity') }}</span>
+            <button
               class="dropdown-title-button dropdown-menu-close"
-              icon="close"
+              :aria-label="__('Close')"
+              type="button"
               @click="hideDropdown"
-            />
+            >
+              <i aria-hidden="true" class="fa fa-times dropdown-menu-close-icon"> </i>
+            </button>
           </div>
           <div class="dropdown-content dropdown-body">
             <gl-dropdown-item
@@ -150,16 +153,11 @@ export default {
               :key="field"
               data-testid="severityDropdownItem"
               class="gl-vertical-align-middle"
+              :active="label.toUpperCase() === alert.severity"
+              :active-class="'is-active'"
               @click="updateAlertSeverity(label)"
             >
-              <span class="d-flex">
-                <gl-icon
-                  class="flex-shrink-0 append-right-4"
-                  :class="{ invisible: label.toUpperCase() !== alert.severity }"
-                  name="mobile-issue-close"
-                />
-                {{ label }}
-              </span>
+              {{ label }}
             </gl-dropdown-item>
           </div>
         </gl-dropdown>
@@ -171,7 +169,7 @@ export default {
         class="value m-0"
         :class="{ 'no-value': !$options.severityLabels[alert.severity] }"
       >
-        <span v-if="$options.severityLabels[alert.severity]" class="text-plain"
+        <span v-if="$options.severityLabels[alert.severity]" class="gl-text-gray-700"
           ><severity-icon :severity="alert.severity"
         /></span>
         <span v-else>

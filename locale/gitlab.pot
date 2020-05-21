@@ -1748,7 +1748,7 @@ msgstr ""
 msgid "AlertManagement|Alert detail"
 msgstr ""
 
-msgid "AlertManagement|Alert severity"
+msgid "AlertManagement|Alert severity: %{severity}"
 msgstr ""
 
 msgid "AlertManagement|Alert status: %{status}"
@@ -1760,7 +1760,7 @@ msgstr ""
 msgid "AlertManagement|All alerts"
 msgstr ""
 
-msgid "AlertManagement|Assign alert severity"
+msgid "AlertManagement|Assign severity"
 msgstr ""
 
 msgid "AlertManagement|Assign status"
