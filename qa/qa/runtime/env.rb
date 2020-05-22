@@ -306,6 +306,14 @@ module QA
         ENV['MAILHOG_HOSTNAME']
       end
 
+      def cluster_api_url
+        ENV['CLUSTER_API_URL']
+      end
+
+      def cluster_api_url?
+        enabled?(ENV['CLUSTER_API_URL'], default: false)
+      end
+
       private
 
       def remote_grid_credentials

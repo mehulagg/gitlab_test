@@ -4,8 +4,9 @@ module QA
   context 'Monitor' do
     describe 'with Prometheus Gitlab-managed cluster', :orchestrated, :kubernetes, :skip_live_env do
       before :all do
-        Flow::Login.sign_in
-        @project = deploy_project_with_prometheus
+        Flow::Login.sign_in_as_admin
+        @project, @cluster = deploy_project_with_prometheus
+
       end
 
       before do
@@ -14,7 +15,11 @@ module QA
       end
 
       after :all do
+<<<<<<< HEAD
         @cluster.remove!
+=======
+        @cluster&.remove!
+>>>>>>> 1297920d8c4... Refactor monitor tests to use k3s
       end
 
       it 'configures custom metrics' do
@@ -78,19 +83,38 @@ module QA
           cluster_settings.install_prometheus = true
         end
 
+<<<<<<< HEAD
         Resource::CiVariable.fabricate_via_api! do |ci_variable|
           ci_variable.project = project
           ci_variable.key = 'AUTO_DEVOPS_DOMAIN'
           ci_variable.value = cluster_props.ingress_ip
           ci_variable.masked = false
+=======
+        %w[
+        CODE_QUALITY_DISABLED LICENSE_MANAGEMENT_DISABLED
+        SAST_DISABLED DAST_DISABLED DEPENDENCY_SCANNING_DISABLED
+        CONTAINER_SCANNING_DISABLED TEST_DISABLED PERFORMANCE_DISABLED
+      ].each do |key|
+          Resource::CiVariable.fabricate_via_api! do |resource|
+            resource.project = project
+            resource.key = key
+            resource.value = '1'
+            resource.masked = false
+          end
+>>>>>>> 1297920d8c4... Refactor monitor tests to use k3s
         end
 
         Resource::Repository::ProjectPush.fabricate! do |push|
           push.project = project
           push.directory = Pathname
                                .new(__dir__)
+<<<<<<< HEAD
                                .join('../../../../fixtures/monitored_auto_devops')
           push.commit_message = 'Create AutoDevOps compatible Project for Monitoring'
+=======
+                               .join('../../../../fixtures/auto_devops_rack')
+          push.commit_message = 'Use Auto Devops rack for monitoring'
+>>>>>>> 1297920d8c4... Refactor monitor tests to use k3s
         end
 
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
