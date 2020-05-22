@@ -92,7 +92,7 @@ authenticate solely based on access to an email domain such as `*.hooli.com.`
 Alternatively, use a dedicated domain for GitLab email communications such as
 `hooli-gitlab.com`.
 
-See GitLab issue [#30366](https://gitlab.com/gitlab-org/gitlab-foss/issues/30366)
+See GitLab issue [#30366](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/30366)
 for a real-world example of this exploit.
 
 ### Omnibus package installations
@@ -225,6 +225,9 @@ incoming_email:
 #### Gmail
 
 Example configuration for Gmail/G Suite. Assumes mailbox `gitlab-incoming@gmail.com`.
+
+NOTE: **Note:**
+`incoming_email_email` cannot be a Gmail alias account.
 
 Example for Omnibus installs:
 

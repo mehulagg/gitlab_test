@@ -281,12 +281,12 @@ curl --request DELETE --header "PRIVATE-TOKEN: k5ESFgWY2Qf5xEvDcFxZ" "https://gi
 
 ## Run a scheduled pipeline immediately
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/201786) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/201786) in GitLab 12.8.
 
 Trigger a new scheduled pipeline, which runs immediately. The next scheduled run
 of this pipeline is not affected.
 
-```text
+```plaintext
 POST /projects/:id/pipeline_schedules/:pipeline_schedule_id/play
 ```
 
@@ -297,7 +297,7 @@ POST /projects/:id/pipeline_schedules/:pipeline_schedule_id/play
 
 Example request:
 
-```sh
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/42/pipeline_schedules/1/play
 ```
 
@@ -311,7 +311,7 @@ Example response:
 
 ## Pipeline schedule variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/34518) in GitLab 10.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/34518) in GitLab 10.0.
 
 ## Create a new pipeline schedule variable
 

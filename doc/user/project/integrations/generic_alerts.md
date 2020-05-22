@@ -6,8 +6,8 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Generic alerts integration
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13203) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.4.
-> - [Moved](https://gitlab.com/gitlab-org/gitlab/issues/42640) to [GitLab Core](https://about.gitlab.com/pricing/) in 12.8.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13203) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.4.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/42640) to [GitLab Core](https://about.gitlab.com/pricing/) in 12.8.
 
 GitLab can accept alerts from any source via a generic webhook receiver.
 When you set up the generic alerts integration, a unique endpoint will
@@ -39,6 +39,9 @@ You can customize the payload by sending the following parameters. All fields ar
 | `monitoring_tool` | String |  The name of the associated monitoring tool. |
 | `hosts` | String or Array | One or more hosts, as to where this incident occurred. |
 | `severity` | String | The severity of the alert. Must be one of `critical`, `high`, `medium`, `low`, `info`, `unknown`. Default is `critical`. |
+
+TIP: **Payload size:**
+Ensure your requests are smaller than the [payload application limits](../../../administration/instance_limits.md#generic-alert-json-payloads).
 
 Example request:
 

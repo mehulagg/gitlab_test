@@ -5,10 +5,12 @@ import {
   GlAlert,
   GlLoadingIcon,
   GlDropdown,
+  GlDropdownItem,
   GlIcon,
   GlTab,
-  GlDropdownItem,
+  GlBadge,
 } from '@gitlab/ui';
+import { visitUrl } from '~/lib/utils/url_utility';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import createFlash from '~/flash';
 import AlertManagementList from '~/alert_management/components/alert_management_list.vue';
@@ -17,6 +19,11 @@ import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert
 import mockAlerts from '../mocks/alerts.json';
 
 jest.mock('~/flash');
+
+jest.mock('~/lib/utils/url_utility', () => ({
+  visitUrl: jest.fn().mockName('visitUrlMock'),
+  joinPaths: jest.requireActual('~/lib/utils/url_utility').joinPaths,
+}));
 
 describe('AlertManagementList', () => {
   let wrapper;
@@ -27,9 +34,18 @@ describe('AlertManagementList', () => {
   const findLoader = () => wrapper.find(GlLoadingIcon);
   const findStatusDropdown = () => wrapper.find(GlDropdown);
   const findStatusFilterTabs = () => wrapper.findAll(GlTab);
+  const findStatusFilterBadge = () => wrapper.findAll(GlBadge);
   const findDateFields = () => wrapper.findAll(TimeAgo);
   const findFirstStatusOption = () => findStatusDropdown().find(GlDropdownItem);
   const findSeverityFields = () => wrapper.findAll('[data-testid="severityField"]');
+
+  const alertsCount = {
+    acknowledged: 6,
+    all: 16,
+    open: 14,
+    resolved: 2,
+    triggered: 10,
+  };
 
   function mountComponent({
     props = {
@@ -38,7 +54,6 @@ describe('AlertManagementList', () => {
     },
     data = {},
     loading = false,
-    alertListStatusFilteringEnabled = false,
     stubs = {},
   } = {}) {
     wrapper = mount(AlertManagementList, {
@@ -47,9 +62,6 @@ describe('AlertManagementList', () => {
         enableAlertManagementPath: '/link',
         emptyAlertSvgPath: 'illustration/path',
         ...props,
-      },
-      provide: {
-        glFeatures: { alertListStatusFilteringEnabled },
       },
       data() {
         return data;
@@ -85,42 +97,25 @@ describe('AlertManagementList', () => {
   });
 
   describe('Status Filter Tabs', () => {
-    describe('alertListStatusFilteringEnabled feature flag enabled', () => {
-      beforeEach(() => {
-        mountComponent({
-          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-          data: { alerts: mockAlerts },
-          loading: false,
-          alertListStatusFilteringEnabled: true,
-          stubs: {
-            GlTab: true,
-          },
-        });
-      });
-
-      it('should display filter tabs for all statuses', () => {
-        const tabs = findStatusFilterTabs().wrappers;
-        tabs.forEach((tab, i) => {
-          expect(tab.text()).toContain(ALERTS_STATUS_TABS[i].title);
-        });
+    beforeEach(() => {
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: mockAlerts, alertsCount },
+        loading: false,
+        stubs: {
+          GlTab: true,
+        },
       });
     });
 
-    describe('alertListStatusFilteringEnabled feature flag disabled', () => {
-      beforeEach(() => {
-        mountComponent({
-          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-          data: { alerts: mockAlerts },
-          loading: false,
-          alertListStatusFilteringEnabled: false,
-          stubs: {
-            GlTab: true,
-          },
-        });
-      });
+    it('should display filter tabs with alerts count badge for each status', () => {
+      const tabs = findStatusFilterTabs().wrappers;
+      const badges = findStatusFilterBadge();
 
-      it('should NOT display tabs', () => {
-        expect(findStatusFilterTabs()).not.toExist();
+      tabs.forEach((tab, i) => {
+        const status = ALERTS_STATUS_TABS[i].status.toLowerCase();
+        expect(tab.text()).toContain(ALERTS_STATUS_TABS[i].title);
+        expect(badges.at(i).text()).toContain(alertsCount[status]);
       });
     });
   });
@@ -129,52 +124,72 @@ describe('AlertManagementList', () => {
     it('loading state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: null },
+        data: { alerts: null, alertsCount: null },
         loading: true,
       });
       expect(findAlertsTable().exists()).toBe(true);
       expect(findLoader().exists()).toBe(true);
+      expect(
+        findAlerts()
+          .at(0)
+          .classes(),
+      ).not.toContain('hover-bg-blue-50');
     });
 
     it('error state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: null, errored: true },
+        data: { alerts: null, alertsCount: null, errored: true },
         loading: false,
       });
       expect(findAlertsTable().exists()).toBe(true);
       expect(findAlertsTable().text()).toContain('No alerts to display');
       expect(findLoader().exists()).toBe(false);
       expect(findAlert().props().variant).toBe('danger');
+      expect(
+        findAlerts()
+          .at(0)
+          .classes(),
+      ).not.toContain('hover-bg-blue-50');
     });
 
     it('empty state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: [], errored: false },
+        data: { alerts: [], alertsCount: { all: 0 }, errored: false },
         loading: false,
       });
       expect(findAlertsTable().exists()).toBe(true);
       expect(findAlertsTable().text()).toContain('No alerts to display');
       expect(findLoader().exists()).toBe(false);
       expect(findAlert().props().variant).toBe('info');
+      expect(
+        findAlerts()
+          .at(0)
+          .classes(),
+      ).not.toContain('hover-bg-blue-50');
     });
 
     it('has data state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
       expect(findLoader().exists()).toBe(false);
       expect(findAlertsTable().exists()).toBe(true);
       expect(findAlerts()).toHaveLength(mockAlerts.length);
+      expect(
+        findAlerts()
+          .at(0)
+          .classes(),
+      ).toContain('hover-bg-blue-50');
     });
 
     it('displays status dropdown', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
       expect(findStatusDropdown().exists()).toBe(true);
@@ -183,7 +198,7 @@ describe('AlertManagementList', () => {
     it('shows correct severity icons', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
 
@@ -200,7 +215,7 @@ describe('AlertManagementList', () => {
     it('renders severity text', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
 
@@ -209,6 +224,19 @@ describe('AlertManagementList', () => {
           .at(0)
           .text(),
       ).toBe('Critical');
+    });
+
+    it('navigates to the detail page when alert row is clicked', () => {
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
+        loading: false,
+      });
+
+      findAlerts()
+        .at(0)
+        .trigger('click');
+      expect(visitUrl).toHaveBeenCalledWith('/1527542/details');
     });
 
     describe('handle date fields', () => {
@@ -225,6 +253,7 @@ describe('AlertManagementList', () => {
                 severity: 'high',
               },
             ],
+            alertsCount,
             errored: false,
           },
           loading: false,
@@ -245,6 +274,7 @@ describe('AlertManagementList', () => {
                 severity: 'high',
               },
             ],
+            alertsCount,
             errored: false,
           },
           loading: false,
@@ -271,7 +301,7 @@ describe('AlertManagementList', () => {
     beforeEach(() => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
     });

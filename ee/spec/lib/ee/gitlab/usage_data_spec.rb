@@ -24,6 +24,7 @@ describe Gitlab::UsageData do
       create(:ci_build, name: 'license_management', pipeline: pipeline)
       create(:ee_ci_build, name: 'license_scanning', pipeline: pipeline)
       create(:ci_build, name: 'sast', pipeline: pipeline)
+      create(:ci_build, name: 'secret_detection', pipeline: pipeline)
 
       create(:prometheus_alert, project: projects[0])
       create(:prometheus_alert, project: projects[0])
@@ -79,6 +80,7 @@ describe Gitlab::UsageData do
       expect(count_data[:projects]).to eq(3)
 
       expect(count_data.keys).to include(*%i(
+        confidential_epics
         container_scanning_jobs
         dast_jobs
         dependency_list_usages_total
@@ -105,6 +107,7 @@ describe Gitlab::UsageData do
         projects_with_prometheus_alerts
         projects_with_tracing_enabled
         sast_jobs
+        secret_detection_jobs
         status_page_projects
         status_page_issues
         user_preferences_group_overview_details
@@ -135,6 +138,7 @@ describe Gitlab::UsageData do
       expect(count_data[:dependency_scanning_jobs]).to eq(1)
       expect(count_data[:license_management_jobs]).to eq(2)
       expect(count_data[:sast_jobs]).to eq(1)
+      expect(count_data[:secret_detection_jobs]).to eq(1)
     end
 
     it 'correctly shows failure for combined license management' do
@@ -419,6 +423,7 @@ describe Gitlab::UsageData do
                 create(:key, type: 'LDAPKey', user: user)
                 create(:group_member, ldap: true, user: user)
                 create(:cycle_analytics_group_stage)
+                create(:compliance_framework_project_setting)
               end
 
               expect(described_class.uncached_data[:usage_activity_by_stage][:manage]).to eq(
@@ -426,16 +431,18 @@ describe Gitlab::UsageData do
                 groups: 2,
                 ldap_keys: 2,
                 ldap_users: 2,
-                users_created: 6,
-                value_stream_management_customized_group_stages: 2
+                users_created: 8,
+                value_stream_management_customized_group_stages: 2,
+                projects_with_compliance_framework: 2
               )
               expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:manage]).to eq(
                 events: 1,
                 groups: 1,
                 ldap_keys: 1,
                 ldap_users: 1,
-                users_created: 4,
-                value_stream_management_customized_group_stages: 2
+                users_created: 5,
+                value_stream_management_customized_group_stages: 2,
+                projects_with_compliance_framework: 2
               )
             end
           end
@@ -580,6 +587,7 @@ describe Gitlab::UsageData do
                 create(:ci_build, name: 'dependency_scanning', user: user)
                 create(:ci_build, name: 'license_management', user: user)
                 create(:ci_build, name: 'sast', user: user)
+                create(:ci_build, name: 'secret_detection', user: user)
               end
             end
 
@@ -590,7 +598,8 @@ describe Gitlab::UsageData do
                 user_dast_jobs: 1,
                 user_dependency_scanning_jobs: 1,
                 user_license_management_jobs: 1,
-                user_sast_jobs: 1
+                user_sast_jobs: 1,
+                user_secret_detection_jobs: 1
               )
             end
 
@@ -605,7 +614,8 @@ describe Gitlab::UsageData do
                 user_dast_jobs: 1,
                 user_dependency_scanning_jobs: 1,
                 user_license_management_jobs: 2,
-                user_sast_jobs: 1
+                user_sast_jobs: 1,
+                user_secret_detection_jobs: 1
               )
             end
 
@@ -619,7 +629,8 @@ describe Gitlab::UsageData do
                 user_dast_jobs: -1,
                 user_dependency_scanning_jobs: -1,
                 user_license_management_jobs: -1,
-                user_sast_jobs: -1
+                user_sast_jobs: -1,
+                user_secret_detection_jobs: -1
               )
             end
           end

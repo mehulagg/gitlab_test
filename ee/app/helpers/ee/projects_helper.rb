@@ -137,10 +137,10 @@ module EE
       ::Gitlab.config.alternative_gitlab_kerberos_url?
     end
 
-    def can_change_push_rule?(push_rule, rule)
+    def can_change_push_rule?(push_rule, rule, context)
       return true if push_rule.global?
 
-      can?(current_user, :"change_#{rule}", @project)
+      can?(current_user, :"change_#{rule}", context)
     end
 
     def ci_cd_projects_available?
@@ -220,7 +220,10 @@ module EE
           ref_path: project_commits_url(project, pipeline.ref),
           pipeline_path: pipeline_url(pipeline),
           pipeline_created: pipeline.created_at.to_s(:iso8601),
-          has_pipeline_data: "true"
+          has_pipeline_data: "true",
+          user_callouts_path: user_callouts_path,
+          user_callout_id: UserCalloutsHelper::STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER,
+          show_introduction_banner: show_standalone_vulnerabilities_introduction_banner?.to_s
         }.merge(project_vulnerabilities_config(project))
       end
     end

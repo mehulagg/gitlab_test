@@ -25,13 +25,12 @@ export default {
   methods: {
     valueText(metric) {
       const { value = null, unit = null } = metric;
-      if (!value) return '-';
-      return unit ? `${value} ${unit}` : value;
+      if (!value || value === '-') return '-';
+      return unit && value ? `${value} ${unit}` : value;
     },
   },
 };
 </script>
-
 <template>
   <gl-card>
     <template #header>

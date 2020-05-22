@@ -4,7 +4,7 @@ type: reference, howto
 
 # Dependency Scanning **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5105) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5105) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.7.
 
 Dependency Scanning helps to automatically find security vulnerabilities in your dependencies
 while you're developing and testing your applications, such as when your
@@ -59,11 +59,11 @@ The following languages and dependency managers are supported.
 | JavaScript ([npm](https://www.npmjs.com/), [yarn](https://classic.yarnpkg.com/en/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [Retire.js](https://retirejs.github.io/retire.js/)         |
 | PHP ([Composer](https://getcomposer.org/))  | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
 | Python ([pip](https://pip.pypa.io/en/stable/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([Pipfile](https://pipenv.kennethreitz.org/en/latest/basics/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/11756 "Pipfile.lock support for Dependency Scanning"))| not available |
-| Python ([poetry](https://python-poetry.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
+| Python ([Pipfile](https://pipenv.kennethreitz.org/en/latest/basics/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/-/issues/11756 "Pipfile.lock support for Dependency Scanning"))| not available |
+| Python ([poetry](https://python-poetry.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/-/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
 | Ruby ([gem](https://rubygems.org/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [bundler-audit](https://github.com/rubysec/bundler-audit) |
 | Scala ([sbt](https://www.scala-sbt.org/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Go ([Go Modules](https://github.com/golang/go/wiki/Modules)) | yes ([alpha](https://gitlab.com/gitlab-org/gitlab/issues/7132)) | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Go ([Go Modules](https://github.com/golang/go/wiki/Modules)) | yes ([alpha](https://gitlab.com/gitlab-org/gitlab/-/issues/7132)) | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
 
 ## Contribute your scanner
 
@@ -173,9 +173,9 @@ The following variables are used for configuring specific analyzers (used for a 
 | `PIP_INDEX_URL`                         | `gemnasium-python` | `https://pypi.org/simple`    | Base URL of Python Package Index. |
 | `PIP_EXTRA_INDEX_URL`                   | `gemnasium-python` |                              | Array of [extra URLs](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-extra-index-url) of package indexes to use in addition to `PIP_INDEX_URL`. Comma-separated. |
 | `PIP_REQUIREMENTS_FILE`                 | `gemnasium-python` |                              | Pip requirements file to be scanned. |
-| `DS_PIP_VERSION`                        | `gemnasium-python` |                              | Force the install of a specific pip version (example: `"19.3"`), otherwise the pip installed in the Docker image is used. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12811) in GitLab 12.7) |
-| `DS_PIP_DEPENDENCY_PATH`                | `gemnasium-python` |                              | Path to load Python pip dependencies from. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12412) in GitLab 12.2) |
-| `DS_PYTHON_VERSION`                     | `retire.js`        |                              | Version of Python. If set to 2, dependencies are installed using Python 2.7 instead of Python 3.6. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12296) in GitLab 12.1)|
+| `DS_PIP_VERSION`                        | `gemnasium-python` |                              | Force the install of a specific pip version (example: `"19.3"`), otherwise the pip installed in the Docker image is used. ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12811) in GitLab 12.7) |
+| `DS_PIP_DEPENDENCY_PATH`                | `gemnasium-python` |                              | Path to load Python pip dependencies from. ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12412) in GitLab 12.2) |
+| `DS_PYTHON_VERSION`                     | `retire.js`        |                              | Version of Python. If set to 2, dependencies are installed using Python 2.7 instead of Python 3.6. ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12296) in GitLab 12.1)|
 | `MAVEN_CLI_OPTS`                        | `gemnasium-maven`  | `"-DskipTests --batch-mode"` | List of command line arguments that will be passed to `maven` by the analyzer. See an example for [using private repositories](../index.md#using-private-maven-repos). |
 | `GRADLE_CLI_OPTS`                       | `gemnasium-maven`  |                              | List of command line arguments that will be passed to `gradle` by the analyzer. |
 | `SBT_CLI_OPTS`                          | `gemnasium-maven`  |                              | List of command-line arguments that the analyzer will pass to `sbt`. |
@@ -195,7 +195,7 @@ Read more on [how to use private Maven repositories](../index.md#using-private-m
 
 ### Enabling Docker-in-Docker
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12487) in GitLab Ultimate 12.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12487) in GitLab Ultimate 12.5.
 
 If needed, you can enable Docker-in-Docker to restore the Dependency Scanning behavior that existed
 prior to GitLab 13.0. Follow these steps to do so:
@@ -470,21 +470,15 @@ include:
 
 variables:
   DS_ANALYZER_IMAGE_PREFIX: "docker-registry.example.com/analyzers"
+  GEMNASIUM_DB_REMOTE_URL: "gitlab.example.com/gemnasium-db.git"
+  GIT_SSL_NO_VERIFY: "true"
 ```
 
 See explanations of the variables above in the [configuration section](#configuration).
 
 ### Specific settings for languages and package managers
 
-For every language and package manager, add the following to the variables section of
-`.gitlab-ci.yml`:
-
-```yaml
-GEMNASIUM_DB_REMOTE_URL: "gitlab.example.com/gemnasium-db.git"
-GIT_SSL_NO_VERIFY: "true"
-```
-
-See the following sections for additional instructions on specific languages and package managers.
+See the following sections for configuring specific languages and package managers.
 
 #### JavaScript (npm and yarn) projects
 
@@ -504,62 +498,6 @@ BUNDLER_AUDIT_ADVISORY_DB_REF_NAME: "master"
 BUNDLER_AUDIT_ADVISORY_DB_URL: "gitlab.example.com/ruby-advisory-db.git"
 ```
 
-#### Java (Maven) projects
-
-When using self-signed certificates, add the following job section to the `.gitlab-ci.yml`:
-
-```yaml
-gemnasium-maven-dependency_scanning:
-  variables:
-    MAVEN_CLI_OPTS: "-s settings.xml -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
-```
-
-#### Java (Gradle) projects
-
-When using self-signed certificates, add the following job section to the `.gitlab-ci.yml`:
-
-```yaml
-gemnasium-maven-dependency_scanning:
-  before_script:
-    - echo -n | openssl s_client -connect maven-repo.example.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/internal.crt
-    - keytool -importcert -file /tmp/internal.crt -cacerts -storepass changeit -noprompt
-```
-
-This adds the self-signed certificates of your Maven repository to the Java KeyStore of the analyzer's Docker image.
-
-#### Scala (sbt) projects
-
-When using self-signed certificates, add the following job section to the `.gitlab-ci.yml`:
-
-```yaml
-gemnasium-maven-dependency_scanning:
-  before_script:
-    - echo -n | openssl s_client -connect maven-repo.example.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/internal.crt
-    - keytool -importcert -file /tmp/internal.crt -cacerts -storepass changeit -noprompt
-```
-
-This adds the self-signed certificates of your Maven repository to the Java KeyStore of the analyzer's Docker image.
-
-#### Python (pip) and Python (Pipfile) projects
-
-Add the following `pip.conf` to your repository to define your index URL and trust its self-signed
-certificate:
-
-```toml
-[global]
-index-url = https://pypi.example.com
-trusted-host = pypi.example.com
-```
-
-Add the following job section to `.gitlab-ci.yml`:
-
-```yaml
-gemnasium-python-dependency_scanning:
-  before_script:
-    - mkdir -p ~/.config/pip
-    - cp pip.conf ~/.config/pip/pip.conf
-```
-
 #### Python (setuptools)
 
 When using self-signed certificates for your private PyPi repository, no extra job configuration (aside
@@ -569,36 +507,39 @@ ensure that it can reach your private repository. Here is an example configurati
 1. Update `setup.py` to create a `dependency_links` attribute pointing at your private repository for each
    dependency in the `install_requires` list:
 
-    ```python
-    install_requires=['pyparsing>=2.0.3'],
-    dependency_links=['https://pypi.example.com/simple/pyparsing'],
-    ```
+   ```python
+   install_requires=['pyparsing>=2.0.3'],
+   dependency_links=['https://pypi.example.com/simple/pyparsing'],
+   ```
 
 1. Fetch the certificate from your repository URL and add it to the project:
 
-    ```bash
-    echo -n | openssl s_client -connect pypi.example.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > internal.crt
-    ```
+   ```shell
+   echo -n | openssl s_client -connect pypi.example.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > internal.crt
+   ```
 
 1. Point `setup.py` at the newly downloaded certificate:
 
-    ```python
-    import setuptools.ssl_support
-    setuptools.ssl_support.cert_paths = ['internal.crt']
-    ```
+   ```python
+   import setuptools.ssl_support
+   setuptools.ssl_support.cert_paths = ['internal.crt']
+   ```
 
 ## Limitations
 
 ### Referencing local dependencies using a path in JavaScript projects
 
-Although dependency scanning doesn't support it, you can reference dependencies by using a
-[local path](https://docs.npmjs.com/files/package.json#local-paths) in the `package.json` for a
-JavaScript project. The dependency scan generates the following error when you use
-`file: <path/to/dependency-name>` to reference a package:
+The [Retire.js](https://gitlab.com/gitlab-org/security-products/analyzers/retire.js) analyzer
+doesn't support dependency references made with [local paths](https://docs.npmjs.com/files/package.json#local-paths)
+in the `package.json` of JavaScript projects. The dependency scan outputs the following error for
+such references:
 
-```text
+```plaintext
 ERROR: Could not find dependencies: <dependency-name>. You may need to run npm install
 ```
+
+As a workaround, remove the [`retire.js`](analyzers.md#selecting-specific-analyzers) analyzer from
+[DS_DEFAULT_ANALYZERS](#configuring-dependency-scanning).
 
 ## Troubleshooting
 
@@ -607,4 +548,4 @@ ERROR: Could not find dependencies: <dependency-name>. You may need to run npm i
 This error occurs when the Docker version that runs the Dependency Scanning job is `19.03.00`.
 Consider updating to Docker `19.03.1` or greater. Older versions are not
 affected. Read more in
-[this issue](https://gitlab.com/gitlab-org/gitlab/issues/13830#note_211354992 "Current SAST container fails").
+[this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/13830#note_211354992 "Current SAST container fails").

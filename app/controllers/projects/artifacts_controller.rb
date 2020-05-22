@@ -22,7 +22,7 @@ class Projects::ArtifactsController < Projects::ApplicationController
     # issues: https://gitlab.com/gitlab-org/gitlab/issues/32281
     return head :no_content unless Feature.enabled?(:artifacts_management_page, @project)
 
-    finder = ArtifactsFinder.new(@project, artifacts_params)
+    finder = Ci::JobArtifactsFinder.new(@project, artifacts_params)
     all_artifacts = finder.execute
 
     @artifacts = all_artifacts.page(params[:page]).per(MAX_PER_PAGE)
@@ -113,7 +113,7 @@ class Projects::ArtifactsController < Projects::ApplicationController
 
   def build
     @build ||= begin
-      build = build_from_id || build_from_ref
+      build = build_from_id || build_from_sha || build_from_ref
       build&.present(current_user: current_user)
     end
   end
@@ -127,13 +127,21 @@ class Projects::ArtifactsController < Projects::ApplicationController
     project.builds.find_by_id(params[:job_id]) if params[:job_id]
   end
 
-  def build_from_ref
+  def build_from_sha
+    return if params[:job].blank?
     return unless @ref_name
 
     commit = project.commit(@ref_name)
     return unless commit
 
     project.latest_successful_build_for_sha(params[:job], commit.id)
+  end
+
+  def build_from_ref
+    return if params[:job].blank?
+    return unless @ref_name
+
+    project.latest_successful_build_for_ref(params[:job], @ref_name)
   end
 
   def artifacts_file

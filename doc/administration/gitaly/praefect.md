@@ -9,6 +9,11 @@ be run in a clustered configuration to increase fault tolerance. In this
 configuration, every Git repository is stored on every Gitaly node in the
 cluster. Multiple clusters (or shards), can be configured.
 
+NOTE: **Note:**
+Gitaly Clusters can be created using [GitLab Core](https://about.gitlab.com/pricing/#self-managed)
+and higher tiers. However, technical support is limited to GitLab Premium and Ultimate customers
+only. Not available in GitLab.com.
+
 Praefect is a router and transaction manager for Gitaly, and a required
 component for running a Gitaly Cluster.
 
@@ -84,7 +89,7 @@ to install GitLab](https://about.gitlab.com/install/).
 
 Provision a PostgreSQL server (PostgreSQL 11 or newer). Configuration through
 the Omnibus GitLab distribution is not yet supported. Follow this
-[issue](https://gitlab.com/gitlab-org/gitaly/issues/2476) for updates.
+[issue](https://gitlab.com/gitlab-org/gitaly/-/issues/2476) for updates.
 
 Prepare all your new nodes by [installing
 GitLab](https://about.gitlab.com/install/).

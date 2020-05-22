@@ -166,7 +166,7 @@ module Projects
       log_message = message.dup
 
       log_message << " Project ID: #{@project.id}" if @project&.id
-      Rails.logger.error(log_message) # rubocop:disable Gitlab/RailsLogger
+      Gitlab::AppLogger.error(log_message)
 
       if @project && @project.persisted? && @project.import_state
         @project.import_state.mark_as_failed(message)
@@ -178,7 +178,7 @@ module Projects
     # rubocop: disable CodeReuse/ActiveRecord
     def create_services_from_active_templates(project)
       Service.where(template: true, active: true).each do |template|
-        service = Service.build_from_template(project.id, template)
+        service = Service.build_from_integration(project.id, template)
         service.save!
       end
     end

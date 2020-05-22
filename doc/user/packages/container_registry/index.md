@@ -1,3 +1,9 @@
+---
+stage: Package
+group: Package
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Container Registry
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/4040) in GitLab 8.8.
@@ -137,7 +143,7 @@ The minimum scope needed for both of them is `read_registry`.
 
 Example of using a token:
 
-```sh
+```shell
 docker login registry.example.com -u <username> -p <token>
 ```
 
@@ -154,14 +160,14 @@ docker push registry.example.com/group/project/image
 
 Your image will be named after the following scheme:
 
-```text
+```plaintext
 <registry URL>/<namespace>/<project>/<image>
 ```
 
 GitLab supports up to three levels of image repository names.
 The following examples of image tags are valid:
 
-```text
+```plaintext
 registry.example.com/group/project:some-tag
 registry.example.com/group/project/image:latest
 registry.example.com/group/project/my/image:rc1
@@ -206,7 +212,7 @@ Available for all projects, though more suitable for public ones:
   your Docker images and has read/write access to the Registry. This is ephemeral,
   so it's only valid for one job. You can use the following example as-is:
 
-  ```sh
+  ```shell
   docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   ```
 
@@ -221,7 +227,7 @@ For private and internal projects:
 
   Replace the `<username>` and `<access_token>` in the following example:
 
-  ```sh
+  ```shell
   docker login -u <username> -p <access_token> $CI_REGISTRY
   ```
 
@@ -231,7 +237,7 @@ For private and internal projects:
   Once created, you can use the special environment variables, and GitLab CI/CD
   will fill them in for you. You can use the following example as-is:
 
-  ```sh
+  ```shell
   docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
   ```
 
@@ -487,12 +493,12 @@ older tags and images are regularly removed from the Container Registry.
 
 ## Expiration policy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/15398) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15398) in GitLab 12.8.
 
 NOTE: **Note:**
 Expiration policies for projects created before GitLab 12.8 may be enabled by an
 admin in the [CI/CD Package Registry settings](./../../admin_area/settings/index.md#cicd).
-Note the inherant [risks involved](./index.md#use-with-external-container-registries).
+Note the inherent [risks involved](./index.md#use-with-external-container-registries).
 
 It is possible to create a per-project expiration policy, so that you can make sure that
 older tags and images are regularly removed from the Container Registry.
@@ -542,7 +548,7 @@ See the API documentation for further details: [Edit project](../../../api/proje
 ### Use with external container registries
 
 When using an [external container registry](./../../../administration/packages/container_registry.md#use-an-external-container-registry-with-gitlab-as-an-auth-endpoint),
-running an experation policy on a project may have some performance risks. If a project is going to run
+running an expiration policy on a project may have some performance risks. If a project is going to run
 a policy that will remove large quantities of tags (in the thousands), the GitLab background jobs that
 run the policy may get backed up or fail completely. It is recommended you only enable container expiration
 policies for projects that were created before GitLab 12.8 if you are confident the amount of tags
@@ -577,3 +583,47 @@ Troubleshooting the GitLab Container Registry, most of the times, requires
 administration access to the GitLab server.
 
 [Read how to troubleshoot the Container Registry](../../../administration/packages/container_registry.md#troubleshooting).
+
+### Unable to change path or transfer a project
+
+If you try to change a project's path or transfer a project to a new namespace,
+you may receive one of the following errors:
+
+- "Project cannot be transferred, because tags are present in its container registry."
+- "Namespace cannot be moved because at least one project has tags in container registry."
+
+This issue occurs when the project has images in the Container Registry.
+You must delete or move these images before you can change the path or transfer
+the project.
+
+The following procedure uses these sample project names:
+
+- For the current project: `example.gitlab.com/org/build/sample_project/cr:v2.9.1`
+- For the new project: `example.gitlab.com/new_org/build/new_sample_project/cr:v2.9.1`
+
+Use your own URLs to complete the following steps:
+
+1. Download the Docker images on your computer:
+
+   ```shell
+   docker login example.gitlab.com
+   docker pull example.gitlab.com/org/build/sample_project/cr:v2.9.1
+   ```
+
+1. Rename the images to match the new project name:
+
+   ```shell
+   docker tag example.gitlab.com/org/build/sample_project/cr:v2.9.1 example.gitlab.com/new_org/build/new_sample_project/cr:v2.9.1
+   ```
+
+1. Delete the images in both projects by using the [UI](#delete-images) or [API](../../../api/packages.md#delete-a-project-package).
+   There may be a delay while the images are queued and deleted.
+1. Change the path or transfer the project by going to **Settings > General**
+   and expanding **Advanced**.
+1. Restore the images:
+
+   ```shell
+   docker push example.gitlab.com/new_org/build/new_sample_project/cr:v2.9.1
+   ```
+
+Follow [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/18383) for details.

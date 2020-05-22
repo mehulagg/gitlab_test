@@ -47,6 +47,12 @@ FactoryBot.define do
       after :create do |package|
         create :package_file, :nuget, package: package, file_name: "#{package.name}.#{package.version}.nupkg"
       end
+
+      trait(:with_metadatum) do
+        after :build do |pkg|
+          pkg.nuget_metadatum = build(:nuget_metadatum)
+        end
+      end
     end
 
     factory :pypi_package do
@@ -70,6 +76,10 @@ FactoryBot.define do
     factory :conan_package do
       conan_metadatum
 
+      transient do
+        without_package_files { false }
+      end
+
       after :build do |package|
         package.conan_metadatum.package_username = Packages::Conan::Metadatum.package_username_from(
           full_path: package.project.full_path
@@ -80,12 +90,14 @@ FactoryBot.define do
       version { '1.0.0' }
       package_type { :conan }
 
-      after :create do |package|
-        create :conan_package_file, :conan_recipe_file, package: package
-        create :conan_package_file, :conan_recipe_manifest, package: package
-        create :conan_package_file, :conan_package_info, package: package
-        create :conan_package_file, :conan_package_manifest, package: package
-        create :conan_package_file, :conan_package, package: package
+      after :create do |package, evaluator|
+        unless evaluator.without_package_files
+          create :conan_package_file, :conan_recipe_file, package: package
+          create :conan_package_file, :conan_recipe_manifest, package: package
+          create :conan_package_file, :conan_package_info, package: package
+          create :conan_package_file, :conan_package_manifest, package: package
+          create :conan_package_file, :conan_package, package: package
+        end
       end
 
       trait(:without_loaded_metadatum) do
@@ -101,9 +113,17 @@ FactoryBot.define do
     package
 
     factory :conan_package_file do
+      package { create(:conan_package, without_package_files: true) }
+
+      transient do
+        without_loaded_metadatum { false }
+      end
+
       trait(:conan_recipe_file) do
-        after :create do |package_file|
-          create :conan_file_metadatum, :recipe_file, package_file: package_file
+        after :create do |package_file, evaluator|
+          unless evaluator.without_loaded_metadatum
+            create :conan_file_metadatum, :recipe_file, package_file: package_file
+          end
         end
 
         file { fixture_file_upload('ee/spec/fixtures/conan/recipe_files/conanfile.py') }
@@ -114,8 +134,10 @@ FactoryBot.define do
       end
 
       trait(:conan_recipe_manifest) do
-        after :create do |package_file|
-          create :conan_file_metadatum, :recipe_file, package_file: package_file
+        after :create do |package_file, evaluator|
+          unless evaluator.without_loaded_metadatum
+            create :conan_file_metadatum, :recipe_file, package_file: package_file
+          end
         end
 
         file { fixture_file_upload('ee/spec/fixtures/conan/recipe_files/conanmanifest.txt') }
@@ -126,8 +148,10 @@ FactoryBot.define do
       end
 
       trait(:conan_package_manifest) do
-        after :create do |package_file|
-          create :conan_file_metadatum, :package_file, package_file: package_file
+        after :create do |package_file, evaluator|
+          unless evaluator.without_loaded_metadatum
+            create :conan_file_metadatum, :package_file, package_file: package_file
+          end
         end
 
         file { fixture_file_upload('ee/spec/fixtures/conan/package_files/conanmanifest.txt') }
@@ -138,8 +162,10 @@ FactoryBot.define do
       end
 
       trait(:conan_package_info) do
-        after :create do |package_file|
-          create :conan_file_metadatum, :package_file, package_file: package_file
+        after :create do |package_file, evaluator|
+          unless evaluator.without_loaded_metadatum
+            create :conan_file_metadatum, :package_file, package_file: package_file
+          end
         end
 
         file { fixture_file_upload('ee/spec/fixtures/conan/package_files/conaninfo.txt') }
@@ -150,8 +176,10 @@ FactoryBot.define do
       end
 
       trait(:conan_package) do
-        after :create do |package_file|
-          create :conan_file_metadatum, :package_file, package_file: package_file
+        after :create do |package_file, evaluator|
+          unless evaluator.without_loaded_metadatum
+            create :conan_file_metadatum, :package_file, package_file: package_file
+          end
         end
 
         file { fixture_file_upload('ee/spec/fixtures/conan/package_files/conan_package.tgz') }
@@ -232,7 +260,7 @@ FactoryBot.define do
   end
 
   factory :conan_metadatum, class: 'Packages::Conan::Metadatum' do
-    association :package, factory: [:conan_package, :without_loaded_metadatum]
+    association :package, factory: [:conan_package, :without_loaded_metadatum], without_package_files: true
     package_username { 'username' }
     package_channel { 'stable' }
   end
@@ -242,8 +270,16 @@ FactoryBot.define do
     required_python { '>=2.7' }
   end
 
+  factory :nuget_metadatum, class: 'Packages::Nuget::Metadatum' do
+    package { create(:nuget_package) }
+
+    license_url { 'http://www.gitlab.com' }
+    project_url { 'http://www.gitlab.com' }
+    icon_url { 'http://www.gitlab.com' }
+  end
+
   factory :conan_file_metadatum, class: 'Packages::Conan::FileMetadatum' do
-    package_file
+    package_file { create(:conan_package_file, :conan_recipe_file, without_loaded_metadatum: true) }
     recipe_revision { '0' }
 
     trait(:recipe_file) do
@@ -251,6 +287,7 @@ FactoryBot.define do
     end
 
     trait(:package_file) do
+      package_file { create(:conan_package_file, :conan_package, without_loaded_metadatum: true) }
       conan_file_type { 'package_file' }
       package_revision { '0' }
       conan_package_reference { '123456789' }

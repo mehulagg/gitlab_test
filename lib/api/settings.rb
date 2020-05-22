@@ -132,6 +132,10 @@ module API
       given sourcegraph_enabled: ->(val) { val } do
         requires :sourcegraph_url, type: String, desc: 'The configured Sourcegraph instance URL'
       end
+      optional :spam_check_endpoint_enabled, type: Boolean, desc: 'Enable Spam Check via external API endpoint'
+      given spam_check_endpoint_enabled: ->(val) { val } do
+        requires :spam_check_endpoint_url, type: String, desc: 'The URL of the external Spam Check service endpoint'
+      end
       optional :terminal_max_session_time, type: Integer, desc: 'Maximum time for web terminal websocket connection (in seconds). Set to 0 for unlimited time.'
       optional :usage_ping_enabled, type: Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
       optional :instance_statistics_visibility_private, type: Boolean, desc: 'When set to `true` Instance statistics will only be available to admins'
@@ -184,6 +188,9 @@ module API
       if attrs.has_key?(:allow_local_requests_from_hooks_and_services)
         attrs[:allow_local_requests_from_web_hooks_and_services] = attrs.delete(:allow_local_requests_from_hooks_and_services)
       end
+
+      # since 13.0 it's not possible to disable hashed storage - support can be removed in 14.0
+      attrs.delete(:hashed_storage_enabled) if attrs.has_key?(:hashed_storage_enabled)
 
       attrs = filter_attributes_using_license(attrs)
 

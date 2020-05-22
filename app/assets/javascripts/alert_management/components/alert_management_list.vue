@@ -10,17 +10,22 @@ import {
   GlDropdownItem,
   GlTabs,
   GlTab,
+  GlBadge,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
+import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
+import { fetchPolicies } from '~/lib/graphql';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
-import getAlerts from '../graphql/queries/getAlerts.query.graphql';
+import getAlerts from '../graphql/queries/get_alerts.query.graphql';
+import getAlertsCountByStatus from '../graphql/queries/get_count_by_status.query.graphql';
 import { ALERTS_STATUS, ALERTS_STATUS_TABS, ALERTS_SEVERITY_LABELS } from '../constants';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql';
 import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
 
 const tdClass = 'table-col d-flex d-md-table-cell align-items-center';
+const bodyTrClass =
+  'gl-border-1 gl-border-t-solid gl-border-gray-100 hover-bg-blue-50 hover-gl-cursor-pointer hover-gl-border-b-solid hover-gl-border-blue-200';
 
 export default {
   i18n: {
@@ -56,15 +61,14 @@ export default {
     {
       key: 'eventCount',
       label: s__('AlertManagement|Events'),
-      thClass: 'text-right event-count',
-      tdClass: `${tdClass} text-md-right event-count`,
+      thClass: 'text-right gl-pr-9',
+      tdClass: `${tdClass} text-md-right`,
     },
     {
       key: 'status',
       thClass: 'w-15p',
-      trClass: 'w-15p',
       label: s__('AlertManagement|Status'),
-      tdClass: `${tdClass} rounded-bottom text-capitalize`,
+      tdClass: `${tdClass} rounded-bottom`,
     },
   ],
   statuses: {
@@ -86,8 +90,8 @@ export default {
     GlIcon,
     GlTabs,
     GlTab,
+    GlBadge,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     projectPath: {
       type: String,
@@ -112,6 +116,7 @@ export default {
   },
   apollo: {
     alerts: {
+      fetchPolicy: fetchPolicies.CACHE_AND_NETWORK,
       query: getAlerts,
       variables() {
         return {
@@ -120,16 +125,26 @@ export default {
         };
       },
       update(data) {
-        return data.project.alertManagementAlerts.nodes;
+        return data.project?.alertManagementAlerts?.nodes;
       },
       error() {
         this.errored = true;
       },
     },
+    alertsCount: {
+      query: getAlertsCountByStatus,
+      variables() {
+        return {
+          projectPath: this.projectPath,
+        };
+      },
+      update(data) {
+        return data.project?.alertManagementAlertStatusCounts;
+      },
+    },
   },
   data() {
     return {
-      alerts: null,
       errored: false,
       isAlertDismissed: false,
       isErrorAlertDismissed: false,
@@ -138,13 +153,21 @@ export default {
   },
   computed: {
     showNoAlertsMsg() {
-      return !this.errored && !this.loading && !this.alerts?.length && !this.isAlertDismissed;
+      return (
+        !this.errored && !this.loading && this.alertsCount?.all === 0 && !this.isAlertDismissed
+      );
     },
     showErrorMsg() {
       return this.errored && !this.isErrorAlertDismissed;
     },
     loading() {
       return this.$apollo.queries.alerts.loading;
+    },
+    hasAlerts() {
+      return this.alerts?.length;
+    },
+    tbodyTrClass() {
+      return !this.loading && this.hasAlerts ? bodyTrClass : '';
     },
   },
   methods: {
@@ -162,6 +185,10 @@ export default {
             projectPath: this.projectPath,
           },
         })
+        .then(() => {
+          this.$apollo.queries.alerts.refetch();
+          this.$apollo.queries.alertsCount.refetch();
+        })
         .catch(() => {
           createFlash(
             s__(
@@ -170,10 +197,12 @@ export default {
           );
         });
     },
+    navigateToAlertDetails({ iid }) {
+      return visitUrl(joinPaths(window.location.pathname, iid, 'details'));
+    },
   },
 };
 </script>
-
 <template>
   <div>
     <div v-if="alertManagementEnabled" class="alert-management-list">
@@ -184,10 +213,13 @@ export default {
         {{ $options.i18n.errorMsg }}
       </gl-alert>
 
-      <gl-tabs v-if="glFeatures.alertListStatusFilteringEnabled" @input="filterAlertsByStatus">
+      <gl-tabs @input="filterAlertsByStatus">
         <gl-tab v-for="tab in $options.statusTabs" :key="tab.status">
           <template slot="title">
             <span>{{ tab.title }}</span>
+            <gl-badge v-if="alertsCount" pill size="sm" class="gl-tab-counter-badge">
+              {{ alertsCount[tab.status.toLowerCase()] }}
+            </gl-badge>
           </template>
         </gl-tab>
       </gl-tabs>
@@ -201,8 +233,9 @@ export default {
         :fields="$options.fields"
         :show-empty="true"
         :busy="loading"
-        fixed
         stacked="md"
+        :tbody-tr-class="tbodyTrClass"
+        @row-clicked="navigateToAlertDetails"
       >
         <template #cell(severity)="{ item }">
           <div

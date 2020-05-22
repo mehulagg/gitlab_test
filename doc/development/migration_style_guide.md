@@ -51,7 +51,7 @@ or `db/post_migrate`, so if there are any migrations you don't want to
 commit to the schema, rename or remove them. If your branch is not
 targetting `master` you can set the `TARGET` environment variable.
 
-```sh
+```shell
 # Regenerate schema against `master`
 scripts/regenerate-schema
 
@@ -611,7 +611,7 @@ end
 ```
 
 If a computed update is needed, the value can be wrapped in `Arel.sql`, so Arel
-treats it as an SQL literal. It's also a required deprecation for [Rails 6](https://gitlab.com/gitlab-org/gitlab/issues/28497).
+treats it as an SQL literal. It's also a required deprecation for [Rails 6](https://gitlab.com/gitlab-org/gitlab/-/issues/28497).
 
 The below example is the same as the one above, but
 the value is set to the product of the `bar` and `baz` columns:
@@ -726,6 +726,12 @@ Rails migration example:
 ```ruby
 add_column(:projects, :foo, :integer, default: 10, limit: 8)
 ```
+
+## Strings and the Text data type
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30453) in GitLab 13.0.
+
+See the [text data type](database/strings_and_the_text_data_type.md) style guide for more information.
 
 ## Timestamp column type
 

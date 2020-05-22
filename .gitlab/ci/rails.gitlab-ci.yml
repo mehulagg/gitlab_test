@@ -1,15 +1,6 @@
 .rails:needs:setup-and-assets:
   needs: ["setup-test-env", "compile-assets pull-cache"]
 
-.rails-cache:
-  cache:
-    key: "ruby-go-cache-v1"
-    paths:
-      - vendor/ruby
-      - vendor/gitaly-ruby
-      - .go/pkg/mod
-    policy: pull
-
 .rails-job-base:
   extends:
     - .default-retry
@@ -18,15 +9,18 @@
 
 #######################################################
 # EE/FOSS: default refs (MRs, master, schedules) jobs #
-.base-setup-test-env:
+setup-test-env:
   extends:
     - .rails-job-base
+    - .rails:rules:default-refs-code-backstage-qa
+    - .use-pg11
   stage: prepare
   variables:
     GITLAB_TEST_EAGER_LOAD: "0"
   script:
     - run_timed_command "bundle exec ruby -I. -e 'require \"config/environment\"; TestEnv.init'"
     - run_timed_command "scripts/gitaly-test-build"  # Do not use 'bundle exec' here
+    - rm tmp/tests/gitaly/.ruby-bundle  # This file prevents gems from being installed even if vendor/gitaly-ruby is missing
   artifacts:
     expire_in: 7d
     paths:
@@ -43,12 +37,6 @@
     when: always
   cache:
     policy: pull-push
-
-setup-test-env:
-  extends:
-    - .base-setup-test-env
-    - .rails:rules:default-refs-code-backstage-qa
-    - .use-pg11
 
 static-analysis:
   extends:
@@ -84,6 +72,8 @@ downtime_check:
   stage: test
   needs: ["setup-test-env", "retrieve-tests-metadata", "compile-assets pull-cache"]
   script:
+    - run_timed_command "scripts/gitaly-test-build"
+    - run_timed_command "scripts/gitaly-test-spawn"
     - source scripts/rspec_helpers.sh
     - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag ~level:migration"
   artifacts:
@@ -108,6 +98,8 @@ downtime_check:
 
 .rspec-base-migration:
   script:
+    - run_timed_command "scripts/gitaly-test-build"
+    - run_timed_command "scripts/gitaly-test-spawn"
     - source scripts/rspec_helpers.sh
     - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag level:migration"
 
@@ -154,24 +146,22 @@ db:check-schema:
   script:
     - source scripts/schema_changed.sh
 
-db:migrate-from-v11.11.0:
+db:migrate-from-v12.10.0:
   extends: .db-job-base
   variables:
     SETUP_DB: "false"
   script:
-    - export PROJECT_TO_CHECKOUT="gitlab-foss"
-    - export TAG_TO_CHECKOUT="v11.11.0"
-    - '[[ ! -d "ee/" ]] || export PROJECT_TO_CHECKOUT="gitlab"'
-    - '[[ ! -d "ee/" ]] || export TAG_TO_CHECKOUT="v11.11.0-ee"'
+    - export PROJECT_TO_CHECKOUT="gitlab"
+    - export TAG_TO_CHECKOUT="v12.10.0-ee"
+    - '[[ -d "ee/" ]] || export PROJECT_TO_CHECKOUT="gitlab-foss"'
+    - '[[ -d "ee/" ]] || export TAG_TO_CHECKOUT="v12.10.0"'
     - git fetch https://gitlab.com/gitlab-org/$PROJECT_TO_CHECKOUT.git $TAG_TO_CHECKOUT
     - git checkout -f FETCH_HEAD
-    - sed -i "s/gem 'oj', '~> 2.17.4'//" Gemfile
-    - sed -i "s/gem 'bootsnap', '~> 1.0.0'/gem 'bootsnap'/" Gemfile
     - bundle update google-protobuf grpc bootsnap
     - bundle install $BUNDLE_INSTALL_FLAGS
     - date
     - cp config/gitlab.yml.example config/gitlab.yml
-    - bundle exec rake db:drop db:create db:schema:load db:seed_fu
+    - bundle exec rake db:drop db:create db:structure:load db:seed_fu
     - date
     - git checkout -f $CI_COMMIT_SHA
     - bundle install $BUNDLE_INSTALL_FLAGS
@@ -195,6 +185,7 @@ gitlab:setup:
     # db/fixtures/development/04_project.rb thanks to SIZE=1 below
     - git clone https://gitlab.com/gitlab-org/gitlab-test.git
        /home/git/repositories/gitlab-org/gitlab-test.git
+    - run_timed_command "scripts/gitaly-test-build"
     - run_timed_command "scripts/gitaly-test-spawn"
     - force=yes SIZE=1 FIXTURE_PATH="db/fixtures/development" bundle exec rake gitlab:setup
   artifacts:
@@ -302,6 +293,8 @@ rspec-ee system pg11:
 .rspec-ee-base-geo:
   extends: .rspec-base-ee
   script:
+    - run_timed_command "scripts/gitaly-test-build"
+    - run_timed_command "scripts/gitaly-test-spawn"
     - source scripts/rspec_helpers.sh
     - scripts/prepare_postgres_fdw.sh
     - rspec_paralellized_job "--tag ~quarantine --tag geo"

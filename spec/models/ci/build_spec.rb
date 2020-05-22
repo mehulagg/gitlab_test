@@ -109,6 +109,10 @@ describe Ci::Build do
   describe '.with_downloadable_artifacts' do
     subject { described_class.with_downloadable_artifacts }
 
+    before do
+      stub_feature_flags(drop_license_management_artifact: false)
+    end
+
     context 'when job does not have a downloadable artifact' do
       let!(:job) { create(:ci_build) }
 
@@ -622,7 +626,7 @@ describe Ci::Build do
 
     context 'is expired' do
       before do
-        build.update(artifacts_expire_at: Time.now - 7.days)
+        build.update(artifacts_expire_at: Time.current - 7.days)
       end
 
       it { is_expected.to be_truthy }
@@ -630,7 +634,7 @@ describe Ci::Build do
 
     context 'is not expired' do
       before do
-        build.update(artifacts_expire_at: Time.now + 7.days)
+        build.update(artifacts_expire_at: Time.current + 7.days)
       end
 
       it { is_expected.to be_falsey }
@@ -657,13 +661,13 @@ describe Ci::Build do
     it { is_expected.to be_nil }
 
     context 'when artifacts_expire_at is specified' do
-      let(:expire_at) { Time.now + 7.days }
+      let(:expire_at) { Time.current + 7.days }
 
       before do
         build.artifacts_expire_at = expire_at
       end
 
-      it { is_expected.to be_within(5).of(expire_at - Time.now) }
+      it { is_expected.to be_within(5).of(expire_at - Time.current) }
     end
   end
 
@@ -1427,6 +1431,8 @@ describe Ci::Build do
     subject { build.erase_erasable_artifacts! }
 
     before do
+      stub_feature_flags(drop_license_management_artifact: false)
+
       Ci::JobArtifact.file_types.keys.each do |file_type|
         create(:ci_job_artifact, job: build, file_type: file_type, file_format: Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS[file_type.to_sym])
       end
@@ -1789,7 +1795,7 @@ describe Ci::Build do
   end
 
   describe '#keep_artifacts!' do
-    let(:build) { create(:ci_build, artifacts_expire_at: Time.now + 7.days) }
+    let(:build) { create(:ci_build, artifacts_expire_at: Time.current + 7.days) }
 
     subject { build.keep_artifacts! }
 
@@ -2375,12 +2381,14 @@ describe Ci::Build do
           let(:pipeline_pre_var) { { key: 'pipeline', value: 'value', public: true, masked: false } }
           let(:build_yaml_var) { { key: 'yaml', value: 'value', public: true, masked: false } }
           let(:job_jwt_var) { { key: 'CI_JOB_JWT', value: 'ci.job.jwt', public: false, masked: true } }
+          let(:job_dependency_var) { { key: 'job_dependency', value: 'value', public: true, masked: false } }
 
           before do
             allow(build).to receive(:predefined_variables) { [build_pre_var] }
             allow(build).to receive(:yaml_variables) { [build_yaml_var] }
             allow(build).to receive(:persisted_variables) { [] }
             allow(build).to receive(:job_jwt_variables) { [job_jwt_var] }
+            allow(build).to receive(:dependency_variables) { [job_dependency_var] }
 
             allow_any_instance_of(Project)
               .to receive(:predefined_variables) { [project_pre_var] }
@@ -2398,6 +2406,7 @@ describe Ci::Build do
                project_pre_var,
                pipeline_pre_var,
                build_yaml_var,
+               job_dependency_var,
                { key: 'secret', value: 'value', public: false, masked: false }])
           end
         end
@@ -2501,6 +2510,17 @@ describe Ci::Build do
 
             expect(ci_variables).to be_empty
           end
+        end
+      end
+
+      context 'with the :modified_path_ci_variables feature flag disabled' do
+        before do
+          stub_feature_flags(modified_path_ci_variables: false)
+        end
+
+        it 'does not set CI_MERGE_REQUEST_CHANGED_PAGES_* variables' do
+          expect(subject.find { |var| var[:key] == 'CI_MERGE_REQUEST_CHANGED_PAGE_PATHS' }).to be_nil
+          expect(subject.find { |var| var[:key] == 'CI_MERGE_REQUEST_CHANGED_PAGE_URLS' }).to be_nil
         end
       end
     end
@@ -3008,6 +3028,15 @@ describe Ci::Build do
         end
       end
     end
+
+    context 'when build has dependency which has dotenv variable' do
+      let!(:prepare) { create(:ci_build, pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, options: { dependencies: [prepare.name] }) }
+
+      let!(:job_variable) { create(:ci_job_variable, :dotenv_source, job: prepare) }
+
+      it { is_expected.to include(key: job_variable.key, value: job_variable.value, public: false, masked: false) }
+    end
   end
 
   describe '#scoped_variables' do
@@ -3070,122 +3099,111 @@ describe Ci::Build do
         end
       end
     end
+
+    context 'with dependency variables' do
+      let!(:prepare) { create(:ci_build, name: 'prepare', pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, options: { dependencies: ['prepare'] }) }
+
+      let!(:job_variable) { create(:ci_job_variable, :dotenv_source, job: prepare) }
+
+      context 'FF ci_dependency_variables is enabled' do
+        before do
+          stub_feature_flags(ci_dependency_variables: true)
+        end
+
+        it 'inherits dependent variables' do
+          expect(build.scoped_variables.to_hash).to include(job_variable.key => job_variable.value)
+        end
+      end
+
+      context 'FF ci_dependency_variables is disabled' do
+        before do
+          stub_feature_flags(ci_dependency_variables: false)
+        end
+
+        it 'does not inherit dependent variables' do
+          expect(build.scoped_variables.to_hash).not_to include(job_variable.key => job_variable.value)
+        end
+      end
+    end
+  end
+
+  shared_examples "secret CI variables" do
+    context 'when ref is branch' do
+      let(:build) { create(:ci_build, ref: 'master', tag: false, project: project) }
+
+      context 'when ref is protected' do
+        before do
+          create(:protected_branch, :developers_can_merge, name: 'master', project: project)
+        end
+
+        it { is_expected.to include(variable) }
+      end
+
+      context 'when ref is not protected' do
+        it { is_expected.not_to include(variable) }
+      end
+    end
+
+    context 'when ref is tag' do
+      let(:build) { create(:ci_build, ref: 'v1.1.0', tag: true, project: project) }
+
+      context 'when ref is protected' do
+        before do
+          create(:protected_tag, project: project, name: 'v*')
+        end
+
+        it { is_expected.to include(variable) }
+      end
+
+      context 'when ref is not protected' do
+        it { is_expected.not_to include(variable) }
+      end
+    end
+
+    context 'when ref is merge request' do
+      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
+      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
+      let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
+
+      context 'when ref is protected' do
+        before do
+          create(:protected_branch, :developers_can_merge, name: merge_request.source_branch, project: project)
+        end
+
+        it 'does not return protected variables as it is not supported for merge request pipelines' do
+          is_expected.not_to include(variable)
+        end
+      end
+
+      context 'when ref is not protected' do
+        it { is_expected.not_to include(variable) }
+      end
+    end
+  end
+
+  describe '#secret_instance_variables' do
+    subject { build.secret_instance_variables }
+
+    let_it_be(:variable) { create(:ci_instance_variable, protected: true) }
+
+    include_examples "secret CI variables"
   end
 
   describe '#secret_group_variables' do
     subject { build.secret_group_variables }
 
-    let!(:variable) { create(:ci_group_variable, protected: true, group: group) }
+    let_it_be(:variable) { create(:ci_group_variable, protected: true, group: group) }
 
-    context 'when ref is branch' do
-      let(:build) { create(:ci_build, ref: 'master', tag: false, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: 'master', project: project)
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is tag' do
-      let(:build) { create(:ci_build, ref: 'v1.1.0', tag: true, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_tag, project: project, name: 'v*')
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is merge request' do
-      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
-      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
-      let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: merge_request.source_branch, project: project)
-        end
-
-        it 'does not return protected variables as it is not supported for merge request pipelines' do
-          is_expected.not_to include(variable)
-        end
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
+    include_examples "secret CI variables"
   end
 
   describe '#secret_project_variables' do
     subject { build.secret_project_variables }
 
-    let!(:variable) { create(:ci_variable, protected: true, project: project) }
+    let_it_be(:variable) { create(:ci_variable, protected: true, project: project) }
 
-    context 'when ref is branch' do
-      let(:build) { create(:ci_build, ref: 'master', tag: false, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: 'master', project: project)
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is tag' do
-      let(:build) { create(:ci_build, ref: 'v1.1.0', tag: true, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_tag, project: project, name: 'v*')
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is merge request' do
-      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
-      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
-      let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: merge_request.source_branch, project: project)
-        end
-
-        it 'does not return protected variables as it is not supported for merge request pipelines' do
-          is_expected.not_to include(variable)
-        end
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
+    include_examples "secret CI variables"
   end
 
   describe '#deployment_variables' do
@@ -3236,6 +3254,29 @@ describe Ci::Build do
       it 'returns a hash including variable with higher precedence' do
         expect(build.scoped_variables_hash).to include('MY_VAR': 'pipeline value')
         expect(build.scoped_variables_hash).not_to include('MY_VAR': 'myvar')
+      end
+    end
+
+    context 'when overriding CI instance variables' do
+      before do
+        create(:ci_instance_variable, key: 'MY_VAR', value: 'my value 1')
+        group.variables.create!(key: 'MY_VAR', value: 'my value 2')
+      end
+
+      it 'returns a regular hash created using valid ordering' do
+        expect(build.scoped_variables_hash).to include('MY_VAR': 'my value 2')
+        expect(build.scoped_variables_hash).not_to include('MY_VAR': 'my value 1')
+      end
+    end
+
+    context 'when CI instance variables are disabled' do
+      before do
+        create(:ci_instance_variable, key: 'MY_VAR', value: 'my value 1')
+        stub_feature_flags(ci_instance_level_variables: false)
+      end
+
+      it 'does not include instance level variables' do
+        expect(build.scoped_variables_hash).not_to include('MY_VAR': 'my value 1')
       end
     end
   end
@@ -3310,6 +3351,41 @@ describe Ci::Build do
 
       it 'does not persist data in build metadata' do
         expect(build.metadata.read_attribute(:config_variables)).to be_nil
+      end
+    end
+  end
+
+  describe '#dependency_variables' do
+    subject { build.dependency_variables }
+
+    context 'when using dependencies' do
+      let!(:prepare1) { create(:ci_build, name: 'prepare1', pipeline: pipeline, stage_idx: 0) }
+      let!(:prepare2) { create(:ci_build, name: 'prepare2', pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, options: { dependencies: ['prepare1'] }) }
+
+      let!(:job_variable_1) { create(:ci_job_variable, :dotenv_source, job: prepare1) }
+      let!(:job_variable_2) { create(:ci_job_variable, job: prepare1) }
+      let!(:job_variable_3) { create(:ci_job_variable, :dotenv_source, job: prepare2) }
+
+      it 'inherits only dependent variables' do
+        expect(subject.to_hash).to eq(job_variable_1.key => job_variable_1.value)
+      end
+    end
+
+    context 'when using needs' do
+      let!(:prepare1) { create(:ci_build, name: 'prepare1', pipeline: pipeline, stage_idx: 0) }
+      let!(:prepare2) { create(:ci_build, name: 'prepare2', pipeline: pipeline, stage_idx: 0) }
+      let!(:prepare3) { create(:ci_build, name: 'prepare3', pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, scheduling_type: 'dag') }
+      let!(:build_needs_prepare1) { create(:ci_build_need, build: build, name: 'prepare1', artifacts: true) }
+      let!(:build_needs_prepare2) { create(:ci_build_need, build: build, name: 'prepare2', artifacts: false) }
+
+      let!(:job_variable_1) { create(:ci_job_variable, :dotenv_source, job: prepare1) }
+      let!(:job_variable_2) { create(:ci_job_variable, :dotenv_source, job: prepare2) }
+      let!(:job_variable_3) { create(:ci_job_variable, :dotenv_source, job: prepare3) }
+
+      it 'inherits only needs with artifacts variables' do
+        expect(subject.to_hash).to eq(job_variable_1.key => job_variable_1.value)
       end
     end
   end

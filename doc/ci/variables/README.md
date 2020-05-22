@@ -106,7 +106,7 @@ From within the UI, you can add or update custom environment variables:
 1. Go to your project's **Settings > CI/CD** and expand the **Variables** section.
 1. Click the **Add Variable** button. In the **Add variable** modal, fill in the details:
 
-    - **Key**: Must be one line, with no spaces, using only letters, numbers, `-` or `_`.
+    - **Key**: Must be one line, with no spaces, using only letters, numbers, or `_`.
     - **Value**: No limitations.
     - **Type**: `File` or `Variable`.
     - **Environment scope**: `All`, or specific environments.
@@ -133,7 +133,7 @@ The output will be:
 
 ### Custom environment variables of type Variable
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46806) in GitLab 11.11.
 
 For variables with the type **Variable**, the Runner creates an environment variable
 that uses the key for the name and the value for the value.
@@ -143,7 +143,7 @@ which may be further validated. They appear when you add or update a variable in
 
 ### Custom environment variables of type File
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46806) in GitLab 11.11.
 
 For variables with the type **File**, the Runner creates an environment variable that uses the key for the name.
 For the value, the Runner writes the variable value to a temporary file and uses this path.
@@ -175,7 +175,7 @@ kubectl config set-cluster e2e --server="$KUBE_URL" --certificate-authority="$KU
 
 ### Mask a custom variable
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/13784) in GitLab 11.10
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/13784) in GitLab 11.10
 
 Variables can be masked so that the value of the variable will be hidden in job logs.
 
@@ -195,7 +195,7 @@ The value of the variable must:
 - Be at least 8 characters long.
 - Not be a predefined or custom environment variable.
 - Consist only of characters from the Base64 alphabet (RFC4648).
-  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/issues/63043)
+  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63043)
   and newer, `@` and `:` are also valid values.
 
 You can't mask variables that don't meet these requirements.
@@ -394,6 +394,73 @@ Once you set them, they will be available for all subsequent pipelines. Any grou
 
 ![CI/CD settings - inherited variables](img/inherited_group_variables_v12_5.png)
 
+### Inherit environment variables
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22638) in GitLab 13.0.
+> - It's deployed behind a feature flag (`ci_dependency_variables`), disabled by default.
+
+You can inherit environment variables from dependent jobs.
+
+This feature makes use of the [`artifacts:reports:dotenv`](../pipelines/job_artifacts.md#artifactsreportsdotenv) report feature.
+
+Example with [`dependencies`](../yaml/README.md#dependencies) keyword.
+
+```yaml
+build:
+  stage: build
+  script:
+    - echo "BUILD_VERSION=hello" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+deploy:
+  stage: deploy
+  script:
+    - echo $BUILD_VERSION # => hello
+  dependencies:
+    - build
+```
+
+Example with the [`needs`](../yaml/README.md#artifact-downloads-with-needs) keyword:
+
+```yaml
+build:
+  stage: build
+  script:
+    - echo "BUILD_VERSION=hello" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+deploy:
+  stage: deploy
+  script:
+    - echo $BUILD_VERSION # => hello
+  needs:
+    - job: build
+      artifacts: true
+```
+
+### Enable inherited environment variables **(CORE ONLY)**
+
+The Inherited Environment Variables feature is under development and not ready for production use. It is
+deployed behind a feature flag that is **disabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md)
+can enable it for your instance.
+
+To enable it:
+
+```ruby
+Feature.enable(:ci_dependency_variables)
+```
+
+To disable it:
+
+```ruby
+Feature.disable(:ci_dependency_variables)
+```
+
 ## Priority of environment variables
 
 Variables of different types can take precedence over other
@@ -404,6 +471,7 @@ The order of precedence for variables is (from highest to lowest):
 1. [Trigger variables](../triggers/README.md#making-use-of-trigger-variables) or [scheduled pipeline variables](../pipelines/schedules.md#using-variables).
 1. Project-level [variables](#custom-environment-variables) or [protected variables](#protect-a-custom-variable).
 1. Group-level [variables](#group-level-environment-variables) or [protected variables](#protect-a-custom-variable).
+1. [Inherited environment variables](#inherit-environment-variables).
 1. YAML-defined [job-level variables](../yaml/README.md#variables).
 1. YAML-defined [global variables](../yaml/README.md#variables).
 1. [Deployment variables](#deployment-environment-variables).
@@ -450,7 +518,7 @@ An example integration that defines deployment variables is the
 
 ### Auto DevOps environment variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/49056) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/49056) in GitLab 11.7.
 
 You can configure [Auto DevOps](../../topics/autodevops/index.md) to
 pass CI variables to the running application by prefixing the key of the
@@ -467,7 +535,7 @@ limitations with the current Auto DevOps scripting environment.
 
 ### Override a variable by manually running a pipeline
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/44059) in GitLab 10.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/44059) in GitLab 10.8.
 
 You can override the value of a current variable by
 [running a pipeline manually](../pipelines/index.md#run-a-pipeline-manually).
@@ -487,8 +555,8 @@ value for this specific pipeline.
 
 ## Environment variables expressions
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
-> - [Expanded](https://gitlab.com/gitlab-org/gitlab/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.md#rules)
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
+> - [Expanded](https://gitlab.com/gitlab-org/gitlab/-/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.md#rules)
 
 Use variable expressions to limit which jobs are created
 within a pipeline after changes are pushed to GitLab.
@@ -584,7 +652,7 @@ Below you can find supported syntax reference:
    Examples:
 
    - `=~`: True if pattern is matched. Ex: `$VARIABLE =~ /^content.*/`
-   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/61900) in GitLab 11.11)
+   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/61900) in GitLab 11.11)
 
    Variable pattern matching with regular expressions uses the
    [RE2 regular expression syntax](https://github.com/google/re2/wiki/Syntax).
@@ -626,7 +694,7 @@ deploy_staging:
 ```
 
 NOTE: **Note:**
-The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
+The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/35438)
 for more details.
 
 If needed, you can use a test pipeline to determine whether a regular expression will

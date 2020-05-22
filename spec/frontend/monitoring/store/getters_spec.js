@@ -3,7 +3,12 @@ import * as getters from '~/monitoring/stores/getters';
 import mutations from '~/monitoring/stores/mutations';
 import * as types from '~/monitoring/stores/mutation_types';
 import { metricStates } from '~/monitoring/constants';
-import { environmentData, metricsResult, dashboardGitResponse } from '../mock_data';
+import {
+  environmentData,
+  metricsResult,
+  dashboardGitResponse,
+  mockTemplatingDataResponses,
+} from '../mock_data';
 import {
   metricsDashboardPayload,
   metricResultStatus,
@@ -326,25 +331,30 @@ describe('Monitoring store Getters', () => {
 
   describe('getCustomVariablesArray', () => {
     let state;
-    const sampleVariables = {
-      'var-label1': 'pod',
-      'var-label2': 'env',
-    };
 
     beforeEach(() => {
       state = {
-        promVariables: {},
+        variables: {},
       };
     });
 
-    it('transforms the promVariables object to an array in the [variable, variable_value] format', () => {
-      mutations[types.SET_VARIABLES](state, sampleVariables);
+    it('transforms the variables object to an array in the [variable, variable_value] format for all variable types', () => {
+      mutations[types.SET_VARIABLES](state, mockTemplatingDataResponses.allVariableTypes);
       const variablesArray = getters.getCustomVariablesArray(state);
 
-      expect(variablesArray).toEqual(['label1', 'pod', 'label2', 'env']);
+      expect(variablesArray).toEqual([
+        'simpleText',
+        'Simple text',
+        'advText',
+        'default',
+        'simpleCustom',
+        'value1',
+        'advCustomNormal',
+        'value2',
+      ]);
     });
 
-    it('transforms the promVariables object to an empty array when no keys are present', () => {
+    it('transforms the variables object to an empty array when no keys are present', () => {
       mutations[types.SET_VARIABLES](state, {});
       const variablesArray = getters.getCustomVariablesArray(state);
 

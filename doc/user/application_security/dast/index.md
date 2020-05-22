@@ -1,10 +1,13 @@
 ---
+stage: Secure
+group: Dynamic Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, howto
 ---
 
 # Dynamic Application Security Testing (DAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4348) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4348) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
 
 NOTE: **4 of the top 6 attacks were application based.**
 Download our whitepaper,
@@ -315,7 +318,7 @@ API scans support OpenAPI V2 and OpenAPI V3 specifications. You can define these
 If your API specification is accessible at a URL, you can pass that URL in directly as the target.
 The specification does not have to be hosted on the same host as the API being tested.
 
-```yml
+```yaml
 include:
   - template: DAST.gitlab-ci.yml
 
@@ -453,7 +456,7 @@ DAST can be [configured](#customizing-the-dast-settings) using environment varia
 | `DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED` | no | Requires [domain validation](#domain-validation) when running DAST full scans. Boolean. `true`, `True`, or `1` are considered as true value, otherwise false. Defaults to `false`. Not supported for API scans. |
 | `DAST_AUTO_UPDATE_ADDONS` | no | By default the versions of ZAP add-ons are pinned to those provided with the DAST image. Set to `true` to allow ZAP to download the latest versions. |
 | `DAST_API_HOST_OVERRIDE` | no | Used to override domains defined in API specification files. |
-| `DAST_EXCLUDE_RULES` | no | Set to a comma-separated list of Vulnerability Rule IDs to exclude them from scans. Rule IDs are numbers and can be found from the DAST log or on the [ZAP project](https://github.com/zaproxy/zaproxy/blob/master/docs/scanners.md). For example, `HTTP Parameter Override` has a rule ID of `10026`. |
+| `DAST_EXCLUDE_RULES` | no | Set to a comma-separated list of Vulnerability Rule IDs to exclude them from the scan report. Currently, excluded rules will get executed but the alerts from them will be suppressed. Rule IDs are numbers and can be found from the DAST log or on the [ZAP project](https://github.com/zaproxy/zaproxy/blob/develop/docs/scanners.md). For example, `HTTP Parameter Override` has a rule ID of `10026`. |
 | `DAST_REQUEST_HEADERS` | no | Set to a comma-separated list of request header names and values. For example, `Cache-control: no-cache,User-Agent: DAST/1.0` |
 | `DAST_ZAP_USE_AJAX_SPIDER` | no | Use the AJAX spider in addition to the traditional spider, useful for crawling sites that require JavaScript. Boolean. `true`, `True`, or `1` are considered as true value, otherwise false. Defaults to `false`. |
 
@@ -487,9 +490,9 @@ dast:
 
 ### Custom ZAProxy configuration
 
-The ZAProxy server contains many [useful configurable values](https://gitlab.com/gitlab-org/gitlab/issues/36437#note_245801885).
+The ZAProxy server contains many [useful configurable values](https://gitlab.com/gitlab-org/gitlab/-/issues/36437#note_245801885).
 Many key/values for `-config` remain undocumented, but there is an untested list of
-[possible keys](https://gitlab.com/gitlab-org/gitlab/issues/36437#note_244981023).
+[possible keys](https://gitlab.com/gitlab-org/gitlab/-/issues/36437#note_244981023).
 Note that these options are not supported by DAST, and may break the DAST scan
 when used. An example of how to rewrite the Authorization header value with `TOKEN` follows:
 

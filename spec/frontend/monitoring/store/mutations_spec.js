@@ -128,13 +128,11 @@ describe('Monitoring mutations', () => {
   describe('SET_INITIAL_STATE', () => {
     it('should set all the endpoints', () => {
       mutations[types.SET_INITIAL_STATE](stateCopy, {
-        metricsEndpoint: 'additional_metrics.json',
         deploymentsEndpoint: 'deployments.json',
         dashboardEndpoint: 'dashboard.json',
         projectPath: '/gitlab-org/gitlab-foss',
         currentEnvironmentName: 'production',
       });
-      expect(stateCopy.metricsEndpoint).toEqual('additional_metrics.json');
       expect(stateCopy.deploymentsEndpoint).toEqual('deployments.json');
       expect(stateCopy.dashboardEndpoint).toEqual('dashboard.json');
       expect(stateCopy.projectPath).toEqual('/gitlab-org/gitlab-foss');
@@ -179,12 +177,10 @@ describe('Monitoring mutations', () => {
   describe('SET_ENDPOINTS', () => {
     it('should set all the endpoints', () => {
       mutations[types.SET_ENDPOINTS](stateCopy, {
-        metricsEndpoint: 'additional_metrics.json',
         deploymentsEndpoint: 'deployments.json',
         dashboardEndpoint: 'dashboard.json',
         projectPath: '/gitlab-org/gitlab-foss',
       });
-      expect(stateCopy.metricsEndpoint).toEqual('additional_metrics.json');
       expect(stateCopy.deploymentsEndpoint).toEqual('deployments.json');
       expect(stateCopy.dashboardEndpoint).toEqual('dashboard.json');
       expect(stateCopy.projectPath).toEqual('/gitlab-org/gitlab-foss');
@@ -412,13 +408,13 @@ describe('Monitoring mutations', () => {
     it('stores an empty variables array when no custom variables are given', () => {
       mutations[types.SET_VARIABLES](stateCopy, {});
 
-      expect(stateCopy.promVariables).toEqual({});
+      expect(stateCopy.variables).toEqual({});
     });
 
     it('stores variables in the key key_value format in the array', () => {
       mutations[types.SET_VARIABLES](stateCopy, { pod: 'POD', stage: 'main ops' });
 
-      expect(stateCopy.promVariables).toEqual({ pod: 'POD', stage: 'main ops' });
+      expect(stateCopy.variables).toEqual({ pod: 'POD', stage: 'main ops' });
     });
   });
 
@@ -427,18 +423,11 @@ describe('Monitoring mutations', () => {
       mutations[types.SET_VARIABLES](stateCopy, {});
     });
 
-    it('ignores updates that are not already in promVariables', () => {
-      mutations[types.SET_VARIABLES](stateCopy, { environment: 'prod' });
-      mutations[types.UPDATE_VARIABLE_VALUES](stateCopy, { pod: 'new pod' });
+    it('updates only the value of the variable in variables', () => {
+      mutations[types.SET_VARIABLES](stateCopy, { environment: { value: 'prod', type: 'text' } });
+      mutations[types.UPDATE_VARIABLE_VALUES](stateCopy, { key: 'environment', value: 'new prod' });
 
-      expect(stateCopy.promVariables).toEqual({ environment: 'prod' });
-    });
-
-    it('only updates existing variables', () => {
-      mutations[types.SET_VARIABLES](stateCopy, { pod: 'POD' });
-      mutations[types.UPDATE_VARIABLE_VALUES](stateCopy, { pod: 'new pod' });
-
-      expect(stateCopy.promVariables).toEqual({ pod: 'new pod' });
+      expect(stateCopy.variables).toEqual({ environment: { value: 'new prod', type: 'text' } });
     });
   });
 });

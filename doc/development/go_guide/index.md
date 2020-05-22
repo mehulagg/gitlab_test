@@ -105,7 +105,7 @@ Including a `.golangci.yml` in the root directory of the project allows for
 configuration of `golangci-lint`. All options for `golangci-lint` are listed in
 this [example](https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml).
 
-Once [recursive includes](https://gitlab.com/gitlab-org/gitlab-foss/issues/56836)
+Once [recursive includes](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/56836)
 become available, you will be able to share job templates like this
 [analyzer](https://gitlab.com/gitlab-org/security-products/ci-templates/raw/master/includes-dev/analyzer.yml).
 
@@ -249,7 +249,7 @@ Programs handling a lot of IO or complex operations should always include
 [benchmarks](https://golang.org/pkg/testing/#hdr-Benchmarks), to ensure
 performance consistency over time.
 
-## Using errors
+## Error handling
 
 ### Adding context
 
@@ -260,7 +260,7 @@ easier to debug.
 
 For example:
 
-```go
+```golang
 // Wrap the error
 return nil, fmt.Errorf("get cache %s: %w", f.Name, err)
 

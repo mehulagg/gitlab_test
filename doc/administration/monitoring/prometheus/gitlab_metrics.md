@@ -7,7 +7,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 # GitLab Prometheus metrics
 
 >**Note:**
-Available since [Omnibus GitLab 9.3](https://gitlab.com/gitlab-org/gitlab-foss/issues/29118). For
+Available since [Omnibus GitLab 9.3](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/29118). For
 installations from source you'll have to configure it yourself.
 
 To enable the GitLab Prometheus metrics:
@@ -92,6 +92,8 @@ The following metrics are available:
 | `gitlab_view_rendering_duration_seconds`                       | Histogram |                   10.2 | Duration for views (histogram)                                                                      | `controller`, `action`, `view`                      |
 | `http_requests_total`                                          | Counter   |                    9.4 | Rack request count                                                                                  | `method`                                            |
 | `http_request_duration_seconds`                                | Histogram |                    9.4 | HTTP response time from rack middleware                                                             | `method`, `status`                                  |
+| `http_redis_requests_duration_seconds`                         | Histogram |                   13.1 | Redis requests duration during web transactions                                                     | `controller`, `action`                              |
+| `http_redis_requests_total`                                    | Counter   |                   13.1 | Redis requests count during web transactions                                                        | `controller`, `action`                              |
 | `pipelines_created_total`                                      | Counter   |                    9.4 | Counter of pipelines created                                                                        |                                                     |
 | `rack_uncaught_errors_total`                                   | Counter   |                    9.4 | Rack connections handling uncaught errors count                                                     |                                                     |
 | `user_session_logins_total`                                    | Counter   |                    9.4 | Counter of how many users have logged in                                                            |                                                     |
@@ -123,9 +125,11 @@ configuration option in `gitlab.yml`. These metrics are served from the
 | `sidekiq_jobs_completion_seconds`              | Histogram | 12.2 | Seconds to complete Sidekiq job                                                                     | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_db_seconds`                      | Histogram | 12.9 | Seconds of DB time to run Sidekiq job                                                               | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_gitaly_seconds`                  | Histogram | 12.9 | Seconds of Gitaly time to run Sidekiq job                                                           | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
+| `sidekiq_redis_requests_duration_seconds`      | Histogram | 13.1 | Duration in seconds that a Sidekiq job spent querying a Redis server                                | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_queue_duration_seconds`          | Histogram | 12.5 | Duration in seconds that a Sidekiq job was queued before being executed                             | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
 | `sidekiq_jobs_failed_total`                    | Counter   | 12.2 | Sidekiq jobs failed                                                                                 | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
 | `sidekiq_jobs_retried_total`                   | Counter   | 12.2 | Sidekiq jobs retried                                                                                | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
+| `sidekiq_redis_requests_total`                 | Counter   | 13.1 | Redis requests during a Sidekiq job execution                                                       | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_running_jobs`                         | Gauge     | 12.2 | Number of Sidekiq jobs running                                                                      | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
 | `sidekiq_concurrency`                          | Gauge     | 12.5 | Maximum number of Sidekiq jobs                                                                      |                                                                   |
 | `geo_db_replication_lag_seconds`               | Gauge   | 10.2  | Database replication lag (seconds) | `url` |
@@ -172,7 +176,7 @@ The following metrics are available:
 
 | Metric                            | Type      | Since                                                         | Description                            |
 |:--------------------------------- |:--------- |:------------------------------------------------------------- |:-------------------------------------- |
-| `db_load_balancing_hosts`         | Gauge     | [12.3](https://gitlab.com/gitlab-org/gitlab/issues/13630)     | Current number of load balancing hosts |
+| `db_load_balancing_hosts`         | Gauge     | [12.3](https://gitlab.com/gitlab-org/gitlab/-/issues/13630)     | Current number of load balancing hosts |
 
 ## Ruby metrics
 

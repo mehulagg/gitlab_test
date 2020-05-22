@@ -8,6 +8,13 @@ FactoryBot.define do
     title { FFaker::Lorem.sentence }
     started_at { Time.current }
 
+    trait :with_validation_errors do
+      after(:create) do |alert|
+        too_many_hosts = Array.new(AlertManagement::Alert::HOSTS_MAX_LENGTH + 1) { |_| 'host' }
+        alert.update_columns(hosts: too_many_hosts)
+      end
+    end
+
     trait :with_issue do
       issue
     end
@@ -22,6 +29,10 @@ FactoryBot.define do
 
     trait :with_monitoring_tool do
       monitoring_tool { FFaker::AWS.product_description }
+    end
+
+    trait :with_description do
+      description { FFaker::Lorem.sentence }
     end
 
     trait :with_host do
@@ -70,6 +81,7 @@ FactoryBot.define do
       with_service
       with_monitoring_tool
       with_host
+      with_description
       low_severity
     end
   end

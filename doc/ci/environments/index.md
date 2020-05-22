@@ -1,4 +1,7 @@
 ---
+stage: Release
+group: Release Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference
 disqus_identifier: 'https://docs.gitlab.com/ee/ci/environments.html'
 ---
@@ -159,7 +162,7 @@ Starting with GitLab 9.3, the environment URL is exposed to the Runner via
 
 #### Set dynamic environment URLs after a job finishes
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/17066) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/17066) in GitLab 12.9.
 
 In a job script, you can specify a static [environment URL](#using-the-environment-url).
 However, there may be times when you want a dynamic URL. For example,
@@ -381,7 +384,7 @@ feature.
 
 ### Configuring Kubernetes deployments
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/27630) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/27630) in GitLab 12.6.
 
 If you are deploying to a [Kubernetes cluster](../../user/project/clusters/index.md)
 associated with your project, you can configure these deployments from your
@@ -418,7 +421,7 @@ NOTE: **Note:**
 Kubernetes configuration is not supported for Kubernetes clusters
 that are [managed by GitLab](../../user/project/clusters/index.md#gitlab-managed-clusters).
 To follow progress on support for GitLab-managed clusters, see the
-[relevant issue](https://gitlab.com/gitlab-org/gitlab/issues/38054).
+[relevant issue](https://gitlab.com/gitlab-org/gitlab/-/issues/38054).
 
 ### Complete example
 
@@ -700,7 +703,7 @@ You can read more in the [`.gitlab-ci.yml` reference](../yaml/README.md#environm
 
 #### Environments auto-stop
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/20956) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/20956) in GitLab 12.8.
 
 You can set a expiry time to environments and stop them automatically after a certain period.
 
@@ -902,7 +905,7 @@ knowing the state of your current environments is only a `git fetch` away.
 In your Git configuration, append the `[remote "<your-remote>"]` block with an extra
 fetch line:
 
-```text
+```plaintext
 fetch = +refs/environments/*:refs/remotes/origin/environments/*
 ```
 

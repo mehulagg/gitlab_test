@@ -18,21 +18,22 @@ You can read more about the Docker Registry at
 
 **Omnibus GitLab installations**
 
-If you are using the Omnibus GitLab built-in [Let's Encrypt integration](https://docs.gitlab.com/omnibus/settings/ssl.html#lets-encrypt-integration), as of GitLab 12.5, the Container Registry will be automatically enabled on port 5050 of the default domain.
+If you installed GitLab by using the Omnibus installation package, the Container Registry
+may or may not be available by default.
 
-If you are not using GitLab 12.5 or later, or do not use GitLab's built-in Let's Encrypt
-integration, the GitLab Container Registry must be enabled and
-[configured to use an external domain](#container-registry-domain-configuration).
+The Container Registry is automatically enabled and available on your GitLab domain, port 5050 if:
 
-To enable the GitLab Container Registry on your *existing* GitLab domain, refer to the section on
-[configuring Container Registry to use an existing domain](#configure-container-registry-under-an-existing-gitlab-domain).
+- You're using the built-in [Let's Encrypt integration](https://docs.gitlab.com/omnibus/settings/ssl.html#lets-encrypt-integration), and
+- You're using GitLab 12.5 or later.
 
-To use a *separate* domain with your Container Registry, refer to the section on
-[configuring Container Registry under its own domain](#configure-container-registry-under-its-own-domain).
+Otherwise, the Container Registry is not enabled. To enable it:
+
+- You can configure it for your [GitLab domain](#configure-container-registry-under-an-existing-gitlab-domain), or
+- You can configure it for [a different domain](#configure-container-registry-under-its-own-domain).
 
 NOTE: **Note:**
-The container registry works under HTTPS by default. Using HTTP is possible
-but not recommended and out of the scope of this document.
+The Container Registry works under HTTPS by default. You can use HTTP
+but it's not recommended and is out of the scope of this document.
 Read the [insecure Registry documentation](https://docs.docker.com/registry/insecure/)
 if you want to implement this.
 
@@ -115,7 +116,7 @@ expose the Registry on a port so that you can reuse the existing GitLab TLS
 certificate.
 
 Assuming that the GitLab domain is `https://gitlab.example.com` and the port the
-Registry is exposed to the outside world is `4567`, here is what you need to set
+Registry is exposed to the outside world is `5050`, here is what you need to set
 in `gitlab.rb` or `gitlab.yml` if you are using Omnibus GitLab or installed
 GitLab from source respectively.
 
@@ -129,7 +130,7 @@ otherwise you will run into conflicts.
    path to the existing TLS certificate and key used by GitLab:
 
    ```ruby
-   registry_external_url 'https://gitlab.example.com:4567'
+   registry_external_url 'https://gitlab.example.com:5050'
    ```
 
    Note how the `registry_external_url` is listening on HTTPS under the
@@ -150,7 +151,7 @@ otherwise you will run into conflicts.
 1. Validate using:
 
    ```shell
-   openssl s_client -showcerts -servername gitlab.example.com -connect gitlab.example.com:443 > cacert.pem
+   openssl s_client -showcerts -servername gitlab.example.com -connect gitlab.example.com:5050 > cacert.pem
    ```
 
 NOTE: **Note:**
@@ -165,7 +166,7 @@ If your certificate provider provides the CA Bundle certificates, append them to
    registry:
      enabled: true
      host: gitlab.example.com
-     port: 4567
+     port: 5050
    ```
 
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
@@ -175,7 +176,7 @@ Users should now be able to login to the Container Registry with their GitLab
 credentials using:
 
 ```shell
-docker login gitlab.example.com:4567
+docker login gitlab.example.com:5050
 ```
 
 ### Configure Container Registry under its own domain
@@ -459,7 +460,7 @@ However, this behavior is undesirable for registries used by internal hosts that
 
 1. Add the `redirect` flag to your registry configuration YML file:
 
-    ```yml
+    ```yaml
     storage:
       s3:
         accesskey: 'AKIAKIAKI'
@@ -525,7 +526,7 @@ on how to achieve that.
 
 NOTE: **Note:**
 In using an external container registry, some features associated with the
-container registry may be unavailable or have [inherant risks](./../../user/packages/container_registry/index.md#use-with-external-container-registries)
+container registry may be unavailable or have [inherent risks](./../../user/packages/container_registry/index.md#use-with-external-container-registries)
 
 **Omnibus GitLab**
 
@@ -715,7 +716,7 @@ built-in command:
 
 If you did not change the default location of the configuration file, run:
 
-```sh
+```shell
 sudo gitlab-ctl registry-garbage-collect
 ```
 
@@ -724,7 +725,7 @@ layers you have stored.
 
 If you changed the location of the Container Registry `config.yml`:
 
-```sh
+```shell
 sudo gitlab-ctl registry-garbage-collect /path/to/config.yml
 ```
 
@@ -748,7 +749,7 @@ referenced by the registry tag. The `registry-garbage-collect` command supports 
 `-m` switch to allow you to remove all unreferenced manifests and layers that are
 not directly accessible via `tag`:
 
-```sh
+```shell
 sudo gitlab-ctl registry-garbage-collect -m
 ```
 
@@ -786,7 +787,7 @@ To enable the read-only mode:
 
 1. Save and reconfigure GitLab:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    ```
 
@@ -794,7 +795,7 @@ To enable the read-only mode:
 
 1. Next, trigger one of the garbage collect commands:
 
-   ```sh
+   ```shell
    # Recycling unused tags
    sudo /opt/gitlab/embedded/bin/registry garbage-collect /var/opt/gitlab/registry/config.yml
 
@@ -821,7 +822,7 @@ To enable the read-only mode:
 
 1. Save and reconfigure GitLab:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    ```
 
@@ -883,7 +884,7 @@ mounting the docker-daemon and setting `privileged = false` in the Runner's
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
 ```
 
-Additional information about this: [issue 18239](https://gitlab.com/gitlab-org/gitlab-foss/issues/18239).
+Additional information about this: [issue 18239](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/18239).
 
 ### `unauthorized: authentication required` when pushing large images
 
@@ -954,7 +955,7 @@ Start with a value between `25000000` (25MB) and `50000000` (50MB).
 
 ### Supporting older Docker clients
 
-As of GitLab 11.9, we began shipping version 2.7.1 of the Docker container registry, which disables the schema1 manifest by default. If you are still using older Docker clients (1.9 or older), you may experience an error pushing images. See [omnibus-4145](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/4145) for more details.
+As of GitLab 11.9, we began shipping version 2.7.1 of the Docker container registry, which disables the schema1 manifest by default. If you are still using older Docker clients (1.9 or older), you may experience an error pushing images. See [omnibus-4145](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/4145) for more details.
 
 You can add a configuration option for backwards compatibility.
 
@@ -1061,7 +1062,7 @@ A user attempted to enable an S3-backed Registry. The `docker login` step went
 fine. However, when pushing an image, the output showed:
 
 ```plaintext
-The push refers to a repository [s3-testing.myregistry.com:4567/root/docker-test/docker-image]
+The push refers to a repository [s3-testing.myregistry.com:5050/root/docker-test/docker-image]
 dc5e59c14160: Pushing [==================================================>] 14.85 kB
 03c20c1a019a: Pushing [==================================================>] 2.048 kB
 a08f14ef632e: Pushing [==================================================>] 2.048 kB
@@ -1153,8 +1154,8 @@ Now that we have mitmproxy and Docker running, we can attempt to login and push
 a container image. You may need to run as root to do this. For example:
 
 ```shell
-docker login s3-testing.myregistry.com:4567
-docker push s3-testing.myregistry.com:4567/root/docker-test/docker-image
+docker login s3-testing.myregistry.com:5050
+docker push s3-testing.myregistry.com:5050/root/docker-test/docker-image
 ```
 
 In the example above, we see the following trace on the mitmproxy window:

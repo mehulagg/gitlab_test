@@ -69,7 +69,7 @@ For information about setting a maximum artifact size for a project, see
 ## Custom CI configuration path
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/12509) in GitLab 9.4.
-> - [Support for external `.gitlab-ci.yml` locations](https://gitlab.com/gitlab-org/gitlab/issues/14376) introduced in GitLab 12.6.
+> - [Support for external `.gitlab-ci.yml` locations](https://gitlab.com/gitlab-org/gitlab/-/issues/14376) introduced in GitLab 12.6.
 
 By default we look for the `.gitlab-ci.yml` file in the project's root
 directory. If needed, you can specify an alternate path and file name, including locations outside the project.
@@ -118,7 +118,8 @@ job log using a regular expression. In the pipelines settings, search for the
 ![Pipelines settings test coverage](img/pipelines_settings_test_coverage.png)
 
 Leave blank if you want to disable it or enter a Ruby regular expression. You
-can use <https://rubular.com> to test your regex.
+can use <https://rubular.com> to test your regex. The regex returns the **last**
+match found in the output.
 
 If the pipeline succeeds, the coverage is shown in the merge request widget and
 in the jobs table.
@@ -207,7 +208,7 @@ you can enable this in the project settings:
 
 ## Skip outdated deployment jobs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/25276) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/25276) in GitLab 12.9.
 
 Your project may have multiple concurrent deployment jobs that are
 scheduled to run within the same time frame.
@@ -250,7 +251,7 @@ Depending on the status of your job, a badge can have the following values:
 
 You can access a pipeline status badge image using the following link:
 
-```text
+```plaintext
 https://example.gitlab.com/<namespace>/<project>/badges/<branch>/pipeline.svg
 ```
 
@@ -262,7 +263,7 @@ pipeline can have the test coverage percentage value defined.
 
 The test coverage badge can be accessed using following link:
 
-```text
+```plaintext
 https://example.gitlab.com/<namespace>/<project>/badges/<branch>/coverage.svg
 ```
 
@@ -281,7 +282,7 @@ Pipeline badges can be rendered in different styles by adding the `style=style_n
 
 #### Flat (default)
 
-```text
+```plaintext
 https://example.gitlab.com/<namespace>/<project>/badges/<branch>/coverage.svg?style=flat
 ```
 
@@ -289,9 +290,9 @@ https://example.gitlab.com/<namespace>/<project>/badges/<branch>/coverage.svg?st
 
 #### Flat square
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/30120) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/30120) in GitLab 11.8.
 
-```text
+```plaintext
 https://example.gitlab.com/<namespace>/<project>/badges/<branch>/coverage.svg?style=flat-square
 ```
 

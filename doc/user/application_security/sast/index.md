@@ -1,10 +1,13 @@
 ---
+stage: Secure
+group: Static Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, howto
 ---
 
 # Static Application Security Testing (SAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
 
 NOTE: **4 of the top 6 attacks were application based.**
 Download our whitepaper,
@@ -67,7 +70,8 @@ The following table shows which languages, package managers and frameworks are s
 
 | Language (package managers) / framework                                     | Scan tool                                                                              | Introduced in GitLab Version |
 |-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------|------------------------------|
-| .NET                                                                        | [Security Code Scan](https://security-code-scan.github.io)                             | 11.0                         |
+| .NET Core                                                                   | [Security Code Scan](https://security-code-scan.github.io)                             | 11.0                         |
+| .NET Framework                                                              | [Security Code Scan](https://security-code-scan.github.io)                             | 13.0                         |
 | Any                                                                         | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) | 11.9    |
 | Apex (Salesforce)                                                           | [PMD](https://pmd.github.io/pmd/index.html)                                            | 12.1                         |
 | C/C++                                                                       | [Flawfinder](https://dwheeler.com/flawfinder/)                                         | 10.7                         |
@@ -145,10 +149,10 @@ CAUTION: **Deprecation:**
 Beginning in GitLab 13.0, the use of [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-basic)
 is no longer supported. When overriding the template, you must use [`rules`](../../../ci/yaml/README.md#rules) instead.
 
-If you want to override a job definition (for example, change properties like
-`variables` or `dependencies`), you need to declare a job with the same name as the SAST job to override, after the
-template inclusion and specify any additional keys under it.
-For example, this enables `FAIL_NEVER` for the `spotbugs` analyzer:
+To override a job definition, (for example, change properties like `variables` or `dependencies`),
+declare a job with the same name as the SAST job to override. Place this new job after the template
+inclusion and specify any additional keys under it. For example, this enables `FAIL_NEVER` for the
+`spotbugs` analyzer:
 
 ```yaml
 include:
@@ -176,23 +180,26 @@ Read more on [how to use private Maven repositories](../index.md#using-private-m
 
 ### Enabling Docker-in-Docker
 
-If needed, you can restore the behavior of SAST prior to %13.0 by enabling back Docker-in-Docker.
-You need GitLab Runner with the [`docker`](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode), and the variable `SAST_DISABLE_DIND` set to `false`:
+If needed, you can enable Docker-in-Docker to restore the SAST behavior that existed prior to GitLab
+13.0. Follow these steps to do so:
 
-```yaml
-include:
-  - template: SAST.gitlab-ci.yml
+1. Configure GitLab Runner with Docker-inDocker in [privileged mode](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
+1. Set the variable `SAST_DISABLE_DIND` set to `false`:
 
-variables:
-  SAST_DISABLE_DIND: "false"
-```
+   ```yaml
+   include:
+     - template: SAST.gitlab-ci.yml
 
-This will create a single `sast` job in your CI/CD pipeline
-instead of multiple `<analyzer-name>-sast` jobs.
+   variables:
+     SAST_DISABLE_DIND: "false"
+   ```
+
+This creates a single `sast` job in your CI/CD pipeline instead of multiple `<analyzer-name>-sast`
+jobs.
 
 #### Enabling Kubesec analyzer
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12752) in GitLab Ultimate 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12752) in GitLab Ultimate 12.6.
 
 You need to set `SCAN_KUBERNETES_MANIFESTS` to `"true"` to enable the
 Kubesec analyzer. In `.gitlab-ci.yml`, define:
@@ -309,18 +316,20 @@ Some analyzers can be customized with environment variables.
 
 | Environment variable        | Analyzer | Description |
 |-----------------------------|----------|-------------|
-| `SCAN_KUBERNETES_MANIFESTS` | Kubesec  | Set to `"true"` to scan Kubernetes manifests. |
-| `ANT_HOME`                  | SpotBugs | The `ANT_HOME` environment variable. |
-| `ANT_PATH`                  | SpotBugs | Path to the `ant` executable. |
-| `GRADLE_PATH`               | SpotBugs | Path to the `gradle` executable. |
-| `JAVA_OPTS`                 | SpotBugs | Additional arguments for the `java` executable. |
-| `JAVA_PATH`                 | SpotBugs | Path to the `java` executable. |
-| `SAST_JAVA_VERSION`         | SpotBugs | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
-| `MAVEN_CLI_OPTS`            | SpotBugs | Additional arguments for the `mvn` or `mvnw` executable. |
-| `MAVEN_PATH`                | SpotBugs | Path to the `mvn` executable. |
-| `MAVEN_REPO_PATH`           | SpotBugs | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
-| `SBT_PATH`                  | SpotBugs | Path to the `sbt` executable. |
-| `FAIL_NEVER`                | SpotBugs | Set to `1` to ignore compilation failure. |
+| `SCAN_KUBERNETES_MANIFESTS`           | Kubesec              | Set to `"true"` to scan Kubernetes manifests. |
+| `ANT_HOME`                            | SpotBugs             | The `ANT_HOME` environment variable. |
+| `ANT_PATH`                            | SpotBugs             | Path to the `ant` executable. |
+| `GRADLE_PATH`                         | SpotBugs             | Path to the `gradle` executable. |
+| `JAVA_OPTS`                           | SpotBugs             | Additional arguments for the `java` executable. |
+| `JAVA_PATH`                           | SpotBugs             | Path to the `java` executable. |
+| `SAST_JAVA_VERSION`                   | SpotBugs             | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
+| `MAVEN_CLI_OPTS`                      | SpotBugs             | Additional arguments for the `mvn` or `mvnw` executable. |
+| `MAVEN_PATH`                          | SpotBugs             | Path to the `mvn` executable. |
+| `MAVEN_REPO_PATH`                     | SpotBugs             | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
+| `SBT_PATH`                            | SpotBugs             | Path to the `sbt` executable. |
+| `FAIL_NEVER`                          | SpotBugs             | Set to `1` to ignore compilation failure. |
+| `SAST_GOSEC_CONFIG`                   | Gosec                | Path to configuration for Gosec (optional). |
+| `PHPCS_SECURITY_AUDIT_PHP_EXTENSIONS` | phpcs-security-audit | Comma separated list of additional PHP Extensions. |
 
 #### Custom environment variables
 
@@ -465,7 +474,12 @@ vulnerabilities in your groups, projects and pipelines. Read more about the
 Once a vulnerability is found, you can interact with it. Read more on how to
 [interact with the vulnerabilities](../index.md#interacting-with-the-vulnerabilities).
 
-## Vulnerabilities database update
+## Vulnerabilities database
+
+Vulnerabilities contained within the vulnerability database can be searched
+and viewed at the [GitLab vulnerability advisory database](https://advisories.gitlab.com).
+
+### Vulnerabilities database update
 
 For more information about the vulnerabilities database update, check the
 [maintenance table](../index.md#maintenance-and-update-of-the-vulnerabilities-database).
@@ -545,7 +559,7 @@ security reports without requiring internet access.
 
 ### Error response from daemon: error processing tar file: docker-tar: relocation error
 
-This error occurs when the Docker version used to run the SAST job is `19.03.0`.
+This error occurs when the Docker version that runs the SAST job is `19.03.0`.
 Consider updating to Docker `19.03.1` or greater. Older versions are not
 affected. Read more in
-[this issue](https://gitlab.com/gitlab-org/gitlab/issues/13830#note_211354992 "Current SAST container fails").
+[this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/13830#note_211354992 "Current SAST container fails").

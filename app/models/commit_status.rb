@@ -14,6 +14,10 @@ class CommitStatus < ApplicationRecord
   belongs_to :pipeline, class_name: 'Ci::Pipeline', foreign_key: :commit_id
   belongs_to :auto_canceled_by, class_name: 'Ci::Pipeline'
 
+  has_many :needs, class_name: 'Ci::BuildNeed', foreign_key: :build_id, inverse_of: :build
+
+  enum scheduling_type: { stage: 0, dag: 1 }, _prefix: true
+
   delegate :commit, to: :pipeline
   delegate :sha, :short_sha, :before_sha, to: :pipeline
 
@@ -132,15 +136,15 @@ class CommitStatus < ApplicationRecord
     end
 
     before_transition [:created, :waiting_for_resource, :preparing, :skipped, :manual, :scheduled] => :pending do |commit_status|
-      commit_status.queued_at = Time.now
+      commit_status.queued_at = Time.current
     end
 
     before_transition [:created, :preparing, :pending] => :running do |commit_status|
-      commit_status.started_at = Time.now
+      commit_status.started_at = Time.current
     end
 
     before_transition any => [:success, :failed, :canceled] do |commit_status|
-      commit_status.finished_at = Time.now
+      commit_status.finished_at = Time.current
     end
 
     before_transition any => :failed do |commit_status, transition|

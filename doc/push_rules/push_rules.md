@@ -68,7 +68,7 @@ See [server hooks](../administration/server_hooks.md) for more information.
 NOTE: **Note:**
 GitLab administrators can set push rules globally under
 **Admin Area > Push Rules** that all new projects will inherit. You can later
-override them in a project's settings.
+override them in a project's settings. They can be also set on a [group level](../user/group/index.md#group-push-rules-starter).
 
 1. Navigate to your project's **Settings > Repository** and expand **Push Rules**
 1. Set the rule you want
@@ -95,7 +95,7 @@ GitLab uses [RE2 syntax](https://github.com/google/re2/wiki/Syntax) for regular 
 
 ## Prevent pushing secrets to the repository
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/385) in [GitLab Starter](https://about.gitlab.com/pricing/) 8.12.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/385) in [GitLab Starter](https://about.gitlab.com/pricing/) 8.12.
 
 Secrets such as credential files, SSH private keys, and other files containing secrets should never be committed to source control.
 GitLab allows you to turn on a predefined blacklist of files which won't be allowed to be

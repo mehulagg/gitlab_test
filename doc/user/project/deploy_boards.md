@@ -69,7 +69,7 @@ To display the Deploy Boards for a specific [environment](../../ci/environments/
    instead of `DeploymentConfiguration`. Otherwise, the Deploy Boards won't render
    correctly. For more information, read the
    [OpenShift docs](https://docs.openshift.com/container-platform/3.7/dev_guide/deployments/kubernetes_deployments.html#kubernetes-deployments-vs-deployment-configurations)
-   and [GitLab issue #4584](https://gitlab.com/gitlab-org/gitlab/issues/4584).
+   and [GitLab issue #4584](https://gitlab.com/gitlab-org/gitlab/-/issues/4584).
 
 1. [Configure GitLab Runner](../../ci/runners/README.md) with the [Docker](https://docs.gitlab.com/runner/executors/docker.html) or
    [Kubernetes](https://docs.gitlab.com/runner/executors/kubernetes.html) executor.

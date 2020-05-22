@@ -70,7 +70,7 @@ sudo service tomcat8 restart
 Once the Tomcat service restarts the PlantUML service will be ready and
 listening for requests on port 8080:
 
-```text
+```plaintext
 http://localhost:8080/plantuml
 ```
 
@@ -115,6 +115,19 @@ that, login with an Admin account and do following:
 - Check **Enable PlantUML** checkbox.
 - Set the PlantUML instance as `https://gitlab.example.com/-/plantuml/`.
 
+NOTE: **Note:** If you are using a PlantUML server running v1.2020.9 and
+above (for example, [plantuml.com](https://plantuml.com)), set the `PLANTUML_ENCODING`
+environment variable to enable the `deflate` compression. On Omnibus,
+this can be done set in `/etc/gitlab.rb`:
+
+```ruby
+gitlab_rails['env'] = { 'PLANTUML_ENCODING' => 'deflate' }
+```
+
+From GitLab 13.1 and later, PlantUML integration now
+[requires a header prefix in the URL](https://github.com/plantuml/plantuml/issues/117#issuecomment-6235450160)
+to distinguish different encoding types.
+
 ## Creating Diagrams
 
 With PlantUML integration enabled and configured, we can start adding diagrams to
@@ -131,7 +144,7 @@ our AsciiDoc snippets, wikis, and repositories using delimited blocks:
 
 - **AsciiDoc**
 
-  ```text
+  ```plaintext
   [plantuml, format="png", id="myDiagram", width="200px"]
   ----
   Bob->Alice : hello
@@ -141,7 +154,7 @@ our AsciiDoc snippets, wikis, and repositories using delimited blocks:
 
 - **reStructuredText**
 
-  ```text
+  ```plaintext
   .. plantuml::
      :caption: Caption with **bold** and *italic*
 

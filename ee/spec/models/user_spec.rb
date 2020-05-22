@@ -236,7 +236,7 @@ describe User do
   end
 
   describe '#forget_me!' do
-    subject { create(:user, remember_created_at: Time.now) }
+    subject { create(:user, remember_created_at: Time.current) }
 
     it 'clears remember_created_at' do
       subject.forget_me!
@@ -1171,27 +1171,6 @@ describe User do
       end
 
       it { is_expected.to be false }
-    end
-  end
-
-  describe '#organization' do
-    using RSpec::Parameterized::TableSyntax
-
-    let(:user) { build(:user, organization: 'ACME') }
-
-    subject { user.organization }
-
-    where(:gitlab_employee?, :expected_result) do
-      true  | 'GitLab'
-      false | 'ACME'
-    end
-
-    with_them do
-      before do
-        allow(user).to receive(:gitlab_employee?).and_return(gitlab_employee?)
-      end
-
-      it { is_expected.to eql(expected_result) }
     end
   end
 

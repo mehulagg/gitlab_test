@@ -39,6 +39,7 @@ import {
   timeRangeFromUrl,
   panelToUrl,
   expandedPanelPayloadFromUrl,
+  convertVariablesForURL,
 } from '../utils';
 import { metricStates } from '../constants';
 import { defaultTimeRange, timeRanges } from '~/vue_shared/constants';
@@ -110,27 +111,9 @@ export default {
       type: String,
       required: true,
     },
-    projectPath: {
-      type: String,
-      required: true,
-    },
-    logsPath: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
     defaultBranch: {
       type: String,
       required: true,
-    },
-    metricsEndpoint: {
-      type: String,
-      required: true,
-    },
-    deploymentsEndpoint: {
-      type: String,
-      required: false,
-      default: null,
     },
     emptyGettingStartedSvgPath: {
       type: String,
@@ -152,10 +135,6 @@ export default {
       type: String,
       required: true,
     },
-    currentEnvironmentName: {
-      type: String,
-      required: true,
-    },
     customMetricsAvailable: {
       type: Boolean,
       required: false,
@@ -170,21 +149,6 @@ export default {
       type: String,
       required: false,
       default: invalidUrl,
-    },
-    dashboardEndpoint: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
-    dashboardsEndpoint: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
-    currentDashboard: {
-      type: String,
-      required: false,
-      default: '',
     },
     smallEmptyState: {
       type: Boolean,
@@ -225,8 +189,10 @@ export default {
       'allDashboards',
       'environmentsLoading',
       'expandedPanel',
-      'promVariables',
+      'variables',
       'isUpdatingStarredValue',
+      'currentDashboard',
+      'currentEnvironmentName',
     ]),
     ...mapGetters('monitoringDashboard', [
       'selectedDashboard',
@@ -250,7 +216,7 @@ export default {
       return !this.environmentsLoading && this.filteredEnvironments.length === 0;
     },
     shouldShowVariablesSection() {
-      return Object.keys(this.promVariables).length > 0;
+      return Object.keys(this.variables).length > 0;
     },
   },
   watch: {
@@ -272,7 +238,7 @@ export default {
       handler({ group, panel }) {
         const dashboardPath = this.currentDashboard || this.selectedDashboard?.path;
         updateHistory({
-          url: panelToUrl(dashboardPath, group, panel),
+          url: panelToUrl(dashboardPath, convertVariablesForURL(this.variables), group, panel),
           title: document.title,
         });
       },
@@ -280,16 +246,6 @@ export default {
     },
   },
   created() {
-    this.setInitialState({
-      metricsEndpoint: this.metricsEndpoint,
-      deploymentsEndpoint: this.deploymentsEndpoint,
-      dashboardEndpoint: this.dashboardEndpoint,
-      dashboardsEndpoint: this.dashboardsEndpoint,
-      currentDashboard: this.currentDashboard,
-      projectPath: this.projectPath,
-      logsPath: this.logsPath,
-      currentEnvironmentName: this.currentEnvironmentName,
-    });
     window.addEventListener('keyup', this.onKeyup);
   },
   destroyed() {
@@ -309,7 +265,6 @@ export default {
       'fetchData',
       'fetchDashboardData',
       'setGettingStartedEmptyState',
-      'setInitialState',
       'setPanelGroupMetrics',
       'filterEnvironments',
       'setExpandedPanel',
@@ -343,7 +298,7 @@ export default {
     },
     generatePanelUrl(groupKey, panel) {
       const dashboardPath = this.currentDashboard || this.selectedDashboard?.path;
-      return panelToUrl(dashboardPath, groupKey, panel);
+      return panelToUrl(dashboardPath, convertVariablesForURL(this.variables), groupKey, panel);
     },
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();

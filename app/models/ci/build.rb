@@ -33,7 +33,6 @@ module Ci
       scheduler_failure: 2
     }.freeze
 
-    CODE_NAVIGATION_JOB_NAME = 'code_navigation'
     DEGRADATION_THRESHOLD_VARIABLE_NAME = 'DEGRADATION_THRESHOLD'
 
     has_one :deployment, as: :deployable, class_name: 'Deployment'
@@ -138,8 +137,8 @@ module Ci
         .includes(:metadata, :job_artifacts_metadata)
     end
 
-    scope :with_artifacts_not_expired, ->() { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.now) }
-    scope :with_expired_artifacts, ->() { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.now) }
+    scope :with_artifacts_not_expired, ->() { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.current) }
+    scope :with_expired_artifacts, ->() { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.current) }
     scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }
     scope :manual_actions, ->() { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
     scope :scheduled_actions, ->() { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
@@ -260,7 +259,7 @@ module Ci
       end
 
       before_transition any => :waiting_for_resource do |build|
-        build.waiting_for_resource_at = Time.now
+        build.waiting_for_resource_at = Time.current
       end
 
       before_transition on: :enqueue_waiting_for_resource do |build|
@@ -577,7 +576,7 @@ module Ci
 
     def environment_changed_page_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
-        break variables unless environment_status
+        break variables unless environment_status && Feature.enabled?(:modifed_path_ci_variables, project)
 
         variables.append(key: 'CI_MERGE_REQUEST_CHANGED_PAGE_PATHS', value: environment_status.changed_paths.join(','))
         variables.append(key: 'CI_MERGE_REQUEST_CHANGED_PAGE_URLS', value: environment_status.changed_urls.join(','))
@@ -603,6 +602,14 @@ module Ci
 
     def freeze_period?
       Ci::FreezePeriodStatus.new(project: project).execute
+    end
+
+    def dependency_variables
+      return [] if all_dependencies.empty?
+
+      Gitlab::Ci::Variables::Collection.new.concat(
+        Ci::JobVariable.where(job: all_dependencies).dotenv_source
+      )
     end
 
     def features
@@ -706,7 +713,7 @@ module Ci
     end
 
     def needs_touch?
-      Time.now - updated_at > 15.minutes.to_i
+      Time.current - updated_at > 15.minutes.to_i
     end
 
     def valid_token?(token)
@@ -769,11 +776,11 @@ module Ci
     end
 
     def artifacts_expired?
-      artifacts_expire_at && artifacts_expire_at < Time.now
+      artifacts_expire_at && artifacts_expire_at < Time.current
     end
 
     def artifacts_expire_in
-      artifacts_expire_at - Time.now if artifacts_expire_at
+      artifacts_expire_at - Time.current if artifacts_expire_at
     end
 
     def artifacts_expire_in=(value)
@@ -986,7 +993,7 @@ module Ci
     end
 
     def update_erased!(user = nil)
-      self.update(erased_by: user, erased_at: Time.now, artifacts_expire_at: nil)
+      self.update(erased_by: user, erased_at: Time.current, artifacts_expire_at: nil)
     end
 
     def unscoped_project
@@ -1019,7 +1026,7 @@ module Ci
     end
 
     def has_expiring_artifacts?
-      artifacts_expire_at.present? && artifacts_expire_at > Time.now
+      artifacts_expire_at.present? && artifacts_expire_at > Time.current
     end
 
     def job_jwt_variables

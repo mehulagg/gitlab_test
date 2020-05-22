@@ -10,14 +10,12 @@ module EE
     extend ::Gitlab::Utils::Override
     extend ::Gitlab::Cache::RequestCache
     include ::Gitlab::Utils::StrongMemoize
-    include ::EE::GitlabRoutingHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
     include IgnorableColumns
 
     GIT_LFS_DOWNLOAD_OPERATION = 'download'.freeze
 
     prepended do
       include Elastic::ProjectsSearch
-      include EE::DeploymentPlatform # rubocop: disable Cop/InjectEnterpriseEditionModule
       include EachBatch
       include InsightsFeature
       include DeprecatedApprovalsBeforeMerge
@@ -95,7 +93,8 @@ module EE
       has_many :sourced_pipelines, class_name: 'Ci::Sources::Project', foreign_key: :source_project_id
 
       scope :with_shared_runners_limit_enabled, -> do
-        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects)
+        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects) &&
+            ::Ci::Runner.has_shared_runners_with_non_zero_public_cost?
           with_shared_runners
         else
           with_shared_runners.non_public_only
@@ -784,3 +783,6 @@ module EE
     end
   end
 end
+
+EE::Project.include_if_ee('::EE::GitlabRoutingHelper')
+EE::Project.include_if_ee('::EE::DeploymentPlatform')
