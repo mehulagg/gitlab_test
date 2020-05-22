@@ -1,15 +1,23 @@
 <script>
-import { GlFilteredSearchToken, GlFilteredSearchSuggestion, GlLoadingIcon } from '@gitlab/ui';
+import {
+  GlFilteredSearchToken,
+  GlFilteredSearchSuggestion,
+  GlLoadingIcon,
+  GlDropdownDivider,
+} from '@gitlab/ui';
 import Api from '~/api';
 import { FETCH_BRANCH_ERROR_MESSAGE, FILTER_PIPELINES_SEARCH_DELAY } from '../../constants';
 import createFlash from '~/flash';
 import { debounce } from 'lodash';
+import { __ } from '~/locale';
 
 export default {
+  staticBranch: __('master'),
   components: {
     GlFilteredSearchToken,
     GlFilteredSearchSuggestion,
     GlLoadingIcon,
+    GlDropdownDivider,
   },
   props: {
     config: {
@@ -60,6 +68,10 @@ export default {
     <template #suggestions>
       <gl-loading-icon v-if="loading" />
       <template v-else>
+        <gl-filtered-search-suggestion :value="$options.staticBranch" data-testid="static">{{
+          $options.staticBranch
+        }}</gl-filtered-search-suggestion>
+        <gl-dropdown-divider />
         <gl-filtered-search-suggestion
           v-for="(branch, index) in branches"
           :key="index"

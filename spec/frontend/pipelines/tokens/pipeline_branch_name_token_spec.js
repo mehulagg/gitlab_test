@@ -86,14 +86,16 @@ describe('Pipeline Branch Name Token', () => {
     it('renders all trigger authors', () => {
       createComponent({ stubs }, { branches, loading: false });
 
-      expect(findAllFilteredSearchSuggestions()).toHaveLength(branches.length);
+      // should have length of all branches plus the static 'master' option
+      expect(findAllFilteredSearchSuggestions()).toHaveLength(branches.length + 1);
     });
 
     it('renders only the branch searched for', () => {
-      const mockBranches = ['master'];
+      const mockBranches = ['branch-1'];
       createComponent({ stubs }, { branches: mockBranches, loading: false });
 
-      expect(findAllFilteredSearchSuggestions()).toHaveLength(mockBranches.length);
+      // should have length of branch searched for plus the static 'master' option
+      expect(findAllFilteredSearchSuggestions()).toHaveLength(mockBranches.length + 1);
     });
   });
 });

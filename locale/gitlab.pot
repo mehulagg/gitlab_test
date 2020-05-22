@@ -26072,6 +26072,9 @@ msgstr ""
 msgid "manual"
 msgstr ""
 
+msgid "master"
+msgstr ""
+
 msgid "math|The math in this entry is taking too long to render and may not be displayed as expected. For performance reasons, math blocks are also limited to %{maxChars} characters. Consider splitting up large formulae, splitting math blocks among multiple entries, or using an image instead."
 msgstr ""
 

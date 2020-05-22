@@ -1,0 +1,5 @@
+---
+title: Add static master branch option to pipeline filter branch list
+merge_request: 32881
+author:
+type: changed
