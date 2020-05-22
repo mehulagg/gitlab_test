@@ -15,12 +15,6 @@ module QA
           Page::Project::Operations::Kubernetes::Show.perform(&:ingress_ip)
         end
 
-        attribute :api_url do
-          if QA::Runtime::Env.cluster_api_url?
-            QA::Runtime::Env.cluster_api_url
-          end
-        end
-
         def fabricate!
           project.visit!
 

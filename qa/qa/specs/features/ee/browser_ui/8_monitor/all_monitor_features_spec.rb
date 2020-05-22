@@ -4,7 +4,7 @@ module QA
   context 'Monitor' do
     describe 'with Prometheus Gitlab-managed cluster', :orchestrated, :kubernetes, :requires_admin do
       before :all do
-        Flow::Login.sign_in
+        Flow::Login.sign_in_as_admin
         @project, @cluster = deploy_project_with_prometheus
       end
 
