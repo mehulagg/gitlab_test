@@ -102,10 +102,10 @@ subgraph "CNG-mirror pipeline"
 ### Auto-stopping of Review Apps
 
 Review Apps are automatically stopped 2 days after the last deployment thanks to
-the [Environment auto-stop](../../ci/environments.md#environments-auto-stop) feature.
+the [Environment auto-stop](../../ci/environments/index.md#environments-auto-stop) feature.
 
 If you need your Review App to stay up for a longer time, you can
-[pin its environment](../../ci/environments.md#auto-stop-example) or retry the
+[pin its environment](../../ci/environments/index.md#auto-stop-example) or retry the
 `review-deploy` job to update the "latest deployed at" time.
 
 The `review-cleanup` job that automatically runs in scheduled
@@ -321,7 +321,7 @@ kubectl get cm --sort-by='{.metadata.creationTimestamp}' | grep 'review-' | grep
 
 #### Finding the problem
 
-[In the past](https://gitlab.com/gitlab-org/gitlab-foss/issues/62834), it happened
+[In the past](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62834), it happened
 that the `dns-gitlab-review-app-external-dns` Deployment was in a pending state,
 effectively preventing all the Review Apps from getting a DNS record assigned,
 making them unreachable via domain name.

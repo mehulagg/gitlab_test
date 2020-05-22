@@ -51,7 +51,7 @@ must disable the **primary** node.
 
    NOTE: **Note:**
    (**CentOS only**) In CentOS 6 or older, there is no easy way to prevent GitLab from being
-   started if the machine reboots isn't available (see [Omnibus GitLab issue #3058](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3058)).
+   started if the machine reboots isn't available (see [Omnibus GitLab issue #3058](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/3058)).
    It may be safest to uninstall the GitLab package completely:
 
    ```shell
@@ -125,10 +125,10 @@ Note the following when promoting a secondary:
    previously for the **secondary** node.
 1. If successful, the **secondary** node has now been promoted to the **primary** node.
 
-#### Promoting a **secondary** node with HA
+#### Promoting a **secondary** node with multiple servers
 
 The `gitlab-ctl promote-to-primary-node` command cannot be used yet in
-conjunction with High Availability or with multiple machines, as it can only
+conjunction with multiple servers, as it can only
 perform changes on a **secondary** with only a single machine. Instead, you must
 do this manually.
 
@@ -172,11 +172,12 @@ do this manually.
 The `gitlab-ctl promote-to-primary-node` command cannot be used in conjunction with
 an external PostgreSQL database, as it can only perform changes on a **secondary**
 node with GitLab and the database on the same machine. As a result, a manual process is
-required. For example, PostgreSQL databases hosted on Amazon RDS:
+required:
 
 1. Promote the replica database associated with the **secondary** site. This will
    set the database to read-write:
    - Amazon RDS - [Promoting a Read Replica to Be a Standalone DB Instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html#USER_ReadRepl.Promote)
+   - Azure Database for PostgreSQL - [Stop replication](https://docs.microsoft.com/en-us/azure/postgresql/howto-read-replicas-portal#stop-replication)
 
 1. Edit `/etc/gitlab/gitlab.rb` on every node in the **secondary** site to
    reflect its new status as **primary** by removing any lines that enabled the

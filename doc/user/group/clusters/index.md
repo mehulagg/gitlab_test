@@ -1,10 +1,13 @@
 ---
 type: reference
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Group-level Kubernetes clusters
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/34758) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/34758) in GitLab 11.6.
 
 Similar to [project-level](../../project/clusters/index.md) and
 [instance-level](../../instance/clusters/index.md) Kubernetes clusters,
@@ -20,8 +23,8 @@ and troubleshooting applications for your group cluster, see
 
 ## RBAC compatibility
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/29398) in GitLab 11.4.
-> - [Project namespace restriction](https://gitlab.com/gitlab-org/gitlab-foss/issues/51716) was introduced in GitLab 11.5.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/29398) in GitLab 11.4.
+> - [Project namespace restriction](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/51716) was introduced in GitLab 11.5.
 
 For each project under a group with a Kubernetes cluster, GitLab creates a restricted
 service account with [`edit` privileges](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles)
@@ -62,7 +65,7 @@ for deployments with a cluster not managed by GitLab, you must ensure:
 - The project's deployment service account has permissions to deploy to
   [`KUBE_NAMESPACE`](../../project/clusters/index.md#deployment-variables).
 - `KUBECONFIG` correctly reflects any changes to `KUBE_NAMESPACE`
-  (this is [not automatic](https://gitlab.com/gitlab-org/gitlab/issues/31519)). Editing
+  (this is [not automatic](https://gitlab.com/gitlab-org/gitlab/-/issues/31519)). Editing
   `KUBE_NAMESPACE` directly is discouraged.
 
 NOTE: **Note:**
@@ -71,7 +74,7 @@ the resources required to run them even if you choose to manage your own cluster
 
 ### Clearing the cluster cache
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/31759) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/31759) in GitLab 12.6.
 
 If you choose to allow GitLab to manage your cluster for you, GitLab stores a cached
 version of the namespaces and service accounts it creates for your projects. If you
@@ -100,7 +103,7 @@ The domain should have a wildcard DNS configured to the Ingress IP address.
 
 When adding more than one Kubernetes cluster to your project, you need to differentiate
 them with an environment scope. The environment scope associates clusters with
-[environments](../../../ci/environments.md) similar to how the
+[environments](../../../ci/environments/index.md) similar to how the
 [environment-specific variables](../../../ci/variables/README.md#limit-the-environment-scopes-of-environment-variables)
 work.
 
@@ -154,7 +157,7 @@ The result is:
 
 ## Cluster environments **(PREMIUM)**
 
-For a consolidated view of which CI [environments](../../../ci/environments.md)
+For a consolidated view of which CI [environments](../../../ci/environments/index.md)
 are deployed to the Kubernetes cluster, see the documentation for
 [cluster environments](../../clusters/environments.md).
 

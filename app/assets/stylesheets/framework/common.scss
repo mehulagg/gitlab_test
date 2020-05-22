@@ -392,7 +392,10 @@ img.emoji {
 }
 
 /** COMMON CLASSES **/
-.prepend-top-0 { margin-top: 0; }
+/**
+  🚨 Do not use these classes — they are deprecated and being removed. 🚨
+  See https://gitlab.com/gitlab-org/gitlab/-/issues/217418 for more details.
+**/
 .prepend-top-2 { margin-top: 2px; }
 .prepend-top-4 { margin-top: $gl-padding-4; }
 .prepend-top-5 { margin-top: 5px; }
@@ -491,7 +494,8 @@ img.emoji {
   🚨 Do not use these classes — they are deprecated and being removed. 🚨
   See https://gitlab.com/gitlab-org/gitlab/issues/36857 for more details.
 
-  Instead, if you need a spacing class, add it below using the following values.
+  Instead, if you need a spacing class, please use one from Gitlab UI —
+  https://unpkg.com/browse/@gitlab/ui/src/scss/utilities.scss — which uses the following scale.
     $gl-spacing-scale-0: 0;
     $gl-spacing-scale-1: 2px;
     $gl-spacing-scale-2: 4px;
@@ -506,14 +510,6 @@ img.emoji {
     $gl-spacing-scale-11: 64px;
     $gl-spacing-scale-12: 80px;
     $gl-spacing-scale-13: 96px;
-
-  E.g., a padding top of 96px can be added using:
-  .gl-shim-pt-13 {
-    padding-top: 96px;
-  }
-
-  Please use -shim- so it can be differentiated from the old scale classes.
-  These will be replaced when the Gitlab UI utilities are included.
 **/
 @each $index, $padding in $spacing-scale {
   #{'.gl-p-#{$index}-deprecated-no-really-do-not-use-me'} { padding: $padding; }
@@ -521,31 +517,6 @@ img.emoji {
   #{'.gl-pr-#{$index}-deprecated-no-really-do-not-use-me'} { padding-right: $padding; }
   #{'.gl-pt-#{$index}-deprecated-no-really-do-not-use-me'} { padding-top: $padding; }
   #{'.gl-pb-#{$index}-deprecated-no-really-do-not-use-me'} { padding-bottom: $padding; }
-}
-
-/**
-  The zero-indexed classes will not change and do not need to be updated.
-  These can be removed when the Gitlab UI class include is merged.
-**/
-
-.gl-p-0 {
-  padding: 0;
-}
-
-.gl-pl-0 {
-  padding-left: 0;
-}
-
-.gl-pr-0 {
-  padding-right: 0;
-}
-
-.gl-pt-0 {
-  padding-top: 0;
-}
-
-.gl-pb-0 {
-  padding-bottom: 0;
 }
 
 /**
@@ -639,8 +610,6 @@ img.emoji {
 .gl-font-sm { font-size: $gl-font-size-small; }
 .gl-font-lg { font-size: $gl-font-size-large; }
 .gl-font-base { font-size: $gl-font-size-14; }
-
-.gl-line-height-24 { line-height: $gl-line-height-24; }
 
 .gl-font-size-0 { font-size: 0; }
 .gl-font-size-28 { font-size: $gl-font-size-28; }

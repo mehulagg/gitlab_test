@@ -209,7 +209,7 @@ default:
   image: ruby:2.6
 
   services:
-    - postgres:9.3
+    - postgres:11.7
 
   before_script:
     - bundle install
@@ -235,14 +235,14 @@ default:
 test:2.6:
   image: ruby:2.6
   services:
-  - postgres:9.3
+  - postgres:11.7
   script:
   - bundle exec rake spec
 
 test:2.7:
   image: ruby:2.7
   services:
-  - postgres:9.4
+  - postgres:12.2
   script:
   - bundle exec rake spec
 ```
@@ -257,7 +257,7 @@ default:
     entrypoint: ["/bin/bash"]
 
   services:
-  - name: my-postgres:9.4
+  - name: my-postgres:11.7
     alias: db-postgres
     entrypoint: ["/usr/local/bin/db-postgres"]
     command: ["start"]
@@ -289,7 +289,7 @@ variables:
   POSTGRES_INITDB_ARGS: "--encoding=UTF8 --data-checksums"
 
 services:
-- name: postgres:9.4
+- name: postgres:11.7
   alias: db
   entrypoint: ["docker-entrypoint.sh"]
   command: ["postgres"]
@@ -364,7 +364,7 @@ For example, the following two definitions are equal:
 | `alias`      | no       | 9.4 |Additional alias that can be used to access the service from the job's container. Read [Accessing the services](#accessing-the-services) for more information. |
 
 NOTE: **Note:**
-Alias support for the Kubernetes executor was [introduced](https://gitlab.com/gitlab-org/gitlab-runner/issues/2229) in GitLab Runner 12.8, and is only available for Kubernetes version 1.7 or later.
+Alias support for the Kubernetes executor was [introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2229) in GitLab Runner 12.8, and is only available for Kubernetes version 1.7 or later.
 
 ### Starting multiple services from the same image
 
@@ -543,7 +543,7 @@ runtime.
   of credentials on runner's host. We recommend to upgrade your Runner to
   at least version **1.8** if you want to use private registries.
 - Not available for [Kubernetes executor](https://docs.gitlab.com/runner/executors/kubernetes.html),
-  follow <https://gitlab.com/gitlab-org/gitlab-runner/issues/2673> for
+  follow <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2673> for
   details.
 
 ### Using statically-defined credentials

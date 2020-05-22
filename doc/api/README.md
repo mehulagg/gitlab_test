@@ -53,12 +53,12 @@ between v3 and v4; please read the [v3 to v4 documentation](v3_to_v4.md)
 ### Current status
 
 Currently only API version v4 is available. Version v3 was removed in
-[GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/36819).
+[GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/36819).
 
 ## Basic usage
 
 API requests should be prefixed with `api` and the API version. The API version
-is defined in [`lib/api.rb`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/api/api.rb). For example, the root of the v4 API
+is defined in [`lib/api.rb`](https://gitlab.com/gitlab-org/gitlab/tree/master/lib/api/api.rb). For example, the root of the v4 API
 is at `/api/v4`.
 
 Example of a valid API request using cURL:
@@ -75,7 +75,7 @@ end of an API URL.
 Most API requests require authentication, or will only return public data when
 authentication is not provided. For
 those cases where it is not required, this will be mentioned in the documentation
-for each individual endpoint. For example, the [`/projects/:id` endpoint](projects.md).
+for each individual endpoint. For example, the [`/projects/:id` endpoint](projects.md#get-single-project).
 
 There are several ways to authenticate with the GitLab API:
 
@@ -180,7 +180,7 @@ Impersonation tokens are used exactly like regular personal access tokens, and c
 
 #### Disable impersonation
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/40385) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/40385) in GitLab 11.6.
 
 By default, impersonation is enabled. To disable impersonation:
 

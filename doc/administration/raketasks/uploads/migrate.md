@@ -84,7 +84,7 @@ gitlab-rake "gitlab:uploads:migrate[PersonalFileUploader, Snippet]"
 gitlab-rake "gitlab:uploads:migrate[NamespaceFileUploader, Snippet]"
 gitlab-rake "gitlab:uploads:migrate[FileUploader, MergeRequest]"
 
-# Design Management design thumbnails (EE)
+# Design Management design thumbnails
 gitlab-rake "gitlab:uploads:migrate[DesignManagement::DesignV432x230Uploader, DesignManagement::Action, :image_v432x230]"
 ```
 
@@ -115,7 +115,7 @@ sudo -u git -H bundle exec rake "gitlab:uploads:migrate[PersonalFileUploader, Sn
 sudo -u git -H bundle exec rake "gitlab:uploads:migrate[NamespaceFileUploader, Snippet]"
 sudo -u git -H bundle exec rake "gitlab:uploads:migrate[FileUploader, MergeRequest]"
 
-# Design Management design thumbnails (EE)
+# Design Management design thumbnails
 sudo -u git -H bundle exec rake "gitlab:uploads:migrate[DesignManagement::DesignV432x230Uploader, DesignManagement::Action]"
 ```
 
@@ -128,7 +128,7 @@ CAUTION: **Warning:**
 **Extended downtime is required** so no new files are created in object storage during
 the migration. A configuration setting will be added soon to allow migrating
 from object storage to local files with only a brief moment of downtime for configuration changes.
-To follow progress, see the [relevant issue](https://gitlab.com/gitlab-org/gitlab/issues/30979).
+To follow progress, see the [relevant issue](https://gitlab.com/gitlab-org/gitlab/-/issues/30979).
 
 ### All-in-one Rake task
 

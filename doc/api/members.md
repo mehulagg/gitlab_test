@@ -284,7 +284,7 @@ Example response:
 
 ### Set override flag for a member of a group
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4875) in GitLab 12.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4875) in GitLab 12.10.
 
 By default, the access level of LDAP group members is set to the value specified
 by LDAP through Group Sync. You can allow access level overrides by calling this endpoint.
@@ -298,7 +298,7 @@ POST /groups/:id/members/:user_id/override
 | `id`      | integer/string | yes | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `user_id` | integer | yes   | The user ID of the member |
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/:id/members/:user_id/override
 ```
 
@@ -320,7 +320,7 @@ Example response:
 
 ### Remove override for a member of a group
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4875) in GitLab 12.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4875) in GitLab 12.10.
 
 Sets the override flag to false and allows LDAP Group Sync to reset the access
 level to the LDAP-prescribed value.
@@ -334,7 +334,7 @@ DELETE /groups/:id/members/:user_id/override
 | `id`      | integer/string | yes | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `user_id` | integer | yes   | The user ID of the member |
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/:id/members/:user_id/override
 ```
 

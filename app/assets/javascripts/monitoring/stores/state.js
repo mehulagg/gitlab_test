@@ -14,6 +14,7 @@ export default () => ({
   emptyState: 'gettingStarted',
   showEmptyState: true,
   showErrorBanner: true,
+  isUpdatingStarredValue: false,
   dashboard: {
     panelGroups: [],
   },
@@ -33,7 +34,11 @@ export default () => ({
     panel: null,
   },
   allDashboards: [],
-  promVariables: [],
+  /**
+   * User-defined custom variables are passed
+   * via the dashboard.yml file.
+   */
+  variables: {},
 
   // Other project data
   annotations: [],

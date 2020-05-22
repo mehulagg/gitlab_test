@@ -1,10 +1,13 @@
 ---
+stage: Secure
+group: Dynamic Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, howto
 ---
 
 # Dynamic Application Security Testing (DAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4348) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4348) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
 
 NOTE: **4 of the top 6 attacks were application based.**
 Download our whitepaper,
@@ -38,7 +41,7 @@ Running the pipeline on any other commit has no effect on the merge request.
 By clicking on one of the detected linked vulnerabilities, you can
 see the details and the URL(s) affected.
 
-![DAST Widget Clicked](img/dast_single_v12_9.png)
+![DAST Widget Clicked](img/dast_single_v13_0.png)
 
 [Dynamic Application Security Testing (DAST)](https://en.wikipedia.org/wiki/Dynamic_Application_Security_Testing)
 uses the popular open source tool [OWASP ZAProxy](https://github.com/zaproxy/zaproxy)
@@ -315,7 +318,7 @@ API scans support OpenAPI V2 and OpenAPI V3 specifications. You can define these
 If your API specification is accessible at a URL, you can pass that URL in directly as the target.
 The specification does not have to be hosted on the same host as the API being tested.
 
-```yml
+```yaml
 include:
   - template: DAST.gitlab-ci.yml
 
@@ -438,7 +441,8 @@ don't forget to add `stage: dast` when you override the template job definition.
 DAST can be [configured](#customizing-the-dast-settings) using environment variables.
 
 | Environment variable        | Required   | Description                                                                    |
-|-----------------------------| ----------|--------------------------------------------------------------------------------|
+|-----------------------------| -----------|--------------------------------------------------------------------------------|
+| `SECURE_ANALYZERS_PREFIX`   | no         | Set the Docker registry base address from which to download the analyzer.            |
 | `DAST_WEBSITE`  | no| The URL of the website to scan. `DAST_API_SPECIFICATION` must be specified if this is omitted. |
 | `DAST_API_SPECIFICATION`  | no | The API specification to import. `DAST_WEBSITE` must be specified if this is omitted. |
 | `DAST_AUTH_URL` | no | The authentication URL of the website to scan. Not supported for API scans. |
@@ -486,9 +490,9 @@ dast:
 
 ### Custom ZAProxy configuration
 
-The ZAProxy server contains many [useful configurable values](https://gitlab.com/gitlab-org/gitlab/issues/36437#note_245801885).
+The ZAProxy server contains many [useful configurable values](https://gitlab.com/gitlab-org/gitlab/-/issues/36437#note_245801885).
 Many key/values for `-config` remain undocumented, but there is an untested list of
-[possible keys](https://gitlab.com/gitlab-org/gitlab/issues/36437#note_244981023).
+[possible keys](https://gitlab.com/gitlab-org/gitlab/-/issues/36437#note_244981023).
 Note that these options are not supported by DAST, and may break the DAST scan
 when used. An example of how to rewrite the Authorization header value with `TOKEN` follows:
 
@@ -562,6 +566,8 @@ dast:
 
 The DAST job should now use local copies of the DAST analyzers to scan your code and generate
 security reports without requiring internet access.
+
+Alternatively, you can use the variable `SECURE_ANALYZERS_PREFIX` to override the base registry address of the `dast` image.
 
 ## Reports
 

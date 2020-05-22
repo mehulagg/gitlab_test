@@ -48,6 +48,8 @@ module EE
       delegate :deleting_user, :marked_for_deletion_on, to: :deletion_schedule, allow_nil: true
       delegate :enforced_group_managed_accounts?, :enforced_sso?, to: :saml_provider, allow_nil: true
 
+      has_one :group_wiki_repository
+
       belongs_to :file_template_project, class_name: "Project"
 
       belongs_to :push_rule
@@ -121,12 +123,12 @@ module EE
         end
 
         after_transition ready: :started do |group, _|
-          group.ldap_sync_last_sync_at = DateTime.now
+          group.ldap_sync_last_sync_at = DateTime.current
           group.save
         end
 
         after_transition started: :ready do |group, _|
-          current_time = DateTime.now
+          current_time = DateTime.current
           group.ldap_sync_last_update_at = current_time
           group.ldap_sync_last_successful_update_at = current_time
           group.ldap_sync_error = nil
@@ -134,7 +136,7 @@ module EE
         end
 
         after_transition started: :failed do |group, _|
-          group.ldap_sync_last_update_at = DateTime.now
+          group.ldap_sync_last_update_at = DateTime.current
           group.save
         end
       end
@@ -349,9 +351,9 @@ module EE
 
     def predefined_push_rule
       strong_memoize(:predefined_push_rule) do
-        if push_rule.present?
-          push_rule
-        elsif has_parent?
+        next push_rule if push_rule
+
+        if has_parent?
           parent.predefined_push_rule
         else
           PushRule.global
@@ -387,7 +389,7 @@ module EE
 
     # Members belonging directly to Projects within Group or Projects within subgroups
     def billed_project_members
-      ::ProjectMember.active_without_invites_and_requests.where(
+      ::ProjectMember.active_without_invites_and_requests.without_project_bots.where(
         source_id: ::Project.joins(:group).where(namespace: self_and_descendants)
       )
     end

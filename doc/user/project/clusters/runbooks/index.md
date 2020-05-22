@@ -1,3 +1,9 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Runbooks
 
 Runbooks are a collection of documented procedures that explain how to
@@ -17,7 +23,7 @@ pre-written code blocks or database queries against a given environment.
 
 ## Executable Runbooks
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/45912) in GitLab 11.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/45912) in GitLab 11.4.
 
 The JupyterHub app offered via GitLab’s Kubernetes integration now ships
 with Nurtch’s Rubix library, providing a simple way to create DevOps

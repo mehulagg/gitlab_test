@@ -1,11 +1,12 @@
 # Deploy Tokens
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17894) in GitLab 10.7.
-> - [Moved](https://gitlab.com/gitlab-org/gitlab/issues/199370) from **Settings > Repository** in GitLab 12.9.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/199370) from **Settings > Repository** in GitLab 12.9.
 > - [Added `write_registry` scope](https://gitlab.com/gitlab-org/gitlab/-/issues/22743) in GitLab 12.10.
 > - [Moved](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/29280) from **Settings > CI / CD** in GitLab 12.10.1.
+> - [Added package registry scopes](https://gitlab.com/gitlab-org/gitlab/-/issues/213566) from **Settings > CI / CD** in GitLab 13.0.
 
-Deploy tokens allow you to download (`git clone`) or push and pull the container registry images of a project without having a user and a password.
+Deploy tokens allow you to download (`git clone`) or push and pull packages and container registry images of a project without having a user and a password.
 
 Deploy tokens can be managed by [maintainers only](../../permissions.md).
 
@@ -101,9 +102,25 @@ To push the container registry images, you'll need to:
 Just replace `<username>` and `<deploy_token>` with the proper values. Then you can simply
 push images to your Container Registry.
 
+### Read or pull packages
+
+To pull packages in the GitLab package registry, you'll need to:
+
+1. Create a Deploy Token with `read_package_registry` as a scope.
+1. Take note of your `username` and `token`.
+1. For the [package type of your choice](./../../packages/index.md), follow the authentication instructions for deploy tokens.
+
+### Push or upload packages
+
+To upload packages in the GitLab package registry, you'll need to:
+
+1. Create a Deploy Token with `write_package_registry` as a scope.
+1. Take note of your `username` and `token`.
+1. For the [package type of your choice](./../../packages/index.md), follow the authentication instructions for deploy tokens.
+
 ### Group Deploy Token
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/21765) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/21765) in GitLab 12.9.
 
 A deploy token created at the group level can be used across all projects that
 belong either to the specific group or to one of its subgroups.

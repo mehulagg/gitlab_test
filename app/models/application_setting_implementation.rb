@@ -96,7 +96,7 @@ module ApplicationSettingImplementation
         plantuml_url: nil,
         polling_interval_multiplier: 1,
         project_export_enabled: true,
-        protected_ci_variables: false,
+        protected_ci_variables: true,
         push_event_hooks_limit: 3,
         push_event_activities_limit: 3,
         raw_blob_request_limit: 300,
@@ -151,7 +151,7 @@ module ApplicationSettingImplementation
         snowplow_app_id: nil,
         snowplow_iglu_registry_url: nil,
         custom_http_clone_url_root: nil,
-        productivity_analytics_start_date: Time.now,
+        productivity_analytics_start_date: Time.current,
         snippet_size_limit: 50.megabytes
       }
     end

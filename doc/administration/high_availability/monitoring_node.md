@@ -4,7 +4,7 @@ type: reference
 
 # Configuring a Monitoring node for Scaling and High Availability
 
-> [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3786) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/3786) in GitLab 12.0.
 
 You can configure a Prometheus node to monitor GitLab.
 
@@ -64,7 +64,7 @@ Omnibus:
    redis['enable'] = false
    redis_exporter['enable'] = false
    sidekiq['enable'] = false
-   unicorn['enable'] = false
+   puma['enable'] = false
    node_exporter['enable'] = false
    gitlab_exporter['enable'] = false
    ```

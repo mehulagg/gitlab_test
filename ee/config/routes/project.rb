@@ -11,7 +11,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
-        resources :requirements, only: [:index]
+        namespace :requirements_management do
+          resources :requirements, only: [:index]
+        end
+
         resources :packages, only: [:index, :show, :destroy], module: :packages
         resources :package_files, only: [], module: :packages do
           member do
@@ -30,6 +33,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resource :feature_flags_client, only: [] do
           post :reset_token
         end
+        resources :feature_flags_user_lists, param: :iid, only: [:new, :edit, :show]
 
         resources :autocomplete_sources, only: [] do
           collection do
@@ -60,7 +64,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :summary, on: :collection
           end
 
-          resource :network_policies, only: [] do
+          resources :network_policies, only: [:index, :create, :update, :destroy] do
             get :summary, on: :collection
           end
 
@@ -74,7 +78,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             end
           end
 
-          resources :vulnerabilities, only: [:show, :index] do
+          resources :vulnerabilities, only: [:show] do
             member do
               get :discussions, format: :json
             end

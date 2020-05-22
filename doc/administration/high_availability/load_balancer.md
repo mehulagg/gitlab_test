@@ -66,7 +66,7 @@ for details on managing SSL certificates and configuring NGINX.
 | 443     | 443          | TCP or HTTPS (*1*) (*2*) |
 | 22      | 22           | TCP                      |
 
-- (*1*): [Web terminal](../../ci/environments.md#web-terminals) support requires
+- (*1*): [Web terminal](../../ci/environments/index.md#web-terminals) support requires
   your load balancer to correctly handle WebSocket connections. When using
   HTTP or HTTPS proxying, this means your load balancer must be configured
   to pass through the `Connection` and `Upgrade` hop-by-hop headers. See the
@@ -108,6 +108,10 @@ Configure DNS for an alternate SSH hostname such as `altssh.gitlab.example.com`.
 | LB Port | Backend Port | Protocol |
 | ------- | ------------ | -------- |
 | 443     | 22           | TCP      |
+
+## Readiness check
+
+It is strongly recommend that multi-node deployments configure load balancers to utilize the [readiness check](../../user/admin_area/monitoring/health_check.md#readiness) to ensure a node is ready to accept traffic, before routing traffic to it. This is especially important when utilizing Puma, as there is a brief period during a restart where Puma will not accept requests.
 
 ---
 

@@ -32,6 +32,8 @@
   - 1
 - - authorized_keys
   - 2
+- - authorized_project_update
+  - 1
 - - authorized_projects
   - 2
 - - auto_devops
@@ -207,6 +209,8 @@
 - - project_update_repository_storage
   - 1
 - - prometheus_create_default_alerts
+  - 1
+- - propagate_integration
   - 1
 - - propagate_service_template
   - 1

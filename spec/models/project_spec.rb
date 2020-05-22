@@ -21,7 +21,7 @@ describe Project do
     it { is_expected.to have_many(:merge_requests) }
     it { is_expected.to have_many(:issues) }
     it { is_expected.to have_many(:milestones) }
-    it { is_expected.to have_many(:sprints) }
+    it { is_expected.to have_many(:iterations) }
     it { is_expected.to have_many(:project_members).dependent(:delete_all) }
     it { is_expected.to have_many(:users).through(:project_members) }
     it { is_expected.to have_many(:requesters).dependent(:delete_all) }
@@ -36,6 +36,7 @@ describe Project do
     it { is_expected.to have_one(:mattermost_service) }
     it { is_expected.to have_one(:hangouts_chat_service) }
     it { is_expected.to have_one(:unify_circuit_service) }
+    it { is_expected.to have_one(:webex_teams_service) }
     it { is_expected.to have_one(:packagist_service) }
     it { is_expected.to have_one(:pushover_service) }
     it { is_expected.to have_one(:asana_service) }
@@ -769,7 +770,7 @@ describe Project do
 
     describe 'last_activity_date' do
       it 'returns the creation date of the project\'s last event if present' do
-        new_event = create(:event, :closed, project: project, created_at: Time.now)
+        new_event = create(:event, :closed, project: project, created_at: Time.current)
 
         project.reload
         expect(project.last_activity_at.to_i).to eq(new_event.created_at.to_i)
@@ -3138,6 +3139,45 @@ describe Project do
     end
   end
 
+  describe '#ci_instance_variables_for' do
+    let(:project) { create(:project) }
+
+    let!(:instance_variable) do
+      create(:ci_instance_variable, value: 'secret')
+    end
+
+    let!(:protected_instance_variable) do
+      create(:ci_instance_variable, :protected, value: 'protected')
+    end
+
+    subject { project.ci_instance_variables_for(ref: 'ref') }
+
+    before do
+      stub_application_setting(
+        default_branch_protection: Gitlab::Access::PROTECTION_NONE)
+    end
+
+    context 'when the ref is not protected' do
+      before do
+        allow(project).to receive(:protected_for?).with('ref').and_return(false)
+      end
+
+      it 'contains only the CI variables' do
+        is_expected.to contain_exactly(instance_variable)
+      end
+    end
+
+    context 'when the ref is protected' do
+      before do
+        allow(project).to receive(:protected_for?).with('ref').and_return(true)
+      end
+
+      it 'contains all the variables' do
+        is_expected.to contain_exactly(instance_variable, protected_instance_variable)
+      end
+    end
+  end
+
   describe '#any_lfs_file_locks?', :request_store do
     let_it_be(:project) { create(:project) }
 
@@ -3580,7 +3620,7 @@ describe Project do
       expect(project).not_to receive(:visibility_level_allowed_as_fork).and_call_original
       expect(project).not_to receive(:visibility_level_allowed_by_group).and_call_original
 
-      project.update(updated_at: Time.now)
+      project.update(updated_at: Time.current)
     end
   end
 
@@ -3634,6 +3674,24 @@ describe Project do
         projects = described_class.all.public_or_visible_to_user(user, Gitlab::Access::REPORTER)
 
         expect(projects).to contain_exactly(public_project)
+      end
+    end
+
+    context 'with deploy token users' do
+      let_it_be(:private_project) { create(:project, :private) }
+
+      subject { described_class.all.public_or_visible_to_user(user) }
+
+      context 'deploy token user without project' do
+        let_it_be(:user) { create(:deploy_token) }
+
+        it { is_expected.to eq [] }
+      end
+
+      context 'deploy token user with project' do
+        let_it_be(:user) { create(:deploy_token, projects: [private_project]) }
+
+        it { is_expected.to include(private_project) }
       end
     end
   end
@@ -3759,7 +3817,7 @@ describe Project do
     end
   end
 
-  describe '.filter_by_feature_visibility' do
+  describe '.filter_by_feature_visibility', :enable_admin_mode do
     include_context 'ProjectPolicyTable context'
     include ProjectHelpers
     using RSpec::Parameterized::TableSyntax
@@ -3952,16 +4010,6 @@ describe Project do
       expect(PagesWorker).to receive(:perform_in).with(5.minutes, :remove, namespace.full_path, anything)
 
       expect { project.remove_pages }.to change { pages_metadatum.reload.deployed }.from(true).to(false)
-    end
-
-    it 'is a no-op when there is no namespace' do
-      project.namespace.delete
-      project.reload
-
-      expect_any_instance_of(Projects::UpdatePagesConfigurationService).not_to receive(:execute)
-      expect_any_instance_of(Gitlab::PagesTransfer).not_to receive(:rename_project)
-
-      expect { project.remove_pages }.not_to change { pages_metadatum.reload.deployed }
     end
 
     it 'is run when the project is destroyed' do
@@ -5193,12 +5241,10 @@ describe Project do
     end
   end
 
-  describe "#find_or_initialize_services" do
-    subject { build(:project) }
-
+  describe '#find_or_initialize_services' do
     it 'returns only enabled services' do
-      allow(Service).to receive(:available_services_names).and_return(%w(prometheus pushover))
-      allow(subject).to receive(:disabled_services).and_return(%w(prometheus))
+      allow(Service).to receive(:available_services_names).and_return(%w[prometheus pushover])
+      allow(subject).to receive(:disabled_services).and_return(%w[prometheus])
 
       services = subject.find_or_initialize_services
 
@@ -5207,11 +5253,9 @@ describe Project do
     end
   end
 
-  describe "#find_or_initialize_service" do
-    subject { build(:project) }
-
+  describe '#find_or_initialize_service' do
     it 'avoids N+1 database queries' do
-      allow(Service).to receive(:available_services_names).and_return(%w(prometheus pushover))
+      allow(Service).to receive(:available_services_names).and_return(%w[prometheus pushover])
 
       control_count = ActiveRecord::QueryRecorder.new { subject.find_or_initialize_service('prometheus') }.count
 
@@ -5220,10 +5264,50 @@ describe Project do
       expect { subject.find_or_initialize_service('prometheus') }.not_to exceed_query_limit(control_count)
     end
 
-    it 'returns nil if service is disabled' do
-      allow(subject).to receive(:disabled_services).and_return(%w(prometheus))
+    it 'returns nil if integration is disabled' do
+      allow(subject).to receive(:disabled_services).and_return(%w[prometheus])
 
       expect(subject.find_or_initialize_service('prometheus')).to be_nil
+    end
+
+    context 'with an existing integration' do
+      subject { create(:project) }
+
+      before do
+        create(:prometheus_service, project: subject, api_url: 'https://prometheus.project.com/')
+      end
+
+      it 'retrieves the integration' do
+        expect(subject.find_or_initialize_service('prometheus').api_url).to eq('https://prometheus.project.com/')
+      end
+    end
+
+    context 'with an instance-level and template integrations' do
+      before do
+        create(:prometheus_service, :instance, api_url: 'https://prometheus.instance.com/')
+        create(:prometheus_service, :template, api_url: 'https://prometheus.template.com/')
+      end
+
+      it 'builds the service from the instance if exists' do
+        expect(subject.find_or_initialize_service('prometheus').api_url).to eq('https://prometheus.instance.com/')
+      end
+    end
+
+    context 'with an instance-level and template integrations' do
+      before do
+        create(:prometheus_service, :template, api_url: 'https://prometheus.template.com/')
+      end
+
+      it 'builds the service from the template if instance does not exists' do
+        expect(subject.find_or_initialize_service('prometheus').api_url).to eq('https://prometheus.template.com/')
+      end
+    end
+
+    context 'without an exisiting integration, nor instance-level or template' do
+      it 'builds the service if instance or template does not exists' do
+        expect(subject.find_or_initialize_service('prometheus')).to be_a(PrometheusService)
+        expect(subject.find_or_initialize_service('prometheus').api_url).to be_nil
+      end
     end
   end
 

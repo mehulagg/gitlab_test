@@ -1,6 +1,6 @@
 # Project import/export
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/3050) in GitLab 8.9.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/3050) in GitLab 8.9.
 > - From GitLab 10.0, administrators can disable the project export option on the GitLab instance.
 
 Existing projects running on any GitLab instance or GitLab.com can be exported with all their related
@@ -81,6 +81,13 @@ Projects can be exported and imported only between versions of GitLab with match
 
 For example, 8.10.3 and 8.11 have the same Import/Export version (0.1.3)
 and the exports between them will be compatible.
+
+## Between CE and EE
+
+You can export projects from the [Community Edition to the Enterprise Edition](https://about.gitlab.com/install/ce-or-ee/) and vice versa.
+This assumes [version history](#version-history) requirements are met.
+
+If you're exporting a project from the Enterprise Edition to the Community Edition, you may lose data that is retained only in the Enterprise Edition. For more information, see [downgrading from EE to CE](../../../README.md).
 
 ## Exported contents
 

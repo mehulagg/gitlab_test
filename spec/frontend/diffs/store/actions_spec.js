@@ -35,11 +35,10 @@ import {
   setRenderTreeList,
   setShowWhitespace,
   setRenderIt,
-  requestFullDiff,
-  receiveFullDiffSucess,
   receiveFullDiffError,
   fetchFullDiff,
   toggleFullDiff,
+  switchToFullDiffFromRenamedFile,
   setFileCollapsed,
   setExpandedDiffLines,
   setSuggestPopoverDismissed,
@@ -1135,34 +1134,8 @@ describe('DiffsStoreActions', () => {
     });
   });
 
-  describe('requestFullDiff', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
-      testAction(
-        requestFullDiff,
-        'file',
-        {},
-        [{ type: types.REQUEST_FULL_DIFF, payload: 'file' }],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveFullDiffSucess', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
-      testAction(
-        receiveFullDiffSucess,
-        { filePath: 'test' },
-        {},
-        [{ type: types.RECEIVE_FULL_DIFF_SUCCESS, payload: { filePath: 'test' } }],
-        [],
-        done,
-      );
-    });
-  });
-
   describe('receiveFullDiffError', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
+    it('updates state with the file that did not load', done => {
       testAction(
         receiveFullDiffError,
         'file',
@@ -1190,7 +1163,7 @@ describe('DiffsStoreActions', () => {
         mock.onGet(`${gl.TEST_HOST}/context`).replyOnce(200, ['test']);
       });
 
-      it('dispatches receiveFullDiffSucess', done => {
+      it('commits the success and dispatches an action to expand the new lines', done => {
         const file = {
           context_lines_path: `${gl.TEST_HOST}/context`,
           file_path: 'test',
@@ -1200,11 +1173,8 @@ describe('DiffsStoreActions', () => {
           fetchFullDiff,
           file,
           null,
-          [],
-          [
-            { type: 'receiveFullDiffSucess', payload: { filePath: 'test' } },
-            { type: 'setExpandedDiffLines', payload: { file, data: ['test'] } },
-          ],
+          [{ type: types.RECEIVE_FULL_DIFF_SUCCESS, payload: { filePath: 'test' } }],
+          [{ type: 'setExpandedDiffLines', payload: { file, data: ['test'] } }],
           done,
         );
       });
@@ -1242,12 +1212,68 @@ describe('DiffsStoreActions', () => {
         toggleFullDiff,
         'test',
         state,
-        [],
-        [
-          { type: 'requestFullDiff', payload: 'test' },
-          { type: 'fetchFullDiff', payload: state.diffFiles[0] },
-        ],
+        [{ type: types.REQUEST_FULL_DIFF, payload: 'test' }],
+        [{ type: 'fetchFullDiff', payload: state.diffFiles[0] }],
         done,
+      );
+    });
+  });
+
+  describe('switchToFullDiffFromRenamedFile', () => {
+    const SUCCESS_URL = 'fakehost/context.success';
+    const testFilePath = 'testpath';
+    const updatedViewerName = 'testviewer';
+    const preparedLine = { prepared: 'in-a-test' };
+    const testFile = {
+      file_path: testFilePath,
+      file_hash: 'testhash',
+      alternate_viewer: { name: updatedViewerName },
+    };
+    const updatedViewer = { name: updatedViewerName, collapsed: false };
+    const testData = [{ rich_text: 'test' }, { rich_text: 'file2' }];
+    let renamedFile;
+    let mock;
+
+    beforeEach(() => {
+      mock = new MockAdapter(axios);
+      jest.spyOn(utils, 'prepareLineForRenamedFile').mockImplementation(() => preparedLine);
+    });
+
+    afterEach(() => {
+      renamedFile = null;
+      mock.restore();
+    });
+
+    describe('success', () => {
+      beforeEach(() => {
+        renamedFile = { ...testFile, context_lines_path: SUCCESS_URL };
+        mock.onGet(SUCCESS_URL).replyOnce(200, testData);
+      });
+
+      it.each`
+        diffViewType
+        ${INLINE_DIFF_VIEW_TYPE}
+        ${PARALLEL_DIFF_VIEW_TYPE}
+      `(
+        'performs the correct mutations and starts a render queue for view type $diffViewType',
+        ({ diffViewType }) => {
+          return testAction(
+            switchToFullDiffFromRenamedFile,
+            { diffFile: renamedFile },
+            { diffViewType },
+            [
+              {
+                type: types.SET_DIFF_FILE_VIEWER,
+                payload: { filePath: testFilePath, viewer: updatedViewer },
+              },
+              {
+                type: types.SET_CURRENT_VIEW_DIFF_FILE_LINES,
+                payload: { filePath: testFilePath, lines: [preparedLine, preparedLine] },
+              },
+            ],
+            [{ type: 'startRenderDiffsQueue' }],
+          );
+        },
       );
     });
   });

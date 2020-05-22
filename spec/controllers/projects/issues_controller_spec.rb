@@ -609,7 +609,7 @@ describe Projects::IssuesController do
       before do
         project.add_developer(user)
 
-        issue.update!(last_edited_by: deleted_user, last_edited_at: Time.now)
+        issue.update!(last_edited_by: deleted_user, last_edited_at: Time.current)
 
         deleted_user.destroy
         sign_in(user)
@@ -825,7 +825,7 @@ describe Projects::IssuesController do
           update_issue(issue_params: { assignee_ids: [assignee.id] })
 
           expect(json_response['assignees'].first.keys)
-            .to match_array(%w(id name username avatar_url state web_url))
+            .to include(*%w(id name username avatar_url state web_url))
         end
       end
 
@@ -1408,6 +1408,7 @@ describe Projects::IssuesController do
     it 'render merge request as json' do
       create_merge_request
 
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response).to match_response_schema('merge_request')
     end
 
@@ -1451,24 +1452,8 @@ describe Projects::IssuesController do
       let(:target_project) { fork_project(project, user, repository: true) }
       let(:target_project_id) { target_project.id }
 
-      context 'create_confidential_merge_request feature is enabled' do
-        before do
-          stub_feature_flags(create_confidential_merge_request: true)
-        end
-
-        it 'creates a new merge request', :sidekiq_might_not_need_inline do
-          expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
-        end
-      end
-
-      context 'create_confidential_merge_request feature is disabled' do
-        before do
-          stub_feature_flags(create_confidential_merge_request: false)
-        end
-
-        it 'creates a new merge request' do
-          expect { create_merge_request }.to change(project.merge_requests, :count).by(1)
-        end
+      it 'creates a new merge request', :sidekiq_might_not_need_inline do
+        expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
       end
     end
 

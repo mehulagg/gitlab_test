@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import PipelinesFilteredSearch from '~/pipelines/components/pipelines_filtered_search.vue';
-import { users, mockSearch, pipelineWithStages } from '../mock_data';
+import { users, mockSearch, pipelineWithStages, branches } from '../mock_data';
 import { GlFilteredSearch } from '@gitlab/ui';
 
 describe('Pipelines filtered search', () => {
@@ -16,11 +16,12 @@ describe('Pipelines filtered search', () => {
       .props('availableTokens')
       .find(token => token.type === type);
 
-  const createComponent = () => {
+  const createComponent = (params = {}) => {
     wrapper = mount(PipelinesFilteredSearch, {
       propsData: {
         pipelines: [pipelineWithStages],
         projectId: '21',
+        params,
       },
       attachToDocument: true,
     });
@@ -30,6 +31,7 @@ describe('Pipelines filtered search', () => {
     mock = new MockAdapter(axios);
 
     jest.spyOn(Api, 'projectUsers').mockResolvedValue(users);
+    jest.spyOn(Api, 'branches').mockResolvedValue({ data: branches });
 
     createComponent();
   });
@@ -52,17 +54,19 @@ describe('Pipelines filtered search', () => {
       type: 'username',
       icon: 'user',
       title: 'Trigger author',
-      dataType: 'username',
       unique: true,
-      triggerAuthors: users,
+      projectId: '21',
       operators: [expect.objectContaining({ value: '=' })],
     });
-  });
 
-  it('fetches and sets project users', () => {
-    expect(Api.projectUsers).toHaveBeenCalled();
-
-    expect(wrapper.vm.projectUsers).toEqual(users);
+    expect(getSearchToken('ref')).toMatchObject({
+      type: 'ref',
+      icon: 'branch',
+      title: 'Branch name',
+      unique: true,
+      projectId: '21',
+      operators: [expect.objectContaining({ value: '=' })],
+    });
   });
 
   it('emits filterPipelines on submit with correct filter', () => {
@@ -70,5 +74,39 @@ describe('Pipelines filtered search', () => {
 
     expect(wrapper.emitted('filterPipelines')).toBeTruthy();
     expect(wrapper.emitted('filterPipelines')[0]).toEqual([mockSearch]);
+  });
+
+  describe('Url query params', () => {
+    const params = {
+      username: 'deja.green',
+      ref: 'master',
+    };
+
+    beforeEach(() => {
+      createComponent(params);
+    });
+
+    it('sets default value if url query params', () => {
+      const expectedValueProp = [
+        {
+          type: 'username',
+          value: {
+            data: params.username,
+            operator: '=',
+          },
+        },
+        {
+          type: 'ref',
+          value: {
+            data: params.ref,
+            operator: '=',
+          },
+        },
+        { type: 'filtered-search-term', value: { data: '' } },
+      ];
+
+      expect(findFilteredSearch().props('value')).toEqual(expectedValueProp);
+      expect(findFilteredSearch().props('value')).toHaveLength(expectedValueProp.length);
+    });
   });
 });

@@ -120,7 +120,6 @@ class License < ApplicationRecord
     incident_management
     insights
     issuable_health_status
-    license_management
     license_scanning
     personal_access_token_expiration_policy
     prometheus_alerts
@@ -188,13 +187,6 @@ class License < ApplicationRecord
     'GitLab_ServiceDesk' => :service_desk
   }.freeze
 
-  # Features added here are available for all namespaces.
-  ANY_PLAN_FEATURES = %i[
-    ci_cd_projects
-    github_project_service_integration
-    repository_mirrors
-  ].freeze
-
   # Global features that cannot be restricted to only a subset of projects or namespaces.
   # Use `License.feature_available?(:feature)` to check if these features are available.
   # For all other features, use `project.feature_available?` or `namespace.feature_available?` when possible.
@@ -231,8 +223,10 @@ class License < ApplicationRecord
 
   after_create :reset_current
   after_destroy :reset_current
+  after_commit :reset_future_dated, on: [:create, :destroy]
 
   scope :recent, -> { reorder(id: :desc) }
+  scope :last_hundred, -> { recent.limit(100) }
 
   class << self
     def features_for_plan(plan)
@@ -268,7 +262,21 @@ class License < ApplicationRecord
     def load_license
       return unless self.table_exists?
 
-      self.order(id: :desc).limit(100).find { |license| license.valid? && license.started? }
+      self.last_hundred.find { |license| license.valid? && license.started? }
+    end
+
+    def future_dated
+      Gitlab::SafeRequestStore.fetch(:future_dated_license) { load_future_dated }
+    end
+
+    def reset_future_dated
+      Gitlab::SafeRequestStore.delete(:future_dated_license)
+    end
+
+    def future_dated_only?
+      return false if current.present?
+
+      future_dated.present?
     end
 
     def global_feature?(feature)
@@ -284,13 +292,17 @@ class License < ApplicationRecord
     end
 
     def promo_feature_available?(feature)
-      return false unless ::Feature.enabled?(:free_period_for_pull_mirroring, default_enabled: true)
-
-      ANY_PLAN_FEATURES.include?(feature)
+      ::Feature.enabled?("promo_#{feature}", default_enabled: false)
     end
 
     def history
       all.sort_by { |license| [license.starts_at, license.created_at, license.expires_at] }.reverse
+    end
+
+    private
+
+    def load_future_dated
+      self.last_hundred.find { |license| license.valid? && license.future_dated? }
     end
   end
 
@@ -471,6 +483,10 @@ class License < ApplicationRecord
     starts_at <= Date.current
   end
 
+  def future_dated?
+    starts_at > Date.current
+  end
+
   private
 
   def restricted_attr(name, default = nil)
@@ -481,6 +497,10 @@ class License < ApplicationRecord
 
   def reset_current
     self.class.reset_current
+  end
+
+  def reset_future_dated
+    self.class.reset_future_dated
   end
 
   def reset_license

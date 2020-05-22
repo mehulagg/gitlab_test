@@ -1,3 +1,9 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Adding EKS clusters
 
 GitLab supports adding new and existing EKS clusters.
@@ -45,7 +51,7 @@ Generate an access key for the IAM user, and configure GitLab with the credentia
 
 ## New EKS cluster
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22392) in GitLab 12.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22392) in GitLab 12.5.
 
 To create and add a new Kubernetes cluster to your project, group, or instance:
 

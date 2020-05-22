@@ -51,7 +51,6 @@ class Projects::IssuesController < Projects::ApplicationController
 
   before_action only: :show do
     push_frontend_feature_flag(:real_time_issue_sidebar, @project)
-    push_frontend_feature_flag(:confidential_notes, @project)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:discussions]
@@ -188,7 +187,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def create_merge_request
     create_params = params.slice(:branch_name, :ref).merge(issue_iid: issue.iid)
-    create_params[:target_project_id] = params[:target_project_id] if helpers.create_confidential_merge_request_enabled?
+    create_params[:target_project_id] = params[:target_project_id]
     result = ::MergeRequests::CreateFromIssueService.new(project, current_user, create_params).execute
 
     if result[:status] == :success

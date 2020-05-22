@@ -10,6 +10,8 @@ import Tab from '../../../vue_shared/components/tabs/tab.vue';
 import EmptyState from '../../../pipelines/components/empty_state.vue';
 import JobsList from '../jobs/list.vue';
 
+import IDEServices from '~/ide/services';
+
 export default {
   components: {
     Icon,
@@ -47,6 +49,7 @@ export default {
   },
   created() {
     this.fetchLatestPipeline();
+    IDEServices.pingUsage(this.currentProject.path_with_namespace);
   },
   methods: {
     ...mapActions('pipelines', ['fetchLatestPipeline']),
@@ -85,14 +88,14 @@ export default {
       </div>
       <tabs v-else class="ide-pipeline-list">
         <tab :active="!pipelineFailed">
-          <template slot="title">
+          <template #title>
             {{ __('Jobs') }}
             <span v-if="jobsCount" class="badge badge-pill"> {{ jobsCount }} </span>
           </template>
           <jobs-list :loading="isLoadingJobs" :stages="stages" />
         </tab>
         <tab :active="pipelineFailed">
-          <template slot="title">
+          <template #title>
             {{ __('Failed Jobs') }}
             <span v-if="failedJobsCount" class="badge badge-pill"> {{ failedJobsCount }} </span>
           </template>

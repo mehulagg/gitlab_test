@@ -1,16 +1,30 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import createDefaultClient from '~/lib/graphql';
+import { defaultDataIdFromObject } from 'apollo-cache-inmemory';
 import AlertDetails from './components/alert_details.vue';
 
 Vue.use(VueApollo);
 
 export default selector => {
   const domEl = document.querySelector(selector);
-  const { alertId, projectPath, newIssuePath } = domEl.dataset;
+  const { alertId, projectPath, projectIssuesPath } = domEl.dataset;
 
   const apolloProvider = new VueApollo({
-    defaultClient: createDefaultClient(),
+    defaultClient: createDefaultClient(
+      {},
+      {
+        cacheConfig: {
+          dataIdFromObject: object => {
+            // eslint-disable-next-line no-underscore-dangle
+            if (object.__typename === 'AlertManagementAlert') {
+              return object.iid;
+            }
+            return defaultDataIdFromObject(object);
+          },
+        },
+      },
+    ),
   });
 
   // eslint-disable-next-line no-new
@@ -25,7 +39,7 @@ export default selector => {
         props: {
           alertId,
           projectPath,
-          newIssuePath,
+          projectIssuesPath,
         },
       });
     },

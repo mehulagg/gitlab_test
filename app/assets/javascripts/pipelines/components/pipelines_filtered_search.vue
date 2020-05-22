@@ -2,8 +2,8 @@
 import { GlFilteredSearch } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
 import PipelineTriggerAuthorToken from './tokens/pipeline_trigger_author_token.vue';
-import Api from '~/api';
-import createFlash from '~/flash';
+import PipelineBranchNameToken from './tokens/pipeline_branch_name_token.vue';
+import { map } from 'lodash';
 
 export default {
   components: {
@@ -18,11 +18,10 @@ export default {
       type: String,
       required: true,
     },
-  },
-  data() {
-    return {
-      projectUsers: null,
-    };
+    params: {
+      type: Object,
+      required: true,
+    },
   },
   computed: {
     tokens() {
@@ -31,24 +30,28 @@ export default {
           type: 'username',
           icon: 'user',
           title: s__('Pipeline|Trigger author'),
-          dataType: 'username',
           unique: true,
           token: PipelineTriggerAuthorToken,
           operators: [{ value: '=', description: __('is'), default: 'true' }],
-          triggerAuthors: this.projectUsers,
+          projectId: this.projectId,
+        },
+        {
+          type: 'ref',
+          icon: 'branch',
+          title: s__('Pipeline|Branch name'),
+          unique: true,
+          token: PipelineBranchNameToken,
+          operators: [{ value: '=', description: __('is'), default: 'true' }],
+          projectId: this.projectId,
         },
       ];
     },
-  },
-  created() {
-    Api.projectUsers(this.projectId)
-      .then(users => {
-        this.projectUsers = users;
-      })
-      .catch(err => {
-        createFlash(__('There was a problem fetching project users.'));
-        throw err;
-      });
+    paramsValue() {
+      return map(this.params, (val, key) => ({
+        type: key,
+        value: { data: val, operator: '=' },
+      }));
+    },
   },
   methods: {
     onSubmit(filters) {
@@ -63,6 +66,7 @@ export default {
     <gl-filtered-search
       :placeholder="__('Filter pipelines')"
       :available-tokens="tokens"
+      :value="paramsValue"
       @submit="onSubmit"
     />
   </div>

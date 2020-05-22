@@ -6,8 +6,8 @@ type: reference
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/6916)
 in [GitLab Starter](https://about.gitlab.com/pricing/) 11.3.
-> - [Support for group namespaces](https://gitlab.com/gitlab-org/gitlab-foss/issues/53182) added in GitLab Starter 12.1.
-> - Code Owners for Merge Request approvals was [introduced](https://gitlab.com/gitlab-org/gitlab/issues/4418) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.9.
+> - [Support for group namespaces](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/53182) added in GitLab Starter 12.1.
+> - Code Owners for Merge Request approvals was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4418) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.9.
 
 ## Introduction
 
@@ -87,6 +87,23 @@ in the `.gitignore` file followed by the `@username` or email of one
 or more users or by the `@name` of one or more groups that should
 be owners of the file. Groups must be added as [members of the project](members/index.md),
 or they will be ignored.
+
+Starting in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/32432), you can now specify
+groups or subgroups from the project's group hierarchy as potential code owners.
+
+For example, consider the following hierarchy for a given project:
+
+```plaintext
+group >> sub-group >> sub-subgroup >> myproject >> file.md
+```
+
+Any of the following groups would be eligible to be specified as code owners:
+
+- `@group`
+- `@group/sub-group`
+- `@group/sub-group/sub-subgroup`
+
+In addition, any groups that have been invited to the project using the **Settings > Members** tool will also be recognized as eligible code owners.
 
 The order in which the paths are defined is significant: the last
 pattern that matches a given path will be used to find the code

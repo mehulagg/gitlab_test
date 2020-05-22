@@ -195,6 +195,26 @@ describe Projects::PipelinesController do
       end
     end
 
+    context 'filter by ref' do
+      let!(:pipeline) { create(:ci_pipeline, :running, project: project, ref: 'branch-1') }
+
+      context 'when pipelines with the ref exists' do
+        it 'returns matched pipelines' do
+          get_pipelines_index_json(ref: 'branch-1')
+
+          check_pipeline_response(returned: 1, all: 1, running: 1, pending: 0, finished: 0)
+        end
+      end
+
+      context 'when no pipeline with the ref exists' do
+        it 'returns empty list' do
+          get_pipelines_index_json(ref: 'invalid-ref')
+
+          check_pipeline_response(returned: 0, all: 0, running: 0, pending: 0, finished: 0)
+        end
+      end
+    end
+
     def get_pipelines_index_json(params = {})
       get :index, params: {
                     namespace_id: project.namespace,
@@ -528,6 +548,39 @@ describe Projects::PipelinesController do
     end
   end
 
+  describe 'GET dag.json' do
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    before do
+      create_build('build', 1, 'build')
+      create_build('test', 2, 'test', scheduling_type: 'dag').tap do |job|
+        create(:ci_build_need, build: job, name: 'build')
+      end
+    end
+
+    it 'returns the pipeline with DAG serialization' do
+      get :dag, params: { namespace_id: project.namespace, project_id: project, id: pipeline }, format: :json
+
+      expect(response).to have_gitlab_http_status(:ok)
+
+      expect(json_response.fetch('stages')).not_to be_empty
+
+      build_stage = json_response['stages'].first
+      expect(build_stage.fetch('name')).to eq 'build'
+      expect(build_stage.fetch('groups').first.fetch('jobs'))
+        .to eq [{ 'name' => 'build', 'scheduling_type' => 'stage' }]
+
+      test_stage = json_response['stages'].last
+      expect(test_stage.fetch('name')).to eq 'test'
+      expect(test_stage.fetch('groups').first.fetch('jobs'))
+        .to eq [{ 'name' => 'test', 'scheduling_type' => 'dag', 'needs' => ['build'] }]
+    end
+
+    def create_build(stage, stage_idx, name, params = {})
+      create(:ci_build, pipeline: pipeline, stage: stage, stage_idx: stage_idx, name: name, **params)
+    end
+  end
+
   describe 'GET stages.json' do
     let(:pipeline) { create(:ci_pipeline, project: project) }
 
@@ -810,7 +863,7 @@ describe Projects::PipelinesController do
 
     context 'when feature is enabled' do
       before do
-        stub_feature_flags(junit_pipeline_view: true)
+        stub_feature_flags(junit_pipeline_view: project)
       end
 
       context 'when pipeline does not have a test report' do
@@ -858,7 +911,7 @@ describe Projects::PipelinesController do
 
       context 'when junit_pipeline_screenshots_view is enabled' do
         before do
-          stub_feature_flags(junit_pipeline_screenshots_view: { enabled: true, thing: project })
+          stub_feature_flags(junit_pipeline_screenshots_view: project)
         end
 
         context 'when test_report contains attachment and scope is with_attachment as a URL param' do
@@ -887,7 +940,7 @@ describe Projects::PipelinesController do
 
       context 'when junit_pipeline_screenshots_view is disabled' do
         before do
-          stub_feature_flags(junit_pipeline_screenshots_view: { enabled: false, thing: project })
+          stub_feature_flags(junit_pipeline_screenshots_view: false)
         end
 
         context 'when test_report contains attachment and scope is with_attachment as a URL param' do

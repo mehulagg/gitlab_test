@@ -9,11 +9,15 @@ module Packages
 
       XPATHS = {
         package_name: '//xmlns:package/xmlns:metadata/xmlns:id',
-        package_version: '//xmlns:package/xmlns:metadata/xmlns:version'
+        package_version: '//xmlns:package/xmlns:metadata/xmlns:version',
+        license_url: '//xmlns:package/xmlns:metadata/xmlns:licenseUrl',
+        project_url: '//xmlns:package/xmlns:metadata/xmlns:projectUrl',
+        icon_url: '//xmlns:package/xmlns:metadata/xmlns:iconUrl'
       }.freeze
 
       XPATH_DEPENDENCIES = '//xmlns:package/xmlns:metadata/xmlns:dependencies/xmlns:dependency'
       XPATH_DEPENDENCY_GROUPS = '//xmlns:package/xmlns:metadata/xmlns:dependencies/xmlns:group'
+      XPATH_TAGS = '//xmlns:package/xmlns:metadata/xmlns:tags'
 
       MAX_FILE_SIZE = 4.megabytes.freeze
 
@@ -44,10 +48,12 @@ module Packages
       def extract_metadata(file)
         doc = Nokogiri::XML(file)
 
-        XPATHS.map { |key, query| [key, doc.xpath(query).text] }
+        XPATHS.map { |key, query| [key, doc.xpath(query).text.presence] }
               .to_h
+              .compact
               .tap do |metadata|
                 metadata[:package_dependencies] = extract_dependencies(doc)
+                metadata[:package_tags] = extract_tags(doc)
               end
       end
 
@@ -74,6 +80,14 @@ module Packages
           name: node.attr('id'),
           version: node.attr('version')
         }.compact
+      end
+
+      def extract_tags(doc)
+        tags = doc.xpath(XPATH_TAGS).text
+
+        return [] if tags.blank?
+
+        tags.split(::Packages::Tag::NUGET_TAGS_SEPARATOR)
       end
 
       def nuspec_file

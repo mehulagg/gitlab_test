@@ -18,21 +18,22 @@ You can read more about the Docker Registry at
 
 **Omnibus GitLab installations**
 
-If you are using the Omnibus GitLab built-in [Let's Encrypt integration](https://docs.gitlab.com/omnibus/settings/ssl.html#lets-encrypt-integration), as of GitLab 12.5, the Container Registry will be automatically enabled on port 5050 of the default domain.
+If you installed GitLab by using the Omnibus installation package, the Container Registry
+may or may not be available by default.
 
-If you are not using GitLab 12.5 or later, or do not use GitLab's built-in Let's Encrypt
-integration, the GitLab Container Registry must be enabled and
-[configured to use an external domain](#container-registry-domain-configuration).
+The Container Registry is automatically enabled and available on your GitLab domain, port 5050 if:
 
-To enable the GitLab Container Registry on your *existing* GitLab domain, refer to the section on
-[configuring Container Registry to use an existing domain](#configure-container-registry-under-an-existing-gitlab-domain).
+- You're using the built-in [Let's Encrypt integration](https://docs.gitlab.com/omnibus/settings/ssl.html#lets-encrypt-integration), and
+- You're using GitLab 12.5 or later.
 
-To use a *separate* domain with your Container Registry, refer to the section on
-[configuring Container Registry under its own domain](#configure-container-registry-under-its-own-domain).
+Otherwise, the Container Registry is not enabled. To enable it:
+
+- You can configure it for your [GitLab domain](#configure-container-registry-under-an-existing-gitlab-domain), or
+- You can configure it for [a different domain](#configure-container-registry-under-its-own-domain).
 
 NOTE: **Note:**
-The container registry works under HTTPS by default. Using HTTP is possible
-but not recommended and out of the scope of this document.
+The Container Registry works under HTTPS by default. You can use HTTP
+but it's not recommended and is out of the scope of this document.
 Read the [insecure Registry documentation](https://docs.docker.com/registry/insecure/)
 if you want to implement this.
 
@@ -459,7 +460,7 @@ However, this behavior is undesirable for registries used by internal hosts that
 
 1. Add the `redirect` flag to your registry configuration YML file:
 
-    ```yml
+    ```yaml
     storage:
       s3:
         accesskey: 'AKIAKIAKI'
@@ -525,7 +526,7 @@ on how to achieve that.
 
 NOTE: **Note:**
 In using an external container registry, some features associated with the
-container registry may be unavailable or have [inherant risks](./../../user/packages/container_registry/index.md#use-with-external-container-registries)
+container registry may be unavailable or have [inherent risks](./../../user/packages/container_registry/index.md#use-with-external-container-registries)
 
 **Omnibus GitLab**
 
@@ -659,9 +660,9 @@ via an Omnibus package or the [cloud native chart](https://docs.gitlab.com/chart
 
 DANGER: **Danger:**
 By running the built-in garbage collection command, it will cause downtime to
-the Container Registry. Running this command on an instance in an HA environment
-while one of your other instances is still writing to the Registry storage,
-will remove referenced manifests. To avoid that, make sure Registry is set to
+the Container Registry. If you run this command on an instance in an environment
+where one of your other instances is still writing to the Registry storage,
+referenced manifests will be removed. To avoid that, make sure Registry is set to
 [read-only mode](#performing-garbage-collection-without-downtime) before proceeding.
 
 Container Registry can use considerable amounts of disk space. To clear up
@@ -715,7 +716,7 @@ built-in command:
 
 If you did not change the default location of the configuration file, run:
 
-```sh
+```shell
 sudo gitlab-ctl registry-garbage-collect
 ```
 
@@ -724,7 +725,7 @@ layers you have stored.
 
 If you changed the location of the Container Registry `config.yml`:
 
-```sh
+```shell
 sudo gitlab-ctl registry-garbage-collect /path/to/config.yml
 ```
 
@@ -748,7 +749,7 @@ referenced by the registry tag. The `registry-garbage-collect` command supports 
 `-m` switch to allow you to remove all unreferenced manifests and layers that are
 not directly accessible via `tag`:
 
-```sh
+```shell
 sudo gitlab-ctl registry-garbage-collect -m
 ```
 
@@ -786,7 +787,7 @@ To enable the read-only mode:
 
 1. Save and reconfigure GitLab:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    ```
 
@@ -794,7 +795,7 @@ To enable the read-only mode:
 
 1. Next, trigger one of the garbage collect commands:
 
-   ```sh
+   ```shell
    # Recycling unused tags
    sudo /opt/gitlab/embedded/bin/registry garbage-collect /var/opt/gitlab/registry/config.yml
 
@@ -821,7 +822,7 @@ To enable the read-only mode:
 
 1. Save and reconfigure GitLab:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    ```
 
@@ -883,7 +884,7 @@ mounting the docker-daemon and setting `privileged = false` in the Runner's
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
 ```
 
-Additional information about this: [issue 18239](https://gitlab.com/gitlab-org/gitlab-foss/issues/18239).
+Additional information about this: [issue 18239](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/18239).
 
 ### `unauthorized: authentication required` when pushing large images
 
@@ -954,7 +955,7 @@ Start with a value between `25000000` (25MB) and `50000000` (50MB).
 
 ### Supporting older Docker clients
 
-As of GitLab 11.9, we began shipping version 2.7.1 of the Docker container registry, which disables the schema1 manifest by default. If you are still using older Docker clients (1.9 or older), you may experience an error pushing images. See [omnibus-4145](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/4145) for more details.
+As of GitLab 11.9, we began shipping version 2.7.1 of the Docker container registry, which disables the schema1 manifest by default. If you are still using older Docker clients (1.9 or older), you may experience an error pushing images. See [omnibus-4145](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/4145) for more details.
 
 You can add a configuration option for backwards compatibility.
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function retrieve_tests_metadata() {
   mkdir -p knapsack/ rspec_flaky/ rspec_profiling/
@@ -53,8 +53,6 @@ function rspec_simple_job() {
 
   export NO_KNAPSACK="1"
 
-  scripts/gitaly-test-spawn
-
   bin/rspec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml ${rspec_opts}
 }
 
@@ -103,8 +101,6 @@ function rspec_paralellized_job() {
       echo "{}" > "${NEW_FLAKY_RSPEC_REPORT_PATH}"
     fi
   fi
-
-  scripts/gitaly-test-spawn
 
   mkdir -p tmp/memory_test
 

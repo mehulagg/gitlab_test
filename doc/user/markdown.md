@@ -228,7 +228,7 @@ To make PlantUML available in GitLab, a GitLab administrator needs to enable it 
 
 > If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#emoji).
 
-```md
+```markdown
 Sometimes you want to :monkey: around a bit and add some :star2: to your :speech_balloon:. Well we have a gift for you:
 
 :zap: You can use emoji anywhere GFM is supported. :v:
@@ -435,7 +435,7 @@ GFM will recognize the following:
 In addition to this, links to some objects are also recognized and formatted. Some examples of these are:
 
 - Comments on issues: `"https://gitlab.com/gitlab-org/gitlab/-/issues/1234#note_101075757"`, which will be rendered as `#1234 (note1)`
-- The issues designs tab: `"https://gitlab.com/gitlab-org/gitlab/issues/1234/designs"`, which will be rendered as `#1234 (designs)`.
+- The issues designs tab: `"https://gitlab.com/gitlab-org/gitlab/-/issues/1234/designs"`, which will be rendered as `#1234 (designs)`.
   **(PREMIUM)**
 
 ### Task lists
@@ -804,7 +804,7 @@ but_emphasis is_desired _here_
 
 If you wish to emphasize only a part of a word, it can still be done with asterisks:
 
-```md
+```markdown
 perform*complicated*task
 
 do*this*and*do*that*and*another thing
@@ -825,7 +825,7 @@ Regardless of the tag names, the relative order of the reference tags determines
 numbering.
 
 Reference tags can use letters and other characters. Avoid using lowercase `w` or an underscore
-(`_`) in footnote tag names until [this bug](https://gitlab.com/gitlab-org/gitlab/issues/24423) is
+(`_`) in footnote tag names until [this bug](https://gitlab.com/gitlab-org/gitlab/-/issues/24423) is
 resolved.
 
 <!--
@@ -976,7 +976,7 @@ Do not change to a reference style link.
 Image tags that link to files with a video extension are automatically converted to
 a video player. The valid video extensions are `.mp4`, `.m4v`, `.mov`, `.webm`, and `.ogv`:
 
-```md
+```markdown
 Here's a sample video:
 
 ![Sample Video](img/markdown_video.mp4)
@@ -993,7 +993,7 @@ Here's a sample video:
 Similar to videos, link tags for files with an audio extension are automatically converted to
 an audio player. The valid audio extensions are `.mp3`, `.oga`, `.ogg`, `.spx`, and `.wav`:
 
-```md
+```markdown
 Here's a sample audio clip:
 
 ![Sample Audio](img/markdown_audio.mp3)
@@ -1275,7 +1275,7 @@ number, and count up from there.
 
 Examples:
 
-```md
+```markdown
 1. First ordered list item
 2. Another item
    - Unordered sub-list.
@@ -1302,7 +1302,7 @@ See https://docs.gitlab.com/ee/development/documentation/styleguide.html#lists
 For an unordered list, add a `-`, `*` or `+`, followed by a space, at the start of
 each line for unordered lists, but you should not use a mix of them.
 
-```md
+```markdown
 Unordered lists can:
 
 - use
@@ -1443,7 +1443,7 @@ to the sides of the "dash" lines in the second row. This will affect every cell 
 
 #### Copy from spreadsheet and paste in Markdown
 
-[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/27205) in GitLab 12.7.
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/27205) in GitLab 12.7.
 
 If you're working in spreadsheet software (for example, Microsoft Excel, Google
 Sheets, or Apple Numbers), you can copy from a spreadsheet, and GitLab will

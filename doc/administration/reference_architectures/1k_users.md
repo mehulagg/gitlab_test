@@ -7,11 +7,11 @@ For a full list of reference architectures, see
 > - **Supported users (approximate):** 1,000
 > - **High Availability:** False
 
-| Users | Configuration([8](#footnotes)) | GCP type      | AWS type([9](#footnotes)) |
-|-------|--------------------------------|---------------|---------------------------|
-| 100   | 2 vCPU, 7.2GB Memory           | n1-standard-2 | c5.2xlarge                |
-| 500   | 4 vCPU, 15GB Memory            | n1-standard-4 | m5.xlarge                 |
-| 1000  | 8 vCPU, 30GB Memory            | n1-standard-8 | m5.2xlarge                |
+| Users | Configuration([8](#footnotes)) | GCP           | AWS([9](#footnotes)) | Azure([9](#footnotes)) |
+|-------|--------------------------------|---------------|----------------------|------------------------|
+| 100   | 2 vCPU, 7.2GB Memory           | n1-standard-2 | m5.large             | D2s v3                 |
+| 500   | 4 vCPU, 15GB Memory            | n1-standard-4 | m5.xlarge            | D4s v3                 |
+| 1000  | 8 vCPU, 30GB Memory            | n1-standard-8 | m5.2xlarge           | D8s v3                 |
 
 For situations where you need to serve up to 1,000 users, a single-node
 solution with [frequent backups](index.md#automated-backups-core-only) is appropriate
@@ -59,7 +59,7 @@ added performance and reliability at a reduced complexity cost.
 
 1. NFS can be used as an alternative for both repository data (replacing Gitaly) and
    object storage but this isn't typically recommended for performance reasons. Note however it is required for
-   [GitLab Pages](https://gitlab.com/gitlab-org/gitlab-pages/issues/196).
+   [GitLab Pages](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/196).
 
 1. Our architectures have been tested and validated with [HAProxy](https://www.haproxy.org/)
    as the load balancer. Although other load balancers with similar feature sets

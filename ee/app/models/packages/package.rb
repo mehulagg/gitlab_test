@@ -12,6 +12,7 @@ class Packages::Package < ApplicationRecord
   has_one :conan_metadatum, inverse_of: :package, class_name: 'Packages::Conan::Metadatum'
   has_one :pypi_metadatum, inverse_of: :package, class_name: 'Packages::Pypi::Metadatum'
   has_one :maven_metadatum, inverse_of: :package, class_name: 'Packages::Maven::Metadatum'
+  has_one :nuget_metadatum, inverse_of: :package, class_name: 'Packages::Nuget::Metadatum'
   has_one :build_info, inverse_of: :package
 
   accepts_nested_attributes_for :conan_metadatum
@@ -123,6 +124,22 @@ class Packages::Package < ApplicationRecord
     else
       order_created_desc
     end
+  end
+
+  def versions
+    project.packages
+           .with_name(name)
+           .where.not(version: version)
+           .with_package_type(package_type)
+           .order(:version)
+  end
+
+  def pipeline
+    build_info&.pipeline
+  end
+
+  def tag_names
+    tags.pluck(:name)
   end
 
   private

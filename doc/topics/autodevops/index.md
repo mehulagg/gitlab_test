@@ -1,6 +1,6 @@
 # Auto DevOps
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/37115) in GitLab 10.0.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/37115) in GitLab 10.0.
 > - Generally available on GitLab 11.0.
 
 Auto DevOps provides pre-defined CI/CD configuration allowing you to automatically
@@ -27,7 +27,7 @@ For an introduction to Auto DevOps, watch [AutoDevOps in GitLab 11.0](https://yo
 
 ## Enabled by default
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41729) in GitLab 11.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41729) in GitLab 11.3.
 
 Auto DevOps is enabled by default for all projects and attempts to run on all pipelines
 in each project. An instance administrator can enable or disable this default in the
@@ -35,7 +35,7 @@ in each project. An instance administrator can enable or disable this default in
 Auto DevOps automatically disables in individual projects on their first pipeline failure,
 if it has not been explicitly enabled for the project.
 
-Since [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/issues/26655), Auto DevOps
+Since [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/issues/26655), Auto DevOps
 runs on pipelines automatically only if a [`Dockerfile` or matching buildpack](stages.md#auto-build)
 exists.
 
@@ -52,6 +52,9 @@ If you use a self-managed instance of GitLab, you must configure the
 [Google OAuth2 OmniAuth Provider](../../integration/google.md) before
 configuring a cluster on GKE. After configuring the provider, you can follow
 the steps in the [quick start guide](quick_start_guide.md) to get started.
+
+In [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/208132) and later, it is
+possible to leverage Auto DevOps to deploy to [AWS ECS](#aws-ecs).
 
 ## Comparison to application platforms and PaaS
 
@@ -110,7 +113,9 @@ Auto DevOps.
 
 ## Requirements
 
-To make full use of Auto DevOps, you need:
+### Kubernetes
+
+To make full use of Auto DevOps with Kubernetes, you need:
 
 - **Kubernetes** (for [Auto Review Apps](stages.md#auto-review-apps),
   [Auto Deploy](stages.md#auto-deploy), and [Auto Monitoring](stages.md#auto-monitoring))
@@ -202,6 +207,31 @@ are skipped.
 
 After all requirements are met, you can [enable Auto DevOps](#enablingdisabling-auto-devops).
 
+### AWS ECS
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/208132) in GitLab 13.0.
+
+You can choose to target [AWS ECS](../../ci/cloud_deployment/index.md) as a deployment platform instead of using Kubernetes.
+
+To get started on Auto DevOps to ECS, you'll have to add a specific Environment
+Variable. To do so, follow these steps:
+
+1. In your project, go to **Settings > CI / CD** and expand the **Variables**
+   section.
+
+1. Specify which AWS platform to target during the Auto DevOps deployment
+   by adding the `AUTO_DEVOPS_PLATFORM_TARGET` variable.
+
+1. Give this variable the value `ECS` before saving it.
+
+When you trigger a pipeline, if you have AutoDev Ops enabled and if you have correctly
+[entered AWS credentials as environment variables](../../ci/cloud_deployment/index.md#deploy-your-application-to-aws-elastic-container-service-ecs),
+your application will be deployed to AWS ECS.
+
+NOTE: **Note:**
+If you have both a valid `AUTO_DEVOPS_PLATFORM_TARGET` variable and a Kubernetes cluster tied to your project,
+only the deployment to Kubernetes will run.
+
 ## Auto DevOps base domain
 
 The Auto DevOps base domain is required to use
@@ -226,14 +256,14 @@ the URL endpoint should be automatically configured for you. All you must do
 is use its value for the `KUBE_INGRESS_BASE_DOMAIN` variable.
 
 NOTE: **Note:**
-`AUTO_DEVOPS_DOMAIN` was [deprecated in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-foss/issues/52363)
+`AUTO_DEVOPS_DOMAIN` was [deprecated in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52363)
 and replaced with `KUBE_INGRESS_BASE_DOMAIN`, and removed in
-[GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/56959).
+[GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/56959).
 
 Auto DevOps requires a wildcard DNS A record matching the base domain(s). For
 a base domain of `example.com`, you'd need a DNS entry like:
 
-```text
+```plaintext
 *.example.com   3600     A     1.2.3.4
 ```
 
@@ -275,7 +305,7 @@ After enabling the feature, an Auto DevOps pipeline is triggered on the default 
 
 ### At the group level
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/52447) in GitLab 11.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52447) in GitLab 11.10.
 
 Only administrators and group owners can enable or disable Auto DevOps at the group level.
 
@@ -312,7 +342,7 @@ Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(10)
 
 ### Deployment strategy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/38542) in GitLab 11.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/38542) in GitLab 11.0.
 
 You can change the deployment strategy used by Auto DevOps by going to your
 project's **{settings}** **Settings > CI/CD > Auto DevOps**. The following options
@@ -403,6 +433,9 @@ As of GitLab 10.0, the supported buildpacks are:
 - heroku-buildpack-erlang    fa17af9
 - buildpack-nginx            v8
 ```
+
+If your application needs a buildpack that is not in the above list, you
+might want to use a [custom buildpack](customize.md#custom-buildpacks).
 
 ## Limitations
 

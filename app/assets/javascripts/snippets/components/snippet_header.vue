@@ -127,7 +127,7 @@ export default {
   },
   methods: {
     redirectToSnippets() {
-      window.location.pathname = 'dashboard/snippets';
+      window.location.pathname = `${this.snippet.project?.fullPath || 'dashboard'}/snippets`;
     },
     closeDeleteModal() {
       this.$refs.deleteModal.hide();
@@ -207,6 +207,8 @@ export default {
               :category="action.category"
               :class="action.cssClass"
               :href="action.href"
+              data-qa-selector="snippet_action_button"
+              :data-qa-action="action.text"
               @click="action.click ? action.click() : undefined"
             >
               {{ action.text }}

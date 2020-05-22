@@ -2,12 +2,12 @@
 import { mapActions } from 'vuex';
 import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import timeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
-import GitlabTeamMemberBadge from '~/vue_shared/components/user_avatar/badges/gitlab_team_member_badge.vue';
 
 export default {
   components: {
     timeAgoTooltip,
-    GitlabTeamMemberBadge,
+    GitlabTeamMemberBadge: () =>
+      import('ee_component/vue_shared/components/user_avatar/badges/gitlab_team_member_badge.vue'),
     GlIcon,
   },
   directives: {
@@ -71,9 +71,6 @@ export default {
     },
     hasAuthor() {
       return this.author && Object.keys(this.author).length;
-    },
-    showGitlabTeamMemberBadge() {
-      return this.author?.is_gitlab_employee;
     },
     authorLinkClasses() {
       return {
@@ -166,11 +163,11 @@ export default {
           @mouseleave="handleUsernameMouseLeave"
           ><span class="note-headline-light">@{{ author.username }}</span>
         </a>
-        <gitlab-team-member-badge v-if="showGitlabTeamMemberBadge" />
+        <gitlab-team-member-badge v-if="author && author.is_gitlab_employee" />
       </span>
     </template>
     <span v-else>{{ __('A deleted user') }}</span>
-    <span class="note-headline-light note-headline-meta d-inline-flex align-items-center">
+    <span class="note-headline-light note-headline-meta">
       <span class="system-note-message"> <slot></slot> </span>
       <template v-if="createdAt">
         <span ref="actionText" class="system-note-separator">
@@ -189,12 +186,12 @@ export default {
       </template>
       <gl-icon
         v-if="isConfidential"
-        ref="confidentialIndicator"
         v-gl-tooltip:tooltipcontainer.bottom
+        data-testid="confidentialIndicator"
         name="eye-slash"
         :size="14"
-        :title="__('Private comments are accessible by internal staff only')"
-        class="ml-1 gl-text-gray-800"
+        :title="s__('Notes|Private comments are accessible by internal staff only')"
+        class="gl-ml-1 gl-text-gray-800 align-middle"
       />
       <slot name="extra-controls"></slot>
       <i

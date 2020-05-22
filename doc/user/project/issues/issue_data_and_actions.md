@@ -16,7 +16,7 @@ You can find all the information for that issue on one screen.
 - **2.** [To Do](#to-do)
 - **3.** [Assignee](#assignee)
   - **3.1.** [Multiple Assignees **(STARTER)**](#multiple-assignees-starter)
-- **4.** [Epic **(ULTIMATE)**](#epic-ultimate)
+- **4.** [Epic **(PREMIUM)**](#epic-premium)
 - **5.** [Milestone](#milestone)
 - **6.** [Time tracking](#time-tracking)
 - **7.** [Due date](#due-date)
@@ -100,7 +100,7 @@ to track in large teams where there is shared ownership of an issue.
 In [GitLab Starter](https://about.gitlab.com/pricing/), you can
 [assign multiple people](multiple_assignees_for_issues.md) to an issue.
 
-### Epic **(ULTIMATE)**
+### Epic **(PREMIUM)**
 
 You can assign issues to an [Epic](../../group/epics/index.md), which allows better
 management of groups of related issues.
@@ -185,7 +185,7 @@ The plain text title and description of the issue fill the top center of the iss
 The description fully supports [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm),
 allowing many formatting options.
 
-> [Since GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/10103), changes to an issue's description are listed in the [issue history](#issue-history).**(STARTER)**
+> [Since GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/10103), changes to an issue's description are listed in the [issue history](#issue-history).**(STARTER)**
 
 ### Mentions
 
@@ -296,7 +296,7 @@ You can also close the issue from here, so you don't need to scroll to the top o
 
 ### Zoom meetings
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/31103) in GitLab 12.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/31103) in GitLab 12.3.
 
 You can attach and remove Zoom meetings to issues using the `/zoom` and `/remove_zoom` [quick actions](../quick_actions.md) as part of
 [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm).

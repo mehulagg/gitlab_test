@@ -4,7 +4,7 @@ type: reference, howto
 
 # License Compliance **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5483) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5483) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.0.
 
 ## Overview
 
@@ -100,7 +100,7 @@ For GitLab versions earlier than 11.9, you can copy and use the job as defined
 that template.
 
 NOTE: **Note:**
-In GitLab 13.0, the `License-Management.gitlab-ci.yml` template is scheduled to be removed.
+GitLab 13.0 removes the `License-Management.gitlab-ci.yml` template.
 Use `License-Scanning.gitlab-ci.yml` instead.
 
 Add the following to your `.gitlab-ci.yml` file:
@@ -115,7 +115,7 @@ and scan your dependencies to find their licenses.
 
 NOTE: **Note:**
 Before GitLab 12.8, the `license_scanning` job was named `license_management`.
-In GitLab 13.0, the `license_management` job is scheduled to be removed completely,
+GitLab 13.0 removes the `license_management` job,
 so you're advised to migrate to the `license_scanning` job and used the new
 `License-Scanning.gitlab-ci.yml` template.
 
@@ -133,16 +133,17 @@ The License Compliance settings can be changed through [environment variables](#
 
 License Compliance can be configured using environment variables.
 
-| Environment variable  | Required | Description |
-|-----------------------|----------|-------------|
-| `ADDITIONAL_CA_CERT_BUNDLE` | no | Bundle of trusted CA certificates (currently supported in Python projects). |
-| `GRADLE_CLI_OPTS` | no | Additional arguments for the gradle executable. If not supplied, defaults to `--exclude-task=test`. |
-| `LICENSE_FINDER_CLI_OPTS` | no | Additional arguments for the `license_finder` executable. For example, if your project has both Golang and Ruby code stored in different directories and you want to only scan the Ruby code, you can update your `.gitlab-ci-yml` template to specify which project directories to scan, like `LICENSE_FINDER_CLI_OPTS: '--debug --aggregate-paths=. ruby'`. |
-| `LM_JAVA_VERSION`      | no | Version of Java. If set to `11`, Maven and Gradle use Java 11 instead of Java 8. |
-| `LM_PYTHON_VERSION`    | no | Version of Python. If set to `3`, dependencies are installed using Python 3 instead of Python 2.7. |
-| `MAVEN_CLI_OPTS`       | no | Additional arguments for the mvn executable. If not supplied, defaults to `-DskipTests`. |
-| `PIP_INDEX_URL` | no | Base URL of Python Package Index (default: `https://pypi.org/simple/`). |
-| `SETUP_CMD`            | no | Custom setup for the dependency installation (experimental). |
+| Environment variable        | Required | Description |
+|-----------------------------|----------|-------------|
+| `SECURE_ANALYZERS_PREFIX`   | no       | Set the Docker registry base address to download the analyzer from. |
+| `ADDITIONAL_CA_CERT_BUNDLE` | no       | Bundle of trusted CA certificates (currently supported in Pip, Pipenv, Maven, Gradle, Yarn, and NPM projects). |
+| `GRADLE_CLI_OPTS`           | no       | Additional arguments for the gradle executable. If not supplied, defaults to `--exclude-task=test`. |
+| `LICENSE_FINDER_CLI_OPTS`   | no       | Additional arguments for the `license_finder` executable. For example, if your project has both Golang and Ruby code stored in different directories and you want to only scan the Ruby code, you can update your `.gitlab-ci-yml` template to specify which project directories to scan, like `LICENSE_FINDER_CLI_OPTS: '--debug --aggregate-paths=. ruby'`. |
+| `LM_JAVA_VERSION`           | no       | Version of Java. If set to `11`, Maven and Gradle use Java 11 instead of Java 8. |
+| `LM_PYTHON_VERSION`         | no       | Version of Python. If set to `3`, dependencies are installed using Python 3 instead of Python 2.7. |
+| `MAVEN_CLI_OPTS`            | no       | Additional arguments for the mvn executable. If not supplied, defaults to `-DskipTests`. |
+| `PIP_INDEX_URL`             | no       | Base URL of Python Package Index (default: `https://pypi.org/simple/`). |
+| `SETUP_CMD`                 | no       | Custom setup for the dependency installation (experimental). |
 
 ### Installing custom dependencies
 
@@ -241,7 +242,7 @@ generate a key store file, see the
 ### Selecting the version of Python
 
 > - [Introduced](https://gitlab.com/gitlab-org/security-products/license-management/-/merge_requests/36) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
-> - In [GitLab 12.2](https://gitlab.com/gitlab-org/gitlab/issues/12032), Python 3.5 became the default.
+> - In [GitLab 12.2](https://gitlab.com/gitlab-org/gitlab/-/issues/12032), Python 3.5 became the default.
 > - In [GitLab 12.7](https://gitlab.com/gitlab-org/security-products/license-management/-/merge_requests/101), Python 3.8 became the default.
 
 License Compliance uses Python 3.8 and pip 19.1 by default.
@@ -283,7 +284,7 @@ license_scanning:
 The [`pip.conf`](https://pip.pypa.io/en/stable/reference/pip/) allows you to specify a list of
 [trusted hosts](https://pip.pypa.io/en/stable/reference/pip/#cmdoption-trusted-host):
 
-```text
+```plaintext
 [global]
 trusted-host = pypi.example.com
 ```
@@ -294,16 +295,69 @@ If you have a private Python repository you can use the `PIP_INDEX_URL` [environ
 to specify its location. It's also possible to provide a custom `pip.conf` for
 [additional configuration](#custom-root-certificates-for-python).
 
+### Configuring NPM projects
+
+You can configure NPM projects by using an [`.npmrc`](https://docs.npmjs.com/configuring-npm/npmrc.html)
+file.
+
+#### Using private NPM registries
+
+If you have a private NPM registry you can use the
+[`registry`](https://docs.npmjs.com/using-npm/config#registry)
+setting to specify its location.
+
+For example:
+
+```plaintext
+registry = https://npm.example.com
+```
+
+#### Custom root certificates for NPM
+
+You can supply a custom root certificate to complete TLS verification by using the
+`ADDITIONAL_CA_CERT_BUNDLE` [environment variable](#available-variables).
+
+To disable TLS verification you can provide the [`strict-ssl`](https://docs.npmjs.com/using-npm/config#strict-ssl)
+setting.
+
+For example:
+
+```plaintext
+strict-ssl = false
+```
+
+### Configuring Yarn projects
+
+You can configure Yarn projects by using a [`.yarnrc.yml`](https://yarnpkg.com/configuration/yarnrc)
+file.
+
+#### Using private Yarn registries
+
+If you have a private Yarn registry you can use the
+[`npmRegistryServer`](https://yarnpkg.com/configuration/yarnrc#npmRegistryServer)
+setting to specify its location.
+
+For example:
+
+```plaintext
+npmRegistryServer: "https://npm.example.com"
+```
+
+#### Custom root certificates for Yarn
+
+You can supply a custom root certificate to complete TLS verification by using the
+`ADDITIONAL_CA_CERT_BUNDLE` [environment variable](#available-variables).
+
 ### Migration from `license_management` to `license_scanning`
 
 In GitLab 12.8 a new name for `license_management` job was introduced. This change was made to improve clarity around the purpose of the scan, which is to scan and collect the types of licenses present in a projects dependencies.
-The support of `license_management` is scheduled to be dropped in GitLab 13.0.
+GitLab 13.0 drops support for `license_management`.
 If you're using a custom setup for License Compliance, you're required
 to update your CI config accordingly:
 
 1. Change the CI template to `License-Scanning.gitlab-ci.yml`.
 1. Change the job name to `license_scanning` (if you mention it in `.gitlab-ci.yml`).
-1. Change the artifact name to `gl-license-scanning-report.json` (if you mention it in `.gitlab-ci.yml`).
+1. Change the artifact name to `license_scanning`, and the file name to `gl-license-scanning-report.json` (if you mention it in `.gitlab-ci.yml`).
 
 For example, the following `.gitlab-ci.yml`:
 
@@ -328,6 +382,16 @@ license_scanning:
     reports:
       license_scanning: gl-license-scanning-report.json
 ```
+
+If you use the `license_management` artifact in GitLab 13.0 or later, the License Compliance job generates this error:
+
+```plaintext
+WARNING: Uploading artifacts to coordinator... failed id=:id responseStatus=400 Bad Request status=400 Bad Request token=:sha
+
+FATAL: invalid_argument
+```
+
+If you encounter this error, follow the instructions described in this section.
 
 ## Running License Compliance in an offline environment
 
@@ -386,15 +450,15 @@ license_scanning:
 The License Compliance job should now use local copies of the License Compliance analyzers to scan
 your code and generate security reports, without requiring internet access.
 
-Additional configuration may be needed for connecting to [private Maven repositories](#using-private-maven-repos)
-and [private Python repositories](#using-private-python-repos).
+Additional configuration may be needed for connecting to [private Maven repositories](#using-private-maven-repos),
+[private NPM registries](#using-private-npm-registries), [private Yarn registries](#using-private-yarn-registries), and [private Python repositories](#using-private-python-repos).
 
 Exact name matches are required for [project policies](#project-policies-for-license-compliance)
 when running in an offline environment ([see related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/212388)).
 
 ## Project policies for License Compliance
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5940) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5940) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.4.
 
 From the project's settings:
 
@@ -432,10 +496,10 @@ Searching for Licenses:
 
 ## License Compliance report under pipelines
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5491) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5491) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.2.
 
 From your project's left sidebar, navigate to **CI/CD > Pipelines** and click on the
-pipeline ID that has a `license_management` job to see the Licenses tab with the listed
+pipeline ID that has a `license_scanning` job to see the Licenses tab with the listed
 licenses (if any).
 
 ![License Compliance Pipeline Tab](img/license_compliance_pipeline_tab_v13_0.png)
@@ -454,7 +518,7 @@ but commented out to help encourage others to add to it in the future. -->
 
 ## License list
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13582) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13582) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.7.
 
 The License list allows you to see your project's licenses and key
 details about them.

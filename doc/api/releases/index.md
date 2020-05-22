@@ -1,9 +1,9 @@
 # Releases API
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41766) in GitLab 11.7.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41766) in GitLab 11.7.
 > - Using this API you can manipulate GitLab's [Release](../../user/project/releases/index.md) entries.
 > - For manipulating links as a release asset, see [Release Links API](links.md).
-> - Release Evidences were [introduced](https://gitlab.com/gitlab-org/gitlab/issues/26019) in GitLab 12.5.
+> - Release Evidences were [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/26019) in GitLab 12.5.
 
 ## List Releases
 
@@ -96,7 +96,6 @@ Example response:
       ],
       "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
       "tag_path":"/root/awesome-app/-/tags/v0.11.1",
-      "evidence_sha":"760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
       "assets":{
          "count":6,
          "sources":[
@@ -133,6 +132,13 @@ Example response:
          ],
          "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.2/evidence.json"
       },
+      "evidences":[
+        {
+          sha: "760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
+          filepath: "https://gitlab.example.com/root/awesome-app/-/releases/v0.2/evidence.json",
+          collected_at: "2019-01-03T01:56:19.539Z"
+        }
+     ]
    },
    {
       "tag_name":"v0.1",
@@ -165,7 +171,6 @@ Example response:
          "committer_email":"admin@example.com",
          "committed_date":"2019-01-03T01:53:28.000Z"
       },
-      "evidence_sha":"760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
       "assets":{
          "count":4,
          "sources":[
@@ -191,6 +196,13 @@ Example response:
          ],
          "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json"
       },
+      "evidences":[
+        {
+          sha: "c3ffedec13af470e760d6cdfb08790f71cf52c6cde4d",
+          filepath: "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
+          collected_at: "2019-01-03T01:55:18.203Z"
+        }
+     ]
    }
 ]
 ```
@@ -681,7 +693,7 @@ Example response:
 
 ## Upcoming Releases
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/38105) in GitLab 12.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/38105) in GitLab 12.1.
 
 A release with a `released_at` attribute set to a future date will be labeled an **Upcoming Release** in the UI:
 

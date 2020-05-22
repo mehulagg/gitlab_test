@@ -54,7 +54,7 @@ describe IncidentManagement::ProcessAlertWorker do
           .with(alert_management_alert_id)
           .and_return(alert)
 
-        allow(Gitlab::GitLogger).to receive(:warn).and_call_original
+        allow(Gitlab::AppLogger).to receive(:warn).and_call_original
       end
 
       context 'when alert can be updated' do
@@ -65,16 +65,12 @@ describe IncidentManagement::ProcessAlertWorker do
         it 'does not write a warning to log' do
           subject
 
-          expect(Gitlab::GitLogger).not_to have_received(:warn)
+          expect(Gitlab::AppLogger).not_to have_received(:warn)
         end
       end
 
       context 'when alert cannot be updated' do
-        before do
-          # invalidate alert
-          too_many_hosts = Array.new(AlertManagement::Alert::HOSTS_MAX_LENGTH + 1) { |_| 'host' }
-          alert.update_columns(hosts: too_many_hosts)
-        end
+        let(:alert) { create(:alert_management_alert, :with_validation_errors, project: project) }
 
         it 'updates AlertManagement::Alert#issue_id' do
           expect { subject }.not_to change { alert.reload.issue_id }
@@ -83,7 +79,7 @@ describe IncidentManagement::ProcessAlertWorker do
         it 'writes a worning to log' do
           subject
 
-          expect(Gitlab::GitLogger).to have_received(:warn).with(
+          expect(Gitlab::AppLogger).to have_received(:warn).with(
             message: 'Cannot link an Issue with Alert',
             issue_id: new_issue.id,
             alert_id: alert_management_alert_id,
