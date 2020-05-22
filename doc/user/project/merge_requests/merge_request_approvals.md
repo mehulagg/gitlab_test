@@ -242,7 +242,7 @@ enable this feature:
 1. Check the **Prevent approval of merge requests by their committers** checkbox.
 1. Click **Save changes**.
 
-### Require authentication when approving a merge request
+### Require authentication when approving a merge request **(STARTER or PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5981) in [GitLab Starter](https://about.gitlab.com/pricing/) 12.0.
 
