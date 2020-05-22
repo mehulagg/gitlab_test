@@ -4338,6 +4338,9 @@ msgstr ""
 msgid "Clear chart filters"
 msgstr ""
 
+msgid "Clear due date"
+msgstr ""
+
 msgid "Clear input"
 msgstr ""
 
@@ -4348,6 +4351,9 @@ msgid "Clear search"
 msgstr ""
 
 msgid "Clear search input"
+msgstr ""
+
+msgid "Clear start date"
 msgstr ""
 
 msgid "Clear templates search input"
@@ -6933,6 +6939,9 @@ msgstr ""
 msgid "Define a custom pattern with cron syntax"
 msgstr ""
 
+msgid "Define custom rules for what constitutes spam, independent of Akismet"
+msgstr ""
+
 msgid "Define environments in the deploy stage(s) in <code>.gitlab-ci.yml</code> to track deployments here."
 msgstr ""
 
@@ -7794,6 +7803,9 @@ msgstr ""
 msgid "Drop your designs to start your upload."
 msgstr ""
 
+msgid "Due Date"
+msgstr ""
+
 msgid "Due date"
 msgstr ""
 
@@ -8053,6 +8065,9 @@ msgid "Enable SAML authentication for this group"
 msgstr ""
 
 msgid "Enable Seat Link"
+msgstr ""
+
+msgid "Enable Spam Check via external API endpoint"
 msgstr ""
 
 msgid "Enable access to Grafana"
@@ -19222,6 +19237,9 @@ msgstr ""
 msgid "Select branch/tag"
 msgstr ""
 
+msgid "Select due date"
+msgstr ""
+
 msgid "Select group or project"
 msgstr ""
 
@@ -19265,6 +19283,9 @@ msgid "Select shards to replicate"
 msgstr ""
 
 msgid "Select source branch"
+msgstr ""
+
+msgid "Select start date"
 msgstr ""
 
 msgid "Select status"
@@ -20458,6 +20479,9 @@ msgid "Starrers"
 msgstr ""
 
 msgid "Stars"
+msgstr ""
+
+msgid "Start Date"
 msgstr ""
 
 msgid "Start Web Terminal"
@@ -22909,6 +22933,9 @@ msgstr ""
 msgid "Transfer project"
 msgstr ""
 
+msgid "TransferGroup|Cannot transfer group to one of its subgroup."
+msgstr ""
+
 msgid "TransferGroup|Cannot update the path because there are projects under this group that contain Docker images in their Container Registry. Please remove the images from your projects first and try again."
 msgstr ""
 
@@ -23084,6 +23111,9 @@ msgid "URL must be a valid url (ex: https://gitlab.com)"
 msgstr ""
 
 msgid "URL must start with %{codeStart}http://%{codeEnd}, %{codeStart}https://%{codeEnd}, or %{codeStart}ftp://%{codeEnd}"
+msgstr ""
+
+msgid "URL of the external Spam Check endpoint"
 msgstr ""
 
 msgid "URL of the external storage that will serve the repository static objects (e.g. archives, blobs, ...)."
