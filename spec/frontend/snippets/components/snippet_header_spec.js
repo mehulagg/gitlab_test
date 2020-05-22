@@ -3,8 +3,11 @@ import DeleteSnippetMutation from '~/snippets/mutations/deleteSnippet.mutation.g
 import { ApolloMutation } from 'vue-apollo';
 import { GlButton, GlModal } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 describe('Snippet header component', () => {
+  useWindowLocation();
+
   let wrapper;
   const snippet = {
     id: 'gid://gitlab/PersonalSnippet/50',
@@ -143,17 +146,10 @@ describe('Snippet header component', () => {
   });
 
   describe('Delete mutation', () => {
-    const { location } = window;
-
     beforeEach(() => {
-      delete window.location;
       window.location = {
         pathname: '',
       };
-    });
-
-    afterEach(() => {
-      window.location = location;
     });
 
     it('dispatches a mutation to delete the snippet with correct variables', () => {

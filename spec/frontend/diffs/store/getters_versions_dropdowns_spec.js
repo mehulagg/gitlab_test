@@ -5,6 +5,7 @@ import {
   DIFF_COMPARE_HEAD_VERSION_INDEX,
 } from '~/diffs/constants';
 import diffsMockData from '../mock_data/merge_request_diffs';
+import useWindowLocation from 'helpers/set_window_location_helper';
 
 describe('Compare diff version dropdowns', () => {
   let localState;
@@ -43,19 +44,16 @@ describe('Compare diff version dropdowns', () => {
     // and appends a "base" and "head" version at the end of the list so that
     // "base" and "head" appear at the bottom of the dropdown
     // this is also why we use diffsMockData[1] for the "first" version
+    useWindowLocation();
 
     let expectedFirstVersion;
     let expectedBaseVersion;
     let expectedHeadVersion;
-    const originalLocation = window.location;
 
     const setupTest = includeDiffHeadParam => {
       const diffHeadParam = includeDiffHeadParam ? '?diff_head=true' : '';
 
-      Object.defineProperty(window, 'location', {
-        writable: true,
-        value: { href: `https://example.gitlab.com${diffHeadParam}` },
-      });
+      window.location.href = `https://example.gitlab.com${diffHeadParam}`;
 
       expectedFirstVersion = {
         ...diffsMockData[1],
@@ -89,10 +87,6 @@ describe('Compare diff version dropdowns', () => {
       expect(targetBaseVersion).toEqual(expectedBaseVersion);
       expect(targetHeadVersion).toEqual(expectedHeadVersion);
     };
-
-    afterEach(() => {
-      window.location = originalLocation;
-    });
 
     it('base version selected', () => {
       setupTest();
