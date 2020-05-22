@@ -545,6 +545,7 @@ runtime.
 - Not available for [Kubernetes executor](https://docs.gitlab.com/runner/executors/kubernetes.html),
   follow <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2673> for
   details.
+- Shared Runners provided by GitLab are unable to authenticate with private container registries whose Credentials Store or Credential Helpers require additional binaries (such as Amazon Elastic Container Registry (ECR)), follow <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/25641> for details. You must use [private runners](https://docs.gitlab.com/runner/install/) instead.
 
 ### Using statically-defined credentials
 
