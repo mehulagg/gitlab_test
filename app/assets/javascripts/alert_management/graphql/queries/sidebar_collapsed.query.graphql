@@ -1,0 +1,6 @@
+query sidebarCollapsed {
+    sidebarCollapsed @client {
+        id
+        source
+    }
+}

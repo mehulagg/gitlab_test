@@ -1,0 +1,3 @@
+mutation updateSidebarCollapsed($id: String, $source: Boolean) {
+    updateSidebarCollapsed (id: $id, source: $source ) @client
+}

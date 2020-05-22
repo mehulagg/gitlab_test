@@ -3,6 +3,8 @@ import * as Sentry from '@sentry/browser';
 import { GlAlert, GlIcon, GlLoadingIcon, GlSprintf, GlTabs, GlTab, GlButton } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
+import sidebarCollapsedQuery from '../graphql/queries/sidebar_collapsed.query.graphql';
+import updateSidebarCollapsedMutation from '../graphql/mutations/update_sidebar_collapsed.graphql';
 import { fetchPolicies } from '~/lib/graphql';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -64,6 +66,9 @@ export default {
         Sentry.captureException(error);
       },
     },
+    sidebarCollapsed: {
+      query: sidebarCollapsedQuery,
+    },
   },
   data() {
     return {
@@ -92,8 +97,14 @@ export default {
       this.isErrorDismissed = true;
       this.sidebarErrorMessage = '';
     },
-    toggleSidebar() {
-      this.sidebarCollapsed = !this.sidebarCollapsed;
+    updateSidebarCollapsed(id = null) {
+      this.$apollo.mutate({
+        mutation: updateSidebarCollapsedMutation,
+        variables: {
+          id,
+          source: false,
+        },
+      });
     },
     handleAlertSidebarError(errorMessage) {
       this.errored = true;
@@ -142,7 +153,7 @@ export default {
             variant="default"
             class="d-sm-none position-absolute toggle-sidebar-mobile-button"
             type="button"
-            @click="toggleSidebar"
+            @click="updateSidebarCollapsed"
           >
             <i class="fa fa-angle-double-left"></i>
           </gl-button>
@@ -199,7 +210,7 @@ export default {
         :project-path="projectPath"
         :alert="alert"
         :sidebar-collapsed="sidebarCollapsed"
-        @toggle-sidebar="toggleSidebar"
+        @toggle-sidebar="updateSidebarCollapsed"
         @alert-sidebar-error="handleAlertSidebarError"
       />
     </div>
