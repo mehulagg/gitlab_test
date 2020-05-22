@@ -20,8 +20,8 @@ module EE
         end
 
         def validate_code_owners?
-          Rails.logger.debug("CODEOWNER troubleshooting: updated_from_web? returns #{updated_from_web?}")
-          Rails.logger.debug("CODEOWNER troubleshooting: skip_web_ui_code_owner_validations? returns #{skip_web_ui_code_owner_validations?}")
+          Rails.logger.info("CODEOWNER troubleshooting: updated_from_web? returns #{updated_from_web?}")
+          Rails.logger.info("CODEOWNER troubleshooting: skip_web_ui_code_owner_validations? returns #{skip_web_ui_code_owner_validations?}")
 
           return false if updated_from_web? && skip_web_ui_code_owner_validations?
 
