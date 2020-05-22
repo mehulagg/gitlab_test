@@ -16,9 +16,23 @@ module Gitlab
         def authorized_resolve
           proc do |parent_typed_object, args, ctx|
             resolved_type = @old_resolve_proc.call(parent_typed_object, args, ctx)
-            authorizing_object = authorize_against(parent_typed_object, resolved_type)
+            authorize_against = authorize_against(parent_typed_object, resolved_type)
 
-            filter_allowed(ctx[:current_user], resolved_type, authorizing_object)
+            memoized = {
+              resolved_type: resolved_type,
+              authorizing_object: authorize_against
+            }
+
+            BatchLoader::GraphQL.for(memoized).batch do |memos, loader|
+              results = memos.map do |memo|
+                {
+                  memo: memo,
+                  result: filter_allowed(ctx[:current_user], memo[:resolved_type], memo[:authorizing_object])
+                }
+              end
+
+              results.each { |result| loader.call(result[:memo], result[:result]) }
+            end
           end
         end
 
