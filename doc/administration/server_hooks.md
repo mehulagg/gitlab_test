@@ -63,7 +63,7 @@ Follow the steps below to properly set up a server hook for all repositories:
    default is in the GitLab Shell directory. The GitLab Shell `hook` directory
    for an installation from source the path is usually
    `/home/git/gitlab-shell/hooks`. For Omnibus installs the path is usually
-    `/opt/gitlab/embedded/service/gitlab-shell/hooks`.
+    `/opt/gitlab/embedded/service/gitaly-ruby/gitlab-shell/hooks`.
    To look in a different directory for the global custom hooks,
    set `custom_hooks_dir` in the GitLab Shell config. For
    Omnibus installations, this can be set in `gitlab.rb`; and in source
