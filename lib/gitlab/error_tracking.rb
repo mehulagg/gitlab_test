@@ -183,10 +183,18 @@ module Gitlab
       # rather than cause
       def custom_fingerprinting(event, hint)
         ex = hint[:exception]
+        name = ex.class.name
 
-        return event unless CUSTOM_FINGERPRINTING.include?(ex.class.name)
+        return event unless CUSTOM_FINGERPRINTING.include?(name)
 
-        event.fingerprint = [ex.class.name, ex.message]
+        event.fingerprint =
+          case name
+          when 'JIRA::HTTPError'
+            # The message for this exception has too much variance for grouping
+            [name]
+          else
+            [name, ex.message]
+          end
 
         event
       end
