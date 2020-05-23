@@ -27,15 +27,16 @@ included_attributes:
 
 excluded_attributes:
   group:
-    - :id
     - :owner_id
-    - :parent_id
     - :created_at
     - :updated_at
     - :runners_token
     - :runners_token_encrypted
     - :saml_discovery_token
     - :visibility_level
+    - :trial_ends_on
+    - :shared_runners_minute_limit
+    - :extra_shared_runners_minutes_limit
   epics:
     - :state_id
 

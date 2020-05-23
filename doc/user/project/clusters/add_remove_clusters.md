@@ -1,3 +1,9 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Adding and removing Kubernetes clusters
 
 GitLab offers integrated cluster creation for the following Kubernetes providers:
@@ -14,7 +20,7 @@ Google Kubernetes Engine Integration. All you have to do is [follow this link](h
 
 ## Before you begin
 
-Before [adding a Kubernetes cluster](#add-new-cluster) using GitLab, you need:
+Before [adding a Kubernetes cluster](#create-new-cluster) using GitLab, you need:
 
 - GitLab itself. Either:
   - A GitLab.com [account](https://about.gitlab.com/pricing/#gitlab-com).
@@ -27,13 +33,6 @@ Before [adding a Kubernetes cluster](#add-new-cluster) using GitLab, you need:
     group-level cluster.
   - [Admin Area access](../../admin_area/index.md) for a self-managed instance-level
     cluster. **(CORE ONLY)**
-
-## Add new cluster
-
-New clusters can be added using GitLab for:
-
-- [Google Kubernetes Engine (GKE)](add_new_gke_cluster.md).
-- [Amazon Elastic Kubernetes Service (EKS)](add_new_eks_cluster.md).
 
 ## Access controls
 
@@ -51,7 +50,7 @@ a `gitlab` service account with `cluster-admin` privileges is created in the `de
 to manage the newly created cluster.
 
 NOTE: **Note:**
-Restricted service account for deployment was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/51716) in GitLab 11.5.
+Restricted service account for deployment was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/51716) in GitLab 11.5.
 
 When you install Helm into your cluster, the `tiller` service account
 is created with `cluster-admin` privileges in the `gitlab-managed-apps`
@@ -134,27 +133,34 @@ If you don't want to use GitLab Runner in privileged mode, either:
   1. Installing a Runner
      [using `docker+machine`](https://docs.gitlab.com/runner/executors/docker_machine.html).
 
+## Create new cluster
+
+New clusters can be created using GitLab for:
+
+- [Google Kubernetes Engine (GKE)](add_gke_clusters.md).
+- [Amazon Elastic Kubernetes Service (EKS)](add_eks_clusters.md).
+
 ## Add existing cluster
 
 If you have an existing Kubernetes cluster, you can add it to a project, group, or instance.
 
 For more information, see information for adding an:
 
-- [Existing Kubernetes cluster](#existing-kubernetes-cluster).
-- [Existing Elastic Kubernetes Service cluster](add_new_eks_cluster.md#existing-eks-cluster).
+- [Existing Kubernetes cluster](#existing-kubernetes-cluster), including GKE clusters.
+- [Existing EKS cluster](add_eks_clusters.md#existing-eks-cluster).
 
 NOTE: **Note:**
 Kubernetes integration is not supported for arm64 clusters. See the issue
-[Helm Tiller fails to install on arm64 cluster](https://gitlab.com/gitlab-org/gitlab-foss/issues/64044) for details.
+[Helm Tiller fails to install on arm64 cluster](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/64044) for details.
 
 ### Existing Kubernetes cluster
 
 To add a Kubernetes cluster to your project, group, or instance:
 
 1. Navigate to your:
-   - Project's **Operations > Kubernetes** page, for a project-level cluster.
-   - Group's **Kubernetes** page, for a group-level cluster.
-   - **Admin Area > Kubernetes** page, for an instance-level cluster.
+   - Project's **{cloud-gear}** **Operations > Kubernetes** page, for a project-level cluster.
+   - Group's **{cloud-gear}** **Kubernetes** page, for a group-level cluster.
+   - **{admin}** **Admin Area >** **{cloud-gear}** **Kubernetes** page, for an instance-level cluster.
 1. Click **Add Kubernetes cluster**.
 1. Click the **Add existing cluster** tab and fill in the details:
    - **Kubernetes cluster name** (required) - The name you wish to give the cluster.
@@ -162,8 +168,8 @@ To add a Kubernetes cluster to your project, group, or instance:
      [associated environment](index.md#setting-the-environment-scope-premium) to this cluster.
    - **API URL** (required) -
      It's the URL that GitLab uses to access the Kubernetes API. Kubernetes
-     exposes several APIs, we want the "base" URL that is common to all of them,
-     e.g., `https://kubernetes.example.com` rather than `https://kubernetes.example.com/api/v1`.
+     exposes several APIs, we want the "base" URL that is common to all of them.
+     For example, `https://kubernetes.example.com` rather than `https://kubernetes.example.com/api/v1`.
 
      Get the API URL by running this command:
 
@@ -331,7 +337,7 @@ To disable the Kubernetes cluster integration, follow the same procedure.
 To remove the Kubernetes cluster integration from your project, either:
 
 - Select **Remove integration**, to remove only the Kubernetes integration.
-- [From GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/26815), select
+- [From GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/26815), select
   **Remove integration and resources**, to also remove all related GitLab cluster resources (for
   example, namespaces, roles, and bindings) when removing the integration.
 

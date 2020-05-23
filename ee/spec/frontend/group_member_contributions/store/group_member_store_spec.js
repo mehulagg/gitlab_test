@@ -39,7 +39,7 @@ describe('GroupMemberStore', () => {
     it('sets members to store state', () => {
       store.setMembers(rawMembers);
 
-      expect(store.state.members.length).toBe(rawMembers.length);
+      expect(store.state.members).toHaveLength(rawMembers.length);
     });
   });
 
@@ -79,7 +79,7 @@ describe('GroupMemberStore', () => {
         .fetchContributedMembers()
         .then(() => {
           expect(store.isLoading).toBe(false);
-          expect(store.setColumns).toHaveBeenCalledWith(jasmine.any(Object));
+          expect(store.setColumns).toHaveBeenCalledWith(expect.any(Object));
           expect(store.setMembers).toHaveBeenCalledWith(rawMembers);
           done();
         })

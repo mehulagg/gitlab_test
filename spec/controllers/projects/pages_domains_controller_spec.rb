@@ -148,16 +148,10 @@ describe Projects::PagesDomainsController do
   describe 'POST verify' do
     let(:params) { request_params.merge(id: pages_domain.domain) }
 
-    def stub_service
-      service = double(:service)
-
-      expect(VerifyPagesDomainService).to receive(:new) { service }
-
-      service
-    end
-
     it 'handles verification success' do
-      expect(stub_service).to receive(:execute).and_return(status: :success)
+      expect_next_instance_of(VerifyPagesDomainService, pages_domain) do |service|
+        expect(service).to receive(:execute).and_return(status: :success)
+      end
 
       post :verify, params: params
 
@@ -166,7 +160,9 @@ describe Projects::PagesDomainsController do
     end
 
     it 'handles verification failure' do
-      expect(stub_service).to receive(:execute).and_return(status: :failed)
+      expect_next_instance_of(VerifyPagesDomainService, pages_domain) do |service|
+        expect(service).to receive(:execute).and_return(status: :failed)
+      end
 
       post :verify, params: params
 
@@ -178,6 +174,24 @@ describe Projects::PagesDomainsController do
       post :verify, params: request_params.merge(id: 'unknown-domain')
 
       expect(response).to have_gitlab_http_status(:not_found)
+    end
+  end
+
+  describe 'POST retry_auto_ssl' do
+    before do
+      pages_domain.update!(auto_ssl_enabled: true, auto_ssl_failed: true)
+    end
+
+    let(:params) { request_params.merge(id: pages_domain.domain) }
+
+    it 'calls retry service and redirects' do
+      expect_next_instance_of(PagesDomains::RetryAcmeOrderService, pages_domain) do |service|
+        expect(service).to receive(:execute)
+      end
+
+      post :retry_auto_ssl, params: params
+
+      expect(response).to redirect_to project_pages_domain_path(project, pages_domain)
     end
   end
 

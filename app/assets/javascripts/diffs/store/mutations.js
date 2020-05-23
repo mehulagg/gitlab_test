@@ -10,6 +10,10 @@ import {
 } from './utils';
 import * as types from './mutation_types';
 
+function updateDiffFilesInState(state, files) {
+  return Object.assign(state, { diffFiles: files });
+}
+
 export default {
   [types.SET_BASE_CONFIG](state, options) {
     const {
@@ -46,6 +50,10 @@ export default {
     Object.assign(state, { retrievingBatches });
   },
 
+  [types.SET_DIFF_FILES](state, files) {
+    updateDiffFilesInState(state, files);
+  },
+
   [types.SET_DIFF_DATA](state, data) {
     let files = state.diffFiles;
 
@@ -58,8 +66,8 @@ export default {
 
     Object.assign(state, {
       ...convertObjectPropsToCamelCase(data),
-      diffFiles: files,
     });
+    updateDiffFilesInState(state, files);
   },
 
   [types.SET_DIFF_DATA_BATCH](state, data) {
@@ -67,8 +75,8 @@ export default {
 
     Object.assign(state, {
       ...convertObjectPropsToCamelCase(data),
-      diffFiles: files,
     });
+    updateDiffFilesInState(state, files);
   },
 
   [types.SET_COVERAGE_DATA](state, coverageFiles) {
@@ -174,15 +182,18 @@ export default {
   [types.SET_LINE_DISCUSSIONS_FOR_FILE](state, { discussion, diffPositionByLineCode, hash }) {
     const { latestDiff } = state;
 
-    const discussionLineCode = discussion.line_code;
+    const discussionLineCodes = [discussion.line_code, ...(discussion.line_codes || [])];
     const fileHash = discussion.diff_file.file_hash;
     const lineCheck = line =>
-      line.line_code === discussionLineCode &&
-      isDiscussionApplicableToLine({
-        discussion,
-        diffPosition: diffPositionByLineCode[line.line_code],
-        latestDiff,
-      });
+      discussionLineCodes.some(
+        discussionLineCode =>
+          line.line_code === discussionLineCode &&
+          isDiscussionApplicableToLine({
+            discussion,
+            diffPosition: diffPositionByLineCode[line.line_code],
+            latestDiff,
+          }),
+      );
     const mapDiscussions = (line, extraCheck = () => true) => ({
       ...line,
       discussions: extraCheck()
@@ -318,6 +329,7 @@ export default {
   },
   [types.SET_SHOW_WHITESPACE](state, showWhitespace) {
     state.showWhitespace = showWhitespace;
+    state.diffFiles = [];
   },
   [types.TOGGLE_FILE_FINDER_VISIBLE](state, visible) {
     state.fileFinderVisible = visible;
@@ -370,6 +382,11 @@ export default {
     const file = state.diffFiles.find(f => f.file_path === filePath);
 
     file.renderingLines = !file.renderingLines;
+  },
+  [types.SET_DIFF_FILE_VIEWER](state, { filePath, viewer }) {
+    const file = findDiffFile(state.diffFiles, filePath, 'file_path');
+
+    file.viewer = viewer;
   },
   [types.SET_SHOW_SUGGEST_POPOVER](state) {
     state.showSuggestPopover = false;

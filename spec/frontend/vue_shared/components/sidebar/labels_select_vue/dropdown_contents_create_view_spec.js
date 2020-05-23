@@ -1,7 +1,7 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
-import { GlButton, GlIcon, GlFormInput, GlLink, GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlFormInput, GlLink, GlLoadingIcon } from '@gitlab/ui';
 import DropdownContentsCreateView from '~/vue_shared/components/sidebar/labels_select_vue/dropdown_contents_create_view.vue';
 
 import labelSelectModule from '~/vue_shared/components/sidebar/labels_select_vue/store';
@@ -132,7 +132,7 @@ describe('DropdownContentsCreateView', () => {
 
       expect(backBtnEl.exists()).toBe(true);
       expect(backBtnEl.attributes('aria-label')).toBe('Go back');
-      expect(backBtnEl.find(GlIcon).props('name')).toBe('arrow-left');
+      expect(backBtnEl.props('icon')).toBe('arrow-left');
     });
 
     it('renders dropdown title element', () => {
@@ -150,7 +150,7 @@ describe('DropdownContentsCreateView', () => {
 
       expect(closeBtnEl.exists()).toBe(true);
       expect(closeBtnEl.attributes('aria-label')).toBe('Close');
-      expect(closeBtnEl.find(GlIcon).props('name')).toBe('close');
+      expect(closeBtnEl.props('icon')).toBe('close');
     });
 
     it('renders label title input element', () => {

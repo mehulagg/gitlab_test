@@ -3,13 +3,15 @@
 - **Write the code and the tests.**: As with any code, EE features should have
   good test coverage to prevent regressions.
 - **Write documentation.**: Add documentation to the `doc/` directory. Describe
-  the feature and include screenshots, if applicable.
+  the feature and include screenshots, if applicable. Indicate [what editions](documentation/styleguide.md#product-badges)
+  the feature applies to.
 - **Submit a MR to the `www-gitlab-com` project.**: Add the new feature to the
   [EE features list](https://about.gitlab.com/features/).
 
 ## Act as CE when unlicensed
 
-Since the implementation of [GitLab CE features to work with unlicensed EE instance][ee-as-ce]
+Since the implementation of
+[GitLab CE features to work with unlicensed EE instance](https://gitlab.com/gitlab-org/gitlab/-/issues/2500)
 GitLab Enterprise Edition should work like GitLab Community Edition
 when no license is active. So EE features always should be guarded by
 `project.feature_available?` or `group.feature_available?` (or
@@ -23,8 +25,6 @@ You can force GitLab to act as CE by either deleting the `ee/` directory or by
 setting the [`FOSS_ONLY` environment variable](https://gitlab.com/gitlab-org/gitlab/blob/master/config/helpers/is_ee_env.js)
 to something that evaluates as `true`. The same works for running tests
 (for example `FOSS_ONLY=1 yarn jest`).
-
-[ee-as-ce]: https://gitlab.com/gitlab-org/gitlab/issues/2500
 
 ## Separation of EE code
 
@@ -53,10 +53,8 @@ is applied not only to models. Here's a list of other examples:
 - `ee/app/views/foo/_bar.html.haml`
 
 This works because for every path that is present in CE's eager-load/auto-load
-paths, we add the same `ee/`-prepended path in [`config/application.rb`].
+paths, we add the same `ee/`-prepended path in [`config/application.rb`](https://gitlab.com/gitlab-org/gitlab/blob/925d3d4ebc7a2c72964ce97623ae41b8af12538d/config/application.rb#L42-52).
 This also applies to views.
-
-[`config/application.rb`]: https://gitlab.com/gitlab-org/gitlab/blob/925d3d4ebc7a2c72964ce97623ae41b8af12538d/config/application.rb#L42-52
 
 ### EE features based on CE features
 
@@ -114,7 +112,7 @@ There are a few gotchas with it:
   smaller methods. Or create a "hook" method that is empty in CE,
   and with the EE-specific implementation in EE.
 - when the original implementation contains a guard clause (e.g.
-  `return unless condition`), we cannot easily extend the behaviour by
+  `return unless condition`), we cannot easily extend the behavior by
   overriding the method, because we can't know when the overridden method
   (i.e. calling `super` in the overriding method) would want to stop early.
   In this case, we shouldn't just override it, but update the original method
@@ -134,7 +132,7 @@ There are a few gotchas with it:
   ```
 
   Instead of just overriding `Base#execute`, we should update it and extract
-  the behaviour into another method:
+  the behavior into another method:
 
   ```ruby
     class Base
@@ -516,7 +514,7 @@ do that, so we'll follow regular object-oriented practices that we define the
 interface first here.
 
 For example, suppose we have a few more optional parameters for EE. We can move the
-paramters out of the `Grape::API` class to a helper module, so we can inject it
+parameters out of the `Grape::API` class to a helper module, so we can inject it
 before it would be used in the class.
 
 ```ruby
@@ -616,9 +614,9 @@ module EE
 end
 ```
 
-#### EE-specific behaviour
+#### EE-specific behavior
 
-Sometimes we need EE-specific behaviour in some of the APIs. Normally we could
+Sometimes we need EE-specific behavior in some of the APIs. Normally we could
 use EE methods to override CE methods, however API routes are not methods and
 therefore can't be simply overridden. We need to extract them into a standalone
 method, or introduce some "hooks" where we could inject behavior in the CE

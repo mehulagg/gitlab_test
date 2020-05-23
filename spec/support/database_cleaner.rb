@@ -11,10 +11,6 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
 
-  config.append_after(:context) do
-    delete_from_all_tables!
-  end
-
   config.append_after(:context, :migration) do
     delete_from_all_tables!
 
@@ -38,6 +34,8 @@ RSpec.configure do |config|
       end
       puts "Recreating the database"
       start = Gitlab::Metrics::System.monotonic_time
+
+      ActiveRecord::AdvisoryLockBase.clear_all_connections!
 
       ActiveRecord::Tasks::DatabaseTasks.drop_current
       ActiveRecord::Tasks::DatabaseTasks.create_current

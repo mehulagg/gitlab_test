@@ -24,10 +24,12 @@ module API
                     Gitlab::GrapeLogging::Loggers::ExceptionLogger.new,
                     Gitlab::GrapeLogging::Loggers::QueueDurationLogger.new,
                     Gitlab::GrapeLogging::Loggers::PerfLogger.new,
-                    Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new
+                    Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new,
+                    Gitlab::GrapeLogging::Loggers::ContextLogger.new
                   ]
 
     allow_access_with_scope :api
+    allow_access_with_scope :read_api, if: -> (request) { request.get? }
     prefix :api
 
     version 'v3', using: :path do
@@ -96,6 +98,15 @@ module API
       handle_api_exception(exception)
     end
 
+    # This is a specific exception raised by `rack-timeout` gem when Puma
+    # requests surpass its timeout. Given it inherits from Exception, we
+    # should rescue it separately. For more info, see:
+    # - https://github.com/sharpstone/rack-timeout/blob/master/doc/exceptions.md
+    # - https://github.com/ruby-grape/grape#exception-handling
+    rescue_from Rack::Timeout::RequestTimeoutException do |exception|
+      handle_api_exception(exception)
+    end
+
     format :json
     content_type :txt, "text/plain"
 
@@ -105,11 +116,12 @@ module API
 
     namespace do
       after do
-        ::Users::ActivityService.new(@current_user).execute if Feature.enabled?(:api_activity_logging)
+        ::Users::ActivityService.new(@current_user).execute
       end
 
       # Keep in alphabetical order
       mount ::API::AccessRequests
+      mount ::API::Admin::Ci::Variables
       mount ::API::Admin::Sidekiq
       mount ::API::Appearance
       mount ::API::Applications
@@ -130,6 +142,7 @@ module API
       mount ::API::Events
       mount ::API::Features
       mount ::API::Files
+      mount ::API::FreezePeriods
       mount ::API::GroupBoards
       mount ::API::GroupClusters
       mount ::API::GroupExport
@@ -151,6 +164,8 @@ module API
       mount ::API::Members
       mount ::API::MergeRequestDiffs
       mount ::API::MergeRequests
+      mount ::API::Metrics::Dashboard::Annotations
+      mount ::API::Metrics::UserStarredDashboards
       mount ::API::Namespaces
       mount ::API::Notes
       mount ::API::Discussions
@@ -167,11 +182,13 @@ module API
       mount ::API::ProjectImport
       mount ::API::ProjectHooks
       mount ::API::ProjectMilestones
+      mount ::API::ProjectRepositoryStorageMoves
       mount ::API::Projects
       mount ::API::ProjectSnapshots
       mount ::API::ProjectSnippets
       mount ::API::ProjectStatistics
       mount ::API::ProjectTemplates
+      mount ::API::Terraform::State
       mount ::API::ProtectedBranches
       mount ::API::ProtectedTags
       mount ::API::Releases

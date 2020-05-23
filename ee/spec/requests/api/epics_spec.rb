@@ -3,10 +3,10 @@
 require 'spec_helper'
 
 describe API::Epics do
-  let(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
   let(:group) { create(:group) }
   let(:project) { create(:project, :public, group: group) }
-  let(:label) { create(:label) }
+  let_it_be(:label) { create(:label) }
   let!(:epic) { create(:labeled_epic, group: group, labels: [label]) }
   let(:params) { nil }
 
@@ -41,8 +41,6 @@ describe API::Epics do
     let(:extra_date_fields) { %w[start_date_is_fixed start_date_fixed due_date_is_fixed due_date_fixed] }
 
     context 'when permission is absent' do
-      RSpec::Matchers.define_negated_matcher :exclude, :include
-
       it 'returns epic with extra date fields' do
         get api(url, user), params: params
 
@@ -178,6 +176,15 @@ describe API::Epics do
         get api(url), params: { author_id: user2.id }
 
         expect_paginated_array_response([epic2.id])
+      end
+
+      it 'returns epics reacted to by current user' do
+        create(:award_emoji, awardable: epic, user: user, name: 'star')
+        create(:award_emoji, awardable: epic2, user: user2, name: 'star')
+
+        get api(url, user), params: { my_reaction_emoji: 'Any', scope: 'all' }
+
+        expect_paginated_array_response([epic.id])
       end
 
       it 'returns epics matching given search string for title' do
@@ -527,7 +534,8 @@ describe API::Epics do
         labels: 'label1',
         due_date_fixed: '2018-07-17',
         due_date_is_fixed: true,
-        parent_id: parent_epic.id
+        parent_id: parent_epic.id,
+        confidential: true
       }
     end
 
@@ -573,6 +581,7 @@ describe API::Epics do
           expect(epic.labels.first.title).to eq('label1')
           expect(epic.parent).to eq(parent_epic)
           expect(epic.relative_position).not_to be_nil
+          expect(epic.confidential).to be_truthy
         end
 
         context 'when deprecated start_date and end_date params are present' do
@@ -589,12 +598,26 @@ describe API::Epics do
         end
       end
 
+      context 'when confidential_epics flag is disabled' do
+        before do
+          stub_feature_flags(confidential_epics: false)
+
+          post api(url, user), params: params
+        end
+
+        it 'ignores confidential attribute' do
+          epic = Epic.last
+
+          expect(epic.confidential).to be_falsey
+        end
+      end
+
       it 'creates a new epic with labels param as array' do
         params[:labels] = ['label1', 'label2', 'foo, bar', '&,?']
 
         post api(url, user), params: params
 
-        expect(response.status).to eq(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(json_response['title']).to include 'new epic'
         expect(json_response['description']).to include 'epic description'
         expect(json_response['labels']).to include 'label1'
@@ -603,6 +626,17 @@ describe API::Epics do
         expect(json_response['labels']).to include 'bar'
         expect(json_response['labels']).to include '&'
         expect(json_response['labels']).to include '?'
+      end
+
+      it 'creates a new epic with no labels' do
+        params[:labels] = nil
+
+        post api(url, user), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response['title']).to include 'new epic'
+        expect(json_response['description']).to include 'epic description'
+        expect(json_response['labels']).to be_empty
       end
     end
   end
@@ -615,7 +649,8 @@ describe API::Epics do
         description: 'new description',
         labels: 'label2',
         start_date_fixed: "2018-07-17",
-        start_date_is_fixed: true
+        start_date_is_fixed: true,
+        confidential: true
       }
     end
 
@@ -673,7 +708,40 @@ describe API::Epics do
             expect(result.start_date_is_fixed).to eq(true)
             expect(result.due_date_fixed).to eq(nil)
             expect(result.due_date_is_fixed).to be_falsey
+            expect(result.confidential).to be_truthy
           end
+        end
+
+        context 'when confidential_epics flag is disabled' do
+          before do
+            stub_feature_flags(confidential_epics: false)
+            stub_licensed_features(epics: true)
+
+            put api(url, user), params: params
+          end
+
+          it 'does not include confidential attribute' do
+            expect(epic.reload.confidential).to be_falsey
+          end
+        end
+
+        it 'clears labels when labels param is nil' do
+          params[:labels] = 'label1'
+          put api(url, user), params: params
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['title']).to include 'new title'
+          expect(json_response['description']).to include 'new description'
+          expect(json_response['labels']).to contain_exactly('label1')
+
+          params[:labels] = nil
+          put api(url, user), params: params
+
+          expect(response).to have_gitlab_http_status(:ok)
+          json_response = Gitlab::Json.parse(response.body)
+          expect(json_response['title']).to include 'new title'
+          expect(json_response['description']).to include 'new description'
+          expect(json_response['labels']).to be_empty
         end
 
         it 'updates the epic with labels param as array' do
@@ -683,7 +751,7 @@ describe API::Epics do
 
           put api(url, user), params: params
 
-          expect(response.status).to eq(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['title']).to include 'new title'
           expect(json_response['description']).to include 'new description'
           expect(json_response['labels']).to include 'label1'

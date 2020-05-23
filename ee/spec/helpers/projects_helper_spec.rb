@@ -38,6 +38,20 @@ describe ProjectsHelper do
     end
   end
 
+  describe '#show_compliance_framework_badge?' do
+    it 'returns false if compliance framework setting is not present' do
+      project = build(:project)
+
+      expect(helper.show_compliance_framework_badge?(project)).to be_falsey
+    end
+
+    it 'returns true if compliance framework setting is present' do
+      project = build(:project, :with_compliance_framework)
+
+      expect(helper.show_compliance_framework_badge?(project)).to be_truthy
+    end
+  end
+
   describe '#membership_locked?' do
     let(:project) { build_stubbed(:project, group: group) }
     let(:group) { nil }
@@ -90,14 +104,20 @@ describe ProjectsHelper do
   describe '#project_security_dashboard_config' do
     include_context 'project with owner and pipeline'
 
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+    end
+
     let(:project) { create(:project, :repository, group: group) }
 
     context 'project without pipeline' do
       subject { helper.project_security_dashboard_config(project, nil) }
 
       it 'returns simple config' do
-        expect(subject[:security_dashboard_help_path]).to eq '/help/user/application_security/security_dashboard/index'
-        expect(subject[:has_pipeline_data]).to eq 'false'
+        expect(subject).to match(
+          empty_state_svg_path: start_with('/assets/illustrations/security-dashboard_empty'),
+          security_dashboard_help_path: '/help/user/application_security/security_dashboard/index'
+        )
       end
     end
 
@@ -105,27 +125,27 @@ describe ProjectsHelper do
       subject { helper.project_security_dashboard_config(project, pipeline) }
 
       it 'checks if first vulnerability class is enabled' do
-        expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project)
+        expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project, default_enabled: true)
 
         subject
       end
 
       context 'when first first class vulnerabilities is enabled for project' do
         before do
-          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project).and_return(true)
+          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project, default_enabled: true).and_return(true)
         end
 
         it 'checks if first vulnerability class is enabled' do
           expect(subject[:vulnerabilities_export_endpoint]).to(
             eq(
-              api_v4_projects_vulnerability_exports_path(id: project.id)
+              api_v4_security_projects_vulnerability_exports_path(id: project.id)
             ))
         end
       end
 
       context 'when first first class vulnerabilities is disabled for project' do
         before do
-          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project).and_return(false)
+          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project, default_enabled: true).and_return(false)
         end
 
         it 'checks if first vulnerability class is enabled' do

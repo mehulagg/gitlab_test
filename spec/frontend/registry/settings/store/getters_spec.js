@@ -4,9 +4,12 @@ import { formOptions } from '../../shared/mock_data';
 
 describe('Getters registry settings store', () => {
   const settings = {
+    enabled: true,
     cadence: 'foo',
     keep_n: 'bar',
     older_than: 'baz',
+    name_regex: 'name-foo',
+    name_regex_keep: 'name-keep-bar',
   };
 
   describe.each`
@@ -29,7 +32,18 @@ describe('Getters registry settings store', () => {
     });
   });
 
-  describe('getIsDisabled', () => {
+  describe('getSettings', () => {
+    it('returns the content of settings', () => {
+      const computedGetters = {
+        getCadence: settings.cadence,
+        getOlderThan: settings.older_than,
+        getKeepN: settings.keep_n,
+      };
+      expect(getters.getSettings({ settings }, computedGetters)).toEqual(settings);
+    });
+  });
+
+  describe('getIsEdited', () => {
     it('returns false when original is equal to settings', () => {
       const same = { foo: 'bar' };
       expect(getters.getIsEdited({ original: same, settings: same })).toBe(false);
@@ -40,5 +54,19 @@ describe('Getters registry settings store', () => {
         true,
       );
     });
+  });
+
+  describe('getIsDisabled', () => {
+    it.each`
+      original          | enableHistoricEntries | result
+      ${undefined}      | ${false}              | ${true}
+      ${{ foo: 'bar' }} | ${undefined}          | ${false}
+      ${{}}             | ${false}              | ${false}
+    `(
+      'returns $result when original is $original and enableHistoricEntries is $enableHistoricEntries',
+      ({ original, enableHistoricEntries, result }) => {
+        expect(getters.getIsDisabled({ original, enableHistoricEntries })).toBe(result);
+      },
+    );
   });
 });

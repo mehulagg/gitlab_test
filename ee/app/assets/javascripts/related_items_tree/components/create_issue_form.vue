@@ -1,14 +1,14 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import {
-  GlButton,
+  GlDeprecatedButton,
   GlDropdown,
   GlDropdownItem,
   GlFormInput,
   GlSearchBoxByType,
   GlLoadingIcon,
 } from '@gitlab/ui';
-import { debounce } from 'underscore';
+import { debounce } from 'lodash';
 
 import { __ } from '~/locale';
 import ProjectAvatar from '~/vue_shared/components/project_avatar/default.vue';
@@ -16,7 +16,7 @@ import { SEARCH_DEBOUNCE } from '../constants';
 
 export default {
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlDropdown,
     GlDropdownItem,
     GlFormInput,
@@ -169,17 +169,19 @@ export default {
 
     <div class="row my-1">
       <div class="col-sm flex-sm-grow-0 mb-2 mb-sm-0">
-        <gl-button
+        <gl-deprecated-button
           class="w-100"
           variant="success"
           :disabled="!selectedProject || itemCreateInProgress"
           :loading="itemCreateInProgress"
           @click="createIssue"
-          >{{ __('Create issue') }}</gl-button
+          >{{ __('Create issue') }}</gl-deprecated-button
         >
       </div>
       <div class="col-sm flex-sm-grow-0 ml-auto">
-        <gl-button class="w-100" @click="cancel">{{ __('Cancel') }}</gl-button>
+        <gl-deprecated-button class="w-100" @click="cancel">{{
+          __('Cancel')
+        }}</gl-deprecated-button>
       </div>
     </div>
   </div>

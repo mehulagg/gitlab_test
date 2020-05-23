@@ -92,6 +92,7 @@ describe MergeRequests::UpdateService, :mailer do
               labels: [],
               mentioned_users: [user2],
               assignees: [user3],
+              milestone: nil,
               total_time_spent: 0,
               description: "FYI #{user2.to_reference}"
             }
@@ -208,7 +209,7 @@ describe MergeRequests::UpdateService, :mailer do
       end
     end
 
-    context 'merge' do
+    shared_examples_for 'correct merge behavior' do
       let(:opts) do
         {
           merge: merge_request.diff_head_sha
@@ -308,6 +309,18 @@ describe MergeRequests::UpdateService, :mailer do
         end
 
         it { expect(@merge_request.state).to eq('opened') }
+      end
+    end
+
+    describe 'merge' do
+      it_behaves_like 'correct merge behavior'
+
+      context 'when merge_orchestration_service feature flag is disabled' do
+        before do
+          stub_feature_flags(merge_orchestration_service: false)
+        end
+
+        it_behaves_like 'correct merge behavior'
       end
     end
 
@@ -440,7 +453,7 @@ describe MergeRequests::UpdateService, :mailer do
         end
 
         it 'updates updated_at' do
-          expect(merge_request.reload.updated_at).to be > Time.now
+          expect(merge_request.reload.updated_at).to be > Time.current
         end
       end
 

@@ -129,7 +129,7 @@ describe('ServiceDeskSetting', () => {
         });
 
         // The dropdown by default has one empty option
-        expect(findTemplateDropdown().element.children.length).toEqual(1);
+        expect(findTemplateDropdown().element.children).toHaveLength(1);
       });
 
       it('renders a dropdown with options when the project has templates', () => {
@@ -147,7 +147,7 @@ describe('ServiceDeskSetting', () => {
         const dropdown = findTemplateDropdown();
         const dropdownList = Array.from(dropdown.element.children).map(option => option.innerText);
 
-        expect(dropdown.element.children.length).toEqual(expectedTemplates.length);
+        expect(dropdown.element.children).toHaveLength(expectedTemplates.length);
         expect(dropdownList.includes('Bug')).toEqual(true);
         expect(dropdownList.includes('Documentation')).toEqual(true);
         expect(dropdownList.includes('Security release')).toEqual(true);
@@ -175,6 +175,7 @@ describe('ServiceDeskSetting', () => {
           isEnabled: true,
           initialSelectedTemplate: 'Bug',
           initialOutgoingName: 'GitLab Support Bot',
+          initialProjectKey: 'key',
         },
       });
 
@@ -183,6 +184,7 @@ describe('ServiceDeskSetting', () => {
       expect(eventSpy).toHaveBeenCalledWith({
         selectedTemplate: 'Bug',
         outgoingName: 'GitLab Support Bot',
+        projectKey: 'key',
       });
 
       eventHub.$off('serviceDeskTemplateSave', eventSpy);

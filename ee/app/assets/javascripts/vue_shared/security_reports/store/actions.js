@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
+import download from '~/lib/utils/downloader';
 import pollUntilComplete from '~/lib/utils/poll_until_complete';
 import { s__, sprintf } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import toast from '~/vue_shared/plugins/global_toast';
 import * as types from './mutation_types';
-import downloadPatchHelper from './utils/download_patch_helper';
 
 /**
  * A lot of this file has duplicate actions to
@@ -159,6 +159,46 @@ export const fetchDependencyScanningDiff = ({ state, dispatch }) => {
 export const updateDependencyScanningIssue = ({ commit }, issue) =>
   commit(types.UPDATE_DEPENDENCY_SCANNING_ISSUE, issue);
 
+/**
+ * SECRET SCANNING
+ */
+
+export const setSecretScanningDiffEndpoint = ({ commit }, path) =>
+  commit(types.SET_SECRET_SCANNING_DIFF_ENDPOINT, path);
+
+export const requestSecretScanningDiff = ({ commit }) => commit(types.REQUEST_SECRET_SCANNING_DIFF);
+
+export const receiveSecretScanningDiffSuccess = ({ commit }, response) =>
+  commit(types.RECEIVE_SECRET_SCANNING_DIFF_SUCCESS, response);
+
+export const receiveSecretScanningDiffError = ({ commit }) =>
+  commit(types.RECEIVE_SECRET_SCANNING_DIFF_ERROR);
+
+export const fetchSecretScanningDiff = ({ state, dispatch }) => {
+  dispatch('requestSecretScanningDiff');
+
+  return Promise.all([
+    pollUntilComplete(state.secretScanning.paths.diffEndpoint),
+    axios.get(state.vulnerabilityFeedbackPath, {
+      params: {
+        category: 'secret_scanning',
+      },
+    }),
+  ])
+    .then(values => {
+      dispatch('receiveSecretScanningDiffSuccess', {
+        diff: values[0].data,
+        enrichData: values[1].data,
+      });
+    })
+    .catch(() => {
+      dispatch('receiveSecretScanningDiffError');
+    });
+};
+
+export const updateSecretScanningIssue = ({ commit }, issue) =>
+  commit(types.UPDATE_SECRET_SCANNING_ISSUE, issue);
+
 export const openModal = ({ dispatch }, payload) => {
   dispatch('setModalData', payload);
 
@@ -176,7 +216,7 @@ export const receiveDismissVulnerabilityError = ({ commit }, error) =>
 export const dismissVulnerability = ({ state, dispatch }, comment) => {
   dispatch('requestDismissVulnerability');
 
-  const toastMsg = sprintf(s__("Security Reports|Dismissed '%{vulnerabilityName}'"), {
+  const toastMsg = sprintf(s__("SecurityReports|Dismissed '%{vulnerabilityName}'"), {
     vulnerabilityName: state.modal.vulnerability.name,
   });
 
@@ -222,10 +262,10 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
     dismissalFeedback.comment_details && dismissalFeedback.comment_details.comment;
 
   const toastMsg = editingDismissalContent
-    ? sprintf(s__("Security Reports|Comment edited on '%{vulnerabilityName}'"), {
+    ? sprintf(s__("SecurityReports|Comment edited on '%{vulnerabilityName}'"), {
         vulnerabilityName: vulnerability.name,
       })
-    : sprintf(s__("Security Reports|Comment added to '%{vulnerabilityName}'"), {
+    : sprintf(s__("SecurityReports|Comment added to '%{vulnerabilityName}'"), {
         vulnerabilityName: vulnerability.name,
       });
 
@@ -243,7 +283,7 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
     .catch(() => {
       dispatch(
         'receiveAddDismissalCommentError',
-        s__('Security Reports|There was an error adding the comment.'),
+        s__('SecurityReports|There was an error adding the comment.'),
       );
     });
 };
@@ -254,7 +294,7 @@ export const deleteDismissalComment = ({ state, dispatch }) => {
   const { vulnerability } = state.modal;
   const { dismissalFeedback } = vulnerability;
   const url = `${state.createVulnerabilityFeedbackDismissalPath}/${dismissalFeedback.id}`;
-  const toastMsg = sprintf(s__("Security Reports|Comment deleted on '%{vulnerabilityName}'"), {
+  const toastMsg = sprintf(s__("SecurityReports|Comment deleted on '%{vulnerabilityName}'"), {
     vulnerabilityName: vulnerability.name,
   });
 
@@ -271,7 +311,7 @@ export const deleteDismissalComment = ({ state, dispatch }) => {
     .catch(() => {
       dispatch(
         'receiveDeleteDismissalCommentError',
-        s__('Security Reports|There was an error deleting the comment.'),
+        s__('SecurityReports|There was an error deleting the comment.'),
       );
     });
 };
@@ -405,7 +445,7 @@ export const downloadPatch = ({ state }) => {
     https://gitlab.com/gitlab-org/gitlab-ui/issues/188#note_165808493
   */
   const { vulnerability } = state.modal;
-  downloadPatchHelper(vulnerability.remediations[0].diff);
+  download({ fileData: vulnerability.remediations[0].diff, fileName: 'remediation.patch' });
   $('#modal-mrwidget-security-issue').modal('hide');
 };
 

@@ -5,6 +5,7 @@ export default () => ({
   projectId: null,
   isGroup: null,
   maskableRegex: null,
+  isProtectedByDefault: null,
   isLoading: false,
   isDeleting: false,
   variable: {
@@ -21,4 +22,5 @@ export default () => ({
   environments: [],
   typeOptions: [displayText.variableText, displayText.fileText],
   variableBeingEdited: null,
+  selectedEnvironment: '',
 });

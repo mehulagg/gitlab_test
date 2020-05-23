@@ -5,31 +5,55 @@ last_update: 2019-07-03
 
 # Pipelines for Merge Requests
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/15310) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/15310) in GitLab 11.6.
 
-In a [basic configuration](../pipelines/pipeline_architectures.md), GitLab runs a pipeline each time
-changes are pushed to a branch. The settings in the [`.gitlab-ci.yml`](../yaml/README.md)
-file, including `rules`, `only`, and `except`, determine which jobs are added to a pipeline.
+In a [basic configuration](../pipelines/pipeline_architectures.md#basic-pipelines), GitLab runs a pipeline each time
+changes are pushed to a branch.
 
 If you want the pipeline to run jobs **only** when merge requests are created or updated,
 you can use *pipelines for merge requests*.
 
-In the UI, these pipelines are labeled as `detached`.
+In the UI, these pipelines are labeled as `detached`. Otherwise, these pipelines appear the same
+as other pipelines.
+
+Any user who has developer [permissions](../../user/permissions.md)
+can run a pipeline for merge requests.
 
 ![Merge request page](img/merge_request.png)
 
-A few notes:
+NOTE: **Note**:
+If you use this feature with [merge when pipeline succeeds](../../user/project/merge_requests/merge_when_pipeline_succeeds.md),
+pipelines for merge requests take precedence over the other regular pipelines.
 
-- Pipelines for merge requests are incompatible with
-  [CI/CD for external repositories](../ci_cd_for_external_repos/index.md).
-- [Since GitLab 11.10](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/25504), pipelines for merge requests require GitLab Runner 11.9.
+## Prerequisites
+
+To enable pipelines for merge requests:
+
+- You must have maintainer [permissions](../../user/permissions.md).
+- Your repository must be a GitLab repository, not an
+  [external repository](../ci_cd_for_external_repos/index.md).
+- [In GitLab 11.10 and later](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/25504),
+  you must be using GitLab Runner 11.9.
 
 ## Configuring pipelines for merge requests
 
-To configure pipelines for merge requests, add the `only: [merge_requests]` parameter to
-your `.gitlab-ci.yml` file.
+To configure pipelines for merge requests you need to configure your [CI/CD configuration file](../yaml/README.md).
+There are a few different ways to do this:
 
-In this example, the pipeline contains a `test` job that is configured to run on merge requests.
+### Use `rules` to run pipelines for merge requests
+
+When using `rules`, which is the preferred method, we recommend starting with one
+of the [`workflow:rules` templates](../yaml/README.md#workflowrules-templates) to ensure
+your basic configuration is correct. Instructions on how to do this, as well as how
+to customize, are available at that link.
+
+### Use `only` or `except` to run pipelines for merge requests
+
+If you want to continue using `only/except`, this is possible but please review the drawbacks
+below.
+
+When you use this method, you have to specify `only: - merge_requests` for each job. In this
+example, the pipeline contains a `test` job that is configured to run on merge requests.
 
 The `build` and `deploy` jobs don't have the `only: - merge_requests` parameter,
 so they will not run on merge requests.
@@ -54,24 +78,7 @@ deploy:
   - master
 ```
 
-Whenever a merge request is updated with new commits:
-
-- GitLab detects that changes have occurred and creates a new pipeline for the merge request.
-- The pipeline fetches the latest code from the source branch and run tests against it.
-
-NOTE: **Note**:
-If you use this feature with [merge when pipeline succeeds](../../user/project/merge_requests/merge_when_pipeline_succeeds.md),
-pipelines for merge requests take precedence over the other regular pipelines.
-
-## Pipelines for Merged Results **(PREMIUM)**
-
-Read the [documentation on Pipelines for Merged Results](pipelines_for_merged_results/index.md).
-
-### Merge Trains **(PREMIUM)**
-
-Read the [documentation on Merge Trains](pipelines_for_merged_results/merge_trains/index.md).
-
-## Excluding certain jobs
+#### Excluding certain jobs
 
 The behavior of the `only: [merge_requests]` parameter is such that _only_ jobs with
 that parameter are run in the context of a merge request; no other jobs will be run.
@@ -119,7 +126,7 @@ Therefore:
 This helps you avoid having to add the `only:` rule to all of your jobs
 in order to make them always run. You can use this format to set up a Review App, helping to save resources.
 
-## Excluding certain branches
+#### Excluding certain branches
 
 Pipelines for merge requests require special treatment when
 using [`only`/`except`](../yaml/README.md#onlyexcept-basic). Unlike ordinary
@@ -148,6 +155,14 @@ test:
     variables:
       - $CI_COMMIT_REF_NAME =~ /^docs-/
 ```
+
+## Pipelines for Merged Results **(PREMIUM)**
+
+Read the [documentation on Pipelines for Merged Results](pipelines_for_merged_results/index.md).
+
+### Merge Trains **(PREMIUM)**
+
+Read the [documentation on Merge Trains](pipelines_for_merged_results/merge_trains/index.md).
 
 ## Important notes about merge requests from forked projects
 
@@ -184,14 +199,24 @@ to integrate your job with [GitLab Merge Request API](../../api/merge_requests.m
 You can find the list of available variables in [the reference sheet](../variables/predefined_variables.md).
 The variable names begin with the `CI_MERGE_REQUEST_` prefix.
 
-<!-- ## Troubleshooting
+## Troubleshooting
 
-Include any troubleshooting steps that you can foresee. If you know beforehand what issues
-one might have when setting this up, or when something is changed, or on upgrading, it's
-important to describe those, too. Think of things that may go wrong and include them here.
-This is important to minimize requests for support, and to avoid doc comments with
-questions that you know someone might ask.
+### Two pipelines created when pushing to a merge request
 
-Each scenario can be a third-level heading, e.g. `### Getting error message X`.
-If you have none to add when creating a doc, leave this section in place
-but commented out to help encourage others to add to it in the future. -->
+If you are experiencing duplicated pipelines when using `rules`, take a look at
+the [key details when using `rules`](../yaml/README.md#key-details-when-using-rules),
+which will help you get your starting configuration correct.
+
+If you are seeing two pipelines when using `only/except`, please see the caveats
+related to using `only/except` above (or, consider moving to `rules`).
+
+### Two pipelines created when pushing an invalid CI configuration file
+
+Pushing to a branch with an invalid CI configuration file can trigger
+the creation of two types of failed pipelines. One pipeline is a failed merge request
+pipeline, and the other is a failed branch pipeline, but both are caused by the same
+invalid configuration.
+
+In rare cases, duplicate pipelines are created.
+
+See [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/201845) for details.

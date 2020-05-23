@@ -8,10 +8,12 @@ ENV["IN_MEMORY_APPLICATION_SETTINGS"] = 'true'
 ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 
 require File.expand_path('../config/environment', __dir__)
+
+require 'rspec/mocks'
 require 'rspec/rails'
-require 'shoulda/matchers'
 require 'rspec/retry'
 require 'rspec-parameterized'
+require 'shoulda/matchers'
 require 'test_prof/recipes/rspec/let_it_be'
 
 rspec_profiling_is_configured =
@@ -91,6 +93,10 @@ RSpec.configure do |config|
       match = location.match(%r{/spec/([^/]+)/})
       metadata[:type] = match[1].singularize.to_sym if match
     end
+
+    # Admin controller specs get auto admin mode enabled since they are
+    # protected by the 'EnforcesAdminAuthentication' concern
+    metadata[:enable_admin_mode] = true if location =~ %r{(ee)?/spec/controllers/admin/}
   end
 
   config.include LicenseHelpers
@@ -100,6 +106,7 @@ RSpec.configure do |config|
   config.include ExpectOffense
   config.include FactoryBot::Syntax::Methods
   config.include FixtureHelpers
+  config.include NonExistingRecordsHelpers
   config.include GitlabRoutingHelper
   config.include StubFeatureFlags
   config.include StubExperiments
@@ -131,6 +138,7 @@ RSpec.configure do |config|
   config.include ExpectRequestWithStatus, type: :request
   config.include IdempotentWorkerHelper, type: :worker
   config.include RailsHelpers
+  config.include SidekiqMiddleware
 
   if ENV['CI'] || ENV['RETRIES']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -167,21 +175,19 @@ RSpec.configure do |config|
     # Enable all features by default for testing
     allow(Feature).to receive(:enabled?) { true }
 
-    enabled = example.metadata[:enable_rugged].present?
+    enable_rugged = example.metadata[:enable_rugged].present?
 
     # Disable Rugged features by default
     Gitlab::Git::RuggedImpl::Repository::FEATURE_FLAGS.each do |flag|
-      allow(Feature).to receive(:enabled?).with(flag).and_return(enabled)
+      stub_feature_flags(flag => enable_rugged)
     end
 
-    allow(Gitlab::GitalyClient).to receive(:can_use_disk?).and_return(enabled)
+    allow(Gitlab::GitalyClient).to receive(:can_use_disk?).and_return(enable_rugged)
 
     # The following can be removed when we remove the staged rollout strategy
     # and we can just enable it using instance wide settings
     # (ie. ApplicationSetting#auto_devops_enabled)
-    allow(Feature).to receive(:enabled?)
-      .with(:force_autodevops_on_by_default, anything)
-      .and_return(false)
+    stub_feature_flags(force_autodevops_on_by_default: false)
 
     # Enable Marginalia feature for all specs in the test suite.
     allow(Gitlab::Marginalia).to receive(:cached_feature_enabled?).and_return(true)
@@ -190,11 +196,11 @@ RSpec.configure do |config|
     # is feature-complete and can be made default in place
     # of older sidebar.
     # See https://gitlab.com/groups/gitlab-org/-/epics/1863
+    stub_feature_flags(vue_issuable_sidebar: false)
+    stub_feature_flags(vue_issuable_epic_sidebar: false)
+
     allow(Feature).to receive(:enabled?)
-      .with(:vue_issuable_sidebar, anything)
-      .and_return(false)
-    allow(Feature).to receive(:enabled?)
-      .with(:vue_issuable_epic_sidebar, anything)
+      .with(/\Apromo_\w+\z/, default_enabled: false)
       .and_return(false)
 
     # Stub these calls due to being expensive operations
@@ -203,9 +209,7 @@ RSpec.configure do |config|
     # expect(Gitlab::Git::KeepAround).to receive(:execute).and_call_original
     allow(Gitlab::Git::KeepAround).to receive(:execute)
 
-    [Gitlab::ThreadMemoryCache, Gitlab::ProcessMemoryCache].each do |cache|
-      cache.cache_backend.clear
-    end
+    Gitlab::ProcessMemoryCache.cache_backend.clear
 
     Sidekiq::Worker.clear_all
 
@@ -214,15 +218,59 @@ RSpec.configure do |config|
     # modifying a significant number of specs to test both states for admin
     # mode enabled / disabled.
     #
-    # See https://gitlab.com/gitlab-org/gitlab/issues/31511
-    # See gitlab/spec/support/helpers/admin_mode_helpers.rb
+    # This will only be applied to specs below dirs in `admin_mode_mock_dirs`
     #
-    # If it is required to have the real behaviour that an admin is signed in
+    # See ongoing migration: https://gitlab.com/gitlab-org/gitlab/-/issues/31511
+    #
+    # Until the migration is finished, if it is required to have the real
+    # behaviour in any of the mocked dirs specs that an admin is signed in
     # with normal user mode and needs to switch to admin mode, it is possible to
     # mark such tests with the `do_not_mock_admin_mode` metadata tag, e.g:
     #
-    # context 'some test with normal user mode', :do_not_mock_admin_mode do ... end
-    unless example.metadata[:do_not_mock_admin_mode]
+    # context 'some test in mocked dir', :do_not_mock_admin_mode do ... end
+    admin_mode_mock_dirs = %w(
+      ./ee/spec/elastic_integration
+      ./ee/spec/features
+      ./ee/spec/finders
+      ./ee/spec/lib
+      ./ee/spec/requests/admin
+      ./ee/spec/serializers
+      ./ee/spec/services
+      ./ee/spec/support/protected_tags
+      ./ee/spec/support/shared_examples/features
+      ./ee/spec/support/shared_examples/finders/geo
+      ./ee/spec/support/shared_examples/graphql/geo
+      ./ee/spec/support/shared_examples/services
+      ./spec/features
+      ./spec/finders
+      ./spec/frontend
+      ./spec/helpers
+      ./spec/lib
+      ./spec/requests
+      ./spec/serializers
+      ./spec/services
+      ./spec/support/protected_tags
+      ./spec/support/shared_examples/features
+      ./spec/support/shared_examples/requests
+      ./spec/views
+      ./spec/workers
+    )
+
+    if !example.metadata[:do_not_mock_admin_mode] && example.metadata[:file_path].start_with?(*admin_mode_mock_dirs)
+      allow_any_instance_of(Gitlab::Auth::CurrentUserMode).to receive(:admin_mode?) do |current_user_mode|
+        current_user_mode.send(:user)&.admin?
+      end
+    end
+
+    # Administrators have to re-authenticate in order to access administrative
+    # functionality when feature flag :user_mode_in_session is active. Any spec
+    # that requires administrative access can use the tag :enable_admin_mode
+    # to avoid the second auth step (provided the user is already an admin):
+    #
+    # context 'some test that requires admin mode', :enable_admin_mode do ... end
+    #
+    # See also spec/support/helpers/admin_mode_helpers.rb
+    if example.metadata[:enable_admin_mode] && !example.metadata[:do_not_mock_admin_mode]
       allow_any_instance_of(Gitlab::Auth::CurrentUserMode).to receive(:admin_mode?) do |current_user_mode|
         current_user_mode.send(:user)&.admin?
       end
@@ -235,18 +283,27 @@ RSpec.configure do |config|
   end
 
   config.around(:example, :request_store) do |example|
-    RequestStore.begin!
-
-    example.run
-
-    RequestStore.end!
-    RequestStore.clear!
+    Gitlab::WithRequestStore.with_request_store { example.run }
   end
 
   config.around do |example|
     # Wrap each example in it's own context to make sure the contexts don't
     # leak
     Labkit::Context.with_context { example.run }
+  end
+
+  config.around do |example|
+    with_sidekiq_server_middleware do |chain|
+      Gitlab::SidekiqMiddleware.server_configurator(
+        metrics: false, # The metrics don't go anywhere in tests
+        arguments_logger: false, # We're not logging the regular messages for inline jobs
+        memory_killer: false # This is not a thing we want to do inline in tests
+      ).call(chain)
+      chain.add DisableQueryLimit
+      chain.insert_after ::Gitlab::SidekiqMiddleware::RequestStoreMiddleware, IsolatedRequestStore
+
+      example.run
+    end
   end
 
   config.after do

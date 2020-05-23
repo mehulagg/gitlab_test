@@ -20,9 +20,11 @@ Every feature or use case document should include the following content in the f
 with exceptions and details noted below and in the template included on this page.
 
 - **Title**: Top-level heading with the feature name, or a use case name, which would start with
-  a verb, like Configuring, Enabling, etc.
-- **Introduction**: A couple sentences about the subject matter and what's to be found on this page.
-- **Overview** Describe what it is, what it does, and in what context it should be used.
+  a verb, like Configuring, Enabling, and so on.
+- **Introduction**: A couple sentences about the subject matter and what's to be found
+on this page. Describe what the feature or topic is, what it does, and in what context it should
+be used. There is no need to add a title called "Introduction" or "Overview," because people rarely
+ search for these terms. Just put this information after the title.
 - **Use cases**: describes real use case scenarios for that feature/configuration.
 - **Requirements**: describes what software, configuration, account, or knowledge is required.
 - **Instructions**: One or more sets of detailed instructions to follow.
@@ -39,7 +41,7 @@ and other logical divisions such as pre- and post-deployment steps.
 To start a new document, respect the file tree and file name guidelines,
 as well as the style guidelines. Use the following template:
 
-```md
+```markdown
 <!--Follow the Style Guide when working on this document. https://docs.gitlab.com/ee/development/documentation/styleguide.html
 When done, remove all of this commented-out text, except a commented-out Troubleshooting section,
 which, if empty, can be left in place to encourage future use.-->
@@ -54,12 +56,10 @@ description: "Short document description." # Up to ~200 chars long. They will be
 > [Introduced](link_to_issue_or_mr) in GitLab (Tier) X.Y (2).
 
 An introduction -- without its own additional header -- goes here.
-Offer a very short description of the feature or use case, and what to expect on this page.
+Offer a description of the feature or use case, and what to expect on this page.
 (You can reuse this content, or part of it, for the front matter's `description` at the top of this file).
 
-## Overview
-
-The feature overview should answer the following questions:
+The introduction should answer the following questions:
 
 - What is this feature or use case?
 - Who is it for?
@@ -130,7 +130,7 @@ Notes:
 ## Help and feedback section
 
 The "help and feedback" section (introduced by [!319](https://gitlab.com/gitlab-org/gitlab-docs/-/merge_requests/319)) displayed at the end of each document
-can be omitted from the doc by adding a key into the its frontmatter:
+can be omitted from the doc by adding a key into the its front matter:
 
 ```yaml
 ---
@@ -148,7 +148,7 @@ We also have integrated the docs site with Disqus (introduced by
 allowing our users to post comments.
 
 To omit only the comments from the feedback section, use the following
-key on the frontmatter:
+key on the front matter:
 
 ```yaml
 ---
@@ -159,7 +159,7 @@ comments: false
 We are only hiding comments in main index pages, such as [the main documentation index](../../README.md), since its content is too broad to comment on. Before omitting Disqus,
 you must check with a technical writer.
 
-Note that once `feedback: false` is added to the frontmatter, it will automatically omit
+Note that once `feedback: false` is added to the front matter, it will automatically omit
 Disqus, therefore, don't add both keys to the same document.
 
 The click events in the feedback section are tracked with Google Tag Manager. The

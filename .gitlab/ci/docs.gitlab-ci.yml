@@ -2,7 +2,6 @@
   extends:
     - .default-retry
     - .docs:rules:review-docs
-  allow_failure: true
   image: ruby:2.6-alpine
   stage: review
   dependencies: []
@@ -66,7 +65,7 @@ graphql-reference-verify:
     - .default-cache
     - .default-before_script
     - .docs:rules:graphql-reference-verify
-    - .use-pg9
+    - .use-pg11
   stage: test
   needs: ["setup-test-env"]
   script:

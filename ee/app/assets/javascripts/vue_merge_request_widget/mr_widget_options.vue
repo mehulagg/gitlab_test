@@ -4,7 +4,7 @@ import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_se
 import GroupedMetricsReportsApp from 'ee/vue_shared/metrics_reports/grouped_metrics_reports_app.vue';
 import reportsMixin from 'ee/vue_shared/security_reports/mixins/reports_mixin';
 import { componentNames } from 'ee/reports/components/issue_body';
-import MrWidgetLicenses from 'ee/vue_shared/license_management/mr_widget_license_report.vue';
+import MrWidgetLicenses from 'ee/vue_shared/license_compliance/mr_widget_license_report.vue';
 import ReportSection from '~/reports/components/report_section.vue';
 import BlockingMergeRequestsReport from './components/blocking_merge_requests/blocking_merge_requests_report.vue';
 
@@ -14,6 +14,7 @@ import MrWidgetApprovals from './components/approvals/approvals.vue';
 import MrWidgetGeoSecondaryNode from './components/states/mr_widget_secondary_geo_node.vue';
 import MergeTrainHelperText from './components/merge_train_helper_text.vue';
 import { MTWPS_MERGE_STRATEGY } from '~/vue_merge_request_widget/constants';
+import { TOTAL_SCORE_METRIC_NAME } from 'ee/vue_merge_request_widget/stores/constants';
 
 export default {
   components: {
@@ -47,7 +48,7 @@ export default {
       return codeclimate && codeclimate.head_path;
     },
     shouldRenderLicenseReport() {
-      return this.mr.enabledReports?.licenseManagement;
+      return this.mr.enabledReports?.licenseScanning;
     },
     hasCodequalityIssues() {
       return (
@@ -65,9 +66,29 @@ export default {
           (this.mr.performanceMetrics.improved && this.mr.performanceMetrics.improved.length > 0))
       );
     },
-    shouldRenderPerformance() {
+    hasPerformancePaths() {
       const { performance } = this.mr || {};
-      return performance && performance.head_path && performance.base_path;
+
+      return Boolean(performance?.head_path && performance?.base_path);
+    },
+    degradedTotalScore() {
+      return this.mr?.performanceMetrics?.degraded.find(
+        metric => metric.name === TOTAL_SCORE_METRIC_NAME,
+      );
+    },
+    hasPerformanceDegradation() {
+      const threshold = this.mr?.performance?.degradation_threshold || 0;
+
+      if (!threshold) {
+        return true;
+      }
+
+      const totalScoreDelta = this.degradedTotalScore?.delta || 0;
+
+      return threshold + totalScoreDelta <= 0;
+    },
+    shouldRenderPerformance() {
+      return this.hasPerformancePaths && this.hasPerformanceDegradation;
     },
     shouldRenderSecurityReport() {
       const { enabledReports } = this.mr;
@@ -161,7 +182,7 @@ export default {
       );
     },
     licensesApiPath() {
-      return (gl && gl.mrWidgetData && gl.mrWidgetData.license_management_comparison_path) || null;
+      return gl?.mrWidgetData?.license_scanning_comparison_path || null;
     },
   },
   watch: {
@@ -170,7 +191,7 @@ export default {
         this.fetchCodeQuality();
       }
     },
-    shouldRenderPerformance(newVal) {
+    hasPerformancePaths(newVal) {
       if (newVal) {
         this.fetchPerformance();
       }
@@ -314,6 +335,7 @@ export default {
         :dast-help-path="mr.dastHelp"
         :container-scanning-help-path="mr.containerScanningHelp"
         :dependency-scanning-help-path="mr.dependencyScanningHelp"
+        :secret-scanning-help-path="mr.secretScanningHelp"
         :vulnerability-feedback-path="mr.vulnerabilityFeedbackPath"
         :vulnerability-feedback-help-path="mr.vulnerabilityFeedbackHelpPath"
         :create-vulnerability-feedback-issue-path="mr.createVulnerabilityFeedbackIssuePath"
@@ -331,20 +353,29 @@ export default {
       />
       <mr-widget-licenses
         v-if="shouldRenderLicenseReport"
-        :api-url="mr.licenseManagement.managed_licenses_path"
+        :api-url="mr.licenseScanning.managed_licenses_path"
         :licenses-api-path="licensesApiPath"
         :pipeline-path="mr.pipeline.path"
-        :can-manage-licenses="mr.licenseManagement.can_manage_licenses"
-        :full-report-path="mr.licenseManagement.license_management_full_report_path"
-        :license-management-settings-path="mr.licenseManagement.license_management_settings_path"
+        :can-manage-licenses="mr.licenseScanning.can_manage_licenses"
+        :full-report-path="mr.licenseScanning.full_report_path"
+        :license-management-settings-path="mr.licenseScanning.settings_path"
         :security-approvals-help-page-path="mr.securityApprovalsHelpPagePath"
         report-section-class="mr-widget-border-top"
       />
+
       <grouped-test-reports-app
         v-if="mr.testResultsPath"
         class="js-reports-container"
         :endpoint="mr.testResultsPath"
       />
+
+      <terraform-plan v-if="mr.terraformReportsPath" :endpoint="mr.terraformReportsPath" />
+
+      <grouped-accessibility-reports-app
+        v-if="shouldShowAccessibilityReport"
+        :endpoint="mr.accessibilityReportPath"
+      />
+
       <div class="mr-widget-section">
         <component :is="componentName" :mr="mr" :service="service" />
 

@@ -7,8 +7,8 @@ import { mockNode, mockNodeDetails } from '../../mock_data';
 const MOCK_VERSION_TEXT = `${mockNodeDetails.version} (${mockNodeDetails.revision})`;
 
 const createComponent = ({
-  node = Object.assign({}, mockNode),
-  nodeDetails = Object.assign({}, mockNodeDetails),
+  node = { ...mockNode },
+  nodeDetails = { ...mockNodeDetails },
   nodeActionsAllowed = true,
   nodeEditAllowed = true,
   nodeRemovalAllowed = true,
@@ -69,6 +69,51 @@ describe('NodeDetailsSectionMain', () => {
           })
           .then(done)
           .catch(done.fail);
+      });
+    });
+
+    describe('selectiveSyncronization', () => {
+      describe('when selectiveSyncronization is not enabled', () => {
+        beforeEach(() => {
+          vm = createComponent({ nodeDetails: { ...mockNodeDetails, selectiveSyncType: null } });
+        });
+
+        it('does not render selective sync information', () => {
+          expect(vm.$el.querySelector('[data-testid="selectiveSync"]')).toBeFalsy();
+        });
+      });
+
+      describe('when selectiveSyncronization is shards', () => {
+        beforeEach(() => {
+          vm = createComponent({
+            node: { ...mockNode, selectiveSyncShards: ['default', 'extra'] },
+            nodeDetails: { ...mockNodeDetails, selectiveSyncType: 'shards' },
+          });
+        });
+
+        it('renders Shards information correctly', () => {
+          expect(vm.$el.querySelector('[data-testid="selectiveSync"]').innerText.trim()).toBe(
+            'Shards (default, extra)',
+          );
+        });
+      });
+
+      describe('when selectiveSyncronization is namespaces', () => {
+        beforeEach(() => {
+          vm = createComponent({
+            nodeDetails: {
+              ...mockNodeDetails,
+              selectiveSyncType: 'namespaces',
+              namespaces: [{ full_path: 'gitlab-org' }, { full_path: 'gitlab-com' }],
+            },
+          });
+        });
+
+        it('renders Groups information correctly', () => {
+          expect(vm.$el.querySelector('[data-testid="selectiveSync"]').innerText.trim()).toBe(
+            'Groups (gitlab-org, gitlab-com)',
+          );
+        });
       });
     });
   });

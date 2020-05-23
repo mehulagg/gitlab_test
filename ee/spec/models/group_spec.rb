@@ -18,6 +18,13 @@ describe Group do
     it { is_expected.to have_many(:ip_restrictions) }
     it { is_expected.to have_one(:dependency_proxy_setting) }
     it { is_expected.to have_one(:deletion_schedule) }
+    it { is_expected.to have_one(:group_wiki_repository) }
+    it { is_expected.to belong_to(:push_rule) }
+
+    it_behaves_like 'model with wiki' do
+      let(:container) { create(:group, :nested, :wiki_repo) }
+      let(:container_without_wiki) { create(:group, :nested) }
+    end
   end
 
   describe 'scopes' do
@@ -78,9 +85,42 @@ describe Group do
         expect(described_class.for_epics(epics)).to contain_exactly(epic1.group)
       end
     end
+
+    describe '.with_managed_accounts_enabled' do
+      subject { described_class.with_managed_accounts_enabled }
+
+      let!(:group_with_with_managed_accounts_enabled) { create(:group_with_managed_accounts) }
+      let!(:group_without_managed_accounts_enabled) { create(:group) }
+
+      it 'includes the groups that has managed accounts enabled' do
+        expect(subject).to contain_exactly(group_with_with_managed_accounts_enabled)
+      end
+    end
+
+    describe '.with_no_pat_expiry_policy' do
+      subject { described_class.with_no_pat_expiry_policy }
+
+      let!(:group_with_pat_expiry_policy) { create(:group, max_personal_access_token_lifetime: 1) }
+      let!(:group_with_no_pat_expiry_policy) { create(:group, max_personal_access_token_lifetime: nil) }
+
+      it 'includes the groups that has no PAT expiry policy set' do
+        expect(subject).to contain_exactly(group_with_no_pat_expiry_policy)
+      end
+    end
   end
 
   describe 'validations' do
+    context 'max_personal_access_token_lifetime' do
+      it { is_expected.to allow_value(1).for(:max_personal_access_token_lifetime) }
+      it { is_expected.to allow_value(nil).for(:max_personal_access_token_lifetime) }
+      it { is_expected.to allow_value(10).for(:max_personal_access_token_lifetime) }
+      it { is_expected.to allow_value(365).for(:max_personal_access_token_lifetime) }
+      it { is_expected.not_to allow_value("value").for(:max_personal_access_token_lifetime) }
+      it { is_expected.not_to allow_value(2.5).for(:max_personal_access_token_lifetime) }
+      it { is_expected.not_to allow_value(-5).for(:max_personal_access_token_lifetime) }
+      it { is_expected.not_to allow_value(366).for(:max_personal_access_token_lifetime) }
+    end
+
     context 'validates if custom_project_templates_group_id is allowed' do
       let(:subgroup_1) { create(:group, parent: group) }
 
@@ -258,15 +298,19 @@ describe Group do
   end
 
   describe '#vulnerabilities' do
+    subject { group.vulnerabilities }
+
     let(:subgroup) { create(:group, parent: group) }
     let(:group_project) { create(:project, namespace: group) }
     let(:subgroup_project) { create(:project, namespace: subgroup) }
+    let(:archived_project) { create(:project, :archived, namespace: group) }
+    let(:deleted_project) { create(:project, pending_delete: true, namespace: group) }
     let!(:group_vulnerability) { create(:vulnerability, project: group_project) }
     let!(:subgroup_vulnerability) { create(:vulnerability, project: subgroup_project) }
+    let!(:archived_vulnerability) { create(:vulnerability, project: archived_project) }
+    let!(:deleted_vulnerability) { create(:vulnerability, project: deleted_project) }
 
-    subject { group.vulnerabilities }
-
-    it 'returns vulnerabilities for all projects in the group and its subgroups' do
+    it 'returns vulnerabilities for all non-archived, non-deleted projects in the group and its subgroups' do
       is_expected.to contain_exactly(group_vulnerability, subgroup_vulnerability)
     end
   end
@@ -324,8 +368,6 @@ describe Group do
   end
 
   describe '#file_template_project' do
-    it { expect(group.private_methods).to include(:file_template_project) }
-
     before do
       stub_licensed_features(custom_file_templates_for_namespace: true)
     end
@@ -373,6 +415,45 @@ describe Group do
 
       it 'returns a comma separated string of ranges of its ip_restriction records' do
         expect(group.ip_restriction_ranges).to eq('192.168.0.0/24,10.0.0.0/8')
+      end
+    end
+  end
+
+  describe '#predefined_push_rule' do
+    context 'group with no associated push_rules record' do
+      let!(:sample) { create(:push_rule_sample) }
+
+      it 'returns instance push rule' do
+        expect(group.predefined_push_rule).to eq(sample)
+      end
+    end
+
+    context 'group with associated push_rules record' do
+      context 'with its own push rule' do
+        let(:push_rule) { create(:push_rule )}
+
+        it 'returns its own push rule' do
+          group.update(push_rule: push_rule)
+
+          expect(group.predefined_push_rule).to eq(push_rule)
+        end
+      end
+
+      context 'with push rule from ancestor' do
+        let(:group) { create(:group, push_rule: push_rule) }
+        let(:push_rule) { create(:push_rule) }
+        let(:subgroup_1) { create(:group, parent: group) }
+        let!(:subgroup_1_1) { create(:group, parent: subgroup_1) }
+
+        it 'returns push rule from closest ancestor' do
+          expect(subgroup_1_1.predefined_push_rule).to eq(push_rule)
+        end
+      end
+    end
+
+    context 'there are no push rules' do
+      it 'returns nil' do
+        expect(group.predefined_push_rule).to be_nil
       end
     end
   end
@@ -752,6 +833,122 @@ describe Group do
         end
 
         it_behaves_like 'returns false'
+      end
+    end
+  end
+
+  describe '#personal_access_token_expiration_policy_available?' do
+    subject { group.personal_access_token_expiration_policy_available? }
+
+    let(:group) { build(:group) }
+
+    context 'when the group does not enforce managed accounts' do
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when the group enforces managed accounts' do
+      before do
+        allow(group).to receive(:enforced_group_managed_accounts?).and_return(true)
+      end
+
+      context 'with `personal_access_token_expiration_policy` licensed' do
+        before do
+          stub_licensed_features(personal_access_token_expiration_policy: true)
+        end
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'with `personal_access_token_expiration_policy` not licensed' do
+        before do
+          stub_licensed_features(personal_access_token_expiration_policy: false)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+    end
+  end
+
+  describe '#update_personal_access_tokens_lifetime' do
+    subject { group.update_personal_access_tokens_lifetime }
+
+    let(:limit) { 1 }
+    let(:group) { build(:group, max_personal_access_token_lifetime: limit) }
+
+    shared_examples_for 'it does not call the update lifetime service' do
+      it 'doesn not call the update lifetime service' do
+        expect(::PersonalAccessTokens::Groups::UpdateLifetimeService).not_to receive(:new)
+
+        subject
+      end
+    end
+
+    context 'when the group does not enforce managed accounts' do
+      it_behaves_like 'it does not call the update lifetime service'
+    end
+
+    context 'when the group enforces managed accounts' do
+      before do
+        allow(group).to receive(:enforced_group_managed_accounts?).and_return(true)
+      end
+
+      context 'with `personal_access_token_expiration_policy` not licensed' do
+        before do
+          stub_licensed_features(personal_access_token_expiration_policy: false)
+        end
+
+        it_behaves_like 'it does not call the update lifetime service'
+      end
+
+      context 'with `personal_access_token_expiration_policy` licensed' do
+        before do
+          stub_licensed_features(personal_access_token_expiration_policy: true)
+        end
+
+        context 'when the group does not enforce a PAT expiry policy' do
+          let(:limit) { nil }
+
+          it_behaves_like 'it does not call the update lifetime service'
+        end
+
+        context 'when the group enforces a PAT expiry policy' do
+          it 'executes the update lifetime service' do
+            expect_next_instance_of(::PersonalAccessTokens::Groups::UpdateLifetimeService, group) do |service|
+              expect(service).to receive(:execute)
+            end
+
+            subject
+          end
+        end
+      end
+    end
+  end
+
+  describe '#max_personal_access_token_lifetime_from_now' do
+    subject { group.max_personal_access_token_lifetime_from_now }
+
+    let(:days_from_now) { nil }
+    let(:group) { build(:group, max_personal_access_token_lifetime: days_from_now) }
+
+    context 'when max_personal_access_token_lifetime is defined' do
+      let(:days_from_now) { 30 }
+
+      it 'is a date time' do
+        expect(subject).to be_a Time
+      end
+
+      it 'is in the future' do
+        expect(subject).to be > Time.zone.now
+      end
+
+      it 'is in days_from_now' do
+        expect(subject.to_date - Date.today).to eq days_from_now
+      end
+    end
+
+    context 'when max_personal_access_token_lifetime is nil' do
+      it 'is nil' do
+        expect(subject).to be_nil
       end
     end
   end

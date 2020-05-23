@@ -12,13 +12,14 @@ image:
 # Default output file for Terraform plan
 variables:
   PLAN: plan.tfplan
+  JSON_PLAN_FILE: tfplan.json
 
 cache:
   paths:
     - .terraform
 
 before_script:
-  - alias convert_report="jq -r '([.resource_changes[].change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
+  - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
   - terraform --version
   - terraform init
 
@@ -37,11 +38,13 @@ plan:
   stage: build
   script:
     - terraform plan -out=$PLAN
-    - "terraform show --json $PLAN | convert_report > tfplan.json"
+    - "terraform show --json $PLAN | convert_report > $JSON_PLAN_FILE"
   artifacts:
     name: plan
     paths:
       - $PLAN
+    reports:
+      terraform: $JSON_PLAN_FILE
 
 # Separate apply job for manual launching Terraform as it can be destructive
 # action.

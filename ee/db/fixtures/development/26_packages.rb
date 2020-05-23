@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Gitlab::Seeder::Packages
   attr_reader :project
 
@@ -12,11 +13,10 @@ class Gitlab::Seeder::Packages
 
   def seed_npm_packages
     5.times do |i|
-      name = "@#{@project.root_namespace.path}/npm_package_#{i}"
+      name = "@#{@project.root_namespace.path}/npm_package_#{SecureRandom.hex}"
       version = "1.12.#{i}"
 
-      params = JSON.parse(
-        read_fixture_file('npm', 'payload.json')
+      params = Gitlab::Json.parse(read_fixture_file('npm', 'payload.json')
           .gsub('@root/npm-test', name)
           .gsub('1.0.1', version))
         .with_indifferent_access
@@ -64,7 +64,7 @@ class Gitlab::Seeder::Packages
       params = {
         package_name: name,
         package_version: version,
-        package_username: ::Packages::ConanMetadatum.package_username_from(full_path: project.full_path),
+        package_username: ::Packages::Conan::Metadatum.package_username_from(full_path: project.full_path),
         package_channel: 'stable'
       }
 

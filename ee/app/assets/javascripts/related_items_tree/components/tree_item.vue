@@ -1,7 +1,7 @@
 <script>
 import { mapGetters, mapActions, mapState } from 'vuex';
 
-import { GlTooltipDirective, GlLoadingIcon, GlButton } from '@gitlab/ui';
+import { GlTooltipDirective, GlLoadingIcon, GlDeprecatedButton } from '@gitlab/ui';
 
 import { __ } from '~/locale';
 
@@ -17,7 +17,7 @@ export default {
     Icon,
     TreeItemBody,
     GlLoadingIcon,
-    GlButton,
+    GlDeprecatedButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -48,9 +48,7 @@ export default {
       return this.childrenFlags[this.itemReference].itemExpanded ? __('Collapse') : __('Expand');
     },
     childrenFetchInProgress() {
-      return (
-        this.hasChildren && !this.childrenFlags[this.itemReference].itemChildrenFetchInProgress
-      );
+      return this.hasChildren && this.childrenFlags[this.itemReference].itemChildrenFetchInProgress;
     },
     itemExpanded() {
       return this.hasChildren && this.childrenFlags[this.itemReference].itemExpanded;
@@ -61,6 +59,9 @@ export default {
         !this.hasChildren &&
         !this.childrenFlags[this.itemReference].itemChildrenFetchInProgress
       );
+    },
+    showEpicDropzone() {
+      return !this.hasChildren && this.item.type === ChildType.Epic;
     },
   },
   methods: {
@@ -86,22 +87,18 @@ export default {
     }"
   >
     <div class="list-item-body d-flex align-items-center">
-      <gl-button
-        v-if="childrenFetchInProgress"
-        v-gl-tooltip.hover
+      <gl-deprecated-button
+        v-if="!childrenFetchInProgress && hasChildren"
+        v-gl-tooltip.viewport.hover
         :title="chevronTooltip"
         :class="chevronType"
         variant="link"
-        class="btn-svg btn-tree-item-chevron"
+        class="btn-svg btn-tree-item-chevron align-self-start"
         @click="handleChevronClick"
       >
         <icon :name="chevronType" />
-      </gl-button>
-      <gl-loading-icon
-        v-if="childrenFlags[itemReference].itemChildrenFetchInProgress"
-        class="loading-icon"
-        size="sm"
-      />
+      </gl-deprecated-button>
+      <gl-loading-icon v-if="childrenFetchInProgress" class="loading-icon" size="sm" />
       <tree-item-body
         class="tree-item-row"
         :parent-item="parentItem"
@@ -112,9 +109,9 @@ export default {
       />
     </div>
     <tree-root
-      v-if="itemExpanded"
+      v-if="itemExpanded || showEpicDropzone"
       :parent-item="item"
-      :children="children[itemReference]"
+      :children="children[itemReference] || []"
       class="sub-tree-root"
     />
   </li>

@@ -7,7 +7,7 @@ describe Gitlab::UsageData do
     allow(ActiveRecord::Base.connection).to receive(:transaction_open?).and_return(false)
   end
 
-  describe '#data' do
+  describe '.data' do
     # using Array.new to create a different creator User for each of the projects
     let_it_be(:projects) { Array.new(3) { create(:project, :repository, creator: create(:user, group_view: :security_dashboard)) } }
     let(:count_data) { subject[:counts] }
@@ -24,6 +24,7 @@ describe Gitlab::UsageData do
       create(:ci_build, name: 'license_management', pipeline: pipeline)
       create(:ee_ci_build, name: 'license_scanning', pipeline: pipeline)
       create(:ci_build, name: 'sast', pipeline: pipeline)
+      create(:ci_build, name: 'secret_detection', pipeline: pipeline)
 
       create(:prometheus_alert, project: projects[0])
       create(:prometheus_alert, project: projects[0])
@@ -38,9 +39,20 @@ describe Gitlab::UsageData do
       create(:project_tracing_setting, project: projects[0])
       create(:operations_feature_flag, project: projects[0])
 
+      create(:issue, project: projects[1])
+      create(:issue, health_status: :on_track, project: projects[1])
+      create(:issue, health_status: :at_risk, project: projects[1])
+
       # for group_view testing
       create(:user) # user with group_view = NULL (should be counted as having default value 'details')
       create(:user, group_view: :details)
+
+      # Status Page
+      create(:status_page_setting, project: projects[0], enabled: true)
+      create(:status_page_setting, project: projects[1], enabled: false)
+      # 1 public issue on 1 projects with status page enabled
+      create(:issue, project: projects[0])
+      create(:issue, :confidential, project: projects[0])
     end
 
     subject { described_class.data }
@@ -68,6 +80,7 @@ describe Gitlab::UsageData do
       expect(count_data[:projects]).to eq(3)
 
       expect(count_data.keys).to include(*%i(
+        confidential_epics
         container_scanning_jobs
         dast_jobs
         dependency_list_usages_total
@@ -76,6 +89,7 @@ describe Gitlab::UsageData do
         epics_deepest_relationship_level
         feature_flags
         geo_nodes
+        issues_with_health_status
         ldap_group_links
         ldap_keys
         ldap_users
@@ -93,9 +107,9 @@ describe Gitlab::UsageData do
         projects_with_prometheus_alerts
         projects_with_tracing_enabled
         sast_jobs
-        design_management_designs_create
-        design_management_designs_update
-        design_management_designs_delete
+        secret_detection_jobs
+        status_page_projects
+        status_page_issues
         user_preferences_group_overview_details
         user_preferences_group_overview_security_dashboard
         template_repositories
@@ -105,6 +119,9 @@ describe Gitlab::UsageData do
       expect(count_data[:projects_with_prometheus_alerts]).to eq(2)
       expect(count_data[:projects_with_packages]).to eq(2)
       expect(count_data[:feature_flags]).to eq(1)
+      expect(count_data[:status_page_projects]).to eq(1)
+      expect(count_data[:status_page_issues]).to eq(1)
+      expect(count_data[:issues_with_health_status]).to eq(2)
     end
 
     it 'has integer value for epic relationship level' do
@@ -121,6 +138,7 @@ describe Gitlab::UsageData do
       expect(count_data[:dependency_scanning_jobs]).to eq(1)
       expect(count_data[:license_management_jobs]).to eq(2)
       expect(count_data[:sast_jobs]).to eq(1)
+      expect(count_data[:secret_detection_jobs]).to eq(1)
     end
 
     it 'correctly shows failure for combined license management' do
@@ -135,7 +153,7 @@ describe Gitlab::UsageData do
     end
   end
 
-  describe '#features_usage_data_ee' do
+  describe '.features_usage_data_ee' do
     subject { described_class.features_usage_data_ee }
 
     it 'gathers feature usage data of EE' do
@@ -145,7 +163,7 @@ describe Gitlab::UsageData do
     end
   end
 
-  describe '#license_usage_data' do
+  describe '.license_usage_data' do
     subject { described_class.license_usage_data }
 
     it 'gathers license data' do
@@ -160,6 +178,28 @@ describe Gitlab::UsageData do
       expect(subject[:license_expires_at]).to eq(license.expires_at)
       expect(subject[:license_add_ons]).to eq(license.add_ons)
       expect(subject[:license_trial]).to eq(license.trial?)
+    end
+  end
+
+  describe '.requirements_counts' do
+    subject { described_class.requirements_counts }
+
+    context 'when requirements are disabled' do
+      it 'returns empty hash' do
+        stub_licensed_features(requirements: false)
+
+        expect(subject).to eq({})
+      end
+    end
+
+    context 'when requirements are enabled' do
+      it 'returns created requirements count' do
+        stub_licensed_features(requirements: true)
+
+        create_list(:requirement, 2)
+
+        expect(subject).to eq({ requirements_created: 2 })
+      end
     end
   end
 
@@ -248,18 +288,7 @@ describe Gitlab::UsageData do
       end
 
       describe '.uncached_data' do
-        context 'when the :usage_activity_by_stage feature is not enabled' do
-          before do
-            stub_feature_flags(usage_activity_by_stage: false)
-          end
-
-          it "does not include usage_activity_by_stage data" do
-            expect(described_class.uncached_data).not_to include(:usage_activity_by_stage)
-            expect(described_class.uncached_data).not_to include(:usage_activity_by_stage_monthly)
-          end
-        end
-
-        context 'when the :usage_activity_by_stage feature is enabled' do
+        describe '.usage_activity_by_stage' do
           it 'includes usage_activity_by_stage data' do
             expect(described_class.uncached_data).to include(:usage_activity_by_stage)
             expect(described_class.uncached_data).to include(:usage_activity_by_stage_monthly)
@@ -281,6 +310,9 @@ describe Gitlab::UsageData do
                 create(:cluster_platform_kubernetes)
                 create(:cluster, :group, :disabled, user: user)
                 create(:cluster, :group, user: user)
+                create(:cluster, :instance, :disabled, :production_environment)
+                create(:cluster, :instance, :production_environment)
+                create(:cluster, :management_project)
                 create(:slack_service, project: project)
                 create(:slack_slash_commands_service, project: project)
                 create(:prometheus_service, project: project)
@@ -291,15 +323,18 @@ describe Gitlab::UsageData do
                 clusters_applications_helm: 2,
                 clusters_applications_ingress: 2,
                 clusters_applications_knative: 2,
-                clusters_disabled: 2,
-                clusters_enabled: 8,
+                clusters_management_project: 2,
+                clusters_disabled: 4,
+                clusters_enabled: 12,
                 clusters_platforms_gke: 2,
                 clusters_platforms_eks: 2,
                 clusters_platforms_user: 2,
+                instance_clusters_disabled: 2,
+                instance_clusters_enabled: 2,
                 group_clusters_disabled: 2,
                 group_clusters_enabled: 2,
                 project_clusters_disabled: 2,
-                project_clusters_enabled: 8,
+                project_clusters_enabled: 10,
                 projects_slack_notifications_active: 2,
                 projects_slack_slash_active: 2,
                 projects_with_prometheus_alerts: 2
@@ -309,15 +344,18 @@ describe Gitlab::UsageData do
                 clusters_applications_helm: 1,
                 clusters_applications_ingress: 1,
                 clusters_applications_knative: 1,
-                clusters_disabled: 1,
-                clusters_enabled: 4,
+                clusters_management_project: 1,
+                clusters_disabled: 2,
+                clusters_enabled: 6,
                 clusters_platforms_gke: 1,
                 clusters_platforms_eks: 1,
                 clusters_platforms_user: 1,
+                instance_clusters_disabled: 1,
+                instance_clusters_enabled: 1,
                 group_clusters_disabled: 1,
                 group_clusters_enabled: 1,
                 project_clusters_disabled: 1,
-                project_clusters_enabled: 4,
+                project_clusters_enabled: 5,
                 projects_slack_notifications_active: 1,
                 projects_slack_slash_active: 1,
                 projects_with_prometheus_alerts: 1
@@ -384,6 +422,8 @@ describe Gitlab::UsageData do
                 create(:group_member, user: user)
                 create(:key, type: 'LDAPKey', user: user)
                 create(:group_member, ldap: true, user: user)
+                create(:cycle_analytics_group_stage)
+                create(:compliance_framework_project_setting)
               end
 
               expect(described_class.uncached_data[:usage_activity_by_stage][:manage]).to eq(
@@ -391,14 +431,18 @@ describe Gitlab::UsageData do
                 groups: 2,
                 ldap_keys: 2,
                 ldap_users: 2,
-                users_created: 6
+                users_created: 8,
+                value_stream_management_customized_group_stages: 2,
+                projects_with_compliance_framework: 2
               )
               expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:manage]).to eq(
                 events: 1,
                 groups: 1,
                 ldap_keys: 1,
                 ldap_users: 1,
-                users_created: 4
+                users_created: 5,
+                value_stream_management_customized_group_stages: 2,
+                projects_with_compliance_framework: 2
               )
             end
           end
@@ -543,6 +587,7 @@ describe Gitlab::UsageData do
                 create(:ci_build, name: 'dependency_scanning', user: user)
                 create(:ci_build, name: 'license_management', user: user)
                 create(:ci_build, name: 'sast', user: user)
+                create(:ci_build, name: 'secret_detection', user: user)
               end
             end
 
@@ -553,7 +598,8 @@ describe Gitlab::UsageData do
                 user_dast_jobs: 1,
                 user_dependency_scanning_jobs: 1,
                 user_license_management_jobs: 1,
-                user_sast_jobs: 1
+                user_sast_jobs: 1,
+                user_secret_detection_jobs: 1
               )
             end
 
@@ -568,7 +614,8 @@ describe Gitlab::UsageData do
                 user_dast_jobs: 1,
                 user_dependency_scanning_jobs: 1,
                 user_license_management_jobs: 2,
-                user_sast_jobs: 1
+                user_sast_jobs: 1,
+                user_secret_detection_jobs: 1
               )
             end
 
@@ -582,7 +629,8 @@ describe Gitlab::UsageData do
                 user_dast_jobs: -1,
                 user_dependency_scanning_jobs: -1,
                 user_license_management_jobs: -1,
-                user_sast_jobs: -1
+                user_sast_jobs: -1,
+                user_secret_detection_jobs: -1
               )
             end
           end
@@ -630,6 +678,14 @@ describe Gitlab::UsageData do
           end
         end
       end
+    end
+  end
+
+  describe '.recording_ee_finished_at' do
+    subject { described_class.recording_ee_finish_data }
+
+    it 'gathers time ee recording finishes at' do
+      expect(subject[:recording_ee_finished_at]).to be_a(Time)
     end
   end
 

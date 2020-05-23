@@ -1,9 +1,9 @@
 # GitLab Jira development panel integration **(PREMIUM)**
 
-> [Introduced][ee-2381] in [GitLab Premium][eep] 10.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/2381) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.0.
 
-Complementary to our [existing Jira][existing-jira] project integration, you're now able to integrate
-GitLab projects with [Jira Development Panel][jira-development-panel]. Both can be used
+Complementary to our [existing Jira](../user/project/integrations/jira.md) project integration, you're now able to integrate
+GitLab projects with [Jira Development Panel](https://confluence.atlassian.com/adminjiraserver070/). Both can be used
 simultaneously. This works with self-managed GitLab or GitLab.com integrated with:
 
 - Jira hosted by you.
@@ -17,7 +17,7 @@ as well as projects of the top-level group's subgroups nesting down, are connect
 a GitLab personal namespace in the Jira configuration, which will then connect the projects in that personal namespace to Jira.
 
 NOTE: **Note**:
-Note this is different from the [existing Jira][existing-jira] project integration, where the mapping
+Note this is different from the [existing Jira](../user/project/integrations/jira.md) project integration, where the mapping
 is one GitLab project to the entire Jira instance.
 
 We recommend that a GitLab group admin
@@ -56,13 +56,16 @@ There are no special requirements if you are using GitLab.com.
    this would be `https://gitlab.com/login/oauth/callback`.
 
    NOTE: **Note**:
-   If using a GitLab version earlier than 11.3 the `Redirect URI` value should be `https://<your-gitlab-instance-domain>/-/jira/login/oauth/callback`.
+   If using a GitLab version earlier than 11.3, the `Redirect URI` must be
+   `https://<your-gitlab-instance-domain>/-/jira/login/oauth/callback`. If you want Jira
+   to have access to all projects, GitLab recommends an administrator creates the
+   Application.
 
    ![GitLab Application setup](img/jira_dev_panel_gl_setup_1.png)
 
    - Check `api` in the Scopes section.
 
-1. Click `Save application`. You will see the generated 'Application Id' and 'Secret' values.
+1. Click `Save application`. You will see the generated 'Application ID' and 'Secret' values.
    Copy these values that you will use on the Jira configuration side.
 
 ## Jira Configuration
@@ -164,20 +167,14 @@ Click the links to see your GitLab repository data.
 
 ## Limitations
 
-- This integration is currently not supported on GitLab instances under a [relative url][relative-url] (e.g. `http://example.com/gitlab`).
+- This integration is currently not supported on GitLab instances under a [relative URL](https://docs.gitlab.com/omnibus/settings/configuration.html#configuring-a-relative-url-for-gitlab) (for example, `http://example.com/gitlab`).
 
 ## Changelog
 
 ### 11.10
 
-- [Instance admins can now setup integration for all namespaces](https://gitlab.com/gitlab-org/gitlab/issues/8902)
+- [Instance admins can now setup integration for all namespaces](https://gitlab.com/gitlab-org/gitlab/-/issues/8902)
 
 ### 11.1
 
-- [Support GitLab subgroups in Jira development panel](https://gitlab.com/gitlab-org/gitlab/issues/3561)
-
-[existing-jira]: ../user/project/integrations/jira.md
-[jira-development-panel]: https://confluence.atlassian.com/adminjiraserver070/integrating-with-development-tools-776637096.html#Integratingwithdevelopmenttools-Developmentpanelonissues
-[eep]: https://about.gitlab.com/pricing/
-[ee-2381]: https://gitlab.com/gitlab-org/gitlab/issues/2381
-[relative-url]: https://docs.gitlab.com/omnibus/settings/configuration.html#configuring-a-relative-url-for-gitlab
+- [Support GitLab subgroups in Jira development panel](https://gitlab.com/gitlab-org/gitlab/-/issues/3561)

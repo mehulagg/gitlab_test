@@ -1,9 +1,12 @@
 # Deploy Tokens
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17894) in GitLab 10.7.
-> - [Moved](https://gitlab.com/gitlab-org/gitlab/issues/199370) from **Settings > Repository** in GitLab 12.9.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/199370) from **Settings > Repository** in GitLab 12.9.
+> - [Added `write_registry` scope](https://gitlab.com/gitlab-org/gitlab/-/issues/22743) in GitLab 12.10.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/29280) from **Settings > CI / CD** in GitLab 12.10.1.
+> - [Added package registry scopes](https://gitlab.com/gitlab-org/gitlab/-/issues/213566) from **Settings > CI / CD** in GitLab 13.0.
 
-Deploy tokens allow you to download (`git clone`) or read the container registry images of a project without having a user and a password.
+Deploy tokens allow you to download (`git clone`) or push and pull packages and container registry images of a project without having a user and a password.
 
 Deploy tokens can be managed by [maintainers only](../../permissions.md).
 
@@ -15,7 +18,7 @@ You can create as many deploy tokens as you like from the settings of your proje
 
 1. Log in to your GitLab account.
 1. Go to the project (or group) you want to create Deploy Tokens for.
-1. Go to **{settings}** **Settings** > **CI / CD**.
+1. Go to **{settings}** **Settings** > **Repository**.
 1. Click on "Expand" on **Deploy Tokens** section.
 1. Choose a name, expiry date (optional), and username (optional) for the token.
 1. Choose the [desired scopes](#limiting-scopes-of-a-deploy-token).
@@ -44,6 +47,7 @@ the following table.
 | ----- | ----------- |
 | `read_repository` | Allows read-access to the repository through `git clone` |
 | `read_registry` | Allows read-access to [container registry](../../packages/container_registry/index.md) images if a project is private and authorization is required. |
+| `write_registry` | Allows write-access (push) to [container registry](../../packages/container_registry/index.md). |
 
 ## Deploy token custom username
 
@@ -63,7 +67,7 @@ To download a repository using a Deploy Token, you just need to:
 1. `git clone` the project using the Deploy Token:
 
    ```shell
-   git clone http://<username>:<deploy_token>@gitlab.example.com/tanuki/awesome_project.git
+   git clone https://<username>:<deploy_token>@gitlab.example.com/tanuki/awesome_project.git
    ```
 
 Replace `<username>` and `<deploy_token>` with the proper values.
@@ -83,12 +87,46 @@ docker login -u <username> -p <deploy_token> registry.example.com
 Just replace `<username>` and `<deploy_token>` with the proper values. Then you can simply
 pull images from your Container Registry.
 
+### Push Container Registry images
+
+To push the container registry images, you'll need to:
+
+1. Create a Deploy Token with `write_registry` as a scope.
+1. Take note of your `username` and `token`.
+1. Log in to GitLab’s Container Registry using the deploy token:
+
+   ```shell
+   docker login -u <username> -p <deploy_token> registry.example.com
+   ```
+
+Just replace `<username>` and `<deploy_token>` with the proper values. Then you can simply
+push images to your Container Registry.
+
+### Read or pull packages
+
+To pull packages in the GitLab package registry, you'll need to:
+
+1. Create a Deploy Token with `read_package_registry` as a scope.
+1. Take note of your `username` and `token`.
+1. For the [package type of your choice](./../../packages/index.md), follow the authentication instructions for deploy tokens.
+
+### Push or upload packages
+
+To upload packages in the GitLab package registry, you'll need to:
+
+1. Create a Deploy Token with `write_package_registry` as a scope.
+1. Take note of your `username` and `token`.
+1. For the [package type of your choice](./../../packages/index.md), follow the authentication instructions for deploy tokens.
+
 ### Group Deploy Token
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/21765) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/21765) in GitLab 12.9.
 
 A deploy token created at the group level can be used across all projects that
 belong either to the specific group or to one of its subgroups.
+
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+For an overview, see [Group Deploy Tokens](https://youtu.be/8kxTJvaD9ks).
 
 To use a group deploy token:
 
@@ -107,7 +145,7 @@ There's a special case when it comes to Deploy Tokens. If a user creates one
 named `gitlab-deploy-token`, the username and token of the Deploy Token will be
 automatically exposed to the CI/CD jobs as environment variables: `CI_DEPLOY_USER` and
 `CI_DEPLOY_PASSWORD`, respectively. With the GitLab Deploy Token, the
-`read_registry` scope is implied.
+`read_registry` and `write_registry` scopes are implied.
 
 After you create the token, you can login to the Container Registry using
 those variables:
@@ -115,3 +153,6 @@ those variables:
 ```shell
 docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
 ```
+
+NOTE: **Note:**
+The special handling for the `gitlab-deploy-token` deploy token is not currently implemented for group deploy tokens. For the deploy token to be available for CI/CD jobs, it must be created at the project level. See [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/214014) for details.

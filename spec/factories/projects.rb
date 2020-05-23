@@ -37,6 +37,8 @@ FactoryBot.define do
       group_runners_enabled { nil }
       import_status { nil }
       import_jid { nil }
+      import_correlation_id { nil }
+      import_last_error { nil }
       forward_deployment_enabled { nil }
     end
 
@@ -78,6 +80,8 @@ FactoryBot.define do
         import_state = project.import_state || project.build_import_state
         import_state.status = evaluator.import_status
         import_state.jid = evaluator.import_jid
+        import_state.correlation_id_value = evaluator.import_correlation_id
+        import_state.last_error = evaluator.import_last_error
         import_state.save
       end
     end
@@ -208,6 +212,12 @@ FactoryBot.define do
     trait :empty_repo do
       after(:create) do |project|
         raise "Failed to create repository!" unless project.create_repository
+      end
+    end
+
+    trait :design_repo do
+      after(:create) do |project|
+        raise 'Failed to create design repository!' unless project.design_repository.create_if_not_exists
       end
     end
 

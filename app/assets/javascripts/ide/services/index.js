@@ -25,7 +25,7 @@ export default {
       return Promise.resolve(file.content);
     }
 
-    if (file.raw) {
+    if (file.raw || !file.rawPath) {
       return Promise.resolve(file.raw);
     }
 
@@ -88,12 +88,16 @@ export default {
   commit(projectId, payload) {
     return Api.commitMultiple(projectId, payload);
   },
-  getFiles(projectUrl, ref) {
-    const url = `${projectUrl}/-/files/${ref}`;
+  getFiles(projectPath, ref) {
+    const url = `${gon.relative_url_root}/${projectPath}/-/files/${ref}`;
     return axios.get(url, { params: { format: 'json' } });
   },
   lastCommitPipelines({ getters }) {
     const commitSha = getters.lastCommit.id;
     return Api.commitPipelines(getters.currentProject.path_with_namespace, commitSha);
+  },
+  pingUsage(projectPath) {
+    const url = `${gon.relative_url_root}/${projectPath}/usage_ping/web_ide_pipelines_count`;
+    return axios.post(url);
   },
 };

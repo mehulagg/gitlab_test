@@ -23,7 +23,7 @@ After configuring a GitLab instance with an internal CA certificate, you might n
   More details here: https://curl.haxx.se/docs/sslcerts.html
   ```
 
-- Testing via the [rails console](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session) also fails:
+- Testing via the [rails console](debug.md#starting-a-rails-console-session) also fails:
 
   ```ruby
   uri = URI.parse("https://gitlab.domain.tld")
@@ -46,11 +46,49 @@ After configuring a GitLab instance with an internal CA certificate, you might n
 
 If you have the problems listed above, add your certificate to `/etc/gitlab/trusted-certs` and run `sudo gitlab-ctl reconfigure`.
 
+## X.509 key values mismatch error
+
+After configuring your instance with a certificate bundle, NGINX may throw the
+following error:
+
+`SSL: error:0B080074:x509 certificate routines:X509_check_private_key:key values mismatch`
+
+This error means that the server certificate and key you have provided do not
+match. You can confirm this by running the following command and comparing the
+output:
+
+```shell
+openssl rsa -noout -modulus -in path/to/your/.key | openssl md5
+openssl x509 -noout -modulus -in path/to/your/.crt | openssl md5
+```
+
+The following is an example of an md5 output between a matching key and certificate. Note the
+matching md5 hashes:
+
+```shell
+$ openssl rsa -noout -modulus -in private.key | openssl md5
+4f49b61b25225abeb7542b29ae20e98c
+$ openssl x509 -noout -modulus -in public.crt | openssl md5
+4f49b61b25225abeb7542b29ae20e98c
+```
+
+This is an opposing output with a non-matching key and certificate which shows different md5 hashes:
+
+```shell
+$ openssl rsa -noout -modulus -in private.key | openssl md5
+d418865077299af27707b1d1fa83cd99
+$ openssl x509 -noout -modulus -in public.crt | openssl md5
+4f49b61b25225abeb7542b29ae20e98c
+```
+
+If the two outputs differ like the above example, there is a mismatch between the certificate
+and key. You should contact the provider of the SSL certificate for further support.
+
 ## Using GitLab Runner with a GitLab instance configured with internal CA certificate or self-signed certificate
 
 Besides getting the errors mentioned in
 [Using an internal CA certificate with GitLab](ssl.md#using-an-internal-ca-certificate-with-gitlab),
-your CI pipelines may stuck stuck in `Pending` status. In the runner logs you may see the below error:
+your CI pipelines may get stuck in `Pending` status. In the runner logs you may see the below error:
 
 ```shell
 Dec  6 02:43:17 runner-host01 gitlab-runner[15131]: #033[0;33mWARNING: Checking for jobs... failed
@@ -137,3 +175,36 @@ To fix this problem:
     ```shell
     git config --global http.sslVerify false
     ```
+
+## SSL_connect wrong version number
+
+A misconfiguration may result in:
+
+- `gitlab-rails/exceptions_json.log` entries containing:
+
+  ```plaintext
+  "exception.class":"Excon::Error::Socket","exception.message":"SSL_connect returned=1 errno=0 state=error: wrong version number (OpenSSL::SSL::SSLError)",
+  "exception.class":"Excon::Error::Socket","exception.message":"SSL_connect returned=1 errno=0 state=error: wrong version number (OpenSSL::SSL::SSLError)",
+  ```
+
+- `gitlab-workhorse/current` containing:
+
+  ```plaintext
+  http: server gave HTTP response to HTTPS client
+  http: server gave HTTP response to HTTPS client
+  ```
+
+- `gitlab-rails/sidekiq.log` or `sidekiq/current` containing:
+
+  ```plaintext
+  message: SSL_connect returned=1 errno=0 state=error: wrong version number (OpenSSL::SSL::SSLError)
+  message: SSL_connect returned=1 errno=0 state=error: wrong version number (OpenSSL::SSL::SSLError)
+  ```
+
+Some of these errors come from the Excon Ruby gem, and could be generated in circumstances
+where GitLab is configured to initiate an HTTPS session to a remote server
+that is serving just HTTP.
+
+One scenario is that you're using [object storage](../high_availability/object_storage.md)
+which is not served under HTTPS. GitLab is misconfigured and attempts a TLS handshake,
+but the object storage will respond with plain HTTP.

@@ -131,26 +131,45 @@ module EE
       ElasticsearchIndexedProject.target_ids
     end
 
-    def elasticsearch_limited_namespaces(ignore_descendants: false)
-      ElasticsearchIndexedNamespace.limited(ignore_descendants: ignore_descendants)
-    end
-
-    def elasticsearch_limited_projects(ignore_namespaces: false)
-      ElasticsearchIndexedProject.limited(ignore_namespaces: ignore_namespaces)
-    end
-
     def elasticsearch_indexes_project?(project)
       return false unless elasticsearch_indexing?
       return true unless elasticsearch_limit_indexing?
 
-      ElasticsearchIndexedProject.limited_include?(project.id)
+      return optimized_elasticsearch_indexes_project?(project) unless ::Feature.enabled?(:elasticsearch_indexes_project_cache, default_enabled: true)
+
+      ::Gitlab::Elastic::ElasticsearchEnabledCache.fetch(:project, project.id) do
+        optimized_elasticsearch_indexes_project?(project)
+      end
+    end
+
+    def invalidate_elasticsearch_indexes_project_cache!
+      ::Gitlab::Elastic::ElasticsearchEnabledCache.delete(:project)
     end
 
     def elasticsearch_indexes_namespace?(namespace)
       return false unless elasticsearch_indexing?
       return true unless elasticsearch_limit_indexing?
 
-      ElasticsearchIndexedNamespace.limited_include?(namespace.id)
+      elasticsearch_limited_namespaces.exists?(namespace.id)
+    end
+
+    def elasticsearch_limited_projects(ignore_namespaces = false)
+      return ::Project.where(id: ElasticsearchIndexedProject.select(:project_id)) if ignore_namespaces
+
+      union = ::Gitlab::SQL::Union.new([
+                                         ::Project.where(namespace_id: elasticsearch_limited_namespaces.select(:id)),
+                                         ::Project.where(id: ElasticsearchIndexedProject.select(:project_id))
+                                       ]).to_sql
+
+      ::Project.from("(#{union}) projects")
+    end
+
+    def elasticsearch_limited_namespaces(ignore_descendants = false)
+      namespaces = ::Namespace.where(id: ElasticsearchIndexedNamespace.select(:namespace_id))
+
+      return namespaces if ignore_descendants
+
+      ::Gitlab::ObjectHierarchy.new(namespaces).base_and_descendants
     end
 
     def pseudonymizer_available?
@@ -271,10 +290,30 @@ module EE
 
     private
 
+    def optimized_elasticsearch_indexes_project?(project)
+      if ::Feature.enabled?(:optimized_elasticsearch_indexes_project, default_enabled: true)
+        indexed_namespaces = ::Gitlab::ObjectHierarchy
+          .new(::Namespace.where(id: project.namespace_id))
+          .base_and_ancestors
+          .joins(:elasticsearch_indexed_namespace)
+
+        indexed_namespaces = ::Project.where('EXISTS (?)', indexed_namespaces)
+        indexed_projects = ::Project.where('EXISTS (?)', ElasticsearchIndexedProject.where(project_id: project.id))
+
+        ::Project
+          .from("(SELECT) as projects") # SELECT from "nothing" since the EXISTS queries have all the conditions.
+          .merge(indexed_namespaces.or(indexed_projects))
+          .exists?
+      else
+        # old behavior
+        elasticsearch_limited_projects.exists?(project.id)
+      end
+    end
+
     def update_personal_access_tokens_lifetime
       return unless max_personal_access_token_lifetime.present? && License.feature_available?(:personal_access_token_expiration_policy)
 
-      ::PersonalAccessTokens::UpdateLifetimeService.new.execute
+      ::PersonalAccessTokens::Instance::UpdateLifetimeService.new.execute
     end
 
     def mirror_max_delay_in_minutes

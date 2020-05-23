@@ -46,6 +46,10 @@ module API
       prepend_if_ee('EE::API::APIGuard::HelperMethods') # rubocop: disable Cop/InjectEnterpriseEditionModule
       include Gitlab::Auth::AuthFinders
 
+      def access_token
+        super || find_personal_access_token_from_http_basic_auth
+      end
+
       def find_current_user!
         user = find_user_from_sources
         return unless user
@@ -61,7 +65,8 @@ module API
       end
 
       def find_user_from_sources
-        find_user_from_access_token ||
+        deploy_token_from_request ||
+          find_user_from_access_token ||
           find_user_from_job_token ||
           find_user_from_warden
       end
@@ -86,11 +91,15 @@ module API
       end
 
       def api_access_allowed?(user)
-        Gitlab::UserAccess.new(user).allowed? && user.can?(:access_api)
+        user_allowed_or_deploy_token?(user) && user.can?(:access_api)
       end
 
       def api_access_denied_message(user)
         Gitlab::Auth::UserAccessDeniedReason.new(user).rejection_message
+      end
+
+      def user_allowed_or_deploy_token?(user)
+        Gitlab::UserAccess.new(user).allowed? || user.is_a?(DeployToken)
       end
     end
 

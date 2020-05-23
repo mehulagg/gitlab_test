@@ -2,16 +2,14 @@
 
 class ResourceLabelEvent < ResourceEvent
   include CacheMarkdownField
+  include IssueResourceEvent
+  include MergeRequestResourceEvent
 
   cache_markdown_field :reference
 
-  belongs_to :issue
-  belongs_to :merge_request
   belongs_to :label
 
   scope :inc_relations, -> { includes(:label, :user) }
-  scope :by_issue, ->(issue) { where(issue_id: issue.id) }
-  scope :by_merge_request, ->(merge_request) { where(merge_request_id: merge_request.id) }
 
   validates :label, presence: { unless: :importing? }, on: :create
   validate :exactly_one_issuable
@@ -56,7 +54,7 @@ class ResourceLabelEvent < ResourceEvent
   end
 
   def banzai_render_context(field)
-    super.merge(pipeline: 'label', only_path: true)
+    super.merge(pipeline: :label, only_path: true)
   end
 
   def refresh_invalid_reference

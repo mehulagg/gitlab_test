@@ -21,7 +21,7 @@ describe Projects::PipelinesController do
 
       context 'with feature enabled' do
         before do
-          stub_licensed_features(sast: true)
+          stub_licensed_features(sast: true, security_dashboard: true)
 
           get :security, params: { namespace_id: project.namespace, project_id: project, id: pipeline }
         end
@@ -74,7 +74,7 @@ describe Projects::PipelinesController do
     let!(:mit_license) { create(:software_license, :mit) }
     let!(:software_license_policy) { create(:software_license_policy, software_license: mit_license, project: project) }
 
-    let(:payload) { JSON.parse(licenses_with_json.body) }
+    let(:payload) { Gitlab::Json.parse(licenses_with_json.body) }
 
     context 'with a license scanning artifact' do
       before do

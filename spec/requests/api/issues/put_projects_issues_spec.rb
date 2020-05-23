@@ -61,7 +61,7 @@ describe API::Issues do
   let(:no_milestone_title) { 'None' }
   let(:any_milestone_title) { 'Any' }
 
-  before(:all) do
+  before_all do
     project.add_reporter(user)
     project.add_guest(guest)
   end
@@ -182,6 +182,8 @@ describe API::Issues do
   end
 
   describe 'PUT /projects/:id/issues/:issue_iid with spam filtering' do
+    include_context 'includes Spam constants'
+
     def update_issue
       put api("/projects/#{project.id}/issues/#{issue.iid}", user), params: params
     end
@@ -195,11 +197,12 @@ describe API::Issues do
     end
 
     before do
-      expect_next_instance_of(Spam::SpamCheckService) do |spam_service|
+      expect_next_instance_of(Spam::SpamActionService) do |spam_service|
         expect(spam_service).to receive_messages(check_for_spam?: true)
       end
-      expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-        expect(akismet_service).to receive_messages(spam?: true)
+
+      expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+        expect(verdict_service).to receive(:execute).and_return(DISALLOW)
       end
     end
 
@@ -297,6 +300,35 @@ describe API::Issues do
   describe 'PUT /projects/:id/issues/:issue_iid to update labels' do
     let!(:label) { create(:label, title: 'dummy', project: project) }
     let!(:label_link) { create(:label_link, label: label, target: issue) }
+
+    it 'adds relevant labels' do
+      put api("/projects/#{project.id}/issues/#{issue.iid}", user),
+        params: { add_labels: '1, 2' }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['labels']).to contain_exactly(label.title, '1', '2')
+    end
+
+    context 'removes' do
+      let!(:label2) { create(:label, title: 'a-label', project: project) }
+      let!(:label_link2) { create(:label_link, label: label2, target: issue) }
+
+      it 'removes relevant labels' do
+        put api("/projects/#{project.id}/issues/#{issue.iid}", user),
+          params: { remove_labels: label2.title }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['labels']).to eq([label.title])
+      end
+
+      it 'removes all labels' do
+        put api("/projects/#{project.id}/issues/#{issue.iid}", user),
+          params: { remove_labels: "#{label.title}, #{label2.title}" }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['labels']).to be_empty
+      end
+    end
 
     it 'does not update labels if not present' do
       put api("/projects/#{project.id}/issues/#{issue.iid}", user),

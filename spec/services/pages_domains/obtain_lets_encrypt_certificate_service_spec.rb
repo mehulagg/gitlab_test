@@ -119,7 +119,7 @@ describe PagesDomains::ObtainLetsEncryptCertificateService do
 
       cert = OpenSSL::X509::Certificate.new
       cert.subject = cert.issuer = OpenSSL::X509::Name.parse(subject)
-      cert.not_before = Time.now
+      cert.not_before = Time.current
       cert.not_after = 1.year.from_now
       cert.public_key = key.public_key
       cert.serial = 0x0
@@ -179,6 +179,14 @@ describe PagesDomains::ObtainLetsEncryptCertificateService do
       end.to change { pages_domain.reload.auto_ssl_failed }.from(false).to(true)
 
       expect(PagesDomainAcmeOrder.find_by_id(existing_order.id)).to be_nil
+    end
+
+    it 'sends notification' do
+      expect_next_instance_of(NotificationService) do |notification_service|
+        expect(notification_service).to receive(:pages_domain_auto_ssl_failed).with(pages_domain)
+      end
+
+      service.execute
     end
   end
 end

@@ -51,7 +51,7 @@ export default Vue.extend({
       return Object.keys(this.issue).length;
     },
     milestoneTitle() {
-      return this.issue.milestone ? this.issue.milestone.title : __('No Milestone');
+      return this.issue.milestone ? this.issue.milestone.title : __('No milestone');
     },
     canRemove() {
       return !this.list.preset;
@@ -69,9 +69,6 @@ export default Vue.extend({
     },
     selectedLabels() {
       return this.hasLabels ? this.issue.labels.map(l => l.title).join(',') : '';
-    },
-    helpLink() {
-      return boardsStore.scopedLabels.helpLink;
     },
   },
   watch: {
@@ -103,12 +100,14 @@ export default Vue.extend({
     eventHub.$on('sidebar.addAssignee', this.addAssignee);
     eventHub.$on('sidebar.removeAllAssignees', this.removeAllAssignees);
     eventHub.$on('sidebar.saveAssignees', this.saveAssignees);
+    eventHub.$on('sidebar.closeAll', this.closeSidebar);
   },
   beforeDestroy() {
     eventHub.$off('sidebar.removeAssignee', this.removeAssignee);
     eventHub.$off('sidebar.addAssignee', this.addAssignee);
     eventHub.$off('sidebar.removeAllAssignees', this.removeAllAssignees);
     eventHub.$off('sidebar.saveAssignees', this.saveAssignees);
+    eventHub.$off('sidebar.closeAll', this.closeSidebar);
   },
   mounted() {
     new IssuableContext(this.currentUser);

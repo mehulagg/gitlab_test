@@ -4,7 +4,7 @@ module Elastic
   class ProcessBookkeepingService
     REDIS_SET_KEY = 'elastic:incremental:updates:0:zset'
     REDIS_SCORE_KEY = 'elastic:incremental:updates:0:score'
-    LIMIT = 1000
+    LIMIT = 10_000
 
     class << self
       # Add some records to the processing queue. Items must be serializable to
@@ -54,8 +54,10 @@ module Elastic
     private
 
     def execute_with_redis(redis)
+      start_time = Time.current
+
       specs = redis.zrangebyscore(REDIS_SET_KEY, '-inf', '+inf', limit: [0, LIMIT], with_scores: true)
-      return if specs.empty?
+      return 0 if specs.empty?
 
       first_score = specs.first.last
       last_score = specs.last.last
@@ -77,13 +79,18 @@ module Elastic
       # Remove all the successes
       redis.zremrangebyscore(REDIS_SET_KEY, first_score, last_score)
 
+      records_count = specs.count
+
       logger.info(
         message: 'bulk_indexing_end',
-        records_count: specs.count,
+        records_count: records_count,
         failures_count: failures.count,
         first_score: first_score,
-        last_score: last_score
+        last_score: last_score,
+        bulk_execution_duration_s: Time.current - start_time
       )
+
+      records_count
     end
 
     def deserialize_all(specs)

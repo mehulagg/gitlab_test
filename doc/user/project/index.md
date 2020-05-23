@@ -63,14 +63,14 @@ When you create a project in GitLab, you'll have access to a large number of
 - [GitLab CI/CD](../../ci/README.md): GitLab's built-in [Continuous Integration, Delivery, and Deployment](https://about.gitlab.com/blog/2016/08/05/continuous-integration-delivery-and-deployment-with-gitlab/) tool
   - [Container Registry](../packages/container_registry/index.md): Build and push Docker
   images out-of-the-box
-  - [Auto Deploy](../../topics/autodevops/index.md#auto-deploy): Configure GitLab CI/CD
+  - [Auto Deploy](../../topics/autodevops/stages.md#auto-deploy): Configure GitLab CI/CD
   to automatically set up your app's deployment
   - [Enable and disable GitLab CI/CD](../../ci/enable_or_disable_ci.md)
   - [Pipelines](../../ci/pipelines/index.md): Configure and visualize
     your GitLab CI/CD pipelines from the UI
     - [Scheduled Pipelines](../../ci/pipelines/schedules.md): Schedule a pipeline
       to start at a chosen time
-    - [Pipeline Graphs](../../ci/pipelines/index.md#visualizing-pipelines): View your
+    - [Pipeline Graphs](../../ci/pipelines/index.md#visualize-pipelines): View your
       entire pipeline from the UI
     - [Job artifacts](../../ci/pipelines/job_artifacts.md): Define,
       browse, and download job artifacts
@@ -102,6 +102,8 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Code owners](code_owners.md): specify code owners for certain files **(STARTER)**
 - [License Compliance](../compliance/license_compliance/index.md): approve and blacklist licenses for projects. **(ULTIMATE)**
 - [Dependency List](../application_security/dependency_list/index.md): view project dependencies. **(ULTIMATE)**
+- [Requirements](requirements/index.md): Requirements allow you to create criteria to check your products against. **(ULTIMATE)**
+- [Static Site Editor](static_site_editor/index.md): quickly edit content on static websites without prior knowledge of the codebase or Git commands.
 
 ### Project integrations
 
@@ -170,6 +172,13 @@ Read through the documentation on [CI/CD for external repositories](../../ci/ci_
 
 Learn how to [add members to your projects](members/index.md).
 
+## Project activity
+
+To view the activity of a project, navigate to **Project overview > Activity**.
+From there, you can click on the tabs to see **All** the activity, or see it
+filtered by **Push events**, **Merge events**, **Issue events**, **Comments**,
+**Team**, and **Wiki**.
+
 ### Leave a project
 
 **Leave project** will only display on the project's dashboard
@@ -233,7 +242,7 @@ field.
 
 For example:
 
-```text
+```plaintext
 machine example.gitlab.com
 login <gitlab_user_name>
 password <personal_access_token>
@@ -241,14 +250,14 @@ password <personal_access_token>
 
 ## Access project page with project ID
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/53671) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/53671) in GitLab 11.8.
 
 To quickly access a project from the GitLab UI using the project ID,
 visit the `/projects/:id` URL in your browser or other tool accessing the project.
 
 ## Project aliases **(PREMIUM ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
 
 When migrating repositories to GitLab and they are being accessed by other systems,
 it's very useful to be able to access them using the same name especially when

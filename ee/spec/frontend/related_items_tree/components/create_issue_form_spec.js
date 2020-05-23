@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import {
-  GlButton,
+  GlDeprecatedButton,
   GlDropdown,
   GlDropdownItem,
   GlFormInput,
@@ -178,7 +178,7 @@ describe('CreateIssueForm', () => {
 
         expect(projectsDropdownButton.find(GlSearchBoxByType).exists()).toBe(true);
         expect(projectsDropdownButton.find(GlLoadingIcon).exists()).toBe(true);
-        expect(dropdownItems.length).toBe(mockProjects.length);
+        expect(dropdownItems).toHaveLength(mockProjects.length);
         expect(dropdownItems.at(0).text()).toContain(mockProjects[0].name);
         expect(dropdownItems.at(0).text()).toContain(mockProjects[0].namespace.name);
         expect(
@@ -207,7 +207,7 @@ describe('CreateIssueForm', () => {
           wrapper.vm.$store.dispatch('receiveProjectsSuccess', filteredMockProjects);
         })
         .then(() => {
-          expect(wrapper.findAll(GlDropdownItem).length).toBe(1);
+          expect(wrapper.findAll(GlDropdownItem)).toHaveLength(1);
         });
     });
 
@@ -233,7 +233,7 @@ describe('CreateIssueForm', () => {
     });
 
     it('renders `Create issue` button', () => {
-      const createIssueButton = wrapper.findAll(GlButton).at(0);
+      const createIssueButton = wrapper.findAll(GlDeprecatedButton).at(0);
 
       expect(createIssueButton.exists()).toBe(true);
       expect(createIssueButton.text()).toBe('Create issue');
@@ -243,7 +243,7 @@ describe('CreateIssueForm', () => {
       wrapper.vm.$store.dispatch('requestCreateItem');
 
       return wrapper.vm.$nextTick(() => {
-        const createIssueButton = wrapper.findAll(GlButton).at(0);
+        const createIssueButton = wrapper.findAll(GlDeprecatedButton).at(0);
 
         expect(createIssueButton.exists()).toBe(true);
         expect(createIssueButton.props('disabled')).toBe(true);
@@ -252,7 +252,7 @@ describe('CreateIssueForm', () => {
     });
 
     it('renders `Cancel` button', () => {
-      const cancelButton = wrapper.findAll(GlButton).at(1);
+      const cancelButton = wrapper.findAll(GlDeprecatedButton).at(1);
 
       expect(cancelButton.exists()).toBe(true);
       expect(cancelButton.text()).toBe('Cancel');

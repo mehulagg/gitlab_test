@@ -20,7 +20,7 @@ Although build images are built automatically via GitLab CI/CD, you can build
 and tag all tooling images locally:
 
 1. Make sure you have [Docker installed](https://docs.docker.com/install/).
-1. Make sure you're on the `dockerfiles/` directory of the `gitlab-docs` repo.
+1. Make sure you're in the `dockerfiles/` directory of the `gitlab-docs` repository.
 1. Build the images:
 
    ```shell
@@ -46,7 +46,7 @@ products, we need to add a
 1. Check that there is a [stable branch created](https://gitlab.com/gitlab-org/charts/gitlab/-/branches)
    for the new chart version. If you're unsure or can't find it, drop a line in
    the `#g_delivery` channel.
-1. Make sure you're on the root path of the `gitlab-docs` repo.
+1. Make sure you're in the root path of the `gitlab-docs` repository.
 1. Open `content/_data/chart_versions.yaml` and add the new stable branch version using the
    version mapping. Note that only the `major.minor` version is needed.
 1. Create a new merge request and merge it.
@@ -61,14 +61,14 @@ this first step.
 The single docs version must be created before the release merge request, but
 this needs to happen when the stable branches for all products have been created.
 
-1. Make sure you're on the root path of the `gitlab-docs` repo.
+1. Make sure you're in the root path of the `gitlab-docs` repository.
 1. Make sure your `master` is updated:
 
    ```shell
    git pull origin master
    ```
 
-1. Run the raketask to create the single version:
+1. Run the Rake task to create the single version:
 
    ```shell
    ./bin/rake "release:single[12.0]"
@@ -91,8 +91,9 @@ this needs to happen when the stable branches for all products have been created
    Once you push, the `image:docker-singe` job will create a new Docker image
    tagged with the branch name you created in the first step. In the end, the
    image will be uploaded in the [Container Registry](https://gitlab.com/gitlab-org/gitlab-docs/container_registry)
-   and it will be listed under the
-   [`registry` environment folder](https://gitlab.com/gitlab-org/gitlab-docs/-/environments/folders/registry).
+   and it will be listed under the `registry` environment folder at
+   `https://gitlab.com/gitlab-org/gitlab-docs/-/environments/folders/registry` (must
+   have developer access).
 
 Optionally, you can test locally by building the image and running it:
 
@@ -108,7 +109,7 @@ Visit `http://localhost:4000/12.0/` to see if everything works correctly.
 Now it's time to create the monthly release merge request that adds the new
 version and rotates the old one:
 
-1. Make sure you're on the root path of the `gitlab-docs` repo.
+1. Make sure you're in the root path of the `gitlab-docs` repository.
 1. Create a branch `release-X-Y`:
 
    ```shell
@@ -157,10 +158,10 @@ the dropdown are included in the unmerged `release-X-Y` branch.
 The content of `content/_data/versions.yaml` needs to change for all online
 versions:
 
-1. Run the raketask that will create all the respective merge requests needed to
+1. Run the Rake task that will create all the respective merge requests needed to
    update the dropdowns and will be set to automatically be merged when their
    pipelines succeed. The `release-X-Y` branch needs to be present locally,
-   otherwise the raketask will fail:
+   otherwise the Rake task will fail:
 
    ```shell
    ./bin/rake release:dropdowns

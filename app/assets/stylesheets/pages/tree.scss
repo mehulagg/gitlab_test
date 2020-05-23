@@ -120,6 +120,7 @@
       &:hover:not(.tree-truncated-warning) {
         td {
           background-color: $blue-50;
+          background-clip: padding-box;
           border-top: 1px solid $blue-200;
           border-bottom: 1px solid $blue-200;
           cursor: pointer;
@@ -129,14 +130,20 @@
       &.selected {
         td {
           background: $white-normal;
-          border-top: 1px solid $border-gray-dark;
-          border-bottom: 1px solid $border-gray-dark;
+          border-top: 1px solid $border-white-normal;
+          border-bottom: 1px solid $border-white-normal;
         }
       }
     }
   }
 
   .tree-item {
+    .file-icon,
+    .folder-icon {
+      position: relative;
+      top: 2px;
+    }
+
     .link-container {
       padding: 0;
 

@@ -1,7 +1,7 @@
-## What is the productivity problem to solve?
+## What is the GitLab engineering productivity problem to solve?
 
 <!--
-Please describe the productivity problem that needs to be solved backed by charts from
+Please describe the engineering productivity problem that needs to be solved backed by charts from
 https://about.gitlab.com/handbook/engineering/quality/engineering-productivity-team/#engineering-productivity-team-metrics.
 -->
 
@@ -25,13 +25,6 @@ Please provide pros/cons and a weight estimate for each solution.
 - [ ] All potential solutions are listed.
 - [ ] A solution has been chosen for the first iteration: `PUT THE CHOSEN SOLUTION HERE`
 
-## Who and when will the solution be implemented?
-
-<!--
-For history reason, please list the person that will implement the solution and
-the planned milestone/date.
--->
-
 ## Verify that the solution has improved the situation
 
 <!--
@@ -44,4 +37,3 @@ after the implementation is merged/deployed/released.
   - Otherwise, create a new "Productivity Improvement" issue. You can re-use the description from this issue, but obviously another solution should be chosen this time.
 
 /label ~"Engineering Productivity" ~meta
-/cc @gl-quality/eng-prod

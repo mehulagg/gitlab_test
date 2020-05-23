@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import $ from 'jquery';
 import Cookies from 'js-cookie';
-import BurndownChart from './components/burndown_chart.vue';
-import BurndownChartData from './burndown_chart_data';
-import Flash from '~/flash';
+import BurnCharts from './components/burn_charts.vue';
+import BurndownChartData from './burn_chart_data';
+import createFlash from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
 
@@ -22,34 +22,55 @@ export default () => {
   if ($chartEl.length) {
     const startDate = $chartEl.data('startDate');
     const dueDate = $chartEl.data('dueDate');
+    const milestoneId = $chartEl.data('milestoneId');
     const burndownEventsPath = $chartEl.data('burndownEventsPath');
+    const burnupEventsPath = $chartEl.data('burnupEventsPath');
 
-    axios
-      .get(burndownEventsPath)
-      .then(response => {
-        const burndownEvents = response.data;
-        const chartData = new BurndownChartData(burndownEvents, startDate, dueDate).generate();
+    const fetchData = [axios.get(burndownEventsPath)];
 
-        const openIssuesCount = chartData.map(d => [d[0], d[1]]);
-        const openIssuesWeight = chartData.map(d => [d[0], d[2]]);
+    if (gon.features.burnupCharts) {
+      fetchData.push(axios.get(burnupEventsPath));
+    }
+
+    Promise.all(fetchData)
+      .then(([burndownResponse, burnupResponse]) => {
+        const burndownEvents = burndownResponse.data;
+        const burndownChartData = new BurndownChartData(
+          burndownEvents,
+          startDate,
+          dueDate,
+        ).generateBurndownTimeseries();
+
+        const burnupEvents = burnupResponse?.data || [];
+
+        const { burnupScope } =
+          new BurndownChartData(burnupEvents, startDate, dueDate).generateBurnupTimeseries({
+            milestoneId,
+          }) || {};
+
+        const openIssuesCount = burndownChartData.map(d => [d[0], d[1]]);
+        const openIssuesWeight = burndownChartData.map(d => [d[0], d[2]]);
 
         return new Vue({
           el: container,
           components: {
-            BurndownChart,
+            BurnCharts,
           },
           render(createElement) {
-            return createElement('burndown-chart', {
+            return createElement('burn-charts', {
               props: {
                 startDate,
                 dueDate,
                 openIssuesCount,
                 openIssuesWeight,
+                burnupScope,
               },
             });
           },
         });
       })
-      .catch(() => new Flash(__('Error loading burndown chart data')));
+      .catch(() => {
+        createFlash(__('Error loading burndown chart data'));
+      });
   }
 };

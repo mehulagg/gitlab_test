@@ -19,6 +19,15 @@ describe Gitlab::GitalyClient do
     })
   end
 
+  describe '.query_time', :request_store do
+    it 'increments query times' do
+      subject.add_query_time(0.4510004)
+      subject.add_query_time(0.3220004)
+
+      expect(subject.query_time).to eq(0.773001)
+    end
+  end
+
   describe '.long_timeout' do
     context 'default case' do
       it { expect(subject.long_timeout).to eq(6.hours) }

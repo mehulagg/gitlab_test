@@ -18,22 +18,9 @@ class ElasticsearchIndexedNamespace < ApplicationRecord
     :namespace_id
   end
 
-  def self.limited(ignore_descendants: false)
-    namespaces = Namespace.where(id: target_ids)
-
-    return namespaces if ignore_descendants
-
-    Gitlab::ObjectHierarchy.new(namespaces).base_and_descendants
-  end
-
-  def self.drop_limited_ids_cache!
-    ElasticsearchIndexedProject.drop_limited_ids_cache!
-    super
-  end
-
   def self.index_first_n_namespaces_of_plan(plan, number_of_namespaces)
     indexed_namespaces = self.select(:namespace_id)
-    now = Time.now
+    now = Time.current
 
     ids = GitlabSubscription
       .with_hosted_plan(plan)
@@ -51,6 +38,7 @@ class ElasticsearchIndexedNamespace < ApplicationRecord
       end
 
       Gitlab::Database.bulk_insert(table_name, insert_rows)
+      invalidate_elasticsearch_indexes_project_cache!
 
       jobs = batch_ids.map { |id| [id, :index] }
 
@@ -68,6 +56,7 @@ class ElasticsearchIndexedNamespace < ApplicationRecord
 
     ids.in_groups_of(BATCH_OPERATION_SIZE, false) do |batch_ids|
       where(namespace_id: batch_ids).delete_all
+      invalidate_elasticsearch_indexes_project_cache!
 
       jobs = batch_ids.map { |id| [id, :delete] }
 

@@ -6,89 +6,112 @@ module Gitlab
       class TreeRestorer
         include Gitlab::Utils::StrongMemoize
 
-        attr_reader :user
-        attr_reader :shared
-        attr_reader :group
+        attr_reader :user, :shared
 
-        def initialize(user:, shared:, group:, group_hash:)
+        def initialize(user:, shared:, group:)
           @user = user
           @shared = shared
-          @group = group
-          @group_hash = group_hash
+          @top_level_group = group
+          @groups_mapping = {}
         end
 
         def restore
-          @group_attributes = relation_reader.consume_attributes(nil)
-          @group_members = relation_reader.consume_relation(nil, 'members')
+          group_ids = relation_reader.consume_relation('groups', '_all').map { |value, _idx| Integer(value) }
+          root_group_id = group_ids.delete_at(0)
 
-          # We need to remove `name` and `path` as we did consume it in previous pass
-          @group_attributes.delete('name')
-          @group_attributes.delete('path')
+          process_root(root_group_id)
 
-          @children = @group_attributes.delete('children')
-
-          if members_mapper.map && restorer.restore
-            @children&.each do |group_hash|
-              group = create_group(group_hash: group_hash, parent_group: @group)
-              shared = Gitlab::ImportExport::Shared.new(group)
-
-              self.class.new(
-                user: @user,
-                shared: shared,
-                group: group,
-                group_hash: group_hash
-              ).restore
-            end
+          group_ids.each do |group_id|
+            process_child(group_id)
           end
-
-          return false if @shared.errors.any?
 
           true
         rescue => e
-          @shared.error(e)
+          shared.error(e)
           false
         end
 
+        class GroupAttributes
+          attr_reader :attributes, :group_id, :id, :path
+
+          def initialize(group_id, relation_reader)
+            @group_id = group_id
+
+            @path = "groups/#{group_id}"
+            @attributes = relation_reader.consume_attributes(@path)
+            @id = @attributes.delete('id')
+
+            unless @id == @group_id
+              raise ArgumentError, "Invalid group_id for #{group_id}"
+            end
+          end
+
+          def delete_attribute(name)
+            attributes.delete(name)
+          end
+
+          def delete_attributes(*names)
+            names.map(&method(:delete_attribute))
+          end
+        end
+        private_constant :GroupAttributes
+
         private
+
+        def process_root(group_id)
+          group_attributes = GroupAttributes.new(group_id, relation_reader)
+
+          # name and path are not imported on the root group to avoid conflict
+          # with existing groups name and/or path.
+          group_attributes.delete_attributes('name', 'path')
+
+          restore_group(@top_level_group, group_attributes)
+        end
+
+        def process_child(group_id)
+          group_attributes = GroupAttributes.new(group_id, relation_reader)
+
+          group = create_group(group_attributes)
+
+          restore_group(group, group_attributes)
+        end
+
+        def create_group(group_attributes)
+          parent_id = group_attributes.delete_attribute('parent_id')
+          name = group_attributes.delete_attribute('name')
+          path = group_attributes.delete_attribute('path')
+
+          parent_group = @groups_mapping.fetch(parent_id) { raise(ArgumentError, 'Parent group not found') }
+
+          ::Groups::CreateService.new(
+            user,
+            name: name,
+            path: path,
+            parent_id: parent_group.id,
+            visibility_level: sub_group_visibility_level(group_attributes.attributes, parent_group)
+          ).execute
+        end
+
+        def restore_group(group, group_attributes)
+          @groups_mapping[group_attributes.id] = group
+
+          Group::GroupRestorer.new(
+            user: user,
+            shared: shared,
+            group: group,
+            attributes: group_attributes.attributes,
+            importable_path: group_attributes.path,
+            relation_reader: relation_reader,
+            reader: reader
+          ).restore
+        end
 
         def relation_reader
           strong_memoize(:relation_reader) do
-            if @group_hash.present?
-              ImportExport::JSON::LegacyReader::Hash.new(
-                @group_hash,
-                relation_names: reader.group_relation_names)
-            else
-              ImportExport::JSON::LegacyReader::File.new(
-                File.join(shared.export_path, 'group.json'),
-                relation_names: reader.group_relation_names)
-            end
+            ImportExport::JSON::NdjsonReader.new(
+              File.join(shared.export_path, 'tree')
+            )
           end
-        end
-
-        def restorer
-          @relation_tree_restorer ||= RelationTreeRestorer.new(
-            user:                  @user,
-            shared:                @shared,
-            relation_reader:       relation_reader,
-            members_mapper:        members_mapper,
-            object_builder:        object_builder,
-            relation_factory:      relation_factory,
-            reader:                reader,
-            importable:            @group,
-            importable_attributes: @group_attributes,
-            importable_path:       nil
-          )
-        end
-
-        def create_group(group_hash:, parent_group:)
-          group_params = {
-            name:      group_hash['name'],
-            path:      group_hash['path'],
-            parent_id: parent_group&.id,
-            visibility_level: sub_group_visibility_level(group_hash, parent_group)
-          }
-
-          ::Groups::CreateService.new(@user, group_params).execute
         end
 
         def sub_group_visibility_level(group_hash, parent_group)
@@ -101,29 +124,15 @@ module Gitlab
           end
         end
 
-        def members_mapper
-          @members_mapper ||= Gitlab::ImportExport::MembersMapper.new(
-            exported_members: @group_members,
-            user: @user,
-            importable: @group
-          )
-        end
-
-        def relation_factory
-          Gitlab::ImportExport::Group::RelationFactory
-        end
-
-        def object_builder
-          Gitlab::ImportExport::Group::ObjectBuilder
-        end
-
         def reader
-          @reader ||= Gitlab::ImportExport::Reader.new(
-            shared: @shared,
-            config: Gitlab::ImportExport::Config.new(
-              config: Gitlab::ImportExport.group_config_file
-            ).to_h
-          )
+          strong_memoize(:reader) do
+            Gitlab::ImportExport::Reader.new(
+              shared: @shared,
+              config: Gitlab::ImportExport::Config.new(
+                config: Gitlab::ImportExport.group_config_file
+              ).to_h
+            )
+          end
         end
       end
     end

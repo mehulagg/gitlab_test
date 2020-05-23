@@ -247,6 +247,67 @@ describe GroupsController do
         expect(response).to have_gitlab_http_status(:found)
       end
     end
+
+    context 'when creating a group with `default_branch_protection` attribute' do
+      using RSpec::Parameterized::TableSyntax
+
+      let(:params) do
+        { group: { name: 'new_group', path: 'new_group', default_branch_protection: Gitlab::Access::PROTECTION_NONE } }
+      end
+
+      subject { post :create, params: params }
+
+      shared_examples_for 'creates the group with the expected `default_branch_protection` value' do
+        it 'creates the group with the expected `default_branch_protection` value' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:found)
+          expect(Group.last.default_branch_protection).to eq(default_branch_protection)
+        end
+      end
+
+      context 'authenticated as an admin', :enable_admin_mode do
+        let_it_be(:user) { create(:admin) }
+
+        where(:feature_enabled, :setting_enabled, :default_branch_protection) do
+          false | false | Gitlab::Access::PROTECTION_NONE
+          false | true  | Gitlab::Access::PROTECTION_NONE
+          true  | false | Gitlab::Access::PROTECTION_NONE
+          false | false | Gitlab::Access::PROTECTION_NONE
+        end
+
+        with_them do
+          before do
+            sign_in(user)
+
+            stub_licensed_features(default_branch_protection_restriction_in_groups: feature_enabled)
+            stub_ee_application_setting(group_owners_can_manage_default_branch_protection: setting_enabled)
+          end
+
+          it_behaves_like 'creates the group with the expected `default_branch_protection` value'
+        end
+      end
+
+      context 'authenticated a normal user' do
+        where(:feature_enabled, :setting_enabled, :default_branch_protection) do
+          false | false | Gitlab::Access::PROTECTION_NONE
+          false | true  | Gitlab::Access::PROTECTION_NONE
+          true  | false | Gitlab::Access::PROTECTION_FULL
+          false | false | Gitlab::Access::PROTECTION_NONE
+        end
+
+        with_them do
+          before do
+            sign_in(user)
+
+            stub_licensed_features(default_branch_protection_restriction_in_groups: feature_enabled)
+            stub_ee_application_setting(group_owners_can_manage_default_branch_protection: setting_enabled)
+          end
+
+          it_behaves_like 'creates the group with the expected `default_branch_protection` value'
+        end
+      end
+    end
   end
 
   describe 'PUT #update' do
@@ -267,7 +328,7 @@ describe GroupsController do
         sign_in(user)
       end
 
-      context 'when user is an admin' do
+      context 'when user is an admin with admin mode enabled', :enable_admin_mode do
         let(:user) { create(:admin) }
 
         it 'updates max_pages_size' do
@@ -277,11 +338,157 @@ describe GroupsController do
         end
       end
 
+      context 'when user is an admin with admin mode disabled' do
+        it 'does not update max_pages_size' do
+          request
+
+          expect(group.reload.max_pages_size).to eq(nil)
+        end
+      end
+
       context 'when user is not an admin' do
         it 'does not update max_pages_size' do
           request
 
           expect(group.reload.max_pages_size).to eq(nil)
+        end
+      end
+    end
+
+    context 'when `max_personal_access_token_lifetime` is specified' do
+      let!(:managed_group) do
+        create(:group_with_managed_accounts, :private, max_personal_access_token_lifetime: 1)
+      end
+
+      let(:user) { create(:user, :group_managed, managing_group: managed_group ) }
+
+      let(:params) { { max_personal_access_token_lifetime: max_personal_access_token_lifetime } }
+      let(:max_personal_access_token_lifetime) { 10 }
+
+      subject do
+        put :update, params: { id: managed_group.to_param, group: params }
+      end
+
+      before do
+        allow_any_instance_of(EE::Group).to receive(:enforced_group_managed_accounts?).and_return(true)
+
+        managed_group.add_owner(user)
+        sign_in(user)
+      end
+
+      context 'without `personal_access_token_expiration_policy` licensed' do
+        before do
+          stub_licensed_features(personal_access_token_expiration_policy: false)
+        end
+
+        it 'does not update the attribute' do
+          expect { subject }.not_to change { managed_group.reload.max_personal_access_token_lifetime }
+        end
+
+        it "doesn't call the update lifetime service" do
+          expect(::PersonalAccessTokens::Groups::UpdateLifetimeService).not_to receive(:new)
+
+          subject
+        end
+      end
+
+      context 'with personal_access_token_expiration_policy licensed' do
+        before do
+          stub_licensed_features(personal_access_token_expiration_policy: true)
+        end
+
+        context 'when `max_personal_access_token_lifetime` is updated to a non-null value' do
+          it 'updates the attribute' do
+            subject
+
+            expect(managed_group.reload.max_personal_access_token_lifetime).to eq(max_personal_access_token_lifetime)
+          end
+
+          it 'executes the update lifetime service' do
+            expect_next_instance_of(::PersonalAccessTokens::Groups::UpdateLifetimeService, managed_group) do |service|
+              expect(service).to receive(:execute)
+            end
+
+            subject
+          end
+        end
+
+        context 'when `max_personal_access_token_lifetime` is updated to null value' do
+          let(:max_personal_access_token_lifetime) { nil }
+
+          it 'updates the attribute' do
+            subject
+
+            expect(managed_group.reload.max_personal_access_token_lifetime).to eq(max_personal_access_token_lifetime)
+          end
+
+          it "doesn't call the update lifetime service" do
+            expect(::PersonalAccessTokens::Groups::UpdateLifetimeService).not_to receive(:new)
+
+            subject
+          end
+        end
+      end
+    end
+
+    context 'when `default_branch_protection` is specified' do
+      using RSpec::Parameterized::TableSyntax
+
+      let(:params) do
+        { id: group.to_param, group: { default_branch_protection: Gitlab::Access::PROTECTION_NONE } }
+      end
+
+      subject { put :update, params: params }
+
+      shared_examples_for 'updates the attribute' do
+        it 'updates the attribute' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:found)
+          expect(group.reload.default_branch_protection).to eq(default_branch_protection)
+        end
+      end
+
+      context 'authenticated as admin', :enable_admin_mode do
+        let_it_be(:user) { create(:admin) }
+
+        where(:feature_enabled, :setting_enabled, :default_branch_protection) do
+          false | false | Gitlab::Access::PROTECTION_NONE
+          false | true  | Gitlab::Access::PROTECTION_NONE
+          true  | false | Gitlab::Access::PROTECTION_NONE
+          false | false | Gitlab::Access::PROTECTION_NONE
+        end
+
+        with_them do
+          before do
+            sign_in(user)
+
+            stub_licensed_features(default_branch_protection_restriction_in_groups: feature_enabled)
+            stub_ee_application_setting(group_owners_can_manage_default_branch_protection: setting_enabled)
+          end
+
+          it_behaves_like 'updates the attribute'
+        end
+      end
+
+      context 'authenticated as group owner' do
+        where(:feature_enabled, :setting_enabled, :default_branch_protection) do
+          false | false | Gitlab::Access::PROTECTION_NONE
+          false | true  | Gitlab::Access::PROTECTION_NONE
+          true  | false | Gitlab::Access::PROTECTION_FULL
+          false | false | Gitlab::Access::PROTECTION_NONE
+        end
+
+        with_them do
+          before do
+            group.add_owner(user)
+            sign_in(user)
+
+            stub_licensed_features(default_branch_protection_restriction_in_groups: feature_enabled)
+            stub_ee_application_setting(group_owners_can_manage_default_branch_protection: setting_enabled)
+          end
+
+          it_behaves_like 'updates the attribute'
         end
       end
     end

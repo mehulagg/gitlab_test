@@ -17,6 +17,9 @@ class GlobalPolicy < BasePolicy
 
   condition(:private_instance_statistics, score: 0) { Gitlab::CurrentSettings.instance_statistics_visibility_private? }
 
+  condition(:project_bot, scope: :user) { @user&.project_bot? }
+  condition(:migration_bot, scope: :user) { @user&.migration_bot? }
+
   rule { admin | (~private_instance_statistics & ~anonymous) }
     .enable :read_instance_statistics
 
@@ -46,9 +49,17 @@ class GlobalPolicy < BasePolicy
   rule { blocked | internal }.policy do
     prevent :log_in
     prevent :access_api
-    prevent :access_git
     prevent :receive_notifications
     prevent :use_slash_commands
+  end
+
+  rule { blocked | (internal & ~migration_bot) }.policy do
+    prevent :access_git
+  end
+
+  rule { project_bot }.policy do
+    prevent :log_in
+    prevent :receive_notifications
   end
 
   rule { deactivated }.policy do
@@ -65,6 +76,10 @@ class GlobalPolicy < BasePolicy
 
   rule { can_create_group }.policy do
     enable :create_group
+  end
+
+  rule { can?(:create_group) }.policy do
+    enable :create_group_with_default_branch_protection
   end
 
   rule { can_create_fork }.policy do

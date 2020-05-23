@@ -1,3 +1,9 @@
+---
+stage: Monitor
+group: APM
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Monitoring NGINX Ingress Controller with VTS metrics
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/13438) in GitLab 9.5.
@@ -55,4 +61,4 @@ Managing these settings depends on how NGINX Ingress has been deployed. If you h
 
 In order to isolate and only display relevant metrics for a given environment, GitLab needs a method to detect which labels are associated. To do this, GitLab will search for metrics with appropriate labels. In this case, the `upstream` label must be of the form `<KUBE_NAMESPACE>-<CI_ENVIRONMENT_SLUG>-*`.
 
-If you have used [Auto Deploy](../../../../topics/autodevops/index.md#auto-deploy) to deploy your app, this format will be used automatically and metrics will be detected with no action on your part.
+If you have used [Auto Deploy](../../../../topics/autodevops/stages.md#auto-deploy) to deploy your app, this format will be used automatically and metrics will be detected with no action on your part.

@@ -1,6 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { GlButton } from '@gitlab/ui';
+import { GlDeprecatedButton } from '@gitlab/ui';
 
 import Draggable from 'vuedraggable';
 
@@ -114,10 +114,11 @@ describe('RelatedItemsTree', () => {
                   fallbackClass: 'is-dragging',
                   fallbackOnBody: false,
                   ghostClass: 'is-ghost',
-                  group: mockParentItem.reference,
+                  group: 'sortable-container',
                   tag: 'ul',
                   'ghost-class': 'tree-item-drag-active',
                   'data-parent-reference': mockParentItem.reference,
+                  'data-parent-id': mockParentItem.id,
                   value: wrapper.vm.children,
                   filter: `.${treeItemChevronBtnClassName}`,
                 }),
@@ -270,34 +271,63 @@ describe('RelatedItemsTree', () => {
               expect(document.body.classList.contains('is-dragging')).toBe(false);
             });
 
-            it('does not call `reorderItem` action when newIndex is same as oldIndex', () => {
-              jest.spyOn(wrapper.vm, 'reorderItem').mockImplementation(() => {});
+            describe('origin parent is destination parent', () => {
+              it('does not call `reorderItem` action when newIndex is same as oldIndex', () => {
+                jest.spyOn(wrapper.vm, 'reorderItem').mockImplementation(() => {});
 
-              wrapper.vm.handleDragOnEnd({
-                oldIndex: 0,
-                newIndex: 0,
+                wrapper.vm.handleDragOnEnd({
+                  oldIndex: 0,
+                  newIndex: 0,
+                  from: wrapper.element,
+                  to: wrapper.element,
+                });
+
+                expect(wrapper.vm.reorderItem).not.toHaveBeenCalled();
               });
 
-              expect(wrapper.vm.reorderItem).not.toHaveBeenCalled();
-            });
+              it('calls `reorderItem` action when newIndex is different from oldIndex', () => {
+                jest.spyOn(wrapper.vm, 'reorderItem').mockImplementation(() => {});
 
-            it('calls `reorderItem` action when newIndex is different from oldIndex', () => {
-              jest.spyOn(wrapper.vm, 'reorderItem').mockImplementation(() => {});
-
-              wrapper.vm.handleDragOnEnd({
-                oldIndex: 1,
-                newIndex: 0,
-              });
-
-              expect(wrapper.vm.reorderItem).toHaveBeenCalledWith(
-                expect.objectContaining({
-                  treeReorderMutation: expect.any(Object),
-                  parentItem: wrapper.vm.parentItem,
-                  targetItem: wrapper.vm.children[1],
+                wrapper.vm.handleDragOnEnd({
                   oldIndex: 1,
                   newIndex: 0,
-                }),
-              );
+                  from: wrapper.element,
+                  to: wrapper.element,
+                });
+
+                expect(wrapper.vm.reorderItem).toHaveBeenCalledWith(
+                  expect.objectContaining({
+                    treeReorderMutation: expect.any(Object),
+                    parentItem: wrapper.vm.parentItem,
+                    targetItem: wrapper.vm.children[1],
+                    oldIndex: 1,
+                    newIndex: 0,
+                  }),
+                );
+              });
+            });
+
+            describe('origin parent is different than destination parent', () => {
+              it('calls `moveItem`', () => {
+                jest.spyOn(wrapper.vm, 'moveItem').mockImplementation(() => {});
+
+                wrapper.vm.handleDragOnEnd({
+                  oldIndex: 1,
+                  newIndex: 0,
+                  from: wrapper.element,
+                  to: wrapper.find('li:first-child .sub-tree-root'),
+                });
+
+                expect(wrapper.vm.moveItem).toHaveBeenCalledWith(
+                  expect.objectContaining({
+                    oldParentItem: wrapper.vm.parentItem,
+                    newParentItem: wrapper.find('li:first-child .sub-tree-root').dataset,
+                    targetItem: wrapper.vm.children[1],
+                    oldIndex: 1,
+                    newIndex: 0,
+                  }),
+                );
+              });
             });
           });
         });
@@ -346,6 +376,32 @@ describe('RelatedItemsTree', () => {
           );
         });
       });
+
+      describe('onMove', () => {
+        it('calls toggleItem action if move event finds epic element', () => {
+          jest.spyOn(wrapper.vm, 'toggleItem').mockImplementation(() => {});
+          const evt = {
+            relatedContext: {
+              element: mockParentItem,
+            },
+          };
+          wrapper.vm.onMove(evt);
+
+          expect(wrapper.vm.toggleItem).toHaveBeenCalled();
+        });
+
+        it(' does not call toggleItem action if move event does not find epic element', () => {
+          jest.spyOn(wrapper.vm, 'toggleItem').mockImplementation(() => {});
+          const evt = {
+            relatedContext: {
+              element: mockIssue2,
+            },
+          };
+          wrapper.vm.onMove(evt);
+
+          expect(wrapper.vm.toggleItem).not.toHaveBeenCalled();
+        });
+      });
     });
 
     describe('template', () => {
@@ -354,13 +410,13 @@ describe('RelatedItemsTree', () => {
       });
 
       it('renders `Show more` link', () => {
-        expect(wrapper.find(GlButton).text()).toBe('Show more');
+        expect(wrapper.find(GlDeprecatedButton).text()).toBe('Show more');
       });
 
       it('calls `handleShowMoreClick` when `Show more` link is clicked', () => {
         jest.spyOn(wrapper.vm, 'handleShowMoreClick').mockImplementation(() => {});
 
-        wrapper.find(GlButton).vm.$emit('click');
+        wrapper.find(GlDeprecatedButton).vm.$emit('click');
 
         expect(wrapper.vm.handleShowMoreClick).toHaveBeenCalled();
       });

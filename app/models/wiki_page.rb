@@ -2,16 +2,18 @@
 
 # rubocop:disable Rails/ActiveRecordAliases
 class WikiPage
+  include Gitlab::Utils::StrongMemoize
+
   PageChangedError = Class.new(StandardError)
   PageRenameError = Class.new(StandardError)
-
-  MAX_TITLE_BYTES = 245
-  MAX_DIRECTORY_BYTES = 255
+  FrontMatterTooLong = Class.new(StandardError)
 
   include ActiveModel::Validations
   include ActiveModel::Conversion
   include StaticModel
   extend ActiveModel::Naming
+
+  delegate :content, :front_matter, to: :parsed_content
 
   def self.primary_key
     'slug'
@@ -24,7 +26,7 @@ class WikiPage
   def eql?(other)
     return false unless other.present? && other.is_a?(self.class)
 
-    slug == other.slug && wiki.project == other.wiki.project
+    slug == other.slug && wiki.container == other.wiki.container
   end
 
   alias_method :==, :eql?
@@ -64,9 +66,9 @@ class WikiPage
   validates :content, presence: true
   validate :validate_path_limits, if: :title_changed?
 
-  # The GitLab ProjectWiki instance.
+  # The GitLab Wiki instance.
   attr_reader :wiki
-  delegate :project, to: :wiki
+  delegate :container, to: :wiki
 
   # The raw Gitlab::Git::WikiPage instance.
   attr_reader :page
@@ -81,7 +83,7 @@ class WikiPage
 
   # Construct a new WikiPage
   #
-  # @param [ProjectWiki] wiki
+  # @param [Wiki] wiki
   # @param [Gitlab::Git::WikiPage] page
   def initialize(wiki, page = nil)
     @wiki       = wiki
@@ -93,30 +95,29 @@ class WikiPage
 
   # The escaped URL path of this page.
   def slug
-    @attributes[:slug].presence || wiki.wiki.preview_slug(title, format)
+    attributes[:slug].presence || wiki.wiki.preview_slug(title, format)
   end
 
   alias_method :to_param, :slug
 
   def human_title
-    return 'Home' if title == 'home'
+    return 'Home' if title == Wiki::HOMEPAGE
 
     title
   end
 
   # The formatted title of this page.
   def title
-    @attributes[:title] || ''
+    attributes[:title] || ''
   end
 
   # Sets the title of this page.
   def title=(new_title)
-    @attributes[:title] = new_title
+    attributes[:title] = new_title
   end
 
-  # The raw content of this page.
-  def content
-    @attributes[:content] ||= @page&.text_data
+  def raw_content
+    attributes[:content] ||= page&.text_data
   end
 
   # The hierarchy of the directory this page is contained in.
@@ -126,7 +127,7 @@ class WikiPage
 
   # The markup format for the page.
   def format
-    @attributes[:format] || :markdown
+    attributes[:format] || :markdown
   end
 
   # The commit message for this page version.
@@ -150,13 +151,13 @@ class WikiPage
   def versions(options = {})
     return [] unless persisted?
 
-    wiki.wiki.page_versions(@page.path, options)
+    wiki.wiki.page_versions(page.path, options)
   end
 
   def count_versions
     return [] unless persisted?
 
-    wiki.wiki.count_page_versions(@page.path)
+    wiki.wiki.count_page_versions(page.path)
   end
 
   def last_version
@@ -172,7 +173,7 @@ class WikiPage
   def historical?
     return false unless last_commit_sha && version
 
-    @page.historical? && last_commit_sha != version.sha
+    page.historical? && last_commit_sha != version.sha
   end
 
   # Returns boolean True or False if this instance
@@ -184,7 +185,7 @@ class WikiPage
   # Returns boolean True or False if this instance
   # has been fully created on disk or not.
   def persisted?
-    @page.present?
+    page.present?
   end
 
   # Creates a new Wiki Page.
@@ -194,7 +195,7 @@ class WikiPage
   #       :content - The raw markup content.
   #       :format  - Optional symbol representing the
   #                  content format. Can be any type
-  #                  listed in the ProjectWiki::MARKUPS
+  #                  listed in the Wiki::MARKUPS
   #                  Hash.
   #       :message - Optional commit message to set on
   #                  the new page.
@@ -214,7 +215,7 @@ class WikiPage
   # attrs - Hash of attributes to be updated on the page.
   #        :content         - The raw markup content to replace the existing.
   #        :format          - Optional symbol representing the content format.
-  #                           See ProjectWiki::MARKUPS Hash for available formats.
+  #                           See Wiki::MARKUPS Hash for available formats.
   #        :message         - Optional commit message to set on the new version.
   #        :last_commit_sha - Optional last commit sha to validate the page unchanged.
   #        :title           - The Title (optionally including dir) to replace existing title
@@ -231,14 +232,14 @@ class WikiPage
     update_attributes(attrs)
 
     if title.present? && title_changed? && wiki.find_page(title).present?
-      @attributes[:title] = @page.title
+      attributes[:title] = page.title
       raise PageRenameError
     end
 
     save do
       wiki.update_page(
-        @page,
-        content: content,
+        page,
+        content: raw_content,
         format: format,
         message: attrs[:message],
         title: title
@@ -250,7 +251,7 @@ class WikiPage
   #
   # Returns boolean True or False.
   def delete
-    if wiki.delete_page(@page)
+    if wiki.delete_page(page)
       true
     else
       false
@@ -260,6 +261,7 @@ class WikiPage
   # Relative path to the partial to be used when rendering collections
   # of this object.
   def to_partial_path
+    # TODO: Move into shared/ with https://gitlab.com/gitlab-org/gitlab/-/issues/196054
     'projects/wikis/wiki_page'
   end
 
@@ -269,7 +271,7 @@ class WikiPage
 
   def title_changed?
     if persisted?
-      old_title, old_dir = wiki.page_title_and_dir(self.class.unhyphenize(@page.url_path))
+      old_title, old_dir = wiki.page_title_and_dir(self.class.unhyphenize(page.url_path))
       new_title, new_dir = wiki.page_title_and_dir(self.class.unhyphenize(title))
 
       new_title != old_title || (title.include?('/') && new_dir != old_dir)
@@ -281,17 +283,45 @@ class WikiPage
   # Updates the current @attributes hash by merging a hash of params
   def update_attributes(attrs)
     attrs[:title] = process_title(attrs[:title]) if attrs[:title].present?
+    update_front_matter(attrs)
 
     attrs.slice!(:content, :format, :message, :title)
+    clear_memoization(:parsed_content) if attrs.has_key?(:content)
 
-    @attributes.merge!(attrs)
+    attributes.merge!(attrs)
   end
 
   def to_ability_name
     'wiki_page'
   end
 
+  def version_commit_timestamp
+    version&.commit&.committed_date
+  end
+
   private
+
+  def serialize_front_matter(hash)
+    return '' unless hash.present?
+
+    YAML.dump(hash.transform_keys(&:to_s)) + "---\n"
+  end
+
+  def update_front_matter(attrs)
+    return unless Gitlab::WikiPages::FrontMatterParser.enabled?(container)
+    return unless attrs.has_key?(:front_matter)
+
+    fm_yaml = serialize_front_matter(attrs[:front_matter])
+    raise FrontMatterTooLong if fm_yaml.size > Gitlab::WikiPages::FrontMatterParser::MAX_FRONT_MATTER_LENGTH
+
+    attrs[:content] = fm_yaml + (attrs[:content].presence || content)
+  end
+
+  def parsed_content
+    strong_memoize(:parsed_content) do
+      Gitlab::WikiPages::FrontMatterParser.new(raw_content, container).parse
+    end
+  end
 
   # Process and format the title based on the user input.
   def process_title(title)
@@ -300,7 +330,7 @@ class WikiPage
     title = deep_title_squish(title)
     current_dirname = File.dirname(title)
 
-    if @page.present?
+    if persisted?
       return title[1..-1] if current_dirname == '/'
       return File.join([directory.presence, title].compact) if current_dirname == '.'
     end
@@ -337,16 +367,20 @@ class WikiPage
   end
 
   def validate_path_limits
-    *dirnames, title = @attributes[:title].split('/')
+    return unless title.present?
 
-    if title && title.bytesize > MAX_TITLE_BYTES
-      errors.add(:title, _("exceeds the limit of %{bytes} bytes") % { bytes: MAX_TITLE_BYTES })
+    *dirnames, filename = title.split('/')
+
+    if filename && filename.bytesize > Gitlab::WikiPages::MAX_TITLE_BYTES
+      errors.add(:title, _("exceeds the limit of %{bytes} bytes") % {
+        bytes: Gitlab::WikiPages::MAX_TITLE_BYTES
+      })
     end
 
-    invalid_dirnames = dirnames.select { |d| d.bytesize > MAX_DIRECTORY_BYTES }
+    invalid_dirnames = dirnames.select { |d| d.bytesize > Gitlab::WikiPages::MAX_DIRECTORY_BYTES }
     invalid_dirnames.each do |dirname|
       errors.add(:title, _('exceeds the limit of %{bytes} bytes for directory name "%{dirname}"') % {
-        bytes: MAX_DIRECTORY_BYTES,
+        bytes: Gitlab::WikiPages::MAX_DIRECTORY_BYTES,
         dirname: dirname
       })
     end

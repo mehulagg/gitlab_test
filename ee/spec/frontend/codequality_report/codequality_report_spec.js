@@ -69,7 +69,16 @@ describe('Codequality report app', () => {
 
       expect(findWarningIcon().exists()).toBe(true);
       expect(findStatus().text()).toBe(`Found ${expectedIssueTotal} code quality issues`);
-      expect(wrapper.findAll('.report-block-list-issue').length).toBe(expectedIssueTotal);
+      expect(wrapper.findAll('.report-block-list-issue')).toHaveLength(expectedIssueTotal);
+    });
+
+    it('renders a link to the line where the issue was found', () => {
+      const issueLink = wrapper.find('.report-block-list-issue a');
+
+      expect(issueLink.text()).toBe('ee/spec/features/admin/geo/admin_geo_projects_spec.rb:152');
+      expect(issueLink.attributes('href')).toBe(
+        '/root/test-codequality/blob/feature-branch/ee/spec/features/admin/geo/admin_geo_projects_spec.rb#L152',
+      );
     });
   });
 
@@ -81,7 +90,7 @@ describe('Codequality report app', () => {
     it('shows a message that no codequality issues were found', () => {
       expect(findSuccessIcon().exists()).toBe(true);
       expect(findStatus().text()).toBe('No code quality issues found');
-      expect(wrapper.findAll('.report-block-list-issue').length).toBe(0);
+      expect(wrapper.findAll('.report-block-list-issue')).toHaveLength(0);
     });
   });
 });

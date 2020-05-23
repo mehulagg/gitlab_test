@@ -191,7 +191,10 @@ describe('Actions RegistryExplorer Store', () => {
         {
           tagsPagination: {},
         },
-        [{ type: types.SET_MAIN_LOADING, payload: true }],
+        [
+          { type: types.SET_MAIN_LOADING, payload: true },
+          { type: types.SET_MAIN_LOADING, payload: false },
+        ],
         [
           {
             type: 'setShowGarbageCollectionTip',
@@ -220,8 +223,7 @@ describe('Actions RegistryExplorer Store', () => {
           { type: types.SET_MAIN_LOADING, payload: false },
         ],
         [],
-        done,
-      );
+      ).catch(() => done());
     });
   });
 
@@ -241,7 +243,10 @@ describe('Actions RegistryExplorer Store', () => {
         {
           tagsPagination: {},
         },
-        [{ type: types.SET_MAIN_LOADING, payload: true }],
+        [
+          { type: types.SET_MAIN_LOADING, payload: true },
+          { type: types.SET_MAIN_LOADING, payload: false },
+        ],
         [
           {
             type: 'setShowGarbageCollectionTip',
@@ -273,54 +278,44 @@ describe('Actions RegistryExplorer Store', () => {
           { type: types.SET_MAIN_LOADING, payload: false },
         ],
         [],
-        done,
-      );
+      ).catch(() => done());
     });
   });
 
   describe('request delete single image', () => {
-    const deletePath = 'delete/path';
+    const image = {
+      destroy_path: 'delete/path',
+    };
+
     it('successfully performs the delete request', done => {
-      mock.onDelete(deletePath).replyOnce(200);
+      mock.onDelete(image.destroy_path).replyOnce(200);
 
       testAction(
         actions.requestDeleteImage,
-        deletePath,
-        {
-          pagination: {},
-        },
+        image,
+        {},
         [
           { type: types.SET_MAIN_LOADING, payload: true },
+          { type: types.UPDATE_IMAGE, payload: { ...image, deleting: true } },
           { type: types.SET_MAIN_LOADING, payload: false },
         ],
-        [
-          {
-            type: 'setShowGarbageCollectionTip',
-            payload: true,
-          },
-          {
-            type: 'requestImagesList',
-            payload: { pagination: {} },
-          },
-        ],
+        [],
         done,
       );
     });
 
     it('should turn off loading on error', done => {
-      mock.onDelete(deletePath).replyOnce(400);
+      mock.onDelete(image.destroy_path).replyOnce(400);
       testAction(
         actions.requestDeleteImage,
-        deletePath,
+        image,
         {},
         [
           { type: types.SET_MAIN_LOADING, payload: true },
           { type: types.SET_MAIN_LOADING, payload: false },
         ],
         [],
-      ).catch(() => {
-        done();
-      });
+      ).catch(() => done());
     });
   });
 });

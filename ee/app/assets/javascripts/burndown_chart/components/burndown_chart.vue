@@ -1,5 +1,4 @@
 <script>
-import { GlButton, GlButtonGroup } from '@gitlab/ui';
 import { GlLineChart } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
 import ResizableChartContainer from '~/vue_shared/components/resizable_chart/resizable_chart_container.vue';
@@ -7,8 +6,6 @@ import { s__, __, sprintf } from '~/locale';
 
 export default {
   components: {
-    GlButton,
-    GlButtonGroup,
     GlLineChart,
     ResizableChartContainer,
   },
@@ -31,10 +28,19 @@ export default {
       required: false,
       default: () => [],
     },
+    issuesSelected: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    showTitle: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   data() {
     return {
-      issuesSelected: true,
       tooltip: {
         title: '',
         content: '',
@@ -57,13 +63,13 @@ export default {
       const series = [
         {
           name,
-          data: data.map(d => [new Date(d[0]), d[1]]),
+          data,
         },
       ];
 
       if (series[0] && series[0].data.length >= 2) {
-        const idealStart = [new Date(this.startDate), data[0][1]];
-        const idealEnd = [new Date(this.dueDate), 0];
+        const idealStart = [this.startDate, data[0][1]];
+        const idealEnd = [this.dueDate, 0];
         const idealData = [idealStart, idealEnd];
 
         series.push({
@@ -85,6 +91,8 @@ export default {
         xAxis: {
           name: '',
           type: 'time',
+          min: this.startDate,
+          max: this.dueDate,
           axisLine: {
             show: true,
           },
@@ -132,29 +140,10 @@ export default {
 
 <template>
   <div data-qa-selector="burndown_chart">
-    <div class="burndown-header d-flex align-items-center">
+    <div v-if="showTitle" class="burndown-header d-flex align-items-center">
       <h3>{{ __('Burndown chart') }}</h3>
-      <gl-button-group class="ml-3 js-burndown-data-selector">
-        <gl-button
-          ref="totalIssuesButton"
-          :variant="issuesSelected ? 'primary' : 'inverted-primary'"
-          size="sm"
-          @click="showIssueCount"
-        >
-          {{ __('Issues') }}
-        </gl-button>
-        <gl-button
-          ref="totalWeightButton"
-          :variant="issuesSelected ? 'inverted-primary' : 'primary'"
-          size="sm"
-          data-qa-selector="weight_button"
-          @click="showIssueWeight"
-        >
-          {{ __('Issue weight') }}
-        </gl-button>
-      </gl-button-group>
     </div>
-    <resizable-chart-container class="burndown-chart">
+    <resizable-chart-container class="burndown-chart js-burndown-chart">
       <gl-line-chart
         slot-scope="{ width }"
         :width="width"

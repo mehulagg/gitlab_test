@@ -6,7 +6,9 @@ module Projects
       include DeployTokenMethods
 
       def execute
-        create_deploy_token_for(@project, params)
+        deploy_token = create_deploy_token_for(@project, params)
+
+        create_deploy_token_payload_for(deploy_token)
       end
     end
   end

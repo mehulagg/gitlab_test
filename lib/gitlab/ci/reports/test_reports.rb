@@ -34,6 +34,20 @@ module Gitlab
           end
         end
 
+        def with_attachment!
+          @test_suites.keep_if do |_job_name, test_suite|
+            test_suite.with_attachment!.present?
+          end
+
+          self
+        end
+
+        def suite_errors
+          test_suites.each_with_object({}) do |(name, suite), errors|
+            errors[suite.name] = suite.suite_error if suite.suite_error
+          end
+        end
+
         TestCase::STATUS_TYPES.each do |status_type|
           define_method("#{status_type}_count") do
             # rubocop: disable CodeReuse/ActiveRecord

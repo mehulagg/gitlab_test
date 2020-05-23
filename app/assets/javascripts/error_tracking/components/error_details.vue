@@ -3,7 +3,7 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 import dateFormat from 'dateformat';
 import createFlash from '~/flash';
 import {
-  GlButton,
+  GlDeprecatedButton,
   GlFormInput,
   GlLink,
   GlLoadingIcon,
@@ -29,7 +29,7 @@ const SENTRY_TIMEOUT = 10000;
 
 export default {
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlFormInput,
     GlLink,
     GlLoadingIcon,
@@ -225,7 +225,7 @@ export default {
 <template>
   <div>
     <div v-if="errorLoading" class="py-3">
-      <gl-loading-icon :size="3" />
+      <gl-loading-icon size="lg" />
     </div>
     <div v-else-if="error" class="error-details">
       <gl-alert v-if="isAlertVisible" @dismiss="isAlertVisible = false">
@@ -257,22 +257,22 @@ export default {
         </div>
         <div class="error-details-actions">
           <div class="d-inline-flex bv-d-sm-down-none">
-            <gl-button
+            <gl-deprecated-button
               :loading="updatingIgnoreStatus"
               data-qa-selector="update_ignore_status_button"
               @click="onIgnoreStatusUpdate"
             >
               {{ ignoreBtnLabel }}
-            </gl-button>
-            <gl-button
+            </gl-deprecated-button>
+            <gl-deprecated-button
               class="btn-outline-info ml-2"
               :loading="updatingResolveStatus"
               data-qa-selector="update_resolve_status_button"
               @click="onResolveStatusUpdate"
             >
               {{ resolveBtnLabel }}
-            </gl-button>
-            <gl-button
+            </gl-deprecated-button>
+            <gl-deprecated-button
               v-if="error.gitlabIssuePath"
               class="ml-2"
               data-qa-selector="view_issue_button"
@@ -280,7 +280,7 @@ export default {
               variant="success"
             >
               {{ __('View issue') }}
-            </gl-button>
+            </gl-deprecated-button>
             <form
               ref="sentryIssueForm"
               :action="projectIssuesPath"
@@ -295,7 +295,7 @@ export default {
                 name="issue[sentry_issue_attributes][sentry_issue_identifier]"
               />
               <gl-form-input :value="csrfToken" class="hidden" name="authenticity_token" />
-              <gl-button
+              <gl-deprecated-button
                 v-if="!error.gitlabIssuePath"
                 class="btn-success"
                 :loading="issueCreationInProgress"
@@ -303,7 +303,7 @@ export default {
                 @click="createIssue"
               >
                 {{ __('Create issue') }}
-              </gl-button>
+              </gl-deprecated-button>
             </form>
           </div>
           <gl-dropdown
@@ -405,7 +405,7 @@ export default {
         </ul>
 
         <div v-if="loadingStacktrace" class="py-3">
-          <gl-loading-icon :size="3" />
+          <gl-loading-icon size="lg" />
         </div>
 
         <template v-else-if="showStacktrace">

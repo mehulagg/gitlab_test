@@ -4,7 +4,7 @@ RSpec.shared_examples 'Insights page' do
   let_it_be(:user) { create(:user) }
 
   describe 'as a permitted user' do
-    before(:context) do
+    before_all do
       entity.add_maintainer(user)
     end
 
@@ -80,7 +80,7 @@ RSpec.shared_examples 'Insights page' do
 
     context 'without correct license' do
       before do
-        stub_feature_flags(insights: { enabled: false, thing: entity })
+        stub_feature_flags(insights: false)
         stub_licensed_features(insights: false)
       end
 

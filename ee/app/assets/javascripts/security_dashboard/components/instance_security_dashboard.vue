@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import { GlButton, GlEmptyState, GlLink, GlLoadingIcon } from '@gitlab/ui';
+import { GlDeprecatedButton, GlEmptyState, GlLink, GlLoadingIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import ProjectManager from './project_manager.vue';
 import SecurityDashboard from './security_dashboard_vuex.vue';
@@ -8,7 +8,7 @@ import SecurityDashboard from './security_dashboard_vuex.vue';
 export default {
   name: 'InstanceSecurityDashboard',
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlEmptyState,
     GlLink,
     GlLoadingIcon,
@@ -66,11 +66,11 @@ export default {
       return this.showProjectSelector
         ? {
             variant: 'success',
-            text: s__('SecurityDashboard|Return to dashboard'),
+            text: s__('SecurityReports|Return to dashboard'),
           }
         : {
             variant: 'secondary',
-            text: s__('SecurityDashboard|Edit dashboard'),
+            text: s__('SecurityReports|Edit dashboard'),
           };
     },
     shouldShowEmptyState() {
@@ -101,8 +101,8 @@ export default {
 <template>
   <article>
     <header class="page-title-holder flex-fill d-flex align-items-center">
-      <h2 class="page-title">{{ s__('SecurityDashboard|Security Dashboard') }}</h2>
-      <gl-button
+      <h2 class="page-title">{{ s__('SecurityReports|Security Dashboard') }}</h2>
+      <gl-deprecated-button
         v-if="isInitialized"
         class="page-title-controls js-project-selector-toggle"
         :variant="toggleButtonProps.variant"
@@ -117,24 +117,24 @@ export default {
       <template v-else>
         <gl-empty-state
           v-if="shouldShowEmptyState"
-          :title="s__('SecurityDashboard|Add a project to your dashboard')"
+          :title="s__('SecurityReports|Add a project to your dashboard')"
           :svg-path="emptyStateSvgPath"
         >
           <template #description>
             {{
               s__(
-                'SecurityDashboard|The security dashboard displays the latest security findings for projects you wish to monitor. Select "Edit dashboard" to add and remove projects.',
+                'SecurityReports|The security dashboard displays the latest security findings for projects you wish to monitor. Select "Edit dashboard" to add and remove projects.',
               )
             }}
             <gl-link :href="dashboardDocumentation">{{
-              s__('SecurityDashboard|More information')
+              s__('SecurityReports|More information')
             }}</gl-link
             >.
           </template>
           <template #actions>
-            <gl-button variant="success" @click="toggleProjectSelector">
-              {{ s__('SecurityDashboard|Add projects') }}
-            </gl-button>
+            <gl-deprecated-button variant="success" @click="toggleProjectSelector">
+              {{ s__('SecurityReports|Add projects') }}
+            </gl-deprecated-button>
           </template>
         </gl-empty-state>
 

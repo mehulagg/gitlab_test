@@ -180,21 +180,49 @@ describe API::Projects do
       end
     end
 
-    describe 'marked_for_deletion attribute' do
-      it 'exposed when the feature is available' do
-        stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
+    context 'project soft-deletion' do
+      subject { get api("/projects/#{project.id}", user) }
 
-        get api("/projects/#{project.id}", user)
-
-        expect(json_response).to have_key 'marked_for_deletion_at'
+      let(:project) do
+        create(:project, :public, archived: true, marked_for_deletion_at: 1.day.ago, deleting_user: user)
       end
 
-      it 'not exposed when the feature is not available' do
-        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
+      describe 'marked_for_deletion_at attribute' do
+        it 'exposed when the feature is available' do
+          stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
 
-        get api("/projects/#{project.id}", user)
+          subject
 
-        expect(json_response).not_to have_key 'marked_for_deletion_at'
+          expect(json_response).to have_key 'marked_for_deletion_at'
+          expect(Date.parse(json_response['marked_for_deletion_at'])).to eq(project.marked_for_deletion_at)
+        end
+
+        it 'not exposed when the feature is not available' do
+          stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
+
+          subject
+
+          expect(json_response).not_to have_key 'marked_for_deletion_at'
+        end
+      end
+
+      describe 'marked_for_deletion_on attribute' do
+        it 'exposed when the feature is available' do
+          stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
+
+          subject
+
+          expect(json_response).to have_key 'marked_for_deletion_on'
+          expect(Date.parse(json_response['marked_for_deletion_on'])).to eq(project.marked_for_deletion_at)
+        end
+
+        it 'not exposed when the feature is not available' do
+          stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
+
+          subject
+
+          expect(json_response).not_to have_key 'marked_for_deletion_on'
+        end
       end
     end
   end
@@ -315,6 +343,72 @@ describe API::Projects do
         group_with_project_templates_id: subgroup.id,
         namespace_id: subgroup.id
       }
+    end
+  end
+
+  describe 'GET /projects/:id/users' do
+    shared_examples_for 'project users response' do
+      it 'returns the project users' do
+        get api("/projects/#{project.id}/users", current_user)
+
+        user = project.namespace.owner
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to include_pagination_headers
+        expect(json_response).to be_an Array
+        expect(json_response.size).to eq(1)
+
+        first_user = json_response.first
+        expect(first_user['username']).to eq(user.username)
+        expect(first_user['name']).to eq(user.name)
+      end
+
+      context 'when the gitlab_employee_badge flag is off' do
+        it 'does not expose the is_gitlab_employee attribute on the user' do
+          stub_feature_flags(gitlab_employee_badge: false)
+
+          get api("/projects/#{project.id}/users", current_user)
+
+          expect(json_response.first.keys).to contain_exactly(*%w[name username id state avatar_url web_url])
+        end
+      end
+
+      context 'when the gitlab_employee_badge flag is on but we are not on gitlab.com' do
+        it 'does not expose the is_gitlab_employee attribute on the user' do
+          stub_feature_flags(gitlab_employee_badge: true)
+          allow(Gitlab).to receive(:com?).and_return(false)
+
+          get api("/projects/#{project.id}/users", current_user)
+
+          expect(json_response.first.keys).to contain_exactly(*%w[name username id state avatar_url web_url])
+        end
+      end
+
+      context 'when the gitlab_employee_badge flag is on and we are on gitlab.com' do
+        it 'exposes the is_gitlab_employee attribute on the user' do
+          stub_feature_flags(gitlab_employee_badge: true)
+          allow(Gitlab).to receive(:com?).and_return(true)
+
+          get api("/projects/#{project.id}/users", current_user)
+
+          expect(json_response.first.keys).to contain_exactly(*%w[name username id state avatar_url web_url is_gitlab_employee])
+        end
+      end
+    end
+
+    context 'when unauthenticated' do
+      it_behaves_like 'project users response' do
+        let(:project) { create(:project, :public) }
+        let(:current_user) { nil }
+      end
+    end
+
+    context 'when authenticated' do
+      context 'valid request' do
+        it_behaves_like 'project users response' do
+          let(:current_user) { user }
+        end
+      end
     end
   end
 
@@ -621,6 +715,7 @@ describe API::Projects do
         expect(response).to have_gitlab_http_status(:created)
         expect(json_response['archived']).to be_falsey
         expect(json_response['marked_for_deletion_at']).to be_falsey
+        expect(json_response['marked_for_deletion_on']).to be_falsey
       end
 
       it 'returns error if project is already being deleted' do
@@ -719,7 +814,6 @@ describe API::Projects do
       end
 
       before do
-        stub_feature_flags(enforced_sso_requires_session: false)
         stub_licensed_features(group_saml: true)
       end
 

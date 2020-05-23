@@ -8,8 +8,8 @@ GitLab offers tiers of features. Your subscription determines which tier you hav
 
 GitLab provides special subscriptions to participants in the [GitLab Education Program](https://about.gitlab.com/solutions/education/) and [GitLab Open Source Program](https://about.gitlab.com/solutions/open-source/). For details on obtaining and renewing these subscriptions, see:
 
-- [GitLab Education Program subscriptions](#gitlab-education-program-subscriptions)
-- [GitLab Open Source Program subscriptions](#gitlab-open-source-program-subscriptions)
+- [GitLab for Education subscriptions](#gitlab-for-education-subscriptions)
+- [GitLab for Open Source subscriptions](#gitlab-for-open-source-subscriptions)
 
 ## Choosing a GitLab subscription
 
@@ -64,13 +64,21 @@ source projects, GitLab grants access to **Gold** features for all GitLab.com
 
 #### Self-managed
 
-A self-managed subscription uses a hybrid model. You pay for a subscription according to the maximum number of users enabled during the subscription period. For instances that aren't air-gapped or on a closed network, the maximum number of simultaneous users in the self-managed installation is checked each quarter, using [Seat Link](#seat-link).
+A self-managed subscription uses a hybrid model. You pay for a subscription according to the maximum number of users enabled during the subscription period. For instances that aren't offline or on a closed network, the maximum number of simultaneous users in the self-managed installation is checked each quarter, using [Seat Link](#seat-link).
 
 Every occupied seat, whether by person, job, or bot is counted in the subscription, with the following exceptions:
 
-- Blocked users who are blocked prior to the renewal of a subscription won't be counted as active users for the renewal subscription. They may count as active users in the subscription period in which they were originally added.
+- [Deactivated](../user/admin_area/activating_deactivating_users.md#deactivating-a-user) and
+[blocked](../user/admin_area/blocking_unblocking_users.md) users who are restricted prior to the
+renewal of a subscription won't be counted as active users for the renewal subscription. They may
+count as active users in the subscription period in which they were originally added.
 - Members with Guest permissions on an Ultimate subscription.
 - GitLab-created service accounts: `Ghost User` and `Support Bot`.
+
+##### Users statistics
+
+To view a breakdown of the users within your instance, including active, billable, and blocked, go to **Admin Area > Overview > Dashboard** and select **Users statistics** in the **Users** section.
+For more details, see [Users statistics](../user/admin_area/index.md#users-statistics).
 
 NOTE: **Note:**
 If you have LDAP integration enabled, anyone in the configured domain can sign up for a GitLab account. This can result in an unexpected bill at time of renewal. Consider [disabling new signups](../user/admin_area/settings/sign_up_restrictions.md) and managing new users manually instead.
@@ -119,6 +127,7 @@ instance, ensure you're purchasing enough seats to
 With the [Customers Portal](https://customers.gitlab.com/) you can:
 
 - [Change billing information](#change-billing-information)
+- [Change the payment method](#change-payment-method)
 - [Change the linked account](#change-the-linked-account)
 - [Change the associated namespace](#change-the-associated-namespace)
 
@@ -135,6 +144,15 @@ NOTE: **Note:**
 Future purchases will use the information in this section.
 The email listed in this section is used for the Customers Portal
 login and for license-related email communication.
+
+### Change payment method
+
+To change payment method or update credit card information:
+
+1. Log in to the [Customers Portal](https://customers.gitlab.com/customers/sign_in).
+1. Select the **My account** drop-down and click on **Payment methods**.
+1. **Edit** the existing payment method information or **Add new payment method**.
+1. Save changes.
 
 ### Change the linked account
 
@@ -164,6 +182,8 @@ Subscription charges are calculated based on the total number of users in a grou
 
 ## View your subscription
 
+### View your GitLab.com subscription
+
 To see the status of your GitLab.com subscription, log into GitLab.com and go to the **Billing** section of the relevant namespace:
 
 - For individuals:
@@ -182,6 +202,13 @@ The following table describes details of your subscription for groups:
 | Seats owed | If your maximum seats used exceeds the seats in your subscription, you'll owe an additional fee for the users you've added. |
 | Subscription start date | Date your subscription started. If this is for a Free plan, is the date you transitioned off your group's paid plan. |
 | Subscription end date | Date your current subscription will end. Does not apply to Free plans. |
+
+### View your self-managed subscription
+
+To view the status of your self-managed subscription, log into the self-managed instance and go to the **License** page.
+
+  1. Go to **{admin}** **Admin Area**.
+  1. From the left-hand menu, select **License**.
 
 ## Renew your subscription
 
@@ -252,7 +279,7 @@ Seat Link provides **only** the following information to GitLab:
 - Historical maximum user count
 - Active users count
 
-For air-gapped or closed network customers, the existing [true-up model](#users-over-license) will be used. Prorated charges are not possible without user count data.
+For offline or closed network customers, the existing [true-up model](#users-over-license) will be used. Prorated charges are not possible without user count data.
 
 <details>
 <summary>Click here to view example content of a Seat Link POST request.</summary>
@@ -301,11 +328,19 @@ Sg0KU1hNMGExaE9SVGR2V2pKQlBUMWNiaUo5DQo=',
 
 </details>
 
+You can view the exact JSON payload in the administration panel. To view the payload:
+
+1. Navigate to **Admin Area > Settings > Metrics and profiling** and expand **Seat Links**.
+1. Click **Preview payload**.
+
 #### Disable Seat Link
 
-Seat Link is enabled by default. To disable this feature, go to
-**{admin}** **Admin Area > Settings > Metrics and profiling** and
-clear the Seat Link checkbox.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/212375) in [GitLab Starter](https://about.gitlab.com/pricing/) 12.10.
+
+Seat Link is enabled by default.
+
+To disable this feature, go to
+**{admin}** **Admin Area > Settings > Metrics and profiling** and clear the **Seat Link** checkbox.
 
 To disable Seat Link in an Omnibus GitLab installation, and prevent it from
 being configured in the future through the administration panel, set the following in
@@ -405,7 +440,7 @@ The new subscription tier is active when the license file is uploaded.
 
 ## Subscription expiry
 
-When your subscription or trial expires, GitLab does not delete your data, but it may become inaccessible, depending on the tier at expiry. Some features may not behave as expected if you're not prepared for the expiry. For example, [environment specific variables not being passed](https://gitlab.com/gitlab-org/gitlab/issues/24759).
+When your subscription or trial expires, GitLab does not delete your data, but it may become inaccessible, depending on the tier at expiry. Some features may not behave as expected if you're not prepared for the expiry. For example, [environment specific variables not being passed](https://gitlab.com/gitlab-org/gitlab/-/issues/24759).
 
 If you renew or upgrade, your data will again be accessible.
 
@@ -438,7 +473,7 @@ of the group/namespace. You can [purchase additional CI minutes](#purchasing-add
 
 If you're using GitLab.com, you can purchase additional CI minutes so your
 pipelines won't be blocked after you have used all your CI minutes from your
-main quota. Additional minutes:
+main quota. You can find pricing for additional CI/CD minutes in the [GitLab Customers Portal](https://customers.gitlab.com/plans). Additional minutes:
 
 - Are only used once the shared quota included in your subscription runs out.
 - Roll over month to month.
@@ -473,7 +508,7 @@ Be aware that:
 ## Contact Support
 
 We also encourage all users to search our project trackers for known issues and
-existing feature requests in the [GitLab](https://gitlab.com/gitlab-org/gitlab/issues/) project.
+existing feature requests in the [GitLab](https://gitlab.com/gitlab-org/gitlab/-/issues/) project.
 
 These issues are the best avenue for getting updates on specific product plans
 and for communicating directly with the relevant GitLab team members.
@@ -483,9 +518,9 @@ Learn more about:
 - The tiers of [GitLab Support](https://about.gitlab.com/support/).
 - [Submit a request via the Support Portal](https://support.gitlab.com/hc/en-us/requests/new).
 
-## GitLab Education Program subscriptions
+## GitLab for Education subscriptions
 
-To renew a [GitLab Education Program](https://about.gitlab.com/solutions/education/) subscription, send an email to `education@gitlab.com` with the following information:
+To renew a [GitLab for Education](https://about.gitlab.com/solutions/education/) subscription, send an email to `education@gitlab.com` with the following information:
 
 1. The number of seats for the renewal. You can add seats if needed.
 1. The use case for the license. Specifically, we need verification that the use meets the conditions of the [End User License Agreement](https://about.gitlab.com/terms/#edu-oss). Note that university infrastructure operations and information technology operations don't fall within the stated terms of the Education Program. For details, see the [Education FAQ](https://about.gitlab.com/solutions/education/#FAQ).
@@ -493,9 +528,9 @@ To renew a [GitLab Education Program](https://about.gitlab.com/solutions/educati
 
 After we receive the above information, we will process the request and return a renewal quote for signature. Please allow a minimum of 2 business days for return. Email us at `education@gitlab.com` with any questions.
 
-## GitLab Open Source Program subscriptions
+## GitLab for Open Source subscriptions
 
-All requests for our GitLab Open Source program, including subscription renewals, must be made by using the [Open Source Program](https://about.gitlab.com/solutions/open-source/program/) application process. If you have any questions, send an email to `opensource@gitlab.com` for assistance.
+All [GitLab for Open Source](https://about.gitlab.com/solutions/open-source/program/) requests, including subscription renewals, must be made by using the application process. If you have any questions, send an email to `opensource@gitlab.com` for assistance.
 
 <!-- ## Troubleshooting
 

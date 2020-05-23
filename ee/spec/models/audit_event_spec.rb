@@ -13,6 +13,21 @@ RSpec.describe AuditEvent, type: :model do
     it { is_expected.to validate_presence_of(:entity_type) }
   end
 
+  describe '.by_entity' do
+    let_it_be(:project_event_1) { create(:project_audit_event) }
+    let_it_be(:project_event_2) { create(:project_audit_event) }
+    let_it_be(:user_event) { create(:user_audit_event) }
+
+    let(:entity_type) { 'Project' }
+    let(:entity_id) { project_event_1.entity_id }
+
+    subject(:event) { described_class.by_entity(entity_type, entity_id) }
+
+    it 'returns the correct audit events' do
+      expect(event).to contain_exactly(project_event_1)
+    end
+  end
+
   describe '.order_by' do
     let_it_be(:event_1) { create(:audit_event) }
     let_it_be(:event_2) { create(:audit_event) }
@@ -48,8 +63,8 @@ RSpec.describe AuditEvent, type: :model do
       end
     end
 
-    context 'when user does not exists anymore' do
-      subject(:event) { described_class.new(author_id: 99999) }
+    context 'when user does not exist anymore' do
+      subject(:event) { described_class.new(author_id: non_existing_record_id) }
 
       context 'when details contains author_name' do
         it 'returns author_name' do
@@ -89,10 +104,10 @@ RSpec.describe AuditEvent, type: :model do
     end
 
     context 'when entity does not exist' do
-      subject(:event) { described_class.new(entity_id: 99999, entity_type: 'User') }
+      subject(:event) { described_class.new(entity_id: non_existing_record_id, entity_type: 'User') }
 
-      it 'returns nil' do
-        expect(event.entity).to be_blank
+      it 'returns a NullEntity' do
+        expect(event.entity).to be_a(Gitlab::Audit::NullEntity)
       end
     end
   end

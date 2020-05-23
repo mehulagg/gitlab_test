@@ -184,14 +184,16 @@ module Gitlab
           # short period of time. The key _is_ enforced for any newly created
           # data.
 
-          execute <<-EOF.strip_heredoc
-          ALTER TABLE #{source}
-          ADD CONSTRAINT #{options[:name]}
-          FOREIGN KEY (#{options[:column]})
-          REFERENCES #{target} (id)
-          #{on_delete_statement(options[:on_delete])}
-          NOT VALID;
-          EOF
+          with_lock_retries do
+            execute <<-EOF.strip_heredoc
+            ALTER TABLE #{source}
+            ADD CONSTRAINT #{options[:name]}
+            FOREIGN KEY (#{options[:column]})
+            REFERENCES #{target} (id)
+            #{on_delete_statement(options[:on_delete])}
+            NOT VALID;
+            EOF
+          end
         end
 
         # Validate the existing constraint. This can potentially take a very
@@ -263,12 +265,19 @@ module Gitlab
       # or `RESET ALL` is executed
       def disable_statement_timeout
         if block_given?
-          begin
-            execute('SET statement_timeout TO 0')
-
+          if statement_timeout_disabled?
+            # Don't do anything if the statement_timeout is already disabled
+            # Allows for nested calls of disable_statement_timeout without
+            # resetting the timeout too early (before the outer call ends)
             yield
-          ensure
-            execute('RESET ALL')
+          else
+            begin
+              execute('SET statement_timeout TO 0')
+
+              yield
+            ensure
+              execute('RESET ALL')
+            end
           end
         else
           unless transaction_open?
@@ -376,7 +385,7 @@ module Gitlab
       # make things _more_ complex).
       #
       # `batch_column_name` option is for tables without primary key, in this
-      # case an other unique integer column can be used. Example: :user_id
+      # case another unique integer column can be used. Example: :user_id
       #
       # rubocop: disable Metrics/AbcSize
       def update_column_in_batches(table, column, value, batch_size: nil, batch_column_name: :id)
@@ -442,66 +451,13 @@ module Gitlab
 
       # Adds a column with a default value without locking an entire table.
       #
-      # This method runs the following steps:
-      #
-      # 1. Add the column with a default value of NULL.
-      # 2. Change the default value of the column to the specified value.
-      # 3. Update all existing rows in batches.
-      # 4. Set a `NOT NULL` constraint on the column if desired (the default).
-      #
-      # These steps ensure a column can be added to a large and commonly used
-      # table without locking the entire table for the duration of the table
-      # modification.
-      #
-      # table - The name of the table to update.
-      # column - The name of the column to add.
-      # type - The column type (e.g. `:integer`).
-      # default - The default value for the column.
-      # limit - Sets a column limit. For example, for :integer, the default is
-      #         4-bytes. Set `limit: 8` to allow 8-byte integers.
-      # allow_null - When set to `true` the column will allow NULL values, the
-      #              default is to not allow NULL values.
-      #
-      # This method can also take a block which is passed directly to the
-      # `update_column_in_batches` method.
-      def add_column_with_default(table, column, type, default:, limit: nil, allow_null: false, update_column_in_batches_args: {}, &block)
-        if transaction_open?
-          raise 'add_column_with_default can not be run inside a transaction, ' \
-            'you can disable transactions by calling disable_ddl_transaction! ' \
-            'in the body of your migration class'
-        end
+      # @deprecated With PostgreSQL 11, adding columns with a default does not lead to a table rewrite anymore.
+      #             As such, this method is not needed anymore and the default `add_column` helper should be used.
+      #             This helper is subject to be removed in a >13.0 release.
+      def add_column_with_default(table, column, type, default:, limit: nil, allow_null: false)
+        raise 'Deprecated: add_column_with_default does not support being passed blocks anymore' if block_given?
 
-        disable_statement_timeout do
-          transaction do
-            if limit
-              add_column(table, column, type, default: nil, limit: limit)
-            else
-              add_column(table, column, type, default: nil)
-            end
-
-            # Changing the default before the update ensures any newly inserted
-            # rows already use the proper default value.
-            change_column_default(table, column, default)
-          end
-
-          begin
-            default_after_type_cast = connection.type_cast(default, column_for(table, column))
-
-            if update_column_in_batches_args.any?
-              update_column_in_batches(table, column, default_after_type_cast, **update_column_in_batches_args, &block)
-            else
-              update_column_in_batches(table, column, default_after_type_cast, &block)
-            end
-
-            change_column_null(table, column, false) unless allow_null
-          # We want to rescue _all_ exceptions here, even those that don't inherit
-          # from StandardError.
-          rescue Exception => error # rubocop: disable all
-            remove_column(table, column)
-
-            raise error
-          end
-        end
+        add_column(table, column, type, default: default, limit: limit, null: allow_null)
       end
 
       # Renames a column without requiring downtime.
@@ -517,14 +473,20 @@ module Gitlab
       # new - The new column name.
       # type - The type of the new column. If no type is given the old column's
       #        type is used.
-      def rename_column_concurrently(table, old, new, type: nil)
+      # batch_column_name - option is for tables without primary key, in this
+      #        case another unique integer column can be used. Example: :user_id
+      def rename_column_concurrently(table, old, new, type: nil, batch_column_name: :id)
+        unless column_exists?(table, batch_column_name)
+          raise "Column #{batch_column_name} does not exist on #{table}"
+        end
+
         if transaction_open?
           raise 'rename_column_concurrently can not be run inside a transaction'
         end
 
         check_trigger_permissions!(table)
 
-        create_column_from(table, old, new, type: type)
+        create_column_from(table, old, new, type: type, batch_column_name: batch_column_name)
 
         install_rename_triggers(table, old, new)
       end
@@ -624,14 +586,20 @@ module Gitlab
       # new - The new column name.
       # type - The type of the old column. If no type is given the new column's
       #        type is used.
-      def undo_cleanup_concurrent_column_rename(table, old, new, type: nil)
+      # batch_column_name - option is for tables without primary key, in this
+      #        case another unique integer column can be used. Example: :user_id
+      def undo_cleanup_concurrent_column_rename(table, old, new, type: nil, batch_column_name: :id)
+        unless column_exists?(table, batch_column_name)
+          raise "Column #{batch_column_name} does not exist on #{table}"
+        end
+
         if transaction_open?
           raise 'undo_cleanup_concurrent_column_rename can not be run inside a transaction'
         end
 
         check_trigger_permissions!(table)
 
-        create_column_from(table, new, old, type: type)
+        create_column_from(table, new, old, type: type, batch_column_name: batch_column_name)
 
         install_rename_triggers(table, old, new)
       end
@@ -1061,6 +1029,8 @@ into similar problems in the future (e.g. when new tables are created).
       # batch_size - The maximum number of rows per job
       # other_arguments - Other arguments to send to the job
       #
+      # *Returns the final migration delay*
+      #
       # Example:
       #
       #     class Route < ActiveRecord::Base
@@ -1077,7 +1047,7 @@ into similar problems in the future (e.g. when new tables are created).
       #         # do something
       #       end
       #     end
-      def queue_background_migration_jobs_by_range_at_intervals(model_class, job_class_name, delay_interval, batch_size: BACKGROUND_MIGRATION_BATCH_SIZE, other_arguments: [])
+      def queue_background_migration_jobs_by_range_at_intervals(model_class, job_class_name, delay_interval, batch_size: BACKGROUND_MIGRATION_BATCH_SIZE, other_job_arguments: [], initial_delay: 0)
         raise "#{model_class} does not have an ID to use for batch ranges" unless model_class.column_names.include?('id')
 
         # To not overload the worker too much we enforce a minimum interval both
@@ -1086,14 +1056,19 @@ into similar problems in the future (e.g. when new tables are created).
           delay_interval = BackgroundMigrationWorker.minimum_interval
         end
 
+        final_delay = 0
+
         model_class.each_batch(of: batch_size) do |relation, index|
           start_id, end_id = relation.pluck(Arel.sql('MIN(id), MAX(id)')).first
 
           # `BackgroundMigrationWorker.bulk_perform_in` schedules all jobs for
           # the same time, which is not helpful in most cases where we wish to
           # spread the work over time.
-          migrate_in(delay_interval * index, job_class_name, [start_id, end_id] + other_arguments)
+          final_delay = initial_delay + delay_interval * index
+          migrate_in(final_delay, job_class_name, [start_id, end_id] + other_job_arguments)
         end
+
+        final_delay
       end
 
       # Fetches indexes on a column by name for postgres.
@@ -1178,7 +1153,207 @@ into similar problems in the future (e.g. when new tables are created).
         end
       end
 
+      # Returns the name for a check constraint
+      #
+      # type:
+      # - Any value, as long as it is unique
+      # - Constraint names are unique per table in Postgres, and, additionally,
+      #   we can have multiple check constraints over a column
+      #   So we use the (table, column, type) triplet as a unique name
+      # - e.g. we use 'max_length' when adding checks for text limits
+      #        or 'not_null' when adding a NOT NULL constraint
+      #
+      def check_constraint_name(table, column, type)
+        identifier = "#{table}_#{column}_check_#{type}"
+        # Check concurrent_foreign_key_name() for info on why we use a hash
+        hashed_identifier = Digest::SHA256.hexdigest(identifier).first(10)
+
+        "check_#{hashed_identifier}"
+      end
+
+      def check_constraint_exists?(table, constraint_name)
+        # Constraint names are unique per table in Postgres, not per schema
+        # Two tables can have constraints with the same name, so we filter by
+        # the table name in addition to using the constraint_name
+        check_sql = <<~SQL
+          SELECT COUNT(*)
+          FROM pg_constraint
+          JOIN pg_class ON pg_constraint.conrelid = pg_class.oid
+          WHERE pg_constraint.contype = 'c'
+          AND pg_constraint.conname = '#{constraint_name}'
+          AND pg_class.relname = '#{table}'
+        SQL
+
+        connection.select_value(check_sql).positive?
+      end
+
+      # Adds a check constraint to a table
+      #
+      # This method is the generic helper for adding any check constraint
+      # More specialized helpers may use it (e.g. add_text_limit or add_not_null)
+      #
+      # This method only requires minimal locking:
+      # - The constraint is added using NOT VALID
+      #   This allows us to add the check constraint without validating it
+      # - The check will be enforced for new data (inserts) coming in
+      # - If `validate: true` the constraint is also validated
+      #   Otherwise, validate_check_constraint() can be used at a later stage
+      # - Check comments on add_concurrent_foreign_key for more info
+      #
+      # table  - The table the constraint will be added to
+      # check  - The check clause to add
+      #          e.g. 'char_length(name) <= 5' or 'store IS NOT NULL'
+      # constraint_name - The name of the check constraint (otherwise auto-generated)
+      #                   Should be unique per table (not per column)
+      # validate - Whether to validate the constraint in this call
+      #
+      # rubocop:disable Gitlab/RailsLogger
+      def add_check_constraint(table, check, constraint_name, validate: true)
+        # Transactions would result in ALTER TABLE locks being held for the
+        # duration of the transaction, defeating the purpose of this method.
+        if transaction_open?
+          raise 'add_check_constraint can not be run inside a transaction'
+        end
+
+        if check_constraint_exists?(table, constraint_name)
+          warning_message = <<~MESSAGE
+            Check constraint was not created because it exists already
+            (this may be due to an aborted migration or similar)
+            table: #{table}, check: #{check}, constraint name: #{constraint_name}
+          MESSAGE
+
+          Rails.logger.warn warning_message
+        else
+          # Only add the constraint without validating it
+          # Even though it is fast, ADD CONSTRAINT requires an EXCLUSIVE lock
+          # Use with_lock_retries to make sure that this operation
+          # will not timeout on tables accessed by many processes
+          with_lock_retries do
+            execute <<-EOF.strip_heredoc
+            ALTER TABLE #{table}
+            ADD CONSTRAINT #{constraint_name}
+            CHECK ( #{check} )
+            NOT VALID;
+            EOF
+          end
+        end
+
+        if validate
+          validate_check_constraint(table, constraint_name)
+        end
+      end
+
+      def validate_check_constraint(table, constraint_name)
+        unless check_constraint_exists?(table, constraint_name)
+          raise missing_schema_object_message(table, "check constraint", constraint_name)
+        end
+
+        disable_statement_timeout do
+          # VALIDATE CONSTRAINT only requires a SHARE UPDATE EXCLUSIVE LOCK
+          # It only conflicts with other validations and creating indexes
+          execute("ALTER TABLE #{table} VALIDATE CONSTRAINT #{constraint_name};")
+        end
+      end
+
+      def remove_check_constraint(table, constraint_name)
+        # DROP CONSTRAINT requires an EXCLUSIVE lock
+        # Use with_lock_retries to make sure that this will not timeout
+        with_lock_retries do
+          execute <<-EOF.strip_heredoc
+          ALTER TABLE #{table}
+          DROP CONSTRAINT IF EXISTS #{constraint_name}
+          EOF
+        end
+      end
+
+      # Migration Helpers for adding limit to text columns
+      def add_text_limit(table, column, limit, constraint_name: nil, validate: true)
+        add_check_constraint(
+          table,
+          "char_length(#{column}) <= #{limit}",
+          text_limit_name(table, column, name: constraint_name),
+          validate: validate
+        )
+      end
+
+      def validate_text_limit(table, column, constraint_name: nil)
+        validate_check_constraint(table, text_limit_name(table, column, name: constraint_name))
+      end
+
+      def remove_text_limit(table, column, constraint_name: nil)
+        remove_check_constraint(table, text_limit_name(table, column, name: constraint_name))
+      end
+
+      def check_text_limit_exists?(table, column, constraint_name: nil)
+        check_constraint_exists?(table, text_limit_name(table, column, name: constraint_name))
+      end
+
+      # Migration Helpers for managing not null constraints
+      def add_not_null_constraint(table, column, constraint_name: nil, validate: true)
+        if column_is_nullable?(table, column)
+          add_check_constraint(
+            table,
+            "#{column} IS NOT NULL",
+            not_null_constraint_name(table, column, name: constraint_name),
+            validate: validate
+          )
+        else
+          warning_message = <<~MESSAGE
+            NOT NULL check constraint was not created:
+            column #{table}.#{column} is already defined as `NOT NULL`
+          MESSAGE
+
+          Rails.logger.warn warning_message
+        end
+      end
+
+      def validate_not_null_constraint(table, column, constraint_name: nil)
+        validate_check_constraint(
+          table,
+          not_null_constraint_name(table, column, name: constraint_name)
+        )
+      end
+
+      def remove_not_null_constraint(table, column, constraint_name: nil)
+        remove_check_constraint(
+          table,
+          not_null_constraint_name(table, column, name: constraint_name)
+        )
+      end
+
+      def check_not_null_constraint_exists?(table, column, constraint_name: nil)
+        check_constraint_exists?(
+          table,
+          not_null_constraint_name(table, column, name: constraint_name)
+        )
+      end
+
       private
+
+      def statement_timeout_disabled?
+        # This is a string of the form "100ms" or "0" when disabled
+        connection.select_value('SHOW statement_timeout') == "0"
+      end
+
+      def column_is_nullable?(table, column)
+        # Check if table.column has not been defined with NOT NULL
+        check_sql = <<~SQL
+          SELECT c.is_nullable
+          FROM information_schema.columns c
+          WHERE c.table_name = '#{table}'
+          AND c.column_name = '#{column}'
+        SQL
+
+        connection.select_value(check_sql) == 'YES'
+      end
+
+      def text_limit_name(table, column, name: nil)
+        name.presence || check_constraint_name(table, column, 'max_length')
+      end
+
+      def not_null_constraint_name(table, column, name: nil)
+        name.presence || check_constraint_name(table, column, 'not_null')
+      end
 
       def missing_schema_object_message(table, type, name)
         <<~MESSAGE
@@ -1207,7 +1382,7 @@ into similar problems in the future (e.g. when new tables are created).
         "ON DELETE #{on_delete.upcase}"
       end
 
-      def create_column_from(table, old, new, type: nil)
+      def create_column_from(table, old, new, type: nil, batch_column_name: :id)
         old_col = column_for(table, old)
         new_type = type || old_col.type
 
@@ -1221,9 +1396,9 @@ into similar problems in the future (e.g. when new tables are created).
         # necessary since we copy over old values further down.
         change_column_default(table, new, old_col.default) unless old_col.default.nil?
 
-        update_column_in_batches(table, new, Arel::Table.new(table)[old])
+        update_column_in_batches(table, new, Arel::Table.new(table)[old], batch_column_name: batch_column_name)
 
-        change_column_null(table, new, false) unless old_col.null
+        add_not_null_constraint(table, new) unless old_col.null
 
         copy_indexes(table, old, new)
         copy_foreign_keys(table, old, new)

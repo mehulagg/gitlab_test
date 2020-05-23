@@ -1,12 +1,12 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex';
-import { GlButton } from '@gitlab/ui';
+import { GlDeprecatedButton } from '@gitlab/ui';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 import ProjectList from './project_list.vue';
 
 export default {
   components: {
-    GlButton,
+    GlDeprecatedButton,
     ProjectList,
     ProjectSelector,
   },
@@ -53,7 +53,7 @@ export default {
     <div class="row justify-content-center mt-md-4">
       <div class="col col-lg-7">
         <h3 class="text-3 font-weight-bold border-bottom mb-4 pb-3">
-          {{ s__('SecurityDashboard|Add or remove projects from your dashboard') }}
+          {{ s__('SecurityReports|Add or remove projects from your dashboard') }}
         </h3>
         <div class="d-flex flex-column flex-md-row">
           <project-selector
@@ -70,9 +70,13 @@ export default {
             @bottomReached="fetchSearchResultsNextPage"
           />
           <div class="mb-3">
-            <gl-button :disabled="!canAddProjects" variant="success" @click="addProjects">
-              {{ s__('SecurityDashboard|Add projects') }}
-            </gl-button>
+            <gl-deprecated-button
+              :disabled="!canAddProjects"
+              variant="success"
+              @click="addProjects"
+            >
+              {{ s__('SecurityReports|Add projects') }}
+            </gl-deprecated-button>
           </div>
         </div>
       </div>

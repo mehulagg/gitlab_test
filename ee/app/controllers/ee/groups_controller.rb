@@ -34,7 +34,7 @@ module EE
       if result[:status] == :success
         redirect_to group_path(group),
           status: :found,
-          notice: "'#{group.name}' has been scheduled for removal on #{permanent_deletion_date(Time.now.utc)}."
+          notice: "'#{group.name}' has been scheduled for removal on #{permanent_deletion_date(Time.current.utc)}."
       else
         redirect_to edit_group_path(group), status: :found, alert: result[:message]
       end
@@ -66,6 +66,7 @@ module EE
         params_ee << :ip_restriction_ranges if current_group&.feature_available?(:group_ip_restriction)
         params_ee << { allowed_email_domain_attributes: [:id, :domain] } if current_group&.feature_available?(:group_allowed_email_domains)
         params_ee << :max_pages_size if can?(current_user, :update_max_pages_size)
+        params_ee << :max_personal_access_token_lifetime if current_group&.personal_access_token_expiration_policy_available?
       end
     end
 

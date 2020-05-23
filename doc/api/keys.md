@@ -4,7 +4,7 @@
 
 Get SSH key with user by ID of an SSH key. Note only administrators can lookup SSH key with user by ID of an SSH key.
 
-```text
+```plaintext
 GET /keys/:id
 ```
 
@@ -63,7 +63,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/a
 
 You can search for a user that owns a specific SSH key. Note only administrators can lookup SSH key with the fingerprint of an SSH key.
 
-```text
+```plaintext
 GET /keys
 ```
 
@@ -133,7 +133,7 @@ Example response:
 
 ## Get user by deploy key fingerprint
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/119209) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/119209) in GitLab 12.7.
 
 Deploy keys are bound to the creating user, so if you query with a deploy key
 fingerprint you get additional information about the projects using that key.

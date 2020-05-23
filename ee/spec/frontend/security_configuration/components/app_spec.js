@@ -13,6 +13,7 @@ describe('Security Configuration App', () => {
         latestPipelinePath: 'http://latestPipelinePath',
         autoDevopsHelpPagePath: 'http://autoDevopsHelpPagePath',
         helpPagePath: 'http://helpPagePath',
+        autoFixSettingsProps: {},
         ...props,
       },
     });
@@ -65,7 +66,7 @@ describe('Security Configuration App', () => {
 
       createComponent({ features });
 
-      expect(wrapper.findAll({ ref: 'featureRow' }).length).toBe(5);
+      expect(wrapper.findAll({ ref: 'featureRow' })).toHaveLength(5);
     });
 
     it('displays a given feature', () => {
@@ -78,8 +79,8 @@ describe('Security Configuration App', () => {
 
     it.each`
       configured | statusText
-      ${true}    | ${'Configured'}
-      ${false}   | ${'Not yet configured'}
+      ${true}    | ${'Enabled'}
+      ${false}   | ${'Not yet enabled'}
     `(
       `displays "$statusText" if the given feature's configuration status is: "$configured"`,
       ({ configured, statusText }) => {

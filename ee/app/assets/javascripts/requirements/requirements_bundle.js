@@ -1,15 +1,18 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
+import { GlToast } from '@gitlab/ui';
+import { defaultDataIdFromObject } from 'apollo-cache-inmemory';
 import createDefaultClient from '~/lib/graphql';
+import { parseBoolean } from '~/lib/utils/common_utils';
 
 import RequirementsRoot from './components/requirements_root.vue';
 
 import { FilterState } from './constants';
 
 Vue.use(VueApollo);
+Vue.use(GlToast);
 
 export default () => {
-  const btnNewRequirement = document.querySelector('.js-new-requirement');
   const el = document.getElementById('js-requirements-app');
 
   if (!el) {
@@ -17,7 +20,16 @@ export default () => {
   }
 
   const apolloProvider = new VueApollo({
-    defaultClient: createDefaultClient(),
+    defaultClient: createDefaultClient(
+      {},
+      {
+        cacheConfig: {
+          dataIdFromObject: object =>
+            // eslint-disable-next-line no-underscore-dangle, @gitlab/require-i18n-strings
+            object.__typename === 'Requirement' ? object.iid : defaultDataIdFromObject(object),
+        },
+      },
+    ),
   });
 
   return new Vue({
@@ -27,34 +39,53 @@ export default () => {
       RequirementsRoot,
     },
     data() {
-      const { filterBy, projectPath, emptyStatePath } = el.dataset;
+      const {
+        filterBy,
+        page,
+        next,
+        prev,
+        projectPath,
+        emptyStatePath,
+        opened,
+        archived,
+        all,
+        canCreateRequirement,
+        requirementsWebUrl,
+      } = el.dataset;
       const stateFilterBy = filterBy ? FilterState[filterBy] : FilterState.opened;
 
+      const OPENED = parseInt(opened, 10);
+      const ARCHIVED = parseInt(archived, 10);
+      const ALL = parseInt(all, 10);
+
       return {
-        showCreateRequirement: false,
-        filterBy: stateFilterBy,
+        initialFilterBy: stateFilterBy,
+        initialRequirementsCount: {
+          OPENED,
+          ARCHIVED,
+          ALL,
+        },
+        page,
+        prev,
+        next,
         emptyStatePath,
         projectPath,
+        canCreateRequirement,
+        requirementsWebUrl,
       };
-    },
-    mounted() {
-      btnNewRequirement.addEventListener('click', this.handleClickNewRequirement);
-    },
-    beforeDestroy() {
-      btnNewRequirement.removeEventListener('click', this.handleClickNewRequirement);
-    },
-    methods: {
-      handleClickNewRequirement() {
-        this.showCreateRequirement = !this.showCreateRequirement;
-      },
     },
     render(createElement) {
       return createElement('requirements-root', {
         props: {
           projectPath: this.projectPath,
-          filterBy: this.filterBy,
-          showCreateRequirement: this.showCreateRequirement,
+          initialFilterBy: this.initialFilterBy,
+          initialRequirementsCount: this.initialRequirementsCount,
+          page: parseInt(this.page, 10) || 1,
+          prev: this.prev,
+          next: this.next,
           emptyStatePath: this.emptyStatePath,
+          canCreateRequirement: parseBoolean(this.canCreateRequirement),
+          requirementsWebUrl: this.requirementsWebUrl,
         },
       });
     },

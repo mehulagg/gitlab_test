@@ -1,5 +1,5 @@
 <script>
-import { GlPopover, GlSprintf, GlButton, GlIcon } from '@gitlab/ui';
+import { GlPopover, GlSprintf, GlDeprecatedButton, GlIcon } from '@gitlab/ui';
 import { parseBoolean, scrollToElement, setCookie, getCookie } from '~/lib/utils/common_utils';
 import { s__ } from '~/locale';
 import { glEmojiTag } from '~/emoji';
@@ -23,11 +23,13 @@ const popoverStates = {
   },
 };
 export default {
+  dismissTrackValue: 10,
+  clickTrackValue: 'click_button',
   components: {
     GlPopover,
     GlSprintf,
     GlIcon,
-    GlButton,
+    GlDeprecatedButton,
   },
   mixins: [trackingMixin],
   props: {
@@ -70,9 +72,6 @@ export default {
     dismissCookieName() {
       return `${this.trackLabel}_${this.dismissKey}`;
     },
-    commitCookieName() {
-      return `suggest_gitlab_ci_yml_commit_${this.dismissKey}`;
-    },
   },
   mounted() {
     if (
@@ -109,9 +108,18 @@ export default {
     <template #title>
       <span v-html="suggestTitle"></span>
       <span class="ml-auto">
-        <gl-button :aria-label="__('Close')" class="btn-blank" @click="onDismiss">
+        <gl-deprecated-button
+          :aria-label="__('Close')"
+          class="btn-blank"
+          name="dismiss"
+          :data-track-property="humanAccess"
+          :data-track-value="$options.dismissTrackValue"
+          :data-track-event="$options.clickTrackValue"
+          :data-track-label="trackLabel"
+          @click="onDismiss"
+        >
           <gl-icon name="close" aria-hidden="true" />
-        </gl-button>
+        </gl-deprecated-button>
       </span>
     </template>
 

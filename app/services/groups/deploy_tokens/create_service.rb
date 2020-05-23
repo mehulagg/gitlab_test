@@ -6,7 +6,9 @@ module Groups
       include DeployTokenMethods
 
       def execute
-        create_deploy_token_for(@group, params)
+        deploy_token = create_deploy_token_for(@group, params)
+
+        create_deploy_token_payload_for(deploy_token)
       end
     end
   end

@@ -1,4 +1,7 @@
 ---
+stage: Release
+group: Progressive Delivery
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: howto
 ---
 
@@ -12,7 +15,7 @@ cloud provider more easily.
 
 ## AWS
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/31167) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/31167) in GitLab 12.6.
 
 GitLab's AWS Docker image provides the [AWS Command Line Interface](https://aws.amazon.com/cli/),
 which enables you to run `aws` commands. As part of your deployment strategy, you can run `aws` commands directly from
@@ -36,10 +39,10 @@ Some credentials are required to be able to run `aws` commands:
 
 1. You can now use `aws` commands in the `.gitlab-ci.yml` file of this project:
 
-   ```yml
+   ```yaml
    deploy:
      stage: deploy
-     image: registry.gitlab.com/gitlab-org/cloud-deploy:latest # see the note below
+     image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest # see the note below
      script:
        - aws s3 ...
        - aws create-deployment ...
@@ -47,7 +50,7 @@ Some credentials are required to be able to run `aws` commands:
 
    NOTE: **Note:**
    Please note that the image used in the example above
-   (`registry.gitlab.com/gitlab-org/cloud-deploy:latest`) is hosted on the [GitLab
+   (`registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest`) is hosted on the [GitLab
    Container Registry](../../user/packages/container_registry/index.md) and is
    ready to use. Alternatively, replace the image with another one hosted on [AWS ECR](#aws-ecr).
 
@@ -64,7 +67,7 @@ path to point to your ECR.
 
 ### Deploy your application to AWS Elastic Container Service (ECS)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/207962) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/207962) in GitLab 12.9.
 
 GitLab provides a series of [CI templates that you can include in your project](../yaml/README.md#include).
 To automate deployments of your application to your [Amazon Elastic Container Service](https://aws.amazon.com/ecs/) (AWS ECS)
@@ -119,3 +122,15 @@ After you're all set up on AWS ECS, follow these steps:
    Finally, your AWS ECS service will be updated with the new revision of the
    task definition, making the cluster pull the newest version of your
    application.
+
+Alternatively, if you don't wish to use the `Deploy-ECS.gitlab-ci.yml` template
+to deploy to AWS ECS, you can always use our
+`aws-base` Docker image to run your own [AWS CLI commands for ECS](https://docs.aws.amazon.com/cli/latest/reference/ecs/index.html#cli-aws-ecs).
+
+```yaml
+deploy:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  script:
+    - aws ecs register-task-definition ...
+```

@@ -1,8 +1,16 @@
 import Vue from 'vue';
-import VueApollo from 'vue-apollo';
-import createDefaultClient from '~/lib/graphql';
 import { DASHBOARD_TYPES } from 'ee/security_dashboard/store/constants';
-import FirstClassProjectDashboard from './components/first_class_project_dashboard.vue';
+import { parseBoolean } from '~/lib/utils/common_utils';
+import FirstClassProjectSecurityDashboard from './components/first_class_project_security_dashboard.vue';
+import FirstClassGroupSecurityDashboard from './components/first_class_group_security_dashboard.vue';
+import FirstClassInstanceSecurityDashboard from './components/first_class_instance_security_dashboard.vue';
+import UnavailableState from './components/unavailable_state.vue';
+import createStore from './store';
+import createRouter from './store/router';
+import projectsPlugin from './store/plugins/projects';
+import projectSelector from './store/plugins/project_selector';
+import syncWithRouter from './store/plugins/sync_with_router';
+import apolloProvider from './graphql/provider';
 
 const isRequired = message => {
   throw new Error(message);
@@ -14,29 +22,61 @@ export default (
   dashboardType = isRequired('No dashboard type was passed to the security dashboard initializer'),
   /* eslint-enable @gitlab/require-i18n-strings */
 ) => {
-  Vue.use(VueApollo);
-
-  const apolloProvider = new VueApollo({
-    defaultClient: createDefaultClient(),
-  });
-  const { dashboardDocumentation, emptyStateSvgPath } = el.dataset;
-  const props = {
-    emptyStateSvgPath,
-    dashboardDocumentation,
-  };
-  let element;
-
-  // We'll add more of these for group and instance once we have the components
-  if (dashboardType === DASHBOARD_TYPES.PROJECT) {
-    element = FirstClassProjectDashboard;
-    props.projectFullPath = el.dataset.projectFullPath;
+  if (el.dataset.isUnavailable) {
+    return new Vue({
+      el,
+      render(createElement) {
+        return createElement(UnavailableState, {
+          props: {
+            link: el.dataset.dashboardDocumentation,
+            svgPath: el.dataset.emptyStateSvgPath,
+          },
+        });
+      },
+    });
   }
+
+  const props = {
+    emptyStateSvgPath: el.dataset.emptyStateSvgPath,
+    dashboardDocumentation: el.dataset.dashboardDocumentation,
+    hasPipelineData: Boolean(el.dataset.hasPipelineData),
+    securityDashboardHelpPath: el.dataset.securityDashboardHelpPath,
+    projectAddEndpoint: el.dataset.projectAddEndpoint,
+    projectListEndpoint: el.dataset.projectListEndpoint,
+  };
+
+  let component;
+
+  if (dashboardType === DASHBOARD_TYPES.PROJECT) {
+    component = FirstClassProjectSecurityDashboard;
+    props.projectFullPath = el.dataset.projectFullPath;
+    props.vulnerabilitiesExportEndpoint = el.dataset.vulnerabilitiesExportEndpoint;
+    props.userCalloutId = el.dataset.userCalloutId;
+    props.userCalloutsPath = el.dataset.userCalloutsPath;
+    props.showIntroductionBanner = parseBoolean(el.dataset.showIntroductionBanner);
+  } else if (dashboardType === DASHBOARD_TYPES.GROUP) {
+    component = FirstClassGroupSecurityDashboard;
+    props.groupFullPath = el.dataset.groupFullPath;
+    props.vulnerableProjectsEndpoint = el.dataset.vulnerableProjectsEndpoint;
+  } else if (dashboardType === DASHBOARD_TYPES.INSTANCE) {
+    component = FirstClassInstanceSecurityDashboard;
+    props.vulnerableProjectsEndpoint = el.dataset.vulnerableProjectsEndpoint;
+    props.vulnerabilitiesExportEndpoint = el.dataset.vulnerabilitiesExportEndpoint;
+  }
+
+  const router = createRouter();
+  const store = createStore({
+    dashboardType,
+    plugins: [projectSelector, projectsPlugin, syncWithRouter(router)],
+  });
 
   return new Vue({
     el,
+    store,
+    router,
     apolloProvider,
     render(createElement) {
-      return createElement(element, { props });
+      return createElement(component, { props });
     },
   });
 };

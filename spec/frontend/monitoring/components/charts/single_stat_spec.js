@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import SingleStatChart from '~/monitoring/components/charts/single_stat.vue';
-import { graphDataPrometheusQuery } from '../../mock_data';
+import { singleStatMetricsResult } from '../../mock_data';
 
 describe('Single Stat Chart component', () => {
   let singleStatChart;
@@ -8,7 +8,7 @@ describe('Single Stat Chart component', () => {
   beforeEach(() => {
     singleStatChart = shallowMount(SingleStatChart, {
       propsData: {
-        graphData: graphDataPrometheusQuery,
+        graphData: singleStatMetricsResult,
       },
     });
   });
@@ -20,25 +20,25 @@ describe('Single Stat Chart component', () => {
   describe('computed', () => {
     describe('statValue', () => {
       it('should interpolate the value and unit props', () => {
-        expect(singleStatChart.vm.statValue).toBe('91MB');
+        expect(singleStatChart.vm.statValue).toBe('91.00MB');
       });
 
       it('should change the value representation to a percentile one', () => {
         singleStatChart.setProps({
           graphData: {
-            ...graphDataPrometheusQuery,
-            max_value: 120,
+            ...singleStatMetricsResult,
+            maxValue: 120,
           },
         });
 
-        expect(singleStatChart.vm.statValue).toContain('75.8');
+        expect(singleStatChart.vm.statValue).toContain('75.83%');
       });
 
-      it('should display NaN for non numeric max_value values', () => {
+      it('should display NaN for non numeric maxValue values', () => {
         singleStatChart.setProps({
           graphData: {
-            ...graphDataPrometheusQuery,
-            max_value: 'not a number',
+            ...singleStatMetricsResult,
+            maxValue: 'not a number',
           },
         });
 
@@ -48,19 +48,19 @@ describe('Single Stat Chart component', () => {
       it('should display NaN for missing query values', () => {
         singleStatChart.setProps({
           graphData: {
-            ...graphDataPrometheusQuery,
+            ...singleStatMetricsResult,
             metrics: [
               {
-                ...graphDataPrometheusQuery.metrics[0],
+                ...singleStatMetricsResult.metrics[0],
                 result: [
                   {
-                    ...graphDataPrometheusQuery.metrics[0].result[0],
+                    ...singleStatMetricsResult.metrics[0].result[0],
                     value: [''],
                   },
                 ],
               },
             ],
-            max_value: 120,
+            maxValue: 120,
           },
         });
 

@@ -495,6 +495,32 @@ describe Vulnerabilities::Occurrence do
     end
   end
 
+  describe '#load_feedback' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:occurrence) do
+      create(
+        :vulnerabilities_occurrence,
+        report_type: :dependency_scanning,
+        project: project
+      )
+    end
+    let_it_be(:feedback) do
+      create(
+        :vulnerability_feedback,
+        :dependency_scanning,
+        :dismissal,
+        project: project,
+        project_fingerprint: occurrence.project_fingerprint
+      )
+    end
+
+    let(:expected_feedback) { [feedback] }
+
+    subject(:load_feedback) { occurrence.load_feedback.to_a }
+
+    it { is_expected.to eq(expected_feedback) }
+  end
+
   describe '#state' do
     before do
       create(:vulnerability, :dismissed, project: finding_with_issue.project, findings: [finding_with_issue])
@@ -549,5 +575,108 @@ describe Vulnerabilities::Occurrence do
     subject(:scanner_name) { vulnerabilities_occurrence.scanner_name }
 
     it { is_expected.to eq(vulnerabilities_occurrence.scanner.name) }
+  end
+
+  describe '#solution' do
+    subject { vulnerabilities_occurrence.solution }
+
+    context 'when solution metadata key is present' do
+      let(:vulnerabilities_occurrence) { build(:vulnerabilities_occurrence) }
+
+      it { is_expected.to eq(vulnerabilities_occurrence.metadata['solution']) }
+    end
+
+    context 'when remediations key is present' do
+      let(:vulnerabilities_occurrence) do
+        build(:vulnerabilities_occurrence_with_remediation, summary: "Test remediation")
+      end
+
+      it { is_expected.to eq(vulnerabilities_occurrence.remediations.dig(0, 'summary')) }
+    end
+  end
+
+  describe '#evidence' do
+    subject { occurrence.evidence }
+
+    context 'has an evidence fields' do
+      let(:occurrence) { create(:vulnerabilities_occurrence) }
+      let(:evidence) { occurrence.metadata['evidence'] }
+
+      it do
+        is_expected.to match a_hash_including(
+          summary: evidence['summary'],
+          request: {
+            headers: evidence['request']['headers'],
+            url: evidence['request']['url'],
+            method: evidence['request']['method']
+          },
+          response: {
+            headers: evidence['response']['headers'],
+            reason_phrase: evidence['response']['reason_phrase'],
+            status_code: evidence['response']['status_code']
+          })
+      end
+    end
+
+    context 'has no evidence summary when evidence is present, summary is not' do
+      let(:occurrence) { create(:vulnerabilities_occurrence, raw_metadata: { evidence: {} }) }
+
+      it do
+        is_expected.to match a_hash_including(
+          summary: nil,
+          request: {
+            headers: [],
+            url: nil,
+            method: nil
+          },
+          response: {
+            headers: [],
+            reason_phrase: nil,
+            status_code: nil
+          })
+      end
+    end
+  end
+
+  describe '#message' do
+    let(:occurrence) { build(:vulnerabilities_occurrence) }
+    let(:expected_message) { occurrence.metadata['message'] }
+
+    subject { occurrence.message }
+
+    it { is_expected.to eql(expected_message) }
+  end
+
+  describe '#cve' do
+    let(:occurrence) { build(:vulnerabilities_occurrence) }
+    let(:expected_cve) { occurrence.metadata['cve'] }
+
+    subject { occurrence.cve }
+
+    it { is_expected.to eql(expected_cve) }
+  end
+
+  describe "#metadata" do
+    let(:occurrence) { build(:vulnerabilities_occurrence) }
+
+    subject { occurrence.metadata }
+
+    it "handles bool JSON data" do
+      allow(occurrence).to receive(:raw_metadata) { "true" }
+
+      expect(subject).to eq({})
+    end
+
+    it "handles string JSON data" do
+      allow(occurrence).to receive(:raw_metadata) { '"test"' }
+
+      expect(subject).to eq({})
+    end
+
+    it "parses JSON data" do
+      allow(occurrence).to receive(:raw_metadata) { '{ "test": true }' }
+
+      expect(subject).to eq({ "test" => true })
+    end
   end
 end

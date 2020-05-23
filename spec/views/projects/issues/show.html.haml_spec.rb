@@ -3,18 +3,7 @@
 require 'spec_helper'
 
 describe 'projects/issues/show' do
-  let(:project) { create(:project, :repository) }
-  let(:issue) { create(:issue, project: project, author: user) }
-  let(:user) { create(:user) }
-
-  before do
-    assign(:project, project)
-    assign(:issue, issue)
-    assign(:noteable, issue)
-    stub_template 'shared/issuable/_sidebar' => ''
-    stub_template 'projects/issues/_discussion' => ''
-    allow(view).to receive(:issuable_meta).and_return('')
-  end
+  include_context 'project show action'
 
   context 'when the issue is closed' do
     before do

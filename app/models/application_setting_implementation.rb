@@ -42,7 +42,11 @@ module ApplicationSettingImplementation
         asset_proxy_enabled: false,
         authorized_keys_enabled: true, # TODO default to false if the instance is configured to use AuthorizedKeysCommand
         commit_email_hostname: default_commit_email_hostname,
+        container_expiration_policies_enable_historic_entries: false,
+        container_registry_features: [],
         container_registry_token_expire_delay: 5,
+        container_registry_vendor: '',
+        container_registry_version: '',
         default_artifacts_expire_in: '30 days',
         default_branch_protection: Settings.gitlab['default_branch_protection'],
         default_ci_config_path: nil,
@@ -78,6 +82,7 @@ module ApplicationSettingImplementation
         housekeeping_gc_period: 200,
         housekeeping_incremental_repack_period: 10,
         import_sources: Settings.gitlab['import_sources'],
+        issues_create_limit: 300,
         local_markdown_version: 0,
         max_artifacts_size: Settings.artifacts['max_size'],
         max_attachment_size: Settings.gitlab['max_attachment_size'],
@@ -91,7 +96,7 @@ module ApplicationSettingImplementation
         plantuml_url: nil,
         polling_interval_multiplier: 1,
         project_export_enabled: true,
-        protected_ci_variables: false,
+        protected_ci_variables: true,
         push_event_hooks_limit: 3,
         push_event_activities_limit: 3,
         raw_blob_request_limit: 300,
@@ -110,6 +115,8 @@ module ApplicationSettingImplementation
         sourcegraph_enabled: false,
         sourcegraph_url: nil,
         sourcegraph_public_only: true,
+        spam_check_endpoint_enabled: false,
+        spam_check_endpoint_url: nil,
         minimum_password_length: DEFAULT_MINIMUM_PASSWORD_LENGTH,
         namespace_storage_size_limit: 0,
         terminal_max_session_time: 0,
@@ -146,7 +153,7 @@ module ApplicationSettingImplementation
         snowplow_app_id: nil,
         snowplow_iglu_registry_url: nil,
         custom_http_clone_url_root: nil,
-        productivity_analytics_start_date: Time.now,
+        productivity_analytics_start_date: Time.current,
         snippet_size_limit: 50.megabytes
       }
     end

@@ -8,7 +8,7 @@ disqus_identifier: 'https://docs.gitlab.com/ee/workflow/shortcuts.html'
 GitLab has many useful keyboard shortcuts to make it easier to access different features.
 You can see a modal listing keyboard shortcuts within GitLab itself by pressing <kbd>?</kbd>,
 or clicking **Keyboard shortcuts** in the Help menu at the top right.
-From [GitLab 12.8 onwards](https://gitlab.com/gitlab-org/gitlab/issues/22113),
+From [GitLab 12.8 onwards](https://gitlab.com/gitlab-org/gitlab/-/issues/22113),
 keyboard shortcuts can be disabled using the **Enable**/**Disable** toggle in this modal window.
 
 The [Global Shortcuts](#global-shortcuts) work from any area of GitLab, but you must
@@ -126,6 +126,15 @@ This shortcut is available when viewing a [wiki page](project/wiki/index.md):
 | Keyboard Shortcut | Description |
 | ----------------- | ----------- |
 | <kbd>e</kbd>      | Edit wiki page. |
+
+### Filtered Search
+
+These shortcuts are available when using a [filtered search input](search/index.md):
+
+| Keyboard Shortcut                                     | Description |
+| ----------------------------------------------------- | ----------- |
+| <kbd>⌘</kbd> (Mac) + <kbd>⌫</kbd>                     | Clear entire search filter. |
+| <kbd>⌥</kbd> (Mac) / <kbd>Ctrl</kbd> + <kbd>⌫</kbd>   | Clear one token at a time. |
 
 ## Epics **(ULTIMATE)**
 

@@ -1,15 +1,17 @@
 <script>
 import {
-  GlButton,
+  GlDeprecatedButton,
   GlIcon,
   GlModal,
   GlModalDirective,
   GlTooltipDirective,
   GlLink,
   GlEmptyState,
+  GlTab,
+  GlTabs,
   GlTable,
 } from '@gitlab/ui';
-import _ from 'underscore';
+import { escape } from 'lodash';
 import Tracking from '~/tracking';
 import PackageActivity from './activity.vue';
 import PackageInformation from './information.vue';
@@ -18,21 +20,26 @@ import ConanInstallation from './conan_installation.vue';
 import MavenInstallation from './maven_installation.vue';
 import NpmInstallation from './npm_installation.vue';
 import NugetInstallation from './nuget_installation.vue';
+import PypiInstallation from './pypi_installation.vue';
+import PackagesListLoader from '../../shared/components/packages_list_loader.vue';
+import PackageListRow from '../../shared/components/package_list_row.vue';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { generatePackageInfo } from '../utils';
 import { __, s__, sprintf } from '~/locale';
 import { PackageType, TrackingActions } from '../../shared/constants';
 import { packageTypeToTrackCategory } from '../../shared/utils';
-import { mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 
 export default {
   name: 'PackagesApp',
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlEmptyState,
     GlLink,
     GlModal,
+    GlTab,
+    GlTabs,
     GlTable,
     GlIcon,
     PackageActivity,
@@ -42,6 +49,9 @@ export default {
     MavenInstallation,
     NpmInstallation,
     NugetInstallation,
+    PypiInstallation,
+    PackagesListLoader,
+    PackageListRow,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -53,23 +63,28 @@ export default {
     ...mapState([
       'packageEntity',
       'packageFiles',
+      'isLoading',
       'canDelete',
       'destroyPath',
       'svgPath',
       'npmPath',
       'npmHelpPath',
     ]),
-    isNpmPackage() {
-      return this.packageEntity.package_type === PackageType.NPM;
-    },
-    isMavenPackage() {
-      return this.packageEntity.package_type === PackageType.MAVEN;
-    },
-    isConanPackage() {
-      return this.packageEntity.package_type === PackageType.CONAN;
-    },
-    isNugetPackage() {
-      return this.packageEntity.package_type === PackageType.NUGET;
+    installationComponent() {
+      switch (this.packageEntity.package_type) {
+        case PackageType.CONAN:
+          return ConanInstallation;
+        case PackageType.MAVEN:
+          return MavenInstallation;
+        case PackageType.NPM:
+          return NpmInstallation;
+        case PackageType.NUGET:
+          return NugetInstallation;
+        case PackageType.PYPI:
+          return PypiInstallation;
+        default:
+          return null;
+      }
     },
     isValidPackage() {
       return Boolean(this.packageEntity.name);
@@ -83,8 +98,8 @@ export default {
           `PackageRegistry|You are about to delete version %{boldStart}%{version}%{boldEnd} of %{boldStart}%{name}%{boldEnd}. Are you sure?`,
         ),
         {
-          version: _.escape(this.packageEntity.version),
-          name: _.escape(this.packageEntity.name),
+          version: escape(this.packageEntity.version),
+          name: escape(this.packageEntity.name),
           boldStart: '<b>',
           boldEnd: '</b>',
         },
@@ -136,13 +151,22 @@ export default {
         category: packageTypeToTrackCategory(this.packageEntity.package_type),
       };
     },
+    hasVersions() {
+      return this.packageEntity.versions?.length > 0;
+    },
   },
   methods: {
+    ...mapActions(['fetchPackageVersions']),
     formatSize(size) {
       return numberToHumanSize(size);
     },
     cancelDelete() {
       this.$refs.deleteModal.hide();
+    },
+    getPackageVersions() {
+      if (!this.packageEntity.versions) {
+        this.fetchPackageVersions();
+      }
     },
   },
   i18n: {
@@ -180,66 +204,94 @@ export default {
       <package-title />
 
       <div class="mt-sm-2">
-        <gl-button
+        <gl-deprecated-button
           v-if="canDeletePackage"
           v-gl-modal="'delete-modal'"
           class="js-delete-button"
           variant="danger"
           data-qa-selector="delete_button"
-          >{{ __('Delete') }}</gl-button
+          >{{ __('Delete') }}</gl-deprecated-button
         >
       </div>
     </div>
 
-    <div class="row prepend-top-default" data-qa-selector="package_information_content">
-      <div class="col-sm-6">
-        <package-information :information="packageInformation" />
-        <package-information
-          v-if="packageMetadata"
-          :heading="packageMetadataTitle"
-          :information="packageMetadata"
-          :show-copy="true"
-        />
-      </div>
+    <gl-tabs>
+      <gl-tab :title="__('Detail')">
+        <div class="row" data-qa-selector="package_information_content">
+          <div class="col-sm-6">
+            <package-information :information="packageInformation" />
+            <package-information
+              v-if="packageMetadata"
+              :heading="packageMetadataTitle"
+              :information="packageMetadata"
+              :show-copy="true"
+            />
+          </div>
 
-      <div class="col-sm-6">
-        <npm-installation
-          v-if="isNpmPackage"
-          :name="packageEntity.name"
-          :registry-url="npmPath"
-          :help-url="npmHelpPath"
-        />
+          <div class="col-sm-6">
+            <component
+              :is="installationComponent"
+              v-if="installationComponent"
+              :name="packageEntity.name"
+              :registry-url="npmPath"
+              :help-url="npmHelpPath"
+            />
+          </div>
+        </div>
 
-        <maven-installation v-else-if="isMavenPackage" />
-        <conan-installation v-else-if="isConanPackage" />
-        <nuget-installation v-else-if="isNugetPackage" />
-      </div>
-    </div>
+        <package-activity />
 
-    <package-activity />
-
-    <gl-table
-      :fields="$options.filesTableHeaderFields"
-      :items="filesTableRows"
-      tbody-tr-class="js-file-row"
-    >
-      <template #cell(name)="items">
-        <gl-icon name="doc-code" class="space-right" />
-        <gl-link
-          :href="items.item.downloadPath"
-          class="js-file-download"
-          @click="track($options.trackingActions.PULL_PACKAGE)"
+        <gl-table
+          :fields="$options.filesTableHeaderFields"
+          :items="filesTableRows"
+          tbody-tr-class="js-file-row"
         >
-          {{ items.item.name }}
-        </gl-link>
-      </template>
+          <template #cell(name)="items">
+            <gl-icon name="doc-code" class="space-right" />
+            <gl-link
+              :href="items.item.downloadPath"
+              class="js-file-download"
+              @click="track($options.trackingActions.PULL_PACKAGE)"
+            >
+              {{ items.item.name }}
+            </gl-link>
+          </template>
 
-      <template #cell(created)="items">
-        <span v-gl-tooltip :title="tooltipTitle(items.item.created)">{{
-          timeFormatted(items.item.created)
-        }}</span>
-      </template>
-    </gl-table>
+          <template #cell(created)="items">
+            <span v-gl-tooltip :title="tooltipTitle(items.item.created)">{{
+              timeFormatted(items.item.created)
+            }}</span>
+          </template>
+        </gl-table>
+      </gl-tab>
+
+      <gl-tab
+        :title="__('Versions')"
+        title-item-class="js-versions-tab"
+        @click="getPackageVersions"
+      >
+        <template v-if="isLoading && !hasVersions">
+          <packages-list-loader />
+        </template>
+
+        <template v-else-if="hasVersions">
+          <package-list-row
+            v-for="v in packageEntity.versions"
+            :key="v.id"
+            :package-entity="{ name: packageEntity.name, ...v }"
+            :package-link="v.id.toString()"
+            :disable-delete="true"
+            :show-package-type="false"
+          />
+        </template>
+
+        <template v-else class="gl-mt-3">
+          <p data-testid="no-versions-message">
+            {{ s__('PackageRegistry|There are no other versions of this package.') }}
+          </p>
+        </template>
+      </gl-tab>
+    </gl-tabs>
 
     <gl-modal ref="deleteModal" class="js-delete-modal" modal-id="delete-modal">
       <template #modal-title>{{ $options.i18n.deleteModalTitle }}</template>
@@ -247,15 +299,15 @@ export default {
 
       <div slot="modal-footer" class="w-100">
         <div class="float-right">
-          <gl-button @click="cancelDelete()">{{ __('Cancel') }}</gl-button>
-          <gl-button
+          <gl-deprecated-button @click="cancelDelete()">{{ __('Cancel') }}</gl-deprecated-button>
+          <gl-deprecated-button
             ref="modal-delete-button"
             data-method="delete"
             :to="destroyPath"
             variant="danger"
             data-qa-selector="delete_modal_button"
             @click="track($options.trackingActions.DELETE_PACKAGE)"
-            >{{ __('Delete') }}</gl-button
+            >{{ __('Delete') }}</gl-deprecated-button
           >
         </div>
       </div>

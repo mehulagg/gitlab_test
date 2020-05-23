@@ -294,7 +294,7 @@ describe ProjectsController do
 
         get :show, params: { namespace_id: project.namespace, id: project }
 
-        expect(response.status).to eq 404
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -362,7 +362,7 @@ describe ProjectsController do
   end
 
   describe 'GET edit' do
-    it 'allows an admin user to access the page' do
+    it 'allows an admin user to access the page', :enable_admin_mode do
       sign_in(create(:user, :admin))
 
       get :edit,
@@ -531,7 +531,7 @@ describe ProjectsController do
     end
   end
 
-  describe "#update" do
+  describe "#update", :enable_admin_mode do
     render_views
 
     let(:admin) { create(:admin) }
@@ -672,7 +672,7 @@ describe ProjectsController do
     end
   end
 
-  describe '#transfer' do
+  describe '#transfer', :enable_admin_mode do
     render_views
 
     let(:project) { create(:project, :repository) }
@@ -720,7 +720,7 @@ describe ProjectsController do
     end
   end
 
-  describe "#destroy" do
+  describe "#destroy", :enable_admin_mode do
     let(:admin) { create(:admin) }
 
     it "redirects to the dashboard", :sidekiq_might_not_need_inline do
@@ -1020,6 +1020,32 @@ describe ProjectsController do
         expect(json_response['body']).to include(expanded_path)
       end
     end
+
+    context 'when path and ref parameters are provided' do
+      let(:project_with_repo) { create(:project, :repository) }
+      let(:preview_markdown_params) do
+        {
+          namespace_id: project_with_repo.namespace,
+          id: project_with_repo,
+          text: "![](./logo-white.png)\n",
+          ref: 'other_branch',
+          path: 'files/images/README.md'
+        }
+      end
+
+      before do
+        project_with_repo.add_maintainer(user)
+        project_with_repo.repository.create_branch('other_branch')
+      end
+
+      it 'renders JSON body with image links expanded' do
+        expanded_path = "/#{project_with_repo.full_path}/-/raw/other_branch/files/images/logo-white.png"
+
+        post :preview_markdown, params: preview_markdown_params
+
+        expect(json_response['body']).to include(expanded_path)
+      end
+    end
   end
 
   describe '#ensure_canonical_path' do
@@ -1094,7 +1120,7 @@ describe ProjectsController do
       end
     end
 
-    context 'for a DELETE request' do
+    context 'for a DELETE request', :enable_admin_mode do
       before do
         sign_in(create(:admin))
       end
@@ -1133,17 +1159,18 @@ describe ProjectsController do
     end
 
     shared_examples 'rate limits project export endpoint' do
-      before do
-        allow(::Gitlab::ApplicationRateLimiter)
-          .to receive(:throttled?)
-          .and_return(true)
-      end
-
       it 'prevents requesting project export' do
+        exportable_project = create(:project)
+        exportable_project.add_maintainer(user)
+
+        post action, params: { namespace_id: exportable_project.namespace, id: exportable_project }
+
+        expect(response).to have_gitlab_http_status(:found)
+
         post action, params: { namespace_id: project.namespace, id: project }
 
-        expect(flash[:alert]).to eq('This endpoint has been requested too many times. Try again later.')
-        expect(response).to have_gitlab_http_status(:found)
+        expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status(:too_many_requests)
       end
     end
 
@@ -1200,7 +1227,18 @@ describe ProjectsController do
         end
 
         context 'when the endpoint receives requests above the limit', :clean_gitlab_redis_cache do
-          include_examples 'rate limits project export endpoint'
+          before do
+            allow(::Gitlab::ApplicationRateLimiter)
+              .to receive(:throttled?)
+              .and_return(true)
+          end
+
+          it 'prevents requesting project export' do
+            post action, params: { namespace_id: project.namespace, id: project }
+
+            expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
+            expect(response).to have_gitlab_http_status(:too_many_requests)
+          end
         end
       end
     end

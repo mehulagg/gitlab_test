@@ -17,12 +17,16 @@ describe Project do
     it { is_expected.to delegate_method(:actual_shared_runners_minutes_limit).to(:shared_runners_limit_namespace) }
     it { is_expected.to delegate_method(:shared_runners_minutes_limit_enabled?).to(:shared_runners_limit_namespace) }
     it { is_expected.to delegate_method(:shared_runners_minutes_used?).to(:shared_runners_limit_namespace) }
+    it { is_expected.to delegate_method(:shared_runners_remaining_minutes_below_threshold?).to(:shared_runners_limit_namespace) }
+
+    it { is_expected.to delegate_method(:closest_gitlab_subscription).to(:namespace) }
 
     it { is_expected.to belong_to(:deleting_user) }
 
     it { is_expected.to have_one(:import_state).class_name('ProjectImportState') }
     it { is_expected.to have_one(:repository_state).class_name('ProjectRepositoryState').inverse_of(:project) }
-    it { is_expected.to have_one(:status_page_setting).class_name('StatusPageSetting') }
+    it { is_expected.to have_one(:status_page_setting).class_name('StatusPage::ProjectSetting') }
+    it { is_expected.to have_one(:compliance_framework_setting).class_name('ComplianceManagement::ComplianceFramework::ProjectSettings') }
 
     it { is_expected.to have_many(:reviews).inverse_of(:project) }
     it { is_expected.to have_many(:path_locks) }
@@ -181,6 +185,75 @@ describe Project do
         expect(Project.find_by_service_desk_project_key('some_key')).to be_nil
       end
     end
+
+    describe '.with_shared_runners_limit_enabled' do
+      let(:public_cost_factor) { 1.0 }
+
+      before do
+        create(:ci_runner, :instance, public_projects_minutes_cost_factor: public_cost_factor)
+      end
+
+      it 'does not return projects without shared runners' do
+        project_with_shared_runners = create(:project, shared_runners_enabled: true)
+        project_without_shared_runners = create(:project, shared_runners_enabled: false)
+
+        expect(described_class.with_shared_runners_limit_enabled).to include(project_with_shared_runners)
+        expect(described_class.with_shared_runners_limit_enabled).not_to include(project_without_shared_runners)
+      end
+
+      it 'return projects with shared runners with positive public cost factor with any visibility levels' do
+        public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
+        internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
+        private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
+
+        expect(described_class.with_shared_runners_limit_enabled).to include(public_project_with_shared_runners)
+        expect(described_class.with_shared_runners_limit_enabled).to include(internal_project_with_shared_runners)
+        expect(described_class.with_shared_runners_limit_enabled).to include(private_project_with_shared_runners)
+      end
+
+      context 'and shared runners public cost factors set to 0' do
+        let(:public_cost_factor) { 0.0 }
+
+        it 'return projects with any visibility levels except public' do
+          public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
+          internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
+          private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
+
+          expect(described_class.with_shared_runners_limit_enabled).not_to include(public_project_with_shared_runners)
+          expect(described_class.with_shared_runners_limit_enabled).to include(internal_project_with_shared_runners)
+          expect(described_class.with_shared_runners_limit_enabled).to include(private_project_with_shared_runners)
+        end
+      end
+
+      context 'and :ci_minutes_enforce_quota_for_public_projects FF is disabled' do
+        before do
+          stub_feature_flags(ci_minutes_enforce_quota_for_public_projects: false)
+        end
+
+        it 'does not return public projects' do
+          public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
+          internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
+          private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
+
+          expect(described_class.with_shared_runners_limit_enabled).not_to include(public_project_with_shared_runners)
+          expect(described_class.with_shared_runners_limit_enabled).to include(internal_project_with_shared_runners)
+          expect(described_class.with_shared_runners_limit_enabled).to include(private_project_with_shared_runners)
+        end
+      end
+    end
+
+    describe '.has_vulnerabilities' do
+      let_it_be(:project_1) { create(:project) }
+      let_it_be(:project_2) { create(:project) }
+
+      before do
+        create(:vulnerability, project: project_1)
+      end
+
+      subject { described_class.has_vulnerabilities }
+
+      it { is_expected.to contain_exactly(project_1) }
+    end
   end
 
   describe 'validations' do
@@ -249,7 +322,7 @@ describe Project do
             project.save
           end.to change { ProjectImportState.count }.by(1)
 
-          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
         end
       end
     end
@@ -264,7 +337,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id, import_url: generate(:url))
             end.to change { ProjectImportState.count }.by(1)
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -278,7 +351,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id)
             end.not_to change { ProjectImportState.count }
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -286,7 +359,7 @@ describe Project do
   end
 
   describe '.mirrors_to_sync' do
-    let(:timestamp) { Time.now }
+    let(:timestamp) { Time.current }
 
     context 'when mirror is scheduled' do
       it 'returns empty' do
@@ -698,9 +771,9 @@ describe Project do
       end
 
       License::EEU_FEATURES.each do |feature_sym|
-        let(:feature) { feature_sym }
-
         context feature_sym.to_s do
+          let(:feature) { feature_sym }
+
           unless License::GLOBAL_FEATURES.include?(feature_sym)
             context "checking #{feature_sym} availability both on Global and Namespace license" do
               let(:check_namespace_plan) { true }
@@ -757,6 +830,17 @@ describe Project do
                   is_expected.to eq(false)
                 end
               end
+
+              context 'with promo feature flag' do
+                let(:allowed_on_global_license) { true }
+
+                before do
+                  project.clear_memoization(:licensed_feature_available)
+                  stub_feature_flags("promo_#{feature}" => true)
+                end
+
+                it { is_expected.to be_truthy }
+              end
             end
           end
 
@@ -811,7 +895,7 @@ describe Project do
     with_them do
       let(:project) { build(:project, :mirror, import_url: import_url, import_data_attributes: { auth_method: auth_method } ) }
 
-      it do
+      specify do
         expect(project.repository).to receive(:fetch_upstream).with(expected, forced: false)
 
         project.fetch_mirror
@@ -940,7 +1024,15 @@ describe Project do
           project.visibility_level = Project::PUBLIC
         end
 
-        it { is_expected.to be_falsey }
+        it { is_expected.to be_truthy }
+
+        context 'and :ci_minutes_track_for_public_projects FF is disabled' do
+          before do
+            stub_feature_flags(ci_minutes_track_for_public_projects: false)
+          end
+
+          it { is_expected.to be_falsey }
+        end
       end
 
       context 'for internal project' do
@@ -1246,7 +1338,7 @@ describe Project do
     subject { project.disabled_services }
 
     where(:license_feature, :disabled_services) do
-      :jenkins_integration                | %w(jenkins jenkins_deprecated)
+      :jenkins_integration                | %w(jenkins)
       :github_project_service_integration | %w(github)
     end
 
@@ -1387,7 +1479,7 @@ describe Project do
         let(:plan_license) { :bronze }
 
         it 'filters for bronze features' do
-          is_expected.to contain_exactly(:audit_events, :geo)
+          is_expected.to contain_exactly(:audit_events, :geo, :service_desk)
         end
       end
 
@@ -1669,6 +1761,41 @@ describe Project do
 
       project.after_import
     end
+
+    context 'elasticsearch indexing disabled for this project' do
+      before do
+        expect(project).to receive(:use_elasticsearch?).and_return(false)
+      end
+
+      it 'does not index the wiki repository' do
+        expect(ElasticCommitIndexerWorker).not_to receive(:perform_async)
+
+        project.after_import
+      end
+    end
+
+    context 'elasticsearch indexing enabled for this project' do
+      before do
+        expect(project).to receive(:use_elasticsearch?).and_return(true)
+      end
+
+      it 'schedules a full index of the wiki repository' do
+        expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, nil, nil, true)
+
+        project.after_import
+      end
+
+      context 'when project is forked' do
+        before do
+          expect(project).to receive(:forked?).and_return(true)
+        end
+        it 'does not index the wiki repository' do
+          expect(ElasticCommitIndexerWorker).not_to receive(:perform_async)
+
+          project.after_import
+        end
+      end
+    end
   end
 
   describe '#lfs_http_url_to_repo' do
@@ -1760,35 +1887,20 @@ describe Project do
     end
 
     context 'when mirror true on a jira imported project' do
-      let(:user) { create(:user) }
-      let(:symbol_keys_project) do
-        { key: 'AA', scheduled_at: 2.days.ago.strftime('%Y-%m-%d %H:%M:%S'), scheduled_by: { 'user_id' => 1, 'name' => 'tester1' } }
-      end
-      let(:project) { create(:project, :repository, import_type: 'jira', mirror: true, import_url: 'http://some_url.com', mirror_user_id: user.id, import_data: import_data) }
+      let_it_be(:user) { create(:user) }
+      let_it_be(:project) { create(:project, :repository, import_type: 'jira', mirror: true, import_url: 'http://some_url.com', mirror_user_id: user.id) }
+      let_it_be(:jira_import) { create(:jira_import_state, project: project) }
 
-      context 'when jira import is forced' do
-        let(:import_data) { JiraImportData.new(data: { jira: { projects: [symbol_keys_project], JiraImportData::FORCE_IMPORT_KEY => true } }) }
-
-        it 'does not trigger mirror update' do
-          expect(RepositoryUpdateMirrorWorker).not_to receive(:perform_async)
-          expect(Gitlab::JiraImport::Stage::StartImportWorker).to receive(:perform_async)
-          expect(project.mirror).to be true
-          expect(project.jira_import?).to be true
-          expect(project.jira_force_import?).to be true
-
-          project.add_import_job
+      context 'when jira import is in progress' do
+        before do
+          jira_import.start
         end
-      end
-
-      context 'when jira import is not forced' do
-        let(:import_data) { JiraImportData.new(data: { jira: { projects: [symbol_keys_project] } }) }
 
         it 'does trigger mirror update' do
           expect(RepositoryUpdateMirrorWorker).to receive(:perform_async)
           expect(Gitlab::JiraImport::Stage::StartImportWorker).not_to receive(:perform_async)
           expect(project.mirror).to be true
           expect(project.jira_import?).to be true
-          expect(project.jira_force_import?).to be false
 
           project.add_import_job
         end
@@ -2041,32 +2153,6 @@ describe Project do
             expect(project.insights_config).to be_nil
           end
         end
-      end
-    end
-  end
-
-  describe '#design_management_enabled?' do
-    let(:project) { build(:project) }
-
-    where(:license_enabled, :lfs_enabled, :hashed_storage_enabled, :hash_storage_required, :expectation) do
-      false | false | false | false | false
-      true  | false | false | false | false
-      true  | true  | false | false | true
-      true  | true  | false | true  | false
-      true  | true  | true  | false | true
-      true  | true  | true  | true  | true
-    end
-
-    with_them do
-      before do
-        stub_licensed_features(design_management: license_enabled)
-        stub_feature_flags(design_management_require_hashed_storage: hash_storage_required)
-        expect(project).to receive(:lfs_enabled?).and_return(lfs_enabled)
-        allow(project).to receive(:hashed_storage?).with(:repository).and_return(hashed_storage_enabled)
-      end
-
-      it do
-        expect(project.design_management_enabled?).to be(expectation)
       end
     end
   end
@@ -2517,31 +2603,6 @@ describe Project do
 
   describe '#license_compliance' do
     it { expect(subject.license_compliance).to be_instance_of(::SCA::LicenseCompliance) }
-  end
-
-  describe '#expire_caches_before_rename' do
-    let(:project) { create(:project, :repository) }
-    let(:repo)    { double(:repo, exists?: true, before_delete: true) }
-    let(:wiki)    { double(:wiki, exists?: true, before_delete: true) }
-    let(:design)  { double(:design, exists?: true) }
-
-    it 'expires the caches of the design repository' do
-      allow(Repository).to receive(:new)
-        .with('foo', project, shard: project.repository_storage)
-        .and_return(repo)
-
-      allow(Repository).to receive(:new)
-        .with('foo.wiki', project, shard: project.repository_storage, repo_type: Gitlab::GlRepository::WIKI)
-        .and_return(wiki)
-
-      allow(Repository).to receive(:new)
-        .with('foo.design', project, shard: project.repository_storage, repo_type: ::EE::Gitlab::GlRepository::DESIGN)
-        .and_return(design)
-
-      expect(design).to receive(:before_delete)
-
-      project.expire_caches_before_rename('foo')
-    end
   end
 
   describe '#template_source?' do

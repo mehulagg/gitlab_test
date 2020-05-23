@@ -36,6 +36,8 @@ RSpec.shared_examples 'process nuget service index request' do |user_type, statu
 
     it_behaves_like 'returning response status', status
 
+    it_behaves_like 'a gitlab tracking event', described_class.name, 'nuget_service_index'
+
     it 'returns a valid json response' do
       subject
 
@@ -169,7 +171,7 @@ RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member =
       end
 
       context 'without a file from workhorse' do
-        let(:params) { { package: nil } }
+        let(:send_rewritten_field) { false }
 
         it_behaves_like 'returning response status', :bad_request
       end
@@ -209,6 +211,19 @@ RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member =
 
             it_behaves_like 'returning response status', :forbidden
           end
+        end
+
+        context 'with crafted package.path param' do
+          let(:crafted_file) { Tempfile.new('nuget.crafted.package.path') }
+          let(:url) { "/projects/#{project.id}/packages/nuget?package.path=#{crafted_file.path}" }
+          let(:params) { { file: temp_file(file_name) } }
+          let(:file_key) { :file }
+
+          it 'does not create a package file' do
+            expect { subject }.to change { ::Packages::PackageFile.count }.by(0)
+          end
+
+          it_behaves_like 'returning response status', :bad_request
         end
       end
 
@@ -280,6 +295,8 @@ RSpec.shared_examples 'process nuget download content request' do |user_type, st
 
     it_behaves_like 'returning response status', status
 
+    it_behaves_like 'a gitlab tracking event', described_class.name, 'pull_package'
+
     it 'returns a valid package archive' do
       subject
 
@@ -327,6 +344,8 @@ RSpec.shared_examples 'process nuget search request' do |user_type, status, add_
     end
 
     it_behaves_like 'returns a valid json search response', status, 4, [1, 5, 5, 1]
+
+    it_behaves_like 'a gitlab tracking event', described_class.name, 'search_package'
 
     context 'with skip set to 2' do
       let(:skip) { 2 }

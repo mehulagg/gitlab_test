@@ -4,7 +4,7 @@ disqus_identifier: 'https://docs.gitlab.com/ee/workflow/todos.html'
 
 # GitLab To-Do List
 
-> [Introduced][ce-2817] in GitLab 8.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/2817) in GitLab 8.5.
 
 When you log into GitLab, you normally want to see where you should spend your
 time, take some action, or know what you need to keep an eye on without
@@ -29,14 +29,16 @@ displays on the To-Do List.
 
 ## What triggers a To Do
 
-A To Do displays on your To-Do List when:
+A To Do appears on your To-Do List when:
 
 - An issue or merge request is assigned to you
 - You are `@mentioned` in the description or comment of an:
   - Issue
   - Merge Request
   - Epic **(ULTIMATE)**
-- You are `@mentioned` in a comment on a commit
+- You are `@mentioned` in a comment on a:
+  - Commit
+  - Design
 - A job in the CI pipeline running for your merge request failed, but this
   job is not allowed to fail
 - An open merge request becomes unmergeable due to conflict, and you are either:
@@ -46,11 +48,13 @@ A To Do displays on your To-Do List when:
 To-do triggers are not affected by [GitLab Notification Email settings](profile/notifications.md).
 
 NOTE: **Note:**
-When a user no longer has access to a resource related to a To Do (like an issue, merge request, project, or group) the related To-Do items are deleted within the next hour for security reasons. The delete is delayed to prevent data loss, in case the user's access was revoked by mistake.
+When a user no longer has access to a resource related to a To Do (like an issue, merge request,
+project, or group) the related To-Do items are deleted within the next hour for security reasons.
+The delete is delayed to prevent data loss, in case the user's access was revoked by mistake.
 
 ### Directly addressing a To Do
 
-> [Introduced][ce-7926] in GitLab 9.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7926) in GitLab 9.0.
 
 If you are mentioned at the start of a line, the To Do you receive will be listed
 as 'directly addressed'. For example, in this comment:
@@ -133,10 +137,15 @@ There are four kinds of filters you can use on your To-Do List.
 | Project | Filter by project |
 | Group   | Filter by group |
 | Author  | Filter by the author that triggered the To Do |
-| Type    | Filter by issue, merge request, or epic **(ULTIMATE)** |
+| Type    | Filter by issue, merge request, design, or epic **(ULTIMATE)** |
 | Action  | Filter by the action that triggered the To Do |
 
-You can also filter by more than one of these at the same time. The possible Actions are `Any Action`, `Assigned`, `Mentioned`, `Added`, `Pipelines`, and `Directly Addressed`, [as described above](#what-triggers-a-to-do).
+You can also filter by more than one of these at the same time. The possible Actions are
+[described above](#what-triggers-a-to-do) and include:
 
-[ce-2817]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/2817
-[ce-7926]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7926
+- Any Action
+- Assigned
+- Mentioned
+- Added
+- Pipelines
+- Directly Addressed

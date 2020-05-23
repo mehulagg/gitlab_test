@@ -14,6 +14,7 @@ module Types
           description: 'SHA1 ID of the commit'
     field :title, type: GraphQL::STRING_TYPE, null: true, calls_gitaly: true,
           description: 'Title of the commit message'
+    markdown_field :title_html, null: true
     field :description, type: GraphQL::STRING_TYPE, null: true,
           description: 'Description of the commit message'
     field :message, type: GraphQL::STRING_TYPE, null: true,
@@ -44,7 +45,7 @@ module Types
     field :latest_pipeline,
           type: Types::Ci::PipelineType,
           null: true,
-          deprecated: { reason: 'Use `pipelines`', milestone: 12.5 },
+          deprecated: { reason: 'Use `pipelines`', milestone: '12.5' },
           description: 'Latest pipeline of the commit',
           resolver: Resolvers::CommitPipelinesResolver.last
   end

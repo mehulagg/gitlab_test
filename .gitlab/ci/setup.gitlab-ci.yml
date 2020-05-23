@@ -7,9 +7,7 @@ cache gems:
     - .default-before_script
     - .setup:rules:cache-gems
   stage: test
-  needs:
-    - job: setup-test-env
-      artifacts: true
+  needs: ["setup-test-env"]
   variables:
     SETUP_DB: "false"
   script:
@@ -17,6 +15,7 @@ cache gems:
   artifacts:
     paths:
       - vendor/cache
+    expire_in: 31d
 
 .minimal-job:
   extends:
@@ -28,7 +27,6 @@ dont-interrupt-me:
   stage: sync
   image: alpine:edge
   interruptible: false
-  allow_failure: true
   variables:
     GIT_STRATEGY: none
   script:

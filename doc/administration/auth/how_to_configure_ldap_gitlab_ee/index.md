@@ -8,15 +8,15 @@ This article expands on [How to Configure LDAP with GitLab CE](../how_to_configu
 
 ## GitLab Enterprise Edition - LDAP features
 
-[GitLab Enterprise Edition (EE)](https://about.gitlab.com/pricing/) has a number of advantages when it comes to integrating with Active Directory (LDAP):
+[GitLab Enterprise Edition (EE)](https://about.gitlab.com/pricing/) has several advantages when it comes to integrating with Active Directory (LDAP):
 
 - [Administrator Sync](../ldap-ee.md#administrator-sync): As an extension of group sync, you can automatically manage your global GitLab administrators. Specify a group CN for `admin_group` and all members of the LDAP group will be given administrator privileges.
 - [Group Sync](#group-sync): This allows GitLab group membership to be automatically updated based on LDAP group members.
-- [Multiple LDAP servers](#multiple-ldap-servers): The ability to configure multiple LDAP servers. This is useful if an organization has different LDAP servers within departments. This is not designed for failover. We're working on [supporting LDAP failover](https://gitlab.com/gitlab-org/gitlab/issues/139) in GitLab.
+- [Multiple LDAP servers](#multiple-ldap-servers): The ability to configure multiple LDAP servers. This is useful if an organization has different LDAP servers within departments. This is not designed for failover. We're working on [supporting LDAP failover](https://gitlab.com/gitlab-org/gitlab/-/issues/139) in GitLab.
 
 - Daily user synchronization: Once a day, GitLab will run a synchronization to check and update GitLab users against LDAP. This process updates all user details automatically.
 
-On the following section, you'll find a description for each of these features. Read through [LDAP GitLab EE docs](../ldap-ee.md) for complementary information.
+In the following section, you'll find a description of each of these features. Read through [LDAP GitLab EE docs](../ldap-ee.md) for complementary information.
 
 ![GitLab OU Structure](img/admin_group.png)
 
@@ -28,7 +28,7 @@ Group syncing allows AD (LDAP) groups to be mapped to GitLab groups. This provid
 
 #### Creating group links - example
 
-As an example, let's suppose we have a "UKGov" GitLab group, which deals with confidential government information. Therefore, it is important that users of this group are given the correct permissions to projects contained within the group. Granular group permissions can be applied based on the AD group.
+As an example, let's suppose we have a "UKGov" GitLab group, which deals with confidential government information. Therefore, users of this group must be given the correct permissions to projects contained within the group. Granular group permissions can be applied based on the AD group.
 
 **UK Developers** of our "UKGov" group are given **"developer"** permissions.
 
@@ -44,7 +44,7 @@ _The reporter permission allows support staff to manage issues, labels, and revi
 
 > Guest permissions allows people ops staff to review and lodge new issues while allowing no read or write access to project code or [confidential issues](../../../user/project/issues/confidential_issues.md#permissions-and-access-to-confidential-issues) created by other users.
 
-See the [permission list](../../../user/permissions.md) for complementary info.
+See the [permission list](../../../user/permissions.md) for complementary information.
 
 #### Group permissions - example
 

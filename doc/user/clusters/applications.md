@@ -1,10 +1,16 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Managed Apps
 
 GitLab provides **GitLab Managed Apps**, a one-click install for various applications which can
 be added directly to your configured cluster.
 
 These applications are needed for [Review Apps](../../ci/review_apps/index.md)
-and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topics/autodevops/index.md).
+and [deployments](../../ci/environments/index.md) when using [Auto DevOps](../../topics/autodevops/index.md).
 
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
@@ -43,6 +49,7 @@ The following applications can be installed:
 - [Knative](#knative)
 - [Crossplane](#crossplane)
 - [Elastic Stack](#elastic-stack)
+- [Fluentd](#fluentd)
 
 With the exception of Knative, the applications will be installed in a dedicated
 namespace called `gitlab-managed-apps`.
@@ -52,7 +59,7 @@ Some applications are installable only for a project-level cluster.
 Support for installing these applications in a group-level cluster is
 planned for future releases.
 For updates, see [the issue tracking
-progress](https://gitlab.com/gitlab-org/gitlab-foss/issues/51989).
+progress](https://gitlab.com/gitlab-org/gitlab/-/issues/24411).
 
 CAUTION: **Caution:**
 If you have an existing Kubernetes cluster with Helm already installed,
@@ -127,9 +134,9 @@ before deploying one.
 
 NOTE: **Note:**
 The [`runner/gitlab-runner`](https://gitlab.com/gitlab-org/charts/gitlab-runner)
-chart is used to install this application with a
-[`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/runner/values.yaml)
-file. Customizing installation by modifying this file is not supported.
+chart is used to install this application, using
+[a preconfigured `values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab-runner/-/blob/master/values.yaml)
+file. Customizing the installation by modifying this file is not supported.
 
 ### Ingress
 
@@ -295,11 +302,37 @@ from processing any requests for the given application or environment.
 1. Switching its respective toggle to the disabled position and applying changes through the **Save changes** button. This will reinstall
 Ingress with the recent changes.
 
-![Disabling WAF](../../topics/web_application_firewall/img/guide_waf_ingress_save_changes_v12_9.png)
+![Disabling WAF](../../topics/web_application_firewall/img/guide_waf_ingress_save_changes_v12_10.png)
+
+##### Logging and blocking modes
+
+To help you tune your WAF rules, you can globally set your WAF to either
+**Logging** or **Blocking** mode:
+
+- **Logging mode** - Allows traffic matching the rule to pass, and logs the event.
+- **Blocking mode** - Prevents traffic matching the rule from passing, and logs the event.
+
+To change your WAF's mode:
+
+1. [Install ModSecurity](../../topics/web_application_firewall/quick_start_guide.md) if you have not already done so.
+1. Navigate to **{cloud-gear}** **Operations > Kubernetes**.
+1. In **Applications**, scroll to **Ingress**.
+1. Under **Global default**, select your desired mode.
+1. Click **Save changes**.
+
+##### WAF version updates
+
+Enabling, disabling, or changing the logging mode for **ModSecurity** is only allowed within same version of [Ingress](#ingress) due to limitations in [Helm](https://helm.sh/) which might be overcome in future releases.
+
+**ModSecurity** UI controls are disabled if the version deployed differs from the one available in GitLab, while actions at the [Ingress](#ingress) level, such as uninstalling, can still be performed:
+
+![WAF settings disabled](../../topics/web_application_firewall/img/guide_waf_ingress_disabled_settings_v12_10.png)
+
+Updating [Ingress](#ingress) to the most recent version enables you to take advantage of bug fixes, security fixes, and performance improvements. To update [Ingress application](#ingress), you must first uninstall it, and then re-install it as described in [Install ModSecurity](../../topics/web_application_firewall/quick_start_guide.md).
 
 ##### Viewing Web Application Firewall traffic
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
 You can view Web Application Firewall traffic by navigating to your project's
 **Security & Compliance > Threat Monitoring** page.
@@ -312,7 +345,7 @@ From there, you can see tracked over time:
 
 If a significant percentage of traffic is anomalous, it should be investigated
 for potential threats, which can be done by
-[examining the application logs](#web-application-firewall-modsecurity).
+[examining the Web Application Firewall logs](#web-application-firewall-modsecurity).
 
 ![Threat Monitoring](img/threat_monitoring_v12_9.png)
 
@@ -339,7 +372,7 @@ will also see ready-to-use DevOps Runbooks built with Nurtch's [Rubix library](h
 
 More information on
 creating executable runbooks can be found in [our Runbooks
-documentation](../project/clusters/runbooks/index.md#executable-runbooks). Note that
+documentation](../project/clusters/runbooks/index.md#configure-an-executable-runbook-with-gitlab). Note that
 Ingress must be installed and have an IP address assigned before
 JupyterHub can be installed.
 
@@ -425,9 +458,9 @@ file.
 
 ### Crossplane
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34702) in GitLab 12.5 for project-level clusters.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34702) in GitLab 12.5 for project-level clusters.
 
-[Crossplane](https://crossplane.io/docs) is a multi-cloud control plane useful for
+[Crossplane](https://crossplane.github.io/docs/v0.9/) is a multi-cloud control plane useful for
 managing applications and infrastructure across multiple clouds. It extends the
 Kubernetes API using:
 
@@ -452,14 +485,14 @@ For information on configuring Crossplane installed on the cluster, see
 NOTE: **Note:**
 [`alpha/crossplane`](https://charts.crossplane.io/alpha/) chart v0.4.1 is used to
 install Crossplane using the
-[`values.yaml`](https://github.com/crossplaneio/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl)
+[`values.yaml`](https://github.com/crossplane/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl)
 file.
 
 ### Elastic Stack
 
 > Introduced in GitLab 12.7 for project- and group-level clusters.
 
-[Elastic Stack](https://www.elastic.co/products/elastic-stack) is a complete end-to-end
+[Elastic Stack](https://www.elastic.co/elastic-stack) is a complete end-to-end
 log analysis solution which helps in deep searching, analyzing and visualizing the logs
 generated from different machines.
 
@@ -470,18 +503,25 @@ and you will have access to more advanced querying capabilities.
 
 Log data is automatically deleted after 30 days using [Curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/5.5/about.html).
 
-To enable log shipping, install Elastic Stack into the cluster with the **Install** button.
+To enable log shipping:
+
+1. Ensure your cluster contains at least 3 nodes of instance types larger than
+   `f1-micro`, `g1-small`, or `n1-standard-1`.
+1. Navigate to **{cloud-gear}** **Operations > Kubernetes**.
+1. In **Kubernetes Cluster**, select a cluster.
+1. In the **Applications** section, find **Elastic Stack** and click **Install**.
 
 NOTE: **Note:**
-The [`stable/elastic-stack`](https://github.com/helm/charts/tree/master/stable/elastic-stack)
+The [`gitlab/elastic-stack`](https://gitlab.com/gitlab-org/charts/elastic-stack)
 chart is used to install this application with a
 [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/elastic_stack/values.yaml)
 file.
 
 NOTE: **Note:**
-The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node,
-with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
-which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+The chart deploys 3 identical Elasticsearch pods which can't be colocated, and each
+require 1 CPU and 2 GB of RAM, making them incompatible with clusters containing
+fewer than 3 nodes or consisting of `f1-micro`, `g1-small`, `n1-standard-1`, or
+`*-highcpu-2` instance types.
 
 NOTE: **Note:**
 The Elastic Stack cluster application is intended as a log aggregation solution and is not related to our
@@ -500,28 +540,49 @@ Save the following to `kibana.yml`:
 elasticsearch:
   enabled: false
 
-logstash:
+filebeat:
   enabled: false
 
 kibana:
   enabled: true
-  env:
-    ELASTICSEARCH_HOSTS: http://elastic-stack-elasticsearch-client.gitlab-managed-apps.svc.cluster.local:9200
+  elasticsearchHosts: http://elastic-stack-elasticsearch-master.gitlab-managed-apps.svc.cluster.local:9200
 ```
 
 Then install it on your cluster:
 
 ```shell
-helm install --name kibana stable/elastic-stack --values kibana.yml
+helm repo add gitlab https://charts.gitlab.io
+helm install --name kibana gitlab/elastic-stack --values kibana.yml
 ```
 
-To access kibana, forward the port to your local machine:
+To access Kibana, forward the port to your local machine:
 
 ```shell
-kubectl port-forward svc/kibana 5601:443
+kubectl port-forward svc/kibana-kibana 5601:5601
 ```
 
 Then, you can visit Kibana at `http://localhost:5601`.
+
+### Fluentd
+
+> Introduced in GitLab 12.10 for project- and group-level clusters.
+
+[Fluentd](https://www.fluentd.org/) is an open source data collector, which enables
+you to unify the data collection and consumption to better use and understand
+your data. Fluentd sends logs in syslog format.
+
+To enable Fluentd:
+
+1. Navigate to **{cloud-gear}** **Operations > Kubernetes** and click
+   **Applications**. You will be prompted to enter a host, port and protocol
+   where the WAF logs will be sent to via syslog.
+1. Provide the host domain name or URL in **SIEM Hostname**.
+1. Provide the host port number in **SIEM Port**.
+1. Select a **SIEM Protocol**.
+1. Select at least one of the available logs (such as WAF or Cilium).
+1. Click **Save changes**.
+
+![Fluentd input fields](img/fluentd_v13_0.png)
 
 ### Future apps
 
@@ -552,6 +613,8 @@ Supported applications:
 - [JupyterHub](#install-jupyterhub-using-gitlab-cicd)
 - [Elastic Stack](#install-elastic-stack-using-gitlab-cicd)
 - [Crossplane](#install-crossplane-using-gitlab-cicd)
+- [Fluentd](#install-fluentd-using-gitlab-cicd)
+- [Knative](#install-knative-using-gitlab-cicd)
 
 ### Usage
 
@@ -612,7 +675,7 @@ ingress:
 Ingress will then be installed into the `gitlab-managed-apps` namespace
 of your cluster.
 
-You can customize the installation of Ingress by defining
+You can customize the installation of Ingress by defining a
 `.gitlab/managed-apps/ingress/values.yaml` file in your cluster
 management project. Refer to the
 [chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress)
@@ -649,7 +712,7 @@ certManager:
     installed: false
 ```
 
-You can customize the installation of cert-manager by defining
+You can customize the installation of cert-manager by defining a
 `.gitlab/managed-apps/cert-manager/values.yaml` file in your cluster
 management project. Refer to the
 [chart](https://hub.helm.sh/charts/jetstack/cert-manager) for the
@@ -736,7 +799,7 @@ In order for GitLab Runner to function, you **must** specify the following:
 - `runnerRegistrationToken` - The registration token for adding new Runners to GitLab. This must be
   [retrieved from your GitLab instance](../../ci/runners/README.md).
 
-These values can be specifed using [CI variables](../../ci/variables/README.md):
+These values can be specified using [CI variables](../../ci/variables/README.md):
 
 - `GITLAB_RUNNER_GITLAB_URL` will be used for `gitlabUrl`.
 - `GITLAB_RUNNER_REGISTRATION_TOKEN` will be used for `runnerRegistrationToken`
@@ -751,10 +814,12 @@ available configuration options.
 
 > [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/22) in GitLab 12.8.
 
-[Cilium](https://cilium.io/) is a networking plugin for Kubernetes
-that you can use to implement support for
-[NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
-resources. For more information on [Network Policies](../../topics/autodevops/index.md#network-policy), see the documentation.
+[Cilium](https://cilium.io/) is a networking plugin for Kubernetes that you can use to implement
+support for [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+resources. For more information, see [Network Policies](../../topics/autodevops/stages.md#network-policy).
+
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+For an overview, see the [Container Network Security Demo for GitLab 12.8](https://www.youtube.com/watch?v=pgUEdhdhoUI).
 
 Enable Cilium in the `.gitlab/managed-apps/config.yaml` file to install it:
 
@@ -781,7 +846,8 @@ management project. Refer to the
 for the available configuration options.
 
 CAUTION: **Caution:**
-Installation and removal of the Cilium [requires restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
+Installation and removal of the Cilium requires a **manual**
+[restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
 of all affected pods in all namespaces to ensure that they are
 [managed](https://cilium.readthedocs.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium)
 by the correct networking plugin.
@@ -825,11 +891,33 @@ agent:
     enabled: false
 ```
 
+The [Hubble](https://github.com/cilium/hubble) monitoring daemon is
+enabled by default and it's set to collect per namespace flow
+metrics. This metrics are accessible on the [Threat Monitoring](../application_security/threat_monitoring/index.md)
+dashboard. You can disable Hubble by adding the following to
+`.gitlab/managed-apps/config.yaml`:
+
+```yaml
+cilium:
+  installed: true
+  hubble:
+    installed: false
+```
+
+You can also adjust Helm values for Hubble via
+`.gitlab/managed-apps/cilium/hubble-values.yaml`:
+
+```yaml
+metrics:
+  enabled:
+    - 'flow:sourceContext=namespace;destinationContext=namespace'
+```
+
 ### Install Vault using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9982) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9982) in GitLab 12.9.
 
-[Hashicorp Vault](https://vaultproject.io/) is a secrets management solution which
+[Hashicorp Vault](https://www.vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more. A Vault
 installation could be leveraged to provide a single secure data store for credentials
 used in your applications, GitLab CI/CD jobs, and more. It could also serve as a way of
@@ -845,15 +933,15 @@ vault:
   installed: true
 ```
 
-By default you will get a basic Vault setup with no high availability nor any scalable
-storage backend. This is enough for simple testing and small scale deployments, though has limits
+By default you will get a basic Vault setup with no scalable
+storage backend. This is enough for simple testing and small-scale deployments, though has limits
 to how much it can scale, and as it is a single instance deployment, you will experience downtime
 when upgrading the Vault application.
 
 To optimally use Vault in a production environment, it's ideal to have a good understanding
 of the internals of Vault and how to configure it. This can be done by reading the
 [the Vault documentation](https://www.vaultproject.io/docs/internals/) as well as
-the Vault Helm chart [values.yaml file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
+the Vault Helm chart [`values.yaml` file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
 
 At a minimum you will likely set up:
 
@@ -946,11 +1034,11 @@ In addition, the following variables must be specified using [CI variables](../.
 
 | CI Variable                            | Description                                                                                                                                                         |
 |:---------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `JUPYTERHUB_PROXY_SECRET_TOKEN`        | Sets [`proxy.secretToken`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#proxy-secrettoken). Generate using `openssl rand -hex 32`.             |
-| `JUPYTERHUB_COOKIE_SECRET`             | Sets [`hub.cookieSecret`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#hub-cookiesecret). Generate using `openssl rand -hex 32`.               |
+| `JUPYTERHUB_PROXY_SECRET_TOKEN`        | Secure string used for signing communications from the hub. See[`proxy.secretToken`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference/reference.html#proxy-secrettoken).             |
+| `JUPYTERHUB_COOKIE_SECRET`             | Secure string used for signing secure cookies. See [`hub.cookieSecret`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference/reference.html#hub-cookiesecret).               |
 | `JUPYTERHUB_HOST`                      | Hostname used for the installation. For example, `jupyter.gitlab.example.com`.                                                                                      |
 | `JUPYTERHUB_GITLAB_HOST`               | Hostname of the GitLab instance used for authentication. For example, `gitlab.example.com`.                                                                         |
-| `JUPYTERHUB_AUTH_CRYPTO_KEY`           | Sets [`auth.state.cryptoKey`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#auth-state-cryptokey). Generate using `openssl rand -hex 32`. |
+| `JUPYTERHUB_AUTH_CRYPTO_KEY`           | A 32-byte encryption key used to set [`auth.state.cryptoKey`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference/reference.html#auth-state-cryptokey). |
 | `JUPYTERHUB_AUTH_GITLAB_CLIENT_ID`     | "Application ID" for the OAuth Application.                                                                                                                         |
 | `JUPYTERHUB_AUTH_GITLAB_CLIENT_SECRET` | "Secret" for the OAuth Application.                                                                                                                                 |
 
@@ -979,12 +1067,12 @@ elasticStack:
 
 Elastic Stack is installed into the `gitlab-managed-apps` namespace of your cluster.
 
-You can check the default [values.yaml](https://gitlab.com/gitlab-org/gitlab/-/blob/master/vendor/elastic_stack/values.yaml) we set for this chart.
+You can check the default [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/vendor/elastic_stack/values.yaml) we set for this chart.
 
 You can customize the installation of Elastic Stack by defining
 `.gitlab/managed-apps/elastic-stack/values.yaml` file in your cluster
 management project. Refer to the
-[chart](https://github.com/helm/charts/blob/master/stable/elastic-stack/values.yaml) for the
+[chart](https://gitlab.com/gitlab-org/charts/elastic-stack) for the
 available configuration options.
 
 NOTE: **Note:**
@@ -992,7 +1080,7 @@ In this alpha implementation of installing Elastic Stack through CI, reading the
 
 ### Install Crossplane using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/68) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/35675) in GitLab 12.9.
 
 Crossplane is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1006,13 +1094,81 @@ Crossplane:
 
 Crossplane is installed into the `gitlab-managed-apps` namespace of your cluster.
 
-You can check the default [values.yaml](https://github.com/crossplane/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl) we set for this chart.
+You can check the default
+[`values.yaml`](https://github.com/crossplane/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl)
+we set for this chart.
 
 You can customize the installation of Crossplane by defining
 `.gitlab/managed-apps/crossplane/values.yaml` file in your cluster
 management project. Refer to the
 [chart](https://github.com/crossplane/crossplane/tree/master/cluster/charts/crossplane#configuration) for the
-available configuration options. Note that this link points to the docs for the current development release, which may differ from the version you have installed. You can check out a specific version in the branch/tag switcher.
+available configuration options. Note that this link points to the documentation for the current development release, which may differ from the version you have installed.
+
+### Install Fluentd using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/76) in GitLab 12.10.
+
+To install Fluentd into the `gitlab-managed-apps` namespace of your cluster using GitLab CI/CD, define the following configuration in `.gitlab/managed-apps/config.yaml`:
+
+```yaml
+Fluentd:
+  installed: true
+```
+
+You can also review the default values set for this chart in the [`values.yaml`](https://github.com/helm/charts/blob/master/stable/fluentd/values.yaml) file.
+
+You can customize the installation of Fluentd by defining
+`.gitlab/managed-apps/fluentd/values.yaml` file in your cluster management
+project. Refer to the
+[configuration chart for the current development release of Fluentd](https://github.com/helm/charts/tree/master/stable/fluentd#configuration)
+for the available configuration options.
+
+NOTE: **Note:**
+The configuration chart link points to the current development release, which
+may differ from the version you have installed. To ensure compatibility, switch
+to the specific branch or tag you are using.
+
+### Install Knative using GitLab CI/CD
+
+To install Knative, define the `.gitlab/managed-apps/config.yaml` file
+with:
+
+```yaml
+knative:
+  installed: true
+```
+
+You can customize the installation of Knative by defining `.gitlab/managed-apps/knative/values.yaml`
+file in your cluster management project. Refer to the [chart](https://gitlab.com/gitlab-org/charts/knative)
+for the available configuration options.
+
+Here is an example configuration for Knative:
+
+```yaml
+domain: 'my.wildcard.A.record.dns'
+```
+
+If you plan to use GitLab Serverless capabilities, be sure to set an A record wildcard domain on your custom configuration.
+
+#### Knative Metrics
+
+GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#invocation-metrics) for your functions. To collect these metrics, you must have:
+
+1. Knative and Prometheus managed applications installed on your cluster.
+1. Manually applied the custom metrics on your cluster by running the following command:
+
+   ```shell
+   kubectl apply -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
+   ```
+
+#### Uninstall Knative
+
+To uninstall Knative, you must first manually remove any custom metrics you have added
+by running the following command:
+
+```shell
+kubectl delete -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
+```
 
 ## Upgrading applications
 
@@ -1041,7 +1197,7 @@ chart plus the values set by
 
 ## Uninstalling applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/60665) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/60665) in GitLab 11.11.
 
 The applications below can be uninstalled.
 
@@ -1076,7 +1232,7 @@ epic](https://gitlab.com/groups/gitlab-org/-/epics/1201).
 
 Applications can fail with the following error:
 
-```text
+```plaintext
 Error: remote error: tls: bad certificate
 ```
 
@@ -1094,3 +1250,22 @@ To avoid installation errors:
   kubectl get secrets/tiller-secret -n gitlab-managed-apps -o "jsonpath={.data['ca\.crt']}" | base64 -d > b.pem
   diff a.pem b.pem
   ```
+
+### Error installing managed apps on EKS cluster
+
+If you're using a managed cluster on AWS EKS, and you are not able to install some of the managed
+apps, consider checking the logs.
+
+You can check the logs by running following commands:
+
+```shell
+kubectl get pods --all-namespaces
+kubectl get services --all-namespaces
+```
+
+If you are getting the `Failed to assign an IP address to container` error, it's probably due to the
+instance type you've specified in the AWS configuration.
+The number and size of nodes might not have enough IP addresses to run or install those pods.
+
+For reference, all the AWS instance IP limits are found
+[in this AWS repository on GitHub](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/pkg/awsutils/vpc_ip_resource_limit.go) (search for `InstanceENIsAvailable`).

@@ -21,6 +21,12 @@ module Gitlab
         end
       end
 
+      def gitlab_prometheus_alert_id
+        strong_memoize(:gitlab_prometheus_alert_id) do
+          payload&.dig('labels', 'gitlab_prometheus_alert_id')
+        end
+      end
+
       def title
         strong_memoize(:title) do
           gitlab_alert&.title || parse_title_from_payload
@@ -69,6 +75,12 @@ module Gitlab
         end
       end
 
+      def y_label
+        strong_memoize(:y_label) do
+          parse_y_label_from_payload || title
+        end
+      end
+
       def alert_markdown
         strong_memoize(:alert_markdown) do
           parse_alert_markdown_from_payload
@@ -93,6 +105,10 @@ module Gitlab
         metric_id.present?
       end
 
+      def gitlab_fingerprint
+        Digest::SHA1.hexdigest(plain_gitlab_fingerprint)
+      end
+
       def valid?
         payload.respond_to?(:dig) && project && title && starts_at
       end
@@ -102,6 +118,14 @@ module Gitlab
       end
 
       private
+
+      def plain_gitlab_fingerprint
+        if gitlab_managed?
+          [metric_id, starts_at_raw].join('/')
+        else # self managed
+          [starts_at_raw, title, full_query].join('/')
+        end
+      end
 
       def parse_environment_from_payload
         environment_name = payload&.dig('labels', 'gitlab_environment_name')
@@ -114,12 +138,19 @@ module Gitlab
       end
 
       def parse_gitlab_alert_from_payload
-        return unless metric_id
+        alerts_found = matching_gitlab_alerts
+
+        return if alerts_found.blank? || alerts_found.size > 1
+
+        alerts_found.first
+      end
+
+      def matching_gitlab_alerts
+        return unless metric_id || gitlab_prometheus_alert_id
 
         Projects::Prometheus::AlertsFinder
-          .new(project: project, metric: metric_id)
+          .new(project: project, metric: metric_id, id: gitlab_prometheus_alert_id)
           .execute
-          .first
       end
 
       def parse_title_from_payload
@@ -161,6 +192,10 @@ module Gitlab
 
       def parse_alert_markdown_from_payload
         payload&.dig('annotations', 'gitlab_incident_markdown')
+      end
+
+      def parse_y_label_from_payload
+        payload&.dig('annotations', 'gitlab_y_label')
       end
     end
   end

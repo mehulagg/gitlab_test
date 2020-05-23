@@ -1,5 +1,5 @@
 <script>
-import { GlSprintf, GlLink } from '@gitlab/ui';
+import { GlSprintf, GlLink, GlFormCheckbox } from '@gitlab/ui';
 
 import settingsMixin from 'ee_else_ce/pages/projects/shared/permissions/mixins/settings_pannel_mixin';
 import { s__ } from '~/locale';
@@ -11,6 +11,7 @@ import {
   visibilityLevelDescriptions,
   featureAccessLevelMembers,
   featureAccessLevelEveryone,
+  featureAccessLevel,
 } from '../constants';
 import { toggleHiddenClassBySelector } from '../external';
 
@@ -23,6 +24,7 @@ export default {
     projectSettingRow,
     GlSprintf,
     GlLink,
+    GlFormCheckbox,
   },
   mixins: [settingsMixin],
 
@@ -116,6 +118,8 @@ export default {
     const defaults = {
       visibilityOptions,
       visibilityLevel: visibilityOptions.PUBLIC,
+      // TODO: Change all of these to use the visibilityOptions constants
+      // https://gitlab.com/gitlab-org/gitlab/-/issues/214667
       issuesAccessLevel: 20,
       repositoryAccessLevel: 20,
       forkingAccessLevel: 20,
@@ -124,11 +128,14 @@ export default {
       wikiAccessLevel: 20,
       snippetsAccessLevel: 20,
       pagesAccessLevel: 20,
+      metricsDashboardAccessLevel: featureAccessLevel.PROJECT_MEMBERS,
       containerRegistryEnabled: true,
       lfsEnabled: true,
       requestAccessEnabled: true,
       highlightChangesClass: false,
       emailsDisabled: false,
+      featureAccessLevelEveryone,
+      featureAccessLevelMembers,
     };
 
     return { ...defaults, ...this.currentSettings };
@@ -168,6 +175,10 @@ export default {
       return options;
     },
 
+    metricsOptionsDropdownEnabled() {
+      return this.featureAccessLevelOptions.length < 2;
+    },
+
     repositoryEnabled() {
       return this.repositoryAccessLevel > 0;
     },
@@ -201,6 +212,7 @@ export default {
         this.buildsAccessLevel = Math.min(10, this.buildsAccessLevel);
         this.wikiAccessLevel = Math.min(10, this.wikiAccessLevel);
         this.snippetsAccessLevel = Math.min(10, this.snippetsAccessLevel);
+        this.metricsDashboardAccessLevel = Math.min(10, this.metricsDashboardAccessLevel);
         if (this.pagesAccessLevel === 20) {
           // When from Internal->Private narrow access for only members
           this.pagesAccessLevel = 10;
@@ -215,6 +227,7 @@ export default {
         if (this.wikiAccessLevel > 0) this.wikiAccessLevel = 20;
         if (this.snippetsAccessLevel > 0) this.snippetsAccessLevel = 20;
         if (this.pagesAccessLevel === 10) this.pagesAccessLevel = 20;
+        if (this.metricsDashboardAccessLevel === 10) this.metricsDashboardAccessLevel = 20;
         this.highlightChanges();
       }
     },
@@ -462,6 +475,38 @@ export default {
           name="project[project_feature_attributes][pages_access_level]"
         />
       </project-setting-row>
+      <project-setting-row
+        ref="metrics-visibility-settings"
+        :label="__('Metrics Dashboard')"
+        :help-text="
+          s__(
+            'ProjectSettings|With Metrics Dashboard you can visualize this project performance metrics',
+          )
+        "
+      >
+        <div class="project-feature-controls">
+          <div class="select-wrapper">
+            <select
+              v-model="metricsDashboardAccessLevel"
+              :disabled="metricsOptionsDropdownEnabled"
+              name="project[project_feature_attributes][metrics_dashboard_access_level]"
+              class="form-control project-repo-select select-control"
+            >
+              <option
+                :value="featureAccessLevelMembers[0]"
+                :disabled="!visibilityAllowed(visibilityOptions.INTERNAL)"
+                >{{ featureAccessLevelMembers[1] }}</option
+              >
+              <option
+                :value="featureAccessLevelEveryone[0]"
+                :disabled="!visibilityAllowed(visibilityOptions.PUBLIC)"
+                >{{ featureAccessLevelEveryone[1] }}</option
+              >
+            </select>
+            <i aria-hidden="true" data-hidden="true" class="fa fa-chevron-down"></i>
+          </div>
+        </div>
+      </project-setting-row>
     </div>
     <project-setting-row v-if="canDisableEmails" ref="email-settings" class="mb-3">
       <label class="js-emails-disabled">
@@ -474,6 +519,24 @@ export default {
           'ProjectSettings|This setting will override user notification preferences for all project members.',
         )
       }}</span>
+    </project-setting-row>
+    <project-setting-row class="mb-3">
+      <input
+        :value="showDefaultAwardEmojis"
+        type="hidden"
+        name="project[project_setting_attributes][show_default_award_emojis]"
+      />
+      <gl-form-checkbox
+        v-model="showDefaultAwardEmojis"
+        name="project[project_setting_attributes][show_default_award_emojis]"
+      >
+        {{ s__('ProjectSettings|Show default award emojis') }}
+        <template #help>{{
+          s__(
+            'ProjectSettings|When enabled, issues, merge requests, and snippets will always show thumbs-up and thumbs-down award emoji buttons.',
+          )
+        }}</template>
+      </gl-form-checkbox>
     </project-setting-row>
   </div>
 </template>

@@ -15,14 +15,14 @@ There are standard comments, and you also have the option to create a comment
 in the form of a thread. A comment can also be [turned into a thread](#start-a-thread-by-replying-to-a-standard-comment)
 when it receives a reply.
 
-The comment area supports [Markdown] and [quick actions]. You can edit your own
-comment at any time, and anyone with [Maintainer access level][permissions] or
+The comment area supports [Markdown](../markdown.md) and [quick actions](../project/quick_actions.md). You can edit your own
+comment at any time, and anyone with [Maintainer access level](../permissions.md) or
 higher can also edit a comment made by someone else.
 
 You can also reply to a comment notification email to reply to the comment if
-[Reply by email] is configured for your GitLab instance. Replying to a standard comment
+[Reply by email](../../administration/reply_by_email.md) is configured for your GitLab instance. Replying to a standard comment
 creates another standard comment. Replying to a threaded comment creates a reply in the thread. Email replies support
-[Markdown] and [quick actions], just as if you replied from the web.
+[Markdown](../markdown.md) and [quick actions](../project/quick_actions.md), just as if you replied from the web.
 
 NOTE: **Note:**
 There is a limit of 5,000 comments for every object, for example: issue, epic, and merge request.
@@ -48,7 +48,7 @@ to address feedback and lets you hide threads that are no longer relevant.
 
 ### Commit threads in the context of a merge request
 
-> [Introduced][ce-31847] in GitLab 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/31847) in GitLab 10.3.
 
 For reviewers with commit-based workflow, it may be useful to add threads to
 specific commit diffs in the context of a merge request. These threads will
@@ -112,7 +112,7 @@ Alternatively, you can mark each comment as resolved individually.
 
 ### Move all unresolved threads in a merge request to an issue
 
-> [Introduced][ce-8266] in GitLab 9.1
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8266) in GitLab 9.1
 
 To continue all open threads from a merge request in a new issue, click the
 **Resolve all threads in new issue** button.
@@ -140,7 +140,7 @@ You can now proceed to merge the merge request from the UI.
 
 ### Moving a single thread to a new issue
 
-> [Introduced][ce-8266] in GitLab 9.1
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8266) in GitLab 9.1
 
 To create a new issue for a single thread, you can use the **Resolve this
 thread in a new issue** button.
@@ -156,7 +156,7 @@ add a note to the merge request thread referencing the new issue.
 
 ### Only allow merge requests to be merged if all threads are resolved
 
-> [Introduced][ce-7125] in GitLab 8.14.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7125) in GitLab 8.14.
 
 You can prevent merge requests from being merged until all threads are
 resolved.
@@ -174,7 +174,7 @@ are resolved.
 
 ### Automatically resolve merge request diff threads when they become outdated
 
-> [Introduced][ce-14053] in GitLab 10.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/14053) in GitLab 10.0.
 
 You can automatically resolve merge request diff threads on lines modified
 with a new push.
@@ -200,7 +200,7 @@ force push.
 
 ## Threaded discussions
 
-> [Introduced][ce-7527] in GitLab 9.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7527) in GitLab 9.1.
 
 While resolvable threads are only available to merge request diffs,
 threads can also be added without a diff. You can start a specific
@@ -220,7 +220,7 @@ comments in greater detail.
 
 ## Image threads
 
-> [Introduced][ce-14061] in GitLab 10.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/14061) in GitLab 10.1.
 
 Sometimes a thread is revolved around an image. With image threads,
 you can easily target a specific coordinate of an image and start a thread
@@ -257,7 +257,7 @@ load and will have a corresponding badge counter to match the counter on the ima
 
 ## Lock discussions
 
-> [Introduced][ce-14531] in GitLab 10.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/14531) in GitLab 10.1.
 
 For large projects with many contributors, it may be useful to stop threads
 in issues or merge requests in these scenarios:
@@ -313,7 +313,7 @@ All comments that are part of a review show two buttons:
 
 ![A comment that is part of a review](img/pending_review_comment.png)
 
-You can use [quick actions] inside review comments. The comment will show the actions that will be performed once published.
+You can use [quick actions](../project/quick_actions.md) inside review comments. The comment will show the actions that will be performed once published.
 
 ![A review comment with quick actions](img/review_comment_quickactions.png)
 
@@ -364,7 +364,7 @@ Replying to this email will, consequentially, create a new comment on the associ
 
 ## Filtering notes
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/26723) in GitLab 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/26723) in GitLab 11.5.
 
 For issues with many comments like activity notes and user comments, sometimes
 finding useful information can be hard. There is a way to filter comments from single notes and threads for merge requests and issues.
@@ -384,7 +384,7 @@ from any device you're logged into.
 
 ## Suggest Changes
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/18008) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/18008) in GitLab 11.6.
 
 As a reviewer, you're able to suggest code changes with a simple
 Markdown syntax in Merge Request Diff threads. Then, the
@@ -419,7 +419,7 @@ branch. [Developer permission](../permissions.md) is required to do so.
 
 ### Multi-line Suggestions
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/53310) in GitLab 11.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/53310) in GitLab 11.10.
 
 Reviewers can also suggest changes to multiple lines with a single Suggestion
 within merge request diff threads by adjusting the range offsets. The
@@ -451,7 +451,7 @@ instead of the usual three.
 
 ### Configure the commit message for applied Suggestions
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13086) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13086) in GitLab 12.7.
 
 GitLab uses `Apply suggestion to %{file_path}` by default as commit messages
 when applying Suggestions. This commit message can be customized to
@@ -478,11 +478,11 @@ For example, to customize the commit message to output
 
 NOTE: **Note:**
 Custom commit messages for each applied Suggestion will be
-introduced by [#25381](https://gitlab.com/gitlab-org/gitlab/issues/25381).
+introduced by [#25381](https://gitlab.com/gitlab-org/gitlab/-/issues/25381).
 
 ## Start a thread by replying to a standard comment
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/30299) in GitLab 11.9
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/30299) in GitLab 11.9
 
 To reply to a standard (non-thread) comment, you can use the **Reply to comment** button.
 
@@ -500,20 +500,3 @@ to the original comment, so a note about when it was last edited will appear und
 
 This feature only exists for Issues, Merge requests, and Epics. Commits, Snippets and Merge request diff threads are
 not supported yet.
-
-[ce-7125]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7125
-[ce-7527]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7527
-[ce-7180]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7180
-[ce-8266]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8266
-[ce-14053]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/14053
-[ce-14061]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/14061
-[ce-14531]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/14531
-[ce-31847]: https://gitlab.com/gitlab-org/gitlab-foss/issues/31847
-[resolve-discussion-button]: img/resolve_discussion_button.png
-[resolve-comment-button]: img/resolve_comment_button.png
-[discussion-view]: img/discussion_view.png
-[discussions-resolved]: img/discussions_resolved.png
-[markdown]: ../markdown.md
-[quick actions]: ../project/quick_actions.md
-[permissions]: ../permissions.md
-[Reply by email]: ../../administration/reply_by_email.md

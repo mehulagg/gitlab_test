@@ -3,7 +3,6 @@
 module Ci
   class Bridge < Ci::Processable
     include Ci::Contextable
-    include Ci::PipelineDelegator
     include Ci::Metadatable
     include Importable
     include AfterCommitQueue
@@ -165,6 +164,10 @@ module Ci
           { key: hash[:key], value: ::ExpandVariables.expand(hash[:value], all_variables) }
         end
       end
+    end
+
+    def dependency_variables
+      []
     end
 
     private

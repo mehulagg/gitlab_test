@@ -1,5 +1,5 @@
 <script>
-import { escape as esc } from 'lodash';
+import { escape } from 'lodash';
 import { s__, __ } from '../../locale';
 import { APPLICATION_STATUS, INGRESS, LOGGING_MODE, BLOCKING_MODE } from '~/clusters/constants';
 import {
@@ -7,7 +7,7 @@ import {
   GlSprintf,
   GlLink,
   GlToggle,
-  GlButton,
+  GlDeprecatedButton,
   GlDropdown,
   GlDropdownItem,
   GlIcon,
@@ -25,7 +25,7 @@ export default {
     GlSprintf,
     GlLink,
     GlToggle,
-    GlButton,
+    GlDeprecatedButton,
     GlDropdown,
     GlDropdownItem,
     GlIcon,
@@ -87,7 +87,7 @@ export default {
       );
     },
     ingressModSecurityDescription() {
-      return esc(this.ingressModSecurityHelpPath);
+      return escape(this.ingressModSecurityHelpPath);
     },
     saving() {
       return [UPDATING].includes(this.ingress.status);
@@ -235,17 +235,17 @@ export default {
             </div>
           </div>
           <div v-if="showButtons" class="mt-3">
-            <gl-button
+            <gl-deprecated-button
               class="btn-success inline mr-1"
               :loading="saving"
               :disabled="saveButtonDisabled"
               @click="updateApplication"
             >
               {{ saveButtonLabel }}
-            </gl-button>
-            <gl-button :disabled="saveButtonDisabled" @click="resetStatus">
+            </gl-deprecated-button>
+            <gl-deprecated-button :disabled="saveButtonDisabled" @click="resetStatus">
               {{ __('Cancel') }}
-            </gl-button>
+            </gl-deprecated-button>
           </div>
         </div>
       </div>

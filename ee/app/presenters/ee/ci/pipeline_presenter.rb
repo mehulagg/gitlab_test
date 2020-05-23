@@ -19,6 +19,8 @@ module EE
       end
 
       def expose_security_dashboard?
+        return false unless can?(current_user, :read_vulnerability, pipeline.project)
+
         batch_lookup_report_artifact_for_file_type(:sast) ||
           batch_lookup_report_artifact_for_file_type(:dependency_scanning) ||
           batch_lookup_report_artifact_for_file_type(:dast) ||
@@ -33,6 +35,13 @@ module EE
             job_artifact.job,
             file_type: file_type,
             proxy: true)
+        end
+      end
+
+      def degradation_threshold
+        if (job_artifact = batch_lookup_report_artifact_for_file_type(:performance)) &&
+            can?(current_user, :read_build, job_artifact.job)
+          job_artifact.job.degradation_threshold
         end
       end
     end

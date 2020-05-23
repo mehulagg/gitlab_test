@@ -180,22 +180,6 @@ describe Snippet do
     end
   end
 
-  describe '.search_code' do
-    let(:snippet) { create(:snippet, content: 'class Foo; end') }
-
-    it 'returns snippets with matching content' do
-      expect(described_class.search_code(snippet.content)).to eq([snippet])
-    end
-
-    it 'returns snippets with partially matching content' do
-      expect(described_class.search_code('class')).to eq([snippet])
-    end
-
-    it 'returns snippets with matching content regardless of the casing' do
-      expect(described_class.search_code('FOO')).to eq([snippet])
-    end
-  end
-
   describe 'when default snippet visibility set to internal' do
     using RSpec::Parameterized::TableSyntax
 
@@ -545,11 +529,11 @@ describe Snippet do
     let(:snippet) { build(:snippet) }
 
     it 'excludes secret_token from generated json' do
-      expect(JSON.parse(to_json).keys).not_to include("secret_token")
+      expect(Gitlab::Json.parse(to_json).keys).not_to include("secret_token")
     end
 
     it 'does not override existing exclude option value' do
-      expect(JSON.parse(to_json(except: [:id])).keys).not_to include("secret_token", "id")
+      expect(Gitlab::Json.parse(to_json(except: [:id])).keys).not_to include("secret_token", "id")
     end
 
     def to_json(params = {})
@@ -696,6 +680,23 @@ describe Snippet do
     end
   end
 
+  describe '#repository_size_checker' do
+    subject { build(:personal_snippet) }
+
+    let(:checker) { subject.repository_size_checker }
+    let(:current_size) { 60 }
+
+    before do
+      allow(subject.repository).to receive(:size).and_return(current_size)
+    end
+
+    it 'sets up size checker', :aggregate_failures do
+      expect(checker.current_size).to eq(current_size.megabytes)
+      expect(checker.limit).to eq(Gitlab::CurrentSettings.snippet_size_limit)
+      expect(checker.enabled?).to be_truthy
+    end
+  end
+
   describe '#can_cache_field?' do
     using RSpec::Parameterized::TableSyntax
 
@@ -734,31 +735,19 @@ describe Snippet do
     end
   end
 
-  describe '#versioned_enabled_for?' do
-    let_it_be(:user) { create(:user) }
+  describe '.max_file_limit' do
+    subject { described_class.max_file_limit(nil) }
 
-    subject { snippet.versioned_enabled_for?(user) }
-
-    context 'with repository and version_snippets enabled' do
-      let!(:snippet) { create(:personal_snippet, :repository, author: user) }
-
-      it { is_expected.to be_truthy }
+    it "returns #{Snippet::MAX_FILE_COUNT}" do
+      expect(subject).to eq Snippet::MAX_FILE_COUNT
     end
 
-    context 'without repository' do
-      let!(:snippet) { create(:personal_snippet, author: user) }
+    context 'when feature flag :snippet_multiple_files is disabled' do
+      it "returns #{described_class::MAX_SINGLE_FILE_COUNT}" do
+        stub_feature_flags(snippet_multiple_files: false)
 
-      it { is_expected.to be_falsy }
-    end
-
-    context 'without version_snippets feature disabled' do
-      let!(:snippet) { create(:personal_snippet, :repository, author: user) }
-
-      before do
-        stub_feature_flags(version_snippets: false)
+        expect(subject).to eq described_class::MAX_SINGLE_FILE_COUNT
       end
-
-      it { is_expected.to be_falsy }
     end
   end
 end

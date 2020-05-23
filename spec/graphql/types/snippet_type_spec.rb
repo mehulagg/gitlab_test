@@ -17,13 +17,32 @@ describe GitlabSchema.types['Snippet'] do
   end
 
   describe 'authorizations' do
-    it { expect(described_class).to require_graphql_authorizations(:read_snippet) }
+    specify { expect(described_class).to require_graphql_authorizations(:read_snippet) }
   end
 
   shared_examples 'response without repository URLs' do
     it 'does not respond with repository URLs' do
       expect(response['sshUrlToRepo']).to be_nil
       expect(response['httpUrlToRepo']).to be_nil
+    end
+  end
+
+  shared_examples 'snippets with repositories' do
+    context 'when snippet has repository' do
+      let_it_be(:snippet) { create(:personal_snippet, :repository, :public, author: user) }
+
+      it 'responds with repository URLs' do
+        expect(response['sshUrlToRepo']).to eq(snippet.ssh_url_to_repo)
+        expect(response['httpUrlToRepo']).to eq(snippet.http_url_to_repo)
+      end
+    end
+  end
+
+  shared_examples 'snippets without repositories' do
+    context 'when snippet does not have a repository' do
+      let_it_be(:snippet) { create(:personal_snippet, :public, author: user) }
+
+      it_behaves_like 'response without repository URLs'
     end
   end
 
@@ -44,27 +63,14 @@ describe GitlabSchema.types['Snippet'] do
 
     subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
 
-    context 'when snippet has repository' do
-      let!(:snippet) { create(:personal_snippet, :repository, :public, author: user) }
-
-      it 'responds with repository URLs' do
-        expect(response['sshUrlToRepo']).to eq(snippet.ssh_url_to_repo)
-        expect(response['httpUrlToRepo']).to eq(snippet.http_url_to_repo)
-      end
-
-      context 'when version_snippets feature is disabled' do
-        before do
-          stub_feature_flags(version_snippets: false)
-        end
-
-        it_behaves_like 'response without repository URLs'
-      end
+    context 'when RequestStore is disabled' do
+      it_behaves_like 'snippets with repositories'
+      it_behaves_like 'snippets without repositories'
     end
 
-    context 'when snippet does not have a repository' do
-      let!(:snippet) { create(:personal_snippet, :public, author: user) }
-
-      it_behaves_like 'response without repository URLs'
+    context 'when RequestStore is enabled', :request_store do
+      it_behaves_like 'snippets with repositories'
+      it_behaves_like 'snippets without repositories'
     end
   end
 

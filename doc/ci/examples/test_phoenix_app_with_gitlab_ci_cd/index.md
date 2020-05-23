@@ -12,7 +12,7 @@ last_updated: 2019-03-06
 
 [Phoenix](https://www.phoenixframework.org/) is a web development framework written in [Elixir](https://elixir-lang.org), which is a
 functional language designed for productivity and maintainability that runs on the
-[Erlang VM](https://www.erlang.org). Erlang VM is really really fast and can handle very large numbers of
+[Erlang VM](https://www.erlang.org). Erlang VM is really fast and can handle very large numbers of
 simultaneous users.
 
 That's why we're hearing so much about Phoenix today.
@@ -375,7 +375,7 @@ see if our latest code is running without errors.
 When we finish this edition, GitLab will start another build and show a **build running** badge. It
 is expected, after all we just configured GitLab CI/CD to do this for every push! But you may think
 "Why run build and tests for simple things like editing README.md?" and it is a good question.
-For changes that don't affect your application, you can add the keyword [`[ci skip]`](../../yaml/README.md#skipping-jobs)
+For changes that don't affect your application, you can add the keyword [`[ci skip]`](../../yaml/README.md#skip-pipeline)
 to commit message and the build related to that commit will be skipped.
 
 In the end, we finally got our pretty green build succeeded badge! By outputting the result on the
@@ -389,7 +389,7 @@ source project being watched and contributed by the community, it is really impo
 code permanently working. GitLab CI/CD is a time saving powerful tool to help us maintain our code
 organized and working.
 
-As we could see in this post, GitLab CI/CD is really really easy to configure and use. We have [many
+As we could see in this post, GitLab CI/CD is really easy to configure and use. We have [many
 other reasons](https://about.gitlab.com/blog/2015/02/03/7-reasons-why-you-should-be-using-ci/) to keep
 using GitLab CI/CD. The benefits to our teams will be huge!
 

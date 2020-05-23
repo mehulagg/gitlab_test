@@ -1,6 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { GlButton, GlLink } from '@gitlab/ui';
+import { GlDeprecatedButton, GlLink, GlIcon } from '@gitlab/ui';
 
 import ItemWeight from 'ee/boards/components/issue_card_weight.vue';
 
@@ -14,18 +14,18 @@ import { PathIdSeparator } from 'ee/related_issues/constants';
 import ItemAssignees from '~/vue_shared/components/issue/issue_assignees.vue';
 import ItemDueDate from '~/boards/components/issue_due_date.vue';
 import ItemMilestone from '~/vue_shared/components/issue/issue_milestone.vue';
-import Icon from '~/vue_shared/components/icon.vue';
 
 import { mockParentItem, mockInitialConfig, mockQueryResponse, mockIssue1 } from '../mock_data';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-const mockItem = Object.assign({}, mockIssue1, {
+const mockItem = {
+  ...mockIssue1,
   type: ChildType.Issue,
   pathIdSeparator: PathIdSeparator.Issue,
   assignees: epicUtils.extractIssueAssignees(mockIssue1.assignees),
-});
+};
 
 const createComponent = (parentItem = mockParentItem, item = mockItem) => {
   const store = createDefaultStore();
@@ -53,6 +53,22 @@ const createComponent = (parentItem = mockParentItem, item = mockItem) => {
   });
 };
 
+const createEpicComponent = () => {
+  const mockEpicItem = {
+    ...mockItem,
+    type: ChildType.Epic,
+    healthStatus: mockParentItem.healthStatus,
+    descendantCounts: {
+      openedEpics: 0,
+      closedEpics: 0,
+      openedIssues: 0,
+      closedIssues: 0,
+    },
+  };
+
+  return createComponent(mockParentItem, mockEpicItem);
+};
+
 describe('RelatedItemsTree', () => {
   describe('TreeItemBody', () => {
     let wrapper;
@@ -77,10 +93,7 @@ describe('RelatedItemsTree', () => {
 
         it('returns value of `item.path`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              path: mockPath,
-              webPath: undefined,
-            }),
+            item: { ...mockItem, path: mockPath, webPath: undefined },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -90,10 +103,7 @@ describe('RelatedItemsTree', () => {
 
         it('returns value of `item.webPath` when `item.path` is undefined', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              path: undefined,
-              webPath: mockPath,
-            }),
+            item: { ...mockItem, path: undefined, webPath: mockPath },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -105,9 +115,7 @@ describe('RelatedItemsTree', () => {
       describe('isOpen', () => {
         it('returns true when `item.state` value is `opened`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              state: ChildState.Open,
-            }),
+            item: { ...mockItem, state: ChildState.Open },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -119,9 +127,7 @@ describe('RelatedItemsTree', () => {
       describe('isClosed', () => {
         it('returns true when `item.state` value is `closed`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              state: ChildState.Closed,
-            }),
+            item: { ...mockItem, state: ChildState.Closed },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -145,9 +151,7 @@ describe('RelatedItemsTree', () => {
       describe('stateText', () => {
         it('returns string `Opened` when `item.state` value is `opened`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              state: ChildState.Open,
-            }),
+            item: { ...mockItem, state: ChildState.Open },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -157,9 +161,7 @@ describe('RelatedItemsTree', () => {
 
         it('returns string `Closed` when `item.state` value is `closed`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              state: ChildState.Closed,
-            }),
+            item: { ...mockItem, state: ChildState.Closed },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -169,37 +171,29 @@ describe('RelatedItemsTree', () => {
       });
 
       describe('stateIconName', () => {
-        it('returns string `epic` when `item.type` value is `epic`', () => {
-          wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              type: ChildType.Epic,
-            }),
-          });
-
-          return wrapper.vm.$nextTick(() => {
-            expect(wrapper.vm.stateIconName).toBe('epic');
-          });
-        });
-
         it('returns string `issues` when `item.type` value is `issue`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              type: ChildType.Issue,
-            }),
+            item: { ...mockItem, type: ChildType.Issue },
           });
 
           return wrapper.vm.$nextTick(() => {
             expect(wrapper.vm.stateIconName).toBe('issues');
           });
         });
+
+        it('returns string `epic` when `item.type` value is `epic`', () => {
+          const epicItemWrapper = createEpicComponent();
+
+          expect(epicItemWrapper.vm.stateIconName).toBe('epic');
+
+          epicItemWrapper.destroy();
+        });
       });
 
       describe('stateIconClass', () => {
         it('returns string `issue-token-state-icon-open` when `item.state` value is `opened`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              state: ChildState.Open,
-            }),
+            item: { ...mockItem, state: ChildState.Open },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -209,9 +203,7 @@ describe('RelatedItemsTree', () => {
 
         it('returns string `issue-token-state-icon-closed` when `item.state` value is `closed`', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              state: ChildState.Closed,
-            }),
+            item: { ...mockItem, state: ChildState.Closed },
           });
 
           return wrapper.vm.$nextTick(() => {
@@ -220,15 +212,15 @@ describe('RelatedItemsTree', () => {
         });
       });
 
-      describe('itemPath', () => {
-        it('returns string containing item path', () => {
-          expect(wrapper.vm.itemPath).toBe('gitlab-org/gitlab-shell');
-        });
-      });
-
       describe('itemId', () => {
         it('returns string containing item id', () => {
           expect(wrapper.vm.itemId).toBe('8');
+        });
+      });
+
+      describe('itemPath', () => {
+        it('returns string containing item path', () => {
+          expect(wrapper.vm.itemPath).toBe('gitlab-org/gitlab-shell');
         });
       });
 
@@ -239,14 +231,26 @@ describe('RelatedItemsTree', () => {
 
         it('returns `null` when `itemWebPath` is empty', () => {
           wrapper.setProps({
-            item: Object.assign({}, mockItem, {
-              webPath: '',
-            }),
+            item: { ...mockItem, webPath: '' },
           });
 
           return wrapper.vm.$nextTick(() => {
             expect(wrapper.vm.computedPath).toBeNull();
           });
+        });
+      });
+
+      describe('isEpic', () => {
+        it('returns false when item type is issue', () => {
+          expect(wrapper.vm.isEpic).toBe(false);
+        });
+
+        it('returns true when item type is epic', () => {
+          const epicItemWrapper = createEpicComponent();
+
+          expect(epicItemWrapper.vm.isEpic).toBe(true);
+
+          epicItemWrapper.destroy();
         });
       });
     });
@@ -276,7 +280,7 @@ describe('RelatedItemsTree', () => {
       });
 
       it('renders item state icon for large screens', () => {
-        const statusIcon = wrapper.findAll(Icon).at(0);
+        const statusIcon = wrapper.findAll(GlIcon).at(0);
 
         expect(statusIcon.props('name')).toBe('issues');
       });
@@ -294,10 +298,11 @@ describe('RelatedItemsTree', () => {
         const path = itemPath + mockItem.pathIdSeparator + itemId;
 
         expect(stateTooltip.props('path')).toBe(path);
+        expect(path).toContain('gitlab-org/gitlab-shell');
       });
 
       it('renders confidential icon when `item.confidential` is true', () => {
-        const confidentialIcon = wrapper.findAll(Icon).at(1);
+        const confidentialIcon = wrapper.findAll(GlIcon).at(1);
 
         expect(confidentialIcon.isVisible()).toBe(true);
         expect(confidentialIcon.props('name')).toBe('eye-slash');
@@ -310,14 +315,8 @@ describe('RelatedItemsTree', () => {
         expect(link.text()).toBe(mockItem.title);
       });
 
-      it('renders item state icon for medium and small screens', () => {
-        const statusIcon = wrapper.findAll(Icon).at(2);
-
-        expect(statusIcon.props('name')).toBe('issues');
-      });
-
       it('renders item state tooltip for medium and small screens', () => {
-        const stateTooltip = wrapper.findAll(StateTooltip).at(1);
+        const stateTooltip = wrapper.findAll(StateTooltip).at(0);
 
         expect(stateTooltip.props('state')).toBe(mockItem.state);
       });
@@ -347,10 +346,41 @@ describe('RelatedItemsTree', () => {
       });
 
       it('renders item remove button when `item.userPermissions.adminEpic` is true', () => {
-        const removeButton = wrapper.find(GlButton);
+        const removeButton = wrapper.find(GlDeprecatedButton);
 
         expect(removeButton.isVisible()).toBe(true);
         expect(removeButton.attributes('title')).toBe('Remove');
+      });
+
+      it('does not render issue count badge when item is issue', () => {
+        expect(wrapper.find('.issue-count-badge').exists()).toBe(false);
+      });
+
+      it('render issue count badge when item is epic', () => {
+        const epicWrapper = createEpicComponent();
+
+        expect(epicWrapper.find('.issue-count-badge').exists()).toBe(true);
+
+        epicWrapper.destroy();
+      });
+
+      it('renders health status when feature', () => {
+        function testExistence(exists) {
+          const healthStatus = wrapper.find('.item-health-status').exists();
+
+          expect(healthStatus).toBe(exists);
+        }
+
+        testExistence(false);
+
+        wrapper.vm.$store.commit('SET_INITIAL_CONFIG', {
+          ...mockInitialConfig,
+          allowIssuableHealthStatus: true,
+        });
+
+        return wrapper.vm.$nextTick(() => {
+          testExistence(true);
+        });
       });
     });
   });

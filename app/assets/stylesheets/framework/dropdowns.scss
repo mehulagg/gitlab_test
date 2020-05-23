@@ -1,6 +1,14 @@
 .dropdown {
   position: relative;
 
+  // Once the new design (https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63499/designs)
+  // for Snippets is introduced and Clone button is relocated, we won't
+  // need this style.
+  // Issue for the refactoring: https://gitlab.com/gitlab-org/gitlab/-/issues/213327
+  &.gl-new-dropdown button.dropdown-toggle {
+    @include gl-display-inline-flex;
+  }
+
   .btn-link {
     &:hover {
       cursor: pointer;
@@ -309,10 +317,6 @@
     }
   }
 
-  .dropdown-item {
-    @include dropdown-link;
-  }
-
   .divider {
     height: 1px;
     margin: #{$grid-size / 2} 0;
@@ -371,6 +375,10 @@
   .dropdown-menu-content {
     padding: $dropdown-item-padding-y $dropdown-item-padding-x;
   }
+}
+
+.dropdown-item {
+  @include dropdown-link;
 }
 
 .droplab-dropdown {
@@ -932,7 +940,7 @@ header.header-content .dropdown-menu.frequent-items-dropdown-menu {
       position: absolute;
       top: 13px;
       right: 25px;
-      color: $gray-100;
+      color: $gray-50;
     }
   }
 
@@ -971,7 +979,7 @@ header.header-content .dropdown-menu.frequent-items-dropdown-menu {
 
   &:hover {
     .frequent-items-item-avatar-container .avatar {
-      border-color: $gray-100;
+      border-color: $gray-50;
     }
   }
 
@@ -1021,6 +1029,16 @@ header.header-content .dropdown-menu.frequent-items-dropdown-menu {
 }
 
 .labels-select-wrapper {
+  &.is-standalone {
+    .labels-select-dropdown-contents {
+      max-height: 350px;
+
+      .dropdown-content {
+        height: 250px;
+      }
+    }
+  }
+
   .labels-select-dropdown-contents {
     min-height: $dropdown-min-height;
     max-height: 330px;

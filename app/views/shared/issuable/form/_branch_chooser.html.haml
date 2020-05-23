@@ -6,13 +6,13 @@
 
 - source_title, target_title = format_mr_branch_names(@merge_request)
 
-.form-group.row.d-flex.gl-pl-3.gl-pr-3.branch-selector
+.form-group.row.d-flex.gl-pl-3-deprecated-no-really-do-not-use-me.gl-pr-3-deprecated-no-really-do-not-use-me.branch-selector
   .align-self-center
     %span
       = _('From <code>%{source_title}</code> into').html_safe % { source_title: source_title }
 
     - if issuable.new_record?
-      %code= target_title
+      %code#js-target-branch-title= target_title
       &nbsp;
       = link_to _('Change branches'), mr_change_branches_path(issuable)
     - elsif issuable.for_fork?

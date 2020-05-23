@@ -1,12 +1,12 @@
 # Fast lookup of authorized SSH keys in the database
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/1631) in [GitLab Starter](https://about.gitlab.com/pricing/) 9.3.
-> - [Available in](https://gitlab.com/gitlab-org/gitlab/issues/3953) GitLab Community Edition 10.4.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/1631) in [GitLab Starter](https://about.gitlab.com/pricing/) 9.3.
+> - [Available in](https://gitlab.com/gitlab-org/gitlab/-/issues/3953) GitLab Community Edition 10.4.
 
 NOTE: **Note:** This document describes a drop-in replacement for the
-`authorized_keys` file for normal (non-deploy key) users. Consider
-using [SSH certificates](ssh_certificates.md), they are even faster,
-but are not a drop-in replacement.
+`authorized_keys` file. For normal (non-deploy key) users, consider using
+[SSH certificates](ssh_certificates.md). They are even faster, but are not a
+drop-in replacement.
 
 Regular SSH operations become slow as the number of users grows because OpenSSH
 searches for a key to authorize a user via a linear search. In the worst case,
@@ -68,10 +68,16 @@ sudo service sshd reload
 ```
 
 Confirm that SSH is working by removing your user's SSH key in the UI, adding a
-new one, and attempting to pull a repo.
+new one, and attempting to pull a repository.
 
 NOTE: **Note:** For Omnibus Docker, `AuthorizedKeysCommand` is setup by default in
 GitLab 11.11 and later.
+
+NOTE: **Note:** For Installations from source, the command would be located at
+`/home/git/gitlab-shell/bin/gitlab-shell-authorized-keys-check` if [the install from source](../../install/installation.md#install-gitlab-shell) instructions were followed.
+You might want to consider creating a wrapper script somewhere else since this command needs to be
+owned by `root` and not be writable by group or others. You could also consider changing the ownership of this command
+as required, but that might require temporary ownership changes during `gitlab-shell` upgrades.
 
 CAUTION: **Caution:** Do not disable writes until SSH is confirmed to be working
 perfectly, because the file will quickly become out-of-date.
@@ -87,7 +93,7 @@ installation.
 ![Write to authorized keys setting](img/write_to_authorized_keys_setting.png)
 
 Again, confirm that SSH is working by removing your user's SSH key in the UI,
-adding a new one, and attempting to pull a repo.
+adding a new one, and attempting to pull a repository.
 
 Then you can backup and delete your `authorized_keys` file for best performance.
 

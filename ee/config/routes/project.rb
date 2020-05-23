@@ -11,7 +11,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
-        resources :requirements, only: [:index]
+        namespace :requirements_management do
+          resources :requirements, only: [:index]
+        end
+
         resources :packages, only: [:index, :show, :destroy], module: :packages
         resources :package_files, only: [], module: :packages do
           member do
@@ -26,10 +29,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :feature_flags
+        resources :feature_flags, param: :iid
         resource :feature_flags_client, only: [] do
           post :reset_token
         end
+        resources :feature_flags_user_lists, param: :iid, only: [:new, :edit, :show]
 
         resources :autocomplete_sources, only: [] do
           collection do
@@ -40,27 +44,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         namespace :settings do
           resource :slack, only: [:destroy, :edit, :update] do
             get :slack_auth
-          end
-        end
-
-        # DEPRECATED: Remove this redirection in GitLab 13.0.
-        # This redirection supports old (pre-12.9) routes to Design Management raw images.
-        # https://gitlab.com/gitlab-org/gitlab/issues/208256
-        get '/designs/:id(/*ref)',
-          as: :design,
-          contraints: { id: /\d+/, ref: Gitlab::PathRegex.git_reference_regex },
-          to: redirect { |params|
-            namespace_id, project_id, id, ref = params.values_at(:namespace_id, :project_id, :id, :ref)
-            # The :ref route segment is optional in both this route, and the route
-            # we redirect to (where it is called :sha).
-            ref_path = "/#{ref}" if ref
-            "#{namespace_id}/#{project_id}/-/design_management/designs/#{id}#{ref_path}/raw_image"
-          }
-
-        namespace :design_management do
-          namespace :designs, path: 'designs/:design_id(/:sha)', constraints: -> (params) { params[:sha].nil? || Gitlab::Git.commit_id?(params[:sha]) } do
-            resource :raw_image, only: :show
-            resources :resized_image, only: :show, constraints: -> (params) { DesignManagement::DESIGN_IMAGE_SIZES.include?(params[:id]) }
           end
         end
 
@@ -81,7 +64,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :summary, on: :collection
           end
 
-          resource :network_policies, only: [] do
+          resources :network_policies, only: [:index, :create, :update, :destroy] do
             get :summary, on: :collection
           end
 
@@ -95,13 +78,13 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             end
           end
 
-          resources :vulnerabilities, only: [:show, :index] do
+          resources :vulnerabilities, only: [:show] do
             member do
               get :discussions, format: :json
             end
 
             scope module: :vulnerabilities do
-              resources :notes, only: [:index], concerns: :awardable, constraints: { id: /\d+/ }
+              resources :notes, only: [:index, :create, :destroy, :update], concerns: :awardable, constraints: { id: /\d+/ }
             end
           end
         end
@@ -130,12 +113,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      namespace :prometheus do
-        resources :metrics, constraints: { id: %r{[^\/]+} }, only: [] do
-          post :validate_query, on: :collection
-        end
-      end
-
       resource :tracing, only: [:show]
 
       resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do
@@ -153,14 +130,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
       post '/restore' => '/projects#restore', as: :restore
-
-      resources :pipelines, only: [] do
-        member do
-          get :security
-          get :licenses
-          get :codequality_report
-        end
-      end
 
       resource :insights, only: [:show], trailing_slash: true do
         collection do

@@ -4,7 +4,6 @@ module Repositories
   class GitHttpController < Repositories::GitHttpClientController
     include WorkhorseRequest
 
-    before_action :snippet_request_allowed?
     before_action :access_check
     prepend_before_action :deny_head_requests, only: [:info_refs]
 
@@ -23,7 +22,7 @@ module Repositories
 
     # POST /foo/bar.git/git-upload-pack (git pull)
     def git_upload_pack
-      enqueue_fetch_statistics_update
+      update_fetch_statistics
 
       render_ok
     end
@@ -76,12 +75,16 @@ module Repositories
       render plain: exception.message, status: :service_unavailable
     end
 
-    def enqueue_fetch_statistics_update
+    def update_fetch_statistics
+      return unless project
       return if Gitlab::Database.read_only?
       return unless repo_type.project?
-      return unless project&.daily_statistics_enabled?
 
-      ProjectDailyStatisticsWorker.perform_async(project.id) # rubocop:disable CodeReuse/Worker
+      if Feature.enabled?(:project_statistics_sync, project, default_enabled: true)
+        Projects::FetchStatisticsIncrementService.new(project).execute
+      else
+        ProjectDailyStatisticsWorker.perform_async(project.id) # rubocop:disable CodeReuse/Worker
+      end
     end
 
     def access
@@ -116,13 +119,6 @@ module Repositories
 
     def log_user_activity
       Users::ActivityService.new(user).execute
-    end
-
-    def snippet_request_allowed?
-      if repo_type.snippet? && Feature.disabled?(:version_snippets, user)
-        Gitlab::AppLogger.info('Snippet access attempt with feature disabled')
-        render plain: 'The project you were looking for could not be found.', status: :not_found
-      end
     end
   end
 end

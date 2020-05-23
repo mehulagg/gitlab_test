@@ -1,6 +1,6 @@
 # Appearance API **(CORE ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/16647) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/16647) in GitLab 12.7.
 
 Appearance API allows you to maintain GitLab's appearance as if using the GitLab UI at
 `/admin/appearance`. The API requires administrator privileges.
@@ -27,6 +27,7 @@ Example response:
   "header_logo": "/uploads/-/system/appearance/header_logo/1/header.png",
   "favicon": "/uploads/-/system/appearance/favicon/1/favicon.png",
   "new_project_guidelines": "Please read the FAQs for help.",
+  "profile_image_guidelines": "Custom profile image guidelines",
   "header_message": "",
   "footer_message": "",
   "message_background_color": "#e75e40",
@@ -51,6 +52,7 @@ PUT /application/appearance
 | `header_logo`                     | mixed   | no       | Instance image used for the main navigation bar
 | `favicon`                         | mixed   | no       | Instance favicon in .ico/.png format
 | `new_project_guidelines`          | string  | no       | Markdown text shown on the new project page
+| `profile_image_guidelines`        | string  | no       | Markdown text shown on the profile page below Public Avatar
 | `header_message`                  | string  | no       | Message within the system header bar
 | `footer_message`                  | string  | no       | Message within the system footer bar
 | `message_background_color`        | string  | no       | Background color for the system header / footer bar
@@ -71,6 +73,7 @@ Example response:
   "header_logo": "/uploads/-/system/appearance/header_logo/1/header.png",
   "favicon": "/uploads/-/system/appearance/favicon/1/favicon.png",
   "new_project_guidelines": "Please read the FAQs for help.",
+  "profile_image_guidelines": "Custom profile image guidelines",
   "header_message": "test",
   "footer_message": "",
   "message_background_color": "#e75e40",

@@ -19,10 +19,7 @@ import * as types from './mutation_types';
 
 export const setInitialData = ({ commit }, data) => commit(types.SET_INITIAL_DATA, data);
 
-export const setWindowResizeInProgress = ({ commit }, inProgress) =>
-  commit(types.SET_WINDOW_RESIZE_IN_PROGRESS, inProgress);
-
-export const fetchGroupEpics = (
+const fetchGroupEpics = (
   { epicIid, fullPath, epicsState, sortedBy, presetType, filterParams, timeframe },
   defaultTimeframe,
 ) => {
@@ -57,31 +54,43 @@ export const fetchGroupEpics = (
       variables,
     })
     .then(({ data }) => {
-      const { group } = data;
-      let edges;
-
-      if (epicIid) {
-        edges = (group.epic && group.epic.children.edges) || [];
-      } else {
-        edges = (group.epics && group.epics.edges) || [];
-      }
+      const edges = epicIid
+        ? data?.group?.epic?.children?.edges || []
+        : data?.group?.epics?.edges || [];
 
       return epicUtils.extractGroupEpics(edges);
     });
 };
 
-export const requestEpics = ({ commit }) => commit(types.REQUEST_EPICS);
-export const requestEpicsForTimeframe = ({ commit }) => commit(types.REQUEST_EPICS_FOR_TIMEFRAME);
+export const fetchChildrenEpics = (state, { parentItem }) => {
+  const { iid } = parentItem;
+  const { fullPath, filterParams, epicsState } = state;
+
+  return epicUtils.gqClient
+    .query({
+      query: epicChildEpics,
+      variables: { iid, fullPath, state: epicsState, ...filterParams },
+    })
+    .then(({ data }) => {
+      const edges = data?.group?.epic?.children?.edges || [];
+      return epicUtils.extractGroupEpics(edges);
+    });
+};
+
 export const receiveEpicsSuccess = (
-  { commit, state, getters },
+  { commit, dispatch, state, getters },
   { rawEpics, newEpic, timeframeExtended },
 ) => {
+  const epicIds = [];
   const epics = rawEpics.reduce((filteredEpics, epic) => {
     const formattedEpic = roadmapItemUtils.formatRoadmapItemDetails(
       epic,
       getters.timeframeStartDate,
       getters.timeframeEndDate,
     );
+
+    formattedEpic.isChildEpic = false;
+
     // Exclude any Epic that has invalid dates
     // or is already present in Roadmap timeline
     if (
@@ -92,16 +101,19 @@ export const receiveEpicsSuccess = (
         newEpic,
       });
       filteredEpics.push(formattedEpic);
-      commit(types.UPDATE_EPIC_IDS, formattedEpic.id);
+      epicIds.push(formattedEpic.id);
     }
     return filteredEpics;
   }, []);
+
+  commit(types.UPDATE_EPIC_IDS, epicIds);
 
   if (timeframeExtended) {
     const updatedEpics = state.epics.concat(epics);
     sortEpics(updatedEpics, state.sortedBy);
     commit(types.RECEIVE_EPICS_FOR_TIMEFRAME_SUCCESS, updatedEpics);
   } else {
+    dispatch('initItemChildrenFlags', { epics });
     commit(types.RECEIVE_EPICS_SUCCESS, epics);
   }
 };
@@ -110,8 +122,37 @@ export const receiveEpicsFailure = ({ commit }) => {
   flash(s__('GroupRoadmap|Something went wrong while fetching epics'));
 };
 
-export const fetchEpics = ({ state, dispatch }) => {
-  dispatch('requestEpics');
+export const requestChildrenEpics = ({ commit }, { parentItemId }) => {
+  commit(types.REQUEST_CHILDREN_EPICS, { parentItemId });
+};
+export const receiveChildrenSuccess = (
+  { commit, dispatch, getters },
+  { parentItemId, rawChildren },
+) => {
+  const children = rawChildren.reduce((filteredChildren, epic) => {
+    const formattedChild = roadmapItemUtils.formatRoadmapItemDetails(
+      epic,
+      getters.timeframeStartDate,
+      getters.timeframeEndDate,
+    );
+
+    formattedChild.isChildEpic = true;
+
+    // Exclude any Epic that has invalid dates
+    if (formattedChild.startDate.getTime() <= formattedChild.endDate.getTime()) {
+      filteredChildren.push(formattedChild);
+    }
+    return filteredChildren;
+  }, []);
+  dispatch('expandEpic', {
+    parentItemId,
+  });
+  dispatch('initItemChildrenFlags', { epics: children });
+  commit(types.RECEIVE_CHILDREN_SUCCESS, { parentItemId, children });
+};
+
+export const fetchEpics = ({ state, commit, dispatch }) => {
+  commit(types.REQUEST_EPICS);
 
   fetchGroupEpics(state)
     .then(rawEpics => {
@@ -120,8 +161,8 @@ export const fetchEpics = ({ state, dispatch }) => {
     .catch(() => dispatch('receiveEpicsFailure'));
 };
 
-export const fetchEpicsForTimeframe = ({ state, dispatch }, { timeframe }) => {
-  dispatch('requestEpicsForTimeframe');
+export const fetchEpicsForTimeframe = ({ state, commit, dispatch }, { timeframe }) => {
+  commit(types.REQUEST_EPICS_FOR_TIMEFRAME);
 
   return fetchGroupEpics(state, timeframe)
     .then(rawEpics => {
@@ -134,6 +175,11 @@ export const fetchEpicsForTimeframe = ({ state, dispatch }, { timeframe }) => {
     .catch(() => dispatch('receiveEpicsFailure'));
 };
 
+/**
+ * Adds more EpicItemTimeline cells to the start or end of the roadmap.
+ *
+ * @param extendAs An EXTEND_AS enum value
+ */
 export const extendTimeframe = ({ commit, state, getters }, { extendAs }) => {
   const isExtendTypePrepend = extendAs === EXTEND_AS.PREPEND;
 
@@ -150,14 +196,61 @@ export const extendTimeframe = ({ commit, state, getters }, { extendAs }) => {
   }
 };
 
+export const initItemChildrenFlags = ({ commit }, data) =>
+  commit(types.INIT_EPIC_CHILDREN_FLAGS, data);
+
+export const expandEpic = ({ commit }, { parentItemId }) =>
+  commit(types.EXPAND_EPIC, { parentItemId });
+export const collapseEpic = ({ commit }, { parentItemId }) =>
+  commit(types.COLLAPSE_EPIC, { parentItemId });
+
+export const toggleEpic = ({ state, dispatch }, { parentItem }) => {
+  const parentItemId = parentItem.id;
+  if (!state.childrenFlags[parentItemId].itemExpanded) {
+    if (!state.childrenEpics[parentItemId]) {
+      dispatch('requestChildrenEpics', { parentItemId });
+      fetchChildrenEpics(state, { parentItem })
+        .then(rawChildren => {
+          dispatch('receiveChildrenSuccess', {
+            parentItemId,
+            rawChildren,
+          });
+        })
+        .catch(() => dispatch('receiveEpicsFailure'));
+    } else {
+      dispatch('expandEpic', {
+        parentItemId,
+      });
+    }
+  } else {
+    dispatch('collapseEpic', {
+      parentItemId,
+    });
+  }
+};
+
+/**
+ * For epics that have no start or end date, this function updates their start and end dates
+ * so that the epic bars get longer to appear infinitely scrolling.
+ */
 export const refreshEpicDates = ({ commit, state, getters }) => {
-  const epics = state.epics.map(epic =>
-    roadmapItemUtils.processRoadmapItemDates(
+  const epics = state.epics.map(epic => {
+    // Update child epic dates too
+    if (epic.children?.edges?.length > 0) {
+      epic.children.edges.map(childEpic =>
+        roadmapItemUtils.processRoadmapItemDates(
+          childEpic,
+          getters.timeframeStartDate,
+          getters.timeframeEndDate,
+        ),
+      );
+    }
+    return roadmapItemUtils.processRoadmapItemDates(
       epic,
       getters.timeframeStartDate,
       getters.timeframeEndDate,
-    ),
-  );
+    );
+  });
 
   commit(types.SET_EPICS, epics);
 };

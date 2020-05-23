@@ -40,10 +40,6 @@ describe Admin::UsersController, "routing" do
     expect(get("/admin/users/1/edit")).to route_to('admin/users#edit', id: '1')
   end
 
-  it "to #show" do
-    expect(get("/admin/users/1")).to route_to('admin/users#show', id: '1')
-  end
-
   it "to #update" do
     expect(put("/admin/users/1")).to route_to('admin/users#update', id: '1')
   end
@@ -114,13 +110,6 @@ describe Admin::HookLogsController, 'routing' do
 
   it 'to #show' do
     expect(get('/admin/hooks/1/hook_logs/1')).to route_to('admin/hook_logs#show', hook_id: '1', id: '1')
-  end
-end
-
-# admin_logs GET    /admin/logs(.:format) admin/logs#show
-describe Admin::LogsController, "routing" do
-  it "to #show" do
-    expect(get("/admin/logs")).to route_to('admin/logs#show')
   end
 end
 

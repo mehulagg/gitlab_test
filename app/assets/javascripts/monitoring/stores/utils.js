@@ -2,6 +2,7 @@ import { slugify } from '~/lib/utils/text_utility';
 import createGqClient, { fetchPolicies } from '~/lib/graphql';
 import { SUPPORTED_FORMATS } from '~/lib/utils/unit_format';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import { NOT_IN_DB_PREFIX } from '../constants';
 
 export const gqClient = createGqClient(
   {},
@@ -14,11 +15,18 @@ export const gqClient = createGqClient(
  * Metrics loaded from project-defined dashboards do not have a metric_id.
  * This method creates a unique ID combining metric_id and id, if either is present.
  * This is hopefully a temporary solution until BE processes metrics before passing to FE
+ *
+ * Related:
+ * https://gitlab.com/gitlab-org/gitlab/-/issues/28241
+ * https://gitlab.com/gitlab-org/gitlab/-/merge_requests/27447
+ *
  * @param {Object} metric - metric
+ * @param {Number} metric.metric_id - Database metric id
+ * @param {String} metric.id - User-defined identifier
  * @returns {Object} - normalized metric with a uniqueID
  */
 // eslint-disable-next-line babel/camelcase
-export const uniqMetricsId = ({ metric_id, id }) => `${metric_id}_${id}`;
+export const uniqMetricsId = ({ metric_id, id }) => `${metric_id || NOT_IN_DB_PREFIX}_${id}`;
 
 /**
  * Project path has a leading slash that doesn't work well
@@ -50,6 +58,31 @@ export const parseEnvironmentsResponse = (response = [], projectPath) =>
   });
 
 /**
+ * Annotation API returns time in UTC. This method
+ * converts time to local time.
+ *
+ * startingAt always exists but endingAt does not.
+ * If endingAt does not exist, a threshold line is
+ * drawn.
+ *
+ * If endingAt exists, a threshold range is drawn.
+ * But this is not supported as of %12.10
+ *
+ * @param {Array} response annotations response
+ * @returns {Array} parsed responses
+ */
+export const parseAnnotationsResponse = response => {
+  if (!response) {
+    return [];
+  }
+  return response.map(annotation => ({
+    ...annotation,
+    startingAt: new Date(annotation.startingAt),
+    endingAt: annotation.endingAt ? new Date(annotation.endingAt) : null,
+  }));
+};
+
+/**
  * Maps metrics to its view model
  *
  * This function difers from other in that is maps all
@@ -60,15 +93,20 @@ export const parseEnvironmentsResponse = (response = [], projectPath) =>
  * https://gitlab.com/gitlab-org/gitlab/issues/207198
  *
  * @param {Array} metrics - Array of prometheus metrics
- * @param {String} defaultLabel - Default label for metrics
  * @returns {Object}
  */
-const mapToMetricsViewModel = (metrics, defaultLabel) =>
+const mapToMetricsViewModel = metrics =>
   metrics.map(({ label, id, metric_id, query_range, prometheus_endpoint_path, ...metric }) => ({
-    label: label || defaultLabel,
+    label,
     queryRange: query_range,
     prometheusEndpointPath: prometheus_endpoint_path,
     metricId: uniqMetricsId({ metric_id, id }),
+
+    // metric data
+    loading: false,
+    result: null,
+    state: null,
+
     ...metric,
   }));
 
@@ -82,15 +120,19 @@ const mapXAxisToViewModel = ({ name = '' }) => ({ name });
 /**
  * Maps Y-axis view model
  *
- * Defaults to a 2 digit precision and `number` format. It only allows
+ * Defaults to a 2 digit precision and `engineering` format. It only allows
  * formats in the SUPPORTED_FORMATS array.
  *
  * @param {Object} axis
  */
-const mapYAxisToViewModel = ({ name = '', format = SUPPORTED_FORMATS.number, precision = 2 }) => {
+const mapYAxisToViewModel = ({
+  name = '',
+  format = SUPPORTED_FORMATS.engineering,
+  precision = 2,
+}) => {
   return {
     name,
-    format: SUPPORTED_FORMATS[format] || SUPPORTED_FORMATS.number,
+    format: SUPPORTED_FORMATS[format] || SUPPORTED_FORMATS.engineering,
     precision,
   };
 };
@@ -102,6 +144,7 @@ const mapYAxisToViewModel = ({ name = '', format = SUPPORTED_FORMATS.number, pre
  * @returns {Object}
  */
 const mapPanelToViewModel = ({
+  id = null,
   title = '',
   type,
   x_axis = {},
@@ -109,6 +152,7 @@ const mapPanelToViewModel = ({
   y_label,
   y_axis = {},
   metrics = [],
+  max_value,
 }) => {
   // Both `x_axis.name` and `x_label` are supported for now
   // https://gitlab.com/gitlab-org/gitlab/issues/210521
@@ -119,12 +163,14 @@ const mapPanelToViewModel = ({
   const yAxis = mapYAxisToViewModel({ name: y_label, ...y_axis }); // eslint-disable-line babel/camelcase
 
   return {
+    id,
     title,
     type,
     xLabel: xAxis.name,
     y_label: yAxis.name, // Changing y_label to yLabel is pending https://gitlab.com/gitlab-org/gitlab/issues/207198
     yAxis,
     xAxis,
+    maxValue: max_value,
     metrics: mapToMetricsViewModel(metrics, yAxis.name),
   };
 };

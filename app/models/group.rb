@@ -30,6 +30,7 @@ class Group < Namespace
   has_many :members_and_requesters, as: :source, class_name: 'GroupMember'
 
   has_many :milestones
+  has_many :iterations
   has_many :shared_group_links, foreign_key: :shared_with_group_id, class_name: 'GroupGroupLink'
   has_many :shared_with_group_links, foreign_key: :shared_group_id, class_name: 'GroupGroupLink'
   has_many :shared_groups, through: :shared_group_links, source: :shared_group
@@ -59,6 +60,8 @@ class Group < Namespace
 
   has_many :import_failures, inverse_of: :group
 
+  has_one :import_state, class_name: 'GroupImportState', inverse_of: :group
+
   has_many :group_deploy_tokens
   has_many :deploy_tokens, through: :group_deploy_tokens
 
@@ -72,7 +75,7 @@ class Group < Namespace
   validates :two_factor_grace_period, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :name,
     format: { with: Gitlab::Regex.group_name_regex,
-              message: Gitlab::Regex.group_name_regex_message }
+              message: Gitlab::Regex.group_name_regex_message }, if: :name_changed?
 
   add_authentication_token_field :runners_token, encrypted: -> { Feature.enabled?(:groups_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
 
@@ -168,12 +171,12 @@ class Group < Namespace
     notification_settings.find { |n| n.notification_email.present? }&.notification_email
   end
 
-  def to_reference(_from = nil, full: nil)
+  def to_reference(_from = nil, target_project: nil, full: nil)
     "#{self.class.reference_prefix}#{full_path}"
   end
 
-  def web_url
-    Gitlab::Routing.url_helpers.group_canonical_url(self)
+  def web_url(only_path: nil)
+    Gitlab::UrlBuilder.build(self, only_path: only_path)
   end
 
   def human_name
@@ -302,9 +305,10 @@ class Group < Namespace
   # rubocop: enable CodeReuse/ServiceClass
 
   # rubocop: disable CodeReuse/ServiceClass
-  def refresh_members_authorized_projects(blocking: true)
-    UserProjectAccessChangedService.new(user_ids_for_project_authorizations)
-      .execute(blocking: blocking)
+  def refresh_members_authorized_projects(blocking: true, priority: UserProjectAccessChangedService::HIGH_PRIORITY)
+    UserProjectAccessChangedService
+      .new(user_ids_for_project_authorizations)
+      .execute(blocking: blocking, priority: priority)
   end
   # rubocop: enable CodeReuse/ServiceClass
 
@@ -330,6 +334,11 @@ class Group < Namespace
     GroupMember
       .active_without_invites_and_requests
       .where(source_id: source_ids)
+  end
+
+  def members_from_self_and_ancestors_with_effective_access_level
+    members_with_parents.select([:user_id, 'MAX(access_level) AS access_level'])
+                        .group(:user_id)
   end
 
   def members_with_descendants
@@ -475,6 +484,16 @@ class Group < Namespace
     false
   end
 
+  def execute_hooks(data, hooks_scope)
+    # NOOP
+    # TODO: group hooks https://gitlab.com/gitlab-org/gitlab/-/issues/216904
+  end
+
+  def execute_services(data, hooks_scope)
+    # NOOP
+    # TODO: group hooks https://gitlab.com/gitlab-org/gitlab/-/issues/216904
+  end
+
   private
 
   def update_two_factor_requirement
@@ -506,8 +525,6 @@ class Group < Namespace
   end
 
   def max_member_access_for_user_from_shared_groups(user)
-    return unless Feature.enabled?(:share_group_with_group, default_enabled: true)
-
     group_group_link_table = GroupGroupLink.arel_table
     group_member_table = GroupMember.arel_table
 

@@ -1,6 +1,11 @@
-import { commitItemIconMap } from '~/ide/constants';
-import { getCommitIconMap, isTextFile } from '~/ide/utils';
-import { decorateData } from '~/ide/stores/utils';
+import {
+  isTextFile,
+  registerLanguages,
+  trimPathComponents,
+  addFinalNewline,
+  getPathParents,
+} from '~/ide/utils';
+import { languages } from 'monaco-editor';
 
 describe('WebIDE utils', () => {
   describe('isTextFile', () => {
@@ -61,45 +66,127 @@ describe('WebIDE utils', () => {
     });
   });
 
-  const createFile = (name = 'name', id = name, type = '', parent = null) =>
-    decorateData({
-      id,
-      type,
-      icon: 'icon',
-      url: 'url',
-      name,
-      path: parent ? `${parent.path}/${name}` : name,
-      parentPath: parent ? parent.path : '',
-      lastCommit: {},
+  describe('trimPathComponents', () => {
+    it.each`
+      input                           | output
+      ${'example path '}              | ${'example path'}
+      ${'p/somefile '}                | ${'p/somefile'}
+      ${'p /somefile '}               | ${'p/somefile'}
+      ${'p/ somefile '}               | ${'p/somefile'}
+      ${' p/somefile '}               | ${'p/somefile'}
+      ${'p/somefile  .md'}            | ${'p/somefile  .md'}
+      ${'path / to / some/file.doc '} | ${'path/to/some/file.doc'}
+    `('trims all path components in path: "$input"', ({ input, output }) => {
+      expect(trimPathComponents(input)).toEqual(output);
     });
+  });
 
-  describe('getCommitIconMap', () => {
-    let entry;
+  describe('registerLanguages', () => {
+    let langs;
 
     beforeEach(() => {
-      entry = createFile('Entry item');
+      langs = [
+        {
+          id: 'html',
+          extensions: ['.html'],
+          conf: { comments: { blockComment: ['<!--', '-->'] } },
+          language: { tokenizer: {} },
+        },
+        {
+          id: 'css',
+          extensions: ['.css'],
+          conf: { comments: { blockComment: ['/*', '*/'] } },
+          language: { tokenizer: {} },
+        },
+        {
+          id: 'js',
+          extensions: ['.js'],
+          conf: { comments: { blockComment: ['/*', '*/'] } },
+          language: { tokenizer: {} },
+        },
+      ];
+
+      jest.spyOn(languages, 'register').mockImplementation(() => {});
+      jest.spyOn(languages, 'setMonarchTokensProvider').mockImplementation(() => {});
+      jest.spyOn(languages, 'setLanguageConfiguration').mockImplementation(() => {});
     });
 
-    it('renders "deleted" icon for deleted entries', () => {
-      entry.deleted = true;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.deleted);
+    it('registers all the passed languages with Monaco', () => {
+      registerLanguages(...langs);
+
+      expect(languages.register.mock.calls).toEqual([
+        [
+          {
+            conf: { comments: { blockComment: ['/*', '*/'] } },
+            extensions: ['.css'],
+            id: 'css',
+            language: { tokenizer: {} },
+          },
+        ],
+        [
+          {
+            conf: { comments: { blockComment: ['/*', '*/'] } },
+            extensions: ['.js'],
+            id: 'js',
+            language: { tokenizer: {} },
+          },
+        ],
+        [
+          {
+            conf: { comments: { blockComment: ['<!--', '-->'] } },
+            extensions: ['.html'],
+            id: 'html',
+            language: { tokenizer: {} },
+          },
+        ],
+      ]);
+
+      expect(languages.setMonarchTokensProvider.mock.calls).toEqual([
+        ['css', { tokenizer: {} }],
+        ['js', { tokenizer: {} }],
+        ['html', { tokenizer: {} }],
+      ]);
+
+      expect(languages.setLanguageConfiguration.mock.calls).toEqual([
+        ['css', { comments: { blockComment: ['/*', '*/'] } }],
+        ['js', { comments: { blockComment: ['/*', '*/'] } }],
+        ['html', { comments: { blockComment: ['<!--', '-->'] } }],
+      ]);
+    });
+  });
+
+  describe('addFinalNewline', () => {
+    it.each`
+      input              | output
+      ${'some text'}     | ${'some text\n'}
+      ${'some text\n'}   | ${'some text\n'}
+      ${'some text\n\n'} | ${'some text\n\n'}
+      ${'some\n text'}   | ${'some\n text\n'}
+    `('adds a newline if it doesnt already exist for input: $input', ({ input, output }) => {
+      expect(addFinalNewline(input)).toEqual(output);
     });
 
-    it('renders "addition" icon for temp entries', () => {
-      entry.tempFile = true;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.addition);
+    it.each`
+      input                  | output
+      ${'some text'}         | ${'some text\r\n'}
+      ${'some text\r\n'}     | ${'some text\r\n'}
+      ${'some text\n'}       | ${'some text\n\r\n'}
+      ${'some text\r\n\r\n'} | ${'some text\r\n\r\n'}
+      ${'some\r\n text'}     | ${'some\r\n text\r\n'}
+    `('works with CRLF newline style; input: $input', ({ input, output }) => {
+      expect(addFinalNewline(input, '\r\n')).toEqual(output);
     });
+  });
 
-    it('renders "modified" icon for newly-renamed entries', () => {
-      entry.prevPath = 'foo/bar';
-      entry.tempFile = false;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.modified);
-    });
-
-    it('renders "modified" icon even for temp entries if they are newly-renamed', () => {
-      entry.prevPath = 'foo/bar';
-      entry.tempFile = true;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.modified);
+  describe('getPathParents', () => {
+    it.each`
+      path                                  | parents
+      ${'foo/bar/baz/index.md'}             | ${['foo/bar/baz', 'foo/bar', 'foo']}
+      ${'foo/bar/baz'}                      | ${['foo/bar', 'foo']}
+      ${'index.md'}                         | ${[]}
+      ${'path with/spaces to/something.md'} | ${['path with/spaces to', 'path with']}
+    `('gets all parent directory names for path: $path', ({ path, parents }) => {
+      expect(getPathParents(path)).toEqual(parents);
     });
   });
 });

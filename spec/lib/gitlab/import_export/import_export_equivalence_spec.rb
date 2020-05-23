@@ -20,6 +20,10 @@ describe Gitlab::ImportExport do
 
   let(:json_fixture) { 'complex' }
 
+  before do
+    stub_feature_flags(project_export_as_ndjson: false)
+  end
+
   it 'yields the initial tree when importing and exporting it again' do
     project = create(:project, creator: create(:user, :admin))
 
@@ -42,8 +46,8 @@ describe Gitlab::ImportExport do
         export_path: test_tmp_path)
     ).to be true
 
-    imported_json = JSON.parse(File.read("#{test_fixture_path}/project.json"))
-    exported_json = JSON.parse(File.read("#{test_tmp_path}/project.json"))
+    imported_json = Gitlab::Json.parse(File.read("#{test_fixture_path}/project.json"))
+    exported_json = Gitlab::Json.parse(File.read("#{test_tmp_path}/project.json"))
 
     assert_relations_match(imported_json, exported_json)
   end

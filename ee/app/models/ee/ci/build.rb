@@ -36,6 +36,14 @@ module EE
       end
 
       def shared_runners_minutes_limit_enabled?
+        if ::Feature.enabled?(:ci_minutes_track_for_public_projects, project.shared_runners_limit_namespace)
+          project.shared_runners_minutes_limit_enabled? && runner&.minutes_cost_factor(project.visibility_level)&.positive?
+        else
+          legacy_shared_runners_minutes_limit_enabled?
+        end
+      end
+
+      def legacy_shared_runners_minutes_limit_enabled?
         runner && runner.instance_type? && project.shared_runners_minutes_limit_enabled?
       end
 
@@ -73,7 +81,7 @@ module EE
         each_report(::Ci::JobArtifact::LICENSE_SCANNING_REPORT_FILE_TYPES) do |file_type, blob|
           next if ::Feature.disabled?(:parse_license_management_reports, default_enabled: true)
 
-          next unless project.feature_available?(:license_scanning) || project.feature_available?(:license_management)
+          next unless project.feature_available?(:license_scanning)
 
           ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, license_scanning_report)
         end

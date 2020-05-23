@@ -38,8 +38,16 @@ describe Projects::JobsController do
     context 'with admin' do
       let(:user) { admin }
 
-      it 'returns 200' do
-        expect(response).to have_gitlab_http_status(:ok)
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it 'returns 200' do
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      context 'when admin mode is disabled' do
+        it 'returns 404' do
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
       end
     end
 
@@ -125,7 +133,7 @@ describe Projects::JobsController do
       end
 
       context 'and invalid id' do
-        let(:extra_params) { { id: 1234 } }
+        let(:extra_params) { { id: non_existing_record_id } }
 
         it 'returns 404' do
           make_request

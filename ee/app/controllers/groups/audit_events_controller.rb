@@ -11,15 +11,14 @@ class Groups::AuditEventsController < Groups::ApplicationController
   layout 'group_settings'
 
   def index
-    @events = AuditLogFinder.new(audit_logs_params).execute.page(params[:page])
-  end
+    level = Gitlab::Audit::Levels::Group.new(group: group)
 
-  private
+    events = AuditLogFinder
+      .new(level: level, params: audit_logs_params)
+      .execute
+      .page(params[:page])
+      .without_count
 
-  def audit_logs_params
-    super.merge(
-      entity_type: group.class.name,
-      entity_id: group.id
-    )
+    @events = Gitlab::Audit::Events::Preloader.preload!(events)
   end
 end

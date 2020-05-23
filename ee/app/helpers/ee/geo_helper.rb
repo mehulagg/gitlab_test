@@ -54,17 +54,6 @@ module EE
       end
     end
 
-    def selective_sync_type_options_for_select(geo_node)
-      options_for_select(
-        [
-          [s_('Geo|All projects'), ''],
-          [s_('Geo|Projects in certain groups'), 'namespaces'],
-          [s_('Geo|Projects in certain storage shards'), 'shards']
-        ],
-        geo_node.selective_sync_type
-      )
-    end
-
     def selective_sync_types_json
       options = {
         ALL: {
@@ -165,6 +154,14 @@ module EE
           okTitle: s_('Geo|Remove entry')
         }
       }
+    end
+
+    def resync_all_button
+      button_to(s_("Geo|Resync all"), { controller: controller_name, action: :resync_all }, class: "btn btn-default btn-md mr-2")
+    end
+
+    def reverify_all_button
+      button_to(s_("Geo|Reverify all"), { controller: controller_name, action: :reverify_all }, class: "btn btn-default btn-md")
     end
   end
 end

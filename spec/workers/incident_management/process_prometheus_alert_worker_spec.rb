@@ -6,7 +6,7 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
   describe '#perform' do
     let_it_be(:project) { create(:project) }
     let_it_be(:prometheus_alert) { create(:prometheus_alert, project: project) }
-    let_it_be(:payload_key) { PrometheusAlertEvent.payload_key_for(prometheus_alert.prometheus_metric_id, prometheus_alert.created_at.rfc3339) }
+    let(:payload_key) { Gitlab::Alerting::Alert.new(project: project, payload: alert_params).gitlab_fingerprint }
     let!(:prometheus_alert_event) { create(:prometheus_alert_event, prometheus_alert: prometheus_alert, payload_key: payload_key) }
 
     let(:alert_params) do
@@ -60,7 +60,7 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
     end
 
     context 'when project could not be found' do
-      let(:non_existing_project_id) { (Project.maximum(:id) || 0) + 1 }
+      let(:non_existing_project_id) { non_existing_record_id }
 
       it 'does not create an issue' do
         expect { subject.perform(non_existing_project_id, alert_params) }
@@ -75,7 +75,7 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
 
     context 'when event could not be found' do
       before do
-        alert_params[:labels][:gitlab_alert_id] = (PrometheusAlertEvent.maximum(:id) || 0) + 1
+        alert_params[:labels][:gitlab_alert_id] = non_existing_record_id
       end
 
       it 'does not create an issue' do
@@ -107,7 +107,6 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
       let(:starts_at) { Time.now.rfc3339 }
 
       let!(:prometheus_alert_event) do
-        payload_key = SelfManagedPrometheusAlertEvent.payload_key_for(starts_at, alert_name, 'vector(1)')
         create(:self_managed_prometheus_alert_event, project: project, payload_key: payload_key)
       end
 

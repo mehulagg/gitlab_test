@@ -11,15 +11,15 @@ import {
   FILE_VIEW_MODE_PREVIEW,
 } from '../constants';
 import Editor from '../lib/editor';
-import ExternalLink from './external_link.vue';
 import FileTemplatesBar from './file_templates/bar.vue';
 import { __ } from '~/locale';
+import { extractMarkdownImagesFromEntries } from '../stores/utils';
+import { addFinalNewline } from '../utils';
 
 export default {
   components: {
     ContentViewer,
     DiffViewer,
-    ExternalLink,
     FileTemplatesBar,
   },
   props: {
@@ -28,17 +28,24 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      content: '',
+      images: {},
+      addFinalNewline: true,
+    };
+  },
   computed: {
     ...mapState('rightPane', {
       rightPaneIsOpen: 'isOpen',
     }),
     ...mapState([
-      'rightPanelCollapsed',
       'viewer',
       'panelResizing',
       'currentActivityView',
       'renderWhitespaceInCode',
       'editorTheme',
+      'entries',
     ]),
     ...mapGetters([
       'currentMergeRequest',
@@ -46,6 +53,7 @@ export default {
       'isEditModeActive',
       'isCommitModeActive',
       'isReviewModeActive',
+      'currentBranch',
     ]),
     ...mapGetters('fileTemplates', ['showFileTemplatesBar']),
     shouldHideEditor() {
@@ -89,6 +97,9 @@ export default {
         theme: this.editorTheme,
       };
     },
+    currentBranchCommit() {
+      return this.currentBranch?.commit.id;
+    },
   },
   watch: {
     file(newVal, oldVal) {
@@ -116,9 +127,6 @@ export default {
         });
       }
     },
-    rightPanelCollapsed() {
-      this.refreshEditorDimensions();
-    },
     viewer() {
       if (!this.file.pending) {
         this.createEditorInstance();
@@ -136,6 +144,18 @@ export default {
       if (val) {
         // We need to wait for the editor to actually be rendered.
         this.$nextTick(() => this.refreshEditorDimensions());
+      }
+    },
+    showContentViewer(val) {
+      if (!val) return;
+
+      if (this.fileType === 'markdown') {
+        const { content, images } = extractMarkdownImagesFromEntries(this.file, this.entries);
+        this.content = content;
+        this.images = images;
+      } else {
+        this.content = this.file.content || this.file.raw;
+        this.images = {};
       }
     },
   },
@@ -229,13 +249,14 @@ export default {
 
       this.model.onChange(model => {
         const { file } = model;
+        if (!file.active) return;
 
-        if (file.active) {
-          this.changeFileContent({
-            path: file.path,
-            content: model.getModel().getValue(),
-          });
-        }
+        const monacoModel = model.getModel();
+        const content = monacoModel.getValue();
+        this.changeFileContent({
+          path: file.path,
+          content: this.addFinalNewline ? addFinalNewline(content, monacoModel.getEOL()) : content,
+        });
       });
 
       // Handle Cursor Position
@@ -275,8 +296,8 @@ export default {
 
 <template>
   <div id="ide" class="blob-viewer-container blob-editor-container">
-    <div class="ide-mode-tabs clearfix">
-      <ul v-if="!shouldHideEditor && isEditModeActive" class="nav-links float-left border-bottom-0">
+    <div v-if="!shouldHideEditor && isEditModeActive" class="ide-mode-tabs clearfix">
+      <ul class="nav-links float-left border-bottom-0">
         <li :class="editTabCSS">
           <a
             href="javascript:void(0);"
@@ -296,7 +317,6 @@ export default {
           >
         </li>
       </ul>
-      <external-link :file="file" />
     </div>
     <file-templates-bar v-if="showFileTemplatesBar(file.name)" />
     <div
@@ -313,11 +333,13 @@ export default {
     ></div>
     <content-viewer
       v-if="showContentViewer"
-      :content="file.content || file.raw"
+      :content="content"
+      :images="images"
       :path="file.rawPath || file.path"
       :file-path="file.path"
       :file-size="file.size"
       :project-path="file.projectId"
+      :commit-sha="currentBranchCommit"
       :type="fileType"
     />
     <diff-viewer

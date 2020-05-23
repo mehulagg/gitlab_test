@@ -118,23 +118,26 @@ describe NavHelper, :do_not_mock_admin_mode do
     it { is_expected.to all(be_a(String)) }
   end
 
-  describe '.show_user_notification_dot?' do
-    subject { helper.show_user_notification_dot? }
+  describe '#page_has_markdown?' do
+    using RSpec::Parameterized::TableSyntax
 
-    context 'when experiment is disabled' do
+    where path: %w(
+      merge_requests#show
+      projects/merge_requests/conflicts#show
+      issues#show
+      milestones#show
+      issues#designs
+    )
+
+    with_them do
       before do
-        allow(helper).to receive(:experiment_enabled?).with(:ci_notification_dot).and_return(false)
+        allow(helper).to receive(:current_path?).and_call_original
+        allow(helper).to receive(:current_path?).with(path).and_return(true)
       end
 
-      it { is_expected.to be_falsey }
-    end
+      subject { helper.page_has_markdown? }
 
-    context 'when experiment is enabled' do
-      before do
-        allow(helper).to receive(:experiment_enabled?).with(:ci_notification_dot).and_return(true)
-      end
-
-      it { is_expected.to be_truthy }
+      it { is_expected.to eq(true) }
     end
   end
 end

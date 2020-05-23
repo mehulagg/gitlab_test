@@ -13,7 +13,6 @@ module QA
 
     module Page
       module Component
-        autoload :DesignManagement, 'qa/ee/page/component/design_management'
         autoload :LicenseManagement, 'qa/ee/page/component/license_management'
         autoload :SecureReport, 'qa/ee/page/component/secure_report'
 
@@ -75,6 +74,12 @@ module QA
           module Component
             autoload :Email, 'qa/ee/page/admin/settings/component/email'
             autoload :Elasticsearch, 'qa/ee/page/admin/settings/component/elasticsearch'
+          end
+        end
+
+        module Overview
+          module Groups
+            autoload :Edit, 'qa/ee/page/admin/overview/groups/edit'
           end
         end
       end

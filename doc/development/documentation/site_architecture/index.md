@@ -20,29 +20,27 @@ from where content is sourced, the `gitlab-docs` project, and the published outp
 
 ```mermaid
   graph LR
-    A[gitlab-foss/doc]
-    B[gitlab/doc]
-    C[gitlab-runner/docs]
-    D[omnibus-gitlab/doc]
-    E[charts/doc]
-    F[gitlab-docs]
-    A --> F
-    B --> F
-    C --> F
-    D --> F
-    E --> F
-    F -- Build pipeline --> G
-    G[docs.gitlab.com]
-    H[/ce/]
-    I[/ee/]
-    J[/runner/]
-    K[/omnibus/]
-    L[/charts/]
-    G --> H
-    G --> I
-    G --> J
-    G --> K
-    G --> L
+    A[gitlab/doc]
+    B[gitlab-runner/docs]
+    C[omnibus-gitlab/doc]
+    D[charts/doc]
+    E[gitlab-docs]
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    E -- Build pipeline --> F
+    F[docs.gitlab.com]
+    G[/ce/]
+    H[/ee/]
+    I[/runner/]
+    J[/omnibus/]
+    K[/charts/]
+    F --> H
+    F --> I
+    F --> J
+    F --> K
+    H -- symlink --> G
 ```
 
 You will not find any GitLab docs content in the `gitlab-docs` repository.
@@ -55,12 +53,12 @@ product, and all together are pulled to generate the docs website:
 - [GitLab Chart](https://gitlab.com/charts/gitlab/tree/master/doc)
 
 NOTE: **Note:**
-In September 2019, we [moved towards a single codebase](https://gitlab.com/gitlab-org/gitlab/issues/2952),
+In September 2019, we [moved towards a single codebase](https://gitlab.com/gitlab-org/gitlab/-/issues/2952),
 as such the docs for CE and EE are now identical. For historical reasons and
 in order not to break any existing links throughout the internet, we still
 maintain the CE docs (`https://docs.gitlab.com/ce/`), although it is hidden
 from the website, and is now a symlink to the EE docs. When
-[Pages supports redirects](https://gitlab.com/gitlab-org/gitlab-pages/issues/24),
+[Pages supports redirects](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/24),
 we will be able to remove this completely.
 
 ## Assets
@@ -175,7 +173,7 @@ we reference the array with a symbol (`:versions`).
 ## Bumping versions of CSS and JavaScript
 
 Whenever the custom CSS and JavaScript files under `content/assets/` change,
-make sure to bump their version in the frontmatter. This method guarantees that
+make sure to bump their version in the front matter. This method guarantees that
 your changes will take effect by clearing the cache of previous files.
 
 Always use Nanoc's way of including those files, do not hardcode them in the

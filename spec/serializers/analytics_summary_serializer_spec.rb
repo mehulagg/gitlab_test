@@ -28,4 +28,21 @@ describe AnalyticsSummarySerializer do
   it 'contains important elements of AnalyticsStage' do
     expect(subject).to include(:title, :value)
   end
+
+  it 'does not include unit' do
+    expect(subject).not_to include(:unit)
+  end
+
+  context 'when representing with unit' do
+    let(:resource) do
+      Gitlab::CycleAnalytics::Summary::DeploymentFrequency
+        .new(deployments: 10, from: 1.day.ago)
+    end
+
+    subject { described_class.new.represent(resource, with_unit: true) }
+
+    it 'contains unit' do
+      expect(subject).to include(:unit)
+    end
+  end
 end

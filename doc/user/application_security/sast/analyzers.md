@@ -1,3 +1,9 @@
+---
+stage: Secure
+group: Static Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # SAST Analyzers **(ULTIMATE)**
 
 SAST relies on underlying third party tools that are wrapped into what we call
@@ -52,7 +58,7 @@ include:
   - template: SAST.gitlab-ci.yml
 
 variables:
-  SAST_ANALYZER_IMAGE_PREFIX: my-docker-registry/gl-images
+  SECURE_ANALYZERS_PREFIX: my-docker-registry/gl-images
 ```
 
 This configuration requires that your custom registry provides images for all
@@ -92,7 +98,10 @@ That's needed when one totally relies on [custom analyzers](#custom-analyzers).
 
 ## Custom Analyzers
 
-You can provide your own analyzers as a comma separated list of Docker images.
+### Custom analyzers with Docker-in-Docker
+
+When Docker-in-Docker for SAST is enabled,
+you can provide your own analyzers as a comma-separated list of Docker images.
 Here's how to add `analyzers/csharp` and `analyzers/perl` to the default images:
 In `.gitlab-ci.yml` define:
 
@@ -112,12 +121,31 @@ This configuration doesn't benefit from the integrated detection step.
 SAST has to fetch and spawn each Docker image to establish whether the
 custom analyzer can scan the source code.
 
-CAUTION: **Caution:**
-Custom analyzers are not spawned automatically when [Docker In Docker](index.md#disabling-docker-in-docker-for-sast) is disabled.
+### Custom analyzers without Docker-in-Docker
+
+When Docker-in-Docker for SAST is disabled, you can provide your own analyzers by
+defining CI jobs in your CI configuration. For consistency, you should suffix your custom
+SAST jobs with `-sast`. Here's how to add a scanning job that's based on the
+Docker image `my-docker-registry/analyzers/csharp` and generates a SAST report
+`gl-sast-report.json` when `/analyzer run` is executed. Define the following in
+`.gitlab-ci.yml`:
+
+```yaml
+csharp-sast:
+  image:
+    name: "my-docker-registry/analyzers/csharp"
+  script:
+    - /analyzer run
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+```
+
+The [Security Scanner Integration](../../../development/integrations/secure.md) documentation explains how to integrate custom security scanners into GitLab.
 
 ## Analyzers Data
 
-| Property \ Tool                         | Apex                 | Bandit               | Brakeman             | ESLint security      | Find Sec Bugs        | Flawfinder           | Go AST Scanner       | Kubesec Scanner      | NodeJsScan           | Php CS Security Audit   | Security code Scan (.NET)   | Sobelow            | TSLint Security    |
+| Property \ Tool                         | Apex                 | Bandit               | Brakeman             | ESLint security      | Find Sec Bugs        | Flawfinder           | Gosec                | Kubesec Scanner      | NodeJsScan           | Php CS Security Audit   | Security code Scan (.NET)   | Sobelow            | TSLint Security    |
 | --------------------------------------- | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :---------------------: | :-------------------------: | :----------------: | :-------------:    |
 | Severity                                | ✓                    | ✓                    | 𐄂                    | 𐄂                    | ✓                    | 𐄂                    | ✓                    | ✓                    | 𐄂                    | ✓                       | 𐄂                           | 𐄂                  | ✓                  |
 | Title                                   | ✓                    | ✓                    | ✓                    | ✓                    | ✓                    | ✓                    | ✓                    | ✓                    | ✓                    | ✓                       | ✓                           | ✓                  | ✓                  |
@@ -127,7 +155,7 @@ Custom analyzers are not spawned automatically when [Docker In Docker](index.md#
 | End line                                | ✓                    | ✓                    | 𐄂                    | ✓                    | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | 𐄂                  | ✓                  |
 | Start column                            | ✓                    | 𐄂                    | 𐄂                    | ✓                    | ✓                    | ✓                    | ✓                    | 𐄂                    | 𐄂                    | ✓                       | ✓                           | 𐄂                  | ✓                  |
 | End column                              | ✓                    | 𐄂                    | 𐄂                    | ✓                    | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | 𐄂                  | ✓                  |
-| External id (e.g. CVE)                  | 𐄂                    | 𐄂                    | ⚠                    | 𐄂                    | ⚠                    | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | 𐄂                  | 𐄂                  |
+| External ID (e.g. CVE)                  | 𐄂                    | 𐄂                    | ⚠                    | 𐄂                    | ⚠                    | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | 𐄂                  | 𐄂                  |
 | URLs                                    | ✓                    | 𐄂                    | ✓                    | 𐄂                    | ⚠                    | 𐄂                    | ⚠                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | 𐄂                  | 𐄂                  |
 | Internal doc/explanation                | ✓                    | ⚠                    | ✓                    | 𐄂                    | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | ✓                  | 𐄂                  |
 | Solution                                | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | ⚠                    | ✓                    | 𐄂                    | 𐄂                    | 𐄂                    | 𐄂                       | 𐄂                           | 𐄂                  | 𐄂                  |

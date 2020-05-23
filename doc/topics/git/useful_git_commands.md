@@ -5,7 +5,7 @@ type: reference
 # Useful Git commands
 
 Here are some useful Git commands collected by the GitLab support team. You may not
-need to use often, but they can can come in handy when needed.
+need to use often, but they can come in handy when needed.
 
 ## Remotes
 
@@ -116,7 +116,7 @@ git log <file>
 
 If you get this error message:
 
-```text
+```plaintext
 fatal: ambiguous argument <file_name>: unknown revision or path not in the working tree.
 Use '--' to separate paths from revisions, like this:
 ```

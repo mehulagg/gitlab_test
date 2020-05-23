@@ -52,7 +52,7 @@ When you're ready, click the **Create page** and the new page will be created.
 
 ### Attachment storage
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/33475) in GitLab 11.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/33475) in GitLab 11.3.
 
 Starting with GitLab 11.3, any file that is uploaded to the wiki via GitLab's
 interface will be stored in the wiki Git repository, and it will be available
@@ -126,7 +126,7 @@ found. The list is ordered alphabetically.
 ![Wiki sidebar](img/wiki_sidebar.png)
 
 If you have many pages, not all will be listed in the sidebar. Click on
-**More pages** to see all of them.
+**View All Pages** to see all of them.
 
 ## Viewing the history of a wiki page
 
@@ -140,6 +140,43 @@ number.
 
 ![Wiki page history](img/wiki_page_history.png)
 
+## Wiki activity records
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14902) in GitLab 12.10.
+> - It's deployed behind a feature flag, disabled by default.
+> - It's enabled on GitLab.com.
+> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-wiki-events-core-only). **(CORE ONLY)**
+
+Wiki events (creation, deletion, and updates) are tracked by GitLab and
+displayed on the [user profile](../../profile/index.md#user-profile),
+[group](../../group/index.md#view-group-activity),
+and [project](../index.md#project-activity) activity pages.
+
+### Limitations
+
+Only edits made in the browser or through the API have their activity recorded.
+Edits made and pushed through Git are not currently listed in the activity list.
+
+### Enable or disable Wiki Events **(CORE ONLY)**
+
+Wiki event activity is under development and not ready for production use. It is
+deployed behind a feature flag that is **disabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../../../administration/troubleshooting/navigating_gitlab_via_rails_console.md#starting-a-rails-console-session)
+can enable it for your instance. You're welcome to test it, but use it at your
+own risk.
+
+To enable it:
+
+```ruby
+Feature.enable(:wiki_events)
+```
+
+To disable it:
+
+```ruby
+Feature.disable(:wiki_events)
+```
+
 ## Adding and editing wiki pages locally
 
 Since wikis are based on Git repositories, you can clone them locally and edit
@@ -152,7 +189,24 @@ instructions.
 
 On the project's Wiki page, there is a right side navigation that renders the full Wiki pages list by default, with hierarchy.
 
-If the Wiki repository contains a `_sidebar` page, the file of this page replaces the default side navigation.
-This custom file serves to render it's custom content, fully replacing the standard sidebar.
+To customize the sidebar, you can create a file named `_sidebar` to fully replace the default navigation.
+
+CAUTION: **Warning:**
+Unless you link the `_sidebar` file from your custom nav, to edit it you'll have to access it directly
+from the browser's address bar by typing: `https://gitlab.com/<namespace>/<project_name>/-/wikis/_sidebar` (for self-managed GitLab instances, replace `gitlab.com` with your instance's URL).
+
+Example for `_sidebar` (using Markdown format):
+
+```markdown
+### [Home](home)
+
+- [Hello World](hello)
+- [Foo](foo)
+- [Bar](bar)
+
+---
+
+- [Sidebar](_sidebar)
+```
 
 Support for displaying a generated TOC with a custom side navigation is planned.

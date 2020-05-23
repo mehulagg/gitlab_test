@@ -37,8 +37,7 @@ describe ProjectSnippet do
     let_it_be(:container) { create(:project_snippet, :repository) }
     let(:stubbed_container) { build_stubbed(:project_snippet) }
     let(:expected_full_path) { "#{container.project.full_path}/@snippets/#{container.id}" }
-    let(:expected_repository_klass) { Repository }
-    let(:expected_storage_klass) { Storage::Hashed }
     let(:expected_web_url_path) { "#{container.project.full_path}/snippets/#{container.id}" }
+    let(:expected_repo_url_path) { expected_web_url_path }
   end
 end

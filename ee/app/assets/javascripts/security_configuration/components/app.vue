@@ -2,12 +2,16 @@
 import { GlLink } from '@gitlab/ui';
 import { s__, __, sprintf } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
+import AutoFixSettings from './auto_fix_settings.vue';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
   components: {
     GlLink,
     Icon,
+    AutoFixSettings,
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     autoDevopsEnabled: {
       type: Boolean,
@@ -31,6 +35,10 @@ export default {
       type: Array,
       required: true,
     },
+    autoFixSettingsProps: {
+      type: Object,
+      required: true,
+    },
   },
   computed: {
     headerContent() {
@@ -43,9 +51,9 @@ export default {
       return this.autoDevopsEnabled ? this.autoDevopsHelpPagePath : this.latestPipelinePath;
     },
     calloutContent() {
-      const bodyDefault = __(`The configuration status of the table below only applies to the default branch and
+      const bodyDefault = __(`The status of the table below only applies to the default branch and
           is based on the %{linkStart}latest pipeline%{linkEnd}.
-          Once you've configured a scan for the default branch, any subsequent feature branch you create will include the scan.`);
+          Once you've enabled a scan for the default branch, any subsequent feature branch you create will include the scan.`);
 
       const bodyAutoDevopsEnabled = __(
         'All security scans are enabled because %{linkStart}Auto DevOps%{linkEnd} is enabled on this project',
@@ -111,9 +119,7 @@ export default {
             </div>
             <div class="table-mobile-content">
               <div class="d-flex align-items-center justify-content-end justify-content-md-start">
-                <div class="text-2 gl-text-gray-900">
-                  {{ feature.name }}
-                </div>
+                <div class="text-2 gl-text-gray-900">{{ feature.name }}</div>
               </div>
               <div class="text-secondary">
                 {{ feature.description }}
@@ -133,13 +139,14 @@ export default {
             <div ref="featureConfigStatus" class="table-mobile-content">
               {{
                 feature.configured
-                  ? s__('SecurityConfiguration|Configured')
-                  : s__('SecurityConfiguration|Not yet configured')
+                  ? s__('SecurityConfiguration|Enabled')
+                  : s__('SecurityConfiguration|Not yet enabled')
               }}
             </div>
           </div>
         </div>
       </div>
     </section>
+    <auto-fix-settings v-if="glFeatures.securityAutoFix" v-bind="autoFixSettingsProps" />
   </article>
 </template>

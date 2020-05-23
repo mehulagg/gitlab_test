@@ -1364,6 +1364,24 @@ module Gitlab
 
           expect { described_class.new(config) }.to raise_error(described_class::ValidationError)
         end
+
+        it 'populates a build options with complete artifacts configuration' do
+          stub_feature_flags(ci_artifacts_exclude: true)
+
+          config = <<~YAML
+            test:
+              script: echo "Hello World"
+              artifacts:
+                paths:
+                  - my/test
+                exclude:
+                  - my/test/something
+          YAML
+
+          attributes = Gitlab::Ci::YamlProcessor.new(config).build_attributes('test')
+
+          expect(attributes.dig(*%i[options artifacts exclude])).to eq(%w[my/test/something])
+        end
       end
 
       describe "release" do
@@ -2052,6 +2070,54 @@ module Gitlab
         end
       end
 
+      describe 'with parent-child pipeline' do
+        context 'when artifact and job are specified' do
+          let(:config) do
+            YAML.dump({
+              build1: { stage: 'build', script: 'test' },
+              test1: { stage: 'test', trigger: {
+                include: [{ artifact: 'generated.yml', job: 'build1' }]
+              } }
+            })
+          end
+
+          it { expect { subject }.not_to raise_error }
+        end
+
+        context 'when job is not specified specified while artifact is' do
+          let(:config) do
+            YAML.dump({
+              build1: { stage: 'build', script: 'test' },
+              test1: { stage: 'test', trigger: {
+                include: [{ artifact: 'generated.yml' }]
+              } }
+            })
+          end
+
+          it do
+            expect { subject }.to raise_error(
+              described_class::ValidationError,
+              /include config must specify the job where to fetch the artifact from/)
+          end
+        end
+
+        context 'when include is a string' do
+          let(:config) do
+            YAML.dump({
+              build1: { stage: 'build', script: 'test' },
+              test1: {
+                stage: 'test',
+                trigger: {
+                  include: 'generated.yml'
+                }
+              }
+            })
+          end
+
+          it { expect { subject }.not_to raise_error }
+        end
+      end
+
       describe "Error handling" do
         it "fails to parse YAML" do
           expect do
@@ -2216,14 +2282,14 @@ module Gitlab
           config = YAML.dump({ rspec: { script: "test", type: "acceptance" } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "rspec job: stage parameter should be .pre, build, test, deploy, .post")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "rspec job: chosen stage does not exist; available stages are .pre, build, test, deploy, .post")
         end
 
         it "returns errors if job stage is not a defined stage" do
           config = YAML.dump({ types: %w(build test), rspec: { script: "test", type: "acceptance" } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "rspec job: stage parameter should be .pre, build, test, .post")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "rspec job: chosen stage does not exist; available stages are .pre, build, test, .post")
         end
 
         it "returns errors if stages is not an array" do

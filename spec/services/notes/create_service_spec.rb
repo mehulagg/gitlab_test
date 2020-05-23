@@ -50,7 +50,7 @@ describe Notes::CreateService do
       end
 
       it 'enqueues NewNoteWorker' do
-        note = build(:note, id: 999, project: project)
+        note = build(:note, id: non_existing_record_id, project: project)
         allow(Note).to receive(:new).with(opts) { note }
 
         expect(NewNoteWorker).to receive(:perform_async).with(note.id)
@@ -143,10 +143,21 @@ describe Notes::CreateService do
         end
 
         it 'note is associated with a note diff file' do
+          MergeRequests::MergeToRefService.new(merge_request.project, merge_request.author).execute(merge_request)
+
           note = described_class.new(project_with_repo, user, new_opts).execute
 
           expect(note).to be_persisted
           expect(note.note_diff_file).to be_present
+          expect(note.diff_note_positions).to be_present
+        end
+
+        it 'does not create diff positions merge_ref_head_comments is disabled' do
+          stub_feature_flags(merge_ref_head_comments: false)
+
+          expect(Discussions::CaptureDiffNotePositionService).not_to receive(:new)
+
+          described_class.new(project_with_repo, user, new_opts).execute
         end
       end
 
@@ -160,6 +171,8 @@ describe Notes::CreateService do
         end
 
         it 'note is not associated with a note diff file' do
+          expect(Discussions::CaptureDiffNotePositionService).not_to receive(:new)
+
           note = described_class.new(project_with_repo, user, new_opts).execute
 
           expect(note).to be_persisted
@@ -329,6 +342,60 @@ describe Notes::CreateService do
       end
     end
 
+    context 'design note' do
+      subject(:service) { described_class.new(project, user, params) }
+
+      let_it_be(:design) { create(:design, :with_file) }
+      let_it_be(:project) { design.project }
+      let_it_be(:user) { project.owner }
+      let_it_be(:params) do
+        {
+          type: 'DiffNote',
+          noteable: design,
+          note: "A message",
+          position: {
+            old_path: design.full_path,
+            new_path: design.full_path,
+            position_type: 'image',
+            width: '100',
+            height: '100',
+            x: '50',
+            y: '50',
+            base_sha: design.diff_refs.base_sha,
+            start_sha: design.diff_refs.base_sha,
+            head_sha: design.diff_refs.head_sha
+          }
+        }
+      end
+
+      it 'can create diff notes for designs' do
+        note = service.execute
+
+        expect(note).to be_a(DiffNote)
+        expect(note).to be_persisted
+        expect(note.noteable).to eq(design)
+      end
+
+      it 'sends a notification about this note', :sidekiq_might_not_need_inline do
+        notifier = double
+        allow(::NotificationService).to receive(:new).and_return(notifier)
+
+        expect(notifier)
+          .to receive(:new_note)
+          .with have_attributes(noteable: design)
+
+        service.execute
+      end
+
+      it 'correctly builds the position of the note' do
+        note = service.execute
+
+        expect(note.position.new_path).to eq(design.full_path)
+        expect(note.position.old_path).to eq(design.full_path)
+        expect(note.position.diff_refs).to eq(design.diff_refs)
+      end
+    end
+
     context 'note with emoji only' do
       it 'creates regular note' do
         opts = {
@@ -358,7 +425,7 @@ describe Notes::CreateService do
         expect do
           existing_note
 
-          Timecop.freeze(Time.now + 1.minute) { subject }
+          Timecop.freeze(Time.current + 1.minute) { subject }
 
           existing_note.reload
         end.to change { existing_note.type }.from(nil).to('DiscussionNote')

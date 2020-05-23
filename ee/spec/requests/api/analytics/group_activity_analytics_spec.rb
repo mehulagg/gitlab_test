@@ -11,8 +11,9 @@ describe API::Analytics::GroupActivityAnalytics do
 
   let_it_be(:anonymous_user) { create(:user) }
 
-  shared_examples 'GET group_activity' do |activity|
-    let(:feature_enabled) { true }
+  shared_examples 'GET group_activity' do |activity, count|
+    let(:feature_available) { true }
+    let(:feature_enabled_for) { group }
     let(:params) { { group_path: group.full_path } }
     let(:current_user) { reporter }
     let(:request) do
@@ -20,20 +21,33 @@ describe API::Analytics::GroupActivityAnalytics do
     end
 
     before do
-      stub_licensed_features(group_activity_analytics: feature_enabled)
+      stub_feature_flags(group_activity_analytics: feature_enabled_for)
+      stub_licensed_features(group_activity_analytics: feature_available)
+
       request
     end
 
-    it 'is successful' do
-      expect(response).to have_gitlab_http_status(:ok)
-    end
+    context 'when feature is enabled for a group' do
+      it 'is successful' do
+        expect(response).to have_gitlab_http_status(:ok)
+      end
 
-    it 'is returns a count' do
-      expect(response.parsed_body).to eq({ "#{activity}_count" => 0 })
+      it 'is returns a count' do
+        expect(response.parsed_body).to eq({ "#{activity}_count" => count })
+      end
     end
 
     context 'when feature is not available in plan' do
-      let(:feature_enabled) { false }
+      let(:feature_available) { false }
+      let(:feature_enabled_for) { false }
+
+      it 'is returns `forbidden`' do
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
+    context 'when feature is disabled globally' do
+      let(:feature_enabled_for) { false }
 
       it 'is returns `forbidden`' do
         expect(response).to have_gitlab_http_status(:forbidden)
@@ -48,7 +62,7 @@ describe API::Analytics::GroupActivityAnalytics do
       end
     end
 
-    context 'when user has no authorization to view a private group' do
+    context 'when user does not have access to a group' do
       let(:current_user) { anonymous_user }
 
       it 'is returns `not_found`' do
@@ -58,10 +72,14 @@ describe API::Analytics::GroupActivityAnalytics do
   end
 
   context 'GET /group_activity/issues_count' do
-    it_behaves_like 'GET group_activity', 'issues'
+    it_behaves_like 'GET group_activity', 'issues', 0
   end
 
   context 'GET /group_activity/merge_requests_count' do
-    it_behaves_like 'GET group_activity', 'merge_requests'
+    it_behaves_like 'GET group_activity', 'merge_requests', 0
+  end
+
+  context 'GET /group_activity/new_members_count' do
+    it_behaves_like 'GET group_activity', 'new_members', 1 # reporter
   end
 end

@@ -10,8 +10,20 @@ module GroupsHelper
     ]
   end
 
-  def group_nav_link_paths
-    %w[groups#projects groups#edit badges#index ci_cd#show ldap_group_links#index hooks#index audit_events#index pipeline_quota#index]
+  def group_settings_nav_link_paths
+    %w[
+      groups#projects
+      groups#edit
+      badges#index
+      repository#show
+      ci_cd#show
+      integrations#index
+      integrations#edit
+      ldap_group_links#index
+      hooks#index
+      audit_events#index
+      pipeline_quota#index
+    ]
   end
 
   def group_packages_nav_link_paths
@@ -35,6 +47,10 @@ module GroupsHelper
 
   def can_change_group_visibility_level?(group)
     can?(current_user, :change_visibility_level, group)
+  end
+
+  def can_update_default_branch_protection?(group)
+    can?(current_user, :update_default_branch_protection, group)
   end
 
   def can_change_share_with_group_lock?(group)

@@ -87,28 +87,12 @@ describe User do
       end
     end
 
-    describe '.active_without_ghosts' do
-      let_it_be(:user1) { create(:user, :external) }
-      let_it_be(:user2) { create(:user, state: 'blocked') }
-      let_it_be(:user3) { create(:user, ghost: true) }
-      let_it_be(:user4) { create(:user, user_type: :support_bot) }
-      let_it_be(:user5) { create(:user, state: 'blocked', user_type: :support_bot) }
+    describe '.managed_by' do
+      let!(:group) { create(:group_with_managed_accounts) }
+      let!(:managed_users) { create_list(:user, 2, managing_group: group) }
 
-      it 'returns all active users including active bots but ghost users' do
-        expect(described_class.active_without_ghosts).to match_array([user1, user4])
-      end
-    end
-
-    describe '.non_internal' do
-      let!(:user) { create(:user) }
-      let!(:service_user) { create(:user, user_type: :service_user) }
-      let!(:ghost) { described_class.ghost }
-      let!(:alert_bot) { described_class.alert_bot }
-      let!(:non_internal) { [user, service_user] }
-
-      it 'returns users without ghosts and bots' do
-        expect(described_class.non_internal).to match_array(non_internal)
-        expect(non_internal.all?(&:internal?)).to eq(false)
+      it 'returns users managed by the specified group' do
+        expect(described_class.managed_by(group)).to match_array(managed_users)
       end
     end
   end
@@ -165,7 +149,7 @@ describe User do
       end
 
       it "returns false for an auditor user if a license is not present" do
-        stub_licensed_features(auditor_user: false)
+        allow(License).to receive(:current).and_return nil
 
         expect(build(:user, :auditor)).not_to be_auditor
       end
@@ -252,7 +236,7 @@ describe User do
   end
 
   describe '#forget_me!' do
-    subject { create(:user, remember_created_at: Time.now) }
+    subject { create(:user, remember_created_at: Time.current) }
 
     it 'clears remember_created_at' do
       subject.forget_me!
@@ -543,6 +527,30 @@ describe User do
     end
   end
 
+  describe '.limit_to_saml_provider' do
+    let_it_be(:user1) { create(:user) }
+    let_it_be(:user2) { create(:user) }
+
+    it 'returns all users when SAML provider is nil' do
+      rel = described_class.limit_to_saml_provider(nil)
+
+      expect(rel).to include(user1, user2)
+    end
+
+    it 'returns only the users who have an identity that belongs to the given SAML provider' do
+      create(:user)
+      group = create(:group)
+      saml_provider = create(:saml_provider, group: group)
+      create(:identity, saml_provider: saml_provider, user: user1)
+      create(:identity, saml_provider: saml_provider, user: user2)
+      create(:identity, user: create(:user))
+
+      rel = described_class.limit_to_saml_provider(saml_provider.id)
+
+      expect(rel).to contain_exactly(user1, user2)
+    end
+  end
+
   describe '#group_managed_account?' do
     subject { user.group_managed_account? }
 
@@ -613,25 +621,17 @@ describe User do
       context 'when user is internal' do
         using RSpec::Parameterized::TableSyntax
 
-        where(:bot_user_type) do
-          UserTypeEnums.bots.keys
+        where(:internal_user_type) do
+          described_class::INTERNAL_USER_TYPES
         end
 
         with_them do
-          context 'when user is a bot' do
-            let(:user) { create(:user, user_type: bot_user_type) }
+          context 'when user has internal user type' do
+            let(:user) { create(:user, user_type: internal_user_type) }
 
             it 'returns false' do
               expect(user.using_license_seat?).to eq false
             end
-          end
-        end
-
-        context 'when user is a ghost' do
-          let(:user) { create(:user, ghost: true) }
-
-          it 'returns false' do
-            expect(user.using_license_seat?).to eq false
           end
         end
       end
@@ -1003,6 +1003,229 @@ describe User do
       end
 
       it { is_expected.to eq [free_group_a, free_group_z] }
+    end
+  end
+
+  describe '#active_for_authentication?' do
+    subject { user.active_for_authentication? }
+
+    let(:user) { create(:user) }
+
+    context 'based on user type' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:user_type, :expected_result) do
+        'service_user'      | true
+        'support_bot'       | false
+        'visual_review_bot' | false
+      end
+
+      with_them do
+        before do
+          user.update(user_type: user_type)
+        end
+
+        it { is_expected.to be expected_result }
+      end
+    end
+  end
+
+  context 'paid namespaces' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:gold_group) { create(:group_with_plan, plan: :gold_plan) }
+    let_it_be(:bronze_group) { create(:group_with_plan, plan: :bronze_plan) }
+    let_it_be(:free_group) { create(:group_with_plan, plan: :free_plan) }
+    let_it_be(:group_without_plan) { create(:group) }
+
+    describe '#has_paid_namespace?' do
+      context 'when the user has Reporter or higher on at least one paid group' do
+        it 'returns true' do
+          gold_group.add_reporter(user)
+          bronze_group.add_guest(user)
+
+          expect(user.has_paid_namespace?).to eq(true)
+        end
+      end
+
+      context 'when the user is only a Guest on paid groups' do
+        it 'returns false' do
+          gold_group.add_guest(user)
+          bronze_group.add_guest(user)
+          free_group.add_owner(user)
+
+          expect(user.has_paid_namespace?).to eq(false)
+        end
+      end
+
+      context 'when the user is not a member of any groups with plans' do
+        it 'returns false' do
+          group_without_plan.add_owner(user)
+
+          expect(user.has_paid_namespace?).to eq(false)
+        end
+      end
+    end
+
+    describe '#owns_paid_namespace?' do
+      context 'when the user is an owner of at least one paid group' do
+        it 'returns true' do
+          gold_group.add_owner(user)
+          bronze_group.add_owner(user)
+
+          expect(user.owns_paid_namespace?).to eq(true)
+        end
+      end
+
+      context 'when the user is only a Maintainer on paid groups' do
+        it 'returns false' do
+          gold_group.add_maintainer(user)
+          bronze_group.add_maintainer(user)
+          free_group.add_owner(user)
+
+          expect(user.owns_paid_namespace?).to eq(false)
+        end
+      end
+
+      context 'when the user is not a member of any groups with plans' do
+        it 'returns false' do
+          group_without_plan.add_owner(user)
+
+          expect(user.owns_paid_namespace?).to eq(false)
+        end
+      end
+    end
+  end
+
+  describe '#gitlab_employee?' do
+    using RSpec::Parameterized::TableSyntax
+
+    subject { user.gitlab_employee? }
+
+    let_it_be(:gitlab_group) { create(:group, name: 'gitlab-com') }
+    let_it_be(:random_group) { create(:group, name: 'random-group') }
+
+    context 'based on group membership' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(is_com)
+      end
+
+      context 'when user belongs to gitlab-com group' do
+        where(:is_com, :expected_result) do
+          true  | true
+          false | false
+        end
+
+        with_them do
+          let(:user) { create(:user) }
+
+          before do
+            gitlab_group.add_user(user, Gitlab::Access::DEVELOPER)
+          end
+
+          it { is_expected.to be expected_result }
+        end
+      end
+
+      context 'when user does not belongs to gitlab-com group' do
+        where(:is_com, :expected_result) do
+          true  | false
+          false | false
+        end
+
+        with_them do
+          let(:user) { create(:user) }
+
+          before do
+            random_group.add_user(user, Gitlab::Access::DEVELOPER)
+          end
+
+          it { is_expected.to be expected_result }
+        end
+      end
+    end
+
+    context 'based on user type' do
+      before do
+        gitlab_group.add_user(user, Gitlab::Access::DEVELOPER)
+      end
+
+      context 'when user is a bot' do
+        let(:user) { build(:user, user_type: :alert_bot) }
+
+        it { is_expected.to be false }
+      end
+
+      context 'when user is ghost' do
+        let(:user) { build(:user, :ghost) }
+
+        it { is_expected.to be false }
+      end
+    end
+
+    context 'when `:gitlab_employee_badge` feature flag is disabled' do
+      let(:user) { build(:user) }
+
+      before do
+        stub_feature_flags(gitlab_employee_badge: false)
+        gitlab_group.add_user(user, Gitlab::Access::DEVELOPER)
+      end
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#security_dashboard' do
+    let(:user) { create(:user) }
+
+    subject(:security_dashboard) { user.security_dashboard }
+
+    it 'returns an instance of InstanceSecurityDashboard for the user' do
+      expect(security_dashboard).to be_a(InstanceSecurityDashboard)
+    end
+  end
+
+  describe '#owns_upgradeable_namespace?' do
+    let_it_be(:user) { create(:user) }
+
+    subject { user.owns_upgradeable_namespace? }
+
+    using RSpec::Parameterized::TableSyntax
+
+    where(:hosted_plan, :result) do
+      :bronze_plan    | true
+      :silver_plan    | true
+      :gold_plan      | false
+      :free_plan      | false
+      :default_plan   | false
+    end
+
+    with_them do
+      it 'returns the correct result for each plan on a personal namespace' do
+        plan = create(hosted_plan)
+        create(:gitlab_subscription, namespace: user.namespace, hosted_plan: plan)
+
+        expect(subject).to be result
+      end
+
+      it 'returns the correct result for each plan on a group owned by the user' do
+        create(:group_with_plan, plan: hosted_plan).add_owner(user)
+
+        expect(subject).to be result
+      end
+    end
+
+    it 'returns false when there is no subscription for the personal namespace' do
+      expect(subject).to be false
+    end
+
+    it 'returns false when the user has multiple groups and any group has gold' do
+      create(:group_with_plan, plan: :bronze_plan).add_owner(user)
+      create(:group_with_plan, plan: :silver_plan).add_owner(user)
+      create(:group_with_plan, plan: :gold_plan).add_owner(user)
+
+      user.namespace.plans.reload
+
+      expect(subject).to be false
     end
   end
 end

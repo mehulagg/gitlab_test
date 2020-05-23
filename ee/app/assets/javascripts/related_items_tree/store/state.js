@@ -16,6 +16,11 @@ export default () => ({
     openedIssues: 0,
     closedIssues: 0,
   },
+  healthStatus: {
+    issuesAtRisk: 0,
+    issuesOnTrack: 0,
+    issuesNeedingAttention: 0,
+  },
 
   // Add Item Form Data
   issuableType: null,
@@ -39,6 +44,8 @@ export default () => ({
   autoCompleteEpics: false,
   autoCompleteIssues: false,
   allowSubEpics: false,
+  allowIssuableHealthStatus: false,
+
   removeItemModalProps: {
     parentItem: {},
     item: {},

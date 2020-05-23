@@ -16,13 +16,13 @@ exports[`Status Page settings form default state should match the default snapsh
     
     </h3>
      
-    <gl-button-stub
+    <gl-deprecated-button-stub
       class="js-settings-toggle"
       size="md"
       variant="secondary"
     >
       Expand
-    </gl-button-stub>
+    </gl-deprecated-button-stub>
      
     <p>
       
@@ -51,6 +51,30 @@ exports[`Status Page settings form default state should match the default snapsh
             Active
           </span>
         </gl-form-checkbox-stub>
+      </gl-form-group-stub>
+       
+      <gl-form-group-stub
+        class="col-8 col-md-9 gl-pl-0 mb-3"
+        label="Status page URL"
+        label-for="status-page-url"
+        label-size="sm"
+      >
+        <gl-form-input-stub
+          id="status-page-url"
+          value=""
+        />
+         
+        <p
+          class="form-text text-muted"
+        >
+          <gl-link-stub
+            href="/help/user/project/status_page/index.html"
+          >
+            
+            Status page frontend documentation
+          
+          </gl-link-stub>
+        </p>
       </gl-form-group-stub>
        
       <gl-form-group-stub
@@ -97,7 +121,7 @@ exports[`Status Page settings form default state should match the default snapsh
       <gl-form-group-stub
         class="col-8 col-md-9 gl-pl-0 mb-3"
         label="AWS access key ID"
-        label-for="status-page-aws-access-key-id"
+        label-for="status-page-aws-access-key"
         label-size="sm"
       >
         <gl-form-input-stub
@@ -118,7 +142,7 @@ exports[`Status Page settings form default state should match the default snapsh
         />
       </gl-form-group-stub>
        
-      <gl-button-stub
+      <gl-deprecated-button-stub
         class="js-no-auto-disable"
         size="md"
         type="submit"
@@ -127,7 +151,7 @@ exports[`Status Page settings form default state should match the default snapsh
         
         Save changes
       
-      </gl-button-stub>
+      </gl-deprecated-button-stub>
     </form>
   </div>
 </section>

@@ -99,78 +99,47 @@ describe MergeRequestWidgetEntity do
     end
   end
 
-  describe '#license_management', :request_store do
+  describe 'degradation_threshold' do
+    let!(:head_pipeline) { create(:ci_empty_pipeline, project: project) }
+
     before do
       allow(merge_request).to receive_messages(
-        head_pipeline: pipeline, target_project: project)
-      stub_licensed_features(license_management: true)
+        base_pipeline: pipeline,
+        head_pipeline: head_pipeline
+      )
+
+      allow(head_pipeline).to receive(:available_licensed_report_type?).and_return(true)
+
+      create(
+        :ee_ci_build,
+        :performance,
+        pipeline: head_pipeline,
+        yaml_variables: yaml_variables
+      )
     end
 
-    it 'is not included, if missing artifacts' do
-      expect(subject.as_json).not_to include(:license_management)
-    end
-
-    context 'when report artifact is defined' do
-      before do
-        create(:ee_ci_build, :license_management, pipeline: pipeline)
+    context "when head pipeline's performance build has the threshold variable defined" do
+      let(:yaml_variables) do
+        [
+          { key: 'FOO', value: 'BAR' },
+          { key: 'DEGRADATION_THRESHOLD', value: '5' }
+        ]
       end
 
-      it 'is included' do
-        expect(subject.as_json).to include(:license_management)
-        expect(subject.as_json[:license_management]).to include(:managed_licenses_path)
-        expect(subject.as_json[:license_management]).to include(:can_manage_licenses)
-        expect(subject.as_json[:license_management]).to include(:license_management_full_report_path)
-      end
-
-      context 'when feature is not licensed' do
-        before do
-          stub_licensed_features(license_scanning: false)
-        end
-
-        it 'is not included' do
-          expect(subject.as_json).not_to include(:license_management)
-        end
-      end
-
-      it '#license_management_settings_path should not be included for developers' do
-        expect(subject.as_json[:license_management]).not_to include(:license_management_settings_path)
-      end
-
-      context 'when user is maintainer' do
-        before do
-          project.add_maintainer(user)
-        end
-
-        it '#license_management_settings_path should be included for maintainers' do
-          expect(subject.as_json[:license_management]).to include(:license_management_settings_path)
-        end
+      it "returns the value of the variable" do
+        expect(subject.as_json[:performance][:degradation_threshold]).to eq(5)
       end
     end
 
-    describe '#managed_licenses_path' do
-      let(:managed_licenses_path) { expose_path(api_v4_projects_managed_licenses_path(id: project.id)) }
-
-      before do
-        create(:ee_ci_build, :license_management, pipeline: pipeline)
+    context "when head pipeline's performance build has no threshold variable defined" do
+      let(:yaml_variables) do
+        [
+          { key: 'FOO', value: 'BAR' }
+        ]
       end
 
-      it 'is a path for target project' do
-        expect(subject.as_json[:license_management][:managed_licenses_path]).to eq(managed_licenses_path)
-      end
-
-      context 'with fork' do
-        let(:source_project) { fork_project(project, user, repository: true) }
-        let(:fork_merge_request) { create(:merge_request, source_project: source_project, target_project: project) }
-        let(:subject_json) { described_class.new(fork_merge_request, current_user: user, request: request).as_json }
-
-        before do
-          allow(fork_merge_request).to receive_messages(head_pipeline: pipeline)
-          stub_licensed_features(license_management: true)
-        end
-
-        it 'is a path for target project' do
-          expect(subject_json[:license_management][:managed_licenses_path]).to eq(managed_licenses_path)
-        end
+      it "returns nil" do
+        expect(subject.as_json[:performance][:degradation_threshold]).to be_nil
       end
     end
   end

@@ -3,7 +3,7 @@
 Since GitLab 9.0, API V4 is the preferred version to be used.
 
 API V3 was unsupported from GitLab 9.5, released on August
-22, 2017. API v3 was removed in [GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/36819).
+22, 2017. API v3 was removed in [GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/36819).
 The V3 API documentation is still
 [available](https://gitlab.com/gitlab-org/gitlab-foss/blob/8-16-stable/doc/api/README.md).
 
@@ -67,7 +67,7 @@ Below are the changes made between V3 and V4.
 - Remove `GET /groups/owned`. Use `GET /groups?owned=true` instead [!9505](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9505)
 - Return 202 with JSON body on async removals on V4 API (`DELETE /projects/:id/repository/merged_branches` and `DELETE /projects/:id`) [!9449](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9449)
 - `GET /projects/:id/milestones?iid[]=x&iid[]=y` array filter has been renamed to `iids` [!9096](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9096)
-- Return basic info about pipeline in `GET /projects/:id/pipelines` [!8875](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8875)
+- Return basic information about pipeline in `GET /projects/:id/pipelines` [!8875](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8875)
 - Renamed all `build` references to `job` [!9463](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9463)
 - Drop `GET /projects/:id/repository/commits/:sha/jobs` [!9463](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9463)
 - Rename Build Triggers to be Pipeline Triggers API [!9713](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9713)

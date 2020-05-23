@@ -7,11 +7,15 @@ module Ci
     end
 
     def serializer_class
-      Vulnerabilities::OccurrenceDiffSerializer
+      Vulnerabilities::FindingDiffSerializer
     end
 
     def get_report(pipeline)
       Security::PipelineVulnerabilitiesFinder.new(pipeline: pipeline, params: { report_type: %w[container_scanning], scope: 'all' }).execute
+    end
+
+    def build_comparer(base_pipeline, head_pipeline)
+      comparer_class.new(get_report(base_pipeline), get_report(head_pipeline), head_security_scans: head_pipeline.security_scans)
     end
   end
 end

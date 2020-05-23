@@ -296,7 +296,7 @@ describe Admin::UsersController do
 
         it 'sets the new password to expire immediately' do
           expect { update_password(user, 'AValidPassword1') }
-            .to change { user.reload.password_expires_at }.to be_within(2.seconds).of(Time.now)
+            .to change { user.reload.password_expires_at }.to be_within(2.seconds).of(Time.current)
         end
       end
 
@@ -337,6 +337,17 @@ describe Admin::UsersController do
             .not_to change { user.reload.encrypted_password }
         end
       end
+    end
+  end
+
+  describe "DELETE #remove_email" do
+    it 'deletes the email' do
+      email = create(:email, user: user)
+
+      delete :remove_email, params: { id: user.username, email_id: email.id }
+
+      expect(user.reload.emails).not_to include(email)
+      expect(flash[:notice]).to eq('Successfully removed email.')
     end
   end
 

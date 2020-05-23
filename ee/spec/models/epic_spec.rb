@@ -19,6 +19,31 @@ describe Epic do
     it { is_expected.to have_many(:user_mentions).class_name("EpicUserMention") }
   end
 
+  describe 'scopes' do
+    let_it_be(:confidential_epic) { create(:epic, confidential: true, group: group) }
+    let_it_be(:public_epic) { create(:epic, group: group) }
+
+    describe '.public_only' do
+      it 'only returns public epics' do
+        expect(described_class.public_only).to eq([public_epic])
+      end
+    end
+
+    describe '.confidential' do
+      it 'only returns confidential epics' do
+        expect(described_class.confidential).to eq([confidential_epic])
+      end
+    end
+
+    describe '.not_confidential_or_in_groups' do
+      it 'returns only epics which are either not confidential or in the group' do
+        create(:epic, confidential: true)
+
+        expect(described_class.not_confidential_or_in_groups(group)).to match_array([confidential_epic, public_epic])
+      end
+    end
+  end
+
   describe 'validations' do
     subject { build(:epic) }
 
@@ -34,6 +59,41 @@ describe Epic do
 
     it 'is not valid with invalid parent' do
       epic = build(:epic, group: group, parent: create(:epic))
+
+      expect(epic).not_to be_valid
+    end
+
+    it 'is valid if epic is confidential and has only confidential issues' do
+      issue = create(:issue, :confidential)
+      epic = create(:epic_issue, issue: issue).epic
+
+      epic.confidential = true
+
+      expect(epic).to be_valid
+    end
+
+    it 'is not valid if epic is confidential and has not-confidential issues' do
+      epic = create(:epic_issue).epic
+
+      epic.confidential = true
+
+      expect(epic).not_to be_valid
+    end
+
+    it 'is valid if epic is confidential and has only confidential subepics' do
+      epic = create(:epic, group: group)
+      create(:epic, :confidential, parent: epic, group: group)
+
+      epic.confidential = true
+
+      expect(epic).to be_valid
+    end
+
+    it 'is not valid if epic is confidential and has not-confidential subepics' do
+      epic = create(:epic, group: group)
+      create(:epic, parent: epic, group: group)
+
+      epic.confidential = true
 
       expect(epic).not_to be_valid
     end
@@ -285,7 +345,7 @@ describe Epic do
   end
 
   it_behaves_like 'within_timeframe scope' do
-    let_it_be(:now) { Time.now }
+    let_it_be(:now) { Time.current }
     let_it_be(:group) { create(:group) }
     let_it_be(:resource_1) { create(:epic, group: group, start_date: now - 1.day, end_date: now + 1.day) }
     let_it_be(:resource_2) { create(:epic, group: group, start_date: now + 2.days, end_date: now + 3.days) }
@@ -398,7 +458,7 @@ describe Epic do
   describe '#close' do
     subject(:epic) { create(:epic, state: 'opened') }
 
-    it 'sets closed_at to Time.now when an epic is closed' do
+    it 'sets closed_at to Time.current when an epic is closed' do
       expect { epic.close }.to change { epic.closed_at }.from(nil)
     end
 
@@ -408,7 +468,7 @@ describe Epic do
   end
 
   describe '#reopen' do
-    subject(:epic) { create(:epic, state: 'closed', closed_at: Time.now, closed_by: user) }
+    subject(:epic) { create(:epic, state: 'closed', closed_at: Time.current, closed_by: user) }
 
     it 'sets closed_at to nil when an epic is reopend' do
       expect { epic.reopen }.to change { epic.closed_at }.to(nil)
@@ -502,6 +562,20 @@ describe Epic do
       create(:epic_issue, epic: epic, issue: create(:issue))
 
       expect(epic.has_issues?).to be_truthy
+    end
+  end
+
+  describe '#has_parent?' do
+    let_it_be(:epic, reload: true) { create(:epic, group: group) }
+
+    it 'has no parent' do
+      expect(epic.has_parent?).to be_falsey
+    end
+
+    it 'has parent' do
+      create(:epic, group: group, children: [epic])
+
+      expect(epic.has_parent?).to be_truthy
     end
   end
 

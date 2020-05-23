@@ -11,7 +11,7 @@ class Projects::IssuesController < Projects::ApplicationController
   include RecordUserLastActivity
 
   def issue_except_actions
-    %i[index calendar new create bulk_update import_csv]
+    %i[index calendar new create bulk_update import_csv export_csv]
   end
 
   def set_issuables_index_only_actions
@@ -20,8 +20,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss) }
   prepend_before_action(only: [:calendar]) { authenticate_sessionless_user!(:ics) }
-  prepend_before_action :authenticate_user!, only: [:new]
-  # designs is only applicable to EE, but defining a prepend_before_action in EE code would overwrite this
+  prepend_before_action :authenticate_user!, only: [:new, :export_csv]
   prepend_before_action :store_uri, only: [:new, :show, :designs]
 
   before_action :whitelist_query_limiting, only: [:create, :create_merge_request, :move, :bulk_update]
@@ -42,13 +41,16 @@ class Projects::IssuesController < Projects::ApplicationController
   before_action :authorize_import_issues!, only: [:import_csv]
   before_action :authorize_download_code!, only: [:related_branches]
 
+  # Limit the amount of issues created per minute
+  before_action :create_rate_limit, only: [:create]
+
   before_action do
     push_frontend_feature_flag(:vue_issuable_sidebar, project.group)
     push_frontend_feature_flag(:save_issuable_health_status, project.group, default_enabled: true)
   end
 
   before_action only: :show do
-    push_frontend_feature_flag(:sort_discussions, @project)
+    push_frontend_feature_flag(:real_time_issue_sidebar, @project)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:discussions]
@@ -82,11 +84,13 @@ class Projects::IssuesController < Projects::ApplicationController
     )
     build_params = issue_params.merge(
       merge_request_to_resolve_discussions_of: params[:merge_request_to_resolve_discussions_of],
-      discussion_to_resolve: params[:discussion_to_resolve]
+      discussion_to_resolve: params[:discussion_to_resolve],
+      confidential: !!Gitlab::Utils.to_boolean(params[:issue][:confidential])
     )
     service = Issues::BuildService.new(project, current_user, build_params)
 
     @issue = @noteable = service.execute
+
     @merge_request_to_resolve_discussions_of = service.merge_request_to_resolve_discussions_of
     @discussion_to_resolve = service.discussions_to_resolve.first if params[:discussion_to_resolve]
 
@@ -155,7 +159,10 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   def related_branches
-    @related_branches = Issues::RelatedBranchesService.new(project, current_user).execute(issue)
+    @related_branches = Issues::RelatedBranchesService
+      .new(project, current_user)
+      .execute(issue)
+      .map { |branch| branch.merge(link: branch_link(branch)) }
 
     respond_to do |format|
       format.json do
@@ -180,14 +187,22 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def create_merge_request
     create_params = params.slice(:branch_name, :ref).merge(issue_iid: issue.iid)
-    create_params[:target_project_id] = params[:target_project_id] if helpers.create_confidential_merge_request_enabled?
+    create_params[:target_project_id] = params[:target_project_id]
     result = ::MergeRequests::CreateFromIssueService.new(project, current_user, create_params).execute
 
     if result[:status] == :success
       render json: MergeRequestCreateSerializer.new.represent(result[:merge_request])
     else
-      render json: result[:messsage], status: :unprocessable_entity
+      render json: result[:message], status: :unprocessable_entity
     end
+  end
+
+  def export_csv
+    ExportCsvWorker.perform_async(current_user.id, project.id, finder_options.to_h) # rubocop:disable CodeReuse/Worker
+
+    index_path = project_issues_path(project)
+    message = _('Your CSV export has started. It will be emailed to %{email} when complete.') % { email: current_user.notification_email }
+    redirect_to(index_path, notice: message)
   end
 
   def import_csv
@@ -295,6 +310,26 @@ class Projects::IssuesController < Projects::ApplicationController
     # 2. https://gitlab.com/gitlab-org/gitlab-foss/issues/42424
     # 3. https://gitlab.com/gitlab-org/gitlab-foss/issues/42426
     Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42422')
+  end
+
+  private
+
+  def branch_link(branch)
+    project_compare_path(project, from: project.default_branch, to: branch[:name])
+  end
+
+  def create_rate_limit
+    key = :issues_create
+
+    if rate_limiter.throttled?(key, scope: [@project, @current_user])
+      rate_limiter.log_request(request, "#{key}_request_limit".to_sym, current_user)
+
+      render plain: _('This endpoint has been requested too many times. Try again later.'), status: :too_many_requests
+    end
+  end
+
+  def rate_limiter
+    ::Gitlab::ApplicationRateLimiter
   end
 end
 

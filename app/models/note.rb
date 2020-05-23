@@ -83,6 +83,7 @@ class Note < ApplicationRecord
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
   has_one :system_note_metadata
   has_one :note_diff_file, inverse_of: :diff_note, foreign_key: :diff_note_id
+  has_many :diff_note_positions
 
   delegate :gfm_reference, :local_reference, to: :noteable
   delegate :name, to: :project, prefix: true
@@ -124,7 +125,7 @@ class Note < ApplicationRecord
   scope :inc_author, -> { includes(:author) }
   scope :inc_relations_for_view, -> do
     includes(:project, { author: :status }, :updated_by, :resolved_by, :award_emoji,
-             { system_note_metadata: :description_version }, :note_diff_file, :suggestions)
+             { system_note_metadata: :description_version }, :note_diff_file, :diff_note_positions, :suggestions)
   end
 
   scope :with_notes_filter, -> (notes_filter) do
@@ -158,6 +159,8 @@ class Note < ApplicationRecord
   after_save :touch_noteable, unless: :importing?
   after_destroy :expire_etag_cache
   after_save :store_mentions!, if: :any_mentionable_attributes_changed?
+  after_commit :notify_after_create, on: :create
+  after_commit :notify_after_destroy, on: :destroy
 
   class << self
     def model_name
@@ -276,6 +279,10 @@ class Note < ApplicationRecord
 
   def for_project_noteable?
     !for_personal_snippet?
+  end
+
+  def for_design?
+    noteable_type == DesignManagement::Design.name
   end
 
   def for_issuable?
@@ -502,6 +509,14 @@ class Note < ApplicationRecord
 
     # We return the noteable object so we can re-use it in EE for Elasticsearch.
     noteable_object
+  end
+
+  def notify_after_create
+    noteable&.after_note_created(self)
+  end
+
+  def notify_after_destroy
+    noteable&.after_note_destroyed(self)
   end
 
   def banzai_render_context(field)

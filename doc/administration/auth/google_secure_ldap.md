@@ -4,7 +4,7 @@ type: reference
 
 # Google Secure LDAP **(CORE ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46391) in GitLab 11.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46391) in GitLab 11.9.
 
 [Google Cloud Identity](https://cloud.google.com/identity/) provides a Secure
 LDAP service that can be configured with GitLab for authentication and group sync.
@@ -133,7 +133,7 @@ values obtained during the LDAP client configuration earlier:
    EOS
    ```
 
-1. Save the file and [reconfigure] GitLab for the changes to take effect.
+1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure) GitLab for the changes to take effect.
 
 ---
 
@@ -204,10 +204,7 @@ values obtained during the LDAP client configuration earlier:
              -----END PRIVATE KEY-----
    ```
 
-1. Save the file and [restart] GitLab for the changes to take effect.
-
-[reconfigure]: ../restart_gitlab.md#omnibus-gitlab-reconfigure
-[restart]: ../restart_gitlab.md#installations-from-source
+1. Save the file and [restart](../restart_gitlab.md#installations-from-source) GitLab for the changes to take effect.
 
 <!-- ## Troubleshooting
 

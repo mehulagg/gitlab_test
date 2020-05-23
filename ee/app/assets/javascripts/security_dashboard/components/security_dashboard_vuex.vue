@@ -6,7 +6,7 @@ import Filters from './filters.vue';
 import SecurityDashboardLayout from './security_dashboard_layout.vue';
 import SecurityDashboardTable from './security_dashboard_table.vue';
 import VulnerabilityChart from './vulnerability_chart.vue';
-import VulnerabilityCountList from './vulnerability_count_list.vue';
+import VulnerabilityCountList from './vulnerability_count_list_vuex.vue';
 import VulnerabilitySeverity from './vulnerability_severity.vue';
 import LoadingError from './loading_error.vue';
 
@@ -57,6 +57,11 @@ export default {
       default: null,
     },
     loadingErrorIllustrations: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+    securityReportSummary: {
       type: Object,
       required: false,
       default: () => ({}),
@@ -163,7 +168,7 @@ export default {
       <security-dashboard-layout>
         <template #header>
           <vulnerability-count-list v-if="shouldShowCountList" />
-          <filters />
+          <filters :security-report-summary="securityReportSummary" />
         </template>
 
         <security-dashboard-table>

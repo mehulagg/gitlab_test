@@ -250,7 +250,7 @@ describe Projects::FeatureFlagsController do
       {
         namespace_id: project.namespace,
         project_id: project,
-        id: feature_flag.id
+        iid: feature_flag.iid
       }
     end
 
@@ -266,6 +266,41 @@ describe Projects::FeatureFlagsController do
       is_expected.to match_response_schema('feature_flag', dir: 'ee')
     end
 
+    it 'routes based on iid' do
+      other_project = create(:project)
+      other_project.add_developer(user)
+      other_feature_flag = create(:operations_feature_flag, project: other_project,
+                                  name: 'other_flag')
+      params = {
+        namespace_id: other_project.namespace,
+        project_id: other_project,
+        iid: other_feature_flag.iid
+      }
+
+      get(:show, params: params, format: :json)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['name']).to eq(other_feature_flag.name)
+    end
+
+    it 'routes based on iid when new version flags are disabled' do
+      stub_feature_flags(feature_flags_new_version: false)
+      other_project = create(:project)
+      other_project.add_developer(user)
+      other_feature_flag = create(:operations_feature_flag, project: other_project,
+                                  name: 'other_flag')
+      params = {
+        namespace_id: other_project.namespace,
+        project_id: other_project,
+        iid: other_feature_flag.iid
+      }
+
+      get(:show, params: params, format: :json)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['name']).to eq(other_feature_flag.name)
+    end
+
     context 'when feature flag is not found' do
       let!(:feature_flag) { }
 
@@ -273,7 +308,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: 1
+          iid: 1
         }
       end
 
@@ -339,7 +374,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_feature_flag.id
+          iid: new_version_feature_flag.iid
         }
       end
 
@@ -357,6 +392,15 @@ describe Projects::FeatureFlagsController do
         subject
 
         expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it 'returns strategies ordered by id' do
+        first_strategy = create(:operations_strategy, feature_flag: new_version_feature_flag)
+        second_strategy = create(:operations_strategy, feature_flag: new_version_feature_flag)
+
+        subject
+
+        expect(json_response['strategies'].map { |s| s['id'] }).to eq([first_strategy.id, second_strategy.id])
       end
     end
   end
@@ -649,6 +693,50 @@ describe Projects::FeatureFlagsController do
       end
     end
 
+    context 'when creating a version 2 feature flag with a gitlabUserList strategy' do
+      let!(:user_list) do
+        create(:operations_feature_flag_user_list, project: project,
+               name: 'My List', user_xids: 'user1,user2')
+      end
+
+      let(:params) do
+        {
+          namespace_id: project.namespace,
+          project_id: project,
+          operations_feature_flag: {
+            name: 'my_feature_flag',
+            active: true,
+            version: 'new_version_flag',
+            strategies_attributes: [{
+              name: 'gitlabUserList',
+              parameters: {},
+              user_list_id: user_list.id,
+              scopes_attributes: [{ environment_scope: 'production' }]
+            }]
+          }
+        }
+      end
+
+      it 'creates the new strategy' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['strategies']).to match([a_hash_including({
+          'name' => 'gitlabUserList',
+          'parameters' => {},
+          'user_list' => {
+            'id' => user_list.id,
+            'iid' => user_list.iid,
+            'name' => 'My List',
+            'user_xids' => 'user1,user2'
+          },
+          'scopes' => [a_hash_including({
+            'environment_scope' => 'production'
+          })]
+        })])
+      end
+    end
+
     context 'when version parameter is invalid' do
       let(:params) do
         {
@@ -729,7 +817,7 @@ describe Projects::FeatureFlagsController do
       {
         namespace_id: project.namespace,
         project_id: project,
-        id: feature_flag.id
+        iid: feature_flag.iid
       }
     end
 
@@ -762,7 +850,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: 0
+          iid: 0
         }
       end
 
@@ -785,7 +873,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id
+          iid: new_version_flag.iid
         }
       end
 
@@ -818,7 +906,7 @@ describe Projects::FeatureFlagsController do
       {
         namespace_id: project.namespace,
         project_id: project,
-        id: feature_flag.id,
+        iid: feature_flag.iid,
         operations_feature_flag: {
           name: 'ci_new_live_trace'
         }
@@ -844,7 +932,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             active: false
           }
@@ -868,7 +956,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: { active: true }
         }
         put(:update, params: params, format: :json)
@@ -894,7 +982,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [{ environment_scope: 'production', active: false }]
           }
@@ -914,7 +1002,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [{ environment_scope: '*', active: false }]
           }
@@ -931,7 +1019,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [
               {
@@ -957,7 +1045,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [
               {
@@ -979,7 +1067,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [
               {
@@ -1002,7 +1090,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [
               {
@@ -1028,7 +1116,7 @@ describe Projects::FeatureFlagsController do
         {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [
               {
@@ -1154,7 +1242,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [{ id: scope.id }]
           }
@@ -1178,7 +1266,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: feature_flag.id,
+          iid: feature_flag.iid,
           operations_feature_flag: {
             scopes_attributes: [{ id: scope.id }]
           }
@@ -1220,7 +1308,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             strategies_attributes: [{
               name: 'userWithId',
@@ -1250,7 +1338,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             strategies_attributes: [{
               name: 'gradualRolloutUserId',
@@ -1272,12 +1360,120 @@ describe Projects::FeatureFlagsController do
         expect(strategy_json['scopes']).to eq([])
       end
 
+      it 'creates a gitlabUserList strategy' do
+        user_list = create(:operations_feature_flag_user_list, project: project, name: 'My List', user_xids: 'user1,user2')
+        params = {
+          namespace_id: project.namespace,
+          project_id: project,
+          iid: new_version_flag.iid,
+          operations_feature_flag: {
+            strategies_attributes: [{
+              name: 'gitlabUserList',
+              parameters: {},
+              user_list_id: user_list.id
+            }]
+          }
+        }
+
+        put(:update, params: params, format: :json)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['strategies']).to match([a_hash_including({
+          'id' => an_instance_of(Integer),
+          'name' => 'gitlabUserList',
+          'parameters' => {},
+          'user_list' => {
+            'id' => user_list.id,
+            'iid' => user_list.iid,
+            'name' => 'My List',
+            'user_xids' => 'user1,user2'
+          },
+          'scopes' => []
+        })])
+      end
+
+      it 'supports switching the associated user list for an existing gitlabUserList strategy' do
+        user_list = create(:operations_feature_flag_user_list, project: project, name: 'My List', user_xids: 'user1,user2')
+        strategy = create(:operations_strategy, feature_flag: new_version_flag, name: 'gitlabUserList', parameters: {}, user_list: user_list)
+        other_user_list = create(:operations_feature_flag_user_list, project: project, name: 'Other List', user_xids: 'user3')
+        params = {
+          namespace_id: project.namespace,
+          project_id: project,
+          iid: new_version_flag.iid,
+          operations_feature_flag: {
+            strategies_attributes: [{
+              id: strategy.id,
+              user_list_id: other_user_list.id
+            }]
+          }
+        }
+
+        put(:update, params: params, format: :json)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['strategies']).to eq([{
+          'id' => strategy.id,
+          'name' => 'gitlabUserList',
+          'parameters' => {},
+          'user_list' => {
+            'id' => other_user_list.id,
+            'iid' => other_user_list.iid,
+            'name' => 'Other List',
+            'user_xids' => 'user3'
+          },
+          'scopes' => []
+        }])
+      end
+
+      it 'does not delete a user list when deleting a gitlabUserList strategy' do
+        user_list = create(:operations_feature_flag_user_list, project: project, name: 'My List', user_xids: 'user1,user2')
+        strategy = create(:operations_strategy, feature_flag: new_version_flag, name: 'gitlabUserList', parameters: {}, user_list: user_list)
+        params = {
+          namespace_id: project.namespace,
+          project_id: project,
+          iid: new_version_flag.iid,
+          operations_feature_flag: {
+            strategies_attributes: [{
+              id: strategy.id,
+              _destroy: true
+            }]
+          }
+        }
+
+        put(:update, params: params, format: :json)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['strategies']).to eq([])
+        expect(::Operations::FeatureFlags::Strategy.count).to eq(0)
+        expect(::Operations::FeatureFlags::StrategyUserList.count).to eq(0)
+        expect(::Operations::FeatureFlags::UserList.first).to eq(user_list)
+      end
+
+      it 'returns not found when trying to create a gitlabUserList strategy with an invalid user list id' do
+        params = {
+          namespace_id: project.namespace,
+          project_id: project,
+          iid: new_version_flag.iid,
+          operations_feature_flag: {
+            strategies_attributes: [{
+              name: 'gitlabUserList',
+              parameters: {},
+              user_list_id: 1
+            }]
+          }
+        }
+
+        put(:update, params: params, format: :json)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
       it 'updates an existing strategy' do
         strategy = create(:operations_strategy, feature_flag: new_version_flag, name: 'default', parameters: {})
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             strategies_attributes: [{
               id: strategy.id,
@@ -1304,7 +1500,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             strategies_attributes: [{
               id: strategy.id,
@@ -1330,7 +1526,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             strategies_attributes: [{
               id: strategy.id,
@@ -1351,7 +1547,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             strategies_attributes: [{
               id: strategy.id,
@@ -1374,7 +1570,7 @@ describe Projects::FeatureFlagsController do
         params = {
           namespace_id: project.namespace,
           project_id: project,
-          id: new_version_flag.id,
+          iid: new_version_flag.iid,
           operations_feature_flag: {
             name: 'some-other-name'
           }

@@ -71,7 +71,7 @@ describe Projects::MirrorsController do
         stub_application_setting(mirror_available: false)
       end
 
-      context 'when user is admin' do
+      context 'when user is admin', :enable_admin_mode do
         let(:admin) { create(:user, :admin) }
 
         it 'creates a new mirror' do
@@ -122,9 +122,11 @@ describe Projects::MirrorsController do
       project = create(:project, :mirror)
       sign_in(project.owner)
 
-      expect_any_instance_of(EE::ProjectImportState).to receive(:force_import_job!)
-
-      put :update_now, params: { namespace_id: project.namespace.to_param, project_id: project.to_param }
+      Sidekiq::Testing.fake! do
+        expect { put :update_now, params: { namespace_id: project.namespace.to_param, project_id: project.to_param } }
+          .to change { UpdateAllMirrorsWorker.jobs.size }
+          .by(1)
+      end
     end
   end
 
@@ -170,7 +172,7 @@ describe Projects::MirrorsController do
         expect(response).to have_gitlab_http_status(:ok)
 
         import_data = project.reload_import_data
-        expect(import_data.ssh_known_hosts_verified_at).to be_within(1.minute).of(Time.now)
+        expect(import_data.ssh_known_hosts_verified_at).to be_within(1.minute).of(Time.current)
         expect(import_data.ssh_known_hosts_verified_by).to eq(project.owner)
       end
 

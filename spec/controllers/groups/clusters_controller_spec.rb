@@ -32,7 +32,7 @@ describe Groups::ClustersController do
           create(:cluster, :disabled, :provided_by_gcp, :production_environment, cluster_type: :group_type, groups: [group])
         end
 
-        it 'lists available clusters' do
+        it 'lists available clusters and renders html' do
           go
 
           expect(response).to have_gitlab_http_status(:ok)
@@ -40,19 +40,38 @@ describe Groups::ClustersController do
           expect(assigns(:clusters)).to match_array([enabled_cluster, disabled_cluster])
         end
 
+        it 'lists available clusters with json serializer' do
+          go(format: :json)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('cluster_list')
+        end
+
         context 'when page is specified' do
           let(:last_page) { group.clusters.page.total_pages }
+          let(:total_count) { group.clusters.page.total_count }
 
           before do
-            allow(Clusters::Cluster).to receive(:paginates_per).and_return(1)
-            create_list(:cluster, 2, :provided_by_gcp, :production_environment, cluster_type: :group_type, groups: [group])
+            create_list(:cluster, 30, :provided_by_gcp, :production_environment, cluster_type: :group_type, groups: [group])
           end
 
           it 'redirects to the page' do
+            expect(last_page).to be > 1
+
             go(page: last_page)
 
             expect(response).to have_gitlab_http_status(:ok)
             expect(assigns(:clusters).current_page).to eq(last_page)
+          end
+
+          it 'displays cluster list for associated page' do
+            expect(last_page).to be > 1
+
+            go(page: last_page, format: :json)
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(response.headers['X-Page'].to_i).to eq(last_page)
+            expect(response.headers['X-Total'].to_i).to eq(total_count)
           end
         end
       end
@@ -388,7 +407,7 @@ describe Groups::ClustersController do
 
       cluster = group.clusters.first
 
-      expect(response.status).to eq(201)
+      expect(response).to have_gitlab_http_status(:created)
       expect(response.location).to eq(group_cluster_path(group, cluster))
       expect(cluster).to be_aws
       expect(cluster).to be_kubernetes
@@ -404,7 +423,7 @@ describe Groups::ClustersController do
       it 'does not create a cluster' do
         expect { post_create_aws }.not_to change { Clusters::Cluster.count }
 
-        expect(response.status).to eq(422)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
         expect(response.content_type).to eq('application/json')
         expect(response.body).to include('is invalid')
       end
@@ -451,7 +470,7 @@ describe Groups::ClustersController do
     it 'creates an Aws::Role record' do
       expect { go }.to change { Aws::Role.count }
 
-      expect(response.status).to eq 200
+      expect(response).to have_gitlab_http_status(:ok)
 
       role = Aws::Role.last
       expect(role.user).to eq user
@@ -465,7 +484,7 @@ describe Groups::ClustersController do
       it 'does not create a record' do
         expect { go }.not_to change { Aws::Role.count }
 
-        expect(response.status).to eq 422
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
       end
     end
 

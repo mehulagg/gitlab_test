@@ -3,36 +3,25 @@ import BlobEmbeddable from '~/blob/components/blob_embeddable.vue';
 import { SNIPPET_VISIBILITY_PUBLIC } from '../constants';
 import BlobHeader from '~/blob/components/blob_header.vue';
 import BlobContent from '~/blob/components/blob_content.vue';
-import { GlLoadingIcon } from '@gitlab/ui';
+import CloneDropdownButton from '~/vue_shared/components/clone_dropdown.vue';
 
-import GetSnippetBlobQuery from '../queries/snippet.blob.query.graphql';
 import GetBlobContent from '../queries/snippet.blob.content.query.graphql';
 
-import { SIMPLE_BLOB_VIEWER, RICH_BLOB_VIEWER } from '~/blob/components/constants';
+import {
+  SIMPLE_BLOB_VIEWER,
+  RICH_BLOB_VIEWER,
+  BLOB_RENDER_EVENT_LOAD,
+  BLOB_RENDER_EVENT_SHOW_SOURCE,
+} from '~/blob/components/constants';
 
 export default {
   components: {
     BlobEmbeddable,
     BlobHeader,
     BlobContent,
-    GlLoadingIcon,
+    CloneDropdownButton,
   },
   apollo: {
-    blob: {
-      query: GetSnippetBlobQuery,
-      variables() {
-        return {
-          ids: this.snippet.id,
-        };
-      },
-      update: data => data.snippets.edges[0].node.blob,
-      result(res) {
-        const viewer = res.data.snippets.edges[0].node.blob.richViewer
-          ? RICH_BLOB_VIEWER
-          : SIMPLE_BLOB_VIEWER;
-        this.switchViewer(viewer, true);
-      },
-    },
     blobContent: {
       query: GetBlobContent,
       variables() {
@@ -43,6 +32,16 @@ export default {
       },
       update: data =>
         data.snippets.edges[0].node.blob.richData || data.snippets.edges[0].node.blob.plainData,
+      result() {
+        if (this.activeViewerType === RICH_BLOB_VIEWER) {
+          this.blob.richViewer.renderError = null;
+        } else {
+          this.blob.simpleViewer.renderError = null;
+        }
+      },
+      skip() {
+        return this.viewer.renderError;
+      },
     },
   },
   props: {
@@ -53,17 +52,17 @@ export default {
   },
   data() {
     return {
-      blob: {},
+      blob: this.snippet.blob,
       blobContent: '',
-      activeViewerType: window.location.hash ? SIMPLE_BLOB_VIEWER : '',
+      activeViewerType:
+        this.snippet.blob?.richViewer && !window.location.hash
+          ? RICH_BLOB_VIEWER
+          : SIMPLE_BLOB_VIEWER,
     };
   },
   computed: {
     embeddable() {
       return this.snippet.visibilityLevel === SNIPPET_VISIBILITY_PUBLIC;
-    },
-    isBlobLoading() {
-      return this.$apollo.queries.blob.loading;
     },
     isContentLoading() {
       return this.$apollo.queries.blobContent.loading;
@@ -72,26 +71,46 @@ export default {
       const { richViewer, simpleViewer } = this.blob;
       return this.activeViewerType === RICH_BLOB_VIEWER ? richViewer : simpleViewer;
     },
-  },
-  methods: {
-    switchViewer(newViewer, respectHash = false) {
-      this.activeViewerType = respectHash && window.location.hash ? SIMPLE_BLOB_VIEWER : newViewer;
+    canBeCloned() {
+      return this.snippet.sshUrlToRepo || this.snippet.httpUrlToRepo;
     },
   },
+  methods: {
+    switchViewer(newViewer) {
+      this.activeViewerType = newViewer || SIMPLE_BLOB_VIEWER;
+    },
+    forceQuery() {
+      this.$apollo.queries.blobContent.skip = false;
+      this.$apollo.queries.blobContent.refetch();
+    },
+  },
+  BLOB_RENDER_EVENT_LOAD,
+  BLOB_RENDER_EVENT_SHOW_SOURCE,
 };
 </script>
 <template>
   <div>
     <blob-embeddable v-if="embeddable" class="mb-3" :url="snippet.webUrl" />
-    <gl-loading-icon
-      v-if="isBlobLoading"
-      :label="__('Loading blob')"
-      size="lg"
-      class="prepend-top-20 append-bottom-20"
-    />
-    <article v-else class="file-holder snippet-file-content">
-      <blob-header :blob="blob" :active-viewer-type="viewer.type" @viewer-changed="switchViewer" />
-      <blob-content :loading="isContentLoading" :content="blobContent" :active-viewer="viewer" />
+    <article class="file-holder snippet-file-content">
+      <blob-header :blob="blob" :active-viewer-type="viewer.type" @viewer-changed="switchViewer">
+        <template #actions>
+          <clone-dropdown-button
+            v-if="canBeCloned"
+            class="mr-2"
+            :ssh-link="snippet.sshUrlToRepo"
+            :http-link="snippet.httpUrlToRepo"
+            data-qa-selector="clone_button"
+          />
+        </template>
+      </blob-header>
+      <blob-content
+        :loading="isContentLoading"
+        :content="blobContent"
+        :active-viewer="viewer"
+        :blob="blob"
+        @[$options.BLOB_RENDER_EVENT_LOAD]="forceQuery"
+        @[$options.BLOB_RENDER_EVENT_SHOW_SOURCE]="switchViewer"
+      />
     </article>
   </div>
 </template>

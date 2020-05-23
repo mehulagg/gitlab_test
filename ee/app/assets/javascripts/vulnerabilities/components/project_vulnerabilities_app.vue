@@ -1,6 +1,6 @@
 <script>
 import { s__ } from '~/locale';
-import { GlAlert, GlButton, GlEmptyState, GlIntersectionObserver } from '@gitlab/ui';
+import { GlAlert, GlDeprecatedButton, GlEmptyState, GlIntersectionObserver } from '@gitlab/ui';
 import VulnerabilityList from 'ee/vulnerabilities/components/vulnerability_list.vue';
 import vulnerabilitiesQuery from '../graphql/project_vulnerabilities.graphql';
 import { VULNERABILITIES_PER_PAGE } from '../constants';
@@ -9,7 +9,7 @@ export default {
   name: 'ProjectVulnerabilitiesApp',
   components: {
     GlAlert,
-    GlButton,
+    GlDeprecatedButton,
     GlEmptyState,
     GlIntersectionObserver,
     VulnerabilityList,
@@ -27,6 +27,11 @@ export default {
       type: String,
       required: true,
     },
+    filters: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
   },
   data() {
     return {
@@ -42,6 +47,7 @@ export default {
         return {
           fullPath: this.projectFullPath,
           first: VULNERABILITIES_PER_PAGE,
+          ...this.filters,
         };
       },
       update: ({ project }) => project.vulnerabilities.nodes,
@@ -77,9 +83,12 @@ export default {
         });
       }
     },
+    refetchVulnerabilities() {
+      this.$apollo.queries.vulnerabilities.refetch();
+    },
   },
   emptyStateDescription: s__(
-    `While it's rare to have no vulnerabilities for your project, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly.`,
+    `SecurityReports|While it's rare to have no vulnerabilities for your project, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly.`,
   ),
 };
 </script>
@@ -89,7 +98,7 @@ export default {
     <gl-alert v-if="errorLoadingVulnerabilities" :dismissible="false" variant="danger">
       {{
         s__(
-          'Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again.',
+          'SecurityReports|Error fetching the vulnerability list. Please check your network connection and try again.',
         )
       }}
     </gl-alert>
@@ -98,15 +107,18 @@ export default {
       :is-loading="isLoadingFirstVulnerabilities"
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
+      :filters="filters"
+      should-show-selection
       :vulnerabilities="vulnerabilities"
+      @refetch-vulnerabilities="refetchVulnerabilities"
     >
       <template #emptyState>
         <gl-empty-state
-          :title="s__(`No vulnerabilities found for this project`)"
+          :title="s__(`SecurityReports|No vulnerabilities found for this project`)"
           :svg-path="emptyStateSvgPath"
-          :description="$options.emptyStateDecription"
+          :description="$options.emptyStateDescription"
           :primary-button-link="dashboardDocumentation"
-          :primary-button-text="s__('Security Reports|Learn more about setting up your dashboard')"
+          :primary-button-text="s__('SecurityReports|Learn more about setting up your dashboard')"
         />
       </template>
     </vulnerability-list>
@@ -115,11 +127,11 @@ export default {
       class="text-center"
       @appear="fetchNextPage"
     >
-      <gl-button
+      <gl-deprecated-button
         :loading="isLoadingVulnerabilities"
         :disabled="isLoadingVulnerabilities"
         @click="fetchNextPage"
-        >{{ __('Load more vulnerabilities') }}</gl-button
+        >{{ s__('SecurityReports|Load more vulnerabilities') }}</gl-deprecated-button
       >
     </gl-intersection-observer>
   </div>

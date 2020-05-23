@@ -1,12 +1,15 @@
 <script>
-import { mapState, mapActions } from 'vuex';
-import { GlButton, GlLink, GlFormInput, GlFormGroup } from '@gitlab/ui';
-import { escape as esc } from 'lodash';
+import { mapState, mapActions, mapGetters } from 'vuex';
+import { GlButton, GlFormInput, GlFormGroup } from '@gitlab/ui';
+import { escape } from 'lodash';
 import { __, sprintf } from '~/locale';
 import MarkdownField from '~/vue_shared/components/markdown/field.vue';
 import autofocusonshow from '~/vue_shared/directives/autofocusonshow';
 import { BACK_URL_PARAM } from '~/releases/constants';
 import { getParameterByName } from '~/lib/utils/common_utils';
+import AssetLinksForm from './asset_links_form.vue';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import MilestoneCombobox from '~/milestones/project_milestone_combobox.vue';
 
 export default {
   name: 'ReleaseEditApp',
@@ -14,28 +17,36 @@ export default {
     GlFormInput,
     GlFormGroup,
     GlButton,
-    GlLink,
     MarkdownField,
+    AssetLinksForm,
+    MilestoneCombobox,
   },
   directives: {
     autofocusonshow,
   },
+  mixins: [glFeatureFlagsMixin()],
   computed: {
     ...mapState('detail', [
       'isFetchingRelease',
+      'isUpdatingRelease',
       'fetchError',
       'markdownDocsPath',
       'markdownPreviewPath',
       'releasesPagePath',
       'updateReleaseApiDocsPath',
+      'release',
+      'newMilestonePath',
+      'manageMilestonesPath',
+      'projectId',
     ]),
+    ...mapGetters('detail', ['isValid']),
     showForm() {
       return !this.isFetchingRelease && !this.fetchError;
     },
     subtitleText() {
       return sprintf(
         __(
-          'Releases are based on Git tags. We recommend naming tags that fit within semantic versioning, for example %{codeStart}v1.0%{codeEnd}, %{codeStart}v2.0-pre%{codeEnd}.',
+          'Releases are based on Git tags. We recommend tags that use semantic versioning, for example %{codeStart}v1.0%{codeEnd}, %{codeStart}v2.0-pre%{codeEnd}.',
         ),
         {
           codeStart: '<code>',
@@ -53,7 +64,7 @@ export default {
           'Changing a Release tag is only supported via Releases API. %{linkStart}More information%{linkEnd}',
         ),
         {
-          linkStart: `<a href="${esc(
+          linkStart: `<a href="${escape(
             this.updateReleaseApiDocsPath,
           )}" target="_blank" rel="noopener noreferrer">`,
           linkEnd: '</a>',
@@ -77,8 +88,34 @@ export default {
         this.updateReleaseNotes(notes);
       },
     },
+    releaseMilestones: {
+      get() {
+        return this.$store.state.detail.release.milestones;
+      },
+      set(milestones) {
+        this.updateReleaseMilestones(milestones);
+      },
+    },
     cancelPath() {
       return getParameterByName(BACK_URL_PARAM) || this.releasesPagePath;
+    },
+    showAssetLinksForm() {
+      return this.glFeatures.releaseAssetLinkEditing;
+    },
+    isSaveChangesDisabled() {
+      return this.isUpdatingRelease || !this.isValid;
+    },
+    milestoneComboboxExtraLinks() {
+      return [
+        {
+          text: __('Create new'),
+          url: this.newMilestonePath,
+        },
+        {
+          text: __('Manage milestones'),
+          url: this.manageMilestonesPath,
+        },
+      ];
     },
   },
   created() {
@@ -90,6 +127,7 @@ export default {
       'updateRelease',
       'updateReleaseTitle',
       'updateReleaseNotes',
+      'updateReleaseMilestones',
     ]),
   },
 };
@@ -126,6 +164,16 @@ export default {
           class="form-control"
         />
       </gl-form-group>
+      <gl-form-group class="w-50">
+        <label>{{ __('Milestones') }}</label>
+        <div class="d-flex flex-column col-md-6 col-sm-10 pl-0">
+          <milestone-combobox
+            v-model="releaseMilestones"
+            :project-id="projectId"
+            :extra-links="milestoneComboboxExtraLinks"
+          />
+        </div>
+      </gl-form-group>
       <gl-form-group>
         <label for="release-notes">{{ __('Release notes') }}</label>
         <div class="bordered-box pr-3 pl-3">
@@ -136,35 +184,36 @@ export default {
             :add-spacing-classes="false"
             class="prepend-top-10 append-bottom-10"
           >
-            <textarea
-              id="release-notes"
-              slot="textarea"
-              v-model="releaseNotes"
-              class="note-textarea js-gfm-input js-autosize markdown-area"
-              dir="auto"
-              data-supports-quick-actions="false"
-              :aria-label="__('Release notes')"
-              :placeholder="__('Write your release notes or drag your files here…')"
-              @keydown.meta.enter="updateRelease()"
-              @keydown.ctrl.enter="updateRelease()"
-            >
-            </textarea>
+            <template #textarea>
+              <textarea
+                id="release-notes"
+                v-model="releaseNotes"
+                class="note-textarea js-gfm-input js-autosize markdown-area"
+                dir="auto"
+                data-supports-quick-actions="false"
+                :aria-label="__('Release notes')"
+                :placeholder="__('Write your release notes or drag your files here…')"
+                @keydown.meta.enter="updateRelease()"
+                @keydown.ctrl.enter="updateRelease()"
+              ></textarea>
+            </template>
           </markdown-field>
         </div>
       </gl-form-group>
 
+      <asset-links-form v-if="showAssetLinksForm" />
+
       <div class="d-flex pt-3">
         <gl-button
-          class="mr-auto js-submit-button"
+          class="mr-auto js-no-auto-disable"
+          category="primary"
           variant="success"
           type="submit"
           :aria-label="__('Save changes')"
+          :disabled="isSaveChangesDisabled"
+          >{{ __('Save changes') }}</gl-button
         >
-          {{ __('Save changes') }}
-        </gl-button>
-        <gl-link :href="cancelPath" class="js-cancel-button btn btn-default">
-          {{ __('Cancel') }}
-        </gl-link>
+        <gl-button :href="cancelPath" class="js-cancel-button">{{ __('Cancel') }}</gl-button>
       </div>
     </form>
   </div>

@@ -31,7 +31,8 @@ describe('EE Approvals MRRules', () => {
   };
 
   const findHeaders = () => wrapper.findAll('thead th').wrappers.map(x => x.text());
-  const findRuleName = () => wrapper.find('td.js-name');
+  const findRuleName = () => wrapper.find('.js-name');
+  const findRuleIndicator = () => wrapper.find({ ref: 'indicator' });
   const findRuleMembers = () =>
     wrapper
       .find('td.js-members')
@@ -123,6 +124,22 @@ describe('EE Approvals MRRules', () => {
       wrapper.destroy();
       expect(mockDisconnect).toHaveBeenCalled();
     });
+
+    describe('rule indicator', () => {
+      const falseOverriddenRule = createMRRuleWithSource({ overridden: false });
+
+      it.each`
+        rules                       | indicator                         | desc
+        ${createMRRuleWithSource()} | ${'Overridden'}                   | ${'indicates "Overridden" for overridden rules'}
+        ${createMRRule()}           | ${'Added for this merge request'} | ${'indicates "Added for this merge request" for local rules'}
+        ${falseOverriddenRule}      | ${''}                             | ${'has no indicator for non-overridden rules'}
+      `('$desc', ({ rules, indicator }) => {
+        store.modules.approvals.state.rules = [rules];
+        factory();
+
+        expect(findRuleIndicator().text()).toBe(indicator);
+      });
+    });
   });
 
   describe('when allow multiple rules', () => {
@@ -135,7 +152,7 @@ describe('EE Approvals MRRules', () => {
       store.modules.approvals.state.rules = [createMRRule()];
       factory();
 
-      expect(store.modules.approvals.state.rules.length).toBe(2);
+      expect(store.modules.approvals.state.rules).toHaveLength(2);
     });
 
     it('should always display any_approver first', () => {
@@ -153,7 +170,7 @@ describe('EE Approvals MRRules', () => {
         rule => rule.ruleType === 'any_approver',
       );
 
-      expect(anyApproverCount.length).toBe(1);
+      expect(anyApproverCount).toHaveLength(1);
     });
 
     it('renders headers when there are multiple rules', () => {
@@ -237,7 +254,7 @@ describe('EE Approvals MRRules', () => {
       factory();
 
       expect(store.modules.approvals.state.rules[0].ruleType).toBe('regular');
-      expect(store.modules.approvals.state.rules.length).toBe(1);
+      expect(store.modules.approvals.state.rules).toHaveLength(1);
     });
 
     it('should only show single any_approver rule', () => {
@@ -245,7 +262,7 @@ describe('EE Approvals MRRules', () => {
       factory();
 
       expect(store.modules.approvals.state.rules[0].ruleType).toBe('any_approver');
-      expect(store.modules.approvals.state.rules.length).toBe(1);
+      expect(store.modules.approvals.state.rules).toHaveLength(1);
     });
 
     it('does not show name header for any rule', () => {

@@ -261,7 +261,7 @@ default to 1. You may need to increase this value if you have more
 
 Be sure to restart PostgreSQL for this to take
 effect. See the [PostgreSQL replication
-setup][database-pg-replication] guide for more details.
+setup](database.md#postgresql-replication) guide for more details.
 
 ### Message: `FATAL:  could not start WAL streaming: ERROR:  replication slot "geo_secondary_my_domain_com" does not exist`?
 
@@ -273,7 +273,7 @@ process](database.md) on the **secondary** node .
 
 ### Message: "Command exceeded allowed execution time" when setting up replication?
 
-This may happen while [initiating the replication process][database-start-replication] on the **secondary** node,
+This may happen while [initiating the replication process](database.md#step-3-initiate-the-replication-process) on the **secondary** node,
 and indicates that your initial dataset is too large to be replicated in the default timeout (30 minutes).
 
 Re-run `gitlab-ctl replicate-geo-database`, but include a larger value for
@@ -332,7 +332,7 @@ some of these queries will never be able to complete due to being canceled
 every time.
 
 These long-running queries are
-[planned to be removed in the future](https://gitlab.com/gitlab-org/gitlab/issues/34269),
+[planned to be removed in the future](https://gitlab.com/gitlab-org/gitlab/-/issues/34269),
 but as a workaround, we recommend enabling
 [hot_standby_feedback](https://www.postgresql.org/docs/10/hot-standby.html#HOT-STANDBY-CONFLICT).
 This increases the likelihood of bloat on the **primary** node as it prevents
@@ -353,7 +353,7 @@ sudo gitlab-ctl reconfigure
 ```
 
 To help us resolve this problem, consider commenting on
-[the issue](https://gitlab.com/gitlab-org/gitlab/issues/4489).
+[the issue](https://gitlab.com/gitlab-org/gitlab/-/issues/4489).
 
 ### Message: `LOG:  invalid CIDR mask in address`
 
@@ -405,7 +405,7 @@ long enough to accommodate a full clone of your largest repositories.
 
 If new LFS objects are never replicated to secondary Geo nodes, check the version of
 GitLab you are running. GitLab versions 11.11.x or 12.0.x are affected by
-[a bug that results in new LFS objects not being replicated to Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/issues/32696).
+[a bug that results in new LFS objects not being replicated to Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/-/issues/32696).
 
 To resolve the issue, upgrade to GitLab 12.1 or newer.
 
@@ -486,15 +486,21 @@ to start again from scratch, there are a few steps that can help you:
 1. Reset the Tracking Database
 
    ```shell
-   gitlab-rake geo:db:drop
-   gitlab-ctl reconfigure
-   gitlab-rake geo:db:setup
+   gitlab-rake geo:db:drop  # on a secondary app node
+   gitlab-ctl reconfigure   # on the tracking database node
+   gitlab-rake geo:db:setup # on a secondary app node
    ```
 
 1. Restart previously stopped services
 
    ```shell
    gitlab-ctl start
+   ```
+
+1. Refresh Foreign Data Wrapper tables
+
+   ```shell
+   gitlab-rake geo:db:refresh_foreign_tables
    ```
 
 ## Fixing errors during a failover or when promoting a secondary to a primary node
@@ -538,10 +544,31 @@ or `gitlab-ctl promote-to-primary-node`, either:
   bug](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22021) was
   fixed.
 
+### Message: ``NoMethodError: undefined method `secondary?' for nil:NilClass``
+
+When [promoting a **secondary** node](../disaster_recovery/index.md#step-3-promoting-a-secondary-node),
+you might encounter the following error:
+
+```plaintext
+sudo gitlab-rake geo:set_secondary_as_primary
+
+rake aborted!
+NoMethodError: undefined method `secondary?' for nil:NilClass
+/opt/gitlab/embedded/service/gitlab-rails/ee/lib/tasks/geo.rake:232:in `block (3 levels) in <top (required)>'
+/opt/gitlab/embedded/service/gitlab-rails/ee/lib/tasks/geo.rake:221:in `block (2 levels) in <top (required)>'
+/opt/gitlab/embedded/bin/bundle:23:in `load'
+/opt/gitlab/embedded/bin/bundle:23:in `<main>'
+Tasks: TOP => geo:set_secondary_as_primary
+(See full trace by running task with --trace)
+```
+
+This command is intended to be executed on a secondary node only, and this error
+is displayed if you attempt to run this command on a primary node.
+
 ### Message: `sudo: gitlab-pg-ctl: command not found`
 
 When
-[promoting a **secondary** node with HA](../disaster_recovery/index.md#promoting-a-secondary-node-with-ha),
+[promoting a **secondary** node with multiple servers](../disaster_recovery/index.md#promoting-a-secondary-node-with-multiple-servers),
 you need to run the `gitlab-pg-ctl` command to promote the PostgreSQL
 read-replica database.
 
@@ -624,9 +651,9 @@ To check the configuration:
    ```
 
    This password is normally set on the tracking database during
-   [Step 3: Configure the tracking database on the secondary node](high_availability.md#step-3-configure-the-tracking-database-on-the-secondary-node),
+   [Step 3: Configure the tracking database on the secondary node](multiple_servers.md#step-3-configure-the-tracking-database-on-the-secondary-node),
    and it is set on the app nodes during
-   [Step 4: Configure the frontend application servers on the secondary node](high_availability.md#step-4-configure-the-frontend-application-servers-on-the-secondary-node).
+   [Step 4: Configure the frontend application servers on the secondary node](multiple_servers.md#step-4-configure-the-frontend-application-servers-on-the-secondary-node).
 
 1. Check whether any tables are present with the following statement:
 
@@ -767,9 +794,6 @@ reload of the FDW schema. To manually reload the FDW schema:
    SELECT * FROM gitlab_secondary.projects limit 1;
    ```
 
-[database-start-replication]: database.md#step-3-initiate-the-replication-process
-[database-pg-replication]: database.md#postgresql-replication
-
 ### "Geo database has an outdated FDW remote schema" error
 
 GitLab can error with a `Geo database has an outdated FDW remote schema` message.
@@ -836,6 +860,8 @@ which Geo expects to have access to. It usually means, either:
 
 - An unsupported replication method was used (for example, logical replication).
 - The instructions to setup a [Geo database replication](database.md) were not followed correctly.
+- Your database connection details are incorrect, that is you have specified the wrong
+  user in your `/etc/gitlab/gitlab.rb` file.
 
 A common source of confusion with **secondary** nodes is that it requires two separate
 PostgreSQL instances:
@@ -857,7 +883,7 @@ Make sure you follow the [Geo database replication](database.md) instructions fo
 
 ### Geo database version (...) does not match latest migration (...)
 
-If you are using GitLab Omnibus installation, something might have failed during upgrade. You can:
+If you are using Omnibus GitLab installation, something might have failed during upgrade. You can:
 
 - Run `sudo gitlab-ctl reconfigure`.
 - Manually trigger the database migration by running: `sudo gitlab-rake geo:db:migrate` as root on the **secondary** node.

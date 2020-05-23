@@ -34,7 +34,8 @@ module EE
 
       has_many :reviews,                  foreign_key: :author_id, inverse_of: :author
       has_many :epics,                    foreign_key: :author_id
-      has_many :requirements,             foreign_key: :author_id
+      has_many :requirements,             foreign_key: :author_id, inverse_of: :author, class_name: 'RequirementsManagement::Requirement'
+      has_many :test_reports,             foreign_key: :author_id, inverse_of: :author, class_name: 'RequirementsManagement::TestReport'
       has_many :assigned_epics,           foreign_key: :assignee_id, class_name: "Epic"
       has_many :path_locks,               dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :vulnerability_feedback, foreign_key: :author_id, class_name: 'Vulnerabilities::Feedback'
@@ -65,6 +66,8 @@ module EE
         scope = scope.or(where.not(managing_group_id: group.id)) if group
         scope
       }
+
+      scope :managed_by, ->(group) { where(managing_group: group) }
 
       scope :excluding_guests, -> { joins(:members).merge(::Member.non_guests).distinct }
 
@@ -130,6 +133,16 @@ module EE
         end
 
         ''
+      end
+
+      # Limits the users to those who have an identity that belongs to
+      # the given SAML Provider
+      def limit_to_saml_provider(saml_provider_id)
+        if saml_provider_id
+          joins(:identities).where(identities: { saml_provider_id: saml_provider_id })
+        else
+          all
+        end
       end
     end
 
@@ -215,39 +228,40 @@ module EE
       super || DEFAULT_GROUP_VIEW
     end
 
-    def any_namespace_with_trial?
-      ::Namespace
-        .from("(#{namespace_union(:trial_ends_on)}) #{::Namespace.table_name}")
-        .where('trial_ends_on > ?', Time.now.utc)
-        .any?
-    end
-
+    # Returns true if the user is a Reporter or higher on any namespace
+    # that has never had a trial (now or in the past)
     def any_namespace_without_trial?
       ::Namespace
-        .from("(#{namespace_union(:trial_ends_on)}) #{::Namespace.table_name}")
-        .where(trial_ends_on: nil)
+        .from("(#{namespace_union_for_reporter_developer_maintainer_owned}) #{::Namespace.table_name}")
+        .include_gitlab_subscription
+        .where(gitlab_subscriptions: { trial_ends_on: nil })
         .any?
     end
 
+    # Returns true if the user is a Reporter or higher on any namespace
+    # currently on a paid plan
     def has_paid_namespace?
       ::Namespace
-        .from("(#{namespace_union_for_reporter_developer_maintainer_owned(:plan_id)}) #{::Namespace.table_name}")
-        .where(plan_id: Plan.where(name: Plan::PAID_HOSTED_PLANS).select(:id))
+        .from("(#{namespace_union_for_reporter_developer_maintainer_owned}) #{::Namespace.table_name}")
+        .include_gitlab_subscription
+        .where(gitlab_subscriptions: { hosted_plan: ::Plan.where(name: ::Plan::PAID_HOSTED_PLANS) })
         .any?
     end
 
-    def any_namespace_with_gold?
+    # Returns true if the user is an Owner on any namespace currently on
+    # a paid plan
+    def owns_paid_namespace?(plans: ::Plan::PAID_HOSTED_PLANS)
       ::Namespace
-        .includes(:plan)
-        .where("namespaces.id IN (#{namespace_union})") # rubocop:disable GitlabSecurity/SqlInjection
-        .where.not(plans: { id: nil })
+        .from("(#{namespace_union_for_owned}) #{::Namespace.table_name}")
+        .include_gitlab_subscription
+        .where(gitlab_subscriptions: { hosted_plan: ::Plan.where(name: plans) })
         .any?
     end
 
     def managed_free_namespaces
       manageable_groups
         .left_joins(:gitlab_subscription)
-        .merge(GitlabSubscription.left_joins(:hosted_plan).where(plans: { name: [nil, *Plan::DEFAULT_PLANS] }))
+        .merge(GitlabSubscription.left_joins(:hosted_plan).where(plans: { name: [nil, *::Plan.default_plans] }))
         .order(:name)
     end
 
@@ -259,6 +273,7 @@ module EE
     def using_license_seat?
       active? &&
       !internal? &&
+      !project_bot? &&
       has_current_license? &&
       paid_in_current_license?
     end
@@ -291,7 +306,7 @@ module EE
     end
 
     def admin_unsubscribe!
-      update_column :admin_email_unsubscribed_at, Time.now
+      update_column :admin_email_unsubscribed_at, Time.current
     end
 
     override :allow_password_authentication_for_web?
@@ -331,6 +346,25 @@ module EE
       filter == UserPreference::FEATURE_FILTER_EXPERIMENT
     end
 
+    def gitlab_employee?
+      strong_memoize(:gitlab_employee) do
+        if ::Gitlab.com? && ::Feature.enabled?(:gitlab_employee_badge)
+          human? && ::Gitlab::Com.gitlab_com_group_member_id?(id)
+        else
+          false
+        end
+      end
+    end
+
+    def security_dashboard
+      InstanceSecurityDashboard.new(self)
+    end
+
+    def owns_upgradeable_namespace?
+      !owns_paid_namespace?(plans: [::Plan::GOLD]) &&
+        owns_paid_namespace?(plans: [::Plan::BRONZE, ::Plan::SILVER])
+    end
+
     protected
 
     override :password_required?
@@ -342,7 +376,7 @@ module EE
 
     private
 
-    def namespace_union(select = :id)
+    def namespace_union_for_owned(select = :id)
       ::Gitlab::SQL::Union.new([
         ::Namespace.select(select).where(type: nil, owner: self),
         owned_groups.select(select).where(parent_id: nil)

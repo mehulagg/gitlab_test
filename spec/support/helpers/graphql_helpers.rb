@@ -11,9 +11,19 @@ module GraphqlHelpers
     underscored_field_name.to_s.camelize(:lower)
   end
 
-  # Run a loader's named resolver
+  # Run a loader's named resolver in a way that closely mimics the framework.
+  #
+  # First the `ready?` method is called. If it turns out that the resolver is not
+  # ready, then the early return is returned instead.
+  #
+  # Then the resolve method is called.
   def resolve(resolver_class, obj: nil, args: {}, ctx: {}, field: nil)
-    resolver_class.new(object: obj, context: ctx, field: field).resolve(args)
+    resolver = resolver_class.new(object: obj, context: ctx, field: field)
+    ready, early_return = sync_all { resolver.ready?(**args) }
+
+    return early_return unless ready
+
+    resolver.resolve(args)
   end
 
   # Eagerly run a loader's named resolver
@@ -51,12 +61,12 @@ module GraphqlHelpers
   # BatchLoader::GraphQL returns a wrapper, so we need to :sync in order
   # to get the actual values
   def batch_sync(max_queries: nil, &blk)
-    wrapper = proc do
-      lazy_vals = yield
-      lazy_vals.is_a?(Array) ? lazy_vals.map { |val| sync(val) } : sync(lazy_vals)
-    end
+    batch(max_queries: max_queries) { sync_all(&blk) }
+  end
 
-    batch(max_queries: max_queries, &wrapper)
+  def sync_all(&blk)
+    lazy_vals = yield
+    lazy_vals.is_a?(Array) ? lazy_vals.map { |val| sync(val) } : sync(lazy_vals)
   end
 
   def graphql_query_for(name, attributes = {}, fields = nil)
@@ -149,7 +159,7 @@ module GraphqlHelpers
     FIELDS
   end
 
-  def all_graphql_fields_for(class_name, parent_types = Set.new, max_depth: 3)
+  def all_graphql_fields_for(class_name, parent_types = Set.new, max_depth: 3, excluded: [])
     # pulling _all_ fields can generate a _huge_ query (like complexity 180,000),
     # and significantly increase spec runtime. so limit the depth by default
     return if max_depth <= 0
@@ -165,6 +175,7 @@ module GraphqlHelpers
     type.fields.map do |name, field|
       # We can't guess arguments, so skip fields that require them
       next if required_arguments?(field)
+      next if excluded.include?(name)
 
       singular_field_type = field_type(field)
 
@@ -245,12 +256,19 @@ module GraphqlHelpers
 
   # Raises an error if no data is found
   def graphql_data
+    # Note that `json_response` is defined as `let(:json_response)` and
+    # therefore, in a spec with multiple queries, will only contain data
+    # from the _first_ query, not subsequent ones
     json_response['data'] || (raise NoData, graphql_errors)
   end
 
   def graphql_data_at(*path)
+    graphql_dig_at(graphql_data, *path)
+  end
+
+  def graphql_dig_at(data, *path)
     keys = path.map { |segment| GraphqlHelpers.fieldnamerize(segment) }
-    graphql_data.dig(*keys)
+    data.dig(*keys)
   end
 
   def graphql_errors
@@ -284,6 +302,22 @@ module GraphqlHelpers
   # Raises an error if no response is found
   def graphql_mutation_response(mutation_name)
     graphql_data.fetch(GraphqlHelpers.fieldnamerize(mutation_name))
+  end
+
+  def scalar_fields_of(type_name)
+    GitlabSchema.types[type_name].fields.map do |name, field|
+      next if nested_fields?(field) || required_arguments?(field)
+
+      name
+    end.compact
+  end
+
+  def nested_fields_of(type_name)
+    GitlabSchema.types[type_name].fields.map do |name, field|
+      next if !nested_fields?(field) || required_arguments?(field)
+
+      [name, field]
+    end.compact
   end
 
   def nested_fields?(field)
@@ -378,8 +412,9 @@ module GraphqlHelpers
 
   def execute_query(query_type)
     schema = Class.new(GraphQL::Schema) do
+      use GraphQL::Pagination::Connections
       use Gitlab::Graphql::Authorize
-      use Gitlab::Graphql::Connections
+      use Gitlab::Graphql::Pagination::Connections
 
       query(query_type)
     end

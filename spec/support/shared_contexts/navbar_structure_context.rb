@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.shared_context 'project navbar structure' do
-  let(:requirements_nav_item) do
-    {
-      nav_item: _('Requirements'),
-      nav_sub_items: [_('List')]
-    }
-  end
-
   let(:analytics_nav_item) do
     {
       nav_item: _('Analytics'),
@@ -56,7 +49,6 @@ RSpec.shared_context 'project navbar structure' do
         nav_item: _('Merge Requests'),
         nav_sub_items: []
       },
-      (requirements_nav_item if Gitlab.ee?),
       {
         nav_item: _('CI / CD'),
         nav_sub_items: [
@@ -70,6 +62,7 @@ RSpec.shared_context 'project navbar structure' do
         nav_item: _('Operations'),
         nav_sub_items: [
           _('Metrics'),
+          _('Alerts'),
           _('Environments'),
           _('Error Tracking'),
           _('Serverless'),
@@ -93,6 +86,7 @@ RSpec.shared_context 'project navbar structure' do
           _('Members'),
           _('Integrations'),
           _('Webhooks'),
+          _('Access Tokens'),
           _('Repository'),
           _('CI / CD'),
           _('Operations'),
@@ -119,10 +113,20 @@ RSpec.shared_context 'group navbar structure' do
       nav_sub_items: [
         _('General'),
         _('Projects'),
+        _('Repository'),
         _('CI / CD'),
+        _('Integrations'),
         _('Webhooks'),
-        _('Audit Events'),
-        _('Usage Quotas')
+        _('Audit Events')
+      ]
+    }
+  end
+
+  let(:administration_nav_item) do
+    {
+      nav_item: _('Administration'),
+      nav_sub_items: [
+        s_('UsageQuota|Usage Quotas')
       ]
     }
   end

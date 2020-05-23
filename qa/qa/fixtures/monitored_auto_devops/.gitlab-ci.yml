@@ -26,6 +26,8 @@ stages:
 
 production:
   stage: production
+  tags:
+    - qa
   script:
     - check_kube_domain
     - install_dependencies
@@ -34,7 +36,6 @@ production:
     - initialize_tiller
     - create_secret
     - deploy
-    - persist_environment_url
   environment:
     name: production
     url: http://$CI_PROJECT_PATH_SLUG.$AUTO_DEVOPS_DOMAIN

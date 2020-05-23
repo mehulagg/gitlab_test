@@ -196,6 +196,8 @@ module IssuablesHelper
       author_output = link_to_member(project, issuable.author, size: 24, mobile_classes: "d-none d-sm-inline")
       author_output << link_to_member(project, issuable.author, size: 24, by_username: true, avatar: false, mobile_classes: "d-inline d-sm-none")
 
+      author_output << issuable_meta_author_slot(issuable.author, css_class: 'ml-1')
+
       if status = user_status(issuable.author)
         author_output << "#{status}".html_safe
       end
@@ -209,6 +211,11 @@ module IssuablesHelper
     output << content_tag(:span, (issuable.task_status_short if issuable.tasks?), id: "task_status_short", class: "d-md-none")
 
     output.join.html_safe
+  end
+
+  # This is a dummy method, and has an override defined in ee
+  def issuable_meta_author_slot(author, css_class: nil)
+    nil
   end
 
   def issuable_labels_tooltip(labels, limit: 5)

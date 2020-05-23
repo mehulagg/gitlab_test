@@ -159,8 +159,7 @@ describe Issuable do
     end
 
     it 'returns issues with a partially matching description' do
-      expect(issuable_class.full_search(searchable_issue.description))
-        .to eq([searchable_issue])
+      expect(issuable_class.full_search('cut')).to eq([searchable_issue])
     end
 
     it 'returns issues with a matching description regardless of the casing' do
@@ -423,7 +422,7 @@ describe Issuable do
 
     context 'total_time_spent is updated' do
       before do
-        issue.spend_time(duration: 2, user_id: user.id, spent_at: Time.now)
+        issue.spend_time(duration: 2, user_id: user.id, spent_at: Time.current)
         issue.save
         expect(Gitlab::HookData::IssuableBuilder)
           .to receive(:new).with(issue).and_return(builder)
@@ -497,6 +496,40 @@ describe Issuable do
     end
   end
 
+  describe '.labels_hash' do
+    let(:feature_label) { create(:label, title: 'Feature') }
+    let(:second_label) { create(:label, title: 'Second Label') }
+    let!(:issues) { create_list(:labeled_issue, 3, labels: [feature_label, second_label]) }
+    let(:issue_id) { issues.first.id }
+
+    it 'maps issue ids to labels titles' do
+      expect(Issue.labels_hash[issue_id]).to include('Feature')
+    end
+
+    it 'works on relations filtered by multiple labels' do
+      relation = Issue.with_label(['Feature', 'Second Label'])
+
+      expect(relation.labels_hash[issue_id]).to include('Feature', 'Second Label')
+    end
+
+    # This tests the workaround for the lack of a NOT NULL constraint in
+    # label_links.label_id:
+    # https://gitlab.com/gitlab-org/gitlab/issues/197307
+    context 'with a NULL label ID in the link' do
+      let(:issue) { create(:labeled_issue, labels: [feature_label, second_label]) }
+
+      before do
+        label_link = issue.label_links.find_by(label_id: second_label.id)
+        label_link.label_id = nil
+        label_link.save(validate: false)
+      end
+
+      it 'filters out bad labels' do
+        expect(Issue.where(id: issue.id).labels_hash[issue.id]).to match_array(['Feature'])
+      end
+    end
+  end
+
   describe '#user_notes_count' do
     let(:project) { create(:project) }
     let(:issue1) { create(:issue, project: project) }
@@ -539,8 +572,8 @@ describe Issuable do
       second_priority = create(:label, project: project, priority: 2)
       no_priority = create(:label, project: project)
 
-      first_milestone = create(:milestone, project: project, due_date: Time.now)
-      second_milestone = create(:milestone, project: project, due_date: Time.now + 1.month)
+      first_milestone = create(:milestone, project: project, due_date: Time.current)
+      second_milestone = create(:milestone, project: project, due_date: Time.current + 1.month)
       third_milestone = create(:milestone, project: project)
 
       # The issues here are ordered by label priority, to ensure that we don't

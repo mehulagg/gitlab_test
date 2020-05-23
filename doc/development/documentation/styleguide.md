@@ -8,7 +8,7 @@ This document defines the standards for GitLab's documentation content and files
 
 For broader information about the documentation, see the [Documentation guidelines](index.md).
 
-For programmatic help adhering to the guidelines, see [linting](index.md#linting).
+For programmatic help adhering to the guidelines, see [Testing](index.md#testing).
 
 See the GitLab handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines)
 that apply to all GitLab content, not just documentation.
@@ -17,9 +17,9 @@ that apply to all GitLab content, not just documentation.
 
 ### Why a single source of truth
 
-The documentation of GitLab products and features is the SSOT for all information related to implementation, usage, and troubleshooting. It evolves continually, in keeping with new products and features, and with improvements for clarity, accuracy, and completeness.
+The documentation of GitLab products and features is the SSOT for all information related to implementation, usage, and troubleshooting. It evolves continuously, in keeping with new products and features, and with improvements for clarity, accuracy, and completeness.
 
-This policy prevents information silos, ensuring that it remains easy to find information about GitLab products.
+This policy prevents information silos, making it easier to find information about GitLab products.
 
 It also informs decisions about the kinds of content we include in our documentation.
 
@@ -28,7 +28,7 @@ It also informs decisions about the kinds of content we include in our documenta
 Include problem-solving actions that may address rare cases or be considered 'risky', so long as proper context is provided in the form of fully detailed warnings and caveats. This kind of content should be included as it could be helpful to others and, when properly explained, its benefits outweigh the risks. If you think you have found an exception to this rule, contact the Technical Writing team.
 
 We will add all troubleshooting information to the documentation, no matter how unlikely a user is to encounter a situation.
-For the Troubleshooting sections, people in GitLab Support can merge additions themselves.
+For the [Troubleshooting sections](#troubleshooting), people in GitLab Support can merge additions themselves.
 
 ### All media types
 
@@ -46,12 +46,12 @@ In the software industry, it is a best practice to organize documentation in dif
 1. Explanation
 1. Reference (for example, a glossary)
 
-At GitLab, we have so many product changes in our monthly releases that we can't afford to continually update multiple types of information.
+At GitLab, we have so many product changes in our monthly releases that we can't afford to continuously update multiple types of information.
 If we have multiple types, the information will become outdated. Therefore, we have a [single template](structure.md) for documentation.
 
 We currently do not distinguish specific document types, although we are open to reconsidering this policy
 once the documentation has reached a future stage of maturity and quality. If you are reading this, then despite our
-continual improvement efforts, that point hasn't been reached.
+continuous improvement efforts, that point hasn't been reached.
 
 ### Link instead of summarize
 
@@ -61,7 +61,7 @@ Instead, link to the SSOT and explain why it is important to consume the informa
 
 ### Organize by topic, not by type
 
-Beyond top-level audience-type folders (for example, `administration`), we organize content by topic, not by type, so that it can be located as easily as possible within the single-source-of-truth (SSOT) section for the subject matter.
+Beyond top-level audience-type folders (for example, `administration`), we organize content by topic, not by type, so it can be located as easily as possible within the single-source-of-truth (SSOT) section for the subject matter.
 
 For example, do not create groupings of similar media types. For example:
 
@@ -76,14 +76,14 @@ and cross-link between any related content.
 
 ### Docs-first methodology
 
-We employ a **docs-first methodology** to help ensure that the docs remain a complete and trusted resource, and to make communicating about the use of GitLab more efficient.
+We employ a **docs-first methodology** to help ensure the docs remain a complete and trusted resource, and to make communicating about the use of GitLab more efficient.
 
 - If the answer to a question exists in documentation, share the link to the docs instead of rephrasing the information.
 - When you encounter new information not available in GitLab’s documentation (for example, when working on a support case or testing a feature), your first step should be to create a merge request (MR) to add this information to the docs. You can then share the MR in order to communicate this information.
 
 New information that would be useful toward the future usage or troubleshooting of GitLab should not be written directly in a forum or other messaging system, but added to a docs MR and then referenced, as described above. Note that among any other doc changes, you can either:
 
-- Add a Troubleshooting section to a doc if none exists.
+- Add a [Troubleshooting section](#troubleshooting) to a doc if none exists.
 - Un-comment and use the placeholder Troubleshooting section included as part of our [doc template](structure.md#template-for-new-docs), if present.
 
 The more we reflexively add useful information to the docs, the more (and more successfully) the docs will be used to efficiently accomplish tasks and solve problems.
@@ -129,13 +129,13 @@ correctly, but is not the current standard for GitLab documentation).
 A rule that could cause confusion is `MD044/proper-names`, as it might not be immediately
 clear what caused markdownlint to fail, or how to correct the failure. This rule
 checks a list of known words, listed in the `.markdownlint.json` file in each project,
-to verify that proper capitalization and backticks are used. Words in backticks will
+to verify proper use of capitalization and backticks. Words in backticks will
 be ignored by markdownlint.
 
 In general, product names should follow the exact capitalization of the official names
 of the products, protocols, and so on.
 
-Some examples that will fail if incorrect capitalization is used:
+Some examples fail if incorrect capitalization is used:
 
 - MinIO (needs capital `IO`)
 - NGINX (needs all capitals)
@@ -243,12 +243,31 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
 
 ## Language
 
-- Use inclusive language and avoid jargon, as well as uncommon
-  words. The docs should be clear and easy to understand.
-- Do not write in the first person singular. Instead of "I" or "me," use "we," "you," "us," or "one."
-- Be clear, concise, and stick to the goal of the doc.
+GitLab documentation should be clear and easy to understand.
+
+- Be clear, concise, and stick to the goal of the documentation.
 - Write in US English with US grammar.
+- Use inclusive language.
+
+### Point of view
+
+In most cases, it’s appropriate to use the second-person (you, yours) point of view,
+because it’s friendly and easy to understand.
+
+<!-- How do we harmonize the second person in Pajamas with our first person plural in our doc guide? -->
+
+### Capitalization
+
 - Capitalize "G" and "L" in GitLab.
+- Use sentence case for:
+  - Titles.
+  - Labels.
+  - Menu items.
+  - Buttons.
+  - Headings. Don't capitalize other words in the title, unless
+    it refers to a product feature. For example:
+    - Capitalizing "issues" is acceptable in
+    `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
 - Use title case when referring to:
   - [GitLab Features](https://about.gitlab.com/features/). For example, Issue Board,
     Geo, and Runner.
@@ -262,21 +281,53 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
     Some features are also objects. For example, "GitLab's Merge Requests support X" and
     "Create a new merge request for Z."
 
+### Language to avoid
+
+When creating documentation, limit or avoid the use of the following verb
+tenses, words, and phrases:
+
+- Avoid jargon.
+- Avoid uncommon words.
+- Don't write in the first person singular.
+  - Instead of "I" or "me," use "we," "you," "us," or "one."
+  - When possible, stay user focused by writing in the second person ("you" or
+    the imperative).
+- Don't overuse "that". In many cases, you can remove "that" from a sentence
+  and improve readability.
 - Avoid use of the future tense:
-  - Instead of "after you execute this command, GitLab will display the result", use "after you execute this command, GitLab displays the result".
-  - Only use the future tense to convey when the action or result will actually occur at a future time.
-- Do not use slashes to clump different words together or as a replacement for the word "or":
-  - Instead of "and/or," consider using "or," or use another sensible construction.
-  - Other examples include "clone/fetch," author/assignee," and "namespace/repository name." Break apart any such instances in an appropriate way.
-  - Exceptions to this rule include commonly accepted technical terms such as CI/CD, TCP/IP, and so on.
-- Do not use "may" and "might" interchangeably:
-  - Use "might" to indicate the probability of something occurring. "If you skip this step, the import process might fail."
-  - Use "may" to indicate giving permission for someone to do something, or consider using "can" instead. "You may select either option on this screen." Or, "you can select either option on this screen."
-- We discourage use of Latin abbreviations, such as "e.g.," "i.e.," or "etc.,"
-as even native users of English might misunderstand them.
+  - Instead of "after you execute this command, GitLab will display the
+    result", use "after you execute this command, GitLab displays the result".
+  - Only use the future tense to convey when the action or result will actually
+    occur at a future time.
+- Don't use slashes to clump different words together or as a replacement for
+  the word "or":
+  - Instead of "and/or," consider using "or," or use another sensible
+    construction.
+  - Other examples include "clone/fetch," author/assignee," and
+    "namespace/repository name." Break apart any such instances in an
+    appropriate way.
+  - Exceptions to this rule include commonly accepted technical terms, such as
+    CI/CD and TCP/IP.
+- <!-- vale gitlab.LatinTerms = NO -->
+  We discourage use of Latin abbreviations, such as "e.g.," "i.e.," or "etc.,"
+  as even native users of English might misunderstand them.
   - Instead of "i.e.," use "that is."
   - Instead of "e.g.," use "for example," "such as," "for instance," or "like."
-  - Instead of "etc.," either use "and so on" or consider editing it out, since it can be vague.
+  - Instead of "etc.," either use "and so on" or consider editing it out, since
+    it can be vague.
+    <!-- vale gitlab.rulename = NO -->
+- Avoid using the word *currently* when talking about the product or its
+  features. The documentation describes the product as it is, and not as it
+  will be at some indeterminate point in the future.
+
+### Word usage clarifications
+
+- Don't use "may" and "might" interchangeably:
+  - Use "might" to indicate the probability of something occurring. "If you
+    skip this step, the import process might fail."
+  - Use "may" to indicate giving permission for someone to do something, or
+    consider using "can" instead. "You may select either option on this
+    screen." Or, "You can select either option on this screen."
 
 ### Contractions
 
@@ -330,16 +381,16 @@ as even native users of English might misunderstand them.
 | Requests to localhost are not allowed    | Requests to localhost aren't allowed |
 | Specified URL cannot be used             | Specified URL can't be used          |
 
+<!-- vale on -->
+
 ## Text
 
 - [Write in Markdown](#markdown).
 - Splitting long lines (preferably up to 100 characters) can make it easier to provide feedback on small chunks of text.
 - Insert an empty line for new paragraphs.
-- Add a new line by ending a line with two spaces. [Using a backslash](../../user/markdown.md#newlines) doesn't work in the docs site.
-- Use sentence case for titles, headings, labels, menu items, and buttons.
 - Insert an empty line between different markups (for example, after every paragraph, header, list, and so on). Example:
 
-  ```md
+  ```markdown
   ## Header
 
   Paragraph.
@@ -362,7 +413,7 @@ Check specific punctuation rules for [lists](#lists) below.
 | Rule | Example |
 | ---- | ------- |
 | Always end full sentences with a period. | _For a complete overview, read through this document._|
-| Always add a space after a period when beginning a new sentence | _For a complete overview, check this doc. For other references, check out this guide._ |
+| Always add a space after a period when beginning a new sentence. | _For a complete overview, check this doc. For other references, check out this guide._ |
 | Do not use double spaces. | --- |
 | Do not use tabs for indentation. Use spaces instead. You can configure your code editor to output spaces instead of tabs when pressing the tab key. | --- |
 | Use serial commas ("Oxford commas") before the final 'and/or' in a list. | _You can create new issues, merge requests, and milestones._ |
@@ -396,7 +447,7 @@ Only use ordered lists when their items describe a sequence of steps to follow.
 
 Do:
 
-```md
+```markdown
 These are the steps to do something:
 
 1. First, do the first step.
@@ -406,7 +457,7 @@ These are the steps to do something:
 
 Don't:
 
-```md
+```markdown
 This is a list of available features:
 
 1. Feature 1
@@ -432,7 +483,7 @@ This is a list of available features:
   all with a period.
 - Separate list items from explanatory text with a colon (`:`). For example:
 
-  ```md
+  ```markdown
   The list is as follows:
 
   - First item: this explains the first item.
@@ -490,7 +541,7 @@ In unordered lists (using `-`), this means two spaces for each level of indentat
 
 - Unordered list item 3
 
-  ```text
+  ```plaintext
   a codeblock that will next inside list item 3
   ```
 
@@ -513,7 +564,7 @@ For ordered lists, use three spaces for each level of indentation:
 
 1. Ordered list item 3
 
-   ```text
+   ```plaintext
    a codeblock that will next inside list item 3
    ```
 
@@ -539,9 +590,47 @@ to mix types, that is also possible, as long as you don't mix items at the same 
 - Unordered list item three.
 ```
 
+## Tables
+
+Tables should be used to describe complex information in a straightforward
+manner. Note that in many cases, an unordered list is sufficient to describe a
+list of items with a single, simple description per item. But, if you have data
+that is best described by a matrix, tables are the best choice for use.
+
+### Creation guidelines
+
+Due to accessibility and scanability requirements, tables should not have any
+empty cells. If there is no otherwise meaningful value for a cell, consider entering
+*N/A* (for 'not applicable') or *none*.
+
+To help tables be easier to maintain, consider adding additional spaces to the
+column widths to make them consistent. For example:
+
+```markdown
+| App name | Description          | Requirements   |
+|:---------|:---------------------|:---------------|
+| App 1    | Description text 1.  | Requirements 1 |
+| App 2    | Description text 2.  | None           |
+```
+
+Consider installing a plugin or extension in your editor for formatting tables:
+
+- [Markdown Table Prettifier](https://marketplace.visualstudio.com/items?itemName=darkriszty.markdown-table-prettify) for Visual Studio Code
+- [Markdown Table Formatter](https://packagecontrol.io/packages/Markdown%20Table%20Formatter) for Sublime Text
+- [Markdown Table Formatter](https://atom.io/packages/markdown-table-formatter) for Atom
+
+### Feature tables
+
+When creating tables of lists of features (such as whether or not features are
+available to certain roles on the [Permissions](../../user/permissions.md#project-members-permissions)
+page), use the following phrases (based on the SVG icons):
+
+- *No*: **{dotted-circle}** No
+- *Yes*: **{check-circle}** Yes
+
 ## Quotes
 
-Valid for Markdown content only, not for frontmatter entries:
+Valid for Markdown content only, not for front matter entries:
 
 - Standard quotes: double quotes (`"`). Example: "This is wrapped in double quotes".
 - Quote within a quote: double quotes (`"`) wrap single quotes (`'`). Example: "I am 'quoting' something within a quote".
@@ -562,7 +651,7 @@ For other punctuation rules, please refer to the
 - [Avoid using symbols and special chars](https://gitlab.com/gitlab-org/gitlab-docs/issues/84)
   in headers. Whenever possible, they should be plain and short text.
 - Avoid adding things that show ephemeral statuses. For example, if a feature is
-  considered beta or experimental, put this info in a note, not in the heading.
+  considered beta or experimental, put this information in a note, not in the heading.
 - When introducing a new document, be careful for the headings to be
   grammatically and syntactically correct. Mention an [assigned technical writer (TW)](https://about.gitlab.com/handbook/product/categories/)
   for review.
@@ -572,13 +661,10 @@ For other punctuation rules, please refer to the
 - Leave exactly one blank line before and after a heading.
 - Do not use links in headings.
 - Add the corresponding [product badge](#product-badges) according to the tier the feature belongs.
-- Use sentence case in headings. Do not capitalize the words of the title, unless
-  it refers to a product feature. For example, capitalizing "issues" is acceptable in
-  `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
-- Our docs site search engine prioritizes headings, therefore, make sure to write
-  headings that contextualize the subject and help to take the user to the right
-  document. For example, `## Examples` is a bad heading; `## GitLab Pages examples`
-  is a better one. It's not an exact science, but please consider this carefully.
+- Our docs site search engine prioritizes words used in headings and subheadings.
+  Make you subheading titles clear, descriptive, and complete to help users find the
+  right example, as shown in the section on [heading titles](#heading-titles).
+- See [Capitalization](#capitalization) for guidelines on capitalizing headings.
 
 ### Heading titles
 
@@ -589,6 +675,9 @@ Keep heading titles clear and direct. Make every word count. To accommodate sear
 | Configure GDK | Configuring GDK |
 | GitLab Release and Maintenance Policy | This section covers GitLab's Release and Maintenance Policy |
 | Backport to older releases | Backporting to older releases |
+| GitLab Pages examples | Examples |
+
+For guidelines on capitalizing headings, see the section on [capitalization](#capitalization).
 
 NOTE: **Note:**
 If you change an existing title, be careful. Any such changes may affect not only [links](#anchor-links)
@@ -703,15 +792,17 @@ Instead:
 
 Example:
 
-```md
-For more information, see the [confidential issue](../../user/project/issues/confidential_issues.md) `https://gitlab.com/gitlab-org/gitlab-foss/issues/<issue_number>`.
+```markdown
+For more information, see the [confidential issue](../../user/project/issues/confidential_issues.md) `https://gitlab.com/gitlab-org/gitlab-foss/-/issues/<issue_number>`.
 ```
 
 ### Link to specific lines of code
 
-When linking to specifics lines within a file, link to a commit instead of to the branch.
+When linking to specific lines within a file, link to a commit instead of to the branch.
 Lines of code change through time, therefore, linking to a line by using the commit link
-ensures the user lands on the line you're referring to.
+ensures the user lands on the line you're referring to. The **Permalink** button, which is
+available when viewing a file within a project, makes it easy to generate a link to the
+most recent commit of the given file.
 
 - **Do:** `[link to line 3](https://gitlab.com/gitlab-org/gitlab/-/blob/11f17c56d8b7f0b752562d78a4298a3a95b5ce66/.gitlab/issue_templates/Feature%20proposal.md#L3)`
 - **Don't:** `[link to line 3](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/issue_templates/Feature%20proposal.md#L3).`
@@ -736,10 +827,8 @@ To indicate the steps of navigation through the UI:
   the `.md` document that you're working on is located.
 - Images should have a specific, non-generic name that will
   differentiate and describe them properly.
-- Always add to the end of the file name the GitLab release version
-  corresponding to the version the screenshot was taken from, using the format
-  `image_name_vX_Y.png`.
-  ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/61027) in GitLab 12.1.)
+- For screenshots of GitLab software, append the GitLab version the screenshot was taken from to the
+  file name. Use the following format: `image_name_vX_Y.png`.
 - For example, for a screenshot taken from the pipelines page of
   GitLab 11.1, a valid name is `pipelines_v11_1.png`. If you're
   adding an illustration that does not include parts of the UI,
@@ -748,7 +837,7 @@ To indicate the steps of navigation through the UI:
   a valid name for an illustration is `devops_diagram_v11_1.png`.
 - Keep all file names in lower case.
 - Consider using PNG images instead of JPEG.
-- Compress all images with <https://pngquant.org/> or similar tool.
+- [Compress all PNG images](#compress-images).
 - Compress gifs with <https://ezgif.com/optimize> or similar tool.
 - Images should be used (only when necessary) to _illustrate_ the description
   of a process, not to _replace_ it.
@@ -775,6 +864,35 @@ directly to an HTML `img` tag:
 <img src="path/to/image.jpg" alt="Alt text (required)" class="image-noshadow">
 ```
 
+### Compress images
+
+You should always compress any new images you add to the documentation. One
+known tool is [`pngquant`](https://pngquant.org/), which is cross-platform and
+open source. Install it by visiting the official website and following the
+instructions for your OS.
+
+GitLab has a [Rake task](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/tasks/pngquant.rake)
+that you can use to automate the process. In the root directory of your local
+copy of `https://gitlab.com/gitlab-org/gitlab`, run in a terminal:
+
+- Before compressing, if you want, check that all documentation PNG images have
+  been compressed:
+
+  ```shell
+  bundle exec rake pngquant:lint
+  ```
+
+- Compress all documentation PNG images using `pngquant`:
+
+  ```shell
+  bundle exec rake pngquant:compress
+  ```
+
+The only caveat is that the task runs on all images under `doc/`, not only the
+ones you might have included in a merge request. In that case, you can run the
+compress task and only commit the images that are relevant to your merge
+request.
+
 ## Videos
 
 Adding GitLab's existing YouTube video tutorials to the documentation is
@@ -790,7 +908,7 @@ Do not upload videos to the product repositories. [Link](#link-to-video) or [emb
 To link out to a video, include a YouTube icon so that readers can
 quickly and easily scan the page for videos before reading:
 
-```md
+```markdown
 <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
 For an overview, see [Video Title](link-to-video).
 ```
@@ -816,7 +934,7 @@ you have your MR reviewed and approved by a technical writer.
 
 1. Copy the code below and paste it into your Markdown file.
    Leave a blank line above and below it. Do NOT edit the code
-   (don't remove or add any spaces, etc).
+   (don't remove or add any spaces).
 1. On YouTube, visit the video URL you want to display. Copy
    the regular URL from your browser (`https://www.youtube.com/watch?v=VIDEO-ID`)
    and replace the video title and link in the line under `<div class="video-fallback">`.
@@ -867,7 +985,7 @@ nicely on different mobile devices.
 - When providing a command without output, don't prefix the shell command with `$`.
 - If you need to include triple backticks inside a code block, use four backticks
   for the codeblock fences instead of three.
-- For regular code blocks, always use a highlighting class corresponding to the
+- For regular fenced code blocks, always use a highlighting class corresponding to the
   language for better readability. Examples:
 
   ````markdown
@@ -888,7 +1006,7 @@ nicely on different mobile devices.
   ```
   ````
 
-Syntax highlighting is required for code blocks added to the GitLab documentation.
+Syntax highlighting is required for fenced code blocks added to the GitLab documentation.
 Refer to the table below for the most common language classes, or check the
 [complete list](https://github.com/rouge-ruby/rouge/wiki/List-of-supported-languages-and-lexers)
 of language classes available.
@@ -917,7 +1035,7 @@ of language classes available.
 | `ruby`                  | Alias: `rb`.                                                                 |
 | `shell`                 | Aliases: `bash` or `sh`.                                                     |
 | `sql`                   |                                                                              |
-| `toml`                  | Runner configuration examples, and other toml formatted configuration files. |
+| `toml`                  | Runner configuration examples, and other TOML-formatted configuration files. |
 | `typescript`            | Alias: `ts`.                                                                 |
 | `xml`                   |                                                                              |
 | `yaml`                  | Alias: `yml`.                                                                |
@@ -964,7 +1082,7 @@ This will ensure that the source Markdown remains readable and should help with 
 
 The following are examples of source Markdown for menu items with their published output:
 
-```md
+```markdown
 1. Go to **{home}** **Project overview > Details**
 1. Go to **{doc-text}** **Repository > Branches**
 1. Go to **{issues}** **Issues > List**
@@ -1000,7 +1118,7 @@ Whenever you need to call special attention to particular sentences,
 use the following markup for highlighting.
 
 _Note that the alert boxes only work for one paragraph only. Multiple paragraphs,
-lists, headers, etc will not render correctly. For multiple lines, use blockquotes instead._
+lists, headers and so on, will not render correctly. For multiple lines, use blockquotes instead._
 
 Alert boxes only render on the GitLab Docs site (<https://docs.gitlab.com>).
 Within GitLab itself, they will appear as plain Markdown text (like the examples
@@ -1025,7 +1143,7 @@ of users.
 Weigh the costs of distracting users to whom the content is not relevant against
 the cost of users missing the content if it were not expressed as a note.
 
-```md
+```markdown
 NOTE: **Note:**
 This is something to note.
 ```
@@ -1037,7 +1155,7 @@ This is something to note.
 
 ### Tip
 
-```md
+```markdown
 TIP: **Tip:**
 This is a tip.
 ```
@@ -1049,7 +1167,7 @@ This is a tip.
 
 ### Caution
 
-```md
+```markdown
 CAUTION: **Caution:**
 This is something to be cautious about.
 ```
@@ -1061,7 +1179,7 @@ This is something to be cautious about.
 
 ### Danger
 
-```md
+```markdown
 DANGER: **Danger:**
 This is a breaking change, a bug, or something very important to note.
 ```
@@ -1075,7 +1193,7 @@ This is a breaking change, a bug, or something very important to note.
 
 For highlighting a text within a blue blockquote, use this format:
 
-```md
+```markdown
 > This is a blockquote.
 ```
 
@@ -1087,7 +1205,7 @@ If the text spans across multiple lines it's OK to split the line.
 
 For multiple paragraphs, use the symbol `>` before every line:
 
-```md
+```markdown
 > This is the first paragraph.
 >
 > This is the second paragraph.
@@ -1168,7 +1286,7 @@ a helpful link back to how the feature was developed.
   to the following should be added immediately below the heading as a blockquote:
   - `> Introduced in GitLab 11.3.`.
 
-- Whenever possible, version text should have a link to the issue, merge request, or epic that introduced the feature.
+- Whenever possible, version text should have a link to the _completed_ issue, merge request, or epic that introduced the feature.
   An issue is preferred over a merge request, and a merge request is preferred over an epic. For example:
   - `> [Introduced](<link-to-issue>) in GitLab 11.3.`.
 
@@ -1180,13 +1298,35 @@ a helpful link back to how the feature was developed.
 - If listing information for multiple version as a feature evolves, add the information to a
   block-quoted bullet list. For example:
 
-  ```md
+  ```markdown
   > - [Introduced](<link-to-issue>) in GitLab 11.3.
   > - Enabled by default in GitLab 11.4.
   ```
 
+- If a feature is moved to another tier:
+
+  ```markdown
+  > - [Introduced](<link-to-issue>) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.5.
+  > - [Moved](<link-to-issue>) to [GitLab Starter](https://about.gitlab.com/pricing/) in 11.8.
+  > - [Moved](<link-to-issue>) to GitLab Core in 12.0.
+  ```
+
 NOTE: **Note:**
-Version text must be on its own line and surounded by blank lines to render correctly.
+Version text must be on its own line and surrounded by blank lines to render correctly.
+
+### Versions in the past or future
+
+When describing functionality available in past or future versions, use:
+
+- **Earlier**, and not **older** or **before**.
+- **Later**, and not **newer** or **after**.
+
+For example:
+
+- Available in GitLab 12.3 and earlier.
+- Available in GitLab 12.4 and later.
+- If using GitLab 11.4 or earlier, ...
+- If using GitLab 10.6 or later, ...
 
 ### Importance of referencing GitLab versions and tiers
 
@@ -1277,7 +1417,7 @@ avoid duplication, link to the special document that can be found in
 [`doc/administration/restart_gitlab.md`](../../administration/restart_gitlab.md).
 Usually the text will read like:
 
-```md
+```markdown
 Save the file and [reconfigure GitLab](../../administration/restart_gitlab.md)
 for the changes to take effect.
 ```
@@ -1293,10 +1433,8 @@ Replace `reconfigure` with `restart` where appropriate.
 In [step 2 of the installation guide](../../install/installation.md#2-ruby),
 we install Ruby from source. Whenever there is a new version that needs to
 be updated, remember to change it throughout the codeblock and also replace
-the sha256sum (it can be found in the [downloads page][ruby-dl] of the Ruby
+the sha256sum (it can be found in the [downloads page](https://www.ruby-lang.org/en/downloads/) of the Ruby
 website).
-
-[ruby-dl]: https://www.ruby-lang.org/en/downloads/ "Ruby download website"
 
 ### Configuration documentation for source and Omnibus installations
 
@@ -1315,7 +1453,7 @@ When there is a list of steps to perform, usually that entails editing the
 configuration file and reconfiguring/restarting GitLab. In such case, follow
 the style below as a guide:
 
-````md
+````markdown
 **For Omnibus installations**
 
 1. Edit `/etc/gitlab/gitlab.rb`:
@@ -1324,7 +1462,7 @@ the style below as a guide:
    external_url "https://gitlab.example.com"
    ```
 
-1. Save the file and [reconfigure] GitLab for the changes to take effect.
+1. Save the file and [reconfigure](path/to/administration/restart_gitlab.md#omnibus-gitlab-reconfigure) GitLab for the changes to take effect.
 
 ---
 
@@ -1337,10 +1475,7 @@ the style below as a guide:
      host: "gitlab.example.com"
    ```
 
-1. Save the file and [restart] GitLab for the changes to take effect.
-
-[reconfigure]: path/to/administration/restart_gitlab.md#omnibus-gitlab-reconfigure
-[restart]: path/to/administration/restart_gitlab.md#installations-from-source
+1. Save the file and [restart](path/to/administration/restart_gitlab.md#installations-from-source) GitLab for the changes to take effect.
 ````
 
 In this case:
@@ -1353,40 +1488,20 @@ In this case:
 - Different highlighting languages are used for each config in the code block.
 - The [GitLab Restart](#gitlab-restart) section is used to explain a required restart/reconfigure of GitLab.
 
+### Troubleshooting
+
+For troubleshooting sections, you should provide as much context as possible so
+users can identify the problem they are facing and resolve it on their own. You
+can facilitate this by making sure the troubleshooting content addresses:
+
+1. The problem the user needs to solve.
+1. How the user can confirm they have the problem.
+1. Steps the user can take towards resolution of the problem.
+
 ## Feature flags
 
-Sometimes features are shipped with feature flags, either:
-
-- On by default, but providing the option to turn the feature off.
-- Off by default, but providing the option to turn the feature on.
-
-When documenting feature flags for a feature, include:
-
-- Why a feature flag is necessary. Some of the reasons are
-  [outlined in the handbook](https://about.gitlab.com/handbook/product/#alpha-beta-ga).
-- That administrative access is required to make a feature flag change.
-- What to ask for when requesting a change to a feature flag's state.
-
-NOTE: **Note:**
-The [Product Manager for the relevant group](https://about.gitlab.com/handbook/product/categories/#devops-stages)
-must review and approve the addition or removal of any mentions of using feature flags before the doc change is merged.
-
-The following is sample text for adding feature flag documentation for a feature that is
-off by default:
-
-````md
-### Enabling the feature
-
-This feature comes with the `:feature_flag` feature flag disabled by default. In some cases,
-this feature is incompatible with an old configuration. To turn on the feature,
-ask a GitLab administrator with Rails console access to run the following command:
-
-```ruby
-Feature.enable(:feature_flag)
-```
-````
-
-For guidance on developing with feature flags, see
+Learn how to [document features deployed behind flags](feature_flags.md).
+For guidance on developing GitLab with feature flags, see
 [Feature flags in development of GitLab](../feature_flags/index.md).
 
 ## API
@@ -1414,7 +1529,7 @@ The following can be used as a template to get started:
 
 One or two sentence description of what endpoint does.
 
-```text
+```plaintext
 METHOD /endpoint
 ```
 
@@ -1438,6 +1553,15 @@ Example response:
 ]
 ```
 ````
+
+### Fake user information
+
+You may need to demonstrate an API call or a cURL command that includes the name
+and email address of a user. Don't use real user information in API calls:
+
+- **Email addresses**: Use an email address ending in `example.com`.
+- **Names**: Use strings like `Example Username`. Alternatively, use diverse or non-gendered names with
+  common surnames, such as `Sidney Jones`, `Zhang Wei`. or `Maria Garcia`.
 
 ### Fake tokens
 
@@ -1467,7 +1591,7 @@ You can use the following fake tokens as examples.
 Use the following table headers to describe the methods. Attributes should
 always be in code blocks using backticks (`` ` ``).
 
-```md
+```markdown
 | Attribute | Type | Required | Description |
 |:----------|:-----|:---------|:------------|
 ```
@@ -1544,7 +1668,7 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "title=
 ```
 
 The above example is run by and administrator and will add an SSH public key
-titled `ssh-key` to user's account which has an id of 25.
+titled `ssh-key` to user's account which has an ID of 25.
 
 #### Escape special characters
 

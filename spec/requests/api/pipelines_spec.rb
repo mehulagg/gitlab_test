@@ -3,11 +3,15 @@
 require 'spec_helper'
 
 describe API::Pipelines do
-  let(:user)        { create(:user) }
-  let(:non_member)  { create(:user) }
-  let(:project)     { create(:project, :repository, creator: user) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:non_member) { create(:user) }
 
-  let!(:pipeline) do
+  # We need to reload as the shared example 'pipelines visibility table' is changing project
+  let_it_be(:project, reload: true) do
+    create(:project, :repository, creator: user)
+  end
+
+  let_it_be(:pipeline) do
     create(:ci_empty_pipeline, project: project, sha: project.commit.id,
                                ref: project.default_branch, user: user)
   end
@@ -26,7 +30,7 @@ describe API::Pipelines do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to include_pagination_headers
         expect(json_response).to be_an Array
-        expect(json_response.first['sha']).to match /\A\h{40}\z/
+        expect(json_response.first['sha']).to match(/\A\h{40}\z/)
         expect(json_response.first['id']).to eq pipeline.id
         expect(json_response.first['web_url']).to be_present
         expect(json_response.first.keys).to contain_exactly(*%w[id sha ref status web_url created_at updated_at])
@@ -68,8 +72,8 @@ describe API::Pipelines do
         end
 
         context 'when scope is branches or tags' do
-          let!(:pipeline_branch) { create(:ci_pipeline, project: project) }
-          let!(:pipeline_tag) { create(:ci_pipeline, project: project, ref: 'v1.0.0', tag: true) }
+          let_it_be(:pipeline_branch) { create(:ci_pipeline, project: project) }
+          let_it_be(:pipeline_tag) { create(:ci_pipeline, project: project, ref: 'v1.0.0', tag: true) }
 
           context 'when scope is branches' do
             it 'returns matched pipelines' do
@@ -157,7 +161,7 @@ describe API::Pipelines do
         end
 
         context 'when name is specified' do
-          let!(:pipeline) { create(:ci_pipeline, project: project, user: user) }
+          let_it_be(:pipeline) { create(:ci_pipeline, project: project, user: user) }
 
           context 'when name exists' do
             it 'returns matched pipelines' do
@@ -181,7 +185,7 @@ describe API::Pipelines do
         end
 
         context 'when username is specified' do
-          let!(:pipeline) { create(:ci_pipeline, project: project, user: user) }
+          let_it_be(:pipeline) { create(:ci_pipeline, project: project, user: user) }
 
           context 'when username exists' do
             it 'returns matched pipelines' do
@@ -205,8 +209,8 @@ describe API::Pipelines do
         end
 
         context 'when yaml_errors is specified' do
-          let!(:pipeline1) { create(:ci_pipeline, project: project, yaml_errors: 'Syntax error') }
-          let!(:pipeline2) { create(:ci_pipeline, project: project) }
+          let_it_be(:pipeline1) { create(:ci_pipeline, project: project, yaml_errors: 'Syntax error') }
+          let_it_be(:pipeline2) { create(:ci_pipeline, project: project) }
 
           context 'when yaml_errors is true' do
             it 'returns matched pipelines' do
@@ -238,9 +242,9 @@ describe API::Pipelines do
         end
 
         context 'when updated_at filters are specified' do
-          let!(:pipeline1) { create(:ci_pipeline, project: project, updated_at: 2.days.ago) }
-          let!(:pipeline2) { create(:ci_pipeline, project: project, updated_at: 4.days.ago) }
-          let!(:pipeline3) { create(:ci_pipeline, project: project, updated_at: 1.hour.ago) }
+          let_it_be(:pipeline1) { create(:ci_pipeline, project: project, updated_at: 2.days.ago) }
+          let_it_be(:pipeline2) { create(:ci_pipeline, project: project, updated_at: 4.days.ago) }
+          let_it_be(:pipeline3) { create(:ci_pipeline, project: project, updated_at: 1.hour.ago) }
 
           it 'returns pipelines with last update date in specified datetime range' do
             get api("/projects/#{project.id}/pipelines", user), params: { updated_before: 1.day.ago, updated_after: 3.days.ago }
@@ -438,11 +442,11 @@ describe API::Pipelines do
         get api("/projects/#{project.id}/pipelines/#{pipeline.id}", user)
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['sha']).to match /\A\h{40}\z/
+        expect(json_response['sha']).to match(/\A\h{40}\z/)
       end
 
       it 'returns 404 when it does not exist' do
-        get api("/projects/#{project.id}/pipelines/123456", user)
+        get api("/projects/#{project.id}/pipelines/#{non_existing_record_id}", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
         expect(json_response['message']).to eq '404 Not found'
@@ -599,7 +603,7 @@ describe API::Pipelines do
       end
 
       it 'returns 404 when it does not exist' do
-        delete api("/projects/#{project.id}/pipelines/123456", owner)
+        delete api("/projects/#{project.id}/pipelines/#{non_existing_record_id}", owner)
 
         expect(response).to have_gitlab_http_status(:not_found)
         expect(json_response['message']).to eq '404 Not found'
@@ -610,7 +614,7 @@ describe API::Pipelines do
       end
 
       context 'when the pipeline has jobs' do
-        let!(:build) { create(:ci_build, project: project, pipeline: pipeline) }
+        let_it_be(:build) { create(:ci_build, project: project, pipeline: pipeline) }
 
         it 'destroys associated jobs' do
           delete api("/projects/#{project.id}/pipelines/#{pipeline.id}", owner)
@@ -650,12 +654,12 @@ describe API::Pipelines do
 
   describe 'POST /projects/:id/pipelines/:pipeline_id/retry' do
     context 'authorized user' do
-      let!(:pipeline) do
+      let_it_be(:pipeline) do
         create(:ci_pipeline, project: project, sha: project.commit.id,
                              ref: project.default_branch)
       end
 
-      let!(:build) { create(:ci_build, :failed, pipeline: pipeline) }
+      let_it_be(:build) { create(:ci_build, :failed, pipeline: pipeline) }
 
       it 'retries failed builds' do
         expect do
@@ -679,12 +683,12 @@ describe API::Pipelines do
   end
 
   describe 'POST /projects/:id/pipelines/:pipeline_id/cancel' do
-    let!(:pipeline) do
+    let_it_be(:pipeline) do
       create(:ci_empty_pipeline, project: project, sha: project.commit.id,
                                  ref: project.default_branch)
     end
 
-    let!(:build) { create(:ci_build, :running, pipeline: pipeline) }
+    let_it_be(:build) { create(:ci_build, :running, pipeline: pipeline) }
 
     context 'authorized user' do
       it 'retries failed builds', :sidekiq_might_not_need_inline do
@@ -696,7 +700,7 @@ describe API::Pipelines do
     end
 
     context 'user without proper access rights' do
-      let!(:reporter) { create(:user) }
+      let_it_be(:reporter) { create(:user) }
 
       before do
         project.add_reporter(reporter)
@@ -707,6 +711,75 @@ describe API::Pipelines do
 
         expect(response).to have_gitlab_http_status(:forbidden)
         expect(pipeline.reload.status).to eq('pending')
+      end
+    end
+  end
+
+  describe 'GET /projects/:id/pipelines/:pipeline_id/test_report' do
+    context 'authorized user' do
+      subject { get api("/projects/#{project.id}/pipelines/#{pipeline.id}/test_report", user) }
+
+      let(:pipeline) { create(:ci_pipeline, project: project) }
+
+      context 'when feature is enabled' do
+        before do
+          stub_feature_flags(junit_pipeline_view: true)
+        end
+
+        context 'when pipeline does not have a test report' do
+          it 'returns an empty test report' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response['total_count']).to eq(0)
+          end
+        end
+
+        context 'when pipeline has a test report' do
+          let(:pipeline) { create(:ci_pipeline, :with_test_reports, project: project) }
+
+          it 'returns the test report' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response['total_count']).to eq(4)
+          end
+        end
+
+        context 'when pipeline has corrupt test reports' do
+          before do
+            job = create(:ci_build, pipeline: pipeline)
+            create(:ci_job_artifact, :junit_with_corrupted_data, job: job, project: project)
+          end
+
+          it 'returns a suite_error' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response['test_suites'].first['suite_error']).to eq('JUnit XML parsing failed: 1:1: FATAL: Document is empty')
+          end
+        end
+      end
+
+      context 'when feature is disabled' do
+        before do
+          stub_feature_flags(junit_pipeline_view: false)
+        end
+
+        it 'renders empty response' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'unauthorized user' do
+      it 'does not return project pipelines' do
+        get api("/projects/#{project.id}/pipelines/#{pipeline.id}/test_report", non_member)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(json_response['message']).to eq '404 Project Not Found'
       end
     end
   end

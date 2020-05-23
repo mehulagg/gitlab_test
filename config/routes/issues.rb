@@ -13,10 +13,12 @@ resources :issues, concerns: :awardable, constraints: { id: /\d+/ } do
     get :realtime_changes
     post :create_merge_request
     get :discussions, format: :json
+    get '/designs(/*vueroute)', to: 'issues#designs', as: :designs, format: false
   end
 
   collection do
     post :bulk_update
     post :import_csv
+    post :export_csv
   end
 end

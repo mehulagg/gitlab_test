@@ -26,11 +26,10 @@ describe 'Project > Settings > CI/CD > Container registry tag expiration policy'
     it 'saves expiration policy submit the form' do
       within '#js-registry-policies' do
         within '.card-body' do
-          find('.gl-toggle-wrapper button:not(.is-disabled)').click
           select('7 days until tags are automatically removed', from: 'Expiration interval:')
           select('Every day', from: 'Expiration schedule:')
           select('50 tags per image name', from: 'Number of tags to retain:')
-          fill_in('Docker tags with names matching this regex pattern will expire:', with: '*-production')
+          fill_in('Tags with names matching this regex pattern will expire:', with: '*-production')
         end
         submit_button = find('.card-footer .btn.btn-success')
         expect(submit_button).not_to be_disabled

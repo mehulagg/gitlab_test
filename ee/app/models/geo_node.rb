@@ -51,6 +51,8 @@ class GeoNode < ApplicationRecord
 
   scope :with_url_prefix, ->(prefix) { where('url LIKE ?', "#{prefix}%") }
   scope :secondary_nodes, -> { where(primary: false) }
+  scope :name_in, -> (names) { where(name: names) }
+  scope :ordered, -> { order(:id) }
 
   attr_encrypted :secret_access_key,
                  key: Settings.attr_encrypted_db_key_base_truncated,
@@ -173,12 +175,29 @@ class GeoNode < ApplicationRecord
     @internal_uri ||= URI.parse(internal_url) if internal_url.present?
   end
 
+  # Geo API endpoint for retrieving a replicable item
+  #
+  # @param [String] replicable_name
+  # @param [Integer] replicable_id
+  def geo_retrieve_url(replicable_name, replicable_id)
+    geo_api_url("retrieve/#{replicable_name}/#{replicable_id}")
+  end
+
+  # Geo API endpoint for retrieving a file based on Uploads
+  #
+  # @deprecated
+  # @param [String] file_type
+  # @param [Integer] file_id
   def geo_transfers_url(file_type, file_id)
     geo_api_url("transfers/#{file_type}/#{file_id}")
   end
 
   def status_url
     geo_api_url('status')
+  end
+
+  def node_api_url(node)
+    api_url("geo_nodes/#{node.id}")
   end
 
   def snapshot_url(repository)

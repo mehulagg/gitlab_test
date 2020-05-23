@@ -34,6 +34,10 @@ describe ApplicationSetting do
     it { is_expected.to allow_value("dev.gitlab.com").for(:commit_email_hostname) }
     it { is_expected.not_to allow_value("@dev.gitlab").for(:commit_email_hostname) }
 
+    it { is_expected.to allow_value(true).for(:container_expiration_policies_enable_historic_entries) }
+    it { is_expected.to allow_value(false).for(:container_expiration_policies_enable_historic_entries) }
+    it { is_expected.not_to allow_value(nil).for(:container_expiration_policies_enable_historic_entries) }
+
     it { is_expected.to allow_value("myemail@gitlab.com").for(:lets_encrypt_notification_email) }
     it { is_expected.to allow_value(nil).for(:lets_encrypt_notification_email) }
     it { is_expected.not_to allow_value("notanemail").for(:lets_encrypt_notification_email) }
@@ -87,6 +91,20 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(nil).for(:namespace_storage_size_limit) }
     it { is_expected.not_to allow_value(-1).for(:namespace_storage_size_limit) }
 
+    it { is_expected.to allow_value(300).for(:issues_create_limit) }
+    it { is_expected.not_to allow_value('three').for(:issues_create_limit) }
+    it { is_expected.not_to allow_value(nil).for(:issues_create_limit) }
+    it { is_expected.not_to allow_value(10.5).for(:issues_create_limit) }
+    it { is_expected.not_to allow_value(-1).for(:issues_create_limit) }
+
+    it { is_expected.to allow_value(0).for(:raw_blob_request_limit) }
+    it { is_expected.not_to allow_value('abc').for(:raw_blob_request_limit) }
+    it { is_expected.not_to allow_value(nil).for(:raw_blob_request_limit) }
+    it { is_expected.not_to allow_value(10.5).for(:raw_blob_request_limit) }
+    it { is_expected.not_to allow_value(-1).for(:raw_blob_request_limit) }
+
+    it { is_expected.not_to allow_value(false).for(:hashed_storage_enabled) }
+
     context 'grafana_url validations' do
       before do
         subject.instance_variable_set(:@parsed_grafana_url, nil)
@@ -131,6 +149,30 @@ describe ApplicationSetting do
             'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
           ])
         end
+      end
+    end
+
+    describe 'spam_check_endpoint' do
+      context 'when spam_check_endpoint is enabled' do
+        before do
+          setting.spam_check_endpoint_enabled = true
+        end
+
+        it { is_expected.to allow_value('https://example.org/spam_check').for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value('nonsense').for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value(nil).for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value('').for(:spam_check_endpoint_url) }
+      end
+
+      context 'when spam_check_endpoint is NOT enabled' do
+        before do
+          setting.spam_check_endpoint_enabled = false
+        end
+
+        it { is_expected.to allow_value('https://example.org/spam_check').for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value('nonsense').for(:spam_check_endpoint_url) }
+        it { is_expected.to allow_value(nil).for(:spam_check_endpoint_url) }
+        it { is_expected.to allow_value('').for(:spam_check_endpoint_url) }
       end
     end
 

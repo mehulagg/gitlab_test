@@ -25,36 +25,6 @@ mentioned above, we recommend running these scripts under the supervision of a
 Support Engineer, who can also verify that they will continue to work as they
 should and, if needed, update the script for the latest version of GitLab.
 
-## Use the Rails Runner
-
-If the script you want to run is short, you can use the Rails Runner to avoid
-entering the rails console in the first place. Here's an example of its use:
-
-```shell
-gitlab-rails runner "RAILS_COMMAND"
-
-# Example with a 2-line script
-gitlab-rails runner "user = User.first; puts user.username"
-```
-
-## Enable debug logging on rails console
-
-```ruby
-Rails.logger.level = 0
-```
-
-## Enable debug logging for ActiveRecord (db issues)
-
-```ruby
-ActiveRecord::Base.logger = Logger.new(STDOUT)
-```
-
-## Temporarily Disable Timeout
-
-```ruby
-ActiveRecord::Base.connection.execute('SET statement_timeout TO 0')
-```
-
 ## Find specific methods for an object
 
 ```ruby
@@ -83,12 +53,6 @@ o = Object.where('attribute like ?', 'ex')
 
 ```ruby
 Rails.cache.instance_variable_get(:@data).keys
-```
-
-## Rails console history
-
-```ruby
-puts Readline::HISTORY.to_a
 ```
 
 ## Profile a page
@@ -186,9 +150,9 @@ Project.update_all(visibility_level: 0)
 #
 projects = Project.where(pending_delete: true)
 projects.each do |p|
-  puts "Project name: #{p.id}"
+  puts "Project ID: #{p.id}"
   puts "Project name: #{p.name}"
-  puts "Repository path: #{p.repository.storage_path}"
+  puts "Repository path: #{p.repository.full_path}"
 end
 
 #
@@ -247,6 +211,20 @@ p = Project.find_by_sql("SELECT p.id FROM projects p LEFT JOIN services s ON p.i
 
 p.each do |project|
   project.jira_service.update_attribute(:password, '<your-new-password>')
+end
+```
+
+### Bulk update to disable the Slack Notification service
+
+To disable notifications for all projects that have Slack service enabled, do:
+
+```ruby
+# Grab all projects that have the Slack notifications enabled
+p = Project.find_by_sql("SELECT p.id FROM projects p LEFT JOIN services s ON p.id = s.project_id WHERE s.type = 'SlackService' AND s.active = true")
+
+# Disable the service on each of the projects that were found.
+p.each do |project|
+  project.slack_service.update_attribute(:active, false)
 end
 ```
 
@@ -540,7 +518,7 @@ group.project_creation_level=0
 
 ### Remove redirecting routes
 
-See <https://gitlab.com/gitlab-org/gitlab-foss/issues/41758#note_54828133>.
+See <https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41758#note_54828133>.
 
 ```ruby
 path = 'foo'
@@ -594,33 +572,11 @@ Ci::Pipeline.where(project_id: p.id).where(status: 'pending').count
 
 ### Remove artifacts more than a week old
 
-The Latest version of these steps can be found in the [job artifacts documentation](../job_artifacts.md)
-
-```ruby
-### SELECTING THE BUILDS TO CLEAR
-# For a single project:
-project = Project.find_by_full_path('')
-builds_with_artifacts =  project.builds.with_artifacts_archive
-
-# Instance-wide:
-builds_with_artifacts = Ci::Build.with_artifacts_archive
-
-# Prior to 10.6 the above lines would be:
-# builds_with_artifacts =  project.builds.with_artifacts
-# builds_with_artifacts = Ci::Build.with_artifacts
-
-### CLEAR THEM OUT
-# Note that this will also erase artifacts that developers marked to "Keep"
-builds_to_clear = builds_with_artifacts.where("finished_at < ?", 1.week.ago)
-builds_to_clear.each do |build|
-  build.artifacts_expire_at = Time.now
-  build.erase_erasable_artifacts!
-end
-```
+This section has been moved to the [job artifacts troubleshooting documentation](../job_artifacts.md#delete-job-artifacts-from-jobs-completed-before-a-specific-date).
 
 ### Find reason failure (for when build trace is empty) (Introduced in 10.3.0)
 
-See <https://gitlab.com/gitlab-org/gitlab-foss/issues/41111>.
+See <https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41111>.
 
 ```ruby
 build = Ci::Build.find(78420)
@@ -637,6 +593,14 @@ build.dependencies.each do |d| { puts "status: #{d.status}, finished at: #{d.fin
 p = Project.find_by_full_path('')
 m = project.merge_requests.find_by(iid: )
 m.project.try(:ci_service)
+```
+
+### Validate the `.gitlab-ci.yml`
+
+```ruby
+project = Project.find_by_full_path 'group/project'
+content = project.repository.gitlab_ci_yml_for(project.repository.root_ref_sha)
+Gitlab::Ci::YamlProcessor.validation_message(content,  user: User.first)
 ```
 
 ### Disable AutoDevOps on Existing Projects
@@ -787,7 +751,7 @@ This content has been moved to the [Troubleshooting Sidekiq docs](./sidekiq.md).
 
 ## LFS
 
-### Get info about LFS objects and associated project
+### Get information about LFS objects and associated project
 
 ```ruby
 o=LfsObject.find_by(oid: "<oid>")

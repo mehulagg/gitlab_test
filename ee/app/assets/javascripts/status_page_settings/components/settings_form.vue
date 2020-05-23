@@ -2,7 +2,7 @@
 import { mapActions, mapState } from 'vuex';
 import { mapComputed } from '~/vuex_shared/bindings';
 import {
-  GlButton,
+  GlDeprecatedButton,
   GlSprintf,
   GlLink,
   GlIcon,
@@ -13,7 +13,15 @@ import {
 import { __, s__ } from '~/locale';
 
 export default {
-  components: { GlButton, GlSprintf, GlLink, GlFormGroup, GlFormInput, GlIcon, GlFormCheckbox },
+  components: {
+    GlDeprecatedButton,
+    GlSprintf,
+    GlLink,
+    GlFormGroup,
+    GlFormInput,
+    GlIcon,
+    GlFormCheckbox,
+  },
   i18n: {
     headerText: s__('StatusPage|Status page'),
     expandBtnLabel: __('Expand'),
@@ -26,6 +34,10 @@ export default {
     ),
     introLinkText: s__('StatusPage|your status page frontend.'),
     activeLabel: s__('StatusPage|Active'),
+    url: {
+      label: s__('StatusPage|Status page URL'),
+      linkText: s__('StatusPage|Status page frontend documentation'),
+    },
     bucket: {
       label: s__('StatusPage|S3 Bucket name'),
       helpText: s__('StatusPage|Bucket %{docsLink}'),
@@ -47,6 +59,7 @@ export default {
     ...mapState(['loading']),
     ...mapComputed([
       { key: 'enabled', updateFn: 'setStatusPageEnabled' },
+      { key: 'url', updateFn: 'setStatusPageUrl' },
       { key: 'bucketName', updateFn: 'setStatusPageBucketName' },
       { key: 'region', updateFn: 'setStatusPageRegion' },
       { key: 'awsAccessKey', updateFn: 'setStatusPageAccessKey' },
@@ -65,9 +78,9 @@ export default {
       <h3 ref="sectionHeader" class="h4">
         {{ $options.i18n.headerText }}
       </h3>
-      <gl-button ref="toggleBtn" class="js-settings-toggle">{{
+      <gl-deprecated-button ref="toggleBtn" class="js-settings-toggle">{{
         $options.i18n.expandBtnLabel
-      }}</gl-button>
+      }}</gl-deprecated-button>
       <p ref="sectionSubHeader">
         {{ $options.i18n.subHeaderText }}
       </p>
@@ -78,7 +91,7 @@ export default {
       <p>
         <gl-sprintf :message="$options.i18n.introText">
           <template #docsLink>
-            <gl-link href="#">
+            <gl-link href="/help/user/project/status_page/index.html">
               <span>{{ $options.i18n.introLinkText }}</span>
             </gl-link>
           </template>
@@ -89,6 +102,20 @@ export default {
           <gl-form-checkbox v-model="enabled">
             <span class="bold">{{ $options.i18n.activeLabel }}</span></gl-form-checkbox
           >
+        </gl-form-group>
+
+        <gl-form-group
+          :label="$options.i18n.url.label"
+          label-size="sm"
+          label-for="status-page-url"
+          class="col-8 col-md-9 gl-pl-0 mb-3"
+        >
+          <gl-form-input id="status-page-url" v-model="url" />
+          <p class="form-text text-muted">
+            <gl-link href="/help/user/project/status_page/index.html">
+              {{ $options.i18n.url.linkText }}
+            </gl-link>
+          </p>
         </gl-form-group>
 
         <gl-form-group
@@ -139,7 +166,7 @@ export default {
         <gl-form-group
           :label="$options.i18n.accessKey.label"
           label-size="sm"
-          label-for="status-page-aws-access-key-id"
+          label-for="status-page-aws-access-key"
           class="col-8 col-md-9 gl-pl-0 mb-3"
         >
           <gl-form-input id="status-page-aws-access-key " v-model="awsAccessKey" />
@@ -154,7 +181,7 @@ export default {
           <gl-form-input id="status-page-aws-secret-access-key " v-model="awsSecretKey" />
         </gl-form-group>
 
-        <gl-button
+        <gl-deprecated-button
           ref="submitBtn"
           :disabled="loading"
           variant="success"
@@ -162,7 +189,7 @@ export default {
           class="js-no-auto-disable"
         >
           {{ $options.i18n.saveBtnLabel }}
-        </gl-button>
+        </gl-deprecated-button>
       </form>
     </div>
   </section>

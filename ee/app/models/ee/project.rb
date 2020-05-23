@@ -10,14 +10,12 @@ module EE
     extend ::Gitlab::Utils::Override
     extend ::Gitlab::Cache::RequestCache
     include ::Gitlab::Utils::StrongMemoize
-    include ::EE::GitlabRoutingHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
     include IgnorableColumns
 
     GIT_LFS_DOWNLOAD_OPERATION = 'download'.freeze
 
     prepended do
       include Elastic::ProjectsSearch
-      include EE::DeploymentPlatform # rubocop: disable Cop/InjectEnterpriseEditionModule
       include EachBatch
       include InsightsFeature
       include DeprecatedApprovalsBeforeMerge
@@ -40,14 +38,14 @@ module EE
       has_one :index_status
 
       has_one :jenkins_service
-      has_one :jenkins_deprecated_service
       has_one :github_service
       has_one :gitlab_slack_application_service
 
       has_one :service_desk_setting, class_name: 'ServiceDeskSetting'
       has_one :tracing_setting, class_name: 'ProjectTracingSetting'
       has_one :feature_usage, class_name: 'ProjectFeatureUsage'
-      has_one :status_page_setting, inverse_of: :project
+      has_one :status_page_setting, inverse_of: :project, class_name: 'StatusPage::ProjectSetting'
+      has_one :compliance_framework_setting, class_name: 'ComplianceManagement::ComplianceFramework::ProjectSettings', inverse_of: :project
 
       has_many :reviews, inverse_of: :project
       has_many :approvers, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -56,9 +54,8 @@ module EE
       has_many :approval_rules, class_name: 'ApprovalProjectRule'
       has_many :approval_merge_request_rules, through: :merge_requests, source: :approval_rules
       has_many :audit_events, as: :entity
-      has_many :designs, inverse_of: :project, class_name: 'DesignManagement::Design'
       has_many :path_locks
-      has_many :requirements
+      has_many :requirements, inverse_of: :project, class_name: 'RequirementsManagement::Requirement'
 
       # the rationale behind vulnerabilities and vulnerability_findings can be found here:
       # https://gitlab.com/gitlab-org/gitlab/issues/10252#terminology
@@ -84,6 +81,7 @@ module EE
 
       has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
       has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
+      has_many :operations_feature_flags_user_lists, class_name: 'Operations::FeatureFlags::UserList'
 
       has_many :project_aliases
 
@@ -94,7 +92,14 @@ module EE
 
       has_many :sourced_pipelines, class_name: 'Ci::Sources::Project', foreign_key: :source_project_id
 
-      scope :with_shared_runners_limit_enabled, -> { with_shared_runners.non_public_only }
+      scope :with_shared_runners_limit_enabled, -> do
+        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects) &&
+            ::Ci::Runner.has_shared_runners_with_non_zero_public_cost?
+          with_shared_runners
+        else
+          with_shared_runners.non_public_only
+        end
+      end
 
       scope :mirror, -> { where(mirror: true) }
 
@@ -112,7 +117,7 @@ module EE
       scope :outside_shards, -> (shard_names) { where.not(repository_storage: Array(shard_names)) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
       scope :verification_failed_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_wikis) }
-      scope :for_plan_name, -> (name) { joins(namespace: :plan).where(plans: { name: name }) }
+      scope :for_plan_name, -> (name) { joins(namespace: { gitlab_subscription: :hosted_plan }).where(plans: { name: name }) }
       scope :requiring_code_owner_approval,
             -> { joins(:protected_branches).where(protected_branches: { code_owner_approval_required: true }) }
       scope :with_active_services, -> { joins(:services).merge(::Service.active) }
@@ -141,14 +146,17 @@ module EE
       scope :aimed_for_deletion, -> (date) { where('marked_for_deletion_at <= ?', date).without_deleted }
       scope :with_repos_templates, -> { where(namespace_id: ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id) }
       scope :with_groups_level_repos_templates, -> { joins("INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id") }
-      scope :with_designs, -> { where(id: DesignManagement::Design.select(:project_id)) }
+      scope :with_designs, -> { where(id: ::DesignManagement::Design.select(:project_id)) }
       scope :with_deleting_user, -> { includes(:deleting_user) }
+      scope :with_compliance_framework_settings, -> { preload(:compliance_framework_setting) }
+      scope :has_vulnerabilities, -> { joins(:vulnerabilities).group(:id) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
 
       delegate :actual_shared_runners_minutes_limit,
-        :shared_runners_minutes_used?, to: :shared_runners_limit_namespace
+               :shared_runners_minutes_used?,
+               :shared_runners_remaining_minutes_below_threshold?, to: :shared_runners_limit_namespace
 
       delegate :last_update_succeeded?, :last_update_failed?,
         :ever_updated_successfully?, :hard_failed?,
@@ -158,7 +166,7 @@ module EE
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled?, to: :ci_cd_settings
-      delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
+      delegate :closest_gitlab_subscription, to: :namespace
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -180,6 +188,7 @@ module EE
 
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :status_page_setting, update_only: true, allow_destroy: true
+      accepts_nested_attributes_for :compliance_framework_setting, update_only: true, allow_destroy: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge
     end
@@ -269,6 +278,15 @@ module EE
     end
 
     def shared_runners_minutes_limit_enabled?
+      if ::Feature.enabled?(:ci_minutes_track_for_public_projects, shared_runners_limit_namespace)
+        shared_runners_enabled? &&
+          shared_runners_limit_namespace.shared_runners_minutes_limit_enabled?
+      else
+        legacy_shared_runners_minutes_limit_enabled?
+      end
+    end
+
+    def legacy_shared_runners_minutes_limit_enabled?
       !public? && shared_runners_enabled? &&
         shared_runners_limit_namespace.shared_runners_minutes_limit_enabled?
     end
@@ -283,8 +301,7 @@ module EE
     #   it. This is the case when we're ready to enable a feature for anyone
     #   with the correct license.
     def beta_feature_available?(feature)
-      ::Feature.enabled?(feature, self) ||
-        (::Feature.enabled?(feature) && feature_available?(feature))
+      ::Feature.enabled?(feature) ? feature_available?(feature) : ::Feature.enabled?(feature, self)
     end
     alias_method :alpha_feature_available?, :beta_feature_available?
 
@@ -293,7 +310,7 @@ module EE
     end
 
     def first_class_vulnerabilities_enabled?
-      ::Feature.enabled?(:first_class_vulnerabilities, self)
+      ::Feature.enabled?(:first_class_vulnerabilities, self, default_enabled: true)
     end
 
     def feature_available?(feature, user = nil)
@@ -343,14 +360,7 @@ module EE
       # Historically this was intended ensure `super` is only called
       # when a project is imported(usually on project creation only) so `repository_exists?`
       # check was added so that it does not stop mirroring if later on mirroring option is added to the project.
-      #
-      # With jira importer we need to allow to run the import multiple times on same project,
-      # which can conflict with scheduled mirroring(if that project had or will have mirroring enabled),
-      # so we are checking if its a jira reimport then we trigger that and skip mirroring even if mirroring
-      # should have been started. When we run into race condition with mirroring on a jira imported project
-      # the mirroring would still be picked up 1 minute later, based on `Gitlab::Mirror::SCHEDULER_CRON` and
-      # `ProjectUpdateState#mirror_update_due?``
-      return super if jira_force_import? || import? && !repository_exists?
+      return super if import? && !repository_exists?
 
       if mirror?
         ::Gitlab::Metrics.add_event(:mirrors_scheduled)
@@ -535,8 +545,9 @@ module EE
     def disabled_services
       strong_memoize(:disabled_services) do
         [].tap do |services|
-          services.push('jenkins', 'jenkins_deprecated') unless feature_available?(:jenkins_integration)
+          services.push('jenkins') unless feature_available?(:jenkins_integration)
           services.push('github') unless feature_available?(:github_project_service_integration)
+          ::Gitlab::CurrentSettings.slack_app_enabled ? services.push('slack_slash_commands') : services.push('gitlab_slack_application')
         end
       end
     end
@@ -582,6 +593,10 @@ module EE
       repository.log_geo_updated_event
       wiki.repository.log_geo_updated_event
       design_repository.log_geo_updated_event
+
+      # Index the wiki repository after import of non-forked projects only, the project repository is indexed
+      # in ProjectImportState so ElasticSearch will get project repository changes when mirrors are updated
+      ElasticCommitIndexerWorker.perform_async(id, nil, nil, true) if use_elasticsearch? && !forked?
     end
 
     override :import?
@@ -640,34 +655,6 @@ module EE
 
     def feature_usage
       super.presence || build_feature_usage
-    end
-
-    # LFS and hashed repository storage are required for using Design Management.
-    def design_management_enabled?
-      lfs_enabled? &&
-        # We will allow the hashed storage requirement to be disabled for
-        # a few releases until we are able to understand the impact of the
-        # hashed storage requirement for existing design management projects.
-        # See https://gitlab.com/gitlab-org/gitlab/issues/13428#note_238729038
-        (hashed_storage?(:repository) || ::Feature.disabled?(:design_management_require_hashed_storage, self, default_enabled: true)) &&
-        feature_available?(:design_management)
-    end
-
-    def design_repository
-      strong_memoize(:design_repository) do
-        DesignManagement::Repository.new(self)
-      end
-    end
-
-    override(:expire_caches_before_rename)
-    def expire_caches_before_rename(old_path)
-      super
-
-      design = ::Repository.new("#{old_path}#{::EE::Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: ::EE::Gitlab::GlRepository::DESIGN)
-
-      if design.exists?
-        design.before_delete
-      end
     end
 
     def package_already_taken?(package_name)
@@ -796,3 +783,6 @@ module EE
     end
   end
 end
+
+EE::Project.include_if_ee('::EE::GitlabRoutingHelper')
+EE::Project.include_if_ee('::EE::DeploymentPlatform')

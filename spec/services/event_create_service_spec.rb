@@ -13,6 +13,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.open_issue(issue, issue.author) }.to change { Event.count }
+        expect { service.open_issue(issue, issue.author) }.to change { ResourceStateEvent.count }
       end
     end
 
@@ -23,6 +24,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.close_issue(issue, issue.author) }.to change { Event.count }
+        expect { service.close_issue(issue, issue.author) }.to change { ResourceStateEvent.count }
       end
     end
 
@@ -33,6 +35,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.reopen_issue(issue, issue.author) }.to change { Event.count }
+        expect { service.reopen_issue(issue, issue.author) }.to change { ResourceStateEvent.count }
       end
     end
   end
@@ -45,6 +48,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.open_mr(merge_request, merge_request.author) }.to change { Event.count }
+        expect { service.open_mr(merge_request, merge_request.author) }.to change { ResourceStateEvent.count }
       end
     end
 
@@ -55,6 +59,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.close_mr(merge_request, merge_request.author) }.to change { Event.count }
+        expect { service.close_mr(merge_request, merge_request.author) }.to change { ResourceStateEvent.count }
       end
     end
 
@@ -65,6 +70,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.merge_mr(merge_request, merge_request.author) }.to change { Event.count }
+        expect { service.merge_mr(merge_request, merge_request.author) }.to change { ResourceStateEvent.count }
       end
     end
 
@@ -75,6 +81,7 @@ describe EventCreateService do
 
       it "creates new event" do
         expect { service.reopen_mr(merge_request, merge_request.author) }.to change { Event.count }
+        expect { service.reopen_mr(merge_request, merge_request.author) }.to change { ResourceStateEvent.count }
       end
     end
   end
@@ -162,14 +169,23 @@ describe EventCreateService do
       context "The action is #{action}" do
         let(:event) { service.wiki_event(meta, user, action) }
 
-        it 'creates the event' do
+        it 'creates the event', :aggregate_failures do
           expect(event).to have_attributes(
             wiki_page?: true,
             valid?: true,
             persisted?: true,
             action: action,
-            wiki_page: wiki_page
+            wiki_page: wiki_page,
+            author: user
           )
+        end
+
+        it 'is idempotent', :aggregate_failures do
+          expect { event }.to change(Event, :count).by(1)
+          duplicate = nil
+          expect { duplicate = service.wiki_event(meta, user, action) }.not_to change(Event, :count)
+
+          expect(duplicate).to eq(event)
         end
 
         context 'the feature is disabled' do

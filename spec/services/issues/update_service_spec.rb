@@ -510,7 +510,7 @@ describe Issues::UpdateService, :mailer do
         end
 
         it 'updates updated_at' do
-          expect(issue.reload.updated_at).to be > Time.now
+          expect(issue.reload.updated_at).to be > Time.current
         end
       end
     end
@@ -824,14 +824,14 @@ describe Issues::UpdateService, :mailer do
 
     context 'when moving an issue ' do
       it 'raises an error for invalid move ids within a project' do
-        opts = { move_between_ids: [9000, 9999] }
+        opts = { move_between_ids: [9000, non_existing_record_id] }
 
         expect { described_class.new(issue.project, user, opts).execute(issue) }
             .to raise_error(ActiveRecord::RecordNotFound)
       end
 
       it 'raises an error for invalid move ids within a group' do
-        opts = { move_between_ids: [9000, 9999], board_group_id: create(:group).id }
+        opts = { move_between_ids: [9000, non_existing_record_id], board_group_id: create(:group).id }
 
         expect { described_class.new(issue.project, user, opts).execute(issue) }
             .to raise_error(ActiveRecord::RecordNotFound)
@@ -841,6 +841,34 @@ describe Issues::UpdateService, :mailer do
     include_examples 'issuable update service' do
       let(:open_issuable) { issue }
       let(:closed_issuable) { create(:closed_issue, project: project) }
+    end
+
+    context 'real-time updates' do
+      let(:update_params) { { assignee_ids: [user2.id] } }
+
+      context 'when broadcast_issue_updates is enabled' do
+        before do
+          stub_feature_flags(broadcast_issue_updates: true)
+        end
+
+        it 'broadcasts to the issues channel' do
+          expect(IssuesChannel).to receive(:broadcast_to).with(issue, event: 'updated')
+
+          update_issue(update_params)
+        end
+      end
+
+      context 'when broadcast_issue_updates is disabled' do
+        before do
+          stub_feature_flags(broadcast_issue_updates: false)
+        end
+
+        it 'does not broadcast to the issues channel' do
+          expect(IssuesChannel).not_to receive(:broadcast_to)
+
+          update_issue(update_params)
+        end
+      end
     end
   end
 end

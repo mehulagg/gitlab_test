@@ -51,6 +51,24 @@ describe('DiffsStoreMutations', () => {
     });
   });
 
+  describe('SET_DIFF_FILES', () => {
+    it('should set diffFiles in state', () => {
+      const state = {};
+
+      mutations[types.SET_DIFF_FILES](state, ['file', 'another file']);
+
+      expect(state.diffFiles.length).toEqual(2);
+    });
+
+    it('should not set anything except diffFiles in state', () => {
+      const state = {};
+
+      mutations[types.SET_DIFF_FILES](state, ['file', 'another file']);
+
+      expect(Object.keys(state)).toEqual(['diffFiles']);
+    });
+  });
+
   describe('SET_DIFF_DATA', () => {
     it('should set diff data type properly', () => {
       const state = {
@@ -597,6 +615,73 @@ describe('DiffsStoreMutations', () => {
       expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(1);
       expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toEqual(1);
     });
+
+    it('should add discussions by line_codes and positions attributes', () => {
+      const diffPosition = {
+        base_sha: 'ed13df29948c41ba367caa757ab3ec4892509910',
+        head_sha: 'b921914f9a834ac47e6fd9420f78db0f83559130',
+        new_line: null,
+        new_path: '500-lines-4.txt',
+        old_line: 5,
+        old_path: '500-lines-4.txt',
+        start_sha: 'ed13df29948c41ba367caa757ab3ec4892509910',
+      };
+
+      const state = {
+        latestDiff: true,
+        diffFiles: [
+          {
+            file_hash: 'ABC',
+            parallel_diff_lines: [
+              {
+                left: {
+                  line_code: 'ABC_1',
+                  discussions: [],
+                },
+                right: {
+                  line_code: 'ABC_1',
+                  discussions: [],
+                },
+              },
+            ],
+            highlighted_diff_lines: [
+              {
+                line_code: 'ABC_1',
+                discussions: [],
+              },
+            ],
+          },
+        ],
+      };
+      const discussion = {
+        id: 1,
+        line_code: 'ABC_2',
+        line_codes: ['ABC_1'],
+        diff_discussion: true,
+        resolvable: true,
+        original_position: {},
+        position: {},
+        positions: [diffPosition],
+        diff_file: {
+          file_hash: state.diffFiles[0].file_hash,
+        },
+      };
+
+      const diffPositionByLineCode = {
+        ABC_1: diffPosition,
+      };
+
+      mutations[types.SET_LINE_DISCUSSIONS_FOR_FILE](state, {
+        discussion,
+        diffPositionByLineCode,
+      });
+
+      expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions).toHaveLength(1);
+      expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toBe(1);
+
+      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions).toHaveLength(1);
+      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toBe(1);
+    });
   });
 
   describe('REMOVE_LINE_DISCUSSIONS', () => {
@@ -778,11 +863,13 @@ describe('DiffsStoreMutations', () => {
     it('sets showWhitespace', () => {
       const state = {
         showWhitespace: true,
+        diffFiles: ['test'],
       };
 
       mutations[types.SET_SHOW_WHITESPACE](state, false);
 
       expect(state.showWhitespace).toBe(false);
+      expect(state.diffFiles).toEqual([]);
     });
   });
 
@@ -951,6 +1038,36 @@ describe('DiffsStoreMutations', () => {
       mutations[types.TOGGLE_DIFF_FILE_RENDERING_MORE](state, 'test');
 
       expect(file.renderingLines).toBe(false);
+    });
+  });
+
+  describe('SET_DIFF_FILE_VIEWER', () => {
+    it("should update the correct diffFile's viewer property", () => {
+      const state = {
+        diffFiles: [
+          { file_path: 'SearchString', viewer: 'OLD VIEWER' },
+          { file_path: 'OtherSearchString' },
+          { file_path: 'SomeOtherString' },
+        ],
+      };
+
+      mutations[types.SET_DIFF_FILE_VIEWER](state, {
+        filePath: 'SearchString',
+        viewer: 'NEW VIEWER',
+      });
+
+      expect(state.diffFiles[0].viewer).toEqual('NEW VIEWER');
+      expect(state.diffFiles[1].viewer).not.toBeDefined();
+      expect(state.diffFiles[2].viewer).not.toBeDefined();
+
+      mutations[types.SET_DIFF_FILE_VIEWER](state, {
+        filePath: 'OtherSearchString',
+        viewer: 'NEW VIEWER',
+      });
+
+      expect(state.diffFiles[0].viewer).toEqual('NEW VIEWER');
+      expect(state.diffFiles[1].viewer).toEqual('NEW VIEWER');
+      expect(state.diffFiles[2].viewer).not.toBeDefined();
     });
   });
 

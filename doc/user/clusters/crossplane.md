@@ -1,3 +1,9 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Crossplane configuration
 
 Once Crossplane [is installed](applications.md#crossplane), it must be configured for
@@ -71,14 +77,14 @@ export REGION=us-central1 # the GCP region where the GKE cluster is provisioned.
 
 ## Configure Crossplane with a cloud provider
 
-See [Configure Your Cloud Provider Account](https://crossplane.io/docs/v0.4/cloud-providers.html)
+See [Configure Your Cloud Provider Account](https://crossplane.github.io/docs/v0.4/cloud-providers.html)
 to configure the installed cloud provider stack with a user account.
 
 Note that the Secret and the Provider resource referencing the Secret needs to be
 applied to the `gitlab-managed-apps` namespace in the guide. Make sure you change that
 while following the process.
 
-[Configure Providers](https://crossplane.io/docs/v0.4/cloud-providers.html)
+[Configure Providers](https://crossplane.github.io/docs/v0.4/cloud-providers.html)
 
 ## Configure Managed Service Access
 
@@ -161,7 +167,7 @@ metadata:
 specTemplate:
   writeConnectionSecretsToNamespace: gitlab-managed-apps
   forProvider:
-    databaseVersion: POSTGRES_9_6
+    databaseVersion: POSTGRES_11_7
     region: $REGION
     settings:
       tier: db-custom-1-3840
@@ -183,7 +189,7 @@ metadata:
 specTemplate:
   writeConnectionSecretsToNamespace: gitlab-managed-apps
   forProvider:
-    databaseVersion: POSTGRES_9_6
+    databaseVersion: POSTGRES_11_7
     region: $REGION
     settings:
       tier: db-custom-1-3840

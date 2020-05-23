@@ -1,11 +1,13 @@
 <script>
 import { initEditorLite } from '~/blob/utils';
+import { debounce } from 'lodash';
 
 export default {
   props: {
     value: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
     fileName: {
       type: String,
@@ -15,7 +17,6 @@ export default {
   },
   data() {
     return {
-      content: this.value,
       editor: null,
     };
   },
@@ -28,22 +29,18 @@ export default {
     this.editor = initEditorLite({
       el: this.$refs.editor,
       blobPath: this.fileName,
-      blobContent: this.content,
+      blobContent: this.value,
     });
   },
   methods: {
-    triggerFileChange() {
-      const val = this.editor.getValue();
-      this.content = val;
-      this.$emit('input', val);
-    },
+    triggerFileChange: debounce(function debouncedFileChange() {
+      this.$emit('input', this.editor.getValue());
+    }, 250),
   },
 };
 </script>
 <template>
   <div class="file-content code">
-    <pre id="editor" ref="editor" data-editor-loading @focusout="triggerFileChange">{{
-      content
-    }}</pre>
+    <pre id="editor" ref="editor" data-editor-loading @keyup="triggerFileChange">{{ value }}</pre>
   </div>
 </template>

@@ -85,6 +85,60 @@ describe Gitlab::Ci::Reports::TestSuite do
     end
   end
 
+  describe '#with_attachment' do
+    subject { test_suite.with_attachment! }
+
+    context 'when test cases do not contain an attachment' do
+      let(:test_case) { build(:test_case, :failed)}
+
+      before do
+        test_suite.add_test_case(test_case)
+      end
+
+      it 'returns an empty hash' do
+        expect(subject).to be_empty
+      end
+    end
+
+    context 'when test cases contain an attachment' do
+      let(:test_case_with_attachment) { build(:test_case, :failed_with_attachment)}
+
+      before do
+        test_suite.add_test_case(test_case_with_attachment)
+      end
+
+      it 'returns failed test cases with attachment' do
+        expect(subject.count).to eq(1)
+        expect(subject['failed']).to be_present
+      end
+    end
+  end
+
+  describe '#set_suite_error' do
+    let(:set_suite_error) { test_suite.set_suite_error('message') }
+
+    context 'when @suite_error is nil' do
+      it 'returns message' do
+        expect(set_suite_error).to eq('message')
+      end
+
+      it 'sets the new message' do
+        set_suite_error
+        expect(test_suite.suite_error).to eq('message')
+      end
+    end
+
+    context 'when a suite_error has already been set' do
+      before do
+        test_suite.set_suite_error('old message')
+      end
+
+      it 'overwrites the existing message' do
+        expect { set_suite_error }.to change(test_suite, :suite_error).from('old message').to('message')
+      end
+    end
+  end
+
   Gitlab::Ci::Reports::TestCase::STATUS_TYPES.each do |status_type|
     describe "##{status_type}" do
       subject { test_suite.public_send("#{status_type}") }

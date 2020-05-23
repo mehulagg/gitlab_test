@@ -5,7 +5,7 @@ FactoryBot.define do
   factory :ci_empty_pipeline, class: 'Ci::Pipeline' do
     source { :push }
     ref { 'master' }
-    sha { '97de212e80737a608d939f648d959671fb0a0142' }
+    sha { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
     status { 'pending' }
     add_attribute(:protected) { false }
 
@@ -67,11 +67,43 @@ FactoryBot.define do
         end
       end
 
+      trait :with_test_reports_attachment do
+        status { :success }
+
+        after(:build) do |pipeline, evaluator|
+          pipeline.builds << build(:ci_build, :test_reports_with_attachment, pipeline: pipeline, project: pipeline.project)
+        end
+      end
+
+      trait :with_broken_test_reports do
+        status { :success }
+
+        after(:build) do |pipeline, _evaluator|
+          pipeline.builds << build(:ci_build, :broken_test_reports, pipeline: pipeline, project: pipeline.project)
+        end
+      end
+
+      trait :with_accessibility_reports do
+        status { :success }
+
+        after(:build) do |pipeline, evaluator|
+          pipeline.builds << build(:ci_build, :accessibility_reports, pipeline: pipeline, project: pipeline.project)
+        end
+      end
+
       trait :with_coverage_reports do
         status { :success }
 
         after(:build) do |pipeline, evaluator|
           pipeline.builds << build(:ci_build, :coverage_reports, pipeline: pipeline, project: pipeline.project)
+        end
+      end
+
+      trait :with_terraform_reports do
+        status { :success }
+
+        after(:build) do |pipeline, evaluator|
+          pipeline.builds << build(:ci_build, :terraform_reports, pipeline: pipeline, project: pipeline.project)
         end
       end
 

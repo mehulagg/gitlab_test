@@ -137,10 +137,10 @@ module EE
       ::Gitlab.config.alternative_gitlab_kerberos_url?
     end
 
-    def can_change_push_rule?(push_rule, rule)
+    def can_change_push_rule?(push_rule, rule, context)
       return true if push_rule.global?
 
-      can?(current_user, :"change_#{rule}", @project)
+      can?(current_user, :"change_#{rule}", context)
     end
 
     def ci_cd_projects_available?
@@ -148,7 +148,7 @@ module EE
     end
 
     def first_class_vulnerabilities_available?(project)
-      ::Feature.enabled?(:first_class_vulnerabilities, project)
+      ::Feature.enabled?(:first_class_vulnerabilities, project, default_enabled: true)
     end
 
     def merge_pipelines_available?
@@ -167,7 +167,6 @@ module EE
       %w[
         projects/security/configuration#show
         projects/security/dashboard#index
-        projects/security/vulnerabilities#index
         projects/dependencies#index
         projects/licenses#index
         projects/threat_monitoring#show
@@ -198,9 +197,8 @@ module EE
     def project_security_dashboard_config(project, pipeline)
       if pipeline.nil?
         {
-          empty_state_illustration_path: image_path('illustrations/security-dashboard_empty.svg'),
-          security_dashboard_help_path: help_page_path('user/application_security/security_dashboard/index'),
-          has_pipeline_data: "false"
+          empty_state_svg_path: image_path('illustrations/security-dashboard_empty.svg'),
+          security_dashboard_help_path: help_page_path('user/application_security/security_dashboard/index')
         }
       else
         {
@@ -222,7 +220,10 @@ module EE
           ref_path: project_commits_url(project, pipeline.ref),
           pipeline_path: pipeline_url(pipeline),
           pipeline_created: pipeline.created_at.to_s(:iso8601),
-          has_pipeline_data: "true"
+          has_pipeline_data: "true",
+          user_callouts_path: user_callouts_path,
+          user_callout_id: UserCalloutsHelper::STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER,
+          show_introduction_banner: show_standalone_vulnerabilities_introduction_banner?.to_s
         }.merge(project_vulnerabilities_config(project))
       end
     end
@@ -230,7 +231,7 @@ module EE
     def project_vulnerabilities_config(project)
       return {} unless first_class_vulnerabilities_available?(project)
 
-      { vulnerabilities_export_endpoint: api_v4_projects_vulnerability_exports_path(id: project.id) }
+      { vulnerabilities_export_endpoint: api_v4_security_projects_vulnerability_exports_path(id: project.id) }
     end
 
     def can_create_feedback?(project, feedback_type)
@@ -280,6 +281,10 @@ module EE
     override :can_import_members?
     def can_import_members?
       super && !membership_locked?
+    end
+
+    def show_compliance_framework_badge?(project)
+      project&.compliance_framework_setting&.present?
     end
   end
 end

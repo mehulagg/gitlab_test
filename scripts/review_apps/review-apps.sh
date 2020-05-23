@@ -7,7 +7,7 @@ function deploy_exists() {
 
   echoinfo "Checking if ${release} exists in the ${namespace} namespace..." true
 
-  helm status --tiller-namespace "${namespace}" "${release}" >/dev/null 2>&1
+  helm status --namespace "${namespace}" "${release}" >/dev/null 2>&1
   deploy_exists=$?
 
   echoinfo "Deployment status for ${release} is ${deploy_exists}"
@@ -20,15 +20,15 @@ function previous_deploy_failed() {
 
   echoinfo "Checking for previous deployment of ${release}" true
 
-  helm status --tiller-namespace "${namespace}" "${release}" >/dev/null 2>&1
+  helm status --namespace "${namespace}" "${release}" >/dev/null 2>&1
   local status=$?
 
   # if `status` is `0`, deployment exists, has a status
   if [ $status -eq 0 ]; then
     echoinfo "Previous deployment found, checking status..."
-    deployment_status=$(helm status --tiller-namespace "${namespace}" "${release}" | grep ^STATUS | cut -d' ' -f2)
+    deployment_status=$(helm status --namespace "${namespace}" "${release}" | grep ^STATUS | cut -d' ' -f2)
     echoinfo "Previous deployment state: ${deployment_status}"
-    if [[ "$deployment_status" == "FAILED" || "$deployment_status" == "PENDING_UPGRADE" || "$deployment_status" == "PENDING_INSTALL" ]]; then
+    if [[ "$deployment_status" == "failed" || "$deployment_status" == "pending-upgrade" || "$deployment_status" == "pending-install" ]]; then
       status=0;
     else
       status=1;
@@ -58,7 +58,7 @@ function helm_delete_release() {
 
   echoinfo "Deleting Helm release '${release}'..." true
 
-  helm delete --tiller-namespace "${namespace}" --purge "${release}"
+  helm uninstall --namespace "${namespace}" "${release}"
 }
 
 function kubectl_cleanup_release() {
@@ -94,7 +94,6 @@ function delete_failed_release() {
     fi
   fi
 }
-
 
 function get_pod() {
   local namespace="${KUBE_NAMESPACE}"
@@ -148,54 +147,22 @@ function ensure_namespace() {
   kubectl describe namespace "${namespace}" || kubectl create namespace "${namespace}"
 }
 
-function install_tiller() {
-  local namespace="${KUBE_NAMESPACE}"
-
-  echoinfo "Checking deployment/tiller-deploy status in the ${namespace} namespace..." true
-
-  echoinfo "Initiating the Helm client..."
-  helm init --client-only
-
-  # Set toleration for Tiller to be installed on a specific node pool
-  helm init \
-    --tiller-namespace "${namespace}" \
-    --wait \
-    --upgrade \
-    --force-upgrade \
-    --node-selectors "app=helm" \
-    --replicas 3 \
-    --override "spec.template.spec.tolerations[0].key"="dedicated" \
-    --override "spec.template.spec.tolerations[0].operator"="Equal" \
-    --override "spec.template.spec.tolerations[0].value"="helm" \
-    --override "spec.template.spec.tolerations[0].effect"="NoSchedule"
-
-  kubectl rollout status --namespace "${namespace}" --watch "deployment/tiller-deploy"
-
-  if ! helm version --tiller-namespace "${namespace}" --debug; then
-    echo "Failed to init Tiller."
-    return 1
-  fi
-}
-
 function install_external_dns() {
   local namespace="${KUBE_NAMESPACE}"
-  local release="dns-gitlab-review-app"
+  local release="dns-gitlab-review-app-helm3"
   local domain
   domain=$(echo "${REVIEW_APPS_DOMAIN}" | awk -F. '{printf "%s.%s", $(NF-1), $NF}')
   echoinfo "Installing external DNS for domain ${domain}..." true
 
   if ! deploy_exists "${namespace}" "${release}" || previous_deploy_failed "${namespace}" "${release}" ; then
     echoinfo "Installing external-dns Helm chart"
-    helm repo update --tiller-namespace "${namespace}"
+    helm repo add bitnami https://charts.bitnami.com/bitnami
+    helm repo update
 
     # Default requested: CPU => 0, memory => 0
-    # Chart > 2.6.1 has a problem with AWS so we're pinning it for now.
-    # See https://gitlab.com/gitlab-org/gitlab/issues/37269 and https://github.com/kubernetes-sigs/external-dns/issues/1262
-    helm install stable/external-dns \
-      --tiller-namespace "${namespace}" \
+    helm install "${release}" bitnami/external-dns \
       --namespace "${namespace}" \
-      --version '2.6.1' \
-      --name "${release}" \
+      --version '2.13.3' \
       --set provider="aws" \
       --set aws.credentials.secretKey="${REVIEW_APPS_AWS_SECRET_KEY}" \
       --set aws.credentials.accessKey="${REVIEW_APPS_AWS_ACCESS_KEY}" \
@@ -269,7 +236,6 @@ function base_config_changed() {
 function deploy() {
   local namespace="${KUBE_NAMESPACE}"
   local release="${CI_ENVIRONMENT_SLUG}"
-  local edition="${GITLAB_EDITION-ce}"
   local base_config_file_ref="master"
   if [[ "$(base_config_changed)" == "true" ]]; then base_config_file_ref="${CI_COMMIT_SHA}"; fi
   local base_config_file="https://gitlab.com/gitlab-org/gitlab/raw/${base_config_file_ref}/scripts/review_apps/base-config.yaml"
@@ -277,23 +243,22 @@ function deploy() {
   echoinfo "Deploying ${release}..." true
 
   IMAGE_REPOSITORY="registry.gitlab.com/gitlab-org/build/cng-mirror"
-  gitlab_migrations_image_repository="${IMAGE_REPOSITORY}/gitlab-rails-${edition}"
-  gitlab_sidekiq_image_repository="${IMAGE_REPOSITORY}/gitlab-sidekiq-${edition}"
-  gitlab_unicorn_image_repository="${IMAGE_REPOSITORY}/gitlab-webservice-${edition}"
-  gitlab_task_runner_image_repository="${IMAGE_REPOSITORY}/gitlab-task-runner-${edition}"
+  gitlab_migrations_image_repository="${IMAGE_REPOSITORY}/gitlab-rails-ee"
+  gitlab_sidekiq_image_repository="${IMAGE_REPOSITORY}/gitlab-sidekiq-ee"
+  gitlab_unicorn_image_repository="${IMAGE_REPOSITORY}/gitlab-webservice-ee"
+  gitlab_task_runner_image_repository="${IMAGE_REPOSITORY}/gitlab-task-runner-ee"
   gitlab_gitaly_image_repository="${IMAGE_REPOSITORY}/gitaly"
   gitlab_shell_image_repository="${IMAGE_REPOSITORY}/gitlab-shell"
-  gitlab_workhorse_image_repository="${IMAGE_REPOSITORY}/gitlab-workhorse-${edition}"
+  gitlab_workhorse_image_repository="${IMAGE_REPOSITORY}/gitlab-workhorse-ee"
 
   create_application_secret
 
 HELM_CMD=$(cat << EOF
   helm upgrade \
-    --tiller-namespace="${namespace}" \
     --namespace="${namespace}" \
     --install \
     --wait \
-    --timeout 900 \
+    --timeout 15m \
     --set ci.branch="${CI_COMMIT_REF_NAME}" \
     --set ci.commit.sha="${CI_COMMIT_SHORT_SHA}" \
     --set ci.job.url="${CI_JOB_URL}" \
@@ -307,8 +272,10 @@ HELM_CMD=$(cat << EOF
     --set gitlab.gitaly.image.tag="v${GITALY_VERSION}" \
     --set gitlab.gitlab-shell.image.repository="${gitlab_shell_image_repository}" \
     --set gitlab.gitlab-shell.image.tag="v${GITLAB_SHELL_VERSION}" \
+    --set gitlab.sidekiq.annotations.commit="${CI_COMMIT_SHORT_SHA}" \
     --set gitlab.sidekiq.image.repository="${gitlab_sidekiq_image_repository}" \
     --set gitlab.sidekiq.image.tag="${CI_COMMIT_REF_SLUG}" \
+    --set gitlab.unicorn.annotations.commit="${CI_COMMIT_SHORT_SHA}" \
     --set gitlab.unicorn.image.repository="${gitlab_unicorn_image_repository}" \
     --set gitlab.unicorn.image.tag="${CI_COMMIT_REF_SLUG}" \
     --set gitlab.unicorn.workhorse.image="${gitlab_workhorse_image_repository}" \

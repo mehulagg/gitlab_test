@@ -1,6 +1,6 @@
-# Backing up and restoring GitLab
+# Backing up and restoring GitLab **(CORE ONLY)**
 
-![backup banner](backup_hrz.png)
+GitLab provides Rake tasks for backing up and restoring GitLab instances.
 
 An application data backup creates an archive file that contains the database,
 all repositories and all attachments.
@@ -14,30 +14,25 @@ from one server to another is through backup restore.
 In order to be able to backup and restore, you need two essential tools
 installed on your system.
 
-### Rsync
+- **Rsync**: If you installed GitLab:
+  - Using the Omnibus package, you're all set.
+  - From source, make sure `rsync` is installed. For example:
 
-If you installed GitLab:
+    ```shell
+    # Debian/Ubuntu
+    sudo apt-get install rsync
 
-- Using the Omnibus package, you're all set.
-- From source, make sure `rsync` is installed:
+    # RHEL/CentOS
+    sudo yum install rsync
+    ```
+
+- **Tar**: Backup and restore tasks use `tar` under the hood to create and extract
+  archives. Ensure you have version 1.30 or above of `tar` available in your
+  system. To check the version, run:
 
   ```shell
-  # Debian/Ubuntu
-  sudo apt-get install rsync
-
-  # RHEL/CentOS
-  sudo yum install rsync
+  tar --version
   ```
-
-### Tar
-
-Backup and restore tasks use `tar` under the hood to create and extract
-archives. Ensure you have version 1.30 or above of `tar` available in your
-system. To check the version, run:
-
-```shell
-tar --version
-```
 
 ## Backup timestamp
 
@@ -56,9 +51,9 @@ available.
 For example, if the backup name is `1493107454_2018_04_25_10.6.4-ce_gitlab_backup.tar`,
 then the timestamp is `1493107454_2018_04_25_10.6.4-ce`.
 
-## Creating a backup of the GitLab system
+## Back up GitLab
 
-GitLab provides a simple command line interface to backup your whole instance.
+GitLab provides a simple command line interface to back up your whole instance.
 It backs up your:
 
 - Database
@@ -142,12 +137,12 @@ Deleting tmp directories...[DONE]
 Deleting old backups... [SKIPPING]
 ```
 
-## Storing configuration files
+### Storing configuration files
 
-A backup performed by the [raketask GitLab provides](#creating-a-backup-of-the-gitlab-system)
+The [backup Rake task](#back-up-gitlab) GitLab provides
 does **not** store your configuration files. The primary reason for this is that your
 database contains encrypted information for two-factor authentication, the CI/CD
-'secure variables', etc. Storing encrypted information along with its key in the
+'secure variables', and so on. Storing encrypted information along with its key in the
 same place defeats the purpose of using encryption in the first place.
 
 CAUTION: **Warning:**
@@ -182,11 +177,11 @@ If you use Omnibus GitLab, see some additional information
 In the unlikely event that the secrets file is lost, see the
 [troubleshooting section](#when-the-secrets-file-is-lost).
 
-## Backup options
+### Backup options
 
 The command line tool GitLab provides to backup your instance can take more options.
 
-### Backup strategy option
+#### Backup strategy option
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8728) in GitLab 8.17.
 
@@ -214,7 +209,11 @@ sudo gitlab-backup create STRATEGY=copy
 NOTE: **Note**
 For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
-### Backup filename
+#### Backup filename
+
+CAUTION: **Warning:**
+If you use a custom backup filename, you will not be able to
+[limit the lifetime of the backups](#limit-backup-lifetime-for-local-files-prune-old-backups).
 
 By default a backup file is created according to the specification in [the Backup timestamp](#backup-timestamp) section above. You can however override the `[TIMESTAMP]` part of the filename by setting the `BACKUP` environment variable. For example:
 
@@ -227,7 +226,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
 The resulting file will then be `dump_gitlab_backup.tar`. This is useful for systems that make use of rsync and incremental backups, and will result in considerably faster transfer speeds.
 
-### Rsyncable
+#### Rsyncable
 
 To make sure the generated archive is intelligently transferable by rsync, the `GZIP_RSYNCABLE=yes` option can be set. This will set the `--rsyncable` option to `gzip`. This is only useful in combination with setting [the Backup filename option](#backup-filename).
 
@@ -240,7 +239,7 @@ sudo gitlab-backup create BACKUP=dump GZIP_RSYNCABLE=yes
 NOTE: **Note**
 For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
-### Excluding specific directories from the backup
+#### Excluding specific directories from the backup
 
 You can choose what should be exempt from the backup up by adding the environment variable `SKIP`.
 The available options are:
@@ -274,7 +273,7 @@ For installations from source:
 sudo -u git -H bundle exec rake gitlab:backup:create SKIP=db,uploads RAILS_ENV=production
 ```
 
-### Skipping tar creation
+#### Skipping tar creation
 
 The last part of creating a backup is generation of a `.tar` file containing
 all the parts. In some cases (for example, if the backup is picked up by other
@@ -299,17 +298,19 @@ For installations from source:
 sudo -u git -H bundle exec rake gitlab:backup:create SKIP=tar RAILS_ENV=production
 ```
 
-### Uploading backups to a remote (cloud) storage
+#### Uploading backups to a remote (cloud) storage
 
-Starting with GitLab 7.4 you can let the backup script upload the '.tar' file it creates.
+Starting with GitLab 7.4 you can let the backup script upload the `.tar` file it creates.
 It uses the [Fog library](http://fog.io/) to perform the upload.
 In the example below we use Amazon S3 for storage, but Fog also lets you use
 [other storage providers](http://fog.io/storage/). GitLab
 [imports cloud drivers](https://gitlab.com/gitlab-org/gitlab/blob/30f5b9a5b711b46f1065baf755e413ceced5646b/Gemfile#L88)
-for AWS, Google, OpenStack Swift, Rackspace and Aliyun as well. A local driver is
+for AWS, Google, OpenStack Swift, Rackspace, and Aliyun as well. A local driver is
 [also available](#uploading-to-locally-mounted-shares).
 
-#### Using Amazon S3
+[Read more about using object storage with GitLab](../administration/object_storage.md).
+
+##### Using Amazon S3
 
 For Omnibus GitLab packages:
 
@@ -327,9 +328,9 @@ For Omnibus GitLab packages:
    gitlab_rails['backup_upload_remote_directory'] = 'my.s3.bucket'
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect
 
-#### Digital Ocean Spaces
+##### Digital Ocean Spaces
 
 This example can be used for a bucket in Amsterdam (AMS3).
 
@@ -346,7 +347,7 @@ This example can be used for a bucket in Amsterdam (AMS3).
    gitlab_rails['backup_upload_remote_directory'] = 'my.s3.bucket'
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect
 
 NOTE: **Note:**
 If you see `400 Bad Request` by using Digital Ocean Spaces, the cause may be the
@@ -354,7 +355,7 @@ usage of backup encryption. Remove or comment the line that
 contains `gitlab_rails['backup_encryption']` since Digital Ocean Spaces
 doesn't support encryption.
 
-#### Other S3 Providers
+##### Other S3 Providers
 
 Not all S3 providers are fully-compatible with the Fog library. For example,
 if you see `411 Length Required` errors after attempting to upload, you may
@@ -391,7 +392,7 @@ For installations from source:
          # storage_class: 'STANDARD'
    ```
 
-1. [Restart GitLab] for the changes to take effect
+1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect
 
 If you are uploading your backups to S3 you will probably want to create a new
 IAM user with restricted access rights. To give the upload user access only for
@@ -444,7 +445,7 @@ with the name of your bucket:
 }
 ```
 
-#### Using Google Cloud Storage
+##### Using Google Cloud Storage
 
 If you want to use Google Cloud Storage to save backups, you'll have to create
 an access key from the Google console first:
@@ -470,7 +471,7 @@ For Omnibus GitLab packages:
    gitlab_rails['backup_upload_remote_directory'] = 'my.google.bucket'
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect
 
 For installations from source:
 
@@ -486,9 +487,9 @@ For installations from source:
          remote_directory: 'my.google.bucket'
    ```
 
-1. [Restart GitLab] for the changes to take effect
+1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect
 
-#### Specifying a custom directory for backups
+##### Specifying a custom directory for backups
 
 Note: This option only works for remote storage. If you want to group your backups
 you can pass a `DIRECTORY` environment variable:
@@ -501,9 +502,9 @@ sudo gitlab-backup create DIRECTORY=weekly
 NOTE: **Note**
 For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
-### Uploading to locally mounted shares
+#### Uploading to locally mounted shares
 
-You may also send backups to a mounted share (`NFS` / `CIFS` / `SMB` / etc.) by
+You may also send backups to a mounted share (for example, `NFS`,`CIFS`, or `SMB`) by
 using the Fog [`Local`](https://github.com/fog/fog-local#usage) storage provider.
 The directory pointed to by the `local_root` key **must** be owned by the `git`
 user **when mounted** (mounting with the `uid=` of the `git` user for `CIFS` and
@@ -533,7 +534,7 @@ For Omnibus GitLab packages:
    gitlab_rails['backup_upload_remote_directory'] = 'gitlab_backups'
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect.
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 For installations from source:
 
@@ -551,9 +552,9 @@ For installations from source:
        remote_directory: 'gitlab_backups'
    ```
 
-1. [Restart GitLab] for the changes to take effect.
+1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect.
 
-### Backup archive permissions
+#### Backup archive permissions
 
 The backup archives created by GitLab (`1393513186_2014_02_27_gitlab_backup.tar`)
 will have owner/group `git`/`git` and 0600 permissions by default.
@@ -568,7 +569,7 @@ For Omnibus GitLab packages:
    gitlab_rails['backup_archive_permissions'] = 0644 # Makes the backup archives world-readable
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect.
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 For installations from source:
 
@@ -579,13 +580,68 @@ For installations from source:
      archive_permissions: 0644 # Makes the backup archives world-readable
    ```
 
-1. [Restart GitLab] for the changes to take effect.
+1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect.
 
-### Configuring cron to make daily backups
+#### Configuring cron to make daily backups
 
-NOTE: **Note:**
+CAUTION: **Warning:**
 The following cron jobs do not [backup your GitLab configuration files](#storing-configuration-files)
 or [SSH host keys](https://superuser.com/questions/532040/copy-ssh-keys-from-one-server-to-another-server/532079#532079).
+
+You can schedule a cron job that backs up your repositories and GitLab metadata.
+
+For Omnibus GitLab packages:
+
+1. Edit the crontab for the `root` user:
+
+   ```shell
+   sudo su -
+   crontab -e
+   ```
+
+1. There, add the following line to schedule the backup for everyday at 2 AM:
+
+   ```plaintext
+   0 2 * * * /opt/gitlab/bin/gitlab-backup create CRON=1
+   ```
+
+   NOTE: **Note**
+   For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
+
+For installations from source:
+
+1. Edit the crontab for the `git` user:
+
+   ```shell
+   sudo -u git crontab -e
+   ```
+
+1. Add the following lines at the bottom:
+
+   ```plaintext
+   # Create a full backup of the GitLab repositories and SQL database every day at 2am
+   0 2 * * * cd /home/git/gitlab && PATH=/usr/local/bin:/usr/bin:/bin bundle exec rake gitlab:backup:create RAILS_ENV=production CRON=1
+   ```
+
+NOTE: **Note:**
+The `CRON=1` environment setting tells the backup script to suppress all progress output if there are no errors.
+This is recommended to reduce cron spam.
+
+### Limit backup lifetime for local files (prune old backups)
+
+CAUTION: **Warning:**
+This will not work if you have used a [custom filename](#backup-filename)
+for your backups.
+
+NOTE: **Note:**
+This configuration option only manages local files. GitLab does not automatically
+prune old files stored in a third-party [object storage](#uploading-backups-to-a-remote-cloud-storage)
+because the user may not have permission to list and delete files. It is
+recommended that you configure the appropriate retention policy for your object
+storage (for example, [AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-lifecycle.html)).
+
+You may want to set a limited lifetime for backups to prevent regular
+backups using all your disk space.
 
 For Omnibus GitLab packages:
 
@@ -596,37 +652,11 @@ For Omnibus GitLab packages:
    gitlab_rails['backup_keep_time'] = 604800
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect.
-
-Note that the `backup_keep_time` configuration option only manages local
-files. GitLab does not automatically prune old files stored in a third-party
-object storage (e.g., AWS S3) because the user may not have permission to list
-and delete files. We recommend that you configure the appropriate retention
-policy for your object storage. For example, you can configure [the S3 backup
-policy as described here](https://stackoverflow.com/questions/37553070/gitlab-omnibus-delete-backup-from-amazon-s3).
-
-To schedule a cron job that backs up your repositories and GitLab metadata, use the root user:
-
-```shell
-sudo su -
-crontab -e
-```
-
-There, add the following line to schedule the backup for everyday at 2 AM:
-
-```plaintext
-0 2 * * * /opt/gitlab/bin/gitlab-backup create CRON=1
-```
-
-NOTE: **Note**
-For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
-
-You may also want to set a limited lifetime for backups to prevent regular
-backups using all your disk space.
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 For installations from source:
 
-1. Edit `home/git/gitlab/config/gitlab.yml`:
+1. Edit `/home/git/gitlab/config/gitlab.yml`:
 
    ```yaml
    backup:
@@ -634,23 +664,9 @@ For installations from source:
      keep_time: 604800
    ```
 
-1. [Restart GitLab] for the changes to take effect.
+1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect.
 
-```shell
-sudo -u git crontab -e # Edit the crontab for the git user
-```
-
-Add the following lines at the bottom:
-
-```plaintext
-# Create a full backup of the GitLab repositories and SQL database every day at 4am
-0 4 * * * cd /home/git/gitlab && PATH=/usr/local/bin:/usr/bin:/bin bundle exec rake gitlab:backup:create RAILS_ENV=production CRON=1
-```
-
-The `CRON=1` environment setting tells the backup script to suppress all progress output if there are no errors.
-This is recommended to reduce cron spam.
-
-## Restore
+## Restore GitLab
 
 GitLab provides a simple command line interface to restore your whole installation,
 and is flexible enough to fit your needs.
@@ -671,7 +687,7 @@ before restoring the backup.
 You need to have a working GitLab installation before you can perform
 a restore. This is mainly because the system user performing the
 restore actions (`git`) is usually not allowed to create or delete
-the SQL database it needs to import data into ('gitlabhq_production').
+the SQL database it needs to import data into (`gitlabhq_production`).
 All existing data will be either erased (SQL) or moved to a separate
 directory (repositories, uploads).
 
@@ -697,7 +713,7 @@ more of the following options:
   Read what the [backup timestamp is about](#backup-timestamp).
 - `force=yes` - Does not ask if the authorized_keys file should get regenerated and assumes 'yes' for warning that database tables will be removed, enabling the "Write to authorized_keys file" setting, and updating LDAP providers.
 
-If you are restoring into directories that are mountpoints you will need to make
+If you are restoring into directories that are mount points, you will need to make
 sure these directories are empty before attempting a restore. Otherwise GitLab
 will attempt to move these directories before restoring the new data and this
 would cause an error.
@@ -795,7 +811,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:restore`.
 
 CAUTION: **Warning:**
 `gitlab-rake gitlab:backup:restore` does not set the right file system permissions on your Registry directory.
-This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759). On GitLab 12.2 or newer, you can
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62759). On GitLab 12.2 or newer, you can
 use `gitlab-backup restore` to avoid this issue.
 
 Next, restore `/etc/gitlab/gitlab-secrets.json` if necessary as mentioned above.
@@ -837,7 +853,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:restore`.
 
 CAUTION: **Warning:**
 `gitlab-rake gitlab:backup:restore` does not set the right file system permissions on your Registry directory.
-This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759). On GitLab 12.2 or newer, you can
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62759). On GitLab 12.2 or newer, you can
 use `gitlab-backup restore` to avoid this issue.
 
 The GitLab Helm chart uses a different process, documented in
@@ -880,6 +896,8 @@ repository. Note that if you do an import Rake task, rather than a backup restor
 will have all your repositories, but not any other data.
 
 ## Troubleshooting
+
+The following are possible problems you might encounter with possible solutions.
 
 ### Restoring database backup using Omnibus packages outputs warnings
 
@@ -945,7 +963,7 @@ backup beforehand.
    For installations from source:
 
    ```shell
-   sudo -u git -H bundle exec rails dbconsole RAILS_ENV=production
+   sudo -u git -H bundle exec rails dbconsole -e production
    ```
 
 1. Check the `ci_group_variables` and `ci_variables` tables:
@@ -980,7 +998,7 @@ backup beforehand.
    For installations from source:
 
    ```shell
-   sudo -u git -H bundle exec rails dbconsole RAILS_ENV=production
+   sudo -u git -H bundle exec rails dbconsole -e production
    ```
 
 1. Clear all the tokens for projects, groups, and the whole instance:
@@ -1013,7 +1031,7 @@ backup beforehand.
    For installations from source:
 
    ```shell
-   sudo -u git -H bundle exec rails dbconsole RAILS_ENV=production
+   sudo -u git -H bundle exec rails dbconsole -e production
    ```
 
 1. Clear all the tokens for pending jobs:
@@ -1045,7 +1063,7 @@ err.message="unknown error"
 
 This is caused by the restore being run as the unprivileged user `git` which was
 unable to assign the correct ownership to the registry files during the restore
-([issue 62759](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759 "Incorrect permissions on registry filesystem after restore")).
+([issue 62759](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62759 "Incorrect permissions on registry filesystem after restore")).
 
 To get your registry working again:
 
@@ -1058,12 +1076,9 @@ If you have changed the default filesystem location for the registry, you will
 want to run the `chown` against your custom location instead of
 `/var/opt/gitlab/gitlab-rails/shared/registry/docker`.
 
-[reconfigure GitLab]: ../administration/restart_gitlab.md#omnibus-gitlab-reconfigure
-[restart GitLab]: ../administration/restart_gitlab.md#installations-from-source
-
 ### Backup fails to complete with Gzip error
 
-While running the backup, you may receive a gzip error:
+While running the backup, you may receive a Gzip error:
 
 ```shell
 sudo /opt/gitlab/bin/gitlab-backup create
@@ -1077,5 +1092,5 @@ Backup failed
 
 If this happens, check the following:
 
-1. Confirm there is sufficient disk space for the gzip operation.
+1. Confirm there is sufficient disk space for the Gzip operation.
 1. If NFS is being used, check if the mount option `timeout` is set. The default is `600`, and changing this to smaller values have resulted in this error.

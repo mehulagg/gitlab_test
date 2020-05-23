@@ -64,11 +64,11 @@ describe 'lograge', type: :request do
         )
 
       expect(Lograge.formatter).to receive(:call)
-        .with(a_hash_including(cpu_s: 0.1111115))
+        .with(a_hash_including(cpu_s: 0.11))
         .and_call_original
 
       expect(Lograge.logger).to receive(:send)
-        .with(anything, include('"cpu_s":0.1111115'))
+        .with(anything, include('"cpu_s":0.11'))
         .and_call_original
 
       subject
@@ -123,7 +123,7 @@ describe 'lograge', type: :request do
     let(:logger) do
       Logger.new(log_output).tap { |logger| logger.formatter = ->(_, _, _, msg) { msg } }
     end
-    let(:log_data) { JSON.parse(log_output.string) }
+    let(:log_data) { Gitlab::Json.parse(log_output.string) }
 
     before do
       Lograge.logger = logger

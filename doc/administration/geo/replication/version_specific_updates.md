@@ -4,12 +4,19 @@ Check this document if it includes instructions for the version you are updating
 These steps go together with the [general steps](updating_the_geo_nodes.md#general-update-steps)
 for updating Geo nodes.
 
+## Updating to GitLab 12.9
+
+CAUTION: **Warning:**
+GitLab 12.9.0 through GitLab 12.9.3 are affected by [a bug that stops
+repository verification](https://gitlab.com/gitlab-org/gitlab/-/issues/213523).
+The issue is fixed in GitLab 12.9.4. Please upgrade to GitLab 12.9.4 or later.
+
 ## Updating to GitLab 12.7
 
 DANGER: **Danger:**
 Only upgrade to GitLab 12.7.5 or later. Do not upgrade to versions 12.7.0
 through 12.7.4 because there is [an initialization order
-bug](https://gitlab.com/gitlab-org/gitlab/issues/199672) that causes Geo
+bug](https://gitlab.com/gitlab-org/gitlab/-/issues/199672) that causes Geo
 **secondaries** to set the incorrect database connection pool size. [The
 fix](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24021) was
 shipped in 12.7.5.
@@ -23,7 +30,7 @@ GitLab 12.2 includes the following minor PostgreSQL updates:
 
 This update will occur even if major PostgreSQL updates are disabled.
 
-Before [refreshing Foreign Data Wrapper during a Geo HA upgrade](https://docs.gitlab.com/omnibus/update/README.html#run-post-deployment-migrations-and-checks),
+Before [refreshing Foreign Data Wrapper during a Geo upgrade](https://docs.gitlab.com/omnibus/update/README.html#run-post-deployment-migrations-and-checks),
 restart the Geo tracking database:
 
 ```shell
@@ -47,17 +54,17 @@ sudo touch /etc/gitlab/disable-postgresql-upgrade
 
 ## Updating to GitLab 12.0
 
-WARNING: **Warning:**
+CAUTION: **Warning:**
 This version is affected by [a bug that results in new LFS objects not being replicated to
-Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/issues/32696). The issue is fixed
-in GitLab 12.1. Please upgrade to GitLab 12.1 or newer.
+Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/-/issues/32696). The issue is fixed
+in GitLab 12.1. Please upgrade to GitLab 12.1 or later.
 
 ## Updating to GitLab 11.11
 
-WARNING: **Warning:**
+CAUTION: **Warning:**
 This version is affected by [a bug that results in new LFS objects not being replicated to
-Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/issues/32696). The issue is fixed
-in GitLab 12.1. Please upgrade to GitLab 12.1 or newer.
+Geo secondary nodes](https://gitlab.com/gitlab-org/gitlab/-/issues/32696). The issue is fixed
+in GitLab 12.1. Please upgrade to GitLab 12.1 or later.
 
 ## Updating to GitLab 10.8
 
@@ -93,8 +100,8 @@ authentication method.
    postgresql['sql_user_password'] = '<md5_hash_of_your_password>'
 
    # Every node that runs Unicorn or Sidekiq needs to have the database
-   # password specified as below. If you have a high-availability setup, this
-   # must be present in all application nodes.
+   # password specified as below.
+   # This must be present in all application nodes.
    gitlab_rails['db_password'] = '<your_password_here>'
    ```
 
@@ -118,8 +125,8 @@ authentication method.
    postgresql['sql_user_password'] = '<md5_hash_of_your_password>'
 
    # Every node that runs Unicorn or Sidekiq needs to have the database
-   # password specified as below. If you have a high-availability setup, this
-   # must be present in all application nodes.
+   # password specified as below.
+   # This must be present in all application nodes.
    gitlab_rails['db_password'] = '<your_password_here>'
 
    # Enable Foreign Data Wrapper

@@ -17,6 +17,7 @@
   install_knative_path: clusterable.install_applications_cluster_path(@cluster, :knative),
   update_knative_path: clusterable.update_applications_cluster_path(@cluster, :knative),
   install_elastic_stack_path: clusterable.install_applications_cluster_path(@cluster, :elastic_stack),
+  install_fluentd_path: clusterable.install_applications_cluster_path(@cluster, :fluentd),
   cluster_environments_path: cluster_environments_path,
   toggle_status: @cluster.enabled? ? 'true': 'false',
   has_rbac: has_rbac_enabled?(@cluster) ? 'true': 'false',
@@ -29,7 +30,7 @@
   ingress_help_path: help_page_path('user/project/clusters/index.md', anchor: 'getting-the-external-endpoint'),
   ingress_dns_help_path: help_page_path('user/clusters/applications.md', anchor: 'pointing-your-dns-at-the-external-endpoint'),
   ingress_mod_security_help_path: help_page_path('user/clusters/applications.md', anchor: 'web-application-firewall-modsecurity'),
-  environments_help_path: help_page_path('ci/environments', anchor: 'defining-environments'),
+  environments_help_path: help_page_path('ci/environments/index.md', anchor: 'defining-environments'),
   clusters_help_path: help_page_path('user/project/clusters/index.md', anchor: 'deploying-to-a-kubernetes-cluster'),
   deploy_boards_help_path: help_page_path('user/project/deploy_boards.html', anchor: 'enabling-deploy-boards'),
   cloud_run_help_path: help_page_path('user/project/clusters/add_remove_clusters.md', anchor: 'cloud-run-for-anthos'),
@@ -41,7 +42,12 @@
 
   .js-serverless-survey-banner{ data: { user_name: current_user.name, user_email: current_user.email } }
 
-  %h4= @cluster.name
+  .d-flex.my-3
+    %p.badge.badge-light.p-2.mr-2
+      = cluster_type_label(@cluster.cluster_type)
+    %h4.m-0
+      = @cluster.name
+
   = render 'banner'
 
   - if cluster_created?(@cluster)
@@ -56,7 +62,3 @@
       .tab-content.py-3
         .tab-pane.active{ role: 'tabpanel' }
           = render_cluster_info_tab_content(params[:tab], expanded_by_default?)
-
-
-
-

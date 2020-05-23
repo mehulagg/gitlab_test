@@ -5,9 +5,20 @@ require 'spec_helper'
 describe 'admin Geo Nodes', :js, :geo do
   let!(:geo_node) { create(:geo_node) }
 
+  def expect_fields(node_fields)
+    node_fields.each do |field|
+      expect(page).to have_field(field)
+    end
+  end
+
+  def expect_no_fields(node_fields)
+    node_fields.each do |field|
+      expect(page).not_to have_field(field)
+    end
+  end
+
   before do
     allow(Gitlab::Geo).to receive(:license_allows?).and_return(true)
-    stub_feature_flags(enable_geo_node_form_js: false)
     sign_in(create(:admin))
   end
 
@@ -71,6 +82,27 @@ describe 'admin Geo Nodes', :js, :geo do
     end
   end
 
+  describe 'node form fields' do
+    primary_only_fields = %w(node-internal-url-field node-reverification-interval-field)
+    secondary_only_fields = %w(node-selective-synchronization-field node-repository-capacity-field node-file-capacity-field node-object-storage-field)
+
+    it 'when primary renders only primary fields' do
+      geo_node.update(primary: true)
+      visit edit_admin_geo_node_path(geo_node)
+
+      expect_fields(primary_only_fields)
+      expect_no_fields(secondary_only_fields)
+    end
+
+    it 'when secondary renders only secondary fields' do
+      geo_node.update(primary: false)
+      visit edit_admin_geo_node_path(geo_node)
+
+      expect_no_fields(primary_only_fields)
+      expect_fields(secondary_only_fields)
+    end
+  end
+
   describe 'create a new Geo Nodes' do
     let(:new_ssh_key) { attributes_for(:key)[:key] }
 
@@ -79,73 +111,16 @@ describe 'admin Geo Nodes', :js, :geo do
     end
 
     it 'creates a new Geo Node' do
-      check 'This is a primary node'
-      fill_in 'geo_node_name', with: 'a node name'
-      fill_in 'geo_node_url', with: 'https://test.gitlab.com'
-      click_button 'Add Node'
+      fill_in 'node-name-field', with: 'a node name'
+      fill_in 'node-url-field', with: 'https://test.gitlab.com'
+      click_button 'Save'
 
-      expect(current_path).to eq admin_geo_nodes_path
       wait_for_requests
+      expect(current_path).to eq admin_geo_nodes_path
 
       page.within(find('.card', match: :first)) do
         expect(page).to have_content(geo_node.url)
       end
-    end
-
-    it 'toggles the visibility of secondary only params based on primary node checkbox' do
-      primary_only_fields = [
-        'Internal URL (optional)',
-        'Re-verification interval'
-      ]
-
-      secondary_only_fields = [
-        'Selective synchronization',
-        'Repository sync capacity',
-        'File sync capacity',
-        'Object Storage replication'
-      ]
-
-      expect(page).to have_unchecked_field('This is a primary node')
-
-      primary_only_fields.each do |field|
-        expect(page).to have_field(field, visible: false)
-      end
-
-      secondary_only_fields.each do |field|
-        expect(page).to have_field(field)
-      end
-
-      check 'This is a primary node'
-
-      primary_only_fields.each do |field|
-        expect(page).to have_field(field)
-      end
-
-      secondary_only_fields.each do |field|
-        expect(page).to have_field(field, visible: false)
-      end
-
-      uncheck 'This is a primary node'
-
-      primary_only_fields.each do |field|
-        expect(page).to have_field(field, visible: false)
-      end
-
-      secondary_only_fields.each do |field|
-        expect(page).to have_field(field)
-      end
-    end
-
-    it 'returns an error message when a duplicate primary is added' do
-      create(:geo_node, :primary)
-
-      check 'This is a primary node'
-      fill_in 'geo_node_url', with: 'https://another-primary.example.com'
-      click_button 'Add Node'
-
-      expect(current_path).to eq admin_geo_nodes_path
-
-      expect(page).to have_content('Primary node already exists')
     end
   end
 
@@ -155,13 +130,12 @@ describe 'admin Geo Nodes', :js, :geo do
 
       visit edit_admin_geo_node_path(geo_node)
 
-      fill_in 'URL', with: 'http://newsite.com'
-      fill_in 'Internal URL', with: 'http://internal-url.com'
-      check 'This is a primary node'
-      click_button 'Save changes'
+      fill_in 'node-url-field', with: 'http://newsite.com'
+      fill_in 'node-internal-url-field', with: 'http://internal-url.com'
+      click_button 'Update'
 
-      expect(current_path).to eq admin_geo_nodes_path
       wait_for_requests
+      expect(current_path).to eq admin_geo_nodes_path
 
       page.within(find('.card', match: :first)) do
         expect(page).to have_content('http://newsite.com')
@@ -214,44 +188,19 @@ describe 'admin Geo Nodes', :js, :geo do
     end
   end
 
-  describe 'Feature(:enable_geo_node_form_js)' do
-    describe 'when true' do
-      before do
-        stub_feature_flags(enable_geo_node_form_js: true)
-      end
+  describe 'Geo node form routes' do
+    routes = []
 
-      it '`/new` uses the Vue form instead of the HAML partial' do
-        visit new_admin_geo_node_path
-
-        expect(page).to have_css(".geo-node-form-container")
-        expect(page).not_to have_css(".js-geo-node-form")
-      end
-
-      it '`/edit` uses the Vue form instead of the HAML partial' do
-        visit edit_admin_geo_node_path(geo_node)
-
-        expect(page).to have_css(".geo-node-form-container")
-        expect(page).not_to have_css(".js-geo-node-form")
-      end
+    before do
+      routes = [{ path: new_admin_geo_node_path, slug: '/new' }, { path: edit_admin_geo_node_path(geo_node), slug: '/edit' }]
     end
 
-    describe 'when false' do
-      before do
-        stub_feature_flags(enable_geo_node_form_js: false)
-      end
+    routes.each do |route|
+      it "#{route.slug} renders the geo form" do
+        visit route.path
 
-      it '`/new` uses the HAML partial instead of the Vue form' do
-        visit new_admin_geo_node_path
-
-        expect(page).not_to have_css(".geo-node-form-container")
-        expect(page).to have_css(".js-geo-node-form")
-      end
-
-      it '`/edit` uses the HAML partial instead of the Vue form' do
-        visit edit_admin_geo_node_path(geo_node)
-
-        expect(page).not_to have_css(".geo-node-form-container")
-        expect(page).to have_css(".js-geo-node-form")
+        expect(page).to have_css(".geo-node-form-container")
+        expect(page).not_to have_css(".js-geo-node-form")
       end
     end
   end

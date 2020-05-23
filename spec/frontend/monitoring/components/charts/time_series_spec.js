@@ -1,29 +1,28 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount, shallowMount } from '@vue/test-utils';
 import { setTestTimeout } from 'helpers/timeout';
 import { GlLink } from '@gitlab/ui';
-import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
+import { TEST_HOST } from 'jest/helpers/test_constants';
+import {
+  GlAreaChart,
+  GlLineChart,
+  GlChartSeriesLabel,
+  GlChartLegend,
+} from '@gitlab/ui/dist/charts';
 import { cloneDeep } from 'lodash';
 import { shallowWrapperContainsSlotText } from 'helpers/vue_test_utils_helper';
-import { chartColorValues } from '~/monitoring/constants';
 import { createStore } from '~/monitoring/stores';
+import { panelTypes, chartHeight } from '~/monitoring/constants';
 import TimeSeries from '~/monitoring/components/charts/time_series.vue';
 import * as types from '~/monitoring/stores/mutation_types';
+import { deploymentData, mockProjectDir, annotationsData } from '../../mock_data';
 import {
-  deploymentData,
-  mockedQueryResultFixture,
+  metricsDashboardPayload,
   metricsDashboardViewModel,
-  mockProjectDir,
-  mockHost,
-} from '../../mock_data';
+  metricResultStatus,
+} from '../../fixture_data';
 import * as iconUtils from '~/lib/utils/icon_utils';
-import { getJSONFixture } from '../../../helpers/fixtures';
 
 const mockSvgPathContent = 'mockSvgPathContent';
-
-const metricsDashboardFixture = getJSONFixture(
-  'metrics_dashboard/environment_metrics_dashboard.json',
-);
-const metricsDashboardPayload = metricsDashboardFixture.dashboard;
 
 jest.mock('lodash/throttle', () =>
   // this throttle mock executes immediately
@@ -41,14 +40,18 @@ describe('Time series component', () => {
   let mockGraphData;
   let store;
 
-  const makeTimeSeriesChart = (graphData, type) =>
-    shallowMount(TimeSeries, {
+  const createWrapper = (graphData = mockGraphData, mountingMethod = shallowMount) =>
+    mountingMethod(TimeSeries, {
       propsData: {
-        graphData: { ...graphData, type },
+        graphData,
         deploymentData: store.state.monitoringDashboard.deploymentData,
-        projectPath: `${mockHost}${mockProjectDir}`,
+        annotations: store.state.monitoringDashboard.annotations,
+        projectPath: `${TEST_HOST}${mockProjectDir}`,
       },
       store,
+      stubs: {
+        GlPopover: true,
+      },
     });
 
   describe('With a single time series', () => {
@@ -58,7 +61,7 @@ describe('Time series component', () => {
       store = createStore();
 
       store.commit(
-        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        `monitoringDashboard/${types.RECEIVE_METRICS_DASHBOARD_SUCCESS}`,
         metricsDashboardPayload,
       );
 
@@ -66,7 +69,7 @@ describe('Time series component', () => {
 
       store.commit(
         `monitoringDashboard/${types.RECEIVE_METRIC_RESULT_SUCCESS}`,
-        mockedQueryResultFixture,
+        metricResultStatus,
       );
       // dashboard is a dynamically generated fixture and stored at environment_metrics_dashboard.json
       [mockGraphData] = store.state.monitoringDashboard.dashboard.panelGroups[1].panels;
@@ -77,9 +80,9 @@ describe('Time series component', () => {
 
       const findChart = () => timeSeriesChart.find({ ref: 'chart' });
 
-      beforeEach(done => {
-        timeSeriesChart = makeTimeSeriesChart(mockGraphData, 'area-chart');
-        timeSeriesChart.vm.$nextTick(done);
+      beforeEach(() => {
+        timeSeriesChart = createWrapper(mockGraphData, mount);
+        return timeSeriesChart.vm.$nextTick();
       });
 
       it('allows user to override max value label text using prop', () => {
@@ -95,6 +98,21 @@ describe('Time series component', () => {
 
         return timeSeriesChart.vm.$nextTick().then(() => {
           expect(timeSeriesChart.props().legendAverageText).toBe('averageText');
+        });
+      });
+
+      it('chart sets a default height', () => {
+        const wrapper = createWrapper();
+        expect(wrapper.props('height')).toBe(chartHeight);
+      });
+
+      it('chart has a configurable height', () => {
+        const mockHeight = 599;
+        const wrapper = createWrapper();
+
+        wrapper.setProps({ height: mockHeight });
+        return wrapper.vm.$nextTick().then(() => {
+          expect(wrapper.props('height')).toBe(mockHeight);
         });
       });
 
@@ -123,7 +141,7 @@ describe('Time series component', () => {
               }),
             };
 
-            timeSeriesChart = makeTimeSeriesChart(mockGraphData);
+            timeSeriesChart = createWrapper(mockGraphData, mount);
             timeSeriesChart.vm.$nextTick(() => {
               findChart().vm.$emit('created', eChartMock);
               done();
@@ -148,42 +166,56 @@ describe('Time series component', () => {
 
       describe('methods', () => {
         describe('formatTooltipText', () => {
-          let mockDate;
-          let mockCommitUrl;
-          let generateSeriesData;
-
-          beforeEach(() => {
-            mockDate = deploymentData[0].created_at;
-            mockCommitUrl = deploymentData[0].commitUrl;
-            generateSeriesData = type => ({
-              seriesData: [
-                {
-                  seriesName: timeSeriesChart.vm.chartData[0].name,
-                  componentSubType: type,
-                  value: [mockDate, 5.55555],
-                  dataIndex: 0,
-                },
-              ],
-              value: mockDate,
-            });
+          const mockCommitUrl = deploymentData[0].commitUrl;
+          const mockDate = deploymentData[0].created_at;
+          const mockSha = 'f5bcd1d9';
+          const mockLineSeriesData = () => ({
+            seriesData: [
+              {
+                seriesName: timeSeriesChart.vm.chartData[0].name,
+                componentSubType: 'line',
+                value: [mockDate, 5.55555],
+                dataIndex: 0,
+              },
+            ],
+            value: mockDate,
           });
 
+          const annotationsMetadata = {
+            tooltipData: {
+              sha: mockSha,
+              commitUrl: mockCommitUrl,
+            },
+          };
+
+          const mockAnnotationsSeriesData = {
+            seriesData: [
+              {
+                componentSubType: 'scatter',
+                seriesName: 'series01',
+                dataIndex: 0,
+                value: [mockDate, 5.55555],
+                type: 'scatter',
+                name: 'deployments',
+              },
+            ],
+            value: mockDate,
+          };
+
           it('does not throw error if data point is outside the zoom range', () => {
-            const seriesDataWithoutValue = generateSeriesData('line');
-            expect(
-              timeSeriesChart.vm.formatTooltipText({
-                ...seriesDataWithoutValue,
-                seriesData: seriesDataWithoutValue.seriesData.map(data => ({
-                  ...data,
-                  value: undefined,
-                })),
-              }),
-            ).toBeUndefined();
+            const seriesDataWithoutValue = {
+              ...mockLineSeriesData(),
+              seriesData: mockLineSeriesData().seriesData.map(data => ({
+                ...data,
+                value: undefined,
+              })),
+            };
+            expect(timeSeriesChart.vm.formatTooltipText(seriesDataWithoutValue)).toBeUndefined();
           });
 
           describe('when series is of line type', () => {
             beforeEach(done => {
-              timeSeriesChart.vm.formatTooltipText(generateSeriesData('line'));
+              timeSeriesChart.vm.formatTooltipText(mockLineSeriesData());
               timeSeriesChart.vm.$nextTick(done);
             });
 
@@ -215,7 +247,18 @@ describe('Time series component', () => {
 
           describe('when series is of scatter type, for deployments', () => {
             beforeEach(() => {
-              timeSeriesChart.vm.formatTooltipText(generateSeriesData('scatter'));
+              timeSeriesChart.vm.formatTooltipText({
+                ...mockAnnotationsSeriesData,
+                seriesData: mockAnnotationsSeriesData.seriesData.map(data => ({
+                  ...data,
+                  data: annotationsMetadata,
+                })),
+              });
+              return timeSeriesChart.vm.$nextTick;
+            });
+
+            it('set tooltip type to deployments', () => {
+              expect(timeSeriesChart.vm.tooltip.type).toBe('deployments');
             });
 
             it('formats tooltip title', () => {
@@ -229,6 +272,52 @@ describe('Time series component', () => {
             it('formats tooltip commit url', () => {
               expect(timeSeriesChart.vm.tooltip.commitUrl).toBe(mockCommitUrl);
             });
+          });
+
+          describe('when series is of scatter type and deployments data is missing', () => {
+            beforeEach(() => {
+              timeSeriesChart.vm.formatTooltipText(mockAnnotationsSeriesData);
+              return timeSeriesChart.vm.$nextTick;
+            });
+
+            it('formats tooltip title', () => {
+              expect(timeSeriesChart.vm.tooltip.title).toBe('16 Jul 2019, 10:14AM');
+            });
+
+            it('formats tooltip sha', () => {
+              expect(timeSeriesChart.vm.tooltip.sha).toBeUndefined();
+            });
+
+            it('formats tooltip commit url', () => {
+              expect(timeSeriesChart.vm.tooltip.commitUrl).toBeUndefined();
+            });
+          });
+        });
+
+        describe('formatAnnotationsTooltipText', () => {
+          const annotationsMetadata = {
+            name: 'annotations',
+            xAxis: annotationsData[0].from,
+            yAxis: 0,
+            tooltipData: {
+              title: '2020/02/19 10:01:41',
+              content: annotationsData[0].description,
+            },
+          };
+
+          const mockMarkPoint = {
+            componentType: 'markPoint',
+            name: 'annotations',
+            value: undefined,
+            data: annotationsMetadata,
+          };
+
+          it('formats tooltip title and sets tooltip content', () => {
+            const formattedTooltipData = timeSeriesChart.vm.formatAnnotationsTooltipText(
+              mockMarkPoint,
+            );
+            expect(formattedTooltipData.title).toBe('19 Feb 2020, 10:01AM');
+            expect(formattedTooltipData.content).toBe(annotationsMetadata.tooltipData.content);
           });
         });
 
@@ -308,10 +397,6 @@ describe('Time series component', () => {
           it('formats line width correctly', () => {
             expect(chartData[0].lineStyle.width).toBe(2);
           });
-
-          it('formats line color correctly', () => {
-            expect(chartData[0].lineStyle.color).toBe(chartColorValues[0]);
-          });
         });
 
         describe('chartOptions', () => {
@@ -338,6 +423,8 @@ describe('Time series component', () => {
                   series: [
                     {
                       name: mockSeriesName,
+                      type: 'line',
+                      data: [],
                     },
                   ],
                 },
@@ -400,8 +487,8 @@ describe('Time series component', () => {
               deploymentFormatter = getChartOptions().yAxis[1].axisLabel.formatter;
             });
 
-            it('formats and rounds to 2 decimal places', () => {
-              expect(dataFormatter(0.88888)).toBe('0.89');
+            it('formats by default to precision notation', () => {
+              expect(dataFormatter(0.88888)).toBe('889m');
             });
 
             it('deployment formatter is set as is required to display a tooltip', () => {
@@ -410,16 +497,24 @@ describe('Time series component', () => {
           });
         });
 
-        describe('deploymentSeries', () => {
+        describe('annotationSeries', () => {
           it('utilizes deployment data', () => {
-            expect(timeSeriesChart.vm.deploymentSeries.yAxisIndex).toBe(1); // same as deployment y axis
-            expect(timeSeriesChart.vm.deploymentSeries.data).toEqual([
-              ['2019-07-16T10:14:25.589Z', expect.any(Number)],
-              ['2019-07-16T11:14:25.589Z', expect.any(Number)],
-              ['2019-07-16T12:14:25.589Z', expect.any(Number)],
+            const annotationSeries = timeSeriesChart.vm.chartOptionSeries[0];
+            expect(annotationSeries.yAxisIndex).toBe(1); // same as annotations y axis
+            expect(annotationSeries.data).toEqual([
+              expect.objectContaining({
+                symbolSize: 14,
+                value: ['2019-07-16T10:14:25.589Z', expect.any(Number)],
+              }),
+              expect.objectContaining({
+                symbolSize: 14,
+                value: ['2019-07-16T11:14:25.589Z', expect.any(Number)],
+              }),
+              expect.objectContaining({
+                symbolSize: 14,
+                value: ['2019-07-16T12:14:25.589Z', expect.any(Number)],
+              }),
             ]);
-
-            expect(timeSeriesChart.vm.deploymentSeries.symbolSize).toBe(14);
           });
         });
 
@@ -456,11 +551,11 @@ describe('Time series component', () => {
     describe('wrapped components', () => {
       const glChartComponents = [
         {
-          chartType: 'area-chart',
+          chartType: panelTypes.AREA_CHART,
           component: GlAreaChart,
         },
         {
-          chartType: 'line-chart',
+          chartType: panelTypes.LINE_CHART,
           component: GlLineChart,
         },
       ];
@@ -471,7 +566,10 @@ describe('Time series component', () => {
           const findChartComponent = () => timeSeriesAreaChart.find(dynamicComponent.component);
 
           beforeEach(done => {
-            timeSeriesAreaChart = makeTimeSeriesChart(mockGraphData, dynamicComponent.chartType);
+            timeSeriesAreaChart = createWrapper(
+              { ...mockGraphData, type: dynamicComponent.chartType },
+              mount,
+            );
             timeSeriesAreaChart.vm.$nextTick(done);
           });
 
@@ -510,7 +608,11 @@ describe('Time series component', () => {
             const commitUrl = `${mockProjectDir}/-/commit/${mockSha}`;
 
             beforeEach(done => {
-              timeSeriesAreaChart.vm.tooltip.isDeployment = true;
+              timeSeriesAreaChart.setData({
+                tooltip: {
+                  type: 'deployments',
+                },
+              });
               timeSeriesAreaChart.vm.$nextTick(done);
             });
 
@@ -546,10 +648,10 @@ describe('Time series component', () => {
         store = createStore();
         const graphData = cloneDeep(metricsDashboardViewModel.panelGroups[0].panels[3]);
         graphData.metrics.forEach(metric =>
-          Object.assign(metric, { result: mockedQueryResultFixture.result }),
+          Object.assign(metric, { result: metricResultStatus.result }),
         );
 
-        timeSeriesChart = makeTimeSeriesChart(graphData, 'area-chart');
+        timeSeriesChart = createWrapper({ ...graphData, type: 'area-chart' }, mount);
         timeSeriesChart.vm.$nextTick(done);
       });
 
@@ -557,19 +659,39 @@ describe('Time series component', () => {
         timeSeriesChart.destroy();
       });
 
-      describe('computed', () => {
-        let chartData;
+      describe('Color match', () => {
+        let lineColors;
 
         beforeEach(() => {
-          ({ chartData } = timeSeriesChart.vm);
+          lineColors = timeSeriesChart
+            .find(GlAreaChart)
+            .vm.series.map(item => item.lineStyle.color);
         });
 
-        it('should contain different colors for each time series', () => {
-          expect(chartData[0].lineStyle.color).toBe('#1f78d1');
-          expect(chartData[1].lineStyle.color).toBe('#1aaa55');
-          expect(chartData[2].lineStyle.color).toBe('#fc9403');
-          expect(chartData[3].lineStyle.color).toBe('#6d49cb');
-          expect(chartData[4].lineStyle.color).toBe('#1f78d1');
+        it('should contain different colors for contiguous time series', () => {
+          lineColors.forEach((color, index) => {
+            expect(color).not.toBe(lineColors[index + 1]);
+          });
+        });
+
+        it('should match series color with tooltip label color', () => {
+          const labels = timeSeriesChart.findAll(GlChartSeriesLabel);
+
+          lineColors.forEach((color, index) => {
+            const labelColor = labels.at(index).props('color');
+            expect(color).toBe(labelColor);
+          });
+        });
+
+        it('should match series color with legend color', () => {
+          const legendColors = timeSeriesChart
+            .find(GlChartLegend)
+            .props('seriesInfo')
+            .map(item => item.color);
+
+          lineColors.forEach((color, index) => {
+            expect(color).toBe(legendColors[index]);
+          });
         });
       });
     });

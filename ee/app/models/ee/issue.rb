@@ -21,21 +21,20 @@ module EE
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :service_desk, -> { where(author: ::User.support_bot) }
       scope :no_epic, -> { left_outer_joins(:epic_issue).where(epic_issues: { epic_id: nil }) }
+      scope :any_epic, -> { joins(:epic_issue) }
       scope :in_epics, ->(epics) do
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
         id_in(issue_ids)
       end
+      scope :on_status_page, -> { joins(project: :status_page_setting).where(status_page_settings: { enabled: true }).public_only }
       scope :counts_by_health_status, -> { reorder(nil).group(:health_status).count }
+      scope :with_health_status, -> { where.not(health_status: nil) }
 
       has_one :epic_issue
       has_one :epic, through: :epic_issue
       belongs_to :promoted_to_epic, class_name: 'Epic'
-      has_many :designs, class_name: "DesignManagement::Design", inverse_of: :issue
-      has_many :design_versions, class_name: "DesignManagement::Version", inverse_of: :issue do
-        def most_recent
-          ordered.first
-        end
-      end
+
+      has_one :status_page_published_incident, class_name: 'StatusPage::PublishedIncident', inverse_of: :issue
 
       has_and_belongs_to_many :self_managed_prometheus_alert_events, join_table: :issues_self_managed_prometheus_alert_events
       has_and_belongs_to_many :prometheus_alert_events, join_table: :issues_prometheus_alert_events
@@ -45,6 +44,7 @@ module EE
       has_many :related_vulnerabilities, through: :vulnerability_links, source: :vulnerability
 
       validates :weight, allow_nil: true, numericality: { greater_than_or_equal_to: 0 }
+      validate :validate_confidential_epic
 
       after_create :update_generic_alert_title, if: :generic_alert_with_default_title?
     end
@@ -158,10 +158,6 @@ module EE
       @group ||= project.group
     end
 
-    def design_collection
-      @design_collection ||= ::DesignManagement::DesignCollection.new(self)
-    end
-
     def promoted?
       !!promoted_to_epic_id
     end
@@ -222,6 +218,14 @@ module EE
       title == ::Gitlab::Alerting::NotificationPayloadParser::DEFAULT_TITLE &&
         project.alerts_service_activated? &&
         author == ::User.alert_bot
+    end
+
+    def validate_confidential_epic
+      return unless epic
+
+      if !confidential? && epic.confidential?
+        errors.add :issue, _('Cannot set confidential epic for not-confidential issue')
+      end
     end
   end
 end

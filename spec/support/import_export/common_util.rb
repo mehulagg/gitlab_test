@@ -18,12 +18,37 @@ module ImportExport
       allow_any_instance_of(Gitlab::ImportExport).to receive(:export_path) { export_path }
     end
 
+    def setup_reader(reader)
+      if reader == :ndjson_reader && Feature.enabled?(:project_import_ndjson)
+        allow_any_instance_of(Gitlab::ImportExport::JSON::LegacyReader::File).to receive(:exist?).and_return(false)
+        allow_any_instance_of(Gitlab::ImportExport::JSON::NdjsonReader).to receive(:exist?).and_return(true)
+      else
+        allow_any_instance_of(Gitlab::ImportExport::JSON::LegacyReader::File).to receive(:exist?).and_return(true)
+        allow_any_instance_of(Gitlab::ImportExport::JSON::NdjsonReader).to receive(:exist?).and_return(false)
+      end
+    end
+
     def fixtures_path
       "spec/fixtures/lib/gitlab/import_export"
     end
 
     def test_tmp_path
       "tmp/tests/gitlab-test/import_export"
+    end
+
+    def get_json(path, exportable_path, key, ndjson_enabled)
+      if ndjson_enabled
+        json = if key == :projects
+                 consume_attributes(path, exportable_path)
+               else
+                 consume_relations(path, exportable_path, key)
+               end
+      else
+        json = project_json(path)
+        json = json[key.to_s] unless key == :projects
+      end
+
+      json
     end
 
     def restore_then_save_project(project, import_path:, export_path:)
@@ -49,6 +74,31 @@ module ImportExport
       instance_double(Gitlab::ImportExport::Shared).tap do |shared|
         allow(shared).to receive(:export_path).and_return(path)
       end
+    end
+
+    def consume_attributes(dir_path, exportable_path)
+      path = File.join(dir_path, "#{exportable_path}.json")
+      return unless File.exist?(path)
+
+      ActiveSupport::JSON.decode(IO.read(path))
+    end
+
+    def consume_relations(dir_path, exportable_path, key)
+      path = File.join(dir_path, exportable_path, "#{key}.ndjson")
+      return unless File.exist?(path)
+
+      relations = []
+
+      File.foreach(path) do |line|
+        json = ActiveSupport::JSON.decode(line)
+        relations << json
+      end
+
+      key == :project_feature ? relations.first : relations.flatten
+    end
+
+    def project_json(filename)
+      ActiveSupport::JSON.decode(IO.read(filename))
     end
   end
 end

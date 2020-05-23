@@ -3,7 +3,7 @@ import mutations from 'ee/insights/stores/modules/insights/mutations';
 import * as types from 'ee/insights/stores/modules/insights/mutation_types';
 import { CHART_TYPES } from 'ee/insights/constants';
 
-import { configData } from '../../../../javascripts/insights/mock_data';
+import { configData } from 'ee_jest/insights/mock_data';
 
 describe('Insights mutations', () => {
   let state;
@@ -48,7 +48,7 @@ describe('Insights mutations', () => {
     it('sets configData state to incoming data on success', () => {
       mutations[types.RECEIVE_CONFIG_SUCCESS](state, configData);
 
-      const expected = Object.assign({}, configData);
+      const expected = { ...configData };
       delete expected.invalid;
 
       expect(state.configData).toEqual(expected);
@@ -163,7 +163,7 @@ describe('Insights mutations', () => {
 
       const { chartData } = state;
 
-      expect(Object.keys(chartData[chart.title].data).length).toBe(0);
+      expect(Object.keys(chartData[chart.title].data)).toHaveLength(0);
     });
 
     it('sets charts type to incoming type on error', () => {

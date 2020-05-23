@@ -13,6 +13,7 @@ module Ci
     belongs_to :pipeline
 
     has_many :statuses, class_name: 'CommitStatus', foreign_key: :stage_id
+    has_many :latest_statuses, -> { ordered.latest }, class_name: 'CommitStatus', foreign_key: :stage_id
     has_many :processables, class_name: 'Ci::Processable', foreign_key: :stage_id
     has_many :builds, foreign_key: :stage_id
     has_many :bridges, foreign_key: :stage_id
@@ -42,8 +43,7 @@ module Ci
 
     state_machine :status, initial: :created do
       event :enqueue do
-        transition [:created, :waiting_for_resource, :preparing] => :pending
-        transition [:success, :failed, :canceled, :skipped] => :running
+        transition any - [:pending] => :pending
       end
 
       event :request_resource do
@@ -109,7 +109,7 @@ module Ci
     end
 
     def groups
-      @groups ||= Ci::Group.fabricate(self)
+      @groups ||= Ci::Group.fabricate(project, self)
     end
 
     def has_warnings?
@@ -138,7 +138,7 @@ module Ci
     end
 
     def latest_stage_status
-      statuses.latest.slow_composite_status || 'skipped'
+      statuses.latest.slow_composite_status(project: project) || 'skipped'
     end
   end
 end

@@ -13,6 +13,10 @@ First of all, our [Quick Start Guide](../quick_start/README.md) contains a good 
 You may also be interested in [Auto DevOps](../../topics/autodevops/index.md) which can potentially be used to build, test,
 and deploy your applications with little to no configuration needed at all.
 
+For an example of how to convert a Jenkins pipeline into a GitLab CI/CD pipeline,
+or how to use Auto DevOps to test your code automatically, watch the
+[Migrating from Jenkins to GitLab](https://www.youtube.com/watch?v=RlEVGOpYF5Y) video.
+
 For advanced CI/CD teams, [templates](#templates) can enable the reuse of pipeline configurations.
 
 Otherwise, read on for important information that will help you get the ball rolling. Welcome
@@ -40,6 +44,15 @@ things we have found that helps this:
   of the improvements that GitLab offers, and this requires (eventually) updating
   your implementation as part of the transition.
 
+## JenkinsFile Wrapper
+
+We are building a [JenkinsFile Wrapper](https://gitlab.com/gitlab-org/jfr-container-builder/) which will allow
+you to run a complete Jenkins instance inside of a GitLab job, including plugins. This can help ease the process
+of transition, by letting you delay the migration of less urgent pipelines for a period of time.
+
+If you are interested, join our [public testing issue](https://gitlab.com/gitlab-org/gitlab/-/issues/215675) to
+If you are interested, you might be able to [help GitLab test the wrapper](https://gitlab.com/gitlab-org/gitlab/-/issues/215675).
+
 ## Important product differences
 
 There are some high level differences between the products worth mentioning:
@@ -50,7 +63,7 @@ There are some high level differences between the products worth mentioning:
 
   - on push
   - on [schedule](../pipelines/schedules.md)
-  - from the [GitLab UI](../pipelines/index.md#manually-executing-pipelines)
+  - from the [GitLab UI](../pipelines/index.md#run-a-pipeline-manually)
   - by [API call](../triggers/README.md)
   - by [webhook](../triggers/README.md#triggering-a-pipeline-from-a-webhook)
   - by [ChatOps](../chatops/README.md)
@@ -65,7 +78,7 @@ There are some high level differences between the products worth mentioning:
 - You can also use the [`extends` keyword](../yaml/README.md#extends) to reuse configuration
   within a single pipeline configuration.
 - All jobs within a single stage always run in parallel, and all stages run in sequence. We are planning
-  to allow certain jobs to break this sequencing as needed with our [directed acyclic graph](https://gitlab.com/gitlab-org/gitlab-foss/issues/47063)
+  to allow certain jobs to break this sequencing as needed with our [directed acyclic graph](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/47063)
   feature.
 - The [`parallel`](../yaml/README.md#parallel) keyword can automatically parallelize tasks,
   like tests that support parallelization.
@@ -77,7 +90,7 @@ There are some high level differences between the products worth mentioning:
 - One important difference is that jobs run independently of each other and have a
   fresh environment in each job. Passing artifacts between jobs is controlled using the
   [`artifacts`](../yaml/README.md#artifacts) and [`dependencies`](../yaml/README.md#dependencies)
-  keywords. When finished, the planned [Workspaces](https://gitlab.com/gitlab-org/gitlab/issues/29265)
+  keywords. When finished, the planned [Workspaces](https://gitlab.com/gitlab-org/gitlab/-/issues/29265)
   feature will allow you to more easily persist a common workspace between serial jobs.
 - The `.gitlab-ci.yml` file is checked in to the root of your repository, much like a Jenkinsfile, but
   is in the YAML format (see [complete reference](../yaml/README.md)) instead of a Groovy DSL. It's most
@@ -113,7 +126,7 @@ There are some important differences in the way Runners work in comparison to ag
 
 If you are using `gitlab.com`, you can take advantage of our [shared Runner fleet](../../user/gitlab_com/index.md#shared-runners)
 to run jobs without provisioning your own Runners. We are investigating making them
-[available for self-managed instances](https://gitlab.com/gitlab-org/customers-gitlab-com/issues/414)
+[available for self-managed instances](https://gitlab.com/groups/gitlab-org/-/epics/835)
 as well.
 
 ## Groovy vs. YAML
@@ -282,7 +295,7 @@ my_job:
 
 In GitLab, we use the [`variables` keyword](../yaml/README.md#variables) to define different variables at runtime.
 These can also be set up through the GitLab UI, under CI/CD settings. See also our [general documentation on variables](../variables/README.md),
-including the section on [protected variables](../variables/README.md#protected-environment-variables) which can be used
+including the section on [protected variables](../variables/README.md#protect-a-custom-variable) which can be used
 to limit access to certain variables to certain environments or runners:
 
 ```yaml

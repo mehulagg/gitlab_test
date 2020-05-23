@@ -1,6 +1,12 @@
 <script>
-import { GlButton, GlFormGroup, GlFormInput, GlModal, GlModalDirective } from '@gitlab/ui';
-import _ from 'underscore';
+import {
+  GlDeprecatedButton,
+  GlFormGroup,
+  GlFormInput,
+  GlModal,
+  GlModalDirective,
+} from '@gitlab/ui';
+import { escape } from 'lodash';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import ToggleButton from '~/vue_shared/components/toggle_button.vue';
 import axios from '~/lib/utils/axios_utils';
@@ -11,7 +17,7 @@ export default {
   COPY_TO_CLIPBOARD: __('Copy'),
   RESET_KEY: __('Reset key'),
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlFormGroup,
     GlFormInput,
     GlModal,
@@ -59,7 +65,7 @@ export default {
           'AlertService|%{linkStart}Learn more%{linkEnd} about configuring this endpoint to receive alerts.',
         ),
         {
-          linkStart: `<a href="${_.escape(
+          linkStart: `<a href="${escape(
             this.learnMoreUrl,
           )}" target="_blank" rel="noopener noreferrer">`,
           linkEnd: '</a>',
@@ -149,7 +155,9 @@ export default {
           <clipboard-button :text="authorizationKey" :title="$options.COPY_TO_CLIPBOARD" />
         </span>
       </div>
-      <gl-button v-gl-modal.authKeyModal class="mt-2">{{ $options.RESET_KEY }}</gl-button>
+      <gl-deprecated-button v-gl-modal.authKeyModal class="mt-2">{{
+        $options.RESET_KEY
+      }}</gl-deprecated-button>
       <gl-modal
         modal-id="authKeyModal"
         :title="$options.RESET_KEY"

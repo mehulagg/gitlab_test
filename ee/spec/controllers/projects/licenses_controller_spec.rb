@@ -32,7 +32,7 @@ describe Projects::LicensesController do
             expect(licenses_app_data[:project_licenses_endpoint]).to eql(controller.helpers.project_licenses_path(project, detected: true, format: :json))
             expect(licenses_app_data[:read_license_policies_endpoint]).to eql(controller.helpers.api_v4_projects_managed_licenses_path(id: project.id))
             expect(licenses_app_data[:write_license_policies_endpoint]).to eql('')
-            expect(licenses_app_data[:documentation_path]).to eql(help_page_path('user/application_security/license_compliance/index'))
+            expect(licenses_app_data[:documentation_path]).to eql(help_page_path('user/compliance/license_compliance/index'))
             expect(licenses_app_data[:empty_state_svg_path]).to eql(controller.helpers.image_path('illustrations/Dependency-list-empty-state.svg'))
           end
 
@@ -73,6 +73,10 @@ describe Projects::LicensesController do
               expect(json_response['report']['status']).to eq('ok')
             end
 
+            it 'includes the pagination headers' do
+              expect(response).to include_pagination_headers
+            end
+
             context 'with pagination params' do
               let(:params) { { namespace_id: project.namespace, project_id: project, per_page: 3, page: 2 } }
 
@@ -100,6 +104,12 @@ describe Projects::LicensesController do
 
               it { expect(response).to have_gitlab_http_status(:ok) }
               it { expect(json_response["licenses"].count).to be(4) }
+
+              it 'sorts by name by default' do
+                names = json_response['licenses'].map { |x| x['name'] }
+
+                expect(names).to eql(['BSD 3-Clause "New" or "Revised" License', 'MIT', other_license.name, 'unknown'])
+              end
 
               it 'includes a policy for an unclassified and known license that was detected in the scan report' do
                 expect(json_response.dig("licenses", 0)).to include({
@@ -233,6 +243,24 @@ describe Projects::LicensesController do
                 })
               end
             end
+
+            context "when loading policies ordered by `classification` in `ascending` order" do
+              before do
+                get :index, params: { namespace_id: project.namespace, project_id: project, sort_by: :classification, sort_direction: :asc }, format: :json
+              end
+
+              specify { expect(response).to have_gitlab_http_status(:ok) }
+              specify { expect(json_response['licenses'].map { |x| x['classification'] }).to eq(%w[allowed unclassified unclassified denied]) }
+            end
+
+            context "when loading policies ordered by `classification` in `descending` order" do
+              before do
+                get :index, params: { namespace_id: project.namespace, project_id: project, sort_by: :classification, sort_direction: :desc }, format: :json
+              end
+
+              specify { expect(response).to have_gitlab_http_status(:ok) }
+              specify { expect(json_response['licenses'].map { |x| x['classification'] }).to eq(%w[denied unclassified unclassified allowed]) }
+            end
           end
 
           context 'without existing report' do
@@ -261,7 +289,7 @@ describe Projects::LicensesController do
             expect(licenses_app_data[:project_licenses_endpoint]).to eql(controller.helpers.project_licenses_path(project, detected: true, format: :json))
             expect(licenses_app_data[:read_license_policies_endpoint]).to eql(controller.helpers.api_v4_projects_managed_licenses_path(id: project.id))
             expect(licenses_app_data[:write_license_policies_endpoint]).to eql(controller.helpers.api_v4_projects_managed_licenses_path(id: project.id))
-            expect(licenses_app_data[:documentation_path]).to eql(help_page_path('user/application_security/license_compliance/index'))
+            expect(licenses_app_data[:documentation_path]).to eql(help_page_path('user/compliance/license_compliance/index'))
             expect(licenses_app_data[:empty_state_svg_path]).to eql(controller.helpers.image_path('illustrations/Dependency-list-empty-state.svg'))
           end
         end

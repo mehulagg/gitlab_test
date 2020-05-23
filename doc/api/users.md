@@ -75,6 +75,7 @@ GET /users
 | `order_by`   | string | no       | Return users ordered by `id`, `name`, `username`, `created_at`, or `updated_at` fields. Default is `id` |
 | `sort`       | string | no       | Return users sorted in `asc` or `desc` order. Default is `desc` |
 | `two_factor` | string | no       | Filter users by Two-factor authentication. Filter values are `enabled` or `disabled`. By default it returns all users |
+| `without_projects` | boolean | no | Filter users without projects. Default is `false` |
 
 ```json
 [
@@ -206,6 +207,8 @@ You can search users by creation date time range with:
 ```plaintext
 GET /users?created_before=2001-01-02T00:00:00.060Z&created_after=1999-01-02T00:00:00.060
 ```
+
+You can search for users without projects with: `/users?without_projects=true`
 
 You can filter by [custom attributes](custom_attributes.md) with:
 
@@ -608,7 +611,7 @@ GET /users/:id_or_username/status
 
 | Attribute        | Type   | Required | Description |
 | ---------------- | ------ | -------- | ----------- |
-| `id_or_username` | string | yes      | The id or username of the user to get a status of |
+| `id_or_username` | string | yes      | The ID or username of the user to get a status of |
 
 ```shell
 curl "https://gitlab.example.com/users/janedoe/status"
@@ -720,7 +723,7 @@ GET /users/:id_or_username/keys
 
 | Attribute        | Type   | Required | Description |
 | ---------------- | ------ | -------- | ----------- |
-| `id_or_username` | string | yes      | The id or username of the user to get the SSH keys for. |
+| `id_or_username` | string | yes      | The ID or username of the user to get the SSH keys for. |
 
 ## Single SSH key
 
@@ -791,7 +794,7 @@ POST /users/:id/keys
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 - `title` (required) - new SSH Key's title
 - `key` (required) - new SSH key
 
@@ -818,7 +821,7 @@ DELETE /users/:id/keys/:key_id
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 - `key_id` (required) - SSH key ID
 
 ## List all GPG keys
@@ -1067,7 +1070,7 @@ GET /users/:id/emails
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 
 ## Single email
 
@@ -1130,7 +1133,7 @@ POST /users/:id/emails
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 - `email` (required) - email address
 - `skip_confirmation` (optional) - Skip confirmation and assume e-mail is verified - true or false (default)
 
@@ -1157,7 +1160,7 @@ DELETE /users/:id/emails/:email_id
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 - `email_id` (required) - email ID
 
 ## Block user
@@ -1170,7 +1173,7 @@ POST /users/:id/block
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 
 Returns:
 
@@ -1188,14 +1191,14 @@ POST /users/:id/unblock
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 
 Will return `201 OK` on success, `404 User Not Found` is user cannot be found or
 `403 Forbidden` when trying to unblock a user blocked by LDAP synchronization.
 
 ## Deactivate user
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22257) in GitLab 12.4.
 
 Deactivates the specified user. Available only for admin.
 
@@ -1205,7 +1208,7 @@ POST /users/:id/deactivate
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 
 Returns:
 
@@ -1217,7 +1220,7 @@ Returns:
 
 ## Activate user
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22257) in GitLab 12.4.
 
 Activates the specified user. Available only for admin.
 
@@ -1227,7 +1230,7 @@ POST /users/:id/activate
 
 Parameters:
 
-- `id` (required) - id of specified user
+- `id` (required) - ID of specified user
 
 Returns:
 
@@ -1403,9 +1406,10 @@ Get the last activity date for all users, sorted from oldest to newest.
 The activities that update the timestamp are:
 
 - Git HTTP/SSH activities (such as clone, push)
-- User logging in into GitLab
-- User visiting pages related to Dashboards, Projects, Issues, and Merge Requests ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/54947) in GitLab 11.8)
+- User logging in to GitLab
+- User visiting pages related to Dashboards, Projects, Issues, and Merge Requests ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/54947) in GitLab 11.8)
 - User using the API
+- User using the GraphQL API
 
 By default, it shows the activity for all users in the last 6 months, but this can be
 amended by using the `from` parameter.
@@ -1450,7 +1454,7 @@ Please note that `last_activity_at` is deprecated, please use `last_activity_on`
 
 ## User memberships (admin only)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/20532) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/20532) in GitLab 12.8.
 
 Lists all projects and groups a user is a member of. This endpoint is available for admins only.
 It returns the `source_id`, `source_name`, `source_type` and `access_level` of a membership.

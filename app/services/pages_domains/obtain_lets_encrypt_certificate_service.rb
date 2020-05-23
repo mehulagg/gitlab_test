@@ -51,12 +51,12 @@ module PagesDomains
     def save_order_error(acme_order, api_order)
       log_error(api_order)
 
-      return unless Feature.enabled?(:pages_letsencrypt_errors, pages_domain.project)
-
       pages_domain.assign_attributes(auto_ssl_failed: true)
       pages_domain.save!(validate: false)
 
       acme_order.destroy!
+
+      NotificationService.new.pages_domain_auto_ssl_failed(pages_domain)
     end
 
     def log_error(api_order)

@@ -20,7 +20,7 @@ module Ci
     end
 
     def groups
-      @groups ||= Ci::Group.fabricate(self)
+      @groups ||= Ci::Group.fabricate(project, self)
     end
 
     def to_param
@@ -32,13 +32,17 @@ module Ci
     end
 
     def status
-      @status ||= statuses.latest.slow_composite_status
+      @status ||= statuses.latest.slow_composite_status(project: project)
     end
 
     def detailed_status(current_user)
       Gitlab::Ci::Status::Stage::Factory
         .new(self, current_user)
         .fabricate!
+    end
+
+    def latest_statuses
+      statuses.ordered.latest
     end
 
     def statuses

@@ -148,7 +148,7 @@ module QA
       new_event_count = @event_count + expected_events.length
 
       Support::Retrier.retry_until(max_duration: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME, sleep_interval: 1) do
-        get_audit_event_count(group) == new_event_count
+        get_audit_event_count(group) >= new_event_count
       end
     end
   end

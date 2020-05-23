@@ -13,7 +13,7 @@ class AuditEventService
   #
   # @return [AuditEventService]
   def initialize(author, entity, details = {})
-    @author = author
+    @author = build_author(author)
     @entity = entity
     @details = details
   end
@@ -48,6 +48,15 @@ class AuditEventService
   end
 
   private
+
+  def build_author(author)
+    case author
+    when User
+      author.impersonated? ? Gitlab::Audit::ImpersonatedAuthor.new(author) : author
+    else
+      Gitlab::Audit::UnauthenticatedAuthor.new(name: author)
+    end
+  end
 
   def base_payload
     {

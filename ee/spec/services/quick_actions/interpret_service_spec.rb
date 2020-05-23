@@ -524,6 +524,7 @@ describe QuickActions::InterpretService do
               it_behaves_like 'epic relation is removed' do
                 let(:target) { epic }
               end
+
               it_behaves_like 'quick action is available', :remove_child_epic do
                 let(:target) { epic }
               end
@@ -537,6 +538,7 @@ describe QuickActions::InterpretService do
               it_behaves_like 'epic relation is removed' do
                 let(:target) { epic }
               end
+
               it_behaves_like 'quick action is available', :remove_child_epic do
                 let(:target) { epic }
               end
@@ -673,10 +675,6 @@ describe QuickActions::InterpretService do
         let(:merge_request) { create(:merge_request, source_project: project) }
         let(:content) { '/submit_review' }
         let!(:draft_note) { create(:draft_note, note: note, merge_request: merge_request, author: current_user) }
-
-        before do
-          stub_licensed_features(batch_comments: true)
-        end
 
         it 'submits the users current review' do
           _, _, message = service.execute(content, merge_request)
@@ -874,7 +872,7 @@ describe QuickActions::InterpretService do
 
           context 'relate a non-existing issue' do
             let(:issues_related) { [] }
-            let(:content) { "/relate imaginary#1234" }
+            let(:content) { "/relate imaginary##{non_existing_record_iid}" }
 
             it_behaves_like 'relate command'
           end

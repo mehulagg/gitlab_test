@@ -34,13 +34,15 @@ describe Analytics::CycleAnalytics::StagesController do
       expect(response_start_events).to eq(start_events)
     end
 
-    it 'returns correct event names' do
+    it 'does not include internal events' do
       subject
 
       response_event_names = json_response['events'].map { |s| s['name'] }
-      event_names = Gitlab::Analytics::CycleAnalytics::StageEvents.events.map(&:name)
+      event_names = Gitlab::Analytics::CycleAnalytics::StageEvents.events
+      internal_events = Gitlab::Analytics::CycleAnalytics::StageEvents.internal_events
+      expected_event_names = (event_names - internal_events).map(&:name)
 
-      expect(response_event_names).to eq(event_names.sort)
+      expect(response_event_names).to eq(expected_event_names.sort)
     end
 
     it 'succeeds for subgroups' do
@@ -218,7 +220,7 @@ describe Analytics::CycleAnalytics::StagesController do
       subject { get :duration_chart, params: params }
 
       it 'matches the response schema' do
-        fake_result = [double(MergeRequest, duration_in_seconds: 10, finished_at: Time.now)]
+        fake_result = [double(MergeRequest, duration_in_seconds: 10, finished_at: Time.current)]
         expect_any_instance_of(Gitlab::Analytics::CycleAnalytics::DataForDurationChart).to receive(:load).and_return(fake_result)
 
         subject

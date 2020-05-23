@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlProgressBar } from '@gitlab/ui';
+import { GlDeprecatedButton, GlProgressBar } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { formatTime, secondsToMilliseconds } from '~/lib/utils/datetime_utility';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -7,7 +7,7 @@ import Icon from '~/vue_shared/components/icon.vue';
 export default {
   name: 'TestSummary',
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlProgressBar,
     Icon,
   },
@@ -29,7 +29,14 @@ export default {
     successPercentage() {
       // Returns a full number when the decimals equal .00.
       // Otherwise returns a float to two decimal points
-      return Number(((this.report.success_count / this.report.total_count) * 100 || 0).toFixed(2));
+      // Do not include skipped tests as part of the total when doing success calculations.
+
+      const totalCompletedCount = this.report.total_count - this.report.skipped_count;
+
+      if (totalCompletedCount > 0) {
+        return Number(((this.report.success_count / totalCompletedCount) * 100 || 0).toFixed(2));
+      }
+      return 0;
     },
     formattedDuration() {
       return formatTime(secondsToMilliseconds(this.report.total_time));
@@ -62,14 +69,14 @@ export default {
   <div>
     <div class="row">
       <div class="col-12 d-flex prepend-top-8 align-items-center">
-        <gl-button
+        <gl-deprecated-button
           v-if="showBack"
           size="sm"
           class="append-right-default js-back-button"
           @click="onBackClick"
         >
           <icon name="angle-left" />
-        </gl-button>
+        </gl-deprecated-button>
 
         <h4>{{ heading }}</h4>
       </div>

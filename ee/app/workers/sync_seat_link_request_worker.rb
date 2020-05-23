@@ -3,7 +3,7 @@
 class SyncSeatLinkRequestWorker
   include ApplicationWorker
 
-  feature_category :analysis
+  feature_category :billing
 
   idempotent!
   worker_has_external_dependencies!
@@ -12,10 +12,7 @@ class SyncSeatLinkRequestWorker
 
   RequestError = Class.new(StandardError)
 
-  # active_users param is optional as it was added in a patch release for %12.9.
-  # The optional nil value can be removed in the next major release, %13.0, when
-  # it becomes mandatory.
-  def perform(date, license_key, max_historical_user_count, active_users = nil)
+  def perform(date, license_key, max_historical_user_count, active_users)
     response = Gitlab::HTTP.post(
       URI_PATH,
       base_uri: EE::SUBSCRIPTIONS_URL,
@@ -29,12 +26,12 @@ class SyncSeatLinkRequestWorker
   private
 
   def request_body(date, license_key, max_historical_user_count, active_users)
-    {
+    Gitlab::SeatLinkData.new(
       date: date,
-      license_key: license_key,
-      max_historical_user_count: max_historical_user_count,
+      key: license_key,
+      max_users: max_historical_user_count,
       active_users: active_users
-    }.to_json
+    ).to_json
   end
 
   def request_headers

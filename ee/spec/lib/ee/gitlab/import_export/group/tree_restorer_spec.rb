@@ -8,7 +8,7 @@ describe Gitlab::ImportExport::Group::TreeRestorer do
   let(:user) { create(:user) }
   let(:group) { create(:group, name: 'group', path: 'group') }
   let(:shared) { Gitlab::ImportExport::Shared.new(group) }
-  let(:group_tree_restorer) { described_class.new(user: user, shared: shared, group: group, group_hash: nil) }
+  let(:group_tree_restorer) { described_class.new(user: user, shared: shared, group: group) }
 
   before do
     stub_licensed_features(board_assignee_lists: true, board_milestone_lists: true)
@@ -55,11 +55,13 @@ describe Gitlab::ImportExport::Group::TreeRestorer do
     context 'boards' do
       it 'has user generated milestones' do
         board = group.boards.find_by(name: 'second board')
+
         expect(board.milestone.title).to eq 'v4.0'
       end
 
       it 'does not have predefined milestones' do
         board = group.boards.find_by(name: 'first board')
+
         expect(board.milestone).to be_nil
       end
     end

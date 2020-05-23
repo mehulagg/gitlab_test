@@ -104,6 +104,8 @@ describe 'Issue Boards', :js do
     it 'assignees to current user' do
       click_card(card2)
 
+      wait_for_requests
+
       page.within(find('.assignee')) do
         expect(find('.qa-assign-yourself')).to have_content('None')
 
@@ -329,6 +331,32 @@ describe 'Issue Boards', :js do
         expect(card3).to have_content(scoped_label_2.scoped_label_key)
         expect(card3).to have_content(scoped_label_2.scoped_label_value)
       end
+    end
+  end
+
+  context 'when opening sidebars' do
+    let(:settings_button) { find('.js-board-settings-button') }
+
+    it 'closes card sidebar when opening settings sidebar' do
+      click_card(card1)
+
+      expect(page).to have_selector('.right-sidebar')
+
+      settings_button.click
+
+      expect(page).to have_selector('.js-board-settings-sidebar')
+      expect(page).not_to have_selector('.right-sidebar')
+    end
+
+    it 'closes settings sidebar when opening card sidebar' do
+      settings_button.click
+
+      expect(page).to have_selector('.js-board-settings-sidebar')
+
+      click_card(card1)
+
+      expect(page).to have_selector('.right-sidebar')
+      expect(page).not_to have_selector('.js-board-settings-sidebar')
     end
   end
 end

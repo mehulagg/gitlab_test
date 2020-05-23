@@ -47,7 +47,7 @@ Sometimes we need to upgrade customers from old versions of GitLab to latest, so
 
 - [Installation Methods](https://about.gitlab.com/install/):
   - [Omnibus](https://gitlab.com/gitlab-org/omnibus-gitlab/)
-  - [Docker](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/docker)
+  - [Docker](../../install/docker.md)
   - [Source](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/install/installation.md)
 - Get yourself a Digital Ocean droplet, where you can install and maintain your own instance of GitLab
   - Ask in #infrastructure about this
@@ -62,14 +62,14 @@ Sometimes we need to upgrade customers from old versions of GitLab to latest, so
     - Users
     - Groups
     - Projects
-  - [Backup using our Backup Rake task](../../raketasks/backup_restore.md#creating-a-backup-of-the-gitlab-system)
+  - [Back up using our backup Rake task](../../raketasks/backup_restore.md#back-up-gitlab)
   - [Upgrade to 5.0 source using our Upgrade documentation](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/update/4.2-to-5.0.md)
   - [Upgrade to 5.1 source](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/update/5.0-to-5.1.md)
   - [Upgrade to 6.0 source](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/update/5.1-to-6.0.md)
   - [Upgrade to 7.14 source](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/update/6.x-or-7.x-to-7.14.md)
   - [Perform the MySQL to PostgreSQL migration to convert your backup](../../update/mysql_to_postgresql.md)
   - [Upgrade to Omnibus 7.14](https://docs.gitlab.com/omnibus/update/README.html#upgrading-from-a-non-omnibus-installation-to-an-omnibus-installation)
-  - [Restore backup using our Restore Rake task](../../raketasks/backup_restore.md#restore)
+  - [Restore backup using our Restore Rake task](../../raketasks/backup_restore.md#restore-gitlab)
   - [Upgrade to latest EE](https://about.gitlab.com/update/)
     - (GitLab inc. only) Acquire and apply a license for the Enterprise Edition product, ask in #support
 - Perform a downgrade from [EE to CE](../../downgrade_ee_to_ce/README.md)
@@ -103,7 +103,7 @@ Our integrations add great value to GitLab. User questions often relate to integ
 
 ### Learn about the Support process
 
-Zendesk is our Support Centre and our main communication line with our Customers. We communicate with customers through several other channels too
+Zendesk is our Support Center and our main communication line with our Customers. We communicate with customers through several other channels too
 
 - Familiarize yourself with ZenDesk:
   - [UI Overview](https://support.zendesk.com/hc/en-us/articles/203661806-Introduction-to-the-Zendesk-agent-interface)
@@ -154,7 +154,7 @@ Some tickets need specific knowledge or a deep understanding of a particular com
 - Understand what's in the pipeline and proposed features at GitLab: [Direction Page](https://about.gitlab.com/direction/)
 - Practice searching issues and filtering using [labels](https://gitlab.com/gitlab-org/gitlab/-/labels) to find existing feature proposals and bugs
 - If raising a new issue always provide a relevant label and a link to the relevant ticket in Zendesk
-- Add [customer labels](https://gitlab.com/gitlab-org/gitlab-foss/issues?label_name%5B%5D=customer) for those issues relevant to our subscribers
+- Add [customer labels](https://gitlab.com/gitlab-org/gitlab/issues?label_name%5B%5D=customer) for those issues relevant to our subscribers
 - Take a look at the [existing issue templates](https://gitlab.com/gitlab-org/gitlab/blob/master/CONTRIBUTING.md#issue-tracker) to see what is expected
 - Raise issues for bugs in a manner that would make the issue easily reproducible. A Developer or a contributor may work on your issue
 
@@ -170,13 +170,13 @@ Some tickets need specific knowledge or a deep understanding of a particular com
 
 Move on to understanding some of GitLab's more advanced features. You can make use of GitLab.com to understand the features from an end-user perspective and then use your own instance to understand setup and configuration of the feature from an Administrative perspective
 
-- Set up and try [Git LFS](../../administration/lfs/manage_large_binaries_with_git_lfs.md)
+- Set up and try [Git LFS](../../topics/git/lfs/index.md)
 - Get to know the [GitLab API](../../api/README.md), its capabilities and shortcomings
 - Learn how to [migrate from SVN to Git](../../user/project/import/svn.md)
 - Set up [GitLab CI/CD](../../ci/quick_start/README.md)
 - Create your first [GitLab Page](../../administration/pages/index.md)
 - Get to know the GitLab Codebase by reading through the source code:
-  - Find the differences between the [EE codebase](https://gitlab.com/gitlab-org/gitlab-foss)
+  - Find the differences between the [EE codebase](https://gitlab.com/gitlab-org/gitlab)
      and the [CE codebase](https://gitlab.com/gitlab-org/gitlab-foss)
 - Ask as many questions as you can think of on the `#support` chat channel
 

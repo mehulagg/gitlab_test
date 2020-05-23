@@ -8,8 +8,10 @@ import BoardSettingsSidebar from 'ee/boards/components/board_settings_sidebar.vu
 import boardsStore from 'ee_else_ce/boards/stores/boards_store_ee';
 import getters from 'ee_else_ce/boards/stores/getters';
 import bs from '~/boards/stores/boards_store';
+import sidebarEventHub from '~/sidebar/event_hub';
 import flash from '~/flash';
 import waitForPromises from 'helpers/wait_for_promises';
+import { inactiveListId } from '~/boards/constants';
 
 jest.mock('~/flash');
 // NOTE: needed for calling boardsStore.addList
@@ -27,7 +29,11 @@ describe('BoardSettingsSideBar', () => {
   const listId = 1;
   const currentWipLimit = 1; // Needs to be other than null to trigger requests.
 
-  const createComponent = (state = { activeListId: 0 }, actions = {}, localState = {}) => {
+  const createComponent = (
+    state = { activeListId: inactiveListId },
+    actions = {},
+    localState = {},
+  ) => {
     storeActions = actions;
 
     const store = new Vuex.Store({
@@ -66,7 +72,6 @@ describe('BoardSettingsSideBar', () => {
       removeList: bs.removeList,
       scopedLabels: {
         enabled: false,
-        scopedLabelsDocumentationLink: '',
       },
     };
 
@@ -88,14 +93,28 @@ describe('BoardSettingsSideBar', () => {
     describe('on close', () => {
       it('calls closeSidebar', () => {
         const spy = jest.fn();
-        createComponent({ activeListId: 0 }, { setActiveListId: spy });
+        createComponent({ activeListId: inactiveListId }, { setActiveListId: spy });
 
         wrapper.find(GlDrawer).vm.$emit('close');
 
         return wrapper.vm.$nextTick().then(() => {
           expect(storeActions.setActiveListId).toHaveBeenCalledWith(
             expect.anything(),
-            0,
+            inactiveListId,
+            undefined,
+          );
+        });
+      });
+
+      it('calls closeSidebar on sidebar.closeAll event', () => {
+        createComponent({ activeListId: inactiveListId }, { setActiveListId: jest.fn() });
+
+        sidebarEventHub.$emit('sidebar.closeAll');
+
+        return wrapper.vm.$nextTick().then(() => {
+          expect(storeActions.setActiveListId).toHaveBeenCalledWith(
+            expect.anything(),
+            inactiveListId,
             undefined,
           );
         });
@@ -164,7 +183,7 @@ describe('BoardSettingsSideBar', () => {
 
         boardsStore.store.addList({ id: listId, label: { title: labelTitle, color: labelColor } });
 
-        createComponent({ activeListId: 0 });
+        createComponent({ activeListId: inactiveListId });
       });
 
       afterEach(() => {

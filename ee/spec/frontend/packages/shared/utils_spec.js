@@ -1,5 +1,11 @@
-import { packageTypeToTrackCategory, beautifyPath } from 'ee/packages/shared/utils';
+import {
+  packageTypeToTrackCategory,
+  beautifyPath,
+  getPackageTypeLabel,
+  getCommitLink,
+} from 'ee/packages/shared/utils';
 import { PackageType, TrackingCategories } from 'ee/packages/shared/constants';
+import { packageList } from '../mock_data';
 
 describe('Packages shared utils', () => {
   describe('packageTypeToTrackCategory', () => {
@@ -14,12 +20,46 @@ describe('Packages shared utils', () => {
       );
     });
   });
+
   describe('beautifyPath', () => {
     it('returns a string with spaces around /', () => {
       expect(beautifyPath('foo/bar')).toBe('foo / bar');
     });
     it('does not fail for empty string', () => {
       expect(beautifyPath()).toBe('');
+    });
+  });
+
+  describe('getPackageTypeLabel', () => {
+    describe.each`
+      packageType | expectedResult
+      ${'conan'}  | ${'Conan'}
+      ${'maven'}  | ${'Maven'}
+      ${'npm'}    | ${'NPM'}
+      ${'nuget'}  | ${'NuGet'}
+      ${'pypi'}   | ${'PyPi'}
+      ${'foo'}    | ${null}
+    `(`package type`, ({ packageType, expectedResult }) => {
+      it(`${packageType} should show as ${expectedResult}`, () => {
+        expect(getPackageTypeLabel(packageType)).toBe(expectedResult);
+      });
+    });
+  });
+
+  describe('getCommitLink', () => {
+    it('returns a relative link when isGroup is false', () => {
+      const link = getCommitLink(packageList[0], false);
+
+      expect(link).toContain('../commit');
+    });
+
+    describe('when isGroup is true', () => {
+      it('returns an absolute link matching project path', () => {
+        const mavenPackage = packageList[0];
+        const link = getCommitLink(mavenPackage, true);
+
+        expect(link).toContain(`/${mavenPackage.project_path}/commit`);
+      });
     });
   });
 });

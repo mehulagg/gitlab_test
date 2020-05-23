@@ -1,12 +1,12 @@
 <script>
 import { mapGetters } from 'vuex';
-import { escape as esc } from 'lodash';
-import { GlButton } from '@gitlab/ui';
+import { escape } from 'lodash';
+import { GlDeprecatedButton } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 
 export default {
   components: {
-    GlButton,
+    GlDeprecatedButton,
   },
   props: {
     changesEmptyStateIllustration: {
@@ -24,8 +24,8 @@ export default {
         {
           ref_start: '<span class="ref-name">',
           ref_end: '</span>',
-          source_branch: esc(this.getNoteableData.source_branch),
-          target_branch: esc(this.getNoteableData.target_branch),
+          source_branch: escape(this.getNoteableData.source_branch),
+          target_branch: escape(this.getNoteableData.target_branch),
         },
         false,
       );
@@ -43,9 +43,9 @@ export default {
       <div class="text-content text-center">
         <span v-html="emptyStateText"></span>
         <div class="text-center">
-          <gl-button :href="getNoteableData.new_blob_path" variant="success">{{
+          <gl-deprecated-button :href="getNoteableData.new_blob_path" variant="success">{{
             __('Create commit')
-          }}</gl-button>
+          }}</gl-deprecated-button>
         </div>
       </div>
     </div>

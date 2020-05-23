@@ -3,7 +3,6 @@
 require 'spec_helper'
 
 describe Admin::IntegrationsController do
-  let_it_be(:project) { create(:project) }
   let(:admin) { create(:admin) }
 
   before do
@@ -34,10 +33,12 @@ describe Admin::IntegrationsController do
   end
 
   describe '#update' do
-    let(:integration) { create(:jira_service, project: project) }
+    let(:integration) { create(:jira_service, :instance) }
 
     before do
-      put :update, params: { id: integration.class.to_param, service: { url: url } }
+      allow(PropagateIntegrationWorker).to receive(:perform_async)
+
+      put :update, params: { id: integration.class.to_param, overwrite: true, service: { url: url } }
     end
 
     context 'valid params' do
@@ -47,39 +48,23 @@ describe Admin::IntegrationsController do
         expect(response).to have_gitlab_http_status(:found)
         expect(integration.reload.url).to eq(url)
       end
+
+      it 'calls to PropagateIntegrationWorker' do
+        expect(PropagateIntegrationWorker).to have_received(:perform_async).with(integration.id, true)
+      end
     end
 
     context 'invalid params' do
-      let(:url) { 'https://jira.localhost' }
+      let(:url) { 'invalid' }
 
       it 'does not update the integration' do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to render_template(:edit)
         expect(integration.reload.url).not_to eq(url)
       end
-    end
-  end
 
-  describe '#test' do
-    context 'testable' do
-      let(:integration) { create(:jira_service, project: project) }
-
-      it 'returns ok' do
-        allow_any_instance_of(integration.class).to receive(:test) { { success: true } }
-
-        put :test, params: { id: integration.class.to_param }
-
-        expect(response).to have_gitlab_http_status(:ok)
-      end
-    end
-
-    context 'not testable' do
-      let(:integration) { create(:alerts_service, project: project) }
-
-      it 'returns not found' do
-        put :test, params: { id: integration.class.to_param }
-
-        expect(response).to have_gitlab_http_status(:not_found)
+      it 'does not call to PropagateIntegrationWorker' do
+        expect(PropagateIntegrationWorker).not_to have_received(:perform_async)
       end
     end
   end

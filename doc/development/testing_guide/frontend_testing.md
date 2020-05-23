@@ -5,7 +5,7 @@ at GitLab. We use Karma with Jasmine and Jest for JavaScript unit and integratio
 and RSpec feature tests with Capybara for e2e (end-to-end) integration testing.
 
 Unit and feature tests need to be written for all new features.
-Most of the time, you should use [RSpec] for your feature tests.
+Most of the time, you should use [RSpec](https://github.com/rspec/rspec-rails#feature-specs) for your feature tests.
 
 Regression tests should be written for bug fixes to prevent them from recurring
 in the future.
@@ -15,7 +15,7 @@ information on general testing practices at GitLab.
 
 ## Vue.js testing
 
-If you are looking for a guide on Vue component testing, you can jump right away to this [section][vue-test].
+If you are looking for a guide on Vue component testing, you can jump right away to this [section](../fe_guide/vue.md#testing-vue-components).
 
 ## Jest
 
@@ -30,7 +30,7 @@ Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
 
 ## Karma test suite
 
-While GitLab is switching over to [Jest][jest] you'll still find Karma tests in our application. [Karma][karma] is a test runner which uses [Jasmine] as its test
+While GitLab is switching over to [Jest](https://jestjs.io) you'll still find Karma tests in our application. [Karma](http://karma-runner.github.io/) is a test runner which uses [Jasmine](https://jasmine.github.io/) as its test
 framework. Jest also uses Jasmine as foundation, that's why it's looking quite similar.
 
 Karma tests live in `spec/javascripts/` and `/ee/spec/javascripts` in EE.
@@ -206,12 +206,19 @@ Following you'll find some general common practices you will find as part of our
 
 When it comes to querying DOM elements in your tests, it is best to uniquely target the element, without adding additional attributes specifically for testing purposes. Sometimes this cannot be done feasibly. In these cases, adding test attributes to simplify the selectors might be the best option.
 
-Preferentially, in component testing with `@vue/test-utils`, you should query for child components using the component itself. Otherwise, try to use an existing attribute like `name` or a Vue `ref` (if using `@vue/test-utils`):
+Preferentially, in component testing with `@vue/test-utils`, you should query for child components using the component itself. This helps enforce that specific behavior can be covered by that component's individual unit tests. Otherwise, try to use:
+
+- A behavioral attribute like `name` (also verifies that `name` was setup properly)
+- A `data-testid` attribute ([recommended by maintainers of `@vue/test-utils`](https://github.com/vuejs/vue-test-utils/issues/1498#issuecomment-610133465))
+- a Vue `ref` (if using `@vue/test-utils`)
+
+Examples:
 
 ```javascript
 it('exists', () => {
     wrapper.find(FooComponent);
     wrapper.find('input[name=foo]');
+    wrapper.find('[data-testid="foo"]');
     wrapper.find({ ref: 'foo'});
     wrapper.find('.js-foo');
 });
@@ -542,7 +549,8 @@ TBU
 
 Jasmine provides stubbing and mocking capabilities. There are some subtle differences in how to use it within Karma and Jest.
 
-Stubs or spies are often used synonymously. In Jest it's quite easy thanks to the `.spyOn` method. [Official docs][jestspy]
+Stubs or spies are often used synonymously. In Jest it's quite easy thanks to the `.spyOn` method.
+[Official docs](https://jestjs.io/docs/en/jest-object#jestspyonobject-methodname)
 The more challenging part are mocks, which can be used for functions or even dependencies.
 
 ### Manual module mocks
@@ -550,8 +558,9 @@ The more challenging part are mocks, which can be used for functions or even dep
 Manual mocks are used to mock modules across the entire Jest environment. This is a very powerful testing tool that helps simplify
 unit testing by mocking out modules which cannot be easily consumned in our test environment.
 
-> NOTE: Do not use manual mocks if a mock should not be consistently applied (i.e. it's only needed by a few specs).
-> Instead, consider using `jest.mock` in the relevant spec file.
+> **WARNING:** Do not use manual mocks if a mock should not be consistently applied in every spec (i.e. it's only needed by a few specs).
+> Instead, consider using [`jest.mock(..)`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options)
+> (or a similar mocking function) in the relevant spec file.
 
 #### Where should I put manual mocks?
 
@@ -568,23 +577,27 @@ If a manual mock is needed for a CE module, please place it in `spec/frontend/mo
 - We don't support mocking EE modules yet.
 - If a mock is found for which a source module doesn't exist, the test suite will fail. 'Virtual' mocks, or mocks that don't have a 1-to-1 association with a source module, are not supported yet.
 
-### Writing a mock
+#### Manual mock examples
 
-Create a JS module in the appropriate place in `spec/frontend/mocks/`. That's it. It will automatically mock its source package in all tests.
-
-Make sure that your mock's export has the same format as the mocked module. So, if you're mocking a CommonJS module, you'll need to use `module.exports` instead of the ES6 `export`.
-
-It might be useful for a mock to expose a property that indicates if the mock was loaded. This way, tests can assert the presence of a mock without calling any logic and causing side-effects. The `~/lib/utils/axios_utils` module mock has such a property, `isMock`, that is `true` in the mock and undefined in the original class. Jest's mock functions also have a `mock` property that you can test.
-
-### Bypassing mocks
-
-If you ever need to import the original module in your tests, use [`jest.requireActual()`](https://jestjs.io/docs/en/jest-object#jestrequireactualmodulename) (or `jest.requireActual().default` for the default export). The `jest.mock()` and `jest.unmock()` won't have an effect on modules that have a manual mock, because mocks are imported and cached before any tests are run.
+- [`mocks/axios_utils`](https://gitlab.com/gitlab-org/gitlab/blob/bd20aeb64c4eed117831556c54b40ff4aee9bfd1/spec/frontend/mocks/ce/lib/utils/axios_utils.js#L1) -
+  This mock is helpful because we don't want any unmocked requests to pass any tests. Also, we are able to inject some test helpers such as `axios.waitForAll`.
+- [`__mocks__/mousetrap/index.js`](https://gitlab.com/gitlab-org/gitlab/blob/cd4c086d894226445be9d18294a060ba46572435/spec/frontend/__mocks__/mousetrap/index.js#L1) -
+  This mock is helpful because the module itself uses amd format which webpack understands, but is incompatible with the jest environment. This mock doesn't remove
+  any behavior, only provides a nice es6 compatible wrapper.
+- [`__mocks__/monaco-editor/index.js`](https://gitlab.com/gitlab-org/gitlab/blob/b7f914cddec9fc5971238cdf12766e79fa1629d7/spec/frontend/__mocks__/monaco-editor/index.js) -
+  This mock is helpful because the monaco package is completely incompatible in a Jest environment. In fact, webpack requires a special loader to make it work. This mock
+  simply makes this package consumable by Jest.
 
 ### Keep mocks light
 
-Global mocks introduce magic and can affect how modules are imported in your tests. Try to keep them as light as possible and dependency-free. A global mock should be useful for any unit test. For example, the `axios_utils` and `jquery` module mocks throw an error when an HTTP request is attempted, since this is useful behaviour in &gt;99% of tests.
+Global mocks introduce magic and technically can reduce test coverage. When mocking is deemed profitable:
 
-When in doubt, construct mocks in your test file using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options), [`jest.spyOn()`](https://jestjs.io/docs/en/jest-object#jestspyonobject-methodname), etc.
+- Keep the mock short and focused.
+- Please leave a top-level comment in the mock on why it is necessary.
+
+### Additional mocking techniques
+
+Please consult the [official Jest docs](https://jestjs.io/docs/en/jest-object#mock-modules) for a full overview of the available mocking features.
 
 ## Running Frontend Tests
 
@@ -625,12 +638,12 @@ Karma allows something similar, but it's way more costly.
 
 Running Karma with `yarn run karma-start` will compile the JavaScript
 assets and run a server at `http://localhost:9876/` where it will automatically
-run the tests on any browser which connects to it. You can enter that url on
+run the tests on any browser which connects to it. You can enter that URL on
 multiple browsers at once to have it run the tests on each in parallel.
 
 While Karma is running, any changes you make will instantly trigger a recompile
 and retest of the **entire test suite**, so you can see instantly if you've broken
-a test with your changes. You can use [Jasmine focused][jasmine-focus] or
+a test with your changes. You can use [Jasmine focused](https://jasmine.github.io/2.5/focused_specs.html) or
 excluded tests (with `fdescribe` or `xdescribe`) to get Karma to run only the
 tests you want while you're working on a specific feature, but make sure to
 remove these directives when you commit your code.
@@ -788,9 +801,9 @@ Tests relevant for frontend development can be found at the following places:
 
 RSpec runs complete [feature tests](testing_levels.md#frontend-feature-tests), while the Jest and Karma directories contain [frontend unit tests](testing_levels.md#frontend-unit-tests), [frontend component tests](testing_levels.md#frontend-component-tests), and [frontend integration tests](testing_levels.md#frontend-integration-tests).
 
-All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/issues/52483)).
+All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52483)).
 
-Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/issues/23036)).
+Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/23036)).
 
 See also [Notes on testing Vue components](../fe_guide/vue.md#testing-vue-components).
 
@@ -818,43 +831,6 @@ testAction(
 ```
 
 Check an example in [spec/javascripts/ide/stores/actions_spec.jsspec/javascripts/ide/stores/actions_spec.js](https://gitlab.com/gitlab-org/gitlab/blob/master/spec/javascripts/ide/stores/actions_spec.js).
-
-### Vue Helper: `mountComponent`
-
-To make mounting a Vue component easier and more readable, we have a few helpers available in `spec/helpers/vue_mount_component_helper`:
-
-- `createComponentWithStore`
-- `mountComponentWithStore`
-
-Examples of usage:
-
-```javascript
-beforeEach(() => {
-  vm = createComponentWithStore(Component, store);
-
-  vm.$store.state.currentBranchId = 'master';
-
-  vm.$mount();
-});
-```
-
-```javascript
-beforeEach(() => {
-  vm = mountComponentWithStore(Component, {
-    el: '#dummy-element',
-    store,
-    props: { badge },
-  });
-});
-```
-
-Don't forget to clean up:
-
-```javascript
-afterEach(() => {
-  vm.$destroy();
-});
-```
 
 ### Wait until axios requests finish
 
@@ -894,13 +870,3 @@ You can download any older version of Firefox from the releases FTP server, <htt
 ---
 
 [Return to Testing documentation](index.md)
-
-<!-- URL References -->
-
-[jasmine-focus]: https://jasmine.github.io/2.5/focused_specs.html
-[karma]: http://karma-runner.github.io/
-[vue-test]: ../fe_guide/vue.md#testing-vue-components
-[rspec]: https://github.com/rspec/rspec-rails#feature-specs
-[jasmine]: https://jasmine.github.io/
-[jest]: https://jestjs.io
-[jestspy]: https://jestjs.io/docs/en/jest-object#jestspyonobject-methodname

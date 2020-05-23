@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Resolvers
-  class VulnerabilitiesResolver < BaseResolver
+  class VulnerabilitiesResolver < VulnerabilitiesBaseResolver
     include Gitlab::Utils::StrongMemoize
 
     type Types::VulnerabilityType, null: true
@@ -25,23 +25,10 @@ module Resolvers
     def resolve(**args)
       return Vulnerability.none unless vulnerable
 
-      filters = args.slice(:project_id, :report_type, :severity, :state)
-
-      vulnerabilities(filters).with_findings.ordered
+      vulnerabilities(args).with_findings.ordered
     end
 
     private
-
-    # `vulnerable` will be a Project, Group, or InstanceSecurityDashboard
-    def vulnerable
-      # A project or group could have been loaded in batch by `BatchLoader`.
-      # At this point we need the `id` of the project or group to query for vulnerabilities, so
-      # make sure it's loaded and not `nil` before continuing.
-
-      strong_memoize(:vuln) do
-        object.respond_to?(:sync) ? object.sync : object
-      end
-    end
 
     def vulnerabilities(filters)
       Security::VulnerabilitiesFinder.new(vulnerable, filters).execute

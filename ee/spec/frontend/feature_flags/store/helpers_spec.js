@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import { uniqueId } from 'lodash';
 import {
   mapToScopesViewModel,
   mapFromScopesViewModel,
@@ -214,7 +214,7 @@ describe('feature flags helpers spec', () => {
 
     it('should strip out internal IDs', () => {
       const input = {
-        scopes: [{ id: 3 }, { id: _.uniqueId(INTERNAL_ID_PREFIX) }],
+        scopes: [{ id: 3 }, { id: uniqueId(INTERNAL_ID_PREFIX) }],
       };
 
       const result = mapFromScopesViewModel(input);
@@ -378,7 +378,21 @@ describe('feature flags helpers spec', () => {
         },
       ]);
     });
+
+    it('inserts spaces between user ids', () => {
+      const strategy = mapStrategiesToViewModel([
+        {
+          id: '1',
+          name: 'userWithId',
+          parameters: { userIds: 'user1,user2,user3' },
+          scopes: [],
+        },
+      ])[0];
+
+      expect(strategy.parameters).toEqual({ userIds: 'user1, user2, user3' });
+    });
   });
+
   describe('mapStrategiesToRails', () => {
     it('should map rails casing to view model casing', () => {
       expect(
@@ -386,6 +400,7 @@ describe('feature flags helpers spec', () => {
           name: 'test',
           description: 'test description',
           version: NEW_VERSION_FLAG,
+          active: true,
           strategies: [
             {
               id: '1',
@@ -407,13 +422,14 @@ describe('feature flags helpers spec', () => {
           name: 'test',
           description: 'test description',
           version: NEW_VERSION_FLAG,
+          active: true,
           strategies_attributes: [
             {
               id: '1',
               name: 'default',
               parameters: {},
               _destroy: true,
-              scopes: [
+              scopes_attributes: [
                 {
                   environment_scope: '*',
                   id: '1',
@@ -425,12 +441,14 @@ describe('feature flags helpers spec', () => {
         },
       });
     });
+
     it('should insert a default * scope if there are none', () => {
       expect(
         mapStrategiesToRails({
           name: 'test',
           description: 'test description',
           version: NEW_VERSION_FLAG,
+          active: true,
           strategies: [
             {
               id: '1',
@@ -445,12 +463,13 @@ describe('feature flags helpers spec', () => {
           name: 'test',
           description: 'test description',
           version: NEW_VERSION_FLAG,
+          active: true,
           strategies_attributes: [
             {
               id: '1',
               name: 'default',
               parameters: {},
-              scopes: [
+              scopes_attributes: [
                 {
                   environment_scope: '*',
                 },
@@ -459,6 +478,37 @@ describe('feature flags helpers spec', () => {
           ],
         },
       });
+    });
+
+    it('removes white space between user ids', () => {
+      const result = mapStrategiesToRails({
+        name: 'test',
+        version: NEW_VERSION_FLAG,
+        active: true,
+        strategies: [
+          {
+            id: '1',
+            name: 'userWithId',
+            parameters: { userIds: 'user1, user2, user3' },
+            scopes: [],
+          },
+        ],
+      });
+
+      const strategyAttrs = result.operations_feature_flag.strategies_attributes[0];
+
+      expect(strategyAttrs.parameters).toEqual({ userIds: 'user1,user2,user3' });
+    });
+
+    it('preserves the value of active', () => {
+      const result = mapStrategiesToRails({
+        name: 'test',
+        version: NEW_VERSION_FLAG,
+        active: false,
+        strategies: [],
+      });
+
+      expect(result.operations_feature_flag.active).toBe(false);
     });
   });
 });

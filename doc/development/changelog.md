@@ -5,9 +5,9 @@ file, as well as information and history about our changelog process.
 
 ## Overview
 
-Each bullet point, or **entry**, in our [`CHANGELOG.md`][changelog.md] file is
-generated from a single data file in the [`changelogs/unreleased/`][unreleased]
-(or corresponding EE) folder. The file is expected to be a [YAML] file in the
+Each bullet point, or **entry**, in our [`CHANGELOG.md`](https://gitlab.com/gitlab-org/gitlab/blob/master/CHANGELOG.md) file is
+generated from a single data file in the [`changelogs/unreleased/`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/changelogs/)
+(or corresponding EE) folder. The file is expected to be a [YAML](https://en.wikipedia.org/wiki/YAML) file in the
 following format:
 
 ```yaml
@@ -27,15 +27,12 @@ valid options are: added, fixed, changed, deprecated, removed, security, perform
 Community contributors and core team members are encouraged to add their name to
 the `author` field. GitLab team members **should not**.
 
-[changelog.md]: https://gitlab.com/gitlab-org/gitlab/blob/master/CHANGELOG.md
-[unreleased]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/changelogs/
-[YAML]: https://en.wikipedia.org/wiki/YAML
-
 ## What warrants a changelog entry?
 
 - Any change that introduces a database migration, whether it's regular, post,
   or data migration, **must** have a changelog entry.
-- [Security fixes] **must** have a changelog entry, without `merge_request` value
+- [Security fixes](https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md)
+  **must** have a changelog entry, without `merge_request` value
   and with `type` set to `security`.
 - Any user-facing change **should** have a changelog entry. Example: "GitLab now
   uses system fonts for all text."
@@ -104,20 +101,20 @@ automatically.
 
 Its simplest usage is to provide the value for `title`:
 
-```text
+```plaintext
 bin/changelog 'Hey DZ, I added a feature to GitLab!'
 ```
 
 If you want to generate a changelog entry for GitLab EE, you will need to pass
 the `--ee` option:
 
-```text
+```plaintext
 bin/changelog --ee 'Hey DZ, I added a feature to GitLab!'
 ```
 
 At this point the script would ask you to select the category of the change (mapped to the `type` field in the entry):
 
-```text
+```plaintext
 >> Please specify the category of your change:
 1. New feature
 2. Bug fix
@@ -135,7 +132,7 @@ the command above on a branch called `feature/hey-dz`, it will generate a
 
 The command will output the path of the generated file and its contents:
 
-```text
+```plaintext
 create changelogs/unreleased/my-feature.yml
 ---
 title: Hey DZ, I added a feature to GitLab!
@@ -165,7 +162,7 @@ If you use **`--amend`** and don't provide a title, it will automatically use
 the "subject" of the previous commit, which is the first line of the commit
 message:
 
-```text
+```plaintext
 $ git show --oneline
 ab88683 Added an awesome new feature to GitLab
 
@@ -183,7 +180,7 @@ type:
 Use **`--force`** or **`-f`** to overwrite an existing changelog entry if it
 already exists.
 
-```text
+```plaintext
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!'
 error changelogs/unreleased/feature-hey-dz.yml already exists! Use `--force` to overwrite.
 
@@ -201,7 +198,7 @@ type:
 Use the **`--merge-request`** or **`-m`** argument to provide the
 `merge_request` value:
 
-```text
+```plaintext
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!' -m 1983
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -216,7 +213,7 @@ type:
 Use the **`--dry-run`** or **`-n`** argument to prevent actually writing or
 committing anything:
 
-```text
+```plaintext
 $ bin/changelog --amend --dry-run
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -233,7 +230,7 @@ $ ls changelogs/unreleased/
 Use the **`--git-username`** or **`-u`** argument to automatically fill in the
 `author` value with your configured Git `user.name` value:
 
-```text
+```plaintext
 $ git config user.name
 Jane Doe
 
@@ -250,7 +247,7 @@ type:
 
 Use the **`--type`** or **`-t`** argument to provide the `type` value:
 
-```text
+```plaintext
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!' -t added
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -269,13 +266,14 @@ as the other was merged. When we had dozens of merge requests fighting for the
 same changelog entry location, this quickly became a major source of merge
 conflicts and delays in development.
 
-This led us to a [boring solution] of "add your entry in a random location in
+This led us to a [boring solution](https://about.gitlab.com/handbook/values/#boring-solutions) of "add your entry in a random location in
 the list." This actually worked pretty well as we got further along in each
 monthly release cycle, but at the start of a new cycle, when a new version
 section was added and there were fewer places to "randomly" add an entry, the
 conflicts became a problem again until we had a sufficient number of entries.
 
-On top of all this, it created an entirely different headache for [release managers]
+On top of all this, it created an entirely different headache for
+[release managers](https://gitlab.com/gitlab-org/release/docs/blob/master/quickstart/release-manager.md)
 when they cherry-picked a commit into a stable branch for a patch release. If
 the commit included an entry in the `CHANGELOG`, it would include the entire
 changelog for the latest version in `master`, so the release manager would have
@@ -283,16 +281,11 @@ to manually remove the later entries. They often would have had to do this
 multiple times per patch release. This was compounded when we had to release
 multiple patches at once due to a security issue.
 
-We needed to automate all of this manual work. So we [started brainstorming].
+We needed to automate all of this manual work. So we
+[started brainstorming](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/17826).
 After much discussion we settled on the current solution of one file per entry,
 and then compiling the entries into the overall `CHANGELOG.md` file during the
-[release process].
-
-[boring solution]: https://about.gitlab.com/handbook/values/#boring-solutions
-[release managers]: https://gitlab.com/gitlab-org/release/docs/blob/master/quickstart/release-manager.md
-[started brainstorming]: https://gitlab.com/gitlab-org/gitlab-foss/issues/17826
-[release process]: https://gitlab.com/gitlab-org/release-tools
-[Security fixes]: https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md
+[release process](https://gitlab.com/gitlab-org/release-tools).
 
 ---
 

@@ -3,159 +3,117 @@
 require "spec_helper"
 
 describe EE::RunnersHelper do
-  describe '.ci_usage_warning_message' do
-    let(:project) { create(:project, namespace: namespace) }
-    let(:minutes_used) { 0 }
-    let(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
 
-    let(:namespace) do
-      create(:group, shared_runners_minutes_limit: 100)
-    end
+  before do
+    allow(helper).to receive(:current_user).and_return(user)
+  end
 
-    let!(:statistics) do
-      create(:namespace_statistics, namespace: namespace, shared_runners_seconds: minutes_used * 60)
-    end
+  shared_examples_for 'minutes notification' do
+    let_it_be(:namespace) { create(:namespace, owner: user) }
+    let_it_be(:project) { create(:project, namespace: namespace) }
+    let(:show_warning) { true }
+    let(:context_level) { project }
+    let(:threshold) { double('Ci::Minutes::Notification', show?: show_warning) }
 
     before do
-      allow(::Gitlab).to receive(:com?).and_return(true)
-      allow(helper).to receive(:current_user).and_return(user)
-      allow(helper).to receive(:can?).with(user, :admin_project, project) { false }
-
-      stub_const("EE::Namespace::CI_USAGE_ALERT_LEVELS", [50])
+      allow(::Ci::Minutes::Notification).to receive(:new).and_return(threshold)
     end
 
-    subject { helper.ci_usage_warning_message(namespace, project) }
+    context 'with a project and namespace' do
+      context 'when experiment is disabled' do
+        let(:experiment_status) { false }
 
-    context 'when CI minutes quota is above the warning limits' do
-      let(:minutes_used) { 40 }
-
-      it 'returns nil' do
-        expect(subject).to be_nil
-      end
-    end
-
-    context 'when the last_ci_minutes_usage_notification_level field is set' do
-      before do
-        namespace.update_attribute(:last_ci_minutes_usage_notification_level, 50)
+        it { is_expected.to be_falsey }
       end
 
-      context 'when there are minutes used but remaining minutes percent is still below the notification threshold' do
-        let(:minutes_used) { 51 }
+      context 'when experiment is enabled' do
+        it { is_expected.to be_truthy }
 
-        it 'returns the partial usage notification message' do
-          expect(subject).to match("#{namespace.name} has less than 50% of CI minutes available.")
-        end
-      end
+        context 'without a persisted project passed' do
+          let(:project) { build(:project) }
+          let(:context_level) { namespace }
 
-      context 'when limit is increased so there are now more remaining minutes percentage than the notification threshold' do
-        before do
-          namespace.update(shared_runners_minutes_limit: 200)
+          it { is_expected.to be_truthy }
         end
 
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
-      end
+        context 'without a persisted namespace passed' do
+          let(:namespace) { build(:namespace) }
 
-      context 'when there are no more remaining minutes' do
-        let(:minutes_used) { 100 }
-
-        it 'returns the exceeded usage message' do
-          expect(subject).to match("#{namespace.name} has exceeded its pipeline minutes quota.")
-        end
-      end
-    end
-
-    context 'when current user is an owner' do
-      before do
-        allow(helper).to receive(:can?).with(user, :admin_project, project) { true }
-      end
-
-      context 'when base message is not present' do
-        before do
-          allow(helper).to receive(:ci_usage_base_message).with(namespace).and_return(nil)
+          it { is_expected.to be_truthy }
         end
 
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
-      end
+        context 'with neither a project nor a namespace' do
+          let(:project) { build(:project) }
+          let(:namespace) { build(:namespace) }
 
-      context 'when usage has reached first level of notification' do
-        let(:minutes_used) { 50 }
+          it { is_expected.to be_falsey }
 
-        before do
-          namespace.update_attribute(:last_ci_minutes_usage_notification_level, 50)
-        end
+          context 'when show_ci_minutes_notification_dot? has been called before' do
+            it 'does not do all the notification and query work again' do
+              expect(threshold).not_to receive(:show?)
+              expect(project).to receive(:persisted?).once
 
-        it 'shows the partial usage message' do
-          expect(subject).to match("#{namespace.name} has less than 50% of CI minutes available.")
-          expect(subject).to match('to purchase more minutes')
-        end
-      end
+              helper.show_ci_minutes_notification_dot?(project, namespace)
 
-      context 'when usage is above the quota' do
-        let(:minutes_used) { 120 }
-
-        it 'shows the total usage message' do
-          expect(subject).to match("#{namespace.name} has exceeded its pipeline minutes quota.")
-          expect(subject).to match('to purchase more minutes')
-        end
-      end
-    end
-
-    context 'when current user is not an owner' do
-      context 'when base message is not present' do
-        before do
-          allow(helper).to receive(:ci_usage_base_message).with(namespace).and_return(nil)
+              expect(subject).to be_falsey
+            end
+          end
         end
 
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
-      end
+        context 'when show notification is falsey' do
+          let(:show_warning) { false }
 
-      context 'when usage has reached first level of notification' do
-        let(:minutes_used) { 50 }
-
-        before do
-          namespace.update_attribute(:last_ci_minutes_usage_notification_level, 50)
+          it { is_expected.to be_falsey }
         end
 
-        it 'shows the partial usage message without the purchase link' do
-          expect(subject).to match("#{namespace.name} has less than 50% of CI minutes available.")
-          expect(subject).not_to match('to purchase more minutes')
-        end
-      end
+        context 'when show_ci_minutes_notification_dot? has been called before' do
+          it 'does not do all the notification and query work again' do
+            expect(threshold).to receive(:show?).once
+            expect(project).to receive(:persisted?).once
 
-      context 'when usage is above the quota' do
-        let(:minutes_used) { 120 }
+            helper.show_ci_minutes_notification_dot?(project, namespace)
 
-        it 'shows the total usage message without the purchase link' do
-          expect(subject).to match("#{namespace.name} has exceeded its pipeline minutes quota.")
-          expect(subject).not_to match('to purchase more minutes')
+            expect(subject).to be_truthy
+          end
         end
       end
     end
   end
 
-  describe '.show_buy_ci_minutes?' do
-    subject { helper.show_buy_ci_minutes? }
+  context 'with notifications' do
+    let(:experiment_status) { true }
 
-    context 'when experiment is disabled' do
-      before do
-        allow(helper).to receive(:experiment_enabled?).with(:buy_ci_minutes_version_a).and_return(false)
+    describe '.show_buy_ci_minutes?' do
+      subject { helper.show_buy_ci_minutes?(project, namespace) }
+
+      context 'when experiment is "ci_notification_dot"' do
+        it_behaves_like 'minutes notification' do
+          before do
+            allow(helper).to receive(:experiment_enabled?).with(:ci_notification_dot).and_return(experiment_status)
+            allow(helper).to receive(:experiment_enabled?).with(:buy_ci_minutes_version_a).and_return(false)
+          end
+        end
       end
 
-      it { is_expected.to be_falsey }
+      context 'when experiment is "ci_minutes_version_a"' do
+        it_behaves_like 'minutes notification' do
+          before do
+            allow(helper).to receive(:experiment_enabled?).with(:ci_notification_dot).and_return(false)
+            allow(helper).to receive(:experiment_enabled?).with(:buy_ci_minutes_version_a).and_return(experiment_status)
+          end
+        end
+      end
     end
 
-    context 'when experiment is enabled' do
-      before do
-        allow(helper).to receive(:experiment_enabled?).with(:buy_ci_minutes_version_a).and_return(true)
-      end
+    describe '.show_ci_minutes_notification_dot?' do
+      subject { helper.show_ci_minutes_notification_dot?(project, namespace) }
 
-      it { is_expected.to be_truthy }
+      it_behaves_like 'minutes notification' do
+        before do
+          allow(helper).to receive(:experiment_enabled?).with(:ci_notification_dot).and_return(experiment_status)
+        end
+      end
     end
   end
 end

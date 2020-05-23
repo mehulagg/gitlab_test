@@ -1,6 +1,7 @@
 import mockData, { mockStore } from 'jest/vue_mr_widget/mock_data';
 
-export default Object.assign({}, mockData, {
+export default {
+  ...mockData,
   codeclimate: {
     head_path: 'head.json',
     base_path: 'base.json',
@@ -16,8 +17,9 @@ export default Object.assign({}, mockData, {
     dast: false,
     dependency_scanning: false,
     license_management: false,
+    secret_scanning: false,
   },
-});
+};
 
 // Codeclimate
 export const headIssues = [
@@ -111,7 +113,7 @@ export const headPerformance = [
     subject: '/some/other/path',
     metrics: [
       {
-        name: 'Sitespeed Score',
+        name: 'Total Score',
         value: 79,
         desiredSize: 'larger',
       },
@@ -147,7 +149,7 @@ export const basePerformance = [
     subject: '/some/other/path',
     metrics: [
       {
-        name: 'Sitespeed Score',
+        name: 'Total Score',
         value: 80,
         desiredSize: 'larger',
       },

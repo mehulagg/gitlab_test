@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 module ProjectsHelper
-  prepend_if_ee('::EE::ProjectsHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
   def project_incident_management_setting
     @project_incident_management_setting ||= @project.incident_management_setting ||
       @project.build_incident_management_setting
@@ -297,11 +295,11 @@ module ProjectsHelper
   end
 
   def show_merge_request_count?(disabled: false, compact_mode: false)
-    !disabled && !compact_mode && Feature.enabled?(:project_list_show_mr_count, default_enabled: true)
+    !disabled && !compact_mode
   end
 
   def show_issue_count?(disabled: false, compact_mode: false)
-    !disabled && !compact_mode && Feature.enabled?(:project_list_show_issue_count, default_enabled: true)
+    !disabled && !compact_mode
   end
 
   # overridden in EE
@@ -412,7 +410,7 @@ module ProjectsHelper
       nav_tabs << :pipelines
     end
 
-    if can?(current_user, :read_environment, project) || can?(current_user, :read_cluster, project)
+    if can_view_operations_tab?(current_user, project)
       nav_tabs << :operations
     end
 
@@ -440,19 +438,27 @@ module ProjectsHelper
 
   def tab_ability_map
     {
-      environments:     :read_environment,
-      milestones:       :read_milestone,
-      snippets:         :read_snippet,
-      settings:         :admin_project,
-      builds:           :read_build,
-      clusters:         :read_cluster,
-      serverless:       :read_cluster,
-      error_tracking:   :read_sentry_issue,
-      labels:           :read_label,
-      issues:           :read_issue,
-      project_members:  :read_project_member,
-      wiki:             :read_wiki
+      environments:       :read_environment,
+      metrics_dashboards: :metrics_dashboard,
+      milestones:         :read_milestone,
+      snippets:           :read_snippet,
+      settings:           :admin_project,
+      builds:             :read_build,
+      clusters:           :read_cluster,
+      serverless:         :read_cluster,
+      error_tracking:     :read_sentry_issue,
+      alert_management:   :read_alert_management_alert,
+      labels:             :read_label,
+      issues:             :read_issue,
+      project_members:    :read_project_member,
+      wiki:               :read_wiki
     }
+  end
+
+  def can_view_operations_tab?(current_user, project)
+    [:read_environment, :read_cluster, :metrics_dashboard].any? do |ability|
+      can?(current_user, ability, project)
+    end
   end
 
   def search_tab_ability_map
@@ -588,7 +594,9 @@ module ProjectsHelper
       pagesAccessLevel: feature.pages_access_level,
       containerRegistryEnabled: !!project.container_registry_enabled,
       lfsEnabled: !!project.lfs_enabled,
-      emailsDisabled: project.emails_disabled?
+      emailsDisabled: project.emails_disabled?,
+      metricsDashboardAccessLevel: feature.metrics_dashboard_access_level,
+      showDefaultAwardEmojis: project.show_default_award_emojis?
     }
   end
 
@@ -602,9 +610,9 @@ module ProjectsHelper
       registryAvailable: Gitlab.config.registry.enabled,
       registryHelpPath: help_page_path('user/packages/container_registry/index'),
       lfsAvailable: Gitlab.config.lfs.enabled,
-      lfsHelpPath: help_page_path('workflow/lfs/manage_large_binaries_with_git_lfs'),
+      lfsHelpPath: help_page_path('topics/git/lfs/index'),
       lfsObjectsExist: project.lfs_objects.exists?,
-      lfsObjectsRemovalHelpPath: help_page_path('administration/lfs/manage_large_binaries_with_git_lfs', anchor: 'removing-objects-from-lfs'),
+      lfsObjectsRemovalHelpPath: help_page_path('topics/git/lfs/index', anchor: 'removing-objects-from-lfs'),
       pagesAvailable: Gitlab.config.pages.enabled,
       pagesAccessControlEnabled: Gitlab.config.pages.access_control,
       pagesAccessControlForced: ::Gitlab::Pages.access_control_is_forced?,
@@ -624,6 +632,7 @@ module ProjectsHelper
 
   def find_file_path
     return unless @project && !@project.empty_repo?
+    return unless can?(current_user, :download_code, @project)
 
     ref = @ref || @project.repository.root_ref
 
@@ -673,6 +682,7 @@ module ProjectsHelper
       services#edit
       hooks#index
       hooks#edit
+      access_tokens#index
       hook_logs#show
       repository#show
       ci_cd#show
@@ -707,6 +717,7 @@ module ProjectsHelper
       clusters
       functions
       error_tracking
+      alert_management
       user
       gcp
       logs
@@ -736,4 +747,12 @@ module ProjectsHelper
     Gitlab.config.registry.enabled &&
       can?(current_user, :destroy_container_image, project)
   end
+
+  def project_access_token_available?(project)
+    return false if ::Gitlab.com?
+
+    ::Feature.enabled?(:resource_access_token, project)
+  end
 end
+
+ProjectsHelper.prepend_if_ee('EE::ProjectsHelper')

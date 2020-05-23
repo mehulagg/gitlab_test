@@ -95,7 +95,7 @@ describe ApplicationSetting do
       end
 
       with_them do
-        it do
+        specify do
           setting.update_column(:geo_node_allowed_ips, allowed_ips)
 
           expect(setting.reload.valid?).to eq(is_valid)
@@ -122,7 +122,7 @@ describe ApplicationSetting do
       end
 
       with_them do
-        it do
+        specify do
           setting.elasticsearch_url = elasticsearch_url
 
           expect(setting.valid?).to eq(is_valid)
@@ -286,8 +286,55 @@ describe ApplicationSetting do
 
           expect(setting.elasticsearch_limited_namespaces).to match_array(
             [namespaces.last, child_namespace, child_namespace_indexed_through_parent])
-          expect(setting.elasticsearch_limited_namespaces(ignore_descendants: true)).to match_array(
+          expect(setting.elasticsearch_limited_namespaces(true)).to match_array(
             [namespaces.last, child_namespace])
+        end
+
+        describe '#elasticsearch_indexes_project?' do
+          shared_examples 'examples for #elasticsearch_indexes_project?' do
+            context 'when project is in a subgroup' do
+              let(:root_group) { create(:group) }
+              let(:subgroup) { create(:group, parent: root_group) }
+              let(:project) { create(:project, group: subgroup) }
+
+              before do
+                create(:elasticsearch_indexed_namespace, namespace: root_group)
+              end
+
+              it 'allows project to be indexed' do
+                expect(setting.elasticsearch_indexes_project?(project)).to be(true)
+              end
+            end
+
+            context 'when project is in a namespace' do
+              let(:namespace) { create(:namespace) }
+              let(:project) { create(:project, namespace: namespace) }
+
+              before do
+                create(:elasticsearch_indexed_namespace, namespace: namespace)
+              end
+
+              it 'allows project to be indexed' do
+                expect(setting.elasticsearch_indexes_project?(project)).to be(true)
+              end
+            end
+          end
+
+          context 'when optimized_elasticsearch_indexes_project feature flag is on' do
+            before do
+              stub_feature_flags(optimized_elasticsearch_indexes_project: true)
+            end
+
+            include_examples 'examples for #elasticsearch_indexes_project?'
+          end
+
+          context 'when optimized_elasticsearch_indexes_project feature flag is off' do
+            before do
+              stub_feature_flags(optimized_elasticsearch_indexes_project: false)
+            end
+
+            include_examples 'examples for #elasticsearch_indexes_project?'
+          end
         end
       end
 
@@ -307,7 +354,33 @@ describe ApplicationSetting do
           expect(setting.elasticsearch_limited_projects).to match_array(
             [projects.last, project_indexed_through_namespace])
         end
+
+        it 'uses the ElasticsearchEnabledCache cache' do
+          expect(::Gitlab::Elastic::ElasticsearchEnabledCache).to receive(:fetch).and_return(true)
+
+          expect(setting.elasticsearch_indexes_project?(projects.first)).to be(true)
+        end
+
+        context 'when elasticsearch_indexes_project_cache feature flag is disabled' do
+          before do
+            stub_feature_flags(elasticsearch_indexes_project_cache: false)
+          end
+
+          it 'does not use the cache' do
+            expect(::Gitlab::Elastic::ElasticsearchEnabledCache).not_to receive(:fetch)
+
+            expect(setting.elasticsearch_indexes_project?(projects.first)).to be(false)
+          end
+        end
       end
+    end
+  end
+
+  describe '#invalidate_elasticsearch_indexes_project_cache!' do
+    it 'deletes the ElasticsearchEnabledCache for projects' do
+      expect(::Gitlab::Elastic::ElasticsearchEnabledCache).to receive(:delete).with(:project)
+
+      setting.invalidate_elasticsearch_indexes_project_cache!
     end
   end
 
@@ -514,7 +587,7 @@ describe ApplicationSetting do
       end
 
       it "doesn't call the update lifetime service" do
-        expect(::PersonalAccessTokens::UpdateLifetimeService).not_to receive(:new)
+        expect(::PersonalAccessTokens::Instance::UpdateLifetimeService).not_to receive(:new)
 
         setting.save
       end
@@ -527,7 +600,7 @@ describe ApplicationSetting do
       end
 
       it 'executes the update lifetime service' do
-        expect_next_instance_of(::PersonalAccessTokens::UpdateLifetimeService) do |service|
+        expect_next_instance_of(::PersonalAccessTokens::Instance::UpdateLifetimeService) do |service|
           expect(service).to receive(:execute)
         end
 

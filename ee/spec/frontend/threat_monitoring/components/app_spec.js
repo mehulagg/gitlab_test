@@ -11,6 +11,8 @@ const defaultEnvironmentId = 3;
 const documentationPath = '/docs';
 const chartEmptyStateSvgPath = '/chart-svgs';
 const emptyStateSvgPath = '/svgs';
+const wafNoDataSvgPath = '/waf-no-data-svg';
+const networkPolicyNoDataSvgPath = '/network-policy-no-data-svg';
 const environmentsEndpoint = `${TEST_HOST}/environments`;
 const wafStatisticsEndpoint = `${TEST_HOST}/waf`;
 const networkPolicyStatisticsEndpoint = `${TEST_HOST}/network_policy`;
@@ -37,6 +39,8 @@ describe('ThreatMonitoringApp component', () => {
         defaultEnvironmentId,
         chartEmptyStateSvgPath,
         emptyStateSvgPath,
+        wafNoDataSvgPath,
+        networkPolicyNoDataSvgPath,
         documentationPath,
         showUserCallout: true,
         userCalloutId,
@@ -53,9 +57,11 @@ describe('ThreatMonitoringApp component', () => {
   const findWafSection = () => wrapper.find({ ref: 'wafSection' });
   const findNetworkPolicySection = () => wrapper.find({ ref: 'networkPolicySection' });
   const findEmptyState = () => wrapper.find({ ref: 'emptyState' });
+  const findNetworkPolicyTab = () => wrapper.find({ ref: 'networkPolicyTab' });
 
   afterEach(() => {
     wrapper.destroy();
+    wrapper = null;
   });
 
   describe.each([-1, NaN, Math.PI])(
@@ -108,25 +114,29 @@ describe('ThreatMonitoringApp component', () => {
       expect(findWafSection().element).toMatchSnapshot();
     });
 
-    it('does not render the network policy section', () => {
-      expect(findNetworkPolicySection().exists()).toBe(false);
+    it('renders the network policy section', () => {
+      expect(findNetworkPolicySection().element).toMatchSnapshot();
     });
 
-    describe('given the networkPolicyUi feature flag is enabled', () => {
+    it('does not render the network policy tab', () => {
+      expect(findNetworkPolicyTab().exists()).toBe(false);
+    });
+
+    describe('given the networkPolicyManagement feature flag is enabled', () => {
       beforeEach(() => {
         factory({
           options: {
             provide: {
               glFeatures: {
-                networkPolicyUi: true,
+                networkPolicyManagement: true,
               },
             },
           },
         });
       });
 
-      it('renders the network policy section', () => {
-        expect(findNetworkPolicySection().element).toMatchSnapshot();
+      it('renders the network policy tab', () => {
+        expect(findNetworkPolicyTab().element).toMatchSnapshot();
       });
     });
 

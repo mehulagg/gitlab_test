@@ -70,7 +70,7 @@ describe GeoNodeStatus, :geo, :geo_fdw do
     context 'takes outdated? into consideration' do
       it 'return false' do
         subject.status_message = GeoNodeStatus::HEALTHY_STATUS
-        subject.updated_at = 10.minutes.ago
+        subject.updated_at = 11.minutes.ago
 
         expect(subject.healthy?).to be false
       end
@@ -86,7 +86,7 @@ describe GeoNodeStatus, :geo, :geo_fdw do
 
   describe '#outdated?' do
     it 'return true' do
-      subject.updated_at = 10.minutes.ago
+      subject.updated_at = 11.minutes.ago
 
       expect(subject.outdated?).to be true
     end
@@ -107,20 +107,11 @@ describe GeoNodeStatus, :geo, :geo_fdw do
   end
 
   describe '#health' do
-    context 'takes outdated? into consideration' do
-      it 'returns expiration error' do
-        subject.status_message = GeoNodeStatus::HEALTHY_STATUS
-        subject.updated_at = 10.minutes.ago
+    it 'returns status message' do
+      subject.status_message = 'something went wrong'
+      subject.updated_at = 11.minutes.ago
 
-        expect(subject.health).to eq "Status has not been updated in the past #{described_class::EXPIRATION_IN_MINUTES} minutes"
-      end
-
-      it 'returns original message' do
-        subject.status_message = 'something went wrong'
-        subject.updated_at = 1.minute.ago
-
-        expect(subject.health).to eq 'something went wrong'
-      end
+      expect(subject.health).to eq 'something went wrong'
     end
   end
 
@@ -664,68 +655,142 @@ describe GeoNodeStatus, :geo, :geo_fdw do
   end
 
   describe '#container_repositories_count' do
-    it 'counts all the repositories' do
-      create(:container_repository)
-      create(:container_repository)
+    let!(:container_1) { create(:container_repository) }
+    let!(:container_2) { create(:container_repository) }
 
-      expect(subject.container_repositories_count).to eq(2)
+    context 'when container repositories replication is active' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: true })
+      end
+
+      it 'counts all the repositories' do
+        expect(subject.container_repositories_count).to eq(2)
+      end
+    end
+
+    context 'when container repositories replication is inactive' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: false })
+      end
+
+      it 'returns nil' do
+        expect(subject.container_repositories_count).to be_nil
+      end
     end
   end
 
   describe '#container_repositories_synced_count' do
-    it 'counts synced repositories' do
-      create(:container_repository_registry, :synced)
-      create(:container_repository_registry, :synced)
-      create(:container_repository_registry, :sync_failed)
+    let!(:container_1) { create(:container_repository_registry, :synced) }
+    let!(:container_2) { create(:container_repository_registry, :synced) }
+    let!(:container_3) { create(:container_repository_registry, :sync_failed) }
 
-      expect(subject.container_repositories_synced_count).to eq(2)
+    context 'when container repositories replication is active' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: true })
+      end
+
+      it 'counts synced repositories' do
+        expect(subject.container_repositories_synced_count).to eq(2)
+      end
+    end
+
+    context 'when container repositories replication is inactive' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: false })
+      end
+
+      it 'returns nil' do
+        expect(subject.container_repositories_synced_count).to be_nil
+      end
     end
   end
 
   describe '#container_repositories_failed_count' do
-    it 'counts failed to sync repositories' do
-      create(:container_repository_registry, :synced)
-      create(:container_repository_registry, :sync_failed)
-      create(:container_repository_registry, :sync_failed)
+    let!(:container_1) { create(:container_repository_registry, :synced) }
+    let!(:container_2) { create(:container_repository_registry, :sync_failed) }
+    let!(:container_3) { create(:container_repository_registry, :sync_failed) }
 
-      expect(subject.container_repositories_failed_count).to eq(2)
+    context 'when container repositories replication is active' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: true })
+      end
+
+      it 'counts failed to sync repositories' do
+        expect(subject.container_repositories_failed_count).to eq(2)
+      end
+    end
+
+    context 'when container repositories replication is inactive' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: false })
+      end
+
+      it 'returns nil' do
+        expect(subject.container_repositories_failed_count).to be_nil
+      end
     end
   end
 
   describe '#container_repositories_registry_count' do
-    it 'counts number of registries for repositories' do
-      create(:container_repository_registry, :synced)
-      create(:container_repository_registry, :sync_failed)
-      create(:container_repository_registry, :sync_failed)
-      create(:container_repository)
+    let!(:container_1) { create(:container_repository_registry, :synced) }
+    let!(:container_2) { create(:container_repository_registry, :sync_failed) }
+    let!(:container_3) { create(:container_repository_registry, :sync_failed) }
+    let!(:container_4) { create(:container_repository) }
 
-      expect(subject.container_repositories_registry_count).to eq(3)
+    context 'when container repositories replication is active' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: true })
+      end
+
+      it 'counts number of registries for repositories' do
+        expect(subject.container_repositories_registry_count).to eq(3)
+      end
+    end
+
+    context 'when container repositories replication is inactive' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: false })
+      end
+
+      it 'returns nil' do
+        expect(subject.container_repositories_registry_count).to be_nil
+      end
     end
   end
 
   describe '#container_repositories_synced_in_percentage' do
-    let(:container_repository) { create(:container_repository, project: project_1) }
+    let!(:container_repository_1) { create(:container_repository, project: project_1) }
+    let!(:container_repository_2) { create(:container_repository, project: project_1) }
+    let!(:container_list) { create_list(:container_repository, 2, project: project_3) }
 
-    before do
-      create(:container_repository, project: project_1)
-      create_list(:container_repository, 2, project: project_3)
+    context 'when container repositories replication is active' do
+      before do
+        stub_geo_setting(registry_replication: { enabled: true })
+      end
+
+      it 'returns 0 when no objects are available' do
+        expect(subject.container_repositories_synced_in_percentage).to eq(0)
+      end
+
+      it 'returns the right percentage with no group restrictions' do
+        create(:container_repository_registry, :synced, container_repository: container_repository_1)
+
+        expect(subject.container_repositories_synced_in_percentage).to be_within(0.0001).of(25)
+      end
+
+      it 'returns the right percentage with group restrictions' do
+        secondary.update!(selective_sync_type: 'namespaces', namespaces: [group])
+        create(:container_repository_registry, :synced, container_repository: container_repository_1)
+
+        expect(subject.container_repositories_synced_in_percentage).to be_within(0.0001).of(50)
+      end
     end
 
-    it 'returns 0 when no objects are available' do
+    it 'when container repositories replication is inactive returns 0' do
+      stub_geo_setting(registry_replication: { enabled: false })
+      create(:container_repository_registry, :synced, container_repository: container_repository_1)
+
       expect(subject.container_repositories_synced_in_percentage).to eq(0)
-    end
-
-    it 'returns the right percentage with no group restrictions' do
-      create(:container_repository_registry, :synced, container_repository: container_repository)
-
-      expect(subject.container_repositories_synced_in_percentage).to be_within(0.0001).of(25)
-    end
-
-    it 'returns the right percentage with group restrictions' do
-      secondary.update!(selective_sync_type: 'namespaces', namespaces: [group])
-      create(:container_repository_registry, :synced, container_repository: container_repository)
-
-      expect(subject.container_repositories_synced_in_percentage).to be_within(0.0001).of(50)
     end
   end
 
@@ -1012,7 +1077,7 @@ describe GeoNodeStatus, :geo, :geo_fdw do
 
   shared_examples 'timestamp parameters' do |timestamp_column, date_column|
     it 'returns the value it was assigned via UNIX timestamp' do
-      now = Time.now.beginning_of_day.utc
+      now = Time.current.beginning_of_day.utc
       subject.update_attribute(timestamp_column, now.to_i)
 
       expect(subject.public_send(date_column)).to eq(now)
@@ -1049,7 +1114,7 @@ describe GeoNodeStatus, :geo, :geo_fdw do
 
       expect(result.id).to be_nil
       expect(result.attachments_count).to eq(status.attachments_count)
-      expect(result.cursor_last_event_date).to eq(Time.at(status.cursor_last_event_timestamp))
+      expect(result.cursor_last_event_date).to eq(Time.zone.at(status.cursor_last_event_timestamp))
       expect(result.storage_shards.count).to eq(Settings.repositories.storages.count)
     end
   end
@@ -1150,6 +1215,53 @@ describe GeoNodeStatus, :geo, :geo_fdw do
     end
   end
 
+  describe '#package_files_checksummed_count' do
+    before do
+      stub_current_geo_node(primary)
+    end
+
+    it 'returns the right number of checksummed package files' do
+      create(:package_file, :jar, :checksummed)
+      create(:package_file, :jar, :checksummed)
+      create(:package_file, :jar, :checksum_failure)
+
+      expect(subject.package_files_checksummed_count).to eq(2)
+    end
+  end
+
+  describe '#package_files_checksum_failed_count' do
+    before do
+      stub_current_geo_node(primary)
+    end
+
+    it 'returns the right number of failed package files' do
+      create(:package_file, :jar, :checksummed)
+      create(:package_file, :jar, :checksum_failure)
+      create(:package_file, :jar, :checksum_failure)
+
+      expect(subject.package_files_checksum_failed_count).to eq(2)
+    end
+  end
+
+  describe '#package_files_checksummed_in_percentage' do
+    before do
+      stub_current_geo_node(primary)
+    end
+
+    it 'returns 0 when no package files available' do
+      expect(subject.package_files_checksummed_in_percentage).to eq(0)
+    end
+
+    it 'returns the right percentage' do
+      create(:package_file, :jar, :checksummed)
+      create(:package_file, :jar, :checksummed)
+      create(:package_file, :jar, :checksummed)
+      create(:package_file, :jar, :checksum_failure)
+
+      expect(subject.package_files_checksummed_in_percentage).to be_within(0.0001).of(75)
+    end
+  end
+
   describe '#load_data_from_current_node' do
     context 'on the primary' do
       before do
@@ -1192,6 +1304,40 @@ describe GeoNodeStatus, :geo, :geo_fdw do
         expect_any_instance_of(Geo::JobArtifactRegistryFinder).to receive(:count_syncable)
 
         subject
+      end
+    end
+
+    context 'backward compatibility when counters stored in separate columns' do
+      describe '#projects_count' do
+        it 'counts the number of projects' do
+          subject.write_attribute(:projects_count, 10)
+          subject.status = {}
+
+          expect(subject.projects_count).to eq 10
+        end
+
+        it 'sets data in both ways, deprecated and the new one' do
+          subject.projects_count = 10
+
+          expect(subject.projects_count).to eq 10
+          expect(subject.read_attribute(:projects_count)).to eq 10
+        end
+
+        it 'uses column counters when calculates percents using attr_in_percentage' do
+          subject.write_attribute(:design_repositories_count, 10)
+          subject.write_attribute(:design_repositories_synced_count, 5)
+          subject.status = {}
+
+          expect(subject.design_repositories_synced_in_percentage).to be_within(0.0001).of(50)
+        end
+      end
+    end
+
+    context 'status counters are converted into integers' do
+      it 'returns integer value' do
+        subject.status = { "projects_count" => "10" }
+
+        expect(subject.projects_count).to eq 10
       end
     end
   end

@@ -19,21 +19,33 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     get '/analytics', to: redirect('groups/%{group_id}/-/contribution_analytics')
     resource :contribution_analytics, only: [:show]
-    resource :cycle_analytics, only: [:show], path: 'value_stream_analytics'
-    scope module: :cycle_analytics, as: 'cycle_analytics', path: 'value_stream_analytics' do
-      scope :events, controller: 'events' do
-        get :issue
-        get :plan
-        get :code
-        get :test
-        get :review
-        get :staging
-        get :production
-      end
-    end
+
     namespace :analytics do
       resource :productivity_analytics, only: :show, constraints: -> (req) { Gitlab::Analytics.productivity_analytics_enabled? }
-      resource :cycle_analytics, path: 'value_stream_analytics', only: :show, constraints: -> (req) { Feature.enabled?(:group_level_cycle_analytics, default_enabled: true) && Gitlab::Analytics.cycle_analytics_enabled? }
+
+      feature_default_enabled = Gitlab::Analytics.feature_enabled_by_default?(Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG)
+      constrainer = ::Constraints::FeatureConstrainer.new(Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG, default_enabled: feature_default_enabled)
+      constraints(constrainer) do
+        resource :cycle_analytics, only: :show, path: 'value_stream_analytics'
+        scope module: :cycle_analytics, as: 'cycle_analytics', path: 'value_stream_analytics' do
+          resources :stages, only: [:index, :create, :update, :destroy] do
+            member do
+              get :duration_chart
+              get :median
+              get :records
+            end
+          end
+          resource :summary, controller: :summary, only: :show
+          get '/time_summary' => 'summary#time_summary'
+        end
+        get '/cycle_analytics', to: redirect('-/analytics/value_stream_analytics')
+      end
+
+      scope :type_of_work do
+        resource :tasks_by_type, controller: :tasks_by_type, only: :show do
+          get :top_labels
+        end
+      end
     end
 
     resource :ldap, only: [] do
@@ -41,6 +53,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         put :sync
       end
     end
+
+    resource :ldap_settings, only: [:update]
 
     resource :issues_analytics, only: [:show]
 
@@ -96,6 +110,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       end
     end
 
+    resources :iterations, only: [:index, :new, :show], constraints: { id: /\d+/ }
+
     resources :issues, only: [] do
       collection do
         post :bulk_update
@@ -129,6 +145,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         end
       end
     end
+
+    resource :push_rules, only: [:edit, :update]
 
     resource :saml_providers, path: 'saml', only: [:show, :create, :update] do
       callback_methods = Rails.env.test? ? [:get, :post] : [:post]

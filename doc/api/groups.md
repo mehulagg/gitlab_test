@@ -109,7 +109,7 @@ GET /groups?custom_attributes[key]=value&custom_attributes[other_key]=other_valu
 
 ## List a group's subgroups
 
-> [Introduced][ce-15142] in GitLab 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/15142) in GitLab 10.3.
 
 Get a list of visible direct subgroups in this group.
 When accessed without authentication, only public groups are returned.
@@ -240,6 +240,143 @@ Example response:
 ]
 ```
 
+NOTE: **Note:**
+To distinguish between a project in the group and a project shared to the group, the `namespace` attribute can be used. When a project has been shared to the group, its `namespace` will be different from the group the request is being made for.
+
+## List a group's shared projects
+
+Get a list of projects shared to this group. When accessed without authentication, only public shared projects are returned.
+
+By default, this request returns 20 results at a time because the API results [are paginated](README.md#pagination).
+
+```plaintext
+GET /groups/:id/projects/shared
+```
+
+Parameters:
+
+| Attribute                     | Type           | Required | Description |
+| ----------------------------- | -------------- | -------- | ----------- |
+| `id`                          | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
+| `archived`                    | boolean        | no       | Limit by archived status |
+| `visibility`                  | string         | no       | Limit by visibility `public`, `internal`, or `private` |
+| `order_by`                    | string         | no       | Return projects ordered by `id`, `name`, `path`, `created_at`, `updated_at`, or `last_activity_at` fields. Default is `created_at` |
+| `sort`                        | string         | no       | Return projects sorted in `asc` or `desc` order. Default is `desc` |
+| `search`                      | string         | no       | Return list of authorized projects matching the search criteria |
+| `simple`                      | boolean        | no       | Return only the ID, URL, name, and path of each project |
+| `starred`                     | boolean        | no       | Limit by projects starred by the current user |
+| `with_issues_enabled`         | boolean        | no       | Limit by projects with issues feature enabled. Default is `false` |
+| `with_merge_requests_enabled` | boolean        | no       | Limit by projects with merge requests feature enabled. Default is `false` |
+| `min_access_level`            | integer        | no       | Limit to projects where current user has at least this [access level](members.md) |
+| `with_custom_attributes`      | boolean        | no       | Include [custom attributes](custom_attributes.md) in response (admins only) |
+
+Example response:
+
+```json
+[
+   {
+      "id":8,
+      "description":"Shared project for Html5 Boilerplate",
+      "name":"Html5 Boilerplate",
+      "name_with_namespace":"H5bp / Html5 Boilerplate",
+      "path":"html5-boilerplate",
+      "path_with_namespace":"h5bp/html5-boilerplate",
+      "created_at":"2020-04-27T06:13:22.642Z",
+      "default_branch":"master",
+      "tag_list":[
+
+      ],
+      "ssh_url_to_repo":"ssh://git@gitlab.com/h5bp/html5-boilerplate.git",
+      "http_url_to_repo":"http://gitlab.com/h5bp/html5-boilerplate.git",
+      "web_url":"http://gitlab.com/h5bp/html5-boilerplate",
+      "readme_url":"http://gitlab.com/h5bp/html5-boilerplate/-/blob/master/README.md",
+      "avatar_url":null,
+      "star_count":0,
+      "forks_count":4,
+      "last_activity_at":"2020-04-27T06:13:22.642Z",
+      "namespace":{
+         "id":28,
+         "name":"H5bp",
+         "path":"h5bp",
+         "kind":"group",
+         "full_path":"h5bp",
+         "parent_id":null,
+         "avatar_url":null,
+         "web_url":"http://gitlab.com/groups/h5bp"
+      },
+      "_links":{
+         "self":"http://gitlab.com/api/v4/projects/8",
+         "issues":"http://gitlab.com/api/v4/projects/8/issues",
+         "merge_requests":"http://gitlab.com/api/v4/projects/8/merge_requests",
+         "repo_branches":"http://gitlab.com/api/v4/projects/8/repository/branches",
+         "labels":"http://gitlab.com/api/v4/projects/8/labels",
+         "events":"http://gitlab.com/api/v4/projects/8/events",
+         "members":"http://gitlab.com/api/v4/projects/8/members"
+      },
+      "empty_repo":false,
+      "archived":false,
+      "visibility":"public",
+      "resolve_outdated_diff_discussions":false,
+      "container_registry_enabled":true,
+      "container_expiration_policy":{
+         "cadence":"7d",
+         "enabled":true,
+         "keep_n":null,
+         "older_than":null,
+         "name_regex":null,
+         "name_regex_keep":null,
+         "next_run_at":"2020-05-04T06:13:22.654Z"
+      },
+      "issues_enabled":true,
+      "merge_requests_enabled":true,
+      "wiki_enabled":true,
+      "jobs_enabled":true,
+      "snippets_enabled":true,
+      "can_create_merge_request_in":true,
+      "issues_access_level":"enabled",
+      "repository_access_level":"enabled",
+      "merge_requests_access_level":"enabled",
+      "forking_access_level":"enabled",
+      "wiki_access_level":"enabled",
+      "builds_access_level":"enabled",
+      "snippets_access_level":"enabled",
+      "pages_access_level":"enabled",
+      "emails_disabled":null,
+      "shared_runners_enabled":true,
+      "lfs_enabled":true,
+      "creator_id":1,
+      "import_status":"failed",
+      "open_issues_count":10,
+      "ci_default_git_depth":50,
+      "public_jobs":true,
+      "build_timeout":3600,
+      "auto_cancel_pending_pipelines":"enabled",
+      "build_coverage_regex":null,
+      "ci_config_path":null,
+      "shared_with_groups":[
+         {
+            "group_id":24,
+            "group_name":"Commit451",
+            "group_full_path":"Commit451",
+            "group_access_level":30,
+            "expires_at":null
+         }
+      ],
+      "only_allow_merge_if_pipeline_succeeds":false,
+      "request_access_enabled":true,
+      "only_allow_merge_if_all_discussions_are_resolved":false,
+      "remove_source_branch_after_merge":true,
+      "printing_merge_request_link_enabled":true,
+      "merge_method":"merge",
+      "suggestion_commit_message":null,
+      "auto_devops_enabled":true,
+      "auto_devops_deploy_strategy":"continuous",
+      "autoclose_referenced_issues":true,
+      "repository_storage":"default"
+   }
+]
+```
+
 ## Details of a group
 
 Get all details of a group. This endpoint can be accessed without authentication
@@ -255,7 +392,11 @@ Parameters:
 | ------------------------ | -------------- | -------- | ----------- |
 | `id`                     | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user. |
 | `with_custom_attributes` | boolean        | no       | Include [custom attributes](custom_attributes.md) in response (admins only). |
-| `with_projects`          | boolean        | no       | Include details from projects that belong to the specified group (defaults to `true`). |
+| `with_projects`          | boolean        | no       | Include details from projects that belong to the specified group (defaults to `true`). (Deprecated, [will be removed in API v5](https://gitlab.com/gitlab-org/gitlab/-/issues/213797). To get the details of all projects within a group, use the [list a group's projects endpoint](#list-a-groups-projects).)  |
+
+NOTE: **Note:**
+The `projects` and `shared_projects` attributes in the response are deprecated and will be [removed in API v5](https://gitlab.com/gitlab-org/gitlab/-/issues/213797).
+To get the details of all projects within a group, use either the [list a group's projects](#list-a-groups-projects) or the [list a group's shared projects](#list-a-groups-shared-projects) endpoint.
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/4
@@ -264,7 +405,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/ap
 This endpoint returns:
 
 - All projects and shared projects in GitLab 12.5 and earlier.
-- A maximum of 100 projects and shared projects [in GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/31031)
+- A maximum of 100 projects and shared projects [in GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/31031)
   and later. To get the details of all projects within a group, use the
   [list a group's projects endpoint](#list-a-groups-projects) instead.
 
@@ -286,7 +427,7 @@ Example response:
   "file_template_project_id": 1,
   "parent_id": null,
   "created_at": "2020-01-15T12:36:29.590Z",
-  "projects": [
+  "projects": [ // Deprecated and will be removed in API v5
     {
       "id": 7,
       "description": "Voluptas veniam qui et beatae voluptas doloremque explicabo facilis.",
@@ -364,7 +505,7 @@ Example response:
       "request_access_enabled": false
     }
   ],
-  "shared_projects": [
+  "shared_projects": [ // Deprecated and will be removed in API v5
     {
       "id": 8,
       "description": "Velit eveniet provident fugiat saepe eligendi autem.",
@@ -497,7 +638,7 @@ Parameters:
 | `auto_devops_enabled`                | boolean | no       | Default to Auto DevOps pipeline for all projects within this group. |
 | `subgroup_creation_level`            | string  | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
 | `emails_disabled`                    | boolean | no       | Disable email notifications |
-| `avatar`                             | mixed   | no       | Image file for avatar of the group. [Introduced in GitLab 12.9](https://gitlab.com/gitlab-org/gitlab/issues/36681) |
+| `avatar`                             | mixed   | no       | Image file for avatar of the group. [Introduced in GitLab 12.9](https://gitlab.com/gitlab-org/gitlab/-/issues/36681) |
 | `mentions_disabled`                  | boolean | no       | Disable the capability of a group from getting mentioned |
 | `lfs_enabled`                        | boolean | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
 | `request_access_enabled`             | boolean | no       | Allow users to request member access. |
@@ -552,14 +693,13 @@ PUT /groups/:id
 | `membership_lock`                    | boolean | no       | **(STARTER)** Prevent adding new members to project membership within this group. |
 | `share_with_group_lock`              | boolean | no       | Prevent sharing a project with another group within this group. |
 | `visibility`                         | string  | no       | The visibility level of the group. Can be `private`, `internal`, or `public`. |
-| `share_with_group_lock`              | boolean | no       | Prevent sharing a project with another group within this group. |
 | `require_two_factor_authentication`  | boolean | no       | Require all users in this group to setup Two-factor authentication. |
 | `two_factor_grace_period`            | integer | no       | Time before Two-factor authentication is enforced (in hours). |
 | `project_creation_level`             | string  | no       | Determine if developers can create projects in the group. Can be `noone` (No one), `maintainer` (Maintainers), or `developer` (Developers + Maintainers). |
 | `auto_devops_enabled`                | boolean | no       | Default to Auto DevOps pipeline for all projects within this group. |
 | `subgroup_creation_level`            | string  | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
 | `emails_disabled`                    | boolean | no       | Disable email notifications |
-| `avatar`                             | mixed   | no       | Image file for avatar of the group. [Introduced in GitLab 12.9](https://gitlab.com/gitlab-org/gitlab/issues/36681) |
+| `avatar`                             | mixed   | no       | Image file for avatar of the group. [Introduced in GitLab 12.9](https://gitlab.com/gitlab-org/gitlab/-/issues/36681) |
 | `mentions_disabled`                  | boolean | no       | Disable the capability of a group from getting mentioned |
 | `lfs_enabled` (optional)             | boolean | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
 | `request_access_enabled`             | boolean | no       | Allow users to request member access. |
@@ -568,6 +708,10 @@ PUT /groups/:id
 | `shared_runners_minutes_limit`       | integer | no       | **(STARTER ONLY)** Pipeline minutes quota for this group. |
 | `extra_shared_runners_minutes_limit` | integer | no       | **(STARTER ONLY)** Extra pipeline minutes quota for this group. |
 
+NOTE: **Note:**
+The `projects` and `shared_projects` attributes in the response are deprecated and will be [removed in API v5](https://gitlab.com/gitlab-org/gitlab/-/issues/213797).
+To get the details of all projects within a group, use either the [list a group's projects](#list-a-groups-projects) or the [list a group's shared projects](#list-a-groups-shared-projects) endpoint.
+
 ```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/5?name=Experimental"
 ```
@@ -575,7 +719,7 @@ curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab
 This endpoint returns:
 
 - All projects and shared projects in GitLab 12.5 and earlier.
-- A maximum of 100 projects and shared projects [in GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/31031)
+- A maximum of 100 projects and shared projects [in GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/31031)
   and later. To get the details of all projects within a group, use the
   [list a group's projects endpoint](#list-a-groups-projects) instead.
 
@@ -596,7 +740,7 @@ Example response:
   "file_template_project_id": 1,
   "parent_id": null,
   "created_at": "2020-01-15T12:36:29.590Z",
-  "projects": [
+  "projects": [ // Deprecated and will be removed in API v5
     {
       "id": 9,
       "description": "foo",
@@ -659,7 +803,7 @@ Only available to group owners and administrators.
 This endpoint either:
 
 - Removes group, and queues a background job to delete all projects in the group as well.
-- Since [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/33257), on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a group for deletion. The deletion will happen 7 days later by default, but this can be changed in the [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+- Since [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/-/issues/33257), on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a group for deletion. The deletion will happen 7 days later by default, but this can be changed in the [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
 
 ```plaintext
 DELETE /groups/:id
@@ -675,7 +819,7 @@ The response will be `202 Accepted` if the user has authorization.
 
 ## Restore group marked for deletion **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33257) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/33257) in GitLab 12.8.
 
 Restores a group marked for deletion.
 
@@ -749,6 +893,7 @@ GET /groups/:id/hooks/:hook_id
   "merge_requests_events": true,
   "tag_push_events": true,
   "note_events": true,
+  "confidential_note_events": true,
   "job_events": true,
   "pipeline_events": true,
   "wiki_page_events": true,
@@ -775,6 +920,7 @@ POST /groups/:id/hooks
 | `merge_requests_events`      | boolean        | no       | Trigger hook on merge requests events |
 | `tag_push_events`            | boolean        | no       | Trigger hook on tag push events |
 | `note_events`                | boolean        | no       | Trigger hook on note events |
+| `confidential_note_events`   | boolean        | no       | Trigger hook on confidential note events |
 | `job_events`                 | boolean        | no       | Trigger hook on job events |
 | `pipeline_events`            | boolean        | no       | Trigger hook on pipeline events |
 | `wiki_page_events`           | boolean        | no       | Trigger hook on wiki events |
@@ -800,6 +946,7 @@ PUT /groups/:id/hooks/:hook_id
 | `merge_requests_events`      | boolean        | no       | Trigger hook on merge requests events |
 | `tag_push_events`            | boolean        | no       | Trigger hook on tag push events |
 | `note_events`                | boolean        | no       | Trigger hook on note events |
+| `confidential_note_events`   | boolean        | no       | Trigger hook on confidential note events |
 | `job_events`                 | boolean        | no       | Trigger hook on job events |
 | `pipeline_events`            | boolean        | no       | Trigger hook on pipeline events |
 | `wiki_events`                | boolean        | no       | Trigger hook on wiki events |
@@ -852,49 +999,71 @@ Lists LDAP group links.
 GET /groups/:id/ldap_group_links
 ```
 
-Parameters:
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
 
-- `id` (required) - The ID of a group
+### Add LDAP group link with CN or filter **(STARTER)**
 
-### Add LDAP group link **(STARTER)**
-
-Adds an LDAP group link.
+Adds an LDAP group link using a CN or filter. Adding a group link by filter is only supported in the Premium tier and above.
 
 ```plaintext
 POST /groups/:id/ldap_group_links
 ```
 
-Parameters:
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `cn`      | string         | no       | The CN of an LDAP group |
+| `filter`  | string         | no       | The LDAP filter for the group |
+| `group_access` | integer   | yes      | Minimum access level for members of the LDAP group |
+| `provider` | string        | yes      | LDAP provider for the LDAP group link |
 
-- `id` (required) - The ID of a group
-- `cn` (required) - The CN of a LDAP group
-- `group_access` (required) - Minimum access level for members of the LDAP group
-- `provider` (required) - LDAP provider for the LDAP group
+NOTE: **Note:**
+To define the LDAP group link, provide either a `cn` or a `filter`, but not both.
 
 ### Delete LDAP group link **(STARTER)**
 
-Deletes an LDAP group link.
+Deletes an LDAP group link. Deprecated. Will be removed in a future release.
 
 ```plaintext
 DELETE /groups/:id/ldap_group_links/:cn
 ```
 
-Parameters:
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `cn`      | string         | yes      | The CN of an LDAP group |
 
-- `id` (required) - The ID of a group
-- `cn` (required) - The CN of a LDAP group
-
-Deletes a LDAP group link for a specific LDAP provider
+Deletes an LDAP group link for a specific LDAP provider. Deprecated. Will be removed in a future release.
 
 ```plaintext
 DELETE /groups/:id/ldap_group_links/:provider/:cn
 ```
 
-Parameters:
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `cn`      | string         | yes      | The CN of an LDAP group |
+| `provider` | string        | yes      | LDAP provider for the LDAP group link |
 
-- `id` (required) - The ID of a group
-- `cn` (required) - The CN of a LDAP group
-- `provider` (required) - Name of a LDAP provider
+### Delete LDAP group link with CN or filter **(STARTER)**
+
+Deletes an LDAP group link using a CN or filter. Deleting by filter is only supported in the Premium tier and above.
+
+```plaintext
+DELETE /groups/:id/ldap_group_links
+```
+
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `cn`      | string         | no       | The CN of an LDAP group |
+| `filter`  | string         | no       | The LDAP filter for the group |
+| `provider` | string        | yes       | LDAP provider for the LDAP group link |
+
+NOTE: **Note:**
+To delete the LDAP group link, provide either a `cn` or a `filter`, but not both.
 
 ## Namespaces in groups
 
@@ -911,8 +1080,6 @@ And to switch pages add:
 ```plaintext
 /groups?per_page=100&page=2
 ```
-
-[ce-15142]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/15142
 
 ## Group badges
 

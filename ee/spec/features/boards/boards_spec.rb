@@ -11,29 +11,6 @@ describe 'issue boards', :js do
   let(:milestone) { create(:milestone, title: "v2.2", project: project) }
   let!(:board_with_milestone) { create(:board, project: project, milestone: milestone) }
 
-  context 'issue board focus mode' do
-    before do
-      project.add_developer(user)
-      login_as(user)
-    end
-
-    it 'shows the button when the feature is enabled' do
-      stub_licensed_features(issue_board_focus_mode: true)
-
-      visit_board_page
-
-      expect(page).to have_link('Toggle focus mode')
-    end
-
-    it 'hides the button when the feature is enabled' do
-      stub_licensed_features(issue_board_focus_mode: false)
-
-      visit_board_page
-
-      expect(page).not_to have_link('Toggle focus mode')
-    end
-  end
-
   context 'with group and reporter' do
     let(:group) { create(:group) }
     let(:project) { create(:project, :public, namespace: group) }

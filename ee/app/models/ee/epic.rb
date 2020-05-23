@@ -55,6 +55,8 @@ module EE
 
       validates :group, presence: true
       validate :validate_parent, on: :create
+      validate :validate_confidential_issues_and_subepics
+      validate :validate_confidential_parent
 
       alias_attribute :parent_ids, :parent_id
       alias_method :issuing_parent, :group
@@ -103,6 +105,12 @@ module EE
       scope :due_date_inherited, -> { where(due_date_is_fixed: [nil, false]) }
 
       scope :counts_by_state, -> { group(:state_id).count }
+
+      scope :public_only, -> { where(confidential: false) }
+      scope :confidential, -> { where(confidential: true) }
+      scope :not_confidential_or_in_groups, -> (groups) do
+        public_only.or(where(confidential: true, group_id: groups))
+      end
 
       MAX_HIERARCHY_DEPTH = 5
 
@@ -319,6 +327,10 @@ module EE
       issues.any?
     end
 
+    def has_parent?
+      !!parent_id
+    end
+
     def child?(id)
       children.where(id: id).exists?
     end
@@ -384,6 +396,26 @@ module EE
       return self.class.none unless parent_id
 
       hierarchy.base_and_ancestors(hierarchy_order: :asc)
+    end
+
+    def validate_confidential_issues_and_subepics
+      return unless confidential?
+
+      if issues.public_only.any?
+        errors.add :confidential, _('Cannot make epic confidential if it contains not-confidential issues')
+      end
+
+      if children.public_only.any?
+        errors.add :confidential, _('Cannot make epic confidential if it contains not-confidential sub-epics')
+      end
+    end
+
+    def validate_confidential_parent
+      return unless parent
+
+      if !confidential? && parent.confidential?
+        errors.add :confidential, _('Not-confidential epic cannot be assigned to a confidential parent epic')
+      end
     end
   end
 end

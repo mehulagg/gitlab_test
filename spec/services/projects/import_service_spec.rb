@@ -123,8 +123,13 @@ describe Projects::ImportService do
 
         it 'succeeds if repository import is successful' do
           expect(project.repository).to receive(:import_repository).and_return(true)
-          expect_any_instance_of(Gitlab::BitbucketImport::Importer).to receive(:execute).and_return(true)
-          expect_any_instance_of(Projects::LfsPointers::LfsImportService).to receive(:execute).and_return(status: :success)
+          expect_next_instance_of(Gitlab::BitbucketImport::Importer) do |importer|
+            expect(importer).to receive(:execute).and_return(true)
+          end
+
+          expect_next_instance_of(Projects::LfsPointers::LfsImportService) do |service|
+            expect(service).to receive(:execute).and_return(status: :success)
+          end
 
           result = subject.execute
 
@@ -147,8 +152,15 @@ describe Projects::ImportService do
             error_message = 'error message'
 
             expect(project.repository).to receive(:import_repository).and_return(true)
-            expect_any_instance_of(Gitlab::BitbucketImport::Importer).to receive(:execute).and_return(true)
-            expect_any_instance_of(Projects::LfsPointers::LfsImportService).to receive(:execute).and_return(status: :error, message: error_message)
+
+            expect_next_instance_of(Gitlab::BitbucketImport::Importer) do |importer|
+              expect(importer).to receive(:execute).and_return(true)
+            end
+
+            expect_next_instance_of(Projects::LfsPointers::LfsImportService) do |service|
+              expect(service).to receive(:execute).and_return(status: :error, message: error_message)
+            end
+
             expect(Gitlab::AppLogger).to receive(:error).with("The Lfs import process failed. #{error_message}")
 
             subject.execute
@@ -252,10 +264,30 @@ describe Projects::ImportService do
       it 'fails with port 25' do
         project.import_url = "https://github.com:25/vim/vim.git"
 
-        result = described_class.new(project, user).execute
+        result = subject.execute
 
         expect(result[:status]).to eq :error
         expect(result[:message]).to include('Only allowed ports are 80, 443')
+      end
+    end
+
+    it_behaves_like 'measurable service' do
+      let(:base_log_data) do
+        {
+          class: described_class.name,
+          current_user: user.name,
+          project_full_path: project.full_path,
+          import_type: project.import_type,
+          file_path: project.import_source
+        }
+      end
+
+      before do
+        project.import_type = 'github'
+      end
+
+      after do
+        subject.execute
       end
     end
 

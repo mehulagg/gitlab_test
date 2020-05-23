@@ -4,7 +4,7 @@ type: reference
 
 # LDAP Additions in GitLab EE **(STARTER ONLY)**
 
-This section documents LDAP features specific to to GitLab Enterprise Edition
+This section documents LDAP features specific to GitLab Enterprise Edition
 [Starter](https://about.gitlab.com/pricing/#self-managed) and above.
 
 For documentation relevant to both Community Edition and Enterprise Edition,
@@ -43,7 +43,13 @@ The process will execute the following access checks:
 - Ensure the user is still present in LDAP.
 - If the LDAP server is Active Directory, ensure the user is active (not
   blocked/disabled state). This will only be checked if
-  `active_directory: true` is set in the LDAP configuration. [^1]
+  `active_directory: true` is set in the LDAP configuration.
+
+NOTE: **Note:**
+In Active Directory, a user is marked as disabled/blocked if the user
+account control attribute (`userAccountControl:1.2.840.113556.1.4.803`)
+has bit 2 set. See <https://ctovswild.com/2009/09/03/bitmask-searches-in-ldap/>
+for more information.
 
 The user will be set to `ldap_blocked` state in GitLab if the above conditions
 fail. This means the user will not be able to login or push/pull code.
@@ -93,7 +99,7 @@ following.
    EOS
    ```
 
-1. [Reconfigure GitLab][reconfigure] for the changes to take effect.
+1. [Apply your changes to GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
 **Source configuration**
 
@@ -108,10 +114,13 @@ following.
            group_base: ou=groups,dc=example,dc=com
    ```
 
-1. [Restart GitLab][restart] for the changes to take effect.
+1. [Restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
 
 To take advantage of group sync, group owners or maintainers will need to [create one
 or more LDAP group links](#adding-group-links).
+
+NOTE: **Note:**
+If an LDAP user is a group member when LDAP Synchronization is added, and they are not part of the LDAP group, they will be removed from the group.
 
 ### Adding group links
 
@@ -183,7 +192,7 @@ group, as opposed to the full DN.
    EOS
    ```
 
-1. [Reconfigure GitLab][reconfigure] for the changes to take effect.
+1. [Apply your changes to GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
 **Source configuration**
 
@@ -199,7 +208,7 @@ group, as opposed to the full DN.
            admin_group: my_admin_group
    ```
 
-1. [Restart GitLab][restart] for the changes to take effect.
+1. [Restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
 
 ## Global group memberships lock
 
@@ -318,7 +327,7 @@ task.
    EOS
    ```
 
-1. [Reconfigure GitLab][reconfigure] for the changes to take effect.
+1. [Apply your changes to GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
 **Source configuration**
 
@@ -333,7 +342,7 @@ task.
            external_groups: ['interns', 'contractors']
    ```
 
-1. [Restart GitLab][restart] for the changes to take effect.
+1. [Restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
 
 ## Group sync technical details
 

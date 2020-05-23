@@ -4,7 +4,6 @@ module Ci
   class Build < Ci::Processable
     include Ci::Metadatable
     include Ci::Contextable
-    include Ci::PipelineDelegator
     include TokenAuthenticatable
     include AfterCommitQueue
     include ObjectStorage::BackgroundMove
@@ -26,14 +25,15 @@ module Ci
 
     RUNNER_FEATURES = {
       upload_multiple_artifacts: -> (build) { build.publishes_artifacts_reports? },
-      refspecs: -> (build) { build.merge_request_ref? }
+      refspecs: -> (build) { build.merge_request_ref? },
+      artifacts_exclude: -> (build) { build.supports_artifacts_exclude? }
     }.freeze
 
     DEFAULT_RETRIES = {
       scheduler_failure: 2
     }.freeze
 
-    CODE_NAVIGATION_JOB_NAME = 'code_navigation'
+    DEGRADATION_THRESHOLD_VARIABLE_NAME = 'DEGRADATION_THRESHOLD'
 
     has_one :deployment, as: :deployable, class_name: 'Deployment'
     has_one :resource, class_name: 'Ci::Resource', inverse_of: :build
@@ -90,8 +90,12 @@ module Ci
 
     scope :unstarted, ->() { where(runner_id: nil) }
     scope :ignore_failures, ->() { where(allow_failure: false) }
-    scope :with_artifacts_archive, ->() do
-      where('EXISTS (?)', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id').archive)
+    scope :with_downloadable_artifacts, ->() do
+      where('EXISTS (?)',
+        Ci::JobArtifact.select(1)
+          .where('ci_builds.id = ci_job_artifacts.job_id')
+          .where(file_type: Ci::JobArtifact::DOWNLOADABLE_TYPES)
+      )
     end
 
     scope :with_existing_job_artifacts, ->(query) do
@@ -133,8 +137,8 @@ module Ci
         .includes(:metadata, :job_artifacts_metadata)
     end
 
-    scope :with_artifacts_not_expired, ->() { with_artifacts_archive.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.now) }
-    scope :with_expired_artifacts, ->() { with_artifacts_archive.where('artifacts_expire_at < ?', Time.now) }
+    scope :with_artifacts_not_expired, ->() { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.current) }
+    scope :with_expired_artifacts, ->() { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.current) }
     scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }
     scope :manual_actions, ->() { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
     scope :scheduled_actions, ->() { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
@@ -255,7 +259,7 @@ module Ci
       end
 
       before_transition any => :waiting_for_resource do |build|
-        build.waiting_for_resource_at = Time.now
+        build.waiting_for_resource_at = Time.current
       end
 
       before_transition on: :enqueue_waiting_for_resource do |build|
@@ -489,8 +493,7 @@ module Ci
     end
 
     def requires_resource?
-      Feature.enabled?(:ci_resource_group, project, default_enabled: true) &&
-        self.resource_group_id.present?
+      self.resource_group_id.present?
     end
 
     def has_environment?
@@ -528,10 +531,12 @@ module Ci
       strong_memoize(:variables) do
         Gitlab::Ci::Variables::Collection.new
           .concat(persisted_variables)
+          .concat(job_jwt_variables)
           .concat(scoped_variables)
           .concat(job_variables)
           .concat(environment_changed_page_variables)
           .concat(persisted_environment_variables)
+          .concat(deploy_freeze_variables)
           .to_runner_variables
       end
     end
@@ -571,7 +576,7 @@ module Ci
 
     def environment_changed_page_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
-        break variables unless environment_status
+        break variables unless environment_status && Feature.enabled?(:modifed_path_ci_variables, project)
 
         variables.append(key: 'CI_MERGE_REQUEST_CHANGED_PAGE_PATHS', value: environment_status.changed_paths.join(','))
         variables.append(key: 'CI_MERGE_REQUEST_CHANGED_PAGE_URLS', value: environment_status.changed_urls.join(','))
@@ -587,19 +592,33 @@ module Ci
       end
     end
 
+    def deploy_freeze_variables
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        break variables unless freeze_period?
+
+        variables.append(key: 'CI_DEPLOY_FREEZE', value: 'true')
+      end
+    end
+
+    def freeze_period?
+      Ci::FreezePeriodStatus.new(project: project).execute
+    end
+
+    def dependency_variables
+      return [] if all_dependencies.empty?
+
+      Gitlab::Ci::Variables::Collection.new.concat(
+        Ci::JobVariable.where(job: all_dependencies).dotenv_source
+      )
+    end
+
     def features
       { trace_sections: true }
     end
 
     def merge_request
       strong_memoize(:merge_request) do
-        merge_requests = MergeRequest.includes(:latest_merge_request_diff)
-          .where(source_branch: ref, source_project: pipeline.project)
-          .reorder(iid: :desc)
-
-        merge_requests.find do |merge_request|
-          merge_request.commit_shas.include?(pipeline.sha)
-        end
+        pipeline.all_merge_requests.order(iid: :asc).first
       end
     end
 
@@ -694,7 +713,7 @@ module Ci
     end
 
     def needs_touch?
-      Time.now - updated_at > 15.minutes.to_i
+      Time.current - updated_at > 15.minutes.to_i
     end
 
     def valid_token?(token)
@@ -757,11 +776,11 @@ module Ci
     end
 
     def artifacts_expired?
-      artifacts_expire_at && artifacts_expire_at < Time.now
+      artifacts_expire_at && artifacts_expire_at < Time.current
     end
 
     def artifacts_expire_in
-      artifacts_expire_at - Time.now if artifacts_expire_at
+      artifacts_expire_at - Time.current if artifacts_expire_at
     end
 
     def artifacts_expire_in=(value)
@@ -878,12 +897,28 @@ module Ci
       end
     end
 
+    def collect_accessibility_reports!(accessibility_report)
+      each_report(Ci::JobArtifact::ACCESSIBILITY_REPORT_FILE_TYPES) do |file_type, blob|
+        Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, accessibility_report)
+      end
+
+      accessibility_report
+    end
+
     def collect_coverage_reports!(coverage_report)
       each_report(Ci::JobArtifact::COVERAGE_REPORT_FILE_TYPES) do |file_type, blob|
         Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, coverage_report)
       end
 
       coverage_report
+    end
+
+    def collect_terraform_reports!(terraform_reports)
+      each_report(::Ci::JobArtifact::TERRAFORM_REPORT_FILE_TYPES) do |file_type, blob, report_artifact|
+        ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, terraform_reports, artifact: report_artifact)
+      end
+
+      terraform_reports
     end
 
     def report_artifacts
@@ -908,6 +943,16 @@ module Ci
       update_columns(
         status: :failed,
         failure_reason: :data_integrity_failure)
+    end
+
+    def supports_artifacts_exclude?
+      options&.dig(:artifacts, :exclude)&.any? &&
+        Gitlab::Ci::Features.artifacts_exclude_enabled?
+    end
+
+    def degradation_threshold
+      var = yaml_variables.find { |v| v[:key] == DEGRADATION_THRESHOLD_VARIABLE_NAME }
+      var[:value]&.to_i if var
     end
 
     private
@@ -948,7 +993,7 @@ module Ci
     end
 
     def update_erased!(user = nil)
-      self.update(erased_by: user, erased_at: Time.now, artifacts_expire_at: nil)
+      self.update(erased_by: user, erased_at: Time.current, artifacts_expire_at: nil)
     end
 
     def unscoped_project
@@ -981,7 +1026,18 @@ module Ci
     end
 
     def has_expiring_artifacts?
-      artifacts_expire_at.present? && artifacts_expire_at > Time.now
+      artifacts_expire_at.present? && artifacts_expire_at > Time.current
+    end
+
+    def job_jwt_variables
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        break variables unless Feature.enabled?(:ci_job_jwt, project, default_enabled: true)
+
+        jwt = Gitlab::Ci::Jwt.for_build(self)
+        variables.append(key: 'CI_JOB_JWT', value: jwt, public: false, masked: true)
+      rescue OpenSSL::PKey::RSAError => e
+        Gitlab::ErrorTracking.track_exception(e)
+      end
     end
   end
 end

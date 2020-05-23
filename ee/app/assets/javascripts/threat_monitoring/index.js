@@ -9,8 +9,11 @@ export default () => {
     wafStatisticsEndpoint,
     networkPolicyStatisticsEndpoint,
     environmentsEndpoint,
+    networkPoliciesEndpoint,
     chartEmptyStateSvgPath,
     emptyStateSvgPath,
+    wafNoDataSvgPath,
+    networkPolicyNoDataSvgPath,
     documentationPath,
     defaultEnvironmentId,
     showUserCallout,
@@ -24,6 +27,9 @@ export default () => {
     networkPolicyStatisticsEndpoint,
     environmentsEndpoint,
   });
+  store.dispatch('networkPolicies/setEndpoints', {
+    networkPoliciesEndpoint,
+  });
 
   return new Vue({
     el,
@@ -33,6 +39,8 @@ export default () => {
         props: {
           chartEmptyStateSvgPath,
           emptyStateSvgPath,
+          wafNoDataSvgPath,
+          networkPolicyNoDataSvgPath,
           documentationPath,
           defaultEnvironmentId: parseInt(defaultEnvironmentId, 10),
           showUserCallout: parseBoolean(showUserCallout),

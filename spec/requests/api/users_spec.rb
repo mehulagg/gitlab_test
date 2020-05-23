@@ -280,6 +280,18 @@ describe API::Users, :do_not_mock_admin_mode do
         expect(json_response.first['id']).to eq(user_with_2fa.id)
       end
 
+      it "returns users without projects" do
+        user_without_projects = create(:user)
+        create(:project, namespace: user.namespace)
+        create(:project, namespace: admin.namespace)
+
+        get api('/users', admin), params: { without_projects: true }
+
+        expect(response).to match_response_schema('public_api/v4/user/admins')
+        expect(json_response.size).to eq(1)
+        expect(json_response.first['id']).to eq(user_without_projects.id)
+      end
+
       it 'returns 400 when provided incorrect sort params' do
         get api('/users', admin), params: { order_by: 'magic', sort: 'asc' }
 
@@ -722,7 +734,7 @@ describe API::Users, :do_not_mock_admin_mode do
   end
 
   describe "PUT /users/:id" do
-    let!(:admin_user) { create(:admin) }
+    let_it_be(:admin_user) { create(:admin) }
 
     it "returns 200 OK on success" do
       put api("/users/#{user.id}", admin), params: { bio: 'new test bio' }
@@ -832,7 +844,7 @@ describe API::Users, :do_not_mock_admin_mode do
     it "updates external status" do
       put api("/users/#{user.id}", admin), params: { external: true }
 
-      expect(response.status).to eq 200
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['external']).to eq(true)
       expect(user.reload.external?).to be_truthy
     end
@@ -2393,8 +2405,8 @@ describe API::Users, :do_not_mock_admin_mode do
   end
 
   context "user activities", :clean_gitlab_redis_shared_state do
-    let!(:old_active_user) { create(:user, last_activity_on: Time.utc(2000, 1, 1)) }
-    let!(:newly_active_user) { create(:user, last_activity_on: 2.days.ago.midday) }
+    let_it_be(:old_active_user) { create(:user, last_activity_on: Time.utc(2000, 1, 1)) }
+    let_it_be(:newly_active_user) { create(:user, last_activity_on: 2.days.ago.midday) }
 
     context 'last activity as normal user' do
       it 'has no permission' do

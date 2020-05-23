@@ -30,7 +30,7 @@ describe Projects::DeployKeysController do
     it 'records an audit event' do
       expect { post :create, params: params }.to change { AuditEvent.count }.by(1)
 
-      expect(response).to redirect_to(project_settings_ci_cd_path(project, anchor: 'js-deploy-keys-settings'))
+      expect(response).to redirect_to(project_settings_repository_path(project, anchor: 'js-deploy-keys-settings'))
     end
   end
 
@@ -64,7 +64,7 @@ describe Projects::DeployKeysController do
     let(:deploy_key) { create(:deploy_key) }
     let!(:deploy_key_project) { create(:deploy_keys_project, project: project, deploy_key: deploy_key) }
 
-    context 'with admin' do
+    context 'with admin', :enable_admin_mode do
       before do
         sign_in(create(:admin))
       end

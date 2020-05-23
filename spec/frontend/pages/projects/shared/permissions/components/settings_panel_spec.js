@@ -23,6 +23,7 @@ const defaultProps = {
     lfsEnabled: true,
     emailsDisabled: false,
     packagesEnabled: true,
+    showDefaultAwardEmojis: true,
   },
   canDisableEmails: true,
   canChangeVisibilityLevel: true,
@@ -31,9 +32,9 @@ const defaultProps = {
   registryAvailable: false,
   registryHelpPath: '/help/user/packages/container_registry/index',
   lfsAvailable: true,
-  lfsHelpPath: '/help/workflow/lfs/manage_large_binaries_with_git_lfs',
+  lfsHelpPath: '/help/topics/git/lfs/index',
   lfsObjectsExist: false,
-  lfsObjectsRemovalHelpPath: `/help/administration/lfs/manage_large_binaries_with_git_lfs#removing-objects-from-lfs`,
+  lfsObjectsRemovalHelpPath: `/help/topics/git/lfs/index#removing-objects-from-lfs`,
   pagesAvailable: true,
   pagesAccessControlEnabled: false,
   pagesAccessControlForced: false,
@@ -55,7 +56,9 @@ describe('Settings Panel', () => {
       currentSettings: { ...defaultProps.currentSettings, ...currentSettings },
     };
 
-    return mountFn(settingsPanel, { propsData });
+    return mountFn(settingsPanel, {
+      propsData,
+    });
   };
 
   const overrideCurrentSettings = (currentSettingsProps, extraProps = {}) => {
@@ -363,7 +366,7 @@ describe('Settings Panel', () => {
             );
             expect(link.text()).toEqual('How do I remove them?');
             expect(link.attributes('href')).toEqual(
-              '/help/administration/lfs/manage_large_binaries_with_git_lfs#removing-objects-from-lfs',
+              '/help/topics/git/lfs/index#removing-objects-from-lfs',
             );
           });
         } else {
@@ -469,6 +472,49 @@ describe('Settings Panel', () => {
       return wrapper.vm.$nextTick(() => {
         expect(wrapper.find({ ref: 'email-settings' }).exists()).toBe(false);
       });
+    });
+  });
+
+  describe('Default award emojis', () => {
+    it('should show the "Show default award emojis" input', () => {
+      return wrapper.vm.$nextTick(() => {
+        expect(
+          wrapper
+            .find('input[name="project[project_setting_attributes][show_default_award_emojis]"]')
+            .exists(),
+        ).toBe(true);
+      });
+    });
+  });
+
+  describe('Metrics dashboard', () => {
+    it('should show the metrics dashboard access toggle', () => {
+      return wrapper.vm.$nextTick(() => {
+        expect(wrapper.find({ ref: 'metrics-visibility-settings' }).exists()).toBe(true);
+      });
+    });
+
+    it('should set the visibility level description based upon the selected visibility level', () => {
+      wrapper
+        .find('[name="project[project_feature_attributes][metrics_dashboard_access_level]"]')
+        .setValue(visibilityOptions.PUBLIC);
+
+      expect(wrapper.vm.metricsDashboardAccessLevel).toBe(visibilityOptions.PUBLIC);
+    });
+
+    it('should contain help text', () => {
+      expect(wrapper.find({ ref: 'metrics-visibility-settings' }).props().helpText).toEqual(
+        'With Metrics Dashboard you can visualize this project performance metrics',
+      );
+    });
+
+    it('should disable the metrics visibility dropdown when the project visibility level changes to private', () => {
+      wrapper = overrideCurrentSettings({ visibilityLevel: visibilityOptions.PRIVATE });
+
+      const metricsSettingsRow = wrapper.find({ ref: 'metrics-visibility-settings' });
+
+      expect(wrapper.vm.metricsOptionsDropdownEnabled).toBe(true);
+      expect(metricsSettingsRow.find('select').attributes('disabled')).toEqual('disabled');
     });
   });
 });

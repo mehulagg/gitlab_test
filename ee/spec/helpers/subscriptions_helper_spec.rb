@@ -22,7 +22,7 @@ describe SubscriptionsHelper do
   end
 
   before do
-    allow(helper).to receive(:params).and_return(plan_id: 'bronze_id')
+    allow(helper).to receive(:params).and_return(plan_id: 'bronze_id', namespace_id: nil)
     allow_next_instance_of(FetchSubscriptionPlansService) do |instance|
       allow(instance).to receive(:execute).and_return(raw_plan_data)
     end
@@ -33,6 +33,7 @@ describe SubscriptionsHelper do
     let_it_be(:group) { create(:group, name: 'My Namespace') }
 
     before do
+      allow(helper).to receive(:params).and_return(plan_id: 'bronze_id', namespace_id: group.id.to_s)
       allow(helper).to receive(:current_user).and_return(user)
       group.add_owner(user)
     end
@@ -43,6 +44,7 @@ describe SubscriptionsHelper do
     it { is_expected.to include(full_name: 'First Last') }
     it { is_expected.to include(plan_data: '[{"id":"bronze_id","code":"bronze","price_per_year":48.0}]') }
     it { is_expected.to include(plan_id: 'bronze_id') }
+    it { is_expected.to include(namespace_id: group.id.to_s) }
     it { is_expected.to include(group_data: %Q{[{"id":#{group.id},"name":"My Namespace","users":1}]}) }
 
     describe 'new_user' do
@@ -82,6 +84,110 @@ describe SubscriptionsHelper do
       end
 
       it { is_expected.to eq(nil) }
+    end
+  end
+
+  describe '#subscription_message' do
+    let(:gitlab_subscription) { entity.closest_gitlab_subscription }
+    let(:decorated_mock) { double(:decorated_mock) }
+    let(:message_mock) { double(:message_mock) }
+    let(:user) { double(:user_mock) }
+
+    it 'if it is not Gitlab.com? it returns nil' do
+      allow(Gitlab).to receive(:com?).and_return(false)
+
+      expect(helper.subscription_message).to be_nil
+    end
+
+    shared_examples 'subscription message' do
+      it 'calls Gitlab::ExpiringSubscriptionMessage and SubscriptionPresenter if is Gitlab.com?' do
+        allow(Gitlab).to receive(:com?).and_return(true)
+        allow(helper).to receive(:signed_in?).and_return(true)
+        allow(helper).to receive(:current_user).and_return(user)
+        allow(helper).to receive(:can?).with(user, :owner_access, entity).and_return(true)
+
+        expect(SubscriptionPresenter).to receive(:new).with(gitlab_subscription).and_return(decorated_mock)
+        expect(::Gitlab::ExpiringSubscriptionMessage).to receive(:new).with(
+          subscribable: decorated_mock,
+          signed_in: true,
+          is_admin: true,
+          namespace: namespace
+        ).and_return(message_mock)
+        expect(message_mock).to receive(:message).and_return('hey yay yay yay')
+
+        expect(helper.subscription_message).to eq('hey yay yay yay')
+      end
+    end
+
+    context 'when a project is present' do
+      let(:entity) { create(:project, namespace: namespace) }
+      let(:namespace) { create(:namespace_with_plan) }
+
+      before do
+        assign(:project, entity)
+      end
+
+      it_behaves_like 'subscription message'
+    end
+
+    context 'when a group is present' do
+      let(:entity) { create(:group_with_plan) }
+      let(:namespace) { entity }
+
+      before do
+        assign(:project, nil)
+        assign(:group, entity)
+      end
+
+      it_behaves_like 'subscription message'
+    end
+  end
+
+  describe '#decorated_subscription' do
+    subject { helper.decorated_subscription }
+
+    shared_examples 'when a subscription exists' do
+      let(:gitlab_subscription) { build_stubbed(:gitlab_subscription) }
+
+      it 'returns a decorator' do
+        allow(entity).to receive(:closest_gitlab_subscription).and_return(gitlab_subscription)
+
+        expect(subject).to be_a(SubscriptionPresenter)
+      end
+    end
+
+    context 'when a project exists' do
+      let(:entity) { create(:project) }
+
+      before do
+        assign(:project, entity)
+      end
+
+      it_behaves_like 'when a subscription exists'
+    end
+
+    context 'when a group exists' do
+      let(:entity) { create(:group) }
+
+      before do
+        assign(:group, entity)
+      end
+
+      it_behaves_like 'when a subscription exists'
+    end
+
+    context 'when no subscription exists' do
+      let(:entity) { create(:project) }
+
+      before do
+        assign(:project, entity)
+      end
+
+      it 'returns a nil object' do
+        allow(entity).to receive(:closest_gitlab_subscription).and_return(nil)
+
+        expect(subject).to be_nil
+      end
     end
   end
 end

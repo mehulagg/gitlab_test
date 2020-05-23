@@ -20,13 +20,10 @@ describe Gitlab::ImportExport::Group::TreeSaver do
 
     let(:shared) { Gitlab::ImportExport::Shared.new(group) }
     let(:export_path) { "#{Dir.tmpdir}/group_tree_saver_spec_ee" }
-    let(:group_tree_saver) { described_class.new(group: group, current_user: user, shared: shared) }
 
-    let(:saved_group_json) do
-      group_json(group_tree_saver.full_path)
-    end
+    subject(:group_tree_saver) { described_class.new(group: group, current_user: user, shared: shared) }
 
-    before do
+    before_all do
       group.add_maintainer(user)
     end
 
@@ -40,14 +37,15 @@ describe Gitlab::ImportExport::Group::TreeSaver do
 
     context 'epics relation' do
       let(:epic_json) do
-        saved_group_json['epics'].find do |attrs|
+        read_association(group, 'epics').find do |attrs|
           attrs['id'] == epic.id
         end
       end
 
       it 'saves top level epics' do
         expect_successful_save(group_tree_saver)
-        expect(saved_group_json['epics'].size).to eq(2)
+
+        expect(read_association(group, "epics").size).to eq(2)
       end
 
       it 'saves parent of epic' do
@@ -112,22 +110,22 @@ describe Gitlab::ImportExport::Group::TreeSaver do
       end
 
       it 'saves top level boards' do
-        expect(saved_group_json['boards'].size).to eq(1)
+        expect(read_association(group, 'boards').size).to eq(1)
       end
 
       it 'saves board assignee' do
-        expect(saved_group_json['boards'].first['board_assignee']['assignee_id']).to eq(user.id)
+        expect(read_association(group, 'boards').first['board_assignee']['assignee_id']).to eq(user.id)
       end
 
       it 'saves board labels' do
-        labels = saved_group_json['boards'].first['labels']
+        labels = read_association(group, 'boards').first['labels']
 
         expect(labels).not_to be_empty
         expect(labels.first['title']).to eq(label.title)
       end
 
       it 'saves board lists' do
-        lists = saved_group_json['boards'].first['lists']
+        lists = read_association(group, 'boards').first['lists']
 
         expect(lists).not_to be_empty
 
@@ -139,52 +137,54 @@ describe Gitlab::ImportExport::Group::TreeSaver do
       end
     end
 
-    context 'when there are boards with predefined milestones' do
-      let(:milestone) { Milestone::Upcoming }
-      let!(:board_with_milestone) { create(:board, group: group, milestone_id: milestone.id) }
+    it 'saves the milestone data when there are boards with predefined milestones' do
+      milestone = Milestone::Upcoming
+      board_with_milestone = create(:board, group: group, milestone_id: milestone.id)
 
-      it 'saves the milestone data' do
-        expect_successful_save(group_tree_saver)
+      expect_successful_save(group_tree_saver)
 
-        board_data = saved_group_json['boards'].find { |board| board['id'] == board_with_milestone.id }
+      board_data = read_association(group, 'boards').find { |board| board['id'] == board_with_milestone.id }
 
-        expect(board_data).to include(
-          'milestone_id' => milestone.id,
-          'milestone'    => {
-            'id'    => milestone.id,
-            'name'  => milestone.name,
-            'title' => milestone.title
-          }
-        )
-      end
+      expect(board_data).to include(
+        'milestone_id' => milestone.id,
+        'milestone'    => {
+          'id'    => milestone.id,
+          'name'  => milestone.name,
+          'title' => milestone.title
+        }
+      )
     end
 
-    context 'when there are boards with persisted milestones' do
-      let(:milestone) { create(:milestone) }
-      let!(:board_with_milestone) { create(:board, group: group, milestone_id: milestone.id) }
+    it 'saves the milestone data when there are boards with persisted milestones' do
+      milestone = create(:milestone)
+      board_with_milestone = create(:board, group: group, milestone_id: milestone.id)
 
-      it 'saves the milestone data' do
-        expect_successful_save(group_tree_saver)
+      expect_successful_save(group_tree_saver)
 
-        board_data = saved_group_json['boards'].find { |board| board['id'] == board_with_milestone.id }
+      board_data = read_association(group, 'boards').find { |board| board['id'] == board_with_milestone.id }
 
-        expect(board_data).to include(
-          'milestone_id' => milestone.id,
-          'milestone'    => a_hash_including(
-            'id'    => milestone.id,
-            'title' => milestone.title
-          )
+      expect(board_data).to include(
+        'milestone_id' => milestone.id,
+        'milestone'    => a_hash_including(
+          'id'    => milestone.id,
+          'title' => milestone.title
         )
-      end
+      )
     end
+  end
+
+  def exported_path_for(file)
+    File.join(group_tree_saver.full_path, 'groups', file)
+  end
+
+  def read_association(group, association)
+    path = exported_path_for(File.join("#{group.id}", "#{association}.ndjson"))
+
+    File.foreach(path).map {|line| Gitlab::Json.parse(line) }
   end
 
   def expect_successful_save(group_tree_saver)
     expect(group_tree_saver.save).to be true
     expect(group_tree_saver.shared.errors).to be_empty
-  end
-
-  def group_json(filename)
-    ::JSON.parse(IO.read(filename))
   end
 end

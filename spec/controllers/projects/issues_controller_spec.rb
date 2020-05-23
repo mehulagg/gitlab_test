@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Projects::IssuesController do
   include ProjectForksHelper
+  include_context 'includes Spam constants'
 
   let(:project) { create(:project) }
   let(:user)    { create(:user) }
@@ -186,6 +187,33 @@ describe Projects::IssuesController do
         expect(assigns(:issue)).to be_a_new(Issue)
       end
 
+      where(:conf_value, :conf_result) do
+        [
+          [true, true],
+          ['true', true],
+          ['TRUE', true],
+          [false, false],
+          ['false', false],
+          ['FALSE', false]
+        ]
+      end
+
+      with_them do
+        it 'sets the confidential flag to the expected value' do
+          get :new, params: {
+            namespace_id: project.namespace,
+            project_id: project,
+            issue: {
+              confidential: conf_value
+            }
+          }
+
+          assigned_issue = assigns(:issue)
+          expect(assigned_issue).to be_a_new(Issue)
+          expect(assigned_issue.confidential).to eq conf_result
+        end
+      end
+
       it 'fills in an issue for a merge request' do
         project_with_repository = create(:project, :repository)
         project_with_repository.add_developer(user)
@@ -238,6 +266,91 @@ describe Projects::IssuesController do
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to render_template(:new)
         end
+      end
+    end
+  end
+
+  describe '#related_branches' do
+    subject { get :related_branches, params: params, format: :json }
+
+    before do
+      sign_in(user)
+      project.add_developer(developer)
+    end
+
+    let(:developer) { user }
+    let(:params) do
+      {
+        namespace_id: project.namespace,
+        project_id: project,
+        id: issue.iid
+      }
+    end
+
+    context 'the current user cannot download code' do
+      it 'prevents access' do
+        allow(controller).to receive(:can?).with(any_args).and_return(true)
+        allow(controller).to receive(:can?).with(user, :download_code, project).and_return(false)
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
+    context 'there are no related branches' do
+      it 'assigns empty arrays', :aggregate_failures do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(assigns(:related_branches)).to be_empty
+        expect(response).to render_template('projects/issues/_related_branches')
+        expect(json_response).to eq('html' => '')
+      end
+    end
+
+    context 'there are related branches' do
+      let(:missing_branch) { "#{issue.to_branch_name}-missing" }
+      let(:unreadable_branch) { "#{issue.to_branch_name}-unreadable" }
+      let(:pipeline) { build(:ci_pipeline, :success, project: project) }
+      let(:master_branch) { 'master' }
+
+      let(:related_branches) do
+        [
+          branch_info(issue.to_branch_name, pipeline.detailed_status(user)),
+          branch_info(missing_branch, nil),
+          branch_info(unreadable_branch, nil)
+        ]
+      end
+
+      def branch_info(name, status)
+        {
+          name: name,
+          link: controller.project_compare_path(project, from: master_branch, to: name),
+          pipeline_status: status
+        }
+      end
+
+      before do
+        allow(controller).to receive(:find_routable!)
+          .with(Project, project.full_path, any_args).and_return(project)
+        allow(project).to receive(:default_branch).and_return(master_branch)
+        allow_next_instance_of(Issues::RelatedBranchesService) do |service|
+          allow(service).to receive(:execute).and_return(related_branches)
+        end
+      end
+
+      it 'finds and assigns the appropriate branch information', :aggregate_failures do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(assigns(:related_branches)).to contain_exactly(
+          branch_info(issue.to_branch_name, an_instance_of(Gitlab::Ci::Status::Success)),
+          branch_info(missing_branch, be_nil),
+          branch_info(unreadable_branch, be_nil)
+        )
+        expect(response).to render_template('projects/issues/_related_branches')
+        expect(json_response).to match('html' => String)
       end
     end
   end
@@ -338,13 +451,13 @@ describe Projects::IssuesController do
 
       context 'with invalid params' do
         it 'returns a unprocessable entity 422 response for invalid move ids' do
-          reorder_issue(issue1, move_after_id: 99, move_before_id: 999)
+          reorder_issue(issue1, move_after_id: 99, move_before_id: non_existing_record_id)
 
           expect(response).to have_gitlab_http_status(:unprocessable_entity)
         end
 
         it 'returns a not found 404 response for invalid issue id' do
-          reorder_issue(object_double(issue1, iid: 999),
+          reorder_issue(object_double(issue1, iid: non_existing_record_iid),
             move_after_id: issue2.id,
             move_before_id: issue3.id)
 
@@ -419,11 +532,11 @@ describe Projects::IssuesController do
         expect(issue.reload.title).to eq('New title')
       end
 
-      context 'when Akismet is enabled and the issue is identified as spam' do
+      context 'when the SpamVerdictService disallows' do
         before do
           stub_application_setting(recaptcha_enabled: true)
-          expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-            expect(akismet_service).to receive_messages(spam?: true)
+          expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+            expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
           end
         end
 
@@ -496,7 +609,7 @@ describe Projects::IssuesController do
       before do
         project.add_developer(user)
 
-        issue.update!(last_edited_by: deleted_user, last_edited_at: Time.now)
+        issue.update!(last_edited_by: deleted_user, last_edited_at: Time.current)
 
         deleted_user.destroy
         sign_in(user)
@@ -586,12 +699,23 @@ describe Projects::IssuesController do
         expect(assigns(:issues)).to include request_forgery_timing_attack
       end
 
-      it 'lists confidential issues for admin' do
-        sign_in(admin)
-        get_issues
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it 'lists confidential issues for admin' do
+          sign_in(admin)
+          get_issues
 
-        expect(assigns(:issues)).to include unescaped_parameter_value
-        expect(assigns(:issues)).to include request_forgery_timing_attack
+          expect(assigns(:issues)).to include unescaped_parameter_value
+          expect(assigns(:issues)).to include request_forgery_timing_attack
+        end
+      end
+
+      context 'when admin mode is disabled' do
+        it 'does not list confidential issues for admin' do
+          sign_in(admin)
+          get_issues
+
+          expect(assigns(:issues)).to eq [issue]
+        end
       end
 
       def get_issues
@@ -648,11 +772,22 @@ describe Projects::IssuesController do
         expect(response).to have_gitlab_http_status http_status[:success]
       end
 
-      it "returns #{http_status[:success]} for admin" do
-        sign_in(admin)
-        go(id: unescaped_parameter_value.to_param)
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it "returns #{http_status[:success]} for admin" do
+          sign_in(admin)
+          go(id: unescaped_parameter_value.to_param)
 
-        expect(response).to have_gitlab_http_status http_status[:success]
+          expect(response).to have_gitlab_http_status http_status[:success]
+        end
+      end
+
+      context 'when admin mode is disabled' do
+        xit 'returns 404 for admin' do
+          sign_in(admin)
+          go(id: unescaped_parameter_value.to_param)
+
+          expect(response).to have_gitlab_http_status :not_found
+        end
       end
     end
 
@@ -690,20 +825,20 @@ describe Projects::IssuesController do
           update_issue(issue_params: { assignee_ids: [assignee.id] })
 
           expect(json_response['assignees'].first.keys)
-            .to match_array(%w(id name username avatar_url state web_url))
+            .to include(*%w(id name username avatar_url state web_url))
         end
       end
 
-      context 'Akismet is enabled' do
+      context 'Recaptcha is enabled' do
         before do
           project.update!(visibility_level: Gitlab::VisibilityLevel::PUBLIC)
           stub_application_setting(recaptcha_enabled: true)
         end
 
-        context 'when an issue is not identified as spam' do
+        context 'when SpamVerdictService allows the issue' do
           before do
-            expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-              expect(akismet_service).to receive_messages(spam?: false)
+            expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+              expect(verdict_service).to receive(:execute).and_return(ALLOW)
             end
           end
 
@@ -713,10 +848,10 @@ describe Projects::IssuesController do
         end
 
         context 'when an issue is identified as spam' do
-          context 'when captcha is not verified' do
+          context 'when recaptcha is not verified' do
             before do
-              expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-                expect(akismet_service).to receive_messages(spam?: true)
+              expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+                expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
               end
             end
 
@@ -725,11 +860,11 @@ describe Projects::IssuesController do
                 stub_feature_flags(allow_possible_spam: false)
               end
 
-              it 'rejects an issue recognized as a spam' do
+              it 'rejects an issue recognized as spam' do
                 expect { update_issue }.not_to change { issue.reload.title }
               end
 
-              it 'rejects an issue recognized as a spam when recaptcha disabled' do
+              it 'rejects an issue recognized as a spam when reCAPTCHA disabled' do
                 stub_application_setting(recaptcha_enabled: false)
 
                 expect { update_issue }.not_to change { issue.reload.title }
@@ -774,7 +909,7 @@ describe Projects::IssuesController do
             end
           end
 
-          context 'when captcha is verified' do
+          context 'when recaptcha is verified' do
             let(:spammy_title) { 'Whatever' }
             let!(:spam_logs) { create_list(:spam_log, 2, user: user, title: spammy_title) }
 
@@ -788,7 +923,7 @@ describe Projects::IssuesController do
               expect(response).to have_gitlab_http_status(:ok)
             end
 
-            it 'accepts an issue after recaptcha is verified' do
+            it 'accepts an issue after reCAPTCHA is verified' do
               expect { update_verified_issue }.to change { issue.reload.title }.to(spammy_title)
             end
 
@@ -945,17 +1080,17 @@ describe Projects::IssuesController do
       end
     end
 
-    context 'Akismet is enabled' do
+    context 'Recaptcha is enabled' do
       before do
         stub_application_setting(recaptcha_enabled: true)
       end
 
-      context 'when an issue is not identified as spam' do
+      context 'when SpamVerdictService allows the issue' do
         before do
           stub_feature_flags(allow_possible_spam: false)
 
-          expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-            expect(akismet_service).to receive_messages(spam?: false)
+          expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+            expect(verdict_service).to receive(:execute).and_return(ALLOW)
           end
         end
 
@@ -964,16 +1099,16 @@ describe Projects::IssuesController do
         end
       end
 
-      context 'when an issue is identified as spam' do
+      context 'when SpamVerdictService requires recaptcha' do
         context 'when captcha is not verified' do
-          def post_spam_issue
-            post_new_issue(title: 'Spam Title', description: 'Spam lives here')
+          before do
+            expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+              expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
+            end
           end
 
-          before do
-            expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-              expect(akismet_service).to receive_messages(spam?: true)
-            end
+          def post_spam_issue
+            post_new_issue(title: 'Spam Title', description: 'Spam lives here')
           end
 
           context 'when allow_possible_spam feature flag is false' do
@@ -981,7 +1116,7 @@ describe Projects::IssuesController do
               stub_feature_flags(allow_possible_spam: false)
             end
 
-            it 'rejects an issue recognized as a spam' do
+            it 'rejects an issue recognized as spam' do
               expect { post_spam_issue }.not_to change(Issue, :count)
             end
 
@@ -994,7 +1129,7 @@ describe Projects::IssuesController do
               expect { post_new_issue(title: '') }.not_to change(Issue, :count)
             end
 
-            it 'does not create an issue when recaptcha is not enabled' do
+            it 'does not create an issue when reCAPTCHA is not enabled' do
               stub_application_setting(recaptcha_enabled: false)
 
               expect { post_spam_issue }.not_to change(Issue, :count)
@@ -1017,30 +1152,31 @@ describe Projects::IssuesController do
           end
         end
 
-        context 'when captcha is verified' do
+        context 'when Recaptcha is verified' do
           let!(:spam_logs) { create_list(:spam_log, 2, user: user, title: 'Title') }
+          let!(:last_spam_log) { spam_logs.last }
 
           def post_verified_issue
-            post_new_issue({}, { spam_log_id: spam_logs.last.id, recaptcha_verification: true } )
+            post_new_issue({}, { spam_log_id: last_spam_log.id, recaptcha_verification: true } )
           end
 
           before do
             expect(controller).to receive_messages(verify_recaptcha: true)
           end
 
-          it 'accepts an issue after recaptcha is verified' do
+          it 'accepts an issue after reCAPTCHA is verified' do
             expect { post_verified_issue }.to change(Issue, :count)
           end
 
           it 'marks spam log as recaptcha_verified' do
-            expect { post_verified_issue }.to change { SpamLog.last.recaptcha_verified }.from(false).to(true)
+            expect { post_verified_issue }.to change { last_spam_log.reload.recaptcha_verified }.from(false).to(true)
           end
 
           it 'does not mark spam log as recaptcha_verified when it does not belong to current_user' do
             spam_log = create(:spam_log)
 
             expect { post_new_issue({}, { spam_log_id: spam_log.id, recaptcha_verification: true } ) }
-              .not_to change { SpamLog.last.recaptcha_verified }
+              .not_to change { last_spam_log.recaptcha_verified }
           end
         end
       end
@@ -1083,6 +1219,48 @@ describe Projects::IssuesController do
 
       it 'creates a sentry issue' do
         expect { subject }.to change(SentryIssue, :count)
+      end
+    end
+
+    context 'when the endpoint receives requests above the limit' do
+      before do
+        stub_application_setting(issues_create_limit: 5)
+      end
+
+      it 'prevents from creating more issues', :request_store do
+        5.times { post_new_issue }
+
+        expect { post_new_issue }
+          .to change { Gitlab::GitalyClient.get_request_count }.by(1) # creates 1 projects and 0 issues
+
+        post_new_issue
+        expect(response.body).to eq(_('This endpoint has been requested too many times. Try again later.'))
+        expect(response).to have_gitlab_http_status(:too_many_requests)
+      end
+
+      it 'logs the event on auth.log' do
+        attributes = {
+          message: 'Application_Rate_Limiter_Request',
+          env: :issues_create_request_limit,
+          remote_ip: '0.0.0.0',
+          request_method: 'POST',
+          path: "/#{project.full_path}/-/issues",
+          user_id: user.id,
+          username: user.username
+        }
+
+        expect(Gitlab::AuthLogger).to receive(:error).with(attributes).once
+
+        project.add_developer(user)
+        sign_in(user)
+
+        6.times do
+          post :create, params: {
+            namespace_id: project.namespace.to_param,
+            project_id: project,
+            issue: { title: 'Title', description: 'Description' }
+          }
+        end
       end
     end
   end
@@ -1230,6 +1408,7 @@ describe Projects::IssuesController do
     it 'render merge request as json' do
       create_merge_request
 
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response).to match_response_schema('merge_request')
     end
 
@@ -1249,28 +1428,32 @@ describe Projects::IssuesController do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
+    context 'invalid branch name' do
+      it 'is unprocessable' do
+        post(
+          :create_merge_request,
+          params: {
+            target_project_id: nil,
+            branch_name: 'master',
+            ref: 'master',
+            namespace_id: project.namespace.to_param,
+            project_id: project.to_param,
+            id: issue.to_param
+          },
+          format: :json
+        )
+
+        expect(response.body).to eq('Branch already exists')
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+      end
+    end
+
     context 'target_project_id is set' do
       let(:target_project) { fork_project(project, user, repository: true) }
       let(:target_project_id) { target_project.id }
 
-      context 'create_confidential_merge_request feature is enabled' do
-        before do
-          stub_feature_flags(create_confidential_merge_request: true)
-        end
-
-        it 'creates a new merge request', :sidekiq_might_not_need_inline do
-          expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
-        end
-      end
-
-      context 'create_confidential_merge_request feature is disabled' do
-        before do
-          stub_feature_flags(create_confidential_merge_request: false)
-        end
-
-        it 'creates a new merge request' do
-          expect { create_merge_request }.to change(project.merge_requests, :count).by(1)
-        end
+      it 'creates a new merge request', :sidekiq_might_not_need_inline do
+        expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
       end
     end
 
@@ -1343,6 +1526,45 @@ describe Projects::IssuesController do
     end
   end
 
+  describe 'POST export_csv' do
+    let(:viewer) { user }
+    let(:issue) { create(:issue, project: project) }
+
+    before do
+      project.add_developer(user)
+    end
+
+    def request_csv
+      post :export_csv, params: { namespace_id: project.namespace.to_param, project_id: project.to_param }
+    end
+
+    context 'when logged in' do
+      before do
+        sign_in(viewer)
+      end
+
+      it 'allows CSV export' do
+        expect(ExportCsvWorker).to receive(:perform_async).with(viewer.id, project.id, anything)
+
+        request_csv
+
+        expect(response).to redirect_to(project_issues_path(project))
+        expect(response.flash[:notice]).to match(/\AYour CSV export has started/i)
+      end
+    end
+
+    context 'when not logged in' do
+      let(:project) { create(:project_empty_repo, :public) }
+
+      it 'redirects to the sign in page' do
+        request_csv
+
+        expect(ExportCsvWorker).not_to receive(:perform_async)
+        expect(response).to redirect_to(new_user_session_path)
+      end
+    end
+  end
+
   describe 'GET #discussions' do
     let!(:discussion) { create(:discussion_note_on_issue, noteable: issue, project: issue.project) }
 
@@ -1388,61 +1610,6 @@ describe Projects::IssuesController do
         note_json = json_response.first['notes'].first
 
         expect(note_json['author']['status_tooltip_html']).to be_present
-      end
-
-      context 'is_gitlab_employee attribute' do
-        subject { get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid } }
-
-        before do
-          allow(Gitlab).to receive(:com?).and_return(true)
-          note_user = discussion.author
-          note_user.update(email: email)
-          note_user.confirm
-        end
-
-        shared_examples 'non inclusion of gitlab employee badge' do
-          it 'does not render the is_gitlab_employee attribute' do
-            subject
-
-            note_json = json_response.first['notes'].first
-
-            expect(note_json['author']['is_gitlab_employee']).to be nil
-          end
-        end
-
-        context 'when user is a gitlab employee' do
-          let(:email) { 'test@gitlab.com' }
-
-          it 'renders the is_gitlab_employee attribute' do
-            subject
-
-            note_json = json_response.first['notes'].first
-
-            expect(note_json['author']['is_gitlab_employee']).to be true
-          end
-
-          context 'when feature flag is disabled' do
-            before do
-              stub_feature_flags(gitlab_employee_badge: false)
-            end
-
-            it_behaves_like 'non inclusion of gitlab employee badge'
-          end
-        end
-
-        context 'when user is not a gitlab employee' do
-          let(:email) { 'test@example.com' }
-
-          it_behaves_like 'non inclusion of gitlab employee badge'
-
-          context 'when feature flag is disabled' do
-            before do
-              stub_feature_flags(gitlab_employee_badge: false)
-            end
-
-            it_behaves_like 'non inclusion of gitlab employee badge'
-          end
-        end
       end
 
       it 'does not cause an extra query for the status' do
@@ -1533,6 +1700,33 @@ describe Projects::IssuesController do
             expect(json_response_note_ids).not_to include(branch_note.id)
           end
         end
+      end
+    end
+  end
+
+  describe 'GET #designs' do
+    context 'when project has moved' do
+      let(:new_project) { create(:project) }
+      let(:issue) { create(:issue, project: new_project) }
+
+      before do
+        sign_in(user)
+
+        project.route.destroy
+        new_project.redirect_routes.create!(path: project.full_path)
+        new_project.add_developer(user)
+      end
+
+      it 'redirects from an old issue/designs correctly' do
+        get :designs,
+            params: {
+              namespace_id: project.namespace,
+              project_id: project,
+              id: issue
+            }
+
+        expect(response).to redirect_to(designs_project_issue_path(new_project, issue))
+        expect(response).to have_gitlab_http_status(:found)
       end
     end
   end

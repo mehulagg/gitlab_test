@@ -11,6 +11,8 @@ module EE
     GOLD_TRIAL_BILLINGS = 'gold_trial_billings'
     THREAT_MONITORING_INFO = 'threat_monitoring_info'
     ACCOUNT_RECOVERY_REGULAR_CHECK = 'account_recovery_regular_check'
+    USERS_OVER_LICENSE_BANNER = 'users_over_license_banner'
+    STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER = 'standalone_vulnerabilities_introduction_banner'
 
     def show_canary_deployment_callout?(project)
       !user_dismissed?(CANARY_DEPLOYMENT) &&
@@ -52,14 +54,16 @@ module EE
     def render_dashboard_gold_trial(user)
       return unless show_gold_trial?(user, GOLD_TRIAL) &&
           user_default_dashboard?(user) &&
-          has_no_trial_or_gold_plan?(user) &&
-          has_some_namespaces_with_no_trials?(user)
+          ::Feature.enabled?(:render_dashboard_gold_trial, default_enabled: true) &&
+          !user.owns_paid_namespace? &&
+          user.any_namespace_without_trial?
 
       render 'shared/gold_trial_callout_content'
     end
 
     def render_account_recovery_regular_check
       return unless current_user &&
+          ::Gitlab.com? &&
           3.months.ago > current_user.created_at &&
           !user_dismissed?(ACCOUNT_RECOVERY_REGULAR_CHECK, 3.months.ago)
 
@@ -76,6 +80,10 @@ module EE
 
     def show_threat_monitoring_info?
       !user_dismissed?(THREAT_MONITORING_INFO)
+    end
+
+    def show_standalone_vulnerabilities_introduction_banner?
+      !user_dismissed?(STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER)
     end
 
     private
@@ -116,16 +124,6 @@ module EE
 
     def show_gold_trial_suitable_env?
       ::Gitlab.com? && !::Gitlab::Database.read_only?
-    end
-
-    def has_no_trial_or_gold_plan?(user)
-      return false if user.any_namespace_with_gold?
-
-      !user.any_namespace_with_trial?
-    end
-
-    def has_some_namespaces_with_no_trials?(user)
-      user&.any_namespace_without_trial?
     end
   end
 end

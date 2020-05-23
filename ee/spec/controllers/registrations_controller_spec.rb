@@ -30,7 +30,7 @@ describe RegistrationsController do
       end
     end
 
-    context 'when recaptcha experiment enabled' do
+    context 'when reCAPTCHA experiment enabled' do
       it "logs a 'User Created' message including the experiment state" do
         user_params = { user: attributes_for(:user) }
         allow_any_instance_of(EE::RecaptchaExperimentHelper).to receive(:show_recaptcha_sign_up?).and_return(true)
@@ -38,35 +38,6 @@ describe RegistrationsController do
         expect(Gitlab::AppLogger).to receive(:info).with(/\AUser Created: .+experiment_growth_recaptcha\?true\z/).and_call_original
 
         post :create, params: user_params
-      end
-    end
-  end
-
-  describe '#new' do
-    before do
-      stub_experiment(signup_flow: true, paid_signup_flow: true)
-      stub_experiment_for_user(signup_flow: true, paid_signup_flow: true)
-    end
-
-    context 'when not redirected from checkout page' do
-      it 'does not push tracking data to gon' do
-        get :new
-
-        expect(Gon.tracking_data).to eq(nil)
-      end
-    end
-
-    context 'when redirect from checkout page' do
-      it 'pushes tracking data to gon' do
-        get :new, params: { redirect_from: 'checkout' }
-
-        expect(Gon.tracking_data).to include(
-          {
-            category: 'Growth::Acquisition::Experiment::PaidSignUpFlow',
-            action: 'sign_up_page_view',
-            property: 'experimental_group'
-          }
-        )
       end
     end
   end

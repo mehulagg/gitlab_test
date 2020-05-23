@@ -9,12 +9,11 @@ import {
   updateHistory,
 } from '~/lib/utils/url_utility';
 import axios from '~/lib/utils/axios_utils';
-import { mockProjectDir } from '../mock_data';
+import { mockProjectDir, propsData } from '../mock_data';
 
 import Dashboard from '~/monitoring/components/dashboard.vue';
 import { createStore } from '~/monitoring/stores';
 import { defaultTimeRange } from '~/vue_shared/constants';
-import { propsData } from '../init_utils';
 
 jest.mock('~/flash');
 jest.mock('~/lib/utils/url_utility');
@@ -28,7 +27,7 @@ describe('dashboard invalid url parameters', () => {
     wrapper = mount(Dashboard, {
       propsData: { ...propsData, ...props },
       store,
-      stubs: ['graph-group', 'panel-type'],
+      stubs: ['graph-group', 'dashboard-panel'],
       ...options,
     });
   };

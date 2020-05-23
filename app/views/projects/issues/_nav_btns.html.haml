@@ -6,9 +6,9 @@
   - if show_feed_buttons
     = render 'shared/issuable/feed_buttons'
 
-  .btn-group.append-right-10<
+  .btn-group
     - if show_export_button
-      = render_if_exists 'projects/issues/export_csv/button'
+      = render 'projects/issues/export_csv/button'
 
     - if show_import_button
       = render 'projects/issues/import_csv/button'
@@ -23,7 +23,7 @@
                                                   id: "new_issue_link"
 
 - if show_export_button
-  = render_if_exists 'projects/issues/export_csv/modal'
+  = render 'projects/issues/export_csv/modal'
 
 - if show_import_button
   = render 'projects/issues/import_csv/modal'

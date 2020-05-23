@@ -6,6 +6,14 @@ describe Ci::Processable do
   let_it_be(:project) { create(:project) }
   let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
 
+  describe 'delegations' do
+    subject { Ci::Processable.new }
+
+    it { is_expected.to delegate_method(:merge_request?).to(:pipeline) }
+    it { is_expected.to delegate_method(:merge_request_ref?).to(:pipeline) }
+    it { is_expected.to delegate_method(:legacy_detached_merge_request_pipeline?).to(:pipeline) }
+  end
+
   describe '#aggregated_needs_names' do
     let(:with_aggregated_needs) { pipeline.processables.select_with_aggregated_needs(project) }
 
@@ -25,20 +33,6 @@ describe Ci::Processable do
         it 'returns all needs' do
           expect(with_aggregated_needs.first.aggregated_needs_names).to contain_exactly('test1', 'test2')
         end
-
-        context 'with ci_dag_support disabled' do
-          before do
-            stub_feature_flags(ci_dag_support: false)
-          end
-
-          it 'returns all processables' do
-            expect(with_aggregated_needs).to contain_exactly(processable)
-          end
-
-          it 'returns empty needs' do
-            expect(with_aggregated_needs.first.aggregated_needs_names).to be_nil
-          end
-        end
       end
 
       context 'without needs' do
@@ -54,69 +48,28 @@ describe Ci::Processable do
   end
 
   describe 'validate presence of scheduling_type' do
-    context 'on create' do
-      let(:processable) do
-        build(
-          :ci_build, :created, project: project, pipeline: pipeline,
-          importing: importing, scheduling_type: nil
-        )
-      end
+    using RSpec::Parameterized::TableSyntax
 
-      context 'when importing' do
-        let(:importing) { true }
+    subject { build(:ci_build, project: project, pipeline: pipeline, importing: importing) }
 
-        context 'when validate_scheduling_type_of_processables is true' do
-          before do
-            stub_feature_flags(validate_scheduling_type_of_processables: true)
-          end
-
-          it 'does not validate' do
-            expect(processable).to be_valid
-          end
-        end
-
-        context 'when validate_scheduling_type_of_processables is false' do
-          before do
-            stub_feature_flags(validate_scheduling_type_of_processables: false)
-          end
-
-          it 'does not validate' do
-            expect(processable).to be_valid
-          end
-        end
-      end
-
-      context 'when not importing' do
-        let(:importing) { false }
-
-        context 'when validate_scheduling_type_of_processables is true' do
-          before do
-            stub_feature_flags(validate_scheduling_type_of_processables: true)
-          end
-
-          it 'validates' do
-            expect(processable).not_to be_valid
-          end
-        end
-
-        context 'when validate_scheduling_type_of_processables is false' do
-          before do
-            stub_feature_flags(validate_scheduling_type_of_processables: false)
-          end
-
-          it 'does not validate' do
-            expect(processable).to be_valid
-          end
-        end
-      end
+    where(:importing, :should_validate) do
+      false | true
+      true  | false
     end
 
-    context 'on update' do
-      let(:processable) { create(:ci_build, :created, project: project, pipeline: pipeline) }
+    with_them do
+      context 'on create' do
+        it 'validates presence' do
+          if should_validate
+            is_expected.to validate_presence_of(:scheduling_type).on(:create)
+          else
+            is_expected.not_to validate_presence_of(:scheduling_type).on(:create)
+          end
+        end
+      end
 
-      it 'does not validate' do
-        processable.scheduling_type = nil
-        expect(processable).to be_valid
+      context 'on update' do
+        it { is_expected.not_to validate_presence_of(:scheduling_type).on(:update) }
       end
     end
   end
@@ -149,6 +102,8 @@ describe Ci::Processable do
   describe '#needs_attributes' do
     let(:build) { create(:ci_build, :created, project: project, pipeline: pipeline) }
 
+    subject { build.needs_attributes }
+
     context 'with needs' do
       before do
         create(:ci_build_need, build: build, name: 'test1')
@@ -156,7 +111,7 @@ describe Ci::Processable do
       end
 
       it 'returns all needs attributes' do
-        expect(build.needs_attributes).to contain_exactly(
+        is_expected.to contain_exactly(
           { 'artifacts' => true, 'name' => 'test1' },
           { 'artifacts' => true, 'name' => 'test2' }
         )
@@ -164,9 +119,7 @@ describe Ci::Processable do
     end
 
     context 'without needs' do
-      it 'returns all needs attributes' do
-        expect(build.needs_attributes).to be_empty
-      end
+      it { is_expected.to be_empty }
     end
   end
 end

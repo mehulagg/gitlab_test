@@ -23,7 +23,7 @@ describe Repositories::GitHttpController do
     it 'returns 403' do
       head :info_refs, params: params
 
-      expect(response.status).to eq(403)
+      expect(response).to have_gitlab_http_status(:forbidden)
     end
   end
 
@@ -39,7 +39,7 @@ describe Repositories::GitHttpController do
 
         get :info_refs, params: params
 
-        expect(response.status).to eq(401)
+        expect(response).to have_gitlab_http_status(:unauthorized)
       end
 
       context 'with authorized user' do
@@ -50,7 +50,7 @@ describe Repositories::GitHttpController do
         it 'returns 200' do
           get :info_refs, params: params
 
-          expect(response.status).to eq(200)
+          expect(response).to have_gitlab_http_status(:ok)
         end
 
         it 'updates the user activity' do
@@ -72,7 +72,7 @@ describe Repositories::GitHttpController do
 
           get :info_refs, params: params
 
-          expect(response.status).to eq(503)
+          expect(response).to have_gitlab_http_status(:service_unavailable)
         end
 
         it 'returns 503 with timeout error' do
@@ -80,7 +80,7 @@ describe Repositories::GitHttpController do
 
           get :info_refs, params: params
 
-          expect(response.status).to eq(503)
+          expect(response).to have_gitlab_http_status(:service_unavailable)
           expect(response.body).to eq 'Gitlab::GitAccess::TimeoutError'
         end
       end
@@ -95,7 +95,7 @@ describe Repositories::GitHttpController do
         allow(controller).to receive(:access_check).and_return(nil)
       end
 
-      after do
+      def send_request
         post :git_upload_pack, params: params
       end
 
@@ -106,16 +106,46 @@ describe Repositories::GitHttpController do
 
         it 'does not update project statistics' do
           expect(ProjectDailyStatisticsWorker).not_to receive(:perform_async)
+
+          send_request
         end
       end
 
       if expected
-        it 'updates project statistics' do
-          expect(ProjectDailyStatisticsWorker).to receive(:perform_async)
+        context 'when project_statistics_sync feature flag is disabled' do
+          before do
+            stub_feature_flags(project_statistics_sync: false)
+          end
+
+          it 'updates project statistics async' do
+            expect(ProjectDailyStatisticsWorker).to receive(:perform_async)
+
+            send_request
+          end
+        end
+
+        it 'updates project statistics sync' do
+          expect { send_request }.to change {
+            Projects::DailyStatisticsFinder.new(project).total_fetch_count
+          }.from(0).to(1)
         end
       else
+        context 'when project_statistics_sync feature flag is disabled' do
+          before do
+            stub_feature_flags(project_statistics_sync: false)
+          end
+
+          it 'does not update project statistics' do
+            expect(ProjectDailyStatisticsWorker).not_to receive(:perform_async)
+
+            send_request
+          end
+        end
+
         it 'does not update project statistics' do
-          expect(ProjectDailyStatisticsWorker).not_to receive(:perform_async)
+          expect { send_request }.not_to change {
+            Projects::DailyStatisticsFinder.new(project).total_fetch_count
+          }.from(0)
         end
       end
     end
@@ -135,48 +165,11 @@ describe Repositories::GitHttpController do
     end
   end
 
-  shared_examples 'snippet feature flag disabled behavior' do
-    before do
-      stub_feature_flags(version_snippets: false)
-
-      request.headers.merge! auth_env(user.username, user.password, nil)
-    end
-
-    describe 'GET #info_refs' do
-      let(:params) { container_params.merge(service: 'git-upload-pack') }
-
-      it 'returns 404' do
-        expect(controller).not_to receive(:access_check)
-
-        get :info_refs, params: params
-
-        expect(response).to have_gitlab_http_status(:not_found)
-        expect(response.body).to eq "The project you were looking for could not be found."
-      end
-    end
-
-    describe 'POST #git_upload_pack' do
-      before do
-        allow(controller).to receive(:authenticate_user).and_return(true)
-        allow(controller).to receive(:verify_workhorse_api!).and_return(true)
-        allow(controller).to receive(:access_check).and_return(nil)
-      end
-
-      it 'returns 404' do
-        expect(controller).not_to receive(:access_check)
-
-        post :git_upload_pack, params: params
-
-        expect(response).to have_gitlab_http_status(:not_found)
-        expect(response.body).to eq "The project you were looking for could not be found."
-      end
-    end
-  end
-
   context 'when repository container is a project' do
     it_behaves_like 'info_refs behavior' do
       let(:user) { project.owner }
     end
+
     it_behaves_like 'git_upload_pack behavior', true
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccess }
@@ -191,13 +184,11 @@ describe Repositories::GitHttpController do
     it_behaves_like 'info_refs behavior' do
       let(:user) { personal_snippet.author }
     end
+
     it_behaves_like 'git_upload_pack behavior', false
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccessSnippet }
       let(:expected_object) { personal_snippet }
-    end
-    it_behaves_like 'snippet feature flag disabled behavior' do
-      let(:user) { personal_snippet.author }
     end
   end
 
@@ -208,13 +199,11 @@ describe Repositories::GitHttpController do
     it_behaves_like 'info_refs behavior' do
       let(:user) { project_snippet.author }
     end
+
     it_behaves_like 'git_upload_pack behavior', false
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccessSnippet }
       let(:expected_object) { project_snippet }
-    end
-    it_behaves_like 'snippet feature flag disabled behavior' do
-      let(:user) { project_snippet.author }
     end
   end
 end

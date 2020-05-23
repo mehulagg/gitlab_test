@@ -58,4 +58,65 @@ describe ClustersHelper do
       it { is_expected.to eq('Create new cluster') }
     end
   end
+
+  describe '#provider_icon' do
+    it 'will return GCP logo with gcp argument' do
+      logo = helper.provider_icon('gcp')
+
+      expect(logo).to match(%r(img alt="Google GKE" data-src="|/illustrations/logos/google_gke|svg))
+    end
+
+    it 'will return AWS logo with aws argument' do
+      logo = helper.provider_icon('aws')
+
+      expect(logo).to match(%r(img alt="Amazon EKS" data-src="|/illustrations/logos/amazon_eks|svg))
+    end
+
+    it 'will return default logo with unknown provider' do
+      logo = helper.provider_icon('unknown')
+
+      expect(logo).to match(%r(img alt="Kubernetes Cluster" data-src="|/illustrations/logos/kubernetes|svg))
+    end
+
+    it 'will return default logo when provider is empty' do
+      logo = helper.provider_icon
+
+      expect(logo).to match(%r(img alt="Kubernetes Cluster" data-src="|/illustrations/logos/kubernetes|svg))
+    end
+  end
+
+  describe '#cluster_type_label' do
+    subject { helper.cluster_type_label(cluster_type) }
+
+    context 'project cluster' do
+      let(:cluster_type) { 'project_type' }
+
+      it { is_expected.to eq('Project cluster') }
+    end
+
+    context 'group cluster' do
+      let(:cluster_type) { 'group_type' }
+
+      it { is_expected.to eq('Group cluster') }
+    end
+
+    context 'instance cluster' do
+      let(:cluster_type) { 'instance_type' }
+
+      it { is_expected.to eq('Instance cluster') }
+    end
+
+    context 'other values' do
+      let(:cluster_type) { 'not_supported' }
+
+      it 'Diplays generic cluster and reports error' do
+        expect(Gitlab::ErrorTracking).to receive(:track_and_raise_for_dev_exception).with(
+          an_instance_of(ArgumentError),
+          cluster_error: { error: 'Cluster Type Missing', cluster_type: 'not_supported' }
+        )
+
+        is_expected.to eq('Cluster')
+      end
+    end
+  end
 end

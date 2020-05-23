@@ -1,12 +1,11 @@
-import _ from 'underscore';
 import { shallowMount } from '@vue/test-utils';
-import { GlButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
 import ApprovalsList from 'ee/vue_merge_request_widget/components/approvals/approvals_list.vue';
 import ApprovalsFooter from 'ee/vue_merge_request_widget/components/approvals/approvals_footer.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import UserAvatarList from '~/vue_shared/components/user_avatar/user_avatar_list.vue';
 
-const testSuggestedApprovers = () => _.range(1, 11).map(id => ({ id }));
+const testSuggestedApprovers = () => Array.from({ length: 11 }, (_, i) => i).map(id => ({ id }));
 const testApprovalRules = () => [{ name: 'Lorem' }, { name: 'Ipsum' }];
 
 describe('EE MRWidget approvals footer', () => {
@@ -25,8 +24,8 @@ describe('EE MRWidget approvals footer', () => {
   const findToggle = () => wrapper.find('button');
   const findToggleIcon = () => findToggle().find(Icon);
   const findToggleLoadingIcon = () => findToggle().find(GlLoadingIcon);
-  const findExpandButton = () => wrapper.find(GlButton);
-  const findCollapseButton = () => wrapper.find(GlButton);
+  const findExpandButton = () => wrapper.find(GlDeprecatedButton);
+  const findCollapseButton = () => wrapper.find(GlDeprecatedButton);
   const findList = () => wrapper.find(ApprovalsList);
   const findAvatars = () => wrapper.find(UserAvatarList);
 
@@ -46,7 +45,7 @@ describe('EE MRWidget approvals footer', () => {
 
         expect(list.exists()).toBe(true);
         expect(list.props()).toEqual(
-          jasmine.objectContaining({
+          expect.objectContaining({
             approvalRules: testApprovalRules(),
           }),
         );
@@ -69,7 +68,7 @@ describe('EE MRWidget approvals footer', () => {
 
           expect(icon.exists()).toBe(true);
           expect(icon.props()).toEqual(
-            jasmine.objectContaining({
+            expect.objectContaining({
               name: 'chevron-down',
             }),
           );
@@ -153,7 +152,7 @@ describe('EE MRWidget approvals footer', () => {
 
       expect(avatars.exists()).toBe(true);
       expect(avatars.props()).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           items: testSuggestedApprovers().filter((x, idx) => idx < 5),
           breakpoint: 0,
           emptyText: '',

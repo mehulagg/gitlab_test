@@ -1,18 +1,10 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import {
-  GlTooltipDirective,
-  GlButton,
-  GlIcon,
-  GlFormInput,
-  GlLink,
-  GlLoadingIcon,
-} from '@gitlab/ui';
+import { GlTooltipDirective, GlButton, GlFormInput, GlLink, GlLoadingIcon } from '@gitlab/ui';
 
 export default {
   components: {
     GlButton,
-    GlIcon,
     GlFormInput,
     GlLink,
     GlLoadingIcon,
@@ -63,22 +55,20 @@ export default {
       <gl-button
         :aria-label="__('Go back')"
         variant="link"
-        size="sm"
+        size="small"
         class="js-btn-back dropdown-header-button p-0"
+        icon="arrow-left"
         @click="toggleDropdownContentsCreateView"
-      >
-        <gl-icon name="arrow-left" />
-      </gl-button>
+      />
       <span class="flex-grow-1">{{ labelsCreateTitle }}</span>
       <gl-button
         :aria-label="__('Close')"
         variant="link"
-        size="sm"
+        size="small"
         class="dropdown-header-button p-0"
+        icon="close"
         @click="toggleDropdownContents"
-      >
-        <gl-icon name="close" />
-      </gl-button>
+      />
     </div>
     <div class="dropdown-input">
       <gl-form-input
@@ -109,7 +99,8 @@ export default {
     <div class="dropdown-actions clearfix pt-2 px-2">
       <gl-button
         :disabled="disableCreate"
-        variant="primary"
+        category="primary"
+        variant="success"
         class="pull-left d-flex align-items-center"
         @click="handleCreateClick"
       >

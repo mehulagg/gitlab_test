@@ -24,16 +24,16 @@ If you use a cloud-managed service, or provide your own PostgreSQL:
 
 ## PostgreSQL in a Scaled and Highly Available Environment
 
-This section is relevant for [Scalable and Highly Available Setups](README.md).
+This section is relevant for [Scalable and Highly Available Setups](../reference_architectures/index.md).
 
 ### Provide your own PostgreSQL instance **(CORE ONLY)**
 
 If you want to use your own deployed PostgreSQL instance(s),
 see [Provide your own PostgreSQL instance](#provide-your-own-postgresql-instance-core-only)
-for more details. However, you can use the GitLab Omnibus package to easily
+for more details. However, you can use the Omnibus GitLab package to easily
 deploy the bundled PostgreSQL.
 
-### Standalone PostgreSQL using GitLab Omnibus **(CORE ONLY)**
+### Standalone PostgreSQL using Omnibus GitLab **(CORE ONLY)**
 
 1. SSH into the PostgreSQL server.
 1. [Download/install](https://about.gitlab.com/install/) the Omnibus GitLab
@@ -83,7 +83,7 @@ deploy the bundled PostgreSQL.
 
    NOTE: **Note:** The role `postgres_role` was introduced with GitLab 10.3
 
-1. [Reconfigure GitLab] for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 1. Note the PostgreSQL node's IP address or hostname, port, and
    plain text password. These will be necessary when configuring the GitLab
    application servers later.
@@ -92,7 +92,7 @@ deploy the bundled PostgreSQL.
 Advanced configuration options are supported and can be added if
 needed.
 
-### High Availability with GitLab Omnibus **(PREMIUM ONLY)**
+### High Availability with Omnibus GitLab **(PREMIUM ONLY)**
 
 > Important notes:
 >
@@ -125,7 +125,7 @@ otherwise the networks will become a single point of failure.
 
 #### Architecture
 
-![PG HA Architecture](img/pg_ha_architecture.png)
+![PostgreSQL HA Architecture](img/pg_ha_architecture.png)
 
 Database nodes run two services with PostgreSQL:
 
@@ -199,7 +199,7 @@ Few notes on the service itself:
 - Passwords will be stored in the following locations:
   - `/etc/gitlab/gitlab.rb`: hashed
   - `/var/opt/gitlab/pgbouncer/pg_auth`: hashed
-  - `/var/opt/gitlab/gitlab-consul/.pgpass`: plaintext
+  - `/var/opt/gitlab/consul/.pgpass`: plaintext
 
 ##### PostgreSQL information
 
@@ -271,7 +271,7 @@ Few notes on the service itself:
 #### Installing Omnibus GitLab
 
 First, make sure to [download/install](https://about.gitlab.com/install/)
-GitLab Omnibus **on each node**.
+Omnibus GitLab **on each node**.
 
 Make sure you install the necessary dependencies from step 1,
 add GitLab package repository from step 2.
@@ -338,7 +338,7 @@ When installing the GitLab package, do not supply `EXTERNAL_URL` value.
    repmgr['master_on_initialization'] = false
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 1. [Enable Monitoring](#enable-monitoring)
 
 > Please note:
@@ -487,7 +487,7 @@ attributes set, but the following need to be set.
    gitlab_rails['auto_migrate'] = false
    ```
 
-1. [Reconfigure GitLab] for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ##### Application node post-configuration
 
@@ -554,7 +554,7 @@ consul['configuration'] = {
 consul['monitoring_service_discovery'] =  true
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ##### Example recommended setup for PgBouncer servers
 
@@ -584,7 +584,7 @@ consul['configuration'] = {
 consul['monitoring_service_discovery'] =  true
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ##### Internal load balancer setup
 
@@ -625,7 +625,7 @@ consul['configuration'] = {
 consul['monitoring_service_discovery'] =  true
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ###### Secondary nodes
 
@@ -638,7 +638,7 @@ configuration:
 repmgr['master_on_initialization'] = false
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ##### Example recommended setup for application server
 
@@ -673,7 +673,7 @@ consul['configuration'] = {
 }
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ##### Example recommended setup manual steps
 
@@ -778,7 +778,7 @@ consul['configuration'] = {
 }
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ###### Secondary nodes
 
@@ -826,7 +826,7 @@ consul['configuration'] = {
 }
 ```
 
-[Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
+[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ##### Example minimal setup manual steps
 
@@ -969,7 +969,7 @@ repmgr['trust_auth_cidr_addresses'] = %w(192.168.1.44/32 db2.example.com)
 ##### MD5 Authentication
 
 If you are running on an untrusted network, repmgr can use md5 authentication
-with a [`.pgpass` file](https://www.postgresql.org/docs/9.6/libpq-pgpass.html)
+with a [`.pgpass` file](https://www.postgresql.org/docs/11/libpq-pgpass.html)
 to authenticate.
 
 You can specify by IP address, FQDN, or by subnet, using the same format as in
@@ -1005,11 +1005,11 @@ the previous section:
 1. On each PgBouncer node, edit `/etc/gitlab/gitlab.rb`:
    1. Ensure `gitlab_rails['db_password']` is set to the plaintext password for
       the `gitlab` database user
-   1. [Reconfigure GitLab] for the changes to take effect
+   1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect
 
 ## Enable Monitoring
 
-> [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3786) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/3786) in GitLab 12.0.
 
 If you enable Monitoring, it must be enabled on **all** database servers.
 
@@ -1047,7 +1047,7 @@ steps to fix the problem:
 1. On the master database node, connect to the database prompt - `gitlab-psql -d template1`
 1. Delete the `gitlab-consul` user - `DROP USER "gitlab-consul";`
 1. Exit the database prompt - `\q`
-1. [Reconfigure GitLab] and the user will be re-added with the proper permissions.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) and the user will be re-added with the proper permissions.
 1. Change to the `gitlab-consul` user - `su - gitlab-consul`
 1. Try the check command again - `gitlab-ctl repmgr-check-master`.
 
@@ -1079,7 +1079,7 @@ To fix the problem, add the IP address to `/etc/gitlab/gitlab.rb`.
 postgresql['trust_auth_cidr_addresses'] = %w(123.123.123.123/32 <other_cidrs>)
 ```
 
-[Reconfigure GitLab] for the changes to take effect.
+[Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ### Issues with other components
 
@@ -1091,7 +1091,7 @@ If you're running into an issue with a component not outlined here, be sure to c
 
 ## Configure using Omnibus
 
-**Note**: We recommend that you follow the instructions here for a full [PostgreSQL cluster](#high-availability-with-gitlab-omnibus-premium-only).
+**Note**: We recommend that you follow the instructions here for a full [PostgreSQL cluster](#high-availability-with-omnibus-gitlab-premium-only).
 If you are reading this section due to an old bookmark, you can find that old documentation [in the repository](https://gitlab.com/gitlab-org/gitlab/blob/v10.1.4/doc/administration/high_availability/database.md#configure-using-omnibus).
 
 Read more on high-availability configuration:
@@ -1101,5 +1101,3 @@ Read more on high-availability configuration:
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)
 1. [Manage the bundled Consul cluster](consul.md)
-
-[reconfigure GitLab]: ../restart_gitlab.md#omnibus-gitlab-reconfigure

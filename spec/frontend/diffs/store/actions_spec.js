@@ -35,14 +35,15 @@ import {
   setRenderTreeList,
   setShowWhitespace,
   setRenderIt,
-  requestFullDiff,
-  receiveFullDiffSucess,
   receiveFullDiffError,
   fetchFullDiff,
   toggleFullDiff,
+  switchToFullDiffFromRenamedFile,
   setFileCollapsed,
   setExpandedDiffLines,
   setSuggestPopoverDismissed,
+  changeCurrentCommit,
+  moveToNeighboringCommit,
 } from '~/diffs/store/actions';
 import eventHub from '~/notes/event_hub';
 import * as types from '~/diffs/store/mutation_types';
@@ -312,7 +313,7 @@ describe('DiffsStoreActions', () => {
 
     describe('fetchDiffFilesMeta', () => {
       it('should fetch diff meta information', done => {
-        const endpointMetadata = '/fetch/diffs_meta?';
+        const endpointMetadata = '/fetch/diffs_meta';
         const mock = new MockAdapter(axios);
         const data = { diff_files: [] };
         const res = { data };
@@ -466,6 +467,7 @@ describe('DiffsStoreActions', () => {
                   old_path: 'file2',
                   line_code: 'ABC_1_1',
                   position_type: 'text',
+                  line_range: null,
                 },
               },
               hash: 'ABC_123',
@@ -1132,34 +1134,8 @@ describe('DiffsStoreActions', () => {
     });
   });
 
-  describe('requestFullDiff', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
-      testAction(
-        requestFullDiff,
-        'file',
-        {},
-        [{ type: types.REQUEST_FULL_DIFF, payload: 'file' }],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveFullDiffSucess', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
-      testAction(
-        receiveFullDiffSucess,
-        { filePath: 'test' },
-        {},
-        [{ type: types.RECEIVE_FULL_DIFF_SUCCESS, payload: { filePath: 'test' } }],
-        [],
-        done,
-      );
-    });
-  });
-
   describe('receiveFullDiffError', () => {
-    it('commits REQUEST_FULL_DIFF', done => {
+    it('updates state with the file that did not load', done => {
       testAction(
         receiveFullDiffError,
         'file',
@@ -1187,7 +1163,7 @@ describe('DiffsStoreActions', () => {
         mock.onGet(`${gl.TEST_HOST}/context`).replyOnce(200, ['test']);
       });
 
-      it('dispatches receiveFullDiffSucess', done => {
+      it('commits the success and dispatches an action to expand the new lines', done => {
         const file = {
           context_lines_path: `${gl.TEST_HOST}/context`,
           file_path: 'test',
@@ -1197,11 +1173,8 @@ describe('DiffsStoreActions', () => {
           fetchFullDiff,
           file,
           null,
-          [],
-          [
-            { type: 'receiveFullDiffSucess', payload: { filePath: 'test' } },
-            { type: 'setExpandedDiffLines', payload: { file, data: ['test'] } },
-          ],
+          [{ type: types.RECEIVE_FULL_DIFF_SUCCESS, payload: { filePath: 'test' } }],
+          [{ type: 'setExpandedDiffLines', payload: { file, data: ['test'] } }],
           done,
         );
       });
@@ -1239,12 +1212,68 @@ describe('DiffsStoreActions', () => {
         toggleFullDiff,
         'test',
         state,
-        [],
-        [
-          { type: 'requestFullDiff', payload: 'test' },
-          { type: 'fetchFullDiff', payload: state.diffFiles[0] },
-        ],
+        [{ type: types.REQUEST_FULL_DIFF, payload: 'test' }],
+        [{ type: 'fetchFullDiff', payload: state.diffFiles[0] }],
         done,
+      );
+    });
+  });
+
+  describe('switchToFullDiffFromRenamedFile', () => {
+    const SUCCESS_URL = 'fakehost/context.success';
+    const testFilePath = 'testpath';
+    const updatedViewerName = 'testviewer';
+    const preparedLine = { prepared: 'in-a-test' };
+    const testFile = {
+      file_path: testFilePath,
+      file_hash: 'testhash',
+      alternate_viewer: { name: updatedViewerName },
+    };
+    const updatedViewer = { name: updatedViewerName, collapsed: false };
+    const testData = [{ rich_text: 'test' }, { rich_text: 'file2' }];
+    let renamedFile;
+    let mock;
+
+    beforeEach(() => {
+      mock = new MockAdapter(axios);
+      jest.spyOn(utils, 'prepareLineForRenamedFile').mockImplementation(() => preparedLine);
+    });
+
+    afterEach(() => {
+      renamedFile = null;
+      mock.restore();
+    });
+
+    describe('success', () => {
+      beforeEach(() => {
+        renamedFile = { ...testFile, context_lines_path: SUCCESS_URL };
+        mock.onGet(SUCCESS_URL).replyOnce(200, testData);
+      });
+
+      it.each`
+        diffViewType
+        ${INLINE_DIFF_VIEW_TYPE}
+        ${PARALLEL_DIFF_VIEW_TYPE}
+      `(
+        'performs the correct mutations and starts a render queue for view type $diffViewType',
+        ({ diffViewType }) => {
+          return testAction(
+            switchToFullDiffFromRenamedFile,
+            { diffFile: renamedFile },
+            { diffViewType },
+            [
+              {
+                type: types.SET_DIFF_FILE_VIEWER,
+                payload: { filePath: testFilePath, viewer: updatedViewer },
+              },
+              {
+                type: types.SET_CURRENT_VIEW_DIFF_FILE_LINES,
+                payload: { filePath: testFilePath, lines: [preparedLine, preparedLine] },
+              },
+            ],
+            [{ type: 'startRenderDiffsQueue' }],
+          );
+        },
       );
     });
   });
@@ -1345,5 +1374,103 @@ describe('DiffsStoreActions', () => {
         },
       );
     });
+  });
+
+  describe('changeCurrentCommit', () => {
+    it('commits the new commit information and re-requests the diff metadata for the commit', () => {
+      return testAction(
+        changeCurrentCommit,
+        { commitId: 'NEW' },
+        {
+          commit: {
+            id: 'OLD',
+          },
+          endpoint: 'URL/OLD',
+          endpointBatch: 'URL/OLD',
+          endpointMetadata: 'URL/OLD',
+        },
+        [
+          { type: types.SET_DIFF_FILES, payload: [] },
+          {
+            type: types.SET_BASE_CONFIG,
+            payload: {
+              commit: {
+                id: 'OLD', // Not a typo: the action fired next will overwrite all of the `commit` in state
+              },
+              endpoint: 'URL/NEW',
+              endpointBatch: 'URL/NEW',
+              endpointMetadata: 'URL/NEW',
+            },
+          },
+        ],
+        [{ type: 'fetchDiffFilesMeta' }],
+      );
+    });
+
+    it.each`
+      commitId     | commit           | msg
+      ${undefined} | ${{ id: 'OLD' }} | ${'`commitId` is a required argument'}
+      ${'NEW'}     | ${null}          | ${'`state` must already contain a valid `commit`'}
+      ${undefined} | ${null}          | ${'`commitId` is a required argument'}
+    `(
+      'returns a rejected promise with the error message $msg given `{ "commitId": $commitId, "state.commit": $commit }`',
+      ({ commitId, commit, msg }) => {
+        const err = new Error(msg);
+        const actionReturn = testAction(
+          changeCurrentCommit,
+          { commitId },
+          {
+            endpoint: 'URL/OLD',
+            endpointBatch: 'URL/OLD',
+            endpointMetadata: 'URL/OLD',
+            commit,
+          },
+          [],
+          [],
+        );
+
+        return expect(actionReturn).rejects.toStrictEqual(err);
+      },
+    );
+  });
+
+  describe('moveToNeighboringCommit', () => {
+    it.each`
+      direction     | expected         | currentCommit
+      ${'next'}     | ${'NEXTSHA'}     | ${{ next_commit_id: 'NEXTSHA' }}
+      ${'previous'} | ${'PREVIOUSSHA'} | ${{ prev_commit_id: 'PREVIOUSSHA' }}
+    `(
+      'for the direction "$direction", dispatches the action to move to the SHA "$expected"',
+      ({ direction, expected, currentCommit }) => {
+        return testAction(
+          moveToNeighboringCommit,
+          { direction },
+          { commit: currentCommit },
+          [],
+          [{ type: 'changeCurrentCommit', payload: { commitId: expected } }],
+        );
+      },
+    );
+
+    it.each`
+      direction     | diffsAreLoading | currentCommit
+      ${'next'}     | ${false}        | ${{ prev_commit_id: 'PREVIOUSSHA' }}
+      ${'next'}     | ${true}         | ${{ prev_commit_id: 'PREVIOUSSHA' }}
+      ${'next'}     | ${false}        | ${undefined}
+      ${'previous'} | ${false}        | ${{ next_commit_id: 'NEXTSHA' }}
+      ${'previous'} | ${true}         | ${{ next_commit_id: 'NEXTSHA' }}
+      ${'previous'} | ${false}        | ${undefined}
+    `(
+      'given `{ "isloading": $diffsAreLoading, "commit": $currentCommit }` in state, no actions are dispatched',
+      ({ direction, diffsAreLoading, currentCommit }) => {
+        return testAction(
+          moveToNeighboringCommit,
+          { direction },
+          { commit: currentCommit, isLoading: diffsAreLoading },
+          [],
+          [],
+        );
+      },
+    );
   });
 });

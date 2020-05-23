@@ -3,27 +3,34 @@
 require 'spec_helper'
 
 describe API::Runners do
-  let(:admin) { create(:user, :admin) }
-  let(:user) { create(:user) }
-  let(:user2) { create(:user) }
-  let(:group_maintainer) { create(:user) }
+  let_it_be(:admin) { create(:user, :admin) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:user2) { create(:user) }
+  let_it_be(:group_guest) { create(:user) }
+  let_it_be(:group_reporter) { create(:user) }
+  let_it_be(:group_developer) { create(:user) }
+  let_it_be(:group_maintainer) { create(:user) }
 
-  let(:project) { create(:project, creator_id: user.id) }
-  let(:project2) { create(:project, creator_id: user.id) }
+  let_it_be(:project) { create(:project, creator_id: user.id) }
+  let_it_be(:project2) { create(:project, creator_id: user.id) }
 
-  let(:group) { create(:group).tap { |group| group.add_owner(user) } }
+  let_it_be(:group) { create(:group).tap { |group| group.add_owner(user) } }
+  let_it_be(:subgroup) { create(:group, parent: group) }
 
-  let!(:shared_runner) { create(:ci_runner, :instance, description: 'Shared runner') }
-  let!(:project_runner) { create(:ci_runner, :project, description: 'Project runner', projects: [project]) }
-  let!(:two_projects_runner) { create(:ci_runner, :project, description: 'Two projects runner', projects: [project, project2]) }
-  let!(:group_runner) { create(:ci_runner, :group, description: 'Group runner', groups: [group]) }
+  let_it_be(:shared_runner, reload: true) { create(:ci_runner, :instance, description: 'Shared runner') }
+  let_it_be(:project_runner, reload: true) { create(:ci_runner, :project, description: 'Project runner', projects: [project]) }
+  let_it_be(:two_projects_runner) { create(:ci_runner, :project, description: 'Two projects runner', projects: [project, project2]) }
+  let_it_be(:group_runner_a) { create(:ci_runner, :group, description: 'Group runner A', groups: [group]) }
+  let_it_be(:group_runner_b) { create(:ci_runner, :group, description: 'Group runner B', groups: [subgroup]) }
 
-  before do
-    # Set project access for users
-    create(:group_member, :maintainer, user: group_maintainer, group: group)
-    create(:project_member, :maintainer, user: user, project: project)
-    create(:project_member, :maintainer, user: user, project: project2)
-    create(:project_member, :reporter, user: user2, project: project)
+  before_all do
+    group.add_guest(group_guest)
+    group.add_reporter(group_reporter)
+    group.add_developer(group_developer)
+    group.add_maintainer(group_maintainer)
+    project.add_maintainer(user)
+    project2.add_maintainer(user)
+    project.add_reporter(user2)
   end
 
   describe 'GET /runners' do
@@ -41,7 +48,8 @@ describe API::Runners do
         expect(json_response).to match_array [
           a_hash_including('description' => 'Project runner'),
           a_hash_including('description' => 'Two projects runner'),
-          a_hash_including('description' => 'Group runner')
+          a_hash_including('description' => 'Group runner A'),
+          a_hash_including('description' => 'Group runner B')
         ]
       end
 
@@ -131,7 +139,8 @@ describe API::Runners do
           expect(json_response).to match_array [
             a_hash_including('description' => 'Project runner'),
             a_hash_including('description' => 'Two projects runner'),
-            a_hash_including('description' => 'Group runner'),
+            a_hash_including('description' => 'Group runner A'),
+            a_hash_including('description' => 'Group runner B'),
             a_hash_including('description' => 'Shared runner')
           ]
         end
@@ -156,7 +165,8 @@ describe API::Runners do
           expect(json_response).to match_array [
             a_hash_including('description' => 'Project runner'),
             a_hash_including('description' => 'Two projects runner'),
-            a_hash_including('description' => 'Group runner')
+            a_hash_including('description' => 'Group runner A'),
+            a_hash_including('description' => 'Group runner B')
           ]
         end
 
@@ -165,12 +175,21 @@ describe API::Runners do
           expect(response).to have_gitlab_http_status(:bad_request)
         end
 
-        it 'filters runners by type' do
+        it 'filters runners by project type' do
           get api('/runners/all?type=project_type', admin)
 
           expect(json_response).to match_array [
             a_hash_including('description' => 'Project runner'),
             a_hash_including('description' => 'Two projects runner')
+          ]
+        end
+
+        it 'filters runners by group type' do
+          get api('/runners/all?type=group_type', admin)
+
+          expect(json_response).to match_array [
+            a_hash_including('description' => 'Group runner A'),
+            a_hash_including('description' => 'Group runner B')
           ]
         end
 
@@ -305,6 +324,32 @@ describe API::Runners do
         get api("/runners/#{project_runner.id}")
 
         expect(response).to have_gitlab_http_status(:unauthorized)
+      end
+    end
+
+    context 'FF hide_token_from_runners_api is enabled' do
+      before do
+        stub_feature_flags(hide_token_from_runners_api: true)
+      end
+
+      it "does not return runner's token" do
+        get api("/runners/#{shared_runner.id}", admin)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).not_to have_key('token')
+      end
+    end
+
+    context 'FF hide_token_from_runners_api is disabled' do
+      before do
+        stub_feature_flags(hide_token_from_runners_api: false)
+      end
+
+      it "returns runner's token" do
+        get api("/runners/#{shared_runner.id}", admin)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to have_key('token')
       end
     end
   end
@@ -526,15 +571,41 @@ describe API::Runners do
           end.to change { Ci::Runner.project_type.count }.by(-1)
         end
 
-        it 'does not delete group runner with maintainer access' do
-          delete api("/runners/#{group_runner.id}", group_maintainer)
+        it 'does not delete group runner with guest access' do
+          delete api("/runners/#{group_runner_a.id}", group_guest)
 
           expect(response).to have_gitlab_http_status(:forbidden)
         end
 
-        it 'deletes group runner with owner access' do
+        it 'does not delete group runner with reporter access' do
+          delete api("/runners/#{group_runner_a.id}", group_reporter)
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+        end
+
+        it 'does not delete group runner with developer access' do
+          delete api("/runners/#{group_runner_a.id}", group_developer)
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+        end
+
+        it 'does not delete group runner with maintainer access' do
+          delete api("/runners/#{group_runner_a.id}", group_maintainer)
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+        end
+
+        it 'deletes owned group runner with owner access' do
           expect do
-            delete api("/runners/#{group_runner.id}", user)
+            delete api("/runners/#{group_runner_a.id}", user)
+
+            expect(response).to have_gitlab_http_status(:no_content)
+          end.to change { Ci::Runner.group_type.count }.by(-1)
+        end
+
+        it 'deletes inherited group runner with owner access' do
+          expect do
+            delete api("/runners/#{group_runner_b.id}", user)
 
             expect(response).to have_gitlab_http_status(:no_content)
           end.to change { Ci::Runner.group_type.count }.by(-1)
@@ -557,10 +628,10 @@ describe API::Runners do
 
   describe 'GET /runners/:id/jobs' do
     let_it_be(:job_1) { create(:ci_build) }
-    let!(:job_2) { create(:ci_build, :running, runner: shared_runner, project: project) }
-    let!(:job_3) { create(:ci_build, :failed, runner: shared_runner, project: project) }
-    let!(:job_4) { create(:ci_build, :running, runner: project_runner, project: project) }
-    let!(:job_5) { create(:ci_build, :failed, runner: project_runner, project: project) }
+    let_it_be(:job_2) { create(:ci_build, :running, runner: shared_runner, project: project) }
+    let_it_be(:job_3) { create(:ci_build, :failed, runner: shared_runner, project: project) }
+    let_it_be(:job_4) { create(:ci_build, :running, runner: project_runner, project: project) }
+    let_it_be(:job_5) { create(:ci_build, :failed, runner: project_runner, project: project) }
 
     context 'admin user' do
       context 'when runner exists' do
@@ -842,7 +913,7 @@ describe API::Runners do
         get api("/groups/#{group.id}/runners", user)
 
         expect(json_response).to match_array([
-          a_hash_including('description' => 'Group runner')
+          a_hash_including('description' => 'Group runner A')
         ])
       end
 
@@ -851,7 +922,7 @@ describe API::Runners do
           get api("/groups/#{group.id}/runners?type=group_type", user)
 
           expect(json_response).to match_array([
-            a_hash_including('description' => 'Group runner')
+            a_hash_including('description' => 'Group runner A')
           ])
         end
 
@@ -906,7 +977,7 @@ describe API::Runners do
 
   describe 'POST /projects/:id/runners' do
     context 'authorized user' do
-      let(:project_runner2) { create(:ci_runner, :project, projects: [project2]) }
+      let_it_be(:project_runner2) { create(:ci_runner, :project, projects: [project2]) }
 
       it 'enables specific runner' do
         expect do
@@ -939,7 +1010,7 @@ describe API::Runners do
       end
 
       it 'does not enable group runner' do
-        post api("/projects/#{project.id}/runners", user), params: { runner_id: group_runner.id }
+        post api("/projects/#{project.id}/runners", user), params: { runner_id: group_runner_a.id }
 
         expect(response).to have_gitlab_http_status(:forbidden)
       end

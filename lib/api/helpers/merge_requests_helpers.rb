@@ -4,7 +4,6 @@ module API
   module Helpers
     module MergeRequestsHelpers
       extend Grape::API::Helpers
-      include ::API::Helpers::CustomValidators
 
       params :merge_requests_base_params do
         optional :state,
@@ -28,6 +27,7 @@ module API
                  coerce_with: Validations::Types::LabelsList.coerce,
                  desc: 'Comma-separated list of label names'
         optional :with_labels_details, type: Boolean, desc: 'Return titles of labels and other details', default: false
+        optional :with_merge_status_recheck, type: Boolean, desc: 'Request that stale merge statuses be rechecked asynchronously', default: false
         optional :created_after, type: DateTime, desc: 'Return merge requests created after the specified time'
         optional :created_before, type: DateTime, desc: 'Return merge requests created before the specified time'
         optional :updated_after, type: DateTime, desc: 'Return merge requests updated after the specified time'
@@ -36,7 +36,11 @@ module API
                  type: String,
                  values: %w[simple],
                  desc: 'If simple, returns the `iid`, URL, title, description, and basic state of merge request'
+
         optional :author_id, type: Integer, desc: 'Return merge requests which are authored by the user with the given ID'
+        optional :author_username, type: String, desc: 'Return merge requests which are authored by the user with the given username'
+        mutually_exclusive :author_id, :author_username
+
         optional :assignee_id,
                  types: [Integer, String],
                  integer_none_any: true,

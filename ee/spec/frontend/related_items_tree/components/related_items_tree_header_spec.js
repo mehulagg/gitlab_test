@@ -1,13 +1,14 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { GlButton, GlTooltip } from '@gitlab/ui';
+import { GlTooltip, GlIcon } from '@gitlab/ui';
 
 import RelatedItemsTreeHeader from 'ee/related_items_tree/components/related_items_tree_header.vue';
 import createDefaultStore from 'ee/related_items_tree/store';
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
 import { issuableTypesMap } from 'ee/related_issues/constants';
-import EpicActionsSplitButton from 'ee/related_items_tree/components/epic_actions_split_button.vue';
-import Icon from '~/vue_shared/components/icon.vue';
+
+import EpicActionsSplitButton from 'ee/related_items_tree/components/epic_issue_actions_split_button.vue';
+import EpicHealthStatus from 'ee/related_items_tree/components/epic_health_status.vue';
 
 import { mockInitialConfig, mockParentItem, mockQueryResponse } from '../mock_data';
 
@@ -42,8 +43,7 @@ describe('RelatedItemsTree', () => {
   describe('RelatedItemsTreeHeader', () => {
     let wrapper;
 
-    const findAddIssuesButton = () => wrapper.find(GlButton);
-    const findEpicsSplitButton = () => wrapper.find(EpicActionsSplitButton);
+    const findEpicsIssuesSplitButton = () => wrapper.find(EpicActionsSplitButton);
 
     afterEach(() => {
       wrapper.destroy();
@@ -65,7 +65,7 @@ describe('RelatedItemsTree', () => {
       });
     });
 
-    describe('epic actions split button', () => {
+    describe('epic issue actions split button', () => {
       beforeEach(() => {
         wrapper = createComponent();
       });
@@ -83,7 +83,7 @@ describe('RelatedItemsTree', () => {
         });
 
         it('dispatches toggleAddItemForm action', () => {
-          findEpicsSplitButton().vm.$emit('showAddEpicForm');
+          findEpicsIssuesSplitButton().vm.$emit('showAddEpicForm');
 
           expect(toggleAddItemForm).toHaveBeenCalled();
 
@@ -109,7 +109,7 @@ describe('RelatedItemsTree', () => {
         });
 
         it('dispatches toggleCreateEpicForm action', () => {
-          findEpicsSplitButton().vm.$emit('showCreateEpicForm');
+          findEpicsIssuesSplitButton().vm.$emit('showCreateEpicForm');
 
           expect(toggleCreateEpicForm).toHaveBeenCalled();
 
@@ -119,43 +119,57 @@ describe('RelatedItemsTree', () => {
           expect(payload).toEqual({ toggleState: true });
         });
       });
-    });
 
-    describe('add issues button', () => {
-      beforeEach(() => {
-        wrapper = createComponent();
-      });
-
-      describe('click event', () => {
+      describe('showAddIssueForm event', () => {
         let toggleAddItemForm;
         let setItemInputValue;
 
         beforeEach(() => {
-          setItemInputValue = jest.fn();
           toggleAddItemForm = jest.fn();
+          setItemInputValue = jest.fn();
           wrapper.vm.$store.hotUpdate({
             actions: {
-              setItemInputValue,
               toggleAddItemForm,
+              setItemInputValue,
             },
           });
         });
 
-        it('dispatches setItemInputValue and toggleAddItemForm action', () => {
-          findAddIssuesButton().vm.$emit('click');
-
-          expect(setItemInputValue).toHaveBeenCalled();
-
-          expect(setItemInputValue.mock.calls[setItemInputValue.mock.calls.length - 1][1]).toBe('');
+        it('dispatches toggleAddItemForm action', () => {
+          findEpicsIssuesSplitButton().vm.$emit('showAddIssueForm');
 
           expect(toggleAddItemForm).toHaveBeenCalled();
 
-          const payload = toggleAddItemForm.mock.calls[setItemInputValue.mock.calls.length - 1][1];
+          const payload = toggleAddItemForm.mock.calls[0][1];
 
           expect(payload).toEqual({
             issuableType: issuableTypesMap.ISSUE,
             toggleState: true,
           });
+        });
+      });
+
+      describe('showCreateIssueForm event', () => {
+        let toggleCreateIssueForm;
+
+        beforeEach(() => {
+          toggleCreateIssueForm = jest.fn();
+          wrapper.vm.$store.hotUpdate({
+            actions: {
+              toggleCreateIssueForm,
+            },
+          });
+        });
+
+        it('dispatches toggleCreateIssueForm action', () => {
+          findEpicsIssuesSplitButton().vm.$emit('showCreateIssueForm');
+
+          expect(toggleCreateIssueForm).toHaveBeenCalled();
+
+          const payload =
+            toggleCreateIssueForm.mock.calls[toggleCreateIssueForm.mock.calls.length - 1][1];
+
+          expect(payload).toEqual({ toggleState: true });
         });
       });
     });
@@ -171,83 +185,56 @@ describe('RelatedItemsTree', () => {
         expect(badgesContainerEl.isVisible()).toBe(true);
       });
 
-      describe('when sub-epics feature is available', () => {
-        it('renders epics count and icon', () => {
-          const epicsEl = wrapper.findAll('.issue-count-badge > span').at(0);
-          const epicIcon = epicsEl.find(Icon);
+      it('renders epics count and gl-icon', () => {
+        const epicsEl = wrapper.findAll('.issue-count-badge > span').at(0);
+        const epicIcon = epicsEl.find(GlIcon);
 
-          expect(epicsEl.text().trim()).toBe('2');
-          expect(epicIcon.isVisible()).toBe(true);
-          expect(epicIcon.props('name')).toBe('epic');
-        });
-
-        it('renders `Add an epic` dropdown button', () => {
-          expect(findEpicsSplitButton().isVisible()).toBe(true);
-        });
+        expect(epicsEl.text().trim()).toContain('2');
+        expect(epicIcon.isVisible()).toBe(true);
+        expect(epicIcon.props('name')).toBe('epic');
       });
 
-      describe('when sub-epics feature is not available', () => {
+      it('renders `Add` dropdown button', () => {
+        expect(findEpicsIssuesSplitButton().isVisible()).toBe(true);
+      });
+
+      describe('when issuable-health-status feature is not available', () => {
         beforeEach(() => {
           wrapper.vm.$store.commit('SET_INITIAL_CONFIG', {
             ...mockInitialConfig,
-            allowSubEpics: false,
+            allowIssuableHealthStatus: false,
           });
 
           return wrapper.vm.$nextTick();
         });
 
-        it('does not render epics count and icon', () => {
-          const countBadgesEl = wrapper.findAll('.issue-count-badge > span');
-          const badgeIcon = countBadgesEl.at(0).find(Icon);
-
-          expect(countBadgesEl.length).toBe(1);
-          expect(badgeIcon.props('name')).toBe('issues');
-        });
-
-        it('does not render `Add an epic` dropdown button', () => {
-          expect(findEpicsSplitButton().exists()).toBe(false);
+        it('does not render health status', () => {
+          expect(wrapper.find(EpicHealthStatus).exists()).toBe(false);
         });
       });
 
-      it('renders issues count and icon', () => {
-        const issuesEl = wrapper.findAll('.issue-count-badge > span').at(1);
-        const issueIcon = issuesEl.find(Icon);
-
-        expect(issuesEl.text().trim()).toBe('2');
-        expect(issueIcon.isVisible()).toBe(true);
-        expect(issueIcon.props('name')).toBe('issues');
-      });
-
-      it('renders `Add an issue` dropdown button', () => {
-        const addIssueBtn = findAddIssuesButton();
-
-        expect(addIssueBtn.isVisible()).toBe(true);
-        expect(addIssueBtn.text()).toBe('Add an issue');
-      });
-    });
-
-    describe('slots', () => {
-      describe('issueActions', () => {
-        it('defaults to button', () => {
-          wrapper = createComponent();
-
-          expect(findAddIssuesButton().exists()).toBe(true);
-        });
-
-        it('uses provided slot content', () => {
-          const issueActions = {
-            template: '<p>custom content</p>',
-          };
-
-          wrapper = createComponent({
-            slots: {
-              issueActions,
-            },
+      describe('when issuable-health-status feature is available', () => {
+        beforeEach(() => {
+          wrapper.vm.$store.commit('SET_INITIAL_CONFIG', {
+            ...mockInitialConfig,
+            allowIssuableHealthStatus: true,
           });
 
-          expect(findAddIssuesButton().exists()).toBe(false);
-          expect(wrapper.find(issueActions).exists()).toBe(true);
+          return wrapper.vm.$nextTick();
         });
+
+        it('does not render health status', () => {
+          expect(wrapper.find(EpicHealthStatus).exists()).toBe(true);
+        });
+      });
+
+      it('renders issues count and gl-icon', () => {
+        const issuesEl = wrapper.findAll('.issue-count-badge > span').at(1);
+        const issueIcon = issuesEl.find(GlIcon);
+
+        expect(issuesEl.text().trim()).toContain('2');
+        expect(issueIcon.isVisible()).toBe(true);
+        expect(issueIcon.props('name')).toBe('issues');
       });
     });
   });

@@ -1,17 +1,35 @@
-import * as getters from 'ee/packages/list/stores/getters';
+import getList from 'ee/packages/list/stores/getters';
 import { packageList } from '../../mock_data';
 
 describe('Getters registry list store', () => {
-  const state = {
-    packages: packageList,
+  let state;
+
+  const setState = ({ isGroupPage = false } = {}) => {
+    state = {
+      packages: packageList,
+      config: {
+        isGroupPage,
+      },
+    };
   };
+
+  beforeEach(() => setState());
+
+  afterEach(() => {
+    state = null;
+  });
+
   describe('getList', () => {
-    const result = getters.getList(state);
     it('returns a list of packages', () => {
+      const result = getList(state);
+
       expect(result).toHaveLength(packageList.length);
       expect(result[0].name).toBe('Test package');
     });
+
     it('adds projectPathName', () => {
+      const result = getList(state);
+
       expect(result[0].projectPathName).toMatchInlineSnapshot(`"foo / bar / baz"`);
     });
   });

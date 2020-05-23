@@ -3,8 +3,10 @@
 require 'spec_helper'
 
 describe 'Dashboard snippets' do
+  let_it_be(:user) { create(:user) }
+
   context 'when the project has snippets' do
-    let(:project) { create(:project, :public) }
+    let(:project) { create(:project, :public, creator: user) }
     let!(:snippets) { create_list(:project_snippet, 2, :public, author: project.owner, project: project) }
 
     before do
@@ -22,7 +24,7 @@ describe 'Dashboard snippets' do
   end
 
   context 'when there are no project snippets', :js do
-    let(:project) { create(:project, :public) }
+    let(:project) { create(:project, :public, creator: user) }
 
     before do
       sign_in(project.owner)
@@ -33,7 +35,7 @@ describe 'Dashboard snippets' do
       element = page.find('.row.empty-state')
 
       expect(element).to have_content("Code snippets")
-      expect(element.find('.svg-content img')['src']).to have_content('illustrations/snippets_empty')
+      expect(element.find('.svg-content img.js-lazy-loaded')['src']).to have_content('illustrations/snippets_empty')
     end
 
     it 'shows new snippet button in main content area' do
@@ -48,8 +50,7 @@ describe 'Dashboard snippets' do
   end
 
   context 'filtering by visibility' do
-    let(:user) { create(:user) }
-    let!(:snippets) do
+    let_it_be(:snippets) do
       [
         create(:personal_snippet, :public, author: user),
         create(:personal_snippet, :internal, author: user),
@@ -99,7 +100,7 @@ describe 'Dashboard snippets' do
   end
 
   context 'as an external user' do
-    let(:user) { create(:user, :external) }
+    let_it_be(:user) { create(:user, :external) }
 
     before do
       sign_in(user)

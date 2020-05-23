@@ -11,6 +11,16 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
       stub_licensed_features(group_saml: true)
     end
 
+    shared_examples 'success response' do
+      it 'contains a success status' do
+        expect(service.execute.status).to eq(:success)
+      end
+
+      it 'contains an identity in the response' do
+        expect(service.execute.identity).to be_a(Identity).or be_a(ScimIdentity)
+      end
+    end
+
     shared_examples 'scim provisioning' do
       context 'valid params' do
         let_it_be(:service_params) do
@@ -26,9 +36,7 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
           User.find_by(email: service_params[:email])
         end
 
-        it 'succeeds' do
-          expect(service.execute.status).to eq(:success)
-        end
+        it_behaves_like 'success response'
 
         it 'creates the user' do
           expect { service.execute }.to change { User.count }.by(1)
@@ -68,20 +76,6 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
             expect { service.execute }.to change { User.count }.by(1)
           end
         end
-
-        context 'existing user' do
-          before do
-            create(:user, email: 'work@example.com')
-          end
-
-          it 'does not create a new user' do
-            expect { service.execute }.not_to change { User.count }
-          end
-
-          it 'fails with conflict' do
-            expect(service.execute.status).to eq(:conflict)
-          end
-        end
       end
 
       context 'invalid params' do
@@ -96,6 +90,26 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
         it 'fails with error' do
           expect(service.execute.status).to eq(:error)
         end
+
+        it 'fails with missing params' do
+          expect(service.execute.message).to eq("Missing params: [:username]")
+        end
+      end
+    end
+
+    shared_examples 'existing user when scim identities are enabled' do
+      it 'does not create a new user' do
+        expect { service.execute }.not_to change { User.count }
+      end
+
+      it_behaves_like 'success response'
+
+      it 'creates the SCIM identity' do
+        expect { service.execute }.to change { ScimIdentity.count }.by(1)
+      end
+
+      it 'does not create the SAML identity' do
+        expect { service.execute }.not_to change { Identity.count }
       end
     end
 
@@ -105,6 +119,8 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
         create(:saml_provider, group: group)
       end
 
+      it_behaves_like 'scim provisioning'
+
       let_it_be(:service_params) do
         {
           email: 'work@example.com',
@@ -114,18 +130,36 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
         }
       end
 
-      it_behaves_like 'scim provisioning'
-
-      it 'creates the identity' do
+      it 'creates the SAML identity' do
         expect { service.execute }.to change { Identity.count }.by(1)
+      end
+
+      it 'does not create the SCIM identity' do
         expect { service.execute }.not_to change { ScimIdentity.count }
+      end
+
+      context 'existing user' do
+        before do
+          create(:user, email: 'work@example.com')
+        end
+
+        it 'does not create a new user' do
+          expect { service.execute }.not_to change { User.count }
+        end
+
+        it 'fails with conflict' do
+          expect(service.execute.status).to eq(:conflict)
+        end
       end
     end
 
     context 'when scim_identities is enabled' do
       before do
         stub_feature_flags(scim_identities: true)
+        create(:saml_provider, group: group)
       end
+
+      it_behaves_like 'scim provisioning'
 
       let_it_be(:service_params) do
         {
@@ -136,11 +170,39 @@ describe ::EE::Gitlab::Scim::ProvisioningService do
         }
       end
 
-      it_behaves_like 'scim provisioning'
-
-      it 'creates the scim identity' do
+      it 'creates the SCIM identity' do
         expect { service.execute }.to change { ScimIdentity.count }.by(1)
-        expect { service.execute }.not_to change { Identity.count }
+      end
+
+      it 'creates the SAML identity' do
+        expect { service.execute }.to change { Identity.count }.by(1)
+      end
+
+      context 'existing user' do
+        before do
+          create(:email, user: user, email: 'work@example.com')
+        end
+        let(:user) { create(:user) }
+
+        context 'when user is not an existing group member' do
+          it_behaves_like 'existing user when scim identities are enabled'
+
+          it 'creates the group member' do
+            expect { service.execute }.to change { GroupMember.count }.by(1)
+          end
+        end
+
+        context 'when user is an existing group member' do
+          before do
+            group.add_guest(user)
+          end
+
+          it_behaves_like 'existing user when scim identities are enabled'
+
+          it 'does not create the group member' do
+            expect { service.execute }.not_to change { GroupMember.count }
+          end
+        end
       end
     end
   end

@@ -14,11 +14,11 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
   end
 
   def group_epic_path
-    url_builder.group_epic_path(epic.group, epic)
+    url_builder.build(epic, only_path: true)
   end
 
   def group_epic_url
-    url_builder.group_epic_url(epic.group, epic)
+    url_builder.build(epic)
   end
 
   def group_epic_link_path
@@ -78,8 +78,7 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
       labels_path: group_labels_path(group, format: :json, only_group_labels: true, include_ancestor_groups: true),
       toggle_subscription_path: toggle_subscription_group_epic_path(group, epic),
       labels_web_url: group_labels_path(group),
-      epics_web_url: group_epics_path(group),
-      scoped_labels_documentation_link: help_page_path('user/project/labels.md', anchor: 'scoped-labels-premium')
+      epics_web_url: group_epics_path(group)
     }
 
     paths[:todo_delete_path] = dashboard_todo_path(epic_pending_todo) if epic_pending_todo.present?
@@ -130,7 +129,8 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
       name: epic.author.name,
       url: user_path(epic.author),
       username: "@#{epic.author.username}",
-      src: author_icon
+      src: author_icon,
+      is_gitlab_employee: epic.author.gitlab_employee?
     }
   end
 
@@ -145,10 +145,5 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
         human_readable_timestamp: remaining_days_in_words(epic.end_date, epic.start_date)
       }
     end
-  end
-
-  # important for using routing helpers in GraphQL
-  def url_builder
-    @url_builder ||= Gitlab::UrlBuilder.new(epic)
   end
 end

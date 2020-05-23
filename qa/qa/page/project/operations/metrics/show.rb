@@ -11,12 +11,25 @@ module QA
 
             view 'app/assets/javascripts/monitoring/components/dashboard.vue' do
               element :prometheus_graphs
+              element :dashboards_filter_dropdown
+              element :environments_dropdown
+              element :edit_dashboard_button
+              element :range_picker_dropdown
             end
 
-            view 'app/assets/javascripts/monitoring/components/panel_type.vue' do
+            view 'app/assets/javascripts/monitoring/components/duplicate_dashboard_form.vue' do
+              element :duplicate_dashboard_filename_field
+            end
+
+            view 'app/assets/javascripts/monitoring/components/dashboard_panel.vue' do
               element :prometheus_graph_widgets
               element :prometheus_widgets_dropdown
               element :alert_widget_menu_item
+              element :generate_chart_link_menu_item
+            end
+
+            view 'app/assets/javascripts/vue_shared/components/date_time_picker/date_time_picker.vue' do
+              element :quick_range_item
             end
 
             def wait_for_metrics
@@ -32,6 +45,44 @@ module QA
             def has_metrics?
               within_element :prometheus_graphs do
                 has_text?(EXPECTED_TITLE)
+              end
+            end
+
+            def has_edit_dashboard_enabled?
+              within_element :prometheus_graphs do
+                has_element? :edit_dashboard_button
+              end
+            end
+
+            def duplicate_dashboard(save_as = 'test_duplication.yml', commit_option = 'Commit to master branch')
+              click_element :dashboards_filter_dropdown
+              click_on 'Duplicate dashboard'
+              fill_element :duplicate_dashboard_filename_field, save_as
+              choose commit_option
+              within('.modal-content') { click_button(class: 'btn-success') }
+            end
+
+            def filter_environment(environment = 'production')
+              click_element :environments_dropdown
+
+              within_element :environments_dropdown do
+                click_link_with_text environment
+              end
+            end
+
+            def show_last(range = '8 hours')
+              all_elements(:range_picker_dropdown, minimum: 1).first.click
+              click_element :quick_range_item, text: range
+            end
+
+            def copy_link_to_first_chart
+              all_elements(:prometheus_widgets_dropdown, minimum: 1).first.click
+              find_element(:generate_chart_link_menu_item)['data-clipboard-text']
+            end
+
+            def has_custom_metric?(metric)
+              within_element :prometheus_graphs do
+                has_text?(metric)
               end
             end
 

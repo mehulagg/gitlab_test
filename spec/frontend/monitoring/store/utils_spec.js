@@ -2,9 +2,12 @@ import { SUPPORTED_FORMATS } from '~/lib/utils/unit_format';
 import {
   uniqMetricsId,
   parseEnvironmentsResponse,
+  parseAnnotationsResponse,
   removeLeadingSlash,
   mapToDashboardViewModel,
 } from '~/monitoring/stores/utils';
+import { annotationsData } from '../mock_data';
+import { NOT_IN_DB_PREFIX } from '~/monitoring/constants';
 
 const projectPath = 'gitlab-org/gitlab-test';
 
@@ -24,6 +27,7 @@ describe('mapToDashboardViewModel', () => {
           group: 'Group 1',
           panels: [
             {
+              id: 'ID_ABC',
               title: 'Title A',
               xLabel: '',
               xAxis: {
@@ -46,6 +50,7 @@ describe('mapToDashboardViewModel', () => {
           key: 'group-1-0',
           panels: [
             {
+              id: 'ID_ABC',
               title: 'Title A',
               type: 'chart-type',
               xLabel: '',
@@ -55,7 +60,7 @@ describe('mapToDashboardViewModel', () => {
               y_label: 'Y Label A',
               yAxis: {
                 name: 'Y Label A',
-                format: 'number',
+                format: 'engineering',
                 precision: 2,
               },
               metrics: [],
@@ -124,11 +129,13 @@ describe('mapToDashboardViewModel', () => {
 
     it('panel with x_label', () => {
       setupWithPanel({
+        id: 'ID_123',
         title: panelTitle,
         x_label: 'x label',
       });
 
       expect(getMappedPanel()).toEqual({
+        id: 'ID_123',
         title: panelTitle,
         xLabel: 'x label',
         xAxis: {
@@ -137,7 +144,7 @@ describe('mapToDashboardViewModel', () => {
         y_label: '',
         yAxis: {
           name: '',
-          format: SUPPORTED_FORMATS.number,
+          format: SUPPORTED_FORMATS.engineering,
           precision: 2,
         },
         metrics: [],
@@ -146,10 +153,12 @@ describe('mapToDashboardViewModel', () => {
 
     it('group y_axis defaults', () => {
       setupWithPanel({
+        id: 'ID_456',
         title: panelTitle,
       });
 
       expect(getMappedPanel()).toEqual({
+        id: 'ID_456',
         title: panelTitle,
         xLabel: '',
         y_label: '',
@@ -158,7 +167,7 @@ describe('mapToDashboardViewModel', () => {
         },
         yAxis: {
           name: '',
-          format: SUPPORTED_FORMATS.number,
+          format: SUPPORTED_FORMATS.engineering,
           precision: 2,
         },
         metrics: [],
@@ -218,7 +227,16 @@ describe('mapToDashboardViewModel', () => {
         },
       });
 
-      expect(getMappedPanel().yAxis.format).toBe(SUPPORTED_FORMATS.number);
+      expect(getMappedPanel().yAxis.format).toBe(SUPPORTED_FORMATS.engineering);
+    });
+
+    // This property allows single_stat panels to render percentile values
+    it('group maxValue', () => {
+      setupWithPanel({
+        max_value: 100,
+      });
+
+      expect(getMappedPanel().maxValue).toBe(100);
     });
   });
 
@@ -242,11 +260,14 @@ describe('mapToDashboardViewModel', () => {
     };
 
     it('creates a metric', () => {
-      const dashboard = dashboardWithMetric({});
+      const dashboard = dashboardWithMetric({ label: 'Panel Label' });
 
       expect(getMappedMetric(dashboard)).toEqual({
         label: expect.any(String),
         metricId: expect.any(String),
+        loading: false,
+        result: null,
+        state: null,
       });
     });
 
@@ -259,11 +280,11 @@ describe('mapToDashboardViewModel', () => {
       expect(getMappedMetric(dashboard).metricId).toEqual('1_http_responses');
     });
 
-    it('creates a metric with a default label', () => {
+    it('creates a metric without a default label', () => {
       const dashboard = dashboardWithMetric({});
 
       expect(getMappedMetric(dashboard)).toMatchObject({
-        label: defaultLabel,
+        label: undefined,
       });
     });
 
@@ -298,7 +319,7 @@ describe('mapToDashboardViewModel', () => {
 
 describe('uniqMetricsId', () => {
   [
-    { input: { id: 1 }, expected: 'undefined_1' },
+    { input: { id: 1 }, expected: `${NOT_IN_DB_PREFIX}_1` },
     { input: { metric_id: 2 }, expected: '2_undefined' },
     { input: { metric_id: 2, id: 21 }, expected: '2_21' },
     { input: { metric_id: 22, id: 1 }, expected: '22_1' },
@@ -360,6 +381,27 @@ describe('parseEnvironmentsResponse', () => {
     )}`, () => {
       expect(parseEnvironmentsResponse(input, projectPath)).toEqual(output);
     });
+  });
+});
+
+describe('parseAnnotationsResponse', () => {
+  const parsedAnnotationResponse = [
+    {
+      description: 'This is a test annotation',
+      endingAt: null,
+      id: 'gid://gitlab/Metrics::Dashboard::Annotation/1',
+      panelId: null,
+      startingAt: new Date('2020-04-12T12:51:53.000Z'),
+    },
+  ];
+  it.each`
+    case                                               | input                   | expected
+    ${'Returns empty array for null input'}            | ${null}                 | ${[]}
+    ${'Returns empty array for undefined input'}       | ${undefined}            | ${[]}
+    ${'Returns empty array for empty input'}           | ${[]}                   | ${[]}
+    ${'Returns parsed responses for annotations data'} | ${[annotationsData[0]]} | ${parsedAnnotationResponse}
+  `('$case', ({ input, expected }) => {
+    expect(parseAnnotationsResponse(input)).toEqual(expected);
   });
 });
 

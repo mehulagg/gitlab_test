@@ -157,6 +157,14 @@ describe Projects::Settings::CiCdController do
 
             subject
           end
+
+          it 'creates a pipeline', :sidekiq_inline do
+            project.repository.create_file(user, 'Gemfile', 'Gemfile contents',
+                                           message: 'Add Gemfile',
+                                           branch_name: 'master')
+
+            expect { subject }.to change { Ci::Pipeline.count }.by(1)
+          end
         end
       end
 
@@ -237,22 +245,25 @@ describe Projects::Settings::CiCdController do
         context 'and user is an admin' do
           let(:user) { create(:admin)  }
 
-          it 'sets max_artifacts_size' do
-            subject
+          context 'with admin mode disabled' do
+            it 'does not set max_artifacts_size' do
+              subject
 
-            project.reload
-            expect(project.max_artifacts_size).to eq(10)
+              project.reload
+              expect(project.max_artifacts_size).to be_nil
+            end
+          end
+
+          context 'with admin mode enabled', :enable_admin_mode do
+            it 'sets max_artifacts_size' do
+              subject
+
+              project.reload
+              expect(project.max_artifacts_size).to eq(10)
+            end
           end
         end
       end
-    end
-  end
-
-  describe 'POST create_deploy_token' do
-    it_behaves_like 'a created deploy token' do
-      let(:entity) { project }
-      let(:create_entity_params) { { namespace_id: project.namespace, project_id: project } }
-      let(:deploy_token_type) { DeployToken.deploy_token_types[:project_type] }
     end
   end
 end

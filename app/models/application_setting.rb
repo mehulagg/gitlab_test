@@ -14,6 +14,7 @@ class ApplicationSetting < ApplicationRecord
   add_authentication_token_field :static_objects_external_storage_auth_token
 
   belongs_to :self_monitoring_project, class_name: "Project", foreign_key: 'instance_administration_project_id'
+  belongs_to :push_rule
   alias_attribute :self_monitoring_project_id, :instance_administration_project_id
 
   belongs_to :instance_administrators_group, class_name: "Group"
@@ -142,6 +143,9 @@ class ApplicationSetting < ApplicationRecord
 
   validates :default_artifacts_expire_in, presence: true, duration: true
 
+  validates :container_expiration_policies_enable_historic_entries,
+            inclusion: { in: [true, false], message: 'must be a boolean value' }
+
   validates :container_registry_token_expire_delay,
             presence: true,
             numericality: { only_integer: true, greater_than: 0 }
@@ -259,6 +263,8 @@ class ApplicationSetting < ApplicationRecord
 
   validates :email_restrictions, untrusted_regexp: true
 
+  validates :hashed_storage_enabled, inclusion: { in: [true], message: _("Hashed storage can't be disabled anymore for new projects") }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end
@@ -294,6 +300,13 @@ class ApplicationSetting < ApplicationRecord
   validates :external_authorization_service_timeout,
             numericality: { greater_than: 0, less_than_or_equal_to: 10 },
             if: :external_authorization_service_enabled
+
+  validates :spam_check_endpoint_url,
+            addressable_url: true, allow_blank: true
+
+  validates :spam_check_endpoint_url,
+            presence: true,
+            if: :spam_check_endpoint_enabled
 
   validates :external_auth_client_key,
             presence: true,
@@ -339,6 +352,12 @@ class ApplicationSetting < ApplicationRecord
 
   validates :namespace_storage_size_limit,
             presence: true,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validates :issues_create_limit,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validates :raw_blob_request_limit,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   attr_encrypted :asset_proxy_secret_key,
@@ -408,7 +427,7 @@ class ApplicationSetting < ApplicationRecord
   # can cause a significant amount of load on Redis, let's cache it in
   # memory.
   def self.cache_backend
-    Gitlab::ThreadMemoryCache.cache_backend
+    Gitlab::ProcessMemoryCache.cache_backend
   end
 
   def recaptcha_or_login_protection_enabled

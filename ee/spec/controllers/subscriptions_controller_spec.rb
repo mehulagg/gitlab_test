@@ -8,61 +8,26 @@ describe SubscriptionsController do
   describe 'GET #new' do
     subject { get :new, params: { plan_id: 'bronze_id' } }
 
-    context 'with experiment enabled' do
-      before do
-        stub_experiment(paid_signup_flow: true)
-        stub_experiment_for_user(paid_signup_flow: true)
-      end
+    context 'with unauthenticated user' do
+      it { is_expected.to have_gitlab_http_status(:redirect) }
+      it { is_expected.to redirect_to new_user_registration_path(redirect_from: 'checkout') }
 
-      context 'with unauthenticated user' do
-        it { is_expected.to have_gitlab_http_status(:redirect) }
-        it { is_expected.to redirect_to new_user_registration_path(redirect_from: 'checkout') }
+      it 'stores subscription URL for later' do
+        subject
 
-        it 'stores subscription URL for later' do
-          subject
+        expected_subscription_path = new_subscriptions_path(plan_id: 'bronze_id')
 
-          expected_subscription_path = new_subscriptions_path(experiment_started: true, plan_id: 'bronze_id')
-
-          expect(controller.stored_location_for(:user)).to eq(expected_subscription_path)
-        end
-
-        it 'tracks the event when experiment starts' do
-          expect(Gitlab::Tracking).to receive(:event).with('Growth::Acquisition::Experiment::PaidSignUpFlow', 'start_experiment', label: nil, value: nil)
-
-          subject
-        end
-
-        it 'does not track event when user got redirected to the subscription page again' do
-          get :new, params: { plan_id: 'bronze_id', experiment_started: 'true' }
-
-          expect(Gitlab::Tracking).not_to receive(:event).with('Growth::Acquisition::Experiment::PaidSignUpFlow', 'start_experiment', label: nil, value: nil)
-        end
-      end
-
-      context 'with authenticated user' do
-        before do
-          sign_in(user)
-        end
-
-        it { is_expected.to render_template 'layouts/checkout' }
-        it { is_expected.to render_template :new }
-
-        it 'tracks the event with the right parameters' do
-          expect(Gitlab::Tracking).to receive(:event).with('Growth::Acquisition::Experiment::PaidSignUpFlow', 'start_experiment', label: nil, value: nil)
-          expect(Gitlab::Tracking).to receive(:event).with('Growth::Acquisition::Experiment::PaidSignUpFlow', 'start', label: nil, value: nil)
-
-          subject
-        end
+        expect(controller.stored_location_for(:user)).to eq(expected_subscription_path)
       end
     end
 
-    context 'with experiment disabled' do
+    context 'with authenticated user' do
       before do
-        stub_experiment(paid_signup_flow: false)
-        stub_experiment_for_user(paid_signup_flow: false)
+        sign_in(user)
       end
 
-      it { is_expected.to redirect_to "#{EE::SUBSCRIPTIONS_URL}/subscriptions/new?plan_id=bronze_id&transaction=create_subscription" }
+      it { is_expected.to render_template 'layouts/checkout' }
+      it { is_expected.to render_template :new }
     end
   end
 
@@ -149,17 +114,6 @@ describe SubscriptionsController do
         it 'updates the setup_for_company attribute of the current user' do
           expect { subject }.to change { user.reload.setup_for_company }.from(nil).to(true)
         end
-
-        it 'tracks the event with the right parameters' do
-          expect(Gitlab::Tracking).to receive(:event).with(
-            'Growth::Acquisition::Experiment::PaidSignUpFlow',
-            'end',
-            label: 'x',
-            value: 2
-          )
-
-          subject
-        end
       end
 
       context 'when not setting up for a company' do
@@ -176,17 +130,6 @@ describe SubscriptionsController do
         it 'does not update the setup_for_company attribute of the current user' do
           expect { subject }.not_to change { user.reload.setup_for_company }
         end
-
-        it 'tracks the event with the right parameters' do
-          expect(Gitlab::Tracking).to receive(:event).with(
-            'Growth::Acquisition::Experiment::PaidSignUpFlow',
-            'end',
-            label: 'x',
-            value: 1
-          )
-
-          subject
-        end
       end
 
       it 'creates a group' do
@@ -202,7 +145,18 @@ describe SubscriptionsController do
           group.save
           subject
 
-          expect(response.body).to include({ name: ["can't be blank", Gitlab::Regex.group_name_regex_message] }.to_json)
+          expect(response.body).to include({ name: ["can't be blank"] }.to_json)
+        end
+
+        context 'when invalid name is passed' do
+          let(:group) { Group.new(path: 'foo', name: '<script>alert("attack")</script>') }
+
+          it 'returns the errors in json format' do
+            group.save
+            subject
+
+            expect(response.body).to include({ name: [Gitlab::Regex.group_name_regex_message] }.to_json)
+          end
         end
       end
 
@@ -212,13 +166,7 @@ describe SubscriptionsController do
         it 'returns the group edit location in JSON format' do
           subject
 
-          expected_response = {
-            location: "/-/subscriptions/groups/#{group.path}/edit?plan_id=x&quantity=2",
-            plan_id: 'x',
-            quantity: 2
-          }
-
-          expect(response.body).to eq(expected_response.to_json)
+          expect(response.body).to eq({ location: "/-/subscriptions/groups/#{group.path}/edit?plan_id=x&quantity=2" }.to_json)
         end
       end
 
@@ -255,20 +203,14 @@ describe SubscriptionsController do
         it 'returns the selected group location in JSON format' do
           subject
 
-          expected_response = {
-            location: "/#{selected_group.path}",
-            plan_id: 'x',
-            quantity: 1
-          }
-
-          expect(response.body).to eq(expected_response.to_json)
+          expect(response.body).to eq({ location: "/#{selected_group.path}" }.to_json)
         end
       end
 
       context 'when selecting a non existing group' do
         let(:params) do
           {
-            selected_group: 999,
+            selected_group: non_existing_record_id,
             customer: { country: 'NL' },
             subscription: { plan_id: 'x', quantity: 1 }
           }

@@ -4,7 +4,7 @@ type: reference, concepts
 
 # Instance-level merge request approval rules **(PREMIUM ONLY)**
 
-> Introduced in [GitLab Premium](https://gitlab.com/gitlab-org/gitlab/issues/39060) 12.8.
+> Introduced in [GitLab Premium](https://gitlab.com/gitlab-org/gitlab/-/issues/39060) 12.8.
 
 Merge request approvals rules prevent users overriding certain settings on a project
 level. When configured, only administrators can change these settings on a project level
@@ -23,11 +23,11 @@ GitLab administrators can later override these settings in a project’s setting
 
 Merge request approval rules that can be set at an instance level are:
 
-- **Prevent approval of merge requests by merge request author**. Prevents non-admins
-  from allowing merge request authors to merge their own merge requests in individual
-  projects.
-- **Prevent approval of merge requests by merge request committers**. Prevents
-  non-admins from allowing merge request committers to merge merge requests they were
-  committing to in individual projects.
-- **Prevent users from modifying merge request approvers list**. Prevents non-admins
-  from modifying approvers list in project settings and in individual merge requests.
+- **Prevent approval of merge requests by merge request author**. Prevents project
+  maintainers from allowing request authors to merge their own merge requests.
+- **Prevent approval of merge requests by merge request committers**. Prevents project
+  maintainers from allowing users to approve merge requests if they have submitted
+  any commits to the source branch.
+- **Prevent users from modifying merge request approvers list**. Prevents project
+  maintainers from allowing users to modify the approvers list in project settings
+  or in individual merge requests.

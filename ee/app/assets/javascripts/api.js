@@ -13,25 +13,31 @@ export default {
   groupPackagesPath: '/api/:version/groups/:id/packages',
   projectPackagesPath: '/api/:version/projects/:id/packages',
   projectPackagePath: '/api/:version/projects/:id/packages/:package_id',
-  cycleAnalyticsTasksByTypePath: '/-/analytics/type_of_work/tasks_by_type',
-  cycleAnalyticsTopLabelsPath: '/-/analytics/type_of_work/tasks_by_type/top_labels',
-  cycleAnalyticsSummaryDataPath: '/-/analytics/value_stream_analytics/summary',
-  cycleAnalyticsGroupStagesAndEventsPath: '/-/analytics/value_stream_analytics/stages',
-  cycleAnalyticsStageEventsPath: '/-/analytics/value_stream_analytics/stages/:stage_id/records',
-  cycleAnalyticsStageMedianPath: '/-/analytics/value_stream_analytics/stages/:stage_id/median',
-  cycleAnalyticsStagePath: '/-/analytics/value_stream_analytics/stages/:stage_id',
+  cycleAnalyticsTasksByTypePath: '/groups/:id/-/analytics/type_of_work/tasks_by_type',
+  cycleAnalyticsTopLabelsPath: '/groups/:id/-/analytics/type_of_work/tasks_by_type/top_labels',
+  cycleAnalyticsSummaryDataPath: '/groups/:id/-/analytics/value_stream_analytics/summary',
+  cycleAnalyticsTimeSummaryDataPath: '/groups/:id/-/analytics/value_stream_analytics/time_summary',
+  cycleAnalyticsGroupStagesAndEventsPath: '/groups/:id/-/analytics/value_stream_analytics/stages',
+  cycleAnalyticsStageEventsPath:
+    '/groups/:id/-/analytics/value_stream_analytics/stages/:stage_id/records',
+  cycleAnalyticsStageMedianPath:
+    '/groups/:id/-/analytics/value_stream_analytics/stages/:stage_id/median',
+  cycleAnalyticsStagePath: '/groups/:id/-/analytics/value_stream_analytics/stages/:stage_id',
   cycleAnalyticsDurationChartPath:
-    '/-/analytics/value_stream_analytics/stages/:stage_id/duration_chart',
-  cycleAnalyticsGroupLabelsPath: '/api/:version/groups/:namespace_path/labels',
+    '/groups/:id/-/analytics/value_stream_analytics/stages/:stage_id/duration_chart',
+  cycleAnalyticsGroupLabelsPath: '/groups/:namespace_path/-/labels.json',
   codeReviewAnalyticsPath: '/api/:version/analytics/code_review',
   groupActivityIssuesPath: '/api/:version/analytics/group_activity/issues_count',
   groupActivityMergeRequestsPath: '/api/:version/analytics/group_activity/merge_requests_count',
+  groupActivityNewMembersPath: '/api/:version/analytics/group_activity/new_members_count',
   countriesPath: '/-/countries',
   countryStatesPath: '/-/country_states',
   paymentFormPath: '/-/subscriptions/payment_form',
   paymentMethodPath: '/-/subscriptions/payment_method',
   confirmOrderPath: '/-/subscriptions',
   vulnerabilitiesActionPath: '/api/:version/vulnerabilities/:id/:action',
+  featureFlagUserLists: '/api/:version/projects/:id/feature_flags_user_lists',
+  featureFlagUserList: '/api/:version/projects/:id/feature_flags_user_lists/:list_iid',
 
   userSubscription(namespaceId) {
     const url = Api.buildUrl(this.subscriptionPath).replace(':id', encodeURIComponent(namespaceId));
@@ -131,76 +137,87 @@ export default {
     return axios.delete(url);
   },
 
-  cycleAnalyticsTasksByType(params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsTasksByTypePath);
+  cycleAnalyticsTasksByType(groupId, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsTasksByTypePath).replace(':id', groupId);
+
     return axios.get(url, { params });
   },
 
-  cycleAnalyticsTopLabels(params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsTopLabelsPath);
+  cycleAnalyticsTopLabels(groupId, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsTopLabelsPath).replace(':id', groupId);
+
     return axios.get(url, { params });
   },
 
-  cycleAnalyticsSummaryData(params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsSummaryDataPath);
+  cycleAnalyticsSummaryData(groupId, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsSummaryDataPath).replace(':id', groupId);
+
+    return axios.get(url, { params });
+  },
+
+  cycleAnalyticsTimeSummaryData(groupId, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsTimeSummaryDataPath).replace(':id', groupId);
+
     return axios.get(url, { params });
   },
 
   cycleAnalyticsGroupStagesAndEvents(groupId, params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsGroupStagesAndEventsPath);
+    const url = Api.buildUrl(this.cycleAnalyticsGroupStagesAndEventsPath).replace(':id', groupId);
 
-    return axios.get(url, {
-      params: { group_id: groupId, ...params },
-    });
+    return axios.get(url, { params });
   },
 
   cycleAnalyticsStageEvents(groupId, stageId, params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsStageEventsPath).replace(':stage_id', stageId);
-    return axios.get(url, { params: { ...params, group_id: groupId } });
+    const url = Api.buildUrl(this.cycleAnalyticsStageEventsPath)
+      .replace(':id', groupId)
+      .replace(':stage_id', stageId);
+
+    return axios.get(url, { params });
   },
 
   cycleAnalyticsStageMedian(groupId, stageId, params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsStageMedianPath).replace(':stage_id', stageId);
-    return axios.get(url, { params: { ...params, group_id: groupId } });
+    const url = Api.buildUrl(this.cycleAnalyticsStageMedianPath)
+      .replace(':id', groupId)
+      .replace(':stage_id', stageId);
+
+    return axios.get(url, { params: { ...params } });
   },
 
   cycleAnalyticsCreateStage(groupId, data) {
-    const url = Api.buildUrl(this.cycleAnalyticsGroupStagesAndEventsPath);
+    const url = Api.buildUrl(this.cycleAnalyticsGroupStagesAndEventsPath).replace(':id', groupId);
 
-    return axios.post(url, data, {
-      params: { group_id: groupId },
-    });
+    return axios.post(url, data);
   },
 
-  cycleAnalyticsStageUrl(stageId) {
-    return Api.buildUrl(this.cycleAnalyticsStagePath).replace(':stage_id', stageId);
+  cycleAnalyticsStageUrl(stageId, groupId) {
+    return Api.buildUrl(this.cycleAnalyticsStagePath)
+      .replace(':id', groupId)
+      .replace(':stage_id', stageId);
   },
 
   cycleAnalyticsUpdateStage(stageId, groupId, data) {
-    const url = this.cycleAnalyticsStageUrl(stageId);
+    const url = this.cycleAnalyticsStageUrl(stageId, groupId);
 
-    return axios.put(url, data, {
-      params: { group_id: groupId },
-    });
+    return axios.put(url, data);
   },
 
   cycleAnalyticsRemoveStage(stageId, groupId) {
-    const url = this.cycleAnalyticsStageUrl(stageId);
+    const url = this.cycleAnalyticsStageUrl(stageId, groupId);
 
-    return axios.delete(url, {
-      params: { group_id: groupId },
-    });
+    return axios.delete(url);
   },
 
-  cycleAnalyticsDurationChart(stageSlug, params = {}) {
-    const url = Api.buildUrl(this.cycleAnalyticsDurationChartPath).replace(':stage_id', stageSlug);
+  cycleAnalyticsDurationChart(groupId, stageSlug, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsDurationChartPath)
+      .replace(':id', groupId)
+      .replace(':stage_id', stageSlug);
 
     return axios.get(url, {
       params,
     });
   },
 
-  cycleAnalyticsGroupLabels(groupId, params = {}) {
+  cycleAnalyticsGroupLabels(groupId, params = { search: null }) {
     // TODO: This can be removed when we resolve the labels endpoint
     // https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25746
     const url = Api.buildUrl(this.cycleAnalyticsGroupLabelsPath).replace(
@@ -225,6 +242,11 @@ export default {
 
   groupActivityIssuesCount(groupPath) {
     const url = Api.buildUrl(this.groupActivityIssuesPath);
+    return axios.get(url, { params: { group_path: groupPath } });
+  },
+
+  groupActivityNewMembersCount(groupPath) {
+    const url = Api.buildUrl(this.groupActivityNewMembersPath);
     return axios.get(url, { params: { group_path: groupPath } });
   },
 
@@ -284,5 +306,48 @@ export default {
   updateGeoNode(node) {
     const url = Api.buildUrl(this.geoNodesPath);
     return axios.put(`${url}/${node.id}`, node);
+  },
+
+  fetchFeatureFlagUserLists(version, id) {
+    const url = Api.buildUrl(this.featureFlagUserLists)
+      .replace(':version', version)
+      .replace(':id', id);
+
+    return axios.get(url);
+  },
+
+  createFeatureFlagUserList(version, id, list) {
+    const url = Api.buildUrl(this.featureFlagUserLists)
+      .replace(':version', version)
+      .replace(':id', id);
+
+    return axios.post(url, list);
+  },
+
+  fetchFeatureFlagUserList(version, id, listIid) {
+    const url = Api.buildUrl(this.featureFlagUserList)
+      .replace(':version', version)
+      .replace(':id', id)
+      .replace(':list_iid', listIid);
+
+    return axios.get(url);
+  },
+
+  updateFeatureFlagUserList(version, id, list) {
+    const url = Api.buildUrl(this.featureFlagUserList)
+      .replace(':version', version)
+      .replace(':id', id)
+      .replace(':list_iid', list.iid);
+
+    return axios.put(url, list);
+  },
+
+  deleteFeatureFlagUserList(version, id, listIid) {
+    const url = Api.buildUrl(this.featureFlagUserList)
+      .replace(':version', version)
+      .replace(':id', id)
+      .replace(':list_iid', listIid);
+
+    return axios.delete(url);
   },
 };

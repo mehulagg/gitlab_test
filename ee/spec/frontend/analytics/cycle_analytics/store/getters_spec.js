@@ -2,12 +2,11 @@ import * as getters from 'ee/analytics/cycle_analytics/store/getters';
 import {
   startDate,
   endDate,
-  transformedDurationData,
-  transformedDurationMedianData,
-  durationChartPlottableData,
-  durationChartPlottableMedianData,
   allowedStages,
   selectedProjects,
+  transformedStagePathData,
+  issueStage,
+  stageMedians,
 } from '../mock_data';
 
 let state = null;
@@ -98,54 +97,6 @@ describe('Cycle analytics getters', () => {
     });
   });
 
-  describe('durationChartPlottableData', () => {
-    it('returns plottable data for selected stages', () => {
-      const stateWithDurationData = {
-        startDate,
-        endDate,
-        durationData: transformedDurationData,
-      };
-
-      expect(getters.durationChartPlottableData(stateWithDurationData)).toEqual(
-        durationChartPlottableData,
-      );
-    });
-
-    it('returns null if there is no plottable data for the selected stages', () => {
-      const stateWithDurationData = {
-        startDate,
-        endDate,
-        durationData: [],
-      };
-
-      expect(getters.durationChartPlottableData(stateWithDurationData)).toBeNull();
-    });
-  });
-
-  describe('durationChartPlottableMedianData', () => {
-    it('returns plottable median data for selected stages', () => {
-      const stateWithDurationMedianData = {
-        startDate,
-        endDate,
-        durationMedianData: transformedDurationMedianData,
-      };
-
-      expect(getters.durationChartMedianData(stateWithDurationMedianData)).toEqual(
-        durationChartPlottableMedianData,
-      );
-    });
-
-    it('returns an empty array if there is no plottable median data for the selected stages', () => {
-      const stateWithDurationMedianData = {
-        startDate,
-        endDate,
-        durationMedianData: [],
-      };
-
-      expect(getters.durationChartMedianData(stateWithDurationMedianData)).toEqual([]);
-    });
-  });
-
   const hiddenStage = { ...allowedStages[2], hidden: true };
   const givenStages = [allowedStages[0], allowedStages[1], hiddenStage];
   describe.each`
@@ -197,6 +148,34 @@ describe('Cycle analytics getters', () => {
         state.stages = [{ id: 'one' }, { id: 'two' }];
         expect(getters.enableCustomOrdering(state)).toEqual(false);
       });
+    });
+  });
+
+  describe.each`
+    isEditingCustomStage | isCreatingCustomStage | result
+    ${true}              | ${true}               | ${true}
+    ${true}              | ${false}              | ${true}
+    ${false}             | ${true}               | ${true}
+    ${null}              | ${true}               | ${true}
+    ${true}              | ${null}               | ${true}
+    ${null}              | ${null}               | ${false}
+    ${false}             | ${false}              | ${false}
+  `('customStageFormActive', ({ isEditingCustomStage, isCreatingCustomStage, result }) => {
+    it(`returns ${result} when isEditingCustomStage=${isEditingCustomStage} and isCreatingCustomStage=${isCreatingCustomStage}`, () => {
+      const resp = getters.customStageFormActive({ isCreatingCustomStage, isEditingCustomStage });
+      expect(resp).toEqual(result);
+    });
+  });
+
+  describe('pathNavigationData', () => {
+    it('returns the transformed data', () => {
+      state = {
+        stages: allowedStages,
+        medians: stageMedians,
+        selectedStage: issueStage,
+      };
+
+      expect(getters.pathNavigationData(state)).toEqual(transformedStagePathData);
     });
   });
 });

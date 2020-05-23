@@ -2,40 +2,52 @@
 import { mapState, mapActions } from 'vuex';
 import {
   GlEmptyState,
-  GlPagination,
   GlTooltipDirective,
-  GlButton,
-  GlIcon,
   GlModal,
   GlSprintf,
   GlLink,
+  GlAlert,
   GlSkeletonLoader,
+  GlSearchBoxByClick,
 } from '@gitlab/ui';
 import Tracking from '~/tracking';
-import { s__ } from '~/locale';
-import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
+
 import ProjectEmptyState from '../components/project_empty_state.vue';
 import GroupEmptyState from '../components/group_empty_state.vue';
 import ProjectPolicyAlert from '../components/project_policy_alert.vue';
 import QuickstartDropdown from '../components/quickstart_dropdown.vue';
-import { DELETE_IMAGE_SUCCESS_MESSAGE, DELETE_IMAGE_ERROR_MESSAGE } from '../constants';
+import ImageList from '../components/image_list.vue';
+
+import {
+  DELETE_IMAGE_SUCCESS_MESSAGE,
+  DELETE_IMAGE_ERROR_MESSAGE,
+  CONTAINER_REGISTRY_TITLE,
+  CONNECTION_ERROR_TITLE,
+  CONNECTION_ERROR_MESSAGE,
+  LIST_INTRO_TEXT,
+  REMOVE_REPOSITORY_MODAL_TEXT,
+  REMOVE_REPOSITORY_LABEL,
+  SEARCH_PLACEHOLDER_TEXT,
+  IMAGE_REPOSITORY_LIST_LABEL,
+  EMPTY_RESULT_TITLE,
+  EMPTY_RESULT_MESSAGE,
+} from '../constants';
 
 export default {
   name: 'RegistryListApp',
   components: {
     GlEmptyState,
-    GlPagination,
     ProjectEmptyState,
     GroupEmptyState,
     ProjectPolicyAlert,
-    ClipboardButton,
     QuickstartDropdown,
-    GlButton,
-    GlIcon,
+    ImageList,
     GlModal,
     GlSprintf,
     GlLink,
+    GlAlert,
     GlSkeletonLoader,
+    GlSearchBoxByClick,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -47,25 +59,23 @@ export default {
     height: 40,
   },
   i18n: {
-    containerRegistryTitle: s__('ContainerRegistry|Container Registry'),
-    connectionErrorTitle: s__('ContainerRegistry|Docker connection error'),
-    connectionErrorMessage: s__(
-      `ContainerRegistry|We are having trouble connecting to Docker, which could be due to an issue with your project name or path. %{docLinkStart}More Information%{docLinkEnd}`,
-    ),
-    introText: s__(
-      `ContainerRegistry|With the Docker Container Registry integrated into GitLab, every project can have its own space to store its Docker images. %{docLinkStart}More Information%{docLinkEnd}`,
-    ),
-    deleteButtonDisabled: s__(
-      'ContainerRegistry|Missing or insufficient permission, delete button disabled',
-    ),
-    removeRepositoryLabel: s__('ContainerRegistry|Remove repository'),
-    removeRepositoryModalText: s__(
-      'ContainerRegistry|You are about to remove repository %{title}. Once you confirm, this repository will be permanently deleted.',
-    ),
+    CONTAINER_REGISTRY_TITLE,
+    CONNECTION_ERROR_TITLE,
+    CONNECTION_ERROR_MESSAGE,
+    LIST_INTRO_TEXT,
+    REMOVE_REPOSITORY_MODAL_TEXT,
+    REMOVE_REPOSITORY_LABEL,
+    SEARCH_PLACEHOLDER_TEXT,
+    IMAGE_REPOSITORY_LIST_LABEL,
+    EMPTY_RESULT_TITLE,
+    EMPTY_RESULT_MESSAGE,
   },
   data() {
     return {
       itemToDelete: {},
+      deleteAlertType: null,
+      search: null,
+      isEmpty: false,
     };
   },
   computed: {
@@ -75,46 +85,49 @@ export default {
         label: 'registry_repository_delete',
       };
     },
-    currentPage: {
-      get() {
-        return this.pagination.page;
-      },
-      set(page) {
-        this.requestImagesList({ page });
-      },
-    },
     showQuickStartDropdown() {
       return Boolean(!this.isLoading && !this.config?.isGroupPage && this.images?.length);
     },
+    showDeleteAlert() {
+      return this.deleteAlertType && this.itemToDelete?.path;
+    },
+    deleteImageAlertMessage() {
+      return this.deleteAlertType === 'success'
+        ? DELETE_IMAGE_SUCCESS_MESSAGE
+        : DELETE_IMAGE_ERROR_MESSAGE;
+    },
+  },
+  mounted() {
+    this.loadImageList(this.$route.name);
   },
   methods: {
     ...mapActions(['requestImagesList', 'requestDeleteImage']),
+    loadImageList(fromName) {
+      if (!fromName || !this.images?.length) {
+        return this.requestImagesList().then(() => {
+          this.isEmpty = this.images.length === 0;
+        });
+      }
+      return Promise.resolve();
+    },
     deleteImage(item) {
-      // This event is already tracked in the system and so the name must be kept to aggregate the data
       this.track('click_button');
       this.itemToDelete = item;
       this.$refs.deleteModal.show();
     },
     handleDeleteImage() {
       this.track('confirm_delete');
-      return this.requestDeleteImage(this.itemToDelete.destroy_path)
-        .then(() =>
-          this.$toast.show(DELETE_IMAGE_SUCCESS_MESSAGE, {
-            type: 'success',
-          }),
-        )
-        .catch(() =>
-          this.$toast.show(DELETE_IMAGE_ERROR_MESSAGE, {
-            type: 'error',
-          }),
-        )
-        .finally(() => {
-          this.itemToDelete = {};
+      return this.requestDeleteImage(this.itemToDelete)
+        .then(() => {
+          this.deleteAlertType = 'success';
+        })
+        .catch(() => {
+          this.deleteAlertType = 'danger';
         });
     },
-    encodeListItem(item) {
-      const params = JSON.stringify({ name: item.path, tags_path: item.tags_path, id: item.id });
-      return window.btoa(params);
+    dismissDeleteAlert() {
+      this.deleteAlertType = null;
+      this.itemToDelete = {};
     },
   },
 };
@@ -122,16 +135,30 @@ export default {
 
 <template>
   <div class="w-100 slide-enter-from-element">
-    <project-policy-alert v-if="!config.isGroupPage" />
+    <gl-alert
+      v-if="showDeleteAlert"
+      :variant="deleteAlertType"
+      class="mt-2"
+      dismissible
+      @dismiss="dismissDeleteAlert"
+    >
+      <gl-sprintf :message="deleteImageAlertMessage">
+        <template #title>
+          {{ itemToDelete.path }}
+        </template>
+      </gl-sprintf>
+    </gl-alert>
+
+    <project-policy-alert v-if="!config.isGroupPage" class="mt-2" />
 
     <gl-empty-state
       v-if="config.characterError"
-      :title="$options.i18n.connectionErrorTitle"
+      :title="$options.i18n.CONNECTION_ERROR_TITLE"
       :svg-path="config.containersErrorImage"
     >
       <template #description>
         <p>
-          <gl-sprintf :message="$options.i18n.connectionErrorMessage">
+          <gl-sprintf :message="$options.i18n.CONNECTION_ERROR_MESSAGE">
             <template #docLink="{content}">
               <gl-link :href="`${config.helpPagePath}#docker-connection-error`" target="_blank">
                 {{ content }}
@@ -145,11 +172,11 @@ export default {
     <template v-else>
       <div>
         <div class="d-flex justify-content-between align-items-center">
-          <h4>{{ $options.i18n.containerRegistryTitle }}</h4>
+          <h4>{{ $options.i18n.CONTAINER_REGISTRY_TITLE }}</h4>
           <quickstart-dropdown v-if="showQuickStartDropdown" class="d-none d-sm-block" />
         </div>
         <p>
-          <gl-sprintf :message="$options.i18n.introText">
+          <gl-sprintf :message="$options.i18n.LIST_INTRO_TEXT">
             <template #docLink="{content}">
               <gl-link :href="config.helpPagePath" target="_blank">
                 {{ content }}
@@ -173,57 +200,40 @@ export default {
         </gl-skeleton-loader>
       </div>
       <template v-else>
-        <div v-if="images.length" ref="imagesList" class="d-flex flex-column">
-          <div
-            v-for="(listItem, index) in images"
-            :key="index"
-            ref="rowItem"
-            :class="{ 'border-top': index === 0 }"
-            class="d-flex justify-content-between align-items-center py-2 border-bottom"
-          >
+        <template v-if="!isEmpty">
+          <div class="gl-display-flex gl-p-1" data-testid="listHeader">
+            <div class="gl-flex-fill-1">
+              <h5>{{ $options.i18n.IMAGE_REPOSITORY_LIST_LABEL }}</h5>
+            </div>
             <div>
-              <router-link
-                ref="detailsLink"
-                :to="{ name: 'details', params: { id: encodeListItem(listItem) } }"
-              >
-                {{ listItem.path }}
-              </router-link>
-              <clipboard-button
-                v-if="listItem.location"
-                ref="clipboardButton"
-                :text="listItem.location"
-                :title="listItem.location"
-                css-class="btn-default btn-transparent btn-clipboard"
+              <gl-search-box-by-click
+                v-model="search"
+                :placeholder="$options.i18n.SEARCH_PLACEHOLDER_TEXT"
+                @submit="requestImagesList({ name: $event })"
               />
             </div>
-            <div
-              v-gl-tooltip="{ disabled: listItem.destroy_path }"
-              class="d-none d-sm-block"
-              :title="$options.i18n.deleteButtonDisabled"
-            >
-              <gl-button
-                ref="deleteImageButton"
-                v-gl-tooltip
-                :disabled="!listItem.destroy_path"
-                :title="$options.i18n.removeRepositoryLabel"
-                :aria-label="$options.i18n.removeRepositoryLabel"
-                class="btn-inverted"
-                variant="danger"
-                @click="deleteImage(listItem)"
-              >
-                <gl-icon name="remove" />
-              </gl-button>
-            </div>
           </div>
-          <gl-pagination
-            v-model="currentPage"
-            :per-page="pagination.perPage"
-            :total-items="pagination.total"
-            align="center"
-            class="w-100 mt-2"
-          />
-        </div>
 
+          <image-list
+            v-if="images.length"
+            :images="images"
+            :pagination="pagination"
+            @pageChange="requestImagesList({ pagination: { page: $event }, name: search })"
+            @delete="deleteImage"
+          />
+
+          <gl-empty-state
+            v-else
+            :svg-path="config.noContainersImage"
+            data-testid="emptySearch"
+            :title="$options.i18n.EMPTY_RESULT_TITLE"
+            class="container-message"
+          >
+            <template #description>
+              {{ $options.i18n.EMPTY_RESULT_MESSAGE }}
+            </template>
+          </gl-empty-state>
+        </template>
         <template v-else>
           <project-empty-state v-if="!config.isGroupPage" />
           <group-empty-state v-else />
@@ -237,9 +247,9 @@ export default {
         @ok="handleDeleteImage"
         @cancel="track('cancel_delete')"
       >
-        <template #modal-title>{{ $options.i18n.removeRepositoryLabel }}</template>
+        <template #modal-title>{{ $options.i18n.REMOVE_REPOSITORY_LABEL }}</template>
         <p>
-          <gl-sprintf :message="$options.i18n.removeRepositoryModalText">
+          <gl-sprintf :message="$options.i18n.REMOVE_REPOSITORY_MODAL_TEXT">
             <template #title>
               <b>{{ itemToDelete.path }}</b>
             </template>

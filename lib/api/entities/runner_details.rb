@@ -10,7 +10,14 @@ module API
       expose :access_level
       expose :version, :revision, :platform, :architecture
       expose :contacted_at
-      expose :token, if: lambda { |runner, options| options[:current_user].admin? || !runner.instance_type? }
+
+      # Will be removed: https://gitlab.com/gitlab-org/gitlab/-/issues/217105
+      expose(:token, if: ->(runner, options) do
+        return false if ::Feature.enabled?(:hide_token_from_runners_api, default_enabled: true)
+
+        options[:current_user].admin? || !runner.instance_type?
+      end)
+
       # rubocop: disable CodeReuse/ActiveRecord
       expose :projects, with: Entities::BasicProjectDetails do |runner, options|
         if options[:current_user].admin?

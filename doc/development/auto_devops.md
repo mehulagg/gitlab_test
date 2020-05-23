@@ -1,7 +1,11 @@
 # Auto DevOps development guide
 
 This document provides a development guide for contributors to
-[Auto DevOps](../topics/autodevops/index.md)
+[Auto DevOps](../topics/autodevops/index.md).
+
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+An [Auto DevOps technical walk-through](https://youtu.be/G7RTLeToz9E)
+is also available on YouTube.
 
 ## Development
 
@@ -18,12 +22,12 @@ which then defines jobs.
 
 Some jobs use images that are built from external projects:
 
-- [Auto Build](../topics/autodevops/index.md#auto-build) uses
+- [Auto Build](../topics/autodevops/stages.md#auto-build) uses
   [configuration](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Build.gitlab-ci.yml)
   in which the `build` job uses an image that is built using the
   [`auto-build-image`](https://gitlab.com/gitlab-org/cluster-integration/auto-build-image)
   project.
-- [Auto Deploy](../topics/autodevops/index.md#auto-deploy) uses
+- [Auto Deploy](../topics/autodevops/stages.md#auto-deploy) uses
   [configuration](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml)
   in which the jobs defined in this template use an image that is built using the
   [`auto-deploy-image`](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image)

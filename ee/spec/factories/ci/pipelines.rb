@@ -65,19 +65,19 @@ FactoryBot.define do
       end
     end
 
-    trait :with_license_management_feature_branch do
+    trait :with_license_scanning_feature_branch do
       status { :success }
 
       after(:build) do |pipeline, evaluator|
-        pipeline.builds << build(:ee_ci_build, :license_management_feature_branch, pipeline: pipeline, project: pipeline.project)
+        pipeline.builds << build(:ee_ci_build, :license_scanning_feature_branch, pipeline: pipeline, project: pipeline.project)
       end
     end
 
-    trait :with_corrupted_license_management_report do
+    trait :with_corrupted_license_scanning_report do
       status { :success }
 
       after(:build) do |pipeline, evaluator|
-        pipeline.builds << build(:ee_ci_build, :corrupted_license_management_report, pipeline: pipeline, project: pipeline.project)
+        pipeline.builds << build(:ee_ci_build, :corrupted_license_scanning_report, pipeline: pipeline, project: pipeline.project)
       end
     end
 

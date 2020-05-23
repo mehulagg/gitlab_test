@@ -1,7 +1,6 @@
 pages:
   extends:
     - .default-retry
-    - .default-cache
     - .pages:rules
   stage: pages
   dependencies: ["rspec:coverage", "karma", "gitlab:assets:compile pull-cache"]
@@ -16,3 +15,4 @@ pages:
   artifacts:
     paths:
       - public
+    expire_in: 31d

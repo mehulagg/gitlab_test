@@ -132,7 +132,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
       context 'when job does not exist' do
         before do
-          get_show(id: 1234)
+          get_show(id: non_existing_record_id)
         end
 
         it 'renders not_found' do
@@ -391,10 +391,20 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
             sign_in(user)
           end
 
-          it 'settings_path is available' do
-            expect(response).to have_gitlab_http_status(:ok)
-            expect(response).to match_response_schema('job/job_details')
-            expect(json_response['runners']['settings_path']).to match(/runners/)
+          context 'when admin mode is disabled' do
+            it 'settings_path is not available' do
+              expect(response).to have_gitlab_http_status(:ok)
+              expect(response).to match_response_schema('job/job_details')
+              expect(json_response['runners']).not_to have_key('settings_path')
+            end
+          end
+
+          context 'when admin mode is enabled', :enable_admin_mode do
+            it 'settings_path is available' do
+              expect(response).to have_gitlab_http_status(:ok)
+              expect(response).to match_response_schema('job/job_details')
+              expect(json_response['runners']['settings_path']).to match(/runners/)
+            end
           end
         end
       end
@@ -1146,7 +1156,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
     context 'when job does not exist' do
       it 'renders not_found' do
-        get_terminal(id: 1234)
+        get_terminal(id: non_existing_record_id)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
@@ -1191,7 +1201,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
       context 'and invalid id' do
         it 'returns 404' do
-          get_terminal_websocket(id: 1234)
+          get_terminal_websocket(id: non_existing_record_id)
 
           expect(response).to have_gitlab_http_status(:not_found)
         end

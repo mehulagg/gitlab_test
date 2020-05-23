@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Ci::Build do
-  let_it_be(:group) { create(:group, plan: :bronze_plan) }
+  let_it_be(:group) { create(:group_with_plan, plan: :bronze_plan) }
   let(:project) { create(:project, :repository, group: group) }
 
   let(:pipeline) do
@@ -41,29 +41,52 @@ describe Ci::Build do
   describe '#shared_runners_minutes_limit_enabled?' do
     subject { job.shared_runners_minutes_limit_enabled? }
 
-    context 'for shared runner' do
-      before do
-        job.runner = create(:ci_runner, :instance)
+    shared_examples 'depends on runner presence and type' do
+      context 'for shared runner' do
+        before do
+          job.runner = create(:ci_runner, :instance)
+        end
+
+        context 'when project#shared_runners_minutes_limit_enabled? is true' do
+          specify do
+            expect(job.project).to receive(:shared_runners_minutes_limit_enabled?)
+              .and_return(true)
+
+            is_expected.to be_truthy
+          end
+        end
+
+        context 'when project#shared_runners_minutes_limit_enabled? is false' do
+          specify do
+            expect(job.project).to receive(:shared_runners_minutes_limit_enabled?)
+              .and_return(false)
+
+            is_expected.to be_falsey
+          end
+        end
       end
 
-      specify do
-        expect(job.project).to receive(:shared_runners_minutes_limit_enabled?)
-          .and_return(true)
+      context 'with specific runner' do
+        before do
+          job.runner = create(:ci_runner, :project)
+        end
 
-        is_expected.to be_truthy
+        it { is_expected.to be_falsey }
+      end
+
+      context 'without runner' do
+        it { is_expected.to be_falsey }
       end
     end
 
-    context 'with specific runner' do
+    it_behaves_like 'depends on runner presence and type'
+
+    context 'and :ci_minutes_track_for_public_projects FF is disabled' do
       before do
-        job.runner = create(:ci_runner, :project)
+        stub_feature_flags(ci_minutes_track_for_public_projects: false)
       end
 
-      it { is_expected.to be_falsey }
-    end
-
-    context 'without runner' do
-      it { is_expected.to be_falsey }
+      it_behaves_like 'depends on runner presence and type'
     end
   end
 
@@ -203,8 +226,22 @@ describe Ci::Build do
 
     it { expect(license_scanning_report.licenses.count).to eq(0) }
 
-    context 'when build has a license management report' do
-      context 'when there is a license scanning report' do
+    context 'when build has a license scanning report' do
+      context 'when there is a new type report' do
+        before do
+          create(:ee_ci_job_artifact, :license_scanning, job: job, project: job.project)
+        end
+
+        it 'parses blobs and add the results to the report' do
+          expect { subject }.not_to raise_error
+
+          expect(license_scanning_report.licenses.count).to eq(4)
+          expect(license_scanning_report.licenses.map(&:name)).to contain_exactly("Apache 2.0", "MIT", "New BSD", "unknown")
+          expect(license_scanning_report.licenses.find { |x| x.name == 'MIT' }.dependencies.count).to eq(52)
+        end
+      end
+
+      context 'when there is an old type report' do
         before do
           create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
         end
@@ -218,7 +255,7 @@ describe Ci::Build do
         end
       end
 
-      context 'when there is a corrupted license management report' do
+      context 'when there is a corrupted report' do
         before do
           create(:ee_ci_job_artifact, :license_scan, :with_corrupted_data, job: job, project: job.project)
         end
@@ -231,7 +268,7 @@ describe Ci::Build do
       context 'when Feature flag is disabled for License Scanning reports parsing' do
         before do
           stub_feature_flags(parse_license_management_reports: false)
-          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :license_scanning, job: job, project: job.project)
         end
 
         it 'does NOT parse license scanning report' do
@@ -241,10 +278,10 @@ describe Ci::Build do
         end
       end
 
-      context 'when the license management feature is disabled' do
+      context 'when the license scanning feature is disabled' do
         before do
           stub_licensed_features(license_scanning: false)
-          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :license_scanning, job: job, project: job.project)
         end
 
         it 'does NOT parse license scanning report' do
@@ -289,7 +326,7 @@ describe Ci::Build do
   end
 
   describe '#collect_licenses_for_dependency_list!' do
-    let!(:lm_artifact) { create(:ee_ci_job_artifact, :license_management, job: job, project: job.project) }
+    let!(:license_scan_artifact) { create(:ee_ci_job_artifact, :license_scanning, job: job, project: job.project) }
     let(:dependency_list_report) { Gitlab::Ci::Reports::DependencyList::Report.new }
     let(:dependency) { build(:dependency, :nokogiri) }
 
@@ -378,7 +415,7 @@ describe Ci::Build do
   describe ".license_scan" do
     it 'returns only license artifacts' do
       create(:ci_build, job_artifacts: [create(:ci_job_artifact, :zip)])
-      build_with_license_scan = create(:ci_build, job_artifacts: [create(:ci_job_artifact, file_type: :license_management, file_format: :raw)])
+      build_with_license_scan = create(:ci_build, job_artifacts: [create(:ci_job_artifact, file_type: :license_scanning, file_format: :raw)])
 
       expect(described_class.license_scan).to contain_exactly(build_with_license_scan)
     end

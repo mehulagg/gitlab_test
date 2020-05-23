@@ -29,8 +29,16 @@ describe Projects::WebIdeTerminalsController do
     context 'with admin' do
       let(:user) { admin }
 
-      it 'returns 200' do
-        expect(response).to have_gitlab_http_status(:ok)
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it 'returns 200' do
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      context 'when admin mode is disabled' do
+        it 'returns 404' do
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
       end
     end
 
@@ -124,7 +132,7 @@ describe Projects::WebIdeTerminalsController do
       let(:user) { admin }
       let(:result) { { status: :error } }
 
-      it 'returns 422' do
+      it 'returns 422', :enable_admin_mode do
         expect(response).to have_gitlab_http_status(:unprocessable_entity)
       end
     end
@@ -141,7 +149,7 @@ describe Projects::WebIdeTerminalsController do
                     }
     end
 
-    context 'access rights' do
+    context 'when terminal job is created successfully' do
       let(:build) { create(:ci_build, project: project) }
       let(:pipeline) { build.pipeline }
 
@@ -149,36 +157,79 @@ describe Projects::WebIdeTerminalsController do
         allow_next_instance_of(::Ci::CreateWebIdeTerminalService) do |instance|
           allow(instance).to receive(:execute).and_return(status: :success, pipeline: pipeline)
         end
+      end
+
+      context 'access rights' do
+        before do
+          subject
+        end
+
+        it_behaves_like 'terminal access rights'
+      end
+
+      it 'increases the web ide terminal counter' do
+        expect(Gitlab::UsageDataCounters::WebIdeCounter).to receive(:increment_terminals_count)
 
         subject
       end
+    end
 
-      it_behaves_like 'terminal access rights'
+    shared_examples 'web ide terminal usage counter' do
+      it 'does not increase', :enable_admin_mode do
+        expect(Gitlab::UsageDataCounters::WebIdeCounter).not_to receive(:increment_terminals_count)
+
+        subject
+      end
     end
 
     context 'when branch does not exist' do
       let(:user) { admin }
       let(:branch) { 'foobar' }
 
-      it 'returns 400' do
+      it 'returns 400', :enable_admin_mode do
         subject
 
         expect(response).to have_gitlab_http_status(:bad_request)
       end
+
+      it_behaves_like 'web ide terminal usage counter'
     end
 
     context 'when there is an error creating the job' do
       let(:user) { admin }
 
-      it 'returns 400' do
+      before do
         allow_next_instance_of(::Ci::CreateWebIdeTerminalService) do |instance|
           allow(instance).to receive(:execute).and_return(status: :error, message: 'foobar')
         end
+      end
 
+      it 'returns 400', :enable_admin_mode do
         subject
 
         expect(response).to have_gitlab_http_status(:bad_request)
       end
+
+      it_behaves_like 'web ide terminal usage counter'
+    end
+
+    context 'when the current build is nil' do
+      let(:user) { admin }
+
+      before do
+        allow(pipeline).to receive(:builds).and_return([])
+        allow_next_instance_of(::Ci::CreateWebIdeTerminalService) do |instance|
+          allow(instance).to receive(:execute).and_return(status: :success, pipeline: pipeline)
+        end
+      end
+
+      it 'returns 400', :enable_admin_mode do
+        subject
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it_behaves_like 'web ide terminal usage counter'
     end
   end
 

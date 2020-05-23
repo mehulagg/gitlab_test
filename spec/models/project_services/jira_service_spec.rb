@@ -69,11 +69,23 @@ describe JiraService do
   end
 
   describe '.reference_pattern' do
-    it_behaves_like 'allows project key on reference pattern'
+    using RSpec::Parameterized::TableSyntax
 
-    it 'does not allow # on the code' do
-      expect(described_class.reference_pattern.match('#123')).to be_nil
-      expect(described_class.reference_pattern.match('1#23#12')).to be_nil
+    where(:key, :result) do
+      '#123'               | ''
+      '1#23#12'            | ''
+      'JIRA-1234A'         | 'JIRA-1234'
+      'JIRA-1234-some_tag' | 'JIRA-1234'
+      'JIRA-1234_some_tag' | 'JIRA-1234'
+      'EXT_EXT-1234'       | 'EXT_EXT-1234'
+      'EXT3_EXT-1234'      | 'EXT3_EXT-1234'
+      '3EXT_EXT-1234'      | ''
+    end
+
+    with_them do
+      specify do
+        expect(described_class.reference_pattern.match(key).to_s).to eq(result)
+      end
     end
   end
 
@@ -570,6 +582,79 @@ describe JiraService do
     end
   end
 
+  describe '#create_cross_reference_note' do
+    let_it_be(:user)    { build_stubbed(:user) }
+    let_it_be(:project) { create(:project, :repository) }
+    let(:jira_service) do
+      described_class.new(
+        project: project,
+        url: url,
+        username: username,
+        password: password
+      )
+    end
+    let(:jira_issue) { ExternalIssue.new('JIRA-123', project) }
+
+    subject { jira_service.create_cross_reference_note(jira_issue, resource, user) }
+
+    shared_examples 'creates a comment on Jira' do
+      let(:issue_url) { "#{url}/rest/api/2/issue/JIRA-123" }
+      let(:comment_url) { "#{issue_url}/comment" }
+      let(:remote_link_url) { "#{issue_url}/remotelink" }
+
+      before do
+        allow(JIRA::Resource::Remotelink).to receive(:all).and_return([])
+        stub_request(:get, issue_url).with(basic_auth: [username, password])
+        stub_request(:post, comment_url).with(basic_auth: [username, password])
+        stub_request(:post, remote_link_url).with(basic_auth: [username, password])
+      end
+
+      it 'creates a comment on Jira' do
+        subject
+
+        expect(WebMock).to have_requested(:post, comment_url).with(
+          body: /mentioned this issue in/
+        ).once
+      end
+    end
+
+    context 'when resource is a commit' do
+      let(:resource) { project.commit('master') }
+
+      context 'when disabled' do
+        before do
+          allow_next_instance_of(JiraService) do |instance|
+            allow(instance).to receive(:commit_events) { false }
+          end
+        end
+
+        it { is_expected.to eq('Events for commits are disabled.') }
+      end
+
+      context 'when enabled' do
+        it_behaves_like 'creates a comment on Jira'
+      end
+    end
+
+    context 'when resource is a merge request' do
+      let(:resource) { build_stubbed(:merge_request, source_project: project) }
+
+      context 'when disabled' do
+        before do
+          allow_next_instance_of(JiraService) do |instance|
+            allow(instance).to receive(:merge_requests_events) { false }
+          end
+        end
+
+        it { is_expected.to eq('Events for merge requests are disabled.') }
+      end
+
+      context 'when enabled' do
+        it_behaves_like 'creates a comment on Jira'
+      end
+    end
+  end
+
   describe '#test' do
     let(:jira_service) do
       described_class.new(
@@ -728,6 +813,87 @@ describe JiraService do
     describe '#new_issue_url' do
       it 'handles trailing slashes' do
         expect(service.new_issue_url).to eq('http://jira.test.com/path/secure/CreateIssue.jspa')
+      end
+    end
+  end
+
+  describe '#jira_projects' do
+    let(:project) { create(:project) }
+    let(:jira_service) do
+      described_class.new(
+        project: project,
+        url: url,
+        username: username,
+        password: password
+      )
+    end
+
+    context 'when request to the jira server fails' do
+      it 'returns error' do
+        test_url = "#{url}/rest/api/2/project/search?maxResults=50&query=&startAt=0"
+        WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
+          .to_raise(JIRA::HTTPError.new(double(message: 'random error')))
+
+        response = jira_service.jira_projects
+
+        expect(response.error?).to be true
+        expect(response.message).to eq('random error')
+      end
+    end
+
+    context 'with invalid params' do
+      it 'escapes params' do
+        escaped_url = "#{url}/rest/api/2/project/search?query=Test%26maxResults%3D3&maxResults=10&startAt=0"
+        WebMock.stub_request(:get, escaped_url).with(basic_auth: [username, password])
+          .to_return(body: {}.to_json, headers: { "Content-Type": "application/json" })
+
+        response = jira_service.jira_projects(query: 'Test&maxResults=3', limit: 10, start_at: 'zero')
+
+        expect(response.error?).to be false
+      end
+    end
+
+    context 'when no jira_projects are returned' do
+      let(:jira_projects_json) do
+        '{
+          "self": "https://your-domain.atlassian.net/rest/api/2/project/search?startAt=0&maxResults=2",
+          "nextPage": "https://your-domain.atlassian.net/rest/api/2/project/search?startAt=2&maxResults=2",
+          "maxResults": 2,
+          "startAt": 0,
+          "total": 7,
+          "isLast": false,
+          "values": []
+        }'
+      end
+
+      it 'returns empty array of jira projects' do
+        test_url = "#{url}/rest/api/2/project/search?maxResults=50&query=&startAt=0"
+        WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
+          .to_return(body: jira_projects_json, headers: { "Content-Type": "application/json" })
+
+        response = jira_service.jira_projects
+
+        expect(response.success?).to be true
+        expect(response.payload).not_to be nil
+      end
+    end
+
+    context 'when jira_projects are returned' do
+      include_context 'jira projects request context'
+
+      it 'returns array of jira projects' do
+        response = jira_service.jira_projects
+
+        projects = response.payload[:projects]
+        project_keys = projects.map(&:key)
+        project_names = projects.map(&:name)
+        project_ids = projects.map(&:id)
+
+        expect(response.success?).to be true
+        expect(projects.size).to eq(2)
+        expect(project_keys).to eq(%w(EX ABC))
+        expect(project_names).to eq(%w(Example Alphabetical))
+        expect(project_ids).to eq(%w(10000 10001))
       end
     end
   end

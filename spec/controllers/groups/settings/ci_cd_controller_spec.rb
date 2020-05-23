@@ -180,45 +180,39 @@ describe Groups::Settings::CiCdController do
         group.add_owner(user)
       end
 
-      it { is_expected.to redirect_to(group_settings_ci_cd_path) }
-
-      context 'when service execution went wrong' do
-        let(:update_service) { double }
-
-        before do
-          allow(Groups::UpdateService).to receive(:new).and_return(update_service)
-          allow(update_service).to receive(:execute).and_return(false)
-          allow_any_instance_of(Group).to receive_message_chain(:errors, :full_messages)
-            .and_return(['Error 1'])
-
-          subject
-        end
-
-        it 'returns a flash alert' do
-          expect(response).to set_flash[:alert]
-            .to eq("There was a problem updating the pipeline settings: [\"Error 1\"].")
-        end
+      context 'when admin mode is disabled' do
+        it { is_expected.to have_gitlab_http_status(:not_found) }
       end
 
-      context 'when service execution was successful' do
-        it 'returns a flash notice' do
-          subject
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it { is_expected.to redirect_to(group_settings_ci_cd_path) }
 
-          expect(response).to set_flash[:notice]
-            .to eq('Pipeline settings was updated for the group')
+        context 'when service execution went wrong' do
+          let(:update_service) { double }
+
+          before do
+            allow(Groups::UpdateService).to receive(:new).and_return(update_service)
+            allow(update_service).to receive(:execute).and_return(false)
+            allow_any_instance_of(Group).to receive_message_chain(:errors, :full_messages)
+              .and_return(['Error 1'])
+
+            subject
+          end
+
+          it 'returns a flash alert' do
+            expect(response).to set_flash[:alert]
+              .to eq("There was a problem updating the pipeline settings: [\"Error 1\"].")
+          end
         end
-      end
-    end
-  end
 
-  describe 'POST create_deploy_token' do
-    it_behaves_like 'a created deploy token' do
-      let(:entity) { group }
-      let(:create_entity_params) { { group_id: group } }
-      let(:deploy_token_type) { DeployToken.deploy_token_types[:group_type] }
+        context 'when service execution was successful' do
+          it 'returns a flash notice' do
+            subject
 
-      before do
-        entity.add_owner(user)
+            expect(response).to set_flash[:notice]
+              .to eq('Pipeline settings was updated for the group')
+          end
+        end
       end
     end
   end

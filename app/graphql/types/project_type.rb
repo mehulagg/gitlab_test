@@ -26,7 +26,7 @@ module Types
     markdown_field :description_html, null: true
 
     field :tag_list, GraphQL::STRING_TYPE, null: true,
-          description: 'List of project tags'
+          description: 'List of project topics (not Git tags)'
 
     field :ssh_url_to_repo, GraphQL::STRING_TYPE, null: true,
           description: 'URL to connect to the project via SSH'
@@ -54,7 +54,7 @@ module Types
     field :container_registry_enabled, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if the project stores Docker container images in a container registry'
     field :shared_runners_enabled, GraphQL::BOOLEAN_TYPE, null: true,
-          description: 'Indicates if shared runners are enabled on the project'
+          description: 'Indicates if Shared Runners are enabled for the project'
     field :lfs_enabled, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if the project has Large File Storage (LFS) enabled'
     field :merge_requests_ff_only_enabled, GraphQL::BOOLEAN_TYPE, null: true,
@@ -68,14 +68,14 @@ module Types
 
     %i[issues merge_requests wiki snippets].each do |feature|
       field "#{feature}_enabled", GraphQL::BOOLEAN_TYPE, null: true,
-            description: "(deprecated) Does this project have #{feature} enabled?. Use `#{feature}_access_level` instead",
+            description: "Indicates if #{feature.to_s.titleize.pluralize} are enabled for the current user",
             resolve: -> (project, args, ctx) do
               project.feature_available?(feature, ctx[:current_user])
             end
     end
 
     field :jobs_enabled, GraphQL::BOOLEAN_TYPE, null: true,
-          description: '(deprecated) Enable jobs for this project. Use `builds_access_level` instead',
+          description: 'Indicates if CI/CD pipeline jobs are enabled for the current user',
           resolve: -> (project, args, ctx) do
             project.feature_available?(:builds, ctx[:current_user])
           end
@@ -199,6 +199,44 @@ module Types
           null: true,
           description: 'Jira imports into the project',
           resolver: Resolvers::Projects::JiraImportsResolver
+
+    field :services,
+          Types::Projects::ServiceType.connection_type,
+          null: true,
+          description: 'Project services',
+          resolver: Resolvers::Projects::ServicesResolver
+
+    field :alert_management_alerts,
+          Types::AlertManagement::AlertType.connection_type,
+          null: true,
+          description: 'Alert Management alerts of the project',
+          resolver: Resolvers::AlertManagementAlertResolver
+
+    field :alert_management_alert,
+          Types::AlertManagement::AlertType,
+          null: true,
+          description: 'A single Alert Management alert of the project',
+          resolver: Resolvers::AlertManagementAlertResolver.single
+
+    field :alert_management_alert_status_counts,
+          Types::AlertManagement::AlertStatusCountsType,
+          null: true,
+          description: 'Counts of alerts by status for the project',
+          resolver: Resolvers::AlertManagement::AlertStatusCountsResolver
+
+    field :releases,
+          Types::ReleaseType.connection_type,
+          null: true,
+          description: 'Releases of the project',
+          resolver: Resolvers::ReleasesResolver,
+          feature_flag: :graphql_release_data
+
+    field :release,
+          Types::ReleaseType,
+          null: true,
+          description: 'A single release of the project',
+          resolver: Resolvers::ReleasesResolver.single,
+          feature_flag: :graphql_release_data
   end
 end
 

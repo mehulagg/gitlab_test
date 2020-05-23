@@ -1,6 +1,5 @@
 <script>
-import { GlButton } from '@gitlab/ui';
-import envrionmentsAppMixin from 'ee_else_ce/environments/mixins/environments_app_mixin';
+import { GlDeprecatedButton } from '@gitlab/ui';
 import Flash from '~/flash';
 import { s__ } from '~/locale';
 import emptyState from './empty_state.vue';
@@ -17,17 +16,22 @@ export default {
     ConfirmRollbackModal,
     emptyState,
     EnableReviewAppButton,
-    GlButton,
+    GlDeprecatedButton,
     StopEnvironmentModal,
     DeleteEnvironmentModal,
   },
 
-  mixins: [CIPaginationMixin, environmentsMixin, envrionmentsAppMixin],
+  mixins: [CIPaginationMixin, environmentsMixin],
 
   props: {
     endpoint: {
       type: String,
       required: true,
+    },
+    canaryDeploymentFeatureId: {
+      type: String,
+      required: false,
+      default: '',
     },
     canCreateEnvironment: {
       type: Boolean,
@@ -41,6 +45,11 @@ export default {
       type: String,
       required: true,
     },
+    helpCanaryDeploymentsPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
     helpPagePath: {
       type: String,
       required: true,
@@ -50,17 +59,37 @@ export default {
       required: false,
       default: '',
     },
+    lockPromotionSvgPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    showCanaryDeploymentCallout: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    userCalloutsPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
 
   created() {
     eventHub.$on('toggleFolder', this.toggleFolder);
+    eventHub.$on('toggleDeployBoard', this.toggleDeployBoard);
   },
 
   beforeDestroy() {
     eventHub.$off('toggleFolder');
+    eventHub.$off('toggleDeployBoard');
   },
 
   methods: {
+    toggleDeployBoard(model) {
+      this.store.toggleDeployBoard(model.id);
+    },
     toggleFolder(folder) {
       this.store.toggleFolder(folder);
 
@@ -105,14 +134,14 @@ export default {
 
       <div class="nav-controls">
         <enable-review-app-button v-if="state.reviewAppDetails.can_setup_review_app" class="mr-2" />
-        <gl-button
+        <gl-deprecated-button
           v-if="canCreateEnvironment && !isLoading"
           :href="newEnvironmentPath"
           category="primary"
           variant="success"
         >
           {{ s__('Environments|New environment') }}
-        </gl-button>
+        </gl-deprecated-button>
       </div>
     </div>
 
@@ -129,13 +158,13 @@ export default {
       :deploy-boards-help-path="deployBoardsHelpPath"
       @onChangePage="onChangePage"
     >
-      <empty-state
-        v-if="!isLoading && state.environments.length === 0"
-        slot="emptyState"
-        :new-path="newEnvironmentPath"
-        :help-path="helpPagePath"
-        :can-create-environment="canCreateEnvironment"
-      />
+      <template v-if="!isLoading && state.environments.length === 0" #emptyState>
+        <empty-state
+          :new-path="newEnvironmentPath"
+          :help-path="helpPagePath"
+          :can-create-environment="canCreateEnvironment"
+        />
+      </template>
     </container>
   </div>
 </template>

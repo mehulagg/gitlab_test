@@ -13,6 +13,7 @@ import {
   UPDATE_EVENT,
   UNINSTALL_EVENT,
   ELASTIC_STACK,
+  FLUENTD,
 } from '../constants';
 import transitionApplicationState from '../services/application_state_machine';
 
@@ -93,7 +94,7 @@ export default class ClusterStore {
           ...applicationInitialState,
           title: s__('ClusterIntegration|Knative'),
           hostname: null,
-          isEditingHostName: false,
+          isEditingDomain: false,
           externalIp: null,
           externalHostname: null,
           updateSuccessful: false,
@@ -102,6 +103,16 @@ export default class ClusterStore {
         elastic_stack: {
           ...applicationInitialState,
           title: s__('ClusterIntegration|Elastic Stack'),
+        },
+        fluentd: {
+          ...applicationInitialState,
+          title: s__('ClusterIntegration|Fluentd'),
+          host: null,
+          port: null,
+          protocol: null,
+          wafLogEnabled: null,
+          ciliumLogEnabled: null,
+          isEditingSettings: false,
         },
       },
       environments: [],
@@ -234,7 +245,12 @@ export default class ClusterStore {
           'jupyter',
         );
       } else if (appId === KNATIVE) {
-        if (!this.state.applications.knative.isEditingHostName) {
+        if (serverAppEntry.available_domains) {
+          this.state.applications.knative.availableDomains = serverAppEntry.available_domains;
+        }
+        if (!this.state.applications.knative.isEditingDomain) {
+          this.state.applications.knative.pagesDomain =
+            serverAppEntry.pages_domain || this.state.applications.knative.pagesDomain;
           this.state.applications.knative.hostname =
             serverAppEntry.hostname || this.state.applications.knative.hostname;
         }
@@ -248,6 +264,14 @@ export default class ClusterStore {
       } else if (appId === ELASTIC_STACK) {
         this.state.applications.elastic_stack.version = version;
         this.state.applications.elastic_stack.updateAvailable = updateAvailable;
+      } else if (appId === FLUENTD) {
+        if (!this.state.applications.fluentd.isEditingSettings) {
+          this.state.applications.fluentd.port = serverAppEntry.port;
+          this.state.applications.fluentd.host = serverAppEntry.host;
+          this.state.applications.fluentd.protocol = serverAppEntry.protocol;
+          this.state.applications.fluentd.wafLogEnabled = serverAppEntry.waf_log_enabled;
+          this.state.applications.fluentd.ciliumLogEnabled = serverAppEntry.cilium_log_enabled;
+        }
       }
     });
   }

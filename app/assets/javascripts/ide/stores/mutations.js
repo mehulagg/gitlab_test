@@ -29,16 +29,6 @@ export default {
       });
     }
   },
-  [types.SET_LEFT_PANEL_COLLAPSED](state, collapsed) {
-    Object.assign(state, {
-      leftPanelCollapsed: collapsed,
-    });
-  },
-  [types.SET_RIGHT_PANEL_COLLAPSED](state, collapsed) {
-    Object.assign(state, {
-      rightPanelCollapsed: collapsed,
-    });
-  },
   [types.SET_RESIZING_STATUS](state, resizing) {
     Object.assign(state, {
       panelResizing: resizing,
@@ -192,15 +182,6 @@ export default {
   [types.SET_ERROR_MESSAGE](state, errorMessage) {
     Object.assign(state, { errorMessage });
   },
-  [types.OPEN_NEW_ENTRY_MODAL](state, { type, path }) {
-    Object.assign(state, {
-      entryModal: {
-        type,
-        path,
-        entry: { ...state.entries[path] },
-      },
-    });
-  },
   [types.DELETE_ENTRY](state, path) {
     const entry = state.entries[path];
     const { tempFile = false } = entry;
@@ -216,7 +197,12 @@ export default {
 
     if (entry.type === 'blob') {
       if (tempFile) {
+        // Since we only support one list of file changes, it's safe to just remove from both
+        // changed and staged. Otherwise, we'd need to somehow evaluate the difference between
+        // changed and HEAD.
+        // https://gitlab.com/gitlab-org/create-stage/-/issues/12669
         state.changedFiles = state.changedFiles.filter(f => f.path !== path);
+        state.stagedFiles = state.stagedFiles.filter(f => f.path !== path);
       } else {
         state.changedFiles = state.changedFiles.concat(entry);
       }

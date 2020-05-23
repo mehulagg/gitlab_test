@@ -15,9 +15,7 @@ describe Analytics::CycleAnalytics::SummaryController do
     sign_in(user)
   end
 
-  describe 'GET `show`' do
-    subject { get :show, params: params }
-
+  shared_examples 'summary endpoint' do
     it 'succeeds' do
       subject
 
@@ -26,7 +24,7 @@ describe Analytics::CycleAnalytics::SummaryController do
     end
 
     it 'omits `projects` parameter if it is not given' do
-      expect(CycleAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_excluding(:projects)).and_call_original
+      expect(Analytics::CycleAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_excluding(:projects)).and_call_original
 
       subject
 
@@ -36,7 +34,7 @@ describe Analytics::CycleAnalytics::SummaryController do
     it 'contains `projects` parameter' do
       params[:project_ids] = [-1]
 
-      expect(CycleAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_including(projects: ['-1'])).and_call_original
+      expect(Analytics::CycleAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_including(projects: ['-1'])).and_call_original
 
       subject
 
@@ -45,5 +43,17 @@ describe Analytics::CycleAnalytics::SummaryController do
 
     include_examples 'cycle analytics data endpoint examples'
     include_examples 'group permission check on the controller level'
+  end
+
+  describe 'GET "show"' do
+    subject { get :show, params: params }
+
+    it_behaves_like 'summary endpoint'
+  end
+
+  describe 'GET "time_summary"' do
+    subject { get :time_summary, params: params }
+
+    it_behaves_like 'summary endpoint'
   end
 end

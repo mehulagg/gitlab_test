@@ -4,6 +4,8 @@ module QA
   module Page
     module Component
       module CiBadgeLink
+        extend QA::Page::PageConcern
+
         COMPLETED_STATUSES = %w[passed failed canceled blocked skipped manual].freeze # excludes created, pending, running
         INCOMPLETE_STATUSES = %w[pending created running].freeze
 
@@ -13,6 +15,10 @@ module QA
             timeout ? completed?(timeout: timeout) : completed?
             status_badge == status
           end
+
+          # has_passed? => passed?
+          # has_failed? => failed?
+          alias_method :"has_#{status}?", :"#{status}?"
         end
 
         # e.g. def pending?; status_badge == 'pending'; end
@@ -23,6 +29,8 @@ module QA
         end
 
         def self.included(base)
+          super
+
           base.view 'app/assets/javascripts/vue_shared/components/ci_badge_link.vue' do
             element :status_badge
           end

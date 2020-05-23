@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 describe 'Starting a Jira Import' do
+  include JiraServiceHelper
   include GraphqlHelpers
 
   let_it_be(:user) { create(:user) }
@@ -104,6 +105,14 @@ describe 'Starting a Jira Import' do
 
           before do
             project.reload
+
+            stub_jira_service_test
+          end
+
+          context 'when issues feature are disabled' do
+            let_it_be(:project, reload: true) { create(:project, :issues_disabled) }
+
+            it_behaves_like 'a mutation that returns errors in the response', errors: ['Cannot import because issues are not available in this project.']
           end
 
           context 'when jira_project_key not provided' do
@@ -112,15 +121,14 @@ describe 'Starting a Jira Import' do
             it_behaves_like 'a mutation that returns errors in the response', errors: ['Unable to find Jira project to import data from.']
           end
 
-          context 'when jira import successfully scheduled' do
+          context 'when Jira import successfully scheduled' do
             it 'schedules a Jira import' do
               post_graphql_mutation(mutation, current_user: current_user)
 
               expect(jira_import['jiraProjectKey']).to eq 'AA'
               expect(jira_import['scheduledBy']['username']).to eq current_user.username
-              expect(project.import_state).not_to be nil
-              expect(project.import_state.status).to eq 'scheduled'
-              expect(project.import_data.becomes(JiraImportData).projects.last.scheduled_by['user_id']).to eq current_user.id
+              expect(project.latest_jira_import).not_to be_nil
+              expect(project.latest_jira_import).to be_scheduled
             end
           end
         end

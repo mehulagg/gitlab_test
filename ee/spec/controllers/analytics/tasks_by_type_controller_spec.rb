@@ -13,7 +13,6 @@ describe Analytics::TasksByTypeController do
 
   before do
     stub_licensed_features(type_of_work_analytics: true)
-    stub_feature_flags(Gitlab::Analytics::TASKS_BY_TYPE_CHART_FEATURE_FLAG => true)
 
     group.add_reporter(user)
     sign_in(user)
@@ -52,18 +51,6 @@ describe Analytics::TasksByTypeController do
       end
     end
 
-    context 'when feature flag is disabled' do
-      before do
-        stub_feature_flags(Gitlab::Analytics::TASKS_BY_TYPE_CHART_FEATURE_FLAG => false)
-      end
-
-      it 'returns not_found as response' do
-        subject
-
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-
     context 'when `created_after` parameter is invalid' do
       before do
         params[:created_after] = 'invalid_date'
@@ -95,7 +82,7 @@ describe Analytics::TasksByTypeController do
       it 'succeeds' do
         subject
 
-        expect(response).to be_successful
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('analytics/tasks_by_type', dir: 'ee')
       end
 
@@ -128,7 +115,7 @@ describe Analytics::TasksByTypeController do
       it 'succeeds' do
         subject
 
-        expect(response).to be_successful
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('analytics/tasks_by_type_top_labels', dir: 'ee')
       end
 

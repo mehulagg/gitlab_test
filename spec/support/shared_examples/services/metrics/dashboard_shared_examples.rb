@@ -23,7 +23,7 @@ RSpec.shared_examples 'valid dashboard service response for schema' do
 end
 
 RSpec.shared_examples 'valid dashboard service response' do
-  let(:dashboard_schema) { JSON.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/dashboard.json')) }
+  let(:dashboard_schema) { Gitlab::Json.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/dashboard.json')) }
 
   it_behaves_like 'valid dashboard service response for schema'
 end
@@ -38,7 +38,7 @@ RSpec.shared_examples 'caches the unprocessed dashboard for subsequent calls' do
 end
 
 RSpec.shared_examples 'valid embedded dashboard service response' do
-  let(:dashboard_schema) { JSON.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/embedded_dashboard.json')) }
+  let(:dashboard_schema) { Gitlab::Json.parse(fixture_file('lib/gitlab/metrics/dashboard/schemas/embedded_dashboard.json')) }
 
   it_behaves_like 'valid dashboard service response for schema'
 end
@@ -116,5 +116,15 @@ RSpec.shared_examples 'misconfigured dashboard service response with stepable' d
     expect(result[:status]).to eq(:error)
     expect(result[:http_status]).to eq(status_code)
     expect(result[:message]).to eq(message) if message
+  end
+end
+
+RSpec.shared_examples 'updates gitlab_metrics_dashboard_processing_time_ms metric' do
+  specify :prometheus do
+    service_call
+    metric = subject.send(:processing_time_metric)
+    labels = subject.send(:processing_time_metric_labels)
+
+    expect(metric.get(labels)).to be > 0
   end
 end

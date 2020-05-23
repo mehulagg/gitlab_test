@@ -11,30 +11,44 @@ class EventCreateService
   IllegalActionError = Class.new(StandardError)
 
   def open_issue(issue, current_user)
+    create_resource_event(issue, current_user, :opened)
+
     create_record_event(issue, current_user, Event::CREATED)
   end
 
   def close_issue(issue, current_user)
+    create_resource_event(issue, current_user, :closed)
+
     create_record_event(issue, current_user, Event::CLOSED)
   end
 
   def reopen_issue(issue, current_user)
+    create_resource_event(issue, current_user, :reopened)
+
     create_record_event(issue, current_user, Event::REOPENED)
   end
 
   def open_mr(merge_request, current_user)
+    create_resource_event(merge_request, current_user, :opened)
+
     create_record_event(merge_request, current_user, Event::CREATED)
   end
 
   def close_mr(merge_request, current_user)
+    create_resource_event(merge_request, current_user, :closed)
+
     create_record_event(merge_request, current_user, Event::CLOSED)
   end
 
   def reopen_mr(merge_request, current_user)
+    create_resource_event(merge_request, current_user, :reopened)
+
     create_record_event(merge_request, current_user, Event::REOPENED)
   end
 
   def merge_mr(merge_request, current_user)
+    create_resource_event(merge_request, current_user, :merged)
+
     create_record_event(merge_request, current_user, Event::MERGED)
   end
 
@@ -85,17 +99,39 @@ class EventCreateService
   # Create a new wiki page event
   #
   # @param [WikiPage::Meta] wiki_page_meta The event target
-  # @param [User] current_user The event author
+  # @param [User] author The event author
   # @param [Integer] action One of the Event::WIKI_ACTIONS
-  def wiki_event(wiki_page_meta, current_user, action)
+  #
+  # @return a tuple of event and either :found or :created
+  def wiki_event(wiki_page_meta, author, action)
     return unless Feature.enabled?(:wiki_events)
 
     raise IllegalActionError, action unless Event::WIKI_ACTIONS.include?(action)
 
-    create_record_event(wiki_page_meta, current_user, action)
+    if duplicate = existing_wiki_event(wiki_page_meta, action)
+      return duplicate
+    end
+
+    event = create_record_event(wiki_page_meta, author, action)
+    # Ensure that the event is linked in time to the metadata, for non-deletes
+    unless action == Event::DESTROYED
+      time_stamp = wiki_page_meta.updated_at
+      event.update_columns(updated_at: time_stamp, created_at: time_stamp)
+    end
+
+    event
   end
 
   private
+
+  def existing_wiki_event(wiki_page_meta, action)
+    if action == Event::DESTROYED
+      most_recent = Event.for_wiki_meta(wiki_page_meta).recent.first
+      return most_recent if most_recent.present? && most_recent.action == action
+    else
+      Event.for_wiki_meta(wiki_page_meta).created_at(wiki_page_meta.updated_at).first
+    end
+  end
 
   def create_record_event(record, current_user, status)
     create_event(record.resource_parent, current_user, status, target_id: record.id, target_type: record.class.name)
@@ -134,6 +170,18 @@ class EventCreateService
     attributes[resource_parent_attr] = resource_parent if resource_parent_attr
 
     Event.create!(attributes)
+  end
+
+  def create_resource_event(issuable, current_user, status)
+    return unless state_change_tracking_enabled?(issuable)
+
+    ResourceEvents::ChangeStateService.new(resource: issuable, user: current_user)
+      .execute(status)
+  end
+
+  def state_change_tracking_enabled?(issuable)
+    issuable&.respond_to?(:resource_state_events) &&
+      ::Feature.enabled?(:track_resource_state_change_events, issuable&.project)
   end
 end
 

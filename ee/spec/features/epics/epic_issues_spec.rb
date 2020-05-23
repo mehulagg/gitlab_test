@@ -27,9 +27,11 @@ describe 'Epic Issues', :js do
     ]
   end
 
-  def visit_epic
+  before do
     stub_licensed_features(epics: true, subepics: true)
+  end
 
+  def visit_epic
     sign_in(user)
     visit group_epic_path(group, epic)
 
@@ -58,7 +60,7 @@ describe 'Epic Issues', :js do
     end
 
     it 'user cannot add new epics to the epic' do
-      expect(page).not_to have_selector('.related-items-tree-container .js-add-epics-button')
+      expect(page).not_to have_selector('.related-items-tree-container .js-add-epics-issues-button')
     end
   end
 
@@ -67,8 +69,9 @@ describe 'Epic Issues', :js do
     let(:issue_invalid) { create(:issue) }
     let(:epic_to_add) { create(:epic, group: group) }
 
-    def add_issues(references, button_selector: '.js-issue-actions-split-button > button:first-child')
-      find(".related-items-tree-container #{button_selector}").click
+    def add_issues(references)
+      find(".related-items-tree-container .js-add-epics-issues-button").click
+      find('.related-items-tree-container .js-add-epics-issues-button .dropdown-item', text: 'Add an existing issue').click
       find('.related-items-tree-container .js-add-issuable-form-input').set(references)
       # When adding long references, for some reason the input gets stuck
       # waiting for more text. Send a keystroke before clicking the button to
@@ -80,7 +83,8 @@ describe 'Epic Issues', :js do
     end
 
     def add_epics(references)
-      find('.related-items-tree-container .js-add-epics-button').click
+      find('.related-items-tree-container .js-add-epics-issues-button').click
+      find('.related-items-tree-container .js-add-epics-issues-button .dropdown-item', text: 'Add an existing epic').click
       find('.related-items-tree-container .js-add-issuable-form-input').set(references)
 
       find('.related-items-tree-container .js-add-issuable-form-input').send_keys(:tab)
@@ -98,8 +102,8 @@ describe 'Epic Issues', :js do
       it 'user can display create new epic form by clicking the dropdown item' do
         expect(page).not_to have_selector('input[placeholder="New epic title"]')
 
-        find('.related-items-tree-container .js-add-epics-button .dropdown-toggle').click
-        find('.related-items-tree-container .js-add-epics-button .dropdown-item', text: 'Create new epic').click
+        find('.related-items-tree-container .js-add-epics-issues-button .dropdown-toggle').click
+        find('.related-items-tree-container .js-add-epics-issues-button .dropdown-item', text: 'Add a new epic').click
 
         expect(page).to have_selector('input[placeholder="New epic title"]')
       end
@@ -220,8 +224,10 @@ describe 'Epic Issues', :js do
           stub_licensed_features(epics: true, subepics: false)
 
           visit_epic
+          find('.related-items-tree-container .js-add-epics-issues-button').click
 
-          expect(page).not_to have_selector('.related-items-tree-container .js-add-epics-button')
+          expect(page).not_to have_selector('.related-items-tree-container .js-add-epics-issues-button .dropdown-item', text: 'Add an existing epic')
+          expect(page).not_to have_selector('.related-items-tree-container .js-add-epics-issues-button .dropdown-item', text: 'Add a new epic')
         end
       end
     end
@@ -229,7 +235,7 @@ describe 'Epic Issues', :js do
     it 'user can add new issues to the epic' do
       references = "#{issue_to_add.to_reference(full: true)}"
 
-      add_issues(references, button_selector: '.js-issue-actions-split-button')
+      add_issues(references)
 
       expect(page).not_to have_selector('.gl-field-error')
       expect(page).not_to have_content("Issue cannot be found.")

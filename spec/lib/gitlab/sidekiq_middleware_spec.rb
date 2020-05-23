@@ -4,12 +4,17 @@ require 'spec_helper'
 require 'sidekiq/testing'
 
 describe Gitlab::SidekiqMiddleware do
-  class TestWorker
-    include Sidekiq::Worker
+  before do
+    stub_const('TestWorker', Class.new)
 
-    def perform(_arg)
-      Gitlab::SafeRequestStore['gitaly_call_actual'] = 1
-      Gitlab::GitalyClient.query_time = 5
+    TestWorker.class_eval do
+      include Sidekiq::Worker
+      include ApplicationWorker
+
+      def perform(_arg)
+        Gitlab::SafeRequestStore['gitaly_call_actual'] = 1
+        Gitlab::SafeRequestStore[:gitaly_query_time] = 5
+      end
     end
   end
 
@@ -28,11 +33,15 @@ describe Gitlab::SidekiqMiddleware do
   # 2) yielding exactly once
   describe '.server_configurator' do
     around do |example|
-      original = Sidekiq::Testing.server_middleware.dup
+      with_sidekiq_server_middleware do |chain|
+        described_class.server_configurator(
+          metrics: metrics,
+          arguments_logger: arguments_logger,
+          memory_killer: memory_killer
+        ).call(chain)
 
-      example.run
-
-      Sidekiq::Testing.instance_variable_set :@server_chain, original
+        example.run
+      end
     end
 
     let(:middleware_expected_args) { [a_kind_of(worker_class), hash_including({ 'args' => job_args }), anything] }
@@ -47,6 +56,7 @@ describe Gitlab::SidekiqMiddleware do
        Gitlab::SidekiqMiddleware::ArgumentsLogger,
        Gitlab::SidekiqMiddleware::MemoryKiller,
        Gitlab::SidekiqMiddleware::RequestStoreMiddleware,
+       Gitlab::SidekiqMiddleware::ExtraDoneLogMetadata,
        Gitlab::SidekiqMiddleware::WorkerContext::Server,
        Gitlab::SidekiqMiddleware::AdminMode::Server,
        Gitlab::SidekiqMiddleware::DuplicateJobs::Server
@@ -54,21 +64,17 @@ describe Gitlab::SidekiqMiddleware do
     end
     let(:enabled_sidekiq_middlewares) { all_sidekiq_middlewares - disabled_sidekiq_middlewares }
 
-    before do
-      Sidekiq::Testing.server_middleware.clear
-      Sidekiq::Testing.server_middleware(&described_class.server_configurator(
-        metrics: metrics,
-        arguments_logger: arguments_logger,
-        memory_killer: memory_killer,
-        request_store: request_store
-      ))
+    shared_examples "a server middleware chain" do
+      it "passes through the right server middlewares" do
+        enabled_sidekiq_middlewares.each do |middleware|
+          expect_any_instance_of(middleware).to receive(:call).with(*middleware_expected_args).once.and_call_original
+        end
 
-      enabled_sidekiq_middlewares.each do |middleware|
-        expect_any_instance_of(middleware).to receive(:call).with(*middleware_expected_args).once.and_call_original
-      end
+        disabled_sidekiq_middlewares.each do |middleware|
+          expect_any_instance_of(middleware).not_to receive(:call)
+        end
 
-      disabled_sidekiq_middlewares.each do |middleware|
-        expect_any_instance_of(Gitlab::SidekiqMiddleware::ArgumentsLogger).not_to receive(:call)
+        worker_class.perform_async(*job_args)
       end
     end
 
@@ -76,31 +82,24 @@ describe Gitlab::SidekiqMiddleware do
       let(:metrics) { false }
       let(:arguments_logger) { false }
       let(:memory_killer) { false }
-      let(:request_store) { false }
       let(:disabled_sidekiq_middlewares) do
         [
           Gitlab::SidekiqMiddleware::ServerMetrics,
           Gitlab::SidekiqMiddleware::ArgumentsLogger,
-          Gitlab::SidekiqMiddleware::MemoryKiller,
-          Gitlab::SidekiqMiddleware::RequestStoreMiddleware
+          Gitlab::SidekiqMiddleware::MemoryKiller
         ]
       end
 
-      it "passes through server middlewares" do
-        worker_class.perform_async(*job_args)
-      end
+      it_behaves_like "a server middleware chain"
     end
 
     context "all optional middlewares on" do
       let(:metrics) { true }
       let(:arguments_logger) { true }
       let(:memory_killer) { true }
-      let(:request_store) { true }
       let(:disabled_sidekiq_middlewares) { [] }
 
-      it "passes through server middlewares" do
-        worker_class.perform_async(*job_args)
-      end
+      it_behaves_like "a server middleware chain"
 
       context "server metrics" do
         let(:gitaly_histogram) { double(:gitaly_histogram) }
@@ -134,12 +133,12 @@ describe Gitlab::SidekiqMiddleware do
     let(:middleware_expected_args) { [worker_class_arg, job, queue, redis_pool] }
     let(:expected_middlewares) do
       [
-        Gitlab::SidekiqStatus::ClientMiddleware,
-        Gitlab::SidekiqMiddleware::ClientMetrics,
-        Gitlab::SidekiqMiddleware::WorkerContext::Client,
-        Labkit::Middleware::Sidekiq::Client,
-        Gitlab::SidekiqMiddleware::AdminMode::Client,
-        Gitlab::SidekiqMiddleware::DuplicateJobs::Client
+         ::Gitlab::SidekiqMiddleware::WorkerContext::Client,
+         ::Labkit::Middleware::Sidekiq::Client,
+         ::Gitlab::SidekiqMiddleware::DuplicateJobs::Client,
+         ::Gitlab::SidekiqStatus::ClientMiddleware,
+         ::Gitlab::SidekiqMiddleware::AdminMode::Client,
+         ::Gitlab::SidekiqMiddleware::ClientMetrics
       ]
     end
 

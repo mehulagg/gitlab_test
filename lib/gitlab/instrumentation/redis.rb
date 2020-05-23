@@ -23,6 +23,11 @@ module Gitlab
       REDIS_REQUEST_COUNT = :redis_request_count
       REDIS_CALL_DURATION = :redis_call_duration
       REDIS_CALL_DETAILS = :redis_call_details
+      REDIS_READ_BYTES = :redis_read_bytes
+      REDIS_WRITE_BYTES = :redis_write_bytes
+
+      # Milliseconds represented in seconds (from 1 to 500 milliseconds).
+      QUERY_TIME_BUCKETS = [0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5].freeze
 
       def self.get_request_count
         ::RequestStore[REDIS_REQUEST_COUNT] || 0
@@ -33,21 +38,36 @@ module Gitlab
         ::RequestStore[REDIS_REQUEST_COUNT] += 1
       end
 
+      def self.increment_read_bytes(num_bytes)
+        ::RequestStore[REDIS_READ_BYTES] ||= 0
+        ::RequestStore[REDIS_READ_BYTES] += num_bytes
+      end
+
+      def self.increment_write_bytes(num_bytes)
+        ::RequestStore[REDIS_WRITE_BYTES] ||= 0
+        ::RequestStore[REDIS_WRITE_BYTES] += num_bytes
+      end
+
+      def self.read_bytes
+        ::RequestStore[REDIS_READ_BYTES] || 0
+      end
+
+      def self.write_bytes
+        ::RequestStore[REDIS_WRITE_BYTES] || 0
+      end
+
       def self.detail_store
         ::RequestStore[REDIS_CALL_DETAILS] ||= []
       end
 
-      def self.query_time_ms
-        (self.query_time * 1000).round(2)
-      end
-
       def self.query_time
-        ::RequestStore[REDIS_CALL_DURATION] || 0
+        query_time = ::RequestStore[REDIS_CALL_DURATION] || 0
+        query_time.round(::Gitlab::InstrumentationHelper::DURATION_PRECISION)
       end
 
       def self.add_duration(duration)
-        total_time = query_time + duration
-        ::RequestStore[REDIS_CALL_DURATION] = total_time
+        ::RequestStore[REDIS_CALL_DURATION] ||= 0
+        ::RequestStore[REDIS_CALL_DURATION] += duration
       end
 
       def self.add_call_details(duration, args)

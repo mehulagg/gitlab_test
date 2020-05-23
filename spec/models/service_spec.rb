@@ -87,6 +87,20 @@ describe Service do
       end
     end
 
+    describe '#operating?' do
+      it 'is false when the service is not active' do
+        expect(build(:service).operating?).to eq(false)
+      end
+
+      it 'is false when the service is not persisted' do
+        expect(build(:service, active: true).operating?).to eq(false)
+      end
+
+      it 'is true when the service is active and persisted' do
+        expect(create(:service, active: true).operating?).to eq(true)
+      end
+    end
+
     describe '.confidential_note_hooks' do
       it 'includes services where confidential_note_events is true' do
         create(:service, active: true, confidential_note_events: true)
@@ -104,21 +118,29 @@ describe Service do
 
   describe "Test Button" do
     describe '#can_test?' do
+      subject { service.can_test? }
+
       let(:service) { create(:service, project: project) }
 
       context 'when repository is not empty' do
         let(:project) { create(:project, :repository) }
 
-        it 'returns true' do
-          expect(service.can_test?).to be true
-        end
+        it { is_expected.to be true }
       end
 
       context 'when repository is empty' do
         let(:project) { create(:project) }
 
-        it 'returns true' do
-          expect(service.can_test?).to be true
+        it { is_expected.to be true }
+      end
+
+      context 'when instance-level service' do
+        Service.available_services_types.each do |service_type|
+          let(:service) do
+            service_type.constantize.new(instance: true)
+          end
+
+          it { is_expected.to be_falsey }
         end
       end
     end
@@ -242,13 +264,13 @@ describe Service do
       end
     end
 
-    describe '.build_from_template' do
+    describe '.build_from_integration' do
       context 'when template is invalid' do
         it 'sets service template to inactive when template is invalid' do
           template = build(:prometheus_service, template: true, active: true, properties: {})
           template.save(validate: false)
 
-          service = described_class.build_from_template(project.id, template)
+          service = described_class.build_from_integration(project.id, template)
 
           expect(service).to be_valid
           expect(service.active).to be false
@@ -271,7 +293,7 @@ describe Service do
 
         shared_examples 'service creation from a template' do
           it 'creates a correct service' do
-            service = described_class.build_from_template(project.id, template)
+            service = described_class.build_from_integration(project.id, template)
 
             expect(service).to be_active
             expect(service.title).to eq(title)
@@ -280,6 +302,8 @@ describe Service do
             expect(service.api_url).to eq(api_url)
             expect(service.username).to eq(username)
             expect(service.password).to eq(password)
+            expect(service.template).to eq(false)
+            expect(service.instance).to eq(false)
           end
         end
 
@@ -512,24 +536,6 @@ describe Service do
           service.update(active: false)
         end.to change { service.project.has_external_issue_tracker }.from(true).to(false)
       end
-    end
-  end
-
-  describe "#deprecated?" do
-    let(:project) { create(:project, :repository) }
-
-    it 'returns false by default' do
-      service = create(:service, project: project)
-      expect(service.deprecated?).to be_falsy
-    end
-  end
-
-  describe "#deprecation_message" do
-    let(:project) { create(:project, :repository) }
-
-    it 'is empty by default' do
-      service = create(:service, project: project)
-      expect(service.deprecation_message).to be_nil
     end
   end
 

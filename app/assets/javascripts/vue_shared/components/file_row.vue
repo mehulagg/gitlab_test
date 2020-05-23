@@ -111,6 +111,7 @@ export default {
     v-else
     :class="fileClass"
     :title="textForTitle"
+    :data-level="level"
     class="file-row"
     role="button"
     @click="clickFile"
@@ -145,19 +146,6 @@ export default {
   border-radius: 3px;
   text-align: left;
   cursor: pointer;
-}
-
-.file-row:hover,
-.file-row:focus {
-  background: #f2f2f2;
-}
-
-.file-row:active {
-  background: #dfdfdf;
-}
-
-.file-row.is-active {
-  background: #f2f2f2;
 }
 
 .file-row-name-container {

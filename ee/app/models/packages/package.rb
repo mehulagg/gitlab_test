@@ -9,8 +9,10 @@ class Packages::Package < ApplicationRecord
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :dependency_links, inverse_of: :package, class_name: 'Packages::DependencyLink'
   has_many :tags, inverse_of: :package, class_name: 'Packages::Tag'
-  has_one :conan_metadatum, inverse_of: :package
-  has_one :maven_metadatum, inverse_of: :package
+  has_one :conan_metadatum, inverse_of: :package, class_name: 'Packages::Conan::Metadatum'
+  has_one :pypi_metadatum, inverse_of: :package, class_name: 'Packages::Pypi::Metadatum'
+  has_one :maven_metadatum, inverse_of: :package, class_name: 'Packages::Maven::Metadatum'
+  has_one :nuget_metadatum, inverse_of: :package, class_name: 'Packages::Nuget::Metadatum'
   has_one :build_info, inverse_of: :package
 
   accepts_nested_attributes_for :conan_metadatum
@@ -19,10 +21,9 @@ class Packages::Package < ApplicationRecord
   delegate :recipe, :recipe_path, to: :conan_metadatum, prefix: :conan
 
   validates :project, presence: true
+  validates :name, presence: true
 
-  validates :name,
-    presence: true,
-    format: { with: Gitlab::Regex.package_name_regex }
+  validates :name, format: { with: Gitlab::Regex.package_name_regex }, unless: :conan?
 
   validates :name,
     uniqueness: { scope: %i[project_id version package_type] }, unless: :conan?
@@ -30,9 +31,11 @@ class Packages::Package < ApplicationRecord
   validate :valid_conan_package_recipe, if: :conan?
   validate :valid_npm_package_name, if: :npm?
   validate :package_already_taken, if: :npm?
-  validates :version, format: { with: Gitlab::Regex.semver_regex }, if: :npm?
+  validates :version, format: { with: Gitlab::Regex.semver_regex }, if: -> { npm? || nuget? }
+  validates :name, format: { with: Gitlab::Regex.conan_recipe_component_regex }, if: :conan?
+  validates :version, format: { with: Gitlab::Regex.conan_recipe_component_regex }, if: :conan?
 
-  enum package_type: { maven: 1, npm: 2, conan: 3, nuget: 4, pypi: 5 }
+  enum package_type: { maven: 1, npm: 2, conan: 3, nuget: 4, pypi: 5, composer: 6 }
 
   scope :with_name, ->(name) { where(name: name) }
   scope :with_name_like, ->(name) { where(arel_table[:name].matches(name)) }
@@ -91,6 +94,11 @@ class Packages::Package < ApplicationRecord
       .where(packages_package_files: { file_name: file_name }).last!
   end
 
+  def self.by_file_name_and_sha256(file_name, sha256)
+    joins(:package_files)
+      .where(packages_package_files: { file_name: file_name, file_sha256: sha256 }).last!
+  end
+
   def self.pluck_names
     pluck(:name)
   end
@@ -116,6 +124,22 @@ class Packages::Package < ApplicationRecord
     else
       order_created_desc
     end
+  end
+
+  def versions
+    project.packages
+           .with_name(name)
+           .where.not(version: version)
+           .with_package_type(package_type)
+           .order(:version)
+  end
+
+  def pipeline
+    build_info&.pipeline
+  end
+
+  def tag_names
+    tags.pluck(:name)
   end
 
   private

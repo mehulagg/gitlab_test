@@ -17,7 +17,7 @@ module EE
         override :retrieve_members
         def retrieve_members(source, params:, deep: false)
           members = super
-          members = members.includes(user: :max_access_level_membership)
+          members = members.includes(user: :user_highest_role)
 
           if can_view_group_identity?(source)
             members = members.includes(user: :group_saml_identities)
@@ -43,6 +43,21 @@ module EE
           log_audit_event(member) if member.persisted? && member.valid?
 
           member
+        end
+
+        def find_member(params)
+          source = find_source(:group, params.delete(:id))
+          authorize! :override_group_member, source
+
+          source.members.by_user_id(params[:user_id]).first
+        end
+
+        def present_member(updated_member)
+          if updated_member.valid?
+            present updated_member, with: ::API::Entities::Member
+          else
+            render_validation_error!(updated_member)
+          end
         end
 
         def log_audit_event(member)

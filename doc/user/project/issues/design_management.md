@@ -1,6 +1,7 @@
-# Design Management **(PREMIUM)**
+# Design Management
 
-> [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/660) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.2.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/660) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.2.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/212566) to GitLab Core in 13.0.
 
 CAUTION: **Warning:**
 This an **alpha** feature and is subject to change at any time without
@@ -22,12 +23,12 @@ For an overview, see the video [Design Management (GitLab 12.2)](https://www.you
 ## Requirements
 
 Design Management requires
-[Large File Storage (LFS)](../../../administration/lfs/manage_large_binaries_with_git_lfs.md)
+[Large File Storage (LFS)](../../../topics/git/lfs/index.md)
 to be enabled:
 
 - For GitLab.com, LFS is already enabled.
 - For self-managed instances, a GitLab administrator must have
-  [enabled LFS globally](../../../administration/lfs/lfs_administration.md).
+  [enabled LFS globally](../../../administration/lfs/index.md).
 - For both GitLab.com and self-managed instances: LFS must be enabled for the project itself.
   If enabled globally, LFS will be enabled by default to all projects. To enable LFS on the
   project level, navigate to your project's **Settings > General**, expand **Visibility, project features, permissions**
@@ -44,19 +45,19 @@ If the requirements are not met, the **Designs** tab displays a message to the u
 Files uploaded must have a file extension of either `png`, `jpg`, `jpeg`,
 `gif`, `bmp`, `tiff` or `ico`.
 
-Support for [SVG files](https://gitlab.com/gitlab-org/gitlab/issues/12771)
-and [PDFs](https://gitlab.com/gitlab-org/gitlab/issues/32811) is planned for a future release.
+Support for [SVG files](https://gitlab.com/gitlab-org/gitlab/-/issues/12771)
+and [PDFs](https://gitlab.com/gitlab-org/gitlab/-/issues/32811) is planned for a future release.
 
 ## Limitations
 
 - Design uploads are limited to 10 files at a time.
 - Design Management data
-  [isn't deleted when a project is destroyed](https://gitlab.com/gitlab-org/gitlab/issues/13429) yet.
-- Design Management data [won't be moved](https://gitlab.com/gitlab-org/gitlab/issues/13426)
-  when an issue is moved, nor [deleted](https://gitlab.com/gitlab-org/gitlab/issues/13427)
+  [isn't deleted when a project is destroyed](https://gitlab.com/gitlab-org/gitlab/-/issues/13429) yet.
+- Design Management data [won't be moved](https://gitlab.com/gitlab-org/gitlab/-/issues/13426)
+  when an issue is moved, nor [deleted](https://gitlab.com/gitlab-org/gitlab/-/issues/13427)
   when an issue is deleted.
 - From GitLab 12.7, Design Management data [can be replicated](../../../administration/geo/replication/datatypes.md#limitations-on-replicationverification)
-  by Geo but [not verified](https://gitlab.com/gitlab-org/gitlab/issues/32467).
+  by Geo but [not verified](https://gitlab.com/gitlab-org/gitlab/-/issues/32467).
 - Only the latest version of the designs can be deleted.
 - Deleted designs cannot be recovered but you can see them on previous designs versions.
 
@@ -70,13 +71,27 @@ Navigate to the **Design Management** page from any issue by clicking the **Desi
 
 To upload design images, click the **Upload Designs** button and select images to upload.
 
-[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9,
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9,
 you can drag and drop designs onto the dedicated dropzone to upload them.
 
 ![Drag and drop design uploads](img/design_drag_and_drop_uploads_v12_9.png)
 
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/202634)
+in GitLab 12.10, you can also copy images from your file system and
+paste them directly on GitLab's Design page as a new design.
+
+On macOS you can also take a screenshot and immediately copy it to
+the clipboard by simultaneously clicking <kbd>Control</kbd> + <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>3</kbd>, and then paste it as a design.
+
+Copy-and-pasting has some limitations:
+
+- You can paste only one image at a time. When copy/pasting multiple files, only the first one will be uploaded.
+- All images will be converted to `png` format under the hood, so when you want to copy/paste `gif` file, it will result in broken animation.
+- If you are pasting a screenshot from the clipboard, it will be renamed to `design_<timestamp>.png`
+- Copy/pasting designs is not supported on Internet Explorer.
+
 Designs with the same filename as an existing uploaded design will create a new version
-of the design, and will replace the previous version. [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9, dropping a design on an existing uploaded design will also create a new version,
+of the design, and will replace the previous version. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9, dropping a design on an existing uploaded design will also create a new version,
 provided the filenames are the same.
 
 Designs cannot be added if the issue has been moved, or its
@@ -108,17 +123,19 @@ to help summarize changes between versions.
 
 ### Exploring designs by zooming
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13217) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13217) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.7.
 
 Designs can be explored in greater detail by zooming in and out of the image.
 Control the amount of zoom with the `+` and `-` buttons at the bottom of the image.
 While zoomed, you can still [start new discussions](#starting-discussions-on-designs) on the image, and see any existing ones.
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/197324) in GitLab 12.10, while zoomed in,
+you can click-and-drag on the image to move around it.
 
 ![Design zooming](img/design_zooming_v12_7.png)
 
 ## Deleting designs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11089) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/11089) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.4.
 
 There are two ways to delete designs: manually delete them
 individually, or select a few of them to delete at once,
@@ -152,7 +169,7 @@ A pin is added to the image, identifying the discussion's location.
 
 ![Starting a new discussion on design](img/adding_note_to_design_1.png)
 
-[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.8,
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.8,
 you can adjust a pin's position by dragging it around the image. This is useful
 for when your design layout has changed between revisions, or if you need to move an
 existing pin to add a new one in its place.

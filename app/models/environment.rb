@@ -8,6 +8,7 @@ class Environment < ApplicationRecord
   self.reactive_cache_refresh_interval = 1.minute
   self.reactive_cache_lifetime = 55.seconds
   self.reactive_cache_hard_limit = 10.megabytes
+  self.reactive_cache_work_type = :external_dependency
 
   belongs_to :project, required: true
 
@@ -18,6 +19,7 @@ class Environment < ApplicationRecord
   has_many :successful_deployments, -> { success }, class_name: 'Deployment'
   has_many :active_deployments, -> { active }, class_name: 'Deployment'
   has_many :prometheus_alerts, inverse_of: :environment
+  has_many :metrics_dashboard_annotations, class_name: 'Metrics::Dashboard::Annotation', inverse_of: :environment
   has_many :self_managed_prometheus_alert_events, inverse_of: :environment
 
   has_one :last_deployment, -> { success.order('deployments.id DESC') }, class_name: 'Deployment'
@@ -118,6 +120,10 @@ class Environment < ApplicationRecord
     find_or_create_by(name: name)
   end
 
+  def self.valid_states
+    self.state_machine.states.map(&:name)
+  end
+
   class << self
     ##
     # This method returns stop actions (jobs) for multiple environments within one
@@ -144,6 +150,14 @@ class Environment < ApplicationRecord
                .where(status: HasStatus::BLOCKED_STATUS)
                .preload_project_and_pipeline_project
                .preload(:user, :metadata, :deployment)
+    end
+
+    def count_by_state
+      environments_count_by_state = group(:state).count
+
+      valid_states.each_with_object({}) do |state, count_hash|
+        count_hash[state] = environments_count_by_state[state.to_s] || 0
+      end
     end
 
     private
@@ -325,7 +339,7 @@ class Environment < ApplicationRecord
   end
 
   def auto_stop_in
-    auto_stop_at - Time.now if auto_stop_at
+    auto_stop_at - Time.current if auto_stop_at
   end
 
   def auto_stop_in=(value)

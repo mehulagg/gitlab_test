@@ -181,9 +181,9 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
           end
         end
 
-        context 'when service_desk_email feature is disabled' do
+        context 'when service_desk_custom_address feature is disabled' do
           before do
-            stub_feature_flags(service_desk_email: false)
+            stub_feature_flags(service_desk_custom_address: false)
           end
 
           it 'bounces the email' do
@@ -290,7 +290,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
   end
 
   context 'service desk is disabled for the project' do
-    let(:project) { create(:project, :public, namespace: namespace, path: 'test') }
+    let(:project) { create(:project, :public, namespace: namespace, path: 'test', service_desk_enabled: false) }
 
     it 'bounces the email' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::ProcessingError)
