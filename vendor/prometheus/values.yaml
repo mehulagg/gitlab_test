@@ -18,6 +18,8 @@ serverFiles:
   rules: {}
 
   prometheus.yml:
+    global:
+      query_log_file: /etc/query.log
     rule_files:
       - /etc/config/rules
       - /etc/config/alerts
