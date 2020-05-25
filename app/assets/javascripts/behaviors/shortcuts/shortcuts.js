@@ -6,7 +6,6 @@ import { disableShortcuts, shouldDisableShortcuts } from './shortcuts_toggle';
 import initMarkdownShortcuts from './shortcuts_markdown';
 import ShortcutsToggle from './shortcuts_toggle.vue';
 import axios from '../../lib/utils/axios_utils';
-
 import { refreshCurrentPage, visitUrl } from '../../lib/utils/url_utility';
 import findAndFollowLink from '../../lib/utils/navigation_utility';
 import { parseBoolean, getCspNonceValue } from '~/lib/utils/common_utils';
