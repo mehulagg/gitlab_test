@@ -265,12 +265,19 @@ module Gitlab
       # or `RESET ALL` is executed
       def disable_statement_timeout
         if block_given?
-          begin
-            execute('SET statement_timeout TO 0')
-
+          if statement_timeout_disabled?
+            # Don't do anything if the statement_timeout is already disabled
+            # Allows for nested calls of disable_statement_timeout without
+            # resetting the timeout too early (before the outer call ends)
             yield
-          ensure
-            execute('RESET ALL')
+          else
+            begin
+              execute('SET statement_timeout TO 0')
+
+              yield
+            ensure
+              execute('RESET ALL')
+            end
           end
         else
           unless transaction_open?
@@ -444,66 +451,13 @@ module Gitlab
 
       # Adds a column with a default value without locking an entire table.
       #
-      # This method runs the following steps:
-      #
-      # 1. Add the column with a default value of NULL.
-      # 2. Change the default value of the column to the specified value.
-      # 3. Update all existing rows in batches.
-      # 4. Set a `NOT NULL` constraint on the column if desired (the default).
-      #
-      # These steps ensure a column can be added to a large and commonly used
-      # table without locking the entire table for the duration of the table
-      # modification.
-      #
-      # table - The name of the table to update.
-      # column - The name of the column to add.
-      # type - The column type (e.g. `:integer`).
-      # default - The default value for the column.
-      # limit - Sets a column limit. For example, for :integer, the default is
-      #         4-bytes. Set `limit: 8` to allow 8-byte integers.
-      # allow_null - When set to `true` the column will allow NULL values, the
-      #              default is to not allow NULL values.
-      #
-      # This method can also take a block which is passed directly to the
-      # `update_column_in_batches` method.
-      def add_column_with_default(table, column, type, default:, limit: nil, allow_null: false, update_column_in_batches_args: {}, &block)
-        if transaction_open?
-          raise 'add_column_with_default can not be run inside a transaction, ' \
-            'you can disable transactions by calling disable_ddl_transaction! ' \
-            'in the body of your migration class'
-        end
+      # @deprecated With PostgreSQL 11, adding columns with a default does not lead to a table rewrite anymore.
+      #             As such, this method is not needed anymore and the default `add_column` helper should be used.
+      #             This helper is subject to be removed in a >13.0 release.
+      def add_column_with_default(table, column, type, default:, limit: nil, allow_null: false)
+        raise 'Deprecated: add_column_with_default does not support being passed blocks anymore' if block_given?
 
-        disable_statement_timeout do
-          transaction do
-            if limit
-              add_column(table, column, type, default: nil, limit: limit)
-            else
-              add_column(table, column, type, default: nil)
-            end
-
-            # Changing the default before the update ensures any newly inserted
-            # rows already use the proper default value.
-            change_column_default(table, column, default)
-          end
-
-          begin
-            default_after_type_cast = connection.type_cast(default, column_for(table, column))
-
-            if update_column_in_batches_args.any?
-              update_column_in_batches(table, column, default_after_type_cast, **update_column_in_batches_args, &block)
-            else
-              update_column_in_batches(table, column, default_after_type_cast, &block)
-            end
-
-            change_column_null(table, column, false) unless allow_null
-          # We want to rescue _all_ exceptions here, even those that don't inherit
-          # from StandardError.
-          rescue Exception => error # rubocop: disable all
-            remove_column(table, column)
-
-            raise error
-          end
-        end
+        add_column(table, column, type, default: default, limit: limit, null: allow_null)
       end
 
       # Renames a column without requiring downtime.
@@ -1334,10 +1288,71 @@ into similar problems in the future (e.g. when new tables are created).
         check_constraint_exists?(table, text_limit_name(table, column, name: constraint_name))
       end
 
+      # Migration Helpers for managing not null constraints
+      def add_not_null_constraint(table, column, constraint_name: nil, validate: true)
+        if column_is_nullable?(table, column)
+          add_check_constraint(
+            table,
+            "#{column} IS NOT NULL",
+            not_null_constraint_name(table, column, name: constraint_name),
+            validate: validate
+          )
+        else
+          warning_message = <<~MESSAGE
+            NOT NULL check constraint was not created:
+            column #{table}.#{column} is already defined as `NOT NULL`
+          MESSAGE
+
+          Rails.logger.warn warning_message
+        end
+      end
+
+      def validate_not_null_constraint(table, column, constraint_name: nil)
+        validate_check_constraint(
+          table,
+          not_null_constraint_name(table, column, name: constraint_name)
+        )
+      end
+
+      def remove_not_null_constraint(table, column, constraint_name: nil)
+        remove_check_constraint(
+          table,
+          not_null_constraint_name(table, column, name: constraint_name)
+        )
+      end
+
+      def check_not_null_constraint_exists?(table, column, constraint_name: nil)
+        check_constraint_exists?(
+          table,
+          not_null_constraint_name(table, column, name: constraint_name)
+        )
+      end
+
       private
+
+      def statement_timeout_disabled?
+        # This is a string of the form "100ms" or "0" when disabled
+        connection.select_value('SHOW statement_timeout') == "0"
+      end
+
+      def column_is_nullable?(table, column)
+        # Check if table.column has not been defined with NOT NULL
+        check_sql = <<~SQL
+          SELECT c.is_nullable
+          FROM information_schema.columns c
+          WHERE c.table_name = '#{table}'
+          AND c.column_name = '#{column}'
+        SQL
+
+        connection.select_value(check_sql) == 'YES'
+      end
 
       def text_limit_name(table, column, name: nil)
         name.presence || check_constraint_name(table, column, 'max_length')
+      end
+
+      def not_null_constraint_name(table, column, name: nil)
+        name.presence || check_constraint_name(table, column, 'not_null')
       end
 
       def missing_schema_object_message(table, type, name)
@@ -1383,7 +1398,7 @@ into similar problems in the future (e.g. when new tables are created).
 
         update_column_in_batches(table, new, Arel::Table.new(table)[old], batch_column_name: batch_column_name)
 
-        change_column_null(table, new, false) unless old_col.null
+        add_not_null_constraint(table, new) unless old_col.null
 
         copy_indexes(table, old, new)
         copy_foreign_keys(table, old, new)

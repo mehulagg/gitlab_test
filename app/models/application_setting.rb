@@ -263,6 +263,8 @@ class ApplicationSetting < ApplicationRecord
 
   validates :email_restrictions, untrusted_regexp: true
 
+  validates :hashed_storage_enabled, inclusion: { in: [true], message: _("Hashed storage can't be disabled anymore for new projects") }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end
@@ -298,6 +300,13 @@ class ApplicationSetting < ApplicationRecord
   validates :external_authorization_service_timeout,
             numericality: { greater_than: 0, less_than_or_equal_to: 10 },
             if: :external_authorization_service_enabled
+
+  validates :spam_check_endpoint_url,
+            addressable_url: true, allow_blank: true
+
+  validates :spam_check_endpoint_url,
+            presence: true,
+            if: :spam_check_endpoint_enabled
 
   validates :external_auth_client_key,
             presence: true,
@@ -418,7 +427,7 @@ class ApplicationSetting < ApplicationRecord
   # can cause a significant amount of load on Redis, let's cache it in
   # memory.
   def self.cache_backend
-    Gitlab::ThreadMemoryCache.cache_backend
+    Gitlab::ProcessMemoryCache.cache_backend
   end
 
   def recaptcha_or_login_protection_enabled

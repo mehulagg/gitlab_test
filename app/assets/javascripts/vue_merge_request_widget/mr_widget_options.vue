@@ -40,7 +40,6 @@ import TerraformPlan from './components/mr_widget_terraform_plan.vue';
 import GroupedTestReportsApp from '../reports/components/grouped_test_reports_app.vue';
 import { setFaviconOverlay } from '../lib/utils/common_utils';
 import GroupedAccessibilityReportsApp from '../reports/accessibility_report/grouped_accessibility_reports_app.vue';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
   el: '#js-vue-mr-widget',
@@ -80,7 +79,6 @@ export default {
     TerraformPlan,
     GroupedAccessibilityReportsApp,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     mrData: {
       type: Object,
@@ -104,8 +102,11 @@ export default {
     shouldRenderMergeHelp() {
       return stateMaps.statesToShowHelpWidget.indexOf(this.mr.state) > -1;
     },
+    hasPipelineMustSucceedConflict() {
+      return !this.mr.hasCI && this.mr.onlyAllowMergeIfPipelineSucceeds;
+    },
     shouldRenderPipelines() {
-      return this.mr.hasCI;
+      return this.mr.hasCI || this.hasPipelineMustSucceedConflict;
     },
     shouldSuggestPipelines() {
       return gon.features?.suggestPipeline && !this.mr.hasCI && this.mr.mergeRequestAddCiConfigPath;
@@ -143,11 +144,7 @@ export default {
       });
     },
     shouldShowAccessibilityReport() {
-      return (
-        this.accessibilility?.base_path &&
-        this.accessibilility?.head_path &&
-        this.glFeatures.accessibilityMergeRequestWidget
-      );
+      return this.mr.accessibilityReportPath;
     },
   },
   watch: {
@@ -393,8 +390,7 @@ export default {
 
       <grouped-accessibility-reports-app
         v-if="shouldShowAccessibilityReport"
-        :base-endpoint="mr.accessibility.base_path"
-        :head-endpoint="mr.accessibility.head_path"
+        :endpoint="mr.accessibilityReportPath"
       />
 
       <div class="mr-widget-section">
@@ -432,7 +428,9 @@ export default {
           <source-branch-removal-status v-if="shouldRenderSourceBranchRemovalStatus" />
         </div>
       </div>
-      <div v-if="shouldRenderMergeHelp" class="mr-widget-footer"><mr-widget-merge-help /></div>
+      <div v-if="shouldRenderMergeHelp" class="mr-widget-footer">
+        <mr-widget-merge-help />
+      </div>
     </div>
     <mr-widget-pipeline-container
       v-if="shouldRenderMergedPipeline"

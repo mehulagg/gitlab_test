@@ -1,3 +1,9 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Adding and removing Kubernetes clusters
 
 GitLab offers integrated cluster creation for the following Kubernetes providers:
@@ -44,7 +50,7 @@ a `gitlab` service account with `cluster-admin` privileges is created in the `de
 to manage the newly created cluster.
 
 NOTE: **Note:**
-Restricted service account for deployment was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/51716) in GitLab 11.5.
+Restricted service account for deployment was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/51716) in GitLab 11.5.
 
 When you install Helm into your cluster, the `tiller` service account
 is created with `cluster-admin` privileges in the `gitlab-managed-apps`
@@ -145,7 +151,7 @@ For more information, see information for adding an:
 
 NOTE: **Note:**
 Kubernetes integration is not supported for arm64 clusters. See the issue
-[Helm Tiller fails to install on arm64 cluster](https://gitlab.com/gitlab-org/gitlab-foss/issues/64044) for details.
+[Helm Tiller fails to install on arm64 cluster](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/64044) for details.
 
 ### Existing Kubernetes cluster
 
@@ -331,7 +337,7 @@ To disable the Kubernetes cluster integration, follow the same procedure.
 To remove the Kubernetes cluster integration from your project, either:
 
 - Select **Remove integration**, to remove only the Kubernetes integration.
-- [From GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/26815), select
+- [From GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/26815), select
   **Remove integration and resources**, to also remove all related GitLab cluster resources (for
   example, namespaces, roles, and bindings) when removing the integration.
 

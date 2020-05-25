@@ -4,7 +4,7 @@ GitLab provides Rake tasks for cleaning up GitLab instances.
 
 ## Remove unreferenced LFS files from filesystem
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36628) in GitLab 12.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36628) in GitLab 12.10.
 
 DANGER: **Danger:**
 Do not run this within 12 hours of a GitLab upgrade. This is to ensure that all background migrations
@@ -179,3 +179,8 @@ sudo gitlab-rake gitlab:cleanup:sessions:active_sessions_lookup_keys
 # installation from source
 bundle exec rake gitlab:cleanup:sessions:active_sessions_lookup_keys RAILS_ENV=production
 ```
+
+## Container Registry garbage collection
+
+Container Registry can use considerable amounts of disk space. To clear up
+unused layers, the registry includes a [garbage collect command](../administration/packages/container_registry.md#container-registry-garbage-collection).

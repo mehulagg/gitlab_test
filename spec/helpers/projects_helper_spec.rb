@@ -5,6 +5,9 @@ require 'spec_helper'
 describe ProjectsHelper do
   include ProjectForksHelper
 
+  let_it_be(:project) { create(:project) }
+  let_it_be(:user) { create(:user) }
+
   describe '#project_incident_management_setting' do
     let(:project) { create(:project) }
 
@@ -500,6 +503,23 @@ describe ProjectsHelper do
     end
   end
 
+  describe '#can_view_operations_tab?' do
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+    end
+
+    subject { helper.send(:can_view_operations_tab?, user, project) }
+
+    [:read_environment, :read_cluster, :metrics_dashboard].each do |ability|
+      it 'includes operations tab' do
+        allow(helper).to receive(:can?).and_return(false)
+        allow(helper).to receive(:can?).with(user, ability, project).and_return(true)
+
+        is_expected.to be(true)
+      end
+    end
+  end
+
   describe '#show_projects' do
     let(:projects) do
       create(:project)
@@ -719,11 +739,7 @@ describe ProjectsHelper do
   end
 
   describe '#show_merge_request_count' do
-    context 'when the feature flag is enabled' do
-      before do
-        stub_feature_flags(project_list_show_mr_count: true)
-      end
-
+    context 'enabled flag' do
       it 'returns true if compact mode is disabled' do
         expect(helper.show_merge_request_count?).to be_truthy
       end
@@ -733,22 +749,7 @@ describe ProjectsHelper do
       end
     end
 
-    context 'when the feature flag is disabled' do
-      before do
-        stub_feature_flags(project_list_show_mr_count: false)
-      end
-
-      it 'always returns false' do
-        expect(helper.show_merge_request_count?(disabled: false)).to be_falsy
-        expect(helper.show_merge_request_count?(disabled: true)).to be_falsy
-      end
-    end
-
     context 'disabled flag' do
-      before do
-        stub_feature_flags(project_list_show_mr_count: true)
-      end
-
       it 'returns false if disabled flag is true' do
         expect(helper.show_merge_request_count?(disabled: true)).to be_falsey
       end
@@ -760,11 +761,7 @@ describe ProjectsHelper do
   end
 
   describe '#show_issue_count?' do
-    context 'when the feature flag is enabled' do
-      before do
-        stub_feature_flags(project_list_show_issue_count: true)
-      end
-
+    context 'enabled flag' do
       it 'returns true if compact mode is disabled' do
         expect(helper.show_issue_count?).to be_truthy
       end
@@ -774,22 +771,7 @@ describe ProjectsHelper do
       end
     end
 
-    context 'when the feature flag is disabled' do
-      before do
-        stub_feature_flags(project_list_show_issue_count: false)
-      end
-
-      it 'always returns false' do
-        expect(helper.show_issue_count?(disabled: false)).to be_falsy
-        expect(helper.show_issue_count?(disabled: true)).to be_falsy
-      end
-    end
-
     context 'disabled flag' do
-      before do
-        stub_feature_flags(project_list_show_issue_count: true)
-      end
-
       it 'returns false if disabled flag is true' do
         expect(helper.show_issue_count?(disabled: true)).to be_falsey
       end

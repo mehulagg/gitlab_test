@@ -212,7 +212,7 @@ Read more about local state management with Apollo in the [Vue Apollo documentat
 
 When Apollo Client is used within Vuex and fetched data is stored in the Vuex store, there is no need in keeping Apollo Client cache enabled. Otherwise we would have data from the API stored in two places - Vuex store and Apollo Client cache. More to say, with Apollo default settings, a subsequent fetch from the GraphQL API could result in fetching data from Apollo cache (in the case where we have the same query and variables). To prevent this behavior, we need to disable Apollo Client cache passing a valid `fetchPolicy` option to its constructor:
 
-```js
+```javascript
 import fetchPolicies from '~/graphql_shared/fetch_policy_constants';
 
 export const gqClient = createGqClient(
@@ -298,7 +298,8 @@ handleClick() {
 
 GitLab's GraphQL API uses [Relay-style cursor pagination](https://www.apollographql.com/docs/react/data/pagination/#cursor-based)
 for connection types. This means a "cursor" is used to keep track of where in the data
-set the next items should be fetched from.
+set the next items should be fetched from. [GraphQL Ruby Connection Concepts](https://graphql-ruby.org/pagination/connection_concepts.html)
+is a good overview and introduction to connections.
 
 Every connection type (for example, `DesignConnection` and `DiscussionConnection`) has a field `pageInfo` that contains an information required for pagination:
 

@@ -1,7 +1,14 @@
+---
+stage: Manage
+group: Analytics
+To determine the technical writer assigned to the Stage/Group associated with this page, see:
+  https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Value Stream Analytics
 
 > - Introduced as Cycle Analytics prior to GitLab 12.3 at the project level.
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12077) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.3 at the group level.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12077) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.3 at the group level.
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/23427) from Cycle Analytics to Value Stream Analytics in GitLab 12.8.
 
 Value Stream Analytics measures the time spent to go from an
@@ -10,9 +17,6 @@ Value Stream Analytics measures the time spent to go from an
 spent in each stage defined in the process.
 
 For information on how to contribute to the development of Value Stream Analytics, see our [contributor documentation](../../development/value_stream_analytics.md).
-
-NOTE: **Note:**
-Use the `cycle_analytics` feature flag to enable at the group level.
 
 Value Stream Analytics is useful in order to quickly determine the velocity of a given
 project. It points to bottlenecks in the development process, enabling management
@@ -26,7 +30,7 @@ calculates a separate median for each stage.
 Value Stream Analytics is available:
 
 - From GitLab 12.9, at the group level via **Group > Analytics > Value Stream**. **(PREMIUM)**
-- At the project level via **Project > Value Stream Analytics**.
+- At the project level via **Project > Analytics > Value Stream**.
 
 There are seven stages that are tracked as part of the Value Stream Analytics calculations.
 
@@ -43,11 +47,11 @@ There are seven stages that are tracked as part of the Value Stream Analytics ca
 - **Staging** (Continuous Deployment)
   - Time between merging and deploying to production
 - **Total** (Total)
-  - Total lifecycle time. That is, the velocity of the project or team. [Previously known](https://gitlab.com/gitlab-org/gitlab/issues/38317) as **Production**.
+  - Total lifecycle time. That is, the velocity of the project or team. [Previously known](https://gitlab.com/gitlab-org/gitlab/-/issues/38317) as **Production**.
 
 ## Date ranges
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13216) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13216) in GitLab 12.4.
 
 GitLab provides the ability to filter analytics based on a date range. To filter results:
 
@@ -75,7 +79,7 @@ Each stage of Value Stream Analytics is further described in the table below.
 | Test      | Measures the median time to run the entire pipeline for that project. It's related to the time GitLab CI/CD takes to run every job for the commits pushed to that merge request defined in the previous stage. It is basically the start->finish time for all pipelines. |
 | Review    | Measures the median time taken to review the merge request that has a closing issue pattern, between its creation and until it's merged. |
 | Staging   | Measures the median time between merging the merge request with a closing issue pattern until the very first deployment to production. It's tracked by the environment set to `production` or matching `production/*` (case-sensitive, `Production` won't work) in your GitLab CI/CD configuration. If there isn't a production environment, this is not tracked. |
-| Total | The sum of all time (medians) taken to run the entire process, from issue creation to deploying the code to production. [Previously known](https://gitlab.com/gitlab-org/gitlab/issues/38317) as **Production**. |
+| Total | The sum of all time (medians) taken to run the entire process, from issue creation to deploying the code to production. [Previously known](https://gitlab.com/gitlab-org/gitlab/-/issues/38317) as **Production**. |
 
 How this works, behind the scenes:
 
@@ -164,6 +168,21 @@ development workflow.
 
 NOTE: **Note:**
 Customizability is [only available for group-level](https://gitlab.com/gitlab-org/gitlab/-/issues/35823#note_272558950) Value Stream Analytics.
+
+### Stage path
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/210315) in GitLab 13.0.
+
+Stages are visually depicted as a horizontal process flow. Selecting a stage will update the
+the content below the value stream.
+
+This is disabled by default. If you have a self-managed instance, an
+administrator can [open a Rails console](../../administration/troubleshooting/navigating_gitlab_via_rails_console.md)
+and enable it with the following command:
+
+```ruby
+Feature.enable(:value_stream_analytics_path_navigation)
+```
 
 ### Adding a stage
 
@@ -255,7 +274,7 @@ from within the chart itself.
 
 ### Chart median line
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36675) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36675) in GitLab 12.7.
 
 The median line on the chart displays data that is offset by the number of days selected.
 For example, if 30 days worth of data has been selected (for example, 2019-12-16 to 2020-01-15) the
@@ -293,15 +312,6 @@ toggled to show data for merge requests and further refined for specific group-l
 By default the top group-level labels (max. 10) are pre-selected, with the ability to
 select up to a total of 15 labels.
 
-### Disabling chart
-
-This chart is enabled by default. If you have a self-managed instance, an
-administrator can open a Rails console and disable it with the following command:
-
-```ruby
-Feature.disable(:tasks_by_type_chart)
-```
-
 ## Permissions
 
 The current permissions on the Project Value Stream Analytics dashboard are:
@@ -323,14 +333,6 @@ For Value Stream Analytics functionality introduced in GitLab 12.3 and later:
 - Users must have Reporter access or above.
 - Features are available only on
   [Premium or Silver tiers](https://about.gitlab.com/pricing/) and above.
-
-## Troubleshooting
-
-If you see an error as listed in the following table, try the noted solution:
-
-| Error                                       | Solution                                                                                                                                                                                                                           |
-|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| There was an error fetching the top labels. | Manually enable tasks by type feature in the [rails console](../../administration/troubleshooting/navigating_gitlab_via_rails_console.md#starting-a-rails-console-session), specifically `Feature.enable(:tasks_by_type_chart)`. |
 
 ## More resources
 

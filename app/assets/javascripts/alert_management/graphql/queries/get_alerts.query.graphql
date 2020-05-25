@@ -1,0 +1,11 @@
+#import "../fragments/list_item.fragment.graphql"
+
+query getAlerts($projectPath: ID!, $statuses: [AlertManagementStatus!], $sort: AlertManagementAlertSort ) {
+  project(fullPath: $projectPath) {
+      alertManagementAlerts(statuses: $statuses, sort: $sort)  {
+      nodes {
+        ...AlertListItem
+      }
+    }
+  }
+}

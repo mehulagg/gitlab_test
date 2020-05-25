@@ -5,8 +5,8 @@ last_update: 2019-07-03
 
 # Merge Trains **(PREMIUM)**
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9186) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.0.
-> - [Squash and merge](../../../../user/project/merge_requests/squash_and_merge.md) support [introduced](https://gitlab.com/gitlab-org/gitlab/issues/13001) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.6.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9186) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.0.
+> - [Squash and merge](../../../../user/project/merge_requests/squash_and_merge.md) support [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13001) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.6.
 
 When [pipelines for merged results](../index.md#pipelines-for-merged-results-premium) are
 enabled, the pipeline jobs run as if the changes from your source branch have already
@@ -29,6 +29,14 @@ branch is unaffected. The merge request is removed from the train, and all pipel
 If the pipeline for the merge request at the front of the train completes successfully,
 the changes are merged into the target branch, and the other pipelines continue to
 run.
+
+To add a merge request to a merge train, you need [permissions](../../../../user/permissions.md) to push to the target branch.
+
+NOTE: **Note:**
+Each merge train can run a maximum of **twenty** pipelines in parallel.
+If more than twenty merge requests are added to the merge train, the merge requests
+will be queued until a slot in the merge train is free. There is no limit to the
+number of merge requests that can be queued.
 
 ## Merge train example
 
@@ -55,16 +63,13 @@ Watch this video for a demonstration on [how parallel execution
 of Merge Trains can prevent commits from breaking the default
 branch](https://www.youtube.com/watch?v=D4qCqXgZkHQ).
 
-## Requirements and limitations
+## Prerequisites
 
-Merge trains have the following requirements and limitations:
+To enable merge trains:
 
-- Merge trains require [GitLab Runner](https://gitlab.com/gitlab-org/gitlab-runner) 11.9 or newer.
-- GitLab 12.0 and later requires [Redis](https://redis.io/) 3.2 or higher.
-- Each merge train can run a maximum of **twenty** pipelines in parallel.
-  If more than twenty merge requests are added to the merge train, the merge requests
-  will be queued until a slot in the merge train is free. There is no limit to the
-  number of merge requests that can be queued.
+- You must have maintainer [permissions](../../../../user/permissions.md).
+- You must be using [GitLab Runner](https://gitlab.com/gitlab-org/gitlab-runner) 11.9 or later.
+- In GitLab 12.0 and later, you need [Redis](https://redis.io/) 3.2 or later.
 
 ## Enable merge trains
 
@@ -159,7 +164,7 @@ To check the reason:
 [Merge When Pipeline Succeeds](../../../../user/project/merge_requests/merge_when_pipeline_succeeds.md)
 is currently unavailable when Merge Trains are enabled.
 
-See [the related issue](https://gitlab.com/gitlab-org/gitlab/issues/12267)
+See [the related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/12267)
 for more information.
 
 ### Merge Train Pipeline cannot be retried
@@ -186,7 +191,7 @@ Trains, you can create a new pipeline for merged results when this error occurs 
 going to the **Pipelines** tab and clicking **Run pipeline**. Then click
 **Start/Add to merge train when pipeline succeeds**.
 
-See [the related issue](https://gitlab.com/gitlab-org/gitlab/issues/35135)
+See [the related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/35135)
 for more information.
 
 ### Merge Trains feature flag **(PREMIUM ONLY)**

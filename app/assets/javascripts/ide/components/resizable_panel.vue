@@ -1,16 +1,13 @@
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions } from 'vuex';
 import PanelResizer from '~/vue_shared/components/panel_resizer.vue';
+import { DEFAULT_SIDEBAR_MIN_WIDTH } from '../constants';
 
 export default {
   components: {
     PanelResizer,
   },
   props: {
-    collapsible: {
-      type: Boolean,
-      required: true,
-    },
     initialWidth: {
       type: Number,
       required: true,
@@ -18,7 +15,7 @@ export default {
     minSize: {
       type: Number,
       required: false,
-      default: 340,
+      default: DEFAULT_SIDEBAR_MIN_WIDTH,
     },
     side: {
       type: String,
@@ -31,11 +28,6 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      collapsed(state) {
-        return state[`${this.side}PanelCollapsed`];
-      },
-    }),
     panelStyle() {
       if (!this.collapsed) {
         return {
@@ -47,33 +39,17 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['setPanelCollapsedStatus', 'setResizingStatus']),
-    toggleFullbarCollapsed() {
-      if (this.collapsed && this.collapsible) {
-        this.setPanelCollapsedStatus({
-          side: this.side,
-          collapsed: !this.collapsed,
-        });
-      }
-    },
+    ...mapActions(['setResizingStatus']),
   },
   maxSize: window.innerWidth / 2,
 };
 </script>
 
 <template>
-  <div
-    :class="{
-      'is-collapsed': collapsed && collapsible,
-    }"
-    :style="panelStyle"
-    class="multi-file-commit-panel"
-    @click="toggleFullbarCollapsed"
-  >
+  <div :style="panelStyle">
     <slot></slot>
     <panel-resizer
       :size.sync="width"
-      :enabled="!collapsed"
       :start-size="initialWidth"
       :min-size="minSize"
       :max-size="$options.maxSize"

@@ -272,7 +272,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
 
 <template>
   <section id="cluster-applications">
-    <p class="append-bottom-0">
+    <p class="gl-mb-0">
       {{
         s__(`ClusterIntegration|Choose which applications to install on your Kubernetes cluster.
             Helm Tiller is required to install any of the following applications.`)
@@ -614,7 +614,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
       >
         <div slot="description">
           <span v-if="!rbac">
-            <p v-if="!rbac" class="rbac-notice bs-callout bs-callout-info append-bottom-0">
+            <p v-if="!rbac" class="rbac-notice bs-callout bs-callout-info gl-mb-0">
               {{
                 s__(`ClusterIntegration|You must have an RBAC-enabled cluster
               to install Knative.`)
@@ -662,7 +662,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
         :uninstall-successful="applications.elastic_stack.uninstallSuccessful"
         :uninstall-failed="applications.elastic_stack.uninstallFailed"
         :disabled="!helmInstalled"
-        title-link="https://github.com/helm/charts/tree/master/stable/elastic-stack"
+        title-link="https://gitlab.com/gitlab-org/charts/elastic-stack"
       >
         <div slot="description">
           <p>
@@ -689,6 +689,8 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
           host: applications.fluentd.host,
           port: applications.fluentd.port,
           protocol: applications.fluentd.protocol,
+          waf_log_enabled: applications.fluentd.wafLogEnabled,
+          cilium_log_enabled: applications.fluentd.ciliumLogEnabled,
         }"
         :uninstallable="applications.fluentd.uninstallable"
         :uninstall-successful="applications.fluentd.uninstallSuccessful"
@@ -701,12 +703,20 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
           <p>
             {{
               s__(
-                `ClusterIntegration|Fluentd is an open source data collector, which lets you unify the data collection and consumption for a better use and understanding of data. Export Web Application Firewall logs to your favorite SIEM.`,
+                `ClusterIntegration|Fluentd is an open source data collector, which lets you unify the data collection and consumption for a better use and understanding of data. It requires at least one of the following logs to be successfully installed.`,
               )
             }}
           </p>
 
-          <fluentd-output-settings :fluentd="applications.fluentd" />
+          <fluentd-output-settings
+            :port="applications.fluentd.port"
+            :protocol="applications.fluentd.protocol"
+            :host="applications.fluentd.host"
+            :waf-log-enabled="applications.fluentd.wafLogEnabled"
+            :cilium-log-enabled="applications.fluentd.ciliumLogEnabled"
+            :status="applications.fluentd.status"
+            :update-failed="applications.fluentd.updateFailed"
+          />
         </div>
       </application-row>
     </div>

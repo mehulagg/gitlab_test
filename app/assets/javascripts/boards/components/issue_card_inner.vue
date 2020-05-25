@@ -102,9 +102,6 @@ export default {
     orderedLabels() {
       return sortBy(this.issue.labels.filter(this.isNonListLabel), 'title');
     },
-    helpLink() {
-      return boardsStore.scopedLabels.helpLink;
-    },
   },
   methods: {
     isIndexLessThanlimit(index) {
@@ -150,7 +147,7 @@ export default {
 <template>
   <div>
     <div class="d-flex board-card-header" dir="auto">
-      <h4 class="board-card-title append-bottom-0 prepend-top-0">
+      <h4 class="board-card-title gl-mb-0 gl-mt-0">
         <icon
           v-if="issue.blocked"
           v-gl-tooltip
@@ -181,7 +178,6 @@ export default {
           :description="label.description"
           size="sm"
           :scoped="showScopedLabel(label)"
-          :scoped-labels-documentation-link="helpLink"
           @click="filterByLabel(label)"
         />
       </template>

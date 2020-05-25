@@ -16,10 +16,7 @@ describe WikiPage do
   end
 
   def enable_front_matter_for(thing)
-    stub_feature_flags(Gitlab::WikiPages::FrontMatterParser::FEATURE_FLAG => {
-      thing: thing,
-      enabled: true
-    })
+    stub_feature_flags(Gitlab::WikiPages::FrontMatterParser::FEATURE_FLAG => thing)
   end
 
   describe '.group_by_directory' do
@@ -150,15 +147,7 @@ describe WikiPage do
             enable_front_matter_for(container)
           end
 
-          context 'with a project container' do
-            it_behaves_like 'a page with front-matter'
-          end
-
-          context 'with a group container' do
-            let(:container) { create(:group) }
-
-            it_behaves_like 'a page with front-matter'
-          end
+          it_behaves_like 'a page with front-matter'
         end
       end
     end
@@ -512,15 +501,7 @@ describe WikiPage do
               enable_front_matter_for(container)
             end
 
-            context 'with a project container' do
-              it_behaves_like 'able to update front-matter'
-            end
-
-            context 'with a group container' do
-              let(:container) { create(:group) }
-
-              it_behaves_like 'able to update front-matter'
-            end
+            it_behaves_like 'able to update front-matter'
           end
         end
 
@@ -826,17 +807,8 @@ describe WikiPage do
       expect(subject).not_to eq(other_page)
     end
 
-    it 'returns false for page with the same slug on a different container of the same type' do
+    it 'returns false for page with the same slug on a different container' do
       other_page = create(:wiki_page, title: existing_page.slug)
-
-      expect(subject.slug).to eq(other_page.slug)
-      expect(subject.container).not_to eq(other_page.container)
-      expect(subject).not_to eq(other_page)
-    end
-
-    it 'returns false for page with the same slug on a different container type' do
-      group = create(:group, name: container.name)
-      other_page = create(:wiki_page, title: existing_page.slug, container: group)
 
       expect(subject.slug).to eq(other_page.slug)
       expect(subject.container).not_to eq(other_page.container)
@@ -866,6 +838,20 @@ describe WikiPage do
       subject.attributes[:content] = 'test![WikiPage_Image](/uploads/abc/WikiPage_Image.png)'
 
       expect(subject.hook_attrs['content']).to eq("test![WikiPage_Image](#{Settings.gitlab.url}/uploads/abc/WikiPage_Image.png)")
+    end
+  end
+
+  describe '#version_commit_timestamp' do
+    context 'for a new page' do
+      it 'returns nil' do
+        expect(new_page.version_commit_timestamp).to be_nil
+      end
+    end
+
+    context 'for page that exists' do
+      it 'returns the timestamp of the commit' do
+        expect(existing_page.version_commit_timestamp).to eq(existing_page.version.commit.committed_date)
+      end
     end
   end
 

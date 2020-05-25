@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe User, :do_not_mock_admin_mode do
+describe User do
   include ProjectForksHelper
   include TermsHelper
   include ExclusiveLeaseHelpers
@@ -17,6 +17,7 @@ describe User, :do_not_mock_admin_mode do
     it { is_expected.to include_module(Sortable) }
     it { is_expected.to include_module(TokenAuthenticatable) }
     it { is_expected.to include_module(BlocksJsonSerialization) }
+    it { is_expected.to include_module(AsyncDeviseEmail) }
   end
 
   describe 'delegations' do
@@ -54,6 +55,7 @@ describe User, :do_not_mock_admin_mode do
     it { is_expected.to have_many(:reported_abuse_reports).dependent(:destroy).class_name('AbuseReport') }
     it { is_expected.to have_many(:custom_attributes).class_name('UserCustomAttribute') }
     it { is_expected.to have_many(:releases).dependent(:nullify) }
+    it { is_expected.to have_many(:metrics_users_starred_dashboards).inverse_of(:user) }
 
     describe "#bio" do
       it 'syncs bio with `user_details.bio` on create' do
@@ -160,6 +162,18 @@ describe User, :do_not_mock_admin_mode do
         project.request_access(user)
 
         expect(user.project_members).to be_empty
+      end
+    end
+  end
+
+  describe 'Devise emails' do
+    let!(:user) { create(:user) }
+
+    describe 'behaviour' do
+      it 'sends emails asynchronously' do
+        expect do
+          user.update!(email: 'hello@hello.com')
+        end.to have_enqueued_job.on_queue('mailers').exactly(:twice)
       end
     end
   end
@@ -295,7 +309,7 @@ describe User, :do_not_mock_admin_mode do
       subject { build(:user) }
     end
 
-    it_behaves_like 'an object with email-formated attributes', :public_email, :notification_email do
+    it_behaves_like 'an object with RFC3696 compliant email-formated attributes', :public_email, :notification_email do
       subject { build(:user).tap { |user| user.emails << build(:email, email: email_value) } }
     end
 
@@ -915,7 +929,6 @@ describe User, :do_not_mock_admin_mode do
             user.tap { |u| u.update!(email: new_email) }.reload
           end.to change(user, :unconfirmed_email).to(new_email)
         end
-
         it 'does not change :notification_email' do
           expect do
             user.tap { |u| u.update!(email: new_email) }.reload
@@ -1240,7 +1253,7 @@ describe User, :do_not_mock_admin_mode do
     end
 
     it 'is true when sent less than one minute ago' do
-      user = build_stubbed(:user, reset_password_sent_at: Time.now)
+      user = build_stubbed(:user, reset_password_sent_at: Time.current)
 
       expect(user.recently_sent_password_reset?).to eq true
     end
@@ -2016,7 +2029,7 @@ describe User, :do_not_mock_admin_mode do
 
   describe '#all_emails' do
     let(:user) { create(:user) }
-    let!(:email_confirmed) { create :email, user: user, confirmed_at: Time.now }
+    let!(:email_confirmed) { create :email, user: user, confirmed_at: Time.current }
     let!(:email_unconfirmed) { create :email, user: user }
 
     context 'when `include_private_email` is true' do
@@ -2045,7 +2058,7 @@ describe User, :do_not_mock_admin_mode do
     let(:user) { create(:user) }
 
     it 'returns only confirmed emails' do
-      email_confirmed = create :email, user: user, confirmed_at: Time.now
+      email_confirmed = create :email, user: user, confirmed_at: Time.current
       create :email, user: user
 
       expect(user.verified_emails).to contain_exactly(
@@ -2060,7 +2073,7 @@ describe User, :do_not_mock_admin_mode do
     let(:user) { create(:user) }
 
     it 'returns true when the email is verified/confirmed' do
-      email_confirmed = create :email, user: user, confirmed_at: Time.now
+      email_confirmed = create :email, user: user, confirmed_at: Time.current
       create :email, user: user
       user.reload
 
@@ -2181,26 +2194,6 @@ describe User, :do_not_mock_admin_mode do
           expect(user.ldap_blocked?).to be_falsey
         end
       end
-    end
-  end
-
-  describe '#ultraauth_user?' do
-    it 'is true if provider is ultraauth' do
-      user = create(:omniauth_user, provider: 'ultraauth')
-
-      expect(user.ultraauth_user?).to be_truthy
-    end
-
-    it 'is false with othe provider' do
-      user = create(:omniauth_user, provider: 'not-ultraauth')
-
-      expect(user.ultraauth_user?).to be_falsey
-    end
-
-    it 'is false if no extern_uid is provided' do
-      user = create(:omniauth_user, extern_uid: nil)
-
-      expect(user.ldap_user?).to be_falsey
     end
   end
 
@@ -3479,12 +3472,6 @@ describe User, :do_not_mock_admin_mode do
 
       expect(user.allow_password_authentication_for_web?).to be_falsey
     end
-
-    it 'returns false for ultraauth user' do
-      user = create(:omniauth_user, provider: 'ultraauth')
-
-      expect(user.allow_password_authentication_for_web?).to be_falsey
-    end
   end
 
   describe '#allow_password_authentication_for_git?' do
@@ -3504,12 +3491,6 @@ describe User, :do_not_mock_admin_mode do
 
     it 'returns false for ldap user' do
       user = create(:omniauth_user, provider: 'ldapmain')
-
-      expect(user.allow_password_authentication_for_git?).to be_falsey
-    end
-
-    it 'returns false for ultraauth user' do
-      user = create(:omniauth_user, provider: 'ultraauth')
 
       expect(user.allow_password_authentication_for_git?).to be_falsey
     end
@@ -4581,6 +4562,22 @@ describe User, :do_not_mock_admin_mode do
       end
 
       it_behaves_like 'does not require password to be present'
+    end
+  end
+
+  describe '#migration_bot' do
+    it 'creates the user if it does not exist' do
+      expect do
+        described_class.migration_bot
+      end.to change { User.where(user_type: :migration_bot).count }.by(1)
+    end
+
+    it 'does not create a new user if it already exists' do
+      described_class.migration_bot
+
+      expect do
+        described_class.migration_bot
+      end.not_to change { User.count }
     end
   end
 end

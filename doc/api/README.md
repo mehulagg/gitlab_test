@@ -53,12 +53,12 @@ between v3 and v4; please read the [v3 to v4 documentation](v3_to_v4.md)
 ### Current status
 
 Currently only API version v4 is available. Version v3 was removed in
-[GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/36819).
+[GitLab 11.0](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/36819).
 
 ## Basic usage
 
 API requests should be prefixed with `api` and the API version. The API version
-is defined in [`lib/api.rb`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/api/api.rb). For example, the root of the v4 API
+is defined in [`lib/api.rb`](https://gitlab.com/gitlab-org/gitlab/tree/master/lib/api/api.rb). For example, the root of the v4 API
 is at `/api/v4`.
 
 Example of a valid API request using cURL:
@@ -75,12 +75,13 @@ end of an API URL.
 Most API requests require authentication, or will only return public data when
 authentication is not provided. For
 those cases where it is not required, this will be mentioned in the documentation
-for each individual endpoint. For example, the [`/projects/:id` endpoint](projects.md).
+for each individual endpoint. For example, the [`/projects/:id` endpoint](projects.md#get-single-project).
 
-There are four ways to authenticate with the GitLab API:
+There are several ways to authenticate with the GitLab API:
 
 1. [OAuth2 tokens](#oauth2-tokens)
-1. [Personal access tokens](#personal-access-tokens)
+1. [Personal access tokens](../user/profile/personal_access_tokens.md)
+1. [Project access tokens](../user/project/settings/project_access_tokens.md) **(CORE ONLY)**
 1. [Session cookie](#session-cookie)
 1. [GitLab CI/CD job token](#gitlab-ci-job-token) **(Specific endpoints only)**
 
@@ -117,30 +118,28 @@ curl --header "Authorization: Bearer OAUTH-TOKEN" https://gitlab.example.com/api
 
 Read more about [GitLab as an OAuth2 provider](oauth2.md).
 
-### Personal access tokens
+### Personal/project access tokens
 
-You can use a [personal access token](../user/profile/personal_access_tokens.md) to authenticate with the API by passing it in either the
-`private_token` parameter or the `Private-Token` header.
+Access tokens can be used to authenticate with the API by passing it in either the `private_token` parameter
+or the `Private-Token` header.
 
-Example of using the personal access token in a parameter:
+Example of using the personal/project access token in a parameter:
 
 ```shell
 curl https://gitlab.example.com/api/v4/projects?private_token=<your_access_token>
 ```
 
-Example of using the personal access token in a header:
+Example of using the personal/project access token in a header:
 
 ```shell
 curl --header "Private-Token: <your_access_token>" https://gitlab.example.com/api/v4/projects
 ```
 
-You can also use personal access tokens with OAuth-compliant headers:
+You can also use personal/project access tokens with OAuth-compliant headers:
 
 ```shell
 curl --header "Authorization: Bearer <your_access_token>" https://gitlab.example.com/api/v4/projects
 ```
-
-Read more about [personal access tokens](../user/profile/personal_access_tokens.md).
 
 ### Session cookie
 
@@ -181,7 +180,7 @@ Impersonation tokens are used exactly like regular personal access tokens, and c
 
 #### Disable impersonation
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/40385) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/40385) in GitLab 11.6.
 
 By default, impersonation is enabled. To disable impersonation:
 
@@ -446,13 +445,19 @@ For example:
 DELETE /projects/:id/share/:group_id
 ```
 
-The `:id` path parameter needs to be replaced with the project id, and the `:group_id` needs to be replaced with the id of the group. The colons `:` should not be included.
+The `:id` path parameter needs to be replaced with the project ID, and the `:group_id` needs to be replaced with the ID of the group. The colons `:` should not be included.
 
-The resulting cURL call for a project with id `5` and a group id of `17` is then:
+The resulting cURL call for a project with ID `5` and a group ID of `17` is then:
 
 ```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/share/17
 ```
+
+NOTE: **Note:**
+Path parameters that are required to be URL-encoded must be followed. If not,
+it will not match an API endpoint and respond with a 404. If there's something
+in front of the API (for example, Apache), ensure that it won't decode the URL-encoded
+path parameters.
 
 ## Namespaced path encoding
 
@@ -470,15 +475,16 @@ A project's **path** is not necessarily the same as its **name**. A
 project's path can be found in the project's URL or in the project's settings
 under **General > Advanced > Change path**.
 
-## Branches and tags name encoding
+## File path, branches, and tags name encoding
 
-If your branch or tag contains a `/`, make sure the branch/tag name is
-URL-encoded.
+If a file path, branch or tag contains a `/`, make sure it is URL-encoded.
 
 For example, `/` is represented by `%2F`:
 
 ```plaintext
+GET /api/v4/projects/1/repository/files/src%2FREADME.md?ref=master
 GET /api/v4/projects/1/branches/my%2Fbranch/commits
+GET /api/v4/projects/1/repository/tags/my%2Ftag
 ```
 
 ## Encoding API parameters of `array` and `hash` types

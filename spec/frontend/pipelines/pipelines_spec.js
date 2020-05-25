@@ -1,10 +1,16 @@
+import Api from '~/api';
 import { mount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import waitForPromises from 'helpers/wait_for_promises';
 import PipelinesComponent from '~/pipelines/components/pipelines.vue';
 import Store from '~/pipelines/stores/pipelines_store';
-import { pipelineWithStages, stageReply } from './mock_data';
+import { pipelineWithStages, stageReply, users, mockSearch, branches } from './mock_data';
+import { RAW_TEXT_WARNING } from '~/pipelines/constants';
+import { GlFilteredSearch } from '@gitlab/ui';
+import createFlash from '~/flash';
+
+jest.mock('~/flash', () => jest.fn());
 
 describe('Pipelines', () => {
   const jsonFixtureName = 'pipelines/pipelines.json';
@@ -42,10 +48,15 @@ describe('Pipelines', () => {
     ...paths,
   };
 
+  const findFilteredSearch = () => wrapper.find(GlFilteredSearch);
+
   const createComponent = (props = defaultProps, methods) => {
     wrapper = mount(PipelinesComponent, {
+      provide: { glFeatures: { filterPipelinesSearch: true } },
       propsData: {
         store: new Store(),
+        projectId: '21',
+        params: {},
         ...props,
       },
       methods: {
@@ -57,6 +68,9 @@ describe('Pipelines', () => {
   beforeEach(() => {
     mock = new MockAdapter(axios);
     pipelines = getJSONFixture(jsonFixtureName);
+
+    jest.spyOn(Api, 'projectUsers').mockResolvedValue(users);
+    jest.spyOn(Api, 'branches').mockResolvedValue({ data: branches });
   });
 
   afterEach(() => {
@@ -594,7 +608,7 @@ describe('Pipelines', () => {
 
   describe('updates results when a staged is clicked', () => {
     beforeEach(() => {
-      const copyPipeline = Object.assign({}, pipelineWithStages);
+      const copyPipeline = { ...pipelineWithStages };
       copyPipeline.id += 1;
       mock
         .onGet('twitter/flight/pipelines.json')
@@ -654,6 +668,44 @@ describe('Pipelines', () => {
             expect(restartMock).toHaveBeenCalled();
           });
       });
+    });
+  });
+
+  describe('Pipeline filters', () => {
+    let updateContentMock;
+
+    beforeEach(() => {
+      mock.onGet(paths.endpoint).reply(200, pipelines);
+      createComponent();
+
+      updateContentMock = jest.spyOn(wrapper.vm, 'updateContent');
+
+      return waitForPromises();
+    });
+
+    it('updates request data and query params on filter submit', () => {
+      const expectedQueryParams = { page: '1', scope: 'all', username: 'root', ref: 'master' };
+
+      findFilteredSearch().vm.$emit('submit', mockSearch);
+
+      expect(wrapper.vm.requestData).toEqual(expectedQueryParams);
+      expect(updateContentMock).toHaveBeenCalledWith(expectedQueryParams);
+    });
+
+    it('does not add query params if raw text search is used', () => {
+      const expectedQueryParams = { page: '1', scope: 'all' };
+
+      findFilteredSearch().vm.$emit('submit', ['rawText']);
+
+      expect(wrapper.vm.requestData).toEqual(expectedQueryParams);
+      expect(updateContentMock).toHaveBeenCalledWith(expectedQueryParams);
+    });
+
+    it('displays a warning message if raw text search is used', () => {
+      findFilteredSearch().vm.$emit('submit', ['rawText']);
+
+      expect(createFlash).toHaveBeenCalledTimes(1);
+      expect(createFlash).toHaveBeenCalledWith(RAW_TEXT_WARNING, 'warning');
     });
   });
 });

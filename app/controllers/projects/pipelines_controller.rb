@@ -11,8 +11,10 @@ class Projects::PipelinesController < Projects::ApplicationController
   before_action :authorize_create_pipeline!, only: [:new, :create]
   before_action :authorize_update_pipeline!, only: [:retry, :cancel]
   before_action do
-    push_frontend_feature_flag(:junit_pipeline_view)
-    push_frontend_feature_flag(:filter_pipelines_search)
+    push_frontend_feature_flag(:junit_pipeline_view, project)
+    push_frontend_feature_flag(:filter_pipelines_search, default_enabled: true)
+    push_frontend_feature_flag(:dag_pipeline_tab)
+    push_frontend_feature_flag(:pipelines_security_report_summary, project)
   end
   before_action :ensure_pipeline, only: [:show]
 
@@ -23,9 +25,8 @@ class Projects::PipelinesController < Projects::ApplicationController
   POLLING_INTERVAL = 10_000
 
   def index
-    @scope = params[:scope]
     @pipelines = Ci::PipelinesFinder
-      .new(project, current_user, scope: @scope)
+      .new(project, current_user, index_params)
       .execute
       .page(params[:page])
       .per(30)
@@ -92,6 +93,17 @@ class Projects::PipelinesController < Projects::ApplicationController
 
   def builds
     render_show
+  end
+
+  def dag
+    respond_to do |format|
+      format.html { render_show }
+      format.json do
+        render json: Ci::DagPipelineSerializer
+          .new(project: @project, current_user: @current_user)
+          .represent(@pipeline)
+      end
+    end
   end
 
   def failures
@@ -251,7 +263,7 @@ class Projects::PipelinesController < Projects::ApplicationController
   end
 
   def limited_pipelines_count(project, scope = nil)
-    finder = Ci::PipelinesFinder.new(project, current_user, scope: scope)
+    finder = Ci::PipelinesFinder.new(project, current_user, index_params.merge(scope: scope))
 
     view_context.limited_counter_with_delimiter(finder.execute)
   end
@@ -262,6 +274,10 @@ class Projects::PipelinesController < Projects::ApplicationController
         reports.with_attachment! if params[:scope] == 'with_attachment'
       end
     end
+  end
+
+  def index_params
+    params.permit(:scope, :username, :ref)
   end
 end
 

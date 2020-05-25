@@ -1,7 +1,7 @@
 # Web IDE
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4539) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
-> - [Brought to GitLab Core](https://gitlab.com/gitlab-org/gitlab-foss/issues/44157) in 10.7.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4539) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
+> - [Brought to GitLab Core](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/44157) in 10.7.
 
 The Web IDE editor makes it faster and easier to contribute changes to your
 projects by providing an advanced editor with commit staging.
@@ -43,10 +43,24 @@ you can find a more complete list of supported languages in the
 NOTE: **Note:**
 Single file editing is based on the [Ace Editor](https://ace.c9.io).
 
+### Themes
+
+> [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/2389) in GitLab 13.0.
+
+All the themes GitLab supports for syntax highlighting are added to the Web IDE's code editor.
+You can pick a theme from your [profile preferences](../../profile/preferences.md).
+
+The themes are available only in the Web IDE file editor, except for the [dark theme](https://gitlab.com/gitlab-org/gitlab/-/issues/209808),
+which applies to the entire Web IDE screen.
+
+| Solarized Light Theme                                         | Dark Theme                              |
+|---------------------------------------------------------------|-----------------------------------------|
+| ![Solarized Light Theme](img/solarized_light_theme_v13.0.png) | ![Dark Theme](img/dark_theme_v13.0.png) |
+
 ## Commit changes
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4539) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4 and [brought to GitLab Core](https://gitlab.com/gitlab-org/gitlab-foss/issues/44157) in 10.7.
-> - From [GitLab 12.7 onward](https://gitlab.com/gitlab-org/gitlab/issues/33441), files were automatically staged.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4539) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4 and [brought to GitLab Core](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/44157) in 10.7.
+> - From [GitLab 12.7 onward](https://gitlab.com/gitlab-org/gitlab/-/issues/33441), files were automatically staged.
 > - From [GitLab 12.9 onward](https://gitlab.com/gitlab-org/gitlab/-/issues/196609), support for staging files was removed to prevent loss of unstaged data. All your current changes necessarily have to be committed or discarded.
 
 After making your changes, click the **Commit** button on the bottom-left to
@@ -102,27 +116,28 @@ in the top of the sidebar to open a list of branches.
 You will need to commit or discard all your changes before switching to a
 different branch.
 
-## Client Side Evaluation
+## Live Preview
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/19764) in [GitLab Core](https://about.gitlab.com/pricing/) 11.2.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/19764) in [GitLab Core](https://about.gitlab.com/pricing/) 11.2.
+> - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/213853) from _Client Side Evaluation_ to _Live Preview_ in GitLab 13.0.
 
 You can use the Web IDE to preview JavaScript projects right in the browser.
 This feature uses CodeSandbox to compile and bundle the JavaScript used to
 preview the web application.
 
-![Web IDE Client Side Evaluation](img/clientside_evaluation.png)
+![Web IDE Live Preview](img/live_preview_v13_0.png)
 
 Additionally, for public projects an **Open in CodeSandbox** button is available
 to transfer the contents of the project into a public CodeSandbox project to
 quickly share your project with others.
 
-### Enabling Client Side Evaluation
+### Enabling Live Preview
 
-The Client Side Evaluation feature needs to be enabled in the GitLab instances
-admin settings. Client Side Evaluation is enabled for all projects on
+The Live Preview feature needs to be enabled in the GitLab instances
+admin settings. Live Preview is enabled for all projects on
 GitLab.com
 
-![Admin Client Side Evaluation setting](img/admin_clientside_evaluation.png)
+![Admin Live Preview setting](img/admin_live_preview_v13_0.png)
 
 Once you have done that, you can preview projects with a `package.json` file and
 a `main` entry point inside the Web IDE. An example `package.json` is shown
@@ -139,7 +154,7 @@ below.
 
 ## Interactive Web Terminals for the Web IDE **(ULTIMATE ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5426) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5426) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
 
 CAUTION: **Warning:**
 Interactive Web Terminals for the Web IDE is currently in **Beta**.
@@ -237,7 +252,7 @@ click **Restart Terminal** to start a new terminal session.
 
 ### File syncing to web terminal
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5276) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5276) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
 
 File changes in the Web IDE can be synced to a running web terminal.
 This enables users to test their code changes in a preconfigured terminal

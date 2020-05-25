@@ -1,6 +1,6 @@
 # Release links API
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41766) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41766) in GitLab 11.7.
 
 Using this API you can manipulate GitLab's [Release](../../user/project/releases/index.md) links. For manipulating other Release assets, see [Release API](index.md).
 GitLab supports links to `http`, `https`, and `ftp` assets.
@@ -55,7 +55,7 @@ GET /projects/:id/releases/:tag_name/assets/links/:link_id
 | ------------- | -------------- | -------- | --------------------------------------- |
 | `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
-| `link_id`    | integer         | yes      | The id of the link. |
+| `link_id`    | integer         | yes      | The ID of the link. |
 
 Example request:
 
@@ -122,7 +122,7 @@ PUT /projects/:id/releases/:tag_name/assets/links/:link_id
 | ------------- | -------------- | -------- | --------------------------------------- |
 | `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
-| `link_id`    | integer         | yes      | The id of the link. |
+| `link_id`    | integer         | yes      | The ID of the link. |
 | `name`        | string         | no | The name of the link. |
 | `url`        | string         | no | The URL of the link. |
 
@@ -158,7 +158,7 @@ DELETE /projects/:id/releases/:tag_name/assets/links/:link_id
 | ------------- | -------------- | -------- | --------------------------------------- |
 | `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
-| `link_id`    | integer         | yes      | The id of the link. |
+| `link_id`    | integer         | yes      | The ID of the link. |
 
 Example request:
 

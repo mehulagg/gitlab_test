@@ -85,6 +85,7 @@ module EE
                 numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 365 }
 
       after_commit :update_personal_access_tokens_lifetime, if: :saved_change_to_max_personal_access_token_lifetime?
+      after_commit :resume_elasticsearch_indexing
     end
 
     class_methods do
@@ -135,10 +136,10 @@ module EE
       return false unless elasticsearch_indexing?
       return true unless elasticsearch_limit_indexing?
 
-      return elasticsearch_limited_projects.exists?(project.id) unless ::Feature.enabled?(:elasticsearch_indexes_project_cache, default_enabled: true)
+      return optimized_elasticsearch_indexes_project?(project) unless ::Feature.enabled?(:elasticsearch_indexes_project_cache, default_enabled: true)
 
       ::Gitlab::Elastic::ElasticsearchEnabledCache.fetch(:project, project.id) do
-        elasticsearch_limited_projects.exists?(project.id)
+        optimized_elasticsearch_indexes_project?(project)
       end
     end
 
@@ -202,6 +203,13 @@ module EE
       License.feature_available?(:elastic_search) && super
     end
     alias_method :elasticsearch_indexing?, :elasticsearch_indexing
+
+    def elasticsearch_pause_indexing
+      return false unless elasticsearch_pause_indexing_column_exists?
+
+      super
+    end
+    alias_method :elasticsearch_pause_indexing?, :elasticsearch_pause_indexing
 
     def elasticsearch_search
       return false unless elasticsearch_search_column_exists?
@@ -290,6 +298,32 @@ module EE
 
     private
 
+    def optimized_elasticsearch_indexes_project?(project)
+      if ::Feature.enabled?(:optimized_elasticsearch_indexes_project, default_enabled: true)
+        indexed_namespaces = ::Gitlab::ObjectHierarchy
+          .new(::Namespace.where(id: project.namespace_id))
+          .base_and_ancestors
+          .joins(:elasticsearch_indexed_namespace)
+
+        indexed_namespaces = ::Project.where('EXISTS (?)', indexed_namespaces)
+        indexed_projects = ::Project.where('EXISTS (?)', ElasticsearchIndexedProject.where(project_id: project.id))
+
+        ::Project
+          .from("(SELECT) as projects") # SELECT from "nothing" since the EXISTS queries have all the conditions.
+          .merge(indexed_namespaces.or(indexed_projects))
+          .exists?
+      else
+        # old behavior
+        elasticsearch_limited_projects.exists?(project.id)
+      end
+    end
+
+    def resume_elasticsearch_indexing
+      return false unless saved_changes['elasticsearch_pause_indexing'] == [true, false]
+
+      ElasticIndexingControlWorker.perform_async
+    end
+
     def update_personal_access_tokens_lifetime
       return unless max_personal_access_token_lifetime.present? && License.feature_available?(:personal_access_token_expiration_policy)
 
@@ -310,6 +344,10 @@ module EE
 
     def elasticsearch_indexing_column_exists?
       ::Gitlab::Database.cached_column_exists?(:application_settings, :elasticsearch_indexing)
+    end
+
+    def elasticsearch_pause_indexing_column_exists?
+      ::Gitlab::Database.cached_column_exists?(:application_settings, :elasticsearch_pause_indexing)
     end
 
     def elasticsearch_search_column_exists?

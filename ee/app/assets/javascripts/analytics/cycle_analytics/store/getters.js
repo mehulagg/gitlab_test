@@ -2,6 +2,7 @@ import dateFormat from 'dateformat';
 import { isNumber } from 'lodash';
 import httpStatus from '~/lib/utils/http_status';
 import { dateFormats } from '../../shared/constants';
+import { transformStagesForPathNavigation } from '../utils';
 
 export const hasNoAccessError = state => state.errorCode === httpStatus.FORBIDDEN;
 
@@ -25,3 +26,19 @@ export const activeStages = ({ stages }) => filterStagesByHiddenStatus(stages, f
 
 export const enableCustomOrdering = ({ stages, errorSavingStageOrder }) =>
   stages.some(stage => isNumber(stage.id)) && !errorSavingStageOrder;
+
+export const customStageFormActive = ({ isCreatingCustomStage, isEditingCustomStage }) =>
+  Boolean(isCreatingCustomStage || isEditingCustomStage);
+
+/**
+ * Until there are controls in place to edit stages outside of the stage table,
+ * the path navigation component will only display active stages.
+ *
+ * https://gitlab.com/gitlab-org/gitlab/-/issues/216227
+ */
+export const pathNavigationData = ({ stages, medians, selectedStage }) =>
+  transformStagesForPathNavigation({
+    stages: filterStagesByHiddenStatus(stages, false),
+    medians,
+    selectedStage,
+  });

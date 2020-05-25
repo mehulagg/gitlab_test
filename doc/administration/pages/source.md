@@ -1,3 +1,9 @@
+---
+stage: Release
+group: Release Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Pages administration for source installations
 
 >**Note:**
@@ -370,7 +376,7 @@ server_name ~^.*\.pages\.example\.io$;
 
 ## Access control
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/33422) in GitLab 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/33422) in GitLab 11.5.
 
 GitLab Pages access control can be configured per-project, and allows access to a Pages
 site to be controlled based on a user's membership to that project.

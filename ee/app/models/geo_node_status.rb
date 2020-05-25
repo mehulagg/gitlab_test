@@ -158,7 +158,7 @@ class GeoNodeStatus < ApplicationRecord
   def self.alternative_status_store_accessor(attr_names)
     attr_names.each do |attr_name|
       define_method(attr_name) do
-        status[attr_name] || read_attribute(attr_name)
+        status[attr_name].nil? ? read_attribute(attr_name) : status[attr_name].to_i
       end
 
       define_method("#{attr_name}=") do |val|
@@ -246,7 +246,7 @@ class GeoNodeStatus < ApplicationRecord
     latest_event = Geo::EventLog.latest_event
     self.last_event_id = latest_event&.id
     self.last_event_date = latest_event&.created_at
-    self.last_successful_status_check_at = Time.now
+    self.last_successful_status_check_at = Time.current
 
     self.storage_shards = StorageShard.all
     self.storage_configuration_digest = StorageShard.build_digest
@@ -300,7 +300,7 @@ class GeoNodeStatus < ApplicationRecord
   end
 
   def attribute_timestamp=(attr, value)
-    self[attr] = Time.at(value)
+    self[attr] = Time.zone.at(value)
   end
 
   def self.percentage_methods

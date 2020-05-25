@@ -29,7 +29,7 @@ templates of the default branch will be taken into account.
   For example, if you have a project for tracking new blog posts, you can require the
   title, outlines, author name, author social media information, and so on.
 - Following the previous example, you can make a template for every MR submitted
-  with a new blog post, requiring information about the post date, frontmatter data,
+  with a new blog post, requiring information about the post date, front matter data,
   images guidelines, link to the related issue, reviewer name, and so on.
 - You can also create issues and merge request templates for different
   stages of your workflow, for example, feature proposal, feature improvement, or a bug report.
@@ -38,6 +38,26 @@ templates of the default branch will be taken into account.
 
 Create a new Markdown (`.md`) file inside the `.gitlab/issue_templates/`
 directory in your repository. Commit and push to your default branch.
+
+To create a Markdown file:
+
+ 1. Click the `+` button next to `master` and click **New file**.
+ 1. Add the name of your issue template to the **File name** text field next to `master`.
+    Make sure words are separated with underscores and that your file has the `.md` extension, for
+    example `feature_request.md`.
+ 1. Commit and push to your default branch.
+
+If you don't have a `.gitlab/issue_templates` directory in your repository, you'll need to create it.
+
+To create the `.gitlab/issue_templates` directory:
+
+ 1. Click the `+` button next to `master` and select **New directory**.
+ 1. Name this new directory `.gitlab` and commit to your default branch.
+ 1. Click the `+` button next to `master` again and select **New directory**.This time, n
+ 1. Name your directory `issue_templates` and commit to your default branch.
+
+To check if this has worked correctly, [create a new issue](./issues/managing_issues.md#create-a-new-issue)
+and see if you can choose a description template.
 
 ## Creating merge request templates
 

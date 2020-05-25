@@ -4,7 +4,7 @@ type: reference
 
 # JUnit test reports
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/45318) in GitLab 11.2. Requires GitLab Runner 11.2 and above.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/45318) in GitLab 11.2. Requires GitLab Runner 11.2 and above.
 
 ## Overview
 
@@ -215,17 +215,9 @@ Test:
         - ./**/*test-result.xml
 ```
 
-## Limitations
-
-Currently, the following tools might not work because their XML formats are unsupported in GitLab.
-
-|Case|Tool|Issue|
-|---|---|---|
-|`<testcase>` does not have `classname` attribute|ESlint, sass-lint|<https://gitlab.com/gitlab-org/gitlab-foss/issues/50964>|
-
 ## Viewing JUnit test reports on GitLab
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/24792) in GitLab 12.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/24792) in GitLab 12.5.
 
 If JUnit XML files are generated and uploaded as part of a pipeline, these reports
 can be viewed inside the pipelines details page. The **Tests** tab on this page will
@@ -236,6 +228,8 @@ display a list of test suites and cases reported from the XML file.
 You can view all the known test suites and click on each of these to see further
 details, including the cases that makeup the suite. Cases are ordered by status,
 with failed showing at the top, skipped next and successful cases last.
+
+You can also retrieve the reports via the [GitLab API](../api/pipelines.md#get-a-pipelines-test-report).
 
 ### Enabling the feature
 
@@ -248,4 +242,31 @@ following command:
 
 ```ruby
 Feature.enable(:junit_pipeline_view)
+```
+
+## Viewing JUnit screenshots on GitLab
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/202114) in GitLab 13.0.
+
+If JUnit XML files contain an `attachment` tag, GitLab parses the attachment.
+
+Upload your screenshots as [artifacts](pipelines/job_artifacts.md#artifactsreportsjunit) to GitLab. The `attachment` tag **must** contain the absolute path to the screenshots you uploaded.
+
+```xml
+<testcase time="1.00" name="Test">
+  <system-out>[[ATTACHMENT|/absolute/path/to/some/file]]</system-out>
+</testcase>
+```
+
+When [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/6061) is complete, the attached file will be visible on the pipeline details page.
+
+### Enabling the feature
+
+This feature comes with the `:junit_pipeline_screenshots_view` feature flag disabled by default.
+
+To enable this feature, ask a GitLab administrator with [Rails console access](../administration/feature_flags.md#how-to-enable-and-disable-features-behind-flags) to run the
+following command:
+
+```ruby
+Feature.enable(:junit_pipeline_screenshots_view)
 ```

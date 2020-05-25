@@ -1,9 +1,0 @@
-fragment AlertListItem on Alert {
-  iid
-  title
-  severity
-  status
-  started_at
-  ended_at
-  event_count
-}

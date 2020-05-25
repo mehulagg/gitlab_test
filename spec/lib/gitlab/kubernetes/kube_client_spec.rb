@@ -64,6 +64,45 @@ describe Gitlab::Kubernetes::KubeClient do
     end
   end
 
+  describe '.graceful_request' do
+    context 'successful' do
+      before do
+        allow(client).to receive(:foo).and_return(true)
+      end
+
+      it 'returns connected status and foo response' do
+        result = described_class.graceful_request(1) { client.foo }
+
+        expect(result).to eq({ status: :connected, response: true })
+      end
+    end
+
+    context 'errored' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:error, :error_status) do
+        SocketError                     | :unreachable
+        OpenSSL::X509::CertificateError | :authentication_failure
+        StandardError                   | :unknown_failure
+        Kubeclient::HttpError.new(408, "timed out", nil) | :unreachable
+        Kubeclient::HttpError.new(408, "timeout", nil) | :unreachable
+        Kubeclient::HttpError.new(408, "", nil) | :authentication_failure
+      end
+
+      with_them do
+        before do
+          allow(client).to receive(:foo).and_raise(error)
+        end
+
+        it 'returns error status' do
+          result = described_class.graceful_request(1) { client.foo }
+
+          expect(result).to eq({ status: error_status })
+        end
+      end
+    end
+  end
+
   describe '#initialize' do
     shared_examples 'local address' do
       it 'blocks local addresses' do
@@ -188,10 +227,25 @@ describe Gitlab::Kubernetes::KubeClient do
     end
   end
 
+  describe '#metrics_client' do
+    subject { client.metrics_client }
+
+    it_behaves_like 'a Kubeclient'
+
+    it 'has the metrics API group endpoint' do
+      expect(subject.api_endpoint.to_s).to match(%r{\/apis\/metrics.k8s.io\Z})
+    end
+
+    it 'has the api_version' do
+      expect(subject.instance_variable_get(:@api_version)).to eq('v1beta1')
+    end
+  end
+
   describe 'core API' do
     let(:core_client) { client.core_client }
 
     [
+      :get_nodes,
       :get_pods,
       :get_secrets,
       :get_config_map,
@@ -234,8 +288,6 @@ describe Gitlab::Kubernetes::KubeClient do
       :create_role,
       :get_role,
       :update_role,
-      :create_cluster_role_binding,
-      :get_cluster_role_binding,
       :update_cluster_role_binding
     ].each do |method|
       describe "##{method}" do
@@ -354,6 +406,16 @@ describe Gitlab::Kubernetes::KubeClient do
     end
   end
 
+  shared_examples 'create_or_update method using put' do
+    let(:update_method) { "update_#{resource_type}" }
+
+    it 'calls the update method' do
+      expect(client).to receive(update_method).with(resource)
+
+      subject
+    end
+  end
+
   shared_examples 'create_or_update method' do
     let(:get_method) { "get_#{resource_type}" }
     let(:update_method) { "update_#{resource_type}" }
@@ -393,7 +455,7 @@ describe Gitlab::Kubernetes::KubeClient do
 
     subject { client.create_or_update_cluster_role_binding(resource) }
 
-    it_behaves_like 'create_or_update method'
+    it_behaves_like 'create_or_update method using put'
   end
 
   describe '#create_or_update_role_binding' do
@@ -405,7 +467,7 @@ describe Gitlab::Kubernetes::KubeClient do
 
     subject { client.create_or_update_role_binding(resource) }
 
-    it_behaves_like 'create_or_update method'
+    it_behaves_like 'create_or_update method using put'
   end
 
   describe '#create_or_update_service_account' do

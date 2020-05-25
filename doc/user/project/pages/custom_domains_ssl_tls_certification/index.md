@@ -2,6 +2,9 @@
 last_updated: 2019-07-04
 type: reference, howto
 disqus_identifier: 'https://docs.gitlab.com/ee/user/project/pages/getting_started_part_three.html'
+stage: Release
+group: Release Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Custom domains and SSL/TLS Certificates
@@ -270,7 +273,7 @@ Sublime Text, Atom, Dreamweaver, Brackets, etc).
 
 ## Force HTTPS for GitLab Pages websites
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/28857) in GitLab 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/28857) in GitLab 10.7.
 
 To make your website's visitors even more secure, you can choose to
 force HTTPS for GitLab Pages. By doing so, all attempts to visit your

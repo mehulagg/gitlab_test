@@ -82,7 +82,7 @@ module Ci
 
     has_one :pipeline_config, class_name: 'Ci::PipelineConfig', inverse_of: :pipeline
 
-    has_many :daily_report_results, class_name: 'Ci::DailyReportResult', foreign_key: :last_pipeline_id
+    has_many :daily_build_group_report_results, class_name: 'Ci::DailyBuildGroupReportResult', foreign_key: :last_pipeline_id
 
     accepts_nested_attributes_for :variables, reject_if: :persisted?
 
@@ -115,8 +115,11 @@ module Ci
 
     state_machine :status, initial: :created do
       event :enqueue do
-        transition [:created, :waiting_for_resource, :preparing, :skipped, :scheduled] => :pending
+        transition [:created, :manual, :waiting_for_resource, :preparing, :skipped, :scheduled] => :pending
         transition [:success, :failed, :canceled] => :running
+
+        # this is needed to ensure tests to be covered
+        transition [:running] => :running
       end
 
       event :request_resource do
@@ -160,11 +163,11 @@ module Ci
       # Create a separate worker for each new operation
 
       before_transition [:created, :waiting_for_resource, :preparing, :pending] => :running do |pipeline|
-        pipeline.started_at = Time.now
+        pipeline.started_at = Time.current
       end
 
       before_transition any => [:success, :failed, :canceled] do |pipeline|
-        pipeline.finished_at = Time.now
+        pipeline.finished_at = Time.current
         pipeline.update_duration
       end
 
@@ -194,7 +197,7 @@ module Ci
         # We wait a little bit to ensure that all BuildFinishedWorkers finish first
         # because this is where some metrics like code coverage is parsed and stored
         # in CI build records which the daily build metrics worker relies on.
-        pipeline.run_after_commit { Ci::DailyReportResultsWorker.perform_in(10.minutes, pipeline.id) }
+        pipeline.run_after_commit { Ci::DailyBuildGroupReportResultsWorker.perform_in(10.minutes, pipeline.id) }
       end
 
       after_transition do |pipeline, transition|
@@ -683,6 +686,8 @@ module Ci
           variables.concat(merge_request.predefined_variables)
         end
 
+        variables.append(key: 'CI_KUBERNETES_ACTIVE', value: 'true') if has_kubernetes_active?
+
         if external_pull_request_event? && external_pull_request
           variables.concat(external_pull_request.predefined_variables)
         end
@@ -783,7 +788,7 @@ module Ci
     end
 
     def find_job_with_archive_artifacts(name)
-      builds.latest.with_artifacts_archive.find_by_name(name)
+      builds.latest.with_downloadable_artifacts.find_by_name(name)
     end
 
     def latest_builds_with_artifacts
@@ -808,6 +813,14 @@ module Ci
     def test_reports_count
       Rails.cache.fetch(['project', project.id, 'pipeline', id, 'test_reports_count'], force: false) do
         test_reports.total_count
+      end
+    end
+
+    def accessibility_reports
+      Gitlab::Ci::Reports::AccessibilityReports.new.tap do |accessibility_reports|
+        builds.latest.with_reports(Ci::JobArtifact.accessibility_reports).each do |build|
+          build.collect_accessibility_reports!(accessibility_reports)
+        end
       end
     end
 
@@ -946,6 +959,14 @@ module Ci
       elsif tag?
         Gitlab::Git::TAG_REF_PREFIX + source_ref.to_s
       end
+    end
+
+    # Set scheduling type of processables if they were created before scheduling_type
+    # data was deployed (https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22246).
+    def ensure_scheduling_type!
+      return unless ::Gitlab::Ci::Features.ensure_scheduling_type_enabled?
+
+      processables.populate_scheduling_type!
     end
 
     private

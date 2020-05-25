@@ -11,15 +11,15 @@ as the hardware requirements that are needed to install and use GitLab.
 
 ### Supported Linux distributions
 
-- Ubuntu
-- Debian
-- CentOS
-- openSUSE
+- Ubuntu (16.04/18.04)
+- Debian (8/9/10)
+- CentOS (6/7/8)
+- openSUSE (Leap 15.1/Enterprise Server 12.2)
 - Red Hat Enterprise Linux (please use the CentOS packages and instructions)
 - Scientific Linux (please use the CentOS packages and instructions)
 - Oracle Linux (please use the CentOS packages and instructions)
 
-For the installations options, see [the main installation page](README.md).
+For the installation options, see [the main installation page](README.md).
 
 ### Unsupported Linux distributions and Unix-like operating systems
 
@@ -35,7 +35,7 @@ Please see the [installation from source guide](installation.md) and the [instal
 ### Microsoft Windows
 
 GitLab is developed for Linux-based operating systems.
-It does **not** run on Microsoft Windows, and we have no plans to support it in the near future. For the latest development status view this [issue](https://gitlab.com/gitlab-org/gitlab/issues/22337).
+It does **not** run on Microsoft Windows, and we have no plans to support it in the near future. For the latest development status view this [issue](https://gitlab.com/gitlab-org/gitlab/-/issues/22337).
 Please consider using a virtual machine to run GitLab.
 
 ## Software requirements
@@ -55,7 +55,7 @@ The minimum required Go version is 1.12.
 ### Git versions
 
 GitLab 11.11 and higher only supports Git 2.21.x and newer, and
-[dropped support for older versions](https://gitlab.com/gitlab-org/gitlab-foss/issues/54255).
+[dropped support for older versions](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/54255).
 
 ### Node.js versions
 
@@ -68,9 +68,13 @@ GitLab uses [webpack](https://webpack.js.org/) to compile frontend assets, which
 version of Node.js 10.13.0.
 
 You can check which version you are running with `node -v`. If you are running
-a version older than `v10.13.0`, you need to update to a newer version. You
+a version older than `v10.13.0`, you need to update it to a newer version. You
 can find instructions to install from community maintained packages or compile
 from source at the [Node.js website](https://nodejs.org/en/download/).
+
+## Redis versions
+
+GitLab requires Redis 5.0+. Beginning in GitLab 13.0, lower versions are not supported.
 
 ## Hardware requirements
 
@@ -95,7 +99,7 @@ This is the recommended minimum hardware for a handful of example GitLab user ba
 - 4 cores supports up to 500 users
 - 8 cores supports up to 1,000 users
 - 32 cores supports up to 5,000 users
-- More users? Run it high-availability on [multiple application servers](https://about.gitlab.com/solutions/high-availability/)
+- More users? Consult the [reference architectures page](../administration/reference_architectures/index.md)
 
 ### Memory
 
@@ -112,7 +116,7 @@ errors during usage.
 - 16GB RAM supports up to 500 users
 - 32GB RAM supports up to 1,000 users
 - 128GB RAM supports up to 5,000 users
-- More users? Run it high-availability on [multiple application servers](https://about.gitlab.com/solutions/high-availability/)
+- More users? Consult the [reference architectures page](../administration/reference_architectures/index.md)
 
 We recommend having at least [2GB of swap on your server](https://askubuntu.com/a/505344/310789), even if you currently have
 enough available RAM. Having swap will help reduce the chance of errors occurring
@@ -122,7 +126,7 @@ available when needed.
 
 Our [Memory Team](https://about.gitlab.com/handbook/engineering/development/enablement/memory/) is actively working to reduce the memory requirement.
 
-NOTE: **Note:** The 25 workers of Sidekiq will show up as separate processes in your process overview (such as `top` or `htop`) but they share the same RAM allocation since Sidekiq is a multithreaded application. Please see the section below about Unicorn workers for information about how many you need of those.
+NOTE: **Note:** The 25 workers of Sidekiq will show up as separate processes in your process overview (such as `top` or `htop`). However, they share the same RAM allocation, as Sidekiq is a multi-threaded application. See the section below about Unicorn workers for information about how many you need for those.
 
 ## Database
 
@@ -139,9 +143,12 @@ MySQL/MariaDB are advised to [migrate to PostgreSQL](../update/mysql_to_postgres
 
 ### PostgreSQL Requirements
 
-As of GitLab 10.0, PostgreSQL 9.6 or newer is required, and earlier versions are
-not supported. We highly recommend users to use PostgreSQL 9.6 as this
-is the PostgreSQL version used for development and testing.
+We highly recommend users to use the minimum PostgreSQL versions specified below as these are the versions used for development and testing.
+
+GitLab version | Minimum PostgreSQL version
+-|-
+10.0 | 9.6
+12.10 | 11
 
 Users using PostgreSQL must ensure the `pg_trgm` extension is loaded into every
 GitLab database. This extension can be enabled (using a PostgreSQL super user)
@@ -167,7 +174,7 @@ If you are using [GitLab Geo](../development/geo.md):
 - The
   [tracking database](../development/geo.md#using-the-tracking-database)
   requires the
-  [postgres_fdw](https://www.postgresql.org/docs/9.6/postgres-fdw.html)
+  [postgres_fdw](https://www.postgresql.org/docs/11/postgres-fdw.html)
   extension.
 
 ```sql
@@ -197,7 +204,7 @@ Omnibus GitLab defaults to the recommended Puma settings. Regardless of installa
 tune the Puma settings.
 
 If you're using Omnibus GitLab, see [Puma settings](https://docs.gitlab.com/omnibus/settings/puma.html)
-for instructions on changing the Puma settings.
+for instructions on changing the Puma settings. If you are using the GitLab Helm chart, see the [Webservice chart](https://docs.gitlab.com/charts/charts/gitlab/webservice/index.html).
 
 ### Puma workers
 
@@ -277,7 +284,7 @@ For reference, GitLab.com's [auto-scaling shared runner](../user/gitlab_com/inde
 
 CAUTION: **Caution:** With GitLab 13.0 (May 2020) we are removing official support for Internet Explorer 11.
 With the release of GitLab 13.4 (September 2020) we will remove all code that supports Internet Explorer 11.
-You can provide feedback [on this issue](https://gitlab.com/gitlab-org/gitlab/issues/197987) or via your usual support channels.
+You can provide feedback [on this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/197987) or via your usual support channels.
 
 GitLab supports the following web browsers:
 

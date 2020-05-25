@@ -1,22 +1,21 @@
 import Vue from 'vue';
+import { parseBoolean } from '~/lib/utils/common_utils';
+import AuditLogApp from 'ee/audit_logs/components/audit_log_app.vue';
 
-import DateRangeField from './components/date_range_field.vue';
-import AuditLogs from './audit_logs';
-
-document.addEventListener('DOMContentLoaded', () => new AuditLogs());
 document.addEventListener('DOMContentLoaded', () => {
-  const el = document.querySelector('#js-audit-logs-date-range-app');
-  const formElement = el.closest('form');
+  const el = document.querySelector('#js-audit-log-app');
+  const { events, isLastPage, formPath } = el.dataset;
 
   // eslint-disable-next-line no-new
   new Vue({
     el,
-    name: 'AuditLogsDateRangeApp',
+    name: 'AuditLogApp',
     render: createElement =>
-      createElement(DateRangeField, {
+      createElement(AuditLogApp, {
         props: {
-          ...el.dataset,
-          formElement,
+          events: JSON.parse(events),
+          isLastPage: parseBoolean(isLastPage),
+          formPath,
         },
       }),
   });

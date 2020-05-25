@@ -1,6 +1,9 @@
 ---
 type: reference
 last_updated: 2020-01-06
+stage: Release
+group: Release Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Exploring GitLab Pages
@@ -214,7 +217,7 @@ needing to compress files on-demand.
 
 ### Resolving ambiguous URLs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/issues/95) in GitLab 11.8
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/95) in GitLab 11.8
 
 GitLab Pages makes assumptions about which files to serve when receiving a
 request for a URL that does not include an extension.

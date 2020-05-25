@@ -4,6 +4,18 @@ export const Editor = {
       type: String,
       required: true,
     },
+    options: {
+      type: Object,
+    },
+    initialEditType: {
+      type: String,
+    },
+    height: {
+      type: String,
+    },
+    previewStyle: {
+      type: String,
+    },
   },
   render(h) {
     return h('div');

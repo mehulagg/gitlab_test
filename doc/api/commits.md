@@ -94,7 +94,7 @@ POST /projects/:id/repository/commits
 | `previous_path` | string | no | Original full path to the file being moved. Ex. `lib/class1.rb`. Only considered for `move` action. |
 | `content` | string | no | File content, required for all except `delete`, `chmod`, and `move`. Move actions that do not specify `content` will preserve the existing file content, and any other value of `content` will overwrite the file content. |
 | `encoding` | string | no | `text` or `base64`. `text` is default. |
-| `last_commit_id` | string | no | Last known file commit id. Will be only considered in update, move and delete actions. |
+| `last_commit_id` | string | no | Last known file commit ID. Will be only considered in update, move, and delete actions. |
 | `execute_filemode` | boolean | no | When `true/false` enables/disables the execute flag on the file. Only considered for `chmod` action. |
 
 ```shell
@@ -521,6 +521,62 @@ Example response:
 }
 ```
 
+## Get the discussions of a commit
+
+Get the discussions of a commit in a project.
+
+```plaintext
+GET /projects/:id/repository/commits/:sha/discussions
+```
+
+Parameters:
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user
+| `sha`     | string | yes | The commit hash or name of a repository branch or tag |
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/repository/commits/4604744a1c64de00ff62e1e8a6766919923d2b41/discussions"
+```
+
+Example response:
+
+```json
+[
+  {
+    "id": "4604744a1c64de00ff62e1e8a6766919923d2b41",
+    "individual_note": true,
+    "notes": [
+      {
+        "id": 334686748,
+        "type": null,
+        "body": "I'm the Dude, so that's what you call me.",
+        "attachment": null,
+        "author" : {
+          "id" : 28,
+          "name" : "Jeff Lebowski",
+          "username" : "thedude",
+          "web_url" : "https://gitlab.example.com/thedude",
+          "state" : "active",
+          "avatar_url" : "https://gitlab.example.com/uploads/user/avatar/28/The-Big-Lebowski-400-400.png"
+        },
+        "created_at": "2020-04-30T18:48:11.432Z",
+        "updated_at": "2020-04-30T18:48:11.432Z",
+        "system": false,
+        "noteable_id": null,
+        "noteable_type": "Commit",
+        "resolvable": false,
+        "confidential": null,
+        "noteable_iid": null,
+        "commands_changes": {}
+      }
+    ]
+  }
+]
+
+```
+
 ## Commit status
 
 Since GitLab 8.1, this is the new commit status API.
@@ -755,7 +811,7 @@ Example response if commit is GPG signed:
 }
 ```
 
-Example response if commit is x509 signed:
+Example response if commit is X.509 signed:
 
 ```json
 {

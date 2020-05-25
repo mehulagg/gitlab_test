@@ -22,7 +22,7 @@ module QA
             # Create a new Project
             project = Resource::Project.fabricate_via_api! do |project|
               project.name = 'geo-project'
-              project.description = 'Geo test project'
+              project.description = 'Geo test project for ssh push to 2nd'
             end
 
             # Perform a git push over SSH directly to the primary
@@ -53,7 +53,7 @@ module QA
               menu.wait_for_key_to_replicate(key_title)
             end
 
-            expect(page).to have_content(key_title)
+            expect(page).to have_content(key.title)
             expect(page).to have_content(key.md5_fingerprint)
 
             # Ensure project has replicated
@@ -112,7 +112,7 @@ module QA
             # Create a new Project
             project = Resource::Project.fabricate_via_api! do |project|
               project.name = 'geo-project'
-              project.description = 'Geo test project'
+              project.description = 'Geo test project for ssh lfs push to 2nd'
             end
 
             # Perform a git push over SSH directly to the primary
@@ -143,7 +143,7 @@ module QA
               menu.wait_for_key_to_replicate(key_title)
             end
 
-            expect(page).to have_content(key_title)
+            expect(page).to have_content(key.title)
             expect(page).to have_content(key.md5_fingerprint)
 
             # Ensure project has replicated

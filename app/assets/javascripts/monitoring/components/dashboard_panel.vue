@@ -59,7 +59,8 @@ export default {
     },
     graphData: {
       type: Object,
-      required: true,
+      required: false,
+      default: null,
     },
     groupId: {
       type: String,
@@ -80,6 +81,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    settingsPath: {
+      type: String,
+      required: false,
+      default: null,
     },
   },
   data() {
@@ -114,17 +120,13 @@ export default {
       },
     }),
     title() {
-      return this.graphData.title || '';
+      return this.graphData?.title || '';
     },
     graphDataHasResult() {
-      return (
-        this.graphData.metrics &&
-        this.graphData.metrics[0].result &&
-        this.graphData.metrics[0].result.length > 0
-      );
+      return this.graphData?.metrics?.[0]?.result?.length > 0;
     },
     graphDataIsLoading() {
-      const { metrics = [] } = this.graphData;
+      const metrics = this.graphData?.metrics || [];
       return metrics.some(({ loading }) => loading);
     },
     logsPathWithTimeRange() {
@@ -136,7 +138,7 @@ export default {
       return null;
     },
     csvText() {
-      const chartData = this.graphData.metrics[0].result[0].values;
+      const chartData = this.graphData?.metrics[0].result[0].values || [];
       const yLabel = this.graphData.y_label;
       const header = `timestamp,${yLabel}\r\n`; // eslint-disable-line @gitlab/require-i18n-strings
       return chartData.reduce((csv, data) => {
@@ -199,6 +201,9 @@ export default {
       return Boolean(this.graphDataHasResult && !this.basicChartComponent);
     },
     editCustomMetricLink() {
+      if (this.graphData.metrics.length > 1) {
+        return this.settingsPath;
+      }
       return this.graphData?.metrics[0].edit_path;
     },
     editCustomMetricLinkText() {
@@ -230,7 +235,7 @@ export default {
       return Object.values(this.getGraphAlerts(queries));
     },
     isPanelType(type) {
-      return this.graphData.type && this.graphData.type === type;
+      return this.graphData?.type === type;
     },
     showToast() {
       this.$toast.show(__('Link copied'));
@@ -271,7 +276,8 @@ export default {
       <slot name="topLeft"></slot>
       <h5
         ref="graphTitle"
-        class="prometheus-graph-title gl-font-size-large font-weight-bold text-truncate append-right-8"
+        class="prometheus-graph-title gl-font-lg font-weight-bold text-truncate append-right-8"
+        tabindex="0"
       >
         {{ title }}
       </h5>
@@ -308,7 +314,12 @@ export default {
             <template slot="button-content">
               <gl-icon name="ellipsis_v" class="text-secondary" />
             </template>
-            <gl-dropdown-item v-if="expandBtnAvailable" ref="expandBtn" @click="onExpand">
+            <gl-dropdown-item
+              v-if="expandBtnAvailable"
+              ref="expandBtn"
+              :href="clipboardText"
+              @click.prevent="onExpand"
+            >
               {{ s__('Metrics|Expand panel') }}
             </gl-dropdown-item>
             <gl-dropdown-item
@@ -340,6 +351,7 @@ export default {
               ref="copyChartLink"
               v-track-event="generateLinkToChartOptions(clipboardText)"
               :data-clipboard-text="clipboardText"
+              data-qa-selector="generate_chart_link_menu_item"
               @click="showToast(clipboardText)"
             >
               {{ __('Copy link to chart') }}

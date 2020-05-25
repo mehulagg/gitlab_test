@@ -95,7 +95,7 @@ describe ApplicationSetting do
       end
 
       with_them do
-        it do
+        specify do
           setting.update_column(:geo_node_allowed_ips, allowed_ips)
 
           expect(setting.reload.valid?).to eq(is_valid)
@@ -122,7 +122,7 @@ describe ApplicationSetting do
       end
 
       with_them do
-        it do
+        specify do
           setting.elasticsearch_url = elasticsearch_url
 
           expect(setting.valid?).to eq(is_valid)
@@ -214,6 +214,20 @@ describe ApplicationSetting do
     end
   end
 
+  describe '#elasticsearch_pause_indexing' do
+    before do
+      setting.elasticsearch_pause_indexing = true
+    end
+
+    it 'resumes indexing' do
+      expect(ElasticIndexingControlWorker).to receive(:perform_async)
+
+      setting.save!
+      setting.elasticsearch_pause_indexing = false
+      setting.save!
+    end
+  end
+
   describe '#elasticsearch_url' do
     it 'presents a single URL as a one-element array' do
       setting.elasticsearch_url = 'http://example.com'
@@ -288,6 +302,53 @@ describe ApplicationSetting do
             [namespaces.last, child_namespace, child_namespace_indexed_through_parent])
           expect(setting.elasticsearch_limited_namespaces(true)).to match_array(
             [namespaces.last, child_namespace])
+        end
+
+        describe '#elasticsearch_indexes_project?' do
+          shared_examples 'examples for #elasticsearch_indexes_project?' do
+            context 'when project is in a subgroup' do
+              let(:root_group) { create(:group) }
+              let(:subgroup) { create(:group, parent: root_group) }
+              let(:project) { create(:project, group: subgroup) }
+
+              before do
+                create(:elasticsearch_indexed_namespace, namespace: root_group)
+              end
+
+              it 'allows project to be indexed' do
+                expect(setting.elasticsearch_indexes_project?(project)).to be(true)
+              end
+            end
+
+            context 'when project is in a namespace' do
+              let(:namespace) { create(:namespace) }
+              let(:project) { create(:project, namespace: namespace) }
+
+              before do
+                create(:elasticsearch_indexed_namespace, namespace: namespace)
+              end
+
+              it 'allows project to be indexed' do
+                expect(setting.elasticsearch_indexes_project?(project)).to be(true)
+              end
+            end
+          end
+
+          context 'when optimized_elasticsearch_indexes_project feature flag is on' do
+            before do
+              stub_feature_flags(optimized_elasticsearch_indexes_project: true)
+            end
+
+            include_examples 'examples for #elasticsearch_indexes_project?'
+          end
+
+          context 'when optimized_elasticsearch_indexes_project feature flag is off' do
+            before do
+              stub_feature_flags(optimized_elasticsearch_indexes_project: false)
+            end
+
+            include_examples 'examples for #elasticsearch_indexes_project?'
+          end
         end
       end
 

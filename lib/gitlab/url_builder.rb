@@ -11,6 +11,10 @@ module Gitlab
     class << self
       include ActionView::RecordIdentifier
 
+      # Using a case statement here is preferable for readability and maintainability.
+      # See discussion in https://gitlab.com/gitlab-org/gitlab/-/issues/217397
+      #
+      # rubocop:disable Metrics/CyclomaticComplexity
       def build(object, **options)
         # Objects are sometimes wrapped in a BatchLoader instance
         case object.itself
@@ -38,10 +42,13 @@ module Gitlab
           wiki_url(object, **options)
         when WikiPage
           instance.project_wiki_url(object.wiki.project, object.slug, **options)
+        when ::DesignManagement::Design
+          design_url(object, **options)
         else
           raise NotImplementedError.new("No URL builder defined for #{object.inspect}")
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       def commit_url(commit, **options)
         return '' unless commit.project
@@ -72,15 +79,21 @@ module Gitlab
       end
 
       def wiki_url(object, **options)
-        case object.container
-        when Project
+        if object.container.is_a?(Project)
           instance.project_wiki_url(object.container, Wiki::HOMEPAGE, **options)
-        when Group
-          # TODO: Use the new route for group wikis once we add it.
-          # https://gitlab.com/gitlab-org/gitlab/-/issues/211360
-          instance.group_canonical_url(object.container, **options) + "/-/wikis/#{Wiki::HOMEPAGE}"
         else
           raise NotImplementedError.new("No URL builder defined for #{object.inspect}")
+        end
+      end
+
+      def design_url(design, **options)
+        size, ref = options.values_at(:size, :ref)
+        options.except!(:size, :ref)
+
+        if size
+          instance.project_design_management_designs_resized_image_url(design.project, design, ref, size, **options)
+        else
+          instance.project_design_management_designs_raw_image_url(design.project, design, ref, **options)
         end
       end
     end

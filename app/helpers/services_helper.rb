@@ -80,7 +80,7 @@ module ServicesHelper
 
   def scoped_edit_integration_path(integration)
     if @project.present?
-      edit_project_settings_integration_path(@project, integration)
+      edit_project_service_path(@project, integration)
     elsif @group.present?
       edit_group_settings_integration_path(@group, integration)
     else
@@ -101,7 +101,7 @@ module ServicesHelper
   extend self
 end
 
-ServicesHelper.prepend_if_ee('EE::ServicesHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
+ServicesHelper.prepend_if_ee('EE::ServicesHelper')
 
 # The methods in `EE::ServicesHelper` should be available as both instance and
 # class methods.

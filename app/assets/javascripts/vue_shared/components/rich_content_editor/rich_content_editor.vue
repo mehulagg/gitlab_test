@@ -2,6 +2,8 @@
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 
+import { EDITOR_OPTIONS, EDITOR_TYPES, EDITOR_HEIGHT, EDITOR_PREVIEW_STYLE } from './constants';
+
 export default {
   components: {
     ToastEditor: () =>
@@ -13,6 +15,31 @@ export default {
     value: {
       type: String,
       required: true,
+    },
+    options: {
+      type: Object,
+      required: false,
+      default: () => EDITOR_OPTIONS,
+    },
+    initialEditType: {
+      type: String,
+      required: false,
+      default: EDITOR_TYPES.wysiwyg,
+    },
+    height: {
+      type: String,
+      required: false,
+      default: EDITOR_HEIGHT,
+    },
+    previewStyle: {
+      type: String,
+      required: false,
+      default: EDITOR_PREVIEW_STYLE,
+    },
+  },
+  computed: {
+    editorOptions() {
+      return { ...EDITOR_OPTIONS, ...this.options };
     },
   },
   methods: {
@@ -26,5 +53,13 @@ export default {
 };
 </script>
 <template>
-  <toast-editor ref="editor" :initial-value="value" @change="onContentChanged" />
+  <toast-editor
+    ref="editor"
+    :initial-value="value"
+    :options="editorOptions"
+    :preview-style="previewStyle"
+    :initial-edit-type="initialEditType"
+    :height="height"
+    @change="onContentChanged"
+  />
 </template>

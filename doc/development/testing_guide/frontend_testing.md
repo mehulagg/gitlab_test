@@ -638,7 +638,7 @@ Karma allows something similar, but it's way more costly.
 
 Running Karma with `yarn run karma-start` will compile the JavaScript
 assets and run a server at `http://localhost:9876/` where it will automatically
-run the tests on any browser which connects to it. You can enter that url on
+run the tests on any browser which connects to it. You can enter that URL on
 multiple browsers at once to have it run the tests on each in parallel.
 
 While Karma is running, any changes you make will instantly trigger a recompile
@@ -801,9 +801,9 @@ Tests relevant for frontend development can be found at the following places:
 
 RSpec runs complete [feature tests](testing_levels.md#frontend-feature-tests), while the Jest and Karma directories contain [frontend unit tests](testing_levels.md#frontend-unit-tests), [frontend component tests](testing_levels.md#frontend-component-tests), and [frontend integration tests](testing_levels.md#frontend-integration-tests).
 
-All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/issues/52483)).
+All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52483)).
 
-Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/issues/23036)).
+Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/23036)).
 
 See also [Notes on testing Vue components](../fe_guide/vue.md#testing-vue-components).
 
@@ -831,43 +831,6 @@ testAction(
 ```
 
 Check an example in [spec/javascripts/ide/stores/actions_spec.jsspec/javascripts/ide/stores/actions_spec.js](https://gitlab.com/gitlab-org/gitlab/blob/master/spec/javascripts/ide/stores/actions_spec.js).
-
-### Vue Helper: `mountComponent`
-
-To make mounting a Vue component easier and more readable, we have a few helpers available in `spec/helpers/vue_mount_component_helper`:
-
-- `createComponentWithStore`
-- `mountComponentWithStore`
-
-Examples of usage:
-
-```javascript
-beforeEach(() => {
-  vm = createComponentWithStore(Component, store);
-
-  vm.$store.state.currentBranchId = 'master';
-
-  vm.$mount();
-});
-```
-
-```javascript
-beforeEach(() => {
-  vm = mountComponentWithStore(Component, {
-    el: '#dummy-element',
-    store,
-    props: { badge },
-  });
-});
-```
-
-Don't forget to clean up:
-
-```javascript
-afterEach(() => {
-  vm.$destroy();
-});
-```
 
 ### Wait until axios requests finish
 

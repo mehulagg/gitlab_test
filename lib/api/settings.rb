@@ -84,16 +84,7 @@ module API
       optional :max_artifacts_size, type: Integer, desc: "Set the maximum file size for each job's artifacts"
       optional :max_attachment_size, type: Integer, desc: 'Maximum attachment size in MB'
       optional :max_pages_size, type: Integer, desc: 'Maximum size of pages in MB'
-      optional :metrics_enabled, type: Boolean, desc: 'Enable the InfluxDB metrics'
-      given metrics_enabled: ->(val) { val } do
-        requires :metrics_host, type: String, desc: 'The InfluxDB host'
-        requires :metrics_method_call_threshold, type: Integer, desc: 'A method call is only tracked when it takes longer to complete than the given amount of milliseconds.'
-        requires :metrics_packet_size, type: Integer, desc: 'The amount of points to store in a single UDP packet'
-        requires :metrics_pool_size, type: Integer, desc: 'The amount of InfluxDB connections to open'
-        requires :metrics_port, type: Integer, desc: 'The UDP port to use for connecting to InfluxDB'
-        requires :metrics_sample_interval, type: Integer, desc: 'The sampling interval in seconds'
-        requires :metrics_timeout, type: Integer, desc: 'The amount of seconds after which an InfluxDB connection will time out'
-      end
+      optional :metrics_method_call_threshold, type: Integer, desc: 'A method call is only tracked when it takes longer to complete than the given amount of milliseconds.'
       optional :password_authentication_enabled, type: Boolean, desc: 'Flag indicating if password authentication is enabled for the web interface' # support legacy names, can be removed in v5
       optional :password_authentication_enabled_for_web, type: Boolean, desc: 'Flag indicating if password authentication is enabled for the web interface'
       mutually_exclusive :password_authentication_enabled_for_web, :password_authentication_enabled, :signin_enabled
@@ -140,6 +131,10 @@ module API
       optional :sourcegraph_public_only, type: Boolean, desc: 'Only allow public projects to communicate with Sourcegraph'
       given sourcegraph_enabled: ->(val) { val } do
         requires :sourcegraph_url, type: String, desc: 'The configured Sourcegraph instance URL'
+      end
+      optional :spam_check_endpoint_enabled, type: Boolean, desc: 'Enable Spam Check via external API endpoint'
+      given spam_check_endpoint_enabled: ->(val) { val } do
+        requires :spam_check_endpoint_url, type: String, desc: 'The URL of the external Spam Check service endpoint'
       end
       optional :terminal_max_session_time, type: Integer, desc: 'Maximum time for web terminal websocket connection (in seconds). Set to 0 for unlimited time.'
       optional :usage_ping_enabled, type: Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
@@ -193,6 +188,9 @@ module API
       if attrs.has_key?(:allow_local_requests_from_hooks_and_services)
         attrs[:allow_local_requests_from_web_hooks_and_services] = attrs.delete(:allow_local_requests_from_hooks_and_services)
       end
+
+      # since 13.0 it's not possible to disable hashed storage - support can be removed in 14.0
+      attrs.delete(:hashed_storage_enabled) if attrs.has_key?(:hashed_storage_enabled)
 
       attrs = filter_attributes_using_license(attrs)
 

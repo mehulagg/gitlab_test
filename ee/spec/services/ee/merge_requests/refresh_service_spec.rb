@@ -61,7 +61,7 @@ describe MergeRequests::RefreshService do
     end
 
     describe '#update_approvers' do
-      let(:owner) { create(:user) }
+      let(:owner) { create(:user, username: 'default-codeowner') }
       let(:current_user) { merge_request.author }
       let(:service) { described_class.new(project, current_user) }
       let(:enable_code_owner) { true }
@@ -84,6 +84,50 @@ describe MergeRequests::RefreshService do
         merge_request
         another_merge_request
         forked_merge_request
+      end
+
+      it 'gets called in a specific order' do
+        allow_any_instance_of(MergeRequests::BaseService).to receive(:inspect).and_return(true)
+        expect(service).to receive(:reload_merge_requests).ordered
+        expect(service).to receive(:update_approvers).ordered
+        expect(service).to receive(:reset_approvals_for_merge_requests).ordered
+
+        subject
+      end
+
+      context "creating approval_rules" do
+        shared_examples_for 'creates an approval rule based on current diff' do
+          it "creates expected approval rules" do
+            expect(another_merge_request.approval_rules.size).to eq(approval_rules_size)
+            expect(another_merge_request.approval_rules.first.rule_type).to eq('code_owner')
+          end
+        end
+
+        before do
+          project.repository.create_file(owner, 'CODEOWNERS', file, { branch_name: 'test', message: 'codeowners' })
+
+          subject
+        end
+
+        context 'with a non-sectional codeowners file' do
+          let_it_be(:file) do
+            File.read(Rails.root.join('ee', 'spec', 'fixtures', 'codeowners_example'))
+          end
+
+          it_behaves_like 'creates an approval rule based on current diff' do
+            let(:approval_rules_size) { 3 }
+          end
+        end
+
+        context 'with a sectional codeowners file' do
+          let_it_be(:file) do
+            File.read(Rails.root.join('ee', 'spec', 'fixtures', 'sectional_codeowners_example'))
+          end
+
+          it_behaves_like 'creates an approval rule based on current diff' do
+            let(:approval_rules_size) { 4 }
+          end
+        end
       end
 
       context 'when code owners disabled' do

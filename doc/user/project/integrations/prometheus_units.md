@@ -1,6 +1,12 @@
+---
+stage: Monitor
+group: APM
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Unit formats reference
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/201999) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/201999) in GitLab 12.9.
 
 You can select units to format your charts by adding `format` to your
 [axis configuration](prometheus.md#dashboard-yaml-properties).

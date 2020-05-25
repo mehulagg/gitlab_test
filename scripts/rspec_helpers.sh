@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function retrieve_tests_metadata() {
   mkdir -p knapsack/ rspec_flaky/ rspec_profiling/
@@ -53,8 +53,6 @@ function rspec_simple_job() {
 
   export NO_KNAPSACK="1"
 
-  scripts/gitaly-test-spawn
-
   bin/rspec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml ${rspec_opts}
 }
 
@@ -72,6 +70,12 @@ function rspec_paralellized_job() {
 
   export KNAPSACK_LOG_LEVEL="debug"
   export KNAPSACK_REPORT_PATH="knapsack/${report_name}_report.json"
+
+  # There's a bug where artifacts are sometimes not downloaded. Since specs can run without the Knapsack report, we can
+  # handle the missing artifact gracefully here. See https://gitlab.com/gitlab-org/gitlab/-/issues/212349.
+  if [[ ! -f "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" ]]; then
+    echo "{}" > "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}"
+  fi
 
   cp "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" "${KNAPSACK_REPORT_PATH}"
 
@@ -97,8 +101,6 @@ function rspec_paralellized_job() {
       echo "{}" > "${NEW_FLAKY_RSPEC_REPORT_PATH}"
     fi
   fi
-
-  scripts/gitaly-test-spawn
 
   mkdir -p tmp/memory_test
 

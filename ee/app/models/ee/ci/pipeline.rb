@@ -42,11 +42,11 @@ module EE
           codequality: nil,
           sast: %i[sast],
           dependency_scanning: %i[dependency_scanning],
-          container_scanning: %i[container_scanning sast_container],
+          container_scanning: %i[container_scanning],
           dast: %i[dast],
           performance: %i[merge_request_performance_metrics],
-          license_management: %i[license_scanning license_management],
-          license_scanning: %i[license_scanning license_management],
+          license_management: %i[license_scanning],
+          license_scanning: %i[license_scanning],
           metrics: %i[metrics_reports]
         }.freeze
 

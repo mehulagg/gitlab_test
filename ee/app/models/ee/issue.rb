@@ -21,6 +21,7 @@ module EE
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :service_desk, -> { where(author: ::User.support_bot) }
       scope :no_epic, -> { left_outer_joins(:epic_issue).where(epic_issues: { epic_id: nil }) }
+      scope :any_epic, -> { joins(:epic_issue) }
       scope :in_epics, ->(epics) do
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
         id_in(issue_ids)
@@ -32,12 +33,6 @@ module EE
       has_one :epic_issue
       has_one :epic, through: :epic_issue
       belongs_to :promoted_to_epic, class_name: 'Epic'
-      has_many :designs, class_name: "DesignManagement::Design", inverse_of: :issue
-      has_many :design_versions, class_name: "DesignManagement::Version", inverse_of: :issue do
-        def most_recent
-          ordered.first
-        end
-      end
 
       has_one :status_page_published_incident, class_name: 'StatusPage::PublishedIncident', inverse_of: :issue
 
@@ -161,10 +156,6 @@ module EE
 
     def board_group
       @group ||= project.group
-    end
-
-    def design_collection
-      @design_collection ||= ::DesignManagement::DesignCollection.new(self)
     end
 
     def promoted?

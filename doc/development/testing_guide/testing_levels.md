@@ -366,7 +366,7 @@ See also:
 
 - The [RSpec testing guidelines](../testing_guide/best_practices.md#rspec).
 - System / Feature tests in the [Testing Best Practices](best_practices.md#system--feature-tests).
-- [Issue #26159](https://gitlab.com/gitlab-org/gitlab/issues/26159) which aims at combining those guidelines with this page.
+- [Issue #26159](https://gitlab.com/gitlab-org/gitlab/-/issues/26159) which aims at combining those guidelines with this page.
 
 ```mermaid
 graph RL
@@ -467,7 +467,7 @@ Formal definitions:
 
 GitLab consists of [multiple pieces](../architecture.md#components) such as [GitLab Shell](https://gitlab.com/gitlab-org/gitlab-shell), [GitLab Workhorse](https://gitlab.com/gitlab-org/gitlab-workhorse),
 [Gitaly](https://gitlab.com/gitlab-org/gitaly), [GitLab Pages](https://gitlab.com/gitlab-org/gitlab-pages), [GitLab Runner](https://gitlab.com/gitlab-org/gitlab-runner), and GitLab Rails. All theses pieces
-are configured and packaged by [GitLab Omnibus](https://gitlab.com/gitlab-org/omnibus-gitlab).
+are configured and packaged by [Omnibus GitLab](https://gitlab.com/gitlab-org/omnibus-gitlab).
 
 The QA framework and instance-level scenarios are [part of GitLab Rails](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa) so that
 they're always in-sync with the codebase (especially the views).

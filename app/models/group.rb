@@ -15,7 +15,6 @@ class Group < Namespace
   include WithUploads
   include Gitlab::Utils::StrongMemoize
   include GroupAPICompatibility
-  include HasWiki
 
   ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT = 10
 
@@ -31,7 +30,7 @@ class Group < Namespace
   has_many :members_and_requesters, as: :source, class_name: 'GroupMember'
 
   has_many :milestones
-  has_many :sprints
+  has_many :iterations
   has_many :shared_group_links, foreign_key: :shared_with_group_id, class_name: 'GroupGroupLink'
   has_many :shared_with_group_links, foreign_key: :shared_group_id, class_name: 'GroupGroupLink'
   has_many :shared_groups, through: :shared_group_links, source: :shared_group
@@ -306,9 +305,10 @@ class Group < Namespace
   # rubocop: enable CodeReuse/ServiceClass
 
   # rubocop: disable CodeReuse/ServiceClass
-  def refresh_members_authorized_projects(blocking: true)
-    UserProjectAccessChangedService.new(user_ids_for_project_authorizations)
-      .execute(blocking: blocking)
+  def refresh_members_authorized_projects(blocking: true, priority: UserProjectAccessChangedService::HIGH_PRIORITY)
+    UserProjectAccessChangedService
+      .new(user_ids_for_project_authorizations)
+      .execute(blocking: blocking, priority: priority)
   end
   # rubocop: enable CodeReuse/ServiceClass
 
@@ -334,6 +334,11 @@ class Group < Namespace
     GroupMember
       .active_without_invites_and_requests
       .where(source_id: source_ids)
+  end
+
+  def members_from_self_and_ancestors_with_effective_access_level
+    members_with_parents.select([:user_id, 'MAX(access_level) AS access_level'])
+                        .group(:user_id)
   end
 
   def members_with_descendants
@@ -479,14 +484,14 @@ class Group < Namespace
     false
   end
 
-  def wiki_access_level
-    # TODO: Remove this method once we implement group-level features.
-    # https://gitlab.com/gitlab-org/gitlab/-/issues/208412
-    if Feature.enabled?(:group_wiki, self)
-      ProjectFeature::ENABLED
-    else
-      ProjectFeature::DISABLED
-    end
+  def execute_hooks(data, hooks_scope)
+    # NOOP
+    # TODO: group hooks https://gitlab.com/gitlab-org/gitlab/-/issues/216904
+  end
+
+  def execute_services(data, hooks_scope)
+    # NOOP
+    # TODO: group hooks https://gitlab.com/gitlab-org/gitlab/-/issues/216904
   end
 
   private
@@ -520,8 +525,6 @@ class Group < Namespace
   end
 
   def max_member_access_for_user_from_shared_groups(user)
-    return unless Feature.enabled?(:share_group_with_group, default_enabled: true)
-
     group_group_link_table = GroupGroupLink.arel_table
     group_member_table = GroupMember.arel_table
 

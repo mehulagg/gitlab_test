@@ -38,7 +38,7 @@ In [GitLab Premium or higher](https://about.gitlab.com/pricing/), GitLab adminis
 
 To do this:
 
-1. Uncheck the **Allow owners to manage default branch protection in groups** checkbox.
+1. Uncheck the **Allow owners to manage default branch protection per group** checkbox.
 
 NOTE: **Note:**
 GitLab administrators can still update the default branch protection of a group.
@@ -66,7 +66,7 @@ To ensure only admin users can delete projects:
 
 ## Default deletion adjourned period **(PREMIUM ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/32935) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/32935) in GitLab 12.6.
 
 By default, a project or group marked for removal will be permanently removed after 7 days.
 This period may be changed, and setting this period to 0 will enable immediate removal

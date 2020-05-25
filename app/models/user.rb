@@ -58,14 +58,16 @@ class User < ApplicationRecord
   devise :lockable, :recoverable, :rememberable, :trackable,
          :validatable, :omniauthable, :confirmable, :registerable
 
+  # This module adds async behaviour to Devise emails
+  # and should be added after Devise modules are initialized.
+  include AsyncDeviseEmail
+
   BLOCKED_MESSAGE = "Your account has been blocked. Please contact your GitLab " \
                     "administrator if you think this is an error."
   LOGIN_FORBIDDEN = "Your account does not have the required permission to login. Please contact your GitLab " \
                     "administrator if you think this is an error."
 
   MINIMUM_INACTIVE_DAYS = 180
-
-  ignore_column :bot_type, remove_with: '12.11', remove_after: '2020-04-22'
 
   ignore_column :ghost, remove_with: '13.2', remove_after: '2020-06-22'
 
@@ -88,6 +90,9 @@ class User < ApplicationRecord
 
   # Virtual attribute for authenticating by either username or email
   attr_accessor :login
+
+  # Virtual attribute for impersonator
+  attr_accessor :impersonator
 
   #
   # Relations
@@ -166,6 +171,8 @@ class User < ApplicationRecord
   has_many :callouts, class_name: 'UserCallout'
   has_many :term_agreements
   belongs_to :accepted_term, class_name: 'ApplicationSetting::Term'
+
+  has_many :metrics_users_starred_dashboards, class_name: 'Metrics::UsersStarredDashboard', inverse_of: :user
 
   has_one :status, class_name: 'UserStatus'
   has_one :user_preference
@@ -247,15 +254,12 @@ class User < ApplicationRecord
   enum layout: { fixed: 0, fluid: 1 }
 
   # User's Dashboard preference
-  # Note: When adding an option, it MUST go on the end of the array.
   enum dashboard: { projects: 0, stars: 1, project_activity: 2, starred_project_activity: 3, groups: 4, todos: 5, issues: 6, merge_requests: 7, operations: 8 }
 
   # User's Project preference
-  # Note: When adding an option, it MUST go on the end of the array.
   enum project_view: { readme: 0, activity: 1, files: 2 }
 
   # User's role
-  # Note: When adding an option, it MUST go on the end of the array.
   enum role: { software_developer: 0, development_team_lead: 1, devops_engineer: 2, systems_administrator: 3, security_analyst: 4, data_analyst: 5, product_manager: 6, product_designer: 7, other: 8 }, _suffix: true
 
   delegate :path, to: :namespace, allow_nil: true, prefix: true
@@ -634,6 +638,16 @@ class User < ApplicationRecord
       end
     end
 
+    def migration_bot
+      email_pattern = "noreply+gitlab-migration-bot%s@#{Settings.gitlab.host}"
+
+      unique_internal(where(user_type: :migration_bot), 'migration-bot', email_pattern) do |u|
+        u.bio = 'The GitLab migration bot'
+        u.name = 'GitLab Migration Bot'
+        u.confirmed_at = Time.zone.now
+      end
+    end
+
     # Return true if there is only single non-internal user in the deployment,
     # ghost user is ignored.
     def single_user?
@@ -673,7 +687,7 @@ class User < ApplicationRecord
     @reset_token, enc = Devise.token_generator.generate(self.class, :reset_password_token)
 
     self.reset_password_token   = enc
-    self.reset_password_sent_at = Time.now.utc
+    self.reset_password_sent_at = Time.current.utc
 
     @reset_token
   end
@@ -939,11 +953,11 @@ class User < ApplicationRecord
   end
 
   def allow_password_authentication_for_web?
-    Gitlab::CurrentSettings.password_authentication_enabled_for_web? && !ldap_user? && !ultraauth_user?
+    Gitlab::CurrentSettings.password_authentication_enabled_for_web? && !ldap_user?
   end
 
   def allow_password_authentication_for_git?
-    Gitlab::CurrentSettings.password_authentication_enabled_for_git? && !ldap_user? && !ultraauth_user?
+    Gitlab::CurrentSettings.password_authentication_enabled_for_git? && !ldap_user?
   end
 
   def can_change_username?
@@ -1031,14 +1045,6 @@ class User < ApplicationRecord
     end
   end
 
-  def ultraauth_user?
-    if identities.loaded?
-      identities.find { |identity| Gitlab::Auth::OAuth::Provider.ultraauth_provider?(identity.provider) && !identity.extern_uid.nil? }
-    else
-      identities.exists?(["provider = ? AND extern_uid IS NOT NULL", "ultraauth"])
-    end
-  end
-
   def ldap_identity
     @ldap_identity ||= identities.find_by(["provider LIKE ?", "ldap%"])
   end
@@ -1111,7 +1117,7 @@ class User < ApplicationRecord
     if !Gitlab.config.ldap.enabled
       false
     elsif ldap_user?
-      !last_credential_check_at || (last_credential_check_at + ldap_sync_time) < Time.now
+      !last_credential_check_at || (last_credential_check_at + ldap_sync_time) < Time.current
     else
       false
     end
@@ -1358,7 +1364,7 @@ class User < ApplicationRecord
   def contributed_projects
     events = Event.select(:project_id)
       .contributions.where(author_id: self)
-      .where("created_at > ?", Time.now - 1.year)
+      .where("created_at > ?", Time.current - 1.year)
       .distinct
       .reorder(nil)
 
@@ -1631,7 +1637,7 @@ class User < ApplicationRecord
   end
 
   def password_expired?
-    !!(password_expires_at && password_expires_at < Time.now)
+    !!(password_expires_at && password_expires_at < Time.current)
   end
 
   def can_be_deactivated?
@@ -1673,6 +1679,10 @@ class User < ApplicationRecord
 
   def confirmation_required_on_sign_in?
     !confirmed? && !confirmation_period_valid?
+  end
+
+  def impersonated?
+    impersonator.present?
   end
 
   protected
@@ -1729,13 +1739,6 @@ class User < ApplicationRecord
     # user is an admin and the only user in the instance, this shouldn't
     # cause too much load on the system.
     ApplicationSetting.current_without_cache&.usage_stats_set_by_user_id == self.id
-  end
-
-  # Added according to https://github.com/plataformatec/devise/blob/7df57d5081f9884849ca15e4fde179ef164a575f/README.md#activejob-integration
-  def send_devise_notification(notification, *args)
-    return true unless can?(:receive_notifications)
-
-    devise_mailer.__send__(notification, self, *args).deliver_later # rubocop:disable GitlabSecurity/PublicSend
   end
 
   def ensure_user_rights_and_limits

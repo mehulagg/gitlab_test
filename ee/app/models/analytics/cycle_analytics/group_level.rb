@@ -14,9 +14,16 @@ module Analytics
 
       def summary
         @summary ||=
-          Gitlab::Analytics::CycleAnalytics::GroupStageSummary
-            .new(group, options: options)
-            .data
+          Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary
+          .new(group, options: options)
+          .data
+      end
+
+      def time_summary
+        @time_summary ||=
+          Gitlab::Analytics::CycleAnalytics::GroupStageTimeSummary
+          .new(group, options: options)
+          .data
       end
 
       def permissions(*)

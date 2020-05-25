@@ -4,10 +4,11 @@ module Groups
   module ImportExport
     class ExportService
       def initialize(group:, user:, params: {})
-        @group        = group
+        @group = group
         @current_user = user
-        @params       = params
-        @shared       = @params[:shared] || Gitlab::ImportExport::Shared.new(@group)
+        @params = params
+        @shared = @params[:shared] || Gitlab::ImportExport::Shared.new(@group)
+        @logger = Gitlab::Export::Logger.build
       end
 
       def async_execute
@@ -52,7 +53,7 @@ module Groups
       end
 
       def savers
-        [tree_exporter, file_saver]
+        [version_saver, tree_exporter, file_saver]
       end
 
       def tree_exporter
@@ -65,11 +66,15 @@ module Groups
       end
 
       def tree_exporter_class
-        if ::Feature.enabled?(:group_import_export_ndjson, @group&.parent)
+        if ::Feature.enabled?(:group_export_ndjson, @group&.parent, default_enabled: true)
           Gitlab::ImportExport::Group::TreeSaver
         else
           Gitlab::ImportExport::Group::LegacyTreeSaver
         end
+      end
+
+      def version_saver
+        Gitlab::ImportExport::VersionSaver.new(shared: shared)
       end
 
       def file_saver
@@ -87,20 +92,28 @@ module Groups
       end
 
       def notify_success
-        @shared.logger.info(
-          group_id:   @group.id,
-          group_name: @group.name,
-          message:    'Group Import/Export: Export succeeded'
+        @logger.info(
+          message: 'Group Export succeeded',
+          group_id: @group.id,
+          group_name: @group.name
         )
+
+        notification_service.group_was_exported(@group, @current_user)
       end
 
       def notify_error
-        @shared.logger.error(
-          group_id:   @group.id,
+        @logger.error(
+          message: 'Group Export failed',
+          group_id: @group.id,
           group_name: @group.name,
-          error:      @shared.errors.join(', '),
-          message:    'Group Import/Export: Export failed'
+          errors: @shared.errors.join(', ')
         )
+
+        notification_service.group_was_not_exported(@group, @current_user, @shared.errors)
+      end
+
+      def notification_service
+        @notification_service ||= NotificationService.new
       end
     end
   end

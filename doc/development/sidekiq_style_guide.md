@@ -82,6 +82,11 @@ As a general rule, a worker can be considered idempotent if:
 
 A good example of that would be a cache expiration worker.
 
+NOTE: **Note:**
+A job scheduled for an idempotent worker will automatically be
+[deduplicated](#deduplication) when an unstarted job with the same
+arguments is already in the queue.
+
 ### Ensuring a worker is idempotent
 
 Make sure the worker tests pass using the following shared example:
@@ -144,6 +149,24 @@ execute.
 
 More [deduplication strategies have been suggested](https://gitlab.com/gitlab-com/gl-infra/scalability/issues/195). If you are implementing a worker that
 could benefit from a different strategy, please comment in the issue.
+
+If the automatic deduplication were to cause issues in certain
+queues. This can be temporarily disabled by enabling a feature flag
+named `disable_<queue name>_deduplication`. For example to disable
+deduplication for the `AuthorizedProjectsWorker`, we would enable the
+feature flag `disable_authorized_projects_deduplication`.
+
+From chatops:
+
+```shell
+/chatops run feature set disable_authorized_projects_deduplication true
+```
+
+From the rails console:
+
+```ruby
+Feature.enable!(:disable_authorized_projects_deduplication)
+```
 
 ## Job urgency
 
@@ -372,7 +395,7 @@ in the default execution mode - using
 does not account for weights.
 
 As we are [moving towards using `sidekiq-cluster` in
-Core](https://gitlab.com/gitlab-org/gitlab/issues/34396), newly-added
+Core](https://gitlab.com/gitlab-org/gitlab/-/issues/34396), newly-added
 workers do not need to have weights specified. They can simply use the
 default weight, which is 1.
 

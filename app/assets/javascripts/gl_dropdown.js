@@ -4,7 +4,7 @@ import $ from 'jquery';
 import { escape } from 'lodash';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 import axios from './lib/utils/axios_utils';
-import { visitUrl } from './lib/utils/url_utility';
+import { visitUrl } from '~/lib/utils/url_utility';
 import { isObject } from './lib/utils/type_utility';
 import renderItem from './gl_dropdown/render';
 
@@ -595,13 +595,14 @@ class GitLabDropdown {
 
     return renderItem({
       instance: this,
-      options: Object.assign({}, this.options, {
+      options: {
+        ...this.options,
         icon: this.icon,
         highlight: this.highlight,
         highlightText: text => this.highlightTextMatches(text, this.filterInput.val()),
         highlightTemplate: this.highlightTemplate.bind(this),
         parent,
-      }),
+      },
       data,
       group,
       index,

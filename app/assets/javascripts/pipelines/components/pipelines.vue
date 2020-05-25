@@ -1,5 +1,5 @@
 <script>
-import { isEqual } from 'lodash';
+import { isEqual, pickBy } from 'lodash';
 import { __, sprintf, s__ } from '../../locale';
 import createFlash from '../../flash';
 import PipelinesService from '../services/pipelines_service';
@@ -9,14 +9,18 @@ import NavigationTabs from '../../vue_shared/components/navigation_tabs.vue';
 import NavigationControls from './nav_controls.vue';
 import { getParameterByName } from '../../lib/utils/common_utils';
 import CIPaginationMixin from '../../vue_shared/mixins/ci_pagination_api_mixin';
+import PipelinesFilteredSearch from './pipelines_filtered_search.vue';
+import { ANY_TRIGGER_AUTHOR, RAW_TEXT_WARNING, SUPPORTED_FILTER_PARAMETERS } from '../constants';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
   components: {
     TablePagination,
     NavigationTabs,
     NavigationControls,
+    PipelinesFilteredSearch,
   },
-  mixins: [pipelinesMixin, CIPaginationMixin],
+  mixins: [pipelinesMixin, CIPaginationMixin, glFeatureFlagsMixin()],
   props: {
     store: {
       type: Object,
@@ -77,6 +81,14 @@ export default {
       type: String,
       required: false,
       default: null,
+    },
+    projectId: {
+      type: String,
+      required: true,
+    },
+    params: {
+      type: Object,
+      required: true,
     },
   },
   data() {
@@ -209,10 +221,18 @@ export default {
         },
       ];
     },
+    canFilterPipelines() {
+      return this.glFeatures.filterPipelinesSearch;
+    },
+    validatedParams() {
+      return pickBy(this.params, (val, key) => SUPPORTED_FILTER_PARAMETERS.includes(key) && val);
+    },
   },
   created() {
     this.service = new PipelinesService(this.endpoint);
     this.requestData = { page: this.page, scope: this.scope };
+
+    Object.assign(this.requestData, this.validatedParams);
   },
   methods: {
     successCallback(resp) {
@@ -237,6 +257,30 @@ export default {
           this.isResetCacheButtonLoading = false;
           createFlash(s__('Pipelines|Something went wrong while cleaning runners cache.'));
         });
+    },
+    resetRequestData() {
+      this.requestData = { page: this.page, scope: this.scope };
+    },
+    filterPipelines(filters) {
+      this.resetRequestData();
+
+      filters.forEach(filter => {
+        // do not add Any for username query param, so we
+        // can fetch all trigger authors
+        if (filter.type && filter.value.data !== ANY_TRIGGER_AUTHOR) {
+          this.requestData[filter.type] = filter.value.data;
+        }
+
+        if (!filter.type) {
+          createFlash(RAW_TEXT_WARNING, 'warning');
+        }
+      });
+
+      if (filters.length === 0) {
+        this.resetRequestData();
+      }
+
+      this.updateContent(this.requestData);
     },
   },
 };
@@ -266,6 +310,14 @@ export default {
         @resetRunnersCache="handleResetRunnersCache"
       />
     </div>
+
+    <pipelines-filtered-search
+      v-if="canFilterPipelines"
+      :pipelines="state.pipelines"
+      :project-id="projectId"
+      :params="validatedParams"
+      @filterPipelines="filterPipelines"
+    />
 
     <div class="content-list pipelines">
       <gl-loading-icon

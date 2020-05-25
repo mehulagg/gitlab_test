@@ -107,38 +107,6 @@ describe Note do
     end
   end
 
-  describe 'callbacks' do
-    describe '#notify_after_create' do
-      it 'calls #after_note_created on the noteable' do
-        note = build(:note)
-
-        expect(note).to receive(:notify_after_create).and_call_original
-        expect(note.noteable).to receive(:after_note_created).with(note)
-
-        note.save!
-      end
-    end
-
-    describe '#notify_after_destroy' do
-      it 'calls #after_note_destroyed on the noteable' do
-        note = create(:note)
-
-        expect(note).to receive(:notify_after_destroy).and_call_original
-        expect(note.noteable).to receive(:after_note_destroyed).with(note)
-
-        note.destroy
-      end
-
-      it 'does not error if noteable is nil' do
-        note = create(:note)
-
-        expect(note).to receive(:notify_after_destroy).and_call_original
-        expect(note).to receive(:noteable).at_least(:once).and_return(nil)
-        expect { note.destroy }.not_to raise_error
-      end
-    end
-  end
-
   context 'object storage with background upload' do
     before do
       stub_uploads_object_storage(AttachmentUploader, background_upload: true)
@@ -168,14 +136,6 @@ describe Note do
       note = create(:note_on_epic, noteable: create(:epic, group: group))
 
       expect(note.resource_parent).to eq(group)
-    end
-  end
-
-  describe '#for_design' do
-    it 'is true when the noteable is a design' do
-      note = build(:note, noteable: build(:design))
-
-      expect(note).to be_for_design
     end
   end
 

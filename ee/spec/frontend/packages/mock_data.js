@@ -10,6 +10,10 @@ export const mockPipelineInfo = {
   user: {
     name: 'foo',
   },
+  project: {
+    name: 'foo-project',
+    web_url: 'foo-project-link',
+  },
 };
 
 export const mavenPackage = {
@@ -55,6 +59,7 @@ export const npmPackage = {
   project_id: 1,
   updated_at: '2015-12-10',
   version: '',
+  versions: [],
   _links,
   pipeline: mockPipelineInfo,
 };
@@ -93,6 +98,18 @@ export const nugetPackage = {
   name: 'NugetPackage1',
   package_files: [],
   package_type: 'nuget',
+  project_id: 1,
+  tags: [],
+  updated_at: '2015-12-10',
+  version: '1.0.0',
+};
+
+export const pypiPackage = {
+  created_at: '2015-12-10',
+  id: 5,
+  name: 'PyPiPackage',
+  package_files: [],
+  package_type: 'pypi',
   project_id: 1,
   tags: [],
   updated_at: '2015-12-10',

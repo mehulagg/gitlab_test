@@ -9,6 +9,7 @@ module Packages
 
       def detail_view
         package_detail = {
+          id: @package.id,
           created_at: @package.created_at,
           name: @package.name,
           package_files: @package.package_files.map { |pf| build_package_file_view(pf) },
@@ -41,7 +42,11 @@ module Packages
           sha: pipeline_info.sha,
           ref: pipeline_info.ref,
           git_commit_message: pipeline_info.git_commit_message,
-          user: build_user_info(pipeline_info.user)
+          user: build_user_info(pipeline_info.user),
+          project: {
+            name: pipeline_info.project.name,
+            web_url: pipeline_info.project.web_url
+          }
         }
       end
 

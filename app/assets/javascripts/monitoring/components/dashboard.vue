@@ -1,8 +1,10 @@
 <script>
-import { debounce, pickBy } from 'lodash';
+import { debounce } from 'lodash';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import {
+  GlIcon,
+  GlButton,
   GlDeprecatedButton,
   GlDropdown,
   GlDropdownItem,
@@ -17,7 +19,7 @@ import {
 import DashboardPanel from './dashboard_panel.vue';
 import { s__ } from '~/locale';
 import createFlash from '~/flash';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { ESC_KEY, ESC_KEY_IE11 } from '~/lib/utils/keys';
 import CustomMetricsFormFields from '~/custom_metrics/components/custom_metrics_form_fields.vue';
 import { mergeUrlParams, redirectTo, updateHistory } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
@@ -28,9 +30,17 @@ import GraphGroup from './graph_group.vue';
 import EmptyState from './empty_state.vue';
 import GroupEmptyState from './group_empty_state.vue';
 import DashboardsDropdown from './dashboards_dropdown.vue';
+import VariablesSection from './variables_section.vue';
 
 import TrackEventDirective from '~/vue_shared/directives/track_event';
-import { getAddMetricTrackingOptions, timeRangeToUrl, timeRangeFromUrl } from '../utils';
+import {
+  getAddMetricTrackingOptions,
+  timeRangeToUrl,
+  timeRangeFromUrl,
+  panelToUrl,
+  expandedPanelPayloadFromUrl,
+  convertVariablesForURL,
+} from '../utils';
 import { metricStates } from '../constants';
 import { defaultTimeRange, timeRanges } from '~/vue_shared/constants';
 
@@ -39,6 +49,8 @@ export default {
     VueDraggable,
     DashboardPanel,
     Icon,
+    GlIcon,
+    GlButton,
     GlDeprecatedButton,
     GlDropdown,
     GlLoadingIcon,
@@ -54,13 +66,14 @@ export default {
     EmptyState,
     GroupEmptyState,
     DashboardsDropdown,
+
+    VariablesSection,
   },
   directives: {
     GlModal: GlModalDirective,
     GlTooltip: GlTooltipDirective,
     TrackEvent: TrackEventDirective,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     externalDashboardUrl: {
       type: String,
@@ -98,27 +111,9 @@ export default {
       type: String,
       required: true,
     },
-    projectPath: {
-      type: String,
-      required: true,
-    },
-    logsPath: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
     defaultBranch: {
       type: String,
       required: true,
-    },
-    metricsEndpoint: {
-      type: String,
-      required: true,
-    },
-    deploymentsEndpoint: {
-      type: String,
-      required: false,
-      default: null,
     },
     emptyGettingStartedSvgPath: {
       type: String,
@@ -140,10 +135,6 @@ export default {
       type: String,
       required: true,
     },
-    currentEnvironmentName: {
-      type: String,
-      required: true,
-    },
     customMetricsAvailable: {
       type: Boolean,
       required: false,
@@ -158,21 +149,6 @@ export default {
       type: String,
       required: false,
       default: invalidUrl,
-    },
-    dashboardEndpoint: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
-    dashboardsEndpoint: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
-    currentDashboard: {
-      type: String,
-      required: false,
-      default: '',
     },
     smallEmptyState: {
       type: Boolean,
@@ -197,7 +173,6 @@ export default {
   },
   data() {
     return {
-      state: 'gettingStarted',
       formIsValid: null,
       selectedTimeRange: timeRangeFromUrl() || defaultTimeRange,
       hasValidDates: true,
@@ -212,16 +187,18 @@ export default {
       'showEmptyState',
       'useDashboardEndpoint',
       'allDashboards',
-      'additionalPanelTypesEnabled',
       'environmentsLoading',
+      'expandedPanel',
+      'variables',
+      'isUpdatingStarredValue',
+      'currentDashboard',
+      'currentEnvironmentName',
     ]),
-    ...mapGetters('monitoringDashboard', ['getMetricStates', 'filteredEnvironments']),
-    firstDashboard() {
-      return this.allDashboards.length > 0 ? this.allDashboards[0] : {};
-    },
-    selectedDashboard() {
-      return this.allDashboards.find(d => d.path === this.currentDashboard) || this.firstDashboard;
-    },
+    ...mapGetters('monitoringDashboard', [
+      'selectedDashboard',
+      'getMetricStates',
+      'filteredEnvironments',
+    ]),
     showRearrangePanelsBtn() {
       return !this.showEmptyState && this.rearrangePanelsAvailable;
     },
@@ -229,32 +206,50 @@ export default {
       return (
         this.customMetricsAvailable &&
         !this.showEmptyState &&
-        this.firstDashboard === this.selectedDashboard
-      );
-    },
-    hasHeaderButtons() {
-      return (
-        this.addingMetricsAvailable ||
-        this.showRearrangePanelsBtn ||
-        this.selectedDashboard.can_edit ||
-        this.externalDashboardUrl.length
+        // Custom metrics only avaialble on system dashboards because
+        // they are stored in the database. This can be improved. See:
+        // https://gitlab.com/gitlab-org/gitlab/-/issues/28241
+        this.selectedDashboard?.system_dashboard
       );
     },
     shouldShowEnvironmentsDropdownNoMatchedMsg() {
       return !this.environmentsLoading && this.filteredEnvironments.length === 0;
     },
+    shouldShowVariablesSection() {
+      return Object.keys(this.variables).length > 0;
+    },
+  },
+  watch: {
+    dashboard(newDashboard) {
+      try {
+        const expandedPanel = expandedPanelPayloadFromUrl(newDashboard);
+        if (expandedPanel) {
+          this.setExpandedPanel(expandedPanel);
+        }
+      } catch {
+        createFlash(
+          s__(
+            'Metrics|Link contains invalid chart information, please verify the link to see the expanded panel.',
+          ),
+        );
+      }
+    },
+    expandedPanel: {
+      handler({ group, panel }) {
+        const dashboardPath = this.currentDashboard || this.selectedDashboard?.path;
+        updateHistory({
+          url: panelToUrl(dashboardPath, convertVariablesForURL(this.variables), group, panel),
+          title: document.title,
+        });
+      },
+      deep: true,
+    },
   },
   created() {
-    this.setInitialState({
-      metricsEndpoint: this.metricsEndpoint,
-      deploymentsEndpoint: this.deploymentsEndpoint,
-      dashboardEndpoint: this.dashboardEndpoint,
-      dashboardsEndpoint: this.dashboardsEndpoint,
-      currentDashboard: this.currentDashboard,
-      projectPath: this.projectPath,
-      logsPath: this.logsPath,
-      currentEnvironmentName: this.currentEnvironmentName,
-    });
+    window.addEventListener('keyup', this.onKeyup);
+  },
+  destroyed() {
+    window.removeEventListener('keyup', this.onKeyup);
   },
   mounted() {
     if (!this.hasMetrics) {
@@ -270,9 +265,11 @@ export default {
       'fetchData',
       'fetchDashboardData',
       'setGettingStartedEmptyState',
-      'setInitialState',
       'setPanelGroupMetrics',
       'filterEnvironments',
+      'setExpandedPanel',
+      'clearExpandedPanel',
+      'toggleStarredValue',
     ]),
     updatePanels(key, panels) {
       this.setPanelGroupMetrics({
@@ -299,11 +296,9 @@ export default {
       // As a fallback, switch to default time range instead
       this.selectedTimeRange = defaultTimeRange;
     },
-
-    generateLink(group, title, yLabel) {
-      const dashboard = this.currentDashboard || this.firstDashboard.path;
-      const params = pickBy({ dashboard, group, title, y_label: yLabel }, value => value != null);
-      return mergeUrlParams(params, window.location.href);
+    generatePanelUrl(groupKey, panel) {
+      const dashboardPath = this.currentDashboard || this.selectedDashboard?.path;
+      return panelToUrl(dashboardPath, convertVariablesForURL(this.variables), groupKey, panel);
     },
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();
@@ -366,10 +361,27 @@ export default {
       });
       this.selectedTimeRange = { start, end };
     },
+    onExpandPanel(group, panel) {
+      this.setExpandedPanel({ group, panel });
+    },
+    onGoBack() {
+      this.clearExpandedPanel();
+    },
+    onKeyup(event) {
+      const { key } = event;
+      if (key === ESC_KEY || key === ESC_KEY_IE11) {
+        this.clearExpandedPanel();
+      }
+    },
   },
   addMetric: {
     title: s__('Metrics|Add metric'),
     modalId: 'add-metric',
+  },
+  i18n: {
+    goBackLabel: s__('Metrics|Go back (Esc)'),
+    starDashboard: s__('Metrics|Star dashboard'),
+    unstarDashboard: s__('Metrics|Unstar dashboard'),
   },
 };
 </script>
@@ -388,7 +400,6 @@ export default {
           class="flex-grow-1"
           toggle-class="dropdown-menu-toggle"
           :default-branch="defaultBranch"
-          :selected-dashboard="selectedDashboard"
           @selectDashboard="selectDashboard($event)"
         />
       </div>
@@ -443,7 +454,7 @@ export default {
         <date-time-picker
           ref="dateTimePicker"
           class="flex-grow-1 show-last-dropdown"
-          data-qa-selector="show_last_dropdown"
+          data-qa-selector="range_picker_dropdown"
           :value="selectedTimeRange"
           :options="timeRanges"
           @input="onDateTimePickerInput"
@@ -467,6 +478,32 @@ export default {
       <div class="flex-grow-1"></div>
 
       <div class="d-sm-flex">
+        <div v-if="selectedDashboard" class="mb-2 mr-2 d-flex">
+          <!--
+            wrapper for tooltip as button can be `disabled`
+            https://bootstrap-vue.org/docs/components/tooltip#disabled-elements
+          -->
+          <div
+            v-gl-tooltip
+            class="flex-grow-1"
+            :title="
+              selectedDashboard.starred
+                ? $options.i18n.unstarDashboard
+                : $options.i18n.starDashboard
+            "
+          >
+            <gl-deprecated-button
+              ref="toggleStarBtn"
+              class="w-100"
+              :disabled="isUpdatingStarredValue"
+              variant="default"
+              @click="toggleStarredValue()"
+            >
+              <gl-icon :name="selectedDashboard.starred ? 'star' : 'star-o'" />
+            </gl-deprecated-button>
+          </div>
+        </div>
+
         <div v-if="showRearrangePanelsBtn" class="mb-2 mr-2 d-flex">
           <gl-deprecated-button
             :pressed="isRearrangingPanels"
@@ -516,7 +553,10 @@ export default {
           </gl-modal>
         </div>
 
-        <div v-if="selectedDashboard.can_edit" class="mb-2 mr-2 d-flex d-sm-block">
+        <div
+          v-if="selectedDashboard && selectedDashboard.can_edit"
+          class="mb-2 mr-2 d-flex d-sm-block"
+        >
           <gl-deprecated-button
             class="flex-grow-1 js-edit-link"
             :href="selectedDashboard.project_blob_path"
@@ -539,61 +579,92 @@ export default {
         </div>
       </div>
     </div>
-
+    <variables-section v-if="shouldShowVariablesSection && !showEmptyState" />
     <div v-if="!showEmptyState">
-      <graph-group
-        v-for="(groupData, index) in dashboard.panelGroups"
-        :key="`${groupData.group}.${groupData.priority}`"
-        :name="groupData.group"
-        :show-panels="showPanels"
-        :collapse-group="collapseGroup(groupData.key)"
+      <dashboard-panel
+        v-show="expandedPanel.panel"
+        ref="expandedPanel"
+        :settings-path="settingsPath"
+        :clipboard-text="generatePanelUrl(expandedPanel.group, expandedPanel.panel)"
+        :graph-data="expandedPanel.panel"
+        :alerts-endpoint="alertsEndpoint"
+        :height="600"
+        :prometheus-alerts-available="prometheusAlertsAvailable"
+        @timerangezoom="onTimeRangeZoom"
       >
-        <vue-draggable
-          v-if="!groupSingleEmptyState(groupData.key)"
-          :value="groupData.panels"
-          group="metrics-dashboard"
-          :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
-          :disabled="!isRearrangingPanels"
-          @input="updatePanels(groupData.key, $event)"
-        >
-          <div
-            v-for="(graphData, graphIndex) in groupData.panels"
-            :key="`dashboard-panel-${graphIndex}`"
-            class="col-12 col-lg-6 px-2 mb-2 draggable"
-            :class="{ 'draggable-enabled': isRearrangingPanels }"
+        <template #topLeft>
+          <gl-button
+            ref="goBackBtn"
+            v-gl-tooltip
+            class="mr-3 my-3"
+            :title="$options.i18n.goBackLabel"
+            @click="onGoBack"
           >
-            <div class="position-relative draggable-panel js-draggable-panel">
-              <div
-                v-if="isRearrangingPanels"
-                class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
-                @click="removePanel(groupData.key, groupData.panels, graphIndex)"
-              >
-                <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')">
-                  <icon name="close" />
-                </a>
-              </div>
+            <gl-icon
+              name="arrow-left"
+              :aria-label="$options.i18n.goBackLabel"
+              class="text-secondary"
+            />
+          </gl-button>
+        </template>
+      </dashboard-panel>
 
-              <dashboard-panel
-                :clipboard-text="generateLink(groupData.group, graphData.title, graphData.y_label)"
-                :graph-data="graphData"
-                :alerts-endpoint="alertsEndpoint"
-                :prometheus-alerts-available="prometheusAlertsAvailable"
-                :index="`${index}-${graphIndex}`"
-                @timerangezoom="onTimeRangeZoom"
-              />
+      <div v-show="!expandedPanel.panel">
+        <graph-group
+          v-for="groupData in dashboard.panelGroups"
+          :key="`${groupData.group}.${groupData.priority}`"
+          :name="groupData.group"
+          :show-panels="showPanels"
+          :collapse-group="collapseGroup(groupData.key)"
+        >
+          <vue-draggable
+            v-if="!groupSingleEmptyState(groupData.key)"
+            :value="groupData.panels"
+            group="metrics-dashboard"
+            :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
+            :disabled="!isRearrangingPanels"
+            @input="updatePanels(groupData.key, $event)"
+          >
+            <div
+              v-for="(graphData, graphIndex) in groupData.panels"
+              :key="`dashboard-panel-${graphIndex}`"
+              class="col-12 col-lg-6 px-2 mb-2 draggable"
+              :class="{ 'draggable-enabled': isRearrangingPanels }"
+            >
+              <div class="position-relative draggable-panel js-draggable-panel">
+                <div
+                  v-if="isRearrangingPanels"
+                  class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
+                  @click="removePanel(groupData.key, groupData.panels, graphIndex)"
+                >
+                  <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')">
+                    <icon name="close" />
+                  </a>
+                </div>
+
+                <dashboard-panel
+                  :settings-path="settingsPath"
+                  :clipboard-text="generatePanelUrl(groupData.group, graphData)"
+                  :graph-data="graphData"
+                  :alerts-endpoint="alertsEndpoint"
+                  :prometheus-alerts-available="prometheusAlertsAvailable"
+                  @timerangezoom="onTimeRangeZoom"
+                  @expand="onExpandPanel(groupData.group, graphData)"
+                />
+              </div>
             </div>
+          </vue-draggable>
+          <div v-else class="py-5 col col-sm-10 col-md-8 col-lg-7 col-xl-6">
+            <group-empty-state
+              ref="empty-group"
+              :documentation-path="documentationPath"
+              :settings-path="settingsPath"
+              :selected-state="groupSingleEmptyState(groupData.key)"
+              :svg-path="emptyNoDataSmallSvgPath"
+            />
           </div>
-        </vue-draggable>
-        <div v-else class="py-5 col col-sm-10 col-md-8 col-lg-7 col-xl-6">
-          <group-empty-state
-            ref="empty-group"
-            :documentation-path="documentationPath"
-            :settings-path="settingsPath"
-            :selected-state="groupSingleEmptyState(groupData.key)"
-            :svg-path="emptyNoDataSmallSvgPath"
-          />
-        </div>
-      </graph-group>
+        </graph-group>
+      </div>
     </div>
     <empty-state
       v-else

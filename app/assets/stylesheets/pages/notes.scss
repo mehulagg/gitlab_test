@@ -5,7 +5,7 @@ $note-form-margin-left: 72px;
 @mixin vertical-line($left) {
   &::before {
     content: '';
-    border-left: 2px solid $gray-100;
+    border-left: 2px solid $gray-50;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -83,8 +83,8 @@ $note-form-margin-left: 72px;
   .replies-toggle {
     background-color: $gray-light;
     padding: $gl-padding-8 $gl-padding;
-    border-top: 1px solid $gray-100;
-    border-bottom: 1px solid $gray-100;
+    border-top: 1px solid $gray-50;
+    border-bottom: 1px solid $gray-50;
 
     .collapse-replies-btn:hover {
       color: $blue-600;
@@ -688,8 +688,7 @@ $note-form-margin-left: 72px;
     text-decoration: underline;
   }
 
-  .gl-label-link:hover,
-  .gl-label-icon:hover {
+  .gl-label-link:hover {
     text-decoration: none;
     color: inherit;
 
@@ -908,11 +907,10 @@ $note-form-margin-left: 72px;
   border-right: 0;
 
   .line-resolve-btn {
-    margin-right: 5px;
     color: $gray-700;
 
     svg {
-      vertical-align: middle;
+      vertical-align: text-top;
     }
   }
 

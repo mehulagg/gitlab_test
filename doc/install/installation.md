@@ -200,7 +200,7 @@ needs to be installed.
 sudo apt-get install -y graphicsmagick
 ```
 
-**Note:** In order to receive mail notifications, make sure to install a mail server. By default, Debian is shipped with exim4 but this [has problems](https://gitlab.com/gitlab-org/gitlab-foss/issues/12754) while Ubuntu does not ship with one. The recommended mail server is postfix and you can install it with:
+**Note:** In order to receive mail notifications, make sure to install a mail server. By default, Debian is shipped with exim4 but this [has problems](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/12754) while Ubuntu does not ship with one. The recommended mail server is postfix and you can install it with:
 
 ```shell
 sudo apt-get install -y postfix
@@ -370,10 +370,10 @@ use of extensions and concurrent index removal, you need at least PostgreSQL 9.2
 
 ## 7. Redis
 
-GitLab requires at least Redis 2.8.
+GitLab requires at least Redis 5.0.
 
-If you are using Debian 8 or Ubuntu 14.04 and up, you can simply install
-Redis 2.8 with:
+If you are using Debian 10 or Ubuntu 20.04 and up, you can install
+Redis 5.0 with:
 
 ```shell
 sudo apt-get install redis-server
@@ -986,7 +986,7 @@ Using Sidekiq directly will still be supported until 14.0. So if you're experien
 
 1. Edit the system `init.d` script to remove the `SIDEKIQ_WORKERS` flag. If you have `/etc/default/gitlab`, then you should edit it instead.
 1. Restart GitLab.
-1. [Create an issue](https://gitlab.com/gitlab-org/gitlab/issues/-/new) describing the problem.
+1. [Create an issue](https://gitlab.com/gitlab-org/gitlab/-/issues/-/new) describing the problem.
 
 ## Troubleshooting
 

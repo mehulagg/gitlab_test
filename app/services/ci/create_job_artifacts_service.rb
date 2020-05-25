@@ -33,8 +33,7 @@ module Ci
         file_type: params['artifact_type'],
         file_format: params['artifact_format'],
         file_sha256: artifacts_file.sha256,
-        expire_in: expire_in,
-        locked: true)
+        expire_in: expire_in)
 
       artifact_metadata = if metadata_file
                             Ci::JobArtifact.new(
@@ -44,9 +43,13 @@ module Ci
                               file_type: :metadata,
                               file_format: :gzip,
                               file_sha256: metadata_file.sha256,
-                              expire_in: expire_in,
-                              locked: true)
+                              expire_in: expire_in)
                           end
+
+      if Feature.enabled?(:keep_latest_artifact_for_ref, job.project)
+        artifact.locked = true
+        artifact_metadata&.locked = true
+      end
 
       [artifact, artifact_metadata]
     end
@@ -58,6 +61,7 @@ module Ci
 
       case artifact.file_type
       when 'dotenv' then parse_dotenv_artifact(job, artifact)
+      when 'cluster_applications' then parse_cluster_applications_artifact(job, artifact)
       else success
       end
     end
@@ -85,6 +89,8 @@ module Ci
     end
 
     def unlock_previous_artifacts!(artifact)
+      return unless Feature.enabled?(:keep_latest_artifact_for_ref, artifact.job.project)
+
       Ci::JobArtifact.for_ref(artifact.job.ref, artifact.project_id).locked.update_all(locked: false)
     end
 
@@ -105,6 +111,10 @@ module Ci
 
     def parse_dotenv_artifact(job, artifact)
       Ci::ParseDotenvArtifactService.new(job.project, current_user).execute(artifact)
+    end
+
+    def parse_cluster_applications_artifact(job, artifact)
+      Clusters::ParseClusterApplicationsArtifactService.new(job, job.user).execute(artifact)
     end
   end
 end

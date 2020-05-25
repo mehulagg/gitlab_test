@@ -10,6 +10,11 @@ On this page, *Gitaly server* refers to a standalone node that only runs Gitaly
 and *Gitaly client* is a GitLab Rails app node that runs all other processes
 except Gitaly.
 
+CAUTION: **Caution:**
+From GitLab 13.0, using NFS for Git repositories is deprecated. In GitLab 14.0,
+support for NFS for Git repositories is scheduled to be removed. Upgrade to
+[Gitaly Cluster](praefect.md) as soon as possible.
+
 ## Architecture
 
 Here's a high-level architecture overview of how Gitaly is used.
@@ -51,7 +56,7 @@ be mounted on the Gitaly server.
 From GitLab v11.8 to v12.2, it is possible to use Elasticsearch in conjunction with
 a Gitaly setup that isn't utilising NFS. In order to use Elasticsearch in this
 scenario, the [new repository indexer](../../integration/elasticsearch.md#elasticsearch-repository-indexer)
-needs to be enabled in your GitLab configuration. [Since GitLab v12.3](https://gitlab.com/gitlab-org/gitlab/issues/6481),
+needs to be enabled in your GitLab configuration. [Since GitLab v12.3](https://gitlab.com/gitlab-org/gitlab/-/issues/6481),
 the new indexer becomes the default and no configuration is required.
 
 ### Network architecture
@@ -69,7 +74,7 @@ The following list depicts what the network architecture of Gitaly is:
 - A GitLab server can use one or more Gitaly servers.
 - Gitaly addresses must be specified in such a way that they resolve
   correctly for ALL Gitaly clients.
-- Gitaly clients are: Unicorn, Sidekiq, GitLab Workhorse,
+- Gitaly clients are: Puma/Unicorn, Sidekiq, GitLab Workhorse,
   GitLab Shell, Elasticsearch Indexer, and Gitaly itself.
 - A Gitaly server must be able to make RPC calls **to itself** via its own
   `(Gitaly address, Gitaly token)` pair as specified in `/config/gitlab.yml`.
@@ -104,11 +109,29 @@ Omnibus GitLab or install it from source:
 ### 2. Authentication
 
 Gitaly and GitLab use two shared secrets for authentication, one to authenticate gRPC requests
-to Gitaly, and a second for authentication callbacks from Gitaly to the GitLab internal API.
+to Gitaly, and a second for authentication callbacks from GitLab-Shell to the GitLab internal API.
 
 **For Omnibus GitLab**
 
-There are two ways to configure the required tokens:
+To configure the Gitaly token:
+
+1. On the client server, edit `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitlab_rails['gitaly_token'] = 'abc123secret'
+   ```
+
+1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+
+1. On the Gitaly server, edit `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitaly['auth_token'] = 'abc123secret'
+   ```
+
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+
+There are two ways to configure the GitLab-Shell token:
 
 1. Copy `/etc/gitlab/gitlab-secrets.json` from the client server to same path on the Gitaly server.
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
@@ -118,7 +141,6 @@ There are two ways to configure the required tokens:
 1. On the client server, edit `/etc/gitlab/gitlab.rb`:
 
    ```ruby
-   gitlab_rails['gitaly_token'] = 'abc123secret'
    gitlab_shell['secret_token'] = 'shellsecret'
    ```
 
@@ -127,7 +149,6 @@ There are two ways to configure the required tokens:
 1. On the Gitaly server, edit `/etc/gitlab/gitlab.rb`:
 
    ```ruby
-   gitaly['auth_token'] = 'abc123secret'
    gitlab_shell['secret_token'] = 'shellsecret'
    ```
 
@@ -174,17 +195,17 @@ authentication](https://gitlab.com/gitlab-org/gitaly/blob/master/doc/configurati
    postgresql['enable'] = false
    redis['enable'] = false
    nginx['enable'] = false
-   unicorn['enable'] = false
+   puma['enable'] = false
    sidekiq['enable'] = false
    gitlab_workhorse['enable'] = false
    grafana['enable'] = false
 
-   # If you run a seperate monitoring node you can disable these services
+   # If you run a separate monitoring node you can disable these services
    alertmanager['enable'] = false
    prometheus['enable'] = false
 
-   # If you don't run a seperate monitoring node you can
-   # Enable Prometheus access & disable these extra services
+   # If you don't run a separate monitoring node you can
+   # enable Prometheus access & disable these extra services.
    # This makes Prometheus listen on all interfaces. You must use firewalls to restrict access to this address/port.
    # prometheus['listen_address'] = '0.0.0.0:9090'
    # prometheus['monitor_kubernetes'] = false
@@ -354,7 +375,7 @@ can read and write to `/mnt/gitlab/storage2`.
    NOTE: **Note:**
    `/some/dummy/path` should be set to a local folder that exists, however no
    data will be stored in this folder. This will no longer be necessary after
-   [this issue](https://gitlab.com/gitlab-org/gitaly/issues/1282) is resolved.
+   [this issue](https://gitlab.com/gitlab-org/gitaly/-/issues/1282) is resolved.
 
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source).
 1. Run `sudo -u git -H bundle exec rake gitlab:gitaly:check RAILS_ENV=production` to
@@ -415,9 +436,9 @@ with a Gitaly instance that listens for secure connections you will need to use 
 scheme in the `gitaly_address` of the corresponding storage entry in the GitLab configuration.
 
 You will need to bring your own certificates as this isn't provided automatically.
-The certificate to be used needs to be installed on all Gitaly nodes, and the
-certificate (or CA of certificate) on all
-client nodes that communicate with it following the procedure described in
+The certificate, or its certificate authority, must be installed on all Gitaly
+nodes (including the Gitaly node using the certificate) and on all client nodes
+that communicate with it following the procedure described in
 [GitLab custom certificate configuration](https://docs.gitlab.com/omnibus/settings/ssl.html#install-custom-public-certificates).
 
 NOTE: **Note**
@@ -526,7 +547,7 @@ calling into itself:
    NOTE: **Note:**
    `/some/dummy/path` should be set to a local folder that exists, however no
    data will be stored in this folder. This will no longer be necessary after
-   [this issue](https://gitlab.com/gitlab-org/gitaly/issues/1282) is resolved.
+   [this issue](https://gitlab.com/gitlab-org/gitaly/-/issues/1282) is resolved.
 
 1. Save the file and[restart GitLab](../restart_gitlab.md#installations-from-source)
 on client node(s).
@@ -1073,7 +1094,7 @@ unset https_proxy
 
 When updating the `gitaly['listen_addr']` or `gitaly['prometheus_listen_addr']` values, Gitaly may continue to listen on the old address after a `sudo gitlab-ctl reconfigure`.
 
-When this occurs, performing a `sudo gitlab-ctl restart` will resolve the issue. This will no longer be necessary after [this issue](https://gitlab.com/gitlab-org/gitaly/issues/2521) is resolved.
+When this occurs, performing a `sudo gitlab-ctl restart` will resolve the issue. This will no longer be necessary after [this issue](https://gitlab.com/gitlab-org/gitaly/-/issues/2521) is resolved.
 
 ### Permission denied errors appearing in Gitaly logs when accessing repositories from a standalone Gitaly node
 

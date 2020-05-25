@@ -202,6 +202,9 @@ production: &base
     #
     # log_path: log/mail_room_json.log
 
+    # Whether to expunge (permanently remove) messages from the mailbox when they are deleted after delivery
+    expunge_deleted: false
+
   ## Build Artifacts
   artifacts:
     enabled: true
@@ -770,7 +773,7 @@ production: &base
     # Allow smartcard authentication
     enabled: false
 
-    # Path to a file containing a CA certificate
+    # Path to a file containing a CA certificate bundle
     ca_file: '/etc/ssl/certs/CA.pem'
 
     # Host and port where the client side certificate is requested by the
@@ -1064,6 +1067,11 @@ production: &base
     #   enabled: true
     #   host: localhost
     #   port: 3808
+
+  ## ActionCable settings
+  action_cable:
+    # Number of threads used to process ActionCable connection callbacks and channel actions
+    # worker_pool_size: 4
 
   ## Monitoring
   # Built in monitoring settings

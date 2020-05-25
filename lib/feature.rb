@@ -4,8 +4,6 @@ require 'flipper/adapters/active_record'
 require 'flipper/adapters/active_support_cache_store'
 
 class Feature
-  prepend_if_ee('EE::Feature') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
   # Classes to override flipper table names
   class FlipperFeature < Flipper::Adapters::ActiveRecord::Feature
     # Using `self.table_name` won't work. ActiveRecord bug?
@@ -134,11 +132,7 @@ class Feature
     end
 
     def l1_cache_backend
-      if Gitlab::Utils.to_boolean(ENV['USE_THREAD_MEMORY_CACHE'])
-        Gitlab::ThreadMemoryCache.cache_backend
-      else
-        Gitlab::ProcessMemoryCache.cache_backend
-      end
+      Gitlab::ProcessMemoryCache.cache_backend
     end
 
     def l2_cache_backend
@@ -190,3 +184,5 @@ class Feature
     end
   end
 end
+
+Feature.prepend_if_ee('EE::Feature')

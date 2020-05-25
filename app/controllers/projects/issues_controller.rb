@@ -21,7 +21,6 @@ class Projects::IssuesController < Projects::ApplicationController
   prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss) }
   prepend_before_action(only: [:calendar]) { authenticate_sessionless_user!(:ics) }
   prepend_before_action :authenticate_user!, only: [:new, :export_csv]
-  # designs is only applicable to EE, but defining a prepend_before_action in EE code would overwrite this
   prepend_before_action :store_uri, only: [:new, :show, :designs]
 
   before_action :whitelist_query_limiting, only: [:create, :create_merge_request, :move, :bulk_update]
@@ -48,6 +47,10 @@ class Projects::IssuesController < Projects::ApplicationController
   before_action do
     push_frontend_feature_flag(:vue_issuable_sidebar, project.group)
     push_frontend_feature_flag(:save_issuable_health_status, project.group, default_enabled: true)
+  end
+
+  before_action only: :show do
+    push_frontend_feature_flag(:real_time_issue_sidebar, @project)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:discussions]
@@ -81,11 +84,13 @@ class Projects::IssuesController < Projects::ApplicationController
     )
     build_params = issue_params.merge(
       merge_request_to_resolve_discussions_of: params[:merge_request_to_resolve_discussions_of],
-      discussion_to_resolve: params[:discussion_to_resolve]
+      discussion_to_resolve: params[:discussion_to_resolve],
+      confidential: !!Gitlab::Utils.to_boolean(params[:issue][:confidential])
     )
     service = Issues::BuildService.new(project, current_user, build_params)
 
     @issue = @noteable = service.execute
+
     @merge_request_to_resolve_discussions_of = service.merge_request_to_resolve_discussions_of
     @discussion_to_resolve = service.discussions_to_resolve.first if params[:discussion_to_resolve]
 
@@ -154,7 +159,10 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   def related_branches
-    @related_branches = Issues::RelatedBranchesService.new(project, current_user).execute(issue)
+    @related_branches = Issues::RelatedBranchesService
+      .new(project, current_user)
+      .execute(issue)
+      .map { |branch| branch.merge(link: branch_link(branch)) }
 
     respond_to do |format|
       format.json do
@@ -179,7 +187,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def create_merge_request
     create_params = params.slice(:branch_name, :ref).merge(issue_iid: issue.iid)
-    create_params[:target_project_id] = params[:target_project_id] if helpers.create_confidential_merge_request_enabled?
+    create_params[:target_project_id] = params[:target_project_id]
     result = ::MergeRequests::CreateFromIssueService.new(project, current_user, create_params).execute
 
     if result[:status] == :success
@@ -305,6 +313,10 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   private
+
+  def branch_link(branch)
+    project_compare_path(project, from: project.default_branch, to: branch[:name])
+  end
 
   def create_rate_limit
     key = :issues_create

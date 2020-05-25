@@ -13,6 +13,7 @@ module EE
       include TokenAuthenticatable
       include InsightsFeature
       include HasTimelogsReport
+      include HasWiki
 
       add_authentication_token_field :saml_discovery_token, unique: false, token_generator: -> { Devise.friendly_token(8) }
 
@@ -46,6 +47,8 @@ module EE
       has_one :deletion_schedule, class_name: 'GroupDeletionSchedule'
       delegate :deleting_user, :marked_for_deletion_on, to: :deletion_schedule, allow_nil: true
       delegate :enforced_group_managed_accounts?, :enforced_sso?, to: :saml_provider, allow_nil: true
+
+      has_one :group_wiki_repository
 
       belongs_to :file_template_project, class_name: "Project"
 
@@ -120,12 +123,12 @@ module EE
         end
 
         after_transition ready: :started do |group, _|
-          group.ldap_sync_last_sync_at = DateTime.now
+          group.ldap_sync_last_sync_at = DateTime.current
           group.save
         end
 
         after_transition started: :ready do |group, _|
-          current_time = DateTime.now
+          current_time = DateTime.current
           group.ldap_sync_last_update_at = current_time
           group.ldap_sync_last_successful_update_at = current_time
           group.ldap_sync_error = nil
@@ -133,7 +136,7 @@ module EE
         end
 
         after_transition started: :failed do |group, _|
-          group.ldap_sync_last_update_at = DateTime.now
+          group.ldap_sync_last_update_at = DateTime.current
           group.save
         end
       end
@@ -348,13 +351,23 @@ module EE
 
     def predefined_push_rule
       strong_memoize(:predefined_push_rule) do
-        if push_rule.present?
-          push_rule
-        elsif has_parent?
+        next push_rule if push_rule
+
+        if has_parent?
           parent.predefined_push_rule
         else
           PushRule.global
         end
+      end
+    end
+
+    def wiki_access_level
+      # TODO: Remove this method once we implement group-level features.
+      # https://gitlab.com/gitlab-org/gitlab/-/issues/208412
+      if ::Feature.enabled?(:group_wiki, self)
+        ::ProjectFeature::ENABLED
+      else
+        ::ProjectFeature::DISABLED
       end
     end
 
@@ -376,7 +389,7 @@ module EE
 
     # Members belonging directly to Projects within Group or Projects within subgroups
     def billed_project_members
-      ::ProjectMember.active_without_invites_and_requests.where(
+      ::ProjectMember.active_without_invites_and_requests.without_project_bots.where(
         source_id: ::Project.joins(:group).where(namespace: self_and_descendants)
       )
     end
@@ -401,14 +414,10 @@ module EE
 
     # Members belonging to Groups invited to collaborate with Groups and Subgroups
     def billed_shared_group_members
-      return ::GroupMember.none unless ::Feature.enabled?(:share_group_with_group)
-
       invited_or_shared_group_members(invited_group_in_groups)
     end
 
     def billed_shared_non_guests_group_members
-      return ::GroupMember.none unless ::Feature.enabled?(:share_group_with_group)
-
       invited_or_shared_group_members(invited_non_guest_group_in_groups)
     end
 

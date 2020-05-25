@@ -19,11 +19,13 @@ module EE
           name: :license_management_jobs
         },
         license_scanning: {
-          name: :license_scanning_jobs,
-          fallback: 0
+          name: :license_scanning_jobs
         },
         sast: {
           name: :sast_jobs
+        },
+        secret_detection: {
+          name: :secret_detection_jobs
         }
       }.freeze
 
@@ -32,16 +34,23 @@ module EE
 
         override :usage_data_counters
         def usage_data_counters
-          super + [::Gitlab::UsageCounters::DesignsCounter, ::Gitlab::UsageDataCounters::LicensesList]
+          super + [::Gitlab::UsageDataCounters::LicensesList]
         end
 
         override :uncached_data
         def uncached_data
-          return super if ::Feature.disabled?(:usage_activity_by_stage, default_enabled: true)
-
           time_period = { created_at: 28.days.ago..Time.current }
           usage_activity_by_stage_monthly = usage_activity_by_stage(:usage_activity_by_stage_monthly, time_period)
-          super.merge(usage_activity_by_stage).merge(usage_activity_by_stage_monthly)
+          super
+            .merge(usage_activity_by_stage)
+            .merge(usage_activity_by_stage_monthly)
+            .merge(recording_ee_finish_data)
+        end
+
+        def recording_ee_finish_data
+          {
+            recording_ee_finished_at: Time.now
+          }
         end
 
         override :features_usage_data
@@ -84,6 +93,14 @@ module EE
           usage_data
         end
 
+        def requirements_counts
+          return {} unless ::License.feature_available?(:requirements)
+
+          {
+            requirements_created: count(RequirementsManagement::Requirement)
+          }
+        end
+
         # rubocop: disable CodeReuse/ActiveRecord
         def service_desk_counts
           return {} unless ::License.feature_available?(:service_desk)
@@ -105,12 +122,12 @@ module EE
 
         def security_products_usage
           results = SECURE_PRODUCT_TYPES.each_with_object({}) do |(secure_type, attribs), response|
-            response[attribs[:name]] = count(::Ci::Build.where(name: secure_type), fallback: attribs.fetch(:fallback, -1)) # rubocop:disable CodeReuse/ActiveRecord
+            response[attribs[:name]] = count(::Ci::Build.where(name: secure_type)) # rubocop:disable CodeReuse/ActiveRecord
           end
 
           # handle license rename https://gitlab.com/gitlab-org/gitlab/issues/8911
           license_scan_count = results.delete(:license_scanning_jobs)
-          results[:license_management_jobs] += license_scan_count
+          results[:license_management_jobs] += license_scan_count > 0 ? license_scan_count : 0
 
           results
         end
@@ -142,7 +159,8 @@ module EE
           super.tap do |usage_data|
             usage_data[:counts].merge!(
               {
-                dependency_list_usages_total: ::Gitlab::UsageCounters::DependencyList.usage_totals[:total],
+                confidential_epics: count(::Epic.confidential),
+                dependency_list_usages_total: redis_usage_data { ::Gitlab::UsageCounters::DependencyList.usage_totals[:total] },
                 epics: count(::Epic),
                 feature_flags: count(Operations::FeatureFlag),
                 geo_nodes: count(::GeoNode),
@@ -150,7 +168,7 @@ module EE
                 issues_with_health_status: count(::Issue.with_health_status),
                 ldap_keys: count(::LDAPKey),
                 ldap_users: count(::User.ldap, 'users.id'),
-                pod_logs_usages_total: ::Gitlab::UsageCounters::PodLogs.usage_totals[:total],
+                pod_logs_usages_total: redis_usage_data { ::Gitlab::UsageCounters::PodLogs.usage_totals[:total] },
                 projects_enforcing_code_owner_approval: count(::Project.without_deleted.non_archived.requiring_code_owner_approval),
                 merge_requests_with_optional_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_optional, :merge_request_id),
                 merge_requests_with_required_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_required, :merge_request_id),
@@ -162,6 +180,7 @@ module EE
                 status_page_issues: count(::Issue.on_status_page),
                 template_repositories: count(::Project.with_repos_templates) + count(::Project.with_groups_level_repos_templates)
               },
+              requirements_counts,
               service_desk_counts,
               security_products_usage,
               epics_deepest_relationship_level,
@@ -257,7 +276,8 @@ module EE
             ldap_keys: distinct_count(::LDAPKey.where(time_period), :user_id),
             ldap_users: distinct_count(::GroupMember.of_ldap_type.where(time_period), :user_id),
             users_created: count(::User.where(time_period)),
-            value_stream_management_customized_group_stages: count(::Analytics::CycleAnalytics::GroupStage.where(custom: true))
+            value_stream_management_customized_group_stages: count(::Analytics::CycleAnalytics::GroupStage.where(custom: true)),
+            projects_with_compliance_framework: count(::ComplianceManagement::ComplianceFramework::ProjectSettings)
           }
         end
 
@@ -328,7 +348,7 @@ module EE
         end
 
         # Currently too complicated and to get reliable counts for these stats:
-        # container_scanning_jobs, dast_jobs, dependency_scanning_jobs, license_management_jobs, sast_jobs
+        # container_scanning_jobs, dast_jobs, dependency_scanning_jobs, license_management_jobs, sast_jobs, secret_detection_jobs
         # Once https://gitlab.com/gitlab-org/gitlab/merge_requests/17568 is merged, this might be doable
         def usage_activity_by_stage_secure(time_period)
           prefix = 'user_'
@@ -338,13 +358,13 @@ module EE
           }
 
           SECURE_PRODUCT_TYPES.each do |secure_type, attribs|
-            results["#{prefix}#{attribs[:name]}".to_sym] = distinct_count(::Ci::Build.where(name: secure_type).where(time_period), :user_id, fallback: attribs.fetch(:fallback, -1))
+            results["#{prefix}#{attribs[:name]}".to_sym] = distinct_count(::Ci::Build.where(name: secure_type).where(time_period), :user_id)
           end
 
           # handle license rename https://gitlab.com/gitlab-org/gitlab/issues/8911
           combined_license_key = "#{prefix}license_management_jobs".to_sym
           license_scan_count = results.delete("#{prefix}license_scanning_jobs".to_sym)
-          results[combined_license_key] += license_scan_count
+          results[combined_license_key] += license_scan_count > 0 ? license_scan_count : 0
 
           results
         end

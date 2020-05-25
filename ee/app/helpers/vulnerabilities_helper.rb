@@ -14,6 +14,7 @@ module VulnerabilitiesHelper
       has_mr: !!vulnerability.finding.merge_request_feedback.try(:merge_request_iid),
       vulnerability_feedback_help_path: help_page_path('user/application_security/index', anchor: 'interacting-with-the-vulnerabilities'),
       finding_json: vulnerability_finding_data(vulnerability.finding).to_json,
+      create_mr_url: create_vulnerability_feedback_merge_request_path(vulnerability.finding.project),
       timestamp: Time.now.to_i
     }
   end
@@ -24,24 +25,27 @@ module VulnerabilitiesHelper
     {
       id: pipeline.id,
       created_at: pipeline.created_at.iso8601,
-      url: pipeline_path(pipeline)
+      url: pipeline_path(pipeline),
+      source_branch: pipeline.ref
     }
   end
 
   def vulnerability_finding_data(finding)
-    occurrence = Vulnerabilities::OccurrenceSerializer.new(current_user: current_user).represent(finding)
-    remediation = occurrence[:remediations]&.first
+    finding = Vulnerabilities::FindingSerializer.new(current_user: current_user).represent(finding)
+    remediation = finding[:remediations]&.first
 
-    occurrence.slice(
+    finding.slice(
       :description,
       :identifiers,
       :links,
       :location,
       :name,
       :issue_feedback,
-      :project
+      :merge_request_feedback,
+      :project,
+      :remediations
     ).merge(
-      solution: remediation ? remediation['summary'] : occurrence[:solution]
+      solution: remediation ? remediation['summary'] : finding[:solution]
     )
   end
 

@@ -18,6 +18,7 @@ import {
   singleStatMetricsResult,
   graphDataPrometheusQueryRangeMultiTrack,
   barMockData,
+  propsData,
 } from '../mock_data';
 
 import { panelTypes } from '~/monitoring/constants';
@@ -56,10 +57,11 @@ describe('Dashboard Panel', () => {
   const findTitle = () => wrapper.find({ ref: 'graphTitle' });
   const findContextualMenu = () => wrapper.find({ ref: 'contextualMenu' });
 
-  const createWrapper = (props, options = {}) => {
+  const createWrapper = (props, options) => {
     wrapper = shallowMount(DashboardPanel, {
       propsData: {
         graphData,
+        settingsPath: propsData.settingsPath,
         ...props,
       },
       store,
@@ -108,23 +110,54 @@ describe('Dashboard Panel', () => {
       wrapper.destroy();
     });
 
-    describe('Empty Chart component', () => {
-      it('renders the chart title', () => {
-        expect(findTitle().text()).toBe(graphDataEmpty.title);
-      });
+    it('renders the chart title', () => {
+      expect(findTitle().text()).toBe(graphDataEmpty.title);
+    });
 
-      it('renders the no download csv link', () => {
-        expect(wrapper.find({ ref: 'downloadCsvLink' }).exists()).toBe(false);
-      });
+    it('renders no download csv link', () => {
+      expect(wrapper.find({ ref: 'downloadCsvLink' }).exists()).toBe(false);
+    });
 
-      it('does not contain graph widgets', () => {
-        expect(findContextualMenu().exists()).toBe(false);
-      });
+    it('does not contain graph widgets', () => {
+      expect(findContextualMenu().exists()).toBe(false);
+    });
 
-      it('is a Vue instance', () => {
-        expect(wrapper.find(MonitorEmptyChart).exists()).toBe(true);
-        expect(wrapper.find(MonitorEmptyChart).isVueInstance()).toBe(true);
+    it('The Empty Chart component is rendered and is a Vue instance', () => {
+      expect(wrapper.find(MonitorEmptyChart).exists()).toBe(true);
+      expect(wrapper.find(MonitorEmptyChart).isVueInstance()).toBe(true);
+    });
+
+    it('does not contain a tabindex attribute', () => {
+      expect(wrapper.find(MonitorEmptyChart).contains('[tabindex]')).toBe(false);
+    });
+  });
+
+  describe('When graphData is null', () => {
+    beforeEach(() => {
+      createWrapper({
+        graphData: null,
       });
+    });
+
+    afterEach(() => {
+      wrapper.destroy();
+    });
+
+    it('renders no chart title', () => {
+      expect(findTitle().text()).toBe('');
+    });
+
+    it('renders no download csv link', () => {
+      expect(wrapper.find({ ref: 'downloadCsvLink' }).exists()).toBe(false);
+    });
+
+    it('does not contain graph widgets', () => {
+      expect(findContextualMenu().exists()).toBe(false);
+    });
+
+    it('The Empty Chart component is rendered and is a Vue instance', () => {
+      expect(wrapper.find(MonitorEmptyChart).exists()).toBe(true);
+      expect(wrapper.find(MonitorEmptyChart).isVueInstance()).toBe(true);
     });
   });
 
@@ -212,6 +245,7 @@ describe('Dashboard Panel', () => {
 
   describe('Edit custom metric dropdown item', () => {
     const findEditCustomMetricLink = () => wrapper.find({ ref: 'editMetricLink' });
+    const mockEditPath = '/root/kubernetes-gke-project/prometheus/metrics/23/edit';
 
     beforeEach(() => {
       createWrapper();
@@ -230,7 +264,7 @@ describe('Dashboard Panel', () => {
           metrics: [
             {
               ...graphData.metrics[0],
-              edit_path: '/root/kubernetes-gke-project/prometheus/metrics/23/edit',
+              edit_path: mockEditPath,
             },
           ],
         },
@@ -239,10 +273,11 @@ describe('Dashboard Panel', () => {
       return wrapper.vm.$nextTick(() => {
         expect(findEditCustomMetricLink().exists()).toBe(true);
         expect(findEditCustomMetricLink().text()).toBe('Edit metric');
+        expect(findEditCustomMetricLink().attributes('href')).toBe(mockEditPath);
       });
     });
 
-    it('shows an "Edit metrics" link for a panel with multiple metrics', () => {
+    it('shows an "Edit metrics" link pointing to settingsPath for a panel with multiple metrics', () => {
       wrapper.setProps({
         graphData: {
           ...graphData,
@@ -261,6 +296,7 @@ describe('Dashboard Panel', () => {
 
       return wrapper.vm.$nextTick(() => {
         expect(findEditCustomMetricLink().text()).toBe('Edit metrics');
+        expect(findEditCustomMetricLink().attributes('href')).toBe(propsData.settingsPath);
       });
     });
   });
@@ -344,10 +380,6 @@ describe('Dashboard Panel', () => {
       });
     });
 
-    afterEach(() => {
-      wrapper.destroy();
-    });
-
     it('sets clipboard text on the dropdown', () => {
       expect(findCopyLink().exists()).toBe(true);
       expect(findCopyLink().element.dataset.clipboardText).toBe(clipboardText);
@@ -364,11 +396,24 @@ describe('Dashboard Panel', () => {
     });
   });
 
+  describe('when cliboard data is not available', () => {
+    it('there is no "copy to clipboard" link for a null value', () => {
+      createWrapper({ clipboardText: null });
+      expect(findCopyLink().exists()).toBe(false);
+    });
+
+    it('there is no "copy to clipboard" link for an empty value', () => {
+      createWrapper({ clipboardText: '' });
+      expect(findCopyLink().exists()).toBe(false);
+    });
+  });
+
   describe('when downloading metrics data as CSV', () => {
     beforeEach(() => {
       wrapper = shallowMount(DashboardPanel, {
         propsData: {
           clipboardText: exampleText,
+          settingsPath: propsData.settingsPath,
           graphData: {
             y_label: 'metric',
             ...graphData,
@@ -418,6 +463,7 @@ describe('Dashboard Panel', () => {
       wrapper = shallowMount(DashboardPanel, {
         propsData: {
           graphData,
+          settingsPath: propsData.settingsPath,
           namespace: mockNamespace,
         },
         store,
@@ -476,8 +522,10 @@ describe('Dashboard Panel', () => {
       });
 
       it('emits the `expand` event', () => {
-        findExpandBtn().vm.$emit('click');
+        const preventDefault = jest.fn();
+        findExpandBtn().vm.$emit('click', { preventDefault });
         expect(wrapper.emitted('expand')).toHaveLength(1);
+        expect(preventDefault).toHaveBeenCalled();
       });
     });
   });
@@ -502,12 +550,12 @@ describe('Dashboard Panel', () => {
     });
 
     describe.each`
-      desc                                              | metricsSavedToDb                   | propsData                               | isShown
+      desc                                              | metricsSavedToDb                   | props                                   | isShown
       ${'with permission and no metrics in db'}         | ${[]}                              | ${{}}                                   | ${false}
       ${'with permission and related metrics in db'}    | ${[graphData.metrics[0].metricId]} | ${{}}                                   | ${true}
       ${'without permission and related metrics in db'} | ${[graphData.metrics[0].metricId]} | ${{ prometheusAlertsAvailable: false }} | ${false}
       ${'with permission and unrelated metrics in db'}  | ${['another_metric_id']}           | ${{}}                                   | ${false}
-    `('$desc', ({ metricsSavedToDb, isShown, propsData }) => {
+    `('$desc', ({ metricsSavedToDb, isShown, props }) => {
       const showsDesc = isShown ? 'shows' : 'does not show';
 
       beforeEach(() => {
@@ -515,7 +563,7 @@ describe('Dashboard Panel', () => {
         createWrapper({
           alertsEndpoint: '/endpoint',
           prometheusAlertsAvailable: true,
-          ...propsData,
+          ...props,
         });
         return wrapper.vm.$nextTick();
       });

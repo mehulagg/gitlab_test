@@ -33,7 +33,7 @@ This section is for links to information elsewhere in the GitLab documentation.
 
 - [More about external PostgreSQL](../external_database.md)
 
-- [Running GEO with external PostgreSQL](../geo/replication/external_database.md)
+- [Running Geo with external PostgreSQL](../geo/replication/external_database.md)
 
 - [Upgrades when running PostgreSQL configured for HA.](https://docs.gitlab.com/omnibus/settings/database.html#upgrading-a-gitlab-ha-cluster)
 
@@ -45,7 +45,7 @@ This section is for links to information elsewhere in the GitLab documentation.
 
 - Managing Omnibus PostgreSQL versions [from the development docs](https://docs.gitlab.com/omnibus/development/managing-postgresql-versions.html)
 
-- [PostgreSQL scaling and HA](../high_availability/database.md)
+- [PostgreSQL scaling](../high_availability/database.md)
   - including [troubleshooting](../high_availability/database.md#troubleshooting) `gitlab-ctl repmgr-check-master` and PgBouncer errors
 
 - [Developer database documentation](../../development/README.md#database-guides) - some of which is absolutely not for production use. Including:
@@ -71,7 +71,7 @@ This section is for links to information elsewhere in the GitLab documentation.
   HINT:  Free one or increase max_replication_slots.
   ```
 
-- GEO [replication errors](../geo/replication/troubleshooting.md#fixing-replication-errors) including:
+- Geo [replication errors](../geo/replication/troubleshooting.md#fixing-replication-errors) including:
 
   ```plaintext
   ERROR: replication slots can only be used if max_replication_slots > 0
@@ -83,11 +83,11 @@ This section is for links to information elsewhere in the GitLab documentation.
   PANIC: could not write to file ‘pg_xlog/xlogtemp.123’: No space left on device
   ```
 
-- [Checking GEO configuration](../geo/replication/troubleshooting.md#checking-configuration) including
+- [Checking Geo configuration](../geo/replication/troubleshooting.md#checking-configuration) including
   - reconfiguring hosts/ports
   - checking and fixing user/password mappings
 
-- [Common GEO errors](../geo/replication/troubleshooting.md#fixing-common-errors)
+- [Common Geo errors](../geo/replication/troubleshooting.md#fixing-common-errors)
 
 ## Support topics
 
@@ -95,15 +95,15 @@ This section is for links to information elsewhere in the GitLab documentation.
 
 References:
 
-- [Issue #1 Deadlocks with GitLab 12.1, PostgreSQL 10.7](https://gitlab.com/gitlab-org/gitlab/issues/30528)
+- [Issue #1 Deadlocks with GitLab 12.1, PostgreSQL 10.7](https://gitlab.com/gitlab-org/gitlab/-/issues/30528)
 - [Customer ticket (internal) GitLab 12.1.6](https://gitlab.zendesk.com/agent/tickets/134307) and [Google doc (internal)](https://docs.google.com/document/d/19xw2d_D1ChLiU-MO1QzWab-4-QXgsIUcN5e_04WTKy4)
-- [Issue #2 deadlocks can occur if an instance is flooded with pushes](https://gitlab.com/gitlab-org/gitlab/issues/33650). Provided for context about how GitLab code can have this sort of unanticipated effect in unusual situations.
+- [Issue #2 deadlocks can occur if an instance is flooded with pushes](https://gitlab.com/gitlab-org/gitlab/-/issues/33650). Provided for context about how GitLab code can have this sort of unanticipated effect in unusual situations.
 
 ```plaintext
 ERROR: deadlock detected
 ```
 
-Three applicable timeouts are identified in the issue [#1](https://gitlab.com/gitlab-org/gitlab/issues/30528); our recommended settings are as follows:
+Three applicable timeouts are identified in the issue [#1](https://gitlab.com/gitlab-org/gitlab/-/issues/30528); our recommended settings are as follows:
 
 ```ini
 deadlock_timeout = 5s
@@ -111,7 +111,7 @@ statement_timeout = 15s
 idle_in_transaction_session_timeout = 60s
 ```
 
-Quoting from issue [#1](https://gitlab.com/gitlab-org/gitlab/issues/30528):
+Quoting from issue [#1](https://gitlab.com/gitlab-org/gitlab/-/issues/30528):
 
 > "If a deadlock is hit, and we resolve it through aborting the transaction after a short period, then the retry mechanisms we already have will make the deadlocked piece of work try again, and it's unlikely we'll deadlock multiple times in a row."
 
@@ -124,7 +124,7 @@ PostgresSQL defaults:
 - `statement_timeout = 0` (never)
 - `idle_in_transaction_session_timeout = 0` (never)
 
-Comments in issue [#1](https://gitlab.com/gitlab-org/gitlab/issues/30528) indicate that these should both be set to at least a number of minutes for all Omnibus installations (so they don't hang indefinitely). However, 15s for statement_timeout is very short, and will only be effective if the underlying infrastructure is very performant.
+Comments in issue [#1](https://gitlab.com/gitlab-org/gitlab/-/issues/30528) indicate that these should both be set to at least a number of minutes for all Omnibus installations (so they don't hang indefinitely). However, 15s for statement_timeout is very short, and will only be effective if the underlying infrastructure is very performant.
 
 See current settings with:
 
