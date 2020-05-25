@@ -149,6 +149,7 @@ GitLab version | Minimum PostgreSQL version
 -|-
 10.0 | 9.6
 12.10 | 11
+13.0 | 11
 
 Users using PostgreSQL must ensure the `pg_trgm` extension is loaded into every
 GitLab database. This extension can be enabled (using a PostgreSQL super user)
@@ -161,7 +162,7 @@ CREATE EXTENSION pg_trgm;
 On some systems you may need to install an additional package (for example,
 `postgresql-contrib`) for this extension to become available.
 
-NOTE: **Note:** Support for PostgreSQL 9.6 and 10 will be removed in GitLab 13.0 so that GitLab can benefit from PostgreSQL 11 improvements, such as partitioning. For the schedule on adding support for PostgreSQL 11 and 12, see [the related epic](https://gitlab.com/groups/gitlab-org/-/epics/2184). For the release schedule for GitLab 13.0, see [GitLab's release and maintenance policy](../policy/maintenance.md).
+NOTE: **Note:** Support for [PostgreSQL 9.6 and 10 has been removed in GitLab 13.0](https://about.gitlab.com/releases/2020/05/22/gitlab-13-0-released/#postgresql-11-is-now-the-minimum-required-version-to-install-gitlab) so that GitLab can benefit from PostgreSQL 11 improvements, such as partitioning. For the schedule of transitioning to PostgreSQL 12, see [the related epic](https://gitlab.com/groups/gitlab-org/-/epics/2184).
 
 #### Additional requirements for GitLab Geo
 
@@ -282,7 +283,7 @@ For reference, GitLab.com's [auto-scaling shared runner](../user/gitlab_com/inde
 
 ## Supported web browsers
 
-CAUTION: **Caution:** With GitLab 13.0 (May 2020) we are removing official support for Internet Explorer 11.
+CAUTION: **Caution:** With GitLab 13.0 (May 2020) we have removed official support for Internet Explorer 11.
 With the release of GitLab 13.4 (September 2020) we will remove all code that supports Internet Explorer 11.
 You can provide feedback [on this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/197987) or via your usual support channels.
 
@@ -293,7 +294,6 @@ GitLab supports the following web browsers:
 - [Chromium](https://www.chromium.org/getting-involved/dev-channel)
 - [Apple Safari](https://www.apple.com/safari/)
 - [Microsoft Edge](https://www.microsoft.com/edge)
-- Internet Explorer 11 (until May 2020)
 
 For the listed web browsers, GitLab supports:
 
