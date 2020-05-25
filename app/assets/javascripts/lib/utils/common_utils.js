@@ -4,7 +4,7 @@
 
 import { GlBreakpointInstance as breakpointInstance } from '@gitlab/ui/dist/utils';
 import $ from 'jquery';
-import axios from './axios_utils';
+// import axios from './axios_utils';
 import { getLocationHash } from './url_utility';
 import { convertToCamelCase, convertToSnakeCase } from './text_utility';
 import { isObject } from './type_utility';

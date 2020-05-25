@@ -48,7 +48,7 @@ export default {
 
   computed: {
     spriteHref() {
-      return `${iconsPath}#${this.name}`;
+      return `${window.gon.sprite_icons}#${this.name}`;
     },
     iconTestClass() {
       return `ic-${this.name}`;

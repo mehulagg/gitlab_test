@@ -331,6 +331,7 @@ module.exports = {
 
     // prevent pikaday from including moment.js
     new webpack.IgnorePlugin(/moment/, /pikaday/),
+    new webpack.IgnorePlugin(/vue-server-renderer/),
 
     // fix legacy jQuery plugins which depend on globals
     new webpack.ProvidePlugin({
@@ -515,6 +516,7 @@ module.exports = {
       'process.env.IS_EE': JSON.stringify(IS_EE),
       // This one is used to check against "EE" properly in application code
       IS_EE: IS_EE ? 'window.gon && window.gon.ee' : JSON.stringify(false),
+      IS_SERVER: JSON.stringify(false),
     }),
   ].filter(Boolean),
 

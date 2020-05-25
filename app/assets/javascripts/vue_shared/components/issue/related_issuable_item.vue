@@ -1,6 +1,7 @@
 <script>
 import '~/commons/bootstrap';
 import { GlIcon, GlTooltip, GlTooltipDirective } from '@gitlab/ui';
+import Icon from '~/vue_shared/components/icon.vue';
 import { sprintf } from '~/locale';
 import IssueMilestone from './issue_milestone.vue';
 import IssueAssignees from './issue_assignees.vue';
@@ -15,6 +16,7 @@ export default {
     CiIcon,
     GlIcon,
     GlTooltip,
+    Icon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -64,7 +66,7 @@ export default {
       <!-- Title area: Status icon (XL) and title -->
       <div class="item-title d-flex align-items-xl-center mb-xl-0">
         <div ref="iconElementXL">
-          <gl-icon
+          <icon
             v-if="hasState"
             ref="iconElementXL"
             class="mr-2 d-block"
@@ -77,7 +79,7 @@ export default {
         <gl-tooltip :target="() => $refs.iconElementXL">
           <span v-html="stateTitle"></span>
         </gl-tooltip>
-        <gl-icon
+        <icon
           v-if="confidential"
           v-gl-tooltip
           name="eye-slash"

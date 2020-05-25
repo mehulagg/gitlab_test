@@ -1,3 +1,6 @@
+require 'hypernova'
+require 'hypernova/plugins/development_mode_plugin'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
@@ -65,4 +68,6 @@ Rails.application.configure do
 
     config.middleware.delete BetterErrors::Middleware
   end
+
+  Hypernova.add_plugin!(DevelopmentModePlugin.new)
 end

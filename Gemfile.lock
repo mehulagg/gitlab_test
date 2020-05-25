@@ -529,6 +529,8 @@ GEM
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
     httpclient (2.8.3)
+    hypernova (1.4.0)
+      faraday (~> 0.8)
     i18n (1.8.2)
       concurrent-ruby (~> 1.0)
     i18n_data (0.8.0)
@@ -1271,6 +1273,7 @@ DEPENDENCIES
   html-pipeline (~> 2.12)
   html2text
   httparty (~> 0.16.4)
+  hypernova
   icalendar
   invisible_captcha (~> 0.12.1)
   jira-ruby (~> 2.0.0)

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
+require 'hypernova'
 
 class Projects::IssuesController < Projects::ApplicationController
+  around_action :hypernova_render_support
+
   include RendersNotes
   include ToggleSubscriptionAction
   include IssuableActions
@@ -9,6 +12,10 @@ class Projects::IssuesController < Projects::ApplicationController
   include IssuesCalendar
   include SpammableActions
   include RecordUserLastActivity
+
+  before_action do
+    push_frontend_feature_flag(:vue_ssr)
+  end
 
   def issue_except_actions
     %i[index calendar new create bulk_update import_csv export_csv]

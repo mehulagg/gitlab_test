@@ -28,6 +28,11 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      hasClosingMergeRequest: false,
+    };
+  },
   computed: {
     ...mapState(['isFetchingMergeRequests', 'mergeRequests', 'totalCount']),
     closingMergeRequestsText() {
@@ -44,12 +49,19 @@ export default {
       return sprintf(s__('%{mrText}, this issue will be closed automatically.'), { mrText });
     },
   },
+  serverPrefetch() {
+    this.setInitialState({ apiEndpoint: this.endpoint });
+    return this.fetchMergeRequests();
+  },
   mounted() {
     this.setInitialState({ apiEndpoint: this.endpoint });
-    this.fetchMergeRequests();
+
+    if (this.totalCount === 0) {
+      this.fetchMergeRequests();
+    }
   },
   created() {
-    this.hasClosingMergeRequest = parseIssuableData().hasClosingMergeRequest;
+    // this.hasClosingMergeRequest = parseIssuableData().hasClosingMergeRequest;
   },
   methods: {
     ...mapActions(['setInitialState', 'fetchMergeRequests']),
@@ -84,9 +96,7 @@ export default {
           <div v-if="totalCount" class="d-inline-flex lh-100 align-middle">
             <div class="mr-count-badge border-width-1px border-style-solid border-color-default">
               <div class="mr-count-badge-count">
-                <svg class="s16 mr-1 text-secondary">
-                  <icon name="merge-request" class="mr-1 text-secondary" />
-                </svg>
+                <icon name="merge-request" class="mr-1 text-secondary" />
                 <span class="js-items-count">{{ totalCount }}</span>
               </div>
             </div>

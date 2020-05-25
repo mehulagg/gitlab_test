@@ -1,4 +1,4 @@
-import axios from '~/lib/utils/axios_utils';
+import axios from 'axios';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
 import { normalizeHeaders } from '~/lib/utils/common_utils';

@@ -498,3 +498,5 @@ gem 'valid_email', '~> 0.1'
 
 # JSON
 gem 'json', '~> 2.3.0'
+
+gem 'hypernova'
