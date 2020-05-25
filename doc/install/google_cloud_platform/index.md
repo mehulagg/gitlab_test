@@ -41,8 +41,6 @@ To deploy GitLab on GCP you first need to create a virtual machine:
 1. To select the size, type, and desired [operating system](../requirements.md#supported-linux-distributions),
    click **Change** under `Boot disk`. Click **Select** when finished.
 
-   ![Deploy in progress](img/boot_disk.png)
-
 1. As a last step allow HTTP and HTTPS traffic, then click **Create**. The process will finish in a few seconds.
 
 ## Installing GitLab
