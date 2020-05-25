@@ -119,6 +119,9 @@ The recommended configuration for a PostgreSQL HA requires:
 - A minimum of one `pgbouncer` service node, but it's recommended to have one per database node
   - An internal load balancer (TCP) is required when there is more than one `pgbouncer` service node
 
+GitLab's [hardware](../../install/requirements.md#hardware-requirements)
+and [database](../../install/requirements.md#database) requirements
+apply to each node individually.
 You also need to take into consideration the underlying network topology,
 making sure you have redundant connectivity between all Database and GitLab instances,
 otherwise the networks will become a single point of failure.
