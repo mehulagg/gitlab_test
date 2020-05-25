@@ -199,9 +199,15 @@ group.
 
 ### Enabling Security Approvals within a project 
 
-To enable Security Approvals, a [project approval rule](../project/merge_requests/merge_request_approvals.md#multiple-approval-rules-premium)
+To enable Security Approvals, a [project approval rule](../project/merge_requests/merge_request_approvals.html#adding--editing-a-default-approval-rule)
 must be created with the case-sensitive name `Vulnerability-Check`. This approval group must be set
 with the number of approvals required greater than zero.
+
+1. Navigate to your project's **{settings}** **Settings > General** and expand **Merge request approvals**.
+1. Click **Add approval rule**, or **Edit**.
+   - Add or change the **Rule name** to `Vulnerability-Check` (case sensitive).
+
+![Vulnerability Check Approver Rule](img/vulnerability-check.png)
 
 Once this group is added to your project, the approval rule is enabled for all merge requests.
 
