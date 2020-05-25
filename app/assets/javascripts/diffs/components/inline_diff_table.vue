@@ -1,10 +1,21 @@
 <script>
-import inlineDiffTable from './inline_diff_table.vue';
+import { mapGetters, mapState } from 'vuex';
+import draftCommentsMixin from '~/diffs/mixins/draft_comments';
+import InlineDraftCommentRow from '~/batch_comments/components/inline_draft_comment_row.vue';
+import inlineDiffTableRow from './inline_diff_table_row.vue';
+import inlineDiffCommentRow from './inline_diff_comment_row.vue';
+import inlineDiffExpansionRow from './inline_diff_expansion_row.vue';
+import { getCommentedLines } from '~/notes/components/multiline_comment_utils';
 
 export default {
   components: {
-    inlineDiffTable,
+    inlineDiffCommentRow,
+    inlineDiffTableRow,
+    InlineDraftCommentRow: () =>
+      import('ee_component/batch_comments/components/inline_draft_comment_row.vue'),
+    inlineDiffExpansionRow,
   },
+  mixins: [draftCommentsMixin],
   props: {
     diffFile: {
       type: Object,
@@ -20,11 +31,35 @@ export default {
       default: '',
     },
   },
+  computed: {
+    ...mapGetters('diffs', ['commitId']),
+    ...mapState({
+      selectedCommentPosition: ({ notes }) => notes.selectedCommentPosition,
+      selectedCommentPositionHover: ({ notes }) => notes.selectedCommentPositionHover,
+    }),
+    diffLinesLength() {
+      return this.diffLines.length;
+    },
+    commentedLines() {
+      return getCommentedLines(
+        this.selectedCommentPosition || this.selectedCommentPositionHover,
+        this.diffLines,
+      );
+    },
+  },
+  methods: {
+    shouldRenderCommentRow(line) {
+      if (line.hasForm) return true;
+      if (!line.discussions?.length) return false;
+      return line.discussionsExpanded;
+    },
+  },
+  userColorScheme: window.gon.user_color_scheme,
+  matchLineType: MATCH_LINE_TYPE,
 };
 </script>
 
 <template>
-  <<<<<<< HEAD
   <table
     :class="$options.userColorScheme"
     :data-commit-id="commitId"
@@ -39,6 +74,7 @@ export default {
     <tbody>
       <template v-for="(line, index) in diffLines">
         <inline-diff-expansion-row
+          v-if="line.type === $options.matchLineType"
           :key="`expand-${index}`"
           :file-hash="diffFile.file_hash"
           :context-lines-path="diffFile.context_lines_path"
@@ -50,11 +86,13 @@ export default {
           :key="`${line.line_code || index}`"
           :file-hash="diffFile.file_hash"
           :file-path="diffFile.file_path"
+          :context-lines-path="diffFile.context_lines_path"
           :line="line"
           :is-bottom="index + 1 === diffLinesLength"
           :is-commented="index >= commentedLines.startLine && index <= commentedLines.endLine"
         />
         <inline-diff-comment-row
+          v-if="shouldRenderCommentRow(line)"
           :key="`icr-${line.line_code || index}`"
           :diff-file-hash="diffFile.file_hash"
           :line="line"
@@ -65,13 +103,8 @@ export default {
           v-if="shouldRenderDraftRow(diffFile.file_hash, line)"
           :key="`draft_${index}`"
           :draft="draftForLine(diffFile.file_hash, line)"
-          :diff-file="diffFile"
-          :line="line"
         />
       </template>
     </tbody>
   </table>
-  =======
-  <inline-diff-table :diff-lines="diffLines" :diff-file="diffFile" :help-page-path="helpPagePath" />
-  >>>>>>> d3b81c68765... Abstract html tables into seperate components
 </template>

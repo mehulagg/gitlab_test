@@ -112,6 +112,8 @@ export default {
         old_pos: 3,
         new_pos: 5,
       },
+      left: { discussions: [] },
+      right: { discussions: [] },
     },
   ],
   parallel_diff_lines: [

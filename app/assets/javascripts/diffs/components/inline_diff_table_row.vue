@@ -10,6 +10,11 @@ import {
   CONTEXT_LINE_CLASS_NAME,
   LINE_POSITION_LEFT,
   LINE_POSITION_RIGHT,
+  EMPTY_CELL_TYPE,
+  OLD_NO_NEW_LINE_TYPE,
+  NEW_NO_NEW_LINE_TYPE,
+  LINE_HOVER_CLASS_NAME,
+  LINE_UNFOLD_CLASS_NAME,
 } from '../constants';
 
 export default {
@@ -49,6 +54,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['isLoggedIn']),
     ...mapGetters('diffs', ['fileLineCoverage']),
     ...mapState({
       isHighlighted(state) {
@@ -77,6 +83,30 @@ export default {
     },
     coverageState() {
       return this.fileLineCoverage(this.filePath, this.line.new_line);
+    },
+    classNameMapTableCell() {
+      const { type } = this.line;
+
+      return [
+        type,
+        {
+          hll: this.isHighlighted,
+          [LINE_UNFOLD_CLASS_NAME]: this.isMatchLine,
+          [LINE_HOVER_CLASS_NAME]:
+            this.isLoggedIn &&
+            this.isHover &&
+            !this.isMatchLine &&
+            !this.isContextLine &&
+            !this.isMetaLine,
+        },
+      ];
+    },
+    isMetaLine() {
+      const { type } = this.line;
+
+      return (
+        type === OLD_NO_NEW_LINE_TYPE || type === NEW_NO_NEW_LINE_TYPE || type === EMPTY_CELL_TYPE
+      );
     },
   },
   created() {
@@ -108,25 +138,27 @@ export default {
     @mouseover="handleMouseMove"
     @mouseout="handleMouseMove"
   >
-    <diff-table-cell
-      :file-hash="fileHash"
-      :line="line"
-      :line-type="oldLineType"
-      :is-bottom="isBottom"
-      :is-hover="isHover"
-      :show-comment-button="true"
-      :is-highlighted="isHighlighted"
-      class="diff-line-num old_line"
-    />
-    <diff-table-cell
-      :file-hash="fileHash"
-      :line="line"
-      :line-type="newLineType"
-      :is-bottom="isBottom"
-      :is-hover="isHover"
-      :is-highlighted="isHighlighted"
-      class="diff-line-num new_line qa-new-diff-line"
-    />
+    <td ref="td" :class="classNameMapTableCell" class="diff-line-num old_line">
+      <diff-table-cell
+        :file-hash="fileHash"
+        :context-lines-path="contextLinesPath"
+        :line="line"
+        :line-type="oldLineType"
+        :is-bottom="isBottom"
+        :is-hover="isHover"
+        :show-comment-button="true"
+      />
+    </td>
+    <td ref="td" :class="classNameMapTableCell" class="diff-line-num new_line qa-new-diff-line">
+      <diff-table-cell
+        :file-hash="fileHash"
+        :context-lines-path="contextLinesPath"
+        :line="line"
+        :line-type="newLineType"
+        :is-bottom="isBottom"
+        :is-hover="isHover"
+      />
+    </td>
     <td
       v-gl-tooltip.hover
       :title="coverageState.text"

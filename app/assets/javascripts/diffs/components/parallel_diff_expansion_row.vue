@@ -1,5 +1,4 @@
 <script>
-import { MATCH_LINE_TYPE } from '../constants';
 import DiffExpansionCell from './diff_expansion_cell.vue';
 
 export default {
@@ -30,27 +29,19 @@ export default {
       default: false,
     },
   },
-  computed: {
-    isMatchLineLeft() {
-      return this.line.left && this.line.left.type === MATCH_LINE_TYPE;
-    },
-    isMatchLineRight() {
-      return this.line.right && this.line.right.type === MATCH_LINE_TYPE;
-    },
-  },
 };
 </script>
+
 <template>
   <tr class="line_expansion match">
-    <template v-if="isMatchLineLeft || isMatchLineRight">
+    <td colspan="6" class="text-center">
       <diff-expansion-cell
         :file-hash="fileHash"
         :context-lines-path="contextLinesPath"
         :line="line.left"
         :is-top="isTop"
         :is-bottom="isBottom"
-        :colspan="6"
       />
-    </template>
+    </td>
   </tr>
 </template>

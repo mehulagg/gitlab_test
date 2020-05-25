@@ -10,7 +10,6 @@ import {
   OLD_NO_NEW_LINE_TYPE,
   OLD_LINE_TYPE,
   NEW_NO_NEW_LINE_TYPE,
-  LINE_HOVER_CLASS_NAME,
 } from '../constants';
 
 export default {
@@ -27,8 +26,8 @@ export default {
       type: String,
       required: true,
     },
-    isHighlighted: {
-      type: Boolean,
+    contextLinesPath: {
+      type: String,
       required: true,
     },
     showCommentButton: {
@@ -108,18 +107,6 @@ export default {
         type === OLD_NO_NEW_LINE_TYPE || type === NEW_NO_NEW_LINE_TYPE || type === EMPTY_CELL_TYPE
       );
     },
-    classNameMap() {
-      const { type } = this.line;
-
-      return [
-        type,
-        {
-          hll: this.isHighlighted,
-          [LINE_HOVER_CLASS_NAME]:
-            this.isLoggedIn && this.isHover && !this.isContextLine && !this.isMetaLine,
-        },
-      ];
-    },
     lineNumber() {
       return this.lineType === OLD_LINE_TYPE ? this.line.old_line : this.line.new_line;
     },
@@ -145,7 +132,7 @@ export default {
 </script>
 
 <template>
-  <td ref="td" :class="classNameMap">
+  <div>
     <button
       v-if="shouldRenderCommentButton"
       v-show="shouldShowCommentButton"
@@ -173,5 +160,5 @@ export default {
         toggleLineDiscussions({ lineCode, fileHash, expanded: !line.discussionsExpanded })
       "
     />
-  </td>
+  </div>
 </template>

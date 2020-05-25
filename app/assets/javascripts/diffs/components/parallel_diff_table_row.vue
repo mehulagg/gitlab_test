@@ -13,6 +13,8 @@ import {
   PARALLEL_DIFF_VIEW_TYPE,
   NEW_NO_NEW_LINE_TYPE,
   EMPTY_CELL_TYPE,
+  LINE_HOVER_CLASS_NAME,
+  LINE_UNFOLD_CLASS_NAME,
 } from '../constants';
 
 export default {
@@ -53,6 +55,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['isLoggedIn']),
     ...mapGetters('diffs', ['fileLineCoverage']),
     ...mapState({
       isHighlighted(state) {
@@ -96,6 +99,50 @@ export default {
     },
     coverageState() {
       return this.fileLineCoverage(this.filePath, this.line.right.new_line);
+    },
+    classNameMapLeft() {
+      const { type } = this.line.left;
+
+      return [
+        type,
+        {
+          hll: this.isHighlighted,
+          [LINE_UNFOLD_CLASS_NAME]: this.isMatchLine,
+          [LINE_HOVER_CLASS_NAME]:
+            this.isLoggedIn &&
+            this.isLeftHover &&
+            !this.isMatchLine &&
+            !this.isContextLine &&
+            !this.isMetaLine,
+        },
+      ];
+    },
+    classNameMapRight() {
+      const { type } = this.line.right;
+
+      return [
+        type,
+        {
+          hll: this.isHighlighted,
+          [LINE_UNFOLD_CLASS_NAME]: this.isMatchLine,
+          [LINE_HOVER_CLASS_NAME]:
+            this.isLoggedIn &&
+            this.isRightHover &&
+            !this.isMatchLine &&
+            !this.isContextLine &&
+            !this.isMetaLine,
+        },
+      ];
+    },
+    isMatchLine() {
+      return this.line.type === MATCH_LINE_TYPE;
+    },
+    isMetaLine() {
+      const { type } = this.line;
+
+      return (
+        type === OLD_NO_NEW_LINE_TYPE || type === NEW_NO_NEW_LINE_TYPE || type === EMPTY_CELL_TYPE
+      );
     },
   },
   created() {
@@ -145,18 +192,19 @@ export default {
     @mouseout="handleMouseMove"
   >
     <template v-if="line.left && !isMatchLineLeft">
-      <diff-table-cell
-        :file-hash="fileHash"
-        :line="line.left"
-        :line-type="oldLineType"
-        :is-bottom="isBottom"
-        :is-hover="isLeftHover"
-        :is-highlighted="isHighlighted"
-        :show-comment-button="true"
-        :diff-view-type="parallelDiffViewType"
-        line-position="left"
-        class="diff-line-num old_line"
-      />
+      <td ref="td" :class="classNameMapLeft" class="diff-line-num old_line">
+        <diff-table-cell
+          :file-hash="fileHash"
+          :context-lines-path="contextLinesPath"
+          :line="line.left"
+          :line-type="oldLineType"
+          :is-bottom="isBottom"
+          :is-hover="isLeftHover"
+          :show-comment-button="true"
+          :diff-view-type="parallelDiffViewType"
+          line-position="left"
+        />
+      </td>
       <td :class="parallelViewLeftLineType" class="line-coverage left-side"></td>
       <td
         :id="line.left.line_code"
@@ -172,18 +220,19 @@ export default {
       <td class="line_content with-coverage parallel left-side empty-cell"></td>
     </template>
     <template v-if="line.right && !isMatchLineRight">
-      <diff-table-cell
-        :file-hash="fileHash"
-        :line="line.right"
-        :line-type="newLineType"
-        :is-bottom="isBottom"
-        :is-hover="isRightHover"
-        :is-highlighted="isHighlighted"
-        :show-comment-button="true"
-        :diff-view-type="parallelDiffViewType"
-        line-position="right"
-        class="diff-line-num new_line"
-      />
+      <td ref="td" :class="classNameMapRight" class="diff-line-num new_line">
+        <diff-table-cell
+          :file-hash="fileHash"
+          :context-lines-path="contextLinesPath"
+          :line="line.right"
+          :line-type="newLineType"
+          :is-bottom="isBottom"
+          :is-hover="isRightHover"
+          :show-comment-button="true"
+          :diff-view-type="parallelDiffViewType"
+          line-position="right"
+        />
+      </td>
       <td
         v-gl-tooltip.hover
         :title="coverageState.text"
