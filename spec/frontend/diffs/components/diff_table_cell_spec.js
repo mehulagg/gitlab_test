@@ -64,24 +64,9 @@ describe('DiffTableCell', () => {
     });
   };
 
-  const findTd = () => wrapper.find({ ref: 'td' });
   const findNoteButton = () => wrapper.find({ ref: 'addDiffNoteButton' });
   const findLineNumber = () => wrapper.find({ ref: 'lineNumberRef' });
   const findAvatars = () => wrapper.find(DiffGutterAvatars);
-
-  describe('td', () => {
-    it('highlights when isHighlighted true', () => {
-      createComponent({ isHighlighted: true });
-
-      expect(findTd().classes()).toContain('hll');
-    });
-
-    it('does not highlight when isHighlighted false', () => {
-      createComponent({ isHighlighted: false });
-
-      expect(findTd().classes()).not.toContain('hll');
-    });
-  });
 
   describe('comment button', () => {
     it.each`

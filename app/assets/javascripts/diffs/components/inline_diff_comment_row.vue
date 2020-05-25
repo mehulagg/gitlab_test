@@ -30,19 +30,6 @@ export default {
       default: false,
     },
   },
-  computed: {
-    className() {
-      return this.line.discussions.length ? '' : 'js-temp-notes-holder';
-    },
-    shouldRender() {
-      if (this.line.hasForm) return true;
-
-      if (!this.line.discussions || !this.line.discussions.length) {
-        return false;
-      }
-      return this.line.discussionsExpanded;
-    },
-  },
   methods: {
     ...mapActions('diffs', ['showCommentForm']),
   },
@@ -50,7 +37,7 @@ export default {
 </script>
 
 <template>
-  <tr v-if="shouldRender" :class="className" class="notes_holder">
+  <tr :class="{ 'js-temp-notes-holder': line.discussions.length }" class="notes_holder">
     <td class="notes-content" colspan="4">
       <div class="content">
         <diff-discussions

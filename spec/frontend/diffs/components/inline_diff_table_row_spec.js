@@ -22,6 +22,7 @@ describe('InlineDiffTableRow', () => {
     vm.$nextTick()
       .then(() => {
         expect(vm.$el.querySelector('.line_content').classList).not.toContain('hll');
+        expect(vm.$el.querySelector('.diff-line-num').classList).not.toContain('hll');
       })
       .then(done)
       .catch(done.fail);
@@ -36,6 +37,7 @@ describe('InlineDiffTableRow', () => {
       })
       .then(() => {
         expect(vm.$el.querySelector('.line_content').classList).toContain('hll');
+        expect(vm.$el.querySelector('.diff-line-num').classList).toContain('hll');
       })
       .then(done)
       .catch(done.fail);
