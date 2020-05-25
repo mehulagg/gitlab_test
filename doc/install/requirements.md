@@ -96,9 +96,9 @@ This is the recommended minimum hardware for a handful of example GitLab user ba
 
 - 1 core supports up to 100 users but the application can be a bit slower due to having all workers and background jobs running on the same core
 - **2 cores** is the **recommended** minimum number of cores and supports up to 100 users
-- 4 cores supports up to 500 users
-- 8 cores supports up to 1,000 users
-- 32 cores supports up to 5,000 users
+- 4 cores support up to 500 users
+- 8 cores support up to 1,000 users
+- 32 cores support up to 5,000 users
 - More users? Consult the [reference architectures page](../administration/reference_architectures/index.md)
 
 ### Memory
