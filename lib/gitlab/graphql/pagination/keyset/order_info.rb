@@ -17,11 +17,13 @@ module Gitlab
           end
 
           def operator_for(before_or_after)
+            suffix = @attribute_name == "id" ? "=" : ""
+
             case before_or_after
             when :before
-              sort_direction == :asc ? '<' : '>'
+              sort_direction == :asc ? "<#{suffix}" : ">#{suffix}"
             when :after
-              sort_direction == :asc ? '>' : '<'
+              sort_direction == :asc ? ">#{suffix}" : "<#{suffix}"
             end
           end
 

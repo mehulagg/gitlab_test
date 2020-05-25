@@ -42,8 +42,8 @@ module Gitlab
                 OrderInfo.validate_ordering(ordered_items, order_list)
 
                 sliced = ordered_items
-                sliced = slice_nodes(sliced, before, :before) if before.present?
-                sliced = slice_nodes(sliced, after, :after) if after.present?
+                sliced = slice_nodes(sliced, :before) if before.present?
+                sliced = slice_nodes(sliced, :after) if after.present?
 
                 sliced
               end
@@ -67,22 +67,54 @@ module Gitlab
             if last
               sliced_nodes.last(limit_value)
             else
-              sliced_nodes.limit(limit_value) # rubocop: disable CodeReuse/ActiveRecord
+              values = sliced_nodes.limit(limit_value) # rubocop: disable CodeReuse/ActiveRecord
+              set_next_prev_pages(values.to_a)
+            end
+          end
+
+          def set_next_prev_pages(values)
+            unless decoded_cursor
+              @has_previous_page = false
+              @has_next_page = values.length > real_limit
+              return values[0, real_limit]
+            end
+
+            if values.first.id.to_s == decoded_cursor['id']
+              @has_previous_page = true
+              @has_next_page = values.to_a.length == limit_value
+              values[1, real_limit]
+            else
+              @has_previous_page = false
+              @has_next_page = values.to_a.length == limit_value - 1
+              values[0, real_limit]
             end
           end
 
           # rubocop: disable CodeReuse/ActiveRecord
-          def slice_nodes(sliced, encoded_cursor, before_or_after)
-            decoded_cursor = ordering_from_encoded_json(encoded_cursor)
+          def slice_nodes(sliced, before_or_after)
             builder = QueryBuilder.new(arel_table, order_list, decoded_cursor, before_or_after)
             ordering = builder.conditions
 
-            sliced.where(*ordering).where.not(id: decoded_cursor['id'])
+            sliced.where(*ordering)
           end
           # rubocop: enable CodeReuse/ActiveRecord
 
+          def decoded_cursor
+            @decoded_cursor ||= ordering_from_encoded_json(encoded_cursor) if encoded_cursor
+          end
+
+          def encoded_cursor
+            return unless (before || after).present?
+
+            @encoded_cursor ||= before.present? ? before : after
+          end
+
+          def real_limit
+            @real_limit ||= [first, last, max_page_size].compact.min
+          end
+
           def limit_value
-            @limit_value ||= [first, last, max_page_size].compact.min
+            @limit_value ||= real_limit + 2
           end
 
           def ordered_items

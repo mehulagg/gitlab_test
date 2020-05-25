@@ -41,6 +41,10 @@ module Gitlab
                 target.lt(value)
               when '='
                 target.eq(value)
+              when '>='
+                target.gteq(value)
+              when '<='
+                target.lteq(value)
               when 'is_null'
                 target.eq(nil)
               when 'is_not_null'
