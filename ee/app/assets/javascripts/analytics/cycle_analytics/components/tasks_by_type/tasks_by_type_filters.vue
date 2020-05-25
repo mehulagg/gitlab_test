@@ -37,6 +37,11 @@ export default {
       type: Boolean,
       required: true,
     },
+    hasLabelFilter: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   computed: {
     subjectFilterOptions() {
@@ -105,6 +110,7 @@ export default {
         :max-labels="maxLabels"
         :aria-label="__('CycleAnalytics|Display chart filters')"
         :selected-label-id="selectedLabelIds"
+        :has-label-filter="hasLabelFilter"
         aria-expanded="false"
         multiselect
         right
@@ -126,13 +132,15 @@ export default {
               "
             />
           </div>
-          <gl-dropdown-divider />
-          <div class="mb-3 px-3">
-            <p class="font-weight-bold text-left my-2">
-              {{ s__('CycleAnalytics|Select labels') }}
-              <br /><small>{{ selectedLabelLimitText }}</small>
-            </p>
-          </div>
+          <template v-if="hasLabelFilter">
+            <gl-dropdown-divider />
+            <div class="mb-3 px-3">
+              <p class="font-weight-bold text-left my-2">
+                {{ s__('CycleAnalytics|Select labels') }}
+                <br /><small>{{ selectedLabelLimitText }}</small>
+              </p>
+            </div>
+          </template>
         </template>
       </labels-selector>
     </div>

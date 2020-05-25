@@ -54,6 +54,11 @@ export default {
       required: false,
       default: '',
     },
+    hasLabelFilter: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   data() {
     return {
@@ -138,10 +143,10 @@ export default {
           >{{ __('Select a label') }}
         </gl-dropdown-item>
       </slot>
-      <div class="mb-3 px-3">
+      <div v-if="hasLabelFilter" class="mb-3 px-3">
         <gl-search-box-by-type v-model.trim="searchTerm" class="mb-2" />
       </div>
-      <div class="mb-3 px-3">
+      <div v-if="hasLabelFilter" class="mb-3 px-3">
         <gl-dropdown-item
           v-for="label in labels"
           :key="label.id"
