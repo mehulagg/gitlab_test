@@ -13,6 +13,8 @@
       = asset_to_string('mailer_client_specific.css').html_safe
 
     = stylesheet_link_tag 'mailer.css'
+
+    = yield :head
   %body
     %table#body{ border: "0", cellpadding: "0", cellspacing: "0" }
       %tbody
