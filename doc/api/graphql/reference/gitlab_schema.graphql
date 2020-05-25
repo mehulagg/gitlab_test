@@ -5531,11 +5531,93 @@ type JiraImportStartPayload {
   jiraImport: JiraImport
 }
 
+type JiraProject {
+  """
+  Key of the Jira project
+  """
+  key: String!
+
+  """
+  Name of the Jira project
+  """
+  name: String
+
+  """
+  ID of the Jira project
+  """
+  projectId: Int!
+}
+
+"""
+The connection type for JiraProject.
+"""
+type JiraProjectConnection {
+  """
+  A list of edges.
+  """
+  edges: [JiraProjectEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [JiraProject]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type JiraProjectEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: JiraProject
+}
+
 type JiraService implements Service {
   """
   Indicates if the service is active
   """
   active: Boolean
+
+  """
+  List of Jira projects fetched through Jira REST API
+  """
+  projects(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+
+    """
+    Project name or key
+    """
+    name: String
+  ): JiraProjectConnection
 
   """
   Class name of the service
@@ -5686,6 +5768,11 @@ type MergeRequest implements Noteable {
   ): UserConnection
 
   """
+  User who created this merge request
+  """
+  author: User
+
+  """
   Timestamp of when the merge request was created
   """
   createdAt: Time!
@@ -5834,6 +5921,11 @@ type MergeRequest implements Noteable {
   Indicates if all discussions in the merge request have been resolved, allowing the merge request to be merged
   """
   mergeableDiscussionsState: Boolean
+
+  """
+  Timestamp of when the merge request was merged, null if not merged
+  """
+  mergedAt: Time
 
   """
   The milestone of the merge request
@@ -6004,6 +6096,11 @@ type MergeRequest implements Noteable {
   Target branch of the merge request
   """
   targetBranch: String!
+
+  """
+  Indicates if the target branch of the merge request exists
+  """
+  targetBranchExists: Boolean!
 
   """
   Target project of the merge request
@@ -7871,12 +7968,7 @@ type Project {
     """
     IID of the merge request, for example `1`
     """
-    iid: String
-
-    """
-    Array of IIDs of merge requests, for example `[1, 2]`
-    """
-    iids: [String!]
+    iid: String!
   ): MergeRequest
 
   """
@@ -7899,19 +7991,34 @@ type Project {
     first: Int
 
     """
-    IID of the merge request, for example `1`
-    """
-    iid: String
-
-    """
     Array of IIDs of merge requests, for example `[1, 2]`
     """
     iids: [String!]
 
     """
+    Array of label names. All resolved merge requests will have all of these labels.
+    """
+    labels: [String!]
+
+    """
     Returns the last _n_ elements from the list.
     """
     last: Int
+
+    """
+    Array of source branch names. All resolved merge requests will have one of these branches as their source.
+    """
+    sourceBranches: [String!]
+
+    """
+    A merge request state. If provided, all resolved merge requests will have this state.
+    """
+    state: MergeRequestState
+
+    """
+    Array of target branch names. All resolved merge requests will have one of these branches as their target.
+    """
+    targetBranches: [String!]
   ): MergeRequestConnection
 
   """

@@ -223,7 +223,7 @@ export const fetchPrometheusMetric = (
     queryParams.step = metric.step;
   }
 
-  if (Object.keys(state.promVariables).length > 0) {
+  if (Object.keys(state.variables).length > 0) {
     queryParams.variables = getters.getCustomVariablesArray;
   }
 
@@ -314,8 +314,7 @@ export const receiveEnvironmentsDataFailure = ({ commit }) => {
 
 export const fetchAnnotations = ({ state, dispatch }) => {
   const { start } = convertToFixedRange(state.timeRange);
-  const dashboardPath =
-    state.currentDashboard === '' ? DEFAULT_DASHBOARD_PATH : state.currentDashboard;
+  const dashboardPath = state.currentDashboard || DEFAULT_DASHBOARD_PATH;
   return gqClient
     .mutate({
       mutation: getAnnotations,
@@ -416,8 +415,10 @@ export const duplicateSystemDashboard = ({ state }, payload) => {
 
 // Variables manipulation
 
-export const updateVariableValues = ({ commit }, updatedVariable) => {
-  commit(types.UPDATE_VARIABLE_VALUES, updatedVariable);
+export const updateVariablesAndFetchData = ({ commit, dispatch }, updatedVariable) => {
+  commit(types.UPDATE_VARIABLES, updatedVariable);
+
+  return dispatch('fetchDashboardData');
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

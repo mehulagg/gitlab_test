@@ -8,6 +8,7 @@ import {
   GlDropdownItem,
   GlIcon,
   GlTab,
+  GlBadge,
 } from '@gitlab/ui';
 import { visitUrl } from '~/lib/utils/url_utility';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
@@ -33,9 +34,19 @@ describe('AlertManagementList', () => {
   const findLoader = () => wrapper.find(GlLoadingIcon);
   const findStatusDropdown = () => wrapper.find(GlDropdown);
   const findStatusFilterTabs = () => wrapper.findAll(GlTab);
+  const findStatusFilterBadge = () => wrapper.findAll(GlBadge);
   const findDateFields = () => wrapper.findAll(TimeAgo);
   const findFirstStatusOption = () => findStatusDropdown().find(GlDropdownItem);
   const findSeverityFields = () => wrapper.findAll('[data-testid="severityField"]');
+  const findSeverityColumnHeader = () => wrapper.findAll('th').at(0);
+
+  const alertsCount = {
+    acknowledged: 6,
+    all: 16,
+    open: 14,
+    resolved: 2,
+    triggered: 10,
+  };
 
   function mountComponent({
     props = {
@@ -44,7 +55,6 @@ describe('AlertManagementList', () => {
     },
     data = {},
     loading = false,
-    alertListStatusFilteringEnabled = false,
     stubs = {},
   } = {}) {
     wrapper = mount(AlertManagementList, {
@@ -53,11 +63,6 @@ describe('AlertManagementList', () => {
         enableAlertManagementPath: '/link',
         emptyAlertSvgPath: 'illustration/path',
         ...props,
-      },
-      provide: {
-        glFeatures: {
-          alertListStatusFilteringEnabled,
-        },
       },
       data() {
         return data;
@@ -76,7 +81,10 @@ describe('AlertManagementList', () => {
     });
   }
 
+  const mockStartedAtCol = {};
+
   beforeEach(() => {
+    jest.spyOn(document, 'querySelector').mockReturnValue(mockStartedAtCol);
     mountComponent();
   });
 
@@ -93,42 +101,25 @@ describe('AlertManagementList', () => {
   });
 
   describe('Status Filter Tabs', () => {
-    describe('alertListStatusFilteringEnabled feature flag enabled', () => {
-      beforeEach(() => {
-        mountComponent({
-          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-          data: { alerts: mockAlerts },
-          loading: false,
-          alertListStatusFilteringEnabled: true,
-          stubs: {
-            GlTab: true,
-          },
-        });
-      });
-
-      it('should display filter tabs for all statuses', () => {
-        const tabs = findStatusFilterTabs().wrappers;
-        tabs.forEach((tab, i) => {
-          expect(tab.text()).toContain(ALERTS_STATUS_TABS[i].title);
-        });
+    beforeEach(() => {
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: mockAlerts, alertsCount },
+        loading: false,
+        stubs: {
+          GlTab: true,
+        },
       });
     });
 
-    describe('alertListStatusFilteringEnabled feature flag disabled', () => {
-      beforeEach(() => {
-        mountComponent({
-          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-          data: { alerts: mockAlerts },
-          loading: false,
-          alertListStatusFilteringEnabled: false,
-          stubs: {
-            GlTab: true,
-          },
-        });
-      });
+    it('should display filter tabs with alerts count badge for each status', () => {
+      const tabs = findStatusFilterTabs().wrappers;
+      const badges = findStatusFilterBadge();
 
-      it('should NOT display tabs', () => {
-        expect(findStatusFilterTabs()).not.toExist();
+      tabs.forEach((tab, i) => {
+        const status = ALERTS_STATUS_TABS[i].status.toLowerCase();
+        expect(tab.text()).toContain(ALERTS_STATUS_TABS[i].title);
+        expect(badges.at(i).text()).toContain(alertsCount[status]);
       });
     });
   });
@@ -137,7 +128,7 @@ describe('AlertManagementList', () => {
     it('loading state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: null },
+        data: { alerts: null, alertsCount: null },
         loading: true,
       });
       expect(findAlertsTable().exists()).toBe(true);
@@ -152,7 +143,7 @@ describe('AlertManagementList', () => {
     it('error state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: null, errored: true },
+        data: { alerts: null, alertsCount: null, errored: true },
         loading: false,
       });
       expect(findAlertsTable().exists()).toBe(true);
@@ -169,7 +160,7 @@ describe('AlertManagementList', () => {
     it('empty state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: [], errored: false },
+        data: { alerts: [], alertsCount: { all: 0 }, errored: false },
         loading: false,
       });
       expect(findAlertsTable().exists()).toBe(true);
@@ -186,7 +177,7 @@ describe('AlertManagementList', () => {
     it('has data state', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
       expect(findLoader().exists()).toBe(false);
@@ -202,7 +193,7 @@ describe('AlertManagementList', () => {
     it('displays status dropdown', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
       expect(findStatusDropdown().exists()).toBe(true);
@@ -211,7 +202,7 @@ describe('AlertManagementList', () => {
     it('shows correct severity icons', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
 
@@ -228,7 +219,7 @@ describe('AlertManagementList', () => {
     it('renders severity text', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
 
@@ -242,7 +233,7 @@ describe('AlertManagementList', () => {
     it('navigates to the detail page when alert row is clicked', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
 
@@ -266,6 +257,7 @@ describe('AlertManagementList', () => {
                 severity: 'high',
               },
             ],
+            alertsCount,
             errored: false,
           },
           loading: false,
@@ -286,12 +278,41 @@ describe('AlertManagementList', () => {
                 severity: 'high',
               },
             ],
+            alertsCount,
             errored: false,
           },
           loading: false,
         });
         expect(findDateFields().exists()).toBe(false);
       });
+    });
+  });
+
+  describe('sorting the alert list by column', () => {
+    beforeEach(() => {
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: mockAlerts, errored: false, sort: 'START_TIME_ASC', alertsCount },
+        loading: false,
+      });
+    });
+
+    it('updates sort with new direction and column key', () => {
+      findSeverityColumnHeader().trigger('click');
+
+      expect(wrapper.vm.$data.sort).toEqual('SEVERITY_ASC');
+
+      findSeverityColumnHeader().trigger('click');
+
+      expect(wrapper.vm.$data.sort).toEqual('SEVERITY_DESC');
+    });
+
+    it('updates the `ariaSort` attribute so the sort icon appears in the proper column', () => {
+      expect(mockStartedAtCol.ariaSort).toEqual('ascending');
+
+      findSeverityColumnHeader().trigger('click');
+
+      expect(mockStartedAtCol.ariaSort).toEqual('none');
     });
   });
 
@@ -312,7 +333,7 @@ describe('AlertManagementList', () => {
     beforeEach(() => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
-        data: { alerts: mockAlerts, errored: false },
+        data: { alerts: mockAlerts, alertsCount, errored: false },
         loading: false,
       });
     });

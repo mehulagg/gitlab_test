@@ -55,6 +55,7 @@ module Ci
 
     delegate :url, to: :runner_session, prefix: true, allow_nil: true
     delegate :terminal_specification, to: :runner_session, allow_nil: true
+    delegate :service_specification, to: :runner_session, allow_nil: true
     delegate :gitlab_deploy_token, to: :project
     delegate :trigger_short_token, to: :trigger_request, allow_nil: true
 
@@ -137,8 +138,8 @@ module Ci
         .includes(:metadata, :job_artifacts_metadata)
     end
 
-    scope :with_artifacts_not_expired, ->() { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.now) }
-    scope :with_expired_artifacts, ->() { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.now) }
+    scope :with_artifacts_not_expired, ->() { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.current) }
+    scope :with_expired_artifacts, ->() { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.current) }
     scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }
     scope :manual_actions, ->() { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
     scope :scheduled_actions, ->() { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
@@ -259,7 +260,7 @@ module Ci
       end
 
       before_transition any => :waiting_for_resource do |build|
-        build.waiting_for_resource_at = Time.now
+        build.waiting_for_resource_at = Time.current
       end
 
       before_transition on: :enqueue_waiting_for_resource do |build|
@@ -352,7 +353,7 @@ module Ci
           begin
             Ci::Build.retry(build, build.user)
           rescue Gitlab::Access::AccessDeniedError => ex
-            Rails.logger.error "Unable to auto-retry job #{build.id}: #{ex}" # rubocop:disable Gitlab/RailsLogger
+            Gitlab::AppLogger.error "Unable to auto-retry job #{build.id}: #{ex}"
           end
         end
       end
@@ -713,7 +714,7 @@ module Ci
     end
 
     def needs_touch?
-      Time.now - updated_at > 15.minutes.to_i
+      Time.current - updated_at > 15.minutes.to_i
     end
 
     def valid_token?(token)
@@ -776,11 +777,11 @@ module Ci
     end
 
     def artifacts_expired?
-      artifacts_expire_at && artifacts_expire_at < Time.now
+      artifacts_expire_at && artifacts_expire_at < Time.current
     end
 
     def artifacts_expire_in
-      artifacts_expire_at - Time.now if artifacts_expire_at
+      artifacts_expire_at - Time.current if artifacts_expire_at
     end
 
     def artifacts_expire_in=(value)
@@ -993,7 +994,7 @@ module Ci
     end
 
     def update_erased!(user = nil)
-      self.update(erased_by: user, erased_at: Time.now, artifacts_expire_at: nil)
+      self.update(erased_by: user, erased_at: Time.current, artifacts_expire_at: nil)
     end
 
     def unscoped_project
@@ -1026,7 +1027,7 @@ module Ci
     end
 
     def has_expiring_artifacts?
-      artifacts_expire_at.present? && artifacts_expire_at > Time.now
+      artifacts_expire_at.present? && artifacts_expire_at > Time.current
     end
 
     def job_jwt_variables

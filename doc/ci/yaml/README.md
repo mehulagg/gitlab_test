@@ -3459,6 +3459,43 @@ script:
   - ls -al cache/
 ```
 
+### Git fetch extra flags
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4142) in GitLab Runner 13.1.
+
+The `GIT_FETCH_EXTRA_FLAGS` variable is used to control the behavior of
+`git fetch`. You can set it globally or per-job in the [`variables`](#variables) section.
+
+`GIT_FETCH_EXTRA_FLAGS` accepts all possible options of the [`git fetch`](https://git-scm.com/docs/git-fetch) command, but please note that `GIT_FETCH_EXTRA_FLAGS` flags will be appended after the default flags that can't be modified.
+
+The default flags are:
+
+- [GIT_DEPTH](#shallow-cloning).
+- The list of [refspecs](https://git-scm.com/book/en/v2/Git-Internals-The-Refspec).
+- A remote called `origin`.
+
+If `GIT_FETCH_EXTRA_FLAGS` is:
+
+- Not specified, `git fetch` flags default to `--prune --quiet` along with the default flags.
+- Given the value `none`, `git fetch` is executed only with the default flags.
+  
+For example, the default flags are `--prune --quiet`, so you can make `git fetch` more verbose by overriding this with just `--prune`:
+
+```yaml
+variables:
+  GIT_FETCH_EXTRA_FLAGS: --prune
+script:
+  - ls -al cache/
+```
+
+The configurtion above will result in `git fetch` being called this way:
+
+```shell
+git fetch origin $REFSPECS --depth 50  --prune
+```
+
+Where `$REFSPECS` is a value provided to the Runner internally by GitLab.
+
 ### Job stages attempts
 
 > Introduced in GitLab, it requires GitLab Runner v1.9+.
@@ -3488,8 +3525,8 @@ You can set them globally or per-job in the [`variables`](#variables) section.
 
 > Introduced in GitLab 8.9 as an experimental feature.
 
-CAUTION: **Caution:**
-May change in future releases or be removed completely.
+NOTE: **Note**:
+As of GitLab 12.0, newly created projects will automatically have a [default `git depth` value of `50`](../pipelines/settings.md#git-shallow-clone).
 
 You can specify the depth of fetching and cloning using `GIT_DEPTH`. This allows
 shallow cloning of the repository which can significantly speed up cloning for
@@ -3796,6 +3833,7 @@ the use of the `SAMPLE_VARIABLE` variable:
 # global variables
 variables: &global-variables
   SAMPLE_VARIABLE: sample_variable_value
+  ANOTHER_SAMPLE_VARIABLE: another_sample_variable_value
 
 # a job that needs to set the GIT_STRATEGY variable, yet depend on global variables
 job_no_git_strategy:
@@ -3819,7 +3857,7 @@ lines where the job is defined:
 #    - run test
 ```
 
-you can instead start its name with a dot (`.`) and it won't be processed by
+You can instead start its name with a dot (`.`) and it won't be processed by
 GitLab CI/CD. In the following example, `.hidden_job` will be ignored:
 
 ```yaml
@@ -3842,11 +3880,11 @@ if using Git 2.10 or newer.
 
 ## Processing Git pushes
 
-GitLab will create at most 4 branch and tags pipelines when
-doing pushing multiple changes in single `git push` invocation.
+GitLab will create at most 4 branch and tag pipelines when
+pushing multiple changes in single `git push` invocation.
 
-This limitation does not affect any of the updated Merge Request pipelines,
-all updated Merge Requests will have a pipeline created when using
+This limitation does not affect any of the updated Merge Request pipelines.
+All updated Merge Requests will have a pipeline created when using
 [pipelines for merge requests](../merge_request_pipelines/index.md).
 
 ## Deprecated parameters

@@ -106,7 +106,7 @@ From within the UI, you can add or update custom environment variables:
 1. Go to your project's **Settings > CI/CD** and expand the **Variables** section.
 1. Click the **Add Variable** button. In the **Add variable** modal, fill in the details:
 
-    - **Key**: Must be one line, with no spaces, using only letters, numbers, `-` or `_`.
+    - **Key**: Must be one line, with no spaces, using only letters, numbers, or `_`.
     - **Value**: No limitations.
     - **Type**: `File` or `Variable`.
     - **Environment scope**: `All`, or specific environments.
@@ -394,7 +394,7 @@ Once you set them, they will be available for all subsequent pipelines. Any grou
 
 ![CI/CD settings - inherited variables](img/inherited_group_variables_v12_5.png)
 
-### Inherit environment variables
+## Inherit environment variables
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22638) in GitLab 13.0.
 > - It's deployed behind a feature flag (`ci_dependency_variables`), disabled by default.

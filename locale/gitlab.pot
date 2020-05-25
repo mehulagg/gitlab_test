@@ -3849,6 +3849,9 @@ msgstr ""
 msgid "Changes are shown as if the <b>source</b> revision was being merged into the <b>target</b> revision."
 msgstr ""
 
+msgid "Changes are still tracked. Useful for cluster/index migrations."
+msgstr ""
+
 msgid "Changes are unknown"
 msgstr ""
 
@@ -4338,6 +4341,9 @@ msgstr ""
 msgid "Clear chart filters"
 msgstr ""
 
+msgid "Clear due date"
+msgstr ""
+
 msgid "Clear input"
 msgstr ""
 
@@ -4348,6 +4354,9 @@ msgid "Clear search"
 msgstr ""
 
 msgid "Clear search input"
+msgstr ""
+
+msgid "Clear start date"
 msgstr ""
 
 msgid "Clear templates search input"
@@ -4966,6 +4975,9 @@ msgid "ClusterIntegration|No VPCs found"
 msgstr ""
 
 msgid "ClusterIntegration|No deployment cluster found for this job"
+msgstr ""
+
+msgid "ClusterIntegration|No deployment found for this job"
 msgstr ""
 
 msgid "ClusterIntegration|No instance type found"
@@ -6933,6 +6945,9 @@ msgstr ""
 msgid "Define a custom pattern with cron syntax"
 msgstr ""
 
+msgid "Define custom rules for what constitutes spam, independent of Akismet"
+msgstr ""
+
 msgid "Define environments in the deploy stage(s) in <code>.gitlab-ci.yml</code> to track deployments here."
 msgstr ""
 
@@ -7794,6 +7809,9 @@ msgstr ""
 msgid "Drop your designs to start your upload."
 msgstr ""
 
+msgid "Due Date"
+msgstr ""
+
 msgid "Due date"
 msgstr ""
 
@@ -8053,6 +8071,9 @@ msgid "Enable SAML authentication for this group"
 msgstr ""
 
 msgid "Enable Seat Link"
+msgstr ""
+
+msgid "Enable Spam Check via external API endpoint"
 msgstr ""
 
 msgid "Enable access to Grafana"
@@ -8779,6 +8800,9 @@ msgid "Errors"
 msgstr ""
 
 msgid "Errors:"
+msgstr ""
+
+msgid "Estimate"
 msgstr ""
 
 msgid "Estimated"
@@ -10050,6 +10074,12 @@ msgstr ""
 msgid "GeoNodes|secondary nodes"
 msgstr ""
 
+msgid "Geo|%{label} can't be blank"
+msgstr ""
+
+msgid "Geo|%{label} should be between 1-999"
+msgstr ""
+
 msgid "Geo|%{name} is scheduled for forced re-download"
 msgstr ""
 
@@ -10111,6 +10141,12 @@ msgid "Geo|Never"
 msgstr ""
 
 msgid "Geo|Next sync scheduled at"
+msgstr ""
+
+msgid "Geo|Node name can't be blank"
+msgstr ""
+
+msgid "Geo|Node name should be between 1 and 255 characters"
 msgstr ""
 
 msgid "Geo|Not synced yet"
@@ -10195,6 +10231,12 @@ msgid "Geo|Tracking entry for project (%{project_id}) was successfully removed."
 msgstr ""
 
 msgid "Geo|Tracking entry for upload (%{type}/%{id}) was successfully removed."
+msgstr ""
+
+msgid "Geo|URL can't be blank"
+msgstr ""
+
+msgid "Geo|URL must be a valid url (ex: https://gitlab.com)"
 msgstr ""
 
 msgid "Geo|Unknown state"
@@ -11261,6 +11303,9 @@ msgid "History"
 msgstr ""
 
 msgid "History of authentications"
+msgstr ""
+
+msgid "Homepage"
 msgstr ""
 
 msgid "Hook execution failed. Ensure the group has a project with commits."
@@ -14029,9 +14074,6 @@ msgstr ""
 msgid "Name has already been taken"
 msgstr ""
 
-msgid "Name must be between 1 and 255 characters"
-msgstr ""
-
 msgid "Name new label"
 msgstr ""
 
@@ -14077,6 +14119,9 @@ msgstr ""
 msgid "Network"
 msgstr ""
 
+msgid "NetworkPolicies|Enabled"
+msgstr ""
+
 msgid "NetworkPolicies|Environment does not have deployment platform"
 msgstr ""
 
@@ -14086,6 +14131,18 @@ msgstr ""
 msgid "NetworkPolicies|Kubernetes error: %{error}"
 msgstr ""
 
+msgid "NetworkPolicies|Last modified"
+msgstr ""
+
+msgid "NetworkPolicies|Name"
+msgstr ""
+
+msgid "NetworkPolicies|No policies detected"
+msgstr ""
+
+msgid "NetworkPolicies|Policies are a specification of how groups of pods are allowed to communicate with each other network endpoints."
+msgstr ""
+
 msgid "NetworkPolicies|Policy %{policyName} was successfully changed"
 msgstr ""
 
@@ -14093,6 +14150,9 @@ msgid "NetworkPolicies|Something went wrong, failed to update policy"
 msgstr ""
 
 msgid "NetworkPolicies|Something went wrong, unable to fetch policies"
+msgstr ""
+
+msgid "NetworkPolicies|Status"
 msgstr ""
 
 msgid "Never"
@@ -15369,6 +15429,9 @@ msgid "Perform common operations on GitLab project"
 msgstr ""
 
 msgid "Performance optimization"
+msgstr ""
+
+msgid "PerformanceBar|Bullet notifications"
 msgstr ""
 
 msgid "PerformanceBar|Download"
@@ -18170,6 +18233,9 @@ msgstr ""
 msgid "Requested states are invalid"
 msgstr ""
 
+msgid "Requests"
+msgstr ""
+
 msgid "Requests Profiles"
 msgstr ""
 
@@ -19195,6 +19261,9 @@ msgstr ""
 msgid "Select branch/tag"
 msgstr ""
 
+msgid "Select due date"
+msgstr ""
+
 msgid "Select group or project"
 msgstr ""
 
@@ -19238,6 +19307,9 @@ msgid "Select shards to replicate"
 msgstr ""
 
 msgid "Select source branch"
+msgstr ""
+
+msgid "Select start date"
 msgstr ""
 
 msgid "Select status"
@@ -20431,6 +20503,9 @@ msgid "Starrers"
 msgstr ""
 
 msgid "Stars"
+msgstr ""
+
+msgid "Start Date"
 msgstr ""
 
 msgid "Start Web Terminal"
@@ -22338,7 +22413,13 @@ msgstr ""
 msgid "ThreatMonitoring|Operations Per Second"
 msgstr ""
 
+msgid "ThreatMonitoring|Overview"
+msgstr ""
+
 msgid "ThreatMonitoring|Packet Activity"
+msgstr ""
+
+msgid "ThreatMonitoring|Policies"
 msgstr ""
 
 msgid "ThreatMonitoring|Requests"
@@ -22876,6 +22957,9 @@ msgstr ""
 msgid "Transfer project"
 msgstr ""
 
+msgid "TransferGroup|Cannot transfer group to one of its subgroup."
+msgstr ""
+
 msgid "TransferGroup|Cannot update the path because there are projects under this group that contain Docker images in their Container Registry. Please remove the images from your projects first and try again."
 msgstr ""
 
@@ -23047,10 +23131,10 @@ msgstr ""
 msgid "URL is required"
 msgstr ""
 
-msgid "URL must be a valid url (ex: https://gitlab.com)"
+msgid "URL must start with %{codeStart}http://%{codeEnd}, %{codeStart}https://%{codeEnd}, or %{codeStart}ftp://%{codeEnd}"
 msgstr ""
 
-msgid "URL must start with %{codeStart}http://%{codeEnd}, %{codeStart}https://%{codeEnd}, or %{codeStart}ftp://%{codeEnd}"
+msgid "URL of the external Spam Check endpoint"
 msgstr ""
 
 msgid "URL of the external storage that will serve the repository static objects (e.g. archives, blobs, ...)."
@@ -24324,6 +24408,9 @@ msgid "Warning:"
 msgstr ""
 
 msgid "Warning: Displaying this diagram might cause performance issues on this page."
+msgstr ""
+
+msgid "We are currently unable to fetch data for this graph."
 msgstr ""
 
 msgid "We could not determine the path to remove the epic"

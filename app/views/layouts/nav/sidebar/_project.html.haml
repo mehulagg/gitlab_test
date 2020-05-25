@@ -216,7 +216,7 @@
                   =  _('Operations')
             %li.divider.fly-out-top-item
 
-            - if project_nav_tab? :environments
+            - if project_nav_tab? :metrics_dashboards
               = nav_link(controller: :environments, action: [:metrics, :metrics_redirect]) do
                 = link_to metrics_project_environments_path(@project), title: _('Metrics'), class: 'shortcuts-metrics', data: { qa_selector: 'operations_metrics_link' } do
                   %span
@@ -319,7 +319,7 @@
 
       - if project_nav_tab? :snippets
         = nav_link(controller: :snippets) do
-          = link_to project_snippets_path(@project), class: 'shortcuts-snippets' do
+          = link_to project_snippets_path(@project), class: 'shortcuts-snippets', data: { qa_selector: 'snippets_link' } do
             .nav-icon-container
               = sprite_icon('snippet')
             %span.nav-item-name

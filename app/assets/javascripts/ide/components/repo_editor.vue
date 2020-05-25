@@ -247,13 +247,12 @@ export default {
 
       this.model.onChange(model => {
         const { file } = model;
+        if (!file.active) return;
 
-        if (file.active) {
-          this.changeFileContent({
-            path: file.path,
-            content: model.getModel().getValue(),
-          });
-        }
+        const monacoModel = model.getModel();
+        const content = monacoModel.getValue();
+        this.changeFileContent({ path: file.path, content });
+        this.setFileEOL({ eol: this.model.eol });
       });
 
       // Handle Cursor Position

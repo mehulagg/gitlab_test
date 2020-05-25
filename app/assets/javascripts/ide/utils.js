@@ -1,3 +1,4 @@
+import { SIDE_LEFT, SIDE_RIGHT } from './constants';
 import { languages } from 'monaco-editor';
 import { flatten } from 'lodash';
 
@@ -72,4 +73,28 @@ export function registerLanguages(def, ...defs) {
   languages.register(def);
   languages.setMonarchTokensProvider(languageId, def.language);
   languages.setLanguageConfiguration(languageId, def.conf);
+}
+
+export const otherSide = side => (side === SIDE_RIGHT ? SIDE_LEFT : SIDE_RIGHT);
+
+export function trimTrailingWhitespace(content) {
+  return content.replace(/[^\S\r\n]+$/gm, '');
+}
+
+export function insertFinalNewline(content, eol = '\n') {
+  return content.slice(-eol.length) !== eol ? `${content}${eol}` : content;
+}
+
+export function getPathParents(path) {
+  const pathComponents = path.split('/');
+  const paths = [];
+  while (pathComponents.length) {
+    pathComponents.pop();
+
+    let parentPath = pathComponents.join('/');
+    if (parentPath.startsWith('/')) parentPath = parentPath.slice(1);
+    if (parentPath) paths.push(parentPath);
+  }
+
+  return paths;
 }

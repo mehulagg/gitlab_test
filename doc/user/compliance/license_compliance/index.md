@@ -4,7 +4,7 @@ type: reference, howto
 
 # License Compliance **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5483) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5483) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.0.
 
 ## Overview
 
@@ -242,7 +242,7 @@ generate a key store file, see the
 ### Selecting the version of Python
 
 > - [Introduced](https://gitlab.com/gitlab-org/security-products/license-management/-/merge_requests/36) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
-> - In [GitLab 12.2](https://gitlab.com/gitlab-org/gitlab/issues/12032), Python 3.5 became the default.
+> - In [GitLab 12.2](https://gitlab.com/gitlab-org/gitlab/-/issues/12032), Python 3.5 became the default.
 > - In [GitLab 12.7](https://gitlab.com/gitlab-org/security-products/license-management/-/merge_requests/101), Python 3.8 became the default.
 
 License Compliance uses Python 3.8 and pip 19.1 by default.
@@ -348,6 +348,32 @@ npmRegistryServer: "https://npm.example.com"
 You can supply a custom root certificate to complete TLS verification by using the
 `ADDITIONAL_CA_CERT_BUNDLE` [environment variable](#available-variables).
 
+### Configuring Bower projects
+
+You can configure Bower projects by using a [`.bowerrc`](https://bower.io/docs/config/#bowerrc-specification)
+file.
+
+#### Using private Bower registries
+
+If you have a private Bower registry you can use the
+[`registry`](https://bower.io/docs/config/#bowerrc-specification)
+setting to specify its location.
+
+For example:
+
+```plaintext
+{
+  "registry": "https://registry.bower.io"
+}
+```
+
+#### Custom root certificates for Bower
+
+You can supply a custom root certificate to complete TLS verification by using the
+`ADDITIONAL_CA_CERT_BUNDLE` [environment variable](#available-variables), or by
+specifying a `ca` setting in a [`.bowerrc`](https://bower.io/docs/config/#bowerrc-specification)
+file.
+
 ### Migration from `license_management` to `license_scanning`
 
 In GitLab 12.8 a new name for `license_management` job was introduced. This change was made to improve clarity around the purpose of the scan, which is to scan and collect the types of licenses present in a projects dependencies.
@@ -451,6 +477,7 @@ The License Compliance job should now use local copies of the License Compliance
 your code and generate security reports, without requiring internet access.
 
 Additional configuration may be needed for connecting to [private Maven repositories](#using-private-maven-repos),
+[private Bower registries](#using-private-bower-registries),
 [private NPM registries](#using-private-npm-registries), [private Yarn registries](#using-private-yarn-registries), and [private Python repositories](#using-private-python-repos).
 
 Exact name matches are required for [project policies](#project-policies-for-license-compliance)
@@ -458,7 +485,7 @@ when running in an offline environment ([see related issue](https://gitlab.com/g
 
 ## Project policies for License Compliance
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5940) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5940) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.4.
 
 From the project's settings:
 
@@ -496,7 +523,7 @@ Searching for Licenses:
 
 ## License Compliance report under pipelines
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5491) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5491) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.2.
 
 From your project's left sidebar, navigate to **CI/CD > Pipelines** and click on the
 pipeline ID that has a `license_scanning` job to see the Licenses tab with the listed
@@ -518,7 +545,7 @@ but commented out to help encourage others to add to it in the future. -->
 
 ## License list
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13582) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13582) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.7.
 
 The License list allows you to see your project's licenses and key
 details about them.

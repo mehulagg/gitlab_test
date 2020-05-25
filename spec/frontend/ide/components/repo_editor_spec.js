@@ -283,14 +283,12 @@ describe('RepoEditor', () => {
       expect(vm.model.events.size).toBe(2);
     });
 
-    it('updates state when model content changed', done => {
-      vm.model.setValue('testing 123\n');
+    it('updates state with the value of the model', () => {
+      vm.model.setValue('testing 1234');
 
-      setImmediate(() => {
-        expect(vm.file.content).toBe('testing 123\n');
+      vm.setupEditor();
 
-        done();
-      });
+      expect(vm.file.content).toBe('testing 1234');
     });
 
     it('sets head model as staged file', () => {

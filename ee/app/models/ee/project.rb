@@ -77,8 +77,6 @@ module EE
       has_many :package_files, through: :packages, class_name: 'Packages::PackageFile'
       has_many :merge_trains, foreign_key: 'target_project_id', inverse_of: :target_project
 
-      has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
-
       has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
       has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
       has_many :operations_feature_flags_user_lists, class_name: 'Operations::FeatureFlags::UserList'
@@ -93,7 +91,8 @@ module EE
       has_many :sourced_pipelines, class_name: 'Ci::Sources::Project', foreign_key: :source_project_id
 
       scope :with_shared_runners_limit_enabled, -> do
-        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects)
+        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects) &&
+            ::Ci::Runner.has_shared_runners_with_non_zero_public_cost?
           with_shared_runners
         else
           with_shared_runners.non_public_only
@@ -638,10 +637,6 @@ module EE
       else
         namespace
       end
-    end
-
-    def active_webide_pipelines(user:)
-      webide_pipelines.running_or_pending.for_user(user)
     end
 
     override :lfs_http_url_to_repo

@@ -688,22 +688,18 @@ describe JiraService do
     context 'when the test fails' do
       it 'returns result with the error' do
         test_url = 'http://jira.example.com/rest/api/2/serverInfo'
+        error_message = 'Some specific failure.'
 
         WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
-          .to_raise(JIRA::HTTPError.new(double(message: 'Some specific failure.')))
+          .to_raise(JIRA::HTTPError.new(double(message: error_message)))
 
         expect(jira_service).to receive(:log_error).with(
-          "Error sending message",
-          hash_including(
-            client_url: url,
-            error: hash_including(
-              exception_class: 'JIRA::HTTPError',
-              exception_message: 'Some specific failure.'
-            )
-          )
+          'Error sending message',
+          client_url: 'http://jira.example.com',
+          error: error_message
         )
 
-        expect(jira_service.test(nil)).to eq(success: false, result: 'Some specific failure.')
+        expect(jira_service.test(nil)).to eq(success: false, result: error_message)
       end
     end
   end
@@ -813,6 +809,87 @@ describe JiraService do
     describe '#new_issue_url' do
       it 'handles trailing slashes' do
         expect(service.new_issue_url).to eq('http://jira.test.com/path/secure/CreateIssue.jspa')
+      end
+    end
+  end
+
+  describe '#jira_projects' do
+    let(:project) { create(:project) }
+    let(:jira_service) do
+      described_class.new(
+        project: project,
+        url: url,
+        username: username,
+        password: password
+      )
+    end
+
+    context 'when request to the jira server fails' do
+      it 'returns error' do
+        test_url = "#{url}/rest/api/2/project/search?maxResults=50&query=&startAt=0"
+        WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
+          .to_raise(JIRA::HTTPError.new(double(message: 'random error')))
+
+        response = jira_service.jira_projects
+
+        expect(response.error?).to be true
+        expect(response.message).to eq('random error')
+      end
+    end
+
+    context 'with invalid params' do
+      it 'escapes params' do
+        escaped_url = "#{url}/rest/api/2/project/search?query=Test%26maxResults%3D3&maxResults=10&startAt=0"
+        WebMock.stub_request(:get, escaped_url).with(basic_auth: [username, password])
+          .to_return(body: {}.to_json, headers: { "Content-Type": "application/json" })
+
+        response = jira_service.jira_projects(query: 'Test&maxResults=3', limit: 10, start_at: 'zero')
+
+        expect(response.error?).to be false
+      end
+    end
+
+    context 'when no jira_projects are returned' do
+      let(:jira_projects_json) do
+        '{
+          "self": "https://your-domain.atlassian.net/rest/api/2/project/search?startAt=0&maxResults=2",
+          "nextPage": "https://your-domain.atlassian.net/rest/api/2/project/search?startAt=2&maxResults=2",
+          "maxResults": 2,
+          "startAt": 0,
+          "total": 7,
+          "isLast": false,
+          "values": []
+        }'
+      end
+
+      it 'returns empty array of jira projects' do
+        test_url = "#{url}/rest/api/2/project/search?maxResults=50&query=&startAt=0"
+        WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
+          .to_return(body: jira_projects_json, headers: { "Content-Type": "application/json" })
+
+        response = jira_service.jira_projects
+
+        expect(response.success?).to be true
+        expect(response.payload).not_to be nil
+      end
+    end
+
+    context 'when jira_projects are returned' do
+      include_context 'jira projects request context'
+
+      it 'returns array of jira projects' do
+        response = jira_service.jira_projects
+
+        projects = response.payload[:projects]
+        project_keys = projects.map(&:key)
+        project_names = projects.map(&:name)
+        project_ids = projects.map(&:id)
+
+        expect(response.success?).to be true
+        expect(projects.size).to eq(2)
+        expect(project_keys).to eq(%w(EX ABC))
+        expect(project_names).to eq(%w(Example Alphabetical))
+        expect(project_ids).to eq(%w(10000 10001))
       end
     end
   end

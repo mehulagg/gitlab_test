@@ -81,6 +81,17 @@ module Ci
       joins(:runner_namespaces).where(ci_runner_namespaces: { namespace_id: groups })
     }
 
+    scope :belonging_to_group_or_project, -> (group_id, project_id) {
+      groups = ::Group.where(id: group_id)
+
+      group_runners = joins(:runner_namespaces).where(ci_runner_namespaces: { namespace_id: groups })
+      project_runners = joins(:runner_projects).where(ci_runner_projects: { project_id: project_id })
+
+      union_sql = ::Gitlab::SQL::Union.new([group_runners, project_runners]).to_sql
+
+      from("(#{union_sql}) #{table_name}")
+    }
+
     scope :belonging_to_parent_group_of_project, -> (project_id) {
       project_groups = ::Group.joins(:projects).where(projects: { id: project_id })
       hierarchy_groups = Gitlab::ObjectHierarchy.new(project_groups).base_and_ancestors
@@ -273,7 +284,7 @@ module Ci
 
     def update_cached_info(values)
       values = values&.slice(:version, :revision, :platform, :architecture, :ip_address) || {}
-      values[:contacted_at] = Time.now
+      values[:contacted_at] = Time.current
 
       cache_attributes(values)
 
@@ -309,7 +320,7 @@ module Ci
 
       real_contacted_at = read_attribute(:contacted_at)
       real_contacted_at.nil? ||
-        (Time.now - real_contacted_at) >= contacted_at_max_age
+        (Time.current - real_contacted_at) >= contacted_at_max_age
     end
 
     def tag_constraints

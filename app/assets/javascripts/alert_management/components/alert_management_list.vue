@@ -10,20 +10,23 @@ import {
   GlDropdownItem,
   GlTabs,
   GlTab,
+  GlBadge,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
 import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
+import { fetchPolicies } from '~/lib/graphql';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
-import getAlerts from '../graphql/queries/getAlerts.query.graphql';
+import getAlerts from '../graphql/queries/get_alerts.query.graphql';
+import getAlertsCountByStatus from '../graphql/queries/get_count_by_status.query.graphql';
 import { ALERTS_STATUS, ALERTS_STATUS_TABS, ALERTS_SEVERITY_LABELS } from '../constants';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql';
-import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
+import { capitalizeFirstCharacter, convertToSnakeCase } from '~/lib/utils/text_utility';
 
 const tdClass = 'table-col d-flex d-md-table-cell align-items-center';
 const bodyTrClass =
   'gl-border-1 gl-border-t-solid gl-border-gray-100 hover-bg-blue-50 hover-gl-cursor-pointer hover-gl-border-b-solid hover-gl-border-blue-200';
+const findDefaultSortColumn = () => document.querySelector('.js-started-at');
 
 export default {
   i18n: {
@@ -39,34 +42,41 @@ export default {
       key: 'severity',
       label: s__('AlertManagement|Severity'),
       tdClass: `${tdClass} rounded-top text-capitalize`,
+      sortable: true,
     },
     {
-      key: 'startedAt',
+      key: 'startTime',
       label: s__('AlertManagement|Start time'),
+      thClass: 'js-started-at',
       tdClass,
+      sortable: true,
     },
     {
-      key: 'endedAt',
+      key: 'endTime',
       label: s__('AlertManagement|End time'),
       tdClass,
+      sortable: true,
     },
     {
       key: 'title',
       label: s__('AlertManagement|Alert'),
-      thClass: 'w-30p',
+      thClass: 'w-30p alert-title',
       tdClass,
+      sortable: false,
     },
     {
-      key: 'eventCount',
+      key: 'eventsCount',
       label: s__('AlertManagement|Events'),
-      thClass: 'text-right gl-pr-9',
+      thClass: 'text-right gl-pr-9 w-3rem',
       tdClass: `${tdClass} text-md-right`,
+      sortable: true,
     },
     {
       key: 'status',
       thClass: 'w-15p',
       label: s__('AlertManagement|Status'),
       tdClass: `${tdClass} rounded-bottom`,
+      sortable: true,
     },
   ],
   statuses: {
@@ -88,8 +98,8 @@ export default {
     GlIcon,
     GlTabs,
     GlTab,
+    GlBadge,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     projectPath: {
       type: String,
@@ -114,18 +124,31 @@ export default {
   },
   apollo: {
     alerts: {
+      fetchPolicy: fetchPolicies.CACHE_AND_NETWORK,
       query: getAlerts,
       variables() {
         return {
           projectPath: this.projectPath,
           statuses: this.statusFilter,
+          sort: this.sort,
         };
       },
       update(data) {
-        return data.project.alertManagementAlerts.nodes;
+        return data.project?.alertManagementAlerts?.nodes;
       },
       error() {
         this.errored = true;
+      },
+    },
+    alertsCount: {
+      query: getAlertsCountByStatus,
+      variables() {
+        return {
+          projectPath: this.projectPath,
+        };
+      },
+      update(data) {
+        return data.project?.alertManagementAlertStatusCounts;
       },
     },
   },
@@ -134,12 +157,15 @@ export default {
       errored: false,
       isAlertDismissed: false,
       isErrorAlertDismissed: false,
+      sort: 'START_TIME_ASC',
       statusFilter: this.$options.statusTabs[4].filters,
     };
   },
   computed: {
     showNoAlertsMsg() {
-      return !this.errored && !this.loading && !this.alerts?.length && !this.isAlertDismissed;
+      return (
+        !this.errored && !this.loading && this.alertsCount?.all === 0 && !this.isAlertDismissed
+      );
     },
     showErrorMsg() {
       return this.errored && !this.isErrorAlertDismissed;
@@ -154,9 +180,21 @@ export default {
       return !this.loading && this.hasAlerts ? bodyTrClass : '';
     },
   },
+  mounted() {
+    findDefaultSortColumn().ariaSort = 'ascending';
+  },
   methods: {
     filterAlertsByStatus(tabIndex) {
       this.statusFilter = this.$options.statusTabs[tabIndex].filters;
+    },
+    fetchSortedData({ sortBy, sortDesc }) {
+      const sortDirection = sortDesc ? 'DESC' : 'ASC';
+      const sortColumn = convertToSnakeCase(sortBy).toUpperCase();
+
+      if (sortBy !== 'startTime') {
+        findDefaultSortColumn().ariaSort = 'none';
+      }
+      this.sort = `${sortColumn}_${sortDirection}`;
     },
     capitalizeFirstCharacter,
     updateAlertStatus(status, iid) {
@@ -171,6 +209,7 @@ export default {
         })
         .then(() => {
           this.$apollo.queries.alerts.refetch();
+          this.$apollo.queries.alertsCount.refetch();
         })
         .catch(() => {
           createFlash(
@@ -196,10 +235,13 @@ export default {
         {{ $options.i18n.errorMsg }}
       </gl-alert>
 
-      <gl-tabs v-if="glFeatures.alertListStatusFilteringEnabled" @input="filterAlertsByStatus">
+      <gl-tabs @input="filterAlertsByStatus">
         <gl-tab v-for="tab in $options.statusTabs" :key="tab.status">
           <template slot="title">
             <span>{{ tab.title }}</span>
+            <gl-badge v-if="alertsCount" pill size="sm" class="gl-tab-counter-badge">
+              {{ alertsCount[tab.status.toLowerCase()] }}
+            </gl-badge>
           </template>
         </gl-tab>
       </gl-tabs>
@@ -215,7 +257,10 @@ export default {
         :busy="loading"
         stacked="md"
         :tbody-tr-class="tbodyTrClass"
+        :no-local-sorting="true"
+        sort-icon-left
         @row-clicked="navigateToAlertDetails"
+        @sort-changed="fetchSortedData"
       >
         <template #cell(severity)="{ item }">
           <div
@@ -232,12 +277,16 @@ export default {
           </div>
         </template>
 
-        <template #cell(startedAt)="{ item }">
+        <template #cell(startTime)="{ item }">
           <time-ago v-if="item.startedAt" :time="item.startedAt" />
         </template>
 
-        <template #cell(endedAt)="{ item }">
+        <template #cell(endTime)="{ item }">
           <time-ago v-if="item.endedAt" :time="item.endedAt" />
+        </template>
+        <!-- TODO: Remove after: https://gitlab.com/gitlab-org/gitlab/-/issues/218467 -->
+        <template #cell(eventsCount)="{ item }">
+          {{ item.eventCount }}
         </template>
 
         <template #cell(title)="{ item }">
