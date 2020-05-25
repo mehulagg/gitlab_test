@@ -260,6 +260,10 @@ module Ci
       expire_at - Time.current if expire_at
     end
 
+    def locked?
+      job.pipeline.artifacts_locked?
+    end
+
     def expire_in=(value)
       self.expire_at =
         if value

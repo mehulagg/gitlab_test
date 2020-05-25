@@ -782,6 +782,8 @@ module Ci
     end
 
     def artifacts_expired?
+      return false if artifacts_locked?
+
       artifacts_expire_at && artifacts_expire_at < Time.current
     end
 
@@ -963,6 +965,10 @@ module Ci
 
     private
 
+    def artifacts_locked?
+      job_artifacts_archive&.locked?
+    end
+
     def dependencies
       strong_memoize(:dependencies) do
         Ci::BuildDependencies.new(self)
@@ -1032,6 +1038,8 @@ module Ci
     end
 
     def has_expiring_artifacts?
+      return false if artifacts_locked?
+
       artifacts_expire_at.present? && artifacts_expire_at > Time.current
     end
 
