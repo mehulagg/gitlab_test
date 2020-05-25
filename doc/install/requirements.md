@@ -86,7 +86,7 @@ If you want to be flexible about growing your hard drive space in the future con
 
 Apart from a local hard drive you can also mount a volume that supports the network file system (NFS) protocol. This volume might be located on a file server, a network attached storage (NAS) device, a storage area network (SAN) or on an Amazon Web Services (AWS) Elastic Block Store (EBS) volume.
 
-If you have enough RAM memory and a recent CPU the speed of GitLab is mainly limited by hard drive seek times. Having a fast drive (7200 RPM and up) or a solid state drive (SSD) will improve the responsiveness of GitLab.
+If you have enough RAM and a recent CPU the speed of GitLab is mainly limited by hard drive seek times. Having a fast drive (7200 RPM and up) or a solid state drive (SSD) will improve the responsiveness of GitLab.
 
 NOTE: **Note:** Since file system performance may affect GitLab's overall performance, we do not recommend using EFS for storage. See the [relevant documentation](../administration/high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs) for more details.
 
