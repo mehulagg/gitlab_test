@@ -12,7 +12,7 @@ class Service < ApplicationRecord
     alerts asana assembla bamboo bugzilla buildkite campfire custom_issue_tracker discord
     drone_ci emails_on_push external_wiki flowdock hangouts_chat hipchat irker jira
     mattermost mattermost_slash_commands microsoft_teams packagist pipelines_email
-    pivotaltracker prometheus pushover redmine slack slack_slash_commands teamcity unify_circuit youtrack
+    pivotaltracker prometheus pushover redmine slack slack_slash_commands teamcity unify_circuit webex_teams youtrack
   ].freeze
 
   DEV_SERVICE_NAMES = %w[
@@ -81,6 +81,10 @@ class Service < ApplicationRecord
     active
   end
 
+  def operating?
+    active && persisted?
+  end
+
   def show_active_box?
     true
   end
@@ -128,6 +132,14 @@ class Service < ApplicationRecord
   # This list is used in `Service#as_json(only: json_fields)`.
   def json_fields
     %w(active)
+  end
+
+  def to_service_hash
+    as_json(methods: :type, except: %w[id template instance project_id])
+  end
+
+  def to_data_fields_hash
+    data_fields.as_json(only: data_fields.class.column_names).except('id', 'service_id')
   end
 
   def test_data(project, user)
@@ -331,17 +343,18 @@ class Service < ApplicationRecord
     services_names.map { |service_name| "#{service_name}_service".camelize }
   end
 
-  def self.build_from_template(project_id, template)
-    service = template.dup
+  def self.build_from_integration(project_id, integration)
+    service = integration.dup
 
-    if template.supports_data_fields?
-      data_fields = template.data_fields.dup
+    if integration.supports_data_fields?
+      data_fields = integration.data_fields.dup
       data_fields.service = service
     end
 
     service.template = false
+    service.instance = false
     service.project_id = project_id
-    service.active = false if service.active? && service.invalid?
+    service.active = false if service.invalid?
     service
   end
 

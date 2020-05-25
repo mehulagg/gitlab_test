@@ -300,7 +300,7 @@ sudo -u git -H bundle exec rake gitlab:backup:create SKIP=tar RAILS_ENV=producti
 
 #### Uploading backups to a remote (cloud) storage
 
-Starting with GitLab 7.4 you can let the backup script upload the '.tar' file it creates.
+Starting with GitLab 7.4 you can let the backup script upload the `.tar` file it creates.
 It uses the [Fog library](http://fog.io/) to perform the upload.
 In the example below we use Amazon S3 for storage, but Fog also lets you use
 [other storage providers](http://fog.io/storage/). GitLab
@@ -811,7 +811,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:restore`.
 
 CAUTION: **Warning:**
 `gitlab-rake gitlab:backup:restore` does not set the right file system permissions on your Registry directory.
-This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759). On GitLab 12.2 or newer, you can
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62759). On GitLab 12.2 or newer, you can
 use `gitlab-backup restore` to avoid this issue.
 
 Next, restore `/etc/gitlab/gitlab-secrets.json` if necessary as mentioned above.
@@ -853,7 +853,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:restore`.
 
 CAUTION: **Warning:**
 `gitlab-rake gitlab:backup:restore` does not set the right file system permissions on your Registry directory.
-This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759). On GitLab 12.2 or newer, you can
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62759). On GitLab 12.2 or newer, you can
 use `gitlab-backup restore` to avoid this issue.
 
 The GitLab Helm chart uses a different process, documented in
@@ -1063,7 +1063,7 @@ err.message="unknown error"
 
 This is caused by the restore being run as the unprivileged user `git` which was
 unable to assign the correct ownership to the registry files during the restore
-([issue 62759](https://gitlab.com/gitlab-org/gitlab-foss/issues/62759 "Incorrect permissions on registry filesystem after restore")).
+([issue 62759](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62759 "Incorrect permissions on registry filesystem after restore")).
 
 To get your registry working again:
 

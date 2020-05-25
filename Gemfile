@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 6.0.2.2'
+gem 'rails', '~> 6.0.3'
 
 gem 'bootsnap', '~> 1.4.6'
 
@@ -26,7 +26,7 @@ gem 'marginalia', '~> 1.8.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 5.0.2'
+gem 'doorkeeper', '~> 5.0.3'
 gem 'doorkeeper-openid_connect', '~> 1.6.3'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'
@@ -44,7 +44,6 @@ gem 'omniauth-twitter', '~> 1.4'
 gem 'omniauth_crowd', '~> 2.2.0'
 gem 'omniauth-authentiq', '~> 0.3.3'
 gem 'omniauth_openid_connect', '~> 0.3.3'
-gem "omniauth-ultraauth", '~> 0.0.2'
 gem 'omniauth-salesforce', '~> 1.0.5'
 gem 'rack-oauth2', '~> 1.9.3'
 gem 'jwt', '~> 2.1.0'
@@ -148,8 +147,8 @@ gem 'creole', '~> 0.5.0'
 gem 'wikicloth', '0.8.1'
 gem 'asciidoctor', '~> 2.0.10'
 gem 'asciidoctor-include-ext', '~> 0.3.1', require: false
-gem 'asciidoctor-plantuml', '0.0.10'
-gem 'rouge', '~> 3.18.0'
+gem 'asciidoctor-plantuml', '~> 0.0.12'
+gem 'rouge', '~> 3.19.0'
 gem 'truncato', '~> 0.7.11'
 gem 'bootstrap_form', '~> 4.2.0'
 gem 'nokogiri', '~> 1.10.9'
@@ -293,7 +292,7 @@ gem 'base32', '~> 0.3.0'
 gem "gitlab-license", "~> 1.0"
 
 # Protect against bruteforcing
-gem 'rack-attack', '~> 6.2.0'
+gem 'rack-attack', '~> 6.3.0'
 
 # Sentry integration
 gem 'sentry-raven', '~> 2.9'
@@ -318,13 +317,9 @@ gem 'peek', '~> 1.1'
 # Snowplow events tracking
 gem 'snowplow-tracker', '~> 0.6.1'
 
-# Memory benchmarks
-gem 'derailed_benchmarks', require: false
-
 # Metrics
 group :metrics do
   gem 'method_source', '~> 0.8', require: false
-  gem 'influxdb', '~> 0.2', require: false
 
   # Prometheus
   gem 'prometheus-client-mmap', '~> 0.10.0'
@@ -347,7 +342,7 @@ group :development do
 end
 
 group :development, :test do
-  gem 'bullet', '~> 6.0.2', require: !!ENV['ENABLE_BULLET']
+  gem 'bullet', '~> 6.0.2'
   gem 'pry-byebug', '~> 3.5.1', platform: :mri
   gem 'pry-rails', '~> 0.3.9'
 
@@ -414,6 +409,9 @@ group :test do
   gem 'test-prof', '~> 0.10.0'
   gem 'rspec_junit_formatter'
   gem 'guard-rspec'
+
+  # Moved in `test` because https://gitlab.com/gitlab-org/gitlab/-/issues/217527
+  gem 'derailed_benchmarks', require: false
 end
 
 gem 'octokit', '~> 4.15'
@@ -496,3 +494,6 @@ gem 'lockbox', '~> 0.3.3'
 
 # Email validation
 gem 'valid_email', '~> 0.1'
+
+# JSON
+gem 'json', '~> 2.3.0'

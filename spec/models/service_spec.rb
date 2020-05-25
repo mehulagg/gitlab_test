@@ -87,6 +87,20 @@ describe Service do
       end
     end
 
+    describe '#operating?' do
+      it 'is false when the service is not active' do
+        expect(build(:service).operating?).to eq(false)
+      end
+
+      it 'is false when the service is not persisted' do
+        expect(build(:service, active: true).operating?).to eq(false)
+      end
+
+      it 'is true when the service is active and persisted' do
+        expect(create(:service, active: true).operating?).to eq(true)
+      end
+    end
+
     describe '.confidential_note_hooks' do
       it 'includes services where confidential_note_events is true' do
         create(:service, active: true, confidential_note_events: true)
@@ -250,13 +264,13 @@ describe Service do
       end
     end
 
-    describe '.build_from_template' do
+    describe '.build_from_integration' do
       context 'when template is invalid' do
         it 'sets service template to inactive when template is invalid' do
           template = build(:prometheus_service, template: true, active: true, properties: {})
           template.save(validate: false)
 
-          service = described_class.build_from_template(project.id, template)
+          service = described_class.build_from_integration(project.id, template)
 
           expect(service).to be_valid
           expect(service.active).to be false
@@ -279,7 +293,7 @@ describe Service do
 
         shared_examples 'service creation from a template' do
           it 'creates a correct service' do
-            service = described_class.build_from_template(project.id, template)
+            service = described_class.build_from_integration(project.id, template)
 
             expect(service).to be_active
             expect(service.title).to eq(title)
@@ -288,6 +302,8 @@ describe Service do
             expect(service.api_url).to eq(api_url)
             expect(service.username).to eq(username)
             expect(service.password).to eq(password)
+            expect(service.template).to eq(false)
+            expect(service.instance).to eq(false)
           end
         end
 

@@ -37,8 +37,14 @@ module Packages
       private
 
       def update_package(package)
-        ::Packages::UpdateTagsService.new(package, package_tags)
-                                     .execute
+        ::Packages::Nuget::SyncMetadatumService
+          .new(package, metadata.slice(:project_url, :license_url, :icon_url))
+          .execute
+        ::Packages::UpdateTagsService
+          .new(package, package_tags)
+          .execute
+      rescue => e
+        raise InvalidMetadataError, e.message
       end
 
       def valid_metadata?
@@ -106,7 +112,7 @@ module Packages
 
       # used by ExclusiveLeaseGuard
       def lease_key
-        package_id = existing_package ? existing_package.id : @package_file.package.id
+        package_id = existing_package ? existing_package.id : @package_file.package_id
         "packages:nuget:update_package_from_metadata_service:package:#{package_id}"
       end
 

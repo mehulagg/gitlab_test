@@ -196,6 +196,7 @@ class ProjectPolicy < BasePolicy
     enable :set_issue_updated_at
     enable :set_note_created_at
     enable :set_emails_disabled
+    enable :set_show_default_award_emojis
   end
 
   rule { can?(:guest_access) }.policy do
@@ -277,8 +278,10 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:metrics_dashboard) }.policy do
     enable :read_prometheus
-    enable :read_environment
     enable :read_deployment
+  end
+
+  rule { ~anonymous & can?(:metrics_dashboard) }.policy do
     enable :create_metrics_user_starred_dashboard
     enable :read_metrics_user_starred_dashboard
   end
@@ -312,6 +315,7 @@ class ProjectPolicy < BasePolicy
     enable :update_deployment
     enable :create_release
     enable :update_release
+    enable :daily_statistics
     enable :create_metrics_dashboard_annotation
     enable :delete_metrics_dashboard_annotation
     enable :update_metrics_dashboard_annotation
@@ -354,7 +358,6 @@ class ProjectPolicy < BasePolicy
     enable :create_environment_terminal
     enable :destroy_release
     enable :destroy_artifacts
-    enable :daily_statistics
     enable :admin_operations
     enable :read_deploy_token
     enable :create_deploy_token
@@ -362,6 +365,10 @@ class ProjectPolicy < BasePolicy
     enable :destroy_deploy_token
     enable :read_prometheus_alerts
     enable :admin_terraform_state
+    enable :create_freeze_period
+    enable :read_freeze_period
+    enable :update_freeze_period
+    enable :destroy_freeze_period
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do

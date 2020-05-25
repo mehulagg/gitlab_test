@@ -8,6 +8,13 @@ FactoryBot.define do
     title { FFaker::Lorem.sentence }
     started_at { Time.current }
 
+    trait :with_validation_errors do
+      after(:create) do |alert|
+        too_many_hosts = Array.new(AlertManagement::Alert::HOSTS_MAX_LENGTH + 1) { |_| 'host' }
+        alert.update_columns(hosts: too_many_hosts)
+      end
+    end
+
     trait :with_issue do
       issue
     end
@@ -24,8 +31,12 @@ FactoryBot.define do
       monitoring_tool { FFaker::AWS.product_description }
     end
 
+    trait :with_description do
+      description { FFaker::Lorem.sentence }
+    end
+
     trait :with_host do
-      hosts { FFaker::Internet.ip_v4_address }
+      hosts { [FFaker::Internet.ip_v4_address] }
     end
 
     trait :with_ended_at do
@@ -56,12 +67,22 @@ FactoryBot.define do
       without_ended_at
     end
 
+    trait :low_severity do
+      severity { 'low' }
+    end
+
+    trait :prometheus do
+      monitoring_tool { Gitlab::AlertManagement::AlertParams::MONITORING_TOOLS[:prometheus] }
+    end
+
     trait :all_fields do
       with_issue
       with_fingerprint
       with_service
       with_monitoring_tool
       with_host
+      with_description
+      low_severity
     end
   end
 end

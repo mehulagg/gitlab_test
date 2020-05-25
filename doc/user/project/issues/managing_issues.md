@@ -107,11 +107,11 @@ field).
 Follow these examples to form your new issue URL with prefilled fields.
 
 - For a new issue in the GitLab Community Edition project with a pre-filled title
-  and a pre-filled description, the URL would be `https://gitlab.com/gitlab-org/gitlab-foss/issues/new?issue[title]=Validate%20new%20concept&issue[description]=Research%20idea`
+  and a pre-filled description, the URL would be `https://gitlab.com/gitlab-org/gitlab-foss/-/issues/new?issue[title]=Validate%20new%20concept&issue[description]=Research%20idea`
 - For a new issue in the GitLab Community Edition project with a pre-filled title
-  and a pre-filled description template, the URL would be `https://gitlab.com/gitlab-org/gitlab-foss/issues/new?issue[title]=Validate%20new%20concept&issuable_template=Research%20proposal`
+  and a pre-filled description template, the URL would be `https://gitlab.com/gitlab-org/gitlab-foss/-/issues/new?issue[title]=Validate%20new%20concept&issuable_template=Research%20proposal`
 - For a new issue in the GitLab Community Edition project with a pre-filled title,
-  a pre-filled description, and the confidential flag set, the URL would be `https://gitlab.com/gitlab-org/gitlab-foss/issues/new?issue[title]=Validate%20new%20concept&issue[description]=Research%20idea&issue[confidential]=true`
+  a pre-filled description, and the confidential flag set, the URL would be `https://gitlab.com/gitlab-org/gitlab-foss/-/issues/new?issue[title]=Validate%20new%20concept&issue[description]=Research%20idea&issue[confidential]=true`
 
 ## Moving Issues
 
@@ -183,7 +183,7 @@ but it will not close automatically.
 
 If the issue is in a different repository than the MR, add the full URL for the issue(s):
 
-```md
+```markdown
 Closes #4, #6, and https://gitlab.com/<username>/<projectname>/issues/<xxx>
 ```
 

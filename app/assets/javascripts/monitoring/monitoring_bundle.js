@@ -3,8 +3,7 @@ import { GlToast } from '@gitlab/ui';
 import Dashboard from '~/monitoring/components/dashboard.vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import { getParameterValues } from '~/lib/utils/url_utility';
-import store from './stores';
-import { promCustomVariablesFromUrl } from './utils';
+import { createStore } from './stores';
 
 Vue.use(GlToast);
 
@@ -14,7 +13,30 @@ export default (props = {}) => {
   if (el && el.dataset) {
     const [currentDashboard] = getParameterValues('dashboard');
 
-    store.dispatch('monitoringDashboard/setVariables', promCustomVariablesFromUrl());
+    const {
+      deploymentsEndpoint,
+      dashboardEndpoint,
+      dashboardsEndpoint,
+      projectPath,
+      logsPath,
+      currentEnvironmentName,
+      ...dataProps
+    } = el.dataset;
+
+    const store = createStore({
+      currentDashboard,
+      deploymentsEndpoint,
+      dashboardEndpoint,
+      dashboardsEndpoint,
+      projectPath,
+      logsPath,
+      currentEnvironmentName,
+    });
+
+    // HTML attributes are always strings, parse other types.
+    dataProps.hasMetrics = parseBoolean(dataProps.hasMetrics);
+    dataProps.customMetricsAvailable = parseBoolean(dataProps.customMetricsAvailable);
+    dataProps.prometheusAlertsAvailable = parseBoolean(dataProps.prometheusAlertsAvailable);
 
     // eslint-disable-next-line no-new
     new Vue({
@@ -23,9 +45,7 @@ export default (props = {}) => {
       render(createElement) {
         return createElement(Dashboard, {
           props: {
-            ...el.dataset,
-            currentDashboard,
-            hasMetrics: parseBoolean(el.dataset.hasMetrics),
+            ...dataProps,
             ...props,
           },
         });

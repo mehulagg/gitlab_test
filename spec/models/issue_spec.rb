@@ -7,7 +7,7 @@ describe Issue do
 
   describe "Associations" do
     it { is_expected.to belong_to(:milestone) }
-    it { is_expected.to belong_to(:sprint) }
+    it { is_expected.to belong_to(:iteration) }
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:moved_to).class_name('Issue') }
     it { is_expected.to have_one(:moved_from).class_name('Issue') }
@@ -77,6 +77,18 @@ describe Issue do
 
         create(:issue)
       end
+    end
+  end
+
+  describe '.with_alert_management_alerts' do
+    subject { described_class.with_alert_management_alerts }
+
+    it 'gets only issues with alerts' do
+      alert = create(:alert_management_alert, issue: create(:issue))
+      issue = create(:issue)
+
+      expect(subject).to contain_exactly(alert.issue)
+      expect(subject).not_to include(issue)
     end
   end
 
@@ -164,7 +176,7 @@ describe Issue do
   describe '#close' do
     subject(:issue) { create(:issue, state: 'opened') }
 
-    it 'sets closed_at to Time.now when an issue is closed' do
+    it 'sets closed_at to Time.current when an issue is closed' do
       expect { issue.close }.to change { issue.closed_at }.from(nil)
     end
 
@@ -178,7 +190,7 @@ describe Issue do
 
   describe '#reopen' do
     let(:user) { create(:user) }
-    let(:issue) { create(:issue, state: 'closed', closed_at: Time.now, closed_by: user) }
+    let(:issue) { create(:issue, state: 'closed', closed_at: Time.current, closed_by: user) }
 
     it 'sets closed_at to nil when an issue is reopend' do
       expect { issue.reopen }.to change { issue.closed_at }.to(nil)
@@ -612,8 +624,15 @@ describe Issue do
       context 'with an admin user' do
         let(:user) { build(:admin) }
 
-        it_behaves_like 'issue readable by user'
-        it_behaves_like 'confidential issue readable by user'
+        context 'when admin mode is enabled', :enable_admin_mode do
+          it_behaves_like 'issue readable by user'
+          it_behaves_like 'confidential issue readable by user'
+        end
+
+        context 'when admin mode is disabled' do
+          it_behaves_like 'issue not readable by user'
+          it_behaves_like 'confidential issue not readable by user'
+        end
       end
 
       context 'with an owner' do
@@ -732,13 +751,29 @@ describe Issue do
           expect(issue.visible_to_user?(user)).to be_falsy
         end
 
-        it 'does not check the external webservice for admins' do
-          issue = build(:issue)
-          user = build(:admin)
+        context 'with an admin' do
+          context 'when admin mode is enabled', :enable_admin_mode do
+            it 'does not check the external webservice' do
+              issue = build(:issue)
+              user = build(:admin)
 
-          expect(::Gitlab::ExternalAuthorization).not_to receive(:access_allowed?)
+              expect(::Gitlab::ExternalAuthorization).not_to receive(:access_allowed?)
 
-          issue.visible_to_user?(user)
+              issue.visible_to_user?(user)
+            end
+          end
+
+          context 'when admin mode is disabled' do
+            it 'checks the external service to determine if an issue is readable by the admin' do
+              project = build(:project, :public,
+                              external_authorization_classification_label: 'a-label')
+              issue = build(:issue, project: project)
+              user = build(:admin)
+
+              expect(::Gitlab::ExternalAuthorization).to receive(:access_allowed?).with(user, 'a-label') { false }
+              expect(issue.visible_to_user?(user)).to be_falsy
+            end
+          end
         end
       end
 
@@ -959,7 +994,7 @@ describe Issue do
   it_behaves_like 'versioned description'
 
   describe "#previous_updated_at" do
-    let_it_be(:updated_at) { Time.new(2012, 01, 06) }
+    let_it_be(:updated_at) { Time.zone.local(2012, 01, 06) }
     let_it_be(:issue) { create(:issue, updated_at: updated_at) }
 
     it 'returns updated_at value if updated_at did not change at all' do
@@ -975,15 +1010,15 @@ describe Issue do
     end
 
     it 'returns updated_at value if previous updated_at value is not present' do
-      allow(issue).to receive(:previous_changes).and_return({ 'updated_at' => [nil, Time.new(2013, 02, 06)] })
+      allow(issue).to receive(:previous_changes).and_return({ 'updated_at' => [nil, Time.zone.local(2013, 02, 06)] })
 
       expect(issue.previous_updated_at).to eq(updated_at)
     end
 
     it 'returns previous updated_at when present' do
-      allow(issue).to receive(:previous_changes).and_return({ 'updated_at' => [Time.new(2013, 02, 06), Time.new(2013, 03, 06)] })
+      allow(issue).to receive(:previous_changes).and_return({ 'updated_at' => [Time.zone.local(2013, 02, 06), Time.zone.local(2013, 03, 06)] })
 
-      expect(issue.previous_updated_at).to eq(Time.new(2013, 02, 06))
+      expect(issue.previous_updated_at).to eq(Time.zone.local(2013, 02, 06))
     end
   end
 
@@ -1028,6 +1063,26 @@ describe Issue do
       let!(:design_c) { create(:design, :with_file, issue: issue) }
 
       it { is_expected.to contain_exactly(design_a, design_c) }
+    end
+  end
+
+  describe '.with_label_attributes' do
+    subject { described_class.with_label_attributes(label_attributes) }
+
+    let(:label_attributes) { { title: 'hello world', description: 'hi' } }
+
+    it 'gets issues with given label attributes' do
+      label = create(:label, **label_attributes)
+      labeled_issue = create(:labeled_issue, project: label.project, labels: [label])
+
+      expect(subject).to include(labeled_issue)
+    end
+
+    it 'excludes issues without given label attributes' do
+      label = create(:label, title: 'GitLab', description: 'tanuki')
+      labeled_issue = create(:labeled_issue, project: label.project, labels: [label])
+
+      expect(subject).not_to include(labeled_issue)
     end
   end
 end

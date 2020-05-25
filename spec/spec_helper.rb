@@ -8,10 +8,12 @@ ENV["IN_MEMORY_APPLICATION_SETTINGS"] = 'true'
 ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 
 require File.expand_path('../config/environment', __dir__)
+
+require 'rspec/mocks'
 require 'rspec/rails'
-require 'shoulda/matchers'
 require 'rspec/retry'
 require 'rspec-parameterized'
+require 'shoulda/matchers'
 require 'test_prof/recipes/rspec/let_it_be'
 
 rspec_profiling_is_configured =
@@ -197,6 +199,10 @@ RSpec.configure do |config|
     stub_feature_flags(vue_issuable_sidebar: false)
     stub_feature_flags(vue_issuable_epic_sidebar: false)
 
+    allow(Feature).to receive(:enabled?)
+      .with(/\Apromo_\w+\z/, default_enabled: false)
+      .and_return(false)
+
     # Stub these calls due to being expensive operations
     # It can be reenabled for specific tests via:
     #
@@ -227,26 +233,25 @@ RSpec.configure do |config|
       ./ee/spec/features
       ./ee/spec/finders
       ./ee/spec/lib
-      ./ee/spec/models
-      ./ee/spec/policies
       ./ee/spec/requests/admin
       ./ee/spec/serializers
       ./ee/spec/services
       ./ee/spec/support/protected_tags
-      ./ee/spec/support/shared_examples
+      ./ee/spec/support/shared_examples/features
+      ./ee/spec/support/shared_examples/finders/geo
+      ./ee/spec/support/shared_examples/graphql/geo
+      ./ee/spec/support/shared_examples/services
       ./spec/features
       ./spec/finders
       ./spec/frontend
       ./spec/helpers
       ./spec/lib
-      ./spec/models
-      ./spec/policies
       ./spec/requests
       ./spec/serializers
       ./spec/services
-      ./spec/support/cycle_analytics_helpers
       ./spec/support/protected_tags
-      ./spec/support/shared_examples
+      ./spec/support/shared_examples/features
+      ./spec/support/shared_examples/requests
       ./spec/views
       ./spec/workers
     )

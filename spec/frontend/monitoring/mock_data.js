@@ -11,17 +11,12 @@ export const propsData = {
   settingsPath: '/path/to/settings',
   clustersPath: '/path/to/clusters',
   tagsPath: '/path/to/tags',
-  projectPath: '/path/to/project',
-  logsPath: '/path/to/logs',
   defaultBranch: 'master',
-  metricsEndpoint: mockApiEndpoint,
-  deploymentsEndpoint: null,
   emptyGettingStartedSvgPath: '/path/to/getting-started.svg',
   emptyLoadingSvgPath: '/path/to/loading.svg',
   emptyNoDataSvgPath: '/path/to/no-data.svg',
   emptyNoDataSmallSvgPath: '/path/to/no-data-small.svg',
   emptyUnableToConnectSvgPath: '/path/to/unable-to-connect.svg',
-  currentEnvironmentName: 'production',
   customMetricsAvailable: false,
   customMetricsPath: '',
   validateQueryPath: '',
@@ -621,6 +616,19 @@ const templatingVariableTypes = {
           ],
         },
       },
+      withoutOptText: {
+        label: 'Options without text',
+        type: 'custom',
+        options: {
+          values: [
+            { value: 'value1' },
+            {
+              value: 'value2',
+              default: true,
+            },
+          ],
+        },
+      },
     },
   },
 };
@@ -659,6 +667,7 @@ const responseForAdvTextVariable = {
 const responseForSimpleCustomVariable = {
   simpleCustom: {
     label: 'simpleCustom',
+    value: 'value1',
     options: [
       {
         default: false,
@@ -691,6 +700,7 @@ const responseForAdvancedCustomVariableWithoutOptions = {
 const responseForAdvancedCustomVariableWithoutLabel = {
   advCustomWithoutLabel: {
     label: 'advCustomWithoutLabel',
+    value: 'value2',
     options: [
       {
         default: false,
@@ -707,10 +717,31 @@ const responseForAdvancedCustomVariableWithoutLabel = {
   },
 };
 
+const responseForAdvancedCustomVariableWithoutOptText = {
+  advCustomWithoutOptText: {
+    label: 'Options without text',
+    value: 'value2',
+    options: [
+      {
+        default: false,
+        text: 'value1',
+        value: 'value1',
+      },
+      {
+        default: true,
+        text: 'value2',
+        value: 'value2',
+      },
+    ],
+    type: 'custom',
+  },
+};
+
 const responseForAdvancedCustomVariable = {
   ...responseForSimpleCustomVariable,
   advCustomNormal: {
     label: 'Advanced Var',
+    value: 'value2',
     options: [
       {
         default: false,
@@ -749,6 +780,9 @@ export const mockTemplatingData = {
   advCustomWithoutLabel: generateMockTemplatingData({
     advCustomWithoutLabel: templatingVariableTypes.custom.advanced.withoutLabel,
   }),
+  advCustomWithoutOptText: generateMockTemplatingData({
+    advCustomWithoutOptText: templatingVariableTypes.custom.advanced.withoutOptText,
+  }),
   simpleAndAdv: generateMockTemplatingData({
     simpleCustom: templatingVariableTypes.custom.simple,
     advCustomNormal: templatingVariableTypes.custom.advanced.normal,
@@ -770,6 +804,7 @@ export const mockTemplatingDataResponses = {
   advCustomWithoutOpts: responseForAdvancedCustomVariableWithoutOptions,
   advCustomWithoutType: {},
   advCustomWithoutLabel: responseForAdvancedCustomVariableWithoutLabel,
+  advCustomWithoutOptText: responseForAdvancedCustomVariableWithoutOptText,
   simpleAndAdv: responseForAdvancedCustomVariable,
   allVariableTypes: responsesForAllVariableTypes,
 };

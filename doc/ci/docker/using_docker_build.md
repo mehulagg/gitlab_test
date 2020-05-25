@@ -125,7 +125,7 @@ not without its own challenges:
   child containers. For example, if you have files you want to share with a
   child container, you may create a subdirectory under `/builds/$CI_PROJECT_PATH`
   and use it as your mount point (for a more thorough explanation, check [issue
-  #41227](https://gitlab.com/gitlab-org/gitlab-foss/issues/41227)):
+  #41227](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227)):
 
   ```yaml
   variables:
@@ -476,7 +476,7 @@ which can be avoided if a different driver is used, for example `overlay2`.
    On Ubuntu systems, this is done by editing `/etc/modules`. Just add the
    following line into it:
 
-   ```text
+   ```plaintext
    overlay
    ```
 

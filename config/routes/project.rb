@@ -65,6 +65,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         namespace :ci do
           resource :lint, only: [:show, :create]
+          resources :daily_build_group_report_results, only: [:index], constraints: { format: 'csv' }
         end
 
         namespace :settings do
@@ -468,6 +469,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       scope :usage_ping, controller: :usage_ping do
         post :web_ide_clientside_preview
+        post :web_ide_pipelines_count
       end
 
       # Deprecated unscoped routing.
@@ -482,7 +484,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Legacy routes.
       # Introduced in 12.0.
       # Should be removed with https://gitlab.com/gitlab-org/gitlab/issues/28848.
-      Gitlab::Routing.redirect_legacy_paths(self, :mirror,
+      Gitlab::Routing.redirect_legacy_paths(self, :mirror, :tags,
                                             :cycle_analytics, :mattermost, :variables, :triggers,
                                             :environments, :protected_environments, :error_tracking, :alert_management,
                                             :serverless, :clusters, :audit_events, :wikis, :merge_requests,

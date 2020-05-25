@@ -30,7 +30,7 @@ class Group < Namespace
   has_many :members_and_requesters, as: :source, class_name: 'GroupMember'
 
   has_many :milestones
-  has_many :sprints
+  has_many :iterations
   has_many :shared_group_links, foreign_key: :shared_with_group_id, class_name: 'GroupGroupLink'
   has_many :shared_with_group_links, foreign_key: :shared_group_id, class_name: 'GroupGroupLink'
   has_many :shared_groups, through: :shared_group_links, source: :shared_group
@@ -305,9 +305,10 @@ class Group < Namespace
   # rubocop: enable CodeReuse/ServiceClass
 
   # rubocop: disable CodeReuse/ServiceClass
-  def refresh_members_authorized_projects(blocking: true)
-    UserProjectAccessChangedService.new(user_ids_for_project_authorizations)
-      .execute(blocking: blocking)
+  def refresh_members_authorized_projects(blocking: true, priority: UserProjectAccessChangedService::HIGH_PRIORITY)
+    UserProjectAccessChangedService
+      .new(user_ids_for_project_authorizations)
+      .execute(blocking: blocking, priority: priority)
   end
   # rubocop: enable CodeReuse/ServiceClass
 

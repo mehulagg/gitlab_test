@@ -177,6 +177,7 @@ class Project < ApplicationRecord
   has_one :packagist_service
   has_one :hangouts_chat_service
   has_one :unify_circuit_service
+  has_one :webex_teams_service
 
   has_one :root_of_fork_network,
           foreign_key: 'root_project_id',
@@ -208,7 +209,7 @@ class Project < ApplicationRecord
   has_many :services
   has_many :events
   has_many :milestones
-  has_many :sprints
+  has_many :iterations
   has_many :notes
   has_many :snippets, class_name: 'ProjectSnippet'
   has_many :hooks, class_name: 'ProjectHook'
@@ -329,6 +330,7 @@ class Project < ApplicationRecord
 
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
+  accepts_nested_attributes_for :project_setting, update_only: true
   accepts_nested_attributes_for :import_data
   accepts_nested_attributes_for :auto_devops, update_only: true
   accepts_nested_attributes_for :ci_cd_settings, update_only: true
@@ -352,6 +354,9 @@ class Project < ApplicationRecord
     :wiki_access_level, :snippets_access_level, :builds_access_level,
     :repository_access_level, :pages_access_level, :metrics_dashboard_access_level,
     to: :project_feature, allow_nil: true
+  delegate :show_default_award_emojis, :show_default_award_emojis=,
+    :show_default_award_emojis?,
+    to: :project_setting, allow_nil: true
   delegate :scheduled?, :started?, :in_progress?, :failed?, :finished?,
     prefix: :import, to: :import_state, allow_nil: true
   delegate :no_import?, to: :import_state, allow_nil: true
@@ -501,6 +506,10 @@ class Project < ApplicationRecord
     left_outer_joins(:pages_metadatum)
       .where(project_pages_metadata: { project_id: nil })
   end
+  scope :with_api_entity_associations, -> {
+    preload(:project_feature, :route, :tags,
+            group: :ip_restrictions, namespace: [:route, :owner])
+  }
 
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
@@ -842,7 +851,7 @@ class Project < ApplicationRecord
     latest_pipeline = ci_pipelines.latest_successful_for_ref(ref)
     return unless latest_pipeline
 
-    latest_pipeline.builds.latest.with_artifacts_archive.find_by(name: job_name)
+    latest_pipeline.builds.latest.with_downloadable_artifacts.find_by(name: job_name)
   end
 
   def latest_successful_build_for_sha(job_name, sha)
@@ -851,7 +860,7 @@ class Project < ApplicationRecord
     latest_pipeline = ci_pipelines.latest_successful_for_sha(sha)
     return unless latest_pipeline
 
-    latest_pipeline.builds.latest.with_artifacts_archive.find_by(name: job_name)
+    latest_pipeline.builds.latest.with_downloadable_artifacts.find_by(name: job_name)
   end
 
   def latest_successful_build_for_ref!(job_name, ref = default_branch)
@@ -916,17 +925,15 @@ class Project < ApplicationRecord
     job_id
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def log_import_activity(job_id, type: :import)
     job_type = type.to_s.capitalize
 
     if job_id
-      Rails.logger.info("#{job_type} job scheduled for #{full_path} with job ID #{job_id}.")
+      Gitlab::AppLogger.info("#{job_type} job scheduled for #{full_path} with job ID #{job_id}.")
     else
-      Rails.logger.error("#{job_type} job failed to create for #{full_path}.")
+      Gitlab::AppLogger.error("#{job_type} job failed to create for #{full_path}.")
     end
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def reset_cache_and_import_attrs
     run_after_commit do
@@ -1031,7 +1038,7 @@ class Project < ApplicationRecord
     remote_mirrors.stuck.update_all(
       update_status: :failed,
       last_error: _('The remote mirror took to long to complete.'),
-      last_update_at: Time.now
+      last_update_at: Time.current
     )
   end
 
@@ -1262,16 +1269,7 @@ class Project < ApplicationRecord
   def find_or_initialize_service(name)
     return if disabled_services.include?(name)
 
-    service = find_service(services, name)
-    return service if service
-
-    template = find_service(services_templates, name)
-
-    if template
-      Service.build_from_template(id, template)
-    else
-      public_send("build_#{name}_service") # rubocop:disable GitlabSecurity/PublicSend
-    end
+    find_service(services, name) || build_from_instance_or_template(name) || public_send("build_#{name}_service") # rubocop:disable GitlabSecurity/PublicSend
   end
 
   # rubocop: disable CodeReuse/ServiceClass
@@ -1776,17 +1774,15 @@ class Project < ApplicationRecord
     ensure_pages_metadatum.update!(deployed: false)
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def write_repository_config(gl_full_path: full_path)
     # We'd need to keep track of project full path otherwise directory tree
     # created with hashed storage enabled cannot be usefully imported using
     # the import rake task.
     repository.raw_repository.write_config(full_path: gl_full_path)
   rescue Gitlab::Git::Repository::NoRepository => e
-    Rails.logger.error("Error writing to .git/config for project #{full_path} (#{id}): #{e.message}.")
+    Gitlab::AppLogger.error("Error writing to .git/config for project #{full_path} (#{id}): #{e.message}.")
     nil
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def after_import
     repository.expire_content_cache
@@ -1829,17 +1825,15 @@ class Project < ApplicationRecord
     @pipeline_status ||= Gitlab::Cache::Ci::ProjectPipelineStatus.load_for_project(self)
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def add_export_job(current_user:, after_export_strategy: nil, params: {})
     job_id = ProjectExportWorker.perform_async(current_user.id, self.id, after_export_strategy, params)
 
     if job_id
-      Rails.logger.info "Export job started for project ID #{self.id} with job ID #{job_id}"
+      Gitlab::AppLogger.info "Export job started for project ID #{self.id} with job ID #{job_id}"
     else
-      Rails.logger.error "Export job failed to start for project ID #{self.id}"
+      Gitlab::AppLogger.error "Export job failed to start for project ID #{self.id}"
     end
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def import_export_shared
     @import_export_shared ||= Gitlab::ImportExport::Shared.new(self)
@@ -2011,6 +2005,14 @@ class Project < ApplicationRecord
       result.on_environment(environment)
     else
       result.where(environment_scope: '*')
+    end
+  end
+
+  def ci_instance_variables_for(ref:)
+    if protected_for?(ref)
+      Ci::InstanceVariable.all_cached
+    else
+      Ci::InstanceVariable.unprotected_cached
     end
   end
 
@@ -2431,6 +2433,22 @@ class Project < ApplicationRecord
     services.find { |service| service.to_param == name }
   end
 
+  def build_from_instance_or_template(name)
+    instance = find_service(services_instances, name)
+    return Service.build_from_integration(id, instance) if instance
+
+    template = find_service(services_templates, name)
+    return Service.build_from_integration(id, template) if template
+  end
+
+  def services_templates
+    @services_templates ||= Service.templates
+  end
+
+  def services_instances
+    @services_instances ||= Service.instances
+  end
+
   def closest_namespace_setting(name)
     namespace.closest_setting(name)
   end
@@ -2557,10 +2575,6 @@ class Project < ApplicationRecord
         end
       end
     end
-  end
-
-  def services_templates
-    @services_templates ||= Service.where(template: true)
   end
 
   def ensure_pages_metadatum

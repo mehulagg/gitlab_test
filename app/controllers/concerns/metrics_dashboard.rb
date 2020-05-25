@@ -18,7 +18,7 @@ module MetricsDashboard
 
     if result
       result[:all_dashboards] = all_dashboards if include_all_dashboards?
-      result[:metrics_data] = metrics_data(project_for_dashboard, environment_for_dashboard) if project_for_dashboard && environment_for_dashboard
+      result[:metrics_data] = metrics_data(project_for_dashboard, environment_for_dashboard)
     end
 
     respond_to do |format|
@@ -38,7 +38,6 @@ module MetricsDashboard
     dashboard_finder
       .find_all_paths(project_for_dashboard)
       .map(&method(:amend_dashboard))
-      .sort_by { |dashboard| [dashboard[:starred] ? 0 : 1, dashboard[:display_name].downcase] }
   end
 
   def amend_dashboard(dashboard)
@@ -47,9 +46,13 @@ module MetricsDashboard
     dashboard[:can_edit] = project_dashboard ? can_edit?(dashboard) : false
     dashboard[:project_blob_path] = project_dashboard ? dashboard_project_blob_path(dashboard) : nil
     dashboard[:starred] = starred_dashboards.include?(dashboard[:path])
-    dashboard[:user_starred_path] = nil # placeholder attribute until API endpoint will be merged https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31316
+    dashboard[:user_starred_path] = project_for_dashboard ? user_starred_path(project_for_dashboard, dashboard[:path]) : nil
 
     dashboard
+  end
+
+  def user_starred_path(project, path)
+    expose_path(api_v4_projects_metrics_user_starred_dashboards_path(id: project.id, params: { dashboard_path: path }))
   end
 
   def dashboard_project_blob_path(dashboard)

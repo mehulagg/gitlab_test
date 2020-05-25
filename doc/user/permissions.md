@@ -70,6 +70,7 @@ The following table depicts the various user permission levels in a project.
 | View confidential issues                          | (*2*)   | ✓          | ✓           | ✓        | ✓      |
 | View [Releases](project/releases/index.md)        | ✓ (*6*) | ✓          | ✓           | ✓        | ✓      |
 | View requirements **(ULTIMATE)**                  | ✓       | ✓          | ✓           | ✓        | ✓      |
+| Manage user-starred metrics dashboards (*7*)      | ✓       | ✓          | ✓           | ✓        | ✓      |
 | Assign issues                                     |         | ✓          | ✓           | ✓        | ✓      |
 | Label issues                                      |         | ✓          | ✓           | ✓        | ✓      |
 | Set issue weight                                  |         | ✓          | ✓           | ✓        | ✓      |
@@ -82,7 +83,7 @@ The following table depicts the various user permission levels in a project.
 | See a container registry                          |         | ✓          | ✓           | ✓        | ✓      |
 | See environments                                  |         | ✓          | ✓           | ✓        | ✓      |
 | See a list of merge requests                      |         | ✓          | ✓           | ✓        | ✓      |
-| View project statistics                           |         | ✓          | ✓           | ✓        | ✓      |
+| View project statistics                           |         |            | ✓           | ✓        | ✓      |
 | View Error Tracking list                          |         | ✓          | ✓           | ✓        | ✓      |
 | Create new merge request                          |         | ✓          | ✓           | ✓        | ✓      |
 | View metrics dashboard annotations                |         | ✓          | ✓           | ✓        | ✓      |
@@ -139,7 +140,7 @@ The following table depicts the various user permission levels in a project.
 | Manage GitLab Pages domains and certificates      |         |            |             | ✓        | ✓      |
 | Remove GitLab Pages                               |         |            |             | ✓        | ✓      |
 | Manage clusters                                   |         |            |             | ✓        | ✓      |
-| View Pods logs **(ULTIMATE)**                     |         |            |             | ✓        | ✓      |
+| View Pods logs                                    |         |            |             | ✓        | ✓      |
 | Manage license policy **(ULTIMATE)**              |         |            |             | ✓        | ✓      |
 | Edit comments (posted by any user)                |         |            |             | ✓        | ✓      |
 | Manage Error Tracking                             |         |            |             | ✓        | ✓      |
@@ -170,6 +171,7 @@ The following table depicts the various user permission levels in a project.
 1. Not allowed for Guest, Reporter, Developer, Maintainer, or Owner. See [Protected Branches](./project/protected_branches.md).
 1. If the [branch is protected](./project/protected_branches.md#using-the-allowed-to-merge-and-allowed-to-push-settings), this depends on the access Developers and Maintainers are given.
 1. Guest users can access GitLab [**Releases**](project/releases/index.md) for downloading assets but are not allowed to download the source code nor see repository information like tags and commits.
+1. Actions are limited only to records owned (referenced) by user.
 
 ## Project features permissions
 

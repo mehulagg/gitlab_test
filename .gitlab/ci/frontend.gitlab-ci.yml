@@ -136,16 +136,15 @@ compile-assets pull-cache as-if-foss:
 .frontend-fixtures-base:
   extends:
     - .default-retry
-    - .default-cache
+    - .rails-cache
     - .default-before_script
-    - .use-pg9
+    - .use-pg11
   stage: fixtures
-  needs: ["setup-test-env pg9", "compile-assets pull-cache"]
+  needs: ["setup-test-env", "compile-assets pull-cache"]
   script:
-    - date
-    - scripts/gitaly-test-spawn
-    - date
-    - bundle exec rake frontend:fixtures
+    - run_timed_command "scripts/gitaly-test-build"
+    - run_timed_command "scripts/gitaly-test-spawn"
+    - run_timed_command "bundle exec rake frontend:fixtures"
   artifacts:
     name: frontend-fixtures
     expire_in: 31d
@@ -163,7 +162,7 @@ frontend-fixtures:
 frontend-fixtures-as-if-foss:
   extends:
     - .frontend-fixtures-base
-    - .frontend:rules:default-frontend-jobs-no-foss
+    - .frontend:rules:default-frontend-jobs-as-if-foss
     - .as-if-foss
 
 .frontend-job-base:
@@ -206,7 +205,7 @@ karma:
 karma-as-if-foss:
   extends:
     - .karma-base
-    - .frontend:rules:default-frontend-jobs-no-foss
+    - .frontend:rules:default-frontend-jobs-as-if-foss
     - .as-if-foss
   needs: ["frontend-fixtures-as-if-foss"]
 
@@ -238,10 +237,24 @@ jest:
       junit: junit_jest.xml
   parallel: 2
 
+jest-integration:
+  extends:
+    - .frontend-job-base
+    - .frontend:rules:default-frontend-jobs
+  script:
+    - date
+    - yarn jest:integration --ci
+  needs: ["frontend-fixtures"]
+  cache:
+    key: jest-integration
+    paths:
+      - tmp/cache/jest/
+    policy: pull-push
+
 jest-as-if-foss:
   extends:
     - .jest-base
-    - .frontend:rules:default-frontend-jobs-no-foss
+    - .frontend:rules:default-frontend-jobs-as-if-foss
     - .as-if-foss
   needs: ["frontend-fixtures-as-if-foss"]
   cache:
@@ -250,11 +263,13 @@ jest-as-if-foss:
 coverage-frontend:
   extends:
     - .default-retry
+    - .yarn-cache
     - .frontend:rules:ee-mr-and-master-only
   needs: ["jest"]
   stage: post-test
   before_script:
-    - yarn install --frozen-lockfile --cache-folder .yarn-cache --prefer-offline
+    - source scripts/utils.sh
+    - retry yarn install --frozen-lockfile
   script:
     - yarn node scripts/frontend/merge_coverage_frontend.js
   artifacts:
@@ -263,8 +278,7 @@ coverage-frontend:
     paths:
       - coverage-frontend/
   cache:
-    paths:
-      - .yarn-cache/
+    policy: pull
 
 .qa-frontend-node:
   extends:
@@ -306,10 +320,10 @@ webpack-dev-server:
     key:
       files:
         - yarn.lock
-        - config/webpack.vendor.config.js
-      prefix: "v2"
+      prefix: "v1"
     paths:
       - node_modules/
+      - tmp/cache/webpack-dlls/
   script:
     - source scripts/utils.sh
     - retry yarn install --frozen-lockfile
@@ -320,3 +334,22 @@ webpack-dev-server:
     expire_in: 31d
     paths:
       - webpack-dev-server.json
+
+bundle-size-review:
+  extends:
+    - .default-retry
+    - .frontend:rules:bundle-size-review
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
+  stage: test
+  needs: ["gitlab:assets:compile pull-cache"]
+  script:
+    - mkdir -p bundle-size-review
+    - cp webpack-report/index.html bundle-size-review/bundle-report.html
+    - yarn global add https://gitlab.com/gitlab-org/frontend/playground/webpack-memory-metrics.git
+    - danger --dangerfile=danger/bundle_size/Dangerfile --fail-on-errors=true --verbose --danger_id=bundle-size-review
+  artifacts:
+    when: always
+    name: bundle-size-review
+    expire_in: 31d
+    paths:
+      - bundle-size-review

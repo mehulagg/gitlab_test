@@ -548,6 +548,39 @@ describe Projects::PipelinesController do
     end
   end
 
+  describe 'GET dag.json' do
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    before do
+      create_build('build', 1, 'build')
+      create_build('test', 2, 'test', scheduling_type: 'dag').tap do |job|
+        create(:ci_build_need, build: job, name: 'build')
+      end
+    end
+
+    it 'returns the pipeline with DAG serialization' do
+      get :dag, params: { namespace_id: project.namespace, project_id: project, id: pipeline }, format: :json
+
+      expect(response).to have_gitlab_http_status(:ok)
+
+      expect(json_response.fetch('stages')).not_to be_empty
+
+      build_stage = json_response['stages'].first
+      expect(build_stage.fetch('name')).to eq 'build'
+      expect(build_stage.fetch('groups').first.fetch('jobs'))
+        .to eq [{ 'name' => 'build', 'scheduling_type' => 'stage' }]
+
+      test_stage = json_response['stages'].last
+      expect(test_stage.fetch('name')).to eq 'test'
+      expect(test_stage.fetch('groups').first.fetch('jobs'))
+        .to eq [{ 'name' => 'test', 'scheduling_type' => 'dag', 'needs' => ['build'] }]
+    end
+
+    def create_build(stage, stage_idx, name, params = {})
+      create(:ci_build, pipeline: pipeline, stage: stage, stage_idx: stage_idx, name: name, **params)
+    end
+  end
+
   describe 'GET stages.json' do
     let(:pipeline) { create(:ci_pipeline, project: project) }
 
@@ -830,7 +863,7 @@ describe Projects::PipelinesController do
 
     context 'when feature is enabled' do
       before do
-        stub_feature_flags(junit_pipeline_view: true)
+        stub_feature_flags(junit_pipeline_view: project)
       end
 
       context 'when pipeline does not have a test report' do

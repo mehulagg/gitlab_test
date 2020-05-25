@@ -8,6 +8,8 @@ import MockAdapter from 'axios-mock-adapter';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from 'ee/analytics/shared/components/projects_dropdown_filter.vue';
 import RecentActivityCard from 'ee/analytics/cycle_analytics/components/recent_activity_card.vue';
+import TimeMetricsCard from 'ee/analytics/cycle_analytics/components/time_metrics_card.vue';
+import PathNavigation from 'ee/analytics/cycle_analytics/components/path_navigation.vue';
 import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue';
 import 'bootstrap';
 import '~/gl_dropdown';
@@ -48,6 +50,7 @@ function createComponent({
   shallow = true,
   withStageSelected = false,
   scatterplotEnabled = true,
+  pathNavigationEnabled = false,
   props = {},
 } = {}) {
   const func = shallow ? shallowMount : mount;
@@ -66,6 +69,7 @@ function createComponent({
     provide: {
       glFeatures: {
         cycleAnalyticsScatterplotEnabled: scatterplotEnabled,
+        valueStreamAnalyticsPathNavigation: pathNavigationEnabled,
       },
     },
     ...opts,
@@ -120,6 +124,10 @@ describe('Cycle Analytics component', () => {
     expect(wrapper.find(RecentActivityCard).exists()).toBe(flag);
   };
 
+  const displaysTimeMetricsCard = flag => {
+    expect(wrapper.find(TimeMetricsCard).exists()).toBe(flag);
+  };
+
   const displaysStageTable = flag => {
     expect(wrapper.find(StageTable).exists()).toBe(flag);
   };
@@ -130,6 +138,10 @@ describe('Cycle Analytics component', () => {
 
   const displaysTypeOfWork = flag => {
     expect(wrapper.find(TypeOfWorkCharts).exists()).toBe(flag);
+  };
+
+  const displaysPathNavigation = flag => {
+    expect(wrapper.find(PathNavigation).exists()).toBe(flag);
   };
 
   beforeEach(() => {
@@ -172,8 +184,12 @@ describe('Cycle Analytics component', () => {
         displaysDateRangePicker(false);
       });
 
-      it('does not display the recent activity table', () => {
+      it('does not display the recent activity card', () => {
         displaysRecentActivityCard(false);
+      });
+
+      it('does not display the time metrics card', () => {
+        displaysTimeMetricsCard(false);
       });
 
       it('does not display the stage table', () => {
@@ -186,6 +202,10 @@ describe('Cycle Analytics component', () => {
 
       it('does not display the add stage button', () => {
         expect(wrapper.find('.js-add-stage-button').exists()).toBe(false);
+      });
+
+      it('does not display the path navigation', () => {
+        displaysPathNavigation(false);
       });
 
       describe('hideGroupDropDown = true', () => {
@@ -232,8 +252,12 @@ describe('Cycle Analytics component', () => {
           displaysDateRangePicker(true);
         });
 
-        it('displays the recent activity table', () => {
+        it('displays the recent activity card', () => {
           displaysRecentActivityCard(true);
+        });
+
+        it('displays the time metrics card', () => {
+          displaysTimeMetricsCard(true);
         });
 
         it('displays the stage table', () => {
@@ -251,6 +275,27 @@ describe('Cycle Analytics component', () => {
           wrapper = createComponent({ shallow: false, withStageSelected: true });
           return wrapper.vm.$nextTick().then(() => {
             expect(wrapper.find('.js-tasks-by-type-chart').exists()).toBe(true);
+          });
+        });
+
+        describe('path navigation', () => {
+          describe('disabled', () => {
+            it('does not display the path navigation', () => {
+              displaysPathNavigation(false);
+            });
+          });
+
+          describe('enabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                pathNavigationEnabled: true,
+              });
+            });
+
+            it('displays the path navigation', () => {
+              displaysPathNavigation(true);
+            });
           });
         });
 
@@ -299,7 +344,7 @@ describe('Cycle Analytics component', () => {
       describe('the user does not have access to the group', () => {
         beforeEach(() => {
           mock = new MockAdapter(axios);
-          mock.onAny().reply(403);
+          mock.onAny().reply(httpStatusCodes.FORBIDDEN);
 
           wrapper.vm.onGroupSelect(mockData.group);
           return waitForPromises();
@@ -320,8 +365,12 @@ describe('Cycle Analytics component', () => {
           displaysDateRangePicker(false);
         });
 
-        it('does not display the recent activity table', () => {
+        it('does not display the recent activity card', () => {
           displaysRecentActivityCard(false);
+        });
+
+        it('does not display the time metrics card', () => {
+          displaysTimeMetricsCard(false);
         });
 
         it('does not display the stage table', () => {
@@ -338,6 +387,33 @@ describe('Cycle Analytics component', () => {
 
         it('does not display the duration chart', () => {
           displaysDurationChart(false);
+        });
+
+        describe('path navigation', () => {
+          describe('disabled', () => {
+            it('does not display the path navigation', () => {
+              displaysPathNavigation(false);
+            });
+          });
+
+          describe('enabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                pathNavigationEnabled: true,
+              });
+
+              mock = new MockAdapter(axios);
+              mock.onAny().reply(httpStatusCodes.FORBIDDEN);
+
+              wrapper.vm.onGroupSelect(mockData.group);
+              return waitForPromises();
+            });
+
+            it('displays the path navigation', () => {
+              displaysPathNavigation(false);
+            });
+          });
         });
       });
     });

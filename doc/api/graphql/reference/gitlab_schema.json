@@ -93,7 +93,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -181,7 +181,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -343,7 +343,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -853,6 +853,103 @@
               "deprecationReason": null
             }
           ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "AlertManagementAlertStatusCountsType",
+          "description": "Represents total number of alerts for the represented categories",
+          "fields": [
+            {
+              "name": "acknowledged",
+              "description": "Number of alerts with status ACKNOWLEDGED for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "all",
+              "description": "Total number of alerts for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ignored",
+              "description": "Number of alerts with status IGNORED for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "open",
+              "description": "Number of alerts with status TRIGGERED or ACKNOWLEDGED for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "resolved",
+              "description": "Number of alerts with status RESOLVED for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "triggered",
+              "description": "Number of alerts with status TRIGGERED for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
           "possibleTypes": null
         },
         {
@@ -1998,7 +2095,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -2379,6 +2476,20 @@
               "deprecationReason": null
             },
             {
+              "name": "titleHtml",
+              "description": "The GitLab Flavored Markdown rendering of `title`",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "webUrl",
               "description": "Web URL of the commit",
               "args": [
@@ -2391,6 +2502,296 @@
                   "kind": "SCALAR",
                   "name": "String",
                   "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "CreateAlertIssueInput",
+          "description": "Autogenerated input type of CreateAlertIssue",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "projectPath",
+              "description": "The project the alert to mutate is in",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "iid",
+              "description": "The iid of the alert to mutate",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CreateAlertIssuePayload",
+          "description": "Autogenerated return type of CreateAlertIssue",
+          "fields": [
+            {
+              "name": "alert",
+              "description": "The alert after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "AlertManagementAlert",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue created after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Issue",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "CreateAnnotationInput",
+          "description": "Autogenerated input type of CreateAnnotation",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "environmentId",
+              "description": "The global id of the environment to add an annotation to",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clusterId",
+              "description": "The global id of the cluster to add an annotation to",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "startingAt",
+              "description": "Timestamp indicating starting moment to which the annotation relates",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "endingAt",
+              "description": "Timestamp indicating ending moment to which the annotation relates",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Time",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "dashboardPath",
+              "description": "The path to a file defining the dashboard on which the annotation should be added",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "description",
+              "description": "The description of the annotation",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CreateAnnotationPayload",
+          "description": "Autogenerated return type of CreateAnnotation",
+          "fields": [
+            {
+              "name": "annotation",
+              "description": "The created annotation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "MetricsDashboardAnnotation",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
                 }
               },
               "isDeprecated": false,
@@ -2502,7 +2903,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -2618,7 +3019,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -2840,7 +3241,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -2956,7 +3357,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -2989,6 +3390,148 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "Note",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "CreateIterationInput",
+          "description": "Autogenerated input type of CreateIteration",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "groupPath",
+              "description": "The target group for the iteration",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "title",
+              "description": "The title of the iteration",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "description",
+              "description": "The description of the iteration",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "startDate",
+              "description": "The start date of the iteration",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "dueDate",
+              "description": "The end date of the iteration",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CreateIterationPayload",
+          "description": "Autogenerated return type of CreateIteration",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "iteration",
+              "description": "The created iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Iteration",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -3082,7 +3625,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -3198,7 +3741,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -3323,6 +3866,24 @@
               "defaultValue": null
             },
             {
+              "name": "uploadedFiles",
+              "description": "The paths to files uploaded in the snippet description",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
               "name": "clientMutationId",
               "description": "A unique identifier for the client performing the mutation.",
               "type": {
@@ -3358,7 +3919,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -4980,7 +5541,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -5144,7 +5705,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -5651,7 +6212,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -5753,7 +6314,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -6760,7 +7321,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -8320,7 +8881,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -8992,6 +9553,20 @@
                   "name": "ID",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "iteration",
+              "description": "Iteration of the issue",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Iteration",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -9851,7 +10426,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -10095,7 +10670,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -11364,6 +11939,99 @@
               "deprecationReason": null
             },
             {
+              "name": "iterations",
+              "description": "Find iterations",
+              "args": [
+                {
+                  "name": "startDate",
+                  "description": "List items within a time frame where items.start_date is between startDate and endDate parameters (endDate parameter must be present)",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Time",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "endDate",
+                  "description": "List items within a time frame where items.end_date is between startDate and endDate parameters (startDate parameter must be present)",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Time",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "state",
+                  "description": "Filter iterations by state",
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "IterationState",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "title",
+                  "description": "Fuzzy search by title",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "IterationConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "lfsEnabled",
               "description": "Indicates if Large File Storage (LFS) is enabled for namespace",
               "args": [
@@ -11421,6 +12089,16 @@
                   "type": {
                     "kind": "ENUM",
                     "name": "MilestoneStateEnum",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "includeDescendants",
+                  "description": "Return also milestones in all subgroups and subprojects",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -12585,6 +13263,20 @@
               "deprecationReason": null
             },
             {
+              "name": "iteration",
+              "description": "Iteration of the issue",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Iteration",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "labels",
               "description": "Labels of the issue",
               "args": [
@@ -13411,7 +14103,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -13541,7 +14233,133 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Issue",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "IssueSetIterationInput",
+          "description": "Autogenerated input type of IssueSetIteration",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "projectPath",
+              "description": "The project the issue to mutate is in",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "iid",
+              "description": "The iid of the issue to mutate",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "iterationId",
+              "description": "The iteration to assign to the issue.\n",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "IssueSetIterationPayload",
+          "description": "Autogenerated return type of IssueSetIteration",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -13671,7 +14489,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -13848,6 +14666,340 @@
           "possibleTypes": null
         },
         {
+          "kind": "OBJECT",
+          "name": "Iteration",
+          "description": "Represents an iteration object.",
+          "fields": [
+            {
+              "name": "createdAt",
+              "description": "Timestamp of iteration creation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "description",
+              "description": "Description of the iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "dueDate",
+              "description": "Timestamp of the iteration due date",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Time",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": "ID of the iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "startDate",
+              "description": "Timestamp of the iteration start date",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Time",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "state",
+              "description": "State of the iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "IterationState",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "title",
+              "description": "Title of the iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Timestamp of last iteration update",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "webPath",
+              "description": "Web path of the iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "webUrl",
+              "description": "Web URL of the iteration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "IterationConnection",
+          "description": "The connection type for Iteration.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "IterationEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Iteration",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "IterationEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Iteration",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "IterationState",
+          "description": "State of a GitLab iteration",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "upcoming",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "started",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "opened",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "closed",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "all",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
           "kind": "SCALAR",
           "name": "JSON",
           "description": "Represents untyped JSON",
@@ -13872,6 +15024,42 @@
                 "kind": "SCALAR",
                 "name": "Time",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "failedToImportCount",
+              "description": "Count of issues that failed to import",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "importedIssuesCount",
+              "description": "Count of issues that were successfully imported",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -13918,6 +15106,24 @@
                 "kind": "OBJECT",
                 "name": "User",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalIssueCount",
+              "description": "Total count of issues that were attempted to import",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -14122,7 +15328,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -14170,6 +15376,181 @@
         },
         {
           "kind": "OBJECT",
+          "name": "JiraProject",
+          "description": null,
+          "fields": [
+            {
+              "name": "key",
+              "description": "Key of the Jira project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "name",
+              "description": "Name of the Jira project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "projectId",
+              "description": "ID of the Jira project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "JiraProjectConnection",
+          "description": "The connection type for JiraProject.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "JiraProjectEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "JiraProject",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "JiraProjectEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "JiraProject",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "JiraService",
           "description": null,
           "fields": [
@@ -14182,6 +15563,69 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "projects",
+              "description": "List of Jira projects fetched through Jira REST API",
+              "args": [
+                {
+                  "name": "name",
+                  "description": "Project name or key",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "JiraProjectConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -14523,7 +15967,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -14636,6 +16080,20 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "UserConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "author",
+              "description": "User who created this merge request",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -15050,6 +16508,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "mergedAt",
+              "description": "Timestamp of when the merge request was merged, null if not merged",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Time",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -15505,6 +16977,24 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "targetBranchExists",
+              "description": "Indicates if the target branch of the merge request exists",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
                   "ofType": null
                 }
               },
@@ -16116,7 +17606,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -16264,7 +17754,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -16394,7 +17884,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -16520,7 +18010,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -16650,7 +18140,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -16780,7 +18270,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -17648,6 +19138,60 @@
               "deprecationReason": null
             },
             {
+              "name": "createAlertIssue",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CreateAlertIssueInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateAlertIssuePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createAnnotation",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CreateAnnotationInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateAnnotationPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "createBranch",
               "description": null,
               "args": [
@@ -17750,6 +19294,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "CreateImageDiffNotePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createIteration",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CreateIterationInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateIterationPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -18101,6 +19672,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "IssueSetDueDatePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issueSetIteration",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "IssueSetIterationInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "IssueSetIterationPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -19768,6 +21366,235 @@
         },
         {
           "kind": "OBJECT",
+          "name": "Package",
+          "description": "Represents a package",
+          "fields": [
+            {
+              "name": "createdAt",
+              "description": "The created date",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": "The ID of the package",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "name",
+              "description": "The name of the package",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "packageType",
+              "description": "The type of the package",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "PackageTypeEnum",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "The update date",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "version",
+              "description": "The version of the package",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "PackageConnection",
+          "description": "The connection type for Package.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PackageEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Package",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "PackageEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Package",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "PackageFileRegistry",
           "description": "Represents the sync and verification state of a package file",
           "fields": [
@@ -20009,6 +21836,53 @@
 
           ],
           "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "PackageTypeEnum",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "MAVEN",
+              "description": "Packages from the maven package manager",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NPM",
+              "description": "Packages from the npm package manager",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CONAN",
+              "description": "Packages from the conan package manager",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NUGET",
+              "description": "Packages from the nuget package manager",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PYPI",
+              "description": "Packages from the pypi package manager",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "COMPOSER",
+              "description": "Packages from the composer package manager",
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
           "possibleTypes": null
         },
         {
@@ -20631,11 +22505,35 @@
                     "ofType": null
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "search",
+                  "description": "Search criteria for filtering alerts. This will search on title, description, service, monitoring_tool.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
                 "kind": "OBJECT",
                 "name": "AlertManagementAlert",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "alertManagementAlertStatusCounts",
+              "description": "Counts of alerts by status for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "AlertManagementAlertStatusCountsType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -20679,6 +22577,16 @@
                   "type": {
                     "kind": "ENUM",
                     "name": "AlertManagementAlertSort",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "search",
+                  "description": "Search criteria for filtering alerts. This will search on title, description, service, monitoring_tool.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -21646,26 +23554,12 @@
                   "name": "iid",
                   "description": "IID of the merge request, for example `1`",
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "iids",
-                  "description": "Array of IIDs of merge requests, for example `[1, 2]`",
-                  "type": {
-                    "kind": "LIST",
+                    "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                      }
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
                     }
                   },
                   "defaultValue": null
@@ -21684,18 +23578,72 @@
               "description": "Merge requests of the project",
               "args": [
                 {
-                  "name": "iid",
-                  "description": "IID of the merge request, for example `1`",
+                  "name": "iids",
+                  "description": "Array of IIDs of merge requests, for example `[1, 2]`",
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "sourceBranches",
+                  "description": "Array of source branch names. All resolved merge requests will have one of these branches as their source.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "targetBranches",
+                  "description": "Array of target branch names. All resolved merge requests will have one of these branches as their target.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "state",
+                  "description": "A merge request state. If provided, all resolved merge requests will have this state.",
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "MergeRequestState",
                     "ofType": null
                   },
                   "defaultValue": null
                 },
                 {
-                  "name": "iids",
-                  "description": "Array of IIDs of merge requests, for example `[1, 2]`",
+                  "name": "labels",
+                  "description": "Array of label names. All resolved merge requests will have all of these labels.",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -21875,6 +23823,59 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "packages",
+              "description": "Packages of the project",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "PackageConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -24574,20 +26575,6 @@
               "deprecationReason": null
             },
             {
-              "name": "evidenceSha",
-              "description": "SHA of the release's evidence",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "milestones",
               "description": "Milestones associated to the release",
               "args": [
@@ -24904,7 +26891,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -24992,7 +26979,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -27438,6 +29425,12 @@
               "deprecationReason": null
             },
             {
+              "name": "WEBEX_TEAMS_SERVICE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "YOUTRACK_SERVICE",
               "description": null,
               "isDeprecated": false,
@@ -27451,12 +29444,6 @@
             },
             {
               "name": "JENKINS_SERVICE",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "JENKINS_DEPRECATED_SERVICE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -29392,7 +31379,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -29541,7 +31528,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -29620,7 +31607,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -29776,7 +31763,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -29918,7 +31905,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -30538,7 +32525,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -30558,6 +32545,20 @@
                     }
                   }
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue created after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Issue",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -30821,7 +32822,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -30929,7 +32930,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -31095,7 +33096,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -31211,7 +33212,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -31347,7 +33348,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],
@@ -31499,7 +33500,7 @@
             },
             {
               "name": "errors",
-              "description": "Reasons why the mutation failed.",
+              "description": "Errors encountered during execution of the mutation.",
               "args": [
 
               ],

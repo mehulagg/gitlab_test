@@ -10,7 +10,7 @@ GitLab provides **GitLab Managed Apps**, a one-click install for various applica
 be added directly to your configured cluster.
 
 These applications are needed for [Review Apps](../../ci/review_apps/index.md)
-and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topics/autodevops/index.md).
+and [deployments](../../ci/environments/index.md) when using [Auto DevOps](../../topics/autodevops/index.md).
 
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
@@ -332,7 +332,7 @@ Updating [Ingress](#ingress) to the most recent version enables you to take adva
 
 ##### Viewing Web Application Firewall traffic
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
 You can view Web Application Firewall traffic by navigating to your project's
 **Security & Compliance > Threat Monitoring** page.
@@ -458,7 +458,7 @@ file.
 
 ### Crossplane
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34702) in GitLab 12.5 for project-level clusters.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34702) in GitLab 12.5 for project-level clusters.
 
 [Crossplane](https://crossplane.github.io/docs/v0.9/) is a multi-cloud control plane useful for
 managing applications and infrastructure across multiple clouds. It extends the
@@ -540,15 +540,12 @@ Save the following to `kibana.yml`:
 elasticsearch:
   enabled: false
 
-logstash:
+filebeat:
   enabled: false
 
 kibana:
   enabled: true
   elasticsearchHosts: http://elastic-stack-elasticsearch-master.gitlab-managed-apps.svc.cluster.local:9200
-
-elasticseach-curator:
-  enabled: false
 ```
 
 Then install it on your cluster:
@@ -561,7 +558,7 @@ helm install --name kibana gitlab/elastic-stack --values kibana.yml
 To access Kibana, forward the port to your local machine:
 
 ```shell
-kubectl port-forward svc/kibana 5601:5601
+kubectl port-forward svc/kibana-kibana 5601:5601
 ```
 
 Then, you can visit Kibana at `http://localhost:5601`.
@@ -918,7 +915,7 @@ metrics:
 
 ### Install Vault using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9982) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9982) in GitLab 12.9.
 
 [Hashicorp Vault](https://www.vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more. A Vault
@@ -936,8 +933,8 @@ vault:
   installed: true
 ```
 
-By default you will get a basic Vault setup with no high availability nor any scalable
-storage backend. This is enough for simple testing and small scale deployments, though has limits
+By default you will get a basic Vault setup with no scalable
+storage backend. This is enough for simple testing and small-scale deployments, though has limits
 to how much it can scale, and as it is a single instance deployment, you will experience downtime
 when upgrading the Vault application.
 
@@ -1083,7 +1080,7 @@ In this alpha implementation of installing Elastic Stack through CI, reading the
 
 ### Install Crossplane using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/35675) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/35675) in GitLab 12.9.
 
 Crossplane is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1160,7 +1157,7 @@ GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#inv
 1. Knative and Prometheus managed applications installed on your cluster.
 1. Manually applied the custom metrics on your cluster by running the following command:
 
-   ```bash
+   ```shell
    kubectl apply -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
    ```
 
@@ -1169,7 +1166,7 @@ GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#inv
 To uninstall Knative, you must first manually remove any custom metrics you have added
 by running the following command:
 
-```bash
+```shell
 kubectl delete -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
 ```
 
@@ -1200,7 +1197,7 @@ chart plus the values set by
 
 ## Uninstalling applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/60665) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/60665) in GitLab 11.11.
 
 The applications below can be uninstalled.
 
@@ -1235,7 +1232,7 @@ epic](https://gitlab.com/groups/gitlab-org/-/epics/1201).
 
 Applications can fail with the following error:
 
-```text
+```plaintext
 Error: remote error: tls: bad certificate
 ```
 

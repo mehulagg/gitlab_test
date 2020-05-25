@@ -24,14 +24,6 @@ export const closeAllFiles = ({ state, dispatch }) => {
   state.openFiles.forEach(file => dispatch('closeFile', file));
 };
 
-export const setPanelCollapsedStatus = ({ commit }, { side, collapsed }) => {
-  if (side === 'left') {
-    commit(types.SET_LEFT_PANEL_COLLAPSED, collapsed);
-  } else {
-    commit(types.SET_RIGHT_PANEL_COLLAPSED, collapsed);
-  }
-};
-
 export const setResizingStatus = ({ commit }, resizing) => {
   commit(types.SET_RESIZING_STATUS, resizing);
 };
@@ -305,6 +297,3 @@ export * from './actions/tree';
 export * from './actions/file';
 export * from './actions/project';
 export * from './actions/merge_request';
-
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};

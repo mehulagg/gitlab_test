@@ -33,7 +33,7 @@ class MergeRequest < ApplicationRecord
   belongs_to :target_project, class_name: "Project"
   belongs_to :source_project, class_name: "Project"
   belongs_to :merge_user, class_name: "User"
-  belongs_to :sprint
+  belongs_to :iteration, foreign_key: 'sprint_id'
 
   has_internal_id :iid, scope: :target_project, track_if: -> { !importing? }, init: ->(s) { s&.target_project&.merge_requests&.maximum(:iid) }
 
@@ -866,7 +866,7 @@ class MergeRequest < ApplicationRecord
 
     check_service = MergeRequests::MergeabilityCheckService.new(self)
 
-    if async && Feature.enabled?(:async_merge_request_check_mergeability, project)
+    if async && Feature.enabled?(:async_merge_request_check_mergeability, project, default_enabled: true)
       check_service.async_execute
     else
       check_service.execute(retry_lease: false)

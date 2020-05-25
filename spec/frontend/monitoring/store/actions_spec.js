@@ -8,7 +8,7 @@ import createFlash from '~/flash';
 import { defaultTimeRange } from '~/vue_shared/constants';
 import { ENVIRONMENT_AVAILABLE_STATE } from '~/monitoring/constants';
 
-import store from '~/monitoring/stores';
+import { createStore } from '~/monitoring/stores';
 import * as types from '~/monitoring/stores/mutation_types';
 import {
   fetchData,
@@ -26,7 +26,7 @@ import {
   clearExpandedPanel,
   setGettingStartedEmptyState,
   duplicateSystemDashboard,
-  setVariables,
+  updateVariablesAndFetchData,
 } from '~/monitoring/stores/actions';
 import {
   gqClient,
@@ -40,6 +40,7 @@ import {
   deploymentData,
   environmentData,
   annotationsData,
+  mockTemplatingData,
   dashboardGitResponse,
   mockDashboardsErrorResponse,
 } from '../mock_data';
@@ -51,20 +52,16 @@ import {
 
 jest.mock('~/flash');
 
-const resetStore = str => {
-  str.replaceState({
-    showEmptyState: true,
-    emptyState: 'loading',
-    groups: [],
-  });
-};
-
 describe('Monitoring store actions', () => {
   const { convertObjectPropsToCamelCase } = commonUtils;
 
   let mock;
+  let store;
+  let state;
 
   beforeEach(() => {
+    store = createStore();
+    state = store.state.monitoringDashboard;
     mock = new MockAdapter(axios);
 
     jest.spyOn(commonUtils, 'backOff').mockImplementation(callback => {
@@ -82,7 +79,6 @@ describe('Monitoring store actions', () => {
     });
   });
   afterEach(() => {
-    resetStore(store);
     mock.reset();
 
     commonUtils.backOff.mockReset();
@@ -91,8 +87,6 @@ describe('Monitoring store actions', () => {
 
   describe('fetchData', () => {
     it('dispatches fetchEnvironmentsData and fetchEnvironmentsData', () => {
-      const { state } = store;
-
       return testAction(
         fetchData,
         null,
@@ -109,8 +103,6 @@ describe('Monitoring store actions', () => {
     it('dispatches when feature metricsDashboardAnnotations is on', () => {
       const origGon = window.gon;
       window.gon = { features: { metricsDashboardAnnotations: true } };
-
-      const { state } = store;
 
       return testAction(
         fetchData,
@@ -130,7 +122,6 @@ describe('Monitoring store actions', () => {
 
   describe('fetchDeploymentsData', () => {
     it('dispatches receiveDeploymentsDataSuccess on success', () => {
-      const { state } = store;
       state.deploymentsEndpoint = '/success';
       mock.onGet(state.deploymentsEndpoint).reply(200, {
         deployments: deploymentData,
@@ -145,7 +136,6 @@ describe('Monitoring store actions', () => {
       );
     });
     it('dispatches receiveDeploymentsDataFailure on error', () => {
-      const { state } = store;
       state.deploymentsEndpoint = '/error';
       mock.onGet(state.deploymentsEndpoint).reply(500);
 
@@ -163,11 +153,8 @@ describe('Monitoring store actions', () => {
   });
 
   describe('fetchEnvironmentsData', () => {
-    const { state } = store;
-    state.projectPath = 'gitlab-org/gitlab-test';
-
-    afterEach(() => {
-      resetStore(store);
+    beforeEach(() => {
+      state.projectPath = 'gitlab-org/gitlab-test';
     });
 
     it('setting SET_ENVIRONMENTS_FILTER should dispatch fetchEnvironmentsData', () => {
@@ -268,17 +255,14 @@ describe('Monitoring store actions', () => {
   });
 
   describe('fetchAnnotations', () => {
-    const { state } = store;
-    state.timeRange = {
-      start: '2020-04-15T12:54:32.137Z',
-      end: '2020-08-15T12:54:32.137Z',
-    };
-    state.projectPath = 'gitlab-org/gitlab-test';
-    state.currentEnvironmentName = 'production';
-    state.currentDashboard = '.gitlab/dashboards/custom_dashboard.yml';
-
-    afterEach(() => {
-      resetStore(store);
+    beforeEach(() => {
+      state.timeRange = {
+        start: '2020-04-15T12:54:32.137Z',
+        end: '2020-08-15T12:54:32.137Z',
+      };
+      state.projectPath = 'gitlab-org/gitlab-test';
+      state.currentEnvironmentName = 'production';
+      state.currentDashboard = '.gitlab/dashboards/custom_dashboard.yml';
     });
 
     it('fetches annotations data and dispatches receiveAnnotationsSuccess', () => {
@@ -352,7 +336,6 @@ describe('Monitoring store actions', () => {
   });
 
   describe('Toggles starred value of current dashboard', () => {
-    const { state } = store;
     let unstarredDashboard;
     let starredDashboard;
 
@@ -395,23 +378,19 @@ describe('Monitoring store actions', () => {
   });
 
   describe('Set initial state', () => {
-    let mockedState;
-    beforeEach(() => {
-      mockedState = storeState();
-    });
     it('should commit SET_INITIAL_STATE mutation', done => {
       testAction(
         setInitialState,
         {
-          metricsEndpoint: 'additional_metrics.json',
+          currentDashboard: '.gitlab/dashboards/dashboard.yml',
           deploymentsEndpoint: 'deployments.json',
         },
-        mockedState,
+        state,
         [
           {
             type: types.SET_INITIAL_STATE,
             payload: {
-              metricsEndpoint: 'additional_metrics.json',
+              currentDashboard: '.gitlab/dashboards/dashboard.yml',
               deploymentsEndpoint: 'deployments.json',
             },
           },
@@ -422,15 +401,11 @@ describe('Monitoring store actions', () => {
     });
   });
   describe('Set empty states', () => {
-    let mockedState;
-    beforeEach(() => {
-      mockedState = storeState();
-    });
     it('should commit SET_METRICS_ENDPOINT mutation', done => {
       testAction(
         setGettingStartedEmptyState,
         null,
-        mockedState,
+        state,
         [
           {
             type: types.SET_GETTING_STARTED_EMPTY_STATE,
@@ -442,23 +417,23 @@ describe('Monitoring store actions', () => {
     });
   });
 
-  describe('setVariables', () => {
-    let mockedState;
-    beforeEach(() => {
-      mockedState = storeState();
-    });
-    it('should commit SET_PROM_QUERY_VARIABLES mutation', done => {
+  describe('updateVariablesAndFetchData', () => {
+    it('should commit UPDATE_VARIABLES mutation and fetch data', done => {
       testAction(
-        setVariables,
+        updateVariablesAndFetchData,
         { pod: 'POD' },
-        mockedState,
+        state,
         [
           {
-            type: types.SET_PROM_QUERY_VARIABLES,
+            type: types.UPDATE_VARIABLES,
             payload: { pod: 'POD' },
           },
         ],
-        [],
+        [
+          {
+            type: 'fetchDashboardData',
+          },
+        ],
         done,
       );
     });
@@ -466,13 +441,11 @@ describe('Monitoring store actions', () => {
 
   describe('fetchDashboard', () => {
     let dispatch;
-    let state;
     let commit;
     const response = metricsDashboardResponse;
     beforeEach(() => {
       dispatch = jest.fn();
       commit = jest.fn();
-      state = storeState();
       state.dashboardEndpoint = '/dashboard';
     });
 
@@ -556,12 +529,10 @@ describe('Monitoring store actions', () => {
   describe('receiveMetricsDashboardSuccess', () => {
     let commit;
     let dispatch;
-    let state;
 
     beforeEach(() => {
       commit = jest.fn();
       dispatch = jest.fn();
-      state = storeState();
     });
 
     it('stores groups', () => {
@@ -574,6 +545,33 @@ describe('Monitoring store actions', () => {
       );
       expect(dispatch).toHaveBeenCalledWith('fetchDashboardData');
     });
+
+    it('stores templating variables', () => {
+      const response = {
+        ...metricsDashboardResponse.dashboard,
+        ...mockTemplatingData.allVariableTypes.dashboard,
+      };
+
+      receiveMetricsDashboardSuccess(
+        { state, commit, dispatch },
+        {
+          response: {
+            ...metricsDashboardResponse,
+            dashboard: {
+              ...metricsDashboardResponse.dashboard,
+              ...mockTemplatingData.allVariableTypes.dashboard,
+            },
+          },
+        },
+      );
+
+      expect(commit).toHaveBeenCalledWith(
+        types.RECEIVE_METRICS_DASHBOARD_SUCCESS,
+
+        response,
+      );
+    });
+
     it('sets the dashboards loaded from the repository', () => {
       const params = {};
       const response = metricsDashboardResponse;
@@ -595,13 +593,11 @@ describe('Monitoring store actions', () => {
   describe('fetchDashboardData', () => {
     let commit;
     let dispatch;
-    let state;
 
     beforeEach(() => {
       jest.spyOn(Tracking, 'event');
       commit = jest.fn();
       dispatch = jest.fn();
-      state = storeState();
 
       state.timeRange = defaultTimeRange;
     });
@@ -703,7 +699,6 @@ describe('Monitoring store actions', () => {
       step: 60,
     };
     let metric;
-    let state;
     let data;
     let prometheusEndpointPath;
 
@@ -901,10 +896,7 @@ describe('Monitoring store actions', () => {
   });
 
   describe('duplicateSystemDashboard', () => {
-    let state;
-
     beforeEach(() => {
-      state = storeState();
       state.dashboardsEndpoint = '/dashboards.json';
     });
 
@@ -982,12 +974,6 @@ describe('Monitoring store actions', () => {
   });
 
   describe('setExpandedPanel', () => {
-    let state;
-
-    beforeEach(() => {
-      state = storeState();
-    });
-
     it('Sets a panel as expanded', () => {
       const group = 'group_1';
       const panel = { title: 'A Panel' };
@@ -1003,12 +989,6 @@ describe('Monitoring store actions', () => {
   });
 
   describe('clearExpandedPanel', () => {
-    let state;
-
-    beforeEach(() => {
-      state = storeState();
-    });
-
     it('Clears a panel as expanded', () => {
       return testAction(
         clearExpandedPanel,

@@ -7,7 +7,7 @@ describe Snippets::UpdateService do
     let_it_be(:user) { create(:user) }
     let_it_be(:admin) { create :user, admin: true }
     let(:visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
-    let(:options) do
+    let(:base_opts) do
       {
         title: 'Test snippet',
         file_name: 'snippet.rb',
@@ -15,6 +15,8 @@ describe Snippets::UpdateService do
         visibility_level: visibility_level
       }
     end
+    let(:extra_opts) { {} }
+    let(:options) { base_opts.merge(extra_opts) }
     let(:updater) { user }
     let(:service) { Snippets::UpdateService.new(project, updater, options) }
 
@@ -85,7 +87,7 @@ describe Snippets::UpdateService do
       end
 
       context 'when update fails' do
-        let(:options) { { title: '' } }
+        let(:extra_opts) { { title: '' } }
 
         it 'does not increment count' do
           expect { subject }.not_to change { counter.read(:update) }
@@ -121,7 +123,7 @@ describe Snippets::UpdateService do
           response = subject
 
           expect(response).to be_error
-          expect(response.payload[:snippet].errors[:repository].to_sentence).to eq 'Error updating the snippet'
+          expect(response.payload[:snippet].errors[:repository].to_sentence).to eq 'Error updating the snippet - Repository could not be created'
         end
 
         it 'does not try to commit file' do
@@ -196,14 +198,24 @@ describe Snippets::UpdateService do
         end
       end
 
-      it 'rolls back any snippet modifications' do
-        option_keys = options.stringify_keys.keys
-        orig_attrs = snippet.attributes.select { |k, v| k.in?(option_keys) }
+      context 'with snippet modifications' do
+        let(:option_keys) { options.stringify_keys.keys }
 
-        subject
+        it 'rolls back any snippet modifications' do
+          orig_attrs = snippet.attributes.select { |k, v| k.in?(option_keys) }
 
-        current_attrs = snippet.attributes.select { |k, v| k.in?(option_keys) }
-        expect(orig_attrs).to eq current_attrs
+          subject
+
+          persisted_attrs = snippet.reload.attributes.select { |k, v| k.in?(option_keys) }
+          expect(orig_attrs).to eq persisted_attrs
+        end
+
+        it 'keeps any snippet modifications' do
+          subject
+
+          instance_attrs = snippet.attributes.select { |k, v| k.in?(option_keys) }
+          expect(options.stringify_keys).to eq instance_attrs
+        end
       end
     end
 
@@ -263,7 +275,7 @@ describe Snippets::UpdateService do
 
     shared_examples 'committable attributes' do
       context 'when file_name is updated' do
-        let(:options) { { file_name: 'snippet.rb' } }
+        let(:extra_opts) { { file_name: 'snippet.rb' } }
 
         it 'commits to repository' do
           expect(service).to receive(:create_commit)
@@ -272,7 +284,7 @@ describe Snippets::UpdateService do
       end
 
       context 'when content is updated' do
-        let(:options) { { content: 'puts "hello world"' } }
+        let(:extra_opts) { { content: 'puts "hello world"' } }
 
         it 'commits to repository' do
           expect(service).to receive(:create_commit)
@@ -304,6 +316,11 @@ describe Snippets::UpdateService do
       it_behaves_like 'updates repository content'
       it_behaves_like 'commit operation fails'
       it_behaves_like 'committable attributes'
+      it_behaves_like 'snippets spam check is performed' do
+        before do
+          subject
+        end
+      end
 
       context 'when snippet does not have a repository' do
         let!(:snippet) { create(:project_snippet, author: user, project: project) }
@@ -323,6 +340,11 @@ describe Snippets::UpdateService do
       it_behaves_like 'updates repository content'
       it_behaves_like 'commit operation fails'
       it_behaves_like 'committable attributes'
+      it_behaves_like 'snippets spam check is performed' do
+        before do
+          subject
+        end
+      end
 
       context 'when snippet does not have a repository' do
         let!(:snippet) { create(:personal_snippet, author: user, project: project) }

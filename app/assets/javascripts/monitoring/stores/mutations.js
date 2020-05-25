@@ -188,13 +188,13 @@ export default {
     state.expandedPanel.group = group;
     state.expandedPanel.panel = panel;
   },
-  [types.SET_PROM_QUERY_VARIABLES](state, variables) {
-    state.promVariables = variables;
+  [types.SET_VARIABLES](state, variables) {
+    state.variables = variables;
   },
-  [types.UPDATE_VARIABLE_DATA](state, newVariable) {
-    Object.assign(state.promVariables, {
-      ...state.promVariables,
-      ...newVariable,
+  [types.UPDATE_VARIABLES](state, updatedVariable) {
+    Object.assign(state.variables[updatedVariable.key], {
+      ...state.variables[updatedVariable.key],
+      value: updatedVariable.value,
     });
   },
 };

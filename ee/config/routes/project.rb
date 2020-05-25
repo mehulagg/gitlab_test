@@ -64,7 +64,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :summary, on: :collection
           end
 
-          resource :network_policies, only: [] do
+          resources :network_policies, only: [:index, :create, :update, :destroy] do
             get :summary, on: :collection
           end
 
@@ -78,7 +78,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             end
           end
 
-          resources :vulnerabilities, only: [:show, :index] do
+          resources :vulnerabilities, only: [:show] do
             member do
               get :discussions, format: :json
             end

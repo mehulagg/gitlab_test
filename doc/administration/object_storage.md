@@ -5,7 +5,7 @@ type: reference
 # Object Storage
 
 GitLab supports using an object storage service for holding numerous types of data.
-In a high availability setup, it's recommended over [NFS](high_availability/nfs.md) and
+It's recommended over NFS and
 in general it's better in larger setups as object storage is
 typically much more performant, reliable, and scalable.
 
@@ -38,7 +38,7 @@ For configuring GitLab to use Object Storage refer to the following guides:
 ### Other alternatives to filesystem storage
 
 If you're working to [scale out](reference_architectures/index.md) your GitLab implementation,
-or add [fault tolerance and redundancy](high_availability/README.md) you may be
+or add fault tolerance and redundancy, you may be
 looking at removing dependencies on block or network filesystems.
 See the following guides and
 [note that Pages requires disk storage](#gitlab-pages-requires-nfs):
@@ -79,7 +79,7 @@ with the Fog library that GitLab uses. Symptoms include:
 
 If you're working to add more GitLab servers for [scaling or fault tolerance](reference_architectures/index.md)
 and one of your requirements is [GitLab Pages](../user/project/pages/index.md) this currently requires
-NFS. There is [work in progress](https://gitlab.com/gitlab-org/gitlab-pages/issues/196)
+NFS. There is [work in progress](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/196)
 to remove this dependency. In the future, GitLab Pages may use
 [object storage](https://gitlab.com/gitlab-org/gitlab/-/issues/208135).
 

@@ -230,6 +230,8 @@ describe 'project routing' do
       expect(delete('/gitlab/gitlabhq/-/tags/feature%2B45/foo/bar/baz')).to route_to('projects/tags#destroy', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45/foo/bar/baz')
       expect(delete('/gitlab/gitlabhq/-/tags/feature@45/foo/bar/baz')).to route_to('projects/tags#destroy', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45/foo/bar/baz')
     end
+
+    it_behaves_like 'redirecting a legacy project path', "/gitlab/gitlabhq/tags", "/gitlab/gitlabhq/-/tags"
   end
 
   #     project_deploy_keys GET    /:project_id/deploy_keys(.:format)          deploy_keys#index
@@ -817,6 +819,10 @@ describe 'project routing' do
   describe Projects::UsagePingController, 'routing' do
     it 'routes to usage_ping#web_ide_clientside_preview' do
       expect(post('/gitlab/gitlabhq/usage_ping/web_ide_clientside_preview')).to route_to('projects/usage_ping#web_ide_clientside_preview', namespace_id: 'gitlab', project_id: 'gitlabhq')
+    end
+
+    it 'routes to usage_ping#web_ide_pipelines_count' do
+      expect(post('/gitlab/gitlabhq/usage_ping/web_ide_pipelines_count')).to route_to('projects/usage_ping#web_ide_pipelines_count', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
   end
 

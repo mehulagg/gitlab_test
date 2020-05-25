@@ -47,6 +47,7 @@ Parameters:
 | `view`                          | string         | no       | If `simple`, returns the `iid`, URL, title, description, and basic state of merge request                              |
 | `labels`                        | string         | no       | Return merge requests matching a comma separated list of labels. `None` lists all merge requests with no labels. `Any` lists all merge requests with at least one label. `No+Label` (Deprecated) lists all merge requests with no labels. Predefined names are case-insensitive. |
 | `with_labels_details`           | boolean        | no       | If `true`, response will return more details for each label in labels field: `:name`, `:color`, `:description`, `:description_html`, `:text_color`. Default is `false`. Introduced in [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21413) |
+| `with_merge_status_recheck`     | boolean        | no       | If `true`, this projection requests (but does not guarantee) that the `merge_status` field be recalculated asynchronously. Default is `false`. Introduced in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31890) |
 | `created_after`                 | datetime       | no       | Return merge requests created on or after the given time                                                               |
 | `created_before`                | datetime       | no       | Return merge requests created on or before the given time                                                              |
 | `updated_after`                 | datetime       | no       | Return merge requests updated on or after the given time                                                               |
@@ -65,7 +66,14 @@ Parameters:
 | `wip`                           | string         | no       | Filter merge requests against their `wip` status. `yes` to return *only* WIP merge requests, `no` to return *non* WIP merge requests |
 
 NOTE: **Note:**
-[Starting in GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/29984),
+[Starting in GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31890),
+listing merge requests may not proactively update the `merge_status` field
+(which also affects the `has_conflicts` field), as this can be an expensive
+operation. If you are interested in the value of these fields from this
+endpoint, set the `with_merge_status_recheck` parameter to `true` in the query.
+
+NOTE: **Note:**
+[Starting in GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/-/issues/29984),
 when `async_merge_request_check_mergeability` feature flag is enabled, the
 mergeability (`merge_status`) of each merge request will be checked
 asynchronously when a request is made to this endpoint. Poll this API endpoint
@@ -227,6 +235,7 @@ Parameters:
 | `view`                          | string         | no       | If `simple`, returns the `iid`, URL, title, description, and basic state of merge request                                      |
 | `labels`                        | string         | no       | Return merge requests matching a comma separated list of labels. `None` lists all merge requests with no labels. `Any` lists all merge requests with at least one label. `No+Label` (Deprecated) lists all merge requests with no labels. Predefined names are case-insensitive. |
 | `with_labels_details`           | boolean        | no       | If `true`, response will return more details for each label in labels field: `:name`, `:color`, `:description`, `:description_html`, `:text_color`. Default is `false`. Introduced in [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21413) |
+| `with_merge_status_recheck`     | boolean        | no       | If `true`, this projection requests (but does not guarantee) that the `merge_status` field be recalculated asynchronously. Default is `false`. Introduced in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31890) |
 | `created_after`                 | datetime       | no       | Return merge requests created on or after the given time                                                                       |
 | `created_before`                | datetime       | no       | Return merge requests created on or before the given time                                                                      |
 | `updated_after`                 | datetime       | no       | Return merge requests updated on or after the given time                                                                       |
@@ -390,6 +399,7 @@ Parameters:
 | `view`                          | string         | no       | If `simple`, returns the `iid`, URL, title, description, and basic state of merge request                                      |
 | `labels`                        | string         | no       | Return merge requests matching a comma separated list of labels. `None` lists all merge requests with no labels. `Any` lists all merge requests with at least one label. `No+Label` (Deprecated) lists all merge requests with no labels. Predefined names are case-insensitive. |
 | `with_labels_details`           | boolean        | no       | If `true`, response will return more details for each label in labels field: `:name`, `:color`, `:description`, `:description_html`, `:text_color`. Default is `false`. Introduced in [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21413)|
+| `with_merge_status_recheck`     | boolean        | no       | If `true`, this projection requests (but does not guarantee) that the `merge_status` field be recalculated asynchronously. Default is `false`. Introduced in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31890) |
 | `created_after`                 | datetime       | no       | Return merge requests created on or after the given time                                                                       |
 | `created_before`                | datetime       | no       | Return merge requests created on or before the given time                                                                      |
 | `updated_after`                 | datetime       | no       | Return merge requests updated on or after the given time                                                                       |
@@ -544,7 +554,7 @@ Parameters:
 - `include_rebase_in_progress` (optional) - If `true` response includes whether a rebase operation is in progress
 
 NOTE: **Note:**
-[Starting in GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/29984),
+[Starting in GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/-/issues/29984),
 when `async_merge_request_check_mergeability` feature flag is enabled, the
 mergeability (`merge_status`) of a merge request will be checked
 asynchronously when a request is made to this endpoint. Poll this API endpoint

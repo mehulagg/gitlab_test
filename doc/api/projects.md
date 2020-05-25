@@ -309,7 +309,7 @@ GET /projects?custom_attributes[key]=value&custom_attributes[other_key]=other_va
 ### Pagination limits
 
 From GitLab 13.0, [offset-based pagination](README.md#offset-based-pagination) will be
-[limited to 50,000 records](https://gitlab.com/gitlab-org/gitlab/issues/34565).
+[limited to 50,000 records](https://gitlab.com/gitlab-org/gitlab/-/issues/34565).
 [Keyset pagination](README.md#keyset-based-pagination) will be required to retrieve projects
 beyond this limit.
 
@@ -1029,6 +1029,7 @@ POST /projects
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
 | `emails_disabled` | boolean | no | Disable email notifications |
+| `show_default_award_emojis` | boolean | no | Show default award emojis |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `container_expiration_policy_attributes` | hash | no | Update the image expiration policy for this project. Accepts: `cadence` (string), `keep_n` (string), `older_than` (string), `name_regex` (string), `name_regex_delete` (string), `name_regex_keep` (string), `enabled` (boolean) |
@@ -1098,6 +1099,7 @@ POST /projects/user/:user_id
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
 | `emails_disabled` | boolean | no | Disable email notifications |
+| `show_default_award_emojis` | boolean | no | Show default award emojis |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `shared_runners_enabled` | boolean | no | Enable shared runners for this project |
@@ -1166,6 +1168,7 @@ PUT /projects/:id
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
 | `emails_disabled` | boolean | no | Disable email notifications |
+| `show_default_award_emojis` | boolean | no | Show default award emojis |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `container_expiration_policy_attributes` | hash | no | Update the image expiration policy for this project. Accepts: `cadence` (string), `keep_n` (string), `older_than` (string), `name_regex` (string), `name_regex_delete` (string), `name_regex_keep` (string), `enabled` (boolean) |
@@ -1803,7 +1806,7 @@ Example response:
 This endpoint either:
 
 - Removes a project including all associated resources (issues, merge requests etc).
-- From [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/32935) on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a project for deletion. Actual
+- From [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/32935) on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a project for deletion. Actual
   deletion happens after number of days specified in
   [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
 
@@ -1817,7 +1820,7 @@ DELETE /projects/:id
 
 ## Restore project marked for deletion **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/32935) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/32935) in GitLab 12.6.
 
 Restores project marked for deletion.
 

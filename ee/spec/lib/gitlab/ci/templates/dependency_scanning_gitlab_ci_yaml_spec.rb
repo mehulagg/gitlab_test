@@ -33,7 +33,11 @@ describe 'Dependency-Scanning.gitlab-ci.yml' do
         allow(License).to receive(:current).and_return(license)
       end
 
-      context 'by default' do
+      context 'when DS_DISABLE_DIND=false' do
+        before do
+          create(:ci_variable, project: project, key: 'DS_DISABLE_DIND', value: 'false')
+        end
+
         it 'includes orchestrator job' do
           expect(build_names).to match_array(%w[dependency_scanning])
         end
@@ -49,11 +53,7 @@ describe 'Dependency-Scanning.gitlab-ci.yml' do
         end
       end
 
-      context 'when DS_DISABLE_DIND=true' do
-        before do
-          create(:ci_variable, project: project, key: 'DS_DISABLE_DIND', value: 'true')
-        end
-
+      context 'by default' do
         describe 'language detection' do
           using RSpec::Parameterized::TableSyntax
 
@@ -70,7 +70,6 @@ describe 'Dependency-Scanning.gitlab-ci.yml' do
             'Python requirements.txt'        | { 'requirements.txt' => '' }              | %w(gemnasium-python-dependency_scanning)
             'Python requirements.pip'        | { 'requirements.pip' => '' }              | %w(gemnasium-python-dependency_scanning)
             'Python Pipfile'                 | { 'Pipfile' => '' }                       | %w(gemnasium-python-dependency_scanning)
-            'Python Pipfile.lock'            | { 'Pipfile.lock' => '' }                  | %w(gemnasium-dependency_scanning)
             'Python requires.txt'            | { 'requires.txt' => '' }                  | %w(gemnasium-python-dependency_scanning)
             'Python with setup.py'           | { 'setup.py' => '' }                      | %w(gemnasium-python-dependency_scanning)
             'Ruby Gemfile.lock'              | { 'Gemfile.lock' => '' }                  | %w(bundler-audit-dependency_scanning gemnasium-dependency_scanning)
@@ -79,8 +78,40 @@ describe 'Dependency-Scanning.gitlab-ci.yml' do
           end
 
           with_them do
-            it 'creates a pipeline with the expected jobs' do
-              expect(build_names).to include(*include_build_names)
+            let(:project) { create(:project, :custom_repo, files: files_at_depth_x) }
+
+            context 'with file at root' do
+              let(:files_at_depth_x) { files }
+
+              it 'creates a pipeline with the expected jobs' do
+                expect(build_names).to include(*include_build_names)
+              end
+            end
+
+            context 'with file at depth 1' do
+              # prepend a directory to files (e.g. convert go.sum to foo/go.sum)
+              let(:files_at_depth_x) {  Hash[files.map { |k, v| ["foo/#{k}", v]}] }
+
+              it 'creates a pipeline with the expected jobs' do
+                expect(build_names).to include(*include_build_names)
+              end
+            end
+
+            context 'with file at depth 2' do
+              # prepend a directory to files (e.g. convert go.sum to foo/bar/go.sum)
+              let(:files_at_depth_x) {  Hash[files.map { |k, v| ["foo/bar/#{k}", v]}] }
+
+              it 'creates a pipeline with the expected jobs' do
+                expect(build_names).to include(*include_build_names)
+              end
+            end
+
+            context 'with file at depth > 2' do
+              let(:files_at_depth_x) {  Hash[files.map { |k, v| ["foo/bar/baz/#{k}", v]}] }
+
+              it 'includes no job' do
+                expect { pipeline }.to raise_error(Ci::CreatePipelineService::CreateError)
+              end
             end
           end
         end

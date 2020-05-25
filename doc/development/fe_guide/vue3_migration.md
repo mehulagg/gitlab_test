@@ -58,7 +58,7 @@ export default createEventHub();
 Event hubs created with the factory expose the same methods as Vue 2 event hubs (`$on`, `$once`, `$off` and
 `$emit`), making them backward compatible with our previous approach.
 
-## <template functional>
+## \<template functional>
 
 **Why?**
 
@@ -111,7 +111,7 @@ export default {
 </template>
 ```
 
-```js
+```javascript
 // MyAwesomeComponent.spec.js
 
 import SomeChildComponent from '~/some_child_component.vue'

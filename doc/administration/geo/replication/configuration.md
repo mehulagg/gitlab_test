@@ -25,7 +25,7 @@ Any change that requires access to the **Admin Area** needs to be done in the
 
 GitLab stores a number of secret values in the `/etc/gitlab/gitlab-secrets.json`
 file which *must* be the same on all nodes. Until there is
-a means of automatically replicating these between nodes (see [issue #3789](https://gitlab.com/gitlab-org/gitlab/issues/3789)),
+a means of automatically replicating these between nodes (see [issue #3789](https://gitlab.com/gitlab-org/gitlab/-/issues/3789)),
 they must be manually replicated to the **secondary** node.
 
 1. SSH into the **primary** node, and execute the command below:
@@ -262,7 +262,7 @@ You can login to the **secondary** node with the same credentials you used for t
 **secondary** Geo node and if Geo is enabled.
 
 The initial replication, or 'backfill', will probably still be in progress. You
-can monitor the synchronization process on each geo node from the **primary**
+can monitor the synchronization process on each Geo node from the **primary**
 node's **Geo Nodes** dashboard in your browser.
 
 ![Geo dashboard](img/geo_node_dashboard.png)

@@ -11,6 +11,10 @@ module Groups
         @shared = Gitlab::ImportExport::Shared.new(@group)
       end
 
+      def async_execute
+        GroupImportWorker.perform_async(current_user.id, group.id)
+      end
+
       def execute
         if valid_user_permissions? && import_file && restorer.restore
           notify_success
@@ -53,7 +57,7 @@ module Groups
       end
 
       def ndjson?
-        ::Feature.enabled?(:group_import_ndjson, @group&.parent) &&
+        ::Feature.enabled?(:group_import_ndjson, @group&.parent, default_enabled: true) &&
           File.exist?(File.join(@shared.export_path, 'tree/groups/_all.ndjson'))
       end
 

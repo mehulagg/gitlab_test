@@ -495,6 +495,32 @@ describe Vulnerabilities::Occurrence do
     end
   end
 
+  describe '#load_feedback' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:occurrence) do
+      create(
+        :vulnerabilities_occurrence,
+        report_type: :dependency_scanning,
+        project: project
+      )
+    end
+    let_it_be(:feedback) do
+      create(
+        :vulnerability_feedback,
+        :dependency_scanning,
+        :dismissal,
+        project: project,
+        project_fingerprint: occurrence.project_fingerprint
+      )
+    end
+
+    let(:expected_feedback) { [feedback] }
+
+    subject(:load_feedback) { occurrence.load_feedback.to_a }
+
+    it { is_expected.to eq(expected_feedback) }
+  end
+
   describe '#state' do
     before do
       create(:vulnerability, :dismissed, project: finding_with_issue.project, findings: [finding_with_issue])
@@ -570,22 +596,45 @@ describe Vulnerabilities::Occurrence do
   end
 
   describe '#evidence' do
-    it 'has an evidence summary when present' do
-      occurrence = create(:vulnerabilities_occurrence)
+    subject { occurrence.evidence }
 
-      expect(occurrence.evidence).to eq(occurrence.metadata['evidence']['summary'])
+    context 'has an evidence fields' do
+      let(:occurrence) { create(:vulnerabilities_occurrence) }
+      let(:evidence) { occurrence.metadata['evidence'] }
+
+      it do
+        is_expected.to match a_hash_including(
+          summary: evidence['summary'],
+          request: {
+            headers: evidence['request']['headers'],
+            url: evidence['request']['url'],
+            method: evidence['request']['method']
+          },
+          response: {
+            headers: evidence['response']['headers'],
+            reason_phrase: evidence['response']['reason_phrase'],
+            status_code: evidence['response']['status_code']
+          })
+      end
     end
 
-    it 'has no evidence summary when evidence is present, summary is not' do
-      occurrence = create(:vulnerabilities_occurrence, raw_metadata: { evidence: {} })
+    context 'has no evidence summary when evidence is present, summary is not' do
+      let(:occurrence) { create(:vulnerabilities_occurrence, raw_metadata: { evidence: {} }) }
 
-      expect(occurrence.evidence).to be_nil
-    end
-
-    it 'has no evidence summary when evidence is not present' do
-      occurrence = create(:vulnerabilities_occurrence, raw_metadata: {})
-
-      expect(occurrence.evidence).to be_nil
+      it do
+        is_expected.to match a_hash_including(
+          summary: nil,
+          request: {
+            headers: [],
+            url: nil,
+            method: nil
+          },
+          response: {
+            headers: [],
+            reason_phrase: nil,
+            status_code: nil
+          })
+      end
     end
   end
 

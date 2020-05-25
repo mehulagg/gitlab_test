@@ -7,7 +7,7 @@ module EE
       attr_reader :issuable
 
       override :execute
-      def execute(_issuable, old_labels: [], is_update: true)
+      def execute(_issuable, old_labels: [], old_milestone: nil, is_update: true)
         super
 
         ActiveRecord::Base.no_touching do
@@ -38,7 +38,7 @@ module EE
         if weight_changes_tracking_enabled?
           # Only create a resource event here if is_update is true to exclude the move issue operation.
           # ResourceEvents for moved issues are written within AttributesRewriter.
-          EE::ResourceEvents::ChangeWeightService.new([issuable], current_user, Time.now).execute if is_update
+          EE::ResourceEvents::ChangeWeightService.new([issuable], current_user, Time.current).execute if is_update
         else
           ::SystemNoteService.change_weight_note(issuable, issuable.project, current_user)
         end

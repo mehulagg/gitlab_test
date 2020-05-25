@@ -103,6 +103,8 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(10.5).for(:raw_blob_request_limit) }
     it { is_expected.not_to allow_value(-1).for(:raw_blob_request_limit) }
 
+    it { is_expected.not_to allow_value(false).for(:hashed_storage_enabled) }
+
     context 'grafana_url validations' do
       before do
         subject.instance_variable_set(:@parsed_grafana_url, nil)
@@ -147,6 +149,30 @@ describe ApplicationSetting do
             'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
           ])
         end
+      end
+    end
+
+    describe 'spam_check_endpoint' do
+      context 'when spam_check_endpoint is enabled' do
+        before do
+          setting.spam_check_endpoint_enabled = true
+        end
+
+        it { is_expected.to allow_value('https://example.org/spam_check').for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value('nonsense').for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value(nil).for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value('').for(:spam_check_endpoint_url) }
+      end
+
+      context 'when spam_check_endpoint is NOT enabled' do
+        before do
+          setting.spam_check_endpoint_enabled = false
+        end
+
+        it { is_expected.to allow_value('https://example.org/spam_check').for(:spam_check_endpoint_url) }
+        it { is_expected.not_to allow_value('nonsense').for(:spam_check_endpoint_url) }
+        it { is_expected.to allow_value(nil).for(:spam_check_endpoint_url) }
+        it { is_expected.to allow_value('').for(:spam_check_endpoint_url) }
       end
     end
 

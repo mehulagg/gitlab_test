@@ -163,11 +163,11 @@ module Ci
       # Create a separate worker for each new operation
 
       before_transition [:created, :waiting_for_resource, :preparing, :pending] => :running do |pipeline|
-        pipeline.started_at = Time.now
+        pipeline.started_at = Time.current
       end
 
       before_transition any => [:success, :failed, :canceled] do |pipeline|
-        pipeline.finished_at = Time.now
+        pipeline.finished_at = Time.current
         pipeline.update_duration
       end
 
@@ -788,7 +788,7 @@ module Ci
     end
 
     def find_job_with_archive_artifacts(name)
-      builds.latest.with_artifacts_archive.find_by_name(name)
+      builds.latest.with_downloadable_artifacts.find_by_name(name)
     end
 
     def latest_builds_with_artifacts
@@ -959,6 +959,14 @@ module Ci
       elsif tag?
         Gitlab::Git::TAG_REF_PREFIX + source_ref.to_s
       end
+    end
+
+    # Set scheduling type of processables if they were created before scheduling_type
+    # data was deployed (https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22246).
+    def ensure_scheduling_type!
+      return unless ::Gitlab::Ci::Features.ensure_scheduling_type_enabled?
+
+      processables.populate_scheduling_type!
     end
 
     private

@@ -35,6 +35,7 @@ module EE
       has_many :reviews,                  foreign_key: :author_id, inverse_of: :author
       has_many :epics,                    foreign_key: :author_id
       has_many :requirements,             foreign_key: :author_id, inverse_of: :author, class_name: 'RequirementsManagement::Requirement'
+      has_many :test_reports,             foreign_key: :author_id, inverse_of: :author, class_name: 'RequirementsManagement::TestReport'
       has_many :assigned_epics,           foreign_key: :assignee_id, class_name: "Epic"
       has_many :path_locks,               dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :vulnerability_feedback, foreign_key: :author_id, class_name: 'Vulnerabilities::Feedback'
@@ -243,17 +244,17 @@ module EE
       ::Namespace
         .from("(#{namespace_union_for_reporter_developer_maintainer_owned}) #{::Namespace.table_name}")
         .include_gitlab_subscription
-        .where(gitlab_subscriptions: { hosted_plan: ::Plan.where(name: Plan::PAID_HOSTED_PLANS) })
+        .where(gitlab_subscriptions: { hosted_plan: ::Plan.where(name: ::Plan::PAID_HOSTED_PLANS) })
         .any?
     end
 
     # Returns true if the user is an Owner on any namespace currently on
     # a paid plan
-    def owns_paid_namespace?
+    def owns_paid_namespace?(plans: ::Plan::PAID_HOSTED_PLANS)
       ::Namespace
         .from("(#{namespace_union_for_owned}) #{::Namespace.table_name}")
         .include_gitlab_subscription
-        .where(gitlab_subscriptions: { hosted_plan: ::Plan.where(name: Plan::PAID_HOSTED_PLANS) })
+        .where(gitlab_subscriptions: { hosted_plan: ::Plan.where(name: plans) })
         .any?
     end
 
@@ -305,7 +306,7 @@ module EE
     end
 
     def admin_unsubscribe!
-      update_column :admin_email_unsubscribed_at, Time.now
+      update_column :admin_email_unsubscribed_at, Time.current
     end
 
     override :allow_password_authentication_for_web?
@@ -348,19 +349,20 @@ module EE
     def gitlab_employee?
       strong_memoize(:gitlab_employee) do
         if ::Gitlab.com? && ::Feature.enabled?(:gitlab_employee_badge)
-          confirmed? && human? && Mail::Address.new(email).domain == "gitlab.com"
+          human? && ::Gitlab::Com.gitlab_com_group_member_id?(id)
         else
           false
         end
       end
     end
 
-    def organization
-      gitlab_employee? ? 'GitLab' : super
-    end
-
     def security_dashboard
       InstanceSecurityDashboard.new(self)
+    end
+
+    def owns_upgradeable_namespace?
+      !owns_paid_namespace?(plans: [::Plan::GOLD]) &&
+        owns_paid_namespace?(plans: [::Plan::BRONZE, ::Plan::SILVER])
     end
 
     protected

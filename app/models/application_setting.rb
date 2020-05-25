@@ -5,12 +5,9 @@ class ApplicationSetting < ApplicationRecord
   include CacheMarkdownField
   include TokenAuthenticatable
   include ChronicDurationAttribute
-  include IgnorableColumns
 
   GRAFANA_URL_ERROR_MESSAGE = 'Please check your Grafana URL setting in ' \
     'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
-
-  ignore_column :elasticsearch_experimental_indexer, remove_with: '13.1', remove_after: '2020-05-22'
 
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
@@ -266,6 +263,8 @@ class ApplicationSetting < ApplicationRecord
 
   validates :email_restrictions, untrusted_regexp: true
 
+  validates :hashed_storage_enabled, inclusion: { in: [true], message: _("Hashed storage can't be disabled anymore for new projects") }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end
@@ -301,6 +300,13 @@ class ApplicationSetting < ApplicationRecord
   validates :external_authorization_service_timeout,
             numericality: { greater_than: 0, less_than_or_equal_to: 10 },
             if: :external_authorization_service_enabled
+
+  validates :spam_check_endpoint_url,
+            addressable_url: true, allow_blank: true
+
+  validates :spam_check_endpoint_url,
+            presence: true,
+            if: :spam_check_endpoint_enabled
 
   validates :external_auth_client_key,
             presence: true,

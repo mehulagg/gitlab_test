@@ -3,6 +3,8 @@ import * as types from './mutation_types';
 import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
 import { convertToFixedRange } from '~/lib/utils/datetime_range';
+import { parseTemplatingVariables } from './variable_mapping';
+import { mergeURLVariables } from '../utils';
 import {
   gqClient,
   parseEnvironmentsResponse,
@@ -77,7 +79,7 @@ export const setTimeRange = ({ commit }, timeRange) => {
 };
 
 export const setVariables = ({ commit }, variables) => {
-  commit(types.SET_PROM_QUERY_VARIABLES, variables);
+  commit(types.SET_VARIABLES, variables);
 };
 
 export const filterEnvironments = ({ commit, dispatch }, searchTerm) => {
@@ -159,6 +161,7 @@ export const receiveMetricsDashboardSuccess = ({ commit, dispatch }, { response 
 
   commit(types.SET_ALL_DASHBOARDS, all_dashboards);
   commit(types.RECEIVE_METRICS_DASHBOARD_SUCCESS, dashboard);
+  commit(types.SET_VARIABLES, mergeURLVariables(parseTemplatingVariables(dashboard.templating)));
   commit(types.SET_ENDPOINTS, convertObjectPropsToCamelCase(metrics_data));
 
   return dispatch('fetchDashboardData');
@@ -220,7 +223,7 @@ export const fetchPrometheusMetric = (
     queryParams.step = metric.step;
   }
 
-  if (Object.keys(state.promVariables).length > 0) {
+  if (Object.keys(state.variables).length > 0) {
     queryParams.variables = getters.getCustomVariablesArray;
   }
 
@@ -311,8 +314,7 @@ export const receiveEnvironmentsDataFailure = ({ commit }) => {
 
 export const fetchAnnotations = ({ state, dispatch }) => {
   const { start } = convertToFixedRange(state.timeRange);
-  const dashboardPath =
-    state.currentDashboard === '' ? DEFAULT_DASHBOARD_PATH : state.currentDashboard;
+  const dashboardPath = state.currentDashboard || DEFAULT_DASHBOARD_PATH;
   return gqClient
     .mutate({
       mutation: getAnnotations,
@@ -413,8 +415,10 @@ export const duplicateSystemDashboard = ({ state }, payload) => {
 
 // Variables manipulation
 
-export const setVariableData = ({ commit }, updatedVariable) => {
-  commit(types.UPDATE_VARIABLE_DATA, updatedVariable);
+export const updateVariablesAndFetchData = ({ commit, dispatch }, updatedVariable) => {
+  commit(types.UPDATE_VARIABLES, updatedVariable);
+
+  return dispatch('fetchDashboardData');
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
