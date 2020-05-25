@@ -43,7 +43,10 @@ if !Rails.env.test? && Gitlab::Metrics.prometheus_metrics_enabled?
     defined?(::Prometheus::Client.reinitialize_on_pid_change) && Prometheus::Client.reinitialize_on_pid_change
 
     Gitlab::Metrics::Samplers::RubySampler.initialize_instance(Settings.monitoring.ruby_sampler_interval).start
-    Gitlab::Metrics::Samplers::DatabaseSampler.initialize_instance(Gitlab::Metrics::Samplers::DatabaseSampler::SAMPLING_INTERVAL_SECONDS).start
+
+    if Gitlab::Utils.to_boolean(ENV['ENABLE_DATABASE_CONNECTION_POOL_METRICS'])
+      Gitlab::Metrics::Samplers::DatabaseSampler.initialize_instance(Gitlab::Metrics::Samplers::DatabaseSampler::SAMPLING_INTERVAL_SECONDS).start
+    end
 
     if Gitlab.ee? && Gitlab::Runtime.sidekiq?
       Gitlab::Metrics::Samplers::GlobalSearchSampler.instance(Settings.monitoring.global_search_sampler_interval).start
