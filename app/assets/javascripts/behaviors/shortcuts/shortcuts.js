@@ -3,33 +3,13 @@ import Cookies from 'js-cookie';
 import Mousetrap from 'mousetrap';
 import Vue from 'vue';
 import { disableShortcuts, shouldDisableShortcuts } from './shortcuts_toggle';
+import initMarkdownShortcuts from './shortcuts_markdown';
 import ShortcutsToggle from './shortcuts_toggle.vue';
 import axios from '../../lib/utils/axios_utils';
 
 import { refreshCurrentPage, visitUrl } from '../../lib/utils/url_utility';
 import findAndFollowLink from '../../lib/utils/navigation_utility';
 import { parseBoolean, getCspNonceValue } from '~/lib/utils/common_utils';
-import { updateText } from '~/lib/utils/text_markdown';
-
-const markdownPreviewShortcut = ['ctrl+shift+p', 'command+shift+p'];
-const boldTextShortcut = ['ctrl+b', 'command+b'];
-const italicTextShortcut = ['ctrl+i', 'command+i'];
-const linkTextShortcut = ['ctrl+k', 'command+k'];
-const textareaShortcuts = [
-  ...markdownPreviewShortcut,
-  ...boldTextShortcut,
-  ...italicTextShortcut,
-  ...linkTextShortcut,
-];
-
-const defaultStopCallback = Mousetrap.stopCallback;
-Mousetrap.stopCallback = (e, element, combo) => {
-  if (textareaShortcuts.includes(combo)) {
-    return false;
-  }
-
-  return defaultStopCallback(e, element, combo);
-};
 
 function initToggleButton() {
   return new Vue({
@@ -37,34 +17,6 @@ function initToggleButton() {
     render(createElement) {
       return createElement(ShortcutsToggle);
     },
-  });
-}
-
-function insertMarkdownBoldSymbol(e) {
-  updateText({
-    textArea: $(e.target),
-    tag: '**',
-    cursorOffset: 0,
-    wrap: true,
-  });
-}
-
-function insertMarkdownItalicSymbol(e) {
-  updateText({
-    textArea: $(e.target),
-    tag: '*',
-    cursorOffset: 0,
-    wrap: true,
-  });
-}
-
-function insertMarkdownLinkSymbol(e) {
-  updateText({
-    textArea: $(e.target),
-    tag: '[{text}](url)',
-    cursorOffset: 0,
-    wrap: true,
-    select: 'url',
   });
 }
 
@@ -89,10 +41,7 @@ export default class Shortcuts {
     Mousetrap.bind('shift+l', () => findAndFollowLink('.dashboard-shortcuts-milestones'));
     Mousetrap.bind('shift+s', () => findAndFollowLink('.dashboard-shortcuts-snippets'));
 
-    Mousetrap.bind(markdownPreviewShortcut, Shortcuts.toggleMarkdownPreview);
-    Mousetrap.bind(boldTextShortcut, insertMarkdownBoldSymbol);
-    Mousetrap.bind(italicTextShortcut, insertMarkdownItalicSymbol);
-    Mousetrap.bind(linkTextShortcut, insertMarkdownLinkSymbol);
+    initMarkdownShortcuts();
 
     if (typeof findFileURL !== 'undefined' && findFileURL !== null) {
       Mousetrap.bind('t', () => {
@@ -131,17 +80,6 @@ export default class Shortcuts {
       Cookies.set(performanceBarCookieName, 'true', { path: '/' });
     }
     refreshCurrentPage();
-  }
-
-  static toggleMarkdownPreview(e) {
-    // Check if short-cut was triggered while in Write Mode
-    const $target = $(e.target);
-    const $form = $target.closest('form');
-
-    if ($target.hasClass('js-note-text')) {
-      $('.js-md-preview-button', $form).focus();
-    }
-    $(document).triggerHandler('markdown-preview:toggle', [e]);
   }
 
   static toggleHelp(location) {
