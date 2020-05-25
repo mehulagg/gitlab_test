@@ -130,18 +130,16 @@ NOTE: **Note:** The 25 workers of Sidekiq will show up as separate processes in 
 
 ## Database
 
-The server running the database should have _at least_ 5-10 GB of storage
-available, though the exact requirements depend on the size of the GitLab
-installation (for example the number of users, projects, etc).
-
-We currently support the following databases:
-
-- PostgreSQL
-
+We currently support only PostgreSQL, which is installed either by our Omnibus package,
+or [externally](https://docs.gitlab.com/omnibus/settings/database.html#using-a-non-packaged-postgresql-database-management-server).
 Support for MySQL was removed in GitLab 12.1. Existing users using GitLab with
 MySQL/MariaDB are advised to [migrate to PostgreSQL](../update/mysql_to_postgresql.md) before upgrading.
 
 ### PostgreSQL Requirements
+
+The server running PostgreSQL should have _at least_ 5-10 GB of storage
+available, though the exact requirements depend on the size of the GitLab
+installation (for example the number of users, projects, etc).
 
 We highly recommend users to use the minimum PostgreSQL versions specified below as these are the versions used for development and testing.
 
