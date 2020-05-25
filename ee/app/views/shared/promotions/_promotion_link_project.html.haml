@@ -13,7 +13,7 @@
     %p= _('Contact owner %{link_start}%{owner_name}%{link_end} to upgrade the plan.').html_safe % { owner_name: owner.name, link_start: link_start, link_end: '</a>'.html_safe }
 - elsif current_user&.admin?
   - if License.current&.expired?
-    = link_to (!short_form ? _('Buy GitLab Enterprise Edition') : _('Buy EE')), ::EE::SUBSCRIPTIONS_PLANS_URL, class: 'btn btn-primary'
+    = link_to (!short_form ? _('Buy GitLab Enterprise Edition') : _('Buy EE')), ::EE::SUBSCRIPTIONS_PLANS_URL, class: 'btn btn-primary btn-block'
   - else
     = link_to _('Start GitLab Ultimate trial'), new_trial_url, class: 'btn btn-primary btn-block'
 - else
