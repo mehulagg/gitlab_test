@@ -6,8 +6,16 @@ import MilestoneToken from '../../shared/components/tokens/milestone_token.vue';
 import LabelToken from '../../shared/components/tokens/label_token.vue';
 
 export default {
+  name: 'FilteredSearchComponent',
   components: {
     GlFilteredSearch,
+  },
+  props: {
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -88,6 +96,7 @@ export default {
 
 <template>
   <gl-filtered-search
+    :disabled="disabled"
     :v-model="searchTerms"
     :placeholder="__('Filter results')"
     :clear-button-title="__('Clear')"

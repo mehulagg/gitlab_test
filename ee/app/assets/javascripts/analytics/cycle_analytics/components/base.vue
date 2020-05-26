@@ -58,6 +58,14 @@ export default {
       type: Boolean,
       required: true,
     },
+    milestonesPath: {
+      type: String,
+      required: true,
+    },
+    labelsPath: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
     ...mapState([
@@ -121,14 +129,27 @@ export default {
     stageCount() {
       return this.activeStages.length;
     },
+    hasProject() {
+      return this.selectedProjectIds.length;
+    },
   },
   mounted() {
-    this.setFeatureFlags({
-      hasDurationChart: this.glFeatures.cycleAnalyticsScatterplotEnabled,
-      hasDurationChartMedian: this.glFeatures.cycleAnalyticsScatterplotMedianEnabled,
-      hasPathNavigation: this.glFeatures.valueStreamAnalyticsPathNavigation,
-    });
+    const {
+      labelsPath,
+      milestonesPath,
+      glFeatures: {
+        cycleAnalyticsScatterplotEnabled: hasDurationChart,
+        cycleAnalyticsScatterplotMedianEnabled: hasDurationChartMedian,
+        valueStreamAnalyticsPathNavigation: hasPathNavigation,
+      },
+    } = this;
+
+    this.setFeatureFlags({ hasDurationChart, hasDurationChartMedian, hasPathNavigation });
+    if (this.hasProject) {
+      this.setPaths({ labelsPath, milestonesPath });
+    }
   },
+  created() {},
   methods: {
     ...mapActions([
       'fetchCycleAnalyticsData',
@@ -150,6 +171,7 @@ export default {
       'createStage',
       'clearFormErrors',
     ]),
+    ...mapActions('filters', ['setPaths']),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
       this.fetchCycleAnalyticsData();
@@ -214,10 +236,11 @@ export default {
             @selected="onStageSelect"
           />
         </div>
-        <div class="d-flex flex-column flex-md-row justify-content-between">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+          <!-- NOTE: removed the dropdown-select class cos it was giving these width 300px -->
           <groups-dropdown-filter
             v-if="!hideGroupDropDown"
-            class="js-groups-dropdown-filter dropdown-select"
+            class="js-groups-dropdown-filter"
             :query-params="$options.groupsQueryParams"
             :default-group="selectedGroup"
             @selected="onGroupSelect"
@@ -225,21 +248,20 @@ export default {
           <projects-dropdown-filter
             v-if="shouldDisplayFilters"
             :key="selectedGroup.id"
-            class="js-projects-dropdown-filter ml-0 mt-1 mt-md-0 dropdown-select"
+            class="js-projects-dropdown-filter ml-0 "
             :group-id="selectedGroup.id"
             :query-params="$options.projectsQueryParams"
             :multi-select="$options.multiProjectSelect"
             :default-projects="selectedProjects"
             @selected="onProjectsSelect"
           />
-          <div class="mx-2 w-100 align-items-center">
-            <filter-bar />
+          <div class="mx-2 gl-flex-fill-1">
+            <filter-bar :disabled="!hasProject" />
           </div>
           <div
             v-if="shouldDisplayFilters"
-            class="d-flex flex-column flex-md-row align-items-center justify-content-end gl-white-space-nowrap"
+            class="d-flex flex-column flex-md-row justify-content-end gl-white-space-nowrap"
           >
-            <!-- class="ml-0 mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end" -->
             <date-range
               :start-date="startDate"
               :end-date="endDate"

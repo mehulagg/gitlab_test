@@ -6,7 +6,17 @@ import { parseBoolean } from '~/lib/utils/common_utils';
 
 export default () => {
   const el = document.querySelector('#js-cycle-analytics-app');
-  const { emptyStateSvgPath, noDataSvgPath, noAccessSvgPath, hideGroupDropDown } = el.dataset;
+  console.log('dataset', el.dataset);
+  const {
+    emptyStateSvgPath,
+    noDataSvgPath,
+    noAccessSvgPath,
+    hideGroupDropDown,
+    milestonePath = '',
+    labelsPath = '',
+    authorPath = '',
+    assigneesPath = '',
+  } = el.dataset;
 
   const initialData = buildCycleAnalyticsInitialData(el.dataset);
   const store = createStore();
@@ -23,6 +33,10 @@ export default () => {
           noDataSvgPath,
           noAccessSvgPath,
           hideGroupDropDown: parseBoolean(hideGroupDropDown),
+          milestonePath,
+          labelsPath,
+          authorPath,
+          assigneesPath,
         },
       }),
   });

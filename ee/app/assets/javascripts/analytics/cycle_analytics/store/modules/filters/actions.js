@@ -9,6 +9,12 @@ export const setMilestonesEndpoint = ({ commit }, milestonesEndpoint) =>
 export const setLabelsEndpoint = ({ commit }, labelsEndpoint) =>
   commit(types.SET_LABELS_ENDPOINT, labelsEndpoint);
 
+export const setAuthorEndpoint = ({ commit }, authorEndpoint) =>
+  commit(types.SET_AUTHOR_ENDPOINT, authorEndpoint);
+
+export const setAssigneessEndpoint = ({ commit }, assigneesEndpoint) =>
+  commit(types.SET_ASSIGNEES_ENDPOINT, assigneesEndpoint);
+
 export const fetchMilestones = ({ commit, state }) => {
   commit(types.REQUEST_MILESTONES);
 
@@ -39,12 +45,19 @@ export const fetchLabels = ({ commit, state }) => {
     });
 };
 
-export const setFilters = ({ commit, dispatch }, { labelNames, milestoneTitle }) => {
+export const setFilters = ({ commit }, { labelNames, milestoneTitle }) => {
   commit(types.SET_FILTERS, {
     selectedLabels: labelNames,
     selectedMilestone: milestoneTitle,
   });
+};
 
-  dispatch('mergeRequests/setPage', 1, { root: true });
-  dispatch('mergeRequests/fetchMergeRequests', null, { root: true });
+export const setPaths = (
+  { dispatch },
+  { milestonePath, labelsPath, authorPath, assigneesPath },
+) => {
+  dispatch('setMilestonesEndpoint', milestonePath);
+  dispatch('setLabelsEndpoint', labelsPath);
+  dispatch('setAuthorEndpoint', authorPath);
+  dispatch('setAssigneesEndpoint', assigneesPath);
 };
