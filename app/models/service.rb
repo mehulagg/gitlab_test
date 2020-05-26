@@ -403,6 +403,8 @@ class Service < ApplicationRecord
       "Event will be triggered when a commit is created/updated"
     when "deployment"
       "Event will be triggered when a deployment finishes"
+    when "alert", "alert_events"
+      "Event will be triggered when an alert is added"
     end
   end
 

@@ -8,7 +8,7 @@ class ChatNotificationService < Service
 
   SUPPORTED_EVENTS = %w[
     push issue confidential_issue merge_request note confidential_note
-    tag_push pipeline wiki_page deployment
+    tag_push pipeline wiki_page deployment alert
   ].freeze
 
   EVENT_CHANNEL = proc { |event| "#{event}_channel" }
