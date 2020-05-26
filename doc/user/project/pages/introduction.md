@@ -60,6 +60,24 @@ If the case of `404.html`, there are different scenarios. For example:
 - If you use a custom domain and try to access `/non/existing_file`, GitLab
   Pages will try to serve only `/404.html`.
 
+CAUTION: **Warning:**
+Custom error pages may not be served for user/group domains. See [caveats](#caveats).
+
+### Caveats
+
+Custom error pages for a user/group domain will not be served when the following conditions are true:
+
+- [GitLab Pages Access Control](pages_access_control.md) is enabled, and
+- A public user/group domain exists with custom error pages, for example `myuser.gitlab.io`, and
+- A private project exists under the same user/group that has deployed pages,
+for example `myuser.gitlab.io/private_project/`.
+
+For example, if you try to access `myuser.gitlab.io/private_project/does-not-exist.html`,
+a generic 404 error page will be served instead of the custom error page under `myuser.gitlab.io/404.html`
+which could reveal that a `private_project` exists.
+This is a [known issue](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/183#proposed-solution)
+that requires further investigation to fix.
+
 ## Redirects in GitLab Pages
 
 Since you cannot use any custom server configuration files, like `.htaccess` or
