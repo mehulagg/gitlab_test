@@ -19,6 +19,7 @@ import StageTableNav from './stage_table_nav.vue';
 import CustomStageForm from './custom_stage_form.vue';
 import PathNavigation from './path_navigation.vue';
 import MetricCard from '../../shared/components/metric_card.vue';
+import FilterBar from './filter_bar.vue';
 
 export default {
   name: 'CycleAnalytics',
@@ -37,6 +38,7 @@ export default {
     StageTableNav,
     PathNavigation,
     MetricCard,
+    FilterBar,
   },
   mixins: [glFeatureFlagsMixin(), UrlSyncMixin],
   props: {
@@ -230,10 +232,14 @@ export default {
             :default-projects="selectedProjects"
             @selected="onProjectsSelect"
           />
+          <div class="mx-2 w-100 align-items-center">
+            <filter-bar />
+          </div>
           <div
             v-if="shouldDisplayFilters"
-            class="ml-0 ml-md-auto mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end"
+            class="d-flex flex-column flex-md-row align-items-center justify-content-end gl-white-space-nowrap"
           >
+            <!-- class="ml-0 mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end" -->
             <date-range
               :start-date="startDate"
               :end-date="endDate"
