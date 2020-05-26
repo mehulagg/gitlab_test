@@ -132,7 +132,7 @@ in order to make them always run. You can use this format to set up a Review App
 #### Excluding certain branches
 
 Pipelines for merge requests require special treatment when
-using [`only`/`except`](../yaml/README.md#onlyexcept-basic). Unlike ordinary
+using [`only`/`except`](../yaml/README.md#onlyexcept-legacy). Unlike ordinary
 branch refs (for example `refs/heads/my-feature-branch`), merge request refs
 use a special Git reference that looks like `refs/merge-requests/:iid/head`. Because
 of this, the following configuration will **not** work as expected:

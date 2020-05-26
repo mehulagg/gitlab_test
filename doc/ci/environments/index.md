@@ -131,7 +131,7 @@ numbers, spaces, and `-`, `_`, `/`, `{`, `}`, or `.`. Also, it must not start no
 In summary, with the above `.gitlab-ci.yml` we have achieved the following:
 
 - All branches will run the `test` and `build` jobs.
-- The `deploy_staging` job will run [only](../yaml/README.md#onlyexcept-basic) on the `master`
+- The `deploy_staging` job will run [only](../yaml/README.md#onlyexcept-legacy) on the `master`
   branch, which means all merge requests that are created from branches don't
   get deployed to the staging server.
 - When a merge request is merged, all jobs will run and the `deploy_staging`
@@ -355,8 +355,8 @@ In this example:
 - We set the `environment` with the `environment:name` as `review/$CI_COMMIT_REF_NAME`.
   Since the [environment name](../yaml/README.md#environmentname) can contain slashes (`/`), we can
   use this pattern to distinguish between dynamic and regular environments.
-- We tell the job to run [`only`](../yaml/README.md#onlyexcept-basic) on branches,
-  [`except`](../yaml/README.md#onlyexcept-basic) `master`.
+- We tell the job to run [`only`](../yaml/README.md#onlyexcept-legacy) on branches,
+  [`except`](../yaml/README.md#onlyexcept-legacy) `master`.
 
 For the value of:
 

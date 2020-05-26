@@ -12,14 +12,14 @@ The **order** that jobs are executed in a pipeline is a separate configuration i
 controlled by:
 
 - [Stages](../yaml/README.md#stages), for linear stage-by-stage execution.
-- [Directed Acyclic Graphs (DAG)](../directed_acyclic_graph/index.md), allowing jobs
+- [Directed Acyclic Graphs (DAG)](../directed_acyclic_graph/index.md), which allows jobs
   to execute earlier than their defined stage.
 
 ## Differences between `rules` and `only` / `except`
 
 `rules` and `only`/`except` cannot be combined in the same job. Separate jobs
 in the same pipeline can use either method, but if a single pipeline mixes these methods,
-it risks confusing or unexpected behavior.
+it risks unexpected behavior or complicated troubleshooting.
 
 `rules` key points:
 
@@ -55,23 +55,22 @@ it risks confusing or unexpected behavior.
 - Job inclusion is controlled by `only`, and job exclusion is controlled by `except`.
 - The `only` and `except` configuration must be evaluated in its entirety to determine
   whether or not a job is added to a pipeline.
-- `when` can not be used within `only` and `except` configuration. Without `rules`,
+- `when` can not be used within `only` and `except` configurations. Without `rules`,
   each job can only have a single `when`.
 
 ## Order of operations with `rules`
 
 The statements defined within `rules` are checked in order, from top to bottom. If any
-statement resolves as true, the job will be added to the pipeline with the parameters (`when`,
-`allow_failure`) defined within that statement.
-
-If not defined, jobs default to `when: on_success` and `allow_failure: false`.
+statement resolves as true, the job will be added to the pipeline with the `when`
+and `allow_failure` defined within the statement. If not defined, they default to
+`when: on_success` and `allow_failure: false`.
 
 The simplest case is to have a single statement:
 
 ```yaml
-job1A:
+job1:
   script:
-    - echo "Job1A does a specific task"
+    - echo "Job1 does a specific task"
   rules:
     - if: $CI_MERGE_REQUEST_ID
 ```
@@ -79,8 +78,12 @@ job1A:
 This adds `job1A` to merge request pipelines, with the default `when: on_success`
 and `allow_failure: false`. The job is not added to pipelines in any other case.
 
-When more statements are added to `rules`, they are evaluated in order until either
-a match is found, or no matches are found (so the job does not get added to any pipeline).
+Long statements (with more than one word) must
+be wrapped in `'` (single quotes), as in the following examples.
+
+When more statements are added to `rules`, they are evaluated in order until a match
+is found and the job is added to a pipeline, or no matches are found and the job
+does not get added to any pipeline.
 
 For example:
 
@@ -106,12 +109,13 @@ In the example above, the 3 statements can be translated into 4 steps:
 1. If the previous statements are not true, but the pipeline is for changes to any
    other branch, add the job to the pipeline as a manual job (`when: manual`), and
    `allow_failure: true` (to allow the pipeline to continue running even if the manual
-   job is not triggered).
+   job is not triggered). Omit `allow_failure: true` to force the pipeline to wait
+   for the manual job to be triggered and completed successfully before continuing.
 1. If none of the statements evaluate to true, then do **not** add the job in any other
    pipelines.
 
-It is also possible to define a final clause that applies in the last step, if
-none of the previous statements evaluate to true.
+It's also possible to define a final clause that applies if none of the previous
+statements evaluate to true.
 
 For example:
 
@@ -128,71 +132,99 @@ job3:
     - when: on_success
 ```
 
-This translates to:
+This example translates to:
 
 1. If the pipeline is for a new tag, add the job with the default
    `when: on_success` and `allow_failure: false`.
-1. If `filename.ext` was changed in the branch, add the job with the defaults.
-1. If `filename2.ext` exists in the branch, add the job with the defaults.
+1. If the previous statement is not true, but `filename.ext` was changed in the branch,
+   add the job with the defaults.
+1. If the previous statements are not true, but `filename2.ext` exists in the branch,
+   add the job with the defaults.
 1. In **all other** cases, add the job to **all pipelines**. This always evaluates
    to true if reached.
 
+Adding `when: never` at the end of `rules` is not necessary, as that is implied already.
+If none of the previous rules match, never add the job to any pipelines.
+
 CAUTION: **Caution::**
-The example above could cause duplicated pipelines, as a single event can trigger
-multiple pipelines. For example, a push to a branch that is the source for a merge
-request will cause this job to be added to both a branch pipeline and a merge request
-pipeline.
+The example above risks causing multiple pipelines, as it will add the job to pipelines
+in **all** other cases. For example, if there is a branch with an open merge request,
+pushing a new commit to the branch will cause the job to be added to **two** pipelines
+(a merge request pipeline, and a branch pipeline). Use this feature carefully, and
+consider adding more specific `rules` statements instead.
 
 ## Migration from `only/except` to `rules`
 
-Examples of `if:` statements for `rules`, and the `only`/`except` equivalents:
+Examples of `if:` statements for `rules`, and `only`/`except` equivalents:
+| `rules`                                      | `only` or `except`             | Notes                                                                                                                                                                                    |
+|----------------------------------------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `if: $CI_MERGE_REQUEST_ID`                   | `only: merge_requests`         | Adds job to [merge request pipelines](../merge_request_pipelines/index.md).                                                                                                              |
+| `if: $CI_COMMIT_BRANCH`                      | `only: branches`               | Adds job to pipelines for changes to any branch.                                                                                                                                         |
+| `if: '$CI_COMMIT_BRANCH == "master"'`        | `only: master`                 | Adds job to pipelines for changes to the `master` branch.                                                                                                                                |
+| `if: '$CI_COMMIT_BRANCH != "master"'`        | `except: master`               | Adds job to pipelines if the changes are to any branch except master.                                                                                                                    |
+| `if: '$CI_COMMIT_BRANCH =~ /regex-pattern/'` | `only: /regex-pattern/`        | Adds job to pipelines for changes to all branches that match the regex pattern. For example, branches with `/regex-pattern/` will match, such as `regex-pattern-1` or `a-regex-pattern`. |
+| `if: $CI_COMMIT_TAG`                         | `only: tags`                   | Adds job to pipelines for tags.                                                                                                                                                          |
+| `if: '$CI_PIPELINE_SOURCE == "schedule"'`    | `only: schedules`              | Adds job to scheduled pipelines.                                                                                                                                                         |
+|                                              | `only: api`                    | Adds job to pipelines triggered by API.                                                                                                                                                  |
+|                                              | `only: external`               | Adds job to pipelines triggered by external CI services.                                                                                                                                 |
+|                                              | `only: pipelines`              | Adds job to pipelines triggered by multi-project triggers, using the API with `CI_JOB_TOKEN`.                                                                                            |
+|                                              | `only: pushes`                 | Adds job to pipelines triggered by `git push` events.                                                                                                                                    |
+|                                              | `only: triggers`               | Adds job to pipelines triggered with a trigger token.                                                                                                                                    |
+|                                              | `only: web`                    | Adds job to pipelines triggered by using the **Run pipeline** button in the GitLab UI (**CI/CD > Pipelines**).                                                                           |
+|                                              | `only: external_pull_requests` | Adds job to pipelines triggered by [external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests).                                                  |
+|                                              | `only: chat`                   | Adds job to pipelines triggered by [GitLab ChatOps](../chatops/README.md).                                                                                                               |
+| `if: $CI_KUBERNETES_ACTIVE`                  | `only: kubernetes: active`     | Adds job to if there is a Kubernetes cluster tied to the project that is available for deployments.                                                                                      |
 
-| `only` or `except`             | `rules`                                      | Notes                                                                                                                                                                                    |
-|--------------------------------|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `only: merge_requests`         | `if: $CI_MERGE_REQUEST_ID`                   | Adds job to [merge request pipelines](../merge_request_pipelines/index.md).                                                                                                              |
-| `only: branches`               | `if: $CI_COMMIT_BRANCH`                      | Adds job to pipelines for changes to any branch.                                                                                                                                         |
-| `only: master`                 | `if: '$CI_COMMIT_BRANCH == "master"'`        | Adds job to pipelines for changes to the `master` branch.                                                                                                                                |
-| `except: master`               | `if: '$CI_COMMIT_BRANCH != "master"'`        | Adds job to pipelines if the changes are to any branch except master.                                                                                                                                      |
-| `only: /regex-pattern/`        | `if: '$CI_COMMIT_BRANCH =~ /regex-pattern/'` | Adds job to pipelines for changes to all branches that match the regex pattern. For example, branches with `/regex-pattern/` will match, such as `regex-pattern-1` or `a-regex-pattern`. |
-| `only: tags`                   | `if: $CI_COMMIT_TAG`                         | Adds job to pipelines for tags.                                                                                                                                                          |
-| `only: schedules`              | `if: '$CI_PIPELINE_SOURCE == "schedule"'`    | Adds job to scheduled pipelines.                                                                                                                                                         |
-| `only: api`                    |                                              | Adds job to pipelines triggered by API.                                                                                                                                                  |
-| `only: external`               |                                              | Adds job to pipelines triggered by external CI services.                                                                                                                                 |
-| `only: pipelines`              |                                              | Adds job to pipelines triggered by multi-project triggers, using the API with `CI_JOB_TOKEN`.                                                                                            |
-| `only: pushes`                 |                                              | Adds job to pipelines triggered by `git push` events.                                                                                                                                    |
-| `only: triggers`               |                                              | Adds job to pipelines triggered with a trigger token.                                                                                                                                    |
-| `only: web`                    |                                              | Adds job to pipelines triggered by using the **Run pipeline** button in the GitLab UI (**CI/CD > Pipelines**).                                                                           |
-| `only: external_pull_requests` |                                              | Adds job to pipelines triggered by [external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests).                                                  |
-| `only: chat`                   |                                              | Adds job to pipelines triggered by [GitLab ChatOps](../chatops/README.md).                                                                                                               |
+## Combine `rules` statements
 
-## Types of pipelines
+There are two ways to combine rules statements into more complicated patterns:
 
-There are multiple types of pipelines that can be triggered:
+- Use `&&` (and) and `||` (or) operators
+- Combine any of `if`, `changes`, or `exists` into a single rule
 
-- **Branch pipelines**: Run in the context of a branch. Each push to a branch will trigger
-  a new pipeline.
-- **Merge request pipelines**: Run in the context of a merge request. If used at the
-  same time as branch pipelines, may result in two pipelines at the same time. One
-  for the branch, one for the merge request using the same branch as its source.
-  - **Merged results pipelines**: If enabled, pipelines run
-- **Scheduled pipelines**: Run only at scheduled times, and never triggered by changes.
-- **Triggered pipelines**: Pipelines can also be triggered by:
-  - cross-project pipelines
-  - parent-child pipelines
-  - API calls
-  - external CI services
-  - the **Run pipeline** button in the GitLab UI.
-  - external pull requests from GitHub
-  - [GitLab ChatOps](../chatops/README.md)
+For example with `&&`:
 
-These pipelines run independently in parallel, and can even be triggered by the same
-event, which may cause seemingly identical pipelines.
+```yaml
+rules:
+  - if: '$CI_MERGE_REQUEST_ID && CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /stable-branch-pattern/'
+```
 
-## `when:` clauses with `rules:`
+This will add the job if **both** of the following are true:
 
-Note difference between `on_success` (default), vs `always`.
+- The pipeline is a merge request pipeline.
+- The source branch name for the merge request matches a regex pattern.
 
-- `on_success`
-- `always`
-- `manual`
-- `never`
+For example with `||`:
+
+```yaml
+rules:
+  - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "master"'
+```
+
+This will add the job if **either** of the following are true:
+
+- The pipeline is for a new tag.
+- The pipeline is for changes to the `master` branch.
+
+For example combining multiple rules into one large rule:
+
+```yaml
+rules:
+  - if: '$VARIABLE == "example-string1"'
+  - if: '$VARIABLE == "example-string2"'
+    changes:
+      - filename1
+    exists:
+      - filename2
+    when: manual
+    allow_failure: true
+  - if: '$VARIABLE == "example-string3"'
+```
+
+This contains only 3 rules. The first and third are simple rules. The large middle
+rule will add the job as a manual job, allowed to fail so the pipeline will continue
+to execute, only if **all** the following are true:
+
+- The value of the `VARIABLE` custom variable matches `example-string` exactly.
+- `filename1` was changed.
+- `filename1` exists in the repository.

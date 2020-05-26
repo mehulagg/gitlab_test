@@ -118,7 +118,7 @@ configuration, the last mention of the variable will take precedence.
 ### Overriding Dependency Scanning jobs
 
 CAUTION: **Deprecation:**
-Beginning in GitLab 13.0, the use of [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-basic)
+Beginning in GitLab 13.0, the use of [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-legacy)
 is no longer supported. When overriding the template, you must use [`rules`](../../../ci/yaml/README.md#rules) instead.
 
 To override a job definition (for example, to change properties like `variables` or `dependencies`),

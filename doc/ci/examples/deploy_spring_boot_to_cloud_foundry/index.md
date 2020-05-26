@@ -107,7 +107,7 @@ We've used the `java:8` [Docker
 image](../../docker/using_docker_images.md) to build
 our application as it provides the up-to-date Java 8 JDK on [Docker
 Hub](https://hub.docker.com/). We've also added the [`only`
-clause](../../yaml/README.md#onlyexcept-basic)
+clause](../../yaml/README.md#onlyexcept-legacy)
 to ensure our deployments only happen when we push to the master branch.
 
 Now, since the steps defined in `.gitlab-ci.yml` require credentials to login

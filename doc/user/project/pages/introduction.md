@@ -136,7 +136,7 @@ See this document for a [step-by-step guide](getting_started_part_four.md).
 
 Remember that GitLab Pages are by default branch/tag agnostic and their
 deployment relies solely on what you specify in `.gitlab-ci.yml`. You can limit
-the `pages` job with the [`only` parameter](../../../ci/yaml/README.md#onlyexcept-basic),
+the `pages` job with the [`only` parameter](../../../ci/yaml/README.md#onlyexcept-legacy),
 whenever a new commit is pushed to a branch that will be used specifically for
 your pages.
 

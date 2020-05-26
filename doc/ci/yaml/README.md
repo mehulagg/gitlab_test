@@ -109,8 +109,8 @@ The following table lists available parameters for jobs:
 | [`before_script`](#before_script-and-after_script) | Override a set of commands that are executed before job.                                                                                                                            |
 | [`after_script`](#before_script-and-after_script)  | Override a set of commands that are executed after job.                                                                                                                             |
 | [`stage`](#stage)                                  | Defines a job stage (default: `test`).                                                                                                                                              |
-| [`only`](#onlyexcept-basic)                        | Limit when jobs are created. Also available: [`only:refs`, `only:kubernetes`, `only:variables`, and `only:changes`](#onlyexcept-advanced).                                          |
-| [`except`](#onlyexcept-basic)                      | Limit when jobs are not created. Also available: [`except:refs`, `except:kubernetes`, `except:variables`, and `except:changes`](#onlyexcept-advanced).                              |
+| [`only`](#onlyexcept-legacy)                        | Limit when jobs are created. Also available: [`only:refs`, `only:kubernetes`, `only:variables`, and `only:changes`](#onlyexcept-advanced).                                          |
+| [`except`](#onlyexcept-legacy)                      | Limit when jobs are not created. Also available: [`except:refs`, `except:kubernetes`, `except:variables`, and `except:changes`](#onlyexcept-advanced).                              |
 | [`rules`](#rules)                                  | List of conditions to evaluate and determine selected attributes of a job, and whether or not it's created. May not be used alongside `only`/`except`.                             |
 | [`tags`](#tags)                                    | List of tags which are used to select Runner.                                                                                                                                       |
 | [`allow_failure`](#allow_failure)                  | Allow job to fail. Failed job does not contribute to commit status.                                                                                                                  |
@@ -1352,7 +1352,7 @@ test:
 > `refs` policy introduced in GitLab 10.0.
 
 The `refs` strategy can take the same values as the
-[simplified only/except configuration](#onlyexcept-basic).
+[simplified only/except configuration](#onlyexcept-legacy).
 
 In the example below, the `deploy` job is going to be created only when the
 pipeline has been [scheduled](../pipelines/schedules.md) or runs for the `master` branch:
