@@ -1,0 +1,5 @@
+---
+title: CI variables with chart values are now set by default inside cluster-applications
+merge_request: 33084
+author:
+type: changed
