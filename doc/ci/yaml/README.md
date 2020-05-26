@@ -310,7 +310,6 @@ include:
   - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
 ```
 
-The [`MergeRequest-Pipelines` include](https://gitlab.com/gitlab-org/gitlab/-/tree/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml) sets your pipelines to run for the default branch (usually `master`), tags, and
 The [`MergeRequest-Pipelines` template](https://gitlab.com/gitlab-org/gitlab/-/tree/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
 makes your pipelines run for the default branch (usually `master`), tags, and
 all types of merge request pipelines. Use this template if you use any of the
@@ -3525,8 +3524,8 @@ You can set them globally or per-job in the [`variables`](#variables) section.
 
 > Introduced in GitLab 8.9 as an experimental feature.
 
-CAUTION: **Caution:**
-May change in future releases or be removed completely.
+NOTE: **Note**:
+As of GitLab 12.0, newly created projects will automatically have a [default `git depth` value of `50`](../pipelines/settings.md#git-shallow-clone).
 
 You can specify the depth of fetching and cloning using `GIT_DEPTH`. This allows
 shallow cloning of the repository which can significantly speed up cloning for
@@ -3790,7 +3789,7 @@ Example:
 
 .something_after: &something_after
 - echo 'something after'
-
+- echo 'another thing after'
 
 job_name:
   before_script:
@@ -3833,6 +3832,7 @@ the use of the `SAMPLE_VARIABLE` variable:
 # global variables
 variables: &global-variables
   SAMPLE_VARIABLE: sample_variable_value
+  ANOTHER_SAMPLE_VARIABLE: another_sample_variable_value
 
 # a job that needs to set the GIT_STRATEGY variable, yet depend on global variables
 job_no_git_strategy:
@@ -3856,7 +3856,7 @@ lines where the job is defined:
 #    - run test
 ```
 
-you can instead start its name with a dot (`.`) and it won't be processed by
+You can instead start its name with a dot (`.`) and it won't be processed by
 GitLab CI/CD. In the following example, `.hidden_job` will be ignored:
 
 ```yaml
@@ -3879,11 +3879,11 @@ if using Git 2.10 or newer.
 
 ## Processing Git pushes
 
-GitLab will create at most 4 branch and tags pipelines when
-doing pushing multiple changes in single `git push` invocation.
+GitLab will create at most 4 branch and tag pipelines when
+pushing multiple changes in single `git push` invocation.
 
-This limitation does not affect any of the updated Merge Request pipelines,
-all updated Merge Requests will have a pipeline created when using
+This limitation does not affect any of the updated Merge Request pipelines.
+All updated Merge Requests will have a pipeline created when using
 [pipelines for merge requests](../merge_request_pipelines/index.md).
 
 ## Deprecated parameters

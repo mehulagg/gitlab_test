@@ -69,7 +69,6 @@ class User < ApplicationRecord
 
   MINIMUM_INACTIVE_DAYS = 180
 
-  ignore_column :bot_type, remove_with: '13.1', remove_after: '2020-05-22'
   ignore_column :ghost, remove_with: '13.2', remove_after: '2020-06-22'
 
   # Override Devise::Models::Trackable#update_tracked_fields!
@@ -1819,7 +1818,7 @@ class User < ApplicationRecord
   def update_highest_role?
     return false unless persisted?
 
-    (previous_changes.keys & %w(state user_type ghost)).any?
+    (previous_changes.keys & %w(state user_type)).any?
   end
 
   def update_highest_role_attribute

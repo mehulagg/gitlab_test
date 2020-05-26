@@ -2,6 +2,8 @@ SET search_path=public;
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
+CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 CREATE TABLE public.abuse_reports (
@@ -440,9 +442,11 @@ CREATE TABLE public.application_settings (
     group_owners_can_manage_default_branch_protection boolean DEFAULT true NOT NULL,
     container_registry_vendor text DEFAULT ''::text NOT NULL,
     container_registry_version text DEFAULT ''::text NOT NULL,
+    repository_storages_weighted jsonb DEFAULT '{}'::jsonb NOT NULL,
     container_registry_features text[] DEFAULT '{}'::text[] NOT NULL,
     spam_check_endpoint_url text,
     spam_check_endpoint_enabled boolean DEFAULT false NOT NULL,
+    elasticsearch_pause_indexing boolean DEFAULT false NOT NULL,
     CONSTRAINT check_d03919528d CHECK ((char_length(container_registry_vendor) <= 255)),
     CONSTRAINT check_d820146492 CHECK ((char_length(spam_check_endpoint_url) <= 255)),
     CONSTRAINT check_e5aba18f02 CHECK ((char_length(container_registry_version) <= 255))
@@ -6804,7 +6808,6 @@ CREATE TABLE public.users (
     auditor boolean DEFAULT false NOT NULL,
     require_two_factor_authentication_from_group boolean DEFAULT false NOT NULL,
     two_factor_grace_period integer DEFAULT 48 NOT NULL,
-    ghost boolean,
     last_activity_on date,
     notified_of_own_activity boolean,
     preferred_language character varying,
@@ -8408,6 +8411,12 @@ ALTER TABLE ONLY public.issue_user_mentions
 ALTER TABLE ONLY public.issues
     ADD CONSTRAINT issues_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.sprints
+    ADD CONSTRAINT iteration_start_and_due_daterange_group_id_constraint EXCLUDE USING gist (group_id WITH =, daterange(start_date, due_date, '[]'::text) WITH &&) WHERE ((group_id IS NOT NULL));
+
+ALTER TABLE ONLY public.sprints
+    ADD CONSTRAINT iteration_start_and_due_daterange_project_id_constraint EXCLUDE USING gist (project_id WITH =, daterange(start_date, due_date, '[]'::text) WITH &&) WHERE ((project_id IS NOT NULL));
+
 ALTER TABLE ONLY public.jira_connect_installations
     ADD CONSTRAINT jira_connect_installations_pkey PRIMARY KEY (id);
 
@@ -9228,8 +9237,6 @@ CREATE INDEX index_ci_builds_on_artifacts_expire_at ON public.ci_builds USING bt
 
 CREATE INDEX index_ci_builds_on_auto_canceled_by_id ON public.ci_builds USING btree (auto_canceled_by_id);
 
-CREATE INDEX index_ci_builds_on_commit_id_and_artifacts_expireatandidpartial ON public.ci_builds USING btree (commit_id, artifacts_expire_at, id) WHERE (((type)::text = 'Ci::Build'::text) AND ((retried = false) OR (retried IS NULL)) AND ((name)::text = ANY (ARRAY[('sast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('sast:container'::character varying)::text, ('container_scanning'::character varying)::text, ('dast'::character varying)::text])));
-
 CREATE INDEX index_ci_builds_on_commit_id_and_stage_idx_and_created_at ON public.ci_builds USING btree (commit_id, stage_idx, created_at);
 
 CREATE INDEX index_ci_builds_on_commit_id_and_status_and_type ON public.ci_builds USING btree (commit_id, status, type);
@@ -9237,6 +9244,8 @@ CREATE INDEX index_ci_builds_on_commit_id_and_status_and_type ON public.ci_build
 CREATE INDEX index_ci_builds_on_commit_id_and_type_and_name_and_ref ON public.ci_builds USING btree (commit_id, type, name, ref);
 
 CREATE INDEX index_ci_builds_on_commit_id_and_type_and_ref ON public.ci_builds USING btree (commit_id, type, ref);
+
+CREATE INDEX index_ci_builds_on_commit_id_artifacts_expired_at_and_id ON public.ci_builds USING btree (commit_id, artifacts_expire_at, id) WHERE (((type)::text = 'Ci::Build'::text) AND ((retried = false) OR (retried IS NULL)) AND ((name)::text = ANY (ARRAY[('sast'::character varying)::text, ('secret_detection'::character varying)::text, ('dependency_scanning'::character varying)::text, ('container_scanning'::character varying)::text, ('dast'::character varying)::text])));
 
 CREATE INDEX index_ci_builds_on_project_id_and_id ON public.ci_builds USING btree (project_id, id);
 
@@ -10824,8 +10833,6 @@ CREATE INDEX index_users_on_email_trigram ON public.users USING gin (email publi
 
 CREATE INDEX index_users_on_feed_token ON public.users USING btree (feed_token);
 
-CREATE INDEX index_users_on_ghost ON public.users USING btree (ghost);
-
 CREATE INDEX index_users_on_group_view ON public.users USING btree (group_view);
 
 CREATE INDEX index_users_on_incoming_email_token ON public.users USING btree (incoming_email_token);
@@ -10842,7 +10849,7 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 
 CREATE INDEX index_users_on_state ON public.users USING btree (state);
 
-CREATE INDEX index_users_on_state_and_user_type_internal ON public.users USING btree (state, user_type) WHERE (ghost IS NOT TRUE);
+CREATE INDEX index_users_on_state_and_user_type ON public.users USING btree (state, user_type);
 
 CREATE UNIQUE INDEX index_users_on_static_object_token ON public.users USING btree (static_object_token);
 
@@ -13886,6 +13893,8 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200508021128
 20200508050301
 20200508091106
+20200508140959
+20200508203901
 20200511080113
 20200511083541
 20200511092246
@@ -13918,7 +13927,12 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200514000009
 20200514000132
 20200514000340
+20200515152649
+20200515153633
 20200515155620
 20200519115908
+20200519171058
+20200525114553
+20200525121014
 \.
 
