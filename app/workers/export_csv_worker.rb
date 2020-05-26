@@ -5,6 +5,7 @@ class ExportCsvWorker # rubocop:disable Scalability/IdempotentWorker
 
   feature_category :issue_tracking
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   def perform(current_user_id, project_id, params)
     @current_user = User.find(current_user_id)

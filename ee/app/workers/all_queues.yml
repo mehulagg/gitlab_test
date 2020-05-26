@@ -210,7 +210,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: dependency_proxy:purge_dependency_proxy_cache
   :feature_category: :dependency_proxy
   :has_external_dependencies: 
@@ -474,7 +475,8 @@
   :resource_boundary: :cpu
   :weight: 3
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: security_scans:store_security_reports
   :feature_category: :static_application_security_testing
   :has_external_dependencies: 
@@ -538,7 +540,8 @@
   :resource_boundary: :cpu
   :weight: 2
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: elastic_batch_project_indexer
   :feature_category: :global_search
   :has_external_dependencies: 
@@ -610,7 +613,8 @@
   :resource_boundary: :cpu
   :weight: 2
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: project_import_schedule
   :feature_category: :importers
   :has_external_dependencies: 
@@ -674,7 +678,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: true
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: vulnerability_exports_export_deletion
   :feature_category: :vulnerability_management
   :has_external_dependencies: 

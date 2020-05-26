@@ -11,6 +11,7 @@ class StuckExportJobsWorker
 
   feature_category :importers
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   EXPORT_JOBS_EXPIRATION = 6.hours.to_i
 

@@ -10,6 +10,7 @@ class StuckImportJobsWorker # rubocop:disable Scalability/IdempotentWorker
 
   feature_category :importers
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   IMPORT_JOBS_EXPIRATION = 15.hours.to_i
 

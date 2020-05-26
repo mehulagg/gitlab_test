@@ -8,6 +8,7 @@ class CreateGithubWebhookWorker # rubocop:disable Scalability/IdempotentWorker
   worker_resource_boundary :cpu
   worker_has_external_dependencies!
   weight 2
+  tags :no_disk_io
 
   attr_reader :project
 

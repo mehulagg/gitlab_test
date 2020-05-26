@@ -9,6 +9,7 @@ class EmailsOnPushWorker # rubocop:disable Scalability/IdempotentWorker
   urgency :low
   worker_resource_boundary :cpu
   weight 2
+  tags :no_disk_io
 
   def perform(project_id, recipients, push_data, options = {})
     options.symbolize_keys!

@@ -6,6 +6,7 @@ module Ci
     include ::PipelineQueue
 
     worker_resource_boundary :cpu
+    tags :no_disk_io
 
     def perform(bridge_id)
       ::Ci::Bridge.find_by_id(bridge_id).try do |bridge|

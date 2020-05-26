@@ -34,7 +34,8 @@
   :resource_boundary: :cpu
   :weight: 3
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: chaos:chaos_cpu_spin
   :feature_category: :not_owned
   :has_external_dependencies: 
@@ -162,7 +163,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:pages_domain_removal_cron
   :feature_category: :pages
   :has_external_dependencies: 
@@ -170,7 +172,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:pages_domain_ssl_renewal_cron
   :feature_category: :pages
   :has_external_dependencies: 
@@ -202,7 +205,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:prune_old_events
   :feature_category: :users
   :has_external_dependencies: 
@@ -234,7 +238,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:remove_unreferenced_lfs_objects
   :feature_category: :git_lfs
   :has_external_dependencies: 
@@ -282,7 +287,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:stuck_export_jobs
   :feature_category: :importers
   :has_external_dependencies: 
@@ -290,7 +296,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:stuck_import_jobs
   :feature_category: :importers
   :has_external_dependencies: 
@@ -298,7 +305,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: cronjob:stuck_merge_jobs
   :feature_category: :source_code_management
   :has_external_dependencies: 
@@ -338,7 +346,8 @@
   :resource_boundary: :cpu
   :weight: 3
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: deployment:deployments_forward_deployment
   :feature_category: :continuous_delivery
   :has_external_dependencies: 
@@ -354,7 +363,8 @@
   :resource_boundary: :cpu
   :weight: 3
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: gcp_cluster:cluster_configure_istio
   :feature_category: :kubernetes_management
   :has_external_dependencies: true
@@ -410,7 +420,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: gcp_cluster:cluster_wait_for_app_update
   :feature_category: :kubernetes_management
   :has_external_dependencies: 
@@ -458,7 +469,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: gcp_cluster:clusters_cleanup_app
   :feature_category: :kubernetes_management
   :has_external_dependencies: true
@@ -642,7 +654,8 @@
   :resource_boundary: :cpu
   :weight: 2
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: jira_importer:jira_import_advance_stage
   :feature_category: :importers
   :has_external_dependencies: 
@@ -754,7 +767,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: object_pool:object_pool_schedule_join
   :feature_category: :gitaly
   :has_external_dependencies: 
@@ -858,7 +872,8 @@
   :resource_boundary: :cpu
   :weight: 3
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: pipeline_default:ci_pipeline_bridge_status
   :feature_category: :continuous_integration
   :has_external_dependencies: 
@@ -946,7 +961,8 @@
   :resource_boundary: :cpu
   :weight: 5
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: pipeline_processing:ci_resource_groups_assign_resource_from_resource_group
   :feature_category: :continuous_delivery
   :has_external_dependencies: 
@@ -1194,7 +1210,8 @@
   :resource_boundary: :cpu
   :weight: 2
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: error_tracking_issue_link
   :feature_category: :error_tracking
   :has_external_dependencies: true
@@ -1218,7 +1235,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: external_service_reactive_caching
   :feature_category: :not_owned
   :has_external_dependencies: true
@@ -1290,7 +1308,8 @@
   :resource_boundary: :cpu
   :weight: 2
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: invalid_gpg_signature_update
   :feature_category: :source_code_management
   :has_external_dependencies: 
@@ -1498,7 +1517,8 @@
   :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
-  :tags: []
+  :tags:
+  - :no_disk_io
 - :name: rebase
   :feature_category: :source_code_management
   :has_external_dependencies: 

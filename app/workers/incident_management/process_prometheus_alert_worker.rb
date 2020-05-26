@@ -7,6 +7,7 @@ module IncidentManagement
     queue_namespace :incident_management
     feature_category :incident_management
     worker_resource_boundary :cpu
+    tags :no_disk_io
 
     def perform(project_id, alert_hash)
       project = find_project(project_id)

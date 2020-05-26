@@ -7,6 +7,7 @@ class NewEpicWorker # rubocop:disable Scalability/IdempotentWorker
   feature_category :epics
   worker_resource_boundary :cpu
   weight 2
+  tags :no_disk_io
 
   def perform(epic_id, user_id)
     return unless objects_found?(epic_id, user_id)

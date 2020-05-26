@@ -7,6 +7,7 @@ module Deployments
     queue_namespace :deployment
     feature_category :continuous_delivery
     worker_resource_boundary :cpu
+    tags :no_disk_io
 
     def perform(deployment_id)
       if (deploy = Deployment.find_by_id(deployment_id))

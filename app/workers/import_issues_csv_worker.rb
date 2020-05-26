@@ -6,6 +6,7 @@ class ImportIssuesCsvWorker # rubocop:disable Scalability/IdempotentWorker
   feature_category :issue_tracking
   worker_resource_boundary :cpu
   weight 2
+  tags :no_disk_io
 
   sidekiq_retries_exhausted do |job|
     Upload.find(job['args'][2]).destroy

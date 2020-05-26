@@ -6,6 +6,7 @@ class PagesDomainRemovalCronWorker # rubocop:disable Scalability/IdempotentWorke
 
   feature_category :pages
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   def perform
     PagesDomain.for_removal.with_logging_info.find_each do |domain|

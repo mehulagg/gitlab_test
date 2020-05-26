@@ -7,6 +7,7 @@ module Namespaces
 
     feature_category :source_code_management
     worker_resource_boundary :cpu
+    tags :no_disk_io
 
     # Worker to prune pending rows on Namespace::AggregationSchedule
     # It's scheduled to run once a day at 1:05am.

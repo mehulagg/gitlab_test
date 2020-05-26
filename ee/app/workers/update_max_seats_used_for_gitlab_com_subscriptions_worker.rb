@@ -6,6 +6,7 @@ class UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker # rubocop:disable Scalab
 
   feature_category :license_compliance
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   # rubocop: disable CodeReuse/ActiveRecord
   def perform

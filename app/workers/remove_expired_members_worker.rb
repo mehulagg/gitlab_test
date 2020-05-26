@@ -6,6 +6,7 @@ class RemoveExpiredMembersWorker # rubocop:disable Scalability/IdempotentWorker
 
   feature_category :authentication_and_authorization
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   def perform
     Member.expired.find_each do |member|

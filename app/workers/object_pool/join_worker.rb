@@ -6,6 +6,7 @@ module ObjectPool
     include ObjectPoolQueue
 
     worker_resource_boundary :cpu
+    tags :no_disk_io
 
     # The use of pool id is deprecated. Keeping the argument allows old jobs to
     # still be performed.

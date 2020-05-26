@@ -5,4 +5,5 @@ class ReactiveCachingWorker # rubocop:disable Scalability/IdempotentWorker
 
   urgency :low
   worker_resource_boundary :cpu
+  tags :no_disk_io
 end

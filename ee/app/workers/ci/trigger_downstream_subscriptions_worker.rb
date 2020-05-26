@@ -6,6 +6,7 @@ module Ci
     include ::PipelineQueue
 
     worker_resource_boundary :cpu
+    tags :no_disk_io
 
     def perform(pipeline_id)
       ::Ci::Pipeline.find_by_id(pipeline_id).try do |pipeline|

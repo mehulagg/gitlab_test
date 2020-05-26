@@ -6,6 +6,7 @@ class StuckCiJobsWorker # rubocop:disable Scalability/IdempotentWorker
 
   feature_category :continuous_integration
   worker_resource_boundary :cpu
+  tags :no_disk_io
 
   EXCLUSIVE_LEASE_KEY = 'stuck_ci_builds_worker_lease'
 
