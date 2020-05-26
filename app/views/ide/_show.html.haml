@@ -2,7 +2,10 @@
 - page_title 'IDE'
 
 - content_for :page_specific_javascripts do
-  = stylesheet_link_tag 'page_bundles/ide'
+  - if user_application_theme == 'gl-dark'
+    = stylesheet_link_tag "page_bundles/ide_dark"
+  - else
+    = stylesheet_link_tag 'page_bundles/ide'
 
 #ide.ide-loading{ data: ide_data }
   .text-center
