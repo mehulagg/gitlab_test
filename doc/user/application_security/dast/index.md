@@ -419,7 +419,7 @@ configuration, the last mention of the variable will take precedence.
 ### Overriding the DAST template
 
 CAUTION: **Deprecation:**
-Beginning in GitLab 13.0, the use of [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-legacy)
+Beginning in GitLab 13.0, the use of [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-basic)
 is no longer supported. When overriding the template, you must use [`rules`](../../../ci/yaml/README.md#rules) instead.
 
 If you want to override the job definition (for example, change properties like

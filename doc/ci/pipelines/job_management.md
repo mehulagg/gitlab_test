@@ -156,6 +156,7 @@ consider adding more specific `rules` statements instead.
 ## Migration from `only/except` to `rules`
 
 Examples of `if:` statements for `rules`, and `only`/`except` equivalents:
+
 | `rules`                                      | `only` or `except`             | Notes                                                                                                                                                                                    |
 |----------------------------------------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `if: $CI_MERGE_REQUEST_ID`                   | `only: merge_requests`         | Adds job to [merge request pipelines](../merge_request_pipelines/index.md).                                                                                                              |

@@ -66,7 +66,7 @@ GitLab CI/CD so that they can be used in your [`.gitlab-ci.yml` file](../../ci/y
 
 To configure that a job can be executed only when the pipeline has been
 scheduled (or the opposite), you can use
-[only and except](../yaml/README.md#onlyexcept-legacy) configuration keywords.
+[only and except](../yaml/README.md#onlyexcept-basic) configuration keywords.
 
 For example:
 

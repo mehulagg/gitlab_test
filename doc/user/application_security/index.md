@@ -370,7 +370,7 @@ Found errors in your .gitlab-ci.yml:
 ```
 
 This error appears when the included job's `rules` configuration has been [overridden](sast/index.md#overriding-sast-jobs)
-with [the deprecated `only` or `except` syntax.](../../ci/yaml/README.md#onlyexcept-legacy)
+with [the deprecated `only` or `except` syntax.](../../ci/yaml/README.md#onlyexcept-basic)
 To fix this issue, you must either:
 
 - [Transition your `only/except` syntax to `rules`](#transitioning-your-onlyexcept-syntax-to-rules).
@@ -381,7 +381,7 @@ To fix this issue, you must either:
 #### Transitioning your `only/except` syntax to `rules`
 
 When overriding the template to control job execution, previous instances of
-[`only` or `except`](../../ci/yaml/README.md#onlyexcept-legacy) are no longer compatible
+[`only` or `except`](../../ci/yaml/README.md#onlyexcept-basic) are no longer compatible
 and must be transitioned to [the `rules` syntax](../../ci/yaml/README.md#rules).
 
 If your override is aimed at limiting jobs to only run on `master`, the previous syntax

@@ -600,7 +600,7 @@ within a pipeline after changes are pushed to GitLab.
 In `.gitlab-ci.yml`, variable expressions work with both:
 
 - [`rules`](../yaml/README.md#rules), which is the recommended approach, and
-- [`only` and `except`](../yaml/README.md#onlyexcept-legacy), which are candidates for deprecation.
+- [`only` and `except`](../yaml/README.md#onlyexcept-basic), which are candidates for deprecation.
 
 This is particularly useful in combination with variables and triggered
 pipeline variables.

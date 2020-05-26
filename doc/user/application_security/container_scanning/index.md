@@ -191,7 +191,7 @@ container_scanning:
 ```
 
 CAUTION: **Deprecated:**
-GitLab 13.0 and later doesn't support [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-legacy).
+GitLab 13.0 and later doesn't support [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-basic).
 When overriding the template, you must use [`rules`](../../../ci/yaml/README.md#rules)
 instead.
 
