@@ -924,7 +924,7 @@ We don't recommend mixing `only/except` jobs with `rules` jobs in the same pipel
 It may not cause YAML errors, but debugging the exact execution behavior can be complex
 due to the different default behaviors of `only/except` and `rules`.
 
-### Rules clauses
+### `rules` clauses
 
 Available rule clauses include:
 
@@ -1127,12 +1127,12 @@ Additional job configuration may be added to rules in the future. If something
 useful is not available, please
 [open an issue](https://gitlab.com/gitlab-org/gitlab/-/issues).
 
-### `only`/`except` (basic)
+### `only`/`except` (legacy)
 
 NOTE: **Note:**
 The [`rules`](#rules) syntax is an improved, more powerful solution for defining
-when jobs should run or not. Consider using `rules` instead of `only/except` to get
-the most out of your pipelines.
+when jobs should run or not. Consider using `rules`, instead of the legacy `only/except`,
+to get the most out of your pipelines.
 
 `only` and `except` are two parameters that set a job policy to limit when
 jobs are created:
@@ -1280,7 +1280,7 @@ with previously allowed syntax version and allows users to gracefully migrate to
 Feature.enable(:allow_unsafe_ruby_regexp)
 ```
 
-### `only`/`except` (advanced)
+#### `only`/`except` (advanced)
 
 CAUTION: **Warning:**
 This is an _alpha_ feature, and is subject to change at any time without
@@ -1347,7 +1347,7 @@ test:
       - "README.md"
 ```
 
-#### `only:refs`/`except:refs`
+##### `only:refs`/`except:refs`
 
 > `refs` policy introduced in GitLab 10.0.
 
@@ -1365,7 +1365,7 @@ deploy:
       - schedules
 ```
 
-#### `only:kubernetes`/`except:kubernetes`
+##### `only:kubernetes`/`except:kubernetes`
 
 > `kubernetes` policy introduced in GitLab 10.0.
 
@@ -1380,7 +1380,7 @@ deploy:
     kubernetes: active
 ```
 
-#### `only:variables`/`except:variables`
+##### `only:variables`/`except:variables`
 
 > `variables` policy introduced in GitLab 10.7.
 
@@ -1414,7 +1414,7 @@ end-to-end:
 
 Learn more about [variables expressions](../variables/README.md#environment-variables-expressions).
 
-#### `only:changes`/`except:changes`
+##### `only:changes`/`except:changes`
 
 > `changes` policy [introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/19232) in GitLab 11.4.
 
