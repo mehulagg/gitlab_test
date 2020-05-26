@@ -1,0 +1,5 @@
+---
+title: Fix services query for instance and template level
+merge_request: 33032
+author:
+type: performance

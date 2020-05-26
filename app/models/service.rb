@@ -58,8 +58,8 @@ class Service < ApplicationRecord
   scope :without_defaults, -> { where(default: false) }
   scope :by_type, -> (type) { where(type: type) }
   scope :by_active_flag, -> (flag) { where(active: flag) }
-  scope :templates, -> { where(template: true, type: available_services_types) }
-  scope :instances, -> { where(instance: true, type: available_services_types) }
+  scope :templates, -> { where('template IS TRUE').where(type: available_services_types) }
+  scope :instances, -> { where('instance IS TRUE').where(type: available_services_types) }
 
   scope :push_hooks, -> { where(push_events: true, active: true) }
   scope :tag_push_hooks, -> { where(tag_push_events: true, active: true) }
