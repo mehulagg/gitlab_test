@@ -244,6 +244,13 @@ namespace :geo do
     Gitlab::Geo::GeoTasks.update_primary_geo_node_url
   end
 
+  desc "GitLab | Geo | Check if primary node is down"
+  task check_primary_is_down_before_failover: :environment do
+    abort GEO_LICENSE_ERROR_TEXT unless Gitlab::Geo.license_allows?
+
+    Gitlab::Geo::GeoTasks.check_primary_is_down_before_failover
+  end
+
   desc 'GitLab | Geo | Print Geo node status'
   task status: :environment do
     abort GEO_LICENSE_ERROR_TEXT unless Gitlab::Geo.license_allows?

@@ -32,6 +32,7 @@ RSpec.describe 'geo rake tasks', :geo do
       refresh_foreign_tables!
       set_primary_geo_node
       update_primary_geo_node_url
+      check_primary_is_down_before_failover
     ].each do |method|
       expect(Gitlab::Geo::GeoTasks).to respond_to(method)
     end
@@ -317,6 +318,61 @@ RSpec.describe 'geo rake tasks', :geo do
 
         expect(primary_node.reload.url).to eq 'https://primary.geo.example.com/'
         expect(primary_node.name).to eq node_name
+      end
+    end
+  end
+
+  describe 'geo:check_primary_is_down_before_failover' do
+    let(:run_task) { run_rake_task('geo:check_primary_is_down_before_failover') }
+
+    around do |example|
+      example.run
+    rescue SystemExit
+    end
+
+    context 'when there is a primary node' do
+      let!(:primary_node) { create(:geo_node, :primary) }
+
+      before do
+        stub_request(:get, "#{Gitlab::Geo.primary_node.internal_url}/-/health").to_return(
+          status: status,
+          body: "",
+          headers: {}
+        )
+      end
+
+      context 'when primary node is reachable' do
+        let(:status) { 200 }
+
+        it 'prints No' do
+          expect { run_task }.to output(/No/).to_stdout
+        end
+
+        it 'exits with 1' do
+          expect { run_task }.to raise_error(SystemExit) do |error|
+            expect(error.status).to eq(1)
+          end
+        end
+      end
+
+      context 'when primary node is not reachable' do
+        let(:status) { 400 }
+
+        it 'prints Yes' do
+          expect { run_task }.to output(/Yes/).to_stdout
+        end
+      end
+    end
+
+    context 'when no primary node is found' do
+      it 'prints not found message' do
+        expect { run_task }.to output(/Primary Geo node DB record not found/).to_stdout
+      end
+
+      it 'exits with 1' do
+        expect { run_task }.to raise_error(SystemExit) do |error|
+          expect(error.status).to eq(1)
+        end
       end
     end
   end

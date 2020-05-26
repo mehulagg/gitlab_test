@@ -64,6 +64,31 @@ module Gitlab
           ActiveRecord::Base.connection.execute(sql).first.fetch('count').to_i == 1
         end
       end
+
+      def check_primary_is_down_before_failover
+        puts
+        puts 'Checking if primary node is down...'
+
+        node = Gitlab::Geo.primary_node
+
+        unless node.present?
+          puts 'Primary Geo node DB record not found'
+
+          exit 1
+        end
+
+        response = Gitlab::HTTP.get("#{node.internal_url}/-/health")
+
+        if response.code_type == Net::HTTPOK
+          puts 'No'.color(:red)
+          puts 'Please read the documentation to disable the primary:'\
+            ' https://docs.gitlab.com/ee/administration/geo/disaster_recovery'\
+            '/index.html#step-2-permanently-disable-the-primary-node'.color(:red)
+          exit 1
+        else
+          puts 'Yes'.color(:green)
+        end
+      end
     end
   end
 end

@@ -1,0 +1,5 @@
+---
+title: 'Geo: Add a rake task to check if primary is down'
+merge_request: 33067
+author:
+type: added
