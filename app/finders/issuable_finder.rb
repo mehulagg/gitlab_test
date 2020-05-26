@@ -51,6 +51,7 @@ class IssuableFinder
       @scalar_params ||= %i[
       assignee_id
       assignee_username
+      commenter_usernames
       author_id
       author_username
       label_name
@@ -63,7 +64,7 @@ class IssuableFinder
     end
 
     def array_params
-      @array_params ||= { label_name: [], assignee_username: [] }
+      @array_params ||= { label_name: [], assignee_username: [], commenter_usernames: [] }
     end
 
     # This should not be used in controller strong params!
@@ -129,6 +130,7 @@ class IssuableFinder
     items = by_milestone(items)
     items = by_release(items)
     items = by_label(items)
+    items = by_notes(items)
     by_my_reaction_emoji(items)
   end
 
@@ -356,6 +358,14 @@ class IssuableFinder
     end
   end
   # rubocop: enable CodeReuse/ActiveRecord
+
+  # rubocop:disable CodeReuse/Finder
+  def by_notes(items)
+    IssuableFinder::ByCommentersFinder
+      .new(klass, params[:commenter_usernames], params[:commenter_ids])
+      .execute(items)
+  end
+  # rubocop:enable CodeReuse/Finder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def by_negated_author(items)

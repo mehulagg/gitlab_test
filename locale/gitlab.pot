@@ -5668,6 +5668,9 @@ msgstr ""
 msgid "Comment/Reply (quoting selected text)"
 msgstr ""
 
+msgid "Commenter"
+msgstr ""
+
 msgid "Comments"
 msgstr ""
 

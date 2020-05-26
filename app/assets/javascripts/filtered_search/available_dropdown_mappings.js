@@ -144,6 +144,11 @@ export default class AvailableDropdownMappings {
         },
         element: this.container.querySelector('#js-dropdown-target-branch'),
       },
+      commenter: {
+        reference: null,
+        gl: DropdownUser,
+        element: this.container.querySelector('#js-dropdown-commenter'),
+      },
     };
   }
 

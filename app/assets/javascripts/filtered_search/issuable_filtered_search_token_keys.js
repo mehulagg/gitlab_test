@@ -48,6 +48,15 @@ export const tokenKeys = [
     icon: 'labels',
     tag: '~label',
   },
+  {
+    formattedKey: __('Commenter'),
+    key: 'commenter',
+    type: 'array',
+    param: 'usernames[]',
+    symbol: '@',
+    icon: 'comment',
+    tag: '@commenter',
+  },
 ];
 
 if (gon.current_user_id) {
