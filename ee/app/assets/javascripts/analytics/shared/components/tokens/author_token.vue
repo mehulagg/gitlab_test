@@ -1,0 +1,133 @@
+<script>
+// {
+// formattedKey: __('Author'),
+// key: 'author',
+// type: 'string',
+// param: 'username',
+// symbol: '@',
+// icon: 'pencil',
+// tag: '@author',
+// },
+import {
+  GlFilteredSearchToken,
+  GlFilteredSearchSuggestion,
+  GlDropdownDivider,
+  GlLoadingIcon,
+} from '@gitlab/ui';
+import { __ } from '~/locale';
+
+export default {
+  components: {
+    GlFilteredSearchToken,
+    GlFilteredSearchSuggestion,
+    GlDropdownDivider,
+    GlLoadingIcon,
+  },
+  inheritAttrs: false,
+  props: {
+    config: {
+      type: Object,
+      required: true,
+    },
+    value: {
+      type: Object,
+      required: true,
+    },
+  },
+  computed: {
+    labels() {
+      return this.config.labels;
+    },
+    filteredLabels() {
+      return this.labels
+        .filter(label => label.title.toLowerCase().indexOf(this.value.data?.toLowerCase()) !== -1)
+        .map(label => ({
+          ...label,
+          value: this.getEscapedText(label.title),
+        }));
+    },
+  },
+  methods: {
+    fetchAuthors(){
+      
+    }
+  },
+};
+</script>
+
+<template>
+  <gl-filtered-search-token
+    :config="config"
+    v-bind="{ ...$props, ...$attrs }"
+    v-on="$listeners"
+    @input="searchAuthors"
+  >
+    <template #view="{inputValue}">
+      <gl-avatar
+        v-if="activeUser"
+        :size="16"
+        :src="activeUser.avatar_url"
+        shape="circle"
+        class="gl-mr-2"
+      />
+      <span>{{ activeUser ? activeUser.name : inputValue }}</span>
+    </template>
+    <template #suggestions>
+      <gl-filtered-search-suggestion :value="$options.anyTriggerAuthor">{{
+        $options.anyTriggerAuthor
+      }}</gl-filtered-search-suggestion>
+      <gl-dropdown-divider />
+
+      <gl-loading-icon v-if="loading" />
+      <template v-else>
+        <gl-filtered-search-suggestion
+          v-for="user in users"
+          :key="user.username"
+          :value="user.username"
+        >
+          <div class="d-flex">
+            <gl-avatar :size="32" :src="user.avatar_url" />
+            <div>
+              <div>{{ user.name }}</div>
+              <div>@{{ user.username }}</div>
+            </div>
+          </div>
+        </gl-filtered-search-suggestion>
+      </template>
+    </template>
+  </gl-filtered-search-token>
+  <!-- <gl-filtered-search-token :config="config" v-bind="{ ...this.$attrs }" v-on="$listeners">
+    <template #view="{ inputValue }">
+      <template v-if="config.symbol">{{ config.symbol }}</template>
+      {{ inputValue }}
+    </template>
+    <template #suggestions>
+      <gl-filtered-search-suggestion
+        v-for="suggestion in $options.defaultSuggestions"
+        :key="suggestion.value"
+        :value="suggestion.value"
+        >{{ suggestion.text }}</gl-filtered-search-suggestion
+      >
+      <gl-dropdown-divider v-if="config.isLoading || filteredLabels.length" />
+      <gl-loading-icon v-if="config.isLoading" />
+      <template v-else>
+        <gl-filtered-search-suggestion
+          v-for="label in filteredLabels"
+          ref="labelItem"
+          :key="label.id"
+          :value="label.value"
+        >
+          <div class="d-flex">
+            <span
+              class="d-inline-block mr-2 gl-w-16 gl-h-16 border-radius-small"
+              :style="{
+                backgroundColor: label.color,
+              }"
+            ></span>
+            <span>{{ label.title }}</span>
+          </div>
+        </gl-filtered-search-suggestion>
+      </template>
+    </template>
+  </gl-filtered-search-token> -->
+</template>

@@ -1,8 +1,6 @@
 export default () => ({
   milestonePath: '',
   labelsPath: '',
-  authorPath: '',
-  assigneesPath: '',
   milestones: {
     isLoading: false,
     data: [],
@@ -10,6 +8,18 @@ export default () => ({
     selected: null,
   },
   labels: {
+    isLoading: false,
+    data: [],
+    errorCode: null,
+    selected: [],
+  },
+  authors: {
+    isLoading: false,
+    data: [],
+    errorCode: null,
+    selected: [],
+  },
+  assignees: {
     isLoading: false,
     data: [],
     errorCode: null,

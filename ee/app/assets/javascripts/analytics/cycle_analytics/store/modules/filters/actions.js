@@ -9,12 +9,6 @@ export const setMilestonesEndpoint = ({ commit }, milestonesEndpoint) =>
 export const setLabelsEndpoint = ({ commit }, labelsEndpoint) =>
   commit(types.SET_LABELS_ENDPOINT, labelsEndpoint);
 
-export const setAuthorEndpoint = ({ commit }, authorEndpoint) =>
-  commit(types.SET_AUTHOR_ENDPOINT, authorEndpoint);
-
-export const setAssigneessEndpoint = ({ commit }, assigneesEndpoint) =>
-  commit(types.SET_ASSIGNEES_ENDPOINT, assigneesEndpoint);
-
 export const fetchMilestones = ({ commit, state }) => {
   commit(types.REQUEST_MILESTONES);
 
@@ -52,12 +46,7 @@ export const setFilters = ({ commit }, { labelNames, milestoneTitle }) => {
   });
 };
 
-export const setPaths = (
-  { dispatch },
-  { milestonePath, labelsPath, authorPath, assigneesPath },
-) => {
+export const setPaths = ({ dispatch }, { milestonePath, labelsPath }) => {
   dispatch('setMilestonesEndpoint', milestonePath);
   dispatch('setLabelsEndpoint', labelsPath);
-  dispatch('setAuthorEndpoint', authorPath);
-  dispatch('setAssigneesEndpoint', assigneesPath);
 };
