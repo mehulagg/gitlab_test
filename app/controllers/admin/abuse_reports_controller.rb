@@ -5,6 +5,7 @@ class Admin::AbuseReportsController < Admin::ApplicationController
     @abuse_reports = AbuseReportsFinder.new(params).execute
   end
 
+  # comment to try and trigger `package-and-qa`
   def destroy
     abuse_report = AbuseReport.find(params[:id])
 
