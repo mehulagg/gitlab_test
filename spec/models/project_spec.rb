@@ -4302,7 +4302,6 @@ describe Project do
 
   describe '#auto_devops_enabled?' do
     before do
-      allow(Feature).to receive(:enabled?).and_call_original
       Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
     end
 
@@ -4505,7 +4504,6 @@ describe Project do
     let_it_be(:project, reload: true) { create(:project) }
 
     before do
-      allow(Feature).to receive(:enabled?).and_call_original
       Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
     end
 
