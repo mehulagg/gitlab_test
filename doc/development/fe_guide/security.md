@@ -1,5 +1,31 @@
 # Security
 
+## Cross-site scripting (XSS)
+
+Frontend should always consider escaping or sanitizing the user input before executing (either as HTML, CSS, or JavaScript). When failed to do that, it can make the application vulnerable to cross-site scripting attacks (XSS).
+
+#### HTML content
+
+- Vue - Consider using [v-safe-html](https://gitlab-org.gitlab.io/gitlab-ui/?path=/story/directives-safe-html-directive--default) instead of [v-html](https://vuejs.org/v2/guide/syntax.html#Raw-HTML)
+- JS - Consider using `textContent` instead of `innerHTML`
+- Jquery - Consider using `text()` instead of `html()`
+
+If it is unavoidable to use the aforementioned functions, please sanitize the html using the `dompurify`. 
+
+```js
+// Add example
+```
+
+
+#URLs
+
+- Considering using `GlLink` Component which automagically reject unsafe URLs like `javascript:alert(1)`
+
+
+FAQs
+
+1. When to escape or sanitize?
+
 ## Resources
 
 [Mozilla’s HTTP Observatory CLI](https://github.com/mozilla/http-observatory-cli) and the
