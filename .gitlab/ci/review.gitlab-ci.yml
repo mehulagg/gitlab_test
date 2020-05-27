@@ -232,7 +232,7 @@ danger-quick-review:
     - .yarn-cache
     - .review:rules:danger
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
-  stage: test
+  stage: sync
   needs: []
   script:
     - source scripts/utils.sh
