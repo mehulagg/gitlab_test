@@ -90,7 +90,7 @@ describe('Clusters', () => {
       ${'Cluster|Kubernetes Cluster'} | ${3}
       ${'Cluster|Kubernetes Cluster'} | ${4}
       ${'Cluster|Kubernetes Cluster'} | ${5}
-    `('renders node size for each cluster', ({ providerText, lineNumber }) => {
+    `('renders provider image and alt text for each cluster', ({ providerText, lineNumber }) => {
       const images = findTable().findAll('.js-status img');
       const image = images.at(lineNumber);
 

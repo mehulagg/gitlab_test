@@ -13,15 +13,15 @@ export const MAX_REQUESTS = 3;
 
 export const PROVIDER_TYPES = {
   aws: {
-    icon: `data:image/svg+xml;base64,${btoa(awsSvg)}`,
+    icon: `data:image/svg+xml;base64,${window.btoa(awsSvg)}`,
     iconText: __('Cluster|Amazon EKS'),
   },
   default: {
-    icon: `data:image/svg+xml;base64,${btoa(defaultKubernetesSvg)}`,
+    icon: `data:image/svg+xml;base64,${window.btoa(defaultKubernetesSvg)}`,
     iconText: __('Cluster|Kubernetes Cluster'),
   },
   gcp: {
-    icon: `data:image/svg+xml;base64,${btoa(gcpSvg)}`,
+    icon: `data:image/svg+xml;base64,${window.btoa(gcpSvg)}`,
     iconText: __('Cluster|Google GKE'),
   },
 };
