@@ -81,6 +81,23 @@ describe('Clusters', () => {
     });
   });
 
+  describe('cluster icon', () => {
+    it.each`
+      providerText                    | lineNumber
+      ${'Cluster|Google GKE'}         | ${0}
+      ${'Cluster|Amazon EKS'}         | ${1}
+      ${'Cluster|Kubernetes Cluster'} | ${2}
+      ${'Cluster|Kubernetes Cluster'} | ${3}
+      ${'Cluster|Kubernetes Cluster'} | ${4}
+      ${'Cluster|Kubernetes Cluster'} | ${5}
+    `('renders node size for each cluster', ({ providerText, lineNumber }) => {
+      const images = findTable().findAll('.js-status img');
+      const image = images.at(lineNumber);
+
+      expect(image.attributes('alt')).toBe(providerText);
+    });
+  });
+
   describe('cluster status', () => {
     it.each`
       statusName                  | className       | lineNumber

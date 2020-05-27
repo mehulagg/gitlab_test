@@ -3,6 +3,7 @@ export const clusterList = [
     name: 'My Cluster 1',
     environment_scope: '*',
     cluster_type: 'group_type',
+    provider_type: 'gcp',
     status: 'disabled',
     nodes: null,
   },
@@ -10,6 +11,7 @@ export const clusterList = [
     name: 'My Cluster 2',
     environment_scope: 'development',
     cluster_type: 'project_type',
+    provider_type: 'aws',
     status: 'unreachable',
     nodes: [{ usage: { cpu: '246155922n', memory: '1255212Ki' } }],
   },
@@ -17,6 +19,7 @@ export const clusterList = [
     name: 'My Cluster 3',
     environment_scope: 'development',
     cluster_type: 'project_type',
+    provider_type: 'none',
     status: 'authentication_failure',
     nodes: [
       { usage: { cpu: '246155922n', memory: '1255212Ki' } },

@@ -8,7 +8,7 @@ import {
   GlTable,
 } from '@gitlab/ui';
 import tooltip from '~/vue_shared/directives/tooltip';
-import { CLUSTER_TYPES, STATUSES } from '../constants';
+import { CLUSTER_TYPES, PROVIDER_TYPES, STATUSES } from '../constants';
 import { __, sprintf } from '~/locale';
 
 export default {
@@ -72,6 +72,14 @@ export default {
   },
   methods: {
     ...mapActions(['fetchClusters', 'setPage']),
+    providerIcon(provider) {
+      const providerData = PROVIDER_TYPES[provider] || PROVIDER_TYPES.default;
+      return providerData.icon;
+    },
+    providerIconText(provider) {
+      const providerData = PROVIDER_TYPES[provider] || PROVIDER_TYPES.default;
+      return providerData.iconText;
+    },
     statusClass(status) {
       const iconClass = STATUSES[status] || STATUSES.default;
       return iconClass.className;
@@ -90,8 +98,21 @@ export default {
   <section v-else>
     <gl-table :items="clusters" :fields="fields" stacked="md" class="qa-clusters-table">
       <template #cell(name)="{ item }">
-        <div class="d-flex flex-row-reverse flex-md-row js-status">
-          <gl-link data-qa-selector="cluster" :data-qa-cluster-name="item.name" :href="item.path">
+        <div
+          class="gl-display-flex gl-align-items-center gl-justify-content-end gl-justify-content-md-start js-status"
+        >
+          <img
+            :src="providerIcon(item.provider_type)"
+            :alt="providerIconText(item.provider_type)"
+            class="gl-w-6 gl-h-6 gl-display-flex gl-align-items-center"
+          />
+
+          <gl-link
+            data-qa-selector="cluster"
+            :data-qa-cluster-name="item.name"
+            :href="item.path"
+            class="gl-px-3"
+          >
             {{ item.name }}
           </gl-link>
 
@@ -100,12 +121,11 @@ export default {
             v-tooltip
             :title="statusTitle(item.status)"
             size="sm"
-            class="mr-2 ml-md-2"
           />
           <div
             v-else
             v-tooltip
-            class="cluster-status-indicator rounded-circle align-self-center gl-w-4 gl-h-4 mr-2 ml-md-2"
+            class="cluster-status-indicator rounded-circle gl-align-items-center gl-w-4 gl-h-4"
             :class="statusClass(item.status)"
             :title="statusTitle(item.status)"
           ></div>
