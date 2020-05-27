@@ -238,7 +238,6 @@ export default {
         <status-description
           class="issuable-meta"
           :vulnerability="vulnerability"
-          :pipeline="vulnerability.pipeline"
           :user="user"
           :is-loading-vulnerability="isLoadingVulnerability"
           :is-loading-user="isLoadingUser"

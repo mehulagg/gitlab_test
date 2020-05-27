@@ -324,7 +324,6 @@ describe('Vulnerability Header', () => {
         expect(findStatusDescription().exists()).toBe(true);
         expect(findStatusDescription().props()).toEqual({
           vulnerability,
-          pipeline: defaultVulnerability.pipeline,
           user,
           isLoadingVulnerability: wrapper.vm.isLoadingVulnerability,
           isLoadingUser: wrapper.vm.isLoadingUser,
