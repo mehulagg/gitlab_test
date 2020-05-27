@@ -237,8 +237,8 @@ danger-quick-review:
   script:
     - source scripts/utils.sh
     - retry yarn install --frozen-lockfile
-    - danger --fail-on-errors=true --verbose --dangerfile danger/commit_messages
-    - danger --fail-on-errors=true --verbose --dangerfile danger/changelog
+    - danger --fail-on-errors=true --verbose --dangerfile=danger/commit_messages
+    - danger --fail-on-errors=true --verbose --dangerfile=danger/changelog
   cache:
     policy: pull
 
