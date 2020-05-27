@@ -52,7 +52,7 @@ class SnippetsFinder < UnionFinder
     if project && author
       raise(
         ArgumentError,
-        'Filtering by both an author and a project is not supported, ' \
+        'No Filtering by both an author and a project is not supported, ' \
           'as this finder is not optimised for this use case'
       )
     end
