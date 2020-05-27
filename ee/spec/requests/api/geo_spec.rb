@@ -52,7 +52,8 @@ describe API::Geo do
       it 'returns the file' do
         get api("/geo/retrieve/#{replicator.replicable_name}/#{resource.id}"), headers: req_header
 
-        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+        expect(response.body).to be_empty
         expect(response.headers['Content-Type']).to eq('application/octet-stream')
         expect(response.headers['X-Sendfile']).to eq(resource.file.path)
       end
@@ -66,12 +67,13 @@ describe API::Geo do
           expect(response).to have_gitlab_http_status(:unauthorized)
         end
 
-        it 'responds with 200 when IP is allowed' do
+        it 'responds with 204 when IP is allowed' do
           stub_application_setting(geo_node_allowed_ips: '127.0.0.1')
 
           get api("/geo/retrieve/#{replicator.replicable_name}/#{resource.id}"), headers: req_header
 
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+          expect(response.body).to be_empty
         end
       end
     end
@@ -120,12 +122,13 @@ describe API::Geo do
         expect(response).to have_gitlab_http_status(:unauthorized)
       end
 
-      it 'responds with 200 when IP is allowed' do
+      it 'responds with 204 when IP is allowed' do
         stub_application_setting(geo_node_allowed_ips: '127.0.0.1')
 
         get api("/geo/transfers/attachment/#{resource.id}"), headers: req_header
 
-        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+        expect(response.body).to be_empty
       end
     end
 
@@ -175,10 +178,11 @@ describe API::Geo do
       context 'when attachment file exists' do
         subject(:request) { get api("/geo/transfers/attachment/#{resource.id}"), headers: req_header }
 
-        it 'responds with 200 with X-Sendfile' do
+        it 'responds with 204 with X-Sendfile' do
           request
 
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+          expect(response.body).to be_empty
           expect(response.headers['Content-Type']).to eq('application/octet-stream')
           expect(response.headers['X-Sendfile']).to eq(note.attachment.path)
         end
@@ -187,12 +191,13 @@ describe API::Geo do
       end
 
       context 'when attachment has mount_point nil' do
-        it 'responds with 200 with X-Sendfile' do
+        it 'responds with 204 with X-Sendfile' do
           resource.update(mount_point: nil)
 
           get api("/geo/transfers/attachment/#{resource.id}"), headers: req_header
 
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+          expect(response.body).to be_empty
           expect(response.headers['Content-Type']).to eq('application/octet-stream')
           expect(response.headers['X-Sendfile']).to eq(note.attachment.path)
         end
@@ -210,10 +215,11 @@ describe API::Geo do
       context 'avatar file exists' do
         subject(:request) { get api("/geo/transfers/avatar/#{resource.id}"), headers: req_header }
 
-        it 'responds with 200 with X-Sendfile' do
+        it 'responds with 204 with X-Sendfile' do
           request
 
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+          expect(response.body).to be_empty
           expect(response.headers['Content-Type']).to eq('application/octet-stream')
           expect(response.headers['X-Sendfile']).to eq(user.avatar.path)
         end
@@ -222,12 +228,13 @@ describe API::Geo do
       end
 
       context 'avatar has mount_point nil' do
-        it 'responds with 200 with X-Sendfile' do
+        it 'responds with 204 with X-Sendfile' do
           resource.update(mount_point: nil)
 
           get api("/geo/transfers/avatar/#{resource.id}"), headers: req_header
 
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+          expect(response.body).to be_empty
           expect(response.headers['Content-Type']).to eq('application/octet-stream')
           expect(response.headers['X-Sendfile']).to eq(user.avatar.path)
         end
@@ -250,10 +257,11 @@ describe API::Geo do
         context 'when the file exists' do
           subject(:request) { get api("/geo/transfers/file/#{resource.id}"), headers: req_header }
 
-          it 'responds with 200 with X-Sendfile' do
+          it 'responds with 204 with X-Sendfile' do
             request
 
-            expect(response).to have_gitlab_http_status(:ok)
+            expect(response).to have_gitlab_http_status(:no_content) # filled in by workhorse
+            expect(response.body).to be_empty
             expect(response.headers['Content-Type']).to eq('application/octet-stream')
             expect(response.headers['X-Sendfile']).to end_with('dk.png')
           end

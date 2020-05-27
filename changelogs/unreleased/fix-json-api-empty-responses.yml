@@ -1,0 +1,5 @@
+---
+title: Fix empty JSON API responses
+merge_request: 33200
+author:
+type: fixed

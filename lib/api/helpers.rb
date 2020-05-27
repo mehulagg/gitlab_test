@@ -31,7 +31,6 @@ module API
 
       check_unmodified_since!(last_updated)
 
-      status 204
       body false
 
       if block_given?
@@ -488,7 +487,7 @@ module API
       case headers['X-Sendfile-Type']
       when 'X-Sendfile'
         header['X-Sendfile'] = path
-        body
+        body false
       else
         file path
       end
@@ -503,8 +502,7 @@ module API
         redirect(file.url)
       else
         header(*Gitlab::Workhorse.send_url(file.url))
-        status :ok
-        body
+        body false
       end
     end
 

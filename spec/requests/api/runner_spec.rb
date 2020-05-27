@@ -2263,7 +2263,8 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
                 end
 
                 it 'uses workhorse send-url' do
-                  expect(response).to have_gitlab_http_status(:ok)
+                  expect(response).to have_gitlab_http_status(:no_content) # Filled in by workhorse
+                  expect(response.body).to be_empty
                   expect(response.headers.to_h).to include(
                     'Gitlab-Workhorse-Send-Data' => /send-url:/)
                 end
