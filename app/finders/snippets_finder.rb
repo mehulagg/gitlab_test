@@ -45,6 +45,14 @@ class SnippetsFinder < UnionFinder
   attr_accessor :current_user, :params
   delegate :explore, :only_personal, :only_project, :scope, to: :params
 
+  # sort snippets
+  ALLOWED_SORT_VALUES = %w[created_at updated_at].freeze
+  DEFAULT_SORT_VALUE = 'updated_at'.freeze
+
+  # sort snippets
+  ALLOWED_SORT_DIRECTIONS = %w[asc desc].freeze
+  DEFAULT_SORT_DIRECTION = 'asc'.freeze
+
   def initialize(current_user = nil, params = {})
     @current_user = current_user
     @params = OpenStruct.new(params)
@@ -70,6 +78,9 @@ class SnippetsFinder < UnionFinder
     items = init_collection
     items = by_ids(items)
     items.with_optional_visibility(visibility_from_scope).fresh
+
+    # sort snippets
+    sort(items)
   end
 
   private
@@ -84,6 +95,17 @@ class SnippetsFinder < UnionFinder
     else
       snippets_for_personal_and_multiple_projects
     end
+  end
+
+  # sort snippets
+  def sort(items)
+    items.order(sort_params)
+  end
+
+  # sort snippets
+  def sort_params
+    order_by = ALLOWED_SORT_VALUES.include?(params[:order_by]) ? params[:order_by] : DEFAULT_SORT_VALUE
+    order_direction = ALLOWED_SORT_DIRECTIONS.include?(params[:sort]) ? params[:sort] : DEFAULT_SORT_DIRECTION
   end
 
   # Produces a query that retrieves snippets for the Explore page
