@@ -14,6 +14,8 @@ resources :snippets, concerns: :awardable do
         delete :delete_attachment
       end
     end
+
+    get '/raw/:ref/*path', to: 'blobs#raw', as: :raw, format: false
   end
 end
 

@@ -361,6 +361,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :raw
           post :mark_as_spam
         end
+
+        get '/raw/:ref/*path', to: 'snippets/blobs#raw', format: false
       end
 
       namespace :prometheus do
