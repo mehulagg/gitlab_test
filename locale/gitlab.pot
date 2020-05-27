@@ -5457,6 +5457,15 @@ msgstr ""
 msgid "Clusters|An error occurred while loading clusters"
 msgstr ""
 
+msgid "Cluster|Amazon EKS"
+msgstr ""
+
+msgid "Cluster|Google GKE"
+msgstr ""
+
+msgid "Cluster|Kubernetes Cluster"
+msgstr ""
+
 msgid "Code"
 msgstr ""
 
