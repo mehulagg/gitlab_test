@@ -512,7 +512,7 @@ The following table details the Usage Statistics terms and their definitions.
 |`missing`|`avg_cycle_analytics - issue`|||
 |`average`|`avg_cycle_analytics - plan`|||
 |`sd`|`avg_cycle_analytics - plan`|||
-|`missing`|`avg_cycle_analytics - plan|||
+|`missing`|`avg_cycle_analytics - plan`|||
 |`average`|`avg_cycle_analytics - code`|||
 |`sd`|`avg_cycle_analytics - code`|||
 |`missing`|`avg_cycle_analytics - code`|||
