@@ -226,6 +226,22 @@ parallel-spec-reports:
       junit: qa/gitlab-qa-run-*/**/rspec-*.xml
     expire_in: 31d
 
+danger-quick-review:
+  extends:
+    - .default-retry
+    - .yarn-cache
+    - .review:rules:danger
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
+  stage: test
+  needs: []
+  script:
+    - source scripts/utils.sh
+    - retry yarn install --frozen-lockfile
+    - danger --fail-on-errors=true --verbose --dangerfile danger/commit_messages
+    - danger --fail-on-errors=true --verbose --dangerfile danger/changelog
+  cache:
+    policy: pull
+
 danger-review:
   extends:
     - .default-retry
