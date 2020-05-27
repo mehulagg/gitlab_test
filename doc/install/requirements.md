@@ -88,7 +88,7 @@ Apart from a local hard drive you can also mount a volume that supports the netw
 
 If you have enough RAM and a recent CPU the speed of GitLab is mainly limited by hard drive seek times. Having a fast drive (7200 RPM and up) or a solid state drive (SSD) will improve the responsiveness of GitLab.
 
-NOTE: **Note:** Since file system performance may affect GitLab's overall performance, [we don't recommend using AWS EFS for storage](../administration/high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs) for more details.
+NOTE: **Note:** Since file system performance may affect GitLab's overall performance, [we don't recommend using AWS EFS for storage](../administration/high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs).
 
 ### CPU
 
@@ -130,16 +130,15 @@ NOTE: **Note:** The 25 workers of Sidekiq will show up as separate processes in 
 
 ## Database
 
-We currently support only PostgreSQL, which is installed either by our Omnibus package,
-or [externally](https://docs.gitlab.com/omnibus/settings/database.html#using-a-non-packaged-postgresql-database-management-server).
+PostgreSQL is the only supported database, which is bundled with the Omnibus GitLab package.
+You can also use an [external PostgreSQL database](https://docs.gitlab.com/omnibus/settings/database.html#using-a-non-packaged-postgresql-database-management-server).
 Support for MySQL was removed in GitLab 12.1. Existing users using GitLab with
 MySQL/MariaDB are advised to [migrate to PostgreSQL](../update/mysql_to_postgresql.md) before upgrading.
 
 ### PostgreSQL Requirements
 
 The server running PostgreSQL should have _at least_ 5-10 GB of storage
-available, though the exact requirements depend on the size of the GitLab
-installation (for example the number of users, projects, etc).
+available, though the exact requirements [depend on the number of users](../administration/reference_architectures/index.md).
 
 We highly recommend users to use the minimum PostgreSQL versions specified below as these are the versions used for development and testing.
 
@@ -149,13 +148,8 @@ GitLab version | Minimum PostgreSQL version
 12.10 | 11
 13.0 | 11
 
-Users using PostgreSQL must ensure the `pg_trgm` extension is loaded into every
-GitLab database. This extension can be enabled (using a PostgreSQL super user)
-by running the following query for every database:
-
-```sql
-CREATE EXTENSION pg_trgm;
-```
+You must also ensure the `pg_trgm` extension is loaded into every
+GitLab database. This extension [can be enabled](https://www.postgresql.org/docs/11/sql-createextension.html) using a PostgreSQL super user.
 
 On some systems you may need to install an additional package (for example,
 `postgresql-contrib`) for this extension to become available.
@@ -164,21 +158,15 @@ NOTE: **Note:** Support for [PostgreSQL 9.6 and 10 has been removed in GitLab 13
 
 #### Additional requirements for GitLab Geo
 
-If you're using [GitLab Geo](../development/geo.md):
+If you're using [GitLab Geo](../administration/geo/replication/index.md):
 
 - We strongly recommend running Omnibus-managed instances as they are actively
   developed and tested. We aim to be compatible with most external (not managed
-  by Omnibus) databases (for example, [AWS Relational Database Service (RDS)](https://aws.amazon.com/rds/)) but we don't guarantee
-  compatibility.
-- The
-  [tracking database](../development/geo.md#using-the-tracking-database)
-  requires the
-  [postgres_fdw](https://www.postgresql.org/docs/11/postgres-fdw.html)
-  extension.
-
-```sql
-CREATE EXTENSION postgres_fdw;
-```
+  by Omnibus) databases (for example, [AWS Relational Database Service (RDS)](https://aws.amazon.com/rds/)) but we don't guarantee compatibility.
+- You must also ensure the `postgres_fdw` extension is loaded into every
+  GitLab database. This extension
+  [can be enabled](https://www.postgresql.org/docs/11/sql-createextension.html)
+  using a PostgreSQL super user.
 
 ## Unicorn Workers
 
@@ -260,7 +248,7 @@ Memory consumption calculations, that are available above, won't be valid if
 you decide to run GitLab Runner and the GitLab Rails application on the same
 machine.
 
-it's also not safe to install everything on a single machine, because of the
+It's also not safe to install everything on a single machine, because of the
 [security reasons](https://docs.gitlab.com/runner/security/), especially when you plan to use shell executor with GitLab
 Runner.
 
