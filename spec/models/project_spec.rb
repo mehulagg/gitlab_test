@@ -4302,7 +4302,7 @@ describe Project do
 
   describe '#auto_devops_enabled?' do
     before do
-      Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
+      Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 0)
     end
 
     let_it_be(:project, reload: true) { create(:project) }
@@ -4504,7 +4504,7 @@ describe Project do
     let_it_be(:project, reload: true) { create(:project) }
 
     before do
-      Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
+      Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 0)
     end
 
     context 'when explicitly disabled' do
@@ -4550,7 +4550,7 @@ describe Project do
         before do
           create(:project_auto_devops, project: project, enabled: false)
 
-          Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(100)
+          Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 100)
         end
 
         it 'does not have auto devops implicitly disabled' do

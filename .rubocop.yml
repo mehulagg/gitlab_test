@@ -266,6 +266,9 @@ ActiveRecordAssociationReload:
     - 'spec/**/*'
     - 'ee/spec/**/*'
 
+AvoidFeatureGet:
+  Enabled: true
+
 Naming/PredicateName:
   Enabled: true
   Exclude:

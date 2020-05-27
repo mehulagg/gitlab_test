@@ -19,7 +19,7 @@ module Gitlab
       private
 
       def feature
-        Feature.get(:sourcegraph)
+        Feature.get(:sourcegraph) # rubocop:disable Cop/AvoidFeatureGet
       end
     end
   end
