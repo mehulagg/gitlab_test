@@ -462,7 +462,7 @@ The following table details the Usage Statistics terms and their definitions.
 |`incident_issues`|`counts`|`monitor`|Issues created by the alert bot||
 |`alert_bot_incident_issues`|`counts`|`monitor`|Issues created by the alert bot||
 |`incident_labeled_issues`|`counts`|`monitor`|Issues with the incident label||
-|`issues_created_gitlab_alerts`|`counts`|`monitor`|issues created from alerts by non-alert bot users||
+|`issues_created_gitlab_alerts`|`counts`|`monitor`|Issues created from alerts by non-alert bot users||
 |`ldap_group_links`|`counts`|||
 |`ldap_keys`|`counts`|||
 |`ldap_users`|`counts`|||
