@@ -18,6 +18,10 @@ module EE
         dast: :dast
       }.with_indifferent_access.freeze
 
+      EE_RUNNER_FEATURES = {
+        secrets: -> (build) { build.ci_secrets_management_available? && build.secrets?}
+      }.freeze
+
       prepended do
         include UsageStatistics
         include FromUnion
@@ -130,12 +134,34 @@ module EE
         !merge_train_pipeline? && super
       end
 
+      def ci_secrets_management_available?
+        ::Feature.enabled?(:ci_secrets_management_vault, project) &&
+          project.feature_available?(:ci_secrets_management)
+      end
+
+      override :runner_required_feature_names
+      def runner_required_feature_names
+        super + ee_runner_required_feature_names
+      end
+
+      def secrets?
+        options[:secrets].present?
+      end
+
       private
 
       def parse_security_artifact_blob(security_report, blob)
         report_clone = security_report.clone_as_blank
         ::Gitlab::Ci::Parsers.fabricate!(security_report.type).parse!(blob, report_clone)
         security_report.merge!(report_clone)
+      end
+
+      def ee_runner_required_feature_names
+        strong_memoize(:ee_runner_required_feature_names) do
+          EE_RUNNER_FEATURES.select do |feature, method|
+            method.call(self)
+          end.keys
+        end
       end
     end
   end

@@ -469,4 +469,94 @@ RSpec.describe Ci::Build do
       expect(described_class.license_scan).to contain_exactly(build_with_license_scan)
     end
   end
+
+  describe 'ci_secrets_management_available?' do
+    subject(:build) { job.ci_secrets_management_available? }
+
+    context 'when ci_secrets_management_vault feature flag is enabled' do
+      before do
+        stub_feature_flags(ci_secrets_management_vault: true)
+      end
+
+      context 'when secrets management feature is available' do
+        before do
+          stub_licensed_features(ci_secrets_management: true)
+        end
+
+        it { is_expected.to be true }
+      end
+
+      context 'when secrets management feature is not available' do
+        before do
+          stub_licensed_features(ci_secrets_management: false)
+        end
+
+        it { is_expected.to be false }
+      end
+    end
+
+    context 'when ci_secrets_management_vault feature flag is disabled' do
+      before do
+        stub_feature_flags(ci_secrets_management_vault: false)
+      end
+
+      context 'when secrets management feature is available' do
+        before do
+          stub_licensed_features(ci_secrets_management: true)
+        end
+
+        it { is_expected.to be false }
+      end
+
+      context 'when secrets management feature is not available' do
+        before do
+          stub_licensed_features(ci_secrets_management: false)
+        end
+
+        it { is_expected.to be false }
+      end
+    end
+  end
+
+  describe '#runner_required_feature_names' do
+    let(:build) { create(:ci_build, options: options) }
+
+    subject { build.runner_required_feature_names }
+
+    context 'when secrets management feature is available' do
+      before do
+        expect(build).to receive(:ci_secrets_management_available?).and_return(true)
+      end
+
+      context 'when there are secrets defined' do
+        let(:options) { { secrets: { some: :secrets } } }
+
+        it { is_expected.to include(:secrets) }
+      end
+
+      context 'when there are no secrets defined' do
+        let(:options) { {} }
+
+        it { is_expected.not_to include(:secrets) }
+      end
+    end
+
+    context 'when secrets management feature is not available' do
+      before do
+        expect(build).to receive(:ci_secrets_management_available?).and_return(false)
+      end
+
+      context 'when there are secrets defined' do
+        let(:options) { { secrets: { some: :secrets } } }
+
+        it { is_expected.not_to include(:secrets) }
+      end
+
+      context 'when there are no secrets defined' do
+        let(:options) { {} }
+
+        it { is_expected.not_to include(:secrets) }
+      end
+    end
+  end
 end
