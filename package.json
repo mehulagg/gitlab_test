@@ -5,6 +5,8 @@
     "block-dependencies": "node scripts/frontend/block_dependencies.js",
     "clean": "rm -rf public/assets tmp/cache/*-loader",
     "dev-server": "NODE_OPTIONS=\"--max-old-space-size=3584\" node scripts/frontend/webpack_dev_server.js",
+    "link-gitlab-ui": "cd ../gitlab-ui && yarn link && cd ../gitlab && yarn link @gitlab/ui",
+    "unlink-gitlab-ui": "yarn unlink @gitlab/ui && yarn --force",
     "eslint": "eslint --cache --max-warnings 0 --report-unused-disable-directives --ext .js,.vue .",
     "eslint-fix": "eslint --cache --max-warnings 0 --report-unused-disable-directives --ext .js,.vue --fix .",
     "eslint-report": "eslint --max-warnings 0 --ext .js,.vue --format html --output-file ./eslint-report.html --no-inline-config .",
