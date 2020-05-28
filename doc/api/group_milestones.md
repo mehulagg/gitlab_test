@@ -1,3 +1,9 @@
+---
+stage: Plan
+group: Project Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Group milestones API
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/12819) in GitLab 9.5.
@@ -27,7 +33,7 @@ Parameters:
 | `search`  | string | no | Return only milestones with a title or description matching the provided string |
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/milestones
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/5/milestones"
 ```
 
 Example Response:

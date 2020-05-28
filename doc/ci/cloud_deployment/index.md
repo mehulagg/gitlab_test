@@ -13,7 +13,7 @@ that come with the needed libraries and tools pre-installed.
 By referencing them in your CI/CD pipeline, you'll be able to interact with your chosen
 cloud provider more easily.
 
-## AWS
+## Run AWS commands from GitLab CI/CD
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/31167) in GitLab 12.6.
 
@@ -49,23 +49,23 @@ Some credentials are required to be able to run `aws` commands:
    ```
 
    NOTE: **Note:**
-   Please note that the image used in the example above
+   The image used in the example above
    (`registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest`) is hosted on the [GitLab
    Container Registry](../../user/packages/container_registry/index.md) and is
-   ready to use. Alternatively, replace the image with another one hosted on [AWS ECR](#aws-ecr).
+   ready to use. Alternatively, replace the image with one hosted on AWS ECR.
 
-### AWS ECR
+## Use an AWS Elastic Container Registry (ECR) image in your CI/CD
 
-Instead of referencing an image hosted on the GitLab Registry, you are free to
-reference any other image hosted on any third-party registry, such as
+Instead of referencing an image hosted on the GitLab Registry, you can
+reference an image hosted on any third-party registry, such as the
 [Amazon Elastic Container Registry (ECR)](https://aws.amazon.com/ecr/).
 
-To do so, please make sure to [push your image into your ECR
-repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html)
-before referencing it in your `.gitlab-ci.yml` file and replace the `image`
-path to point to your ECR.
+To do so, [push your image into your ECR
+repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html).
+Then reference it in your `.gitlab-ci.yml` file and replace the `image`
+path to point to your ECR image.
 
-### Deploy your application to AWS Elastic Container Service (ECS)
+## Deploy your application to the AWS Elastic Container Service (ECS)
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/207962) in GitLab 12.9.
 
@@ -80,7 +80,7 @@ components, like an ECS service, ECS task definition, a database on AWS RDS, etc
 After you're all set up on AWS ECS, follow these steps:
 
 1. Make sure your AWS credentials are set up as environment variables for your
-   project. You can follow [the steps above](#aws) to complete this setup.
+   project. You can follow [the steps above](#run-aws-commands-from-gitlab-cicd) to complete this setup.
 1. Add these variables to your project's `.gitlab-ci.yml` file:
 
    ```yaml
@@ -122,6 +122,17 @@ After you're all set up on AWS ECS, follow these steps:
    Finally, your AWS ECS service will be updated with the new revision of the
    task definition, making the cluster pull the newest version of your
    application.
+
+CAUTION: **Warning:**
+The [`Deploy-ECS.gitlab-ci.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Deploy-ECS.gitlab-ci.yml)
+template includes both the [`Jobs/Build.gitlab-ci.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Build.gitlab-ci.yml)
+and [`Jobs/Deploy/ECS.gitlab-ci.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy/ECS.gitlab-ci.yml)
+"sub-templates". Do not include these "sub-templates" on their own, and only include the main
+`Deploy-ECS.gitlab-ci.yml` template. The "sub-templates" are designed to only be
+used along with the main template. They may move or change unexpectedly causing your
+pipeline to fail if you didn't include the main template. Also, the job names within
+these templates may change. Do not override these jobs names in your own pipeline,
+as the override will stop working when the name changes.
 
 Alternatively, if you don't wish to use the `Deploy-ECS.gitlab-ci.yml` template
 to deploy to AWS ECS, you can always use our

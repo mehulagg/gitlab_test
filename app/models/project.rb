@@ -329,6 +329,7 @@ class Project < ApplicationRecord
   has_many :repository_storage_moves, class_name: 'ProjectRepositoryStorageMove'
 
   has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
+  has_many :reviews, inverse_of: :project
 
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
@@ -508,6 +509,7 @@ class Project < ApplicationRecord
     left_outer_joins(:pages_metadatum)
       .where(project_pages_metadata: { project_id: nil })
   end
+
   scope :with_api_entity_associations, -> {
     preload(:project_feature, :route, :tags,
             group: :ip_restrictions, namespace: [:route, :owner])
@@ -526,6 +528,10 @@ class Project < ApplicationRecord
 
   # Used by Projects::CleanupService to hold a map of rewritten object IDs
   mount_uploader :bfg_object_map, AttachmentUploader
+
+  def self.with_web_entity_associations
+    preload(:project_feature, :route, :creator, :group, namespace: [:route, :owner])
+  end
 
   def self.eager_load_namespace_and_owner
     includes(namespace: :owner)
@@ -808,10 +814,6 @@ class Project < ApplicationRecord
     Feature.enabled?(:context_commits, default_enabled: true)
   end
 
-  def jira_issues_import_feature_flag_enabled?
-    Feature.enabled?(:jira_issue_import, self, default_enabled: true)
-  end
-
   # LFS and hashed repository storage are required for using Design Management.
   def design_management_enabled?
     lfs_enabled? && hashed_storage?(:repository)
@@ -900,7 +902,6 @@ class Project < ApplicationRecord
   end
 
   def validate_jira_import_settings!(user: nil)
-    raise Projects::ImportService::Error, _('Jira import feature is disabled.') unless jira_issues_import_feature_flag_enabled?
     raise Projects::ImportService::Error, _('Jira integration not configured.') unless jira_service&.active?
 
     if user
@@ -1015,7 +1016,7 @@ class Project < ApplicationRecord
   end
 
   def jira_import?
-    import_type == 'jira' && latest_jira_import.present? && jira_issues_import_feature_flag_enabled?
+    import_type == 'jira' && latest_jira_import.present?
   end
 
   def gitlab_project_import?
@@ -2075,21 +2076,6 @@ class Project < ApplicationRecord
     with_lock do
       update_column(:repository_read_only, false)
     end
-  end
-
-  def change_repository_storage(new_repository_storage_key)
-    return if repository_read_only?
-    return if repository_storage == new_repository_storage_key
-
-    raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
-
-    storage_move = repository_storage_moves.create!(
-      source_storage_name: repository_storage,
-      destination_storage_name: new_repository_storage_key
-    )
-    storage_move.schedule!
-
-    self.repository_read_only = true
   end
 
   def pushes_since_gc

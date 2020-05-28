@@ -1,3 +1,9 @@
+---
+stage: Plan
+group: Project Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Managing Issues
 
 [GitLab Issues](index.md) are the fundamental medium for collaborating on ideas and
@@ -225,6 +231,8 @@ not match the pattern. It works with multi-line commit messages as well as one-l
 when used from the command line with `git commit -m`.
 
 #### Disabling automatic issue closing
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/19754) in GitLab 12.7.
 
 The automatic issue closing feature can be disabled on a per-project basis
 within the [project's repository settings](../settings/index.md). Referenced
