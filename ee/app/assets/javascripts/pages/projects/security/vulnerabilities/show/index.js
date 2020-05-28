@@ -2,6 +2,7 @@ import Vue from 'vue';
 import HeaderApp from 'ee/vulnerabilities/components/header.vue';
 import DetailsApp from 'ee/vulnerabilities/components/details.vue';
 import FooterApp from 'ee/vulnerabilities/components/footer.vue';
+import { VULNERABILITY_STATE_OBJECTS } from 'ee/vulnerabilities/constants';
 
 function createHeaderApp() {
   const el = document.getElementById('js-vulnerability-header');
@@ -38,17 +39,20 @@ function createFooterApp() {
   }
 
   const {
-    vulnerabilityFeedbackHelpPath,
-    hasMr,
+    vulnerability_feedback_help_path: vulnerabilityFeedbackHelpPath,
+    has_mr: hasMr,
     discussions_url: discussionsUrl,
     state,
     issue_feedback: feedback,
     project,
-    remediation,
+    remediations,
     solution,
   } = JSON.parse(el.dataset.vulnerability);
 
-  const hasDownload = Boolean(state !== 'resolved' && remediation?.diff?.length && !hasMr);
+  const remediation = remediations?.length ? remediations[0] : null;
+  const hasDownload = Boolean(
+    state !== VULNERABILITY_STATE_OBJECTS.resolved.state && remediation?.diff?.length && !hasMr,
+  );
   const hasRemediation = Boolean(remediation);
 
   const props = {
