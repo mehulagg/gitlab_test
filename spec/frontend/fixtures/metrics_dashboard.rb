@@ -27,6 +27,9 @@ describe MetricsDashboard, '(JavaScript fixtures)', type: :controller do
     allow(controller)
         .to receive(:metrics_dashboard_params)
                 .and_return(params)
+    allow(controller)
+        .to receive(:metrics_data)
+                .and_return(params)
   end
 
   after do
