@@ -158,7 +158,7 @@ Kubernetes integration is not supported for arm64 clusters. See the issue
 To add a Kubernetes cluster to your project, group, or instance:
 
 1. Navigate to your:
-   1. Project's **{cloud-gear}** **Operations > Kubernetes** page, for a    project-level cluster.
+   1. Project's **{cloud-gear}** **Operations > Kubernetes** page, for a project-level cluster.
    1. Group's **{cloud-gear}** **Kubernetes** page, for a group-level cluster.
    1. **{admin}** **Admin Area >** **{cloud-gear}** **Kubernetes** page, for an instance-level cluster.
 1. Click **Add Kubernetes cluster**.
