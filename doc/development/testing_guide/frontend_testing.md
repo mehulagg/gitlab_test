@@ -204,11 +204,11 @@ Following you'll find some general common practices you will find as part of our
 
 ### How to query DOM elements
 
-When it comes to querying DOM elements in your tests, it is best to uniquely target the element, without adding additional attributes specifically for testing purposes. Sometimes this cannot be done feasibly. In these cases, adding test attributes to simplify the selectors might be the best option.
+When it comes to querying DOM elements in your tests, it is best to uniquely and semantically target the element. Sometimes this cannot be done feasibly. In these cases, adding test attributes to simplify the selectors might be the best option.
 
 Preferentially, in component testing with `@vue/test-utils`, you should query for child components using the component itself. This helps enforce that specific behavior can be covered by that component's individual unit tests. Otherwise, try to use:
 
-- A behavioral attribute like `name` (also verifies that `name` was setup properly)
+- A semantic attribute like `name` (also verifies that `name` was setup properly)
 - A `data-testid` attribute ([recommended by maintainers of `@vue/test-utils`](https://github.com/vuejs/vue-test-utils/issues/1498#issuecomment-610133465))
 - a Vue `ref` (if using `@vue/test-utils`)
 
@@ -216,11 +216,17 @@ Examples:
 
 ```javascript
 it('exists', () => {
+    // Good
     wrapper.find(FooComponent);
     wrapper.find('input[name=foo]');
     wrapper.find('[data-testid="foo"]');
     wrapper.find({ ref: 'foo'});
+
+    // Bad
     wrapper.find('.js-foo');
+    wrapper.find('.btn-primary');
+    wrapper.find('.qa-foo-component');
+    wrapper.find('[data-qa-selector="foo"]');
 });
 ```
 
@@ -801,9 +807,9 @@ Tests relevant for frontend development can be found at the following places:
 
 RSpec runs complete [feature tests](testing_levels.md#frontend-feature-tests), while the Jest and Karma directories contain [frontend unit tests](testing_levels.md#frontend-unit-tests), [frontend component tests](testing_levels.md#frontend-component-tests), and [frontend integration tests](testing_levels.md#frontend-integration-tests).
 
-All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/issues/52483)).
+All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52483)).
 
-Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/issues/23036)).
+Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/23036)).
 
 See also [Notes on testing Vue components](../fe_guide/vue.md#testing-vue-components).
 
@@ -831,43 +837,6 @@ testAction(
 ```
 
 Check an example in [`spec/javascripts/ide/stores/actions_spec.jsspec/javascripts/ide/stores/actions_spec.js`](https://gitlab.com/gitlab-org/gitlab/blob/master/spec/javascripts/ide/stores/actions_spec.js).
-
-### Vue Helper: `mountComponent`
-
-To make mounting a Vue component easier and more readable, we have a few helpers available in `spec/helpers/vue_mount_component_helper`:
-
-- `createComponentWithStore`
-- `mountComponentWithStore`
-
-Examples of usage:
-
-```javascript
-beforeEach(() => {
-  vm = createComponentWithStore(Component, store);
-
-  vm.$store.state.currentBranchId = 'master';
-
-  vm.$mount();
-});
-```
-
-```javascript
-beforeEach(() => {
-  vm = mountComponentWithStore(Component, {
-    el: '#dummy-element',
-    store,
-    props: { badge },
-  });
-});
-```
-
-Don't forget to clean up:
-
-```javascript
-afterEach(() => {
-  vm.$destroy();
-});
-```
 
 ### Wait until Axios requests finish
 
@@ -897,7 +866,7 @@ You can download any older version of Firefox from the releases FTP server, <htt
 
 1. From the website, select a version, in this case `50.0.1`.
 1. Go to the mac folder.
-1. Select your preferred language, you will find the `dmg` package inside, download it.
+1. Select your preferred language, you will find the DMG package inside, download it.
 1. Drag and drop the application to any other folder but the `Applications` folder.
 1. Rename the application to something like `Firefox_Old`.
 1. Move the application to the `Applications` folder.
