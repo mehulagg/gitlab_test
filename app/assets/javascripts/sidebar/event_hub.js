@@ -1,6 +1,6 @@
 import mitt from 'mitt';
 
-const eventHub =  () => {
+const eventHub = () => {
   const emitter = mitt();
 
   emitter.$on = emitter.on;
