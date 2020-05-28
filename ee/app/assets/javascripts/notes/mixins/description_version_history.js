@@ -13,7 +13,7 @@ export default {
       );
     },
     canDeleteDescriptionVersion() {
-      return this.note.can_delete_description_version;
+      return this.note.can_delete_description_version && !this.note.description_version_deleted;
     },
     shouldShowDescriptionVersion() {
       return this.canSeeDescriptionVersion && this.isDescriptionVersionExpanded;
@@ -40,8 +40,14 @@ export default {
       const endpoint = this.note.delete_description_version_path;
       const startingVersion = this.note.start_description_version_id;
       const versionId = this.note.description_version_id;
+      const discussionId = this.note.discussion_id;
 
-      return this.softDeleteDescriptionVersion({ endpoint, startingVersion, versionId });
+      return this.softDeleteDescriptionVersion({
+        endpoint,
+        startingVersion,
+        versionId,
+        discussionId,
+      });
     },
   },
 };

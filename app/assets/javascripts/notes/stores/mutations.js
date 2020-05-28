@@ -322,4 +322,8 @@ export default {
   [types.RECEIVE_DELETE_DESCRIPTION_VERSION_ERROR](state) {
     state.isLoadingDescriptionVersion = false;
   },
+  [types.SET_DESCRIPTION_VERSION_DELETED](state, { discussionId, value }) {
+    const selectedDiscussion = state.discussions.find(disc => disc.id === discussionId);
+    selectedDiscussion.notes[0].description_version_deleted = value;
+  },
 };

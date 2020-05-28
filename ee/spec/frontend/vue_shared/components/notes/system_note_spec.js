@@ -108,6 +108,8 @@ describe('system note component', () => {
       })
       .then(() => waitForPromises())
       .then(() => {
+        const deleteButton = wrapper.find({ ref: 'deleteDescriptionVersionButton' });
+        expect(deleteButton.exists()).toBe(false);
         expect(findDescriptionVersion().text()).toContain('Deleted');
         done();
       });

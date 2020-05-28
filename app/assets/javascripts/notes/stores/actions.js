@@ -570,7 +570,7 @@ export const receiveDescriptionVersionError = ({ commit }, error) => {
 
 export const softDeleteDescriptionVersion = (
   { dispatch },
-  { endpoint, startingVersion, versionId },
+  { endpoint, startingVersion, versionId, discussionId },
 ) => {
   let requestUrl = endpoint;
 
@@ -583,6 +583,7 @@ export const softDeleteDescriptionVersion = (
     .delete(requestUrl)
     .then(() => {
       dispatch('receiveDeleteDescriptionVersion', versionId);
+      dispatch('setDescriptionVersionDeleted', { discussionId, value: true });
     })
     .catch(error => {
       dispatch('receiveDeleteDescriptionVersionError', error);
@@ -599,6 +600,8 @@ export const receiveDeleteDescriptionVersion = ({ commit }, versionId) => {
 export const receiveDeleteDescriptionVersionError = ({ commit }, error) => {
   commit(types.RECEIVE_DELETE_DESCRIPTION_VERSION_ERROR, error);
 };
-
+export const setDescriptionVersionDeleted = ({ commit }, { discussionId, value }) => {
+  commit(types.SET_DESCRIPTION_VERSION_DELETED, { discussionId, value });
+};
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};
