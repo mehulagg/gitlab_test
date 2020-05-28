@@ -49,9 +49,9 @@ describe 'Jobs/Code-Quality.gitlab-ci.yml' do
       let(:merge_request) { create(:merge_request, :simple, source_project: project) }
       let(:pipeline) { service.execute(merge_request) }
 
-      it 'has no jobs' do
-        expect(pipeline).to be_merge_request_event
-        expect(build_names).to be_empty
+      it 'creates the code_quality job' do
+        expect(pipeline).to be_merge_request
+        expect(build_names).to contain_exactly('code_quality')
       end
     end
 
