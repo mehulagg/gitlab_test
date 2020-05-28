@@ -1,0 +1,5 @@
+---
+title: Fix Code Quality template to run job on merge request pipelines
+merge_request: 33262
+author:
+type: fixed
