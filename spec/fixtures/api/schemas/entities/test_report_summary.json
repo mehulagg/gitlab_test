@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "required": [
+    "total_time",
+    "total_count",
+    "success_count",
+    "failed_count",
+    "error_count",
+    "skipped_count",
+    "test_suite_summary"
+  ],
+  "properties": {
+    "total_time": { "type": "float" },
+    "total_count": { "type": "integer" },
+    "success_count": { "type": "integer" },
+    "failed_count": { "type": "integer" },
+    "error_count": { "type": "integer" },
+    "skipped_count": { "type": "integer" },
+    "test_suite_summary": {
+      "type": "array",
+      "properties": {
+        "tests_name": { "type": "string" },
+        "tests_duration": { "type": "float" },
+        "tests_success": { "type": "integer" },
+        "tests_failed": { "type": "integer" },
+        "tests_errored": { "type": "integer" },
+        "tests_skipped": { "type": "integer" },
+        "tests_total": { "type": "integer" }
+      },
+      "required": [
+        "tests_name",
+        "tests_duration",
+        "tests_success",
+        "tests_failed",
+        "tests_errored",
+        "tests_skipped",
+        "tests_total"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

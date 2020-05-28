@@ -197,6 +197,18 @@ class Projects::PipelinesController < Projects::ApplicationController
     render json: { total_count: pipeline.test_reports_count }.to_json
   end
 
+  def test_report_summary
+    return unless Feature.enabled?(:build_report_summary, project)
+
+    respond_to do |format|
+      format.json do
+        render json: TestReportSummarySerializer
+          .new(current_user: @current_user)
+          .represent(@pipeline.test_report_summary)
+      end
+    end
+  end
+
   private
 
   def serialize_pipelines

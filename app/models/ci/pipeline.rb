@@ -802,6 +802,12 @@ module Ci
       complete? && builds.latest.with_reports(reports_scope).exists?
     end
 
+    def test_report_summary
+      build_report_results = Ci::BuildReportResult.scoped_build.joins(:build).merge(builds)
+
+      Gitlab::Ci::Reports::TestReportSummary.new(build_report_results)
+    end
+
     def test_reports
       Gitlab::Ci::Reports::TestReports.new.tap do |test_reports|
         builds.latest.with_reports(Ci::JobArtifact.test_reports).preload(:project).find_each do |build|

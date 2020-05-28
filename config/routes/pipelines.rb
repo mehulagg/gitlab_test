@@ -20,6 +20,7 @@ resources :pipelines, only: [:index, :new, :create, :show, :destroy] do
     get :status
     get :test_report
     get :test_reports_count
+    get :test_report_summary
   end
 
   member do

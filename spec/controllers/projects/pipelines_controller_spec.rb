@@ -1017,6 +1017,56 @@ describe Projects::PipelinesController do
     end
   end
 
+  describe 'GET test_report_summary.json' do
+    subject(:test_report_summary_json) do
+      get :test_report_summary, params: {
+        namespace_id: project.namespace,
+        project_id: project,
+        id: pipeline.id
+      },
+      format: :json
+    end
+
+    context 'when feature is enabled' do
+      context 'when pipeline has build report results' do
+        let(:pipeline) { create(:ci_pipeline, :with_report_results, project: project) }
+
+        it 'renders test report summary data' do
+          test_report_summary_json
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['total_count']).to eq(2)
+        end
+      end
+
+      context 'when pipeline does not have build report results' do
+        let(:pipeline) { create(:ci_pipeline, project: project) }
+
+        it 'renders test report summary data' do
+          test_report_summary_json
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['total_count']).to eq(0)
+        end
+      end
+    end
+
+    context 'when feature is disabled' do
+      let(:pipeline) { create(:ci_empty_pipeline, project: project) }
+
+      before do
+        stub_feature_flags(build_report_summary: false)
+      end
+
+      it 'renders empty response' do
+        test_report_summary_json
+
+        expect(response).to have_gitlab_http_status(:no_content)
+        expect(response.body).to be_empty
+      end
+    end
+  end
+
   describe 'GET latest' do
     let(:branch_main) { project.repository.branches[0] }
     let(:branch_secondary) { project.repository.branches[1] }

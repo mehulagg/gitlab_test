@@ -14,6 +14,8 @@ module Ci
 
     store_accessor :data, :tests
 
+    scope :scoped_build, -> { where('ci_builds.id = ci_build_report_results.build_id') }
+
     def tests_name
       tests.dig("name")
     end
