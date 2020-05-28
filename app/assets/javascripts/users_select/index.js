@@ -13,9 +13,10 @@ import {
   AJAX_USERS_SELECT_PARAMS_MAP,
 } from 'ee_else_ce/users_select/constants';
 import { getAjaxUsersSelectOptions, getAjaxUsersSelectParams } from './utils';
+import sidebarEvent from '~/sidebar/event_hub';
 
 // TODO: remove eventHub hack after code splitting refactor
-window.emitSidebarEvent = window.emitSidebarEvent || $.noop;
+// window.emitSidebarEvent = window.emitSidebarEvent || $.noop;
 
 function UsersSelect(currentUser, els, options = {}) {
   const $els = $(els || '.js-user-search');
@@ -125,7 +126,7 @@ function UsersSelect(currentUser, els, options = {}) {
             .find(`input[name='${$dropdown.data('fieldName')}'][value=${firstSelectedId}]`);
 
           firstSelected.remove();
-          emitSidebarEvent('sidebar.removeAssignee', {
+          sidebarEvent.emit('sidebar.removeAssignee', {
             id: firstSelectedId,
           });
         }
@@ -388,7 +389,7 @@ function UsersSelect(currentUser, els, options = {}) {
       defaultLabel,
       hidden() {
         if ($dropdown.hasClass('js-multiselect')) {
-          emitSidebarEvent('sidebar.saveAssignees');
+          sidebarEvent.emit('sidebar.saveAssignees');
         }
 
         if (!$dropdown.data('alwaysShowSelectbox')) {
@@ -424,10 +425,10 @@ function UsersSelect(currentUser, els, options = {}) {
             previouslySelected.each((index, element) => {
               element.remove();
             });
-            emitSidebarEvent('sidebar.removeAllAssignees');
+            sidebarEvent.emit('sidebar.removeAllAssignees');
           } else if (isActive) {
             // user selected
-            emitSidebarEvent('sidebar.addAssignee', user);
+            sidebarEvent.emit('sidebar.addAssignee', user);
 
             // Remove unassigned selection (if it was previously selected)
             const unassignedSelected = $dropdown
@@ -444,7 +445,7 @@ function UsersSelect(currentUser, els, options = {}) {
             }
 
             // User unselected
-            emitSidebarEvent('sidebar.removeAssignee', user);
+            sidebarEvent.emit('sidebar.removeAssignee', user);
           }
 
           if (getSelected().find(u => u === gon.current_user_id)) {
