@@ -142,6 +142,14 @@ describe MergeTrains::CreatePipelineService do
       end
 
       context 'when .gitlab-ci.yml does not have only: [merge_requests] specification' do
+        let(:ci_yaml) do
+          { test: { stage: 'test', script: 'echo', only: ['branches'] } }
+        end
+
+        before do
+          stub_ci_pipeline_yaml_file(YAML.dump(ci_yaml))
+        end
+
         it_behaves_like 'returns an error' do
           let(:expected_reason) { 'No stages / jobs for this pipeline.' }
         end
