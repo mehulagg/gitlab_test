@@ -161,9 +161,21 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        exclude: path =>
-          /node_modules\/(?!tributejs)|node_modules|vendor[\\/]assets/.test(path) &&
-          !/\.vue\.js/.test(path),
+        exclude: path => {
+          if (/vendor[\\/]assets/.test(path)) {
+            return true;
+          }
+
+          if (
+            !path.includes('node_modules') ||
+            /node_modules[\\/]bootstrap/.test(path) ||
+            /\.vue\.js/.test(path)
+          ) {
+            return false;
+          }
+
+          return true;
+        },
         loader: 'babel-loader',
         options: {
           cacheDirectory: path.join(CACHE_PATH, 'babel-loader'),
