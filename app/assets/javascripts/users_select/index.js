@@ -1,6 +1,5 @@
 /* eslint-disable func-names, prefer-rest-params, consistent-return, no-shadow, no-self-compare, no-unused-expressions, yoda, prefer-spread, babel/camelcase, no-param-reassign */
 /* global Issuable */
-/* global emitSidebarEvent */
 
 import $ from 'jquery';
 import { escape, template, uniqBy } from 'lodash';
@@ -14,9 +13,6 @@ import {
 } from 'ee_else_ce/users_select/constants';
 import { getAjaxUsersSelectOptions, getAjaxUsersSelectParams } from './utils';
 import sidebarEvent from '~/sidebar/event_hub';
-
-// TODO: remove eventHub hack after code splitting refactor
-// window.emitSidebarEvent = window.emitSidebarEvent || $.noop;
 
 function UsersSelect(currentUser, els, options = {}) {
   const $els = $(els || '.js-user-search');
