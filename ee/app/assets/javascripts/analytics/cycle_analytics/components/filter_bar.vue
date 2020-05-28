@@ -4,6 +4,8 @@ import { GlFilteredSearch } from '@gitlab/ui';
 import { __ } from '~/locale';
 import MilestoneToken from '../../shared/components/tokens/milestone_token.vue';
 import LabelToken from '../../shared/components/tokens/label_token.vue';
+import AuthorToken from '../../shared/components/tokens/author_token.vue';
+import AssigneeToken from '../../shared/components/tokens/assignee_token.vue';
 
 export default {
   name: 'FilteredSearchComponent',
@@ -53,15 +55,37 @@ export default {
           symbol: '~',
           isLoading: this.labelsLoading,
         },
+        // TODO: Is there a symbol we use for author / assignees
+        {
+          icon: 'pencil',
+          title: __('Author'),
+          type: 'author',
+          token: AuthorToken,
+          users: this.users,
+          unique: false,
+          // symbol: '~', //
+          isLoading: this.usersLoading,
+        },
+        // {
+        //   icon: 'user',
+        //   title: __('Assignees'),
+        //   type: 'assignees',
+        //   token: AssigneeToken,
+        //   users: this.users,
+        //   unique: false,
+        //   // symbol: '~',
+        //   isLoading: this.usersLoading,
+        // },
       ];
     },
   },
   created() {
     this.fetchMilestones();
     this.fetchLabels();
+    this.fetchAuthors();
   },
   methods: {
-    ...mapActions('filters', ['fetchMilestones', 'fetchLabels', 'setFilters']),
+    ...mapActions('filters', ['fetchMilestones', 'fetchLabels', 'fetchAuthors', 'setFilters']),
     processFilters(filters) {
       return filters.reduce((acc, token) => {
         const { type, value } = token;

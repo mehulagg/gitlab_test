@@ -58,7 +58,7 @@ export default {
       type: Boolean,
       required: true,
     },
-    milestonesPath: {
+    milestonePath: {
       type: String,
       required: true,
     },
@@ -136,7 +136,7 @@ export default {
   mounted() {
     const {
       labelsPath,
-      milestonesPath,
+      milestonePath,
       glFeatures: {
         cycleAnalyticsScatterplotEnabled: hasDurationChart,
         cycleAnalyticsScatterplotMedianEnabled: hasDurationChartMedian,
@@ -146,7 +146,7 @@ export default {
 
     this.setFeatureFlags({ hasDurationChart, hasDurationChartMedian, hasPathNavigation });
     if (this.hasProject) {
-      this.setPaths({ labelsPath, milestonesPath });
+      this.setPaths({ labelsPath, milestonePath });
     }
   },
   created() {},

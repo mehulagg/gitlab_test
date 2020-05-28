@@ -33,6 +33,19 @@ export default {
     state.labels.errorCode = errorCode;
     state.labels.data = [];
   },
+  [types.REQUEST_AUTHORS](state) {
+    state.authors.isLoading = true;
+  },
+  [types.RECEIVE_AUTHORS_SUCCESS](state, data) {
+    state.authors.isLoading = false;
+    state.authors.data = data;
+    state.authors.errorCode = null;
+  },
+  [types.RECEIVE_AUTHORS_ERROR](state, errorCode) {
+    state.authors.isLoading = false;
+    state.authors.errorCode = errorCode;
+    state.authors.data = [];
+  },
   [types.SET_FILTERS](state, { selectedLabels, selectedMilestone }) {
     state.labels.selected = selectedLabels;
     state.milestones.selected = selectedMilestone;

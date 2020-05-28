@@ -17,12 +17,18 @@ export default () => ({
     isLoading: false,
     data: [],
     errorCode: null,
-    selected: [],
+    selected: null,
   },
-  assignees: {
-    isLoading: false,
-    data: [],
-    errorCode: null,
-    selected: [],
-  },
+  // authors: {
+  //   isLoading: false,
+  //   data: [],
+  //   errorCode: null,
+  //   selected: [],
+  // },
+  // assignees: {
+  //   isLoading: false,
+  //   data: [],
+  //   errorCode: null,
+  //   selected: [],
+  // },
 });

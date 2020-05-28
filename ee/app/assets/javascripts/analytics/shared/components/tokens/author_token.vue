@@ -14,7 +14,11 @@ import {
   GlDropdownDivider,
   GlLoadingIcon,
 } from '@gitlab/ui';
-import { __ } from '~/locale';
+// import { __ } from '~/locale';
+import { debounce } from 'lodash';
+import { mapActions } from 'vuex';
+
+const SEARCH_DELAY = 500;
 
 export default {
   components: {
@@ -35,22 +39,19 @@ export default {
     },
   },
   computed: {
-    labels() {
-      return this.config.labels;
+    authors() {
+      return this.config.authors;
     },
-    filteredLabels() {
-      return this.labels
-        .filter(label => label.title.toLowerCase().indexOf(this.value.data?.toLowerCase()) !== -1)
-        .map(label => ({
-          ...label,
-          value: this.getEscapedText(label.title),
-        }));
+    searchAuthors: debounce(function debounceSearch({ data }) {
+      console.log('data', data);
+      this.fetchAuthors(data);
+    }, SEARCH_DELAY),
+    activeUser() {
+      return false;
     },
   },
   methods: {
-    fetchAuthors(){
-      
-    }
+    ...mapActions('filters', ['fetchAuthors']),
   },
 };
 </script>
@@ -78,10 +79,10 @@ export default {
       }}</gl-filtered-search-suggestion>
       <gl-dropdown-divider />
 
-      <gl-loading-icon v-if="loading" />
+      <gl-loading-icon v-if="config.isLoading" />
       <template v-else>
         <gl-filtered-search-suggestion
-          v-for="user in users"
+          v-for="user in authors"
           :key="user.username"
           :value="user.username"
         >
