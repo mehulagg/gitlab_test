@@ -96,18 +96,18 @@ export default Vue.extend({
   },
   created() {
     // Get events from glDropdown
-    eventHub.$on('sidebar.removeAssignee', this.removeAssignee);
-    eventHub.$on('sidebar.addAssignee', this.addAssignee);
-    eventHub.$on('sidebar.removeAllAssignees', this.removeAllAssignees);
-    eventHub.$on('sidebar.saveAssignees', this.saveAssignees);
-    eventHub.$on('sidebar.closeAll', this.closeSidebar);
+    eventHub.on('sidebar.removeAssignee', this.removeAssignee);
+    eventHub.on('sidebar.addAssignee', this.addAssignee);
+    eventHub.on('sidebar.removeAllAssignees', this.removeAllAssignees);
+    eventHub.on('sidebar.saveAssignees', this.saveAssignees);
+    eventHub.on('sidebar.closeAll', this.closeSidebar);
   },
   beforeDestroy() {
-    eventHub.$off('sidebar.removeAssignee', this.removeAssignee);
-    eventHub.$off('sidebar.addAssignee', this.addAssignee);
-    eventHub.$off('sidebar.removeAllAssignees', this.removeAllAssignees);
-    eventHub.$off('sidebar.saveAssignees', this.saveAssignees);
-    eventHub.$off('sidebar.closeAll', this.closeSidebar);
+    eventHub.off('sidebar.removeAssignee', this.removeAssignee);
+    eventHub.off('sidebar.addAssignee', this.addAssignee);
+    eventHub.off('sidebar.removeAllAssignees', this.removeAllAssignees);
+    eventHub.off('sidebar.saveAssignees', this.saveAssignees);
+    eventHub.off('sidebar.closeAll', this.closeSidebar);
   },
   mounted() {
     new IssuableContext(this.currentUser);
