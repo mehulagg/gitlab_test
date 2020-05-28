@@ -11,11 +11,17 @@ globals:
   IS_EE: false
 plugins:
   - no-jquery
+  - graphql
 settings:
   import/resolver:
     webpack:
       config: './config/webpack.config.js'
 rules:
+  graphql/template-strings:
+    - error
+    -
+      env: literal
+      schemaJsonFilepath: './doc/api/graphql/reference/gitlab_schema.json'
   import/no-commonjs: error
   no-underscore-dangle:
     - error
