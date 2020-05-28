@@ -17,6 +17,26 @@ module QA
         end
       end
 
+      it 'closes an issue', :reliable do
+        issue = Resource::Issue.fabricate_via_api!
+        issue.visit!
+
+        Page::Project::Issue::Show.perform do |issue_page|
+          issue_page.click_close_issue_button
+
+          expect(issue_page).to have_reopen_issue_button
+        end
+
+        Page::Project::Menu.perform(&:click_issues)
+        Page::Project::Issue::Index.perform do |index|
+          expect(index).not_to have_issue(issue)
+
+          index.click_closed_issues_link
+
+          expect(index).to have_issue(issue)
+        end
+      end
+
       context 'when using attachments in comments', :object_storage do
         let(:gif_file_name) { 'banana_sample.gif' }
         let(:file_to_attach) do

@@ -110,6 +110,10 @@ module QA
             has_element?(:noteable_note_item, text: comment_text, wait: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME)
           end
 
+          def has_reopen_issue_button?
+            has_element?(:reopen_issue_button)
+          end
+
           def more_assignees_link
             find_element(:more_assignees_link)
           end
