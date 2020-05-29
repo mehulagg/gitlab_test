@@ -347,3 +347,11 @@ rspec verify-no-ee-in-foss:
       - matching_foss_tests.txt
 # EE: merged result MR pipelines
 ##################################################
+
+git diff test:
+  stage: prepare
+  needs: []
+  script:
+    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    - git fetch origin $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - "git diff origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME...origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"

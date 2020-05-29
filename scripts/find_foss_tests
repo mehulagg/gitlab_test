@@ -16,7 +16,11 @@ unless git_diff.status.success?
   exit git_diff.status.exitstatus
 end
 
+puts "#{git_diff.cmd.join(' ')}"
+
 changed_files = git_diff.stdout.split("\n")
+
+puts changed_files
 
 tests_to_run = changed_files.flat_map do |file|
   test_files = Quality::TestFileFinder.new(file, foss_test_only: true).test_files
