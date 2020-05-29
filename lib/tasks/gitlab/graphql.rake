@@ -26,15 +26,22 @@ namespace :gitlab do
   # - gitlab:graphql:schema:json
   GraphQL::RakeTask.new(
     schema_name: 'GitlabSchema',
-    dependencies: [:environment, :enable_feature_flags],
+    dependencies: [:environment, :enable_feature_flags, :check_foss],
     directory: OUTPUT_DIR,
     idl_outfile: "gitlab_schema.graphql",
     json_outfile: "gitlab_schema.json"
   )
 
   namespace :graphql do
+    desc 'GitLab | GraphQL | Check FOSS status'
+    task check_foss: [:environment, :enable_feature_flags] do
+      check_foss
+    end
+
     desc 'GitLab | GraphQL | Generate GraphQL docs'
     task compile_docs: [:environment, :enable_feature_flags] do
+      check_foss
+
       renderer = Gitlab::Graphql::Docs::Renderer.new(GitlabSchema.graphql_definition, render_options)
 
       renderer.write
@@ -85,4 +92,10 @@ def format_output(str)
   puts "# #{str}"
   puts '#'
   puts heading
+end
+
+def check_foss
+  if ENV['FOSS_ONLY'] == '1'
+    format_output('WARNING: FOSS_ONLY environment variable is set. Generated documentation and schema diffs may be missing unexpected fields.')
+  end
 end
