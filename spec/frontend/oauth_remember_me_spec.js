@@ -13,27 +13,43 @@ describe('OAuthRememberMe', () => {
   it('adds the "remember_me" query parameter to all OAuth login buttons', () => {
     $('#oauth-container #remember_me').click();
 
-    expect($('#oauth-container .oauth-login.twitter').attr('href')).toBe(
-      'http://example.com/?remember_me=1',
-    );
+    expect(
+      $('#oauth-container .oauth-login.twitter')
+        .parent('form')
+        .attr('action'),
+    ).toBe('http://example.com/?remember_me=1');
 
-    expect($('#oauth-container .oauth-login.github').attr('href')).toBe(
-      'http://example.com/?remember_me=1',
-    );
+    expect(
+      $('#oauth-container .oauth-login.github')
+        .parent('form')
+        .attr('action'),
+    ).toBe('http://example.com/?remember_me=1');
 
-    expect($('#oauth-container .oauth-login.facebook').attr('href')).toBe(
-      'http://example.com/?redirect_fragment=L1&remember_me=1',
-    );
+    expect(
+      $('#oauth-container .oauth-login.facebook')
+        .parent('form')
+        .attr('action'),
+    ).toBe('http://example.com/?redirect_fragment=L1&remember_me=1');
   });
 
   it('removes the "remember_me" query parameter from all OAuth login buttons', () => {
     $('#oauth-container #remember_me').click();
     $('#oauth-container #remember_me').click();
 
-    expect($('#oauth-container .oauth-login.twitter').attr('href')).toBe('http://example.com/');
-    expect($('#oauth-container .oauth-login.github').attr('href')).toBe('http://example.com/');
-    expect($('#oauth-container .oauth-login.facebook').attr('href')).toBe(
-      'http://example.com/?redirect_fragment=L1',
-    );
+    expect(
+      $('#oauth-container .oauth-login.twitter')
+        .parent('form')
+        .attr('action'),
+    ).toBe('http://example.com/');
+    expect(
+      $('#oauth-container .oauth-login.github')
+        .parent('form')
+        .attr('action'),
+    ).toBe('http://example.com/');
+    expect(
+      $('#oauth-container .oauth-login.facebook')
+        .parent('form')
+        .attr('action'),
+    ).toBe('http://example.com/?redirect_fragment=L1');
   });
 });
