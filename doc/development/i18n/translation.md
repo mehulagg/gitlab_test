@@ -61,8 +61,12 @@ This helps maintain a logical connection and consistency between tools (e.g.
 
 ### Formality
 
-The level of formality used in software varies by language.
-For example, in French we translate `you` as the formal `vous`.
+The level of formality used in software varies by language:
+
+| Language | Formality | Example |
+| -------- | --------- | ------- |
+| French | formal | `vous` for `you` |
+| German | informal | `du` for `you` |
 
 You can refer to other translated strings and notes in the glossary to assist
 determining a suitable level of formality.
@@ -81,7 +85,7 @@ Therefore "create a new user" would translate into "Benutzer(in) anlegen".
 ### Updating the glossary
 
 To propose additions to the glossary please
-[open an issue](https://gitlab.com/gitlab-org/gitlab/issues?scope=all&utf8=✓&state=all&label_name[]=Category%3AInternationalization).
+[open an issue](https://gitlab.com/gitlab-org/gitlab/-/issues?scope=all&utf8=✓&state=all&label_name[]=Category%3AInternationalization).
 
 ## French Translation Guidelines
 

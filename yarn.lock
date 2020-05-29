@@ -782,15 +782,15 @@
     eslint-plugin-vue "^6.2.1"
     vue-eslint-parser "^7.0.0"
 
-"@gitlab/svgs@1.128.0":
-  version "1.128.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.128.0.tgz#c510050d5646d73b52e684248a186dbd1f55cbb0"
-  integrity sha512-RqgF6k2xPptbz58RB1nNgeo6gy3l1u7+1rxXvALzIAsazmrAw708NYCT3PALg2RoyH0G/fpUa6yPQ0HbR+OtEg==
+"@gitlab/svgs@1.131.0":
+  version "1.131.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.131.0.tgz#4fc3e15cea899e8941954197bfc600afd6d9e210"
+  integrity sha512-c/0FWIEz3fJjC0n2XdxQ/XdGzpJqPwiye6fG+imA0HRavlg+C0xENzUif8A+1t5/zNIkUCTRugNbknfpU7Y7DA==
 
-"@gitlab/ui@14.14.2":
-  version "14.14.2"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-14.14.2.tgz#7cc81d90d5b5394345d6781ff02e974e24b97387"
-  integrity sha512-Fq7fGjhofnN64xckTuuuX4EE23ZXcndwCfFBFrCTCbDfrDSa0l0xkmkrvYCSrNNTp6CyL5Ec/LWgGcnGCPWaFw==
+"@gitlab/ui@16.1.0":
+  version "16.1.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-16.1.0.tgz#fe6bbb3a8fb8d1cb7a577f4bb7cb2f1b35b34c57"
+  integrity sha512-YPC0ntS7Wp3wQq/sSUu16Z62XgyY3Oe49vIvm0e3bt2ho2pVf9fuztrcsj7Kb9RrdHOUccUWfZLp+roDd9J0sQ==
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
@@ -983,10 +983,10 @@
     consola "^2.10.1"
     node-fetch "^2.6.0"
 
-"@rails/actioncable@^6.0.3":
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/@rails/actioncable/-/actioncable-6.0.3.tgz#722b4b639936129307ddbab3a390f6bcacf3e7bc"
-  integrity sha512-I01hgqxxnOgOtJTGlq0ZsGJYiTEEiSGVEGQn3vimZSqEP1HqzyFNbzGTq14Xdyeow2yGJjygjoFF1pmtE+SQaw==
+"@rails/actioncable@^6.0.3-1":
+  version "6.0.3-1"
+  resolved "https://registry.yarnpkg.com/@rails/actioncable/-/actioncable-6.0.3-1.tgz#9b9eb8858a6507162911007d355d9a206e1c5caa"
+  integrity sha512-szFhWD+V5TAxVNVIG16klgq+ypqA5k5AecLarTTrXgOG8cawVbQdOAwLbCmzkwiQ60rGSxAFoC1u2LrzxSK2Aw==
 
 "@sentry/browser@^5.10.2":
   version "5.10.2"
@@ -1040,10 +1040,10 @@
     "@sentry/types" "5.10.0"
     tslib "^1.9.3"
 
-"@sourcegraph/code-host-integration@0.0.46":
-  version "0.0.46"
-  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.46.tgz#05e4cda671ed00450be12461e6a3caff473675aa"
-  integrity sha512-ghzfaV5ydSWTamLPIDLl5tRvTtM2MBDRmQbWTPg9ZoCP/eHk61uCTAFEq02lsefDQHISZHldeClqRYhZvGDZfw==
+"@sourcegraph/code-host-integration@0.0.48":
+  version "0.0.48"
+  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.48.tgz#327bd04182e8a9a8daabebc6f2b50c8186b19514"
+  integrity sha512-O4jQyfYmmZaZahLj2BbqjEh7MarQRhZHYdWhL4D3CdUGH4y3XOTGCmVHWEFb23UaV/izze1XoGDxbQeAnps7EA==
 
 "@toast-ui/editor@^2.0.1":
   version "2.0.1"
@@ -2623,29 +2623,6 @@ charenc@~0.0.1:
   resolved "https://registry.yarnpkg.com/charenc/-/charenc-0.0.2.tgz#c0a1d2f3a7092e03774bfa83f14c0fc5790a8667"
   integrity sha1-wKHS86cJLgN3S/qD8UwPxXkKhmc=
 
-chart.js@2.7.2:
-  version "2.7.2"
-  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-2.7.2.tgz#3c9fde4dc5b95608211bdefeda7e5d33dffa5714"
-  integrity sha512-90wl3V9xRZ8tnMvMlpcW+0Yg13BelsGS9P9t0ClaDxv/hdypHDr/YAGf+728m11P5ljwyB0ZHfPKCapZFqSqYA==
-  dependencies:
-    chartjs-color "^2.1.0"
-    moment "^2.10.2"
-
-chartjs-color-string@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/chartjs-color-string/-/chartjs-color-string-0.5.0.tgz#8d3752d8581d86687c35bfe2cb80ac5213ceb8c1"
-  integrity sha512-amWNvCOXlOUYxZVDSa0YOab5K/lmEhbFNKI55PWc4mlv28BDzA7zaoQTGxSBgJMHIW+hGX8YUrvw/FH4LyhwSQ==
-  dependencies:
-    color-name "^1.0.0"
-
-chartjs-color@^2.1.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/chartjs-color/-/chartjs-color-2.2.0.tgz#84a2fb755787ed85c39dd6dd8c7b1d88429baeae"
-  integrity sha1-hKL7dVeH7YXDndbdjHsdiEKbrq4=
-  dependencies:
-    chartjs-color-string "^0.5.0"
-    color-convert "^0.5.3"
-
 check-types@^7.3.0:
   version "7.3.0"
   resolved "https://registry.yarnpkg.com/check-types/-/check-types-7.3.0.tgz#468f571a4435c24248f5fd0cb0e8d87c3c341e7d"
@@ -2858,11 +2835,6 @@ collection-visit@^1.0.0:
     map-visit "^1.0.0"
     object-visit "^1.0.0"
 
-color-convert@^0.5.3, color-convert@~0.5.0:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-0.5.3.tgz#bdb6c69ce660fadffe0b0007cc447e1b9f7282bd"
-  integrity sha1-vbbGnOZg+t/+CwAHzER+G59ygr0=
-
 color-convert@^1.9.0:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
@@ -2870,7 +2842,12 @@ color-convert@^1.9.0:
   dependencies:
     color-name "1.1.3"
 
-color-name@1.1.3, color-name@^1.0.0:
+color-convert@~0.5.0:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-0.5.3.tgz#bdb6c69ce660fadffe0b0007cc447e1b9f7282bd"
+  integrity sha1-vbbGnOZg+t/+CwAHzER+G59ygr0=
+
+color-name@1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
   integrity sha1-p9BVi9icQveV3UIyj3QIMcpTvCU=
@@ -3574,10 +3551,10 @@ d3-zoom@1:
     d3-selection "1"
     d3-transition "1"
 
-d3@^5.14, d3@^5.7.0:
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/d3/-/d3-5.15.0.tgz#ffd44958e6a3cb8a59a84429c45429b8bca5677a"
-  integrity sha512-C+E80SL2nLLtmykZ6klwYj5rPqB5nlfN5LdWEAVdWPppqTD8taoJi2PxLZjPeYT8FFRR2yucXq+kBlOnnvZeLg==
+d3@^5.14, d3@^5.16.0, d3@^5.7.0:
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/d3/-/d3-5.16.0.tgz#9c5e8d3b56403c79d4ed42fbd62f6113f199c877"
+  integrity sha512-4PL5hHaHwX4m7Zr1UapXW23apo6pexCgdetdJ5kTmADpG/7T9Gkxw0M0tf/pjoB63ezCCm0u5UaFYy2aMt0Mcw==
   dependencies:
     d3-array "1"
     d3-axis "1"
@@ -7967,11 +7944,6 @@ moment-mini@^2.22.1:
   version "2.22.1"
   resolved "https://registry.yarnpkg.com/moment-mini/-/moment-mini-2.22.1.tgz#bc32d73e43a4505070be6b53494b17623183420d"
   integrity sha512-OUCkHOz7ehtNMYuZjNciXUfwTuz8vmF1MTbAy59ebf+ZBYZO5/tZKuChVWCX+uDo+4idJBpGltNfV8st+HwsGw==
-
-moment@^2.10.2:
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
-  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
 
 monaco-editor-webpack-plugin@^1.7.0:
   version "1.7.0"

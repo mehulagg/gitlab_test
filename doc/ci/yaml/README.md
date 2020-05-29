@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference
 ---
 
@@ -93,8 +96,8 @@ The following table lists available parameters for jobs:
 | Keyword                                            | Description                                                                                                                                                                         |
 |:---------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`script`](#script)                                | Shell script which is executed by Runner.                                                                                                                                           |
-| [`image`](#image)                                  | Use docker images. Also available: `image:name` and `image:entrypoint`.                                                                                                             |
-| [`services`](#services)                            | Use docker services images. Also available: `services:name`, `services:alias`, `services:entrypoint`, and `services:command`.                                                       |
+| [`image`](#image)                                  | Use Docker images. Also available: `image:name` and `image:entrypoint`.                                                                                                             |
+| [`services`](#services)                            | Use Docker services images. Also available: `services:name`, `services:alias`, `services:entrypoint`, and `services:command`.                                                       |
 | [`before_script`](#before_script-and-after_script) | Override a set of commands that are executed before job.                                                                                                                            |
 | [`after_script`](#before_script-and-after_script)  | Override a set of commands that are executed after job.                                                                                                                             |
 | [`stage`](#stage)                                  | Defines a job stage (default: `test`).                                                                                                                                              |
@@ -310,7 +313,6 @@ include:
   - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
 ```
 
-The [`MergeRequest-Pipelines` include](https://gitlab.com/gitlab-org/gitlab/-/tree/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml) sets your pipelines to run for the default branch (usually `master`), tags, and
 The [`MergeRequest-Pipelines` template](https://gitlab.com/gitlab-org/gitlab/-/tree/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
 makes your pipelines run for the default branch (usually `master`), tags, and
 all types of merge request pipelines. Use this template if you use any of the
@@ -522,13 +524,13 @@ For:
 
 #### `image:name`
 
-An [extended docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
+An [extended Docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
 
 For more information, see [Available settings for `image`](../docker/using_docker_images.md#available-settings-for-image).
 
 #### `image:entrypoint`
 
-An [extended docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
+An [extended Docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
 
 For more information, see [Available settings for `image`](../docker/using_docker_images.md#available-settings-for-image).
 
@@ -544,25 +546,25 @@ For:
 
 ##### `services:name`
 
-An [extended docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
+An [extended Docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
 
 For more information, see [Available settings for `services`](../docker/using_docker_images.md#available-settings-for-services).
 
 ##### `services:alias`
 
-An [extended docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
+An [extended Docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
 
 For more information, see [Available settings for `services`](../docker/using_docker_images.md#available-settings-for-services).
 
 ##### `services:entrypoint`
 
-An [extended docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
+An [extended Docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
 
 For more information, see [Available settings for `services`](../docker/using_docker_images.md#available-settings-for-services).
 
 ##### `services:command`
 
-An [extended docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
+An [extended Docker configuration option](../docker/using_docker_images.md#extended-docker-configuration-options).
 
 For more information, see [Available settings for `services`](../docker/using_docker_images.md#available-settings-for-services).
 
@@ -1111,7 +1113,7 @@ docker build:
 
 Additional job configuration may be added to rules in the future. If something
 useful is not available, please
-[open an issue](https://gitlab.com/gitlab-org/gitlab/issues).
+[open an issue](https://gitlab.com/gitlab-org/gitlab/-/issues).
 
 ### `only`/`except` (basic)
 
@@ -1612,7 +1614,7 @@ This example creates four paths of execution:
   pipeline will be created with YAML error.
 - The maximum number of jobs that a single job can need in the `needs:` array is limited:
   - For GitLab.com, the limit is ten. For more information, see our
-    [infrastructure issue](https://gitlab.com/gitlab-com/gl-infra/infrastructure/issues/7541).
+    [infrastructure issue](https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/7541).
   - For self-managed instances, the limit is:
     - 10, if the `ci_dag_limit_needs` feature flag is enabled (default).
     - 50, if the `ci_dag_limit_needs` feature flag is disabled.
@@ -3478,7 +3480,7 @@ If `GIT_FETCH_EXTRA_FLAGS` is:
 
 - Not specified, `git fetch` flags default to `--prune --quiet` along with the default flags.
 - Given the value `none`, `git fetch` is executed only with the default flags.
-  
+
 For example, the default flags are `--prune --quiet`, so you can make `git fetch` more verbose by overriding this with just `--prune`:
 
 ```yaml
@@ -3525,8 +3527,8 @@ You can set them globally or per-job in the [`variables`](#variables) section.
 
 > Introduced in GitLab 8.9 as an experimental feature.
 
-CAUTION: **Caution:**
-May change in future releases or be removed completely.
+NOTE: **Note**:
+As of GitLab 12.0, newly created projects will automatically have a [default `git depth` value of `50`](../pipelines/settings.md#git-shallow-clone).
 
 You can specify the depth of fetching and cloning using `GIT_DEPTH`. This allows
 shallow cloning of the repository which can significantly speed up cloning for
@@ -3790,7 +3792,7 @@ Example:
 
 .something_after: &something_after
 - echo 'something after'
-
+- echo 'another thing after'
 
 job_name:
   before_script:
@@ -3833,6 +3835,7 @@ the use of the `SAMPLE_VARIABLE` variable:
 # global variables
 variables: &global-variables
   SAMPLE_VARIABLE: sample_variable_value
+  ANOTHER_SAMPLE_VARIABLE: another_sample_variable_value
 
 # a job that needs to set the GIT_STRATEGY variable, yet depend on global variables
 job_no_git_strategy:
@@ -3856,7 +3859,7 @@ lines where the job is defined:
 #    - run test
 ```
 
-you can instead start its name with a dot (`.`) and it won't be processed by
+You can instead start its name with a dot (`.`) and it won't be processed by
 GitLab CI/CD. In the following example, `.hidden_job` will be ignored:
 
 ```yaml
@@ -3879,11 +3882,11 @@ if using Git 2.10 or newer.
 
 ## Processing Git pushes
 
-GitLab will create at most 4 branch and tags pipelines when
-doing pushing multiple changes in single `git push` invocation.
+GitLab will create at most 4 branch and tag pipelines when
+pushing multiple changes in single `git push` invocation.
 
-This limitation does not affect any of the updated Merge Request pipelines,
-all updated Merge Requests will have a pipeline created when using
+This limitation does not affect any of the updated Merge Request pipelines.
+All updated Merge Requests will have a pipeline created when using
 [pipelines for merge requests](../merge_request_pipelines/index.md).
 
 ## Deprecated parameters

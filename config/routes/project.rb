@@ -49,9 +49,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :trace, defaults: { format: 'json' }
             get :raw
             get :terminal
+            get :proxy
 
-            # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
+            # These routes are also defined in gitlab-workhorse. Make sure to update accordingly.
             get '/terminal.ws/authorize', to: 'jobs#terminal_websocket_authorize', format: false
+            get '/proxy.ws/authorize', to: 'jobs#proxy_websocket_authorize', format: false
           end
 
           resource :artifacts, only: [] do
@@ -69,8 +71,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
 
         namespace :settings do
-          get :members, to: redirect("%{namespace_id}/%{project_id}/-/project_members")
-
           resource :ci_cd, only: [:show, :update], controller: 'ci_cd' do
             post :reset_cache
             put :reset_registration_token
@@ -470,6 +470,17 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       scope :usage_ping, controller: :usage_ping do
         post :web_ide_clientside_preview
         post :web_ide_pipelines_count
+      end
+
+      resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do # rubocop: disable Cop/PutProjectRoutesUnderScope
+        member do
+          post :cancel
+          post :retry
+        end
+
+        collection do
+          post :check_config
+        end
       end
 
       # Deprecated unscoped routing.

@@ -77,6 +77,14 @@ User clone and fetch activity using HTTP transport appears in this log as `actio
 In addition, the log contains the originating IP address,
 (`remote_ip`),the user's ID (`user_id`), and username (`username`).
 
+Some endpoints such as `/search` may make requests to Elasticsearch if using
+[Advanced Global Search](../user/search/advanced_global_search.md). These will
+additionally log `elasticsearch_calls` and `elasticsearch_call_duration_s`,
+which correspond to:
+
+1. `elasticsearch_calls`: total number of calls to Elasticsearch
+1. `elasticsearch_duration_s`: total time taken by Elasticsearch calls
+
 NOTE: **Note:** Starting with GitLab 12.5, if an error occurs, an
 `exception` field is included with `class`, `message`, and
 `backtrace`. Previous versions included an `error` field instead of
@@ -344,7 +352,7 @@ only. For example:
 ## `audit_json.log`
 
 NOTE: **Note:**
-Most log entries only exist in [GitLab Starter](https://about.gitlab.com/pricing), however a few exist in GitLab Core.
+Most log entries only exist in [GitLab Starter](https://about.gitlab.com/pricing/), however a few exist in GitLab Core.
 
 This file lives in `/var/log/gitlab/gitlab-rails/audit_json.log` for
 Omnibus GitLab packages or in `/home/git/gitlab/log/audit_json.log` for
@@ -596,6 +604,16 @@ Omnibus GitLab packages or in `/home/git/gitlab/log/importer.log` for
 installations from source.
 
 It logs the progress of the import process.
+
+## `exporter.log`
+
+> Introduced in GitLab 13.1.
+
+This file lives in `/var/log/gitlab/gitlab-rails/exporter.log` for
+Omnibus GitLab packages or in `/home/git/gitlab/log/exporter.log` for
+installations from source.
+
+It logs the progress of the export process.
 
 ## `auth.log`
 

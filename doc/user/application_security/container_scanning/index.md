@@ -1,5 +1,8 @@
 ---
 type: reference, howto
+stage: Defend
+group: Container Security
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Container Scanning **(ULTIMATE)**
@@ -103,9 +106,6 @@ Registry, and scans the containers:
 variables:
   DOCKER_DRIVER: overlay2
 
-services:
-  - docker:19.03.8-dind
-
 stages:
   - build
   - test
@@ -113,6 +113,8 @@ stages:
 build:
   image: docker:stable
   stage: build
+  services:
+    - docker:19.03.8-dind
   variables:
     IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
@@ -274,14 +276,13 @@ this with a pipeline means you won't have to do it manually each time. You can u
 ```yaml
 image: docker:stable
 
-services:
-  - docker:19.03.8-dind
-
 stages:
   - build
 
 build_latest_vulnerabilities:
   stage: build
+  services:
+    - docker:19.03.8-dind
   script:
     - docker pull arminc/clair-db:latest
     - docker tag arminc/clair-db:latest $CI_REGISTRY/namespace/clair-vulnerabilities-db
@@ -461,7 +462,7 @@ Read more about the [solutions for vulnerabilities](../index.md#solutions-for-vu
 
 ## Troubleshooting
 
-### docker: Error response from daemon: failed to copy xattrs
+### `docker: Error response from daemon: failed to copy xattrs`
 
 When the GitLab Runner uses the Docker executor and NFS is used
 (for example, `/var/lib/docker` is on an NFS mount), Container Scanning might fail with

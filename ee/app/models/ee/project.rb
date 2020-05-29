@@ -47,7 +47,6 @@ module EE
       has_one :status_page_setting, inverse_of: :project, class_name: 'StatusPage::ProjectSetting'
       has_one :compliance_framework_setting, class_name: 'ComplianceManagement::ComplianceFramework::ProjectSettings', inverse_of: :project
 
-      has_many :reviews, inverse_of: :project
       has_many :approvers, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
       has_many :approver_groups, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -77,8 +76,6 @@ module EE
       has_many :package_files, through: :packages, class_name: 'Packages::PackageFile'
       has_many :merge_trains, foreign_key: 'target_project_id', inverse_of: :target_project
 
-      has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
-
       has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
       has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
       has_many :operations_feature_flags_user_lists, class_name: 'Operations::FeatureFlags::UserList'
@@ -93,7 +90,7 @@ module EE
       has_many :sourced_pipelines, class_name: 'Ci::Sources::Project', foreign_key: :source_project_id
 
       scope :with_shared_runners_limit_enabled, -> do
-        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects) &&
+        if ::Feature.enabled?(:ci_minutes_enforce_quota_for_public_projects, default_enabled: true) &&
             ::Ci::Runner.has_shared_runners_with_non_zero_public_cost?
           with_shared_runners
         else
@@ -194,6 +191,8 @@ module EE
     end
 
     class_methods do
+      extend ::Gitlab::Utils::Override
+
       def search_by_visibility(level)
         where(visibility_level: ::Gitlab::VisibilityLevel.string_options[level])
       end
@@ -207,6 +206,11 @@ module EE
         # project_key is not indexed for now
         # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24063#note_282435524 for details
         joins(:service_desk_setting).find_by('service_desk_settings.project_key' => key)
+      end
+
+      override :with_web_entity_associations
+      def with_web_entity_associations
+        super.preload(:compliance_framework_setting)
       end
     end
 
@@ -278,7 +282,7 @@ module EE
     end
 
     def shared_runners_minutes_limit_enabled?
-      if ::Feature.enabled?(:ci_minutes_track_for_public_projects, shared_runners_limit_namespace)
+      if ::Feature.enabled?(:ci_minutes_track_for_public_projects, shared_runners_limit_namespace, default_enabled: true)
         shared_runners_enabled? &&
           shared_runners_limit_namespace.shared_runners_minutes_limit_enabled?
       else
@@ -333,10 +337,6 @@ module EE
       mirror? &&
         feature_available?(:ci_cd_projects) &&
         feature_available?(:github_project_service_integration)
-    end
-
-    def scoped_approval_rules_enabled?
-      ::Feature.enabled?(:scoped_approval_rules, self, default_enabled: true)
     end
 
     def service_desk_enabled
@@ -639,10 +639,6 @@ module EE
       else
         namespace
       end
-    end
-
-    def active_webide_pipelines(user:)
-      webide_pipelines.running_or_pending.for_user(user)
     end
 
     override :lfs_http_url_to_repo

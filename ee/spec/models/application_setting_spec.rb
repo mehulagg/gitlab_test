@@ -142,6 +142,7 @@ describe ApplicationSetting do
       # and we want to make sure we're still testing
       # should_check_namespace_plan? method through the test-suite (see
       # https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/18461#note_69322821).
+      allow(Rails).to receive_message_chain(:env, :development?).and_return(false)
       allow(Rails).to receive_message_chain(:env, :test?).and_return(false)
     end
 
@@ -211,6 +212,20 @@ describe ApplicationSetting do
       expect(setting.elasticsearch_indexing).to be_truthy
       expect(setting.elasticsearch_search?).to be_truthy
       expect(setting.elasticsearch_search).to be_truthy
+    end
+  end
+
+  describe '#elasticsearch_pause_indexing' do
+    before do
+      setting.elasticsearch_pause_indexing = true
+    end
+
+    it 'resumes indexing' do
+      expect(ElasticIndexingControlWorker).to receive(:perform_async)
+
+      setting.save!
+      setting.elasticsearch_pause_indexing = false
+      setting.save!
     end
   end
 

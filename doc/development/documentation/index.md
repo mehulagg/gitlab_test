@@ -59,13 +59,48 @@ However, anyone can contribute [documentation improvements](improvement-workflow
 ## Markdown and styles
 
 [GitLab docs](https://gitlab.com/gitlab-org/gitlab-docs) uses [GitLab Kramdown](https://gitlab.com/gitlab-org/gitlab_kramdown)
-as its Markdown rendering engine. See the [GitLab Markdown Guide](https://about.gitlab.com/handbook/engineering/ux/technical-writing/markdown-guide/) for a complete Kramdown reference.
+as its Markdown rendering engine. See the [GitLab Markdown Guide](https://about.gitlab.com/handbook/markdown-guide/) for a complete Kramdown reference.
 
 Adhere to the [Documentation Style Guide](styleguide.md). If a style standard is missing, you are welcome to suggest one via a merge request.
 
 ## Folder structure and files
 
 See the [Structure](styleguide.md#structure) section of the [Documentation Style Guide](styleguide.md).
+
+## Metadata
+
+To provide additional directives or useful information, we add metadata in YAML
+format to the beginning of each product documentation page.
+
+For example, the following metadata would be at the beginning of a product
+documentation page whose content is primarily associated with the Audit Events
+feature:
+
+```yaml
+---
+stage: Monitor
+group: APM
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+```
+
+The following list describes the YAML parameters in use:
+
+- `redirect_to`: The relative path and filename (with an `.md` extension) of the
+  location to which visitors should be redirected for a moved page.
+  [Learn more](#changing-document-location).
+- `stage`: The [Stage](https://about.gitlab.com/handbook/product/categories/#devops-stages)
+  to which the majority of the page's content belongs.
+- `group`: The [Group](https://about.gitlab.com/company/team/structure/#product-groups)
+  to which the majority of the page's content belongs.
+- `info`: The following line, which provides direction to contributors regarding
+  how to contact the Technical Writer associated with the page's Stage and
+  Group: `To determine the technical writer assigned to the Stage/Group
+  associated with this page, see
+  https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers`
+- `disqus_identifier`: Identifier for Disqus commenting system. Used to keep
+  comments with a page that's been moved to a new URL.
+  [Learn more](#redirections-for-pages-with-disqus-comments).
 
 ## Changing document location
 
@@ -477,7 +512,7 @@ This list does not limit what other linters you can add to your local documentat
 [markdownlint](https://github.com/DavidAnson/markdownlint) checks that Markdown
 syntax follows [certain rules](https://github.com/DavidAnson/markdownlint/blob/master/doc/Rules.md#rules),
 and is used by the [`docs-lint` test](#testing) with a [configuration file](#markdownlint-configuration).
-Our [Documentation Style Guide](styleguide.md#markdown) and [Markdown Guide](https://about.gitlab.com/handbook/engineering/ux/technical-writing/markdown-guide/)
+Our [Documentation Style Guide](styleguide.md#markdown) and [Markdown Guide](https://about.gitlab.com/handbook/markdown-guide/)
 elaborate on which choices must be made when selecting Markdown syntax for GitLab
 documentation. This tool helps catch deviations from those guidelines.
 

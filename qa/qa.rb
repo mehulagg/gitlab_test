@@ -86,8 +86,10 @@ module QA
     autoload :Snippet, 'qa/resource/snippet'
     autoload :Tag, 'qa/resource/tag'
     autoload :ProjectMember, 'qa/resource/project_member'
+    autoload :ProjectSnippet, 'qa/resource/project_snippet'
     autoload :UserGPG, 'qa/resource/user_gpg'
     autoload :Visibility, 'qa/resource/visibility'
+    autoload :ProjectSnippet, 'qa/resource/project_snippet'
 
     module KubernetesCluster
       autoload :Base, 'qa/resource/kubernetes_cluster/base'
@@ -227,6 +229,7 @@ module QA
       autoload :Show, 'qa/page/project/show'
       autoload :Activity, 'qa/page/project/activity'
       autoload :Menu, 'qa/page/project/menu'
+      autoload :Members, 'qa/page/project/members'
 
       module Branches
         autoload :Show, 'qa/page/project/branches/show'
@@ -263,7 +266,6 @@ module QA
         autoload :CiVariables, 'qa/page/project/settings/ci_variables'
         autoload :Runners, 'qa/page/project/settings/runners'
         autoload :MergeRequest, 'qa/page/project/settings/merge_request'
-        autoload :Members, 'qa/page/project/settings/members'
         autoload :MirroringRepositories, 'qa/page/project/settings/mirroring_repositories'
         autoload :VisibilityFeaturesPermissions, 'qa/page/project/settings/visibility_features_permissions'
 
@@ -331,6 +333,10 @@ module QA
 
       module WebIDE
         autoload :Edit, 'qa/page/project/web_ide/edit'
+      end
+
+      module Snippet
+        autoload :New, 'qa/page/project/snippet/new'
       end
     end
 

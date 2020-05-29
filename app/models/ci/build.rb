@@ -55,6 +55,7 @@ module Ci
 
     delegate :url, to: :runner_session, prefix: true, allow_nil: true
     delegate :terminal_specification, to: :runner_session, allow_nil: true
+    delegate :service_specification, to: :runner_session, allow_nil: true
     delegate :gitlab_deploy_token, to: :project
     delegate :trigger_short_token, to: :trigger_request, allow_nil: true
 
@@ -352,7 +353,7 @@ module Ci
           begin
             Ci::Build.retry(build, build.user)
           rescue Gitlab::Access::AccessDeniedError => ex
-            Rails.logger.error "Unable to auto-retry job #{build.id}: #{ex}" # rubocop:disable Gitlab/RailsLogger
+            Gitlab::AppLogger.error "Unable to auto-retry job #{build.id}: #{ex}"
           end
         end
       end
@@ -756,13 +757,13 @@ module Ci
 
     # and use that for `ExpireBuildInstanceArtifactsWorker`?
     def erase_erasable_artifacts!
-      job_artifacts.erasable.destroy_all # rubocop: disable DestroyAll
+      job_artifacts.erasable.destroy_all # rubocop: disable Cop/DestroyAll
     end
 
     def erase(opts = {})
       return false unless erasable?
 
-      job_artifacts.destroy_all # rubocop: disable DestroyAll
+      job_artifacts.destroy_all # rubocop: disable Cop/DestroyAll
       erase_trace!
       update_erased!(opts[:erased_by])
     end

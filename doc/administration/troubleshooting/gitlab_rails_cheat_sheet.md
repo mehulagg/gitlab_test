@@ -302,7 +302,7 @@ you will see two pushes with the same "from" SHA:
 
 ```ruby
 p = Project.find_with_namespace('u/p')
-p.events.code_push.last(100).each do |e|
+p.events.pushed_action.last(100).each do |e|
   printf "%-20.20s %8s...%8s (%s)\n", e.data[:ref], e.data[:before], e.data[:after], e.author.try(:username)
 end
 ```
@@ -311,7 +311,7 @@ GitLab 9.5 and above:
 
 ```ruby
 p = Project.find_by_full_path('u/p')
-p.events.code_push.last(100).each do |e|
+p.events.pushed_action.last(100).each do |e|
   printf "%-20.20s %8s...%8s (%s)\n", e.push_event_payload[:ref], e.push_event_payload[:commit_from], e.push_event_payload[:commit_to], e.author.try(:username)
 end
 ```
@@ -620,10 +620,26 @@ Gitlab::CurrentSettings.current_application_settings.runners_registration_token
 
 ## License
 
-### See license plan name (since v9.3.0-ee)
+### See current license information
 
 ```ruby
+# License information (name, company, email address)
+License.current.licensee
+
+# Plan:
 License.current.plan
+
+# Uploaded:
+License.current.created_at
+
+# Started:
+License.current.starts_at
+
+# Expires at:
+License.current.expires_at
+
+# Is this a trial license?
+License.current.trial?
 ```
 
 ### Check if a project feature is available on the instance

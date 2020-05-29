@@ -328,6 +328,9 @@ class Project < ApplicationRecord
 
   has_many :repository_storage_moves, class_name: 'ProjectRepositoryStorageMove'
 
+  has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
+  has_many :reviews, inverse_of: :project
+
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
   accepts_nested_attributes_for :project_setting, update_only: true
@@ -442,7 +445,7 @@ class Project < ApplicationRecord
   scope :archived, -> { where(archived: true) }
   scope :non_archived, -> { where(archived: false) }
   scope :for_milestones, ->(ids) { joins(:milestones).where('milestones.id' => ids).distinct }
-  scope :with_push, -> { joins(:events).where('events.action = ?', Event::PUSHED) }
+  scope :with_push, -> { joins(:events).merge(Event.pushed_action) }
   scope :with_project_feature, -> { joins('LEFT JOIN project_features ON projects.id = project_features.project_id') }
   scope :inc_routes, -> { includes(:route, namespace: :route) }
   scope :with_statistics, -> { includes(:statistics) }
@@ -506,6 +509,7 @@ class Project < ApplicationRecord
     left_outer_joins(:pages_metadatum)
       .where(project_pages_metadata: { project_id: nil })
   end
+
   scope :with_api_entity_associations, -> {
     preload(:project_feature, :route, :tags,
             group: :ip_restrictions, namespace: [:route, :owner])
@@ -524,6 +528,10 @@ class Project < ApplicationRecord
 
   # Used by Projects::CleanupService to hold a map of rewritten object IDs
   mount_uploader :bfg_object_map, AttachmentUploader
+
+  def self.with_web_entity_associations
+    preload(:project_feature, :route, :creator, :group, namespace: [:route, :owner])
+  end
 
   def self.eager_load_namespace_and_owner
     includes(namespace: :owner)
@@ -733,6 +741,10 @@ class Project < ApplicationRecord
     end
   end
 
+  def active_webide_pipelines(user:)
+    webide_pipelines.running_or_pending.for_user(user)
+  end
+
   def autoclose_referenced_issues
     return true if super.nil?
 
@@ -800,10 +812,6 @@ class Project < ApplicationRecord
 
   def context_commits_enabled?
     Feature.enabled?(:context_commits, default_enabled: true)
-  end
-
-  def jira_issues_import_feature_flag_enabled?
-    Feature.enabled?(:jira_issue_import, self, default_enabled: true)
   end
 
   # LFS and hashed repository storage are required for using Design Management.
@@ -894,7 +902,6 @@ class Project < ApplicationRecord
   end
 
   def validate_jira_import_settings!(user: nil)
-    raise Projects::ImportService::Error, _('Jira import feature is disabled.') unless jira_issues_import_feature_flag_enabled?
     raise Projects::ImportService::Error, _('Jira integration not configured.') unless jira_service&.active?
 
     if user
@@ -925,17 +932,15 @@ class Project < ApplicationRecord
     job_id
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def log_import_activity(job_id, type: :import)
     job_type = type.to_s.capitalize
 
     if job_id
-      Rails.logger.info("#{job_type} job scheduled for #{full_path} with job ID #{job_id}.")
+      Gitlab::AppLogger.info("#{job_type} job scheduled for #{full_path} with job ID #{job_id}.")
     else
-      Rails.logger.error("#{job_type} job failed to create for #{full_path}.")
+      Gitlab::AppLogger.error("#{job_type} job failed to create for #{full_path}.")
     end
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def reset_cache_and_import_attrs
     run_after_commit do
@@ -1011,7 +1016,7 @@ class Project < ApplicationRecord
   end
 
   def jira_import?
-    import_type == 'jira' && latest_jira_import.present? && jira_issues_import_feature_flag_enabled?
+    import_type == 'jira' && latest_jira_import.present?
   end
 
   def gitlab_project_import?
@@ -1776,17 +1781,15 @@ class Project < ApplicationRecord
     ensure_pages_metadatum.update!(deployed: false)
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def write_repository_config(gl_full_path: full_path)
     # We'd need to keep track of project full path otherwise directory tree
     # created with hashed storage enabled cannot be usefully imported using
     # the import rake task.
     repository.raw_repository.write_config(full_path: gl_full_path)
   rescue Gitlab::Git::Repository::NoRepository => e
-    Rails.logger.error("Error writing to .git/config for project #{full_path} (#{id}): #{e.message}.")
+    Gitlab::AppLogger.error("Error writing to .git/config for project #{full_path} (#{id}): #{e.message}.")
     nil
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def after_import
     repository.expire_content_cache
@@ -1829,17 +1832,15 @@ class Project < ApplicationRecord
     @pipeline_status ||= Gitlab::Cache::Ci::ProjectPipelineStatus.load_for_project(self)
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def add_export_job(current_user:, after_export_strategy: nil, params: {})
     job_id = ProjectExportWorker.perform_async(current_user.id, self.id, after_export_strategy, params)
 
     if job_id
-      Rails.logger.info "Export job started for project ID #{self.id} with job ID #{job_id}"
+      Gitlab::AppLogger.info "Export job started for project ID #{self.id} with job ID #{job_id}"
     else
-      Rails.logger.error "Export job failed to start for project ID #{self.id}"
+      Gitlab::AppLogger.error "Export job failed to start for project ID #{self.id}"
     end
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def import_export_shared
     @import_export_shared ||= Gitlab::ImportExport::Shared.new(self)
@@ -2075,21 +2076,6 @@ class Project < ApplicationRecord
     with_lock do
       update_column(:repository_read_only, false)
     end
-  end
-
-  def change_repository_storage(new_repository_storage_key)
-    return if repository_read_only?
-    return if repository_storage == new_repository_storage_key
-
-    raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
-
-    storage_move = repository_storage_moves.create!(
-      source_storage_name: repository_storage,
-      destination_storage_name: new_repository_storage_key
-    )
-    storage_move.schedule!
-
-    self.repository_read_only = true
   end
 
   def pushes_since_gc

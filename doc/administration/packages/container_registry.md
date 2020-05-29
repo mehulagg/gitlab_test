@@ -1,3 +1,9 @@
+---
+stage: Package
+group: Package
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Container Registry administration
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/4040) in GitLab 8.8.
@@ -92,7 +98,7 @@ auth:
 ```
 
 CAUTION: **Caution:**
-If `auth` is not set up, users will be able to pull docker images without authentication.
+If `auth` is not set up, users will be able to pull Docker images without authentication.
 
 ## Container Registry domain configuration
 
@@ -408,7 +414,7 @@ NOTE: **Note:**
 **Installations from source**
 
 Configuring the storage driver is done in your registry config YML file created
-when you [deployed your docker registry](https://docs.docker.com/registry/deploying/).
+when you [deployed your Docker registry](https://docs.docker.com/registry/deploying/).
 
 `s3` storage driver example:
 
@@ -636,7 +642,7 @@ To configure a notification endpoint in Omnibus:
 **Installations from source**
 
 Configuring the notification endpoint is done in your registry config YML file created
-when you [deployed your docker registry](https://docs.docker.com/registry/deploying/).
+when you [deployed your Docker registry](https://docs.docker.com/registry/deploying/).
 
 Example:
 
@@ -873,9 +879,9 @@ thus the error above.
 
 While GitLab doesn't support using self-signed certificates with Container
 Registry out of the box, it is possible to make it work by
-[instructing the docker-daemon to trust the self-signed certificates](https://docs.docker.com/registry/insecure/#use-self-signed-certificates),
-mounting the docker-daemon and setting `privileged = false` in the Runner's
-`config.toml`. Setting `privileged = true` takes precedence over the docker-daemon:
+[instructing the Docker daemon to trust the self-signed certificates](https://docs.docker.com/registry/insecure/#use-self-signed-certificates),
+mounting the Docker daemon and setting `privileged = false` in the Runner's
+`config.toml`. Setting `privileged = true` takes precedence over the Docker daemon:
 
 ```toml
   [runners.docker]
@@ -1002,7 +1008,7 @@ there is likely an issue with the headers forwarded to the registry by NGINX. Th
 NGINX configurations should handle this, but it might occur in custom setups where the SSL is
 offloaded to a third party reverse proxy.
 
-This problem was discussed in a [docker project issue](https://github.com/docker/distribution/issues/970)
+This problem was discussed in a [Docker project issue](https://github.com/docker/distribution/issues/970)
 and a simple solution would be to enable relative URLs in the Registry.
 
 **For Omnibus installations**

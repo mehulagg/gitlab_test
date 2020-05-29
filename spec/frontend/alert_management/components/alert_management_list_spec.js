@@ -8,15 +8,20 @@ import {
   GlDropdownItem,
   GlIcon,
   GlTab,
-  GlBadge,
+  GlDeprecatedBadge as GlBadge,
 } from '@gitlab/ui';
 import { visitUrl } from '~/lib/utils/url_utility';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import createFlash from '~/flash';
 import AlertManagementList from '~/alert_management/components/alert_management_list.vue';
-import { ALERTS_STATUS_TABS } from '../../../../app/assets/javascripts/alert_management/constants';
+import {
+  ALERTS_STATUS_TABS,
+  trackAlertListViewsOptions,
+  trackAlertStatusUpdateOptions,
+} from '~/alert_management/constants';
 import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert_status.graphql';
 import mockAlerts from '../mocks/alerts.json';
+import Tracking from '~/tracking';
 
 jest.mock('~/flash');
 
@@ -38,6 +43,7 @@ describe('AlertManagementList', () => {
   const findDateFields = () => wrapper.findAll(TimeAgo);
   const findFirstStatusOption = () => findStatusDropdown().find(GlDropdownItem);
   const findSeverityFields = () => wrapper.findAll('[data-testid="severityField"]');
+  const findSeverityColumnHeader = () => wrapper.findAll('th').at(0);
 
   const alertsCount = {
     acknowledged: 6,
@@ -80,7 +86,10 @@ describe('AlertManagementList', () => {
     });
   }
 
+  const mockStartedAtCol = {};
+
   beforeEach(() => {
+    jest.spyOn(document, 'querySelector').mockReturnValue(mockStartedAtCol);
     mountComponent();
   });
 
@@ -90,7 +99,7 @@ describe('AlertManagementList', () => {
     }
   });
 
-  describe('alert management feature renders empty state', () => {
+  describe('Empty state', () => {
     it('shows empty state', () => {
       expect(wrapper.find(GlEmptyState).exists()).toBe(true);
     });
@@ -133,7 +142,7 @@ describe('AlertManagementList', () => {
         findAlerts()
           .at(0)
           .classes(),
-      ).not.toContain('hover-bg-blue-50');
+      ).not.toContain('gl-hover-bg-blue-50');
     });
 
     it('error state', () => {
@@ -150,7 +159,7 @@ describe('AlertManagementList', () => {
         findAlerts()
           .at(0)
           .classes(),
-      ).not.toContain('hover-bg-blue-50');
+      ).not.toContain('gl-hover-bg-blue-50');
     });
 
     it('empty state', () => {
@@ -167,7 +176,7 @@ describe('AlertManagementList', () => {
         findAlerts()
           .at(0)
           .classes(),
-      ).not.toContain('hover-bg-blue-50');
+      ).not.toContain('gl-hover-bg-blue-50');
     });
 
     it('has data state', () => {
@@ -183,7 +192,7 @@ describe('AlertManagementList', () => {
         findAlerts()
           .at(0)
           .classes(),
-      ).toContain('hover-bg-blue-50');
+      ).toContain('gl-hover-bg-blue-50');
     });
 
     it('displays status dropdown', () => {
@@ -284,6 +293,34 @@ describe('AlertManagementList', () => {
     });
   });
 
+  describe('sorting the alert list by column', () => {
+    beforeEach(() => {
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: mockAlerts, errored: false, sort: 'STARTED_AT_ASC', alertsCount },
+        loading: false,
+      });
+    });
+
+    it('updates sort with new direction and column key', () => {
+      findSeverityColumnHeader().trigger('click');
+
+      expect(wrapper.vm.$data.sort).toEqual('SEVERITY_ASC');
+
+      findSeverityColumnHeader().trigger('click');
+
+      expect(wrapper.vm.$data.sort).toEqual('SEVERITY_DESC');
+    });
+
+    it('updates the `ariaSort` attribute so the sort icon appears in the proper column', () => {
+      expect(mockStartedAtCol.ariaSort).toEqual('ascending');
+
+      findSeverityColumnHeader().trigger('click');
+
+      expect(mockStartedAtCol.ariaSort).toEqual('none');
+    });
+  });
+
   describe('updating the alert status', () => {
     const iid = '1527542';
     const mockUpdatedMutationResult = {
@@ -328,6 +365,33 @@ describe('AlertManagementList', () => {
         expect(createFlash).toHaveBeenCalledWith(
           'There was an error while updating the status of the alert. Please try again.',
         );
+      });
+    });
+  });
+
+  describe('Snowplow tracking', () => {
+    beforeEach(() => {
+      jest.spyOn(Tracking, 'event');
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: mockAlerts, alertsCount },
+        loading: false,
+      });
+    });
+
+    it('should track alert list page views', () => {
+      const { category, action } = trackAlertListViewsOptions;
+      expect(Tracking.event).toHaveBeenCalledWith(category, action);
+    });
+
+    it('should track alert status updates', () => {
+      Tracking.event.mockClear();
+      jest.spyOn(wrapper.vm.$apollo, 'mutate').mockResolvedValue({});
+      findFirstStatusOption().vm.$emit('click');
+      const status = findFirstStatusOption().text();
+      setImmediate(() => {
+        const { category, action, label } = trackAlertStatusUpdateOptions;
+        expect(Tracking.event).toHaveBeenCalledWith(category, action, { label, property: status });
       });
     });
   });

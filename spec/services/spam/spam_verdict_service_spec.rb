@@ -123,8 +123,8 @@ describe Spam::SpamVerdictService do
             stub_application_setting(recaptcha_enabled: true)
           end
 
-          it 'returns require reCAPTCHA verdict' do
-            expect(subject).to eq REQUIRE_RECAPTCHA
+          it 'returns conditionally allow verdict' do
+            expect(subject).to eq CONDITIONAL_ALLOW
           end
         end
 
@@ -169,7 +169,7 @@ describe Spam::SpamVerdictService do
       before do
         stub_application_setting(spam_check_endpoint_enabled: true)
         stub_application_setting(spam_check_endpoint_url: "http://www.spamcheckurl.com/spam_check")
-        stub_request(:any, /.*spamcheckurl.com.*/).to_return( body: spam_check_body.to_json, status: spam_check_http_status )
+        stub_request(:post, /.*spamcheckurl.com.*/).to_return( body: spam_check_body.to_json, status: spam_check_http_status )
       end
 
       context 'if the endpoint is accessible' do
@@ -248,7 +248,7 @@ describe Spam::SpamVerdictService do
 
       context 'if the endpoint times out' do
         before do
-          stub_request(:any, /.*spamcheckurl.com.*/).to_timeout
+          stub_request(:post, /.*spamcheckurl.com.*/).to_timeout
         end
 
         it 'returns nil' do

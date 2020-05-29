@@ -6,6 +6,7 @@ module StatusPage
   #
   # Use this service for publishing an incident to CDN synchronously.
   # To publish asynchronously use +StatusPage::TriggerPublishService+ instead.
+  # Called within an async job so as to run out of out of band from web requests
   #
   # This services calls:
   # * StatusPage::PublishDetailsService
@@ -39,7 +40,7 @@ module StatusPage
     end
 
     def unpublish_details?
-      issue.confidential?
+      issue.confidential? || !issue.status_page_published_incident
     end
 
     def process_list
