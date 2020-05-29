@@ -805,7 +805,7 @@ X-Gitlab-Event: Note Hook
 
 ### Merge request events
 
-Triggered when a new merge request is created, an existing merge request was updated/merged/closed or a commit is added in the source branch.
+Triggered when a new merge request is created, an existing merge request was updated/approved/unapproved/merged/closed or a commit is added in the source branch.
 
 **Request header**:
 
