@@ -152,9 +152,10 @@ below.
 }
 ```
 
-## Interactive Web Terminals for the Web IDE **(ULTIMATE ONLY)**
+## Interactive Web Terminals for the Web IDE
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5426) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5426) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
+> - [Brought to GitLab Core](https://gitlab.com/gitlab-org/gitlab/-/issues/211685) in 13.1.
 
 CAUTION: **Warning:**
 Interactive Web Terminals for the Web IDE is currently in **Beta**.
@@ -252,7 +253,8 @@ click **Restart Terminal** to start a new terminal session.
 
 ### File syncing to web terminal
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5276) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5276) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
+> - [Brought to GitLab Core](https://gitlab.com/gitlab-org/gitlab/-/issues/211686) in 13.1.
 
 File changes in the Web IDE can be synced to a running web terminal.
 This enables users to test their code changes in a preconfigured terminal
