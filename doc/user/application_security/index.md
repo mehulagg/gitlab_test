@@ -64,6 +64,16 @@ GitLab uses the following tools to scan and report known vulnerabilities found i
 | [Security Dashboard](security_dashboard/index.md) **(ULTIMATE)**             | View vulnerabilities in all your projects and groups.                  |
 | [Static Application Security Testing (SAST)](sast/index.md) **(ULTIMATE)**   | Analyze source code for known vulnerabilities.                         |
 
+## Security Scanning with AutoDevops
+
+Wehn [AutoDevops](../../topics/autodevops/) is enabled, Security scanners will be setup autoamtically using default settings. Learn more:
+
+- [Auto SAST](../../topics/autodevops/stages.md#auto-sast-ultimate)
+- [Auto DAST](../../topics/autodevops/stages.mdl#auto-dast-ultimate)
+- [Auto Dependency Scanning](../../topics/autodevops/stages.md#auto-dependency-scanning-ultimate)
+- [Auto License Compliance](../../topics/autodevops/stages.md#auto-license-compliance-ultimate)
+- [Auto Container Scanning](../../topics/autodevops/stages.md#auto-container-scanning-ultimate)
+
 ## Maintenance and update of the vulnerabilities database
 
 The scanning tools and vulnerabilities database are updated regularly.
