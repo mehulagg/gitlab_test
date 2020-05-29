@@ -23,7 +23,7 @@ module QA
           cluster&.remove!
         end
 
-        it 'runs auto devops' do
+        it 'runs auto devops', quarantine: {issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/219483', type: :flaky} do
           Flow::Login.sign_in
 
           # Set an application secret CI variable (prefixed with K8S_SECRET_)
