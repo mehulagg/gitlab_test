@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'ostruct'
+require 'set'
 
 module Quality
   class TestFileFinder
