@@ -6,6 +6,7 @@ module Ci
     extend Gitlab::ProcessMemoryCache::Helper
     include Ci::NewHasVariable
     include Ci::Maskable
+    include Presentable
 
     alias_attribute :secret_value, :value
 
