@@ -8,6 +8,8 @@ import LicenseManagementRow from './components/license_management_row.vue';
 import DeleteConfirmationModal from './components/delete_confirmation_modal.vue';
 import PaginatedList from '~/vue_shared/components/paginated_list.vue';
 
+import ModalRuleCreate from '../../approvals/components/modal_rule_create.vue';
+
 import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/constants';
 
 export default {
@@ -20,6 +22,7 @@ export default {
     GlDeprecatedButton,
     GlLoadingIcon,
     PaginatedList,
+    ModalRuleCreate,
   },
   data() {
     return {
@@ -49,10 +52,14 @@ export default {
     },
   },
   mounted() {
+    // @TODO - make dynamic
+    this.fetchRules('master');
     this.fetchManagedLicenses();
   },
   methods: {
+    ...mapActions(['fetchRules']),
     ...mapActions(LICENSE_MANAGEMENT, ['fetchManagedLicenses', 'setLicenseApproval']),
+    ...mapActions({ openCreateModal: 'createModal/open' }),
     openAddLicenseForm() {
       this.formIsOpen = true;
     },
@@ -82,16 +89,20 @@ export default {
       data-qa-selector="license_compliance_list"
     >
       <template #header>
-        <gl-deprecated-button
-          v-if="isAdmin"
-          class="js-open-form order-1"
-          :disabled="formIsOpen"
-          variant="success"
-          data-qa-selector="license_add_button"
-          @click="openAddLicenseForm"
-        >
-          {{ s__('LicenseCompliance|Add a license') }}
-        </gl-deprecated-button>
+        <div v-if="isAdmin" class="order-1">
+          <gl-deprecated-button
+            class="js-open-form"
+            :disabled="formIsOpen"
+            variant="success"
+            data-qa-selector="license_add_button"
+            @click="openAddLicenseForm"
+          >
+            {{ s__('LicenseCompliance|Add a license') }}
+          </gl-deprecated-button>
+
+          <gl-deprecated-button @click="openCreateModal(null)">{{ __('Yo') }}</gl-deprecated-button>
+          <modal-rule-create modal-id="yo" />
+        </div>
 
         <template v-else>
           <div
