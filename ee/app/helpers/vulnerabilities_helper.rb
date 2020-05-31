@@ -15,7 +15,8 @@ module VulnerabilitiesHelper
       vulnerability_feedback_help_path: help_page_path('user/application_security/index', anchor: 'interacting-with-the-vulnerabilities'),
       finding_json: vulnerability_finding_data(vulnerability.finding).to_json,
       create_mr_url: create_vulnerability_feedback_merge_request_path(vulnerability.finding.project),
-      timestamp: Time.now.to_i
+      timestamp: Time.now.to_i,
+      blob_path: vulnerability_file_path(vulnerability)
     }
   end
 
@@ -49,17 +50,23 @@ module VulnerabilitiesHelper
     )
   end
 
-  def vulnerability_file_link(vulnerability)
+  def vulnerability_file_path(vulnerability)
     finding = vulnerability.finding
     location = finding.location
-    branch = finding.pipelines&.last&.sha || vulnerability.project.default_branch
-    link_text = location['file']
-    link_path = project_blob_path(vulnerability.project, tree_join(branch, location['file']))
+    return unless location.key? 'file'
 
-    if location['start_line']
-      link_text += ":#{location['start_line']}"
-      link_path += "#L#{location['start_line']}"
-    end
+    branch = finding.pipelines&.last&.sha || vulnerability.project.default_branch || ''
+    link_url = project_blob_path(vulnerability.project, tree_join(branch, location['file']))
+    link_url += "#L#{location['start_line']}" if location['start_line']
+    link_url
+  end
+
+  def vulnerability_file_link(vulnerability)
+    location = vulnerability.finding.location
+    link_text = location['file']
+    link_text += ":#{location['start_line']}" if location['start_line']
+
+    link_path = vulnerability_file_path(vulnerability)
 
     link_to link_text, link_path, target: '_blank', rel: 'noopener noreferrer'
   end

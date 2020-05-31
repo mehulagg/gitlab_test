@@ -50,6 +50,10 @@ export default {
       type: String,
       required: true,
     },
+    blobPath: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -172,6 +176,7 @@ export default {
             vulnerability_data: {
               ...this.vulnerability,
               ...this.finding,
+              blob_path: this.blobPath,
               category: this.vulnerability.report_type,
               vulnerability_id: this.vulnerability.id,
             },

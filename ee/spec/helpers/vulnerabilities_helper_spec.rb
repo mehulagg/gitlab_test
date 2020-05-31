@@ -66,7 +66,8 @@ describe VulnerabilitiesHelper do
         vulnerability_feedback_help_path: kind_of(String),
         finding_json: kind_of(String),
         create_mr_url: "/#{project.full_path}/-/vulnerability_feedback",
-        timestamp: Time.now.to_i
+        timestamp: Time.now.to_i,
+        blob_path: "/#{project.full_path}/-/blob//maven/src/main/java/com/gitlab/security_products/tests/App.java#L29"
       )
     end
   end
@@ -119,6 +120,51 @@ describe VulnerabilitiesHelper do
         remediations: finding.remediations,
         solution: kind_of(String)
       )
+    end
+  end
+
+  describe '#vulnerability_file_path' do
+    let(:project) { create(:project, :repository, :public) }
+    let(:pipeline) { create(:ci_pipeline, :success, project: project) }
+    let(:finding) { create(:vulnerabilities_occurrence, pipelines: [pipeline], project: project, severity: :high) }
+    let(:vulnerability) { create(:vulnerability, findings: [finding], project: project) }
+
+    subject { helper.vulnerability_file_path(vulnerability) }
+
+    it 'returns a path to the vulnerability file location' do
+      expect(subject).to include(
+        vulnerability.finding.location['file'],
+        "#{vulnerability.finding.location['start_line']}",
+        vulnerability.finding.pipelines&.last&.sha
+      )
+    end
+
+    context 'when vulnerability is not linked to a commit' do
+      it 'uses the default branch' do
+        vulnerability.finding.pipelines = []
+        vulnerability.finding.save
+
+        expect(subject).to include(
+          vulnerability.project.default_branch
+        )
+      end
+    end
+
+    context 'when vulnerability is not on a specific line' do
+      it 'does not include a reference to the line number' do
+        vulnerability.finding.location['start_line'] = nil
+        vulnerability.finding.save
+
+        expect(subject).not_to include('#L')
+      end
+    end
+
+    context 'when vulnerability location does not have a file' do
+      it 'returns nil' do
+        vulnerability.finding.location.delete('file')
+
+        expect(subject).to be_nil
+      end
     end
   end
 

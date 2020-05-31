@@ -61,6 +61,7 @@ describe('Vulnerability Header', () => {
       url: 'pipeline_url',
       sourceBranch: 'master',
     },
+    blobPath: '/blob_path',
   };
 
   const createRandomUser = () => {

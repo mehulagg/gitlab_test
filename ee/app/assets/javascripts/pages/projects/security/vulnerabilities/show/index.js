@@ -7,6 +7,7 @@ function createHeaderApp() {
   const initialVulnerability = JSON.parse(el.dataset.vulnerabilityJson);
   const pipeline = JSON.parse(el.dataset.pipelineJson);
   const finding = JSON.parse(el.dataset.findingJson);
+  const { blobPath } = el.dataset;
 
   const { projectFingerprint, createIssueUrl, createMrUrl } = el.dataset;
 
@@ -22,6 +23,7 @@ function createHeaderApp() {
           pipeline,
           projectFingerprint,
           createIssueUrl,
+          blobPath,
         },
       }),
   });
