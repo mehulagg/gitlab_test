@@ -34,7 +34,8 @@ class Projects::SnippetsController < Projects::ApplicationController
       .new(current_user, project: @project)
       .execute
 
-    @snippets = SnippetsFinder.new(current_user, project: @project, scope: params[:scope])
+    order = params[:order] || 'updated_at'
+    @snippets = SnippetsFinder.new(current_user, project: @project, scope: params[:scope], order_by: order)
       .execute
       .page(params[:page])
       .inc_author

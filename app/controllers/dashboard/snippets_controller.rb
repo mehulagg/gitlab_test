@@ -11,7 +11,8 @@ class Dashboard::SnippetsController < Dashboard::ApplicationController
       .new(current_user, author: current_user)
       .execute
 
-    @snippets = SnippetsFinder.new(current_user, author: current_user, scope: params[:scope])
+    order = params[:order] || 'updated_at'
+    @snippets = SnippetsFinder.new(current_user, author: current_user, scope: params[:scope], order_by: order)
       .execute
       .page(params[:page])
       .inc_author
