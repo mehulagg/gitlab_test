@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 
+
 describe "Admin::AbuseReports", :js do
   let(:user) { create(:user) }
 
