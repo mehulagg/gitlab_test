@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Monitor', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/217705', type: :flaky } do
-    describe 'with Prometheus Gitlab-managed cluster', :orchestrated, :kubernetes, :docker, :runner do
+  context 'Monitor' do
+    describe 'with Prometheus Gitlab-managed cluster', :orchestrated, :kubernetes, :requires_admin do
       before :all do
-        @cluster = Service::KubernetesCluster.new.create!
-        Flow::Login.sign_in
-        @project, @runner = deploy_project_with_prometheus
+        Flow::Login.sign_in_as_admin
+        @project, @cluster = deploy_project_with_prometheus
       end
 
       after :all do
-        @runner&.remove_via_api!
         @cluster&.remove!
       end
 
@@ -67,41 +65,45 @@ module QA
       def deploy_project_with_prometheus
         project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'cluster-with-prometheus'
-          project.description = 'Cluster with Prometheus'
+          project.auto_devops_enabled = true
         end
 
-        runner = Resource::Runner.fabricate_via_api! do |runner|
-          runner.project = project
-          runner.name = project.name
+        cluster = Service::KubernetesCluster.new(provider_class: Service::ClusterProvider::K3s).create!
+
+        Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster_settings|
+          cluster_settings.project = project
+          cluster_settings.cluster = cluster
+          cluster_settings.install_helm_tiller = true
+          cluster_settings.install_ingress = true
+          cluster_settings.install_runner = true
+          cluster_settings.install_prometheus = true
         end
 
-        cluster_props = Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster|
-          cluster.project = project
-          cluster.cluster = @cluster
-          cluster.install_helm_tiller = true
-          cluster.install_ingress = true
-          cluster.install_prometheus = true
+        %w[
+        CODE_QUALITY_DISABLED LICENSE_MANAGEMENT_DISABLED
+        SAST_DISABLED DAST_DISABLED DEPENDENCY_SCANNING_DISABLED
+        CONTAINER_SCANNING_DISABLED TEST_DISABLED PERFORMANCE_DISABLED
+      ].each do |key|
+          Resource::CiVariable.fabricate_via_api! do |resource|
+            resource.project = project
+            resource.key = key
+            resource.value = '1'
+            resource.masked = false
+          end
         end
 
         Resource::Repository::ProjectPush.fabricate! do |push|
           push.project = project
           push.directory = Pathname
                                .new(__dir__)
-                               .join('../../../../../fixtures/monitored_auto_devops')
-          push.commit_message = 'Create AutoDevOps compatible Project for Monitoring'
-        end
-
-        Resource::CiVariable.fabricate_via_api! do |ci_variable|
-          ci_variable.project = project
-          ci_variable.key = 'AUTO_DEVOPS_DOMAIN'
-          ci_variable.value = cluster_props.ingress_ip
-          ci_variable.masked = false
+                               .join('../../../../../fixtures/auto_devops_rack')
+          push.commit_message = 'Use Auto Devops rack for monitoring'
         end
 
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
         Page::Project::Pipeline::Index.perform(&:wait_for_latest_pipeline_success_or_retry)
 
-        [project, runner]
+        [project, cluster]
       end
 
       def verify_metrics(metrics)
