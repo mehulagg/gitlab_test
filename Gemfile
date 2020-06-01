@@ -10,6 +10,7 @@ gem 'nakayoshi_fork', '~> 0.0.4'
 # Responders respond_to and respond_with
 gem 'responders', '~> 3.0'
 
+
 gem 'sprockets', '~> 3.7.0'
 
 # Default values for AR models
