@@ -47,7 +47,7 @@ class SnippetsFinder < UnionFinder
 
   # sort snippets
   ALLOWED_SORT_VALUES = %w[created_at updated_at].freeze
-  DEFAULT_SORT_VALUE = 'updated_at'.freeze
+  DEFAULT_SORT_VALUE = 'created_at'.freeze
 
   # sort snippets
   ALLOWED_SORT_DIRECTIONS = %w[asc desc].freeze

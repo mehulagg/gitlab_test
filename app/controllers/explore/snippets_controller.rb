@@ -4,7 +4,8 @@ class Explore::SnippetsController < Explore::ApplicationController
   include Gitlab::NoteableMetadata
 
   def index
-    @snippets = SnippetsFinder.new(current_user, explore: true)
+    order = params[:order] || 'updated_at'
+    @snippets = SnippetsFinder.new(current_user, explore: true, order_by: order)
       .execute
       .page(params[:page])
       .without_count
