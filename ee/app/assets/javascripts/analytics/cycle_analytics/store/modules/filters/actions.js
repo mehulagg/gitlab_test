@@ -40,14 +40,17 @@ export const fetchLabels = ({ commit, state }) => {
     });
 };
 
-export const fetchAuthors = ({ commit, state }, query = '') => {
+export const fetchAuthors = ({ commit, state, rootGetters }, query = '') => {
   // NOTE: should this be scoped to the selected project?
   commit(types.REQUEST_AUTHORS);
 
-  console.log('state', state)
-  console.log('query', query)
+  console.log('state', state);
+  console.log('query', query);
 
-  return Api.users({ query })
+  const { currentGroupPath } = rootGetters;
+
+  // return Api.users({ query })
+  return Api.groupMembers(currentGroupPath, { query })
     .then(({ data }) => {
       commit(types.RECEIVE_AUTHORS_SUCCESS, data);
     })
@@ -55,6 +58,26 @@ export const fetchAuthors = ({ commit, state }, query = '') => {
       const { status } = response;
       commit(types.RECEIVE_AUTHORS_ERROR, status);
       createFlash(__('Failed to load authors. Please try again.'));
+    });
+};
+
+export const fetchAssignees = ({ commit, state, rootGetters }, query = '') => {
+  // NOTE: should this be scoped to the selected project?
+  commit(types.REQUEST_ASSIGNEES);
+
+  console.log('state', state);
+  console.log('query', query);
+  const { currentGroupPath } = rootGetters;
+
+  // return Api.users({ query })
+  return Api.groupMembers(currentGroupPath, { query })
+    .then(({ data }) => {
+      commit(types.RECEIVE_ASSIGNEES_SUCCESS, data);
+    })
+    .catch(({ response }) => {
+      const { status } = response;
+      commit(types.RECEIVE_ASSIGNEES_ERROR, status);
+      createFlash(__('Failed to load assignees. Please try again.'));
     });
 };
 

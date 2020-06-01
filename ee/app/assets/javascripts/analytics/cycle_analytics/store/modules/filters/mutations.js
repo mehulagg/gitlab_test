@@ -46,6 +46,19 @@ export default {
     state.authors.errorCode = errorCode;
     state.authors.data = [];
   },
+  [types.REQUEST_ASSIGNEES](state) {
+    state.assignees.isLoading = true;
+  },
+  [types.RECEIVE_ASSIGNEES_SUCCESS](state, data) {
+    state.assignees.isLoading = false;
+    state.assignees.data = data;
+    state.assignees.errorCode = null;
+  },
+  [types.RECEIVE_ASSIGNEES_ERROR](state, errorCode) {
+    state.assignees.isLoading = false;
+    state.assignees.errorCode = errorCode;
+    state.assignees.data = [];
+  },
   [types.SET_FILTERS](state, { selectedLabels, selectedMilestone }) {
     state.labels.selected = selectedLabels;
     state.milestones.selected = selectedMilestone;

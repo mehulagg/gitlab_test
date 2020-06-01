@@ -34,8 +34,11 @@ export default {
       labelsLoading: state => state.labels.isLoading,
       authors: state => state.authors.data,
       authorsLoading: state => state.authors.isLoading,
+      assignees: state => state.assignees.data,
+      assigneesLoading: state => state.assignees.isLoading,
     }),
     tokens() {
+      // TODO: double check configs with expected behaviour
       return [
         {
           icon: 'clock',
@@ -63,22 +66,20 @@ export default {
           title: __('Author'),
           type: 'author',
           token: AuthorToken,
-          users: this.authors,
+          authors: this.authors,
           unique: false,
-          // symbol: '~', //
           isLoading: this.authorsLoading,
           operators: [{ value: '=', description: 'is', default: 'true' }],
         },
-        // {
-        //   icon: 'user',
-        //   title: __('Assignees'),
-        //   type: 'assignees',
-        //   token: AssigneeToken,
-        //   users: this.users,
-        //   unique: false,
-        //   // symbol: '~',
-        //   isLoading: this.usersLoading,
-        // },
+        {
+          icon: 'user',
+          title: __('Assignees'),
+          type: 'assignees',
+          token: AssigneeToken,
+          assignees: this.assignees,
+          unique: false,
+          isLoading: this.assigneesLoading,
+        },
       ];
     },
   },
@@ -86,9 +87,16 @@ export default {
     this.fetchMilestones();
     this.fetchLabels();
     this.fetchAuthors();
+    this.fetchAssignees();
   },
   methods: {
-    ...mapActions('filters', ['fetchMilestones', 'fetchLabels', 'fetchAuthors', 'setFilters']),
+    ...mapActions('filters', [
+      'fetchMilestones',
+      'fetchLabels',
+      'fetchAuthors',
+      'fetchAssignees',
+      'setFilters',
+    ]),
     processFilters(filters) {
       return filters.reduce((acc, token) => {
         const { type, value } = token;

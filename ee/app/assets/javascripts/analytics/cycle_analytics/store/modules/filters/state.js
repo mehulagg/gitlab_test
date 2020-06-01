@@ -19,16 +19,10 @@ export default () => ({
     errorCode: null,
     selected: null,
   },
-  // authors: {
-  //   isLoading: false,
-  //   data: [],
-  //   errorCode: null,
-  //   selected: [],
-  // },
-  // assignees: {
-  //   isLoading: false,
-  //   data: [],
-  //   errorCode: null,
-  //   selected: [],
-  // },
+  assignees: {
+    isLoading: false,
+    data: [],
+    errorCode: null,
+    selected: [],
+  },
 });

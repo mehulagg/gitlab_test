@@ -38,20 +38,27 @@ export default {
       required: true,
     },
   },
+  mounted() {
+    console.log('authorsToken::mounted', this.value, this.config);
+    this.searchAuthors();
+  },
+  updated() {
+    console.log('authorsToken::updated', this.value, this.config);
+  },
   computed: {
     authors() {
       return this.config.authors;
     },
-    searchAuthors: debounce(function debounceSearch({ data }) {
-      console.log('data', data);
-      if (data?.length) this.fetchAuthors(data);
-    }, SEARCH_DELAY),
     activeUser() {
       return false;
     },
   },
   methods: {
     ...mapActions('filters', ['fetchAuthors']),
+    searchAuthors: debounce(function debounceSearch(data = '') {
+      console.log('data', data);
+      if (data.length) this.fetchAuthors(data);
+    }, SEARCH_DELAY),
   },
   defaultSuggestions: [],
 };
