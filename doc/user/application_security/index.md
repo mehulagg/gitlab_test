@@ -66,7 +66,7 @@ GitLab uses the following tools to scan and report known vulnerabilities found i
 
 ## Security Scanning with AutoDevops
 
-Wehn [AutoDevops](../../topics/autodevops/) is enabled, Security scanners will be setup autoamtically using default settings. Learn more:
+When [AutoDevops](../../topics/autodevops/) is enabled, Security scanners will be set up automatically using default settings. Learn more:
 
 - [Auto SAST](../../topics/autodevops/stages.md#auto-sast-ultimate)
 - [Auto DAST](../../topics/autodevops/stages.mdl#auto-dast-ultimate)
