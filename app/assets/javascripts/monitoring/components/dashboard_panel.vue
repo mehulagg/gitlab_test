@@ -118,6 +118,9 @@ export default {
       timeRange(state) {
         return state[this.namespace].timeRange;
       },
+      dashboardTimezone(state) {
+        return state[this.namespace].dashboardTimezone;
+      },
       metricsSavedToDb(state, getters) {
         return getters[`${this.namespace}/metricsSavedToDb`];
       },
@@ -285,7 +288,7 @@ export default {
       <slot name="topLeft"></slot>
       <h5
         ref="graphTitle"
-        class="prometheus-graph-title gl-font-lg font-weight-bold text-truncate append-right-8"
+        class="prometheus-graph-title gl-font-lg font-weight-bold text-truncate gl-mr-3"
         tabindex="0"
       >
         {{ title }}
@@ -398,6 +401,7 @@ export default {
       :is="basicChartComponent"
       v-else-if="basicChartComponent"
       :graph-data="graphData"
+      :timezone="dashboardTimezone"
       v-bind="$attrs"
       v-on="$listeners"
     />
@@ -411,6 +415,7 @@ export default {
       :project-path="projectPath"
       :thresholds="getGraphAlertValues(graphData.metrics)"
       :group-id="groupId"
+      :timezone="dashboardTimezone"
       v-bind="$attrs"
       v-on="$listeners"
       @datazoom="onDatazoom"

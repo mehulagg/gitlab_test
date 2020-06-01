@@ -68,7 +68,7 @@ Navigate to the **Design Management** page from any issue by clicking the **Desi
 To upload design images, click the **Upload Designs** button and select images to upload.
 
 [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9,
-you can drag and drop designs onto the dedicated dropzone to upload them.
+you can drag and drop designs onto the dedicated drop zone to upload them.
 
 ![Drag and drop design uploads](img/design_drag_and_drop_uploads_v12_9.png)
 
@@ -177,6 +177,22 @@ Different discussions have different pin numbers:
 From GitLab 12.5 on, new discussions will be outputted to the issue activity,
 so that everyone involved can participate in the discussion.
 
+## Resolve Design threads
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13049) in GitLab 13.1.
+
+Discussion threads can be resolved on Designs. You can mark a thread as resolved
+or unresolved by clicking the **Resolve thread** icon at the first comment of the
+discussion.
+
+![Resolve thread icon](img/resolve_design-discussion_icon_v13_1.png)
+
+Pinned comments can also be resolved or unresolved in their threads.
+When replying to a comment, you will see a checkbox that you can click in order to resolve or unresolve
+the thread once published.
+
+![Resolve checkbox](img/resolve_design-discussion_checkbox_v13_1.png)
+
 ## Referring to designs in Markdown
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217160) in **GitLab 13.1**.
@@ -192,12 +208,12 @@ At present, full URL references are supported. For example, if we refer to a des
 somewhere with:
 
 ```markdown
-See http://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png
+See https://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png
 ```
 
 This will be rendered as:
 
-> See [#123[homescreen.png]](http://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png)
+> See [#123[homescreen.png]](https://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png)
 
 ### Enable or disable design references **(CORE ONLY)**
 

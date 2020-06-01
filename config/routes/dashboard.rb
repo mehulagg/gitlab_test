@@ -24,6 +24,7 @@ resource :dashboard, controller: 'dashboard', only: [] do
     resources :projects, only: [:index] do
       collection do
         get :starred
+        get :removed
       end
     end
   end

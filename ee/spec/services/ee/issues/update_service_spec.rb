@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe Issues::UpdateService do
+RSpec.describe Issues::UpdateService do
   let(:group) { create(:group) }
   let(:project) { create(:project, group: group) }
   let(:issue) { create(:issue, project: project) }
@@ -81,7 +81,7 @@ describe Issues::UpdateService do
           end
         end
 
-        context 'when weight is integer' do
+        context 'when weight is float' do
           it 'rounds the value down' do
             expect { update_issue(weight: 1.8) }.to change { issue.weight }.to(1)
           end

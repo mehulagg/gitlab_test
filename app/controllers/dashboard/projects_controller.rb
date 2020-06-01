@@ -8,7 +8,8 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   include SortingPreference
 
   prepend_before_action(only: [:index]) { authenticate_sessionless_user!(:rss) }
-  before_action :set_non_archived_param
+  before_action :ensure_admin!, only: [:removed]
+  before_action :set_non_archived_param, except: [:removed]
   before_action :set_sorting
   before_action :projects, only: [:index]
   skip_cross_project_access_check :index, :starred
@@ -48,6 +49,19 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
+  def removed
+    @projects = load_projects(params.merge(marked_for_deletion: true))
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          html: view_to_html_string("dashboard/projects/_projects", projects: @projects)
+        }
+      end
+    end
+  end
+
   private
 
   def projects
@@ -64,6 +78,7 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   def load_projects(finder_params)
     @total_user_projects_count = ProjectsFinder.new(params: { non_public: true }, current_user: current_user).execute
     @total_starred_projects_count = ProjectsFinder.new(params: { starred: true }, current_user: current_user).execute
+    @removed_projects_count = ProjectsFinder.new(params: { marked_for_deletion: true }, current_user: current_user).execute
 
     finder_params[:use_cte] = true if use_cte_for_finder?
 
@@ -110,6 +125,11 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   def sorting_field
     Project::SORTING_PREFERENCE_FIELD
   end
+
+  def ensure_admin!
+    return render_404 unless current_user.admin?
+  end
+
 end
 
 Dashboard::ProjectsController.prepend_if_ee('EE::Dashboard::ProjectsController')

@@ -153,7 +153,15 @@ module GraphqlHelpers
   end
 
   def wrap_fields(fields)
-    fields = Array.wrap(fields).join("\n")
+    fields = Array.wrap(fields).map do |field|
+      case field
+      when Symbol
+        GraphqlHelpers.fieldnamerize(field)
+      else
+        field
+      end
+    end.join("\n")
+
     return unless fields.present?
 
     <<~FIELDS
@@ -271,8 +279,13 @@ module GraphqlHelpers
   end
 
   def graphql_dig_at(data, *path)
-    keys = path.map { |segment| GraphqlHelpers.fieldnamerize(segment) }
-    data.dig(*keys)
+    keys = path.map { |segment| segment.is_a?(Integer) ? segment : GraphqlHelpers.fieldnamerize(segment) }
+
+    # Allows for array indexing, like this
+    # ['project', 'boards', 'edges', 0, 'node', 'lists']
+    keys.reduce(data) do |memo, key|
+      memo.is_a?(Array) ? memo[key] : memo&.dig(key)
+    end
   end
 
   def graphql_errors

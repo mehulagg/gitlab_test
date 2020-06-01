@@ -284,8 +284,8 @@ module ProjectsHelper
     "xcode://clone?repo=#{CGI.escape(default_url_to_repo(project))}"
   end
 
-  def link_to_bfg
-    link_to 'BFG', 'https://rtyley.github.io/bfg-repo-cleaner/', target: '_blank', rel: 'noopener noreferrer'
+  def link_to_filter_repo
+    link_to 'git filter-repo', 'https://github.com/newren/git-filter-repo', target: '_blank', rel: 'noopener noreferrer'
   end
 
   def explore_projects_tab?
@@ -367,6 +367,10 @@ module ProjectsHelper
     @project.metrics_setting_external_dashboard_url
   end
 
+  def metrics_dashboard_timezone
+    @project.metrics_setting_dashboard_timezone
+  end
+
   def grafana_integration_url
     @project.grafana_integration&.grafana_url
   end
@@ -385,6 +389,10 @@ module ProjectsHelper
     Gitlab::ErrorTracking.track_exception(e)
 
     nil
+  end
+
+  def scheduled_for_deletion?(project)
+    project.marked_for_deletion_at.present?
   end
 
   private
@@ -538,11 +546,6 @@ module ProjectsHelper
     else
       s_("ProjectLastActivity|Never")
     end
-  end
-
-  def project_wiki_path_with_version(proj, page, version, is_newest)
-    url_params = is_newest ? {} : { version_id: version }
-    project_wiki_path(proj, page, url_params)
   end
 
   def project_status_css_class(status)

@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'email_spec'
 
-describe Notify do
+RSpec.describe Notify do
   include EmailSpec::Helpers
   include EmailSpec::Matchers
   include EmailHelpers
@@ -369,6 +369,33 @@ describe Notify do
       is_expected.to have_subject("#{project.name} | Repository mirroring paused")
       is_expected.to have_body_text(project.full_path)
       is_expected.to have_body_text(project_settings_repository_url(project))
+    end
+  end
+
+  describe 'mirror was disabled' do
+    let(:project) { create(:project) }
+
+    subject { described_class.mirror_was_disabled_email(project.id, user.id, 'deleted_user_name') }
+
+    it_behaves_like 'an email sent from GitLab'
+    it_behaves_like 'it should not have Gmail Actions links'
+    it_behaves_like "a user cannot unsubscribe through footer link"
+
+    it 'has the correct subject and body' do
+      is_expected.to have_subject("#{project.name} | Repository mirroring disabled")
+      is_expected.to have_body_text(project.full_path)
+      is_expected.to have_body_text(project_settings_repository_url(project))
+      is_expected.to have_body_text('deleted_user_name')
+    end
+
+    context 'user was deleted' do
+      before do
+        user.destroy!
+      end
+
+      it 'does not send email' do
+        expect(subject.message).to be_a_kind_of ActionMailer::Base::NullMail
+      end
     end
   end
 

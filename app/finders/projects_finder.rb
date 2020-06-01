@@ -75,6 +75,7 @@ class ProjectsFinder < UnionFinder
     collection = by_deleted_status(collection)
     collection = by_last_activity_after(collection)
     collection = by_last_activity_before(collection)
+    collection = by_marked_for_deletion(collection)
     collection
   end
 
@@ -192,6 +193,14 @@ class ProjectsFinder < UnionFinder
   def by_last_activity_before(items)
     if params[:last_activity_before].present?
       items.where("last_activity_at < ?", params[:last_activity_before]) # rubocop: disable CodeReuse/ActiveRecord
+    else
+      items
+    end
+  end
+
+  def by_marked_for_deletion(items)
+    if params[:marked_for_deletion].present? && Gitlab::Utils.to_boolean(params[:marked_for_deletion])
+      items.where('marked_for_deletion_at IS NOT NULL') # rubocop: disable CodeReuse/ActiveRecord
     else
       items
     end

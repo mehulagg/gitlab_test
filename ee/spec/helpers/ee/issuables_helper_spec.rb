@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe IssuablesHelper do
+RSpec.describe IssuablesHelper do
   let_it_be(:user) { create(:user) }
 
   describe '#issuable_initial_data' do
@@ -44,11 +44,27 @@ describe IssuablesHelper do
     end
 
     context 'for an issue' do
-      it 'returns the correct data that includes canAdmin: true' do
-        issue = create(:issue, author: user, description: 'issue text')
+      let_it_be(:issue) { create(:issue, author: user, description: 'issue text') }
+
+      it 'returns the correct data' do
         @project = issue.project
 
-        expect(helper.issuable_initial_data(issue)).to include(canAdmin: true)
+        expected_data = {
+          canAdmin: true,
+          publishedIncidentUrl: nil
+        }
+        expect(helper.issuable_initial_data(issue)).to include(expected_data)
+      end
+
+      context 'when published to a configured status page' do
+        it 'returns the correct data that includes publishedIncidentUrl' do
+          @project = issue.project
+
+          expect(StatusPage::Storage).to receive(:details_url).with(issue).and_return('http://status.com')
+          expect(helper.issuable_initial_data(issue)).to include(
+            publishedIncidentUrl: 'http://status.com'
+          )
+        end
       end
     end
 

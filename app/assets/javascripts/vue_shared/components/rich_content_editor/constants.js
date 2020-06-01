@@ -14,7 +14,6 @@ const TOOLBAR_ITEM_CONFIGS = [
   { isDivider: true },
   { icon: 'quote', command: 'Blockquote', tooltip: __('Insert a quote') },
   { icon: 'link', event: 'openPopupAddLink', tooltip: __('Add a link') },
-  { icon: 'doc-code', command: 'CodeBlock', tooltip: __('Insert a code block') },
   { isDivider: true },
   { icon: 'list-bulleted', command: 'UL', tooltip: __('Add a bullet list') },
   { icon: 'list-numbered', command: 'OL', tooltip: __('Add a numbered list') },
@@ -24,8 +23,10 @@ const TOOLBAR_ITEM_CONFIGS = [
   { isDivider: true },
   { icon: 'dash', command: 'HR', tooltip: __('Add a line') },
   { icon: 'table', event: 'openPopupAddTable', classes: 'tui-table', tooltip: __('Add a table') },
+  { icon: 'doc-image', event: CUSTOM_EVENTS.openAddImageModal, tooltip: __('Insert an image') },
   { isDivider: true },
   { icon: 'code', command: 'Code', tooltip: __('Insert inline code') },
+  { icon: 'doc-code', command: 'CodeBlock', tooltip: __('Insert a code block') },
 ];
 
 export const EDITOR_OPTIONS = {
@@ -33,6 +34,7 @@ export const EDITOR_OPTIONS = {
 };
 
 export const EDITOR_TYPES = {
+  markdown: 'markdown',
   wysiwyg: 'wysiwyg',
 };
 

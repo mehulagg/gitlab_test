@@ -23,8 +23,8 @@ To fork a sample project and create a Pages website:
 1. Go to your project's **CI/CD > Pipelines** and click **Run pipeline**.
    GitLab CI/CD builds and deploys your site.
 
+The site can take approximately 30 minutes to deploy.
 When the pipeline is finished, go to **Settings > Pages** to find the link to your website from your project.
-It can take approximately 30 minutes to deploy.
 
 For every change pushed to your repository, GitLab CI/CD runs a new pipeline
 that immediately publishes your changes to the Pages site.
@@ -52,5 +52,5 @@ You can take some **optional** further steps:
 
     ![Change repo's path](../img/change_path_v12_10.png)
 
-  - Now go to your SSG's config file and change the [base URL](../getting_started_part_one.md#urls-and-baseurls)
+  - Now go to your SSG's configuration file and change the [base URL](../getting_started_part_one.md#urls-and-baseurls)
     from `"project-name"` to `""`. The project name setting varies by SSG and may not be in the config file.

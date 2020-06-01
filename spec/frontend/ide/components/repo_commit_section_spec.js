@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { createStore } from '~/ide/stores';
-import router from '~/ide/ide_router';
+import { createRouter } from '~/ide/ide_router';
 import RepoCommitSection from '~/ide/components/repo_commit_section.vue';
 import EmptyState from '~/ide/components/commit_sidebar/empty_state.vue';
 import { stageKeys } from '~/ide/constants';
@@ -10,6 +10,7 @@ const TEST_NO_CHANGES_SVG = 'nochangessvg';
 
 describe('RepoCommitSection', () => {
   let wrapper;
+  let router;
   let store;
 
   function createComponent() {
@@ -55,6 +56,7 @@ describe('RepoCommitSection', () => {
 
   beforeEach(() => {
     store = createStore();
+    router = createRouter(store);
 
     jest.spyOn(store, 'dispatch');
     jest.spyOn(router, 'push').mockImplementation();
@@ -118,6 +120,28 @@ describe('RepoCommitSection', () => {
 
     it('does not show empty state', () => {
       expect(wrapper.find(EmptyState).exists()).toBe(false);
+    });
+  });
+
+  describe('if nothing is changed or staged', () => {
+    beforeEach(() => {
+      setupDefaultState();
+
+      store.state.openFiles = [...Object.values(store.state.entries)];
+      store.state.openFiles[0].active = true;
+      store.state.stagedFiles = [];
+
+      createComponent();
+    });
+
+    it('opens currently active file', () => {
+      expect(store.state.openFiles.length).toBe(1);
+      expect(store.state.openFiles[0].pending).toBe(true);
+
+      expect(store.dispatch).toHaveBeenCalledWith('openPendingTab', {
+        file: store.state.entries[store.getters.activeFile.path],
+        keyPrefix: stageKeys.unstaged,
+      });
     });
   });
 

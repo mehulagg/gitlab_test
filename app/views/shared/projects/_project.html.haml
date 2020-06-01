@@ -17,6 +17,7 @@
 - css_controls_class << "with-pipeline-status" if show_pipeline_status_icon
 - avatar_container_class = project.creator && use_creator_avatar ? '' : 'rect-avatar'
 - license_name = project_license_name(project)
+- show_marked_for_deletion = current_user&.admin? && scheduled_for_deletion?(project)
 
 %li.project-row.d-flex{ class: css_class }
   = cache(cache_key) do
@@ -32,7 +33,7 @@
         .d-flex.align-items-center.flex-wrap.project-title
           %h2.d-flex.gl-mt-3
             = link_to project_path(project), class: 'text-plain' do
-              %span.project-full-name.append-right-8><
+              %span.project-full-name.gl-mr-3><
                 %span.namespace-name
                   - if project.namespace && !skip_namespace
                     = project.namespace.human_name
@@ -64,6 +65,21 @@
         - elsif project.description.present?
           .description.d-none.d-sm-block.append-right-default
             = markdown_field(project, :description)
+
+        - if show_marked_for_deletion
+          .d-flex.align-items-center.flex-wrap.project-title
+            %span.small
+              = _("Marked For Deletion At - %{deletion_time}") % { deletion_time: project.marked_for_deletion_at.strftime(Date::DATE_FORMATS[:medium]) }
+          .d-flex.align-items-center.flex-wrap.project-title
+            %p.small
+              = _("Scheduled Deletion At - %{permanent_deletion_time}") % { permanent_deletion_time: DateTime.parse(permanent_deletion_date(project.marked_for_deletion_at)).strftime(Date::DATE_FORMATS[:medium]) }
+          .d-flex.align-items-center.flex-wrap.project-title
+            %span.small
+              = link_to project_restore_path(project),
+                  class: "d-flex align-items-center icon-wrapper stars has-tooltip",
+                  title: _('Restore'), data: { container: 'body', placement: 'top' },
+                  method: :post do
+                = _("Restore")
 
       .controls.d-flex.flex-sm-column.align-items-center.align-items-sm-end.flex-wrap.flex-shrink-0.text-secondary{ class: css_controls_class.join(" ") }
         .icon-container.d-flex.align-items-center

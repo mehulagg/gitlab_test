@@ -685,11 +685,11 @@ describe ProjectsHelper do
     end
   end
 
-  describe 'link_to_bfg' do
-    subject { helper.link_to_bfg }
+  describe 'link_to_filter_repo' do
+    subject { helper.link_to_filter_repo }
 
-    it 'generates a hardcoded link to the BFG Repo-Cleaner' do
-      result = helper.link_to_bfg
+    it 'generates a hardcoded link to git filter-repo' do
+      result = helper.link_to_filter_repo
       doc = Nokogiri::HTML.fragment(result)
 
       expect(doc.children.size).to eq(1)
@@ -702,8 +702,8 @@ describe ProjectsHelper do
         expect(link.name).to eq('a')
         expect(link[:target]).to eq('_blank')
         expect(link[:rel]).to eq('noopener noreferrer')
-        expect(link[:href]).to eq('https://rtyley.github.io/bfg-repo-cleaner/')
-        expect(link.inner_html).to eq('BFG')
+        expect(link[:href]).to eq('https://github.com/newren/git-filter-repo')
+        expect(link.inner_html).to eq('git filter-repo')
 
         expect(result).to be_html_safe
       end
@@ -1028,4 +1028,38 @@ describe ProjectsHelper do
       end
     end
   end
+
+  describe '#scheduled_for_deletion?' do
+
+    describe 'Falsy test' do
+      subject { helper.scheduled_for_deletion?(project) }
+
+      let(:project) { create(:project) }
+      let(:user) { create(:user) }
+
+      it { is_expected.to eq(false) }
+    end
+
+    describe 'Truthy test' do
+      subject { helper.scheduled_for_deletion?(project) }
+
+      let(:project) { create(:project) }
+      let(:user) { create(:user) }
+
+      before do
+        project.add_developer(user)
+        ::Projects::UpdateService.new(
+          project,
+          user,
+          { archived: true,
+            marked_for_deletion_at: Time.current.utc,
+            deleting_user: user }
+        ).execute
+      end
+
+      it { is_expected.to eq(true) }
+    end
+
+  end
+
 end

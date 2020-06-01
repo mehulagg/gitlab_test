@@ -25,6 +25,14 @@ We have complete examples of configuring pipelines:
 - For a collection of examples, see [GitLab CI/CD Examples](../examples/README.md).
 - To see a large `.gitlab-ci.yml` file used in an enterprise, see the [`.gitlab-ci.yml` file for `gitlab`](https://gitlab.com/gitlab-org/gitlab/blob/master/.gitlab-ci.yml).
 
+> For some additional information about GitLab CI/CD:
+>
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Watch the [CI/CD Ease of configuration](https://www.youtube.com/embed/opdLqwz6tcE) video.
+> - Watch the [Making the case for CI/CD in your organization](https://about.gitlab.com/compare/github-actions-alternative/)
+>   webcast to learn the benefits of CI/CD and how to measure the results of CI/CD automation.
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Learn how [Verizon reduced rebuilds](https://about.gitlab.com/blog/2019/02/14/verizon-customer-story/)
+>   from 30 days to under 8 hours with GitLab.
+
 NOTE: **Note:**
 If you have a [mirrored repository where GitLab pulls from](../../user/project/repository/repository_mirroring.md#pulling-from-a-remote-repository-starter),
 you may need to enable pipeline triggering in your project's
@@ -109,7 +117,7 @@ The following table lists available parameters for jobs:
 | [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                  |
 | [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, `environment:auto_stop_in` and `environment:action`. |
 | [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, and `cache:policy`.                                     |
-| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, `artifacts:reports:junit`, `artifacts:reports:cobertura`, and `artifacts:reports:terraform`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_scanning`, `artifacts:reports:license_management` (removed in GitLab 13.0),`artifacts:reports:performance` and `artifacts:reports:metrics`. |
+| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, `artifacts:reports:junit`, `artifacts:reports:cobertura`, and `artifacts:reports:terraform`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_scanning`, `artifacts:reports:license_management` (removed in GitLab 13.0),`artifacts:reports:performance` and `artifacts:reports:metrics`. |
 | [`dependencies`](#dependencies)                    | Restrict which artifacts are passed to a specific job by providing a list of jobs to fetch artifacts from.                                                                          |
 | [`coverage`](#coverage)                            | Code coverage settings for a given job.                                                                                                                                             |
 | [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                             |
@@ -653,6 +661,44 @@ job:
 
 [YAML anchors for `before_script` and `after_script`](#yaml-anchors-for-before_script-and-after_script) are available.
 
+#### Coloring script output
+
+Script output can be colored using [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors),
+or by running commands or programs that output ANSI escape codes.
+
+For example, using [Bash with color codes](https://misc.flogisoft.com/bash/tip_colors_and_formatting):
+
+```yaml
+job:
+  script:
+    - echo -e "\e[31mThis text is red,\e[0m but this text isn't\e[31m however this text is red again."
+```
+
+You can define the color codes in Shell variables, or even [custom environment variables](../variables/README.md#custom-environment-variables),
+which makes the commands easier to read and reusable.
+
+For example, using the same example as above and variables defined in a `before_script`:
+
+```yaml
+job:
+  before_script:
+    - TXT_RED="\e[31m" && TXT_CLEAR="\e[0m"
+  script:
+    - echo -e "${TXT_RED}This text is red,${TXT_CLEAR} but this part isn't${TXT_RED} however this part is again."
+    - echo "This text is not colored"
+```
+
+Or with [PowerShell color codes](https://superuser.com/a/1259916):
+
+```yaml
+job:
+  before_script:
+    - $esc="$([char]27)"; $TXT_RED="$esc[31m"; $TXT_CLEAR="$esc[0m"
+  script:
+    - Write-Host $TXT_RED"This text is red,"$TXT_CLEAR" but this text isn't"$TXT_RED" however this text is red again."
+    - Write-Host "This text is not colored"
+```
+
 ### `stage`
 
 `stage` is defined per-job and relies on [`stages`](#stages) which is defined
@@ -912,7 +958,7 @@ can use one of the [`workflow: rules` templates](#workflowrules-templates) to ge
 This will ensure that the behavior is more stable as you start adding additional `rules`
 blocks, and will avoid issues like creating a duplicate, merge request (detached) pipeline.
 
-We don't recomment mixing `only/except` jobs with `rules` jobs in the same pipeline.
+We don't recommend mixing `only/except` jobs with `rules` jobs in the same pipeline.
 It may not cause YAML errors, but debugging the exact execution behavior can be complex
 due to the different default behaviors of `only/except` and `rules`.
 
@@ -968,10 +1014,14 @@ job:
     - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME' # If neither of the first two match but the simple presence does, we set to "on_success" by default
 ```
 
-If none of the provided rules match, the job will be set to `when:never`, and
-not included in the pipeline. If `rules:when` is not included in the configuration
-at all, the behavior defaults to `job:when`, which continues to default to
-`on_success`.
+Some details regarding the logic that determines the `when` for the job:
+
+- If none of the provided rules match, the job is set to `when: never`, and is
+  not included in the pipeline.
+- A rule without any conditional clause, such as a `when` or `allow_failure`
+  rule without `if` or `changes`, always matches, and is always used if reached.
+- If a rule matches and has no `when` defined, the rule will use the `when`
+  defined for the job, which defaults to `on_success` if not defined.
 
 #### `rules:changes`
 
@@ -1039,6 +1089,10 @@ checks. After the 10000th check, rules with patterned globs will always match.
 You can use [`allow_failure: true`](#allow_failure) within `rules:` to allow a job to fail, or a manual job to
 wait for action, without stopping the pipeline itself. All jobs using `rules:` default to `allow_failure: false`
 if `allow_failure:` is not defined.
+
+The rule-level `rules:allow_failure` option overrides the job-level
+[`allow_failure`](#allow_failure) option, and is only applied when the job is
+triggered by the particular rule.
 
 ```yaml
 job:
@@ -1416,7 +1470,7 @@ This means the `only:changes` policy is useful for pipelines where:
 - `$CI_PIPELINE_SOURCE == 'external_pull_request_event'`
 
 If there is no Git push event, such as for pipelines with
-[sources other than the three above](../variables/predefined_variables.md#variables-reference),
+[sources other than the three above](../variables/predefined_variables.md),
 `changes` can't determine if a given file is new or old, and will always
 return true.
 
@@ -2144,6 +2198,12 @@ The `stop_review_app` job is **required** to have the following keywords defined
 - `stage` should be the same as the `review_app` in order for the environment
   to stop automatically when the branch is deleted
 
+Additionally, both jobs should have matching [`rules`](../yaml/README.md#onlyexcept-basic)
+or [`only/except`](../yaml/README.md#onlyexcept-basic) configuration. In the example
+above, if the configuration is not identical, the `stop_review_app` job might not be
+included in all pipelines that include the `review_app` job, and it will not be
+possible to trigger the `action: stop` to stop the environment automatically.
+
 #### `environment:auto_stop_in`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/20956) in GitLab 12.8.
@@ -2547,6 +2607,33 @@ job:
       - path/*xyz/*
 ```
 
+#### `artifacts:exclude`
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15122) in GitLab 13.1
+> - Requires GitLab Runner 13.1
+
+`exclude` makes it possible to prevent files from being added to an artifacts
+archive.
+
+Similar to [`artifacts:paths`](#artifactspaths), `exclude` paths are relative
+to the project directory. Wildcards can be used that follow the
+[glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns and
+[`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
+
+For example, to store all files in `binaries/`, but not `*.o` files located in
+subdirectories of `binaries/`:
+
+```yaml
+artifacts:
+  paths:
+    - binaries/
+  exclude:
+    - binaries/**/*.o
+```
+
+Files matched by [`artifacts:untracked`](#artifactsuntracked) can be excluded using
+`artifacts:exclude` too.
+
 #### `artifacts:expose_as`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15018) in GitLab 12.5.
@@ -2693,6 +2780,15 @@ artifacts:
     - binaries/
 ```
 
+Send all untracked files but [exclude](#artifactsexclude) `*.txt`:
+
+```yaml
+artifacts:
+  untracked: true
+  exclude:
+    - *.txt
+```
+
 #### `artifacts:when`
 
 > Introduced in GitLab 8.9 and GitLab Runner v1.3.0.
@@ -2750,7 +2846,7 @@ job:
 ```
 
 NOTE: **Note:**
-For artifacts created in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/16267)
+For artifacts created in [GitLab 13.1](https://gitlab.com/gitlab-org/gitlab/-/issues/16267)
 and later, the latest artifact for a ref is always kept, regardless of the expiry time.
 
 #### `artifacts:reports`
@@ -3253,6 +3349,8 @@ one can be deployed to, but there can be only one deployment per device at any g
 NOTE: **Note:**
 This key can only contain letters, digits, `-`, `_`, `/`, `$`, `{`, `}`, `.`, and spaces.
 It can't start or end with `/`.
+
+For more information, see [Deployments Safety](../environments/deployment_safety.md).
 
 ### `pages`
 

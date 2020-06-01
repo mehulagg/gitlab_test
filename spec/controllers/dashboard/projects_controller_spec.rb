@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Dashboard::ProjectsController do
+RSpec.describe Dashboard::ProjectsController do
   include ExternalAuthorizationServiceHelpers
 
   describe '#index' do
@@ -100,6 +100,50 @@ describe Dashboard::ProjectsController do
       end
 
       it 'returns success' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      it 'paginates the records' do
+        subject
+
+        expect(assigns(:projects).count).to eq(1)
+      end
+    end
+
+  end
+
+  context 'admin json request' do
+    render_views
+
+    let(:user) { create(:admin) }
+
+    before do
+      sign_in(user)
+    end
+
+    describe 'GET /removed.json' do
+      subject { get :removed, format: :json }
+
+      let(:projects) { create_list(:project, 2, creator: user) }
+
+      before do
+        allow(Kaminari.config).to receive(:default_per_page).and_return(1)
+
+        projects.each do |project|
+          project.add_developer(user)
+          ::Projects::UpdateService.new(
+            project,
+            user,
+            { archived: true,
+              marked_for_deletion_at: Time.current.utc,
+              deleting_user: user }
+          ).execute
+        end
+      end
+
+      it 'returns success for admin user' do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)

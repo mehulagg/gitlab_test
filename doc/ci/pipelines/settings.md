@@ -62,7 +62,7 @@ if the job surpasses the threshold, it is marked as failed.
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17221) in GitLab 10.7.
 
 Project defined timeout (either specific timeout set by user or the default
-60 minutes timeout) may be [overridden on Runner level](../runners/README.md#setting-maximum-job-timeout-for-a-runner).
+60 minutes timeout) may be [overridden on Runner level](../runners/README.md#set-maximum-job-timeout-for-a-runner).
 
 ## Maximum artifacts size **(CORE ONLY)**
 
@@ -142,7 +142,7 @@ If you want to see the evolution of your project code coverage over time,
 you can download a CSV file with this data. From your project:
 
 1. Go to **{chart}** **Project Analytics > Repository**.
-1. Click **Download raw data (.csv)**
+1. Click **Download raw data (`.csv`)**
 
 ### Removing color codes
 
@@ -227,6 +227,8 @@ To avoid this scenario:
 1. Click **Save changes**.
 
 The pending deployment jobs will be skipped.
+
+For more information, see [Deployment safety](../environments/deployment_safety.md).
 
 ## Pipeline Badges
 

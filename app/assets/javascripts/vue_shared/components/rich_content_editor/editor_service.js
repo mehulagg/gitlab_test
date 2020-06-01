@@ -22,15 +22,21 @@ export const generateToolbarItem = config => {
   return {
     type: 'button',
     options: {
-      el: buildWrapper({ props: { icon }, class: classes }),
+      el: buildWrapper({ props: { icon, tooltip }, class: classes }),
       event,
       command,
-      tooltip,
     },
   };
 };
 
-export const addCustomEventListener = (editorInstance, event, handler) => {
-  editorInstance.eventManager.addEventType(event);
-  editorInstance.eventManager.listen(event, handler);
+export const addCustomEventListener = (editorApi, event, handler) => {
+  editorApi.eventManager.addEventType(event);
+  editorApi.eventManager.listen(event, handler);
 };
+
+export const removeCustomEventListener = (editorApi, event, handler) =>
+  editorApi.eventManager.removeEventHandler(event, handler);
+
+export const addImage = ({ editor }, image) => editor.exec('AddImage', image);
+
+export const getMarkdown = editorInstance => editorInstance.invoke('getMarkdown');

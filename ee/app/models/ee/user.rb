@@ -58,6 +58,8 @@ module EE
       has_many :smartcard_identities
       has_many :scim_identities
 
+      has_many :board_preferences, class_name: 'BoardUserPreference', inverse_of: :user
+
       belongs_to :managing_group, class_name: 'Group', optional: true, inverse_of: :managed_users
 
       scope :not_managed, ->(group: nil) {
@@ -337,8 +339,8 @@ module EE
       filter = user_preference.feature_filter_type.presence || 0
 
       # We use a 2nd feature flag for control as enabled and percentage_of_time for chatops
-      flipper_feature = ::Feature.get((feature.to_s + '_control').to_sym)
-      percentage ||= flipper_feature.gate_values[:percentage_of_time] || 0 if flipper_feature
+      flipper_feature = ::Feature.get((feature.to_s + '_control').to_sym) # rubocop:disable Gitlab/AvoidFeatureGet
+      percentage ||= flipper_feature&.percentage_of_time_value || 0
       return false if percentage <= 0
 
       if filter == UserPreference::FEATURE_FILTER_UNKNOWN

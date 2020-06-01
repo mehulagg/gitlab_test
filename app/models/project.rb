@@ -33,6 +33,7 @@ class Project < ApplicationRecord
   include OptionallySearch
   include FromUnion
   include IgnorableColumns
+  include Integration
   extend Gitlab::Cache::RequestCache
 
   extend Gitlab::ConfigHelper
@@ -95,8 +96,7 @@ class Project < ApplicationRecord
   after_create :create_project_feature, unless: :project_feature
 
   after_create :create_ci_cd_settings,
-    unless: :ci_cd_settings,
-    if: proc { ProjectCiCdSetting.available? }
+    unless: :ci_cd_settings
 
   after_create :create_container_expiration_policy,
                unless: :container_expiration_policy
@@ -198,7 +198,7 @@ class Project < ApplicationRecord
   has_one :error_tracking_setting, inverse_of: :project, class_name: 'ErrorTracking::ProjectErrorTrackingSetting'
   has_one :metrics_setting, inverse_of: :project, class_name: 'ProjectMetricsSetting'
   has_one :grafana_integration, inverse_of: :project
-  has_one :project_setting, ->(project) { where_or_create_by(project: project) }, inverse_of: :project
+  has_one :project_setting, inverse_of: :project, autosave: true
   has_one :alerting_setting, inverse_of: :project, class_name: 'Alerting::ProjectAlertingSetting'
 
   # Merge Requests for target project should be removed with it
@@ -282,7 +282,7 @@ class Project < ApplicationRecord
           class_name: 'Ci::Pipeline',
           inverse_of: :project
   has_many :stages, class_name: 'Ci::Stage', inverse_of: :project
-  has_many :ci_refs, class_name: 'Ci::Ref'
+  has_many :ci_refs, class_name: 'Ci::Ref', inverse_of: :project
 
   # Ci::Build objects store data on the file system such as artifact files and
   # build traces. Currently there's no efficient way of removing this data in
@@ -372,9 +372,11 @@ class Project < ApplicationRecord
   delegate :root_ancestor, to: :namespace, allow_nil: true
   delegate :last_pipeline, to: :commit, allow_nil: true
   delegate :external_dashboard_url, to: :metrics_setting, allow_nil: true, prefix: true
+  delegate :dashboard_timezone, to: :metrics_setting, allow_nil: true, prefix: true
   delegate :default_git_depth, :default_git_depth=, to: :ci_cd_settings, prefix: :ci
   delegate :forward_deployment_enabled, :forward_deployment_enabled=, :forward_deployment_enabled?, to: :ci_cd_settings
   delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
+  delegate :allow_merge_on_skipped_pipeline, :allow_merge_on_skipped_pipeline?, :allow_merge_on_skipped_pipeline=, to: :project_setting
 
   # Validations
   validates :creator, presence: true, on: :create
@@ -726,6 +728,10 @@ class Project < ApplicationRecord
     super
   end
 
+  def project_setting
+    super.presence || build_project_setting
+  end
+
   def all_pipelines
     if builds_enabled?
       super
@@ -900,17 +906,6 @@ class Project < ApplicationRecord
 
   def jira_import_status
     latest_jira_import&.status || 'initial'
-  end
-
-  def validate_jira_import_settings!(user: nil)
-    raise Projects::ImportService::Error, _('Jira integration not configured.') unless jira_service&.active?
-
-    if user
-      raise Projects::ImportService::Error, _('Cannot import because issues are not available in this project.') unless feature_available?(:issues, user)
-      raise Projects::ImportService::Error, _('You do not have permissions to run the import.') unless user.can?(:admin_project, self)
-    end
-
-    raise Projects::ImportService::Error, _('Unable to connect to the Jira instance. Please check your Jira integration configuration.') unless jira_service.test(nil)[:success]
   end
 
   def human_import_status_name
@@ -2418,6 +2413,10 @@ class Project < ApplicationRecord
   override :after_wiki_activity
   def after_wiki_activity
     touch(:last_activity_at, :last_repository_updated_at)
+  end
+
+  def metrics_setting
+    super || build_metrics_setting
   end
 
   private
