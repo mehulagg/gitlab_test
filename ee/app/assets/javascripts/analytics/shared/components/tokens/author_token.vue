@@ -44,7 +44,7 @@ export default {
     },
     searchAuthors: debounce(function debounceSearch({ data }) {
       console.log('data', data);
-      this.fetchAuthors(data);
+      if (data?.length) this.fetchAuthors(data);
     }, SEARCH_DELAY),
     activeUser() {
       return false;
@@ -53,24 +53,23 @@ export default {
   methods: {
     ...mapActions('filters', ['fetchAuthors']),
   },
+  defaultSuggestions: [],
 };
 </script>
 
 <template>
-  <gl-filtered-search-token
-    :config="config"
-    v-bind="{ ...$props, ...$attrs }"
-    v-on="$listeners"
-    @input="searchAuthors"
-  >
-    <template #view="{inputValue}">
-      <gl-avatar
+  <gl-filtered-search-token :config="config" v-bind="{ ...this.$attrs }" v-on="$listeners">
+    <!-- TODO: might need to do something like -->
+    <!-- v-bind="{ ...$props, ...$attrs }" -->
+    <!-- v-on="$listeners" @input="searchAuthors"> -->
+    <template #view="{ inputValue }">
+      <!-- <gl-avatar
         v-if="activeUser"
         :size="16"
         :src="activeUser.avatar_url"
         shape="circle"
         class="gl-mr-2"
-      />
+      /> -->
       <span>{{ activeUser ? activeUser.name : inputValue }}</span>
     </template>
     <template #suggestions>
@@ -78,19 +77,18 @@ export default {
         $options.anyTriggerAuthor
       }}</gl-filtered-search-suggestion>
       <gl-dropdown-divider />
-
       <gl-loading-icon v-if="config.isLoading" />
       <template v-else>
         <gl-filtered-search-suggestion
-          v-for="user in authors"
-          :key="user.username"
-          :value="user.username"
+          v-for="author in authors"
+          :key="author.username"
+          :value="author.username"
         >
           <div class="d-flex">
-            <gl-avatar :size="32" :src="user.avatar_url" />
+            <gl-avatar :size="32" :src="author.avatar_url" />
             <div>
-              <div>{{ user.name }}</div>
-              <div>@{{ user.username }}</div>
+              <div>{{ author.name }}</div>
+              <div>@{{ author.username }}</div>
             </div>
           </div>
         </gl-filtered-search-suggestion>

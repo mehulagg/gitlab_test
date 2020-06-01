@@ -44,6 +44,9 @@ export const fetchAuthors = ({ commit, state }, query = '') => {
   // NOTE: should this be scoped to the selected project?
   commit(types.REQUEST_AUTHORS);
 
+  console.log('state', state)
+  console.log('query', query)
+
   return Api.users({ query })
     .then(({ data }) => {
       commit(types.RECEIVE_AUTHORS_SUCCESS, data);

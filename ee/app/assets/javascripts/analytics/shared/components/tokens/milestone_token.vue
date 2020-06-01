@@ -25,8 +25,14 @@ export default {
       required: true,
     },
   },
+  mounted() {
+    console.log('milestone::config', this.config);
+    console.log('milestone::value', this.value);
+  },
   computed: {
     milestones() {
+      console.log('milestone::config', this.config);
+      console.log('milestone::value', this.value);
       return this.config.milestones;
     },
     filteredMilestones() {

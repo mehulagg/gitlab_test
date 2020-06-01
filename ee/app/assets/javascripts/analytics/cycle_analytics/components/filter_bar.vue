@@ -32,6 +32,8 @@ export default {
       milestonesLoading: state => state.milestones.isLoading,
       labels: state => state.labels.data,
       labelsLoading: state => state.labels.isLoading,
+      authors: state => state.authors.data,
+      authorsLoading: state => state.authors.isLoading,
     }),
     tokens() {
       return [
@@ -61,10 +63,11 @@ export default {
           title: __('Author'),
           type: 'author',
           token: AuthorToken,
-          users: this.users,
+          users: this.authors,
           unique: false,
           // symbol: '~', //
-          isLoading: this.usersLoading,
+          isLoading: this.authorsLoading,
+          operators: [{ value: '=', description: 'is', default: 'true' }],
         },
         // {
         //   icon: 'user',
