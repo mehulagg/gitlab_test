@@ -18,6 +18,24 @@ module Ci
 
       # run only ref protected builds
       attr_accessor :only_ref_protected
+
+      def key_params
+        [
+          [:runner_type, runner_type],
+          [:group_ids, group_ids&.sort],
+          [:project_ids, project_ids&.sort],
+          [:tag_names, tag_names&.sort],
+          [:run_untagged, run_untagged],
+          [:only_ref_protected, only_ref_protected]
+        ]
+      end
+
+      def key
+        # This is not security solution, but rather a way for us to generate
+        # the same unique name for the same parameters
+        # The most important here is the performance
+        Digest::MD5.hexdigest(key_params.to_json)
+      end
     end
   end
 end

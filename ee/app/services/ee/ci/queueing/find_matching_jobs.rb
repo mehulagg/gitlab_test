@@ -11,18 +11,18 @@ module EE
   
           enforce_minutes_based_on_cost_factors(super)
         end
-  
+
         # rubocop: disable CodeReuse/ActiveRecord
         def enforce_minutes_based_on_cost_factors(relation)
           visibility_relation = ::Ci::Build.where(
             projects: { visibility_level: params.visibility_levels_without_minutes_quota })
-  
+
           enforce_limits_relation = ::Ci::Build.where('EXISTS (?)', builds_check_limit)
-  
+
           relation.merge(visibility_relation.or(enforce_limits_relation))
         end
         # rubocop: enable CodeReuse/ActiveRecord
-  
+
         # rubocop: disable CodeReuse/ActiveRecord
         def builds_check_limit
           all_namespaces
@@ -37,18 +37,18 @@ module EE
             .select('1')
         end
         # rubocop: enable CodeReuse/ActiveRecord
-  
+
         # rubocop: disable CodeReuse/ActiveRecord
         def all_namespaces
           namespaces = ::Namespace.reorder(nil).where('namespaces.id = projects.namespace_id')
           ::Gitlab::ObjectHierarchy.new(namespaces).roots
         end
         # rubocop: enable CodeReuse/ActiveRecord
-  
+
         def application_shared_runners_minutes
           ::Gitlab::CurrentSettings.shared_runners_minutes
         end
-  
+
         def shared_runner_build_limits_feature_enabled?
           ENV['DISABLE_SHARED_RUNNER_BUILD_MINUTES_LIMIT'].to_s != 'true'
         end

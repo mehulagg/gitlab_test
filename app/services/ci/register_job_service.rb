@@ -34,7 +34,11 @@ module Ci
     private
 
     def queueing_method
-      ::Ci::Queueing::LegacyDatabaseMethod.new(runner)
+      if Feature.enabled?(:ci_redis_queueing_method)
+        ::Ci::Queueing::RedisMethod.new(runner)
+      else
+        ::Ci::Queueing::LegacyDatabaseMethod.new(runner)
+      end
     end
 
     def process_build(build, params)

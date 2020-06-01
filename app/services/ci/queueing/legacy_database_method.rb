@@ -14,14 +14,14 @@ module Ci
           .new(runner.queueing_params)
           .execute
 
-        conflict = false
+        valid = true
 
         found_build = builds.find do |build|
           case result = yield(build)
           when :success
             true
           when :conflict
-            conflict = true
+            valid = false
             false
           when :skip
             false
@@ -32,10 +32,8 @@ module Ci
 
         if found_build
           Result.new(found_build, true)
-        elsif conflict
-          Result.new(nil, false)
         else
-          Result.new(nil, true)
+          Result.new(nil, valid)
         end
       end
     end

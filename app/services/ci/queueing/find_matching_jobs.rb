@@ -17,9 +17,7 @@ module Ci
         end
 
         # pick builds that does not have other tags than runner's one
-        builds = builds.matches_tag_ids(
-          ActsAsTaggableOn::Tag.where(name: params.tag_names).select(:id)
-        )
+        builds = builds.matches_tag_ids(tag_ids)
 
         # pick builds that have at least one tag
         unless params.run_untagged
@@ -89,6 +87,12 @@ module Ci
       def running_builds_for_shared_runners
         Ci::Build.running.where(runner: Ci::Runner.instance_type)
           .group(:project_id).select(:project_id, 'count(*) AS running_builds')
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
+
+      # rubocop: disable CodeReuse/ActiveRecord
+      def tag_ids
+        ActsAsTaggableOn::Tag.where(name: params.tag_names).select(:id)
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
