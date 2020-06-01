@@ -19,7 +19,6 @@ export default {
     ...mapState('createModal', {
       rule: 'data',
     }),
-    // rule: { name: 'License-Compliance' },
     title() {
       return this.rule ? __('Update approval rule') : __('Add approval rule');
     },

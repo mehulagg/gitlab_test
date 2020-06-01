@@ -52,12 +52,9 @@ export default {
     },
   },
   mounted() {
-    // @TODO - make dynamic
-    this.fetchRules('master');
     this.fetchManagedLicenses();
   },
   methods: {
-    ...mapActions(['fetchRules']),
     ...mapActions(LICENSE_MANAGEMENT, ['fetchManagedLicenses', 'setLicenseApproval']),
     openAddLicenseForm() {
       this.formIsOpen = true;

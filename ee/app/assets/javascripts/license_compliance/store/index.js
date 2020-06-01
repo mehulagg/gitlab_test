@@ -34,6 +34,7 @@ export default () =>
       [LICENSE_MANAGEMENT]: licenseManagementModule(),
       approvals: projectSettingsModule(),
       createModal: modalModule(),
+      deleteModal: modalModule(),
     },
     plugins: [mediator],
   });
