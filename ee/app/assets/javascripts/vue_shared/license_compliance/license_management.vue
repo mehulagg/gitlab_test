@@ -8,7 +8,7 @@ import LicenseManagementRow from './components/license_management_row.vue';
 import DeleteConfirmationModal from './components/delete_confirmation_modal.vue';
 import PaginatedList from '~/vue_shared/components/paginated_list.vue';
 
-import ModalRuleCreate from '../../approvals/components/modal_rule_create.vue';
+import LicenseComplianceApprovals from '../../approvals/components/license_compliance/app.vue';
 
 import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/constants';
 
@@ -22,7 +22,7 @@ export default {
     GlDeprecatedButton,
     GlLoadingIcon,
     PaginatedList,
-    ModalRuleCreate,
+    LicenseComplianceApprovals,
   },
   data() {
     return {
@@ -59,7 +59,6 @@ export default {
   methods: {
     ...mapActions(['fetchRules']),
     ...mapActions(LICENSE_MANAGEMENT, ['fetchManagedLicenses', 'setLicenseApproval']),
-    ...mapActions({ openCreateModal: 'createModal/open' }),
     openAddLicenseForm() {
       this.formIsOpen = true;
     },
@@ -100,8 +99,7 @@ export default {
             {{ s__('LicenseCompliance|Add a license') }}
           </gl-deprecated-button>
 
-          <gl-deprecated-button @click="openCreateModal(null)">{{ __('Yo') }}</gl-deprecated-button>
-          <modal-rule-create modal-id="yo" />
+          <license-compliance-approvals />
         </div>
 
         <template v-else>

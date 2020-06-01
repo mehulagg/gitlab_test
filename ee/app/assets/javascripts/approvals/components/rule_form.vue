@@ -23,6 +23,11 @@ export default {
       required: false,
       default: null,
     },
+    lockedName: {
+      type: String,
+      required: false,
+      default: '',
+    },
     isMrEdit: {
       type: Boolean,
       default: true,
@@ -129,7 +134,7 @@ export default {
       return this.initRule && this.initRule.id;
     },
     isNameDisabled() {
-      return this.isPersisted && READONLY_NAMES.includes(this.name);
+      return (this.isPersisted && READONLY_NAMES.includes(this.name)) || this.lockedRuleName;
     },
     removeHiddenGroups() {
       return this.containsHiddenGroups && !this.approversByType[TYPE_HIDDEN_GROUPS];
@@ -137,7 +142,7 @@ export default {
     submissionData() {
       return {
         id: this.initRule && this.initRule.id,
-        name: this.name || DEFAULT_NAME,
+        name: this.lockedName || this.name || DEFAULT_NAME,
         approvalsRequired: this.approvalsRequired,
         users: this.userIds,
         groups: this.groupIds,
@@ -266,7 +271,7 @@ export default {
 <template>
   <form novalidate @submit.prevent.stop="submit">
     <div class="row">
-      <div class="form-group col-sm-6">
+      <div v-if="!lockedName" class="form-group col-sm-6">
         <label class="label-wrapper">
           <span class="mb-2 bold inline">{{ s__('ApprovalRule|Rule name') }}</span>
           <input
