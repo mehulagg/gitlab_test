@@ -10,6 +10,7 @@ module QA
 
         def setup
           @k3s = Service::DockerRun::K3s.new.tap do |k3s|
+            k3s.remove! # ensure k3s is not running from previous setup
             k3s.register!
 
             shell "kubectl config set-cluster k3s --server https://#{k3s.host_name}:6443 --insecure-skip-tls-verify"
@@ -26,6 +27,8 @@ module QA
 
                 # patch local storage
                 shell %(kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}')
+                # need to remove traefik that comes with k3s by default to use ingress gitlab managed app
+                shell 'kubectl delete -n kube-system helmcharts traefik'
               end
             end
           end

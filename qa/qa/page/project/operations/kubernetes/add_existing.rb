@@ -20,7 +20,11 @@ module QA
             end
 
             def set_api_url(api_url)
-              fill_in 'cluster_platform_kubernetes_attributes_api_url', with: api_url
+              if QA::Runtime::Env.cluster_api_url?
+                fill_in 'cluster_platform_kubernetes_attributes_api_url', with: QA::Runtime::Env.cluster_api_url
+              else
+                fill_in 'cluster_platform_kubernetes_attributes_api_url', with: api_url
+              end
             end
 
             def set_ca_certificate(ca_certificate)
