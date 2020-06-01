@@ -20,8 +20,6 @@ class Email < ApplicationRecord
   # and should be added after Devise modules are initialized.
   include AsyncDeviseEmail
 
-  self.reconfirmable = false # currently email can't be changed, no need to reconfirm
-
   delegate :username, :can?, to: :user
 
   def email=(value)
