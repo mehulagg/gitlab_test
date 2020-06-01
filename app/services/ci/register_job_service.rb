@@ -11,49 +11,41 @@ module Ci
     METRICS_SHARD_TAG_PREFIX = 'metrics_shard::'.freeze
     DEFAULT_METRICS_SHARD = 'default'.freeze
 
-    Result = Struct.new(:build, :valid?)
-
     def initialize(runner)
       @runner = runner
     end
 
     # rubocop: disable CodeReuse/ActiveRecord
     def execute(params = {})
-      valid = true
-
-      builds = ::Ci::Queueing::FindMatchingJobs
-        .new(runner.queueing_params)
-        .execute
-
-      builds.each do |build|
-        result = process_build(build, params)
-        next unless result
-
-        if result.valid?
-          register_success(result.build)
-
-          return result
-        else
-          # The usage of valid: is described in
-          # handling of ActiveRecord::StaleObjectError
-          valid = false
-        end
+      result = queueing_method.find do |build|
+        process_build(build, params)
       end
 
-      register_failure
-      Result.new(nil, valid)
+      if result.build
+        register_success(result.build)
+      else
+        register_failure
+      end
+
+      result
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
     private
 
+    def queueing_method
+      ::Ci::Queueing::LegacyDatabaseMethod.new(runner)
+    end
+
     def process_build(build, params)
-      return unless runner.can_pick?(build)
+      return :skip unless runner.can_pick?(build)
 
       # In case when 2 runners try to assign the same build, second runner will be declined
       # with StateMachines::InvalidTransition or StaleObjectError when doing run! or save method.
       if assign_runner!(build, params)
-        Result.new(build, true)
+        :success
+      else
+        :skip
       end
     rescue StateMachines::InvalidTransition, ActiveRecord::StaleObjectError
       # We are looping to find another build that is not conflicting
@@ -65,13 +57,13 @@ module Ci
       # In case we hit the concurrency-access lock,
       # we still have to return 409 in the end,
       # to make sure that this is properly handled by runner.
-      Result.new(nil, false)
+      :conflict
     rescue => ex
       scheduler_failure!(build)
       track_exception_for_build(ex, build)
 
       # skip, and move to next one
-      nil
+      :skip
     end
 
     def assign_runner!(build, params)

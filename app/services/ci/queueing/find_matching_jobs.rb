@@ -98,3 +98,5 @@ module Ci
     end
   end
 end
+
+Ci::Queueing::FindMatchingJobs.prepend_if_ee('EE::Ci::Queueing::FindMatchingJobs')
