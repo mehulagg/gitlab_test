@@ -11139,7 +11139,10 @@ CREATE TABLE public.emails (
     updated_at timestamp without time zone,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
-    confirmation_sent_at timestamp without time zone
+    confirmation_sent_at timestamp without time zone,
+    unconfirmed_email text,
+    is_primary boolean DEFAULT false NOT NULL,
+    CONSTRAINT check_0d4d73e4ba CHECK ((char_length(unconfirmed_email) <= 254))
 );
 
 CREATE SEQUENCE public.emails_id_seq
@@ -18973,6 +18976,8 @@ CREATE UNIQUE INDEX index_emails_on_email ON public.emails USING btree (email);
 
 CREATE INDEX index_emails_on_user_id ON public.emails USING btree (user_id);
 
+CREATE UNIQUE INDEX index_emails_on_user_id_and_is_primary ON public.emails USING btree (user_id, is_primary) WHERE (is_primary IS TRUE);
+
 CREATE INDEX index_enabled_clusters_on_id ON public.clusters USING btree (id) WHERE (enabled = true);
 
 CREATE INDEX index_environments_on_auto_stop_at ON public.environments USING btree (auto_stop_at) WHERE (auto_stop_at IS NOT NULL);
@@ -21255,6 +21260,9 @@ ALTER TABLE ONLY public.events
 ALTER TABLE ONLY public.vulnerabilities
     ADD CONSTRAINT fk_efb96ab1e2 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.emails
+    ADD CONSTRAINT fk_emails_user_id FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.clusters
     ADD CONSTRAINT fk_f05c5e5a42 FOREIGN KEY (management_project_id) REFERENCES public.projects(id) ON DELETE SET NULL;
 
@@ -23468,6 +23476,10 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200528123703
 20200528125905
 20200528171933
+20200601195730
+20200601200204
+20200601203425
+20200601203642
 20200601210148
 20200602013900
 20200602013901

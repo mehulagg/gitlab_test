@@ -1,0 +1,6 @@
+---
+title: Add columns and foreign key to Email in preparation for migrating user primary
+  email
+merge_request:
+author:
+type: changed
