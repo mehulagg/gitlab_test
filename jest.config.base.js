@@ -89,4 +89,5 @@ module.exports = path => {
       IS_EE,
     },
   };
+
 };
