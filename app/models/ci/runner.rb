@@ -248,6 +248,7 @@ module Ci
     end
 
     def can_pick?(build)
+      # TODO: This should use `queueing params`
       return false if self.ref_protected? && !build.protected?
 
       assignable_for?(build.project_id) && accepting_tags?(build)
@@ -287,6 +288,17 @@ module Ci
 
     def runner_queue_value_latest?(value)
       ensure_runner_queue_value == value if value.present?
+    end
+
+    def queueing_params
+      ::Ci::Queueing::Params.new.tap do |params|
+        params.runner_type = runner_type
+        params.group_ids = runner_namespaces.pluck(:namespace_id) if group_type?
+        params.project_ids = runner_projects.pluck(:project_id) if project_type?
+        params.tag_names = tags.map(&:name)
+        params.run_untagged = run_untagged?
+        params.only_ref_protected = ref_protected?
+      end
     end
 
     def heartbeat(values)

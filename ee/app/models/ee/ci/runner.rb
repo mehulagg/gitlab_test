@@ -11,6 +11,12 @@ module EE
         super
       end
 
+      def queueing_params
+        super.tap do |params|
+          params.visibility_levels_without_minutes_quota = visibility_levels_without_minutes_quota
+        end
+      end
+
       def minutes_cost_factor(access_level)
         return 0.0 unless instance_type?
 
