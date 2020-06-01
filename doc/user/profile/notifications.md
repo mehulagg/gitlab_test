@@ -241,3 +241,20 @@ reason `assigned` will have this sentence in the footer:
 
 NOTE: **Note:**
 Notification of other events is being considered for inclusion in the `X-GitLab-NotificationReason` header. For details, see this [related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/20689).
+
+## Troubleshooting
+
+### Pull a list of recipients for notifications
+
+In the case of needing to pull a list of recipients who shall receive notifications of a project (mainly used for troubleshooting custom notifications)
+Run the following in a rails console `sudo gitlab-rails c` and be sure to update project name:
+
+```
+project = Project.find_by_full_path '<project_name>'
+merge_request = project.merge_requests.find_by(iid: 1)
+current_user = User.first
+recipients = NotificationRecipients::BuildService.build_recipients(merge_request, current_user, action: "push_to"); recipients.count
+recipients.each { |notify| puts notify.user.username }
+```
+
+
