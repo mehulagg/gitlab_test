@@ -57,6 +57,16 @@ module QA
           dashboard.show_last('1 day')
           expect(dashboard).to have_metrics
         end
+
+        it 'uses templating variables' do
+          # 1. upload variables.yml
+          # 2. go to the metrics and select a combo of variables and filter by time-range
+          # 3. assert that metrics are loaded
+          # 4. copy URL open in new page (or paste in issue)
+          # 5. assert variable values are persistent
+          # 6. delete templating variables from repo
+          # 7. go to the metrics and assert templating variables are removed
+        end
       end
 
       private
