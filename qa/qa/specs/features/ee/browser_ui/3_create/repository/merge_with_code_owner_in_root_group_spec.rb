@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# QA file change
+
 module QA
   # These tests will fail unless the feature flag `skip_web_ui_code_owner_validations` is enabled.
   # That requirement is temporary. See https://gitlab.com/gitlab-org/gitlab/-/issues/217427
