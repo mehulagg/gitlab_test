@@ -82,6 +82,8 @@ FDOC=1 bin/rspec spec/[path]/[to]/[spec].rb
   when you need an ID/IID/access level that doesn't actually exists. Using 123, 1234,
   or even 999 is brittle as these IDs could actually exist in the database in the
   context of a CI run.
+- When updating an ActiveRecord object, result of `.update(attr: value)` should be checked whether if it is true or not.
+  If you don't check the result, use `.update!` in order to be sure of successful update.
 
 ### Coverage
 
