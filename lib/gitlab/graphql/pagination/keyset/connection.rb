@@ -35,42 +35,37 @@ module Gitlab
           # rubocop: disable Naming/PredicateName
           # https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo.Fields
           def has_previous_page
-            strong_memoize(:has_previous_page) do
-              if after
-                # If `after` is specified, that points to a specific record,
-                # even if it's the first one.  Since we're asking for `after`,
-                # then the specific record we're pointing to is in the
-                # previous page
-                true
-              elsif last
-                limited_nodes
-                !!@has_previous_page
-              else
-                # Key thing to remember.  When `before` is specified (and no `last`),
-                # the spec says return _all_ edges minus anything after the `before`.
-                # Which means the returned list starts at the very first record.
-                # Then the max_page kicks in, and returns the first max_page items.
-                # Because of this, `has_previous_page` will be false
-                false
-              end
+            if after
+              # If `after` is specified, that points to a specific record,
+              # even if it's the first one.  Since we're asking for `after`,
+              # then the specific record we're pointing to is in the
+              # previous page
+              true
+            elsif last
+              limited_nodes
+              @has_previous_page
+            else
+              # Key thing to remember.  When `before` is specified (and no `last`),
+              # the spec says return _all_ edges minus anything after the `before`.
+              # Which means the returned list starts at the very first record.
+              # Then the max_page kicks in, and returns the first max_page items.
+              # Because of this, `has_previous_page` will be false
+              false
             end
           end
 
           def has_next_page
-            strong_memoize(:has_next_page) do
-              if before
-                # If `before` is specified, that points to a specific record,
-                # even if it's the last one.  Since we're asking for `before`,
-                # then the specific record we're pointing to is in the
-                # next page
-                true
-              elsif first
-                # If we count the number of requested items plus one (`limit_value + 1`),
-                # then if we get `limit_value + 1` then we know there is a next page
-                relation_count(set_limit(sliced_nodes, limit_value + 1)) == limit_value + 1
-              else
-                false
-              end
+            if before
+              # If `before` is specified, that points to a specific record,
+              # even if it's the last one.  Since we're asking for `before`,
+              # then the specific record we're pointing to is in the
+              # next page
+              true
+            elsif first
+              limited_nodes
+              @has_next_page
+            else
+              false
             end
           end
           # rubocop: enable Naming/PredicateName
@@ -104,22 +99,19 @@ module Gitlab
 
           # Apply `first` and `last` to `sliced_nodes`
           def limited_nodes
-            strong_memoize(:limited_nodes) do
+            @limited_nodes ||= begin
               if first && last
                 raise Gitlab::Graphql::Errors::ArgumentError.new("Can only provide either `first` or `last`, not both")
               end
 
               if last
-                # grab one more than we need
                 paginated_nodes = sliced_nodes.last(limit_value + 1)
-
-                if paginated_nodes.count > limit_value
-                  # there is an extra node, so there is a previous page
-                  @has_previous_page = true
-                  paginated_nodes = paginated_nodes.last(limit_value)
-                end
+                @has_previous_page = paginated_nodes.length > limit_value
+                paginated_nodes = paginated_nodes.last(limit_value)
               else
-                paginated_nodes = sliced_nodes.limit(limit_value) # rubocop: disable CodeReuse/ActiveRecord
+                paginated_nodes = sliced_nodes.limit(limit_value + 1) # rubocop: disable CodeReuse/ActiveRecord
+                @has_next_page = paginated_nodes.load.length > limit_value
+                paginated_nodes = paginated_nodes.first(limit_value)
               end
 
               paginated_nodes
