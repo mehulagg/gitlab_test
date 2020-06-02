@@ -15,6 +15,7 @@ import {
   TREE_TYPE,
   INLINE_DIFF_VIEW_TYPE,
   PARALLEL_DIFF_VIEW_TYPE,
+  DIFF_FILE_SYMLINK_MODE,
 } from '../constants';
 
 export function findDiffFile(files, match, matchKey = 'file_hash') {
@@ -290,8 +291,18 @@ function cleanRichText(text) {
   return text ? text.replace(/^[+ -]/, '') : undefined;
 }
 
-function prepareLine(line) {
+function prepareLine(line, file) {
   if (!line.alreadyPrepared) {
+    if( Number( file.blob.mode ) === DIFF_FILE_SYMLINK_MODE && line.line_code ){
+      const lineCodeIsFileHashBased = line.line_code.startsWith(file.file_hash);
+      const upgradedLineCode = line.line_code.replace( file.file_hash, file.file_identifier_hash );
+
+      Object.assign( line, {
+        line_code: lineCodeIsFileHashBased ? upgradedLineCode : line.line_code
+      } );
+    }
+
+
     Object.assign(line, {
       rich_text: cleanRichText(line.rich_text),
       discussionsExpanded: true,
@@ -326,7 +337,7 @@ export function prepareLineForRenamedFile({ line, diffViewType, diffFile, index 
     old_line: lineNumber,
   };
 
-  prepareLine(cleanLine); // WARNING: In-Place Mutations!
+  prepareLine(cleanLine, diffFile); // WARNING: In-Place Mutations!
 
   if (diffViewType === PARALLEL_DIFF_VIEW_TYPE) {
     return {
@@ -344,19 +355,19 @@ function prepareDiffFileLines(file) {
   const parallelLines = file.parallel_diff_lines;
   let parallelLinesCount = 0;
 
-  inlineLines.forEach(prepareLine);
+  inlineLines.forEach((line) => prepareLine(line, file));
 
   parallelLines.forEach((line, index) => {
     Object.assign(line, { line_code: getLineCode(line, index) });
 
     if (line.left) {
       parallelLinesCount += 1;
-      prepareLine(line.left);
+      prepareLine(line.left, file);
     }
 
     if (line.right) {
       parallelLinesCount += 1;
-      prepareLine(line.right);
+      prepareLine(line.right, file);
     }
   });
 

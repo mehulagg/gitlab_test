@@ -2,13 +2,16 @@
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { escape } from 'lodash';
 import { GlLoadingIcon } from '@gitlab/ui';
+
 import { __, sprintf } from '~/locale';
 import createFlash from '~/flash';
 import { hasDiff } from '~/helpers/diffs_helper';
+import { diffViewerErrors } from '~/ide/constants';
+
 import eventHub from '../../notes/event_hub';
 import DiffFileHeader from './diff_file_header.vue';
 import DiffContent from './diff_content.vue';
-import { diffViewerErrors } from '~/ide/constants';
+import { DIFF_FILE_SYMLINK_MODE } from "../constants";
 
 export default {
   components: {
@@ -76,6 +79,13 @@ export default {
         false,
       );
     },
+    id() {
+      if( Number( this.file.blob.mode ) === DIFF_FILE_SYMLINK_MODE ){
+        return this.file.file_identifier_hash;
+      }
+
+      return this.file.file_hash;
+    }
   },
   watch: {
     isCollapsed: function fileCollapsedWatch(newVal, oldVal) {
@@ -141,9 +151,9 @@ export default {
 
 <template>
   <div
-    :id="file.file_hash"
+    :id="id"
     :class="{
-      'is-active': currentDiffFileId === file.file_hash,
+      'is-active': currentDiffFileId === id,
     }"
     :data-path="file.new_path"
     class="diff-file file-holder"
@@ -176,7 +186,7 @@ export default {
     </div>
     <gl-loading-icon v-if="showLoadingIcon" class="diff-content loading" />
     <template v-else>
-      <div :id="`diff-content-${file.file_hash}`">
+      <div :id="`diff-content-${id}`">
         <div v-if="errorMessage" class="diff-viewer">
           <div class="nothing-here-block" v-html="errorMessage"></div>
         </div>
