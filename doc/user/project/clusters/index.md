@@ -359,6 +359,39 @@ in a way that causes this error. Ensure you deselect the
 [GitLab-managed cluster](#gitlab-managed-clusters) option if you want to manage
 namespaces and service accounts yourself.
 
+## Configuring pipeline to deploy application with Helm V3
+
+In many cases, users may wish to deploy their application via helm to the Kubernetes cluster
+linked in the repository. Helm v3 is suggested since it removes the need for Tiller.
+
+Before adding a deploy job to your pipeline, you must first configure RBAC
+for Helm following [best practices](https://helm.sh/docs/topics/rbac/)
+
+Once RBAC is configured, we can add something similar to the below to the
+`.gitlab-ci.yaml` for the deploy job. You must already have a [helm chart](https://helm.sh/docs/chart_template_guide/getting_started/)
+created for deploying your application.
+
+```yaml
+deploy_staging:
+  # using a container image containing helm
+  image: docker pull alpine/helm:latest
+  stage: deploy
+  script:
+    # upgrade or install the image
+    - helm install --values <VALUES> <RELEASE_NAME> <CHART_PATH>
+  environment:
+    name: staging
+```
+
+The variables which must be overwritten are as follows:
+
+- **VALUES:** Path to values.yaml file
+- **RELEASE_NAME:** What you want to name the helm release
+- **CHART_PATH:** The path to your helm chart
+
+Note: The helm installed in gitlab-managed-apps namespace is only meant for installing applications
+managed by GitLab and should not be used for installing user applications.
+
 ## Monitoring your Kubernetes cluster **(ULTIMATE)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/4701) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.6.

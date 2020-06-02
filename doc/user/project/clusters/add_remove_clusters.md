@@ -70,6 +70,10 @@ ensure the token of the account has administrator privileges for the cluster.
 
 The resources created by GitLab differ depending on the type of cluster.
 
+NOTE: **Note:**
+GitLab will upgrade to [Helm v3](https://gitlab.com/gitlab-org/gitlab/issues/120021) in future releases
+which remove the need for Tiller.
+
 ### Important notes
 
 Note the following about access controls:
