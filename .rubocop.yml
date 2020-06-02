@@ -445,3 +445,16 @@ Rails/TimeZone:
     - 'spec/models/**/*'
     - 'ee/app/models/**/*'
     - 'ee/spec/models/**/*'
+
+Rails/SaveBang:
+  Enabled: true
+  Include:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+    - 'qa/spec/**/*.rb'
+    - 'qa/qa/specs/**/*.rb'
+  Exclude:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+    - 'qa/spec/**/*.rb'
+    - 'qa/qa/specs/**/*.rb'
