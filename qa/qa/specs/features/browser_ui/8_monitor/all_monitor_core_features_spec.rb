@@ -60,12 +60,26 @@ module QA
 
         it 'uses templating variables' do
           # 1. upload variables.yml
+          upload_variables_yml_file
           # 2. go to the metrics and select a combo of variables and filter by time-range
-          # 3. assert that metrics are loaded
+          Page::Project::Menu.perform(&:go_to_operations_metrics)
+
+          Page::Project::Operations::Metrics::Show.perform do |dashboard|
+            dashboard.show_last('30 minutes')
+            # select variables.yml
+            # select pod
+            # 3. assert that metrics are loaded
+            expect(dashboard).to have_metrics
+          end
+
           # 4. copy URL open in new page (or paste in issue)
+
           # 5. assert variable values are persistent
           # 6. delete templating variables from repo
+          delete_file_from_repository
           # 7. go to the metrics and assert templating variables are removed
+          Page::Project::Menu.perform(&:go_to_operations_metrics)
+
         end
       end
 
@@ -159,6 +173,57 @@ module QA
 
         Page::Project::Operations::Metrics::Show.perform do |dashboard|
           expect(dashboard).not_to have_custom_metric('Throughput')
+        end
+      end
+
+      def upload_variables_yml_file
+        variables_yml_file = <<~YAML
+            dashboard: 'Pod metrics'
+            priority: 10
+            templating:
+              variables:
+                pod_name: 'event-exporter-v0.2.4-5f7d5d7dd4-gtk8b'
+                pod_name2: 'fluentd-gcp-scaler-6965bb45c9-ghl27'
+            panel_groups:
+            - group: CPU metrics
+              panels:
+              - title: "CPU usage"
+                type: "line-chart"
+                y_label: "Cores per pod"
+                metrics:
+                - id: pod_cpu_usage_seconds_total
+                  query_range: 'rate(container_cpu_usage_seconds_total{pod_name="{{pod_name}}"}[5m])'
+                  unit: "cores"
+                  label: pod_name
+              - title: "Memory usage working set"
+                type: "line-chart"
+                y_label: "Working set memory (MiB)"
+                metrics:
+                - id: pod_memory_working_set1
+                  query_range: 'container_memory_working_set_bytes{pod_name="{{pod_name2}}"}/1024/1024'
+                  unit: "MiB"
+                   label: pod_name
+        YAML
+
+        push_file_to_repository(variables_yml_file)
+      end
+
+      def push_file_to_repository(file)
+        @project.visit!
+
+        Page::Project::Show.perform(&:create_new_file!)
+
+        Page::File::Form.perform do |form|
+          form.add_name('.gitlab/dashboards/variables.yml')
+          form.add_content(file)
+          form.commit_changes
+        end
+      end
+
+      def delete_file_from_repository
+        Page::File::Show.act do
+          click_delete
+          click_delete_file
         end
       end
     end

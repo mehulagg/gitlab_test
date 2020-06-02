@@ -40,9 +40,9 @@ export default {
 };
 </script>
 <template>
-  <gl-form-group :label="label">
-    <gl-dropdown toggle-class="dropdown-menu-toggle" :text="defaultText">
-      <gl-dropdown-item v-for="(opt, key) in options" :key="key" @click="onUpdate(opt.value)">{{
+  <gl-form-group :label="label" data-qa-selector="custom_variable_label">
+    <gl-dropdown toggle-class="dropdown-menu-toggle" :text="defaultText" data-qa-selector="custom_variable_dropdown">
+      <gl-dropdown-item v-for="(opt, key) in options" :key="key" data-qa-selector="custom_variable_item" @click="onUpdate(opt.value)">{{
         opt.text
       }}</gl-dropdown-item>
     </gl-dropdown>

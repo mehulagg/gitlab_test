@@ -20,6 +20,12 @@ module QA
               element :range_picker_dropdown
             end
 
+            view 'app/assets/javascripts/monitoring/components/variables/custom_variable.vue' do
+              element :custom_variable_label
+              element :custom_variable_dropdown
+              element :custom_variable_item
+            end
+
             view 'app/assets/javascripts/monitoring/components/duplicate_dashboard_form.vue' do
               element :duplicate_dashboard_filename_field
             end
