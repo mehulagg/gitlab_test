@@ -15,9 +15,7 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
 
   def index
     respond_to do |format|
-      format.html do
-        render_projects
-      end
+      format.html
       format.atom do
         load_events
         render layout: 'xml.atom'
@@ -52,13 +50,6 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
 
   def projects
     @projects ||= load_projects(params.merge(non_public: true))
-  end
-
-  def render_projects
-    # n+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/40260
-    Gitlab::GitalyClient.allow_n_plus_1_calls do
-      render
-    end
   end
 
   def load_projects(finder_params)
