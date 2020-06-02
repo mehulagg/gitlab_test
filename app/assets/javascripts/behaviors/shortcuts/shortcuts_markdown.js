@@ -50,7 +50,7 @@ export default function initMarkdownShortcuts() {
   const boldTextShortcut = meta('b');
   const italicTextShortcut = meta('i');
   const linkTextShortcut = meta('k');
-  
+
   const textareaShortcuts = [
     ...markdownPreviewShortcut,
     ...boldTextShortcut,

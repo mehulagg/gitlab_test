@@ -13,22 +13,22 @@ describe 'Markdown keyboard shortcuts', :js do
     visit project_issue_path(project, issue)
   end
 
-  it 'allows bold formatting with meta+b' do
-    find('#note-body').send_keys(:meta, 'b')
+  it 'allows bold formatting with control+b' do
+    find('#note-body').send_keys(:control, 'b')
 
     expect(textarea_content).to eq '****'
     expect(cursor_position).to eq(2)
   end
 
-  it 'allows italic formatting with meta+i' do
-    find('#note-body').send_keys(:meta, 'i')
+  it 'allows italic formatting with control+i' do
+    find('#note-body').send_keys(:control, 'i')
 
     expect(textarea_content).to eq '**'
     expect(cursor_position).to eq(1)
   end
-  
-  it 'allows link insertion with meta+k' do
-    find('#note-body').send_keys(:meta, 'k')
+
+  it 'allows link insertion with control+k' do
+    find('#note-body').send_keys(:control, 'k')
 
     expect(textarea_content).to eq '[](url)'
     expect(selection_start).to eq(3)
