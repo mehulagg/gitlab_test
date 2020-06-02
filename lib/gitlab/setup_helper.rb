@@ -79,6 +79,7 @@ module Gitlab
           config[:'gitaly-ruby'] = { dir: File.join(gitaly_dir, 'ruby') } if gitaly_ruby
           config[:'gitlab-shell'] = { dir: Gitlab.config.gitlab_shell.path }
           config[:bin_dir] = Gitlab.config.gitaly.client_path
+          config[:gitlab] = { url: Gitlab.config.gitlab.url }
 
           TomlRB.dump(config)
         end
