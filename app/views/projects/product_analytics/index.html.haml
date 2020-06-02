@@ -3,7 +3,7 @@
 = render 'links'
 
 %p
-  Number of events for this project: #{@number_of_events.inspect}
+  = _('Number of events for this project: %{count}') % { count: @events.total_count }
 %ol
   - @events.each do |event|
     %li
