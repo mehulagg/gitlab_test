@@ -21,8 +21,8 @@ module QA
         Page::Profile::PersonalAccessTokens.perform do |token_page|
           token_page.fill_token_name(name || 'api-test-token')
           token_page.check_api
-          # Expire in 2 days just in case the token is created just before midnight
-          token_page.fill_expiry_date(Date.today + 2)
+          # Expire in 3 days to provide enough buffer to cover timezone/environment differences
+          token_page.fill_expiry_date(Date.today + 3)
           token_page.click_create_token_button
         end
       end
