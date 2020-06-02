@@ -12,9 +12,11 @@ class ProductAnalyticsEvent < ApplicationRecord
   # is established we can refactor it.
   scope :by_project, ->(project_id) { where(app_id: project_id.to_s) }
 
-  scope :timerange, ->(duration) { where('collector_tstamp BETWEEN ? AND ? ',
-                                         Time.zone.today - duration + 1,
-                                         Time.zone.today + 1) }
+  scope :timerange, ->(duration) {
+    where('collector_tstamp BETWEEN ? AND ? ',
+          Time.zone.today - duration + 1,
+          Time.zone.today + 1)
+  }
 
   class << self
     def count_by_graph(graph, days)
