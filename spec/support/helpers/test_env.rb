@@ -154,8 +154,6 @@ module TestEnv
 
   def setup_gitlab_shell
     FileUtils.mkdir_p(Gitlab.config.gitlab_shell.path)
-
-    Gitlab::Shell.ensure_secret_token!
   end
 
   def setup_gitaly

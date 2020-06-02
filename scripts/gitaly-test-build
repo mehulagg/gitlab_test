@@ -16,6 +16,8 @@ class GitalyTestBuild
 
     check_gitaly_config!
 
+    Gitlab::Shell.ensure_secret_token!
+
     # Starting gitaly further validates its configuration
     gitaly_pid = start_gitaly
     praefect_pid = start_praefect
