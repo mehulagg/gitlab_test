@@ -29,8 +29,9 @@ the group technical writer should do the following:
   - [ ] **PM:** Confirm the doc issues slated for next milestone, assigning each to a Technical Writer or engineer to show who is expected to be the primary author.
 - By month M-1, 13th (at least 5 days before milestone m begins):
   - [ ] **TW:** Review the issues and assignments, discussing with the PM or engineer as needed. Ensure the needs and roles are clear, for example: who is the SME (if not the author), required examples, additional reviewers, etc.
-  - [ ] **TW:** Coordinate with any other TWs whose groups fall under the next-higher-level PM (stage or section) to have that PM review the set of doc issues assigned. If any TW would be over capacity, flag this, so that the PM can help prioritize.
-    - The stage/section PM should help decide priorities of issus across groups, especially in cases where TW is over capacity.
+  - [ ] **TW:** Coordinate with any other TWs whose groups fall under the next-higher-level PM (stage or section) to have that PM review the set of doc issues assigned across their multiple groups or stages. If any TW would be over capacity, flag this, so that the PM can help prioritize.
+    - For example, if there are two TWs on a stage and one stage-level PM, communicate with the other TW when all your groups' doc issues are planned, and one of you can ping the PM for the review.         
+    - The stage/section PM should help decide priorities of issues across groups, especially in cases where TW is over capacity.
 - By month M, 17th
   - [ ] **TW:** Ensure content is reviewed and merged, or pushed back to the next milestone with explanation of why it slipped.
 
