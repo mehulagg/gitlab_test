@@ -24002,6 +24002,15 @@ msgstr ""
 msgid "UsageQuota|%{help_link_start}Shared runners%{help_link_end} are disabled, so there are no limits set on pipeline usage"
 msgstr ""
 
+msgid "UsageQuota|All packages built and published"
+msgstr ""
+
+msgid "UsageQuota|All projects’ code files, branches, commits..."
+msgstr ""
+
+msgid "UsageQuota|All wiki content on how your organization and projects work"
+msgstr ""
+
 msgid "UsageQuota|Artifacts"
 msgstr ""
 
@@ -24018,6 +24027,12 @@ msgid "UsageQuota|LFS Objects"
 msgstr ""
 
 msgid "UsageQuota|LFS Storage"
+msgstr ""
+
+msgid "UsageQuota|Large files such as audio, video, graphics"
+msgstr ""
+
+msgid "UsageQuota|Open source software to collaborate on code"
 msgstr ""
 
 msgid "UsageQuota|Packages"

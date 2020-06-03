@@ -82,18 +82,6 @@ export default {
       </div>
     </div>
     <div class="ci-table" role="grid">
-      <div
-        class="gl-responsive-table-row table-row-header bg-gray-light pl-2 border-top mt-3 lh-100"
-        role="row"
-      >
-        <div class="table-section section-70 font-weight-bold" role="columnheader">
-          {{ __('Project') }}
-        </div>
-        <div class="table-section section-30 font-weight-bold" role="columnheader">
-          {{ __('Usage') }}
-        </div>
-      </div>
-
       <project v-for="project in namespace.projects" :key="project.id" :project="project" />
     </div>
   </div>
