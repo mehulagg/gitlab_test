@@ -20,17 +20,16 @@ class Projects::Ci::LintsController < Projects::ApplicationController
       @errors = pipeline.error_messages.map(&:content)
       @warnings = pipeline.warning_messages.map(&:content)
     else
-      result = Gitlab::Ci::YamlProcessor.new_with_validation_errors(@content, yaml_processor_options)
+      result = Gitlab::Ci::YamlProcessor.new(@content, yaml_processor_options).execute
 
       @status = result.valid?
       @errors = result.errors
       @warnings = result.warnings
 
       if result.valid?
-        @config_processor = result.config
-        @stages = @config_processor.stages
-        @builds = @config_processor.builds
-        @jobs = @config_processor.jobs
+        @stages = result.stages
+        @builds = result.builds
+        @jobs = result.jobs
       end
     end
 

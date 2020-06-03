@@ -31,14 +31,14 @@ RSpec.describe Gitlab::Ci::Pipeline::Chain::Validate::External do
     CI_YAML
   end
 
-  let(:yaml_processor) do
+  let(:yaml_processor_result) do
     ::Gitlab::Ci::YamlProcessor.new(
       ci_yaml, {
         project: project,
         sha: pipeline.sha,
         user: user
       }
-    )
+    ).execute
   end
 
   let(:save_incompleted) { true }

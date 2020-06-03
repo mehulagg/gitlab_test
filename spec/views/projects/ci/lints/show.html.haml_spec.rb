@@ -5,15 +5,15 @@ require 'spec_helper'
 RSpec.describe 'projects/ci/lints/show' do
   include Devise::Test::ControllerHelpers
   let(:project) { create(:project, :repository) }
-  let(:config_processor) { Gitlab::Ci::YamlProcessor.new(YAML.dump(content)) }
+  let(:config_processor_result) { Gitlab::Ci::YamlProcessor.new(YAML.dump(content)).execute }
 
   describe 'XSS protection' do
     before do
       assign(:project, project)
       assign(:status, true)
-      assign(:builds, config_processor.builds)
-      assign(:stages, config_processor.stages)
-      assign(:jobs, config_processor.jobs)
+      assign(:builds, config_processor_result.builds)
+      assign(:stages, config_processor_result.stages)
+      assign(:jobs, config_processor_result.jobs)
     end
 
     context 'when builds attrbiutes contain HTML nodes' do
@@ -67,9 +67,9 @@ RSpec.describe 'projects/ci/lints/show' do
     before do
       assign(:project, project)
       assign(:status, true)
-      assign(:builds, config_processor.builds)
-      assign(:stages, config_processor.stages)
-      assign(:jobs, config_processor.jobs)
+      assign(:builds, config_processor_result.builds)
+      assign(:stages, config_processor_result.stages)
+      assign(:jobs, config_processor_result.jobs)
     end
 
     it 'shows the correct values' do
