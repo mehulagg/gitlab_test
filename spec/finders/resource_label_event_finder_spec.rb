@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ResourceLabelEventFinder do
+RSpec.describe ResourceLabelEventFinder do
   let_it_be(:user) { create(:user) }
   let_it_be(:issue_project) { create(:project) }
   let_it_be(:issue) { create(:issue, project: issue_project) }
