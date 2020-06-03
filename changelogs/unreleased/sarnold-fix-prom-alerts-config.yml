@@ -1,0 +1,5 @@
+---
+title: Fix variable interpolation Promtheus alerts
+merge_request: 33691
+author:
+type: fixed

@@ -146,12 +146,9 @@ module Clusters
         return hash unless variables
 
         expression = hash['expr'].dup
-
-        variables.each do |key, val|
-          expression.gsub!("{{#{key}}}", val)
-        end
-
+        variables.each { |k, v| expression = expression.gsub("{{#{k}}}", v) }
         hash['expr'] = expression
+
         hash
       end
 
