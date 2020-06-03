@@ -97,7 +97,12 @@ describe Clusters::Applications::PrometheusConfigService do
             create(:prometheus_metric, query: query, project: project)
           end
 
-          let(:query) { '%{ci_environment_slug}' }
+          let(:common_metrics) do
+            YAML.load_file(Rails.root.join('config/prometheus/common_metrics.yml'))
+          end
+
+          # Getting the first expression from the common metrics
+          let(:query) { common_metrics.dig('panel_groups', 0, 'panels', 0, 'metrics', 0, 'query_range') }
 
           it 'substitutes query variables' do
             expect(Gitlab::Prometheus::QueryVariables)

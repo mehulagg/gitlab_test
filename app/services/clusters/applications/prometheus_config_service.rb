@@ -143,7 +143,15 @@ module Clusters
       end
 
       def substitute_query_variables(hash, variables)
-        hash['expr'] %= variables
+        return hash unless variables
+
+        expression = hash['expr'].dup
+
+        variables.each do |key, val|
+          expression.gsub!("{{#{key}}}", val)
+        end
+
+        hash['expr'] = expression
         hash
       end
 
