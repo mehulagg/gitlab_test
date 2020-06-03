@@ -3357,6 +3357,9 @@ msgstr ""
 msgid "Blocked"
 msgstr ""
 
+msgid "Blocked domains for sign-ups"
+msgstr ""
+
 msgid "Blocked issue"
 msgstr ""
 
@@ -7162,6 +7165,9 @@ msgstr ""
 msgid "Deny"
 msgstr ""
 
+msgid "Denylist file"
+msgstr ""
+
 msgid "Dependencies"
 msgstr ""
 
@@ -7801,6 +7807,9 @@ msgstr ""
 msgid "Domain"
 msgstr ""
 
+msgid "Domain Denylist"
+msgstr ""
+
 msgid "Domain cannot be deleted while associated to one or more clusters."
 msgstr ""
 
@@ -8309,6 +8318,9 @@ msgid "Enter at least three characters to search"
 msgstr ""
 
 msgid "Enter board name"
+msgstr ""
+
+msgid "Enter denylist manually"
 msgstr ""
 
 msgid "Enter domain"
@@ -23748,6 +23760,9 @@ msgid "Upload a certificate for your domain with all intermediates"
 msgstr ""
 
 msgid "Upload a private key for your certificate"
+msgstr ""
+
+msgid "Upload denylist file"
 msgstr ""
 
 msgid "Upload file"
