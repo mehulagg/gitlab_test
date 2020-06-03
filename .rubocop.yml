@@ -448,11 +448,6 @@ Rails/TimeZone:
 
 Rails/SaveBang:
   Enabled: true
-  Include:
-    - 'spec/**/*.rb'
-    - 'ee/spec/**/*.rb'
-    - 'qa/spec/**/*.rb'
-    - 'qa/qa/specs/**/*.rb'
   Exclude:
     - 'spec/**/*.rb'
     - 'ee/spec/**/*.rb'
