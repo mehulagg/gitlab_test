@@ -17,7 +17,7 @@ module QA
         end
 
         Page::Main::Login.perform do |form|
-          expect(form.can_sign_in?).to be(true)
+          expect(form.can_sign_in?).to be(false)
         end
       end
     end
