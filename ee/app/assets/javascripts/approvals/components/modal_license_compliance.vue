@@ -36,12 +36,20 @@ export default {
     modal-module="createModal"
     :modal-id="modalId"
     :title="title"
-    :ok-title="title"
     ok-variant="success"
     :cancel-title="__('Cancel')"
     size="sm"
-    @ok.prevent="submit"
+    @ok="submit"
   >
     <rule-form ref="form" :init-rule="rule" locked-name="License-Check" />
+    <template #modal-footer="{ ok, cancel }">
+      <div class="d-flex w-100">
+        <p>Yo this is the message of the day</p>
+        <div class="ml-auto">
+          <button @click="cancel">{{ __('Cancel') }}</button>
+          <button @click="ok">{{ title }}</button>
+        </div>
+      </div>
+    </template>
   </gl-modal-vuex>
 </template>
