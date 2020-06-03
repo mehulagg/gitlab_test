@@ -18,7 +18,7 @@ class Admin::AuditLogsController < Admin::ApplicationController
                 User.find_by_id(audit_logs_params[:entity_id])
               when 'Project'
                 Project.find_by_id(audit_logs_params[:entity_id])
-              when 'Group'
+              when 'Groupp'
                 Namespace.find_by_id(audit_logs_params[:entity_id])
               else
                 nil
