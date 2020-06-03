@@ -96,6 +96,20 @@ module API
 
         no_content!
       end
+
+      desc 'Clear all caches in Flipper::Adapters::ActiveSupportCacheStore'
+      post 'clear_cache' do
+        Feature.clear_cache_all
+
+        no_content!
+      end
+
+      desc 'Clear a specific cache in Flipper::Adapters::ActiveSupportCacheStore'
+      post 'clear_cache/:name' do
+        Feature.clear_cache(params[:name])
+
+        no_content!
+      end
     end
   end
 end

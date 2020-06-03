@@ -312,6 +312,9 @@ GEM
     flipper-active_support_cache_store (0.17.1)
       activesupport (>= 4.2, < 7)
       flipper (~> 0.17.1)
+    flipper-api (0.17.1)
+      flipper (~> 0.17.1)
+      rack (>= 1.4, < 3)
     flowdock (0.7.1)
       httparty (~> 0.7)
       multi_json
@@ -1220,6 +1223,7 @@ DEPENDENCIES
   flipper (~> 0.17.1)
   flipper-active_record (~> 0.17.1)
   flipper-active_support_cache_store (~> 0.17.1)
+  flipper-api (~> 0.17.1)
   flowdock (~> 0.7)
   fog-aliyun (~> 0.3)
   fog-aws (~> 3.5)

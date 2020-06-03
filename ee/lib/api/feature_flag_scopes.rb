@@ -151,7 +151,7 @@ module API
 
       def scopes_for_environment
         Operations::FeatureFlagScope
-          .for_unleash_client(user_project, params[:environment])
+          .for_client(user_project, params[:environment])
       end
     end
   end

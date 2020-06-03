@@ -51,6 +51,7 @@ class Feature
         # - Memoized: using Gitlab::SafeRequestStore or @flipper
         # - L1: using Process cache
         # - L2: using Redis cache
+        # - HTTP: using a single HTTP call
         # - DB: using a single SQL query
         flipper.adapter.features
       end
@@ -157,10 +158,26 @@ class Feature
         feature_class: FlipperFeature,
         gate_class: FlipperGate)
 
+      core_adapter = if Gitlab.config.dig('feature_flags', 'flipper', 'enabled')
+        # Get flag data from the following precedence:
+        # 1. GitLab Feature Flag Server (via HTTP adapter)
+        # 2. Database (via ActiveRecord adapter)
+        http_adapter = Flipper::Adapters::ReadonlyHttp.new(
+          url: Gitlab.config.feature_flags.flipper['url'],
+          headers: {
+            'instance_id' => Gitlab.config.feature_flags.flipper['instance_id'],
+            'app_name' => Gitlab.config.feature_flags.flipper['app_name']
+          }
+        )
+        Flipper::Adapters::MultiPersistentLayer.new(http_adapter, active_record_adapter)
+      else
+        active_record_adapter
+      end
+
       # Redis L2 cache
       redis_cache_adapter =
         Flipper::Adapters::ActiveSupportCacheStore.new(
-          active_record_adapter,
+          core_adapter,
           l2_cache_backend,
           expires_in: 1.hour)
 

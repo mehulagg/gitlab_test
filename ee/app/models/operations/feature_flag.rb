@@ -52,7 +52,7 @@ module Operations
         preload(:scopes, strategies: :scopes)
       end
 
-      def for_unleash_client(project, environment)
+      def for_client(project, environment)
         includes(strategies: [:scopes, :user_list])
           .where(project: project)
           .merge(Operations::FeatureFlags::Scope.on_environment(environment))
