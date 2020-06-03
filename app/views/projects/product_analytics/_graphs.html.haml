@@ -1,5 +1,5 @@
 - graphs.each_slice(2) do |pair|
-  .row
+  .row.append-bottom-10
     - pair.each do |graph|
-      .col-md-6{ id: graph[:id], style: "width: 500px; height: 350px;" }
+      .col-md-6{ id: graph[:id] }
         = render 'graph', graph: graph
