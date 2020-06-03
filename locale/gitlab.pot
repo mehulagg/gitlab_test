@@ -15737,6 +15737,12 @@ msgstr ""
 msgid "Number of employees"
 msgstr ""
 
+msgid "Number of events"
+msgstr ""
+
+msgid "Number of events for this project: %{count}"
+msgstr ""
+
 msgid "Number of files touched"
 msgstr ""
 
@@ -21161,6 +21167,12 @@ msgid "Showing Version #%{versionNumber}"
 msgstr ""
 
 msgid "Showing all issues"
+msgstr ""
+
+msgid "Showing all labels"
+msgstr ""
+
+msgid "Showing graphs based on events of the last %{timerange} days."
 msgstr ""
 
 msgid "Showing last %{size} of log -"

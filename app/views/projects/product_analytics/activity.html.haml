@@ -1,6 +1,6 @@
 = render 'links'
 
 %p
-  Showing graphs based on events of the last #{@timerange} days.
+  = _('Showing graphs based on events of the last %{timerange} days.') % { timerange: @timerange }
 
 = render 'graphs', graphs: @graphs

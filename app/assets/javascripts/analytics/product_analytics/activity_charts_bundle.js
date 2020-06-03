@@ -29,8 +29,8 @@ export default () => {
 				return h(GlColumnChart, {
 					props: {
 						data: this.seriesData,
-						xAxisTitle: __('Platform usage'),
-						yAxisTitle: __('y axis title'),
+						xAxisTitle: __('Value'),
+						yAxisTitle: __('Number of events'),
 						xAxisType: 'category',
 					},
 				});
