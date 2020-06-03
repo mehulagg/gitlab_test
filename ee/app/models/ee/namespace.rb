@@ -222,12 +222,6 @@ module EE
       shared_runners_remaining_minutes_percent.to_i <= last_ci_minutes_usage_notification_level.to_i
     end
 
-    def extra_shared_runners_minutes_used?
-      shared_runners_minutes_limit_enabled? &&
-        extra_shared_runners_minutes_limit &&
-        extra_shared_runners_minutes.to_i >= extra_shared_runners_minutes_limit
-    end
-
     def shared_runners_enabled?
       all_projects.with_shared_runners.any?
     end
