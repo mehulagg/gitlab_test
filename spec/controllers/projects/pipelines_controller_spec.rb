@@ -994,6 +994,7 @@ RSpec.describe Projects::PipelinesController do
     context 'when feature is enabled' do
       before do
         stub_feature_flags(junit_pipeline_view: true)
+        stub_feature_flags(build_report_summary: false)
       end
 
       context 'when pipeline does not have a test report' do

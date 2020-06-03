@@ -359,6 +359,7 @@ RSpec.describe 'Pipeline', :js do
       before do
         visit_pipeline
         wait_for_requests
+        stub_feature_flags(build_report_summary: false)
       end
 
       context 'with test reports' do

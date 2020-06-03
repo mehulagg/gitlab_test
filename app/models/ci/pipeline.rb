@@ -816,8 +816,12 @@ module Ci
     end
 
     def test_reports_count
-      Rails.cache.fetch(['project', project.id, 'pipeline', id, 'test_reports_count'], force: false) do
-        test_reports.total_count
+      if Feature.enabled?(:build_report_summary, project)
+        test_report_summary.total_count
+      else
+        Rails.cache.fetch(['project', project.id, 'pipeline', id, 'test_reports_count'], force: false) do
+          test_reports.total_count
+        end
       end
     end
 
