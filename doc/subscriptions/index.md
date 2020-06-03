@@ -239,6 +239,12 @@ It's important to regularly review your user accounts, because:
 
 A GitLab subscription is valid for a specific number of users. For details, see [Choose the number of users](#choosing-the-number-of-users). If the active user count exceeds the number included in the subscription, known as the number of _users over license_, you must pay for the excess number of users either before renewal, or at the time of renewal. This is also known the _true up_ process.
 
+##### Users Over License Notification
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/215959) in GitLab 13.0.
+
+When Users over license happens, a banner message "Your instance has exceeded the licensed seat count purchased in your subscription by X users. Depending upon the terms in your agreement, you may be charged for these users on a quarterly or annual basis."  will be displayed for users with administrator role.
+
 ##### Purchase additional seats for GitLab.com
 
 There is no self-service option for purchasing additional seats. You must request a quotation from GitLab Sales. To do so, contact GitLab via our [support form](https://support.gitlab.com/hc/en-us/requests/new) and select **Licensing and Renewals Problems** from the menu.
