@@ -1,0 +1,5 @@
+---
+title: "Search users in LDAP by their e-mail-address"
+merge_request: 33767
+author: Niko Wenselowski
+type: changed
