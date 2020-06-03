@@ -16,6 +16,11 @@ export default {
     licenseCheckRule() {
       return this.rules?.find(({ name }) => name === 'License-Check');
     },
+    licenseCheckStatus() {
+      return this.licenseCheckRule && this.licenseCheckRule.approvalsRequired > 0
+        ? 'active'
+        : 'inactive';
+    },
   },
   created() {
     this.fetchRules();
@@ -33,6 +38,7 @@ export default {
       <gl-deprecated-button @click="openCreateModal(licenseCheckRule)">{{
         __('Yoski')
       }}</gl-deprecated-button>
+      <span>{{ licenseCheckStatus }}</span>
       <modal-license-compliance modal-id="yo" />
     </span>
   </span>
