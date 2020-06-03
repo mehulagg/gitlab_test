@@ -1,4 +1,6 @@
-- if project.shared_runners_limit_namespace.shared_runners_minutes_used?
+- quota = project.shared_runners_limit_namespace.ci_minutes_quota
+
+- if quota.minutes_used_up?
   - quota_used = project.shared_runners_limit_namespace.shared_runners_minutes
   - quota_limit = project.shared_runners_limit_namespace.actual_shared_runners_minutes_limit
   .bs-callout.bs-callout-warning

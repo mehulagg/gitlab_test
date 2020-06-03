@@ -18,7 +18,7 @@ module Ci
       end
 
       def notify_on_total_usage
-        return unless namespace.shared_runners_minutes_used? && namespace.last_ci_minutes_notification_at.nil?
+        return unless quota.minutes_used_up? && namespace.last_ci_minutes_notification_at.nil?
 
         namespace.update_columns(last_ci_minutes_notification_at: Time.current)
 
@@ -26,13 +26,17 @@ module Ci
       end
 
       def notify_on_partial_usage
-        return if namespace.shared_runners_minutes_used?
+        return if quota.minutes_used_up?
         return if namespace.last_ci_minutes_usage_notification_level == current_alert_level
         return if alert_levels.max < namespace.shared_runners_remaining_minutes_percent
 
         namespace.update_columns(last_ci_minutes_usage_notification_level: current_alert_level)
 
         CiMinutesUsageMailer.notify_limit(namespace, recipients, current_alert_level).deliver_later
+      end
+
+      def quota
+        @quota ||= ::Ci::Minutes::Quota.new(namespace)
       end
 
       def namespace
