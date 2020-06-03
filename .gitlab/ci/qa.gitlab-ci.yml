@@ -65,3 +65,5 @@ package-and-qa:
       artifacts: false
     - job: build-assets-image
       artifacts: false
+  variables:
+    QA_BRANCH: "ml-fix-login-failure"

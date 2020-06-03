@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# QA file change to trigger package-and-qa automatically
+
 module QA
   context 'Manage', :smoke do
     describe 'basic user login' do
