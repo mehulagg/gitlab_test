@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import * as utils from './utils';
 import * as types from './mutation_types';
 import * as constants from '../constants';
@@ -323,7 +324,7 @@ export default {
     state.isLoadingDescriptionVersion = false;
   },
   [types.SET_DESCRIPTION_VERSION_DELETED](state, { discussionId, value }) {
-    const selectedDiscussion = state.discussions.find(disc => disc.id === discussionId);
-    selectedDiscussion.notes[0].description_version_deleted = value;
+    const discussion = state.discussions.find(disc => disc.id === discussionId);
+    Vue.set(discussion.notes, 0, { ...discussion.notes[0], description_version_deleted: value });
   },
 };
