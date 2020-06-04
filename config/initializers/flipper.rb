@@ -1,1 +1,1 @@
-Feature.register_feature_groups
+FeatureFlag::Adapters::Flipper.register_feature_groups

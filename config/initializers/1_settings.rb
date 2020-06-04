@@ -317,6 +317,9 @@ end
 Settings['feature_flags'] ||= Settingslogic.new({})
 Settings.feature_flags['unleash'] ||= Settingslogic.new({})
 Settings.feature_flags.unleash['enabled'] = false if Settings.feature_flags.unleash['enabled'].nil?
+Settings.feature_flags.unleash['app_name']     = Rails.env if Settings.unleash['app_name'].nil?
+Settings.feature_flags.unleash['instance_id']  = ENV['UNLEASH_INSTANCE_ID'] if Settings.unleash['instance_id'].nil?
+Settings.feature_flags.unleash['personal_access_token']  = ENV['UNLEASH_PERSONAL_ACCESS_TOKEN'] if Settings.unleash['personal_access_token'].nil?
 
 #
 # External merge request diffs

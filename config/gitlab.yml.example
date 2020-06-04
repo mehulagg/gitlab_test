@@ -531,6 +531,7 @@ production: &base
       # url: https://gitlab.com/api/v4/feature_flags/unleash/<project_id>
       # app_name: gitlab.com # Environment name of your GitLab instance
       # instance_id: INSTANCE_ID
+      # personal_access_token: PAT # Used for controlling flags on the project 
 
   #
   # 2. GitLab CI settings

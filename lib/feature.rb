@@ -1,66 +1,18 @@
 # frozen_string_literal: true
 
-require 'flipper/adapters/active_record'
-require 'flipper/adapters/active_support_cache_store'
-
 class Feature
-  # Classes to override flipper table names
-  class FlipperFeature < Flipper::Adapters::ActiveRecord::Feature
-    # Using `self.table_name` won't work. ActiveRecord bug?
-    superclass.table_name = 'features'
-
-    def self.feature_names
-      pluck(:key)
-    end
-  end
-
-  class FlipperGate < Flipper::Adapters::ActiveRecord::Gate
-    superclass.table_name = 'feature_gates'
-  end
-
   InvalidFeatureFlagError = Class.new(Exception) # rubocop:disable Lint/InheritException
+  SUPPORTED_FEATURE_FLAG_ADAPTERS = %w[unleash flipper]
 
   class << self
-    delegate :group, to: :flipper
+    delegate :all, :get, :group, :persisted_name?, :table_exists?, to: :adapter
 
-    def all
-      flipper.features.to_a
-    end
-
-    def get(key)
-      flipper.feature(key)
-    end
-
-    def persisted_names
-      return [] unless Gitlab::Database.exists?
-
-      if Gitlab::Utils.to_boolean(ENV['FF_LEGACY_PERSISTED_NAMES'])
-        # To be removed:
-        # This uses a legacy persisted names that are know to work (always)
-        Gitlab::SafeRequestStore[:flipper_persisted_names] ||=
-          begin
-            # We saw on GitLab.com, this database request was called 2300
-            # times/s. Let's cache it for a minute to avoid that load.
-            Gitlab::ProcessMemoryCache.cache_backend.fetch('flipper:persisted_names', expires_in: 1.minute) do
-              FlipperFeature.feature_names
-            end.to_set
-          end
-      else
-        # This loads names of all stored feature flags
-        # and returns a stable Set in the following order:
-        # - Memoized: using Gitlab::SafeRequestStore or @flipper
-        # - L1: using Process cache
-        # - L2: using Redis cache
-        # - DB: using a single SQL query
-        flipper.adapter.features
-      end
-    end
-
-    def persisted_name?(feature_name)
-      # Flipper creates on-memory features when asked for a not-yet-created one.
-      # If we want to check if a feature has been actually set, we look for it
-      # on the persisted features list.
-      persisted_names.include?(feature_name.to_s)
+    def adapter
+      @adapter ||=
+        SUPPORTED_FEATURE_FLAG_ADAPTERS.find do |type|
+          adapter = get_adapter(type)
+          break adapter if adapter.available?
+        end
     end
 
     # use `default_enabled: true` to default the flag to being `enabled`
@@ -85,7 +37,7 @@ class Feature
       # `persisted?` can potentially generate DB queries and also checks for inclusion
       # in an array of feature names (177 at last count), possibly reducing performance by half.
       # So we only perform the `persisted` check if `default_enabled: true`
-      !default_enabled || Feature.persisted_name?(feature.name) ? feature.enabled?(thing) : true
+      !default_enabled || persisted_name?(feature.name) ? feature.enabled?(thing) : true
     end
 
     def disabled?(key, thing = nil, default_enabled: false)
@@ -144,50 +96,10 @@ class Feature
 
     private
 
-    def flipper
-      if Gitlab::SafeRequestStore.active?
-        Gitlab::SafeRequestStore[:flipper] ||= build_flipper_instance
-      else
-        @flipper ||= build_flipper_instance
-      end
-    end
-
-    def build_flipper_instance
-      active_record_adapter = Flipper::Adapters::ActiveRecord.new(
-        feature_class: FlipperFeature,
-        gate_class: FlipperGate)
-
-      # Redis L2 cache
-      redis_cache_adapter =
-        Flipper::Adapters::ActiveSupportCacheStore.new(
-          active_record_adapter,
-          l2_cache_backend,
-          expires_in: 1.hour)
-
-      # Thread-local L1 cache: use a short timeout since we don't have a
-      # way to expire this cache all at once
-      flipper_adapter = Flipper::Adapters::ActiveSupportCacheStore.new(
-        redis_cache_adapter,
-        l1_cache_backend,
-        expires_in: 1.minute)
-
-      Flipper.new(flipper_adapter).tap do |flip|
-        flip.memoize = true
-      end
-    end
-
     def check_feature_flags_definition?
       # We want to check feature flags usage only when
       # running in development or test environment
       Gitlab.dev_or_test_env?
-    end
-
-    def l1_cache_backend
-      Gitlab::ProcessMemoryCache.cache_backend
-    end
-
-    def l2_cache_backend
-      Rails.cache
     end
   end
 
