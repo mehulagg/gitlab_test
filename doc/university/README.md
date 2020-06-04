@@ -5,13 +5,15 @@ type: index
 
 # GitLab University
 
+CAUTION: **Caution:**
+This page is deprecated. Some of the content linked to from this page may be out of date.
+We're in the process of [evaluating](https://gitlab.com/gitlab-org/gitlab/-/issues/20403) it.
+
+For related information that's currently maintained, see [Learn@GitLab](https://about.gitlab.com/learn/).
+
 GitLab University is a great place to start when learning about version control with Git and GitLab, as well as other GitLab features.
 
 If you're looking for a GitLab subscription for _your university_, see our [GitLab for Education](https://about.gitlab.com/solutions/education/) page.
-
-CAUTION: **Caution:**
-Some of the content in GitLab University may be out of date and we plan to
-[evaluate](https://gitlab.com/gitlab-org/gitlab/-/issues/20403) it.
 
 The GitLab University curriculum is composed of GitLab videos, screencasts, presentations, projects and external GitLab content hosted on other services and has been organized into the following sections:
 
