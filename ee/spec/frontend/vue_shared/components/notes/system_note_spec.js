@@ -3,12 +3,38 @@ import axios from '~/lib/utils/axios_utils';
 import MockAdapter from 'axios-mock-adapter';
 import IssueSystemNote from '~/vue_shared/components/notes/system_note.vue';
 import createStore from '~/notes/stores';
+import * as types from '~/notes/stores/mutation_types';
 import waitForPromises from 'helpers/wait_for_promises';
 
 describe('system note component', () => {
   let wrapper;
-  let props;
   let mock;
+
+  const mockDiscussionData = [
+    {
+     id: "1234",
+     notes: [ {
+       discussion_id: "1234",
+       id: '1424',
+       author: {
+         id: 1,
+         name: 'Root',
+         username: 'root',
+         state: 'active',
+         avatar_url: 'path',
+         path: '/root',
+       },
+       note_html: '<p dir="auto">closed</p>',
+       system_note_icon_name: 'status_closed',
+       created_at: '2017-08-02T10:51:58.559Z',
+       description_version_id: 1,
+       description_diff_path: 'path/to/diff',
+       delete_description_version_path: 'path/to/diff/1',
+       can_delete_description_version: true,
+       description_version_deleted: false,
+     }]
+    } 
+   ]
 
   const diffData = '<span class="idiff">Description</span><span class="idiff addition">Diff</span>';
 
@@ -17,7 +43,7 @@ describe('system note component', () => {
   }
 
   function mockDeleteDiff() {
-    mock.onDelete('/path/to/diff/1').replyOnce(200);
+    mock.onDelete('/path/to/diff/1').replyOnce(200, Promise.resolve());
   }
 
   const findBlankBtn = () => wrapper.find('.note-headline-light .btn-blank');
@@ -25,36 +51,15 @@ describe('system note component', () => {
   const findDescriptionVersion = () => wrapper.find('.description-version');
 
   beforeEach(() => {
-    props = {
-      note: {
-        id: '1424',
-        author: {
-          id: 1,
-          name: 'Root',
-          username: 'root',
-          state: 'active',
-          avatar_url: 'path',
-          path: '/root',
-        },
-        note_html: '<p dir="auto">closed</p>',
-        system_note_icon_name: 'status_closed',
-        created_at: '2017-08-02T10:51:58.559Z',
-        description_version_id: 1,
-        description_diff_path: 'path/to/diff',
-        delete_description_version_path: 'path/to/diff/1',
-        can_delete_description_version: true,
-        description_version_deleted: false,
-      },
-    };
-
     const store = createStore();
-    store.dispatch('setTargetNoteHash', `note_${props.note.id}`);
+    store.commit(types.SET_INITIAL_DISCUSSIONS, mockDiscussionData);
+    const noteId = mockDiscussionData[0].notes[0].id;
+    store.dispatch('setTargetNoteHash', `note_${noteId}`);
 
     mock = new MockAdapter(axios);
-
     wrapper = mount(IssueSystemNote, {
       store,
-      propsData: props,
+      propsData: { note: store.state.discussions[0].notes[0] },
       provide: {
         glFeatures: { saveDescriptionVersions: true, descriptionDiffs: true },
       },
@@ -106,11 +111,19 @@ describe('system note component', () => {
         const deleteButton = wrapper.find({ ref: 'deleteDescriptionVersionButton' });
         deleteButton.trigger('click');
       })
-      .then(() => waitForPromises())
       .then(() => {
-        const deleteButton = wrapper.find('.btn-transparent .delete-description-history');
+        console.log("Obj ref same?(1)", wrapper.vm.note == wrapper.vm.$store.getters.discussions[0].notes[0]);
+        console.log("wrapper.vm.note", wrapper.vm.note.description_version_deleted);
+        console.log("wrapper.vm.$store", wrapper.vm.$store.getters.discussions[0].notes[0].description_version_deleted);
+        
+        return waitForPromises()
+      })
+      .then(() => {
+        console.log("Obj ref same?(2)", wrapper.vm.note == wrapper.vm.$store.getters.discussions[0].notes[0]);
+        console.log(wrapper.vm.note.description_version_deleted);
+        console.log(wrapper.vm.$store.getters.discussions[0].notes[0].description_version_deleted);
+        const deleteButton = wrapper.find({ ref: 'deleteDescriptionVersionButton' });
         expect(deleteButton.exists()).toBe(false);
-        expect(findDescriptionVersion().text()).toContain('Deleted');
         done();
       });
   });

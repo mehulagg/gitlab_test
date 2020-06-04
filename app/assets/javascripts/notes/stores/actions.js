@@ -569,7 +569,7 @@ export const receiveDescriptionVersionError = ({ commit }, error) => {
 };
 
 export const softDeleteDescriptionVersion = (
-  { dispatch },
+  { state, dispatch },
   { endpoint, startingVersion, versionId, discussionId },
 ) => {
   let requestUrl = endpoint;
@@ -584,6 +584,7 @@ export const softDeleteDescriptionVersion = (
     .then(() => {
       dispatch('receiveDeleteDescriptionVersion', versionId);
       dispatch('setDescriptionVersionDeleted', { discussionId, value: true });
+      console.log(state.discussions[0].notes[0].description_version_deleted);
     })
     .catch(error => {
       dispatch('receiveDeleteDescriptionVersionError', error);
