@@ -1,6 +1,6 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import AddLicenseForm from './components/add_license_form.vue';
 import AdminLicenseManagementRow from './components/admin_license_management_row.vue';
@@ -19,7 +19,7 @@ export default {
     DeleteConfirmationModal,
     AdminLicenseManagementRow,
     LicenseManagementRow,
-    GlDeprecatedButton,
+    GlButton,
     GlLoadingIcon,
     PaginatedList,
     LicenseComplianceApprovals,
@@ -85,8 +85,8 @@ export default {
       data-qa-selector="license_compliance_list"
     >
       <template #header>
-        <div v-if="isAdmin" class="order-1 gl-display-flex">
-          <gl-deprecated-button
+        <div v-if="isAdmin" class="order-1 gl-display-flex gl-align-items-center">
+          <gl-button
             class="js-open-form"
             :disabled="formIsOpen"
             variant="success"
@@ -94,7 +94,7 @@ export default {
             @click="openAddLicenseForm"
           >
             {{ s__('LicenseCompliance|Add a license') }}
-          </gl-deprecated-button>
+          </gl-button>
 
           <license-compliance-approvals class="gl-ml-3" />
         </div>

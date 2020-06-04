@@ -1,7 +1,7 @@
 <script>
 import { __ } from '~/locale';
 import { mapActions, mapState } from 'vuex';
-import { GlDeprecatedButton as GlButton, GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
+import { GlButton, GlIcon, GlLink, GlSkeletonLoading, GlSprintf } from '@gitlab/ui';
 import ModalLicenseCompliance from '../modal_license_compliance.vue';
 
 export default {
@@ -9,6 +9,7 @@ export default {
     GlButton,
     GlIcon,
     GlLink,
+    GlSkeletonLoading,
     GlSprintf,
     ModalLicenseCompliance,
   },
@@ -37,19 +38,25 @@ export default {
 };
 </script>
 <template>
-  <span>
-    <span v-if="isLoading">Loading ...</span>
-    <span v-else class="gl-display-inline-flex gl-align-items-center">
-      <gl-button @click="openCreateModal(licenseCheckRule)">{{ __('License Approval') }}</gl-button>
-      <span class="gl-ml-3">
+  <span class="gl-display-inline-flex gl-align-items-center">
+    <gl-button :loading="isLoading" @click="openCreateModal(licenseCheckRule)"
+      >{{ __('License Approval') }}
+    </gl-button>
+    <span class="gl-ml-3">
+      <span v-if="!isLoading">
         <gl-icon name="information" :size="12" class="gl-text-blue-600" />
-        <gl-sprintf :message="licenseCheckStatusText">
+        <gl-sprintf :message="licenseCheckStatusText" class="gl-inline-flex">
           <template #licenseCheckDocsLink>
             <gl-link href="http://example.com">{{ __('License-Check') }}</gl-link>
           </template>
         </gl-sprintf>
       </span>
-      <modal-license-compliance modal-id="yo" />
+      <gl-skeleton-loading
+        v-else
+        :lines="1"
+        class="gl-display-inline-flex gl-h-auto gl-align-items-center"
+      />
     </span>
+    <modal-license-compliance modal-id="yo" />
   </span>
 </template>
