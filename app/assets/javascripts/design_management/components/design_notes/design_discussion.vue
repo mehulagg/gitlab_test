@@ -165,6 +165,7 @@ export default {
         return;
       }
       this.isFormRendered = false;
+      this.shouldChangeResolvedStatus = false;
     },
     toggleResolvedStatus() {
       this.isResolving = true;
@@ -184,6 +185,9 @@ export default {
         .finally(() => {
           this.isResolving = false;
         });
+    },
+    toggleCheckbox() {
+      this.shouldChangeResolvedStatus = !this.shouldChangeResolvedStatus;
     },
   },
   createNoteMutation,
@@ -281,7 +285,7 @@ export default {
             @onBlur="handleReplyFormBlur"
           >
             <template v-if="discussion.resolvable" #resolveCheckbox>
-              <label data-testid="resolve-checkbox">
+              <label data-testid="resolve-checkbox" @click.prevent="toggleCheckbox">
                 <input v-model="shouldChangeResolvedStatus" type="checkbox" />
                 {{ resolveCheckboxText }}
               </label>

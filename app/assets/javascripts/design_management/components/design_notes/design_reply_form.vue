@@ -62,7 +62,7 @@ export default {
     },
   },
   mounted() {
-    this.$refs.textarea.focus();
+    this.focusTextarea();
   },
   methods: {
     submitForm() {
@@ -75,12 +75,15 @@ export default {
         this.$emit('cancelForm');
       }
     },
+    focusTextarea() {
+      this.$refs.textarea.focus();
+    },
   },
 };
 </script>
 
 <template>
-  <form class="new-note common-note-form" @submit.prevent>
+  <form class="new-note common-note-form" @submit.prevent @mousedown.prevent="focusTextarea">
     <markdown-field
       :markdown-preview-path="markdownPreviewPath"
       :can-attach-file="false"
