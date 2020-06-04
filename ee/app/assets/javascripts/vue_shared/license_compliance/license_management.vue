@@ -85,7 +85,7 @@ export default {
       data-qa-selector="license_compliance_list"
     >
       <template #header>
-        <div v-if="isAdmin" class="order-1">
+        <div v-if="isAdmin" class="order-1 gl-display-flex">
           <gl-deprecated-button
             class="js-open-form"
             :disabled="formIsOpen"
@@ -96,7 +96,7 @@ export default {
             {{ s__('LicenseCompliance|Add a license') }}
           </gl-deprecated-button>
 
-          <license-compliance-approvals />
+          <license-compliance-approvals class="gl-ml-3" />
         </div>
 
         <template v-else>

@@ -48,9 +48,9 @@ export default {
   >
     <rule-form ref="form" :init-rule="rule" locked-name="License-Check" />
     <template #modal-footer="{ ok, cancel }">
-      <div class="d-flex w-100">
+      <div class="gl-display-flex gl-w-full">
         <p>
-          <gl-icon name="question" :size="12" class="text-primary-600" />
+          <gl-icon name="question" :size="12" class="gl-text-blue-600" />
           <gl-sprintf :message="__('Learn more about %{licenseCheckHelpLink}')">
             <template #licenseCheckHelpLink>
               <gl-link href="http://example.com" target="_blank">{{ __('License-Check') }}</gl-link>
