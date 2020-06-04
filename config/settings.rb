@@ -152,6 +152,20 @@ class Settings < Settingslogic
       Gitlab::Application.secrets.db_key_base
     end
 
+    def encrypted(path, key: nil, key_path: nil, env_key: nil, allow_in_safe_mode: false)
+      return Gitlab::EncryptedConfiguration.new if ENV['GITLAB_ENCRYPTED_SAFE_MODE'] && !allow_in_safe_mode
+
+      # If no key defaults are provided, use our db_key_base
+      key = Settings.attr_encrypted_db_key_base_truncated unless key || key_path || env_key
+
+      Gitlab::EncryptedConfiguration.new(
+        config_path: Rails.root.join(path),
+        key: key,
+        key_path: key_path ? Rails.root.join(key_path) : nil,
+        env_key: env_key
+      )
+    end
+
     def load_dynamic_cron_schedules!
       cron_jobs['gitlab_usage_ping_worker']['cron'] ||= cron_for_usage_ping
     end

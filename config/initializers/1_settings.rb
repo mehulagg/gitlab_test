@@ -6,6 +6,7 @@ require_relative '../smime_signature_settings'
 Settings['ldap'] ||= Settingslogic.new({})
 Settings.ldap['enabled'] = false if Settings.ldap['enabled'].nil?
 Settings.ldap['prevent_ldap_sign_in'] = false if Settings.ldap['prevent_ldap_sign_in'].blank?
+Settings.ldap['secret_file'] = Settings.absolute(Settings.ldap['secret_file'] || 'ldap_secret.yaml.enc')
 
 Gitlab.ee do
   Settings.ldap['sync_time'] = 3600 if Settings.ldap['sync_time'].nil?

@@ -36,5 +36,17 @@ namespace :gitlab do
         puts "Successfully updated #{plural_updated_count} out of #{plural_id_count} total"
       end
     end
+
+    namespace :secret do
+      desc 'GitLab | LDAP | Secret | Edit ldap secrets'
+      task edit: ['gitlab:encrypted:safe_mode', :environment] do
+        Gitlab::EncryptedLdapCommand.edit
+      end
+
+      desc 'GitLab | LDAP | Secret | Show ldap secrets'
+      task show: ['gitlab:encrypted:safe_mode', :environment] do
+        Gitlab::EncryptedLdapCommand.show
+      end
+    end
   end
 end

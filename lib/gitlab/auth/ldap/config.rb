@@ -90,7 +90,7 @@ module Gitlab
           if has_auth?
             opts.merge!(
               bind_dn: options['bind_dn'],
-              password: options['password']
+              password: auth_password
             )
           end
 
@@ -155,7 +155,7 @@ module Gitlab
         end
 
         def has_auth?
-          options['password'] || options['bind_dn']
+          auth_password || options['bind_dn']
         end
 
         def allow_username_or_email_login
@@ -268,9 +268,17 @@ module Gitlab
             auth: {
               method: :simple,
               username: options['bind_dn'],
-              password: options['password']
+              password: auth_password
             }
           }
+        end
+
+        def auth_password
+          return options['password'] if options['password']
+
+          if File.exist?(Gitlab.config.ldap.secret_file)
+            Settings.encrypted(Gitlab.config.ldap.secret_file)[@provider.delete_prefix('ldap').to_sym]&.fetch(:password)&.chomp
+          end
         end
 
         def omniauth_user_filter
