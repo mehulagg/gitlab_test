@@ -422,6 +422,12 @@ msgstr ""
 msgid "%{level_name} is not allowed since the fork source project has lower visibility."
 msgstr ""
 
+msgid "%{licenseCheckDocsLink} is active"
+msgstr ""
+
+msgid "%{licenseCheckDocsLink} is inactive"
+msgstr ""
+
 msgid "%{lineOneStart}Drag and drop to upload your designs%{lineOneEnd} or %{linkStart}click to upload%{linkEnd}."
 msgstr ""
 
@@ -12952,6 +12958,9 @@ msgstr ""
 msgid "Learn more"
 msgstr ""
 
+msgid "Learn more about %{licenseCheckHelpLink}"
+msgstr ""
+
 msgid "Learn more about Auto DevOps"
 msgstr ""
 
@@ -13028,6 +13037,9 @@ msgid "Let's Encrypt is a free, automated, and open certificate authority (CA) t
 msgstr ""
 
 msgid "License"
+msgstr ""
+
+msgid "License Approval"
 msgstr ""
 
 msgid "License Compliance"
