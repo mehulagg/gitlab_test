@@ -62,7 +62,7 @@ module DropzoneHelper
     page.execute_script <<-JS
       var fakeFileInput = window.$('<input/>').attr(
         {id: 'fakeFileInput', type: 'file'}
-      ).appendTo('body');
+      ).prependTo('body');
     JS
 
     # Attach the file to the fake input selector with Capybara

@@ -1,0 +1,5 @@
+---
+title: Stop content jumping when opening modals
+merge_request: 33849
+author:
+type: fixed

@@ -1,11 +1,3 @@
-html {
-  overflow-y: scroll;
-
-  &.touch .tooltip {
-    display: none !important;
-  }
-}
-
 body {
   // Improves readability for dyslexic users; supported only in Chrome/Safari so far
   // scss-lint:disable PropertySpelling
