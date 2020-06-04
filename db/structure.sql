@@ -11632,6 +11632,9 @@ ALTER TABLE ONLY public.application_settings
 ALTER TABLE ONLY public.ci_triggers
     ADD CONSTRAINT fk_e8e10d1964 FOREIGN KEY (owner_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.services
+    ADD CONSTRAINT fk_e8fe908a34 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.pages_domains
     ADD CONSTRAINT fk_ea2f6dfc6f FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -13792,7 +13795,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200527152657
 20200528054112
 20200528123703
-20200603073101
 20200529081642
+20200603073101
 \.
 

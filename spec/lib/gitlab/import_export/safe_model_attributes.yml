@@ -490,6 +490,7 @@ Service:
 - deployment_events
 - description
 - inherit_from_id
+- group_id
 ProjectHook:
 - id
 - url

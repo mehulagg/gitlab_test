@@ -23,7 +23,7 @@ class ProjectServicesWithInheritance
         push_events = false
         issues_events = false
         services.each do |service|
-          properties = properties.merge(service.properties) { |_, oldval, newval| !newval.nil? ? newval : oldval }
+          properties = properties.merge(service.properties.nil? ? {} : service.properties) { |_, oldval, newval| !newval.nil? ? newval : oldval }
 
           # TODO do this for all types of events where NULL is allowed
           issues_events = service.issues_events unless service.issues_events.nil?

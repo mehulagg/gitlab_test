@@ -265,6 +265,7 @@ excluded_attributes:
     - :inherit_from_id
     - :instance
     - :template
+    - :group_id
   error_tracking_setting:
     - :encrypted_token
     - :encrypted_token_iv
