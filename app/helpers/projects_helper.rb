@@ -455,6 +455,7 @@ module ProjectsHelper
       serverless:         :read_cluster,
       error_tracking:     :read_sentry_issue,
       alert_management:   :read_alert_management_alert,
+      product_analytics:  :read_product_analytics,
       labels:             :read_label,
       issues:             :read_issue,
       project_members:    :read_project_member,
