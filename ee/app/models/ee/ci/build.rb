@@ -144,10 +144,6 @@ module EE
         super + ee_runner_required_feature_names
       end
 
-      def secrets?
-        options[:secrets].present?
-      end
-
       private
 
       def parse_security_artifact_blob(security_report, blob)

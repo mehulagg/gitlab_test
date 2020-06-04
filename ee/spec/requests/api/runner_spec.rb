@@ -11,7 +11,7 @@ describe API::Runner do
     describe 'POST /api/v4/jobs/request' do
       context 'secrets management' do
         let(:pipeline) { create(:ci_pipeline, project: project, ref: 'master') }
-        let(:secrets) do
+        let(:valid_secrets) do
           {
             DATABASE_PASSWORD: {
               vault: {
@@ -24,7 +24,7 @@ describe API::Runner do
         end
 
         before do
-          create(:ci_build, pipeline: pipeline, options: options)
+          create(:ci_build, pipeline: pipeline, secrets: secrets)
         end
 
         context 'when ci_secrets_management_vault feature flag is enabled' do
@@ -38,7 +38,7 @@ describe API::Runner do
             end
 
             context 'job has secrets configured' do
-              let(:options) { { script: ['echo'], secrets: secrets } }
+              let(:secrets) { valid_secrets }
 
               it 'returns secrets configuration' do
                 request_job_with_secrets_supported
@@ -67,7 +67,7 @@ describe API::Runner do
             end
 
             context 'job does not have secrets configured' do
-              let(:options) { { script: ['echo'] } }
+              let(:secrets) { {} }
 
               it 'doesn not return secrets configuration' do
                 request_job_with_secrets_supported
@@ -84,7 +84,7 @@ describe API::Runner do
             end
 
             context 'job has secrets configured' do
-              let(:options) { { script: ['echo'], secrets: secrets } }
+              let(:secrets) { valid_secrets }
 
               it 'doesn not return secrets configuration' do
                 request_job_with_secrets_supported
@@ -103,7 +103,7 @@ describe API::Runner do
           end
 
           context 'job has secrets configured' do
-            let(:options) { { script: ['echo'], secrets: secrets } }
+            let(:secrets) { valid_secrets }
 
             it 'doesn not return secrets configuration' do
               request_job_with_secrets_supported
@@ -114,7 +114,7 @@ describe API::Runner do
           end
 
           context 'job does not secrets configured' do
-            let(:options) { { script: ['echo'] } }
+            let(:secrets) { {} }
 
             it 'doesn not return secrets configuration' do
               request_job_with_secrets_supported

@@ -8,7 +8,7 @@ module EE
           extend ActiveSupport::Concern
 
           prepended do
-            expose :secrets, if: -> (build, _) { build.ci_secrets_management_available? }
+            expose :secrets, if: -> (build, _) { build.ci_secrets_management_available? && build.secrets? }
           end
         end
       end

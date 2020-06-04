@@ -12,7 +12,7 @@ module EE
           secrets = job[:secrets]
 
           super.tap do |attributes|
-            attributes[:options][:secrets] = secrets if secrets
+            attributes[:secrets] = secrets if secrets
           end
         end
       end

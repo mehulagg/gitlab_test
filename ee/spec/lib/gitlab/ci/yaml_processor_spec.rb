@@ -219,9 +219,9 @@ RSpec.describe Gitlab::Ci::YamlProcessor do
     subject(:processor) { described_class.new(YAML.dump(config)) }
 
     it "returns secrets info" do
-      options = processor.stage_builds_attributes('deploy').first.fetch(:options)
+      secrets = processor.stage_builds_attributes('deploy').first.fetch(:secrets)
 
-      expect(options.fetch(:secrets)).to eq({
+      expect(secrets).to eq({
         DATABASE_PASSWORD: {
           vault: {
             engine: { name: 'kv-v2', path: 'kv-v2' },

@@ -519,7 +519,18 @@ RSpec.describe Ci::Build do
   end
 
   describe '#runner_required_feature_names' do
-    let(:build) { create(:ci_build, options: options) }
+    let(:valid_secrets) do
+      {
+        DATABASE_PASSWORD: {
+          vault: {
+            engine: { name: 'kv-v2', path: 'kv-v2' },
+            path: 'production/db',
+            field: 'password'
+          }
+        }
+      }
+    end
+    let(:build) { create(:ci_build, secrets: secrets) }
 
     subject { build.runner_required_feature_names }
 
@@ -529,13 +540,13 @@ RSpec.describe Ci::Build do
       end
 
       context 'when there are secrets defined' do
-        let(:options) { { secrets: { some: :secrets } } }
+        let(:secrets) { valid_secrets }
 
         it { is_expected.to include(:secrets) }
       end
 
       context 'when there are no secrets defined' do
-        let(:options) { {} }
+        let(:secrets) { {} }
 
         it { is_expected.not_to include(:secrets) }
       end
@@ -547,13 +558,13 @@ RSpec.describe Ci::Build do
       end
 
       context 'when there are secrets defined' do
-        let(:options) { { secrets: { some: :secrets } } }
+        let(:secrets) { valid_secrets }
 
         it { is_expected.not_to include(:secrets) }
       end
 
       context 'when there are no secrets defined' do
-        let(:options) { {} }
+        let(:secrets) { {} }
 
         it { is_expected.not_to include(:secrets) }
       end
