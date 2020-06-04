@@ -23,6 +23,7 @@ module EE
         include FromUnion
 
         has_many :security_scans, class_name: 'Security::Scan'
+        has_many :fuzzing_jobs, class_name: 'Fuzzing::Job'
 
         after_save :stick_build_if_status_changed
         delegate :service_specification, to: :runner_session, allow_nil: true

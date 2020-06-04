@@ -2644,6 +2644,59 @@ CREATE SEQUENCE public.fork_networks_id_seq
 
 ALTER SEQUENCE public.fork_networks_id_seq OWNED BY public.fork_networks.id;
 
+CREATE TABLE public.fuzzing_crashes (
+    id bigint NOT NULL,
+    job_id bigint NOT NULL,
+    exit_code smallint NOT NULL,
+    crash_type smallint NOT NULL,
+    state text,
+    stack_trace text,
+    CONSTRAINT check_86148c0384 CHECK ((char_length(stack_trace) <= 1023)),
+    CONSTRAINT check_e3647bd031 CHECK ((char_length(state) <= 1023))
+);
+
+CREATE SEQUENCE public.fuzzing_crashes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.fuzzing_crashes_id_seq OWNED BY public.fuzzing_crashes.id;
+
+CREATE TABLE public.fuzzing_jobs (
+    id bigint NOT NULL,
+    build_id bigint NOT NULL,
+    target_id bigint NOT NULL,
+    job_type smallint NOT NULL,
+    status smallint
+);
+
+CREATE SEQUENCE public.fuzzing_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.fuzzing_jobs_id_seq OWNED BY public.fuzzing_jobs.id;
+
+CREATE TABLE public.fuzzing_targets (
+    id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    name text NOT NULL,
+    CONSTRAINT check_fb307ca0e6 CHECK ((char_length(name) <= 255))
+);
+
+CREATE SEQUENCE public.fuzzing_targets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.fuzzing_targets_id_seq OWNED BY public.fuzzing_targets.id;
+
 CREATE TABLE public.geo_cache_invalidation_events (
     id bigint NOT NULL,
     key character varying NOT NULL
@@ -7671,6 +7724,12 @@ ALTER TABLE ONLY public.fork_network_members ALTER COLUMN id SET DEFAULT nextval
 
 ALTER TABLE ONLY public.fork_networks ALTER COLUMN id SET DEFAULT nextval('public.fork_networks_id_seq'::regclass);
 
+ALTER TABLE ONLY public.fuzzing_crashes ALTER COLUMN id SET DEFAULT nextval('public.fuzzing_crashes_id_seq'::regclass);
+
+ALTER TABLE ONLY public.fuzzing_jobs ALTER COLUMN id SET DEFAULT nextval('public.fuzzing_jobs_id_seq'::regclass);
+
+ALTER TABLE ONLY public.fuzzing_targets ALTER COLUMN id SET DEFAULT nextval('public.fuzzing_targets_id_seq'::regclass);
+
 ALTER TABLE ONLY public.geo_cache_invalidation_events ALTER COLUMN id SET DEFAULT nextval('public.geo_cache_invalidation_events_id_seq'::regclass);
 
 ALTER TABLE ONLY public.geo_container_repository_updated_events ALTER COLUMN id SET DEFAULT nextval('public.geo_container_repository_updated_events_id_seq'::regclass);
@@ -8452,6 +8511,15 @@ ALTER TABLE ONLY public.fork_network_members
 
 ALTER TABLE ONLY public.fork_networks
     ADD CONSTRAINT fork_networks_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.fuzzing_crashes
+    ADD CONSTRAINT fuzzing_crashes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.fuzzing_jobs
+    ADD CONSTRAINT fuzzing_jobs_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.fuzzing_targets
+    ADD CONSTRAINT fuzzing_targets_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.geo_cache_invalidation_events
     ADD CONSTRAINT geo_cache_invalidation_events_pkey PRIMARY KEY (id);
@@ -9884,6 +9952,14 @@ CREATE INDEX index_fork_network_members_on_forked_from_project_id ON public.fork
 CREATE UNIQUE INDEX index_fork_network_members_on_project_id ON public.fork_network_members USING btree (project_id);
 
 CREATE UNIQUE INDEX index_fork_networks_on_root_project_id ON public.fork_networks USING btree (root_project_id);
+
+CREATE INDEX index_fuzzing_crashes_on_job_id ON public.fuzzing_crashes USING btree (job_id);
+
+CREATE INDEX index_fuzzing_jobs_on_build_id ON public.fuzzing_jobs USING btree (build_id);
+
+CREATE INDEX index_fuzzing_jobs_on_target_id ON public.fuzzing_jobs USING btree (target_id);
+
+CREATE INDEX index_fuzzing_targets_on_project_id ON public.fuzzing_targets USING btree (project_id);
 
 CREATE INDEX index_geo_event_log_on_cache_invalidation_event_id ON public.geo_event_log USING btree (cache_invalidation_event_id) WHERE (cache_invalidation_event_id IS NOT NULL);
 
@@ -11932,6 +12008,9 @@ ALTER TABLE ONLY public.user_details
 ALTER TABLE ONLY public.diff_note_positions
     ADD CONSTRAINT fk_rails_13c7212859 FOREIGN KEY (note_id) REFERENCES public.notes(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.fuzzing_jobs
+    ADD CONSTRAINT fk_rails_14fb28816a FOREIGN KEY (target_id) REFERENCES public.fuzzing_targets(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.users_security_dashboard_projects
     ADD CONSTRAINT fk_rails_150cd5682c FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -12231,6 +12310,9 @@ ALTER TABLE ONLY public.terraform_states
 
 ALTER TABLE ONLY public.group_deploy_keys
     ADD CONSTRAINT fk_rails_5682fc07f8 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE RESTRICT;
+
+ALTER TABLE ONLY public.fuzzing_crashes
+    ADD CONSTRAINT fk_rails_55b59f9515 FOREIGN KEY (job_id) REFERENCES public.fuzzing_jobs(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.issue_user_mentions
     ADD CONSTRAINT fk_rails_57581fda73 FOREIGN KEY (issue_id) REFERENCES public.issues(id) ON DELETE CASCADE;
@@ -12742,6 +12824,9 @@ ALTER TABLE ONLY public.gpg_signatures
 ALTER TABLE ONLY public.board_group_recent_visits
     ADD CONSTRAINT fk_rails_ca04c38720 FOREIGN KEY (board_id) REFERENCES public.boards(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.fuzzing_targets
+    ADD CONSTRAINT fk_rails_cb62796cea FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.ci_daily_report_results
     ADD CONSTRAINT fk_rails_cc5caec7d9 FOREIGN KEY (last_pipeline_id) REFERENCES public.ci_pipelines(id) ON DELETE CASCADE;
 
@@ -12801,6 +12886,9 @@ ALTER TABLE ONLY public.vulnerability_occurrence_pipelines
 
 ALTER TABLE ONLY public.deployment_merge_requests
     ADD CONSTRAINT fk_rails_dcbce9f4df FOREIGN KEY (deployment_id) REFERENCES public.deployments(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.fuzzing_jobs
+    ADD CONSTRAINT fk_rails_dce7c9b0e4 FOREIGN KEY (build_id) REFERENCES public.ci_builds(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.user_callouts
     ADD CONSTRAINT fk_rails_ddfdd80f3d FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
@@ -13976,6 +14064,9 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200602013901
 20200603073101
 20200603180338
+20200604080543
+20200604080841
+20200604081017
 20200604143628
 20200604145731
 20200604174544
