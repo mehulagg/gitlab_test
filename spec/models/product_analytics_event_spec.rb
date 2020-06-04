@@ -15,12 +15,14 @@ RSpec.describe ProductAnalyticsEvent, type: :model do
   end
 
   describe '.timerange' do
-    let_it_be(:event_1) { create(:product_analytics_event, collector_tstamp: Time.zone.now - 1.month) }
-    let_it_be(:event_2) { create(:product_analytics_event, collector_tstamp: Time.zone.now + 1.month) }
-    let_it_be(:event_3) { create(:product_analytics_event, collector_tstamp: Time.zone.now - 1.day) }
-    let_it_be(:event_4) { create(:product_analytics_event, collector_tstamp: Time.zone.now + 1.day) }
+    let_it_be(:events) do
+      create(:product_analytics_event, collector_tstamp: Time.zone.now - 1.day)
+      create(:product_analytics_event, collector_tstamp: Time.zone.now - 5.days)
+      create(:product_analytics_event, collector_tstamp: Time.zone.now - 15.days)
+      create(:product_analytics_event, collector_tstamp: Time.zone.now - 1.month)
+    end
 
-    it { expect(described_class.timerange(5.days).to_json).to eq([event_3, event_4].to_json) }
-    it { expect(described_class.timerange(60.days).to_json).to eq([event_1, event_2, event_3, event_4].to_json) }
+    it { expect(described_class.timerange(7.days).size).to eq(2) }
+    it { expect(described_class.timerange(60.days).size).to eq(4) }
   end
 end
