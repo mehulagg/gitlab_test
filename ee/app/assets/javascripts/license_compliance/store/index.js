@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import createState from './state';
+
 import modalModule from '~/vuex_shared/modules/modal';
-import approvalsModule from 'ee/approvals/stores/modules/license_management';
+import approvalsModule from 'ee/approvals/stores/modules/license_compliance';
 
 import mediator from './plugins/mediator';
 
@@ -13,21 +15,9 @@ import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/const
 
 Vue.use(Vuex);
 
-export default () =>
+export default (settings = {}) =>
   new Vuex.Store({
-    state: {
-      settings: {
-        prefix: 'license-check',
-        projectId: '43',
-        projectPath: '/api/v4/projects/43',
-        rulesPath: '/api/v4/projects/43/approval_settings/rules',
-        settingsPath: '/api/v4/projects/43/approval_settings',
-        securityApprovalsHelpPagePath:
-          '/help/user/application_security/index.html#security-approvals-in-merge-requests-ultimate',
-        eligibleApproversDocsPath:
-          '/help/user/project/merge_requests/merge_request_approvals#eligible-approvers',
-      },
-    },
+    state: createState(settings),
     modules: {
       [LICENSE_LIST]: listModule(),
       [LICENSE_MANAGEMENT]: licenseManagementModule(),

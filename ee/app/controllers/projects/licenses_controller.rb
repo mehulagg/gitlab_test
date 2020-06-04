@@ -94,13 +94,25 @@ module Projects
       end
     end
 
+      #     settings: {
+      #   prefix: 'license-check',
+      #   projectId: '43',
+      #   projectPath: '/api/v4/projects/43',
+      #   rulesPath: '/api/v4/projects/43/approval_settings/rules',
+      #   settingsPath: '/api/v4/projects/43/approval_settings',
+      # },
+      #
     def licenses_app_data
       {
         project_licenses_endpoint: project_licenses_path(@project, detected: true, format: :json),
         read_license_policies_endpoint: expose_path(api_v4_projects_managed_licenses_path(id: @project.id)),
         write_license_policies_endpoint: write_license_policies_endpoint,
         documentation_path: help_page_path('user/compliance/license_compliance/index'),
-        empty_state_svg_path: helpers.image_path('illustrations/Dependency-list-empty-state.svg')
+        empty_state_svg_path: helpers.image_path('illustrations/Dependency-list-empty-state.svg'),
+        project_id: @project.id,
+        project_path: expose_path(api_v4_projects_path(id: @project.id)),
+        rules_path: expose_path(api_v4_projects_approval_settings_rules_path(id: @project.id)),
+        settings_path: expose_path(api_v4_projects_approval_settings_path(id: @project.id))
       }
     end
   end
