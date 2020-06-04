@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import modalModule from '~/vuex_shared/modules/modal';
-import projectSettingsModule from 'ee/approvals/stores/modules/project_settings';
+import approvalsModule from 'ee/approvals/stores/modules/license_management';
 
 import mediator from './plugins/mediator';
 
@@ -17,24 +17,22 @@ export default () =>
   new Vuex.Store({
     state: {
       settings: {
-        canEdit: true,
-        eligibleApproversDocsPath:
-          '/help/user/project/merge_requests/merge_request_approvals#eligible-approvers',
-        prefix: 'project-settings',
+        prefix: 'license-check',
         projectId: '43',
         projectPath: '/api/v4/projects/43',
         rulesPath: '/api/v4/projects/43/approval_settings/rules',
+        settingsPath: '/api/v4/projects/43/approval_settings',
         securityApprovalsHelpPagePath:
           '/help/user/application_security/index.html#security-approvals-in-merge-requests-ultimate',
-        settingsPath: '/api/v4/projects/43/approval_settings',
+        eligibleApproversDocsPath:
+          '/help/user/project/merge_requests/merge_request_approvals#eligible-approvers',
       },
     },
     modules: {
       [LICENSE_LIST]: listModule(),
       [LICENSE_MANAGEMENT]: licenseManagementModule(),
-      approvals: projectSettingsModule(),
+      approvals: approvalsModule(),
       createModal: modalModule(),
-      deleteModal: modalModule(),
     },
     plugins: [mediator],
   });
