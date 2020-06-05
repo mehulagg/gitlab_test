@@ -6,6 +6,13 @@ FactoryBot.define do
     type { 'Service' }
   end
 
+  factory :campfire_service do
+    type { 'CampfireService' }
+    project
+    active { true }
+    token { '123' }
+  end
+
   factory :custom_issue_tracker_service, class: 'CustomIssueTrackerService' do
     project
     active { true }

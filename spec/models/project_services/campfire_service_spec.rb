@@ -28,6 +28,30 @@ describe CampfireService do
     end
   end
 
+  describe '#token' do
+    it 'has the unencrypted and encrypted tokens', :aggregate_failures do
+      service = described_class.new
+      token = '123'
+
+      service.token = token
+
+      encoding = 'm'
+      expected_encrypted_token = [Encryptor.encrypt(Service::ENCRYPTION_OPTIONS.merge(value: token, iv: service.encrypted_token_iv.unpack1(encoding)))].pack(encoding)
+      expect(service.token).to eq(token)
+      expect(service.properties['token']).to eq(token)
+      expect(service.properties['encrypted_token']).to eq(expected_encrypted_token)
+    end
+
+    context 'when there is no encrypted token' do
+      let(:service) { described_class.create(properties: { token: '321' } ) }
+
+      it 'reads the unencrypted token', :aggregate_failures do
+        expect(service.token).to eq('321')
+        expect(service.properties).to eq({ 'token' => '321' })
+      end
+    end
+  end
+
   describe "#execute" do
     let(:user)    { create(:user) }
     let(:project) { create(:project, :repository) }

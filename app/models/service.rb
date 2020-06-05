@@ -19,6 +19,13 @@ class Service < ApplicationRecord
     mock_ci mock_deployment mock_monitoring
   ].freeze
 
+  ENCRYPTION_OPTIONS = {
+    key: Settings.attr_encrypted_db_key_base_32,
+    encode: true,
+    mode: :per_attribute_iv,
+    algorithm: 'aes-256-gcm'
+  }.freeze
+
   serialize :properties, JSON # rubocop:disable Cop/ActiveRecordSerialize
 
   default_value_for :active, false

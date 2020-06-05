@@ -1,8 +1,21 @@
 # frozen_string_literal: true
 
 class CampfireService < Service
-  prop_accessor :token, :subdomain, :room
+  prop_accessor :token, :encrypted_token, :encrypted_token_iv, :subdomain, :room
   validates :token, presence: true, if: :activated?
+
+  attr_encrypted :new_token, ENCRYPTION_OPTIONS.dup.merge(attribute: 'encrypted_token')
+
+  def token
+    return new_token if encrypted_token.present? && encrypted_token_iv.present?
+
+    properties['token']
+  end
+
+  def token=(value)
+    self.new_token = value
+    self.properties = properties.merge('token' => value)
+  end
 
   def title
     'Campfire'
