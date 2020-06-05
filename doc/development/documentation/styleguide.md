@@ -1450,6 +1450,24 @@ the special markup `**(STARTER)**` will generate a `span` element to trigger the
 badges and tooltips (`<span class="badge-trigger starter">`). When the keyword
 "only" is added, the corresponding GitLab.com badge will not be displayed.
 
+### GitLab issues
+
+The documentation can include information about known issues. When you're writing about
+a known issue, use this boilerplate text:
+
+```markdown
+<Description of issue>. Follow [this issue](<link>) for details.
+```
+
+For example:
+
+```markdown
+Deploy boards show duplicate pods. Follow [this issue](<link>) for details.
+```
+
+Don't promise when the issue will be fixed or use the words "currently" or "at the moment."
+The docs represent the product as it is and these extra words are unnecessary.
+
 ## Specific sections
 
 Certain styles should be applied to specific sections. Styles for specific sections are outlined below.
