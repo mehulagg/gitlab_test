@@ -19,8 +19,6 @@ class Service < ApplicationRecord
     mock_ci mock_deployment mock_monitoring
   ].freeze
 
-  serialize :properties, JSON # rubocop:disable Cop/ActiveRecordSerialize
-
   default_value_for :active, false
   default_value_for :alert_events, true
   default_value_for :push_events, true
