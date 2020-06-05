@@ -6185,7 +6185,7 @@ CREATE TABLE public.services (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     active boolean DEFAULT false NOT NULL,
-    properties text,
+    properties jsonb DEFAULT '{}'::jsonb,
     push_events boolean DEFAULT true,
     issues_events boolean DEFAULT true,
     merge_requests_events boolean DEFAULT true,
@@ -13923,6 +13923,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200604174544
 20200604174558
 20200605003204
+20200605114612
 20200608072931
 20200608075553
 20200609002841
