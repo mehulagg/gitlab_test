@@ -1,0 +1,5 @@
+---
+title: Fix error on resource_events tables while destroying user
+merge_request: 33948
+author:
+type: fixed
