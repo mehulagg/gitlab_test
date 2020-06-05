@@ -51,6 +51,8 @@ Some credentials are required to be able to run `aws` commands:
    | `AWS_SECRET_ACCESS_KEY` | Your Secret access key |
    | `AWS_DEFAULT_REGION`    | Your region code       |
 
+   Important note: by default, GitLab will export variables to protected and tagged branches only. If you like to use `aws` commands on feature branches then uncheck the `protect variable` checkbox for thee `AWS..` variables set above.
+
 1. You can now use `aws` commands in the `.gitlab-ci.yml` file of this project:
 
    ```yaml
