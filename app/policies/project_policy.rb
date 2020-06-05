@@ -73,6 +73,9 @@ class ProjectPolicy < BasePolicy
     !project.container_registry_enabled
   end
 
+  desc "Project repository is read only"
+  condition(:repository_read_only, scope: :subject) { project.repository_read_only }
+
   desc "Project has an external wiki"
   condition(:has_external_wiki, scope: :subject, score: 0) { project.has_external_wiki? }
 
@@ -399,6 +402,13 @@ class ProjectPolicy < BasePolicy
     READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
       prevent(*create_update_admin_destroy(feature))
     end
+  end
+
+  rule { repository_read_only }.policy do
+    prevent :push_code
+    prevent :push_to_delete_protected_branch
+    prevent :upload_file
+    prevent :create_merge_request_in
   end
 
   rule { issues_disabled }.policy do
