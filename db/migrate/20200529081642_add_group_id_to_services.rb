@@ -9,11 +9,13 @@ class AddGroupIdToServices < ActiveRecord::Migration[6.0]
 
   def up
     add_column :services, :group_id, :integer, null: true
-    add_concurrent_foreign_key :services, :namespaces, column: :group_id
+    add_concurrent_foreign_key :services, :namespaces, column: :group_id, on_delete: :nullify
+    add_concurrent_index :services, :group_id
   end
 
   def down
-    remove_column :services, :group_id
+    remove_concurrent_index :services, :group_id
     remove_foreign_key_if_exists :services, column: :group_id
+    remove_column :services, :group_id
   end
 end

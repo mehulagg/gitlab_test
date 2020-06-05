@@ -10719,6 +10719,8 @@ CREATE INDEX index_serverless_domain_cluster_on_pages_domain_id ON public.server
 
 CREATE INDEX index_service_desk_enabled_projects_on_id_creator_id_created_at ON public.projects USING btree (id, creator_id, created_at) WHERE (service_desk_enabled = true);
 
+CREATE INDEX index_services_on_group_id ON public.services USING btree (group_id);
+
 CREATE INDEX index_services_on_inherit_from_id ON public.services USING btree (inherit_from_id);
 
 CREATE INDEX index_services_on_project_id_and_type ON public.services USING btree (project_id, type);
@@ -11633,7 +11635,7 @@ ALTER TABLE ONLY public.ci_triggers
     ADD CONSTRAINT fk_e8e10d1964 FOREIGN KEY (owner_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.services
-    ADD CONSTRAINT fk_e8fe908a34 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_e8fe908a34 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY public.pages_domains
     ADD CONSTRAINT fk_ea2f6dfc6f FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
