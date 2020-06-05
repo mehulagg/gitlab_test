@@ -84,6 +84,30 @@ describe Users::MigrateToGhostUserService do
       end
     end
 
+    context 'resource_label_events' do
+      include_examples "migrating a deleted user's associated records to the ghost user", ResourceLabelEvent, [:user] do
+        let(:created_record) { create(:resource_label_event, user: user) }
+      end
+    end
+
+    context 'resource_milestone_events' do
+      include_examples "migrating a deleted user's associated records to the ghost user", ResourceMilestoneEvent, [:user] do
+        let(:created_record) { create(:resource_milestone_event, user: user) }
+      end
+    end
+
+    context 'resource_state_events' do
+      include_examples "migrating a deleted user's associated records to the ghost user", ResourceStateEvent, [:user] do
+        let(:created_record) { create(:resource_state_event, user: user) }
+      end
+    end
+
+    context 'resource_weight_events' do
+      include_examples "migrating a deleted user's associated records to the ghost user", ResourceWeightEvent, [:user] do
+        let(:created_record) { create(:resource_weight_event, user: user) }
+      end
+    end
+
     context 'reviews' do
       let!(:user)   { create(:user) }
       let(:service) { described_class.new(user) }

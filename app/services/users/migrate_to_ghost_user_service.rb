@@ -54,6 +54,10 @@ module Users
       migrate_award_emoji
       migrate_snippets
       migrate_reviews
+      migrate_resource_label_events
+      migrate_resource_milestone_events
+      migrate_resource_state_events
+      migrate_resource_weight_events
     end
 
     # rubocop: disable CodeReuse/ActiveRecord
@@ -90,6 +94,24 @@ module Users
     def migrate_reviews
       user.reviews.update_all(author_id: ghost_user.id)
     end
+
+    # rubocop: disable CodeReuse/ActiveRecord
+    def migrate_resource_label_events
+      ResourceLabelEvent.where(user_id: user.id).update_all(user_id: ghost_user.id)
+    end
+
+    def migrate_resource_milestone_events
+      ResourceMilestoneEvent.where(user_id: user.id).update_all(user_id: ghost_user.id)
+    end
+
+    def migrate_resource_state_events
+      ResourceStateEvent.where(user_id: user.id).update_all(user_id: ghost_user.id)
+    end
+
+    def migrate_resource_weight_events
+      ResourceWeightEvent.where(user_id: user.id).update_all(user_id: ghost_user.id)
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end
 
