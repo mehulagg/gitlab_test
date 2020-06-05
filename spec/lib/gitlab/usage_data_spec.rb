@@ -21,6 +21,7 @@ describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
+  # test change
   describe '#data' do
     let!(:ud) { build(:usage_data) }
 
