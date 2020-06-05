@@ -28,5 +28,7 @@ if changed_files.any?
   telemetry_labels = ['telemetry']
   telemetry_labels << 'telemetry::review pending' unless helper.mr_has_labels?('telemetry::reviewed')
 
-  markdown(helper.prepare_labels_for_mr(telemetry_labels))
+  markdown(<<~MARKDOWN)
+    #{helper.prepare_labels_for_mr(telemetry_labels)}
+  MARKDOWN
 end
