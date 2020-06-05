@@ -8,6 +8,12 @@ Please check the ~telemetry [guide](https://docs.gitlab.com/ee/development/telem
 
 MSG
 
+LABEL_MESSAGE = <<~MARKDOWN
+
+%<labels>s
+
+MARKDOWN
+
 tracking_files = [
   'lib/gitlab/tracking.rb',
   'spec/lib/gitlab/tracking_spec.rb',
@@ -28,7 +34,5 @@ if changed_files.any?
   telemetry_labels = ['telemetry']
   telemetry_labels << 'telemetry::review pending' unless helper.mr_has_labels?('telemetry::reviewed')
 
-  markdown(<<~MARKDOWN)
-    #{helper.prepare_labels_for_mr(telemetry_labels)}
-  MARKDOWN
+  markdown format(LABEL_MESSAGE, labels: helper.prepare_labels_for_mr(telemetry_labels))
 end
