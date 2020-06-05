@@ -1,4 +1,5 @@
 import invalidUrl from '~/lib/utils/invalid_url';
+import { defaultTimeRange } from '~/vue_shared/constants';
 import { timezones } from '../format_date';
 
 export default () => ({
@@ -8,7 +9,7 @@ export default () => ({
   dashboardsEndpoint: invalidUrl,
 
   // Dashboard request parameters
-  timeRange: null,
+  timeRange: defaultTimeRange,
   currentDashboard: null,
 
   // Dashboard data

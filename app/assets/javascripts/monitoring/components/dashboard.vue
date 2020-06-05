@@ -145,7 +145,6 @@ export default {
   },
   data() {
     return {
-      selectedTimeRange: timeRangeFromUrl() || defaultTimeRange,
       isRearrangingPanels: false,
       originalDocumentTitle: document.title,
     };
@@ -155,6 +154,7 @@ export default {
       'dashboard',
       'emptyState',
       'showEmptyState',
+      'timeRange',
       'expandedPanel',
       'variables',
       'links',
@@ -207,7 +207,6 @@ export default {
     if (!this.hasMetrics) {
       this.setGettingStartedEmptyState();
     } else {
-      this.setTimeRange(this.selectedTimeRange);
       this.fetchData();
     }
   },
@@ -272,7 +271,7 @@ export default {
         url: mergeUrlParams({ start, end }, window.location.href),
         title: document.title,
       });
-      this.selectedTimeRange = { start, end };
+      this.setTimeRange({ start, end });
     },
     onExpandPanel(group, panel) {
       this.setExpandedPanel({ group, panel });
@@ -296,7 +295,7 @@ export default {
         ),
       );
       // As a fallback, switch to default time range instead
-      this.selectedTimeRange = defaultTimeRange;
+      this.setTimeRange(defaultTimeRange);
     },
   },
   i18n: {
@@ -319,7 +318,7 @@ export default {
       :external-dashboard-url="externalDashboardUrl"
       :has-metrics="hasMetrics"
       :is-rearranging-panels="isRearrangingPanels"
-      :selected-time-range="selectedTimeRange"
+      :selected-time-range="timeRange"
       @dateTimePickerInvalid="onDateTimePickerInvalid"
       @setRearrangingPanels="onSetRearrangingPanels"
     />

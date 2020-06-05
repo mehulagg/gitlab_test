@@ -4,6 +4,7 @@ import Dashboard from '~/monitoring/components/dashboard.vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import { getParameterValues } from '~/lib/utils/url_utility';
 import { createStore } from './stores';
+import { timeRangeFromUrl } from './utils';
 
 Vue.use(GlToast);
 
@@ -12,6 +13,7 @@ export default (props = {}) => {
 
   if (el && el.dataset) {
     const [currentDashboard] = getParameterValues('dashboard');
+    const timeRange = timeRangeFromUrl();
 
     const {
       deploymentsEndpoint,
@@ -32,6 +34,7 @@ export default (props = {}) => {
       dashboardTimezone,
       projectPath,
       logsPath,
+      timeRange,
       currentEnvironmentName,
     });
 
