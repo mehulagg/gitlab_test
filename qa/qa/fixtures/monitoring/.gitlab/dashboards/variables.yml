@@ -1,0 +1,25 @@
+dashboard: 'Pod metrics'
+  priority: 10
+  templating:
+    variables:
+      pod_name: 'event-exporter-v0.2.4-5f7d5d7dd4-gtk8b'
+      pod_name2: 'fluentd-gcp-scaler-6965bb45c9-ghl27'
+  panel_groups:
+    - group: CPU metrics
+      panels:
+        - title: "CPU usage"
+          type: "line-chart"
+          y_label: "Cores per pod"
+          metrics:
+            - id: pod_cpu_usage_seconds_total
+              query_range: 'rate(container_cpu_usage_seconds_total{pod_name="{{pod_name}}"}[5m])'
+              unit: "cores"
+              label: pod_name
+        - title: "Memory usage working set"
+          type: "line-chart"
+          y_label: "Working set memory (MiB)"
+          metrics:
+            - id: pod_memory_working_set1
+              query_range: 'container_memory_working_set_bytes{pod_name="{{pod_name2}}"}/1024/1024'
+              unit: "MiB"
+                label: pod_name

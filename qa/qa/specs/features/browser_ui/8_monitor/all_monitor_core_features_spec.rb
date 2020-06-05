@@ -19,49 +19,63 @@ module QA
       end
 
       after :all do
-        @cluster&.remove!
+        #     @cluster&.remove!
       end
 
-      it 'configures custom metrics' do
-        verify_add_custom_metric
-        verify_edit_custom_metric
-        verify_delete_custom_metric
-      end
-
-      it 'duplicates to create dashboard to custom' do
+#       it 'configures custom metrics' do
+#         verify_add_custom_metric
+#         verify_edit_custom_metric
+#         verify_delete_custom_metric
+#       end
+#
+#       it 'duplicates to create dashboard to custom' do
+#         Page::Project::Menu.perform(&:go_to_operations_metrics)
+#
+#         Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
+#           on_dashboard.duplicate_dashboard
+#
+#           expect(on_dashboard).to have_metrics
+#           expect(on_dashboard).to have_edit_dashboard_enabled
+#         end
+#       end
+#
+#       it 'verifies data on filtered deployed environment' do
+#         Page::Project::Menu.perform(&:go_to_operations_metrics)
+#
+#         Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
+#           on_dashboard.filter_environment
+#
+#           expect(on_dashboard).to have_metrics
+#         end
+#       end
+#
+#       it 'filters using the quick range' do
+#         Page::Project::Menu.perform(&:go_to_operations_metrics)
+#
+#         Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
+#           on_dashboard.show_last('30 minutes')
+#           expect(on_dashboard).to have_metrics
+#
+#           on_dashboard.show_last('3 hours')
+#           expect(on_dashboard).to have_metrics
+#
+#           on_dashboard.show_last('1 day')
+#           expect(on_dashboard).to have_metrics
+#         end
+#       end
+      it 'uses templating variables' do
         Page::Project::Menu.perform(&:go_to_operations_metrics)
 
-        Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
-          on_dashboard.duplicate_dashboard
+        Page::Project::Operations::Metrics::Show.perform do |dashboard|
+          dashboard.select_dashboard('variables.yml')
+          dashboard.filter_custom_variable('event-exporter')
+          expect(dashboard).to has_custom_variable_metric?
 
-          expect(on_dashboard).to have_metrics
-          expect(on_dashboard).to have_edit_dashboard_enabled
+          dashboard.refresh
+          expect(dashboard).to have_custom_variable_set('event-exporter')
+          expect(dashboard).to has_custom_variable_metric?
         end
-      end
 
-      it 'verifies data on filtered deployed environment' do
-        Page::Project::Menu.perform(&:go_to_operations_metrics)
-
-        Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
-          on_dashboard.filter_environment
-
-          expect(on_dashboard).to have_metrics
-        end
-      end
-
-      it 'filters using the quick range' do
-        Page::Project::Menu.perform(&:go_to_operations_metrics)
-
-        Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
-          on_dashboard.show_last('30 minutes')
-          expect(on_dashboard).to have_metrics
-
-          on_dashboard.show_last('3 hours')
-          expect(on_dashboard).to have_metrics
-
-          on_dashboard.show_last('1 day')
-          expect(on_dashboard).to have_metrics
-        end
       end
 
       private
@@ -95,7 +109,7 @@ module QA
           push.project = @project
           push.directory = Pathname
                                .new(__dir__)
-                               .join('../../../../fixtures/auto_devops_rack')
+                               .join('../../../../fixtures/monitoring')
           push.commit_message = 'Create AutoDevOps compatible Project for Monitoring'
         end
 

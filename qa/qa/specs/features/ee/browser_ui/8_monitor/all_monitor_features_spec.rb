@@ -96,7 +96,7 @@ module QA
           push.project = @project
           push.directory = Pathname
                                .new(__dir__)
-                               .join('../../../../../fixtures/auto_devops_rack')
+                               .join('../../../../../fixtures/monitoring')
           push.commit_message = 'Create AutoDevOps compatible Project for Monitoring'
         end
 

@@ -20,6 +20,13 @@ module QA
               element :range_picker_dropdown
             end
 
+            view 'app/assets/javascripts/monitoring/components/variables/custom_variable.vue' do
+              element :custom_variable_label
+              element :custom_variable_dropdown
+              element :custom_variable_item
+            end
+
+
             view 'app/assets/javascripts/monitoring/components/duplicate_dashboard_form.vue' do
               element :duplicate_dashboard_filename_field
             end
@@ -65,11 +72,24 @@ module QA
               within('.modal-content') { click_button(class: 'btn-success') }
             end
 
+            def select_dashboard(dashboard_name)
+              click_element :dashboards_filter_dropdown
+              click_on dashboard_name
+            end
+
             def filter_environment(environment = 'production')
               click_element :environments_dropdown
 
               within_element :environments_dropdown do
                 click_link_with_text environment
+              end
+            end
+
+            def filter_custom_variable(custom_variable)
+              click_element :custom_variable_dropdown
+
+              within_element :custom_variable_dropdown do
+                click_element :custom_variable_item, text: custom_variable
               end
             end
 
@@ -87,6 +107,16 @@ module QA
               within_element :prometheus_graphs do
                 has_text?(metric)
               end
+            end
+
+            def has_custom_variable_metric?(custom_variable_metric)
+              within_element :prometheus_graphs do
+                has_text?(custom_variable_metric)
+              end
+            end
+
+            def has_custom_variable_set?(custom_variable)
+              has_select?(:custom_variable_dropdown, selected: custom_variable)
             end
 
             private
