@@ -21,4 +21,4 @@ export const createStore = () =>
     },
   });
 
-export default createStore();
+export default createStore;
