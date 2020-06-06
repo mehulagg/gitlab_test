@@ -12,6 +12,10 @@ The access levels are defined in the `Gitlab::Access` module. Currently, these l
 50 => Owner access - Only valid to set for groups
 ```
 
+CAUTION: **Caution:**
+Before GitLab 13.something projects in personal namespaces did not
+return owner (`50`) permission for owner.
+
 ## List all members of a group or project
 
 Gets a list of group or project members viewable by the authenticated user.
