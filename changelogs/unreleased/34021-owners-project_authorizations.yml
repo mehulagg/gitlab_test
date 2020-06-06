@@ -1,0 +1,5 @@
+---
+title: For personal namespace projects set project_authorizations owners and show correctly on membership page
+merge_request: 34021
+author: Ben Bodenmiller @bbodenmiller
+type: added
