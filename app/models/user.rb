@@ -910,15 +910,7 @@ class User < ApplicationRecord
   end
 
   def owned_projects
-    @owned_projects ||= Project.from_union(
-      [
-        Project.where(namespace: namespace),
-        Project.joins(:project_authorizations)
-          .where("projects.namespace_id <> ?", namespace.id)
-          .where(project_authorizations: { user_id: id, access_level: Gitlab::Access::OWNER })
-      ],
-      remove_duplicates: false
-    )
+    @owned_projects ||= Project.where(project_authorizations: { user_id: id, access_level: Gitlab::Access::OWNER })
   end
 
   # Returns projects which user can admin issues on (for example to move an issue to that project).
