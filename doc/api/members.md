@@ -9,7 +9,7 @@ The access levels are defined in the `Gitlab::Access` module. Currently, these l
 20 => Reporter access
 30 => Developer access
 40 => Maintainer access
-50 => Owner access # Only valid for groups
+50 => Owner access - Only valid to set for groups
 ```
 
 ## List all members of a group or project
