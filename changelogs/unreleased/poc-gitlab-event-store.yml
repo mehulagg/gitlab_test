@@ -1,0 +1,5 @@
+---
+title: Add Gitlab::EventStore backend pub-sub mechanism.
+merge_request: 34042
+author:
+type: other
