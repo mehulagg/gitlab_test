@@ -465,7 +465,7 @@ describe API::Projects do
       end
 
       context 'and with owned=true' do
-        it 'returns an array of projects the user owns' do
+        it 'returns an array of projects the user owns' do #failing but unsure what change needed
           get api('/projects', user4), params: { owned: true }
 
           expect(response).to have_gitlab_http_status(:ok)
@@ -506,7 +506,7 @@ describe API::Projects do
         end
 
         context 'including owned filter' do
-          it 'returns only projects that satisfy all query parameters' do
+          it 'returns only projects that satisfy all query parameters' do #failing but unsure what change needed
             get api('/projects', user), params: { visibility: 'public', owned: true, starred: true, search: 'gitlab' }
 
             expect(response).to have_gitlab_http_status(:ok)
