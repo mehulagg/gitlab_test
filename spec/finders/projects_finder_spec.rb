@@ -202,7 +202,7 @@ describe ProjectsFinder, :do_not_mock_admin_mode do
         let(:params) { { owned: true } }
         let!(:owned_project) { create(:project, :private, namespace: current_user.namespace) }
 
-        it { is_expected.to eq([owned_project]) } #failing but unsure what change needed
+        it { is_expected.to eq([owned_project]) } # failing but unsure what change needed
       end
 
       describe 'filter by non_public' do
