@@ -1455,9 +1455,9 @@ describe User do
     it { expect(@user.authorized_projects).to include(@project) }
     it { expect(@user.authorized_projects).to include(@project_2) }
     it { expect(@user.authorized_projects).to include(@project_3) }
-    it { expect(@user.owned_projects).to include(@project) }
-    it { expect(@user.owned_projects).not_to include(@project_2) }
-    it { expect(@user.owned_projects).not_to include(@project_3) }
+    it { expect(@user.owned_projects).to include(@project) } #failing but unsure what change needed
+    it { expect(@user.owned_projects).not_to include(@project_2) } #failing but unsure what change needed
+    it { expect(@user.owned_projects).not_to include(@project_3) } #failing but unsure what change needed
     it { expect(@user.personal_projects).to include(@project) }
     it { expect(@user.personal_projects).not_to include(@project_2) }
     it { expect(@user.personal_projects).not_to include(@project_3) }
@@ -2804,7 +2804,7 @@ describe User do
         let(:min_access_level) { Gitlab::Access::OWNER }
 
         it 'does not include projects with higher access level' do
-          expect(subject).not_to include(project)
+          expect(subject).not_to include(project) #failing but unsure what change needed
         end
       end
     end
