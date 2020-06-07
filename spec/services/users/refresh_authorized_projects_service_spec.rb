@@ -52,7 +52,7 @@ describe Users::RefreshAuthorizedProjectsService do
         it 'is called' do
           ProjectAuthorization.delete_all
 
-          expect(callback).to receive(:call).with(project.id, Gitlab::Access::MAINTAINER).once
+          expect(callback).to receive(:call).with(project.id, Gitlab::Access::OWNER).once
 
           service.execute
         end
