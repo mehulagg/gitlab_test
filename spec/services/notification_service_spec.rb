@@ -2676,7 +2676,7 @@ describe NotificationService, :mailer do
       describe "##{sym}" do
         subject(:notify!) { notification.send(sym, domain) }
 
-        it 'emails current watching maintainers' do
+        it 'emails current watching maintainers' do #failing but unsure what change needed
           expect(Notify).to receive(:"#{sym}_email").at_least(:once).and_call_original
 
           notify!
@@ -2780,7 +2780,7 @@ describe NotificationService, :mailer do
         reset_delivered_emails!
       end
 
-      it 'emails current watching maintainers' do
+      it 'emails current watching maintainers' do #failing but unsure what change needed
         notification.remote_mirror_update_failed(remote_mirror)
 
         should_only_email(u_maintainer1, u_maintainer2, u_owner)
