@@ -57,7 +57,7 @@ Project membership (where the group membership is already taken into account)
 is stored in the `project_authorizations` table.
 
 CAUTION: **Caution:**
-Before GitLab 13.something 
+Before GitLab 13.something
 projects in personal namespace did not show owner (`50`) permission in
 `project_authorizations` table.
 
