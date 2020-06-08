@@ -43,6 +43,9 @@ module UserCalloutsHelper
     !user_dismissed?(WEBHOOKS_MOVED)
   end
 
+  def render_pat_token_expiry_notification
+  end
+
   private
 
   def user_dismissed?(feature_name, ignore_dismissal_earlier_than = nil)

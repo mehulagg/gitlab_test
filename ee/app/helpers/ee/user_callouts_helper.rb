@@ -14,6 +14,7 @@ module EE
     USERS_OVER_LICENSE_BANNER = 'users_over_license_banner'
     STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER = 'standalone_vulnerabilities_introduction_banner'
     ACTIVE_USER_COUNT_THRESHOLD = 'active_user_count_threshold'
+    PERSONAL_ACCESS_TOKEN_EXPIRY = 'personal_access_token_expiry'
 
     def show_canary_deployment_callout?(project)
       !user_dismissed?(CANARY_DEPLOYMENT) &&
@@ -85,6 +86,13 @@ module EE
 
     def show_standalone_vulnerabilities_introduction_banner?
       !user_dismissed?(STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER)
+    end
+
+    def render_pat_token_expiry_notification
+      return unless current_user &&
+        !user_dismissed?(PERSONAL_ACCESS_TOKEN_EXPIRY, 1.week.ago)
+
+      render "layouts/token_expiry"
     end
 
     private

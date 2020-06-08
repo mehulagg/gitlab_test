@@ -348,6 +348,36 @@ RSpec.describe EE::UserCalloutsHelper do
     end
   end
 
+  describe '.render_pat_token_expiry_notification' do
+    subject { helper.render_pat_token_expiry_notification }
+
+    let_it_be(:user) { create(:user) }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+    end
+
+    context 'has not been dismissed' do
+      it do
+        expect(helper).to receive(:render).with('layouts/token_expiry')
+
+        subject
+      end
+    end
+
+    context 'has been dismissed' do
+      before do
+        create(:user_callout, user: user, feature_name: described_class::PERSONAL_ACCESS_TOKEN_EXPIRY, dismissed_at: 2.days.ago)
+      end
+
+      it do
+        expect(helper).not_to receive(:render).with('layouts/token_expiry')
+
+        subject
+      end
+    end
+  end
+
   describe '.show_standalone_vulnerabilities_introduction_banner?' do
     subject { helper.show_standalone_vulnerabilities_introduction_banner? }
 

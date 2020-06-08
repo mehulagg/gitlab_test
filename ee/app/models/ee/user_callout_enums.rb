@@ -19,7 +19,8 @@ module EE
           account_recovery_regular_check: 12,
           users_over_license_banner: 16,
           standalone_vulnerabilities_introduction_banner: 17,
-          active_user_count_threshold: 18
+          active_user_count_threshold: 18,
+          personal_access_token_expiry: 19
         )
       end
     end
