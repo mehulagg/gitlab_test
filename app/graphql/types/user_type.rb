@@ -28,10 +28,10 @@ module Types
 
     # Merge request field: MRs can be either authored or assigned:
     field :authored_merge_requests, Types::MergeRequestType.connection_type, null: true,
-          resolver: Resolvers::AuthoredMergeRequestsResolver,
+          resolver: Resolvers::Users::AuthoredMergeRequestsResolver,
           description: 'Merge Requests authored by the user'
     field :assigned_merge_requests, Types::MergeRequestType.connection_type, null: true,
-          resolver: Resolvers::AssignedMergeRequestsResolver,
+          resolver: Resolvers::Users::AssignedMergeRequestsResolver,
           description: 'Merge Requests assigned to the user'
 
     field :snippets,

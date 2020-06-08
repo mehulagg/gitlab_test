@@ -126,13 +126,13 @@ module Types
           null: true,
           description: 'Merge requests of the project',
           extras: [:lookahead],
-          resolver: Resolvers::MergeRequestsResolver
+          resolver: Resolvers::Projects::MergeRequestsResolver
 
     field :merge_request,
           Types::MergeRequestType,
           null: true,
           description: 'A single merge request of the project',
-          resolver: Resolvers::MergeRequestsResolver.single
+          resolver: Resolvers::Projects::MergeRequestsResolver.single
 
     field :issues,
           Types::IssueType.connection_type,
