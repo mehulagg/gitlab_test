@@ -2183,6 +2183,8 @@ describe Gitlab::Git::Repository, :seed_helper do
     subject { new_repository.replicate(repository) }
 
     before do
+      repository.write_ref('HEAD', "refs/heads/feature")
+
       stub_storage_settings('test_second_storage' => {
         'gitaly_address' => Gitlab.config.repositories.storages.default.gitaly_address,
         'path' => TestEnv::SECOND_STORAGE_PATH
@@ -2197,6 +2199,7 @@ describe Gitlab::Git::Repository, :seed_helper do
     it 'mirrors the source repository' do
       subject
 
+      expect(new_repository.root_ref).to eq(repository.root_ref)
       expect(refs(new_repository_path)).to eq(refs(repository_path))
     end
 
