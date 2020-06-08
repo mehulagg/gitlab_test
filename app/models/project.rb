@@ -1195,7 +1195,7 @@ class Project < ApplicationRecord
   end
 
   def default_issue_tracker
-    gitlab_issue_tracker_service || create_gitlab_issue_tracker_service
+    build_gitlab_issue_tracker_service
   end
 
   def issues_tracker

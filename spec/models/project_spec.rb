@@ -888,6 +888,14 @@ describe Project do
     end
   end
 
+  describe '#default_issue_tracker' do
+    let(:project) { create(:project) }
+
+    specify do
+      expect { project.default_issue_tracker }.not_to change { GitlabIssueTrackerService.count }
+    end
+  end
+
   describe '#to_param' do
     context 'with namespace' do
       before do
