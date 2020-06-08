@@ -4058,7 +4058,7 @@ describe Ci::Build do
     end
 
     context 'when build has a terraform report' do
-      context 'when there is a valid tfplan.json' do
+      context 'when there is a valid json file' do
         before do
           create(:ci_job_artifact, :terraform, job: build, project: build.project)
         end
@@ -4075,17 +4075,25 @@ describe Ci::Build do
               )
             )
           )
+
+          expect(terraform_reports.plans.dig('tfplan.json', 'tf_report_error')).to be_nil
         end
       end
 
-      context 'when there is an invalid tfplan.json' do
+      context 'when there is an invalid json file' do
         before do
           create(:ci_job_artifact, :terraform_with_corrupted_data, job: build, project: build.project)
         end
 
-        it 'raises an error' do
-          expect { build.collect_terraform_reports!(terraform_reports) }.to raise_error(
-            Gitlab::Ci::Parsers::Terraform::Tfplan::TfplanParserError
+        it 'generates an error report' do
+          expect { build.collect_terraform_reports!(terraform_reports) }.not_to raise_error
+
+          expect(terraform_reports.plans).to match(
+            a_hash_including(
+              'tfplan_with_corrupted_data.json' => a_hash_including(
+                'tf_report_error' => :invalid_json_format
+              )
+            )
           )
         end
       end

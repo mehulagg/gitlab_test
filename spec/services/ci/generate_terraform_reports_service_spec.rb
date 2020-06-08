@@ -25,11 +25,23 @@ describe Ci::GenerateTerraformReportsService do
     end
 
     context 'when head pipeline has corrupted terraform reports' do
-      it 'returns status and error message' do
+      it 'returns status and error message when customer data is corrupted' do
         build = create(:ci_build, pipeline: merge_request.head_pipeline, project: project)
         create(:ci_job_artifact, :terraform_with_corrupted_data, job: build, project: project)
 
         result = subject.execute(nil, merge_request.head_pipeline)
+
+        expect(result).to match(
+          status: :parsed,
+          data: match(
+            a_hash_including('tfplan_with_corrupted_data.json' => a_hash_including('tf_report_error' => :invalid_json_format))
+          ),
+          key: an_instance_of(Array)
+        )
+      end
+
+      it 'returns status and error message when report is corrupted' do
+        result = subject.execute(nil, nil)
 
         expect(result).to match(
           status: :error,
