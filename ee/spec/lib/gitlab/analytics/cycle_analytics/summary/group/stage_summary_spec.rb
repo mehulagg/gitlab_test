@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
+RSpec.describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
   let(:group) { create(:group) }
   let(:project) { create(:project, :repository, namespace: group) }
   let(:project_2) { create(:project, :repository, namespace: group) }
@@ -21,6 +21,12 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
 
       it "finds the number of issues created after it" do
         expect(subject.first[:value]).to eq('2')
+      end
+
+      it 'returns the localized title' do
+        Gitlab::I18n.with_locale(:ru) do
+          expect(subject.first[:title]).to eq(n_('New Issue', 'New Issues', 2))
+        end
       end
 
       context 'with subgroups' do
@@ -78,6 +84,12 @@ describe Gitlab::Analytics::CycleAnalytics::Summary::Group::StageSummary do
 
       it "finds the number of deploys made created after it" do
         expect(subject.second[:value]).to eq('2')
+      end
+
+      it 'returns the localized title' do
+        Gitlab::I18n.with_locale(:ru) do
+          expect(subject.second[:title]).to eq(n_('Deploy', 'Deploys', 2))
+        end
       end
 
       context 'with subgroups' do

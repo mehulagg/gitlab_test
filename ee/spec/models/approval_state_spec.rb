@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ApprovalState do
+RSpec.describe ApprovalState do
   def create_rule(additional_params = {})
     default_approver = create(:user)
     params = additional_params.reverse_merge(merge_request: merge_request, users: [default_approver])
@@ -63,6 +63,28 @@ describe ApprovalState do
       it 'excludes authors' do
         expect(results).not_to include(merge_request.author)
       end
+
+      context 'when self approval is enabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_author_approval: false)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'excludes author' do
+          expect(results).not_to include(merge_request.author)
+        end
+      end
+
+      context 'when self approval is disabled on instance level' do
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+          stub_application_setting(prevent_merge_requests_author_approval: true)
+        end
+
+        it 'excludes authors' do
+          expect(results).not_to include(merge_request.author)
+        end
+      end
     end
 
     context 'when self approval is enabled on project level' do
@@ -70,6 +92,28 @@ describe ApprovalState do
 
       it 'includes author' do
         expect(results).to include(merge_request.author)
+      end
+
+      context 'when self approval is enabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_author_approval: false)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'includes author' do
+          expect(results).to include(merge_request.author)
+        end
+      end
+
+      context 'when self approval is disabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_author_approval: true)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'excludes authors' do
+          expect(results).not_to include(merge_request.author)
+        end
       end
     end
 
@@ -80,6 +124,28 @@ describe ApprovalState do
       it 'includes committers' do
         expect(results).to include(*committers)
       end
+
+      context 'when committers approval is enabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_committers_approval: false)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'includes committers' do
+          expect(results).to include(*committers)
+        end
+      end
+
+      context 'when committers approval is disabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_committers_approval: true)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'excludes committers' do
+          expect(results).not_to include(*committers)
+        end
+      end
     end
 
     context 'when committers approval is disabled on project level' do
@@ -88,6 +154,28 @@ describe ApprovalState do
 
       it 'excludes committers' do
         expect(results).not_to include(*committers)
+      end
+
+      context 'when committers approval is enabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_committers_approval: false)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'excludes committers' do
+          expect(results).not_to include(*committers)
+        end
+      end
+
+      context 'when committers approval is disabled on instance level' do
+        before do
+          stub_application_setting(prevent_merge_requests_committers_approval: true)
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+        end
+
+        it 'excludes committers' do
+          expect(results).not_to include(*committers)
+        end
       end
     end
   end
@@ -1425,33 +1513,18 @@ describe ApprovalState do
             project_rule.update!(protected_branches: [another_protected_branch])
           end
 
-          context 'and scoped_approval_rules feature is enabled' do
-            it 'returns the rules that are applicable to the merge request target branch' do
-              expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
-                another_project_rule
-              ])
-            end
-
-            context 'and target_branch is specified' do
-              subject { described_class.new(merge_request, target_branch: 'v1-stable') }
-
-              it 'returns the rules that are applicable to the specified target_branch' do
-                expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
-                  project_rule
-                ])
-              end
-            end
+          it 'returns the rules that are applicable to the merge request target branch' do
+            expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
+              another_project_rule
+            ])
           end
 
-          context 'but scoped_approval_rules feature is disabled' do
-            before do
-              stub_feature_flags(scoped_approval_rules: false)
-            end
+          context 'and target_branch is specified' do
+            subject { described_class.new(merge_request, target_branch: 'v1-stable') }
 
-            it 'returns unscoped rules' do
-              expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
-                project_rule,
-                another_project_rule
+            it 'returns the rules that are applicable to the specified target_branch' do
+              expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
+                project_rule
               ])
             end
           end
@@ -1515,38 +1588,36 @@ describe ApprovalState do
             )
           end
 
-          context 'and scoped_approval_rules feature is enabled' do
-            it 'returns the rules that are applicable to the merge request target branch' do
-              expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
-                another_mr_rule
-              ])
-            end
-
-            context 'and target_branch is specified' do
-              subject { described_class.new(merge_request, target_branch: 'v1-stable') }
-
-              it 'returns the rules that are applicable to the specified target_branch' do
-                expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
-                  mr_rule
-                ])
-              end
-            end
+          it 'returns the rules that are applicable to the merge request target branch' do
+            expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
+              another_mr_rule
+            ])
           end
 
-          context 'but scoped_approval_rules feature is disabled' do
-            before do
-              stub_feature_flags(scoped_approval_rules: false)
-            end
+          context 'and target_branch is specified' do
+            subject { described_class.new(merge_request, target_branch: 'v1-stable') }
 
-            it 'returns unscoped rules' do
-              expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
-                mr_rule,
-                another_mr_rule
+            it 'returns the rules that are applicable to the specified target_branch' do
+              expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
+                mr_rule
               ])
             end
           end
         end
       end
+    end
+  end
+
+  describe '#total_approvals_count' do
+    let(:rule) { create_rule(approvals_required: 1, rule_type: :any_approver, users: [approver1]) }
+
+    before do
+      create(:approval, merge_request: merge_request, user: rule.users.first)
+      create(:approval, merge_request: merge_request, user: approver2)
+    end
+
+    it 'returns the total number of approvals (required + optional)' do
+      expect(subject.total_approvals_count).to eq(2)
     end
   end
 end

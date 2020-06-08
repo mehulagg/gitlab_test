@@ -65,6 +65,7 @@ $ide-commit-header-height: 48px;
   flex-direction: column;
   flex: 1;
   border-left: 1px solid var(--ide-border-color, $white-dark);
+  border-right: 1px solid var(--ide-border-color, $white-dark);
   overflow: hidden;
 }
 
@@ -281,7 +282,6 @@ $ide-commit-header-height: 48px;
 .multi-file-commit-panel {
   display: flex;
   position: relative;
-  width: 340px;
   padding: 0;
   background-color: var(--ide-background, $gray-light);
 
@@ -386,7 +386,7 @@ $ide-commit-header-height: 48px;
 
   &:hover,
   &:focus {
-    background: var(--ide-background, $gray-100);
+    background: var(--ide-background, $gray-50);
 
     outline: 0;
   }
@@ -558,7 +558,7 @@ $ide-commit-header-height: 48px;
 
   &:hover {
     color: var(--ide-text-color, $gl-text-color);
-    background-color: var(--ide-background-hover, $gray-100);
+    background-color: var(--ide-background-hover, $gray-50);
   }
 
   &:focus {
@@ -584,14 +584,15 @@ $ide-commit-header-height: 48px;
       background: var(--ide-highlight-background, $white);
     }
 
-    &.is-right {
-      padding-right: $gl-padding;
-      padding-left: $gl-padding + 1px;
+  }
 
-      &::after {
-        right: auto;
-        left: -1px;
-      }
+  &.is-right {
+    padding-right: $gl-padding;
+    padding-left: $gl-padding + 1px;
+
+    &::after {
+      right: auto;
+      left: -1px;
     }
   }
 }
@@ -872,26 +873,21 @@ $ide-commit-header-height: 48px;
 }
 
 .ide-sidebar {
-  width: auto;
   min-width: 60px;
 }
 
 .ide-right-sidebar {
-  .ide-activity-bar {
-    border-left: 1px solid var(--ide-border-color, $white-dark);
-  }
-
   .multi-file-commit-panel-inner {
-    width: 350px;
     padding: $grid-size 0;
     background-color: var(--ide-highlight-background, $white);
-    border-left: 1px solid var(--ide-border-color, $white-dark);
+    border-right: 1px solid var(--ide-border-color, $white-dark);
   }
 
   .ide-right-sidebar-jobs-detail {
     padding-bottom: 0;
   }
 
+  .ide-right-sidebar-terminal,
   .ide-right-sidebar-clientside {
     padding: 0;
   }
@@ -901,7 +897,7 @@ $ide-commit-header-height: 48px;
   @include ide-trace-view();
 
   svg {
-    --svg-status-bg: var(--ide-background, $white);
+    --svg-status-bg: var(--ide-background, #{$white});
   }
 
   .empty-state {
@@ -1043,7 +1039,7 @@ $ide-commit-header-height: 48px;
 .ide-entry-dropdown-toggle {
   padding: $gl-padding-4;
   color: var(--ide-text-color, $gl-text-color);
-  background-color: var(--ide-background, $gray-100);
+  background-color: var(--ide-background, $gray-50);
 
   &:hover {
     background-color: var(--ide-file-row-btn-hover-background, $gray-200);
@@ -1124,7 +1120,7 @@ $ide-commit-header-height: 48px;
 .ide-commit-editor-header {
   height: 65px;
   padding: 8px 16px;
-  background-color: var(--ide-background, $gray-50);
+  background-color: var(--ide-background, $gray-10);
   box-shadow: inset 0 -1px var(--ide-border-color, $white-dark);
 }
 
@@ -1144,12 +1140,12 @@ $ide-commit-header-height: 48px;
 }
 
 .file-row.is-active {
-  background: var(--ide-background, $gray-100);
+  background: var(--ide-background, $gray-50);
 }
 
 .file-row:hover,
 .file-row:focus {
-  background: var(--ide-background, $gray-100);
+  background: var(--ide-background, $gray-50);
 
   .ide-new-btn {
     display: block;
@@ -1157,5 +1153,24 @@ $ide-commit-header-height: 48px;
 
   .folder-icon {
     fill: var(--ide-text-color-secondary, $gl-text-color-secondary);
+  }
+}
+
+.ide-terminal {
+  @include ide-trace-view();
+
+  .terminal-wrapper {
+    background: $black;
+    color: $gray-darkest;
+    overflow: hidden;
+  }
+
+  .xterm {
+    height: 100%;
+    padding: $grid-size;
+  }
+
+  .xterm-viewport {
+    overflow-y: auto;
   }
 }

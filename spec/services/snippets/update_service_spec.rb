@@ -7,7 +7,7 @@ describe Snippets::UpdateService do
     let_it_be(:user) { create(:user) }
     let_it_be(:admin) { create :user, admin: true }
     let(:visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
-    let(:options) do
+    let(:base_opts) do
       {
         title: 'Test snippet',
         file_name: 'snippet.rb',
@@ -15,6 +15,8 @@ describe Snippets::UpdateService do
         visibility_level: visibility_level
       }
     end
+    let(:extra_opts) { {} }
+    let(:options) { base_opts.merge(extra_opts) }
     let(:updater) { user }
     let(:service) { Snippets::UpdateService.new(project, updater, options) }
 
@@ -85,7 +87,7 @@ describe Snippets::UpdateService do
       end
 
       context 'when update fails' do
-        let(:options) { { title: '' } }
+        let(:extra_opts) { { title: '' } }
 
         it 'does not increment count' do
           expect { subject }.not_to change { counter.read(:update) }
@@ -273,7 +275,7 @@ describe Snippets::UpdateService do
 
     shared_examples 'committable attributes' do
       context 'when file_name is updated' do
-        let(:options) { { file_name: 'snippet.rb' } }
+        let(:extra_opts) { { file_name: 'snippet.rb' } }
 
         it 'commits to repository' do
           expect(service).to receive(:create_commit)
@@ -282,7 +284,7 @@ describe Snippets::UpdateService do
       end
 
       context 'when content is updated' do
-        let(:options) { { content: 'puts "hello world"' } }
+        let(:extra_opts) { { content: 'puts "hello world"' } }
 
         it 'commits to repository' do
           expect(service).to receive(:create_commit)
@@ -300,6 +302,136 @@ describe Snippets::UpdateService do
       end
     end
 
+    shared_examples 'when snippet_files param is present' do
+      let(:file_path) { 'CHANGELOG' }
+      let(:content) { 'snippet_content' }
+      let(:new_title) { 'New title' }
+      let(:snippet_files) { [{ action: 'update', previous_path: file_path, file_path: file_path, content: content }] }
+      let(:base_opts) do
+        {
+          title: new_title,
+          snippet_files: snippet_files
+        }
+      end
+
+      it 'updates a snippet with the provided attributes' do
+        file_path = 'foo'
+        snippet_files[0][:action] = 'move'
+        snippet_files[0][:file_path] = file_path
+
+        response = subject
+        snippet = response.payload[:snippet]
+
+        expect(response).to be_success
+        expect(snippet.title).to eq(new_title)
+        expect(snippet.file_name).to eq(file_path)
+        expect(snippet.content).to eq(content)
+      end
+
+      it 'commit the files to the repository' do
+        subject
+
+        blob = snippet.repository.blob_at('master', file_path)
+
+        expect(blob.data).to eq content
+      end
+
+      context 'when content or file_name params are present' do
+        let(:extra_opts) { { content: 'foo', file_name: 'path' } }
+
+        it 'raises a validation error' do
+          response = subject
+          snippet = response.payload[:snippet]
+
+          expect(response).to be_error
+          expect(snippet.errors.full_messages_for(:content)).to eq ['Content and snippet files cannot be used together']
+          expect(snippet.errors.full_messages_for(:file_name)).to eq ['File name and snippet files cannot be used together']
+        end
+      end
+
+      context 'when snippet_files param is invalid' do
+        let(:snippet_files) { [{ action: 'invalid_action' }] }
+
+        it 'raises a validation error' do
+          response = subject
+          snippet = response.payload[:snippet]
+
+          expect(response).to be_error
+          expect(snippet.errors.full_messages_for(:snippet_files)).to eq ['Snippet files have invalid data']
+        end
+      end
+
+      context 'when an error is raised committing the file' do
+        it 'keeps any snippet modifications' do
+          expect_next_instance_of(described_class) do |instance|
+            expect(instance).to receive(:create_repository_for).and_raise(StandardError)
+          end
+
+          response = subject
+          snippet = response.payload[:snippet]
+
+          expect(response).to be_error
+          expect(snippet.title).to eq(new_title)
+          expect(snippet.file_name).to eq(file_path)
+          expect(snippet.content).to eq(content)
+        end
+      end
+    end
+
+    shared_examples 'only file_name is present' do
+      let(:base_opts) do
+        {
+          file_name: file_name
+        }
+      end
+
+      shared_examples 'content is not updated' do
+        specify do
+          existing_content = snippet.blobs.first.data
+          response = subject
+          snippet = response.payload[:snippet]
+
+          blob = snippet.repository.blob_at('master', file_name)
+
+          expect(blob).not_to be_nil
+          expect(response).to be_success
+          expect(blob.data).to eq existing_content
+        end
+      end
+
+      context 'when renaming the file_name' do
+        let(:file_name) { 'new_file_name' }
+
+        it_behaves_like 'content is not updated'
+      end
+
+      context 'when file_name does not change' do
+        let(:file_name) { snippet.blobs.first.path }
+
+        it_behaves_like 'content is not updated'
+      end
+    end
+
+    shared_examples 'only content is present' do
+      let(:content) { 'new_content' }
+      let(:base_opts) do
+        {
+          content: content
+        }
+      end
+
+      it 'updates the content' do
+        response = subject
+        snippet = response.payload[:snippet]
+
+        blob = snippet.repository.blob_at('master', snippet.blobs.first.path)
+
+        expect(blob).not_to be_nil
+        expect(response).to be_success
+        expect(blob.data).to eq content
+      end
+    end
+
     context 'when Project Snippet' do
       let_it_be(:project) { create(:project) }
       let!(:snippet) { create(:project_snippet, :repository, author: user, project: project) }
@@ -314,6 +446,14 @@ describe Snippets::UpdateService do
       it_behaves_like 'updates repository content'
       it_behaves_like 'commit operation fails'
       it_behaves_like 'committable attributes'
+      it_behaves_like 'when snippet_files param is present'
+      it_behaves_like 'only file_name is present'
+      it_behaves_like 'only content is present'
+      it_behaves_like 'snippets spam check is performed' do
+        before do
+          subject
+        end
+      end
 
       context 'when snippet does not have a repository' do
         let!(:snippet) { create(:project_snippet, author: user, project: project) }
@@ -333,6 +473,14 @@ describe Snippets::UpdateService do
       it_behaves_like 'updates repository content'
       it_behaves_like 'commit operation fails'
       it_behaves_like 'committable attributes'
+      it_behaves_like 'when snippet_files param is present'
+      it_behaves_like 'only file_name is present'
+      it_behaves_like 'only content is present'
+      it_behaves_like 'snippets spam check is performed' do
+        before do
+          subject
+        end
+      end
 
       context 'when snippet does not have a repository' do
         let!(:snippet) { create(:personal_snippet, author: user, project: project) }

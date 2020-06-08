@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe EE::UserCalloutsHelper do
+RSpec.describe EE::UserCalloutsHelper do
   describe '.render_enable_hashed_storage_warning' do
     context 'when we should show the enable warning' do
       it 'renders the enable warning' do
@@ -342,6 +342,28 @@ describe EE::UserCalloutsHelper do
     context 'when the threat monitoring info was dismissed' do
       before do
         create(:user_callout, user: user, feature_name: described_class::THREAT_MONITORING_INFO)
+      end
+
+      it { is_expected.to be_falsy }
+    end
+  end
+
+  describe '.show_standalone_vulnerabilities_introduction_banner?' do
+    subject { helper.show_standalone_vulnerabilities_introduction_banner? }
+
+    let(:user) { create(:user) }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+    end
+
+    context 'when the introduction banner has not been dismissed' do
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when the introduction banner was dismissed' do
+      before do
+        create(:user_callout, user: user, feature_name: described_class::STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER)
       end
 
       it { is_expected.to be_falsy }

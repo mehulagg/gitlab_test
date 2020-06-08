@@ -125,6 +125,7 @@ module Types
           Types::MergeRequestType.connection_type,
           null: true,
           description: 'Merge requests of the project',
+          extras: [:lookahead],
           resolver: Resolvers::MergeRequestsResolver
 
     field :merge_request,
@@ -138,6 +139,11 @@ module Types
           null: true,
           description: 'Issues of the project',
           resolver: Resolvers::IssuesResolver
+
+    field :project_members,
+          Types::ProjectMemberType.connection_type,
+          description: 'Members of the project',
+          resolver: Resolvers::ProjectMembersResolver
 
     field :environments,
           Types::EnvironmentType.connection_type,
@@ -218,6 +224,12 @@ module Types
           description: 'A single Alert Management alert of the project',
           resolver: Resolvers::AlertManagementAlertResolver.single
 
+    field :alert_management_alert_status_counts,
+          Types::AlertManagement::AlertStatusCountsType,
+          null: true,
+          description: 'Counts of alerts by status for the project',
+          resolver: Resolvers::AlertManagement::AlertStatusCountsResolver
+
     field :releases,
           Types::ReleaseType.connection_type,
           null: true,
@@ -231,6 +243,50 @@ module Types
           description: 'A single release of the project',
           resolver: Resolvers::ReleasesResolver.single,
           feature_flag: :graphql_release_data
+
+    field :container_expiration_policy,
+          Types::ContainerExpirationPolicyType,
+          null: true,
+          description: 'The container expiration policy of the project'
+
+    field :label,
+          Types::LabelType,
+          null: true,
+          description: 'A label available on this project' do
+            argument :title, GraphQL::STRING_TYPE,
+              required: true,
+              description: 'Title of the label'
+          end
+
+    def label(title:)
+      BatchLoader::GraphQL.for(title).batch(key: project) do |titles, loader, args|
+        LabelsFinder
+          .new(current_user, project: args[:key], title: titles)
+          .execute
+          .each { |label| loader.call(label.title, label) }
+      end
+    end
+
+    field :labels,
+          Types::LabelType.connection_type,
+          null: true,
+          description: 'Labels available on this project' do
+            argument :search_term, GraphQL::STRING_TYPE,
+              required: false,
+              description: 'A search term to find labels with'
+          end
+
+    def labels(search_term: nil)
+      LabelsFinder
+        .new(current_user, project: project, search: search_term)
+        .execute
+    end
+
+    private
+
+    def project
+      @project ||= object.respond_to?(:sync) ? object.sync : object
+    end
   end
 end
 

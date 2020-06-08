@@ -39,15 +39,6 @@ module Issuable
     locked: 4
   }.with_indifferent_access.freeze
 
-  # This object is used to gather issuable meta data for displaying
-  # upvotes, downvotes, notes and closing merge requests count for issues and merge requests
-  # lists avoiding n+1 queries and improving performance.
-  IssuableMeta = Struct.new(:upvotes, :downvotes, :user_notes_count, :mrs_count) do
-    def merge_requests_count(user = nil)
-      mrs_count
-    end
-  end
-
   included do
     cache_markdown_field :title, pipeline: :single_line
     cache_markdown_field :description, issuable_state_filter_enabled: true
@@ -139,7 +130,6 @@ module Issuable
 
     scope :without_label, -> { joins("LEFT OUTER JOIN label_links ON label_links.target_type = '#{name}' AND label_links.target_id = #{table_name}.id").where(label_links: { id: nil }) }
     scope :with_label_ids, ->(label_ids) { joins(:label_links).where(label_links: { label_id: label_ids }) }
-    scope :any_label, -> { joins(:label_links).distinct }
     scope :join_project, -> { joins(:project) }
     scope :inc_notes_with_associations, -> { includes(notes: [:project, :author, :award_emoji]) }
     scope :references_project, -> { references(:project) }
@@ -183,6 +173,10 @@ module Issuable
 
     def has_multiple_assignees?
       assignees.count > 1
+    end
+
+    def supports_weight?
+      false
     end
 
     private
@@ -313,6 +307,14 @@ module Issuable
         joins(:labels).where(labels: { title: title }).group(*grouping_columns(sort)).having("COUNT(DISTINCT labels.title) = #{title.size}")
       else
         joins(:labels).where(labels: { title: title })
+      end
+    end
+
+    def any_label(sort = nil)
+      if sort
+        joins(:label_links).group(*grouping_columns(sort))
+      else
+        joins(:label_links).distinct
       end
     end
 

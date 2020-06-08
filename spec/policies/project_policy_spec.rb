@@ -5,6 +5,7 @@ require 'spec_helper'
 describe ProjectPolicy do
   include ExternalAuthorizationServiceHelpers
   include_context 'ProjectPolicy context'
+  let_it_be(:other_user) { create(:user) }
   let_it_be(:guest) { create(:user) }
   let_it_be(:reporter) { create(:user) }
   let_it_be(:developer) { create(:user) }
@@ -42,7 +43,7 @@ describe ProjectPolicy do
       admin_tag admin_milestone admin_merge_request update_merge_request create_commit_status
       update_commit_status create_build update_build create_pipeline
       update_pipeline create_merge_request_from create_wiki push_code
-      resolve_note create_container_image update_container_image destroy_container_image
+      resolve_note create_container_image update_container_image destroy_container_image daily_statistics
       create_environment update_environment create_deployment update_deployment create_release update_release
       create_metrics_dashboard_annotation delete_metrics_dashboard_annotation update_metrics_dashboard_annotation
     ]
@@ -54,7 +55,7 @@ describe ProjectPolicy do
       admin_snippet admin_project_member admin_note admin_wiki admin_project
       admin_commit_status admin_build admin_container_image
       admin_pipeline admin_environment admin_deployment destroy_release add_cluster
-      daily_statistics read_deploy_token create_deploy_token destroy_deploy_token
+      read_deploy_token create_deploy_token destroy_deploy_token
       admin_terraform_state
     ]
   end
@@ -163,7 +164,7 @@ describe ProjectPolicy do
     subject { described_class.new(owner, project) }
 
     it 'disallows all permissions when the feature is disabled' do
-      project.project_feature.update(merge_requests_access_level: ProjectFeature::DISABLED)
+      project.project_feature.update!(merge_requests_access_level: ProjectFeature::DISABLED)
 
       mr_permissions = [:create_merge_request_from, :read_merge_request,
                         :update_merge_request, :admin_merge_request,
@@ -215,44 +216,19 @@ describe ProjectPolicy do
       subject { described_class.new(owner, project) }
 
       before do
-        project.project_feature.update(builds_access_level: ProjectFeature::DISABLED)
+        project.project_feature.update!(builds_access_level: ProjectFeature::DISABLED)
       end
 
-      context 'without metrics_dashboard_allowed' do
-        before do
-          project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::DISABLED)
-        end
+      it 'disallows all permissions except pipeline when the feature is disabled' do
+        builds_permissions = [
+          :create_build, :read_build, :update_build, :admin_build, :destroy_build,
+          :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
+          :create_environment, :read_environment, :update_environment, :admin_environment, :destroy_environment,
+          :create_cluster, :read_cluster, :update_cluster, :admin_cluster, :destroy_cluster,
+          :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment
+        ]
 
-        it 'disallows all permissions except pipeline when the feature is disabled' do
-          builds_permissions = [
-            :create_build, :read_build, :update_build, :admin_build, :destroy_build,
-            :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
-            :create_environment, :read_environment, :update_environment, :admin_environment, :destroy_environment,
-            :create_cluster, :read_cluster, :update_cluster, :admin_cluster, :destroy_cluster,
-            :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment
-          ]
-
-          expect_disallowed(*builds_permissions)
-        end
-      end
-
-      context 'with metrics_dashboard_allowed' do
-        before do
-          project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
-        end
-
-        it 'disallows all permissions except pipeline and read_environment when the feature is disabled' do
-          builds_permissions = [
-            :create_build, :read_build, :update_build, :admin_build, :destroy_build,
-            :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
-            :create_environment, :update_environment, :admin_environment, :destroy_environment,
-            :create_cluster, :read_cluster, :update_cluster, :admin_cluster, :destroy_cluster,
-            :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment
-          ]
-
-          expect_disallowed(*builds_permissions)
-          expect_allowed(:read_environment)
-        end
+        expect_disallowed(*builds_permissions)
       end
     end
 
@@ -260,7 +236,7 @@ describe ProjectPolicy do
       subject { described_class.new(guest, project) }
 
       before do
-        project.project_feature.update(builds_access_level: ProjectFeature::PRIVATE)
+        project.project_feature.update!(builds_access_level: ProjectFeature::PRIVATE)
       end
 
       it 'disallows pipeline and commit_status permissions' do
@@ -275,50 +251,53 @@ describe ProjectPolicy do
   end
 
   context 'repository feature' do
-    subject { described_class.new(owner, project) }
-
-    before do
-      project.project_feature.update(repository_access_level: ProjectFeature::DISABLED)
+    let(:repository_permissions) do
+      [
+        :create_pipeline, :update_pipeline, :admin_pipeline, :destroy_pipeline,
+        :create_build, :read_build, :update_build, :admin_build, :destroy_build,
+        :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
+        :create_environment, :read_environment, :update_environment, :admin_environment, :destroy_environment,
+        :create_cluster, :read_cluster, :update_cluster, :admin_cluster,
+        :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment,
+        :destroy_release, :download_code, :build_download_code
+      ]
     end
 
-    context 'without metrics_dashboard_allowed' do
-      before do
-        project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::DISABLED)
-      end
+    context 'when user is a project member' do
+      subject { described_class.new(owner, project) }
 
-      it 'disallows all permissions when the feature is disabled' do
-        repository_permissions = [
-          :create_pipeline, :update_pipeline, :admin_pipeline, :destroy_pipeline,
-          :create_build, :read_build, :update_build, :admin_build, :destroy_build,
-          :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
-          :create_environment, :read_environment, :update_environment, :admin_environment, :destroy_environment,
-          :create_cluster, :read_cluster, :update_cluster, :admin_cluster,
-          :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment,
-          :destroy_release
-        ]
+      context 'when it is disabled' do
+        before do
+          project.project_feature.update!(
+            repository_access_level: ProjectFeature::DISABLED,
+            merge_requests_access_level: ProjectFeature::DISABLED,
+            builds_access_level: ProjectFeature::DISABLED,
+            forking_access_level: ProjectFeature::DISABLED
+          )
+        end
 
-        expect_disallowed(*repository_permissions)
+        it 'disallows all permissions' do
+          expect_disallowed(*repository_permissions)
+        end
       end
     end
 
-    context 'with metrics_dashboard_allowed' do
-      before do
-        project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
-      end
+    context 'when user is some other user' do
+      subject { described_class.new(other_user, project) }
 
-      it 'disallows all permissions when the feature is disabled' do
-        repository_permissions = [
-          :create_pipeline, :update_pipeline, :admin_pipeline, :destroy_pipeline,
-          :create_build, :read_build, :update_build, :admin_build, :destroy_build,
-          :create_pipeline_schedule, :read_pipeline_schedule, :update_pipeline_schedule, :admin_pipeline_schedule, :destroy_pipeline_schedule,
-          :create_environment, :update_environment, :admin_environment, :destroy_environment,
-          :create_cluster, :read_cluster, :update_cluster, :admin_cluster,
-          :create_deployment, :read_deployment, :update_deployment, :admin_deployment, :destroy_deployment,
-          :destroy_release
-        ]
+      context 'when access level is private' do
+        before do
+          project.project_feature.update!(
+            repository_access_level: ProjectFeature::PRIVATE,
+            merge_requests_access_level: ProjectFeature::PRIVATE,
+            builds_access_level: ProjectFeature::PRIVATE,
+            forking_access_level: ProjectFeature::PRIVATE
+          )
+        end
 
-        expect_disallowed(*repository_permissions)
-        expect_allowed(:read_environment)
+        it 'disallows all permissions' do
+          expect_disallowed(*repository_permissions)
+        end
       end
     end
   end
@@ -601,7 +580,7 @@ describe ProjectPolicy do
 
       context 'feature enabled' do
         before do
-          project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
+          project.project_feature.update!(metrics_dashboard_access_level: ProjectFeature::ENABLED)
         end
 
         context 'with reporter' do
@@ -665,7 +644,7 @@ describe ProjectPolicy do
 
       context 'feature enabled' do
         before do
-          project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
+          project.project_feature.update!(metrics_dashboard_access_level: ProjectFeature::ENABLED)
         end
 
         context 'with reporter' do
@@ -750,7 +729,7 @@ describe ProjectPolicy do
 
     context 'feature disabled' do
       before do
-        project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::DISABLED)
+        project.project_feature.update!(metrics_dashboard_access_level: ProjectFeature::DISABLED)
       end
 
       context 'with reporter' do
@@ -794,6 +773,123 @@ describe ProjectPolicy do
       it { is_expected.to be_allowed(:create_package) }
       it { is_expected.to be_allowed(:read_project) }
       it { is_expected.to be_disallowed(:destroy_package) }
+    end
+  end
+
+  describe 'create_web_ide_terminal' do
+    subject { described_class.new(current_user, project) }
+
+    context 'with admin' do
+      let(:current_user) { admin }
+
+      context 'when admin mode enabled', :enable_admin_mode do
+        it { is_expected.to be_allowed(:create_web_ide_terminal) }
+      end
+
+      context 'when admin mode disabled' do
+        it { is_expected.to be_disallowed(:create_web_ide_terminal) }
+      end
+    end
+
+    context 'with owner' do
+      let(:current_user) { owner }
+
+      it { is_expected.to be_allowed(:create_web_ide_terminal) }
+    end
+
+    context 'with maintainer' do
+      let(:current_user) { maintainer }
+
+      it { is_expected.to be_allowed(:create_web_ide_terminal) }
+    end
+
+    context 'with developer' do
+      let(:current_user) { developer }
+
+      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
+    end
+
+    context 'with reporter' do
+      let(:current_user) { reporter }
+
+      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
+    end
+
+    context 'with guest' do
+      let(:current_user) { guest }
+
+      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
+    end
+
+    context 'with non member' do
+      let(:current_user) { create(:user) }
+
+      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
+    end
+
+    context 'with anonymous' do
+      let(:current_user) { nil }
+
+      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
+    end
+  end
+
+  describe 'read_repository_graphs' do
+    subject { described_class.new(guest, project) }
+
+    before do
+      allow(subject).to receive(:allowed?).with(:read_repository_graphs).and_call_original
+      allow(subject).to receive(:allowed?).with(:download_code).and_return(can_download_code)
+    end
+
+    context 'when user can download_code' do
+      let(:can_download_code) { true }
+
+      it { is_expected.to be_allowed(:read_repository_graphs) }
+    end
+
+    context 'when user cannot download_code' do
+      let(:can_download_code) { false }
+
+      it { is_expected.to be_disallowed(:read_repository_graphs) }
+    end
+  end
+
+  describe 'read_build_report_results' do
+    subject { described_class.new(guest, project) }
+
+    before do
+      allow(subject).to receive(:allowed?).with(:read_build_report_results).and_call_original
+      allow(subject).to receive(:allowed?).with(:read_build).and_return(can_read_build)
+      allow(subject).to receive(:allowed?).with(:read_pipeline).and_return(can_read_pipeline)
+    end
+
+    context 'when user can read_build and read_pipeline' do
+      let(:can_read_build) { true }
+      let(:can_read_pipeline) { true }
+
+      it { is_expected.to be_allowed(:read_build_report_results) }
+    end
+
+    context 'when user can read_build but cannot read_pipeline' do
+      let(:can_read_build) { true }
+      let(:can_read_pipeline) { false }
+
+      it { is_expected.to be_disallowed(:read_build_report_results) }
+    end
+
+    context 'when user cannot read_build but can read_pipeline' do
+      let(:can_read_build) { false }
+      let(:can_read_pipeline) { true }
+
+      it { is_expected.to be_disallowed(:read_build_report_results) }
+    end
+
+    context 'when user cannot read_build and cannot read_pipeline' do
+      let(:can_read_build) { false }
+      let(:can_read_pipeline) { false }
+
+      it { is_expected.to be_disallowed(:read_build_report_results) }
     end
   end
 end

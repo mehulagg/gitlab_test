@@ -1,3 +1,9 @@
+---
+stage: Plan
+group: Project Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Issues
 
 Issues are the fundamental medium for collaborating on ideas and planning work in GitLab.
@@ -173,7 +179,7 @@ requires [GraphQL](../../../api/graphql/index.md) to be enabled.
 
 ### Health status **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36427) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36427) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.10.
 
 To help you track the status of your issues, you can assign a status to each issue to flag work
 that's progressing as planned or needs attention to keep on schedule:

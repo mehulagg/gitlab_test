@@ -144,6 +144,7 @@ Releases::Link:
 - url
 - name
 - filepath
+- link_type
 - created_at
 - updated_at
 ProjectMember:
@@ -471,6 +472,7 @@ Service:
 - properties
 - template
 - instance
+- alert_events
 - push_events
 - issues_events
 - commit_events

@@ -1,10 +1,13 @@
 ---
+stage: Secure
+group: Static Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, howto
 ---
 
 # Static Application Security Testing (SAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
 
 NOTE: **4 of the top 6 attacks were application based.**
 Download our whitepaper,
@@ -71,7 +74,7 @@ The following table shows which languages, package managers and frameworks are s
 | .NET Framework                                                              | [Security Code Scan](https://security-code-scan.github.io)                             | 13.0                         |
 | Any                                                                         | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) | 11.9    |
 | Apex (Salesforce)                                                           | [PMD](https://pmd.github.io/pmd/index.html)                                            | 12.1                         |
-| C/C++                                                                       | [Flawfinder](https://dwheeler.com/flawfinder/)                                         | 10.7                         |
+| C/C++                                                                       | [Flawfinder](https://github.com/david-a-wheeler/flawfinder)                            | 10.7                         |
 | Elixir (Phoenix)                                                            | [Sobelow](https://github.com/nccgroup/sobelow)                                         | 11.10                        |
 | Go                                                                          | [Gosec](https://github.com/securego/gosec)                                             | 10.7                         |
 | Groovy ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.3 (Gradle) & 11.9 (Ant, Maven, SBT) |
@@ -196,7 +199,7 @@ jobs.
 
 #### Enabling Kubesec analyzer
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12752) in GitLab Ultimate 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12752) in GitLab Ultimate 12.6.
 
 You need to set `SCAN_KUBERNETES_MANIFESTS` to `"true"` to enable the
 Kubesec analyzer. In `.gitlab-ci.yml`, define:
@@ -313,19 +316,20 @@ Some analyzers can be customized with environment variables.
 
 | Environment variable        | Analyzer | Description |
 |-----------------------------|----------|-------------|
-| `SCAN_KUBERNETES_MANIFESTS` | Kubesec  | Set to `"true"` to scan Kubernetes manifests. |
-| `ANT_HOME`                  | SpotBugs | The `ANT_HOME` environment variable. |
-| `ANT_PATH`                  | SpotBugs | Path to the `ant` executable. |
-| `GRADLE_PATH`               | SpotBugs | Path to the `gradle` executable. |
-| `JAVA_OPTS`                 | SpotBugs | Additional arguments for the `java` executable. |
-| `JAVA_PATH`                 | SpotBugs | Path to the `java` executable. |
-| `SAST_JAVA_VERSION`         | SpotBugs | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
-| `MAVEN_CLI_OPTS`            | SpotBugs | Additional arguments for the `mvn` or `mvnw` executable. |
-| `MAVEN_PATH`                | SpotBugs | Path to the `mvn` executable. |
-| `MAVEN_REPO_PATH`           | SpotBugs | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
-| `SBT_PATH`                  | SpotBugs | Path to the `sbt` executable. |
-| `FAIL_NEVER`                | SpotBugs | Set to `1` to ignore compilation failure. |
-| `SAST_GOSEC_CONFIG`         | Gosec    | Path to configuration for Gosec (optional). |
+| `SCAN_KUBERNETES_MANIFESTS`           | Kubesec              | Set to `"true"` to scan Kubernetes manifests. |
+| `ANT_HOME`                            | SpotBugs             | The `ANT_HOME` environment variable. |
+| `ANT_PATH`                            | SpotBugs             | Path to the `ant` executable. |
+| `GRADLE_PATH`                         | SpotBugs             | Path to the `gradle` executable. |
+| `JAVA_OPTS`                           | SpotBugs             | Additional arguments for the `java` executable. |
+| `JAVA_PATH`                           | SpotBugs             | Path to the `java` executable. |
+| `SAST_JAVA_VERSION`                   | SpotBugs             | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
+| `MAVEN_CLI_OPTS`                      | SpotBugs             | Additional arguments for the `mvn` or `mvnw` executable. |
+| `MAVEN_PATH`                          | SpotBugs             | Path to the `mvn` executable. |
+| `MAVEN_REPO_PATH`                     | SpotBugs             | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
+| `SBT_PATH`                            | SpotBugs             | Path to the `sbt` executable. |
+| `FAIL_NEVER`                          | SpotBugs             | Set to `1` to ignore compilation failure. |
+| `SAST_GOSEC_CONFIG`                   | Gosec                | Path to configuration for Gosec (optional). |
+| `PHPCS_SECURITY_AUDIT_PHP_EXTENSIONS` | phpcs-security-audit | Comma separated list of additional PHP Extensions. |
 
 #### Custom environment variables
 
@@ -513,7 +517,6 @@ registry.gitlab.com/gitlab-org/security-products/analyzers/bandit:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/brakeman:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/eslint:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/flawfinder:2
-registry.gitlab.com/gitlab-org/security-products/analyzers/go-ast-scanner:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/gosec:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/kubesec:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:2
@@ -553,9 +556,9 @@ security reports without requiring internet access.
 
 ## Troubleshooting
 
-### Error response from daemon: error processing tar file: docker-tar: relocation error
+### `Error response from daemon: error processing tar file: docker-tar: relocation error`
 
 This error occurs when the Docker version that runs the SAST job is `19.03.0`.
 Consider updating to Docker `19.03.1` or greater. Older versions are not
 affected. Read more in
-[this issue](https://gitlab.com/gitlab-org/gitlab/issues/13830#note_211354992 "Current SAST container fails").
+[this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/13830#note_211354992 "Current SAST container fails").

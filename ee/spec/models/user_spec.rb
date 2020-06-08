@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe User do
+RSpec.describe User do
   subject(:user) { described_class.new }
 
   describe 'user creation' do
@@ -21,7 +21,6 @@ describe User do
   describe 'associations' do
     subject { build(:user) }
 
-    it { is_expected.to have_many(:reviews) }
     it { is_expected.to have_many(:vulnerability_feedback) }
     it { is_expected.to have_many(:path_locks).dependent(:destroy) }
     it { is_expected.to have_many(:users_security_dashboard_projects) }
@@ -236,7 +235,7 @@ describe User do
   end
 
   describe '#forget_me!' do
-    subject { create(:user, remember_created_at: Time.now) }
+    subject { create(:user, remember_created_at: Time.current) }
 
     it 'clears remember_created_at' do
       subject.forget_me!
@@ -454,12 +453,10 @@ describe User do
           end
 
           it 'returns groups on gold or silver plans' do
-            Timecop.freeze(GroupsWithTemplatesFinder::CUT_OFF_DATE + 1.day) do
-              groups = user.available_subgroups_with_custom_project_templates
+            groups = user.available_subgroups_with_custom_project_templates
 
-              expect(groups.size).to eq(1)
-              expect(groups.map(&:name)).to include('subgroup-2')
-            end
+            expect(groups.size).to eq(1)
+            expect(groups.map(&:name)).to include('subgroup-2')
           end
         end
       end
@@ -564,6 +561,42 @@ describe User do
 
     context 'when user has no linked managing group' do
       it { is_expected.to eq false }
+    end
+  end
+
+  describe '#managed_by?' do
+    let(:group) { create :group }
+    let(:owner) { create :user }
+    let(:member1) { create :user }
+    let(:member2) { create :user }
+
+    before do
+      group.add_owner(owner)
+      group.add_developer(member1)
+      group.add_developer(member2)
+    end
+
+    context 'when a normal user account' do
+      it 'returns false' do
+        expect(member1.managed_by?(owner)).to be_falsey
+        expect(member1.managed_by?(member2)).to be_falsey
+      end
+    end
+
+    context 'when a group managed account' do
+      let(:group) { create :group_with_managed_accounts }
+
+      before do
+        member1.update(managing_group: group)
+      end
+
+      it 'returns true with group managed account owner' do
+        expect(member1.managed_by?(owner)).to be_truthy
+      end
+
+      it 'returns false with a regular user account' do
+        expect(member1.managed_by?(member2)).to be_falsey
+      end
     end
   end
 
@@ -942,10 +975,20 @@ describe User do
           end
 
           it 'returns true when 100% control percentage is provided' do
-            Feature.get(:discover_security_control).enable_percentage_of_time(100)
+            Feature.enable_percentage_of_time(:discover_security_control, 100)
 
             expect(experiment_user.ab_feature_enabled?(:discover_security)).to eq(true)
             expect(experiment_user.user_preference.feature_filter_type).to eq(UserPreference::FEATURE_FILTER_EXPERIMENT)
+          end
+
+          it 'returns false if flipper returns nil for non-existing feature' do
+            # The following setup ensures that if the Feature interface changes
+            # it does not break any user-facing screens
+            allow(Feature).to receive(:get).with(:discover_security).and_return(nil)
+            allow(Feature).to receive(:enabled?).and_return(true)
+            allow(Feature).to receive(:get).with(:discover_security_control).and_return(nil)
+
+            expect(experiment_user.ab_feature_enabled?(:discover_security)).to eq(false)
           end
         end
       end

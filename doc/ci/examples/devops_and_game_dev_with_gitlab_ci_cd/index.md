@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 author: Ryan Hall
 author_gitlab: blitzgren
 level: intermediate
@@ -269,7 +272,7 @@ we know we will need to access everything in the `built` folder, given by GitLab
 We'll also cache `node_modules` to avoid having to do a full re-pull of those dependencies:
 just pack them up in the cache. Here is the full `build` job:
 
-```yml
+```yaml
 build:
     stage: build
     script:
@@ -296,7 +299,7 @@ the previous job. Lastly, by convention, we let GitLab CI/CD know this needs to 
 the `build` job by giving it a `test` [stage](../../../ci/yaml/README.md#stages).
 Following the YAML structure, the `test` job should look like this:
 
-```yml
+```yaml
 test:
     stage: test
     script:
@@ -318,7 +321,7 @@ we've added test artifacts and a test stage to our GitLab CI/CD pipeline using `
 allowing us to run our tests by every push.
 Our entire `.gitlab-ci.yml` file should now look like this:
 
-```yml
+```yaml
 image: node:10
 
 build:
@@ -440,7 +443,7 @@ we add directives to ensure deployment `only` happens on pushes to `master`. Thi
 single branch still runs through CI, and only merging (or committing directly) to master will
 trigger the `deploy` job of our pipeline. Put these together to get the following:
 
-```yml
+```yaml
 deploy:
     stage: deploy
     variables:
@@ -459,7 +462,7 @@ deploy:
 Be sure to update the region and S3 URL in that last script command to fit your setup.
 Our final configuration file `.gitlab-ci.yml` looks like:
 
-```yml
+```yaml
 image: node:10
 
 build:

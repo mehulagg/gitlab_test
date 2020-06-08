@@ -61,8 +61,14 @@ export default {
     state.emptyState = 'loading';
     state.showEmptyState = true;
   },
-  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboard) {
-    state.dashboard = mapToDashboardViewModel(dashboard);
+  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboardYML) {
+    const { dashboard, panelGroups, variables, links } = mapToDashboardViewModel(dashboardYML);
+    state.dashboard = {
+      dashboard,
+      panelGroups,
+    };
+    state.variables = variables;
+    state.links = links;
 
     if (!state.dashboard.panelGroups.length) {
       state.emptyState = 'noData';
@@ -189,11 +195,11 @@ export default {
     state.expandedPanel.panel = panel;
   },
   [types.SET_VARIABLES](state, variables) {
-    state.promVariables = variables;
+    state.variables = variables;
   },
-  [types.UPDATE_VARIABLE_VALUES](state, updatedVariable) {
-    Object.assign(state.promVariables[updatedVariable.key], {
-      ...state.promVariables[updatedVariable.key],
+  [types.UPDATE_VARIABLES](state, updatedVariable) {
+    Object.assign(state.variables[updatedVariable.key], {
+      ...state.variables[updatedVariable.key],
       value: updatedVariable.value,
     });
   },

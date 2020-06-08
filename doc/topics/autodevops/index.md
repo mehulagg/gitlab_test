@@ -1,6 +1,6 @@
 # Auto DevOps
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/37115) in GitLab 10.0.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/37115) in GitLab 10.0.
 > - Generally available on GitLab 11.0.
 
 Auto DevOps provides pre-defined CI/CD configuration allowing you to automatically
@@ -27,7 +27,7 @@ For an introduction to Auto DevOps, watch [AutoDevOps in GitLab 11.0](https://yo
 
 ## Enabled by default
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41729) in GitLab 11.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41729) in GitLab 11.3.
 
 Auto DevOps is enabled by default for all projects and attempts to run on all pipelines
 in each project. An instance administrator can enable or disable this default in the
@@ -35,7 +35,7 @@ in each project. An instance administrator can enable or disable this default in
 Auto DevOps automatically disables in individual projects on their first pipeline failure,
 if it has not been explicitly enabled for the project.
 
-Since [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/issues/26655), Auto DevOps
+Since [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/issues/26655), Auto DevOps
 runs on pipelines automatically only if a [`Dockerfile` or matching buildpack](stages.md#auto-build)
 exists.
 
@@ -76,7 +76,7 @@ in multiple ways:
 
 ## Features
 
-Comprised of a set of stages, Auto DevOps brings these best practices to your
+Comprised of a set of [stages](stages.md), Auto DevOps brings these best practices to your
 project in a simple and automatic way:
 
 1. [Auto Build](stages.md#auto-build)
@@ -225,12 +225,21 @@ Variable. To do so, follow these steps:
 1. Give this variable the value `ECS` before saving it.
 
 When you trigger a pipeline, if you have AutoDev Ops enabled and if you have correctly
-[entered AWS credentials as environment variables](../../ci/cloud_deployment/index.md#deploy-your-application-to-aws-elastic-container-service-ecs),
+[entered AWS credentials as environment variables](../../ci/cloud_deployment/index.md#deploy-your-application-to-the-aws-elastic-container-service-ecs),
 your application will be deployed to AWS ECS.
 
 NOTE: **Note:**
 If you have both a valid `AUTO_DEVOPS_PLATFORM_TARGET` variable and a Kubernetes cluster tied to your project,
 only the deployment to Kubernetes will run.
+
+CAUTION: **Warning:**
+Setting the `AUTO_DEVOPS_PLATFORM_TARGET` variable to `ECS` will trigger jobs
+defined in the [`Jobs/Deploy/ECS.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy/ECS.gitlab-ci.yml).
+However, it is not recommended to [include](../../ci/yaml/README.md#includetemplate)
+it on its own. This template is designed to be used with Auto DevOps only. It may change
+unexpectedly causing your pipeline to fail if included on its own. Also, the job
+names within this template may also change. Do not override these jobs names in your
+own pipeline, as the override will stop working when the name changes.
 
 ## Auto DevOps base domain
 
@@ -239,16 +248,18 @@ The Auto DevOps base domain is required to use
 [Auto Monitoring](stages.md#auto-monitoring). You can define the base domain in
 any of the following places:
 
-- either under the cluster's settings, whether for
+- either under the cluster's settings, whether for an instance,
   [projects](../../user/project/clusters/index.md#base-domain) or
   [groups](../../user/group/clusters/index.md#base-domain)
-- or in instance-wide settings in **{admin}** **Admin Area > Settings** under the
-  **Continuous Integration and Delivery** section
 - or at the project level as a variable: `KUBE_INGRESS_BASE_DOMAIN`
-- or at the group level as a variable: `KUBE_INGRESS_BASE_DOMAIN`.
+- or at the group level as a variable: `KUBE_INGRESS_BASE_DOMAIN`
+- or as an instance-wide fallback in **{admin}** **Admin Area > Settings** under the
+  **Continuous Integration and Delivery** section
 
 The base domain variable `KUBE_INGRESS_BASE_DOMAIN` follows the same order of precedence
 as other environment [variables](../../ci/variables/README.md#priority-of-environment-variables).
+If the CI/CD variable is not set and the cluster setting is left blank, the instance-wide **Auto DevOps domain**
+setting will be used if set.
 
 TIP: **Tip:**
 If you use the [GitLab managed app for Ingress](../../user/clusters/applications.md#ingress),
@@ -256,14 +267,14 @@ the URL endpoint should be automatically configured for you. All you must do
 is use its value for the `KUBE_INGRESS_BASE_DOMAIN` variable.
 
 NOTE: **Note:**
-`AUTO_DEVOPS_DOMAIN` was [deprecated in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-foss/issues/52363)
+`AUTO_DEVOPS_DOMAIN` was [deprecated in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52363)
 and replaced with `KUBE_INGRESS_BASE_DOMAIN`, and removed in
-[GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-foss/issues/56959).
+[GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/56959).
 
 Auto DevOps requires a wildcard DNS A record matching the base domain(s). For
 a base domain of `example.com`, you'd need a DNS entry like:
 
-```text
+```plaintext
 *.example.com   3600     A     1.2.3.4
 ```
 
@@ -305,7 +316,7 @@ After enabling the feature, an Auto DevOps pipeline is triggered on the default 
 
 ### At the group level
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/52447) in GitLab 11.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52447) in GitLab 11.10.
 
 Only administrators and group owners can enable or disable Auto DevOps at the group level.
 
@@ -330,19 +341,9 @@ Auto DevOps at the group and project level, respectively.
    for Auto Deploy and Auto Review Apps to use.
 1. Click **Save changes** for the changes to take effect.
 
-### Enable for a percentage of projects
-
-You can use a feature flag to enable Auto DevOps by default to your desired percentage
-of projects. From the console, enter the following command, replacing `10` with
-your desired percentage:
-
-```ruby
-Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(10)
-```
-
 ### Deployment strategy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/38542) in GitLab 11.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/38542) in GitLab 11.0.
 
 You can change the deployment strategy used by Auto DevOps by going to your
 project's **{settings}** **Settings > CI/CD > Auto DevOps**. The following options
@@ -368,7 +369,7 @@ When using Auto DevOps, you can deploy different environments to
 different Kubernetes clusters, due to the 1:1 connection
 [existing between them](../../user/project/clusters/index.md#multiple-kubernetes-clusters-premium).
 
-The [template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml)
+The [Deploy Job template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml)
 used by Auto DevOps currently defines 3 environment names:
 
 - `review/` (every environment starting with `review/`)
@@ -393,9 +394,6 @@ To add a different cluster for each environment:
 1. Navigate to your project's **{cloud-gear}** **Operations > Kubernetes**.
 1. Create the Kubernetes clusters with their respective environment scope, as
    described from the table above.
-
-   ![Auto DevOps multiple clusters](img/autodevops_multiple_clusters.png)
-
 1. After creating the clusters, navigate to each cluster and install Helm Tiller
    and Ingress. Wait for the Ingress IP address to be assigned.
 1. Make sure you've [configured your DNS](#auto-devops-base-domain) with the
@@ -407,35 +405,6 @@ After completing configuration, you can test your setup by creating a merge requ
 and verifying your application is deployed as a Review App in the Kubernetes
 cluster with the `review/*` environment scope. Similarly, you can check the
 other environments.
-
-## Currently supported languages
-
-Note that not all buildpacks support Auto Test yet, as it's a relatively new
-enhancement. All of Heroku's
-[officially supported languages](https://devcenter.heroku.com/articles/heroku-ci#supported-languages)
-support Auto Test. The languages supported by Heroku's Herokuish buildpacks all
-support Auto Test, but notably the multi-buildpack does not.
-
-As of GitLab 10.0, the supported buildpacks are:
-
-```plaintext
-- heroku-buildpack-multi     v1.0.0
-- heroku-buildpack-ruby      v168
-- heroku-buildpack-nodejs    v99
-- heroku-buildpack-clojure   v77
-- heroku-buildpack-python    v99
-- heroku-buildpack-java      v53
-- heroku-buildpack-gradle    v23
-- heroku-buildpack-scala     v78
-- heroku-buildpack-play      v26
-- heroku-buildpack-php       v122
-- heroku-buildpack-go        v72
-- heroku-buildpack-erlang    fa17af9
-- buildpack-nginx            v8
-```
-
-If your application needs a buildpack that is not in the above list, you
-might want to use a [custom buildpack](customize.md#custom-buildpacks).
 
 ## Limitations
 
@@ -489,11 +458,6 @@ The following are possible reasons:
   even though it's possible to write a Ruby app without a `Gemfile`.
 - No buildpack may exist for your application. Try specifying a
   [custom buildpack](customize.md#custom-buildpacks).
-
-### Mismatch between testing frameworks
-
-Auto Test may fail because of a mismatch between testing frameworks. In this
-case, you may need to customize your `.gitlab-ci.yml` with your test commands.
 
 ### Pipeline that extends Auto DevOps with only / except fails
 

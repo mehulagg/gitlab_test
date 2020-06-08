@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe EpicsFinder do
+RSpec.describe EpicsFinder do
   let_it_be(:user) { create(:user) }
   let_it_be(:search_user) { create(:user) }
   let_it_be(:group) { create(:group, :private) }
@@ -352,6 +352,56 @@ describe EpicsFinder do
 
             it 'returns also confidential epics' do
               expect(subject).to match_array([base_epic1, base_epic2, public_epic1, public_epic2])
+            end
+          end
+        end
+
+        context 'with negated labels' do
+          let_it_be(:label) { create(:label) }
+          let_it_be(:label2) { create(:label) }
+          let_it_be(:negated_epic) { create(:labeled_epic, group: group, labels: [label]) }
+          let_it_be(:negated_epic2) { create(:labeled_epic, group: group, labels: [label2]) }
+          let_it_be(:params) { { not: { label_name: [label.title, label2.title].join(',') } } }
+
+          it 'returns all epics if no negated labels are present' do
+            expect(epics).to contain_exactly(negated_epic, negated_epic2, epic1, epic2, epic3)
+          end
+
+          it 'returns all epics without negated label' do
+            expect(epics(params)).to contain_exactly(epic1, epic2, epic3)
+          end
+
+          context 'when not_issuable_queries is disabled' do
+            before do
+              stub_feature_flags(not_issuable_queries: false)
+            end
+
+            it 'returns epics that include negated params' do
+              expect(epics(params)).to contain_exactly(negated_epic, negated_epic2, epic1, epic2, epic3)
+            end
+          end
+        end
+
+        context 'with negated author' do
+          let_it_be(:author) { create(:user) }
+          let_it_be(:authored_epic) { create(:epic, group: group, author: author) }
+          let_it_be(:params) { { not: { author_id: author.id } } }
+
+          it 'returns all epics if no negated author is present' do
+            expect(epics).to contain_exactly(authored_epic, epic1, epic2, epic3)
+          end
+
+          it 'returns all epics without given author' do
+            expect(epics(params)).to contain_exactly(epic1, epic2, epic3)
+          end
+
+          context 'when not_issuable_queries is disabled' do
+            before do
+              stub_feature_flags(not_issuable_queries: false)
+            end
+
+            it 'returns epics that include negated params' do
+              expect(epics(params)).to contain_exactly(authored_epic, epic1, epic2, epic3)
             end
           end
         end

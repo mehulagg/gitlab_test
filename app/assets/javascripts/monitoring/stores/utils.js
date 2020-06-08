@@ -2,7 +2,9 @@ import { slugify } from '~/lib/utils/text_utility';
 import createGqClient, { fetchPolicies } from '~/lib/graphql';
 import { SUPPORTED_FORMATS } from '~/lib/utils/unit_format';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import { parseTemplatingVariables } from './variable_mapping';
 import { NOT_IN_DB_PREFIX } from '../constants';
+import { isSafeURL } from '~/lib/utils/url_utility';
 
 export const gqClient = createGqClient(
   {},
@@ -138,6 +140,23 @@ const mapYAxisToViewModel = ({
 };
 
 /**
+ * Maps a link to its view model, expects an url and
+ * (optionally) a title.
+ *
+ * Unsafe URLs are ignored.
+ *
+ * @param {Object} Link
+ * @returns {Object} Link object with a `title` and `url`.
+ *
+ */
+const mapLinksToViewModel = ({ url = null, title = '' } = {}) => {
+  return {
+    title: title || String(url),
+    url: url && isSafeURL(url) ? String(url) : '#',
+  };
+};
+
+/**
  * Maps a metrics panel to its view model
  *
  * @param {Object} panel - Metrics panel
@@ -152,6 +171,7 @@ const mapPanelToViewModel = ({
   y_label,
   y_axis = {},
   metrics = [],
+  links = [],
   max_value,
 }) => {
   // Both `x_axis.name` and `x_label` are supported for now
@@ -171,7 +191,8 @@ const mapPanelToViewModel = ({
     yAxis,
     xAxis,
     maxValue: max_value,
-    metrics: mapToMetricsViewModel(metrics, yAxis.name),
+    links: links.map(mapLinksToViewModel),
+    metrics: mapToMetricsViewModel(metrics),
   };
 };
 
@@ -197,13 +218,33 @@ const mapToPanelGroupViewModel = ({ group = '', panels = [] }, i) => {
  * @param {Array} dashboard.panel_groups - Panel groups array
  * @returns {Object}
  */
-export const mapToDashboardViewModel = ({ dashboard = '', panel_groups = [] }) => {
+export const mapToDashboardViewModel = ({
+  dashboard = '',
+  templating = {},
+  links = [],
+  panel_groups = [],
+}) => {
   return {
     dashboard,
+    variables: parseTemplatingVariables(templating),
+    links: links.map(mapLinksToViewModel),
     panelGroups: panel_groups.map(mapToPanelGroupViewModel),
   };
 };
 
+/**
+ * Processes a single Range vector, part of the result
+ * of type `matrix` in the form:
+ *
+ * {
+ *   "metric": { "<label_name>": "<label_value>", ... },
+ *   "values": [ [ <unix_time>, "<sample_value>" ], ... ]
+ * },
+ *
+ * See https://prometheus.io/docs/prometheus/latest/querying/api/#range-vectors
+ *
+ * @param {*} timeSeries
+ */
 export const normalizeQueryResult = timeSeries => {
   let normalizedResult = {};
 
@@ -229,3 +270,19 @@ export const normalizeQueryResult = timeSeries => {
 
   return normalizedResult;
 };
+
+/**
+ * Custom variables defined in the dashboard yml file are
+ * eventually passed over the wire to the backend Prometheus
+ * API proxy.
+ *
+ * This method adds a prefix to the URL param keys so that
+ * the backend can differential these variables from the other
+ * variables.
+ *
+ * This is currently only used by getters/getCustomVariablesParams
+ *
+ * @param {String} key Variable key that needs to be prefixed
+ * @returns {String}
+ */
+export const addPrefixToCustomVariableParams = key => `variables[${key}]`;

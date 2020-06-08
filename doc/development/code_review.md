@@ -308,10 +308,11 @@ experience, refactors the existing code). Then:
 - Seek to understand the author's perspective.
 - If you don't understand a piece of code, _say so_. There's a good chance
   someone else would be confused by it as well.
-- Do prefix your comment with "Not blocking:" if you have a small,
-  non-mandatory improvement you wish to suggest. This lets the author
-  know that they can optionally resolve this issue in this merge request
-  or follow-up at a later stage.
+- Ensure the author is clear on what is required from them to address/resolve the suggestion.
+  - Consider using the [Conventional Comment format](https://conventionalcomments.org#format) to
+    convey your intent.
+  - For non-mandatory suggestions, decorate with (non-blocking) so the author knows they can
+    optionally resolve within the merge request or follow-up at a later stage.
 - After a round of line notes, it can be helpful to post a summary note such as
   "LGTM :thumbsup:", or "Just a couple things to address."
 - Assign the merge request to the author if changes are required following your
@@ -357,8 +358,8 @@ When ready to merge:
   - If the **latest [Pipeline for Merged Results](../ci/merge_request_pipelines/pipelines_for_merged_results/#pipelines-for-merged-results-premium)** finished less than 2 hours ago, you
     might merge without starting a new pipeline as the merge request is close
     enough to `master`.
-  - If the merge request is from a fork, check how far behind `master` the
-    source branch is. If it's more than 100 commits behind, ask the author to
+  - If the **merge request is from a fork**, we can't use [Pipelines for Merged Results](../ci/merge_request_pipelines/pipelines_for_merged_results/index.md#prerequisites), therefore, they're more prone to breaking `master`.
+    Check how far behind `master` the source branch is. If it's more than 100 commits behind, ask the author to
     rebase it before merging.
   - If [master is broken](https://about.gitlab.com/handbook/engineering/workflow/#broken-master),
     in addition to the two above rules, check that any failure also happens
@@ -501,7 +502,7 @@ Properties of customer critical merge requests:
 - The DRI will assign the `customer-critical-merge-request` label to the merge request.
 - It is required that the reviewer(s) and maintainer(s) involved with a customer critical merge request are engaged as soon as this decision is made.
 - It is required to prioritize work for those involved on a customer critical merge request so that they have the time available necessary to focus on it.
-- It is required to adhere to GitLab [values](https://about.gitlab.com/handbook/values.md) and processes when working on customer critical merge requests, taking particular note of family and friends first/work second, definition of done, iteration, and release when it's ready.
+- It is required to adhere to GitLab [values](https://about.gitlab.com/handbook/values/) and processes when working on customer critical merge requests, taking particular note of family and friends first/work second, definition of done, iteration, and release when it's ready.
 - Customer critical merge requests are required to not reduce security, introduce data-loss risk, reduce availability, nor break existing functionality per the process for [prioritizing technical decisions](https://about.gitlab.com/handbook/engineering/#prioritizing-technical-decisions.md).
 - On customer critical requests, it is _recommended_ that those involved _consider_ coordinating synchronously (Zoom, Slack) in addition to asynchronously (merge requests comments) if they believe this will reduce elapsed time to merge even though this _may_ sacrifice [efficiency](https://about.gitlab.com/company/culture/all-remote/asynchronous/#evaluating-efficiency.md).
 - After a customer critical merge request is merged, a retrospective must be completed with the intention of reducing the frequency of future customer critical merge requests.

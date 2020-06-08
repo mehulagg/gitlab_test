@@ -25,27 +25,11 @@ module EE
       ]
     end
 
-    # rubocop: disable Metrics/CyclomaticComplexity
     override :get_project_nav_tabs
     def get_project_nav_tabs(project, current_user)
       nav_tabs = super
 
-      if can?(current_user, :read_project_security_dashboard, @project)
-        nav_tabs << :security
-        nav_tabs << :security_configuration
-      end
-
-      if can?(current_user, :read_dependencies, @project)
-        nav_tabs << :dependencies
-      end
-
-      if can?(current_user, :read_licenses, project)
-        nav_tabs << :licenses
-      end
-
-      if can?(current_user, :read_threat_monitoring, project)
-        nav_tabs << :threat_monitoring
-      end
+      nav_tabs += get_project_security_nav_tabs(project, current_user)
 
       if ::Gitlab.config.packages.enabled &&
           project.feature_available?(:packages) &&
@@ -71,7 +55,6 @@ module EE
 
       nav_tabs
     end
-    # rubocop: enable Metrics/CyclomaticComplexity
 
     override :tab_ability_map
     def tab_ability_map
@@ -167,6 +150,7 @@ module EE
       %w[
         projects/security/configuration#show
         projects/security/dashboard#index
+        projects/on_demand_scans#index
         projects/dependencies#index
         projects/licenses#index
         projects/threat_monitoring#show
@@ -220,7 +204,10 @@ module EE
           ref_path: project_commits_url(project, pipeline.ref),
           pipeline_path: pipeline_url(pipeline),
           pipeline_created: pipeline.created_at.to_s(:iso8601),
-          has_pipeline_data: "true"
+          has_pipeline_data: "true",
+          user_callouts_path: user_callouts_path,
+          user_callout_id: UserCalloutsHelper::STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER,
+          show_introduction_banner: show_standalone_vulnerabilities_introduction_banner?.to_s
         }.merge(project_vulnerabilities_config(project))
       end
     end
@@ -282,6 +269,35 @@ module EE
 
     def show_compliance_framework_badge?(project)
       project&.compliance_framework_setting&.present?
+    end
+
+    private
+
+    def get_project_security_nav_tabs(project, current_user)
+      nav_tabs = []
+
+      if can?(current_user, :read_project_security_dashboard, project)
+        nav_tabs << :security
+        nav_tabs << :security_configuration
+      end
+
+      if can?(current_user, :read_on_demand_scans, @project)
+        nav_tabs << :on_demand_scans
+      end
+
+      if can?(current_user, :read_dependencies, project)
+        nav_tabs << :dependencies
+      end
+
+      if can?(current_user, :read_licenses, project)
+        nav_tabs << :licenses
+      end
+
+      if can?(current_user, :read_threat_monitoring, project)
+        nav_tabs << :threat_monitoring
+      end
+
+      nav_tabs
     end
   end
 end

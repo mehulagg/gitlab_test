@@ -147,6 +147,10 @@ class ProjectPolicy < BasePolicy
     @user && @user.confirmed?
   end
 
+  condition(:build_service_proxy_enabled) do
+    ::Feature.enabled?(:build_service_proxy, @subject)
+  end
+
   features = %w[
     merge_requests
     issues
@@ -278,7 +282,6 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:metrics_dashboard) }.policy do
     enable :read_prometheus
-    enable :read_environment
     enable :read_deployment
   end
 
@@ -316,6 +319,7 @@ class ProjectPolicy < BasePolicy
     enable :update_deployment
     enable :create_release
     enable :update_release
+    enable :daily_statistics
     enable :create_metrics_dashboard_annotation
     enable :delete_metrics_dashboard_annotation
     enable :update_metrics_dashboard_annotation
@@ -358,7 +362,6 @@ class ProjectPolicy < BasePolicy
     enable :create_environment_terminal
     enable :destroy_release
     enable :destroy_artifacts
-    enable :daily_statistics
     enable :admin_operations
     enable :read_deploy_token
     enable :create_deploy_token
@@ -429,25 +432,9 @@ class ProjectPolicy < BasePolicy
   rule { builds_disabled | repository_disabled }.policy do
     prevent(*create_read_update_admin_destroy(:build))
     prevent(*create_read_update_admin_destroy(:pipeline_schedule))
+    prevent(*create_read_update_admin_destroy(:environment))
     prevent(*create_read_update_admin_destroy(:cluster))
     prevent(*create_read_update_admin_destroy(:deployment))
-  end
-
-  # Enabling `read_environment` specifically for the condition of `metrics_dashboard_allowed` is
-  # necessary due to the route for metrics dashboard requiring an environment id.
-  # This will be addressed in https://gitlab.com/gitlab-org/gitlab/-/issues/213833 when
-  # environments and metrics are decoupled and these rules will be removed.
-
-  rule { (builds_disabled | repository_disabled) & ~metrics_dashboard_allowed}.policy do
-    prevent(*create_read_update_admin_destroy(:environment))
-  end
-
-  rule { (builds_disabled | repository_disabled) & metrics_dashboard_allowed}.policy do
-    prevent :create_environment
-    prevent :update_environment
-    prevent :admin_environment
-    prevent :destroy_environment
-    enable :read_environment
   end
 
   # There's two separate cases when builds_disabled is true:
@@ -463,6 +450,7 @@ class ProjectPolicy < BasePolicy
   rule { repository_disabled }.policy do
     prevent :push_code
     prevent :download_code
+    prevent :build_download_code
     prevent :fork_project
     prevent :read_commit_status
     prevent :read_pipeline
@@ -574,6 +562,18 @@ class ProjectPolicy < BasePolicy
   rule { write_package_registry_deploy_token }.policy do
     enable :create_package
     enable :read_project
+  end
+
+  rule { can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
+
+  rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
+
+  rule { can?(:download_code) }.policy do
+    enable :read_repository_graphs
+  end
+
+  rule { can?(:read_build) & can?(:read_pipeline) }.policy do
+    enable :read_build_report_results
   end
 
   private

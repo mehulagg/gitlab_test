@@ -22,13 +22,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :jobs, only: [], constraints: { id: /\d+/ } do
-          member do
-            get '/proxy.ws/authorize', to: 'jobs#proxy_websocket_authorize', format: false
-            get :proxy
-          end
-        end
-
         resources :feature_flags, param: :iid
         resource :feature_flags_client, only: [] do
           post :reset_token
@@ -64,7 +57,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :summary, on: :collection
           end
 
-          resource :network_policies, only: [] do
+          resources :network_policies, only: [:index, :create, :update, :destroy] do
             get :summary, on: :collection
           end
 
@@ -100,6 +93,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :vulnerability_feedback, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
         resources :dependencies, only: [:index]
         resources :licenses, only: [:index, :create, :update]
+        resources :on_demand_scans, only: [:index], controller: :on_demand_scans
       end
       # End of the /-/ scope.
 
@@ -114,17 +108,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       resource :tracing, only: [:show]
-
-      resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do
-        member do
-          post :cancel
-          post :retry
-        end
-
-        collection do
-          post :check_config
-        end
-      end
 
       get '/service_desk' => 'service_desk#show', as: :service_desk
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh

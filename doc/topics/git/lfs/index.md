@@ -97,12 +97,12 @@ Read the documentation on how to [migrate an existing Git repo with Git LFS](mig
 
 To remove objects from LFS:
 
-1. Use [BFG-Cleaner](../../../user/project/repository/reducing_the_repo_size_using_git.md#using-the-bfg-repo-cleaner) or [filter-branch](../../../user/project/repository/reducing_the_repo_size_using_git.md#using-git-filter-branch) to remove the objects from the repository.
+1. Use [`git filter-repo`](../../../user/project/repository/reducing_the_repo_size_using_git.md) to remove the objects from the repository.
 1. Delete the relevant LFS lines for the objects you have removed from your `.gitattributes` file and commit those changes.
 
 ## File Locking
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/35856) in GitLab 10.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/35856) in GitLab 10.5.
 
 The first thing to do before using File Locking is to tell Git LFS which
 kind of files are lockable. The following command will store PNG files

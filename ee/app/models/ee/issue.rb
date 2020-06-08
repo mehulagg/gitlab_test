@@ -26,7 +26,7 @@ module EE
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
         id_in(issue_ids)
       end
-      scope :on_status_page, -> { joins(project: :status_page_setting).where(status_page_settings: { enabled: true }).public_only }
+      scope :on_status_page, -> { joins(:status_page_published_incident).public_only }
       scope :counts_by_health_status, -> { reorder(nil).group(:health_status).count }
       scope :with_health_status, -> { where.not(health_status: nil) }
 
@@ -35,10 +35,6 @@ module EE
       belongs_to :promoted_to_epic, class_name: 'Epic'
 
       has_one :status_page_published_incident, class_name: 'StatusPage::PublishedIncident', inverse_of: :issue
-
-      has_and_belongs_to_many :self_managed_prometheus_alert_events, join_table: :issues_self_managed_prometheus_alert_events
-      has_and_belongs_to_many :prometheus_alert_events, join_table: :issues_prometheus_alert_events
-      has_many :prometheus_alerts, through: :prometheus_alert_events
 
       has_many :vulnerability_links, class_name: 'Vulnerabilities::IssueLink', inverse_of: :issue
       has_many :related_vulnerabilities, through: :vulnerability_links, source: :vulnerability

@@ -3,6 +3,7 @@
 module Ci
   class InstanceVariable < ApplicationRecord
     extend Gitlab::Ci::Model
+    extend Gitlab::ProcessMemoryCache::Helper
     include Ci::NewHasVariable
     include Ci::Maskable
 
@@ -12,8 +13,14 @@ module Ci
       message: "(%{value}) has already been taken"
     }
 
+    validates :encrypted_value, length: {
+      maximum: 1024,
+      too_long: 'The encrypted value of the provided variable exceeds %{count} bytes. Variables over 700 characters risk exceeding the limit.'
+    }
+
     scope :unprotected, -> { where(protected: false) }
-    after_commit { self.class.touch_redis_cache_timestamp }
+
+    after_commit { self.class.invalidate_memory_cache(:ci_instance_variable_data) }
 
     class << self
       def all_cached
@@ -24,10 +31,6 @@ module Ci
         cached_data[:unprotected]
       end
 
-      def touch_redis_cache_timestamp(time = Time.current.to_f)
-        shared_backend.write(:ci_instance_variable_changed_at, time)
-      end
-
       private
 
       def cached_data
@@ -36,40 +39,6 @@ module Ci
 
           { all: all_records, unprotected: all_records.reject(&:protected?) }
         end
-      end
-
-      def fetch_memory_cache(key, &payload)
-        cache = process_backend.read(key)
-
-        if cache && !stale_cache?(cache)
-          cache[:data]
-        else
-          store_cache(key, &payload)
-        end
-      end
-
-      def stale_cache?(cache_info)
-        shared_timestamp = shared_backend.read(:ci_instance_variable_changed_at)
-        return true unless shared_timestamp
-
-        shared_timestamp.to_f > cache_info[:cached_at].to_f
-      end
-
-      def store_cache(key)
-        data = yield
-        time = Time.current.to_f
-
-        process_backend.write(key, data: data, cached_at: time)
-        touch_redis_cache_timestamp(time)
-        data
-      end
-
-      def shared_backend
-        Rails.cache
-      end
-
-      def process_backend
-        Gitlab::ProcessMemoryCache.cache_backend
       end
     end
   end

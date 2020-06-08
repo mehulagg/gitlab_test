@@ -117,12 +117,18 @@ module UsageDataHelpers
       projects_with_expiration_policy_enabled_with_cadence_set_to_14d
       projects_with_expiration_policy_enabled_with_cadence_set_to_1month
       projects_with_expiration_policy_enabled_with_cadence_set_to_3month
+      projects_with_terraform_reports
+      projects_with_terraform_states
       pages_domains
       protected_branches
       releases
       remote_mirrors
       snippets
+      personal_snippets
+      project_snippets
       suggestions
+      terraform_reports
+      terraform_states
       todos
       uploads
       web_hooks
@@ -156,6 +162,11 @@ module UsageDataHelpers
       ingress_modsecurity_enabled
       object_store
     ).freeze
+
+  def stub_usage_data_connections
+    allow(ActiveRecord::Base.connection).to receive(:transaction_open?).and_return(false)
+    allow(Gitlab::Prometheus::Internal).to receive(:prometheus_enabled?).and_return(false)
+  end
 
   def stub_object_store_settings
     allow(Settings).to receive(:[]).with('artifacts')

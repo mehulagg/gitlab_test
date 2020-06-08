@@ -94,39 +94,11 @@ RSpec.describe Release do
   describe 'evidence' do
     let(:release_with_evidence) { create(:release, :with_evidence, project: project) }
 
-    describe '#create_evidence!' do
-      context 'when a release is created' do
-        it 'creates one Evidence object too' do
-          expect { release_with_evidence }.to change(Releases::Evidence, :count).by(1)
-        end
-      end
-    end
-
     context 'when a release is deleted' do
       it 'also deletes the associated evidence' do
         release_with_evidence
 
         expect { release_with_evidence.destroy }.to change(Releases::Evidence, :count).by(-1)
-      end
-    end
-  end
-
-  describe '#notify_new_release' do
-    context 'when a release is created' do
-      it 'instantiates NewReleaseWorker to send notifications' do
-        expect(NewReleaseWorker).to receive(:perform_async)
-
-        create(:release)
-      end
-    end
-
-    context 'when a release is updated' do
-      let!(:release) { create(:release) }
-
-      it 'does not send any new notification' do
-        expect(NewReleaseWorker).not_to receive(:perform_async)
-
-        release.update!(description: 'new description')
       end
     end
   end

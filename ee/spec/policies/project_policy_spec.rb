@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ProjectPolicy do
+RSpec.describe ProjectPolicy do
   include ExternalAuthorizationServiceHelpers
   include AdminModeHelper
 
@@ -41,7 +41,9 @@ describe ProjectPolicy do
         admin_vulnerability_issue_link read_merge_train
       ]
     end
-    let(:additional_maintainer_permissions) { %i[push_code_to_protected_branches admin_feature_flags_client] }
+    let(:additional_maintainer_permissions) do
+      %i[push_code_to_protected_branches admin_feature_flags_client modify_auto_fix_setting]
+    end
     let(:auditor_permissions) do
       %i[
         download_code download_wiki_code read_project read_board read_list
@@ -942,76 +944,6 @@ describe ProjectPolicy do
     end
   end
 
-  describe 'create_web_ide_terminal' do
-    before do
-      stub_licensed_features(web_ide_terminal: true)
-    end
-
-    context 'without ide terminal feature available' do
-      before do
-        stub_licensed_features(web_ide_terminal: false)
-      end
-
-      let(:current_user) { admin }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-
-    context 'with admin' do
-      let(:current_user) { admin }
-
-      context 'when admin mode enabled', :enable_admin_mode do
-        it { is_expected.to be_allowed(:create_web_ide_terminal) }
-      end
-
-      context 'when admin mode disabled' do
-        it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-      end
-    end
-
-    context 'with owner' do
-      let(:current_user) { owner }
-
-      it { is_expected.to be_allowed(:create_web_ide_terminal) }
-    end
-
-    context 'with maintainer' do
-      let(:current_user) { maintainer }
-
-      it { is_expected.to be_allowed(:create_web_ide_terminal) }
-    end
-
-    context 'with developer' do
-      let(:current_user) { developer }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-
-    context 'with reporter' do
-      let(:current_user) { reporter }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-
-    context 'with guest' do
-      let(:current_user) { guest }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-
-    context 'with non member' do
-      let(:current_user) { create(:user) }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-
-    context 'with anonymous' do
-      let(:current_user) { nil }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-  end
-
   describe 'publish_status_page' do
     let(:anonymous) { nil }
     let(:feature) { :status_page }
@@ -1387,14 +1319,18 @@ describe ProjectPolicy do
 
     using RSpec::Parameterized::TableSyntax
     context 'with merge request approvers rules available in license' do
-      where(:role, :admin_mode, :allowed) do
-        :guest      | nil   | false
-        :reporter   | nil   | false
-        :developer  | nil   | false
-        :maintainer | nil   | false
-        :owner      | nil   | false
-        :admin      | false | false
-        :admin      | true  | true
+      where(:role, :setting, :admin_mode, :allowed) do
+        :guest      | true  | nil    | false
+        :reporter   | true  | nil    | false
+        :developer  | true  | nil    | false
+        :maintainer | false | nil    | true
+        :maintainer | true  | nil    | false
+        :owner      | false | nil    | true
+        :owner      | true  | nil    | false
+        :admin      | false | false  | false
+        :admin      | false | true   | true
+        :admin      | true  | false  | false
+        :admin      | true  | true   | true
       end
 
       with_them do
@@ -1402,6 +1338,7 @@ describe ProjectPolicy do
 
         before do
           stub_licensed_features(admin_merge_request_approvers_rules: true)
+          stub_application_setting(setting_name => setting)
           enable_admin_mode!(current_user) if admin_mode
         end
 
@@ -1410,14 +1347,18 @@ describe ProjectPolicy do
     end
 
     context 'with merge request approvers not available in license' do
-      where(:role, :admin_mode, :allowed) do
-        :guest      | nil   | false
-        :reporter   | nil   | false
-        :developer  | nil   | false
-        :maintainer | nil   | true
-        :owner      | nil   | true
-        :admin      | false | false
-        :admin      | true  | true
+      where(:role, :setting, :admin_mode, :allowed) do
+        :guest      | true  | nil    | false
+        :reporter   | true  | nil    | false
+        :developer  | true  | nil    | false
+        :maintainer | false | nil    | true
+        :maintainer | true  | nil    | true
+        :owner      | false | nil    | true
+        :owner      | true  | nil    | true
+        :admin      | false | false  | false
+        :admin      | false | true   | true
+        :admin      | true  | false  | false
+        :admin      | true  | true   | true
       end
 
       with_them do
@@ -1425,6 +1366,7 @@ describe ProjectPolicy do
 
         before do
           stub_licensed_features(admin_merge_request_approvers_rules: false)
+          stub_application_setting(setting_name => setting)
           enable_admin_mode!(current_user) if admin_mode
         end
 
@@ -1455,9 +1397,66 @@ describe ProjectPolicy do
   end
 
   describe ':modify_approvers_list' do
-    it_behaves_like 'merge request rules' do
-      let(:setting_name) { :disable_overriding_approvers_per_merge_request }
-      let(:policy) { :modify_approvers_list }
+    let(:setting_name) { :disable_overriding_approvers_per_merge_request }
+    let(:policy) { :modify_approvers_list }
+    let(:project) { create(:project, namespace: owner.namespace) }
+
+    using RSpec::Parameterized::TableSyntax
+
+    context 'with merge request approvers rules available in license' do
+      where(:role, :setting, :admin_mode, :allowed) do
+        :guest      | true  | nil   | false
+        :reporter   | true  | nil   | false
+        :developer  | true  | nil   | false
+        :maintainer | false | nil   | true
+        :maintainer | true  | nil   | false
+        :owner      | false | nil   | true
+        :owner      | true  | nil   | false
+        :admin      | false | false | false
+        :admin      | false | true  | true
+        :admin      | true  | false | false
+        :admin      | true  | true  | true
+      end
+
+      with_them do
+        let(:current_user) { public_send(role) }
+
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+          stub_application_setting(setting_name => setting)
+          enable_admin_mode!(current_user) if admin_mode
+        end
+
+        it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
+      end
+    end
+
+    context 'with merge request approvers not available in license' do
+      where(:role, :setting, :admin_mode, :allowed) do
+        :guest      | true  | nil   | false
+        :reporter   | true  | nil   | false
+        :developer  | true  | nil   | false
+        :maintainer | false | nil   | true
+        :maintainer | true  | nil   | true
+        :owner      | false | nil   | true
+        :owner      | true  | nil   | true
+        :admin      | false | false | false
+        :admin      | false | true  | true
+        :admin      | true  | false | false
+        :admin      | true  | true  | true
+      end
+
+      with_them do
+        let(:current_user) { public_send(role) }
+
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: false)
+          stub_application_setting(setting_name => setting)
+          enable_admin_mode!(current_user) if admin_mode
+        end
+
+        it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
+      end
     end
   end
 

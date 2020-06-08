@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Note do
+RSpec.describe Note do
   include ::EE::GeoHelpers
 
   it_behaves_like 'an editable mentionable with EE-specific mentions' do
@@ -89,10 +89,6 @@ describe Note do
         note.system_note_with_references?
       end
     end
-  end
-
-  describe 'associations' do
-    it { is_expected.to belong_to(:review).inverse_of(:notes) }
   end
 
   describe 'scopes' do

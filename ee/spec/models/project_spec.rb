@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Project do
+RSpec.describe Project do
   include ProjectForksHelper
   include ::EE::GeoHelpers
   using RSpec::Parameterized::TableSyntax
@@ -28,7 +28,6 @@ describe Project do
     it { is_expected.to have_one(:status_page_setting).class_name('StatusPage::ProjectSetting') }
     it { is_expected.to have_one(:compliance_framework_setting).class_name('ComplianceManagement::ComplianceFramework::ProjectSettings') }
 
-    it { is_expected.to have_many(:reviews).inverse_of(:project) }
     it { is_expected.to have_many(:path_locks) }
     it { is_expected.to have_many(:vulnerability_feedback) }
     it { is_expected.to have_many(:vulnerability_exports) }
@@ -187,6 +186,12 @@ describe Project do
     end
 
     describe '.with_shared_runners_limit_enabled' do
+      let(:public_cost_factor) { 1.0 }
+
+      before do
+        create(:ci_runner, :instance, public_projects_minutes_cost_factor: public_cost_factor)
+      end
+
       it 'does not return projects without shared runners' do
         project_with_shared_runners = create(:project, shared_runners_enabled: true)
         project_without_shared_runners = create(:project, shared_runners_enabled: false)
@@ -195,7 +200,7 @@ describe Project do
         expect(described_class.with_shared_runners_limit_enabled).not_to include(project_without_shared_runners)
       end
 
-      it 'return projects with shared runners with any visibility levels' do
+      it 'return projects with shared runners with positive public cost factor with any visibility levels' do
         public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
         internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
         private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
@@ -205,12 +210,10 @@ describe Project do
         expect(described_class.with_shared_runners_limit_enabled).to include(private_project_with_shared_runners)
       end
 
-      context 'and :ci_minutes_enforce_quota_for_public_projects FF is disabled' do
-        before do
-          stub_feature_flags(ci_minutes_enforce_quota_for_public_projects: false)
-        end
+      context 'and shared runners public cost factors set to 0' do
+        let(:public_cost_factor) { 0.0 }
 
-        it 'does not return public projects' do
+        it 'return projects with any visibility levels except public' do
           public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
           internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
           private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
@@ -302,7 +305,7 @@ describe Project do
             project.save
           end.to change { ProjectImportState.count }.by(1)
 
-          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
         end
       end
     end
@@ -317,7 +320,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id, import_url: generate(:url))
             end.to change { ProjectImportState.count }.by(1)
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -331,7 +334,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id)
             end.not_to change { ProjectImportState.count }
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -339,7 +342,7 @@ describe Project do
   end
 
   describe '.mirrors_to_sync' do
-    let(:timestamp) { Time.now }
+    let(:timestamp) { Time.current }
 
     context 'when mirror is scheduled' do
       it 'returns empty' do
@@ -511,6 +514,87 @@ describe Project do
       end
 
       it { is_expected.to be_nil }
+    end
+  end
+
+  context 'merge requests related settings' do
+    shared_examples 'setting modified by application setting' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
+        true     | true      | true   | true
+        false    | true      | true   | true
+        true     | false     | true   | true
+        false    | false     | true   | false
+        true     | true      | false  | true
+        false    | true      | false  | true
+        true     | false     | false  | false
+        false    | false     | false  | false
+      end
+
+      with_them do
+        let(:project) { create(:project) }
+
+        before do
+          stub_licensed_features(feature => feature_enabled)
+          stub_application_setting(application_setting => app_setting)
+          project.update(setting => project_setting)
+        end
+
+        it 'shows proper setting' do
+          expect(project.send(setting)).to eq(final_setting)
+          expect(project.send("#{setting}?")).to eq(final_setting)
+        end
+      end
+    end
+
+    describe '#disable_overriding_approvers_per_merge_request' do
+      it_behaves_like 'setting modified by application setting' do
+        let(:feature) { :admin_merge_request_approvers_rules }
+        let(:setting) { :disable_overriding_approvers_per_merge_request }
+        let(:application_setting) { :disable_overriding_approvers_per_merge_request }
+      end
+    end
+
+    describe '#merge_requests_disable_committers_approval' do
+      it_behaves_like 'setting modified by application setting' do
+        let(:feature) { :admin_merge_request_approvers_rules }
+        let(:setting) { :merge_requests_disable_committers_approval }
+        let(:application_setting) { :prevent_merge_requests_committers_approval }
+      end
+    end
+
+    describe '#merge_requests_author_approval' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
+        true     | true      | true   | false
+        false    | true      | true   | true
+        true     | false     | true   | false
+        false    | false     | true   | false
+        true     | true      | false  | true
+        false    | true      | false  | true
+        true     | false     | false  | false
+        false    | false     | false  | false
+      end
+
+      with_them do
+        let(:project) { create(:project) }
+        let(:feature) { :admin_merge_request_approvers_rules }
+        let(:setting) { :merge_requests_author_approval }
+        let(:application_setting) { :prevent_merge_requests_author_approval }
+
+        before do
+          stub_licensed_features(feature => feature_enabled)
+          stub_application_setting(application_setting => app_setting)
+          project.update(setting => project_setting)
+        end
+
+        it 'shows proper setting' do
+          expect(project.send(setting)).to eq(final_setting)
+          expect(project.send("#{setting}?")).to eq(final_setting)
+        end
+      end
     end
   end
 
@@ -924,14 +1008,6 @@ describe Project do
         end
 
         it { is_expected.to be_truthy }
-
-        context 'and :ci_minutes_track_for_public_projects FF is disabled' do
-          before do
-            stub_feature_flags(ci_minutes_track_for_public_projects: false)
-          end
-
-          it { is_expected.to be_falsey }
-        end
       end
 
       context 'for internal project' do

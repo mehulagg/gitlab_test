@@ -195,7 +195,7 @@ ci_pipelines:
 - cancelable_statuses
 - manual_actions
 - scheduled_actions
-- artifacts
+- downloadable_artifacts
 - pipeline_schedule
 - merge_requests_as_head_pipeline
 - merge_request
@@ -220,6 +220,7 @@ ci_pipelines:
 - pipeline_config
 - security_scans
 - daily_build_group_report_results
+- latest_builds
 pipeline_variables:
 - pipeline
 stages:
@@ -236,6 +237,7 @@ statuses:
 - stage
 - user
 - auto_canceled_by
+- needs
 variables:
 - project
 triggers:
@@ -494,6 +496,7 @@ project:
 - repository_storage_moves
 - freeze_periods
 - webex_teams_service
+- build_report_results
 award_emoji:
 - awardable
 - user
@@ -596,6 +599,7 @@ design: &design
 - versions
 - notes
 - user_mentions
+- events
 designs: *design
 actions:
 - design

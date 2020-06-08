@@ -64,7 +64,7 @@ describe Prometheus::ProxyVariableSubstitutionService do
       let(:params_keys) do
         {
           query: 'up{pod_name="{{pod_name}}"}',
-          variables: ['pod_name', pod_name]
+          variables: { 'pod_name' => pod_name }
         }
       end
 
@@ -76,7 +76,7 @@ describe Prometheus::ProxyVariableSubstitutionService do
         let(:params_keys) do
           {
             query: 'up{pod_name="{{pod_name}}",env="{{ci_environment_slug}}"}',
-            variables: ['pod_name', pod_name, 'ci_environment_slug', 'custom_value']
+            variables: { 'pod_name' => pod_name, 'ci_environment_slug' => 'custom_value' }
           }
         end
 
@@ -95,8 +95,7 @@ describe Prometheus::ProxyVariableSubstitutionService do
           }
         end
 
-        it_behaves_like 'error', 'Optional parameter "variables" must be an ' \
-          'array of keys and values. Ex: [key1, value1, key2, value2]'
+        it_behaves_like 'error', 'Optional parameter "variables" must be a Hash. Ex: variables[key1]=value1'
       end
 
       context 'with nil variables' do
@@ -185,6 +184,20 @@ describe Prometheus::ProxyVariableSubstitutionService do
         it_behaves_like 'success' do
           let(:expected_query) { "up{env=#{environment.slug},other_env={{env_slug}}}" }
         end
+      end
+    end
+
+    context '__range' do
+      let(:params_keys) do
+        {
+          query: 'topk(5, sum by (method) (rate(rest_client_requests_total[{{__range}}])))',
+          start_time: '2020-05-29T08:19:07.142Z',
+          end_time: '2020-05-29T16:19:07.142Z'
+        }
+      end
+
+      it_behaves_like 'success' do
+        let(:expected_query) { "topk(5, sum by (method) (rate(rest_client_requests_total[#{8.hours.to_i}s])))" }
       end
     end
   end

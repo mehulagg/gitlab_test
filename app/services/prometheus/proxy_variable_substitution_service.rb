@@ -32,8 +32,8 @@ module Prometheus
     def validate_variables(_result)
       return success unless variables
 
-      unless variables.is_a?(Array) && variables.size.even?
-        return error(_('Optional parameter "variables" must be an array of keys and values. Ex: [key1, value1, key2, value2]'))
+      unless variables.is_a?(ActionController::Parameters)
+        return error(_('Optional parameter "variables" must be a Hash. Ex: variables[key1]=value1'))
       end
 
       success
@@ -58,7 +58,7 @@ module Prometheus
     def substitute_variables(result)
       return success(result) unless query(result)
 
-      result[:params][:query] = gsub(query(result), full_context)
+      result[:params][:query] = gsub(query(result), full_context(result))
 
       success(result)
     end
@@ -75,12 +75,16 @@ module Prometheus
       end
     end
 
-    def predefined_context
-      Gitlab::Prometheus::QueryVariables.call(@environment).stringify_keys
+    def predefined_context(result)
+      Gitlab::Prometheus::QueryVariables.call(
+        @environment,
+        start_time: start_timestamp(result),
+        end_time: end_timestamp(result)
+      ).stringify_keys
     end
 
-    def full_context
-      @full_context ||= predefined_context.reverse_merge(variables_hash)
+    def full_context(result)
+      @full_context ||= predefined_context(result).reverse_merge(variables_hash)
     end
 
     def variables
@@ -88,12 +92,17 @@ module Prometheus
     end
 
     def variables_hash
-      # .each_slice(2) converts ['key1', 'value1', 'key2', 'value2'] into
-      # [['key1', 'value1'], ['key2', 'value2']] which is then converted into
-      # a hash by to_h: {'key1' => 'value1', 'key2' => 'value2'}
-      # to_h will raise an ArgumentError if the number of elements in the original
-      # array is not even.
-      variables&.each_slice(2).to_h
+      variables.to_h
+    end
+
+    def start_timestamp(result)
+      Time.rfc3339(result[:params][:start])
+    rescue ArgumentError
+    end
+
+    def end_timestamp(result)
+      Time.rfc3339(result[:params][:end])
+    rescue ArgumentError
     end
 
     def query(result)

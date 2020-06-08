@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference
 ---
 
@@ -16,6 +19,13 @@ that can be reused in different scripts.
 
 Variables are useful for customizing your jobs in GitLab CI/CD.
 When you use variables, you don't have to hard-code values.
+
+For more information about advanced use of GitLab CI/CD:
+
+- Get to productivity faster with these [7 advanced GitLab CI workflow hacks](https://about.gitlab.com/webcast/7cicd-hacks/)
+  shared by GitLab engineers.
+- Learn how the Cloud Native Computing Foundation (CNCF) [eliminates the complexity](https://about.gitlab.com/customers/cncf/)
+  of managing projects across many cloud providers with GitLab CI/CD.
 
 ## Predefined environment variables
 
@@ -106,7 +116,7 @@ From within the UI, you can add or update custom environment variables:
 1. Go to your project's **Settings > CI/CD** and expand the **Variables** section.
 1. Click the **Add Variable** button. In the **Add variable** modal, fill in the details:
 
-    - **Key**: Must be one line, with no spaces, using only letters, numbers, `-` or `_`.
+    - **Key**: Must be one line, with no spaces, using only letters, numbers, or `_`.
     - **Value**: No limitations.
     - **Type**: `File` or `Variable`.
     - **Environment scope**: `All`, or specific environments.
@@ -133,7 +143,7 @@ The output will be:
 
 ### Custom environment variables of type Variable
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46806) in GitLab 11.11.
 
 For variables with the type **Variable**, the Runner creates an environment variable
 that uses the key for the name and the value for the value.
@@ -143,7 +153,7 @@ which may be further validated. They appear when you add or update a variable in
 
 ### Custom environment variables of type File
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46806) in GitLab 11.11.
 
 For variables with the type **File**, the Runner creates an environment variable that uses the key for the name.
 For the value, the Runner writes the variable value to a temporary file and uses this path.
@@ -175,7 +185,7 @@ kubectl config set-cluster e2e --server="$KUBE_URL" --certificate-authority="$KU
 
 ### Mask a custom variable
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/13784) in GitLab 11.10
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/13784) in GitLab 11.10
 
 Variables can be masked so that the value of the variable will be hidden in job logs.
 
@@ -195,7 +205,7 @@ The value of the variable must:
 - Be at least 8 characters long.
 - Not be a predefined or custom environment variable.
 - Consist only of characters from the Base64 alphabet (RFC4648).
-  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/issues/63043)
+  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63043)
   and newer, `@` and `:` are also valid values.
 
 You can't mask variables that don't meet these requirements.
@@ -242,19 +252,48 @@ In most cases `bash` or `sh` is used to execute the job script.
 
 To access environment variables, use the syntax for your Runner's [shell](https://docs.gitlab.com/runner/executors/).
 
-| Shell                | Usage           |
-|----------------------|-----------------|
-| bash/sh              | `$variable`     |
-| windows batch        | `%variable%`    |
-| PowerShell           | `$env:variable` |
+| Shell                | Usage                                    |
+|----------------------|------------------------------------------|
+| bash/sh              | `$variable`                              |
+| PowerShell           | `$env:variable` (primary) or `$variable` |
+| Windows Batch        | `%variable%`                             |
 
-To access environment variables in bash, prefix the variable name with (`$`):
+### Bash
+
+To access environment variables in **bash**, prefix the variable name with (`$`):
 
 ```yaml
 job_name:
   script:
     - echo $CI_JOB_ID
 ```
+
+### PowerShell
+
+To access environment variables in a **Windows PowerShell** environment, prefix
+the variable name with (`$env:`). For environment variables set by GitLab CI, including those set by [`variables`](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/ci/yaml/README.md#variables)
+parameter, they can also be accessed by prefixing the variable name with (`$`)
+as of [GitLab Runner 1.0.0](https://gitlab.com/gitlab-org/gitlab-runner/-/commit/abc44bb158008cd3a49c0d8173717c38dadb29ae#47afd7e8f12afdb8f0246262488f24e6dd071a22).
+System set environment variables however must be accessed using (`$env:`).
+
+```yaml
+job_name:
+  script:
+    - echo $env:CI_JOB_ID
+    - echo $CI_JOB_ID
+    - echo $env:PATH
+```
+
+In [some cases](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4115#note_157692820)
+environment variables may need to be surrounded by quotes to expand properly:
+
+```yaml
+job_name:
+  script:
+    - D:\\qislsf\\apache-ant-1.10.5\\bin\\ant.bat "-DsosposDailyUsr=$env:SOSPOS_DAILY_USR" portal_test
+```
+
+### Windows Batch
 
 To access environment variables in **Windows Batch**, surround the variable
 with (`%`):
@@ -265,23 +304,18 @@ job_name:
     - echo %CI_JOB_ID%
 ```
 
-To access environment variables in a **Windows PowerShell** environment, prefix
-the variable name with (`$env:`):
+### List all environment variables
 
-```yaml
-job_name:
-  script:
-    - echo $env:CI_JOB_ID
-```
-
-You can also list all environment variables with the `export` command,
-but be aware that this will also expose the values of all the variables
+You can also list all environment variables with the `export` command in Bash
+or `dir env:` command in PowerShell.
+Be aware that this will also expose the values of all the variables
 you set, in the job log:
 
 ```yaml
 job_name:
   script:
     - export
+    # - 'dir env:' # use this for PowerShell
 ```
 
 Example values:
@@ -377,9 +411,8 @@ script:
 
 You can define per-project or per-group variables
 that are set in the pipeline environment. Group-level variables are stored out of
-the repository (not in `.gitlab-ci.yml`) and are securely passed to GitLab Runner
-making them available during a pipeline run. It's the **recommended method** to
-use for storing things like passwords, SSH keys, and credentials.
+the repository (not in `.gitlab-ci.yml`) and are securely passed to GitLab Runner,
+which makes them available during a pipeline run. For Premium users who do **not** use an external key store or who use GitLab's [integration with HashiCorp Vault](../examples/authenticating-with-hashicorp-vault/index.md), we recommend using group environment variables to store secrets like passwords, SSH keys, and credentials.
 
 Group-level variables can be added by:
 
@@ -394,7 +427,7 @@ Once you set them, they will be available for all subsequent pipelines. Any grou
 
 ![CI/CD settings - inherited variables](img/inherited_group_variables_v12_5.png)
 
-### Inherit environment variables
+## Inherit environment variables
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22638) in GitLab 13.0.
 > - It's deployed behind a feature flag (`ci_dependency_variables`), disabled by default.
@@ -468,7 +501,8 @@ variables, depending on where they are defined.
 
 The order of precedence for variables is (from highest to lowest):
 
-1. [Trigger variables](../triggers/README.md#making-use-of-trigger-variables) or [scheduled pipeline variables](../pipelines/schedules.md#using-variables).
+1. [Trigger variables](../triggers/README.md#making-use-of-trigger-variables), [scheduled pipeline variables](../pipelines/schedules.md#using-variables),
+   and [manual pipeline run variables](#override-a-variable-by-manually-running-a-pipeline).
 1. Project-level [variables](#custom-environment-variables) or [protected variables](#protect-a-custom-variable).
 1. Group-level [variables](#group-level-environment-variables) or [protected variables](#protect-a-custom-variable).
 1. [Inherited environment variables](#inherit-environment-variables).
@@ -487,8 +521,10 @@ variables take precedence over those defined in `.gitlab-ci.yml`.
 
 ## Unsupported variables
 
-There are cases where some variables cannot be used in the context of a
-`.gitlab-ci.yml` definition (for example under `script`). Read more about which variables are [not supported](where_variables_can_be_used.md).
+Variable names are limited by the underlying shell used to execute scripts (see [available shells](https://docs.gitlab.com/runner/shells/index.html).
+Each shell has its own unique set of reserved variable names.
+You will also want to keep in mind the [scope of environment variables](where_variables_can_be_used.md) to ensure a variable is defined in the scope
+in which you wish to use it.
 
 ## Where variables can be used
 
@@ -518,7 +554,7 @@ An example integration that defines deployment variables is the
 
 ### Auto DevOps environment variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/49056) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/49056) in GitLab 11.7.
 
 You can configure [Auto DevOps](../../topics/autodevops/index.md) to
 pass CI variables to the running application by prefixing the key of the
@@ -535,7 +571,7 @@ limitations with the current Auto DevOps scripting environment.
 
 ### Override a variable by manually running a pipeline
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/44059) in GitLab 10.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/44059) in GitLab 10.8.
 
 You can override the value of a current variable by
 [running a pipeline manually](../pipelines/index.md#run-a-pipeline-manually).
@@ -555,8 +591,8 @@ value for this specific pipeline.
 
 ## Environment variables expressions
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
-> - [Expanded](https://gitlab.com/gitlab-org/gitlab/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.md#rules)
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
+> - [Expanded](https://gitlab.com/gitlab-org/gitlab/-/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.md#rules)
 
 Use variable expressions to limit which jobs are created
 within a pipeline after changes are pushed to GitLab.
@@ -644,7 +680,7 @@ Below you can find supported syntax reference:
    which means that it is defined and non-empty, you can simply use
    variable name as an expression, like `$STAGING`. If `$STAGING` variable
    is defined, and is non empty, expression will evaluate to truth.
-   `$STAGING` value needs to a string, with length higher than zero.
+   `$STAGING` value needs to be a string, with length higher than zero.
    Variable that contains only whitespace characters is not an empty variable.
 
 1. Pattern matching (introduced in GitLab 11.0)
@@ -652,7 +688,7 @@ Below you can find supported syntax reference:
    Examples:
 
    - `=~`: True if pattern is matched. Ex: `$VARIABLE =~ /^content.*/`
-   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/61900) in GitLab 11.11)
+   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/61900) in GitLab 11.11)
 
    Variable pattern matching with regular expressions uses the
    [RE2 regular expression syntax](https://github.com/google/re2/wiki/Syntax).
@@ -694,7 +730,7 @@ deploy_staging:
 ```
 
 NOTE: **Note:**
-The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
+The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/35438)
 for more details.
 
 If needed, you can use a test pipeline to determine whether a regular expression will

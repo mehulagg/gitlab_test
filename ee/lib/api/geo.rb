@@ -12,30 +12,25 @@ module API
           params.slice(*valid_attributes)
         end
 
-        def jwt_decoder
-          ::Gitlab::Geo::JwtRequestDecoder.new(headers['Authorization'])
-        end
-
         # Check if a Geo request is legit or fail the flow
         #
         # @param [Hash] attributes to be matched against JWT
         def authorize_geo_transfer!(**attributes)
-          unauthorized! unless jwt_decoder.valid_attributes?(**attributes)
+          unauthorized! unless geo_jwt_decoder.valid_attributes?(**attributes)
         end
       end
 
       params do
         requires :replicable_name, type: String, desc: 'Replicable name (eg. package_file)'
-        requires :id, type: Integer, desc: 'The model ID that needs to be transferred'
+        requires :replicable_id, type: Integer, desc: 'The replicable ID that needs to be transferred'
       end
-      get 'retrieve/:replicable_name/:id' do
+      get 'retrieve/:replicable_name/:replicable_id' do
         check_gitlab_geo_request_ip!
-        authorize_geo_transfer!(replicable_name: params[:replicable_name], id: params[:id])
+        params_sym = params.symbolize_keys
+        authorize_geo_transfer!(params_sym)
 
-        decoded_params = jwt_decoder.decode
-        service = ::Geo::BlobUploadService.new(replicable_name: params[:replicable_name],
-                                               blob_id: params[:id],
-                                               decoded_params: decoded_params)
+        decoded_params = geo_jwt_decoder.decode
+        service = ::Geo::BlobUploadService.new(**params_sym, decoded_params: decoded_params)
         response = service.execute
 
         if response[:code] == :ok
@@ -62,7 +57,7 @@ module API
         check_gitlab_geo_request_ip!
         authorize_geo_transfer!(file_type: params[:type], file_id: params[:id])
 
-        decoded_params = jwt_decoder.decode
+        decoded_params = geo_jwt_decoder.decode
         service = ::Geo::FileUploadService.new(params, decoded_params)
         response = service.execute
 

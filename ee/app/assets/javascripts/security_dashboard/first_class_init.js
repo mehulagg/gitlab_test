@@ -1,14 +1,14 @@
 import Vue from 'vue';
 import { DASHBOARD_TYPES } from 'ee/security_dashboard/store/constants';
+import { parseBoolean } from '~/lib/utils/common_utils';
 import FirstClassProjectSecurityDashboard from './components/first_class_project_security_dashboard.vue';
 import FirstClassGroupSecurityDashboard from './components/first_class_group_security_dashboard.vue';
 import FirstClassInstanceSecurityDashboard from './components/first_class_instance_security_dashboard.vue';
 import UnavailableState from './components/unavailable_state.vue';
 import createStore from './store';
-import createRouter from './store/router';
+import createRouter from './router';
 import projectsPlugin from './store/plugins/projects';
 import projectSelector from './store/plugins/project_selector';
-import syncWithRouter from './store/plugins/sync_with_router';
 import apolloProvider from './graphql/provider';
 
 const isRequired = message => {
@@ -50,6 +50,9 @@ export default (
     component = FirstClassProjectSecurityDashboard;
     props.projectFullPath = el.dataset.projectFullPath;
     props.vulnerabilitiesExportEndpoint = el.dataset.vulnerabilitiesExportEndpoint;
+    props.userCalloutId = el.dataset.userCalloutId;
+    props.userCalloutsPath = el.dataset.userCalloutsPath;
+    props.showIntroductionBanner = parseBoolean(el.dataset.showIntroductionBanner);
   } else if (dashboardType === DASHBOARD_TYPES.GROUP) {
     component = FirstClassGroupSecurityDashboard;
     props.groupFullPath = el.dataset.groupFullPath;
@@ -63,7 +66,7 @@ export default (
   const router = createRouter();
   const store = createStore({
     dashboardType,
-    plugins: [projectSelector, projectsPlugin, syncWithRouter(router)],
+    plugins: [projectSelector, projectsPlugin],
   });
 
   return new Vue({

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ProjectsController do
+RSpec.describe ProjectsController do
   let(:project) { create(:project) }
   let(:user) { create(:user) }
 
@@ -271,7 +271,6 @@ describe ProjectsController do
         {
           mirror: true,
           mirror_trigger_builds: true,
-          mirror_user_id: user.id,
           import_url: 'https://example.com'
         }
       end
@@ -296,6 +295,20 @@ describe ProjectsController do
           expect(project.mirror_trigger_builds).to eq(true)
           expect(project.mirror_user).to eq(user)
           expect(project.import_url).to eq('https://example.com')
+        end
+
+        it 'ignores mirror_user_id' do
+          other_user = create(:user)
+
+          put :update,
+            params: {
+              namespace_id: project.namespace,
+              id: project,
+              project: params.merge(mirror_user_id: other_user.id)
+            }
+          project.reload
+
+          expect(project.mirror_user).to eq(user)
         end
       end
 
@@ -324,17 +337,21 @@ describe ProjectsController do
       shared_examples 'merge request approvers rules' do
         using RSpec::Parameterized::TableSyntax
 
-        where(:can_modify, :param_value, :final_value) do
-          true  | true  | true
-          true  | false | false
-          false | true  | nil
-          false | false | nil
+        where(:license_value, :setting_value, :param_value, :final_value) do
+          false | false | false | false
+          false | true  | false | false
+          false | false | true  | true
+          false | true  | true  | true
+          true  | false | false | false
+          true  | true  | false | nil
+          true  | false | true  | true
+          true  | true  | true  | nil
         end
 
         with_them do
           before do
-            allow(controller).to receive(:can?).and_call_original
-            allow(controller).to receive(:can?).with(user, rule_name, project).and_return(can_modify)
+            stub_licensed_features(admin_merge_request_approvers_rules: license_value)
+            stub_application_setting(app_setting => setting_value)
           end
 
           it 'updates project if needed' do
@@ -353,21 +370,21 @@ describe ProjectsController do
 
       describe ':disable_overriding_approvers_per_merge_request' do
         it_behaves_like 'merge request approvers rules' do
-          let(:rule_name) { :modify_approvers_rules }
+          let(:app_setting) { :disable_overriding_approvers_per_merge_request }
           let(:setting) { :disable_overriding_approvers_per_merge_request }
         end
       end
 
       describe ':merge_requests_author_approval' do
         it_behaves_like 'merge request approvers rules' do
-          let(:rule_name) { :modify_merge_request_author_setting }
+          let(:app_setting) { :prevent_merge_requests_author_approval }
           let(:setting) { :merge_requests_author_approval }
         end
       end
 
       describe ':merge_requests_disable_committers_approval' do
         it_behaves_like 'merge request approvers rules' do
-          let(:rule_name) { :modify_merge_request_committer_setting }
+          let(:app_setting) { :prevent_merge_requests_committers_approval }
           let(:setting) { :merge_requests_disable_committers_approval }
         end
       end

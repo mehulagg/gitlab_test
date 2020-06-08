@@ -104,6 +104,7 @@ module ApplicationSettingImplementation
         login_recaptcha_protection_enabled: false,
         repository_checks_enabled: true,
         repository_storages: ['default'],
+        repository_storages_weighted: { default: 100 },
         require_two_factor_authentication: false,
         restricted_visibility_levels: Settings.gitlab['restricted_visibility_levels'],
         session_expire_delay: Settings.gitlab['session_expire_delay'],
@@ -115,6 +116,8 @@ module ApplicationSettingImplementation
         sourcegraph_enabled: false,
         sourcegraph_url: nil,
         sourcegraph_public_only: true,
+        spam_check_endpoint_enabled: false,
+        spam_check_endpoint_url: nil,
         minimum_password_length: DEFAULT_MINIMUM_PASSWORD_LENGTH,
         namespace_storage_size_limit: 0,
         terminal_max_session_time: 0,
@@ -151,7 +154,7 @@ module ApplicationSettingImplementation
         snowplow_app_id: nil,
         snowplow_iglu_registry_url: nil,
         custom_http_clone_url_root: nil,
-        productivity_analytics_start_date: Time.now,
+        productivity_analytics_start_date: Time.current,
         snippet_size_limit: 50.megabytes
       }
     end
@@ -258,6 +261,10 @@ module ApplicationSettingImplementation
 
   def repository_storages
     Array(read_attribute(:repository_storages))
+  end
+
+  def repository_storages_weighted
+    read_attribute(:repository_storages_weighted)
   end
 
   def commit_email_hostname
@@ -417,6 +424,12 @@ module ApplicationSettingImplementation
   def check_repository_storages
     invalid = repository_storages - Gitlab.config.repositories.storages.keys
     errors.add(:repository_storages, "can't include: #{invalid.join(", ")}") unless
+      invalid.empty?
+  end
+
+  def check_repository_storages_weighted
+    invalid = repository_storages_weighted.keys - Gitlab.config.repositories.storages.keys
+    errors.add(:repository_storages_weighted, "can't include: %{invalid_storages}" % { invalid_storages: invalid.join(", ") }) unless
       invalid.empty?
   end
 

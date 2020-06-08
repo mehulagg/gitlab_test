@@ -11,7 +11,7 @@ coordinate with others to [document](../administration/instance_limits.md)
 and communicate those limits.
 
 There is a guide about [introducing application
-limits](https://about.gitlab.com/handbook/product/product-management/process/index.html#introducing-application-limits).
+limits](https://about.gitlab.com/handbook/product/product-management/process/#introducing-application-limits).
 
 ## Development
 
@@ -115,6 +115,20 @@ it_behaves_like 'includes Limitable concern' do
 end
 ```
 
+### Testing instance-wide limits
+
+Instance-wide features always use `default` Plan, as instance-wide features
+do not have license assigned.
+
+```ruby
+class InstanceVariable
+  include Limitable
+
+  self.limit_name = 'instance_variables' # Optional as InstanceVariable corresponds with instance_variables
+  self.limit_scope = Limitable::GLOBAL_SCOPE
+end
+```
+
 ### Subscription Plans
 
 Self-managed:
@@ -123,9 +137,10 @@ Self-managed:
 
 GitLab.com:
 
-- `free` - Everyone
-- `bronze`- Namespaces with a Bronze subscription
-- `silver` - Namespaces with a Silver subscription
-- `gold` - Namespaces with a Gold subscription
+- `default` - Any system-wide feature
+- `free` - Namespaces and projects with a Free subscription
+- `bronze`- Namespaces and projects with a Bronze subscription
+- `silver` - Namespaces and projects with a Silver subscription
+- `gold` - Namespaces and projects with a Gold subscription
 
 NOTE: **Note:** The test environment doesn't have any plans.

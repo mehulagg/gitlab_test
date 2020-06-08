@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::ImportExport::Project::TreeSaver do
+RSpec.describe Gitlab::ImportExport::Project::TreeSaver do
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
@@ -36,7 +36,7 @@ describe Gitlab::ImportExport::Project::TreeSaver do
 
     before_all do
       RSpec::Mocks.with_temporary_scope do
-        allow(Feature).to receive(:enabled?) { true }
+        stub_all_feature_flags
         stub_feature_flags(project_export_as_ndjson: ndjson_enabled)
         project.add_maintainer(user)
 

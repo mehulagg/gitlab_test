@@ -14,6 +14,7 @@ import Editor from '../lib/editor';
 import FileTemplatesBar from './file_templates/bar.vue';
 import { __ } from '~/locale';
 import { extractMarkdownImagesFromEntries } from '../stores/utils';
+import { getPathParent, readFileAsDataURL } from '../utils';
 
 export default {
   components: {
@@ -165,6 +166,12 @@ export default {
       this.editor = Editor.create(this.editorOptions);
     }
     this.initEditor();
+
+    // listen in capture phase to be able to override Monaco's behaviour.
+    window.addEventListener('paste', this.onPaste, true);
+  },
+  destroyed() {
+    window.removeEventListener('paste', this.onPaste, true);
   },
   methods: {
     ...mapActions([
@@ -178,6 +185,7 @@ export default {
       'updateViewer',
       'removePendingTab',
       'triggerFilesChange',
+      'addTempImage',
     ]),
     initEditor() {
       if (this.shouldHideEditor && (this.file.content || this.file.raw)) {
@@ -247,13 +255,12 @@ export default {
 
       this.model.onChange(model => {
         const { file } = model;
+        if (!file.active) return;
 
-        if (file.active) {
-          this.changeFileContent({
-            path: file.path,
-            content: model.getModel().getValue(),
-          });
-        }
+        const monacoModel = model.getModel();
+        const content = monacoModel.getValue();
+        this.changeFileContent({ path: file.path, content });
+        this.setFileEOL({ eol: this.model.eol });
       });
 
       // Handle Cursor Position
@@ -283,6 +290,29 @@ export default {
       if (this.showEditor) {
         this.editor.updateDimensions();
       }
+    },
+    onPaste(event) {
+      const editor = this.editor.instance;
+      const reImage = /^image\/(png|jpg|jpeg|gif)$/;
+      const file = event.clipboardData.files[0];
+
+      if (editor.hasTextFocus() && this.fileType === 'markdown' && reImage.test(file?.type)) {
+        // don't let the event be passed on to Monaco.
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        return readFileAsDataURL(file).then(content => {
+          const parentPath = getPathParent(this.file.path);
+          const path = `${parentPath ? `${parentPath}/` : ''}${file.name}`;
+
+          return this.addTempImage({ name: path, rawPath: content }).then(({ name: fileName }) => {
+            this.editor.replaceSelectedText(`![${fileName}](./${fileName})`);
+          });
+        });
+      }
+
+      // do nothing if no image is found in the clipboard
+      return Promise.resolve();
     },
   },
   viewerTypes,

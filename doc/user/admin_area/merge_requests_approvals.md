@@ -4,7 +4,7 @@ type: reference, concepts
 
 # Instance-level merge request approval rules **(PREMIUM ONLY)**
 
-> Introduced in [GitLab Premium](https://gitlab.com/gitlab-org/gitlab/issues/39060) 12.8.
+> Introduced in [GitLab Premium](https://gitlab.com/gitlab-org/gitlab/-/issues/39060) 12.8.
 
 Merge request approvals rules prevent users overriding certain settings on a project
 level. When configured, only administrators can change these settings on a project level
@@ -18,22 +18,6 @@ To enable merge request approval rules for an instance:
 1. Click **Save changes**.
 
 GitLab administrators can later override these settings in a project’s settings.
-
-## Merge request controls **(PREMIUM)**
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/207250) in GitLab 13.0.
-
-Merge request approval settings, by default, are inherited by all projects in an instance.
-
-However, organizations with regulated projects may also have unregulated projects
-that should not inherit these same controls.
-
-Project-level merge request approval rules can now be edited by administrators.
-Project owners and maintainers can still view project-level merge request approval rules.
-
-In upcoming releases, we plan to provide a more holistic experience to scope instance-level merge request settings.
-For more information, review our plans to provide custom [approval settings for compliance-
-labeled projects](https://gitlab.com/gitlab-org/gitlab/-/issues/213601).
 
 ## Available rules
 

@@ -1,3 +1,10 @@
+---
+stage: Enablement
+group: Geo
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+type: howto
+---
+
 # Geo database replication **(PREMIUM ONLY)**
 
 NOTE: **Note:**
@@ -43,7 +50,7 @@ The following guide assumes that:
 
 CAUTION: **Warning:**
 Geo works with streaming replication. Logical replication is not supported at this time.
-There is an [issue where support is being discussed](https://gitlab.com/gitlab-org/gitlab/issues/7420).
+There is an [issue where support is being discussed](https://gitlab.com/gitlab-org/gitlab/-/issues/7420).
 
 ### Step 1. Configure the **primary** server
 
@@ -317,7 +324,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
    to the private key, which is **only** present on the **primary** node.
 
 1. Test that the `gitlab-psql` user can connect to the **primary** node's database
-   (the default Omnibus database name is gitlabhq_production):
+   (the default Omnibus database name is `gitlabhq_production`):
 
    ```shell
    sudo \

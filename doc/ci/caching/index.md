@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: index, concepts, howto
 ---
 
@@ -556,7 +559,7 @@ next run of the pipeline, the cache will be stored in a different location.
 
 ### Clearing the cache manually
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41249) in GitLab 10.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41249) in GitLab 10.4.
 
 If you want to avoid editing `.gitlab-ci.yml`, you can easily clear the cache
 via GitLab's UI:

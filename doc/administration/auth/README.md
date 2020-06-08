@@ -21,10 +21,9 @@ providers:
 - [Google](../../integration/google.md)
 - [JWT](jwt.md)
 - [Kerberos](../../integration/kerberos.md)
-- [LDAP](ldap.md): Includes Active Directory, Apple Open Directory, Open LDAP,
+- [LDAP](ldap/index.md): Includes Active Directory, Apple Open Directory, Open LDAP,
   and 389 Server.
-  - [LDAP for GitLab EE](ldap-ee.md): LDAP additions to GitLab Enterprise Editions **(STARTER ONLY)**
-  - [Google Secure LDAP](google_secure_ldap.md)
+  - [Google Secure LDAP](ldap/google_secure_ldap.md)
 - [Okta](okta.md)
 - [Salesforce](../../integration/salesforce.md)
 - [SAML](../../integration/saml.md)
@@ -32,4 +31,6 @@ providers:
 - [Shibboleth](../../integration/shibboleth.md)
 - [Smartcard](smartcard.md) **(PREMIUM ONLY)**
 - [Twitter](../../integration/twitter.md)
-- [UltraAuth](../../integration/ultra_auth.md)
+
+NOTE: **Note:**
+UltraAuth has removed their software which supports OmniAuth integration. We have therefore removed all references to UltraAuth integration.

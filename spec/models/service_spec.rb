@@ -114,6 +114,20 @@ describe Service do
         expect(described_class.confidential_note_hooks.count).to eq 0
       end
     end
+
+    describe '.alert_hooks' do
+      it 'includes services where alert_events is true' do
+        create(:service, active: true, alert_events: true)
+
+        expect(described_class.alert_hooks.count).to eq 1
+      end
+
+      it 'excludes services where alert_events is false' do
+        create(:service, active: true, alert_events: false)
+
+        expect(described_class.alert_hooks.count).to eq 0
+      end
+    end
   end
 
   describe "Test Button" do
@@ -264,13 +278,13 @@ describe Service do
       end
     end
 
-    describe '.build_from_template' do
+    describe '.build_from_integration' do
       context 'when template is invalid' do
         it 'sets service template to inactive when template is invalid' do
           template = build(:prometheus_service, template: true, active: true, properties: {})
           template.save(validate: false)
 
-          service = described_class.build_from_template(project.id, template)
+          service = described_class.build_from_integration(project.id, template)
 
           expect(service).to be_valid
           expect(service.active).to be false
@@ -293,7 +307,7 @@ describe Service do
 
         shared_examples 'service creation from a template' do
           it 'creates a correct service' do
-            service = described_class.build_from_template(project.id, template)
+            service = described_class.build_from_integration(project.id, template)
 
             expect(service).to be_active
             expect(service.title).to eq(title)
@@ -302,6 +316,8 @@ describe Service do
             expect(service.api_url).to eq(api_url)
             expect(service.username).to eq(username)
             expect(service.password).to eq(password)
+            expect(service.template).to eq(false)
+            expect(service.instance).to eq(false)
           end
         end
 

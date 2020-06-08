@@ -4,7 +4,7 @@ import ClusterStore from '~/clusters_list/store';
 import MockAdapter from 'axios-mock-adapter';
 import { apiData } from '../mock_data';
 import { mount } from '@vue/test-utils';
-import { GlTable, GlLoadingIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlTable, GlPagination } from '@gitlab/ui';
 
 describe('Clusters', () => {
   let mock;
@@ -14,11 +14,12 @@ describe('Clusters', () => {
   const endpoint = 'some/endpoint';
 
   const findLoader = () => wrapper.find(GlLoadingIcon);
+  const findPaginatedButtons = () => wrapper.find(GlPagination);
   const findTable = () => wrapper.find(GlTable);
   const findStatuses = () => findTable().findAll('.js-status');
 
   const mockPollingApi = (response, body, header) => {
-    mock.onGet(endpoint).reply(response, body, header);
+    mock.onGet(`${endpoint}?page=${header['x-page']}`).reply(response, body, header);
   };
 
   const mountWrapper = () => {
@@ -27,9 +28,17 @@ describe('Clusters', () => {
     return axios.waitForAll();
   };
 
+  const paginationHeader = (total = apiData.clusters.length, perPage = 20, currentPage = 1) => {
+    return {
+      'x-total': total,
+      'x-per-page': perPage,
+      'x-page': currentPage,
+    };
+  };
+
   beforeEach(() => {
     mock = new MockAdapter(axios);
-    mockPollingApi(200, apiData, {});
+    mockPollingApi(200, apiData, paginationHeader());
 
     return mountWrapper();
   });
@@ -91,6 +100,58 @@ describe('Clusters', () => {
       } else {
         expect(status.find(GlLoadingIcon).exists()).toBe(true);
       }
+    });
+  });
+
+  describe('nodes present', () => {
+    it.each`
+      nodeSize     | lineNumber
+      ${'Unknown'} | ${0}
+      ${'1'}       | ${1}
+      ${'2'}       | ${2}
+      ${'Unknown'} | ${3}
+      ${'Unknown'} | ${4}
+      ${'Unknown'} | ${5}
+    `('renders node size for each cluster', ({ nodeSize, lineNumber }) => {
+      const sizes = findTable().findAll('td:nth-child(3)');
+      const size = sizes.at(lineNumber);
+
+      expect(size.text()).toBe(nodeSize);
+    });
+  });
+
+  describe('pagination', () => {
+    const perPage = apiData.clusters.length;
+    const totalFirstPage = 100;
+    const totalSecondPage = 500;
+
+    beforeEach(() => {
+      mockPollingApi(200, apiData, paginationHeader(totalFirstPage, perPage, 1));
+      return mountWrapper();
+    });
+
+    it('should load to page 1 with header values', () => {
+      const buttons = findPaginatedButtons();
+
+      expect(buttons.props('perPage')).toBe(perPage);
+      expect(buttons.props('totalItems')).toBe(totalFirstPage);
+      expect(buttons.props('value')).toBe(1);
+    });
+
+    describe('when updating currentPage', () => {
+      beforeEach(() => {
+        mockPollingApi(200, apiData, paginationHeader(totalSecondPage, perPage, 2));
+        wrapper.setData({ currentPage: 2 });
+        return axios.waitForAll();
+      });
+
+      it('should change pagination when currentPage changes', () => {
+        const buttons = findPaginatedButtons();
+
+        expect(buttons.props('perPage')).toBe(perPage);
+        expect(buttons.props('totalItems')).toBe(totalSecondPage);
+        expect(buttons.props('value')).toBe(2);
+      });
     });
   });
 });

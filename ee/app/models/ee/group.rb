@@ -32,8 +32,7 @@ module EE
       has_one :dependency_proxy_setting, class_name: 'DependencyProxy::GroupSetting'
       has_many :dependency_proxy_blobs, class_name: 'DependencyProxy::Blob'
 
-      has_one :allowed_email_domain
-      accepts_nested_attributes_for :allowed_email_domain, allow_destroy: true, reject_if: :all_blank
+      has_many :allowed_email_domains, -> { order(id: :asc) }, autosave: true
 
       # We cannot simply set `has_many :audit_events, as: :entity, dependent: :destroy`
       # here since Group inherits from Namespace, the entity_type would be set to `Namespace`.
@@ -123,12 +122,12 @@ module EE
         end
 
         after_transition ready: :started do |group, _|
-          group.ldap_sync_last_sync_at = DateTime.now
+          group.ldap_sync_last_sync_at = DateTime.current
           group.save
         end
 
         after_transition started: :ready do |group, _|
-          current_time = DateTime.now
+          current_time = DateTime.current
           group.ldap_sync_last_update_at = current_time
           group.ldap_sync_last_successful_update_at = current_time
           group.ldap_sync_error = nil
@@ -136,7 +135,7 @@ module EE
         end
 
         after_transition started: :failed do |group, _|
-          group.ldap_sync_last_update_at = DateTime.now
+          group.ldap_sync_last_update_at = DateTime.current
           group.save
         end
       end
@@ -169,6 +168,12 @@ module EE
       return unless ip_restrictions.present?
 
       ip_restrictions.map(&:range).join(",")
+    end
+
+    def allowed_email_domains_list
+      return if allowed_email_domains.empty?
+
+      allowed_email_domains.domain_names.join(",")
     end
 
     def human_ldap_access
@@ -217,8 +222,7 @@ module EE
     end
 
     def group_project_template_available?
-      feature_available?(:group_project_templates) ||
-        (custom_project_templates_group_id? && Time.zone.now <= GroupsWithTemplatesFinder::CUT_OFF_DATE)
+      feature_available?(:group_project_templates)
     end
 
     def actual_size_limit
@@ -241,10 +245,10 @@ module EE
       root_ancestor.ip_restrictions
     end
 
-    def root_ancestor_allowed_email_domain
-      return allowed_email_domain if parent_id.nil?
+    def root_ancestor_allowed_email_domains
+      return allowed_email_domains if parent_id.nil?
 
-      root_ancestor.allowed_email_domain
+      root_ancestor.allowed_email_domains
     end
 
     # Overrides a method defined in `::EE::Namespace`
@@ -369,6 +373,10 @@ module EE
       else
         ::ProjectFeature::DISABLED
       end
+    end
+
+    def owners_emails
+      owners.pluck(:email)
     end
 
     private

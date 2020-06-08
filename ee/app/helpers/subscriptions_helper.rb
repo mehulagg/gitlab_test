@@ -3,29 +3,6 @@
 module SubscriptionsHelper
   include ::Gitlab::Utils::StrongMemoize
 
-  def subscription_message
-    return unless ::Gitlab.com?
-
-    entity = @project || @group
-    namespace = @project&.namespace || @group
-
-    ::Gitlab::ExpiringSubscriptionMessage.new(
-      subscribable: decorated_subscription,
-      signed_in: signed_in?,
-      is_admin: can?(current_user, :owner_access, entity),
-      namespace: namespace
-    ).message
-  end
-
-  def decorated_subscription
-    entity = @project || @group
-    subscription = entity&.closest_gitlab_subscription
-
-    return unless subscription
-
-    SubscriptionPresenter.new(subscription)
-  end
-
   def subscription_data
     {
       setup_for_company: (current_user.setup_for_company == true).to_s,
@@ -34,6 +11,7 @@ module SubscriptionsHelper
       plan_id: params[:plan_id],
       namespace_id: params[:namespace_id],
       new_user: new_user?.to_s,
+      onboarding_issues_experiment_enabled: experiment_enabled?(:onboarding_issues).to_s,
       group_data: group_data.to_json
     }
   end

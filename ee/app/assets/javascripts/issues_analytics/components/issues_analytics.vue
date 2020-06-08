@@ -6,6 +6,8 @@ import { GlColumnChart, GlChartLegend } from '@gitlab/ui/dist/charts';
 import { s__ } from '~/locale';
 import { getMonthNames } from '~/lib/utils/datetime_utility';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
+import IssuesAnalyticsTable from './issues_analytics_table.vue';
+import { transformIssuesApiEndpoint } from '../utils';
 
 export default {
   components: {
@@ -13,9 +15,18 @@ export default {
     GlEmptyState,
     GlColumnChart,
     GlChartLegend,
+    IssuesAnalyticsTable,
   },
   props: {
     endpoint: {
+      type: String,
+      required: true,
+    },
+    issuesApiEndpoint: {
+      type: String,
+      required: true,
+    },
+    issuesPageEndpoint: {
       type: String,
       required: true,
     },
@@ -99,6 +110,12 @@ export default {
     seriesTotal() {
       return engineeringNotation(sum(...this.series));
     },
+    issuesTableEndpoints() {
+      return {
+        api: transformIssuesApiEndpoint(`${this.issuesApiEndpoint}${this.appliedFilters}`),
+        issuesPage: this.issuesPageEndpoint,
+      };
+    },
   },
   watch: {
     appliedFilters() {
@@ -142,7 +159,7 @@ export default {
 </script>
 <template>
   <div class="issues-analytics-wrapper" data-qa-selector="issues_analytics_wrapper">
-    <gl-loading-icon v-if="loading" size="xl" class="issues-analytics-loading" />
+    <gl-loading-icon v-if="loading" size="md" class="mt-8" />
 
     <div v-if="showChart" class="issues-analytics-chart">
       <h4 class="chart-title">{{ s__('IssuesAnalytics|Issues opened per month') }}</h4>
@@ -165,6 +182,8 @@ export default {
         </div>
       </div>
     </div>
+
+    <issues-analytics-table :key="appliedFilters" class="mt-8" :endpoints="issuesTableEndpoints" />
 
     <gl-empty-state
       v-if="showFiltersEmptyState"

@@ -53,7 +53,9 @@ troubleshoot.
 
 Auto Build supports building your application using [Cloud Native Buildpacks](https://buildpacks.io)
 through the [`pack` command](https://github.com/buildpacks/pack). To use Cloud Native Buildpacks,
-set the CI variable `AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED` to a non-empty value.
+set the CI variable `AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED` to a non-empty
+value. The default builder is `heroku/buildpacks:18` but a different builder
+can be selected using the CI variable `AUTO_DEVOPS_BUILD_IMAGE_CNB_BUILDER`.
 
 Cloud Native Buildpacks (CNBs) are an evolution of Heroku buildpacks, and
 will eventually supersede Herokuish-based builds within Auto DevOps. For more
@@ -82,10 +84,38 @@ Auto Test runs the appropriate tests for your application using
 your project to detect the language and framework. Several languages and
 frameworks are detected automatically, but if your language is not detected,
 you may be able to create a [custom buildpack](customize.md#custom-buildpacks).
-Check the [currently supported languages](index.md#currently-supported-languages).
+Check the [currently supported languages](#currently-supported-languages).
 
 Auto Test uses tests you already have in your application. If there are no
 tests, it's up to you to add them.
+
+### Currently supported languages
+
+Note that not all buildpacks support Auto Test yet, as it's a relatively new
+enhancement. All of Heroku's
+[officially supported languages](https://devcenter.heroku.com/articles/heroku-ci#supported-languages)
+support Auto Test. The languages supported by Heroku's Herokuish buildpacks all
+support Auto Test, but notably the multi-buildpack does not.
+
+The supported buildpacks are:
+
+```plaintext
+- heroku-buildpack-multi
+- heroku-buildpack-ruby
+- heroku-buildpack-nodejs
+- heroku-buildpack-clojure
+- heroku-buildpack-python
+- heroku-buildpack-java
+- heroku-buildpack-gradle
+- heroku-buildpack-scala
+- heroku-buildpack-play
+- heroku-buildpack-php
+- heroku-buildpack-go
+- buildpack-nginx
+```
+
+If your application needs a buildpack that is not in the above list, you
+might want to use a [custom buildpack](customize.md#custom-buildpacks).
 
 ## Auto Code Quality **(STARTER)**
 
@@ -328,7 +358,7 @@ as it attempts to fetch the image using `CI_REGISTRY_PASSWORD`.
 
 CAUTION: **Deprecation**
 The default value for the `deploymentApiVersion` setting was changed from
-`extensions/v1beta` to `apps/v1` in [GitLab 13.0](https://gitlab.com/gitlab-org/charts/auto-deploy-app/issues/47).
+`extensions/v1beta` to `apps/v1` in [GitLab 13.0](https://gitlab.com/gitlab-org/charts/auto-deploy-app/-/issues/47).
 
 In Kubernetes 1.16 and later, a number of
 [APIs were removed](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/),
@@ -467,7 +497,7 @@ traffic within a local namespace, and from the `gitlab-managed-apps`
 namespace. All other inbound connections are blocked. Outbound
 traffic (for example, to the Internet) is not affected by the default policy.
 
-You can also provide a custom [policy specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#networkpolicyspec-v1-networking-k8s-io)
+You can also provide a custom [policy specification](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 in the `.gitlab/auto-deploy-values.yaml` file, for example:
 
 ```yaml

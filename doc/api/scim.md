@@ -16,7 +16,7 @@ NOTE: **Note:**
 This endpoint is used as part of the SCIM syncing mechanism and it only returns
 a single user based on a unique ID which should match the `extern_uid` of the user.
 
-```text
+```plaintext
 GET /api/scim/v2/groups/:group_path/Users
 ```
 
@@ -72,7 +72,7 @@ Example response:
 
 ## Get a single SAML user
 
-```text
+```plaintext
 GET /api/scim/v2/groups/:group_path/Users/:id
 ```
 
@@ -86,7 +86,7 @@ Parameters:
 Example request:
 
 ```shell
-curl 'https://example.gitlab.com/api/scim/v2/groups/test_group/Users/f0b1d561c-21ff-4092-beab-8154b17f82f2' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
+curl "https://example.gitlab.com/api/scim/v2/groups/test_group/Users/f0b1d561c-21ff-4092-beab-8154b17f82f2" --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
 ```
 
 Example response:
@@ -113,7 +113,7 @@ Example response:
 
 ## Create a SAML user
 
-```text
+```plaintext
 POST /api/scim/v2/groups/:group_path/Users/
 ```
 
@@ -130,7 +130,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --verbose --request POST 'https://example.gitlab.com/api/scim/v2/groups/test_group/Users' --data '{"externalId":"test_uid","active":null,"userName":"username","emails":[{"primary":true,"type":"work","value":"name@example.com"}],"name":{"formatted":"Test User","familyName":"User","givenName":"Test"},"schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],"meta":{"resourceType":"User"}}' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
+curl --verbose --request POST "https://example.gitlab.com/api/scim/v2/groups/test_group/Users" --data '{"externalId":"test_uid","active":null,"userName":"username","emails":[{"primary":true,"type":"work","value":"name@example.com"}],"name":{"formatted":"Test User","familyName":"User","givenName":"Test"},"schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],"meta":{"resourceType":"User"}}' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
 ```
 
 Example response:
@@ -169,7 +169,7 @@ Fields that can be updated are:
 | `active`                         | Identity removal if `active` = `false` |
 | `userName`                       | `username`                             |
 
-```text
+```plaintext
 PATCH /api/scim/v2/groups/:group_path/Users/:id
 ```
 
@@ -184,7 +184,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --verbose --request PATCH 'https://example.gitlab.com/api/scim/v2/groups/test_group/Users/f0b1d561c-21ff-4092-beab-8154b17f82f2' --data '{ "Operations": [{"op":"Add","path":"name.formatted","value":"New Name"}] }' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
+curl --verbose --request PATCH "https://example.gitlab.com/api/scim/v2/groups/test_group/Users/f0b1d561c-21ff-4092-beab-8154b17f82f2" --data '{ "Operations": [{"op":"Add","path":"name.formatted","value":"New Name"}] }' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
 ```
 
 Returns an empty response with a `204` status code if successful.
@@ -193,7 +193,7 @@ Returns an empty response with a `204` status code if successful.
 
 Removes the user's SSO identity and group membership.
 
-```text
+```plaintext
 DELETE /api/scim/v2/groups/:group_path/Users/:id
 ```
 
@@ -207,7 +207,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --verbose --request DELETE 'https://example.gitlab.com/api/scim/v2/groups/test_group/Users/f0b1d561c-21ff-4092-beab-8154b17f82f2' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
+curl --verbose --request DELETE "https://example.gitlab.com/api/scim/v2/groups/test_group/Users/f0b1d561c-21ff-4092-beab-8154b17f82f2" --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
 ```
 
 Returns an empty response with a `204` status code if successful.

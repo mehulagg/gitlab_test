@@ -152,7 +152,7 @@ used by the `review-deploy` and `review-stop` jobs.
 
 ### Get access to the GCP Review Apps cluster
 
-You need to [open an access request (internal link)](https://gitlab.com/gitlab-com/access-requests/issues/new)
+You need to [open an access request (internal link)](https://gitlab.com/gitlab-com/access-requests/-/issues/new)
 for the `gcp-review-apps-sg` GCP group. In order to join a group, you must specify the desired GCP role in your access request.
 The role is what will grant you specific permissions in order to engage with Review App containers.
 
@@ -212,7 +212,7 @@ If [Review App Stability](https://app.periscopedata.com/app/gitlab/496118/Engine
 dips this may be a signal that the `review-apps-ce/ee` cluster is unhealthy.
 Leading indicators may be health check failures leading to restarts or majority failure for Review App deployments.
 
-The [Review Apps Overview dashboard](https://app.google.stackdriver.com/dashboards/6798952013815386466?project=gitlab-review-apps&timeDomain=1d)
+The [Review Apps Overview dashboard](https://console.cloud.google.com/monitoring/classic/dashboards/6798952013815386466?project=gitlab-review-apps&timeDomain=1d)
 aids in identifying load spikes on the cluster, and if nodes are problematic or the entire cluster is trending towards unhealthy.
 
 ### Release failed with `ImagePullBackOff`
@@ -321,7 +321,7 @@ kubectl get cm --sort-by='{.metadata.creationTimestamp}' | grep 'review-' | grep
 
 #### Finding the problem
 
-[In the past](https://gitlab.com/gitlab-org/gitlab-foss/issues/62834), it happened
+[In the past](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62834), it happened
 that the `dns-gitlab-review-app-external-dns` Deployment was in a pending state,
 effectively preventing all the Review Apps from getting a DNS record assigned,
 making them unreachable via domain name.
@@ -406,7 +406,7 @@ find a way to limit it to only us.**
 ## Other resources
 
 - [Review Apps integration for CE/EE (presentation)](https://docs.google.com/presentation/d/1QPLr6FO4LduROU8pQIPkX1yfGvD13GEJIBOenqoKxR8/edit?usp=sharing)
-- [Stability issues](https://gitlab.com/gitlab-org/quality/team-tasks/issues/212)
+- [Stability issues](https://gitlab.com/gitlab-org/quality/team-tasks/-/issues/212)
 
 ### Helpful command line tools
 

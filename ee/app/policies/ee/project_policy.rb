@@ -55,8 +55,24 @@ module EE
       end
 
       with_scope :global
-      condition(:admin_merge_request_approvers_rules_available) do
-        License.feature_available?(:admin_merge_request_approvers_rules)
+      condition(:owner_cannot_modify_approvers_rules) do
+        License.feature_available?(:admin_merge_request_approvers_rules) &&
+          ::Gitlab::CurrentSettings.current_application_settings
+            .disable_overriding_approvers_per_merge_request
+      end
+
+      with_scope :global
+      condition(:owner_cannot_modify_merge_request_author_setting) do
+        License.feature_available?(:admin_merge_request_approvers_rules) &&
+          ::Gitlab::CurrentSettings.current_application_settings
+            .prevent_merge_requests_author_approval
+      end
+
+      with_scope :global
+      condition(:owner_cannot_modify_merge_request_committer_setting) do
+        License.feature_available?(:admin_merge_request_approvers_rules) &&
+          ::Gitlab::CurrentSettings.current_application_settings
+            .prevent_merge_requests_committers_approval
       end
 
       with_scope :global
@@ -83,7 +99,13 @@ module EE
         end
       end
 
-      with_scope :subject
+      condition(:can_change_reject_unsigned_commits) do
+        admin? ||
+          (can?(:maintainer_access) &&
+            reject_unsigned_commits_disabled_globally? &&
+            reject_unsigned_commits_disabled_by_group?)
+      end
+
       condition(:commit_committer_check_disabled_by_group) do
         if group_push_rule_present?
           !subject.group.push_rule.commit_committer_check
@@ -97,6 +119,13 @@ module EE
         @subject.feature_available?(:commit_committer_check)
       end
 
+      condition(:can_change_commit_commiter_check) do
+        admin? ||
+          (can?(:maintainer_access) &&
+            commit_committer_check_disabled_globally? &&
+            commit_committer_check_disabled_by_group?)
+      end
+
       with_scope :subject
       condition(:reject_unsigned_commits_available) do
         @subject.feature_available?(:reject_unsigned_commits)
@@ -105,6 +134,12 @@ module EE
       with_scope :subject
       condition(:security_dashboard_enabled) do
         @subject.feature_available?(:security_dashboard)
+      end
+
+      with_scope :subject
+      condition(:on_demand_scans_enabled) do
+        ::Feature.enabled?(:security_on_demand_scans_feature_flag, project) &&
+        @subject.feature_available?(:security_on_demand_scans)
       end
 
       with_scope :subject
@@ -207,6 +242,8 @@ module EE
 
       rule { security_dashboard_enabled & can?(:developer_access) }.enable :read_vulnerability
 
+      rule { on_demand_scans_enabled & can?(:developer_access) }.enable :read_on_demand_scans
+
       rule { can?(:read_merge_request) & can?(:read_pipeline) }.enable :read_merge_train
 
       rule { can?(:read_vulnerability) }.policy do
@@ -250,6 +287,7 @@ module EE
         enable :admin_feature_flags_client
         enable :modify_approvers_rules
         enable :modify_approvers_list
+        enable :modify_auto_fix_setting
         enable :modify_merge_request_author_setting
         enable :modify_merge_request_committer_setting
       end
@@ -285,40 +323,28 @@ module EE
 
       rule { ~can?(:push_code) }.prevent :push_code_to_protected_branches
 
-      rule { admin | (reject_unsigned_commits_disabled_globally & reject_unsigned_commits_disabled_by_group & can?(:maintainer_access)) }.enable :change_reject_unsigned_commits
+      rule { can_change_reject_unsigned_commits }.enable :change_reject_unsigned_commits
 
       rule { reject_unsigned_commits_available }.enable :read_reject_unsigned_commits
 
       rule { ~reject_unsigned_commits_available }.prevent :change_reject_unsigned_commits
 
-      rule { admin | (commit_committer_check_disabled_globally & commit_committer_check_disabled_by_group & can?(:maintainer_access)) }.policy do
-        enable :change_commit_committer_check
-      end
+      rule { can_change_commit_commiter_check }.enable :change_commit_committer_check
 
-      rule { commit_committer_check_available }.policy do
-        enable :read_commit_committer_check
-      end
+      rule { commit_committer_check_available }.enable :read_commit_committer_check
 
-      rule { ~commit_committer_check_available }.policy do
-        prevent :change_commit_committer_check
-      end
+      rule { ~commit_committer_check_available }.prevent :change_commit_committer_check
 
       rule { owner | reporter }.enable :build_read_project
 
       rule { ~admin & owner & owner_cannot_destroy_project }.prevent :remove_project
 
       rule { archived }.policy do
+        prevent :modify_auto_fix_setting
+
         READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
           prevent(*::ProjectPolicy.create_update_admin_destroy(feature))
         end
-      end
-
-      condition(:web_ide_terminal_available) do
-        @subject.feature_available?(:web_ide_terminal)
-      end
-
-      condition(:build_service_proxy_enabled) do
-        ::Feature.enabled?(:build_service_proxy, @subject)
       end
 
       condition(:needs_new_sso_session) do
@@ -346,18 +372,23 @@ module EE
         prevent :read_project
       end
 
-      rule { admin_merge_request_approvers_rules_available & ~admin }.policy do
+      rule { owner_cannot_modify_approvers_rules & ~admin }.policy do
         prevent :modify_approvers_rules
-        prevent :modify_approvers_list
+      end
+
+      rule { owner_cannot_modify_merge_request_author_setting & ~admin }.policy do
         prevent :modify_merge_request_author_setting
+      end
+
+      rule { owner_cannot_modify_merge_request_committer_setting & ~admin }.policy do
         prevent :modify_merge_request_committer_setting
       end
 
       rule { can?(:read_cluster) & cluster_health_available }.enable :read_cluster_health
 
-      rule { web_ide_terminal_available & can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
-
-      rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
+      rule { owner_cannot_modify_approvers_rules & ~admin }.policy do
+        prevent :modify_approvers_list
+      end
 
       rule { can?(:read_merge_request) & code_review_analytics_enabled }.enable :read_code_review_analytics
 
@@ -365,6 +396,7 @@ module EE
 
       rule { requirements_available & reporter }.policy do
         enable :create_requirement
+        enable :create_requirement_test_report
         enable :admin_requirement
         enable :update_requirement
       end

@@ -6,6 +6,8 @@ class JiraService < IssueTrackerService
   include ApplicationHelper
   include ActionView::Helpers::AssetUrlHelper
 
+  PROJECTS_PER_PAGE = 50
+
   validates :url, public_url: true, presence: true, if: :activated?
   validates :api_url, public_url: true, allow_blank: true
   validates :username, presence: true, if: :activated?
@@ -415,15 +417,7 @@ class JiraService < IssueTrackerService
     yield
   rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED, URI::InvalidURIError, JIRA::HTTPError, OpenSSL::SSL::SSLError => error
     @error = error
-    log_error(
-      "Error sending message",
-      client_url: client_url,
-      error: {
-        exception_class: error.class.name,
-        exception_message: error.message,
-        exception_backtrace: Gitlab::BacktraceCleaner.clean_backtrace(error.backtrace)
-      }
-    )
+    log_error("Error sending message", client_url: client_url, error: @error.message)
     nil
   end
 
