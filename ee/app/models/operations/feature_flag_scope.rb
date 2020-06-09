@@ -31,7 +31,7 @@ module Operations
         .select(FeatureFlag.arel_table[:name], FeatureFlag.arel_table[:description])
     end
 
-    def self.for_unleash_client(project, environment)
+    def self.for_client(project, environment)
       select_columns = [
         'DISTINCT ON (operations_feature_flag_scopes.feature_flag_id) operations_feature_flag_scopes.id',
         '(operations_feature_flags.active AND operations_feature_flag_scopes.active) AS active',

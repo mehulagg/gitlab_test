@@ -2,6 +2,7 @@
 
 require 'flipper/adapters/active_record'
 require 'flipper/adapters/active_support_cache_store'
+require 'flipper/adapters/http'
 
 class Feature
   # Classes to override flipper table names
@@ -153,6 +154,8 @@ class Feature
     end
 
     def build_flipper_instance
+      return build_http_flipper_instance if Rails.const_defined? 'Console'
+
       active_record_adapter = Flipper::Adapters::ActiveRecord.new(
         feature_class: FlipperFeature,
         gate_class: FlipperGate)
@@ -174,6 +177,19 @@ class Feature
       Flipper.new(flipper_adapter).tap do |flip|
         flip.memoize = true
       end
+    end
+
+    def build_http_flipper_instance
+      configuration = {
+        url: 'http://local.gitlab.test:8181/api/v4/feature_flags/flipper/124',
+        headers: {
+          'Gitlab-FeatureFlag-InstanceID' => '_dxNJAdjqxLAMRhYLpwb'
+        }
+      }
+
+      main_adapter = Flipper::Adapters::Http.new(configuration)
+
+      Flipper.new(main_adapter)
     end
 
     def check_feature_flags_definition?

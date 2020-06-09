@@ -386,6 +386,10 @@ module API
       render_api_error!('406 Not Acceptable', 406)
     end
 
+    def not_implemented!
+      render_api_error!('501 Not Implemented', 501)
+    end
+
     def service_unavailable!
       render_api_error!('503 Service Unavailable', 503)
     end
