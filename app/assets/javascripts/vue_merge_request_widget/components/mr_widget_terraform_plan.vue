@@ -60,6 +60,8 @@ export default {
         successCallback: ({ data }) => {
           this.plans = data;
 
+          console.log(data)
+
           if (Object.keys(this.plan).length) {
             this.loading = false;
             poll.stop();
