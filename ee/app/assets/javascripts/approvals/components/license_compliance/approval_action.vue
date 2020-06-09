@@ -28,8 +28,8 @@ export default {
     licenseCheckStatusText() {
       return this.isLicenseCheckActive
         ? // @TODO - use start/end for sprintf
-          __('%{licenseCheckDocsLink} is active')
-        : __('%{licenseCheckDocsLink} is inactive');
+          __('%{docLinkStart}License-Check%{docLinkEnd} is active')
+        : __('%{docLinkStart}License-Check%{docLinkEnd} is inactive');
     },
   },
   methods: {
@@ -54,8 +54,8 @@ export default {
       <span v-else>
         <gl-icon name="information" :size="12" class="gl-text-blue-600" />
         <gl-sprintf :message="licenseCheckStatusText" class="gl-inline-flex">
-          <template #licenseCheckDocsLink>
-            <gl-link :href="docsLink" target="_blank">{{ __('License-Check') }}</gl-link>
+          <template #docLink="{ content }">
+            <gl-link :href="docsLink" target="_blank">{{ content }}</gl-link>
           </template>
         </gl-sprintf>
       </span>
