@@ -989,7 +989,7 @@ testing and small-scale deployments, though has limits to how much it can scale,
 and as it is a single instance deployment, you will experience downtime
 when upgrading the Vault application.
 
-To expose vault to clients outside of your cluster (e.g. a CI job in a shared runner), you may wish to specify the following in `.gitlab/managed-apps/vault/values.yaml`:
+To expose the vault service and [UI](https://learn.hashicorp.com/vault/getting-started/ui) to clients outside of your cluster (e.g. a CI job in a shared runner), you may wish to specify the following in `.gitlab/managed-apps/vault/values.yaml`:
 
 ```yaml
 ui:
