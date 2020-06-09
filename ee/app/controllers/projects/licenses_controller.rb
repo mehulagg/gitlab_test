@@ -94,14 +94,6 @@ module Projects
       end
     end
 
-      #     settings: {
-      #   prefix: 'license-check',
-      #   projectId: '43',
-      #   projectPath: '/api/v4/projects/43',
-      #   rulesPath: '/api/v4/projects/43/approval_settings/rules',
-      #   settingsPath: '/api/v4/projects/43/approval_settings',
-      # },
-      #
     def licenses_app_data
       {
         project_licenses_endpoint: project_licenses_path(@project, detected: true, format: :json),
