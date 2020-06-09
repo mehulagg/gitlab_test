@@ -152,6 +152,7 @@ module QA
         module Secure
           autoload :Show, 'qa/ee/page/project/secure/show'
           autoload :DependencyList, 'qa/ee/page/project/secure/dependency_list'
+          autoload :SecurityDashboard, 'qa/ee/page/project/secure/security_dashboard'
         end
 
         module PathLocks
