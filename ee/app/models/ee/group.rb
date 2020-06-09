@@ -375,6 +375,12 @@ module EE
       end
     end
 
+    def wiki_enabled?
+      # TODO: Remove this method once we implement group-level features.
+      # https://gitlab.com/gitlab-org/gitlab/-/issues/208412
+      wiki_access_level == ::ProjectFeature::ENABLED
+    end
+
     def owners_emails
       owners.pluck(:email)
     end

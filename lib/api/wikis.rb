@@ -32,10 +32,10 @@ module API
 
     WIKI_ENDPOINT_REQUIREMENTS = API::NAMESPACE_OR_PROJECT_REQUIREMENTS.merge(slug: API::NO_SLASH_URL_PART_REGEX)
 
-    helpers ::API::Helpers::WikisHelpers
-
     ::API::Helpers::WikisHelpers.wiki_resource_kinds.each do |container_resource|
       resource container_resource, requirements: WIKI_ENDPOINT_REQUIREMENTS do
+        helpers ::API::Helpers::WikisHelpers.helpers(container_resource)
+
         desc 'Get a list of wiki pages' do
           success Entities::WikiPageBasic
         end
@@ -43,11 +43,11 @@ module API
           optional :with_content, type: Boolean, default: false, desc: "Include pages' content"
         end
         get ':id/wikis' do
-          authorize! :read_wiki, wiki_container(container_resource)
+          authorize! :read_wiki, container
 
           entity = params[:with_content] ? Entities::WikiPage : Entities::WikiPageBasic
 
-          present wiki_container(container_resource).wiki.list_pages(load_content: params[:with_content]), with: entity
+          present container.wiki.list_pages(load_content: params[:with_content]), with: entity
         end
 
         desc 'Get a wiki page' do
@@ -57,7 +57,7 @@ module API
           requires :slug, type: String, desc: 'The slug of a wiki page'
         end
         get ':id/wikis/:slug' do
-          authorize! :read_wiki, wiki_container(container_resource)
+          authorize! :read_wiki, container
 
           present wiki_page, with: Entities::WikiPage
         end
@@ -71,9 +71,9 @@ module API
           use :common_wiki_page_params
         end
         post ':id/wikis' do
-          authorize! :create_wiki, wiki_container(container_resource)
+          authorize! :create_wiki, container
 
-          page = WikiPages::CreateService.new(container: wiki_container(container_resource), current_user: current_user, params: params).execute
+          page = WikiPages::CreateService.new(container: container, current_user: current_user, params: params).execute
 
           if page.valid?
             present page, with: Entities::WikiPage
@@ -92,9 +92,11 @@ module API
           at_least_one_of :content, :title, :format
         end
         put ':id/wikis/:slug' do
-          authorize! :create_wiki, wiki_container(container_resource)
+          authorize! :create_wiki, container
 
-          page = WikiPages::UpdateService.new(container: wiki_container(container_resource), current_user: current_user, params: params).execute(wiki_page)
+          page = WikiPages::UpdateService
+            .new(container: container, current_user: current_user, params: params)
+            .execute(wiki_page)
 
           if page.valid?
             present page, with: Entities::WikiPage
@@ -108,9 +110,11 @@ module API
           requires :slug, type: String, desc: 'The slug of a wiki page'
         end
         delete ':id/wikis/:slug' do
-          authorize! :admin_wiki, wiki_container(container_resource)
+          authorize! :admin_wiki, container
 
-          WikiPages::DestroyService.new(container: wiki_container(container_resource), current_user: current_user).execute(wiki_page)
+          WikiPages::DestroyService
+            .new(container: container, current_user: current_user)
+            .execute(wiki_page)
 
           no_content!
         end
@@ -124,10 +128,10 @@ module API
           optional :branch, type: String, desc: 'The name of the branch'
         end
         post ":id/wikis/attachments" do
-          authorize! :create_wiki, wiki_container(container_resource)
+          authorize! :create_wiki, container
 
           result = ::Wikis::CreateAttachmentService.new(
-            container: wiki_container(container_resource),
+            container: container,
             current_user: current_user,
             params: commit_params(declared_params(include_missing: false))
           ).execute

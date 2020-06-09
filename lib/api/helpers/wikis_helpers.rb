@@ -15,6 +15,23 @@ module API
           raise "Unknown wiki container #{kind}"
         end
       end
+
+      def self.helpers(kind)
+        Module.new do
+          include WikisHelpers
+
+          define_method :container do
+            wiki_container(kind)
+          end
+
+          define_method :wiki_page do
+            container = wiki_container(kind)
+            page = Wiki.for_container(container, current_user).find_page(params[:slug])
+
+            page || not_found!('Wiki Page')
+          end
+        end
+      end
     end
   end
 end

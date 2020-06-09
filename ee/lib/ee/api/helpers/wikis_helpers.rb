@@ -4,8 +4,8 @@ module EE
   module API
     module Helpers
       module WikisHelpers
-        extend ::Gitlab::Utils::Override
         extend ActiveSupport::Concern
+        extend ::Gitlab::Utils::Override
 
         class_methods do
           def wiki_resource_kinds
