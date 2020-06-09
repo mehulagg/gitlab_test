@@ -2,7 +2,7 @@ import { GlLink, GlLoadingIcon, GlSprintf } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import axios from '~/lib/utils/axios_utils';
 import MockAdapter from 'axios-mock-adapter';
-import MrWidgetTerraformPlan from '~/vue_merge_request_widget/components/mr_widget_terraform_plan.vue';
+import MrWidgetTerraformPlan from '~/vue_merge_request_widget/components/terraform/mr_widget_terraform_container.vue';
 import Poll from '~/lib/utils/poll';
 
 const plan = {
