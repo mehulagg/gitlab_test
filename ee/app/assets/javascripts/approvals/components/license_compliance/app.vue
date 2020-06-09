@@ -1,16 +1,11 @@
 <script>
-import { __ } from '~/locale';
 import { mapActions, mapState } from 'vuex';
-import { GlButton, GlIcon, GlLink, GlSkeletonLoading, GlSprintf } from '@gitlab/ui';
+import LicenseComplianceApprovalAction from './approval_action.vue';
 import ModalLicenseCompliance from '../modal_license_compliance.vue';
 
 export default {
   components: {
-    GlButton,
-    GlIcon,
-    GlLink,
-    GlSkeletonLoading,
-    GlSprintf,
+    LicenseComplianceApprovalAction,
     ModalLicenseCompliance,
   },
   computed: {
@@ -19,13 +14,7 @@ export default {
       rules: state => state.approvals.rules,
     }),
     licenseCheckRule() {
-      // @TODO - move rule name to constant
-      return this.rules?.find(({ name }) => name === 'License-Check');
-    },
-    licenseCheckStatusText() {
-      return this.licenseCheckRule && this.licenseCheckRule.approvalsRequired > 0
-        ? __('%{licenseCheckDocsLink} is active')
-        : __('%{licenseCheckDocsLink} is inactive');
+      return this.rules.find(({ name }) => name === 'License-Check');
     },
   },
   created() {
@@ -37,26 +26,13 @@ export default {
   },
 };
 </script>
-<template>
-  <span class="gl-display-inline-flex gl-align-items-center">
-    <gl-button :loading="isLoading" @click="openCreateModal(licenseCheckRule)"
-      >{{ __('License Approval') }}
-    </gl-button>
-    <span class="gl-ml-3">
-      <span v-if="!isLoading">
-        <gl-icon name="information" :size="12" class="gl-text-blue-600" />
-        <gl-sprintf :message="licenseCheckStatusText" class="gl-inline-flex">
-          <template #licenseCheckDocsLink>
-            <gl-link href="http://example.com">{{ __('License-Check') }}</gl-link>
-          </template>
-        </gl-sprintf>
-      </span>
-      <gl-skeleton-loading
-        v-else
-        :lines="1"
-        class="gl-display-inline-flex gl-h-auto gl-align-items-center"
-      />
-    </span>
-    <modal-license-compliance modal-id="yo" />
-  </span>
+<template
+  ><span
+    ><license-compliance-approval-action
+      docs-link="http://foo.com"
+      :is-license-check-active="Boolean(licenseCheckRule)"
+      :is-loading="isLoading"
+      @approvalClick="openCreateModal(licenseCheckRule)"/>
+    <modal-license-compliance modal-id="yo"
+  /></span>
 </template>
