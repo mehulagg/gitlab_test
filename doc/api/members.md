@@ -4,13 +4,13 @@
 
 The access levels are defined in the `Gitlab::Access` module. Currently, these levels are recognized:
 
-```plaintext
-10 => Guest access
-20 => Reporter access
-30 => Developer access
-40 => Maintainer access
-50 => Owner access - Only valid to set for groups
-```
+
+- No access (`0`)
+- Guest (`10`)
+- Reporter (`20`)
+- Developer (`30`)
+- Maintainer (`40`)
+- Owner (`50`) - Only valid to set for groups
 
 CAUTION: **Caution:**
 Before GitLab 13.something projects in personal namespaces did not
@@ -381,4 +381,4 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://git
 
 ## Give a group access to a project
 
-Look at [share project with group](projects.md#share-project-with-group)
+See [share project with group](projects.md#share-project-with-group)

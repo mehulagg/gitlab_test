@@ -41,11 +41,12 @@ can be accessed only by project members by default.
 Users can be members of multiple groups and projects. The following access
 levels are available (defined in the `Gitlab::Access` module):
 
-- Guest
-- Reporter
-- Developer
-- Maintainer
-- Owner
+- No access (`0`)
+- Guest (`10`)
+- Reporter (`20`)
+- Developer (`30`)
+- Maintainer (`40`)
+- Owner (`50`)
 
 If a user is the member of both a project and the project parent group, the
 higher permission is taken into account for the project.

@@ -3726,7 +3726,7 @@ describe Project do
       context 'when feature is private' do
         let(:project) { create(:project, :public, :merge_requests_private) }
 
-        context 'when user does not has access to the feature' do
+        context 'when user does not have access to the feature' do
           it 'does not return projects with the project feature private' do
             is_expected.not_to include(project)
           end
@@ -4809,6 +4809,32 @@ describe Project do
           project.execute_hooks(data, :merge_request_hooks)
         end
       end.not_to raise_error # Sidekiq::Worker::EnqueueFromTransactionError
+    end
+  end
+
+  describe '#execute_services' do
+    let(:service) { create(:slack_service, push_events: true, merge_requests_events: false, active: true) }
+
+    it 'executes services with the specified scope' do
+      data = 'any data'
+
+      expect(SlackService).to receive(:allocate).and_wrap_original do |method|
+        method.call.tap do |instance|
+          expect(instance).to receive(:async_execute).with(data).once
+        end
+      end
+
+      service.project.execute_services(data, :push_hooks)
+    end
+
+    it 'does not execute services that don\'t match the specified scope' do
+      expect(SlackService).not_to receive(:allocate).and_wrap_original do |method|
+        method.call.tap do |instance|
+          expect(instance).not_to receive(:async_execute)
+        end
+      end
+
+      service.project.execute_services(anything, :merge_request_hooks)
     end
   end
 

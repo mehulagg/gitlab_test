@@ -76,6 +76,16 @@ msgid_plural "%d URLs scanned"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d approver"
+msgid_plural "%d approvers"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%d approver (you've approved)"
+msgid_plural "%d approvers (you've approved)"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%d changed file"
 msgid_plural "%d changed files"
 msgstr[0] ""
@@ -505,6 +515,9 @@ msgid "%{releases} release"
 msgid_plural "%{releases} releases"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "%{remaining_approvals} left"
+msgstr ""
 
 msgid "%{retryButtonStart}Try again%{retryButtonEnd} or %{newFileButtonStart}attach a new file%{newFileButtonEnd}"
 msgstr ""
@@ -941,6 +954,12 @@ msgstr ""
 msgid "A deleted user"
 msgstr ""
 
+msgid "A file has been changed."
+msgstr ""
+
+msgid "A file was not found."
+msgstr ""
+
 msgid "A file with '%{file_name}' already exists in %{branch} branch"
 msgstr ""
 
@@ -1005,6 +1024,9 @@ msgid "A sign-in to your account has been made from the following IP address: %{
 msgstr ""
 
 msgid "A subscription will trigger a new pipeline on the default branch of this project when a pipeline successfully completes for a new tag on the %{default_branch_docs} of the subscribed project."
+msgstr ""
+
+msgid "A suggestion is not applicable."
 msgstr ""
 
 msgid "A terraform report was generated in your pipelines."
@@ -1364,6 +1386,9 @@ msgid "Add request manually"
 msgstr ""
 
 msgid "Add strikethrough text"
+msgstr ""
+
+msgid "Add suggestion to batch"
 msgstr ""
 
 msgid "Add system hook"
@@ -2304,6 +2329,9 @@ msgstr ""
 msgid "An error occurred while loading milestones"
 msgstr ""
 
+msgid "An error occurred while loading project creation UI"
+msgstr ""
+
 msgid "An error occurred while loading terraform report"
 msgstr ""
 
@@ -2568,6 +2596,9 @@ msgstr ""
 msgid "Apply suggestion"
 msgstr ""
 
+msgid "Apply suggestions"
+msgstr ""
+
 msgid "Apply template"
 msgstr ""
 
@@ -2586,7 +2617,10 @@ msgstr ""
 msgid "Applying multiple commands"
 msgstr ""
 
-msgid "Applying suggestion"
+msgid "Applying suggestion..."
+msgstr ""
+
+msgid "Applying suggestions..."
 msgstr ""
 
 msgid "Approval rules"
@@ -2633,12 +2667,6 @@ msgstr ""
 msgid "ApprovalRule|e.g. QA, Security, etc."
 msgstr ""
 
-msgid "Approvals"
-msgstr ""
-
-msgid "Approvals (you've approved)"
-msgstr ""
-
 msgid "Approve"
 msgstr ""
 
@@ -2646,6 +2674,12 @@ msgid "Approve a merge request"
 msgstr ""
 
 msgid "Approve the current merge request."
+msgstr ""
+
+msgid "Approved"
+msgstr ""
+
+msgid "Approved MRs"
 msgstr ""
 
 msgid "Approved by: "
@@ -3079,9 +3113,6 @@ msgid "Auto DevOps enabled"
 msgstr ""
 
 msgid "Auto DevOps, runners and job artifacts"
-msgstr ""
-
-msgid "Auto License Compliance"
 msgstr ""
 
 msgid "Auto stop successfully canceled."
@@ -6434,6 +6465,9 @@ msgstr ""
 msgid "Create a personal access token on your account to pull or push via %{protocol}."
 msgstr ""
 
+msgid "Create a project pre-populated with the necessary files to get you started quickly."
+msgstr ""
+
 msgid "Create an account using:"
 msgstr ""
 
@@ -6602,6 +6636,9 @@ msgstr ""
 msgid "Creates branch '%{branch_name}' and a merge request to resolve this issue."
 msgstr ""
 
+msgid "Creating"
+msgstr ""
+
 msgid "Creating epic"
 msgstr ""
 
@@ -6666,6 +6703,9 @@ msgid "CurrentUser|Start a Gold trial"
 msgstr ""
 
 msgid "CurrentUser|Upgrade"
+msgstr ""
+
+msgid "Custom Attributes"
 msgstr ""
 
 msgid "Custom CI configuration path"
@@ -8407,9 +8447,6 @@ msgstr ""
 msgid "Enter your password to approve"
 msgstr ""
 
-msgid "Enter zen mode"
-msgstr ""
-
 msgid "Environment"
 msgstr ""
 
@@ -8464,7 +8501,7 @@ msgstr ""
 msgid "EnvironmentsDashboard|More actions"
 msgstr ""
 
-msgid "EnvironmentsDashboard|Read more."
+msgid "EnvironmentsDashboard|More information"
 msgstr ""
 
 msgid "EnvironmentsDashboard|Remove"
@@ -9046,6 +9083,9 @@ msgstr ""
 msgid "Exactly one of %{attributes} is required"
 msgstr ""
 
+msgid "Example: <code>acme.com,acme.co.in,acme.uk</code>."
+msgstr ""
+
 msgid "Example: @sub\\.company\\.com$"
 msgstr ""
 
@@ -9607,6 +9647,9 @@ msgstr ""
 msgid "FeatureFlags|There was an error fetching the feature flags."
 msgstr ""
 
+msgid "FeatureFlags|There was an error retrieving user lists"
+msgstr ""
+
 msgid "FeatureFlags|Try again in a few moments or contact your support team."
 msgstr ""
 
@@ -9616,7 +9659,16 @@ msgstr ""
 msgid "FeatureFlag|Delete strategy"
 msgstr ""
 
+msgid "FeatureFlag|List"
+msgstr ""
+
 msgid "FeatureFlag|Percentage"
+msgstr ""
+
+msgid "FeatureFlag|Select a user list"
+msgstr ""
+
+msgid "FeatureFlag|There are no configured user lists"
 msgstr ""
 
 msgid "FeatureFlag|Type"
@@ -10627,9 +10679,6 @@ msgstr ""
 msgid "Gitea Import"
 msgstr ""
 
-msgid "Gitlab CI/CD"
-msgstr ""
-
 msgid "Gitlab Pages"
 msgstr ""
 
@@ -11218,6 +11267,9 @@ msgstr ""
 msgid "GroupSettings|You will need to update your local repositories to point to the new location."
 msgstr ""
 
+msgid "GroupSettings|cannot be changed by you"
+msgstr ""
+
 msgid "GroupSettings|cannot be disabled when the parent group \"Share with group lock\" is enabled, except by the owner of the parent group"
 msgstr ""
 
@@ -11690,6 +11742,9 @@ msgstr ""
 msgid "Import all compatible projects"
 msgstr ""
 
+msgid "Import all compatible repositories"
+msgstr ""
+
 msgid "Import all projects"
 msgstr ""
 
@@ -11877,6 +11932,9 @@ msgid "Incompatible Project"
 msgstr ""
 
 msgid "Incompatible options set!"
+msgstr ""
+
+msgid "Incompatible project"
 msgstr ""
 
 msgid "Indent"
@@ -12876,6 +12934,9 @@ msgstr ""
 msgid "Leave the \"File type\" and \"Delivery method\" options on their default values."
 msgstr ""
 
+msgid "Leave zen mode"
+msgstr ""
+
 msgid "Let's Encrypt does not accept emails on example.com"
 msgstr ""
 
@@ -12915,13 +12976,7 @@ msgstr ""
 msgid "LicenseCompliance|Deny"
 msgstr ""
 
-msgid "LicenseCompliance|Here you can allow or deny licenses for this project. Using %{ci} or %{license} will allow you to see if there are any unmanaged licenses and allow or deny them in merge request."
-msgstr ""
-
 msgid "LicenseCompliance|License"
-msgstr ""
-
-msgid "LicenseCompliance|License Compliance"
 msgstr ""
 
 msgid "LicenseCompliance|License Compliance detected %d license and policy violation for the source branch only; approval required"
@@ -14034,6 +14089,9 @@ msgstr ""
 msgid "Middleman project with Static Site Editor support"
 msgstr ""
 
+msgid "Migrate your data from an external source like GitHub, Bitbucket, or another instance of GitLab."
+msgstr ""
+
 msgid "Migrated %{success_count}/%{total_count} files."
 msgstr ""
 
@@ -14340,6 +14398,9 @@ msgid "MrDeploymentActions|Re-deploy"
 msgstr ""
 
 msgid "MrDeploymentActions|Stop environment"
+msgstr ""
+
+msgid "Multiple domains are supported with comma delimiters."
 msgstr ""
 
 msgid "Multiple issue boards"
@@ -15204,7 +15265,7 @@ msgstr ""
 msgid "Only project members will be imported. Group members will be skipped."
 msgstr ""
 
-msgid "Only users with an email address in this domain can be added to the group.<br>Example: <code>gitlab.com</code>. Some common domains are not allowed. %{read_more_link}."
+msgid "Only verified users with an email address in any of these domains can be added to the group."
 msgstr ""
 
 msgid "Only ‘Reporter’ roles and above on tiers Premium / Silver and above can see Productivity Analytics."
@@ -17433,13 +17494,25 @@ msgstr ""
 msgid "ProjectsNew|Blank project"
 msgstr ""
 
+msgid "ProjectsNew|Connect your external repository to GitLab CI/CD."
+msgstr ""
+
 msgid "ProjectsNew|Contact an administrator to enable options for importing your project."
 msgstr ""
 
 msgid "ProjectsNew|Create"
 msgstr ""
 
+msgid "ProjectsNew|Create a blank project to house your files, plan your work, and collaborate on code, among other things."
+msgstr ""
+
+msgid "ProjectsNew|Create blank project"
+msgstr ""
+
 msgid "ProjectsNew|Create from template"
+msgstr ""
+
+msgid "ProjectsNew|Create new project"
 msgstr ""
 
 msgid "ProjectsNew|Creating project & repository."
@@ -17464,6 +17537,9 @@ msgid "ProjectsNew|Please wait a moment, this page will automatically refresh wh
 msgstr ""
 
 msgid "ProjectsNew|Project description %{tag_start}(optional)%{tag_end}"
+msgstr ""
+
+msgid "ProjectsNew|Run CI/CD for external repository"
 msgstr ""
 
 msgid "ProjectsNew|Template"
@@ -18265,6 +18341,9 @@ msgstr ""
 msgid "Remove fork relationship"
 msgstr ""
 
+msgid "Remove from batch"
+msgstr ""
+
 msgid "Remove from board"
 msgstr ""
 
@@ -18652,6 +18731,12 @@ msgid "Require user password to approve"
 msgstr ""
 
 msgid "Require users to prove ownership of custom domains"
+msgstr ""
+
+msgid "Required approvals (%{approvals_given} given)"
+msgstr ""
+
+msgid "Required approvals (%{approvals_given} given, you've approved)"
 msgstr ""
 
 msgid "Requirement"
@@ -20460,6 +20545,9 @@ msgstr ""
 msgid "Some child epics may be hidden due to applied filters"
 msgstr ""
 
+msgid "Some common domains are not allowed. %{read_more_link}."
+msgstr ""
+
 msgid "Some email servers do not support overriding the email sender name. Enable this option to include the name of the author of the issue, merge request or comment in the email body instead."
 msgstr ""
 
@@ -20500,6 +20588,9 @@ msgid "Something went wrong when toggling the button"
 msgstr ""
 
 msgid "Something went wrong while adding your award. Please try again."
+msgstr ""
+
+msgid "Something went wrong while applying the batch of suggestions. Please try again."
 msgstr ""
 
 msgid "Something went wrong while applying the suggestion. Please try again."
@@ -21457,6 +21548,18 @@ msgid "SuggestedColors|Very dark lime green"
 msgstr ""
 
 msgid "SuggestedColors|Very pale orange"
+msgstr ""
+
+msgid "Suggestion is not applicable as the suggestion was not found."
+msgstr ""
+
+msgid "Suggestions are not applicable as one or more suggestions were not found."
+msgstr ""
+
+msgid "Suggestions are not applicable as their lines cannot overlap."
+msgstr ""
+
+msgid "Suggestions must all be on the same branch."
 msgstr ""
 
 msgid "Suggestions:"
@@ -22428,7 +22531,10 @@ msgstr ""
 msgid "This action can lead to data loss. To prevent accidental actions we ask you to confirm your intention."
 msgstr ""
 
-msgid "This also resolves the discussion"
+msgid "This also resolves all related threads"
+msgstr ""
+
+msgid "This also resolves the thread"
 msgstr ""
 
 msgid "This application was created by %{link_to_owner}."
@@ -26353,7 +26459,7 @@ msgstr ""
 msgid "element is not a hierarchy"
 msgstr ""
 
-msgid "email '%{email}' does not match the allowed domain of '%{email_domain}'"
+msgid "email '%{email}' does not match the allowed domains of %{email_domains}"
 msgstr ""
 
 msgid "email '%{email}' is not a verified email."

@@ -5220,7 +5220,8 @@ ALTER SEQUENCE public.project_incident_management_settings_project_id_seq OWNED 
 
 CREATE TABLE public.project_metrics_settings (
     project_id integer NOT NULL,
-    external_dashboard_url character varying NOT NULL
+    external_dashboard_url character varying,
+    dashboard_timezone smallint DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE public.project_mirror_data (
@@ -9228,6 +9229,8 @@ CREATE INDEX index_approvers_on_target_id_and_target_type ON public.approvers US
 CREATE INDEX index_approvers_on_user_id ON public.approvers USING btree (user_id);
 
 CREATE INDEX index_audit_events_on_entity_id_and_entity_type_and_id_desc ON public.audit_events USING btree (entity_id, entity_type, id DESC);
+
+CREATE INDEX index_audit_events_on_ruby_object_in_details ON public.audit_events USING btree (id) WHERE (details ~~ '%ruby/object%'::text);
 
 CREATE INDEX index_award_emoji_on_awardable_type_and_awardable_id ON public.award_emoji USING btree (awardable_type, awardable_id);
 
@@ -13764,6 +13767,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200514000340
 20200515155620
 20200518091745
+20200518114540
 20200518133123
 20200519074709
 20200519101002
@@ -13778,6 +13782,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200522235146
 20200525114553
 20200525121014
+20200525144525
 20200526000407
 20200526013844
 20200526120714
@@ -13794,6 +13799,9 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200528054112
 20200528123703
 20200528125905
+20200528171933
+20200601210148
+20200602143020
 20200603073101
 \.
 
