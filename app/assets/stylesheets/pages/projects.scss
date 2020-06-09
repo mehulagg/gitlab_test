@@ -809,7 +809,7 @@
 
 .project-buttons {
   .stat-text {
-    @extend .btn;
+    @extend .gl-button-deprecated;
     @extend .btn-default;
   }
 

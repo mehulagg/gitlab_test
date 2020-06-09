@@ -123,7 +123,7 @@ export default {
         <div v-show="menuOpen" ref="dropdown" :class="[openMenuClasses]" class="dropdown w-25">
           <gl-deprecated-button
             :title="__('More actions')"
-            class="more-actions-toggle btn btn-transparent p-0"
+            class="more-actions-toggle btn gl-button-deprecated btn-transparent p-0"
             data-toggle="dropdown"
           >
             <gl-icon class="icon" name="ellipsis_v" />

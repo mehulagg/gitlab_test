@@ -30,5 +30,5 @@
                 = f.label :setup_for_company, _('Just me'), class: 'normal', value: 'false'
         .row
           .form-group.col-sm-12.mb-0
-            = button_tag class: %w[btn btn-success w-100] do
+            = button_tag class: %w[btn gl-button-deprecated btn-success w-100] do
               = in_subscription_flow? || in_trial_flow? || (onboarding_issues_experiment_enabled && !in_invitation_flow?) ? _('Continue') : _('Get started!')

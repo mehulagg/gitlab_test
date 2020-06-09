@@ -97,7 +97,10 @@ export default {
         </template>
         <span class="text-attach-file">{{ __('Attach a file') }}</span>
       </gl-button>
-      <gl-button class="btn btn-default btn-sm hide button-cancel-uploading-files" variant="link">
+      <gl-button
+        class="btn gl-button-deprecated btn-default btn-sm hide button-cancel-uploading-files"
+        variant="link"
+      >
         {{ __('Cancel') }}
       </gl-button>
     </span>

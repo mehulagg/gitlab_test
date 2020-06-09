@@ -90,7 +90,7 @@ export default {
       class="js-submit"
       :disabled="submitDisabled"
       :loading="loading"
-      container-class="btn btn-success btn-align-content d-inline-flex"
+      container-class="btn gl-button-deprecated btn-success btn-align-content d-inline-flex"
       :label="s__('LicenseCompliance|Submit')"
       data-qa-selector="add_license_submit_button"
       @click="addLicense"

@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     className() {
-      return `btn btn-${this.buttonType} btn-${this.size}`;
+      return `btn gl-button-deprecated btn-${this.buttonType} btn-${this.size}`;
     },
     filteredResults() {
       if (this.filter !== '') {

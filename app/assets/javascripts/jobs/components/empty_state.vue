@@ -85,7 +85,7 @@ export default {
           <gl-link
             :href="action.path"
             :data-method="action.method"
-            class="js-job-empty-state-action btn btn-primary"
+            class="js-job-empty-state-action btn gl-button-deprecated btn-primary"
             >{{ action.button_title }}</gl-link
           >
         </div>

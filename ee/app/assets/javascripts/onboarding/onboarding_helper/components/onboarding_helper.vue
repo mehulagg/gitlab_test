@@ -187,7 +187,7 @@ export default {
           <gl-progress-bar class="mt-1" :value="percentageCompleted" variant="info" />
         </div>
         <gl-deprecated-button
-          class="qa-toggle-btn btn btn-transparent mr-1"
+          class="qa-toggle-btn btn gl-button-deprecated btn-transparent mr-1"
           type="button"
           :aria-label="toggleButtonLabel"
         >

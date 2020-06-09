@@ -67,9 +67,9 @@
   .example
     .cover-block.user-cover-block
       = render layout: 'users/cover_controls' do
-        = link_to '#', class: link_classes + 'btn btn-default' do
+        = link_to '#', class: link_classes + 'btn gl-button-deprecated btn-default' do
           = icon('pencil')
-        = link_to '#', class: link_classes + 'btn btn-default' do
+        = link_to '#', class: link_classes + 'btn gl-button-deprecated btn-default' do
           = icon('rss')
       .avatar-holder
         = image_tag avatar_icon_for_email('admin@example.com', 90), class: "avatar s90", alt: ''
@@ -188,7 +188,7 @@
             %li
               = link_to 'Sort by date', '#'
 
-        = link_to 'New issue', '#', class: 'btn btn-success btn-inverted'
+        = link_to 'New issue', '#', class: 'btn gl-button-deprecated btn-success btn-inverted'
 
   .lead
     Only nav links without button and search
@@ -204,13 +204,13 @@
   %h2#buttons Buttons
 
   .example
-    %button.btn.btn-default{ :type => "button" } Secondary
-    %button.btn.btn-primary{ :type => "button" } Primary
-    %button.btn.btn-success{ :type => "button" } Success
-    %button.btn.btn-info{ :type => "button" } Info
-    %button.btn.btn-warning{ :type => "button" } Warning
-    %button.btn.btn-danger{ :type => "button" } Danger
-    %button.btn.btn-link{ :type => "button" } Link
+    %button.btn.gl-button-deprecated.btn-default{ :type => "button" } Secondary
+    %button.btn.gl-button-deprecated.btn-primary{ :type => "button" } Primary
+    %button.btn.gl-button-deprecated.btn-success{ :type => "button" } Success
+    %button.btn.gl-button-deprecated.btn-info{ :type => "button" } Info
+    %button.btn.gl-button-deprecated.btn-warning{ :type => "button" } Warning
+    %button.btn.gl-button-deprecated.btn-danger{ :type => "button" } Danger
+    %button.btn.gl-button-deprecated.btn-link{ :type => "button" } Link
 
   %h2#dropdowns Dropdowns
 
@@ -385,7 +385,7 @@
             .dropdown-input
               %input.dropdown-input-field{ type: "search", placeholder: "Name new label" }
             .dropdown-content
-              %button.btn.btn-primary
+              %button.btn.gl-button-deprecated.btn-primary
                 Create
 
   .example
@@ -474,7 +474,7 @@
               Remember me
       .form-group.row
         .offset-sm-2.col-sm-10
-          %button.btn.btn-default{ :type => "submit" } Sign in
+          %button.btn.gl-button-deprecated.btn-default{ :type => "submit" } Sign in
 
   .lead
     Form when label rendered above input
@@ -492,7 +492,7 @@
         %input.form-check-input{ :type => "checkbox" }/
         %label.form-check-label
           Remember me
-      %button.btn.btn-default{ :type => "submit" } Sign in
+      %button.btn.gl-button-deprecated.btn-default{ :type => "submit" } Sign in
 
   %h2#file File
   %h4
@@ -505,8 +505,8 @@
         Awesome file
         .file-actions
           .btn-group
-            %a.btn Edit
-            %a.btn.btn-danger Remove
+            %a.btn.gl-button-deprecated.gl-button-deprecated Edit
+            %a.btn.gl-button-deprecated.btn-danger Remove
       = render 'shared/file_highlight', blob: blob
 
   %h2#markdown Markdown

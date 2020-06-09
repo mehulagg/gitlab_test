@@ -100,7 +100,11 @@ export default {
   <div :class="wrapperClass" class="block">
     <div class="title append-bottom-10">
       {{ label }}
-      <button v-if="canEdit" type="button" class="edit-link btn btn-blank float-right">
+      <button
+        v-if="canEdit"
+        type="button"
+        class="edit-link btn gl-button-deprecated btn-blank float-right"
+      >
         {{ __('Edit') }}
       </button>
     </div>

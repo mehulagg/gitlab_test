@@ -147,7 +147,7 @@ export default {
               ref="issueCountBadgeAddButton"
               type="button"
               :class="qaClass"
-              class="js-issue-count-badge-add-button issue-count-badge-add-button btn btn-sm btn-default"
+              class="js-issue-count-badge-add-button issue-count-badge-add-button btn gl-button-deprecated btn-sm btn-default"
               :aria-label="__('Add an issue')"
               data-placement="top"
               data-qa-selector="related_issues_plus_button"

@@ -27,12 +27,12 @@
         .alert.alert-info
           = render 'shared/group_tips'
     .form-actions
-      = f.submit _('Create group'), class: "btn btn-success"
-      = link_to  _('Cancel'), admin_groups_path, class: "btn btn-cancel"
+      = f.submit _('Create group'), class: "btn gl-button-deprecated btn-success"
+      = link_to  _('Cancel'), admin_groups_path, class: "btn gl-button-deprecated btn-cancel"
 
   - else
     .form-actions
-      = f.submit _('Save changes'), class: "btn btn-success", data: { qa_selector: 'save_changes_button' }
-      = link_to  _('Cancel'), admin_group_path(@group), class: "btn btn-cancel"
+      = f.submit _('Save changes'), class: "btn gl-button-deprecated btn-success", data: { qa_selector: 'save_changes_button' }
+      = link_to  _('Cancel'), admin_group_path(@group), class: "btn gl-button-deprecated btn-cancel"
 
 = render_if_exists 'ldap_group_links/ldap_syncrhonizations', group: @group

@@ -6,7 +6,7 @@
     .dropdown.inline.prepend-top-default.append-bottom-default.package-sort-dropdown
       .btn-group{ role: 'group' }
         .btn-group{ role: 'group' }
-          %button.dropdown-menu-toggle{ type: 'button', data: { toggle: 'dropdown', display: 'static' }, class: 'btn btn-default' }
+          %button.dropdown-menu-toggle{ type: 'button', data: { toggle: 'dropdown', display: 'static' }, class: 'btn gl-button-deprecated btn-default' }
             = sort_title
             = icon('chevron-down')
           %ul.dropdown-menu.dropdown-menu-right.dropdown-menu-selectable.dropdown-menu-sort
@@ -51,7 +51,7 @@
           .table-mobile-content
             - if can_destroy_package
               .pull-right
-                = link_to project_package_path(@project, package), method: :delete, data: { confirm: _("Are you sure?") }, class: "btn btn-grouped btn-remove", title: _('Delete Package') do
+                = link_to project_package_path(@project, package), method: :delete, data: { confirm: _("Are you sure?") }, class: "btn gl-button-deprecated btn-grouped btn-remove", title: _('Delete Package') do
                   = icon('trash')
     = paginate @packages, theme: "gitlab"
 - else

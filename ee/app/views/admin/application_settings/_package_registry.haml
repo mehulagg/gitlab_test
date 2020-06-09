@@ -3,7 +3,7 @@
     .settings-header
       %h4
         = _('Package Registry')
-      %button.btn.btn-default.js-settings-toggle{ type: 'button' }
+      %button.btn.gl-button-deprecated.btn-default.js-settings-toggle{ type: 'button' }
         = expanded_by_default? ? _('Collapse') : _('Expand')
       %p
         = _("Settings related to the use and experience of using GitLab's Package Registry.")
@@ -20,4 +20,4 @@
                 .form-text.text-muted
                   = _("When enabled, if an NPM package isn't found in the GitLab Registry, we will attempt to pull from the global NPM registry.")
 
-        = f.submit _('Save changes'), class: "btn btn-success"
+        = f.submit _('Save changes'), class: "btn gl-button-deprecated btn-success"

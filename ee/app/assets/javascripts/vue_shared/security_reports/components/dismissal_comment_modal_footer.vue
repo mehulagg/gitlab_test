@@ -75,7 +75,7 @@ export default {
       :label="submitLabel"
       data-qa-selector="add_and_dismiss_button"
       class="js-loading-button"
-      container-class="btn btn-close"
+      container-class="btn gl-button-deprecated btn-close"
       @click="handleSubmit"
     />
   </div>

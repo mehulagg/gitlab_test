@@ -361,7 +361,7 @@ export default {
     <div class="custom-stage-form-actions">
       <button
         :disabled="!isDirty"
-        class="btn btn-cancel js-save-stage-cancel"
+        class="btn gl-button-deprecated btn-cancel js-save-stage-cancel"
         type="button"
         @click="handleCancel"
       >
@@ -370,7 +370,7 @@ export default {
       <button
         :disabled="!isComplete || !isDirty"
         type="button"
-        class="js-save-stage btn btn-success"
+        class="js-save-stage btn gl-button-deprecated btn-success"
         @click="handleSave"
       >
         <gl-loading-icon v-if="isSavingCustomStage" size="sm" inline />

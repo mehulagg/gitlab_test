@@ -43,7 +43,11 @@ export default {
 };
 </script>
 <template>
-  <button type="button" class="btn btn-blank btn-transparent btn-help" tabindex="0">
+  <button
+    type="button"
+    class="btn gl-button-deprecated btn-blank btn-transparent btn-help"
+    tabindex="0"
+  >
     <icon name="question" />
   </button>
 </template>

@@ -125,7 +125,10 @@ export default {
           show-default
         />
       </div>
-      <gl-link class="qa-start-tour-btn btn btn-success" @click="startTour">
+      <gl-link
+        class="qa-start-tour-btn btn gl-button-deprecated btn-success"
+        @click="startTour"
+      >
         {{ __("Ok let's go") }}
       </gl-link>
       <p class="small mt-8">

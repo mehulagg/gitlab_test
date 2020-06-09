@@ -458,7 +458,7 @@ describe 'Copy as GFM', :js do
                 </a>
               </div>
               <!---->
-              <button type="button" class="btn qa-apply-btn js-apply-btn">Apply suggestion</button>
+              <button type="button" class="btn gl-button-deprecated qa-apply-btn js-apply-btn">Apply suggestion</button>
             </div>
             <table class="mb-3 md-suggestion-diff js-syntax-highlight code white">
               <tbody>

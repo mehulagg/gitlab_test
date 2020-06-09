@@ -50,15 +50,15 @@ export default {
 
 <template>
   <div class="design-scaler btn-group" role="group">
-    <button class="btn" :disabled="disableDecrease" @click="decrementScale">
+    <button class="btn gl-button-deprecated" :disabled="disableDecrease" @click="decrementScale">
       <span class="d-flex-center gl-icon s16">
         –
       </span>
     </button>
-    <button class="btn" :disabled="disableReset" @click="resetScale">
+    <button class="btn gl-button-deprecated" :disabled="disableReset" @click="resetScale">
       <gl-icon name="redo" />
     </button>
-    <button class="btn" :disabled="disableIncrease" @click="incrementScale">
+    <button class="btn gl-button-deprecated" :disabled="disableIncrease" @click="incrementScale">
       <gl-icon name="plus" />
     </button>
   </div>

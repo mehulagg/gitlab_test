@@ -169,7 +169,7 @@ export default {
       </p>
       <a
         :href="links.webIDEHelpPagePath"
-        class="btn btn-primary"
+        class="btn gl-button-deprecated btn-primary"
         target="_blank"
         rel="noopener noreferrer"
       >

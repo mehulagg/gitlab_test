@@ -57,11 +57,15 @@ export default {
           tooltip-placement="bottom"
         />
       </div>
-      <button class="btn btn-link js-replies-text qa-expand-replies" type="button" @click="toggle">
+      <button
+        class="btn gl-button-deprecated btn-link js-replies-text qa-expand-replies"
+        type="button"
+        @click="toggle"
+      >
         {{ replies.length }} {{ n__('reply', 'replies', replies.length) }}
       </button>
       {{ __('Last reply by') }}
-      <a :href="lastReply.author.path" class="btn btn-link author-link">
+      <a :href="lastReply.author.path" class="btn gl-button-deprecated btn-link author-link">
         {{ lastReply.author.name }}
       </a>
       <time-ago-tooltip :time="lastReply.created_at" tooltip-placement="bottom" />

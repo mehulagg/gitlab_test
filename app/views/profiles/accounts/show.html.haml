@@ -15,10 +15,10 @@
     %p
       #{_('Status')}: #{current_user.two_factor_enabled? ? _('Enabled') : _('Disabled')}
     - if current_user.two_factor_enabled?
-      = link_to _('Manage two-factor authentication'), profile_two_factor_auth_path, class: 'btn btn-info'
+      = link_to _('Manage two-factor authentication'), profile_two_factor_auth_path, class: 'btn gl-button-deprecated btn-info'
     - else
       .append-bottom-10
-        = link_to _('Enable two-factor authentication'), profile_two_factor_auth_path, class: 'btn btn-success'
+        = link_to _('Enable two-factor authentication'), profile_two_factor_auth_path, class: 'btn gl-button-deprecated btn-success'
 
 %hr
 - if display_providers_on_profile?
@@ -55,7 +55,7 @@
         = s_('Profiles|Deleting an account has the following effects:')
       = render 'users/deletion_guidance', user: current_user
 
-      %button#delete-account-button.btn.btn-danger.disabled{ data: { toggle: 'modal',
+      %button#delete-account-button.btn.gl-button-deprecated.btn-danger.disabled{ data: { toggle: 'modal',
         target: '#delete-account-modal' } }
         = s_('Profiles|Delete account')
 

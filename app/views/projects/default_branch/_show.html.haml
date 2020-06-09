@@ -3,7 +3,7 @@
 %section.settings.no-animate#default-branch-settings{ class: ('expanded' if expanded) }
   .settings-header
     %h4= _('Default Branch')
-    %button.btn.js-settings-toggle
+    %button.btn.gl-button-deprecated.js-settings-toggle
       = expanded ? _('Collapse') : _('Expand')
     %p
       = _('Select the branch you want to set as the default for this project. All merge requests and commits will automatically be made against this branch unless you specify a different one.')
@@ -28,4 +28,4 @@
               = _("Issues referenced by merge requests and commits within the default branch will be closed automatically")
               = link_to icon('question-circle'), help_page_path('user/project/issues/managing_issues.html', anchor: 'disabling-automatic-issue-closing'), target: '_blank'
 
-      = f.submit 'Save changes', class: "btn btn-success"
+      = f.submit 'Save changes', class: "btn gl-button-deprecated btn-success"

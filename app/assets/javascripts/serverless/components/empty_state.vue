@@ -30,7 +30,7 @@ export default {
         </p>
 
         <div class="text-center">
-          <a :href="clustersPath" class="btn btn-success">
+          <a :href="clustersPath" class="btn gl-button-deprecated btn-success">
             {{ s__('Serverless|Install Knative') }}
           </a>
         </div>

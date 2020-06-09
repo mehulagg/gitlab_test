@@ -27,7 +27,7 @@
 
       - if can_edit_project_settings && !service_desk_enabled
         %div{ class: is_empty_state ? "text-center" : "prepend-top-10" }
-          = link_to _("Turn on Service Desk"), edit_project_path(@project), class: 'btn btn-success'
+          = link_to _("Turn on Service Desk"), edit_project_path(@project), class: 'btn gl-button-deprecated btn-success'
 - else
   .empty-state
     .svg-content

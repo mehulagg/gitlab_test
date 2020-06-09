@@ -72,7 +72,7 @@ export default {
       <button
         ref="selectAllBtn"
         type="button"
-        class="btn btn-success btn-inverted prepend-left-10"
+        class="btn gl-button-deprecated btn-success btn-inverted prepend-left-10"
         @click="toggleAll"
       >
         {{ selectAllText }}

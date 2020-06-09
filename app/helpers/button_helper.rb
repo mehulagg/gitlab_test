@@ -45,7 +45,7 @@ module ButtonHelper
     end
 
     button_attributes = {
-      class: "btn #{css_class}",
+      class: "btn gl-button-deprecated gl-btn-deprecated #{css_class}",
       data: data,
       type: :button,
       title: title,

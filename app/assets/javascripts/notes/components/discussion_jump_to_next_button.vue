@@ -26,7 +26,7 @@ export default {
     <button
       ref="button"
       v-gl-tooltip
-      class="btn btn-default discussion-next-btn"
+      class="btn gl-button-deprecated btn-default discussion-next-btn"
       :title="s__('MergeRequests|Jump to next unresolved thread')"
       data-track-event="click_button"
       data-track-label="mr_next_unresolved_thread"

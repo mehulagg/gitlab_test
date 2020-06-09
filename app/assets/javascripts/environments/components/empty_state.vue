@@ -35,7 +35,7 @@ export default {
         <a
           v-if="canCreateEnvironment"
           :href="newPath"
-          class="btn btn-success js-new-environment-button"
+          class="btn gl-button-deprecated btn-success js-new-environment-button"
         >
           {{ s__('Environments|New environment') }}
         </a>

@@ -151,7 +151,7 @@ export default {
       v-gl-tooltip
       :disabled="removeDisabled"
       type="button"
-      class="btn btn-default btn-svg btn-item-remove js-issue-item-remove-button"
+      class="btn gl-button-deprecated btn-default btn-svg btn-item-remove js-issue-item-remove-button"
       data-qa-selector="remove_related_issue_button"
       :title="__('Remove')"
       :aria-label="__('Remove')"

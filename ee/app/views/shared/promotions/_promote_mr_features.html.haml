@@ -1,7 +1,7 @@
 - if show_promotions? && show_callout?('promote_mr_features_dismissed') && !@project.feature_available?(:merge_request_approvers)
   .user-callout.promotion-callout.append-bottom-20.js-mr-approval-callout#promote_mr_features{ data: { uid: 'promote_mr_features_dismissed' } }
     .bordered-box.content-block
-      %button.btn.btn-default.close.js-close-callout{ type: 'button', 'aria-label' => _('Dismiss Merge Request promotion') }
+      %button.btn.gl-button-deprecated.btn-default.close.js-close-callout{ type: 'button', 'aria-label' => _('Dismiss Merge Request promotion') }
         = icon('times', class: 'dismiss-icon', 'aria-hidden' => 'true')
       .user-callout-copy
         %h4

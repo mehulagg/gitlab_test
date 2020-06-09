@@ -31,7 +31,9 @@ export default {
 
 <template>
   <div class="dropdown">
-    <button type="button" class="btn btn-link" data-toggle="dropdown">{{ __('Edit') }}</button>
+    <button type="button" class="btn gl-button-deprecated btn-link" data-toggle="dropdown">
+      {{ __('Edit') }}
+    </button>
     <div class="dropdown-menu dropdown-menu-selectable dropdown-open-left">
       <ul>
         <li>

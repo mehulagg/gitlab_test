@@ -164,7 +164,7 @@ describe ButtonHelper do
     context 'with default options' do
       context 'when no `text` attribute is not provided' do
         it 'shows copy to clipboard button with default configuration and no text set to copy' do
-          expect(element.attr('class')).to eq('btn btn-clipboard btn-transparent')
+          expect(element.attr('class')).to eq('btn gl-button-deprecated btn-clipboard btn-transparent')
           expect(element.attr('type')).to eq('button')
           expect(element.attr('aria-label')).to eq('Copy')
           expect(element.attr('data-toggle')).to eq('tooltip')

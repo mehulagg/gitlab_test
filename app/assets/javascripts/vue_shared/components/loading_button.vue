@@ -29,7 +29,7 @@ export default {
     containerClass: {
       type: [String, Array, Object],
       required: false,
-      default: 'btn btn-align-content',
+      default: 'btn gl-button-deprecated btn-align-content',
     },
   },
   methods: {

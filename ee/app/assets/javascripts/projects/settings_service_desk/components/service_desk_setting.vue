@@ -119,7 +119,7 @@ export default {
               <clipboard-button
                 :title="__('Copy')"
                 :text="incomingEmail"
-                css-class="btn qa-clipboard-button"
+                css-class="btn gl-button-deprecated qa-clipboard-button"
               />
             </div>
           </div>

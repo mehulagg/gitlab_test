@@ -380,7 +380,7 @@ export default {
             <template v-if="updatingNeedsConfirmation">
               <loading-button
                 v-gl-modal-directive="updateModalId"
-                class="btn btn-primary js-cluster-application-update-button mt-2"
+                class="btn gl-button-deprecated btn-primary js-cluster-application-update-button mt-2"
                 :loading="isUpdating"
                 :disabled="isUpdating"
                 :label="updateButtonLabel"
@@ -397,7 +397,7 @@ export default {
 
             <loading-button
               v-else
-              class="btn btn-primary js-cluster-application-update-button mt-2"
+              class="btn gl-button-deprecated btn-primary js-cluster-application-update-button mt-2"
               :loading="isUpdating"
               :disabled="isUpdating"
               :label="updateButtonLabel"
@@ -414,7 +414,7 @@ export default {
         role="gridcell"
       >
         <div v-if="showManageButton" class="btn-group table-action-buttons">
-          <a :href="manageLink" :class="{ disabled: disabled }" class="btn">{{
+          <a :href="manageLink" :class="{ disabled: disabled }" class="btn gl-button-deprecated">{{
             manageButtonLabel
           }}</a>
         </div>

@@ -92,14 +92,14 @@ To merge this request, first rebase locally.`)
           <a
             :href="mr.conflictResolutionPath"
             :disabled="mr.sourceBranchProtected"
-            class="js-resolve-conflicts-button btn btn-default btn-sm"
+            class="js-resolve-conflicts-button btn gl-button-deprecated btn-default btn-sm"
           >
             {{ s__('mrWidget|Resolve conflicts') }}
           </a>
         </span>
         <button
           v-if="mr.canMerge"
-          class="js-merge-locally-button btn btn-default btn-sm"
+          class="js-merge-locally-button btn gl-button-deprecated btn-default btn-sm"
           data-toggle="modal"
           data-target="#modal_merge_info"
         >

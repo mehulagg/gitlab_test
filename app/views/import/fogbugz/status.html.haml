@@ -19,7 +19,7 @@
       = _('Optionally, you can %{link_to_customize} how FogBugz email addresses and usernames are imported into GitLab.').html_safe % { link_to_customize: link_to_customize }
     %hr
     %p
-    = button_tag class: 'btn btn-import btn-success js-import-all' do
+    = button_tag class: 'btn gl-button-deprecated btn-import btn-success js-import-all' do
       = _('Import all projects')
       = icon("spinner spin", class: "loading-icon")
 
@@ -59,7 +59,7 @@
             %td.import-target
               #{current_user.username}/#{repo.name}
             %td.import-actions.job-status
-              = button_tag class: "btn btn-import js-add-to-import" do
+              = button_tag class: "btn gl-button-deprecated btn-import js-add-to-import" do
                 = _("Import")
                 = icon("spinner spin", class: "loading-icon")
 

@@ -85,7 +85,7 @@ export default {
           <span :class="{ 'has-custom-error': mr.mergeError }"> {{ timerText }} </span>
         </span>
         <button
-          class="btn btn-default btn-sm js-refresh-button"
+          class="btn gl-button-deprecated btn-default btn-sm js-refresh-button"
           data-qa-selector="merge_request_error_content"
           type="button"
           @click="refresh"

@@ -28,7 +28,12 @@ export default {
   <div class="ide-job-item">
     <job-description :job="job" class="append-right-default" />
     <div class="ml-auto align-self-center">
-      <button v-if="job.started" type="button" class="btn btn-default btn-sm" @click="clickViewLog">
+      <button
+        v-if="job.started"
+        type="button"
+        class="btn gl-button-deprecated btn-default btn-sm"
+        @click="clickViewLog"
+      >
         {{ __('View log') }}
       </button>
     </div>

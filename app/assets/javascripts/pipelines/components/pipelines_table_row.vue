@@ -331,7 +331,7 @@ export default {
           v-if="pipeline.flags.retryable"
           :loading="isRetrying"
           :disabled="isRetrying"
-          container-class="js-pipelines-retry-button btn btn-default btn-retry"
+          container-class="js-pipelines-retry-button btn gl-button-deprecated btn-default btn-retry"
           data-qa-selector="pipeline_retry_button"
           @click="handleRetryClick"
         >
@@ -344,7 +344,7 @@ export default {
           :disabled="isCancelling"
           data-toggle="modal"
           data-target="#confirmation-modal"
-          container-class="js-pipelines-cancel-button btn btn-remove"
+          container-class="js-pipelines-cancel-button btn gl-button-deprecated btn-remove"
           @click="handleCancelClick"
         >
           <icon name="close" />

@@ -97,7 +97,7 @@ export default {
           :disabled="isCancellingAutoMerge"
           role="button"
           href="#"
-          class="btn btn-sm btn-default js-cancel-auto-merge"
+          class="btn gl-button-deprecated btn-sm btn-default js-cancel-auto-merge"
           @click.prevent="cancelAutomaticMerge"
         >
           <i v-if="isCancellingAutoMerge" class="fa fa-spinner fa-spin" aria-hidden="true"> </i>
@@ -120,7 +120,7 @@ export default {
             v-if="canRemoveSourceBranch"
             :disabled="isRemovingSourceBranch"
             role="button"
-            class="btn btn-sm btn-default js-remove-source-branch"
+            class="btn gl-button-deprecated btn-sm btn-default js-remove-source-branch"
             href="#"
             @click.prevent="removeSourceBranch"
           >

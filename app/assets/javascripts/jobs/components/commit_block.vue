@@ -42,7 +42,7 @@ export default {
       <clipboard-button
         :text="commit.id"
         :title="__('Copy commit SHA')"
-        css-class="btn btn-clipboard btn-transparent"
+        css-class="btn gl-button-deprecated btn-clipboard btn-transparent"
       />
 
       <span v-if="mergeRequest">

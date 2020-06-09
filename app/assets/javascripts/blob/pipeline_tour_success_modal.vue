@@ -99,7 +99,7 @@ export default {
       <a
         ref="goto"
         :href="goToPipelinesPath"
-        class="btn btn-success"
+        class="btn gl-button-deprecated btn-success"
         :data-track-property="humanAccess"
         :data-track-value="$options.goToTrackValue"
         :data-track-event="$options.trackEvent"

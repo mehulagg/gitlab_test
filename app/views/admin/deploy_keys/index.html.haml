@@ -3,7 +3,7 @@
 %h3.page-title.deploy-keys-title
   = _('Public deploy keys (%{deploy_keys_count})') % { deploy_keys_count: @deploy_keys.load.size }
   .float-right
-    = link_to _('New deploy key'), new_admin_deploy_key_path, class: 'btn btn-success btn-sm btn-inverted'
+    = link_to _('New deploy key'), new_admin_deploy_key_path, class: 'btn gl-button-deprecated btn-success btn-sm btn-inverted'
 
 - if @deploy_keys.any?
   .table-holder.deploy-keys-list
@@ -30,5 +30,5 @@
                 = _('added %{created_at_timeago}').html_safe % { created_at_timeago: time_ago_with_tooltip(deploy_key.created_at) }
             %td
               .float-right
-                = link_to _('Edit'), edit_admin_deploy_key_path(deploy_key), class: 'btn btn-sm'
-                = link_to _('Remove'), admin_deploy_key_path(deploy_key), data: { confirm: _('Are you sure?') }, method: :delete, class: 'btn btn-sm btn-remove delete-key'
+                = link_to _('Edit'), edit_admin_deploy_key_path(deploy_key), class: 'btn gl-button-deprecated btn-sm'
+                = link_to _('Remove'), admin_deploy_key_path(deploy_key), data: { confirm: _('Are you sure?') }, method: :delete, class: 'btn gl-button-deprecated btn-sm btn-remove delete-key'

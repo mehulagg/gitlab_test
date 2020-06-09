@@ -7,4 +7,4 @@
   = form_tag(project_path(project), method: :delete) do
     %p
       %strong= _('Removed projects cannot be restored!')
-    = button_to _('Remove project'), '#', class: "btn btn-remove js-confirm-danger", data: { "confirm-danger-message" => remove_project_message(project) }
+    = button_to _('Remove project'), '#', class: "btn gl-button-deprecated btn-remove js-confirm-danger", data: { "confirm-danger-message" => remove_project_message(project) }

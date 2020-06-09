@@ -6,7 +6,7 @@
     .controls
       = form_tag project_network_path(@project, @id), method: :get, class: 'form-inline network-form' do |f|
         = text_field_tag :extended_sha1, @options[:extended_sha1], placeholder: _("Git revision"), class: 'search-input form-control input-mx-250 search-sha'
-        = button_tag class: 'btn btn-success' do
+        = button_tag class: 'btn gl-button-deprecated btn-success' do
           = icon('search')
         .inline.prepend-left-20
           .form-check.light

@@ -161,7 +161,7 @@ export default {
           <li v-for="(template, index) in templateTypes" :key="index" class="list-inline-item">
             <button
               type="button"
-              class="btn btn-missing p-1 pr-2 pl-2"
+              class="btn gl-button-deprecated btn-missing p-1 pr-2 pl-2"
               @click="createFromTemplate(template)"
             >
               {{ template.name }}

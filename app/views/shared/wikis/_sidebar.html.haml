@@ -18,5 +18,5 @@
             = render @sidebar_wiki_entries, context: 'sidebar'
       .block.w-100
         - if @sidebar_limited
-          = link_to wiki_path(@wiki, action: :pages), class: 'btn btn-block' do
+          = link_to wiki_path(@wiki, action: :pages), class: 'btn gl-button-deprecated btn-block' do
             = s_("Wiki|View All Pages")

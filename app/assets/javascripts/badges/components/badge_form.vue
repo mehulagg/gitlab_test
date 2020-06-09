@@ -221,16 +221,18 @@ export default {
         :loading="isSaving"
         :label="s__('Badges|Save changes')"
         type="submit"
-        container-class="btn btn-success"
+        container-class="btn gl-button-deprecated btn-success"
       />
-      <button class="btn btn-cancel" type="button" @click="onCancel">{{ __('Cancel') }}</button>
+      <button class="btn gl-button-deprecated btn-cancel" type="button" @click="onCancel">
+        {{ __('Cancel') }}
+      </button>
     </div>
     <div v-else class="form-group">
       <loading-button
         :loading="isSaving"
         :label="s__('Badges|Add badge')"
         type="submit"
-        container-class="btn btn-success"
+        container-class="btn gl-button-deprecated btn-success"
       />
     </div>
   </form>

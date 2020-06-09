@@ -55,7 +55,11 @@ export default {
       :storage-key="storageKey"
       @input="setDiscussionSortDirection"
     />
-    <button class="btn btn-sm js-dropdown-text" data-toggle="dropdown" aria-expanded="false">
+    <button
+      class="btn gl-button-deprecated btn-sm js-dropdown-text"
+      data-toggle="dropdown"
+      aria-expanded="false"
+    >
       {{ dropdownText }}
       <gl-icon name="chevron-down" />
     </button>

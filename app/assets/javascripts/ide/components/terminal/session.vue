@@ -40,7 +40,7 @@ export default {
         <button
           v-if="actionButton"
           type="button"
-          class="btn btn-sm"
+          class="btn gl-button-deprecated btn-sm"
           :class="actionButton.class"
           @click="actionButton.action"
         >

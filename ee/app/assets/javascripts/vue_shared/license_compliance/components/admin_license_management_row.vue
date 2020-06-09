@@ -88,7 +88,7 @@ export default {
         </gl-dropdown>
         <button
           :disabled="loading"
-          class="btn btn-blank js-remove-button"
+          class="btn gl-button-deprecated btn-blank js-remove-button"
           type="button"
           data-toggle="modal"
           data-target="#modal-license-delete-confirmation"

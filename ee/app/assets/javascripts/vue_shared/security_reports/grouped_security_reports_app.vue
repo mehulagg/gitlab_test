@@ -292,7 +292,7 @@ export default {
         <a
           :href="securityTab"
           target="_blank"
-          class="btn btn-default btn-sm float-right append-right-default"
+          class="btn gl-button-deprecated btn-default btn-sm float-right append-right-default"
         >
           <span>{{ s__('ciReport|View full report') }}</span>
           <icon :size="16" name="external-link" />

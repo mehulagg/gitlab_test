@@ -2,8 +2,8 @@
 - button_action = issuable.closed? ? 'reopen' : 'close'
 - display_button_action = button_action.capitalize
 - button_responsive_class = 'd-none d-sm-none d-md-block'
-- button_class = "#{button_responsive_class} btn btn-grouped js-issuable-close-button js-btn-issue-action issuable-close-button"
-- toggle_class = "#{button_responsive_class} btn btn-nr dropdown-toggle js-issuable-close-toggle"
+- button_class = "#{button_responsive_class} btn gl-button-deprecated btn-grouped js-issuable-close-button js-btn-issue-action issuable-close-button"
+- toggle_class = "#{button_responsive_class} btn gl-button-deprecated btn-nr dropdown-toggle js-issuable-close-toggle"
 - button_method = issuable_close_reopen_button_method(issuable)
 - add_blocked_class = false
 - if defined? warn_before_close
@@ -21,7 +21,7 @@
     %li.close-item{ class: "#{issuable_button_visibility(issuable, true) || 'droplab-item-selected'}",
                     data: { text: _("Close %{display_issuable_type}") % { display_issuable_type: display_issuable_type }, url: close_issuable_path(issuable),
                     button_class: "#{button_class} btn-close", toggle_class: "#{toggle_class} btn-close-color", method: button_method } }
-      %button.btn.btn-transparent
+      %button.btn.gl-button-deprecated.btn-transparent
         = icon('check', class: 'icon')
         .description
           %strong.title
@@ -31,7 +31,7 @@
     %li.reopen-item{ class: "#{issuable_button_visibility(issuable, false) || 'droplab-item-selected'}",
                      data: { text: _("Reopen %{display_issuable_type}") % { display_issuable_type: display_issuable_type }, url: reopen_issuable_path(issuable),
                      button_class: "#{button_class} btn-reopen", toggle_class: "#{toggle_class} btn-reopen-color", method: button_method } }
-      %button.btn.btn-transparent
+      %button.btn.gl-button-deprecated.btn-transparent
         = icon('check', class: 'icon')
         .description
           %strong.title
@@ -42,7 +42,7 @@
 
       %li.report-item{ data: { text: _('Report abuse'), url: new_abuse_report_path(user_id: issuable.author.id, ref_url: issuable_url(issuable)),
                        button_class: "#{button_class} btn-close-color", toggle_class: "#{toggle_class} btn-close-color", method: '' } }
-        %button.btn.btn-transparent
+        %button.btn.gl-button-deprecated.btn-transparent
           = icon('check', class: 'icon')
           .description
             %strong.title= _('Report abuse')

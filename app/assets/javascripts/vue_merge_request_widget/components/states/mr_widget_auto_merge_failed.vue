@@ -41,7 +41,7 @@ export default {
       <button
         :disabled="isRefreshing"
         type="button"
-        class="btn btn-sm btn-default"
+        class="btn gl-button-deprecated btn-sm btn-default"
         @click="refreshWidget"
       >
         <gl-loading-icon v-if="isRefreshing" :inline="true" />

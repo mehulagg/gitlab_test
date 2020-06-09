@@ -37,7 +37,7 @@ export default {
           :key="index"
           :href="link.path"
           :class="{ 'btn-primary': index === 0 }"
-          class="btn btn-xs"
+          class="btn gl-button-deprecated btn-xs"
         >
           {{ link.text }}
         </gl-link>

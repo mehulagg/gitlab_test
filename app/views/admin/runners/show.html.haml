@@ -48,7 +48,7 @@
                   = project.full_name
               %td
                 .float-right
-                  = link_to 'Disable', admin_namespace_project_runner_project_path(project.namespace, project, runner_project), method: :delete, class: 'btn btn-danger btn-sm'
+                  = link_to 'Disable', admin_namespace_project_runner_project_path(project.namespace, project, runner_project), method: :delete, class: 'btn gl-button-deprecated btn-danger btn-sm'
 
     %table.table.unassigned-projects
       %thead
@@ -61,7 +61,7 @@
           = form_tag admin_runner_path(@runner), id: 'runner-projects-search', class: 'form-inline', method: :get do
             .form-group
               = search_field_tag :search, params[:search], class: 'form-control', spellcheck: false
-            = submit_tag 'Search', class: 'btn'
+            = submit_tag 'Search', class: 'btn gl-button-deprecated'
 
         %td
       - @projects.each do |project|
@@ -72,7 +72,7 @@
             .float-right
               = form_for project.runner_projects.new, url: admin_namespace_project_runner_projects_path(project.namespace, project), method: :post do |f|
                 = f.hidden_field :runner_id, value: @runner.id
-                = f.submit 'Enable', class: 'btn btn-sm'
+                = f.submit 'Enable', class: 'btn gl-button-deprecated btn-sm'
     = paginate_without_count @projects
 
   .col-md-6

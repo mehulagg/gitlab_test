@@ -96,7 +96,7 @@ export default {
       v-tooltip
       :class="{
         'issue-token-remove-button': isCondensed,
-        'btn btn-default': !isCondensed,
+        'btn gl-button-deprecated btn-default': !isCondensed,
       }"
       :title="removeButtonLabel"
       :aria-label="removeButtonLabel"

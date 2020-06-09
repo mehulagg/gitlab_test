@@ -46,7 +46,7 @@ export default {
 </script>
 <template>
   <gl-deprecated-button
-    class="d-flex align-items-center btn pt-1 pb-1 border-0 project-list-item"
+    class="d-flex align-items-center btn gl-button-deprecated pt-1 pb-1 border-0 project-list-item"
     @click="onClick"
   >
     <icon

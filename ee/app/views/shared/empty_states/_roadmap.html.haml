@@ -11,5 +11,5 @@
       .text-center
         - if can?(current_user, :create_epic, @group)
           #epic-create-root{ data: { endpoint: request.url } }
-        = link_to group_epics_path(@group), title: 'List', class: 'btn' do
+        = link_to group_epics_path(@group), title: 'List', class: 'btn gl-button-deprecated' do
           %span= _('View epics list')

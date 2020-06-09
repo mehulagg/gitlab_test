@@ -24,7 +24,7 @@ describe SnippetsHelper do
     end
 
     def download_link(url)
-      "<a class=\"btn\" target=\"_blank\" rel=\"noopener noreferrer\" title=\"Open raw\" href=\"#{url}\">#{external_snippet_icon('doc-code')}</a>"
+      "<a class=\"btn gl-button-deprecated\" target=\"_blank\" rel=\"noopener noreferrer\" title=\"Open raw\" href=\"#{url}\">#{external_snippet_icon('doc-code')}</a>"
     end
   end
 
@@ -94,7 +94,7 @@ describe SnippetsHelper do
     end
 
     def download_link(url)
-      "<a target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-sm has-tooltip\" title=\"Download\" data-container=\"body\" href=\"#{url}?inline=false\"><i aria-hidden=\"true\" data-hidden=\"true\" class=\"fa fa-download\"></i></a>"
+      "<a target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn gl-button-deprecated btn-sm has-tooltip\" title=\"Download\" data-container=\"body\" href=\"#{url}?inline=false\"><i aria-hidden=\"true\" data-hidden=\"true\" class=\"fa fa-download\"></i></a>"
     end
   end
 

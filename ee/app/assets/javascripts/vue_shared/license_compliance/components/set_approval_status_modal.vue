@@ -82,7 +82,7 @@ export default {
     <template slot="footer">
       <button
         type="button"
-        class="btn js-modal-cancel-action"
+        class="btn gl-button-deprecated js-modal-cancel-action"
         data-dismiss="modal"
         @click="resetLicenseInModal"
       >
@@ -90,7 +90,7 @@ export default {
       </button>
       <button
         v-if="canBlacklist"
-        class="btn btn-remove btn-inverted js-modal-secondary-action"
+        class="btn gl-button-deprecated btn-remove btn-inverted js-modal-secondary-action"
         data-dismiss="modal"
         data-qa-selector="blacklist_license_button"
         @click="denyLicense(currentLicenseInModal)"
@@ -100,7 +100,7 @@ export default {
       <button
         v-if="canApprove"
         type="button"
-        class="btn btn-success js-modal-primary-action"
+        class="btn gl-button-deprecated btn-success js-modal-primary-action"
         data-dismiss="modal"
         data-qa-selector="approve_license_button"
         @click="allowLicense(currentLicenseInModal)"

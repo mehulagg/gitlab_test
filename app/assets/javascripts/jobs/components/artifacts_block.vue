@@ -52,7 +52,7 @@ export default {
       <gl-link
         v-if="artifact.keep_path"
         :href="artifact.keep_path"
-        class="btn btn-sm btn-default"
+        class="btn gl-button-deprecated btn-sm btn-default"
         data-method="post"
         data-testid="keep-artifacts"
         >{{ s__('Job|Keep') }}</gl-link
@@ -60,7 +60,7 @@ export default {
       <gl-link
         v-if="artifact.download_path"
         :href="artifact.download_path"
-        class="btn btn-sm btn-default"
+        class="btn gl-button-deprecated btn-sm btn-default"
         download
         rel="nofollow"
         data-testid="download-artifacts"
@@ -69,7 +69,7 @@ export default {
       <gl-link
         v-if="artifact.browse_path"
         :href="artifact.browse_path"
-        class="btn btn-sm btn-default"
+        class="btn gl-button-deprecated btn-sm btn-default"
         data-testid="browse-artifacts"
         >{{ s__('Job|Browse') }}</gl-link
       >

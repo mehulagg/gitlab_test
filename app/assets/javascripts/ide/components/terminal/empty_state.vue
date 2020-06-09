@@ -49,7 +49,7 @@ export default {
       <p>
         <button
           :disabled="!isValid"
-          class="btn btn-info"
+          class="btn gl-button-deprecated btn-info"
           type="button"
           data-qa-selector="start_web_terminal_button"
           @click="onStart"

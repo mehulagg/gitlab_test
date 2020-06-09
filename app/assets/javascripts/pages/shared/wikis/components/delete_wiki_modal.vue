@@ -55,7 +55,9 @@ export default {
 
 <template>
   <div class="d-inline-block">
-    <button v-gl-modal="modalId" type="button" class="btn btn-danger">{{ __('Delete') }}</button>
+    <button v-gl-modal="modalId" type="button" class="btn gl-button-deprecated btn-danger">
+      {{ __('Delete') }}
+    </button>
     <gl-modal
       :title="title"
       :ok-title="s__('WikiPageConfirmDelete|Delete page')"

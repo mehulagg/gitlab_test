@@ -86,7 +86,7 @@ export default {
       <button
         v-gl-tooltip.hover
         type="button"
-        class="btn btn-default gl-mr-3 js-toggle-tree-list"
+        class="btn gl-button-deprecated btn-default gl-mr-3 js-toggle-tree-list"
         :class="{
           active: showTreeList,
         }"

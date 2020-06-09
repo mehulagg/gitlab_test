@@ -126,7 +126,7 @@ export default {
             data-track-event="click_terraform_mr_plan_button"
             data-track-label="mr_widget_terraform_mr_plan_button"
             data-track-property="terraform_mr_plan_button"
-            class="btn btn-sm js-terraform-report-link"
+            class="btn gl-button-deprecated btn-sm js-terraform-report-link"
             rel="noopener"
           >
             {{ __('View full log') }}

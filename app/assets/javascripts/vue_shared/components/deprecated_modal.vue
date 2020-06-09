@@ -112,7 +112,7 @@ export default {
             <button
               :class="btnCancelKindClass"
               type="button"
-              class="btn"
+              class="btn gl-button-deprecated"
               data-dismiss="modal"
               @click="emitCancel($event)"
             >
@@ -120,7 +120,12 @@ export default {
             </button>
 
             <slot v-if="secondaryButtonLabel" name="secondary-button">
-              <button v-if="secondaryButtonLabel" type="button" class="btn" data-dismiss="modal">
+              <button
+                v-if="secondaryButtonLabel"
+                type="button"
+                class="btn gl-button-deprecated"
+                data-dismiss="modal"
+              >
                 {{ secondaryButtonLabel }}
               </button>
             </slot>
@@ -130,7 +135,7 @@ export default {
               :disabled="submitDisabled"
               :class="btnKindClass"
               type="button"
-              class="btn js-primary-button"
+              class="btn gl-button-deprecated js-primary-button"
               data-dismiss="modal"
               data-qa-selector="save_changes_button"
               @click="emitSubmit($event)"

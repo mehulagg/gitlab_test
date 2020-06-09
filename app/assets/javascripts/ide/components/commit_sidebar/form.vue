@@ -122,7 +122,7 @@ export default {
         <button
           :disabled="!someUncommittedChanges"
           type="button"
-          class="btn btn-primary btn-sm btn-block qa-begin-commit-button"
+          class="btn gl-btn-deprecated btn-primary btn-sm btn-block qa-begin-commit-button"
           data-testid="begin-commit-button"
           @click="beginCommit"
         >
@@ -143,13 +143,13 @@ export default {
           <loading-button
             :loading="submitCommitLoading"
             :label="commitButtonText"
-            container-class="btn btn-success btn-sm float-left qa-commit-button"
+            container-class="btn gl-button-deprecated btn-success btn-sm float-left qa-commit-button"
             @click="commit"
           />
           <button
             v-if="!discardDraftButtonDisabled"
             type="button"
-            class="btn btn-default btn-sm float-right"
+            class="btn gl-button-deprecated btn-default btn-sm float-right"
             @click="discardDraft"
           >
             {{ __('Discard draft') }}
@@ -157,7 +157,7 @@ export default {
           <button
             v-else
             type="button"
-            class="btn btn-default btn-sm float-right"
+            class="btn gl-button-deprecated btn-default btn-sm float-right"
             @click="toggleIsCompact"
           >
             {{ __('Collapse') }}

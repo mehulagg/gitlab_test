@@ -16,7 +16,7 @@ module SnippetsHelper
             gitlab_raw_snippet_path(snippet, inline: false),
             target: '_blank',
             rel: 'noopener noreferrer',
-            class: "btn btn-sm has-tooltip",
+            class: "btn gl-button-deprecated btn-sm has-tooltip",
             title: 'Download',
             data: { container: 'body' })
   end
@@ -80,7 +80,7 @@ module SnippetsHelper
 
     link_to(external_snippet_icon('doc-code'),
             gitlab_raw_snippet_url(@snippet),
-            class: 'btn',
+            class: 'btn gl-button-deprecated',
             target: '_blank',
             rel: 'noopener noreferrer',
             title: 'Open raw')
@@ -89,7 +89,7 @@ module SnippetsHelper
   def embedded_snippet_download_button
     link_to(external_snippet_icon('download'),
             gitlab_raw_snippet_url(@snippet, inline: false),
-            class: 'btn',
+            class: 'btn gl-button-deprecated',
             target: '_blank',
             title: 'Download',
             rel: 'noopener noreferrer')

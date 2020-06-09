@@ -22,13 +22,13 @@
 
   .header-action-buttons
     - if defined?(@notes_count) && @notes_count > 0
-      %span.btn.disabled.btn-grouped.d-none.d-sm-block.append-right-10.has-tooltip{ title: n_("%d comment on this commit", "%d comments on this commit", @notes_count) % @notes_count }
+      %span.btn.gl-button-deprecated.disabled.btn-grouped.d-none.d-sm-block.append-right-10.has-tooltip{ title: n_("%d comment on this commit", "%d comments on this commit", @notes_count) % @notes_count }
         = sprite_icon('comment')
         = @notes_count
-    = link_to project_tree_path(@project, @commit), class: "btn btn-default append-right-10 d-none d-sm-none d-md-inline" do
+    = link_to project_tree_path(@project, @commit), class: "btn gl-button-deprecated btn-default append-right-10 d-none d-sm-none d-md-inline" do
       #{ _('Browse files') }
     .dropdown.inline
-      %a.btn.btn-default.dropdown-toggle.qa-options-button.d-md-inline{ data: { toggle: "dropdown" } }
+      %a.btn.gl-button-deprecated.btn-default.dropdown-toggle.qa-options-button.d-md-inline{ data: { toggle: "dropdown" } }
         %span= _('Options')
         = icon('caret-down')
       %ul.dropdown-menu.dropdown-menu-right

@@ -82,7 +82,7 @@ export default {
       v-gl-tooltip
       type="button"
       :disabled="isLoading"
-      class="dropdown-new btn btn-default js-pipeline-dropdown-manual-actions"
+      class="dropdown-new btn gl-button-deprecated btn-default js-pipeline-dropdown-manual-actions"
       :title="__('Manual job')"
       data-toggle="dropdown"
       :aria-label="__('Manual job')"
@@ -97,7 +97,7 @@ export default {
         <gl-deprecated-button
           :class="{ disabled: isActionDisabled(action) }"
           :disabled="isActionDisabled(action)"
-          class="js-pipeline-action-link no-btn btn d-flex align-items-center justify-content-between flex-wrap"
+          class="js-pipeline-action-link no-btn btn gl-button-deprecated d-flex align-items-center justify-content-between flex-wrap"
           @click="onClickAction(action)"
         >
           {{ action.name }}

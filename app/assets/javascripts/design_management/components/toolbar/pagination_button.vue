@@ -41,7 +41,7 @@ export default {
     :disabled="!design"
     :class="{ disabled: !design }"
     :aria-label="title"
-    class="btn btn-default"
+    class="btn gl-button-deprecated btn-default"
   >
     <icon :name="iconName" />
   </router-link>

@@ -175,7 +175,7 @@ export default {
           v-tooltip
           :href="editDeployKeyPath"
           :title="__('Edit')"
-          class="btn btn-default text-secondary"
+          class="btn gl-button-deprecated btn-default text-secondary"
           data-container="body"
         >
           <icon name="pencil" />

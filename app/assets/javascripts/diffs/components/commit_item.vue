@@ -160,7 +160,7 @@ export default {
           <clipboard-button
             :text="commit.id"
             :title="__('Copy commit SHA')"
-            class="btn btn-default"
+            class="btn gl-button-deprecated btn-default"
           />
         </div>
         <div

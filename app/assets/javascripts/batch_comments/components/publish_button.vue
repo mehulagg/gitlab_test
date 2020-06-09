@@ -44,7 +44,7 @@ export default {
 <template>
   <loading-button
     :loading="isPublishing"
-    container-class="btn btn-success js-publish-draft-button qa-submit-review"
+    container-class="btn gl-button-deprecated btn-success js-publish-draft-button qa-submit-review"
     @click="onClick"
   >
     <span>

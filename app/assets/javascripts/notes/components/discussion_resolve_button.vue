@@ -21,7 +21,12 @@ export default {
 </script>
 
 <template>
-  <button ref="button" type="button" class="btn btn-default ml-sm-2" @click="$emit('onClick')">
+  <button
+    ref="button"
+    type="button"
+    class="btn gl-button-deprecated btn-default ml-sm-2"
+    @click="$emit('onClick')"
+  >
     <gl-loading-icon v-if="isResolving" ref="isResolvingIcon" inline />
     {{ buttonTitle }}
   </button>

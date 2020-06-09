@@ -86,7 +86,7 @@ module ApplicationSettingsHelper
   def oauth_providers_checkboxes
     button_based_providers.map do |source|
       disabled = @application_setting.disabled_oauth_sign_in_sources.include?(source.to_s)
-      css_class = ['btn']
+      css_class = ['btn gl-button-deprecated']
       css_class << 'active' unless disabled
       checkbox_name = 'application_setting[enabled_oauth_sign_in_sources][]'
       name = Gitlab::Auth::OAuth::Provider.label_for(source)

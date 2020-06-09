@@ -157,7 +157,7 @@ export default {
   <div class="inline">
     <gl-deprecated-button
       v-gl-modal="modalId"
-      class="btn btn-default btn-sm gl-ml-3 js-review-button"
+      class="btn gl-button-deprecated btn-default btn-sm gl-ml-3 js-review-button"
       :class="cssClass"
       type="button"
     >
@@ -233,7 +233,7 @@ export default {
           v-else
           :display="viewAppDisplay"
           :link="link"
-          css-class="js-deploy-url deploy-link btn btn-default btn-sm inline"
+          css-class="js-deploy-url deploy-link btn gl-button-deprecated btn-default btn-sm inline"
         />
       </template>
     </gl-modal>

@@ -157,7 +157,7 @@ export default {
       :title="awardList.title"
       data-boundary="viewport"
       data-testid="award-button"
-      class="btn award-control"
+      class="btn gl-button-deprecated award-control"
       type="button"
       @click="handleAward(awardList.name)"
     >
@@ -168,7 +168,7 @@ export default {
       <button
         v-tooltip
         :class="addButtonClass"
-        class="award-control btn js-add-award"
+        class="award-control btn gl-button-deprecated js-add-award"
         title="Add reaction"
         :aria-label="__('Add reaction')"
         data-boundary="viewport"

@@ -187,7 +187,7 @@ export default {
               :aria-label="s__('SetStatusModal|Add status emoji')"
               name="button"
               type="button"
-              class="js-toggle-emoji-menu emoji-menu-toggle-button btn"
+              class="js-toggle-emoji-menu emoji-menu-toggle-button btn gl-button-deprecated"
               @click="showEmojiMenu"
             >
               <span v-html="emojiTag"></span>
@@ -219,7 +219,7 @@ export default {
               :aria-label="s__('SetStatusModal|Clear status')"
               name="button"
               type="button"
-              class="js-clear-user-status-button clear-user-status btn"
+              class="js-clear-user-status-button clear-user-status btn gl-button-deprecated"
               @click="clearStatusInputs()"
             >
               <icon name="close" />

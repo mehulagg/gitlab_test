@@ -44,7 +44,7 @@ export default {
       // False positive css classes
       // https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/24
       // eslint-disable-next-line @gitlab/require-i18n-strings
-      return `btn btn-grouped js-btn-epic-action qa-close-reopen-epic-button ${
+      return `btn gl-button-deprecated btn-grouped js-btn-epic-action qa-close-reopen-epic-button ${
         this.isEpicOpen ? 'btn-close' : 'btn-open'
       }`;
     },

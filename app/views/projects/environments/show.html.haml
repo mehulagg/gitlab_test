@@ -28,8 +28,8 @@
                   rel: 'noopener noreferrer' }
                   = s_('Environments|Learn more about stopping environments')
           .modal-footer
-            = button_tag _('Cancel'), type: 'button', class: 'btn btn-cancel', data: { dismiss: 'modal' }
-            = button_to stop_project_environment_path(@project, @environment), class: 'btn btn-danger has-tooltip', method: :post do
+            = button_tag _('Cancel'), type: 'button', class: 'btn gl-button-deprecated btn-cancel', data: { dismiss: 'modal' }
+            = button_to stop_project_environment_path(@project, @environment), class: 'btn gl-button-deprecated btn-danger has-tooltip', method: :post do
               = s_('Environments|Stop environment')
 
   - if can_destroy_environment?(@environment)
@@ -47,14 +47,14 @@
       = render 'projects/environments/external_url', environment: @environment
       = render 'projects/environments/metrics_button', environment: @environment
       - if can?(current_user, :update_environment, @environment)
-        = link_to _('Edit'), edit_project_environment_path(@project, @environment), class: 'btn'
+        = link_to _('Edit'), edit_project_environment_path(@project, @environment), class: 'btn gl-button-deprecated'
       - if @environment.available? && can?(current_user, :stop_environment, @environment)
-        = button_tag class: 'btn btn-danger', type: 'button', data: { toggle: 'modal',
+        = button_tag class: 'btn gl-button-deprecated btn-danger', type: 'button', data: { toggle: 'modal',
           target: '#stop-environment-modal' } do
           = sprite_icon('stop')
           = s_('Environments|Stop')
       - if can_destroy_environment?(@environment)
-        = button_tag class: 'btn btn-danger', type: 'button', data: { toggle: 'modal',
+        = button_tag class: 'btn gl-button-deprecated btn-danger', type: 'button', data: { toggle: 'modal',
           target: '#delete-environment-modal' } do
           = s_('Environments|Delete')
 
@@ -67,7 +67,7 @@
           %p.blank-state-text
             = _("Define environments in the deploy stage(s) in <code>.gitlab-ci.yml</code> to track deployments here.").html_safe
           .text-center
-            = link_to _("Read more"), help_page_path("ci/environments"), class: "btn btn-success"
+            = link_to _("Read more"), help_page_path("ci/environments"), class: "btn gl-button-deprecated btn-success"
     - else
       .table-holder
         .ci-table.environments{ role: 'grid' }

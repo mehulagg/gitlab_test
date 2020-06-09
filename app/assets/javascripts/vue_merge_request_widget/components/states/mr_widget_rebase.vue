@@ -120,7 +120,7 @@ export default {
           <button
             :disabled="isMakingRequest"
             type="button"
-            class="btn btn-sm btn-reopen btn-success qa-mr-rebase-button"
+            class="btn gl-button-deprecated btn-sm btn-reopen btn-success qa-mr-rebase-button"
             @click="rebase"
           >
             <gl-loading-icon v-if="isMakingRequest" />{{ __('Rebase') }}

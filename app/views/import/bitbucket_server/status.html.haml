@@ -13,16 +13,16 @@
       = _('Select projects you want to import.')
     .btn-group
       - if @incompatible_repos.any?
-        = button_tag class: 'btn btn-import btn-success js-import-all' do
+        = button_tag class: 'btn gl-button-deprecated btn-import btn-success js-import-all' do
           = _('Import all compatible projects')
           = icon('spinner spin', class: 'loading-icon')
       - else
-        = button_tag class: 'btn btn-import btn-success js-import-all' do
+        = button_tag class: 'btn gl-button-deprecated btn-import btn-success js-import-all' do
           = _('Import all projects')
           = icon('spinner spin', class: 'loading-icon')
 
   .btn-group
-    = link_to('Reconfigure', configure_import_bitbucket_server_path, class: 'btn btn-primary', method: :post)
+    = link_to('Reconfigure', configure_import_bitbucket_server_path, class: 'btn gl-button-deprecated btn-primary', method: :post)
 
   .input-btn-group.float-right
     = form_tag status_import_bitbucket_server_path, :method => 'get' do
@@ -72,7 +72,7 @@
                   .input-group-text /
                 = text_field_tag :path, sanitize_project_name(repo.slug), class: "input-mini form-control", tabindex: 2, required: true
             %td.import-actions.job-status
-              = button_tag class: 'btn btn-import js-add-to-import' do
+              = button_tag class: 'btn gl-button-deprecated btn-import js-add-to-import' do
                 Import
                 = icon('spinner spin', class: 'loading-icon')
         - @incompatible_repos.each do |repo|

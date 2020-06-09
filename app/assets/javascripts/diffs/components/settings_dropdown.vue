@@ -27,7 +27,7 @@ export default {
   <div class="dropdown">
     <button
       type="button"
-      class="btn btn-default js-show-diff-settings"
+      class="btn gl-button-deprecated btn-default js-show-diff-settings"
       data-toggle="dropdown"
       data-display="static"
     >

@@ -59,7 +59,7 @@ export default {
 
       <template v-else>
         <gl-deprecated-button
-          class="btn-blank btn s32 square append-right-default"
+          class="btn-blank btn gl-button-deprecated s32 square append-right-default"
           :aria-label="ariaLabel"
           :disabled="isLoading"
           @click="toggleCollapsed"

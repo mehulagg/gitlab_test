@@ -168,13 +168,17 @@ export default {
         ref="addButton"
         :disabled="isSubmitButtonDisabled"
         type="submit"
-        class="js-add-issuable-form-add-button btn btn-success float-left qa-add-issue-button"
+        class="js-add-issuable-form-add-button btn gl-button-deprecated btn-success float-left qa-add-issue-button"
         :class="{ disabled: isSubmitButtonDisabled }"
       >
         {{ __('Add') }}
         <gl-loading-icon v-if="isSubmitting" ref="loadingIcon" :inline="true" />
       </button>
-      <button type="button" class="btn btn-default float-right" @click="onFormCancel">
+      <button
+        type="button"
+        class="btn gl-button-deprecated btn-default float-right"
+        @click="onFormCancel"
+      >
         {{ __('Cancel') }}
       </button>
     </div>

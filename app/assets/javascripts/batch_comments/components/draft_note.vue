@@ -98,13 +98,13 @@ export default {
         <publish-button
           :show-count="true"
           :should-publish="false"
-          class="btn btn-success btn-inverted gl-mr-3"
+          class="btn gl-button-deprecated btn-success btn-inverted gl-mr-3"
         />
         <loading-button
           ref="publishNowButton"
           :loading="isPublishingDraft(draft.id) || isPublishing"
           :label="__('Add comment now')"
-          container-class="btn btn-inverted"
+          container-class="btn gl-button-deprecated btn-inverted"
           @click="publishNow"
         />
       </p>

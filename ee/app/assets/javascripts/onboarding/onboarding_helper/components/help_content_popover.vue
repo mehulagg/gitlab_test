@@ -65,18 +65,26 @@ export default {
             v-if="!button.readOnly"
             :key="index"
             :class="button.btnClass"
-            class="btn btn-sm mr-2"
+            class="btn gl-button-deprecated btn-sm mr-2"
             @click="callStepContentButton(button)"
           >
             {{ button.text }}
           </gl-deprecated-button>
-          <span v-else :key="index" :class="button.btnClass" class="btn btn-sm mr-2">
+          <span
+            v-else
+            :key="index"
+            :class="button.btn.gl - button - deprecated.lass"
+            class="btn gl-button-deprecated btn-sm mr-2"
+          >
             {{ button.text }}
           </span>
         </template>
       </template>
       <template v-if="helpContent.exitTour">
-        <gl-deprecated-button class="btn btn-sm btn-primary mr-2" @click="callExitTour">
+        <gl-deprecated-button
+          class="btn gl-button-deprecated btn-sm btn-primary mr-2"
+          @click="callExitTour"
+        >
           {{ helpContent.buttonText }}
         </gl-deprecated-button>
       </template>

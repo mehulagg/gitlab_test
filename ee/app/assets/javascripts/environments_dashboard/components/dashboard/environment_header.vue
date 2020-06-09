@@ -75,7 +75,7 @@ export default {
       v-else-if="environment.external_url"
       :link="environment.external_url"
       :display="$options.reviewButtonText"
-      css-class="btn btn-default btn-sm"
+      css-class="btn gl-button-deprecated btn-default btn-sm"
     />
   </div>
 </template>

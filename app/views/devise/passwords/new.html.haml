@@ -8,7 +8,7 @@
         = f.label :email
         = f.email_field :email, class: "form-control", required: true, value: params[:user_email], autofocus: true, title: 'Please provide a valid email address.'
       .clearfix
-        = f.submit "Reset password", class: "btn-primary btn"
+        = f.submit "Reset password", class: "btn-primary btn gl-button-deprecated"
 
 .clearfix.prepend-top-20
   = render 'devise/shared/sign_in_link'

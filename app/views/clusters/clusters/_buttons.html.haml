@@ -1,6 +1,6 @@
 .nav-controls
   - if clusterable.can_add_cluster?
-    = link_to s_('ClusterIntegration|Add Kubernetes cluster'), clusterable.new_path, class: 'btn btn-success js-add-cluster'
+    = link_to s_('ClusterIntegration|Add Kubernetes cluster'), clusterable.new_path, class: 'btn gl-button-deprecated btn-success js-add-cluster'
   - else
-    %span.btn.btn-add-cluster.disabled.js-add-cluster
+    %span.btn.gl-button-deprecated.btn-add-cluster.disabled.js-add-cluster
       = s_("ClusterIntegration|Add Kubernetes cluster")

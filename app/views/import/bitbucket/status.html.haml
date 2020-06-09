@@ -13,11 +13,11 @@
       = _('Select projects you want to import.')
     %p
     - if @incompatible_repos.any?
-      = button_tag class: 'btn btn-import btn-success js-import-all' do
+      = button_tag class: 'btn gl-button-deprecated btn-import btn-success js-import-all' do
         = _('Import all compatible projects')
         = icon('spinner spin', class: 'loading-icon')
     - else
-      = button_tag class: 'btn btn-import btn-success js-import-all' do
+      = button_tag class: 'btn gl-button-deprecated btn-import btn-success js-import-all' do
         = _('Import all projects')
         = icon('spinner spin', class: 'loading-icon')
 
@@ -26,7 +26,7 @@
       = text_field_tag :filter, @filter, class: 'form-control pr-5', placeholder: _('Filter projects'), size: 40, autofocus: true, 'aria-label': _('Search')
       .position-absolute.position-top-0.d-flex.align-items-center.text-muted.position-right-0.h-100
         .border-left
-          %button{ class: 'btn btn-transparent btn-secondary', 'aria-label': _('Search Button'), type: 'submit' }
+          %button{ class: 'btn gl-button-deprecated btn-transparent btn-secondary', 'aria-label': _('Search Button'), type: 'submit' }
             %i{ class: 'fa fa-search', 'aria-hidden': true }
 
   .table-responsive
@@ -76,7 +76,7 @@
                   .input-group-text /
                 = text_field_tag :path, sanitize_project_name(repo.slug), class: "input-mini form-control", tabindex: 2, autofocus: true, required: true
             %td.import-actions.job-status
-              = button_tag class: 'btn btn-import js-add-to-import' do
+              = button_tag class: 'btn gl-button-deprecated btn-import js-add-to-import' do
                 = _('Import')
                 = icon('spinner spin', class: 'loading-icon')
         - @incompatible_repos.each do |repo|

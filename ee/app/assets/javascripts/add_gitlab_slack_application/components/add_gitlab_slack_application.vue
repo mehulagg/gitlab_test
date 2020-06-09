@@ -101,7 +101,7 @@ export default {
 
     <button
       type="button"
-      class="btn btn-red mx-auto js-popup-button prepend-top-default"
+      class="btn gl-button-deprecated btn-red mx-auto js-popup-button prepend-top-default"
       @click="togglePopup"
     >
       {{ __('Add GitLab to Slack') }}
@@ -123,7 +123,11 @@ export default {
           </option>
         </select>
 
-        <button type="button" class="btn btn-red float-right js-add-button" @click="addToSlack">
+        <button
+          type="button"
+          class="btn gl-button-deprecated btn-red float-right js-add-button"
+          @click="addToSlack"
+        >
           {{ __('Add to Slack') }}
         </button>
       </div>

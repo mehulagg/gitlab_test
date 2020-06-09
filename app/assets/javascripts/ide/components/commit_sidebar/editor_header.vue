@@ -56,7 +56,7 @@ export default {
         v-if="canDiscard"
         ref="discardButton"
         type="button"
-        class="btn btn-remove btn-inverted gl-mr-3"
+        class="btn gl-button-deprecated btn-remove btn-inverted gl-mr-3"
         @click="showDiscardModal"
       >
         {{ __('Discard changes') }}

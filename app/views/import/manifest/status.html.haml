@@ -6,7 +6,7 @@
   = _('Manifest file import')
 
 %p
-  = button_tag class: "btn btn-import btn-success js-import-all" do
+  = button_tag class: "btn gl-button-deprecated btn-import btn-success js-import-all" do
     = _('Import all repositories')
     = icon("spinner spin", class: "loading-icon")
 
@@ -34,7 +34,7 @@
           %td.import-target
             = import_project_target(@group.full_path, repository[:path])
           %td.import-actions.job-status
-            = button_tag class: "btn btn-import js-add-to-import" do
+            = button_tag class: "btn gl-button-deprecated btn-import js-add-to-import" do
               = _('Import')
               = icon("spinner spin", class: "loading-icon")
 

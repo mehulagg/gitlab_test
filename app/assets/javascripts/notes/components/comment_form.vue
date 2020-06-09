@@ -422,7 +422,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
               >
                 <button
                   :disabled="isSubmitButtonDisabled"
-                  class="btn btn-success js-comment-button js-comment-submit-button
+                  class="btn gl-button-deprecated btn-success js-comment-button js-comment-submit-button
                     qa-comment-button"
                   type="submit"
                   :data-track-label="trackingLabel"
@@ -435,7 +435,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                   :disabled="isSubmitButtonDisabled"
                   name="button"
                   type="button"
-                  class="btn btn-success note-type-toggle js-note-new-discussion dropdown-toggle qa-note-dropdown"
+                  class="btn gl-button-deprecated btn-success note-type-toggle js-note-new-discussion dropdown-toggle qa-note-dropdown"
                   data-display="static"
                   data-toggle="dropdown"
                   :aria-label="__('Open comment type dropdown')"
@@ -447,7 +447,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                   <li :class="{ 'droplab-item-selected': noteType === 'comment' }">
                     <button
                       type="button"
-                      class="btn btn-transparent"
+                      class="btn gl-button-deprecated btn-transparent"
                       @click.prevent="setNoteType('comment')"
                     >
                       <i aria-hidden="true" class="fa fa-check icon"> </i>
@@ -467,7 +467,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                   <li :class="{ 'droplab-item-selected': noteType === 'discussion' }">
                     <button
                       type="button"
-                      class="btn btn-transparent qa-discussion-option"
+                      class="btn gl-button-deprecated btn-transparent qa-discussion-option"
                       @click.prevent="setNoteType('discussion')"
                     >
                       <i aria-hidden="true" class="fa fa-check icon"> </i>
@@ -485,7 +485,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                 :loading="isToggleStateButtonLoading"
                 :container-class="[
                   actionButtonClassNames,
-                  'btn btn-comment btn-comment-and-close js-action-button',
+                  'btn gl-button-deprecated btn-comment btn-comment-and-close js-action-button',
                 ]"
                 :disabled="isToggleStateButtonLoading || isSubmitting"
                 :label="issueActionButtonTitle"

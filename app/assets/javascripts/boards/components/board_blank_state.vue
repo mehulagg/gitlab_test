@@ -85,13 +85,17 @@ export default {
       }}
     </p>
     <button
-      class="btn btn-success btn-inverted btn-block"
+      class="btn gl-button-deprecated btn-success btn-inverted btn-block"
       type="button"
       @click.stop="addDefaultLists"
     >
       {{ s__('BoardBlankState|Add default lists') }}
     </button>
-    <button class="btn btn-default btn-block" type="button" @click.stop="clearBlankState">
+    <button
+      class="btn gl-button-deprecated btn-default btn-block"
+      type="button"
+      @click.stop="clearBlankState"
+    >
       {{ s__("BoardBlankState|Nevermind, I'll use my own") }}
     </button>
   </div>

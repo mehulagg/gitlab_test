@@ -55,7 +55,7 @@ export default {
       :loading="isDismissing"
       :disabled="isDismissing || disabled"
       :label="buttonText"
-      container-class="js-dismiss-btn btn btn-close"
+      container-class="js-dismiss-btn btn gl-button-deprecated btn-close"
       @click="handleDismissClick"
     />
     <gl-deprecated-button

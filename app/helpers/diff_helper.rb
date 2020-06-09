@@ -184,7 +184,7 @@ module DiffHelper
     # Always use HTML to handle case where JSON diff rendered this button
     params_copy.delete(:format)
 
-    link_to url_for(params_copy), id: "#{name}-diff-btn", class: (selected ? 'btn active' : 'btn'), data: { view_type: name } do
+    link_to url_for(params_copy), id: "#{name}-diff-btn", class: (selected ? 'btn gl-button-deprecated active' : 'btn gl-button-deprecated'), data: { view_type: name } do
       title
     end
   end
@@ -213,7 +213,7 @@ module DiffHelper
   end
 
   def toggle_whitespace_link(url, options)
-    options[:class] = [*options[:class], 'btn btn-default'].join(' ')
+    options[:class] = [*options[:class], 'btn gl-button-deprecated btn-default'].join(' ')
     link_to "#{hide_whitespace? ? 'Show' : 'Hide'} whitespace changes", url, class: options[:class]
   end
 

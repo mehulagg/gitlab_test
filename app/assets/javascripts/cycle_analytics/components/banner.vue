@@ -44,7 +44,12 @@ of how much time it takes to go from idea to production in your project.`)
         }}
       </p>
       <p>
-        <a :href="documentationLink" target="_blank" rel="nofollow" class="btn">
+        <a
+          :href="documentationLink"
+          target="_blank"
+          rel="nofollow"
+          class="btn gl-button-deprecated"
+        >
           {{ __('Read more') }}
         </a>
       </p>

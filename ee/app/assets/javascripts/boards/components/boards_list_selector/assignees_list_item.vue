@@ -25,7 +25,7 @@ export default {
 
 <template>
   <li class="filter-dropdown-item" @click="handleItemClick">
-    <button class="btn btn-link dropdown-user d-flex py-2 px-4" type="button">
+    <button class="btn gl-button-deprecated btn-link dropdown-user d-flex py-2 px-4" type="button">
       <div class="avatar-container s32 flex-shrink-0">
         <img :alt="avatarAltText" :src="item.avatar_url" class="avatar s32 lazy" />
       </div>

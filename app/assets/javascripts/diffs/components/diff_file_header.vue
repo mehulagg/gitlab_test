@@ -233,7 +233,7 @@ export default {
               ref="toggleDiscussionsButton"
               :disabled="!diffHasDiscussions(diffFile)"
               :class="{ active: diffHasExpandedDiscussions(diffFile) }"
-              class="js-btn-vue-toggle-comments btn"
+              class="js-btn-vue-toggle-comments btn gl-button-deprecated"
               data-qa-selector="toggle_comments_button"
               data-track-event="click_toggle_comments_button"
               data-track-label="diff_toggle_comments_button"
@@ -261,7 +261,7 @@ export default {
           v-if="diffFile.replaced_view_path"
           ref="replacedFileButton"
           :href="diffFile.replaced_view_path"
-          class="btn view-file"
+          class="btn gl-button-deprecated view-file"
           v-html="viewReplacedFileButtonText"
         >
         </a>
@@ -305,7 +305,7 @@ export default {
           data-track-event="click_toggle_external_button"
           data-track-label="diff_toggle_external_button"
           data-track-property="diff_toggle_external"
-          class="btn btn-file-option"
+          class="btn gl-button-deprecated btn-file-option"
         >
           <icon name="external-link" />
         </a>

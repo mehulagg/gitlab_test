@@ -83,10 +83,10 @@ export default {
     <gl-loading-icon v-show="isLoading" :inline="true" />
 
     <div v-show="hasError" class="btn-group">
-      <div class="btn btn-default btn-sm disabled">
+      <div class="btn gl-button-deprecated btn-default btn-sm disabled">
         <icon :size="16" class="gl-ml-3 gl-mr-3" name="doc-image" aria-hidden="true" />
       </div>
-      <div class="btn btn-default btn-sm disabled">
+      <div class="btn gl-button-deprecated btn-default btn-sm disabled">
         <span class="gl-ml-3 gl-mr-3">{{ s__('Badges|No badge image') }}</span>
       </div>
     </div>
@@ -95,7 +95,7 @@ export default {
       v-show="hasError"
       v-gl-tooltip.hover
       :title="s__('Badges|Reload badge image')"
-      class="btn btn-transparent btn-sm text-primary"
+      class="btn gl-button-deprecated btn-transparent btn-sm text-primary"
       type="button"
       @click="reloadImage"
     >

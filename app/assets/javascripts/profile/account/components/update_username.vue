@@ -102,7 +102,7 @@ Please update your Git repository remotes as soon as possible.`),
     <button
       :data-target="`#${$options.modalId}`"
       :disabled="isRequestPending || newUsername === username"
-      class="btn btn-warning"
+      class="btn gl-button-deprecated btn-warning"
       type="button"
       data-toggle="modal"
     >

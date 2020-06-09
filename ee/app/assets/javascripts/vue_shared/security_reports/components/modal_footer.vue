@@ -132,7 +132,7 @@ export default {
       :loading="actionButtons[0].isLoading"
       :disabled="actionButtons[0].isLoading || disabled"
       :label="actionButtons[0].name"
-      container-class="btn btn-success btn-inverted"
+      container-class="btn gl-button-deprecated btn-success btn-inverted"
       class="js-action-button"
       data-qa-selector="create_issue_button"
       @click="$emit(actionButtons[0].action)"

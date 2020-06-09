@@ -51,6 +51,6 @@
         = s_('GroupSAML|SHA1 fingerprint of the SAML token signing certificate. Get this from your identity provider, where it can also be called "Thumbprint".')
 
     .mt-3
-      = f.submit _("Save changes"), class: 'btn btn-success', data: { qa_selector: 'save_changes_button' }
+      = f.submit _("Save changes"), class: 'btn gl-button-deprecated btn-success', data: { qa_selector: 'save_changes_button' }
       #js-saml-test-button.has-tooltip.pull-right
         = render 'test_button', saml_provider: @saml_provider

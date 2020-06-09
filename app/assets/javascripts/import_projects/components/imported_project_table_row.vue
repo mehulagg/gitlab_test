@@ -43,7 +43,7 @@ export default {
     <td>
       <a
         v-if="isFinished"
-        class="btn btn-default js-go-to-project"
+        class="btn gl-button-deprecated btn-default js-go-to-project"
         :href="project.fullPath"
         rel="noreferrer noopener"
         target="_blank"

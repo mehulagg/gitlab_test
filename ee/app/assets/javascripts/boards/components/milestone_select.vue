@@ -73,7 +73,11 @@ export default {
   <div class="block milestone">
     <div class="title append-bottom-10">
       Milestone
-      <button v-if="canEdit" type="button" class="edit-link btn btn-blank float-right">
+      <button
+        v-if="canEdit"
+        type="button"
+        class="edit-link btn gl-button-deprecated btn-blank float-right"
+      >
         {{ __('Edit') }}
       </button>
     </div>

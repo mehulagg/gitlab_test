@@ -97,7 +97,7 @@ export default {
             :href="button.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="btn btn-inverted-secondary"
+            class="btn gl-button-deprecated btn-inverted-secondary"
             :class="{ 'ml-2': index !== 0 }"
             >{{ button.text }}</a
           >

@@ -66,7 +66,7 @@ module EE
     end
 
     def smartcard_login_button_classes(provider_name)
-      css_classes = %w[btn btn-success]
+      css_classes = %w[btn gl-button-deprecated btn-success]
       css_classes << 'btn-inverted' unless smartcard_enabled_for_ldap?(provider_name, required: true)
       css_classes.join(' ')
     end

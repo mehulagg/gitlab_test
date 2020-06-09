@@ -10,5 +10,5 @@
       %td.diff-line-num.header{ ":class" => "lineCssClass(line)", "v-if" => "line.isHeader" }
       %td.line_content.header{ ":class" => "lineCssClass(line)", "v-if" => "line.isHeader" }
         %strong{ "v-html" => "line.richText" }
-        %button.btn{ "@click" => "handleSelected(file, line.id, line.section)" }
+        %button.btn.gl-button-deprecated{"@click" => "handleSelected(file, line.id, line.section)" }
           {{line.buttonTitle}}

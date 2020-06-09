@@ -75,7 +75,11 @@ export default {
 </script>
 <template>
   <div class="block list">
-    <button class="btn btn-default btn-block" type="button" @click="removeIssue">
+    <button
+      class="btn gl-button-deprecated btn-default btn-block"
+      type="button"
+      @click="removeIssue"
+    >
       {{ __('Remove from board') }}
     </button>
   </div>

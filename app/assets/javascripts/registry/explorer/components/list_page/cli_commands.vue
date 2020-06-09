@@ -51,7 +51,11 @@ export default {
           label-for="docker-login-btn"
           :label="$options.i18n.loginCommandLabel"
         >
-          <gl-form-input-group id="docker-login-btn" :value="dockerLoginCommand" readonly>
+          <gl-form-input-group
+            id="docker-login-btn"
+            :value="dockerLoginCommand"
+            readonly
+          >
             <template #append>
               <clipboard-button
                 class="border"
@@ -68,7 +72,11 @@ export default {
           label-for="docker-build-btn"
           :label="$options.i18n.buildCommandLabel"
         >
-          <gl-form-input-group id="docker-build-btn" :value="dockerBuildCommand" readonly>
+          <gl-form-input-group
+            id="docker-build-btn"
+            :value="dockerBuildCommand"
+            readonly
+          >
             <template #append>
               <clipboard-button
                 class="border"
@@ -86,7 +94,11 @@ export default {
           label-for="docker-push-btn"
           :label="$options.i18n.pushCommandLabel"
         >
-          <gl-form-input-group id="docker-push-btn" :value="dockerPushCommand" readonly>
+          <gl-form-input-group
+            id="docker-push-btn"
+            :value="dockerPushCommand"
+            readonly
+          >
             <template #append>
               <clipboard-button
                 class="border"

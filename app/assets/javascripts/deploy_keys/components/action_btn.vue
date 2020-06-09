@@ -42,7 +42,7 @@ export default {
   <button
     :class="[{ disabled: isLoading }, btnCssClass]"
     :disabled="isLoading"
-    class="btn"
+    class="btn gl-button-deprecated"
     @click="doAction"
   >
     <slot></slot>

@@ -28,7 +28,7 @@ export default {
       <gl-link
         :href="publishedIncidentUrl"
         target="_blank"
-        class="btn btn-inverted btn-secondary btn-sm text-dark mb-3"
+        class="btn gl-button-deprecated btn-inverted btn-secondary btn-sm text-dark mb-3"
         data-testid="publishedIncidentUrl"
       >
         <icon name="tanuki" :size="14" />
@@ -39,7 +39,7 @@ export default {
       <gl-link
         :href="zoomMeetingUrl"
         target="_blank"
-        class="btn btn-inverted btn-secondary btn-sm text-dark mb-3"
+        class="btn gl-button-deprecated btn-inverted btn-secondary btn-sm text-dark mb-3"
         data-testid="zoomMeetingUrl"
       >
         <icon name="brand-zoom" :size="14" />

@@ -369,7 +369,7 @@ export default {
             <button
               :disabled="isDisabled"
               type="button"
-              class="btn btn-success qa-start-review"
+              class="btn gl-button-deprecated btn-success qa-start-review"
               @click="handleAddToReview"
             >
               <template v-if="hasDrafts">{{ __('Add to review') }}</template>
@@ -378,13 +378,13 @@ export default {
             <button
               :disabled="isDisabled"
               type="button"
-              class="btn qa-comment-now js-comment-button"
+              class="btn gl-button-deprecated qa-comment-now js-comment-button"
               @click="handleUpdate()"
             >
               {{ __('Add comment now') }}
             </button>
             <button
-              class="btn note-edit-cancel js-close-discussion-note-form"
+              class="btn gl-button-deprecated note-edit-cancel js-close-discussion-note-form"
               type="button"
               data-testid="cancelBatchCommentsEnabled"
               @click="cancelHandler(true)"
@@ -397,20 +397,20 @@ export default {
           <button
             :disabled="isDisabled"
             type="button"
-            class="js-vue-issue-save btn btn-success js-comment-button qa-reply-comment-button"
+            class="js-vue-issue-save btn gl-button-deprecated btn-success js-comment-button qa-reply-comment-button"
             @click="handleUpdate()"
           >
             {{ saveButtonTitle }}
           </button>
           <button
             v-if="discussion.resolvable"
-            class="btn btn-nr btn-default append-right-10 js-comment-resolve-button"
+            class="btn gl-button-deprecated btn-nr btn-default append-right-10 js-comment-resolve-button"
             @click.prevent="handleUpdate(true)"
           >
             {{ resolveButtonTitle }}
           </button>
           <button
-            class="btn btn-cancel note-edit-cancel js-close-discussion-note-form"
+            class="btn gl-button-deprecated btn-cancel note-edit-cancel js-close-discussion-note-form"
             type="button"
             data-testid="cancel"
             @click="cancelHandler(true)"

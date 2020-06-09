@@ -44,9 +44,12 @@ export default {
           }}
         </p>
         <div>
-          <a v-if="mr.newBlobPath" :href="mr.newBlobPath" class="btn btn-inverted btn-success">{{
-            __('Create file')
-          }}</a>
+          <a
+            v-if="mr.newBlobPath"
+            :href="mr.newBlobPath"
+            class="btn gl-button-deprecated btn-inverted btn-success"
+            >{{ __('Create file') }}</a
+          >
         </div>
       </div>
     </div>

@@ -169,7 +169,7 @@ export default {
       <div v-if="hasAssets" class="dropdown">
         <button
           type="button"
-          class="btn btn-link"
+          class="btn gl-button-deprecated btn-link"
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"

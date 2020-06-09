@@ -50,7 +50,7 @@
         = render 'shared/zen', attr: :release_description, classes: 'note-textarea', placeholder: s_('TagsPage|Write your release notes or drag files here…'), current_text: @release_description
         = render 'shared/notes/hints'
   .form-actions
-    = button_tag s_('TagsPage|Create tag'), class: 'btn btn-success'
-    = link_to s_('TagsPage|Cancel'), project_tags_path(@project), class: 'btn btn-cancel'
+    = button_tag s_('TagsPage|Create tag'), class: 'btn gl-button-deprecated btn-success'
+    = link_to s_('TagsPage|Cancel'), project_tags_path(@project), class: 'btn gl-button-deprecated btn-cancel'
 -# haml-lint:disable InlineJavaScript
 %script#availableRefs{ type: "application/json" }= @project.repository.ref_names.to_json.html_safe

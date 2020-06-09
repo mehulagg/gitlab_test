@@ -32,7 +32,11 @@ export default {
 <template>
   <div v-if="!calloutDismissed" class="pipeline-schedules-user-callout user-callout">
     <div class="bordered-box landing content-block">
-      <button id="dismiss-callout-btn" class="btn btn-default close" @click="dismissCallout">
+      <button
+        id="dismiss-callout-btn"
+        class="btn gl-button-deprecated btn-default close"
+        @click="dismissCallout"
+      >
         <i aria-hidden="true" class="fa fa-times"> </i>
       </button>
       <div class="svg-container" v-html="illustrationSvg"></div>

@@ -16,7 +16,7 @@ export default {
 
 <template>
   <li class="filter-dropdown-item" @click="handleItemClick">
-    <button class="btn btn-link dropdown-user" type="button">
+    <button class="btn gl-button-deprecated btn-link dropdown-user" type="button">
       <div class="dropdown-user-details">
         <div :title="item.title">{{ item.title }}</div>
       </div>

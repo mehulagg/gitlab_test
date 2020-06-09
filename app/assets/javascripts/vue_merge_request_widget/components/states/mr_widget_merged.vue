@@ -116,7 +116,7 @@ export default {
           v-if="mr.canRevertInCurrentMR"
           v-tooltip
           :title="revertTitle"
-          class="btn btn-close btn-sm"
+          class="btn gl-button-deprecated btn-close btn-sm"
           href="#modal-revert-commit"
           data-toggle="modal"
           data-container="body"
@@ -128,7 +128,7 @@ export default {
           v-tooltip
           :href="mr.revertInForkPath"
           :title="revertTitle"
-          class="btn btn-close btn-sm"
+          class="btn gl-button-deprecated btn-close btn-sm"
           data-method="post"
         >
           {{ revertLabel }}
@@ -137,7 +137,7 @@ export default {
           v-if="mr.canCherryPickInCurrentMR"
           v-tooltip
           :title="cherryPickTitle"
-          class="btn btn-default btn-sm"
+          class="btn gl-button-deprecated btn-default btn-sm"
           href="#modal-cherry-pick-commit"
           data-toggle="modal"
           data-container="body"
@@ -149,7 +149,7 @@ export default {
           v-tooltip
           :href="mr.cherryPickInForkPath"
           :title="cherryPickTitle"
-          class="btn btn-default btn-sm"
+          class="btn gl-button-deprecated btn-default btn-sm"
           data-method="post"
         >
           {{ cherryPickLabel }}
@@ -184,7 +184,7 @@ export default {
           <button
             :disabled="isMakingRequest"
             type="button"
-            class="btn btn-sm btn-default js-remove-branch-button"
+            class="btn gl-button-deprecated btn-sm btn-default js-remove-branch-button"
             @click="removeSourceBranch"
           >
             {{ s__('mrWidget|Delete source branch') }}

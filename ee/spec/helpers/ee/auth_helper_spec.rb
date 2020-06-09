@@ -147,7 +147,7 @@ RSpec.describe EE::AuthHelper do
       let(:smartcard_auth_status) { 'optional' }
 
       it 'returns the correct CSS classes' do
-        expect(subject).to eql('btn btn-success btn-inverted')
+        expect(subject).to eql('btn gl-button-deprecated btn-success btn-inverted')
       end
     end
 
@@ -155,7 +155,7 @@ RSpec.describe EE::AuthHelper do
       let(:smartcard_auth_status) { 'required' }
 
       it 'returns the correct CSS classes' do
-        expect(subject).to eql('btn btn-success')
+        expect(subject).to eql('btn gl-button-deprecated btn-success')
       end
     end
   end

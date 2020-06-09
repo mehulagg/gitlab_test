@@ -120,7 +120,7 @@ export default {
           <div class="d-flex flex-grow-1 align-self-start flex-row-reverse">
             <loading-button
               :label="__('Delete comment')"
-              container-class="btn btn-remove"
+              container-class="btn gl-button-deprecated btn-remove"
               @click="$emit('deleteDismissalComment')"
             />
 

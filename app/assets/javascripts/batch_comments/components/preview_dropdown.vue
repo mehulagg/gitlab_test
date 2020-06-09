@@ -66,7 +66,7 @@ export default {
     <button
       ref="dropdown"
       type="button"
-      class="btn btn-success review-preview-dropdown-toggle qa-review-preview-toggle"
+      class="btn gl-button-deprecated btn-success review-preview-dropdown-toggle qa-review-preview-toggle"
       @click="toggleReviewDropdown"
     >
       {{ __('Finish review') }}

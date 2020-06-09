@@ -69,7 +69,7 @@ export default {
     <button
       :class="buttonSizeClass"
       type="button"
-      class="btn dropdown-toggle pl-2 pr-2"
+      class="btn gl-button-deprecated dropdown-toggle pl-2 pr-2"
       data-display="static"
       data-toggle="dropdown"
     >

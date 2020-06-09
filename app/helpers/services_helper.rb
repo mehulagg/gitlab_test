@@ -52,7 +52,7 @@ module ServicesHelper
   end
 
   def service_save_button
-    button_tag(class: 'btn btn-success', type: 'submit', data: { qa_selector: 'save_changes_button' }) do
+    button_tag(class: 'btn gl-button-deprecated btn-success', type: 'submit', data: { qa_selector: 'save_changes_button' }) do
       icon('spinner spin', class: 'hidden js-btn-spinner') +
         content_tag(:span, 'Save changes', class: 'js-btn-label')
     end

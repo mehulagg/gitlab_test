@@ -11,7 +11,7 @@ export default {
   <button
     type="submit"
     :disabled="!hasValidData"
-    class="js-gke-cluster-creation-submit btn btn-success"
+    class="js-gke-cluster-creation-submit btn gl-button-deprecated btn-success"
   >
     {{ s__('ClusterIntegration|Create Kubernetes cluster') }}
   </button>

@@ -24,7 +24,7 @@ export default {
 <template>
   <span class="dropdown inline">
     <a
-      class="dropdown-menu-toggle btn btn-default w-100"
+      class="dropdown-menu-toggle btn gl-button-deprecated btn-default w-100"
       data-toggle="dropdown"
       aria-expanded="false"
     >

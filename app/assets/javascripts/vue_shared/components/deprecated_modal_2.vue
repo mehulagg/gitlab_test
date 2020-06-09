@@ -95,7 +95,7 @@ export default {
           <slot name="footer">
             <button
               type="button"
-              class="btn js-modal-cancel-action qa-modal-cancel-button"
+              class="btn gl-button-deprecated js-modal-cancel-action qa-modal-cancel-button"
               data-dismiss="modal"
               @click="emitCancel($event)"
             >
@@ -104,7 +104,7 @@ export default {
             <button
               :class="`btn-${footerPrimaryButtonVariant}`"
               type="button"
-              class="btn js-modal-primary-action qa-modal-primary-button"
+              class="btn gl-button-deprecated js-modal-primary-action qa-modal-primary-button"
               data-dismiss="modal"
               @click="emitSubmit($event)"
             >

@@ -65,10 +65,16 @@ export default {
         />
       </div>
       <div class="clearfix">
-        <button type="button" class="btn btn-primary float-left js-new-label-btn disabled">
+        <button
+          type="button"
+          class="btn gl-button-deprecated btn-primary float-left js-new-label-btn disabled"
+        >
           {{ __('Create') }}
         </button>
-        <button type="button" class="btn btn-default float-right js-cancel-label-btn">
+        <button
+          type="button"
+          class="btn gl-button-deprecated btn-default float-right js-cancel-label-btn"
+        >
           {{ __('Cancel') }}
         </button>
       </div>

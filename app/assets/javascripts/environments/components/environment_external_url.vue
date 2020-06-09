@@ -32,7 +32,7 @@ export default {
     :title="title"
     :aria-label="title"
     :href="externalUrl"
-    class="btn external-url"
+    class="btn gl-button-deprecated external-url"
     target="_blank"
     rel="noopener noreferrer nofollow"
   >

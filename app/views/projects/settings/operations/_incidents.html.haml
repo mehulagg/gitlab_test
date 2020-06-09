@@ -5,7 +5,7 @@
 %section.settings.no-animate.qa-incident-management-settings{ data: { qa_selector: 'incidents_settings_content' } }
   .settings-header
     %h3{ :class => "h4" }= _('Incidents')
-    %button.btn.js-settings-toggle{ type: 'button' }
+    %button.btn.gl-button-deprecated.js-settings-toggle{ type: 'button' }
       = _('Expand')
     %p
       = _('Action to take when receiving an alert.')
@@ -29,4 +29,4 @@
           .form-group
             = form.check_box :send_email
             = form.label :send_email, _('Send a separate email notification to Developers.'), class: 'form-check-label'
-      = f.submit _('Save changes'), class: 'btn btn-success', data: { qa_selector: 'save_changes_button' }
+      = f.submit _('Save changes'), class: 'btn gl-button-deprecated btn-success', data: { qa_selector: 'save_changes_button' }

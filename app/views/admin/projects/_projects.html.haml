@@ -4,8 +4,8 @@
       - @projects.each_with_index do |project|
         %li.project-row{ class: ('no-description' if project.description.blank?) }
           .controls
-            = link_to 'Edit', edit_project_path(project), id: "edit_#{dom_id(project)}", class: "btn"
-            %button.delete-project-button.btn.btn-danger{ data: { toggle: 'modal',
+            = link_to 'Edit', edit_project_path(project), id: "edit_#{dom_id(project)}", class: "btn gl-button-deprecated"
+            %button.delete-project-button.btn.gl-button-deprecated.btn-danger{ data: { toggle: 'modal',
               target: '#delete-project-modal',
               delete_project_url: admin_project_path(project),
               project_name: project.name }, type: 'button' }

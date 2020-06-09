@@ -174,7 +174,7 @@ export default {
           v-if="licenseManagementSettingsPath"
           :class="{ 'gl-mr-3': fullReportPath }"
           :href="licenseManagementSettingsPath"
-          class="btn btn-default btn-sm js-manage-licenses"
+          class="btn gl-button-deprecated btn-default btn-sm js-manage-licenses"
         >
           {{ s__('ciReport|Manage licenses') }}
         </a>
@@ -182,7 +182,7 @@ export default {
           v-if="fullReportPath"
           :href="fullReportPath"
           target="_blank"
-          class="btn btn-default btn-sm js-full-report"
+          class="btn gl-button-deprecated btn-default btn-sm js-full-report"
         >
           {{ s__('ciReport|View full report') }} <icon :size="16" name="external-link" />
         </a>

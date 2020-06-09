@@ -100,7 +100,7 @@ export default {
     <a
       v-if="isSecondaryNode"
       :href="node.geoProjectsUrl"
-      class="btn btn-sm mx-1 sm-column-spacing"
+      class="btn gl-button-deprecated btn-sm mx-1 sm-column-spacing"
       target="_blank"
     >
       <icon v-if="!node.current" name="external-link" /> {{ __('Open projects') }}
@@ -108,7 +108,7 @@ export default {
     <template v-if="nodeActionsAllowed">
       <gl-deprecated-button
         v-if="nodeMissingOauth"
-        class="btn btn-sm btn-default mx-1 sm-column-spacing"
+        class="btn gl-button-deprecated btn-sm btn-default mx-1 sm-column-spacing"
         @click="onRepairNode"
       >
         {{ s__('Repair authentication') }}
@@ -119,18 +119,22 @@ export default {
           'btn-warning': node.enabled,
           'btn-success': !node.enabled,
         }"
-        class="btn btn-sm mx-1 sm-column-spacing"
+        class="btn gl-button-deprecated btn-sm mx-1 sm-column-spacing"
         @click="onToggleNode"
       >
         <icon :name="nodeToggleIcon" />
         {{ nodeToggleLabel }}
       </gl-deprecated-button>
-      <a v-if="nodeEditAllowed" :href="node.editPath" class="btn btn-sm mx-1 sm-column-spacing">
+      <a
+        v-if="nodeEditAllowed"
+        :href="node.editPath"
+        class="btn gl-button-deprecated btn-sm mx-1 sm-column-spacing"
+      >
         {{ __('Edit') }}
       </a>
       <gl-deprecated-button
         v-if="isSecondaryNode"
-        class="btn btn-sm btn-danger mx-1 sm-column-spacing"
+        class="btn gl-button-deprecated btn-sm btn-danger mx-1 sm-column-spacing"
         :disabled="!nodeRemovalAllowed"
         @click="onRemoveSecondaryNode"
       >
@@ -144,7 +148,7 @@ export default {
       >
         <gl-deprecated-button
           v-if="!isSecondaryNode"
-          class="btn btn-sm btn-danger w-100"
+          class="btn gl-button-deprecated btn-sm btn-danger w-100"
           :disabled="!nodeRemovalAllowed"
           @click="onRemovePrimaryNode"
         >

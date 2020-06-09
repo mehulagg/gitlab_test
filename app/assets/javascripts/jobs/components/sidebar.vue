@@ -49,7 +49,7 @@ export default {
       return `${this.job.runner.description} (#${this.job.runner.id})`;
     },
     retryButtonClass() {
-      let className = 'js-retry-button btn btn-retry';
+      let className = 'js-retry-button btn gl-button-deprecated btn-retry';
       className +=
         this.job.status && this.job.recoverable ? ' btn-primary' : ' btn-inverted-secondary';
       return className;
@@ -126,7 +126,7 @@ export default {
             <gl-link
               v-if="job.cancel_path"
               :href="job.cancel_path"
-              class="js-cancel-job btn btn-default"
+              class="js-cancel-job btn gl-button-deprecated btn-default"
               data-method="post"
               rel="nofollow"
               >{{ __('Cancel') }}</gl-link
@@ -136,7 +136,7 @@ export default {
           <gl-deprecated-button
             :aria-label="__('Toggle Sidebar')"
             type="button"
-            class="btn btn-blank gutter-toggle float-right d-block d-md-none js-sidebar-build-toggle"
+            class="btn gl-button-deprecated btn-blank gutter-toggle float-right d-block d-md-none js-sidebar-build-toggle"
             @click="toggleSidebar"
           >
             <i aria-hidden="true" data-hidden="true" class="fa fa-angle-double-right"></i>
@@ -147,13 +147,13 @@ export default {
           <gl-link
             v-if="job.new_issue_path"
             :href="job.new_issue_path"
-            class="js-new-issue btn btn-success btn-inverted float-left mr-2"
+            class="js-new-issue btn gl-button-deprecated btn-success btn-inverted float-left mr-2"
             >{{ __('New issue') }}</gl-link
           >
           <gl-link
             v-if="job.terminal_path"
             :href="job.terminal_path"
-            class="js-terminal-link btn btn-primary btn-inverted visible-md-block visible-lg-block float-left"
+            class="js-terminal-link btn gl-button-deprecated btn-primary btn-inverted visible-md-block visible-lg-block float-left"
             target="_blank"
           >
             {{ __('Debug') }} <icon name="external-link" :size="14" />

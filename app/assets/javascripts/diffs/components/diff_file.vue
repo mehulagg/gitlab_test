@@ -163,11 +163,11 @@ export default {
       <span class="file-fork-suggestion-note" v-html="forkMessage"></span>
       <a
         :href="file.fork_path"
-        class="js-fork-suggestion-button btn btn-grouped btn-inverted btn-success"
+        class="js-fork-suggestion-button btn gl-button-deprecated btn-grouped btn-inverted btn-success"
         >{{ __('Fork') }}</a
       >
       <button
-        class="js-cancel-fork-suggestion-button btn btn-grouped"
+        class="js-cancel-fork-suggestion-button btn gl-button-deprecated btn-grouped"
         type="button"
         @click="hideForkMessage"
       >

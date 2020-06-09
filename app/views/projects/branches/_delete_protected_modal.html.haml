@@ -34,9 +34,9 @@
         = text_field_tag 'delete_branch_input', '', class: 'form-control js-delete-branch-input'
 
       .modal-footer
-        %button.btn{ data: { dismiss: 'modal' } } Cancel
+        %button.btn.gl-button-deprecated{ data: { dismiss: 'modal' } } Cancel
         = link_to s_('Branches|Delete protected branch'), '',
-          class: "btn btn-danger js-delete-branch",
+          class: "btn gl-button-deprecated btn-danger js-delete-branch",
           title: s_('Branches|Delete branch'),
           method: :delete,
           'aria-label' => s_('Branches|Delete branch')

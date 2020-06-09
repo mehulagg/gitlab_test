@@ -43,7 +43,7 @@ export default {
     <button
       v-if="showDisabledButton"
       type="button"
-      class="js-disabled-merge-button btn btn-success btn-sm"
+      class="js-disabled-merge-button btn gl-button-deprecated btn-success btn-sm"
       disabled="true"
     >
       {{ s__('mrWidget|Merge') }}

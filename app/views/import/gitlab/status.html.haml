@@ -11,7 +11,7 @@
     = _('Select projects you want to import.')
   %hr
   %p
-    = button_tag class: "btn btn-import btn-success js-import-all" do
+    = button_tag class: "btn gl-button-deprecated btn-import btn-success js-import-all" do
       = _('Import all projects')
       = icon("spinner spin", class: "loading-icon")
 
@@ -51,7 +51,7 @@
             %td.import-target
               = import_project_target(repo['namespace']['path'], repo['name'])
             %td.import-actions.job-status
-              = button_tag class: "btn btn-import js-add-to-import" do
+              = button_tag class: "btn gl-button-deprecated btn-import js-add-to-import" do
                 = _('Import')
                 = icon("spinner spin", class: "loading-icon")
 

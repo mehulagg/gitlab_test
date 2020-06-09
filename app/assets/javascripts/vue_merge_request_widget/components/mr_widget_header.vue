@@ -117,7 +117,7 @@ export default {
             :href="webIdePath"
             :title="ideButtonTitle"
             :class="{ disabled: !mr.canPushToSourceBranch }"
-            class="btn btn-default js-web-ide d-none d-md-inline-block gl-mr-3"
+            class="btn gl-button-deprecated btn-default js-web-ide d-none d-md-inline-block gl-mr-3"
             data-placement="bottom"
             tabindex="0"
             role="button"
@@ -129,7 +129,7 @@ export default {
             :disabled="mr.sourceBranchRemoved"
             data-target="#modal_merge_info"
             data-toggle="modal"
-            class="btn btn-default js-check-out-branch gl-mr-3"
+            class="btn gl-button-deprecated btn-default js-check-out-branch gl-mr-3"
             type="button"
           >
             {{ s__('mrWidget|Check out branch') }}
@@ -138,7 +138,7 @@ export default {
         <span class="dropdown">
           <button
             type="button"
-            class="btn dropdown-toggle qa-dropdown-toggle"
+            class="btn gl-button-deprecated dropdown-toggle qa-dropdown-toggle"
             data-toggle="dropdown"
             :aria-label="__('Download as')"
             aria-haspopup="true"

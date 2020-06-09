@@ -102,7 +102,7 @@ export default {
       <button
         v-if="!isLoadingImport"
         type="button"
-        class="qa-import-button js-import-button btn btn-default"
+        class="qa-import-button js-import-button btn gl-button-deprecated btn-default"
         @click="importRepo"
       >
         {{ importButtonText }}

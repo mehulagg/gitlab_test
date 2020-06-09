@@ -11,10 +11,10 @@
           = _('<strong>%{label_name}</strong> <span>will be permanently deleted from %{subject_name}. This cannot be undone.</span>').html_safe % { label_name: label.name, subject_name: label.subject_name }
 
       .modal-footer
-        %a{ href: '#', data: { dismiss: 'modal' }, class: 'btn btn-default' }= _('Cancel')
+        %a{ href: '#', data: { dismiss: 'modal' }, class: 'btn gl-button-deprecated btn-default' }= _('Cancel')
 
         = link_to _('Delete label'),
           label.destroy_path,
           title: _('Delete'),
           method: :delete,
-          class: 'btn btn-remove'
+          class: 'btn gl-button-deprecated btn-remove'

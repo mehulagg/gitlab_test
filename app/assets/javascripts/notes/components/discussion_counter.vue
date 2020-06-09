@@ -57,7 +57,10 @@ export default {
     <div class="full-width-mobile d-flex d-sm-flex">
       <div class="line-resolve-all">
         <span
-          :class="{ 'line-resolve-btn is-active': allResolved, 'line-resolve-text': !allResolved }"
+          :class="{
+            'line-resolve-btn is-active': allResolved,
+            'line-resolve-text': !allResolved,
+          }"
         >
           <template v-if="allResolved">
             <icon name="check-circle-filled" />
@@ -77,7 +80,7 @@ export default {
           v-gl-tooltip
           :href="resolveAllDiscussionsIssuePath"
           :title="s__('Resolve all threads in new issue')"
-          class="new-issue-for-discussion btn btn-default discussion-create-issue-btn"
+          class="new-issue-for-discussion btn gl-button-deprecated btn-default discussion-create-issue-btn"
         >
           <icon name="issue-new" />
         </a>
@@ -86,7 +89,7 @@ export default {
         <button
           v-gl-tooltip
           :title="__('Jump to next unresolved thread')"
-          class="btn btn-default discussion-next-btn"
+          class="btn gl-button-deprecated btn-default discussion-next-btn"
           data-track-event="click_button"
           data-track-label="mr_next_unresolved_thread"
           data-track-property="click_next_unresolved_thread_top"
@@ -99,7 +102,7 @@ export default {
         <button
           v-gl-tooltip
           :title="__('Toggle all threads')"
-          class="btn btn-default toggle-all-discussions-btn"
+          class="btn gl-button-deprecated btn-default toggle-all-discussions-btn"
           @click="handleExpandDiscussions"
         >
           <icon :name="allExpanded ? 'angle-up' : 'angle-down'" />

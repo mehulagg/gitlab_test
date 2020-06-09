@@ -15,9 +15,9 @@ module BillingPlansHelper
 
   def plan_purchase_link(href, link_text)
     if href
-      link_to link_text, href, class: 'btn btn-success'
+      link_to link_text, href, class: 'btn gl-button-deprecated btn-success'
     else
-      button_tag link_text, class: 'btn disabled'
+      button_tag link_text, class: 'btn gl-button-deprecated disabled'
     end
   end
 

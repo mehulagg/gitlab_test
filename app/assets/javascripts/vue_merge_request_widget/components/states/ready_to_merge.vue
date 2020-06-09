@@ -282,7 +282,7 @@ export default {
               v-if="shouldShowMergeImmediatelyDropdown"
               :disabled="isMergeButtonDisabled"
               type="button"
-              class="btn btn-sm btn-info dropdown-toggle js-merge-moment"
+              class="btn gl-button-deprecated btn-sm btn-info dropdown-toggle js-merge-moment"
               data-toggle="dropdown"
               data-qa-selector="merge_moment_dropdown"
               :aria-label="__('Select merge moment')"

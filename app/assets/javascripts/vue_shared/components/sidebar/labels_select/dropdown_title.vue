@@ -21,7 +21,7 @@ export default {
       <gl-loading-icon inline class="align-text-top block-loading" />
       <button
         type="button"
-        class="edit-link btn btn-blank float-right js-sidebar-dropdown-toggle"
+        class="edit-link btn gl-button-deprecated btn-blank float-right js-sidebar-dropdown-toggle"
         data-qa-selector="labels_edit_button"
       >
         {{ __('Edit') }}

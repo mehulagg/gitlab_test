@@ -89,7 +89,7 @@ export default {
       v-else
       :display="appButtonText"
       :link="deploymentExternalUrl"
-      css-class="js-deploy-url deploy-link btn btn-default btn-sm inline"
+      css-class="js-deploy-url deploy-link btn gl-button-deprecated btn-default btn-sm inline"
     />
     <visual-review-app-link
       v-if="showVisualReviewApp"

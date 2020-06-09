@@ -75,7 +75,7 @@ export default {
       :aria-label="title"
       :disabled="isLoading"
       type="button"
-      class="dropdown btn btn-default dropdown-new js-environment-actions-dropdown"
+      class="dropdown btn gl-button-deprecated btn-default dropdown-new js-environment-actions-dropdown"
       data-container="body"
       data-toggle="dropdown"
     >
@@ -92,7 +92,7 @@ export default {
           :class="{ disabled: isActionDisabled(action) }"
           :disabled="isActionDisabled(action)"
           type="button"
-          class="js-manual-action-link no-btn btn d-flex align-items-center"
+          class="js-manual-action-link no-btn btn gl-button-deprecated d-flex align-items-center"
           @click="onClickAction(action)"
         >
           <span class="flex-fill">{{ action.name }}</span>

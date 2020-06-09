@@ -67,21 +67,25 @@ export default {
     <button
       :class="{ disabled: formState.updateLoading || !isSubmitEnabled }"
       :disabled="formState.updateLoading || !isSubmitEnabled"
-      class="btn btn-success float-left qa-save-button"
+      class="btn gl-button-deprecated btn-success float-left qa-save-button"
       type="submit"
       @click.prevent="updateIssuable"
     >
       Save changes
       <i v-if="formState.updateLoading" class="fa fa-spinner fa-spin" aria-hidden="true"> </i>
     </button>
-    <button class="btn btn-default float-right" type="button" @click="closeForm">
+    <button
+      class="btn gl-button-deprecated btn-default float-right"
+      type="button"
+      @click="closeForm"
+    >
       {{ __('Cancel') }}
     </button>
     <button
       v-if="shouldShowDeleteButton"
       :class="{ disabled: deleteLoading }"
       :disabled="deleteLoading"
-      class="btn btn-danger float-right append-right-default qa-delete-button"
+      class="btn gl-button-deprecated btn-danger float-right append-right-default qa-delete-button"
       type="button"
       @click="deleteIssuable"
     >

@@ -42,17 +42,17 @@
     - if @tag.has_signature?
       = render partial: 'projects/commit/signature', object: @tag.signature
     - if can?(current_user, :admin_tag, @project)
-      = link_to edit_project_tag_release_path(@project, @tag.name), class: 'btn btn-edit controls-item has-tooltip', title: s_('TagsPage|Edit release notes') do
+      = link_to edit_project_tag_release_path(@project, @tag.name), class: 'btn gl-button-deprecated btn-edit controls-item has-tooltip', title: s_('TagsPage|Edit release notes') do
         = icon("pencil")
-    = link_to project_tree_path(@project, @tag.name), class: 'btn controls-item has-tooltip', title: s_('TagsPage|Browse files') do
+    = link_to project_tree_path(@project, @tag.name), class: 'btn gl-button-deprecated controls-item has-tooltip', title: s_('TagsPage|Browse files') do
       = sprite_icon('folder-open')
-    = link_to project_commits_path(@project, @tag.name), class: 'btn controls-item has-tooltip', title: s_('TagsPage|Browse commits') do
+    = link_to project_commits_path(@project, @tag.name), class: 'btn gl-button-deprecated controls-item has-tooltip', title: s_('TagsPage|Browse commits') do
       = icon('history')
     .btn-container.controls-item
       = render 'projects/buttons/download', project: @project, ref: @tag.name
     - if can?(current_user, :admin_tag, @project)
       .btn-container.controls-item-full
-        = link_to project_tag_path(@project, @tag.name), class: "btn btn-remove remove-row has-tooltip #{protected_tag?(@project, @tag) ? 'disabled' : ''}", title: s_('TagsPage|Delete tag'), method: :delete, data: { confirm: s_('TagsPage|Deleting the %{tag_name} tag cannot be undone. Are you sure?') % { tag_name: @tag.name } } do
+        = link_to project_tag_path(@project, @tag.name), class: "btn gl-button-deprecated btn-remove remove-row has-tooltip #{protected_tag?(@project, @tag) ? 'disabled' : ''}", title: s_('TagsPage|Delete tag'), method: :delete, data: { confirm: s_('TagsPage|Deleting the %{tag_name} tag cannot be undone. Are you sure?') % { tag_name: @tag.name } } do
           %i.fa.fa-trash-o
 
   - if @tag.message.present?

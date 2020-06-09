@@ -126,7 +126,7 @@ export default {
             }}
           </p>
           <div class="text-center">
-            <a :href="helpPath" class="btn btn-success">
+            <a :href="helpPath" class="btn gl-button-deprecated btn-success">
               {{ s__('Serverless|Learn more about Serverless') }}
             </a>
           </div>

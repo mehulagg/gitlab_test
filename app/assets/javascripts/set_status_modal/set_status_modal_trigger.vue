@@ -23,5 +23,7 @@ export default {
 </script>
 
 <template>
-  <button type="button" class="btn menu-item" @click="openModal">{{ buttonText }}</button>
+  <button type="button" class="btn gl-button-deprecated menu-item" @click="openModal">
+    {{ buttonText }}
+  </button>
 </template>

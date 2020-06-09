@@ -13,22 +13,22 @@
   .cover-block.user-cover-block{ class: [('border-bottom' if profile_tabs.empty?)] }
     = render layout: 'users/cover_controls' do
       - if @user == current_user
-        = link_to profile_path, class: link_classes + 'btn btn-default has-tooltip', title: s_('UserProfile|Edit profile'), 'aria-label': 'Edit profile' do
+        = link_to profile_path, class: link_classes + 'btn gl-button-deprecated btn-default has-tooltip', title: s_('UserProfile|Edit profile'), 'aria-label': 'Edit profile' do
           = icon('pencil')
       - elsif current_user
         - if @user.abuse_report
-          %button{ class: link_classes + 'btn btn-danger mr-1', title: s_('UserProfile|Already reported for abuse'),
+          %button{ class: link_classes + 'btn gl-button-deprecated btn-danger mr-1', title: s_('UserProfile|Already reported for abuse'),
             data: { toggle: 'tooltip', placement: 'bottom', container: 'body' } }
             = icon('exclamation-circle')
         - else
-          = link_to new_abuse_report_path(user_id: @user.id, ref_url: request.referrer), class: link_classes + 'btn',
+          = link_to new_abuse_report_path(user_id: @user.id, ref_url: request.referrer), class: link_classes + 'btn gl-button-deprecated',
             title: s_('UserProfile|Report abuse'), data: { toggle: 'tooltip', placement: 'bottom', container: 'body' } do
             = icon('exclamation-circle')
       - if can?(current_user, :read_user_profile, @user)
-        = link_to user_path(@user, rss_url_options), class: link_classes + 'btn btn-default has-tooltip', title: s_('UserProfile|Subscribe'), 'aria-label': 'Subscribe' do
+        = link_to user_path(@user, rss_url_options), class: link_classes + 'btn gl-button-deprecated btn-default has-tooltip', title: s_('UserProfile|Subscribe'), 'aria-label': 'Subscribe' do
           = icon('rss')
       - if current_user && current_user.admin?
-        = link_to [:admin, @user], class: link_classes + 'btn btn-default', title: s_('UserProfile|View user in admin area'),
+        = link_to [:admin, @user], class: link_classes + 'btn gl-button-deprecated btn-default', title: s_('UserProfile|View user in admin area'),
           data: {toggle: 'tooltip', placement: 'bottom', container: 'body'} do
           = icon('users')
 

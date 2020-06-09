@@ -10,10 +10,10 @@
 
     .float-right
       - if runner.active?
-        = link_to _('Pause'), pause_group_runner_path(@group, runner), method: :post, class: 'btn btn-sm btn-danger', data: { confirm: _("Are you sure?") }
+        = link_to _('Pause'), pause_group_runner_path(@group, runner), method: :post, class: 'btn gl-button-deprecated btn-sm btn-danger', data: { confirm: _("Are you sure?") }
       - else
-        = link_to _('Resume'), resume_group_runner_path(@group, runner), method: :post, class: 'btn btn-success btn-sm'
-      = link_to _('Remove Runner'), group_runner_path(@group, runner), data: { confirm: _("Are you sure?") }, method: :delete, class: 'btn btn-danger btn-sm'
+        = link_to _('Resume'), resume_group_runner_path(@group, runner), method: :post, class: 'btn gl-button-deprecated btn-success btn-sm'
+      = link_to _('Remove Runner'), group_runner_path(@group, runner), data: { confirm: _("Are you sure?") }, method: :delete, class: 'btn gl-button-deprecated btn-danger btn-sm'
   .float-right
     %small.light
       \##{runner.id}

@@ -162,7 +162,7 @@ export default {
             <gl-link
               v-if="deployBoardData.rollback_url"
               :href="deployBoardData.rollback_url"
-              class="btn"
+              class="btn gl-button-deprecated"
               data-method="post"
               rel="nofollow"
               >{{ __('Rollback') }}</gl-link
@@ -170,7 +170,7 @@ export default {
             <gl-link
               v-if="deployBoardData.abort_url"
               :href="deployBoardData.abort_url"
-              class="btn btn-red btn-inverted"
+              class="btn gl-button-deprecated btn-red btn-inverted"
               data-method="post"
               rel="nofollow"
               >{{ __('Abort') }}</gl-link

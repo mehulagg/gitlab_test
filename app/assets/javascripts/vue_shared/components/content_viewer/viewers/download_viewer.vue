@@ -47,7 +47,7 @@ export default {
       </p>
       <gl-link
         :href="path"
-        class="btn btn-default"
+        class="btn gl-button-deprecated btn-default"
         rel="nofollow"
         :download="fileName"
         target="_blank"

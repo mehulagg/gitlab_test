@@ -53,12 +53,15 @@ export default {
         <div class="text-content">
           <h4>{{ contents.title }}</h4>
           <p v-html="contents.content"></p>
-          <a v-if="activeTab === 'all'" :href="newIssuePath" class="btn btn-success btn-inverted">{{
-            __('New issue')
-          }}</a>
+          <a
+            v-if="activeTab === 'all'"
+            :href="newIssuePath"
+            class="btn gl-button-deprecated btn-success btn-inverted"
+            >{{ __('New issue') }}</a
+          >
           <button
             v-if="activeTab === 'selected'"
-            class="btn btn-default"
+            class="btn gl-button-deprecated btn-default"
             type="button"
             @click="changeTab('all')"
           >

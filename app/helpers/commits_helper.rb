@@ -105,7 +105,7 @@ module CommitsHelper
       tooltip = _("Browse Directory")
     end
 
-    link_to url, class: "btn btn-default has-tooltip", title: tooltip, data: { container: "body" } do
+    link_to url, class: "btn gl-button-deprecated btn-default has-tooltip", title: tooltip, data: { container: "body" } do
       sprite_icon('folder-open')
     end
   end
@@ -119,7 +119,7 @@ module CommitsHelper
   end
 
   def commit_signature_badge_classes(additional_classes)
-    %w(btn gpg-status-box) + Array(additional_classes)
+    %w(btn gl-button-deprecated gpg-status-box) + Array(additional_classes)
   end
 
   protected
@@ -162,7 +162,7 @@ module CommitsHelper
     return unless current_user
 
     tooltip = "#{action.capitalize} this #{commit.change_type_title(current_user)} in a new merge request" if has_tooltip
-    btn_class = "btn btn-#{btn_class}" unless btn_class.nil?
+    btn_class = "btn gl-button-deprecated btn-#{btn_class}" unless btn_class.nil?
 
     if can_collaborate_with_project?(@project)
       link_to action.capitalize, "#modal-#{action}-commit", 'data-toggle' => 'modal', 'data-container' => 'body', title: (tooltip if has_tooltip), class: "#{btn_class} #{'has-tooltip' if has_tooltip}"
@@ -186,7 +186,7 @@ module CommitsHelper
     link_to(
       project_blob_path(project,
                                   tree_join(commit_sha, diff_new_path)),
-      class: 'btn view-file js-view-file'
+      class: 'btn gl-button-deprecated view-file js-view-file'
     ) do
       raw(title) + content_tag(:span, Commit.truncate_sha(commit_sha),
                                        class: 'commit-sha')
@@ -199,7 +199,7 @@ module CommitsHelper
     external_url = environment.external_url_for(diff_new_path, commit_sha)
     return unless external_url
 
-    link_to(external_url, class: 'btn btn-file-option has-tooltip', target: '_blank', rel: 'noopener noreferrer', title: "View on #{environment.formatted_external_url}", data: { container: 'body' }) do
+    link_to(external_url, class: 'btn gl-button-deprecated btn-file-option has-tooltip', target: '_blank', rel: 'noopener noreferrer', title: "View on #{environment.formatted_external_url}", data: { container: 'body' }) do
       icon('external-link')
     end
   end

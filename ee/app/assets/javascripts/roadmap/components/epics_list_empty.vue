@@ -138,7 +138,11 @@ export default {
             id="epic-create-root"
             :data-endpoint="newEpicEndpoint"
           ></div>
-          <a :title="__('List')" :href="newEpicEndpoint" class="btn btn-default">
+          <a
+            :title="__('List')"
+            :href="newEpicEndpoint"
+            class="btn gl-button-deprecated btn-default"
+          >
             <span>{{ s__('View epics list') }}</span>
           </a>
         </div>

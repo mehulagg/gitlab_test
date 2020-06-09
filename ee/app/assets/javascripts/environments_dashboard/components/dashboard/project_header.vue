@@ -49,7 +49,7 @@ export default {
     <div class="dropdown js-more-actions">
       <button
         v-gl-tooltip
-        class="js-more-actions-toggle d-flex align-items-center ml-2 btn btn-transparent"
+        class="js-more-actions-toggle d-flex align-items-center ml-2 btn gl-button-deprecated btn-transparent"
         type="button"
         data-toggle="dropdown"
         :title="$options.moreActionsText"

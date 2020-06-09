@@ -16,7 +16,7 @@
             = image_tag @appearance.header_logo_path, class: 'appearance-light-logo-preview'
             - if @appearance.persisted?
               %br
-              = link_to 'Remove header logo', header_logos_admin_appearances_path, data: { confirm: "Header logo will be removed. Are you sure?"}, method: :delete, class: "btn btn-inverted btn-remove btn-sm remove-logo"
+              = link_to 'Remove header logo', header_logos_admin_appearances_path, data: { confirm: "Header logo will be removed. Are you sure?"}, method: :delete, class: "btn gl-button-deprecated btn-inverted btn-remove btn-sm remove-logo"
             %hr
           = f.hidden_field :header_logo_cache
           = f.file_field :header_logo, class: ""
@@ -35,7 +35,7 @@
             = image_tag @appearance.favicon_path, class: 'appearance-light-logo-preview'
             - if @appearance.persisted?
               %br
-              = link_to 'Remove favicon', favicon_admin_appearances_path, data: { confirm: "Favicon will be removed. Are you sure?"}, method: :delete, class: "btn btn-inverted btn-remove btn-sm remove-logo"
+              = link_to 'Remove favicon', favicon_admin_appearances_path, data: { confirm: "Favicon will be removed. Are you sure?"}, method: :delete, class: "btn gl-button-deprecated btn-inverted btn-remove btn-sm remove-logo"
             %hr
           = f.hidden_field :favicon_cache
           = f.file_field :favicon, class: ''
@@ -67,7 +67,7 @@
             = image_tag @appearance.logo_path, class: 'appearance-logo-preview'
             - if @appearance.persisted?
               %br
-              = link_to 'Remove logo', logo_admin_appearances_path, data: { confirm: "Logo will be removed. Are you sure?"}, method: :delete, class: "btn btn-inverted btn-remove btn-sm remove-logo"
+              = link_to 'Remove logo', logo_admin_appearances_path, data: { confirm: "Logo will be removed. Are you sure?"}, method: :delete, class: "btn gl-button-deprecated btn-inverted btn-remove btn-sm remove-logo"
             %hr
           = f.hidden_field :logo_cache
           = f.file_field :logo, class: ""
@@ -101,13 +101,13 @@
             = parsed_with_gfm
 
       .prepend-top-default.append-bottom-default
-        = f.submit 'Update appearance settings', class: 'btn btn-success'
+        = f.submit 'Update appearance settings', class: 'btn gl-button-deprecated btn-success'
         - if @appearance.persisted? || @appearance.updated_at
           .mt-4
             - if @appearance.persisted?
               Preview last save:
-              = link_to 'Sign-in page', preview_sign_in_admin_appearances_path, class: 'btn', target: '_blank', rel: 'noopener noreferrer'
-              = link_to 'New project page', new_project_path, class: 'btn', target: '_blank', rel: 'noopener noreferrer'
+              = link_to 'Sign-in page', preview_sign_in_admin_appearances_path, class: 'btn gl-button-deprecated', target: '_blank', rel: 'noopener noreferrer'
+              = link_to 'New project page', new_project_path, class: 'btn gl-button-deprecated', target: '_blank', rel: 'noopener noreferrer'
 
             - if @appearance.updated_at
               %span.float-right

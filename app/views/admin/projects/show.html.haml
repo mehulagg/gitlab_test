@@ -5,7 +5,7 @@
 
 %h3.page-title
   Project: #{@project.full_name}
-  = link_to edit_project_path(@project), class: "btn btn-nr float-right" do
+  = link_to edit_project_path(@project), class: "btn gl-button-deprecated btn-nr float-right" do
     %i.fa.fa-pencil-square-o
     Edit
 %hr
@@ -131,7 +131,7 @@
 
           .form-group.row
             .offset-sm-3.col-sm-9
-              = f.submit 'Transfer', class: 'btn btn-primary'
+              = f.submit 'Transfer', class: 'btn gl-button-deprecated btn-primary'
 
     .card.repository-check
       .card-header
@@ -151,7 +151,7 @@
             = link_to icon('question-circle'), help_page_path('administration/repository_checks')
 
           .form-group
-            = f.submit 'Trigger repository check', class: 'btn btn-primary'
+            = f.submit 'Trigger repository check', class: 'btn gl-button-deprecated btn-primary'
 
   .col-md-6
     - if @group
@@ -161,7 +161,7 @@
           group members
           %span.badge.badge-pill= @group_members.size
           .float-right
-            = link_to admin_group_path(@group), class: 'btn btn-sm' do
+            = link_to admin_group_path(@group), class: 'btn gl-button-deprecated btn-sm' do
               = icon('pencil-square-o', text: 'Manage access')
         %ul.content-list.members-list
           = render partial: 'shared/members/member', collection: @group_members, as: :member, locals: { show_controls: false }
@@ -176,7 +176,7 @@
         project members
         %span.badge.badge-pill= @project.users.size
         .float-right
-          = link_to icon('pencil-square-o', text: 'Manage access'), project_project_members_path(@project), class: "btn btn-sm"
+          = link_to icon('pencil-square-o', text: 'Manage access'), project_project_members_path(@project), class: "btn gl-button-deprecated btn-sm"
       %ul.content-list.project_members.members-list
         = render partial: 'shared/members/member', collection: @project_members, as: :member, locals: { show_controls: false }
       .card-footer

@@ -165,7 +165,7 @@ export default {
         v-gl-tooltip
         type="button"
         title="Edit comment"
-        class="note-action-button js-note-edit btn btn-transparent qa-note-edit-button"
+        class="note-action-button js-note-edit btn gl-button-deprecated btn-transparent qa-note-edit-button"
         @click="onEdit"
       >
         <icon name="pencil" class="link-highlight" />
@@ -176,7 +176,7 @@ export default {
         v-gl-tooltip
         type="button"
         title="Delete comment"
-        class="note-action-button js-note-delete btn btn-transparent"
+        class="note-action-button js-note-delete btn gl-button-deprecated btn-transparent"
         @click="onDelete"
       >
         <icon name="remove" class="link-highlight" />
@@ -187,7 +187,7 @@ export default {
         v-gl-tooltip
         type="button"
         title="More actions"
-        class="note-action-button more-actions-toggle btn btn-transparent"
+        class="note-action-button more-actions-toggle btn gl-button-deprecated btn-transparent"
         data-toggle="dropdown"
         @click="closeTooltip"
       >
@@ -208,7 +208,7 @@ export default {
         </li>
         <li v-if="canEdit">
           <button
-            class="btn btn-transparent js-note-delete js-note-delete"
+            class="btn gl-button-deprecated btn-transparent js-note-delete js-note-delete"
             type="button"
             @click.prevent="onDelete"
           >

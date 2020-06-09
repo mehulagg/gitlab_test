@@ -14,7 +14,7 @@ export default {
   <button
     ref="button"
     type="button"
-    class="js-vue-discussion-reply btn btn-text-field"
+    class="js-vue-discussion-reply btn gl-button-deprecated btn-text-field"
     :title="s__('MergeRequests|Add a reply')"
     @click="$emit('onClick')"
   >
