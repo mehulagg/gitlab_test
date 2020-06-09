@@ -89,30 +89,6 @@ export default {
           <p class="m-0 pr-1">{{ __('A Terraform report was generated in your pipelines.') }}</p>
 
           <gl-loading-icon v-if="loading" size="md" />
-
-          <p v-else-if="validPlanValues" class="m-0">
-            <gl-sprintf
-              :message="
-                __(
-                  'Reported Resource Changes: %{addNum} to add, %{changeNum} to change, %{deleteNum} to delete',
-                )
-              "
-            >
-              <template #addNum>
-                <strong>{{ addNum }}</strong>
-              </template>
-
-              <template #changeNum>
-                <strong>{{ changeNum }}</strong>
-              </template>
-
-              <template #deleteNum>
-                <strong>{{ deleteNum }}</strong>
-              </template>
-            </gl-sprintf>
-          </p>
-
-          <p v-else class="m-0">{{ __('Changes are unknown') }}</p>
         </div>
 
         <div class="terraform-mr-plan-actions">
@@ -131,6 +107,33 @@ export default {
           </gl-link>
         </div>
       </div>
+    </div>
+
+    <div
+      class="mr-widget-extension gl-display-flex gl-px-5 gl-py-3"
+      v-if="validPlanValues"
+    >
+      <p class="gl-m-0 gl-ml-7">
+        <gl-sprintf
+          :message="
+            __(
+              'Reported resource changes: %{addNum} to add, %{changeNum} to change, %{deleteNum} to delete',
+            )
+          "
+        >
+          <template #addNum>
+            <strong>{{ addNum }}</strong>
+          </template>
+
+          <template #changeNum>
+            <strong>{{ changeNum }}</strong>
+          </template>
+
+          <template #deleteNum>
+            <strong>{{ deleteNum }}</strong>
+          </template>
+        </gl-sprintf>
+      </p>
     </div>
   </section>
 </template>
