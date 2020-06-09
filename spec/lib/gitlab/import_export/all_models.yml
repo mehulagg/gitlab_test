@@ -504,6 +504,7 @@ project:
 - freeze_periods
 - webex_teams_service
 - build_report_results
+- fuzzing_targets
 award_emoji:
 - awardable
 - user
