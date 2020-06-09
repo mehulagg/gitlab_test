@@ -35,8 +35,12 @@
   }
 
   @include media-breakpoint-down(xs) {
-    .alert-details-issue-button {
+    .alert-details-options {
       width: 100%;
+
+      .dropdown-toggle {
+        justify-content: center;
+      }
     }
   }
 

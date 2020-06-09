@@ -10,6 +10,8 @@ import {
   GlTab,
   GlButton,
   GlTable,
+  GlDropdown,
+  GlDropdownItem,
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
@@ -47,6 +49,8 @@ export default {
     GlTable,
     TimeAgoTooltip,
     AlertSidebar,
+    GlDropdown,
+    GlDropdownItem,
   },
   props: {
     alertId: {
@@ -180,7 +184,7 @@ export default {
     <div
       v-if="alert"
       class="alert-management-details gl-relative"
-      :class="{ 'pr-8': sidebarCollapsed }"
+      :class="{ 'pr-sm-8': sidebarCollapsed }"
     >
       <div
         class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
@@ -205,27 +209,51 @@ export default {
             </gl-sprintf>
           </span>
         </div>
-        <gl-button
-          v-if="alert.issueIid"
-          class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline alert-details-issue-button"
-          data-testid="viewIssueBtn"
-          :href="issuePath(alert.issueIid)"
-          category="primary"
-          variant="success"
+        <gl-dropdown
+          text="Options"
+          class="alert-details-options d-sm-none gl-mt-5"
+          right
+          :disabled="issueCreationInProgress"
         >
-          {{ s__('AlertManagement|View issue') }}
-        </gl-button>
-        <gl-button
-          v-else
-          class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline alert-details-issue-button"
-          data-testid="createIssueBtn"
-          :loading="issueCreationInProgress"
-          category="primary"
-          variant="success"
-          @click="createIssue()"
-        >
-          {{ s__('AlertManagement|Create issue') }}
-        </gl-button>
+          <gl-dropdown-item
+            v-if="alert.issueIid"
+            data-testid="viewIssueBtn"
+            :href="issuePath(alert.issueIid)"
+          >
+            {{ s__('AlertManagement|View issue') }}
+          </gl-dropdown-item>
+          <gl-dropdown-item
+            v-else
+            data-testid="createIssueBtn"
+            :loading="issueCreationInProgress"
+            @click="createIssue()"
+          >
+            {{ s__('AlertManagement|Create issue') }}
+          </gl-dropdown-item>
+        </gl-dropdown>
+        <div class="d-none d-sm-block">
+          <gl-button
+            v-if="alert.issueIid"
+            class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline alert-details-issue-button"
+            data-testid="viewIssueBtn"
+            :href="issuePath(alert.issueIid)"
+            category="primary"
+            variant="success"
+          >
+            {{ s__('AlertManagement|View issue') }}
+          </gl-button>
+          <gl-button
+            v-else
+            class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline alert-details-issue-button"
+            data-testid="createIssueBtn"
+            :loading="issueCreationInProgress"
+            category="primary"
+            variant="success"
+            @click="createIssue()"
+          >
+            {{ s__('AlertManagement|Create issue') }}
+          </gl-button>
+        </div>
         <gl-button
           :aria-label="__('Toggle sidebar')"
           category="primary"

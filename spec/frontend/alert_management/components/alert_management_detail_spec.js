@@ -144,6 +144,10 @@ describe('AlertDetails', () => {
 
       it('calls `$apollo.mutate` with `createIssueQuery`', () => {
         const issueIid = '10';
+        mountComponent({
+          mountMethod: mount,
+          data: { alert: { ...mockAlert } },
+        });
         jest
           .spyOn(wrapper.vm.$apollo, 'mutate')
           .mockResolvedValue({ data: { createAlertIssue: { issue: { iid: issueIid } } } });
