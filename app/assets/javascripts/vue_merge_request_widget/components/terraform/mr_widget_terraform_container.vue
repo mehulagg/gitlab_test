@@ -1,5 +1,6 @@
 <script>
 import { __ } from '~/locale';
+import { ERROR_MESSAGES } from './constants';
 import { GlIcon, GlLink, GlLoadingIcon, GlSprintf } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 import Poll from '~/lib/utils/poll';
@@ -34,11 +35,17 @@ export default {
     deleteNum() {
       return Number(this.plan.delete);
     },
+    errorType() {
+      return ERROR_MESSAGES[this.plan.tf_report_error] || ERROR_MESSAGES.default
+    },
     logUrl() {
       return this.plan.job_path;
     },
     plan() {
       return this.plans['tfplan.json'] || {};
+    },
+    shortErrorMessage() {
+      return this.errorType.shortMessage
     },
     validPlanValues() {
       return this.addNum + this.changeNum + this.deleteNum >= 0;
@@ -136,6 +143,13 @@ export default {
           </template>
         </gl-sprintf>
       </p>
+    </div>
+
+    <div
+      class="mr-widget-extension gl-display-flex gl-px-6 gl-py-3"
+      v-else
+    >
+      <p>{{ shortErrorMessage }}</p>
     </div>
   </section>
 </template>
