@@ -7,12 +7,11 @@ class PipelinesEmailService < Service
   boolean_accessor :notify_only_broken_pipelines, :notify_only_default_branch
   validates :recipients, presence: true, if: :valid_recipients?
 
+  default_value_for :notify_only_broken_pipelines, true
+  default_value_for :branches_to_be_notified, 'default'
+
   def initialize_properties
-    if properties.nil?
-      self.properties = {}
-      self.notify_only_broken_pipelines = true
-      self.branches_to_be_notified = "default"
-    elsif !self.notify_only_default_branch.nil?
+    unless self.notify_only_default_branch.nil?
       # In older versions, there was only a boolean property named
       # `notify_only_default_branch`. Now we have a string property named
       # `branches_to_be_notified`. Instead of doing a background migration, we

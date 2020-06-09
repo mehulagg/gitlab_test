@@ -31,7 +31,7 @@ describe EmailsOnPushService do
     end
 
     context 'when branches_to_be_notified is already set' do
-      subject { described_class.new(properties: { branches_to_be_notified: 'protected' }) }
+      subject { described_class.new(branches_to_be_notified: 'protected') }
 
       it 'does not overwrite it with the default value' do
         expect(subject.branches_to_be_notified).to eq('protected')

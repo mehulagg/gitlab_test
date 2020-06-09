@@ -118,7 +118,7 @@ RSpec.describe GithubService do
         {
           active: false,
           project: project,
-          properties: { static_context: false }
+          static_context: false
         }
       end
 

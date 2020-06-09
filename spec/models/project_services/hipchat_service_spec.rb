@@ -26,6 +26,14 @@ describe HipchatService do
     end
   end
 
+  describe '.new' do
+    subject { described_class.new }
+
+    it 'initializes with default values' do
+      expect(subject.notify_only_broken_pipelines).to eq(true)
+    end
+  end
+
   describe "Execute" do
     let(:hipchat) { described_class.new }
     let(:user)    { create(:user) }

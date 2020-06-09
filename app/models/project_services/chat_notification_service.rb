@@ -14,6 +14,8 @@ class ChatNotificationService < Service
   EVENT_CHANNEL = proc { |event| "#{event}_channel" }
 
   default_value_for :category, 'chat'
+  default_value_for :notify_only_broken_pipelines, true
+  default_value_for :branches_to_be_notified, 'default'
 
   prop_accessor :webhook, :username, :channel, :branches_to_be_notified
 
@@ -25,11 +27,7 @@ class ChatNotificationService < Service
   validates :webhook, presence: true, public_url: true, if: :activated?
 
   def initialize_properties
-    if properties.nil?
-      self.properties = {}
-      self.notify_only_broken_pipelines = true
-      self.branches_to_be_notified = "default"
-    elsif !self.notify_only_default_branch.nil?
+    unless self.notify_only_default_branch.nil?
       # In older versions, there was only a boolean property named
       # `notify_only_default_branch`. Now we have a string property named
       # `branches_to_be_notified`. Instead of doing a background migration, we

@@ -13,10 +13,7 @@ class GithubService < Service
   validates :repository_url, public_url: true, allow_blank: true
 
   default_value_for :pipeline_events, true
-
-  def initialize_properties
-    self.properties ||= { static_context: true }
-  end
+  default_value_for :static_context, true
 
   def title
     'GitHub'

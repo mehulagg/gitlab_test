@@ -13,13 +13,7 @@ class HipchatService < Service
   prop_accessor :token, :room, :server, :color, :api_version
   boolean_accessor :notify_only_broken_pipelines, :notify
   validates :token, presence: true, if: :activated?
-
-  def initialize_properties
-    if properties.nil?
-      self.properties = {}
-      self.notify_only_broken_pipelines = true
-    end
-  end
+  default_value_for :notify_only_broken_pipelines, true
 
   def title
     'HipChat'

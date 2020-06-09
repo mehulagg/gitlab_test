@@ -98,7 +98,7 @@ class Service < ApplicationRecord
   end
 
   def initialize_properties
-    self.properties = {} if properties.nil?
+    # implement inside child
   end
 
   def title

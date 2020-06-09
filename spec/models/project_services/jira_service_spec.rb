@@ -103,7 +103,7 @@ describe JiraService do
     subject { described_class.create(params) }
 
     it 'does not store data into properties' do
-      expect(subject.properties).to be_nil
+      expect(subject.properties).to be_empty
     end
 
     it 'sets title correctly' do

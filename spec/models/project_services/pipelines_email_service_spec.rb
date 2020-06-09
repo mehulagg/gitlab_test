@@ -19,6 +19,15 @@ describe PipelinesEmailService, :mailer do
     Gitlab::DataBuilder::Pipeline.build(pipeline)
   end
 
+  describe '.new' do
+    subject { described_class.new }
+
+    it 'initializes with default values', :aggregate_failures do
+      expect(subject.notify_only_broken_pipelines).to eq(true)
+      expect(subject.branches_to_be_notified).to eq('default')
+    end
+  end
+
   describe 'Validations' do
     context 'when service is active' do
       before do

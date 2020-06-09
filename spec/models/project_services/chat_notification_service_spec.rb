@@ -11,6 +11,15 @@ describe ChatNotificationService do
     it { is_expected.to validate_presence_of :webhook }
   end
 
+  describe '.new' do
+    subject { described_class.new }
+
+    it 'initializes with default values', :aggregate_failures do
+      expect(subject.notify_only_broken_pipelines).to eq(true)
+      expect(subject.branches_to_be_notified).to eq('default')
+    end
+  end
+
   describe '#can_test?' do
     context 'with empty repository' do
       it 'returns true' do

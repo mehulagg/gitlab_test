@@ -7,6 +7,7 @@ class EmailsOnPushService < Service
   boolean_accessor :disable_diffs
   prop_accessor :recipients, :branches_to_be_notified
   validates :recipients, presence: true, if: :valid_recipients?
+  default_value_for :branches_to_be_notified, 'all'
 
   def title
     s_('EmailsOnPushService|Emails on push')
@@ -22,12 +23,6 @@ class EmailsOnPushService < Service
 
   def self.supported_events
     %w(push tag_push)
-  end
-
-  def initialize_properties
-    super
-
-    self.branches_to_be_notified = 'all' if branches_to_be_notified.nil?
   end
 
   def execute(push_data)
