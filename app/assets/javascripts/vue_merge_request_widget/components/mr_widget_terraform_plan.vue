@@ -86,7 +86,7 @@ export default {
 
       <div class="d-flex flex-fill flex-column flex-md-row">
         <div class="terraform-mr-plan-text normal d-flex flex-column flex-lg-row">
-          <p class="m-0 pr-1">{{ __('A terraform report was generated in your pipelines.') }}</p>
+          <p class="m-0 pr-1">{{ __('A Terraform report was generated in your pipelines.') }}</p>
 
           <gl-loading-icon v-if="loading" size="md" />
 
