@@ -40,6 +40,9 @@ export default {
     errorType() {
       return ERROR_MESSAGES[this.plan.tf_report_error] || ERROR_MESSAGES.default
     },
+    hasErrors() {
+      return !this.loading && !this.validPlanValues;
+    },
     logUrl() {
       return this.plan.job_path;
     },
@@ -144,7 +147,7 @@ export default {
 
     <mr-collapsible-extension
       :title="errorType.shortMessage"
-      v-else
+      v-if="hasErrors"
     >
       <div class="gl-mx-6 gl-px-7">
         <p class="gl-m-3">
