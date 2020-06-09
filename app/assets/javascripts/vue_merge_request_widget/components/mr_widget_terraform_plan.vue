@@ -2,7 +2,6 @@
 import { __ } from '~/locale';
 import { GlIcon, GlLink, GlLoadingIcon, GlSprintf } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
-import flash from '~/flash';
 import Poll from '~/lib/utils/poll';
 
 export default {
@@ -69,7 +68,6 @@ export default {
         errorCallback: () => {
           this.plans = {};
           this.loading = false;
-          flash(__('An error occurred while loading terraform report'));
         },
       });
 
