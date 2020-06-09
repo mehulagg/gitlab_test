@@ -1,3 +1,9 @@
+GIT
+  remote: https://gitlab.com/gitlab-org/ci-cd/test_file_finder.git
+  revision: d00d1390a5724e8a5134d0bd642a0b22da96b676
+  specs:
+    test_file_finder (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -1390,6 +1396,7 @@ DEPENDENCIES
   state_machines-activerecord (~> 0.6.0)
   sys-filesystem (~> 1.1.6)
   test-prof (~> 0.10.0)
+  test_file_finder!
   thin (~> 1.7.0)
   timecop (~> 0.9.1)
   toml-rb (~> 1.0.0)

@@ -408,9 +408,9 @@ group :test do
   gem 'test-prof', '~> 0.10.0'
   gem 'rspec_junit_formatter'
   gem 'guard-rspec'
-
   # Moved in `test` because https://gitlab.com/gitlab-org/gitlab/-/issues/217527
   gem 'derailed_benchmarks', require: false
+  gem 'test_file_finder', git: 'https://gitlab.com/gitlab-org/ci-cd/test_file_finder.git'
 end
 
 gem 'octokit', '~> 4.15'
