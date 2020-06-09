@@ -983,15 +983,35 @@ vault:
   installed: true
 ```
 
-By default you will get a basic Vault setup with no scalable
-storage backend. This is enough for simple testing and small-scale deployments, though has limits
-to how much it can scale, and as it is a single instance deployment, you will experience downtime
+By default you will get a basic Vault setup with no scalable storage backend,
+accessible only from within the Kubernetes cluster. This is enough for simple
+testing and small-scale deployments, though has limits to how much it can scale,
+and as it is a single instance deployment, you will experience downtime
 when upgrading the Vault application.
 
-To optimally use Vault in a production environment, it's ideal to have a good understanding
+To expose vault to clients outside of your cluster (e.g. a CI job in a shared runner), you may wish to specify the following in `.gitlab/managed-apps/vault/values.yaml`:
+
+```yaml
+ui:
+  enabled: true
+  serviceType: "LoadBalancer"
+```
+
+To configure how Vault will be accessed, you can also specify an environment name and URL in your `.gitlab/managed-apps/config.yaml`:
+
+```yaml
+vault:
+  installed: true
+  environment:
+    name: production
+    url: http://vault.$KUBE_INGRESS_BASE_DOMAIN/
+```
+
+To securely and optimally use Vault in a production environment, it's ideal to have a good understanding
 of the internals of Vault and how to configure it. This can be done by reading the
-[the Vault documentation](https://www.vaultproject.io/docs/internals) as well as
-the Vault Helm chart [`values.yaml` file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
+[the Vault documentation](https://www.vaultproject.io/docs/internals) (particularly,
+[Vault Helm chart configuration guide](https://www.vaultproject.io/docs/platform/k8s/helm/configuration)),
+as well as the Vault Helm chart [`values.yaml` file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
 
 At a minimum you will likely set up:
 
