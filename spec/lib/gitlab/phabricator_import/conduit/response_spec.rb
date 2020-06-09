@@ -30,7 +30,7 @@ describe Gitlab::PhabricatorImport::Conduit::Response do
                        body: 'This is no JSON')
 
       expect { described_class.parse!(fake_response) }
-        .to raise_error(Gitlab::PhabricatorImport::Conduit::ResponseError, /unexpected token at/)
+        .to raise_error(Gitlab::PhabricatorImport::Conduit::ResponseError, /This is no JSON/)
     end
 
     it 'returns a parsed response for valid input' do
