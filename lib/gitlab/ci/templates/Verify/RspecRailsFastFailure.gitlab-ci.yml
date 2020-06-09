@@ -13,3 +13,22 @@ rspec-rails-modified-path-specs:
           echo "No relevant spec files found by tff"
           exit 0
         fi
+
+rspec-rails-detached-modified-path-specs:
+  stage: .pre
+  rules:
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
+  script:
+    - git fetch origin $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+
+    - bundle install
+    - spec_files=$(bundle exec tff $(git diff --name-only "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME..origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"))
+    - |
+        if [ -n "$spec_files" ]
+        then
+          bundle exec rspec $spec_files
+        else
+          echo "No relevant spec files found by tff"
+          exit 0
+        fi
