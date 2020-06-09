@@ -3,6 +3,7 @@ import { __ } from '~/locale';
 import { ERROR_MESSAGES } from './constants';
 import { GlIcon, GlLink, GlLoadingIcon, GlSprintf } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
+import MrCollapsibleExtension from '../mr_collapsible_extension.vue';
 import Poll from '~/lib/utils/poll';
 
 export default {
@@ -12,6 +13,7 @@ export default {
     GlLink,
     GlLoadingIcon,
     GlSprintf,
+    MrCollapsibleExtension
   },
   props: {
     endpoint: {
@@ -44,9 +46,6 @@ export default {
     plan() {
       return this.plans['tfplan.json'] || {};
     },
-    shortErrorMessage() {
-      return this.errorType.shortMessage
-    },
     validPlanValues() {
       return this.addNum + this.changeNum + this.deleteNum >= 0;
     },
@@ -67,15 +66,13 @@ export default {
         successCallback: ({ data }) => {
           this.plans = data;
 
-          console.log(data)
-
           if (Object.keys(this.plan).length) {
             this.loading = false;
             poll.stop();
           }
         },
         errorCallback: () => {
-          this.plans = {};
+          this.plans = { 'tf_report_error': 'api_error' };
           this.loading = false;
         },
       });
@@ -145,11 +142,27 @@ export default {
       </p>
     </div>
 
-    <div
-      class="mr-widget-extension gl-display-flex gl-px-6 gl-py-3"
+    <mr-collapsible-extension
+      :title="errorType.shortMessage"
       v-else
     >
-      <p>{{ shortErrorMessage }}</p>
-    </div>
+      <div class="gl-mx-6 gl-px-7">
+        <p class="gl-m-3">
+          <strong>{{ errorType.longMessageHeader }}</strong>
+        </p>
+
+        <p class="gl-m-3">{{ errorType.longMessage }}</p>
+
+        <p class="gl-m-3">
+          <gl-link
+            href="https://docs.gitlab.com/ee/user/infrastructure/#output-terraform-plan-information-into-a-merge-request"
+            target="_blank"
+            rel="noopener"
+          >
+            Go to documentation
+          </gl-link>for help on setting up your Terraform report.
+        </p>
+      </div>
+    </mr-collapsible-extension>
   </section>
 </template>
