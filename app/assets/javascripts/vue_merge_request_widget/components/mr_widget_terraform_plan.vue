@@ -110,7 +110,7 @@ export default {
     </div>
 
     <div
-      class="mr-widget-extension gl-display-flex gl-px-5 gl-py-3"
+      class="mr-widget-extension gl-display-flex gl-px-6 gl-py-3"
       v-if="validPlanValues"
     >
       <p class="gl-m-0 gl-ml-7">
