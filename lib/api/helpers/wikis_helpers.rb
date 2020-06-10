@@ -3,10 +3,6 @@
 module API
   module Helpers
     module WikisHelpers
-      def self.wiki_resource_kinds
-        [:projects]
-      end
-
       def wiki_container(kind)
         case kind
         when :projects
