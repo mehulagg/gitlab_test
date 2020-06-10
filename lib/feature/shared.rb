@@ -26,6 +26,22 @@ class Feature
         example: <<-EOS
           Feature.enabled?(:my_feature_flag, type: ops)
         EOS
+      },
+      licensed: {
+        description: 'Forever, used like a config to enable rollout licensed features for certain users',
+        optional: true,
+        rollout_issue: false,
+        example: <<-EOS
+          project.feature_available?(:my_licensed_feature)
+          project.beta_feature_available?(:my_licensed_feature)
+          project.alpha_feature_available?(:my_licensed_feature)
+
+          namespace.feature_available?(:my_licensed_feature)
+          namespace.beta_feature_available?(:my_licensed_feature)
+          namespace.alpha_feature_available?(:my_licensed_feature)
+
+          push_frontend_feature_flag(:my_licensed_feature, type: :licensed)
+        EOS
       }
     }.freeze
 

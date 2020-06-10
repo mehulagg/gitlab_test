@@ -296,7 +296,7 @@ class License < ApplicationRecord
     end
 
     def promo_feature_available?(feature)
-      ::Feature.enabled?("promo_#{feature}", default_enabled: false)
+      ::Feature.enabled?("promo_#{feature}", type: :licensed, default_enabled: false)
     end
 
     def history
@@ -379,7 +379,7 @@ class License < ApplicationRecord
     return false if trial? && expired?
 
     # This feature might not be behind a feature flag at all, so default to true
-    return false unless ::Feature.enabled?(feature, default_enabled: true)
+    return false unless ::Feature.enabled?(feature, type: :licensed, default_enabled: true)
 
     features.include?(feature)
   end
