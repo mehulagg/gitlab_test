@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlForm, GlFormInput } from '@gitlab/ui';
+import { GlButton, GlForm, GlFormInput, GlDatepicker } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { __ } from '~/locale';
@@ -10,6 +10,7 @@ import DueDateSelectors from '~/due_date_select';
 export default {
   components: {
     GlButton,
+    GlDatepicker,
     GlForm,
     GlFormInput,
     MarkdownField,
@@ -138,17 +139,14 @@ export default {
             <label for="iteration-start-date">{{ __('Start date') }}</label>
           </div>
           <div class="col-sm-10">
-            <gl-form-input
+            <gl-datepicker
               id="iteration-start-date"
               v-model="startDate"
-              class="datepicker form-control"
+              class="gl-d-block"
               :placeholder="__('Select start date')"
               autocomplete="off"
               @change="updateStartDate"
             />
-            <a class="inline float-right gl-mt-2 js-clear-start-date" href="#">{{
-              __('Clear start date')
-            }}</a>
           </div>
         </div>
         <div class="form-group row">
@@ -156,17 +154,14 @@ export default {
             <label for="iteration-due-date">{{ __('Due Date') }}</label>
           </div>
           <div class="col-sm-10">
-            <gl-form-input
+            <gl-datepicker
               id="iteration-due-date"
               v-model="dueDate"
-              class="datepicker form-control"
+              class="gl-display-block!"
               :placeholder="__('Select due date')"
               autocomplete="off"
               @change="updateDueDate"
             />
-            <a class="inline float-right gl-mt-2 js-clear-due-date" href="#">{{
-              __('Clear due date')
-            }}</a>
           </div>
         </div>
       </div>
