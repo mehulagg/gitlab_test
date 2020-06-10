@@ -48,9 +48,18 @@ Include the code block in the `/etc/gitlab/gitlab.rb` file:
 
    ```ruby
    gitlab_rails['omniauth_allow_single_sign_on'] = ['cognito']
+   
+   # When a new user signs on, a new GitLab user is created. By default (true)
+   # they are blocked from further action until an administrator unblocks them.
+   # Setting this to false grants internal access to new users upon creation.
+   # Regardless, such new users are still not a member of any group.
+   # gitlab_rails['omniauth_block_auto_created_users'] = true
+   
    gitlab_rails['omniauth_providers'] = [
      {
        "name" => "cognito",
+       # "label" => "Cognito",
+       # "icon" => nil,   # Specify a URL
        "app_id" => "CLIENT ID",
        "app_secret" => "CLIENT SECRET",
        "args" => {
