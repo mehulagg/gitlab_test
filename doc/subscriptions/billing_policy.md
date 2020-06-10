@@ -72,6 +72,11 @@ send an invoice.
 - If a customer does not enable the automated seat link service and does not proactively report
   quarterly usage, they will be subject to the annual seat review process.
 
+
+![Example Quarterly Seat Review counting of users](img/quarterly_seat_review.png)
+
+---
+
 ### Annual seat review
 
 For customers with subscriptions purchased before 2020-06-15, or who are not sharing quarterly seat data, we will review your seat utilization at the time of renewal (or annually in the case of contract terms greater than 12 months) or as otherwise agreed to in your subscription agreement between you and GitLab. The payment of any seat overage for the prior term will be invoiced along with the renewal subscription.
@@ -93,3 +98,5 @@ For customers with subscriptions purchased before 2020-06-15, or who are not sha
   the excess users at list price for the term of the prior subscription at the time of renewal.
 - For our self-managed GitLab customers, a new license file will be sent to the contact on file at
   the time of renewal. The new license file must be [uploaded](../user/admin_area/license.md#uploading-your-license) for it to take effect.
+
+![Example Annual Seat Review counting of users](img/annual_seat_review.png)
