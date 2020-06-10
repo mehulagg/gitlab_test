@@ -67,3 +67,4 @@ package-and-qa:
       artifacts: false
   variables:
     QA_BRANCH: "ml-use-job-token-instead-of-pipeline-polling-token"
+    OMNIBUS_BRANCH: "ml-report-trigger-failure-content"
