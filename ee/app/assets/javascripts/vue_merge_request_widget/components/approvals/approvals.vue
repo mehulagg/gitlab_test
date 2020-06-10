@@ -209,10 +209,9 @@ export default {
         />
         <gl-button
           v-if="action"
-          :variant="action.variant"
+          :variant="primary"
           :class="{ 'btn-inverted': action.inverted }"
           category="secondary"
-          size="sm"
           class="mr-3"
           data-qa-selector="approve_button"
           @click="action.action"
