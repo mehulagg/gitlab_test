@@ -209,7 +209,7 @@ export default {
         />
         <gl-button
           v-if="action"
-          :variant="primary"
+          :variant="action.variant"
           :class="{ 'btn-inverted': action.inverted }"
           category="secondary"
           class="mr-3"
