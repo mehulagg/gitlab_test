@@ -18,6 +18,14 @@ class Feature
           Feature.enabled?(:my_feature_flag)
           Feature.enabled?(:my_feature_flag, type: :development)
         EOS
+      },
+      ops: {
+        description: 'Longer lived, used to disable features that have a performance impact, like special behavior of Sidekiq Jobs',
+        optional: true,
+        rollout_issue: false,
+        example: <<-EOS
+          Feature.enabled?(:my_feature_flag, type: ops)
+        EOS
       }
     }.freeze
 
