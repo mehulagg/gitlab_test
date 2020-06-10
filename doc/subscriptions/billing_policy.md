@@ -41,7 +41,7 @@ notified us 30 days in advance of renewal to cancel.
 ## Quarterly seat review
 
 For subscriptions purchased and renewed after 2020-06-15, we will either receive your usage data via
-[Seat Link](index.md#seatlink), or via sales quarterly check-ins. With the data received via Seat
+[Seat Link](index.md#seat-link), or via sales quarterly check-ins. With the data received via Seat
 Link, we will automatically bill your credit card, if applicable, and send you an invoice for the
 seat overage. For those customers working with our sales team due to an inability to send us data
 automatically, we will send you an order amendment if there are any seat overages and subsequently
