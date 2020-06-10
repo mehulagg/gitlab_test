@@ -1,6 +1,6 @@
-# include:
+include:
 #   - template: Jobs/Code-Quality.gitlab-ci.yml
-#   - template: Security/SAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
 #   - template: Security/Dependency-Scanning.gitlab-ci.yml
 #   - template: Security/DAST.gitlab-ci.yml
 
@@ -36,52 +36,42 @@ code_quality:
       - gl-code-quality-report.json  # GitLab-specific
     expire_in: 1 week  # GitLab-specific
 
-# We need to duplicate this job's definition because it seems it's impossible to
-# override an included `only.refs`.
-# See https://gitlab.com/gitlab-org/gitlab/issues/31371.
 .sast:
-  extends:
-    - .default-retry
-    - .reports:rules:sast
-  stage: test
   # `needs: []` starts the job immediately in the pipeline
   # https://docs.gitlab.com/ee/ci/yaml/README.html#needs
   needs: []
   artifacts:
     paths:
       - gl-sast-report.json  # GitLab-specific
-    reports:
-      sast: gl-sast-report.json
     expire_in: 1 week  # GitLab-specific
   variables:
-    DOCKER_TLS_CERTDIR: ""
-    SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-    SAST_ANALYZER_IMAGE_TAG: 2
     SAST_BRAKEMAN_LEVEL: 2  # GitLab-specific
     SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec  # GitLab-specific
-  script:
-    - /analyzer run
 
 brakeman-sast:
-  extends: .sast
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
+  extends:
+    - .sast-analyzer
+    - .default-retry
+    - .reports:rules:sast
 
 eslint-sast:
-  extends: .sast
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
+  extends:
+    - .sast-analyzer
+    - .default-retry
+    - .reports:rules:sast
 
 # Temporary disabled as it's constantly failing. See https://gitlab.com/gitlab-org/gitlab/-/issues/213769.
 # nodejs-scan-sast:
-#   extends: .sast
-#   image:
-#     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+#   extends:
+#     - .sast-analyzer
+#     - .default-retry
+#     - .reports:rules:sast
 
 secrets-sast:
-  extends: .sast
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
+  extends:
+    - .sast-analyzer
+    - .default-retry
+    - .reports:rules:sast
 
 # We need to duplicate this job's definition because it seems it's impossible to
 # override an included `only.refs`.
