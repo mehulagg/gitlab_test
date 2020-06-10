@@ -124,7 +124,7 @@ module Gitlab
             issues_created_manually_from_alerts: issues_created_manually_from_alerts,
             incident_issues: alert_bot_incident_count,
             alert_bot_incident_issues: alert_bot_incident_count,
-            incident_labeled_issues: count(::Issue.with_label_attributes(::IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES), start: issue_minimum_id, finish: issue_maximum_id),
+            weekly_incident_labeled_issues: incident_labeled_issues_usage_data(1.week.ago),
             keys: count(Key),
             label_lists: count(List.label),
             lfs_objects: count(LfsObject),
@@ -196,6 +196,19 @@ module Gitlab
           .where(grafana_integrations: { enabled: true }))
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      def incident_labeled_issues_usage_data(created_after)
+        # We are relying on the fact that `created_at` is always in ascending
+        # order so we lookup the min/max ids first and use them for filtering
+        # which makes queries simpler and index access faster.
+        since = LabelLink.for_issues.created_after(created_after)
+        start = since.minimum(:id) || 0
+        finish = since.maximum(:id) || 0
+        return 0 if finish.zero?
+
+        label_links = LabelLink.for_issues.with_label_attributes(IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES)
+        count(label_links, :id, start: start, finish: finish)
+      end
 
       def features_usage_data
         features_usage_data_ce

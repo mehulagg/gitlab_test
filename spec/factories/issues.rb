@@ -36,10 +36,15 @@ FactoryBot.define do
     factory :labeled_issue do
       transient do
         labels { [] }
+        label_link_created_at { nil }
       end
 
       after(:create) do |issue, evaluator|
         issue.update!(labels: evaluator.labels)
+
+        if evaluator.label_link_created_at
+          issue.label_links.update_all(created_at: evaluator.label_link_created_at)
+        end
       end
     end
 

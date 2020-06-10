@@ -19651,6 +19651,8 @@ CREATE INDEX index_import_failures_on_project_id_and_correlation_id_value ON pub
 
 CREATE INDEX index_import_failures_on_project_id_not_null ON public.import_failures USING btree (project_id) WHERE (project_id IS NOT NULL);
 
+CREATE INDEX index_incident_labels ON public.labels USING btree (id) WHERE (((title)::text = 'incident'::text) AND ((color)::text = '#CC0033'::text) AND ((description)::text = 'Denotes a disruption to IT services and the associated issues require immediate attention'::text));
+
 CREATE UNIQUE INDEX index_index_statuses_on_project_id ON public.index_statuses USING btree (project_id);
 
 CREATE INDEX index_insights_on_namespace_id ON public.insights USING btree (namespace_id);
@@ -19744,6 +19746,8 @@ CREATE INDEX index_keys_on_last_used_at ON public.keys USING btree (last_used_at
 CREATE INDEX index_keys_on_user_id ON public.keys USING btree (user_id);
 
 CREATE UNIQUE INDEX index_kubernetes_namespaces_on_cluster_project_environment_id ON public.clusters_kubernetes_namespaces USING btree (cluster_id, project_id, environment_id);
+
+CREATE INDEX index_label_links_issues_created_at ON public.label_links USING btree (id, created_at) WHERE ((target_type)::text = 'Issue'::text);
 
 CREATE INDEX index_label_links_on_label_id ON public.label_links USING btree (label_id);
 

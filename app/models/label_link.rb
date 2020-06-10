@@ -9,4 +9,8 @@ class LabelLink < ApplicationRecord
 
   validates :target, presence: true, unless: :importing?
   validates :label, presence: true, unless: :importing?
+
+  scope :for_issues, -> { where(target_type: 'Issue') }
+  scope :created_after, ->(from_date) { where('label_links.created_at >= ?', from_date) }
+  scope :with_label_attributes, ->(label_attributes) { joins(:label).where(labels: label_attributes) }
 end

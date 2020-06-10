@@ -2,6 +2,8 @@
 
 module IncidentManagement
   class CreateIncidentLabelService < BaseService
+    # If any attribute is changed, please make sure to also update the
+    # database index `index_incident_labels`.
     LABEL_PROPERTIES = {
       title: 'incident',
       color: '#CC0033',

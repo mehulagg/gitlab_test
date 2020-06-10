@@ -46,15 +46,16 @@ FactoryBot.define do
       create_list(:zoom_meeting, 2, project: projects[0], issue: projects[0].issues[2], issue_status: :removed)
       create(:sentry_issue, issue: projects[0].issues[0])
 
-      # Incident Labeled Issues
+      # Incident Labeled Issues in ascending order
       incident_label_attrs = IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES
       incident_label = create(:label, project: projects[0], **incident_label_attrs)
-      create(:labeled_issue, project: projects[0], labels: [incident_label])
+      create(:labeled_issue, project: projects[0], labels: [incident_label], label_link_created_at: 8.days.ago)
       incident_group = create(:group)
       incident_label_scoped_to_project = create(:label, project: projects[1], **incident_label_attrs)
       incident_label_scoped_to_group = create(:group_label, group: incident_group, **incident_label_attrs)
-      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_project])
-      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_group])
+      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_project], label_link_created_at: 6.days.ago)
+      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_group], label_link_created_at: 4.days.ago)
+      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_project], label_link_created_at: 2.days.ago)
 
       # Alert Issues
       create(:alert_management_alert, issue: issues[0], project: projects[0])
