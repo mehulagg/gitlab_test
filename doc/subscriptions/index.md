@@ -542,7 +542,7 @@ After we receive the above information, we will process the request and return a
 
 ## GitLab for Open Source subscriptions
 
-All [GitLab for Open Source](https://about.gitlab.com/solutions/open-source/program/) requests, including subscription renewals, must be made by using the application process. If you have any questions, send an email to `opensource@gitlab.com` for assistance.
+All [GitLab for Open Source](https://about.gitlab.com/solutions/open-source/) requests, including subscription renewals, must be made by using the application process. If you have any questions, send an email to `opensource@gitlab.com` for assistance.
 
 <!-- ## Troubleshooting
 
