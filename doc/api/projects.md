@@ -1807,7 +1807,7 @@ Example response:
 }
 ```
 
-## Remove project
+## Mark project for deletion
 
 This endpoint either:
 
