@@ -59,7 +59,7 @@ Include the code block in the `/etc/gitlab/gitlab.rb` file:
      {
        "name" => "cognito",
        # "label" => "Cognito",
-       # "icon" => nil,   # Specify a URL
+       # "icon" => nil,   # Optional icon URL
        "app_id" => "CLIENT ID",
        "app_secret" => "CLIENT SECRET",
        "args" => {
