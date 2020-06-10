@@ -17,11 +17,7 @@ export const receiveRulesSuccess = ({ commit }, approvalSettings) => {
   commit(types.SET_LOADING, false);
 };
 
-export const receiveRulesError = () => {
-  createFlash(__('An error occurred fetching the approval rules.'));
-};
-
-export const fetchRules = ({ rootState, dispatch }) => {
+export const fetchRules = ({ rootState, dispatch, commit }) => {
   const { settingsPath } = rootState.settings;
 
   dispatch('requestRules');
@@ -29,7 +25,12 @@ export const fetchRules = ({ rootState, dispatch }) => {
   return axios
     .get(settingsPath)
     .then(response => dispatch('receiveRulesSuccess', mapApprovalSettingsResponse(response.data)))
-    .catch(() => dispatch('receiveRulesError'));
+    .catch(() =>
+      commit(
+        types.RECEIVE_APPROVALS_ERROR,
+        __('An error occured fetching the projects approval rules.'),
+      ),
+    );
 };
 
 export const postRuleSuccess = ({ dispatch }) => {

@@ -1,11 +1,12 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlLoadingIcon, GlDeprecatedButton } from '@gitlab/ui';
+import { GlLoadingIcon, GlDeprecatedButton, GlAlert } from '@gitlab/ui';
 import ModalRuleCreate from './modal_rule_create.vue';
 import ModalRuleRemove from './modal_rule_remove.vue';
 
 export default {
   components: {
+    GlAlert,
     ModalRuleCreate,
     ModalRuleRemove,
     GlDeprecatedButton,
@@ -22,6 +23,7 @@ export default {
     ...mapState({
       settings: 'settings',
       hasLoaded: state => state.approvals.hasLoaded,
+      errorMessage: state => state.approvals.errorMessage,
     }),
     createModalId() {
       return `${this.settings.prefix}-approvals-create-modal`;
@@ -48,7 +50,16 @@ export default {
 
 <template>
   <div class="js-approval-rules">
-    <gl-loading-icon v-if="!hasLoaded" size="lg" />
+    <gl-alert
+      v-if="errorMessage"
+      :primary-button-text="__('Retry')"
+      :dismissible="false"
+      variant="danger"
+      @primaryAction="fetchRules(targetBranch)"
+    >
+      {{ errorMessage }}
+    </gl-alert>
+    <gl-loading-icon v-else-if="!hasLoaded" size="lg" />
     <template v-else>
       <div class="border-bottom">
         <slot name="rules"></slot>

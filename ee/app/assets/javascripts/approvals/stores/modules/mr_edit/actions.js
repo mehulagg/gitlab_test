@@ -57,11 +57,7 @@ export const receiveRulesSuccess = ({ commit }, settings) => {
   commit(types.SET_APPROVAL_SETTINGS, settings);
 };
 
-export const receiveRulesError = () => {
-  createFlash(__('An error occurred fetching the approval rules.'));
-};
-
-export const fetchRules = ({ rootState, dispatch }, targetBranch = '') => {
+export const fetchRules = ({ rootState, dispatch, commit }, targetBranch = '') => {
   dispatch('requestRules');
 
   const { mrSettingsPath, projectSettingsPath } = rootState.settings;
@@ -83,7 +79,12 @@ export const fetchRules = ({ rootState, dispatch }, targetBranch = '') => {
       rules: settings.rules.map(x => (x.id ? x : seedNewRule(x))),
     }))
     .then(settings => dispatch('receiveRulesSuccess', settings))
-    .catch(() => dispatch('receiveRulesError'));
+    .catch(() =>
+      commit(
+        types.RECEIVE_APPROVALS_ERROR,
+        __('An error occurred fetching the merge requests approval rules.'),
+      ),
+    );
 };
 
 export const postRule = ({ commit, dispatch }, rule) =>

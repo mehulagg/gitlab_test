@@ -76,17 +76,6 @@ describe('EE approvals project settings module actions', () => {
     });
   });
 
-  describe('receiveRulesError', () => {
-    it('creates a flash', () => {
-      expect(flashSpy).not.toHaveBeenCalled();
-
-      actions.receiveRulesError();
-
-      expect(flashSpy).toHaveBeenCalledTimes(1);
-      expect(flashSpy).toHaveBeenCalledWith(jasmine.stringMatching('error occurred'));
-    });
-  });
-
   describe('fetchRules', () => {
     it('dispatches request/receive', done => {
       const data = { rules: [TEST_RULE_RESPONSE] };
@@ -116,8 +105,13 @@ describe('EE approvals project settings module actions', () => {
         actions.fetchRules,
         null,
         state,
-        [],
-        [{ type: 'requestRules' }, { type: 'receiveRulesError' }],
+        [
+          {
+            type: 'RECEIVE_APPROVALS_ERROR',
+            payload: 'An error occured fetching the projects approval rules.',
+          },
+        ],
+        [{ type: 'requestRules' }],
         done,
       );
     });

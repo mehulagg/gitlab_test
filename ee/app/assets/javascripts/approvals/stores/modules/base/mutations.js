@@ -4,6 +4,7 @@ import { RULE_TYPE_ANY_APPROVER } from '../../../constants';
 export default {
   [types.SET_LOADING](state, isLoading) {
     state.isLoading = isLoading;
+    state.errorMessage = '';
   },
   [types.SET_APPROVAL_SETTINGS](state, settings) {
     state.hasLoaded = true;
@@ -25,5 +26,8 @@ export default {
       ruleType: RULE_TYPE_ANY_APPROVER,
       isNew: true,
     });
+  },
+  [types.RECEIVE_APPROVALS_ERROR](state, errorMessage) {
+    state.errorMessage = errorMessage;
   },
 };
