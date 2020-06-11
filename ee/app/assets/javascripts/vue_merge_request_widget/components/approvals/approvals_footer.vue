@@ -79,14 +79,10 @@ export default {
       </button>
       <template v-if="isCollapsed">
         <user-avatar-list :items="suggestedApproversTrimmed" :breakpoint="0" empty-text="" />
-        <gl-button variant="link" @click="toggle">{{
-          __('View eligible approvers')
-        }}</gl-button>
+        <gl-button variant="link" @click="toggle">{{ __('View eligible approvers') }}</gl-button>
       </template>
       <template v-else>
-        <gl-button variant="link" @click="toggle">{{
-          __('Collapse')
-        }}</gl-button>
+        <gl-button variant="link" @click="toggle">{{ __('Collapse') }}</gl-button>
       </template>
     </div>
     <div v-if="!isCollapsed && approvalRules.length" class="border-top">
