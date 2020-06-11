@@ -50,11 +50,12 @@ describe Ci::RunDastScanService do
           },
           "script" => [
             "export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}",
+            "if [ -z \"$DAST_WEBSITE$DAST_API_SPECIFICATION\" ]; then echo \"Either DAST_WEBSITE or DAST_API_SPECIFICATION must be set. See https://docs.gitlab.com/ee/user/application_security/dast/#configuration for more details.\" && exit 1; fi",
             "/analyze"
           ],
           "artifacts" => {
             "reports" => {
-              "dast" => ["gl-dast-report.json"]
+              "dast" => "gl-dast-report.json"
             }
           }
         }
@@ -66,19 +67,19 @@ describe Ci::RunDastScanService do
         expected_variables = [
           {
             "key" => "DAST_VERSION",
-            "value" => "1",
+            "value" => 1,
             "public" => true
           }, {
             "key" => "SECURE_ANALYZERS_PREFIX",
             "value" => "registry.gitlab.com/gitlab-org/security-products/analyzers",
             "public" => true
           }, {
-            "key" => "DAST_WEBSITE",
-            "value" => target_url,
-            "public" => true
-          }, {
             "key" => "GIT_STRATEGY",
             "value" => "none",
+            "public" => true
+          }, {
+            "key" => "DAST_WEBSITE",
+            "value" => target_url,
             "public" => true
           }
         ]

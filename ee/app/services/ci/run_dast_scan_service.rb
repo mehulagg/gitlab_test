@@ -2,6 +2,7 @@
 
 module Ci
   class RunDastScanService
+    DAST_CI_TEMPLATE = "lib/gitlab/ci/templates/Security/DAST.gitlab-ci.yml".freeze
     DEFAULT_SHA_FOR_PROJECTS_WITHOUT_COMMITS = :placeholder
 
     EXCEPTIONS = [
@@ -11,6 +12,10 @@ module Ci
       CreateBuildError = Class.new(StandardError),
       EnqueueError = Class.new(StandardError)
     ].freeze
+
+    def self.ci_template
+      @ci_template ||= File.open(DAST_CI_TEMPLATE, "r") { |f| YAML.safe_load(f.read) }
+    end
 
     def initialize(project:, user:)
       @project = project
@@ -88,47 +93,30 @@ module Ci
     end
 
     def options
+      ci_template = self.class.ci_template
+
       {
-        image: {
-          name: '$SECURE_ANALYZERS_PREFIX/dast:$DAST_VERSION'
-        },
-        artifacts: {
-          reports: {
-            dast: [
-              'gl-dast-report.json'
-            ]
-          }
-        },
-        script: [
-          'export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}',
-          '/analyze'
-        ]
+        image: ci_template['dast']['image'],
+        artifacts: ci_template['dast']['artifacts'],
+        script: ci_template['dast']['script']
       }
     end
 
     def yaml_variables(target_url)
-      [
+      ci_template = self.class.ci_template
+      ci_template_variables = ci_template['variables'].merge(ci_template['dast']['variables'])
+
+      ci_template_variables.map do |key, value|
         {
-          key: 'DAST_VERSION',
-          value: '1',
-          public: true
-        },
-        {
-          key: 'SECURE_ANALYZERS_PREFIX',
-          value: 'registry.gitlab.com/gitlab-org/security-products/analyzers',
-          public: true
-        },
-        {
-          key: 'DAST_WEBSITE',
-          value: target_url,
-          public: true
-        },
-        {
-          key: 'GIT_STRATEGY',
-          value: 'none',
+          key: key,
+          value: value,
           public: true
         }
-      ]
+      end.push(
+        key: 'DAST_WEBSITE',
+        value: target_url,
+        public: true
+      )
     end
   end
 end
