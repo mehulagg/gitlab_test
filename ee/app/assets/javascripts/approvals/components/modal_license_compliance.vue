@@ -14,14 +14,8 @@ export default {
     GlModalVuex,
     RuleForm,
   },
-  props: {
-    modalId: {
-      type: String,
-      required: true,
-    },
-  },
   computed: {
-    ...mapState('createModal', {
+    ...mapState('approvalModal', {
       rule: 'data',
     }),
     title() {
@@ -38,8 +32,8 @@ export default {
 
 <template>
   <gl-modal-vuex
-    modal-module="createModal"
-    :modal-id="modalId"
+    modal-module="approvalModal"
+    modal-id="licenseComplianceApproval"
     :title="title"
     ok-variant="success"
     :cancel-title="__('Cancel')"

@@ -20,7 +20,7 @@ describe('EE Approvals LicenseCompliance App', () => {
         fetchRules: fetchRulesMock,
       },
       modules: {
-        createModal: {
+        approvalModal: {
           namespaced: true,
           actions: {
             open: openModalMock,
@@ -29,8 +29,8 @@ describe('EE Approvals LicenseCompliance App', () => {
         approvals: {
           state: {
             isLoading: false,
-            rules: [],
             docsLink: 'http://foo.bar',
+            rules: [],
           },
         },
       },

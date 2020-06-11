@@ -22,7 +22,7 @@ export default (settings = {}) =>
       [LICENSE_LIST]: listModule(),
       [LICENSE_MANAGEMENT]: licenseManagementModule(),
       approvals: approvalsModule(),
-      createModal: modalModule(),
+      approvalModal: modalModule(),
     },
     plugins: [mediator],
   });
