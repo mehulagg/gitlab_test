@@ -3,6 +3,10 @@
 Each controller or API endpoint is allowed to execute up to 100 SQL queries and
 in test environments we'll raise an error when this threshold is exceeded.
 
+NOTE: **Note:**
+We're in the process of [updating our terminology](https://gitlab.com/gitlab-org/gitlab/-/issues/219966).
+We plan to update this page after we update our corresponding code.
+
 ## Solving Failing Tests
 
 When a test fails because it executes more than 100 SQL queries there are two
