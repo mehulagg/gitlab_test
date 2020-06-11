@@ -4044,6 +4044,11 @@ type EpicIssueConnection {
   Information to aid in pagination.
   """
   pageInfo: PageInfo!
+
+  """
+  Total count of collection
+  """
+  totalCount: Int!
 }
 
 """
@@ -4702,6 +4707,11 @@ type Group {
     List of IIDs of issues. For example, [1, 2]
     """
     iids: [String!]
+
+    """
+    Iterations applied to the issue
+    """
+    iterationId: [ID]
 
     """
     Labels applied to this issue
@@ -5561,6 +5571,11 @@ type IssueConnection {
   Information to aid in pagination.
   """
   pageInfo: PageInfo!
+
+  """
+  Total count of collection
+  """
+  totalCount: Int!
 }
 
 """
@@ -8552,6 +8567,11 @@ type Project {
     iids: [String!]
 
     """
+    Iterations applied to the issue
+    """
+    iterationId: [ID]
+
+    """
     Labels applied to this issue
     """
     labelName: [String]
@@ -8645,6 +8665,11 @@ type Project {
     List of IIDs of issues. For example, [1, 2]
     """
     iids: [String!]
+
+    """
+    Iterations applied to the issue
+    """
+    iterationId: [ID]
 
     """
     Labels applied to this issue
