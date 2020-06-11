@@ -2,6 +2,7 @@
 
 class Projects::ProductAnalyticsController < Projects::ApplicationController
   before_action :authorize_read_product_analytics!
+  before_action :feature_enabled!
   before_action :set_graph_vars, only: [:activity, :users]
   before_action :javascript_vars, only: [:example, :test]
 
@@ -56,5 +57,9 @@ class Projects::ProductAnalyticsController < Projects::ApplicationController
   def set_graph_vars
     @timerange = 30
     @graphs = []
+  end
+
+  def feature_enabled!
+    render_404 unless Feature.enabled?(:product_analytics, @project, default_enabled: false)
   end
 end

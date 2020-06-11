@@ -11,6 +11,7 @@ describe Projects::ProductAnalyticsController do
   before do
     sign_in(user)
     project.add_maintainer(user)
+    stub_feature_flags(product_analytics: true)
   end
 
   describe 'GET #index' do
@@ -31,6 +32,18 @@ describe Projects::ProductAnalyticsController do
           get :index, params: project_params
 
           expect(response).to redirect_to(new_user_session_path)
+        end
+      end
+
+      context 'feature flag disabled' do
+        before do
+          stub_feature_flags(product_analytics: false)
+        end
+
+        it 'returns not found' do
+          get :index, params: project_params
+
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
     end
@@ -103,10 +116,6 @@ describe Projects::ProductAnalyticsController do
   end
 
   private
-
-  def issue_params(opts = {})
-    project_params.reverse_merge(opts)
-  end
 
   def project_params(opts = {})
     opts.reverse_merge(namespace_id: project.namespace, project_id: project)
