@@ -12440,6 +12440,9 @@ msgstr ""
 msgid "Iteration changed to"
 msgstr ""
 
+msgid "Iteration not found"
+msgstr ""
+
 msgid "Iteration removed"
 msgstr ""
 
