@@ -35,7 +35,6 @@ export default {
   },
   data() {
     return {
-      isApproved: false,
       fetchingApprovals: true,
       isApproving: false,
       isExpanded: false,
