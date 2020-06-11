@@ -22,6 +22,9 @@ export default {
     licenseCheckRule() {
       return this.rules?.find(({ name }) => name === 'License-Check');
     },
+    hasLicenseCheckRule() {
+      return this.licenseCheckRule !== undefined;
+    },
     licenseCheckStatusText() {
       return this.licenseCheckRule
         ? __('%{docLinkStart}License-Check%{docLinkEnd} is active')
@@ -40,7 +43,7 @@ export default {
 </script>
 <template>
   <span class="gl-display-inline-flex gl-align-items-center">
-    <gl-button name="openModal" :loading="isLoading" @click="openCreateModal(licenseCheckRule)"
+    <gl-button id="licenseCheck" role="switch" :aria-checked="hasLicenseCheckRule" :loading="isLoading" @click="openCreateModal(licenseCheckRule)"
       >{{ __('License Approval') }}
     </gl-button>
     <span class="gl-ml-3">
@@ -50,14 +53,14 @@ export default {
         :lines="1"
         class="gl-display-inline-flex gl-h-auto gl-align-items-center"
       />
-      <span v-else data-testid="licenseCheckStatus">
+      <label v-else for="licenseCheck" class="gl-m-0 gl-font-weight-normal">
         <gl-icon name="information" :size="12" class="gl-text-blue-600" />
         <gl-sprintf :message="licenseCheckStatusText" class="gl-inline-flex">
           <template #docLink="{ content }">
             <gl-link :href="docsLink" target="_blank">{{ content }}</gl-link>
           </template>
         </gl-sprintf>
-      </span>
+      </label for="licenseCheck">
     </span>
     <modal-license-compliance modal-id="move-me-into-modal" />
   </span>

@@ -59,10 +59,10 @@ describe('EE Approvals LicenseCompliance App', () => {
   });
 
   const findByHrefAttribute = href => wrapper.find(`[href="${href}"]`);
-  const findOpenModalButton = () => wrapper.find('button[name="openModal"]');
+  const findOpenModalButton = () => wrapper.find('button[role="switch"]');
   const findLoadingIndicator = () => wrapper.find('[aria-label="loading"]');
   const findInformationIcon = () => wrapper.find(GlIcon);
-  const findLicenseCheckStatus = () => wrapper.find('[data-testid="licenseCheckStatus"]');
+  const findLicenseCheckStatus = () => wrapper.find('label[for="licenseCheck"]');
 
   describe('when created', () => {
     it('fetches approval rules', () => {
