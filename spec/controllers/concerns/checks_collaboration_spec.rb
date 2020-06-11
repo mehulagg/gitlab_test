@@ -52,6 +52,12 @@ RSpec.describe ChecksCollaboration do
 
         expect(helper.can_collaborate_with_project?(project)).to be_falsy
       end
+
+      it 'is false when the project repository is read-only' do
+        project.repository_read_only = true
+
+        expect(helper.can_collaborate_with_project?(project)).to be_falsy
+      end
     end
   end
 end

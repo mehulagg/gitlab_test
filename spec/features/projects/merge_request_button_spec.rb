@@ -59,6 +59,18 @@ describe 'Merge Request button' do
           end
         end
       end
+
+      context 'when the project repository is read-only' do
+        it 'hides the link' do
+          project.update!(repository_read_only: true)
+
+          visit url
+
+          within('#content-body') do
+            expect(page).not_to have_link(label)
+          end
+        end
+      end
     end
 
     context 'logged in as non-member' do

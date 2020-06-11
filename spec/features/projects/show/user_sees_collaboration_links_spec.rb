@@ -71,6 +71,24 @@ RSpec.describe 'Projects > Show > Collaboration links', :js do
 
       expect(page).not_to have_link('Web IDE')
     end
+
+    it 'hides the links when the project repository is read-only' do
+      project.update!(repository_read_only: true)
+
+      visit project_path(project)
+
+      page.within('.header-new') do
+        find('.qa-new-menu-toggle').click
+
+        expect(page).not_to have_link('New merge request')
+
+        find('.qa-new-menu-toggle').click
+      end
+
+      expect(page).not_to have_selector('.qa-add-to-tree')
+
+      expect(page).not_to have_link('Web IDE')
+    end
   end
 
   context "Web IDE link" do

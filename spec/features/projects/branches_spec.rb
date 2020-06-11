@@ -217,6 +217,18 @@ describe 'Branches' do
         end
       end
     end
+
+    context 'when the project repository is read-only' do
+      let(:project) { create(:project, :public, :repository, :read_only) }
+
+      it 'does not show the merge request button' do
+        visit project_branches_path(project)
+
+        page.within first('.all-branches li') do
+          expect(page).not_to have_content 'Merge request'
+        end
+      end
+    end
   end
 
   context 'logged out' do

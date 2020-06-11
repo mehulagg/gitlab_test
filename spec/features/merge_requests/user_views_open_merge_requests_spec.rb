@@ -108,6 +108,14 @@ describe 'User views open merge requests' do
           expect(page).not_to have_link('New merge request')
         end
       end
+
+      context 'when the project repository is read-only' do
+        let(:project) { create(:project, :public, :repository, :read_only) }
+
+        it 'hides the new merge request button' do
+          expect(page).not_to have_link('New merge request')
+        end
+      end
     end
   end
 
