@@ -23,7 +23,7 @@ export default {
       return this.rules?.find(({ name }) => name === 'License-Check');
     },
     licenseCheckStatusText() {
-      return this.isLicenseCheckActive
+      return this.licenseCheckRule
         ? __('%{docLinkStart}License-Check%{docLinkEnd} is active')
         : __('%{docLinkStart}License-Check%{docLinkEnd} is inactive');
     },
@@ -50,7 +50,7 @@ export default {
         :lines="1"
         class="gl-display-inline-flex gl-h-auto gl-align-items-center"
       />
-      <span v-else>
+      <span v-else data-testid="licenseCheckStatus">
         <gl-icon name="information" :size="12" class="gl-text-blue-600" />
         <gl-sprintf :message="licenseCheckStatusText" class="gl-inline-flex">
           <template #docLink="{ content }">

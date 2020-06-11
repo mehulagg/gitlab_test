@@ -28,8 +28,9 @@ describe('EE Approvals LicenseCompliance App', () => {
         },
         approvals: {
           state: {
-            isLoading: true,
+            isLoading: false,
             rules: [],
+            docsLink: 'http://foo.bar',
           },
         },
       },
@@ -61,17 +62,22 @@ describe('EE Approvals LicenseCompliance App', () => {
   const findOpenModalButton = () => wrapper.find('button[name="openModal"]');
   const findLoadingIndicator = () => wrapper.find('[aria-label="loading"]');
   const findInformationIcon = () => wrapper.find(GlIcon);
+  const findLicenseCheckStatus = () => wrapper.find('[data-testid="licenseCheckStatus"]');
 
   describe('when created', () => {
     it('fetches approval rules', () => {
       expect(fetchRulesMock).not.toHaveBeenCalled();
+
       createWrapper();
+
       expect(fetchRulesMock).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('when loading', () => {
     beforeEach(() => {
+      store.state.approvals.isLoading = true;
+
       createWrapper();
     });
 
@@ -89,12 +95,7 @@ describe('EE Approvals LicenseCompliance App', () => {
   });
 
   describe('when data has loaded', () => {
-    const docsLink = 'http://docs-link.com';
-
     beforeEach(() => {
-      store.state.approvals.isLoading = false;
-      store.state.approvals.docsLink = docsLink;
-
       createWrapper();
     });
 
@@ -111,7 +112,7 @@ describe('EE Approvals LicenseCompliance App', () => {
     });
 
     it('opens the link to the documentation page in a new tab', () => {
-      expect(findByHrefAttribute(docsLink).attributes('target')).toBe('_blank');
+      expect(findByHrefAttribute('http://foo.bar').attributes('target')).toBe('_blank');
     });
 
     it('opens a model when the license-approval button is clicked', async () => {
@@ -120,6 +121,23 @@ describe('EE Approvals LicenseCompliance App', () => {
       await findOpenModalButton().trigger('click');
 
       expect(openModalMock).toHaveBeenCalled();
+    });
+  });
+
+  describe.each`
+    givenApprovalRules             | expectedStatus
+    ${[]}                          | ${'inactive'}
+    ${[{ name: 'Foo' }]}           | ${'inactive'}
+    ${[{ name: 'License-Check' }]} | ${'active'}
+  `('when approval rules are "$givenApprovalRules"', ({ givenApprovalRules, expectedStatus }) => {
+    beforeEach(() => {
+      store.state.approvals.rules = givenApprovalRules;
+
+      createWrapper();
+    });
+
+    it(`renders the status as "${expectedStatus}"`, () => {
+      expect(findLicenseCheckStatus().text()).toBe(`License-Check is ${expectedStatus}`);
     });
   });
 });
