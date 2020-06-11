@@ -425,6 +425,11 @@ module ProjectsHelper
       nav_tabs << :cycle_analytics
     end
 
+    if Feature.enabled?(:product_analytics, project) &&
+        can?(current_user, :read_product_analytics, project)
+      nav_tabs << :product_analytics
+    end
+
     tab_ability_map.each do |tab, ability|
       if can?(current_user, ability, project)
         nav_tabs << tab
@@ -455,7 +460,6 @@ module ProjectsHelper
       serverless:         :read_cluster,
       error_tracking:     :read_sentry_issue,
       alert_management:   :read_alert_management_alert,
-      product_analytics:  :read_product_analytics,
       labels:             :read_label,
       issues:             :read_issue,
       project_members:    :read_project_member,
