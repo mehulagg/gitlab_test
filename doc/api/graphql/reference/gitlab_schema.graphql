@@ -8744,6 +8744,11 @@ type Project {
   repository: Repository
 
   """
+  Indicates if the Git repository has been put into a read-only state
+  """
+  repositoryReadOnly: Boolean
+
+  """
   Indicates if users can request member access to the project
   """
   requestAccessEnabled: Boolean
@@ -9906,16 +9911,7 @@ enum ReleaseLinkType {
   IMAGE
 
   """
-<<<<<<< HEAD
   Other link type
-=======
-  Indicates if the Git repository has been put into a read-only state
-  """
-  repositoryReadOnly: Boolean
-
-  """
-  Indicates if users can request member access to the project
->>>>>>> 81666909c3e... Add GraphQL field
   """
   OTHER
 
