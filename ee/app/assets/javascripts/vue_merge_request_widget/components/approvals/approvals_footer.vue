@@ -1,5 +1,5 @@
 <script>
-import { GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import UserAvatarList from '~/vue_shared/components/user_avatar/user_avatar_list.vue';
@@ -8,7 +8,7 @@ import ApprovalsList from './approvals_list.vue';
 export default {
   components: {
     Icon,
-    GlDeprecatedButton,
+    GlButton,
     GlLoadingIcon,
     UserAvatarList,
     ApprovalsList,
@@ -84,9 +84,9 @@ export default {
         }}</gl-deprecated-button>
       </template>
       <template v-else>
-        <gl-deprecated-button variant="link" @click="toggle">{{
+        <gl-button variant="link" @click="toggle">{{
           __('Collapse')
-        }}</gl-deprecated-button>
+        }}</gl-button>
       </template>
     </div>
     <div v-if="!isCollapsed && approvalRules.length" class="border-top">
