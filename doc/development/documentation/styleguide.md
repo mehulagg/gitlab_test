@@ -1452,7 +1452,7 @@ badges and tooltips (`<span class="badge-trigger starter">`). When the keyword
 
 ### GitLab issues
 
-The documentation can include information about known issues. When you're writing about
+The documentation can include information about known bugs or future features. When you're writing about
 a known issue, use this boilerplate text:
 
 ```markdown
