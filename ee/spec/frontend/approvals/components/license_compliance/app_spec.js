@@ -1,8 +1,8 @@
 import Vuex from 'vuex';
 import { mount, createLocalVue } from '@vue/test-utils';
 import { GlIcon } from '@gitlab/ui';
-import ApprovalsLicenseCompliance from 'ee/approvals/components/license_compliance/app.vue';
-import ModalLicenseCompliance from 'ee/approvals/components/license_compliance/modal_license_compliance.vue';
+import App from 'ee/approvals/components/license_compliance/app.vue';
+import Modal from 'ee/approvals/components/license_compliance/modal.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -46,11 +46,11 @@ describe('EE Approvals LicenseCompliance App', () => {
   };
 
   const createWrapper = () => {
-    wrapper = mount(ApprovalsLicenseCompliance, {
+    wrapper = mount(App, {
       localVue,
       store,
       stubs: {
-        ModalLicenseCompliance,
+        Modal,
       },
     });
   };

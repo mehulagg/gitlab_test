@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import ModalLicenseCompliance from './modal_license_compliance.vue';
+import ModalLicenseCompliance from './modal.vue';
 import { GlButton, GlIcon, GlLink, GlSkeletonLoading, GlSprintf } from '@gitlab/ui';
 import { __ } from '~/locale';
 
