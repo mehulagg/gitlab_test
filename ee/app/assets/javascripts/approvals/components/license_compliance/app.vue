@@ -17,7 +17,7 @@ export default {
     ...mapState({
       isLoading: ({ approvals }) => approvals.isLoading,
       rules: ({ approvals }) => approvals.rules,
-      docsLink: ({ approvals }) => approvals.docsLink,
+      documentationPath: ({ settings }) => settings.approvalsDocumentationPath,
     }),
     licenseCheckRule() {
       return this.rules?.find(({ name }) => name === 'License-Check');
@@ -27,8 +27,8 @@ export default {
     },
     licenseCheckStatusText() {
       return this.hasLicenseCheckRule
-        ? __('%{docLinkStart}License-Check%{docLinkEnd} is active')
-        : __('%{docLinkStart}License-Check%{docLinkEnd} is inactive');
+        ? __('%{docLinkStart}License Approvals%{docLinkEnd} are active')
+        : __('%{docLinkStart}License Approvals%{docLinkEnd} are inactive');
     },
   },
   created() {
@@ -42,8 +42,14 @@ export default {
 </script>
 <template>
   <span class="gl-display-inline-flex gl-align-items-center">
-    <gl-button id="licenseCheck" role="switch" :aria-checked="hasLicenseCheckRule" :loading="isLoading" @click="openModal(licenseCheckRule)"
-      >{{ __('License Approval') }}
+    <gl-button
+      id="licenseCheck"
+      role="switch"
+      :aria-checked="hasLicenseCheckRule"
+      :aria-controls="licenseCheckStatusText"
+      :loading="isLoading"
+      @click="openModal(licenseCheckRule)"
+      >{{ __('License Approvals') }}
     </gl-button>
     <span class="gl-ml-3">
       <gl-skeleton-loading
@@ -52,14 +58,14 @@ export default {
         :lines="1"
         class="gl-display-inline-flex gl-h-auto gl-align-items-center"
       />
-      <label v-else for="licenseCheck" class="gl-m-0 gl-font-weight-normal">
+      <span v-else id="licenseApprovalsStatus" class="gl-m-0 gl-font-weight-normal">
         <gl-icon name="information" :size="12" class="gl-text-blue-600" />
         <gl-sprintf :message="licenseCheckStatusText" class="gl-inline-flex">
           <template #docLink="{ content }">
-            <gl-link :href="docsLink" target="_blank">{{ content }}</gl-link>
+            <gl-link :href="documentationPath" target="_blank">{{ content }}</gl-link>
           </template>
         </gl-sprintf>
-      </label for="licenseCheck">
+      </span>
     </span>
     <modal-license-compliance />
   </span>

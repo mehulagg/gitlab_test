@@ -104,7 +104,8 @@ module Projects
         project_id: @project.id,
         project_path: expose_path(api_v4_projects_path(id: @project.id)),
         rules_path: expose_path(api_v4_projects_approval_settings_rules_path(id: @project.id)),
-        settings_path: expose_path(api_v4_projects_approval_settings_path(id: @project.id))
+        settings_path: expose_path(api_v4_projects_approval_settings_path(id: @project.id)),
+        approvals_documentation_path: help_page_path('user/application_security/index', anchor: 'enabling-license-approvals-within-a-project'),
       }
     end
   end

@@ -11,25 +11,31 @@ describe('EE Approvals LicenseCompliance App', () => {
   let wrapper;
   let store;
 
-  const fetchRulesMock = jest.fn();
-  const openModalMock = jest.fn();
+  const mockActions = {
+    fetchRules: jest.fn(),
+    openModal: jest.fn(),
+  };
 
   const createStore = () => {
     const storeOptions = {
       actions: {
-        fetchRules: fetchRulesMock,
+        fetchRules: mockActions.fetchRules,
+      },
+      state: {
+        settings: {
+          approvalsDocumentationPath: 'http://foo.bar',
+        },
       },
       modules: {
         approvalModal: {
           namespaced: true,
           actions: {
-            open: openModalMock,
+            open: mockActions.openModal,
           },
         },
         approvals: {
           state: {
             isLoading: false,
-            docsLink: 'http://foo.bar',
             rules: [],
           },
         },
@@ -62,15 +68,15 @@ describe('EE Approvals LicenseCompliance App', () => {
   const findOpenModalButton = () => wrapper.find('button[role="switch"]');
   const findLoadingIndicator = () => wrapper.find('[aria-label="loading"]');
   const findInformationIcon = () => wrapper.find(GlIcon);
-  const findLicenseCheckStatus = () => wrapper.find('label[for="licenseCheck"]');
+  const findLicenseCheckStatus = () => wrapper.find('#licenseApprovalsStatus');
 
   describe('when created', () => {
     it('fetches approval rules', () => {
-      expect(fetchRulesMock).not.toHaveBeenCalled();
+      expect(mockActions.fetchRules).not.toHaveBeenCalled();
 
       createWrapper();
 
-      expect(fetchRulesMock).toHaveBeenCalledTimes(1);
+      expect(mockActions.fetchRules).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -116,11 +122,11 @@ describe('EE Approvals LicenseCompliance App', () => {
     });
 
     it('opens a model when the license-approval button is clicked', async () => {
-      expect(openModalMock).not.toHaveBeenCalled();
+      expect(mockActions.openModal).not.toHaveBeenCalled();
 
       await findOpenModalButton().trigger('click');
 
-      expect(openModalMock).toHaveBeenCalled();
+      expect(mockActions.openModal).toHaveBeenCalled();
     });
   });
 
@@ -137,7 +143,7 @@ describe('EE Approvals LicenseCompliance App', () => {
     });
 
     it(`renders the status as "${expectedStatus}"`, () => {
-      expect(findLicenseCheckStatus().text()).toBe(`License-Check is ${expectedStatus}`);
+      expect(findLicenseCheckStatus().text()).toBe(`License Approvals are ${expectedStatus}`);
     });
   });
 });

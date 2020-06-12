@@ -15,6 +15,7 @@ export default () => {
     projectPath,
     rulesPath,
     settingsPath,
+    approvalsDocumentationPath,
   } = el.dataset;
 
   const storeSettings = {
@@ -22,6 +23,7 @@ export default () => {
     projectPath,
     rulesPath,
     settingsPath,
+    approvalsDocumentationPath,
   };
   const store = createStore(storeSettings);
 

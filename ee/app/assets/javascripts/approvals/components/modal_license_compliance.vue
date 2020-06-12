@@ -18,8 +18,11 @@ export default {
     ...mapState('approvalModal', {
       rule: 'data',
     }),
+    ...mapState({
+      documentationPath: ({ settings }) => settings.approvalsDocumentationPath,
+    }),
     title() {
-      return this.rule ? __('Update approval rule') : __('Add approval rule');
+      return this.rule ? __('Update approvers') : __('Add approvers');
     },
   },
   methods: {
@@ -47,7 +50,9 @@ export default {
           <gl-icon name="question" :size="12" class="gl-text-blue-600" />
           <gl-sprintf :message="__('Learn more about %{licenseCheckHelpLink}')">
             <template #licenseCheckHelpLink>
-              <gl-link href="http://example.com" target="_blank">{{ __('License-Check') }}</gl-link>
+              <gl-link :href="documentationPath" target="_blank">{{
+                __('License Approvals')
+              }}</gl-link>
             </template>
           </gl-sprintf>
         </p>
