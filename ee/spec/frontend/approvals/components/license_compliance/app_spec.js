@@ -2,7 +2,7 @@ import Vuex from 'vuex';
 import { mount, createLocalVue } from '@vue/test-utils';
 import { GlIcon } from '@gitlab/ui';
 import ApprovalsLicenseCompliance from 'ee/approvals/components/license_compliance/app.vue';
-import ModalLicenseCompliance from 'ee/approvals/components/modal_license_compliance.vue';
+import ModalLicenseCompliance from 'ee/approvals/components/license_compliance/modal_license_compliance.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

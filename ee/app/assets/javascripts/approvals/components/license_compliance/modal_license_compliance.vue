@@ -3,7 +3,7 @@ import { mapState } from 'vuex';
 import { GlButton, GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
 import { __ } from '~/locale';
 import GlModalVuex from '~/vue_shared/components/gl_modal_vuex.vue';
-import RuleForm from './rule_form.vue';
+import RuleForm from '../rule_form.vue';
 
 export default {
   components: {
@@ -16,13 +16,13 @@ export default {
   },
   computed: {
     ...mapState('approvalModal', {
-      rule: 'data',
+      licenseApprovalRule: 'data',
     }),
     ...mapState({
       documentationPath: ({ settings }) => settings.approvalsDocumentationPath,
     }),
     title() {
-      return this.rule ? __('Update approvers') : __('Add approvers');
+      return this.licenseApprovalRule ? __('Update approvers') : __('Add approvers');
     },
   },
   methods: {
@@ -43,7 +43,7 @@ export default {
     size="sm"
     @ok="submit"
   >
-    <rule-form ref="form" :init-rule="rule" locked-name="License-Check" />
+    <rule-form ref="form" :init-rule="licenseApprovalRule" locked-name="License-Check" />
     <template #modal-footer="{ ok, cancel }">
       <div class="gl-display-flex gl-w-full">
         <p>
