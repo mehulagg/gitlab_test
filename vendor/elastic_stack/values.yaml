@@ -13,6 +13,10 @@ filebeat:
   enabled: true
   filebeatConfig:
     filebeat.yml: |
+      setup.ilm.enabled: true
+      setup.ilm.rollover_alias: "filebeat-%{[agent.version]}"
+      setup.ilm.pattern: "{now/d}-001"
+      setup.ilm.overwrite: true
       output.file.enabled: false
       output.elasticsearch:
         hosts: ["http://elastic-stack-elasticsearch-master:9200"]
