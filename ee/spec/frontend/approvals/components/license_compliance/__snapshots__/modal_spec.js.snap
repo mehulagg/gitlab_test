@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EE Approvals LicenseCompliance Modal matches snapshot 1`] = `
+<gl-modal-stub
+  cancel-title="Cancel"
+  modalclass=""
+  modalid="licenseComplianceApproval"
+  size="sm"
+  title="Update approvers"
+  titletag="h4"
+>
+  <div
+    init-rule="[object Object]"
+    locked-name="License-Check"
+  >
+    mock-rule-form
+  </div>
+   
+  <template>
+    <div
+      class="gl-display-flex gl-w-full"
+    >
+      <p>
+        <gl-icon-stub
+          class="gl-text-blue-600"
+          name="question"
+          size="12"
+        />
+         
+        <gl-sprintf-stub
+          message="Learn more about %{licenseCheckHelpLink}"
+        />
+      </p>
+       
+      <div
+        class="gl-ml-auto"
+      >
+        <gl-button-stub
+          category="tertiary"
+          icon=""
+          name="cancel"
+          size="medium"
+          variant="default"
+        >
+          Cancel
+        </gl-button-stub>
+         
+        <gl-button-stub
+          category="tertiary"
+          icon=""
+          name="ok"
+          size="medium"
+          variant="success"
+        >
+          Update approvers
+        </gl-button-stub>
+      </div>
+    </div>
+  </template>
+</gl-modal-stub>
+`;

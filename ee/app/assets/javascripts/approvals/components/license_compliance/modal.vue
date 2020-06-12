@@ -37,10 +37,9 @@ export default {
   <gl-modal-vuex
     modal-module="approvalModal"
     modal-id="licenseComplianceApproval"
-    :title="title"
-    ok-variant="success"
-    :cancel-title="__('Cancel')"
     size="sm"
+    :title="title"
+    :cancel-title="__('Cancel')"
     @ok="submit"
   >
     <rule-form ref="form" :init-rule="licenseApprovalRule" locked-name="License-Check" />
@@ -56,9 +55,9 @@ export default {
             </template>
           </gl-sprintf>
         </p>
-        <div class="ml-auto">
-          <gl-button @click="cancel">{{ __('Cancel') }}</gl-button>
-          <gl-button variant="success" @click="ok">{{ title }}</gl-button>
+        <div class="gl-ml-auto">
+          <gl-button name="cancel" @click="cancel">{{ __('Cancel') }}</gl-button>
+          <gl-button name="ok" variant="success" @click="ok">{{ title }}</gl-button>
         </div>
       </div>
     </template>
