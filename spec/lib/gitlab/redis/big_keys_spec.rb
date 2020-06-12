@@ -22,6 +22,10 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
         redis.sadd('myset', 'foobarx')
         redis.sadd('bigset', Array.new(101) { |i| "foobar#{i.chr}" })
         redis.sadd('memset', 'foobarx' * 1000)
+
+        redis.zadd('myzset', [1, 'foobarxx'])
+        redis.zadd('bigzset', Array.new(102) { |i| [i, "foobarx#{i.chr}"] }.flatten)
+        redis.zadd('memzset', [1, 'foobarxx' * 1000])
       end
 
       expected = {
@@ -29,12 +33,14 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
           by_elements: {
             string: { key: 'bigstring', elements: 500 },
             list: { key: 'biglist', elements: 100 },
-            set: { key: 'bigset', elements: 101 }
+            set: { key: 'bigset', elements: 101 },
+            zset: { key: 'bigzset', elements: 102 }
           },
           by_bytes: {
             string: { key: 'bigstring', bytes: 500 },
             list: { key: 'memlist', bytes: 6000 },
-            set: { key: 'memset', bytes: 7000 }
+            set: { key: 'memset', bytes: 7000 },
+            zset: { key: 'memzset', bytes: 8000 }
           }
         },
         summary: {
@@ -54,9 +60,9 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
             total_bytes: 7707
           },
           zset: {
-            sampled_count: 0,
-            total_elements: 0,
-            total_bytes: 0
+            sampled_count: 3,
+            total_elements: 104,
+            total_bytes: 8824
           },
           hash: {
             sampled_count: 0,
