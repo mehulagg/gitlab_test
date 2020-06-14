@@ -62,7 +62,7 @@ The `gitlab:check` Rake task runs the following Rake tasks:
 
 It will check that each component was set up according to the installation guide and suggest fixes
 for issues found. This command must be run from your application server and will not work correctly on
-component servers like [Gitaly](../gitaly/index.md#running-gitaly-on-its-own-server).
+component servers like [Gitaly](../gitaly/index.md#run-gitaly-on-its-own-server).
 
 You may also have a look at our troubleshooting guides for:
 
@@ -264,6 +264,20 @@ database: gitlabhq_production
 --------------------------------------------------
    up     migration_id    migration_name
 ```
+
+## Run incomplete database migrations
+
+Database migrations can be stuck in an incomplete state. That is, they'll have a `down`
+status in the output of the `sudo gitlab-rake db:migrate:status` command.
+
+To complete these migrations, use the following Rake task:
+
+```shell
+sudo gitlab-rake db:migrate
+```
+
+After the command completes, run `sudo gitlab-rake db:migrate:status` to check if all
+migrations are completed (have an `up` status).
 
 ## Import common metrics
 

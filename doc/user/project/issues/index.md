@@ -1,3 +1,9 @@
+---
+stage: Plan
+group: Project Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Issues
 
 Issues are the fundamental medium for collaborating on ideas and planning work in GitLab.
@@ -151,7 +157,7 @@ context, such as past work, dependencies, or duplicates.
 
 ### Crosslinking issues
 
-You can [crosslink issues](crosslinking_issues.md) by referencing an issue from another
+You can [cross-link issues](crosslinking_issues.md) by referencing an issue from another
 issue or merge request by including its URL or ID. The referenced issue displays a
 message in the Activity stream about the reference, with a link to the other issue or MR.
 

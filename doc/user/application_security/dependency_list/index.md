@@ -1,3 +1,10 @@
+---
+type: reference, howto
+stage: Secure
+group: Composition Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Dependency List **(ULTIMATE)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10075) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
@@ -24,8 +31,8 @@ Dependencies are displayed with the following information:
 | Field     | Description |
 | --------- | ----------- |
 | Component | The dependency's name and version |
-| Packager  | The packager used to install the depedency |
-| Location  | A link to the packager-specific lockfile in your project that declared the dependency |
+| Packager  | The packager used to install the dependency |
+| Location  | A link to the packager-specific lock file in your project that declared the dependency |
 | License   | Links to dependency's software licenses |
 
 Dependencies shown are initially sorted by the severity of their known vulnerabilities, if any. They

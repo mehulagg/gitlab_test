@@ -1129,6 +1129,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
         let(:send_request) { update_job(state: 'success') }
       end
 
+      it 'updates runner info' do
+        expect { update_job(state: 'success') }.to change { runner.reload.contacted_at }
+      end
+
       context 'when status is given' do
         it 'mark job as succeeded' do
           update_job(state: 'success')
@@ -1292,6 +1296,12 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
       it_behaves_like 'application context metadata', '/api/:version/jobs/:id/trace' do
         let(:send_request) { patch_the_trace }
+      end
+
+      it 'updates runner info' do
+        runner.update!(contacted_at: 1.year.ago)
+
+        expect { patch_the_trace }.to change { runner.reload.contacted_at }
       end
 
       context 'when request is valid' do
@@ -1555,6 +1565,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               let(:send_request) { subject }
             end
 
+            it 'updates runner info' do
+              expect { subject }.to change { runner.reload.contacted_at }
+            end
+
             shared_examples 'authorizes local file' do
               it 'succeeds' do
                 subject
@@ -1694,6 +1708,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
         end
 
         context 'authorize uploading of an lsif artifact' do
+          before do
+            stub_feature_flags(code_navigation: job.project)
+          end
+
           it 'adds ProcessLsif header' do
             authorize_artifacts_with_token_in_headers(artifact_type: :lsif)
 
@@ -1737,6 +1755,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           let(:send_request) do
             upload_artifacts(file_upload, headers_with_token)
           end
+        end
+
+        it 'updates runner info' do
+          expect { upload_artifacts(file_upload, headers_with_token) }.to change { runner.reload.contacted_at }
         end
 
         context 'when artifacts are being stored inside of tmp path' do
@@ -2224,6 +2246,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           let(:send_request) { download_artifact }
         end
 
+        it 'updates runner info' do
+          expect { download_artifact }.to change { runner.reload.contacted_at }
+        end
+
         context 'when job has artifacts' do
           let(:job) { create(:ci_build) }
           let(:store) { JobArtifactUploader::Store::LOCAL }
@@ -2291,7 +2317,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           end
         end
 
-        context 'when job does not has artifacts' do
+        context 'when job does not have artifacts' do
           it 'responds with not found' do
             download_artifact
 

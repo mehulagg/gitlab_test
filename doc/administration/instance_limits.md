@@ -199,6 +199,24 @@ To set this limit on a self-managed installation, run the following in the
 Plan.default.limits.update!(ci_pipeline_schedules: 100)
 ```
 
+### Number of instance level variables
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/216097) in GitLab 13.1.
+
+The total number of instance level CI/CD variables is limited at the instance level.
+This limit is checked each time a new instance level variable is created. If a new variable
+would cause the total number of variables to exceed the limit, the new variable will not be created.
+
+On self-managed instances this limit is defined for the `default` plan. By default,
+this limit is set to `25`.
+
+To update this limit to a new value on a self-managed installation, run the following in the
+[GitLab Rails console](troubleshooting/debug.md#starting-a-rails-console-session):
+
+```ruby
+Plan.default.limits.update!(ci_instance_level_variables: 30)
+```
+
 ## Instance monitoring and metrics
 
 ### Incident Management inbound alert limits
@@ -235,7 +253,7 @@ Kubernetes won't be shown.
 
 Reports that go over the 20 MB limit won't be loaded. Affected reports:
 
-- [Merge Request security reports](../user/project/merge_requests/index.md#security-reports-ultimate)
+- [Merge Request security reports](../user/project/merge_requests/testing_and_reports_in_merge_requests.md#security-reports-ultimate)
 - [CI/CD parameter `artifacts:expose_as`](../ci/yaml/README.md#artifactsexpose_as)
 - [JUnit test reports](../ci/junit_test_reports.md)
 

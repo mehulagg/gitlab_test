@@ -127,9 +127,12 @@ export const lineWidths = {
   default: 2,
 };
 
-export const dateFormats = {
-  timeOfDay: 'h:MM TT',
-  default: 'dd mmm yyyy, h:MMTT',
+/**
+ * User-defined links can be passed in dashboard yml file.
+ * These are the supported type of links.
+ */
+export const linkTypes = {
+  GRAFANA: 'grafana',
 };
 
 /**

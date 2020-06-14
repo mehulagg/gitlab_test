@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference
 last_update: 2019-07-03
 ---
@@ -79,7 +82,7 @@ To enable merge trains for your project:
 1. [Configure your CI/CD configuration file](../../index.md#configuring-pipelines-for-merge-requests)
    so that the pipeline or individual jobs run for merge requests.
 1. Visit your project's **Settings > General** and expand **Merge requests**.
-1. Check **Merge pipelines will try to validate the post-merge result prior to merging**.
+1. Check **Enable merge trains and pipelines for merged results**.
 1. Click **Save changes**.
 
 CAUTION: **Caution:**
@@ -184,7 +187,7 @@ run a new successful pipeline before you can re-add a merge request to a merge t
 
 Merge trains ensure that each pipeline has succeeded before a merge happens, so
 you can clear the **Pipelines must succeed** check box and keep
-**Merge pipelines will try to validate the post-merge result prior to merging** (merge trains) enabled.
+**Enable merge trains and pipelines for merged results** (merge trains) enabled.
 
 If you want to keep the **Pipelines must succeed** option enabled along with Merge
 Trains, you can create a new pipeline for merged results when this error occurs by

@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: tutorial
 ---
 
@@ -20,7 +23,7 @@ The following methods of authentication are supported:
 - [Trigger token](#trigger-token)
 - [CI job token](#ci-job-token)
 
-If using the `$CI_PIPELINE_SOURCE` [predefined environment variable](../variables/predefined_variables.md#variables-reference)
+If using the `$CI_PIPELINE_SOURCE` [predefined environment variable](../variables/predefined_variables.md)
 to limit which jobs run in a pipeline, the value could be either `pipeline` or `trigger`,
 depending on which trigger method is used.
 

@@ -31,7 +31,7 @@ This section is for links to information elsewhere in the GitLab documentation.
   - Destructively reseeding the GitLab database.
   - Guidance around updating packaged PostgreSQL, including how to stop it happening automatically.
 
-- [More about external PostgreSQL](../external_database.md)
+- [More about external PostgreSQL](../postgresql/external.md)
 
 - [Running Geo with external PostgreSQL](../geo/replication/external_database.md)
 
@@ -45,8 +45,8 @@ This section is for links to information elsewhere in the GitLab documentation.
 
 - Managing Omnibus PostgreSQL versions [from the development docs](https://docs.gitlab.com/omnibus/development/managing-postgresql-versions.html)
 
-- [PostgreSQL scaling](../high_availability/database.md)
-  - including [troubleshooting](../high_availability/database.md#troubleshooting) `gitlab-ctl repmgr-check-master` and PgBouncer errors
+- [PostgreSQL scaling](../postgresql/replication_and_failover.md)
+  - including [troubleshooting](../postgresql/replication_and_failover.md#troubleshooting) `gitlab-ctl repmgr-check-master` and PgBouncer errors
 
 - [Developer database documentation](../../development/README.md#database-guides) - some of which is absolutely not for production use. Including:
   - understanding EXPLAIN plans
@@ -55,8 +55,8 @@ This section is for links to information elsewhere in the GitLab documentation.
 
 - [GitLab database requirements](../../install/requirements.md#database) including
   - Support for MySQL was removed in GitLab 12.1; [migrate to PostgreSQL](../../update/mysql_to_postgresql.md)
-  - required extension pg_trgm
-  - required extension postgres_fdw for Geo
+  - required extension `pg_trgm`
+  - required extension `postgres_fdw` for Geo
 
 - Errors like this in the `production/sidekiq` log; see: [Set default_transaction_isolation into read committed](https://docs.gitlab.com/omnibus/settings/database.html#set-default_transaction_isolation-into-read-committed):
 
@@ -117,7 +117,7 @@ Quoting from issue [#1](https://gitlab.com/gitlab-org/gitlab/-/issues/30528):
 
 TIP: **Tip:** In support, our general approach to reconfiguring timeouts (applies also to the HTTP stack as well) is that it's acceptable to do it temporarily as a workaround. If it makes GitLab usable for the customer, then it buys time to understand the problem more completely, implement a hot fix, or make some other change that addresses the root cause. Generally, the timeouts should be put back to reasonable defaults once the root cause is resolved.
 
-In this case, the guidance we had from development was to drop deadlock_timeout and/or statement_timeout but to leave the third setting at 60s. Setting idle_in_transaction protects the database from sessions potentially hanging for days. There's more discussion in [the issue relating to introducing this timeout on GitLab.com](https://gitlab.com/gitlab-com/gl-infra/production/issues/1053).
+In this case, the guidance we had from development was to drop deadlock_timeout and/or statement_timeout but to leave the third setting at 60s. Setting idle_in_transaction protects the database from sessions potentially hanging for days. There's more discussion in [the issue relating to introducing this timeout on GitLab.com](https://gitlab.com/gitlab-com/gl-infra/production/-/issues/1053).
 
 PostgresSQL defaults:
 

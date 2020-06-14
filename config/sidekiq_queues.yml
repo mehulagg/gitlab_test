@@ -82,6 +82,8 @@
   - 1
 - - elastic_commit_indexer
   - 1
+- - elastic_delete_project
+  - 1
 - - elastic_full_index
   - 1
 - - elastic_indexer
@@ -149,6 +151,8 @@
 - - merge
   - 5
 - - merge_request_mergeability_check
+  - 1
+- - metrics_dashboard_prune_old_annotations
   - 1
 - - migrate_external_diffs
   - 1
@@ -239,6 +243,8 @@
 - - repository_update_mirror
   - 1
 - - repository_update_remote_mirror
+  - 1
+- - requirements_management_process_requirements_reports
   - 1
 - - security_scans
   - 2

@@ -1,3 +1,10 @@
+---
+stage: Verify
+group: Runner
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+type: reference
+---
+
 # Job logs
 
 > [Renamed from job traces to job logs](https://gitlab.com/gitlab-org/gitlab/-/issues/29121) in GitLab 12.5.
@@ -64,6 +71,15 @@ There isn't a way to automatically expire old job logs, but it's safe to remove
 them if they're taking up too much space. If you remove the logs manually, the
 job output in the UI will be empty.
 
+For example, to delete all job logs older than 60 days, run the following from a shell in your GitLab instance:
+
+DANGER: **Warning:**
+This command will permanently delete the log files and is irreversible.
+
+```shell
+find /var/opt/gitlab/gitlab-rails/shared/artifacts -name "job.log" -mtime +60 -delete
+```
+
 ## New incremental logging architecture
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/18169) in GitLab 10.4.
@@ -112,13 +128,13 @@ sudo -u git -H bin/rails console -e production
 **To check if incremental logging (trace) is enabled:**
 
 ```ruby
-Feature.enabled?('ci_enable_live_trace')
+Feature.enabled?(:ci_enable_live_trace)
 ```
 
 **To enable incremental logging (trace):**
 
 ```ruby
-Feature.enable('ci_enable_live_trace')
+Feature.enable(:ci_enable_live_trace)
 ```
 
 NOTE: **Note:**

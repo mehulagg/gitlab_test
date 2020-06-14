@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::Settings::IntegrationsController do
+RSpec.describe Projects::Settings::IntegrationsController do
   let(:project) { create(:project, :public) }
   let(:user) { create(:user) }
 
@@ -50,7 +50,7 @@ describe Projects::Settings::IntegrationsController do
 
     context 'without a license key' do
       before do
-        License.destroy_all # rubocop: disable DestroyAll
+        License.destroy_all # rubocop: disable Cop/DestroyAll
       end
 
       it_behaves_like 'endpoint with some disabled services'

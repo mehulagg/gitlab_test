@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Creating an Iteration' do
+RSpec.describe 'Creating an Iteration' do
   include GraphqlHelpers
 
   let_it_be(:current_user) { create(:user) }
@@ -79,7 +79,7 @@ describe 'Creating an Iteration' do
         let(:attributes) { { title: '' } }
 
         it_behaves_like 'a mutation that returns errors in the response',
-                        errors: ["Title can't be blank", "Start date can't be blank", "Due date can't be blank"]
+                        errors: ["Start date can't be blank", "Due date can't be blank", "Title can't be blank"]
 
         it 'does not create the iteration' do
           expect { post_graphql_mutation(mutation, current_user: current_user) }.not_to change(Iteration, :count)

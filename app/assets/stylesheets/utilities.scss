@@ -87,21 +87,16 @@
   }
 }
 
-.gl-shim-h-2 {
-  height: px-to-rem(4px);
-}
-
-.gl-shim-w-5 {
-  width: px-to-rem(16px);
-}
-
-.gl-shim-pb-3 {
-  padding-bottom: 8px;
-}
-
-.gl-shim-pt-5 {
-  padding-top: 16px;
-}
-
 .gl-text-purple { color: $purple; }
 .gl-bg-purple-light { background-color: $purple-light; }
+
+// move this to GitLab UI once onboarding experiment is considered a success
+.gl-py-8 {
+  padding-top: $gl-spacing-scale-8;
+  padding-bottom: $gl-spacing-scale-8;
+}
+
+// move this to GitLab UI once onboarding experiment is considered a success
+.gl-pl-7 {
+  padding-left: $gl-spacing-scale-7;
+}

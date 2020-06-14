@@ -86,6 +86,7 @@ module ApplicationSettingImplementation
         local_markdown_version: 0,
         max_artifacts_size: Settings.artifacts['max_size'],
         max_attachment_size: Settings.gitlab['max_attachment_size'],
+        max_import_size: 50,
         mirror_available: true,
         outbound_local_requests_whitelist: [],
         password_authentication_enabled_for_git: true,
@@ -104,6 +105,7 @@ module ApplicationSettingImplementation
         login_recaptcha_protection_enabled: false,
         repository_checks_enabled: true,
         repository_storages: ['default'],
+        repository_storages_weighted: { default: 100 },
         require_two_factor_authentication: false,
         restricted_visibility_levels: Settings.gitlab['restricted_visibility_levels'],
         session_expire_delay: Settings.gitlab['session_expire_delay'],
@@ -260,6 +262,10 @@ module ApplicationSettingImplementation
 
   def repository_storages
     Array(read_attribute(:repository_storages))
+  end
+
+  def repository_storages_weighted
+    read_attribute(:repository_storages_weighted)
   end
 
   def commit_email_hostname
@@ -419,6 +425,12 @@ module ApplicationSettingImplementation
   def check_repository_storages
     invalid = repository_storages - Gitlab.config.repositories.storages.keys
     errors.add(:repository_storages, "can't include: #{invalid.join(", ")}") unless
+      invalid.empty?
+  end
+
+  def check_repository_storages_weighted
+    invalid = repository_storages_weighted.keys - Gitlab.config.repositories.storages.keys
+    errors.add(:repository_storages_weighted, "can't include: %{invalid_storages}" % { invalid_storages: invalid.join(", ") }) unless
       invalid.empty?
   end
 

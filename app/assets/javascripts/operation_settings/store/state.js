@@ -1,5 +1,12 @@
 export default (initialState = {}) => ({
-  externalDashboardUrl: initialState.externalDashboardUrl || '',
   operationsSettingsEndpoint: initialState.operationsSettingsEndpoint,
-  externalDashboardHelpPagePath: initialState.externalDashboardHelpPagePath,
+  helpPage: initialState.helpPage,
+  externalDashboard: {
+    url: initialState.externalDashboardUrl,
+    helpPage: initialState.externalDashboardHelpPage,
+  },
+  dashboardTimezone: {
+    selected: initialState.dashboardTimezoneSetting,
+    helpPage: initialState.dashboardTimezoneHelpPage,
+  },
 });

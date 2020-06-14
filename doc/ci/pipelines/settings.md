@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 disqus_identifier: 'https://docs.gitlab.com/ee/user/project/pipelines/settings.html'
 type: reference, howto
 ---
@@ -59,7 +62,7 @@ if the job surpasses the threshold, it is marked as failed.
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17221) in GitLab 10.7.
 
 Project defined timeout (either specific timeout set by user or the default
-60 minutes timeout) may be [overridden on Runner level](../runners/README.md#setting-maximum-job-timeout-for-a-runner).
+60 minutes timeout) may be [overridden on Runner level](../runners/README.md#set-maximum-job-timeout-for-a-runner).
 
 ## Maximum artifacts size **(CORE ONLY)**
 
@@ -139,7 +142,7 @@ If you want to see the evolution of your project code coverage over time,
 you can download a CSV file with this data. From your project:
 
 1. Go to **{chart}** **Project Analytics > Repository**.
-1. Click **Download raw data (.csv)**
+1. Click **Download raw data (`.csv`)**
 
 ### Removing color codes
 
@@ -225,6 +228,8 @@ To avoid this scenario:
 
 The pending deployment jobs will be skipped.
 
+For more information, see [Deployment safety](../environments/deployment_safety.md).
+
 ## Pipeline Badges
 
 In the pipelines settings page you can find pipeline status and test coverage
@@ -297,6 +302,16 @@ https://example.gitlab.com/<namespace>/<project>/badges/<branch>/coverage.svg?st
 ```
 
 ![Badge flat square style](https://gitlab.com/gitlab-org/gitlab-foss/badges/master/coverage.svg?job=coverage&style=flat-square)
+
+### Custom badge text
+
+The text for a badge can be customized. This can be useful to differentiate between multiple coverage jobs that run in the same pipeline. Customize the badge text and width by adding the `key_text=custom_text` and `key_width=custom_key_width` parameters to the URL:
+
+```plaintext
+https://gitlab.com/gitlab-org/gitlab-foss/badges/master/coverage.svg?job=karma&key_text=Frontend+Coverage&key_width=100
+```
+
+![Badge with custom text and width](https://gitlab.com/gitlab-org/gitlab-foss/badges/master/coverage.svg?job=karma&key_text=Frontend+Coverage&key_width=100)
 
 ## Environment Variables
 

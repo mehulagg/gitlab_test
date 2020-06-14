@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 disqus_identifier: 'https://docs.gitlab.com/ee/ci/pipelines.html'
 type: reference
 ---
@@ -98,6 +101,8 @@ you can filter the pipeline list by:
 
 - Trigger author
 - Branch name
+- Status ([since GitLab 13.1](https://gitlab.com/gitlab-org/gitlab/-/issues/217617))
+- Tag ([since GitLab 13.1](https://gitlab.com/gitlab-org/gitlab/-/issues/217617))
 
 ### Run a pipeline manually
 

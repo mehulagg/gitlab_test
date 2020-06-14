@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::PipelinesController do
+RSpec.describe Projects::PipelinesController do
   include ApiHelpers
 
   let_it_be(:user) { create(:user) }
@@ -25,10 +25,6 @@ describe Projects::PipelinesController do
 
     context 'when using persisted stages', :request_store do
       render_views
-
-      before do
-        stub_feature_flags(ci_pipeline_persisted_stages: true)
-      end
 
       it 'returns serialized pipelines' do
         expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
@@ -61,46 +57,6 @@ describe Projects::PipelinesController do
 
         # There appears to be one extra query for Pipelines#has_warnings? for some reason
         expect { get_pipelines_index_json }.not_to exceed_query_limit(control_count + 1)
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['pipelines'].count).to eq 12
-      end
-    end
-
-    context 'when using legacy stages', :request_store do
-      before do
-        stub_feature_flags(ci_pipeline_persisted_stages: false)
-      end
-
-      it 'returns JSON with serialized pipelines' do
-        get_pipelines_index_json
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('pipeline')
-
-        expect(json_response).to include('pipelines')
-        expect(json_response['pipelines'].count).to eq 6
-        expect(json_response['count']['all']).to eq '6'
-        expect(json_response['count']['running']).to eq '2'
-        expect(json_response['count']['pending']).to eq '1'
-        expect(json_response['count']['finished']).to eq '3'
-
-        json_response.dig('pipelines', 0, 'details', 'stages').tap do |stages|
-          expect(stages.count).to eq 3
-        end
-      end
-
-      it 'does not execute N+1 queries' do
-        get_pipelines_index_json
-
-        control_count = ActiveRecord::QueryRecorder.new do
-          get_pipelines_index_json
-        end.count
-
-        create_all_pipeline_types
-
-        # There appears to be one extra query for Pipelines#has_warnings? for some reason
-        expect { get_pipelines_index_json }.not_to exceed_query_limit(control_count + 1)
-
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['pipelines'].count).to eq 12
       end
@@ -211,6 +167,40 @@ describe Projects::PipelinesController do
           get_pipelines_index_json(ref: 'invalid-ref')
 
           check_pipeline_response(returned: 0, all: 0, running: 0, pending: 0, finished: 0)
+        end
+      end
+    end
+
+    context 'filter by status' do
+      context 'when pipelines with the status exists' do
+        it 'returns matched pipelines' do
+          get_pipelines_index_json(status: 'success')
+
+          check_pipeline_response(returned: 1, all: 1, running: 0, pending: 0, finished: 1)
+        end
+
+        context 'when filter by unrelated scope' do
+          it 'returns empty list' do
+            get_pipelines_index_json(status: 'success', scope: 'running')
+
+            check_pipeline_response(returned: 0, all: 1, running: 0, pending: 0, finished: 1)
+          end
+        end
+      end
+
+      context 'when no pipeline with the status exists' do
+        it 'returns empty list' do
+          get_pipelines_index_json(status: 'manual')
+
+          check_pipeline_response(returned: 0, all: 0, running: 0, pending: 0, finished: 0)
+        end
+      end
+
+      context 'when invalid status' do
+        it 'returns all list' do
+          get_pipelines_index_json(status: 'invalid-status')
+
+          check_pipeline_response(returned: 6, all: 6, running: 2, pending: 1, finished: 3)
         end
       end
     end

@@ -1,8 +1,7 @@
 ---
 stage: Manage
 group: Analytics
-To determine the technical writer assigned to the Stage/Group associated with this page, see:
-  https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Value Stream Analytics
@@ -59,9 +58,20 @@ GitLab provides the ability to filter analytics based on a date range. To filter
 1. Optionally select a project.
 1. Select a date range using the available date pickers.
 
-## How the data is measured
+## How Time metrics are measured
 
-Value Stream Analytics records cycle time and data based on the project issues with the
+The "Time" metrics near the top of the page are measured as follows:
+
+- **Lead time**: median time from issue created to issue closed.
+- **Cycle time**: median time from first commit to issue closed.
+
+Note: A commit is associated with an issue by [crosslinking](../project/issues/crosslinking_issues.md) in the commit message or by manually linking the merge request containing the commit.
+
+![Value stream analytics time metrics](img/vsa_time_metrics_v13_0.png "Time metrics for value stream analytics")
+
+## How the stages are measured
+
+Value Stream Analytics records stage time and data based on the project issues with the
 exception of the staging and total stages, where only data deployed to
 production are measured.
 

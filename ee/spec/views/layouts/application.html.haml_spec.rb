@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'layouts/application' do
+RSpec.describe 'layouts/application' do
   let_it_be(:user) { create(:user) }
 
   before do
@@ -18,7 +18,7 @@ describe 'layouts/application' do
     let(:show_notification_dot) { false }
 
     before do
-      allow(view).to receive(:show_ci_minutes_notification_dot?).and_return(show_notification_dot)
+      allow(view).to receive(:show_pipeline_minutes_notification_dot?).and_return(show_notification_dot)
     end
 
     context 'when we show the notification dot' do

@@ -33,6 +33,9 @@ There are some differences in how a subscription applies, depending if you use G
 
 On a self-managed instance, a GitLab subscription provides the same set of features for all users. On GitLab.com you can apply a subscription to either a group or a personal namespace.
 
+NOTE: **Note:**
+Subscriptions cannot be transferred between GitLab.com and GitLab self-managed. A new subscription must be purchased and applied as needed.
+
 ### Choosing a GitLab.com group or personal subscription
 
 On GitLab.com you can apply a subscription to either a group or a personal namespace.
@@ -396,6 +399,15 @@ We recommend following these steps during renewal:
 
    TIP: **Tip:**
    You can find the _users over license_ in your instance's **Admin** dashboard by clicking on **{admin}** (**Admin Area**) in the top bar, or going to `/admin`.
+
+   The following table describes details of your admin dashboard and renewal terms:
+
+   | Field | Description |
+   |:------|:------------|
+   | Users in License | The number of users you've paid for in the current license loaded on the system. This does not include the amount you've paid for `Users over license` during renewal. |
+   | Active users | The number of current active users on your system. |
+   | Maximum users | The highest number of active users on your system during the term of the loaded license. If this number exceeds your users in license count at any point, you incur users over license. |
+   | Users over license | The number of users that exceed the `Users in License` for the current license term. Charges for this number of users will be incurred at the next renewal. |
 
 1. Review your renewal details and complete the payment process.
 1. A license for the renewal term will be available on the [Manage Purchases](https://customers.gitlab.com/subscriptions) page beneath your new subscription details.

@@ -1,5 +1,8 @@
 ---
 type: reference, howto
+stage: Plan
+group: Portfolio Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Epics **(PREMIUM)**
@@ -25,7 +28,7 @@ milestones.
 To learn what you can do with an epic, see [Manage epics](manage_epics.md). Possible actions include:
 
 - [Create an epic](manage_epics.md#create-an-epic)
-- [Bulk-edit epics](manage_epics.md#bulk-edit-epics)
+- [Bulk-edit epics](../bulk_editing/index.md#bulk-edit-epics)
 - [Delete an epic](manage_epics.md#delete-an-epic)
 - [Close an epic](manage_epics.md#close-an-epic)
 - [Reopen a closed epic](manage_epics.md#reopen-a-closed-epic)

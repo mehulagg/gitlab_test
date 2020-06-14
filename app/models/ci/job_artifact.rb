@@ -27,6 +27,7 @@ module Ci
       accessibility: 'gl-accessibility.json',
       codequality: 'gl-code-quality-report.json',
       sast: 'gl-sast-report.json',
+      secret_detection: 'gl-secret-detection-report.json',
       dependency_scanning: 'gl-dependency-scanning-report.json',
       container_scanning: 'gl-container-scanning-report.json',
       dast: 'gl-dast-report.json',
@@ -38,7 +39,8 @@ module Ci
       dotenv: '.env',
       cobertura: 'cobertura-coverage.xml',
       terraform: 'tfplan.json',
-      cluster_applications: 'gl-cluster-applications.json'
+      cluster_applications: 'gl-cluster-applications.json',
+      requirements: 'requirements.json'
     }.freeze
 
     INTERNAL_TYPES = {
@@ -63,13 +65,15 @@ module Ci
       accessibility: :raw,
       codequality: :raw,
       sast: :raw,
+      secret_detection: :raw,
       dependency_scanning: :raw,
       container_scanning: :raw,
       dast: :raw,
       license_management: :raw,
       license_scanning: :raw,
       performance: :raw,
-      terraform: :raw
+      terraform: :raw,
+      requirements: :raw
     }.freeze
 
     DOWNLOADABLE_TYPES = %w[
@@ -88,6 +92,8 @@ module Ci
       metrics
       performance
       sast
+      secret_detection
+      requirements
     ].freeze
 
     TYPE_AND_FORMAT_PAIRS = INTERNAL_TYPES.merge(REPORT_TYPES).freeze
@@ -110,6 +116,7 @@ module Ci
 
     after_save :update_file_store, if: :saved_change_to_file?
 
+    scope :not_expired, -> { where('expire_at IS NULL OR expire_at > ?', Time.current) }
     scope :with_files_stored_locally, -> { where(file_store: [nil, ::JobArtifactUploader::Store::LOCAL]) }
     scope :with_files_stored_remotely, -> { where(file_store: ::JobArtifactUploader::Store::REMOTE) }
     scope :for_sha, ->(sha, project_id) { joins(job: :pipeline).where(ci_pipelines: { sha: sha, project_id: project_id }) }
@@ -149,6 +156,7 @@ module Ci
     end
 
     scope :expired, -> (limit) { where('expire_at < ?', Time.current).limit(limit) }
+    scope :downloadable, -> { where(file_type: DOWNLOADABLE_TYPES) }
     scope :locked, -> { where(locked: true) }
     scope :unlocked, -> { where(locked: [false, nil]) }
 
@@ -177,7 +185,9 @@ module Ci
       cobertura: 17,
       terraform: 18, # Transformed json
       accessibility: 19,
-      cluster_applications: 20
+      cluster_applications: 20,
+      secret_detection: 21, ## EE-specific
+      requirements: 22 ## EE-specific
     }
 
     enum file_format: {
@@ -241,6 +251,14 @@ module Ci
       return true if trace? # ArchiveLegacyTraces background migration might not have `file_location` column
 
       super || self.file_location.nil?
+    end
+
+    def expired?
+      expire_at.present? && expire_at < Time.current
+    end
+
+    def expiring?
+      expire_at.present? && expire_at > Time.current
     end
 
     def expire_in

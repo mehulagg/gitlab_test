@@ -53,7 +53,8 @@ module Vulnerabilities
       sast: 0,
       dependency_scanning: 1,
       container_scanning: 2,
-      dast: 3
+      dast: 3,
+      secret_detection: 4
     }.with_indifferent_access.freeze
 
     enum confidence: CONFIDENCE_LEVELS, _prefix: :confidence
@@ -190,7 +191,7 @@ module Vulnerabilities
     end
 
     def load_feedback
-      BatchLoader.for(occurrence_key).batch do |occurrence_keys, loader|
+      BatchLoader.for(occurrence_key).batch(replace_methods: false) do |occurrence_keys, loader|
         project_ids = occurrence_keys.map { |key| key[:project_id] }
         categories = occurrence_keys.map { |key| key[:category] }
         fingerprints = occurrence_keys.map { |key| key[:project_fingerprint] }

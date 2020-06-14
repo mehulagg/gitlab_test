@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning do
+RSpec.describe Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning do
   describe '#parse!' do
     let(:report) { Gitlab::Ci::Reports::LicenseScanning::Report.new }
 
@@ -173,11 +173,12 @@ describe Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning do
     end
 
     context 'when the report is not a valid JSON document' do
-      it do
-        expect do
-          subject.parse!('blah', report)
-        end.to raise_error(Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning::LicenseScanningParserError)
+      before do
+        subject.parse!('invalid', report)
       end
+
+      it { expect(report.version).to eql('1.0') }
+      it { expect(report.licenses).to be_empty }
     end
   end
 end

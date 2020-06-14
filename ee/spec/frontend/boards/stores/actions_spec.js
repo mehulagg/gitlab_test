@@ -90,3 +90,49 @@ describe('updateIssueWeight', () => {
 describe('togglePromotionState', () => {
   expectNotImplemented(actions.updateIssueWeight);
 });
+
+describe('toggleEpicSwimlanes', () => {
+  it('should commit mutation TOGGLE_EPICS_SWIMLANES', () => {
+    const state = {
+      isShowingEpicsSwimlanes: false,
+      endpoints: {
+        fullPath: 'gitlab-org',
+        boardId: 1,
+      },
+    };
+
+    return testAction(
+      actions.toggleEpicSwimlanes,
+      null,
+      state,
+      [{ type: types.TOGGLE_EPICS_SWIMLANES }],
+      [],
+    );
+  });
+});
+
+describe('receiveSwimlanesSuccess', () => {
+  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', done => {
+    testAction(
+      actions.receiveSwimlanesSuccess,
+      {},
+      {},
+      [{ type: types.RECEIVE_SWIMLANES_SUCCESS, payload: {} }],
+      [],
+      done,
+    );
+  });
+});
+
+describe('receiveSwimlanesFailure', () => {
+  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', done => {
+    testAction(
+      actions.receiveSwimlanesFailure,
+      null,
+      {},
+      [{ type: types.RECEIVE_SWIMLANES_FAILURE }],
+      [],
+      done,
+    );
+  });
+});

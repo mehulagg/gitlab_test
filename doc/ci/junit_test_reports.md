@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Testing
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference
 ---
 
@@ -189,6 +192,20 @@ cpp:
       junit: report.xml
 ```
 
+#### CUnit
+
+[CUnit](https://cunity.gitlab.io/cunit/) can be made to produce [JUnit XML reports](https://cunity.gitlab.io/cunit/group__CI.html) automatically when run using its `CUnitCI.h` macros:
+
+```yaml
+cunit:
+  stage: test
+  script:
+    - ./my-cunit-test
+  artifacts:
+    reports:
+      junit: ./my-cunit-test.xml
+```
+
 ### .Net example
 
 The [JunitXML.TestLogger](https://www.nuget.org/packages/JunitXml.TestLogger/) NuGet
@@ -242,6 +259,9 @@ following command:
 
 ```ruby
 Feature.enable(:junit_pipeline_view)
+
+# Enable the feature for a specific project
+Feature.enable(:junit_pipeline_view, Project.find(<your-project-id-here>))
 ```
 
 ## Viewing JUnit screenshots on GitLab

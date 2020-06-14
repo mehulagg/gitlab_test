@@ -1,4 +1,5 @@
 import invalidUrl from '~/lib/utils/invalid_url';
+import { timezones } from '../format_date';
 
 export default () => ({
   // API endpoints
@@ -36,11 +37,16 @@ export default () => ({
   allDashboards: [],
   /**
    * User-defined custom variables are passed
-   * via the dashboard.yml file.
+   * via the dashboard yml file.
    */
   variables: {},
-
+  /**
+   * User-defined custom links are passed
+   * via the dashboard yml file.
+   */
+  links: [],
   // Other project data
+  dashboardTimezone: timezones.LOCAL,
   annotations: [],
   deploymentData: [],
   environments: [],

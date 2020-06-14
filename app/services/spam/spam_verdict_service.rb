@@ -5,11 +5,12 @@ module Spam
     include AkismetMethods
     include SpamConstants
 
-    def initialize(target:, request:, options:, verdict_params: {})
+    def initialize(user:, target:, request:, options:, context: {})
       @target = target
       @request = request
+      @user = user
       @options = options
-      @verdict_params = assemble_verdict_params(verdict_params)
+      @verdict_params = assemble_verdict_params(context)
     end
 
     def execute
@@ -27,11 +28,11 @@ module Spam
 
     private
 
-    attr_reader :target, :request, :options, :verdict_params
+    attr_reader :user, :target, :request, :options, :verdict_params
 
     def akismet_verdict
       if akismet.spam?
-        Gitlab::Recaptcha.enabled? ? REQUIRE_RECAPTCHA : DISALLOW
+        Gitlab::Recaptcha.enabled? ? CONDITIONAL_ALLOW : DISALLOW
       else
         ALLOW
       end
@@ -41,10 +42,10 @@ module Spam
       return unless Gitlab::CurrentSettings.spam_check_endpoint_enabled
       return if endpoint_url.blank?
 
-      result = Gitlab::HTTP.try_get(endpoint_url, verdict_params)
-      return unless result
-
       begin
+        result = Gitlab::HTTP.post(endpoint_url, body: verdict_params.to_json, headers: { 'Content-Type' => 'application/json' })
+        return unless result
+
         json_result = Gitlab::Json.parse(result).with_indifferent_access
         # @TODO metrics/logging
         # Expecting:
@@ -56,17 +57,33 @@ module Spam
         # @TODO log if json_result[:error]
 
         json_result[:verdict]
+      rescue *Gitlab::HTTP::HTTP_ERRORS => e
+        # @TODO: log error via try_post https://gitlab.com/gitlab-org/gitlab/-/issues/219223
+        Gitlab::ErrorTracking.log_exception(e)
+        return
       rescue
         # @TODO log
         ALLOW
       end
     end
 
-    def assemble_verdict_params(params)
-      return {} unless endpoint_url
+    def assemble_verdict_params(context)
+      return {} unless endpoint_url.present?
 
-      params.merge({
-        user_id: target.author_id
+      project = target.try(:project)
+
+      context.merge({
+        target: {
+          title: target.spam_title,
+          description: target.spam_description,
+          type: target.class.to_s
+        },
+        user: {
+          created_at: user.created_at,
+          email: user.email,
+          username: user.username
+        },
+        user_in_project: user.authorized_project?(project)
       })
     end
 
