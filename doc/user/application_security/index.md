@@ -207,7 +207,7 @@ with the number of approvals required greater than zero. You must have Maintaine
 1. Click **Add approval rule**, or **Edit**.
    - Add or change the **Rule name** to `Vulnerability-Check` (case sensitive).
 
-![Vulnerability Check Approver Rule](img/vulnerability-check.png)
+![Vulnerability Check Approver Rule](img/vulnerability-check_v13_0.png)
 
 Once this group is added to your project, the approval rule is enabled for all merge requests.
 
