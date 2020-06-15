@@ -4,6 +4,9 @@ import * as actions from 'ee/approvals/stores/modules/license_compliance/actions
 import * as baseMutationTypes from 'ee/approvals/stores/modules/base/mutation_types';
 import { mapApprovalSettingsResponse } from 'ee/approvals/mappers';
 import axios from '~/lib/utils/axios_utils';
+import createFlash from '~/flash';
+
+jest.mock('~/flash');
 
 describe('EE approvals license-compliance actions', () => {
   let state;
@@ -12,6 +15,7 @@ describe('EE approvals license-compliance actions', () => {
   const mocks = {
     state: {
       settingsPath: 'projects/9/approval_settings',
+      rulesPath: 'projects/9/approval_settings/rules',
     },
   };
 
@@ -19,6 +23,7 @@ describe('EE approvals license-compliance actions', () => {
     state = {
       settings: {
         settingsPath: mocks.state.settingsPath,
+        rulesPath: mocks.state.rulesPath,
       },
     };
     axiosMock = new MockAdapter(axios);
@@ -64,23 +69,79 @@ describe('EE approvals license-compliance actions', () => {
         ],
       );
     });
-  });
 
-  describe('postRule', () => {
-    it('is a placeholder', () => {
-      expect(true).toBe(true);
+    it('creates a flash error if the request is not successful', async () => {
+      axiosMock.onGet(mocks.state.settingsPath).replyOnce(500);
+      await actions.fetchRules({ rootState: state, dispatch: () => {}, commit: () => {} });
+      expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 
-  describe('deleteRule', () => {
-    it('is a placeholder', () => {
-      expect(true).toBe(true);
+  describe('postRule', () => {
+    it('posts correct data and dispatches "fetchRules" when request is successful', () => {
+      const rule = {
+        name: 'Foo',
+        approvalsRequired: 1,
+        users: [8, 9],
+        groups: [7],
+      };
+      axiosMock.onPost(mocks.state.rulesPath).replyOnce(200);
+
+      return testAction(
+        actions.postRule,
+        rule,
+        state,
+        [],
+        [
+          {
+            type: 'fetchRules',
+          },
+        ],
+        () => {
+          expect(axiosMock.history.post[0].data).toBe(
+            '{"name":"Foo","approvals_required":1,"users":[8,9],"groups":[7]}',
+          );
+        },
+      );
+    });
+
+    it('creates a flash error if the request is not successful', async () => {
+      axiosMock.onGet(mocks.state.settingsPath).replyOnce(500);
+      await actions.fetchRules({ rootState: state, dispatch: () => {}, commit: () => {} });
+      expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 
   describe('putRule', () => {
     it('is a placeholder', () => {
       expect(true).toBe(true);
+    });
+  });
+
+  describe('deleteRule', () => {
+    const id = 0;
+    const deleteUrl = `${mocks.state.rulesPath}/${id}`;
+
+    it('dispatches "fetchRules" when the deletion is successful', () => {
+      axiosMock.onDelete(deleteUrl).replyOnce(200);
+
+      return testAction(
+        actions.deleteRule,
+        id,
+        state,
+        [],
+        [
+          {
+            type: 'fetchRules',
+          },
+        ],
+      );
+    });
+
+    it('creates a flash error if the request is not successful', async () => {
+      axiosMock.onDelete(deleteUrl).replyOnce(500);
+      await actions.deleteRule({ rootState: state, dispatch: () => {} }, deleteUrl);
+      expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 
