@@ -131,6 +131,7 @@ export default {
       snippetsAccessLevel: featureAccessLevel.EVERYONE,
       pagesAccessLevel: featureAccessLevel.EVERYONE,
       metricsDashboardAccessLevel: featureAccessLevel.PROJECT_MEMBERS,
+      requirementsAccessLevel: featureAccessLevel.EVERYONE,
       containerRegistryEnabled: true,
       lfsEnabled: true,
       requestAccessEnabled: true,
@@ -233,6 +234,10 @@ export default {
           featureAccessLevel.PROJECT_MEMBERS,
           this.metricsDashboardAccessLevel,
         );
+        this.requirementsAccessLevel = Math.min(
+          featureAccessLevel.PROJECT_MEMBERS,
+          this.requirementsAccessLevel,
+        );
         if (this.pagesAccessLevel === featureAccessLevel.EVERYONE) {
           // When from Internal->Private narrow access for only members
           this.pagesAccessLevel = featureAccessLevel.PROJECT_MEMBERS;
@@ -256,6 +261,9 @@ export default {
           this.pagesAccessLevel = featureAccessLevel.EVERYONE;
         if (this.metricsDashboardAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
           this.metricsDashboardAccessLevel = featureAccessLevel.EVERYONE;
+        if (this.requirementsAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
+          this.requirementsAccessLevel = featureAccessLevel.EVERYONE;
+        
         this.highlightChanges();
       }
     },
@@ -538,6 +546,17 @@ export default {
             <i aria-hidden="true" data-hidden="true" class="fa fa-chevron-down"></i>
           </div>
         </div>
+      </project-setting-row>
+      <project-setting-row
+        ref="requirements-settings"
+        :label="s__('ProjectSettings|Requirements')"
+        :help-text="s__('ProjectSettings|Lightweight requirement tracking system for this project')"
+      >
+        <project-feature-setting
+          v-model="requirementsAccessLevel"
+          :options="featureAccessLevelOptions"
+          name="project[project_feature_attributes][requirements_access_level]"
+        />
       </project-setting-row>
     </div>
     <project-setting-row v-if="canDisableEmails" ref="email-settings" class="mb-3">
