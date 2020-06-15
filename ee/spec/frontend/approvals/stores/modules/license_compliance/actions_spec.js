@@ -16,6 +16,7 @@ describe('EE approvals license-compliance actions', () => {
     state: {
       settingsPath: 'projects/9/approval_settings',
       rulesPath: 'projects/9/approval_settings/rules',
+      projectPath: 'projects/9',
     },
   };
 
@@ -24,6 +25,7 @@ describe('EE approvals license-compliance actions', () => {
       settings: {
         settingsPath: mocks.state.settingsPath,
         rulesPath: mocks.state.rulesPath,
+        projectPath: mocks.state.projectPath,
       },
     };
     axiosMock = new MockAdapter(axios);
@@ -72,7 +74,9 @@ describe('EE approvals license-compliance actions', () => {
 
     it('creates a flash error if the request is not successful', async () => {
       axiosMock.onGet(mocks.state.settingsPath).replyOnce(500);
+
       await actions.fetchRules({ rootState: state, dispatch: () => {}, commit: () => {} });
+
       expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
@@ -107,14 +111,51 @@ describe('EE approvals license-compliance actions', () => {
 
     it('creates a flash error if the request is not successful', async () => {
       axiosMock.onGet(mocks.state.settingsPath).replyOnce(500);
+
       await actions.fetchRules({ rootState: state, dispatch: () => {}, commit: () => {} });
+
       expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 
   describe('putRule', () => {
-    it('is a placeholder', () => {
-      expect(true).toBe(true);
+    const id = 4;
+    const putUrl = `${mocks.state.rulesPath}/${4}`;
+
+    it('puts correct data and dispatches "fetchRules" when request is successful', () => {
+      const payload = {
+        id,
+        name: 'Foo',
+        approvalsRequired: 1,
+        users: [8, 9],
+        groups: [7],
+      };
+      axiosMock.onPut(putUrl).replyOnce(200);
+
+      return testAction(
+        actions.putRule,
+        payload,
+        state,
+        [],
+        [
+          {
+            type: 'fetchRules',
+          },
+        ],
+        () => {
+          expect(axiosMock.history.put[0].data).toBe(
+            '{"name":"Foo","approvals_required":1,"users":[8,9],"groups":[7]}',
+          );
+        },
+      );
+    });
+
+    it('creates a flash error if the request is not successful', async () => {
+      axiosMock.onPut(putUrl).replyOnce(500);
+
+      await actions.putRule({ rootState: state, dispatch: () => {} }, { id });
+
+      expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 
@@ -140,14 +181,45 @@ describe('EE approvals license-compliance actions', () => {
 
     it('creates a flash error if the request is not successful', async () => {
       axiosMock.onDelete(deleteUrl).replyOnce(500);
+
       await actions.deleteRule({ rootState: state, dispatch: () => {} }, deleteUrl);
+
       expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 
   describe('putFallbackRule', () => {
-    it('is a placeholder', () => {
-      expect(true).toBe(true);
+    it('puts correct fallback-data and dispatches "fetchRules" when request is successful', () => {
+      const payload = {
+        name: 'Foo',
+        approvalsRequired: 1,
+        users: [8, 9],
+        groups: [7],
+      };
+      axiosMock.onPut(mocks.state.projectPath).replyOnce(200);
+
+      return testAction(
+        actions.putFallbackRule,
+        payload,
+        state,
+        [],
+        [
+          {
+            type: 'fetchRules',
+          },
+        ],
+        () => {
+          expect(axiosMock.history.put[0].data).toBe('{"fallback_approvals_required":1}');
+        },
+      );
+    });
+
+    it('creates a flash error if the request is not successful', async () => {
+      axiosMock.onPut(mocks.state.projectPath).replyOnce(500);
+
+      await actions.putFallbackRule({ rootState: state, dispatch: () => {} }, {});
+
+      expect(createFlash).toHaveBeenNthCalledWith(1, expect.any(String));
     });
   });
 });
