@@ -17,7 +17,7 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
 
         redis.lpush('mylist', 'foobar')
         redis.lpush('biglist', Array.new(100) { 'foobar' })
-        redis.lpush('memlist', Array.new(10) { 'foobar' * 100 })
+        redis.lpush('memlist', 'foobar' * 1000)
 
         redis.sadd('myset', 'foobarx')
         redis.sadd('bigset', Array.new(101) { |i| "foobar#{i.chr}" })
@@ -26,6 +26,10 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
         redis.zadd('myzset', [1, 'foobarxx'])
         redis.zadd('bigzset', Array.new(102) { |i| [i, "foobarx#{i.chr}"] }.flatten)
         redis.zadd('memzset', [1, 'foobarxx' * 1000])
+
+        redis.hmset('myhash', 'foobarxxx', 'hello1234')
+        redis.hmset('bighash', Array.new(103) { |i| ["foobarxx#{i.chr}", 'hello1234'] }.flatten)
+        redis.hmset('memhash', 'foobarxxx', 'hello1234' * 1000)
       end
 
       expected = {
@@ -34,13 +38,15 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
             string: { key: 'bigstring', elements: 500 },
             list: { key: 'biglist', elements: 100 },
             set: { key: 'bigset', elements: 101 },
-            zset: { key: 'bigzset', elements: 102 }
+            zset: { key: 'bigzset', elements: 102 },
+            hash: { key: 'bighash', elements: 103 }
           },
           by_bytes: {
             string: { key: 'bigstring', bytes: 500 },
             list: { key: 'memlist', bytes: 6000 },
             set: { key: 'memset', bytes: 7000 },
-            zset: { key: 'memzset', bytes: 8000 }
+            zset: { key: 'memzset', bytes: 8000 },
+            hash: { key: 'memhash', bytes: 9000 }
           }
         },
         summary: {
@@ -51,7 +57,7 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
           },
           list: {
             sampled_count: 3,
-            total_elements: 111,
+            total_elements: 102,
             total_bytes: 6606
           },
           set: {
@@ -65,9 +71,9 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
             total_bytes: 8824
           },
           hash: {
-            sampled_count: 0,
-            total_elements: 0,
-            total_bytes: 0
+            sampled_count: 3,
+            total_elements: 105,
+            total_bytes: 9000
           },
           stream: {
             sampled_count: 0,
