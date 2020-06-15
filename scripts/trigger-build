@@ -130,7 +130,7 @@ module Trigger
     end
 
     def ref
-      ENV['OMNIBUS_BRANCH'] || 'master'
+      'allow-to-skip-qa-docker' # ENV['OMNIBUS_BRANCH'] || 'master'
     end
 
     def trigger_token
@@ -146,6 +146,8 @@ module Trigger
       # and fallback to CI_COMMIT_SHA for the `detached` pipelines.
       {
         'GITLAB_VERSION' => Trigger.non_empty_variable_value('CI_MERGE_REQUEST_SOURCE_BRANCH_SHA') || ENV['CI_COMMIT_SHA'],
+        'IMAGE_TAG' => ENV['CI_COMMIT_REF_SLUG'],
+        'SKIP_QA_DOCKER' => 'true',
         'ALTERNATIVE_SOURCES' => 'true',
         'SECURITY_SOURCES' => Trigger.security? ? 'true' : 'false',
         'ee' => Trigger.ee? ? 'true' : 'false',
