@@ -80,7 +80,7 @@ module Gitlab
       def key_elements(keys, types)
         redis.pipelined do |redis|
           keys.zip(types) do |key, type|
-            redis.call(SIZE_COMMANDS[type], key)
+            redis.call(SIZE_COMMANDS.fetch(type), key)
           end
         end
       end
