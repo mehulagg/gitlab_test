@@ -28,12 +28,12 @@ module Gitlab
 
             result[:biggest][:by_elements][type] ||= { elements: -1 }
             if result[:biggest][:by_elements][type][:elements] < num_elements
-              result[:biggest][:by_elements][type] = { key: key, elements: num_elements }
+              result[:biggest][:by_elements][type] = { key: json_safe(key), elements: num_elements }
             end
 
             result[:biggest][:by_bytes][type] ||= { bytes: -1 }
             if result[:biggest][:by_bytes][type][:bytes] < num_bytes
-              result[:biggest][:by_bytes][type] = { key: key, bytes: num_bytes }
+              result[:biggest][:by_bytes][type] = { key: json_safe(key), bytes: num_bytes }
             end
 
             result[:summary][type][:sampled_count] += 1
@@ -89,6 +89,10 @@ module Gitlab
         redis.pipelined do |redis|
           keys.each { |key| redis.call('memory', 'usage', key) }
         end
+      end
+
+      def json_safe(string)
+        string.encode('utf-8', invalid: :replace)
       end
     end
   end

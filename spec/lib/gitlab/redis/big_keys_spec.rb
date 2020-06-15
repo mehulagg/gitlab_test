@@ -117,5 +117,17 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
         end
       end
     end
+
+    it 'is JSON-safe' do
+      test_redis do |redis|
+        redis.set("non\x80utf-8", 'hello world')
+      end
+
+      actual = JSON.parse(subject.to_json)
+
+      expected_key = "non\ufffdutf-8"
+      expect(actual['biggest']['by_elements']['string']['key']).to eq(expected_key)
+      expect(actual['biggest']['by_bytes']['string']['key']).to eq(expected_key)
+    end
   end
 end
