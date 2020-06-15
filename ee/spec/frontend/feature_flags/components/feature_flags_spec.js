@@ -21,6 +21,7 @@ describe('Feature flags', () => {
     errorStateSvgPath: '/assets/illustrations/feature_flag.svg',
     featureFlagsHelpPagePath: '/help/feature-flags',
     featureFlagsAnchoredHelpPagePath: '/help/feature-flags#unleash-clients',
+    userListsApiDocPath: '/help/api/user_lists',
     unleashApiUrl: `${TEST_HOST}/api/unleash`,
     unleashApiInstanceId: 'oP6sCNRqtRHmpy1gw2-F',
     canUserConfigure: true,
@@ -74,6 +75,7 @@ describe('Feature flags', () => {
       unleashApiUrl: `${TEST_HOST}/api/unleash`,
       unleashApiInstanceId: 'oP6sCNRqtRHmpy1gw2-F',
       projectId: '8',
+      userListsApiDocPath: '/help/api/user_lists',
     };
 
     beforeEach(done => {
