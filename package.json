@@ -166,6 +166,7 @@
     "@vue/test-utils": "1.0.0-beta.30",
     "acorn": "^6.3.0",
     "axios-mock-adapter": "^1.15.0",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^25.5.0",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-istanbul": "^6.0.0",
@@ -213,7 +214,7 @@
     "stylelint-config-recommended": "^2.2.0",
     "stylelint-scss": "^3.9.2",
     "timezone-mock": "^1.0.8",
-    "vue-jest": "4.0.0-beta.2",
+    "vue-jest": "^3.0.5",
     "webpack-dev-server": "^3.10.3",
     "xhr-mock": "^2.5.1",
     "yarn-check-webpack-plugin": "^1.2.0",
@@ -224,9 +225,7 @@
   },
   "resolutions": {
     "chokidar": "^3.4.0",
-    "monaco-editor": "0.20.0",
-    "vue-jest/jest": "^25.5.0",
-    "vue-jest/ts-jest": "24.0.0"
+    "monaco-editor": "0.20.0"
   },
   "engines": {
     "node": ">=10.13.0",
