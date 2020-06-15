@@ -23,11 +23,7 @@ module Gitlab
           elements = key_elements(keys, types)
           bytes = key_bytes(keys)
 
-          keys.each_with_index do |key, i|
-            type = types[i]
-            num_elements = elements[i]
-            num_bytes = bytes[i]
-
+          keys.zip(types, elements, bytes) do |key, type, num_elements, num_bytes|
             next unless type && num_elements && num_bytes
 
             result[:biggest][:by_elements][type] ||= { elements: -1 }
@@ -72,23 +68,19 @@ module Gitlab
         result.map { |t| t&.to_sym }
       end
 
+      SIZE_COMMANDS = {
+        string: :strlen,
+        list: :llen,
+        set: :scard,
+        zset: :zcard,
+        hash: :hlen,
+        stream: :xlen
+      }.freeze
+
       def key_elements(keys, types)
         redis.pipelined do |redis|
-          keys.each_with_index do |key, i|
-            case types[i]
-            when :string
-              redis.strlen(key)
-            when :list
-              redis.llen(key)
-            when :set
-              redis.scard(key)
-            when :zset
-              redis.zcard(key)
-            when :hash
-              redis.hlen(key)
-            when :stream
-              redis.xlen(key)
-            end
+          keys.zip(types) do |key, type|
+            redis.call(SIZE_COMMANDS[type], key)
           end
         end
       end
