@@ -10,7 +10,6 @@ exports[`EE Approvals LicenseCompliance Modal matches snapshot 1`] = `
   titletag="h4"
 >
   <div
-    init-rule="[object Object]"
     locked-name="License-Check"
   >
     mock-rule-form
@@ -26,10 +25,13 @@ exports[`EE Approvals LicenseCompliance Modal matches snapshot 1`] = `
           name="question"
           size="12"
         />
-         
-        <gl-sprintf-stub
-          message="Learn more about %{licenseCheckHelpLink}"
-        />
+         Learn more about 
+        <gl-link-stub
+          href="http://foo.bar"
+          target="_blank"
+        >
+          License Approvals
+        </gl-link-stub>
       </p>
        
       <div

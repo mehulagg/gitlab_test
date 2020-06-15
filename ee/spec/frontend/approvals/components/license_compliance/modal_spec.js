@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlIcon } from '@gitlab/ui';
+import { GlSprintf } from '@gitlab/ui';
 import GlModalVuex from '~/vue_shared/components/gl_modal_vuex.vue';
 import LicenseComplianceModal from 'ee/approvals/components/license_compliance/modal.vue';
 
@@ -11,29 +11,32 @@ describe('EE Approvals LicenseCompliance Modal', () => {
   let wrapper;
   let store;
 
-  const mockActions = {
-    modalHide: jest.fn(),
-  };
-
-  const mockRuleForm = {
-    template: '<div>mock-rule-form</div>',
-    methods: {
-      submit: jest.fn(),
+  const mocks = {
+    actions: {
+      modalHide: jest.fn(),
     },
+    RuleForm: {
+      template: '<div>mock-rule-form</div>',
+      props: ['initRule'],
+      methods: {
+        submit: jest.fn(),
+      },
+    },
+    approvalsDocumentationPath: 'http://foo.bar',
   };
 
   const createStore = () => {
     const storeOptions = {
       state: {
         settings: {
-          approvalsDocumentationPath: 'http://foo.bar',
+          approvalsDocumentationPath: mocks.approvalsDocumentationPath,
         },
       },
       modules: {
         approvalModal: {
           namespaced: true,
           actions: {
-            hide: mockActions.modalHide,
+            hide: mocks.actions.modalHide,
           },
           state: {
             isVisible: false,
@@ -52,7 +55,8 @@ describe('EE Approvals LicenseCompliance Modal', () => {
       store,
       stubs: {
         GlModalVuex,
-        RuleForm: mockRuleForm,
+        GlSprintf,
+        RuleForm: mocks.RuleForm,
       },
     });
   };
@@ -67,35 +71,53 @@ describe('EE Approvals LicenseCompliance Modal', () => {
     wrapper = null;
   });
 
+  const findByHref = href => wrapper.find(`[href="${href}"`);
+  const findRuleForm = () => wrapper.find(mocks.RuleForm);
+  const findInformationIcon = () => wrapper.find('[name="question"]');
   const findOkButton = () => wrapper.find('[name="ok"]');
+  const findCancelButton = () => wrapper.find('[name="cancel"]');
 
   it('matches snapshot', () => {
     expect(wrapper.element).toMatchSnapshot();
   });
 
-  it('contains a form that allows to edit the approval rule', () => {
-    expect(wrapper.find(mockRuleForm).exists()).toBe(true);
+  describe('rule form', () => {
+    it('has the approval-name locked to "License-Check"', () => {
+      expect(findRuleForm().attributes('locked-name')).toBe('License-Check');
+    });
+
+    it(`receives the modal's states data so it can display and edit the containing rule`, () => {
+      expect(findRuleForm().props('initRule')).toBe(store.state.approvalModal.data);
+    });
   });
 
-  it('contains an icon', () => {
-    expect(wrapper.find(GlIcon).exists()).toBe(true);
+  describe('footer information text', () => {
+    it('contains an information icon', () => {
+      expect(findInformationIcon().exists()).toBe(true);
+    });
+
+    it('contains a link to the relevant documentation page', () => {
+      expect(findByHref(mocks.approvalsDocumentationPath).exists()).toBe(true);
+    });
   });
 
-  it('submits the form when "ok" button is clicked', () => {
-    expect(mockRuleForm.methods.submit).not.toHaveBeenCalled();
-    findOkButton().vm.$emit('click');
-    expect(mockRuleForm.methods.submit).toHaveBeenCalledTimes(1);
-  });
+  describe('action buttons', () => {
+    it('submits the form when "ok" button is clicked', () => {
+      expect(mocks.RuleForm.methods.submit).not.toHaveBeenCalled();
+      findOkButton().vm.$emit('click');
+      expect(mocks.RuleForm.methods.submit).toHaveBeenCalledTimes(1);
+    });
 
-  it('hides the model when the "ok" button is clicked', () => {
-    expect(mockActions.modalHide).not.toHaveBeenCalled();
-    findOkButton().vm.$emit('click');
-    expect(mockActions.modalHide).toHaveBeenCalledTimes(1);
-  });
+    it('hides the model when the "ok" button is clicked', () => {
+      expect(mocks.actions.modalHide).not.toHaveBeenCalled();
+      findOkButton().vm.$emit('click');
+      expect(mocks.actions.modalHide).toHaveBeenCalledTimes(1);
+    });
 
-  it('hides the form when the "cancel" button is clicked', () => {
-    expect(mockActions.modalHide).not.toHaveBeenCalled();
-    wrapper.find('[name="cancel"]').vm.$emit('click');
-    expect(mockActions.modalHide).toHaveBeenCalledTimes(1);
+    it('hides the form when the "cancel" button is clicked', () => {
+      expect(mocks.actions.modalHide).not.toHaveBeenCalled();
+      findCancelButton().vm.$emit('click');
+      expect(mocks.actions.modalHide).toHaveBeenCalledTimes(1);
+    });
   });
 });
