@@ -129,7 +129,7 @@ export default {
       return this.initRule && this.initRule.id;
     },
     isNameVisible() {
-      return Boolean(this.settings.lockedApprovelRuleName);
+      return !this.settings.lockedApprovalsRuleName;
     },
     isNameDisabled() {
       return this.isPersisted && READONLY_NAMES.includes(this.name);
@@ -140,7 +140,7 @@ export default {
     submissionData() {
       return {
         id: this.initRule && this.initRule.id,
-        name: this.settings.lockedApprovelRuleName || this.name || DEFAULT_NAME,
+        name: this.settings.lockedApprovalsRuleName || this.name || DEFAULT_NAME,
         approvalsRequired: this.approvalsRequired,
         users: this.userIds,
         groups: this.groupIds,
