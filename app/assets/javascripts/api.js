@@ -331,28 +331,26 @@ const Api = {
   },
 
   commitPipelines(projectId, sha) {
+    // TODO: This is nasty. What to do?
     const encodedProjectId = projectId
       .split('/')
       .map(fragment => encodeURIComponent(fragment))
       .join('/');
 
-    const url = Api.buildUrl(Api.commitPipelinesPath)
+    const url = Api.buildUrl(Api.commitPipelinesPath, { sha })
       .replace(':project_id', encodedProjectId)
-      .replace(':sha', encodeURIComponent(sha));
 
     return axios.get(url);
   },
 
   branchSingle(id, branch) {
-    const url = Api.buildUrl(Api.branchSinglePath)
-      .replace(':id', encodeURIComponent(id))
-      .replace(':branch', encodeURIComponent(branch));
+    const url = Api.buildUrl(Api.branchSinglePath, { id, branch });
 
     return axios.get(url);
   },
 
   projectTemplate(id, type, key, options, callback) {
-    const url = Api.buildUrl(this.projectTemplatePath)
+    const url = Api.buildUrl(this.projectTemplatePath, { id, type, key });
       .replace(':id', encodeURIComponent(id))
       .replace(':type', type)
       .replace(':key', encodeURIComponent(key));
@@ -365,9 +363,7 @@ const Api = {
   },
 
   projectTemplates(id, type, params = {}, callback) {
-    const url = Api.buildUrl(this.projectTemplatesPath)
-      .replace(':id', encodeURIComponent(id))
-      .replace(':type', type);
+    const url = Api.buildUrl(this.projectTemplatesPath, { id, type });
 
     return axios.get(url, { params }).then(res => {
       if (callback) callback(res.data);
@@ -377,11 +373,12 @@ const Api = {
   },
 
   issueTemplate(namespacePath, projectPath, key, type, callback) {
-    const url = Api.buildUrl(Api.issuableTemplatePath)
-      .replace(':key', encodeURIComponent(key))
-      .replace(':type', type)
-      .replace(':project_path', projectPath)
-      .replace(':namespace_path', namespacePath);
+    const url = Api.buildUrl(Api.issuableTemplatePath, {
+      key,
+      type,
+      project_path: projectPath,
+      namespace_path: namespacePath,
+    });
     return axios
       .get(url)
       .then(({ data }) => callback(null, data))
@@ -400,7 +397,7 @@ const Api = {
   },
 
   user(id, options) {
-    const url = Api.buildUrl(this.userPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.userPath, { id });
     return axios.get(url, {
       params: options,
     });
@@ -412,14 +409,14 @@ const Api = {
   },
 
   userStatus(id, options) {
-    const url = Api.buildUrl(this.userStatusPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.userStatusPath, { id });
     return axios.get(url, {
       params: options,
     });
   },
 
   userProjects(userId, query, options, callback) {
-    const url = Api.buildUrl(Api.userProjectsPath).replace(':id', userId);
+    const url = Api.buildUrl(Api.userProjectsPath, { id: userId });
     const defaults = {
       search: query,
       per_page: DEFAULT_PER_PAGE,
@@ -433,7 +430,7 @@ const Api = {
   },
 
   branches(id, query = '', options = {}) {
-    const url = Api.buildUrl(this.createBranchPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.createBranchPath, { id });
 
     return axios.get(url, {
       params: {
@@ -445,7 +442,7 @@ const Api = {
   },
 
   createBranch(id, { ref, branch }) {
-    const url = Api.buildUrl(this.createBranchPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.createBranchPath, { id });
 
     return axios.post(url, {
       ref,
@@ -463,15 +460,16 @@ const Api = {
   },
 
   postMergeRequestPipeline(id, { mergeRequestId }) {
-    const url = Api.buildUrl(this.mergeRequestsPipeline)
-      .replace(':id', encodeURIComponent(id))
-      .replace(':merge_request_iid', mergeRequestId);
+    const url = Api.buildUrl(this.mergeRequestsPipeline, {
+      id,
+      merge_request_iid: mergeRequestId,
+    });
 
     return axios.post(url);
   },
 
   releases(id, options = {}) {
-    const url = Api.buildUrl(this.releasesPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.releasesPath, { id });
 
     return axios.get(url, {
       params: {
@@ -482,34 +480,38 @@ const Api = {
   },
 
   release(projectPath, tagName) {
-    const url = Api.buildUrl(this.releasePath)
-      .replace(':id', encodeURIComponent(projectPath))
-      .replace(':tag_name', encodeURIComponent(tagName));
+    const url = Api.buildUrl(this.releasePath, {
+      id: projectPath,
+      tag_name: tagName,
+    });
 
     return axios.get(url);
   },
 
   updateRelease(projectPath, tagName, release) {
-    const url = Api.buildUrl(this.releasePath)
-      .replace(':id', encodeURIComponent(projectPath))
-      .replace(':tag_name', encodeURIComponent(tagName));
+    const url = Api.buildUrl(this.releasePath, {
+      id: projectPath,
+      tag_name: tagName,
+    });
 
     return axios.put(url, release);
   },
 
   createReleaseLink(projectPath, tagName, link) {
-    const url = Api.buildUrl(this.releaseLinksPath)
-      .replace(':id', encodeURIComponent(projectPath))
-      .replace(':tag_name', encodeURIComponent(tagName));
+    const url = Api.buildUrl(this.releaseLinksPath, {
+      id: projectPath,
+      tag_name: tagName,
+    });
 
     return axios.post(url, link);
   },
 
   deleteReleaseLink(projectPath, tagName, linkId) {
-    const url = Api.buildUrl(this.releaseLinkPath)
-      .replace(':id', encodeURIComponent(projectPath))
-      .replace(':tag_name', encodeURIComponent(tagName))
-      .replace(':link_id', encodeURIComponent(linkId));
+    const url = Api.buildUrl(this.releaseLinkPath, {
+      id: projectPath,
+      tag_name: tagName,
+      link_id: linkId,
+    });
 
     return axios.delete(url);
   },
@@ -520,16 +522,14 @@ const Api = {
   },
 
   pipelineSingle(id, pipelineId) {
-    const url = Api.buildUrl(this.pipelineSinglePath)
-      .replace(':id', encodeURIComponent(id))
-      .replace(':pipeline_id', encodeURIComponent(pipelineId));
+    const url = Api.buildUrl(this.pipelineSinglePath, { id, pipeline_id: pipelineId });
 
     return axios.get(url);
   },
 
   // Return all pipelines for a project or filter by query params
   pipelines(id, options = {}) {
-    const url = Api.buildUrl(this.pipelinesPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.pipelinesPath, { id });
 
     return axios.get(url, {
       params: options,
@@ -537,36 +537,33 @@ const Api = {
   },
 
   environments(id) {
-    const url = Api.buildUrl(this.environmentsPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.environmentsPath, { id });
     return axios.get(url);
   },
 
   getRawFile(id, path, params = { ref: 'master' }) {
-    const url = Api.buildUrl(this.rawFilePath)
-      .replace(':id', encodeURIComponent(id))
-      .replace(':path', encodeURIComponent(path));
+    const url = Api.buildUrl(this.rawFilePath, { id, path });
 
     return axios.get(url, { params });
   },
 
   updateIssue(project, issue, data = {}) {
-    const url = Api.buildUrl(Api.issuePath)
-      .replace(':id', encodeURIComponent(project))
-      .replace(':issue_iid', encodeURIComponent(issue));
+    const url = Api.buildUrl(Api.issuePath, { id: project, issue_iid: issue });
 
     return axios.put(url, data);
   },
 
   updateMergeRequest(project, mergeRequest, data = {}) {
-    const url = Api.buildUrl(Api.projectMergeRequestPath)
-      .replace(':id', encodeURIComponent(project))
-      .replace(':mrid', encodeURIComponent(mergeRequest));
+    const url = Api.buildUrl(Api.projectMergeRequestPath, {
+      id: project,
+      mrid: mergeRequest,
+    });
 
     return axios.put(url, data);
   },
 
   tags(id, query = '', options = {}) {
-    const url = Api.buildUrl(this.tagsPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(this.tagsPath, { id });
 
     return axios.get(url, {
       params: {
@@ -577,8 +574,13 @@ const Api = {
     });
   },
 
-  buildUrl(url) {
-    return joinPaths(gon.relative_url_root || '', url.replace(':version', gon.api_version));
+  buildUrl(url, segments = {}) {
+    const path = Object.entries({ ...segments, version: gon.api_version }).reduce(
+      (acc, [name, value]) => acc.replace(`:${name}`, encodeURIComponent(value)),
+      url,
+    );
+
+    return joinPaths(gon.relative_url_root || '', path);
   },
 };
 
