@@ -123,7 +123,7 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
         redis.set("non \x80 utf-8", 'hello world')
       end
 
-      actual = JSON.parse(subject.to_json)
+      actual = Gitlab::Json.parse(subject.to_json)
 
       expected_key = "non \ufffd utf-8"
       expect(actual['biggest']['by_elements']['string']['key']).to eq(expected_key)
