@@ -50,13 +50,13 @@ module Gitlab
       attr_reader :redis
 
       def scan_batch
-        cursor = nil
-        sentinel = '0'
+        start = '0'
+        cursor = start
 
         loop do
-          cursor, keys = redis.scan(cursor || sentinel)
+          cursor, keys = redis.scan(cursor)
           yield keys
-          break if cursor == sentinel
+          break if cursor == start
         end
       end
 
