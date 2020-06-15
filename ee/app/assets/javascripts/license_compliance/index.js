@@ -16,6 +16,7 @@ export default () => {
     rulesPath,
     settingsPath,
     approvalsDocumentationPath,
+    lockedApprovalsRuleName,
   } = el.dataset;
 
   const storeSettings = {
@@ -24,6 +25,7 @@ export default () => {
     rulesPath,
     settingsPath,
     approvalsDocumentationPath,
+    lockedApprovalsRuleName,
   };
   const store = createStore(storeSettings);
 
