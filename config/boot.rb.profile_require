@@ -1,0 +1,37 @@
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
+
+# require '/Users/qingyu/gdk-ee-2/gitlab/generated_single_require_file_no_require_relative.rb'
+
+
+# Run `export ENABLE_BOOTSNAP=1; rails runner "puts 'hello'" > all_required_files_w_bootsnap.txt`
+#
+
+
+def require(file_name)
+  result = super
+
+  if result
+    last_file = $".last
+    puts "current_file: #{File.absolute_path(__FILE__)}  last_required_file: #{last_file}"
+  end
+
+  result
+end
+
+
+# Set up gems listed in the Gemfile.
+require 'bundler/setup' if File.exist?(ENV['BUNDLE_GEMFILE'])
+require 'bootsnap/setup' if ENV['RAILS_ENV'] != 'production' || %w(1 yes true).include?(ENV['ENABLE_BOOTSNAP'])
+
+# TODO: this is in question. Should we override the bootsnap require instead?
+#
+def require(file_name)
+  result = super
+
+  if result
+    last_file = $".last
+    puts "current_file: #{File.absolute_path(__FILE__)}  last_required_file: #{last_file}"
+  end
+
+  result
+end
