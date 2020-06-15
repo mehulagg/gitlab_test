@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import Shortcuts from '~/behaviors/shortcuts/shortcuts';
+import { toggleMarkdownPreview } from '~/behaviors/shortcuts/shortcuts_markdown';
 
 describe('Shortcuts', () => {
   const fixtureName = 'snippets/show.html';
@@ -16,12 +16,10 @@ describe('Shortcuts', () => {
 
       jest.spyOn(document.querySelector('.js-new-note-form .js-md-preview-button'), 'focus');
       jest.spyOn(document.querySelector('.edit-note .js-md-preview-button'), 'focus');
-
-      new Shortcuts(); // eslint-disable-line no-new
     });
 
     it('focuses preview button in form', () => {
-      Shortcuts.toggleMarkdownPreview(
+      toggleMarkdownPreview(
         createEvent('KeyboardEvent', document.querySelector('.js-new-note-form .js-note-text')),
       );
 
@@ -33,7 +31,7 @@ describe('Shortcuts', () => {
     it('focues preview button inside edit comment form', () => {
       document.querySelector('.js-note-edit').click();
 
-      Shortcuts.toggleMarkdownPreview(
+      toggleMarkdownPreview(
         createEvent('KeyboardEvent', document.querySelector('.edit-note .js-note-text')),
       );
 

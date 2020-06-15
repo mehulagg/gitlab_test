@@ -2,7 +2,7 @@ import Mousetrap from 'mousetrap';
 import $ from 'jquery';
 import { updateText } from '~/lib/utils/text_markdown';
 
-function toggleMarkdownPreview(e) {
+export function toggleMarkdownPreview(e) {
   // Check if short-cut was triggered while in Write Mode
   const $target = $(e.target);
   const $form = $target.closest('form');
