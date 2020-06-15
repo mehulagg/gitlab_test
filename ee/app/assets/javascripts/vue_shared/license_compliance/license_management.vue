@@ -7,7 +7,6 @@ import AdminLicenseManagementRow from './components/admin_license_management_row
 import LicenseManagementRow from './components/license_management_row.vue';
 import DeleteConfirmationModal from './components/delete_confirmation_modal.vue';
 import PaginatedList from '~/vue_shared/components/paginated_list.vue';
-
 import LicenseComplianceApprovals from '../../approvals/components/license_compliance/app.vue';
 
 import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/constants';

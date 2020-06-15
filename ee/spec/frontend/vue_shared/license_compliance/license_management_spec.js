@@ -7,6 +7,7 @@ import AdminLicenseManagementRow from 'ee/vue_shared/license_compliance/componen
 import LicenseManagementRow from 'ee/vue_shared/license_compliance/components/license_management_row.vue';
 import AddLicenseForm from 'ee/vue_shared/license_compliance/components/add_license_form.vue';
 import DeleteConfirmationModal from 'ee/vue_shared/license_compliance/components/delete_confirmation_modal.vue';
+import LicenseComplianceApprovals from 'ee/approvals/components/license_compliance/app.vue';
 import { approvedLicense, blacklistedLicense } from './mock_data';
 
 Vue.use(Vuex);
@@ -124,7 +125,7 @@ describe('License Management', () => {
 
   describe('permission based functionality', () => {
     describe('when admin', () => {
-      it('should invoke `setLicenseAprroval` action on `addLicense` event on form only', () => {
+      it('should invoke `setLicenseApproval` action on `addLicense` event on form only', () => {
         const setLicenseApprovalMock = jest.fn();
         createComponent({
           state: { isLoadingManagedLicenses: false },
@@ -142,6 +143,10 @@ describe('License Management', () => {
       describe('when not loading', () => {
         beforeEach(() => {
           createComponent({ state: { isLoadingManagedLicenses: false }, isAdmin: true });
+        });
+
+        it('should render the approval section', () => {
+          expect(wrapper.find(LicenseComplianceApprovals).exists()).toBe(true);
         });
 
         it('should render the form if the form is open and disable the form button', () => {
@@ -168,8 +173,9 @@ describe('License Management', () => {
         });
       });
     });
+
     describe('when developer', () => {
-      it('should not invoke `setLicenseAprroval` action or `addLicense` event on form', () => {
+      it('should not invoke `setLicenseApproval` action or `addLicense` event on form', () => {
         const setLicenseApprovalMock = jest.fn();
         createComponent({
           state: { isLoadingManagedLicenses: false },
@@ -184,6 +190,10 @@ describe('License Management', () => {
       describe('when not loading', () => {
         beforeEach(() => {
           createComponent({ state: { isLoadingManagedLicenses: false, isAdmin: false } });
+        });
+
+        it('should not render the approval section', () => {
+          expect(wrapper.find(LicenseComplianceApprovals).exists()).toBe(false);
         });
 
         it('should not render the form', () => {
