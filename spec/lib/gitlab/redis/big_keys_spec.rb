@@ -30,6 +30,12 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
         redis.hmset('myhash', 'foobarxxx', 'hello1234')
         redis.hmset('bighash', Array.new(103) { |i| ["foobarxx#{i.chr}", 'hello1234'] }.flatten)
         redis.hmset('memhash', 'foobarxxx', 'hello1234' * 1000)
+
+        redis.xadd('mystream', { foobarxxxx: '' })
+        redis.pipelined do |redis|
+          104.times { redis.xadd('bigstream', { foobarxxxx: '' }) }
+        end
+        redis.xadd('memstream', { foobarxxxx: 'hello12345' * 1000 })
       end
 
       expected = {
@@ -39,14 +45,16 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
             list: { key: 'biglist', elements: 100 },
             set: { key: 'bigset', elements: 101 },
             zset: { key: 'bigzset', elements: 102 },
-            hash: { key: 'bighash', elements: 103 }
+            hash: { key: 'bighash', elements: 103 },
+            stream: { key: 'bigstream', elements: 104 }
           },
           by_bytes: {
             string: { key: 'bigstring', bytes: 500 },
             list: { key: 'memlist', bytes: 6000 },
             set: { key: 'memset', bytes: 7000 },
             zset: { key: 'memzset', bytes: 8000 },
-            hash: { key: 'memhash', bytes: 9000 }
+            hash: { key: 'memhash', bytes: 9000 },
+            stream: { key: 'memstream', bytes: 10000 }
           }
         },
         summary: {
@@ -76,9 +84,9 @@ describe Gitlab::Redis::BigKeys, :clean_gitlab_redis_shared_state do
             total_bytes: 9000
           },
           stream: {
-            sampled_count: 0,
-            total_elements: 0,
-            total_bytes: 0
+            sampled_count: 3,
+            total_elements: 106,
+            total_bytes: 10000
           }
         }
       }
