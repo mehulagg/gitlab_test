@@ -37,9 +37,8 @@ export default {
   <gl-modal-vuex
     modal-module="approvalModal"
     modal-id="licenseComplianceApproval"
-    size="sm"
     :title="title"
-    :cancel-title="__('Cancel')"
+    size="sm"
     @ok="submit"
   >
     <rule-form ref="form" :init-rule="licenseApprovalRule" locked-name="License-Check" />

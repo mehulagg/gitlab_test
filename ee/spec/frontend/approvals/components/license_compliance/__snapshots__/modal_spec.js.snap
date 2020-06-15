@@ -2,7 +2,6 @@
 
 exports[`EE Approvals LicenseCompliance Modal matches snapshot 1`] = `
 <gl-modal-stub
-  cancel-title="Cancel"
   modalclass=""
   modalid="licenseComplianceApproval"
   size="sm"

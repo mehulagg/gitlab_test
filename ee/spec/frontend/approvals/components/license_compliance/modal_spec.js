@@ -72,6 +72,7 @@ describe('EE Approvals LicenseCompliance Modal', () => {
   });
 
   const findByHref = href => wrapper.find(`[href="${href}"`);
+  const findModal = () => wrapper.find(GlModalVuex);
   const findRuleForm = () => wrapper.find(mocks.RuleForm);
   const findInformationIcon = () => wrapper.find('[name="question"]');
   const findOkButton = () => wrapper.find('[name="ok"]');
@@ -79,6 +80,22 @@ describe('EE Approvals LicenseCompliance Modal', () => {
 
   it('matches snapshot', () => {
     expect(wrapper.element).toMatchSnapshot();
+  });
+
+  describe('modal title', () => {
+    it.each`
+      givenModalData     | expectTitleStartsWith
+      ${null}            | ${'Add'}
+      ${{ name: 'foo' }} | ${'Update'}
+    `('starts with $titleStartsWith', ({ givenModalData, expectTitleStartsWith }) => {
+      store.state.approvalModal.data = givenModalData;
+      createWrapper();
+      expect(
+        findModal()
+          .attributes('title')
+          .startsWith(expectTitleStartsWith),
+      ).toBe(true);
+    });
   });
 
   describe('rule form', () => {
@@ -96,8 +113,8 @@ describe('EE Approvals LicenseCompliance Modal', () => {
       expect(findInformationIcon().exists()).toBe(true);
     });
 
-    it('contains a link to the relevant documentation page', () => {
-      expect(findByHref(mocks.approvalsDocumentationPath).exists()).toBe(true);
+    it('opens a link to the relevant documentation page in a new tab', () => {
+      expect(findByHref(mocks.approvalsDocumentationPath).attributes('target')).toBe('_blank');
     });
   });
 
