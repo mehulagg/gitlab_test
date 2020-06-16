@@ -160,6 +160,7 @@ export default {
       query: getAlerts,
       variables() {
         return {
+          searchTerm: this.searchTerm,
           projectPath: this.projectPath,
           statuses: this.statusFilter,
           sort: this.sort,
@@ -172,6 +173,8 @@ export default {
       update(data) {
         const { alertManagementAlerts: { nodes: list = [], pageInfo = {} } = {} } =
           data.project || {};
+
+        console.log('data', data);
 
         return {
           list,
@@ -196,6 +199,8 @@ export default {
   },
   data() {
     return {
+      // eslint-disable-next-line @gitlab/require-i18n-strings
+      searchTerm: 'Simple Alert',
       errored: false,
       isAlertDismissed: false,
       isErrorAlertDismissed: false,
