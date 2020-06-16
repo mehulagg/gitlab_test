@@ -185,7 +185,6 @@ secrets-sast:
     - if: $SAST_DISABLED || $SAST_DISABLE_DIND == 'false'
       when: never
     - if: $CI_COMMIT_BRANCH &&
-          $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /secrets/
 
 security-code-scan-sast:

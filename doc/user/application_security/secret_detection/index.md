@@ -19,7 +19,7 @@ malicious users to gain access to resources like deployment environments.
 GitLab 11.9 includes a new check called Secret Detection. It scans the content of the repository
 to find API keys and other information that should not be there.
 
-GitLab displays identified secrets as part of the SAST reports visibly in a few places:
+GitLab displays identified secrets visibly in a few places:
 
 - [Security Dashboard](../security_dashboard/)
 - Pipelines' **Security** tab
@@ -44,6 +44,25 @@ CAUTION: **Caution:** Our Secret Detection jobs currently expect a Linux contain
 CAUTION: **Caution:**
 If you use your own Runners, make sure the Docker version installed
 is **not** `19.03.0`. See [troubleshooting information](../sast#error-response-from-daemon-error-processing-tar-file-docker-tar-relocation-error) for details.
+
+### Making Secret Detection available to all GitLab tiers
+
+In an effort to make Secret Detection availible to as many customers as possible. We have enabled all GitLab tiers to leverage
+Secret Detection. However not all features are availible on every teir, you see the breakdown below for more details.
+
+#### Summary of features per tier
+
+Different features are available in different [GitLab tiers](https://about.gitlab.com/pricing/),
+as shown in the following table:
+
+| Capability                                                                | In Core             | In Ultimate        |
+|:--------------------------------------------------------------------------|:--------------------|:-------------------|
+| [Configure Secret Detection Scanners](#configuration)                                 | **{check-circle}**  | **{check-circle}** |
+| [Customize Secret Detection Settings](#customizing-settings)                 | **{check-circle}**  | **{check-circle}** |
+| View [JSON Report](../sast/index.md#reports-json-format)                                  | **{check-circle}**  | **{check-circle}** |
+| [Presentation of JSON Report in Merge Request](#overview)                 | **{dotted-circle}** | **{check-circle}** |
+| [Interaction with Vulnerabilities](../vulnerabilities/index.md) | **{dotted-circle}** | **{check-circle}** |
+| [Access to Security Dashboard](../security_dashboard/index.md)                       | **{dotted-circle}** | **{check-circle}** |
 
 ## Configuration
 
