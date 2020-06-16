@@ -1,5 +1,6 @@
 <script>
 import {
+  GlAlert,
   GlAvatar,
   GlBadge,
   GlCard,
@@ -20,6 +21,7 @@ import query from '../queries/group_iteration.query.graphql';
 export default {
   isScopedLabel,
   components: {
+    GlAlert,
     GlAvatar,
     GlBadge,
     GlCard,
@@ -42,12 +44,8 @@ export default {
           id: getIdFromGraphQLId(this.iterationId),
         };
       },
-      update(data, errors) {
-        if (errors) {
-          return {};
-        }
-
-        const iteration = data.group.iterations.nodes[0] || {};
+      update(data) {
+        const iteration = data?.group?.iterations?.nodes[0] || {};
 
         return {
           iteration,
@@ -57,6 +55,9 @@ export default {
             assignees: issue?.assignees?.nodes || [],
           })),
         };
+      },
+      error(err) {
+        this.error = err.message;
       },
     },
   },
@@ -84,6 +85,7 @@ export default {
   },
   data() {
     return {
+      error: '',
       group: {
         iteration: {},
       },
@@ -142,6 +144,9 @@ export default {
 
 <template>
   <div>
+    <gl-alert v-if="error" variant="danger" @dismiss="error = ''">
+      {{ error }}
+    </gl-alert>
     <gl-loading-icon v-if="$apollo.queries.group.loading" class="py-5" size="lg" />
     <gl-empty-state
       v-else-if="!hasIteration"
@@ -198,7 +203,6 @@ export default {
                           <gl-avatar :src="assignee.avatarUrl" :size="16" />
                         </span>
                       </span>
-                      <!-- = link_to polymorphic_path(issuable_type_args, { milestone_title: @milestone.title, assignee_id: assignee.id, state: 'all' }), -->
                     </div>
                   </li>
                 </ul>
