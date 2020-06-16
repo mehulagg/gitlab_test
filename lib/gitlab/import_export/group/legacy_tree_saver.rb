@@ -19,6 +19,9 @@ module Gitlab
           tree_saver.save(group_tree, @shared.export_path, ImportExport.group_filename)
 
           true
+        rescue ActiveRecord::StatementInvalid => e
+          @shared.error(e.concat(' SQL Query: ', e.sql))
+          false
         rescue => e
           @shared.error(e)
           false

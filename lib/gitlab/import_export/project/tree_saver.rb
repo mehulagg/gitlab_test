@@ -22,6 +22,9 @@ module Gitlab
           ).execute
 
           true
+        rescue ActiveRecord::StatementInvalid => e
+          @shared.error(e.concat(' SQL Query: ', e.sql))
+          false
         rescue => e
           @shared.error(e)
           false
