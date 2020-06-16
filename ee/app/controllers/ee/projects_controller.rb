@@ -49,9 +49,14 @@ module EE
       end
     end
 
+    override :project_feature_attributes
+    def project_feature_attributes
+      super + [:requirements_access_level]
+    end
+
     override :project_params_attributes
     def project_params_attributes
-      super + project_params_ee
+      attrs = super + project_params_ee
     end
 
     override :custom_import_params
@@ -71,21 +76,20 @@ module EE
     private
 
     def project_params_ee
-      attrs = [
-        :approvals_before_merge,
-        :approver_group_ids,
-        :approver_ids,
-        :issues_template,
-        :merge_requests_template,
-        :repository_size_limit,
-        :reset_approvals_on_push,
-        :service_desk_enabled,
-        :ci_cd_only,
-        :use_custom_template,
-        :packages_enabled,
-        :require_password_to_approve,
-        :group_with_project_templates_id,
-        project_feature_attributes: [:requirements_access_level]
+      attrs = %i[
+        approvals_before_merge
+        approver_group_ids
+        approver_ids
+        issues_template
+        merge_requests_template
+        repository_size_limit
+        reset_approvals_on_push
+        service_desk_enabled
+        ci_cd_only
+        use_custom_template
+        packages_enabled
+        require_password_to_approve
+        group_with_project_templates_id
       ]
 
       if allow_merge_pipelines_params?
