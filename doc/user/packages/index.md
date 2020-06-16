@@ -6,7 +6,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # GitLab Package Registry
 
-The GitLab Package Registry is a place to publish, share, and discover packages in many different formats.
+The GitLab Package Registry is a place to publish, share, and discover packages in the following formats.
 
 | Software repository                                         | Description                                                           | Available in GitLab version |
 |-------------------------------------------------------------|-----------------------------------------------------------------------|-----------------------------|
