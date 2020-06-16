@@ -37,11 +37,6 @@ export default {
 
         return {
           iteration,
-          issues: data.group.issues.nodes.map(issue => ({
-            ...issue,
-            labels: issue?.labels?.nodes || [],
-            assignees: issue?.assignees?.nodes || [],
-          })),
         };
       },
       error(err) {
@@ -97,21 +92,6 @@ export default {
           return { text: __('Open'), variant: 'success' };
       }
     },
-    unstartedIssues() {
-      return this.issues.filter(issue => {
-        return issue.state === 'opened' && issue.assignees.length === 0;
-      });
-    },
-    ongoingIssues() {
-      return this.issues.filter(issue => {
-        return issue.state === 'opened' && issue.assignees.length > 0;
-      });
-    },
-    completedIssues() {
-      return this.issues.filter(issue => {
-        return issue.state === 'opened' && issue.assignees.length > 0;
-      });
-    },
   },
   methods: {
     formatDate(date) {
@@ -146,11 +126,7 @@ export default {
       </div>
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
       <div ref="description" v-html="iteration.description"></div>
-      <iteration-report-tabs
-        :unstarted-issues="unstartedIssues"
-        :ongoing-issues="ongoingIssues"
-        :completed-issues="completedIssues"
-      />
+      <iteration-report-tabs :group-path="groupPath" :iteration-id="iterationId" />
     </template>
   </div>
 </template>

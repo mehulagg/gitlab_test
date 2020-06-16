@@ -11,6 +11,8 @@ import {
 } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { isScopedLabel } from '~/lib/utils/common_utils';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import query from '../queries/iteration_issues.query.graphql';
 
 export default {
   isScopedLabel,
@@ -26,21 +28,37 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
+  apollo: {
+    issues: {
+      query,
+      variables() {
+        return {
+          groupPath: this.groupPath,
+          id: getIdFromGraphQLId(this.iterationId),
+        };
+      },
+      update(data) {
+        const issues = data?.group?.issues?.nodes || [];
+
+        return issues.map(issue => ({
+          ...issue,
+          labels: issue?.labels?.nodes || [],
+          assignees: issue?.assignees?.nodes || [],
+        }));
+      },
+      error(err) {
+        this.error = err.message;
+      },
+    },
+  },
   props: {
-    unstartedIssues: {
-      type: Array,
-      required: false,
-      default: () => [],
+    groupPath: {
+      type: String,
+      required: true,
     },
-    ongoingIssues: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
-    completedIssues: {
-      type: Array,
-      required: false,
-      default: () => [],
+    iterationId: {
+      type: String,
+      required: true,
     },
   },
   data() {
@@ -66,6 +84,22 @@ export default {
           issues: this.completedIssues,
         },
       ];
+    },
+
+    unstartedIssues() {
+      return this.issues.filter(issue => {
+        return issue.state === 'opened' && issue.assignees.length === 0;
+      });
+    },
+    ongoingIssues() {
+      return this.issues.filter(issue => {
+        return issue.state === 'opened' && issue.assignees.length > 0;
+      });
+    },
+    completedIssues() {
+      return this.issues.filter(issue => {
+        return issue.state === 'opened' && issue.assignees.length > 0;
+      });
     },
   },
 };
