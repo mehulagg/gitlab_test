@@ -6,7 +6,7 @@
 # fields to a new table "project_features", support for the old fields is still needed in the API.
 require 'gitlab/utils'
 
-module ee
+module EE
   module ProjectFeaturesCompatibility
     extend ActiveSupport::Concern
 
