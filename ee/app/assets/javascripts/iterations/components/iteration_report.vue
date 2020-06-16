@@ -1,5 +1,5 @@
 <script>
-import { GlBadge, GlLoadingIcon, GlEmptyState } from '@gitlab/ui';
+import { GlAlert, GlBadge, GlLoadingIcon, GlEmptyState } from '@gitlab/ui';
 import dateFormat from 'dateformat';
 import { __ } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
@@ -7,6 +7,7 @@ import query from '../queries/group_iteration.query.graphql';
 
 export default {
   components: {
+    GlAlert,
     GlBadge,
     GlLoadingIcon,
     GlEmptyState,
@@ -20,16 +21,15 @@ export default {
           id: getIdFromGraphQLId(this.iterationId),
         };
       },
-      update(data, errors) {
-        if (errors) {
-          return {};
-        }
-
-        const iteration = data.group.iterations.nodes[0] || {};
+      update(data) {
+        const iteration = data?.group?.iterations?.nodes[0] || {};
 
         return {
           iteration,
         };
+      },
+      error(err) {
+        this.error = err.message;
       },
     },
   },
@@ -57,6 +57,7 @@ export default {
   },
   data() {
     return {
+      error: '',
       group: {
         iteration: {},
       },
@@ -90,6 +91,9 @@ export default {
 
 <template>
   <div>
+    <gl-alert v-if="error" variant="danger" @dismiss="error = ''">
+      {{ error }}
+    </gl-alert>
     <gl-loading-icon v-if="$apollo.queries.group.loading" class="py-5" size="lg" />
     <gl-empty-state
       v-else-if="!hasIteration"
