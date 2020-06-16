@@ -25,7 +25,7 @@ You can also:
 
 ## Enable the Package Registry for your project
 
-If the **{package}** **Packages > List** isn't visible on your
+If the **{package}** **Packages & Repositories > List** isn't visible on your
 project's sidebar, it's not enabled in your GitLab instance. Ask your
 administrator to enable the Package Registry by using the [administration
 documentation](../../administration/packages/index.md).
