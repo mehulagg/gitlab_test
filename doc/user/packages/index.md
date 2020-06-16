@@ -17,6 +17,8 @@ The GitLab Package Registry is a place for you to publish, share, and discover p
 | [NPM Registry](npm_registry/index.md) **(PREMIUM)**         | Use for [NPM](https://www.npmjs.com/) packages.                       | 11.7+                       |
 | [NuGet Repository](nuget_repository/index.md) **(PREMIUM)** | Use for [NuGet](https://www.nuget.org/) packages.                     | 12.8+                       |
 | [PyPi Repository](pypi_repository/index.md) **(PREMIUM)**   | Use for [PyPi](https://pypi.org/) packages.                           | 12.10+                      |
+| [Go Proxy](go_proxy/index.md) **(PREMIUM)** | The Go proxy for GitLab enables every project in GitLab to be fetched with the [Go proxy protocol](https://proxy.golang.org/). | 13.1+ |
+| [Composer Repository](composer_repository/index.md) **(PREMIUM)**  | The GitLab Composer Repository will enable every project in GitLab to have its own space to store [Composer](https://getcomposer.org/) packages. | 13.1+ |
 
 You can also:
 
