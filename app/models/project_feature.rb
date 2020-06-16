@@ -3,7 +3,7 @@
 class ProjectFeature < ApplicationRecord
   include Featurable
 
-  FEATURES = %i(issues forking merge_requests wiki snippets builds repository pages metrics_dashboard requirements).freeze
+  FEATURES = %i(issues forking merge_requests wiki snippets builds repository pages metrics_dashboard).freeze
 
   set_available_features(FEATURES)
 

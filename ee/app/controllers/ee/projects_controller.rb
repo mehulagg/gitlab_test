@@ -85,6 +85,9 @@ module EE
         packages_enabled
         require_password_to_approve
         group_with_project_templates_id
+        project_feature_attributes: %i[
+          requirements_access_level
+        ]
       ]
 
       if allow_merge_pipelines_params?

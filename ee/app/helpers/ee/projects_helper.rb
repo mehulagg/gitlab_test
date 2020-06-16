@@ -74,7 +74,8 @@ module EE
     def project_permissions_panel_data(project)
       super.merge(
         packagesAvailable: ::Gitlab.config.packages.enabled && project.feature_available?(:packages),
-        packagesHelpPath: help_page_path('user/packages/index')
+        packagesHelpPath: help_page_path('user/packages/index'),
+        requirementsAvailable: project.feature_available?(:requirements)
       )
     end
 

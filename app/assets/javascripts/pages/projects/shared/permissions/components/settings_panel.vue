@@ -67,6 +67,11 @@ export default {
       required: false,
       default: false,
     },
+    requirementsAvailable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     visibilityHelpPath: {
       type: String,
       required: false,
@@ -548,6 +553,7 @@ export default {
         </div>
       </project-setting-row>
       <project-setting-row
+        v-if="requirementsAvailable"
         ref="requirements-settings"
         :label="s__('ProjectSettings|Requirements')"
         :help-text="s__('ProjectSettings|Lightweight requirement tracking system for this project')"
