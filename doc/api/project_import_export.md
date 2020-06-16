@@ -1,6 +1,6 @@
 # Project import/export API
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41899) in GitLab 10.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41899) in GitLab 10.6.
 
 See also:
 
@@ -18,7 +18,7 @@ data file uploads to the final server.
 
 From GitLab 10.7, the `upload[url]` parameter is required if the `upload` parameter is present.
 
-```text
+```plaintext
 POST /projects/:id/export
 ```
 
@@ -31,7 +31,7 @@ POST /projects/:id/export
 | `upload[http_method]`      | string | no      | The HTTP method to upload the exported project. Only `PUT` and `POST` methods allowed. Default is `PUT` |
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/export \
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/export" \
     --data "upload[http_method]=PUT" \
     --data-urlencode "upload[url]=https://example-bucket.s3.eu-west-3.amazonaws.com/backup?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIMBJHN2O62W8IELQ%2F20180312%2Feu-west-3%2Fs3%2Faws4_request&X-Amz-Date=20180312T110328Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=8413facb20ff33a49a147a0b4abcff4c8487cc33ee1f7e450c46e8f695569dbd"
 ```
@@ -42,11 +42,14 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab
 }
 ```
 
+NOTE: **Note:**
+The upload request will be sent with `Content-Type: application/gzip` header. Ensure that your pre-signed URL includes this as part of the signature.
+
 ## Export status
 
 Get the status of export.
 
-```text
+```plaintext
 GET /projects/:id/export
 ```
 
@@ -55,7 +58,7 @@ GET /projects/:id/export
 | `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/export
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/export"
 ```
 
 Status can be one of:
@@ -99,7 +102,7 @@ an email notifying the user to download the file, uploading the exported file to
 
 Download the finished export.
 
-```text
+```plaintext
 GET /projects/:id/export/download
 ```
 
@@ -108,7 +111,7 @@ GET /projects/:id/export/download
 | `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" --remote-header-name --remote-name https://gitlab.example.com/api/v4/projects/5/export/download
+curl --header "PRIVATE-TOKEN: <your_access_token>" --remote-header-name --remote-name "https://gitlab.example.com/api/v4/projects/5/export/download"
 ```
 
 ```shell
@@ -118,7 +121,7 @@ ls *export.tar.gz
 
 ## Import a file
 
-```text
+```plaintext
 POST /projects/import
 ```
 
@@ -139,7 +142,7 @@ The `file=` parameter must point to a file on your file system and be preceded
 by `@`. For example:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "path=api-project" --form "file=@/path/to/file" https://gitlab.example.com/api/v4/projects/import
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "path=api-project" --form "file=@/path/to/file" "https://gitlab.example.com/api/v4/projects/import"
 ```
 
 cURL doesn't support posting a file from a remote server. Importing a project from a remote server can be accomplished through something like the following:
@@ -172,15 +175,21 @@ requests.post(url, headers=headers, data=data, files=files)
   "path": "api-project",
   "path_with_namespace": "root/api-project",
   "created_at": "2018-02-13T09:05:58.023Z",
-  "import_status": "scheduled"
+  "import_status": "scheduled",
+  "correlation_id": "mezklWso3Za",
+  "failed_relations": []
 }
 ```
+
+NOTE: **Note:**
+The maximum import file size can be set by the Administrator, default is 50MB.
+As an administrator, you can modify the maximum import file size. To do so, use the `max_import_size` option in the [Application settings API](settings.md#change-application-settings) or the [Admin UI](../user/admin_area/settings/account_and_limit_settings.md).
 
 ## Import status
 
 Get the status of an import.
 
-```text
+```plaintext
 GET /projects/:id/import
 ```
 
@@ -189,7 +198,7 @@ GET /projects/:id/import
 | `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/import
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/import"
 ```
 
 Status can be one of:
@@ -201,6 +210,15 @@ Status can be one of:
 - `finished`
 
 If the status is `failed`, it will include the import error message under `import_error`.
+If the status is `failed`, `started` or `finished`, the `failed_relations` array might
+be populated with any occurrences of relations that failed to import either due to
+unrecoverable errors or because retries were exhausted (a typical example are query timeouts.)
+
+NOTE: **Note:**
+An element's `id` field in `failed_relations` references the failure record, not the relation.
+
+NOTE: **Note:**
+The `failed_relations` array is currently capped to 100 items.
 
 ```json
 {
@@ -211,6 +229,17 @@ If the status is `failed`, it will include the import error message under `impor
   "path": "gitlab-test",
   "path_with_namespace": "gitlab-org/gitlab-test",
   "created_at": "2017-08-29T04:36:44.383Z",
-  "import_status": "started"
+  "import_status": "started",
+  "correlation_id": "mezklWso3Za",
+  "failed_relations": [
+    {
+      "id": 42,
+      "created_at": "2020-04-02T14:48:59.526Z",
+      "exception_class": "RuntimeError",
+      "exception_message": "A failure occurred",
+      "source": "custom error context",
+      "relation_name": "merge_requests"
+    }
+  ]
 }
 ```

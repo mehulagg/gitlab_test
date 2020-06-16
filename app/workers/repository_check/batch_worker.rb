@@ -2,8 +2,6 @@
 
 module RepositoryCheck
   class BatchWorker # rubocop:disable Scalability/IdempotentWorker
-    prepend_if_ee('::EE::RepositoryCheck::BatchWorker') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
     include ApplicationWorker
     include RepositoryCheckQueue
     include ExclusiveLeaseGuard
@@ -13,6 +11,8 @@ module RepositoryCheck
     LEASE_TIMEOUT = 1.hour
 
     attr_reader :shard_name
+
+    loggable_arguments 0
 
     def perform(shard_name)
       @shard_name = shard_name
@@ -94,3 +94,5 @@ module RepositoryCheck
     end
   end
 end
+
+RepositoryCheck::BatchWorker.prepend_if_ee('::EE::RepositoryCheck::BatchWorker')

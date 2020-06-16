@@ -381,6 +381,20 @@ describe API::Issues do
         end.not_to change { project.labels.count }
       end
     end
+
+    context 'when request exceeds the rate limit' do
+      before do
+        allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(true)
+      end
+
+      it 'prevents users from creating more issues' do
+        post api("/projects/#{project.id}/issues", user),
+        params: { title: 'new issue', labels: 'label, label2', weight: 3, assignee_ids: [user2.id] }
+
+        expect(response).to have_gitlab_http_status(:too_many_requests)
+        expect(json_response['message']['error']).to eq('This endpoint has been requested too many times. Try again later.')
+      end
+    end
   end
 
   describe 'POST /projects/:id/issues with spam filtering' do
@@ -389,7 +403,7 @@ describe API::Issues do
     end
 
     before do
-      expect_next_instance_of(Spam::SpamCheckService) do |spam_service|
+      expect_next_instance_of(Spam::SpamActionService) do |spam_service|
         expect(spam_service).to receive_messages(check_for_spam?: true)
       end
       expect_next_instance_of(Spam::AkismetService) do |akismet_service|

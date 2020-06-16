@@ -12,20 +12,27 @@ export default {
   fetchData({ commit, dispatch, state }) {
     commit(types.REQUEST_DATA);
 
-    axios
-      .get(state.codeNavUrl)
-      .then(({ data }) => {
-        const normalizedData = data.reduce((acc, d) => {
-          if (d.hover) {
-            acc[`${d.start_line}:${d.start_char}`] = d;
-            addInteractionClass(d);
-          }
-          return acc;
-        }, {});
+    state.blobs.forEach(({ path, codeNavigationPath }) => {
+      axios
+        .get(codeNavigationPath)
+        .then(({ data }) => {
+          const normalizedData = data.reduce((acc, d) => {
+            if (d.hover) {
+              acc[`${d.start_line}:${d.start_char}`] = d;
+              addInteractionClass(path, d);
+            }
+            return acc;
+          }, {});
 
-        commit(types.REQUEST_DATA_SUCCESS, normalizedData);
-      })
-      .catch(() => dispatch('requestDataError'));
+          commit(types.REQUEST_DATA_SUCCESS, { path, normalizedData });
+        })
+        .catch(() => dispatch('requestDataError'));
+    });
+  },
+  showBlobInteractionZones({ state }, path) {
+    if (state.data && state.data[path]) {
+      Object.values(state.data[path]).forEach(d => addInteractionClass(path, d));
+    }
   },
   showDefinition({ commit, state }, { target: el }) {
     let definition;
@@ -39,21 +46,35 @@ export default {
       getCurrentHoverElement().classList.remove('hll');
     }
 
-    if (el.classList.contains('js-code-navigation') && !isCurrentElementPopoverOpen) {
+    const blobEl = el.closest('[data-path]');
+
+    if (!blobEl) {
+      commit(types.SET_CURRENT_DEFINITION, { definition, position });
+
+      return;
+    }
+
+    const blobPath = blobEl.dataset.path;
+    const data = state.data[blobPath];
+
+    if (!data) return;
+
+    if (el.closest('.js-code-navigation') && !isCurrentElementPopoverOpen) {
       const { lineIndex, charIndex } = el.dataset;
+      const { x, y } = el.getBoundingClientRect();
 
       position = {
-        x: el.offsetLeft,
-        y: el.offsetTop,
+        x: x || 0,
+        y: y + window.scrollY || 0,
         height: el.offsetHeight,
       };
-      definition = state.data[`${lineIndex}:${charIndex}`];
+      definition = data[`${lineIndex}:${charIndex}`];
 
       el.classList.add('hll');
 
       setCurrentHoverElement(el);
     }
 
-    commit(types.SET_CURRENT_DEFINITION, { definition, position });
+    commit(types.SET_CURRENT_DEFINITION, { definition, position, blobPath });
   },
 };

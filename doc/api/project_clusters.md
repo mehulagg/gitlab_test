@@ -22,7 +22,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters
+curl --header 'Private-Token: <your_access_token>' "https://gitlab.example.com/api/v4/projects/26/clusters"
 ```
 
 Example response:
@@ -91,7 +91,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters/18
+curl --header "Private-Token: <your_access_token>" "https://gitlab.example.com/api/v4/projects/26/clusters/18"
 ```
 
 Example response:
@@ -179,6 +179,7 @@ Parameters:
 | `id` | integer | yes | The ID of the project owned by the authenticated user |
 | `name` | string | yes | The name of the cluster |
 | `domain` | string | no | The [base domain](../user/project/clusters/index.md#base-domain) of the cluster |
+| `management_project_id` | integer | no | The ID of the [management project](../user/clusters/management_project.md) for the cluster |
 | `enabled` | boolean | no | Determines if cluster is active or not, defaults to true |
 | `managed` | boolean | no | Determines if GitLab will manage namespaces and service accounts for this cluster, defaults to true |
 | `platform_kubernetes_attributes[api_url]` | string | yes | The URL to access the Kubernetes API |
@@ -191,7 +192,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters/user \
+curl --header 'Private-Token: <your_access_token>' "https://gitlab.example.com/api/v4/projects/26/clusters/user" \
 -H "Accept: application/json" \
 -H "Content-Type:application/json" \
 -X POST --data '{"name":"cluster-5", "platform_kubernetes_attributes":{"api_url":"https://35.111.51.20","token":"12345","namespace":"cluster-5-namespace","ca_cert":"-----BEGIN CERTIFICATE-----\r\nhFiK1L61owwDQYJKoZIhvcNAQELBQAw\r\nLzEtMCsGA1UEAxMkZDA1YzQ1YjctNzdiMS00NDY0LThjNmEtMTQ0ZDJkZjM4ZDBj\r\nMB4XDTE4MTIyNzIwMDM1MVoXDTIzMTIyNjIxMDM1MVowLzEtMCsGA1UEAxMkZDA1\r\nYzQ1YjctNzdiMS00NDY0LThjNmEtMTQ0ZDJkZjM.......-----END CERTIFICATE-----"}}'
@@ -288,7 +289,7 @@ through the ["Add existing cluster to project"](#add-existing-cluster-to-project
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters/24 \
+curl --header 'Private-Token: <your_access_token>' "https://gitlab.example.com/api/v4/projects/26/clusters/24" \
 -H "Content-Type:application/json" \
 -X PUT --data '{"name":"new-cluster-name","domain":"new-domain.com","api_url":"https://new-api-url.com"}'
 ```
@@ -382,5 +383,5 @@ Parameters:
 Example request:
 
 ```shell
-curl --request DELETE --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters/23
+curl --request DELETE --header 'Private-Token: <your_access_token>' "https://gitlab.example.com/api/v4/projects/26/clusters/23"
 ```

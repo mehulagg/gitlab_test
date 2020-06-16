@@ -3,8 +3,6 @@
 module Banzai
   module Pipeline
     class GfmPipeline < BasePipeline
-      prepend_if_ee('EE::Banzai::Pipeline::GfmPipeline') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
       # These filters transform GitLab Flavored Markdown (GFM) to HTML.
       # The nodes and marks referenced in app/assets/javascripts/behaviors/markdown/editor_extensions.js
       # consequently transform that same HTML to GFM to be copied to the clipboard.
@@ -58,6 +56,7 @@ module Banzai
         [
           Filter::UserReferenceFilter,
           Filter::ProjectReferenceFilter,
+          Filter::DesignReferenceFilter,
           Filter::IssueReferenceFilter,
           Filter::ExternalIssueReferenceFilter,
           Filter::MergeRequestReferenceFilter,
@@ -77,3 +76,5 @@ module Banzai
     end
   end
 end
+
+Banzai::Pipeline::GfmPipeline.prepend_if_ee('EE::Banzai::Pipeline::GfmPipeline')

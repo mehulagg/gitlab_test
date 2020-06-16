@@ -61,10 +61,9 @@ Parameters:
 | `namespace_path` | string | yes | Namespace path |
 | `project_path` | string | yes | Project name |
 | `archive_path` | string | yes | Path to the exported project tarball you want to import |
-| `measurement_enabled` | boolean | no | Measure execution time, number of SQL calls and GC count |
 
 ```shell
-bundle exec rake "gitlab:import_export:import[root, root, testingprojectimport, /path/to/file.tar.gz, true]"
+bundle exec rake "gitlab:import_export:import[root, root, testingprojectimport, /path/to/file.tar.gz]"
 ```
 
 ### Importing via the Rails console
@@ -78,7 +77,7 @@ The last option is to import a project using a Rails console:
    gitlab-rails console
 
    # For installations from source
-   sudo -u git -H bundle exec rails console RAILS_ENV=production
+   sudo -u git -H bundle exec rails console -e production
    ```
 
 1. Create a project and run `Project::TreeRestorer`:

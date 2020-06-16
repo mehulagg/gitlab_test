@@ -64,7 +64,7 @@ describe('EpicCreateComponent', () => {
           vm.epicTitle = newEpicTitle;
 
           expect(vm.setEpicCreateTitle).toHaveBeenCalledWith(
-            jasmine.objectContaining({
+            expect.objectContaining({
               newEpicTitle,
             }),
           );
@@ -77,6 +77,33 @@ describe('EpicCreateComponent', () => {
           vm.$store.state.newEpicTitle = newEpicTitle;
 
           expect(vm.epicTitle).toBe(newEpicTitle);
+        });
+      });
+    });
+
+    describe('epicConfidential', () => {
+      describe('set', () => {
+        it('calls `setEpicCreateConfidential` with param `value`', () => {
+          jest.spyOn(vm, 'setEpicCreateConfidential');
+
+          const newEpicConfidential = true;
+
+          vm.epicConfidential = newEpicConfidential;
+
+          expect(vm.setEpicCreateConfidential).toHaveBeenCalledWith(
+            expect.objectContaining({
+              newEpicConfidential,
+            }),
+          );
+        });
+      });
+
+      describe('get', () => {
+        it('returns value of `newEpicConfidential` from state', () => {
+          const newEpicConfidential = true;
+          vm.$store.state.newEpicConfidential = newEpicConfidential;
+
+          expect(vm.epicConfidential).toBe(newEpicConfidential);
         });
       });
     });

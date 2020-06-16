@@ -4,7 +4,7 @@ class Admin::RunnersController < Admin::ApplicationController
   before_action :runner, except: [:index, :tag_list]
 
   def index
-    finder = Admin::RunnersFinder.new(params: params)
+    finder = Ci::RunnersFinder.new(current_user: current_user, params: params)
     @runners = finder.execute
     @active_runners_count = Ci::Runner.online.count
     @sort = finder.sort_key
@@ -61,7 +61,15 @@ class Admin::RunnersController < Admin::ApplicationController
   end
 
   def runner_params
-    params.require(:runner).permit(Ci::Runner::FORM_EDITABLE)
+    params.require(:runner).permit(permitted_attrs)
+  end
+
+  def permitted_attrs
+    if Gitlab.com?
+      Ci::Runner::FORM_EDITABLE + Ci::Runner::MINUTES_COST_FACTOR_FIELDS
+    else
+      Ci::Runner::FORM_EDITABLE
+    end
   end
 
   # rubocop: disable CodeReuse/ActiveRecord

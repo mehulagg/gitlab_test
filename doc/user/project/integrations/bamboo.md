@@ -22,12 +22,12 @@ need to be configured in a Bamboo build plan before GitLab can integrate.
 1. Choose 'Repository triggers the build when changes are committed'
 1. Check one or more repositories checkboxes
 1. Enter the GitLab IP address in the 'Trigger IP addresses' box. This is a
-   whitelist of IP addresses that are allowed to trigger Bamboo builds.
+   list of IP addresses that are allowed to trigger Bamboo builds.
 1. Save the trigger.
 1. In the left pane, select a build stage. If you have multiple build stages
    you want to select the last stage that contains the Git checkout task.
 1. Select the 'Miscellaneous' tab.
-1. Under 'Pattern Match Labelling' put `${bamboo.repository.revision.number}`
+1. Under 'Pattern Match Labeling' put `${bamboo.repository.revision.number}`
    in the 'Labels' box.
 1. Save
 
@@ -39,7 +39,7 @@ service in GitLab.
 1. Navigate to the project you want to configure to trigger builds.
 1. Navigate to the [Integrations page](overview.md#accessing-integrations)
 1. Click 'Atlassian Bamboo CI'
-1. Select the 'Active' checkbox.
+1. Ensure that the **Active** toggle is enabled.
 1. Enter the base URL of your Bamboo server. `https://bamboo.example.com`
 1. Enter the build key from your Bamboo build plan. Build keys are typically made
    up from the Project Key and Plan Key that are set on project/plan creation and

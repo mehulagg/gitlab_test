@@ -80,14 +80,30 @@ To use a built-in template on the **New project** page:
 1. Finish creating the project by filling out the project's details. The process is
    the same as creating a [blank project](#blank-projects).
 
+##### Enterprise templates **(ULTIMATE)**
+
+GitLab is developing Enterprise templates to help you streamline audit management with selected regulatory standards. These templates automatically import issues that correspond to each regulatory requirement.
+
+To create a new project with an Enterprise template, on the **New project** page:
+
+1. On the **Create from template** tab, select the **Built-in** tab.
+1. From the list of available built-in Enterprise templates, click the:
+   - **Preview** button to look at the template source itself.
+   - **Use template** button to start creating the project.
+1. Finish creating the project by filling out the project's details. The process is the same as creating a [blank project](#blank-projects).
+
+Available Enterprise templates include:
+
+- HIPAA Audit Protocol template ([introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13756) in GitLab 12.10)
+
 TIP: **Tip:**
 You can improve the existing built-in templates or contribute new ones in the
 [`project-templates`](https://gitlab.com/gitlab-org/project-templates) and
-[`pages`](https://gitlab.com/pages) groups.
+[`pages`](https://gitlab.com/pages) groups by following [these steps](https://gitlab.com/gitlab-org/project-templates/contributing).
 
 #### Custom project templates **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/6860) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/6860) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2.
 
 Creating new projects based on custom project templates is a convenient option for
 quickly starting projects.
@@ -107,7 +123,7 @@ To use a custom project template on the **New project** page:
 
 ## Push to create a new project
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/26388) in GitLab 10.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/26388) in GitLab 10.5.
 
 When you create a new repository locally, instead of going to GitLab to manually
 create a new project and then [clone the repo](start-using-git.md#clone-a-repository)
@@ -129,7 +145,7 @@ git push --set-upstream https://gitlab.example.com/namespace/nonexistent-project
 Once the push finishes successfully, a remote message will indicate
 the command to set the remote and the URL to the new project:
 
-```text
+```plaintext
 remote:
 remote: The private project namespace/nonexistent-project was created.
 remote:

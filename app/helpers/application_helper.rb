@@ -54,6 +54,10 @@ module ApplicationHelper
     args.any? { |v| v.to_s.downcase == action_name }
   end
 
+  def admin_section?
+    controller.class.ancestors.include?(Admin::ApplicationController)
+  end
+
   def last_commit(project)
     if project.repo_exists?
       time_ago_with_tooltip(project.repository.commit.committed_date)
@@ -99,7 +103,7 @@ module ApplicationHelper
       page: body_data_page,
       page_type_id: controller.params[:id],
       find_file: find_file_path,
-      group: "#{@group&.path}"
+      group: @group&.path
     }.merge(project_data)
   end
 
@@ -109,6 +113,7 @@ module ApplicationHelper
     {
       project_id: @project.id,
       project: @project.path,
+      group: @project.group&.path,
       namespace_id: @project.namespace&.id
     }
   end
@@ -256,6 +261,7 @@ module ApplicationHelper
   def page_class
     class_names = []
     class_names << 'issue-boards-page' if current_controller?(:boards)
+    class_names << 'environment-logs-page' if current_controller?(:logs)
     class_names << 'with-performance-bar' if performance_bar_enabled?
     class_names << system_message_class
     class_names

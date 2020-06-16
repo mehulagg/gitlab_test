@@ -26,6 +26,7 @@ module EE
         :elasticsearch_aws_region,
         :elasticsearch_aws_secret_access_key,
         :elasticsearch_indexing,
+        :elasticsearch_pause_indexing,
         :elasticsearch_max_bulk_concurrency,
         :elasticsearch_max_bulk_size_mb,
         :elasticsearch_replicas,
@@ -41,6 +42,7 @@ module EE
         :help_text,
         :lock_memberships_to_ldap,
         :max_personal_access_token_lifetime,
+        :enforce_pat_expiration,
         :pseudonymizer_enabled,
         :repository_size_limit,
         :seat_link_enabled,
@@ -56,7 +58,7 @@ module EE
     end
 
     def elasticsearch_objects_options(objects)
-      objects.map { |g| { id: g.id, text: g.full_name } }
+      objects.map { |g| { id: g.id, text: g.full_path } }
     end
 
     # The admin UI cannot handle so many namespaces so we just hide it. We
@@ -92,6 +94,7 @@ module EE
        %i[
         email_additional_text
         file_template_project_id
+        group_owners_can_manage_default_branch_protection
         default_project_deletion_protection
         deletion_adjourned_period
         updating_name_disabled_for_users

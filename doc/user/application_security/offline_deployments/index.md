@@ -1,5 +1,8 @@
 ---
 type: reference, howto
+stage: Secure
+group: Static Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Offline environments
@@ -49,7 +52,7 @@ you must update each of the scanners to either reference a different,
 internally-hosted registry or provide access to the individual scanner images.
 
 You must also ensure that your app has access to common package repositories
-that are not hosted on GitLab.com, such as npm, yarn, or rubygems. Packages
+that are not hosted on GitLab.com, such as npm, yarn, or Ruby gems. Packages
 from these repos can be obtained by temporarily connecting to a network or by
 mirroring the packages inside your own offline network.
 
@@ -60,6 +63,14 @@ Once a vulnerability is found, you can interact with it. Read more on how to
 
 Please note that in some cases the reported vulnerabilities provide metadata that can contain
 external links exposed in the UI. These links might not be accessible within an offline environment.
+
+### Suggested Solutions for vulnerabilities
+
+The [suggested solutions](../index.md#solutions-for-vulnerabilities-auto-remediation) feature
+(auto-remediation) is available for Dependency Scanning and Container Scanning, but may not work
+depending on your instance's configuration. We can only suggest solutions, which are generally more
+current versions that have been patched, when we are able to access up-to-date registry services
+hosting the latest versions of that dependency or image.
 
 ### Scanner signature and rule updates
 
@@ -73,8 +84,10 @@ hosted within your network.
 ## Specific scanner instructions
 
 Each individual scanner may be slightly different than the steps described
-above. You can find more info at each of the pages below:
+above. You can find more information at each of the pages below:
 
 - [Container scanning offline directions](../container_scanning/index.md#running-container-scanning-in-an-offline-environment)
-- [SAST offline directions](../sast/index.md#gitlab-sast-in-an-offline-environment)
+- [SAST offline directions](../sast/index.md#running-sast-in-an-offline-environment)
 - [DAST offline directions](../dast/index.md#running-dast-in-an-offline-environment)
+- [License Compliance offline directions](../../compliance/license_compliance/index.md#running-license-compliance-in-an-offline-environment)
+- [Dependency Scanning offline directions](../dependency_scanning/index.md#running-dependency-scanning-in-an-offline-environment)

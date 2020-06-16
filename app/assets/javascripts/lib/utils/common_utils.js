@@ -31,7 +31,7 @@ export const getProjectSlug = () => {
 };
 
 export const getGroupSlug = () => {
-  if (isInGroupsPage()) {
+  if (isInProjectPage() || isInGroupsPage()) {
     return $('body').data('group');
   }
   return null;
@@ -244,20 +244,26 @@ export const contentTop = () => {
   );
 };
 
-export const scrollToElement = element => {
+export const scrollToElement = (element, options = {}) => {
   let $el = element;
   if (!(element instanceof $)) {
     $el = $(element);
   }
   const { top } = $el.offset();
+  const { offset = 0 } = options;
 
   // eslint-disable-next-line no-jquery/no-animate
   return $('body, html').animate(
     {
-      scrollTop: top - contentTop(),
+      scrollTop: top - contentTop() + offset,
     },
     200,
   );
+};
+
+export const scrollToElementWithContext = element => {
+  const offsetMultiplier = -0.1;
+  return scrollToElement(element, { offset: window.innerHeight * offsetMultiplier });
 };
 
 /**
@@ -718,6 +724,8 @@ export const convertObjectProps = (conversionFunction, obj = {}, options = {}) =
       } else {
         acc[conversionFunction(prop)] = convertObjectProps(conversionFunction, val, options);
       }
+    } else if (isObjParameterArray) {
+      acc[prop] = val;
     } else {
       acc[conversionFunction(prop)] = val;
     }
@@ -910,3 +918,18 @@ export const setCookie = (name, value) => Cookies.set(name, value, { expires: 36
 export const getCookie = name => Cookies.get(name);
 
 export const removeCookie = name => Cookies.remove(name);
+
+/**
+ * Returns the status of a feature flag.
+ * Currently, there is no way to access feature
+ * flags in Vuex other than directly tapping into
+ * window.gon.
+ *
+ * This should only be used on Vuex. If feature flags
+ * need to be accessed in Vue components consider
+ * using the Vue feature flag mixin.
+ *
+ * @param {String} flag Feature flag
+ * @returns {Boolean} on/off
+ */
+export const isFeatureFlagEnabled = flag => window.gon.features?.[flag];

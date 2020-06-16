@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
+RSpec.describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
   let_it_be(:project, reload: true) { create(:project, :repository) }
   let_it_be(:user) { create(:user) }
   let(:service) { described_class.new(project, user) }
@@ -40,6 +40,10 @@ describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
 
   describe '#process' do
     subject { service.process(merge_request) }
+
+    before do
+      service.execute(merge_request)
+    end
 
     context 'when the latest pipeline in the merge request has succeeded' do
       before do
@@ -119,6 +123,12 @@ describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
 
     it { is_expected.to eq(true) }
 
+    it 'memoizes the result' do
+      expect(merge_request).to receive(:can_be_merged_by?).once.and_call_original
+
+      2.times { is_expected.to be_truthy }
+    end
+
     context 'when merge trains option is disabled' do
       before do
         expect(merge_request.project).to receive(:merge_trains_enabled?) { false }
@@ -149,6 +159,14 @@ describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
       end
 
       it { is_expected.to eq(false) }
+    end
+
+    context 'when the user does not have permission to merge' do
+      before do
+        allow(merge_request).to receive(:can_be_merged_by?) { false }
+      end
+
+      it { is_expected.to be_falsy }
     end
   end
 end

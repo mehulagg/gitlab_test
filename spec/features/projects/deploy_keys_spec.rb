@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Project deploy keys', :js do
+RSpec.describe 'Project deploy keys', :js do
   let(:user) { create(:user) }
   let(:project) { create(:project_empty_repo) }
 
@@ -17,7 +17,7 @@ describe 'Project deploy keys', :js do
     end
 
     it 'removes association between project and deploy key' do
-      visit project_settings_ci_cd_path(project)
+      visit project_settings_repository_path(project)
 
       page.within(find('.qa-deploy-keys-settings')) do
         expect(page).to have_selector('.deploy-key', count: 1)

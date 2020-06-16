@@ -27,6 +27,14 @@ FactoryBot.define do
       user_type { :alert_bot }
     end
 
+    trait :project_bot do
+      user_type { :project_bot }
+    end
+
+    trait :migration_bot do
+      user_type { :migration_bot }
+    end
+
     trait :external do
       external { true }
     end
@@ -36,8 +44,12 @@ FactoryBot.define do
     end
 
     trait :ghost do
-      ghost { true }
+      user_type { :ghost }
       after(:build) { |user, _| user.block! }
+    end
+
+    trait :unconfirmed do
+      confirmed_at { nil }
     end
 
     trait :with_avatar do
@@ -83,11 +95,16 @@ FactoryBot.define do
 
     transient do
       developer_projects { [] }
+      maintainer_projects { [] }
     end
 
     after(:create) do |user, evaluator|
       evaluator.developer_projects.each do |project|
         project.add_developer(user)
+      end
+
+      evaluator.maintainer_projects.each do |project|
+        project.add_maintainer(user)
       end
     end
 

@@ -2,7 +2,8 @@
 
 # rubocop: disable Metrics/AbcSize
 # rubocop: disable Migration/Datetime
-# rubocop: disable Migration/AddLimitToStringColumns
+# rubocop: disable Migration/PreventStrings
+# rubocop: disable Migration/AddLimitToTextColumns
 class BackportEnterpriseSchema < ActiveRecord::Migration[5.0]
   include Gitlab::Database::MigrationHelpers
 
@@ -192,12 +193,14 @@ class BackportEnterpriseSchema < ActiveRecord::Migration[5.0]
   end
 
   def drop_table_if_exists(table)
+    # rubocop:disable Migration/DropTable
     drop_table(table) if table_exists?(table)
+    # rubocop:enable Migration/DropTable
   end
 
   def add_column_with_default_if_not_exists(table, name, *args)
     unless column_exists?(table, name)
-      add_column_with_default(table, name, *args)
+      add_column_with_default(table, name, *args) # rubocop:disable Migration/AddColumnWithDefault
     end
   end
 
@@ -2188,4 +2191,5 @@ class BackportEnterpriseSchema < ActiveRecord::Migration[5.0]
 end
 # rubocop: enable Metrics/AbcSize
 # rubocop: enable Migration/Datetime
-# rubocop: enable Migration/AddLimitToStringColumns
+# rubocop: enable Migration/PreventStrings
+# rubocop: enable Migration/AddLimitToTextColumns

@@ -58,7 +58,7 @@ under which this application will be deployed.
 1. On the project's landing page, click **Add Kubernetes cluster**
    (note that this option is also available when you navigate to **Operations > Kubernetes**).
 
-   ![Project landing page](../autodevops/img/guide_project_landing_page_v12_3.png)
+   ![Project landing page](../autodevops/img/guide_project_landing_page_v12_10.png)
 
 1. On the **Create new cluster on GKE** tab, click **Sign in with Google**.
 
@@ -104,7 +104,10 @@ For this guide, we need to install Ingress. Ingress provides load balancing,
 SSL termination, and name-based virtual hosting, using NGINX behind
 the scenes. Make sure to switch the toogle to the enabled position before installing.
 
-![Cluster applications](./img/guide_waf_ingress_installation_v12_9.png)
+Both logging and blocking modes are available for WAF. While logging mode is useful for
+auditing anomalous traffic, blocking mode ensures the traffic doesn't reach past Ingress.
+
+![Cluster applications](./img/guide_waf_ingress_installation_v12_10.png)
 
 After Ingress is installed, wait a few seconds and copy the IP address that
 is displayed in order to add in your base **Domain** at the top of the page. For
@@ -147,7 +150,7 @@ By now you should see the pipeline running, but what is it running exactly?
 To navigate inside the pipeline, click its status badge (its status should be "Running").
 The pipeline is split into a few stages, each running a couple of jobs.
 
-![Pipeline stages](../autodevops/img/guide_pipeline_stages_v12_3.png)
+![Pipeline stages](../autodevops/img/guide_pipeline_stages_v13_0.png)
 
 In the **build** stage, the application is built into a Docker image and then
 uploaded to your project's [Container Registry](../../user/packages/container_registry/index.md) ([Auto Build](../autodevops/stages.md#auto-build)).
@@ -210,7 +213,7 @@ the WAF with OWASP CRS!
 ## Testing out the OWASP Core Rule Set
 
 Now let's send a potentially malicious request, as if we were a scanner,
-checking for vulnerabilities within our application and examine the modsecurity logs:
+checking for vulnerabilities within our application and examine the ModSecurity logs:
 
 ```shell
 $ curl --location --insecure fjdiaz-auto-devv-2.34.68.60.207.nip.io --header "User-Agent: absinthe" | grep 'Rails!' --after 2 --before 2
@@ -251,5 +254,5 @@ You can explore them in more detail:
 
 - [GitLab Defend Vision](https://about.gitlab.com/direction/defend/#waf)
 - [ModSecurity](https://www.modsecurity.org/)
-- [OWASP Core Rule Set](https://modsecurity.org/crs/)
+- [OWASP Core Rule Set](https://github.com/coreruleset/coreruleset/)
 - [AutoDevOps](../autodevops/index.md)

@@ -17,7 +17,7 @@ module EE
         before_action :whitelist_query_limiting_ee_merge, only: [:merge]
         before_action :whitelist_query_limiting_ee_show, only: [:show]
         before_action :authorize_read_pipeline!, only: [:container_scanning_reports, :dependency_scanning_reports,
-                                                        :sast_reports, :dast_reports, :metrics_reports]
+                                                        :sast_reports, :secret_detection_reports, :dast_reports, :metrics_reports]
       end
 
       def approve
@@ -46,8 +46,8 @@ module EE
         render_approvals_json
       end
 
-      def license_management_reports
-        reports_response(merge_request.compare_license_management_reports(current_user))
+      def license_scanning_reports
+        reports_response(merge_request.compare_license_scanning_reports(current_user))
       end
 
       def container_scanning_reports
@@ -60,6 +60,10 @@ module EE
 
       def sast_reports
         reports_response(merge_request.compare_sast_reports(current_user))
+      end
+
+      def secret_detection_reports
+        reports_response(merge_request.compare_secret_detection_reports(current_user))
       end
 
       def dast_reports

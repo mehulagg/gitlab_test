@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe "User browses files" do
+RSpec.describe "User browses files" do
   let(:fork_message) do
     "You're not allowed to make changes to this project directly. "\
     "A fork of this project has been created that you can make changes in, so you can submit a merge request."
@@ -171,6 +171,18 @@ describe "User browses files" do
     end
   end
 
+  context 'when commit message has markdown', :js do
+    before do
+      project.repository.create_file(user, 'index', 'test', message: ':star: testing', branch_name: 'master')
+
+      visit(project_tree_path(project, "master"))
+    end
+
+    it 'renders emojis' do
+      expect(page).to have_selector('gl-emoji', count: 2)
+    end
+  end
+
   context "when browsing a `improve/awesome` branch", :js do
     before do
       visit(project_tree_path(project, "improve/awesome"))
@@ -180,6 +192,47 @@ describe "User browses files" do
       expect(page).to have_content("VERSION")
         .and have_content(".gitignore")
         .and have_content("LICENSE")
+
+      click_link("files")
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('files')
+      end
+
+      click_link("html")
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('html')
+      end
+
+      expect(page).to have_link('500.html')
+    end
+  end
+
+  context "when browsing a `Ääh-test-utf-8` branch", :js do
+    before do
+      project.repository.create_branch('Ääh-test-utf-8', project.repository.root_ref)
+      visit(project_tree_path(project, "Ääh-test-utf-8"))
+    end
+
+    it "shows files from a repository" do
+      expect(page).to have_content("VERSION")
+        .and have_content(".gitignore")
+        .and have_content("LICENSE")
+
+      click_link("files")
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('files')
+      end
+
+      click_link("html")
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('html')
+      end
+
+      expect(page).to have_link('500.html')
     end
   end
 
@@ -193,6 +246,20 @@ describe "User browses files" do
       expect(page).to have_content("VERSION")
         .and have_content(".gitignore")
         .and have_content("LICENSE")
+
+      click_link("files")
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('files')
+      end
+
+      click_link("html")
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('html')
+      end
+
+      expect(page).to have_link('500.html')
     end
   end
 

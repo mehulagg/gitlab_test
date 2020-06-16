@@ -2,18 +2,19 @@
 import { omit, throttle } from 'lodash';
 import { GlLink, GlDeprecatedButton, GlTooltip, GlResizeObserverDirective } from '@gitlab/ui';
 import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
-import dateFormat from 'dateformat';
-import { s__, __ } from '~/locale';
+import { s__ } from '~/locale';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import Icon from '~/vue_shared/components/icon.vue';
-import { chartHeight, lineTypes, lineWidths, dateFormats } from '../../constants';
-import { getYAxisOptions, getChartGrid, getTooltipFormatter } from './options';
-import { annotationsYAxis, generateAnnotationsSeries, isAnnotation } from './annotations';
+import { panelTypes, chartHeight, lineTypes, lineWidths, legendLayoutTypes } from '../../constants';
+import { getYAxisOptions, getTimeAxisOptions, getChartGrid, getTooltipFormatter } from './options';
+import { annotationsYAxis, generateAnnotationsSeries } from './annotations';
 import { makeDataSeries } from '~/helpers/monitor_helper';
 import { graphDataValidatorForValues } from '../../utils';
+import { formatDate, timezones } from '../../format_date';
+
+export const timestampToISODate = timestamp => new Date(timestamp).toISOString();
 
 const THROTTLED_DATAZOOM_WAIT = 1000; // milliseconds
-const timestampToISODate = timestamp => new Date(timestamp).toISOString();
 
 const events = {
   datazoom: 'datazoom',
@@ -54,48 +55,72 @@ export default {
       required: false,
       default: () => [],
     },
+    annotations: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
     projectPath: {
       type: String,
       required: false,
       default: '',
     },
-    singleEmbed: {
-      type: Boolean,
+    height: {
+      type: Number,
       required: false,
-      default: false,
+      default: chartHeight,
     },
     thresholds: {
       type: Array,
       required: false,
       default: () => [],
     },
+    legendLayout: {
+      type: String,
+      required: false,
+      default: legendLayoutTypes.table,
+    },
     legendAverageText: {
       type: String,
       required: false,
       default: s__('Metrics|Avg'),
+    },
+    legendCurrentText: {
+      type: String,
+      required: false,
+      default: s__('Metrics|Current'),
     },
     legendMaxText: {
       type: String,
       required: false,
       default: s__('Metrics|Max'),
     },
+    legendMinText: {
+      type: String,
+      required: false,
+      default: s__('Metrics|Min'),
+    },
     groupId: {
       type: String,
       required: false,
       default: '',
     },
+    timezone: {
+      type: String,
+      required: false,
+      default: timezones.LOCAL,
+    },
   },
   data() {
     return {
       tooltip: {
+        type: '',
         title: '',
         content: [],
         commitUrl: '',
-        isDeployment: false,
         sha: '',
       },
       width: 0,
-      height: chartHeight,
       svgs: {},
       primaryColor: null,
       throttledDatazoom: null,
@@ -137,27 +162,27 @@ export default {
       }, []);
     },
     chartOptionSeries() {
-      return (this.option.series || []).concat(generateAnnotationsSeries(this.recentDeployments));
+      // After https://gitlab.com/gitlab-org/gitlab/-/issues/211330 is implemented,
+      // this method will have access to annotations data
+      return (this.option.series || []).concat(
+        generateAnnotationsSeries({
+          deployments: this.recentDeployments,
+          annotations: this.annotations,
+        }),
+      );
     },
     chartOptions() {
       const { yAxis, xAxis } = this.option;
       const option = omit(this.option, ['series', 'yAxis', 'xAxis']);
 
+      const timeXAxis = {
+        ...getTimeAxisOptions({ timezone: this.timezone }),
+        ...xAxis,
+      };
+
       const dataYAxis = {
         ...getYAxisOptions(this.graphData.yAxis),
         ...yAxis,
-      };
-
-      const timeXAxis = {
-        name: __('Time'),
-        type: 'time',
-        axisLabel: {
-          formatter: date => dateFormat(date, dateFormats.timeOfDay),
-        },
-        axisPointer: {
-          snap: true,
-        },
-        ...xAxis,
       };
 
       return {
@@ -199,8 +224,8 @@ export default {
     },
     glChartComponent() {
       const chartTypes = {
-        'area-chart': GlAreaChart,
-        'line-chart': GlLineChart,
+        [panelTypes.AREA_CHART]: GlAreaChart,
+        [panelTypes.LINE_CHART]: GlLineChart,
       };
       return chartTypes[this.graphData.type] || GlAreaChart;
     },
@@ -244,22 +269,39 @@ export default {
   },
   methods: {
     formatLegendLabel(query) {
-      return `${query.label}`;
+      return query.label;
+    },
+    isTooltipOfType(tooltipType, defaultType) {
+      return tooltipType === defaultType;
+    },
+    /**
+     * This method is triggered when hovered over a single markPoint.
+     *
+     * The annotations title timestamp should match the data tooltip
+     * title.
+     *
+     * @params {Object} params markPoint object
+     * @returns {Object}
+     */
+    formatAnnotationsTooltipText(params) {
+      return {
+        title: formatDate(params.data?.tooltipData?.title, { timezone: this.timezone }),
+        content: params.data?.tooltipData?.content,
+      };
     },
     formatTooltipText(params) {
-      this.tooltip.title = dateFormat(params.value, dateFormats.default);
+      this.tooltip.title = formatDate(params.value, { timezone: this.timezone });
+
       this.tooltip.content = [];
 
       params.seriesData.forEach(dataPoint => {
         if (dataPoint.value) {
-          const [xVal, yVal] = dataPoint.value;
-          this.tooltip.isDeployment = isAnnotation(dataPoint.componentSubType);
-          if (this.tooltip.isDeployment) {
-            const [deploy] = this.recentDeployments.filter(
-              deployment => deployment.createdAt === xVal,
-            );
-            this.tooltip.sha = deploy.sha.substring(0, 8);
-            this.tooltip.commitUrl = deploy.commitUrl;
+          const [, yVal] = dataPoint.value;
+          this.tooltip.type = dataPoint.name;
+          if (this.tooltip.type === 'deployments') {
+            const { data = {} } = dataPoint;
+            this.tooltip.sha = data?.tooltipData?.sha;
+            this.tooltip.commitUrl = data?.tooltipData?.commitUrl;
           } else {
             const { seriesName, color, dataIndex } = dataPoint;
 
@@ -288,7 +330,6 @@ export default {
     onChartUpdated(eChart) {
       [this.primaryColor] = eChart.getOption().color;
     },
-
     onChartCreated(eChart) {
       // Emit a datazoom event that corresponds to the eChart
       // `datazoom` event.
@@ -338,15 +379,19 @@ export default {
       :data="chartData"
       :option="chartOptions"
       :format-tooltip-text="formatTooltipText"
+      :format-annotations-tooltip-text="formatAnnotationsTooltipText"
       :thresholds="thresholds"
       :width="width"
       :height="height"
-      :average-text="legendAverageText"
-      :max-text="legendMaxText"
+      :legend-layout="legendLayout"
+      :legend-average-text="legendAverageText"
+      :legend-current-text="legendCurrentText"
+      :legend-max-text="legendMaxText"
+      :legend-min-text="legendMinText"
       @created="onChartCreated"
       @updated="onChartUpdated"
     >
-      <template v-if="tooltip.isDeployment">
+      <template v-if="tooltip.type === 'deployments'">
         <template slot="tooltipTitle">
           {{ __('Deployed') }}
         </template>
@@ -357,27 +402,23 @@ export default {
       </template>
       <template v-else>
         <template slot="tooltipTitle">
-          <slot name="tooltipTitle">
-            <div class="text-nowrap">
-              {{ tooltip.title }}
-            </div>
-          </slot>
+          <div class="text-nowrap">
+            {{ tooltip.title }}
+          </div>
         </template>
-        <template slot="tooltipContent">
-          <slot name="tooltipContent" :tooltip="tooltip">
-            <div
-              v-for="(content, key) in tooltip.content"
-              :key="key"
-              class="d-flex justify-content-between"
-            >
-              <gl-chart-series-label :color="isMultiSeries ? content.color : ''">
-                {{ content.name }}
-              </gl-chart-series-label>
-              <div class="prepend-left-32">
-                {{ content.value }}
-              </div>
+        <template slot="tooltipContent" :tooltip="tooltip">
+          <div
+            v-for="(content, key) in tooltip.content"
+            :key="key"
+            class="d-flex justify-content-between"
+          >
+            <gl-chart-series-label :color="isMultiSeries ? content.color : ''">
+              {{ content.name }}
+            </gl-chart-series-label>
+            <div class="prepend-left-32">
+              {{ content.value }}
             </div>
-          </slot>
+          </div>
         </template>
       </template>
     </component>

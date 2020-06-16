@@ -6,7 +6,7 @@ require 'spec_helper'
 # It looks up for any sensitive word inside the JSON, so if a sensitive word is found
 # we'll have to either include it adding the model that includes it to the +safe_list+
 # or make sure the attribute is blacklisted in the +import_export.yml+ configuration
-describe 'Import/Export - project export integration test', :js do
+RSpec.describe 'Import/Export - project export integration test', :js do
   include Select2Helper
   include ExportFileHelper
 
@@ -38,7 +38,11 @@ describe 'Import/Export - project export integration test', :js do
       sign_in(user)
     end
 
-    shared_examples 'export file without sensitive words' do
+    context "with streaming serializer" do
+      before do
+        stub_feature_flags(project_export_as_ndjson: false)
+      end
+
       it 'exports a project successfully', :sidekiq_inline do
         export_project_and_download_file(page, project)
 
@@ -48,7 +52,7 @@ describe 'Import/Export - project export integration test', :js do
           project_json_path = File.join(tmpdir, 'project.json')
           expect(File).to exist(project_json_path)
 
-          project_hash = JSON.parse(IO.read(project_json_path))
+          project_hash = Gitlab::Json.parse(IO.read(project_json_path))
 
           sensitive_words.each do |sensitive_word|
             found = find_sensitive_attributes(sensitive_word, project_hash)
@@ -59,27 +63,8 @@ describe 'Import/Export - project export integration test', :js do
       end
     end
 
-    context "with legacy export" do
-      before do
-        stub_feature_flags(streaming_serializer: false)
-        stub_feature_flags(project_export_as_ndjson: false)
-      end
-
-      it_behaves_like "export file without sensitive words"
-    end
-
-    context "with streaming serializer" do
-      before do
-        stub_feature_flags(streaming_serializer: true)
-        stub_feature_flags(project_export_as_ndjson: false)
-      end
-
-      it_behaves_like "export file without sensitive words"
-    end
-
     context "with ndjson" do
       before do
-        stub_feature_flags(streaming_serializer: true)
         stub_feature_flags(project_export_as_ndjson: true)
       end
 
@@ -93,7 +78,7 @@ describe 'Import/Export - project export integration test', :js do
           expect(File).to exist(project_json_path)
 
           relations = []
-          relations << JSON.parse(IO.read(project_json_path))
+          relations << Gitlab::Json.parse(IO.read(project_json_path))
           Dir.glob(File.join(tmpdir, 'tree/project', '*.ndjson')) do |rb_filename|
             File.foreach(rb_filename) do |line|
               json = ActiveSupport::JSON.decode(line)

@@ -175,7 +175,7 @@ describe GroupPolicy do
       nested_group.add_guest(developer)
       nested_group.add_guest(maintainer)
 
-      group.owners.destroy_all # rubocop: disable DestroyAll
+      group.owners.destroy_all # rubocop: disable Cop/DestroyAll
 
       group.add_guest(owner)
       nested_group.add_owner(owner)
@@ -644,7 +644,13 @@ describe GroupPolicy do
     context 'admin' do
       let(:current_user) { admin }
 
-      it { expect_allowed(:update_max_artifacts_size) }
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it { expect_allowed(:update_max_artifacts_size) }
+      end
+
+      context 'when admin mode is enabled' do
+        it { expect_disallowed(:update_max_artifacts_size) }
+      end
     end
 
     %w(guest reporter developer maintainer owner).each do |role|

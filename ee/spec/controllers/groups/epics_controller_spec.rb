@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Groups::EpicsController do
+RSpec.describe Groups::EpicsController do
   let(:group) { create(:group, :private) }
   let(:epic) { create(:epic, group: group) }
   let(:user)  { create(:user) }
@@ -287,9 +287,6 @@ describe Groups::EpicsController do
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('entities/epic', dir: 'ee')
-          # TODO: when removing confidential_epics feature flag, we can just move
-          # `confidential` attribute to required params in the epics schema
-          expect(json_response).to include("confidential")
         end
 
         context 'when confidential_epics flag is disabled' do
@@ -302,7 +299,6 @@ describe Groups::EpicsController do
             show_epic(:json)
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(response).to match_response_schema('entities/epic', dir: 'ee')
             expect(json_response).not_to include("confidential")
           end
         end
@@ -370,7 +366,7 @@ describe Groups::EpicsController do
 
       context 'when state_event param is reopen' do
         before do
-          epic.update!(state: 'closed', closed_at: Time.now, closed_by: user)
+          epic.update!(state: 'closed', closed_at: Time.current, closed_by: user)
         end
 
         it 'allows epic to be reopened' do

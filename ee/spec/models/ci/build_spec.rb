@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Ci::Build do
+RSpec.describe Ci::Build do
   let_it_be(:group) { create(:group_with_plan, plan: :bronze_plan) }
   let(:project) { create(:project, :repository, group: group) }
 
@@ -41,30 +41,45 @@ describe Ci::Build do
   describe '#shared_runners_minutes_limit_enabled?' do
     subject { job.shared_runners_minutes_limit_enabled? }
 
-    context 'for shared runner' do
-      before do
-        job.runner = create(:ci_runner, :instance)
+    shared_examples 'depends on runner presence and type' do
+      context 'for shared runner' do
+        before do
+          job.runner = create(:ci_runner, :instance)
+        end
+
+        context 'when project#shared_runners_minutes_limit_enabled? is true' do
+          specify do
+            expect(job.project).to receive(:shared_runners_minutes_limit_enabled?)
+              .and_return(true)
+
+            is_expected.to be_truthy
+          end
+        end
+
+        context 'when project#shared_runners_minutes_limit_enabled? is false' do
+          specify do
+            expect(job.project).to receive(:shared_runners_minutes_limit_enabled?)
+              .and_return(false)
+
+            is_expected.to be_falsey
+          end
+        end
       end
 
-      specify do
-        expect(job.project).to receive(:shared_runners_minutes_limit_enabled?)
-          .and_return(true)
+      context 'with specific runner' do
+        before do
+          job.runner = create(:ci_runner, :project)
+        end
 
-        is_expected.to be_truthy
+        it { is_expected.to be_falsey }
+      end
+
+      context 'without runner' do
+        it { is_expected.to be_falsey }
       end
     end
 
-    context 'with specific runner' do
-      before do
-        job.runner = create(:ci_runner, :project)
-      end
-
-      it { is_expected.to be_falsey }
-    end
-
-    context 'without runner' do
-      it { is_expected.to be_falsey }
-    end
+    it_behaves_like 'depends on runner presence and type'
   end
 
   context 'updates pipeline minutes' do
@@ -120,6 +135,23 @@ describe Ci::Build do
           features_variable = subject.find { |v| v[:key] == 'GITLAB_FEATURES' }
           expect(features_variable[:value]).to include('multiple_ldap_servers')
         end
+      end
+    end
+
+    describe 'variable CI_HAS_OPEN_REQUIREMENTS' do
+      it "is included with value 'true' if there are open requirements" do
+        create(:requirement, project: project)
+
+        expect(subject).to include({ key: 'CI_HAS_OPEN_REQUIREMENTS',
+                                     value: 'true', public: true, masked: false })
+      end
+
+      it 'is not included if there are no open requirements' do
+        create(:requirement, project: project, state: :archived)
+
+        requirement_variable = subject.find { |var| var[:key] == 'CI_HAS_OPEN_REQUIREMENTS' }
+
+        expect(requirement_variable).to be_nil
       end
     end
   end
@@ -237,8 +269,9 @@ describe Ci::Build do
           create(:ee_ci_job_artifact, :license_scan, :with_corrupted_data, job: job, project: job.project)
         end
 
-        it 'raises an error' do
-          expect { subject }.to raise_error(Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning::LicenseScanningParserError)
+        it 'returns an empty report' do
+          expect { subject }.not_to raise_error
+          expect(license_scanning_report).to be_empty
         end
       end
 
@@ -290,6 +323,28 @@ describe Ci::Build do
         expect(dependency_list_report.dependencies.count).to eq(21)
         expect(mini_portile2[:name]).to eq('mini_portile2')
         expect(yarn[:location][:blob_path]).to eq(blob_path)
+      end
+    end
+
+    context 'with different report format' do
+      let!(:dl_artifact) { create(:ee_ci_job_artifact, :dependency_scanning, job: job, project: job.project) }
+      let(:dependency_list_report) { Gitlab::Ci::Reports::DependencyList::Report.new }
+
+      before do
+        stub_licensed_features(dependency_scanning: true)
+      end
+
+      subject { job.collect_dependency_list_reports!(dependency_list_report) }
+
+      it 'parses blobs and add the results to the report' do
+        subject
+        blob_path = "/#{project.full_path}/-/blob/#{job.sha}/sast-sample-rails/Gemfile.lock"
+        netty = dependency_list_report.dependencies.first
+        ffi = dependency_list_report.dependencies.last
+
+        expect(dependency_list_report.dependencies.count).to eq(4)
+        expect(netty[:name]).to eq('io.netty/netty')
+        expect(ffi[:location][:blob_path]).to eq(blob_path)
       end
     end
 
@@ -365,6 +420,40 @@ describe Ci::Build do
           subject
 
           expect(metrics_report.metrics.count).to eq(0)
+        end
+      end
+    end
+  end
+
+  describe '#collect_requirements_reports!' do
+    subject { job.collect_requirements_reports!(requirements_report) }
+
+    let(:requirements_report) { Gitlab::Ci::Reports::RequirementsManagement::Report.new }
+
+    context 'when there is a requirements report' do
+      before do
+        create(:ee_ci_job_artifact, :requirements, job: job, project: job.project)
+      end
+
+      context 'when requirements are available' do
+        before do
+          stub_licensed_features(requirements: true)
+        end
+
+        it 'parses blobs and adds the results to the report' do
+          expect { subject }.to change { requirements_report.requirements.count }.from(0).to(1)
+        end
+      end
+
+      context 'when requirements are not available' do
+        before do
+          stub_licensed_features(requirements: false)
+        end
+
+        it 'does not parse requirements report' do
+          subject
+
+          expect(requirements_report.requirements.count).to eq(0)
         end
       end
     end

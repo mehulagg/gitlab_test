@@ -1,6 +1,4 @@
 import Vue from 'vue';
-import createRouter from './store/router';
-import syncWithRouter from './store/plugins/sync_with_router';
 import createStore from './store';
 import { DASHBOARD_TYPES } from './store/constants';
 import ProjectSecurityDashboard from './components/project_security_dashboard.vue';
@@ -8,81 +6,45 @@ import { parseBoolean } from '~/lib/utils/common_utils';
 
 export default () => {
   const securityTab = document.getElementById('js-security-report-app');
-
-  const {
-    hasPipelineData,
-    userPath,
-    userAvatarPath,
-    pipelineCreated,
-    pipelinePath,
-    userName,
-    commitId,
-    commitPath,
-    refId,
-    refPath,
-    pipelineId,
-    projectId,
-    projectName,
-    dashboardDocumentation,
-    emptyStateSvgPath,
-    vulnerabilitiesEndpoint,
-    vulnerabilitiesSummaryEndpoint,
-    vulnerabilityFeedbackHelpPath,
-    securityDashboardHelpPath,
-    emptyStateIllustrationPath,
-  } = securityTab.dataset;
-
-  const parsedPipelineId = parseInt(pipelineId, 10);
-  const parsedHasPipelineData = parseBoolean(hasPipelineData);
-
-  let props = {
-    hasPipelineData: parsedHasPipelineData,
-    dashboardDocumentation,
-    emptyStateSvgPath,
-    vulnerabilitiesEndpoint,
-    vulnerabilitiesSummaryEndpoint,
-    vulnerabilityFeedbackHelpPath,
-    securityDashboardHelpPath,
-    emptyStateIllustrationPath,
+  const props = {
+    ...securityTab.dataset,
+    hasPipelineData: parseBoolean(securityTab.dataset.hasPipelineData),
   };
-  if (parsedHasPipelineData) {
-    props = {
-      ...props,
+
+  if (props.hasPipelineData) {
+    Object.assign(props, {
       project: {
-        id: projectId,
-        name: projectName,
+        id: props.projectId,
+        name: props.projectName,
       },
       triggeredBy: {
-        avatarPath: userAvatarPath,
-        name: userName,
-        path: userPath,
+        avatarPath: props.userAvatarPath,
+        name: props.userName,
+        path: props.userPath,
       },
       pipeline: {
-        id: parsedPipelineId,
-        created: pipelineCreated,
-        path: pipelinePath,
+        id: parseInt(props.pipelineId, 10),
+        created: props.pipelineCreated,
+        path: props.pipelinePath,
       },
       commit: {
-        id: commitId,
-        path: commitPath,
+        id: props.commitId,
+        path: props.commitPath,
       },
       branch: {
-        id: refId,
-        path: refPath,
+        id: props.refId,
+        path: props.refPath,
       },
-    };
+    });
   }
 
-  const router = createRouter();
   const store = createStore({
     dashboardType: DASHBOARD_TYPES.PROJECT,
-    plugins: [syncWithRouter(router)],
   });
 
   return new Vue({
     el: securityTab,
     store,
-    router,
     render(createElement) {
       return createElement(ProjectSecurityDashboard, {
         props,

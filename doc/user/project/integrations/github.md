@@ -1,6 +1,6 @@
 # GitHub project integration **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3836) in GitLab Premium 10.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3836) in GitLab Premium 10.6.
 
 GitLab provides an integration for updating the pipeline statuses on GitHub.
 This is especially useful if using GitLab for CI/CD only.
@@ -27,7 +27,7 @@ with `repo:status` access granted:
 1. Navigate to the project you want to configure.
 1. Navigate to the [Integrations page](overview.md#accessing-integrations)
 1. Click "GitHub".
-1. Select the "Active" checkbox.
+1. Ensure that the **Active** toggle is enabled.
 1. Paste the token you've generated on GitHub
 1. Enter the path to your project on GitHub, such as `https://github.com/username/repository`
 1. Optionally uncheck **Static status check names** checkbox to disable static status check names.
@@ -39,7 +39,7 @@ to configure pipelines to run for open pull requests.
 #### Static / dynamic status check names
 
 > - Introduced in GitLab 11.5: using static status check names as opt-in option.
-> - [In GitLab 12.4](https://gitlab.com/gitlab-org/gitlab/issues/9931), static status check names is default behavior for new projects.
+> - [In GitLab 12.4](https://gitlab.com/gitlab-org/gitlab/-/issues/9931), static status check names is default behavior for new projects.
 
 This makes it possible to mark these status checks as _Required_ on GitHub.
 With **Static status check names** enabled on the integration page, your

@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import { memoize, uniqBy, uniqueId, flatten } from 'lodash';
 import createFlash from '~/flash';
 import { __ } from '~/locale';
 import Api from '~/api';
@@ -7,15 +7,15 @@ import * as types from './mutation_types';
 import { RULE_TYPE_ANY_APPROVER } from '../../../constants';
 import { mapMRApprovalSettingsResponse } from '../../../mappers';
 
-const fetchGroupMembers = _.memoize(id => Api.groupMembers(id).then(response => response.data));
+const fetchGroupMembers = memoize(id => Api.groupMembers(id).then(response => response.data));
 
 const fetchApprovers = ({ userRecords, groups }) => {
   const groupUsersAsync = Promise.all(groups.map(fetchGroupMembers));
 
   return groupUsersAsync
-    .then(_.flatten)
+    .then(flatten)
     .then(groupUsers => groupUsers.concat(userRecords))
-    .then(users => _.uniq(users, false, x => x.id));
+    .then(users => uniqBy(users, x => x.id));
 };
 
 const seedApprovers = rule =>
@@ -44,7 +44,7 @@ const seedNewRule = rule => {
     ...rule,
     isNew: true,
     name,
-    id: _.uniqueId('new'),
+    id: uniqueId('new'),
   };
 };
 
@@ -52,8 +52,9 @@ export const requestRules = ({ commit }) => {
   commit(types.SET_LOADING, true);
 };
 
-export const receiveRulesSuccess = ({ commit }, settings) => {
+export const receiveRulesSuccess = ({ commit }, { resetToDefault, settings }) => {
   commit(types.SET_LOADING, false);
+  commit(types.SET_RESET_TO_DEFAULT, resetToDefault);
   commit(types.SET_APPROVAL_SETTINGS, settings);
 };
 
@@ -61,11 +62,14 @@ export const receiveRulesError = () => {
   createFlash(__('An error occurred fetching the approval rules.'));
 };
 
-export const fetchRules = ({ rootState, dispatch }, targetBranch = '') => {
+export const fetchRules = (
+  { rootState, dispatch },
+  { targetBranch = '', resetToDefault = false },
+) => {
   dispatch('requestRules');
 
   const { mrSettingsPath, projectSettingsPath } = rootState.settings;
-  const path = mrSettingsPath || projectSettingsPath;
+  const path = resetToDefault ? projectSettingsPath : mrSettingsPath || projectSettingsPath;
 
   const params = targetBranch
     ? {
@@ -82,7 +86,7 @@ export const fetchRules = ({ rootState, dispatch }, targetBranch = '') => {
       ...settings,
       rules: settings.rules.map(x => (x.id ? x : seedNewRule(x))),
     }))
-    .then(settings => dispatch('receiveRulesSuccess', settings))
+    .then(settings => dispatch('receiveRulesSuccess', { settings, resetToDefault }))
     .catch(() => dispatch('receiveRulesError'));
 };
 
@@ -147,5 +151,10 @@ export const setEmptyRule = ({ commit }) => {
 export const addEmptyRule = ({ commit }) => {
   commit(types.ADD_EMPTY_RULE);
 };
+
+export const setTargetBranch = ({ commit }, targetBranch) =>
+  commit(types.SET_TARGET_BRANCH, targetBranch);
+
+export const undoRulesChange = ({ commit }) => commit(types.UNDO_RULES);
 
 export default () => {};

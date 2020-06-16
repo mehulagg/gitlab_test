@@ -27,8 +27,6 @@
 class ProjectsFinder < UnionFinder
   include CustomAttributesFilter
 
-  prepend_if_ee('::EE::ProjectsFinder') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
   attr_accessor :params
   attr_reader :current_user, :project_ids_relation
 
@@ -142,8 +140,8 @@ class ProjectsFinder < UnionFinder
   # rubocop: disable CodeReuse/ActiveRecord
   def by_ids(items)
     items = items.where(id: project_ids_relation) if project_ids_relation
-    items = items.where('id > ?', params[:id_after]) if params[:id_after]
-    items = items.where('id < ?', params[:id_before]) if params[:id_before]
+    items = items.where('projects.id > ?', params[:id_after]) if params[:id_after]
+    items = items.where('projects.id < ?', params[:id_before]) if params[:id_before]
     items
   end
   # rubocop: enable CodeReuse/ActiveRecord
@@ -153,11 +151,11 @@ class ProjectsFinder < UnionFinder
   end
 
   def by_personal(items)
-    (params[:personal].present? && current_user) ? items.personal(current_user) : items
+    params[:personal].present? && current_user ? items.personal(current_user) : items
   end
 
   def by_starred(items)
-    (params[:starred].present? && current_user) ? items.starred_by(current_user) : items
+    params[:starred].present? && current_user ? items.starred_by(current_user) : items
   end
 
   def by_trending(items)
@@ -225,3 +223,5 @@ class ProjectsFinder < UnionFinder
     { min_access_level: params[:min_access_level] }
   end
 end
+
+ProjectsFinder.prepend_if_ee('::EE::ProjectsFinder')

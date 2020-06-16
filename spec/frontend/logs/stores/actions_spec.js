@@ -1,12 +1,12 @@
 import MockAdapter from 'axios-mock-adapter';
-
 import testAction from 'helpers/vuex_action_helper';
+import Tracking from '~/tracking';
 import * as types from '~/logs/stores/mutation_types';
 import { convertToFixedRange } from '~/lib/utils/datetime_range';
 import logsPageState from '~/logs/stores/state';
 import {
   setInitData,
-  setSearch,
+  showFilteredLogs,
   showPodLogs,
   fetchEnvironments,
   fetchLogs,
@@ -31,6 +31,7 @@ import {
   mockCursor,
   mockNextCursor,
 } from '../mock_data';
+import { TOKEN_TYPE_POD_NAME } from '~/logs/constants';
 
 jest.mock('~/flash');
 jest.mock('~/lib/utils/datetime_range');
@@ -38,7 +39,7 @@ jest.mock('~/logs/utils');
 
 const mockDefaultRange = {
   start: '2020-01-10T18:00:00.000Z',
-  end: '2020-01-10T10:00:00.000Z',
+  end: '2020-01-10T19:00:00.000Z',
 };
 const mockFixedRange = {
   start: '2020-01-09T18:06:20.000Z',
@@ -93,14 +94,81 @@ describe('Logs Store actions', () => {
       ));
   });
 
-  describe('setSearch', () => {
-    it('should commit search mutation', () =>
+  describe('showFilteredLogs', () => {
+    it('empty search should filter with defaults', () =>
       testAction(
-        setSearch,
-        mockSearch,
+        showFilteredLogs,
+        undefined,
         state,
-        [{ type: types.SET_SEARCH, payload: mockSearch }],
-        [{ type: 'fetchLogs' }],
+        [
+          { type: types.SET_CURRENT_POD_NAME, payload: null },
+          { type: types.SET_SEARCH, payload: '' },
+        ],
+        [{ type: 'fetchLogs', payload: 'used_search_bar' }],
+      ));
+
+    it('text search should filter with a search term', () =>
+      testAction(
+        showFilteredLogs,
+        [mockSearch],
+        state,
+        [
+          { type: types.SET_CURRENT_POD_NAME, payload: null },
+          { type: types.SET_SEARCH, payload: mockSearch },
+        ],
+        [{ type: 'fetchLogs', payload: 'used_search_bar' }],
+      ));
+
+    it('pod search should filter with a search term', () =>
+      testAction(
+        showFilteredLogs,
+        [{ type: TOKEN_TYPE_POD_NAME, value: { data: mockPodName, operator: '=' } }],
+        state,
+        [
+          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
+          { type: types.SET_SEARCH, payload: '' },
+        ],
+        [{ type: 'fetchLogs', payload: 'used_search_bar' }],
+      ));
+
+    it('pod search should filter with a pod selection and a search term', () =>
+      testAction(
+        showFilteredLogs,
+        [{ type: TOKEN_TYPE_POD_NAME, value: { data: mockPodName, operator: '=' } }, mockSearch],
+        state,
+        [
+          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
+          { type: types.SET_SEARCH, payload: mockSearch },
+        ],
+        [{ type: 'fetchLogs', payload: 'used_search_bar' }],
+      ));
+
+    it('pod search should filter with a pod selection and two search terms', () =>
+      testAction(
+        showFilteredLogs,
+        ['term1', 'term2'],
+        state,
+        [
+          { type: types.SET_CURRENT_POD_NAME, payload: null },
+          { type: types.SET_SEARCH, payload: `term1 term2` },
+        ],
+        [{ type: 'fetchLogs', payload: 'used_search_bar' }],
+      ));
+
+    it('pod search should filter with a pod selection and a search terms before and after', () =>
+      testAction(
+        showFilteredLogs,
+        [
+          'term1',
+          { type: TOKEN_TYPE_POD_NAME, value: { data: mockPodName, operator: '=' } },
+          'term2',
+        ],
+        state,
+        [
+          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
+          { type: types.SET_SEARCH, payload: `term1 term2` },
+        ],
+        [{ type: 'fetchLogs', payload: 'used_search_bar' }],
       ));
   });
 
@@ -111,7 +179,7 @@ describe('Logs Store actions', () => {
         mockPodName,
         state,
         [{ type: types.SET_CURRENT_POD_NAME, payload: mockPodName }],
-        [{ type: 'fetchLogs' }],
+        [{ type: 'fetchLogs', payload: 'pod_log_changed' }],
       ));
   });
 
@@ -130,7 +198,7 @@ describe('Logs Store actions', () => {
           { type: types.REQUEST_ENVIRONMENTS_DATA },
           { type: types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, payload: mockEnvironments },
         ],
-        [{ type: 'fetchLogs' }],
+        [{ type: 'fetchLogs', payload: 'environment_selected' }],
       );
     });
 
@@ -145,9 +213,6 @@ describe('Logs Store actions', () => {
           { type: types.RECEIVE_ENVIRONMENTS_DATA_ERROR },
         ],
         [],
-        () => {
-          expect(flash).toHaveBeenCalledTimes(1);
-        },
       );
     });
   });
@@ -186,6 +251,7 @@ describe('Logs Store actions', () => {
 
       it('should commit logs and pod data when there is pod name defined', () => {
         state.pods.current = mockPodName;
+        state.timeRange.current = mockFixedRange;
 
         return testAction(fetchLogs, null, state, expectedMutations, expectedActions, () => {
           expect(latestGetParams()).toMatchObject({
@@ -214,22 +280,26 @@ describe('Logs Store actions', () => {
         state.search = mockSearch;
         state.timeRange.current = 'INVALID_TIME_RANGE';
 
+        expectedMutations.splice(1, 0, {
+          type: types.SHOW_TIME_RANGE_INVALID_WARNING,
+        });
+
         return testAction(fetchLogs, null, state, expectedMutations, expectedActions, () => {
           expect(latestGetParams()).toEqual({
             pod_name: mockPodName,
             search: mockSearch,
           });
-          // Warning about time ranges was issued
-          expect(flash).toHaveBeenCalledTimes(1);
-          expect(flash).toHaveBeenCalledWith(expect.any(String), 'warning');
         });
       });
 
       it('should commit logs and pod data when no pod name defined', () => {
-        state.timeRange.current = mockDefaultRange;
+        state.timeRange.current = defaultTimeRange;
 
         return testAction(fetchLogs, null, state, expectedMutations, expectedActions, () => {
-          expect(latestGetParams()).toEqual({});
+          expect(latestGetParams()).toEqual({
+            start_time: expect.any(String),
+            end_time: expect.any(String),
+          });
         });
       });
     });
@@ -249,6 +319,7 @@ describe('Logs Store actions', () => {
 
       it('should commit logs and pod data when there is pod name defined', () => {
         state.pods.current = mockPodName;
+        state.timeRange.current = mockFixedRange;
 
         expectedActions = [];
 
@@ -293,6 +364,10 @@ describe('Logs Store actions', () => {
         state.search = mockSearch;
         state.timeRange.current = 'INVALID_TIME_RANGE';
 
+        expectedMutations.splice(1, 0, {
+          type: types.SHOW_TIME_RANGE_INVALID_WARNING,
+        });
+
         return testAction(
           fetchMoreLogsPrepend,
           null,
@@ -304,15 +379,12 @@ describe('Logs Store actions', () => {
               pod_name: mockPodName,
               search: mockSearch,
             });
-            // Warning about time ranges was issued
-            expect(flash).toHaveBeenCalledTimes(1);
-            expect(flash).toHaveBeenCalledWith(expect.any(String), 'warning');
           },
         );
       });
 
       it('should commit logs and pod data when no pod name defined', () => {
-        state.timeRange.current = mockDefaultRange;
+        state.timeRange.current = defaultTimeRange;
 
         return testAction(
           fetchMoreLogsPrepend,
@@ -321,7 +393,10 @@ describe('Logs Store actions', () => {
           expectedMutations,
           expectedActions,
           () => {
-            expect(latestGetParams()).toEqual({});
+            expect(latestGetParams()).toEqual({
+              start_time: expect.any(String),
+              end_time: expect.any(String),
+            });
           },
         );
       });
@@ -357,6 +432,7 @@ describe('Logs Store actions', () => {
     it('fetchLogs should commit logs and pod errors', () => {
       state.environments.options = mockEnvironments;
       state.environments.current = mockEnvName;
+      state.timeRange.current = defaultTimeRange;
 
       return testAction(
         fetchLogs,
@@ -377,6 +453,7 @@ describe('Logs Store actions', () => {
     it('fetchMoreLogsPrepend should commit logs and pod errors', () => {
       state.environments.options = mockEnvironments;
       state.environments.current = mockEnvName;
+      state.timeRange.current = defaultTimeRange;
 
       return testAction(
         fetchMoreLogsPrepend,
@@ -391,6 +468,61 @@ describe('Logs Store actions', () => {
           expect(mock.history.get[0].url).toBe(mockLogsEndpoint);
         },
       );
+    });
+  });
+});
+
+describe('Tracking user interaction', () => {
+  let commit;
+  let dispatch;
+  let state;
+  let mock;
+
+  beforeEach(() => {
+    jest.spyOn(Tracking, 'event');
+    commit = jest.fn();
+    dispatch = jest.fn();
+    state = logsPageState();
+    state.environments.options = mockEnvironments;
+    state.environments.current = mockEnvName;
+
+    mock = new MockAdapter(axios);
+  });
+
+  afterEach(() => {
+    mock.reset();
+  });
+
+  describe('Logs with data', () => {
+    beforeEach(() => {
+      mock.onGet(mockLogsEndpoint).reply(200, mockResponse);
+      mock.onGet(mockLogsEndpoint).replyOnce(202); // mock reactive cache
+    });
+
+    it('tracks fetched logs with data', () => {
+      return fetchLogs({ state, commit, dispatch }, 'environment_selected').then(() => {
+        expect(Tracking.event).toHaveBeenCalledWith(document.body.dataset.page, 'logs_view', {
+          label: 'environment_selected',
+          property: 'count',
+          value: 1,
+        });
+      });
+    });
+  });
+
+  describe('Logs without data', () => {
+    beforeEach(() => {
+      mock.onGet(mockLogsEndpoint).reply(200, {
+        ...mockResponse,
+        logs: [],
+      });
+      mock.onGet(mockLogsEndpoint).replyOnce(202); // mock reactive cache
+    });
+
+    it('does not track empty log responses', () => {
+      return fetchLogs({ state, commit, dispatch }).then(() => {
+        expect(Tracking.event).not.toHaveBeenCalled();
+      });
     });
   });
 });

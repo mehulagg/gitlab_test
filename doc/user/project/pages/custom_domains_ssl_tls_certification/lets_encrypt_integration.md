@@ -1,11 +1,14 @@
 ---
 type: reference
 description: "Automatic Let's Encrypt SSL certificates for GitLab Pages."
+stage: Release
+group: Release Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # GitLab Pages integration with Let's Encrypt
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/28996) in GitLab 12.1. For versions earlier than GitLab 12.1, see the [manual Let's Encrypt instructions](../lets_encrypt_for_gitlab_pages.md).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/28996) in GitLab 12.1. For versions earlier than GitLab 12.1, see the [manual Let's Encrypt instructions](../lets_encrypt_for_gitlab_pages.md).
 
 The GitLab Pages integration with Let's Encrypt (LE) allows you
 to use LE certificates for your Pages website with custom domains
@@ -16,7 +19,7 @@ GitLab does it for you, out-of-the-box.
 open source Certificate Authority.
 
 CAUTION: **Caution:**
-This feature covers only certificates for **custom domains**, not the wildcard certificate required to run [Pages daemon](../../../../administration/pages/index.md) **(CORE ONLY)**. Wildcard certificate generation is tracked in [this issue](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3342).
+This feature covers only certificates for **custom domains**, not the wildcard certificate required to run [Pages daemon](../../../../administration/pages/index.md) **(CORE ONLY)**. Wildcard certificate generation is tracked in [this issue](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/3342).
 
 ## Requirements
 
@@ -60,11 +63,11 @@ associated Pages domain. It also will be renewed automatically by GitLab.
 
 ## Troubleshooting
 
-### Error "Something went wrong while obtaining Let's Encrypt certificate"
+### Error "Something went wrong while obtaining the Let's Encrypt certificate"
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30146) in GitLab 13.0.
 
-If you get an error **Something went wrong while obtaining Let's Encrypt certificate**, you can try obtaining the certificate again by following these steps:
+If you get an error **Something went wrong while obtaining the Let's Encrypt certificate**, you can try obtaining the certificate again by following these steps:
 
 1. Go to your project's **Settings > Pages**.
 1. Click **Edit** on your domain.

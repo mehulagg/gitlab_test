@@ -7,7 +7,7 @@ class MigrateCiJobArtifactsToSeparateRegistry < ActiveRecord::Migration[4.2]
       t.integer "artifact_id", unique: true
       t.integer "retry_count"
       t.boolean "success"
-      t.string "sha256" # rubocop:disable Migration/AddLimitToStringColumns
+      t.string "sha256" # rubocop:disable Migration/PreventStrings
     end
 
     Geo::TrackingBase.transaction do
@@ -52,7 +52,10 @@ class MigrateCiJobArtifactsToSeparateRegistry < ActiveRecord::Migration[4.2]
   end
 
   def down
+    # rubocop:disable Migration/DropTable
     tracking_db.drop_table :job_artifact_registry
+    # rubocop:enable Migration/DropTable
+
     execute('DROP TRIGGER IF EXISTS replicate_job_artifact_registry ON file_registry')
     execute('DROP FUNCTION IF EXISTS replicate_job_artifact_registry()')
   end

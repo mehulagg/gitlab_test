@@ -1,5 +1,8 @@
 ---
 type: howto, reference
+stage: Manage
+group: Access
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # SCIM provisioning using SAML SSO for GitLab.com groups **(SILVER ONLY)**
@@ -12,23 +15,26 @@ that group is synchronized between GitLab and the identity provider.
 
 GitLab's [SCIM API](../../../api/scim.md) implements part of [the RFC7644 protocol](https://tools.ietf.org/html/rfc7644).
 
+## Features
+
 Currently, the following actions are available:
 
-- CREATE
-- UPDATE
-- DELETE (deprovisioning)
+- Create users
+- Update users (Azure only)
+- Deactivate users
 
 The following identity providers are supported:
 
 - Azure
+- Okta
 
 ## Requirements
 
-- [Group SSO](index.md) must be configured.
+- [Group Single Sign-On](index.md) must be configured.
 
 ## GitLab configuration
 
-Once [Single sign-on](index.md) has been configured, we can:
+Once [Group Single Sign-On](index.md) has been configured, we can:
 
 1. Navigate to the group and click **Administration > SAML SSO**.
 1. Click on the **Generate a SCIM token** button.
@@ -38,9 +44,12 @@ Once [Single sign-on](index.md) has been configured, we can:
 
 ## Identity Provider configuration
 
-### Azure
+- [Azure](#azure-configuration-steps)
+- [Okta](#okta-configuration-steps)
 
-The SAML application that was created during [Single sign-on](index.md) setup now needs to be set up for SCIM.
+### Azure configuration steps
+
+The SAML application that was created during [Single sign-on](index.md) setup for [Azure](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-single-sign-on-non-gallery-applications) now needs to be set up for SCIM.
 
 1. Check the configuration for your GitLab SAML app and ensure that **Name identifier value** (NameID) points to `user.objectid` or another unique identifier. This will match the `extern_uid` used on GitLab.
 
@@ -109,6 +118,43 @@ bottom of the **Provisioning** screen, together with a link to the audit logs.
 CAUTION: **Warning:**
 Once synchronized, changing the field mapped to `id` and `externalId` will likely cause provisioning errors, duplicate users, and prevent existing users from accessing the GitLab group.
 
+### Okta configuration steps
+
+The SAML application that was created during [Single sign-on](index.md#okta-setup-notes) setup for [Okta](https://developer.okta.com/docs/guides/build-sso-integration/saml2/overview/) now needs to be set up for SCIM.
+Before proceeding, be sure to complete the [GitLab configuration](#gitlab-configuration) process.
+
+1. Sign in to Okta.
+1. If you see an **Admin** button in the top right, click the button. This will
+   ensure you are in the Admin area.
+
+   TIP: **Tip:** If you're using the Developer Console, click **Developer Console** in the top
+   bar and select **Classic UI**. Otherwise, you may not see the buttons described
+   in the following steps:
+
+1. In the **Application** tab, click **Add Application**.
+1. Search for **GitLab**, find and click on the 'GitLab' application.
+1. On the GitLab application overview page, click **Add**.
+1. Under **Application Visibility** select both check boxes. Currently the GitLab application does not support SAML authentication so the icon should not be shown to users.
+1. Click **Done** to finish adding the application.
+1. In the **Provisioning** tab, click **Configure API integration**.
+1. Select **Enable API integration**.
+    - For **Base URL** enter the URL obtained from the GitLab SCIM configuration page
+    - For **API Token** enter the SCIM token obtained from the GitLab SCIM configuration page
+1. Click 'Test API Credentials' to verify configuration.
+1. Click **Save** to apply the settings.
+1. After saving the API integration details, new settings tabs will appear on the left. Choose **To App**.
+1. Click **Edit**.
+1. Check the box to **Enable** for both **Create Users** and **Deactivate Users**.
+1. Click **Save**.
+1. Assign users in the **Assignments** tab. Assigned users will be created and
+   managed in your GitLab group.
+
+#### Okta Known Issues
+
+The Okta GitLab application currently only supports SCIM. Continue
+using the separate Okta [SAML SSO](index.md) configuration along with the new SCIM
+application described above.
+
 ## User access and linking setup
 
 As long as [Group SAML](index.md) has been configured, prior to turning on sync, existing GitLab.com users can link to their accounts in one of the following ways, before synchronization is active:
@@ -135,7 +181,9 @@ Upon the next sync, the user will be deprovisioned, which means that the user wi
 
 This section contains possible solutions for problems you might encounter.
 
-### How do I verify my SCIM configuration is correct?
+### Azure
+
+#### How do I verify my SCIM configuration is correct?
 
 Review the following:
 
@@ -148,11 +196,11 @@ Review the following SCIM parameters for sensible values:
 - `displayName`
 - `emails[type eq "work"].value`
 
-### Testing Azure connection: invalid credentials
+#### Testing Azure connection: invalid credentials
 
 When testing the connection, you may encounter an error: **You appear to have entered invalid credentials. Please confirm you are using the correct information for an administrative account**. If `Tenant URL` and `secret token` are correct, check whether your group path contains characters that may be considered invalid JSON primitives (such as `.`). Removing such characters from the group path typically resolves the error.
 
-### Azure: (Field) can't be blank sync error
+#### Azure: (Field) can't be blank sync error
 
 When checking the Audit Logs for the Provisioning, you can sometimes see the
 error `Namespace can't be blank, Name can't be blank, and User can't be blank.`
@@ -165,11 +213,7 @@ As a workaround, try an alternate mapping:
 1. Delete the `name.formatted` target attribute entry.
 1. Change the `displayName` source attribute to have `name.formatted` target attribute.
 
-### Message: "SAML authentication failed: Email has already been taken"
-
-It is expected for the app's logs to show this error for any existing user until they sign in for the first time. GitLab will not allow multiple accounts to have the same email address.
-
-### How do I diagnose why a user is unable to sign in
+#### How do I diagnose why a user is unable to sign in
 
 The **Identity** (`extern_uid`) value stored by GitLab is updated by SCIM whenever `id` or `externalId` changes. Users won't be able to sign in unless the GitLab Identity (`extern_uid`) value matches the `NameId` sent by SAML.
 
@@ -177,7 +221,7 @@ This value is also used by SCIM to match users on the `id`, and is updated by SC
 
 It is important that this SCIM `id` and SCIM `externalId` are configured to the same value as the SAML `NameId`. SAML responses can be traced using [debugging tools](./index.md#saml-debugging-tools), and any errors can be checked against our [SAML troubleshooting docs](./index.md#troubleshooting).
 
-### How do I verify user's SAML NameId matches the SCIM externalId
+#### How do I verify user's SAML NameId matches the SCIM externalId
 
 Group owners can see the list of users and the `externalId` stored for each user in the group SAML SSO Settings page.
 
@@ -191,21 +235,23 @@ curl 'https://example.gitlab.com/api/scim/v2/groups/GROUP_NAME/Users?startIndex=
 
 To see how this compares to the value returned as the SAML NameId, you can have the user use a [SAML Tracer](index.md#saml-debugging-tools).
 
-### Update or fix mismatched SCIM externalId and SAML NameId
+#### Update or fix mismatched SCIM externalId and SAML NameId
 
 Whether the value was changed or you need to map to a different field, ensure `id`, `externalId`, and `NameId` all map to the same field.
 
 If GitLab's `externalId` doesn't match the SAML NameId, it will need to be updated in order for the user to log in. Ideally your identity provider will be configured to do such an update, but in some cases it may be unable to do so, such as when looking up a user fails due to an ID change.
 
-Fixing the fields your SCIM identity provider sends as `id` and `externalId` can correct this, however we use these IDs to look up users so if the identity provider is unaware of the current values for these it may try to create new duplicate users instead.
+Be cautious if you revise the fields used by your SCIM identity provider, typically `id` and `externalId`.
+We use these IDs to look up users. If the identity provider does not know the current values for these fields,
+that provider may create duplicate users.
 
-If the `externalId` we have stored for a user has an incorrect value that doesn't match the SAML NameId, then it can be corrected ine on or two ways.
+If the `externalId` for a user is not correct, and also doesn't match the SAML NameID,
+you can address the problem in the following ways:
 
-One option is to have users can be delinked and relink following details in the ["SAML authentication failed: User has already been taken"](./index.md#message-saml-authentication-failed-user-has-already-been-taken) section. Additionally, to unlink all users at once, remove all users from the SAML app while SCIM is still turned on.
-
-Another option is with the manual use of the SCIM API.
-
-The [SCIM API](../../../api/scim.md#update-a-single-saml-user) can be used to manually correct the `externalId` stored for users so that it matches the SAML NameId. You'll need to know the desired value that matches the `NameId` as well as the current `externalId` to look up the user.
+- You can have users unlink and relink themselves, based on the ["SAML authentication failed: User has already been taken"](./index.md#message-saml-authentication-failed-user-has-already-been-taken) section.
+- You can unlink all users simultaneously, by removing all users from the SAML app while provisioning is turned on.
+- You can use the [SCIM API](../../../api/scim.md#update-a-single-saml-user) to manually correct the `externalId` stored for users to match the SAML `NameId`.
+  To look up a user, you'll need to know the desired value that matches the `NameId` as well as the current `externalId`.
 
 It is then possible to issue a manual SCIM#update request, for example:
 
@@ -215,7 +261,7 @@ curl --verbose --request PATCH 'https://gitlab.com/api/scim/v2/groups/YOUR_GROUP
 
 It is important not to update these to incorrect values, since this will cause users to be unable to sign in. It is also important not to assign a value to the wrong user, as this would cause users to get signed into the wrong account.
 
-### I need to change my SCIM app
+#### I need to change my SCIM app
 
 Individual users can follow the instructions in the ["SAML authentication failed: User has already been taken"](./index.md#i-need-to-change-my-saml-app) section.
 

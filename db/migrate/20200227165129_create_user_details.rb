@@ -5,6 +5,7 @@ class CreateUserDetails < ActiveRecord::Migration[6.0]
 
   DOWNTIME = false
 
+  # rubocop:disable Migration/PreventStrings
   def up
     with_lock_retries do
       create_table :user_details, id: false do |t|
@@ -15,10 +16,13 @@ class CreateUserDetails < ActiveRecord::Migration[6.0]
 
     add_index :user_details, :user_id, unique: true
   end
+  # rubocop:enable Migration/PreventStrings
 
   def down
     with_lock_retries do
+      # rubocop:disable Migration/DropTable
       drop_table :user_details
+      # rubocop:enable Migration/DropTable
     end
   end
 end

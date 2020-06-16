@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe GroupDescendantsFinder do
+RSpec.describe GroupDescendantsFinder do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
   let(:params) { {} }
@@ -123,7 +123,7 @@ describe GroupDescendantsFinder do
       project = create(:project, namespace: group)
       other_project = create(:project)
       other_project.project_group_links.create(group: group,
-                                               group_access: ProjectGroupLink::MAINTAINER)
+                                               group_access: Gitlab::Access::MAINTAINER)
 
       expect(finder.execute).to contain_exactly(project)
     end

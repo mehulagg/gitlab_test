@@ -18,6 +18,16 @@ module ImportExport
       allow_any_instance_of(Gitlab::ImportExport).to receive(:export_path) { export_path }
     end
 
+    def setup_reader(reader)
+      if reader == :ndjson_reader && Feature.enabled?(:project_import_ndjson, default_enabled: true)
+        allow_any_instance_of(Gitlab::ImportExport::JSON::LegacyReader::File).to receive(:exist?).and_return(false)
+        allow_any_instance_of(Gitlab::ImportExport::JSON::NdjsonReader).to receive(:exist?).and_return(true)
+      else
+        allow_any_instance_of(Gitlab::ImportExport::JSON::LegacyReader::File).to receive(:exist?).and_return(true)
+        allow_any_instance_of(Gitlab::ImportExport::JSON::NdjsonReader).to receive(:exist?).and_return(false)
+      end
+    end
+
     def fixtures_path
       "spec/fixtures/lib/gitlab/import_export"
     end

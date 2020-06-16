@@ -27,7 +27,7 @@ module MergeRequests
       old_assignees = old_associations.fetch(:assignees, [])
 
       if has_changes?(merge_request, old_labels: old_labels, old_assignees: old_assignees)
-        todo_service.mark_pending_todos_as_done(merge_request, current_user)
+        todo_service.resolve_todos_for_target(merge_request, current_user)
       end
 
       if merge_request.previous_changes.include?('title') ||
@@ -73,20 +73,27 @@ module MergeRequests
     end
 
     def handle_task_changes(merge_request)
-      todo_service.mark_pending_todos_as_done(merge_request, current_user)
+      todo_service.resolve_todos_for_target(merge_request, current_user)
       todo_service.update_merge_request(merge_request, current_user)
     end
 
     def merge_from_quick_action(merge_request)
       last_diff_sha = params.delete(:merge)
-      return unless merge_request.mergeable_with_quick_action?(current_user, last_diff_sha: last_diff_sha)
 
-      merge_request.update(merge_error: nil)
-
-      if merge_request.head_pipeline_active?
-        AutoMergeService.new(project, current_user, { sha: last_diff_sha }).execute(merge_request, AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS)
+      if Feature.enabled?(:merge_orchestration_service, merge_request.project, default_enabled: true)
+        MergeRequests::MergeOrchestrationService
+          .new(project, current_user, { sha: last_diff_sha })
+          .execute(merge_request)
       else
-        merge_request.merge_async(current_user.id, { sha: last_diff_sha })
+        return unless merge_request.mergeable_with_quick_action?(current_user, last_diff_sha: last_diff_sha)
+
+        merge_request.update(merge_error: nil)
+
+        if merge_request.head_pipeline_active?
+          AutoMergeService.new(project, current_user, { sha: last_diff_sha }).execute(merge_request, AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS)
+        else
+          merge_request.merge_async(current_user.id, { sha: last_diff_sha })
+        end
       end
     end
 

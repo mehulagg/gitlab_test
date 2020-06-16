@@ -75,13 +75,18 @@ class GroupPolicy < BasePolicy
   rule { developer }.policy do
     enable :admin_milestone
     enable :read_package
+    enable :create_metrics_dashboard_annotation
+    enable :delete_metrics_dashboard_annotation
+    enable :update_metrics_dashboard_annotation
   end
 
   rule { reporter }.policy do
+    enable :reporter_access
     enable :read_container_image
     enable :admin_label
     enable :admin_list
     enable :admin_issue
+    enable :read_metrics_dashboard_annotation
   end
 
   rule { maintainer }.policy do
@@ -106,6 +111,7 @@ class GroupPolicy < BasePolicy
 
     enable :set_note_created_at
     enable :set_emails_disabled
+    enable :update_default_branch_protection
   end
 
   rule { can?(:read_nested_project_resources) }.policy do

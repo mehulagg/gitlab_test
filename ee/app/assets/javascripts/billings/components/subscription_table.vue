@@ -1,5 +1,5 @@
 <script>
-import { escape as esc } from 'lodash';
+import { escape } from 'lodash';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
@@ -32,7 +32,7 @@ export default {
     ...mapState('subscription', ['isLoading', 'hasError', 'plan', 'tables', 'endpoint']),
     ...mapGetters('subscription', ['isFreePlan']),
     subscriptionHeader() {
-      const planName = this.isFreePlan ? s__('SubscriptionTable|Free') : esc(this.plan.name);
+      const planName = this.isFreePlan ? s__('SubscriptionTable|Free') : escape(this.plan.name);
       const suffix = !this.isFreePlan && this.plan.trial ? s__('SubscriptionTable|Trial') : '';
 
       return `${this.namespaceName}: ${planName} ${suffix}`;
@@ -117,7 +117,7 @@ export default {
     <gl-loading-icon
       v-else-if="isLoading && !hasError"
       :label="s__('SubscriptionTable|Loading subscriptions')"
-      :size="3"
+      size="lg"
       class="prepend-top-10 append-bottom-10"
     />
   </div>

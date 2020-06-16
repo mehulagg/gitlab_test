@@ -2,11 +2,13 @@
 
 require 'spec_helper'
 
-describe Mutations::Issues::SetConfidential do
+RSpec.describe Mutations::Issues::SetConfidential do
   let(:issue) { create(:issue) }
   let(:user) { create(:user) }
 
   subject(:mutation) { described_class.new(object: nil, context: { current_user: user }, field: nil) }
+
+  specify { expect(described_class).to require_graphql_authorizations(:update_issue) }
 
   describe '#resolve' do
     let(:confidential) { true }

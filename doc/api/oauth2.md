@@ -4,7 +4,7 @@ This document covers using the [OAuth2](https://oauth.net/2/) protocol to allow
 other services to access GitLab resources on user's behalf.
 
 If you want GitLab to be an OAuth authentication service provider to sign into
-other services, see the [OAuth2 provider](../integration/oauth_provider.md)
+other services, see the [OAuth2 authentication service provider](../integration/oauth_provider.md)
 documentation. This functionality is based on the
 [doorkeeper Ruby gem](https://github.com/doorkeeper-gem/doorkeeper).
 
@@ -102,7 +102,7 @@ CAUTION: **Important:**
 Avoid using this flow for applications that store data outside of the GitLab
 instance. If you do, make sure to verify `application id` associated with the
 access token before granting access to the data
-(see [`/oauth/token/info`](#retrieving-the-token-info)).
+(see [`/oauth/token/info`](#retrieving-the-token-information)).
 
 Unlike the web flow, the client receives an `access token` immediately as a
 result of the authorization request. The flow does not use the client secret
@@ -173,11 +173,14 @@ the following parameters:
 }
 ```
 
+Also you must use HTTP Basic authentication using the `client_id` and`client_secret`
+values to authenticate the client that performs a request.
+
 Example cURL request:
 
 ```shell
 echo 'grant_type=password&username=<your_username>&password=<your_password>' > auth.txt
-curl --data "@auth.txt" --request POST https://gitlab.example.com/oauth/token
+curl --data "@auth.txt" --user client_id:client_secret --request POST "https://gitlab.example.com/oauth/token"
 ```
 
 Then, you'll receive the access token back in the response:
@@ -189,6 +192,8 @@ Then, you'll receive the access token back in the response:
   "expires_in": 7200
 }
 ```
+
+By default, the scope of the access token is `api`, which provides complete read/write access.
 
 For testing, you can use the `oauth2` Ruby gem:
 
@@ -210,10 +215,10 @@ GET https://gitlab.example.com/api/v4/user?access_token=OAUTH-TOKEN
 or you can put the token to the Authorization header:
 
 ```shell
-curl --header "Authorization: Bearer OAUTH-TOKEN" https://gitlab.example.com/api/v4/user
+curl --header "Authorization: Bearer OAUTH-TOKEN" "https://gitlab.example.com/api/v4/user"
 ```
 
-## Retrieving the Token Info
+## Retrieving the token information
 
 To verify the details of a token, use the `token/info` endpoint provided by the Doorkeeper gem.
 For more information, see [`/oauth/token/info`](https://github.com/doorkeeper-gem/doorkeeper/wiki/API-endpoint-descriptions-and-examples#get----oauthtokeninfo).
@@ -229,7 +234,7 @@ You must supply the access token, either:
 - In the Authorization header:
 
    ```shell
-   curl --header "Authorization: Bearer <OAUTH-TOKEN>" https://gitlab.example.com/oauth/token/info
+   curl --header "Authorization: Bearer <OAUTH-TOKEN>" "https://gitlab.example.com/oauth/token/info"
    ```
 
 The following is an example response:

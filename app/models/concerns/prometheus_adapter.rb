@@ -5,12 +5,11 @@ module PrometheusAdapter
 
   included do
     include ReactiveCaching
-    # We can't prepend outside of this model due to the use of `included`, so this must stay here.
-    prepend_if_ee('EE::PrometheusAdapter') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
     self.reactive_cache_lease_timeout = 30.seconds
     self.reactive_cache_refresh_interval = 30.seconds
     self.reactive_cache_lifetime = 1.minute
+    self.reactive_cache_work_type = :external_dependency
 
     def prometheus_client
       raise NotImplementedError
@@ -45,7 +44,7 @@ module PrometheusAdapter
       {
         success: true,
         data: data,
-        last_update: Time.now.utc
+        last_update: Time.current.utc
       }
     rescue Gitlab::PrometheusClient::Error => err
       { success: false, result: err.message }

@@ -7,49 +7,64 @@ module Gitlab
         attr_reader :full_path, :shared
 
         def initialize(group:, current_user:, shared:, params: {})
-          @params       = params
+          @params = params
           @current_user = current_user
-          @shared       = shared
-          @group        = group
-          @full_path    = File.join(@shared.export_path, ImportExport.group_filename)
+          @shared = shared
+          @group = group
+          @full_path = File.join(@shared.export_path, 'tree')
         end
 
         def save
-          group_tree = serialize(@group, reader.group_tree)
-          tree_saver.save(group_tree, @shared.export_path, ImportExport.group_filename)
+          all_groups = Enumerator.new do |group_ids|
+            groups.each do |group|
+              serialize(group)
+              group_ids << group.id
+            end
+          end
+
+          json_writer.write_relation_array('groups', '_all', all_groups)
 
           true
         rescue => e
           @shared.error(e)
           false
+        ensure
+          json_writer&.close
         end
 
         private
 
-        def serialize(group, relations_tree)
-          group_tree = tree_saver.serialize(group, relations_tree)
-
-          group.children.each do |child|
-            group_tree['children'] ||= []
-            group_tree['children'] << serialize(child, relations_tree)
-          end
-
-          group_tree
-        rescue => e
-          @shared.error(e)
+        def groups
+          @groups ||= Gitlab::ObjectHierarchy
+            .new(::Group.where(id: @group.id))
+            .base_and_descendants(with_depth: true)
+            .order_by(:depth)
         end
 
-        def reader
-          @reader ||= Gitlab::ImportExport::Reader.new(
+        def serialize(group)
+          ImportExport::JSON::StreamingSerializer.new(
+            group,
+            group_tree,
+            json_writer,
+            exportable_path: "groups/#{group.id}"
+          ).execute
+        end
+
+        def group_tree
+          @group_tree ||= Gitlab::ImportExport::Reader.new(
             shared: @shared,
-            config: Gitlab::ImportExport::Config.new(
-              config: Gitlab::ImportExport.group_config_file
-            ).to_h
-          )
+            config: group_config
+          ).group_tree
         end
 
-        def tree_saver
-          @tree_saver ||= LegacyRelationTreeSaver.new
+        def group_config
+          Gitlab::ImportExport::Config.new(
+            config: Gitlab::ImportExport.group_config_file
+          ).to_h
+        end
+
+        def json_writer
+          @json_writer ||= ImportExport::JSON::NdjsonWriter.new(@full_path)
         end
       end
     end

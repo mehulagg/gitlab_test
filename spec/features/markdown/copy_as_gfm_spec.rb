@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Copy as GFM', :js do
+RSpec.describe 'Copy as GFM', :js do
   include MarkupHelper
   include RepoHelpers
   include ActionView::Helpers::JavaScriptHelper
@@ -157,7 +157,7 @@ describe 'Copy as GFM', :js do
         GFM
 
         pipeline: :wiki,
-        project_wiki: @project.wiki
+        wiki: @project.wiki
       )
 
       verify(
@@ -170,6 +170,12 @@ describe 'Copy as GFM', :js do
         'ImageLinkFilter',
 
         '![Image](https://example.com/image.png)'
+      )
+
+      verify_media_with_partial_path(
+        '[test.txt](/uploads/a123/image.txt)',
+
+        project_media_uri(@project, '/uploads/a123/image.txt')
       )
 
       verify_media_with_partial_path(

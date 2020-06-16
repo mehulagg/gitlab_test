@@ -9,32 +9,39 @@ describe ProjectUpdateRepositoryStorageWorker do
   subject { described_class.new }
 
   describe "#perform" do
-    context 'when source and target repositories are on different filesystems' do
-      before do
-        allow(Gitlab::GitalyClient).to receive(:filesystem_id).with('default').and_call_original
-        allow(Gitlab::GitalyClient).to receive(:filesystem_id).with('new_storage').and_return(SecureRandom.uuid)
-      end
+    let(:service) { double(:update_repository_storage_service) }
 
+    before do
+      allow(Gitlab.config.repositories.storages).to receive(:keys).and_return(%w[default test_second_storage])
+    end
+
+    context 'without repository storage move' do
       it "calls the update repository storage service" do
-        expect_next_instance_of(Projects::UpdateRepositoryStorageService) do |instance|
-          expect(instance).to receive(:execute).with('new_storage')
-        end
+        expect(Projects::UpdateRepositoryStorageService).to receive(:new).and_return(service)
+        expect(service).to receive(:execute)
 
-        subject.perform(project.id, 'new_storage')
+        expect do
+          subject.perform(project.id, 'test_second_storage')
+        end.to change(ProjectRepositoryStorageMove, :count).by(1)
+
+        storage_move = project.repository_storage_moves.last
+        expect(storage_move).to have_attributes(
+          source_storage_name: "default",
+          destination_storage_name: "test_second_storage"
+        )
       end
     end
 
-    context 'when source and target repositories are on the same filesystems' do
-      let(:filesystem_id) { SecureRandom.uuid }
+    context 'with repository storage move' do
+      let!(:repository_storage_move) { create(:project_repository_storage_move) }
 
-      before do
-        allow(Gitlab::GitalyClient).to receive(:filesystem_id).and_return(filesystem_id)
-      end
+      it "calls the update repository storage service" do
+        expect(Projects::UpdateRepositoryStorageService).to receive(:new).and_return(service)
+        expect(service).to receive(:execute)
 
-      it 'raises an error' do
-        expect_any_instance_of(::Projects::UpdateRepositoryStorageService).not_to receive(:new)
-
-        expect { subject.perform(project.id, 'new_storage') }.to raise_error(ProjectUpdateRepositoryStorageWorker::SameFilesystemError)
+        expect do
+          subject.perform(nil, nil, repository_storage_move.id)
+        end.not_to change(ProjectRepositoryStorageMove, :count)
       end
     end
   end

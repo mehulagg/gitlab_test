@@ -1,3 +1,10 @@
+---
+type: howto
+stage: Manage
+group: Import
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Migrating from SVN to GitLab
 
 Subversion (SVN) is a central version control system (VCS) while
@@ -75,7 +82,7 @@ For more information regarding the SubGit configuration options, refer to
 
 ### Initial translation
 
-Now that SubGit has configured the Git/SVN repos, run `subgit` to perform the
+Now that SubGit has configured the Git/SVN repositories, run `subgit` to perform the
 initial translation of existing SVN revisions into the Git repository:
 
 ```shell
@@ -99,9 +106,6 @@ subgit import $GIT_REPO_PATH
 Running SubGit in a mirror mode requires a
 [registration](https://subgit.com/pricing). Registration is free for open
 source, academic and startup projects.
-
-We're currently working on deeper GitLab/SubGit integration. You may track our
-progress at [this issue](https://gitlab.com/gitlab-org/gitlab/issues/990).
 
 ### SubGit support
 
@@ -162,7 +166,7 @@ svn2git https://svn.example.com/path/to/repo --authors /path/to/authors.txt
 ```
 
 If your SVN repository requires a username and password add the
-`--username <username>` and `--password <password` flags to the above command.
+`--username <username>` and `--password <password>` flags to the above command.
 `svn2git` also supports excluding certain file paths, branches, tags, etc. See
 [svn2git documentation](https://github.com/nirvdrum/svn2git) or run
 `svn2git --help` for full documentation on all of the available options.

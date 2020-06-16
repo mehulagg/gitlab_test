@@ -2,10 +2,12 @@
 
 require 'spec_helper'
 
-describe VulnerabilitiesHelper do
+RSpec.describe VulnerabilitiesHelper do
   let_it_be(:user) { build(:user) }
-  let_it_be(:vulnerability) { create(:vulnerability, :with_findings, title: "My vulnerability") }
-  let_it_be(:finding) { vulnerability.finding }
+  let_it_be(:project) { create(:project, :repository, :public) }
+  let_it_be(:pipeline) { create(:ci_pipeline, :success, project: project) }
+  let_it_be(:finding) { create(:vulnerabilities_occurrence, pipelines: [pipeline], project: project, severity: :high) }
+  let_it_be(:vulnerability) { create(:vulnerability, title: "My vulnerability", project: project, findings: [finding]) }
   let(:vulnerability_serializer_hash) do
     vulnerability.slice(
       :id,
@@ -21,7 +23,7 @@ describe VulnerabilitiesHelper do
       :confirmed_by_id
     )
   end
-  let(:occurrence_serializer_hash) do
+  let(:finding_serializer_hash) do
     finding.slice(:description,
       :identifiers,
       :links,
@@ -29,6 +31,7 @@ describe VulnerabilitiesHelper do
       :name,
       :issue_feedback,
       :project,
+      :remediations,
       :solution
     )
   end
@@ -44,19 +47,27 @@ describe VulnerabilitiesHelper do
       expect(VulnerabilitySerializer).to receive(:new).and_return(vulnerability_serializer_stub)
       expect(vulnerability_serializer_stub).to receive(:represent).with(vulnerability).and_return(vulnerability_serializer_hash)
 
-      occurrence_serializer_stub = instance_double("Vulnerabilities::OccurrenceSerializer")
-      expect(Vulnerabilities::OccurrenceSerializer).to receive(:new).and_return(occurrence_serializer_stub)
-      expect(occurrence_serializer_stub).to receive(:represent).with(finding).and_return(occurrence_serializer_hash)
+      finding_serializer_stub = instance_double("Vulnerabilities::FindingSerializer")
+      expect(Vulnerabilities::FindingSerializer).to receive(:new).and_return(finding_serializer_stub)
+      expect(finding_serializer_stub).to receive(:represent).with(finding).and_return(finding_serializer_hash)
+    end
+
+    around do |example|
+      Timecop.freeze { example.run }
     end
 
     it 'has expected vulnerability properties' do
       expect(subject).to include(
         vulnerability_json: kind_of(String),
         project_fingerprint: vulnerability.finding.project_fingerprint,
-        create_issue_url: kind_of(String),
+        create_issue_url: "/#{project.full_path}/-/vulnerability_feedback",
+        notes_url: "/#{project.full_path}/-/security/vulnerabilities/#{vulnerability.id}/notes",
+        discussions_url: "/#{project.full_path}/-/security/vulnerabilities/#{vulnerability.id}/discussions",
         has_mr: anything,
         vulnerability_feedback_help_path: kind_of(String),
-        finding_json: kind_of(String)
+        finding_json: kind_of(String),
+        create_mr_url: "/#{project.full_path}/-/vulnerability_feedback",
+        timestamp: Time.now.to_i
       )
     end
   end
@@ -66,7 +77,7 @@ describe VulnerabilitiesHelper do
 
     describe 'when pipeline exists' do
       let(:pipeline) { create(:ci_pipeline) }
-      let(:pipelineData) { JSON.parse(subject[:pipeline_json]) }
+      let(:pipelineData) { Gitlab::Json.parse(subject[:pipeline_json]) }
 
       include_examples 'vulnerability properties'
 
@@ -74,7 +85,8 @@ describe VulnerabilitiesHelper do
         expect(pipelineData).to include(
           'id' => pipeline.id,
           'created_at' => pipeline.created_at.iso8601,
-          'url' => be_present
+          'url' => be_present,
+          'source_branch' => pipeline.ref
         )
       end
     end
@@ -91,33 +103,33 @@ describe VulnerabilitiesHelper do
   end
 
   describe '#vulnerability_finding_data' do
-    subject { helper.vulnerability_finding_data(finding) }
+    subject { helper.vulnerability_finding_data(vulnerability) }
 
-    it "returns finding information" do
-      expect(subject).to include(
+    it 'returns finding information' do
+      expect(subject).to match(
         description: finding.description,
-        identifiers: finding.identifiers,
+        identifiers: kind_of(Array),
+        issue_feedback: anything,
+        merge_request_feedback: anything,
         links: finding.links,
         location: finding.location,
         name: finding.name,
-        issue_feedback: anything,
-        project: anything
+        project: kind_of(Grape::Entity::Exposure::NestingExposure::OutputBuilder),
+        remediations: finding.remediations,
+        solution: kind_of(String)
       )
+
+      expect(subject[:location]['blob_path']).to match(kind_of(String))
     end
 
-    context "when finding has a remediations key" do
-      let(:finding) { vulnerability.findings.select { |finding| finding.raw_metadata.include?("remediations") }.first }
-
-      it "uses the first remediation summary" do
-        expect(subject[:solution]).to start_with "Use GCM mode"
+    context 'when there is no file' do
+      before do
+        vulnerability.finding.location['file'] = nil
+        vulnerability.finding.location.delete('blob_path')
       end
-    end
 
-    context "when finding has a solution key" do
-      let(:finding) { vulnerability.findings.select { |finding| finding.raw_metadata.include?("solution") }.first }
-
-      it "uses the solution key" do
-        expect(subject[:solution]).to start_with "GCM mode"
+      it 'does not have a blob_path if there is no file' do
+        expect(subject[:location]).not_to have_key('blob_path')
       end
     end
   end

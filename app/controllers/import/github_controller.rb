@@ -9,6 +9,7 @@ class Import::GithubController < Import::BaseController
   before_action :expire_etag_cache, only: [:status, :create]
 
   rescue_from Octokit::Unauthorized, with: :provider_unauthorized
+  rescue_from Octokit::TooManyRequests, with: :provider_rate_limit
 
   def new
     if !ci_cd_only? && github_import_configured? && logged_in_with_provider?
@@ -75,7 +76,7 @@ class Import::GithubController < Import::BaseController
 
   def serialized_provider_repos
     repos = client_repos.reject { |repo| already_added_project_names.include? repo.full_name }
-    ProviderRepoSerializer.new(current_user: current_user).represent(repos, provider: provider, provider_url: provider_url)
+    Import::ProviderRepoSerializer.new(current_user: current_user).represent(repos, provider: provider, provider_url: provider_url)
   end
 
   def serialized_namespaces
@@ -142,6 +143,13 @@ class Import::GithubController < Import::BaseController
       alert: "Access denied to your #{Gitlab::ImportSources.title(provider.to_s)} account."
   end
 
+  def provider_rate_limit(exception)
+    reset_time = Time.zone.at(exception.response_headers['x-ratelimit-reset'].to_i)
+    session[access_token_key] = nil
+    redirect_to new_import_url,
+      alert: _("GitHub API rate limit exceeded. Try again after %{reset_time}") % { reset_time: reset_time }
+  end
+
   def access_token_key
     :"#{provider}_access_token"
   end
@@ -180,7 +188,7 @@ class Import::GithubController < Import::BaseController
   end
 
   def client_options
-    {}
+    { wait_for_rate_limit_reset: false }
   end
 
   def extra_import_params

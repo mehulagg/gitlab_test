@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Admin::ApplicationSettingsController do
+RSpec.describe Admin::ApplicationSettingsController do
   include StubENV
 
   let(:admin) { create(:admin) }
@@ -107,6 +107,13 @@ describe Admin::ApplicationSettingsController do
     context 'updating name disabled for users setting' do
       let(:settings) { { updating_name_disabled_for_users: true } }
       let(:feature) { :disable_name_update_for_users }
+
+      it_behaves_like 'settings for licensed features'
+    end
+
+    context 'updating `group_owners_can_manage_default_branch_protection` setting' do
+      let(:settings) { { group_owners_can_manage_default_branch_protection: false } }
+      let(:feature) { :default_branch_protection_restriction_in_groups }
 
       it_behaves_like 'settings for licensed features'
     end
@@ -218,19 +225,63 @@ describe Admin::ApplicationSettingsController do
       end
     end
 
-    describe 'GET #geo_redirection' do
-      subject { get :geo_redirection }
+    it 'updates setting to enforce personal access token expiration' do
+      put :update, params: { application_setting: { enforce_pat_expiration: false } }
 
-      it 'redirects the user to the admin_geo_settings_url' do
-        subject
+      expect(response).to redirect_to(general_admin_application_settings_path)
+      expect(ApplicationSetting.current.enforce_pat_expiration).to be_falsey
+    end
+  end
 
-        expect(response).to redirect_to(admin_geo_settings_url)
+  describe 'GET #seat_link_payload' do
+    context 'when a non-admin user attempts a request' do
+      before do
+        sign_in(create(:user))
       end
 
-      it 'fires a notice about the redirection' do
-        subject
+      it 'returns a 404 response' do
+        get :seat_link_payload, format: :html
 
-        expect(response).to set_flash[:notice]
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
+    context 'when an admin user attempts a request' do
+      let_it_be(:yesterday) { Time.current.utc.yesterday.to_date }
+      let_it_be(:max_count) { 15 }
+      let_it_be(:current_count) { 10 }
+
+      around do |example|
+        Timecop.freeze { example.run }
+      end
+
+      before_all do
+        HistoricalData.create!(date: yesterday - 1.day, active_user_count: max_count)
+        HistoricalData.create!(date: yesterday, active_user_count: current_count)
+      end
+
+      before do
+        sign_in(admin)
+      end
+
+      it 'returns HTML data', :aggregate_failures do
+        get :seat_link_payload, format: :html
+
+        expect(response).to have_gitlab_http_status(:ok)
+
+        body = response.body
+        expect(body).to start_with('<span id="LC1" class="line" lang="json">')
+        expect(body).to include('<span class="nl">"license_key"</span>')
+        expect(body).to include("<span class=\"s2\">\"#{yesterday}\"</span>")
+        expect(body).to include("<span class=\"mi\">#{max_count}</span>")
+        expect(body).to include("<span class=\"mi\">#{current_count}</span>")
+      end
+
+      it 'returns JSON data', :aggregate_failures do
+        get :seat_link_payload, format: :json
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response.body).to eq(Gitlab::SeatLinkData.new.to_json)
       end
     end
   end

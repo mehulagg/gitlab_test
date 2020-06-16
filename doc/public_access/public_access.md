@@ -33,7 +33,7 @@ NOTE: **Note:**
 From July 2019, the `Internal` visibility setting is disabled for new projects, groups,
 and snippets on GitLab.com. Existing projects, groups, and snippets using the `Internal`
 visibility setting keep this setting. You can read more about the change in the
-[relevant issue](https://gitlab.com/gitlab-org/gitlab/issues/12388).
+[relevant issue](https://gitlab.com/gitlab-org/gitlab/-/issues/12388).
 
 ### Private projects
 
@@ -59,6 +59,8 @@ it. The restriction for visibility levels on the application setting level also
 applies to groups, so if that's set to internal, the explore page will be empty
 for anonymous users. The group page now has a visibility level icon.
 
+Admin users cannot create subgroups or projects with higher visibility level than that of the parent group.
+
 ## Visibility of users
 
 The public page of a user, located at `/username`, is always visible whether
@@ -68,6 +70,16 @@ When visiting the public page of a user, you can only see the projects which
 you are privileged to.
 
 If the public level is restricted, user profiles are only visible to logged in users.
+
+## Visibility of pages
+
+By default, the following directories are visible to unauthenticated users:
+
+- Public access (`/public`).
+- Explore (`/explore`).
+- Help (`/help`).
+
+However, if the access level of the `/public` directory is restricted, these directories are visible only to logged in users.
 
 ## Restricting the use of public or internal projects
 
@@ -79,7 +91,7 @@ For details, see [Restricted visibility levels](../user/admin_area/settings/visi
 
 ## Reducing visibility
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33358) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/33358) in GitLab 12.6.
 
 Reducing a project's visibility level will remove the fork relationship between the project and
 any forked project. This is a potentially destructive action which requires confirmation before

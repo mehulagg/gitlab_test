@@ -4,6 +4,7 @@ import {
   packageJsonPath,
   PERMISSION_READ_MR,
   PERMISSION_CREATE_MR,
+  PERMISSION_PUSH_CODE,
 } from '../constants';
 
 export const activeFile = state => state.openFiles.find(file => file.active) || null;
@@ -48,9 +49,6 @@ export const emptyRepo = state =>
 
 export const currentTree = state =>
   state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
-
-export const hasChanges = state =>
-  Boolean(state.changedFiles.length) || Boolean(state.stagedFiles.length);
 
 export const hasMergeRequest = state => Boolean(state.currentMergeRequestId);
 
@@ -120,8 +118,9 @@ export const packageJson = state => state.entries[packageJsonPath];
 export const isOnDefaultBranch = (_state, getters) =>
   getters.currentProject && getters.currentProject.default_branch === getters.branchName;
 
-export const canPushToBranch = (_state, getters) =>
-  getters.currentBranch && getters.currentBranch.can_push;
+export const canPushToBranch = (_state, getters) => {
+  return Boolean(getters.currentBranch ? getters.currentBranch.can_push : getters.canPushCode);
+};
 
 export const isFileDeletedAndReadded = (state, getters) => path => {
   const stagedFile = getters.getStagedFile(path);
@@ -157,5 +156,21 @@ export const canReadMergeRequests = (state, getters) =>
 export const canCreateMergeRequests = (state, getters) =>
   Boolean(getters.findProjectPermissions(state.currentProjectId)[PERMISSION_CREATE_MR]);
 
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};
+export const canPushCode = (state, getters) =>
+  Boolean(getters.findProjectPermissions(state.currentProjectId)[PERMISSION_PUSH_CODE]);
+
+export const entryExists = state => path =>
+  Boolean(state.entries[path] && !state.entries[path].deleted);
+
+export const getAvailableFileName = (state, getters) => path => {
+  let newPath = path;
+
+  while (getters.entryExists(newPath)) {
+    newPath = newPath.replace(
+      /([ _-]?)(\d*)(\..+?$|$)/,
+      (_, before, number, after) => `${before || '_'}${Number(number) + 1}${after}`,
+    );
+  }
+
+  return newPath;
+};

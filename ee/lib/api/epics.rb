@@ -10,7 +10,6 @@ module API
     end
 
     helpers ::API::Helpers::EpicsHelpers
-    helpers ::Gitlab::IssuableMetadata
 
     params do
       requires :id, type: String, desc: 'The ID of a group'
@@ -37,13 +36,14 @@ module API
         optional :updated_before, type: DateTime, desc: 'Return epics updated before the specified time'
         optional :include_ancestor_groups, type: Boolean, default: false, desc: 'Include epics from ancestor groups'
         optional :include_descendant_groups, type: Boolean, default: true, desc: 'Include epics from descendant groups'
+        optional :my_reaction_emoji, type: String, desc: 'Return epics reacted by the authenticated user by the given emoji'
         use :pagination
       end
       get ':id/(-/)epics' do
         epics = paginate(find_epics(finder_params: { group_id: user_group.id })).with_api_entity_associations
 
         # issuable_metadata is the standard used by the Todo API
-        extra_options = { issuable_metadata: issuable_meta_data(epics, 'Epic'), with_labels_details: declared_params[:with_labels_details] }
+        extra_options = { issuable_metadata: Gitlab::IssuableMetadata.new(current_user, epics).data, with_labels_details: declared_params[:with_labels_details] }
         present epics, epic_options.merge(extra_options)
       end
 
@@ -65,6 +65,7 @@ module API
       params do
         requires :title, type: String, desc: 'The title of an epic'
         optional :description, type: String, desc: 'The description of an epic'
+        optional :confidential, type: Boolean, desc: 'Indicates if the epic is confidential. Will be ignored if `confidential_epics` feature flag is disabled'
         optional :start_date, as: :start_date_fixed, type: String, desc: 'The start date of an epic'
         optional :start_date_is_fixed, type: Boolean, desc: 'Indicates start date should be sourced from start_date_fixed field not the issue milestones'
         optional :end_date, as: :due_date_fixed, type: String, desc: 'The due date of an epic'
@@ -90,13 +91,14 @@ module API
         requires :epic_iid, type: Integer, desc: 'The internal ID of an epic'
         optional :title, type: String, desc: 'The title of an epic'
         optional :description, type: String, desc: 'The description of an epic'
+        optional :confidential, type: Boolean, desc: 'Indicates if the epic is confidential. Will be ignored if `confidential_epics` feature flag is disabled'
         optional :start_date, as: :start_date_fixed, type: String, desc: 'The start date of an epic'
         optional :start_date_is_fixed, type: Boolean, desc: 'Indicates start date should be sourced from start_date_fixed field not the issue milestones'
         optional :end_date, as: :due_date_fixed, type: String, desc: 'The due date of an epic'
         optional :due_date_is_fixed, type: Boolean, desc: 'Indicates due date should be sourced from due_date_fixed field not the issue milestones'
         optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
         optional :state_event, type: String, values: %w[reopen close], desc: 'State event for an epic'
-        at_least_one_of :title, :description, :start_date_fixed, :start_date_is_fixed, :due_date_fixed, :due_date_is_fixed, :labels, :state_event
+        at_least_one_of :title, :description, :start_date_fixed, :start_date_is_fixed, :due_date_fixed, :due_date_is_fixed, :labels, :state_event, :confidential
       end
       put ':id/(-/)epics/:epic_iid' do
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab/issues/194104')

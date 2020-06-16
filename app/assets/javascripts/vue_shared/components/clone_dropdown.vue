@@ -3,8 +3,7 @@ import {
   GlNewDropdown,
   GlNewDropdownHeader,
   GlFormInputGroup,
-  GlNewButton,
-  GlIcon,
+  GlButton,
   GlTooltipDirective,
 } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
@@ -15,8 +14,7 @@ export default {
     GlNewDropdown,
     GlNewDropdownHeader,
     GlFormInputGroup,
-    GlNewButton,
-    GlIcon,
+    GlButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -55,13 +53,14 @@ export default {
         <div class="mx-3">
           <gl-form-input-group :value="sshLink" readonly select-on-click>
             <template #append>
-              <gl-new-button
+              <gl-button
                 v-gl-tooltip.hover
                 :title="$options.copyURLTooltip"
                 :data-clipboard-text="sshLink"
-              >
-                <gl-icon name="copy-to-clipboard" :title="$options.copyURLTooltip" />
-              </gl-new-button>
+                data-qa-selector="copy_ssh_url_button"
+                icon="copy-to-clipboard"
+                class="d-inline-flex"
+              />
             </template>
           </gl-form-input-group>
         </div>
@@ -73,13 +72,14 @@ export default {
         <div class="mx-3">
           <gl-form-input-group :value="httpLink" readonly select-on-click>
             <template #append>
-              <gl-new-button
+              <gl-button
                 v-gl-tooltip.hover
                 :title="$options.copyURLTooltip"
                 :data-clipboard-text="httpLink"
-              >
-                <gl-icon name="copy-to-clipboard" :title="$options.copyURLTooltip" />
-              </gl-new-button>
+                data-qa-selector="copy_http_url_button"
+                icon="copy-to-clipboard"
+                class="d-inline-flex"
+              />
             </template>
           </gl-form-input-group>
         </div>

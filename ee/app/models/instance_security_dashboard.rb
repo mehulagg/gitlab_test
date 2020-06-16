@@ -3,6 +3,8 @@
 class InstanceSecurityDashboard
   extend ActiveModel::Naming
 
+  delegate :full_path, to: :user
+
   def initialize(user, project_ids: [])
     @project_ids = project_ids
     @user = user
@@ -22,6 +24,12 @@ class InstanceSecurityDashboard
 
   def projects
     Project.where(id: visible_users_security_dashboard_projects)
+  end
+
+  def vulnerabilities
+    return Vulnerability.none if projects.empty?
+
+    Vulnerability.for_projects(projects)
   end
 
   private

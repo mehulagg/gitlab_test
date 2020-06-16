@@ -1,9 +1,8 @@
-import $ from 'jquery';
 import { sprintf, __ } from '~/locale';
 import flash from '~/flash';
+import httpStatusCodes from '~/lib/utils/http_status';
 import * as rootTypes from '../../mutation_types';
 import { createCommitPayload, createNewMergeRequestUrl } from '../../utils';
-import router from '../../../ide_router';
 import service from '../../../services';
 import * as types from './mutation_types';
 import consts from './constants';
@@ -106,6 +105,9 @@ export const updateFilesAfterCommit = ({ commit, dispatch, rootState, rootGetter
 };
 
 export const commitChanges = ({ commit, state, getters, dispatch, rootState, rootGetters }) => {
+  // Pull commit options out because they could change
+  // During some of the pre and post commit processing
+  const { shouldCreateMR, isCreatingNewBranch, branchName } = getters;
   const newBranch = state.commitAction !== consts.COMMIT_TO_CURRENT_BRANCH;
   const stageFilesPromise = rootState.stagedFiles.length
     ? Promise.resolve()
@@ -116,7 +118,7 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
   return stageFilesPromise
     .then(() => {
       const payload = createCommitPayload({
-        branch: getters.branchName,
+        branch: branchName,
         newBranch,
         getters,
         state,
@@ -149,7 +151,7 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
       dispatch('updateCommitMessage', '');
       return dispatch('updateFilesAfterCommit', {
         data,
-        branch: getters.branchName,
+        branch: branchName,
       })
         .then(() => {
           commit(rootTypes.CLEAR_STAGED_CHANGES, null, { root: true });
@@ -158,15 +160,15 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
             commit(rootTypes.SET_LAST_COMMIT_MSG, '', { root: true });
           }, 5000);
 
-          if (getters.shouldCreateMR) {
+          if (shouldCreateMR) {
             const { currentProject } = rootGetters;
-            const targetBranch = getters.isCreatingNewBranch
+            const targetBranch = isCreatingNewBranch
               ? rootState.currentBranchId
               : currentProject.default_branch;
 
             dispatch(
               'redirectToUrl',
-              createNewMergeRequestUrl(currentProject.web_url, getters.branchName, targetBranch),
+              createNewMergeRequestUrl(currentProject.web_url, branchName, targetBranch),
               { root: true },
             );
           }
@@ -193,8 +195,10 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
             dispatch('updateViewer', 'editor', { root: true });
 
             if (rootGetters.activeFile) {
-              router.push(
-                `/project/${rootState.currentProjectId}/blob/${getters.branchName}/-/${rootGetters.activeFile.path}`,
+              dispatch(
+                'router/push',
+                `/project/${rootState.currentProjectId}/blob/${branchName}/-/${rootGetters.activeFile.path}`,
+                { root: true },
               );
             }
           }
@@ -212,27 +216,22 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
         );
     })
     .catch(err => {
-      if (err.response.status === 400) {
-        $('#ide-create-branch-modal').modal('show');
-      } else {
-        dispatch(
-          'setErrorMessage',
-          {
-            text: __('An error occurred while committing your changes.'),
-            action: () =>
-              dispatch('commitChanges').then(() =>
-                dispatch('setErrorMessage', null, { root: true }),
-              ),
-            actionText: __('Please try again'),
-          },
-          { root: true },
-        );
-        window.dispatchEvent(new Event('resize'));
-      }
-
       commit(types.UPDATE_LOADING, false);
+
+      // don't catch bad request errors, let the view handle them
+      if (err.response.status === httpStatusCodes.BAD_REQUEST) throw err;
+
+      dispatch(
+        'setErrorMessage',
+        {
+          text: __('An error occurred while committing your changes.'),
+          action: () =>
+            dispatch('commitChanges').then(() => dispatch('setErrorMessage', null, { root: true })),
+          actionText: __('Please try again'),
+        },
+        { root: true },
+      );
+
+      window.dispatchEvent(new Event('resize'));
     });
 };
-
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Groups::Settings::IntegrationsController do
+RSpec.describe Groups::Settings::IntegrationsController do
   let_it_be(:project) { create(:project) }
   let(:user) { create(:user) }
   let(:group) { create(:group) }
@@ -11,17 +11,40 @@ describe Groups::Settings::IntegrationsController do
     sign_in(user)
   end
 
-  describe '#edit' do
-    context 'when group_level_integrations not enabled' do
-      it 'returns not_found' do
-        stub_feature_flags(group_level_integrations: { enabled: false, thing: group })
-
-        get :edit, params: { group_id: group, id: Service.available_services_names.sample }
+  describe '#index' do
+    context 'when user is not owner' do
+      it 'renders not_found' do
+        get :index, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
+    context 'when user is owner' do
+      before do
+        group.add_owner(user)
+      end
+
+      context 'when group_level_integrations not enabled' do
+        it 'returns not_found' do
+          stub_feature_flags(group_level_integrations: false)
+
+          get :index, params: { group_id: group }
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      it 'successfully displays the template' do
+        get :index, params: { group_id: group }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to render_template(:index)
+      end
+    end
+  end
+
+  describe '#edit' do
     context 'when user is not owner' do
       it 'renders not_found' do
         get :edit, params: { group_id: group, id: Service.available_services_names.sample }
@@ -33,6 +56,16 @@ describe Groups::Settings::IntegrationsController do
     context 'when user is owner' do
       before do
         group.add_owner(user)
+      end
+
+      context 'when group_level_integrations not enabled' do
+        it 'returns not_found' do
+          stub_feature_flags(group_level_integrations: false)
+
+          get :edit, params: { group_id: group, id: Service.available_services_names.sample }
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
       end
 
       Service.available_services_names.each do |integration_name|
@@ -67,11 +100,12 @@ describe Groups::Settings::IntegrationsController do
     end
 
     context 'invalid params' do
-      let(:url) { 'https://jira.localhost' }
+      let(:url) { 'invalid' }
 
       it 'does not update the integration' do
-        expect(response).to have_gitlab_http_status(:found)
-        expect(integration.reload.url).to eq(url)
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to render_template(:edit)
+        expect(integration.reload.url).not_to eq(url)
       end
     end
   end

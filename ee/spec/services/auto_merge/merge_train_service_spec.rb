@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe AutoMerge::MergeTrainService do
+RSpec.describe AutoMerge::MergeTrainService do
   include ExclusiveLeaseHelpers
 
   let_it_be(:project) { create(:project, :repository) }
@@ -58,11 +58,37 @@ describe AutoMerge::MergeTrainService do
 
     context 'when failed to save the record' do
       before do
-        allow(merge_request).to receive(:save) { false }
+        allow(merge_request).to receive(:save!) { raise PG::QueryCanceled.new }
       end
 
       it 'returns result code' do
         is_expected.to eq(:failed)
+      end
+    end
+
+    context 'when statement timeout happened on system note creation' do
+      before do
+        allow(SystemNoteService).to receive(:merge_train) { raise PG::QueryCanceled.new }
+      end
+
+      it 'returns failed status' do
+        is_expected.to eq(:failed)
+      end
+
+      it 'rollback the transaction' do
+        expect { subject }.not_to change { Note.count }
+
+        merge_request.reload
+        expect(merge_request).not_to be_auto_merge_enabled
+        expect(merge_request.merge_train).not_to be_present
+      end
+
+      it 'tracks the exception' do
+        expect(Gitlab::ErrorTracking)
+          .to receive(:track_exception).with(kind_of(PG::QueryCanceled),
+                                             merge_request_id: merge_request.id)
+
+        subject
       end
     end
   end
@@ -187,6 +213,33 @@ describe AutoMerge::MergeTrainService do
         end
       end
     end
+
+    context 'when statement timeout happened on system note creation' do
+      before do
+        allow(SystemNoteService).to receive(:cancel_merge_train) { raise PG::QueryCanceled.new }
+      end
+
+      it 'returns error' do
+        expect(subject[:status]).to eq(:error)
+        expect(subject[:message]).to eq("Can't cancel the automatic merge")
+      end
+
+      it 'rollback the transaction' do
+        expect { subject }.not_to change { Note.count }
+
+        merge_request.reload
+        expect(merge_request).to be_auto_merge_enabled
+        expect(merge_request.merge_train).to be_present
+      end
+
+      it 'tracks the exception' do
+        expect(Gitlab::ErrorTracking)
+          .to receive(:track_exception).with(kind_of(PG::QueryCanceled),
+                                             merge_request_id: merge_request.id)
+
+        subject
+      end
+    end
   end
 
   describe '#abort' do
@@ -246,6 +299,33 @@ describe AutoMerge::MergeTrainService do
         end
       end
     end
+
+    context 'when statement timeout happened on system note creation' do
+      before do
+        allow(SystemNoteService).to receive(:abort_merge_train) { raise PG::QueryCanceled.new }
+      end
+
+      it 'returns error' do
+        expect(subject[:status]).to eq(:error)
+        expect(subject[:message]).to eq("Can't abort the automatic merge")
+      end
+
+      it 'rollback the transaction' do
+        expect { subject }.not_to change { Note.count }
+
+        merge_request.reload
+        expect(merge_request).to be_auto_merge_enabled
+        expect(merge_request.merge_train).to be_present
+      end
+
+      it 'tracks the exception' do
+        expect(Gitlab::ErrorTracking)
+          .to receive(:track_exception).with(kind_of(PG::QueryCanceled),
+                                             merge_request_id: merge_request.id)
+
+        subject
+      end
+    end
   end
 
   describe '#available_for?' do
@@ -262,6 +342,12 @@ describe AutoMerge::MergeTrainService do
 
     it { is_expected.to be_truthy }
 
+    it 'memoizes the result' do
+      expect(merge_request).to receive(:can_be_merged_by?).once.and_call_original
+
+      2.times { is_expected.to be_truthy }
+    end
+
     context 'when merge trains project option is disabled' do
       before do
         stub_feature_flags(disable_merge_trains: true)
@@ -273,6 +359,14 @@ describe AutoMerge::MergeTrainService do
     context 'when merge request is not mergeable' do
       before do
         allow(merge_request).to receive(:mergeable_state?) { false }
+      end
+
+      it { is_expected.to be_falsy }
+    end
+
+    context 'when the user does not have permission to merge' do
+      before do
+        allow(merge_request).to receive(:can_be_merged_by?) { false }
       end
 
       it { is_expected.to be_falsy }

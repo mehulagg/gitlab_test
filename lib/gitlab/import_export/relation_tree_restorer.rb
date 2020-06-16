@@ -37,9 +37,7 @@ module Gitlab
           ActiveRecord::Base.no_touching do
             update_params!
 
-            bulk_inserts_enabled = @importable.class == ::Project &&
-              Feature.enabled?(:import_bulk_inserts, @importable.group, default_enabled: true)
-            BulkInsertableAssociations.with_bulk_insert(enabled: bulk_inserts_enabled) do
+            BulkInsertableAssociations.with_bulk_insert(enabled: @importable.class == ::Project) do
               fix_ci_pipelines_not_sorted_on_legacy_project_json!
               create_relations!
             end
@@ -67,7 +65,7 @@ module Gitlab
       end
 
       def process_relation!(relation_key, relation_definition)
-        @relation_reader.consume_relation(@importable_path, relation_key) do |data_hash, relation_index|
+        @relation_reader.consume_relation(@importable_path, relation_key).each do |data_hash, relation_index|
           process_relation_item!(relation_key, relation_definition, relation_index, data_hash)
         end
       end

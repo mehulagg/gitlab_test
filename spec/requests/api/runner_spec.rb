@@ -471,7 +471,8 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               'sha' => job.sha,
               'before_sha' => job.before_sha,
               'ref_type' => 'branch',
-              'refspecs' => ["+refs/heads/#{job.ref}:refs/remotes/origin/#{job.ref}"],
+              'refspecs' => ["+refs/pipelines/#{pipeline.id}:refs/pipelines/#{pipeline.id}",
+                             "+refs/heads/#{job.ref}:refs/remotes/origin/#{job.ref}"],
               'depth' => project.ci_default_git_depth }
           end
 
@@ -578,7 +579,9 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
                 expect(response).to have_gitlab_http_status(:created)
                 expect(json_response['git_info']['refspecs'])
-                  .to contain_exactly('+refs/tags/*:refs/tags/*', '+refs/heads/*:refs/remotes/origin/*')
+                  .to contain_exactly("+refs/pipelines/#{pipeline.id}:refs/pipelines/#{pipeline.id}",
+                                      '+refs/tags/*:refs/tags/*',
+                                      '+refs/heads/*:refs/remotes/origin/*')
               end
             end
           end
@@ -638,7 +641,47 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
                 expect(response).to have_gitlab_http_status(:created)
                 expect(json_response['git_info']['refspecs'])
-                  .to contain_exactly('+refs/tags/*:refs/tags/*', '+refs/heads/*:refs/remotes/origin/*')
+                  .to contain_exactly("+refs/pipelines/#{pipeline.id}:refs/pipelines/#{pipeline.id}",
+                                      '+refs/tags/*:refs/tags/*',
+                                      '+refs/heads/*:refs/remotes/origin/*')
+              end
+            end
+          end
+
+          context 'when job is for a release' do
+            let!(:job) { create(:ci_build, :release_options, pipeline: pipeline) }
+
+            context 'when `release_steps` is passed by the runner' do
+              it 'exposes release info' do
+                request_job info: { features: { release_steps: true } }
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(response.headers).not_to have_key('X-GitLab-Last-Update')
+                expect(json_response['steps']).to eq([
+                  {
+                    "name" => "script",
+                    "script" => ["make changelog | tee release_changelog.txt"],
+                    "timeout" => 3600,
+                    "when" => "on_success",
+                    "allow_failure" => false
+                  },
+                  {
+                    "name" => "release",
+                    "script" =>
+                    "release-cli create --ref \"$CI_COMMIT_SHA\" --name \"Release $CI_COMMIT_SHA\" --tag-name \"release-$CI_COMMIT_SHA\" --description \"Created using the release-cli $EXTRA_DESCRIPTION\"",
+                    "timeout" => 3600,
+                    "when" => "on_success",
+                    "allow_failure" => false
+                  }
+                ])
+              end
+            end
+
+            context 'when `release_steps` is not passed by the runner' do
+              it 'drops the job' do
+                request_job
+
+                expect(response).to have_gitlab_http_status(:no_content)
               end
             end
           end
@@ -998,9 +1041,115 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           end
         end
 
+        describe 'a job with excluded artifacts' do
+          context 'when excluded paths are defined' do
+            let(:job) do
+              create(:ci_build, pipeline: pipeline, token: 'test-job-token', name: 'test',
+                                stage: 'deploy', stage_idx: 1,
+                                options: { artifacts: { paths: ['abc'], exclude: ['cde'] } })
+            end
+
+            context 'when a runner supports this feature' do
+              it 'exposes excluded paths when the feature is enabled' do
+                stub_feature_flags(ci_artifacts_exclude: true)
+
+                request_job info: { features: { artifacts_exclude: true } }
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(json_response.dig('artifacts').first).to include('exclude' => ['cde'])
+              end
+
+              it 'does not expose excluded paths when the feature is disabled' do
+                stub_feature_flags(ci_artifacts_exclude: false)
+
+                request_job info: { features: { artifacts_exclude: true } }
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(json_response.dig('artifacts').first).not_to have_key('exclude')
+              end
+            end
+
+            context 'when a runner does not support this feature' do
+              it 'does not expose the build at all' do
+                stub_feature_flags(ci_artifacts_exclude: true)
+
+                request_job
+
+                expect(response).to have_gitlab_http_status(:no_content)
+              end
+            end
+          end
+
+          it 'does not expose excluded paths when these are empty' do
+            request_job
+
+            expect(response).to have_gitlab_http_status(:created)
+            expect(json_response.dig('artifacts').first).not_to have_key('exclude')
+          end
+        end
+
         def request_job(token = runner.token, **params)
           new_params = params.merge(token: token, last_update: last_update)
           post api('/jobs/request'), params: new_params, headers: { 'User-Agent' => user_agent }
+        end
+      end
+
+      context 'for web-ide job' do
+        let_it_be(:user) { create(:user) }
+        let_it_be(:project) { create(:project, :repository) }
+
+        let(:runner) { create(:ci_runner, :project, projects: [project]) }
+        let(:service) { Ci::CreateWebIdeTerminalService.new(project, user, ref: 'master').execute }
+        let(:pipeline) { service[:pipeline] }
+        let(:build) { pipeline.builds.first }
+        let(:job) { {} }
+        let(:config_content) do
+          'terminal: { image: ruby, services: [mysql], before_script: [ls], tags: [tag-1], variables: { KEY: value } }'
+        end
+
+        before do
+          stub_webide_config_file(config_content)
+          project.add_maintainer(user)
+
+          pipeline
+        end
+
+        context 'when runner has matching tag' do
+          before do
+            runner.update!(tag_list: ['tag-1'])
+          end
+
+          it 'successfully picks job' do
+            request_job
+
+            build.reload
+
+            expect(build).to be_running
+            expect(build.runner).to eq(runner)
+
+            expect(response).to have_gitlab_http_status(:created)
+            expect(json_response).to include(
+              "id" => build.id,
+              "variables" => include("key" => 'KEY', "value" => 'value', "public" => true, "masked" => false),
+              "image" => a_hash_including("name" => 'ruby'),
+              "services" => all(a_hash_including("name" => 'mysql')),
+              "job_info" => a_hash_including("name" => 'terminal', "stage" => 'terminal'))
+          end
+        end
+
+        context 'when runner does not have matching tags' do
+          it 'does not pick a job' do
+            request_job
+
+            build.reload
+
+            expect(build).to be_pending
+            expect(response).to have_gitlab_http_status(:no_content)
+          end
+        end
+
+        def request_job(token = runner.token, **params)
+          post api('/jobs/request'), params: params.merge(token: token)
         end
       end
     end
@@ -1016,6 +1165,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
       it_behaves_like 'application context metadata', '/api/:version/jobs/:id' do
         let(:send_request) { update_job(state: 'success') }
+      end
+
+      it 'updates runner info' do
+        expect { update_job(state: 'success') }.to change { runner.reload.contacted_at }
       end
 
       context 'when status is given' do
@@ -1181,6 +1334,12 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
       it_behaves_like 'application context metadata', '/api/:version/jobs/:id/trace' do
         let(:send_request) { patch_the_trace }
+      end
+
+      it 'updates runner info' do
+        runner.update!(contacted_at: 1.year.ago)
+
+        expect { patch_the_trace }.to change { runner.reload.contacted_at }
       end
 
       context 'when request is valid' do
@@ -1422,8 +1581,8 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
     describe 'artifacts' do
       let(:job) { create(:ci_build, :pending, user: user, project: project, pipeline: pipeline, runner_id: runner.id) }
-      let(:jwt_token) { JWT.encode({ 'iss' => 'gitlab-workhorse' }, Gitlab::Workhorse.secret, 'HS256') }
-      let(:headers) { { 'GitLab-Workhorse' => '1.0', Gitlab::Workhorse::INTERNAL_API_REQUEST_HEADER => jwt_token } }
+      let(:jwt) { JWT.encode({ 'iss' => 'gitlab-workhorse' }, Gitlab::Workhorse.secret, 'HS256') }
+      let(:headers) { { 'GitLab-Workhorse' => '1.0', Gitlab::Workhorse::INTERNAL_API_REQUEST_HEADER => jwt } }
       let(:headers_with_token) { headers.merge(API::Helpers::Runner::JOB_TOKEN_HEADER => job.token) }
       let(:file_upload) { fixture_file_upload('spec/fixtures/banana_sample.gif', 'image/gif') }
       let(:file_upload2) { fixture_file_upload('spec/fixtures/dk.png', 'image/gif') }
@@ -1442,6 +1601,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
             it_behaves_like 'application context metadata', '/api/:version/jobs/:id/artifacts/authorize' do
               let(:send_request) { subject }
+            end
+
+            it 'updates runner info' do
+              expect { subject }.to change { runner.reload.contacted_at }
             end
 
             shared_examples 'authorizes local file' do
@@ -1582,6 +1745,35 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           end
         end
 
+        context 'authorize uploading of an lsif artifact' do
+          before do
+            stub_feature_flags(code_navigation: job.project)
+          end
+
+          it 'adds ProcessLsif header' do
+            authorize_artifacts_with_token_in_headers(artifact_type: :lsif)
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response['ProcessLsif']).to be_truthy
+          end
+
+          it 'fails to authorize too large artifact' do
+            authorize_artifacts_with_token_in_headers(artifact_type: :lsif, filesize: 30.megabytes)
+
+            expect(response).to have_gitlab_http_status(:payload_too_large)
+          end
+
+          context 'code_navigation feature flag is disabled' do
+            it 'does not add ProcessLsif header' do
+              stub_feature_flags(code_navigation: false)
+
+              authorize_artifacts_with_token_in_headers(artifact_type: :lsif)
+
+              expect(response).to have_gitlab_http_status(:forbidden)
+            end
+          end
+        end
+
         def authorize_artifacts(params = {}, request_headers = headers)
           post api("/jobs/#{job.id}/artifacts/authorize"), params: params, headers: request_headers
         end
@@ -1601,6 +1793,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           let(:send_request) do
             upload_artifacts(file_upload, headers_with_token)
           end
+        end
+
+        it 'updates runner info' do
+          expect { upload_artifacts(file_upload, headers_with_token) }.to change { runner.reload.contacted_at }
         end
 
         context 'when artifacts are being stored inside of tmp path' do
@@ -1703,12 +1899,12 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             it 'fails to post artifacts without GitLab-Workhorse' do
               post api("/jobs/#{job.id}/artifacts"), params: { token: job.token }, headers: {}
 
-              expect(response).to have_gitlab_http_status(:forbidden)
+              expect(response).to have_gitlab_http_status(:bad_request)
             end
           end
 
           context 'Is missing GitLab Workhorse token headers' do
-            let(:jwt_token) { JWT.encode({ 'iss' => 'invalid-header' }, Gitlab::Workhorse.secret, 'HS256') }
+            let(:jwt) { JWT.encode({ 'iss' => 'invalid-header' }, Gitlab::Workhorse.secret, 'HS256') }
 
             it 'fails to post artifacts without GitLab-Workhorse' do
               expect(Gitlab::ErrorTracking).to receive(:track_exception).once
@@ -1722,15 +1918,14 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           context 'when setting an expire date' do
             let(:default_artifacts_expire_in) {}
             let(:post_data) do
-              { 'file.path' => file_upload.path,
-                'file.name' => file_upload.original_filename,
-                'expire_in' => expire_in }
+              { file: file_upload,
+                expire_in: expire_in }
             end
 
             before do
               stub_application_setting(default_artifacts_expire_in: default_artifacts_expire_in)
 
-              post(api("/jobs/#{job.id}/artifacts"), params: post_data, headers: headers_with_token)
+              upload_artifacts(file_upload, headers_with_token, post_data)
             end
 
             context 'when an expire_in is given' do
@@ -1783,20 +1978,22 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             let(:stored_artifacts_size) { job.reload.artifacts_size }
             let(:stored_artifacts_sha256) { job.reload.job_artifacts_archive.file_sha256 }
             let(:stored_metadata_sha256) { job.reload.job_artifacts_metadata.file_sha256 }
+            let(:file_keys) { post_data.keys }
+            let(:send_rewritten_field) { true }
 
             before do
-              post(api("/jobs/#{job.id}/artifacts"), params: post_data, headers: headers_with_token)
+              workhorse_finalize_with_multiple_files(
+                api("/jobs/#{job.id}/artifacts"),
+                method: :post,
+                file_keys: file_keys,
+                params: post_data,
+                headers: headers_with_token,
+                send_rewritten_field: send_rewritten_field
+              )
             end
 
             context 'when posts data accelerated by workhorse is correct' do
-              let(:post_data) do
-                { 'file.path' => artifacts.path,
-                  'file.name' => artifacts.original_filename,
-                  'file.sha256' => artifacts_sha256,
-                  'metadata.path' => metadata.path,
-                  'metadata.name' => metadata.original_filename,
-                  'metadata.sha256' => metadata_sha256 }
-              end
+              let(:post_data) { { file: artifacts, metadata: metadata } }
 
               it 'stores artifacts and artifacts metadata' do
                 expect(response).to have_gitlab_http_status(:created)
@@ -1808,9 +2005,30 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               end
             end
 
+            context 'with a malicious file.path param' do
+              let(:post_data) { {} }
+              let(:tmp_file) { Tempfile.new('crafted.file.path') }
+              let(:url) { "/jobs/#{job.id}/artifacts?file.path=#{tmp_file.path}" }
+
+              it 'rejects the request' do
+                expect(response).to have_gitlab_http_status(:bad_request)
+                expect(stored_artifacts_size).to be_nil
+              end
+            end
+
+            context 'when workhorse header is missing' do
+              let(:post_data) { { file: artifacts, metadata: metadata } }
+              let(:send_rewritten_field) { false }
+
+              it 'rejects the request' do
+                expect(response).to have_gitlab_http_status(:bad_request)
+                expect(stored_artifacts_size).to be_nil
+              end
+            end
+
             context 'when there is no artifacts file in post data' do
               let(:post_data) do
-                { 'metadata' => metadata }
+                { metadata: metadata }
               end
 
               it 'is expected to respond with bad request' do
@@ -2053,7 +2271,8 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             method: :post,
             file_key: :file,
             params: params.merge(file: file),
-            headers: headers
+            headers: headers,
+            send_rewritten_field: true
           )
         end
       end
@@ -2063,6 +2282,10 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
         it_behaves_like 'application context metadata', '/api/:version/jobs/:id/artifacts' do
           let(:send_request) { download_artifact }
+        end
+
+        it 'updates runner info' do
+          expect { download_artifact }.to change { runner.reload.contacted_at }
         end
 
         context 'when job has artifacts' do
@@ -2132,7 +2355,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           end
         end
 
-        context 'when job does not has artifacts' do
+        context 'when job does not have artifacts' do
           it 'responds with not found' do
             download_artifact
 

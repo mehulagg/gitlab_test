@@ -66,17 +66,36 @@ describe API::MergeRequests do
       end
 
       context 'when merge request is unchecked' do
+        let(:check_service_class) { MergeRequests::MergeabilityCheckService }
+        let(:mr_entity) { json_response.find { |mr| mr['id'] == merge_request.id } }
+
         before do
           merge_request.mark_as_unchecked!
         end
 
-        it 'checks mergeability asynchronously' do
-          expect_next_instance_of(MergeRequests::MergeabilityCheckService) do |service|
-            expect(service).not_to receive(:execute)
-            expect(service).to receive(:async_execute)
-          end
+        context 'with merge status recheck projection' do
+          it 'checks mergeability asynchronously' do
+            expect_next_instance_of(check_service_class) do |service|
+              expect(service).not_to receive(:execute)
+              expect(service).to receive(:async_execute).and_call_original
+            end
 
-          get api(endpoint_path, user)
+            get(api(endpoint_path, user), params: { with_merge_status_recheck: true })
+
+            expect_successful_response_with_paginated_array
+            expect(mr_entity['merge_status']).to eq('checking')
+          end
+        end
+
+        context 'without merge status recheck projection' do
+          it 'does not enqueue a merge status recheck' do
+            expect(check_service_class).not_to receive(:new)
+
+            get api(endpoint_path, user)
+
+            expect_successful_response_with_paginated_array
+            expect(mr_entity['merge_status']).to eq('unchecked')
+          end
         end
       end
 
@@ -776,8 +795,8 @@ describe API::MergeRequests do
   end
 
   describe "GET /groups/:id/merge_requests" do
-    let!(:group) { create(:group, :public) }
-    let!(:project) { create(:project, :public, :repository, creator: user, namespace: group, only_allow_merge_if_pipeline_succeeds: false) }
+    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:project) { create(:project, :public, :repository, creator: user, namespace: group, only_allow_merge_if_pipeline_succeeds: false) }
     let(:endpoint_path) { "/groups/#{group.id}/merge_requests" }
 
     before do
@@ -787,9 +806,9 @@ describe API::MergeRequests do
     it_behaves_like 'merge requests list'
 
     context 'when have subgroups' do
-      let!(:group) { create(:group, :public) }
-      let!(:subgroup) { create(:group, parent: group) }
-      let!(:project) { create(:project, :public, :repository, creator: user, namespace: subgroup, only_allow_merge_if_pipeline_succeeds: false) }
+      let_it_be(:group) { create(:group, :public) }
+      let_it_be(:subgroup) { create(:group, parent: group) }
+      let_it_be(:project) { create(:project, :public, :repository, creator: user, namespace: subgroup, only_allow_merge_if_pipeline_succeeds: false) }
 
       it_behaves_like 'merge requests list'
     end
@@ -892,6 +911,7 @@ describe API::MergeRequests do
       expect(json_response['merge_error']).to eq(merge_request.merge_error)
       expect(json_response['user']['can_merge']).to be_truthy
       expect(json_response).not_to include('rebase_in_progress')
+      expect(json_response['first_contribution']).to be_falsy
       expect(json_response['has_conflicts']).to be_falsy
       expect(json_response['blocking_discussions_resolved']).to be_truthy
       expect(json_response['references']['short']).to eq("!#{merge_request.iid}")
@@ -913,6 +933,21 @@ describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:ok)
 
       expect(json_response).to include('rebase_in_progress')
+    end
+
+    context 'when author is not a member without any merged merge requests' do
+      let(:non_member) { create(:user) }
+
+      before do
+        merge_request.update(author: non_member)
+      end
+
+      it 'exposes first_contribution as true' do
+        get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['first_contribution']).to be_truthy
+      end
     end
 
     context 'merge_request_metrics' do
@@ -1058,6 +1093,14 @@ describe API::MergeRequests do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user2)
 
       expect(json_response['user']['can_merge']).to be_falsy
+    end
+
+    it 'returns `checking` as its merge_status instead of `cannot_be_merged_rechecking`' do
+      merge_request.update!(merge_status: 'cannot_be_merged_rechecking')
+
+      get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user)
+
+      expect(json_response['merge_status']).to eq 'checking'
     end
 
     context 'when merge request is unchecked' do
@@ -1511,7 +1554,7 @@ describe API::MergeRequests do
     end
 
     context 'forked projects', :sidekiq_might_not_need_inline do
-      let!(:user2) { create(:user) }
+      let_it_be(:user2) { create(:user) }
       let(:project) { create(:project, :public, :repository) }
       let!(:forked_project) { fork_project(project, user2, repository: true) }
       let!(:unrelated_project) { create(:project, namespace: create(:user).namespace, creator_id: user2.id) }
@@ -1608,6 +1651,12 @@ describe API::MergeRequests do
         params: { title: 'Test merge_request', target_branch: 'master', source_branch: 'markdown', author: user2, target_project_id: forked_project.id }
         expect(response).to have_gitlab_http_status(:created)
       end
+    end
+  end
+
+  describe 'PUT /projects/:id/merge_reuests/:merge_request_iid' do
+    it_behaves_like 'issuable update endpoint' do
+      let(:entity) { merge_request }
     end
   end
 
@@ -1980,6 +2029,34 @@ describe API::MergeRequests do
       end
     end
 
+    context "with a merge request that has force_remove_source_branch enabled" do
+      let(:source_repository) { merge_request.source_project.repository }
+      let(:source_branch) { merge_request.source_branch }
+
+      before do
+        merge_request.update(merge_params: { 'force_remove_source_branch' => true })
+      end
+
+      it 'removes the source branch' do
+        put(
+          api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)
+        )
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(source_repository.branch_exists?(source_branch)).to be_falsy
+      end
+
+      it 'does not remove the source branch' do
+        put(
+          api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user),
+          params: { should_remove_source_branch: false }
+        )
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(source_repository.branch_exists?(source_branch)).to be_truthy
+      end
+    end
+
     context "performing a ff-merge with squash" do
       let(:merge_request) { create(:merge_request, :rebased, source_project: project, squash: true) }
 
@@ -2281,6 +2358,33 @@ describe API::MergeRequests do
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['labels']).to eq []
+      end
+    end
+
+    context 'with labels' do
+      include_context 'with labels'
+
+      let(:api_base) { api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user) }
+
+      it 'when adding labels, keeps existing labels and adds new' do
+        put api_base, params: { add_labels: '1, 2' }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['labels']).to contain_exactly(label.title, label2.title, '1', '2')
+      end
+
+      it 'when removing labels, only removes those specified' do
+        put api_base, params: { remove_labels: "#{label.title}" }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['labels']).to eq([label2.title])
+      end
+
+      it 'when removing all labels, keeps no labels' do
+        put api_base, params: { remove_labels: "#{label.title}, #{label2.title}" }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['labels']).to be_empty
       end
     end
 

@@ -3,11 +3,6 @@
 class ProjectGroupLink < ApplicationRecord
   include Expirable
 
-  GUEST     = 10
-  REPORTER  = 20
-  DEVELOPER = 30
-  MAINTAINER = 40
-
   belongs_to :project
   belongs_to :group
 
@@ -18,7 +13,7 @@ class ProjectGroupLink < ApplicationRecord
   validates :group_access, inclusion: { in: Gitlab::Access.values }, presence: true
   validate :different_group
 
-  after_commit :refresh_group_members_authorized_projects
+  scope :non_guests, -> { where('group_access > ?', Gitlab::Access::GUEST) }
 
   alias_method :shared_with_group, :group
 
@@ -27,7 +22,7 @@ class ProjectGroupLink < ApplicationRecord
   end
 
   def self.default_access
-    DEVELOPER
+    Gitlab::Access::DEVELOPER
   end
 
   def self.search(query)
@@ -51,10 +46,6 @@ class ProjectGroupLink < ApplicationRecord
     if group_ids.include?(self.group.id)
       errors.add(:base, _("Project cannot be shared with the group it is in or one of its ancestors."))
     end
-  end
-
-  def refresh_group_members_authorized_projects
-    group.refresh_members_authorized_projects
   end
 end
 

@@ -58,17 +58,18 @@ module PodLogs
       result[:pod_name] = params['pod_name'].presence
       result[:container_name] = params['container_name'].presence
 
+      return error(_('Invalid pod_name')) if result[:pod_name] && !result[:pod_name].is_a?(String)
+      return error(_('Invalid container_name')) if result[:container_name] && !result[:container_name].is_a?(String)
+
       success(result)
     end
 
     def get_raw_pods(result)
-      result[:raw_pods] = cluster.kubeclient.get_pods(namespace: namespace)
-
-      success(result)
+      raise NotImplementedError
     end
 
     def get_pod_names(result)
-      result[:pods] = result[:raw_pods].map(&:metadata).map(&:name)
+      result[:pods] = result[:raw_pods].map { |p| p[:name] }
 
       success(result)
     end

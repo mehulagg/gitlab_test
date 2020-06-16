@@ -15,9 +15,11 @@ class Snippet < ApplicationRecord
   include FromUnion
   include IgnorableColumns
   include HasRepository
+  include AfterCommitQueue
   extend ::Gitlab::Utils::Override
 
-  MAX_FILE_COUNT = 1
+  MAX_FILE_COUNT = 10
+  MAX_SINGLE_FILE_COUNT = 1
 
   cache_markdown_field :title, pipeline: :single_line
   cache_markdown_field :description
@@ -101,6 +103,10 @@ class Snippet < ApplicationRecord
     where(project_id: nil)
   end
 
+  def self.only_project_snippets
+    where.not(project_id: nil)
+  end
+
   def self.only_include_projects_visible_to(current_user = nil)
     levels = Gitlab::VisibilityLevel.levels_for_user(current_user)
 
@@ -161,7 +167,15 @@ class Snippet < ApplicationRecord
   end
 
   def self.find_by_id_and_project(id:, project:)
-    Snippet.find_by(id: id, project: project)
+    if project.is_a?(Project)
+      ProjectSnippet.find_by(id: id, project: project)
+    elsif project.nil?
+      PersonalSnippet.find_by(id: id)
+    end
+  end
+
+  def self.max_file_limit(user)
+    Feature.enabled?(:snippet_multiple_files, user) ? MAX_FILE_COUNT : MAX_SINGLE_FILE_COUNT
   end
 
   def initialize(attributes = {})
@@ -199,7 +213,7 @@ class Snippet < ApplicationRecord
   def blobs
     return [] unless repository_exists?
 
-    repository.ls_files(repository.root_ref).map { |file| Blob.lazy(self, repository.root_ref, file) }
+    repository.ls_files(repository.root_ref).map { |file| Blob.lazy(repository, repository.root_ref, file) }
   end
 
   def hook_attrs
@@ -258,19 +272,22 @@ class Snippet < ApplicationRecord
     super
   end
 
+  override :repository
   def repository
     @repository ||= Repository.new(full_path, self, shard: repository_storage, disk_path: disk_path, repo_type: Gitlab::GlRepository::SNIPPET)
   end
 
+  override :repository_size_checker
   def repository_size_checker
     strong_memoize(:repository_size_checker) do
       ::Gitlab::RepositorySizeChecker.new(
-        current_size_proc: -> { repository._uncached_size.megabytes },
+        current_size_proc: -> { repository.size.megabytes },
         limit: Gitlab::CurrentSettings.snippet_size_limit
       )
     end
   end
 
+  override :storage
   def storage
     @storage ||= Storage::Hashed.new(self, prefix: Storage::Hashed::SNIPPET_REPOSITORY_PATH_PREFIX)
   end
@@ -278,6 +295,7 @@ class Snippet < ApplicationRecord
   # This is the full_path used to identify the
   # the snippet repository. It will be used mostly
   # for logging purposes.
+  override :full_path
   def full_path
     return unless persisted?
 
@@ -288,10 +306,6 @@ class Snippet < ApplicationRecord
       components << self.id
       components.join('/')
     end
-  end
-
-  def url_to_repo
-    Gitlab::Shell.url_to_repo(full_path.delete('@'))
   end
 
   def repository_storage
@@ -318,31 +332,22 @@ class Snippet < ApplicationRecord
     Digest::SHA256.hexdigest("#{title}#{description}#{created_at}#{updated_at}")
   end
 
-  def versioned_enabled_for?(user)
-    ::Feature.enabled?(:version_snippets, user) && repository_exists?
+  def file_name_on_repo
+    return if repository.empty?
+
+    repository.ls_files(repository.root_ref).first
   end
 
   class << self
     # Searches for snippets with a matching title, description or file name.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
     # query - The search query as a String.
     #
     # Returns an ActiveRecord::Relation.
     def search(query)
       fuzzy_search(query, [:title, :description, :file_name])
-    end
-
-    # Searches for snippets with matching content.
-    #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
-    #
-    # query - The search query as a String.
-    #
-    # Returns an ActiveRecord::Relation.
-    def search_code(query)
-      fuzzy_search(query, [:content])
     end
 
     def parent_class

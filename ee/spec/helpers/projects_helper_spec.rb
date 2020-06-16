@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ProjectsHelper do
+RSpec.describe ProjectsHelper do
   let(:project) { create(:project) }
 
   before do
@@ -35,6 +35,20 @@ describe ProjectsHelper do
     it 'returns true if membership is not locked' do
       allow(helper).to receive(:membership_locked?) { false }
       expect(helper.can_import_members?).to eq true
+    end
+  end
+
+  describe '#show_compliance_framework_badge?' do
+    it 'returns false if compliance framework setting is not present' do
+      project = build(:project)
+
+      expect(helper.show_compliance_framework_badge?(project)).to be_falsey
+    end
+
+    it 'returns true if compliance framework setting is present' do
+      project = build(:project, :with_compliance_framework)
+
+      expect(helper.show_compliance_framework_badge?(project)).to be_truthy
     end
   end
 
@@ -73,77 +87,93 @@ describe ProjectsHelper do
     end
   end
 
-  shared_context 'project with owner and pipeline' do
-    let(:user) { create(:user) }
-    let(:group) { create(:group).tap { |g| g.add_owner(user) } }
-    let(:pipeline) do
-      create(:ee_ci_pipeline,
-             :with_sast_report,
-             user: user,
-             project: project,
-             ref: project.default_branch,
-             sha: project.commit.sha)
-    end
-    let(:project) { create(:project, :repository, group: group) }
-  end
-
   describe '#project_security_dashboard_config' do
-    include_context 'project with owner and pipeline'
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:project) { create(:project, :repository, group: group) }
 
-    let(:project) { create(:project, :repository, group: group) }
+    let(:pipeline) { nil }
 
-    context 'project without pipeline' do
-      subject { helper.project_security_dashboard_config(project, nil) }
+    subject { helper.project_security_dashboard_config(project, pipeline) }
 
-      it 'returns simple config' do
-        expect(subject[:security_dashboard_help_path]).to eq '/help/user/application_security/security_dashboard/index'
-        expect(subject[:has_pipeline_data]).to eq 'false'
-      end
+    before do
+      group.add_owner(user)
+      allow(helper).to receive(:current_user).and_return(user)
     end
 
-    context 'project with pipeline' do
-      subject { helper.project_security_dashboard_config(project, pipeline) }
-
-      it 'checks if first vulnerability class is enabled' do
-        expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project)
-
-        subject
+    context 'project without vulnerabilities' do
+      let(:expected_value) do
+        {
+          empty_state_svg_path: start_with('/assets/illustrations/security-dashboard_empty'),
+          security_dashboard_help_path: '/help/user/application_security/security_dashboard/index'
+        }
       end
 
-      context 'when first first class vulnerabilities is enabled for project' do
-        before do
-          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project).and_return(true)
-        end
+      it { is_expected.to match(expected_value) }
+    end
 
-        it 'checks if first vulnerability class is enabled' do
-          expect(subject[:vulnerabilities_export_endpoint]).to(
-            eq(
-              api_v4_projects_vulnerability_exports_path(id: project.id)
-            ))
-        end
+    context 'project with vulnerabilities' do
+      before do
+        create(:vulnerability, project: project)
       end
 
-      context 'when first first class vulnerabilities is disabled for project' do
-        before do
-          expect(::Feature).to receive(:enabled?).with(:first_class_vulnerabilities, project).and_return(false)
-        end
-
-        it 'checks if first vulnerability class is enabled' do
-          expect(subject).not_to have_key(:vulnerabilities_export_endpoint)
-        end
+      let(:expected_core_values) do
+        hash_including(
+          project: { id: project.id, name: project.name },
+          project_full_path: project.full_path,
+          vulnerabilities_endpoint: "/#{project.full_path}/-/security/vulnerability_findings",
+          vulnerabilities_summary_endpoint: "/#{project.full_path}/-/security/vulnerability_findings/summary",
+          vulnerability_feedback_help_path: '/help/user/application_security/index#interacting-with-the-vulnerabilities',
+          empty_state_svg_path: start_with('/assets/illustrations/security-dashboard-empty-state'),
+          dashboard_documentation: '/help/user/application_security/security_dashboard/index',
+          security_dashboard_help_path: '/help/user/application_security/security_dashboard/index',
+          user_callouts_path: '/-/user_callouts',
+          user_callout_id: 'standalone_vulnerabilities_introduction_banner',
+          show_introduction_banner: 'true'
+        )
       end
 
-      it 'returns config containing pipeline details' do
-        expect(subject[:security_dashboard_help_path]).to eq '/help/user/application_security/security_dashboard/index'
-        expect(subject[:has_pipeline_data]).to eq 'true'
+      it { is_expected.to match(expected_core_values) }
+
+      context 'project without pipeline' do
+        let(:expected_sub_hash) do
+          hash_including(
+            has_pipeline_data: 'false'
+          )
+        end
+
+        it { is_expected.to match(expected_sub_hash) }
       end
 
-      it 'returns the "vulnerability findings" endpoint paths' do
-        expect(subject[:vulnerabilities_endpoint]).to eq project_security_vulnerability_findings_path(project)
-        expect(subject[:vulnerabilities_summary_endpoint]).to(
-          eq(
-            summary_project_security_vulnerability_findings_path(project)
-          ))
+      context 'project with pipeline' do
+        let_it_be(:pipeline) do
+          create(:ee_ci_pipeline,
+                 :with_sast_report,
+                 user: user,
+                 project: project,
+                 ref: project.default_branch,
+                 sha: project.commit.sha)
+        end
+
+        let(:project_path) { "http://test.host/#{project.full_path}" }
+        let(:expected_sub_hash) do
+          hash_including(
+            pipeline_id: pipeline.id,
+            user_path: "http://test.host/#{pipeline.user.username}",
+            user_avatar_path: pipeline.user.avatar_url,
+            user_name: pipeline.user.name,
+            commit_id: pipeline.commit.short_id,
+            commit_path: "#{project_path}/-/commit/#{pipeline.commit.sha}",
+            ref_id: project.default_branch,
+            ref_path: "#{project_path}/-/commits/#{project.default_branch}",
+            pipeline_path: "#{project_path}/-/pipelines/#{pipeline.id}",
+            pipeline_created: pipeline.created_at.to_s(:iso8601),
+            has_pipeline_data: 'true',
+            vulnerabilities_export_endpoint: "/api/v4/security/projects/#{project.id}/vulnerability_exports"
+          )
+        end
+
+        it { is_expected.to match(expected_sub_hash) }
       end
     end
   end
@@ -151,12 +181,12 @@ describe ProjectsHelper do
   describe '#get_project_nav_tabs' do
     using RSpec::Parameterized::TableSyntax
 
-    where(:ability, :nav_tab) do
-      :read_dependencies               | :dependencies
-      :read_feature_flag               | :operations
-      :read_licenses                   | :licenses
-      :read_project_security_dashboard | :security
-      :read_threat_monitoring          | :threat_monitoring
+    where(:ability, :nav_tabs) do
+      :read_dependencies               | [:dependencies]
+      :read_feature_flag               | [:operations]
+      :read_licenses                   | [:licenses]
+      :read_project_security_dashboard | [:security, :security_configuration]
+      :read_threat_monitoring          | [:threat_monitoring]
     end
 
     with_them do
@@ -171,23 +201,23 @@ describe ProjectsHelper do
         helper.send(:get_project_nav_tabs, project, user)
       end
 
-      context 'when the feature is disabled' do
+      context 'when the feature is not available' do
         before do
           allow(helper).to receive(:can?).with(user, ability, project).and_return(false)
         end
 
-        it 'does not include the nav tab' do
-          is_expected.not_to include(nav_tab)
+        it 'does not include the nav tabs' do
+          is_expected.not_to include(*nav_tabs)
         end
       end
 
-      context 'when threat monitoring is enabled' do
+      context 'when the feature is available' do
         before do
           allow(helper).to receive(:can?).with(user, ability, project).and_return(true)
         end
 
-        it 'includes the nav tab' do
-          is_expected.to include(nav_tab)
+        it 'includes the nav tabs' do
+          is_expected.to include(*nav_tabs)
         end
       end
     end

@@ -1,6 +1,7 @@
-# Export Issues to CSV **(STARTER)**
+# Export Issues to CSV
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1126) in [GitLab Starter 9.0](https://about.gitlab.com/releases/2017/03/22/gitlab-9-0-released/#export-issues-ees-eep).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1126) in [GitLab Starter 9.0](https://about.gitlab.com/releases/2017/03/22/gitlab-9-0-released/#export-issues-ees-eep).
+> - Moved to GitLab Core in GitLab 12.10.
 
 Issues can be exported as CSV from GitLab and are sent to your default notification email as an attachment.
 
@@ -69,7 +70,7 @@ Data will be encoded with a comma as the column delimiter, with `"` used to quot
 | Labels | Title of any labels joined with a `,` |
 | Time Estimate | [Time estimate](../time_tracking.md#estimates) in seconds |
 | Time Spent | [Time spent](../time_tracking.md#time-spent) in seconds |
-| Epic ID | Id of the parent epic **(ULTIMATE)**, introduced in 12.7 |
+| Epic ID | ID of the parent epic **(ULTIMATE)**, introduced in 12.7 |
 | Epic Title | Title of the parent epic **(ULTIMATE)**, introduced in 12.7 |
 
 ## Limitations

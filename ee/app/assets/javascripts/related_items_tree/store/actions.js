@@ -12,7 +12,7 @@ import httpStatusCodes from '~/lib/utils/http_status';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 import { processQueryResponse, formatChildItem, gqClient } from '../utils/epic_utils';
-import { ChildType, ChildState } from '../constants';
+import { ChildType, ChildState, idProp, relativePositions } from '../constants';
 
 import epicChildren from '../queries/epicChildren.query.graphql';
 import epicChildReorder from '../queries/epicChildReorder.mutation.graphql';
@@ -26,6 +26,9 @@ export const setInitialParentItem = ({ commit }, data) =>
 
 export const setChildrenCount = ({ commit, state }, data) =>
   commit(types.SET_CHILDREN_COUNT, { ...state.descendantCounts, ...data });
+
+export const setHealthStatus = ({ commit, state }, data) =>
+  commit(types.SET_HEALTH_STATUS, { ...state.healthStatus, ...data });
 
 export const updateChildrenCount = ({ state, dispatch }, { item, isRemoved = false }) => {
   const descendantCounts = {};
@@ -120,6 +123,7 @@ export const fetchItems = ({ dispatch }, { parentItem, isSubItem = false }) => {
 
       if (!isSubItem) {
         dispatch('setChildrenCount', data.group.epic.descendantCounts);
+        dispatch('setHealthStatus', data.group.epic.healthStatus);
       }
     })
     .catch(() => {
@@ -193,7 +197,7 @@ export const fetchNextPageItems = ({ dispatch, state }, { parentItem, isSubItem 
     });
 };
 
-export const toggleItem = ({ state, dispatch }, { parentItem }) => {
+export const toggleItem = ({ state, dispatch }, { parentItem, isDragging = false }) => {
   if (!state.childrenFlags[parentItem.reference].itemExpanded) {
     if (!state.children[parentItem.reference]) {
       dispatch('fetchItems', {
@@ -205,7 +209,7 @@ export const toggleItem = ({ state, dispatch }, { parentItem }) => {
         parentItem,
       });
     }
-  } else {
+  } else if (!isDragging) {
     dispatch('collapseItem', {
       parentItem,
     });
@@ -446,6 +450,84 @@ export const reorderItem = (
         targetItem,
         oldIndex: newIndex,
         newIndex: oldIndex,
+      });
+    });
+};
+
+export const receiveMoveItemFailure = ({ commit }, data) => {
+  commit(types.MOVE_ITEM_FAILURE, data);
+  flash(s__('Epics|Something went wrong while moving item.'));
+};
+
+export const moveItem = (
+  { dispatch, commit, state },
+  { oldParentItem, newParentItem, targetItem, oldIndex, newIndex },
+) => {
+  let adjacentItem;
+  let adjacentReferenceId;
+  let relativePosition = relativePositions.After;
+
+  let isFirstChild = false;
+  const newParentChildren = state.children[newParentItem.parentReference];
+
+  if (newParentChildren?.length > 0) {
+    adjacentItem = newParentChildren[newIndex];
+    if (!adjacentItem) {
+      adjacentItem = newParentChildren[newParentChildren.length - 1];
+      relativePosition = relativePositions.Before;
+    }
+    adjacentReferenceId = adjacentItem[idProp[adjacentItem.type]];
+  } else {
+    isFirstChild = true;
+    relativePosition = relativePositions.Before;
+  }
+
+  commit(types.MOVE_ITEM, {
+    oldParentItem,
+    newParentItem,
+    targetItem,
+    oldIndex,
+    newIndex,
+    isFirstChild,
+  });
+
+  return gqClient
+    .mutate({
+      mutation: epicChildReorder,
+      variables: {
+        epicTreeReorderInput: {
+          baseEpicId: oldParentItem.id,
+          moved: {
+            id: targetItem[idProp[targetItem.type]],
+            adjacentReferenceId,
+            relativePosition,
+            newParentId: newParentItem.parentId,
+          },
+        },
+      },
+    })
+    .then(({ data }) => {
+      // Mutation was unsuccessful;
+      // revert to original order and show flash error
+      if (data.epicTreeReorder.errors.length) {
+        dispatch('receiveMoveItemFailure', {
+          oldParentItem,
+          newParentItem,
+          targetItem,
+          newIndex,
+          oldIndex,
+        });
+      }
+    })
+    .catch(() => {
+      // Mutation was unsuccessful;
+      // revert to original order and show flash error
+      dispatch('receiveMoveItemFailure', {
+        oldParentItem,
+        newParentItem,
+        targetItem,
+        newIndex,
+        oldIndex,
       });
     });
 };

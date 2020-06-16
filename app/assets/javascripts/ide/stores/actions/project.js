@@ -1,10 +1,9 @@
-import { escape as esc } from 'lodash';
+import { escape } from 'lodash';
 import flash from '~/flash';
 import { __, sprintf } from '~/locale';
 import service from '../../services';
 import api from '../../../api';
 import * as types from '../mutation_types';
-import router from '../../ide_router';
 
 export const getProjectData = ({ commit, state }, { namespace, projectId, force = false } = {}) =>
   new Promise((resolve, reject) => {
@@ -57,7 +56,7 @@ export const createNewBranchFromDefault = ({ state, dispatch, getters }, branch)
     })
     .then(() => {
       dispatch('setErrorMessage', null);
-      router.push(`${router.currentRoute.path}?${Date.now()}`);
+      window.location.reload();
     })
     .catch(() => {
       dispatch('setErrorMessage', {
@@ -73,7 +72,7 @@ export const showBranchNotFoundError = ({ dispatch }, branchId) => {
     text: sprintf(
       __("Branch %{branchName} was not found in this project's repository."),
       {
-        branchName: `<strong>${esc(branchId)}</strong>`,
+        branchName: `<strong>${escape(branchId)}</strong>`,
       },
       false,
     ),
@@ -83,10 +82,14 @@ export const showBranchNotFoundError = ({ dispatch }, branchId) => {
   });
 };
 
-export const showEmptyState = ({ commit, state, dispatch }, { projectId, branchId }) => {
+export const loadEmptyBranch = ({ commit, state }, { projectId, branchId }) => {
   const treePath = `${projectId}/${branchId}`;
+  const currentTree = state.trees[`${projectId}/${branchId}`];
 
-  dispatch('setCurrentBranchId', branchId);
+  // If we already have a tree, let's not recreate an empty one
+  if (currentTree) {
+    return;
+  }
 
   commit(types.CREATE_TREE, { treePath });
   commit(types.TOGGLE_LOADING, {
@@ -114,8 +117,16 @@ export const loadFile = ({ dispatch, state }, { basePath }) => {
   }
 };
 
-export const loadBranch = ({ dispatch, getters }, { projectId, branchId }) =>
-  dispatch('getBranchData', {
+export const loadBranch = ({ dispatch, getters, state }, { projectId, branchId }) => {
+  const currentProject = state.projects[projectId];
+
+  if (currentProject?.branches?.[branchId]) {
+    return Promise.resolve();
+  } else if (getters.emptyRepo) {
+    return dispatch('loadEmptyBranch', { projectId, branchId });
+  }
+
+  return dispatch('getBranchData', {
     projectId,
     branchId,
   })
@@ -137,29 +148,23 @@ export const loadBranch = ({ dispatch, getters }, { projectId, branchId }) =>
       dispatch('showBranchNotFoundError', branchId);
       throw err;
     });
+};
 
-export const openBranch = ({ dispatch, state, getters }, { projectId, branchId, basePath }) => {
-  const currentProject = state.projects[projectId];
-  if (getters.emptyRepo) {
-    return dispatch('showEmptyState', { projectId, branchId });
-  }
-  if (!currentProject || !currentProject.branches[branchId]) {
-    dispatch('setCurrentBranchId', branchId);
+export const openBranch = ({ dispatch }, { projectId, branchId, basePath }) => {
+  dispatch('setCurrentBranchId', branchId);
 
-    return dispatch('loadBranch', { projectId, branchId })
-      .then(() => dispatch('loadFile', { basePath }))
-      .catch(
-        () =>
-          new Error(
-            sprintf(
-              __('An error occurred while getting files for - %{branchId}'),
-              {
-                branchId: `<strong>${esc(projectId)}/${esc(branchId)}</strong>`,
-              },
-              false,
-            ),
+  return dispatch('loadBranch', { projectId, branchId })
+    .then(() => dispatch('loadFile', { basePath }))
+    .catch(
+      () =>
+        new Error(
+          sprintf(
+            __('An error occurred while getting files for - %{branchId}'),
+            {
+              branchId: `<strong>${escape(projectId)}/${escape(branchId)}</strong>`,
+            },
+            false,
           ),
-      );
-  }
-  return Promise.resolve(dispatch('loadFile', { basePath }));
+        ),
+    );
 };

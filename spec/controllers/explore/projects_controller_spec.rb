@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Explore::ProjectsController do
+RSpec.describe Explore::ProjectsController do
   shared_examples 'explore projects' do
     describe 'GET #index.json' do
       render_views
@@ -169,6 +169,18 @@ describe Explore::ProjectsController do
         expect_any_instance_of(UserPreference).not_to receive(:update)
 
         get :index, params: { sort: sorting_param }
+      end
+    end
+
+    context 'restricted visibility level is public' do
+      before do
+        stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::PUBLIC])
+      end
+
+      it 'redirects to login page' do
+        get :index
+
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end

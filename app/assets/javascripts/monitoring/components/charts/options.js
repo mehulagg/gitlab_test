@@ -1,14 +1,14 @@
 import { SUPPORTED_FORMATS, getFormatter } from '~/lib/utils/unit_format';
-import { s__ } from '~/locale';
+import { __, s__ } from '~/locale';
+import { formatDate, timezones, formats } from '../../format_date';
 
 const yAxisBoundaryGap = [0.1, 0.1];
 /**
  * Max string length of formatted axis tick
  */
 const maxDataAxisTickLength = 8;
-
 //  Defaults
-const defaultFormat = SUPPORTED_FORMATS.number;
+const defaultFormat = SUPPORTED_FORMATS.engineering;
 
 const defaultYAxisFormat = defaultFormat;
 const defaultYAxisPrecision = 2;
@@ -22,12 +22,26 @@ const chartGridLeft = 75;
 // Axis options
 
 /**
+ * Axis types
+ * @see https://echarts.apache.org/en/option.html#xAxis.type
+ */
+export const axisTypes = {
+  /**
+   * Category axis, suitable for discrete category data.
+   */
+  category: 'category',
+  /**
+   *  Time axis, suitable for continuous time series data.
+   */
+  time: 'time',
+};
+
+/**
  * Converts .yml parameters to echarts axis options for data axis
  * @param {Object} param - Dashboard .yml definition options
  */
 const getDataAxisOptions = ({ format, precision, name }) => {
-  const formatter = getFormatter(format);
-
+  const formatter = getFormatter(format); // default to engineeringNotation, same as gitlab-ui
   return {
     name,
     nameLocation: 'center', // same as gitlab-ui's default
@@ -59,6 +73,17 @@ export const getYAxisOptions = ({
     }),
   };
 };
+
+export const getTimeAxisOptions = ({ timezone = timezones.LOCAL } = {}) => ({
+  name: __('Time'),
+  type: axisTypes.time,
+  axisLabel: {
+    formatter: date => formatDate(date, { format: formats.shortTime, timezone }),
+  },
+  axisPointer: {
+    snap: false,
+  },
+});
 
 // Chart grid
 

@@ -1,17 +1,19 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
-import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
-import draftCommentsMixin from 'ee_else_ce/diffs/mixins/draft_comments';
+import diffLineNoteFormMixin from '~/notes/mixins/diff_line_note_form';
+import draftCommentsMixin from '~/diffs/mixins/draft_comments';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
 import NotDiffableViewer from '~/vue_shared/components/diff_viewer/viewers/not_diffable.vue';
 import NoPreviewViewer from '~/vue_shared/components/diff_viewer/viewers/no_preview.vue';
+import DiffFileDrafts from '~/batch_comments/components/diff_file_drafts.vue';
 import InlineDiffView from './inline_diff_view.vue';
 import ParallelDiffView from './parallel_diff_view.vue';
 import userAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_link.vue';
 import NoteForm from '../../notes/components/note_form.vue';
 import ImageDiffOverlay from './image_diff_overlay.vue';
 import DiffDiscussions from './diff_discussions.vue';
+import eventHub from '../../notes/event_hub';
 import { IMAGE_DIFF_POSITION_TYPE } from '../constants';
 import { getDiffMode } from '../store/utils';
 import { diffViewerModes } from '~/ide/constants';
@@ -28,7 +30,7 @@ export default {
     NotDiffableViewer,
     NoPreviewViewer,
     userAvatarLink,
-    DiffFileDrafts: () => import('ee_component/batch_comments/components/diff_file_drafts.vue'),
+    DiffFileDrafts,
   },
   mixins: [diffLineNoteFormMixin, draftCommentsMixin],
   props: {
@@ -77,6 +79,13 @@ export default {
       return this.getUserData;
     },
   },
+  updated() {
+    if (window.gon?.features?.codeNavigation) {
+      this.$nextTick(() => {
+        eventHub.$emit('showBlobInteractionZones', this.diffFile.new_path);
+      });
+    }
+  },
   methods: {
     ...mapActions('diffs', ['saveDiffDiscussion', 'closeDiffFileCommentForm']),
     handleSaveNote(note) {
@@ -120,6 +129,7 @@ export default {
       <no-preview-viewer v-else-if="noPreview" />
       <diff-viewer
         v-else
+        :diff-file="diffFile"
         :diff-mode="diffMode"
         :diff-viewer-mode="diffViewerMode"
         :new-path="diffFile.new_path"

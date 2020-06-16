@@ -2,12 +2,8 @@
 
 require 'spec_helper'
 
-describe SecurityHelper do
+RSpec.describe SecurityHelper do
   describe '#instance_security_dashboard_data' do
-    before do
-      stub_feature_flags(first_class_vulnerabilities: true)
-    end
-
     subject { instance_security_dashboard_data }
 
     it 'returns vulnerability, project, feedback, asset, and docs paths for the instance security dashboard' do
@@ -20,7 +16,8 @@ describe SecurityHelper do
         vulnerable_projects_endpoint: security_vulnerable_projects_path,
         vulnerabilities_endpoint: security_vulnerability_findings_path,
         vulnerabilities_history_endpoint: history_security_vulnerability_findings_path,
-        vulnerability_feedback_help_path: help_page_path('user/application_security/index', anchor: 'interacting-with-the-vulnerabilities')
+        vulnerability_feedback_help_path: help_page_path('user/application_security/index', anchor: 'interacting-with-the-vulnerabilities'),
+        vulnerabilities_export_endpoint: api_v4_security_vulnerability_exports_path
       })
     end
   end

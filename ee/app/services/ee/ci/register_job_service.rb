@@ -25,14 +25,20 @@ module EE
         end
       end
 
-      # rubocop: disable CodeReuse/ActiveRecord
       def builds_for_shared_runner
         return super unless shared_runner_build_limits_feature_enabled?
 
-        # select projects which have allowed number of shared runner minutes or are public
-        super
-          .where("projects.visibility_level=? OR (#{builds_check_limit.to_sql})=1", # rubocop:disable GitlabSecurity/SqlInjection
-                ::Gitlab::VisibilityLevel::PUBLIC)
+        enforce_minutes_based_on_cost_factors(super)
+      end
+
+      # rubocop: disable CodeReuse/ActiveRecord
+      def enforce_minutes_based_on_cost_factors(relation)
+        visibility_relation = ::Ci::Build.where(
+          projects: { visibility_level: runner.visibility_levels_without_minutes_quota })
+
+        enforce_limits_relation = ::Ci::Build.where('EXISTS (?)', builds_check_limit)
+
+        relation.merge(visibility_relation.or(enforce_limits_relation))
       end
       # rubocop: enable CodeReuse/ActiveRecord
 

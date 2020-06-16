@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::MergeRequestApprovals do
+RSpec.describe API::MergeRequestApprovals do
   let_it_be(:user) { create(:user) }
   let_it_be(:user2) { create(:user) }
   let_it_be(:admin) { create(:user, :admin) }
@@ -137,6 +137,17 @@ describe API::MergeRequestApprovals do
         expect(json_response['message']).to eq(nil)
       end
     end
+
+    context 'when merge_status is cannot_be_merged_rechecking' do
+      before do
+        merge_request.update!(merge_status: 'cannot_be_merged_rechecking')
+        get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user)
+      end
+
+      it 'returns `checking`' do
+        expect(json_response['merge_status']).to eq 'checking'
+      end
+    end
   end
 
   describe 'GET :id/merge_requests/:merge_request_iid/approval_settings' do
@@ -163,7 +174,28 @@ describe API::MergeRequestApprovals do
       expect(rule_response['name']).to eq('foo')
       expect(rule_response['approvers'][0]['username']).to eq(approver.username)
       expect(rule_response['approved_by'][0]['username']).to eq(approver.username)
-      expect(rule_response['source_rule']).to eq(nil)
+      expect(rule_response['source_rule']).to be_nil
+      expect(rule_response['section']).to be_nil
+    end
+
+    context "when rule has a section" do
+      let(:rule) do
+        create(
+          :code_owner_rule,
+          merge_request: merge_request,
+          approvals_required: 2,
+          name: "foo",
+          section: "Example Section"
+        )
+      end
+
+      it "exposes the value of section when set" do
+        get api(url, user)
+
+        rule_response = json_response["rules"].first
+
+        expect(rule_response["section"]).to eq(rule.section)
+      end
     end
 
     context 'when target_branch is specified' do
@@ -301,8 +333,6 @@ describe API::MergeRequestApprovals do
   end
 
   describe 'PUT :id/merge_requests/:merge_request_iid/approvers' do
-    RSpec::Matchers.define_negated_matcher :not_change, :change
-
     shared_examples_for 'user allowed to change approvers' do
       context 'when disable_overriding_approvers_per_merge_request is true on the project' do
         before do

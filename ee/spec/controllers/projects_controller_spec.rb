@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ProjectsController do
+RSpec.describe ProjectsController do
   let(:project) { create(:project) }
   let(:user) { create(:user) }
 
@@ -271,7 +271,6 @@ describe ProjectsController do
         {
           mirror: true,
           mirror_trigger_builds: true,
-          mirror_user_id: user.id,
           import_url: 'https://example.com'
         }
       end
@@ -296,6 +295,20 @@ describe ProjectsController do
           expect(project.mirror_trigger_builds).to eq(true)
           expect(project.mirror_user).to eq(user)
           expect(project.import_url).to eq('https://example.com')
+        end
+
+        it 'ignores mirror_user_id' do
+          other_user = create(:user)
+
+          put :update,
+            params: {
+              namespace_id: project.namespace,
+              id: project,
+              project: params.merge(mirror_user_id: other_user.id)
+            }
+          project.reload
+
+          expect(project.mirror_user).to eq(user)
         end
       end
 
@@ -373,6 +386,47 @@ describe ProjectsController do
         it_behaves_like 'merge request approvers rules' do
           let(:app_setting) { :prevent_merge_requests_committers_approval }
           let(:setting) { :merge_requests_disable_committers_approval }
+        end
+      end
+    end
+
+    context 'compliance framework settings' do
+      let(:framework) { ComplianceManagement::ComplianceFramework::ProjectSettings.frameworks.keys.sample }
+      let(:params) { { compliance_framework_setting_attributes: { framework: framework } } }
+
+      context 'when unlicensed' do
+        before do
+          stub_licensed_features(compliance_framework: false)
+        end
+
+        it 'ignores any compliance framework params' do
+          put :update,
+            params: {
+                namespace_id: project.namespace,
+                id: project,
+                project: params
+            }
+          project.reload
+
+          expect(project.compliance_framework_setting).to be_nil
+        end
+      end
+
+      context 'when licensed' do
+        before do
+          stub_licensed_features(compliance_framework: true)
+        end
+
+        it 'sets the compliance framework' do
+          put :update,
+              params: {
+                  namespace_id: project.namespace,
+                  id: project,
+                  project: params
+              }
+          project.reload
+
+          expect(project.compliance_framework_setting.framework).to eq(framework)
         end
       end
     end

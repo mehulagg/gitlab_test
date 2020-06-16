@@ -8,18 +8,11 @@ module API
 
     helpers Helpers::ProjectsHelpers
     helpers Helpers::FileUploadHelpers
+    helpers Helpers::RateLimiter
 
     helpers do
       def import_params
         declared_params(include_missing: false)
-      end
-
-      def throttled?(key, scope)
-        rate_limiter.throttled?(key, scope: scope)
-      end
-
-      def rate_limiter
-        ::Gitlab::ApplicationRateLimiter
       end
     end
 
@@ -37,7 +30,10 @@ module API
         status 200
         content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
 
-        ImportExportUploader.workhorse_authorize(has_length: false, maximum_size: MAXIMUM_FILE_SIZE)
+        ImportExportUploader.workhorse_authorize(
+          has_length: false,
+          maximum_size: Gitlab::CurrentSettings.max_import_size.megabytes
+        )
       end
 
       params do
@@ -69,13 +65,7 @@ module API
       post 'import' do
         require_gitlab_workhorse!
 
-        key = "project_import".to_sym
-
-        if throttled?(key, [current_user, key])
-          rate_limiter.log_request(request, "#{key}_request_limit".to_sym, current_user)
-
-          render_api_error!({ error: _('This endpoint has been requested too many times. Try again later.') }, 429)
-        end
+        check_rate_limit! :project_import, [current_user, :project_import]
 
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42437')
 

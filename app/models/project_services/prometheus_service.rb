@@ -5,6 +5,8 @@ class PrometheusService < MonitoringService
 
   #  Access to prometheus is directly through the API
   prop_accessor :api_url
+  prop_accessor :google_iap_service_account_json
+  prop_accessor :google_iap_audience_client_id
   boolean_accessor :manual_configuration
 
   # We need to allow the self-monitoring project to connect to the internal
@@ -13,9 +15,9 @@ class PrometheusService < MonitoringService
   # to allow localhost URLs when the following conditions are true:
   # 1. project is the self-monitoring project.
   # 2. api_url is the internal Prometheus URL.
-  with_options presence: true, if: :manual_configuration? do
-    validates :api_url, public_url: true, unless: proc { |object| object.allow_local_api_url? }
-    validates :api_url, url: true, if: proc { |object| object.allow_local_api_url? }
+  with_options presence: true do
+    validates :api_url, public_url: true, if: ->(object) { object.manual_configuration? && !object.allow_local_api_url? }
+    validates :api_url, url: true, if: ->(object) { object.manual_configuration? && object.allow_local_api_url? }
   end
 
   before_save :synchronize_service_state
@@ -23,6 +25,8 @@ class PrometheusService < MonitoringService
   after_save :clear_reactive_cache!
 
   after_commit :track_events
+
+  after_create_commit :create_default_alerts
 
   def initialize_properties
     if properties.nil?
@@ -32,10 +36,6 @@ class PrometheusService < MonitoringService
 
   def show_active_box?
     false
-  end
-
-  def editable?
-    manual_configuration? || !prometheus_available?
   end
 
   def title
@@ -51,9 +51,7 @@ class PrometheusService < MonitoringService
   end
 
   def fields
-    return [] unless editable?
-
-    [
+    result = [
       {
         type: 'checkbox',
         name: 'manual_configuration',
@@ -68,6 +66,28 @@ class PrometheusService < MonitoringService
         required: true
       }
     ]
+
+    if Feature.enabled?(:prometheus_service_iap_auth)
+      result += [
+        {
+          type: 'text',
+          name: 'google_iap_audience_client_id',
+          title: 'Google IAP Audience Client ID',
+          placeholder: s_('PrometheusService|Client ID of the IAP secured resource (looks like IAP_CLIENT_ID.apps.googleusercontent.com)'),
+          autocomplete: 'off',
+          required: false
+        },
+        {
+          type: 'textarea',
+          name: 'google_iap_service_account_json',
+          title: 'Google IAP Service Account JSON',
+          placeholder: s_('PrometheusService|Contents of the credentials.json file of your service account, like: { "type": "service_account", "project_id": ... }'),
+          required: false
+        }
+      ]
+    end
+
+    result
   end
 
   # Check we can connect to the Prometheus API
@@ -81,7 +101,14 @@ class PrometheusService < MonitoringService
   def prometheus_client
     return unless should_return_client?
 
-    Gitlab::PrometheusClient.new(api_url, allow_local_requests: allow_local_api_url?)
+    options = { allow_local_requests: allow_local_api_url? }
+
+    if Feature.enabled?(:prometheus_service_iap_auth) && behind_iap?
+      # Adds the Authorization header
+      options[:headers] = iap_client.apply({})
+    end
+
+    Gitlab::PrometheusClient.new(api_url, options)
   end
 
   def prometheus_available?
@@ -146,5 +173,19 @@ class PrometheusService < MonitoringService
 
   def disabled_manual_prometheus?
     manual_configuration_changed? && !manual_configuration?
+  end
+
+  def create_default_alerts
+    return unless project_id
+
+    Prometheus::CreateDefaultAlertsWorker.perform_async(project_id)
+  end
+
+  def behind_iap?
+    manual_configuration? && google_iap_audience_client_id.present? && google_iap_service_account_json.present?
+  end
+
+  def iap_client
+    @iap_client ||= Google::Auth::Credentials.new(Gitlab::Json.parse(google_iap_service_account_json), target_audience: google_iap_audience_client_id).client
   end
 end

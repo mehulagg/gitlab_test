@@ -7,7 +7,7 @@ require 'spec_helper'
 #
 # For instance, `ee/spec/models/merge_request/blocking_spec.rb` tests the
 # "blocking MRs" feature.
-describe MergeRequest do
+RSpec.describe MergeRequest do
   using RSpec::Parameterized::TableSyntax
   include ReactiveCachingHelpers
 
@@ -16,7 +16,6 @@ describe MergeRequest do
   subject(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
   describe 'associations' do
-    it { is_expected.to have_many(:reviews).inverse_of(:merge_request) }
     it { is_expected.to have_many(:approvals).dependent(:delete_all) }
     it { is_expected.to have_many(:approvers).dependent(:delete_all) }
     it { is_expected.to have_many(:approver_users).through(:approvers) }
@@ -50,48 +49,6 @@ describe MergeRequest do
     end
   end
 
-  describe '#note_positions_for_paths' do
-    let(:user) { create(:user) }
-    let(:merge_request) { create(:merge_request, :with_diffs) }
-    let(:project) { merge_request.project }
-    let!(:diff_note) do
-      create(:diff_note_on_merge_request, project: project, noteable: merge_request)
-    end
-    let!(:draft_note) do
-      create(:draft_note_on_text_diff, author: user, merge_request: merge_request)
-    end
-
-    let(:file_paths) { merge_request.diffs.diff_files.map(&:file_path) }
-
-    subject do
-      merge_request.note_positions_for_paths(file_paths)
-    end
-
-    it 'returns a Gitlab::Diff::PositionCollection' do
-      expect(subject).to be_a(Gitlab::Diff::PositionCollection)
-    end
-
-    context 'when user is given' do
-      subject do
-        merge_request.note_positions_for_paths(file_paths, user)
-      end
-
-      it 'returns notes and draft notes positions' do
-        expect(subject).to match_array([draft_note.position, diff_note.position])
-      end
-    end
-
-    context 'when user is not given' do
-      subject do
-        merge_request.note_positions_for_paths(file_paths)
-      end
-
-      it 'returns notes positions' do
-        expect(subject).to match_array([diff_note.position])
-      end
-    end
-  end
-
   describe '#participants' do
     context 'with approval rule' do
       before do
@@ -115,15 +72,15 @@ describe MergeRequest do
       :container_scanning  | :with_container_scanning_reports  | :container_scanning
       :dast                | :with_dast_reports                | :dast
       :dependency_scanning | :with_dependency_scanning_reports | :dependency_scanning
-      :license_management  | :with_license_management_reports  | :license_management
-      :license_management  | :with_license_scanning_reports    | :license_management
-      :license_scanning    | :with_license_scanning_reports    | :license_management
+      :license_scanning    | :with_license_management_reports  | :license_scanning
+      :license_scanning    | :with_license_scanning_reports    | :license_scanning
     end
 
     with_them do
       subject { merge_request.enabled_reports[report_type] }
 
       before do
+        stub_feature_flags(drop_license_management_artifact: false)
         stub_licensed_features({ feature => true })
       end
 
@@ -162,22 +119,22 @@ describe MergeRequest do
     end
   end
 
-  describe '#has_license_management_reports?' do
-    subject { merge_request.has_license_management_reports? }
+  describe '#has_license_scanning_reports?' do
+    subject { merge_request.has_license_scanning_reports? }
 
     let(:project) { create(:project, :repository) }
 
     before do
-      stub_licensed_features(license_management: true)
+      stub_licensed_features(license_scanning: true)
     end
 
-    context 'when head pipeline has license management reports' do
-      let(:merge_request) { create(:ee_merge_request, :with_license_management_reports, source_project: project) }
+    context 'when head pipeline has license scanning reports' do
+      let(:merge_request) { create(:ee_merge_request, :with_license_scanning_reports, source_project: project) }
 
       it { is_expected.to be_truthy }
     end
 
-    context 'when head pipeline does not have license management reports' do
+    context 'when head pipeline does not have license scanning reports' do
       let(:merge_request) { create(:ee_merge_request, source_project: project) }
 
       it { is_expected.to be_falsey }
@@ -250,6 +207,28 @@ describe MergeRequest do
     end
   end
 
+  describe '#has_secret_detection_reports?' do
+    subject { merge_request.has_secret_detection_reports? }
+
+    let(:project) { create(:project, :repository) }
+
+    before do
+      stub_licensed_features(secret_detection: true)
+    end
+
+    context 'when head pipeline has secret detection reports' do
+      let(:merge_request) { create(:ee_merge_request, :with_secret_detection_reports, source_project: project) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when head pipeline does not have secrets detection reports' do
+      let(:merge_request) { create(:ee_merge_request, source_project: project) }
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe '#has_dast_reports?' do
     subject { merge_request.has_dast_reports? }
 
@@ -294,7 +273,7 @@ describe MergeRequest do
       it { is_expected.to be_truthy }
     end
 
-    context 'when head pipeline does not have license management reports' do
+    context 'when head pipeline does not have license scanning reports' do
       let(:merge_request) { create(:ee_merge_request, source_project: project) }
 
       it { is_expected.to be_falsey }
@@ -379,6 +358,66 @@ describe MergeRequest do
     end
   end
 
+  describe '#compare_secret_detection_reports' do
+    subject { merge_request.compare_secret_detection_reports(current_user) }
+
+    let(:project) { create(:project, :repository) }
+    let(:current_user) { project.users.first }
+    let(:merge_request) { create(:merge_request, source_project: project) }
+
+    let!(:base_pipeline) do
+      create(:ee_ci_pipeline,
+             :with_secret_detection_report,
+             project: project,
+             ref: merge_request.target_branch,
+             sha: merge_request.diff_base_sha)
+    end
+
+    before do
+      merge_request.update!(head_pipeline_id: head_pipeline.id)
+    end
+
+    context 'when head pipeline has secret detection reports' do
+      let!(:head_pipeline) do
+        create(:ee_ci_pipeline,
+               :with_secret_detection_report,
+               project: project,
+               ref: merge_request.source_branch,
+               sha: merge_request.diff_head_sha)
+      end
+
+      context 'when reactive cache worker is parsing asynchronously' do
+        it 'returns status' do
+          expect(subject[:status]).to eq(:parsing)
+        end
+      end
+
+      context 'when reactive cache worker is inline' do
+        before do
+          synchronous_reactive_cache(merge_request)
+        end
+
+        it 'returns status and data' do
+          expect_any_instance_of(Ci::CompareSecretDetectionReportsService)
+              .to receive(:execute).with(base_pipeline, head_pipeline).and_call_original
+
+          subject
+        end
+
+        context 'when cached results is not latest' do
+          before do
+            allow_any_instance_of(Ci::CompareSecretDetectionReportsService)
+                .to receive(:latest?).and_return(false)
+          end
+
+          it 'raises and InvalidateReactiveCache error' do
+            expect { subject }.to raise_error(ReactiveCaching::InvalidateReactiveCache)
+          end
+        end
+      end
+    end
+  end
+
   describe '#compare_sast_reports' do
     subject { merge_request.compare_sast_reports(current_user) }
 
@@ -439,8 +478,8 @@ describe MergeRequest do
     end
   end
 
-  describe '#compare_license_management_reports' do
-    subject { merge_request.compare_license_management_reports(current_user) }
+  describe '#compare_license_scanning_reports' do
+    subject { merge_request.compare_license_scanning_reports(current_user) }
 
     let(:project) { create(:project, :repository) }
     let(:current_user) { project.users.first }
@@ -448,7 +487,7 @@ describe MergeRequest do
 
     let!(:base_pipeline) do
       create(:ee_ci_pipeline,
-             :with_license_management_report,
+             :with_license_scanning_report,
              project: project,
              ref: merge_request.target_branch,
              sha: merge_request.diff_base_sha)
@@ -458,10 +497,10 @@ describe MergeRequest do
       merge_request.update!(head_pipeline_id: head_pipeline.id)
     end
 
-    context 'when head pipeline has license management reports' do
+    context 'when head pipeline has license scanning reports' do
       let!(:head_pipeline) do
         create(:ee_ci_pipeline,
-               :with_license_management_report,
+               :with_license_scanning_report,
                project: project,
                ref: merge_request.source_branch,
                sha: merge_request.diff_head_sha)
@@ -510,7 +549,7 @@ describe MergeRequest do
       end
     end
 
-    context 'when head pipeline does not have license management reports' do
+    context 'when head pipeline does not have license scanning reports' do
       let!(:head_pipeline) do
         create(:ci_pipeline,
                project: project,
@@ -520,7 +559,7 @@ describe MergeRequest do
 
       it 'returns status and error message' do
         expect(subject[:status]).to eq(:error)
-        expect(subject[:status_reason]).to eq('This merge request does not have license management reports')
+        expect(subject[:status_reason]).to eq('This merge request does not have license scanning reports')
       end
     end
   end

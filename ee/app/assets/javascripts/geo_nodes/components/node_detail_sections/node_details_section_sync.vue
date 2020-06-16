@@ -4,8 +4,6 @@ import { parseSeconds, stringifyTime } from '~/lib/utils/datetime_utility';
 
 import { VALUE_TYPE, CUSTOM_TYPE } from '../../constants';
 
-import DetailsSectionMixin from '../../mixins/details_section_mixin';
-
 import GeoNodeDetailItem from '../geo_node_detail_item.vue';
 import SectionRevealButton from './section_reveal_button.vue';
 
@@ -14,7 +12,6 @@ export default {
     SectionRevealButton,
     GeoNodeDetailItem,
   },
-  mixins: [DetailsSectionMixin],
   props: {
     node: {
       type: Object,
@@ -36,43 +33,54 @@ export default {
           customType: CUSTOM_TYPE.SYNC,
         },
         {
+          itemEnabled: this.nodeDetails.repositories.enabled,
           itemTitle: s__('GeoNodes|Repositories'),
           itemValue: this.nodeDetails.repositories,
           itemValueType: VALUE_TYPE.GRAPH,
           detailsPath: `${this.node.url}admin/geo/projects`,
         },
         {
+          itemEnabled: this.nodeDetails.wikis.enabled,
           itemTitle: s__('GeoNodes|Wikis'),
           itemValue: this.nodeDetails.wikis,
           itemValueType: VALUE_TYPE.GRAPH,
         },
         {
+          itemEnabled: this.nodeDetails.lfs.enabled,
           itemTitle: s__('GeoNodes|LFS objects'),
           itemValue: this.nodeDetails.lfs,
           itemValueType: VALUE_TYPE.GRAPH,
         },
         {
+          itemEnabled: this.nodeDetails.attachments.enabled,
           itemTitle: s__('GeoNodes|Attachments'),
           itemValue: this.nodeDetails.attachments,
           itemValueType: VALUE_TYPE.GRAPH,
           detailsPath: `${this.node.url}admin/geo/uploads`,
         },
         {
+          itemEnabled: this.nodeDetails.jobArtifacts.enabled,
           itemTitle: s__('GeoNodes|Job artifacts'),
           itemValue: this.nodeDetails.jobArtifacts,
           itemValueType: VALUE_TYPE.GRAPH,
         },
         {
+          itemEnabled: this.nodeDetails.containerRepositories.enabled,
           itemTitle: s__('GeoNodes|Container repositories'),
           itemValue: this.nodeDetails.containerRepositories,
           itemValueType: VALUE_TYPE.GRAPH,
         },
         {
+          itemEnabled: this.nodeDetails.designRepositories.enabled,
           itemTitle: s__('GeoNodes|Design repositories'),
           itemValue: this.nodeDetails.designRepositories,
           itemValueType: VALUE_TYPE.GRAPH,
-          featureDisabled: !gon.features.enableGeoDesignSync,
           detailsPath: `${this.node.url}admin/geo/designs`,
+        },
+        {
+          itemTitle: s__('GeoNodes|Package files'),
+          itemValue: this.nodeDetails.packageFiles,
+          itemValueType: VALUE_TYPE.GRAPH,
         },
         {
           itemTitle: s__('GeoNodes|Data replication lag'),
@@ -149,14 +157,12 @@ export default {
         v-for="(nodeDetailItem, index) in nodeDetailItems"
         :key="index"
         :css-class="nodeDetailItem.cssClass"
+        :item-enabled="nodeDetailItem.itemEnabled"
         :item-title="nodeDetailItem.itemTitle"
         :item-value="nodeDetailItem.itemValue"
         :item-value-type="nodeDetailItem.itemValueType"
-        :item-value-stale="statusInfoStale"
-        :item-value-stale-tooltip="statusInfoStaleMessage"
         :custom-type="nodeDetailItem.customType"
         :event-type-log-status="nodeDetailItem.eventTypeLogStatus"
-        :feature-disabled="nodeDetailItem.featureDisabled"
         :details-path="nodeDetailItem.detailsPath"
       />
     </div>

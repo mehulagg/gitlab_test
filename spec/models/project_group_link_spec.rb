@@ -32,19 +32,20 @@ describe ProjectGroupLink do
     end
   end
 
-  describe "destroying a record", :delete do
-    it "refreshes group users' authorized projects" do
-      project     = create(:project, :private)
-      group       = create(:group)
-      reporter    = create(:user)
-      group_users = group.users
+  describe 'scopes' do
+    describe '.non_guests' do
+      let!(:project_group_link_reporter) { create :project_group_link, :reporter }
+      let!(:project_group_link_maintainer) { create :project_group_link, :maintainer }
+      let!(:project_group_link_developer) { create :project_group_link }
+      let!(:project_group_link_guest) { create :project_group_link, :guest }
 
-      group.add_reporter(reporter)
-      project.project_group_links.create(group: group)
-      group_users.each { |user| expect(user.authorized_projects).to include(project) }
-
-      project.project_group_links.destroy_all # rubocop: disable DestroyAll
-      group_users.each { |user| expect(user.authorized_projects).not_to include(project) }
+      it 'returns all records which are greater than Guests access' do
+        expect(described_class.non_guests).to match_array([
+                                                           project_group_link_reporter,
+                                                           project_group_link_developer,
+                                                           project_group_link_maintainer
+                                                          ])
+      end
     end
   end
 

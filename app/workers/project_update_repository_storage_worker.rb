@@ -3,21 +3,21 @@
 class ProjectUpdateRepositoryStorageWorker # rubocop:disable Scalability/IdempotentWorker
   include ApplicationWorker
 
-  SameFilesystemError = Class.new(StandardError)
-
   feature_category :gitaly
 
-  def perform(project_id, new_repository_storage_key)
-    project = Project.find(project_id)
+  def perform(project_id, new_repository_storage_key, repository_storage_move_id = nil)
+    repository_storage_move =
+      if repository_storage_move_id
+        ProjectRepositoryStorageMove.find(repository_storage_move_id)
+      else
+        # maintain compatibility with workers queued before release
+        project = Project.find(project_id)
+        project.repository_storage_moves.create!(
+          source_storage_name: project.repository_storage,
+          destination_storage_name: new_repository_storage_key
+        )
+      end
 
-    raise SameFilesystemError if same_filesystem?(project.repository.storage, new_repository_storage_key)
-
-    ::Projects::UpdateRepositoryStorageService.new(project).execute(new_repository_storage_key)
-  end
-
-  private
-
-  def same_filesystem?(old_storage, new_storage)
-    Gitlab::GitalyClient.filesystem_id(old_storage) == Gitlab::GitalyClient.filesystem_id(new_storage)
+    ::Projects::UpdateRepositoryStorageService.new(repository_storage_move).execute
   end
 end

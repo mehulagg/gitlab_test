@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe Packages::Nuget::SearchService do
+RSpec.describe Packages::Nuget::SearchService do
   let_it_be(:project) { create(:project) }
   let_it_be(:package_a) { create(:nuget_package, project: project, name: 'DummyPackageA') }
   let_it_be(:packages_b) { create_list(:nuget_package, 5, project: project, name: 'DummyPackageB') }
@@ -97,6 +97,12 @@ describe Packages::Nuget::SearchService do
         let(:include_prerelease_versions) { false }
 
         it { expect_search_results 3, package_a, packages_b, packages_c }
+
+        context 'when mixed with release versions' do
+          let_it_be(:package_e_release) { create(:nuget_package, project: project, name: 'DummyPackageE', version: '3.2.1') }
+
+          it { expect_search_results 4, package_a, packages_b, packages_c, package_e_release }
+        end
       end
     end
 

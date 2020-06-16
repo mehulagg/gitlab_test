@@ -1,19 +1,11 @@
 import { backOff } from '~/lib/utils/common_utils';
 import httpStatusCodes from '~/lib/utils/http_status';
 import axios from '~/lib/utils/axios_utils';
-import flash from '~/flash';
-import { s__ } from '~/locale';
 import { convertToFixedRange } from '~/lib/utils/datetime_range';
+import { TOKEN_TYPE_POD_NAME, tracking } from '../constants';
+import trackLogs from '../logs_tracking_helper';
 
 import * as types from './mutation_types';
-
-const flashTimeRangeWarning = () => {
-  flash(s__('Metrics|Invalid time range, please verify.'), 'warning');
-};
-
-const flashLogsError = () => {
-  flash(s__('Metrics|There was an error fetching the logs, please try again'));
-};
 
 const requestUntilData = (url, params) =>
   backOff((next, stop) => {
@@ -31,7 +23,7 @@ const requestUntilData = (url, params) =>
       });
   });
 
-const requestLogsUntilData = state => {
+const requestLogsUntilData = ({ commit, state }) => {
   const params = {};
   const { logs_api_path } = state.environments.options.find(
     ({ name }) => name === state.environments.current,
@@ -49,7 +41,7 @@ const requestLogsUntilData = state => {
       params.start_time = start;
       params.end_time = end;
     } catch {
-      flashTimeRangeWarning();
+      commit(types.SHOW_TIME_RANGE_INVALID_WARNING);
     }
   }
   if (state.logs.cursor) {
@@ -59,30 +51,58 @@ const requestLogsUntilData = state => {
   return requestUntilData(logs_api_path, params);
 };
 
+/**
+ * Converts filters emitted by the component, e.g. a filterered-search
+ * to parameters to be applied to the filters of the store
+ * @param {Array} filters - List of strings or objects to filter by.
+ * @returns {Object} - An object with `search` and `podName` keys.
+ */
+const filtersToParams = (filters = []) => {
+  // Strings become part of the `search`
+  const search = filters
+    .filter(f => typeof f === 'string')
+    .join(' ')
+    .trim();
+
+  // null podName to show all pods
+  const podName = filters.find(f => f?.type === TOKEN_TYPE_POD_NAME)?.value?.data ?? null;
+
+  return { search, podName };
+};
+
 export const setInitData = ({ commit }, { timeRange, environmentName, podName }) => {
   commit(types.SET_TIME_RANGE, timeRange);
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, podName);
 };
 
-export const showPodLogs = ({ dispatch, commit }, podName) => {
+export const showFilteredLogs = ({ dispatch, commit }, filters = []) => {
+  const { podName, search } = filtersToParams(filters);
+
   commit(types.SET_CURRENT_POD_NAME, podName);
-  dispatch('fetchLogs');
+  commit(types.SET_SEARCH, search);
+
+  dispatch('fetchLogs', tracking.USED_SEARCH_BAR);
 };
 
-export const setSearch = ({ dispatch, commit }, searchQuery) => {
-  commit(types.SET_SEARCH, searchQuery);
-  dispatch('fetchLogs');
+export const showPodLogs = ({ dispatch, commit }, podName) => {
+  commit(types.SET_CURRENT_POD_NAME, podName);
+  dispatch('fetchLogs', tracking.POD_LOG_CHANGED);
 };
 
 export const setTimeRange = ({ dispatch, commit }, timeRange) => {
   commit(types.SET_TIME_RANGE, timeRange);
-  dispatch('fetchLogs');
+  dispatch('fetchLogs', tracking.TIME_RANGE_SET);
 };
 
 export const showEnvironment = ({ dispatch, commit }, environmentName) => {
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
-  dispatch('fetchLogs');
+  dispatch('fetchLogs', tracking.ENVIRONMENT_SELECTED);
+};
+
+export const refreshPodLogs = ({ dispatch, commit }) => {
+  commit(types.REFRESH_POD_LOGS);
+  dispatch('fetchLogs', tracking.REFRESH_POD_LOGS);
 };
 
 /**
@@ -97,30 +117,29 @@ export const fetchEnvironments = ({ commit, dispatch }, environmentsPath) => {
     .get(environmentsPath)
     .then(({ data }) => {
       commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, data.environments);
-      dispatch('fetchLogs');
+      dispatch('fetchLogs', tracking.ENVIRONMENT_SELECTED);
     })
     .catch(() => {
       commit(types.RECEIVE_ENVIRONMENTS_DATA_ERROR);
-      flash(s__('Metrics|There was an error fetching the environments data, please try again'));
     });
 };
 
-export const fetchLogs = ({ commit, state }) => {
+export const fetchLogs = ({ commit, state }, trackingLabel) => {
   commit(types.REQUEST_LOGS_DATA);
 
-  return requestLogsUntilData(state)
+  return requestLogsUntilData({ commit, state })
     .then(({ data }) => {
       const { pod_name, pods, logs, cursor } = data;
+      if (logs && logs.length > 0) {
+        trackLogs(trackingLabel);
+      }
       commit(types.RECEIVE_LOGS_DATA_SUCCESS, { logs, cursor });
-
       commit(types.SET_CURRENT_POD_NAME, pod_name);
-
       commit(types.RECEIVE_PODS_DATA_SUCCESS, pods);
     })
     .catch(() => {
       commit(types.RECEIVE_PODS_DATA_ERROR);
       commit(types.RECEIVE_LOGS_DATA_ERROR);
-      flashLogsError();
     });
 };
 
@@ -132,15 +151,26 @@ export const fetchMoreLogsPrepend = ({ commit, state }) => {
 
   commit(types.REQUEST_LOGS_DATA_PREPEND);
 
-  return requestLogsUntilData(state)
+  return requestLogsUntilData({ commit, state })
     .then(({ data }) => {
       const { logs, cursor } = data;
       commit(types.RECEIVE_LOGS_DATA_PREPEND_SUCCESS, { logs, cursor });
     })
     .catch(() => {
       commit(types.RECEIVE_LOGS_DATA_PREPEND_ERROR);
-      flashLogsError();
     });
+};
+
+export const dismissRequestEnvironmentsError = ({ commit }) => {
+  commit(types.HIDE_REQUEST_ENVIRONMENTS_ERROR);
+};
+
+export const dismissRequestLogsError = ({ commit }) => {
+  commit(types.HIDE_REQUEST_LOGS_ERROR);
+};
+
+export const dismissInvalidTimeRangeWarning = ({ commit }) => {
+  commit(types.HIDE_TIME_RANGE_INVALID_WARNING);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

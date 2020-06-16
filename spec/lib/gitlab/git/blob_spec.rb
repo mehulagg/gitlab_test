@@ -301,26 +301,12 @@ describe Gitlab::Git::Blob, :seed_helper do
         stub_const('Gitlab::Git::Blob::BATCH_SIZE', 2)
       end
 
-      context 'blobs_fetch_in_batches is enabled' do
-        it 'fetches the blobs in batches' do
-          expect(client).to receive(:get_blobs).with(first_batch, limit).ordered
-          expect(client).to receive(:get_blobs).with(second_batch, limit).ordered
-          expect(client).to receive(:get_blobs).with(third_batch, limit).ordered
+      it 'fetches the blobs in batches' do
+        expect(client).to receive(:get_blobs).with(first_batch, limit).ordered
+        expect(client).to receive(:get_blobs).with(second_batch, limit).ordered
+        expect(client).to receive(:get_blobs).with(third_batch, limit).ordered
 
-          subject
-        end
-      end
-
-      context 'blobs_fetch_in_batches is disabled' do
-        before do
-          stub_feature_flags(blobs_fetch_in_batches: false)
-        end
-
-        it 'fetches the blobs in a single batch' do
-          expect(client).to receive(:get_blobs).with(blob_references, limit)
-
-          subject
-        end
+        subject
       end
     end
   end
@@ -664,6 +650,18 @@ describe Gitlab::Git::Blob, :seed_helper do
 
     it 'defines :gitlab_blob_size histogram' do
       expect(described_class).to respond_to(:gitlab_blob_size)
+    end
+  end
+
+  describe '#lines' do
+    context 'when the encoding cannot be detected' do
+      it 'successfully splits the data' do
+        data = "test\nblob"
+        blob = Gitlab::Git::Blob.new(name: 'test', size: data.bytesize, data: data)
+        expect(blob).to receive(:ruby_encoding) { nil }
+
+        expect(blob.lines).to eq(data.split("\n"))
+      end
     end
   end
 end

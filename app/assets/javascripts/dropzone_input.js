@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import Dropzone from 'dropzone';
-import _ from 'underscore';
+import { escape } from 'lodash';
 import './behaviors/preview_markdown';
 import PasteMarkdownTable from './behaviors/markdown/paste_markdown_table';
 import csrf from './lib/utils/csrf';
@@ -16,14 +16,14 @@ Dropzone.autoDiscover = false;
  * @param {String|Object} res
  */
 function getErrorMessage(res) {
-  if (!res || _.isString(res)) {
+  if (!res || typeof res === 'string') {
     return res;
   }
 
   return res.message;
 }
 
-export default function dropzoneInput(form) {
+export default function dropzoneInput(form, config = { parallelUploads: 2 }) {
   const divHover = '<div class="div-dropzone-hover"></div>';
   const iconPaperclip = '<i class="fa fa-paperclip div-dropzone-icon"></i>';
   const $attachButton = form.find('.button-attach-file');
@@ -69,6 +69,7 @@ export default function dropzoneInput(form) {
     uploadMultiple: false,
     headers: csrf.headers,
     previewContainer: false,
+    ...config,
     processing: () => $('.div-dropzone-alert').alert('close'),
     dragover: () => {
       $mdArea.addClass('is-dropzone-hover');
@@ -232,7 +233,7 @@ export default function dropzoneInput(form) {
   };
 
   addFileToForm = path => {
-    $(form).append(`<input type="hidden" name="files[]" value="${_.escape(path)}">`);
+    $(form).append(`<input type="hidden" name="files[]" value="${escape(path)}">`);
   };
 
   const showSpinner = () => $uploadingProgressContainer.removeClass('hide');

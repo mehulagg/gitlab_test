@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidekiq_inline do
+RSpec.describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidekiq_inline do
   include PrometheusHelpers
   include GrafanaApiHelpers
   include MetricsDashboardUrlHelpers
@@ -133,6 +133,36 @@ describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidek
         .to have_received(:new)
         .with(project, anything, anything, hash_including('query', 'start', 'end', 'step'))
         .at_least(:once)
+    end
+  end
+
+  context 'transient metrics embeds' do
+    let(:metrics_url) { urls.metrics_dashboard_project_environment_url(project, environment, embed_json: embed_json) }
+    let(:title) { 'Important Metrics' }
+    let(:embed_json) do
+      {
+        panel_groups: [{
+          panels: [{
+            type: "line-graph",
+            title: title,
+            y_label: "metric",
+            metrics: [{
+              query_range: "metric * 0.5 < 1"
+            }]
+          }]
+        }]
+      }.to_json
+    end
+
+    before do
+      stub_any_prometheus_request_with_response
+    end
+
+    it 'shows embedded metrics' do
+      visit project_issue_path(project, issue)
+
+      expect(page).to have_css('div.prometheus-graph')
+      expect(page).to have_text(title)
     end
   end
 

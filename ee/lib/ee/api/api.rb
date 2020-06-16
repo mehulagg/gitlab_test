@@ -15,11 +15,13 @@ module EE
         mount ::API::ProjectApprovalRules
         mount ::API::ProjectApprovalSettings
         mount ::API::Unleash
+        mount ::API::DependencyProxy
         mount ::API::EpicIssues
         mount ::API::EpicLinks
         mount ::API::Epics
         mount ::API::ElasticsearchIndexedNamespaces
         mount ::API::FeatureFlags
+        mount ::API::FeatureFlagsUserLists
         mount ::API::FeatureFlagScopes
         mount ::API::Geo
         mount ::API::GeoReplication
@@ -32,9 +34,11 @@ module EE
         mount ::API::ProjectPushRule
         mount ::API::NugetPackages
         mount ::API::PypiPackages
+        mount ::API::ComposerPackages
         mount ::API::ConanPackages
         mount ::API::MavenPackages
         mount ::API::NpmPackages
+        mount ::API::GoProxy
         mount ::API::MergeTrains
         mount ::API::ProjectPackages
         mount ::API::GroupPackages

@@ -13,6 +13,9 @@ class GroupGroupLink < ApplicationRecord
   validates :group_access, inclusion: { in: Gitlab::Access.all_values },
                            presence: true
 
+  scope :non_guests, -> { where('group_access > ?', Gitlab::Access::GUEST) }
+  scope :public_or_visible_to_user, ->(group, user) { where(shared_group: group, shared_with_group: Group.public_or_visible_to_user(user)) } # rubocop:disable Cop/GroupPublicOrVisibleToUser
+
   def self.access_options
     Gitlab::Access.options_with_owner
   end

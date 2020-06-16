@@ -30,7 +30,7 @@ export default {
 </script>
 <template>
   <div>
-    <div class="d-flex justify-content-between bold prepend-top-10 append-bottom-8">
+    <div class="d-flex justify-content-between bold prepend-top-10 gl-mb-3">
       <div class="js-selected-plan">
         {{ sprintf($options.i18n.selectedPlanText, { selectedPlanText }) }}
         <span v-if="usersPresent" class="js-number-of-users">{{
@@ -66,7 +66,7 @@ export default {
       </div>
     </div>
     <div class="border-bottom prepend-top-default append-bottom-default"></div>
-    <div class="d-flex justify-content-between bold gl-font-size-large">
+    <div class="d-flex justify-content-between bold gl-font-lg">
       <div>{{ $options.i18n.total }}</div>
       <div class="js-total-amount">{{ formatAmount(totalAmount, usersPresent) }}</div>
     </div>

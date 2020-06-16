@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'New project' do
+RSpec.describe 'New project' do
   let(:user) { create(:admin) }
 
   before do
@@ -373,46 +373,14 @@ describe 'New project' do
                 let(:template_number) { 2 }
               end
             end
-
-            context 'when creating project with templates' do
-              let(:url) { new_project_path(namespace_id: group1.id) }
-
-              before do
-                allow(Gitlab::CurrentSettings).to receive(:should_check_namespace_plan?) { true }
-                create(:gitlab_subscription, :bronze, namespace: group1)
-              end
-
-              around do |example|
-                Timecop.freeze(GroupsWithTemplatesFinder::CUT_OFF_DATE - 1.day) do
-                  example.run
-                end
-              end
-
-              it 'show Group tab in Templates section' do
-                visit url
-                click_link 'Create from template'
-
-                expect(page).to have_css('.custom-group-project-templates-tab')
-              end
-
-              it_behaves_like 'group templates displayed' do
-                let(:template_number) { 2 }
-              end
-            end
           end
 
-          context 'when creating project with templates after grace period' do
+          context 'when not in proper plan' do
             let(:url) { new_project_path(namespace_id: group1.id) }
 
             before do
               stub_application_setting(check_namespace_plan: true)
               create(:gitlab_subscription, :bronze, namespace: group1)
-            end
-
-            around do |example|
-              Timecop.freeze(GroupsWithTemplatesFinder::CUT_OFF_DATE + 1.day) do
-                example.run
-              end
             end
 
             it 'show Group tab in Templates section' do
@@ -447,6 +415,50 @@ describe 'New project' do
 
         expect(page).not_to have_css('.custom-group-project-templates-tab')
       end
+    end
+  end
+
+  context 'Built-in project templates' do
+    let(:enterprise_templates) { Gitlab::ProjectTemplate.localized_ee_templates_table }
+
+    context 'when `enterprise_templates` is licensed' do
+      before do
+        stub_licensed_features(enterprise_templates: true)
+      end
+
+      it 'shows enterprise templates' do
+        visit_create_from_built_in_templates_tab
+
+        enterprise_templates.each do |template|
+          expect(page).to have_content(template.title)
+          expect(page).to have_link('Preview', href: template.preview)
+        end
+      end
+    end
+
+    context 'when `enterprise_templates` is unlicensed' do
+      before do
+        stub_licensed_features(enterprise_templates: false)
+      end
+
+      it 'does not show enterprise templates' do
+        visit_create_from_built_in_templates_tab
+
+        enterprise_templates.each do |template|
+          expect(page).not_to have_content(template.title)
+          expect(page).not_to have_link('Preview', href: template.preview)
+        end
+      end
+    end
+
+    private
+
+    def visit_create_from_built_in_templates_tab
+      visit new_project_path
+
+      expect(page).to have_css('#create-from-template-tab')
+
+      find('#create-from-template-tab').click
     end
   end
 end

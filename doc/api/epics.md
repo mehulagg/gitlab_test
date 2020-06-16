@@ -1,4 +1,13 @@
+---
+stage: Plan
+group: Portfolio Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Epics API **(PREMIUM)**
+
+> - Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.2.
+> - Single-level Epics [were moved](https://gitlab.com/gitlab-org/gitlab/-/issues/37081) to [GitLab Premium](https://about.gitlab.com/pricing/) in 12.8.
 
 Every API call to epic must be authenticated.
 
@@ -64,9 +73,10 @@ GET /groups/:id/epics?state=opened
 | `updated_before`    | datetime         | no         | Return epics updated on or before the given time                                                                            |
 | `include_ancestor_groups` | boolean    | no         | Include epics from the requested group's ancestors. Default is `false`                                                      |
 | `include_descendant_groups` | boolean  | no         | Include epics from the requested group's descendants. Default is `true`                                                     |
+| `my_reaction_emoji` | string           | no         | Return epics reacted by the authenticated user by the given emoji. `None` returns epics not given a reaction. `Any` returns epics given at least one reaction. Introduced in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31479)|
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/epics"
 ```
 
 Example response:
@@ -77,9 +87,11 @@ Example response:
   "id": 29,
   "iid": 4,
   "group_id": 7,
+  "parent_id": 23,
   "title": "Accusamus iste et ullam ratione voluptatem omnis debitis dolor est.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
   "state": "opened",
+  "confidential": "false",
   "web_url": "http://localhost:3001/groups/test/-/epics/4",
   "reference": "&4",
   "references": {
@@ -117,6 +129,7 @@ Example response:
   "id": 50,
   "iid": 35,
   "group_id": 17,
+  "parent_id": 19,
   "title": "Accusamus iste et ullam ratione voluptatem omnis debitis dolor est.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
   "state": "opened",
@@ -170,7 +183,7 @@ GET /groups/:id/epics/:epic_iid
 | `epic_iid`          | integer/string   | yes        | The internal ID of the epic.  |
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/epics/5"
 ```
 
 Example response:
@@ -238,14 +251,15 @@ POST /groups/:id/epics
 | `title`             | string           | yes        | The title of the epic |
 | `labels`            | string           | no         | The comma separated list of labels |
 | `description`       | string           | no         | The description of the epic. Limited to 1,048,576 characters.  |
+| `confidential`      | boolean          | no         | Whether the epic should be confidential. Will be ignored if `confidential_epics` feature flag is disabled. |
 | `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
 | `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
 | `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` or from milestones (since 11.3) |
 | `due_date_fixed`    | string           | no         | The fixed due date of an epic (since 11.3) |
-| `parent_id`         | integer/string   | no         | The id of a parent epic (since 11.11) |
+| `parent_id`         | integer/string   | no         | The ID of a parent epic (since 11.11) |
 
 ```shell
-curl --header POST "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics?title=Epic&description=Epic%20description
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/epics?title=Epic&description=Epic%20description"
 ```
 
 Example response:
@@ -258,6 +272,7 @@ Example response:
   "title": "Epic",
   "description": "Epic description",
   "state": "opened",
+  "confidential": "false",
   "web_url": "http://localhost:3001/groups/test/-/epics/6",
   "reference": "&6",
   "references": {
@@ -312,6 +327,7 @@ PUT /groups/:id/epics/:epic_iid
 | `epic_iid`          | integer/string   | yes        | The internal ID of the epic  |
 | `title`             | string           | no         | The title of an epic |
 | `description`       | string           | no         | The description of an epic. Limited to 1,048,576 characters.  |
+| `confidential`      | boolean          | no         | Whether the epic should be confidential. Will be ignored if `confidential_epics` feature flag is disabled. |
 | `labels`            | string           | no         | The comma separated list of labels |
 | `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
 | `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
@@ -320,7 +336,7 @@ PUT /groups/:id/epics/:epic_iid
 | `state_event`       | string           | no         | State event for an epic. Set `close` to close the epic and `reopen` to reopen it (since 11.4) |
 
 ```shell
-curl --header PUT "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title"
 ```
 
 Example response:
@@ -333,6 +349,7 @@ Example response:
   "title": "New Title",
   "description": "Epic description",
   "state": "opened",
+  "confidential": "false",
   "web_url": "http://localhost:3001/groups/test/-/epics/6",
   "reference": "&6",
   "references": {
@@ -382,7 +399,7 @@ DELETE /groups/:id/epics/:epic_iid
 | `epic_iid`          | integer/string   | yes        | The internal ID of the epic.  |
 
 ```shell
-curl --header DELETE "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
+curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/epics/5"
 ```
 
 ## Create a todo
@@ -401,7 +418,7 @@ POST /groups/:id/epics/:epic_iid/todo
 | `epic_iid` | integer | yes          | The internal ID of a group's epic |
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/todo
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/epics/5/todo"
 ```
 
 Example response:

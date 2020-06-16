@@ -22,7 +22,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters
+curl --header 'Private-Token: <your_access_token>' "https://gitlab.example.com/api/v4/groups/26/clusters"
 ```
 
 Example response:
@@ -90,7 +90,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/18
+curl --header "Private-Token: <your_access_token>" "https://gitlab.example.com/api/v4/groups/26/clusters/18"
 ```
 
 Example response:
@@ -166,7 +166,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/user \
+curl --header "Private-Token: <your_access_token>" "https://gitlab.example.com/api/v4/groups/26/clusters/user" \
 -H "Accept: application/json" \
 -H "Content-Type:application/json" \
 --request POST --data '{"name":"cluster-5", "platform_kubernetes_attributes":{"api_url":"https://35.111.51.20","token":"12345","ca_cert":"-----BEGIN CERTIFICATE-----\r\nhFiK1L61owwDQYJKoZIhvcNAQELBQAw\r\nLzEtMCsGA1UEAxMkZDA1YzQ1YjctNzdiMS00NDY0LThjNmEtMTQ0ZDJkZjM4ZDBj\r\nMB4XDTE4MTIyNzIwMDM1MVoXDTIzMTIyNjIxMDM1MVowLzEtMCsGA1UEAxMkZDA1\r\nYzQ1YjctNzdiMS00NDY0LThjNmEtMTQ0ZDJkZjM.......-----END CERTIFICATE-----"}}'
@@ -224,6 +224,7 @@ Parameters:
 | `cluster_id` | integer | yes | The ID of the cluster |
 | `name` | string | no | The name of the cluster |
 | `domain` | string | no | The [base domain](../user/group/clusters/index.md#base-domain) of the cluster |
+| `management_project_id` | integer | no | The ID of the [management project](../user/clusters/management_project.md) for the cluster |
 | `platform_kubernetes_attributes[api_url]` | string | no | The URL to access the Kubernetes API |
 | `platform_kubernetes_attributes[token]` | string | no | The token to authenticate against Kubernetes |
 | `platform_kubernetes_attributes[ca_cert]` | string | no | TLS certificate. Required if API is using a self-signed TLS certificate. |
@@ -237,7 +238,7 @@ through the ["Add existing cluster to group"](#add-existing-cluster-to-group) en
 Example request:
 
 ```shell
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/24 \
+curl --header 'Private-Token: <your_access_token>' "https://gitlab.example.com/api/v4/groups/26/clusters/24" \
 -H "Content-Type:application/json" \
 --request PUT --data '{"name":"new-cluster-name","domain":"new-domain.com","api_url":"https://new-api-url.com"}'
 ```
@@ -306,5 +307,5 @@ Parameters:
 Example request:
 
 ```shell
-curl --request DELETE --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/23
+curl --request DELETE --header "Private-Token: <your_access_token>" "https://gitlab.example.com/api/v4/groups/26/clusters/23"
 ```

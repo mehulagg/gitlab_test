@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import { GlEmptyState } from '@gitlab/ui';
 import MockAdapter from 'axios-mock-adapter';
 import { TEST_HOST } from 'helpers/test_constants';
-
 import ProjectSecurityDashboard from 'ee/security_dashboard/components/project_security_dashboard.vue';
 import createStore from 'ee/security_dashboard/store';
 import { trimText } from 'helpers/text_helper';
@@ -24,7 +23,7 @@ describe('Project Security Dashboard component', () => {
       stubs: ['security-dashboard-table'],
       propsData: {
         hasPipelineData: true,
-        emptyStateIllustrationPath: `${TEST_HOST}/img`,
+        emptyStateSvgPath: `${TEST_HOST}/img`,
         securityDashboardHelpPath: `${TEST_HOST}/help_dashboard`,
         commit: {
           id: '1234adf',
@@ -103,7 +102,7 @@ describe('Project Security Dashboard component', () => {
     it('renders one filter less because projects filter is locked', () => {
       const dashboard = findDashboard();
       const filters = dashboard.findAll('.dashboard-filter');
-      expect(filters.length).toBe(wrapper.vm.$store.state.filters.filters.length - 1);
+      expect(filters).toHaveLength(wrapper.vm.$store.state.filters.filters.length - 1);
     });
   });
 

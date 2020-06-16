@@ -35,6 +35,10 @@ describe Gitlab::Database::BatchCount do
       expect(described_class.batch_count(model, "#{model.table_name}.id")).to eq(5)
     end
 
+    it 'counts with Arel column' do
+      expect(described_class.batch_count(model, model.arel_table[:id])).to eq(5)
+    end
+
     it 'counts table with batch_size 50K' do
       expect(described_class.batch_count(model, batch_size: 50_000)).to eq(5)
     end
@@ -86,10 +90,6 @@ describe Gitlab::Database::BatchCount do
   end
 
   describe '#batch_distinct_count' do
-    it 'counts with :id field' do
-      expect(described_class.batch_distinct_count(model, :id)).to eq(5)
-    end
-
     it 'counts with column field' do
       expect(described_class.batch_distinct_count(model, column)).to eq(2)
     end
@@ -100,6 +100,10 @@ describe Gitlab::Database::BatchCount do
 
     it 'counts with table.column field' do
       expect(described_class.batch_distinct_count(model, "#{model.table_name}.#{column}")).to eq(2)
+    end
+
+    it 'counts with Arel column' do
+      expect(described_class.batch_distinct_count(model, model.arel_table[column])).to eq(2)
     end
 
     it 'counts with :column field with batch_size of 50K' do
@@ -136,6 +140,12 @@ describe Gitlab::Database::BatchCount do
 
       it 'returns fallback if batch size is less than min required' do
         expect(described_class.batch_distinct_count(model, column, batch_size: small_batch_size)).to eq(fallback)
+      end
+
+      it 'will raise an error if distinct count with the :id column is requested' do
+        expect do
+          described_class.batch_count(described_class.batch_distinct_count(model, :id))
+        end.to raise_error 'Use distinct count only with non id fields'
       end
     end
   end

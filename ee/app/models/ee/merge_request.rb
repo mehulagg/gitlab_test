@@ -15,14 +15,12 @@ module EE
       include DeprecatedApprovalsBeforeMerge
       include UsageStatistics
 
-      has_many :reviews, inverse_of: :merge_request
       has_many :approvals, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approved_by_users, through: :approvals, source: :user
       has_many :approvers, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
       has_many :approver_groups, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approval_rules, class_name: 'ApprovalMergeRequestRule', inverse_of: :merge_request
-      has_many :draft_notes
       has_one :merge_train, inverse_of: :merge_request, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
       has_many :blocks_as_blocker,
@@ -124,10 +122,6 @@ module EE
       project.feature_available?(:multiple_merge_request_assignees)
     end
 
-    def supports_weight?
-      false
-    end
-
     def visible_blocking_merge_requests(user)
       Ability.merge_requests_readable_by_user(blocking_merge_requests, user)
     end
@@ -150,25 +144,12 @@ module EE
       hidden.count
     end
 
-    override :note_positions_for_paths
-    def note_positions_for_paths(file_paths, user = nil)
-      return super unless user
-
-      positions = draft_notes
-        .authored_by(user)
-        .positions
-        .select { |pos| file_paths.include?(pos.file_path) }
-
-      super.concat(positions)
-    end
-
     def enabled_reports
       {
         sast: report_type_enabled?(:sast),
         container_scanning: report_type_enabled?(:container_scanning),
         dast: report_type_enabled?(:dast),
         dependency_scanning: report_type_enabled?(:dependency_scanning),
-        license_management: report_type_enabled?(:license_scanning),
         license_scanning: report_type_enabled?(:license_scanning)
       }
     end
@@ -183,7 +164,7 @@ module EE
       compare_reports(::Ci::CompareDependencyScanningReportsService, current_user)
     end
 
-    def has_license_management_reports?
+    def has_license_scanning_reports?
       !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.license_scanning_reports))
     end
 
@@ -201,10 +182,20 @@ module EE
       !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.sast_reports))
     end
 
+    def has_secret_detection_reports?
+      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.secret_detection_reports))
+    end
+
     def compare_sast_reports(current_user)
       return missing_report_error("SAST") unless has_sast_reports?
 
       compare_reports(::Ci::CompareSastReportsService, current_user)
+    end
+
+    def compare_secret_detection_reports(current_user)
+      return missing_report_error("secret detection") unless has_secret_detection_reports?
+
+      compare_reports(::Ci::CompareSecretDetectionReportsService, current_user)
     end
 
     def has_dast_reports?
@@ -217,8 +208,8 @@ module EE
       compare_reports(::Ci::CompareDastReportsService, current_user)
     end
 
-    def compare_license_management_reports(current_user)
-      return missing_report_error("license management") unless has_license_management_reports?
+    def compare_license_scanning_reports(current_user)
+      return missing_report_error("license scanning") unless has_license_scanning_reports?
 
       compare_reports(::Ci::CompareLicenseScanningReportsService, current_user)
     end

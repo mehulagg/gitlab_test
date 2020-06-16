@@ -10,7 +10,7 @@ module API
       expose :access_level
       expose :version, :revision, :platform, :architecture
       expose :contacted_at
-      expose :token, if: lambda { |runner, options| options[:current_user].admin? || !runner.instance_type? }
+
       # rubocop: disable CodeReuse/ActiveRecord
       expose :projects, with: Entities::BasicProjectDetails do |runner, options|
         if options[:current_user].admin?

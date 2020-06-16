@@ -14,31 +14,31 @@ ensure functionality is preserved across versions and covered by tests.
 NOTE: **Note:**
 File hooks must be configured on the filesystem of the GitLab server. Only GitLab
 server administrators will be able to complete these tasks. Explore
-[system hooks] or [webhooks] as an option if you do not have filesystem access.
+[system hooks](../system_hooks/system_hooks.md) or [webhooks](../user/project/integrations/webhooks.md) as an option if you do not have filesystem access.
 
 A file hook will run on each event so it's up to you to filter events or projects
 within a file hook code. You can have as many file hooks as you want. Each file hook will
 be triggered by GitLab asynchronously in case of an event. For a list of events
-see the [system hooks] documentation.
+see the [system hooks](../system_hooks/system_hooks.md) documentation.
 
 ## Setup
 
-The file hooks must be placed directly into the `plugins` directory, subdirectories
+The file hooks must be placed directly into the `file_hooks` directory, subdirectories
 will be ignored. There is an
-[`example` directory inside `plugins`](https://gitlab.com/gitlab-org/gitlab/tree/master/plugins/examples)
+[`example` directory inside `file_hooks`](https://gitlab.com/gitlab-org/gitlab/tree/master/file_hooks/examples)
 where you can find some basic examples.
 
 Follow the steps below to set up a custom hook:
 
 1. On the GitLab server, navigate to the plugin directory.
    For an installation from source the path is usually
-   `/home/git/gitlab/plugins/`. For Omnibus installs the path is
-   usually `/opt/gitlab/embedded/service/gitlab-rails/plugins`.
+   `/home/git/gitlab/file_hooks/`. For Omnibus installs the path is
+   usually `/opt/gitlab/embedded/service/gitlab-rails/file_hooks`.
 
-    For [highly available] configurations, your hook file should exist on each
-    application server.
+    For [configurations with multiple servers](reference_architectures/index.md),
+    your hook file should exist on each application server.
 
-1. Inside the `plugins` directory, create a file with a name of your choice,
+1. Inside the `file_hooks` directory, create a file with a name of your choice,
    without spaces or special characters.
 1. Make the hook file executable and make sure it's owned by the Git user.
 1. Write the code to make the file hook function as expected. That can be
@@ -46,7 +46,7 @@ Follow the steps below to set up a custom hook:
    language type. For example, if the script is in Ruby the shebang will
    probably be `#!/usr/bin/env ruby`.
 1. The data to the file hook will be provided as JSON on STDIN. It will be exactly
-   same as for [system hooks]
+   same as for [system hooks](../system_hooks/system_hooks.md).
 
 That's it! Assuming the file hook code is properly implemented, the hook will fire
 as appropriate. The file hooks file list is updated for each event, there is no
@@ -106,11 +106,7 @@ bundle exec rake file_hooks:validate RAILS_ENV=production
 Example of output:
 
 ```plaintext
-Validating file hooks from /plugins directory
-* /home/git/gitlab/plugins/save_to_file.clj succeed (zero exit code)
-* /home/git/gitlab/plugins/save_to_file.rb failure (non-zero exit code)
+Validating file hooks from /file_hooks directory
+* /home/git/gitlab/file_hooks/save_to_file.clj succeed (zero exit code)
+* /home/git/gitlab/file_hooks/save_to_file.rb failure (non-zero exit code)
 ```
-
-[system hooks]: ../system_hooks/system_hooks.md
-[webhooks]: ../user/project/integrations/webhooks.md
-[highly available]: ./high_availability/README.md

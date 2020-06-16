@@ -30,9 +30,9 @@ module API
       def authenticate_with_webhook_token!
         return not_found! unless project
 
-        unless valid_github_signature?
-          render_invalid_github_signature!
-        end
+        return if valid_github_signature?
+
+        render_invalid_github_signature!
       end
 
       def try_authenticate_with_webhook_token!
@@ -49,7 +49,7 @@ module API
       end
 
       def process_pull_request
-        external_pull_request = ProcessGithubPullRequestEventService.new(project, mirror_user).execute(params)
+        external_pull_request = Ci::ExternalPullRequests::ProcessGithubEventService.new(project, mirror_user).execute(params)
 
         if external_pull_request
           render_validation_error!(external_pull_request)
@@ -59,7 +59,7 @@ module API
       end
 
       def start_pull_mirroring
-        result = StartPullMirroringService.new(project, mirror_user).execute
+        result = StartPullMirroringService.new(project, mirror_user, pause_on_hard_failure: true).execute
 
         render_api_error!(result[:message], result[:http_status]) if result[:status] == :error
       end

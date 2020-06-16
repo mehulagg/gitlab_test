@@ -13,10 +13,16 @@ describe ::PodLogs::BaseService do
   let(:container_name) { 'container-0' }
   let(:params) { {} }
   let(:raw_pods) do
-    JSON.parse([
-      kube_pod(name: pod_name),
-      kube_pod(name: pod_name_2)
-    ].to_json, object_class: OpenStruct)
+    [
+      {
+        name: pod_name,
+        container_names: %w(container-0-0 container-0-1)
+      },
+      {
+        name: pod_name_2,
+        container_names: %w(container-1-0 container-1-1)
+      }
+    ]
   end
 
   subject { described_class.new(cluster, namespace, params: params) }
@@ -97,18 +103,35 @@ describe ::PodLogs::BaseService do
         expect(result[:container_name]).to eq(container_name)
       end
     end
-  end
 
-  describe '#get_raw_pods' do
-    let(:service) { create(:cluster_platform_kubernetes, :configured) }
+    context 'when pod_name is not a string' do
+      let(:params) do
+        {
+            'pod_name' => { something_that_is: :not_a_string }
+        }
+      end
 
-    it 'returns success with passthrough k8s response' do
-      stub_kubeclient_pods(namespace)
+      it 'returns error' do
+        result = subject.send(:check_arguments, {})
 
-      result = subject.send(:get_raw_pods, {})
+        expect(result[:status]).to eq(:error)
+        expect(result[:message]).to eq('Invalid pod_name')
+      end
+    end
 
-      expect(result[:status]).to eq(:success)
-      expect(result[:raw_pods].first).to be_a(Kubeclient::Resource)
+    context 'when container_name is not a string' do
+      let(:params) do
+        {
+            'container_name' => { something_that_is: :not_a_string }
+        }
+      end
+
+      it 'returns error' do
+        result = subject.send(:check_arguments, {})
+
+        expect(result[:status]).to eq(:error)
+        expect(result[:message]).to eq('Invalid container_name')
+      end
     end
   end
 

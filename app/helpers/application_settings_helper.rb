@@ -26,6 +26,17 @@ module ApplicationSettingsHelper
     end
   end
 
+  def storage_weights
+    ApplicationSetting.repository_storages_weighted_attributes.map do |attribute|
+      storage = attribute.to_s.delete_prefix('repository_storages_weighted_')
+      {
+        name: attribute,
+        label: storage,
+        value: @application_setting.repository_storages_weighted[storage] || 0
+      }
+    end
+  end
+
   def all_protocols_enabled?
     Gitlab::CurrentSettings.enabled_git_access_protocol.blank?
   end
@@ -176,6 +187,7 @@ module ApplicationSettingsHelper
       :authorized_keys_enabled,
       :auto_devops_enabled,
       :auto_devops_domain,
+      :container_expiration_policies_enable_historic_entries,
       :container_registry_token_expire_delay,
       :default_artifacts_expire_in,
       :default_branch_protection,
@@ -227,15 +239,9 @@ module ApplicationSettingsHelper
       :import_sources,
       :max_artifacts_size,
       :max_attachment_size,
+      :max_import_size,
       :max_pages_size,
-      :metrics_enabled,
-      :metrics_host,
       :metrics_method_call_threshold,
-      :metrics_packet_size,
-      :metrics_pool_size,
-      :metrics_port,
-      :metrics_sample_interval,
-      :metrics_timeout,
       :minimum_password_length,
       :mirror_available,
       :pages_domain_verification_enabled,
@@ -267,6 +273,8 @@ module ApplicationSettingsHelper
       :sourcegraph_enabled,
       :sourcegraph_url,
       :sourcegraph_public_only,
+      :spam_check_endpoint_enabled,
+      :spam_check_endpoint_url,
       :terminal_max_session_time,
       :terms,
       :throttle_authenticated_api_enabled,
@@ -309,7 +317,9 @@ module ApplicationSettingsHelper
       :custom_http_clone_url_root,
       :snippet_size_limit,
       :email_restrictions_enabled,
-      :email_restrictions
+      :email_restrictions,
+      :issues_create_limit,
+      :raw_blob_request_limit
     ]
   end
 
@@ -364,7 +374,7 @@ module ApplicationSettingsHelper
   end
 end
 
-ApplicationSettingsHelper.prepend_if_ee('EE::ApplicationSettingsHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
+ApplicationSettingsHelper.prepend_if_ee('EE::ApplicationSettingsHelper')
 
 # The methods in `EE::ApplicationSettingsHelper` should be available as both
 # instance and class methods.

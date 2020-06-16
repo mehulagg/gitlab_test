@@ -15,6 +15,48 @@ describe GroupGroupLink do
     it { is_expected.to belong_to(:shared_with_group) }
   end
 
+  describe 'scopes' do
+    describe '.non_guests' do
+      let!(:group_group_link_reporter) { create :group_group_link, :reporter }
+      let!(:group_group_link_maintainer) { create :group_group_link, :maintainer }
+      let!(:group_group_link_owner) { create :group_group_link, :owner }
+      let!(:group_group_link_guest) { create :group_group_link, :guest }
+
+      it 'returns all records which are greater than Guests access' do
+        expect(described_class.non_guests).to match_array([
+                                                           group_group_link_reporter, group_group_link,
+                                                           group_group_link_maintainer, group_group_link_owner
+                                                          ])
+      end
+    end
+
+    describe '.public_or_visible_to_user' do
+      let!(:user_with_access) { create :user }
+      let!(:user_without_access) { create :user }
+      let!(:shared_with_group) { create :group, :private }
+      let!(:shared_group) { create :group }
+      let!(:private_group_group_link) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_group) }
+
+      before do
+        shared_group.add_owner(user_with_access)
+        shared_group.add_owner(user_without_access)
+        shared_with_group.add_developer(user_with_access)
+      end
+
+      context 'when user can access shared group' do
+        it 'returns the private group' do
+          expect(described_class.public_or_visible_to_user(shared_group, user_with_access)).to include(private_group_group_link)
+        end
+      end
+
+      context 'when user does not have access to shared group' do
+        it 'does not return private group' do
+          expect(described_class.public_or_visible_to_user(shared_group, user_without_access)).not_to include(private_group_group_link)
+        end
+      end
+    end
+  end
+
   describe 'validation' do
     it { is_expected.to validate_presence_of(:shared_group) }
 

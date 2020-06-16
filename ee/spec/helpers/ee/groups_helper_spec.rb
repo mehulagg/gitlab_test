@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe GroupsHelper do
+RSpec.describe GroupsHelper do
   using RSpec::Parameterized::TableSyntax
 
   let(:owner) { create(:user, group_view: :security_dashboard) }
@@ -143,7 +143,9 @@ describe GroupsHelper do
 
   describe '#show_group_activity_analytics?' do
     before do
+      stub_feature_flags(group_activity_analytics: feature_available)
       stub_licensed_features(group_activity_analytics: feature_available)
+
       allow(helper).to receive(:current_user) { current_user }
       allow(helper).to receive(:can?) { |*args| Ability.allowed?(*args) }
     end
@@ -232,6 +234,18 @@ describe GroupsHelper do
         subgroup = create(:group, :private, parent: group)
 
         expect(helper.show_administration_nav?(subgroup)).to be false
+      end
+
+      context 'when `group_administration_nav_item` feature flag is enabled for another group' do
+        let(:another_group) { create(:group) }
+
+        before do
+          stub_feature_flags(group_administration_nav_item: another_group)
+        end
+
+        it 'returns false' do
+          expect(helper.show_administration_nav?(group)).to be false
+        end
       end
     end
   end

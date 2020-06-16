@@ -37,6 +37,30 @@ describe 'getting merge request information nested in a project' do
     expect(merge_request_graphql_data['webUrl']).to be_present
   end
 
+  it 'includes author' do
+    post_graphql(query, current_user: current_user)
+
+    expect(merge_request_graphql_data['author']['username']).to eq(merge_request.author.username)
+  end
+
+  it 'includes correct mergedAt value when merged' do
+    time = 1.week.ago
+    merge_request.mark_as_merged
+    merge_request.metrics.update_columns(merged_at: time)
+
+    post_graphql(query, current_user: current_user)
+    retrieved = merge_request_graphql_data['mergedAt']
+
+    expect(Time.zone.parse(retrieved)).to be_within(1.second).of(time)
+  end
+
+  it 'includes nil mergedAt value when not merged' do
+    post_graphql(query, current_user: current_user)
+    retrieved = merge_request_graphql_data['mergedAt']
+
+    expect(retrieved).to be_nil
+  end
+
   context 'permissions on the merge request' do
     it 'includes the permissions for the current user on a public project' do
       expected_permissions = {
@@ -91,6 +115,54 @@ describe 'getting merge request information nested in a project' do
       post_graphql(query, current_user: current_user)
 
       expect(merge_request_graphql_data['pipelines']['edges'].size).to eq(1)
+    end
+  end
+
+  context 'when limiting the number of results' do
+    let(:merge_requests_graphql_data) { graphql_data['project']['mergeRequests']['edges'] }
+
+    let!(:merge_requests) do
+      [
+        create(:merge_request, source_project: project, source_branch: 'branch-1'),
+        create(:merge_request, source_project: project, source_branch: 'branch-2'),
+        create(:merge_request, source_project: project, source_branch: 'branch-3')
+      ]
+    end
+
+    let(:fields) do
+      <<~QUERY
+      edges {
+        node {
+          iid,
+          title
+        }
+      }
+      QUERY
+    end
+
+    let(:query) do
+      graphql_query_for(
+        'project',
+        { 'fullPath' => project.full_path },
+        "mergeRequests(first: 2) { #{fields} }"
+      )
+    end
+
+    it 'returns the correct number of results' do
+      post_graphql(query, current_user: current_user)
+
+      expect(merge_requests_graphql_data.size).to eq 2
+    end
+  end
+
+  context 'when merge request is cannot_be_merged_rechecking' do
+    before do
+      merge_request.update!(merge_status: 'cannot_be_merged_rechecking')
+    end
+
+    it 'returns checking' do
+      post_graphql(query, current_user: current_user)
+      expect(merge_request_graphql_data['mergeStatus']).to eq('checking')
     end
   end
 end

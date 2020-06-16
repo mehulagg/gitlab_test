@@ -28,15 +28,15 @@ import initLayoutNav from './layout_nav';
 import './feature_highlight/feature_highlight_options';
 import LazyLoader from './lazy_loader';
 import initLogoAnimation from './logo';
-import './frequent_items';
+import initFrequentItemDropdowns from './frequent_items';
 import initBreadcrumbs from './breadcrumb';
 import initUsagePingConsent from './usage_ping_consent';
 import initPerformanceBar from './performance_bar';
-import initSearchAutocomplete from './search_autocomplete';
+import initGlobalSearchInput from './global_search_input';
 import GlFieldErrors from './gl_field_errors';
 import initUserPopovers from './user_popovers';
 import initBroadcastNotifications from './broadcast_notification';
-import PersistentUserCallout from './persistent_user_callout';
+import initPersistentUserCallouts from './persistent_user_callouts';
 import { initUserTracking } from './tracking';
 import { __ } from './locale';
 
@@ -106,13 +106,11 @@ function deferredInitialisation() {
   initLogoAnimation();
   initUsagePingConsent();
   initUserPopovers();
-  initUserTracking();
   initBroadcastNotifications();
+  initFrequentItemDropdowns();
+  initPersistentUserCallouts();
 
-  const recoverySettingsCallout = document.querySelector('.js-recovery-settings-callout');
-  PersistentUserCallout.factory(recoverySettingsCallout);
-
-  if (document.querySelector('.search')) initSearchAutocomplete();
+  if (document.querySelector('.search')) initGlobalSearchInput();
 
   addSelectOnFocusBehaviour('.js-select-on-focus');
 
@@ -187,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (document.querySelector('#js-peek')) initPerformanceBar({ container: '#js-peek' });
 
+  initUserTracking();
   initLayoutNav();
 
   // Set the default path for all cookies to GitLab's root directory
@@ -297,6 +296,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const $gutterIcon = $sidebarGutterToggle.find('i');
       if ($gutterIcon.hasClass('fa-angle-double-right')) {
         $sidebarGutterToggle.trigger('click');
+      }
+
+      const sidebarGutterVueToggleEl = document.querySelector('.js-sidebar-vue-toggle');
+
+      // Sidebar has an icon which corresponds to collapsing the sidebar
+      // only then trigger the click.
+      if (sidebarGutterVueToggleEl) {
+        const collapseIcon = sidebarGutterVueToggleEl.querySelector('i.fa-angle-double-right');
+
+        if (collapseIcon) {
+          collapseIcon.click();
+        }
       }
     }
   });

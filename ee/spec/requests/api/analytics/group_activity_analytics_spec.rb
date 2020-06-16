@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Analytics::GroupActivityAnalytics do
+RSpec.describe API::Analytics::GroupActivityAnalytics do
   let_it_be(:group) { create(:group, :private) }
 
   let_it_be(:reporter) do
@@ -12,7 +12,8 @@ describe API::Analytics::GroupActivityAnalytics do
   let_it_be(:anonymous_user) { create(:user) }
 
   shared_examples 'GET group_activity' do |activity, count|
-    let(:feature_enabled) { true }
+    let(:feature_available) { true }
+    let(:feature_enabled_for) { group }
     let(:params) { { group_path: group.full_path } }
     let(:current_user) { reporter }
     let(:request) do
@@ -20,20 +21,33 @@ describe API::Analytics::GroupActivityAnalytics do
     end
 
     before do
-      stub_licensed_features(group_activity_analytics: feature_enabled)
+      stub_feature_flags(group_activity_analytics: feature_enabled_for)
+      stub_licensed_features(group_activity_analytics: feature_available)
+
       request
     end
 
-    it 'is successful' do
-      expect(response).to have_gitlab_http_status(:ok)
-    end
+    context 'when feature is enabled for a group' do
+      it 'is successful' do
+        expect(response).to have_gitlab_http_status(:ok)
+      end
 
-    it 'is returns a count' do
-      expect(response.parsed_body).to eq({ "#{activity}_count" => count })
+      it 'is returns a count' do
+        expect(response.parsed_body).to eq({ "#{activity}_count" => count })
+      end
     end
 
     context 'when feature is not available in plan' do
-      let(:feature_enabled) { false }
+      let(:feature_available) { false }
+      let(:feature_enabled_for) { false }
+
+      it 'is returns `forbidden`' do
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
+    context 'when feature is disabled globally' do
+      let(:feature_enabled_for) { false }
 
       it 'is returns `forbidden`' do
         expect(response).to have_gitlab_http_status(:forbidden)

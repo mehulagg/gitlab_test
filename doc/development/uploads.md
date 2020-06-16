@@ -1,7 +1,7 @@
 # Uploads development documentation
 
 [GitLab Workhorse](https://gitlab.com/gitlab-org/gitlab-workhorse) has special rules for handling uploads.
-To prevent occupying a ruby process on I/O operations, we process the upload in workhorse, where is cheaper.
+To prevent occupying a Ruby process on I/O operations, we process the upload in workhorse, where is cheaper.
 This process can also directly upload to object storage.
 
 ## The problem description
@@ -11,7 +11,7 @@ The following graph explains machine boundaries in a scalable GitLab installatio
 ```mermaid
 graph TB
     subgraph "load balancers"
-      LB(HA Proxy)
+      LB(Proxy)
     end
 
     subgraph "Shared storage"
@@ -40,7 +40,7 @@ We have three challenges here: performance, availability, and scalability.
 
 ### Performance
 
-Rails process are expensive in terms of both CPU and memory. Ruby [global interpreter lock](https://en.wikipedia.org/wiki/Global_interpreter_lock) adds to cost too because the ruby process will spend time on I/O operations on step 3 causing incoming requests to pile up.
+Rails process are expensive in terms of both CPU and memory. Ruby [global interpreter lock](https://en.wikipedia.org/wiki/Global_interpreter_lock) adds to cost too because the Ruby process will spend time on I/O operations on step 3 causing incoming requests to pile up.
 
 In order to improve this, [disk buffered upload](#disk-buffered-upload) was implemented. With this, Rails no longer deals with writing uploaded files to disk.
 
@@ -92,7 +92,7 @@ We can identify three major use-cases for an upload:
 
 1. **storage:** if we are uploading for storing a file (i.e. artifacts, packages, discussion attachments). In this case [direct upload](#direct-upload) is the proper level as it's the less resource-intensive operation. Additional information can be found on [File Storage in GitLab](file_storage.md).
 1. **in-controller/synchronous processing:** if we allow processing **small files** synchronously, using [disk buffered upload](#disk-buffered-upload) may speed up development.
-1. **Sidekiq/asynchronous processing:** Async processing must implement [direct upload](#direct-upload), the reason being that it's the only way to support Cloud Native deployments without a shared NFS.
+1. **Sidekiq/asynchronous processing:** Asynchronous processing must implement [direct upload](#direct-upload), the reason being that it's the only way to support Cloud Native deployments without a shared NFS.
 
 For more details about currently broken feature see [epic &1802](https://gitlab.com/groups/gitlab-org/-/epics/1802).
 
@@ -114,7 +114,7 @@ We have three kinds of file encoding in our uploads:
 
 1. <i class="fa fa-check-circle"></i> **multipart**: `multipart/form-data` is the most common, a file is encoded as a part of a multipart encoded request.
 1. <i class="fa fa-check-circle"></i> **body**: some APIs uploads files as the whole request body.
-1. <i class="fa fa-times-circle"></i> **JSON**: some JSON API uploads files as base64 encoded strings. This will require a change to GitLab Workhorse, which [is planned](https://gitlab.com/gitlab-org/gitlab-workhorse/issues/226).
+1. <i class="fa fa-times-circle"></i> **JSON**: some JSON API uploads files as base64 encoded strings. This will require a change to GitLab Workhorse, which [is planned](https://gitlab.com/gitlab-org/gitlab-workhorse/-/issues/226).
 
 ## Uploading technologies
 
@@ -128,7 +128,7 @@ This is the default kind of upload, and it's most expensive in terms of resource
 
 In this case, workhorse is unaware of files being uploaded and acts as a regular proxy.
 
-When a multipart request reaches the rails application, `Rack::Multipart` leaves behind tempfiles in `/tmp` and uses valuable Ruby process time to copy files around.
+When a multipart request reaches the rails application, `Rack::Multipart` leaves behind temporary files in `/tmp` and uses valuable Ruby process time to copy files around.
 
 ```mermaid
 sequenceDiagram

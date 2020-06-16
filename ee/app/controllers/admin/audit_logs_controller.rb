@@ -11,6 +11,7 @@ class Admin::AuditLogsController < Admin::ApplicationController
 
   def index
     @events = audit_log_events
+    @table_events = AuditEventSerializer.new.represent(@events)
 
     @entity = case audit_logs_params[:entity_type]
               when 'User'
@@ -27,7 +28,8 @@ class Admin::AuditLogsController < Admin::ApplicationController
   private
 
   def audit_log_events
-    events = AuditLogFinder.new(audit_logs_params).execute
+    level = Gitlab::Audit::Levels::Instance.new
+    events = AuditLogFinder.new(level: level, params: audit_logs_params).execute
     events = events.page(params[:page]).per(PER_PAGE).without_count
 
     Gitlab::Audit::Events::Preloader.preload!(events)

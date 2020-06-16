@@ -3,37 +3,26 @@
 require 'spec_helper'
 
 describe Gitlab::JiraImport::Stage::ImportNotesWorker do
-  let_it_be(:project) { create(:project) }
+  let_it_be(:project) { create(:project, import_type: 'jira') }
 
   describe 'modules' do
     it_behaves_like 'include import workers modules'
   end
 
   describe '#perform' do
-    context 'when feature flag enabled' do
-      before do
-        stub_feature_flags(jira_issue_import: false)
-      end
+    let_it_be(:jira_import) { create(:jira_import_state, :scheduled, project: project) }
 
-      it_behaves_like 'exit import not started'
+    context 'when import did not start' do
+      it_behaves_like 'cannot do Jira import'
+      it_behaves_like 'does not advance to next stage'
     end
 
-    context 'when feature flag enabled' do
+    context 'when import started' do
       before do
-        stub_feature_flags(jira_issue_import: true)
+        jira_import.start!
       end
 
-      context 'when import did not start' do
-        let!(:import_state) { create(:import_state, project: project) }
-
-        it_behaves_like 'exit import not started'
-      end
-
-      context 'when import started' do
-        let!(:import_state) { create(:import_state, status: :started, project: project) }
-
-        it_behaves_like 'advance to next stage', :finish
-      end
+      it_behaves_like 'advance to next stage', :finish
     end
   end
 end

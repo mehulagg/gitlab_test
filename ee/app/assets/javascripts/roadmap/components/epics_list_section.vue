@@ -37,6 +37,10 @@ export default {
       type: Number,
       required: true,
     },
+    hasFiltersApplied: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -48,9 +52,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(['bufferSize']),
+    ...mapState(['bufferSize', 'epicIid', 'childrenEpics', 'childrenFlags', 'epicIds']),
     emptyRowContainerVisible() {
-      return this.epics.length < this.bufferSize;
+      return this.displayedEpics.length < this.bufferSize;
     },
     sectionContainerStyles() {
       return {
@@ -62,14 +66,19 @@ export default {
         left: `${this.offsetLeft}px`,
       };
     },
+    epicsWithAssociatedParents() {
+      return this.epics.filter(
+        epic => !epic.hasParent || (epic.hasParent && this.epicIds.indexOf(epic.parent.id) < 0),
+      );
+    },
     displayedEpics() {
-      return this.epics.reduce((acc, epic) => {
-        acc.push(epic);
-        if (epic.isChildEpicShowing) {
-          acc.push(...epic.children.edges);
-        }
-        return acc;
-      }, []);
+      // If roadmap is accessed from epic, return all epics
+      if (this.epicIid) {
+        return this.epics;
+      }
+
+      // Return epics with correct parent associations.
+      return this.epicsWithAssociatedParents;
     },
   },
   mounted() {
@@ -84,7 +93,7 @@ export default {
     window.removeEventListener('resize', this.syncClientWidth);
   },
   methods: {
-    ...mapActions(['setBufferSize', 'toggleExpandedEpic']),
+    ...mapActions(['setBufferSize', 'toggleEpic']),
     initMounted() {
       this.roadmapShellEl = this.$root.$el && this.$root.$el.firstChild;
       this.setBufferSize(Math.ceil((window.innerHeight - this.$el.offsetTop) / EPIC_ITEM_HEIGHT));
@@ -115,7 +124,7 @@ export default {
       if (this.$refs.epicItems && this.$refs.epicItems.length) {
         return {
           height: `${this.$el.clientHeight -
-            this.epics.length * this.$refs.epicItems[0].$el.clientHeight}px`,
+            this.displayedEpics.length * this.$refs.epicItems[0].$el.clientHeight}px`,
         };
       }
       return {};
@@ -134,15 +143,20 @@ export default {
       return {
         key: index,
         props: {
-          epic: this.epics[index],
+          epic: this.displayedEpics[index],
           presetType: this.presetType,
           timeframe: this.timeframe,
           currentGroupId: this.currentGroupId,
+          clientWidth: this.clientWidth,
+          childLevel: 0,
+          childrenEpics: this.childrenEpics,
+          childrenFlags: this.childrenFlags,
+          hasFiltersApplied: this.hasFiltersApplied,
         },
       };
     },
-    toggleIsEpicExpanded(epicId) {
-      this.toggleExpandedEpic(epicId);
+    toggleIsEpicExpanded(epic) {
+      this.toggleEpic({ parentItem: epic });
     },
     generateKey,
   },
@@ -153,27 +167,30 @@ export default {
   <div :style="sectionContainerStyles" class="epics-list-section">
     <template v-if="glFeatures.roadmapBufferedRendering && !emptyRowContainerVisible">
       <virtual-list
-        v-if="epics.length"
+        v-if="displayedEpics.length"
         :size="$options.epicItemHeight"
         :remain="bufferSize"
         :bench="bufferSize"
         :scrollelement="roadmapShellEl"
         :item="$options.EpicItem"
-        :itemcount="epics.length"
+        :itemcount="displayedEpics.length"
         :itemprops="getEpicItemProps"
       />
     </template>
     <template v-else>
       <epic-item
-        v-for="(epic, index) in displayedEpics"
+        v-for="epic in displayedEpics"
         ref="epicItems"
         :key="generateKey(epic)"
-        :first-epic="index === 0"
         :preset-type="presetType"
         :epic="epic"
         :timeframe="timeframe"
         :current-group-id="currentGroupId"
         :client-width="clientWidth"
+        :child-level="0"
+        :children-epics="childrenEpics"
+        :children-flags="childrenFlags"
+        :has-filters-applied="hasFiltersApplied"
       />
     </template>
     <div

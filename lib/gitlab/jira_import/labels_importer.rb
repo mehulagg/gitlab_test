@@ -5,37 +5,50 @@ module Gitlab
     class LabelsImporter < BaseImporter
       attr_reader :job_waiter
 
+      MAX_LABELS = 500
+
       def initialize(project)
         super
         @job_waiter = JobWaiter.new
       end
 
       def execute
-        create_import_label(project)
+        cache_import_label(project)
         import_jira_labels
       end
 
       private
 
-      def create_import_label(project)
-        label = Labels::CreateService.new(build_label_attrs(project)).execute(project: project)
-        raise Projects::ImportService::Error, _('Failed to create import label for jira import.') unless label
+      def cache_import_label(project)
+        label = project.jira_imports.by_jira_project_key(jira_project_key).last.label
+        raise Projects::ImportService::Error, _('Failed to find import label for Jira import.') unless label
 
         JiraImport.cache_import_label_id(project.id, label.id)
       end
 
-      def build_label_attrs(project)
-        import_start_time = project&.import_state&.last_update_started_at || Time.now
-        title = "jira-import-#{import_start_time.strftime('%Y-%m-%d-%H-%M-%S')}"
-        description = "Label for issues that were imported from jira on #{import_start_time.strftime('%Y-%m-%d %H:%M:%S')}"
-        color = "#{Label.color_for(title)}"
+      def import_jira_labels
+        start_at = 0
+        loop do
+          break if process_jira_page(start_at)
 
-        { title: title, description: description, color: color }
+          start_at += MAX_LABELS
+        end
+
+        job_waiter
       end
 
-      def import_jira_labels
-        # todo: import jira labels, see https://gitlab.com/gitlab-org/gitlab/-/issues/212651
-        job_waiter
+      def process_jira_page(start_at)
+        request = "/rest/api/2/label?maxResults=#{MAX_LABELS}&startAt=#{start_at}"
+        response = client.get(request)
+
+        return true if response['values'].blank?
+        return true unless response.key?('isLast')
+
+        Gitlab::JiraImport::HandleLabelsService.new(project, response['values']).execute
+
+        response['isLast']
+      rescue => e
+        Gitlab::ErrorTracking.track_exception(e, project_id: project.id, request: request)
       end
     end
   end

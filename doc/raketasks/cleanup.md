@@ -1,15 +1,17 @@
-# Clean up
+# Clean up **(CORE ONLY)**
 
 GitLab provides Rake tasks for cleaning up GitLab instances.
 
 ## Remove unreferenced LFS files from filesystem
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36628) in GitLab 12.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36628) in GitLab 12.10.
 
 DANGER: **Danger:**
-Do not run this within 12 hours of a GitLab upgrade. This is to ensure that all background migrations have finished, which otherwise may lead to data loss.
+Do not run this within 12 hours of a GitLab upgrade. This is to ensure that all background migrations
+have finished, which otherwise may lead to data loss.
 
-When you remove LFS files from a repository's history, they become orphaned and continue to consume disk space. With this Rake task, you can remove invalid references from the database, which
+When you remove LFS files from a repository's history, they become orphaned and continue to consume
+disk space. With this Rake task, you can remove invalid references from the database, which
 will allow garbage collection of LFS files.
 
 For example:
@@ -42,6 +44,8 @@ later (once a day). If you need to garbage collect them immediately, run
 
 ## Remove unreferenced LFS files
 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36628) in GitLab 12.10.
+
 Unreferenced LFS files are removed on a daily basis but you can remove them immediately if
 you need to. For example:
 
@@ -61,6 +65,8 @@ I, [2020-01-08T20:51:17.148765 #43765]  INFO -- : Removed unreferenced LFS files
 ```
 
 ## Remove garbage from filesystem
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/20863) in GitLab 11.2.
 
 Clean up local project upload files if they don't exist in GitLab database. The
 task attempts to fix the file if it can find its project, otherwise it moves the
@@ -94,6 +100,10 @@ I, [2018-07-27T12:08:33.755624 #89817]  INFO -- : Did fix /opt/gitlab/embedded/s
 I, [2018-07-27T12:08:33.760257 #89817]  INFO -- : Did move to lost and found /opt/gitlab/embedded/service/gitlab-rails/public/uploads/foo/bar/1dd6f0f7eefd2acc4c2233f89a0f7b0b/image.png -> /opt/gitlab/embedded/service/gitlab-rails/public/uploads/-/project-lost-found/foo/bar/1dd6f0f7eefd2acc4c2233f89a0f7b0b/image.png
 ```
 
+## Remove garbage from object storage
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/20918) in GitLab 11.2.
+
 Remove object store upload files if they don't exist in GitLab database.
 
 ```shell
@@ -124,6 +134,9 @@ I, [2018-08-02T10:26:47.764356 #45087]  INFO -- : Moved to lost and found: @hash
 ```
 
 ## Remove orphan artifact files
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/29681) in GitLab 12.1.
+> - [`ionice` support fixed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/28023) in GitLab 12.10.
 
 When you notice there are more job artifacts files on disk than there
 should be, you can run:
@@ -170,6 +183,8 @@ level with `NICENESS`. Below are the valid levels, but consult
 
 ## Remove expired ActiveSession lookup keys
 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/30668) in GitLab 12.2.
+
 ```shell
 # omnibus-gitlab
 sudo gitlab-rake gitlab:cleanup:sessions:active_sessions_lookup_keys
@@ -177,3 +192,8 @@ sudo gitlab-rake gitlab:cleanup:sessions:active_sessions_lookup_keys
 # installation from source
 bundle exec rake gitlab:cleanup:sessions:active_sessions_lookup_keys RAILS_ENV=production
 ```
+
+## Container Registry garbage collection
+
+Container Registry can use considerable amounts of disk space. To clear up
+unused layers, the registry includes a [garbage collect command](../administration/packages/container_registry.md#container-registry-garbage-collection).

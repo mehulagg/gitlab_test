@@ -1,17 +1,14 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 import {
-  GlBadge,
   GlEmptyState,
+  GlIcon,
   GlLoadingIcon,
   GlSprintf,
-  GlTab,
-  GlTabs,
   GlLink,
   GlDeprecatedButton,
 } from '@gitlab/ui';
 import { __ } from '~/locale';
-import Icon from '~/vue_shared/components/icon.vue';
 import DependenciesActions from './dependencies_actions.vue';
 import DependencyListIncompleteAlert from './dependency_list_incomplete_alert.vue';
 import DependencyListJobFailedAlert from './dependency_list_job_failed_alert.vue';
@@ -23,17 +20,14 @@ export default {
   name: 'DependenciesApp',
   components: {
     DependenciesActions,
-    GlBadge,
+    GlIcon,
     GlEmptyState,
     GlLoadingIcon,
     GlSprintf,
-    GlTab,
-    GlTabs,
     GlLink,
     GlDeprecatedButton,
     DependencyListIncompleteAlert,
     DependencyListJobFailedAlert,
-    Icon,
     PaginatedDependenciesTable,
   },
   props: {
@@ -157,54 +151,40 @@ export default {
       @dismiss="dismissJobFailedAlert"
     />
 
-    <header class="my-3">
-      <h2 class="h4 mb-1">
-        {{ __('Dependencies') }}
-        <gl-link
-          target="_blank"
-          :href="documentationPath"
-          :aria-label="__('Dependencies help page link')"
-        >
-          <icon name="question" />
-        </gl-link>
-      </h2>
-      <p class="mb-0">
-        <gl-sprintf
-          :message="s__('Dependencies|Based on the %{linkStart}latest successful%{linkEnd} scan')"
-        >
-          <template #link="{ content }">
-            <gl-link v-if="reportInfo.jobPath" ref="jobLink" :href="reportInfo.jobPath">{{
-              content
-            }}</gl-link>
-            <template v-else>{{ content }}</template>
-          </template>
-        </gl-sprintf>
-        <span v-if="generatedAtTimeAgo">
-          <span aria-hidden="true">&bull;</span>
-          <span class="text-secondary">{{ generatedAtTimeAgo }}</span>
-        </span>
-      </p>
+    <header class="d-md-flex align-items-end my-3">
+      <div class="mr-auto">
+        <h2 class="h4 mb-1 mt-0">
+          {{ __('Dependencies') }}
+          <gl-link
+            target="_blank"
+            :href="documentationPath"
+            :aria-label="__('Dependencies help page link')"
+          >
+            <gl-icon name="question" />
+          </gl-link>
+        </h2>
+        <p class="mb-0">
+          <gl-sprintf
+            :message="s__('Dependencies|Based on the %{linkStart}latest successful%{linkEnd} scan')"
+          >
+            <template #link="{ content }">
+              <gl-link v-if="reportInfo.jobPath" ref="jobLink" :href="reportInfo.jobPath">{{
+                content
+              }}</gl-link>
+              <template v-else>{{ content }}</template>
+            </template>
+          </gl-sprintf>
+          <span v-if="generatedAtTimeAgo">
+            <span aria-hidden="true">&bull;</span>
+            <span class="text-secondary">{{ generatedAtTimeAgo }}</span>
+          </span>
+        </p>
+      </div>
+      <dependencies-actions class="mt-2" :namespace="currentList" />
     </header>
 
-    <gl-tabs v-model="currentListIndex" content-class="pt-0">
-      <gl-tab
-        v-for="listType in listTypes"
-        :key="listType.namespace"
-        :disabled="isTabDisabled(listType.namespace)"
-      >
-        <template #title>
-          {{ listType.label }}
-          <gl-badge pill :data-qa-selector="qaCountSelector(listType.label)">
-            {{ totals[listType.namespace] }}
-          </gl-badge>
-        </template>
-        <paginated-dependencies-table :namespace="listType.namespace" />
-      </gl-tab>
-      <template #tabs-end>
-        <li class="d-flex align-items-center ml-sm-auto">
-          <dependencies-actions :namespace="currentList" class="my-2 my-sm-0" />
-        </li>
-      </template>
-    </gl-tabs>
+    <article>
+      <paginated-dependencies-table :namespace="currentList" />
+    </article>
   </section>
 </template>

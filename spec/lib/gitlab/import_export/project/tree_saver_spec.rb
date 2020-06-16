@@ -16,7 +16,6 @@ describe Gitlab::ImportExport::Project::TreeSaver do
       let_it_be(:group) { create(:group) }
       let_it_be(:project) { setup_project }
       let_it_be(:shared) { project.import_export_shared }
-      let_it_be(:project_tree_saver ) { described_class.new(project: project, current_user: user, shared: shared) }
 
       let(:relation_name) { :projects }
 
@@ -29,9 +28,16 @@ describe Gitlab::ImportExport::Project::TreeSaver do
       end
 
       before_all do
-        Feature.enable(:project_export_as_ndjson) if ndjson_enabled
-        project.add_maintainer(user)
-        project_tree_saver.save
+        RSpec::Mocks.with_temporary_scope do
+          stub_all_feature_flags
+          stub_feature_flags(project_export_as_ndjson: ndjson_enabled)
+
+          project.add_maintainer(user)
+
+          project_tree_saver = described_class.new(project: project, current_user: user, shared: shared)
+
+          project_tree_saver.save
+        end
       end
 
       after :all do
@@ -161,6 +167,28 @@ describe Gitlab::ImportExport::Project::TreeSaver do
 
         it 'has issue resource label events' do
           expect(subject.first['resource_label_events']).not_to be_empty
+        end
+
+        it 'saves the issue designs correctly' do
+          expect(subject.first['designs'].size).to eq(1)
+        end
+
+        it 'saves the issue design notes correctly' do
+          expect(subject.first['designs'].first['notes']).not_to be_empty
+        end
+
+        it 'saves the issue design versions correctly' do
+          issue_json = subject.first
+          actions = issue_json['design_versions'].flat_map { |v| v['actions'] }
+
+          expect(issue_json['design_versions'].size).to eq(2)
+          issue_json['design_versions'].each do |version|
+            expect(version['author_id']).to be_kind_of(Integer)
+          end
+          expect(actions.size).to eq(2)
+          actions.each do |action|
+            expect(action['design']).to be_present
+          end
         end
       end
 
@@ -435,6 +463,9 @@ describe Gitlab::ImportExport::Project::TreeSaver do
 
     board = create(:board, project: project, name: 'TestBoard')
     create(:list, board: board, position: 0, label: project_label)
+
+    design = create(:design, :with_file, versions_count: 2, issue: issue)
+    create(:diff_note_on_design, noteable: design, project: project, author: user)
 
     project
   end

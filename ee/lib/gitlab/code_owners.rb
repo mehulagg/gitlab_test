@@ -5,9 +5,9 @@ module Gitlab
     FILE_NAME = 'CODEOWNERS'
     FILE_PATHS = [FILE_NAME, "docs/#{FILE_NAME}", ".gitlab/#{FILE_NAME}"].freeze
 
-    def self.for_blob(blob)
-      if blob.project.feature_available?(:code_owners)
-        Loader.new(blob.project, blob.commit_id, blob.path).members
+    def self.for_blob(project, blob)
+      if project.feature_available?(:code_owners)
+        Loader.new(project, blob.commit_id, blob.path).members
       else
         []
       end
@@ -54,6 +54,7 @@ module Gitlab
 
       mrd_to_check_for_overflow.overflow?
     end
+    private_class_method :oversized_merge_request?
 
     def self.slow_path_lookup(merge_request, merge_request_diff)
       merge_request_diff ||= merge_request.merge_request_diff

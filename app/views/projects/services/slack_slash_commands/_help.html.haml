@@ -1,5 +1,5 @@
-- pretty_name = defined?(@project) ? @project.full_name : 'namespace / path'
-- run_actions_text = "Perform common operations on GitLab project: #{pretty_name}"
+- pretty_name = @project&.full_name || _('<project name>')
+- run_actions_text = s_("ProjectService|Perform common operations on GitLab project: %{project_name}") % { project_name: pretty_name }
 
 .info-well
   .well-segment
@@ -31,8 +31,10 @@
             %p
               = _("Suggestions:")
               %code= 'gitlab'
-              %code= @project.path # Path contains no spaces, but dashes
-              %code= @project.full_path
+              %code= 'project'
+              - if @project
+                %code= @project.path # Path contains no spaces, but dashes
+                %code= @project.full_path
 
         .form-group
           = label_tag :url, 'URL', class: 'col-12 col-form-label label-bold'
@@ -55,7 +57,7 @@
         .form-group
           = label_tag nil, _('Customize icon'), class: 'col-12 col-form-label label-bold'
           .col-12
-            = image_tag(asset_url('slash-command-logo.png'), width: 36, height: 36, class: 'mr-3')
+            = image_tag(asset_url('slash-command-logo.png', skip_pipeline: true), width: 36, height: 36, class: 'mr-3')
             = link_to(_('Download image'), asset_url('gitlab_logo.png'), class: 'btn btn-sm', target: '_blank', rel: 'noopener noreferrer')
 
         .form-group

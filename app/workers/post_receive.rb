@@ -7,6 +7,7 @@ class PostReceive # rubocop:disable Scalability/IdempotentWorker
   urgency :high
   worker_resource_boundary :cpu
   weight 5
+  loggable_arguments 0, 1, 2, 3
 
   def perform(gl_repository, identifier, changes, push_options = {})
     container, project, repo_type = Gitlab::GlRepository.parse(gl_repository)
@@ -77,12 +78,8 @@ class PostReceive # rubocop:disable Scalability/IdempotentWorker
 
     return false unless user
 
-    # At the moment, we only expires the repository caches.
-    # In the future we might need to call ProjectCacheWorker
-    # (or the custom class we create) to update the snippet
-    # repository size or any other key.
-    # We might also need to update the repository statistics.
     expire_caches(post_received, snippet.repository)
+    snippet.repository.expire_statistics_caches
   end
 
   # Expire the repository status, branch, and tag cache once per push.

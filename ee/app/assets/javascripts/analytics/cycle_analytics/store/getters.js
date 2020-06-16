@@ -2,7 +2,7 @@ import dateFormat from 'dateformat';
 import { isNumber } from 'lodash';
 import httpStatus from '~/lib/utils/http_status';
 import { dateFormats } from '../../shared/constants';
-import { getDurationChartData, getDurationChartMedianData, getTasksByTypeData } from '../utils';
+import { transformStagesForPathNavigation } from '../utils';
 
 export const hasNoAccessError = state => state.errorCode === httpStatus.FORBIDDEN;
 
@@ -18,37 +18,6 @@ export const cycleAnalyticsRequestParams = ({ startDate = null, endDate = null }
   created_before: endDate ? dateFormat(endDate, dateFormats.isoDate) : null,
 });
 
-export const durationChartPlottableData = state => {
-  const { durationData, startDate, endDate } = state;
-  const selectedStagesDurationData = durationData.filter(stage => stage.selected);
-  const plottableData = getDurationChartData(selectedStagesDurationData, startDate, endDate);
-
-  return plottableData.length ? plottableData : null;
-};
-
-export const durationChartMedianData = state => {
-  const { durationMedianData, startDate, endDate } = state;
-  const selectedStagesDurationMedianData = durationMedianData.filter(stage => stage.selected);
-  const plottableData = getDurationChartMedianData(
-    selectedStagesDurationMedianData,
-    startDate,
-    endDate,
-  );
-
-  return plottableData.length ? plottableData : [];
-};
-
-export const tasksByTypeChartData = ({ tasksByType, startDate, endDate }) => {
-  if (tasksByType && tasksByType.data.length) {
-    return getTasksByTypeData({
-      data: tasksByType.data,
-      startDate,
-      endDate,
-    });
-  }
-  return { groupBy: [], data: [], seriesNames: [] };
-};
-
 const filterStagesByHiddenStatus = (stages = [], isHidden = true) =>
   stages.filter(({ hidden = false }) => hidden === isHidden);
 
@@ -57,3 +26,19 @@ export const activeStages = ({ stages }) => filterStagesByHiddenStatus(stages, f
 
 export const enableCustomOrdering = ({ stages, errorSavingStageOrder }) =>
   stages.some(stage => isNumber(stage.id)) && !errorSavingStageOrder;
+
+export const customStageFormActive = ({ isCreatingCustomStage, isEditingCustomStage }) =>
+  Boolean(isCreatingCustomStage || isEditingCustomStage);
+
+/**
+ * Until there are controls in place to edit stages outside of the stage table,
+ * the path navigation component will only display active stages.
+ *
+ * https://gitlab.com/gitlab-org/gitlab/-/issues/216227
+ */
+export const pathNavigationData = ({ stages, medians, selectedStage }) =>
+  transformStagesForPathNavigation({
+    stages: filterStagesByHiddenStatus(stages, false),
+    medians,
+    selectedStage,
+  });

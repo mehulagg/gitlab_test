@@ -35,11 +35,17 @@ module EE
     end
 
     def license_management_settings_path(project)
-      project_settings_ci_cd_path(project, anchor: 'js-license-management')
+      project_licenses_path(project, anchor: 'policies')
     end
 
     def vulnerability_path(entity, *args)
       project_security_vulnerability_path(entity.project, entity, *args)
+    end
+
+    def upgrade_plan_path(group)
+      return profile_billings_path if group.blank?
+
+      group_billings_path(group)
     end
 
     def self.url_helper(route_name)

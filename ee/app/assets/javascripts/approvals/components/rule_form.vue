@@ -1,8 +1,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import _ from 'underscore';
+import { groupBy, isNumber } from 'lodash';
 import { sprintf, __ } from '~/locale';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ApproversList from './approvers_list.vue';
 import ApproversSelect from './approvers_select.vue';
 import BranchesSelect from './branches_select.vue';
@@ -18,7 +17,6 @@ export default {
     ApproversSelect,
     BranchesSelect,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     initRule: {
       type: Object,
@@ -49,7 +47,7 @@ export default {
   computed: {
     ...mapState(['settings']),
     approversByType() {
-      return _.groupBy(this.approvers, x => x.type);
+      return groupBy(this.approvers, x => x.type);
     },
     users() {
       return this.approversByType[TYPE_USER] || [];
@@ -88,7 +86,7 @@ export default {
       return !this.name ? __('Please provide a name') : '';
     },
     invalidApprovalsRequired() {
-      if (!_.isNumber(this.approvalsRequired)) {
+      if (!isNumber(this.approvalsRequired)) {
         return __('Please enter a valid number');
       }
 
@@ -150,7 +148,7 @@ export default {
       };
     },
     showProtectedBranch() {
-      return this.glFeatures.scopedApprovalRules && !this.isMrEdit && this.settings.allowMultiRule;
+      return !this.isMrEdit && this.settings.allowMultiRule;
     },
   },
   watch: {

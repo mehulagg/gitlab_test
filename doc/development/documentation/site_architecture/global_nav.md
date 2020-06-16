@@ -272,7 +272,7 @@ and the following syntax rules.
 - For `index.html` files, use the clean (canonical) URL: `path/to/`.
 - For EE-only docs, use the same relative path, but add the attribute `ee_only: true` below
   the `doc_url` or `category_url`, as explained above. This displays
-  an "info" icon on the nav to make the user aware that the feature is
+  an "information" icon on the nav to make the user aware that the feature is
   EE-only.
 
 DANGER: **Important!**
@@ -356,7 +356,7 @@ files.
 ```
 
 This also allows the nav to be displayed on other
-highest-level dirs (`/omnibus/`, `/runner/`, etc),
+highest-level directories (`/omnibus/`, `/runner/`, etc),
 linking them back to `/ee/`.
 
 The same logic is applied to all sections (`sec[:section_url]`),

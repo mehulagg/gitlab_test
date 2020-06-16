@@ -1,12 +1,22 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
-import { GlEmptyState, GlLoadingIcon, GlLink, GlIcon, GlTab, GlTabs, GlBadge } from '@gitlab/ui';
+import {
+  GlEmptyState,
+  GlLoadingIcon,
+  GlLink,
+  GlIcon,
+  GlTab,
+  GlTabs,
+  GlDeprecatedBadge as GlBadge,
+  GlAlert,
+} from '@gitlab/ui';
 import { LICENSE_LIST } from '../store/constants';
 import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/constants';
 import DetectedLicensesTable from './detected_licenses_table.vue';
 import PipelineInfo from './pipeline_info.vue';
 import LicenseManagement from 'ee/vue_shared/license_compliance/license_management.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { getLocationHash } from '~/lib/utils/url_utility';
 
 export default {
   name: 'LicenseComplianceApp',
@@ -20,6 +30,7 @@ export default {
     GlTab,
     GlTabs,
     GlBadge,
+    GlAlert,
     LicenseManagement,
   },
   mixins: [glFeatureFlagsMixin()],
@@ -35,13 +46,14 @@ export default {
   },
   data() {
     return {
-      tabIndex: 0,
+      tabIndex: this.activeTabIndex(),
     };
   },
+  tabNames: ['licenses', 'policies'],
   computed: {
-    ...mapState(LICENSE_LIST, ['initialized', 'licenses', 'reportInfo', 'listTypes']),
+    ...mapState(LICENSE_LIST, ['initialized', 'licenses', 'reportInfo', 'listTypes', 'pageInfo']),
     ...mapState(LICENSE_MANAGEMENT, ['managedLicenses']),
-    ...mapGetters(LICENSE_LIST, ['isJobSetUp', 'isJobFailed']),
+    ...mapGetters(LICENSE_LIST, ['isJobSetUp', 'isJobFailed', 'hasPolicyViolations']),
     hasEmptyState() {
       return Boolean(!this.isJobSetUp || this.isJobFailed);
     },
@@ -49,7 +61,7 @@ export default {
       return Boolean(this.glFeatures.licensePolicyList);
     },
     licenseCount() {
-      return this.licenses.length;
+      return this.pageInfo.total;
     },
     policyCount() {
       return this.managedLicenses.length;
@@ -58,11 +70,25 @@ export default {
       return this.tabIndex === 0;
     },
   },
+  watch: {
+    tabIndex: {
+      handler(newTabIndex) {
+        window.location.hash = this.$options.tabNames[newTabIndex];
+      },
+      // this ensures that the hash will be set on creation if it is empty
+      immediate: true,
+    },
+  },
   created() {
     this.fetchLicenses();
   },
   methods: {
     ...mapActions(LICENSE_LIST, ['fetchLicenses']),
+    activeTabIndex() {
+      const activeTabIndex = this.$options.tabNames.indexOf(getLocationHash());
+
+      return activeTabIndex !== -1 ? activeTabIndex : 0;
+    },
   },
 };
 </script>
@@ -84,35 +110,45 @@ export default {
   />
 
   <div v-else>
-    <h2 class="h4">
-      {{ s__('Licenses|License Compliance') }}
-      <gl-link :href="documentationPath" class="vertical-align-middle" target="_blank">
-        <gl-icon name="question" />
-      </gl-link>
-    </h2>
+    <gl-alert v-if="hasPolicyViolations" class="mt-2" variant="warning" :dismissible="false">
+      {{
+        s__(
+          "Licenses|Detected licenses that are out-of-compliance with the project's assigned policies",
+        )
+      }}
+    </gl-alert>
 
-    <pipeline-info
-      v-if="isDetectedProjectTab"
-      :path="reportInfo.jobPath"
-      :timestamp="reportInfo.generatedAt"
-    />
-    <template v-else>{{ s__('Licenses|Specified policies in this project') }}</template>
+    <header class="my-3">
+      <h2 class="h4 mb-1">
+        {{ s__('Licenses|License Compliance') }}
+        <gl-link :href="documentationPath" class="vertical-align-middle" target="_blank">
+          <gl-icon name="question" />
+        </gl-link>
+      </h2>
+
+      <pipeline-info
+        v-if="isDetectedProjectTab"
+        :path="reportInfo.jobPath"
+        :timestamp="reportInfo.generatedAt"
+      />
+      <template v-else>{{ s__('Licenses|Specified policies in this project') }}</template>
+    </header>
 
     <!-- TODO: Remove feature flag -->
     <template v-if="hasLicensePolicyList">
       <gl-tabs v-model="tabIndex" content-class="pt-0">
-        <gl-tab>
+        <gl-tab data-testid="licensesTab">
           <template #title>
-            {{ s__('Licenses|Detected in Project') }}
+            <span data-testid="licensesTabTitle">{{ s__('Licenses|Detected in Project') }}</span>
             <gl-badge pill>{{ licenseCount }}</gl-badge>
           </template>
 
           <detected-licenses-table />
         </gl-tab>
 
-        <gl-tab>
+        <gl-tab data-testid="policiesTab">
           <template #title>
-            {{ s__('Licenses|Policies') }}
+            <span data-testid="policiesTabTitle">{{ s__('Licenses|Policies') }}</span>
             <gl-badge pill>{{ policyCount }}</gl-badge>
           </template>
 

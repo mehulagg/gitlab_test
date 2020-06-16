@@ -17,6 +17,7 @@ module Prometheus
     # is expected to change *and* be fetched again by the frontend
     self.reactive_cache_refresh_interval = 90.seconds
     self.reactive_cache_lifetime = 1.minute
+    self.reactive_cache_work_type = :external_dependency
     self.reactive_cache_worker_finder = ->(_id, *args) { from_cache(*args) }
 
     attr_accessor :proxyable, :method, :path, :params
@@ -29,6 +30,10 @@ module Prometheus
       'query_range' => {
         method: ['GET'],
         params: %w(query start end step timeout)
+      },
+      'series' => {
+        method: %w(GET),
+        params: %w(match start end)
       }
     }.freeze
 

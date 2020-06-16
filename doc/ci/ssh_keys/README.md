@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 last_updated: 2017-12-13
 type: tutorial
 ---
@@ -182,7 +185,7 @@ before_script:
   ## Assuming you created the SSH_KNOWN_HOSTS variable, uncomment the
   ## following two lines.
   ##
-  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
   ##
@@ -199,7 +202,7 @@ before_script:
   ## WARNING: Use this only with the Docker executor, if you use it with shell
   ## you will overwrite your user's SSH config.
   ##
-  #- '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  #- '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
 ```
 
 ## Example project

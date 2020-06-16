@@ -6,6 +6,10 @@ import { GlColumnChart, GlChartLegend } from '@gitlab/ui/dist/charts';
 import { s__ } from '~/locale';
 import { getMonthNames } from '~/lib/utils/datetime_utility';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
+import { mergeUrlParams } from '~/lib/utils/url_utility';
+import IssuesAnalyticsTable from './issues_analytics_table.vue';
+import FilteredSearchIssueAnalytics from '../filtered_search_issues_analytics';
+import { transformFilters } from '../utils';
 
 export default {
   components: {
@@ -13,9 +17,18 @@ export default {
     GlEmptyState,
     GlColumnChart,
     GlChartLegend,
+    IssuesAnalyticsTable,
   },
   props: {
     endpoint: {
+      type: String,
+      required: true,
+    },
+    issuesApiEndpoint: {
+      type: String,
+      required: true,
+    },
+    issuesPageEndpoint: {
       type: String,
       required: true,
     },
@@ -39,7 +52,7 @@ export default {
       seriesInfo: [
         {
           type: 'solid',
-          name: s__('IssuesAnalytics|Issues created'),
+          name: s__('IssuesAnalytics|Issues opened'),
           color: '#1F78D1',
         },
       ],
@@ -79,15 +92,21 @@ export default {
     showFiltersEmptyState() {
       return !this.loading && !this.showChart && this.hasFilters;
     },
+    dataZoomConfig() {
+      const config = {
+        type: 'slider',
+        startValue: 0,
+      };
+
+      if (this.svgs['scroll-handle']) {
+        return { ...config, handleIcon: this.svgs['scroll-handle'] };
+      }
+
+      return config;
+    },
     chartOptions() {
       return {
-        dataZoom: [
-          {
-            type: 'slider',
-            startValue: 0,
-            handleIcon: this.svgs['scroll-handle'],
-          },
-        ],
+        dataZoom: [this.dataZoomConfig],
       };
     },
     series() {
@@ -98,6 +117,17 @@ export default {
     },
     seriesTotal() {
       return engineeringNotation(sum(...this.series));
+    },
+    issuesTableEndpoints() {
+      const publicApiFilters = transformFilters(this.appliedFilters);
+
+      return {
+        api: mergeUrlParams(publicApiFilters, this.issuesApiEndpoint),
+        issuesPage: this.issuesPageEndpoint,
+      };
+    },
+    filterString() {
+      return JSON.stringify(this.appliedFilters);
     },
   },
   watch: {
@@ -111,6 +141,9 @@ export default {
     },
   },
   created() {
+    this.filterManager = new FilteredSearchIssueAnalytics(this.appliedFilters);
+    this.filterManager.setup();
+
     this.setSvg('scroll-handle');
   },
   mounted() {
@@ -142,16 +175,16 @@ export default {
 </script>
 <template>
   <div class="issues-analytics-wrapper" data-qa-selector="issues_analytics_wrapper">
-    <gl-loading-icon v-if="loading" :size="4" class="issues-analytics-loading" />
+    <gl-loading-icon v-if="loading" size="md" class="mt-8" />
 
     <div v-if="showChart" class="issues-analytics-chart">
-      <h4 class="chart-title">{{ s__('IssuesAnalytics|Issues created per month') }}</h4>
+      <h4 class="chart-title">{{ s__('IssuesAnalytics|Issues opened per month') }}</h4>
 
       <gl-column-chart
         data-qa-selector="issues_analytics_graph"
         :data="{ Full: data }"
         :option="chartOptions"
-        :y-axis-title="s__('IssuesAnalytics|Issues created')"
+        :y-axis-title="s__('IssuesAnalytics|Issues opened')"
         :x-axis-title="s__('IssuesAnalytics|Last 12 months') + ' (' + chartDateRange + ')'"
         x-axis-type="category"
         @created="onCreated"
@@ -165,6 +198,8 @@ export default {
         </div>
       </div>
     </div>
+
+    <issues-analytics-table :key="filterString" class="mt-8" :endpoints="issuesTableEndpoints" />
 
     <gl-empty-state
       v-if="showFiltersEmptyState"

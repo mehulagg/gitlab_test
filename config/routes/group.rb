@@ -13,6 +13,9 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       get :details, as: :details_group
       get :activity, as: :activity_group
       put :transfer, as: :transfer_group
+      post :export, as: :export_group
+      get :download_export, as: :download_export_group
+
       # TODO: Remove as part of refactor in https://gitlab.com/gitlab-org/gitlab-foss/issues/49693
       get 'shared', action: :show, as: :group_shared
       get 'archived', action: :show, as: :group_archived
@@ -29,6 +32,10 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       resource :ci_cd, only: [:show, :update], controller: 'ci_cd' do
         put :reset_registration_token
         patch :update_auto_devops
+        post :create_deploy_token, path: 'deploy_token/create', to: 'repository#create_deploy_token'
+      end
+
+      resource :repository, only: [:show], controller: 'repository' do
         post :create_deploy_token, path: 'deploy_token/create'
       end
 
@@ -63,6 +70,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     end
 
     resource :avatar, only: [:destroy]
+    resource :import, only: [:show]
 
     concerns :clusterable
 
@@ -71,7 +79,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       delete :leave, on: :collection
     end
 
-    resources :group_links, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
+    resources :group_links, only: [:create, :update, :destroy], constraints: { id: /\d+/ }
 
     resources :uploads, only: [:create] do
       collection do

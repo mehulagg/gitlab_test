@@ -43,6 +43,11 @@ module API
           unauthorized! unless token && ScimOauthAccessToken.token_matches_for_group?(token, group)
         end
 
+        def sanitize_request_parameters(parameters)
+          filter = ActiveSupport::ParameterFilter.new(::Rails.application.config.filter_parameters)
+          filter.filter(parameters)
+        end
+
         # Instance variable `@group` is necessary for the
         # Gitlab::ApplicationContext in API::API
         def find_and_authenticate_group!(group_path)
@@ -132,7 +137,7 @@ module API
           check_group_saml_configured
         end
 
-        desc 'Get SAML users' do
+        desc 'Get SCIM users' do
           detail 'This feature was introduced in GitLab 11.10.'
         end
         get do
@@ -149,7 +154,7 @@ module API
           scim_error!(message: 'Unsupported Filter')
         end
 
-        desc 'Get a SAML user' do
+        desc 'Get a SCIM user' do
           detail 'This feature was introduced in GitLab 11.10.'
         end
         get ':id', requirements: USER_ID_REQUIREMENTS do
@@ -164,7 +169,7 @@ module API
           present identity, with: ::EE::API::Entities::Scim::User
         end
 
-        desc 'Create a SAML user' do
+        desc 'Create a SCIM user' do
           detail 'This feature was introduced in GitLab 11.10.'
         end
         post do
@@ -178,13 +183,13 @@ module API
 
             present result.identity, with: ::EE::API::Entities::Scim::User
           when :conflict
-            scim_conflict!(message: "Error saving user with #{params.inspect}: #{result.message}")
+            scim_conflict!(message: "Error saving user with #{sanitize_request_parameters(params).inspect}: #{result.message}")
           when :error
-            scim_error!(message: ["Error saving user with #{params.inspect}", result.message].compact.join(": "))
+            scim_error!(message: ["Error saving user with #{sanitize_request_parameters(params).inspect}", result.message].compact.join(": "))
           end
         end
 
-        desc 'Updates a SAML user' do
+        desc 'Updates a SCIM user' do
           detail 'This feature was introduced in GitLab 11.10.'
         end
         patch ':id', requirements: USER_ID_REQUIREMENTS do
@@ -200,11 +205,11 @@ module API
           if updated
             no_content!
           else
-            scim_error!(message: "Error updating #{identity.user.name} with #{params.inspect}")
+            scim_error!(message: "Error updating #{identity.user.name} with #{sanitize_request_parameters(params).inspect}")
           end
         end
 
-        desc 'Removes a SAML user' do
+        desc 'Removes a SCIM user' do
           detail 'This feature was introduced in GitLab 11.10.'
         end
         delete ':id', requirements: USER_ID_REQUIREMENTS do

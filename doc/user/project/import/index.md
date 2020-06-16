@@ -1,3 +1,10 @@
+---
+type: reference, howto
+stage: Manage
+group: Import
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Migrating projects to a GitLab instance
 
 1. [From Bitbucket Cloud](bitbucket.md)
@@ -15,6 +22,7 @@
 1. [By uploading a manifest file (AOSP)](manifest.md)
 1. [From Gemnasium](gemnasium.md)
 1. [From Phabricator](phabricator.md)
+1. [From Jira (issues only)](jira.md)
 
 In addition to the specific migration documentation above, you can import any
 Git repository via HTTP from the New Project page. Be aware that if the
@@ -45,6 +53,10 @@ Keep in mind the limitations of the [import/export feature](../settings/import_e
 
 You will still need to migrate your Container Registry over a series of
 Docker pulls and pushes and re-run any CI pipelines to retrieve any build artifacts.
+
+## Migrating from GitLab.com to self-managed GitLab
+
+The process is essentially the same as for [migrating from self-managed GitLab to GitLab.com](#migrating-from-self-managed-gitlab-to-gitlabcom). The main difference is that users can be created on the self-managed GitLab instance by an admin through the UI or the [users API](../../../api/users.md#user-creation).
 
 ## Migrating between two self-managed GitLab instances
 

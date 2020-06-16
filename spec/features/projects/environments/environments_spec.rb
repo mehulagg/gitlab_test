@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Environments page', :js do
+RSpec.describe 'Environments page', :js do
   let(:project) { create(:project) }
   let(:user) { create(:user) }
   let(:role) { :developer }
@@ -399,10 +399,12 @@ describe 'Environments page', :js do
 
   describe 'environments folders' do
     before do
-      create(:environment, project: project,
+      create(:environment, :will_auto_stop,
+                           project: project,
                            name: 'staging/review-1',
                            state: :available)
-      create(:environment, project: project,
+      create(:environment, :will_auto_stop,
+                           project: project,
                            name: 'staging/review-2',
                            state: :available)
     end
@@ -420,6 +422,14 @@ describe 'Environments page', :js do
 
       expect(page).to have_content 'review-1'
       expect(page).to have_content 'review-2'
+      within('.ci-table') do
+        within('.gl-responsive-table-row:nth-child(3)') do
+          expect(find('.js-auto-stop').text).not_to be_empty
+        end
+        within('.gl-responsive-table-row:nth-child(4)') do
+          expect(find('.js-auto-stop').text).not_to be_empty
+        end
+      end
     end
   end
 

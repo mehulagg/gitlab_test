@@ -82,6 +82,22 @@ describe API::GroupExport do
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
+
+    context 'when the requests have exceeded the rate limit' do
+      before do
+        allow(Gitlab::ApplicationRateLimiter)
+          .to receive(:increment)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_download_export][:threshold] + 1)
+      end
+
+      it 'throttles the endpoint' do
+        get api(download_path, user)
+
+        expect(json_response["message"])
+          .to include('error' => 'This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status :too_many_requests
+      end
+    end
   end
 
   describe 'POST /groups/:group_id/export' do
@@ -99,6 +115,19 @@ describe API::GroupExport do
           post api(path, user)
 
           expect(response).to have_gitlab_http_status(:accepted)
+        end
+      end
+
+      context 'when the export cannot be started' do
+        before do
+          group.add_owner(user)
+          allow(GroupExportWorker).to receive(:perform_async).and_return(nil)
+        end
+
+        it 'returns an error' do
+          post api(path, user)
+
+          expect(response).to have_gitlab_http_status(:error)
         end
       end
 
@@ -124,6 +153,24 @@ describe API::GroupExport do
         post api(path, user)
 
         expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
+    context 'when the requests have exceeded the rate limit' do
+      before do
+        group.add_owner(user)
+
+        allow(Gitlab::ApplicationRateLimiter)
+          .to receive(:increment)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_export][:threshold] + 1)
+      end
+
+      it 'throttles the endpoint' do
+        post api(path, user)
+
+        expect(json_response["message"])
+          .to include('error' => 'This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status :too_many_requests
       end
     end
   end

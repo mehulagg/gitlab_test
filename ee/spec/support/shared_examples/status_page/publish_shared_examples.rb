@@ -7,7 +7,7 @@ RSpec.shared_examples 'publish incidents' do
   let(:content_json) { content.to_json }
 
   let(:status_page_setting) do
-    instance_double(StatusPageSetting, enabled?: status_page_setting_enabled,
+    instance_double(StatusPage::ProjectSetting, enabled?: status_page_setting_enabled,
                     storage_client: storage_client)
   end
 
@@ -20,17 +20,15 @@ RSpec.shared_examples 'publish incidents' do
       .and_return(serializer)
   end
 
-  shared_examples 'feature is not available' do
-  end
-
-  context 'when upload succeeds' do
+  context 'when json upload succeeds' do
     before do
-      allow(storage_client).to receive(:upload_object).with(key, content_json)
+      allow(storage_client).to receive(:list_object_keys).and_return(Set.new)
     end
 
     it 'publishes details as JSON' do
+      expect(storage_client).to receive(:upload_object).with(key, content_json)
+
       expect(result).to be_success
-      expect(result.payload).to eq(object_key: key)
     end
   end
 

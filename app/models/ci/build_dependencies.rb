@@ -45,7 +45,7 @@ module Ci
     end
 
     def valid_local?
-      return true if Feature.enabled?('ci_disable_validates_dependencies')
+      return true if Feature.enabled?(:ci_disable_validates_dependencies)
 
       local.all?(&:valid_dependency?)
     end
@@ -67,7 +67,6 @@ module Ci
     end
 
     def from_needs(scope)
-      return scope unless Feature.enabled?(:ci_dag_support, project, default_enabled: true)
       return scope unless processable.scheduling_type_dag?
 
       needs_names = processable.needs.artifacts.select(:name)

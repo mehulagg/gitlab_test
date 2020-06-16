@@ -1,25 +1,34 @@
-import { uniq } from 'underscore';
+import { uniq } from 'lodash';
 import { TEST_HOST } from 'helpers/test_constants';
 import { getJSONFixture } from 'helpers/fixtures';
 import mutations from 'ee/analytics/cycle_analytics/store/mutations';
 import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
-import { DEFAULT_DAYS_IN_PAST } from 'ee/analytics/cycle_analytics/constants';
+import {
+  DEFAULT_DAYS_IN_PAST,
+  TASKS_BY_TYPE_SUBJECT_ISSUE,
+} from 'ee/analytics/cycle_analytics/constants';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { getDateInPast, getDatesInRange } from '~/lib/utils/datetime_utility';
 import { toYmd } from 'ee/analytics/shared/utils';
-import { transformRawTasksByTypeData } from 'ee/analytics/cycle_analytics/utils';
+import {
+  getTasksByTypeData,
+  transformRawTasksByTypeData,
+  transformStagesForPathNavigation,
+} from 'ee/analytics/cycle_analytics/utils';
 
 const fixtureEndpoints = {
   customizableCycleAnalyticsStagesAndEvents: 'analytics/value_stream_analytics/stages.json', // customizable stages and events endpoint
   stageEvents: stage => `analytics/value_stream_analytics/stages/${stage}/records.json`,
   stageMedian: stage => `analytics/value_stream_analytics/stages/${stage}/median.json`,
-  summaryData: 'analytics/value_stream_analytics/summary.json',
+  recentActivityData: 'analytics/value_stream_analytics/summary.json',
+  timeMetricsData: 'analytics/value_stream_analytics/time_summary.json',
   groupLabels: 'api/group_labels.json',
 };
 
 export const endpoints = {
   groupLabels: /groups\/[A-Z|a-z|\d|\-|_]+\/-\/labels.json/,
-  summaryData: /analytics\/value_stream_analytics\/summary/,
+  recentActivityData: /analytics\/value_stream_analytics\/summary/,
+  timeMetricsData: /analytics\/value_stream_analytics\/time_summary/,
   durationData: /analytics\/value_stream_analytics\/stages\/\d+\/duration_chart/,
   stageData: /analytics\/value_stream_analytics\/stages\/\d+\/records/,
   stageMedian: /analytics\/value_stream_analytics\/stages\/\d+\/median/,
@@ -40,10 +49,13 @@ export const group = {
   avatar_url: `${TEST_HOST}/images/home/nasa.svg`,
 };
 
+export const selectedGroup = convertObjectPropsToCamelCase(group, { deep: true });
+
 const getStageByTitle = (stages, title) =>
   stages.find(stage => stage.title && stage.title.toLowerCase().trim() === title) || {};
 
-export const summaryData = getJSONFixture(fixtureEndpoints.summaryData);
+export const recentActivityData = getJSONFixture(fixtureEndpoints.recentActivityData);
+export const timeMetricsData = getJSONFixture(fixtureEndpoints.timeMetricsData);
 
 export const customizableStagesAndEvents = getJSONFixture(
   fixtureEndpoints.customizableCycleAnalyticsStagesAndEvents,
@@ -52,7 +64,7 @@ export const customizableStagesAndEvents = getJSONFixture(
 const dummyState = {};
 
 // prepare the raw stage data for our components
-mutations[types.RECEIVE_GROUP_STAGES_AND_EVENTS_SUCCESS](dummyState, customizableStagesAndEvents);
+mutations[types.RECEIVE_GROUP_STAGES_SUCCESS](dummyState, customizableStagesAndEvents.stages);
 
 export const issueStage = getStageByTitle(dummyState.stages, 'issue');
 export const planStage = getStageByTitle(dummyState.stages, 'plan');
@@ -84,6 +96,15 @@ export const stageMedians = defaultStages.reduce((acc, stage) => {
   };
 }, {});
 
+export const stageMediansWithNumericIds = defaultStages.reduce((acc, stage) => {
+  const { value } = getJSONFixture(fixtureEndpoints.stageMedian(stage));
+  const { id } = getStageByTitle(dummyState.stages, stage);
+  return {
+    ...acc,
+    [id]: value,
+  };
+}, {});
+
 export const endDate = new Date(2019, 0, 14);
 export const startDate = getDateInPast(endDate, DEFAULT_DAYS_IN_PAST);
 
@@ -108,8 +129,8 @@ export const rawCustomStage = {
 
 export const medians = stageMedians;
 
-const { events: rawCustomStageEvents } = customizableStagesAndEvents;
-const camelCasedStageEvents = rawCustomStageEvents.map(deepCamelCase);
+export const rawCustomStageEvents = customizableStagesAndEvents.events;
+export const camelCasedStageEvents = rawCustomStageEvents.map(deepCamelCase);
 
 export const customStageLabelEvents = camelCasedStageEvents.filter(ev => ev.type === 'label');
 export const customStageStartEvents = camelCasedStageEvents.filter(ev => ev.canBeStartEvent);
@@ -140,7 +161,7 @@ export const customStageFormErrors = convertObjectPropsToCamelCase(rawCustomStag
 
 const dateRange = getDatesInRange(startDate, endDate, toYmd);
 
-export const tasksByTypeData = getJSONFixture('analytics/type_of_work/tasks_by_type.json').map(
+export const apiTasksByTypeData = getJSONFixture('analytics/type_of_work/tasks_by_type.json').map(
   labelData => {
     // add data points for our mock date range
     const maxValue = 10;
@@ -152,7 +173,34 @@ export const tasksByTypeData = getJSONFixture('analytics/type_of_work/tasks_by_t
   },
 );
 
-export const transformedTasksByTypeData = transformRawTasksByTypeData(tasksByTypeData);
+export const rawTasksByTypeData = transformRawTasksByTypeData(apiTasksByTypeData);
+export const transformedTasksByTypeData = getTasksByTypeData(apiTasksByTypeData);
+
+export const transformedStagePathData = transformStagesForPathNavigation({
+  stages: allowedStages,
+  medians,
+  selectedStage: issueStage,
+});
+
+export const tasksByTypeData = {
+  seriesNames: ['Cool label', 'Normal label'],
+  data: [[0, 1, 2], [5, 2, 3], [2, 4, 1]],
+  groupBy: ['Group 1', 'Group 2', 'Group 3'],
+};
+
+export const taskByTypeFilters = {
+  selectedGroup: {
+    id: 22,
+    name: 'Gitlab Org',
+    fullName: 'Gitlab Org',
+    fullPath: 'gitlab-org',
+  },
+  selectedProjectIds: [],
+  startDate: new Date('2019-12-11'),
+  endDate: new Date('2020-01-10'),
+  subject: TASKS_BY_TYPE_SUBJECT_ISSUE,
+  selectedLabelIds: [1, 2, 3],
+};
 
 export const rawDurationData = [
   {
@@ -229,4 +277,58 @@ export const selectedProjects = [
     pathWithNamespace: 'group/another-cool-project',
     avatarUrl: null,
   },
+];
+
+// Value returned from JSON fixture is 345600 for issue stage which equals 4d
+export const pathNavIssueMetric = '4d';
+
+export const filterMilestones = [
+  { id: 1, title: 'None', name: 'Any' },
+  { id: 101, title: 'Any', name: 'None' },
+  { id: 1001, title: 'v1.0', name: 'v1.0' },
+  { id: 10101, title: 'v0.0', name: 'v0.0' },
+];
+
+export const filterUsers = [
+  {
+    id: 31,
+    name: 'VSM User2',
+    username: 'vsm-user-2-1589776313',
+    state: 'active',
+    avatar_url:
+      'https://www.gravatar.com/avatar/762398957a8c6e04eed16da88098899d?s=80\u0026d=identicon',
+    web_url: 'http://127.0.0.1:3001/vsm-user-2-1589776313',
+    access_level: 30,
+    expires_at: null,
+  },
+  {
+    id: 32,
+    name: 'VSM User3',
+    username: 'vsm-user-3-1589776313',
+    state: 'active',
+    avatar_url:
+      'https://www.gravatar.com/avatar/f78932237e8a5c5376b65a709824802f?s=80\u0026d=identicon',
+    web_url: 'http://127.0.0.1:3001/vsm-user-3-1589776313',
+    access_level: 30,
+    expires_at: null,
+  },
+  {
+    id: 33,
+    name: 'VSM User4',
+    username: 'vsm-user-4-1589776313',
+    state: 'active',
+    avatar_url:
+      'https://www.gravatar.com/avatar/ab506dc600d1a941e4d77d5ceeeba73f?s=80\u0026d=identicon',
+    web_url: 'http://127.0.0.1:3001/vsm-user-4-1589776313',
+    access_level: 30,
+    expires_at: null,
+  },
+];
+
+export const filterLabels = [
+  { id: 194, title: 'Afterfunc-Phureforge-781', color: '#990000', text_color: '#FFFFFF' },
+  { id: 10, title: 'Afternix', color: '#16ecf2', text_color: '#FFFFFF' },
+  { id: 176, title: 'Panasync-Pens-266', color: '#990000', text_color: '#FFFFFF' },
+  { id: 79, title: 'Passat', color: '#f1a3d4', text_color: '#333333' },
+  { id: 197, title: 'Phast-Onesync-395', color: '#990000', text_color: '#FFFFFF' },
 ];

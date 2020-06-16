@@ -7,13 +7,15 @@ type: reference
 You can view information and options set for each of the mounted NFS file
 systems by running `nfsstat -m` and `cat /etc/fstab`.
 
+CAUTION: **Caution:**
+From GitLab 13.0, using NFS for Git repositories is deprecated. In GitLab 14.0,
+support for NFS for Git repositories is scheduled to be removed. Upgrade to
+[Gitaly Cluster](../gitaly/praefect.md) as soon as possible.
+
 NOTE: **Note:** Filesystem performance has a big impact on overall GitLab
 performance, especially for actions that read or write to Git repositories. See
 [Filesystem Performance Benchmarking](../operations/filesystem_benchmarking.md)
 for steps to test filesystem performance.
-
-NOTE: **Note:** [Cloud Object Storage service](object_storage.md) with [Gitaly](gitaly.md)
-is recommended over NFS wherever possible for improved performance.
 
 ## NFS Server features
 
@@ -57,7 +59,7 @@ management between systems:
 We recommend that all NFS users disable the NFS server delegation feature. This
 is to avoid a [Linux kernel bug](https://bugzilla.redhat.com/show_bug.cgi?id=1552203)
 which causes NFS clients to slow precipitously due to
-[excessive network traffic from numerous `TEST_STATEID` NFS messages](https://gitlab.com/gitlab-org/gitlab-foss/issues/52017).
+[excessive network traffic from numerous `TEST_STATEID` NFS messages](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52017).
 
 To disable NFS server delegation, do the following:
 
@@ -73,7 +75,7 @@ To disable NFS server delegation, do the following:
 #### Important notes
 
 The kernel bug may be fixed in
-[more recent kernels with this commit](https://github.om/torvalds/linux/commit/95da1b3a5aded124dd1bda1e3cdb876184813140).
+[more recent kernels with this commit](https://github.com/torvalds/linux/commit/95da1b3a5aded124dd1bda1e3cdb876184813140).
 
 Red Hat Enterprise 7 [shipped a kernel update](https://access.redhat.com/errata/RHSA-2019:2029)
 on August 6, 2019 that may also have resolved this problem.
@@ -144,24 +146,63 @@ Additionally, this configuration is specifically warned against in the
 >to the NFS server can cause data corruption problems.
 
 For supported database architecture, please see our documentation on
-[Configuring a Database for GitLab HA](database.md).
+[Configuring a Database for GitLab HA](../postgresql/replication_and_failover.md).
 
 ## NFS Client mount options
 
-Below is an example of an NFS mount point defined in `/etc/fstab` we use on
-GitLab.com:
+Here is an example snippet to add to `/etc/fstab`:
 
-```plaintext
-10.1.1.1:/var/opt/gitlab/git-data /var/opt/gitlab/git-data nfs4 defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
-```
+   ```plaintext
+   10.1.0.1:/var/opt/gitlab/.ssh /var/opt/gitlab/.ssh nfs4 defaults,vers=4.1,hard,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+   10.1.0.1:/var/opt/gitlab/gitlab-rails/uploads /var/opt/gitlab/gitlab-rails/uploads nfs4 defaults,vers=4.1,hard,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+   10.1.0.1:/var/opt/gitlab/gitlab-rails/shared /var/opt/gitlab/gitlab-rails/shared nfs4 defaults,vers=4.1,hard,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+   10.1.0.1:/var/opt/gitlab/gitlab-ci/builds /var/opt/gitlab/gitlab-ci/builds nfs4 defaults,vers=4.1,hard,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+   10.1.0.1:/var/opt/gitlab/git-data /var/opt/gitlab/git-data nfs4 defaults,vers=4.1,hard,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+   ```
 
 Note there are several options that you should consider using:
 
 | Setting | Description |
 | ------- | ----------- |
-| `vers=4.1` |NFS v4.1 should be used instead of v4.0 because there is a Linux [NFS client bug in v4.0](https://gitlab.com/gitlab-org/gitaly/issues/1339) that can cause significant problems due to stale data.
+| `vers=4.1` |NFS v4.1 should be used instead of v4.0 because there is a Linux [NFS client bug in v4.0](https://gitlab.com/gitlab-org/gitaly/-/issues/1339) that can cause significant problems due to stale data.
 | `nofail` | Don't halt boot process waiting for this mount to become available
 | `lookupcache=positive` | Tells the NFS client to honor `positive` cache results but invalidates any `negative` cache results. Negative cache results cause problems with Git. Specifically, a `git push` can fail to register uniformly across all NFS clients. The negative cache causes the clients to 'remember' that the files did not exist previously.
+| `hard` | Instead of `soft`. [Further details](#soft-mount-option).
+
+### soft mount option
+
+We recommend that you use `hard` in your mount options, unless you have a specific
+reason to use `soft`.
+
+On GitLab.com, we use `soft` because there were times when we had NFS servers
+reboot and `soft` improved availability, but everyone's infrastructure is different.
+If your NFS is provided by on-premise storage arrays with redundant controllers,
+for example, you shouldn't need to worry about NFS server availability.
+
+The NFS man page states:
+
+> "soft" timeout can cause silent data corruption in certain cases
+
+Read the [Linux man page](https://linux.die.net/man/5/nfs) to understand the difference,
+and if you do use `soft`, ensure that you've taken steps to mitigate the risks.
+
+If you experience behavior that might have been caused by
+writes to disk on the NFS server not occurring, such as commits going missing,
+use the `hard` option, because (from the man page):
+
+> use the soft option only when client responsiveness is more important than data integrity
+
+Other vendors make similar recommendations, including
+[SAP](http://wiki.scn.sap.com/wiki/x/PARnFQ) and NetApp's
+[knowledge base](https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/What_are_the_differences_between_hard_mount_and_soft_mount),
+they highlight that if the NFS client driver caches data, `soft` means there is no certainty if
+writes by GitLab are actually on disk.
+
+Mount points set with the option `hard` may not perform as well, and if the
+NFS server goes down, `hard` will cause processes to hang when interacting with
+the mount point. Use `SIGKILL` (`kill -9`) to deal with hung processes.
+The `intr` option
+[stopped working in the 2.6 kernel](https://access.redhat.com/solutions/157873).
 
 ## A single NFS mount
 
@@ -232,7 +273,7 @@ following are the 4 locations need to be shared:
 
 Other GitLab directories should not be shared between nodes. They contain
 node-specific files and GitLab code that does not need to be shared. To ship
-logs to a central location consider using remote syslog. GitLab Omnibus packages
+logs to a central location consider using remote syslog. Omnibus GitLab packages
 provide configuration for [UDP log shipping](https://docs.gitlab.com/omnibus/settings/logs.html#udp-log-shipping-gitlab-enterprise-edition-only).
 
 Having multiple NFS mounts will require manually making sure the data directories
@@ -243,7 +284,7 @@ are empty before attempting a restore. Read more about the
 
 Read more on high-availability configuration:
 
-1. [Configure the database](database.md)
+1. [Configure the database](../postgresql/replication_and_failover.md)
 1. [Configure Redis](redis.md)
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)

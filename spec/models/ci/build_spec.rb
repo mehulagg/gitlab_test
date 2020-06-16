@@ -24,6 +24,7 @@ describe Ci::Build do
   it { is_expected.to have_many(:needs) }
   it { is_expected.to have_many(:sourced_pipelines) }
   it { is_expected.to have_many(:job_variables) }
+  it { is_expected.to have_many(:report_results) }
 
   it { is_expected.to have_one(:deployment) }
   it { is_expected.to have_one(:runner_session) }
@@ -36,8 +37,6 @@ describe Ci::Build do
   it { is_expected.to delegate_method(:merge_request?).to(:pipeline) }
   it { is_expected.to delegate_method(:merge_request_ref?).to(:pipeline) }
   it { is_expected.to delegate_method(:legacy_detached_merge_request_pipeline?).to(:pipeline) }
-
-  it { is_expected.to include_module(Ci::PipelineDelegator) }
 
   describe 'associations' do
     it 'has a bidirectional relationship with projects' do
@@ -108,10 +107,14 @@ describe Ci::Build do
     end
   end
 
-  describe '.with_artifacts_archive' do
-    subject { described_class.with_artifacts_archive }
+  describe '.with_downloadable_artifacts' do
+    subject { described_class.with_downloadable_artifacts }
 
-    context 'when job does not have an archive' do
+    before do
+      stub_feature_flags(drop_license_management_artifact: false)
+    end
+
+    context 'when job does not have a downloadable artifact' do
       let!(:job) { create(:ci_build) }
 
       it 'does not return the job' do
@@ -119,15 +122,23 @@ describe Ci::Build do
       end
     end
 
-    context 'when job has a job artifact archive' do
-      let!(:job) { create(:ci_build, :artifacts) }
+    ::Ci::JobArtifact::DOWNLOADABLE_TYPES.each do |type|
+      context "when job has a #{type} artifact" do
+        it 'returns the job' do
+          job = create(:ci_build)
+          create(
+            :ci_job_artifact,
+            file_format: ::Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS[type.to_sym],
+            file_type: type,
+            job: job
+          )
 
-      it 'returns the job' do
-        is_expected.to include(job)
+          is_expected.to include(job)
+        end
       end
     end
 
-    context 'when job has a job artifact trace' do
+    context 'when job has a non-downloadable artifact' do
       let!(:job) { create(:ci_build, :trace_artifact) }
 
       it 'does not return the job' do
@@ -616,7 +627,7 @@ describe Ci::Build do
 
     context 'is expired' do
       before do
-        build.update(artifacts_expire_at: Time.now - 7.days)
+        build.update(artifacts_expire_at: Time.current - 7.days)
       end
 
       it { is_expected.to be_truthy }
@@ -624,7 +635,7 @@ describe Ci::Build do
 
     context 'is not expired' do
       before do
-        build.update(artifacts_expire_at: Time.now + 7.days)
+        build.update(artifacts_expire_at: Time.current + 7.days)
       end
 
       it { is_expected.to be_falsey }
@@ -651,13 +662,13 @@ describe Ci::Build do
     it { is_expected.to be_nil }
 
     context 'when artifacts_expire_at is specified' do
-      let(:expire_at) { Time.now + 7.days }
+      let(:expire_at) { Time.current + 7.days }
 
       before do
         build.artifacts_expire_at = expire_at
       end
 
-      it { is_expected.to be_within(5).of(expire_at - Time.now) }
+      it { is_expected.to be_within(5).of(expire_at - Time.current) }
     end
   end
 
@@ -861,6 +872,22 @@ describe Ci::Build do
       let(:build) { create(:ci_build, :artifacts) }
 
       it { is_expected.to be_truthy }
+    end
+  end
+
+  describe '#has_test_reports?' do
+    subject { build.has_test_reports? }
+
+    context 'when build has a test report' do
+      let(:build) { create(:ci_build, :test_reports) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when build does not have a test report' do
+      let(:build) { create(:ci_build) }
+
+      it { is_expected.to be_falsey }
     end
   end
 
@@ -1421,6 +1448,8 @@ describe Ci::Build do
     subject { build.erase_erasable_artifacts! }
 
     before do
+      stub_feature_flags(drop_license_management_artifact: false)
+
       Ci::JobArtifact.file_types.keys.each do |file_type|
         create(:ci_job_artifact, job: build, file_type: file_type, file_format: Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS[file_type.to_sym])
       end
@@ -1783,7 +1812,7 @@ describe Ci::Build do
   end
 
   describe '#keep_artifacts!' do
-    let(:build) { create(:ci_build, artifacts_expire_at: Time.now + 7.days) }
+    let(:build) { create(:ci_build, artifacts_expire_at: Time.current + 7.days) }
 
     subject { build.keep_artifacts! }
 
@@ -1818,64 +1847,65 @@ describe Ci::Build do
   end
 
   describe '#merge_request' do
-    def create_mr(build, pipeline, factory: :merge_request, created_at: Time.now)
-      create(factory, source_project: pipeline.project,
-                      target_project: pipeline.project,
-                      source_branch: build.ref,
-                      created_at: created_at)
+    subject { pipeline.builds.take.merge_request }
+
+    context 'on a branch pipeline' do
+      let!(:pipeline) { create(:ci_pipeline, :with_job, project: project, ref: 'fix') }
+
+      context 'with no merge request' do
+        it { is_expected.to be_nil }
+      end
+
+      context 'with an open merge request from the same ref name' do
+        let!(:merge_request) { create(:merge_request, source_project: project, source_branch: 'fix') }
+
+        # If no diff exists, the pipeline commit was not part of the merge
+        # request and may have simply incidentally used the same ref name.
+        context 'without a merge request diff containing the pipeline commit' do
+          it { is_expected.to be_nil }
+        end
+
+        # If the merge request was truly opened from the branch that the
+        # pipeline ran on, that head sha will be present in a diff.
+        context 'with a merge request diff containing the pipeline commit' do
+          let!(:mr_diff) { create(:merge_request_diff, merge_request: merge_request) }
+          let!(:mr_diff_commit) { create(:merge_request_diff_commit, sha: build.sha, merge_request_diff: mr_diff) }
+
+          it { is_expected.to eq(merge_request) }
+        end
+      end
+
+      context 'with multiple open merge requests' do
+        let!(:merge_request)  { create(:merge_request, source_project: project, source_branch: 'fix') }
+        let!(:mr_diff)        { create(:merge_request_diff, merge_request: merge_request) }
+        let!(:mr_diff_commit) { create(:merge_request_diff_commit, sha: build.sha, merge_request_diff: mr_diff) }
+
+        let!(:new_merge_request)  { create(:merge_request, source_project: project, source_branch: 'fix', target_branch: 'staging') }
+        let!(:new_mr_diff)        { create(:merge_request_diff, merge_request: new_merge_request) }
+        let!(:new_mr_diff_commit) { create(:merge_request_diff_commit, sha: build.sha, merge_request_diff: new_mr_diff) }
+
+        it 'returns the first merge request' do
+          expect(subject).to eq(merge_request)
+        end
+      end
     end
 
-    context 'when a MR has a reference to the pipeline' do
-      before do
-        @merge_request = create_mr(build, pipeline, factory: :merge_request)
+    context 'on a detached merged request pipeline' do
+      let(:pipeline) { create(:ci_pipeline, :detached_merge_request_pipeline, :with_job) }
 
-        commits = [double(id: pipeline.sha)]
-        allow(@merge_request).to receive(:commits).and_return(commits)
-        allow(MergeRequest).to receive_message_chain(:includes, :where, :reorder).and_return([@merge_request])
-      end
-
-      it 'returns the single associated MR' do
-        expect(build.merge_request.id).to eq(@merge_request.id)
-      end
+      it { is_expected.to eq(pipeline.merge_request) }
     end
 
-    context 'when there is not a MR referencing the pipeline' do
-      it 'returns nil' do
-        expect(build.merge_request).to be_nil
-      end
+    context 'on a legacy detached merged request pipeline' do
+      let(:pipeline) { create(:ci_pipeline, :legacy_detached_merge_request_pipeline, :with_job) }
+
+      it { is_expected.to eq(pipeline.merge_request) }
     end
 
-    context 'when more than one MR have a reference to the pipeline' do
-      before do
-        @merge_request = create_mr(build, pipeline, factory: :merge_request)
-        @merge_request.close!
-        @merge_request2 = create_mr(build, pipeline, factory: :merge_request)
+    context 'on a pipeline for merged results' do
+      let(:pipeline) { create(:ci_pipeline, :merged_result_pipeline, :with_job) }
 
-        commits = [double(id: pipeline.sha)]
-        allow(@merge_request).to receive(:commits).and_return(commits)
-        allow(@merge_request2).to receive(:commits).and_return(commits)
-        allow(MergeRequest).to receive_message_chain(:includes, :where, :reorder).and_return([@merge_request, @merge_request2])
-      end
-
-      it 'returns the first MR' do
-        expect(build.merge_request.id).to eq(@merge_request.id)
-      end
-    end
-
-    context 'when a Build is created after the MR' do
-      before do
-        @merge_request = create_mr(build, pipeline, factory: :merge_request_with_diffs)
-        pipeline2 = create(:ci_pipeline, project: project)
-        @build2 = create(:ci_build, pipeline: pipeline2)
-
-        allow(@merge_request).to receive(:commit_shas)
-          .and_return([pipeline.sha, pipeline2.sha])
-        allow(MergeRequest).to receive_message_chain(:includes, :where, :reorder).and_return([@merge_request])
-      end
-
-      it 'returns the current MR' do
-        expect(@build2.merge_request.id).to eq(@merge_request.id)
-      end
+      it { is_expected.to eq(pipeline.merge_request) }
     end
   end
 
@@ -2272,7 +2302,7 @@ describe Ci::Build do
       let(:predefined_variables) do
         [
           { key: 'CI_PIPELINE_ID', value: pipeline.id.to_s, public: true, masked: false },
-          { key: 'CI_PIPELINE_URL', value: project.web_url + "/pipelines/#{pipeline.id}", public: true, masked: false },
+          { key: 'CI_PIPELINE_URL', value: project.web_url + "/-/pipelines/#{pipeline.id}", public: true, masked: false },
           { key: 'CI_JOB_ID', value: build.id.to_s, public: true, masked: false },
           { key: 'CI_JOB_URL', value: project.web_url + "/-/jobs/#{build.id}", public: true, masked: false },
           { key: 'CI_JOB_TOKEN', value: 'my-token', public: false, masked: true },
@@ -2281,6 +2311,7 @@ describe Ci::Build do
           { key: 'CI_REGISTRY_USER', value: 'gitlab-ci-token', public: true, masked: false },
           { key: 'CI_REGISTRY_PASSWORD', value: 'my-token', public: false, masked: true },
           { key: 'CI_REPOSITORY_URL', value: build.repo_url, public: false, masked: false },
+          { key: 'CI_JOB_JWT', value: 'ci.job.jwt', public: false, masked: true },
           { key: 'CI_JOB_NAME', value: 'test', public: true, masked: false },
           { key: 'CI_JOB_STAGE', value: 'test', public: true, masked: false },
           { key: 'CI_NODE_TOTAL', value: '1', public: true, masked: false },
@@ -2333,11 +2364,32 @@ describe Ci::Build do
       end
 
       before do
+        allow(Gitlab::Ci::Jwt).to receive(:for_build).with(build).and_return('ci.job.jwt')
         build.set_token('my-token')
         build.yaml_variables = []
       end
 
       it { is_expected.to eq(predefined_variables) }
+
+      context 'when ci_job_jwt feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_job_jwt: false)
+        end
+
+        it 'CI_JOB_JWT is not included' do
+          expect(subject.pluck(:key)).not_to include('CI_JOB_JWT')
+        end
+      end
+
+      context 'when CI_JOB_JWT generation fails' do
+        it 'CI_JOB_JWT is not included' do
+          expect(Gitlab::Ci::Jwt).to receive(:for_build).and_raise(OpenSSL::PKey::RSAError, 'Neither PUB key nor PRIV key: not enough data')
+          expect(Gitlab::ErrorTracking).to receive(:track_exception)
+
+          expect { subject }.not_to raise_error
+          expect(subject.pluck(:key)).not_to include('CI_JOB_JWT')
+        end
+      end
 
       describe 'variables ordering' do
         context 'when variables hierarchy is stubbed' do
@@ -2345,27 +2397,33 @@ describe Ci::Build do
           let(:project_pre_var) { { key: 'project', value: 'value', public: true, masked: false } }
           let(:pipeline_pre_var) { { key: 'pipeline', value: 'value', public: true, masked: false } }
           let(:build_yaml_var) { { key: 'yaml', value: 'value', public: true, masked: false } }
+          let(:job_jwt_var) { { key: 'CI_JOB_JWT', value: 'ci.job.jwt', public: false, masked: true } }
+          let(:job_dependency_var) { { key: 'job_dependency', value: 'value', public: true, masked: false } }
 
           before do
             allow(build).to receive(:predefined_variables) { [build_pre_var] }
             allow(build).to receive(:yaml_variables) { [build_yaml_var] }
             allow(build).to receive(:persisted_variables) { [] }
+            allow(build).to receive(:job_jwt_variables) { [job_jwt_var] }
+            allow(build).to receive(:dependency_variables) { [job_dependency_var] }
 
-            allow_any_instance_of(Project)
+            allow(build.project)
               .to receive(:predefined_variables) { [project_pre_var] }
 
             project.variables.create!(key: 'secret', value: 'value')
 
-            allow_any_instance_of(Ci::Pipeline)
-              .to receive(:predefined_variables) { [pipeline_pre_var] }
+            allow(build.pipeline)
+              .to receive(:predefined_variables).and_return([pipeline_pre_var])
           end
 
           it 'returns variables in order depending on resource hierarchy' do
             is_expected.to eq(
-              [build_pre_var,
+              [job_jwt_var,
+               build_pre_var,
                project_pre_var,
                pipeline_pre_var,
                build_yaml_var,
+               job_dependency_var,
                { key: 'secret', value: 'value', public: false, masked: false }])
           end
         end
@@ -2469,6 +2527,17 @@ describe Ci::Build do
 
             expect(ci_variables).to be_empty
           end
+        end
+      end
+
+      context 'with the :modified_path_ci_variables feature flag disabled' do
+        before do
+          stub_feature_flags(modified_path_ci_variables: false)
+        end
+
+        it 'does not set CI_MERGE_REQUEST_CHANGED_PAGES_* variables' do
+          expect(subject.find { |var| var[:key] == 'CI_MERGE_REQUEST_CHANGED_PAGE_PATHS' }).to be_nil
+          expect(subject.find { |var| var[:key] == 'CI_MERGE_REQUEST_CHANGED_PAGE_URLS' }).to be_nil
         end
       end
     end
@@ -2860,6 +2929,19 @@ describe Ci::Build do
       it { is_expected.to include(deployment_variable) }
     end
 
+    context 'when build has a freeze period' do
+      let(:freeze_variable) { { key: 'CI_DEPLOY_FREEZE', value: 'true', masked: false, public: true } }
+
+      before do
+        expect_next_instance_of(Ci::FreezePeriodStatus) do |freeze_period|
+          expect(freeze_period).to receive(:execute)
+            .and_return(true)
+        end
+      end
+
+      it { is_expected.to include(freeze_variable) }
+    end
+
     context 'when project has default CI config path' do
       let(:ci_config_path) { { key: 'CI_CONFIG_PATH', value: '.gitlab-ci.yml', public: true, masked: false } }
 
@@ -2963,6 +3045,15 @@ describe Ci::Build do
         end
       end
     end
+
+    context 'when build has dependency which has dotenv variable' do
+      let!(:prepare) { create(:ci_build, pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, options: { dependencies: [prepare.name] }) }
+
+      let!(:job_variable) { create(:ci_job_variable, :dotenv_source, job: prepare) }
+
+      it { is_expected.to include(key: job_variable.key, value: job_variable.value, public: false, masked: false) }
+    end
   end
 
   describe '#scoped_variables' do
@@ -3025,122 +3116,95 @@ describe Ci::Build do
         end
       end
     end
+
+    context 'with dependency variables' do
+      let!(:prepare) { create(:ci_build, name: 'prepare', pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, options: { dependencies: ['prepare'] }) }
+
+      let!(:job_variable) { create(:ci_job_variable, :dotenv_source, job: prepare) }
+
+      it 'inherits dependent variables' do
+        expect(build.scoped_variables.to_hash).to include(job_variable.key => job_variable.value)
+      end
+    end
+  end
+
+  shared_examples "secret CI variables" do
+    context 'when ref is branch' do
+      let(:build) { create(:ci_build, ref: 'master', tag: false, project: project) }
+
+      context 'when ref is protected' do
+        before do
+          create(:protected_branch, :developers_can_merge, name: 'master', project: project)
+        end
+
+        it { is_expected.to include(variable) }
+      end
+
+      context 'when ref is not protected' do
+        it { is_expected.not_to include(variable) }
+      end
+    end
+
+    context 'when ref is tag' do
+      let(:build) { create(:ci_build, ref: 'v1.1.0', tag: true, project: project) }
+
+      context 'when ref is protected' do
+        before do
+          create(:protected_tag, project: project, name: 'v*')
+        end
+
+        it { is_expected.to include(variable) }
+      end
+
+      context 'when ref is not protected' do
+        it { is_expected.not_to include(variable) }
+      end
+    end
+
+    context 'when ref is merge request' do
+      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
+      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
+      let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
+
+      context 'when ref is protected' do
+        before do
+          create(:protected_branch, :developers_can_merge, name: merge_request.source_branch, project: project)
+        end
+
+        it 'does not return protected variables as it is not supported for merge request pipelines' do
+          is_expected.not_to include(variable)
+        end
+      end
+
+      context 'when ref is not protected' do
+        it { is_expected.not_to include(variable) }
+      end
+    end
+  end
+
+  describe '#secret_instance_variables' do
+    subject { build.secret_instance_variables }
+
+    let_it_be(:variable) { create(:ci_instance_variable, protected: true) }
+
+    include_examples "secret CI variables"
   end
 
   describe '#secret_group_variables' do
     subject { build.secret_group_variables }
 
-    let!(:variable) { create(:ci_group_variable, protected: true, group: group) }
+    let_it_be(:variable) { create(:ci_group_variable, protected: true, group: group) }
 
-    context 'when ref is branch' do
-      let(:build) { create(:ci_build, ref: 'master', tag: false, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: 'master', project: project)
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is tag' do
-      let(:build) { create(:ci_build, ref: 'v1.1.0', tag: true, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_tag, project: project, name: 'v*')
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is merge request' do
-      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
-      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
-      let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: merge_request.source_branch, project: project)
-        end
-
-        it 'does not return protected variables as it is not supported for merge request pipelines' do
-          is_expected.not_to include(variable)
-        end
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
+    include_examples "secret CI variables"
   end
 
   describe '#secret_project_variables' do
     subject { build.secret_project_variables }
 
-    let!(:variable) { create(:ci_variable, protected: true, project: project) }
+    let_it_be(:variable) { create(:ci_variable, protected: true, project: project) }
 
-    context 'when ref is branch' do
-      let(:build) { create(:ci_build, ref: 'master', tag: false, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: 'master', project: project)
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is tag' do
-      let(:build) { create(:ci_build, ref: 'v1.1.0', tag: true, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_tag, project: project, name: 'v*')
-        end
-
-        it { is_expected.to include(variable) }
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
-
-    context 'when ref is merge request' do
-      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
-      let(:pipeline) { merge_request.pipelines_for_merge_request.first }
-      let(:build) { create(:ci_build, ref: merge_request.source_branch, tag: false, pipeline: pipeline, project: project) }
-
-      context 'when ref is protected' do
-        before do
-          create(:protected_branch, :developers_can_merge, name: merge_request.source_branch, project: project)
-        end
-
-        it 'does not return protected variables as it is not supported for merge request pipelines' do
-          is_expected.not_to include(variable)
-        end
-      end
-
-      context 'when ref is not protected' do
-        it { is_expected.not_to include(variable) }
-      end
-    end
+    include_examples "secret CI variables"
   end
 
   describe '#deployment_variables' do
@@ -3191,6 +3255,29 @@ describe Ci::Build do
       it 'returns a hash including variable with higher precedence' do
         expect(build.scoped_variables_hash).to include('MY_VAR': 'pipeline value')
         expect(build.scoped_variables_hash).not_to include('MY_VAR': 'myvar')
+      end
+    end
+
+    context 'when overriding CI instance variables' do
+      before do
+        create(:ci_instance_variable, key: 'MY_VAR', value: 'my value 1')
+        group.variables.create!(key: 'MY_VAR', value: 'my value 2')
+      end
+
+      it 'returns a regular hash created using valid ordering' do
+        expect(build.scoped_variables_hash).to include('MY_VAR': 'my value 2')
+        expect(build.scoped_variables_hash).not_to include('MY_VAR': 'my value 1')
+      end
+    end
+
+    context 'when CI instance variables are disabled' do
+      before do
+        create(:ci_instance_variable, key: 'MY_VAR', value: 'my value 1')
+        stub_feature_flags(ci_instance_level_variables: false)
+      end
+
+      it 'does not include instance level variables' do
+        expect(build.scoped_variables_hash).not_to include('MY_VAR': 'my value 1')
       end
     end
   end
@@ -3265,6 +3352,41 @@ describe Ci::Build do
 
       it 'does not persist data in build metadata' do
         expect(build.metadata.read_attribute(:config_variables)).to be_nil
+      end
+    end
+  end
+
+  describe '#dependency_variables' do
+    subject { build.dependency_variables }
+
+    context 'when using dependencies' do
+      let!(:prepare1) { create(:ci_build, name: 'prepare1', pipeline: pipeline, stage_idx: 0) }
+      let!(:prepare2) { create(:ci_build, name: 'prepare2', pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, options: { dependencies: ['prepare1'] }) }
+
+      let!(:job_variable_1) { create(:ci_job_variable, :dotenv_source, job: prepare1) }
+      let!(:job_variable_2) { create(:ci_job_variable, job: prepare1) }
+      let!(:job_variable_3) { create(:ci_job_variable, :dotenv_source, job: prepare2) }
+
+      it 'inherits only dependent variables' do
+        expect(subject.to_hash).to eq(job_variable_1.key => job_variable_1.value)
+      end
+    end
+
+    context 'when using needs' do
+      let!(:prepare1) { create(:ci_build, name: 'prepare1', pipeline: pipeline, stage_idx: 0) }
+      let!(:prepare2) { create(:ci_build, name: 'prepare2', pipeline: pipeline, stage_idx: 0) }
+      let!(:prepare3) { create(:ci_build, name: 'prepare3', pipeline: pipeline, stage_idx: 0) }
+      let!(:build) { create(:ci_build, pipeline: pipeline, stage_idx: 1, scheduling_type: 'dag') }
+      let!(:build_needs_prepare1) { create(:ci_build_need, build: build, name: 'prepare1', artifacts: true) }
+      let!(:build_needs_prepare2) { create(:ci_build_need, build: build, name: 'prepare2', artifacts: false) }
+
+      let!(:job_variable_1) { create(:ci_job_variable, :dotenv_source, job: prepare1) }
+      let!(:job_variable_2) { create(:ci_job_variable, :dotenv_source, job: prepare2) }
+      let!(:job_variable_3) { create(:ci_job_variable, :dotenv_source, job: prepare3) }
+
+      it 'inherits only needs with artifacts variables' do
+        expect(subject.to_hash).to eq(job_variable_1.key => job_variable_1.value)
       end
     end
   end
@@ -3491,7 +3613,7 @@ describe Ci::Build do
             .to receive(:execute)
             .with(subject)
             .and_raise(Gitlab::Access::AccessDeniedError)
-          allow(Rails.logger).to receive(:error)
+          allow(Gitlab::AppLogger).to receive(:error)
         end
 
         it 'handles raised exception' do
@@ -3501,7 +3623,7 @@ describe Ci::Build do
         it 'logs the error' do
           subject.drop!
 
-          expect(Rails.logger)
+          expect(Gitlab::AppLogger)
             .to have_received(:error)
             .with(a_string_matching("Unable to auto-retry job #{subject.id}"))
         end
@@ -3798,8 +3920,68 @@ describe Ci::Build do
           create(:ci_job_artifact, :junit_with_corrupted_data, job: build, project: build.project)
         end
 
-        it 'raises an error' do
-          expect { subject }.to raise_error(Gitlab::Ci::Parsers::Test::Junit::JunitParserError)
+        it 'returns no test data and includes a suite_error message' do
+          expect { subject }.not_to raise_error
+
+          expect(test_reports.get_suite(build.name).total_count).to eq(0)
+          expect(test_reports.get_suite(build.name).success_count).to eq(0)
+          expect(test_reports.get_suite(build.name).failed_count).to eq(0)
+          expect(test_reports.get_suite(build.name).suite_error).to eq('JUnit XML parsing failed: 1:1: FATAL: Document is empty')
+        end
+      end
+    end
+  end
+
+  describe '#collect_accessibility_reports!' do
+    subject { build.collect_accessibility_reports!(accessibility_report) }
+
+    let(:accessibility_report) { Gitlab::Ci::Reports::AccessibilityReports.new }
+
+    it { expect(accessibility_report.urls).to eq({}) }
+
+    context 'when build has an accessibility report' do
+      context 'when there is an accessibility report with errors' do
+        before do
+          create(:ci_job_artifact, :accessibility, job: build, project: build.project)
+        end
+
+        it 'parses blobs and add the results to the accessibility report' do
+          expect { subject }.not_to raise_error
+
+          expect(accessibility_report.urls.keys).to match_array(['https://about.gitlab.com/'])
+          expect(accessibility_report.errors_count).to eq(10)
+          expect(accessibility_report.scans_count).to eq(1)
+          expect(accessibility_report.passes_count).to eq(0)
+        end
+      end
+
+      context 'when there is an accessibility report without errors' do
+        before do
+          create(:ci_job_artifact, :accessibility_without_errors, job: build, project: build.project)
+        end
+
+        it 'parses blobs and add the results to the accessibility report' do
+          expect { subject }.not_to raise_error
+
+          expect(accessibility_report.urls.keys).to match_array(['https://pa11y.org/'])
+          expect(accessibility_report.errors_count).to eq(0)
+          expect(accessibility_report.scans_count).to eq(1)
+          expect(accessibility_report.passes_count).to eq(1)
+        end
+      end
+
+      context 'when there is an accessibility report with an invalid url' do
+        before do
+          create(:ci_job_artifact, :accessibility_with_invalid_url, job: build, project: build.project)
+        end
+
+        it 'parses blobs and add the results to the accessibility report' do
+          expect { subject }.not_to raise_error
+
+          expect(accessibility_report.urls).to be_empty
+          expect(accessibility_report.errors_count).to eq(0)
+          expect(accessibility_report.scans_count).to eq(0)
+          expect(accessibility_report.passes_count).to eq(0)
         end
       end
     end
@@ -3847,6 +4029,49 @@ describe Ci::Build do
 
         it 'raises an error' do
           expect { subject }.to raise_error(Gitlab::Ci::Parsers::Coverage::Cobertura::CoberturaParserError)
+        end
+      end
+    end
+  end
+
+  describe '#collect_terraform_reports!' do
+    let(:terraform_reports) { Gitlab::Ci::Reports::TerraformReports.new }
+
+    it 'returns an empty hash' do
+      expect(build.collect_terraform_reports!(terraform_reports).plans).to eq({})
+    end
+
+    context 'when build has a terraform report' do
+      context 'when there is a valid tfplan.json' do
+        before do
+          create(:ci_job_artifact, :terraform, job: build, project: build.project)
+        end
+
+        it 'parses blobs and add the results to the terraform report' do
+          expect { build.collect_terraform_reports!(terraform_reports) }.not_to raise_error
+
+          expect(terraform_reports.plans).to match(
+            a_hash_including(
+              build.id.to_s => a_hash_including(
+                'create' => 0,
+                'update' => 1,
+                'delete' => 0,
+                'job_name' => build.options.dig(:artifacts, :name).to_s
+              )
+            )
+          )
+        end
+      end
+
+      context 'when there is an invalid tfplan.json' do
+        before do
+          create(:ci_job_artifact, :terraform_with_corrupted_data, job: build, project: build.project)
+        end
+
+        it 'raises an error' do
+          expect { build.collect_terraform_reports!(terraform_reports) }.to raise_error(
+            Gitlab::Ci::Parsers::Terraform::Tfplan::TfplanParserError
+          )
         end
       end
     end
@@ -3962,6 +4187,28 @@ describe Ci::Build do
 
       it { is_expected.to include(:upload_multiple_artifacts) }
     end
+
+    context 'when artifacts exclude is defined and the is feature enabled' do
+      let(:options) do
+        { artifacts: { exclude: %w[something] } }
+      end
+
+      context 'when a feature flag is enabled' do
+        before do
+          stub_feature_flags(ci_artifacts_exclude: true)
+        end
+
+        it { is_expected.to include(:artifacts_exclude) }
+      end
+
+      context 'when a feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_artifacts_exclude: false)
+        end
+
+        it { is_expected.not_to include(:artifacts_exclude) }
+      end
+    end
   end
 
   describe '#supported_runner?' do
@@ -3969,7 +4216,7 @@ describe Ci::Build do
 
     subject { build.supported_runner?(runner_features) }
 
-    context 'when feature is required by build' do
+    context 'when `upload_multiple_artifacts` feature is required by build' do
       before do
         expect(build).to receive(:runner_required_feature_names) do
           [:upload_multiple_artifacts]
@@ -3993,13 +4240,33 @@ describe Ci::Build do
       end
     end
 
-    context 'when refspecs feature is required by build' do
+    context 'when `refspecs` feature is required by build' do
       before do
         allow(build).to receive(:merge_request_ref?) { true }
       end
 
       context 'when runner provides given feature' do
         let(:runner_features) { { refspecs: true } }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when runner does not provide given feature' do
+        let(:runner_features) { {} }
+
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'when `release_steps` feature is required by build' do
+      before do
+        expect(build).to receive(:runner_required_feature_names) do
+          [:release_steps]
+        end
+      end
+
+      context 'when runner provides given feature' do
+        let(:runner_features) { { release_steps: true } }
 
         it { is_expected.to be_truthy }
       end
@@ -4284,6 +4551,33 @@ describe Ci::Build do
 
     context 'when build option does not have environment auto_stop_in' do
       let(:build) { create(:ci_build) }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#degradation_threshold' do
+    subject { build.degradation_threshold }
+
+    context 'when threshold variable is defined' do
+      before do
+        build.yaml_variables = [
+          { key: 'SOME_VAR_1', value: 'SOME_VAL_1' },
+          { key: 'DEGRADATION_THRESHOLD', value: '5' },
+          { key: 'SOME_VAR_2', value: 'SOME_VAL_2' }
+        ]
+      end
+
+      it { is_expected.to eq(5) }
+    end
+
+    context 'when threshold variable is not defined' do
+      before do
+        build.yaml_variables = [
+          { key: 'SOME_VAR_1', value: 'SOME_VAL_1' },
+          { key: 'SOME_VAR_2', value: 'SOME_VAL_2' }
+        ]
+      end
 
       it { is_expected.to be_nil }
     end

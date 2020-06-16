@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe "Pages with Let's Encrypt", :https_pages_enabled do
+RSpec.describe "Pages with Let's Encrypt", :https_pages_enabled do
   include LetsEncryptHelpers
 
   let(:project) { create(:project, pages_https_only: false) }
@@ -82,6 +82,22 @@ describe "Pages with Let's Encrypt", :https_pages_enabled do
       click_on 'Save Changes'
 
       expect(domain.reload.auto_ssl_enabled).to eq false
+    end
+  end
+
+  context "when we failed to obtain Let's Encrypt certificate", :js do
+    let(:domain) do
+      create(:pages_domain, auto_ssl_enabled: true, auto_ssl_failed: true, project: project)
+    end
+
+    it 'user can retry obtaining certificate' do
+      visit project_pages_domain_path(project, domain)
+
+      expect(page).to have_text("Something went wrong while obtaining the Let's Encrypt certificate.")
+
+      click_on('Retry')
+
+      expect(page).to have_text("GitLab is obtaining a Let's Encrypt SSL certificate for this domain. This process can take some time. Please try again later.")
     end
   end
 

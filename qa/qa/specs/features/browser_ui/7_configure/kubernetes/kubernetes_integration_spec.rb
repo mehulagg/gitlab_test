@@ -2,9 +2,9 @@
 
 module QA
   context 'Configure' do
-    describe 'Kubernetes Cluster Integration', :orchestrated, :kubernetes, :requires_admin, quarantine: { type: :new } do
+    describe 'Kubernetes Cluster Integration', :orchestrated, :kubernetes, :requires_admin, :skip_live_env do
       context 'Project Clusters' do
-        let(:cluster) { Service::KubernetesCluster.new(provider_class: Service::ClusterProvider::K3s).create! }
+        let!(:cluster) { Service::KubernetesCluster.new(provider_class: Service::ClusterProvider::K3s).create! }
         let(:project) do
           Resource::Project.fabricate_via_api! do |project|
             project.name = 'project-with-k8s'
@@ -13,7 +13,7 @@ module QA
         end
 
         before do
-          Flow::Login.sign_in
+          Flow::Login.sign_in_as_admin
         end
 
         after do
@@ -21,12 +21,10 @@ module QA
         end
 
         it 'can create and associate a project cluster', :smoke do
-          Resource::KubernetesCluster.fabricate_via_browser_ui! do |k8s_cluster|
+          Resource::KubernetesCluster::ProjectCluster.fabricate_via_browser_ui! do |k8s_cluster|
             k8s_cluster.project = project
             k8s_cluster.cluster = cluster
-          end
-
-          project.visit!
+          end.project.visit!
 
           Page::Project::Menu.perform(&:go_to_operations_kubernetes)
 

@@ -37,6 +37,7 @@ module Gitlab
       MIN_REQUIRED_BATCH_SIZE = 1_250
       MAX_ALLOWED_LOOPS = 10_000
       SLEEP_TIME_IN_SECONDS = 0.01 # 10 msec sleep
+      ALLOWED_MODES = [:itself, :distinct].freeze
 
       # Each query should take < 500ms https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22705
       DEFAULT_DISTINCT_BATCH_SIZE = 10_000
@@ -55,8 +56,8 @@ module Gitlab
 
       def count(batch_size: nil, mode: :itself, start: nil, finish: nil)
         raise 'BatchCount can not be run inside a transaction' if ActiveRecord::Base.connection.transaction_open?
-        raise "The mode #{mode.inspect} is not supported" unless [:itself, :distinct].include?(mode)
-        raise 'Use distinct count for optimized distinct counting' if @relation.limit(1).distinct_value.present? && mode != :distinct
+
+        check_mode!(mode)
 
         # non-distinct have better performance
         batch_size ||= mode == :distinct ? DEFAULT_DISTINCT_BATCH_SIZE : DEFAULT_BATCH_SIZE
@@ -90,10 +91,16 @@ module Gitlab
 
       def batch_fetch(start, finish, mode)
         # rubocop:disable GitlabSecurity/PublicSend
-        @relation.select(@column).public_send(mode).where(@column => start..(finish - 1)).count
+        @relation.select(@column).public_send(mode).where(between_condition(start, finish)).count
       end
 
       private
+
+      def between_condition(start, finish)
+        return @column.between(start..(finish - 1)) if @column.is_a?(Arel::Attributes::Attribute)
+
+        { @column => start..(finish - 1) }
+      end
 
       def actual_start(start)
         start || @relation.minimum(@column) || 0
@@ -101,6 +108,12 @@ module Gitlab
 
       def actual_finish(finish)
         finish || @relation.maximum(@column) || 0
+      end
+
+      def check_mode!(mode)
+        raise "The mode #{mode.inspect} is not supported" unless ALLOWED_MODES.include?(mode)
+        raise 'Use distinct count for optimized distinct counting' if @relation.limit(1).distinct_value.present? && mode != :distinct
+        raise 'Use distinct count only with non id fields' if @column == :id && mode == :distinct
       end
     end
   end

@@ -2,15 +2,8 @@
 
 require 'spec_helper'
 
-describe SyncSeatLinkWorker, type: :worker do
+RSpec.describe SyncSeatLinkWorker, type: :worker do
   describe '#perform' do
-    def create_current_license(options = {})
-      License.current.destroy!
-
-      gl_license = create(:gitlab_license, options)
-      create(:license, data: gl_license.export)
-    end
-
     context 'when current, paid license is active' do
       let(:utc_time) { Time.utc(2020, 3, 12, 12, 00) }
 
@@ -106,6 +99,14 @@ describe SyncSeatLinkWorker, type: :worker do
     context 'when using a trial license' do
       before do
         create(:license, trial: true)
+      end
+
+      include_examples 'no seat link sync'
+    end
+
+    context 'when the license has no expiration date' do
+      before do
+        create_current_license(expires_at: nil, block_changes_at: nil)
       end
 
       include_examples 'no seat link sync'

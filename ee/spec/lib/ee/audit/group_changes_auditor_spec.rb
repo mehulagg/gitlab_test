@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe EE::Audit::GroupChangesAuditor do
+RSpec.describe EE::Audit::GroupChangesAuditor do
   describe '.audit_changes' do
     let!(:user) { create(:user) }
     let!(:group) { create(:group, visibility_level: 0) }
@@ -37,19 +37,6 @@ describe EE::Audit::GroupChangesAuditor do
         expect(event.details[:from]).to eq 'Maintainers'
         expect(event.details[:to]).to eq 'No one'
         expect(event.details[:change]).to eq 'project_creation_level'
-      end
-
-      it 'creates an event when the group plan changes' do
-        new_plan = create(:free_plan, name: 'plan-1')
-
-        group.update!(plan_id: new_plan.id)
-
-        expect { foo_instance.execute }.to change { SecurityEvent.count }.by(1)
-
-        event = SecurityEvent.last
-        expect(event.details[:from]).to eq 'none'
-        expect(event.details[:to]).to eq 'plan-1'
-        expect(event.details[:change]).to eq 'plan'
       end
 
       it 'creates an event when attributes change' do

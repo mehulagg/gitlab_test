@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import pick from 'lodash/pick';
+import { pick } from 'lodash';
 import * as types from './mutation_types';
 import { mapToDashboardViewModel, normalizeQueryResult } from './utils';
 import { BACKOFF_TIMEOUT } from '../../lib/utils/common_utils';
@@ -24,24 +24,6 @@ const findMetricInDashboard = (metricId, dashboard) => {
     });
   });
   return res;
-};
-
-/**
- * Set a new state for a metric.
- *
- * Initally metric data is not populated, so `Vue.set` is
- * used to add new properties to the metric.
- *
- * @param {Object} metric - Metric object as defined in the dashboard
- * @param {Object} state - New state
- * @param {Array|null} state.result - Array of results
- * @param {String} state.error - Error code from metricStates
- * @param {Boolean} state.loading - True if the metric is loading
- */
-const setMetricState = (metric, { result = null, loading = false, state = null }) => {
-  Vue.set(metric, 'result', result);
-  Vue.set(metric, 'loading', loading);
-  Vue.set(metric, 'state', state);
 };
 
 /**
@@ -74,20 +56,42 @@ export default {
   /**
    * Dashboard panels structure and global state
    */
-  [types.REQUEST_METRICS_DATA](state) {
+  [types.REQUEST_METRICS_DASHBOARD](state) {
     state.emptyState = 'loading';
     state.showEmptyState = true;
   },
-  [types.RECEIVE_METRICS_DATA_SUCCESS](state, dashboard) {
-    state.dashboard = mapToDashboardViewModel(dashboard);
+  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboardYML) {
+    const { dashboard, panelGroups, variables, links } = mapToDashboardViewModel(dashboardYML);
+    state.dashboard = {
+      dashboard,
+      panelGroups,
+    };
+    state.variables = variables;
+    state.links = links;
 
     if (!state.dashboard.panelGroups.length) {
       state.emptyState = 'noData';
     }
   },
-  [types.RECEIVE_METRICS_DATA_FAILURE](state, error) {
+  [types.RECEIVE_METRICS_DASHBOARD_FAILURE](state, error) {
     state.emptyState = error ? 'unableToConnect' : 'noData';
     state.showEmptyState = true;
+  },
+
+  [types.REQUEST_DASHBOARD_STARRING](state) {
+    state.isUpdatingStarredValue = true;
+  },
+  [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, { selectedDashboard, newStarredValue }) {
+    const index = state.allDashboards.findIndex(d => d === selectedDashboard);
+
+    state.isUpdatingStarredValue = false;
+
+    // Trigger state updates in the reactivity system for this change
+    // https://vuejs.org/v2/guide/reactivity.html#For-Arrays
+    Vue.set(state.allDashboards, index, { ...selectedDashboard, starred: newStarredValue });
+  },
+  [types.RECEIVE_DASHBOARD_STARRING_FAILURE](state) {
+    state.isUpdatingStarredValue = false;
   },
 
   /**
@@ -112,44 +116,49 @@ export default {
   },
 
   /**
+   * Annotations
+   */
+  [types.RECEIVE_ANNOTATIONS_SUCCESS](state, annotations) {
+    state.annotations = annotations;
+  },
+  [types.RECEIVE_ANNOTATIONS_FAILURE](state) {
+    state.annotations = [];
+  },
+
+  /**
    * Individual panel/metric results
    */
   [types.REQUEST_METRIC_RESULT](state, { metricId }) {
     const metric = findMetricInDashboard(metricId, state.dashboard);
-    setMetricState(metric, {
-      loading: true,
-      state: metricStates.LOADING,
-    });
+    metric.loading = true;
+    if (!metric.result) {
+      metric.state = metricStates.LOADING;
+    }
   },
   [types.RECEIVE_METRIC_RESULT_SUCCESS](state, { metricId, result }) {
-    if (!metricId) {
-      return;
-    }
-
+    const metric = findMetricInDashboard(metricId, state.dashboard);
+    metric.loading = false;
     state.showEmptyState = false;
 
-    const metric = findMetricInDashboard(metricId, state.dashboard);
     if (!result || result.length === 0) {
-      setMetricState(metric, {
-        state: metricStates.NO_DATA,
-      });
+      metric.state = metricStates.NO_DATA;
+      metric.result = null;
     } else {
       const normalizedResults = result.map(normalizeQueryResult);
-      setMetricState(metric, {
-        result: Object.freeze(normalizedResults),
-        state: metricStates.OK,
-      });
+
+      metric.state = metricStates.OK;
+      metric.result = Object.freeze(normalizedResults);
     }
   },
   [types.RECEIVE_METRIC_RESULT_FAILURE](state, { metricId, error }) {
-    if (!metricId) {
-      return;
-    }
     const metric = findMetricInDashboard(metricId, state.dashboard);
-    setMetricState(metric, {
-      state: emptyStateFromError(error),
-    });
+
+    metric.state = emptyStateFromError(error);
+    metric.loading = false;
+    metric.result = null;
   },
+
+  // Parameters and other information
   [types.SET_INITIAL_STATE](state, initialState = {}) {
     Object.assign(state, pick(initialState, initialStateKeys));
   },
@@ -178,5 +187,18 @@ export default {
   },
   [types.SET_ENVIRONMENTS_FILTER](state, searchTerm) {
     state.environmentsSearchTerm = searchTerm;
+  },
+  [types.SET_EXPANDED_PANEL](state, { group, panel }) {
+    state.expandedPanel.group = group;
+    state.expandedPanel.panel = panel;
+  },
+  [types.SET_VARIABLES](state, variables) {
+    state.variables = variables;
+  },
+  [types.UPDATE_VARIABLES](state, updatedVariable) {
+    Object.assign(state.variables[updatedVariable.key], {
+      ...state.variables[updatedVariable.key],
+      value: updatedVariable.value,
+    });
   },
 };

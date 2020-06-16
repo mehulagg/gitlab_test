@@ -9,14 +9,10 @@ describe 'OpenID Connect requests' do
       name: 'Alice',
       username: 'alice',
       email: 'private@example.com',
-      emails: [public_email],
-      public_email: public_email.email,
       website_url: 'https://example.com',
       avatar: fixture_file_upload('spec/fixtures/dk.png')
     )
   end
-
-  let(:public_email) { build :email, email: 'public@example.com' }
 
   let(:access_grant) { create :oauth_access_grant, application: application, resource_owner_id: user.id }
   let(:access_token) { create :oauth_access_token, application: application, resource_owner_id: user.id }
@@ -37,7 +33,7 @@ describe 'OpenID Connect requests' do
       'name'           => 'Alice',
       'nickname'       => 'alice',
       'email'          => 'public@example.com',
-      'email_verified' => false,
+      'email_verified' => true,
       'website'        => 'https://example.com',
       'profile'        => 'http://localhost/alice',
       'picture'        => "http://localhost/uploads/-/system/user/avatar/#{user.id}/dk.png",
@@ -60,6 +56,11 @@ describe 'OpenID Connect requests' do
 
   def request_user_info!
     get '/oauth/userinfo', params: {}, headers: { 'Authorization' => "Bearer #{access_token.token}" }
+  end
+
+  before do
+    email = create(:email, :confirmed, email: 'public@example.com', user: user)
+    user.update!(public_email: email.email)
   end
 
   context 'Application without OpenID scope' do
@@ -123,7 +124,7 @@ describe 'OpenID Connect requests' do
       end
 
       it 'has false in email_verified claim' do
-        expect(json_response['email_verified']).to eq(false)
+        expect(json_response['email_verified']).to eq(true)
       end
     end
 
@@ -180,7 +181,7 @@ describe 'OpenID Connect requests' do
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['issuer']).to eq('http://localhost')
       expect(json_response['jwks_uri']).to eq('http://www.example.com/oauth/discovery/keys')
-      expect(json_response['scopes_supported']).to eq(%w[api read_user read_repository write_repository sudo openid profile email])
+      expect(json_response['scopes_supported']).to eq(%w[api read_user read_api read_repository write_repository sudo openid profile email])
     end
   end
 

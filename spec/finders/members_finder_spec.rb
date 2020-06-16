@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe MembersFinder, '#execute' do
+RSpec.describe MembersFinder, '#execute' do
   let_it_be(:group) { create(:group) }
   let_it_be(:nested_group) { create(:group, parent: group) }
   let_it_be(:project, reload: true) { create(:project, namespace: nested_group) }
@@ -110,7 +110,7 @@ describe MembersFinder, '#execute' do
     project.add_maintainer(user3)
     member3 = project.add_maintainer(user4)
 
-    result = described_class.new(project, user2).execute(params: { search: user4.name })
+    result = described_class.new(project, user2, params: { search: user4.name }).execute
 
     expect(result).to contain_exactly(member3)
   end
@@ -120,7 +120,7 @@ describe MembersFinder, '#execute' do
     member2 = project.add_maintainer(user3)
     member3 = project.add_maintainer(user4)
 
-    result = described_class.new(project, user2).execute(params: { sort: 'id_desc' })
+    result = described_class.new(project, user2, params: { sort: 'id_desc' }).execute
 
     expect(result).to eq([member3, member2, member1])
   end

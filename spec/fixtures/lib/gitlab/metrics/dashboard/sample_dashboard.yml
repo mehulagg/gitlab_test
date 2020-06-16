@@ -1,5 +1,18 @@
 dashboard: 'Test Dashboard'
 priority: 1
+links:
+- title: Link 1
+  url: https://gitlab.com
+- title: Link 2
+  url: https://docs.gitlab.com
+templating:
+  variables:
+    text_variable_full_syntax:
+      label: 'Variable 1'
+      type: text
+      options:
+        default_value: 'default'
+    text_variable_simple_syntax: 'default value'
 panel_groups:
 - group: Group A
   priority: 1
@@ -8,6 +21,7 @@ panel_groups:
     type: "area-chart"
     y_label: "y_label"
     weight: 1
+    max_value: 1
     metrics:
     - id: metric_a1
       query_range: 'query'

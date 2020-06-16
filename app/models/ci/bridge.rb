@@ -3,7 +3,6 @@
 module Ci
   class Bridge < Ci::Processable
     include Ci::Contextable
-    include Ci::PipelineDelegator
     include Ci::Metadatable
     include Importable
     include AfterCommitQueue
@@ -16,6 +15,9 @@ module Ci
     belongs_to :trigger_request
     has_many :sourced_pipelines, class_name: "::Ci::Sources::Pipeline",
                                   foreign_key: :source_job_id
+
+    has_one :sourced_pipeline, class_name: "::Ci::Sources::Pipeline", foreign_key: :source_job_id
+    has_one :downstream_pipeline, through: :sourced_pipeline, source: :pipeline
 
     validates :ref, presence: true
 
@@ -165,6 +167,10 @@ module Ci
           { key: hash[:key], value: ::ExpandVariables.expand(hash[:value], all_variables) }
         end
       end
+    end
+
+    def dependency_variables
+      []
     end
 
     private

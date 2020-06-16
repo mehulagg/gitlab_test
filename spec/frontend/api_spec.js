@@ -15,7 +15,7 @@ describe('Api', () => {
   beforeEach(() => {
     mock = new MockAdapter(axios);
     originalGon = window.gon;
-    window.gon = Object.assign({}, dummyGon);
+    window.gon = { ...dummyGon };
   });
 
   afterEach(() => {
@@ -651,12 +651,100 @@ describe('Api', () => {
 
     describe('when an error occurs while getting a raw file', () => {
       it('rejects the Promise', () => {
-        mock.onDelete(expectedUrl).replyOnce(500);
+        mock.onPost(expectedUrl).replyOnce(500);
 
         return Api.getRawFile(dummyProjectPath, dummyFilePath).catch(() => {
           expect(mock.history.get).toHaveLength(1);
         });
       });
+    });
+  });
+
+  describe('createProjectMergeRequest', () => {
+    const dummyProjectPath = 'gitlab-org/gitlab';
+    const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${encodeURIComponent(
+      dummyProjectPath,
+    )}/merge_requests`;
+    const options = {
+      source_branch: 'feature',
+      target_branch: 'master',
+      title: 'Add feature',
+    };
+
+    describe('when the merge request is successfully created', () => {
+      it('resolves the Promise', () => {
+        mock.onPost(expectedUrl, options).replyOnce(201);
+
+        return Api.createProjectMergeRequest(dummyProjectPath, options).then(() => {
+          expect(mock.history.post).toHaveLength(1);
+        });
+      });
+    });
+
+    describe('when an error occurs while getting a raw file', () => {
+      it('rejects the Promise', () => {
+        mock.onPost(expectedUrl).replyOnce(500);
+
+        return Api.createProjectMergeRequest(dummyProjectPath).catch(() => {
+          expect(mock.history.post).toHaveLength(1);
+        });
+      });
+    });
+  });
+
+  describe('updateIssue', () => {
+    it('update an issue with the given payload', done => {
+      const projectId = 8;
+      const issue = 1;
+      const expectedArray = [1, 2, 3];
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/issues/${issue}`;
+      mock.onPut(expectedUrl).reply(200, { assigneeIds: expectedArray });
+
+      Api.updateIssue(projectId, issue, { assigneeIds: expectedArray })
+        .then(({ data }) => {
+          expect(data.assigneeIds).toEqual(expectedArray);
+          done();
+        })
+        .catch(done.fail);
+    });
+  });
+
+  describe('updateMergeRequest', () => {
+    it('update an issue with the given payload', done => {
+      const projectId = 8;
+      const mergeRequest = 1;
+      const expectedArray = [1, 2, 3];
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/merge_requests/${mergeRequest}`;
+      mock.onPut(expectedUrl).reply(200, { assigneeIds: expectedArray });
+
+      Api.updateMergeRequest(projectId, mergeRequest, { assigneeIds: expectedArray })
+        .then(({ data }) => {
+          expect(data.assigneeIds).toEqual(expectedArray);
+          done();
+        })
+        .catch(done.fail);
+    });
+  });
+
+  describe('tags', () => {
+    it('fetches all tags of a particular project', done => {
+      const query = 'dummy query';
+      const options = { unused: 'option' };
+      const projectId = 8;
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/repository/tags`;
+      mock.onGet(expectedUrl).reply(200, [
+        {
+          name: 'test',
+        },
+      ]);
+
+      Api.tags(projectId, query, options)
+        .then(({ data }) => {
+          expect(data.length).toBe(1);
+          expect(data[0].name).toBe('test');
+        })
+        .then(done)
+        .catch(done.fail);
     });
   });
 });

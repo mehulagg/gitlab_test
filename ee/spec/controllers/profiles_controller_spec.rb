@@ -2,7 +2,7 @@
 
 require('spec_helper')
 
-describe ProfilesController, :request_store do
+RSpec.describe ProfilesController, :request_store do
   let_it_be(:user) { create(:user) }
   let_it_be(:admin) { create(:admin) }
 
@@ -60,8 +60,10 @@ describe ProfilesController, :request_store do
             end
           end
 
-          it_behaves_like 'a user can update their name' do
-            let(:current_user) { admin }
+          context 'as an admin in admin mode', :enable_admin_mode do
+            it_behaves_like 'a user can update their name' do
+              let(:current_user) { admin }
+            end
           end
         end
       end

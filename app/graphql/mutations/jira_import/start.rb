@@ -3,7 +3,7 @@
 module Mutations
   module JiraImport
     class Start < BaseMutation
-      include Mutations::ResolvesProject
+      include ResolvesProject
 
       graphql_name 'JiraImportStart'
 
@@ -23,28 +23,20 @@ module Mutations
                description: 'Project name of the importer Jira project'
 
       def resolve(project_path:, jira_project_key:)
-        project = find_project!(project_path: project_path)
-
-        raise_resource_not_available_error! unless project
+        project = authorized_find!(full_path: project_path)
 
         service_response = ::JiraImport::StartImportService
                              .new(context[:current_user], project, jira_project_key)
                              .execute
-        import_data = service_response.payload[:import_data]
+        jira_import = service_response.success? ? service_response.payload[:import_data] : nil
 
         {
-          jira_import: import_data.errors.blank? ? import_data.projects.last : nil,
-          errors: errors_on_object(import_data)
+          jira_import: jira_import,
+          errors: service_response.errors
         }
       end
 
       private
-
-      def find_project!(project_path:)
-        return unless project_path.present?
-
-        authorized_find!(full_path: project_path)
-      end
 
       def find_object(full_path:)
         resolve_project(full_path: full_path)

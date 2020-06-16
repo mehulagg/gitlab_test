@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 author: Alexandre S Hostert
 author_gitlab: Hostert
 level: beginner
@@ -12,7 +15,7 @@ last_updated: 2019-03-06
 
 [Phoenix](https://www.phoenixframework.org/) is a web development framework written in [Elixir](https://elixir-lang.org), which is a
 functional language designed for productivity and maintainability that runs on the
-[Erlang VM](https://www.erlang.org). Erlang VM is really really fast and can handle very large numbers of
+[Erlang VM](https://www.erlang.org). Erlang VM is really fast and can handle very large numbers of
 simultaneous users.
 
 That's why we're hearing so much about Phoenix today.
@@ -43,9 +46,9 @@ Phoenix can run in any OS where Erlang is supported:
 - Debian
 - Windows
 - Fedora
-- Raspbian
+- Raspberry Pi OS
 
-Check the [Phoenix learning guide](https://hexdocs.pm/phoenix/learning.html) for more information.
+Check the [Phoenix learning guide](https://hexdocs.pm/phoenix/overview.html) for more information.
 
 ### What is Elixir?
 
@@ -151,7 +154,7 @@ point `localhost` to `127.0.0.1`.
 
 Great, now we have a local Phoenix Server running our app.
 
-Locally, our application is running in an `iex` session. [iex](https://elixir-lang.org/getting-started/introduction.html#interactive-mode) stands for Interactive Elixir.
+Locally, our application is running in an [`iex`](https://elixir-lang.org/getting-started/introduction.html#interactive-mode) session, which stands for Interactive Elixir.
 In this interactive mode, we can type any Elixir expression and get its result. To exit `iex`, we
 need to press `Ctrl+C` twice. So, when we need to stop the Phoenix server, we have to hit `Ctrl+C`
 twice.
@@ -161,7 +164,7 @@ twice.
 With GitLab, we can manage our development workflow, improve our productivity, track issues,
 perform code review, and much more from a single platform. With GitLab CI/CD, we can be much more
 productive, because every time we, or our co-workers push any code, GitLab CI/CD will build and
-test the changes, telling us in realtime if anything goes wrong.
+test the changes, telling us in real time if anything goes wrong.
 
 Certainly, when our application starts to grow, we'll need more developers working on the same
 project and this process of building and testing can easily become a mess without proper management.
@@ -262,7 +265,7 @@ project.
   our application? This virtual machine must have all dependencies to run our application. This is
   where a Docker image is needed. The correct image will provide the entire system for us.
 
-  As we are focusing on testing (not deploying), you can use the [elixir:latest](https://hub.docker.com/_/elixir) docker image, which already has the
+  As we are focusing on testing (not deploying), you can use the [elixir:latest](https://hub.docker.com/_/elixir) Docker image, which already has the
   dependencies for running Phoenix tests installed, such as Elixir and Erlang:
 
   ```yaml
@@ -375,7 +378,7 @@ see if our latest code is running without errors.
 When we finish this edition, GitLab will start another build and show a **build running** badge. It
 is expected, after all we just configured GitLab CI/CD to do this for every push! But you may think
 "Why run build and tests for simple things like editing README.md?" and it is a good question.
-For changes that don't affect your application, you can add the keyword [`[ci skip]`](../../yaml/README.md#skipping-jobs)
+For changes that don't affect your application, you can add the keyword [`[ci skip]`](../../yaml/README.md#skip-pipeline)
 to commit message and the build related to that commit will be skipped.
 
 In the end, we finally got our pretty green build succeeded badge! By outputting the result on the
@@ -389,7 +392,7 @@ source project being watched and contributed by the community, it is really impo
 code permanently working. GitLab CI/CD is a time saving powerful tool to help us maintain our code
 organized and working.
 
-As we could see in this post, GitLab CI/CD is really really easy to configure and use. We have [many
+As we could see in this post, GitLab CI/CD is really easy to configure and use. We have [many
 other reasons](https://about.gitlab.com/blog/2015/02/03/7-reasons-why-you-should-be-using-ci/) to keep
 using GitLab CI/CD. The benefits to our teams will be huge!
 

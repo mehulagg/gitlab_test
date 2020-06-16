@@ -28,7 +28,7 @@ module EE
     end
 
     def has_start_trial?
-      !current_license && current_user.admin?
+      !current_user.has_current_license? && current_user.admin?
     end
 
     def analytics_nav_url
@@ -45,7 +45,7 @@ module EE
     def get_dashboard_nav_links
       super.tap do |links|
         if can?(current_user, :read_operations_dashboard)
-          links << :environments if ::Feature.enabled?(:environments_dashboard, current_user, default_enabled: true)
+          links << :environments
           links << :operations
         end
 

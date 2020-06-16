@@ -42,6 +42,87 @@ describe('IDE services', () => {
     });
   });
 
+  describe('getRawFileData', () => {
+    it("resolves with a file's content if its a tempfile and it isn't renamed", () => {
+      const file = {
+        path: 'file',
+        tempFile: true,
+        content: 'content',
+        raw: 'raw content',
+      };
+
+      return services.getRawFileData(file).then(raw => {
+        expect(raw).toBe('content');
+      });
+    });
+
+    it('resolves with file.raw if the file is renamed', () => {
+      const file = {
+        path: 'file',
+        tempFile: true,
+        content: 'content',
+        prevPath: 'old_path',
+        raw: 'raw content',
+      };
+
+      return services.getRawFileData(file).then(raw => {
+        expect(raw).toBe('raw content');
+      });
+    });
+
+    it('returns file.raw if it exists', () => {
+      const file = {
+        path: 'file',
+        content: 'content',
+        raw: 'raw content',
+      };
+
+      return services.getRawFileData(file).then(raw => {
+        expect(raw).toBe('raw content');
+      });
+    });
+
+    it("returns file.raw if file.raw is empty but file.rawPath doesn't exist", () => {
+      const file = {
+        path: 'file',
+        content: 'content',
+        raw: '',
+      };
+
+      return services.getRawFileData(file).then(raw => {
+        expect(raw).toBe('');
+      });
+    });
+
+    describe("if file.rawPath exists but file.raw doesn't exist", () => {
+      let file;
+      let mock;
+      beforeEach(() => {
+        file = {
+          path: 'file',
+          content: 'content',
+          raw: '',
+          rawPath: 'some_raw_path',
+        };
+
+        mock = new MockAdapter(axios);
+        mock.onGet(file.rawPath).reply(200, 'raw content');
+
+        jest.spyOn(axios, 'get');
+      });
+
+      afterEach(() => {
+        mock.restore();
+      });
+
+      it('sends a request to file.rawPath', () => {
+        return services.getRawFileData(file).then(raw => {
+          expect(raw).toEqual('raw content');
+        });
+      });
+    });
+  });
+
   describe('getBaseRawFileData', () => {
     let file;
     let mock;
@@ -137,6 +218,69 @@ describe('IDE services', () => {
             projectPath: TEST_PROJECT_ID,
           },
         });
+      });
+    });
+  });
+
+  describe('getFiles', () => {
+    let mock;
+    let relativeUrlRoot;
+    const TEST_RELATIVE_URL_ROOT = 'blah-blah';
+
+    beforeEach(() => {
+      jest.spyOn(axios, 'get');
+      relativeUrlRoot = gon.relative_url_root;
+      gon.relative_url_root = TEST_RELATIVE_URL_ROOT;
+
+      mock = new MockAdapter(axios);
+
+      mock
+        .onGet(`${TEST_RELATIVE_URL_ROOT}/${TEST_PROJECT_ID}/-/files/${TEST_COMMIT_SHA}`)
+        .reply(200, [TEST_FILE_PATH]);
+    });
+
+    afterEach(() => {
+      mock.restore();
+      gon.relative_url_root = relativeUrlRoot;
+    });
+
+    it('initates the api call based on the passed path and commit hash', () => {
+      return services.getFiles(TEST_PROJECT_ID, TEST_COMMIT_SHA).then(({ data }) => {
+        expect(axios.get).toHaveBeenCalledWith(
+          `${gon.relative_url_root}/${TEST_PROJECT_ID}/-/files/${TEST_COMMIT_SHA}`,
+          expect.any(Object),
+        );
+        expect(data).toEqual([TEST_FILE_PATH]);
+      });
+    });
+  });
+
+  describe('pingUsage', () => {
+    let mock;
+    let relativeUrlRoot;
+    const TEST_RELATIVE_URL_ROOT = 'blah-blah';
+
+    beforeEach(() => {
+      jest.spyOn(axios, 'post');
+      relativeUrlRoot = gon.relative_url_root;
+      gon.relative_url_root = TEST_RELATIVE_URL_ROOT;
+
+      mock = new MockAdapter(axios);
+    });
+
+    afterEach(() => {
+      mock.restore();
+      gon.relative_url_root = relativeUrlRoot;
+    });
+
+    it('posts to usage endpoint', () => {
+      const TEST_PROJECT_PATH = 'foo/bar';
+      const axiosURL = `${TEST_RELATIVE_URL_ROOT}/${TEST_PROJECT_PATH}/usage_ping/web_ide_pipelines_count`;
+
+      mock.onPost(axiosURL).reply(200);
+
+      return services.pingUsage(TEST_PROJECT_PATH).then(() => {
+        expect(axios.post).toHaveBeenCalledWith(axiosURL);
       });
     });
   });
