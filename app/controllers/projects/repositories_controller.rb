@@ -25,7 +25,7 @@ class Projects::RepositoriesController < Projects::ApplicationController
   end
 
   def archive
-    return render_404 if html_request?
+    return logged_archive_404("HTML request") if html_request?
 
     set_cache_headers
     return if archive_not_modified?
@@ -99,7 +99,7 @@ class Projects::RepositoriesController < Projects::ApplicationController
       @filename = nil
     end
   rescue InvalidPathError
-    render_404
+    logged_archive_404("invalid path")
   end
 
   # path can be of the form:
@@ -120,6 +120,12 @@ class Projects::RepositoriesController < Projects::ApplicationController
     else
       [path, nil]
     end
+  end
+
+  def logged_archive_404(message)
+    logger.error("#{self.class.name}: archive error: #{message}")
+
+    render_404
   end
 end
 

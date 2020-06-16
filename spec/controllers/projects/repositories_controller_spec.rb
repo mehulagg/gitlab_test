@@ -86,23 +86,51 @@ RSpec.describe Projects::RepositoriesController do
         expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-archive:")
       end
 
+      it 'logs an error when the params are incorrect' do
+        allow(controller).to receive(:extract_ref_and_filename).and_raise(controller.class::InvalidPathError)
+
+        expect(controller.logger).to receive(:error).with("Projects::RepositoriesController: archive error: invalid path")
+
+        get :archive, params: { namespace_id: project.namespace, project_id: project, id: 'feature', ref: 'feature_conflict' }, format: 'zip'
+      end
+
       context "when the service raises an error" do
         before do
           allow(Gitlab::Workhorse).to receive(:send_git_archive).and_raise("Archive failed")
         end
 
-        it "renders Not Found" do
+        subject do
           get :archive, params: { namespace_id: project.namespace, project_id: project, id: "master" }, format: "zip"
+        end
+
+        it "renders Not Found" do
+          subject
 
           expect(response).to have_gitlab_http_status(:not_found)
+        end
+
+        it "logs the error" do
+          expect(controller.logger).to receive(:error).with("Projects::RepositoriesController: Archive failed")
+
+          subject
         end
       end
 
       context "when the request format is HTML" do
-        it "renders 404" do
+        subject do
           get :archive, params: { namespace_id: project.namespace, project_id: project, id: 'master' }, format: "html"
+        end
+
+        it "renders 404" do
+          subject
 
           expect(response).to have_gitlab_http_status(:not_found)
+        end
+
+        it "logs the error" do
+          expect(controller.logger).to receive(:error).with("Projects::RepositoriesController: archive error: HTML request")
+
+          subject
         end
       end
 
