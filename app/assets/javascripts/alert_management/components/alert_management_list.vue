@@ -269,8 +269,8 @@ export default {
       this.resetPagination();
       this.sort = `${sortingColumn}_${sortingDirection}`;
     },
-    onInputChange: debounce(function debounceSearch(event) {
-      this.searchTerm = event;
+    onInputChange: debounce(function debounceSearch(input) {
+      this.searchTerm = input;
     }, 500),
     updateAlertStatus(status, iid) {
       this.$apollo
