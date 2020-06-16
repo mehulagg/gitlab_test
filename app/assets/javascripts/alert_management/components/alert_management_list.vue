@@ -369,11 +369,7 @@ export default {
       </gl-tabs>
 
       <gl-search-box-by-type
-        :placeholder="__('Enter search term here')"
-        debounce="500"
-        :lazy="false"
-        :force="false"
-        type="text"
+        :placeholder="__('Search or filter results...')"
         @input="onInputChange"
       />
 
