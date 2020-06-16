@@ -189,6 +189,7 @@ export default {
       query: getAlertsCountByStatus,
       variables() {
         return {
+          searchTerm: this.searchTerm,
           projectPath: this.projectPath,
         };
       },
