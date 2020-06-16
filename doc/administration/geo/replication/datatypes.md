@@ -46,7 +46,7 @@ verification methods:
 | Blobs    | Container registry _(filesystem)_             | Geo with API/Docker API               | _Not implemented_      |
 | Blobs    | Container registry _(object storage)_         | Geo with API/Managed/Docker API (*2*) | _Not implemented_      |
 | Blobs    | Package registry _(filesystem)_         | Geo with API | _Not implemented_      |
-| Blobs    | Package registry _(object filesystem)_         | Geo with API/Managed (*2*) | _Not implemented_      |
+| Blobs    | Package registry _(object storage)_         | Geo with API/Managed (*2*) | _Not implemented_      |
 
 - (*1*): Redis replication can be used as part of HA with Redis sentinel. It's not used between Geo nodes.
 - (*2*): Object storage replication can be performed by Geo or by your object storage provider/appliance
