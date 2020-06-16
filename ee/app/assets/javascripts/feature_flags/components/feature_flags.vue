@@ -273,13 +273,11 @@ export default {
     <gl-alert v-if="!isUserListAlertDismissed" @dismiss="isUserListAlertDismissed = true">
       <gl-sprintf
         :message="
-          __(
-            'User Lists currently can only be created and modified via %{linkStart}the API%{linkEnd}',
-          )
+          __('User Lists can only be created and modified with %{linkStart}the API%{linkEnd}')
         "
       >
         <template #link="{ content }">
-          <gl-link :href="userListsApiDocPath" target="_blank" rel="noopener noreferrer">
+          <gl-link :href="userListsApiDocPath" target="_blank">
             {{ content }}
           </gl-link>
         </template>
