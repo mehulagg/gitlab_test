@@ -1,10 +1,16 @@
 <script>
 import { GlAlert, GlBadge, GlLoadingIcon, GlEmptyState, GlTooltipDirective } from '@gitlab/ui';
-import dateFormat from 'dateformat';
+import { formatDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import IterationReportTabs from './iteration_report_tabs.vue';
 import query from '../queries/group_iteration.query.graphql';
+
+const iterationStates = {
+  closed: 'closed',
+  upcoming: 'upcoming',
+  expired: 'expired',
+};
 
 export default {
   components: {
@@ -43,13 +49,6 @@ export default {
       },
     },
   },
-  filters: {
-    date: value => {
-      if (!value) return '';
-      const date = new Date(value);
-      return dateFormat(date, 'mmm d, yyyy', true);
-    },
-  },
   props: {
     groupPath: {
       type: String,
@@ -85,14 +84,14 @@ export default {
     },
     status() {
       switch (this.iteration.state) {
-        case 'closed':
+        case iterationStates.closed:
           return {
             text: __('Closed'),
             variant: 'danger',
           };
-        case 'expired':
+        case iterationStates.expired:
           return { text: __('Past due'), variant: 'warning' };
-        case 'upcoming':
+        case iterationStates.upcoming:
           return { text: __('Upcoming'), variant: 'neutral' };
         default:
           return { text: __('Open'), variant: 'success' };
@@ -114,6 +113,11 @@ export default {
       });
     },
   },
+  methods: {
+    formatDate(date) {
+      return formatDate(date, 'mmm d, yyyy');
+    },
+  },
 };
 </script>
 
@@ -122,7 +126,7 @@ export default {
     <gl-alert v-if="error" variant="danger" @dismiss="error = ''">
       {{ error }}
     </gl-alert>
-    <gl-loading-icon v-if="$apollo.queries.group.loading" class="py-5" size="lg" />
+    <gl-loading-icon v-if="$apollo.queries.group.loading" class="gl-py-5" size="lg" />
     <gl-empty-state
       v-else-if="!hasIteration"
       :title="__('Could not find iteration')"
@@ -137,7 +141,7 @@ export default {
           {{ status.text }}
         </gl-badge>
         <span class="gl-ml-4"
-          >{{ iteration.startDate | date }} – {{ iteration.dueDate | date }}</span
+          >{{ formatDate(iteration.startDate) }} – {{ formatDate(iteration.dueDate) }}</span
         >
       </div>
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
