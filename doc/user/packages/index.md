@@ -6,7 +6,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # GitLab Package Registry
 
-The Package Registry is a place in a GitLab project where you can privately store images or packages.
+The GitLab Package Registry is a place for you to publish, share, and discover packages in any of the below formats.
 
 You can use it like a private repository, where you publish images that were built with
 any of the following package managers. When you store an image in the Package Registry,
