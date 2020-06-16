@@ -1,5 +1,9 @@
 import $ from 'jquery';
-import { showLearnGitLabIssuesPopover } from '~/onboarding_issues';
+import {
+  showLearnGitLabIssuesPopover,
+  isAdvancedHidden,
+  removeLearnGitLabCookie,
+} from '~/onboarding_issues';
 import { getCookie, setCookie, removeCookie } from '~/lib/utils/common_utils';
 import setWindowLocation from 'helpers/set_window_location_helper';
 import Tracking from '~/tracking';
@@ -105,20 +109,10 @@ describe('Onboarding Issues Popovers', () => {
         expect(getCookieValue().previous).toBe(false);
       });
 
-      describe('when clicking the issues boards link', () => {
-        beforeEach(() => {
-          document.querySelector('a[data-qa-selector="issue_boards_link"]').click();
-        });
-
-        it('deletes the cookie', () => {
-          expect(getCookie(COOKIE_NAME)).toBe(undefined);
-        });
-      });
-
       describe('when dismissing the popover', () => {
         beforeEach(() => {
           jest.spyOn(Tracking, 'event');
-          document.querySelector('.learn-gitlab.popover .close').click();
+          document.querySelector('[name="close-popover"]').click();
         });
 
         it('deletes the cookie', () => {
@@ -132,6 +126,45 @@ describe('Onboarding Issues Popovers', () => {
           );
         });
       });
+    });
+  });
+
+  describe('isAdvancedHidden', () => {
+    describe('when no cookie is set', () => {
+      it('returns false', () => {
+        expect(isAdvancedHidden()).toBe(false);
+      });
+    });
+
+    describe("when the cookie's 'hideAdvanced' value is set to 'false'", () => {
+      beforeEach(() => {
+        setCookie(COOKIE_NAME, { hideAdvanced: false });
+      });
+
+      it('returns false', () => {
+        expect(isAdvancedHidden()).toBe(false);
+      });
+    });
+
+    describe("when the cookie's 'hideAdvanced' value is set to 'true'", () => {
+      beforeEach(() => {
+        setCookie(COOKIE_NAME, { hideAdvanced: true });
+      });
+
+      it('returns true', () => {
+        expect(isAdvancedHidden()).toBe(true);
+      });
+    });
+  });
+
+  describe('removeLearnGitLabCookie', () => {
+    beforeEach(() => {
+      setCookie(COOKIE_NAME, { foo: 'bar' });
+    });
+
+    it('deletes the cookie', () => {
+      removeLearnGitLabCookie();
+      expect(getCookie(COOKIE_NAME)).toBe(undefined);
     });
   });
 });

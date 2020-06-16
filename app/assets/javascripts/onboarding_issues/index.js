@@ -11,7 +11,9 @@ const POPOVER_LOCATIONS = {
   ISSUES_INDEX: 'issues#index',
 };
 
-const removeLearnGitLabCookie = () => {
+export const BOARD_NAME = 'GitLab onboarding';
+
+export const removeLearnGitLabCookie = () => {
   removeCookie(COOKIE_NAME);
 };
 
@@ -37,14 +39,14 @@ const showPopover = (el, path, footer, options) => {
     placement: 'top',
     template: `<div class="popover blue learn-gitlab d-none d-xl-block" role="tooltip">
                 <div class="arrow"></div>
-                <div class="close cursor-pointer gl-font-base text-white gl-opacity-10 p-2">&#10005</div>
+                <div class="close cursor-pointer gl-font-base text-white gl-opacity-10 p-2" name="close-popover">&#10005</div>
                 <div class="popover-body gl-font-base gl-line-height-20 pb-0 px-3"></div>
                 <div class="bold text-right text-white p-2">${footer}</div>
                </div>`,
   };
 
   // When one of the popovers is dismissed, remove the cookie.
-  const closeButton = () => document.querySelector('.learn-gitlab.popover .close');
+  const closeButton = () => document.querySelector('[name="close-popover"]');
 
   // We still have to use jQuery, since Bootstrap's Popover is based on jQuery.
   const jQueryEl = $(el);
@@ -64,11 +66,6 @@ const showPopover = (el, path, footer, options) => {
       setCookie(COOKIE_NAME, settings);
     }
   });
-
-  // The final popover action will be taken on click, we then no longer need the cookie.
-  if (path === POPOVER_LOCATIONS.ISSUES_INDEX) {
-    el.addEventListener('click', removeLearnGitLabCookie);
-  }
 };
 
 export const showLearnGitLabGroupItemPopover = id => {
@@ -117,4 +114,12 @@ export const showLearnGitLabIssuesPopover = () => {
   };
 
   showPopover(el, POPOVER_LOCATIONS.ISSUES_INDEX, '2 / 2', options);
+};
+
+export const isAdvancedHidden = () => {
+  const cookie = getCookie(COOKIE_NAME);
+  if (!cookie) return false;
+
+  const settings = JSON.parse(cookie);
+  return parseBoolean(settings.hideAdvanced);
 };

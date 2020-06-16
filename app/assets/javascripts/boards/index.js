@@ -47,6 +47,7 @@ import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import mountMultipleBoardsSwitcher from './mount_multiple_boards_switcher';
 import projectBoardQuery from './queries/project_board.query.graphql';
 import groupQuery from './queries/group_board.query.graphql';
+import { BOARD_NAME, isAdvancedHidden, removeLearnGitLabCookie } from '~/onboarding_issues';
 
 Vue.use(VueApollo);
 
@@ -116,6 +117,9 @@ export default () => {
       detailIssueVisible() {
         return Object.keys(this.detailIssue.issue).length;
       },
+    },
+    watch: {
+      'state.currentBoard': 'currentBoardChanged',
     },
     created() {
       const endpoints = {
@@ -283,6 +287,22 @@ export default () => {
       },
       getNodes(data) {
         return data[this.parent]?.board?.lists.nodes;
+      },
+      currentBoardChanged(currentBoard) {
+        // When the current board name is 'GitLab onboarding' and the onboarding issues experiment is
+        // active and the user is part of the experimental group, and the 'hideAdvanced' value of the
+        // 'onboarding_issues_settings' cookie is set to true, hide issues with the 'Advanced' label.
+        // After invoking this method, the cookie will be deleted.
+        if (currentBoard.name === BOARD_NAME) {
+          return;
+        }
+
+        if (isAdvancedHidden()) {
+          boardsStore.toggleFilter('not[label_name][]=Advanced');
+          this.filterManager.dropdownManager.resetDropdowns();
+        }
+
+        removeLearnGitLabCookie();
       },
     },
   });
