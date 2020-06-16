@@ -146,6 +146,15 @@ dependency_scanning:
       dependency_scanning: gl-dependency-scanning-report.json
     expire_in: 1 week  # GitLab-specific
 
+requirements_check:
+  when: manual
+  allow_failure: false
+  script:
+    - echo "{\"*\":\"passed\"}" > tmp/requirements.json
+  artifacts:
+    reports:
+      requirements: tmp/requirements.json
+
 # Temporarily disabling review apps
 ## We need to duplicate this job's definition because it seems it's impossible to
 ## override an included `only.refs`.
