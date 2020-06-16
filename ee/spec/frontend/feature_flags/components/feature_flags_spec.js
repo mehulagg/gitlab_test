@@ -66,12 +66,12 @@ describe('Feature flags', () => {
 
   describe('user lists alert', () => {
     let alert;
-    beforeEach(() => {
+
+    beforeEach(async () => {
       factory(mockData, mount);
 
-      return wrapper.vm.$nextTick().then(() => {
-        alert = wrapper.find(GlAlert);
-      });
+      await wrapper.vm.$nextTick();
+      alert = wrapper.find(GlAlert);
     });
 
     it('should show that user lists can only be modified by the API', () => {
@@ -80,11 +80,11 @@ describe('Feature flags', () => {
       );
     });
 
-    it('should be dismissible', () => {
+    it('should be dismissible', async () => {
       alert.find('button').trigger('click');
-      return wrapper.vm.$nextTick().then(() => {
-        expect(alert.exists()).toBe(false);
-      });
+
+      await wrapper.vm.$nextTick();
+      expect(alert.exists()).toBe(false);
     });
   });
 
