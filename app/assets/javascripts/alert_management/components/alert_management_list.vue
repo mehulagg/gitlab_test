@@ -13,10 +13,12 @@ import {
   GlTab,
   GlBadge,
   GlPagination,
+  GlSearchBoxByType,
   GlSprintf,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
+import { debounce } from 'lodash';
 import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
@@ -126,6 +128,7 @@ export default {
     GlTab,
     GlBadge,
     GlPagination,
+    GlSearchBoxByType,
     GlSprintf,
   },
   props: {
@@ -174,8 +177,6 @@ export default {
         const { alertManagementAlerts: { nodes: list = [], pageInfo = {} } = {} } =
           data.project || {};
 
-        console.log('data', data);
-
         return {
           list,
           pageInfo,
@@ -201,7 +202,7 @@ export default {
   data() {
     return {
       // eslint-disable-next-line @gitlab/require-i18n-strings
-      searchTerm: 'Simple Alert',
+      searchTerm: '',
       errored: false,
       isAlertDismissed: false,
       isErrorAlertDismissed: false,
@@ -263,6 +264,9 @@ export default {
       this.resetPagination();
       this.sort = `${sortingColumn}_${sortingDirection}`;
     },
+    onInputChange: debounce(function debounceSearch(event) {
+      this.searchTerm = event;
+    }, 500),
     updateAlertStatus(status, iid) {
       this.$apollo
         .mutate({
@@ -359,6 +363,16 @@ export default {
           </template>
         </gl-tab>
       </gl-tabs>
+
+      <gl-search-box-by-type
+        :placeholder="__('Enter search term here')"
+        debounce="500"
+        :lazy="false"
+        :force="false"
+        type="text"
+        @input="onInputChange"
+      />
+      {{ searchTerm }}
 
       <h4 class="d-block d-md-none my-3">
         {{ s__('AlertManagement|Alerts') }}
