@@ -218,7 +218,11 @@ export default {
   computed: {
     showNoAlertsMsg() {
       return (
-        !this.errored && !this.loading && this.alertsCount?.all === 0 && !this.isAlertDismissed
+        !this.errored &&
+        !this.loading &&
+        this.alertsCount?.all === 0 &&
+        !this.searchTerm &&
+        !this.isAlertDismissed
       );
     },
     showErrorMsg() {
@@ -372,7 +376,6 @@ export default {
         type="text"
         @input="onInputChange"
       />
-      {{ searchTerm }}
 
       <h4 class="d-block d-md-none my-3">
         {{ s__('AlertManagement|Alerts') }}
