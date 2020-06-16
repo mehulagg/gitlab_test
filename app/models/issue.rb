@@ -377,6 +377,10 @@ class Issue < ApplicationRecord
     author.id == User.support_bot.id
   end
 
+  def relocation_target
+    moved_to || duplicated_to
+  end
+
   private
 
   def ensure_metrics
