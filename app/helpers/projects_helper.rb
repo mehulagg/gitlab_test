@@ -598,7 +598,6 @@ module ProjectsHelper
       lfsEnabled: !!project.lfs_enabled,
       emailsDisabled: project.emails_disabled?,
       metricsDashboardAccessLevel: feature.metrics_dashboard_access_level,
-      requirementsAccessLevel: feature.requirements_access_level,
       showDefaultAwardEmojis: project.show_default_award_emojis?
     }
   end

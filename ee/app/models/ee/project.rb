@@ -167,6 +167,8 @@ module EE
       delegate :merge_trains_enabled?, to: :ci_cd_settings
       delegate :closest_gitlab_subscription, to: :namespace
 
+      delegate :requirements_access_level, to: :project_feature, allow_nil: true
+
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
       validates :max_pages_size,

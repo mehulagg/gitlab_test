@@ -66,7 +66,8 @@ module EE
     override :project_permissions_settings
     def project_permissions_settings(project)
       super.merge(
-        packagesEnabled: !!project.packages_enabled
+        packagesEnabled: !!project.packages_enabled,
+        requirementsAccessLevel: feature.requirements_access_level      
       )
     end
 
