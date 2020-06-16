@@ -270,6 +270,7 @@ export default {
       this.sort = `${sortingColumn}_${sortingDirection}`;
     },
     onInputChange: debounce(function debounceSearch(input) {
+      this.resetPagination();
       this.searchTerm = input;
     }, 500),
     updateAlertStatus(status, iid) {
