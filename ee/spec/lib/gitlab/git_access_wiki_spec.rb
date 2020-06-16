@@ -11,6 +11,94 @@ RSpec.describe Gitlab::GitAccessWiki do
 
   let(:access) { described_class.new(user, project, 'web', authentication_abilities: authentication_abilities, redirected_path: redirected_path) }
 
+  describe 'group wiki access' do
+    let_it_be(:group, reload: true) { create(:group, :private, :wiki_repo) }
+
+    let(:access) do
+      described_class.new(user, group, 'web',
+                          authentication_abilities: authentication_abilities,
+                          redirected_path: redirected_path)
+    end
+
+    describe '#push_access_check' do
+      subject { access.check('git-receive-pack', changes) }
+
+      context 'when user can :create_wiki' do
+        before do
+          group.add_developer(user)
+        end
+
+        it { expect { subject }.not_to raise_error }
+
+        context 'when in a read-only GitLab instance' do
+          before do
+            allow(Gitlab::Database).to receive(:read_only?) { true }
+          end
+
+          it 'does not give access to upload wiki code' do
+            expect { subject }.to raise_error(Gitlab::GitAccess::ForbiddenError, "You can't push code to a read-only GitLab instance.")
+          end
+        end
+      end
+
+      context 'when user cannt :create_wiki' do
+        before do
+          group.add_reporter(user)
+        end
+
+        specify do
+          expect { subject }.to raise_error(Gitlab::GitAccess::ForbiddenError)
+        end
+      end
+    end
+
+    describe '#access_check_download!' do
+      subject { access.check('git-upload-pack', Gitlab::GitAccess::ANY) }
+
+      context 'the user has at least reporter access' do
+        before do
+          group.add_reporter(user)
+        end
+
+        context 'when wiki feature is enabled' do
+          it 'gives access to download wiki code' do
+            expect { subject }.not_to raise_error
+          end
+
+          context 'when the wiki repository does not exist' do
+            let(:group) { create(:group) }
+
+            it 'returns not found' do
+              expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError, 'A repository for this group does not exist yet.')
+            end
+          end
+        end
+      end
+
+      context 'the user does not have access' do
+        specify do
+          expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError)
+        end
+      end
+
+      context 'the group is public' do
+        let(:group) { create(:group, :public, :wiki_repo) }
+
+        it 'gives access to download wiki code' do
+          expect { subject }.not_to raise_error
+        end
+      end
+
+      context 'when wiki feature is disabled' do
+        it 'does not give access to download wiki code' do
+          stub_feature_flags(group_wiki: false)
+
+          expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError)
+        end
+      end
+    end
+  end
+
   context "when in a read-only GitLab instance" do
     subject { access.check('git-receive-pack', changes) }
 

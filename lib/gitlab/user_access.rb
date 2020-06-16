@@ -5,15 +5,15 @@ module Gitlab
     extend Gitlab::Cache::RequestCache
 
     request_cache_key do
-      [user&.id, project&.id]
+      [user&.id, container&.to_global_id]
     end
 
     attr_reader :user
-    attr_accessor :project
+    attr_accessor :container
 
-    def initialize(user, project: nil)
+    def initialize(user, container: nil)
       @user = user
-      @project = project
+      @container = container
     end
 
     def can_do_action?(action)
@@ -21,7 +21,7 @@ module Gitlab
 
       permission_cache[action] =
         permission_cache.fetch(action) do
-          user.can?(action, project)
+          user.can?(action, container)
         end
     end
 
@@ -42,20 +42,20 @@ module Gitlab
     request_cache def can_create_tag?(ref)
       return false unless can_access_git?
 
-      if protected?(ProtectedTag, project, ref)
+      if protected?(ProtectedTag, container, ref)
         protected_tag_accessible_to?(ref, action: :create)
       else
-        user.can?(:admin_tag, project)
+        user.can?(:admin_tag, container)
       end
     end
 
     request_cache def can_delete_branch?(ref)
       return false unless can_access_git?
 
-      if protected?(ProtectedBranch, project, ref)
-        user.can?(:push_to_delete_protected_branch, project)
+      if protected?(ProtectedBranch, container, ref)
+        user.can?(:push_to_delete_protected_branch, container)
       else
-        user.can?(:push_code, project)
+        user.can?(:push_code, container)
       end
     end
 
@@ -65,17 +65,17 @@ module Gitlab
 
     request_cache def can_push_to_branch?(ref)
       return false unless can_access_git?
-      return false unless project
+      return false unless container
 
-      # Checking for an internal project to prevent an infinite loop:
+      # Checking for an internal project or group to prevent an infinite loop:
       # https://gitlab.com/gitlab-org/gitlab/issues/36805
-      if project.internal?
-        return false unless user.can?(:push_code, project)
+      if container.internal?
+        return false unless user.can?(:push_code, container)
       else
-        return false if !user.can?(:push_code, project) && !project.branch_allows_collaboration?(user, ref)
+        return false if !user.can?(:push_code, container) && !container.try(:branch_allows_collaboration?, user, ref)
       end
 
-      if protected?(ProtectedBranch, project, ref)
+      if protected?(ProtectedBranch, container, ref)
         protected_branch_accessible_to?(ref, action: :push)
       else
         true
@@ -85,17 +85,17 @@ module Gitlab
     request_cache def can_merge_to_branch?(ref)
       return false unless can_access_git?
 
-      if protected?(ProtectedBranch, project, ref)
+      if protected?(ProtectedBranch, container, ref)
         protected_branch_accessible_to?(ref, action: :merge)
       else
-        user.can?(:push_code, project)
+        user.can?(:push_code, container)
       end
     end
 
     def can_read_project?
       return false unless can_access_git?
 
-      user.can?(:read_project, project)
+      user.can?(:read_project, container)
     end
 
     private
@@ -109,23 +109,27 @@ module Gitlab
     end
 
     def protected_branch_accessible_to?(ref, action:)
+      return false unless container.is_a?(Project)
+
       ProtectedBranch.protected_ref_accessible_to?(
         ref, user,
-        project: project,
+        project: container,
         action: action,
-        protected_refs: project.protected_branches)
+        protected_refs: container.protected_branches)
     end
 
     def protected_tag_accessible_to?(ref, action:)
+      return false unless container.is_a?(Project)
+
       ProtectedTag.protected_ref_accessible_to?(
         ref, user,
-        project: project,
+        project: container,
         action: action,
-        protected_refs: project.protected_tags)
+        protected_refs: container.protected_tags)
     end
 
-    request_cache def protected?(kind, project, refs)
-      kind.protected?(project, refs)
+    request_cache def protected?(kind, container, refs)
+      kind.protected?(container, refs)
     end
   end
 end

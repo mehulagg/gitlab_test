@@ -8,16 +8,16 @@ module Gitlab
 
     private
 
-    override :check_project!
-    def check_project!(cmd)
-      ensure_project_on_push!(cmd)
+    override :check_container!
+    def check_container!
+      ensure_project_on_push!
 
       super
     end
 
-    def ensure_project_on_push!(cmd)
+    def ensure_project_on_push!
       return if project || deploy_key?
-      return unless receive_pack?(cmd) && changes == ANY && authentication_abilities.include?(:push_code)
+      return unless receive_pack? && changes == ANY && authentication_abilities.include?(:push_code)
 
       namespace = Namespace.find_by_full_path(namespace_path)
 
@@ -35,8 +35,8 @@ module Gitlab
         raise CreationError, "Could not create project: #{project.errors.full_messages.join(', ')}"
       end
 
-      @project = project
-      user_access.project = @project
+      self.container = project
+      user_access.container = project
 
       Checks::ProjectCreated.new(repository, user, protocol).add_message
     end

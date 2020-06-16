@@ -8,6 +8,11 @@ module EE
       include PathLocksHelper
       include SubscribableBannerHelper
 
+      ERROR_MESSAGES = {
+        no_group_repo: 'A repository for this group does not exist yet.',
+        group_not_found: 'The group you were looking for could not be found.'
+      }.freeze
+
       override :check
       def check(cmd, changes)
         check_geo_license!
@@ -19,6 +24,20 @@ module EE
       override :can_read_project?
       def can_read_project?
         return true if geo?
+
+        super
+      end
+
+      def group?
+        container.is_a?(Group)
+      end
+
+      def group
+        container if group?
+      end
+
+      def no_repo_message
+        return ERROR_MESSAGES[:no_group_repo] if group?
 
         super
       end

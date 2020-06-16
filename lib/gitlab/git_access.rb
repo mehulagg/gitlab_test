@@ -43,24 +43,31 @@ module Gitlab
     PUSH_COMMANDS = %w{git-receive-pack}.freeze
     ALL_COMMANDS = DOWNLOAD_COMMANDS + PUSH_COMMANDS
 
-    attr_reader :actor, :project, :protocol, :authentication_abilities, :namespace_path, :repository_path, :redirected_path, :auth_result_type, :changes, :logger
+    attr_reader :actor, :protocol, :authentication_abilities, :redirected_path, :auth_result_type, :cmd, :changes
+    attr_accessor :container
 
-    alias_method :container, :project
-
-    def initialize(actor, project, protocol, authentication_abilities:, namespace_path: nil, repository_path: nil, redirected_path: nil, auth_result_type: nil)
-      @actor    = actor
-      @project  = project
-      @protocol = protocol
+    def initialize(actor, container, protocol, authentication_abilities:, namespace_path: nil, repository_path: nil, redirected_path: nil, auth_result_type: nil)
+      @actor     = actor
+      @container = container
+      @protocol  = protocol
       @authentication_abilities = Array(authentication_abilities)
-      @namespace_path = namespace_path || project&.namespace&.full_path
-      @repository_path = repository_path || project&.path
+      @namespace_path = namespace_path
+      @repository_path = repository_path
       @redirected_path = redirected_path
       @auth_result_type = auth_result_type
     end
 
+    def namespace_path
+      @namespace_path ||= project&.namespace&.full_path
+    end
+
+    def repository_path
+      @repository_path ||= project&.path
+    end
+
     def check(cmd, changes)
-      @logger = Checks::TimedLogger.new(timeout: INTERNAL_TIMEOUT, header: LOG_HEADER)
       @changes = changes
+      @cmd = cmd
 
       check_protocol!
       check_valid_actor!
@@ -74,7 +81,7 @@ module Gitlab
 
       check_db_accessibility!(cmd)
       check_namespace!
-      check_project!(cmd)
+      check_container!
       check_repository_existence!
 
       case cmd
@@ -87,12 +94,27 @@ module Gitlab
       success_result
     end
 
+    def logger
+      strong_memoize(:logger) do
+        Checks::TimedLogger.new(timeout: INTERNAL_TIMEOUT, header: LOG_HEADER)
+      end
+    end
+
     def guest_can_download_code?
-      Guest.can?(:download_code, project)
+      Guest.can?(download_ability, container)
     end
 
     def user_can_download_code?
-      authentication_abilities.include?(:download_code) && user_access.can_do_action?(:download_code)
+      authentication_abilities.include?(:download_code) &&
+        user_access.can_do_action?(download_ability)
+    end
+
+    def download_ability
+      :download_code
+    end
+
+    def push_ability
+      :push_code
     end
 
     def build_can_download_code?
@@ -111,7 +133,7 @@ module Gitlab
 
     private
 
-    def check_project!(_cmd)
+    def check_container!
       check_project_accessibility!
       add_project_moved_message!
     end
@@ -230,8 +252,12 @@ module Gitlab
 
     def check_repository_existence!
       unless repository.exists?
-        raise NotFoundError, ERROR_MESSAGES[:no_repo]
+        raise NotFoundError, no_repo_message
       end
+    end
+
+    def no_repo_message
+      ERROR_MESSAGES[:no_repo]
     end
 
     def check_download_access!
@@ -246,8 +272,16 @@ module Gitlab
       end
     end
 
+    def project?
+      container.is_a?(Project)
+    end
+
+    def project
+      container if project?
+    end
+
     def check_push_access!
-      if project.repository_read_only?
+      if container.repository_read_only?
         raise ForbiddenError, ERROR_MESSAGES[:read_only]
       end
 
@@ -264,13 +298,17 @@ module Gitlab
       check_change_access!
     end
 
+    def user_can_push?
+      user_access.can_do_action?(push_ability)
+    end
+
     def check_change_access!
       # Deploy keys with write access can push anything
       return if deploy_key?
 
       if changes == ANY
-        can_push = user_access.can_do_action?(:push_code) ||
-          project.any_branch_allows_collaboration?(user_access.user)
+        can_push = user_can_push? ||
+          project&.any_branch_allows_collaboration?(user_access.user)
 
         unless can_push
           raise ForbiddenError, ERROR_MESSAGES[:push_code]
@@ -279,7 +317,7 @@ module Gitlab
         # If there are worktrees with a HEAD pointing to a non-existent object,
         # calls to `git rev-list --all` will fail in git 2.15+. This should also
         # clear stale lock files.
-        project.repository.clean_stale_repository_files
+        project.repository.clean_stale_repository_files if project.present?
 
         # Iterate over all changes to find if user allowed all of them to be applied
         changes_list.each.with_index do |change, index|
@@ -293,16 +331,14 @@ module Gitlab
     end
 
     def check_single_change_access(change, skip_lfs_integrity_check: false)
-      change_access = Checks::ChangeAccess.new(
+      Checks::ChangeAccess.new(
         change,
         user_access: user_access,
         project: project,
         skip_lfs_integrity_check: skip_lfs_integrity_check,
         protocol: protocol,
         logger: logger
-      )
-
-      change_access.exec
+      ).validate!
     rescue Checks::TimedLogger::TimeoutError
       raise TimeoutError, logger.full_message
     end
@@ -347,11 +383,11 @@ module Gitlab
       protocol == 'http'
     end
 
-    def upload_pack?(command)
+    def upload_pack?(command = cmd)
       command == 'git-upload-pack'
     end
 
-    def receive_pack?(command)
+    def receive_pack?(command = cmd)
       command == 'git-receive-pack'
     end
 
@@ -374,9 +410,7 @@ module Gitlab
     end
 
     def user
-      return @user if defined?(@user)
-
-      @user =
+      strong_memoize(:user) do
         case actor
         when User
           actor
@@ -387,15 +421,16 @@ module Gitlab
         when :ci
           nil
         end
+      end
     end
 
     def user_access
       @user_access ||= if ci?
                          CiAccess.new
                        elsif user && request_from_ci_build?
-                         BuildAccess.new(user, project: project)
+                         BuildAccess.new(user, container: container)
                        else
-                         UserAccess.new(user, project: project)
+                         UserAccess.new(user, container: container)
                        end
     end
 
@@ -470,6 +505,10 @@ module Gitlab
 
     def size_checker
       container.repository_size_checker
+    end
+
+    def not_found!(error_key)
+      raise NotFoundError, ERROR_MESSAGES[error_key]
     end
   end
 end

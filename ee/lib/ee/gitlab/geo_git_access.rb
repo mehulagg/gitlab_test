@@ -18,6 +18,12 @@ module EE
 
       private
 
+      def project
+        return unless container.is_a?(Project)
+
+        container
+      end
+
       def custom_action_for(cmd)
         return unless custom_action_for?(cmd)
 
@@ -40,6 +46,8 @@ module EE
       end
 
       def upload_pack_and_not_replicated?(cmd)
+        return false unless project
+
         upload_pack?(cmd) && !::Geo::ProjectRegistry.repository_replicated_for?(project.id)
       end
 

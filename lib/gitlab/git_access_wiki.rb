@@ -2,6 +2,8 @@
 
 module Gitlab
   class GitAccessWiki < GitAccess
+    extend ::Gitlab::Utils::Override
+
     prepend_if_ee('EE::Gitlab::GitAccessWiki') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
     ERROR_MESSAGES = {
@@ -9,22 +11,20 @@ module Gitlab
       write_to_wiki: "You are not allowed to write to this project's wiki."
     }.freeze
 
-    def guest_can_download_code?
-      Guest.can?(:download_wiki_code, project)
+    override :download_ability
+    def download_ability
+      :download_wiki_code
     end
 
-    def user_can_download_code?
-      authentication_abilities.include?(:download_code) && user_access.can_do_action?(:download_wiki_code)
+    override :push_ability
+    def push_ability
+      :create_wiki
     end
 
+    override :check_change_access!
     def check_change_access!
-      unless user_access.can_do_action?(:create_wiki)
-        raise ForbiddenError, ERROR_MESSAGES[:write_to_wiki]
-      end
-
-      if Gitlab::Database.read_only?
-        raise ForbiddenError, push_to_read_only_message
-      end
+      raise ForbiddenError, write_to_wiki_message unless user_can_push?
+      raise ForbiddenError, push_to_read_only_message if Gitlab::Database.read_only?
 
       true
     end
@@ -33,10 +33,13 @@ module Gitlab
       ERROR_MESSAGES[:read_only]
     end
 
-    private
+    def write_to_wiki_message
+      ERROR_MESSAGES[:write_to_wiki]
+    end
 
+    override :repository
     def repository
-      project.wiki.repository
+      container.wiki.repository
     end
   end
 end

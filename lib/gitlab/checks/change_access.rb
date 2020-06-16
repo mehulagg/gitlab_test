@@ -33,6 +33,7 @@ module Gitlab
 
         true
       end
+      alias_method :validate!, :exec
 
       def commits
         @commits ||= project.repository.new_commits(newrev)

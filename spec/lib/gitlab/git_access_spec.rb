@@ -58,7 +58,7 @@ RSpec.describe Gitlab::GitAccess do
 
         it "doesn't block http pull" do
           aggregate_failures do
-            expect { pull_access_check }.not_to raise_forbidden('Git access over HTTP is not allowed')
+            expect { pull_access_check }.not_to raise_error
           end
         end
 
@@ -67,7 +67,7 @@ RSpec.describe Gitlab::GitAccess do
 
           it "doesn't block http pull" do
             aggregate_failures do
-              expect { pull_access_check }.not_to raise_forbidden('Git access over HTTP is not allowed')
+              expect { pull_access_check }.not_to raise_error
             end
           end
         end
@@ -859,7 +859,7 @@ RSpec.describe Gitlab::GitAccess do
         message = "Push operation timed out\n\nTiming information for debugging purposes:\nRunning checks for ref: wow"
 
         expect_next_instance_of(Gitlab::Checks::ChangeAccess) do |check|
-          expect(check).to receive(:exec).and_raise(Gitlab::Checks::TimedLogger::TimeoutError)
+          expect(check).to receive(:validate!).and_raise(Gitlab::Checks::TimedLogger::TimeoutError)
         end
 
         expect { access.check('git-receive-pack', changes) }.to raise_error(described_class::TimeoutError, message)

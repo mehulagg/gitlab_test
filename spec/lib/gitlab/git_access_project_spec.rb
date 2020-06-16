@@ -83,7 +83,7 @@ RSpec.describe Gitlab::GitAccessProject do
               let(:namespace_path) { user.namespace.path }
 
               it 'creates a new project' do
-                expect { access.send(:ensure_project_on_push!, cmd) }
+                expect { push_access_check }
                   .to change { Project.count }.by(1)
                   .and change { Project.where(namespace: user.namespace, name: project_path).count }.by(1)
               end
@@ -94,7 +94,7 @@ RSpec.describe Gitlab::GitAccessProject do
               let(:namespace_path) { user2.namespace.path }
 
               it 'does not create a new project' do
-                expect { access.send(:ensure_project_on_push!, cmd) }.not_to change { Project.count }
+                expect { push_access_check rescue nil }.not_to change { Project.count }
               end
             end
           end
@@ -106,7 +106,7 @@ RSpec.describe Gitlab::GitAccessProject do
               let(:namespace_path) { user.namespace.path }
 
               it 'does not create a new project' do
-                expect { access.send(:ensure_project_on_push!, cmd) }.not_to change { Project.count }
+                expect { push_access_check rescue nil }.not_to change { Project.count }
               end
             end
           end
@@ -116,7 +116,7 @@ RSpec.describe Gitlab::GitAccessProject do
           let(:changes) { "#{Gitlab::Git::BLANK_SHA} 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/new_branch" }
 
           it 'does not create a new project' do
-            expect { access.send(:ensure_project_on_push!, cmd) }.not_to change { Project.count }
+            expect { push_access_check rescue nil }.not_to change { Project.count }
           end
         end
       end
@@ -126,7 +126,7 @@ RSpec.describe Gitlab::GitAccessProject do
         let!(:project) { create(:project) }
 
         it 'does not create a new project' do
-          expect { access.send(:ensure_project_on_push!, cmd) }.not_to change { Project.count }
+          expect { push_access_check rescue nil }.not_to change { Project.count }
         end
       end
 
@@ -139,7 +139,7 @@ RSpec.describe Gitlab::GitAccessProject do
         let(:changes) { Gitlab::GitAccess::ANY }
 
         it 'does not create a new project' do
-          expect { access.send(:ensure_project_on_push!, cmd) }.not_to change { Project.count }
+          expect { push_access_check rescue nil }.not_to change { Project.count }
         end
       end
     end
@@ -154,7 +154,7 @@ RSpec.describe Gitlab::GitAccessProject do
         let(:project) { nil }
 
         it 'does not create a new project' do
-          expect { access.send(:ensure_project_on_push!, cmd) }.not_to change { Project.count }
+          expect { pull_access_check rescue nil }.not_to change { Project.count }
         end
       end
     end
