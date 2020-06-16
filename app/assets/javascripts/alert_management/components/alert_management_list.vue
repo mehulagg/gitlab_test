@@ -17,7 +17,7 @@ import {
   GlSprintf,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
-import { s__ } from '~/locale';
+import { __, s__ } from '~/locale';
 import { debounce } from 'lodash';
 import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';
@@ -56,6 +56,7 @@ export default {
     errorMsg: s__(
       "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear.",
     ),
+    searchPlaceholder: __('Search or filter results...'),
   },
   fields: [
     {
@@ -357,7 +358,7 @@ export default {
         {{ $options.i18n.errorMsg }}
       </gl-alert>
 
-      <gl-tabs @input="filterAlertsByStatus">
+      <gl-tabs content-class="gl-display-none" @input="filterAlertsByStatus">
         <gl-tab v-for="tab in $options.statusTabs" :key="tab.status">
           <template slot="title">
             <span>{{ tab.title }}</span>
@@ -368,10 +369,13 @@ export default {
         </gl-tab>
       </gl-tabs>
 
-      <gl-search-box-by-type
-        :placeholder="__('Search or filter results...')"
-        @input="onInputChange"
-      />
+      <div class="gl-bg-gray-10 gl-p-5 gl-border-b-solid gl-border-b-1 gl-border-gray-100">
+        <gl-search-box-by-type
+          class="gl-bg-white"
+          :placeholder="$options.i18n.searchPlaceholder"
+          @input="onInputChange"
+        />
+      </div>
 
       <h4 class="d-block d-md-none my-3">
         {{ s__('AlertManagement|Alerts') }}
