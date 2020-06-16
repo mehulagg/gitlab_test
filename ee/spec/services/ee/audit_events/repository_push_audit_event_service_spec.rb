@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe EE::AuditEvents::RepositoryPushAuditEventService do
-  let(:user) { create(:user) }
+RSpec.describe EE::AuditEvents::RepositoryPushAuditEventService do
+  let(:user) { create(:user, :with_sign_ins) }
   let(:entity) { create(:project) }
   let(:entity_type) { 'Project' }
   let(:target_ref) { 'refs/heads/master' }
@@ -12,7 +12,11 @@ describe EE::AuditEvents::RepositoryPushAuditEventService do
   let(:service) { described_class.new(user, entity, target_ref, from, to) }
 
   describe '#attributes' do
-    let(:timestamp) { Time.new(2019, 10, 10) }
+    before do
+      stub_licensed_features(admin_audit_log: true)
+    end
+
+    let(:timestamp) { Time.zone.local(2019, 10, 10) }
     let(:attrs) do
       {
         author_id: user.id,
@@ -21,6 +25,7 @@ describe EE::AuditEvents::RepositoryPushAuditEventService do
         type: 'SecurityEvent',
         created_at: timestamp,
         updated_at: timestamp,
+        ip_address: '127.0.0.1',
         details: {
           updated_ref: updated_ref,
           author_name: user.name,

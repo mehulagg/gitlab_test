@@ -1,5 +1,8 @@
 <script>
+import activeDiscussionQuery from '../graphql/queries/active_discussion.query.graphql';
+import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
 import DesignNotePin from './design_note_pin.vue';
+import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../constants';
 
 export default {
   name: 'DesignOverlay',
@@ -30,11 +33,21 @@ export default {
       required: false,
       default: false,
     },
+    resolvedDiscussionsExpanded: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  apollo: {
+    activeDiscussion: {
+      query: activeDiscussionQuery,
+    },
   },
   data() {
     return {
       movingNoteNewPosition: null,
       movingNoteStartPosition: null,
+      activeDiscussion: {},
     };
   },
   computed: {
@@ -131,7 +144,7 @@ export default {
     },
     onExistingNoteMove(e) {
       const note = this.notes.find(({ id }) => id === this.movingNoteStartPosition.noteId);
-      if (!note) return;
+      if (!note || !this.canMoveNote(note)) return;
 
       const { position } = note;
       const { width, height } = position;
@@ -162,8 +175,12 @@ export default {
       const { x, y } = this.movingNoteNewPosition;
       this.setNewNoteCoordinates({ x, y });
     },
-    onExistingNoteMouseup() {
-      if (!this.movingNoteStartPosition || !this.movingNoteNewPosition) return;
+    onExistingNoteMouseup(note) {
+      if (!this.movingNoteStartPosition || !this.movingNoteNewPosition) {
+        this.updateActiveDiscussion(note.id);
+        this.$emit('closeCommentForm');
+        return;
+      }
 
       const { x, y } = this.movingNoteNewPosition;
       this.$emit('moveNote', {
@@ -173,8 +190,6 @@ export default {
       });
     },
     onNoteMousedown({ clientX, clientY }, note) {
-      if (note && !this.canMoveNote(note)) return;
-
       this.movingNoteStartPosition = {
         noteId: note?.id,
         discussionId: note?.discussion.id,
@@ -191,13 +206,13 @@ export default {
         this.onExistingNoteMove(e);
       }
     },
-    onNoteMouseup() {
+    onNoteMouseup(note) {
       if (!this.movingNoteStartPosition) return;
 
       if (this.isMovingCurrentComment) {
         this.onNewNoteMouseup();
       } else {
-        this.onExistingNoteMouseup();
+        this.onExistingNoteMouseup(note);
       }
 
       this.movingNoteStartPosition = null;
@@ -205,8 +220,26 @@ export default {
     },
     onAddCommentMouseup({ offsetX, offsetY }) {
       if (this.disableCommenting) return;
+      if (this.activeDiscussion.id) {
+        this.updateActiveDiscussion();
+      }
 
       this.setNewNoteCoordinates({ x: offsetX, y: offsetY });
+    },
+    updateActiveDiscussion(id) {
+      this.$apollo.mutate({
+        mutation: updateActiveDiscussionMutation,
+        variables: {
+          id,
+          source: ACTIVE_DISCUSSION_SOURCE_TYPES.pin,
+        },
+      });
+    },
+    isNoteInactive(note) {
+      return this.activeDiscussion.id && this.activeDiscussion.id !== note.id;
+    },
+    designPinClass(note) {
+      return { inactive: this.isNoteInactive(note), resolved: note.resolved };
     },
   },
 };
@@ -226,19 +259,23 @@ export default {
       data-qa-selector="design_image_button"
       @mouseup="onAddCommentMouseup"
     ></button>
-    <design-note-pin
-      v-for="(note, index) in notes"
-      :key="note.id"
-      :label="`${index + 1}`"
-      :repositioning="isMovingNote(note.id)"
-      :position="
-        isMovingNote(note.id) && movingNoteNewPosition
-          ? getNotePositionStyle(movingNoteNewPosition)
-          : getNotePositionStyle(note.position)
-      "
-      @mousedown.stop="onNoteMousedown($event, note)"
-      @mouseup.stop="onNoteMouseup"
-    />
+    <template v-for="note in notes">
+      <design-note-pin
+        v-if="resolvedDiscussionsExpanded || !note.resolved"
+        :key="note.id"
+        :label="note.index"
+        :repositioning="isMovingNote(note.id)"
+        :position="
+          isMovingNote(note.id) && movingNoteNewPosition
+            ? getNotePositionStyle(movingNoteNewPosition)
+            : getNotePositionStyle(note.position)
+        "
+        :class="designPinClass(note)"
+        @mousedown.stop="onNoteMousedown($event, note)"
+        @mouseup.stop="onNoteMouseup(note)"
+      />
+    </template>
+
     <design-note-pin
       v-if="currentCommentForm"
       :position="currentCommentPositionStyle"

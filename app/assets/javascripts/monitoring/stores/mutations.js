@@ -1,4 +1,5 @@
-import pick from 'lodash/pick';
+import Vue from 'vue';
+import { pick } from 'lodash';
 import * as types from './mutation_types';
 import { mapToDashboardViewModel, normalizeQueryResult } from './utils';
 import { BACKOFF_TIMEOUT } from '../../lib/utils/common_utils';
@@ -59,8 +60,14 @@ export default {
     state.emptyState = 'loading';
     state.showEmptyState = true;
   },
-  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboard) {
-    state.dashboard = mapToDashboardViewModel(dashboard);
+  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboardYML) {
+    const { dashboard, panelGroups, variables, links } = mapToDashboardViewModel(dashboardYML);
+    state.dashboard = {
+      dashboard,
+      panelGroups,
+    };
+    state.variables = variables;
+    state.links = links;
 
     if (!state.dashboard.panelGroups.length) {
       state.emptyState = 'noData';
@@ -69,6 +76,22 @@ export default {
   [types.RECEIVE_METRICS_DASHBOARD_FAILURE](state, error) {
     state.emptyState = error ? 'unableToConnect' : 'noData';
     state.showEmptyState = true;
+  },
+
+  [types.REQUEST_DASHBOARD_STARRING](state) {
+    state.isUpdatingStarredValue = true;
+  },
+  [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, { selectedDashboard, newStarredValue }) {
+    const index = state.allDashboards.findIndex(d => d === selectedDashboard);
+
+    state.isUpdatingStarredValue = false;
+
+    // Trigger state updates in the reactivity system for this change
+    // https://vuejs.org/v2/guide/reactivity.html#For-Arrays
+    Vue.set(state.allDashboards, index, { ...selectedDashboard, starred: newStarredValue });
+  },
+  [types.RECEIVE_DASHBOARD_STARRING_FAILURE](state) {
+    state.isUpdatingStarredValue = false;
   },
 
   /**
@@ -168,5 +191,14 @@ export default {
   [types.SET_EXPANDED_PANEL](state, { group, panel }) {
     state.expandedPanel.group = group;
     state.expandedPanel.panel = panel;
+  },
+  [types.SET_VARIABLES](state, variables) {
+    state.variables = variables;
+  },
+  [types.UPDATE_VARIABLES](state, updatedVariable) {
+    Object.assign(state.variables[updatedVariable.key], {
+      ...state.variables[updatedVariable.key],
+      value: updatedVariable.value,
+    });
   },
 };

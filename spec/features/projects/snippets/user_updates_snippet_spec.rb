@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Projects > Snippets > User updates a snippet', :js do
+RSpec.describe 'Projects > Snippets > User updates a snippet', :js do
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project, namespace: user.namespace) }
   let_it_be(:snippet, reload: true) { create(:project_snippet, :repository, project: project, author: user) }
@@ -42,7 +42,7 @@ describe 'Projects > Snippets > User updates a snippet', :js do
   context 'when the git operation fails' do
     before do
       allow_next_instance_of(Snippets::UpdateService) do |instance|
-        allow(instance).to receive(:create_commit).and_raise(StandardError)
+        allow(instance).to receive(:create_commit).and_raise(StandardError, 'Error Message')
       end
 
       fill_in('project_snippet_title', with: 'Snippet new title')
@@ -52,7 +52,7 @@ describe 'Projects > Snippets > User updates a snippet', :js do
     end
 
     it 'renders edit page and displays the error' do
-      expect(page.find('.flash-container span').text).to eq('Error updating the snippet')
+      expect(page.find('.flash-container span').text).to eq('Error updating the snippet - Error Message')
       expect(page).to have_content('Edit Snippet')
     end
   end

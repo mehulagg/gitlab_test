@@ -1,11 +1,14 @@
 import Api from '~/api';
 import { convertObjectPropsToSnakeCase } from '~/lib/utils/common_utils';
+import { mockTracking, unmockTracking } from 'helpers/tracking_helper';
 
 import {
   DEFAULT_TARGET_BRANCH,
   SUBMIT_CHANGES_BRANCH_ERROR,
   SUBMIT_CHANGES_COMMIT_ERROR,
   SUBMIT_CHANGES_MERGE_REQUEST_ERROR,
+  TRACKING_ACTION_CREATE_COMMIT,
+  TRACKING_ACTION_CREATE_MERGE_REQUEST,
 } from '~/static_site_editor/constants';
 import generateBranchName from '~/static_site_editor/services/generate_branch_name';
 import submitContentChanges from '~/static_site_editor/services/submit_content_changes';
@@ -18,6 +21,7 @@ import {
   createMergeRequestResponse,
   sourcePath,
   sourceContent as content,
+  trackingCategory,
 } from '../mock_data';
 
 jest.mock('~/static_site_editor/services/generate_branch_name');
@@ -25,6 +29,8 @@ jest.mock('~/static_site_editor/services/generate_branch_name');
 describe('submitContentChanges', () => {
   const mergeRequestTitle = `Update ${sourcePath} file`;
   const branch = 'branch-name';
+  let trackingSpy;
+  let origPage;
 
   beforeEach(() => {
     jest.spyOn(Api, 'createBranch').mockResolvedValue({ data: commitBranchResponse });
@@ -34,6 +40,15 @@ describe('submitContentChanges', () => {
       .mockResolvedValue({ data: createMergeRequestResponse });
 
     generateBranchName.mockReturnValue(branch);
+
+    origPage = document.body.dataset.page;
+    document.body.dataset.page = trackingCategory;
+    trackingSpy = mockTracking(document.body.dataset.page, undefined, jest.spyOn);
+  });
+
+  afterEach(() => {
+    document.body.dataset.page = origPage;
+    unmockTracking();
   });
 
   it('creates a branch named after the username and target branch', () => {
@@ -127,6 +142,26 @@ describe('submitContentChanges', () => {
           url: createMergeRequestResponse.web_url,
         },
       });
+    });
+  });
+
+  describe('sends the correct tracking event', () => {
+    beforeEach(() => {
+      return submitContentChanges({ username, projectId, sourcePath, content });
+    });
+
+    it('for committing changes', () => {
+      expect(trackingSpy).toHaveBeenCalledWith(
+        document.body.dataset.page,
+        TRACKING_ACTION_CREATE_COMMIT,
+      );
+    });
+
+    it('for creating a merge request', () => {
+      expect(trackingSpy).toHaveBeenCalledWith(
+        document.body.dataset.page,
+        TRACKING_ACTION_CREATE_MERGE_REQUEST,
+      );
     });
   });
 });

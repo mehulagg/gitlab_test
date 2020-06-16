@@ -96,6 +96,53 @@ describe('Ci variable modal', () => {
       findModal().vm.$emit('hidden');
       expect(store.dispatch).toHaveBeenCalledWith('clearModal');
     });
+
+    it('should dispatch setVariableProtected when admin settings are configured to protect variables', () => {
+      store.state.isProtectedByDefault = true;
+      findModal().vm.$emit('shown');
+
+      expect(store.dispatch).toHaveBeenCalledWith('setVariableProtected');
+    });
+  });
+
+  describe('Adding a new non-AWS variable', () => {
+    beforeEach(() => {
+      const [variable] = mockData.mockVariables;
+      const invalidKeyVariable = {
+        ...variable,
+        key: 'key',
+        value: 'value',
+        secret_value: 'secret_value',
+      };
+      createComponent(mount);
+      store.state.variable = invalidKeyVariable;
+    });
+
+    it('does not show AWS guidance tip', () => {
+      const tip = wrapper.find(`div[data-testid='aws-guidance-tip']`);
+      expect(tip.exists()).toBe(true);
+      expect(tip.isVisible()).toBe(false);
+    });
+  });
+
+  describe('Adding a new AWS variable', () => {
+    beforeEach(() => {
+      const [variable] = mockData.mockVariables;
+      const invalidKeyVariable = {
+        ...variable,
+        key: AWS_ACCESS_KEY_ID,
+        value: 'AKIAIOSFODNN7EXAMPLEjdhy',
+        secret_value: 'AKIAIOSFODNN7EXAMPLEjdhy',
+      };
+      createComponent(mount);
+      store.state.variable = invalidKeyVariable;
+    });
+
+    it('shows AWS guidance tip', () => {
+      const tip = wrapper.find(`[data-testid='aws-guidance-tip']`);
+      expect(tip.exists()).toBe(true);
+      expect(tip.isVisible()).toBe(true);
+    });
   });
 
   describe('Editing a variable', () => {

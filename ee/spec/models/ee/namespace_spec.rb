@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Namespace do
+RSpec.describe Namespace do
   include EE::GeoHelpers
 
   let(:namespace) { create(:namespace) }
@@ -23,6 +23,7 @@ describe Namespace do
   it { is_expected.to delegate_method(:trial?).to(:gitlab_subscription) }
   it { is_expected.to delegate_method(:trial_ends_on).to(:gitlab_subscription) }
   it { is_expected.to delegate_method(:upgradable?).to(:gitlab_subscription) }
+  it { is_expected.to delegate_method(:email).to(:owner).with_prefix.allow_nil }
 
   shared_examples 'plan helper' do |namespace_plan|
     let(:namespace) { create(:namespace_with_plan, plan: "#{plan_name}_plan") }
@@ -310,6 +311,7 @@ describe Namespace do
 
       before do
         stub_application_setting_on_object(group, should_check_namespace_plan: true)
+        stub_feature_flags(promo_ci_cd_projects: true)
       end
 
       it 'returns true when the feature is available globally' do
@@ -875,6 +877,14 @@ describe Namespace do
     end
   end
 
+  shared_context 'project bot users' do
+    let(:project_bot) { create(:user, :project_bot) }
+
+    before do
+      project.add_maintainer(project_bot)
+    end
+  end
+
   describe '#billed_user_ids' do
     context 'with a user namespace' do
       let(:user) { create(:user) }
@@ -917,6 +927,12 @@ describe Namespace do
 
           it 'includes invited active users except guests to the group' do
             expect(group.billed_user_ids).to match_array([project_developer.id, developer.id])
+          end
+
+          context 'with project bot users' do
+            include_context 'project bot users'
+
+            it { expect(group.billed_user_ids).not_to include(project_bot.id) }
           end
 
           context 'when group is invited to the project' do
@@ -1033,6 +1049,12 @@ describe Namespace do
               expect(group.billed_user_ids).to match_array([guest.id, developer.id, project_guest.id, project_developer.id])
             end
 
+            context 'with project bot users' do
+              include_context 'project bot users'
+
+              it { expect(group.billed_user_ids).not_to include(project_bot.id) }
+            end
+
             context 'when group is invited to the project' do
               let(:invited_group) { create(:group) }
               let(:invited_group_developer) { create(:user) }
@@ -1124,6 +1146,12 @@ describe Namespace do
             expect(group.billable_members_count).to eq(2)
           end
 
+          context 'with project bot users' do
+            include_context 'project bot users'
+
+            it { expect(group.billable_members_count).to eq(2) }
+          end
+
           context 'when group is invited to the project' do
             let(:invited_group) { create(:group) }
 
@@ -1179,6 +1207,12 @@ describe Namespace do
 
             it 'includes invited active users to the group' do
               expect(group.billable_members_count).to eq(4)
+            end
+
+            context 'with project bot users' do
+              include_context 'project bot users'
+
+              it { expect(group.billable_members_count).to eq(4) }
             end
 
             context 'when group is invited to the project' do
@@ -1251,7 +1285,7 @@ describe Namespace do
     subject { namespace.store_security_reports_available? }
 
     context 'when at least one security report feature is enabled' do
-      where(report_type: [:sast, :dast, :dependency_scanning, :container_scanning])
+      where(report_type: [:sast, :secret_detection, :dast, :dependency_scanning, :container_scanning])
 
       with_them do
         before do
@@ -1391,6 +1425,40 @@ describe Namespace do
             expect(subgroup.membership_lock).to be_falsey
           end
         end
+      end
+    end
+  end
+
+  describe '#closest_gitlab_subscription' do
+    subject { namespace.closest_gitlab_subscription }
+
+    context 'when there is a root ancestor' do
+      let(:namespace) { create(:namespace, parent: root) }
+
+      context 'when root has a subscription' do
+        let(:root) { create(:namespace_with_plan) }
+
+        it { is_expected.to be_a(GitlabSubscription) }
+      end
+
+      context 'when root has no subscription' do
+        let(:root) { create(:namespace) }
+
+        it { is_expected.to be_nil }
+      end
+    end
+
+    context 'when there is no root ancestor' do
+      context 'has a subscription' do
+        let(:namespace) { create(:namespace_with_plan) }
+
+        it { is_expected.to be_a(GitlabSubscription) }
+      end
+
+      context 'it has no subscription' do
+        let(:namespace) { create(:namespace) }
+
+        it { is_expected.to be_nil }
       end
     end
   end

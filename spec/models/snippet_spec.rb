@@ -206,6 +206,32 @@ describe Snippet do
     end
   end
 
+  describe '.find_by_id_and_project' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:project_snippet) { create(:project_snippet, project: project) }
+    let_it_be(:personal_snippet) { create(:personal_snippet) }
+
+    context 'when project is provided' do
+      it 'returns ProjectSnippet' do
+        expect(described_class.find_by_id_and_project(id: project_snippet.id, project: project)).to eq(project_snippet)
+      end
+    end
+
+    context 'when project is nil' do
+      it 'returns PersonalSnippet' do
+        expect(described_class.find_by_id_and_project(id: personal_snippet.id, project: nil)).to eq(personal_snippet)
+      end
+    end
+
+    context 'when project variable is not a Project' do
+      let(:namespace) { build_stubbed(:namespace, id: project.id) }
+
+      it 'returns nil' do
+        expect(described_class.find_by_id_and_project(id: project_snippet.id, project: namespace)).to be_nil
+      end
+    end
+  end
+
   describe '.with_optional_visibility' do
     context 'when a visibility level is provided' do
       it 'returns snippets with the given visibility' do
@@ -732,6 +758,22 @@ describe Snippet do
       let(:snippet) { create(:project_snippet) }
 
       it { is_expected.to eq(Gitlab.config.gitlab_shell.ssh_path_prefix + "#{snippet.project.full_path}/snippets/#{snippet.id}.git") }
+    end
+  end
+
+  describe '.max_file_limit' do
+    subject { described_class.max_file_limit(nil) }
+
+    it "returns #{Snippet::MAX_FILE_COUNT}" do
+      expect(subject).to eq Snippet::MAX_FILE_COUNT
+    end
+
+    context 'when feature flag :snippet_multiple_files is disabled' do
+      it "returns #{described_class::MAX_SINGLE_FILE_COUNT}" do
+        stub_feature_flags(snippet_multiple_files: false)
+
+        expect(subject).to eq described_class::MAX_SINGLE_FILE_COUNT
+      end
     end
   end
 end

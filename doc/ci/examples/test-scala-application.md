@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: tutorial
 ---
 
@@ -14,7 +17,7 @@ The following `.gitlab-ci.yml` should be added in the root of your
 repository to trigger CI:
 
 ``` yaml
-image: java:8
+image: openjdk:8
 
 stages:
   - test

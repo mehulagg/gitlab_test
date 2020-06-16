@@ -14,6 +14,7 @@ class Namespace < ApplicationRecord
   include IgnorableColumns
 
   ignore_column :plan_id, remove_with: '13.1', remove_after: '2020-06-22'
+  ignore_column :trial_ends_on, remove_with: '13.2', remove_after: '2020-07-22'
 
   # Prevent users from creating unreasonably deep level of nesting.
   # The number 20 was taken based on maximum nesting level of
@@ -99,11 +100,11 @@ class Namespace < ApplicationRecord
 
     # Searches for namespaces matching the given query.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
-    # query - The search query as a String
+    # query - The search query as a String.
     #
-    # Returns an ActiveRecord::Relation
+    # Returns an ActiveRecord::Relation.
     def search(query)
       fuzzy_search(query, [:name, :path])
     end
@@ -276,7 +277,7 @@ class Namespace < ApplicationRecord
   end
 
   def has_parent?
-    parent.present?
+    parent_id.present? || parent.present?
   end
 
   def root_ancestor

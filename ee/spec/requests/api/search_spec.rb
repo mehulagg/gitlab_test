@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Search do
+RSpec.describe API::Search do
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
   let(:project) { create(:project, :public, :repository, :wiki_repo, name: 'awesome project', group: group) }
@@ -59,6 +59,32 @@ describe API::Search do
   end
 
   shared_examples 'elasticsearch enabled' do |level:|
+    context 'for merge_requests scope', :sidekiq_inline do
+      before do
+        create(:labeled_merge_request, target_branch: 'feature_1', source_project: project, labels: [create(:label), create(:label)])
+        create(:merge_request, target_branch: 'feature_2', source_project: project, author: create(:user))
+        create(:merge_request, target_branch: 'feature_3', source_project: project, milestone: create(:milestone, project: project))
+        create(:merge_request, target_branch: 'feature_4', source_project: project)
+        ensure_elasticsearch_index!
+      end
+
+      it_behaves_like 'pagination', scope: 'merge_requests'
+
+      it 'avoids N+1 queries' do
+        control = ActiveRecord::QueryRecorder.new { get api(endpoint, user), params: { scope: 'merge_requests', search: '*' } }
+
+        create(:labeled_merge_request, target_branch: 'feature_5', source_project: project, labels: [create(:label), create(:label)])
+        create(:merge_request, target_branch: 'feature_6', source_project: project, author: create(:user))
+        create(:merge_request, target_branch: 'feature_7', source_project: project, milestone: create(:milestone, project: project))
+        create(:merge_request, target_branch: 'feature_8', source_project: project)
+
+        ensure_elasticsearch_index!
+
+        # Some N+1 queries still exist
+        expect { get api(endpoint, user), params: { scope: 'merge_requests', search: '*' } }.not_to exceed_query_limit(control.count + 16)
+      end
+    end
+
     context 'for wiki_blobs scope', :sidekiq_might_not_need_inline do
       before do
         wiki = create(:project_wiki, project: project)
@@ -103,7 +129,7 @@ describe API::Search do
 
       context 'filters' do
         it 'by filename' do
-          get api("/projects/#{project.id}/search", user), params: { scope: 'blobs', search: 'mon filename:PROCESS.md' }
+          get api("/projects/#{project.id}/search", user), params: { scope: 'blobs', search: 'mon* filename:PROCESS.md' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.size).to eq(1)
@@ -111,7 +137,7 @@ describe API::Search do
         end
 
         it 'by path' do
-          get api("/projects/#{project.id}/search", user), params: { scope: 'blobs', search: 'mon path:markdown' }
+          get api("/projects/#{project.id}/search", user), params: { scope: 'blobs', search: 'mon* path:markdown' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.size).to eq(1)
@@ -121,7 +147,7 @@ describe API::Search do
         end
 
         it 'by extension' do
-          get api("/projects/#{project.id}/search", user), params: { scope: 'blobs', search: 'mon extension:md' }
+          get api("/projects/#{project.id}/search", user), params: { scope: 'blobs', search: 'mon* extension:md' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.size).to eq(3)
@@ -134,33 +160,24 @@ describe API::Search do
 
     context 'for issues scope', :sidekiq_inline do
       before do
-        create_list(:issue, 4, project: project)
+        create_list(:issue, 2, project: project)
         ensure_elasticsearch_index!
       end
 
       it 'avoids N+1 queries' do
         control = ActiveRecord::QueryRecorder.new { get api(endpoint, user), params: { scope: 'issues', search: '*' } }
 
-        new_issues = create_list(:issue, 4, project: project)
+        create_list(:issue, 2, project: project)
+        create_list(:issue, 2, project: create(:project, group: group))
+        create_list(:issue, 2)
 
         ensure_elasticsearch_index!
 
         # Some N+1 queries still exist
-        expect { get api(endpoint, user), params: { scope: 'issues', search: '*' } }.not_to exceed_query_limit(control.count + new_issues.count * 4)
+        expect { get api(endpoint, user), params: { scope: 'issues', search: '*' } }.not_to exceed_query_limit(control.count + 2)
       end
 
       it_behaves_like 'pagination', scope: 'issues'
-    end
-
-    context 'for merge_requests scope', :sidekiq_inline do
-      before do
-        create(:merge_request, target_branch: 'feature_2', source_project: project)
-        create(:merge_request, target_branch: 'feature_3', source_project: project)
-
-        ensure_elasticsearch_index!
-      end
-
-      it_behaves_like 'pagination', scope: 'merge_requests'
     end
 
     unless level == :project
@@ -173,6 +190,17 @@ describe API::Search do
         end
 
         it_behaves_like 'pagination', scope: 'projects'
+
+        it 'avoids N+1 queries' do
+          control = ActiveRecord::QueryRecorder.new { get api(endpoint, user), params: { scope: 'projects', search: '*' } }
+          create_list(:project, 3, :public, group: group)
+          create_list(:project, 4, :public)
+
+          ensure_elasticsearch_index!
+
+          # Some N+1 queries still exist
+          expect { get api(endpoint, user), params: { scope: 'projects', search: '*' } }.not_to exceed_query_limit(control.count + 4)
+        end
       end
     end
 
@@ -184,6 +212,16 @@ describe API::Search do
       end
 
       it_behaves_like 'pagination', scope: 'milestones'
+
+      it 'avoids N+1 queries' do
+        control = ActiveRecord::QueryRecorder.new { get api(endpoint, user), params: { scope: 'milestones', search: '*' } }
+        create_list(:milestone, 3, project: project)
+        create_list(:milestone, 2, project: create(:project, :public))
+
+        ensure_elasticsearch_index!
+
+        expect { get api(endpoint, user), params: { scope: 'milestones', search: '*' } }.not_to exceed_query_limit(control.count)
+      end
     end
 
     context 'for users scope', :sidekiq_inline do

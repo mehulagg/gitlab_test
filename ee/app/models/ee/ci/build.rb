@@ -12,6 +12,7 @@ module EE
 
       LICENSED_PARSER_FEATURES = {
         sast: :sast,
+        secret_detection: :secret_detection,
         dependency_scanning: :dependency_scanning,
         container_scanning: :container_scanning,
         dast: :dast
@@ -33,18 +34,14 @@ module EE
             .for_ref(ref)
             .for_project_paths(project_path)
         end
-      end
 
-      def shared_runners_minutes_limit_enabled?
-        if ::Feature.enabled?(:ci_minutes_track_for_public_projects, project.shared_runners_limit_namespace)
-          project.shared_runners_minutes_limit_enabled? && runner&.minutes_cost_factor(project.visibility_level)&.positive?
-        else
-          legacy_shared_runners_minutes_limit_enabled?
+        scope :security_scans_scanned_resources_count, -> (report_types) do
+          joins(:security_scans).where(security_scans: { scan_type: report_types }).group(:scan_type).sum(:scanned_resources_count)
         end
       end
 
-      def legacy_shared_runners_minutes_limit_enabled?
-        runner && runner.instance_type? && project.shared_runners_minutes_limit_enabled?
+      def shared_runners_minutes_limit_enabled?
+        project.shared_runners_minutes_limit_enabled? && runner&.minutes_cost_factor(project.visibility_level)&.positive?
       end
 
       def stick_build_if_status_changed
@@ -81,7 +78,7 @@ module EE
         each_report(::Ci::JobArtifact::LICENSE_SCANNING_REPORT_FILE_TYPES) do |file_type, blob|
           next if ::Feature.disabled?(:parse_license_management_reports, default_enabled: true)
 
-          next unless project.feature_available?(:license_scanning) || project.feature_available?(:license_management)
+          next unless project.feature_available?(:license_scanning)
 
           ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, license_scanning_report)
         end
@@ -121,6 +118,16 @@ module EE
         end
 
         metrics_report
+      end
+
+      def collect_requirements_reports!(requirements_report)
+        return requirements_report unless project.feature_available?(:requirements)
+
+        each_report(::Ci::JobArtifact::REQUIREMENTS_REPORT_FILE_TYPES) do |file_type, blob, report_artifact|
+          ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, requirements_report)
+        end
+
+        requirements_report
       end
 
       def retryable?

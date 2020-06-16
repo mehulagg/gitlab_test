@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::IssuesController do
+RSpec.describe Projects::IssuesController do
   include ProjectForksHelper
   include_context 'includes Spam constants'
 
@@ -187,6 +187,33 @@ describe Projects::IssuesController do
         expect(assigns(:issue)).to be_a_new(Issue)
       end
 
+      where(:conf_value, :conf_result) do
+        [
+          [true, true],
+          ['true', true],
+          ['TRUE', true],
+          [false, false],
+          ['false', false],
+          ['FALSE', false]
+        ]
+      end
+
+      with_them do
+        it 'sets the confidential flag to the expected value' do
+          get :new, params: {
+            namespace_id: project.namespace,
+            project_id: project,
+            issue: {
+              confidential: conf_value
+            }
+          }
+
+          assigned_issue = assigns(:issue)
+          expect(assigned_issue).to be_a_new(Issue)
+          expect(assigned_issue.confidential).to eq conf_result
+        end
+      end
+
       it 'fills in an issue for a merge request' do
         project_with_repository = create(:project, :repository)
         project_with_repository.add_developer(user)
@@ -305,8 +332,7 @@ describe Projects::IssuesController do
       end
 
       before do
-        allow(controller).to receive(:find_routable!)
-          .with(Project, project.full_path, any_args).and_return(project)
+        allow(controller).to receive(:find_routable!).and_return(project)
         allow(project).to receive(:default_branch).and_return(master_branch)
         allow_next_instance_of(Issues::RelatedBranchesService) do |service|
           allow(service).to receive(:execute).and_return(related_branches)
@@ -509,7 +535,7 @@ describe Projects::IssuesController do
         before do
           stub_application_setting(recaptcha_enabled: true)
           expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
-            expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
+            expect(verdict_service).to receive(:execute).and_return(CONDITIONAL_ALLOW)
           end
         end
 
@@ -582,7 +608,7 @@ describe Projects::IssuesController do
       before do
         project.add_developer(user)
 
-        issue.update!(last_edited_by: deleted_user, last_edited_at: Time.now)
+        issue.update!(last_edited_by: deleted_user, last_edited_at: Time.current)
 
         deleted_user.destroy
         sign_in(user)
@@ -798,7 +824,7 @@ describe Projects::IssuesController do
           update_issue(issue_params: { assignee_ids: [assignee.id] })
 
           expect(json_response['assignees'].first.keys)
-            .to match_array(%w(id name username avatar_url state web_url))
+            .to include(*%w(id name username avatar_url state web_url))
         end
       end
 
@@ -824,7 +850,7 @@ describe Projects::IssuesController do
           context 'when recaptcha is not verified' do
             before do
               expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
-                expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
+                expect(verdict_service).to receive(:execute).and_return(CONDITIONAL_ALLOW)
               end
             end
 
@@ -1076,7 +1102,7 @@ describe Projects::IssuesController do
         context 'when captcha is not verified' do
           before do
             expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
-              expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
+              expect(verdict_service).to receive(:execute).and_return(CONDITIONAL_ALLOW)
             end
           end
 
@@ -1381,6 +1407,7 @@ describe Projects::IssuesController do
     it 'render merge request as json' do
       create_merge_request
 
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response).to match_response_schema('merge_request')
     end
 
@@ -1424,24 +1451,8 @@ describe Projects::IssuesController do
       let(:target_project) { fork_project(project, user, repository: true) }
       let(:target_project_id) { target_project.id }
 
-      context 'create_confidential_merge_request feature is enabled' do
-        before do
-          stub_feature_flags(create_confidential_merge_request: true)
-        end
-
-        it 'creates a new merge request', :sidekiq_might_not_need_inline do
-          expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
-        end
-      end
-
-      context 'create_confidential_merge_request feature is disabled' do
-        before do
-          stub_feature_flags(create_confidential_merge_request: false)
-        end
-
-        it 'creates a new merge request' do
-          expect { create_merge_request }.to change(project.merge_requests, :count).by(1)
-        end
+      it 'creates a new merge request', :sidekiq_might_not_need_inline do
+        expect { create_merge_request }.to change(target_project.merge_requests, :count).by(1)
       end
     end
 
@@ -1688,6 +1699,33 @@ describe Projects::IssuesController do
             expect(json_response_note_ids).not_to include(branch_note.id)
           end
         end
+      end
+    end
+  end
+
+  describe 'GET #designs' do
+    context 'when project has moved' do
+      let(:new_project) { create(:project) }
+      let(:issue) { create(:issue, project: new_project) }
+
+      before do
+        sign_in(user)
+
+        project.route.destroy
+        new_project.redirect_routes.create!(path: project.full_path)
+        new_project.add_developer(user)
+      end
+
+      it 'redirects from an old issue/designs correctly' do
+        get :designs,
+            params: {
+              namespace_id: project.namespace,
+              project_id: project,
+              id: issue
+            }
+
+        expect(response).to redirect_to(designs_project_issue_path(new_project, issue))
+        expect(response).to have_gitlab_http_status(:found)
       end
     end
   end

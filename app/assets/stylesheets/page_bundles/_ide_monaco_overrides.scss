@@ -27,8 +27,7 @@
     z-index: 2;
   }
 
-  .is-readonly,
-  .editor.original {
+  .is-readonly .editor.original {
     .view-lines {
       cursor: default;
     }
@@ -147,7 +146,7 @@
     .monaco-editor,
     .monaco-editor-background,
     .monaco-editor .inputarea.ime-input {
-      background-color: $gray-50;
+      background-color: $gray-10;
     }
   }
 }

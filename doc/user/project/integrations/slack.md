@@ -23,7 +23,23 @@ The Slack Notifications Service allows your GitLab project to send events (e.g. 
 
 Your Slack team will now start receiving GitLab event notifications as configured.
 
-![Slack configuration](img/slack_configuration.png)
+### Triggers available for Slack notifications
+
+The following triggers are available for Slack notifications:
+
+- **Push**: Triggered by a push to the repository.
+- **Issue**: Triggered when an issue is created, updated, or closed.
+- **Confidential issue**: Triggered when a confidential issue is created,
+  updated, or closed.
+- **Merge request**: Triggered when a merge request is created, updated, or
+  merged.
+- **Note**: Triggered when someone adds a comment.
+- **Confidential note**: Triggered when someone adds a confidential note.
+- **Tag push**: Triggered when a new tag is pushed to the repository.
+- **Pipeline**: Triggered when a pipeline status changes.
+- **Wiki page**: Triggered when a wiki page is created or updated.
+- **Deployment**: Triggered when a deployment finishes.
+- **Alert**: Triggered when a new, unique alert is recorded.
 
 ## Troubleshooting
 
@@ -41,7 +57,7 @@ an error message and keep troubleshooting from there.
 
 You may see an entry similar to the following in your Sidekiq log:
 
-```text
+```plaintext
 2019-01-10_13:22:08.42572 2019-01-10T13:22:08.425Z 6877 TID-abcdefg ProjectServiceWorker JID-3bade5fb3dd47a85db6d78c5 ERROR: {:class=>"ProjectServiceWorker", :service_class=>"SlackService", :message=>"SSL_connect returned=1 errno=0 state=error: certificate verify failed"}
 ```
 

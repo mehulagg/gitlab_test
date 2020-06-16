@@ -1,10 +1,16 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Managed Apps
 
 GitLab provides **GitLab Managed Apps**, a one-click install for various applications which can
 be added directly to your configured cluster.
 
 These applications are needed for [Review Apps](../../ci/review_apps/index.md)
-and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topics/autodevops/index.md).
+and [deployments](../../ci/environments/index.md) when using [Auto DevOps](../../topics/autodevops/index.md).
 
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
@@ -326,7 +332,7 @@ Updating [Ingress](#ingress) to the most recent version enables you to take adva
 
 ##### Viewing Web Application Firewall traffic
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
 You can view Web Application Firewall traffic by navigating to your project's
 **Security & Compliance > Threat Monitoring** page.
@@ -452,7 +458,7 @@ file.
 
 ### Crossplane
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34702) in GitLab 12.5 for project-level clusters.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34702) in GitLab 12.5 for project-level clusters.
 
 [Crossplane](https://crossplane.github.io/docs/v0.9/) is a multi-cloud control plane useful for
 managing applications and infrastructure across multiple clouds. It extends the
@@ -499,20 +505,23 @@ Log data is automatically deleted after 30 days using [Curator](https://www.elas
 
 To enable log shipping:
 
+1. Ensure your cluster contains at least 3 nodes of instance types larger than
+   `f1-micro`, `g1-small`, or `n1-standard-1`.
 1. Navigate to **{cloud-gear}** **Operations > Kubernetes**.
 1. In **Kubernetes Cluster**, select a cluster.
 1. In the **Applications** section, find **Elastic Stack** and click **Install**.
 
 NOTE: **Note:**
-The [`stable/elastic-stack`](https://github.com/helm/charts/tree/master/stable/elastic-stack)
+The [`gitlab/elastic-stack`](https://gitlab.com/gitlab-org/charts/elastic-stack)
 chart is used to install this application with a
 [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/elastic_stack/values.yaml)
 file.
 
 NOTE: **Note:**
-The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node,
-with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
-which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+The chart deploys 3 identical Elasticsearch pods which can't be colocated, and each
+require 1 CPU and 2 GB of RAM, making them incompatible with clusters containing
+fewer than 3 nodes or consisting of `f1-micro`, `g1-small`, `n1-standard-1`, or
+`*-highcpu-2` instance types.
 
 NOTE: **Note:**
 The Elastic Stack cluster application is intended as a log aggregation solution and is not related to our
@@ -531,25 +540,25 @@ Save the following to `kibana.yml`:
 elasticsearch:
   enabled: false
 
-logstash:
+filebeat:
   enabled: false
 
 kibana:
   enabled: true
-  env:
-    ELASTICSEARCH_HOSTS: http://elastic-stack-elasticsearch-client.gitlab-managed-apps.svc.cluster.local:9200
+  elasticsearchHosts: http://elastic-stack-elasticsearch-master.gitlab-managed-apps.svc.cluster.local:9200
 ```
 
 Then install it on your cluster:
 
 ```shell
-helm install --name kibana stable/elastic-stack --values kibana.yml
+helm repo add gitlab https://charts.gitlab.io
+helm install --name kibana gitlab/elastic-stack --values kibana.yml
 ```
 
 To access Kibana, forward the port to your local machine:
 
 ```shell
-kubectl port-forward svc/kibana 5601:443
+kubectl port-forward svc/kibana-kibana 5601:5601
 ```
 
 Then, you can visit Kibana at `http://localhost:5601`.
@@ -606,6 +615,8 @@ Supported applications:
 - [Crossplane](#install-crossplane-using-gitlab-cicd)
 - [Fluentd](#install-fluentd-using-gitlab-cicd)
 - [Knative](#install-knative-using-gitlab-cicd)
+- [PostHog](#install-posthog-using-gitlab-cicd)
+- [Prometheus](#install-prometheus-using-gitlab-cicd)
 
 ### Usage
 
@@ -770,6 +781,77 @@ postgresql:
   postgresqlPassword: example-postgresql-password
 ```
 
+### Install PostHog using GitLab CI/CD
+
+[PostHog](https://www.posthog.com) 🦔 is a developer-friendly, open-source product analytics platform.
+
+To install PostHog into the `gitlab-managed-apps` namespace of your cluster,
+define the `.gitlab/managed-apps/config.yaml` file with:
+
+```yaml
+posthog:
+  installed: true
+```
+
+You can customize the installation of PostHog by defining `.gitlab/managed-apps/posthog/values.yaml`
+in your cluster management project. Refer to the [Configuration section of the PostHog chart's README](https://github.com/PostHog/charts/tree/master/charts/posthog)
+for the available configuration options.
+
+NOTE: **Note:**
+You must provide a PostgreSQL password in `postgresql.postgresqlPassword`
+or you will receive authentication errors.
+See the [PostgreSQL chart documentation](https://github.com/helm/charts/tree/master/stable/postgresql#upgrade) for more information.
+
+Redis pods are restarted between upgrades. To prevent downtime, provide a Redis
+password using the `redis.password` key. This prevents a new password from
+being generated on each restart.
+
+Here is an example configuration for PostHog:
+
+```yaml
+ingress:
+  enabled: true
+  hostname: "<posthog.example.com>"
+
+# This will be autogenerated if you skip it. Include if you have 2 or more web replicas
+posthogSecret: 'long-secret-key-used-to-sign-cookies'
+
+# Needs to be here between runs.
+# See https://github.com/helm/charts/tree/master/stable/postgresql#upgrade for more info
+postgresql:
+  postgresqlPassword: example-postgresql-password
+
+# Recommended to set this to a value to redis prevent downtime between upgrades
+redis:
+  password: example-redis-password
+```
+
+NOTE: **Note:**
+Support for the PostHog managed application is provided by the PostHog team.
+If you run into issues, please [open a support ticket](https://github.com/PostHog/posthog/issues/new/choose) directly.
+
+### Install Prometheus using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25138) in GitLab 12.8.
+
+[Prometheus](https://prometheus.io/docs/introduction/overview/) is an
+open-source monitoring and alerting system for supervising your
+deployed applications.
+
+To install Prometheus into the `gitlab-managed-apps` namespace of your cluster,
+define the `.gitlab/managed-apps/config.yaml` file with:
+
+```yaml
+prometheus:
+  installed: true
+```
+
+You can customize the installation of Prometheus by defining
+`.gitlab/managed-apps/prometheus/values.yaml` in your cluster management
+project. Refer to the
+[Configuration section of the Prometheus chart's README](https://github.com/helm/charts/tree/master/stable/prometheus#configuration)
+for the available configuration options.
+
 ### Install GitLab Runner using GitLab CI/CD
 
 GitLab Runner is installed using GitLab CI/CD by defining configuration in
@@ -837,7 +919,8 @@ management project. Refer to the
 for the available configuration options.
 
 CAUTION: **Caution:**
-Installation and removal of the Cilium [requires restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
+Installation and removal of the Cilium requires a **manual**
+[restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
 of all affected pods in all namespaces to ensure that they are
 [managed](https://cilium.readthedocs.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium)
 by the correct networking plugin.
@@ -847,10 +930,10 @@ Major upgrades might require additional setup steps, please consult
 the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
 information.
 
-By default, Cilium will drop all non-whitelisted packets upon policy
+By default, Cilium will drop all disallowed packets upon policy
 deployment. The audit mode is scheduled for release in
 [Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
-mode, non-whitelisted packets will not be dropped, and audit
+mode, disallowed packets will not be dropped, and audit
 notifications will be generated instead. GitLab provides alternative Docker
 images for Cilium with the audit patch included. You can switch to the
 custom build and enable the audit mode by adding the following to
@@ -905,7 +988,7 @@ metrics:
 
 ### Install Vault using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9982) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9982) in GitLab 12.9.
 
 [Hashicorp Vault](https://www.vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more. A Vault
@@ -923,24 +1006,24 @@ vault:
   installed: true
 ```
 
-By default you will get a basic Vault setup with no high availability nor any scalable
-storage backend. This is enough for simple testing and small scale deployments, though has limits
+By default you will get a basic Vault setup with no scalable
+storage backend. This is enough for simple testing and small-scale deployments, though has limits
 to how much it can scale, and as it is a single instance deployment, you will experience downtime
 when upgrading the Vault application.
 
 To optimally use Vault in a production environment, it's ideal to have a good understanding
 of the internals of Vault and how to configure it. This can be done by reading the
-[the Vault documentation](https://www.vaultproject.io/docs/internals/) as well as
+[the Vault documentation](https://www.vaultproject.io/docs/internals) as well as
 the Vault Helm chart [`values.yaml` file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
 
 At a minimum you will likely set up:
 
-- A [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
+- A [seal](https://www.vaultproject.io/docs/configuration/seal) for extra encryption
   of the master key.
-- A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
+- A [storage backend](https://www.vaultproject.io/docs/configuration/storage) that is
   suitable for environment and storage security requirements.
-- [HA Mode](https://www.vaultproject.io/docs/concepts/ha/).
-- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui/).
+- [HA Mode](https://www.vaultproject.io/docs/concepts/ha).
+- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui).
 
 The following is an example values file (`.gitlab/managed-apps/vault/values.yaml`)
 that configures Google Key Management Service for auto-unseal, using a Google Cloud Storage backend, enabling
@@ -1043,7 +1126,7 @@ available configuration options.
 
 ### Install Elastic Stack using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/45) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25138) in GitLab 12.8.
 
 Elastic Stack is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1062,7 +1145,7 @@ You can check the default [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/-
 You can customize the installation of Elastic Stack by defining
 `.gitlab/managed-apps/elastic-stack/values.yaml` file in your cluster
 management project. Refer to the
-[chart](https://github.com/helm/charts/blob/master/stable/elastic-stack/values.yaml) for the
+[chart](https://gitlab.com/gitlab-org/charts/elastic-stack) for the
 available configuration options.
 
 NOTE: **Note:**
@@ -1070,7 +1153,7 @@ In this alpha implementation of installing Elastic Stack through CI, reading the
 
 ### Install Crossplane using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/35675) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/35675) in GitLab 12.9.
 
 Crossplane is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1147,7 +1230,7 @@ GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#inv
 1. Knative and Prometheus managed applications installed on your cluster.
 1. Manually applied the custom metrics on your cluster by running the following command:
 
-   ```bash
+   ```shell
    kubectl apply -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
    ```
 
@@ -1156,7 +1239,7 @@ GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#inv
 To uninstall Knative, you must first manually remove any custom metrics you have added
 by running the following command:
 
-```bash
+```shell
 kubectl delete -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
 ```
 
@@ -1187,7 +1270,7 @@ chart plus the values set by
 
 ## Uninstalling applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/60665) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/60665) in GitLab 11.11.
 
 The applications below can be uninstalled.
 
@@ -1222,7 +1305,7 @@ epic](https://gitlab.com/groups/gitlab-org/-/epics/1201).
 
 Applications can fail with the following error:
 
-```text
+```plaintext
 Error: remote error: tls: bad certificate
 ```
 

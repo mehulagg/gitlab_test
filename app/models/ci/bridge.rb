@@ -16,6 +16,9 @@ module Ci
     has_many :sourced_pipelines, class_name: "::Ci::Sources::Pipeline",
                                   foreign_key: :source_job_id
 
+    has_one :sourced_pipeline, class_name: "::Ci::Sources::Pipeline", foreign_key: :source_job_id
+    has_one :downstream_pipeline, through: :sourced_pipeline, source: :pipeline
+
     validates :ref, presence: true
 
     # rubocop:disable Cop/ActiveRecordSerialize
@@ -164,6 +167,10 @@ module Ci
           { key: hash[:key], value: ::ExpandVariables.expand(hash[:value], all_variables) }
         end
       end
+    end
+
+    def dependency_variables
+      []
     end
 
     private

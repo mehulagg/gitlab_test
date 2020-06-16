@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Repositories::GitHttpController do
+RSpec.describe Repositories::GitHttpController do
   include GitHttpHelpers
 
   let_it_be(:project) { create(:project, :public, :repository) }
@@ -169,6 +169,7 @@ describe Repositories::GitHttpController do
     it_behaves_like 'info_refs behavior' do
       let(:user) { project.owner }
     end
+
     it_behaves_like 'git_upload_pack behavior', true
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccess }
@@ -183,6 +184,7 @@ describe Repositories::GitHttpController do
     it_behaves_like 'info_refs behavior' do
       let(:user) { personal_snippet.author }
     end
+
     it_behaves_like 'git_upload_pack behavior', false
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccessSnippet }
@@ -197,6 +199,7 @@ describe Repositories::GitHttpController do
     it_behaves_like 'info_refs behavior' do
       let(:user) { project_snippet.author }
     end
+
     it_behaves_like 'git_upload_pack behavior', false
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccessSnippet }

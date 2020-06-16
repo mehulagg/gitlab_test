@@ -1,27 +1,25 @@
 # frozen_string_literal: true
 
-# For hardening usage ping and make it easier to add measures there is in place
-#   * alt_usage_data method
-#     handles StandardError and fallbacks into -1 this way not all measures fail if we encounter one exception
+# When developing usage data metrics use the below usage data interface methods
+# unless you have good reasons to implement custom usage data
+# See `lib/gitlab/utils/usage_data.rb`
 #
-#     Examples:
-#     alt_usage_data { Gitlab::VERSION }
-#     alt_usage_data { Gitlab::CurrentSettings.uuid }
-#
-#   * redis_usage_data method
-#     handles ::Redis::CommandError, Gitlab::UsageDataCounters::BaseCounter::UnknownEvent
-#     returns -1 when a block is sent or hash with all values -1 when a counter is sent
-#     different behaviour due to 2 different implementations of redis counter
-#
-#     Examples:
-#     redis_usage_data(Gitlab::UsageDataCounters::WikiPageCounter)
-#     redis_usage_data { ::Gitlab::UsageCounters::PodLogs.usage_totals[:total] }
+# Examples
+#   issues_using_zoom_quick_actions: distinct_count(ZoomMeeting, :issue_id),
+#   active_user_count: count(User.active)
+#   alt_usage_data { Gitlab::VERSION }
+#   redis_usage_data(Gitlab::UsageDataCounters::WikiPageCounter)
+#   redis_usage_data { ::Gitlab::UsageCounters::PodLogs.usage_totals[:total] }
+
 module Gitlab
   class UsageData
     BATCH_SIZE = 100
-    FALLBACK = -1
 
     class << self
+      include Gitlab::Utils::UsageData
+      include Gitlab::Utils::StrongMemoize
+      include Gitlab::UsageDataConcerns::Topology
+
       def data(force_refresh: false)
         Rails.cache.fetch('usage_data', force: force_refresh, expires_in: 2.weeks) do
           uncached_data
@@ -29,12 +27,15 @@ module Gitlab
       end
 
       def uncached_data
+        clear_memoized_limits
+
         license_usage_data
           .merge(system_usage_data)
           .merge(features_usage_data)
           .merge(components_usage_data)
           .merge(cycle_analytics_usage_data)
           .merge(object_store_usage_data)
+          .merge(topology_usage_data)
           .merge(recording_ce_finish_data)
       end
 
@@ -44,7 +45,7 @@ module Gitlab
 
       def license_usage_data
         {
-          recorded_at: Time.now, # should be calculated very first
+          recorded_at: recorded_at,
           uuid: alt_usage_data { Gitlab::CurrentSettings.uuid },
           hostname: alt_usage_data { Gitlab.config.gitlab.host },
           version: alt_usage_data { Gitlab::VERSION },
@@ -52,6 +53,10 @@ module Gitlab
           active_user_count: count(User.active),
           edition: 'CE'
         }
+      end
+
+      def recorded_at
+        Time.now
       end
 
       def recording_ce_finish_data
@@ -63,6 +68,9 @@ module Gitlab
       # rubocop: disable Metrics/AbcSize
       # rubocop: disable CodeReuse/ActiveRecord
       def system_usage_data
+        alert_bot_incident_count = count(::Issue.authored(::User.alert_bot))
+        issues_created_manually_from_alerts = count(Issue.with_alert_management_alerts.not_authored_by(::User.alert_bot))
+
         {
           counts: {
             assignee_lists: count(List.assignee),
@@ -112,7 +120,12 @@ module Gitlab
             issues_with_associated_zoom_link: count(ZoomMeeting.added_to_issue),
             issues_using_zoom_quick_actions: distinct_count(ZoomMeeting, :issue_id),
             issues_with_embedded_grafana_charts_approx: grafana_embed_usage_data,
-            incident_issues: count(::Issue.authored(::User.alert_bot)),
+            issues_created_from_alerts: total_alert_issues,
+            issues_created_gitlab_alerts: issues_created_manually_from_alerts,
+            issues_created_manually_from_alerts: issues_created_manually_from_alerts,
+            incident_issues: alert_bot_incident_count,
+            alert_bot_incident_issues: alert_bot_incident_count,
+            incident_labeled_issues: count(::Issue.with_label_attributes(IncidentManagement::CreateIssueService::INCIDENT_LABEL)),
             keys: count(Key),
             label_lists: count(List.label),
             lfs_objects: count(LfsObject),
@@ -126,11 +139,17 @@ module Gitlab
             projects_with_error_tracking_enabled: count(::ErrorTracking::ProjectErrorTrackingSetting.where(enabled: true)),
             projects_with_alerts_service_enabled: count(AlertsService.active),
             projects_with_prometheus_alerts: distinct_count(PrometheusAlert, :project_id),
+            projects_with_terraform_reports: distinct_count(::Ci::JobArtifact.terraform_reports, :project_id),
+            projects_with_terraform_states: distinct_count(::Terraform::State, :project_id),
             protected_branches: count(ProtectedBranch),
             releases: count(Release),
             remote_mirrors: count(RemoteMirror),
             snippets: count(Snippet),
+            personal_snippets: count(PersonalSnippet),
+            project_snippets: count(ProjectSnippet),
             suggestions: count(Suggestion),
+            terraform_reports: count(::Ci::JobArtifact.terraform_reports),
+            terraform_states: count(::Terraform::State),
             todos: count(Todo),
             uploads: count(Upload),
             web_hooks: count(WebHook),
@@ -141,7 +160,9 @@ module Gitlab
             services_usage,
             usage_counters,
             user_preferences_usage,
-            ingress_modsecurity_usage
+            ingress_modsecurity_usage,
+            container_expiration_policies_usage,
+            merge_requests_usage(default_time_period)
           )
         }
       end
@@ -168,44 +189,22 @@ module Gitlab
 
       def features_usage_data_ce
         {
-          container_registry_enabled: alt_usage_data { Gitlab.config.registry.enabled },
+          instance_auto_devops_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.auto_devops_enabled? },
+          container_registry_enabled: alt_usage_data(fallback: nil) { Gitlab.config.registry.enabled },
           dependency_proxy_enabled: Gitlab.config.try(:dependency_proxy)&.enabled,
-          gitlab_shared_runners_enabled: alt_usage_data { Gitlab.config.gitlab_ci.shared_runners_enabled },
-          gravatar_enabled: alt_usage_data { Gitlab::CurrentSettings.gravatar_enabled? },
-          influxdb_metrics_enabled: alt_usage_data { Gitlab::Metrics.influx_metrics_enabled? },
-          ldap_enabled: alt_usage_data { Gitlab.config.ldap.enabled },
-          mattermost_enabled: alt_usage_data { Gitlab.config.mattermost.enabled },
-          omniauth_enabled: alt_usage_data { Gitlab::Auth.omniauth_enabled? },
-          prometheus_metrics_enabled: alt_usage_data { Gitlab::Metrics.prometheus_metrics_enabled? },
-          reply_by_email_enabled: alt_usage_data { Gitlab::IncomingEmail.enabled? },
-          signup_enabled: alt_usage_data { Gitlab::CurrentSettings.allow_signup? },
-          web_ide_clientside_preview_enabled: alt_usage_data { Gitlab::CurrentSettings.web_ide_clientside_preview_enabled? },
-          ingress_modsecurity_enabled: Feature.enabled?(:ingress_modsecurity)
-        }.merge(features_usage_data_container_expiration_policies)
+          gitlab_shared_runners_enabled: alt_usage_data(fallback: nil) { Gitlab.config.gitlab_ci.shared_runners_enabled },
+          gravatar_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.gravatar_enabled? },
+          ldap_enabled: alt_usage_data(fallback: nil) { Gitlab.config.ldap.enabled },
+          mattermost_enabled: alt_usage_data(fallback: nil) { Gitlab.config.mattermost.enabled },
+          omniauth_enabled: alt_usage_data(fallback: nil) { Gitlab::Auth.omniauth_enabled? },
+          prometheus_metrics_enabled: alt_usage_data(fallback: nil) { Gitlab::Metrics.prometheus_metrics_enabled? },
+          reply_by_email_enabled: alt_usage_data(fallback: nil) { Gitlab::IncomingEmail.enabled? },
+          signup_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.allow_signup? },
+          web_ide_clientside_preview_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.web_ide_clientside_preview_enabled? },
+          ingress_modsecurity_enabled: Feature.enabled?(:ingress_modsecurity),
+          grafana_link_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.grafana_enabled? }
+        }
       end
-
-      # rubocop: disable CodeReuse/ActiveRecord
-      def features_usage_data_container_expiration_policies
-        results = {}
-        start = ::Project.minimum(:id)
-        finish = ::Project.maximum(:id)
-
-        results[:projects_with_expiration_policy_disabled] = distinct_count(::ContainerExpirationPolicy.where(enabled: false), :project_id, start: start, finish: finish)
-        base = ::ContainerExpirationPolicy.active
-        results[:projects_with_expiration_policy_enabled] = distinct_count(base, :project_id, start: start, finish: finish)
-
-        %i[keep_n cadence older_than].each do |option|
-          ::ContainerExpirationPolicy.public_send("#{option}_options").keys.each do |value| # rubocop: disable GitlabSecurity/PublicSend
-            results["projects_with_expiration_policy_enabled_with_#{option}_set_to_#{value}".to_sym] = distinct_count(base.where(option => value), :project_id, start: start, finish: finish)
-          end
-        end
-
-        results[:projects_with_expiration_policy_enabled_with_keep_n_unset] = distinct_count(base.where(keep_n: nil), :project_id, start: start, finish: finish)
-        results[:projects_with_expiration_policy_enabled_with_older_than_unset] = distinct_count(base.where(older_than: nil), :project_id, start: start, finish: finish)
-
-        results
-      end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       # @return [Hash<Symbol, Integer>]
       def usage_counters
@@ -223,20 +222,22 @@ module Gitlab
           Gitlab::UsageDataCounters::CycleAnalyticsCounter,
           Gitlab::UsageDataCounters::ProductivityAnalyticsCounter,
           Gitlab::UsageDataCounters::SourceCodeCounter,
-          Gitlab::UsageDataCounters::MergeRequestCounter
+          Gitlab::UsageDataCounters::MergeRequestCounter,
+          Gitlab::UsageDataCounters::DesignsCounter
         ]
       end
 
       def components_usage_data
         {
-          git: { version: alt_usage_data { Gitlab::Git.version } },
+          git: { version: alt_usage_data(fallback: { major: -1 }) { Gitlab::Git.version } },
           gitaly: {
             version: alt_usage_data { Gitaly::Server.all.first.server_version },
             servers: alt_usage_data { Gitaly::Server.count },
-            filesystems: alt_usage_data { Gitaly::Server.filesystems }
+            clusters: alt_usage_data { Gitaly::Server.gitaly_clusters },
+            filesystems: alt_usage_data(fallback: ["-1"]) { Gitaly::Server.filesystems }
           },
           gitlab_pages: {
-            enabled: alt_usage_data { Gitlab.config.pages.enabled },
+            enabled: alt_usage_data(fallback: nil) { Gitlab.config.pages.enabled },
             version: alt_usage_data { Gitlab::Pages::VERSION }
           },
           database: {
@@ -311,6 +312,29 @@ module Gitlab
       end
 
       # rubocop: disable CodeReuse/ActiveRecord
+      def container_expiration_policies_usage
+        results = {}
+        start = ::Project.minimum(:id)
+        finish = ::Project.maximum(:id)
+
+        results[:projects_with_expiration_policy_disabled] = distinct_count(::ContainerExpirationPolicy.where(enabled: false), :project_id, start: start, finish: finish)
+        base = ::ContainerExpirationPolicy.active
+        results[:projects_with_expiration_policy_enabled] = distinct_count(base, :project_id, start: start, finish: finish)
+
+        %i[keep_n cadence older_than].each do |option|
+          ::ContainerExpirationPolicy.public_send("#{option}_options").keys.each do |value| # rubocop: disable GitlabSecurity/PublicSend
+            results["projects_with_expiration_policy_enabled_with_#{option}_set_to_#{value}".to_sym] = distinct_count(base.where(option => value), :project_id, start: start, finish: finish)
+          end
+        end
+
+        results[:projects_with_expiration_policy_enabled_with_keep_n_unset] = distinct_count(base.where(keep_n: nil), :project_id, start: start, finish: finish)
+        results[:projects_with_expiration_policy_enabled_with_older_than_unset] = distinct_count(base.where(older_than: nil), :project_id, start: start, finish: finish)
+
+        results
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
+
+      # rubocop: disable CodeReuse/ActiveRecord
       def services_usage
         results = Service.available_services_names.without('jira').each_with_object({}) do |service_name, response|
           response["projects_#{service_name}_active".to_sym] = count(Service.active.where(template: false, type: "#{service_name}_service".camelize))
@@ -375,57 +399,26 @@ module Gitlab
         {} # augmented in EE
       end
 
-      def count(relation, column = nil, batch: true, start: nil, finish: nil)
-        if batch && Feature.enabled?(:usage_ping_batch_counter, default_enabled: true)
-          Gitlab::Database::BatchCount.batch_count(relation, column, start: start, finish: finish)
-        else
-          relation.count
-        end
-      rescue ActiveRecord::StatementInvalid
-        FALLBACK
-      end
+      # rubocop: disable CodeReuse/ActiveRecord
+      def merge_requests_usage(time_period)
+        query =
+          Event
+            .where(target_type: Event::TARGET_TYPES[:merge_request].to_s)
+            .where(time_period)
 
-      def distinct_count(relation, column = nil, batch: true, start: nil, finish: nil)
-        if batch && Feature.enabled?(:usage_ping_batch_counter, default_enabled: true)
-          Gitlab::Database::BatchCount.batch_distinct_count(relation, column, start: start, finish: finish)
-        else
-          relation.distinct_count_by(column)
-        end
-      rescue ActiveRecord::StatementInvalid
-        FALLBACK
-      end
+        merge_request_users = distinct_count(
+          query,
+          :author_id,
+          batch_size: 5_000, # Based on query performance, this is the optimal batch size.
+          start: User.minimum(:id),
+          finish: User.maximum(:id)
+        )
 
-      def alt_usage_data(value = nil, fallback: FALLBACK, &block)
-        if block_given?
-          yield
-        else
-          value
-        end
-      rescue
-        fallback
+        {
+          merge_requests_users: merge_request_users
+        }
       end
-
-      def redis_usage_data(counter = nil, &block)
-        if block_given?
-          redis_usage_counter(&block)
-        elsif counter.present?
-          redis_usage_data_totals(counter)
-        end
-      end
-
-      private
-
-      def redis_usage_counter
-        yield
-      rescue ::Redis::CommandError, Gitlab::UsageDataCounters::BaseCounter::UnknownEvent
-        FALLBACK
-      end
-
-      def redis_usage_data_totals(counter)
-        counter.totals
-      rescue ::Redis::CommandError, Gitlab::UsageDataCounters::BaseCounter::UnknownEvent
-        counter.fallback_totals
-      end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def installation_type
         if Rails.env.production?
@@ -433,6 +426,39 @@ module Gitlab
         else
           "gitlab-development-kit"
         end
+      end
+
+      def default_time_period
+        { created_at: 28.days.ago..Time.current }
+      end
+
+      private
+
+      def total_alert_issues
+        # Remove prometheus table queries once they are deprecated
+        # To be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/217407.
+        [
+          count(Issue.with_alert_management_alerts),
+          count(::Issue.with_self_managed_prometheus_alert_events),
+          count(::Issue.with_prometheus_alert_events)
+        ].reduce(:+)
+      end
+
+      def user_minimum_id
+        strong_memoize(:user_minimum_id) do
+          ::User.minimum(:id)
+        end
+      end
+
+      def user_maximum_id
+        strong_memoize(:user_maximum_id) do
+          ::User.maximum(:id)
+        end
+      end
+
+      def clear_memoized_limits
+        clear_memoization(:user_minimum_id)
+        clear_memoization(:user_maximum_id)
       end
     end
   end

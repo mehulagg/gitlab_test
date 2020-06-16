@@ -20,8 +20,6 @@ module EE
     LICENSE_PLANS_TO_NAMESPACE_PLANS = NAMESPACE_PLANS_TO_LICENSE_PLANS.invert.freeze
     PLANS = (NAMESPACE_PLANS_TO_LICENSE_PLANS.keys + [Plan::FREE]).freeze
 
-    CI_USAGE_ALERT_LEVELS = [30, 5].freeze
-
     prepended do
       include EachBatch
 
@@ -54,6 +52,8 @@ module EE
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         :extra_shared_runners_minutes, to: :namespace_statistics, allow_nil: true
+
+      delegate :email, to: :owner, allow_nil: true, prefix: true
 
       # Opportunistically clear the +file_template_project_id+ if invalid
       before_validation :clear_file_template_project_id
@@ -111,8 +111,7 @@ module EE
     #   it. This is the case when we're ready to enable a feature for anyone
     #   with the correct license.
     def beta_feature_available?(feature)
-      ::Feature.enabled?(feature, self) ||
-        (::Feature.enabled?(feature) && feature_available?(feature))
+      ::Feature.enabled?(feature) ? feature_available?(feature) : ::Feature.enabled?(feature, self)
     end
     alias_method :alpha_feature_available?, :beta_feature_available?
 
@@ -154,7 +153,17 @@ module EE
           subscription = find_or_create_subscription
           subscription&.hosted_plan
         end
-      end || super
+      end || fallback_plan
+    end
+
+    def closest_gitlab_subscription
+      strong_memoize(:closest_gitlab_subscription) do
+        if parent_id
+          root_ancestor.gitlab_subscription
+        else
+          gitlab_subscription
+        end
+      end
     end
 
     def plan_name_for_upgrading
@@ -171,6 +180,10 @@ module EE
       if parent&.membership_lock?
         self.membership_lock = true
       end
+    end
+
+    def ci_minutes_quota
+      @ci_minutes_quota ||= ::Ci::Minutes::Quota.new(self)
     end
 
     def shared_runner_minutes_supported?
@@ -281,6 +294,7 @@ module EE
 
     def store_security_reports_available?
       feature_available?(:sast) ||
+      feature_available?(:secret_detection) ||
       feature_available?(:dependency_scanning) ||
       feature_available?(:container_scanning) ||
       feature_available?(:dast)
@@ -311,6 +325,14 @@ module EE
     end
 
     private
+
+    def fallback_plan
+      if ::Gitlab.com?
+        ::Plan.free
+      else
+        ::Plan.default
+      end
+    end
 
     def validate_shared_runner_minutes_support
       return if shared_runner_minutes_supported?

@@ -80,12 +80,16 @@ RSpec.shared_context 'project navbar structure' do
         nav_sub_items: []
       },
       {
+        nav_item: _('Members'),
+        nav_sub_items: []
+      },
+      {
         nav_item: _('Settings'),
         nav_sub_items: [
           _('General'),
-          _('Members'),
           _('Integrations'),
           _('Webhooks'),
+          _('Access Tokens'),
           _('Repository'),
           _('CI / CD'),
           _('Operations'),

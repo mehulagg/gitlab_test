@@ -25,7 +25,7 @@ describe Group do
     it { is_expected.to have_many(:clusters).class_name('Clusters::Cluster') }
     it { is_expected.to have_many(:container_repositories) }
     it { is_expected.to have_many(:milestones) }
-    it { is_expected.to have_many(:sprints) }
+    it { is_expected.to have_many(:iterations) }
 
     describe '#members & #requesters' do
       let(:requester) { create(:user) }
@@ -109,6 +109,11 @@ describe Group do
 
       let(:group_notification_email) { 'user+group@example.com' }
       let(:subgroup_notification_email) { 'user+subgroup@example.com' }
+
+      before do
+        create(:email, :confirmed, user: user, email: group_notification_email)
+        create(:email, :confirmed, user: user, email: subgroup_notification_email)
+      end
 
       subject { subgroup.notification_email_for(user) }
 
@@ -657,6 +662,55 @@ describe Group do
       expect(group.members_with_parents).to include(developer)
       expect(group.members_with_parents).to include(maintainer)
     end
+
+    context 'group sharing' do
+      let!(:shared_group) { create(:group) }
+
+      before do
+        create(:group_group_link, shared_group: shared_group, shared_with_group: group)
+      end
+
+      it 'returns shared with group members' do
+        expect(shared_group.members_with_parents).to(
+          include(developer))
+      end
+    end
+  end
+
+  describe '#members_from_self_and_ancestors_with_effective_access_level' do
+    let!(:group_parent) { create(:group, :private) }
+    let!(:group) { create(:group, :private, parent: group_parent) }
+    let!(:group_child) { create(:group, :private, parent: group) }
+
+    let!(:user) { create(:user) }
+
+    let(:parent_group_access_level) { Gitlab::Access::REPORTER }
+    let(:group_access_level) { Gitlab::Access::DEVELOPER }
+    let(:child_group_access_level) { Gitlab::Access::MAINTAINER }
+
+    before do
+      create(:group_member, user: user, group: group_parent, access_level: parent_group_access_level)
+      create(:group_member, user: user, group: group, access_level: group_access_level)
+      create(:group_member, user: user, group: group_child, access_level: child_group_access_level)
+    end
+
+    it 'returns effective access level for user' do
+      expect(group_parent.members_from_self_and_ancestors_with_effective_access_level.as_json).to(
+        contain_exactly(
+          hash_including('user_id' => user.id, 'access_level' => parent_group_access_level)
+        )
+      )
+      expect(group.members_from_self_and_ancestors_with_effective_access_level.as_json).to(
+        contain_exactly(
+          hash_including('user_id' => user.id, 'access_level' => group_access_level)
+        )
+      )
+      expect(group_child.members_from_self_and_ancestors_with_effective_access_level.as_json).to(
+        contain_exactly(
+          hash_including('user_id' => user.id, 'access_level' => child_group_access_level)
+        )
+      )
+    end
   end
 
   describe '#direct_and_indirect_members' do
@@ -758,6 +812,22 @@ describe Group do
 
       expect(group.user_ids_for_project_authorizations)
         .to include(maintainer.id, developer.id)
+    end
+
+    context 'group sharing' do
+      let_it_be(:group) { create(:group) }
+      let_it_be(:group_user) { create(:user) }
+      let_it_be(:shared_group) { create(:group) }
+
+      before do
+        group.add_developer(group_user)
+        create(:group_group_link, shared_group: shared_group, shared_with_group: group)
+      end
+
+      it 'returns the user IDs for shared with group members' do
+        expect(shared_group.user_ids_for_project_authorizations).to(
+          include(group_user.id))
+      end
     end
   end
 

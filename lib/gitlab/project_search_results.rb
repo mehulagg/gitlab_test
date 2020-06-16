@@ -11,16 +11,16 @@ module Gitlab
       @query = query
     end
 
-    def objects(scope, page: nil, per_page: DEFAULT_PER_PAGE)
+    def objects(scope, page: nil, per_page: DEFAULT_PER_PAGE, preload_method: nil)
       case scope
       when 'notes'
         notes.page(page).per(per_page)
       when 'blobs'
         paginated_blobs(blobs(limit: limit_up_to_page(page, per_page)), page, per_page)
       when 'wiki_blobs'
-        paginated_blobs(wiki_blobs(limit: limit_up_to_page(page, per_page)), page, per_page)
+        paginated_wiki_blobs(wiki_blobs(limit: limit_up_to_page(page, per_page)), page, per_page)
       when 'commits'
-        Kaminari.paginate_array(commits).page(page).per(per_page)
+        paginated_commits(page, per_page)
       when 'users'
         users.page(page).per(per_page)
       else
@@ -37,7 +37,7 @@ module Gitlab
       when 'wiki_blobs'
         wiki_blobs_count.to_s
       when 'commits'
-        commits_count.to_s
+        formatted_limited_count(commits_count)
       else
         super
       end
@@ -72,7 +72,7 @@ module Gitlab
     end
 
     def commits_count
-      @commits_count ||= commits.count
+      @commits_count ||= commits(limit: count_limit).count
     end
 
     def single_commit_result?
@@ -86,12 +86,25 @@ module Gitlab
 
     private
 
+    def paginated_commits(page, per_page)
+      results = commits(limit: limit_up_to_page(page, per_page))
+
+      Kaminari.paginate_array(results).page(page).per(per_page)
+    end
+
     def paginated_blobs(blobs, page, per_page)
       results = Kaminari.paginate_array(blobs).page(page).per(per_page)
 
       Gitlab::Search::FoundBlob.preload_blobs(results)
 
       results
+    end
+
+    def paginated_wiki_blobs(blobs, page, per_page)
+      blob_array = paginated_blobs(blobs, page, per_page)
+      blob_array.map! do |blob|
+        Gitlab::Search::FoundWikiPage.new(blob)
+      end
     end
 
     def limit_up_to_page(page, per_page)
@@ -132,21 +145,21 @@ module Gitlab
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
-    def commits
-      @commits ||= find_commits(query)
+    def commits(limit:)
+      @commits ||= find_commits(query, limit: limit)
     end
 
-    def find_commits(query)
+    def find_commits(query, limit:)
       return [] unless Ability.allowed?(@current_user, :download_code, @project)
 
-      commits = find_commits_by_message(query)
+      commits = find_commits_by_message(query, limit: limit)
       commit_by_sha = find_commit_by_sha(query)
       commits |= [commit_by_sha] if commit_by_sha
       commits
     end
 
-    def find_commits_by_message(query)
-      project.repository.find_commits_by_message(query)
+    def find_commits_by_message(query, limit:)
+      project.repository.find_commits_by_message(query, repository_project_ref, nil, limit)
     end
 
     def find_commit_by_sha(query)

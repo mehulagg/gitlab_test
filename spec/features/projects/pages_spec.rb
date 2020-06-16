@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-shared_examples 'pages settings editing' do
+RSpec.shared_examples 'pages settings editing' do
   let_it_be(:project) { create(:project, pages_https_only: false) }
   let(:user) { create(:user) }
   let(:role) { :maintainer }
@@ -156,6 +156,17 @@ shared_examples 'pages settings editing' do
           click_button 'Create New Domain'
 
           expect(page).to have_content('my.test.domain.com')
+        end
+
+        it 'shows validation error if domain is duplicated' do
+          project.pages_domains.create!(domain: 'my.test.domain.com')
+
+          visit new_project_pages_domain_path(project)
+
+          fill_in 'Domain', with: 'my.test.domain.com'
+          click_button 'Create New Domain'
+
+          expect(page).to have_content('Domain has already been taken')
         end
 
         describe 'with dns verification enabled' do
@@ -383,7 +394,7 @@ shared_examples 'pages settings editing' do
   end
 end
 
-describe 'Pages', :js do
+RSpec.describe 'Pages', :js do
   include LetsEncryptHelpers
 
   context 'when editing normally' do

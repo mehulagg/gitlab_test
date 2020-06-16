@@ -50,22 +50,18 @@ exports[`Design note component should match the snapshot 1`] = `
       </span>
     </div>
      
-    <button
-      class="note-action-button js-note-edit btn btn-transparent qa-note-edit-button"
-      title="Edit comment"
-      type="button"
+    <div
+      class="gl-display-flex"
     >
-      <gl-icon-stub
-        class="link-highlight"
-        name="pencil"
-        size="16"
-      />
-    </button>
+       
+      <!---->
+    </div>
   </div>
    
   <div
     class="note-text js-note-text md"
     data-qa-selector="note_content"
   />
+   
 </timeline-entry-item-stub>
 `;

@@ -5,11 +5,15 @@ import EditForm from '~/sidebar/components/confidential/edit_form.vue';
 import SidebarService from '~/sidebar/services/sidebar_service';
 import createFlash from '~/flash';
 import RecaptchaModal from '~/vue_shared/components/recaptcha_modal.vue';
+import createStore from '~/notes/stores';
+import { useMockLocationHelper } from 'helpers/mock_window_location_helper';
 
 jest.mock('~/flash');
 jest.mock('~/sidebar/services/sidebar_service');
 
 describe('Confidential Issue Sidebar Block', () => {
+  useMockLocationHelper();
+
   let wrapper;
 
   const findRecaptchaModal = () => wrapper.find(RecaptchaModal);
@@ -31,8 +35,10 @@ describe('Confidential Issue Sidebar Block', () => {
   };
 
   const createComponent = propsData => {
+    const store = createStore();
     const service = new SidebarService();
     wrapper = shallowMount(ConfidentialIssueSidebar, {
+      store,
       propsData: {
         service,
         ...propsData,
@@ -40,38 +46,36 @@ describe('Confidential Issue Sidebar Block', () => {
     });
   };
 
-  beforeEach(() => {
-    jest.spyOn(window.location, 'reload').mockImplementation();
-  });
-
   afterEach(() => {
     wrapper.destroy();
   });
 
   it.each`
-    isConfidential | isEditable
-    ${false}       | ${false}
-    ${false}       | ${true}
-    ${true}        | ${false}
-    ${true}        | ${true}
+    confidential | isEditable
+    ${false}     | ${false}
+    ${false}     | ${true}
+    ${true}      | ${false}
+    ${true}      | ${true}
   `(
-    'renders for isConfidential = $isConfidential and isEditable = $isEditable',
-    ({ isConfidential, isEditable }) => {
+    'renders for confidential = $confidential and isEditable = $isEditable',
+    ({ confidential, isEditable }) => {
       createComponent({
-        isConfidential,
         isEditable,
       });
+      wrapper.vm.$store.state.noteableData.confidential = confidential;
 
-      expect(wrapper.element).toMatchSnapshot();
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.element).toMatchSnapshot();
+      });
     },
   );
 
   describe('if editable', () => {
     beforeEach(() => {
       createComponent({
-        isConfidential: true,
         isEditable: true,
       });
+      wrapper.vm.$store.state.noteableData.confidential = true;
     });
 
     it('displays the edit form when editable', () => {

@@ -1,8 +1,8 @@
 <script>
-import Vue from 'vue';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
+import { modalTypes } from '../constants';
 import FindFile from '~/vue_shared/components/file_finder/index.vue';
 import NewModal from './new_dropdown/modal.vue';
 import IdeSidebar from './ide_side_bar.vue';
@@ -26,20 +26,13 @@ export default {
     CommitEditorHeader,
     GlDeprecatedButton,
     GlLoadingIcon,
+    RightPane,
   },
   mixins: [glFeatureFlagsMixin()],
-  props: {
-    rightPaneComponent: {
-      type: Vue.Component,
-      required: false,
-      default: () => RightPane,
-    },
-  },
   computed: {
     ...mapState([
       'openFiles',
       'viewer',
-      'currentMergeRequestId',
       'fileFindVisible',
       'emptyStateSvgPath',
       'currentProjectId',
@@ -48,7 +41,6 @@ export default {
     ]),
     ...mapGetters([
       'activeFile',
-      'hasChanges',
       'someUncommittedChanges',
       'isCommitModeActive',
       'allBlobs',
@@ -67,7 +59,7 @@ export default {
       document.querySelector('.navbar-gitlab').classList.add(`theme-${this.themeName}`);
   },
   methods: {
-    ...mapActions(['toggleFileFinder', 'openNewEntryModal']),
+    ...mapActions(['toggleFileFinder']),
     onBeforeUnload(e = {}) {
       const returnValue = __('Are you sure you want to lose unsaved changes?');
 
@@ -80,6 +72,9 @@ export default {
     },
     openFile(file) {
       this.$router.push(`/project${file.url}`);
+    },
+    createNewFile() {
+      this.$refs.newModal.open(modalTypes.blob);
     },
   },
 };
@@ -104,14 +99,7 @@ export default {
       <div class="multi-file-edit-pane">
         <template v-if="activeFile">
           <commit-editor-header v-if="isCommitModeActive" :active-file="activeFile" />
-          <repo-tabs
-            v-else
-            :active-file="activeFile"
-            :files="openFiles"
-            :viewer="viewer"
-            :has-changes="hasChanges"
-            :merge-request-id="currentMergeRequestId"
-          />
+          <repo-tabs v-else :active-file="activeFile" :files="openFiles" :viewer="viewer" />
           <repo-editor :file="activeFile" class="multi-file-edit-pane-content" />
         </template>
         <template v-else>
@@ -137,7 +125,8 @@ export default {
                       variant="success"
                       :title="__('New file')"
                       :aria-label="__('New file')"
-                      @click="openNewEntryModal({ type: 'blob' })"
+                      data-qa-selector="first_file_button"
+                      @click="createNewFile()"
                     >
                       {{ __('New file') }}
                     </gl-deprecated-button>
@@ -156,9 +145,9 @@ export default {
           </div>
         </template>
       </div>
-      <component :is="rightPaneComponent" v-if="currentProjectId" />
+      <right-pane v-if="currentProjectId" />
     </div>
     <ide-status-bar />
-    <new-modal />
+    <new-modal ref="newModal" />
   </article>
 </template>

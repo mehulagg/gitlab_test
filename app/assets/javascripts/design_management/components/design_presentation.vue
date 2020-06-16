@@ -35,6 +35,10 @@ export default {
       required: false,
       default: 1,
     },
+    resolvedDiscussionsExpanded: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -54,7 +58,10 @@ export default {
   },
   computed: {
     discussionStartingNotes() {
-      return this.discussions.map(discussion => discussion.notes[0]);
+      return this.discussions.map(discussion => ({
+        ...discussion.notes[0],
+        index: discussion.index,
+      }));
     },
     currentCommentForm() {
       return (this.isAnnotating && this.currentAnnotationPosition) || null;
@@ -211,6 +218,10 @@ export default {
       this.currentAnnotationPosition = this.getAnnotationPositon(coordinates);
       this.$emit('openCommentForm', this.currentAnnotationPosition);
     },
+    closeCommentForm() {
+      this.currentAnnotationPosition = null;
+      this.$emit('closeCommentForm');
+    },
     moveNote({ noteId, discussionId, coordinates }) {
       const position = this.getAnnotationPositon(coordinates);
       this.$emit('moveNote', { noteId, discussionId, position });
@@ -301,7 +312,9 @@ export default {
         :notes="discussionStartingNotes"
         :current-comment-form="currentCommentForm"
         :disable-commenting="isDraggingDesign"
+        :resolved-discussions-expanded="resolvedDiscussionsExpanded"
         @openCommentForm="openCommentForm"
+        @closeCommentForm="closeCommentForm"
         @moveNote="moveNote"
       />
     </div>

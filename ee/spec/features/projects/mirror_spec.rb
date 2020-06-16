@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Project mirror', :js do
+RSpec.describe 'Project mirror', :js do
   include ReactiveCachingHelpers
 
   let(:project) { create(:project, :repository, creator: user, name: 'Victorialand') }
@@ -13,6 +13,34 @@ describe 'Project mirror', :js do
     before do
       project.add_maintainer(user)
       sign_in user
+    end
+
+    context 'when mirror was updated successfully' do
+      before do
+        import_state.update(last_successful_update_at: 5.minutes.ago)
+      end
+
+      it 'shows the last successful at timestamp' do
+        visit project_mirror_path(project)
+
+        page.within('.js-mirrors-table-body tr:nth-child(1) td:nth-child(4)') do
+          expect(page).to have_content('5 minutes ago')
+        end
+      end
+    end
+
+    context 'when mirror was never updated successfully' do
+      before do
+        import_state.update(last_successful_update_at: nil)
+      end
+
+      it 'shows that mirror has never been updated' do
+        visit project_mirror_path(project)
+
+        page.within('.js-mirrors-table-body tr:nth-child(1) td:nth-child(4)') do
+          expect(page).to have_content('Never')
+        end
+      end
     end
 
     context 'with Update now button' do

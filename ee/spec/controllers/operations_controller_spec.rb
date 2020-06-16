@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe OperationsController do
+RSpec.describe OperationsController do
   include Rails.application.routes.url_helpers
 
   let(:user) { create(:user) }
@@ -73,7 +73,7 @@ describe OperationsController do
   end
 
   describe 'GET #list' do
-    let(:now) { Time.now.change(usec: 0) }
+    let(:now) { Time.current.change(usec: 0) }
     let(:project) { create(:project, :repository) }
     let(:commit) { project.commit }
     let!(:environment) { create(:environment, name: 'production', project: project) }

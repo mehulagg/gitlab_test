@@ -10,6 +10,7 @@ describe GitlabSchema.types['AlertManagementAlert'] do
   it 'exposes the expected fields' do
     expected_fields = %i[
       iid
+      issue_iid
       title
       description
       severity
@@ -23,6 +24,9 @@ describe GitlabSchema.types['AlertManagementAlert'] do
       details
       created_at
       updated_at
+      assignees
+      notes
+      discussions
     ]
 
     expect(described_class).to have_graphql_fields(*expected_fields)

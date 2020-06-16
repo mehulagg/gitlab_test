@@ -1,5 +1,8 @@
 ---
 disqus_identifier: 'https://docs.gitlab.com/ee/workflow/todos.html'
+stage: Plan
+group: Project Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # GitLab To-Do List
@@ -38,7 +41,7 @@ A To Do appears on your To-Do List when:
   - Epic **(ULTIMATE)**
 - You are `@mentioned` in a comment on a:
   - Commit
-  - Design **(PREMIUM)**
+  - Design
 - A job in the CI pipeline running for your merge request failed, but this
   job is not allowed to fail
 - An open merge request becomes unmergeable due to conflict, and you are either:

@@ -1364,13 +1364,31 @@ module Gitlab
 
           expect { described_class.new(config) }.to raise_error(described_class::ValidationError)
         end
+
+        it 'populates a build options with complete artifacts configuration' do
+          stub_feature_flags(ci_artifacts_exclude: true)
+
+          config = <<~YAML
+            test:
+              script: echo "Hello World"
+              artifacts:
+                paths:
+                  - my/test
+                exclude:
+                  - my/test/something
+          YAML
+
+          attributes = Gitlab::Ci::YamlProcessor.new(config).build_attributes('test')
+
+          expect(attributes.dig(*%i[options artifacts exclude])).to eq(%w[my/test/something])
+        end
       end
 
       describe "release" do
         let(:processor) { Gitlab::Ci::YamlProcessor.new(YAML.dump(config)) }
         let(:config) do
           {
-            stages: ["build", "test", "release"], # rubocop:disable Style/WordArray
+            stages: %w[build test release],
             release: {
               stage: "release",
               only: ["tags"],

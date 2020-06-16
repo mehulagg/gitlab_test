@@ -24,12 +24,7 @@ exports[`Clone Dropdown Button rendering matches the snapshot 1`] = `
         <b-input-group-stub
           tag="div"
         >
-          <b-input-group-prepend-stub
-            tag="div"
-          >
-             
-            <!---->
-          </b-input-group-prepend-stub>
+          <!---->
            
           <b-form-input-stub
             class="gl-form-input"
@@ -46,6 +41,7 @@ exports[`Clone Dropdown Button rendering matches the snapshot 1`] = `
               category="tertiary"
               class="d-inline-flex"
               data-clipboard-text="ssh://foo.bar"
+              data-qa-selector="copy_ssh_url_button"
               icon="copy-to-clipboard"
               size="medium"
               title="Copy URL"
@@ -69,12 +65,7 @@ exports[`Clone Dropdown Button rendering matches the snapshot 1`] = `
         <b-input-group-stub
           tag="div"
         >
-          <b-input-group-prepend-stub
-            tag="div"
-          >
-             
-            <!---->
-          </b-input-group-prepend-stub>
+          <!---->
            
           <b-form-input-stub
             class="gl-form-input"
@@ -91,6 +82,7 @@ exports[`Clone Dropdown Button rendering matches the snapshot 1`] = `
               category="tertiary"
               class="d-inline-flex"
               data-clipboard-text="http://foo.bar"
+              data-qa-selector="copy_http_url_button"
               icon="copy-to-clipboard"
               size="medium"
               title="Copy URL"

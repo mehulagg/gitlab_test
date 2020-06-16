@@ -45,12 +45,19 @@ Rails.application.routes.draw do
   use_doorkeeper_openid_connect
 
   # Sign up
-  get 'users/sign_up/welcome' => 'registrations#welcome'
-  patch 'users/sign_up/update_registration' => 'registrations#update_registration'
+  scope path: '/users/sign_up', module: :registrations, as: :users_sign_up do
+    get :welcome
+    patch :update_registration
+    resource :experience_level, only: [:show, :update]
+
+    Gitlab.ee do
+      resources :groups, only: [:new, :create]
+      resources :projects, only: [:new, :create]
+    end
+  end
 
   # Search
   get 'search' => 'search#show'
-  get 'search/autocomplete' => 'search#autocomplete', as: :search_autocomplete
   get 'search/count' => 'search#count', as: :search_count
 
   # JSON Web Token
@@ -129,6 +136,9 @@ Rails.application.routes.draw do
       scope '/push_from_secondary/:geo_node_id' do
         draw :git_http
       end
+
+      # Used for survey responses
+      resources :survey_responses, only: :index
     end
 
     if ENV['GITLAB_CHAOS_SECRET'] || Rails.env.development? || Rails.env.test?

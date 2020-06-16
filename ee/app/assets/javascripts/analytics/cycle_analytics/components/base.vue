@@ -14,8 +14,12 @@ import TypeOfWorkCharts from './type_of_work_charts.vue';
 import UrlSyncMixin from '../../shared/mixins/url_sync_mixin';
 import { toYmd } from '../../shared/utils';
 import RecentActivityCard from './recent_activity_card.vue';
+import TimeMetricsCard from './time_metrics_card.vue';
 import StageTableNav from './stage_table_nav.vue';
 import CustomStageForm from './custom_stage_form.vue';
+import PathNavigation from './path_navigation.vue';
+import MetricCard from '../../shared/components/metric_card.vue';
+import FilterBar from './filter_bar.vue';
 
 export default {
   name: 'CycleAnalytics',
@@ -29,8 +33,12 @@ export default {
     StageTable,
     TypeOfWorkCharts,
     RecentActivityCard,
+    TimeMetricsCard,
     CustomStageForm,
     StageTableNav,
+    PathNavigation,
+    MetricCard,
+    FilterBar,
   },
   mixins: [glFeatureFlagsMixin(), UrlSyncMixin],
   props: {
@@ -50,6 +58,14 @@ export default {
       type: Boolean,
       required: true,
     },
+    milestonesPath: {
+      type: String,
+      required: true,
+    },
+    labelsPath: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
     ...mapState([
@@ -57,23 +73,20 @@ export default {
       'isLoading',
       'isLoadingStage',
       'isEmptyStage',
-      'isSavingCustomStage',
-      'isCreatingCustomStage',
-      'isEditingCustomStage',
       'selectedGroup',
       'selectedProjects',
       'selectedStage',
       'stages',
       'summary',
       'currentStageEvents',
-      'customStageFormEvents',
       'errorCode',
       'startDate',
       'endDate',
       'medians',
-      'customStageFormErrors',
-      'customStageFormInitialData',
     ]),
+    // NOTE: formEvents are fetched in the same request as the list of stages (fetchGroupStagesAndEvents)
+    // so i think its ok to bind formEvents here even though its only used as a prop to the custom-stage-form
+    ...mapState('customStages', ['isCreatingCustomStage', 'formEvents']),
     ...mapGetters([
       'hasNoAccessError',
       'currentGroupPath',
@@ -81,13 +94,11 @@ export default {
       'selectedProjectIds',
       'enableCustomOrdering',
       'cycleAnalyticsRequestParams',
-      'customStageFormActive',
+      'pathNavigationData',
     ]),
+    ...mapGetters('customStages', ['customStageFormActive']),
     shouldRenderEmptyState() {
       return !this.selectedGroup;
-    },
-    hasCustomizableCycleAnalytics() {
-      return Boolean(this.glFeatures.customizableCycleAnalytics);
     },
     shouldDisplayFilters() {
       return this.selectedGroup && !this.errorCode;
@@ -96,7 +107,10 @@ export default {
       return this.featureFlags.hasDurationChart && !this.hasNoAccessError && !this.isLoading;
     },
     shouldDisplayTypeOfWorkCharts() {
-      return this.featureFlags.hasTasksByTypeChart && !this.hasNoAccessError && !this.isLoading;
+      return !this.hasNoAccessError && !this.isLoading;
+    },
+    shouldDsiplayPathNavigation() {
+      return this.featureFlags.hasPathNavigation && !this.hasNoAccessError;
     },
     isLoadingTypeOfWork() {
       return this.isLoadingTasksByTypeChartTopLabels || this.isLoadingTasksByTypeChart;
@@ -115,13 +129,30 @@ export default {
     stageCount() {
       return this.activeStages.length;
     },
+    hasProject() {
+      return this.selectedProjectIds.length > 0;
+    },
   },
   mounted() {
+    const {
+      labelsPath,
+      milestonesPath,
+      glFeatures: {
+        cycleAnalyticsScatterplotEnabled: hasDurationChart,
+        cycleAnalyticsScatterplotMedianEnabled: hasDurationChartMedian,
+        valueStreamAnalyticsPathNavigation: hasPathNavigation,
+        valueStreamAnalyticsFilterBar: hasFilterBar,
+      },
+    } = this;
+
     this.setFeatureFlags({
-      hasDurationChart: this.glFeatures.cycleAnalyticsScatterplotEnabled,
-      hasDurationChartMedian: this.glFeatures.cycleAnalyticsScatterplotMedianEnabled,
-      hasTasksByTypeChart: this.glFeatures.tasksByTypeChart,
+      hasDurationChart,
+      hasDurationChartMedian,
+      hasPathNavigation,
+      hasFilterBar,
     });
+
+    this.setPaths({ labelsPath, milestonesPath });
   },
   methods: {
     ...mapActions([
@@ -130,18 +161,21 @@ export default {
       'setSelectedGroup',
       'setSelectedProjects',
       'setSelectedStage',
-      'hideCustomStageForm',
-      'showCustomStageForm',
-      'showEditCustomStageForm',
       'setDateRange',
-      'createCustomStage',
       'updateStage',
       'removeStage',
       'setFeatureFlags',
-      'clearCustomStageFormErrors',
       'updateStage',
       'reorderStage',
     ]),
+    ...mapActions('customStages', [
+      'hideForm',
+      'showCreateForm',
+      'showEditForm',
+      'createStage',
+      'clearFormErrors',
+    ]),
+    ...mapActions('filters', ['setPaths']),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
       this.fetchCycleAnalyticsData();
@@ -151,18 +185,19 @@ export default {
       this.fetchCycleAnalyticsData();
     },
     onStageSelect(stage) {
-      this.hideCustomStageForm();
+      this.hideForm();
       this.setSelectedStage(stage);
       this.fetchStageData(this.selectedStage.slug);
     },
     onShowAddStageForm() {
-      this.showCustomStageForm();
+      this.showCreateForm();
     },
     onShowEditStageForm(initData = {}) {
-      this.showEditCustomStageForm(initData);
+      this.setSelectedStage(initData);
+      this.showEditForm(initData);
     },
     onCreateCustomStage(data) {
-      this.createCustomStage(data);
+      this.createStage(data);
     },
     onUpdateCustomStage(data) {
       this.updateStage(data);
@@ -187,6 +222,7 @@ export default {
   },
   maxDateRange: DATE_RANGE_LIMIT,
   STAGE_ACTIONS,
+  commonFilterClasses: ['gl-display-flex gl-flex-direction-column gl-md-flex-direction-row'],
 };
 </script>
 <template>
@@ -195,38 +231,56 @@ export default {
       <h3>{{ __('Value Stream Analytics') }}</h3>
     </div>
     <div class="mw-100">
-      <div
-        class="mt-3 py-2 px-3 d-flex bg-gray-light border-top border-bottom flex-column flex-md-row justify-content-between"
-      >
-        <groups-dropdown-filter
-          v-if="!hideGroupDropDown"
-          class="js-groups-dropdown-filter dropdown-select"
-          :query-params="$options.groupsQueryParams"
-          :default-group="selectedGroup"
-          @selected="onGroupSelect"
-        />
-        <projects-dropdown-filter
-          v-if="shouldDisplayFilters"
-          :key="selectedGroup.id"
-          class="js-projects-dropdown-filter ml-md-1 mt-1 mt-md-0 dropdown-select"
-          :group-id="selectedGroup.id"
-          :query-params="$options.projectsQueryParams"
-          :multi-select="$options.multiProjectSelect"
-          :default-projects="selectedProjects"
-          @selected="onProjectsSelect"
-        />
-        <div
-          v-if="shouldDisplayFilters"
-          class="ml-0 ml-md-auto mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end"
-        >
-          <date-range
-            :start-date="startDate"
-            :end-date="endDate"
-            :max-date-range="$options.maxDateRange"
-            :include-selected-date="true"
-            class="js-daterange-picker"
-            @change="setDateRange"
+      <div class="mt-3 py-2 px-3 bg-gray-light border-top border-bottom">
+        <div v-if="shouldDsiplayPathNavigation" class="w-100 pb-2">
+          <path-navigation
+            class="js-path-navigation"
+            :loading="isLoading"
+            :stages="pathNavigationData"
+            :selected-stage="selectedStage"
+            @selected="onStageSelect"
           />
+        </div>
+        <div
+          :class="$options.commonFilterClasses"
+          class="gl-justify-content-space-between gl-align-items-center"
+        >
+          <groups-dropdown-filter
+            v-if="!hideGroupDropDown"
+            class="js-groups-dropdown-filter"
+            :query-params="$options.groupsQueryParams"
+            :default-group="selectedGroup"
+            @selected="onGroupSelect"
+          />
+          <projects-dropdown-filter
+            v-if="shouldDisplayFilters"
+            :key="selectedGroup.id"
+            class="js-projects-dropdown-filter gl-ml-0"
+            :group-id="selectedGroup.id"
+            :query-params="$options.projectsQueryParams"
+            :multi-select="$options.multiProjectSelect"
+            :default-projects="selectedProjects"
+            @selected="onProjectsSelect"
+          />
+          <filter-bar
+            v-if="featureFlags.hasFilterBar"
+            class="js-filter-bar filtered-search-box gl-display-flex gl-mt-3 mt-md-0 mx-2"
+            :disabled="!hasProject"
+          />
+          <div
+            v-if="shouldDisplayFilters"
+            :class="$options.commonFilterClasses"
+            class="gl-justify-content-end gl-white-space-nowrap"
+          >
+            <date-range
+              :start-date="startDate"
+              :end-date="endDate"
+              :max-date-range="$options.maxDateRange"
+              :include-selected-date="true"
+              class="js-daterange-picker"
+              @change="setDateRange"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -253,11 +307,22 @@ export default {
         "
       />
       <div v-else-if="!errorCode">
-        <div class="js-recent-activity mt-3">
-          <recent-activity-card
-            :group-path="currentGroupPath"
-            :additional-params="cycleAnalyticsRequestParams"
-          />
+        <div class="js-recent-activity gl-mt-3 gl-display-flex">
+          <div class="gl-flex-fill-1 gl-pr-2">
+            <time-metrics-card
+              #default="{ metrics, loading }"
+              :group-path="currentGroupPath"
+              :additional-params="cycleAnalyticsRequestParams"
+            >
+              <metric-card :title="__('Time')" :metrics="metrics" :is-loading="loading" />
+            </time-metrics-card>
+          </div>
+          <div class="gl-flex-fill-1 gl-pl-2">
+            <recent-activity-card
+              :group-path="currentGroupPath"
+              :additional-params="cycleAnalyticsRequestParams"
+            />
+          </div>
         </div>
         <div v-if="isLoading">
           <gl-loading-icon class="mt-4" size="md" />
@@ -280,8 +345,7 @@ export default {
                 :stages="activeStages"
                 :medians="medians"
                 :is-creating-custom-stage="isCreatingCustomStage"
-                :custom-stage-form-active="customStageFormActive"
-                :can-edit-stages="hasCustomizableCycleAnalytics"
+                :can-edit-stages="true"
                 :custom-ordering="enableCustomOrdering"
                 @reorderStage="onStageReorder"
                 @selectStage="onStageSelect"
@@ -293,14 +357,10 @@ export default {
             </template>
             <template v-if="customStageFormActive" #content>
               <custom-stage-form
-                :events="customStageFormEvents"
-                :is-saving-custom-stage="isSavingCustomStage"
-                :initial-fields="customStageFormInitialData"
-                :is-editing-custom-stage="isEditingCustomStage"
-                :errors="customStageFormErrors"
+                :events="formEvents"
                 @createStage="onCreateCustomStage"
                 @updateStage="onUpdateCustomStage"
-                @clearErrors="$emit('clearCustomStageFormErrors')"
+                @clearErrors="$emit('clearFormErrors')"
               />
             </template>
           </stage-table>

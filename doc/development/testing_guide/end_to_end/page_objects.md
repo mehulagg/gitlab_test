@@ -89,7 +89,7 @@ end
 
 ### Defining Elements
 
-The `view` DSL method will correspond to the rails View, partial, or vue component that renders the elements.
+The `view` DSL method will correspond to the rails View, partial, or Vue component that renders the elements.
 
 The `element` DSL method in turn declares an element for which a corresponding
 `data-qa-selector=element_name_snaked` data attribute will need to be added to the view file.
@@ -134,7 +134,7 @@ view 'app/views/my/view.html.haml' do
 end
 ```
 
-To add these elements to the view, you must change the rails View, partial, or vue component by adding a `data-qa-selector` attribute
+To add these elements to the view, you must change the rails View, partial, or Vue component by adding a `data-qa-selector` attribute
 for each element defined.
 
 In our case, `data-qa-selector="login_field"`, `data-qa-selector="password_field"` and `data-qa-selector="sign_in_button"`
@@ -149,7 +149,7 @@ In our case, `data-qa-selector="login_field"`, `data-qa-selector="password_field
 
 Things to note:
 
-- The name of the element and the qa_selector must match and be snake_cased
+- The name of the element and the `qa_selector` must match and be snake_cased
 - If the element appears on the page unconditionally, add `required: true` to the element. See
   [Dynamic element validation](dynamic_element_validation.md)
 - You may see `.qa-selector` classes in existing Page Objects. We should prefer the [`data-qa-selector`](#data-qa-selector-vs-qa-selector)
@@ -237,6 +237,53 @@ the view for code in a library.
 
 In such rare cases it's reasonable to use CSS selectors in page object methods,
 with a comment explaining why an `element` can't be added.
+
+### Define Page concerns
+
+Some pages share common behaviors, and/or are prepended with EE-specific modules that adds EE-specific methods.
+
+These modules must:
+
+1. Extend from the `QA::Page::PageConcern` module, with `extend QA::Page::PageConcern`.
+1. Override the `self.prepended` method if they need to `include`/`prepend` other modules themselves, and/or define
+  `view` or `elements`.
+1. Call `super` as the first thing in `self.prepended`.
+1. Include/prepend other modules and define their `view`/`elements` in a `base.class_eval` block to ensure they're
+   defined in the class that prepends the module.
+
+These steps ensure the sanity selectors check will detect problems properly.
+
+For example, `qa/qa/ee/page/merge_request/show.rb` adds EE-specific methods to `qa/qa/page/merge_request/show.rb` (with
+`QA::Page::MergeRequest::Show.prepend_if_ee('QA::EE::Page::MergeRequest::Show')`) and following is how it's implemented
+(only showing the relevant part and referring to the 4 steps described above with inline comments):
+
+```ruby
+module QA
+  module EE
+    module Page
+      module MergeRequest
+        module Show
+          extend QA::Page::PageConcern # 1.
+
+          def self.prepended(base) # 2.
+            super # 3.
+
+            base.class_eval do # 4.
+              prepend Page::Component::LicenseManagement
+
+              view 'app/assets/javascripts/vue_merge_request_widget/components/states/sha_mismatch.vue' do
+                element :head_mismatch, "The source branch HEAD has recently changed."
+              end
+
+              [...]
+            end
+          end
+        end
+      end
+    end
+  end
+end
+```
 
 ## Running the test locally
 

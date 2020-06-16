@@ -36,6 +36,7 @@ class License < ApplicationRecord
     repository_mirrors
     repository_size_limit
     seat_link
+    send_emails_from_admin_area
     service_desk
     scoped_issue_board
     usage_quotas
@@ -47,7 +48,6 @@ class License < ApplicationRecord
     adjourned_deletion_for_projects_and_groups
     admin_audit_log
     auditor_user
-    batch_comments
     blocking_merge_requests
     board_assignee_lists
     board_milestone_lists
@@ -75,6 +75,7 @@ class License < ApplicationRecord
     geo
     github_project_service_integration
     group_allowed_email_domains
+    group_ip_restriction
     group_project_templates
     group_saml
     issues_analytics
@@ -114,25 +115,25 @@ class License < ApplicationRecord
     dast
     dependency_scanning
     enterprise_templates
-    group_ip_restriction
     group_level_compliance_dashboard
     incident_management
     insights
     issuable_health_status
-    license_management
     license_scanning
     personal_access_token_expiration_policy
+    enforce_pat_expiration
     prometheus_alerts
     pseudonymizer
     report_approver_rules
     requirements
     sast
+    secret_detection
     security_dashboard
+    security_on_demand_scans
     status_page
     subepics
     threat_monitoring
     tracing
-    web_ide_terminal
   ]
   EEU_FEATURES.freeze
 
@@ -187,13 +188,6 @@ class License < ApplicationRecord
     'GitLab_ServiceDesk' => :service_desk
   }.freeze
 
-  # Features added here are available for all namespaces.
-  ANY_PLAN_FEATURES = %i[
-    ci_cd_projects
-    github_project_service_integration
-    repository_mirrors
-  ].freeze
-
   # Global features that cannot be restricted to only a subset of projects or namespaces.
   # Use `License.feature_available?(:feature)` to check if these features are available.
   # For all other features, use `project.feature_available?` or `namespace.feature_available?` when possible.
@@ -230,8 +224,10 @@ class License < ApplicationRecord
 
   after_create :reset_current
   after_destroy :reset_current
+  after_commit :reset_future_dated, on: [:create, :destroy]
 
   scope :recent, -> { reorder(id: :desc) }
+  scope :last_hundred, -> { recent.limit(100) }
 
   class << self
     def features_for_plan(plan)
@@ -267,11 +263,21 @@ class License < ApplicationRecord
     def load_license
       return unless self.table_exists?
 
-      license = self.last
+      self.last_hundred.find { |license| license.valid? && license.started? }
+    end
 
-      return unless license && license.valid?
+    def future_dated
+      Gitlab::SafeRequestStore.fetch(:future_dated_license) { load_future_dated }
+    end
 
-      license
+    def reset_future_dated
+      Gitlab::SafeRequestStore.delete(:future_dated_license)
+    end
+
+    def future_dated_only?
+      return false if current.present?
+
+      future_dated.present?
     end
 
     def global_feature?(feature)
@@ -287,13 +293,17 @@ class License < ApplicationRecord
     end
 
     def promo_feature_available?(feature)
-      return false unless ::Feature.enabled?(:free_period_for_pull_mirroring, default_enabled: true)
-
-      ANY_PLAN_FEATURES.include?(feature)
+      ::Feature.enabled?("promo_#{feature}", default_enabled: false)
     end
 
     def history
       all.sort_by { |license| [license.starts_at, license.created_at, license.expires_at] }.reverse
+    end
+
+    private
+
+    def load_future_dated
+      self.last_hundred.find { |license| license.valid? && license.future_dated? }
     end
   end
 
@@ -474,6 +484,10 @@ class License < ApplicationRecord
     starts_at <= Date.current
   end
 
+  def future_dated?
+    starts_at > Date.current
+  end
+
   private
 
   def restricted_attr(name, default = nil)
@@ -484,6 +498,10 @@ class License < ApplicationRecord
 
   def reset_current
     self.class.reset_current
+  end
+
+  def reset_future_dated
+    self.class.reset_future_dated
   end
 
   def reset_license

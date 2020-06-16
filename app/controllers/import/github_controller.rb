@@ -76,7 +76,7 @@ class Import::GithubController < Import::BaseController
 
   def serialized_provider_repos
     repos = client_repos.reject { |repo| already_added_project_names.include? repo.full_name }
-    ProviderRepoSerializer.new(current_user: current_user).represent(repos, provider: provider, provider_url: provider_url)
+    Import::ProviderRepoSerializer.new(current_user: current_user).represent(repos, provider: provider, provider_url: provider_url)
   end
 
   def serialized_namespaces
@@ -144,7 +144,7 @@ class Import::GithubController < Import::BaseController
   end
 
   def provider_rate_limit(exception)
-    reset_time = Time.at(exception.response_headers['x-ratelimit-reset'].to_i)
+    reset_time = Time.zone.at(exception.response_headers['x-ratelimit-reset'].to_i)
     session[access_token_key] = nil
     redirect_to new_import_url,
       alert: _("GitHub API rate limit exceeded. Try again after %{reset_time}") % { reset_time: reset_time }

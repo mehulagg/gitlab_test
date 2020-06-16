@@ -5,15 +5,20 @@ import { s__ } from '~/locale';
 import SecurityDashboardLayout from 'ee/security_dashboard/components/security_dashboard_layout.vue';
 import InstanceSecurityVulnerabilities from './first_class_instance_security_dashboard_vulnerabilities.vue';
 import VulnerabilitySeverity from 'ee/security_dashboard/components/vulnerability_severity.vue';
+import VulnerabilityChart from 'ee/security_dashboard/components/first_class_vulnerability_chart.vue';
 import Filters from 'ee/security_dashboard/components/first_class_vulnerability_filters.vue';
 import ProjectManager from './project_manager.vue';
+import CsvExportButton from './csv_export_button.vue';
+import vulnerabilityHistoryQuery from '../graphql/instance_vulnerability_history.graphql';
 
 export default {
   components: {
     ProjectManager,
+    CsvExportButton,
     SecurityDashboardLayout,
     InstanceSecurityVulnerabilities,
     VulnerabilitySeverity,
+    VulnerabilityChart,
     Filters,
     GlEmptyState,
     GlLoadingIcon,
@@ -41,11 +46,17 @@ export default {
       type: String,
       required: true,
     },
+    vulnerabilitiesExportEndpoint: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
       filters: {},
+      graphqlProjectList: [], // TODO: Rename me to projects once we back the project selector with GraphQL as well
       showProjectSelector: false,
+      vulnerabilityHistoryQuery,
     };
   },
   computed: {
@@ -63,7 +74,6 @@ export default {
     toggleButtonProps() {
       return this.showProjectSelector
         ? {
-            variant: 'success',
             text: s__('SecurityReports|Return to dashboard'),
           }
         : {
@@ -87,6 +97,9 @@ export default {
     toggleProjectSelector() {
       this.showProjectSelector = !this.showProjectSelector;
     },
+    handleProjectFetch(projects) {
+      this.graphqlProjectList = projects;
+    },
   },
 };
 </script>
@@ -95,15 +108,23 @@ export default {
   <security-dashboard-layout>
     <template #header>
       <header class="page-title-holder flex-fill d-flex align-items-center">
-        <h2 class="page-title">{{ s__('SecurityReports|Security Dashboard') }}</h2>
+        <h2 class="page-title flex-grow">{{ s__('SecurityReports|Security Dashboard') }}</h2>
+        <csv-export-button :vulnerabilities-export-endpoint="vulnerabilitiesExportEndpoint" />
         <gl-button
-          class="page-title-controls js-project-selector-toggle"
+          class="page-title-controls ml-2"
           :variant="toggleButtonProps.variant"
           @click="toggleProjectSelector"
           >{{ toggleButtonProps.text }}</gl-button
         >
       </header>
-      <filters v-if="shouldShowDashboard" @filterChange="handleFilterChange" />
+    </template>
+    <template #sticky>
+      <filters
+        v-if="shouldShowDashboard"
+        :projects="graphqlProjectList"
+        @filterChange="handleFilterChange"
+        @projectFetch="handleProjectFetch"
+      />
     </template>
     <instance-security-vulnerabilities
       v-if="shouldShowDashboard"
@@ -111,6 +132,7 @@ export default {
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
       :filters="filters"
+      @projectFetch="handleProjectFetch"
     />
     <gl-empty-state
       v-else-if="shouldShowEmptyState"
@@ -138,6 +160,11 @@ export default {
       <gl-loading-icon v-else size="lg" class="mt-4" />
     </div>
     <template #aside>
+      <vulnerability-chart
+        v-if="shouldShowDashboard"
+        :query="vulnerabilityHistoryQuery"
+        class="mb-4"
+      />
       <vulnerability-severity v-if="shouldShowDashboard" :endpoint="vulnerableProjectsEndpoint" />
     </template>
   </security-dashboard-layout>

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Issue Boards', :js do
+RSpec.describe 'Issue Boards', :js do
   include DragTo
   include MobileHelpers
 
@@ -135,6 +135,49 @@ describe 'Issue Boards', :js do
       expect(find('.board:nth-child(2)')).to have_selector('.board-card', count: 1)
       expect(find('.board:nth-child(3)')).to have_selector('.board-card', count: 0)
       expect(find('.board:nth-child(4)')).to have_selector('.board-card', count: 0)
+    end
+
+    context 'search list negation queries' do
+      context 'with the NOT queries feature flag disabled' do
+        before do
+          stub_feature_flags(not_issuable_queries: false)
+          visit project_board_path(project, board)
+        end
+
+        it 'does not have the != option' do
+          find('.filtered-search').set('label:')
+
+          wait_for_requests
+          within('#js-dropdown-operator') do
+            tokens = all(:css, 'li.filter-dropdown-item')
+            expect(tokens.count).to eq(1)
+            button = tokens[0].find('button')
+            expect(button).to have_content('=')
+            expect(button).not_to have_content('!=')
+          end
+        end
+      end
+
+      context 'with the NOT queries feature flag enabled' do
+        before do
+          stub_feature_flags(not_issuable_queries: true)
+          visit project_board_path(project, board)
+        end
+
+        it 'does not have the != option' do
+          find('.filtered-search').set('label:')
+
+          wait_for_requests
+          within('#js-dropdown-operator') do
+            tokens = all(:css, 'li.filter-dropdown-item')
+            expect(tokens.count).to eq(2)
+            button = tokens[0].find('button')
+            expect(button).to have_content('=')
+            button = tokens[1].find('button')
+            expect(button).to have_content('!=')
+          end
+        end
+      end
     end
 
     it 'allows user to delete board' do
@@ -546,6 +589,17 @@ describe 'Issue Boards', :js do
 
         wait_for_requests
       end
+    end
+  end
+
+  context 'issue board focus mode' do
+    before do
+      visit project_board_path(project, board)
+      wait_for_requests
+    end
+
+    it 'shows the button' do
+      expect(page).to have_link('Toggle focus mode')
     end
   end
 

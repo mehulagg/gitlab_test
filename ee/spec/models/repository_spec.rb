@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Repository do
+RSpec.describe Repository do
   include RepoHelpers
   include ::EE::GeoHelpers
   include GitHelpers
@@ -216,29 +216,6 @@ describe Repository do
       project = create(:project, :custom_repo, files: { Gitlab::Insights::CONFIG_FILE_PATH => "monthlyBugsCreated:\n  title: My chart" })
 
       expect(project.repository.insights_config_for(project.repository.root_ref)).to eq("monthlyBugsCreated:\n  title: My chart")
-    end
-  end
-
-  describe '#lfs_enabled? (design repositories)' do
-    let(:project) { create(:project, :design_repo, lfs_enabled: lfs_enabled) }
-    let(:repository) { project.design_repository }
-
-    before do
-      stub_lfs_setting(enabled: true)
-    end
-
-    subject { repository.lfs_enabled? }
-
-    context 'project has LFS disabled' do
-      let(:lfs_enabled) { false }
-
-      it { is_expected.to be_falsy }
-    end
-
-    context 'project has LFS enabled' do
-      let(:lfs_enabled) { true }
-
-      it { is_expected.to be_truthy }
     end
   end
 

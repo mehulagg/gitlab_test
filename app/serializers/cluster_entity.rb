@@ -7,12 +7,13 @@ class ClusterEntity < Grape::Entity
   expose :enabled
   expose :environment_scope
   expose :name
+  expose :nodes
+  expose :provider_type
   expose :status_name, as: :status
   expose :status_reason
+  expose :applications, using: ClusterApplicationEntity
 
   expose :path do |cluster|
     Clusters::ClusterPresenter.new(cluster).show_path # rubocop: disable CodeReuse/Presenter
   end
-
-  expose :applications, using: ClusterApplicationEntity
 end

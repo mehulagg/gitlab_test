@@ -6,7 +6,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
   FETCH_TAGS_LIST_ERROR_MESSAGE,
-} from '../constants';
+} from '../constants/index';
 import { decodeAndParse } from '../utils';
 
 export const setInitialState = ({ commit }, data) => commit(types.SET_INITIAL_STATE, data);
@@ -23,12 +23,15 @@ export const receiveTagsListSuccess = ({ commit }, { data, headers }) => {
   commit(types.SET_TAGS_PAGINATION, headers);
 };
 
-export const requestImagesList = ({ commit, dispatch, state }, pagination = {}) => {
+export const requestImagesList = (
+  { commit, dispatch, state },
+  { pagination = {}, name = null } = {},
+) => {
   commit(types.SET_MAIN_LOADING, true);
   const { page = DEFAULT_PAGE, perPage = DEFAULT_PAGE_SIZE } = pagination;
 
   return axios
-    .get(state.config.endpoint, { params: { page, per_page: perPage } })
+    .get(state.config.endpoint, { params: { page, per_page: perPage, name } })
     .then(({ data, headers }) => {
       dispatch('receiveImagesListSuccess', { data, headers });
     })

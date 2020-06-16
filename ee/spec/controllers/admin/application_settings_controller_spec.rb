@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Admin::ApplicationSettingsController do
+RSpec.describe Admin::ApplicationSettingsController do
   include StubENV
 
   let(:admin) { create(:admin) }
@@ -225,20 +225,11 @@ describe Admin::ApplicationSettingsController do
       end
     end
 
-    describe 'GET #geo_redirection' do
-      subject { get :geo_redirection }
+    it 'updates setting to enforce personal access token expiration' do
+      put :update, params: { application_setting: { enforce_pat_expiration: false } }
 
-      it 'redirects the user to the admin_geo_settings_url' do
-        subject
-
-        expect(response).to redirect_to(admin_geo_settings_url)
-      end
-
-      it 'fires a notice about the redirection' do
-        subject
-
-        expect(response).to set_flash[:notice]
-      end
+      expect(response).to redirect_to(general_admin_application_settings_path)
+      expect(ApplicationSetting.current.enforce_pat_expiration).to be_falsey
     end
   end
 
@@ -256,7 +247,7 @@ describe Admin::ApplicationSettingsController do
     end
 
     context 'when an admin user attempts a request' do
-      let_it_be(:yesterday) { Time.now.utc.yesterday.to_date }
+      let_it_be(:yesterday) { Time.current.utc.yesterday.to_date }
       let_it_be(:max_count) { 15 }
       let_it_be(:current_count) { 10 }
 

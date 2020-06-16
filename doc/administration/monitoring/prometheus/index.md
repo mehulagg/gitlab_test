@@ -84,7 +84,7 @@ To change the address/port that Prometheus listens on:
 1. Save the file and [reconfigure GitLab](../../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to
    take effect
 
-### Adding custom scrape configs
+### Adding custom scrape configurations
 
 You can configure additional scrape targets for the Omnibus GitLab-bundled
 Prometheus by editing `prometheus['scrape_configs']` in `/etc/gitlab/gitlab.rb`
@@ -114,7 +114,7 @@ prometheus['scrape_configs'] = [
 NOTE: **Note:**
 Prometheus and most exporters don't support authentication. We don't recommend exposing them outside the local network.
 
-A few configuration changes are required to allow GitLab to be monitored by an external Prometheus server. External servers are recommended for highly available deployments of GitLab with multiple nodes.
+A few configuration changes are required to allow GitLab to be monitored by an external Prometheus server. External servers are recommended for [GitLab deployments with multiple nodes](../../reference_architectures/index.md).
 
 To use an external Prometheus server:
 

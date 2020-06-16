@@ -40,6 +40,7 @@ export function getFormData(params) {
     diffViewType,
     linePosition,
     positionType,
+    lineRange,
   } = params;
 
   const position = JSON.stringify({
@@ -55,6 +56,7 @@ export function getFormData(params) {
     y: params.y,
     width: params.width,
     height: params.height,
+    line_range: lineRange,
   });
 
   const postData = {
@@ -301,6 +303,42 @@ function prepareLine(line) {
       alreadyPrepared: true,
     });
   }
+}
+
+export function prepareLineForRenamedFile({ line, diffViewType, diffFile, index = 0 }) {
+  /*
+    Renamed files are a little different than other diffs, which
+    is why this is distinct from `prepareDiffFileLines` below.
+
+    We don't get any of the diff file context when we get the diff
+    (so no "inline" vs. "parallel", no "line_code", etc.).
+
+    We can also assume that both the left and the right of each line
+    (for parallel diff view type) are identical, because the file
+    is renamed, not modified.
+
+    This should be cleaned up as part of the effort around flattening our data
+    ==> https://gitlab.com/groups/gitlab-org/-/epics/2852#note_304803402
+  */
+  const lineNumber = index + 1;
+  const cleanLine = {
+    ...line,
+    line_code: `${diffFile.file_hash}_${lineNumber}_${lineNumber}`,
+    new_line: lineNumber,
+    old_line: lineNumber,
+  };
+
+  prepareLine(cleanLine); // WARNING: In-Place Mutations!
+
+  if (diffViewType === PARALLEL_DIFF_VIEW_TYPE) {
+    return {
+      left: { ...cleanLine },
+      right: { ...cleanLine },
+      line_code: cleanLine.line_code,
+    };
+  }
+
+  return cleanLine;
 }
 
 function prepareDiffFileLines(file) {

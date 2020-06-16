@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe TodosFinder do
+RSpec.describe TodosFinder do
   describe '#execute' do
     let(:user) { create(:user) }
     let(:group) { create(:group) }
@@ -260,9 +260,9 @@ describe TodosFinder do
     it 'returns the expected types' do
       expected_result =
         if Gitlab.ee?
-          %w[DesignManagement::Design Epic Issue MergeRequest]
+          %w[Epic Issue MergeRequest DesignManagement::Design]
         else
-          %w[Issue MergeRequest]
+          %w[Issue MergeRequest DesignManagement::Design]
         end
 
       expect(described_class.todo_types).to contain_exactly(*expected_result)

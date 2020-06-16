@@ -16,6 +16,7 @@ export default {
   cycleAnalyticsTasksByTypePath: '/groups/:id/-/analytics/type_of_work/tasks_by_type',
   cycleAnalyticsTopLabelsPath: '/groups/:id/-/analytics/type_of_work/tasks_by_type/top_labels',
   cycleAnalyticsSummaryDataPath: '/groups/:id/-/analytics/value_stream_analytics/summary',
+  cycleAnalyticsTimeSummaryDataPath: '/groups/:id/-/analytics/value_stream_analytics/time_summary',
   cycleAnalyticsGroupStagesAndEventsPath: '/groups/:id/-/analytics/value_stream_analytics/stages',
   cycleAnalyticsStageEventsPath:
     '/groups/:id/-/analytics/value_stream_analytics/stages/:stage_id/records',
@@ -150,6 +151,12 @@ export default {
 
   cycleAnalyticsSummaryData(groupId, params = {}) {
     const url = Api.buildUrl(this.cycleAnalyticsSummaryDataPath).replace(':id', groupId);
+
+    return axios.get(url, { params });
+  },
+
+  cycleAnalyticsTimeSummaryData(groupId, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsTimeSummaryDataPath).replace(':id', groupId);
 
     return axios.get(url, { params });
   },
@@ -301,43 +308,36 @@ export default {
     return axios.put(`${url}/${node.id}`, node);
   },
 
-  fetchFeatureFlagUserLists(version, id) {
-    const url = Api.buildUrl(this.featureFlagUserLists)
-      .replace(':version', version)
-      .replace(':id', id);
+  fetchFeatureFlagUserLists(id, page) {
+    const url = Api.buildUrl(this.featureFlagUserLists).replace(':id', id);
 
-    return axios.get(url);
+    return axios.get(url, { params: { page } });
   },
 
-  createFeatureFlagUserList(version, id, list) {
-    const url = Api.buildUrl(this.featureFlagUserLists)
-      .replace(':version', version)
-      .replace(':id', id);
+  createFeatureFlagUserList(id, list) {
+    const url = Api.buildUrl(this.featureFlagUserLists).replace(':id', id);
 
     return axios.post(url, list);
   },
 
-  fetchFeatureFlagUserList(version, id, listIid) {
+  fetchFeatureFlagUserList(id, listIid) {
     const url = Api.buildUrl(this.featureFlagUserList)
-      .replace(':version', version)
       .replace(':id', id)
       .replace(':list_iid', listIid);
 
     return axios.get(url);
   },
 
-  updateFeatureFlagUserList(version, id, list) {
+  updateFeatureFlagUserList(id, list) {
     const url = Api.buildUrl(this.featureFlagUserList)
-      .replace(':version', version)
       .replace(':id', id)
       .replace(':list_iid', list.iid);
 
     return axios.put(url, list);
   },
 
-  deleteFeatureFlagUserList(version, id, listIid) {
+  deleteFeatureFlagUserList(id, listIid) {
     const url = Api.buildUrl(this.featureFlagUserList)
-      .replace(':version', version)
       .replace(':id', id)
       .replace(':list_iid', listIid);
 

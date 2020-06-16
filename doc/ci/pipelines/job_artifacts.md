@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 disqus_identifier: 'https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html'
 type: reference, howto
 ---
@@ -103,14 +106,13 @@ combination thereof (`junit: [rspec.xml, test-results/TEST-*.xml]`).
 
 #### `artifacts:reports:dotenv`
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/17066) in GitLab 12.9.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/17066) in GitLab 12.9.
 > - Requires GitLab Runner 11.5 and later.
 
 The `dotenv` report collects a set of environment variables as artifacts.
 
 The collected variables are registered as runtime-created variables of the job,
-which is useful to [set dynamic environment URLs after a job finishes](../environments.md#set-dynamic-environment-urls-after-a-job-finishes).
-It's not available for download through the web interface.
+which is useful to [set dynamic environment URLs after a job finishes](../environments/index.md#set-dynamic-environment-urls-after-a-job-finishes).
 
 There are a couple of limitations on top of the [original dotenv rules](https://github.com/motdotla/dotenv#rules).
 
@@ -123,7 +125,7 @@ There are a couple of limitations on top of the [original dotenv rules](https://
 
 #### `artifacts:reports:cobertura`
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3708) in GitLab 12.9.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3708) in GitLab 12.9.
 > - Requires [GitLab Runner](https://docs.gitlab.com/runner/) 11.5 and above.
 
 The `cobertura` report collects [Cobertura coverage XML files](../../user/project/merge_requests/test_coverage_visualization.md).
@@ -135,12 +137,13 @@ third party ports for other languages like JavaScript, Python, Ruby, and so on.
 
 #### `artifacts:reports:terraform`
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/207527) in GitLab 12.10.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/207528) in GitLab 13.0.
 > - Requires [GitLab Runner](https://docs.gitlab.com/runner/) 11.5 and above.
 
-The `terraform` report collects Terraform `tfplan.json` files. The collected Terraform
-plan reports will be uploaded to GitLab as artifacts and will be automatically shown
-in merge requests.
+The `terraform` report obtains a Terraform `tfplan.json` file. [JQ processing required to remove credentials](../../user/infrastructure/index.md#output-terraform-plan-information-into-a-merge-request). The collected Terraform
+plan report will be uploaded to GitLab as an artifact and will be automatically shown
+in merge requests. For more information, see
+[Output `terraform plan` information into a merge request](../../user/infrastructure/index.md#output-terraform-plan-information-into-a-merge-request).
 
 #### `artifacts:reports:codequality` **(STARTER)**
 
@@ -151,7 +154,7 @@ The `codequality` report collects [CodeQuality issues](../../user/project/merge_
 as artifacts.
 
 The collected Code Quality report will be uploaded to GitLab as an artifact and will
-be summarized in merge requests. It's not available for download through the web interface.
+be summarized in merge requests.
 
 #### `artifacts:reports:sast` **(ULTIMATE)**
 
@@ -163,7 +166,19 @@ as artifacts.
 
 The collected SAST report will be uploaded to GitLab as an artifact and will be summarized
 in the merge requests and pipeline view. It's also used to provide data for security
-dashboards. It's not available for download through the web interface.
+dashboards.
+
+#### `artifacts:reports:secret_detection` **(ULTIMATE)**
+
+> - Introduced in GitLab 13.1.
+> - Requires GitLab Runner 11.5 and above.
+
+The `secret-detection` report collects [detected secrets](../../user/application_security/secret_detection/index.md)
+as artifacts.
+
+The collected Secret Detection report is uploaded to GitLab as an artifact and summarized
+in the merge requests and pipeline view. It's also used to provide data for security
+dashboards.
 
 #### `artifacts:reports:dependency_scanning` **(ULTIMATE)**
 
@@ -175,7 +190,7 @@ as artifacts.
 
 The collected Dependency Scanning report will be uploaded to GitLab as an artifact and will
 be summarized in the merge requests and pipeline view. It's also used to provide data for security
-dashboards. It's not available for download through the web interface.
+dashboards.
 
 #### `artifacts:reports:container_scanning` **(ULTIMATE)**
 
@@ -187,7 +202,7 @@ as artifacts.
 
 The collected Container Scanning report will be uploaded to GitLab as an artifact and will
 be summarized in the merge requests and pipeline view. It's also used to provide data for security
-dashboards. It's not available for download through the web interface.
+dashboards.
 
 #### `artifacts:reports:dast` **(ULTIMATE)**
 
@@ -199,7 +214,7 @@ as artifacts.
 
 The collected DAST report will be uploaded to GitLab as an artifact and will
 be summarized in the merge requests and pipeline view. It's also used to provide data for security
-dashboards. It's not available for download through the web interface.
+dashboards.
 
 #### `artifacts:reports:license_management` **(ULTIMATE)**
 
@@ -216,7 +231,7 @@ as artifacts.
 
 The collected License Compliance report will be uploaded to GitLab as an artifact and will
 be summarized in the merge requests and pipeline view. It's also used to provide data for security
-dashboards. It's not available for download through the web interface.
+dashboards.
 
 #### `artifacts:reports:license_scanning` **(ULTIMATE)**
 
@@ -239,7 +254,7 @@ The `performance` report collects [Performance metrics](../../user/project/merge
 as artifacts.
 
 The collected Performance report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests. It's not available for download through the web interface.
+be automatically shown in merge requests.
 
 #### `artifacts:reports:metrics` **(PREMIUM)**
 
@@ -249,7 +264,18 @@ The `metrics` report collects [Metrics](../metrics_reports.md)
 as artifacts.
 
 The collected Metrics report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests. It's not available for download through the web interface.
+be automatically shown in merge requests.
+
+#### `artifacts:reports:requirements` **(ULTIMATE)**
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/2859) in GitLab 13.1.
+> - Requires GitLab Runner 11.5 and above.
+
+The `requirements` report collects `requirements.json` files as artifacts.
+
+The collected Requirements report will be uploaded to GitLab as an artifact and
+existing [requirements](../../user/project/requirements/index.md) will be
+marked as Satisfied.
 
 ## Browsing artifacts
 
@@ -277,16 +303,16 @@ one HTML file that you can view directly online when
 
 ## Downloading artifacts
 
-If you need to download the whole archive, there are buttons in various places
+If you need to download an artifact or the whole archive, there are buttons in various places
 in the GitLab UI to do this:
 
 1. While on the pipelines page, you can see the download icon for each job's
-   artifacts archive in the right corner:
+   artifacts and archive in the right corner:
 
    ![Job artifacts in Pipelines page](img/job_artifacts_pipelines_page.png)
 
 1. While on the **Jobs** page, you can see the download icon for each job's
-   artifacts archive in the right corner:
+   artifacts and archive in the right corner:
 
    ![Job artifacts in Builds page](img/job_artifacts_builds_page.png)
 

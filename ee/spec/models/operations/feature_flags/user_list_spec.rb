@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Operations::FeatureFlags::UserList do
+RSpec.describe Operations::FeatureFlags::UserList do
   subject { create(:operations_feature_flag_user_list) }
 
   describe 'validations' do
@@ -52,6 +52,18 @@ describe Operations::FeatureFlags::UserList do
           )
         end
       end
+    end
+  end
+
+  describe 'url_helpers' do
+    it 'generates paths based on the internal id' do
+      create(:operations_feature_flag_user_list)
+      project_b = create(:project)
+      list_b = create(:operations_feature_flag_user_list, project: project_b)
+
+      path = ::Gitlab::Routing.url_helpers.project_feature_flags_user_list_path(project_b, list_b)
+
+      expect(path).to eq("/#{project_b.full_path}/-/feature_flags_user_lists/#{list_b.iid}")
     end
   end
 

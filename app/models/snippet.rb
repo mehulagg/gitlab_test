@@ -18,7 +18,8 @@ class Snippet < ApplicationRecord
   include AfterCommitQueue
   extend ::Gitlab::Utils::Override
 
-  MAX_FILE_COUNT = 1
+  MAX_FILE_COUNT = 10
+  MAX_SINGLE_FILE_COUNT = 1
 
   cache_markdown_field :title, pipeline: :single_line
   cache_markdown_field :description
@@ -166,7 +167,15 @@ class Snippet < ApplicationRecord
   end
 
   def self.find_by_id_and_project(id:, project:)
-    Snippet.find_by(id: id, project: project)
+    if project.is_a?(Project)
+      ProjectSnippet.find_by(id: id, project: project)
+    elsif project.nil?
+      PersonalSnippet.find_by(id: id)
+    end
+  end
+
+  def self.max_file_limit(user)
+    Feature.enabled?(:snippet_multiple_files, user) ? MAX_FILE_COUNT : MAX_SINGLE_FILE_COUNT
   end
 
   def initialize(attributes = {})
@@ -204,7 +213,7 @@ class Snippet < ApplicationRecord
   def blobs
     return [] unless repository_exists?
 
-    repository.ls_files(repository.root_ref).map { |file| Blob.lazy(self, repository.root_ref, file) }
+    repository.ls_files(repository.root_ref).map { |file| Blob.lazy(repository, repository.root_ref, file) }
   end
 
   def hook_attrs
@@ -332,7 +341,7 @@ class Snippet < ApplicationRecord
   class << self
     # Searches for snippets with a matching title, description or file name.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
     # query - The search query as a String.
     #
