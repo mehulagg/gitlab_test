@@ -1,0 +1,5 @@
+---
+title: Updated Auto DevOps with a fix to delete PostgreSQL PVC on environment cleanup
+merge_request: 34632
+author:
+type: fixed
