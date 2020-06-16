@@ -38,12 +38,12 @@ project:
 **Packages** feature.
 1. Click **Save changes**.
 
-The **{package}** **Packages > List** is visible in the sidebar.
+The **{package}** **Packages & Registries > List** is visible in the sidebar.
 
 ### View Packages for your project
 
 To view all packages that have been added to your project,
-go to your project's **{package}** **Packages > List**.
+go to your project's **{package}** **Packages & Registries > List**.
 
 ![Project Packages list](img/project_packages_list_v12_10.png)
 
@@ -59,7 +59,7 @@ On this page, you can:
 ### View Packages for your group
 
 To view all packages that belong to a group, from the group sidebar,
-go to **{package}** **Packages > List**.
+go to **{package}** **Packages & Registries > List**.
 
 ![Group Packages list](img/group_packages_list_v12_10.png)
 
