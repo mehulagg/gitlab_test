@@ -39,7 +39,7 @@ describe('Iterations tabs', () => {
       loading: true,
     });
 
-    expect(wrapper.find(GlLoadingIcon).exists()).toBeTruthy();
+    expect(wrapper.find(GlLoadingIcon).exists()).toBe(true);
   });
 
   describe('empty state', () => {
@@ -48,10 +48,10 @@ describe('Iterations tabs', () => {
         loading: false,
       });
 
-      expect(wrapper.find(GlEmptyState).exists()).toBeTruthy();
+      expect(wrapper.find(GlEmptyState).exists()).toBe(true);
       expect(wrapper.find(GlEmptyState).props('title')).toEqual('Could not find iteration');
-      expect(findTitle().exists()).toBeFalsy();
-      expect(findDescription().exists()).toBeFalsy();
+      expect(findTitle().exists()).toBe(false);
+      expect(findDescription().exists()).toBe(false);
     });
   });
 
@@ -82,8 +82,8 @@ describe('Iterations tabs', () => {
     });
 
     it('hides empty region and loading spinner', () => {
-      expect(wrapper.find(GlLoadingIcon).exists()).toBeFalsy();
-      expect(wrapper.find(GlEmptyState).exists()).toBeFalsy();
+      expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
+      expect(wrapper.find(GlEmptyState).exists()).toBe(false);
     });
 
     it('shows title and description', () => {
