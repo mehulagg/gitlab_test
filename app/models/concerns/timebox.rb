@@ -58,7 +58,6 @@ module Timebox
     scope :closed, -> { with_state(:closed) }
     scope :for_projects, -> { where(group: nil).includes(:project) }
     scope :with_title, -> (title) { where(title: title) }
-    scope :with_id, -> (id) { where(id: id) }
 
     scope :for_projects_and_groups, -> (projects, groups) do
       projects = projects.compact if projects.is_a? Array
