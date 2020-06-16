@@ -503,12 +503,10 @@ describe('AlertManagementList', () => {
       expect(findSearch().exists()).toBe(true);
     });
 
-    it('sets `searchTerm` graphql variable', async () => {
+    it('sets `searchTerm` graphql variable', () => {
       const SEARCH_TERM = 'Simple Alert';
 
       findSearch().vm.$emit('input', SEARCH_TERM);
-
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.$data.searchTerm).toBe(SEARCH_TERM);
     });
