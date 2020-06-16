@@ -1,36 +1,18 @@
 <script>
-import {
-  GlAlert,
-  GlAvatar,
-  GlBadge,
-  GlCard,
-  GlLabel,
-  GlLink,
-  GlLoadingIcon,
-  GlEmptyState,
-  GlTab,
-  GlTabs,
-  GlTooltipDirective,
-} from '@gitlab/ui';
+import { GlAlert, GlBadge, GlLoadingIcon, GlEmptyState, GlTooltipDirective } from '@gitlab/ui';
 import dateFormat from 'dateformat';
 import { __ } from '~/locale';
-import { isScopedLabel } from '~/lib/utils/common_utils';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import IterationReportTabs from './iteration_report_tabs.vue';
 import query from '../queries/group_iteration.query.graphql';
 
 export default {
-  isScopedLabel,
   components: {
     GlAlert,
-    GlAvatar,
     GlBadge,
-    GlCard,
-    GlLink,
-    GlLabel,
     GlLoadingIcon,
     GlEmptyState,
-    GlTab,
-    GlTabs,
+    IterationReportTabs,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -116,27 +98,20 @@ export default {
           return { text: __('Open'), variant: 'success' };
       }
     },
-    groupedIssues() {
-      return [
-        {
-          title: __('Unstarted issues (open and unassigned)'),
-          issues: this.issues.filter(issue => {
-            return issue.state === 'opened' && issue.assignees.length === 0;
-          }),
-        },
-        {
-          title: __('Ongoing issues (open and assigned)'),
-          issues: this.issues.filter(issue => {
-            return issue.state === 'opened' && issue.assignees.length > 0;
-          }),
-        },
-        {
-          title: __('Completed issues (closed)'),
-          issues: this.issues.filter(issue => {
-            return issue.state === 'closed';
-          }),
-        },
-      ];
+    unstartedIssues() {
+      return this.issues.filter(issue => {
+        return issue.state === 'opened' && issue.assignees.length === 0;
+      });
+    },
+    ongoingIssues() {
+      return this.issues.filter(issue => {
+        return issue.state === 'opened' && issue.assignees.length > 0;
+      });
+    },
+    completedIssues() {
+      return this.issues.filter(issue => {
+        return issue.state === 'opened' && issue.assignees.length > 0;
+      });
     },
   },
 };
@@ -167,50 +142,11 @@ export default {
       </div>
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
       <div ref="description" v-html="iteration.description"></div>
-      <gl-tabs v-if="issues">
-        <gl-tab title="Issues" class="row milestone-content gl-display-flex!">
-          <div v-for="g in groupedIssues" :key="g.title" class="col-sm-4">
-            <gl-card header-class="gl-line-height-normal" body-class="gl-p-0">
-              <template #header>
-                <span>{{ g.title }}</span>
-              </template>
-              <template #default>
-                <ul class="content-list milestone-issues-list">
-                  <li v-for="issue in g.issues" :key="issue.title" class="gl-p-5!">
-                    <gl-link :href="issue.webUrl">{{ issue.title }}</gl-link>
-                    <div class="issuable-detail">
-                      <gl-link :href="issue.webUrl">#{{ issue.iid }}</gl-link>
-                      <gl-label
-                        v-for="label in issue.labels"
-                        :key="label.id"
-                        :background-color="label.color"
-                        :title="label.title"
-                        :description="label.description"
-                        :scoped="$options.isScopedLabel(label)"
-                        class="mr-2"
-                        size="sm"
-                      />
-                      <span class="assignee-icon">
-                        <span
-                          v-for="assignee in issue.assignees"
-                          :key="assignee.username"
-                          v-gl-tooltip="
-                            sprintf(__('Assigned to %{assigneeName}'), {
-                              assigneeName: assignee.name,
-                            })
-                          "
-                        >
-                          <gl-avatar :src="assignee.avatarUrl" :size="16" />
-                        </span>
-                      </span>
-                    </div>
-                  </li>
-                </ul>
-              </template>
-            </gl-card>
-          </div>
-        </gl-tab>
-      </gl-tabs>
+      <iteration-report-tabs
+        :unstarted-issues="unstartedIssues"
+        :ongoing-issues="ongoingIssues"
+        :completed-issues="completedIssues"
+      />
     </template>
   </div>
 </template>
