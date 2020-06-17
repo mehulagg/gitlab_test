@@ -16,6 +16,7 @@ Please make sure the spec files pass in AS-IF-FOSS mode either:
 1. In the MR pipeline by verifying that the `rspec foss-impact` job has passed.
 1. In the MR pipelines by including `RUN AS-IF-FOSS` in the MR title (you can do it with the ``/title %<mr_title>s [RUN AS-IF-FOSS]`` quick action) and start a new MR pipeline.
 
+
 MSG
 
 has_app_changes = helper.all_changed_files.grep(%r{\A(app|lib|db/(geo/)?(post_)?migrate)/}).any?
