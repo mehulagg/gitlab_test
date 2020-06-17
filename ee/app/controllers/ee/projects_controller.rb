@@ -56,7 +56,7 @@ module EE
 
     override :project_params_attributes
     def project_params_attributes
-      attrs = super + project_params_ee
+      super + project_params_ee
     end
 
     override :custom_import_params

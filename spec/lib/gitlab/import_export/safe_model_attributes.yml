@@ -533,6 +533,7 @@ Project:
 - merge_requests_enabled
 - wiki_enabled
 - snippets_enabled
+- requirements_enabled
 - visibility_level
 - archived
 - created_at

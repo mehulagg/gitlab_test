@@ -34,6 +34,8 @@ module EE
           expose :compliance_frameworks do |project, _|
             [project.compliance_framework_setting&.framework].compact
           end
+
+          expose(:requirements_enabled) { |project, options| project.feature_available?(:requirements, options[:current_user]) }
         end
       end
     end

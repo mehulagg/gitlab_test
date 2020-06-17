@@ -186,6 +186,7 @@ module EE
       end
 
       default_value_for :packages_enabled, true
+      default_value_for :requirements_enabled, true
 
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :status_page_setting, update_only: true, allow_destroy: true

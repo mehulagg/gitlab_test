@@ -53,6 +53,10 @@ module EE
         nav_tabs << :project_insights
       end
 
+      if can?(current_user, :read_requirement, project)
+        nav_tabs << :requirements
+      end
+
       nav_tabs
     end
 
