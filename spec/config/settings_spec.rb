@@ -112,4 +112,21 @@ RSpec.describe Settings do
       end
     end
   end
+
+  describe '.encrypted' do
+    it 'defaults to using the db_key_base for the key' do
+      expect(Gitlab::EncryptedConfiguration).to receive(:new).with(hash_including(key: Settings.attr_encrypted_db_key_base_truncated))
+      Settings.encrypted('tmp/tests/test.enc')
+    end
+
+    it 'defaults the configpath within the rails root' do
+      expect(Settings.encrypted('tmp/tests/test.enc').content_path.fnmatch?(File.join(Rails.root,'**'))).to be true
+    end
+
+    it 'returns empty encrypted config when in safe mode' do
+      stub_env('GITLAB_ENCRYPTED_SAFE_MODE', 'true')
+      expect(Gitlab::EncryptedConfiguration).to receive(:new).with(no_args)
+      Settings.encrypted('tmp/tests/test.enc')
+    end
+  end
 end

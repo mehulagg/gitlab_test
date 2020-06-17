@@ -11,7 +11,7 @@ module Gitlab
       alias_method :say, :puts
 
       def edit(file_path)
-        editor = ENV['editor'] || 'editor'
+        editor = ENV['EDITOR'] || 'editor'
 
         catch_editing_exceptions do
           Settings.encrypted(file_path, allow_in_safe_mode: true).write("") unless File.exist?(Rails.root.join(file_path))
@@ -28,7 +28,7 @@ module Gitlab
       def show(file_path)
         encrypted = Settings.encrypted(file_path, allow_in_safe_mode: true)
 
-        puts encrypted.read.presence || "File '#{file_path}' does not exist. Use `rake gitlab:encrypted:edit #{file_path}` to change that."
+        puts encrypted.read.presence || "File '#{file_path}' does not exist. Use `rake gitlab:encrypted:edit[#{file_path}]` to change that."
       end
     end
   end
