@@ -1,8 +1,13 @@
 ---
 type: howto
+stage: Manage
+group: Import
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Create a project
+
+> - [Enhanced](https://gitlab.com/gitlab-org/gitlab/-/issues/210599) in GitLab 13.1.
 
 Most work in GitLab is done within a [Project](../user/project/index.md). Files and
 code are saved in projects, and most features are used within the scope of projects.
@@ -11,13 +16,13 @@ code are saved in projects, and most features are used within the scope of proje
 
 To create a project in GitLab:
 
-1. In your dashboard, click the green **New project** button or use the plus
+1. Navigate to your Projects dashboard. Sign in to GitLab. If needed, select **Projects > Your projects**.
+1. Click the green **New project** button or use the plus
    icon in the navigation bar. This opens the **New project** page.
-1. On the **New project** page, choose if you want to:
-   - Create a [blank project](#blank-projects).
-   - Create a project using with one of the available [project templates](#project-templates).
-   - [Import a project](../user/project/import/index.md) from a different repository,
-     if enabled on your GitLab instance. Contact your GitLab admin if this is unavailable.
+1. On the **New project** page, select one of the following tabs:
+   - [Blank project](#blank-projects).
+   - [Create from template](#project-templates).
+   - [Import project](../user/project/import/index.md) from a different repository.
    - Run [CI/CD pipelines for external repositories](../ci/ci_cd_for_external_repos/index.md). **(PREMIUM)**
 
 NOTE: **Note:**
@@ -52,8 +57,8 @@ To create a new blank project on the **New project** page:
 
 ### Project templates
 
-Project templates can pre-populate a new project with the necessary files to get you
-started quickly.
+Under the **Create from template** tab, existing project templates can pre-populate
+a new project with the necessary files to get you started quickly.
 
 There are two types of project templates:
 
@@ -85,6 +90,8 @@ To use a built-in template on the **New project** page:
 GitLab is developing Enterprise templates to help you streamline audit management with selected regulatory standards. These templates automatically import issues that correspond to each regulatory requirement.
 
 To create a new project with an Enterprise template, on the **New project** page:
+
+<!-- Problem: the steps imply that all 23 "Built-in" templates are "Enterprise templates". -->
 
 1. On the **Create from template** tab, select the **Built-in** tab.
 1. From the list of available built-in Enterprise templates, click the:
