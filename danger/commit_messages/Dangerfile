@@ -7,6 +7,7 @@ MORE_INFO = "For more information, take a look at our [Commit message guidelines
 THE_DANGER_JOB_TEXT = "the `danger-review` job"
 MAX_COMMITS_COUNT = 10
 MAX_COMMITS_COUNT_EXCEEDED_MESSAGE = <<~MSG
+
 This merge request includes more than %<max_commits_count>d commits. Each commit should meet the following criteria:
 
 1. Have a well-written commit message.
@@ -15,6 +16,7 @@ This merge request includes more than %<max_commits_count>d commits. Each commit
 1. Is small enough that it can be reviewed in isolation in under 30 minutes or so.
 
 If this merge request contains commits that do not meet this criteria and/or contains intermediate work, please rebase these commits into a smaller number of commits or split this merge request into multiple smaller merge requests.
+
 MSG
 
 def gitlab_danger
