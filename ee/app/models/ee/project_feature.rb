@@ -4,7 +4,7 @@ module EE
   module ProjectFeature
     extend ActiveSupport::Concern
 
-    FEATURES = %i(requirements)
+    FEATURES = %i(requirements).freeze
 
     prepended do
       set_available_features(available_features + FEATURES)
