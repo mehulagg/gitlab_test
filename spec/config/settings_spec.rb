@@ -120,7 +120,7 @@ RSpec.describe Settings do
     end
 
     it 'defaults the configpath within the rails root' do
-      expect(Settings.encrypted('tmp/tests/test.enc').content_path.fnmatch?(File.join(Rails.root,'**'))).to be true
+      expect(Settings.encrypted('tmp/tests/test.enc').content_path.fnmatch?(File.join(Rails.root, '**'))).to be true
     end
 
     it 'returns empty encrypted config when in safe mode' do
