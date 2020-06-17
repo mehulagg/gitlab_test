@@ -382,7 +382,7 @@ export default {
         {{ s__('AlertManagement|Alerts') }}
       </h4>
       <gl-table
-        class="alert-management-table mt-3"
+        class="alert-management-table"
         :items="alerts ? alerts.list : []"
         :fields="$options.fields"
         :show-empty="true"
