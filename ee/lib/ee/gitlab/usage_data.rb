@@ -49,7 +49,6 @@ module EE
             .merge(recording_ee_finish_data)
         end
 
-        # test change
         def recording_ee_finish_data
           {
             recording_ee_finished_at: Time.now
