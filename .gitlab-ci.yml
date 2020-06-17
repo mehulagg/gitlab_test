@@ -47,6 +47,7 @@ workflow:
     - if: '$CI_COMMIT_BRANCH =~ /^security\//'
 
 variables:
+  OMNIBUS_BRANCH: "use-top-upstream-only-if-gitlab"
   RAILS_ENV: "test"
   NODE_ENV: "test"
   SIMPLECOV: "true"
