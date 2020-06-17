@@ -43,7 +43,7 @@ describe Gitlab::EncryptedConfiguration do
 
         config.write({ foo: { bar: true } }.to_yaml)
         config.change do |unencrypted_file|
-          contents = YAML.safe_load(unencrypted_file.read)
+          contents = YAML.safe_load(unencrypted_file.read, [Symbol])
           unencrypted_file.write contents.merge(beef: "stew").to_yaml
         end
         expect(config.foo[:bar]).to be true
