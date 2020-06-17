@@ -35,7 +35,7 @@ module QA
         end
       end
 
-      context 'built-in', :requires_admin do
+      context 'built-in', :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/222810', type: :bug } do
         before do
           Flow::Login.sign_in_as_admin
 
