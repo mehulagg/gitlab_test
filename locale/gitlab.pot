@@ -329,6 +329,9 @@ msgstr ""
 msgid "%{days} days until tags are automatically removed"
 msgstr ""
 
+msgid "%{deployLinkStart}Use a template to deploy to ECS%{deployLinkEnd}, or use a docker image to %{commandsLinkStart}run AWS commands in GitLab CI/CD%{commandsLinkEnd}."
+msgstr ""
+
 msgid "%{description}- Sentry event: %{errorUrl}- First seen: %{firstSeen}- Last seen: %{lastSeen} %{countLabel}: %{count}%{userCountLabel}: %{userCount}"
 msgstr ""
 
@@ -392,7 +395,7 @@ msgstr ""
 msgid "%{labelStart}Class:%{labelEnd} %{class}"
 msgstr ""
 
-msgid "%{labelStart}Confidence:%{labelEnd} %{confidence}"
+msgid "%{labelStart}Evidence:%{labelEnd} %{evidence}"
 msgstr ""
 
 msgid "%{labelStart}File:%{labelEnd} %{file}"
@@ -408,6 +411,9 @@ msgid "%{labelStart}Namespace:%{labelEnd} %{namespace}"
 msgstr ""
 
 msgid "%{labelStart}Report Type:%{labelEnd} %{reportType}"
+msgstr ""
+
+msgid "%{labelStart}Scanner:%{labelEnd} %{scanner}"
 msgstr ""
 
 msgid "%{labelStart}Severity:%{labelEnd} %{severity}"
@@ -2140,6 +2146,9 @@ msgstr ""
 msgid "Allow users to request access (if visibility is public or internal)"
 msgstr ""
 
+msgid "Allowed Geo IP"
+msgstr ""
+
 msgid "Allowed email domain restriction only permitted for top-level groups"
 msgstr ""
 
@@ -2171,6 +2180,9 @@ msgid "Amazon EKS integration allows you to provision EKS clusters from GitLab."
 msgstr ""
 
 msgid "Amazon Web Services"
+msgstr ""
+
+msgid "Amazon Web Services Logo"
 msgstr ""
 
 msgid "Amazon authentication is not %{link_start}correctly configured%{link_end}. Ask your GitLab administrator if you want to use this service."
@@ -2967,6 +2979,9 @@ msgstr ""
 msgid "Assign to"
 msgstr ""
 
+msgid "Assign to commenting user"
+msgstr ""
+
 msgid "Assign yourself to these issues"
 msgstr ""
 
@@ -3410,6 +3425,9 @@ msgid "Below you will find all the groups that are public."
 msgstr ""
 
 msgid "Beta"
+msgstr ""
+
+msgid "Bi-weekly code coverage"
 msgstr ""
 
 msgid "Billing"
@@ -5359,10 +5377,10 @@ msgstr ""
 msgid "ClusterIntegration|Select zone to choose machine type"
 msgstr ""
 
-msgid "ClusterIntegration|Send Cilium Logs"
+msgid "ClusterIntegration|Send Container Network Policies Logs"
 msgstr ""
 
-msgid "ClusterIntegration|Send ModSecurity Logs"
+msgid "ClusterIntegration|Send Web Application Firewall Logs"
 msgstr ""
 
 msgid "ClusterIntegration|Service Token"
@@ -5572,6 +5590,15 @@ msgstr ""
 msgid "Code"
 msgstr ""
 
+msgid "Code Coverage: %{coveragePercentage}%{percentSymbol}"
+msgstr ""
+
+msgid "Code Coverage| Empty code coverage data"
+msgstr ""
+
+msgid "Code Coverage|Couldn't fetch the code coverage data"
+msgstr ""
+
 msgid "Code Owners"
 msgstr ""
 
@@ -5642,6 +5669,9 @@ msgid "ComboSearch is not defined"
 msgstr ""
 
 msgid "Coming soon"
+msgstr ""
+
+msgid "Comma-separated, e.g. '1.1.1.1, 2.2.2.0/24'"
 msgstr ""
 
 msgid "Command"
@@ -5950,6 +5980,9 @@ msgid "Connection failure"
 msgstr ""
 
 msgid "Connection timed out"
+msgstr ""
+
+msgid "Connection timeout"
 msgstr ""
 
 msgid "Contact sales to upgrade"
@@ -6430,6 +6463,9 @@ msgid "Could not delete chat nickname %{chat_name}."
 msgstr ""
 
 msgid "Could not find design."
+msgstr ""
+
+msgid "Could not find iteration"
 msgstr ""
 
 msgid "Could not remove the trigger."
@@ -7546,6 +7582,9 @@ msgid "Deployed to"
 msgstr ""
 
 msgid "Deploying to"
+msgstr ""
+
+msgid "Deploying to AWS is easy with GitLab"
 msgstr ""
 
 msgid "Deployment Frequency"
@@ -12503,6 +12542,9 @@ msgstr ""
 msgid "It seems like the Dependency Scanning job ran successfully, but no dependencies have been detected in your project."
 msgstr ""
 
+msgid "It seems that there is currently no available data for code coverage"
+msgstr ""
+
 msgid "It's you"
 msgstr ""
 
@@ -13010,6 +13052,9 @@ msgid "Learn more about approvals."
 msgstr ""
 
 msgid "Learn more about custom project templates"
+msgstr ""
+
+msgid "Learn more about deploying to AWS"
 msgstr ""
 
 msgid "Learn more about deploying to a cluster"
@@ -15027,6 +15072,9 @@ msgid "No runners found"
 msgstr ""
 
 msgid "No schedules"
+msgstr ""
+
+msgid "No stack trace for this error"
 msgstr ""
 
 msgid "No starrers matched your search"
@@ -20346,6 +20394,9 @@ msgstr ""
 msgid "Set the milestone to %{milestone_reference}."
 msgstr ""
 
+msgid "Set the timeout in seconds to send a secondary node status to the primary and IPs allowed for the secondary nodes."
+msgstr ""
+
 msgid "Set time estimate"
 msgstr ""
 
@@ -20936,6 +20987,9 @@ msgid "Something went wrong while toggling auto-fix settings, please try again l
 msgstr ""
 
 msgid "Something went wrong while updating a requirement."
+msgstr ""
+
+msgid "Something went wrong while updating assignees"
 msgstr ""
 
 msgid "Something went wrong while updating your list settings"
@@ -23308,6 +23362,9 @@ msgstr ""
 msgid "Time from last commit to merge"
 msgstr ""
 
+msgid "Time in seconds"
+msgstr ""
+
 msgid "Time in seconds GitLab will wait for a response from the external service. When the service does not respond in time, access will be denied."
 msgstr ""
 
@@ -24042,6 +24099,9 @@ msgid "Unarchive project"
 msgstr ""
 
 msgid "Unarchiving the project will restore people's ability to make changes to it. The repository can be committed to, and issues, comments, and other entities can be created. %{strong_start}Once active, this project shows up in the search and on the dashboard.%{strong_end}"
+msgstr ""
+
+msgid "Unassign from commenting user"
 msgstr ""
 
 msgid "Unblock"
@@ -25300,6 +25360,9 @@ msgid "We will automatically renew your %{strong}%{plan_name}%{strong_close} sub
 msgstr ""
 
 msgid "We've found no vulnerabilities"
+msgstr ""
+
+msgid "Web Application Firewall"
 msgstr ""
 
 msgid "Web IDE"
@@ -26690,6 +26753,9 @@ msgid "created %{timeago}"
 msgstr ""
 
 msgid "customize"
+msgstr ""
+
+msgid "data"
 msgstr ""
 
 msgid "date must not be after 9999-12-31"

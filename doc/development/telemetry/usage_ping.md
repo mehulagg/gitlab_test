@@ -322,7 +322,11 @@ Examples of query optimization work:
 
 When adding, changing, or updating metrics, please update the [Usage Statistics definition table](#usage-statistics-definitions).
 
-### 5. Ask for a Telemetry Review
+### 5. Add new metric to Versions Application
+
+Check if new metrics need to be added to the Versions Application. See `usage_data` [schema](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/db/schema.rb#L147) and usage data [parameters accepted](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/app/services/usage_ping.rb). Any metrics added under the `counts` key are saved in the `counts` column.
+
+### 6. Ask for a Telemetry Review
 
 On GitLab.com, we have DangerBot setup to monitor Telemetry related files and DangerBot will recommend a Telemetry review. Mention `@gitlab-org/growth/telemetry/engineers` in your MR for a review.
 
@@ -562,6 +566,8 @@ appear to be associated to any of the services running, since they all appear to
 | `sast_jobs`                                             | `counts`                           |             |                |                                                   |
 | `status_page_projects`                                  | `counts`                           | `monitor`   |                | Projects with status page enabled                 |
 | `status_page_issues`                                    | `counts`                           | `monitor`   |                | Issues published to a Status Page                 |
+| `status_page_incident_publishes`                        | `counts`                           | `monitor`   |                | Cumulative count of usages of publish operation   |
+| `status_page_incident_unpublishes`                      | `counts`                           | `monitor`   |                | Cumulative count of usages of unpublish operation |
 | `epics_deepest_relationship_level`                      | `counts`                           |             |                |                                                   |
 | `operations_dashboard_default_dashboard`                | `counts`                           | `monitor`   |                | Active users with enabled operations dashboard    |
 | `operations_dashboard_users_with_projects_added`        | `counts`                           | `monitor`   |                | Active users with projects on operations dashboard|
