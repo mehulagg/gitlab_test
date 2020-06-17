@@ -2,12 +2,15 @@ import Mousetrap from 'mousetrap';
 import $ from 'jquery';
 import { updateText } from '~/lib/utils/text_markdown';
 
+function isInWriteMode($target) {
+  return $target.hasClass('js-note-text');
+}
+
 export function toggleMarkdownPreview(e) {
-  // Check if short-cut was triggered while in Write Mode
   const $target = $(e.target);
   const $form = $target.closest('form');
 
-  if ($target.hasClass('js-note-text')) {
+  if (isInWriteMode($target)) {
     $('.js-md-preview-button', $form).focus();
   }
   $(document).triggerHandler('markdown-preview:toggle', [e]);
