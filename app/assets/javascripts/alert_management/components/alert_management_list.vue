@@ -202,7 +202,6 @@ export default {
   },
   data() {
     return {
-      // eslint-disable-next-line @gitlab/require-i18n-strings
       searchTerm: '',
       errored: false,
       isAlertDismissed: false,
