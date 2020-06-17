@@ -52,6 +52,7 @@ class Geo::BaseRegistry < Geo::TrackingBase
     read_attribute(self.class::MODEL_FOREIGN_KEY)
   end
 
+  # Test
   def self.find_registry_differences(range)
     source_ids = self::MODEL_CLASS
                   .replicables_for_geo_node
