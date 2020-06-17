@@ -268,7 +268,7 @@ export default {
           this.metricsDashboardAccessLevel = featureAccessLevel.EVERYONE;
         if (this.requirementsAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
           this.requirementsAccessLevel = featureAccessLevel.EVERYONE;
-        
+
         this.highlightChanges();
       }
     },

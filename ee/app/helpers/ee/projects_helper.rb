@@ -71,7 +71,7 @@ module EE
     def project_permissions_settings(project)
       super.merge(
         packagesEnabled: !!project.packages_enabled,
-        requirementsAccessLevel: project.project_feature.requirements_access_level      
+        requirementsAccessLevel: project.project_feature.requirements_access_level
       )
     end
 
