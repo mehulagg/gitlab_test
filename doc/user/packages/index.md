@@ -20,7 +20,7 @@ The GitLab Package Registry is a place to publish, share, and discover packages 
 | [Go Proxy](go_proxy/index.md) **(PREMIUM)** | Fetch GitLab projects with the [Go proxy protocol](https://proxy.golang.org/). | 13.1+ |
 | [Composer Repository](composer_repository/index.md) **(PREMIUM)**  | Use for [Composer](https://getcomposer.org/) packages. | 13.1+ |
 
-You can also:
+You can use the Package Registry to create your own custom package workflow. For example:
 
 - [Use one specific project to store your packages](./workflows/project_registry.md) or
 - Publish multiple packages from [one monorepo project](./workflows/monorepo.md).
