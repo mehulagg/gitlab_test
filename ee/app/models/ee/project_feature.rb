@@ -4,7 +4,11 @@ module EE
   module ProjectFeature
     extend ActiveSupport::Concern
 
+    FEATURES = %i(requirements)
+
     prepended do
+      set_available_features(available_features + FEATURES)
+
       # Ensure changes to project visibility settings go to elasticsearch
       after_commit on: :update do
         project.maintain_elasticsearch_update if project.maintaining_elasticsearch?
