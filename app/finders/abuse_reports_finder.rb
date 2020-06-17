@@ -7,6 +7,7 @@ class AbuseReportsFinder
     @params = params
   end
 
+  # test change
   def execute
     reports = AbuseReport.all
     reports = reports.by_user(params[:user_id]) if params[:user_id].present?

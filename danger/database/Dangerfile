@@ -3,18 +3,23 @@
 gitlab_danger = GitlabDanger.new(helper.gitlab_helper)
 
 SCHEMA_NOT_UPDATED_MESSAGE_SHORT = <<~MSG
+
 New %<migrations>s added but %<schema>s wasn't updated.
+
 MSG
 
 SCHEMA_NOT_UPDATED_MESSAGE_FULL = <<~MSG
+
 **#{SCHEMA_NOT_UPDATED_MESSAGE_SHORT}**
 
 Usually, when adding new %<migrations>s, %<schema>s should be
 updated too (unless the migration isn't changing the DB schema
 and isn't the most recent one).
+
 MSG
 
 DB_MESSAGE = <<~MSG
+
 This merge request requires a database review. To make sure these
 changes are reviewed, take the following steps:
 
@@ -23,6 +28,7 @@ changes are reviewed, take the following steps:
 1. Prepare your MR for database review according to the
    [docs](https://docs.gitlab.com/ee/development/database_review.html#how-to-prepare-the-merge-request-for-a-database-review).
 1. Assign and mention the database reviewer suggested by Reviewer Roulette.
+
 MSG
 
 DB_FILES_MESSAGE = <<~MSG
