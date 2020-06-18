@@ -169,6 +169,10 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect { subject }.not_to raise_error
     end
 
+    it 'includes a recording_ce_finished_at timestamp' do
+      expect(subject[:recording_ce_finished_at]).to be_a(Time)
+    end
+
     it 'jira usage works when queries time out' do
       allow_any_instance_of(ActiveRecord::Relation)
         .to receive(:find_in_batches).and_raise(ActiveRecord::StatementInvalid.new(''))
@@ -213,14 +217,6 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect(subject[:installation_type]).to eq('gitlab-development-kit')
       expect(subject[:active_user_count]).to eq(User.active.size)
       expect(subject[:recorded_at]).to be_a(Time)
-    end
-  end
-
-  describe '.recording_ce_finished_at' do
-    subject { described_class.recording_ce_finish_data }
-
-    it 'gathers time ce recording finishes at' do
-      expect(subject[:recording_ce_finished_at]).to be_a(Time)
     end
   end
 
@@ -580,7 +576,7 @@ describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '#merge_requests_usage_data' do
+  describe '#merge_requests_usage' do
     let(:time_period) { { created_at: 2.days.ago..Time.current } }
     let(:merge_request) { create(:merge_request) }
     let(:other_user) { create(:user) }
@@ -597,7 +593,7 @@ describe Gitlab::UsageData, :aggregate_failures do
     end
 
     it 'returns the distinct count of users using merge requests (via events table) within the specified time period' do
-      expect(described_class.merge_requests_usage_data(time_period)).to eq(
+      expect(described_class.merge_requests_usage(time_period)).to eq(
         merge_requests_users: 2
       )
     end

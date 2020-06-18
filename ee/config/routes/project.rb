@@ -22,7 +22,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :feature_flags, param: :iid
+        resources :feature_flags, param: :iid do
+          resources :feature_flag_issues, only: [:index, :destroy], as: 'issues', path: 'issues'
+        end
         resource :feature_flags_client, only: [] do
           post :reset_token
         end
@@ -62,7 +64,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
 
           resources :dashboard, only: [:index], controller: :dashboard
-          resource :configuration, only: [:show], controller: :configuration
+
+          resource :configuration, only: [:show], controller: :configuration do
+            post :auto_fix, on: :collection
+          end
+
           resource :discover, only: [:show], controller: :discover
 
           resources :vulnerability_findings, only: [:index] do

@@ -315,8 +315,10 @@ RSpec.describe 'Promotions', :js do
       visit project_issue_path(project, issue)
       wait_for_requests
 
-      find('.btn-link.js-toggle-button.js-weight-sidebar-callout').click
-      find('.js-weight-sidebar-callout .js-close-callout').click
+      within 'div.js-weight-sidebar-callout' do
+        find('.btn-link.js-toggle-button.js-weight-sidebar-callout').click
+        click_link "Don't show me this again"
+      end
 
       expect(page).not_to have_selector('.js-weight-sidebar-callout')
     end
@@ -372,7 +374,7 @@ RSpec.describe 'Promotions', :js do
 
           find('.btn-link.js-toggle-button.js-weight-sidebar-callout').click
 
-          expect(find('.issue-weights-trial-cta')).to have_content 'Try it for free'
+          expect(page).to have_link 'Try it for free', href: new_trial_registration_path(glm_source: 'gitlab.com', glm_content: 'discover-issue-weights'), class: 'issue-weights-trial-cta'
           expect(find('.js-close-callout.js-close-session.tr-issue-weights-not-now-cta')).to have_content 'Not now, thanks!'
         end
       end

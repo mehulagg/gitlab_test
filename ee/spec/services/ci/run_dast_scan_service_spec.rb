@@ -12,8 +12,10 @@ describe Ci::RunDastScanService do
     subject { described_class.new(project: project, user: user).execute(branch: branch, target_url: target_url) }
 
     context 'when the user does not have permission to run a dast scan' do
-      it 'raises an exception'  do
-        expect { subject }.to raise_error(described_class::NotAllowed)
+      it 'raises an exeception with #full_messages populated' do
+        expect { subject }.to raise_error(Ci::RunDastScanService::RunError) do |error|
+          expect(error.full_messages[0]).to include('you don\'t have permission to perform this action')
+        end
       end
     end
 
@@ -34,6 +36,10 @@ describe Ci::RunDastScanService do
         expect(subject.ref).to eq(branch)
       end
 
+      it 'sets the source to indicate an ondemand scan' do
+        expect(subject.source).to eq('ondemand_scan')
+      end
+
       it 'creates a stage' do
         expect { subject }.to change(Ci::Stage, :count).by(1)
       end
@@ -42,19 +48,24 @@ describe Ci::RunDastScanService do
         expect { subject }.to change(Ci::Build, :count).by(1)
       end
 
+      it 'sets the build name to indicate a DAST scan' do
+        build = subject.builds.first
+        expect(build.name).to eq('DAST Scan')
+      end
+
       it 'creates a build with appropriate options' do
         build = subject.builds.first
         expected_options = {
-          "image" => {
-            "name" => "$SECURE_ANALYZERS_PREFIX/dast:$DAST_VERSION"
+          'image' => {
+            'name' => '$SECURE_ANALYZERS_PREFIX/dast:$DAST_VERSION'
           },
-          "script" => [
-            "export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}",
-            "/analyze"
+          'script' => [
+            'export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}',
+            '/analyze'
           ],
-          "artifacts" => {
-            "reports" => {
-              "dast" => ["gl-dast-report.json"]
+          'artifacts' => {
+            'reports' => {
+              'dast' => ['gl-dast-report.json']
             }
           }
         }
@@ -65,21 +76,21 @@ describe Ci::RunDastScanService do
         build = subject.builds.first
         expected_variables = [
           {
-            "key" => "DAST_VERSION",
-            "value" => "1",
-            "public" => true
+            'key' => 'DAST_VERSION',
+            'value' => '1',
+            'public' => true
           }, {
-            "key" => "SECURE_ANALYZERS_PREFIX",
-            "value" => "registry.gitlab.com/gitlab-org/security-products/analyzers",
-            "public" => true
+            'key' => 'SECURE_ANALYZERS_PREFIX',
+            'value' => 'registry.gitlab.com/gitlab-org/security-products/analyzers',
+            'public' => true
           }, {
-            "key" => "DAST_WEBSITE",
-            "value" => target_url,
-            "public" => true
+            'key' => 'DAST_WEBSITE',
+            'value' => target_url,
+            'public' => true
           }, {
-            "key" => "GIT_STRATEGY",
-            "value" => "none",
-            "public" => true
+            'key' => 'GIT_STRATEGY',
+            'value' => 'none',
+            'public' => true
           }
         ]
         expect(build.yaml_variables).to eq(expected_variables)
@@ -92,7 +103,7 @@ describe Ci::RunDastScanService do
 
       context 'when the repository has no commits' do
         it 'uses a placeholder' do
-          expect(subject.sha).to eq("placeholder")
+          expect(subject.sha).to eq('placeholder')
         end
       end
 
@@ -101,8 +112,10 @@ describe Ci::RunDastScanService do
           allow(Ci::Pipeline).to receive(:create!).and_raise(StandardError)
         end
 
-        it 'raises an exception' do
-          expect { subject }.to raise_error(Ci::RunDastScanService::CreatePipelineError)
+        it 'raises an exeception with #full_messages populated' do
+          expect { subject }.to raise_error(Ci::RunDastScanService::RunError) do |error|
+            expect(error.full_messages).to include('Pipeline could not be created')
+          end
         end
       end
 
@@ -111,8 +124,10 @@ describe Ci::RunDastScanService do
           allow(Ci::Stage).to receive(:create!).and_raise(StandardError)
         end
 
-        it 'raises an exception' do
-          expect { subject }.to raise_error(Ci::RunDastScanService::CreateStageError)
+        it 'raises an exeception with #full_messages populated' do
+          expect { subject }.to raise_error(Ci::RunDastScanService::RunError) do |error|
+            expect(error.full_messages).to include('Stage could not be created')
+          end
         end
 
         it 'does not create a pipeline' do
@@ -125,8 +140,10 @@ describe Ci::RunDastScanService do
           allow(Ci::Build).to receive(:create!).and_raise(StandardError)
         end
 
-        it 'raises an exception' do
-          expect { subject }.to raise_error(Ci::RunDastScanService::CreateBuildError)
+        it 'raises an exeception with #full_messages populated' do
+          expect { subject }.to raise_error(Ci::RunDastScanService::RunError) do |error|
+            expect(error.full_messages).to include('Build could not be created')
+          end
         end
 
         it 'does not create a stage' do
@@ -139,12 +156,31 @@ describe Ci::RunDastScanService do
           allow_any_instance_of(Ci::Build).to receive(:enqueue!).and_raise(StandardError)
         end
 
-        it 'raises an exception' do
-          expect { subject }.to raise_error(Ci::RunDastScanService::EnqueueError)
+        it 'raises an exeception with #full_messages populated' do
+          expect { subject }.to raise_error(Ci::RunDastScanService::RunError) do |error|
+            expect(error.full_messages).to include('Build could not be enqueued')
+          end
         end
 
         it 'does not create a build' do
           expect { subject rescue nil }.not_to change(Ci::Pipeline, :count)
+        end
+      end
+
+      context 'when a validation error is raised' do
+        before do
+          klass = Ci::Pipeline
+          allow(klass).to receive(:create!).and_raise(
+            ActiveRecord::RecordInvalid, klass.new.tap do |pl|
+              pl.errors.add(:sha, 'can\'t be blank')
+            end
+          )
+        end
+
+        it 'raises an exeception with #full_messages populated' do
+          expect { subject }.to raise_error(Ci::RunDastScanService::RunError) do |error|
+            expect(error.full_messages).to include('Sha can\'t be blank')
+          end
         end
       end
     end

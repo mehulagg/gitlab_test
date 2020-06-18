@@ -29,15 +29,15 @@ module Gitlab
       def uncached_data
         clear_memoized_limits
 
-        license_usage_data
-          .merge(system_usage_data)
-          .merge(features_usage_data)
-          .merge(components_usage_data)
-          .merge(cycle_analytics_usage_data)
-          .merge(object_store_usage_data)
-          .merge(topology_usage_data)
-          .merge(recording_ce_finish_data)
-          .merge(merge_requests_usage_data(default_time_period))
+        with_finished_at(:recording_ce_finished_at) do
+          license_usage_data
+            .merge(system_usage_data)
+            .merge(features_usage_data)
+            .merge(components_usage_data)
+            .merge(cycle_analytics_usage_data)
+            .merge(object_store_usage_data)
+            .merge(topology_usage_data)
+        end
       end
 
       def to_json(force_refresh: false)
@@ -58,12 +58,6 @@ module Gitlab
 
       def recorded_at
         Time.now
-      end
-
-      def recording_ce_finish_data
-        {
-          recording_ce_finished_at: Time.now
-        }
       end
 
       # rubocop: disable Metrics/AbcSize
@@ -162,7 +156,8 @@ module Gitlab
             usage_counters,
             user_preferences_usage,
             ingress_modsecurity_usage,
-            container_expiration_policies_usage
+            container_expiration_policies_usage,
+            merge_requests_usage(default_time_period)
           )
         }
       end
@@ -400,7 +395,7 @@ module Gitlab
       end
 
       # rubocop: disable CodeReuse/ActiveRecord
-      def merge_requests_usage_data(time_period)
+      def merge_requests_usage(time_period)
         query =
           Event
             .where(target_type: Event::TARGET_TYPES[:merge_request].to_s)

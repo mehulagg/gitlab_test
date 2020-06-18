@@ -130,11 +130,13 @@ export default {
       return this.activeStages.length;
     },
     hasProject() {
-      return this.selectedProjectIds.length;
+      return this.selectedProjectIds.length > 0;
     },
   },
   mounted() {
     const {
+      labelsPath,
+      milestonesPath,
       glFeatures: {
         cycleAnalyticsScatterplotEnabled: hasDurationChart,
         cycleAnalyticsScatterplotMedianEnabled: hasDurationChartMedian,
@@ -149,6 +151,8 @@ export default {
       hasPathNavigation,
       hasFilterBar,
     });
+
+    this.setPaths({ labelsPath, milestonesPath });
   },
   methods: {
     ...mapActions([
@@ -171,6 +175,7 @@ export default {
       'createStage',
       'clearFormErrors',
     ]),
+    ...mapActions('filters', ['setPaths']),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
       this.fetchCycleAnalyticsData();
@@ -236,34 +241,34 @@ export default {
           />
         </div>
         <div
-          class="gl-display-flex gl-flex-direction-column gl-justify-content-space-between flex-lg-row"
+          class="gl-display-flex gl-flex-direction-column gl-lg-flex-direction-row gl-justify-content-space-between"
         >
-          <groups-dropdown-filter
-            v-if="!hideGroupDropDown"
-            class="js-groups-dropdown-filter mr-0 mr-lg-2"
-            :query-params="$options.groupsQueryParams"
-            :default-group="selectedGroup"
-            @selected="onGroupSelect"
-          />
-          <projects-dropdown-filter
-            v-if="shouldDisplayFilters"
-            :key="selectedGroup.id"
-            class="js-projects-dropdown-filter my-2 my-lg-0"
-            :group-id="selectedGroup.id"
-            :query-params="$options.projectsQueryParams"
-            :multi-select="$options.multiProjectSelect"
-            :default-projects="selectedProjects"
-            @selected="onProjectsSelect"
-          />
+          <div class="dropdown-container d-flex flex-column flex-lg-row">
+            <groups-dropdown-filter
+              v-if="!hideGroupDropDown"
+              class="js-groups-dropdown-filter"
+              :class="{ 'mr-lg-3': shouldDisplayFilters }"
+              :query-params="$options.groupsQueryParams"
+              :default-group="selectedGroup"
+              @selected="onGroupSelect"
+            />
+            <projects-dropdown-filter
+              v-if="shouldDisplayFilters"
+              :key="selectedGroup.id"
+              class="js-projects-dropdown-filter project-select"
+              :group-id="selectedGroup.id"
+              :query-params="$options.projectsQueryParams"
+              :multi-select="$options.multiProjectSelect"
+              :default-projects="selectedProjects"
+              @selected="onProjectsSelect"
+            />
+          </div>
           <filter-bar
             v-if="featureFlags.hasFilterBar"
-            class="js-filter-bar filtered-search-box mx-2 gl-display-none"
+            class="js-filter-bar filtered-search-box gl-display-flex gl-mt-3 mt-md-0 gl-mr-3"
             :disabled="!hasProject"
           />
-          <div
-            v-if="shouldDisplayFilters"
-            class="ml-0 ml-md-auto mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end"
-          >
+          <div v-if="shouldDisplayFilters" class="gl-justify-content-end gl-white-space-nowrap">
             <date-range
               :start-date="startDate"
               :end-date="endDate"

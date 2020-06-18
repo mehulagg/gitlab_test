@@ -396,20 +396,17 @@ img.emoji {
   🚨 Do not use these classes — they are deprecated and being removed. 🚨
   See https://gitlab.com/gitlab-org/gitlab/-/issues/217418 for more details.
 **/
-.prepend-top-4 { margin-top: $gl-padding-4; }
 .prepend-top-5 { margin-top: 5px; }
 .prepend-top-10 { margin-top: 10px; }
 .prepend-top-15 { margin-top: 15px; }
 .prepend-top-default { margin-top: $gl-padding !important; }
 .prepend-top-16 { margin-top: 16px; }
 .prepend-top-20 { margin-top: 20px; }
-.prepend-top-32 { margin-top: 32px; }
 .prepend-left-5 { margin-left: 5px; }
 .prepend-left-10 { margin-left: 10px; }
 .prepend-left-15 { margin-left: 15px; }
 .prepend-left-default { margin-left: $gl-padding; }
 .prepend-left-20 { margin-left: 20px; }
-.prepend-left-32 { margin-left: 32px; }
 .prepend-left-64 { margin-left: 64px; }
 .append-right-2 { margin-right: 2px; }
 .append-right-4 { margin-right: 4px; }
@@ -421,9 +418,7 @@ img.emoji {
 .append-right-32 { margin-right: 32px; }
 .append-right-48 { margin-right: 48px; }
 .prepend-right-32 { margin-right: 32px; }
-.append-bottom-4 { margin-bottom: $gl-padding-4; }
 .append-bottom-5 { margin-bottom: 5px; }
-.append-bottom-8 { margin-bottom: $grid-size; }
 .append-bottom-10 { margin-bottom: 10px; }
 .append-bottom-15 { margin-bottom: 15px; }
 .append-bottom-20 { margin-bottom: 20px; }

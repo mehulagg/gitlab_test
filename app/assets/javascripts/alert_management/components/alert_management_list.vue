@@ -8,10 +8,12 @@ import {
   GlIcon,
   GlDropdown,
   GlDropdownItem,
+  GlLink,
   GlTabs,
   GlTab,
   GlBadge,
   GlPagination,
+  GlSprintf,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
@@ -31,7 +33,8 @@ import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql'
 import { convertToSnakeCase } from '~/lib/utils/text_utility';
 import Tracking from '~/tracking';
 
-const tdClass = 'table-col d-flex d-md-table-cell align-items-center';
+const tdClass = 'table-col gl-display-flex d-md-table-cell gl-align-items-center';
+const thClass = 'gl-hover-bg-blue-50';
 const bodyTrClass =
   'gl-border-1 gl-border-t-solid gl-border-gray-100 gl-hover-bg-blue-50 gl-hover-cursor-pointer gl-hover-border-b-solid gl-hover-border-blue-200';
 
@@ -46,7 +49,7 @@ const initialPaginationState = {
 export default {
   i18n: {
     noAlertsMsg: s__(
-      "AlertManagement|No alerts available to display. If you think you're seeing this message in error, refresh the page.",
+      'AlertManagement|No alerts available to display. See %{linkStart}enabling alert management%{linkEnd} for more information on adding alerts to the list.',
     ),
     errorMsg: s__(
       "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear.",
@@ -57,32 +60,34 @@ export default {
       key: 'severity',
       label: s__('AlertManagement|Severity'),
       tdClass: `${tdClass} rounded-top text-capitalize`,
+      thClass,
       sortable: true,
     },
     {
       key: 'startedAt',
       label: s__('AlertManagement|Start time'),
-      thClass: 'js-started-at',
+      thClass: `${thClass} js-started-at`,
       tdClass,
       sortable: true,
     },
     {
       key: 'endedAt',
       label: s__('AlertManagement|End time'),
+      thClass,
       tdClass,
       sortable: true,
     },
     {
       key: 'title',
       label: s__('AlertManagement|Alert'),
-      thClass: 'w-30p alert-title',
+      thClass: `${thClass} w-30p gl-pointer-events-none`,
       tdClass,
       sortable: false,
     },
     {
       key: 'eventCount',
       label: s__('AlertManagement|Events'),
-      thClass: 'text-right gl-pr-9 w-3rem',
+      thClass: `${thClass} text-right gl-pr-9 w-3rem`,
       tdClass: `${tdClass} text-md-right`,
       sortable: true,
     },
@@ -93,7 +98,7 @@ export default {
     },
     {
       key: 'status',
-      thClass: 'w-15p',
+      thClass: `${thClass} w-15p`,
       label: s__('AlertManagement|Status'),
       tdClass: `${tdClass} rounded-bottom`,
       sortable: true,
@@ -116,10 +121,12 @@ export default {
     GlDropdown,
     GlDropdownItem,
     GlIcon,
+    GlLink,
     GlTabs,
     GlTab,
     GlBadge,
     GlPagination,
+    GlSprintf,
   },
   props: {
     projectPath: {
@@ -131,6 +138,10 @@ export default {
       required: true,
     },
     enableAlertManagementPath: {
+      type: String,
+      required: true,
+    },
+    populatingAlertsHelpUrl: {
       type: String,
       required: true,
     },
@@ -194,6 +205,7 @@ export default {
       pagination: initialPaginationState,
       sortBy: 'startedAt',
       sortDesc: true,
+      sortDirection: 'desc',
     };
   },
   computed: {
@@ -239,11 +251,11 @@ export default {
       this.filteredByStatus = status;
     },
     fetchSortedData({ sortBy, sortDesc }) {
-      const sortDirection = sortDesc ? 'DESC' : 'ASC';
-      const sortColumn = convertToSnakeCase(sortBy).toUpperCase();
+      const sortingDirection = sortDesc ? 'DESC' : 'ASC';
+      const sortingColumn = convertToSnakeCase(sortBy).toUpperCase();
 
       this.resetPagination();
-      this.sort = `${sortColumn}_${sortDirection}`;
+      this.sort = `${sortingColumn}_${sortingDirection}`;
     },
     updateAlertStatus(status, iid) {
       this.$apollo
@@ -315,7 +327,17 @@ export default {
   <div>
     <div v-if="alertManagementEnabled" class="alert-management-list">
       <gl-alert v-if="showNoAlertsMsg" @dismiss="isAlertDismissed = true">
-        {{ $options.i18n.noAlertsMsg }}
+        <gl-sprintf :message="$options.i18n.noAlertsMsg">
+          <template #link="{ content }">
+            <gl-link
+              class="gl-display-inline-block"
+              :href="populatingAlertsHelpUrl"
+              target="_blank"
+            >
+              {{ content }}
+            </gl-link>
+          </template>
+        </gl-sprintf>
       </gl-alert>
       <gl-alert v-if="showErrorMsg" variant="danger" @dismiss="isErrorAlertDismissed = true">
         {{ $options.i18n.errorMsg }}
@@ -344,6 +366,7 @@ export default {
         stacked="md"
         :tbody-tr-class="tbodyTrClass"
         :no-local-sorting="true"
+        :sort-direction="sortDirection"
         :sort-desc.sync="sortDesc"
         :sort-by.sync="sortBy"
         sort-icon-left

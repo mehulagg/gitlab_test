@@ -396,7 +396,6 @@ documentation](index.md#configure-gitaly-servers).
    postgresql['enable'] = false
    redis['enable'] = false
    nginx['enable'] = false
-   prometheus['enable'] = false
    grafana['enable'] = false
    puma['enable'] = false
    sidekiq['enable'] = false
@@ -405,6 +404,9 @@ documentation](index.md#configure-gitaly-servers).
 
    # Enable only the Gitaly service
    gitaly['enable'] = true
+
+   # Enable Prometheus if needed
+   prometheus['enable'] = true
 
    # Prevent database connections during 'gitlab-ctl reconfigure'
    gitlab_rails['rake_cache_clear'] = false
@@ -654,10 +656,10 @@ Particular attention should be shown to:
    Repository > Repository storage** to make the newly configured Praefect
    cluster the storage location for new Git repositories.
 
-   - Deselect the **default** storage location
-   - Select the **praefect** storage location
+   - The default weight is 0.
+   - The Praefect weight is 100.
 
-   ![Update repository storage](img/praefect_storage_v12_10.png)
+   ![Update repository storage](img/praefect_storage_v13_1.png)
 
 1. Verify everything is still working by creating a new project. Check the
    "Initialize repository with a README" box so that there is content in the
@@ -737,9 +739,19 @@ current primary node is found to be unhealthy.
 It is likely that we will implement support for Consul, and a cloud native
 strategy in the future.
 
-## Identifying Impact of a Primary Node Failure
+## Primary Node Failure
 
-When a primary Gitaly node fails, there is a chance of data loss. Data loss can occur if there were outstanding replication jobs the secondaries did not manage to process before the failure. The Praefect `dataloss` sub-command helps identify these cases by counting the number of dead replication jobs for each repository within a given time frame.
+Praefect recovers from a failing primary Gitaly node by promoting a healthy secondary as the new primary. To minimize data loss, Praefect elects the secondary with the least unreplicated writes from the primary. There can still be some unreplicated writes, leading to data loss.
+
+Praefect switches a virtual storage in to read-only mode after a failover event. This eases data recovery efforts by preventing new, possibly conflicting writes to the newly elected primary. This allows the administrator to attempt recovering the lost data before allowing new writes.
+
+If you prefer write availability over consistency, this behavior can be turned off by setting `praefect['failover_read_only_after_failover'] = false` in `/etc/gitlab/gitlab.rb` and [reconfiguring Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+
+### Checking for data loss
+
+The Praefect `dataloss` sub-command helps identify lost writes by counting the number of dead replication jobs for each repository within a given time frame. This command must be executed on a Praefect node.
+
+A time frame to search can be specified with `-from` and `-to`:
 
 ```shell
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss -from <rfc3339-time> -to <rfc3339-time>
@@ -762,11 +774,30 @@ sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.t
 
 ### Checking repository checksums
 
-To check a project's repository checksums across on all Gitaly nodes, the
-replicas Rake task can be run on the main GitLab node:
+To check a project's repository checksums across on all Gitaly nodes, run the
+[replicas Rake task](../raketasks/praefect.md#replica-checksums) on the main GitLab node.
+
+### Recovering lost writes
+
+The Praefect `reconcile` sub-command can be used to recover lost writes from the
+previous primary once it is back online. This is only possible when the virtual storage
+is still in read-only mode.
 
 ```shell
-sudo gitlab-rake "gitlab:praefect:replicas[project_id]"
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -reference <previous-primary> -target <current-primary> -f
+```
+
+Refer to [Backend Node Recovery](#backend-node-recovery) section for more details on
+the `reconcile` sub-command.
+
+### Enabling Writes
+
+Any data recovery attempts should have been made before enabling writes to eliminate
+any chance of conflicting writes. Virtual storage can be re-enabled for writes by using
+the Praefect `enable-writes` sub-command.
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml enable-writes -virtual-storage <virtual-storage>
 ```
 
 ## Backend Node Recovery

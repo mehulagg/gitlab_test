@@ -522,7 +522,7 @@ class User < ApplicationRecord
 
     # Searches users matching the given query.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
     # query - The search query as a String
     #
@@ -565,7 +565,7 @@ class User < ApplicationRecord
 
     # searches user by given pattern
     # it compares name, email, username fields and user's secondary emails with given pattern
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
 
     def search_with_secondary_emails(query)
       return none if query.blank?
@@ -619,11 +619,12 @@ class User < ApplicationRecord
 
     # Pattern used to extract `@user` user references from text
     def reference_pattern
-      %r{
-        (?<!\w)
-        #{Regexp.escape(reference_prefix)}
-        (?<user>#{Gitlab::PathRegex::FULL_NAMESPACE_FORMAT_REGEX})
-      }x
+      @reference_pattern ||=
+        %r{
+          (?<!\w)
+          #{Regexp.escape(reference_prefix)}
+          (?<user>#{Gitlab::PathRegex::FULL_NAMESPACE_FORMAT_REGEX})
+        }x
     end
 
     # Return (create if necessary) the ghost user. The ghost user

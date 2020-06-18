@@ -34,21 +34,20 @@ module EE
 
         override :usage_data_counters
         def usage_data_counters
-          super + [::Gitlab::UsageDataCounters::LicensesList]
+          super + [
+            ::Gitlab::UsageDataCounters::LicensesList,
+            ::Gitlab::UsageDataCounters::IngressModsecurityCounter,
+            StatusPage::UsageDataCounters::IncidentCounter
+          ]
         end
 
         override :uncached_data
         def uncached_data
-          super
-            .merge(usage_activity_by_stage)
-            .merge(usage_activity_by_stage(:usage_activity_by_stage_monthly, default_time_period))
-            .merge(recording_ee_finish_data)
-        end
-
-        def recording_ee_finish_data
-          {
-            recording_ee_finished_at: Time.now
-          }
+          with_finished_at(:recording_ee_finished_at) do
+            super
+              .merge(usage_activity_by_stage)
+              .merge(usage_activity_by_stage(:usage_activity_by_stage_monthly, default_time_period))
+          end
         end
 
         override :features_usage_data

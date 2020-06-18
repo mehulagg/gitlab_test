@@ -377,6 +377,7 @@ class Project < ApplicationRecord
   delegate :forward_deployment_enabled, :forward_deployment_enabled=, :forward_deployment_enabled?, to: :ci_cd_settings
   delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
   delegate :allow_merge_on_skipped_pipeline, :allow_merge_on_skipped_pipeline?, :allow_merge_on_skipped_pipeline=, to: :project_setting
+  delegate :active?, to: :prometheus_service, allow_nil: true, prefix: true
 
   # Validations
   validates :creator, presence: true, on: :create
@@ -617,8 +618,7 @@ class Project < ApplicationRecord
     # Searches for a list of projects based on the query given in `query`.
     #
     # On PostgreSQL this method uses "ILIKE" to perform a case-insensitive
-    # search. On MySQL a regular "LIKE" is used as it's already
-    # case-insensitive.
+    # search.
     #
     # query - The search query as a String.
     def search(query, include_namespace: false)
@@ -676,10 +676,11 @@ class Project < ApplicationRecord
     # '>' or its escaped form ('&gt;') are checked for because '>' is sometimes escaped
     # when the reference comes from an external source.
     def markdown_reference_pattern
-      %r{
-        #{reference_pattern}
-        (#{reference_postfix}|#{reference_postfix_escaped})
-      }x
+      @markdown_reference_pattern ||=
+        %r{
+          #{reference_pattern}
+          (#{reference_postfix}|#{reference_postfix_escaped})
+        }x
     end
 
     def trending
@@ -1199,14 +1200,6 @@ class Project < ApplicationRecord
     get_issue(issue_id)
   end
 
-  def default_issue_tracker
-    gitlab_issue_tracker_service || create_gitlab_issue_tracker_service
-  end
-
-  def issues_tracker
-    external_issue_tracker || default_issue_tracker
-  end
-
   def external_issue_reference_pattern
     external_issue_tracker.class.reference_pattern(only_long: issues_enabled?)
   end
@@ -1262,7 +1255,7 @@ class Project < ApplicationRecord
 
     available_services_names.map do |service_name|
       find_or_initialize_service(service_name)
-    end
+    end.sort_by(&:title)
   end
 
   def disabled_services

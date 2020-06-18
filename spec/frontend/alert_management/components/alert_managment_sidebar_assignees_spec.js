@@ -33,6 +33,7 @@ describe('Alert Details Sidebar Assignees', () => {
         ...data,
         sidebarCollapsed,
         projectPath: 'projectPath',
+        projectId: '1',
       },
       mocks: {
         $apollo: {
@@ -127,7 +128,7 @@ describe('Alert Details Sidebar Assignees', () => {
     it('stops updating and cancels loading when the request fails', () => {
       jest.spyOn(wrapper.vm.$apollo, 'mutate').mockReturnValue(Promise.reject(new Error()));
       wrapper.vm.updateAlertAssignees('root');
-      expect(wrapper.find('[data-testid="assigned-users"]').text()).toBe('Unassigned');
+      expect(wrapper.find('[data-testid="unassigned-users"]').text()).toBe('assign yourself');
     });
   });
 });

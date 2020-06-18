@@ -55,6 +55,7 @@ RSpec.describe Gitlab::UsageData do
       # 1 published issue on 1 projects with status page enabled
       create(:issue, project: projects[0])
       create(:issue, :published, project: projects[0])
+      create(:issue, :published, project: projects[1])
     end
 
     subject { described_class.data }
@@ -111,8 +112,10 @@ RSpec.describe Gitlab::UsageData do
         projects_with_tracing_enabled
         sast_jobs
         secret_detection_jobs
-        status_page_projects
+        status_page_incident_publishes
+        status_page_incident_unpublishes
         status_page_issues
+        status_page_projects
         user_preferences_group_overview_details
         user_preferences_group_overview_security_dashboard
         template_repositories
@@ -153,6 +156,10 @@ RSpec.describe Gitlab::UsageData do
     it 'gathers group overview preferences usage data', :aggregate_failures do
       expect(subject[:counts][:user_preferences_group_overview_details]).to eq(User.active.count - 2) # we have exactly 2 active users with security dashboard set
       expect(subject[:counts][:user_preferences_group_overview_security_dashboard]).to eq 2
+    end
+
+    it 'includes a recording_ee_finished_at timestamp' do
+      expect(subject[:recording_ee_finished_at]).to be_a(Time)
     end
   end
 
@@ -715,14 +722,6 @@ RSpec.describe Gitlab::UsageData do
           )
         end
       end
-    end
-  end
-
-  describe '.recording_ee_finished_at' do
-    subject { described_class.recording_ee_finish_data }
-
-    it 'gathers time ee recording finishes at' do
-      expect(subject[:recording_ee_finished_at]).to be_a(Time)
     end
   end
 

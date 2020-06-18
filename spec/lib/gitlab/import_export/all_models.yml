@@ -31,6 +31,8 @@ issues:
 - closed_by
 - epic_issue
 - epic
+- feature_flag_issues
+- feature_flags
 - designs
 - design_versions
 - description_versions
@@ -184,6 +186,7 @@ ci_pipelines:
 - statuses
 - latest_statuses_ordered_by_stage
 - builds
+- bridges
 - processables
 - trigger_requests
 - variables
@@ -504,6 +507,7 @@ project:
 - freeze_periods
 - webex_teams_service
 - build_report_results
+- vulnerability_statistic
 award_emoji:
 - awardable
 - user
@@ -568,6 +572,9 @@ self_managed_prometheus_alert_events:
 epic_issues:
 - issue
 - epic
+feature_flag_issues:
+- issue
+- feature_flag
 tracing_setting:
 - project
 reviews:

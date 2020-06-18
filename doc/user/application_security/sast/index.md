@@ -78,6 +78,7 @@ The following table shows which languages, package managers and frameworks are s
 | Elixir (Phoenix)                                                            | [Sobelow](https://github.com/nccgroup/sobelow)                                         | 11.10                        |
 | Go                                                                          | [Gosec](https://github.com/securego/gosec)                                             | 10.7                         |
 | Groovy ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.3 (Gradle) & 11.9 (Ant, Maven, SBT) |
+| Helm Charts                                                                 | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 13.1                         |
 | Java ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 10.6 (Maven), 10.8 (Gradle) & 11.9 (Ant, SBT) |
 | JavaScript                                                                  | [ESLint security plugin](https://github.com/nodesecurity/eslint-plugin-security)       | 11.8                         |
 | Kubernetes manifests                                                        | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 12.6                         |
@@ -85,7 +86,7 @@ The following table shows which languages, package managers and frameworks are s
 | PHP                                                                         | [phpcs-security-audit](https://github.com/FloeDesignTechnologies/phpcs-security-audit) | 10.8                         |
 | Python ([pip](https://pip.pypa.io/en/stable/))                              | [bandit](https://github.com/PyCQA/bandit)                                              | 10.3                         |
 | React                                                                       | [ESLint react plugin](https://github.com/yannickcr/eslint-plugin-react)                | 12.5                         |
-| Ruby on Rails                                                               | [brakeman](https://brakemanscanner.org)                                                | 10.3                         |
+| Ruby on Rails                                                               | [brakeman](https://brakemanscanner.org)                                                | 10.3, moved to Core in 13.1  |
 | Scala ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.0 (SBT) & 11.9 (Ant, Gradle, Maven) |
 | TypeScript                                                                  | [`tslint-config-security`](https://github.com/webschik/tslint-config-security/) | 11.9 |
 
@@ -93,6 +94,26 @@ NOTE: **Note:**
 The Java analyzers can also be used for variants like the
 [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html),
 [Grails](https://grails.org/) and the [Maven wrapper](https://github.com/takari/maven-wrapper).
+
+### Making SAST analyzers available to all GitLab tiers
+
+All open source (OSS) analyzers are in the process of being reviewed and potentially moved to GitLab Core tier. Progress can be
+tracked in the corresponding
+[epic](https://gitlab.com/groups/gitlab-org/-/epics/2098).
+
+#### Summary of features per tier
+
+Different features are available in different [GitLab tiers](https://about.gitlab.com/pricing/),
+as shown in the following table:
+
+| Capability                                                                | In Core             | In Ultimate        |
+|:--------------------------------------------------------------------------|:--------------------|:-------------------|
+| [Configure SAST Scanners](#configuration)                                 | **{check-circle}**  | **{check-circle}** |
+| [Customize SAST Settings](#customizing-the-sast-settings)                 | **{check-circle}**  | **{check-circle}** |
+| View [JSON Report](#reports-json-format)                                  | **{check-circle}**  | **{check-circle}** |
+| [Presentation of JSON Report in Merge Request](#overview)                 | **{dotted-circle}** | **{check-circle}** |
+| [Interaction with Vulnerabilities](#interacting-with-the-vulnerabilities) | **{dotted-circle}** | **{check-circle}** |
+| [Access to Security Dashboard](#security-dashboard)                       | **{dotted-circle}** | **{check-circle}** |
 
 ## Contribute your scanner
 
@@ -277,7 +298,6 @@ The following are Docker image-related variables.
 | Environment variable         | Description                                                                                                                                                                                                              |
 |------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `SECURE_ANALYZERS_PREFIX`    | Override the name of the Docker registry providing the default images (proxy). Read more about [customizing analyzers](analyzers.md).                                                                                    |
-| `SAST_ANALYZER_IMAGE_PREFIX` | **DEPRECATED**: Use `SECURE_ANALYZERS_PREFIX` instead.                                                                                                                                                                       |
 | `SAST_ANALYZER_IMAGE_TAG`    | **DEPRECATED:** Override the Docker tag of the default images. Read more about [customizing analyzers](analyzers.md).                                                                                                        |
 | `SAST_DEFAULT_ANALYZERS`     | Override the names of default images. Read more about [customizing analyzers](analyzers.md).                                                                                                                             |
 | `SAST_DISABLE_DIND`          | Disable Docker-in-Docker and run analyzers [individually](#enabling-docker-in-docker). This variable is `true` by default. |
@@ -317,6 +337,8 @@ Some analyzers can be customized with environment variables.
 | Environment variable        | Analyzer | Description |
 |-----------------------------|----------|-------------|
 | `SCAN_KUBERNETES_MANIFESTS`           | Kubesec              | Set to `"true"` to scan Kubernetes manifests. |
+| `KUBESEC_HELM_CHARTS_PATH`            | Kubesec              | Optional path to Helm charts that `helm` will use to generate a Kubernetes manifest that `kubesec` will scan. If dependencies are defined, `helm dependency build` should be ran in a `before_script` to fetch the necessary dependencies. |
+| `KUBESEC_HELM_OPTIONS`                | Kubesec              | Additional arguments for the `helm` executable. |
 | `ANT_HOME`                            | SpotBugs             | The `ANT_HOME` environment variable. |
 | `ANT_PATH`                            | SpotBugs             | Path to the `ant` executable. |
 | `GRADLE_PATH`                         | SpotBugs             | Path to the `gradle` executable. |
@@ -506,7 +528,7 @@ For details on saving and transporting Docker images as a file, see Docker's doc
 ### Set SAST CI job variables to use local SAST analyzers
 
 Add the following configuration to your `.gitlab-ci.yml` file. You must replace
-`SAST_ANALYZER_IMAGE_PREFIX` to refer to your local Docker container registry:
+`SECURE_ANALYZERS_PREFIX` to refer to your local Docker container registry:
 
   ```yaml
 include:

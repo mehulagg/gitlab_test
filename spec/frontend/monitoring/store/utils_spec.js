@@ -5,9 +5,10 @@ import {
   parseAnnotationsResponse,
   removeLeadingSlash,
   mapToDashboardViewModel,
-  normalizeQueryResult,
+  normalizeQueryResponseData,
   convertToGrafanaTimeRange,
   addDashboardMetaDataToLink,
+  normalizeCustomDashboardPath,
 } from '~/monitoring/stores/utils';
 import { annotationsData } from '../mock_data';
 import { NOT_IN_DB_PREFIX } from '~/monitoring/constants';
@@ -400,28 +401,6 @@ describe('mapToDashboardViewModel', () => {
   });
 });
 
-describe('normalizeQueryResult', () => {
-  const testData = {
-    metric: {
-      __name__: 'up',
-      job: 'prometheus',
-      instance: 'localhost:9090',
-    },
-    values: [[1435781430.781, '1'], [1435781445.781, '1'], [1435781460.781, '1']],
-  };
-
-  it('processes a simple matrix result', () => {
-    expect(normalizeQueryResult(testData)).toEqual({
-      metric: { __name__: 'up', job: 'prometheus', instance: 'localhost:9090' },
-      values: [
-        ['2015-07-01T20:10:30.781Z', 1],
-        ['2015-07-01T20:10:45.781Z', 1],
-        ['2015-07-01T20:11:00.781Z', 1],
-      ],
-    });
-  });
-});
-
 describe('uniqMetricsId', () => {
   [
     { input: { id: 1 }, expected: `${NOT_IN_DB_PREFIX}_1` },
@@ -605,5 +584,141 @@ describe('user-defined links utils', () => {
         url: 'https://gitlab.com?from=1591632781995&to=1591650752243',
       });
     });
+  });
+});
+
+describe('normalizeQueryResponseData', () => {
+  // Data examples from
+  // https://prometheus.io/docs/prometheus/latest/querying/api/#expression-queries
+
+  it('processes a string result', () => {
+    const mockScalar = {
+      resultType: 'string',
+      result: [1435781451.781, '1'],
+    };
+
+    expect(normalizeQueryResponseData(mockScalar)).toEqual([
+      {
+        metric: {},
+        value: ['2015-07-01T20:10:51.781Z', '1'],
+        values: [['2015-07-01T20:10:51.781Z', '1']],
+      },
+    ]);
+  });
+
+  it('processes a scalar result', () => {
+    const mockScalar = {
+      resultType: 'scalar',
+      result: [1435781451.781, '1'],
+    };
+
+    expect(normalizeQueryResponseData(mockScalar)).toEqual([
+      {
+        metric: {},
+        value: ['2015-07-01T20:10:51.781Z', 1],
+        values: [['2015-07-01T20:10:51.781Z', 1]],
+      },
+    ]);
+  });
+
+  it('processes a vector result', () => {
+    const mockVector = {
+      resultType: 'vector',
+      result: [
+        {
+          metric: {
+            __name__: 'up',
+            job: 'prometheus',
+            instance: 'localhost:9090',
+          },
+          value: [1435781451.781, '1'],
+        },
+        {
+          metric: {
+            __name__: 'up',
+            job: 'node',
+            instance: 'localhost:9100',
+          },
+          value: [1435781451.781, '0'],
+        },
+      ],
+    };
+
+    expect(normalizeQueryResponseData(mockVector)).toEqual([
+      {
+        metric: { __name__: 'up', job: 'prometheus', instance: 'localhost:9090' },
+        value: ['2015-07-01T20:10:51.781Z', 1],
+        values: [['2015-07-01T20:10:51.781Z', 1]],
+      },
+      {
+        metric: { __name__: 'up', job: 'node', instance: 'localhost:9100' },
+        value: ['2015-07-01T20:10:51.781Z', 0],
+        values: [['2015-07-01T20:10:51.781Z', 0]],
+      },
+    ]);
+  });
+
+  it('processes a matrix result', () => {
+    const mockMatrix = {
+      resultType: 'matrix',
+      result: [
+        {
+          metric: {
+            __name__: 'up',
+            job: 'prometheus',
+            instance: 'localhost:9090',
+          },
+          values: [[1435781430.781, '1'], [1435781445.781, '1'], [1435781460.781, '1']],
+        },
+        {
+          metric: {
+            __name__: 'up',
+            job: 'node',
+            instance: 'localhost:9091',
+          },
+          values: [[1435781430.781, '0'], [1435781445.781, '0'], [1435781460.781, '1']],
+        },
+      ],
+    };
+
+    expect(normalizeQueryResponseData(mockMatrix)).toEqual([
+      {
+        metric: { __name__: 'up', instance: 'localhost:9090', job: 'prometheus' },
+        values: [
+          ['2015-07-01T20:10:30.781Z', 1],
+          ['2015-07-01T20:10:45.781Z', 1],
+          ['2015-07-01T20:11:00.781Z', 1],
+        ],
+      },
+      {
+        metric: { __name__: 'up', instance: 'localhost:9091', job: 'node' },
+        values: [
+          ['2015-07-01T20:10:30.781Z', 0],
+          ['2015-07-01T20:10:45.781Z', 0],
+          ['2015-07-01T20:11:00.781Z', 1],
+        ],
+      },
+    ]);
+  });
+});
+
+describe('normalizeCustomDashboardPath', () => {
+  it.each`
+    input                                                               | expected
+    ${[undefined]}                                                      | ${''}
+    ${[null]}                                                           | ${''}
+    ${[]}                                                               | ${''}
+    ${['links.yml']}                                                    | ${'links.yml'}
+    ${['links.yml', '.gitlab/dashboards']}                              | ${'.gitlab/dashboards/links.yml'}
+    ${['config/prometheus/common_metrics.yml']}                         | ${'config/prometheus/common_metrics.yml'}
+    ${['config/prometheus/common_metrics.yml', '.gitlab/dashboards']}   | ${'config/prometheus/common_metrics.yml'}
+    ${['dir1/links.yml', '.gitlab/dashboards']}                         | ${'.gitlab/dashboards/dir1/links.yml'}
+    ${['dir1/dir2/links.yml', '.gitlab/dashboards']}                    | ${'.gitlab/dashboards/dir1/dir2/links.yml'}
+    ${['.gitlab/dashboards/links.yml']}                                 | ${'.gitlab/dashboards/links.yml'}
+    ${['.gitlab/dashboards/links.yml', '.gitlab/dashboards']}           | ${'.gitlab/dashboards/links.yml'}
+    ${['.gitlab/dashboards/dir1/links.yml', '.gitlab/dashboards']}      | ${'.gitlab/dashboards/dir1/links.yml'}
+    ${['.gitlab/dashboards/dir1/dir2/links.yml', '.gitlab/dashboards']} | ${'.gitlab/dashboards/dir1/dir2/links.yml'}
+  `(`normalizeCustomDashboardPath returns $expected for $input`, ({ input, expected }) => {
+    expect(normalizeCustomDashboardPath(...input)).toEqual(expected);
   });
 });

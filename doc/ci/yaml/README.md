@@ -2818,7 +2818,7 @@ job:
 expire and are therefore deleted, counting from the time they are uploaded and
 stored on GitLab. If the expiry time is not defined, it defaults to the
 [instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration-core-only)
-(30 days by default, forever on GitLab.com).
+(30 days by default).
 
 You can use the **Keep** button on the job page to override expiration and
 keep artifacts forever.
@@ -3451,7 +3451,7 @@ variables:
 
 `none` also re-uses the local working copy, but skips all Git operations
 (including GitLab Runner's pre-clone script, if present). It's mostly useful
-for jobs that operate exclusively on artifacts (for examples `deploy`). Git repository
+for jobs that operate exclusively on artifacts (for example, `deploy`). Git repository
 data may be present, but it's certain to be out of date, so you should only
 rely on files brought into the local working copy from cache or artifacts.
 
