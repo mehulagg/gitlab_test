@@ -9,7 +9,7 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
 
   describe 'GET #index' do
     context 'private project' do
-      let_it_be(:project) { create(:project) }
+      let(:project) { create(:project) }
 
       context 'with authorized user' do
         before do
@@ -84,7 +84,7 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
     end
 
     context 'public project' do
-      let_it_be(:project) { create(:project, :public) }
+      let(:project) { create(:project, :public) }
 
       before do
         stub_licensed_features(requirements: true)
