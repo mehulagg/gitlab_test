@@ -172,7 +172,7 @@ RSpec.describe Gitlab::PathRegex do
 
     # We ban new items in this list, see https://gitlab.com/gitlab-org/gitlab/-/issues/215362
     it 'does not allow expansion' do
-      expect(described_class::TOP_LEVEL_ROUTES.size).to eq(41)
+      expect(described_class::TOP_LEVEL_ROUTES.size).to eq(37)
     end
   end
 
