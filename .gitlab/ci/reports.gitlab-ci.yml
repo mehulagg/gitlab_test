@@ -147,7 +147,10 @@ dependency_scanning:
     expire_in: 1 week  # GitLab-specific
 
 requirements_check:
-  when: manual
+  rules:
+  - if: $CI_HAS_OPEN_REQUIREMENTS == "true"
+    when: manual
+  - when: never
   allow_failure: false
   script:
     - echo "{\"*\":\"passed\"}" > tmp/requirements.json
