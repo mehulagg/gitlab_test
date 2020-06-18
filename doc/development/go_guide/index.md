@@ -85,20 +85,66 @@ projects:
 
 - Avoid global variables, even in packages. By doing so you will introduce side
   effects if the package is included multiple times.
-- Use `goimports -local gitlab.com/gitlab-org` before committing.
+- Place private methods below the first caller method in the source file.
+- Use `goimports` before committing.
   [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports)
   is a tool that automatically formats Go source code using
   [Gofmt](https://golang.org/cmd/gofmt/), in addition to formatting import lines,
   adding missing ones and removing unreferenced ones.
-
+- Consider running `goimports -local gitlab.com/gitlab-org`.
   By using the `-local gitlab.com/gitlab-org` option, `goimports` will group locally referenced
   packages separately from external ones. See
   [the imports section](https://github.com/golang/go/wiki/CodeReviewComments#imports)
   of the Code Review Comments page on the Go wiki for more details.
 
-  Most editors/IDEs will allow you to run commands before/after saving a file, you can set it
-  up to run `goimports` so that it's applied to every file when saving.
-- Place private methods below the first caller method in the source file.
+  See how to [configure goimports](#configure-goimports).
+
+### Configure `goimports`
+
+Most editors/IDEs will allow you to run commands before/after saving a file, you can set it
+up to run `goimports` so that it's applied to every file when saving.
+
+#### `vim-go`
+
+Add the following lines to your `.vimrc` file:
+
+```vim
+let g:go_fmt_command = "goimports"
+let g:go_fmt_options = "-local=gitlab.com/gitlab-org"
+```
+
+See [`vim-go` settings](https://github.com/fatih/vim-go/blob/master/doc/vim-go.txt#L1371)
+for more information.
+
+#### VSCode
+
+Add the following lines to your
+[VSCode settings](https://code.visualstudio.com/docs/getstarted/settings#_language-specific-editor-settings):
+
+```json
+  "go.formatOnSave": true,
+  "go.formatTool": "goimports",
+  "go.formatFlags": [
+      "-local=gitlab.com/gitlab-org"
+  ],
+```
+
+#### GoLand
+
+[GoLand](https://www.jetbrains.com/go/) supports
+[File Watchers](https://www.jetbrains.com/help/go/settings-tools-file-watchers.html).
+
+1. Open the GoLand settings.
+1. Go to **Tools**->**File Watchers**
+1. Click on the `+` button and select **goimports**
+1. Optionally, add the following to the arguments section:
+
+    ```plaintext
+    -local gitlab.com/gitlab-org
+    ```
+
+1. Click **OK**
+1. Click **Apply**
 
 ### Automatic linting
 
