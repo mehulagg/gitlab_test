@@ -18,7 +18,7 @@ import {
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { __, s__ } from '~/locale';
-import { debounce } from 'lodash';
+import { debounce, trim } from 'lodash';
 import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
@@ -269,8 +269,11 @@ export default {
       this.sort = `${sortingColumn}_${sortingDirection}`;
     },
     onInputChange: debounce(function debounceSearch(input) {
-      this.resetPagination();
-      this.searchTerm = input;
+      const trimmedInput = trim(input);
+      if (trimmedInput !== this.searchTerm) {
+        this.resetPagination();
+        this.searchTerm = trimmedInput;
+      }
     }, 500),
     updateAlertStatus(status, iid) {
       this.$apollo
