@@ -92,7 +92,7 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
 
       context 'with requirements disabled' do
         before do
-          project.project_feature.update({ requirements_access_level: ::ProjectFeature::DISABLED })
+          project.project_feature.update!({ requirements_access_level: ::ProjectFeature::DISABLED })
           project.add_developer(user)
           sign_in(user)
         end
@@ -106,14 +106,13 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
 
       context 'with requirements visible to project memebers' do
         before do
-          project.project_feature.update({ requirements_access_level: ::ProjectFeature::PRIVATE })
+          project.project_feature.update!({ requirements_access_level: ::ProjectFeature::PRIVATE })
+          project.add_developer(user)
+          sign_in(user)
         end
 
         context 'with authorized user' do
           it 'renders the index template' do
-            project.add_developer(user)
-            sign_in(user)
-            
             subject
 
             expect(response).to have_gitlab_http_status(:ok)
@@ -122,9 +121,11 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
         end
 
         context 'with unauthorized user' do
-          it 'returns 404' do
-            sign_in(user)
+          before do
+            project.members.find_by(user_id: user.id).destroy
+          end
 
+          it 'returns 404' do
             subject
 
             expect(response).to have_gitlab_http_status(:not_found)
@@ -134,7 +135,7 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
 
       context 'with requirements visible to everyone' do
         before do
-          project.project_feature.update({ requirements_access_level: ::ProjectFeature::ENABLED })
+          project.project_feature.update!({ requirements_access_level: ::ProjectFeature::ENABLED })
         end
 
         context 'with anonymous user' do
@@ -145,7 +146,7 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
             expect(response).to render_template(:index)
           end
         end
-      end 
+      end
     end
   end
 end
