@@ -19,7 +19,7 @@ module Groups
               .new(current_user: current_user)
 
             render json: serializer.with_pagination(request, response)
-              .represent_read_only(@images)
+              .represent(@images)
           end
         end
       end
