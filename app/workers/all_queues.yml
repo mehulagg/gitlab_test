@@ -1708,3 +1708,11 @@
   :weight: 1
   :idempotent: true
   :tags: []
+- :name: :new_queue 
+  :feature_category: :source_code_management
+  :has_external_dependencies:
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
+  :tags: []
