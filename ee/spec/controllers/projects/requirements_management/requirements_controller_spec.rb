@@ -107,11 +107,14 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
       context 'with requirements visible to project memebers' do
         before do
           project.project_feature.update!({ requirements_access_level: ::ProjectFeature::PRIVATE })
-          project.add_developer(user)
-          sign_in(user)
         end
 
         context 'with authorized user' do
+          before do
+            project.add_developer(user)
+            sign_in(user)
+          end
+
           it 'renders the index template' do
             subject
 
@@ -122,7 +125,7 @@ RSpec.describe Projects::RequirementsManagement::RequirementsController do
 
         context 'with unauthorized user' do
           before do
-            project.members.find_by(user_id: user.id).destroy
+            sign_in(user)
           end
 
           it 'returns 404' do
