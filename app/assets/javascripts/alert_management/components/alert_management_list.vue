@@ -225,6 +225,9 @@ export default {
         !this.isAlertDismissed
       );
     },
+    isSearchDisabled() {
+      return !this.hasAlerts && !this.loading && !this.searchTerm;
+    },
     showErrorMsg() {
       return this.errored && !this.isErrorAlertDismissed;
     },
@@ -376,6 +379,7 @@ export default {
         <gl-search-box-by-type
           class="gl-bg-white"
           :placeholder="$options.i18n.searchPlaceholder"
+          :disabled="isSearchDisabled"
           @input="onInputChange"
         />
       </div>
