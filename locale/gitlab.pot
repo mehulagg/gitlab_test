@@ -15442,6 +15442,9 @@ msgstr ""
 msgid "MergeRequests|Jump to next unresolved thread"
 msgstr ""
 
+msgid "MergeRequests|Open pending comments dropdown"
+msgstr ""
+
 msgid "MergeRequests|Reply..."
 msgstr ""
 
@@ -24046,9 +24049,6 @@ msgid "Submit feedback"
 msgstr ""
 
 msgid "Submit issue"
-msgstr ""
-
-msgid "Submit review"
 msgstr ""
 
 msgid "Submit search"
