@@ -86,10 +86,6 @@ describe('Pipelines', () => {
         return waitForPromises();
       });
 
-      it('renders tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
-      });
-
       it('renders Run Pipeline link', () => {
         expect(wrapper.find('.js-run-pipeline').attributes('href')).toBe(paths.newPipelinePath);
       });
@@ -124,10 +120,6 @@ describe('Pipelines', () => {
         createComponent();
 
         return waitForPromises();
-      });
-
-      it('renders tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
       });
 
       it('renders Run Pipeline link', () => {
@@ -173,7 +165,6 @@ describe('Pipelines', () => {
       });
 
       it('does not render tabs nor buttons', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').exists()).toBeFalsy();
         expect(wrapper.find('.js-run-pipeline').exists()).toBeFalsy();
         expect(wrapper.find('.js-ci-lint').exists()).toBeFalsy();
         expect(wrapper.find('.js-clear-cache').exists()).toBeFalsy();
@@ -186,10 +177,6 @@ describe('Pipelines', () => {
         createComponent({ hasGitlabCi: false, canCreatePipeline: true, ...paths });
 
         return waitForPromises();
-      });
-
-      it('renders tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
       });
 
       it('renders buttons', () => {
@@ -215,10 +202,6 @@ describe('Pipelines', () => {
         createComponent({ hasGitlabCi: false, canCreatePipeline: false, ...noPermissions });
 
         return waitForPromises();
-      });
-
-      it('renders tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
       });
 
       it('does not render buttons', () => {
@@ -249,10 +232,6 @@ describe('Pipelines', () => {
         createComponent({ hasGitlabCi: true, canCreatePipeline: false, ...noPermissions });
 
         return waitForPromises();
-      });
-
-      it('renders tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
       });
 
       it('does not render buttons', () => {
@@ -308,10 +287,6 @@ describe('Pipelines', () => {
         return waitForPromises();
       });
 
-      it('renders tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
-      });
-
       it('does not renders buttons', () => {
         expect(wrapper.find('.js-run-pipeline').exists()).toBeFalsy();
         expect(wrapper.find('.js-ci-lint').exists()).toBeFalsy();
@@ -340,36 +315,6 @@ describe('Pipelines', () => {
         expect(wrapper.findAll('.gl-responsive-table-row')).toHaveLength(
           pipelines.pipelines.length + 1,
         );
-      });
-
-      it('should render navigation tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-pending').text()).toContain('Pending');
-
-        expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
-
-        expect(wrapper.find('.js-pipelines-tab-running').text()).toContain('Running');
-
-        expect(wrapper.find('.js-pipelines-tab-finished').text()).toContain('Finished');
-
-        expect(wrapper.find('.js-pipelines-tab-branches').text()).toContain('Branches');
-
-        expect(wrapper.find('.js-pipelines-tab-tags').text()).toContain('Tags');
-      });
-
-      it('should make an API request when using tabs', () => {
-        const updateContentMock = jest.fn(() => {});
-        createComponent(
-          { hasGitlabCi: true, canCreatePipeline: true, ...paths },
-          {
-            updateContent: updateContentMock,
-          },
-        );
-
-        return waitForPromises().then(() => {
-          wrapper.find('.js-pipelines-tab-finished').trigger('click');
-
-          expect(updateContentMock).toHaveBeenCalledWith({ scope: 'finished', page: '1' });
-        });
       });
 
       describe('with pagination', () => {
@@ -448,28 +393,7 @@ describe('Pipelines', () => {
       createComponent();
     });
 
-    describe('tabs', () => {
-      it('returns default tabs', () => {
-        expect(wrapper.vm.tabs).toEqual([
-          { name: 'All', scope: 'all', count: undefined, isActive: true },
-          { name: 'Pending', scope: 'pending', count: undefined, isActive: false },
-          { name: 'Running', scope: 'running', count: undefined, isActive: false },
-          { name: 'Finished', scope: 'finished', count: undefined, isActive: false },
-          { name: 'Branches', scope: 'branches', isActive: false },
-          { name: 'Tags', scope: 'tags', isActive: false },
-        ]);
-      });
-    });
-
     describe('emptyTabMessage', () => {
-      it('returns message with scope', () => {
-        wrapper.vm.scope = 'pending';
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.emptyTabMessage).toEqual('There are currently no pending pipelines.');
-        });
-      });
-
       it('returns message without scope when scope is `all`', () => {
         expect(wrapper.vm.emptyTabMessage).toEqual('There are currently no pipelines.');
       });
@@ -523,66 +447,6 @@ describe('Pipelines', () => {
 
         return wrapper.vm.$nextTick().then(() => {
           expect(wrapper.vm.stateToRender).toEqual('emptyState');
-        });
-      });
-    });
-
-    describe('shouldRenderTabs', () => {
-      it('returns true when state is loading & has already made the first request', () => {
-        wrapper.vm.isLoading = true;
-        wrapper.vm.hasMadeRequest = true;
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.shouldRenderTabs).toEqual(true);
-        });
-      });
-
-      it('returns true when state is tableList & has already made the first request', () => {
-        wrapper.vm.isLoading = false;
-        wrapper.vm.state.pipelines = pipelines.pipelines;
-        wrapper.vm.hasMadeRequest = true;
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.shouldRenderTabs).toEqual(true);
-        });
-      });
-
-      it('returns true when state is error & has already made the first request', () => {
-        wrapper.vm.isLoading = false;
-        wrapper.vm.hasError = true;
-        wrapper.vm.hasMadeRequest = true;
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.shouldRenderTabs).toEqual(true);
-        });
-      });
-
-      it('returns true when state is empty tab & has already made the first request', () => {
-        wrapper.vm.isLoading = false;
-        wrapper.vm.state.count.all = 10;
-        wrapper.vm.hasMadeRequest = true;
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.shouldRenderTabs).toEqual(true);
-        });
-      });
-
-      it('returns false when has not made first request', () => {
-        wrapper.vm.hasMadeRequest = false;
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.shouldRenderTabs).toEqual(false);
-        });
-      });
-
-      it('returns false when state is empty state', () => {
-        createComponent({ hasGitlabCi: false, canCreatePipeline: true, ...paths });
-
-        wrapper.vm.isLoading = false;
-        wrapper.vm.hasMadeRequest = true;
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.shouldRenderTabs).toEqual(false);
         });
       });
     });

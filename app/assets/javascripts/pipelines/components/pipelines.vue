@@ -1,11 +1,10 @@
 <script>
 import { isEqual } from 'lodash';
-import { __, sprintf, s__ } from '../../locale';
+import { s__ } from '../../locale';
 import createFlash from '../../flash';
 import PipelinesService from '../services/pipelines_service';
 import pipelinesMixin from '../mixins/pipelines';
 import TablePagination from '../../vue_shared/components/pagination/table_pagination.vue';
-import NavigationTabs from '../../vue_shared/components/navigation_tabs.vue';
 import NavigationControls from './nav_controls.vue';
 import { getParameterByName } from '../../lib/utils/common_utils';
 import CIPaginationMixin from '../../vue_shared/mixins/ci_pagination_api_mixin';
@@ -17,7 +16,6 @@ import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 export default {
   components: {
     TablePagination,
-    NavigationTabs,
     NavigationControls,
     PipelinesFilteredSearch,
   },
@@ -97,7 +95,7 @@ export default {
       // Start with loading state to avoid a glitch when the empty state will be rendered
       isLoading: true,
       state: this.store.state,
-      scope: getParameterByName('scope') || 'all',
+      scope: 'all',
       page: getParameterByName('page') || '1',
       requestData: {},
       isResetCacheButtonLoading: false,
@@ -112,14 +110,6 @@ export default {
 
     // without tabs
     emptyState: 'emptyState',
-  },
-  scopes: {
-    all: 'all',
-    pending: 'pending',
-    running: 'running',
-    finished: 'finished',
-    branches: 'branches',
-    tags: 'tags',
   },
   computed: {
     /**
@@ -148,11 +138,7 @@ export default {
 
       return stateMap.emptyState;
     },
-    /**
-     * Tabs are rendered in all states except empty state.
-     * They are not rendered before the first request to avoid a flicker on first load.
-     */
-    shouldRenderTabs() {
+    shouldRender() {
       const { stateMap } = this.$options;
       return (
         this.hasMadeRequest &&
@@ -163,64 +149,11 @@ export default {
     },
 
     shouldRenderButtons() {
-      return (
-        (this.newPipelinePath || this.resetCachePath || this.ciLintPath) && this.shouldRenderTabs
-      );
+      return (this.newPipelinePath || this.resetCachePath || this.ciLintPath) && this.shouldRender;
     },
 
     emptyTabMessage() {
-      const { scopes } = this.$options;
-      const possibleScopes = [scopes.pending, scopes.running, scopes.finished];
-
-      if (possibleScopes.includes(this.scope)) {
-        return sprintf(s__('Pipelines|There are currently no %{scope} pipelines.'), {
-          scope: this.scope,
-        });
-      }
-
       return s__('Pipelines|There are currently no pipelines.');
-    },
-
-    tabs() {
-      const { count } = this.state;
-      const { scopes } = this.$options;
-
-      return [
-        {
-          name: __('All'),
-          scope: scopes.all,
-          count: count.all,
-          isActive: this.scope === 'all',
-        },
-        {
-          name: __('Pending'),
-          scope: scopes.pending,
-          count: count.pending,
-          isActive: this.scope === 'pending',
-        },
-        {
-          name: __('Running'),
-          scope: scopes.running,
-          count: count.running,
-          isActive: this.scope === 'running',
-        },
-        {
-          name: __('Finished'),
-          scope: scopes.finished,
-          count: count.finished,
-          isActive: this.scope === 'finished',
-        },
-        {
-          name: __('Branches'),
-          scope: scopes.branches,
-          isActive: this.scope === 'branches',
-        },
-        {
-          name: __('Tags'),
-          scope: scopes.tags,
-          isActive: this.scope === 'tags',
-        },
-      ];
     },
     canFilterPipelines() {
       return this.glFeatures.filterPipelinesSearch;
@@ -295,18 +228,11 @@ export default {
 <template>
   <div class="pipelines-container">
     <div
-      v-if="shouldRenderTabs || shouldRenderButtons"
-      class="top-area scrolling-tabs-container inner-page-scroll-tabs"
+      v-if="shouldRender || shouldRenderButtons"
+      class="top-area scrolling-tabs-container inner-page-scroll-tabs gl-display-flex gl-justify-content-end gl-pt-3 gl-pb-3 gl-border-none"
     >
       <div class="fade-left"><i class="fa fa-angle-left" aria-hidden="true"> </i></div>
       <div class="fade-right"><i class="fa fa-angle-right" aria-hidden="true"> </i></div>
-
-      <navigation-tabs
-        v-if="shouldRenderTabs"
-        :tabs="tabs"
-        scope="pipelines"
-        @onChangeTab="onChangeTab"
-      />
 
       <navigation-controls
         v-if="shouldRenderButtons"

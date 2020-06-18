@@ -16294,9 +16294,6 @@ msgstr ""
 msgid "Pipelines|Something went wrong while cleaning runners cache."
 msgstr ""
 
-msgid "Pipelines|There are currently no %{scope} pipelines."
-msgstr ""
-
 msgid "Pipelines|There are currently no pipelines."
 msgstr ""
 
