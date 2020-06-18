@@ -784,9 +784,9 @@ error occurs a `400 Bad Request` is returned with a message explaining the error
 }
 ```
 
-## Add SSH key for user
+## Add SSH key for user **(PREMIUM ONLY)**
 
-Create new key owned by specified user. Available only for admin
+Create new key owned by specified user. Available only for admin.
 
 ```plaintext
 POST /users/:id/keys
