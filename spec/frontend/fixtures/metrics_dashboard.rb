@@ -9,7 +9,7 @@ describe MetricsDashboard, '(JavaScript fixtures)', type: :controller do
   let(:user) { create(:user) }
   let(:namespace) { create(:namespace, name: 'monitoring' )}
   let(:project) { project_with_dashboard_namespace('.gitlab/dashboards/test.yml', namespace: namespace) }
-  let(:environment) { create(:environment, project: project) }
+  let(:environment) { create(:environment, id: 1, project: project) }
   let(:params) { { environment: environment } }
 
   before(:all) do
