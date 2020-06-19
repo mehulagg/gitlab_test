@@ -484,6 +484,18 @@ export default {
         </project-setting-row>
       </div>
       <project-setting-row
+        v-if="requirementsAvailable"
+        ref="requirements-settings"
+        :label="s__('ProjectSettings|Requirements')"
+        :help-text="s__('ProjectSettings|Requirements management system for this project')"
+      >
+        <project-feature-setting
+          v-model="requirementsAccessLevel"
+          :options="featureAccessLevelOptions"
+          name="project[project_feature_attributes][requirements_access_level]"
+        />
+      </project-setting-row>
+      <project-setting-row
         ref="wiki-settings"
         :label="s__('ProjectSettings|Wiki')"
         :help-text="s__('ProjectSettings|Pages for project documentation')"
@@ -551,18 +563,6 @@ export default {
             <i aria-hidden="true" data-hidden="true" class="fa fa-chevron-down"></i>
           </div>
         </div>
-      </project-setting-row>
-      <project-setting-row
-        v-if="requirementsAvailable"
-        ref="requirements-settings"
-        :label="s__('ProjectSettings|Requirements')"
-        :help-text="s__('ProjectSettings|Requirements management system for this project')"
-      >
-        <project-feature-setting
-          v-model="requirementsAccessLevel"
-          :options="featureAccessLevelOptions"
-          name="project[project_feature_attributes][requirements_access_level]"
-        />
       </project-setting-row>
     </div>
     <project-setting-row v-if="canDisableEmails" ref="email-settings" class="mb-3">
