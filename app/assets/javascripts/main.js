@@ -14,6 +14,7 @@ import {
   addSelectOnFocusBehaviour,
   getCspNonceValue,
 } from './lib/utils/common_utils';
+import { getScrollbarWidth } from './lib/utils/dom_utils';
 import { localTimeAgo } from './lib/utils/datetime_utility';
 import { getLocationHash, visitUrl } from './lib/utils/url_utility';
 
@@ -303,4 +304,19 @@ document.addEventListener('DOMContentLoaded', () => {
   $('.gl-show-field-errors').each((i, form) => new GlFieldErrors(form));
 
   requestIdleCallback(deferredInitialisation);
+
+  const fixedPositionElementsStuckToRight = ['.navbar-gitlab', '.right-sidebar'];
+  const setRight = val => {
+    fixedPositionElementsStuckToRight.forEach(el => {
+      document.querySelector(el).style.right = val;
+    });
+  };
+  $(document).on('shown.bs.modal', () => {
+    const scrollbarWidth = getScrollbarWidth();
+    setRight(`${scrollbarWidth}px`);
+  });
+
+  $(document).on('hide.bs.modal', () => {
+    setRight(0);
+  });
 });

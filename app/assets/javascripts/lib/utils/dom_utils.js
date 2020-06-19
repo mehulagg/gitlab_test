@@ -8,6 +8,21 @@ export const addClassIfElementExists = (element, className) => {
 
 export const isInVueNoteablePage = () => isInIssuePage() || isInEpicPage() || isInMRPage();
 
+export const getScrollbarWidth = () => {
+  const scrollDiv = document.createElement('div');
+  scrollDiv.style = `
+    position: absolute;
+    top: -9999px;
+    width: 100px;
+    height: 100px;
+    overflow: scroll;
+  `;
+  document.body.appendChild(scrollDiv);
+  const scrollbarWidth = scrollDiv.getBoundingClientRect().width - scrollDiv.clientWidth;
+  document.body.removeChild(scrollDiv);
+  return scrollbarWidth;
+};
+
 export const canScrollUp = ({ scrollTop }, margin = 0) => scrollTop > margin;
 
 export const canScrollDown = ({ scrollTop, offsetHeight, scrollHeight }, margin = 0) =>
