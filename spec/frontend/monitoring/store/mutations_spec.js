@@ -1,5 +1,5 @@
 import httpStatusCodes from '~/lib/utils/http_status';
-
+import { cloneDeep } from 'lodash';
 import mutations from '~/monitoring/stores/mutations';
 import * as types from '~/monitoring/stores/mutation_types';
 import state from '~/monitoring/stores/state';
@@ -224,7 +224,8 @@ describe('Monitoring mutations', () => {
   });
 
   describe('Individual panel/metric results', () => {
-    const metricId = 'NO_DB_response_metrics_nginx_ingress_throughput_status_code';
+    let metric;
+
     const data = {
       resultType: 'matrix',
       result: [
@@ -247,71 +248,91 @@ describe('Monitoring mutations', () => {
       ],
     };
 
-    const dashboard = metricsDashboardPayload;
-    const getMetric = () => stateCopy.dashboard.panelGroups[1].panels[0].metrics[0];
+    beforeEach(() => {
+      mutations[types.RECEIVE_METRICS_DASHBOARD_SUCCESS](stateCopy, metricsDashboardPayload);
+
+      metric = cloneDeep(stateCopy.dashboard.panelGroups[1].panels[0].metrics[0]);
+    });
 
     describe('REQUEST_METRIC_RESULT', () => {
-      beforeEach(() => {
-        mutations[types.RECEIVE_METRICS_DASHBOARD_SUCCESS](stateCopy, dashboard);
-      });
-      it('stores a loading state on a metric', () => {
-        expect(stateCopy.showEmptyState).toBe(true);
-
+      it('stores a first time loading state on a metric', () => {
         mutations[types.REQUEST_METRIC_RESULT](stateCopy, {
-          metricId,
+          metric,
         });
 
-        expect(stateCopy.showEmptyState).toBe(true);
-        expect(getMetric()).toEqual(
-          expect.objectContaining({
-            loading: true,
-          }),
-        );
+        expect(metric).toMatchObject({
+          loading: true,
+          state: metricStates.LOADING,
+        });
+      });
+
+      it('stores a refresh loading state on a metric', () => {
+        metric = {
+          ...metric,
+          result: data.result,
+          state: metricStates.OK,
+        };
+
+        mutations[types.REQUEST_METRIC_RESULT](stateCopy, {
+          metric,
+        });
+
+        expect(metric).toMatchObject({
+          loading: true,
+          state: metricStates.OK,
+        });
       });
     });
 
     describe('RECEIVE_METRIC_RESULT_SUCCESS', () => {
-      beforeEach(() => {
-        mutations[types.RECEIVE_METRICS_DASHBOARD_SUCCESS](stateCopy, dashboard);
-      });
       it('clears empty state', () => {
         expect(stateCopy.showEmptyState).toBe(true);
 
         mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
-          metricId,
+          metric,
           data,
         });
 
         expect(stateCopy.showEmptyState).toBe(false);
       });
 
-      it('adds results to the store', () => {
-        expect(getMetric().result).toBe(null);
+      it('adds results to the metric', () => {
+        expect(metric.result).toBe(null);
 
         mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
-          metricId,
+          metric,
           data,
         });
 
-        expect(getMetric().result).toHaveLength(data.result.length);
-        expect(getMetric()).toEqual(
-          expect.objectContaining({
-            loading: false,
-            state: metricStates.OK,
-          }),
-        );
+        expect(metric.result).toHaveLength(data.result.length);
+        expect(metric).toMatchObject({
+          loading: false,
+          state: metricStates.OK,
+        });
+      });
+
+      it('marks a metric with no results', () => {
+        expect(metric.result).toBe(null);
+
+        mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
+          metric,
+          data,
+        });
+
+        expect(metric.result).toHaveLength(data.result.length);
+        expect(metric).toMatchObject({
+          loading: false,
+          state: metricStates.OK,
+        });
       });
     });
 
     describe('RECEIVE_METRIC_RESULT_FAILURE', () => {
-      beforeEach(() => {
-        mutations[types.RECEIVE_METRICS_DASHBOARD_SUCCESS](stateCopy, dashboard);
-      });
       it('maintains the loading state when a metric fails', () => {
         expect(stateCopy.showEmptyState).toBe(true);
 
         mutations[types.RECEIVE_METRIC_RESULT_FAILURE](stateCopy, {
-          metricId,
+          metric,
           error: 'an error',
         });
 
@@ -320,40 +341,36 @@ describe('Monitoring mutations', () => {
 
       it('stores a timeout error in a metric', () => {
         mutations[types.RECEIVE_METRIC_RESULT_FAILURE](stateCopy, {
-          metricId,
+          metric,
           error: { message: 'BACKOFF_TIMEOUT' },
         });
 
-        expect(getMetric()).toEqual(
-          expect.objectContaining({
-            loading: false,
-            result: null,
-            state: metricStates.TIMEOUT,
-          }),
-        );
+        expect(metric).toMatchObject({
+          loading: false,
+          result: null,
+          state: metricStates.TIMEOUT,
+        });
       });
 
       it('stores a connection failed error in a metric', () => {
         mutations[types.RECEIVE_METRIC_RESULT_FAILURE](stateCopy, {
-          metricId,
+          metric,
           error: {
             response: {
               status: httpStatusCodes.SERVICE_UNAVAILABLE,
             },
           },
         });
-        expect(getMetric()).toEqual(
-          expect.objectContaining({
-            loading: false,
-            result: null,
-            state: metricStates.CONNECTION_FAILED,
-          }),
-        );
+        expect(metric).toMatchObject({
+          loading: false,
+          result: null,
+          state: metricStates.CONNECTION_FAILED,
+        });
       });
 
       it('stores a bad data error in a metric', () => {
         mutations[types.RECEIVE_METRIC_RESULT_FAILURE](stateCopy, {
-          metricId,
+          metric,
           error: {
             response: {
               status: httpStatusCodes.BAD_REQUEST,
@@ -361,28 +378,24 @@ describe('Monitoring mutations', () => {
           },
         });
 
-        expect(getMetric()).toEqual(
-          expect.objectContaining({
-            loading: false,
-            result: null,
-            state: metricStates.BAD_QUERY,
-          }),
-        );
+        expect(metric).toMatchObject({
+          loading: false,
+          result: null,
+          state: metricStates.BAD_QUERY,
+        });
       });
 
       it('stores an unknown error in a metric', () => {
         mutations[types.RECEIVE_METRIC_RESULT_FAILURE](stateCopy, {
-          metricId,
+          metric,
           error: null, // no reason in response
         });
 
-        expect(getMetric()).toEqual(
-          expect.objectContaining({
-            loading: false,
-            result: null,
-            state: metricStates.UNKNOWN_ERROR,
-          }),
-        );
+        expect(metric).toMatchObject({
+          loading: false,
+          result: null,
+          state: metricStates.UNKNOWN_ERROR,
+        });
       });
     });
   });

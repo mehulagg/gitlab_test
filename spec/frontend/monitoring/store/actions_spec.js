@@ -508,13 +508,13 @@ describe('Monitoring store actions', () => {
           {
             type: types.REQUEST_METRIC_RESULT,
             payload: {
-              metricId: metric.metricId,
+              metric,
             },
           },
           {
             type: types.RECEIVE_METRIC_RESULT_SUCCESS,
             payload: {
-              metricId: metric.metricId,
+              metric,
               data,
             },
           },
@@ -545,13 +545,13 @@ describe('Monitoring store actions', () => {
             {
               type: types.REQUEST_METRIC_RESULT,
               payload: {
-                metricId: metric.metricId,
+                metric,
               },
             },
             {
               type: types.RECEIVE_METRIC_RESULT_SUCCESS,
               payload: {
-                metricId: metric.metricId,
+                metric,
                 data,
               },
             },
@@ -587,13 +587,13 @@ describe('Monitoring store actions', () => {
             {
               type: types.REQUEST_METRIC_RESULT,
               payload: {
-                metricId: metric.metricId,
+                metric,
               },
             },
             {
               type: types.RECEIVE_METRIC_RESULT_SUCCESS,
               payload: {
-                metricId: metric.metricId,
+                metric,
                 data,
               },
             },
@@ -622,13 +622,13 @@ describe('Monitoring store actions', () => {
           {
             type: types.REQUEST_METRIC_RESULT,
             payload: {
-              metricId: metric.metricId,
+              metric,
             },
           },
           {
             type: types.RECEIVE_METRIC_RESULT_SUCCESS,
             payload: {
-              metricId: metric.metricId,
+              metric,
               data,
             },
           },
@@ -658,13 +658,13 @@ describe('Monitoring store actions', () => {
           {
             type: types.REQUEST_METRIC_RESULT,
             payload: {
-              metricId: metric.metricId,
+              metric,
             },
           },
           {
             type: types.RECEIVE_METRIC_RESULT_FAILURE,
             payload: {
-              metricId: metric.metricId,
+              metric,
               error,
             },
           },

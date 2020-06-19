@@ -16,11 +16,8 @@ import { panelTypes, chartHeight } from '~/monitoring/constants';
 import TimeSeries from '~/monitoring/components/charts/time_series.vue';
 import * as types from '~/monitoring/stores/mutation_types';
 import { deploymentData, mockProjectDir, annotationsData, metricsResult } from '../../mock_data';
-import {
-  metricsDashboardPayload,
-  metricsDashboardViewModel,
-  metricResultStatus,
-} from '../../fixture_data';
+import { metricsDashboardPayload, metricsDashboardViewModel } from '../../fixture_data';
+import { setMetricResult } from '../../store_utils';
 
 jest.mock('lodash/throttle', () =>
   // this throttle mock executes immediately
@@ -72,12 +69,9 @@ describe('Time series component', () => {
 
       store.commit(`monitoringDashboard/${types.RECEIVE_DEPLOYMENTS_DATA_SUCCESS}`, deploymentData);
 
-      store.commit(
-        `monitoringDashboard/${types.RECEIVE_METRIC_RESULT_SUCCESS}`,
-        metricResultStatus,
-      );
       // dashboard is a dynamically generated fixture and stored at environment_metrics_dashboard.json
       [mockGraphData] = store.state.monitoringDashboard.dashboard.panelGroups[1].panels;
+      setMetricResult({ store, result: metricsResult, group: 1 });
     });
 
     describe('general functions', () => {

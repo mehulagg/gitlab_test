@@ -242,16 +242,16 @@ export const fetchPrometheusMetric = (
     };
   }
 
-  commit(types.REQUEST_METRIC_RESULT, { metricId: metric.metricId });
+  commit(types.REQUEST_METRIC_RESULT, { metric });
 
   return getPrometheusQueryData(metric.prometheusEndpointPath, queryParams)
     .then(data => {
-      commit(types.RECEIVE_METRIC_RESULT_SUCCESS, { metricId: metric.metricId, data });
+      commit(types.RECEIVE_METRIC_RESULT_SUCCESS, { metric, data });
     })
     .catch(error => {
       Sentry.captureException(error);
 
-      commit(types.RECEIVE_METRIC_RESULT_FAILURE, { metricId: metric.metricId, error });
+      commit(types.RECEIVE_METRIC_RESULT_FAILURE, { metric, error });
       // Continue to throw error so the dashboard can notify using createFlash
       throw error;
     });

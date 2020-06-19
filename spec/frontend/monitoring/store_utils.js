@@ -4,10 +4,8 @@ import { metricsDashboardPayload } from './fixture_data';
 
 export const setMetricResult = ({ store, result, group = 0, panel = 0, metric = 0 }) => {
   const { dashboard } = store.state.monitoringDashboard;
-  const { metricId } = dashboard.panelGroups[group].panels[panel].metrics[metric];
-
   store.commit(`monitoringDashboard/${types.RECEIVE_METRIC_RESULT_SUCCESS}`, {
-    metricId,
+    metric: dashboard.panelGroups[group].panels[panel].metrics[metric],
     data: {
       resultType: 'matrix',
       result,
