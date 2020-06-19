@@ -187,7 +187,7 @@ To disable the Elasticsearch integration:
 1. Expand the **Elasticsearch** section and uncheck **Elasticsearch indexing**
    and **Search with Elasticsearch enabled**.
 1. Click **Save changes** for the changes to take effect.
-1. (Optional) Delete the existing index by running one of these commands:
+1. (Optional) Delete the existing index:
 
    ```shell
    # Omnibus installations
@@ -209,7 +209,7 @@ To backfill existing data, you can use one of the methods below to index it in b
 To index via the Admin Area:
 
 1. [Configure your Elasticsearch host and port](#enabling-elasticsearch).
-1. Create empty indexes using one of the following commands:
+1. Create empty indexes:
 
    ```shell
    # Omnibus installations
@@ -222,7 +222,7 @@ To index via the Admin Area:
 1. [Enable **Elasticsearch indexing**](#enabling-elasticsearch).
 1. Click **Index all projects** in **Admin Area > Settings > Integrations > Elasticsearch**.
 1. Click **Check progress** in the confirmation message to see the status of the background jobs.
-1. Personal snippets need to be indexed manually by running one of these commands:
+1. Personal snippets need to be indexed manually:
 
    ```shell
    # Omnibus installations
@@ -246,7 +246,7 @@ This will delete your existing indexes.
 If the database size is less than 500 MiB, and the size of all hosted repos is less than 5 GiB:
 
 1. [Enable **Elasticsearch indexing** and configure your host and port](#enabling-elasticsearch).
-1. Index your data using one of the following commands:
+1. Index your data:
 
    ```shell
    # Omnibus installations
@@ -266,7 +266,7 @@ Make sure to prepare for this task by having a [Scalable and Highly Available Se
 or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq_processes.md)
 
 1. [Configure your Elasticsearch host and port](#enabling-elasticsearch).
-1. Create empty indexes using one of the following commands:
+1. Create empty indexes:
 
    ```shell
    # Omnibus installations
@@ -274,6 +274,16 @@ or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq
 
    # Installations from source
    bundle exec rake gitlab:elastic:create_empty_index RAILS_ENV=production
+   ```
+
+1. If this is a re-index of your GitLab instance, clear the index status:
+
+   ```shell
+   # Omnibus installations
+   sudo gitlab-rake gitlab:elastic:clear_index_status
+
+   # Installations from source
+   bundle exec rake gitlab:elastic:clear_index_status RAILS_ENV=production
    ```
 
 1. [Enable **Elasticsearch indexing**](#enabling-elasticsearch).
@@ -350,8 +360,7 @@ or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq
    indexer to "forget" all progress, so it will retry the indexing process from the
    start.
 
-1. Personal snippets are not associated with a project and need to be indexed separately
-   by running one of these commands:
+1. Personal snippets are not associated with a project and need to be indexed separately:
 
    ```shell
    # Omnibus installations
@@ -512,7 +521,9 @@ Here are some common pitfalls and how to overcome them:
   pp s.search_objects.class.name
   ```
 
-  If you see `Elasticsearch::Model::Response::Records`, you are using Elasticsearch.
+  If you see `"ActiveRecord::Relation"`, you are **not** using Elasticsearch.
+  
+  If you see `"Kaminari::PaginatableArray"` you are using Elasticsearch.
 
   NOTE: **Note**:
   The above instructions are used to verify that GitLab is using Elasticsearch only when indexing all namespaces. This is not to be used for scenarios that only index a [subset of namespaces](#limiting-namespaces-and-projects).
@@ -628,9 +639,9 @@ Here are some common pitfalls and how to overcome them:
    You probably have not used either `http://` or `https://` as part of your value in the **"URL"** field of the Elasticsearch Integration Menu. Please make sure you are using either `http://` or `https://` in this field as the [Elasticsearch client for Go](https://github.com/olivere/elastic) that we are using [needs the prefix for the URL to be accepted as valid](https://github.com/olivere/elastic/commit/a80af35aa41856dc2c986204e2b64eab81ccac3a).
    Once you have corrected the formatting of the URL, delete the index (via the [dedicated Rake task](#gitlab-elasticsearch-rake-tasks)) and [reindex the content of your instance](#adding-gitlabs-data-to-the-elasticsearch-index).
 
-### Low level troubleshooting
+### Low-level troubleshooting
 
-There is more [low level troubleshooting documentation](../administration/troubleshooting/elasticsearch.md) for when you experience other issues, including poor performance.
+There is a [more structured, lower-level troubleshooting document](../administration/troubleshooting/elasticsearch.md) for when you experience other issues, including poor performance.
 
 ### Known Issues
 

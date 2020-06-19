@@ -2,8 +2,11 @@ import { slugify } from '~/lib/utils/text_utility';
 import createGqClient, { fetchPolicies } from '~/lib/graphql';
 import { SUPPORTED_FORMATS } from '~/lib/utils/unit_format';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
-import { NOT_IN_DB_PREFIX } from '../constants';
-import { isSafeURL } from '~/lib/utils/url_utility';
+import { mergeURLVariables, parseTemplatingVariables } from './variable_mapping';
+import { DATETIME_RANGE_TYPES } from '~/lib/utils/constants';
+import { timeRangeToParams, getRangeType } from '~/lib/utils/datetime_range';
+import { isSafeURL, mergeUrlParams } from '~/lib/utils/url_utility';
+import { NOT_IN_DB_PREFIX, linkTypes, DEFAULT_DASHBOARD_PATH } from '../constants';
 
 export const gqClient = createGqClient(
   {},
@@ -145,12 +148,13 @@ const mapYAxisToViewModel = ({
  * Unsafe URLs are ignored.
  *
  * @param {Object} Link
- * @returns {Object} Link object with a `title` and `url`.
+ * @returns {Object} Link object with a `title`, `url` and `type`
  *
  */
-const mapLinksToViewModel = ({ url = null, title = '' } = {}) => {
+const mapLinksToViewModel = ({ url = null, title = '', type } = {}) => {
   return {
     title: title || String(url),
+    type,
     url: url && isSafeURL(url) ? String(url) : '#',
   };
 };
@@ -191,7 +195,7 @@ const mapPanelToViewModel = ({
     xAxis,
     maxValue: max_value,
     links: links.map(mapLinksToViewModel),
-    metrics: mapToMetricsViewModel(metrics, yAxis.name),
+    metrics: mapToMetricsViewModel(metrics),
   };
 };
 
@@ -210,6 +214,66 @@ const mapToPanelGroupViewModel = ({ group = '', panels = [] }, i) => {
 };
 
 /**
+ * Convert dashboard time range to Grafana
+ * dashboards time range.
+ *
+ * @param {Object} timeRange
+ * @returns {Object}
+ */
+export const convertToGrafanaTimeRange = timeRange => {
+  const timeRangeType = getRangeType(timeRange);
+  if (timeRangeType === DATETIME_RANGE_TYPES.fixed) {
+    return {
+      from: new Date(timeRange.start).getTime(),
+      to: new Date(timeRange.end).getTime(),
+    };
+  } else if (timeRangeType === DATETIME_RANGE_TYPES.rolling) {
+    const { seconds } = timeRange.duration;
+    return {
+      from: `now-${seconds}s`,
+      to: 'now',
+    };
+  }
+  // fallback to returning the time range as is
+  return timeRange;
+};
+
+/**
+ * Convert dashboard time ranges to other supported
+ * link formats.
+ *
+ * @param {Object} timeRange metrics dashboard time range
+ * @param {String} type type of link
+ * @returns {String}
+ */
+export const convertTimeRanges = (timeRange, type) => {
+  if (type === linkTypes.GRAFANA) {
+    return convertToGrafanaTimeRange(timeRange);
+  }
+  return timeRangeToParams(timeRange);
+};
+
+/**
+ * Adds dashboard-related metadata to the user-defined links.
+ *
+ * As of %13.1, metadata only includes timeRange but in the
+ * future more info will be added to the links.
+ *
+ * @param {Object} metadata
+ * @returns {Function}
+ */
+export const addDashboardMetaDataToLink = metadata => link => {
+  let modifiedLink = { ...link };
+  if (metadata.timeRange) {
+    modifiedLink = {
+      ...modifiedLink,
+      url: mergeUrlParams(convertTimeRanges(metadata.timeRange, link.type), link.url),
+    };
+  }
+  return modifiedLink;
+};
+
+/**
  * Maps a dashboard json object to its view model
  *
  * @param {Object} dashboard - Dashboard object
@@ -217,37 +281,148 @@ const mapToPanelGroupViewModel = ({ group = '', panels = [] }, i) => {
  * @param {Array} dashboard.panel_groups - Panel groups array
  * @returns {Object}
  */
-export const mapToDashboardViewModel = ({ dashboard = '', panel_groups = [] }) => {
+export const mapToDashboardViewModel = ({
+  dashboard = '',
+  templating = {},
+  links = [],
+  panel_groups = [],
+}) => {
   return {
     dashboard,
+    variables: mergeURLVariables(parseTemplatingVariables(templating)),
+    links: links.map(mapLinksToViewModel),
     panelGroups: panel_groups.map(mapToPanelGroupViewModel),
   };
 };
 
-export const normalizeQueryResult = timeSeries => {
-  let normalizedResult = {};
+// Prometheus Results Parsing
 
-  if (timeSeries.values) {
-    normalizedResult = {
-      ...timeSeries,
-      values: timeSeries.values.map(([timestamp, value]) => [
-        new Date(timestamp * 1000).toISOString(),
-        Number(value),
-      ]),
-    };
-    // Check result for empty data
-    normalizedResult.values = normalizedResult.values.filter(series => {
-      const hasValue = d => !Number.isNaN(d[1]) && (d[1] !== null || d[1] !== undefined);
-      return series.find(hasValue);
-    });
-  } else if (timeSeries.value) {
-    normalizedResult = {
-      ...timeSeries,
-      value: [new Date(timeSeries.value[0] * 1000).toISOString(), Number(timeSeries.value[1])],
-    };
+const dateTimeFromUnixTime = unixTime => new Date(unixTime * 1000).toISOString();
+
+const mapScalarValue = ([unixTime, value]) => [dateTimeFromUnixTime(unixTime), Number(value)];
+
+// Note: `string` value type is unused as of prometheus 2.19.
+const mapStringValue = ([unixTime, value]) => [dateTimeFromUnixTime(unixTime), value];
+
+/**
+ * Processes a scalar result.
+ *
+ * The corresponding result property has the following format:
+ *
+ * [ <unix_time>, "<scalar_value>" ]
+ *
+ * @param {array} result
+ * @returns {array}
+ */
+const normalizeScalarResult = result => [
+  {
+    metric: {},
+    value: mapScalarValue(result),
+    values: [mapScalarValue(result)],
+  },
+];
+
+/**
+ * Processes a string result.
+ *
+ * The corresponding result property has the following format:
+ *
+ * [ <unix_time>, "<string_value>" ]
+ *
+ * Note: This value type is unused as of prometheus 2.19.
+ *
+ * @param {array} result
+ * @returns {array}
+ */
+const normalizeStringResult = result => [
+  {
+    metric: {},
+    value: mapStringValue(result),
+    values: [mapStringValue(result)],
+  },
+];
+
+/**
+ * Proccesses an instant vector.
+ *
+ * Instant vectors are returned as result type `vector`.
+ *
+ * The corresponding result property has the following format:
+ *
+ * [
+ *  {
+ *    "metric": { "<label_name>": "<label_value>", ... },
+ *    "value": [ <unix_time>, "<sample_value>" ]
+ *  },
+ *  ...
+ * ]
+ *
+ * This method also adds the matrix version of the vector
+ * by introducing a `values` array with a single element. This
+ * allows charts to default to `values` if needed.
+ *
+ * @param {array} result
+ * @returns {array}
+ */
+const normalizeVectorResult = result =>
+  result.map(({ metric, value }) => {
+    const scalar = mapScalarValue(value);
+    // Add a single element to `values`, to support matrix
+    // style charts.
+    return { metric, value: scalar, values: [scalar] };
+  });
+
+/**
+ * Range vectors are returned as result type matrix.
+ *
+ * The corresponding result property has the following format:
+ *
+ * {
+ *   "metric": { "<label_name>": "<label_value>", ... },
+ *   "values": [ [ <unix_time>, "<sample_value>" ], ... ]
+ * },
+ *
+ * See https://prometheus.io/docs/prometheus/latest/querying/api/#range-vectors
+ *
+ * @param {array} result
+ * @returns {array}
+ */
+const normalizeResultMatrix = result =>
+  result.map(({ metric, values }) => ({ metric, values: values.map(mapScalarValue) }));
+
+/**
+ * Parse response data from a Prometheus Query that comes
+ * in the format:
+ *
+ * {
+ *   "resultType": "matrix" | "vector" | "scalar" | "string",
+ *   "result": <value>
+ * }
+ *
+ * @see https://prometheus.io/docs/prometheus/latest/querying/api/#expression-query-result-formats
+ *
+ * @param {object} data - Data containing results and result type.
+ * @returns {object} - A result array of metric results:
+ * [
+ *   {
+ *     metric: { ... },
+ *     value: ['2015-07-01T20:10:51.781Z', '1'],
+ *     values: [['2015-07-01T20:10:51.781Z', '1'] , ... ],
+ *   },
+ *   ...
+ * ]
+ *
+ */
+export const normalizeQueryResponseData = data => {
+  const { resultType, result } = data;
+  if (resultType === 'vector') {
+    return normalizeVectorResult(result);
+  } else if (resultType === 'scalar') {
+    return normalizeScalarResult(result);
+  } else if (resultType === 'string') {
+    return normalizeStringResult(result);
   }
-
-  return normalizedResult;
+  return normalizeResultMatrix(result);
 };
 
 /**
@@ -265,3 +440,31 @@ export const normalizeQueryResult = timeSeries => {
  * @returns {String}
  */
 export const addPrefixToCustomVariableParams = key => `variables[${key}]`;
+
+/**
+ * Normalize custom dashboard paths. This method helps support
+ * metrics dashboard to work with custom dashboard file names instead
+ * of the entire path.
+ *
+ * If dashboard is empty, it is the default dashboard.
+ * If dashboard is set, it usually is a custom dashboard unless
+ * explicitly it is set to default dashboard path.
+ *
+ * @param {String} dashboard dashboard path
+ * @param {String} dashboardPrefix custom dashboard directory prefix
+ * @returns {String} normalized dashboard path
+ */
+export const normalizeCustomDashboardPath = (dashboard, dashboardPrefix = '') => {
+  const currDashboard = dashboard || '';
+  let dashboardPath = `${dashboardPrefix}/${currDashboard}`;
+
+  if (!currDashboard) {
+    dashboardPath = '';
+  } else if (
+    currDashboard.startsWith(dashboardPrefix) ||
+    currDashboard.startsWith(DEFAULT_DASHBOARD_PATH)
+  ) {
+    dashboardPath = currDashboard;
+  }
+  return dashboardPath;
+};

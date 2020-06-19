@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe PersonalAccessTokensHelper do
+RSpec.describe PersonalAccessTokensHelper do
   let(:group) do
     build(:group, max_personal_access_token_lifetime: group_level_max_personal_access_token_lifetime)
   end
@@ -127,12 +127,10 @@ describe PersonalAccessTokensHelper do
     end
   end
 
-  describe '#personal_access_token_expiration_policy_licensed?' do
-    subject { helper.personal_access_token_expiration_policy_licensed? }
-
-    context 'with `personal_access_token_expiration_policy` licensed' do
+  shared_examples 'feature availability' do
+    context 'when feature is licensed' do
       before do
-        stub_licensed_features(personal_access_token_expiration_policy: true)
+        stub_licensed_features(feature => true)
       end
 
       it { is_expected.to be_truthy }
@@ -140,10 +138,26 @@ describe PersonalAccessTokensHelper do
 
     context 'with `personal_access_token_expiration_policy` not licensed' do
       before do
-        stub_licensed_features(personal_access_token_expiration_policy: false)
+        stub_licensed_features(feature => false)
       end
 
       it { is_expected.to be_falsey }
     end
+  end
+
+  describe '#personal_access_token_expiration_policy_licensed?' do
+    subject { helper.personal_access_token_expiration_policy_licensed? }
+
+    let(:feature) { :personal_access_token_expiration_policy }
+
+    it_behaves_like 'feature availability'
+  end
+
+  describe '#enforce_pat_expiration_feature_available?' do
+    subject { helper.enforce_pat_expiration_feature_available? }
+
+    let(:feature) { :enforce_pat_expiration }
+
+    it_behaves_like 'feature availability'
   end
 end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe User do
+RSpec.describe User do
   subject(:user) { described_class.new }
 
   describe 'user creation' do
@@ -25,6 +25,7 @@ describe User do
     it { is_expected.to have_many(:path_locks).dependent(:destroy) }
     it { is_expected.to have_many(:users_security_dashboard_projects) }
     it { is_expected.to have_many(:security_dashboard_projects) }
+    it { is_expected.to have_many(:board_preferences) }
   end
 
   describe 'nested attributes' do
@@ -453,12 +454,10 @@ describe User do
           end
 
           it 'returns groups on gold or silver plans' do
-            Timecop.freeze(GroupsWithTemplatesFinder::CUT_OFF_DATE + 1.day) do
-              groups = user.available_subgroups_with_custom_project_templates
+            groups = user.available_subgroups_with_custom_project_templates
 
-              expect(groups.size).to eq(1)
-              expect(groups.map(&:name)).to include('subgroup-2')
-            end
+            expect(groups.size).to eq(1)
+            expect(groups.map(&:name)).to include('subgroup-2')
           end
         end
       end

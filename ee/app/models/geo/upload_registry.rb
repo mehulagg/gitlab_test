@@ -22,6 +22,14 @@ class Geo::UploadRegistry < Geo::BaseRegistry
     ::Geo::AttachmentRegistryFinder
   end
 
+  def self.delete_worker_class
+    ::Geo::FileRegistryRemovalWorker
+  end
+
+  def self.find_registry_differences(range)
+    finder_class.new(current_node_id: Gitlab::Geo.current_node.id).find_registry_differences(range)
+  end
+
   # If false, RegistryConsistencyService will frequently check the end of the
   # table to quickly handle new replicables.
   def self.has_create_events?
@@ -34,6 +42,12 @@ class Geo::UploadRegistry < Geo::BaseRegistry
     end
 
     bulk_insert!(records, returns: :ids)
+  end
+
+  def self.delete_for_model_ids(attrs)
+    attrs.map do |file_id, file_type|
+      delete_worker_class.perform_async(file_type, file_id)
+    end
   end
 
   def self.with_search(query)

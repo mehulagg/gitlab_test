@@ -128,6 +128,27 @@ export const lineWidths = {
 };
 
 /**
+ * User-defined links can be passed in dashboard yml file.
+ * These are the supported type of links.
+ */
+export const linkTypes = {
+  GRAFANA: 'grafana',
+};
+
+/**
+ * These are the supported values for the GitLab-UI
+ * chart legend layout.
+ *
+ * Currently defined in
+ * https://gitlab.com/gitlab-org/gitlab-ui/-/blob/master/src/utils/charts/constants.js
+ *
+ */
+export const legendLayoutTypes = {
+  inline: 'inline',
+  table: 'table',
+};
+
+/**
  * These Vuex store properties are allowed to be
  * replaced dynamically after component has been created
  * and initial state has been set.

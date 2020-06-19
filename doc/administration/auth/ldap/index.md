@@ -1,5 +1,8 @@
 ---
 type: reference
+stage: Manage
+group: Access
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # General LDAP Setup
@@ -413,9 +416,20 @@ gitlab_rails['ldap_servers'] = {
   'host' =>  'ad-secondary.example.net',
   'port' => 636,
   ...
+  },
+
+'tertiary' => {
+  'label' => 'GitLab Tertiary AD',
+  'host' =>  'ad-tertiary.example.net',
+  'port' => 636,
+  ...
   }
+  
 }
 ```
+
+NOTE: **Note:**
+Any number of LDAP servers can be configured. However, make sure to use a unique naming convention for the `label` section of each entry as this will be the display name of the tab shown on the sign-in page.
 
 ## User sync **(STARTER ONLY)**
 

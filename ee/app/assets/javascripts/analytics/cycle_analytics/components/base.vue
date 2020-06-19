@@ -19,6 +19,7 @@ import StageTableNav from './stage_table_nav.vue';
 import CustomStageForm from './custom_stage_form.vue';
 import PathNavigation from './path_navigation.vue';
 import MetricCard from '../../shared/components/metric_card.vue';
+import FilterBar from './filter_bar.vue';
 
 export default {
   name: 'CycleAnalytics',
@@ -37,6 +38,7 @@ export default {
     StageTableNav,
     PathNavigation,
     MetricCard,
+    FilterBar,
   },
   mixins: [glFeatureFlagsMixin(), UrlSyncMixin],
   props: {
@@ -54,6 +56,14 @@ export default {
     },
     hideGroupDropDown: {
       type: Boolean,
+      required: true,
+    },
+    milestonesPath: {
+      type: String,
+      required: true,
+    },
+    labelsPath: {
+      type: String,
       required: true,
     },
   },
@@ -119,13 +129,30 @@ export default {
     stageCount() {
       return this.activeStages.length;
     },
+    hasProject() {
+      return this.selectedProjectIds.length > 0;
+    },
   },
   mounted() {
+    const {
+      labelsPath,
+      milestonesPath,
+      glFeatures: {
+        cycleAnalyticsScatterplotEnabled: hasDurationChart,
+        cycleAnalyticsScatterplotMedianEnabled: hasDurationChartMedian,
+        valueStreamAnalyticsPathNavigation: hasPathNavigation,
+        valueStreamAnalyticsFilterBar: hasFilterBar,
+      },
+    } = this;
+
     this.setFeatureFlags({
-      hasDurationChart: this.glFeatures.cycleAnalyticsScatterplotEnabled,
-      hasDurationChartMedian: this.glFeatures.cycleAnalyticsScatterplotMedianEnabled,
-      hasPathNavigation: this.glFeatures.valueStreamAnalyticsPathNavigation,
+      hasDurationChart,
+      hasDurationChartMedian,
+      hasPathNavigation,
+      hasFilterBar,
     });
+
+    this.setPaths({ labelsPath, milestonesPath });
   },
   methods: {
     ...mapActions([
@@ -148,6 +175,7 @@ export default {
       'createStage',
       'clearFormErrors',
     ]),
+    ...mapActions('filters', ['setPaths']),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
       this.fetchCycleAnalyticsData();
@@ -212,28 +240,35 @@ export default {
             @selected="onStageSelect"
           />
         </div>
-        <div class="d-flex flex-column flex-md-row justify-content-between">
-          <groups-dropdown-filter
-            v-if="!hideGroupDropDown"
-            class="js-groups-dropdown-filter dropdown-select"
-            :query-params="$options.groupsQueryParams"
-            :default-group="selectedGroup"
-            @selected="onGroupSelect"
+        <div
+          class="gl-display-flex gl-flex-direction-column gl-lg-flex-direction-row gl-justify-content-space-between"
+        >
+          <div class="dropdown-container d-flex flex-column flex-lg-row">
+            <groups-dropdown-filter
+              v-if="!hideGroupDropDown"
+              class="js-groups-dropdown-filter"
+              :class="{ 'mr-lg-3': shouldDisplayFilters }"
+              :query-params="$options.groupsQueryParams"
+              :default-group="selectedGroup"
+              @selected="onGroupSelect"
+            />
+            <projects-dropdown-filter
+              v-if="shouldDisplayFilters"
+              :key="selectedGroup.id"
+              class="js-projects-dropdown-filter project-select"
+              :group-id="selectedGroup.id"
+              :query-params="$options.projectsQueryParams"
+              :multi-select="$options.multiProjectSelect"
+              :default-projects="selectedProjects"
+              @selected="onProjectsSelect"
+            />
+          </div>
+          <filter-bar
+            v-if="featureFlags.hasFilterBar"
+            class="js-filter-bar filtered-search-box gl-display-flex gl-mt-3 mt-md-0 gl-mr-3"
+            :disabled="!hasProject"
           />
-          <projects-dropdown-filter
-            v-if="shouldDisplayFilters"
-            :key="selectedGroup.id"
-            class="js-projects-dropdown-filter ml-0 mt-1 mt-md-0 dropdown-select"
-            :group-id="selectedGroup.id"
-            :query-params="$options.projectsQueryParams"
-            :multi-select="$options.multiProjectSelect"
-            :default-projects="selectedProjects"
-            @selected="onProjectsSelect"
-          />
-          <div
-            v-if="shouldDisplayFilters"
-            class="ml-0 ml-md-auto mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end"
-          >
+          <div v-if="shouldDisplayFilters" class="gl-justify-content-end gl-white-space-nowrap">
             <date-range
               :start-date="startDate"
               :end-date="endDate"

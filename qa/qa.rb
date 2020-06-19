@@ -137,6 +137,7 @@ module QA
       module Instance
         autoload :All, 'qa/scenario/test/instance/all'
         autoload :Smoke, 'qa/scenario/test/instance/smoke'
+        autoload :Airgapped, 'qa/scenario/test/instance/airgapped'
       end
 
       module Integration
@@ -230,6 +231,7 @@ module QA
 
     module Project
       autoload :New, 'qa/page/project/new'
+      autoload :NewExperiment, 'qa/page/project/new_experiment'
       autoload :Show, 'qa/page/project/show'
       autoload :Activity, 'qa/page/project/activity'
       autoload :Menu, 'qa/page/project/menu'
@@ -353,7 +355,7 @@ module QA
     end
 
     module Issuable
-      autoload :Sidebar, 'qa/page/issuable/sidebar'
+      autoload :New, 'qa/page/issuable/new'
     end
 
     module Alert
@@ -439,6 +441,7 @@ module QA
 
       module Issuable
         autoload :Common, 'qa/page/component/issuable/common'
+        autoload :Sidebar, 'qa/page/component/issuable/sidebar'
       end
 
       module IssueBoard

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe EE::NamespacesHelper do
+RSpec.describe EE::NamespacesHelper do
   let!(:admin) { create(:admin) }
   let!(:admin_project_creation_level) { nil }
   let!(:admin_group) do
@@ -101,6 +101,22 @@ describe EE::NamespacesHelper do
           expect(helper.ci_minutes_report(report)).to match(%r{0 / 0})
         end
       end
+    end
+  end
+
+  describe '#namespace_storage_usage_link' do
+    subject { helper.namespace_storage_usage_link(namespace) }
+
+    context 'when namespace is a group' do
+      let(:namespace) { build(:group) }
+
+      it { is_expected.to eq(group_usage_quotas_path(namespace, anchor: 'storage-quota-tab')) }
+    end
+
+    context 'when namespace is a user' do
+      let(:namespace) { build(:namespace) }
+
+      it { is_expected.to eq(profile_usage_quotas_path(anchor: 'storage-quota-tab')) }
     end
   end
 end

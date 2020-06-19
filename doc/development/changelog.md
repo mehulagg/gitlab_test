@@ -6,20 +6,20 @@ file, as well as information and history about our changelog process.
 ## Overview
 
 Each bullet point, or **entry**, in our [`CHANGELOG.md`](https://gitlab.com/gitlab-org/gitlab/blob/master/CHANGELOG.md) file is
-generated from a single data file in the [`changelogs/unreleased/`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/changelogs/)
-(or corresponding EE) folder. The file is expected to be a [YAML](https://en.wikipedia.org/wiki/YAML) file in the
+generated from a single data file in the [`changelogs/unreleased/`](https://gitlab.com/gitlab-org/gitlab/tree/master/changelogs/unreleased/).
+The file is expected to be a [YAML](https://en.wikipedia.org/wiki/YAML) file in the
 following format:
 
 ```yaml
 ---
 title: "Change[log]s"
 merge_request: 1972
-author: Black Sabbath
+author: Black Sabbath @bsabbath
 type: added
 ```
 
 The `merge_request` value is a reference to a merge request that adds this
-entry, and the `author` key is used to give attribution to community
+entry, and the `author` key (format: `<full name> <GitLab username>`) is used to give attribution to community
 contributors. **Both are optional**.
 The `type` field maps the category of the change,
 valid options are: added, fixed, changed, deprecated, removed, security, performance, other. **Type field is mandatory**.

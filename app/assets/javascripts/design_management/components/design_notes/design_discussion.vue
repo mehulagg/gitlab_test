@@ -5,9 +5,9 @@ import { s__ } from '~/locale';
 import ReplyPlaceholder from '~/notes/components/discussion_reply_placeholder.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import allVersionsMixin from '../../mixins/all_versions';
-import createNoteMutation from '../../graphql/mutations/createNote.mutation.graphql';
+import createNoteMutation from '../../graphql/mutations/create_note.mutation.graphql';
 import toggleResolveDiscussionMutation from '../../graphql/mutations/toggle_resolve_discussion.mutation.graphql';
-import getDesignQuery from '../../graphql/queries/getDesign.query.graphql';
+import getDesignQuery from '../../graphql/queries/get_design.query.graphql';
 import activeDiscussionQuery from '../../graphql/queries/active_discussion.query.graphql';
 import DesignNote from './design_note.vue';
 import DesignReplyForm from './design_reply_form.vue';
@@ -53,16 +53,22 @@ export default {
       type: Boolean,
       required: true,
     },
+    discussionWithOpenForm: {
+      type: String,
+      required: true,
+    },
   },
   apollo: {
     activeDiscussion: {
       query: activeDiscussionQuery,
       result({ data }) {
         const discussionId = data.activeDiscussion.id;
+        if (this.discussion.resolved && !this.resolvedDiscussionsExpanded) {
+          return;
+        }
         // We watch any changes to the active discussion from the design pins and scroll to this discussion if it exists
         // We don't want scrollIntoView to be triggered from the discussion click itself
         if (
-          this.resolvedDiscussionsExpanded &&
           discussionId &&
           data.activeDiscussion.source === ACTIVE_DISCUSSION_SOURCE_TYPES.pin &&
           discussionId === this.discussion.notes[0].id
@@ -127,6 +133,9 @@ export default {
     isReplyPlaceholderVisible() {
       return this.areRepliesShown || !this.discussionReplies.length;
     },
+    isFormVisible() {
+      return this.isFormRendered && this.discussionWithOpenForm === this.discussion.id;
+    },
   },
   methods: {
     addDiscussionComment(
@@ -158,13 +167,8 @@ export default {
       this.discussionComment = '';
     },
     showForm() {
+      this.$emit('openForm', this.discussion.id);
       this.isFormRendered = true;
-    },
-    handleReplyFormBlur() {
-      if (this.discussionComment) {
-        return;
-      }
-      this.isFormRendered = false;
     },
     toggleResolvedStatus() {
       this.isResolving = true;
@@ -256,10 +260,10 @@ export default {
       />
       <li v-show="isReplyPlaceholderVisible" class="reply-wrapper">
         <reply-placeholder
-          v-if="!isFormRendered"
+          v-if="!isFormVisible"
           class="qa-discussion-reply"
           :button-text="__('Reply...')"
-          @onMouseDown="showForm"
+          @onClick="showForm"
         />
         <apollo-mutation
           v-else
@@ -278,7 +282,6 @@ export default {
             :markdown-preview-path="markdownPreviewPath"
             @submitForm="mutate"
             @cancelForm="hideForm"
-            @onBlur="handleReplyFormBlur"
           >
             <template v-if="discussion.resolvable" #resolveCheckbox>
               <label data-testid="resolve-checkbox">

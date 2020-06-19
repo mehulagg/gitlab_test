@@ -63,13 +63,13 @@ const fetchGroupEpics = (
 };
 
 export const fetchChildrenEpics = (state, { parentItem }) => {
-  const { iid } = parentItem;
-  const { fullPath, filterParams, epicsState } = state;
+  const { iid, group } = parentItem;
+  const { filterParams, epicsState } = state;
 
   return epicUtils.gqClient
     .query({
       query: epicChildEpics,
-      variables: { iid, fullPath, state: epicsState, ...filterParams },
+      variables: { iid, fullPath: group?.fullPath, state: epicsState, ...filterParams },
     })
     .then(({ data }) => {
       const edges = data?.group?.epic?.children?.edges || [];
@@ -107,13 +107,13 @@ export const receiveEpicsSuccess = (
   }, []);
 
   commit(types.UPDATE_EPIC_IDS, epicIds);
+  dispatch('initItemChildrenFlags', { epics });
 
   if (timeframeExtended) {
     const updatedEpics = state.epics.concat(epics);
     sortEpics(updatedEpics, state.sortedBy);
     commit(types.RECEIVE_EPICS_FOR_TIMEFRAME_SUCCESS, updatedEpics);
   } else {
-    dispatch('initItemChildrenFlags', { epics });
     commit(types.RECEIVE_EPICS_SUCCESS, epics);
   }
 };

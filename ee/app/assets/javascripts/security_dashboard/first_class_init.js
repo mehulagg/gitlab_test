@@ -6,6 +6,7 @@ import FirstClassGroupSecurityDashboard from './components/first_class_group_sec
 import FirstClassInstanceSecurityDashboard from './components/first_class_instance_security_dashboard.vue';
 import UnavailableState from './components/unavailable_state.vue';
 import createStore from './store';
+import createRouter from './router';
 import projectsPlugin from './store/plugins/projects';
 import projectSelector from './store/plugins/project_selector';
 import apolloProvider from './graphql/provider';
@@ -41,6 +42,7 @@ export default (
     securityDashboardHelpPath: el.dataset.securityDashboardHelpPath,
     projectAddEndpoint: el.dataset.projectAddEndpoint,
     projectListEndpoint: el.dataset.projectListEndpoint,
+    vulnerabilitiesExportEndpoint: el.dataset.vulnerabilitiesExportEndpoint,
   };
 
   let component;
@@ -48,7 +50,6 @@ export default (
   if (dashboardType === DASHBOARD_TYPES.PROJECT) {
     component = FirstClassProjectSecurityDashboard;
     props.projectFullPath = el.dataset.projectFullPath;
-    props.vulnerabilitiesExportEndpoint = el.dataset.vulnerabilitiesExportEndpoint;
     props.userCalloutId = el.dataset.userCalloutId;
     props.userCalloutsPath = el.dataset.userCalloutsPath;
     props.showIntroductionBanner = parseBoolean(el.dataset.showIntroductionBanner);
@@ -59,9 +60,9 @@ export default (
   } else if (dashboardType === DASHBOARD_TYPES.INSTANCE) {
     component = FirstClassInstanceSecurityDashboard;
     props.vulnerableProjectsEndpoint = el.dataset.vulnerableProjectsEndpoint;
-    props.vulnerabilitiesExportEndpoint = el.dataset.vulnerabilitiesExportEndpoint;
   }
 
+  const router = createRouter();
   const store = createStore({
     dashboardType,
     plugins: [projectSelector, projectsPlugin],
@@ -70,6 +71,7 @@ export default (
   return new Vue({
     el,
     store,
+    router,
     apolloProvider,
     render(createElement) {
       return createElement(component, { props });

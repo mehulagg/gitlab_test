@@ -483,7 +483,7 @@ For information on configuring Crossplane installed on the cluster, see
 [Crossplane configuration](crossplane.md).
 
 NOTE: **Note:**
-[`alpha/crossplane`](https://charts.crossplane.io/alpha/) chart v0.4.1 is used to
+[`alpha/crossplane`](https://github.com/crossplane/crossplane/tree/v0.4.1/cluster/charts/crossplane) chart v0.4.1 is used to
 install Crossplane using the
 [`values.yaml`](https://github.com/crossplane/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl)
 file.
@@ -609,6 +609,7 @@ Supported applications:
 - [Sentry](#install-sentry-using-gitlab-cicd)
 - [GitLab Runner](#install-gitlab-runner-using-gitlab-cicd)
 - [Cilium](#install-cilium-using-gitlab-cicd)
+- [Falco](#install-falco-using-gitlab-cicd)
 - [Vault](#install-vault-using-gitlab-cicd)
 - [JupyterHub](#install-jupyterhub-using-gitlab-cicd)
 - [Elastic Stack](#install-elastic-stack-using-gitlab-cicd)
@@ -616,6 +617,7 @@ Supported applications:
 - [Fluentd](#install-fluentd-using-gitlab-cicd)
 - [Knative](#install-knative-using-gitlab-cicd)
 - [PostHog](#install-posthog-using-gitlab-cicd)
+- [Prometheus](#install-prometheus-using-gitlab-cicd)
 
 ### Usage
 
@@ -793,7 +795,7 @@ posthog:
 ```
 
 You can customize the installation of PostHog by defining `.gitlab/managed-apps/posthog/values.yaml`
-in your cluster management project. Refer to the [Configuration section of the PostHog chart's readme](https://github.com/PostHog/charts/tree/master/charts/posthog)
+in your cluster management project. Refer to the [Configuration section of the PostHog chart's README](https://github.com/PostHog/charts/tree/master/charts/posthog)
 for the available configuration options.
 
 NOTE: **Note:**
@@ -828,6 +830,28 @@ redis:
 NOTE: **Note:**
 Support for the PostHog managed application is provided by the PostHog team.
 If you run into issues, please [open a support ticket](https://github.com/PostHog/posthog/issues/new/choose) directly.
+
+### Install Prometheus using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25138) in GitLab 12.8.
+
+[Prometheus](https://prometheus.io/docs/introduction/overview/) is an
+open-source monitoring and alerting system for supervising your
+deployed applications.
+
+To install Prometheus into the `gitlab-managed-apps` namespace of your cluster,
+define the `.gitlab/managed-apps/config.yaml` file with:
+
+```yaml
+prometheus:
+  installed: true
+```
+
+You can customize the installation of Prometheus by defining
+`.gitlab/managed-apps/prometheus/values.yaml` in your cluster management
+project. Refer to the
+[Configuration section of the Prometheus chart's README](https://github.com/helm/charts/tree/master/stable/prometheus#configuration)
+for the available configuration options.
 
 ### Install GitLab Runner using GitLab CI/CD
 
@@ -907,10 +931,10 @@ Major upgrades might require additional setup steps, please consult
 the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
 information.
 
-By default, Cilium will drop all non-whitelisted packets upon policy
+By default, Cilium will drop all disallowed packets upon policy
 deployment. The audit mode is scheduled for release in
 [Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
-mode, non-whitelisted packets will not be dropped, and audit
+mode, disallowed packets will not be dropped, and audit
 notifications will be generated instead. GitLab provides alternative Docker
 images for Cilium with the audit patch included. You can switch to the
 custom build and enable the audit mode by adding the following to
@@ -963,6 +987,93 @@ metrics:
     - 'flow:sourceContext=namespace;destinationContext=namespace'
 ```
 
+### Install Falco using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/91) in GitLab 13.1.
+
+GitLab Container Host Security Monitoring uses [Falco](https://falco.org/)
+as a runtime security tool that listens to the Linux kernel using eBPF. Falco parses system calls
+and asserts the stream against a configurable rules engine in real-time. For more information, see
+[Falco's Documentation](https://falco.org/docs/).
+
+You can enable Falco in the
+`.gitlab/managed-apps/config.yaml` file:
+
+```yaml
+falco:
+  installed: true
+```
+
+You can customize Falco's Helm variables by defining the
+`.gitlab/managed-apps/falco/values.yaml` file in your cluster
+management project. Refer to the
+[Falco chart](https://github.com/helm/charts/blob/master/stable/falco/)
+for the available configuration options.
+
+CAUTION: **Caution:**
+By default eBPF support is enabled and Falco will use an [eBPF probe](https://falco.org/docs/event-sources/drivers/#using-the-ebpf-probe) to pass system calls to userspace.
+If your cluster doesn't support this, you can configure it to use Falco kernel module instead by adding the following to `.gitlab/managed-apps/falco/values.yaml`:
+
+```yaml
+ebpf:
+  enabled: false
+```
+
+In rare cases where automatic probe installation on your cluster isn't possible and the kernel/probe
+isn't precompiled, you may need to manually prepare the kernel module or eBPF probe with
+[driverkit](https://github.com/falcosecurity/driverkit#against-a-kubernetes-cluster)
+and install it on each cluster node.
+
+By default, Falco is deployed with a limited set of rules. To add more rules, add the following to
+`.gitlab/managed-apps/falco/values.yaml` (you can get examples from
+[Cloud Native Security Hub](https://securityhub.dev/)):
+
+```yaml
+customRules:
+  file-integrity.yaml: |-
+    - rule: Detect New File
+      desc: detect new file created
+      condition: >
+        evt.type = chmod or evt.type = fchmod
+      output: >
+        File below a known directory opened for writing (user=%user.name
+        command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+      priority: ERROR
+      tags: [filesystem]
+    - rule: Detect New Directory
+      desc: detect new directory created
+      condition: >
+        mkdir
+      output: >
+        File below a known directory opened for writing (user=%user.name
+        command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+      priority: ERROR
+      tags: [filesystem]
+```
+
+By default, Falco only outputs security events to logs as JSON objects. To set it to output to an
+[external API](https://falco.org/docs/alerts#https-output-send-alerts-to-an-https-end-point)
+or [application](https://falco.org/docs/alerts#program-output),
+add the following to `.gitlab/managed-apps/falco/values.yaml`:
+
+```yaml
+falco:
+  programOutput:
+    enabled: true
+    keepAlive: false
+    program: mail -s "Falco Notification" someone@example.com
+
+  httpOutput:
+    enabled: true
+    url: http://some.url
+```
+
+You can check these logs with the following command:
+
+```shell
+kubectl logs -l app=falco -n gitlab-managed-apps
+```
+
 ### Install Vault using GitLab CI/CD
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9982) in GitLab 12.9.
@@ -990,17 +1101,17 @@ when upgrading the Vault application.
 
 To optimally use Vault in a production environment, it's ideal to have a good understanding
 of the internals of Vault and how to configure it. This can be done by reading the
-[the Vault documentation](https://www.vaultproject.io/docs/internals/) as well as
+[the Vault documentation](https://www.vaultproject.io/docs/internals) as well as
 the Vault Helm chart [`values.yaml` file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
 
 At a minimum you will likely set up:
 
-- A [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
+- A [seal](https://www.vaultproject.io/docs/configuration/seal) for extra encryption
   of the master key.
-- A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
+- A [storage backend](https://www.vaultproject.io/docs/configuration/storage) that is
   suitable for environment and storage security requirements.
-- [HA Mode](https://www.vaultproject.io/docs/concepts/ha/).
-- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui/).
+- [HA Mode](https://www.vaultproject.io/docs/concepts/ha).
+- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui).
 
 The following is an example values file (`.gitlab/managed-apps/vault/values.yaml`)
 that configures Google Key Management Service for auto-unseal, using a Google Cloud Storage backend, enabling
@@ -1098,12 +1209,12 @@ You can customize the installation of JupyterHub by defining a
 `.gitlab/managed-apps/jupyterhub/values.yaml` file in your cluster management project.
 
 Refer to the
-[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html) for the
+[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference/reference.html) for the
 available configuration options.
 
 ### Install Elastic Stack using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/45) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25138) in GitLab 12.8.
 
 Elastic Stack is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1219,6 +1330,43 @@ by running the following command:
 ```shell
 kubectl delete -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
 ```
+
+### Install AppArmor using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/100) in GitLab 13.1.
+
+To install AppArmor into the `gitlab-managed-apps` namespace of your cluster using GitLab CI/CD, define the following configuration in `.gitlab/managed-apps/config.yaml`:
+
+```yaml
+apparmor:
+  installed: true
+```
+
+You can define one or more AppArmor profiles by adding them into `.gitlab/managed-apps/apparmor/values.yaml` as the following:
+
+```yaml
+profiles:
+  profile-one: |-
+    profile profile-one {
+      file,
+    }
+```
+
+Refer to the [AppArmor chart](https://gitlab.com/gitlab-org/charts/apparmor) for more information on this chart.
+
+#### Using AppArmor profiles in your deployments
+
+After installing AppAmor, you can use profiles by adding Pod Annotations. If you're using Auto
+DevOps, you can [customize `auto-deploy-values.yaml`](../../topics/autodevops/customize.md#customize-values-for-helm-chart)
+to annotate your pods. Although it's helpful to be aware of the [list of custom attributes](https://gitlab.com/gitlab-org/charts/auto-deploy-app#gitlabs-auto-deploy-helm-chart), you're only required to set
+`podAnnotations` as follows:
+
+```yaml
+podAnnotations:
+  container.apparmor.security.beta.kubernetes.io/auto-deploy-app: localhost/profile-one
+```
+
+The only information to be changed here is the profile name which is `profile-one` in this example. Refer to the [AppArmor tutorial](https://kubernetes.io/docs/tutorials/clusters/apparmor/#securing-a-pod) for more information on how AppArmor is integrated in Kubernetes.
 
 ## Upgrading applications
 

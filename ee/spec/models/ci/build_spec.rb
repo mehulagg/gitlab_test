@@ -137,6 +137,23 @@ RSpec.describe Ci::Build do
         end
       end
     end
+
+    describe 'variable CI_HAS_OPEN_REQUIREMENTS' do
+      it "is included with value 'true' if there are open requirements" do
+        create(:requirement, project: project)
+
+        expect(subject).to include({ key: 'CI_HAS_OPEN_REQUIREMENTS',
+                                     value: 'true', public: true, masked: false })
+      end
+
+      it 'is not included if there are no open requirements' do
+        create(:requirement, project: project, state: :archived)
+
+        requirement_variable = subject.find { |var| var[:key] == 'CI_HAS_OPEN_REQUIREMENTS' }
+
+        expect(requirement_variable).to be_nil
+      end
+    end
   end
 
   describe '#collect_security_reports!' do
@@ -252,8 +269,9 @@ RSpec.describe Ci::Build do
           create(:ee_ci_job_artifact, :license_scan, :with_corrupted_data, job: job, project: job.project)
         end
 
-        it 'raises an error' do
-          expect { subject }.to raise_error(Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning::LicenseScanningParserError)
+        it 'returns an empty report' do
+          expect { subject }.not_to raise_error
+          expect(license_scanning_report).to be_empty
         end
       end
 
@@ -402,6 +420,40 @@ RSpec.describe Ci::Build do
           subject
 
           expect(metrics_report.metrics.count).to eq(0)
+        end
+      end
+    end
+  end
+
+  describe '#collect_requirements_reports!' do
+    subject { job.collect_requirements_reports!(requirements_report) }
+
+    let(:requirements_report) { Gitlab::Ci::Reports::RequirementsManagement::Report.new }
+
+    context 'when there is a requirements report' do
+      before do
+        create(:ee_ci_job_artifact, :requirements, job: job, project: job.project)
+      end
+
+      context 'when requirements are available' do
+        before do
+          stub_licensed_features(requirements: true)
+        end
+
+        it 'parses blobs and adds the results to the report' do
+          expect { subject }.to change { requirements_report.requirements.count }.from(0).to(1)
+        end
+      end
+
+      context 'when requirements are not available' do
+        before do
+          stub_licensed_features(requirements: false)
+        end
+
+        it 'does not parse requirements report' do
+          subject
+
+          expect(requirements_report.requirements.count).to eq(0)
         end
       end
     end

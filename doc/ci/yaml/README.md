@@ -25,13 +25,13 @@ We have complete examples of configuring pipelines:
 - For a collection of examples, see [GitLab CI/CD Examples](../examples/README.md).
 - To see a large `.gitlab-ci.yml` file used in an enterprise, see the [`.gitlab-ci.yml` file for `gitlab`](https://gitlab.com/gitlab-org/gitlab/blob/master/.gitlab-ci.yml).
 
-For some additional information about GitLab CI/CD:
-
-- Watch the [CI/CD Ease of configuration](https://www.youtube.com/embed/opdLqwz6tcE) video.
-- Watch the [Making the case for CI/CD in your organization](https://about.gitlab.com/compare/github-actions-alternative/)
-  webcast to learn the benefits of CI/CD and how to measure the results of CI/CD automation.
-- Learn how [Verizon reduced rebuilds](https://about.gitlab.com/blog/2019/02/14/verizon-customer-story/)
-  from 30 days to under 8 hours with GitLab.
+> For some additional information about GitLab CI/CD:
+>
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Watch the [CI/CD Ease of configuration](https://www.youtube.com/embed/opdLqwz6tcE) video.
+> - Watch the [Making the case for CI/CD in your organization](https://about.gitlab.com/compare/github-actions-alternative/)
+>   webcast to learn the benefits of CI/CD and how to measure the results of CI/CD automation.
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Learn how [Verizon reduced rebuilds](https://about.gitlab.com/blog/2019/02/14/verizon-customer-story/)
+>   from 30 days to under 8 hours with GitLab.
 
 NOTE: **Note:**
 If you have a [mirrored repository where GitLab pulls from](../../user/project/repository/repository_mirroring.md#pulling-from-a-remote-repository-starter),
@@ -661,6 +661,139 @@ job:
 
 [YAML anchors for `before_script` and `after_script`](#yaml-anchors-for-before_script-and-after_script) are available.
 
+#### Coloring script output
+
+Script output can be colored using [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors),
+or by running commands or programs that output ANSI escape codes.
+
+For example, using [Bash with color codes](https://misc.flogisoft.com/bash/tip_colors_and_formatting):
+
+```yaml
+job:
+  script:
+    - echo -e "\e[31mThis text is red,\e[0m but this text isn't\e[31m however this text is red again."
+```
+
+You can define the color codes in Shell variables, or even [custom environment variables](../variables/README.md#custom-environment-variables),
+which makes the commands easier to read and reusable.
+
+For example, using the same example as above and variables defined in a `before_script`:
+
+```yaml
+job:
+  before_script:
+    - TXT_RED="\e[31m" && TXT_CLEAR="\e[0m"
+  script:
+    - echo -e "${TXT_RED}This text is red,${TXT_CLEAR} but this part isn't${TXT_RED} however this part is again."
+    - echo "This text is not colored"
+```
+
+Or with [PowerShell color codes](https://superuser.com/a/1259916):
+
+```yaml
+job:
+  before_script:
+    - $esc="$([char]27)"; $TXT_RED="$esc[31m"; $TXT_CLEAR="$esc[0m"
+  script:
+    - Write-Host $TXT_RED"This text is red,"$TXT_CLEAR" but this text isn't"$TXT_RED" however this text is red again."
+    - Write-Host "This text is not colored"
+```
+
+#### Multiline commands
+
+You can split long commands into multi-line commands to improve readability
+using [`|` (literal) and `>` (folded) YAML multiline block scalar indicators](https://yaml-multiline.info/).
+
+CAUTION: **Warning:**
+If multiple commands are combined into one command string, only the last command's
+failure or success will be reported,
+[incorrectly ignoring failures from earlier commands due to a bug](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/25394).
+If the success of the job depends on the success or failure of these commands,
+you can run the commands as separate `script:` items, or add `exit 1` commands
+as appropriate to the command string where needed.
+
+You can use the `|` (literal) YAML multiline block scalar indicator to write
+commands over multiple lines in the `script` section of a job description.
+Each line is treated as a separate command.
+Only the first command is repeated in the job log, but additional
+commands are still executed:
+
+```yaml
+job:
+  script:
+    - |
+      echo "First command line."
+      echo "Second command line."
+      echo "Third command line."
+```
+
+The example above renders in the job log as:
+
+```shell
+$ echo First command line # collapsed multi-line command
+First command line
+Second command line.
+Third command line.
+```
+
+The `>` (folded) YAML multiline block scalar indicator treats empty lines between
+sections as the start of a new command:
+
+```yaml
+job:
+  script:
+    - >
+      echo "First command line
+      is split over two lines."
+
+      echo "Second command line."
+```
+
+This behaves similarly to writing multiline commands without the `>` or `|` block
+scalar indicators:
+
+```yaml
+job:
+  script:
+    - echo "First command line
+      is split over two lines."
+
+      echo "Second command line."
+```
+
+Both examples above render in the job log as:
+
+```shell
+$ echo First command line is split over two lines. # collapsed multi-line command
+First command line is split over two lines.
+Second command line.
+```
+
+When the `>` or `|` block scalar indicators are omitted, GitLab will form the command
+by concatenating non-empty lines, so make sure the lines can run when concatenated.
+
+Shell [here documents](https://en.wikipedia.org/wiki/Here_document) work with the
+`|` and `>` operators as well. The example below transliterates the lower case letters
+to upper case:
+
+```yaml
+job:
+  script:
+    - |
+      tr a-z A-Z << END_TEXT
+        one two three
+        four five six
+      END_TEXT
+```
+
+Results in:
+
+```shell
+$ tr a-z A-Z << END_TEXT # collapsed multi-line command
+  ONE TWO THREE
+  FOUR FIVE SIX
+```
+
 ### `stage`
 
 `stage` is defined per-job and relies on [`stages`](#stages) which is defined
@@ -976,10 +1109,14 @@ job:
     - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME' # If neither of the first two match but the simple presence does, we set to "on_success" by default
 ```
 
-If none of the provided rules match, the job will be set to `when:never`, and
-not included in the pipeline. If `rules:when` is not included in the configuration
-at all, the behavior defaults to `job:when`, which continues to default to
-`on_success`.
+Some details regarding the logic that determines the `when` for the job:
+
+- If none of the provided rules match, the job is set to `when: never`, and is
+  not included in the pipeline.
+- A rule without any conditional clause, such as a `when` or `allow_failure`
+  rule without `if` or `changes`, always matches, and is always used if reached.
+- If a rule matches and has no `when` defined, the rule will use the `when`
+  defined for the job, which defaults to `on_success` if not defined.
 
 #### `rules:changes`
 
@@ -1428,7 +1565,7 @@ This means the `only:changes` policy is useful for pipelines where:
 - `$CI_PIPELINE_SOURCE == 'external_pull_request_event'`
 
 If there is no Git push event, such as for pipelines with
-[sources other than the three above](../variables/predefined_variables.md#variables-reference),
+[sources other than the three above](../variables/predefined_variables.md),
 `changes` can't determine if a given file is new or old, and will always
 return true.
 
@@ -2156,6 +2293,12 @@ The `stop_review_app` job is **required** to have the following keywords defined
 - `stage` should be the same as the `review_app` in order for the environment
   to stop automatically when the branch is deleted
 
+Additionally, both jobs should have matching [`rules`](../yaml/README.md#onlyexcept-basic)
+or [`only/except`](../yaml/README.md#onlyexcept-basic) configuration. In the example
+above, if the configuration is not identical, the `stop_review_app` job might not be
+included in all pipelines that include the `review_app` job, and it will not be
+possible to trigger the `action: stop` to stop the environment automatically.
+
 #### `environment:auto_stop_in`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/20956) in GitLab 12.8.
@@ -2561,7 +2704,7 @@ job:
 
 #### `artifacts:exclude`
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/15122) in GitLab 13.1
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15122) in GitLab 13.1
 > - Requires GitLab Runner 13.1
 
 `exclude` makes it possible to prevent files from being added to an artifacts
@@ -2770,7 +2913,7 @@ job:
 expire and are therefore deleted, counting from the time they are uploaded and
 stored on GitLab. If the expiry time is not defined, it defaults to the
 [instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration-core-only)
-(30 days by default, forever on GitLab.com).
+(30 days by default).
 
 You can use the **Keep** button on the job page to override expiration and
 keep artifacts forever.
@@ -2798,7 +2941,7 @@ job:
 ```
 
 NOTE: **Note:**
-For artifacts created in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/16267)
+For artifacts created in [GitLab 13.1](https://gitlab.com/gitlab-org/gitlab/-/issues/16267)
 and later, the latest artifact for a ref is always kept, regardless of the expiry time.
 
 #### `artifacts:reports`
@@ -3302,6 +3445,8 @@ NOTE: **Note:**
 This key can only contain letters, digits, `-`, `_`, `/`, `$`, `{`, `}`, `.`, and spaces.
 It can't start or end with `/`.
 
+For more information, see [Deployments Safety](../environments/deployment_safety.md).
+
 ### `pages`
 
 `pages` is a special job that is used to upload static content to GitLab that
@@ -3401,7 +3546,7 @@ variables:
 
 `none` also re-uses the local working copy, but skips all Git operations
 (including GitLab Runner's pre-clone script, if present). It's mostly useful
-for jobs that operate exclusively on artifacts (for examples `deploy`). Git repository
+for jobs that operate exclusively on artifacts (for example, `deploy`). Git repository
 data may be present, but it's certain to be out of date, so you should only
 rely on files brought into the local working copy from cache or artifacts.
 

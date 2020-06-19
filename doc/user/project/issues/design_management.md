@@ -30,9 +30,11 @@ to be enabled:
   project level, navigate to your project's **Settings > General**, expand **Visibility, project features, permissions**
   and enable **Git Large File Storage**.
 
-Design Management requires that projects are using
-[hashed storage](../../../administration/repository_storage_types.md#hashed-storage)
-(the default storage type since v10.0).
+Design Management also requires that projects are using
+[hashed storage](../../../administration/raketasks/storage.md#migrate-to-hashed-storage). Since
+ GitLab 10.0, newly created projects use hashed storage by default. A GitLab admin can verify the storage type of a
+project by navigating to **Admin Area > Projects** and then selecting the project in question.
+A project can be identified as hashed-stored if its *Gitaly relative path* contains `@hashed`.
 
 If the requirements are not met, the **Designs** tab displays a message to the user.
 
@@ -47,6 +49,7 @@ and [PDFs](https://gitlab.com/gitlab-org/gitlab/-/issues/32811) is planned for a
 ## Limitations
 
 - Design uploads are limited to 10 files at a time.
+- From GitLab 13.1, Design filenames are limited to 255 characters.
 - Design Management data
   [isn't deleted when a project is destroyed](https://gitlab.com/gitlab-org/gitlab/-/issues/13429) yet.
 - Design Management data [won't be moved](https://gitlab.com/gitlab-org/gitlab/-/issues/13426)
@@ -68,7 +71,7 @@ Navigate to the **Design Management** page from any issue by clicking the **Desi
 To upload design images, click the **Upload Designs** button and select images to upload.
 
 [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9,
-you can drag and drop designs onto the dedicated dropzone to upload them.
+you can drag and drop designs onto the dedicated drop zone to upload them.
 
 ![Drag and drop design uploads](img/design_drag_and_drop_uploads_v12_9.png)
 
@@ -181,17 +184,23 @@ so that everyone involved can participate in the discussion.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13049) in GitLab 13.1.
 
-Discussion threads can be resolved on Designs. You can mark a thread as resolved
-or unresolved by clicking the **Resolve thread** icon at the first comment of the
-discussion.
+Discussion threads can be resolved on Designs.
 
-![Resolve thread icon](img/resolve_design-discussion_icon_v13_1.png)
+There are two ways to resolve/unresolve a Design thread:
 
-Pinned comments can also be resolved or unresolved in their threads.
-When replying to a comment, you will see a checkbox that you can click in order to resolve or unresolve
-the thread once published.
+1. You can mark a thread as resolved or unresolved by clicking the checkmark icon for **Resolve thread** in the top-right corner of the first comment of the discussion:
 
-![Resolve checkbox](img/resolve_design-discussion_checkbox_v13_1.png)
+  ![Resolve thread icon](img/resolve_design-discussion_icon_v13_1.png)
+
+1. Design threads can also be resolved or unresolved in their threads by using a checkbox.
+  When replying to a comment, you will see a checkbox that you can click in order to resolve or unresolve
+  the thread once published:
+
+  ![Resolve checkbox](img/resolve_design-discussion_checkbox_v13_1.png)
+
+Note that your resolved comment pins will disappear from the Design to free up space for new discussions.
+However, if you need to revisit or find a resolved discussion, all of your resolved threads will be
+available in the **Resolved Comment** area at the bottom of the right sidebar.
 
 ## Referring to designs in Markdown
 
@@ -208,12 +217,12 @@ At present, full URL references are supported. For example, if we refer to a des
 somewhere with:
 
 ```markdown
-See http://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png
+See https://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png
 ```
 
 This will be rendered as:
 
-> See [#123[homescreen.png]](http://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png)
+> See [#123[homescreen.png]](https://gitlab.com/your-group/your-project/-/issues/123/designs/homescreen.png)
 
 ### Enable or disable design references **(CORE ONLY)**
 

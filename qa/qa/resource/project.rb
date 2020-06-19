@@ -71,11 +71,13 @@ module QA
         end
 
         if @template_name
+          QA::Flow::Project.go_to_create_project_from_template
           Page::Project::New.perform do |new_page|
-            new_page.click_create_from_template_tab
             new_page.use_template_for_project(@template_name)
           end
         end
+
+        Page::Project::NewExperiment.perform(&:click_blank_project_link) if Page::Project::NewExperiment.perform(&:shown?)
 
         Page::Project::New.perform do |new_page|
           new_page.choose_test_namespace
@@ -165,7 +167,7 @@ module QA
           raise ResourceUpdateFailedError, "Could not change repository storage to #{new_storage}. Request returned (#{response.code}): `#{response}`."
         end
 
-        wait_until(sleep_interval: 1) { Runtime::API::RepositoryStorageMoves.has_status?(self, 'finished') }
+        wait_until(sleep_interval: 1) { Runtime::API::RepositoryStorageMoves.has_status?(self, 'finished', new_storage) }
       rescue Support::Repeater::RepeaterConditionExceededError
         raise Runtime::API::RepositoryStorageMoves::RepositoryStorageMovesError, 'Timed out while waiting for the repository storage move to finish'
       end

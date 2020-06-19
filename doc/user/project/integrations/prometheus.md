@@ -61,7 +61,7 @@ will help you to quickly create a deployment:
 1. Navigate to your project's **CI/CD > Pipelines** page, and run a pipeline on any branch.
 1. When the pipeline has run successfully, graphs will be available on the **Operations > Metrics** page.
 
-![Monitoring Dashboard](img/prometheus_monitoring_dashboard_v12_8.png)
+![Monitoring Dashboard](img/prometheus_monitoring_dashboard_v13_1.png)
 
 #### Using the Metrics Dashboard
 
@@ -353,14 +353,23 @@ and files with invalid syntax display **Metrics Dashboard YAML definition is inv
 When **Metrics Dashboard YAML definition is invalid** at least one of the following messages is displayed:
 
 1. `dashboard: can't be blank` [learn more](#dashboard-top-level-properties)
-1. `panel_groups: can't be blank` [learn more](#dashboard-top-level-properties)
+1. `panel_groups: should be an array of panel_groups objects` [learn more](#dashboard-top-level-properties)
 1. `group: can't be blank` [learn more](#panel-group-panel_groups-properties)
-1. `panels: can't be blank` [learn more](#panel-group-panel_groups-properties)
-1. `metrics: can't be blank` [learn more](#panel-panels-properties)
+1. `panels: should be an array of panels objects` [learn more](#panel-group-panel_groups-properties)
 1. `title: can't be blank` [learn more](#panel-panels-properties)
+1. `metrics: should be an array of metrics objects` [learn more](#panel-panels-properties)
 1. `query: can't be blank` [learn more](#metrics-metrics-properties)
 1. `query_range: can't be blank` [learn more](#metrics-metrics-properties)
 1. `unit: can't be blank` [learn more](#metrics-metrics-properties)
+1. `YAML syntax: The parsed YAML is too big`
+
+   This is displayed when the YAML file is larger than 1 MB.
+
+1. `YAML syntax: Invalid configuration format`
+
+   This is displayed when the YAML file is empty or does not contain valid YAML.
+
+Metrics Dashboard YAML definition validation information is also available as a [GraphQL API field](../../../api/graphql/reference/index.md#metricsdashboard)
 
 #### Dashboard YAML properties
 
@@ -378,15 +387,26 @@ The following tables outline the details of expected properties.
 | ------ | ------ | ------ | ------ |
 | `dashboard` | string | yes | Heading for the dashboard. Only one dashboard should be defined per file. |
 | `panel_groups` | array | yes | The panel groups which should be on the dashboard. |
-| `templating` | Hash | no | Top level key under which templating related options can be added. |
+| `templating` | hash | no | Top level key under which templating related options can be added. |
+| `links` | array | no | Add links to display on the dashboard. |
 
 ##### **Templating (`templating`) properties**
 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
-| `variables` | Hash | no | Variables can be defined here. |
+| `variables` | hash | yes | Variables can be defined here. |
 
 Read the documentation on [templating](#templating-variables-for-metrics-dashboards).
+
+##### **Links (`links`) properties**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `url` | string | yes | The address of the link. |
+| `title` | string | no | Display title for the link. |
+| `type` | string | no | Type of the link. Specifies the link type, can be: `grafana` |
+
+Read the documentation on [links](#add-related-links-to-custom-dashboards).
 
 ##### **Panel group (`panel_groups`) properties**
 
@@ -407,6 +427,7 @@ Read the documentation on [templating](#templating-variables-for-metrics-dashboa
 | `max_value` | number | no | Denominator value used for calculating [percentile based results](#percentile-based-results) |
 | `weight` | number | no, defaults to order in file | Order to appear within the grouping. Lower number means higher priority, which will be higher on the page. Numbers do not need to be consecutive. |
 | `metrics` | array | yes | The metrics which should be displayed in the panel. Any number of metrics can be displayed when `type` is `area-chart` or `line-chart`, whereas only 3 can be displayed when `type` is `anomaly-chart`. |
+| `links` | array | no | Add links to display on the chart's [context menu](#chart-context-menu). |
 
 ##### **Axis (`panels[].y_axis`) properties**
 
@@ -735,7 +756,7 @@ Templating variables can be used to make your metrics dashboard more versatile.
 [dashboard YAML](#dashboard-top-level-properties).
 Define your variables in the `variables` key, under `templating`. The value of
 the `variables` key should be a hash, and each key under `variables`
-defines a templating variable on the dashboard.
+defines a templating variable on the dashboard, and may contain alphanumeric and underscore characters.
 
 A variable can be used in a Prometheus query in the same dashboard using the syntax
 described [here](#using-variables).
@@ -802,7 +823,7 @@ templating:
 
 ###### Full syntax
 
-This example creates a variable called `variable1`, with a default value of `var1_option_2`.
+This example creates a variable called `variable1`, with a default value of `value_option_2`.
 The label for the text box on the UI will be the value of the `label` key.
 The dashboard UI will display a dropdown with `Option 1` and `Option 2`
 as the choices.
@@ -823,6 +844,47 @@ templating:
         - value: 'value_option_2'
           text: 'Option 2'
           default: true                  # (Optional) This option should be the default value of this variable.
+```
+
+### Add related links to custom dashboards
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/216385) in GitLab 13.1.
+
+You can embed links to other dashboards or external services in your custom
+dashboard by adding **Related links** to your dashboard's YAML file. Related links
+open in the same tab as the dashboard. Related links can be displayed in the
+following locations on your dashboard:
+
+- At the top of your dashboard as the top level [`links` dashboard property](#dashboard-top-level-properties).
+- In charts context menus as the [`links` property of a panel](#panel-panels-properties).
+
+Related links can contain the following attributes:
+
+- `url`: The full URL to the link. Required.
+- `title`: A phrase describing the link. Optional. If this attribute is not set,
+  the full URL is used for the link title.
+- `type`: A string declaring the type of link. Optional. If set to `grafana`, the
+  dashboard's time range values are converted to Grafana's time range format and
+  appended to the `url`.
+
+The dashboard's time range is appended to the `url` as URL parameters.
+
+The following example shows two related links (`GitLab.com` and `GitLab Documentation`)
+added to a dashboard:
+
+![Links UI](img/related_links_v13_1.png)
+
+#### Links Syntax
+
+```yaml
+links:
+  - title: GitLab.com
+    url: https://gitlab.com
+  - title: GitLab Documentation
+    url: https://docs.gitlab.com
+  - title: Public Grafana playground dashboard
+    url: https://play.grafana.org/d/000000012/grafana-play-home?orgId=1
+    type: grafana
 ```
 
 ### View and edit the source file of a custom dashboard
@@ -865,7 +927,7 @@ You can create annotations by making requests to the
 
 #### Retention policy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/211433) in GitLab 13.01.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/211433) in GitLab 13.01.
 
 To avoid excessive storage space consumption by stale annotations, records attached
 to time periods older than two weeks are removed daily. This recurring background
@@ -947,12 +1009,15 @@ receivers:
 
 In order for GitLab to associate your alerts with an [environment](../../../ci/environments/index.md), you need to configure a `gitlab_environment_name` label on the alerts you set up in Prometheus. The value of this should match the name of your Environment in GitLab.
 
+NOTE: **Note**
+In GitLab versions 13.1 and greater, you can configure your manually configured Prometheus server to use the [Generic alerts integration](generic_alerts.md).
+
 ### Taking action on incidents **(ULTIMATE)**
 
 >- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4925) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.11.
 >- [From GitLab Ultimate 12.5](https://gitlab.com/gitlab-org/gitlab/-/issues/13401), when GitLab receives a recovery alert, it will automatically close the associated issue.
 
-Alerts can be used to trigger actions, like opening an issue automatically (enabled by default since `12.1`). To configure the actions:
+Alerts can be used to trigger actions, like opening an issue automatically (disabled by default since `13.1`). To configure the actions:
 
 1. Navigate to your project's **Settings > Operations > Incidents**.
 1. Enable the option to create issues.

@@ -46,16 +46,16 @@ To create a GitLab Pages website:
 
 | Document | Description |
 | -------- | ----------- |
+| [Fork a sample project](getting_started/fork_sample_project.md)               | Create a new project with Pages already configured by forking a sample project. |
+| [Use a new project template](getting_started/pages_bundled_template.md)       | Create a new project with Pages already configured by using a new project template. |
 | [Use a `.gitlab-ci.yml` template](getting_started/new_or_existing_website.md) | Add a Pages site to an existing project. Use a pre-populated CI template file. |
 | [Create a `gitlab-ci.yml` file from scratch](getting_started_part_four.md)    | Add a Pages site to an existing project. Learn how to create and configure your own CI file. |
-| [Use a new project template](getting_started/pages_bundled_template.md)       | Create a new project with Pages already configured by using a new project template. |
-| [Fork a sample project](getting_started/fork_sample_project.md)               | Create a new project with Pages already configured by forking a sample project. |
 
 To update a GitLab Pages website:
 
 | Document | Description |
 | -------- | ----------- |
-| [GitLab Pages domain names, URLs, and baseurls](getting_started_part_one.md) | Learn about GitLab Pages default domains. |
+| [GitLab Pages domain names, URLs, and base URLs](getting_started_part_one.md) | Learn about GitLab Pages default domains. |
 | [Explore GitLab Pages](introduction.md) | Requirements, technical aspects, specific GitLab CI/CD configuration options, Access Control, custom 404 pages, limitations, FAQ. |
 | [Custom domains and SSL/TLS Certificates](custom_domains_ssl_tls_certification/index.md) | Custom domains and subdomains, DNS records, and SSL/TLS certificates. |
 | [Let's Encrypt integration](custom_domains_ssl_tls_certification/lets_encrypt_integration.md) | Secure your Pages sites with Let's Encrypt certificates, which are automatically obtained and renewed by GitLab. |

@@ -254,7 +254,7 @@ Settings.artifacts['storage_path'] = Settings.absolute(Settings.artifacts.values
 # Settings.artifact['path'] is deprecated, use `storage_path` instead
 Settings.artifacts['path']         = Settings.artifacts['storage_path']
 Settings.artifacts['max_size'] ||= 100 # in megabytes
-Settings.artifacts['object_store'] = ObjectStoreSettings.parse(Settings.artifacts['object_store'])
+Settings.artifacts['object_store'] = ObjectStoreSettings.legacy_parse(Settings.artifacts['object_store'])
 
 #
 # Registry
@@ -325,7 +325,7 @@ Settings['external_diffs'] ||= Settingslogic.new({})
 Settings.external_diffs['enabled']      = false if Settings.external_diffs['enabled'].nil?
 Settings.external_diffs['when']         = 'always' if Settings.external_diffs['when'].nil?
 Settings.external_diffs['storage_path'] = Settings.absolute(Settings.external_diffs['storage_path'] || File.join(Settings.shared['path'], 'external-diffs'))
-Settings.external_diffs['object_store'] = ObjectStoreSettings.parse(Settings.external_diffs['object_store'])
+Settings.external_diffs['object_store'] = ObjectStoreSettings.legacy_parse(Settings.external_diffs['object_store'])
 
 #
 # Git LFS
@@ -333,7 +333,7 @@ Settings.external_diffs['object_store'] = ObjectStoreSettings.parse(Settings.ext
 Settings['lfs'] ||= Settingslogic.new({})
 Settings.lfs['enabled']      = true if Settings.lfs['enabled'].nil?
 Settings.lfs['storage_path'] = Settings.absolute(Settings.lfs['storage_path'] || File.join(Settings.shared['path'], "lfs-objects"))
-Settings.lfs['object_store'] = ObjectStoreSettings.parse(Settings.lfs['object_store'])
+Settings.lfs['object_store'] = ObjectStoreSettings.legacy_parse(Settings.lfs['object_store'])
 
 #
 # Uploads
@@ -341,7 +341,7 @@ Settings.lfs['object_store'] = ObjectStoreSettings.parse(Settings.lfs['object_st
 Settings['uploads'] ||= Settingslogic.new({})
 Settings.uploads['storage_path'] = Settings.absolute(Settings.uploads['storage_path'] || 'public')
 Settings.uploads['base_dir'] = Settings.uploads['base_dir'] || 'uploads/-/system'
-Settings.uploads['object_store'] = ObjectStoreSettings.parse(Settings.uploads['object_store'])
+Settings.uploads['object_store'] = ObjectStoreSettings.legacy_parse(Settings.uploads['object_store'])
 Settings.uploads['object_store']['remote_directory'] ||= 'uploads'
 
 #
@@ -351,7 +351,7 @@ Gitlab.ee do
   Settings['packages'] ||= Settingslogic.new({})
   Settings.packages['enabled']      = true if Settings.packages['enabled'].nil?
   Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], "packages"))
-  Settings.packages['object_store'] = ObjectStoreSettings.parse(Settings.packages['object_store'])
+  Settings.packages['object_store'] = ObjectStoreSettings.legacy_parse(Settings.packages['object_store'])
 end
 
 #
@@ -361,7 +361,7 @@ Gitlab.ee do
   Settings['dependency_proxy'] ||= Settingslogic.new({})
   Settings.dependency_proxy['enabled']      = true if Settings.dependency_proxy['enabled'].nil?
   Settings.dependency_proxy['storage_path'] = Settings.absolute(Settings.dependency_proxy['storage_path'] || File.join(Settings.shared['path'], "dependency_proxy"))
-  Settings.dependency_proxy['object_store'] = ObjectStoreSettings.parse(Settings.dependency_proxy['object_store'])
+  Settings.dependency_proxy['object_store'] = ObjectStoreSettings.legacy_parse(Settings.dependency_proxy['object_store'])
 
   # For first iteration dependency proxy uses Rails server to download blobs.
   # To ensure acceptable performance we only allow feature to be used with
@@ -376,7 +376,7 @@ end
 Settings['terraform_state'] ||= Settingslogic.new({})
 Settings.terraform_state['enabled']      = true if Settings.terraform_state['enabled'].nil?
 Settings.terraform_state['storage_path'] = Settings.absolute(Settings.terraform_state['storage_path'] || File.join(Settings.shared['path'], "terraform_state"))
-Settings.terraform_state['object_store'] = ObjectStoreSettings.parse(Settings.terraform_state['object_store'])
+Settings.terraform_state['object_store'] = ObjectStoreSettings.legacy_parse(Settings.terraform_state['object_store'])
 
 #
 # Mattermost
@@ -451,9 +451,9 @@ Settings.cron_jobs['trending_projects_worker']['job_class'] = 'TrendingProjectsW
 Settings.cron_jobs['remove_unreferenced_lfs_objects_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['remove_unreferenced_lfs_objects_worker']['cron'] ||= '20 0 * * *'
 Settings.cron_jobs['remove_unreferenced_lfs_objects_worker']['job_class'] = 'RemoveUnreferencedLfsObjectsWorker'
-Settings.cron_jobs['stuck_import_jobs_worker'] ||= Settingslogic.new({})
-Settings.cron_jobs['stuck_import_jobs_worker']['cron'] ||= '15 * * * *'
-Settings.cron_jobs['stuck_import_jobs_worker']['job_class'] = 'StuckImportJobsWorker'
+Settings.cron_jobs['import_stuck_project_import_jobs'] ||= Settingslogic.new({})
+Settings.cron_jobs['import_stuck_project_import_jobs']['cron'] ||= '15 * * * *'
+Settings.cron_jobs['import_stuck_project_import_jobs']['job_class'] = 'Gitlab::Import::StuckProjectImportJobsWorker'
 Settings.cron_jobs['jira_import_stuck_jira_import_jobs'] ||= Settingslogic.new({})
 Settings.cron_jobs['jira_import_stuck_jira_import_jobs']['cron'] ||= '* 0/15 * * *'
 Settings.cron_jobs['jira_import_stuck_jira_import_jobs']['job_class'] = 'Gitlab::JiraImport::StuckJiraImportJobsWorker'
@@ -513,6 +513,9 @@ Gitlab.ee do
   Settings.cron_jobs['geo_file_download_dispatch_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['geo_file_download_dispatch_worker']['cron'] ||= '*/1 * * * *'
   Settings.cron_jobs['geo_file_download_dispatch_worker']['job_class'] ||= 'Geo::FileDownloadDispatchWorker'
+  Settings.cron_jobs['geo_registry_sync_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['geo_registry_sync_worker']['cron'] ||= '*/1 * * * *'
+  Settings.cron_jobs['geo_registry_sync_worker']['job_class'] ||= 'Geo::RegistrySyncWorker'
   Settings.cron_jobs['geo_metrics_update_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['geo_metrics_update_worker']['cron'] ||= '*/1 * * * *'
   Settings.cron_jobs['geo_metrics_update_worker']['job_class'] ||= 'Geo::MetricsUpdateWorker'
@@ -558,9 +561,15 @@ Gitlab.ee do
   Settings.cron_jobs['elastic_index_bulk_cron_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['elastic_index_bulk_cron_worker']['cron'] ||= '*/1 * * * *'
   Settings.cron_jobs['elastic_index_bulk_cron_worker']['job_class'] ||= 'ElasticIndexBulkCronWorker'
+  Settings.cron_jobs['elastic_index_initial_bulk_cron_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['elastic_index_initial_bulk_cron_worker']['cron'] ||= '*/1 * * * *'
+  Settings.cron_jobs['elastic_index_initial_bulk_cron_worker']['job_class'] ||= 'ElasticIndexInitialBulkCronWorker'
   Settings.cron_jobs['sync_seat_link_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['sync_seat_link_worker']['cron'] ||= "#{rand(60)} 0 * * *"
   Settings.cron_jobs['sync_seat_link_worker']['job_class'] = 'SyncSeatLinkWorker'
+  Settings.cron_jobs['web_application_firewall_metrics_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['web_application_firewall_metrics_worker']['cron'] ||= '0 1 * * 0'
+  Settings.cron_jobs['web_application_firewall_metrics_worker']['job_class'] = 'IngressModsecurityCounterMetricsWorker'
 end
 
 #
@@ -585,6 +594,9 @@ Settings.gitlab_shell['ssh_user']       = Settings.gitlab.ssh_user
 Settings.gitlab_shell['owner_group']  ||= Settings.gitlab.user
 Settings.gitlab_shell['ssh_path_prefix'] ||= Settings.__send__(:build_gitlab_shell_ssh_path_prefix)
 Settings.gitlab_shell['git_timeout'] ||= 10800
+
+# Object storage
+ObjectStoreSettings.new(Settings).parse!
 
 #
 # Workhorse

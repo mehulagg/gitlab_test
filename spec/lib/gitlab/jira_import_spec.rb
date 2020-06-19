@@ -9,6 +9,9 @@ describe Gitlab::JiraImport do
     include JiraServiceHelper
 
     let_it_be(:project, reload: true) { create(:project) }
+    let(:additional_params) { {} }
+
+    subject { described_class.validate_project_settings!(project, additional_params) }
 
     shared_examples 'raise Jira import error' do |message|
       it 'returns error' do
@@ -17,6 +20,16 @@ describe Gitlab::JiraImport do
     end
 
     shared_examples 'jira configuration base checks' do
+      context 'with configuration_check set to false' do
+        before do
+          additional_params[:configuration_check] = false
+        end
+
+        it 'does not raise Jira integration error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+
       context 'when Jira service was not setup' do
         it_behaves_like 'raise Jira import error', 'Jira integration not configured.'
       end
@@ -40,8 +53,6 @@ describe Gitlab::JiraImport do
     end
 
     context 'without user param' do
-      subject { described_class.validate_project_settings!(project) }
-
       it_behaves_like 'jira configuration base checks'
 
       context 'when jira connection is valid' do
@@ -56,7 +67,7 @@ describe Gitlab::JiraImport do
     context 'with user param provided' do
       let_it_be(:user) { create(:user) }
 
-      subject { described_class.validate_project_settings!(project, user: user) }
+      let(:additional_params) { { user: user } }
 
       context 'when user has permission to run import' do
         before do
@@ -96,7 +107,7 @@ describe Gitlab::JiraImport do
 
   describe '.jira_issue_cache_key' do
     it 'returns cache key for Jira issue imported to given project' do
-      expect(described_class.jira_issue_cache_key(project_id, 'DEMO-123')).to eq("jira-import/items-mapper/#{project_id}/issues/DEMO-123")
+      expect(described_class.jira_item_cache_key(project_id, 'DEMO-123', :issues)).to eq("jira-import/items-mapper/#{project_id}/issues/DEMO-123")
     end
   end
 
@@ -130,6 +141,29 @@ describe Gitlab::JiraImport do
 
       expect(Gitlab::Cache::Import::Caching.read("jira-import/paginator/#{project_id}/issues")).to eq('10')
       expect(described_class.get_issues_next_start_at(project_id)).to eq(10)
+    end
+  end
+
+  describe '.cache_users_mapping', :clean_gitlab_redis_cache do
+    let(:data) { { 'user1' => '456', 'user234' => '23' } }
+
+    it 'stores the data correctly' do
+      described_class.cache_users_mapping(project_id, data)
+
+      expect(Gitlab::Cache::Import::Caching.read("jira-import/items-mapper/#{project_id}/users/user1")).to eq('456')
+      expect(Gitlab::Cache::Import::Caching.read("jira-import/items-mapper/#{project_id}/users/user234")).to eq('23')
+    end
+  end
+
+  describe '.get_user_mapping', :clean_gitlab_redis_cache do
+    it 'reads the data correctly' do
+      Gitlab::Cache::Import::Caching.write("jira-import/items-mapper/#{project_id}/users/user-123", '456')
+
+      expect(described_class.get_user_mapping(project_id, 'user-123')).to eq(456)
+    end
+
+    it 'returns nil if value not found' do
+      expect(described_class.get_user_mapping(project_id, 'user-123')).to be_nil
     end
   end
 

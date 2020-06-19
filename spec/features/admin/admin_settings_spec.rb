@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_mock_admin_mode do
+RSpec.describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_mock_admin_mode do
   include StubENV
   include TermsHelper
   include UsageDataHelpers
@@ -102,6 +102,16 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         end
 
         expect(current_settings.gravatar_enabled).to be_falsey
+        expect(page).to have_content "Application settings saved successfully"
+      end
+
+      it 'Change Maximum import size' do
+        page.within('.as-account-limit') do
+          fill_in 'Maximum import size (MB)', with: 15
+          click_button 'Save changes'
+        end
+
+        expect(current_settings.max_import_size).to eq 15
         expect(page).to have_content "Application settings saved successfully"
       end
 
@@ -395,7 +405,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         visit network_admin_application_settings_path
 
         page.within('.as-issue-limits') do
-          fill_in 'Max requests per second per user', with: 0
+          fill_in 'Max requests per minute per user', with: 0
           click_button 'Save changes'
         end
 

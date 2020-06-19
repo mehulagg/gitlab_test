@@ -1,8 +1,7 @@
 import Vue from 'vue';
 import { pick } from 'lodash';
 import * as types from './mutation_types';
-import { selectedDashboard } from './getters';
-import { mapToDashboardViewModel, normalizeQueryResult } from './utils';
+import { mapToDashboardViewModel, normalizeQueryResponseData } from './utils';
 import { BACKOFF_TIMEOUT } from '../../lib/utils/common_utils';
 import { endpointKeys, initialStateKeys, metricStates } from '../constants';
 import httpStatusCodes from '~/lib/utils/http_status';
@@ -61,8 +60,14 @@ export default {
     state.emptyState = 'loading';
     state.showEmptyState = true;
   },
-  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboard) {
-    state.dashboard = mapToDashboardViewModel(dashboard);
+  [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboardYML) {
+    const { dashboard, panelGroups, variables, links } = mapToDashboardViewModel(dashboardYML);
+    state.dashboard = {
+      dashboard,
+      panelGroups,
+    };
+    state.variables = variables;
+    state.links = links;
 
     if (!state.dashboard.panelGroups.length) {
       state.emptyState = 'noData';
@@ -76,15 +81,14 @@ export default {
   [types.REQUEST_DASHBOARD_STARRING](state) {
     state.isUpdatingStarredValue = true;
   },
-  [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, newStarredValue) {
-    const dashboard = selectedDashboard(state);
-    const index = state.allDashboards.findIndex(d => d === dashboard);
+  [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, { selectedDashboard, newStarredValue }) {
+    const index = state.allDashboards.findIndex(d => d === selectedDashboard);
 
     state.isUpdatingStarredValue = false;
 
     // Trigger state updates in the reactivity system for this change
     // https://vuejs.org/v2/guide/reactivity.html#For-Arrays
-    Vue.set(state.allDashboards, index, { ...dashboard, starred: newStarredValue });
+    Vue.set(state.allDashboards, index, { ...selectedDashboard, starred: newStarredValue });
   },
   [types.RECEIVE_DASHBOARD_STARRING_FAILURE](state) {
     state.isUpdatingStarredValue = false;
@@ -122,6 +126,16 @@ export default {
   },
 
   /**
+   * Dashboard Validation Warnings
+   */
+  [types.RECEIVE_DASHBOARD_VALIDATION_WARNINGS_SUCCESS](state, hasDashboardValidationWarnings) {
+    state.hasDashboardValidationWarnings = hasDashboardValidationWarnings;
+  },
+  [types.RECEIVE_DASHBOARD_VALIDATION_WARNINGS_FAILURE](state) {
+    state.hasDashboardValidationWarnings = false;
+  },
+
+  /**
    * Individual panel/metric results
    */
   [types.REQUEST_METRIC_RESULT](state, { metricId }) {
@@ -131,19 +145,19 @@ export default {
       metric.state = metricStates.LOADING;
     }
   },
-  [types.RECEIVE_METRIC_RESULT_SUCCESS](state, { metricId, result }) {
+  [types.RECEIVE_METRIC_RESULT_SUCCESS](state, { metricId, data }) {
     const metric = findMetricInDashboard(metricId, state.dashboard);
     metric.loading = false;
-    state.showEmptyState = false;
 
-    if (!result || result.length === 0) {
+    state.showEmptyState = false;
+    if (!data.result || data.result.length === 0) {
       metric.state = metricStates.NO_DATA;
       metric.result = null;
     } else {
-      const normalizedResults = result.map(normalizeQueryResult);
+      const result = normalizeQueryResponseData(data);
 
       metric.state = metricStates.OK;
-      metric.result = Object.freeze(normalizedResults);
+      metric.result = Object.freeze(result);
     }
   },
   [types.RECEIVE_METRIC_RESULT_FAILURE](state, { metricId, error }) {

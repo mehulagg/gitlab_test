@@ -195,7 +195,7 @@ module Issuable
   class_methods do
     # Searches for records with a matching title.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
     # query - The search query as a String
     #
@@ -219,7 +219,7 @@ module Issuable
 
     # Searches for records with a matching title or description.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
     # query - The search query as a String
     # matched_columns - Modify the scope of the query. 'title', 'description' or joining them with a comma.
@@ -401,6 +401,10 @@ module Issuable
 
   def subscribed_without_subscriptions?(user, project)
     participants(user).include?(user)
+  end
+
+  def can_assign_epic?(user)
+    false
   end
 
   def to_hook_data(user, old_associations: {})

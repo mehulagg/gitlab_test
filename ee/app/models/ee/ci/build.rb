@@ -34,6 +34,10 @@ module EE
             .for_ref(ref)
             .for_project_paths(project_path)
         end
+
+        scope :security_scans_scanned_resources_count, -> (report_types) do
+          joins(:security_scans).where(security_scans: { scan_type: report_types }).group(:scan_type).sum(:scanned_resources_count)
+        end
       end
 
       def shared_runners_minutes_limit_enabled?
@@ -114,6 +118,16 @@ module EE
         end
 
         metrics_report
+      end
+
+      def collect_requirements_reports!(requirements_report)
+        return requirements_report unless project.feature_available?(:requirements)
+
+        each_report(::Ci::JobArtifact::REQUIREMENTS_REPORT_FILE_TYPES) do |file_type, blob, report_artifact|
+          ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, requirements_report)
+        end
+
+        requirements_report
       end
 
       def retryable?

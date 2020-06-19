@@ -11,6 +11,14 @@
   :weight: 1
   :idempotent: true
   :tags: []
+- :name: authorized_project_update:authorized_project_update_project_group_link_create
+  :feature_category: :authentication_and_authorization
+  :has_external_dependencies: 
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
+  :tags: []
 - :name: authorized_project_update:authorized_project_update_user_refresh_with_low_urgency
   :feature_category: :authentication_and_authorization
   :has_external_dependencies: 
@@ -144,6 +152,14 @@
   :has_external_dependencies: 
   :urgency: :low
   :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: 
+  :tags: []
+- :name: cronjob:import_stuck_project_import_jobs
+  :feature_category: :importers
+  :has_external_dependencies: 
+  :urgency: :low
+  :resource_boundary: :cpu
   :weight: 1
   :idempotent: 
   :tags: []
@@ -813,7 +829,7 @@
   :tags: []
 - :name: pipeline_background:ci_build_report_result
   :feature_category: :continuous_integration
-  :has_external_dependencies:
+  :has_external_dependencies: 
   :urgency: :low
   :resource_boundary: :unknown
   :weight: 1

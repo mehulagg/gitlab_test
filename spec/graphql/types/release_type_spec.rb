@@ -9,7 +9,8 @@ describe GitlabSchema.types['Release'] do
     expected_fields = %w[
       tag_name tag_path
       description description_html
-      name assets milestones author commit
+      name milestones evidences author commit
+      assets links
       created_at released_at
     ]
 
@@ -22,10 +23,22 @@ describe GitlabSchema.types['Release'] do
     it { is_expected.to have_graphql_type(Types::ReleaseAssetsType) }
   end
 
+  describe 'links field' do
+    subject { described_class.fields['links'] }
+
+    it { is_expected.to have_graphql_type(Types::ReleaseLinksType) }
+  end
+
   describe 'milestones field' do
     subject { described_class.fields['milestones'] }
 
     it { is_expected.to have_graphql_type(Types::MilestoneType.connection_type) }
+  end
+
+  describe 'evidences field' do
+    subject { described_class.fields['evidences'] }
+
+    it { is_expected.to have_graphql_type(Types::EvidenceType.connection_type) }
   end
 
   describe 'author field' do
@@ -38,6 +51,5 @@ describe GitlabSchema.types['Release'] do
     subject { described_class.fields['commit'] }
 
     it { is_expected.to have_graphql_type(Types::CommitType) }
-    it { is_expected.to require_graphql_authorizations(:reporter_access) }
   end
 end

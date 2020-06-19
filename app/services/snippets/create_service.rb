@@ -13,7 +13,7 @@ module Snippets
 
       @snippet.author = current_user
 
-      spam_check(@snippet, current_user)
+      spam_check(@snippet, current_user, action: :create)
 
       if save_and_commit
         UserAgentDetailService.new(@snippet, @request).create
@@ -99,6 +99,10 @@ module Snippets
 
     def build_actions_from_params(_snippet)
       [{ file_path: params[:file_name], content: params[:content] }]
+    end
+
+    def restricted_files_actions
+      :create
     end
   end
 end

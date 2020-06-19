@@ -9,9 +9,17 @@ export default () => ({
 
   // Dashboard request parameters
   timeRange: null,
+  /**
+   * Currently selected dashboard. For custom dashboards,
+   * this could be the filename or the file path.
+   *
+   * If this is the filename and full path is required,
+   * getters.fullDashboardPath should be used.
+   */
   currentDashboard: null,
 
   // Dashboard data
+  hasDashboardValidationWarnings: false,
   emptyState: 'gettingStarted',
   showEmptyState: true,
   showErrorBanner: true,
@@ -44,7 +52,7 @@ export default () => ({
    * User-defined custom links are passed
    * via the dashboard yml file.
    */
-  links: {},
+  links: [],
   // Other project data
   dashboardTimezone: timezones.LOCAL,
   annotations: [],
@@ -57,4 +65,7 @@ export default () => ({
   // GitLab paths to other pages
   projectPath: null,
   logsPath: invalidUrl,
+
+  // static paths
+  customDashboardBasePath: '',
 });

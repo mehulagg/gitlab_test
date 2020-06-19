@@ -146,7 +146,7 @@ Additionally, this configuration is specifically warned against in the
 >to the NFS server can cause data corruption problems.
 
 For supported database architecture, please see our documentation on
-[Configuring a Database for GitLab HA](database.md).
+[Configuring a Database for GitLab HA](../postgresql/replication_and_failover.md).
 
 ## NFS Client mount options
 
@@ -194,7 +194,7 @@ use the `hard` option, because (from the man page):
 
 Other vendors make similar recommendations, including
 [SAP](http://wiki.scn.sap.com/wiki/x/PARnFQ) and NetApp's
-[knowledge base](https://kb.netapp.com/app/answers/answer_view/a_id/1004893/~/hard-mount-vs-soft-mount-),
+[knowledge base](https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/What_are_the_differences_between_hard_mount_and_soft_mount),
 they highlight that if the NFS client driver caches data, `soft` means there is no certainty if
 writes by GitLab are actually on disk.
 
@@ -284,7 +284,7 @@ are empty before attempting a restore. Read more about the
 
 Read more on high-availability configuration:
 
-1. [Configure the database](database.md)
+1. [Configure the database](../postgresql/replication_and_failover.md)
 1. [Configure Redis](redis.md)
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)

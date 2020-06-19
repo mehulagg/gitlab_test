@@ -75,6 +75,36 @@ module EE
             .prevent_merge_requests_committers_approval
       end
 
+      with_scope :subject
+      condition(:regulated_merge_request_approval_settings) do
+        License.feature_available?(:admin_merge_request_approvers_rules) &&
+          @subject.has_regulated_settings?
+      end
+
+      condition(:cannot_modify_approvers_rules) do
+        if @subject.project_compliance_mr_approval_settings?
+          regulated_merge_request_approval_settings?
+        else
+          owner_cannot_modify_approvers_rules? && !admin?
+        end
+      end
+
+      condition(:cannot_modify_merge_request_author_setting) do
+        if @subject.project_compliance_mr_approval_settings?
+          regulated_merge_request_approval_settings?
+        else
+          owner_cannot_modify_merge_request_author_setting? && !admin?
+        end
+      end
+
+      condition(:cannot_modify_merge_request_committer_setting) do
+        if @subject.project_compliance_mr_approval_settings?
+          regulated_merge_request_approval_settings?
+        else
+          owner_cannot_modify_merge_request_committer_setting? && !admin?
+        end
+      end
+
       with_scope :global
       condition(:cluster_health_available) do
         License.feature_available?(:cluster_health)
@@ -134,6 +164,12 @@ module EE
       with_scope :subject
       condition(:security_dashboard_enabled) do
         @subject.feature_available?(:security_dashboard)
+      end
+
+      with_scope :subject
+      condition(:on_demand_scans_enabled) do
+        ::Feature.enabled?(:security_on_demand_scans_feature_flag, project) &&
+        @subject.feature_available?(:security_on_demand_scans)
       end
 
       with_scope :subject
@@ -223,6 +259,7 @@ module EE
         enable :admin_feature_flag
         enable :admin_feature_flags_user_lists
         enable :read_ci_minutes_quota
+        enable :run_ondemand_dast_scan
       end
 
       rule { can?(:developer_access) & iterations_available }.policy do
@@ -235,6 +272,8 @@ module EE
       rule { can?(:read_project) & iterations_available }.enable :read_iteration
 
       rule { security_dashboard_enabled & can?(:developer_access) }.enable :read_vulnerability
+
+      rule { on_demand_scans_enabled & can?(:developer_access) }.enable :read_on_demand_scans
 
       rule { can?(:read_merge_request) & can?(:read_pipeline) }.enable :read_merge_train
 
@@ -279,6 +318,7 @@ module EE
         enable :admin_feature_flags_client
         enable :modify_approvers_rules
         enable :modify_approvers_list
+        enable :modify_auto_fix_setting
         enable :modify_merge_request_author_setting
         enable :modify_merge_request_committer_setting
       end
@@ -331,6 +371,8 @@ module EE
       rule { ~admin & owner & owner_cannot_destroy_project }.prevent :remove_project
 
       rule { archived }.policy do
+        prevent :modify_auto_fix_setting
+
         READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
           prevent(*::ProjectPolicy.create_update_admin_destroy(feature))
         end
@@ -357,27 +399,24 @@ module EE
         prevent :owner_access
       end
 
-      rule { ip_enforcement_prevents_access }.policy do
+      rule { ip_enforcement_prevents_access & ~admin }.policy do
         prevent :read_project
       end
 
-      rule { owner_cannot_modify_approvers_rules & ~admin }.policy do
+      rule { cannot_modify_approvers_rules }.policy do
         prevent :modify_approvers_rules
+        prevent :modify_approvers_list
       end
 
-      rule { owner_cannot_modify_merge_request_author_setting & ~admin }.policy do
+      rule { cannot_modify_merge_request_author_setting }.policy do
         prevent :modify_merge_request_author_setting
       end
 
-      rule { owner_cannot_modify_merge_request_committer_setting & ~admin }.policy do
+      rule { cannot_modify_merge_request_committer_setting }.policy do
         prevent :modify_merge_request_committer_setting
       end
 
       rule { can?(:read_cluster) & cluster_health_available }.enable :read_cluster_health
-
-      rule { owner_cannot_modify_approvers_rules & ~admin }.policy do
-        prevent :modify_approvers_list
-      end
 
       rule { can?(:read_merge_request) & code_review_analytics_enabled }.enable :read_code_review_analytics
 
@@ -385,6 +424,7 @@ module EE
 
       rule { requirements_available & reporter }.policy do
         enable :create_requirement
+        enable :create_requirement_test_report
         enable :admin_requirement
         enable :update_requirement
       end

@@ -62,7 +62,7 @@ if the job surpasses the threshold, it is marked as failed.
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17221) in GitLab 10.7.
 
 Project defined timeout (either specific timeout set by user or the default
-60 minutes timeout) may be [overridden on Runner level](../runners/README.md#setting-maximum-job-timeout-for-a-runner).
+60 minutes timeout) may be [overridden on Runner level](../runners/README.md#set-maximum-job-timeout-for-a-runner).
 
 ## Maximum artifacts size **(CORE ONLY)**
 
@@ -134,15 +134,18 @@ in the jobs table.
 A few examples of known coverage tools for a variety of languages can be found
 in the pipelines settings page.
 
-### Download test coverage history
+### Code Coverage history
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209121) in GitLab 12.10.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209121) the ability to download a `.csv` in GitLab 12.10.
+> - [Graph introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/33743) in GitLab 13.1.
 
 If you want to see the evolution of your project code coverage over time,
-you can download a CSV file with this data. From your project:
+you can view a graph or download a CSV file with this data. From your project:
 
-1. Go to **{chart}** **Project Analytics > Repository**.
-1. Click **Download raw data (.csv)**
+1. Go to **{chart}** **Project Analytics > Repository** to see the historic data for each job listed in the dropdown above the graph.
+1. If you want a CSV file of that data, click **Download raw data (.csv)**
+
+![Code coverage graph of a project over time](img/code_coverage_graph_v13_1.png)
 
 ### Removing color codes
 
@@ -209,6 +212,8 @@ you can enable this in the project settings:
 1. Check the **Auto-cancel redundant, pending pipelines** checkbox.
 1. Click **Save changes**.
 
+Note that only jobs with [interruptible](../yaml/README.md#interruptible) set to `true` will be cancelled.
+
 ## Skip outdated deployment jobs
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/25276) in GitLab 12.9.
@@ -227,6 +232,8 @@ To avoid this scenario:
 1. Click **Save changes**.
 
 The pending deployment jobs will be skipped.
+
+For more information, see [Deployment safety](../environments/deployment_safety.md).
 
 ## Pipeline Badges
 

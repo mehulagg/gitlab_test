@@ -322,27 +322,7 @@ application server, or a Gitaly node.
    }
    ```
 
-1. Enable automatic failover by editing `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   praefect['failover_enabled'] = true
-   praefect['failover_election_strategy'] = 'sql'
-   ```
-
-   When automatic failover is enabled, Praefect checks the health of internal
-   Gitaly nodes. If the primary has a certain amount of health checks fail, it
-   will promote one of the secondaries to be primary, and demote the primary to
-   be a secondary.
-
-   NOTE: **Note:** Database leader election will be [enabled by default in the
-   future](https://gitlab.com/gitlab-org/gitaly/-/issues/2682).
-
-   Caution, **automatic failover** favors availability over consistency and will
-   cause data loss if changes have not been replicated to the newly elected
-   primary. In the next release, leader election will [prefer to promote up to
-   date replicas](https://gitlab.com/gitlab-org/gitaly/-/issues/2642), and it
-   will be an option to favor consistency by marking [out-of-date repositories
-   read-only](https://gitlab.com/gitlab-org/gitaly/-/issues/2630).
+1. [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/2013) in GitLab 13.1 and later, enable [distribution of reads](#distributed-reads).
 
 1. Save the changes to `/etc/gitlab/gitlab.rb` and [reconfigure
    Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure):
@@ -403,7 +383,7 @@ Particular attention should be shown to:
   `gitaly-2`, and `gitaly-3` as Gitaly storage names.
 
 For more information on Gitaly server configuration, see our [Gitaly
-documentation](index.md#3-gitaly-server-configuration).
+documentation](index.md#configure-gitaly-servers).
 
 1. SSH into the **Gitaly** node and login as root:
 
@@ -418,7 +398,6 @@ documentation](index.md#3-gitaly-server-configuration).
    postgresql['enable'] = false
    redis['enable'] = false
    nginx['enable'] = false
-   prometheus['enable'] = false
    grafana['enable'] = false
    puma['enable'] = false
    sidekiq['enable'] = false
@@ -427,6 +406,9 @@ documentation](index.md#3-gitaly-server-configuration).
 
    # Enable only the Gitaly service
    gitaly['enable'] = true
+
+   # Enable Prometheus if needed
+   prometheus['enable'] = true
 
    # Prevent database connections during 'gitlab-ctl reconfigure'
    gitlab_rails['rake_cache_clear'] = false
@@ -676,10 +658,10 @@ Particular attention should be shown to:
    Repository > Repository storage** to make the newly configured Praefect
    cluster the storage location for new Git repositories.
 
-   - Deselect the **default** storage location
-   - Select the **praefect** storage location
+   - The default weight is 0.
+   - The Praefect weight is 100.
 
-   ![Update repository storage](img/praefect_storage_v12_10.png)
+   ![Update repository storage](img/praefect_storage_v13_1.png)
 
 1. Verify everything is still working by creating a new project. Check the
    "Initialize repository with a README" box so that there is content in the
@@ -732,13 +714,50 @@ To get started quickly:
 Congratulations! You've configured an observable highly available Praefect
 cluster.
 
+## Distributed reads
+
+> Introduced in GitLab 13.1 in [beta](https://about.gitlab.com/handbook/product/#alpha-beta-ga) with feature flag `gitaly_distributed_reads` set to disabled.
+
+Praefect supports distribution of read operations across Gitaly nodes that are
+configured for the virtual node.
+
+To allow for [performance testing](https://gitlab.com/gitlab-org/quality/performance/-/issues/231),
+distributed reads are currently in
+[beta](https://about.gitlab.com/handbook/product/#alpha-beta-ga) and disabled by
+default. To enable distributed reads, the `gitaly_distributed_reads`
+[feature flag](../feature_flags.md) must be enabled in a Ruby console:
+
+```ruby
+Feature.enable(:gitaly_distributed_reads)
+```
+
+If enabled, all RPCs marked with `ACCESSOR` option like
+[GetBlob](https://gitlab.com/gitlab-org/gitaly/-/blob/v12.10.6/proto/blob.proto#L16)
+are redirected to an up to date and healthy Gitaly node.
+
+_Up to date_ in this context means that:
+
+- There is no replication operations scheduled for this node.
+- The last replication operation is in _completed_ state.
+
+If there is no such nodes, or any other error occurs during node selection, the primary
+node will be chosen to serve the request.
+
+To track distribution of read operations, you can use the `gitaly_praefect_read_distribution`
+Prometheus counter metric. It has two labels:
+
+- `virtual_storage`.
+- `storage`.
+
+They reflect configuration defined for this instance of Praefect.
+
 ## Automatic failover and leader election
 
 Praefect regularly checks the health of each backend Gitaly node. This
 information can be used to automatically failover to a new primary node if the
 current primary node is found to be unhealthy.
 
-- **PostgreSQL (recommended):** Enabled by setting
+- **PostgreSQL (recommended):** Enabled by default, and equivalent to:
   `praefect['failover_election_strategy'] = sql`. This configuration
   option will allow multiple Praefect nodes to coordinate via the
   PostgreSQL database to elect a primary Gitaly node. This configuration
@@ -749,51 +768,74 @@ current primary node is found to be unhealthy.
   reconfigured in `/etc/gitlab/gitlab.rb` on the Praefect node. Modify the
   `praefect['virtual_storages']` field by moving the `primary = true` to promote
   a different Gitaly node to primary. In the steps above, `gitaly-1` was set to
-  the primary.
-- **Memory:** Enabled by setting `praefect['failover_enabled'] = true` in
-  `/etc/gitlab/gitlab.rb` on the Praefect node. If a sufficient number of health
+  the primary. Requires `praefect['failover_enabled'] = false` in the configuration.
+- **Memory:** Enabled by setting `praefect['failover_election_strategy'] = 'local'`
+  in `/etc/gitlab/gitlab.rb` on the Praefect node. If a sufficient number of health
   checks fail for the current primary backend Gitaly node, and new primary will
   be elected. **Do not use with multiple Praefect nodes!** Using with multiple
   Praefect nodes is likely to result in a split brain.
 
-NOTE: **Note:**: Praefect does not yet account for replication lag on
-the secondaries during the election process, so data loss can occur
-during a failover. Follow issue
-[#2642](https://gitlab.com/gitlab-org/gitaly/-/issues/2642) for updates.
-
 It is likely that we will implement support for Consul, and a cloud native
 strategy in the future.
 
-## Identifying Impact of a Primary Node Failure
+## Primary Node Failure
 
-When a primary Gitaly node fails, there is a chance of data loss. Data loss can occur if there were outstanding replication jobs the secondaries did not manage to process before the failure. The Praefect `dataloss` sub-command helps identify these cases by counting the number of dead replication jobs for each repository within a given time frame.
+Praefect recovers from a failing primary Gitaly node by promoting a healthy secondary as the new primary. To minimize data loss, Praefect elects the secondary with the least unreplicated writes from the primary. There can still be some unreplicated writes, leading to data loss.
+
+Praefect switches a virtual storage in to read-only mode after a failover event. This eases data recovery efforts by preventing new, possibly conflicting writes to the newly elected primary. This allows the administrator to attempt recovering the lost data before allowing new writes.
+
+If you prefer write availability over consistency, this behavior can be turned off by setting `praefect['failover_read_only_after_failover'] = false` in `/etc/gitlab/gitlab.rb` and [reconfiguring Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+
+### Checking for data loss
+
+The Praefect `dataloss` sub-command helps identify lost writes by checking for uncompleted replication jobs. This is useful for identifying possible data loss cases after a failover. This command must be executed on a Praefect node.
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss -from <rfc3339-time> -to <rfc3339-time>
-```
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>]
 
-If the time frame is not specified, dead replication jobs from the last six hours are counted:
+If the virtual storage is not specified, every configured virtual storage is checked for data loss.
 
 ```shell
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss
 
-Failed replication jobs between [2020-01-02 00:00:00 +0000 UTC, 2020-01-02 06:00:00 +0000 UTC):
-@hashed/fa/53/fa539965395b8382145f8370b34eab249cf610d2d6f2943c95b9b9d08a63d4a3.git: 2 jobs
+Virtual storage: default
+  Current read-only primary: gitaly-2
+  Previous write-enabled primary: gitaly-1
+    Nodes with data loss from failing over from gitaly-1:
+      @hashed/2c/62/2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3.git: gitaly-0
+      @hashed/4b/22/4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a.git: gitaly-0, gitaly-2
 ```
 
-To specify a time frame in UTC, run:
+Currently `dataloss` only considers a repository up to date if it has been directly replicated to from the previous write-enabled primary. While reconciling from an up to date secondary can recover the data, this is not visible in the data loss report. This is due for improvement via [Gitaly#2866](https://gitlab.com/gitlab-org/gitaly/-/issues/2866).
 
-```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss -from 2020-01-02T00:00:00+00:00 -to 2020-01-02T00:02:00+00:00
-```
+NOTE: **NOTE** `dataloss` is still in beta and the output format is subject to change.
 
 ### Checking repository checksums
 
-To check a project's repository checksums across on all Gitaly nodes, the
-replicas Rake task can be run on the main GitLab node:
+To check a project's repository checksums across on all Gitaly nodes, run the
+[replicas Rake task](../raketasks/praefect.md#replica-checksums) on the main GitLab node.
+
+### Recovering lost writes
+
+The Praefect `reconcile` sub-command can be used to recover lost writes from the
+previous primary once it is back online. This is only possible when the virtual storage
+is still in read-only mode.
 
 ```shell
-sudo gitlab-rake "gitlab:praefect:replicas[project_id]"
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -reference <previous-primary> -target <current-primary> -f
+```
+
+Refer to [Backend Node Recovery](#backend-node-recovery) section for more details on
+the `reconcile` sub-command.
+
+### Enabling Writes
+
+Any data recovery attempts should have been made before enabling writes to eliminate
+any chance of conflicting writes. Virtual storage can be re-enabled for writes by using
+the Praefect `enable-writes` sub-command.
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml enable-writes -virtual-storage <virtual-storage>
 ```
 
 ## Backend Node Recovery

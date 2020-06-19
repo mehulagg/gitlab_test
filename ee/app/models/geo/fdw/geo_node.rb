@@ -26,51 +26,6 @@ module Geo
         projects.inner_join_project_registry
       end
 
-      def job_artifacts
-        return Geo::Fdw::Ci::JobArtifact.all unless selective_sync?
-
-        query = Geo::Fdw::Ci::JobArtifact.project_id_in(projects).select(:id)
-        cte = Gitlab::SQL::CTE.new(:restricted_job_artifacts, query)
-        fdw_job_artifact_table = Geo::Fdw::Ci::JobArtifact.arel_table
-
-        inner_join_restricted_job_artifacts =
-          cte.table
-            .join(fdw_job_artifact_table, Arel::Nodes::InnerJoin)
-            .on(cte.table[:id].eq(fdw_job_artifact_table[:id]))
-            .join_sources
-
-        Geo::Fdw::Ci::JobArtifact
-          .with(cte.to_arel)
-          .from(cte.table)
-          .joins(inner_join_restricted_job_artifacts)
-      end
-
-      def lfs_objects
-        return Geo::Fdw::LfsObject.all unless selective_sync?
-
-        query = Geo::Fdw::LfsObjectsProject.project_id_in(projects).select(:lfs_object_id)
-        cte = Gitlab::SQL::CTE.new(:restricted_lfs_objects, query)
-        fdw_lfs_object_table = Geo::Fdw::LfsObject.arel_table
-
-        inner_join_restricted_lfs_objects =
-          cte.table
-            .join(fdw_lfs_object_table, Arel::Nodes::InnerJoin)
-            .on(cte.table[:lfs_object_id].eq(fdw_lfs_object_table[:id]))
-            .join_sources
-
-        Geo::Fdw::LfsObject
-          .with(cte.to_arel)
-          .from(cte.table)
-          .joins(inner_join_restricted_lfs_objects)
-      end
-
-      def lfs_object_registries
-        return Geo::LfsObjectRegistry.all unless selective_sync?
-
-        Gitlab::Geo::Fdw::LfsObjectRegistryQueryBuilder.new
-          .for_lfs_objects(lfs_objects)
-      end
-
       def projects
         return Geo::Fdw::Project.all unless selective_sync?
 

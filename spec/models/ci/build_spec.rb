@@ -1811,6 +1811,50 @@ describe Ci::Build do
     end
   end
 
+  describe '.keep_artifacts!' do
+    let!(:build) { create(:ci_build, artifacts_expire_at: Time.current + 7.days) }
+    let!(:builds_for_update) do
+      Ci::Build.where(id: create_list(:ci_build, 3, artifacts_expire_at: Time.current + 7.days).map(&:id))
+    end
+
+    it 'resets expire_at' do
+      builds_for_update.keep_artifacts!
+
+      builds_for_update.each do |build|
+        expect(build.reload.artifacts_expire_at).to be_nil
+      end
+    end
+
+    it 'does not reset expire_at for other builds' do
+      builds_for_update.keep_artifacts!
+
+      expect(build.reload.artifacts_expire_at).to be_present
+    end
+
+    context 'when having artifacts files' do
+      let!(:artifact) { create(:ci_job_artifact, job: build, expire_in: '7 days') }
+      let!(:artifacts_for_update) do
+        builds_for_update.map do |build|
+          create(:ci_job_artifact, job: build, expire_in: '7 days')
+        end
+      end
+
+      it 'resets dependent objects' do
+        builds_for_update.keep_artifacts!
+
+        artifacts_for_update.each do |artifact|
+          expect(artifact.reload.expire_at).to be_nil
+        end
+      end
+
+      it 'does not reset dependent object for other builds' do
+        builds_for_update.keep_artifacts!
+
+        expect(artifact.reload.expire_at).to be_present
+      end
+    end
+  end
+
   describe '#keep_artifacts!' do
     let(:build) { create(:ci_build, artifacts_expire_at: Time.current + 7.days) }
 
@@ -2407,13 +2451,13 @@ describe Ci::Build do
             allow(build).to receive(:job_jwt_variables) { [job_jwt_var] }
             allow(build).to receive(:dependency_variables) { [job_dependency_var] }
 
-            allow_any_instance_of(Project)
+            allow(build.project)
               .to receive(:predefined_variables) { [project_pre_var] }
 
             project.variables.create!(key: 'secret', value: 'value')
 
-            allow_any_instance_of(Ci::Pipeline)
-              .to receive(:predefined_variables) { [pipeline_pre_var] }
+            allow(build.pipeline)
+              .to receive(:predefined_variables).and_return([pipeline_pre_var])
           end
 
           it 'returns variables in order depending on resource hierarchy' do
@@ -3123,24 +3167,8 @@ describe Ci::Build do
 
       let!(:job_variable) { create(:ci_job_variable, :dotenv_source, job: prepare) }
 
-      context 'FF ci_dependency_variables is enabled' do
-        before do
-          stub_feature_flags(ci_dependency_variables: true)
-        end
-
-        it 'inherits dependent variables' do
-          expect(build.scoped_variables.to_hash).to include(job_variable.key => job_variable.value)
-        end
-      end
-
-      context 'FF ci_dependency_variables is disabled' do
-        before do
-          stub_feature_flags(ci_dependency_variables: false)
-        end
-
-        it 'does not inherit dependent variables' do
-          expect(build.scoped_variables.to_hash).not_to include(job_variable.key => job_variable.value)
-        end
+      it 'inherits dependent variables' do
+        expect(build.scoped_variables.to_hash).to include(job_variable.key => job_variable.value)
       end
     end
   end
@@ -4068,10 +4096,11 @@ describe Ci::Build do
 
           expect(terraform_reports.plans).to match(
             a_hash_including(
-              'tfplan.json' => a_hash_including(
+              build.id.to_s => a_hash_including(
                 'create' => 0,
                 'update' => 1,
-                'delete' => 0
+                'delete' => 0,
+                'job_name' => build.options.dig(:artifacts, :name).to_s
               )
             )
           )
@@ -4231,7 +4260,7 @@ describe Ci::Build do
 
     subject { build.supported_runner?(runner_features) }
 
-    context 'when feature is required by build' do
+    context 'when `upload_multiple_artifacts` feature is required by build' do
       before do
         expect(build).to receive(:runner_required_feature_names) do
           [:upload_multiple_artifacts]
@@ -4255,13 +4284,33 @@ describe Ci::Build do
       end
     end
 
-    context 'when refspecs feature is required by build' do
+    context 'when `refspecs` feature is required by build' do
       before do
         allow(build).to receive(:merge_request_ref?) { true }
       end
 
       context 'when runner provides given feature' do
         let(:runner_features) { { refspecs: true } }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when runner does not provide given feature' do
+        let(:runner_features) { {} }
+
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'when `multi_build_steps` feature is required by build' do
+      before do
+        expect(build).to receive(:runner_required_feature_names) do
+          [:multi_build_steps]
+        end
+      end
+
+      context 'when runner provides given feature' do
+        let(:runner_features) { { multi_build_steps: true } }
 
         it { is_expected.to be_truthy }
       end

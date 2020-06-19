@@ -15,7 +15,7 @@ import { createStore } from '~/monitoring/stores';
 import { panelTypes, chartHeight } from '~/monitoring/constants';
 import TimeSeries from '~/monitoring/components/charts/time_series.vue';
 import * as types from '~/monitoring/stores/mutation_types';
-import { deploymentData, mockProjectDir, annotationsData } from '../../mock_data';
+import { deploymentData, mockProjectDir, annotationsData, metricsResult } from '../../mock_data';
 import {
   metricsDashboardPayload,
   metricsDashboardViewModel,
@@ -55,6 +55,7 @@ describe('Time series component', () => {
       stubs: {
         GlPopover: true,
       },
+      attachToDocument: true,
     });
   };
 
@@ -87,19 +88,23 @@ describe('Time series component', () => {
         return wrapper.vm.$nextTick();
       });
 
-      it('allows user to override max value label text using prop', () => {
-        wrapper.setProps({ legendMaxText: 'legendMaxText' });
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.props().legendMaxText).toBe('legendMaxText');
-        });
+      afterEach(() => {
+        wrapper.destroy();
       });
 
-      it('allows user to override average value label text using prop', () => {
-        wrapper.setProps({ legendAverageText: 'averageText' });
+      it('allows user to override legend label texts using props', () => {
+        const legendRelatedProps = {
+          legendMinText: 'legendMinText',
+          legendMaxText: 'legendMaxText',
+          legendAverageText: 'legendAverageText',
+          legendCurrentText: 'legendCurrentText',
+        };
+        wrapper.setProps({
+          ...legendRelatedProps,
+        });
 
         return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.props().legendAverageText).toBe('averageText');
+          expect(findChart().props()).toMatchObject(legendRelatedProps);
         });
       });
 
@@ -411,6 +416,12 @@ describe('Time series component', () => {
             });
           });
 
+          describe('xAxis pointer', () => {
+            it('snap is set to false by default', () => {
+              expect(getChartOptions().xAxis.axisPointer.snap).toBe(false);
+            });
+          });
+
           describe('are extended by `option`', () => {
             const mockSeriesName = 'Extra series 1';
             const mockOption = {
@@ -691,9 +702,7 @@ describe('Time series component', () => {
       beforeEach(() => {
         store = createStore();
         const graphData = cloneDeep(metricsDashboardViewModel.panelGroups[0].panels[3]);
-        graphData.metrics.forEach(metric =>
-          Object.assign(metric, { result: metricResultStatus.result }),
-        );
+        graphData.metrics.forEach(metric => Object.assign(metric, { result: metricsResult }));
 
         createWrapper({ graphData: { ...graphData, type: 'area-chart' } }, mount);
         return wrapper.vm.$nextTick();
@@ -735,6 +744,47 @@ describe('Time series component', () => {
             expect(color).toBe(legendColors[index]);
           });
         });
+      });
+    });
+  });
+
+  describe('legend layout', () => {
+    const findLegend = () => wrapper.find(GlChartLegend);
+
+    beforeEach(() => {
+      createWrapper(mockGraphData, mount);
+      return wrapper.vm.$nextTick();
+    });
+
+    afterEach(() => {
+      wrapper.destroy();
+    });
+
+    it('should render a tabular legend layout by default', () => {
+      expect(findLegend().props('layout')).toBe('table');
+    });
+
+    describe('when inline legend layout prop is set', () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          legendLayout: 'inline',
+        });
+      });
+
+      it('should render an inline legend layout', () => {
+        expect(findLegend().props('layout')).toBe('inline');
+      });
+    });
+
+    describe('when table legend layout prop is set', () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          legendLayout: 'table',
+        });
+      });
+
+      it('should render a tabular legend layout', () => {
+        expect(findLegend().props('layout')).toBe('table');
       });
     });
   });

@@ -46,6 +46,8 @@ module EE
       has_one :feature_usage, class_name: 'ProjectFeatureUsage'
       has_one :status_page_setting, inverse_of: :project, class_name: 'StatusPage::ProjectSetting'
       has_one :compliance_framework_setting, class_name: 'ComplianceManagement::ComplianceFramework::ProjectSettings', inverse_of: :project
+      has_one :security_setting, class_name: 'ProjectSecuritySetting'
+      has_one :vulnerability_statistic, class_name: 'Vulnerabilities::Statistic'
 
       has_many :approvers, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
@@ -213,6 +215,13 @@ module EE
       end
     end
 
+    def has_regulated_settings?
+      return unless compliance_framework_setting
+
+      compliance_framework_id = ::ComplianceManagement::ComplianceFramework::FRAMEWORKS[compliance_framework_setting.framework.to_sym]
+      ::Gitlab::CurrentSettings.current_application_settings.compliance_frameworks.include?(compliance_framework_id)
+    end
+
     def can_store_security_reports?
       namespace.store_security_reports_available? || public?
     end
@@ -300,10 +309,6 @@ module EE
 
     def push_audit_events_enabled?
       ::Feature.enabled?(:repository_push_audit_event, self)
-    end
-
-    def first_class_vulnerabilities_enabled?
-      ::Feature.enabled?(:first_class_vulnerabilities, self, default_enabled: true)
     end
 
     def feature_available?(feature, user = nil)
@@ -675,28 +680,35 @@ module EE
 
     def disable_overriding_approvers_per_merge_request
       return super unless License.feature_available?(:admin_merge_request_approvers_rules)
+      return (::Gitlab::CurrentSettings.disable_overriding_approvers_per_merge_request? || super) unless project_compliance_mr_approval_settings?
+      return super unless has_regulated_settings?
 
-      ::Gitlab::CurrentSettings.disable_overriding_approvers_per_merge_request? ||
-        super
+      ::Gitlab::CurrentSettings.disable_overriding_approvers_per_merge_request?
     end
     alias_method :disable_overriding_approvers_per_merge_request?, :disable_overriding_approvers_per_merge_request
 
     def merge_requests_author_approval
       return super unless License.feature_available?(:admin_merge_request_approvers_rules)
+      return false if !project_compliance_mr_approval_settings? && ::Gitlab::CurrentSettings.prevent_merge_requests_author_approval?
+      return super if !project_compliance_mr_approval_settings? && !::Gitlab::CurrentSettings.prevent_merge_requests_author_approval?
+      return super unless has_regulated_settings?
 
-      return false if ::Gitlab::CurrentSettings.prevent_merge_requests_author_approval?
-
-      super
+      !::Gitlab::CurrentSettings.prevent_merge_requests_author_approval?
     end
     alias_method :merge_requests_author_approval?, :merge_requests_author_approval
 
     def merge_requests_disable_committers_approval
       return super unless License.feature_available?(:admin_merge_request_approvers_rules)
+      return (::Gitlab::CurrentSettings.prevent_merge_requests_committers_approval? || super) unless project_compliance_mr_approval_settings?
+      return super unless has_regulated_settings?
 
-      ::Gitlab::CurrentSettings.prevent_merge_requests_committers_approval? ||
-        super
+      ::Gitlab::CurrentSettings.prevent_merge_requests_committers_approval?
     end
     alias_method :merge_requests_disable_committers_approval?, :merge_requests_disable_committers_approval
+
+    def project_compliance_mr_approval_settings?
+      ::Feature.enabled?(:project_compliance_merge_request_approval_settings, self)
+    end
 
     def license_compliance
       strong_memoize(:license_compliance) { SCA::LicenseCompliance.new(self) }
@@ -711,6 +723,11 @@ module EE
 
     def jira_subscription_exists?
       feature_available?(:jira_dev_panel_integration) && JiraConnectSubscription.for_project(self).exists?
+    end
+
+    override :predefined_variables
+    def predefined_variables
+      super.concat(requirements_ci_variables)
     end
 
     private
@@ -764,6 +781,14 @@ module EE
     def user_defined_rules
       strong_memoize(:user_defined_rules) do
         approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc)
+      end
+    end
+
+    def requirements_ci_variables
+      ::Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        if requirements.opened.any?
+          variables.append(key: 'CI_HAS_OPEN_REQUIREMENTS', value: 'true')
+        end
       end
     end
   end

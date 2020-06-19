@@ -10,10 +10,12 @@ module Metrics
       STAGES = ::Gitlab::Metrics::Dashboard::Stages
       SEQUENCE = [
         STAGES::CommonMetricsInserter,
-        STAGES::EndpointInserter,
+        STAGES::MetricEndpointInserter,
+        STAGES::VariableEndpointInserter,
         STAGES::PanelIdsInserter,
         STAGES::Sorter,
-        STAGES::AlertsInserter
+        STAGES::AlertsInserter,
+        STAGES::UrlValidator
       ].freeze
 
       def get_dashboard

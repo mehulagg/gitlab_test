@@ -98,6 +98,14 @@ RSpec.describe Issue do
 
       it { expect(Issue.on_status_page.count).to eq(1) }
       it { expect(Issue.on_status_page.first).to eq(published_issue) }
+
+      context 'with status page disabled' do
+        before do
+          status_page_setting.update!(enabled: false)
+        end
+
+        it { expect(Issue.on_status_page.count).to eq(0) }
+      end
     end
 
     context 'epics' do
@@ -178,9 +186,6 @@ RSpec.describe Issue do
   end
 
   describe 'relations' do
-    it { is_expected.to have_and_belong_to_many(:prometheus_alert_events) }
-    it { is_expected.to have_and_belong_to_many(:self_managed_prometheus_alert_events) }
-    it { is_expected.to have_many(:prometheus_alerts) }
     it { is_expected.to have_many(:vulnerability_links).class_name('Vulnerabilities::IssueLink').inverse_of(:issue) }
     it { is_expected.to have_many(:related_vulnerabilities).through(:vulnerability_links).source(:vulnerability) }
     it { is_expected.to belong_to(:promoted_to_epic).class_name('Epic') }
@@ -679,6 +684,51 @@ RSpec.describe Issue do
       let(:issue) { create(:issue) }
 
       it { is_expected.to be_falsey }
+    end
+  end
+
+  describe '#can_assign_epic?' do
+    let(:user)    { create(:user) }
+    let(:group)   { create(:group) }
+    let(:project) { create(:project, group: group) }
+    let(:issue)   { create(:issue, project: project) }
+
+    subject { issue.can_assign_epic?(user) }
+
+    context 'when epics feature is available' do
+      before do
+        stub_licensed_features(epics: true)
+      end
+
+      context 'when a user is not a project member' do
+        it 'returns false' do
+          expect(subject).to be_falsey
+        end
+      end
+
+      context 'when a user is a project member' do
+        it 'returns false' do
+          project.add_developer(user)
+
+          expect(subject).to be_falsey
+        end
+      end
+
+      context 'when a user is a group member' do
+        it 'returns true' do
+          group.add_developer(user)
+
+          expect(subject).to be_truthy
+        end
+      end
+    end
+
+    context 'when epics feature is not available' do
+      it 'returns false' do
+        group.add_developer(user)
+
+        expect(subject).to be_falsey
+      end
     end
   end
 end

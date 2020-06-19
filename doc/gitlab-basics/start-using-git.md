@@ -24,7 +24,7 @@ can download GitLab's [Git Cheat Sheet](https://about.gitlab.com/images/press/gi
 
 > For more information about the advantages of working with Git and GitLab:
 >
-> - Watch the [GitLab Source Code Management Walkthrough](https://www.youtube.com/watch?v=wTQ3aXJswtM) video.
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Watch the [GitLab Source Code Management Walkthrough](https://www.youtube.com/watch?v=wTQ3aXJswtM) video.
 > - Learn how GitLab became the backbone of [Worldline](https://about.gitlab.com/customers/worldline/)’s development environment.
 
 TIP: **Tip:**
@@ -50,7 +50,7 @@ prompt, terminal, and command line) of your preference. Here are some suggestion
   - [iTerm2](https://www.iterm2.com/), which you can integrate with [zsh](https://git-scm.com/book/id/v2/Appendix-A%3A-Git-in-Other-Environments-Git-in-Zsh) and [oh my zsh](https://ohmyz.sh/) for color highlighting, among other handy features for Git users.
 - For Windows users:
   - Built-in: **cmd**. Click the search icon on the bottom navbar on Windows and type "cmd" to find it.
-  - [PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-windows-powershell?view=powershell-7): a Windows "powered up" shell, from which you can execute a greater number of commands.
+  - [PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/windows-powershell/install/installing-windows-powershell?view=powershell-7): a Windows "powered up" shell, from which you can execute a greater number of commands.
   - Git Bash: it comes built into [Git for Windows](https://gitforwindows.org/).
 - For Linux users:
   - Built-in: [Linux Terminal](https://www.howtogeek.com/140679/beginner-geek-how-to-start-using-the-linux-terminal/).

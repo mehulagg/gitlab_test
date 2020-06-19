@@ -17,7 +17,12 @@ module Gitlab
       CLASS_SUFFIXES = %w(RegistryFinder RegistriesResolver).freeze
 
       attr_reader :model_record_id
+
       delegate :model, to: :class
+
+      class << self
+        delegate :find_unsynced_registries, :find_failed_registries, to: :registry_class
+      end
 
       # Declare supported event
       #
@@ -120,6 +125,14 @@ module Gitlab
         model.count
       end
 
+      def self.synced_count
+        registry_class.synced.count
+      end
+
+      def self.failed_count
+        registry_class.failed.count
+      end
+
       # @example Given `Geo::PackageFileRegistryFinder`, this returns
       #   `::Geo::PackageFileReplicator`
       # @example Given `Resolver::Geo::PackageFileRegistriesResolver`, this
@@ -161,7 +174,7 @@ module Gitlab
       # @param [Symbol] event_name
       # @param [Hash] event_data
       def publish(event_name, **event_data)
-        return unless Feature.enabled?(:geo_self_service_framework)
+        return unless Feature.enabled?(:geo_self_service_framework_replication, default_enabled: true)
 
         raise ArgumentError, "Unsupported event: '#{event_name}'" unless self.class.event_supported?(event_name)
 

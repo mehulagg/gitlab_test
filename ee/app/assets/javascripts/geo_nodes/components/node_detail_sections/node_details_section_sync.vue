@@ -40,7 +40,7 @@ export default {
           detailsPath: `${this.node.url}admin/geo/projects`,
         },
         {
-          itemEnabled: this.nodeDetails.repositories.enabled,
+          itemEnabled: this.nodeDetails.wikis.enabled,
           itemTitle: s__('GeoNodes|Wikis'),
           itemValue: this.nodeDetails.wikis,
           itemValueType: VALUE_TYPE.GRAPH,
@@ -76,6 +76,11 @@ export default {
           itemValue: this.nodeDetails.designRepositories,
           itemValueType: VALUE_TYPE.GRAPH,
           detailsPath: `${this.node.url}admin/geo/designs`,
+        },
+        {
+          itemTitle: s__('GeoNodes|Package files'),
+          itemValue: this.nodeDetails.packageFiles,
+          itemValueType: VALUE_TYPE.GRAPH,
         },
         {
           itemTitle: s__('GeoNodes|Data replication lag'),

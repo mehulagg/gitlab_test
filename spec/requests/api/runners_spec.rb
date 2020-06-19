@@ -284,7 +284,7 @@ describe API::Runners do
         end
       end
 
-      it 'returns 404 if runner does not exists' do
+      it 'returns 404 if runner does not exist' do
         get api('/runners/0', admin)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -324,32 +324,6 @@ describe API::Runners do
         get api("/runners/#{project_runner.id}")
 
         expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-    end
-
-    context 'FF hide_token_from_runners_api is enabled' do
-      before do
-        stub_feature_flags(hide_token_from_runners_api: true)
-      end
-
-      it "does not return runner's token" do
-        get api("/runners/#{shared_runner.id}", admin)
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).not_to have_key('token')
-      end
-    end
-
-    context 'FF hide_token_from_runners_api is disabled' do
-      before do
-        stub_feature_flags(hide_token_from_runners_api: false)
-      end
-
-      it "returns runner's token" do
-        get api("/runners/#{shared_runner.id}", admin)
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).to have_key('token')
       end
     end
   end
@@ -463,7 +437,7 @@ describe API::Runners do
         end
       end
 
-      it 'returns 404 if runner does not exists' do
+      it 'returns 404 if runner does not exist' do
         update_runner(0, admin, description: 'test')
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -537,7 +511,7 @@ describe API::Runners do
         end
       end
 
-      it 'returns 404 if runner does not exists' do
+      it 'returns 404 if runner does not exist' do
         delete api('/runners/0', admin)
 
         expect(response).to have_gitlab_http_status(:not_found)

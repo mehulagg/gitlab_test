@@ -62,7 +62,7 @@ export default {
     },
   },
   mounted() {
-    this.$refs.textarea.focus();
+    this.focusInput();
   },
   methods: {
     submitForm() {
@@ -74,6 +74,9 @@ export default {
       } else {
         this.$emit('cancelForm');
       }
+    },
+    focusInput() {
+      this.$refs.textarea.focus();
     },
   },
 };
@@ -103,7 +106,6 @@ export default {
           @keydown.meta.enter="submitForm"
           @keydown.ctrl.enter="submitForm"
           @keyup.esc.stop="cancelComment"
-          @blur="$emit('onBlur')"
         >
         </textarea>
       </template>

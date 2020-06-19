@@ -21,6 +21,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
   stage_nav_selector = '.stage-nav'
   path_nav_selector = '.js-path-navigation'
+  filter_bar_selector = '.js-filter-bar'
 
   3.times do |i|
     let_it_be("issue_#{i}".to_sym) { create(:issue, title: "New Issue #{i}", project: project, created_at: 2.days.ago) }
@@ -153,19 +154,38 @@ RSpec.describe 'Group Value Stream Analytics', :js do
       expect(page).to have_selector('.js-daterange-picker', visible: true)
     end
 
-    it 'does not show the path navigation' do
-      expect(page).to have_selector(path_nav_selector, visible: false)
+    it 'shows the path navigation' do
+      expect(page).to have_selector(path_nav_selector)
     end
 
-    context 'with path navigation feature flag enabled' do
-      before do
-        stub_feature_flags(value_stream_analytics_path_navigation: true)
-        select_group
-      end
+    it 'shows the filter bar' do
+      expect(page).to have_selector(filter_bar_selector, visible: false)
+    end
+  end
 
-      it 'shows the path navigation' do
-        expect(page).to have_selector(path_nav_selector, visible: true)
-      end
+  context 'with path navigation feature flag disabled' do
+    before do
+      stub_feature_flags(value_stream_analytics_path_navigation: false)
+
+      visit analytics_cycle_analytics_path
+      select_group
+    end
+
+    it 'shows the path navigation' do
+      expect(page).not_to have_selector(path_nav_selector)
+    end
+  end
+
+  context 'with filter bar feature flag disabled' do
+    before do
+      stub_feature_flags(value_stream_analytics_filter_bar: false)
+
+      visit analytics_cycle_analytics_path
+      select_group
+    end
+
+    it 'does not show the filter bar' do
+      expect(page).not_to have_selector(filter_bar_selector)
     end
   end
 
@@ -536,7 +556,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
           it_behaves_like 'manual ordering disabled'
         end
 
-        context 'with at least one custom stage' do
+        context 'with at least one custom stage', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/216745' do
           shared_examples 'draggable stage' do |original_order, updated_order, start_index, end_index,|
             before do
               page.driver.browser.manage.window.resize_to(1650, 1150)
@@ -942,15 +962,17 @@ RSpec.describe 'Group Value Stream Analytics', :js do
       end
 
       context 'Duration chart' do
-        let(:duration_chart_dropdown) { page.find('.dropdown-stages') }
+        let(:duration_chart_dropdown) { page.find('.js-dropdown-stages') }
 
-        default_stages = Analytics::CycleAnalytics::StagePresenter::DEFAULT_STAGE_ATTRIBUTES
-          .each_value
-          .map { |value| value[:title].call }
-          .freeze
+        let_it_be(:translated_default_stage_names) do
+          Gitlab::Analytics::CycleAnalytics::DefaultStages.names.map do |name|
+            stage = Analytics::CycleAnalytics::GroupStage.new(name: name)
+            Analytics::CycleAnalytics::StagePresenter.new(stage).title
+          end.freeze
+        end
 
         def duration_chart_stages
-          duration_chart_dropdown.all('.dropdown-menu-link').collect(&:text)
+          duration_chart_dropdown.all('.dropdown-item').collect(&:text)
         end
 
         def toggle_duration_chart_dropdown
@@ -964,7 +986,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
         it 'has all the default stages' do
           toggle_duration_chart_dropdown
 
-          expect(duration_chart_stages).to eq(default_stages)
+          expect(duration_chart_stages).to eq(translated_default_stage_names)
         end
 
         context 'hidden stage' do

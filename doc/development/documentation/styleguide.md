@@ -96,7 +96,7 @@ Having a knowledge base in any form that is separate from the documentation woul
 
 All GitLab documentation is written using [Markdown](https://en.wikipedia.org/wiki/Markdown).
 
-The [documentation website](https://docs.gitlab.com) uses GitLab Kramdown as its Markdown rendering engine. For a complete Kramdown reference, see the [GitLab Markdown Kramdown Guide](https://about.gitlab.com/handbook/engineering/ux/technical-writing/markdown-guide/).
+The [documentation website](https://docs.gitlab.com) uses GitLab Kramdown as its Markdown rendering engine. For a complete Kramdown reference, see the [GitLab Markdown Kramdown Guide](https://about.gitlab.com/handbook/markdown-guide/).
 
 The [`gitlab-kramdown`](https://gitlab.com/gitlab-org/gitlab_kramdown)
 Ruby gem will support all [GFM markup](../../user/markdown.md) in the future. That is,
@@ -728,6 +728,7 @@ We include guidance for links in the following categories:
 - How to set up [criteria](#basic-link-criteria) for configuring a link.
 - What to set up when [linking to a `help`](../documentation/index.md#linking-to-help) page.
 - How to set up [links to internal documentation](#links-to-internal-documentation) for cross-references.
+- How to set up [links to external documentation](#links-to-external-documentation) for authoritative sources.
 - When to use [links requiring permissions](#links-requiring-permissions).
 - How to set up a [link to a video](#link-to-video).
 - How to [include links with version text](#text-for-documentation-requiring-version-text).
@@ -748,6 +749,15 @@ NOTE: **Note:**
 _Internal_ refers to documentation in the same project. When linking to documentation in
 separate projects (for example, linking to Omnibus docs from GitLab docs), you must use absolute
 URLs.
+
+Do not use absolute URLs like `https://docs.gitlab.com/ee/index.html` to crosslink
+to other docs within the same project. Use relative links to the file, like `../index.md`. (These are converted to HTML when the site is rendered.)
+
+Relative linking enables crosslinks to work:
+
+- in Review Apps, local previews, and `/help`.
+- when working on the docs locally, so you can verify that they work as early as possible in the process.
+- within the GitLab UI when browsing doc files in their respective repositories. For example, the links displayed at <https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/README.md>.
 
 To link to internal documentation:
 
@@ -779,6 +789,12 @@ To link to internal documentation:
 
 NOTE: **Note**:
 Using the Markdown extension is necessary for the [`/help`](index.md#gitlab-help) section of GitLab.
+
+### Links to external documentation
+
+When describing interactions with external software, it's often helpful to include links to external
+documentation. When possible, make sure that you are linking to an **authoritative** source.
+For example, if you're describing a feature in Microsoft's Active Directory, include a link to official Microsoft documentation.
 
 ### Links requiring permissions
 
@@ -1049,7 +1065,7 @@ of language classes available.
 | `xml`                   |                                                                              |
 | `yaml`                  | Alias: `yml`.                                                                |
 
-For a complete reference on code blocks, check the [Kramdown guide](https://about.gitlab.com/handbook/engineering/ux/technical-writing/markdown-guide/#code-blocks).
+For a complete reference on code blocks, check the [Kramdown guide](https://about.gitlab.com/handbook/markdown-guide/#code-blocks).
 
 ## GitLab SVG icons
 

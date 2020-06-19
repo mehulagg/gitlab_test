@@ -85,7 +85,8 @@ export default {
     },
     defaultBranch: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
     emptyGettingStartedSvgPath: {
       type: String,
@@ -159,6 +160,7 @@ export default {
       'variables',
       'links',
       'currentDashboard',
+      'hasDashboardValidationWarnings',
     ]),
     ...mapGetters('monitoringDashboard', ['selectedDashboard', 'getMetricStates']),
     shouldShowVariablesSection() {
@@ -195,6 +197,19 @@ export default {
     },
     selectedDashboard(dashboard) {
       this.prependToDocumentTitle(dashboard?.display_name);
+    },
+    hasDashboardValidationWarnings(hasWarnings) {
+      /**
+       * This watcher is set for future SPA behaviour of the dashboard
+       */
+      if (hasWarnings) {
+        createFlash(
+          s__(
+            'Metrics|Your dashboard schema is invalid. Edit the dashboard to correct the YAML schema.',
+          ),
+          'warning',
+        );
+      }
     },
   },
   created() {
@@ -273,6 +288,9 @@ export default {
         title: document.title,
       });
       this.selectedTimeRange = { start, end };
+      // keep the current dashboard time range
+      // in sync with the Vuex store
+      this.setTimeRange(this.selectedTimeRange);
     },
     onExpandPanel(group, panel) {
       this.setExpandedPanel({ group, panel });

@@ -1,5 +1,8 @@
 ---
 type: index, howto
+stage: Manage
+group: Access
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # User account
@@ -19,7 +22,7 @@ See the [authentication topic](../../topics/authentication/index.md) for more de
 
 ### Unknown sign-in
 
-GitLab will notify you if a sign-in occurs that is from an unknown IP address.
+GitLab will notify you if a sign-in occurs that is from an unknown IP address or device.
 See [Unknown Sign-In Notification](unknown_sign_in_notification.md) for more details.
 
 ## User profile

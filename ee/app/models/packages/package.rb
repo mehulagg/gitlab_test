@@ -36,6 +36,7 @@ class Packages::Package < ApplicationRecord
   validates :version, format: { with: Gitlab::Regex.semver_regex }, if: -> { npm? || nuget? }
   validates :name, format: { with: Gitlab::Regex.conan_recipe_component_regex }, if: :conan?
   validates :version, format: { with: Gitlab::Regex.conan_recipe_component_regex }, if: :conan?
+  validates :version, format: { with: Gitlab::Regex.maven_version_regex }, if: -> { version? && maven? }
 
   enum package_type: { maven: 1, npm: 2, conan: 3, nuget: 4, pypi: 5, composer: 6 }
 
@@ -52,6 +53,13 @@ class Packages::Package < ApplicationRecord
   scope :with_conan_username, ->(package_username) do
     joins(:conan_metadatum).where(packages_conan_metadata: { package_username: package_username })
   end
+
+  scope :with_composer_target, -> (target) do
+    includes(:composer_metadatum)
+      .joins(:composer_metadatum)
+      .where(Packages::Composer::Metadatum.table_name => { target_sha: target })
+  end
+  scope :preload_composer, -> { preload(:composer_metadatum) }
 
   scope :without_nuget_temporary_name, -> { where.not(name: Packages::Nuget::CreatePackageService::TEMPORARY_PACKAGE_NAME) }
 

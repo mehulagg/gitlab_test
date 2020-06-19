@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ApplicationSetting do
+RSpec.describe ApplicationSetting do
   using RSpec::Parameterized::TableSyntax
 
   subject(:setting) { described_class.create_from_defaults }
@@ -124,6 +124,24 @@ describe ApplicationSetting do
       with_them do
         specify do
           setting.elasticsearch_url = elasticsearch_url
+
+          expect(setting.valid?).to eq(is_valid)
+        end
+      end
+    end
+
+    context 'when validating compliance_frameworks' do
+      where(:compliance_frameworks, :is_valid) do
+        [1, 2, 3, 4, 5] | true
+        nil             | true
+        1               | true
+        [2, 3, 4, 6]    | false
+        6               | false
+      end
+
+      with_them do
+        specify do
+          setting.compliance_frameworks = compliance_frameworks
 
           expect(setting.valid?).to eq(is_valid)
         end
@@ -306,49 +324,31 @@ describe ApplicationSetting do
         end
 
         describe '#elasticsearch_indexes_project?' do
-          shared_examples 'examples for #elasticsearch_indexes_project?' do
-            context 'when project is in a subgroup' do
-              let(:root_group) { create(:group) }
-              let(:subgroup) { create(:group, parent: root_group) }
-              let(:project) { create(:project, group: subgroup) }
+          context 'when project is in a subgroup' do
+            let(:root_group) { create(:group) }
+            let(:subgroup) { create(:group, parent: root_group) }
+            let(:project) { create(:project, group: subgroup) }
 
-              before do
-                create(:elasticsearch_indexed_namespace, namespace: root_group)
-              end
-
-              it 'allows project to be indexed' do
-                expect(setting.elasticsearch_indexes_project?(project)).to be(true)
-              end
+            before do
+              create(:elasticsearch_indexed_namespace, namespace: root_group)
             end
 
-            context 'when project is in a namespace' do
-              let(:namespace) { create(:namespace) }
-              let(:project) { create(:project, namespace: namespace) }
-
-              before do
-                create(:elasticsearch_indexed_namespace, namespace: namespace)
-              end
-
-              it 'allows project to be indexed' do
-                expect(setting.elasticsearch_indexes_project?(project)).to be(true)
-              end
+            it 'allows project to be indexed' do
+              expect(setting.elasticsearch_indexes_project?(project)).to be(true)
             end
           end
 
-          context 'when optimized_elasticsearch_indexes_project feature flag is on' do
+          context 'when project is in a namespace' do
+            let(:namespace) { create(:namespace) }
+            let(:project) { create(:project, namespace: namespace) }
+
             before do
-              stub_feature_flags(optimized_elasticsearch_indexes_project: true)
+              create(:elasticsearch_indexed_namespace, namespace: namespace)
             end
 
-            include_examples 'examples for #elasticsearch_indexes_project?'
-          end
-
-          context 'when optimized_elasticsearch_indexes_project feature flag is off' do
-            before do
-              stub_feature_flags(optimized_elasticsearch_indexes_project: false)
+            it 'allows project to be indexed' do
+              expect(setting.elasticsearch_indexes_project?(project)).to be(true)
             end
-
-            include_examples 'examples for #elasticsearch_indexes_project?'
           end
         end
       end
@@ -686,6 +686,20 @@ describe ApplicationSetting do
       end
 
       it { is_expected.to eq(result) }
+    end
+  end
+
+  describe '#compliance_frameworks' do
+    it 'sorts the list' do
+      setting.compliance_frameworks = [5, 4, 1, 3, 2]
+
+      expect(setting.compliance_frameworks).to eq([1, 2, 3, 4, 5])
+    end
+
+    it 'removes duplicates' do
+      setting.compliance_frameworks = [1, 2, 2, 3, 3, 3]
+
+      expect(setting.compliance_frameworks).to eq([1, 2, 3])
     end
   end
 end

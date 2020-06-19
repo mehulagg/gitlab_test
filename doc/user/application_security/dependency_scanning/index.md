@@ -56,20 +56,24 @@ Beginning with GitLab 13.0, Docker privileged mode is necessary only if you've [
 GitLab relies on [`rules`](../../../ci/yaml/README.md#rules) to start relevant analyzers depending on the languages detected in the repository.
 The current detection logic limits the maximum search depth to two levels. For example, the `gemnasium-dependency_scanning` job is enabled if a repository contains either a `Gemfile` or `api/Gemfile` file, but not if the only supported dependency file is `api/client/Gemfile`.
 
-The following languages and dependency managers are supported.
+The following languages and dependency managers are supported:
 
-| Language (package managers)  | Supported | Scan tool(s) |
-|----------------------------- | --------- | ------------ |
-| Java ([Gradle](https://gradle.org/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Java ([Maven](https://maven.apache.org/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| JavaScript ([npm](https://www.npmjs.com/), [yarn](https://classic.yarnpkg.com/en/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [Retire.js](https://retirejs.github.io/retire.js/)         |
-| PHP ([Composer](https://getcomposer.org/))  | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([pip](https://pip.pypa.io/en/stable/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([Pipfile](https://pipenv.kennethreitz.org/en/latest/basics/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/-/issues/11756 "Pipfile.lock support for Dependency Scanning"))| not available |
-| Python ([poetry](https://python-poetry.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/-/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
-| Ruby ([gem](https://rubygems.org/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [bundler-audit](https://github.com/rubysec/bundler-audit) |
-| Scala ([sbt](https://www.scala-sbt.org/)) | yes | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Go ([Go Modules](https://github.com/golang/go/wiki/Modules)) | yes ([alpha](https://gitlab.com/gitlab-org/gitlab/-/issues/7132)) | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Language (package managers)  | Supported files | Scan tool(s) |
+|----------------------------- | --------------- | ------------ |
+| Java ([Gradle](https://gradle.org/), [Maven](https://maven.apache.org/)) | `build.gradle`, `build.gradle.kts`, `pom.xml` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| JavaScript ([npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/en/)) | `package-lock.json`, `npm-shrinkwrap.json`, `yarn.lock` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [Retire.js](https://retirejs.github.io/retire.js) |
+| Go ([Golang](https://golang.org/)) | `go.sum` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| PHP ([Composer](https://getcomposer.org/))  | `composer.lock` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Python ([setuptools](https://setuptools.readthedocs.io/en/latest/), [pip](https://pip.pypa.io/en/stable/), [Pipenv](https://pipenv.pypa.io/en/latest/)) | `setup.py`, `requirements.txt`, `requirements.pip`, `requires.txt`, `Pipfile` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Ruby ([Bundler](https://bundler.io/)) | `Gemfile.lock`, `gems.locked` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [bundler-audit](https://github.com/rubysec/bundler-audit) |
+| Scala ([sbt](https://www.scala-sbt.org/)) | `build.sbt` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+
+Plans are underway for supporting the following languages, dependency managers, and dependency files. For details, see the issue link for each.
+
+| Language (package managers)  | Supported files | Scan tool(s) | Issue |
+|----------------------------- | --------------- | ------------ | ----- |
+| Python ([Poetry](https://poetry.eustace.io/)) | `poetry.lock` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) | [GitLab#7006](https://gitlab.com/gitlab-org/gitlab/issues/7006) |
+| Python ([Pipenv](https://pipenv.pypa.io/en/latest/)) | `Pipfile.lock` | [Gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) | [GitLab#11756](https://gitlab.com/gitlab-org/gitlab/-/issues/11756) |
 
 ## Contribute your scanner
 
@@ -147,11 +151,11 @@ The following variables allow configuration of global dependency scanning settin
 | Environment variable                    | Description |
 | --------------------------------------- |------------ |
 | `SECURE_ANALYZERS_PREFIX`               | Override the name of the Docker registry providing the official default images (proxy). Read more about [customizing analyzers](analyzers.md). |
-| `DS_ANALYZER_IMAGE_PREFIX`              | **DEPRECATED:** Use `SECURE_ANALYZERS_PREFIX` instead. |
 | `DS_DEFAULT_ANALYZERS`                  | Override the names of the official default images. Read more about [customizing analyzers](analyzers.md). |
 | `DS_DISABLE_DIND`                       | Disable Docker-in-Docker and run analyzers [individually](#enabling-docker-in-docker). This variable is `true` by default. |
 | `ADDITIONAL_CA_CERT_BUNDLE`             | Bundle of CA certs to trust. |
-| `DS_EXCLUDED_PATHS`                     | Exclude vulnerabilities from output based on the paths. A comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc,spec`). Parent directories also match patterns. |
+| `DS_EXCLUDED_PATHS`                     | Exclude vulnerabilities from output based on the paths. A comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc,spec`). Parent directories also match patterns. Default: `"spec, test, tests, tmp"` |
+| `SECURE_LOG_LEVEL`                      | Default log level is `info`, you can set it to any of the following strings: `panic`, `fatal`, `error`, `warn`, `info`, `debug`, `trace`. |
 
 #### Configuring Docker-in-Docker orchestrator
 
@@ -250,11 +254,10 @@ the [Dependency List](../dependency_list/index.md).
 
 ## Reports JSON format
 
-CAUTION: **Caution:**
-The JSON report artifacts are not a public API of Dependency Scanning and their format may change in the future.
+The Dependency Scanning tool emits a JSON report file. For more information, see the
+[schema for this report](https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/master/dist/dependency-scanning-report-format.json).
 
-The Dependency Scanning tool emits a JSON report file. Here is an example of the report structure with all important parts of
-it highlighted:
+Here's an example Dependency Scanning report:
 
 ```json-doc
 {
@@ -363,49 +366,6 @@ it highlighted:
 }
 ```
 
-CAUTION: **Deprecation:**
-Beginning with GitLab 12.9, dependency scanning no longer reports `undefined` severity and confidence levels.
-
-This table describes the report file structure nodes and their meaning. All fields are mandatory to be present in
-the report JSON, unless stated otherwise. The presence of optional fields depends on the underlying analyzers used.
-
-| Report JSON node                                     | Description |
-|------------------------------------------------------|-------------|
-| `version`                                            | Report syntax version used to generate this JSON. |
-| `vulnerabilities`                                    | Array of vulnerability objects. |
-| `vulnerabilities[].id`                               | Unique identifier of the vulnerability. |
-| `vulnerabilities[].category`                         | Where this vulnerability belongs, such as SAST or Dependency Scanning. For Dependency Scanning, it will always be `dependency_scanning`. |
-| `vulnerabilities[].name`                             | Name of the vulnerability. Must not include the occurrence's specific information. Optional. |
-| `vulnerabilities[].message`                          | A short text that describes the vulnerability. May include occurrence's specific information. Optional. |
-| `vulnerabilities[].description`                      | A long text that describes the vulnerability. Optional. |
-| `vulnerabilities[].cve`                              | (**DEPRECATED - use `vulnerabilities[].id` instead**) A fingerprint string value that represents a concrete occurrence of the vulnerability. Used to determine whether two vulnerability occurrences are same or different. May not be 100% accurate. **This is NOT a [CVE](https://cve.mitre.org/)**.                                                                                                                                      |
-| `vulnerabilities[].severity`                         | How much the vulnerability impacts the software. Possible values: `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`. |
-| `vulnerabilities[].confidence`                       | How reliable the vulnerability's assessment is. Possible values: `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`. |
-| `vulnerabilities[].solution`                         | Explanation of how to fix the vulnerability. Optional. |
-| `vulnerabilities[].scanner`                          | A node that describes the analyzer used to find this vulnerability. |
-| `vulnerabilities[].scanner.id`                       | ID of the scanner as a `snake_case` string. |
-| `vulnerabilities[].scanner.name`                     | Name of the scanner, for display purposes. |
-| `vulnerabilities[].location`                         | A node that tells where the vulnerability is located. |
-| `vulnerabilities[].location.file`                    | Path to the dependencies file (such as `yarn.lock`). Optional. |
-| `vulnerabilities[].location.dependency`              | A node that describes the dependency of a project where the vulnerability is located. |
-| `vulnerabilities[].location.dependency.package`      | A node that provides the information on the package where the vulnerability is located. |
-| `vulnerabilities[].location.dependency.package.name` | Name of the package where the vulnerability is located. Optional. |
-| `vulnerabilities[].location.dependency.version`      | Version of the vulnerable package. Optional. |
-| `vulnerabilities[].identifiers`                      | An ordered array of references that identify a vulnerability on internal or external DBs. |
-| `vulnerabilities[].identifiers[].type`               | Type of the identifier. Possible values: common identifier types (among `cve`, `cwe`, `osvdb`, and `usn`) or analyzer-dependent ones (such as `gemnasium` for [Gemnasium](https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/)). |
-| `vulnerabilities[].identifiers[].name`               | Name of the identifier for display purpose. |
-| `vulnerabilities[].identifiers[].value`              | Value of the identifier for matching purpose. |
-| `vulnerabilities[].identifiers[].url`                | URL to identifier's documentation. Optional. |
-| `vulnerabilities[].links`                            | An array of references to external documentation pieces or articles that describe the vulnerability further. Optional. |
-| `vulnerabilities[].links[].name`                     | Name of the vulnerability details link. Optional. |
-| `vulnerabilities[].links[].url`                      | URL of the vulnerability details document. Optional. |
-| `remediations`                                       | An array of objects containing information on cured vulnerabilities along with patch diffs to apply. Empty if no remediations provided by an underlying analyzer. |
-| `remediations[].fixes`                               | An array of strings that represent references to vulnerabilities fixed by this particular remediation. |
-| `remediations[].fixes[].id`                          | The ID of a fixed vulnerability. |
-| `remediations[].fixes[].cve`                         | (**DEPRECATED - use `remediations[].fixes[].id` instead**) A string value that describes a fixed vulnerability in the same format as `vulnerabilities[].cve`. |
-| `remediations[].summary`                             | Overview of how the vulnerabilities have been fixed. |
-| `remediations[].diff`                                | Base64-encoded remediation code diff, compatible with [`git apply`](https://git-scm.com/docs/git-format-patch#_discussion). |
-
 ## Versioning and release process
 
 Please check the [Release Process documentation](https://gitlab.com/gitlab-org/security-products/release/blob/master/docs/release_process.md).
@@ -468,14 +428,14 @@ For details on saving and transporting Docker images as a file, see Docker's doc
 ### Set Dependency Scanning CI job variables to use local Dependency Scanning analyzers
 
 Add the following configuration to your `.gitlab-ci.yml` file. You must replace
-`DS_ANALYZER_IMAGE_PREFIX` to refer to your local Docker container registry:
+`SECURE_ANALYZERS_PREFIX` to refer to your local Docker container registry:
 
 ```yaml
 include:
   - template: Dependency-Scanning.gitlab-ci.yml
 
 variables:
-  DS_ANALYZER_IMAGE_PREFIX: "docker-registry.example.com/analyzers"
+  SECURE_ANALYZERS_PREFIX: "docker-registry.example.com/analyzers"
   GEMNASIUM_DB_REMOTE_URL: "gitlab.example.com/gemnasium-db.git"
   GIT_SSL_NO_VERIFY: "true"
 ```

@@ -97,29 +97,6 @@ class IssuableBaseService < BaseService
     params.delete(label_key) if params[label_key].nil?
   end
 
-  def filter_labels_in_param(key)
-    return if params[key].to_a.empty?
-
-    params[key] = available_labels.id_in(params[key]).pluck_primary_key
-  end
-
-  def find_or_create_label_ids
-    labels = params.delete(:labels)
-
-    return unless labels
-
-    params[:label_ids] = labels.map do |label_name|
-      label = Labels::FindOrCreateService.new(
-        current_user,
-        parent,
-        title: label_name.strip,
-        available_labels: available_labels
-      ).execute
-
-      label.try(:id)
-    end.compact
-  end
-
   def labels_service
     @labels_service ||= ::Labels::AvailableLabelsService.new(current_user, parent, params)
   end
@@ -129,15 +106,11 @@ class IssuableBaseService < BaseService
     add_label_ids = attributes.delete(:add_label_ids)
     remove_label_ids = attributes.delete(:remove_label_ids)
 
-    new_label_ids = existing_label_ids || label_ids || []
+    new_label_ids = label_ids || existing_label_ids || []
     new_label_ids |= extra_label_ids
 
-    if add_label_ids.blank? && remove_label_ids.blank?
-      new_label_ids = label_ids if label_ids
-    else
-      new_label_ids |= add_label_ids if add_label_ids
-      new_label_ids -= remove_label_ids if remove_label_ids
-    end
+    new_label_ids |= add_label_ids if add_label_ids
+    new_label_ids -= remove_label_ids if remove_label_ids
 
     new_label_ids.uniq
   end

@@ -495,8 +495,10 @@ by calling the method `disable_ddl_transaction!` in the body of your migration
 class like so:
 
 ```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
+class MyMigration < ActiveRecord::Migration[6.0]
   include Gitlab::Database::MigrationHelpers
+
+  DOWNTIME = false
 
   disable_ddl_transaction!
 
@@ -552,6 +554,12 @@ operations that don't require `disable_ddl_transaction!`.
 
 You can read more about adding [foreign key constraints to an existing column](database/add_foreign_key_to_existing_column.md).
 
+## `NOT NULL` constraints
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/38358) in GitLab 13.0.
+
+See the style guide on [`NOT NULL` constraints](database/not_null_constraints.md) for more information.
+
 ## Adding Columns With Default Values
 
 With PostgreSQL 11 being the minimum version since GitLab 13.0, adding columns with default values has become much easier and
@@ -563,7 +571,7 @@ has been deprecated and will be removed in a later release.
 
 NOTE: **Note:**
 If a backport adding a column with a default value is needed for %12.9 or earlier versions,
-it should use `add_column_with_default` helper. If a [large table](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/migration_helpers.rb#L12)
+it should use `add_column_with_default` helper. If a [large table](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/rubocop-migrations.yml#L3)
 is involved, backporting to %12.9 is contraindicated.
 
 ## Changing the column default
@@ -799,6 +807,14 @@ You have to use a serializer to provide a translation layer:
 ```ruby
 class BuildMetadata
   serialize :config_options, Serializers::JSON # rubocop:disable Cop/ActiveRecordSerialize
+end
+```
+
+When using a `JSONB` column, use the [JsonSchemaValidator](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/validators/json_schema_validator.rb) to keep control of the data being inserted over time.
+
+```ruby
+class BuildMetadata
+  validates: :config_options, json_schema: { filename: 'build_metadata_config_option' }
 end
 ```
 

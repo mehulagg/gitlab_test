@@ -100,10 +100,11 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Maven packages](../packages/maven_repository/index.md): your private Maven repository in GitLab. **(PREMIUM)**
 - [NPM packages](../packages/npm_registry/index.md): your private NPM package registry in GitLab. **(PREMIUM)**
 - [Code owners](code_owners.md): specify code owners for certain files **(STARTER)**
-- [License Compliance](../compliance/license_compliance/index.md): approve and blacklist licenses for projects. **(ULTIMATE)**
+- [License Compliance](../compliance/license_compliance/index.md): approve and deny licenses for projects. **(ULTIMATE)**
 - [Dependency List](../application_security/dependency_list/index.md): view project dependencies. **(ULTIMATE)**
 - [Requirements](requirements/index.md): Requirements allow you to create criteria to check your products against. **(ULTIMATE)**
 - [Static Site Editor](static_site_editor/index.md): quickly edit content on static websites without prior knowledge of the codebase or Git commands.
+- [Code Intelligence](code_intelligence.md): code navigation features.
 
 ### Project integrations
 
@@ -144,6 +145,17 @@ To view your starred projects:
    - Number of open merge requests
    - Number of open issues
 
+### Explore projects
+
+You can explore other popular projects available on GitLab. To explore projects:
+
+1. Click **Projects** in the navigation bar.
+1. Click **Explore Projects**.
+
+GitLab displays a list of projects, sorted by last updated date. To view
+projects with the most [stars](#star-a-project), click **Most stars**. To view
+projects with the largest number of comments in the past month, click **Trending**.
+
 ## Project settings
 
 Set the project's visibility level and the access levels to its various pages
@@ -160,6 +172,24 @@ Read through the documentation on [project settings](settings/index.md).
   - [FogBugz to GitLab](import/fogbugz.md)
 - [Export a project from GitLab](settings/import_export.md#exporting-a-project-and-its-data)
 - [Importing and exporting projects between GitLab instances](settings/import_export.md)
+
+## Remove a project
+
+To remove a project, first navigate to the home page for that project.
+
+1. Navigate to **Settings > General**.
+1. Expand the **Advanced** section.
+1. Scroll down to the **Remove project** section.
+1. Click **Remove project**
+1. Confirm this action by typing in the expected text.
+
+### Delayed removal **(PREMIUM)**
+
+By default, clicking to remove a project is followed by a seven day delay. Admins can restore the project during this period of time.
+This delay [may be changed by an admin](../admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+
+Admins can view all projects pending deletion. If you're an administrator, go to the top navigation bar, click **Projects > Your projects**, and then select the **Removed projects** tab.
+From this tab an admin can restore any project.
 
 ## CI/CD for external repositories **(PREMIUM)**
 

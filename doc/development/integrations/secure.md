@@ -91,7 +91,7 @@ disable running the custom scanner.
 GitLab also defines a `CI_PROJECT_REPOSITORY_LANGUAGES` variable, which provides the list of
 languages in the repository. Depending on this value, your scanner may or may not do something different.
 Language detection currently relies on the [`linguist`](https://github.com/github/linguist) Ruby gem.
-See [GitLab CI/CD predefined variables](../../ci/variables/predefined_variables.md#variables-reference).
+See [GitLab CI/CD predefined variables](../../ci/variables/predefined_variables.md).
 
 #### Policy checking example
 
@@ -124,9 +124,9 @@ regardless of the individual machine the scanner runs on.
 
 Depending on the CI infrastructure,
 the CI may have to fetch the Docker image every time the job runs.
-To make the scanning job run fast, and to avoid wasting bandwidth,
-it is important to make Docker images as small as possible,
-ideally smaller than 50 MB.
+For the scanning job to run fast and avoid wasting bandwidth, Docker images should be as small as
+possible. You should aim for 50MB or smaller. If that isn't possible, try to keep it below 1.46 GB,
+which is the size of a CD-ROM.
 
 If the scanner requires a fully functional Linux environment,
 it is recommended to use a [Debian](https://www.debian.org/intro/about) "slim" distribution or [Alpine Linux](https://www.alpinelinux.org/).
@@ -134,6 +134,22 @@ If possible, it is recommended to build the image from scratch, using the `FROM 
 and to compile the scanner with all the libraries it needs.
 [Multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
 might also help with keeping the image small.
+
+To keep an image size small, consider using [dive](https://github.com/wagoodman/dive#dive) to analyze layers in a Docker image to
+identify where additional bloat might be originating from.
+
+In some cases, it might be difficult to remove files from an image. When this occurs, consider using
+[Zstandard](https://github.com/facebook/zstd)
+to compress files or large directories. Zstandard offers many different compression levels that can
+decrease the size of your image with very little impact to decompression speed. It may be helpful to
+automatically decompress any compressed directories as soon as an image launches. You can accomplish
+this by adding a step to the Docker image's `/etc/bashrc` or to a specific user's `$HOME/.bashrc`.
+Remember to change the entry point to launch a bash login shell if you chose the latter option.
+
+Here are some examples to get you started:
+
+- <https://gitlab.com/gitlab-org/security-products/license-management/-/blob/0b976fcffe0a9b8e80587adb076bcdf279c9331c/config/install.sh#L168-170>
+- <https://gitlab.com/gitlab-org/security-products/license-management/-/blob/0b976fcffe0a9b8e80587adb076bcdf279c9331c/config/.bashrc#L49>
 
 ### Image tag
 
@@ -215,6 +231,34 @@ Scanners may use [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_c
 to colorize the messages they write to the Unix standard output and standard error streams.
 We recommend using red to report errors, yellow for warnings, and green for notices.
 Also, we recommend prefixing error messages with `[ERRO]`, warnings with `[WARN]`, and notices with `[INFO]`.
+
+#### Logging level
+
+The scanner should filter out a log message if its log level is lower than the
+one set in the `SECURE_LOG_LEVEL` variable. For instance, `info` and `warn`
+messages should be skipped when `SECURE_LOG_LEVEL` is set to `error`. Accepted
+values are as follows, listed from highest to lowest:
+
+- `panic`
+- `fatal`
+- `error`
+- `warn`
+- `info`
+- `debug`
+- `trace`
+
+It is recommended to use the `debug` and `trace` levels for verbose logging
+that could be useful when debugging. The default value for `SECURE_LOG_LEVEL`
+should be set to `info`.
+
+#### common logutil package
+
+If you are using [go](https://golang.org/) and
+[common](https://gitlab.com/gitlab-org/security-products/analyzers/common),
+then it is suggested that you use [logrus](https://github.com/Sirupsen/logrus)
+and [common's logutil package](https://gitlab.com/gitlab-org/security-products/analyzers/common/-/tree/master/logutil)
+to configure the formatter for [logrus](https://github.com/Sirupsen/logrus).
+See the [logutil README.md](https://gitlab.com/gitlab-org/security-products/analyzers/common/-/tree/master/logutil/README.md)
 
 ## Report
 

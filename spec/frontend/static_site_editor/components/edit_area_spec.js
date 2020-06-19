@@ -1,17 +1,24 @@
 import { shallowMount } from '@vue/test-utils';
 
 import RichContentEditor from '~/vue_shared/components/rich_content_editor/rich_content_editor.vue';
+import { EDITOR_TYPES } from '~/vue_shared/components/rich_content_editor/constants';
 
 import EditArea from '~/static_site_editor/components/edit_area.vue';
 import PublishToolbar from '~/static_site_editor/components/publish_toolbar.vue';
 import EditHeader from '~/static_site_editor/components/edit_header.vue';
+import UnsavedChangesConfirmDialog from '~/static_site_editor/components/unsaved_changes_confirm_dialog.vue';
 
-import { sourceContentTitle as title, sourceContent as content, returnUrl } from '../mock_data';
+import {
+  sourceContentTitle as title,
+  sourceContent as content,
+  sourceContentBody as body,
+  returnUrl,
+} from '../mock_data';
 
 describe('~/static_site_editor/components/edit_area.vue', () => {
   let wrapper;
   const savingChanges = true;
-  const newContent = `new ${content}`;
+  const newBody = `new ${body}`;
 
   const buildWrapper = (propsData = {}) => {
     wrapper = shallowMount(EditArea, {
@@ -28,6 +35,7 @@ describe('~/static_site_editor/components/edit_area.vue', () => {
   const findEditHeader = () => wrapper.find(EditHeader);
   const findRichContentEditor = () => wrapper.find(RichContentEditor);
   const findPublishToolbar = () => wrapper.find(PublishToolbar);
+  const findUnsavedChangesConfirmDialog = () => wrapper.find(UnsavedChangesConfirmDialog);
 
   beforeEach(() => {
     buildWrapper();
@@ -44,33 +52,87 @@ describe('~/static_site_editor/components/edit_area.vue', () => {
 
   it('renders rich content editor', () => {
     expect(findRichContentEditor().exists()).toBe(true);
-    expect(findRichContentEditor().props('value')).toBe(content);
+    expect(findRichContentEditor().props('value')).toBe(body);
   });
 
   it('renders publish toolbar', () => {
     expect(findPublishToolbar().exists()).toBe(true);
-    expect(findPublishToolbar().props('returnUrl')).toBe(returnUrl);
-    expect(findPublishToolbar().props('savingChanges')).toBe(savingChanges);
-    expect(findPublishToolbar().props('saveable')).toBe(false);
+    expect(findPublishToolbar().props()).toMatchObject({
+      returnUrl,
+      savingChanges,
+      saveable: false,
+    });
+  });
+
+  it('renders unsaved changes confirm dialog', () => {
+    expect(findUnsavedChangesConfirmDialog().exists()).toBe(true);
+    expect(findUnsavedChangesConfirmDialog().props('modified')).toBe(false);
   });
 
   describe('when content changes', () => {
     beforeEach(() => {
-      findRichContentEditor().vm.$emit('input', newContent);
+      findRichContentEditor().vm.$emit('input', newBody);
 
       return wrapper.vm.$nextTick();
     });
 
-    it('sets publish toolbar as saveable when content changes', () => {
+    it('sets publish toolbar as saveable', () => {
       expect(findPublishToolbar().props('saveable')).toBe(true);
     });
 
+    it('sets unsaved changes confirm dialog as modified', () => {
+      expect(findUnsavedChangesConfirmDialog().props('modified')).toBe(true);
+    });
+
     it('sets publish toolbar as not saveable when content changes are rollback', () => {
-      findRichContentEditor().vm.$emit('input', content);
+      findRichContentEditor().vm.$emit('input', body);
 
       return wrapper.vm.$nextTick().then(() => {
         expect(findPublishToolbar().props('saveable')).toBe(false);
       });
     });
+  });
+
+  describe('when the mode changes', () => {
+    const setInitialMode = mode => {
+      wrapper.setData({ editorMode: mode });
+    };
+
+    afterEach(() => {
+      setInitialMode(EDITOR_TYPES.wysiwyg);
+    });
+
+    it.each`
+      initialMode              | targetMode
+      ${EDITOR_TYPES.wysiwyg}  | ${EDITOR_TYPES.markdown}
+      ${EDITOR_TYPES.markdown} | ${EDITOR_TYPES.wysiwyg}
+    `('sets editorMode from $initialMode to $targetMode', ({ initialMode, targetMode }) => {
+      setInitialMode(initialMode);
+      findRichContentEditor().vm.$emit('modeChange', targetMode);
+
+      expect(wrapper.vm.editorMode).toBe(targetMode);
+    });
+
+    it.each`
+      syncFnName         | initialMode              | targetMode
+      ${'syncBodyToRaw'} | ${EDITOR_TYPES.wysiwyg}  | ${EDITOR_TYPES.markdown}
+      ${'syncRawToBody'} | ${EDITOR_TYPES.markdown} | ${EDITOR_TYPES.wysiwyg}
+    `(
+      'calls $syncFnName source before switching from $initialMode to $targetMode',
+      ({ syncFnName, initialMode, targetMode }) => {
+        setInitialMode(initialMode);
+
+        const spySyncSource = jest.spyOn(wrapper.vm, 'syncSource');
+        const spySyncParsedSource = jest.spyOn(wrapper.vm.parsedSource, syncFnName);
+
+        findRichContentEditor().vm.$emit('modeChange', targetMode);
+
+        expect(spySyncSource).toHaveBeenCalled();
+        expect(spySyncParsedSource).toHaveBeenCalled();
+
+        spySyncSource.mockReset();
+        spySyncParsedSource.mockReset();
+      },
+    );
   });
 });

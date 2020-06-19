@@ -31,6 +31,8 @@ issues:
 - closed_by
 - epic_issue
 - epic
+- feature_flag_issues
+- feature_flags
 - designs
 - design_versions
 - description_versions
@@ -179,10 +181,12 @@ merge_request_context_commits:
 ci_pipelines:
 - project
 - user
+- ci_ref
 - stages
 - statuses
 - latest_statuses_ordered_by_stage
 - builds
+- bridges
 - processables
 - trigger_requests
 - variables
@@ -195,7 +199,7 @@ ci_pipelines:
 - cancelable_statuses
 - manual_actions
 - scheduled_actions
-- artifacts
+- downloadable_artifacts
 - pipeline_schedule
 - merge_requests_as_head_pipeline
 - merge_request
@@ -220,6 +224,11 @@ ci_pipelines:
 - pipeline_config
 - security_scans
 - daily_build_group_report_results
+- latest_builds
+- daily_report_results
+ci_refs:
+- project
+- ci_pipelines
 pipeline_variables:
 - pipeline
 stages:
@@ -418,6 +427,7 @@ project:
 - deploy_tokens
 - settings
 - ci_cd_settings
+- project_settings
 - import_export_upload
 - repository_languages
 - pool_repository
@@ -480,6 +490,7 @@ project:
 - upstream_project_subscriptions
 - downstream_project_subscriptions
 - service_desk_setting
+- security_setting
 - import_failures
 - container_expiration_policy
 - resource_groups
@@ -496,6 +507,7 @@ project:
 - freeze_periods
 - webex_teams_service
 - build_report_results
+- vulnerability_statistic
 award_emoji:
 - awardable
 - user
@@ -560,6 +572,9 @@ self_managed_prometheus_alert_events:
 epic_issues:
 - issue
 - epic
+feature_flag_issues:
+- issue
+- feature_flag
 tracing_setting:
 - project
 reviews:
@@ -581,6 +596,7 @@ boards:
 - board_assignee
 - assignee
 - labels
+- user_preferences
 lists:
 - user
 - milestone
@@ -598,6 +614,7 @@ design: &design
 - versions
 - notes
 - user_mentions
+- events
 designs: *design
 actions:
 - design
