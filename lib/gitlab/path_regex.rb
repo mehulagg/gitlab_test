@@ -102,7 +102,6 @@ module Gitlab
       preview
       raw
       refs
-      snippets
       tree
       update
       wikis

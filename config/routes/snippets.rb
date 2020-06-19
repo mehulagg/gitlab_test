@@ -14,9 +14,16 @@ resources :snippets, concerns: :awardable do
         delete :delete_attachment
       end
     end
-
-    get '/raw/:ref/*path', to: 'blobs#raw', as: :raw, format: false
   end
+end
+
+# Use this /-/ scope for all new snippet routes.
+scope path: '-' do
+  get '/snippets/:snippet_id/raw/:ref/*path',
+    to: 'snippets/blobs#raw',
+    as: :snippet_raw,
+    format: false,
+    constraints: { snippet_id: /\d+/ }
 end
 
 get '/s/:username', to: redirect('users/%{username}/snippets'),

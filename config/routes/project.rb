@@ -313,6 +313,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
+        get '/snippets/:snippet_id/raw/:ref/*path',
+          to: 'snippets/blobs#raw',
+          format: false,
+          constraints: { snippet_id: /\d+/ }
+
         draw :issues
         draw :merge_requests
         draw :pipelines
@@ -361,8 +366,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :raw
           post :mark_as_spam
         end
-
-        get '/raw/:ref/*path', to: 'snippets/blobs#raw', format: false
       end
 
       namespace :prometheus do

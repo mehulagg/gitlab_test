@@ -207,7 +207,7 @@ describe Gitlab::PathRegex do
 
     # We ban new items in this list, see https://gitlab.com/gitlab-org/gitlab/-/issues/215362
     it 'does not allow expansion' do
-      expect(described_class::PROJECT_WILDCARD_ROUTES.size).to eq(22)
+      expect(described_class::PROJECT_WILDCARD_ROUTES.size).to eq(21)
     end
   end
 
