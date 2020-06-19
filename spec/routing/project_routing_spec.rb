@@ -881,4 +881,3 @@ describe 'project routing' do
     end
   end
 end
-
