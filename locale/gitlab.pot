@@ -17826,9 +17826,6 @@ msgstr ""
 msgid "ProjectSettings|Lightweight issue tracking system for this project"
 msgstr ""
 
-msgid "ProjectSettings|Lightweight requirement tracking system for this project"
-msgstr ""
-
 msgid "ProjectSettings|Manages large files such as audio, video, and graphics files"
 msgstr ""
 
@@ -17896,6 +17893,9 @@ msgid "ProjectSettings|Repository"
 msgstr ""
 
 msgid "ProjectSettings|Requirements"
+msgstr ""
+
+msgid "ProjectSettings|Requirements management system for this project"
 msgstr ""
 
 msgid "ProjectSettings|Share code pastes with others out of Git repository"

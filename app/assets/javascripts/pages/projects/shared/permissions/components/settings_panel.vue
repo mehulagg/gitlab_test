@@ -556,7 +556,7 @@ export default {
         v-if="requirementsAvailable"
         ref="requirements-settings"
         :label="s__('ProjectSettings|Requirements')"
-        :help-text="s__('ProjectSettings|Lightweight requirement tracking system for this project')"
+        :help-text="s__('ProjectSettings|Requirements management system for this project')"
       >
         <project-feature-setting
           v-model="requirementsAccessLevel"
