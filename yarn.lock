@@ -840,10 +840,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.140.0.tgz#593f1f65b0df57c3399fcfb9f472f59aa64da074"
   integrity sha512-6gANJGi2QkpvOgFTMcY3SIwEqhO69i6R3jU4BSskkVziwDdAWxGonln22a4Iu//Iv0NrsFDpAA0jIVfnJzw0iA==
 
-"@gitlab/ui@17.1.0":
-  version "17.1.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-17.1.0.tgz#522912caee7689a0fde1e58cd6d4e4163e39ca7f"
-  integrity sha512-KruPE0I4qU4LP+pPIzhCY0xbNDcB7gUHaXMO1we2ssK9lc+NJxeLt9gr/ctOX1/Rzgau93+i9QvekeNg0wvqGA==
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/601197106/artifacts/raw/gitlab-ui.nmezzopera-add-config-to-side-effects.tgz":
+  version "17.0.1"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/601197106/artifacts/raw/gitlab-ui.nmezzopera-add-config-to-side-effects.tgz#6f37de253e8b38adff8acf2d1123af182c5bb7cc"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
