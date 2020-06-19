@@ -288,7 +288,7 @@ RSpec.describe MergeRequest do
     subject { merge_request.calculate_reactive_cache(service_class_name, current_user&.id) }
 
     context 'when given a known service class name' do
-      let(:service_class_name) { 'Ci::CompareSecurityReportsService' }
+      let(:service_class_name) { 'Ci::CompareDependencyScanningReportsService' }
 
       it 'does not raises a NameError exception' do
         allow_any_instance_of(service_class_name.constantize).to receive(:execute).and_return(nil)
@@ -338,7 +338,7 @@ RSpec.describe MergeRequest do
         end
 
         it 'returns status and data' do
-          expect_any_instance_of(Ci::CompareSecurityReportsService)
+          expect_any_instance_of(Ci::CompareContainerScanningReportsService)
               .to receive(:execute).with(base_pipeline, head_pipeline).and_call_original
 
           subject
@@ -346,7 +346,7 @@ RSpec.describe MergeRequest do
 
         context 'when cached results is not latest' do
           before do
-            allow_any_instance_of(Ci::CompareSecurityReportsService)
+            allow_any_instance_of(Ci::CompareContainerScanningReportsService)
                 .to receive(:latest?).and_return(false)
           end
 
@@ -398,7 +398,7 @@ RSpec.describe MergeRequest do
         end
 
         it 'returns status and data' do
-          expect_any_instance_of(Ci::CompareSecurityReportsService)
+          expect_any_instance_of(Ci::CompareSecretDetectionReportsService)
               .to receive(:execute).with(base_pipeline, head_pipeline).and_call_original
 
           subject
@@ -406,7 +406,7 @@ RSpec.describe MergeRequest do
 
         context 'when cached results is not latest' do
           before do
-            allow_any_instance_of(Ci::CompareSecurityReportsService)
+            allow_any_instance_of(Ci::CompareSecretDetectionReportsService)
                 .to receive(:latest?).and_return(false)
           end
 
@@ -458,7 +458,7 @@ RSpec.describe MergeRequest do
         end
 
         it 'returns status and data' do
-          expect_any_instance_of(Ci::CompareSecurityReportsService)
+          expect_any_instance_of(Ci::CompareSastReportsService)
               .to receive(:execute).with(base_pipeline, head_pipeline).and_call_original
 
           subject
@@ -466,7 +466,7 @@ RSpec.describe MergeRequest do
 
         context 'when cached results is not latest' do
           before do
-            allow_any_instance_of(Ci::CompareSecurityReportsService)
+            allow_any_instance_of(Ci::CompareSastReportsService)
                 .to receive(:latest?).and_return(false)
           end
 
