@@ -36,6 +36,8 @@ end
 require 'rainbow/ext/string'
 Rainbow.enabled = false
 
+# Test line change
+
 require_relative('../ee/spec/spec_helper') if Gitlab.ee?
 
 # Requires supporting ruby files with custom matchers and macros, etc,
