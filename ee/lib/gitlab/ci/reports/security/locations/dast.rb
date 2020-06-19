@@ -21,7 +21,14 @@ module Gitlab
             private
 
             def fingerprint_data
-              "#{path}:#{method_name}:#{param}"
+              "#{normalize_path}:#{method_name}:#{param}"
+            end
+
+            def normalize_path
+              # remove query string, fragment and end slash
+              URI(path).path.gsub(/\/$/, '')
+            rescue URI::InvalidURIError
+              return path
             end
           end
         end
