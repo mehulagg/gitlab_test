@@ -136,7 +136,14 @@ export const fetchDashboard = ({ state, commit, dispatch, getters }) => {
        * the `fetchDashboard` returns a 404 with error messages that are displayed
        * on the UI.
        */
-      dispatch('fetchDashboardValidationWarnings');
+      if (state.projectPath) {
+        /**
+         * The guard for state.projectPath ensures that the query for validation warnings
+         * won't be executed in the cluster health view or the embed view,
+         * but only in Operations > Metrics, where state.projectPath is set
+         */
+        dispatch('fetchDashboardValidationWarnings');
+      }
     })
     .catch(error => {
       Sentry.captureException(error);
