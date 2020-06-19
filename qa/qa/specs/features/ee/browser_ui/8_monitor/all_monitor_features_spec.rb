@@ -15,7 +15,7 @@ module QA
       end
 
       after :all do
-        @cluster.remove!
+        @cluster&.remove!
       end
 
       before do
@@ -68,19 +68,6 @@ module QA
       private
 
       def deploy_project_with_prometheus
-        %w[
-          CODE_QUALITY_DISABLED TEST_DISABLED LICENSE_MANAGEMENT_DISABLED
-          SAST_DISABLED DAST_DISABLED DEPENDENCY_SCANNING_DISABLED
-          CONTAINER_SCANNING_DISABLED PERFORMANCE_DISABLED
-        ].each do |key|
-          Resource::CiVariable.fabricate_via_api! do |resource|
-            resource.project = @project
-            resource.key = key
-            resource.value = '1'
-            resource.masked = false
-          end
-        end
-
         Flow::Login.sign_in
 
         Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster_settings|
@@ -100,25 +87,29 @@ module QA
           push.commit_message = 'Create AutoDevOps compatible Project for Monitoring'
         end
 
-        Page::Project::Menu.perform(&:click_ci_cd_pipelines)
-        Page::Project::Pipeline::Index.perform(&:click_on_latest_pipeline)
+        disabled_jobs = %w[
+          CODE_QUALITY_DISABLED TEST_DISABLED LICENSE_MANAGEMENT_DISABLED
+          SAST_DISABLED DAST_DISABLED DEPENDENCY_SCANNING_DISABLED
+          CONTAINER_SCANNING_DISABLED PERFORMANCE_DISABLED SECRET_DETECTION_DISABLED
+        ]
 
-        Page::Project::Pipeline::Show.perform do |pipeline|
-          pipeline.click_job('build')
-        end
-        Page::Project::Job::Show.perform do |job|
-          expect(job).to be_successful(timeout: 600)
+        Resource::Pipeline.fabricate_via_api! do |pipeline|
+          pipeline.project = @project
+          pipeline.variables =
+            disabled_jobs.map do |job|
+              { key: job, value: '1', variable_type: 'env_var' }
+            end
+        end.visit!
 
-          job.click_element(:pipeline_path)
-        end
+        %w[build production].each do |job|
+          Page::Project::Pipeline::Show.perform do |show_page|
+            show_page.click_job(job)
+          end
 
-        Page::Project::Pipeline::Show.perform do |pipeline|
-          pipeline.click_job('production')
-        end
-        Page::Project::Job::Show.perform do |job|
-          expect(job).to be_successful(timeout: 1200)
-
-          job.click_element(:pipeline_path)
+          Page::Project::Job::Show.perform do |show|
+            expect(show).to be_successful(timeout: 1200)
+            show.click_element(:pipeline_path)
+          end
         end
       end
 

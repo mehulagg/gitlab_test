@@ -84,6 +84,9 @@ module QA
             --region #{@region}
             --disk-size 10GB
             --num-nodes #{Runtime::Env.gcloud_num_nodes}
+            --enable-autoscaling
+            --min-nodes 1
+            --max-nodes 4
             && gcloud container clusters
             get-credentials
             --region #{@region}
