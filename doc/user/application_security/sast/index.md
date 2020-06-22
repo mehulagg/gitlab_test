@@ -172,7 +172,7 @@ is no longer supported. When overriding the template, you must use [`rules`](../
 
 To override a job definition, (for example, change properties like `variables` or `dependencies`),
 declare a job with the same name as the SAST job to override. Place this new job after the template
-inclusion and specify any additional keys under it. For example, this enables `FAIL_NEVER` for the
+inclusion and pecify any additional keys under it. For example, this enables `FAIL_NEVER` for the
 `spotbugs` analyzer:
 
 ```yaml
@@ -319,7 +319,7 @@ Some analyzers make it possible to filter out vulnerabilities under a given thre
 
 | Environment variable    | Default value | Description |
 |-------------------------|---------------|-------------|
-| `SAST_EXCLUDED_PATHS`         | `spec, test, tests, tmp` | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc,spec` ). Parent directories will also match patterns. |
+| `SAST_EXCLUDED_PATHS`         | `**/spec/*, **/test/*, **/tests/*, **/tmp/*` | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc, spec`). Parent directories will also match patterns, so `spec` is equivalent to `**/spec/*`. |
 | `SAST_BANDIT_EXCLUDED_PATHS`  | -   | comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html); For example: `'*/tests/*'` |
 | `SAST_BRAKEMAN_LEVEL`   |         1 | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High. |
 | `SAST_FLAWFINDER_LEVEL` |         1 | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk. |
