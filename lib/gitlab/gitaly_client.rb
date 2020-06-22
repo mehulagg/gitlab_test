@@ -31,6 +31,7 @@ module Gitlab
     MAXIMUM_GITALY_CALLS = 30
     CLIENT_NAME = (Gitlab::Runtime.sidekiq? ? 'gitlab-sidekiq' : 'gitlab-web').freeze
     GITALY_METADATA_FILENAME = '.gitaly-metadata'
+    ResponseConsumptionError = Class.new(StandardError)
 
     MUTEX = Mutex.new
 
@@ -167,7 +168,17 @@ module Gitlab
     #
     def self.call(storage, service, rpc, request, remote_storage: nil, timeout: default_timeout, &block)
       self.measure_timings(service, rpc, request) do
-        self.execute(storage, service, rpc, request, remote_storage: remote_storage, timeout: timeout, &block)
+        response = self.execute(storage, service, rpc, request, remote_storage: remote_storage, timeout: timeout)
+
+        # This can be changed to a dynamic lookup at the service#rpc_descs[rpc]
+        # to ensure it's indeed a streamed response (GRPC::RpcDesc::Stream).
+        next response unless response.is_a?(Enumerable)
+
+        unless block_given?
+          raise ResponseConsumptionError.new("A block to consume the streamed response must be given at #{service}##{rpc}")
+        end
+
+        yield(response)
       end
     end
 
@@ -187,7 +198,6 @@ module Gitlab
       Gitlab::RequestContext.instance.ensure_deadline_not_exceeded!
 
       kwargs = request_kwargs(storage, timeout: timeout.to_f, remote_storage: remote_storage)
-      kwargs = yield(kwargs) if block_given?
 
       stub(service, storage).__send__(rpc, request, kwargs) # rubocop:disable GitlabSecurity/PublicSend
     end
