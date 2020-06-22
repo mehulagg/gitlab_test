@@ -1473,4 +1473,42 @@ RSpec.describe ProjectPolicy do
       it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
     end
   end
+
+  describe 'requirements' do
+    using RSpec::Parameterized::TableSyntax
+
+    let(:read_policies) { %i[read_requirement] }
+    let(:reporter_policies) { %i[create_requirement create_requirement_test_report admin_requirement update_requirement] }
+    let(:owner_policies) { %i[destroy_requirement] }
+
+    where(:role, :feature_enabled, :admin_mode, :read_allowed, :reporter_allowed, :owner_allowed) do
+      :guest      | false | nil   | false | false | false
+      :guest      | true  | nil   | true  | false | false
+      :reporter   | false | nil   | false | false | false
+      :reporter   | true  | nil   | true  | true  | false
+      :developer  | false | nil   | false | false | false
+      :developer  | true  | nil   | true  | true  | false
+      :maintainer | false | nil   | false | false | false
+      :maintainer | true  | nil   | true  | true  | false
+      :owner      | false | nil   | false | false | false
+      :owner      | true  | nil   | true  | true  | true
+      :admin      | false | false | false | false | false
+      :admin      | false | true  | false | false | false
+      :admin      | true  | false | true  | false | false
+      :admin      | true  | true  | true  | false | false
+    end
+
+    with_them do
+      let(:current_user) { public_send(role) }
+
+      before do
+        stub_licensed_features(requirements: feature_enabled)
+        enable_admin_mode!(current_user) if admin_mode
+      end
+
+      it { is_expected.to(read_allowed ? be_allowed(*read_policies) : be_disallowed(*read_policies)) }
+      it { is_expected.to(reporter_allowed ? be_allowed(*reporter_policies) : be_disallowed(*reporter_policies)) }
+      it { is_expected.to(owner_allowed ? be_allowed(*owner_policies) : be_disallowed(*owner_policies)) }
+    end
+  end
 end
