@@ -156,6 +156,7 @@ module Gitlab
             notes: count(Note)
           }.merge(
             services_usage,
+            service_desk_usage,
             usage_counters,
             user_preferences_usage,
             ingress_modsecurity_usage,
@@ -399,6 +400,23 @@ module Gitlab
           jira_imports_total_imported_issues_count: alt_usage_data { JiraImportState.finished_imports_count }
         }
       end
+
+      # rubocop: disable CodeReuse/ActiveRecord
+      def service_desk_usage
+        projects_with_service_desk = ::Project.where(service_desk_enabled: true)
+
+        {
+          service_desk_enabled_projects: count(projects_with_service_desk),
+          service_desk_issues: count(
+            Issue.where(
+              project: projects_with_service_desk,
+              author: User.support_bot,
+              confidential: true
+            )
+          )
+        }
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def user_preferences_usage
         {} # augmented in EE

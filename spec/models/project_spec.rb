@@ -757,6 +757,16 @@ RSpec.describe Project do
     end
   end
 
+  describe '.service_desk_enabled' do
+    it 'returns the correct project' do
+      project_with_service_desk_enabled = create(:project)
+      project_with_service_desk_disabled = create(:project, :service_desk_disabled)
+
+      expect(described_class.service_desk_enabled).to include(project_with_service_desk_enabled)
+      expect(described_class.service_desk_enabled).not_to include(project_with_service_desk_disabled)
+    end
+  end
+
   describe 'last_activity methods' do
     let(:timestamp) { 2.hours.ago }
     # last_activity_at gets set to created_at upon creation
@@ -5300,6 +5310,52 @@ RSpec.describe Project do
         expect(subject.find_or_initialize_service('prometheus')).to be_a(PrometheusService)
         expect(subject.find_or_initialize_service('prometheus').api_url).to be_nil
       end
+    end
+  end
+
+  describe '#service_desk_enabled?' do
+    let!(:license) { create(:license, plan: License::PREMIUM_PLAN) }
+    let(:namespace) { create(:namespace) }
+
+    subject(:project) { build(:project, :private, namespace: namespace, service_desk_enabled: true) }
+
+    before do
+      allow(::Gitlab).to receive(:com?).and_return(true)
+      allow(::Gitlab::IncomingEmail).to receive(:enabled?).and_return(true)
+      allow(::Gitlab::IncomingEmail).to receive(:supports_wildcard?).and_return(true)
+    end
+
+    it 'is enabled' do
+      expect(project.service_desk_enabled?).to be_truthy
+      expect(project.service_desk_enabled).to be_truthy
+    end
+  end
+
+  describe '#service_desk_address' do
+    let(:project) { create(:project, service_desk_enabled: true) }
+
+    before do
+      allow(Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
+      allow(Gitlab.config.incoming_email).to receive(:enabled).and_return(true)
+      allow(Gitlab.config.incoming_email).to receive(:address).and_return("test+%{key}@mail.com")
+    end
+
+    it 'uses project full path as service desk address key' do
+      expect(project.service_desk_address).to eq("test+#{project.full_path_slug}-#{project.project_id}-issue-@mail.com")
+    end
+  end
+
+  describe '.find_by_service_desk_project_key' do
+    it 'returns the correct project' do
+      project = create(:project)
+
+      create(:service_desk_setting, project: project, project_key: 'key1')
+
+      expect(Project.find_by_service_desk_project_key('key1')).to eq(project)
+    end
+
+    it 'returns nil if there is no project with the key' do
+      expect(Project.find_by_service_desk_project_key('some_key')).to be_nil
     end
   end
 

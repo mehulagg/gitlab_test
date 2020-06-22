@@ -18,7 +18,7 @@ RSpec.describe Gitlab::Email::ServiceDeskReceiver do
         { service_desk_key: 'project_slug-project_key' }
       ]
 
-      expect(::Gitlab::Email::Handler::EE::ServiceDeskHandler)
+      expect(::Gitlab::Email::Handler::ServiceDeskHandler)
         .to receive(:new).with(*expected_params).and_return(handler)
 
       receiver.execute

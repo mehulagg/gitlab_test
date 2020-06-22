@@ -96,25 +96,6 @@ module EE
           }
         end
 
-        # rubocop: disable CodeReuse/ActiveRecord
-        def service_desk_counts
-          return {} unless ::License.feature_available?(:service_desk)
-
-          projects_with_service_desk = ::Project.where(service_desk_enabled: true)
-
-          {
-            service_desk_enabled_projects: count(projects_with_service_desk),
-            service_desk_issues: count(
-              ::Issue.where(
-                project: projects_with_service_desk,
-                author: ::User.support_bot,
-                confidential: true
-              )
-            )
-          }
-        end
-        # rubocop: enable CodeReuse/ActiveRecord
-
         def security_products_usage
           results = SECURE_PRODUCT_TYPES.each_with_object({}) do |(secure_type, attribs), response|
             response[attribs[:name]] = count(::Ci::Build.where(name: secure_type)) # rubocop:disable CodeReuse/ActiveRecord
@@ -177,7 +158,6 @@ module EE
                 template_repositories: count(::Project.with_repos_templates) + count(::Project.with_groups_level_repos_templates)
               },
               requirements_counts,
-              service_desk_counts,
               security_products_usage,
               epics_deepest_relationship_level,
               operations_dashboard_usage)

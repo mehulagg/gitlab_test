@@ -724,4 +724,15 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       })
     end
   end
+
+  describe '.service_desk_usage' do
+    subject { described_class.service_desk_usage }
+
+    it 'gathers service desk usage data' do
+      project = create(:project, :service_desk_enabled)
+      create_list(:issue, 2, confidential: true, author: User.support_bot, project: project)
+
+      expect(subject).to eq(service_desk_enabled_projects: 1, service_desk_issues: 2)
+    end
+  end
 end

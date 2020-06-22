@@ -24,7 +24,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
+        get '/service_desk' => 'service_desk#show', as: :service_desk
         get 'archive/*id', constraints: { format: Gitlab::PathRegex.archive_formats_regex, id: /.+?/ }, to: 'repositories#archive', as: 'archive'
+        put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
         resources :artifacts, only: [:index, :destroy]
 

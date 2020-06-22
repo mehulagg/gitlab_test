@@ -109,6 +109,11 @@ module Types
           description: 'Indicates if issues referenced by merge requests and commits within the default branch are closed automatically'
     field :suggestion_commit_message, GraphQL::STRING_TYPE, null: true,
           description: 'The commit message used to apply merge request suggestions'
+    field :service_desk_enabled, GraphQL::BOOLEAN_TYPE, null: true,
+          description: 'Indicates if the project has service desk enabled.'
+
+    field :service_desk_address, GraphQL::STRING_TYPE, null: true,
+          description: 'E-mail address of the service desk.'
 
     field :namespace, Types::NamespaceType, null: true,
           description: 'Namespace of the project'

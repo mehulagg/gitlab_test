@@ -200,6 +200,7 @@ class Project < ApplicationRecord
   has_one :grafana_integration, inverse_of: :project
   has_one :project_setting, inverse_of: :project, autosave: true
   has_one :alerting_setting, inverse_of: :project, class_name: 'Alerting::ProjectAlertingSetting'
+  has_one :service_desk_setting, class_name: 'ServiceDeskSetting'
 
   # Merge Requests for target project should be removed with it
   has_many :merge_requests, foreign_key: 'target_project_id', inverse_of: :target_project
@@ -459,6 +460,7 @@ class Project < ApplicationRecord
   scope :with_service, ->(service) { joins(service).eager_load(service) }
   scope :with_shared_runners, -> { where(shared_runners_enabled: true) }
   scope :with_container_registry, -> { where(container_registry_enabled: true) }
+  scope :service_desk_enabled, -> { where(service_desk_enabled: true) }
   scope :inside_path, ->(path) do
     # We need routes alias rs for JOIN so it does not conflict with
     # includes(:route) which we use in ProjectsFinder.
@@ -712,6 +714,12 @@ class Project < ApplicationRecord
       with_merge_requests_enabled = with_merge_requests_available_for_user(user).select(:id)
 
       from_union([with_issues_enabled, with_merge_requests_enabled]).select(:id)
+    end
+
+    def find_by_service_desk_project_key(key)
+      # project_key is not indexed for now
+      # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24063#note_282435524 for details
+      joins(:service_desk_setting).find_by('service_desk_settings.project_key' => key)
     end
   end
 
@@ -2419,9 +2427,18 @@ class Project < ApplicationRecord
   end
 
   def service_desk_enabled
-    false
+    Gitlab::ServiceDesk.enabled?(project: self)
   end
   alias_method :service_desk_enabled?, :service_desk_enabled
+
+  def service_desk_address
+    return unless service_desk_enabled?
+
+    config = ::Gitlab.config.incoming_email
+    wildcard = ::Gitlab::IncomingEmail::WILDCARD_PLACEHOLDER
+
+    config.address&.gsub(wildcard, "#{full_path_slug}-#{id}-issue-")
+  end
 
   private
 

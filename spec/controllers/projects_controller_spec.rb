@@ -605,6 +605,25 @@ RSpec.describe ProjectsController do
       sign_in(admin)
     end
 
+    it 'updates Service Desk attributes' do
+      allow(Gitlab::IncomingEmail).to receive(:enabled?) { true }
+      allow(Gitlab::IncomingEmail).to receive(:supports_wildcard?) { true }
+      params = {
+        service_desk_enabled: true
+      }
+
+      put :update,
+          params: {
+            namespace_id: project.namespace,
+            id: project,
+            project: params
+          }
+      project.reload
+
+      expect(response).to have_gitlab_http_status(:found)
+      expect(project.service_desk_enabled).to eq(true)
+    end
+
     shared_examples_for 'updating a project' do
       context 'when only renaming a project path' do
         it "sets the repository to the right path after a rename" do

@@ -112,6 +112,9 @@ module API
         Ability.allowed?(options[:current_user], :change_repository_storage, project)
       }
 
+      expose :service_desk_enabled
+      expose :service_desk_address
+
       # rubocop: disable CodeReuse/ActiveRecord
       def self.preload_relation(projects_relation, options = {})
         # Preloading tags, should be done with using only `:tags`,

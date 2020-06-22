@@ -2919,6 +2919,87 @@ RSpec.describe NotificationService, :mailer do
     end
   end
 
+  context 'service desk issues' do
+    before do
+      allow(Notify).to receive(:service_desk_new_note_email)
+                         .with(Integer, Integer).and_return(mailer)
+
+      allow(Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
+      allow(Gitlab::IncomingEmail).to receive(:enabled?) { true }
+      allow(Gitlab::IncomingEmail).to receive(:supports_wildcard?) { true }
+    end
+
+    def should_email!
+      expect(Notify).to receive(:service_desk_new_note_email)
+        .with(issue.id, note.id)
+    end
+
+    def should_not_email!
+      expect(Notify).not_to receive(:service_desk_new_note_email)
+    end
+
+    def execute!
+      subject.new_note(note)
+    end
+
+    def self.it_should_email!
+      it 'sends the email' do
+        should_email!
+        execute!
+      end
+    end
+
+    def self.it_should_not_email!
+      it 'doesn\'t send the email' do
+        should_not_email!
+        execute!
+      end
+    end
+
+    let(:mailer) { double(deliver_later: true) }
+    let(:issue) { create(:issue, author: User.support_bot) }
+    let(:project) { issue.project }
+    let(:note) { create(:note, noteable: issue, project: project) }
+
+    context 'a non-service-desk issue' do
+      it_should_not_email!
+    end
+
+    context 'a service-desk issue' do
+      before do
+        issue.update!(service_desk_reply_to: 'service.desk@example.com')
+        project.update!(service_desk_enabled: true)
+      end
+
+      it_should_email!
+
+      context 'where the project has disabled the feature' do
+        before do
+          allow(Gitlab::ServiceDesk).to receive(:enabled?).and_call_original
+          project.update(service_desk_enabled: false)
+        end
+
+        it_should_not_email!
+      end
+
+      context 'when service desk is not supported' do
+        before do
+          allow(Gitlab::ServiceDesk).to receive(:supported?).and_return(false)
+        end
+
+        it_should_not_email!
+      end
+
+      context 'when the support bot has unsubscribed' do
+        before do
+          issue.unsubscribe(User.support_bot, project)
+        end
+
+        it_should_not_email!
+      end
+    end
+  end
+
   def build_team(project)
     @u_watcher               = create_global_setting_for(create(:user), :watch)
     @u_participating         = create_global_setting_for(create(:user), :participating)

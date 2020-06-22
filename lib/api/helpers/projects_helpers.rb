@@ -60,6 +60,7 @@ module API
         optional :auto_devops_deploy_strategy, type: String, values: %w(continuous manual timed_incremental), desc: 'Auto Deploy strategy'
         optional :autoclose_referenced_issues, type: Boolean, desc: 'Flag indication if referenced issues auto-closing is enabled'
         optional :repository_storage, type: String, desc: 'Which storage shard the repository is on. Available only to admins'
+        optional :service_desk_enabled, type: Grape::API::Boolean, desc: 'Disable or enable the service desk'
       end
 
       params :optional_project_params_ee do
@@ -127,6 +128,7 @@ module API
           :repository_access_level,
           :request_access_enabled,
           :resolve_outdated_diff_discussions,
+          :service_desk_enabled,
           :shared_runners_enabled,
           :snippets_access_level,
           :tag_list,
