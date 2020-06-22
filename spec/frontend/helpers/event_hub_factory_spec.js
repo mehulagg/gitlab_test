@@ -1,5 +1,7 @@
 import createEventHub from '~/helpers/event_hub_factory';
 
+const TEST_EVENT = 'test-event';
+
 describe('event bus factory', () => {
   let eventBus;
 
@@ -41,6 +43,28 @@ describe('event bus factory', () => {
     `('binds $$method to $method ', ({ method }) => {
       expect(typeof eventBus[method]).toBe('function');
       expect(eventBus[method]).toBe(eventBus[`$${method}`]);
+    });
+  });
+
+  describe('emit', () => {
+    let listener;
+
+    beforeEach(() => {
+      listener = jest.fn();
+
+      eventBus.$on(TEST_EVENT, listener);
+    });
+
+    it('does not emit extra arguments', () => {
+      eventBus.$emit(TEST_EVENT, 'arg1', 'arg2', 'arg3');
+
+      expect(listener).toHaveBeenCalledWith('arg1');
+    });
+
+    it('emits undefined as default value', () => {
+      eventBus.$emit(TEST_EVENT);
+
+      expect(listener).toHaveBeenCalledWith(undefined);
     });
   });
 
