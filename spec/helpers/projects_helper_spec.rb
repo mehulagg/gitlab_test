@@ -1030,7 +1030,6 @@ describe ProjectsHelper do
   end
 
   describe '#scheduled_for_deletion?' do
-
     describe 'Falsy test' do
       subject { helper.scheduled_for_deletion?(project) }
 
@@ -1059,7 +1058,5 @@ describe ProjectsHelper do
 
       it { is_expected.to eq(true) }
     end
-
   end
-
 end

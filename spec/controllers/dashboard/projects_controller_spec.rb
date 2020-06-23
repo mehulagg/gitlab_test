@@ -111,7 +111,6 @@ RSpec.describe Dashboard::ProjectsController do
         expect(assigns(:projects).count).to eq(1)
       end
     end
-
   end
 
   context 'admin json request' do
