@@ -255,4 +255,53 @@ RSpec.describe Operations::FeatureFlag do
       expect(flags.map(&:id)).to eq([feature_flag.id, feature_flag_b.id])
     end
   end
+
+  describe '#to_reference' do
+    let(:namespace)    { create(:namespace, path: 'sample-namespace') }
+    let(:project)      { create(:project, name: 'sample-project', namespace: namespace) }
+    let(:feature_flag) { create(:operations_feature_flag, :new_version_flag, project: project) }
+
+    it 'returns the iid without any arguments' do
+      expect(feature_flag.to_reference).to eq("^#{feature_flag.iid}")
+    end
+
+    it 'returns the complete path with full: true' do
+      expect(feature_flag.to_reference(full: true)).to eq("sample-namespace/sample-project^#{feature_flag.iid}")
+    end
+
+    it 'returns the iid when given the same project' do
+      expect(feature_flag.to_reference(project)).to eq("^#{feature_flag.iid}")
+    end
+
+    it 'returns full reference with the same project and full: true' do
+      expect(feature_flag.to_reference(project, full: true)).to eq("sample-namespace/sample-project^#{feature_flag.iid}")
+    end
+
+    it 'returns a cross-project reference' do
+      other_project = create(:project, name: 'another-project', namespace: namespace)
+
+      expect(feature_flag.to_reference(other_project)).to eq "sample-project^#{feature_flag.iid}"
+    end
+
+    it 'returns complete path with cross-project in different namespace' do
+      other_namespace = create(:namespace, path: 'another-namespace')
+      other_project = create(:project, path: 'another-project', namespace: other_namespace)
+
+      expect(feature_flag.to_reference(other_project)).to eq("sample-namespace/sample-project^#{feature_flag.iid}")
+    end
+
+    it 'returns path when given a namespace' do
+      expect(feature_flag.to_reference(namespace)).to eq("sample-project^#{feature_flag.iid}")
+    end
+
+    it 'returns full reference with a namespace and full: true' do
+      expect(feature_flag.to_reference(namespace, full: true)).to eq("sample-namespace/sample-project^#{feature_flag.iid}")
+    end
+
+    it 'returns full path with a group' do
+      group = create(:group, name: 'Group', path: 'sample-group')
+
+      expect(feature_flag.to_reference(group)).to eq("sample-namespace/sample-project^#{feature_flag.iid}")
+    end
+  end
 end

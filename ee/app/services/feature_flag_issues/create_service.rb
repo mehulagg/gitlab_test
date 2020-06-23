@@ -13,6 +13,13 @@ module FeatureFlagIssues
     def relate_issuables(referenced_issue)
       attrs = { feature_flag_id: issuable.id, issue: referenced_issue }
       ::FeatureFlagIssue.create(attrs)
+      create_notes(referenced_issue)
+    end
+
+    private
+
+    def create_notes(referenced_issue)
+      SystemNoteService.relate_issue(referenced_issue, issuable, current_user)
     end
   end
 end

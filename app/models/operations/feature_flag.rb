@@ -4,6 +4,7 @@ module Operations
   class FeatureFlag < ApplicationRecord
     include AtomicInternalId
     include IidRoutes
+    include Referable
 
     self.table_name = 'operations_feature_flags'
 
@@ -63,6 +64,17 @@ module Operations
       end
     end
 
+    def self.link_reference_pattern
+      @link_reference_pattern ||= super("operations_feature_flag", /(?<operations_feature_flag>\d+)/)
+    end
+
+    def self.reference_pattern
+      @reference_pattern ||= %r{
+        (#{Project.reference_pattern})?
+        #{Regexp.escape(reference_prefix)}(?<operations_feature_flag>\d+)
+      }x
+    end
+
     def related_issues(current_user, preload:)
       issues = ::Issue
         .select('issues.*, operations_feature_flags_issues.id AS link_id')
@@ -72,6 +84,16 @@ module Operations
         .includes(preload)
 
       Ability.issues_readable_by_user(issues, current_user)
+    end
+
+    def self.reference_prefix
+      '^'
+    end
+
+    def to_reference(namespace_or_project = nil, full: false)
+      reference = "#{self.class.reference_prefix}#{iid}"
+
+      "#{project.to_reference_base(namespace_or_project, full: full)}#{reference}"
     end
 
     private

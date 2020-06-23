@@ -59,6 +59,7 @@ module Banzai
           Filter::CommitRangeReferenceFilter,
           Filter::CommitReferenceFilter,
           Filter::LabelReferenceFilter,
+          Filter::FeatureFlagReferenceFilter,
           Filter::MilestoneReferenceFilter
         ]
       end
