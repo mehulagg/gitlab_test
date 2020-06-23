@@ -13,6 +13,7 @@ class Projects::ReleasesController < Projects::ApplicationController
     push_frontend_feature_flag(:release_asset_link_type, project, default_enabled: true)
   end
   before_action :authorize_update_release!, only: %i[edit update]
+  before_action :authorize_create_release!, only: %i[new]
 
   def index
     respond_to do |format|
@@ -51,10 +52,24 @@ class Projects::ReleasesController < Projects::ApplicationController
     end
   end
 
+  def new
+    return render_404 unless Feature.enabled?(:release_new_page, project, default_enabled: false)
+
+    respond_to do |format|
+      format.html do
+        render :new
+      end
+    end
+  end
+
   private
 
   def authorize_update_release!
     access_denied! unless can?(current_user, :update_release, release)
+  end
+
+  def authorize_create_release!
+    access_denied! unless can?(current_user, :create_release, project)
   end
 
   def release

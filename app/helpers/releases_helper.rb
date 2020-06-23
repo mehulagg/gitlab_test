@@ -18,7 +18,9 @@ module ReleasesHelper
       illustration_path: illustration,
       documentation_path: help_page
     }.tap do |data|
-      data[:new_release_path] = new_project_tag_path(@project) if can?(current_user, :create_release, @project)
+      if can?(current_user, :create_release, @project)
+        data[:new_release_path] = Feature.enabled?(:release_new_page, @project, default_enabled: false) ? new_project_release_path(@project) : new_project_tag_path(@project)
+      end
     end
   end
 
@@ -33,6 +35,12 @@ module ReleasesHelper
       release_assets_docs_path: help_page(anchor: 'release-assets'),
       manage_milestones_path: project_milestones_path(@project),
       new_milestone_path: new_project_milestone_url(@project)
+    }
+  end
+
+  def data_for_new_release_page
+    {
+      project_id: @project.id
     }
   end
 end
