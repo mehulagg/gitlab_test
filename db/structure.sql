@@ -10975,7 +10975,7 @@ CREATE INDEX index_snippets_on_description_trigram ON public.snippets USING gin 
 
 CREATE INDEX index_snippets_on_file_name_trigram ON public.snippets USING gin (file_name public.gin_trgm_ops);
 
-CREATE INDEX index_snippets_on_id_and_created_at ON public.snippets USING btree (id, created_at);
+CREATE INDEX index_snippets_on_id_and_created_at_and_type ON public.snippets USING btree (id, created_at, type);
 
 CREATE INDEX index_snippets_on_id_and_type ON public.snippets USING btree (id, type);
 
@@ -14117,5 +14117,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200622235737
 20200623000148
 20200623000320
+20200623161610
+20200623161939
 \.
 
