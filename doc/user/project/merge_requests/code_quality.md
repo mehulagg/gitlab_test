@@ -235,7 +235,7 @@ For a list of available environment variables, see
 
 ## Customizing the scan
 
-The Codeclimate engine that is being used can be customized by use of the codeclimate.yml file. When a  codeclimate.yml file is present in the base of a project's directory the scanner will use the options from that file. For all the options of customization please reference the [engine documentation](https://docs.codeclimate.com/docs/advanced-configuration#default-checks).
+The Codeclimate engine that is being used can be customized by use of the codeclimate.yml file. When a codeclimate.yml file is present in the base of a project's directory the scanner will use the options from that file. For all the options of customization please reference the [engine documentation](https://docs.codeclimate.com/docs/advanced-configuration#default-checks).
 
 ### Adding or removing a plugin for analysis
 
