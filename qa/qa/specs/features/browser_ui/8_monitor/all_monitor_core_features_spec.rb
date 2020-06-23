@@ -64,6 +64,20 @@ module QA
         end
       end
 
+      it 'add related links to custom dashboard' do
+        links_dashboard_yml = Pathname
+                    .new(__dir__)
+                    .join('../../../../fixtures/metrics_dashboards_yml/links.yml')
+
+        Resource::Repository::ProjectPush.fabricate! do |push|
+          push.project = @project
+          push.file_name = '.gitlab/dashboards/links.yml'
+          push.file_content = File.read(links_dashboard_yml)
+          push.commit_message = 'Add links file'
+          push.new_branch = false
+        end
+      end
+
       private
 
       def deploy_project_with_prometheus

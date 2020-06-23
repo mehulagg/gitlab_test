@@ -1,0 +1,41 @@
+dashboard: "Many links"
+priority: 1
+templating:
+  variables:
+    memorygroup: "handler"
+    coresgroup: "cpu"
+links:
+  - title: Gitlab Grafana.com dashboard (UTC)
+    type: grafana
+    url: >-
+      https://dashboards.gitlab.com/d/RZmbBr7mk/gitlab-triage?orgId=1
+  - title: Gitlab Grafana.net dashboard (browser time)
+    type: grafana
+    url: >-
+      https://dashboards.gitlab.net/d/U6W6_BPZz/gitaly-request-deadlines?orgId=1
+  - title: Localhost Grafana dashboard
+    type: grafana
+panel_groups:
+  - group: System metrics (Kubernetes)
+    priority: 15
+    panels:
+      - title: System metrics (Total)
+        type: line-chart
+        y_label: Requests/Second
+        weight: 4
+        metrics:
+          - id: system_metrics_kubernetes_container_memory_total
+            query_range: topk(5, sum by ({{memorygroup}}) (rate(prometheus_http_requests_total[2m])))
+            label: Total (GB)
+            unit: GB
+            metric_id: 1
+      - title: Node CPU (Total)
+        type: line-chart
+        y_label: Total Cores
+        weight: 3
+        metrics:
+          - id: system_metrics_kubernetes_container_cores_total
+            query_range: topk(5, sum by ({{coresgroup}}) (rate(node_cpu_seconds_total[2m])))
+            label: Total (cores)
+            unit: cores
+            metric_id: 2
