@@ -156,7 +156,7 @@ class Settings < Settingslogic
       return Gitlab::EncryptedConfiguration.new if ENV['GITLAB_ENCRYPTED_SAFE_MODE'] && !allow_in_safe_mode
 
       Gitlab::EncryptedConfiguration.new(
-        config_path: Rails.root.join(path),
+        config_path: Settings.absolute(path),
         key: Settings.attr_encrypted_db_key_base_truncated,
       )
     end
