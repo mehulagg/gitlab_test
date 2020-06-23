@@ -259,6 +259,7 @@ module Ci
     scope :for_ref, -> (ref) { where(ref: ref) }
     scope :for_id, -> (id) { where(id: id) }
     scope :for_iid, -> (iid) { where(iid: iid) }
+    scope :for_project, -> (project) { where(project: project) }
     scope :created_after, -> (time) { where('ci_pipelines.created_at > ?', time) }
 
     scope :with_reports, -> (reports_scope) do
@@ -271,6 +272,12 @@ module Ci
                  .with_status(:running, :success, :failed)
                  .not_interruptible
       )
+    end
+
+    scope :triggered_by_merge_request, -> (merge_request) do
+      ci_sources.where(source: :merge_request_event,
+                       merge_request: merge_request,
+                       project: [merge_request.source_project, merge_request.target_project])
     end
 
     # Returns the pipelines in descending order (= newest first), optionally

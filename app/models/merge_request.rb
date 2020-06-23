@@ -1301,7 +1301,7 @@ class MergeRequest < ApplicationRecord
 
   def all_pipelines
     strong_memoize(:all_pipelines) do
-      Ci::PipelinesForMergeRequestFinder.new(self).all
+      Ci::PipelinesForMergeRequestFinder.new(self, nil).all
     end
   end
 

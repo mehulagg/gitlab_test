@@ -62,10 +62,8 @@ module API
       # rubocop: enable CodeReuse/ActiveRecord
 
       def merge_request_pipelines_with_access
-        authorize! :read_pipeline, user_project
-
         mr = find_merge_request_with_access(params[:merge_request_iid])
-        mr.all_pipelines
+        ::Ci::PipelinesForMergeRequestFinder.new(mr, current_user).execute
       end
 
       def check_sha_param!(params, merge_request)
@@ -390,8 +388,6 @@ module API
         success Entities::Pipeline
       end
       post ':id/merge_requests/:merge_request_iid/pipelines' do
-        authorize! :create_pipeline, user_project
-
         pipeline = ::MergeRequests::CreatePipelineService
           .new(user_project, current_user, allow_duplicate: true)
           .execute(find_merge_request_with_access(params[:merge_request_iid]))
