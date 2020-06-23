@@ -172,7 +172,7 @@ is no longer supported. When overriding the template, you must use [`rules`](../
 
 To override a job definition, (for example, change properties like `variables` or `dependencies`),
 declare a job with the same name as the SAST job to override. Place this new job after the template
-inclusion and pecify any additional keys under it. For example, this enables `FAIL_NEVER` for the
+inclusion and specify any additional keys under it. For example, this enables `FAIL_NEVER` for the
 `spotbugs` analyzer:
 
 ```yaml
