@@ -59,8 +59,8 @@ namespace :admin do
         end
       end
 
-      resources :designs, only: [:index]
-      resources :package_files, only: [:index]
+      # resources :designs, only: [:index]
+      # resources :package_files, only: [:index]
 
       resources :uploads, only: [:index, :destroy]
     end
