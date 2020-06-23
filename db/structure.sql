@@ -4975,7 +4975,7 @@ ALTER SEQUENCE public.path_locks_id_seq OWNED BY public.path_locks.id;
 
 CREATE TABLE public.personal_access_tokens (
     id integer NOT NULL,
-    user_id integer NOT NULL,
+    user_id integer,
     name character varying NOT NULL,
     revoked boolean DEFAULT false,
     expires_at date,
@@ -4985,7 +4985,9 @@ CREATE TABLE public.personal_access_tokens (
 '::character varying NOT NULL,
     impersonation boolean DEFAULT false NOT NULL,
     token_digest character varying,
-    expire_notification_delivered boolean DEFAULT false NOT NULL
+    expire_notification_delivered boolean DEFAULT false NOT NULL,
+    project_id bigint,
+    permissions jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 
 CREATE SEQUENCE public.personal_access_tokens_id_seq
@@ -10561,6 +10563,8 @@ CREATE INDEX index_path_locks_on_project_id ON public.path_locks USING btree (pr
 
 CREATE INDEX index_path_locks_on_user_id ON public.path_locks USING btree (user_id);
 
+CREATE INDEX index_personal_access_tokens_on_project_id ON public.personal_access_tokens USING btree (project_id);
+
 CREATE UNIQUE INDEX index_personal_access_tokens_on_token_digest ON public.personal_access_tokens USING btree (token_digest);
 
 CREATE INDEX index_personal_access_tokens_on_user_id ON public.personal_access_tokens USING btree (user_id);
@@ -11394,6 +11398,9 @@ ALTER TABLE ONLY public.ci_sources_pipelines
 
 ALTER TABLE ONLY public.boards
     ADD CONSTRAINT fk_1e9a074a35 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.personal_access_tokens
+    ADD CONSTRAINT fk_1fbbab259d FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.epics
     ADD CONSTRAINT fk_1fbed67632 FOREIGN KEY (start_date_sourcing_milestone_id) REFERENCES public.milestones(id) ON DELETE SET NULL;
@@ -14104,5 +14111,9 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200618105638
 20200618134223
 20200618134723
+20200623050013
+20200623050524
+20200623050649
+20200625051216
 \.
 

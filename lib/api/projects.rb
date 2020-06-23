@@ -560,6 +560,7 @@ module API
       desc 'Start the housekeeping task for a project' do
         detail 'This feature was introduced in GitLab 9.0.'
       end
+      route_setting :authentication, project_token_allowed: true
       post ':id/housekeeping' do
         authorize_admin_project
 

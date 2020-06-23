@@ -14,6 +14,7 @@ class PersonalAccessToken < ApplicationRecord
   serialize :scopes, Array # rubocop:disable Cop/ActiveRecordSerialize
 
   belongs_to :user
+  belongs_to :project
 
   before_save :ensure_token
 
@@ -33,6 +34,8 @@ class PersonalAccessToken < ApplicationRecord
   validate :validate_scopes
 
   after_initialize :set_default_scopes, if: :persisted?
+
+  store_accessor :permissions
 
   def revoke!
     update!(revoked: true)
