@@ -90,7 +90,7 @@ include:
 workflow:
   rules:
     - if: '$BUILDPACK_URL || $AUTO_DEVOPS_EXPLICITLY_ENABLED == "1"'
-    - exists: [ Dockerfile ]
+    - exists: [Dockerfile]
     - <<: *exists-buildpack-clojure
     - <<: *exists-buildpack-go
     - <<: *exists-buildpack-gradle
