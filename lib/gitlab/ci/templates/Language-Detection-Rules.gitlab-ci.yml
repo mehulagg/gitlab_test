@@ -1,0 +1,81 @@
+# https://github.com/heroku/heroku-buildpack-clojure
+.exists-buildpack-clojure: &exists-buildpack-clojure
+  exists:
+    - project.clj
+
+# https://github.com/heroku/heroku-buildpack-go
+.exists-buildpack-go: &exists-buildpack-go
+  exists:
+    - go.mod
+    - Gopkg.mod
+    - Godeps/Godeps.json
+    - vendor/vendor.json
+    - glide.yaml
+    - src/**/*.go
+
+# https://github.com/heroku/heroku-buildpack-gradle
+.exists-buildpack-gradle: &exists-buildpack-gradle
+  exists:
+    - gradlew
+    - build.gradle
+    - settings.gradle
+
+# https://github.com/heroku/heroku-buildpack-java
+.exists-buildpack-java: &exists-buildpack-java
+  exists:
+    - pom.xml
+    - pom.atom
+    - pom.clj
+    - pom.groovy
+    - pom.rb
+    - pom.scala
+    - pom.yaml
+    - pom.yml
+
+# https://github.com/heroku/heroku-buildpack-multi
+.exists-buildpack-multi: &exists-buildpack-multi
+  exists:
+    - .buildpacks
+
+# https://github.com/heroku/heroku-buildpack-nodejs
+.exists-buildpack-nodejs: &exists-buildpack-nodejs
+  exists:
+    - package.json
+
+  # https://github.com/heroku/heroku-buildpack-php
+.exists-buildpack-php: &exists-buildpack-php
+  exists:
+    - composer.json
+    - index.php
+
+# https://github.com/heroku/heroku-buildpack-play
+# TODO: the corresponding buildpack detect script excludes some scala files
+.exists-buildpack-play: &exists-buildpack-play
+  exists:
+    - '**/conf/application.conf'
+
+# https://github.com/heroku/heroku-buildpack-python
+# TODO: the corresponding builpack detect script checks that all of these exist, not any
+.exists-buildpack-python: &exists-buildpack-python
+  exists:
+    - requirements.txt
+    - setup.py
+    - Pipfile
+
+# https://github.com/heroku/heroku-buildpack-ruby
+.exists-buildpack-ruby: &exists-buildpack-ruby
+  exists:
+    - Gemfile
+
+# https://github.com/heroku/heroku-buildpack-scala
+.exists-buildpack-scala: &exists-buildpack-scala
+  exists:
+    - '*.sbt'
+    - project/*.scala
+    - .sbt/*.scala
+    - project/build.properties
+
+# https://github.com/dokku/buildpack-nginx
+.exists-buildpack-nginx: &exists-buildpack-nginx
+  exists:
+    - .static

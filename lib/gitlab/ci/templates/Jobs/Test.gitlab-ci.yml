@@ -20,4 +20,20 @@ test:
   rules:
     - if: '$TEST_DISABLED'
       when: never
-    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG == null || $CI_COMMIT_TAG == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == null || $CI_COMMIT_BRANCH == ""'
+      when: never
+    - if: '$BUILDPACK_URL'
+    - <<: *exists-buildpack-clojure
+    - <<: *exists-buildpack-go
+    - <<: *exists-buildpack-gradle
+    - <<: *exists-buildpack-java
+    - <<: *exists-buildpack-multi
+    - <<: *exists-buildpack-nodejs
+    - <<: *exists-buildpack-php
+    - <<: *exists-buildpack-play
+    - <<: *exists-buildpack-python
+    - <<: *exists-buildpack-ruby
+    - <<: *exists-buildpack-scala
+    - <<: *exists-buildpack-nginx
