@@ -17,11 +17,7 @@ end
 if enable_oj?
   MultiJson.use(:oj)
 
-  Oj.default_options = { mode: :rails }
-  Oj::Rails.set_encoder
-  Oj::Rails.set_decoder
-  Oj::Rails.optimize
-  Oj::Rails.mimic_JSON
+  Oj.default_options = { mode: :object }
 else
   MultiJson.use(:ok_json)
 end
