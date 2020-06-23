@@ -18,11 +18,7 @@ describe Gitlab::EncryptedConfiguration do
   context 'when provided key and config file' do
     let!(:config_tmp_dir) { Dir.mktmpdir('config-') }
     let(:credentials_config_path) { File.join(config_tmp_dir, 'credentials.yml.enc') }
-    let(:credentials_key_path) { File.join(config_tmp_dir, 'somekey.key') }
-
-    before do
-      File.write(credentials_key_path, ActiveSupport::EncryptedConfiguration.generate_key)
-    end
+    let(:credentials_key) { ActiveSupport::EncryptedConfiguration.generate_key }
 
     after do
       FileUtils.rm_f(config_tmp_dir)
@@ -30,7 +26,7 @@ describe Gitlab::EncryptedConfiguration do
 
     describe '#read' do
       it 'reads yaml configuration' do
-        config = described_class.new(config_path: credentials_config_path, key_path: credentials_key_path)
+        config = described_class.new(config_path: credentials_config_path, key: credentials_key)
 
         config.write({ foo: { bar: true } }.to_yaml)
         expect(config.foo[:bar]).to be true
@@ -39,7 +35,7 @@ describe Gitlab::EncryptedConfiguration do
 
     describe '#change' do
       it 'changes yaml configuration' do
-        config = described_class.new(config_path: credentials_config_path, key_path: credentials_key_path)
+        config = described_class.new(config_path: credentials_config_path, key: credentials_key)
 
         config.write({ foo: { bar: true } }.to_yaml)
         config.change do |unencrypted_file|

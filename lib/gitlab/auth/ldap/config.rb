@@ -53,6 +53,10 @@ module Gitlab
           raise InvalidProvider.new("Unknown provider (#{provider}). Available providers: #{providers}")
         end
 
+        def self.encrypted_secrets(allow_in_safe_mode: false)
+          Settings.encrypted(Gitlab.config.ldap.secret_file, allow_in_safe_mode: allow_in_safe_mode)
+        end
+
         def initialize(provider)
           if self.class.valid_provider?(provider)
             @provider = provider
@@ -273,12 +277,14 @@ module Gitlab
           }
         end
 
+        def secrets
+          self.class.encrypted_secrets[@provider.delete_prefix('ldap').to_sym]
+        end
+
         def auth_password
           return options['password'] if options['password']
 
-          if File.exist?(Gitlab.config.ldap.secret_file)
-            Settings.encrypted(Gitlab.config.ldap.secret_file)[@provider.delete_prefix('ldap').to_sym]&.fetch(:password)&.chomp
-          end
+          secrets&.fetch(:password)&.chomp
         end
 
         def omniauth_user_filter
