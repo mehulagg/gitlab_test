@@ -29,7 +29,9 @@ export default {
       aria-expanded="false"
     >
       <span> {{ selectedVersionName }} </span>
-      <icon :size="12" name="angle-down" class="position-absolute" />
+      <template>
+        <icon name="chevron-lg-down" :size="12"  class="position-absolute" />
+      </template>
     </a>
     <div class="dropdown-menu dropdown-select dropdown-menu-selectable">
       <div class="dropdown-content">

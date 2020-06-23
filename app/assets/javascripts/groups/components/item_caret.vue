@@ -14,12 +14,12 @@ export default {
   },
   computed: {
     iconClass() {
-      return this.isGroupOpen ? 'angle-down' : 'angle-right';
+      return this.isGroupOpen ? 'chevron-down' : 'chevron-right';
     },
   },
 };
 </script>
 
 <template>
-  <span class="folder-caret append-right-4"> <icon :size="10" :name="iconClass" /> </span>
+  <span class="folder-caret gl-mr-2"> <icon :size="16" :name="iconClass" class="gl-text-gray-700" /> </span>
 </template>
