@@ -1,4 +1,5 @@
 <script>
+import 'mousetrap';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import { GlIcon, GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
@@ -149,6 +150,7 @@ export default {
       selectedTimeRange: timeRangeFromUrl() || defaultTimeRange,
       isRearrangingPanels: false,
       originalDocumentTitle: document.title,
+      hoveredPanel: '',
     };
   },
   computed: {
@@ -214,6 +216,7 @@ export default {
   },
   created() {
     window.addEventListener('keyup', this.onKeyup);
+    Mousetrap.bind('e', this.expandPanel);
   },
   destroyed() {
     window.removeEventListener('keyup', this.onKeyup);
@@ -316,6 +319,13 @@ export default {
       // As a fallback, switch to default time range instead
       this.selectedTimeRange = defaultTimeRange;
     },
+    expandPanel() {
+      const panel = this.$refs[this.hoveredPanel];
+      panel[0].onExpand();
+    },
+    setHoveredPanel(graphIndex){
+      this.hoveredPanel = `dashboard-panel-${graphIndex}`
+    },
   },
   i18n: {
     goBackLabel: s__('Metrics|Go back (Esc)'),
@@ -393,6 +403,7 @@ export default {
               :key="`dashboard-panel-${graphIndex}`"
               class="col-12 col-lg-6 px-2 mb-2 draggable"
               :class="{ 'draggable-enabled': isRearrangingPanels }"
+              @mouseover="setHoveredPanel(graphIndex)"
             >
               <div class="position-relative draggable-panel js-draggable-panel">
                 <div
@@ -413,6 +424,7 @@ export default {
                   :prometheus-alerts-available="prometheusAlertsAvailable"
                   @timerangezoom="onTimeRangeZoom"
                   @expand="onExpandPanel(groupData.group, graphData)"
+                  :ref="`dashboard-panel-${graphIndex}`"
                 />
               </div>
             </div>

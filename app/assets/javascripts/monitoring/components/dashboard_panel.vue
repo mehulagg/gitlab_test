@@ -310,6 +310,9 @@ export default {
         this.$refs.copyChartLink.$el.firstChild.click();
       }
     },
+    test(){
+      console.log('did it work?');
+    },
   },
   panelTypes,
 };
