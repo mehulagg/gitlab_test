@@ -13060,7 +13060,8 @@ CREATE TABLE public.namespaces (
     default_branch_protection smallint,
     unlock_membership_to_ldap boolean,
     max_personal_access_token_lifetime integer,
-    push_rule_id bigint
+    push_rule_id bigint,
+    traversal_ids integer[] DEFAULT '{}'::integer[]
 );
 
 CREATE SEQUENCE public.namespaces_id_seq
@@ -19500,6 +19501,8 @@ CREATE UNIQUE INDEX index_namespaces_on_runners_token_encrypted ON public.namesp
 
 CREATE INDEX index_namespaces_on_shared_and_extra_runners_minutes_limit ON public.namespaces USING btree (shared_runners_minutes_limit, extra_shared_runners_minutes_limit);
 
+CREATE INDEX index_namespaces_on_traversal_ids ON public.namespaces USING gin (traversal_ids);
+
 CREATE INDEX index_namespaces_on_type_partial ON public.namespaces USING btree (type) WHERE (type IS NOT NULL);
 
 CREATE INDEX index_non_requested_project_members_on_source_id_and_type ON public.members USING btree (source_id, source_type) WHERE ((requested_at IS NULL) AND ((type)::text = 'ProjectMember'::text));
@@ -23453,6 +23456,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200608075553
 20200608214008
 20200609002841
+20200609012539
 20200609142506
 20200609142507
 20200609142508
@@ -23473,6 +23477,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200617001848
 20200617002030
 20200617150041
+20200618070630
 20200618105638
 20200618134223
 20200618134723

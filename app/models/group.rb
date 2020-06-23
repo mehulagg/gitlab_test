@@ -155,10 +155,17 @@ class Group < Namespace
 
     return settings unless hierarchy_order && self_and_ancestors_ids.length > 1
 
-    settings
-      .joins("LEFT JOIN (#{self_and_ancestors(hierarchy_order: hierarchy_order).to_sql}) AS ordered_groups ON notification_settings.source_id = ordered_groups.id")
-      .select('notification_settings.*, ordered_groups.depth AS depth')
-      .order("ordered_groups.depth #{hierarchy_order}")
+    if linear_group_traversal?
+      settings
+        .joins("LEFT JOIN (#{self_and_ancestors.to_sql}) AS ordered_groups ON notification_settings.source_id = ordered_groups.id")
+        .select('notification_settings.*, (-1 * array_length(ordered_groups.traversal_ids, 1)) AS depth')
+        .order("depth #{hierarchy_order}")
+    else
+      settings
+       .joins("LEFT JOIN (#{self_and_ancestors(hierarchy_order: hierarchy_order).to_sql}) AS ordered_groups ON notification_settings.source_id = ordered_groups.id")
+       .select('notification_settings.*, ordered_groups.depth AS depth')
+       .order("ordered_groups.depth #{hierarchy_order}")
+    end
   end
 
   def notification_settings_for(user, hierarchy_order: nil)
