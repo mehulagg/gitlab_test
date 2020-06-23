@@ -1,3 +1,6 @@
+include:
+  - template: Language-Detection-Rules.gitlab-ci.yml
+
 test:
   variables:
     POSTGRES_VERSION: 9.6.16
