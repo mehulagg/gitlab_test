@@ -233,6 +233,30 @@ configure job execution at runtime.
 For a list of available environment variables, see
 [Environment variables](https://gitlab.com/gitlab-org/ci-cd/codequality#environment-variables).
 
+## Customizing the scan
+
+The Codeclimate engine that is being used can be customized by use of the codeclimate.yml file. When a  codeclimate.yml file is present in the base of a project's directory the scanner will use the options from that file. For all the options of customization please reference the [engine documentation](https://docs.codeclimate.com/docs/advanced-configuration#default-checks).
+
+### Adding or removing a plugin for analysis
+
+To add an additional plugin to the scanner simply add a few lines to the codeclimate.yml file in the base of the project.
+
+```yaml
+version: "2"
+plugins:
+  sonar-java:
+    enabled: true
+```
+
+Any of the [default plugins](https://gitlab.com/gitlab-org/ci-cd/codequality/-/tree/master/codeclimate_defaults) can be disabled in the same way.
+
+```yaml
+version: "2"
+plugins:
+  golint:
+    enabled: false
+```
+
 ## Implementing a custom tool
 
 It's possible to have a custom tool provide Code Quality reports in GitLab. To
