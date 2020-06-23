@@ -28,7 +28,7 @@ export default {
     dropup
   >
     <template #button-content>
-      {{ __('Pending comments') }}
+      {{ __('Publish all comments') }}
       <gl-icon class="dropdown-chevron" name="chevron-up" />
     </template>
     <gl-new-dropdown-item

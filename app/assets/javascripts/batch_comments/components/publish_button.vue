@@ -34,7 +34,7 @@ export default {
     class="js-publish-draft-button qa-submit-review"
     @click="onClick"
   >
-    {{ __('Submit review') }}
+    {{ __('Publish all comments') }}
     <drafts-count v-if="showCount" />
   </gl-button>
 </template>

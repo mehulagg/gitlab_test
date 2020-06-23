@@ -253,12 +253,8 @@ export default {
       }
     },
     handleKeySubmit() {
-      if (this.showBatchCommentsActions) {
-        this.handleAddToReview();
-      } else {
-        this.isSubmittingWithKeydown = true;
-        this.handleUpdate();
-      }
+      this.isSubmittingWithKeydown = true;
+      this.handleUpdate();
     },
     handleUpdate(shouldResolve) {
       const beforeSubmitDiscussionState = this.discussionResolved;
@@ -376,22 +372,21 @@ export default {
             <button
               :disabled="isDisabled"
               type="button"
-              class="btn btn-success qa-start-review"
-              @click="handleAddToReview"
+              class="btn btn-success qa-comment-now js-comment-button"
+              @click="handleUpdate()"
             >
-              <template v-if="hasDrafts">{{ __('Add to review') }}</template>
-              <template v-else>{{ __('Start a review') }}</template>
+              {{ __('Comment') }}
             </button>
             <button
               :disabled="isDisabled"
               type="button"
-              class="btn qa-comment-now js-comment-button"
-              @click="handleUpdate()"
+              class="btn qa-start-review"
+              @click="handleAddToReview"
             >
-              {{ __('Add comment now') }}
+              {{ __('Add comment to batch') }}
             </button>
             <button
-              class="btn note-edit-cancel js-close-discussion-note-form"
+              class="btn note-edit-cancel js-close-discussion-note-form float-right"
               type="button"
               data-testid="cancelBatchCommentsEnabled"
               @click="cancelHandler(true)"

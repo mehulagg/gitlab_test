@@ -123,7 +123,7 @@ export default {
           class="gl-ml-3"
           @click="publishNow"
         >
-          {{ __('Add comment now') }}
+          {{ __('Publish this comment') }}
         </gl-button>
       </p>
     </template>
