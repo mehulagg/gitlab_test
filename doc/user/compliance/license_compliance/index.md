@@ -703,6 +703,28 @@ Developers of the project can view the policies configured in a project.
 
 ![View Policies](img/policies_v13_0.png)
 
+## Enabling license approval rule
+ 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13067) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.3.
+
+`License-Check` is an approval rule that may be enabled that designates an approver, individual or group, that is allowed to approve a merge request that contains a `denied` licence.
+
+To enable license approvals: this can be done in either the 1) [project approval rule](../project/merge_requests/merge_request_approvals.md#multiple-approval-rules-premium) section and must be created with the case-sensitive name `License-Check`, or 2) in the [project policies for License Compliance](../compliance/license_compliance/index.md#project-policies-for-license-compliance) section. This approval group must be set with the number of approvals required greater than zero.
+
+Once this group is enabled on your project, the approval rule is enabled for all merge requests. To apply license policies to your project, you can designate licenses to `allow` or `deny` in the [project policies for License Compliance](../compliance/license_compliance/index.md#project-policies-for-license-compliance) section.
+
+Any code changes cause the approvals required to reset.
+ 
+An approval is required when a license report:
+ 
+- Contains a dependency that includes a software license that is `denied`.
+- Is not generated during pipeline execution.
+ 
+An approval is optional when a license report:
+ 
+- Contains no software license violations.
+- Contains only new licenses that are `allowed` or unknown.
+
 ## Troubleshooting
 
 ### `ERROR -- : asdf: No preset version installed for command`
