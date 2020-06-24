@@ -11,6 +11,12 @@ with [onboarding as a partner](https://about.gitlab.com/partners/integrate/).
 The steps below are a high-level view of what needs to be done to complete an
 integration as well as linking to more detailed resources for how to do so.
 
+## Integration Tiers 
+
+Right now, our security offerings are designed for GitLab Gold and GitLab Ultimate users and the [DevSecOps](https://about.gitlab.com/handbook/use-cases/#4-devsecops-shift-left-security) use case. All of the features live in those tiers. This includes providing the APIs and standard reporting framework needed to provide a consistent experience for users to easily bring their preferred security tools into GitLab Ultimate and GitLab Gold. We ask that our integration partners focus their work on those license tiers so that we can provide the most value to our mutual customers, rather than on other GitLab tiers that don't have the security features needed for a more cohesive experience.
+
+
+
 ## What is the GitLab Developer Workflow?
 
 This workflow is how GitLab users interact with our product and expect it to
@@ -54,7 +60,7 @@ best place to integrate your own product and its results into GitLab.
 ## How to onboard
 
 This section describes the steps you need to complete to onboard as a partner
-and to complete an intgration with the Secure stage.
+and to complete an intgration with the Secure stage. 
 
 1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/).
 1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
@@ -62,7 +68,6 @@ and to complete an intgration with the Secure stage.
 1. Get a test account to begin developing your integration. You can
    request a [GitLab.com Gold Subscription Sandbox](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request)
    or an [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd).
->Note: Right now, our security offerings are designed for GitLab Gold and GitLab Ultimate users and the DevSecOps use case. All of the features live in those tiers. This includes providing the APIs and standard reporting framework needed to provide a consistent experience for users to easily bring their preferred security tools into GitLab Ultimate and GitLab Gold. We ask that our integration partners focus their work on those license tiers so that we can provide the most value to our mutual customers, rather than on other GitLab tiers that don't have the security features needed for a more cohesive experience.
 1. Provide a [pipeline job](../../development/pipelines.md)
    template that users could integrate into their own GitLab pipelines.
 1. Create a report artifact with your pipeline jobs.
