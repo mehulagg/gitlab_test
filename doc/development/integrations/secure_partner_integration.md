@@ -15,8 +15,6 @@ integration as well as linking to more detailed resources for how to do so.
 
 Right now, our security offerings are designed for GitLab Gold and GitLab Ultimate users and the [DevSecOps](https://about.gitlab.com/handbook/use-cases/#4-devsecops-shift-left-security) use case. All of the features live in those tiers. This includes providing the APIs and standard reporting framework needed to provide a consistent experience for users to easily bring their preferred security tools into GitLab Ultimate and GitLab Gold. We ask that our integration partners focus their work on those license tiers so that we can provide the most value to our mutual customers, rather than on other GitLab tiers that don't have the security features needed for a more cohesive experience.
 
-
-
 ## What is the GitLab Developer Workflow?
 
 This workflow is how GitLab users interact with our product and expect it to
