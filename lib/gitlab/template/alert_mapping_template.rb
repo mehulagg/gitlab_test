@@ -9,7 +9,7 @@ module Gitlab
         end
 
         def base_dir
-          '.gitlab/alert_mapping/'
+         '.gitlab/alert_mapping/'
         end
 
         def finder(project)

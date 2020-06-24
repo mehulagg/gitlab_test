@@ -397,6 +397,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       post 'alerts/notify', to: 'alerting/notifications#create'
+      post 'alerts/notify/:provider', to: 'alerting/notifications#map'
 
       draw :legacy_builds
 

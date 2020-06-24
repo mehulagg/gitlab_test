@@ -95,6 +95,71 @@ RSpec.describe Projects::Alerting::NotificationsController do
     end
   end
 
+  describe 'POST #map' do
+    let(:project) { create(:project, :repository) }
+    let(:alerts_service) { create(:alerts_service, project: project) }
+
+    let(:now) { Time.now }
+    let(:payload) do
+      {
+        'startsAt' => now.rfc3339,
+        'annotations' => {
+          'summary' => 'SUMMARY'
+        }
+      }
+    end
+
+    let(:provider) { 'prometheus' }
+
+    let(:created_alert) { project.reload.alert_management_alerts.last! }
+
+    around do |example|
+      ForgeryProtection.with_forgery_protection { example.run }
+    end
+
+    it 'works' do
+      # .gitlab/alert_mapping/prometheus.yml
+      create_alert_mapping(provider, <<~YAML)
+        name: prometheus
+        fields:
+          start_at: startsAt
+          title:
+            - annotations.title
+            - annotations.summary
+            - labels.alertname
+      YAML
+
+      p Gitlab::Template::AlertMappingTemplate.all(project)
+
+      request.headers['HTTP_AUTHORIZATION'] = "Bearer #{alerts_service.token }"
+
+      make_request
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(created_alert.started_at).to be_like_time(now)
+      expect(created_alert.title).to eq('SUMMARY')
+    end
+
+    private
+
+    def make_request
+      post :map,
+        params: project_params(provider: provider),
+        body: payload.to_json,
+        as: :json
+    end
+
+    def create_alert_mapping(name, content)
+      project.repository.create_file(
+        project.creator,
+        ".gitlab/alert_mapping/#{name}.yml",
+        content,
+        message: 'message',
+        branch_name: 'master'
+      )
+    end
+  end
+
   private
 
   def project_params(opts = {})

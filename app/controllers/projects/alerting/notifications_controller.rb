@@ -17,6 +17,13 @@ module Projects
         head result.http_status
       end
 
+      def map
+        token = extract_alert_manager_token(request)
+        result = mapping_service.execute(token)
+
+        head result.http_status
+      end
+
       private
 
       def project_without_auth
@@ -45,6 +52,13 @@ module Projects
 
       def notification_payload
         @notification_payload ||= params.permit![:notification]
+      end
+
+      def mapping_service
+        AlertManagement::MappingService
+          .new(project, current_user,
+               provider: params[:provider],
+               payload: notification_payload)
       end
     end
   end
