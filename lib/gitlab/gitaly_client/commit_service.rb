@@ -16,9 +16,10 @@ module Gitlab
           revision: encode_binary(revision)
         )
 
-        response = GitalyClient.call(@repository.storage, :commit_service, :list_files, request, timeout: GitalyClient.medium_timeout)
-        response.flat_map do |msg|
-          msg.paths.map { |d| EncodingHelper.encode!(d.dup) }
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :list_files, request, timeout: GitalyClient.medium_timeout) do |response|
+          response.flat_map do |msg|
+            msg.paths.map { |d| EncodingHelper.encode!(d.dup) }
+          end
         end
       end
 
@@ -92,22 +93,9 @@ module Gitlab
           limit: limit.to_i
         )
 
-        response = GitalyClient.call(@repository.storage, :commit_service, :tree_entry, request, timeout: GitalyClient.medium_timeout)
-
-        entry = nil
-        data = []
-        response.each do |msg|
-          if entry.nil?
-            entry = msg
-
-            break unless entry.type == :BLOB
-          end
-
-          data << msg.data
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :tree_entry, request, timeout: GitalyClient.medium_timeout) do |response|
+          consume_tree_entry_response(response)
         end
-        entry.data = data.join
-
-        entry unless entry.oid.blank?
       end
 
       def tree_entries(repository, revision, path, recursive)
@@ -118,21 +106,8 @@ module Gitlab
           recursive: recursive
         )
 
-        response = GitalyClient.call(@repository.storage, :commit_service, :get_tree_entries, request, timeout: GitalyClient.medium_timeout)
-
-        response.flat_map do |message|
-          message.entries.map do |gitaly_tree_entry|
-            Gitlab::Git::Tree.new(
-              id: gitaly_tree_entry.oid,
-              root_id: gitaly_tree_entry.root_oid,
-              type: gitaly_tree_entry.type.downcase,
-              mode: gitaly_tree_entry.mode.to_s(8),
-              name: File.basename(gitaly_tree_entry.path),
-              path: encode_binary(gitaly_tree_entry.path),
-              flat_path: encode_binary(gitaly_tree_entry.flat_path),
-              commit_id: gitaly_tree_entry.commit_oid
-            )
-          end
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :get_tree_entries, request, timeout: GitalyClient.medium_timeout) do |response|
+          consume_tree_entries_response(response)
         end
       end
 
@@ -273,8 +248,9 @@ module Gitlab
           path: encode_binary(path)
         )
 
-        response = GitalyClient.call(@repository.storage, :commit_service, :raw_blame, request, timeout: GitalyClient.medium_timeout)
-        response.reduce([]) { |memo, msg| memo << msg.data }.join
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :raw_blame, request, timeout: GitalyClient.medium_timeout) do |response|
+          response.reduce([]) { |memo, msg| memo << msg.data }.join
+        end
       end
 
       def find_commit(revision)
@@ -358,8 +334,43 @@ module Gitlab
 
       def get_commit_signatures(commit_ids)
         request = Gitaly::GetCommitSignaturesRequest.new(repository: @gitaly_repo, commit_ids: commit_ids)
-        response = GitalyClient.call(@repository.storage, :commit_service, :get_commit_signatures, request, timeout: GitalyClient.fast_timeout)
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :get_commit_signatures, request, timeout: GitalyClient.fast_timeout) do |response|
+          consume_commit_signatures_response(response)
+        end
+      rescue GRPC::InvalidArgument => ex
+        raise ArgumentError, ex
+      end
 
+      def get_commit_messages(commit_ids)
+        request = Gitaly::GetCommitMessagesRequest.new(repository: @gitaly_repo, commit_ids: commit_ids)
+
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :get_commit_messages, request, timeout: GitalyClient.fast_timeout) do |response|
+          consume_commit_messages_response(response)
+        end
+      end
+
+      def list_commits_by_ref_name(refs)
+        request = Gitaly::ListCommitsByRefNameRequest
+          .new(repository: @gitaly_repo, ref_names: refs)
+
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :list_commits_by_ref_name, request, timeout: GitalyClient.medium_timeout) do |response|
+          consume_commits_by_ref_name_response(response)
+        end
+      end
+
+      private
+
+      def consume_commits_by_ref_name_response(response)
+        commit_refs = response.flat_map do |message|
+          message.commit_refs.map do |commit_ref|
+            [commit_ref.ref_name, Gitlab::Git::Commit.new(@repository, commit_ref.commit)]
+          end
+        end
+
+        Hash[commit_refs]
+      end
+
+      def consume_commit_signatures_response(response)
         signatures = Hash.new { |h, k| h[k] = [+''.b, +''.b] }
         current_commit_id = nil
 
@@ -371,16 +382,11 @@ module Gitlab
         end
 
         signatures
-      rescue GRPC::InvalidArgument => ex
-        raise ArgumentError, ex
       end
 
-      def get_commit_messages(commit_ids)
-        request = Gitaly::GetCommitMessagesRequest.new(repository: @gitaly_repo, commit_ids: commit_ids)
-        response = GitalyClient.call(@repository.storage, :commit_service, :get_commit_messages, request, timeout: GitalyClient.fast_timeout)
-
-        messages = Hash.new { |h, k| h[k] = +''.b }
+      def consume_commit_messages_response(response)
         current_commit_id = nil
+        messages = Hash.new { |h, k| h[k] = +''.b }
 
         response.each do |rpc_message|
           current_commit_id = rpc_message.commit_id if rpc_message.commit_id.present?
@@ -391,22 +397,39 @@ module Gitlab
         messages
       end
 
-      def list_commits_by_ref_name(refs)
-        request = Gitaly::ListCommitsByRefNameRequest
-          .new(repository: @gitaly_repo, ref_names: refs)
-
-        response = GitalyClient.call(@repository.storage, :commit_service, :list_commits_by_ref_name, request, timeout: GitalyClient.medium_timeout)
-
-        commit_refs = response.flat_map do |message|
-          message.commit_refs.map do |commit_ref|
-            [commit_ref.ref_name, Gitlab::Git::Commit.new(@repository, commit_ref.commit)]
+      def consume_tree_entries_response(response)
+        response.flat_map do |message|
+          message.entries.map do |gitaly_tree_entry|
+            Gitlab::Git::Tree.new(
+              id: gitaly_tree_entry.oid,
+              root_id: gitaly_tree_entry.root_oid,
+              type: gitaly_tree_entry.type.downcase,
+              mode: gitaly_tree_entry.mode.to_s(8),
+              name: File.basename(gitaly_tree_entry.path),
+              path: encode_binary(gitaly_tree_entry.path),
+              flat_path: encode_binary(gitaly_tree_entry.flat_path),
+              commit_id: gitaly_tree_entry.commit_oid
+            )
           end
         end
-
-        Hash[commit_refs]
       end
 
-      private
+      def consume_tree_entry_response(response)
+        entry = nil
+        data = []
+        response.each do |msg|
+          if entry.nil?
+            entry = msg
+
+            break unless entry.type == :BLOB
+          end
+
+          data << msg.data
+        end
+        entry.data = data.join
+
+        entry unless entry.oid.blank?
+      end
 
       def call_commit_diff(request_params, options = {})
         request_params[:ignore_whitespace_change] = options.fetch(:ignore_whitespace_change, false)

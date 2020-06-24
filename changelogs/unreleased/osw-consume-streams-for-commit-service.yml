@@ -1,0 +1,5 @@
+---
+title: Fix Gitaly duration timings for remaining CommitService RPCs
+merge_request: 35274
+author:
+type: other
