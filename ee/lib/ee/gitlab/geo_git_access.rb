@@ -18,12 +18,6 @@ module EE
 
       private
 
-      def project
-        return unless container.is_a?(Project)
-
-        container
-      end
-
       def custom_action_for(cmd)
         return unless custom_action_for?(cmd)
 
