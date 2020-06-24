@@ -103,7 +103,6 @@ RSpec.describe ClustersHelper do
 
   describe '#has_multiple_clusters?' do
     subject { helper.has_multiple_clusters? }
-    
     it { is_expected.to be_truthy }
   end
 

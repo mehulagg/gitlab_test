@@ -22,7 +22,7 @@ module DeploymentPlatform
 
   # EE would override this and utilize environment argument
   def find_platform_kubernetes_with_cte(environment)
-    if !environment 
+    if !environment
       Clusters::ClustersHierarchy.new(self, include_management_project: cluster_management_project_enabled?).base_and_ancestors
       .enabled.default_environment
       .first&.platform_kubernetes

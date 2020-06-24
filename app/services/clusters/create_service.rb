@@ -9,7 +9,6 @@ module Clusters
     end
 
     def execute(access_token: nil)
-
       raise ArgumentError, 'Unknown clusterable provided' unless clusterable
 
       cluster_params = params.merge(global_params).merge(clusterable_params)
@@ -67,5 +66,3 @@ module Clusters
     end
   end
 end
-
-

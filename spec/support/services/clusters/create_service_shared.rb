@@ -12,7 +12,7 @@ RSpec.shared_context 'valid cluster create params' do
         num_nodes: 1,
         machine_type: 'machine_type-a',
         legacy_abac: 'true'
-      }, 
+      },
       clusterable: clusterable
     }
   end
