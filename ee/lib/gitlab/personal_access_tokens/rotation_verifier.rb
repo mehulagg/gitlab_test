@@ -16,7 +16,7 @@ module Gitlab
       end
 
       def id
-        @user&.id
+        user&.id
       end
 
       # If a new token has been created after we started notifying the user about the most recently EXPIRED token,

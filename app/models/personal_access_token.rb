@@ -16,6 +16,7 @@ class PersonalAccessToken < ApplicationRecord
   belongs_to :user
 
   before_save :ensure_token
+  after_create :clear_expiry_notification_cache!
 
   scope :active, -> { where("revoked = false AND (expires_at >= NOW() OR expires_at IS NULL)") }
   scope :expiring_and_not_notified, ->(date) { where(["revoked = false AND expire_notification_delivered = false AND expires_at >= NOW() AND expires_at <= ?", date]) }
@@ -35,7 +36,7 @@ class PersonalAccessToken < ApplicationRecord
   after_initialize :set_default_scopes, if: :persisted?
 
   def revoke!
-    Gitlab::PersonalAccessTokens::RotationVerifier.new(user).clear_reactive_cache!
+    clear_expiry_notification_cache!
 
     update!(revoked: true)
   end
@@ -91,6 +92,12 @@ class PersonalAccessToken < ApplicationRecord
 
   def self.redis_shared_state_key(user_id)
     "gitlab:personal_access_token:#{user_id}"
+  end
+
+  private
+
+  def clear_expiry_notification_cache!
+    Gitlab::PersonalAccessTokens::RotationVerifier.new(user).clear_reactive_cache!
   end
 end
 
