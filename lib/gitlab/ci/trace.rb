@@ -59,6 +59,7 @@ module Gitlab
       def append(data, offset)
         write('a+b') do |stream|
           current_length = stream.size
+          # TODO / Grzegorz: what happens if this condition is not met?
           break current_length unless current_length == offset
 
           data = job.hide_secrets(data)
@@ -98,6 +99,8 @@ module Gitlab
       end
 
       def write(mode, &blk)
+        # TODO / Grzegorz: what happens if the lock can not be acquired in
+        # given amount of retries?
         in_write_lock do
           unsafe_write!(mode, &blk)
         end
@@ -184,7 +187,13 @@ module Gitlab
       end
 
       def in_write_lock(&blk)
+        # TODO / Grzegorz: understand the impact on Redis as we are going to
+        # lock every write / archive operation.
         lock_key = "trace:write:lock:#{job.id}"
+
+        # TODO / Grzegorz: currently it is:
+        #                 ttl: 10m       retries: 2             sleep_sec: 0.001s
+        # what is the effective locking and waiting time here?
         in_lock(lock_key, ttl: LOCK_TTL, retries: LOCK_RETRIES, sleep_sec: LOCK_SLEEP, &blk)
       end
 

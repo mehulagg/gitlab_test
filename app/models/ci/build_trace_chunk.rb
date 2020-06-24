@@ -82,6 +82,16 @@ module Ci
         unsafe_set_data!(data.byteslice(0, offset) + new_data)
       end
 
+      ## TODO / Grzegorz: is there a race condition here between subsequent
+      #   append calls and persisting a chunk?
+
+      ## TODO / Grzegorz: what happens if previous chunk is not full?
+      # 1. Chunk N has been created
+      # 2. Runner writes 120kb to that chunk
+      # 3. New trace chunk comes from a runner with additional 10kb
+      # 4. ChunkedIO creates a new chunk N+1 and writes these 10kb there
+      # 5. Chunk N remains with 120kb written
+
       schedule_to_persist if full?
     end
 

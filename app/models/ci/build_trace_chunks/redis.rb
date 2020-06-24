@@ -9,6 +9,8 @@ module Ci
         true
       end
 
+      # TODO / Grzegorz: sequence diagram for writing a chunk with all the
+      # Redis communication required
       def data(model)
         Gitlab::Redis::SharedState.with do |redis|
           redis.get(key(model))
@@ -34,6 +36,8 @@ module Ci
 
         keys = keys.map { |key| key_raw(*key) }
 
+        # TODO / Grzegorz: this is a multi key operation, is there a way to do
+        # that in a more redis cluster friendly way? We can probably fix that.
         Gitlab::Redis::SharedState.with do |redis|
           redis.del(keys)
         end

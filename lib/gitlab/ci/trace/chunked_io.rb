@@ -21,7 +21,11 @@ module Gitlab
           @build = build
           @chunks_cache = []
           @tell = 0
+
+          # TODO / Grzegorz: `calculate_size` is using PostgreSQL database to
+          # fetch the current trace size
           @size = calculate_size
+
           yield self if block_given?
         end
 
@@ -119,7 +123,7 @@ module Gitlab
         end
 
         def write(data)
-          start_pos = tell
+          start_pos = tell ### TODO / Grzegorz: reference
 
           while tell < start_pos + data.bytesize
             # get slice from current offset till the end where it falls into chunk
@@ -127,6 +131,8 @@ module Gitlab
             data_slice = data.byteslice(tell - start_pos, chunk_bytes)
 
             # append data to chunk, overwriting from that point
+            # TODO / Grzegorz: this raises exceptions we do not seem to catch properly
+            #   especially around chunk overflow
             ensure_chunk.append(data_slice, chunk_offset)
 
             # move offsets within buffer
@@ -205,6 +211,8 @@ module Gitlab
           tell % CHUNK_SIZE
         end
 
+        # TODO / Grzegorz, adjusting CHUNK_SIZE will invalidate existing
+        # `chunk_indexes`
         def chunk_index
           tell / CHUNK_SIZE
         end
