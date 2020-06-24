@@ -366,6 +366,69 @@ describe Gitlab::Danger::Helper do
     end
   end
 
+  describe '#cherry_pick_mr?' do
+    it 'returns false when `gitlab_helper` is unavailable' do
+      expect(helper).to receive(:gitlab_helper).and_return(nil)
+
+      expect(helper).not_to be_cherry_pick_mr
+    end
+
+    it 'returns false when on a normal merge request' do
+      expect(fake_gitlab).to receive(:mr_json)
+        .and_return('title' => 'Add feature xyz')
+
+      expect(helper).not_to be_cherry_pick_mr
+    end
+
+    context 'when MR is a cherry-pick one' do
+      where(:mr_title, :expected_bool) do
+        'Cherry Pick !1234' | true
+        'cherry-pick !1234' | true
+        'CherryPick !1234' | true
+      end
+
+      with_them do
+        it 'returns true when on a security merge request' do
+          expect(fake_gitlab).to receive(:mr_json)
+            .and_return('title' => mr_title)
+
+          expect(helper.cherry_pick_mr?).to eq(expected_bool)
+        end
+      end
+    end
+  end
+
+  describe '#stable_branch?' do
+    it 'returns false when `gitlab_helper` is unavailable' do
+      expect(helper).to receive(:gitlab_helper).and_return(nil)
+
+      expect(helper).not_to be_stable_branch
+    end
+
+    it 'returns false when on a normal merge request' do
+      expect(fake_gitlab).to receive(:mr_json)
+        .and_return('target_branch' => 'my-feature-branch')
+
+      expect(helper).not_to be_stable_branch
+    end
+
+    context 'when MR is a cherry-pick one' do
+      where(:target_branch, :expected_bool) do
+        '13-1-stable-ee' | true
+        '13-1-stable-ee-patch-1' | true
+      end
+
+      with_them do
+        it 'returns true when on a security merge request' do
+          expect(fake_gitlab).to receive(:mr_json)
+            .and_return('target_branch' => target_branch)
+
+          expect(helper.stable_branch?).to eq(expected_bool)
+        end
+      end
+    end
+  end
+
   describe '#mr_has_label?' do
     it 'returns false when `gitlab_helper` is unavailable' do
       expect(helper).to receive(:gitlab_helper).and_return(nil)
