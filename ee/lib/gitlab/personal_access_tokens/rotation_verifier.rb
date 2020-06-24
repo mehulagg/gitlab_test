@@ -8,6 +8,8 @@ module Gitlab
 
       self.reactive_cache_key = ->(service) { [service.class.model_name.singular, service.id] }
       self.reactive_cache_worker_finder = ->(id) { from_cache(id) }
+      self.reactive_cache_refresh_interval = 1.hour
+      self.reactive_cache_lifetime = 1.hour
 
       attr_reader :user
 
