@@ -180,23 +180,5 @@ RSpec.describe 'EE Clusters', :js do
         end
       end
     end
-
-    context 'when license does not have multiple clusters feature' do
-      before do
-        allow(License).to receive(:feature_available?).and_call_original
-        allow(License).to receive(:feature_available?).with(:multiple_clusters).and_return(false)
-        create(:cluster, :provided_by_user, name: 'default-cluster', environment_scope: '*', projects: [project])
-      end
-
-      context 'when user visits cluster index page' do
-        before do
-          visit project_clusters_path(project)
-        end
-
-        it 'user sees a disabled add cluster button ' do
-          expect(page).to have_selector('.js-add-cluster.disabled')
-        end
-      end
-    end
   end
 end

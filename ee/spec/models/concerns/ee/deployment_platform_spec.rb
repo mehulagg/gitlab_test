@@ -24,7 +24,7 @@ RSpec.describe DeploymentPlatform do
         end
 
         it 'returns a kubernetes platform' do
-          is_expected.not_to eq(cluster.platform_kubernetes)
+          is_expected.to eq(cluster.platform_kubernetes)
           is_expected.to be_kind_of(Clusters::Platforms::Kubernetes)
         end
       end

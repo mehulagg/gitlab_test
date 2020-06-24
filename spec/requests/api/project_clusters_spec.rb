@@ -258,21 +258,6 @@ RSpec.describe API::ProjectClusters do
       end
     end
 
-    context 'when user tries to add multiple clusters' do
-      before do
-        create(:cluster, :provided_by_gcp, :project,
-               projects: [project])
-
-        post api("/projects/#{project.id}/clusters/user", current_user), params: cluster_params
-      end
-
-      it 'responds with 400' do
-        expect(response).to have_gitlab_http_status(:bad_request)
-        expect(json_response['message']['base'].first)
-          .to eq(_('Instance does not support multiple Kubernetes clusters'))
-      end
-    end
-
     context 'non-authorized user' do
       before do
         post api("/projects/#{project.id}/clusters/user", developer_user), params: cluster_params
