@@ -205,7 +205,6 @@ export const closeIssue = ({ commit, dispatch, state }) => {
     commit(types.CLOSE_ISSUE);
     dispatch('emitStateChangedEvent', data);
     dispatch('toggleStateButtonLoading', false);
-    dispatch('toggleBlockedIssueWarning', false);
   });
 };
 
@@ -645,6 +644,10 @@ export const receiveDeleteDescriptionVersion = ({ commit }, versionId) => {
 };
 export const receiveDeleteDescriptionVersionError = ({ commit }, error) => {
   commit(types.RECEIVE_DELETE_DESCRIPTION_VERSION_ERROR, error);
+};
+
+export const updateAssignees = ({ commit }, assignees) => {
+  commit(types.UPDATE_ASSIGNEES, assignees);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

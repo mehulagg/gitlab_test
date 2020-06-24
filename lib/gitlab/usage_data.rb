@@ -27,17 +27,21 @@ module Gitlab
       end
 
       def uncached_data
-        clear_memoized_limits
+        clear_memoized
 
-        license_usage_data
-          .merge(system_usage_data)
-          .merge(features_usage_data)
-          .merge(components_usage_data)
-          .merge(cycle_analytics_usage_data)
-          .merge(object_store_usage_data)
-          .merge(topology_usage_data)
-          .merge(recording_ce_finish_data)
-          .merge(merge_requests_usage_data(default_time_period))
+        with_finished_at(:recording_ce_finished_at) do
+          license_usage_data
+            .merge(system_usage_data)
+            .merge(system_usage_data_monthly)
+            .merge(features_usage_data)
+            .merge(components_usage_data)
+            .merge(cycle_analytics_usage_data)
+            .merge(object_store_usage_data)
+            .merge(topology_usage_data)
+            .merge(usage_activity_by_stage)
+            .merge(usage_activity_by_stage(:usage_activity_by_stage_monthly, default_time_period))
+            .merge(analytics_unique_visits_data)
+        end
       end
 
       def to_json(force_refresh: false)
@@ -58,12 +62,6 @@ module Gitlab
 
       def recorded_at
         Time.now
-      end
-
-      def recording_ce_finish_data
-        {
-          recording_ce_finished_at: Time.now
-        }
       end
 
       # rubocop: disable Metrics/AbcSize
@@ -162,12 +160,21 @@ module Gitlab
             usage_counters,
             user_preferences_usage,
             ingress_modsecurity_usage,
-            container_expiration_policies_usage
+            container_expiration_policies_usage,
+            merge_requests_usage(default_time_period)
           )
         }
       end
-      # rubocop: enable CodeReuse/ActiveRecord
       # rubocop: enable Metrics/AbcSize
+
+      def system_usage_data_monthly
+        {
+          counts_monthly: {
+            snippets: count(Snippet.where(default_time_period))
+          }
+        }
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def cycle_analytics_usage_data
         Gitlab::CycleAnalytics::UsageData.new.to_json
@@ -400,7 +407,7 @@ module Gitlab
       end
 
       # rubocop: disable CodeReuse/ActiveRecord
-      def merge_requests_usage_data(time_period)
+      def merge_requests_usage(time_period)
         query =
           Event
             .where(target_type: Event::TARGET_TYPES[:merge_request].to_s)
@@ -432,7 +439,104 @@ module Gitlab
         { created_at: 28.days.ago..Time.current }
       end
 
+      # Source: https://gitlab.com/gitlab-data/analytics/blob/master/transform/snowflake-dbt/data/ping_metrics_to_stage_mapping_data.csv
+      def usage_activity_by_stage(key = :usage_activity_by_stage, time_period = {})
+        {
+          key => {
+            configure: usage_activity_by_stage_configure(time_period),
+            create: usage_activity_by_stage_create(time_period),
+            manage: usage_activity_by_stage_manage(time_period),
+            monitor: usage_activity_by_stage_monitor(time_period),
+            package: usage_activity_by_stage_package(time_period),
+            plan: usage_activity_by_stage_plan(time_period),
+            release: usage_activity_by_stage_release(time_period),
+            secure: usage_activity_by_stage_secure(time_period),
+            verify: usage_activity_by_stage_verify(time_period)
+          }
+        }
+      end
+
+      # rubocop: disable CodeReuse/ActiveRecord
+      def usage_activity_by_stage_configure(time_period)
+        {
+          clusters_applications_cert_managers: cluster_applications_user_distinct_count(::Clusters::Applications::CertManager, time_period),
+          clusters_applications_helm: cluster_applications_user_distinct_count(::Clusters::Applications::Helm, time_period),
+          clusters_applications_ingress: cluster_applications_user_distinct_count(::Clusters::Applications::Ingress, time_period),
+          clusters_applications_knative: cluster_applications_user_distinct_count(::Clusters::Applications::Knative, time_period),
+          clusters_management_project: clusters_user_distinct_count(::Clusters::Cluster.with_management_project, time_period),
+          clusters_disabled: clusters_user_distinct_count(::Clusters::Cluster.disabled, time_period),
+          clusters_enabled: clusters_user_distinct_count(::Clusters::Cluster.enabled, time_period),
+          clusters_platforms_gke: clusters_user_distinct_count(::Clusters::Cluster.gcp_installed.enabled, time_period),
+          clusters_platforms_eks: clusters_user_distinct_count(::Clusters::Cluster.aws_installed.enabled, time_period),
+          clusters_platforms_user: clusters_user_distinct_count(::Clusters::Cluster.user_provided.enabled, time_period),
+          instance_clusters_disabled: clusters_user_distinct_count(::Clusters::Cluster.disabled.instance_type, time_period),
+          instance_clusters_enabled: clusters_user_distinct_count(::Clusters::Cluster.enabled.instance_type, time_period),
+          group_clusters_disabled: clusters_user_distinct_count(::Clusters::Cluster.disabled.group_type, time_period),
+          group_clusters_enabled: clusters_user_distinct_count(::Clusters::Cluster.enabled.group_type, time_period),
+          project_clusters_disabled: clusters_user_distinct_count(::Clusters::Cluster.disabled.project_type, time_period),
+          project_clusters_enabled: clusters_user_distinct_count(::Clusters::Cluster.enabled.project_type, time_period)
+        }
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
+
+      # Omitted because no user, creator or author associated: `lfs_objects`, `pool_repositories`, `web_hooks`
+      def usage_activity_by_stage_create(time_period)
+        {}
+      end
+
+      # Omitted because no user, creator or author associated: `campaigns_imported_from_github`, `ldap_group_links`
+      def usage_activity_by_stage_manage(time_period)
+        {}
+      end
+
+      def usage_activity_by_stage_monitor(time_period)
+        {}
+      end
+
+      def usage_activity_by_stage_package(time_period)
+        {}
+      end
+
+      # Omitted because no user, creator or author associated: `boards`, `labels`, `milestones`, `uploads`
+      # Omitted because too expensive: `epics_deepest_relationship_level`
+      # Omitted because of encrypted properties: `projects_jira_cloud_active`, `projects_jira_server_active`
+      def usage_activity_by_stage_plan(time_period)
+        {}
+      end
+
+      # Omitted because no user, creator or author associated: `environments`, `feature_flags`, `in_review_folder`, `pages_domains`
+      def usage_activity_by_stage_release(time_period)
+        {}
+      end
+
+      # Omitted because no user, creator or author associated: `ci_runners`
+      def usage_activity_by_stage_verify(time_period)
+        {}
+      end
+
+      # Currently too complicated and to get reliable counts for these stats:
+      # container_scanning_jobs, dast_jobs, dependency_scanning_jobs, license_management_jobs, sast_jobs, secret_detection_jobs
+      # Once https://gitlab.com/gitlab-org/gitlab/merge_requests/17568 is merged, this might be doable
+      def usage_activity_by_stage_secure(time_period)
+        {}
+      end
+
+      def analytics_unique_visits_data
+        results = ::Gitlab::Analytics::UniqueVisits::TARGET_IDS.each_with_object({}) do |target_id, hash|
+          hash[target_id] = redis_usage_data { unique_visit_service.weekly_unique_visits_for_target(target_id) }
+        end
+        results['analytics_unique_visits_for_any_target'] = redis_usage_data { unique_visit_service.weekly_unique_visits_for_any_target }
+
+        { analytics_unique_visits: results }
+      end
+
       private
+
+      def unique_visit_service
+        strong_memoize(:unique_visit_service) do
+          ::Gitlab::Analytics::UniqueVisits.new
+        end
+      end
 
       def total_alert_issues
         # Remove prometheus table queries once they are deprecated
@@ -456,10 +560,21 @@ module Gitlab
         end
       end
 
-      def clear_memoized_limits
+      def clear_memoized
         clear_memoization(:user_minimum_id)
         clear_memoization(:user_maximum_id)
+        clear_memoization(:unique_visit_service)
       end
+
+      # rubocop: disable CodeReuse/ActiveRecord
+      def cluster_applications_user_distinct_count(applications, time_period)
+        distinct_count(applications.where(time_period).available.joins(:cluster), 'clusters.user_id')
+      end
+
+      def clusters_user_distinct_count(clusters, time_period)
+        distinct_count(clusters.where(time_period), :user_id)
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

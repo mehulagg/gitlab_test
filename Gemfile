@@ -140,6 +140,7 @@ gem 'deckar01-task_list', '2.3.1'
 gem 'gitlab-markup', '~> 1.7.1'
 gem 'github-markup', '~> 1.7.0', require: 'github/markup'
 gem 'commonmarker', '~> 0.20'
+gem 'kramdown', '~> 2.2.1'
 gem 'RedCloth', '~> 4.3.2'
 gem 'rdoc', '~> 6.1.2'
 gem 'org-ruby', '~> 0.9.12'
@@ -370,6 +371,7 @@ group :development, :test do
   gem 'scss_lint', '~> 0.56.0', require: false
   gem 'haml_lint', '~> 0.34.0', require: false
   gem 'simplecov', '~> 0.18.5', require: false
+  gem 'simplecov-cobertura', '~> 1.3.1', require: false
   gem 'bundler-audit', '~> 0.6.1', require: false
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
@@ -416,7 +418,7 @@ end
 gem 'octokit', '~> 4.15'
 
 # https://gitlab.com/gitlab-org/gitlab/issues/207207
-gem 'gitlab-mail_room', '~> 0.0.4', require: 'mail_room'
+gem 'gitlab-mail_room', '~> 0.0.6', require: 'mail_room'
 
 gem 'email_reply_trimmer', '~> 0.1'
 gem 'html2text'
@@ -452,7 +454,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 13.1.0.pre.rc1'
+gem 'gitaly', '~> 13.2.0.pre.rc1'
 
 gem 'grpc', '~> 1.24.0'
 

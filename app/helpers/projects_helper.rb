@@ -544,11 +544,6 @@ module ProjectsHelper
     end
   end
 
-  def project_wiki_path_with_version(proj, page, version, is_newest)
-    url_params = is_newest ? {} : { version_id: version }
-    project_wiki_path(proj, page, url_params)
-  end
-
   def project_status_css_class(status)
     case status
     when "started"
@@ -739,7 +734,7 @@ module ProjectsHelper
   end
 
   def native_code_navigation_enabled?(project)
-    Feature.enabled?(:code_navigation, project)
+    Feature.enabled?(:code_navigation, project, default_enabled: true)
   end
 
   def show_visibility_confirm_modal?(project)

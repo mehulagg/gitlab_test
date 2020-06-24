@@ -5227,13 +5227,13 @@ describe Project do
 
   describe '#find_or_initialize_services' do
     it 'returns only enabled services' do
-      allow(Service).to receive(:available_services_names).and_return(%w[prometheus pushover])
+      allow(Service).to receive(:available_services_names).and_return(%w[prometheus pushover teamcity])
       allow(subject).to receive(:disabled_services).and_return(%w[prometheus])
 
       services = subject.find_or_initialize_services
 
-      expect(services.count).to eq 1
-      expect(services).to include(PushoverService)
+      expect(services.count).to eq(2)
+      expect(services.map(&:title)).to eq(['JetBrains TeamCity CI', 'Pushover'])
     end
   end
 
@@ -5883,6 +5883,30 @@ describe Project do
       end
 
       it { is_expected.to be_falsey }
+    end
+  end
+
+  describe '#prometheus_service_active?' do
+    let(:project) { create(:project) }
+
+    subject { project.prometheus_service_active? }
+
+    before do
+      create(:prometheus_service, project: project, manual_configuration: manual_configuration)
+    end
+
+    context 'when project has an activated prometheus service' do
+      let(:manual_configuration) { true }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when project has an inactive prometheus service' do
+      let(:manual_configuration) { false }
+
+      it 'the service is marked as inactive' do
+        expect(subject).to be_falsey
+      end
     end
   end
 

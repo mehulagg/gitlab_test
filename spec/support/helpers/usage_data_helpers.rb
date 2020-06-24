@@ -78,6 +78,7 @@ module UsageDataHelpers
       labels
       lfs_objects
       merge_requests
+      merge_requests_users
       milestone_lists
       milestones
       notes
@@ -230,6 +231,14 @@ module UsageDataHelpers
   def allow_prometheus_queries
     allow_next_instance_of(Gitlab::PrometheusClient) do |client|
       allow(client).to receive(:aggregate).and_return({})
+    end
+  end
+
+  def for_defined_days_back(days: [29, 2])
+    days.each do |n|
+      Timecop.travel(n.days.ago) do
+        yield
+      end
     end
   end
 end

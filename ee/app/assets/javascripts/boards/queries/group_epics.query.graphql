@@ -1,0 +1,17 @@
+query groupEpicsEE($fullPath: ID!) {
+  group(fullPath: $fullPath) {
+    epics(first: 10) {
+      nodes {
+        id
+        iid
+        title
+        state
+        webUrl
+        descendantCounts {
+          openedIssues
+          closedIssues
+        }
+      }
+    }
+  }
+}

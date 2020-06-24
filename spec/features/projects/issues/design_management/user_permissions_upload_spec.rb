@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'User design permissions', :js do
+RSpec.describe 'User design permissions', :js do
   include DesignManagementTestHelpers
 
   let(:project) { create(:project_empty_repo, :public) }
@@ -10,6 +10,7 @@ describe 'User design permissions', :js do
 
   before do
     enable_design_management
+    stub_feature_flags(design_management_moved: false)
 
     visit project_issue_path(project, issue)
 

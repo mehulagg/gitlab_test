@@ -25,6 +25,7 @@ RSpec.describe User do
     it { is_expected.to have_many(:path_locks).dependent(:destroy) }
     it { is_expected.to have_many(:users_security_dashboard_projects) }
     it { is_expected.to have_many(:security_dashboard_projects) }
+    it { is_expected.to have_many(:board_preferences) }
   end
 
   describe 'nested attributes' do
@@ -1059,7 +1060,6 @@ RSpec.describe User do
 
       where(:user_type, :expected_result) do
         'service_user'      | true
-        'support_bot'       | false
         'visual_review_bot' | false
       end
 

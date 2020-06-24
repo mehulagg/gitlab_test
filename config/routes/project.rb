@@ -313,6 +313,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
+        get '/snippets/:snippet_id/raw/:ref/*path',
+          to: 'snippets/blobs#raw',
+          format: false,
+          as: :snippet_blob_raw,
+          constraints: { snippet_id: /\d+/ }
+
         draw :issues
         draw :merge_requests
         draw :pipelines
@@ -360,6 +366,19 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         member do
           get :raw
           post :mark_as_spam
+        end
+      end
+
+      # Serve snippet routes under /-/snippets.
+      # To ensure an old unscoped routing is used for the UI we need to
+      # add prefix 'as' to the scope routing and place it below original routing.
+      # Issue https://gitlab.com/gitlab-org/gitlab/-/issues/29572
+      scope '-', as: :scoped do
+        resources :snippets, concerns: :awardable, constraints: { id: /\d+/ } do # rubocop: disable Cop/PutProjectRoutesUnderScope
+          member do
+            get :raw
+            post :mark_as_spam
+          end
         end
       end
 

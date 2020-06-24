@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'viewing issues with design references' do
+RSpec.describe 'viewing issues with design references' do
   include DesignManagementTestHelpers
 
   let_it_be(:public_project) { create(:project_empty_repo, :public) }
@@ -25,6 +25,10 @@ describe 'viewing issues with design references' do
     * #{url_for_design(design_a)}
     * #{url_for_design(design_b)}
     MD
+  end
+
+  before do
+    stub_feature_flags(design_management_moved: false)
   end
 
   def visit_page_with_design_references

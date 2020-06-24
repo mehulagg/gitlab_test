@@ -33,6 +33,7 @@ describe('Alert Details Sidebar Assignees', () => {
         ...data,
         sidebarCollapsed,
         projectPath: 'projectPath',
+        projectId: '1',
       },
       mocks: {
         $apollo: {
@@ -58,7 +59,7 @@ describe('Alert Details Sidebar Assignees', () => {
   describe('updating the alert status', () => {
     const mockUpdatedMutationResult = {
       data: {
-        updateAlertStatus: {
+        alertSetAssignees: {
           errors: [],
           alert: {
             assigneeUsernames: ['root'],
@@ -69,7 +70,7 @@ describe('Alert Details Sidebar Assignees', () => {
 
     beforeEach(() => {
       mock = new MockAdapter(axios);
-      const path = '/autocomplete/users.json';
+      const path = '/-/autocomplete/users.json';
       const users = [
         {
           avatar_url:
@@ -124,10 +125,30 @@ describe('Alert Details Sidebar Assignees', () => {
       });
     });
 
+    it('shows an error when request contains error messages', () => {
+      wrapper.setData({ isDropdownSearching: false });
+      const errorMutationResult = {
+        data: {
+          alertSetAssignees: {
+            errors: ['There was a problem for sure.'],
+            alert: {},
+          },
+        },
+      };
+
+      jest.spyOn(wrapper.vm.$apollo, 'mutate').mockResolvedValue(errorMutationResult);
+
+      return wrapper.vm.$nextTick().then(() => {
+        const SideBarAssigneeItem = wrapper.findAll(SidebarAssignee).at(0);
+        SideBarAssigneeItem.vm.$emit('click');
+        expect(wrapper.emitted('alert-refresh')).toBeUndefined();
+      });
+    });
+
     it('stops updating and cancels loading when the request fails', () => {
       jest.spyOn(wrapper.vm.$apollo, 'mutate').mockReturnValue(Promise.reject(new Error()));
       wrapper.vm.updateAlertAssignees('root');
-      expect(wrapper.find('[data-testid="assigned-users"]').text()).toBe('Unassigned');
+      expect(wrapper.find('[data-testid="unassigned-users"]').text()).toBe('assign yourself');
     });
   });
 });

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'User uploads new design', :js do
+RSpec.describe 'User uploads new design', :js do
   include DesignManagementTestHelpers
 
   let_it_be(:project) { create(:project_empty_repo, :public) }
@@ -16,6 +16,7 @@ describe 'User uploads new design', :js do
   context "when the feature is available" do
     before do
       enable_design_management
+      stub_feature_flags(design_management_moved: false)
 
       visit project_issue_path(project, issue)
 

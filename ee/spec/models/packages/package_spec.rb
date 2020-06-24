@@ -14,6 +14,20 @@ RSpec.describe Packages::Package, type: :model do
     it { is_expected.to have_one(:nuget_metadatum).inverse_of(:package) }
   end
 
+  describe '.with_composer_target' do
+    let!(:package1) { create(:composer_package, :with_metadatum, sha: '123') }
+    let!(:package2) { create(:composer_package, :with_metadatum, sha: '123') }
+    let!(:package3) { create(:composer_package, :with_metadatum, sha: '234') }
+
+    subject { described_class.with_composer_target('123').to_a }
+
+    it 'selects packages with the specified sha' do
+      expect(subject).to include(package1)
+      expect(subject).to include(package2)
+      expect(subject).not_to include(package3)
+    end
+  end
+
   describe '.sort_by_attribute' do
     let_it_be(:group) { create(:group, :public) }
     let_it_be(:project) { create(:project, :public, namespace: group, name: 'project A') }
@@ -124,6 +138,34 @@ RSpec.describe Packages::Package, type: :model do
         it { is_expected.not_to allow_value('1./2.3').for(:version) }
         it { is_expected.not_to allow_value('.1.2.3').for(:version) }
         it { is_expected.not_to allow_value('+1.2.3').for(:version) }
+        it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
+      end
+
+      context 'maven package' do
+        subject { create(:maven_package) }
+
+        it { is_expected.to allow_value('0').for(:version) }
+        it { is_expected.to allow_value('1').for(:version) }
+        it { is_expected.to allow_value('10').for(:version) }
+        it { is_expected.to allow_value('1.0').for(:version) }
+        it { is_expected.to allow_value('1.3.350.v20200505-1744').for(:version) }
+        it { is_expected.to allow_value('1.1-beta-2').for(:version) }
+        it { is_expected.to allow_value('1.2-SNAPSHOT').for(:version) }
+        it { is_expected.to allow_value('12.1.2-2-1').for(:version) }
+        it { is_expected.to allow_value('1.2.3..beta').for(:version) }
+        it { is_expected.to allow_value('1.2.3-beta').for(:version) }
+        it { is_expected.to allow_value('10.2.3-beta').for(:version) }
+        it { is_expected.to allow_value('2.0.0.v200706041905-7C78EK9E_EkMNfNOd2d8qq').for(:version) }
+        it { is_expected.to allow_value('1.2-alpha-1-20050205.060708-1').for(:version) }
+        it { is_expected.to allow_value('703220b4e2cea9592caeb9f3013f6b1e5335c293').for(:version) }
+        it { is_expected.to allow_value('RELEASE').for(:version) }
+        it { is_expected.not_to allow_value('..1.2.3').for(:version) }
+        it { is_expected.not_to allow_value('  1.2.3').for(:version) }
+        it { is_expected.not_to allow_value("1.2.3  \r\t").for(:version) }
+        it { is_expected.not_to allow_value("\r\t 1.2.3").for(:version) }
+        it { is_expected.not_to allow_value('1.2.3-4/../../').for(:version) }
+        it { is_expected.not_to allow_value('1.2.3-4%2e%2e%').for(:version) }
+        it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
         it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
       end
 

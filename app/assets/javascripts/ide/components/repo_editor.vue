@@ -54,7 +54,6 @@ export default {
       'getStagedFile',
       'isEditModeActive',
       'isCommitModeActive',
-      'isReviewModeActive',
       'currentBranch',
     ]),
     ...mapGetters('fileTemplates', ['showFileTemplatesBar']),
@@ -186,7 +185,6 @@ export default {
       'setFileLanguage',
       'setEditorPosition',
       'setFileViewMode',
-      'updateViewer',
       'removePendingTab',
       'triggerFilesChange',
       'addTempImage',
@@ -235,14 +233,14 @@ export default {
         if (this.viewer === viewerTypes.edit) {
           this.editor.createInstance(this.$refs.editor);
         } else {
-          this.editor.createDiffInstance(this.$refs.editor, !this.isReviewModeActive);
+          this.editor.createDiffInstance(this.$refs.editor);
         }
 
         this.setupEditor();
       });
     },
     setupEditor() {
-      if (!this.file || !this.editor.instance) return;
+      if (!this.file || !this.editor.instance || this.file.loading) return;
 
       const head = this.getStagedFile(this.file.path);
 

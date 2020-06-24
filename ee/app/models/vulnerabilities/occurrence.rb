@@ -79,7 +79,7 @@ module Vulnerabilities
     validates :metadata_version, presence: true
     validates :raw_metadata, presence: true
 
-    delegate :name, to: :scanner, prefix: true, allow_nil: true
+    delegate :name, :external_id, to: :scanner, prefix: true, allow_nil: true
 
     scope :report_type, -> (type) { where(report_type: report_types[type]) }
     scope :ordered, -> { order(severity: :desc, confidence: :desc, id: :asc) }
@@ -115,8 +115,8 @@ module Vulnerabilities
     end
 
     def self.counted_by_severity
-      group(:severity).count.each_with_object({}) do |(severity, count), accum|
-        accum[SEVERITY_LEVELS[severity]] = count
+      group(:severity).count.transform_keys do |severity|
+        SEVERITY_LEVELS[severity]
       end
     end
 
@@ -139,7 +139,6 @@ module Vulnerabilities
 
     def state
       return 'dismissed' if dismissal_feedback.present?
-      return 'detected' unless Feature.enabled?(:first_class_vulnerabilities, project, default_enabled: true)
 
       if vulnerability.nil?
         'detected'
@@ -205,7 +204,7 @@ module Vulnerabilities
         occurrence_keys.each do |occurrence_key|
           loader.call(
             occurrence_key,
-            feedback.select { |f| occurrence_key = f.occurrence_key }
+            feedback.select { |f| occurrence_key == f.occurrence_key }
           )
         end
       end

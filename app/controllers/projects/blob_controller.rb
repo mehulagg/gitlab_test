@@ -94,7 +94,6 @@ class Projects::BlobController < Projects::ApplicationController
   def destroy
     create_commit(Files::DeleteService, success_notice: _("The file has been successfully deleted."),
                                         success_path: -> { after_delete_path },
-                                        failure_view: :show,
                                         failure_path: project_blob_path(@project, @id))
   end
 
@@ -215,7 +214,7 @@ class Projects::BlobController < Projects::ApplicationController
     environment_params = @repository.branch_exists?(@ref) ? { ref: @ref } : { commit: @commit }
     environment_params[:find_latest] = true
     @environment = EnvironmentsFinder.new(@project, current_user, environment_params).execute.last
-    @last_commit = @repository.last_commit_for_path(@commit.id, @blob.path)
+    @last_commit = @repository.last_commit_for_path(@commit.id, @blob.path, literal_pathspec: true)
     @code_navigation_path = Gitlab::CodeNavigationPath.new(@project, @blob.commit_id).full_json_path_for(@blob.path)
 
     render 'show'

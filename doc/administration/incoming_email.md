@@ -17,7 +17,7 @@ GitLab has several features based on receiving incoming emails:
   allow GitLab users to create a new merge request by sending an email to a
   user-specific email address.
 - [Service Desk](../user/project/service_desk.md): provide e-mail support to
-  your customers through GitLab. **(PREMIUM)**
+  your customers through GitLab. **(STARTER)**
 
 ## Requirements
 
@@ -68,6 +68,11 @@ If you want to use Gmail / Google Apps for incoming emails, make sure you have
 and [allowed less secure apps to access the account](https://support.google.com/accounts/answer/6010255)
 or [turn-on 2-step validation](https://support.google.com/accounts/answer/185839)
 and use [an application password](https://support.google.com/mail/answer/185833).
+
+If you want to use Office 365, and two-factor authentication is enabled, make sure
+you're using an
+[app password](https://docs.microsoft.com/en-us/azure/active-directory/user-help/multi-factor-authentication-end-user-app-passwords)
+instead of the regular password for the mailbox.
 
 To set up a basic Postfix mail server with IMAP access on Ubuntu, follow the
 [Postfix setup documentation](reply_by_email_postfix_setup.md).

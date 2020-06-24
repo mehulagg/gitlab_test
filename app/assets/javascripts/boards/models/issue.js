@@ -30,9 +30,7 @@ class ListIssue {
   }
 
   addLabel(label) {
-    if (!this.findLabel(label)) {
-      this.labels.push(new ListLabel(label));
-    }
+    boardsStore.addIssueLabel(this, label);
   }
 
   findLabel(findLabel) {
@@ -68,9 +66,7 @@ class ListIssue {
   }
 
   removeMilestone(removeMilestone) {
-    if (IS_EE && removeMilestone && removeMilestone.id === this.milestone.id) {
-      this.milestone = {};
-    }
+    boardsStore.removeIssueMilestone(this, removeMilestone);
   }
 
   getLists() {
@@ -78,15 +74,15 @@ class ListIssue {
   }
 
   updateData(newData) {
-    Object.assign(this, newData);
+    boardsStore.updateIssueData(this, newData);
   }
 
   setFetchingState(key, value) {
-    this.isFetching[key] = value;
+    boardsStore.setIssueFetchingState(this, key, value);
   }
 
   setLoadingState(key, value) {
-    this.isLoading[key] = value;
+    boardsStore.setIssueLoadingState(this, key, value);
   }
 
   update() {

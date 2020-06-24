@@ -162,6 +162,15 @@ NOTE: **Note:**
 The maximum import file size can be set by the Administrator, default is 50MB.
 As an administrator, you can modify the maximum import file size. To do so, use the `max_import_size` option in the [Application settings API](../../../api/settings.md#change-application-settings) or the [Admin UI](../../admin_area/settings/account_and_limit_settings.md).
 
+### Project import status
+
+You can query an import through the [Project import/export API](../../../api/project_import_export.md#import-status).
+As described in the API documentation, the query may return an import error or exceptions.
+
+### Import large projects **(CORE ONLY)**
+
+If you have a larger project, consider using a Rake task, as described in our [developer documentation](../../../development/import_project.md#importing-via-a-rake-task).
+
 ## Rate limits
 
 To help avoid abuse, users are rate limited to:

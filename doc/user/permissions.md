@@ -47,7 +47,7 @@ The following table depicts the various user permission levels in a project.
 |---------------------------------------------------|---------|------------|-------------|----------|--------|
 | Download project                                  | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | Leave comments                                    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
-| View approved/blacklisted licenses **(ULTIMATE)** | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View allowed and denied licenses **(ULTIMATE)** | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View License Compliance reports **(ULTIMATE)**    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Security reports **(ULTIMATE)**              | ✓ (*3*) | ✓          | ✓           | ✓        | ✓      |
 | View Dependency list **(ULTIMATE)**               | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
@@ -139,6 +139,7 @@ The following table depicts the various user permission levels in a project.
 | Manage GitLab Pages domains and certificates      |         |            |             | ✓        | ✓      |
 | Remove GitLab Pages                               |         |            |             | ✓        | ✓      |
 | Manage clusters                                   |         |            |             | ✓        | ✓      |
+| Manage Project Operations                         |         |            |             | ✓        | ✓      |
 | View Pods logs                                    |         |            |             | ✓        | ✓      |
 | Manage license policy **(ULTIMATE)**              |         |            |             | ✓        | ✓      |
 | Edit comments (posted by any user)                |         |            |             | ✓        | ✓      |
@@ -265,8 +266,8 @@ group.
 | View Issues analytics **(PREMIUM)**                    | ✓     | ✓        | ✓         | ✓          | ✓     |
 | View Productivity analytics **(PREMIUM)**              |       | ✓        | ✓         | ✓          | ✓     |
 | View Value Stream analytics                            | ✓     | ✓        | ✓         | ✓          | ✓     |
-| View Billing **(FREE ONLY)**                           | ✓     | ✓        | ✓         | ✓          | ✓ (4) |
-| View Usage Quotas **(FREE ONLY)**                      | ✓     | ✓        | ✓         | ✓          | ✓ (4) |
+| View Billing **(FREE ONLY)**                           |       |          |           |            | ✓ (4) |
+| View Usage Quotas **(FREE ONLY)**                      |       |          |           |            | ✓ (4) |
 
 1. Groups can be set to [allow either Owners or Owners and
   Maintainers to create subgroups](group/subgroups/index.md#creating-a-subgroup)

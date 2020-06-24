@@ -15,11 +15,14 @@ import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
 import { fetchPolicies } from '~/lib/graphql';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
+import highlightCurrentUser from '~/behaviors/markdown/highlight_current_user';
+import initUserPopovers from '~/user_popovers';
 import { ALERTS_SEVERITY_LABELS, trackAlertsDetailsViewsOptions } from '../constants';
 import createIssueQuery from '../graphql/mutations/create_issue_from_alert.graphql';
 import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
 import Tracking from '~/tracking';
 import { toggleContainerClasses } from '~/lib/utils/dom_utils';
+import SystemNote from './system_notes/system_note.vue';
 import AlertSidebar from './alert_sidebar.vue';
 
 const containerEl = document.querySelector('.page-with-contextual-sidebar');
@@ -47,9 +50,14 @@ export default {
     GlTable,
     TimeAgoTooltip,
     AlertSidebar,
+    SystemNote,
   },
   props: {
     alertId: {
+      type: String,
+      required: true,
+    },
+    projectId: {
       type: String,
       required: true,
     },
@@ -112,6 +120,12 @@ export default {
       'right-sidebar-expanded': true,
     });
   },
+  updated() {
+    this.$nextTick(() => {
+      highlightCurrentUser(this.$el.querySelectorAll('.gfm-project_member'));
+      initUserPopovers(this.$el.querySelectorAll('.js-user-link'));
+    });
+  },
   methods: {
     dismissError() {
       this.isErrorDismissed = true;
@@ -159,6 +173,9 @@ export default {
       const { category, action } = trackAlertsDetailsViewsOptions;
       Tracking.event(category, action);
     },
+    alertRefresh() {
+      this.$apollo.queries.alert.refetch();
+    },
   },
 };
 </script>
@@ -180,7 +197,7 @@ export default {
     <div
       v-if="alert"
       class="alert-management-details gl-relative"
-      :class="{ 'pr-8': sidebarCollapsed }"
+      :class="{ 'pr-sm-8': sidebarCollapsed }"
     >
       <div
         class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
@@ -287,6 +304,13 @@ export default {
             </div>
             <div class="gl-pl-2" data-testid="service">{{ alert.service }}</div>
           </div>
+          <template>
+            <div v-if="alert.notes.nodes" class="issuable-discussion py-5">
+              <ul class="notes main-notes-list timeline">
+                <system-note v-for="note in alert.notes.nodes" :key="note.id" :note="note" />
+              </ul>
+            </div>
+          </template>
         </gl-tab>
         <gl-tab data-testid="fullDetailsTab" :title="$options.i18n.fullAlertDetailsTitle">
           <gl-table
@@ -307,8 +331,10 @@ export default {
       </gl-tabs>
       <alert-sidebar
         :project-path="projectPath"
+        :project-id="projectId"
         :alert="alert"
         :sidebar-collapsed="sidebarCollapsed"
+        @alert-refresh="alertRefresh"
         @toggle-sidebar="toggleSidebar"
         @alert-sidebar-error="handleAlertSidebarError"
       />

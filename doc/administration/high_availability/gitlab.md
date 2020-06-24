@@ -126,7 +126,7 @@ need some extra configuration.
    from running on upgrade. Only the primary GitLab application server should
    handle migrations.
 
-1. **Recommended** Configure host keys. Copy the contents (primary and public keys) of `/etc/ssh/` on
+1. **Recommended** Configure host keys. Copy the contents (private and public keys) of `/etc/ssh/` on
    the primary application server to `/etc/ssh` on all secondary servers. This
    prevents false man-in-the-middle-attack alerts when accessing servers in your
    High Availability cluster behind a load balancer.
@@ -142,7 +142,7 @@ migrations performed.
 
 If you enable Monitoring, it must be enabled on **all** GitLab servers.
 
-1. Make sure to collect [`CONSUL_SERVER_NODES`](database.md#consul-information), which are the IP addresses or DNS records of the Consul server nodes, for the next step. Note they are presented as `Y.Y.Y.Y consul1.gitlab.example.com Z.Z.Z.Z`
+1. Make sure to collect [`CONSUL_SERVER_NODES`](../postgresql/replication_and_failover.md#consul-information), which are the IP addresses or DNS records of the Consul server nodes, for the next step. Note they are presented as `Y.Y.Y.Y consul1.gitlab.example.com Z.Z.Z.Z`
 
 1. Create/edit `/etc/gitlab/gitlab.rb` and add the following configuration:
 
@@ -203,7 +203,7 @@ for more details.
 
 Read more on high-availability configuration:
 
-1. [Configure the database](database.md)
+1. [Configure the database](../postgresql/replication_and_failover.md)
 1. [Configure Redis](redis.md)
 1. [Configure NFS](nfs.md)
 1. [Configure the load balancers](load_balancer.md)

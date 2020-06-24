@@ -55,6 +55,7 @@ RSpec.describe Gitlab::UsageData do
       # 1 published issue on 1 projects with status page enabled
       create(:issue, project: projects[0])
       create(:issue, :published, project: projects[0])
+      create(:issue, :published, project: projects[1])
     end
 
     subject { described_class.data }
@@ -111,8 +112,10 @@ RSpec.describe Gitlab::UsageData do
         projects_with_tracing_enabled
         sast_jobs
         secret_detection_jobs
-        status_page_projects
+        status_page_incident_publishes
+        status_page_incident_unpublishes
         status_page_issues
+        status_page_projects
         user_preferences_group_overview_details
         user_preferences_group_overview_security_dashboard
         template_repositories
@@ -153,6 +156,10 @@ RSpec.describe Gitlab::UsageData do
     it 'gathers group overview preferences usage data', :aggregate_failures do
       expect(subject[:counts][:user_preferences_group_overview_details]).to eq(User.active.count - 2) # we have exactly 2 active users with security dashboard set
       expect(subject[:counts][:user_preferences_group_overview_security_dashboard]).to eq 2
+    end
+
+    it 'includes a recording_ee_finished_at timestamp' do
+      expect(subject[:recording_ee_finished_at]).to be_a(Time)
     end
   end
 
@@ -295,64 +302,18 @@ RSpec.describe Gitlab::UsageData do
         it 'includes accurate usage_activity_by_stage data' do
           for_defined_days_back do
             user = create(:user)
-            cluster = create(:cluster, user: user)
             project = create(:project, creator: user)
-            create(:clusters_applications_cert_manager, :installed, cluster: cluster)
-            create(:clusters_applications_helm, :installed, cluster: cluster)
-            create(:clusters_applications_ingress, :installed, cluster: cluster)
-            create(:clusters_applications_knative, :installed, cluster: cluster)
-            create(:cluster, :disabled, user: user)
-            create(:cluster_provider_gcp, :created)
-            create(:cluster_provider_aws, :created)
-            create(:cluster_platform_kubernetes)
-            create(:cluster, :group, :disabled, user: user)
-            create(:cluster, :group, user: user)
-            create(:cluster, :instance, :disabled, :production_environment)
-            create(:cluster, :instance, :production_environment)
-            create(:cluster, :management_project)
             create(:slack_service, project: project)
             create(:slack_slash_commands_service, project: project)
             create(:prometheus_service, project: project)
           end
 
-          expect(described_class.uncached_data[:usage_activity_by_stage][:configure]).to eq(
-            clusters_applications_cert_managers: 2,
-            clusters_applications_helm: 2,
-            clusters_applications_ingress: 2,
-            clusters_applications_knative: 2,
-            clusters_management_project: 2,
-            clusters_disabled: 4,
-            clusters_enabled: 12,
-            clusters_platforms_gke: 2,
-            clusters_platforms_eks: 2,
-            clusters_platforms_user: 2,
-            instance_clusters_disabled: 2,
-            instance_clusters_enabled: 2,
-            group_clusters_disabled: 2,
-            group_clusters_enabled: 2,
-            project_clusters_disabled: 2,
-            project_clusters_enabled: 10,
+          expect(described_class.uncached_data[:usage_activity_by_stage][:configure]).to include(
             projects_slack_notifications_active: 2,
             projects_slack_slash_active: 2,
             projects_with_prometheus_alerts: 2
           )
-          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:configure]).to eq(
-            clusters_applications_cert_managers: 1,
-            clusters_applications_helm: 1,
-            clusters_applications_ingress: 1,
-            clusters_applications_knative: 1,
-            clusters_management_project: 1,
-            clusters_disabled: 2,
-            clusters_enabled: 6,
-            clusters_platforms_gke: 1,
-            clusters_platforms_eks: 1,
-            clusters_platforms_user: 1,
-            instance_clusters_disabled: 1,
-            instance_clusters_enabled: 1,
-            group_clusters_disabled: 1,
-            group_clusters_enabled: 1,
-            project_clusters_disabled: 1,
-            project_clusters_enabled: 5,
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:configure]).to include(
             projects_slack_notifications_active: 1,
             projects_slack_slash_active: 1,
             projects_with_prometheus_alerts: 1
@@ -714,22 +675,6 @@ RSpec.describe Gitlab::UsageData do
             projects_reporting_ci_cd_back_to_github: 1
           )
         end
-      end
-    end
-  end
-
-  describe '.recording_ee_finished_at' do
-    subject { described_class.recording_ee_finish_data }
-
-    it 'gathers time ee recording finishes at' do
-      expect(subject[:recording_ee_finished_at]).to be_a(Time)
-    end
-  end
-
-  def for_defined_days_back(days: [29, 2])
-    days.each do |n|
-      Timecop.travel(n.days.ago) do
-        yield
       end
     end
   end

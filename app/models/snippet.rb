@@ -44,6 +44,7 @@ class Snippet < ApplicationRecord
   has_many :notes, as: :noteable, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :user_mentions, class_name: "SnippetUserMention", dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
   has_one :snippet_repository, inverse_of: :snippet
+  has_one :statistics, class_name: 'SnippetStatistics'
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
 
@@ -68,6 +69,7 @@ class Snippet < ApplicationRecord
   validates :visibility_level, inclusion: { in: Gitlab::VisibilityLevel.values }
 
   after_save :store_mentions!, if: :any_mentionable_attributes_changed?
+  after_create :create_statistics
 
   # Scopes
   scope :are_internal, -> { where(visibility_level: Snippet::INTERNAL) }
@@ -337,7 +339,7 @@ class Snippet < ApplicationRecord
   class << self
     # Searches for snippets with a matching title, description or file name.
     #
-    # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
+    # This method uses ILIKE on PostgreSQL.
     #
     # query - The search query as a String.
     #

@@ -82,6 +82,8 @@
   - 1
 - - elastic_commit_indexer
   - 1
+- - elastic_delete_project
+  - 1
 - - elastic_full_index
   - 1
 - - elastic_indexer
@@ -259,6 +261,8 @@
 - - system_hook_push
   - 1
 - - todos_destroyer
+  - 1
+- - unassign_issuables
   - 1
 - - update_external_pull_requests
   - 3

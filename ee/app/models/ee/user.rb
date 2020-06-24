@@ -58,6 +58,8 @@ module EE
       has_many :smartcard_identities
       has_many :scim_identities
 
+      has_many :board_preferences, class_name: 'BoardUserPreference', inverse_of: :user
+
       belongs_to :managing_group, class_name: 'Group', optional: true, inverse_of: :managed_users
 
       scope :not_managed, ->(group: nil) {
@@ -92,15 +94,6 @@ module EE
 
     class_methods do
       extend ::Gitlab::Utils::Override
-
-      def support_bot
-        email_pattern = "support%s@#{Settings.gitlab.host}"
-
-        unique_internal(where(user_type: :support_bot), 'support-bot', email_pattern) do |u|
-          u.bio = 'The GitLab support bot used for Service Desk'
-          u.name = 'GitLab Support Bot'
-        end
-      end
 
       def visual_review_bot
         email_pattern = "visual_review%s@#{Settings.gitlab.host}"

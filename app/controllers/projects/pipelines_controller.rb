@@ -2,6 +2,7 @@
 
 class Projects::PipelinesController < Projects::ApplicationController
   include ::Gitlab::Utils::StrongMemoize
+  include Analytics::UniqueVisitsHelper
 
   before_action :whitelist_query_limiting, only: [:create, :retry]
   before_action :pipeline, except: [:index, :new, :create, :charts]
@@ -12,13 +13,15 @@ class Projects::PipelinesController < Projects::ApplicationController
   before_action :authorize_update_pipeline!, only: [:retry, :cancel]
   before_action do
     push_frontend_feature_flag(:junit_pipeline_view, project)
-    push_frontend_feature_flag(:filter_pipelines_search, default_enabled: true)
-    push_frontend_feature_flag(:dag_pipeline_tab, default_enabled: true)
+    push_frontend_feature_flag(:filter_pipelines_search, project, default_enabled: true)
+    push_frontend_feature_flag(:dag_pipeline_tab, project, default_enabled: false)
     push_frontend_feature_flag(:pipelines_security_report_summary, project)
   end
   before_action :ensure_pipeline, only: [:show]
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show]
+
+  track_unique_visits :charts, target_id: 'p_analytics_pipelines'
 
   wrap_parameters Ci::Pipeline
 
@@ -186,7 +189,7 @@ class Projects::PipelinesController < Projects::ApplicationController
       format.json do
         render json: TestReportSerializer
           .new(current_user: @current_user)
-          .represent(pipeline_test_report, project: project)
+          .represent(pipeline_test_report, project: project, details: true)
       end
     end
   end

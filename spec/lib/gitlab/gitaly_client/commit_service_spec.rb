@@ -326,4 +326,70 @@ describe Gitlab::GitalyClient::CommitService do
       client.find_commits(order: 'default', author: "Billy Baggins <bilbo@shire.com>")
     end
   end
+
+  describe '#commits_by_message' do
+    shared_examples 'a CommitsByMessageRequest' do
+      let(:commits) { create_list(:gitaly_commit, 2) }
+
+      before do
+        request = Gitaly::CommitsByMessageRequest.new(
+          repository: repository_message,
+          query: query,
+          revision: (options[:revision] || '').dup.force_encoding(Encoding::ASCII_8BIT),
+          path: (options[:path] || '').dup.force_encoding(Encoding::ASCII_8BIT),
+          limit: (options[:limit] || 1000).to_i,
+          offset: (options[:offset] || 0).to_i
+        )
+
+        allow_any_instance_of(Gitaly::CommitService::Stub)
+          .to receive(:commits_by_message)
+          .with(request, kind_of(Hash))
+          .and_return([Gitaly::CommitsByMessageResponse.new(commits: commits)])
+      end
+
+      it 'sends an RPC request with the correct payload' do
+        expect(client.commits_by_message(query, options)).to match_array(wrap_commits(commits))
+      end
+    end
+
+    let(:query) { 'Add a feature' }
+    let(:options) { {} }
+
+    context 'when only the query is provided' do
+      include_examples 'a CommitsByMessageRequest'
+    end
+
+    context 'when all arguments are provided' do
+      let(:options) { { revision: 'feature-branch', path: 'foo.txt', limit: 10, offset: 20 } }
+
+      include_examples 'a CommitsByMessageRequest'
+    end
+
+    context 'when limit and offset are not integers' do
+      let(:options) { { limit: '10', offset: '60' } }
+
+      include_examples 'a CommitsByMessageRequest'
+    end
+
+    context 'when revision and path contain non-ASCII characters' do
+      let(:options) { { revision: "branch\u011F", path: "foo/\u011F.txt" } }
+
+      include_examples 'a CommitsByMessageRequest'
+    end
+
+    def wrap_commits(commits)
+      commits.map { |commit| Gitlab::Git::Commit.new(repository, commit) }
+    end
+  end
+
+  describe '#list_commits_by_ref_name' do
+    it 'lists latest commits grouped by a ref name' do
+      response = client.list_commits_by_ref_name(%w[master feature v1.0.0 nonexistent])
+
+      expect(response.fetch('master').id).to eq 'b83d6e391c22777fca1ed3012fce84f633d7fed0'
+      expect(response.fetch('feature').id).to eq '0b4bc9a49b562e85de7cc9e834518ea6828729b9'
+      expect(response.fetch('v1.0.0').id).to eq '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9'
+      expect(response).not_to have_key 'nonexistent'
+    end
+  end
 end

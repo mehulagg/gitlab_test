@@ -6,21 +6,17 @@ import createFlash from '~/flash';
 import { s__, __ } from '~/locale';
 import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue';
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
+import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
 import HistoryEntry from './history_entry.vue';
 import VulnerabilitiesEventBus from './vulnerabilities_event_bus';
 
 export default {
   name: 'VulnerabilityFooter',
-  components: { IssueNote, SolutionCard, HistoryEntry },
+  components: { IssueNote, SolutionCard, MergeRequestNote, HistoryEntry },
   props: {
     discussionsUrl: {
       type: String,
       required: true,
-    },
-    feedback: {
-      type: Object,
-      required: false,
-      default: null,
     },
     notesUrl: {
       type: String,
@@ -33,6 +29,16 @@ export default {
     solutionInfo: {
       type: Object,
       required: true,
+    },
+    issueFeedback: {
+      type: Object,
+      required: false,
+      default: () => null,
+    },
+    mergeRequestFeedback: {
+      type: Object,
+      required: false,
+      default: () => null,
     },
   },
 
@@ -53,11 +59,8 @@ export default {
           return acc;
         }, {});
     },
-    hasIssue() {
-      return Boolean(this.feedback?.issue_iid);
-    },
     hasSolution() {
-      return this.solutionInfo.solution || this.solutionInfo.hasRemediation;
+      return Boolean(this.solutionInfo.solution || this.solutionInfo.remediation);
     },
   },
 
@@ -124,6 +127,8 @@ export default {
       });
     },
     updateNotes(notes) {
+      let isVulnerabilityStateChanged = false;
+
       notes.forEach(note => {
         // If the note exists, update it.
         if (this.noteDictionary[note.id]) {
@@ -147,17 +152,39 @@ export default {
             notes: [note],
           };
           this.$set(this.discussionsDictionary, newDiscussion.id, newDiscussion);
+
+          // If the vulnerability status has changed, the note will be a system note.
+          if (note.system === true) {
+            isVulnerabilityStateChanged = true;
+          }
         }
       });
+
+      // Emit an event that tells the header to refresh the vulnerability.
+      if (isVulnerabilityStateChanged) {
+        VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGED');
+      }
     },
   },
 };
 </script>
 <template>
-  <div>
+  <div data-qa-selector="vulnerability_footer">
     <solution-card v-if="hasSolution" v-bind="solutionInfo" />
-    <div v-if="hasIssue" class="card">
-      <issue-note :feedback="feedback" :project="project" class="card-body" />
+
+    <div v-if="issueFeedback || mergeRequestFeedback" class="card">
+      <issue-note
+        v-if="issueFeedback"
+        :feedback="issueFeedback"
+        :project="project"
+        class="card-body"
+      />
+      <merge-request-note
+        v-if="mergeRequestFeedback"
+        :feedback="mergeRequestFeedback"
+        :project="project"
+        class="card-body"
+      />
     </div>
     <hr />
 

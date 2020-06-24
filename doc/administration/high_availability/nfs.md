@@ -17,6 +17,14 @@ performance, especially for actions that read or write to Git repositories. See
 [Filesystem Performance Benchmarking](../operations/filesystem_benchmarking.md)
 for steps to test filesystem performance.
 
+## Known kernel version incompatibilities
+
+The following kernel versions should NOT be used with GitLab:
+
+|Distribution |Kernel Versions|Affected GitLab versions|Details|
+|-------------|---------------|------------------------|-------|
+|RHEL/CentOS|`3.10.0-1127*`|All prior to GitLab 13.1|[Uploads fail to copy over NFS](https://gitlab.com/gitlab-org/gitlab/-/issues/218999)|
+
 ## NFS Server features
 
 ### Required features
@@ -146,7 +154,7 @@ Additionally, this configuration is specifically warned against in the
 >to the NFS server can cause data corruption problems.
 
 For supported database architecture, please see our documentation on
-[Configuring a Database for GitLab HA](database.md).
+[Configuring a Database for GitLab HA](../postgresql/replication_and_failover.md).
 
 ## NFS Client mount options
 
@@ -284,7 +292,7 @@ are empty before attempting a restore. Read more about the
 
 Read more on high-availability configuration:
 
-1. [Configure the database](database.md)
+1. [Configure the database](../postgresql/replication_and_failover.md)
 1. [Configure Redis](redis.md)
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)

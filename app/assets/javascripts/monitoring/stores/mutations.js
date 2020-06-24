@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import { pick } from 'lodash';
 import * as types from './mutation_types';
-import { selectedDashboard } from './getters';
-import { mapToDashboardViewModel, normalizeQueryResult } from './utils';
+import { mapToDashboardViewModel, normalizeQueryResponseData } from './utils';
+import httpStatusCodes from '~/lib/utils/http_status';
 import { BACKOFF_TIMEOUT } from '../../lib/utils/common_utils';
 import { endpointKeys, initialStateKeys, metricStates } from '../constants';
-import httpStatusCodes from '~/lib/utils/http_status';
+import { optionsFromSeriesData } from './variable_mapping';
 
 /**
  * Locate and return a metric in the dashboard by its id
@@ -82,15 +82,14 @@ export default {
   [types.REQUEST_DASHBOARD_STARRING](state) {
     state.isUpdatingStarredValue = true;
   },
-  [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, newStarredValue) {
-    const dashboard = selectedDashboard(state);
-    const index = state.allDashboards.findIndex(d => d === dashboard);
+  [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, { selectedDashboard, newStarredValue }) {
+    const index = state.allDashboards.findIndex(d => d === selectedDashboard);
 
     state.isUpdatingStarredValue = false;
 
     // Trigger state updates in the reactivity system for this change
     // https://vuejs.org/v2/guide/reactivity.html#For-Arrays
-    Vue.set(state.allDashboards, index, { ...dashboard, starred: newStarredValue });
+    Vue.set(state.allDashboards, index, { ...selectedDashboard, starred: newStarredValue });
   },
   [types.RECEIVE_DASHBOARD_STARRING_FAILURE](state) {
     state.isUpdatingStarredValue = false;
@@ -128,6 +127,16 @@ export default {
   },
 
   /**
+   * Dashboard Validation Warnings
+   */
+  [types.RECEIVE_DASHBOARD_VALIDATION_WARNINGS_SUCCESS](state, hasDashboardValidationWarnings) {
+    state.hasDashboardValidationWarnings = hasDashboardValidationWarnings;
+  },
+  [types.RECEIVE_DASHBOARD_VALIDATION_WARNINGS_FAILURE](state) {
+    state.hasDashboardValidationWarnings = false;
+  },
+
+  /**
    * Individual panel/metric results
    */
   [types.REQUEST_METRIC_RESULT](state, { metricId }) {
@@ -137,19 +146,19 @@ export default {
       metric.state = metricStates.LOADING;
     }
   },
-  [types.RECEIVE_METRIC_RESULT_SUCCESS](state, { metricId, result }) {
+  [types.RECEIVE_METRIC_RESULT_SUCCESS](state, { metricId, data }) {
     const metric = findMetricInDashboard(metricId, state.dashboard);
     metric.loading = false;
-    state.showEmptyState = false;
 
-    if (!result || result.length === 0) {
+    state.showEmptyState = false;
+    if (!data.result || data.result.length === 0) {
       metric.state = metricStates.NO_DATA;
       metric.result = null;
     } else {
-      const normalizedResults = result.map(normalizeQueryResult);
+      const result = normalizeQueryResponseData(data);
 
       metric.state = metricStates.OK;
-      metric.result = Object.freeze(normalizedResults);
+      metric.result = Object.freeze(result);
     }
   },
   [types.RECEIVE_METRIC_RESULT_FAILURE](state, { metricId, error }) {
@@ -197,10 +206,16 @@ export default {
   [types.SET_VARIABLES](state, variables) {
     state.variables = variables;
   },
-  [types.UPDATE_VARIABLES](state, updatedVariable) {
-    Object.assign(state.variables[updatedVariable.key], {
-      ...state.variables[updatedVariable.key],
-      value: updatedVariable.value,
+  [types.UPDATE_VARIABLE_VALUE](state, { key, value }) {
+    Object.assign(state.variables[key], {
+      ...state.variables[key],
+      value,
     });
+  },
+  [types.UPDATE_VARIABLE_METRIC_LABEL_VALUES](state, { variable, label, data = [] }) {
+    const values = optionsFromSeriesData({ label, data });
+
+    // Add new options with assign to ensure Vue reactivity
+    Object.assign(variable.options, { values });
   },
 };

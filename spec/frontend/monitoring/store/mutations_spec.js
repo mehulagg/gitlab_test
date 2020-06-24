@@ -93,14 +93,20 @@ describe('Monitoring mutations', () => {
       });
 
       it('sets a dashboard as starred', () => {
-        mutations[types.RECEIVE_DASHBOARD_STARRING_SUCCESS](stateCopy, true);
+        mutations[types.RECEIVE_DASHBOARD_STARRING_SUCCESS](stateCopy, {
+          selectedDashboard: stateCopy.allDashboards[1],
+          newStarredValue: true,
+        });
 
         expect(stateCopy.isUpdatingStarredValue).toBe(false);
         expect(stateCopy.allDashboards[1].starred).toBe(true);
       });
 
       it('sets a dashboard as unstarred', () => {
-        mutations[types.RECEIVE_DASHBOARD_STARRING_SUCCESS](stateCopy, false);
+        mutations[types.RECEIVE_DASHBOARD_STARRING_SUCCESS](stateCopy, {
+          selectedDashboard: stateCopy.allDashboards[1],
+          newStarredValue: false,
+        });
 
         expect(stateCopy.isUpdatingStarredValue).toBe(false);
         expect(stateCopy.allDashboards[1].starred).toBe(false);
@@ -219,11 +225,28 @@ describe('Monitoring mutations', () => {
 
   describe('Individual panel/metric results', () => {
     const metricId = 'NO_DB_response_metrics_nginx_ingress_throughput_status_code';
-    const result = [
-      {
-        values: [[0, 1], [1, 1], [1, 3]],
-      },
-    ];
+    const data = {
+      resultType: 'matrix',
+      result: [
+        {
+          metric: {
+            __name__: 'up',
+            job: 'prometheus',
+            instance: 'localhost:9090',
+          },
+          values: [[1435781430.781, '1'], [1435781445.781, '1'], [1435781460.781, '1']],
+        },
+        {
+          metric: {
+            __name__: 'up',
+            job: 'node',
+            instance: 'localhost:9091',
+          },
+          values: [[1435781430.781, '0'], [1435781445.781, '0'], [1435781460.781, '1']],
+        },
+      ],
+    };
+
     const dashboard = metricsDashboardPayload;
     const getMetric = () => stateCopy.dashboard.panelGroups[1].panels[0].metrics[0];
 
@@ -256,7 +279,7 @@ describe('Monitoring mutations', () => {
 
         mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
           metricId,
-          result,
+          data,
         });
 
         expect(stateCopy.showEmptyState).toBe(false);
@@ -267,10 +290,10 @@ describe('Monitoring mutations', () => {
 
         mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
           metricId,
-          result,
+          data,
         });
 
-        expect(getMetric().result).toHaveLength(result.length);
+        expect(getMetric().result).toHaveLength(data.result.length);
         expect(getMetric()).toEqual(
           expect.objectContaining({
             loading: false,
@@ -418,16 +441,57 @@ describe('Monitoring mutations', () => {
     });
   });
 
-  describe('UPDATE_VARIABLES', () => {
+  describe('UPDATE_VARIABLE_VALUE', () => {
     afterEach(() => {
       mutations[types.SET_VARIABLES](stateCopy, {});
     });
 
     it('updates only the value of the variable in variables', () => {
       mutations[types.SET_VARIABLES](stateCopy, { environment: { value: 'prod', type: 'text' } });
-      mutations[types.UPDATE_VARIABLES](stateCopy, { key: 'environment', value: 'new prod' });
+      mutations[types.UPDATE_VARIABLE_VALUE](stateCopy, { key: 'environment', value: 'new prod' });
 
       expect(stateCopy.variables).toEqual({ environment: { value: 'new prod', type: 'text' } });
+    });
+  });
+
+  describe('UPDATE_VARIABLE_METRIC_LABEL_VALUES', () => {
+    it('updates options in a variable', () => {
+      const data = [
+        {
+          __name__: 'up',
+          job: 'prometheus',
+          env: 'prd',
+        },
+        {
+          __name__: 'up',
+          job: 'prometheus',
+          env: 'stg',
+        },
+        {
+          __name__: 'up',
+          job: 'node',
+          env: 'prod',
+        },
+        {
+          __name__: 'up',
+          job: 'node',
+          env: 'stg',
+        },
+      ];
+
+      const variable = {
+        options: {},
+      };
+
+      mutations[types.UPDATE_VARIABLE_METRIC_LABEL_VALUES](stateCopy, {
+        variable,
+        label: 'job',
+        data,
+      });
+
+      expect(variable.options).toEqual({
+        values: [{ text: 'prometheus', value: 'prometheus' }, { text: 'node', value: 'node' }],
+      });
     });
   });
 });

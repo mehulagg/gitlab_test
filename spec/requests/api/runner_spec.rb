@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Runner, :clean_gitlab_redis_shared_state do
+RSpec.describe API::Runner, :clean_gitlab_redis_shared_state do
   include StubGitlabCalls
   include RedisHelpers
   include WorkhorseHelpers
@@ -644,6 +644,44 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
                   .to contain_exactly("+refs/pipelines/#{pipeline.id}:refs/pipelines/#{pipeline.id}",
                                       '+refs/tags/*:refs/tags/*',
                                       '+refs/heads/*:refs/remotes/origin/*')
+              end
+            end
+          end
+
+          context 'when job is for a release' do
+            let!(:job) { create(:ci_build, :release_options, pipeline: pipeline) }
+
+            context 'when `multi_build_steps` is passed by the runner' do
+              it 'exposes release info' do
+                request_job info: { features: { multi_build_steps: true } }
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(response.headers).not_to have_key('X-GitLab-Last-Update')
+                expect(json_response['steps']).to eq([
+                  {
+                    "name" => "script",
+                    "script" => ["make changelog | tee release_changelog.txt"],
+                    "timeout" => 3600,
+                    "when" => "on_success",
+                    "allow_failure" => false
+                  },
+                  {
+                    "name" => "release",
+                    "script" =>
+                    ["release-cli create --ref \"$CI_COMMIT_SHA\" --name \"Release $CI_COMMIT_SHA\" --tag-name \"release-$CI_COMMIT_SHA\" --description \"Created using the release-cli $EXTRA_DESCRIPTION\""],
+                    "timeout" => 3600,
+                    "when" => "on_success",
+                    "allow_failure" => false
+                  }
+                ])
+              end
+            end
+
+            context 'when `multi_build_steps` is not passed by the runner' do
+              it 'drops the job' do
+                request_job
+
+                expect(response).to have_gitlab_http_status(:no_content)
               end
             end
           end

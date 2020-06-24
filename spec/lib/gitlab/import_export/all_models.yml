@@ -31,6 +31,8 @@ issues:
 - closed_by
 - epic_issue
 - epic
+- feature_flag_issues
+- feature_flags
 - designs
 - design_versions
 - description_versions
@@ -95,6 +97,7 @@ snippets:
 - user_agent_detail
 - user_mentions
 - snippet_repository
+- statistics
 releases:
 - author
 - project
@@ -184,6 +187,7 @@ ci_pipelines:
 - statuses
 - latest_statuses_ordered_by_stage
 - builds
+- bridges
 - processables
 - trigger_requests
 - variables
@@ -223,6 +227,7 @@ ci_pipelines:
 - daily_build_group_report_results
 - latest_builds
 - daily_report_results
+- latest_builds_report_results
 ci_refs:
 - project
 - ci_pipelines
@@ -504,6 +509,7 @@ project:
 - freeze_periods
 - webex_teams_service
 - build_report_results
+- vulnerability_statistic
 award_emoji:
 - awardable
 - user
@@ -568,6 +574,9 @@ self_managed_prometheus_alert_events:
 epic_issues:
 - issue
 - epic
+feature_flag_issues:
+- issue
+- feature_flag
 tracing_setting:
 - project
 reviews:
@@ -589,6 +598,7 @@ boards:
 - board_assignee
 - assignee
 - labels
+- user_preferences
 lists:
 - user
 - milestone

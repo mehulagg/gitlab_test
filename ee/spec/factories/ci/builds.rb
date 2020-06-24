@@ -114,7 +114,7 @@ FactoryBot.define do
       end
     end
 
-    %w[1 1_1 2].each do |version|
+    %w[1 1_1 2 2_1].each do |version|
       trait :"license_scan_v#{version}" do
         after :build do |build|
           build.job_artifacts << build(:ee_ci_job_artifact, :license_scan, :"v#{version}", job: build)
@@ -124,7 +124,7 @@ FactoryBot.define do
 
     trait :requirements_report do
       after(:build) do |build|
-        build.job_artifacts << create(:ee_ci_job_artifact, :requirements, job: build)
+        build.job_artifacts << create(:ee_ci_job_artifact, :all_passing_requirements, job: build)
       end
     end
   end

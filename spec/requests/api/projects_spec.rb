@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-shared_examples 'languages and percentages JSON response' do
+RSpec.shared_examples 'languages and percentages JSON response' do
   let(:expected_languages) { project.repository.languages.map { |language| language.values_at(:label, :value)}.to_h }
 
   before do
@@ -46,7 +46,7 @@ shared_examples 'languages and percentages JSON response' do
   end
 end
 
-describe API::Projects do
+RSpec.describe API::Projects do
   include ProjectForksHelper
 
   let(:user) { create(:user) }
@@ -581,6 +581,85 @@ describe API::Projects do
         let(:filter) { {} }
         let(:current_user) { admin }
         let(:projects) { Project.all }
+      end
+    end
+
+    context 'sorting by project statistics' do
+      %w(repository_size storage_size wiki_size).each do |order_by|
+        context "sorting by #{order_by}" do
+          before do
+            ProjectStatistics.update_all(order_by => 100)
+            project4.statistics.update_columns(order_by => 10)
+            project.statistics.update_columns(order_by => 200)
+          end
+
+          context 'admin user' do
+            let(:current_user) { admin }
+
+            context "when sorting by #{order_by} ascendingly" do
+              it 'returns a properly sorted list of projects' do
+                get api('/projects', current_user), params: { order_by: order_by, sort: :asc }
+
+                expect(response).to have_gitlab_http_status(:ok)
+                expect(response).to include_pagination_headers
+                expect(json_response).to be_an Array
+                expect(json_response.first['id']).to eq(project4.id)
+              end
+            end
+
+            context "when sorting by #{order_by} descendingly" do
+              it 'returns a properly sorted list of projects' do
+                get api('/projects', current_user), params: { order_by: order_by, sort: :desc }
+
+                expect(response).to have_gitlab_http_status(:ok)
+                expect(response).to include_pagination_headers
+                expect(json_response).to be_an Array
+                expect(json_response.first['id']).to eq(project.id)
+              end
+            end
+          end
+
+          context 'non-admin user' do
+            let(:current_user) { user }
+            let(:projects) { [public_project, project, project2, project3] }
+
+            it 'returns projects ordered normally' do
+              get api('/projects', current_user), params: { order_by: order_by }
+
+              expect(response).to have_gitlab_http_status(:ok)
+              expect(response).to include_pagination_headers
+              expect(json_response).to be_an Array
+              expect(json_response.map { |project| project['id'] }).to eq(projects.map(&:id).reverse)
+            end
+          end
+        end
+      end
+    end
+
+    context 'filtering by repository_storage' do
+      before do
+        [project, project3].each { |proj| proj.update_columns(repository_storage: 'nfs-11') }
+        # Since we don't actually have Gitaly configured with an nfs-11 storage, an error would be raised
+        # when we present the projects in a response, as we ask Gitaly for stuff like default branch and Gitaly
+        # is not configured for a nfs-11 storage. So we trick Rails into thinking the storage for these projects
+        # is still default (in reality, it is).
+        allow_any_instance_of(Project).to receive(:repository_storage).and_return('default')
+      end
+
+      context 'admin user' do
+        it_behaves_like 'projects response' do
+          let(:filter) { { repository_storage: 'nfs-11' } }
+          let(:current_user) { admin }
+          let(:projects) { [project, project3] }
+        end
+      end
+
+      context 'non-admin user' do
+        it_behaves_like 'projects response' do
+          let(:filter) { { repository_storage: 'nfs-11' } }
+          let(:current_user) { user }
+          let(:projects) { [public_project, project, project2, project3] }
+        end
       end
     end
 
@@ -2133,7 +2212,7 @@ describe API::Projects do
       expect(json_response['expires_at']).to eq(expires_at.to_s)
     end
 
-    it 'updates project authorization' do
+    it 'updates project authorization', :sidekiq_inline do
       expect do
         post api("/projects/#{project.id}/share", user), params: { group_id: group.id, group_access: Gitlab::Access::DEVELOPER }
       end.to(
@@ -2515,6 +2594,21 @@ describe API::Projects do
         expect(json_response['container_expiration_policy']['cadence']).to eq('1month')
         expect(json_response['container_expiration_policy']['keep_n']).to eq(1)
         expect(json_response['container_expiration_policy']['name_regex_keep']).to eq('foo.*')
+      end
+
+      it "doesn't update container_expiration_policy with invalid regex" do
+        project_param = {
+          container_expiration_policy_attributes: {
+            cadence: '1month',
+            keep_n: 1,
+            name_regex_keep: '['
+          }
+        }
+
+        put api("/projects/#{project3.id}", user4), params: project_param
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']['container_expiration_policy.name_regex_keep']).to contain_exactly('not valid RE2 syntax: missing ]: [')
       end
     end
 

@@ -8,9 +8,10 @@ RSpec.describe 'Database schema' do
 
   let(:connection) { ActiveRecord::Base.connection }
   let(:tables) { connection.tables }
+  let(:columns_name_with_jsonb) { retrieve_columns_name_with_jsonb }
 
-  # Use if you are certain that this column should not have a foreign key
-  # EE: edit the ee/spec/db/schema_support.rb
+  # List of columns historically missing a FK, don't add more columns
+  # See: https://docs.gitlab.com/ce/development/foreign_keys.html#naming-foreign-keys
   IGNORED_FK_COLUMNS = {
     abuse_reports: %w[reporter_id user_id],
     application_settings: %w[performance_bar_allowed_group_id slack_app_id snowplow_app_id eks_account_id eks_access_key_id],
@@ -92,7 +93,8 @@ RSpec.describe 'Database schema' do
         let(:indexes) { connection.indexes(table) }
         let(:columns) { connection.columns(table) }
         let(:foreign_keys) { connection.foreign_keys(table) }
-        let(:primary_key_column) { connection.primary_key(table) }
+        # take the first column in case we're using a composite primary key
+        let(:primary_key_column) { Array(connection.primary_key(table)).first }
 
         context 'all foreign keys' do
           # for index to be effective, the FK constraint has to be at first place
@@ -117,7 +119,11 @@ RSpec.describe 'Database schema' do
           let(:ignored_columns) { ignored_fk_columns(table) }
 
           it 'do have the foreign keys' do
-            expect(column_names_with_id - ignored_columns).to contain_exactly(*foreign_keys_columns)
+            expect(column_names_with_id - ignored_columns).to match_array(foreign_keys_columns)
+          end
+
+          it 'and having foreign key are not in the ignore list' do
+            expect(ignored_columns).to match_array(ignored_columns - foreign_keys)
           end
         end
       end
@@ -168,7 +174,53 @@ RSpec.describe 'Database schema' do
     end
   end
 
+  # These pre-existing columns does not use a schema validation yet
+  IGNORED_JSONB_COLUMNS = {
+    "ApplicationSetting" => %w[repository_storages_weighted],
+    "AlertManagement::Alert" => %w[payload],
+    "Ci::BuildMetadata" => %w[config_options config_variables],
+    "Geo::Event" => %w[payload],
+    "GeoNodeStatus" => %w[status],
+    "Operations::FeatureFlagScope" => %w[strategies],
+    "Operations::FeatureFlags::Strategy" => %w[parameters],
+    "Packages::Composer::Metadatum" => %w[composer_json],
+    "Releases::Evidence" => %w[summary]
+  }.freeze
+
+  # We are skipping GEO models for now as it adds up complexity
+  describe 'for jsonb columns' do
+    it 'uses json schema validator' do
+      columns_name_with_jsonb.each do |hash|
+        next if models_by_table_name[hash["table_name"]].nil?
+
+        models_by_table_name[hash["table_name"]].each do |model|
+          jsonb_columns = [hash["column_name"]] - ignored_jsonb_columns(model.name)
+
+          expect(model).to validate_jsonb_schema(jsonb_columns)
+        end
+      end
+    end
+  end
+
   private
+
+  def retrieve_columns_name_with_jsonb
+    sql = <<~SQL
+        SELECT table_name, column_name, data_type
+          FROM information_schema.columns
+        WHERE table_catalog = '#{ApplicationRecord.connection_config[:database]}'
+          AND table_schema = 'public'
+          AND table_name NOT LIKE 'pg_%'
+          AND data_type = 'jsonb'
+      ORDER BY table_name, column_name, data_type
+    SQL
+
+    ApplicationRecord.connection.select_all(sql).to_a
+  end
+
+  def models_by_table_name
+    @models_by_table_name ||= ApplicationRecord.descendants.reject(&:abstract_class).group_by(&:table_name)
+  end
 
   def ignored_fk_columns(column)
     IGNORED_FK_COLUMNS.fetch(column, [])
@@ -176,5 +228,9 @@ RSpec.describe 'Database schema' do
 
   def ignored_limit_enums(model)
     IGNORED_LIMIT_ENUMS.fetch(model, [])
+  end
+
+  def ignored_jsonb_columns(model)
+    IGNORED_JSONB_COLUMNS.fetch(model, [])
   end
 end

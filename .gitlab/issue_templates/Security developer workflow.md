@@ -41,7 +41,6 @@ After your merge request has been approved according to our [approval guidelines
 - [ ] Fill in any upgrade notes that users may need to take into account in the [details section](#details)
 - [ ] Add Yes/No and further details if needed to the migration and settings columns in the [details section](#details)
 - [ ] Add the nickname of the external user who found the issue (and/or HackerOne profile) to the Thanks row in the [details section](#details)
-- [ ] Once your `master` MR is merged, comment on the original security issue with a link to that MR indicating the issue is fixed.
 
 ## Summary
 
@@ -64,7 +63,7 @@ After your merge request has been approved according to our [approval guidelines
 | Thanks | | |
 
 [security process for developers]: https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md
-[secpick documentation]: https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md#secpick-script
+[secpick documentation]: https://gitlab.com/gitlab-org/release/docs/-/blob/master/general/security/utilities/secpick_script.md
 [security Release merge request template]: https://gitlab.com/gitlab-org/security/gitlab/blob/master/.gitlab/merge_request_templates/Security%20Release.md
 [code review process]: https://docs.gitlab.com/ee/development/code_review.html
 [approval guidelines]: https://docs.gitlab.com/ee/development/code_review.html#approval-guidelines

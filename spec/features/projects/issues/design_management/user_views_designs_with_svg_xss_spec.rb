@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'User views an SVG design that contains XSS', :js do
+RSpec.describe 'User views an SVG design that contains XSS', :js do
   include DesignManagementTestHelpers
 
   let(:project) { create(:project_empty_repo, :public) }
@@ -12,6 +12,7 @@ describe 'User views an SVG design that contains XSS', :js do
 
   before do
     enable_design_management
+    stub_feature_flags(design_management_moved: false)
 
     visit designs_project_issue_path(
       project,

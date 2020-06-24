@@ -258,7 +258,7 @@ can have multiple Release Evidence snapshots. You can view the Release Evidence 
 its details on the Release page.
 
 NOTE: **Note:**
-When the issue tracker is disabled, release evidence [is not collected](https://gitlab.com/gitlab-org/gitlab/-/issues/208397).
+When the issue tracker is disabled, release evidence [cannot be downloaded](https://gitlab.com/gitlab-org/gitlab/-/issues/208397).
 
 Release Evidence is stored as a JSON object, so you can compare evidence by using
 commonly-available tools.
@@ -269,11 +269,16 @@ Here is an example of a Release Evidence object:
 {
   "release": {
     "id": 5,
-    "tag": "v4.0",
+    "tag_name": "v4.0",
     "name": "New release",
-    "project_id": 45,
-    "project_name": "Project name",
-    "released_at": "2019-06-28 13:23:40 UTC",
+    "project": {
+      "id": 20,
+      "name": "Project name",
+      "created_at": "2019-04-14T11:12:13.940Z",
+      "description": "Project description"
+    },
+    "created_at": "2019-06-28 13:23:40 UTC",
+    "description": "Release description",
     "milestones": [
       {
         "id": 11,
@@ -308,12 +313,17 @@ Here is an example of a Release Evidence object:
         "created_at": "2019-04-17 15:45:12 UTC",
         "issues": []
       }
+    ],
+    "report_artifacts": [
+      {
+        "url":"https://gitlab.example.com/root/project-name/-/jobs/111/artifacts/download"
+      }
     ]
   }
 }
 ```
 
-### Enabling Release Evidence display **(CORE ONLY)**
+### Diabling Release Evidence display **(CORE ONLY)**
 
 This feature comes with the `:release_evidence_collection` feature flag
 enabled by default in GitLab self-managed instances. To turn it off,
@@ -335,6 +345,37 @@ Releases page.
 
 Evidence collection can be initiated by using an [API call](../../../api/releases/index.md#collect-release-evidence-premium-only) at any time. Evidence snapshots are visible on
 the Release page, along with the timestamp the Evidence was collected.
+
+### Include report artifacts as release evidence **(ULTIMATE ONLY)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/32773) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.2.
+
+When you create a release, if [job artifacts](../../../ci/pipelines/job_artifacts.md#artifactsreports) are included in the last pipeline that ran, they are automatically included in the release as release evidence.
+
+Although job artifacts normally expire, artifacts included in release evidence do not expire.
+
+To enable job artifact collection you need to specify both:
+
+1. [`artifacts:paths`](../../../ci/yaml/README.md#artifactspaths)
+1. [`artifacts:reports`](../../../ci/pipelines/job_artifacts.md#artifactsreports)
+
+```yaml
+ruby:
+  script:
+    - gem install bundler
+    - bundle install
+    - bundle exec rspec --format progress --format RspecJunitFormatter --out rspec.xml
+  artifacts:
+    paths:
+      - rspec.xml
+    reports:
+      junit: rspec.xml
+```
+
+If the pipeline ran successfully, when you create your release, the `rspec.xml` file is saved as release evidence.
+
+NOTE: **Note:**
+If you [schedule release evidence collection](#schedule-release-evidence-collection), some artifacts may already be expired by the time of evidence collection. To avoid this you can use the [`artifacts:expire_in`](../../../ci/yaml/README.md#artifactsexpire_in) keyword. Learn more in [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/222351).
 
 ### Schedule release evidence collection
 

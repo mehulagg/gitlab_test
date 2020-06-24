@@ -10,7 +10,73 @@ describe Gitlab::UsageData, :aggregate_failures do
     stub_object_store_settings
   end
 
-  describe '#uncached_data' do
+  describe '.uncached_data' do
+    describe '.usage_activity_by_stage' do
+      it 'includes usage_activity_by_stage data' do
+        expect(described_class.uncached_data).to include(:usage_activity_by_stage)
+        expect(described_class.uncached_data).to include(:usage_activity_by_stage_monthly)
+      end
+
+      context 'for configure' do
+        it 'includes accurate usage_activity_by_stage data' do
+          for_defined_days_back do
+            user = create(:user)
+            cluster = create(:cluster, user: user)
+            create(:clusters_applications_cert_manager, :installed, cluster: cluster)
+            create(:clusters_applications_helm, :installed, cluster: cluster)
+            create(:clusters_applications_ingress, :installed, cluster: cluster)
+            create(:clusters_applications_knative, :installed, cluster: cluster)
+            create(:cluster, :disabled, user: user)
+            create(:cluster_provider_gcp, :created)
+            create(:cluster_provider_aws, :created)
+            create(:cluster_platform_kubernetes)
+            create(:cluster, :group, :disabled, user: user)
+            create(:cluster, :group, user: user)
+            create(:cluster, :instance, :disabled, :production_environment)
+            create(:cluster, :instance, :production_environment)
+            create(:cluster, :management_project)
+          end
+
+          expect(described_class.uncached_data[:usage_activity_by_stage][:configure]).to include(
+            clusters_applications_cert_managers: 2,
+            clusters_applications_helm: 2,
+            clusters_applications_ingress: 2,
+            clusters_applications_knative: 2,
+            clusters_management_project: 2,
+            clusters_disabled: 4,
+            clusters_enabled: 12,
+            clusters_platforms_gke: 2,
+            clusters_platforms_eks: 2,
+            clusters_platforms_user: 2,
+            instance_clusters_disabled: 2,
+            instance_clusters_enabled: 2,
+            group_clusters_disabled: 2,
+            group_clusters_enabled: 2,
+            project_clusters_disabled: 2,
+            project_clusters_enabled: 10
+          )
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:configure]).to include(
+            clusters_applications_cert_managers: 1,
+            clusters_applications_helm: 1,
+            clusters_applications_ingress: 1,
+            clusters_applications_knative: 1,
+            clusters_management_project: 1,
+            clusters_disabled: 2,
+            clusters_enabled: 6,
+            clusters_platforms_gke: 1,
+            clusters_platforms_eks: 1,
+            clusters_platforms_user: 1,
+            instance_clusters_disabled: 1,
+            instance_clusters_enabled: 1,
+            group_clusters_disabled: 1,
+            group_clusters_enabled: 1,
+            project_clusters_disabled: 1,
+            project_clusters_enabled: 5
+          )
+        end
+      end
+    end
+
     it 'ensures recorded_at is set before any other usage data calculation' do
       %i(alt_usage_data redis_usage_data distinct_count count).each do |method|
         expect(described_class).not_to receive(method)
@@ -42,6 +108,10 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data.values_at(*UsageDataHelpers::SMAU_KEYS)).to all(be_an(Integer))
       expect(count_data.keys).to include(*UsageDataHelpers::COUNTS_KEYS)
       expect(UsageDataHelpers::COUNTS_KEYS - count_data.keys).to be_empty
+    end
+
+    it 'gathers usage counts monthly hash' do
+      expect(subject[:counts_monthly]).to be_an(Hash)
     end
 
     it 'gathers projects data correctly' do
@@ -103,6 +173,8 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:grafana_integrated_projects]).to eq(2)
       expect(count_data[:clusters_applications_jupyter]).to eq(1)
       expect(count_data[:clusters_management_project]).to eq(1)
+
+      expect(count_data[:snippets]).to eq(2)
     end
 
     it 'gathers object store usage correctly' do
@@ -169,11 +241,27 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect { subject }.not_to raise_error
     end
 
+    it 'includes a recording_ce_finished_at timestamp' do
+      expect(subject[:recording_ce_finished_at]).to be_a(Time)
+    end
+
     it 'jira usage works when queries time out' do
       allow_any_instance_of(ActiveRecord::Relation)
         .to receive(:find_in_batches).and_raise(ActiveRecord::StatementInvalid.new(''))
 
       expect { described_class.jira_usage }.not_to raise_error
+    end
+  end
+
+  describe '.system_usage_data_monthly' do
+    let!(:ud) { build(:usage_data) }
+
+    subject { described_class.system_usage_data_monthly }
+
+    it 'gathers projects data correctly' do
+      counts_monthly = subject[:counts_monthly]
+
+      expect(counts_monthly[:snippets]).to eq(1)
     end
   end
 
@@ -213,14 +301,6 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect(subject[:installation_type]).to eq('gitlab-development-kit')
       expect(subject[:active_user_count]).to eq(User.active.size)
       expect(subject[:recorded_at]).to be_a(Time)
-    end
-  end
-
-  describe '.recording_ce_finished_at' do
-    subject { described_class.recording_ce_finish_data }
-
-    it 'gathers time ce recording finishes at' do
-      expect(subject[:recording_ce_finished_at]).to be_a(Time)
     end
   end
 
@@ -580,7 +660,7 @@ describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '#merge_requests_usage_data' do
+  describe '#merge_requests_usage' do
     let(:time_period) { { created_at: 2.days.ago..Time.current } }
     let(:merge_request) { create(:merge_request) }
     let(:other_user) { create(:user) }
@@ -597,9 +677,49 @@ describe Gitlab::UsageData, :aggregate_failures do
     end
 
     it 'returns the distinct count of users using merge requests (via events table) within the specified time period' do
-      expect(described_class.merge_requests_usage_data(time_period)).to eq(
+      expect(described_class.merge_requests_usage(time_period)).to eq(
         merge_requests_users: 2
       )
+    end
+  end
+
+  def for_defined_days_back(days: [29, 2])
+    days.each do |n|
+      Timecop.travel(n.days.ago) do
+        yield
+      end
+    end
+  end
+
+  describe '.analytics_unique_visits_data' do
+    subject { described_class.analytics_unique_visits_data }
+
+    it 'returns the number of unique visits to pages with analytics features' do
+      ::Gitlab::Analytics::UniqueVisits::TARGET_IDS.each do |target_id|
+        expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:weekly_unique_visits_for_target).with(target_id).and_return(123)
+      end
+
+      expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:weekly_unique_visits_for_any_target).and_return(543)
+
+      expect(subject).to eq({
+        analytics_unique_visits: {
+          'g_analytics_contribution' => 123,
+          'g_analytics_insights' => 123,
+          'g_analytics_issues' => 123,
+          'g_analytics_productivity' => 123,
+          'g_analytics_valuestream' => 123,
+          'p_analytics_pipelines' => 123,
+          'p_analytics_code_reviews' => 123,
+          'p_analytics_valuestream' => 123,
+          'p_analytics_insights' => 123,
+          'p_analytics_issues' => 123,
+          'p_analytics_repo' => 123,
+          'u_analytics_todos' => 123,
+          'i_analytics_cohorts' => 123,
+          'i_analytics_dev_ops_score' => 123,
+          'analytics_unique_visits_for_any_target' => 543
+        }
+      })
     end
   end
 end

@@ -72,9 +72,9 @@ module Gitlab
 
       def commit_deltas(commit)
         request = Gitaly::CommitDeltaRequest.new(diff_from_parent_request_params(commit))
-        response = GitalyClient.call(@repository.storage, :diff_service, :commit_delta, request, timeout: GitalyClient.fast_timeout)
-
-        response.flat_map { |msg| msg.deltas }
+        GitalyClient.streaming_call(@repository.storage, :diff_service, :commit_delta, request, timeout: GitalyClient.fast_timeout) do |response|
+          response.flat_map { |msg| msg.deltas }
+        end
       end
 
       def tree_entry(ref, path, limit = nil)
@@ -180,11 +180,12 @@ module Gitlab
         end
       end
 
-      def last_commit_for_path(revision, path)
+      def last_commit_for_path(revision, path, literal_pathspec: false)
         request = Gitaly::LastCommitForPathRequest.new(
           repository: @gitaly_repo,
           revision: encode_binary(revision),
-          path: encode_binary(path.to_s)
+          path: encode_binary(path.to_s),
+          literal_pathspec: literal_pathspec
         )
 
         gitaly_commit = GitalyClient.call(@repository.storage, :commit_service, :last_commit_for_path, request, timeout: GitalyClient.fast_timeout).commit
@@ -247,8 +248,8 @@ module Gitlab
         request = Gitaly::CommitsByMessageRequest.new(
           repository: @gitaly_repo,
           query: query,
-          revision: revision.to_s.force_encoding(Encoding::ASCII_8BIT),
-          path: path.to_s.force_encoding(Encoding::ASCII_8BIT),
+          revision: encode_binary(revision),
+          path: encode_binary(path),
           limit: limit.to_i,
           offset: offset.to_i
         )
@@ -348,10 +349,10 @@ module Gitlab
           end
         end
 
-        response = GitalyClient.call(@repository.storage, :commit_service, :filter_shas_with_signatures, enum, timeout: GitalyClient.fast_timeout)
-
-        response.flat_map do |msg|
-          msg.shas.map { |sha| EncodingHelper.encode!(sha) }
+        GitalyClient.streaming_call(@repository.storage, :commit_service, :filter_shas_with_signatures, enum, timeout: GitalyClient.fast_timeout) do |response|
+          response.flat_map do |msg|
+            msg.shas.map { |sha| EncodingHelper.encode!(sha) }
+          end
         end
       end
 
@@ -390,6 +391,21 @@ module Gitlab
         messages
       end
 
+      def list_commits_by_ref_name(refs)
+        request = Gitaly::ListCommitsByRefNameRequest
+          .new(repository: @gitaly_repo, ref_names: refs)
+
+        response = GitalyClient.call(@repository.storage, :commit_service, :list_commits_by_ref_name, request, timeout: GitalyClient.medium_timeout)
+
+        commit_refs = response.flat_map do |message|
+          message.commit_refs.map do |commit_ref|
+            [commit_ref.ref_name, Gitlab::Git::Commit.new(@repository, commit_ref.commit)]
+          end
+        end
+
+        Hash[commit_refs]
+      end
+
       private
 
       def call_commit_diff(request_params, options = {})
@@ -399,8 +415,9 @@ module Gitlab
         request_params.merge!(Gitlab::Git::DiffCollection.limits(options).to_h)
 
         request = Gitaly::CommitDiffRequest.new(request_params)
-        response = GitalyClient.call(@repository.storage, :diff_service, :commit_diff, request, timeout: GitalyClient.medium_timeout)
-        GitalyClient::DiffStitcher.new(response)
+        GitalyClient.streaming_call(@repository.storage, :diff_service, :commit_diff, request, timeout: GitalyClient.medium_timeout) do |response|
+          GitalyClient::DiffStitcher.new(response)
+        end
       end
 
       def diff_from_parent_request_params(commit, options = {})

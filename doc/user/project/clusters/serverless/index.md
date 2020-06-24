@@ -33,7 +33,7 @@ of the box through its main components:
 - [Serving](https://github.com/knative/serving): Request-driven compute that can scale to zero.
 - [Eventing](https://github.com/knative/eventing): Management and delivery of events.
 
-For more information on Knative, visit the [Knative docs repo](https://github.com/knative/docs).
+For more information on Knative, visit the [Knative docs repository](https://github.com/knative/docs).
 
 With GitLab Serverless, you can deploy both functions-as-a-service (FaaS) and serverless applications.
 
@@ -61,14 +61,14 @@ To run Knative on GitLab, you will need:
    wildcard domain where your applications will be served. Configure your DNS server to use the
    external IP address or hostname for that domain.
 1. **`.gitlab-ci.yml`:** GitLab uses [Kaniko](https://github.com/GoogleContainerTools/kaniko)
-   to build the application. We also use [gitlabktl](https://gitlab.com/gitlab-org/gitlabktl)
+   to build the application. We also use [GitLab Knative tool](https://gitlab.com/gitlab-org/gitlabktl)
    CLI to simplify the deployment of services and functions to Knative.
 1. **`serverless.yml`** (for [functions only](#deploying-functions)): When using serverless to deploy functions, the `serverless.yml` file
    will contain the information for all the functions being hosted in the repository as well as a reference to the
    runtime being used.
 1. **`Dockerfile`** (for [applications only](#deploying-serverless-applications)): Knative requires a
    `Dockerfile` in order to build your applications. It should be included at the root of your
-   project's repo and expose port `8080`. `Dockerfile` is not require if you plan to build serverless functions
+   project's repository and expose port `8080`. `Dockerfile` is not require if you plan to build serverless functions
    using our [runtimes](https://gitlab.com/gitlab-org/serverless/runtimes).
 1. **Prometheus** (optional): Installing Prometheus allows you to monitor the scale and traffic of your serverless function/application.
    See [Installing Applications](../index.md#installing-applications) for more information.
@@ -97,9 +97,9 @@ The minimum recommended cluster size to run Knative is 3-nodes, 6 vCPUs, and 22.
 1. The Ingress is now available at this address and will route incoming requests to the proper service based on the DNS
    name in the request. To support this, a wildcard DNS record should be created for the desired domain name. For example,
    if your Knative base domain is `knative.info` then you need to create an A record or CNAME record with domain `*.knative.info`
-   pointing the ip address or hostname of the Ingress.
+   pointing the IP address or hostname of the Ingress.
 
-   ![dns entry](img/dns-entry.png)
+   ![DNS entry](img/dns-entry.png)
 
 NOTE: **Note:**
 You can deploy either [functions](#deploying-functions) or [serverless applications](#deploying-serverless-applications)
@@ -318,7 +318,7 @@ Explanation of the fields used above:
 |-----------|-------------|
 | `name` | Indicates which provider is used to execute the `serverless.yml` file. In this case, the TriggerMesh middleware. |
 | `envs` | Includes the environment variables to be passed as part of function execution for **all** functions in the file, where `FOO` is the variable name and `BAR` are the variable contents. You may replace this with your own variables. |
-| `secrets` | Includes the contents of the Kubernetes secret as environment variables accessible to be passed as part of function execution for **all** functions in the file. The secrets are expected in ini format. |
+| `secrets` | Includes the contents of the Kubernetes secret as environment variables accessible to be passed as part of function execution for **all** functions in the file. The secrets are expected in INI format. |
 
 ### `functions`
 
@@ -332,7 +332,7 @@ subsequent lines contain the function attributes.
 | `runtime` (optional)| The runtime to be used to execute the function. This can be a runtime alias (see [Runtime aliases](#runtime-aliases)), or it can be a full URL to a custom runtime repository. When the runtime is not specified, we assume that `Dockerfile` is present in the function directory specified by `source`. |
 | `description` | A short description of the function. |
 | `envs` | Sets an environment variable for the specific function only. |
-| `secrets` | Includes the contents of the Kubernetes secret as environment variables accessible to be passed as part of function execution for the specific function only. The secrets are expected in ini format. |
+| `secrets` | Includes the contents of the Kubernetes secret as environment variables accessible to be passed as part of function execution for the specific function only. The secrets are expected in INI format. |
 
 ### Deployment
 
@@ -384,7 +384,7 @@ The sample function can now be triggered from any HTTP client using a simple `PO
      http://functions-echo.functions-1.functions.example.com/
      ```
 
-  1. Using a web-based tool (ie. postman, restlet, etc)
+  1. Using a web-based tool (such as Postman or Restlet)
 
      ![function execution](img/function-execution.png)
 
@@ -570,7 +570,7 @@ The simplest way to accomplish this is to
 use [Certbot to manually obtain Let's Encrypt certificates](https://knative.dev/docs/serving/using-a-tls-cert/#using-certbot-to-manually-obtain-let-s-encrypt-certificates). Certbot is a free, open source software tool for automatically using Let’s Encrypt certificates on manually-administrated websites to enable HTTPS.
 
 NOTE: **Note:**
-The instructions below relate to installing and running Certbot on a Linux server and may not work on other operating systems.
+The instructions below relate to installing and running Certbot on a Linux server that has Python 3 installed and may not work on other operating systems or with other versions of Python.
 
 1. Install Certbot by running the
    [`certbot-auto` wrapper script](https://certbot.eff.org/docs/install.html#certbot-auto).
@@ -580,7 +580,7 @@ The instructions below relate to installing and running Certbot on a Linux serve
    wget https://dl.eff.org/certbot-auto
    sudo mv certbot-auto /usr/local/bin/certbot-auto
    sudo chown root /usr/local/bin/certbot-auto
-   chmod 0755 /usr/local/bin/certbot-auto
+   sudo chmod 0755 /usr/local/bin/certbot-auto
    /usr/local/bin/certbot-auto --help
    ```
 
@@ -609,7 +609,7 @@ The instructions below relate to installing and running Certbot on a Linux serve
    using DNS challenge during authorization:
 
    ```shell
-   ./certbot-auto certonly --manual --preferred-challenges dns -d '*.<namespace>.example.com'
+   /usr/local/bin/certbot-auto certonly --manual --preferred-challenges dns -d '*.<namespace>.example.com'
    ```
 
    Where `<namespace>` is the namespace created by GitLab for your serverless project (composed of `<project_name>-<project_id>-<environment>`) and
@@ -835,7 +835,7 @@ The instructions below relate to installing and running Certbot on a Linux serve
 ## Using an older version of `gitlabktl`
 
 There may be situations where you want to run an older version of `gitlabktl`. This
-requires setting an older version of the `gitlabktl` image in the `.gitlab-ci.yml file.`
+requires setting an older version of the `gitlabktl` image in the `.gitlab-ci.yml` file.
 
 To set an older version, add `image:` to the `functions:deploy` block. For example:
 

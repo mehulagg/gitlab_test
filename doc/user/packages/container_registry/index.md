@@ -513,7 +513,7 @@ then goes through a process of excluding tags from it until only the ones to be 
 1. Excludes any tags that do not have a manifest (not part of the options).
 1. Orders the remaining tags by `created_date`.
 1. Excludes from the list the N tags based on the `keep_n` value (Number of tags to retain).
-1. Excludes from the list the tags older than the `older_than` value (Expiration interval).
+1. Excludes from the list the tags more recent than the `older_than` value (Expiration interval).
 1. Excludes from the list any tags matching the `name_regex_keep` value (Images to preserve).
 1. Finally, the remaining tags in the list are deleted from the Container Registry.
 
@@ -531,6 +531,17 @@ The UI allows you to configure the following:
 - **Number of tags to retain:** how many tags to _always_ keep for each image.
 - **Docker tags with names matching this regex pattern will expire:** the regex used to determine what tags should be expired. To qualify all tags for expiration, use the default value of `.*`.
 - **Docker tags with names matching this regex pattern will be preserved:** the regex used to determine what tags should be preserved. To preserve all tags, use the default value of `.*`.
+
+#### Troubleshooting expiration policies
+
+If you see the following message:
+
+"Something went wrong while updating the expiration policy."
+
+Check the regex patterns to ensure they are valid.
+
+You can use [Rubular](https://rubular.com/) to check your regex.
+View some common [regex pattern examples](#regex-pattern-examples).
 
 ### Managing project expiration policy through the API
 
@@ -584,6 +595,15 @@ Here are examples of regex patterns you may want to use:
   ```plaintext
   (?:v.+|master|release)
   ```
+
+## Use the Container Registry to store Helm Charts
+
+With the launch of [Helm v3](https://helm.sh/docs/topics/registries/),
+you can use the Container Registry to store Helm Charts. However, due to the way metadata is passed
+and stored by Docker, it is not possible for GitLab to parse this data and meet performance standards.
+[This epic](https://gitlab.com/groups/gitlab-org/-/epics/2313) updates the architecture of the Container Registry to support Helm Charts.
+
+You can read more about the above challenges [here](https://gitlab.com/gitlab-org/gitlab/-/issues/38047#note_298842890).
 
 ## Limitations
 

@@ -316,7 +316,7 @@ FactoryBot.define do
       file_format { :raw }
     end
 
-    %w[1 1_1 2].each do |version|
+    %w[1 1_1 2 2_1].each do |version|
       trait :"v#{version}" do
         after(:build) do |artifact, _|
           filename = "gl-#{artifact.file_type.dasherize}-report-v#{version.sub(/_/, '.')}.json"
@@ -333,13 +333,23 @@ FactoryBot.define do
       end
     end
 
-    trait :requirements do
+    trait :all_passing_requirements do
       file_format { :raw }
       file_type { :requirements }
 
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(
-          Rails.root.join('ee/spec/fixtures/requirements_management/report.json'), 'application/json')
+          Rails.root.join('ee/spec/fixtures/requirements_management/all_passing_report.json'), 'application/json')
+      end
+    end
+
+    trait :individual_requirements do
+      file_format { :raw }
+      file_type { :requirements }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/requirements_management/report_by_requirement.json'), 'application/json')
       end
     end
   end

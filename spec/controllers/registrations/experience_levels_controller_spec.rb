@@ -97,6 +97,55 @@ describe Registrations::ExperienceLevelsController do
           it { is_expected.to have_gitlab_http_status(:redirect) }
           it { is_expected.to redirect_to(root_path) }
         end
+
+        describe 'applying the chosen level' do
+          context 'when a "Learn GitLab" project is available' do
+            before do
+              allow_next_instance_of(LearnGitlab) do |learn_gitlab|
+                allow(learn_gitlab).to receive(:available?).and_return(true)
+                allow(learn_gitlab).to receive(:label).and_return(double(id: 1))
+              end
+            end
+
+            context 'when novice' do
+              let(:params) { super().merge(experience_level: :novice) }
+
+              it 'adds a BoardLabel' do
+                expect_next_instance_of(Boards::UpdateService) do |service|
+                  expect(service).to receive(:execute)
+                end
+
+                subject
+              end
+            end
+
+            context 'when experienced' do
+              let(:params) { super().merge(experience_level: :experienced) }
+
+              it 'does not add a BoardLabel' do
+                expect(Boards::UpdateService).not_to receive(:new)
+
+                subject
+              end
+            end
+          end
+
+          context 'when no "Learn GitLab" project exists' do
+            let(:params) { super().merge(experience_level: :novice) }
+
+            before do
+              allow_next_instance_of(LearnGitlab) do |learn_gitlab|
+                allow(learn_gitlab).to receive(:available?).and_return(false)
+              end
+            end
+
+            it 'does not add a BoardLabel' do
+              expect(Boards::UpdateService).not_to receive(:new)
+
+              subject
+            end
+          end
+        end
       end
 
       context 'when user update fails' do

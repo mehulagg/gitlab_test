@@ -805,6 +805,24 @@ const boardsStore = {
     }
   },
 
+  setIssueLoadingState(issue, key, value) {
+    issue.isLoading[key] = value;
+  },
+
+  updateIssueData(issue, newData) {
+    Object.assign(issue, newData);
+  },
+
+  setIssueFetchingState(issue, key, value) {
+    issue.isFetching[key] = value;
+  },
+
+  removeIssueMilestone(issue, removeMilestone) {
+    if (IS_EE && removeMilestone && removeMilestone.id === issue.milestone.id) {
+      issue.milestone = {};
+    }
+  },
+
   refreshIssueData(issue, obj) {
     issue.id = obj.id;
     issue.iid = obj.iid;
@@ -835,6 +853,11 @@ const boardsStore = {
 
     if (obj.assignees) {
       issue.assignees = obj.assignees.map(a => new ListAssignee(a));
+    }
+  },
+  addIssueLabel(issue, label) {
+    if (!issue.findLabel(label)) {
+      issue.labels.push(new ListLabel(label));
     }
   },
   updateIssue(issue) {

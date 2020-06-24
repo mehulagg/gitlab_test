@@ -18,7 +18,7 @@ module API
         use :pagination
         optional :scope,    type: String, values: %w[running pending finished branches tags],
                             desc: 'The scope of pipelines'
-        optional :status,   type: String, values: HasStatus::AVAILABLE_STATUSES,
+        optional :status,   type: String, values: Ci::HasStatus::AVAILABLE_STATUSES,
                             desc: 'The status of pipelines'
         optional :ref,      type: String, desc: 'The ref of pipelines'
         optional :sha,      type: String, desc: 'The sha of pipelines'
@@ -120,7 +120,7 @@ module API
 
         authorize! :read_build, pipeline
 
-        present pipeline.test_reports, with: TestReportEntity
+        present pipeline.test_reports, with: TestReportEntity, details: true
       end
 
       desc 'Deletes a pipeline' do

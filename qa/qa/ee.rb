@@ -118,6 +118,7 @@ module QA
           autoload :ProtectedBranches, 'qa/ee/page/project/settings/protected_branches'
           autoload :Main, 'qa/ee/page/project/settings/main'
           autoload :MirroringRepositories, 'qa/ee/page/project/settings/mirroring_repositories'
+          autoload :ProtectedTags, 'qa/ee/page/project/settings/protected_tags'
           autoload :MergeRequest, 'qa/ee/page/project/settings/merge_request'
           autoload :MergeRequestApprovals, 'qa/ee/page/project/settings/merge_request_approvals'
           autoload :Integrations, 'qa/ee/page/project/settings/integrations'
@@ -152,6 +153,8 @@ module QA
         module Secure
           autoload :Show, 'qa/ee/page/project/secure/show'
           autoload :DependencyList, 'qa/ee/page/project/secure/dependency_list'
+          autoload :SecurityDashboard, 'qa/ee/page/project/secure/security_dashboard'
+          autoload :VulnerabilityDetails, 'qa/ee/page/project/secure/vulnerability_details'
         end
 
         module PathLocks

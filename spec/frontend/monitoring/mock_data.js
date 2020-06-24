@@ -22,6 +22,8 @@ export const propsData = {
   validateQueryPath: '',
 };
 
+export const customDashboardBasePath = '.gitlab/dashboards';
+
 const customDashboardsData = new Array(30).fill(null).map((_, idx) => ({
   default: false,
   display_name: `Custom Dashboard ${idx}`,
@@ -367,6 +369,7 @@ export const singleStatMetricsResult = {
         {
           metric: { job: 'prometheus' },
           value: ['2019-06-26T21:03:20.881Z', 91],
+          values: [['2019-06-26T21:03:20.881Z', 91]],
         },
       ],
     },
@@ -467,9 +470,9 @@ export const stackedColumnMockedData = {
         {
           metric: {},
           values: [
-            ['2020-01-30 12:00:00', '5'],
-            ['2020-01-30 12:01:00', '10'],
-            ['2020-01-30 12:02:00', '15'],
+            ['2020-01-30T12:00:00.000Z', '5'],
+            ['2020-01-30T12:01:00.000Z', '10'],
+            ['2020-01-30T12:02:00.000Z', '15'],
           ],
         },
       ],
@@ -485,9 +488,9 @@ export const stackedColumnMockedData = {
         {
           metric: {},
           values: [
-            ['2020-01-30 12:00:00', '20'],
-            ['2020-01-30 12:01:00', '25'],
-            ['2020-01-30 12:02:00', '30'],
+            ['2020-01-30T12:00:00.000Z', '20'],
+            ['2020-01-30T12:01:00.000Z', '25'],
+            ['2020-01-30T12:02:00.000Z', '30'],
           ],
         },
       ],
@@ -714,6 +717,17 @@ const templatingVariableTypes = {
       },
     },
   },
+  metricLabelValues: {
+    simple: {
+      label: 'Metric Label Values',
+      type: 'metric_label_values',
+      options: {
+        prometheus_endpoint_path: '/series',
+        series_selector: 'backend:haproxy_backend_availability:ratio{env="{{env}}"}',
+        label: 'backend',
+      },
+    },
+  },
 };
 
 const generateMockTemplatingData = data => {
@@ -751,23 +765,25 @@ const responseForSimpleCustomVariable = {
   simpleCustom: {
     label: 'simpleCustom',
     value: 'value1',
-    options: [
-      {
-        default: false,
-        text: 'value1',
-        value: 'value1',
-      },
-      {
-        default: false,
-        text: 'value2',
-        value: 'value2',
-      },
-      {
-        default: false,
-        text: 'value3',
-        value: 'value3',
-      },
-    ],
+    options: {
+      values: [
+        {
+          default: false,
+          text: 'value1',
+          value: 'value1',
+        },
+        {
+          default: false,
+          text: 'value2',
+          value: 'value2',
+        },
+        {
+          default: false,
+          text: 'value3',
+          value: 'value3',
+        },
+      ],
+    },
     type: 'custom',
   },
 };
@@ -775,7 +791,9 @@ const responseForSimpleCustomVariable = {
 const responseForAdvancedCustomVariableWithoutOptions = {
   advCustomWithoutOpts: {
     label: 'advCustomWithoutOpts',
-    options: [],
+    options: {
+      values: [],
+    },
     type: 'custom',
   },
 };
@@ -784,18 +802,20 @@ const responseForAdvancedCustomVariableWithoutLabel = {
   advCustomWithoutLabel: {
     label: 'advCustomWithoutLabel',
     value: 'value2',
-    options: [
-      {
-        default: false,
-        text: 'Var 1 Option 1',
-        value: 'value1',
-      },
-      {
-        default: true,
-        text: 'Var 1 Option 2',
-        value: 'value2',
-      },
-    ],
+    options: {
+      values: [
+        {
+          default: false,
+          text: 'Var 1 Option 1',
+          value: 'value1',
+        },
+        {
+          default: true,
+          text: 'Var 1 Option 2',
+          value: 'value2',
+        },
+      ],
+    },
     type: 'custom',
   },
 };
@@ -804,19 +824,34 @@ const responseForAdvancedCustomVariableWithoutOptText = {
   advCustomWithoutOptText: {
     label: 'Options without text',
     value: 'value2',
-    options: [
-      {
-        default: false,
-        text: 'value1',
-        value: 'value1',
-      },
-      {
-        default: true,
-        text: 'value2',
-        value: 'value2',
-      },
-    ],
+    options: {
+      values: [
+        {
+          default: false,
+          text: 'value1',
+          value: 'value1',
+        },
+        {
+          default: true,
+          text: 'value2',
+          value: 'value2',
+        },
+      ],
+    },
     type: 'custom',
+  },
+};
+
+const responseForMetricLabelValues = {
+  simple: {
+    label: 'Metric Label Values',
+    type: 'metric_label_values',
+    value: null,
+    options: {
+      prometheusEndpointPath: '/series',
+      label: 'backend',
+      values: [],
+    },
   },
 };
 
@@ -825,18 +860,20 @@ const responseForAdvancedCustomVariable = {
   advCustomNormal: {
     label: 'Advanced Var',
     value: 'value2',
-    options: [
-      {
-        default: false,
-        text: 'Var 1 Option 1',
-        value: 'value1',
-      },
-      {
-        default: true,
-        text: 'Var 1 Option 2',
-        value: 'value2',
-      },
-    ],
+    options: {
+      values: [
+        {
+          default: false,
+          text: 'Var 1 Option 1',
+          value: 'value1',
+        },
+        {
+          default: true,
+          text: 'Var 1 Option 2',
+          value: 'value2',
+        },
+      ],
+    },
     type: 'custom',
   },
 };
@@ -870,6 +907,9 @@ export const mockTemplatingData = {
     simpleCustom: templatingVariableTypes.custom.simple,
     advCustomNormal: templatingVariableTypes.custom.advanced.normal,
   }),
+  metricLabelValues: generateMockTemplatingData({
+    simple: templatingVariableTypes.metricLabelValues.simple,
+  }),
   allVariableTypes: generateMockTemplatingData({
     simpleText: templatingVariableTypes.text.simple,
     advText: templatingVariableTypes.text.advanced,
@@ -890,4 +930,5 @@ export const mockTemplatingDataResponses = {
   advCustomWithoutOptText: responseForAdvancedCustomVariableWithoutOptText,
   simpleAndAdv: responseForAdvancedCustomVariable,
   allVariableTypes: responsesForAllVariableTypes,
+  metricLabelValues: responseForMetricLabelValues,
 };
