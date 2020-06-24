@@ -35,6 +35,8 @@ class PersonalAccessToken < ApplicationRecord
   after_initialize :set_default_scopes, if: :persisted?
 
   def revoke!
+    Gitlab::PersonalAccessTokens::RotationVerifier.new(user).clear_reactive_cache!
+
     update!(revoked: true)
   end
 
