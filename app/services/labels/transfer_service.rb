@@ -18,11 +18,19 @@ module Labels
       # rubocop: disable CodeReuse/ActiveRecord
       link_ids = group_labels_applied_to_issues.pluck("label_links.id") +
                  group_labels_applied_to_merge_requests.pluck("label_links.id")
-      # rubocop: disable CodeReuse/ActiveRecord
+      # rubocop: enable CodeReuse/ActiveRecord
+
+      if Feature.enabled?(:in_memory_batch_label_find_in_transfers, project, default_enabled: true)
+        finder = BatchFindOrCreateService.new(current_user, project)
+      end
 
       Label.transaction do
         labels_to_transfer.find_each do |label|
-          new_label_id = find_or_create_label!(label)
+          if Feature.enabled?(:in_memory_batch_label_find_in_transfers, project, default_enabled: true)
+            new_label_id = finder.execute(label).id
+          else
+            new_label_id = find_or_create_label!(label)
+          end
 
           next if new_label_id == label.id
 
