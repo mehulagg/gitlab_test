@@ -1,10 +1,10 @@
 <script>
 import {
+  GlAlert,
   GlAvatar,
   GlBadge,
-  GlCard,
-  GlLabel,
   GlLink,
+  GlPaginatedList,
   GlTab,
   GlTabs,
   GlTable,
@@ -14,6 +14,11 @@ import { __ } from '~/locale';
 import { isScopedLabel } from '~/lib/utils/common_utils';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
+
+const states = {
+  opened: 'opened',
+  closed: 'closed',
+};
 
 export default {
   fields: [
@@ -26,11 +31,11 @@ export default {
   ],
   isScopedLabel,
   components: {
+    GlAlert,
     GlAvatar,
     GlBadge,
-    GlCard,
     GlLink,
-    GlLabel,
+    GlPaginatedList,
     GlTab,
     GlTabs,
     GlTable,
@@ -57,7 +62,7 @@ export default {
         }));
       },
       error(err) {
-        this.error = err.message;
+        this.error = err.message || __('Error loading issues');
       },
     },
   },
@@ -72,7 +77,10 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      error: '',
+      currentPage: 0,
+    };
   },
   computed: {
     totalIssues() {
@@ -112,49 +120,75 @@ export default {
       });
     },
   },
+  methods: {
+    issueState(state, assigneeCount) {
+      if (state === states.opened && assigneeCount === 0) {
+        return __('Open');
+      }
+      if (state === states.opened && assigneeCount > 0) {
+        return __('In progress');
+      }
+      return __('Closed');
+    },
+  },
 };
 </script>
 
 <template>
   <gl-tabs>
+    <gl-alert v-if="error" variant="danger" @dismiss="error = ''">
+      {{ error }}
+    </gl-alert>
     <gl-tab title="Issues">
       <template #title>
         <span>{{ __('Issues') }}</span
         ><gl-badge class="ml-2" variant="neutral">{{ totalIssues }}</gl-badge>
       </template>
 
-      <gl-table :fields="$options.fields" :items="issues" stacked="sm" show-empty> </gl-table>
-      <ul class="content-list issuable-list">
-        <li v-for="issue in issues" :key="issue.id">
-          <gl-link :href="issue.webUrl">{{ issue.title }}</gl-link>
-          <div class="issuable-detail">
-            <gl-link :href="issue.webUrl">#{{ issue.iid }}</gl-link>
-            <gl-label
-              v-for="label in issue.labels"
-              :key="label.id"
-              :background-color="label.color"
-              :title="label.title"
-              :description="label.description"
-              :scoped="$options.isScopedLabel(label)"
-              class="mr-2"
-              size="sm"
-            />
-            <span class="assignee-icon">
-              <span
-                v-for="assignee in issue.assignees"
-                :key="assignee.username"
-                v-gl-tooltip="
-                  sprintf(__('Assigned to %{assigneeName}'), {
-                    assigneeName: assignee.name,
-                  })
-                "
-              >
-                <gl-avatar :src="assignee.avatarUrl" :size="16" />
-              </span>
-            </span>
+      <gl-paginated-list
+        :list="issues"
+        :filterable="false"
+        filter="title"
+        :per-page="2"
+        :current-page="currentPage"
+      >
+        <template #header>
+          <div class="gl-display-none gl-display-sm-flex gl-justify-items-center">
+            <div>
+              {{ __('Title') }}
+            </div>
+            <div class="gl-w-12 gl-ml-auto">
+              {{ __('Status') }}
+            </div>
+            <div class="gl-w-12">
+              {{ __('Assignees') }}
+            </div>
           </div>
-        </li>
-      </ul>
+        </template>
+        <template #default="{ listItem: { iid, title, webUrl, state, assignees } }">
+          <div class="text-truncate">
+            <gl-link class="gl-text-gray-900 gl-font-weight-bold" :href="webUrl">{{
+              title
+            }}</gl-link>
+            <!-- TODO: add references.relative (project name) -->
+            <div class="gl-text-secondary">#{{ iid }}</div>
+          </div>
+          <span class="gl-w-6">{{ issueState(state, assignees.length) }}</span>
+          <span class="assignee-icon gl-w-6">
+            <span
+              v-for="assignee in assignees"
+              :key="assignee.username"
+              v-gl-tooltip="
+                sprintf(__('Assigned to %{assigneeName}'), {
+                  assigneeName: assignee.name,
+                })
+              "
+            >
+              <gl-avatar :src="assignee.avatarUrl" :size="16" />
+            </span>
+          </span>
+        </template>
+      </gl-paginated-list>
     </gl-tab>
   </gl-tabs>
 </template>
