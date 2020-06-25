@@ -12,6 +12,8 @@ class ProductAnalyticsEvent < ApplicationRecord
   # is established we can refactor it.
   scope :by_project, ->(project_id) { where(app_id: project_id.to_s) }
 
+  # If we decide to change this scope to use date_trunc('day', collector_tstamp),
+  # we should remember that a btree index on collector_tstamp will be no longer effective.
   scope :timerange, ->(duration) {
     where('collector_tstamp BETWEEN ? AND ? ',
           Time.zone.today - duration + 1,
