@@ -34,7 +34,7 @@ displays on the To-Do List.
 
 A To Do appears on your To-Do List when:
 
-- An issue or merge request is assigned to you
+- An issue or merge request is assigned to you.
 - You are `@mentioned` in the description or comment of an:
   - Issue
   - Merge Request
@@ -42,10 +42,10 @@ A To Do appears on your To-Do List when:
 - You are `@mentioned` in a comment on a:
   - Commit
   - Design
-- The CI/CD pipeline for your merge request failed
+- The CI/CD pipeline failed for a merge request you authored.
 - An open merge request becomes unmergeable due to conflict, and you are either:
   - The author
-  - Have set it to automatically merge once the pipeline succeeds
+  - The user that set it to automatically merge once the pipeline succeeds
 
 To-do triggers are not affected by [GitLab Notification Email settings](profile/notifications.md).
 
