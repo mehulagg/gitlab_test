@@ -1,20 +1,18 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlSkeletonLoading } from '@gitlab/ui';
 import DiffFileHeader from '~/diffs/components/diff_file_header.vue';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
 import ImageDiffOverlay from '~/diffs/components/image_diff_overlay.vue';
 import { getDiffMode } from '~/diffs/store/utils';
 import { diffViewerModes } from '~/ide/constants';
-
-const FIRST_CHAR_REGEX = /^(\+|-| )/;
+import NoteDiffLines from './note_diff_lines.vue';
 
 export default {
   components: {
     DiffFileHeader,
-    GlSkeletonLoading,
     DiffViewer,
     ImageDiffOverlay,
+    NoteDiffLines,
   },
   props: {
     discussion: {
@@ -61,11 +59,7 @@ export default {
           this.error = true;
         });
     },
-    trimChar(line) {
-      return line.replace(FIRST_CHAR_REGEX, '');
-    },
   },
-  userColorSchemeClass: window.gon.user_color_scheme,
 };
 </script>
 
@@ -78,41 +72,14 @@ export default {
       :expanded="!discussion.diff_file.viewer.collapsed"
     />
     <div v-if="isTextFile" class="diff-content">
-      <table class="code js-syntax-highlight" :class="$options.userColorSchemeClass">
-        <template v-if="hasTruncatedDiffLines">
-          <tr
-            v-for="line in discussion.truncated_diff_lines"
-            v-once
-            :key="line.line_code"
-            class="line_holder"
-          >
-            <td :class="line.type" class="diff-line-num old_line">{{ line.old_line }}</td>
-            <td :class="line.type" class="diff-line-num new_line">{{ line.new_line }}</td>
-            <td :class="line.type" class="line_content" v-html="trimChar(line.rich_text)"></td>
-          </tr>
-        </template>
-        <tr v-if="!hasTruncatedDiffLines" class="line_holder line-holder-placeholder">
-          <td class="old_line diff-line-num"></td>
-          <td class="new_line diff-line-num"></td>
-          <td v-if="error" class="js-error-lazy-load-diff diff-loading-error-block">
-            {{ __('Unable to load the diff') }}
-            <button
-              class="btn-link btn-link-retry btn-no-padding js-toggle-lazy-diff-retry-button"
-              @click="fetchDiff"
-            >
-              {{ __('Try again') }}
-            </button>
-          </td>
-          <td v-else class="line_content js-success-lazy-load">
-            <span></span>
-            <gl-skeleton-loading />
-            <span></span>
-          </td>
-        </tr>
-        <tr class="notes_holder">
-          <td class="notes-content" colspan="3"><slot></slot></td>
-        </tr>
-      </table>
+      <note-diff-lines
+        :error="error"
+        :has-truncated-diff-lines="hasTruncatedDiffLines"
+        :lines="discussion.truncated_diff_lines"
+        :on-click="fetchDiff"
+      >
+        <slot></slot>
+      </note-diff-lines>
     </div>
     <div v-else>
       <diff-viewer
