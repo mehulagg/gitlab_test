@@ -425,8 +425,7 @@ module ProjectsHelper
       nav_tabs << :cycle_analytics
     end
 
-    if Feature.enabled?(:product_analytics, project) &&
-        can?(current_user, :read_product_analytics, project)
+    if Feature.enabled?(:product_analytics, project) && can?(current_user, :read_product_analytics, project)
       nav_tabs << :product_analytics
     end
 
