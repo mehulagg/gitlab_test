@@ -1,3 +1,5 @@
+- page_title _('Jira Issues')
+
 - if Feature.enabled?(:vue_issuables_list, @project)
   .js-issuables-list{ data: { endpoint: expose_url(api_v4_groups_issues_path(id: @project.group.id)),
     'can-bulk-edit': false,
