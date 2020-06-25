@@ -9,6 +9,7 @@ import customMatchers from './matchers';
 
 import './helpers/dom_shims';
 import './helpers/jquery';
+import './helpers/cleanup_event_hub';
 import '~/commons/jquery';
 import '~/commons/bootstrap';
 
