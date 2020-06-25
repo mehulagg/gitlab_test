@@ -1,0 +1,7 @@
+---
+name: enforce_pat_expiration
+type: licensed
+# This default is undefined as are used:
+# - feature_available?
+# - Feature.enabled?
+default_enabled: [false, true]

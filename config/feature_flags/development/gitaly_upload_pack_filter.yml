@@ -1,0 +1,7 @@
+---
+name: gitaly_upload_pack_filter
+# There's a collision between
+# - Feature::Gitaly.server_feature_flags
+# - API::Internal::Base#check_allowed
+default_enabled: [false, true]
+type: development
