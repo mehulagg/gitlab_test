@@ -542,6 +542,19 @@ module Gitlab
         rename_column_concurrently(table, column, temp_column, type: new_type)
       end
 
+      # Reverses operations performed by change_column_type_concurrently.
+      #
+      # This method takes care of removing previously installed triggers as well
+      # as removing the new temporary column.
+      #
+      # table - The name of the database table.
+      # column - The name of the column.
+      def undo_change_column_type_concurrently(table, column)
+        temp_column = "#{column}_for_type_change"
+
+        undo_rename_column_concurrently(table, column, temp_column)
+      end
+
       # Performs cleanup of a concurrent type change.
       #
       # table - The table containing the column.

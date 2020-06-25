@@ -872,6 +872,15 @@ RSpec.describe Gitlab::Database::MigrationHelpers do
     end
   end
 
+  describe '#undo_change_column_type_concurrently' do
+    it 'Removes triggers and the temporary column' do
+      expect(model).to receive(:undo_rename_column_concurrently)
+        .with('users', 'username', 'username_for_type_change')
+
+      model.undo_change_column_type_concurrently('users', 'username')
+    end
+  end
+
   describe '#cleanup_concurrent_column_type_change' do
     it 'cleans up the type changing procedure' do
       expect(model).to receive(:cleanup_concurrent_column_rename)
