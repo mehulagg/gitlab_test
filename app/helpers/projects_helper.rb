@@ -673,6 +673,12 @@ module ProjectsHelper
     ]
   end
 
+  def sidebar_external_tracker_paths
+    %w[
+      jira_issues#index
+    ]
+  end
+
   def sidebar_settings_paths
     %w[
       projects#edit

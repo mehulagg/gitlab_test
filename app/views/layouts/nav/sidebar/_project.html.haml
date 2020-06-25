@@ -120,19 +120,45 @@
               = link_to project_milestones_path(@project), title: _('Milestones'), class: 'qa-milestones-link' do
                 %span
                   = _('Milestones')
-      - if project_nav_tab? :external_issue_tracker
-        = nav_link do
-          - issue_tracker = @project.external_issue_tracker
-          = link_to issue_tracker.issue_tracker_path, class: 'shortcuts-external_tracker' do
-            .nav-icon-container
-              = sprite_icon('external-link')
-            %span.nav-item-name
-              = issue_tracker.title
-          %ul.sidebar-sub-level-items.is-fly-out-only
-            = nav_link(html_options: { class: "fly-out-top-item" } ) do
-              = link_to issue_tracker.issue_tracker_path do
-                %strong.fly-out-top-item-name
-                  = issue_tracker.title
+
+      - if project_nav_tab?(:external_issue_tracker)
+        - issue_tracker = @project.external_issue_tracker
+        - if issue_tracker.is_a?(JiraService)
+          = nav_link(path: sidebar_external_tracker_paths) do
+            = link_to project_jira_issues_path(@project), class: 'shortcuts-tree' do
+              .nav-icon-container
+                = sprite_icon('settings')
+              %span.nav-item-name.qa-settings-item#js-onboarding-settings-link
+                = _('Jira Issues')
+
+            %ul.sidebar-sub-level-items
+              = nav_link(path: sidebar_external_tracker_paths, html_options: { class: 'fly-out-top-item' } ) do
+                = link_to project_jira_issues_path(@project) do
+                  %strong.fly-out-top-item-name
+                    = _('Jira Issues')
+              %li.divider.fly-out-top-item
+              = nav_link(path: %w[jira_issues#index]) do
+                = link_to project_jira_issues_path(@project), title: _('Issue List') do
+                  %span
+                    = _('Issue List')
+              = nav_link do
+                = link_to issue_tracker.issue_tracker_path, target: '_blank', rel: 'noopener noreferrer' do
+                  %span
+                    = issue_tracker.title
+                    = sprite_icon('external-link', css_class: 'gl-vertical-align-text-bottom')
+        - else
+          = nav_link do
+            - issue_tracker = @project.external_issue_tracker
+            = link_to issue_tracker.issue_tracker_path, class: 'shortcuts-external_tracker' do
+              .nav-icon-container
+                = sprite_icon('external-link')
+              %span.nav-item-name
+                = issue_tracker.title
+            %ul.sidebar-sub-level-items.is-fly-out-only
+              = nav_link(html_options: { class: "fly-out-top-item" } ) do
+                = link_to issue_tracker.issue_tracker_path do
+                  %strong.fly-out-top-item-name
+                    = issue_tracker.title
 
       - if (project_nav_tab? :labels) && !@project.issues_enabled?
         = nav_link(controller: [:labels]) do
