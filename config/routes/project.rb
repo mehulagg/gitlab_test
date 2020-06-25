@@ -319,6 +319,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           as: :snippet_blob_raw,
           constraints: { snippet_id: /\d+/ }
 
+        resources :jira_issues, only: [:index]
         draw :issues
         draw :merge_requests
         draw :pipelines
