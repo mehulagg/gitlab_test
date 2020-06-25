@@ -49,6 +49,10 @@ class Projects::JiraIssuesController < Projects::ApplicationController
     push_frontend_feature_flag(:tribute_autocomplete, @project)
   end
 
+  before_action only: :index do
+    push_frontend_feature_flag(:vue_issuables_list, @project)
+  end
+
   before_action only: :show do
     push_frontend_feature_flag(:real_time_issue_sidebar, @project)
   end
