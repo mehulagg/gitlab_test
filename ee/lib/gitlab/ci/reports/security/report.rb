@@ -13,6 +13,7 @@ module Gitlab
           attr_reader :occurrences
           attr_reader :scanners
           attr_reader :identifiers
+          attr_accessor :scanned_resources
 
           attr_accessor :error
 
@@ -23,6 +24,7 @@ module Gitlab
             @occurrences = []
             @scanners = {}
             @identifiers = {}
+            @scanned_resources = []
           end
 
           def errored?

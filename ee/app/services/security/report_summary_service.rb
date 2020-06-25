@@ -26,6 +26,8 @@ module Security
           response[:vulnerabilities_count] = vulnerability_counts[report_type.to_s]
         when :scanned_resources_count
           response[:scanned_resources_count] = scanned_resources_counts[report_type.to_s]
+        when :scanned_resources
+          response[:scanned_resources] = scanned_resources[report_type.to_s]
         end
       end
     end
@@ -44,6 +46,12 @@ module Security
     def scanned_resources_counts
       strong_memoize(:scanned_resources_counts) do
         ::Security::ScannedResourcesCountingService.new(@pipeline, requested_report_types(:scanned_resources_count)).execute
+      end
+    end
+
+    def scanned_resources
+      strong_memoize(:scanned_resources) do
+        ::Security::ScannedResourcesService.new(@pipeline, requested_report_types(:scanned_resources)).execute
       end
     end
   end
