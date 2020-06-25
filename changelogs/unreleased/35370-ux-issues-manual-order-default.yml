@@ -1,0 +1,5 @@
+---
+title: Change default sorting of a user's dashboard issues link to Manual from Created Date
+merge_request: 35370
+author: Derek Knox
+type: changed

@@ -4,7 +4,7 @@ module DashboardHelper
   include IconsHelper
 
   def assigned_issues_dashboard_path
-    issues_dashboard_path(assignee_username: current_user.username)
+    issues_dashboard_path(assignee_username: current_user.username, sort: sort_value_relative_position)
   end
 
   def assigned_mrs_dashboard_path
