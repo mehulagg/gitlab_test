@@ -4987,7 +4987,7 @@ CREATE TABLE public.personal_access_tokens (
     token_digest character varying,
     expire_notification_delivered boolean DEFAULT false NOT NULL,
     project_id bigint,
-    permissions jsonb DEFAULT '{}'::jsonb NOT NULL
+    permissions jsonb DEFAULT '{}'::jsonb
 );
 
 CREATE SEQUENCE public.personal_access_tokens_id_seq

@@ -388,6 +388,7 @@ class ProjectPolicy < BasePolicy
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
   rule { can?(:push_code) }.enable :admin_tag
+  rule { can?(:admin_project) }.enable :housekeep_project
 
   rule { archived }.policy do
     prevent :push_code
@@ -592,10 +593,6 @@ class ProjectPolicy < BasePolicy
   def team_member?
     return false if @user.nil?
 
-    if @user.is_a?(PatUser)
-      return @user.has_access_to?(project)
-    end
-
     greedy_load_subject = false
 
     # when scoping by subject, we want to be greedy
@@ -640,7 +637,6 @@ class ProjectPolicy < BasePolicy
   def lookup_access_level!
     return ::Gitlab::Access::REPORTER if alert_bot?
     return ::Gitlab::Access::REPORTER if support_bot? && service_desk_enabled?
-    return ::Gitlab::Access::MAINTAINER if @user.is_a?(PatUser) && @user.has_access_to?(project)
 
     # NOTE: max_member_access has its own cache
     project.team.max_member_access(@user.id)

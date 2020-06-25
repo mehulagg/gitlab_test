@@ -1,0 +1,8 @@
+{
+  "description": "Personal Access Tokens Permission Schema",
+  "type": "object",
+  "properties": {
+    "housekeep_project": { "type": "boolean" }
+  },
+  "additionalProperties": false
+}

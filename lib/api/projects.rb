@@ -562,7 +562,7 @@ module API
       end
       route_setting :authentication, project_token_allowed: true
       post ':id/housekeeping' do
-        authorize_admin_project
+        authorize_housekeep_project
 
         begin
           ::Projects::HousekeepingService.new(user_project, :gc).execute

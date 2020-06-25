@@ -16,7 +16,7 @@ module DeclarativePolicy
   extend PreferredScope
 
   CLASS_CACHE_MUTEX = Mutex.new
-  CLASS_CACHE_IVAR = :@__DeclarativePolicy_CLASS_CACHE
+  CLASS_CACHE_IVAR = "@__DeclarativePolicy_CLASS_CACHE_for_%{user_class}"
 
   class << self
     def policy_for(user, subject, opts = {})
@@ -28,17 +28,17 @@ module DeclarativePolicy
         # autoloading is enabled, we allow concurrent loads,
         # https://gitlab.com/gitlab-org/gitlab-foss/issues/48263
         ActiveSupport::Dependencies.interlock.permit_concurrent_loads do
-          class_for(subject).new(user, subject, opts)
+          class_for(subject, user).new(user, subject, opts)
         end
     end
 
-    def class_for(subject)
+    def class_for(subject, user = nil)
       return GlobalPolicy if subject == :global
       return NilPolicy if subject.nil?
 
       subject = find_delegate(subject)
 
-      policy_class = class_for_class(subject.class)
+      policy_class = class_for_class(subject.class, user)
       raise "no policy for #{subject.class.name}" if policy_class.nil?
 
       policy_class
@@ -57,21 +57,23 @@ module DeclarativePolicy
     # See https://bugs.ruby-lang.org/issues/11119
     #
     # if the above bug is resolved, this caching could likely be removed.
-    def class_for_class(subject_class)
-      unless subject_class.instance_variable_defined?(CLASS_CACHE_IVAR)
+    def class_for_class(subject_class, user = nil)
+      class_cache = CLASS_CACHE_IVAR % { user_class: user.class.to_s.parameterize.underscore }
+
+      unless subject_class.instance_variable_defined?(class_cache)
         CLASS_CACHE_MUTEX.synchronize do
           # re-check in case of a race
-          break if subject_class.instance_variable_defined?(CLASS_CACHE_IVAR)
+          break if subject_class.instance_variable_defined?(class_cache)
 
-          policy_class = compute_class_for_class(subject_class)
-          subject_class.instance_variable_set(CLASS_CACHE_IVAR, policy_class)
+          policy_class = compute_class_for_class(subject_class, user)
+          subject_class.instance_variable_set(class_cache, policy_class)
         end
       end
 
-      subject_class.instance_variable_get(CLASS_CACHE_IVAR)
+      subject_class.instance_variable_get(class_cache)
     end
 
-    def compute_class_for_class(subject_class)
+    def compute_class_for_class(subject_class, user)
       if subject_class.respond_to?(:declarative_policy_class)
         return subject_class.declarative_policy_class.constantize
       end
@@ -82,7 +84,10 @@ module DeclarativePolicy
         next unless name
 
         begin
-          policy_class = "#{name}Policy".constantize
+          policy_class = "#{name}Policy"
+          policy_class += 'ForTokenUser' if policy_class == 'ProjectPolicy' && user.is_a?(ProjectTokenUser)
+
+          policy_class = policy_class.constantize
 
           # NOTE: the < operator here tests whether policy_class
           # inherits from Base. We can't use #is_a? because that

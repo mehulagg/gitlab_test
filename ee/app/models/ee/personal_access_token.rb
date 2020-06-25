@@ -59,7 +59,7 @@ module EE
     private
 
     def expiration_policy_enabled?
-      return group_level_expiration_policy_enabled? if user && user.group_managed_account?
+      return group_level_expiration_policy_enabled? if user&.group_managed_account?
 
       instance_level_expiration_policy_enabled?
     end
@@ -69,7 +69,7 @@ module EE
     end
 
     def max_expiry_date
-      return group_level_max_expiry_date if user && user.group_managed_account?
+      return group_level_max_expiry_date if user&.group_managed_account?
 
       instance_level_max_expiry_date
     end

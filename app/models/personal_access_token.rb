@@ -5,6 +5,7 @@ class PersonalAccessToken < ApplicationRecord
   include TokenAuthenticatable
   include Sortable
   extend ::Gitlab::Utils::Override
+  extend BooleanStoreAccessor
 
   add_authentication_token_field :token, digest: true
 
@@ -35,7 +36,10 @@ class PersonalAccessToken < ApplicationRecord
 
   after_initialize :set_default_scopes, if: :persisted?
 
-  store_accessor :permissions
+  store :permissions, accessors: [:housekeep_project]
+  boolean_store_accessor :housekeep_project
+
+  validates :permissions, json_schema: { filename: "personal_access_tokens_permissions_schema" }
 
   def revoke!
     update!(revoked: true)

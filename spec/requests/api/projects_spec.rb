@@ -3252,24 +3252,36 @@ describe API::Projects do
     context 'when authenticated with PAT of the same project' do
       let(:project) { create(:project, :private) }
 
-      let(:pat) { create(:personal_access_token, project: project, user: nil) }
+      context 'with a PAT that has `housekeep_project` permission' do
+        let(:pat) { create(:personal_access_token, project: project, user: nil, housekeep_project: true) }
 
-      it 'starts the housekeeping process' do
-        expect(housekeeping).to receive(:execute).once
-
-        post api("/projects/#{project.id}/housekeeping", personal_access_token: pat)
-
-        expect(response).to have_gitlab_http_status(:created)
-      end
-
-      context 'when housekeeping lease is taken' do
-        it 'returns conflict' do
-          expect(housekeeping).to receive(:execute).once.and_raise(Projects::HousekeepingService::LeaseTaken)
+        it 'starts the housekeeping process' do
+          expect(housekeeping).to receive(:execute).once
 
           post api("/projects/#{project.id}/housekeeping", personal_access_token: pat)
 
-          expect(response).to have_gitlab_http_status(:conflict)
-          expect(json_response['message']).to match(/Somebody already triggered housekeeping for this project/)
+          expect(response).to have_gitlab_http_status(:created)
+        end
+
+        context 'when housekeeping lease is taken' do
+          it 'returns conflict' do
+            expect(housekeeping).to receive(:execute).once.and_raise(Projects::HousekeepingService::LeaseTaken)
+
+            post api("/projects/#{project.id}/housekeeping", personal_access_token: pat)
+
+            expect(response).to have_gitlab_http_status(:conflict)
+            expect(json_response['message']).to match(/Somebody already triggered housekeeping for this project/)
+          end
+        end
+
+        context 'with a PAT that does not have `housekeep_project` permission' do
+          let(:pat) { create(:personal_access_token, project: project, user: nil, housekeep_project: false) }
+
+          it 'returns 403 error' do
+            post api("/projects/#{project.id}/housekeeping", personal_access_token: pat)
+
+            expect(response).to have_gitlab_http_status(:forbidden)
+          end
         end
       end
     end

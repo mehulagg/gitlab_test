@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PatUser
+class ProjectTokenUser
   include PolicyActor
   include Referable
 

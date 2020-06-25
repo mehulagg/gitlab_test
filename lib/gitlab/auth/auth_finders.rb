@@ -106,7 +106,7 @@ module Gitlab
       def user_from_project_token(access_token)
         return unless route_authentication_setting[:project_token_allowed]
 
-        PatUser.new(pat: access_token)
+        ProjectTokenUser.new(pat: access_token)
       end
 
       # This returns a deploy token, not a user since a deploy token does not
