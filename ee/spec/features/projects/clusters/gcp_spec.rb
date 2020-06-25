@@ -16,7 +16,6 @@ RSpec.describe 'Gcp Cluster', :js do
 
   context 'when a user has a licence to use multiple clusers' do
     before do
-      stub_licensed_features(multiple_clusters: true)
       visit project_clusters_path(project)
 
       click_link 'Add Kubernetes cluster'

@@ -55,7 +55,6 @@ module Clusters
       end
     end
 
-    # EE would override this method
     def can_create_cluster?
       true
     end

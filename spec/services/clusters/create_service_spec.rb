@@ -60,6 +60,47 @@ RSpec.describe Clusters::CreateService do
     end
   end
 
+  context 'when another cluster exists' do
+    let!(:cluster) { create(:cluster, :provided_by_gcp, :production_environment, projects: [project]) }
+
+    context 'when correct params' do
+      let(:params) do
+        {
+          name: 'test-cluster',
+          provider_type: :gcp,
+          provider_gcp_attributes: {
+            gcp_project_id: 'gcp-project',
+            zone: 'us-central1-a',
+            num_nodes: 1,
+            machine_type: 'machine_type-a',
+            legacy_abac: 'true'
+          },
+          clusterable: project
+        }
+      end
+
+      include_examples 'create cluster service success'
+    end
+
+    context 'when invalid params' do
+      let(:params) do
+        {
+          name: 'test-cluster',
+          provider_type: :gcp,
+          provider_gcp_attributes: {
+            gcp_project_id: '!!!!!!!',
+            zone: 'us-central1-a',
+            num_nodes: 1,
+            machine_type: 'machine_type-a'
+          },
+          clusterable: project
+        }
+      end
+
+      include_examples 'create cluster service error'
+    end
+  end
+
   context 'when params includes :management_project_id' do
     subject(:cluster) { described_class.new(user, params).execute(access_token: access_token) }
 

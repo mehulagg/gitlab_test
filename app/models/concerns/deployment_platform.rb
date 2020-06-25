@@ -20,29 +20,26 @@ module DeploymentPlatform
       find_instance_cluster_platform_kubernetes(environment: environment)
   end
 
-  # EE would override this and utilize environment argument
   def find_platform_kubernetes_with_cte(environment)
-    if !environment
-      Clusters::ClustersHierarchy.new(self, include_management_project: cluster_management_project_enabled?).base_and_ancestors
-      .enabled.default_environment
-      .first&.platform_kubernetes
-
-    else
+    if environment
       ::Clusters::ClustersHierarchy.new(self, include_management_project: cluster_management_project_enabled?)
         .base_and_ancestors
         .enabled
         .on_environment(environment, relevant_only: true)
         .first&.platform_kubernetes
+    else
+      Clusters::ClustersHierarchy.new(self, include_management_project: cluster_management_project_enabled?).base_and_ancestors
+      .enabled.default_environment
+      .first&.platform_kubernetes
     end
   end
 
-  # EE would override this and utilize environment argument
   def find_instance_cluster_platform_kubernetes(environment: nil)
-    if !environment
-      Clusters::Instance.new.clusters.enabled.default_environment
+    if environment
+      ::Clusters::Instance.new.clusters.enabled.on_environment(environment, relevant_only: true)
       .first&.platform_kubernetes
     else
-      ::Clusters::Instance.new.clusters.enabled.on_environment(environment, relevant_only: true)
+      Clusters::Instance.new.clusters.enabled.default_environment
       .first&.platform_kubernetes
     end
   end

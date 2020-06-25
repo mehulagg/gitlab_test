@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ClustersHelper
-  
   def has_multiple_clusters?
     true
   end

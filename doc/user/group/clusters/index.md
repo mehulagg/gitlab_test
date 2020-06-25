@@ -93,7 +93,7 @@ To clear the cache:
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/24580) in GitLab 11.8.
 
 Domains at the cluster level permit support for multiple domains
-per [multiple Kubernetes clusters](#multiple-kubernetes-clusters-premium). When specifying a domain,
+per [multiple Kubernetes clusters](#multiple-kubernetes-clusters) When specifying a domain,
 this will be automatically set as an environment variable (`KUBE_INGRESS_BASE_DOMAIN`) during
 the [Auto DevOps](../../../topics/autodevops/index.md) stages.
 
