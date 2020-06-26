@@ -15,7 +15,7 @@ export const formatUtcOffset = offset => {
   return `${prefix} ${Math.abs(offset / 3600)}`;
 };
 
-export const formatTimezone = item => `[UTC ${formatUtcOffset(item.offset)}] ${item.name}`;
+export const formatTimezone = item => `${item.identifier} - ${item.name}`;
 
 export const findTimezoneByIdentifier = (tzList = [], identifier = null) => {
   if (tzList && tzList.length && identifier && identifier.length) {
@@ -30,6 +30,8 @@ export default class TimezoneDropdown {
     this.$dropdownToggle = this.$dropdown.find('.dropdown-toggle-text');
     this.$input = $inputEl;
     this.timezoneData = this.$dropdown.data('data');
+
+    console.log('data', this.timezoneData);
 
     this.onSelectTimezone = onSelectTimezone;
     this.displayFormat = displayFormat || defaults.displayFormat;
@@ -48,7 +50,7 @@ export default class TimezoneDropdown {
       selectable: true,
       toggleLabel: this.displayFormat,
       search: {
-        fields: ['name'],
+        fields: ['identifier'],
       },
       clicked: cfg => this.updateInputValue(cfg),
       text: item => formatTimezone(item),
