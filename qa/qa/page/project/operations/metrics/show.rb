@@ -65,6 +65,12 @@ module QA
               within('.modal-content') { click_button(class: 'btn-success') }
             end
 
+            def select_dashboard(dashboard_name)
+              within_element :dashboards_filter_dropdown do
+                click_on dashboard_name
+              end
+            end
+
             def filter_environment(environment = 'production')
               click_element :environments_dropdown
 
@@ -83,9 +89,25 @@ module QA
               find_element(:generate_chart_link_menu_item)['data-clipboard-text']
             end
 
+            def open_first_chart_context_menu
+              all_elements(:prometheus_widgets_dropdown, minimum: 1).first.click
+            end
+
             def has_custom_metric?(metric)
               within_element :prometheus_graphs do
                 has_text?(metric)
+              end
+            end
+
+            def has_links?(link)
+              within_element :prometheus_graphs do
+                has_link_with_text?(link)
+              end
+            end
+
+            def has_context_links?(link)
+              within_element :prometheus_widgets_dropdown do
+                has_link_with_text?(link)
               end
             end
 

@@ -22,47 +22,47 @@ module QA
         @cluster.remove!
       end
 
-      it 'configures custom metrics' do
-        verify_add_custom_metric
-        verify_edit_custom_metric
-        verify_delete_custom_metric
-      end
+      # it 'configures custom metrics' do
+      #   verify_add_custom_metric
+      #   verify_edit_custom_metric
+      #   verify_delete_custom_metric
+      # end
 
-      it 'duplicates to create dashboard to custom' do
-        Page::Project::Menu.perform(&:go_to_operations_metrics)
+      # it 'duplicates to create dashboard to custom' do
+      #   Page::Project::Menu.perform(&:go_to_operations_metrics)
 
-        Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
-          on_dashboard.duplicate_dashboard
+      #   Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
+      #     on_dashboard.duplicate_dashboard
 
-          expect(on_dashboard).to have_metrics
-          expect(on_dashboard).to have_edit_dashboard_enabled
-        end
-      end
+      #     expect(on_dashboard).to have_metrics
+      #     expect(on_dashboard).to have_edit_dashboard_enabled
+      #   end
+      # end
 
-      it 'verifies data on filtered deployed environment' do
-        Page::Project::Menu.perform(&:go_to_operations_metrics)
+      # it 'verifies data on filtered deployed environment' do
+      #   Page::Project::Menu.perform(&:go_to_operations_metrics)
 
-        Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
-          on_dashboard.filter_environment
+      #   Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
+      #     on_dashboard.filter_environment
 
-          expect(on_dashboard).to have_metrics
-        end
-      end
+      #     expect(on_dashboard).to have_metrics
+      #   end
+      # end
 
-      it 'filters using the quick range' do
-        Page::Project::Menu.perform(&:go_to_operations_metrics)
+      # it 'filters using the quick range' do
+      #   Page::Project::Menu.perform(&:go_to_operations_metrics)
 
-        Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
-          on_dashboard.show_last('30 minutes')
-          expect(on_dashboard).to have_metrics
+      #   Page::Project::Operations::Metrics::Show.perform do |on_dashboard|
+      #     on_dashboard.show_last('30 minutes')
+      #     expect(on_dashboard).to have_metrics
 
-          on_dashboard.show_last('3 hours')
-          expect(on_dashboard).to have_metrics
+      #     on_dashboard.show_last('3 hours')
+      #     expect(on_dashboard).to have_metrics
 
-          on_dashboard.show_last('1 day')
-          expect(on_dashboard).to have_metrics
-        end
-      end
+      #     on_dashboard.show_last('1 day')
+      #     expect(on_dashboard).to have_metrics
+      #   end
+      # end
 
       it 'add related links to custom dashboard' do
         links_dashboard_yml = Pathname
@@ -75,6 +75,16 @@ module QA
           push.file_content = File.read(links_dashboard_yml)
           push.commit_message = 'Add links file'
           push.new_branch = false
+        end
+
+        Page::Project::Menu.perform(&:go_to_operations_metrics)
+
+        Page::Project::Operations::Metrics::Show.perform do |dashboard|
+          dashboard.select_dashboard("links.yml")
+          expect(dashboard).to have_links('Gitlab Grafana.com dashboard (UTC)')
+
+          on_dashboard.open_first_chart_context_menu
+          expect(dashboard).to have_context_links('Gitlab Grafana.com dashboard (UTC)')
         end
       end
 
