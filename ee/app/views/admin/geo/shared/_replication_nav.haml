@@ -18,8 +18,10 @@
     = link_to admin_geo_designs_path, title: _('Designs') do
       %span
         = _('Designs')
-  = nav_link(path: 'admin/geo/package_files#index', html_options: { class: 'gl-pr-2' }) do
-    = link_to admin_geo_package_files_path, title: _('Package Files') do
-      %span
-        = _('Package Files')
-
+  - ['package_file'].each do |replicable_name|
+    - replicable_plural_name = replicable_name.pluralize
+    - replicable_title = _(replicable_name.titleize)
+    = nav_link(page: [{ controller: 'admin/geo/replicables', action: 'index', plural_replicable_name: replicable_plural_name }], html_options: { class: 'gl-pr-2' }) do
+      = link_to admin_geo_replicables_path(plural_replicable_name: replicable_plural_name), title: replicable_title do
+        %span
+          = replicable_title
