@@ -12,7 +12,7 @@ vulnerabilities in your groups, projects and pipelines.
 
 You can also drill down into a vulnerability and get extra information, see which
 project it comes from, the file it's in, and various metadata to help you analyze
-the risk. You can also action these vulnerabilities by creating an issue for them,
+the risk. You can also take actions on vulnerabilities by creating an issue for them,
 or by dismissing them.
 
 To benefit from the Security Dashboard you must first configure one of the
@@ -54,10 +54,24 @@ A pipeline consists of multiple jobs, including SAST and DAST scanning. If any j
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/6165) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.1.
 
-At the project level, the Security Dashboard displays the latest security reports for your project.
-Use it to find and fix vulnerabilities.
+At the project level, the Security Dashboard displays the vulnerabilities merged into the [default branch](../../project/repository/branches/index.md#default-branch) of your project.
 
-![Project Security Dashboard](img/project_security_dashboard_v13_0.png)
+First, navigate to the Security Dashboard found under your project's Security & Compliance tab.
+
+Once you're on the dashboard, you will first see the total number of vulnerabilties broken down by the vulnerability's severity is displayed.
+
+Directly below that, there is a series of filters for:
+- Status
+- Severity
+- Report type
+
+Selecting one or more filters will filter the results in this page.
+
+Next to each vulnerability a checkbox will allow you to dismiss one or multiple vulnerabilities at time. 
+Clicking on a checkbox exposes a menu that allows you to choose the reason for dismissing the vulnerability(s). 
+
+
+![Project Security Dashboard](img/project_security_dashboard_v13_1.png)
 
 ### Export vulnerabilities
 
@@ -75,7 +89,7 @@ of thousands of vulnerabilities. Do not close the page until the download finish
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/6709) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.5.
 
-The group Security Dashboard gives an overview of the vulnerabilities of all the
+The group Security Dashboard gives an overview of the vulnerabilities found in the default branches of the
 projects in a group and its subgroups.
 
 First, navigate to the Security Dashboard found under your group's
@@ -86,24 +100,17 @@ Once you're on the dashboard, at the top you should see a series of filters for:
 - Status
 - Severity
 - Report type
+- Project
 
 NOTE: **Note:**
 The dashboard only shows projects with [security reports](#supported-reports) enabled in a group.
 
-![Dashboard with action buttons and metrics](img/group_security_dashboard_v13_0.png)
+![Dashboard with action buttons and metrics](img/group_security_dashboard_v13_1.png)
 
 Selecting one or more filters will filter the results in this page.
 
 The main section is a list of all the vulnerabilities in the group, sorted by severity.
-In that list, you can see the severity of the vulnerability, its name, its
-confidence (likelihood of the vulnerability to be a positive one), and the project
-it's from.
-
-If you hover over a row, the following actions appear:
-
-- More info
-- Create issue
-- Dismiss vulnerability
+In that list, you can see the vulnerability's status, severity, and details including it's identifier, project, and filename.
 
 Next to the list is a timeline chart that shows how many open
 vulnerabilities your projects had at various points in time. You can filter among 30, 60, and
@@ -136,15 +143,15 @@ NOTE: **Note:**
 It may take several minutes for the download to start if your project contains thousands of
 vulnerabilities. Don't close the page until the download finishes.
 
-![CSV Export Button](img/group_security_dashboard_export_csv_v13_1.png)
+![CSV Export Button](img/group_security_dashboard_export_csv_v13_0.png)
 
 ## Instance Security Dashboard
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/6953) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.8.
 
 At the instance level, the Security Dashboard displays the vulnerabilities
-present in all of the projects that you have added to it. It includes all
-of the features of the [group security dashboard](#group-security-dashboard).
+present in the default branches of all of the projects that you have configured to display on the dashboard. 
+It includes all of the features of the [group security dashboard](#group-security-dashboard).
 
 You can access the Instance Security Dashboard from the menu
 bar at the top of the page. Under **More**, select **Security**.
@@ -159,10 +166,9 @@ To add projects to the dashboard:
 1. Search for and add one or more projects using the **Search your projects** field.
 1. Click the **Add projects** button.
 
-Once added, the dashboard will display the vulnerabilities found in your chosen
-projects.
+Once added, the dashboard will display the vulnerabilities found the default branch of your chosen projects.
 
-![Instance Security Dashboard with projects](img/instance_security_dashboard_with_projects_v13_0.png)
+![Instance Security Dashboard with projects](img/instance_security_dashboard_with_projects_v13_1.png)
 
 ### Export vulnerabilities
 
@@ -205,7 +211,7 @@ to configure daily security scans.
 
 ## Vulnerability list
 
-Each dashboard's vulnerability list contains new vulnerabilities discovered in the latest scans.
+Each dashboard's vulnerability list contains vulnerabilities discovered in the latest scans which are merged into the default branch.
 Click any vulnerability in the table to see more information on that vulnerability. To create an
 issue associated with the vulnerability, click the **Create Issue** button.
 
