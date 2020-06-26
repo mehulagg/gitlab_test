@@ -21,7 +21,7 @@ module EE
       def expose_security_dashboard?
         return false unless can?(current_user, :read_vulnerability, pipeline.project)
 
-        Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES.any? { |file_type| batch_lookup_report_artifact_for_file_type(file_type.to_sym) }
+        ::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :security).map(&:file_type).any? { |file_type| batch_lookup_report_artifact_for_file_type(file_type.to_sym) }
       end
 
       def degradation_threshold(file_type)

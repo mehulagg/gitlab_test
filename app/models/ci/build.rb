@@ -96,7 +96,7 @@ module Ci
       where('EXISTS (?)',
         Ci::JobArtifact.select(1)
           .where('ci_builds.id = ci_job_artifacts.job_id')
-          .where(file_type: Ci::JobArtifact::DOWNLOADABLE_TYPES)
+          .where(file_type: Gitlab::Ci::Build::Artifacts::Definitions.find_by_options(:downloadable).map(&:file_type_value))
       )
     end
 
@@ -880,14 +880,14 @@ module Ci
 
     def collect_test_reports!(test_reports)
       test_reports.get_suite(group_name).tap do |test_suite|
-        each_report(Ci::JobArtifact::TEST_REPORT_FILE_TYPES) do |file_type, blob|
+        each_report(Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :test).map(&:file_type).map(&:to_s)) do |file_type, blob|
           Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, test_suite, job: self)
         end
       end
     end
 
     def collect_accessibility_reports!(accessibility_report)
-      each_report(Ci::JobArtifact::ACCESSIBILITY_REPORT_FILE_TYPES) do |file_type, blob|
+      each_report(Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :accessibility).map(&:file_type).map(&:to_s)) do |file_type, blob|
         Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, accessibility_report)
       end
 
@@ -895,7 +895,7 @@ module Ci
     end
 
     def collect_coverage_reports!(coverage_report)
-      each_report(Ci::JobArtifact::COVERAGE_REPORT_FILE_TYPES) do |file_type, blob|
+      each_report(Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :coverage).map(&:file_type).map(&:to_s)) do |file_type, blob|
         Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, coverage_report)
       end
 
@@ -903,7 +903,7 @@ module Ci
     end
 
     def collect_terraform_reports!(terraform_reports)
-      each_report(::Ci::JobArtifact::TERRAFORM_REPORT_FILE_TYPES) do |file_type, blob, report_artifact|
+      each_report(Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :terraform).map(&:file_type).map(&:to_s)) do |file_type, blob, report_artifact|
         ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, terraform_reports, artifact: report_artifact)
       end
 

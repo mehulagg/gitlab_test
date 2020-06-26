@@ -74,7 +74,9 @@ RSpec.describe Ci::RetryBuildService do
 
       # Make sure we have one instance for every possible job_artifact_X
       # associations to check they are correctly rejected on build duplication.
-      Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS.each do |file_type, file_format|
+      Gitlab::Ci::Build::Artifacts::Definitions.all.each do |definition|
+        file_type = definition.file_type
+        file_format = definition.file_format
         create(:ci_job_artifact, file_format,
                file_type: file_type, job: build, expire_at: build.artifacts_expire_at)
       end

@@ -11,55 +11,46 @@ module EE
     prepended do
       after_destroy :log_geo_deleted_event
 
-      SECURITY_REPORT_FILE_TYPES = %w[sast secret_detection dependency_scanning container_scanning dast coverage_fuzzing].freeze
       LICENSE_SCANNING_REPORT_FILE_TYPES = %w[license_management license_scanning].freeze
-      DEPENDENCY_LIST_REPORT_FILE_TYPES = %w[dependency_scanning].freeze
-      METRICS_REPORT_FILE_TYPES = %w[metrics].freeze
-      CONTAINER_SCANNING_REPORT_TYPES = %w[container_scanning].freeze
-      SAST_REPORT_TYPES = %w[sast].freeze
-      SECRET_DETECTION_REPORT_TYPES = %w[secret_detection].freeze
-      DAST_REPORT_TYPES = %w[dast].freeze
-      REQUIREMENTS_REPORT_FILE_TYPES = %w[requirements].freeze
-      COVERAGE_FUZZING_REPORT_TYPES = %w[coverage_fuzzing].freeze
       BROWSER_PERFORMANCE_REPORT_FILE_TYPES = %w[browser_performance performance].freeze
 
       scope :project_id_in, ->(ids) { where(project_id: ids) }
       scope :with_files_stored_remotely, -> { where(file_store: ::JobArtifactUploader::Store::REMOTE) }
 
       scope :security_reports, -> do
-        with_file_types(SECURITY_REPORT_FILE_TYPES)
+        with_defined_tags(:report, :security)
       end
 
       scope :license_scanning_reports, -> do
-        with_file_types(LICENSE_SCANNING_REPORT_FILE_TYPES)
+        with_defined_tags(:report, :license_scanning)
       end
 
       scope :dependency_list_reports, -> do
-        with_file_types(DEPENDENCY_LIST_REPORT_FILE_TYPES)
+        with_defined_tags(:report, :dependency_list)
       end
 
       scope :container_scanning_reports, -> do
-        with_file_types(CONTAINER_SCANNING_REPORT_TYPES)
+        with_defined_tags(:report, :container_scanning)
       end
 
       scope :sast_reports, -> do
-        with_file_types(SAST_REPORT_TYPES)
+        with_defined_tags(:report, :sast)
       end
 
       scope :secret_detection_reports, -> do
-        with_file_types(SECRET_DETECTION_REPORT_TYPES)
+        with_defined_tags(:report, :secret_detection)
       end
 
       scope :dast_reports, -> do
-        with_file_types(DAST_REPORT_TYPES)
+        with_defined_tags(:report, :dast)
       end
 
       scope :metrics_reports, -> do
-        with_file_types(METRICS_REPORT_FILE_TYPES)
+        with_defined_tags(:report, :metrics)
       end
 
       scope :coverage_fuzzing_reports, -> do
-        with_file_types(COVERAGE_FUZZING_REPORT_TYPES)
+        with_defined_tags(:report, :coverage_fuzzing)
       end
     end
 

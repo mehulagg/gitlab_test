@@ -15,7 +15,7 @@ FactoryBot.define do
         options do
           {
             artifacts: {
-              paths: [Ci::JobArtifact::DEFAULT_FILE_NAMES[report_type]]
+              paths: [Gitlab::Ci::Build::Artifacts::Definitions.get(report_type).default_file_name]
             }
           }
         end

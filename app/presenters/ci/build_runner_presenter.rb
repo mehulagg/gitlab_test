@@ -75,8 +75,8 @@ module Ci
       reports.map do |report_type, report_paths|
         {
           artifact_type: report_type.to_sym,
-          artifact_format: ::Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS.fetch(report_type.to_sym),
-          name: ::Ci::JobArtifact::DEFAULT_FILE_NAMES.fetch(report_type.to_sym),
+          artifact_format: Gitlab::Ci::Build::Artifacts::Definitions.get(report_type.to_sym).file_format,
+          name: Gitlab::Ci::Build::Artifacts::Definitions.get(report_type.to_sym).default_file_name,
           paths: report_paths,
           when: 'always',
           expire_in: expire_in

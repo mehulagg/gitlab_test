@@ -208,20 +208,6 @@ RSpec.describe Ci::Build do
         end
       end
     end
-
-    context 'when there is unsupported file type' do
-      let!(:artifact) { create(:ee_ci_job_artifact, :codequality, job: job, project: job.project) }
-
-      before do
-        stub_const("Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES", %w[codequality])
-      end
-
-      it 'stores an error' do
-        subject
-
-        expect(security_reports.get_report('codequality', artifact)).to be_errored
-      end
-    end
   end
 
   describe '#collect_license_scanning_reports!' do

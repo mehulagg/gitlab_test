@@ -122,13 +122,15 @@ RSpec.describe Ci::Build do
       end
     end
 
-    ::Ci::JobArtifact::DOWNLOADABLE_TYPES.each do |type|
+    Gitlab::Ci::Build::Artifacts::Definitions.find_by_options(:downloadable).each do |definition|
+      type = definition.file_type
+
       context "when job has a #{type} artifact" do
         it 'returns the job' do
           job = create(:ci_build)
           create(
             :ci_job_artifact,
-            file_format: ::Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS[type.to_sym],
+            file_format: definition.file_format,
             file_type: type,
             job: job
           )
@@ -1438,8 +1440,9 @@ RSpec.describe Ci::Build do
     before do
       stub_feature_flags(drop_license_management_artifact: false)
 
-      Ci::JobArtifact.file_types.keys.each do |file_type|
-        create(:ci_job_artifact, job: build, file_type: file_type, file_format: Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS[file_type.to_sym])
+      Gitlab::Ci::Build::Artifacts::Definitions.all.each do |definition|
+        file_type = definition.file_type
+        create(:ci_job_artifact, job: build, file_type: file_type, file_format: definition.file_format)
       end
     end
 
@@ -1452,7 +1455,8 @@ RSpec.describe Ci::Build do
     it "keeps non erasable artifacts" do
       subject
 
-      Ci::JobArtifact::NON_ERASABLE_FILE_TYPES.each do |file_type|
+      (Gitlab::Ci::Build::Artifacts::Definitions.all - Gitlab::Ci::Build::Artifacts::Definitions.find_by_options(:erasable)).each do |definition|
+        file_type = definition.file_type
         expect(build.send("job_artifacts_#{file_type}")).not_to be_nil
       end
     end

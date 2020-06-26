@@ -290,7 +290,12 @@ RSpec.describe Ci::JobArtifact do
       stub_feature_flags(drop_license_management_artifact: false)
     end
 
-    described_class::TYPE_AND_FORMAT_PAIRS.except(:trace).each do |file_type, file_format|
+    Gitlab::Ci::Build::Artifacts::Definitions.all.each do |definition|
+      file_type = definition.file_type
+      file_format = definition.file_format
+
+      next if file_type == :trace
+
       context "when #{file_type} type with #{file_format} format" do
         let(:artifact) { build(:ci_job_artifact, file_type: file_type, file_format: file_format) }
 
@@ -309,26 +314,6 @@ RSpec.describe Ci::JobArtifact do
 
           it { is_expected.not_to be_valid }
         end
-      end
-    end
-  end
-
-  describe 'validates DEFAULT_FILE_NAMES' do
-    subject { described_class::DEFAULT_FILE_NAMES }
-
-    described_class.file_types.each do |file_type, _|
-      it "expects #{file_type} to be included" do
-        is_expected.to include(file_type.to_sym)
-      end
-    end
-  end
-
-  describe 'validates TYPE_AND_FORMAT_PAIRS' do
-    subject { described_class::TYPE_AND_FORMAT_PAIRS }
-
-    described_class.file_types.each do |file_type, _|
-      it "expects #{file_type} to be included" do
-        expect(described_class.file_formats).to include(subject[file_type.to_sym])
       end
     end
   end

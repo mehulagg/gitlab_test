@@ -68,7 +68,7 @@ module EE
       end
 
       def collect_security_reports!(security_reports)
-        each_report(::Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES) do |file_type, blob, report_artifact|
+        each_report(::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :security).map(&:file_type).map(&:to_s)) do |file_type, blob, report_artifact|
           security_reports.get_report(file_type, report_artifact).tap do |security_report|
             next unless project.feature_available?(LICENSED_PARSER_FEATURES.fetch(file_type))
 
@@ -80,7 +80,7 @@ module EE
       end
 
       def collect_license_scanning_reports!(license_scanning_report)
-        each_report(::Ci::JobArtifact::LICENSE_SCANNING_REPORT_FILE_TYPES) do |file_type, blob|
+        each_report(::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :license_scanning).map(&:file_type).map(&:to_s)) do |file_type, blob|
           next if ::Feature.disabled?(:parse_license_management_reports, default_enabled: true)
 
           next unless project.feature_available?(:license_scanning)
@@ -95,7 +95,7 @@ module EE
         if project.feature_available?(:dependency_scanning)
           dependency_list = ::Gitlab::Ci::Parsers::Security::DependencyList.new(project, sha)
 
-          each_report(::Ci::JobArtifact::DEPENDENCY_LIST_REPORT_FILE_TYPES) do |_, blob|
+          each_report(::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :dependency_list).map(&:file_type).map(&:to_s)) do |_, blob|
             dependency_list.parse!(blob, dependency_list_report)
           end
         end
@@ -107,7 +107,7 @@ module EE
         if project.feature_available?(:dependency_scanning)
           dependency_list = ::Gitlab::Ci::Parsers::Security::DependencyList.new(project, sha)
 
-          each_report(::Ci::JobArtifact::LICENSE_SCANNING_REPORT_FILE_TYPES) do |_, blob|
+          each_report(::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :license_scanning).map(&:file_type).map(&:to_s)) do |_, blob|
             dependency_list.parse_licenses!(blob, dependency_list_report)
           end
         end
@@ -116,7 +116,7 @@ module EE
       end
 
       def collect_metrics_reports!(metrics_report)
-        each_report(::Ci::JobArtifact::METRICS_REPORT_FILE_TYPES) do |file_type, blob|
+        each_report(::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :metrics).map(&:file_type).map(&:to_s)) do |file_type, blob|
           next unless project.feature_available?(:metrics_reports)
 
           ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, metrics_report)
@@ -128,7 +128,7 @@ module EE
       def collect_requirements_reports!(requirements_report)
         return requirements_report unless project.feature_available?(:requirements)
 
-        each_report(::Ci::JobArtifact::REQUIREMENTS_REPORT_FILE_TYPES) do |file_type, blob, report_artifact|
+        each_report(::Gitlab::Ci::Build::Artifacts::Definitions.find_by_tags(:report, :requirements).map(&:file_type).map(&:to_s)) do |file_type, blob, report_artifact|
           ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, requirements_report)
         end
 

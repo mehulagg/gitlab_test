@@ -82,7 +82,10 @@ RSpec.describe Ci::BuildRunnerPresenter do
     end
 
     context "with reports" do
-      Ci::JobArtifact::DEFAULT_FILE_NAMES.each do |file_type, filename|
+      Gitlab::Ci::Build::Artifacts::Definitions.all.each do |definition|
+        file_type = definition.file_type
+        filename = definition.default_file_name
+
         context file_type.to_s do
           let(:report) { { "#{file_type}": [filename] } }
           let(:build) { create(:ci_build, options: { artifacts: { reports: report } } ) }
@@ -91,7 +94,7 @@ RSpec.describe Ci::BuildRunnerPresenter do
             {
               name: filename,
               artifact_type: :"#{file_type}",
-              artifact_format: Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS.fetch(file_type),
+              artifact_format: definition.file_format,
               paths: [filename],
               when: 'always'
             }

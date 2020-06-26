@@ -149,10 +149,9 @@ class Projects::ArtifactsController < Projects::ApplicationController
   end
 
   def zip_artifact?
-    types = HashWithIndifferentAccess.new(Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS)
     file_type = params[:file_type] || :archive
 
-    types[file_type] == :zip
+    Gitlab::Ci::Build::Artifacts::Definitions.get(file_type)&.file_format == :zip
   end
 
   def entry
