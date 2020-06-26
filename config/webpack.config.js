@@ -8,6 +8,7 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const vendorDllHash = require('./helpers/vendor_dll_hash');
 
 const ROOT_PATH = path.resolve(__dirname, '..');
@@ -227,7 +228,7 @@ module.exports = {
         },
       },
       {
-        test: /.css$/,
+        test: /\.css$/,
         use: [
           'vue-style-loader',
           {
@@ -238,6 +239,10 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
       {
         test: /\.(eot|ttf|woff|woff2)$/,
@@ -336,6 +341,8 @@ module.exports = {
       $: 'jquery',
       jQuery: 'jquery',
     }),
+
+    new MiniCssExtractPlugin(),
 
     // if DLLs are enabled, detect whether the DLL exists and create it automatically if necessary
     dll && {
