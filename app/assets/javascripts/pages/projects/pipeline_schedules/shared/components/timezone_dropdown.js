@@ -1,3 +1,5 @@
+import { groupBy } from 'lodash';
+
 const defaultTimezone = { name: 'UTC', offset: 0 };
 const defaults = {
   $inputEl: null,
@@ -24,14 +26,20 @@ export const findTimezoneByIdentifier = (tzList = [], identifier = null) => {
   return null;
 };
 
+const groupTzByIdentifier = tzs => groupBy(tzs, item => item.identifier);
+
+const flattenTzGroups = tzGroups =>
+  Object.entries(tzGroups).map(([identifier, group]) => ({
+    identifier,
+    name: group.map(({ name }) => name).join(', '),
+  }));
+
 export default class TimezoneDropdown {
   constructor({ $dropdownEl, $inputEl, onSelectTimezone, displayFormat } = defaults) {
     this.$dropdown = $dropdownEl;
     this.$dropdownToggle = this.$dropdown.find('.dropdown-toggle-text');
     this.$input = $inputEl;
-    this.timezoneData = this.$dropdown.data('data');
-
-    console.log('data', this.timezoneData);
+    this.timezoneData = flattenTzGroups(groupTzByIdentifier(this.$dropdown.data('data')));
 
     this.onSelectTimezone = onSelectTimezone;
     this.displayFormat = displayFormat || defaults.displayFormat;
