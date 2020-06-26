@@ -320,6 +320,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           constraints: { snippet_id: /\d+/ }
 
         resources :jira_issues, only: [:index]
+        get 'jira_issues_data', to: 'jira_issues#data'
+
         draw :issues
         draw :merge_requests
         draw :pipelines

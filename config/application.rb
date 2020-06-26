@@ -256,7 +256,7 @@ module Gitlab
       # Cross-origin requests must not have the session cookie available
       allow do
         origins '*'
-        resource '/api/*',
+        resource '*',
           credentials: false,
           headers: :any,
           methods: :any,

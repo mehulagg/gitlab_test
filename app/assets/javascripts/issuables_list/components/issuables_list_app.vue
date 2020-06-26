@@ -21,7 +21,6 @@ import {
 } from '../constants';
 import { setUrlParams } from '~/lib/utils/url_utility';
 import issueableEventHub from '../eventhub';
-import mockJiraData from '../data/mock_jira_data.json';
 
 export default {
   LOADING_LIST_ITEMS_LENGTH,
@@ -183,8 +182,7 @@ export default {
         })
         .then(response => {
           this.loading = false;
-          // this.issuables = response.data;
-          this.issuables = mockJiraData;
+          this.issuables = response.data;
           this.totalItems = Number(response.headers['x-total']);
           this.page = Number(response.headers['x-page']);
         })
