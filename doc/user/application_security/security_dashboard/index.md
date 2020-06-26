@@ -129,7 +129,7 @@ Read more on how to [interact with the vulnerabilities](../index.md#interacting-
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/6953) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.8.
 
 At the instance level, the Security Dashboard displays the vulnerabilities
-present in the default branches of all of the projects that you have configured to display on the dashboard. 
+present in the default branches of all of the projects that you have configured to display on the dashboard.
 It includes all of the features of the [group security dashboard](#group-security-dashboard).
 
 You can access the Instance Security Dashboard from the menu
