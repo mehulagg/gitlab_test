@@ -58,17 +58,22 @@ At the project level, the Security Dashboard displays the vulnerabilities merged
 
 First, navigate to the Security Dashboard found under your project's Security & Compliance tab.
 
-Once you're on the dashboard, you will first see the total number of vulnerabilties broken down by the vulnerability's severity is displayed.
+Once you're on the dashboard, you will first see the total number of vulnerabilties broken down by the vulnerability's severity.
 
 Directly below that, there is a series of filters for:
 - Status
 - Severity
 - Report type
 
-Selecting one or more filters will filter the results in this page.
+Selecting one or more filter will refine the results in this page.
 
 Next to each vulnerability a checkbox will allow you to dismiss one or multiple vulnerabilities at time. 
 Clicking on a checkbox exposes a menu that allows you to choose the reason for dismissing the vulnerability(s). 
+
+The main section of the page is a list of all the vulnerabilities in the project, sorted by severity. 
+In that list, you can see the vulnerability's status, severity, and description.
+
+Clicking on the vulnerabilty's identifier will take you to the [Vulnerabily Details](../vulnerabilities) page to view more information about the vulnerabilty selected.
 
 
 ![Project Security Dashboard](img/project_security_dashboard_v13_1.png)
@@ -95,6 +100,11 @@ projects in a group and its subgroups.
 First, navigate to the Security Dashboard found under your group's
 **Security** tab.
 
+NOTE: **Note:**
+The dashboard only shows projects with [security reports](#supported-reports) enabled in a group.
+
+![Dashboard with action buttons and metrics](img/group_security_dashboard_v13_1.png)
+
 Once you're on the dashboard, at the top you should see a series of filters for:
 
 - Status
@@ -102,15 +112,11 @@ Once you're on the dashboard, at the top you should see a series of filters for:
 - Report type
 - Project
 
-NOTE: **Note:**
-The dashboard only shows projects with [security reports](#supported-reports) enabled in a group.
-
-![Dashboard with action buttons and metrics](img/group_security_dashboard_v13_1.png)
-
 Selecting one or more filters will filter the results in this page.
 
-The main section is a list of all the vulnerabilities in the group, sorted by severity.
-In that list, you can see the vulnerability's status, severity, and details including it's identifier, project, and filename.
+The left section of the page is a list of all the vulnerabilities in the project, sorted by severity. 
+In that list, you can see the vulnerability's status, severity, and description.
+Clicking on the vulnerabilty's title will take you to the [Vulnerabily Details](../vulnerabilities) page to view more information about the vulnerabilty selected.
 
 Next to the list is a timeline chart that shows how many open
 vulnerabilities your projects had at various points in time. You can filter among 30, 60, and
