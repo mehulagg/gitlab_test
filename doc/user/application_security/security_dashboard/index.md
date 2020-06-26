@@ -58,37 +58,25 @@ At the project level, the Security Dashboard displays the vulnerabilities merged
 
 First, navigate to the Security Dashboard found under your project's Security & Compliance tab.
 
-Once you're on the dashboard, you will first see the total number of vulnerabilties broken down by the vulnerability's severity.
+Once you're on the dashboard, you will first see the total number of detected vulnerabilties broken down by the vulnerability's severity.
 
 Directly below that, there is a series of filters for:
+
 - Status
 - Severity
 - Report type
 
 Selecting one or more filter will refine the results in this page.
 
-Next to each vulnerability a checkbox will allow you to dismiss one or multiple vulnerabilities at time. 
-Clicking on a checkbox exposes a menu that allows you to choose the reason for dismissing the vulnerability(s). 
+Next to each vulnerability a checkbox allows you to dismiss one or multiple vulnerabilities at time.
+Clicking on a checkbox exposes a menu to choose the reason for dismissing the vulnerability(s).
 
-The main section of the page is a list of all the vulnerabilities in the project, sorted by severity. 
+The main section of the page is a list of all the vulnerabilities in the project, sorted by severity.
 In that list, you can see the vulnerability's status, severity, and description.
 
-Clicking on the vulnerabilty's identifier will take you to the [Vulnerabily Details](../vulnerabilities) page to view more information about the vulnerabilty selected.
-
+Clicking on the vulnerabilty's identifier will take you to the [Vulnerabily Details](../vulnerabilities) page to view more information about the selected vulnerabilty.
 
 ![Project Security Dashboard](img/project_security_dashboard_v13_1.png)
-
-### Export vulnerabilities
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/197494) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.10.
-
-You can export all your project's vulnerabilities as CSV by clicking on the export button located at top right of the Project Security Dashboard. This will initiate the process, and once complete, the CSV report will be downloaded. The report will contain all vulnerabilities in the project as filters won't apply.
-
-NOTE: **Note:**
-It may take several minutes for the download to start if your project consists
-of thousands of vulnerabilities. Do not close the page until the download finishes.
-
-![CSV Export Button](img/project_security_dashboard_export_csv_v12_10.png)
 
 ## Group Security Dashboard
 
@@ -112,9 +100,9 @@ Once you're on the dashboard, at the top you should see a series of filters for:
 - Report type
 - Project
 
-Selecting one or more filters will filter the results in this page.
+Selecting one or more filters will refine the results in this page.
 
-The left section of the page is a list of all the vulnerabilities in the project, sorted by severity. 
+The left section of the page is a list of all the vulnerabilities in the project, sorted by severity.
 In that list, you can see the vulnerability's status, severity, and description.
 Clicking on the vulnerabilty's title will take you to the [Vulnerabily Details](../vulnerabilities) page to view more information about the vulnerabilty selected.
 
@@ -135,21 +123,6 @@ Projects with no vulnerability tests configured will not appear in the list. Add
 vulnerabilities are not included either.
 
 Read more on how to [interact with the vulnerabilities](../index.md#interacting-with-the-vulnerabilities).
-
-### Export vulnerabilities
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/213013) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.1.
-
-You can export all your vulnerabilities as CSV by clicking the **{upload}** **Export** button
-located at the top right of the **Group Security Dashboard**. After the report builds, the CSV
-report downloads to your local machine. The report contains all vulnerabilities for the projects
-defined in the **Group Security Dashboard**, as filters don't apply to the export function.
-
-NOTE: **Note:**
-It may take several minutes for the download to start if your project contains thousands of
-vulnerabilities. Don't close the page until the download finishes.
-
-![CSV Export Button](img/group_security_dashboard_export_csv_v13_0.png)
 
 ## Instance Security Dashboard
 
@@ -176,21 +149,19 @@ Once added, the dashboard will display the vulnerabilities found the default bra
 
 ![Instance Security Dashboard with projects](img/instance_security_dashboard_with_projects_v13_1.png)
 
-### Export vulnerabilities
+## Export vulnerabilities
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/213014) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/213014) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.10.
 
-You can export all your vulnerabilities as CSV by clicking the **{upload}** **Export**
-button located at top right of the **Instance Security Dashboard**. After the report
+You can export all your vulnerabilities in CSV format by clicking the **{upload}** **Export**
+button located at top right of the **Security Dashboard**. After the report
 is built, the CSV report downloads to your local machine. The report contains all
-vulnerabilities for the projects defined in the **Instance Security Dashboard**,
+vulnerabilities for the projects defined in the **Security Dashboard**,
 as filters don't apply to the export function.
 
 NOTE: **Note:**
 It may take several minutes for the download to start if your project contains
 thousands of vulnerabilities. Do not close the page until the download finishes.
-
-![CSV Export Button](img/instance_security_dashboard_export_csv_v13_0.png)
 
 ## Keeping the dashboards up to date
 
