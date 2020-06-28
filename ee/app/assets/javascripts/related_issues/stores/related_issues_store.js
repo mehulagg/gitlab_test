@@ -1,3 +1,4 @@
+import { unionBy } from 'lodash';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 class RelatedIssuesStore {
@@ -14,8 +15,12 @@ class RelatedIssuesStore {
     this.state.relatedIssues = convertObjectPropsToCamelCase(issues, { deep: true });
   }
 
-  removeRelatedIssue(idToRemove) {
-    this.state.relatedIssues = this.state.relatedIssues.filter(issue => issue.id !== idToRemove);
+  addRelatedIssues(issues) {
+    this.setRelatedIssues(unionBy(this.state.relatedIssues, issues, x => x.id));
+  }
+
+  removeRelatedIssue(issue) {
+    this.state.relatedIssues = this.state.relatedIssues.filter(x => x.id !== issue.id);
   }
 
   updateIssueOrder(oldIndex, newIndex) {

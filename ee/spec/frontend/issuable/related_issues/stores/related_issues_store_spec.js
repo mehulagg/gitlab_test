@@ -28,21 +28,35 @@ describe('RelatedIssuesStore', () => {
     });
   });
 
+  describe('addRelatedIssues', () => {
+    it('adds related issues', () => {
+      store.state.relatedIssues = [issuable1];
+      store.addRelatedIssues([issuable2, issuable3]);
+
+      expect(store.state.relatedIssues).toEqual([issuable1, issuable2, issuable3]);
+    });
+
+    it('adds only new issues when some already exist', () => {
+      store.state.relatedIssues = [issuable1, issuable2];
+      store.addRelatedIssues([{ ...issuable1 }, { ...issuable2 }, issuable3]);
+
+      expect(store.state.relatedIssues).toEqual([issuable1, issuable2, issuable3]);
+    });
+  });
+
   describe('removeRelatedIssue', () => {
     it('remove issue', () => {
-      const relatedIssues = [issuable1];
-      store.state.relatedIssues = relatedIssues;
+      store.state.relatedIssues = [issuable1];
 
-      store.removeRelatedIssue(issuable1.id);
+      store.removeRelatedIssue(issuable1);
 
       expect(store.state.relatedIssues).toEqual([]);
     });
 
     it('remove issue with multiple in store', () => {
-      const relatedIssues = [issuable1, issuable2];
-      store.state.relatedIssues = relatedIssues;
+      store.state.relatedIssues = [issuable1, issuable2];
 
-      store.removeRelatedIssue(issuable1.id);
+      store.removeRelatedIssue(issuable1);
 
       expect(store.state.relatedIssues).toEqual([issuable2]);
     });
@@ -50,8 +64,7 @@ describe('RelatedIssuesStore', () => {
 
   describe('updateIssueOrder', () => {
     it('updates issue order', () => {
-      const relatedIssues = [issuable1, issuable2, issuable3, issuable4, issuable5];
-      store.state.relatedIssues = relatedIssues;
+      store.state.relatedIssues = [issuable1, issuable2, issuable3, issuable4, issuable5];
 
       expect(store.state.relatedIssues[3].id).toBe(issuable4.id);
       store.updateIssueOrder(3, 0);
@@ -75,8 +88,7 @@ describe('RelatedIssuesStore', () => {
 
   describe('removePendingRelatedIssue', () => {
     it('remove issue', () => {
-      const relatedIssues = [issuable1.reference];
-      store.state.pendingReferences = relatedIssues;
+      store.state.pendingReferences = [issuable1.reference];
 
       store.removePendingRelatedIssue(0);
 
@@ -84,8 +96,7 @@ describe('RelatedIssuesStore', () => {
     });
 
     it('remove issue with multiple in store', () => {
-      const relatedIssues = [issuable1.reference, issuable2.reference];
-      store.state.pendingReferences = relatedIssues;
+      store.state.pendingReferences = [issuable1.reference, issuable2.reference];
 
       store.removePendingRelatedIssue(0);
 

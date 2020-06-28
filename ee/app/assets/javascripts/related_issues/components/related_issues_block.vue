@@ -1,5 +1,6 @@
 <script>
 import { GlLink } from '@gitlab/ui';
+import { __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import AddIssuableForm from './add_issuable_form.vue';
 import RelatedIssuesList from './related_issues_list.vue';
@@ -82,6 +83,11 @@ export default {
       required: false,
       default: true,
     },
+    headerText: {
+      type: String,
+      required: false,
+      default: __('Linked issues'),
+    },
   },
   computed: {
     hasRelatedIssues() {
@@ -114,9 +120,7 @@ export default {
       return issuableQaClassMap[this.issuableType];
     },
   },
-  created() {
-    this.linkedIssueTypesTextMap = linkedIssueTypesTextMap;
-  },
+  linkedIssueTypesTextMap,
 };
 </script>
 
@@ -131,7 +135,7 @@ export default {
             href="#related-issues"
             aria-hidden="true"
           />
-          {{ __('Linked issues') }}
+          {{ headerText }}
           <a v-if="hasHelpPath" :href="helpPath">
             <i
               class="related-issues-header-help-icon fa fa-question-circle"
@@ -189,19 +193,34 @@ export default {
           />
         </div>
         <template v-if="shouldShowTokenBody">
-          <related-issues-list
-            v-for="category in categorisedIssues"
-            :key="category.linkType"
-            :heading="linkedIssueTypesTextMap[category.linkType]"
-            :can-admin="canAdmin"
-            :can-reorder="canReorder"
-            :is-fetching="isFetching"
-            :issuable-type="issuableType"
-            :path-id-separator="pathIdSeparator"
-            :related-issues="category.issues"
-            @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
-            @saveReorder="$emit('saveReorder', $event)"
-          />
+          <template v-if="isLinkedIssueBlock">
+            <related-issues-list
+              v-for="category in categorisedIssues"
+              :key="category.linkType"
+              :heading="$options.linkedIssueTypesTextMap[category.linkType]"
+              :can-admin="canAdmin"
+              :can-reorder="canReorder"
+              :is-fetching="isFetching"
+              :issuable-type="issuableType"
+              :path-id-separator="pathIdSeparator"
+              :related-issues="category.issues"
+              @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
+              @saveReorder="$emit('saveReorder', $event)"
+            />
+          </template>
+          <!-- Show a flat list with no categories-->
+          <template v-else>
+            <related-issues-list
+              :can-admin="canAdmin"
+              :can-reorder="canReorder"
+              :is-fetching="isFetching"
+              :issuable-type="issuableType"
+              :path-id-separator="pathIdSeparator"
+              :related-issues="relatedIssues"
+              @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
+              @saveReorder="$emit('saveReorder', $event)"
+            />
+          </template>
         </template>
       </div>
     </div>

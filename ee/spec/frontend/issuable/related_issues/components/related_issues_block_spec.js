@@ -28,8 +28,12 @@ describe('RelatedIssuesBlock', () => {
       });
     });
 
-    it('displays "Linked issues" in the header', () => {
-      expect(wrapper.find('h3').text()).toContain('Linked issues');
+    it('displays the header text in the header', async () => {
+      const headerText = 'custom header text';
+      wrapper.setProps({ headerText });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.find('h3').text()).toContain(headerText);
     });
 
     it('unable to add new related issues', () => {

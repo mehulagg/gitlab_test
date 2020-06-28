@@ -86,6 +86,16 @@ export default {
       required: false,
       default: true,
     },
+    headerText: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    serviceClass: {
+      type: Function,
+      required: false,
+      default: RelatedIssuesService,
+    },
   },
   data() {
     this.store = new RelatedIssuesStore();
@@ -105,7 +115,7 @@ export default {
     },
   },
   created() {
-    this.service = new RelatedIssuesService(this.endpoint);
+    this.service = new this.serviceClass(this.endpoint); // eslint-disable-line new-cap
     this.fetchRelatedIssues();
   },
   methods: {
@@ -116,9 +126,10 @@ export default {
       const issueToRemove = this.findRelatedIssueById(idToRemove);
 
       if (issueToRemove) {
-        RelatedIssuesService.remove(issueToRemove.relationPath)
-          .then(({ data }) => {
-            this.store.setRelatedIssues(data.issuables);
+        this.service
+          .remove(issueToRemove)
+          .then(() => {
+            this.store.removeRelatedIssue(issueToRemove);
           })
           .catch(res => {
             if (res && res.status !== 404) {
@@ -142,22 +153,23 @@ export default {
         this.isSubmitting = true;
         this.service
           .addRelatedIssues(this.state.pendingReferences, event.linkedIssueType)
-          .then(({ data }) => {
+          .then(issues => {
             // We could potentially lose some pending issues in the interim here
             this.store.setPendingReferences([]);
-            this.store.setRelatedIssues(data.issuables);
+            this.store.addRelatedIssues(issues);
 
-            this.isSubmitting = false;
             // Close the form on submission
             this.isFormVisible = false;
           })
           .catch(({ response }) => {
-            this.isSubmitting = false;
             let errorMessage = addRelatedIssueErrorMap[this.issuableType];
             if (response && response.data && response.data.message) {
               errorMessage = response.data.message;
             }
             Flash(errorMessage);
+          })
+          .finally(() => {
+            this.isSubmitting = false;
           });
       }
     },
@@ -170,25 +182,27 @@ export default {
       this.isFetching = true;
       this.service
         .fetchRelatedIssues()
-        .then(({ data }) => {
-          this.store.setRelatedIssues(data);
-          this.isFetching = false;
+        .then(issues => {
+          this.store.setRelatedIssues(issues);
         })
         .catch(() => {
           this.store.setRelatedIssues([]);
-          this.isFetching = false;
           Flash(__('An error occurred while fetching issues.'));
+        })
+        .finally(() => {
+          this.isFetching = false;
         });
     },
     saveIssueOrder({ issueId, beforeId, afterId, oldIndex, newIndex }) {
       const issueToReorder = this.findRelatedIssueById(issueId);
 
       if (issueToReorder) {
-        RelatedIssuesService.saveOrder({
-          endpoint: issueToReorder.relationPath,
-          move_before_id: beforeId,
-          move_after_id: afterId,
-        })
+        this.service
+          .saveOrder({
+            issue: issueToReorder,
+            move_before_id: beforeId,
+            move_after_id: afterId,
+          })
           .then(({ data }) => {
             if (!data.message) {
               this.store.updateIssueOrder(oldIndex, newIndex);
@@ -232,6 +246,7 @@ export default {
     :issuable-type="issuableType"
     :path-id-separator="pathIdSeparator"
     :is-linked-issue-block="isLinkedIssueBlock"
+    :header-text="headerText"
     @saveReorder="saveIssueOrder"
     @toggleAddRelatedIssuesForm="onToggleAddRelatedIssuesForm"
     @addIssuableFormInput="onInput"

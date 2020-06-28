@@ -40,6 +40,24 @@ describe('RelatedIssuesRoot', () => {
     return waitForPromises();
   };
 
+  const header = () => wrapper.find('.card-title');
+
+  describe('headerText prop', () => {
+    beforeEach(() => createComponent(mount));
+
+    it('shows "Linked issues" as the header text when none is provided', () => {
+      expect(header().text()).toContain('Linked issues');
+    });
+
+    it('shows the custom header text when one is provided', async () => {
+      const headerText = 'custom header text';
+      wrapper.setProps({ headerText });
+      await wrapper.vm.$nextTick();
+
+      expect(header().text()).toContain(headerText);
+    });
+  });
+
   describe('methods', () => {
     describe('onRelatedIssueRemoveRequest', () => {
       beforeEach(() => {
