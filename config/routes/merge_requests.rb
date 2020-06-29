@@ -64,6 +64,8 @@ resources :merge_requests, concerns: :awardable, except: [:new, :create, :show],
       end
     end
   end
+
+  resource :approvals, only: [:show, :create, :destroy], controller: 'merge_requests/approvals'
 end
 
 scope path: 'merge_requests', controller: 'merge_requests/creations' do
