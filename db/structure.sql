@@ -16033,7 +16033,8 @@ CREATE TABLE public.vulnerability_statistics (
     low integer DEFAULT 0 NOT NULL,
     unknown integer DEFAULT 0 NOT NULL,
     info integer DEFAULT 0 NOT NULL,
-    letter_grade smallint NOT NULL
+    letter_grade smallint NOT NULL,
+    date date
 );
 
 CREATE SEQUENCE public.vulnerability_statistics_id_seq
@@ -20320,6 +20321,10 @@ CREATE INDEX index_vulnerability_statistics_on_letter_grade ON public.vulnerabil
 
 CREATE INDEX index_vulnerability_statistics_on_project_id ON public.vulnerability_statistics USING btree (project_id);
 
+CREATE UNIQUE INDEX index_vulnerability_statistics_on_project_id_and_date ON public.vulnerability_statistics USING btree (project_id, date) WHERE (date IS NOT NULL);
+
+CREATE UNIQUE INDEX index_vulnerability_statistics_on_project_id_when_date_is_null ON public.vulnerability_statistics USING btree (project_id) WHERE (date IS NULL);
+
 CREATE UNIQUE INDEX index_vulnerability_user_mentions_on_note_id ON public.vulnerability_user_mentions USING btree (note_id) WHERE (note_id IS NOT NULL);
 
 CREATE UNIQUE INDEX index_vulns_user_mentions_on_vulnerability_id ON public.vulnerability_user_mentions USING btree (vulnerability_id) WHERE (note_id IS NULL);
@@ -23496,5 +23501,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200625082258
 20200625190458
 20200626130220
+20200629074951
 \.
 
