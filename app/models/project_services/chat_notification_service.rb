@@ -124,7 +124,7 @@ class ChatNotificationService < Service
   end
 
   def get_message(object_kind, data)
-    case object_kind
+    message = case object_kind
     when "push", "tag_push"
       ChatMessage::PushMessage.new(data) if notify_for_ref?(data)
     when "issue"
@@ -140,6 +140,8 @@ class ChatNotificationService < Service
     when "deployment"
       ChatMessage::DeploymentMessage.new(data)
     end
+
+    message || ChatMessage::BaseMessage.new(data)
   end
 
   def get_channel_field(event)
@@ -174,6 +176,7 @@ class ChatNotificationService < Service
   end
 
   def notify_for_ref?(data)
+    return false if project.empty_repo?
     return true if data[:object_kind] == 'tag_push'
     return true if data.dig(:object_attributes, :tag)
 
