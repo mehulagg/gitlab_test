@@ -15,6 +15,8 @@
     %li.nav-item
       %a.nav-link#storage-quota{ data: { toggle: "tab", action: '#storage-quota-tab' }, href: '#storage-quota-tab', 'aria-controls': '#storage-quota-tab', 'aria-selected': false }
         = s_('UsageQuota|Storage')
+
+  = link_to s_('UsageQuota|Purchase more storage'), "#{EE::SUBSCRIPTIONS_URL}/subscriptions/new?plan_id=#{EE::STORAGE_PLAN_ID}&transaction=storage", target: '_blank', rel: 'noopener noreferrer nofollow', class: 'btn btn-success btn-inverted float-right'
 .tab-content
   .tab-pane#pipelines-quota-tab
     = render "namespaces/pipelines_quota/list",
