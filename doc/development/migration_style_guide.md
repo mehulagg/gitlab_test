@@ -372,6 +372,7 @@ migration involves one of the high-traffic tables:
 - `ci_pipelines`
 - `ci_builds`
 - `notes`
+- `audit_events`
 
 Example changes:
 
