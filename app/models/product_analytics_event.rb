@@ -3,12 +3,13 @@
 # You can find development seeds for this model
 # in db/fixtures/development/27_product_analytics_events.rb
 class ProductAnalyticsEvent < ApplicationRecord
+  self.table_name = 'product_analytics_events_experimental'
+
+  belongs_to :project
+
   # Product analytic records are put in database by collector
   # so there is no default Rails timestamps in the table
   scope :order_by_time, -> { order(collector_tstamp: :desc) }
-
-  # TODO: Refactor to use Rails associations
-  scope :by_project, ->(project_id) { where(project_id: project_id.to_s) }
 
   # If we decide to change this scope to use date_trunc('day', collector_tstamp),
   # we should remember that a btree index on collector_tstamp will be no longer effective.

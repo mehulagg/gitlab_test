@@ -43,7 +43,7 @@ class Projects::ProductAnalyticsController < Projects::ApplicationController
   private
 
   def product_analytics_events
-    ProductAnalyticsEvent.by_project(@project.id)
+    @project.product_analytics_events
   end
 
   def javascript_vars

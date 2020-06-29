@@ -33,7 +33,7 @@ module ProductAnalytics
     private
 
     def product_analytics_events
-      ProductAnalyticsEvent.by_project(@project.id)
+      @project.product_analytics_events
     end
   end
 end
