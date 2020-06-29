@@ -9,13 +9,14 @@ module Gitlab
     #       Please do not use this method for heavy or asynchronous operations.
     def loop_until(timeout: nil, limit: 1_000_000)
       raise ArgumentError unless limit
+      return enum_for(:loop_until, timeout: timeout, limit: limit) unless block_given?
 
-      start = Time.now
+      start = Gitlab::Metrics::System.monotonic_time
 
-      limit.times do
-        return true unless yield
+      limit.times do |index|
+        return true unless yield(index)
 
-        return false if timeout && (Time.now - start) > timeout
+        return false if timeout && (Gitlab::Metrics::System.monotonic_time - start) > timeout
       end
 
       false
