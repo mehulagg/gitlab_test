@@ -217,10 +217,6 @@ RSpec.shared_examples 'mentions in description' do |mentionable_type|
       let(:user) { create(:user) }
       let(:mentionable) { create(mentionable_type, description: "#{user.to_reference} some description") }
 
-      it 'stores no mentions' do
-        expect(mentionable.user_mentions.count).to eq 0
-      end
-
       it 'renders description_html correctly' do
         expect(mentionable.description_html).to include("<a href=\"/#{user.username}\" data-user=\"#{user.id}\"")
       end

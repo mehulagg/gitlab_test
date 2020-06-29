@@ -86,8 +86,6 @@ module Mentionable
     # successful if mentionable.save is successful.
     #
     # This line will get removed when we remove the feature flag.
-    return true unless store_mentioned_users_to_db_enabled?
-
     refs = all_references(self.author)
 
     references = {}
