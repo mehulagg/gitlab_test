@@ -726,6 +726,7 @@ module ProjectsHelper
       user
       gcp
       logs
+      product_analytics
     ]
   end
 

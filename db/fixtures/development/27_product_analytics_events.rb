@@ -148,9 +148,12 @@ Gitlab::Seeder.quiet do
         )
       end
 
-      Feature.enable(:product_analytics, project)
+      unless Feature.enabled?(:product_analytics, project)
+        if Feature.enable(:product_analytics, project)
+          puts "Product analytics feature was enabled for #{project.full_path}"
+        end
+      end
 
-      puts "Product analytics feature was enabled for #{project.full_path}"
       puts "10K events added to #{project.full_path}"
     end
   else
