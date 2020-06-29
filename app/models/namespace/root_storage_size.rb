@@ -22,7 +22,7 @@ class Namespace::RootStorageSize
   end
 
   def limit
-    @limit ||= Gitlab::CurrentSettings.namespace_storage_size_limit.megabytes
+    @limit ||= Gitlab::CurrentSettings.namespace_storage_size_limit.megabytes + @root_namespace.additional_purchased_storage_size.megabytes
   end
 
   private

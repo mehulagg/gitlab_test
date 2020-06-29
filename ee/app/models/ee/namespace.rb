@@ -26,7 +26,6 @@ module EE
       attr_writer :root_ancestor
 
       has_one :namespace_statistics
-      has_one :namespace_limit, inverse_of: :namespace
       has_one :gitlab_subscription, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_one :elasticsearch_indexed_namespace
 
@@ -54,10 +53,6 @@ module EE
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         :extra_shared_runners_minutes, to: :namespace_statistics, allow_nil: true
-
-      delegate :additional_purchased_storage_size, :additional_purchased_storage_size=,
-        :additional_purchased_storage_ends_on, :additional_purchased_storage_ends_on=,
-        to: :namespace_limit, allow_nil: true
 
       delegate :email, to: :owner, allow_nil: true, prefix: true
 

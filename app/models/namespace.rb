@@ -35,6 +35,7 @@ class Namespace < ApplicationRecord
   has_one :chat_team, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :root_storage_statistics, class_name: 'Namespace::RootStorageStatistics'
   has_one :aggregation_schedule, class_name: 'Namespace::AggregationSchedule'
+  has_one :namespace_limit, inverse_of: :namespace
 
   validates :owner, presence: true, unless: ->(n) { n.type == "Group" }
   validates :name,
@@ -63,6 +64,10 @@ class Namespace < ApplicationRecord
   after_update :force_share_with_group_lock_on_descendants, if: -> { saved_change_to_share_with_group_lock? && share_with_group_lock? }
 
   # Legacy Storage specific hooks
+
+  delegate :additional_purchased_storage_size, :additional_purchased_storage_size=,
+    :additional_purchased_storage_ends_on, :additional_purchased_storage_ends_on=,
+    to: :namespace_limit, allow_nil: true
 
   after_update :move_dir, if: :saved_change_to_path_or_parent?
   before_destroy(prepend: true) { prepare_for_destroy }
