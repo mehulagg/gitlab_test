@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Project do
+RSpec.describe Project do
   include ProjectForksHelper
   include GitHelpers
   include ExternalAuthorizationServiceHelpers
@@ -1651,6 +1651,14 @@ describe Project do
       let(:project_name) { 'group.example.com' }
 
       it { is_expected.to eq("http://group.example.com") }
+
+      context 'mixed case path' do
+        before do
+          project.update!(path: 'Group.example.com')
+        end
+
+        it { is_expected.to eq("http://group.example.com") }
+      end
     end
 
     context 'project page' do

@@ -16,6 +16,24 @@ entry.
 - Periodically recompute project authorizations. !34071
 
 
+## 13.0.7 (2020-06-25)
+
+### Fixed (7 changes)
+
+- Group authorization refresh to consider shared groups. !31204
+- Fix Value Stream Analytics summary when using non-english locale. !33717
+- Fix bug with variable substitution in alerts. !33772
+- Fix relative URL root in wiki_base_path. !33841
+- Adjust wrong column reference for ResetMergeStatus (background job). !33899
+- Updated Auto DevOps with a fix to delete PostgreSQL PVC on environment cleanup. !34657
+- Load user before logging git http-requests. !34923
+
+### Added (2 changes)
+
+- Provide `__range` variable for Prometheus queries. !33521
+- Periodically recompute project authorizations. !34071
+
+
 ## 13.0.6 (2020-06-10)
 
 - No changes.
@@ -626,6 +644,13 @@ entry.
 - Update GitLab Elasticsearch Indexer to v2.3.0. !32199
 - Update asciidoctor-plantuml gem to v0.0.12. !32376
 - Use visitUrl in Alert management. !32414
+
+
+## 12.10.12 (2020-06-24)
+
+### Fixed (1 change)
+
+- Correctly count wiki pages in sidebar. !30508
 
 
 ## 12.10.11 (2020-06-10)

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Feature flag issue links', :js do
+RSpec.describe 'Feature flag issue links', :js do
   include FeatureFlagHelpers
 
   let_it_be(:developer) { create(:user) }
@@ -63,6 +63,19 @@ describe 'Feature flag issue links', :js do
     context 'when the feature is disabled' do
       before do
         stub_feature_flags(feature_flags_issue_links: false)
+      end
+
+      it 'does not show the related issues widget' do
+        visit(edit_project_feature_flag_path(project, feature_flag))
+
+        expect(page).to have_text 'Strategies'
+        expect(page).not_to have_selector '#related-issues'
+      end
+    end
+
+    context 'when the related issues feature is unavailable' do
+      before do
+        stub_licensed_features(related_issues: false, feature_flags: true)
       end
 
       it 'does not show the related issues widget' do

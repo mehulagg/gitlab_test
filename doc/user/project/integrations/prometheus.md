@@ -416,6 +416,8 @@ Read the documentation on [links](#add-related-links-to-custom-dashboards).
 | `priority` | number | optional, defaults to order in file | Order to appear on the dashboard. Higher number means higher priority, which will be higher on the page. Numbers do not need to be consecutive. |
 | `panels` | array | required | The panels which should be in the panel group. |
 
+Panels in a panel group are laid out in rows consisting of two panels per row. An exception to this rule are single panels on a row: these panels will take the full width of their containing row.
+
 ##### **Panel (`panels`) properties**
 
 | Property | Type | Required | Description |
@@ -1017,7 +1019,7 @@ For manually configured Prometheus servers, a notify endpoint is provided to use
 
 ![Prometheus service configuration of Alerts](img/prometheus_service_alerts.png)
 
-To send GitLab alert notifications, copy the *URL* and *Authorization Key* into the [`webhook_configs`](https://prometheus.io/docs/alerting/configuration/#webhook_config) section of your Prometheus Alertmanager configuration:
+To send GitLab alert notifications, copy the *URL* and *Authorization Key* into the [`webhook_configs`](https://prometheus.io/docs/alerting/latest/configuration/#webhook_config) section of your Prometheus Alertmanager configuration:
 
 ```yaml
 receivers:
@@ -1048,8 +1050,7 @@ Alerts can be used to trigger actions, like opening an issue automatically (disa
 1. Optionally, select whether to send an email notification to the developers of the project.
 1. Click **Save changes**.
 
-Once enabled, an issue will be opened automatically when an alert is triggered which contains values extracted from [alert's payload](https://prometheus.io/docs/alerting/configuration/#webhook_config
-):
+Once enabled, an issue will be opened automatically when an alert is triggered which contains values extracted from [alert's payload](https://prometheus.io/docs/alerting/latest/configuration/#webhook_config):
 
 - Issue author: `GitLab Alert Bot`
 - Issue title: Extract from `annotations/title`, `annotations/summary` or `labels/alertname`

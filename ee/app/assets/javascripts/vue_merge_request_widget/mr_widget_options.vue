@@ -272,7 +272,7 @@ export default {
 };
 </script>
 <template>
-  <div v-if="mr" class="mr-state-widget prepend-top-default">
+  <div v-if="mr" class="mr-state-widget gl-mt-3">
     <mr-widget-header :mr="mr" />
     <mr-widget-suggest-pipeline
       v-if="shouldSuggestPipelines"
@@ -367,6 +367,7 @@ export default {
         v-if="mr.testResultsPath"
         class="js-reports-container"
         :endpoint="mr.testResultsPath"
+        :pipeline-path="mr.mergeRequestAddCiConfigPath"
       />
 
       <terraform-plan v-if="mr.terraformReportsPath" :endpoint="mr.terraformReportsPath" />

@@ -1,6 +1,6 @@
 <script>
 import { isEqual } from 'lodash';
-import { __, sprintf, s__ } from '~/locale';
+import { __, s__ } from '~/locale';
 import createFlash from '~/flash';
 import PipelinesService from '../../services/pipelines_service';
 import pipelinesMixin from '../../mixins/pipelines';
@@ -9,6 +9,7 @@ import NavigationTabs from '~/vue_shared/components/navigation_tabs.vue';
 import NavigationControls from './nav_controls.vue';
 import { getParameterByName } from '~/lib/utils/common_utils';
 import CIPaginationMixin from '~/vue_shared/mixins/ci_pagination_api_mixin';
+import Icon from '~/vue_shared/components/icon.vue';
 import PipelinesFilteredSearch from './pipelines_filtered_search.vue';
 import { validateParams } from '../../utils';
 import { ANY_TRIGGER_AUTHOR, RAW_TEXT_WARNING, FILTER_TAG_IDENTIFIER } from '../../constants';
@@ -20,6 +21,7 @@ export default {
     NavigationTabs,
     NavigationControls,
     PipelinesFilteredSearch,
+    Icon,
   },
   mixins: [pipelinesMixin, CIPaginationMixin, glFeatureFlagsMixin()],
   props: {
@@ -115,8 +117,6 @@ export default {
   },
   scopes: {
     all: 'all',
-    pending: 'pending',
-    running: 'running',
     finished: 'finished',
     branches: 'branches',
     tags: 'tags',
@@ -169,13 +169,8 @@ export default {
     },
 
     emptyTabMessage() {
-      const { scopes } = this.$options;
-      const possibleScopes = [scopes.pending, scopes.running, scopes.finished];
-
-      if (possibleScopes.includes(this.scope)) {
-        return sprintf(s__('Pipelines|There are currently no %{scope} pipelines.'), {
-          scope: this.scope,
-        });
+      if (this.scope === this.$options.scopes.finished) {
+        return s__('Pipelines|There are currently no finished pipelines.');
       }
 
       return s__('Pipelines|There are currently no pipelines.');
@@ -193,21 +188,8 @@ export default {
           isActive: this.scope === 'all',
         },
         {
-          name: __('Pending'),
-          scope: scopes.pending,
-          count: count.pending,
-          isActive: this.scope === 'pending',
-        },
-        {
-          name: __('Running'),
-          scope: scopes.running,
-          count: count.running,
-          isActive: this.scope === 'running',
-        },
-        {
           name: __('Finished'),
           scope: scopes.finished,
-          count: count.finished,
           isActive: this.scope === 'finished',
         },
         {
@@ -298,8 +280,8 @@ export default {
       v-if="shouldRenderTabs || shouldRenderButtons"
       class="top-area scrolling-tabs-container inner-page-scroll-tabs"
     >
-      <div class="fade-left"><i class="fa fa-angle-left" aria-hidden="true"> </i></div>
-      <div class="fade-right"><i class="fa fa-angle-right" aria-hidden="true"> </i></div>
+      <div class="fade-left"><icon name="chevron-lg-left" :size="12" /></div>
+      <div class="fade-right"><icon name="chevron-lg-right" :size="12" /></div>
 
       <navigation-tabs
         v-if="shouldRenderTabs"

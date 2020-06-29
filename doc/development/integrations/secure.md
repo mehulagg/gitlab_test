@@ -239,17 +239,15 @@ one set in the `SECURE_LOG_LEVEL` variable. For instance, `info` and `warn`
 messages should be skipped when `SECURE_LOG_LEVEL` is set to `error`. Accepted
 values are as follows, listed from highest to lowest:
 
-- `panic`
 - `fatal`
 - `error`
 - `warn`
 - `info`
 - `debug`
-- `trace`
 
-It is recommended to use the `debug` and `trace` levels for verbose logging
-that could be useful when debugging. The default value for `SECURE_LOG_LEVEL`
-should be set to `info`.
+It is recommended to use the `debug` level for verbose logging that could be
+useful when debugging. The default value for `SECURE_LOG_LEVEL` should be set
+to `info`.
 
 #### common logutil package
 
@@ -575,3 +573,15 @@ remediation. `fixes[].id` contains a fixed vulnerability's [unique identifier](#
 
 The `diff` field is a base64-encoded remediation code diff, compatible with
 [`git apply`](https://git-scm.com/docs/git-format-patch#_discussion). This field is required.
+
+## Limitations
+
+### Container Scanning
+
+Container Scanning currently has these limitations:
+
+- Although the Security Dashboard can display scan results from multiple images, if multiple
+  vulnerabilities have the same fingerprint, only the first instance of that vulnerability is
+  displayed. We're working on removing this limitation. You can follow our progress on the issue
+  [Change location fingerprint for Container Scanning](https://gitlab.com/gitlab-org/gitlab/-/issues/215466).
+- Different scanners may each report the same vulnerability, resulting in duplicate findings.

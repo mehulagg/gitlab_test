@@ -4,6 +4,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 
 - No changes.
 
+## 13.0.7 (2020-06-25)
+
+- No changes.
+
 ## 13.0.6 (2020-06-10)
 
 ### Security (1 change)
@@ -353,6 +357,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Replace undefined confidence with unknown severity for vulnerabilities. !31593
 - Translate unauthenticated user string for Audit Event. !31856 (Sashi Kumar)
 
+
+## 12.10.12 (2020-06-24)
+
+- No changes.
 
 ## 12.10.11 (2020-06-10)
 

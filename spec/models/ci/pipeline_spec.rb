@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Ci::Pipeline, :mailer do
+RSpec.describe Ci::Pipeline, :mailer do
   include ProjectForksHelper
   include StubRequests
 
@@ -1947,6 +1947,23 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '.last_finished_for_ref_id' do
+    let(:project) { create(:project, :repository) }
+    let(:branch) { project.default_branch }
+    let(:ref) { project.ci_refs.take }
+    let(:config_source) { Ci::PipelineEnums.config_sources[:parameter_source] }
+    let!(:pipeline1) { create(:ci_pipeline, :success, project: project, ref: branch) }
+    let!(:pipeline2) { create(:ci_pipeline, :success, project: project, ref: branch) }
+    let!(:pipeline3) { create(:ci_pipeline, :failed, project: project, ref: branch) }
+    let!(:pipeline4) { create(:ci_pipeline, :success, project: project, ref: branch) }
+    let!(:pipeline5) { create(:ci_pipeline, :success, project: project, ref: branch, config_source: config_source) }
+
+    it 'returns the expected pipeline' do
+      result = described_class.last_finished_for_ref_id(ref.id)
+      expect(result).to eq(pipeline4)
+    end
+  end
+
   describe '.internal_sources' do
     subject { described_class.internal_sources }
 
@@ -2617,6 +2634,28 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '#add_error_message' do
+    let(:pipeline) { build_stubbed(:ci_pipeline) }
+
+    it 'adds a new pipeline error message' do
+      pipeline.add_error_message('The error message')
+
+      expect(pipeline.messages.map(&:content)).to contain_exactly('The error message')
+    end
+
+    context 'when feature flag ci_store_pipeline_messages is disabled' do
+      before do
+        stub_feature_flags(ci_store_pipeline_messages: false)
+      end
+
+      it ' does not add pipeline error message' do
+        pipeline.add_error_message('The error message')
+
+        expect(pipeline.messages).to be_empty
+      end
+    end
+  end
+
   describe '#has_yaml_errors?' do
     context 'when yaml_errors is set' do
       before do
@@ -3181,8 +3220,8 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe '#error_messages' do
-    subject { pipeline.error_messages }
+  describe '#full_error_messages' do
+    subject { pipeline.full_error_messages }
 
     before do
       pipeline.valid?

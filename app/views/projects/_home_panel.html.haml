@@ -3,7 +3,7 @@
 - max_project_topic_length = 15
 - emails_disabled = @project.emails_disabled?
 
-.project-home-panel{ class: [("empty-project" if empty_repo), ("js-show-on-project-root" if vue_file_list_enabled?)] }
+.project-home-panel.js-show-on-project-root{ class: [("empty-project" if empty_repo)] }
   .row.gl-mb-3
     .home-panel-title-row.col-md-12.col-lg-6.d-flex
       .avatar-container.rect-avatar.s64.home-panel-avatar.append-right-default.float-none
@@ -24,7 +24,7 @@
               = render 'shared/members/access_request_links', source: @project
           - if @project.tag_list.present?
             %span.home-panel-topic-list.mt-2.w-100.d-inline-flex
-              = sprite_icon('tag', size: 16, css_class: 'icon append-right-4')
+              = sprite_icon('tag', size: 16, css_class: 'icon gl-mr-2')
 
               - @project.topics_to_show.each do |topic|
                 - project_topics_classes = "badge badge-pill badge-secondary append-right-5"

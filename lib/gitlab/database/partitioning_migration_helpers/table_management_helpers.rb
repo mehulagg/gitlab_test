@@ -24,13 +24,24 @@ module Gitlab
         #
         #   partition_table_by_date :audit_events, :created_at, min_date: Date.new(2020, 1), max_date: Date.new(2020, 6)
         #
-        # Required options are:
+        # Options are:
         #   :min_date - a date specifying the lower bounds of the partition range
-        #   :max_date - a date specifying the upper bounds of the partitioning range
+        #   :max_date - a date specifying the upper bounds of the partitioning range, defaults to today + 1 month
         #
-        def partition_table_by_date(table_name, column_name, min_date:, max_date:)
+        # Unless min_date is specified explicitly, we default to
+        # 1. The minimum value for the partitioning column in the table
+        # 2. If no data is present yet, the current month
+        def partition_table_by_date(table_name, column_name, min_date: nil, max_date: nil)
           assert_table_is_allowed(table_name)
+
           assert_not_in_transaction_block(scope: ERROR_SCOPE)
+
+          max_date ||= Date.today + 1.month
+
+          min_date ||= connection.select_one(<<~SQL)['minimum'] || max_date - 1.month
+            SELECT date_trunc('MONTH', MIN(#{column_name})) AS minimum
+            FROM #{table_name}
+          SQL
 
           raise "max_date #{max_date} must be greater than min_date #{min_date}" if min_date >= max_date
 
@@ -68,6 +79,23 @@ module Gitlab
 
           part_table_name = partitioned_table_name(table_name)
           drop_table(part_table_name)
+        end
+
+        def create_hash_partitions(table_name, number_of_partitions)
+          transaction do
+            (0..number_of_partitions - 1).each do |partition|
+              decimals = Math.log10(number_of_partitions).ceil
+              suffix = "%0#{decimals}d" % partition
+              partition_name = "#{table_name}_#{suffix}"
+              schema = Gitlab::Database::STATIC_PARTITIONS_SCHEMA
+
+              execute(<<~SQL)
+                CREATE TABLE #{schema}.#{partition_name}
+                PARTITION OF #{table_name}
+                FOR VALUES WITH (MODULUS #{number_of_partitions}, REMAINDER #{partition});
+              SQL
+            end
+          end
         end
 
         private
@@ -152,7 +180,7 @@ module Gitlab
         end
 
         def create_range_partition_safely(partition_name, table_name, lower_bound, upper_bound)
-          if table_exists?(partition_name)
+          if table_exists?(table_for_range_partition(partition_name))
             # rubocop:disable Gitlab/RailsLogger
             Rails.logger.warn "Partition not created because it already exists" \
               " (this may be due to an aborted migration or similar): partition_name: #{partition_name}"

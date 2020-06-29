@@ -29,7 +29,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     push_frontend_feature_flag(:deploy_from_footer, @project, default_enabled: true)
     push_frontend_feature_flag(:single_mr_diff_view, @project, default_enabled: true)
     push_frontend_feature_flag(:suggest_pipeline) if experiment_enabled?(:suggest_pipeline)
-    push_frontend_feature_flag(:code_navigation, @project)
+    push_frontend_feature_flag(:code_navigation, @project, default_enabled: true)
     push_frontend_feature_flag(:widget_visibility_polling, @project, default_enabled: true)
     push_frontend_feature_flag(:merge_ref_head_comments, @project)
     push_frontend_feature_flag(:mr_commit_neighbor_nav, @project, default_enabled: true)
@@ -40,6 +40,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
 
   before_action do
     push_frontend_feature_flag(:vue_issuable_sidebar, @project.group)
+    push_frontend_feature_flag(:junit_pipeline_view, @project.group)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show, :discussions]

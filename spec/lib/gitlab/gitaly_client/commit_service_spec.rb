@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::GitalyClient::CommitService do
+RSpec.describe Gitlab::GitalyClient::CommitService do
   let(:project) { create(:project, :repository) }
   let(:storage_name) { project.repository_storage }
   let(:relative_path) { project.disk_path + '.git' }
@@ -290,7 +290,8 @@ describe Gitlab::GitalyClient::CommitService do
       request = Gitaly::FindCommitsRequest.new(
         repository: repository_message,
         disable_walk: true,
-        order: 'NONE'
+        order: 'NONE',
+        global_options: Gitaly::GlobalOptions.new(literal_pathspecs: false)
       )
 
       expect_any_instance_of(Gitaly::CommitService::Stub).to receive(:find_commits)
@@ -303,7 +304,8 @@ describe Gitlab::GitalyClient::CommitService do
       request = Gitaly::FindCommitsRequest.new(
         repository: repository_message,
         disable_walk: true,
-        order: 'TOPO'
+        order: 'TOPO',
+        global_options: Gitaly::GlobalOptions.new(literal_pathspecs: false)
       )
 
       expect_any_instance_of(Gitaly::CommitService::Stub).to receive(:find_commits)
@@ -317,7 +319,8 @@ describe Gitlab::GitalyClient::CommitService do
         repository: repository_message,
         disable_walk: true,
         order: 'NONE',
-        author: "Billy Baggins <bilbo@shire.com>"
+        author: "Billy Baggins <bilbo@shire.com>",
+        global_options: Gitaly::GlobalOptions.new(literal_pathspecs: false)
       )
 
       expect_any_instance_of(Gitaly::CommitService::Stub).to receive(:find_commits)
@@ -338,7 +341,8 @@ describe Gitlab::GitalyClient::CommitService do
           revision: (options[:revision] || '').dup.force_encoding(Encoding::ASCII_8BIT),
           path: (options[:path] || '').dup.force_encoding(Encoding::ASCII_8BIT),
           limit: (options[:limit] || 1000).to_i,
-          offset: (options[:offset] || 0).to_i
+          offset: (options[:offset] || 0).to_i,
+          global_options: Gitaly::GlobalOptions.new(literal_pathspecs: true)
         )
 
         allow_any_instance_of(Gitaly::CommitService::Stub)

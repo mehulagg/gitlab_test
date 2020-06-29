@@ -326,6 +326,8 @@ When adding, changing, or updating metrics, please update the [Usage Statistics 
 
 Check if new metrics need to be added to the Versions Application. See `usage_data` [schema](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/db/schema.rb#L147) and usage data [parameters accepted](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/app/services/usage_ping.rb). Any metrics added under the `counts` key are saved in the `counts` column.
 
+For further details, see the [Process to add additional instrumentation to the Usage Ping](https://about.gitlab.com/handbook/product/feature-instrumentation/#process-to-add-additional-instrumentation-to-the-usage-ping).
+
 ### 6. Add the feature label
 
 Add the `feature` label to the Merge Request for new Usage Ping metrics. These are user-facing changes and are part of expanding the Usage Ping feature.
@@ -469,8 +471,12 @@ appear to be associated to any of the services running, since they all appear to
 | `releases`                                                | `counts`                             | `release`     |                  |         | Unique release tags                                                        |
 | `remote_mirrors`                                          | `counts`                             |               |                  |         |                                                                            |
 | `requirements_created`                                    | `counts`                             |               |                  |         |                                                                            |
-| `snippets`                                                | `counts`                             |  'create'     |                  |         |                                                                            |
-| `snippets`                                                | `counts_monthly`                     |  'create'     |                  |         |                                                                            |
+| `snippets`                                                | `counts`                             |  'create'     |                  |  CE+EE  |                                                                            |
+| `snippets`                                                | `counts_monthly`                     |  'create'     |                  |  CE+EE  |                                                                            |
+| `personal_snippets`                                       | `counts`                             |  'create'     |                  |  CE+EE  |                                                                            |
+| `personal_snippets`                                       | `counts_monthly`                     |  'create'     |                  |  CE+EE  |                                                                            |
+| `project_snippets`                                        | `counts`                             |  'create'     |                  |  CE+EE  |                                                                            |
+| `project_snippets`                                        | `counts_monthly`                     |  'create'     |                  |  CE+EE  |                                                                            |
 | `suggestions`                                             | `counts`                             |               |                  |         |                                                                            |
 | `todos`                                                   | `counts`                             |               |                  |         |                                                                            |
 | `uploads`                                                 | `counts`                             |               |                  |         |                                                                            |
@@ -509,8 +515,6 @@ appear to be associated to any of the services running, since they all appear to
 | `projects_unify_circuit_active`                           | `counts`                             |               |                  |         |                                                                            |
 | `projects_webex_teams_active`                             | `counts`                             |               |                  |         |                                                                            |
 | `projects_youtrack_active`                                | `counts`                             |               |                  |         |                                                                            |
-| `projects_slack_notifications_active`                     | `counts`                             |               |                  |         |                                                                            |
-| `projects_slack_slash_active`                             | `counts`                             |               |                  |         |                                                                            |
 | `projects_jira_server_active`                             | `counts`                             |               |                  |         |                                                                            |
 | `projects_jira_cloud_active`                              | `counts`                             |               |                  |         |                                                                            |
 | `projects_jira_dvcs_cloud_active`                         | `counts`                             |               |                  |         |                                                                            |

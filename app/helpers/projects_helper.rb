@@ -384,9 +384,12 @@ module ProjectsHelper
   end
 
   def project_license_name(project)
-    project.repository.license&.name
+    key = "project:#{project.id}:license_name"
+
+    Gitlab::SafeRequestStore.fetch(key) { project.repository.license&.name }
   rescue GRPC::Unavailable, GRPC::DeadlineExceeded, Gitlab::Git::CommandError => e
     Gitlab::ErrorTracking.track_exception(e)
+    Gitlab::SafeRequestStore[key] = nil
 
     nil
   end
@@ -565,7 +568,7 @@ module ProjectsHelper
   end
 
   def project_child_container_class(view_path)
-    view_path == "projects/issues/issues" ? "prepend-top-default" : "project-show-#{view_path}"
+    view_path == "projects/issues/issues" ? "gl-mt-3" : "project-show-#{view_path}"
   end
 
   def project_issues(project)
@@ -727,10 +730,6 @@ module ProjectsHelper
       project.has_auto_devops_implicitly_enabled? &&
       project.builds_enabled? &&
       !project.repository.gitlab_ci_yml
-  end
-
-  def vue_file_list_enabled?
-    Feature.enabled?(:vue_file_list, @project, default_enabled: true)
   end
 
   def native_code_navigation_enabled?(project)

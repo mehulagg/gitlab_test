@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Security::ReportSummaryService, '#execute' do
+RSpec.describe Security::ReportSummaryService, '#execute' do
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:pipeline) { create(:ci_pipeline, :success, project: project) }
 
@@ -98,15 +98,11 @@ describe Security::ReportSummaryService, '#execute' do
                               ))
     end
 
-    context 'When ran no security scans' do
+    context 'When no security scans ran' do
       let(:pipeline) { create(:ci_pipeline, :success) }
 
-      it 'returns 0 vulnerabilities' do
-        expect(result[:dast][:vulnerabilities_count]).to be(0)
-      end
-
-      it 'returns 0 scanned resources' do
-        expect(result[:dast][:scanned_resources_count]).to be(0)
+      it 'returns nil' do
+        expect(result[:dast]).to be_nil
       end
     end
   end

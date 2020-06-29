@@ -876,8 +876,6 @@ Inside the document:
 - Always use a proper description for what the image is about. That way, when a
   browser fails to show the image, this text will be used as an alternative
   description.
-- If a heading is placed right after an image, always add three dashes (`---`)
-  between the image and the heading.
 
 ### Remove image shadow
 
@@ -1142,8 +1140,8 @@ The following are examples of source Markdown for menu items with their publishe
 Whenever you need to call special attention to particular sentences,
 use the following markup for highlighting.
 
-_Note that the alert boxes only work for one paragraph only. Multiple paragraphs,
-lists, headers and so on, will not render correctly. For multiple lines, use blockquotes instead._
+Note that the alert boxes only work for one paragraph only. Multiple paragraphs,
+lists, headers and so on, will not render correctly. For multiple lines, use [blockquotes](#blockquotes) instead.
 
 Alert boxes only render on the GitLab Docs site (<https://docs.gitlab.com>).
 Within GitLab itself, they will appear as plain Markdown text (like the examples
@@ -1335,6 +1333,22 @@ a helpful link back to how the feature was developed.
   > - [Moved](<link-to-issue>) to [GitLab Starter](https://about.gitlab.com/pricing/) in 11.8.
   > - [Moved](<link-to-issue>) to GitLab Core in 12.0.
   ```
+
+- If a feature is deprecated, include a link to a replacement (when available):
+
+  ```markdown
+  > - [Deprecated](<link-to-issue>) in GitLab 11.3. Replaced by [meaningful text](<link-to-appropriate-documentation>).
+  ```
+
+   It's also acceptable to describe the replacement in surrounding text, if available.
+
+   If the deprecation is not obvious in existing text, you may want to include a warning such as:
+
+   ```markdown
+   CAUTION: **Warning:**
+   This feature was [deprecated](link-to-issue) in GitLab 12.3
+   and replaced by [Feature name](link-to-feature-documentation).
+   ```
 
 NOTE: **Note:**
 Version text must be on its own line and surrounded by blank lines to render correctly.
@@ -1615,6 +1629,13 @@ and email address of a user. Don't use real user information in API calls:
 - **Email addresses**: Use an email address ending in `example.com`.
 - **Names**: Use strings like `Example Username`. Alternatively, use diverse or non-gendered names with
   common surnames, such as `Sidney Jones`, `Zhang Wei`. or `Maria Garcia`.
+
+### Fake URLs
+
+When including sample URLs in the documentation, use:
+
+- `example.com` when the domain name is generic.
+- `gitlab.example.com` when referring to self-managed instances of GitLab.
 
 ### Fake tokens
 

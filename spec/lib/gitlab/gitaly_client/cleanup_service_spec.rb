@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::GitalyClient::CleanupService do
+RSpec.describe Gitlab::GitalyClient::CleanupService do
   let(:project) { create(:project) }
   let(:storage_name) { project.repository_storage }
   let(:relative_path) { project.disk_path + '.git' }
@@ -19,6 +19,12 @@ describe Gitlab::GitalyClient::CleanupService do
           .with(kind_of(Enumerator), kind_of(Hash))
           .and_return([])
       end
+
+      client.apply_bfg_object_map_stream(StringIO.new)
+    end
+
+    it 'is wrapped as a streaming call' do
+      expect(Gitlab::GitalyClient).to receive(:streaming_call).with(anything, :cleanup_service, :apply_bfg_object_map_stream, anything, anything)
 
       client.apply_bfg_object_map_stream(StringIO.new)
     end

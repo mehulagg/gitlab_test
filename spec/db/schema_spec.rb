@@ -63,6 +63,7 @@ RSpec.describe 'Database schema' do
     oauth_access_tokens: %w[resource_owner_id application_id],
     oauth_applications: %w[owner_id],
     open_project_tracker_data: %w[closed_status_id],
+    product_analytics_events_experimental: %w[event_id txn_id user_id],
     project_group_links: %w[group_id],
     project_statistics: %w[namespace_id],
     projects: %w[creator_id ci_id mirror_user_id],
@@ -199,6 +200,36 @@ RSpec.describe 'Database schema' do
           expect(model).to validate_jsonb_schema(jsonb_columns)
         end
       end
+    end
+  end
+
+  context 'existence of Postgres schemas' do
+    def get_schemas
+      sql = <<~SQL
+        SELECT schema_name FROM
+        information_schema.schemata
+        WHERE
+        NOT schema_name ~* '^pg_' AND NOT schema_name = 'information_schema'
+        AND catalog_name = current_database()
+      SQL
+
+      ApplicationRecord.connection.select_all(sql).map do |row|
+        row['schema_name']
+      end
+    end
+
+    it 'we have a public schema' do
+      expect(get_schemas).to include('public')
+    end
+
+    Gitlab::Database::EXTRA_SCHEMAS.each do |schema|
+      it "we have a '#{schema}' schema'" do
+        expect(get_schemas).to include(schema.to_s)
+      end
+    end
+
+    it 'we do not have unexpected schemas' do
+      expect(get_schemas.size).to eq(Gitlab::Database::EXTRA_SCHEMAS.size + 1)
     end
   end
 

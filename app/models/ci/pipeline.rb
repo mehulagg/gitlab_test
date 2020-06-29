@@ -51,6 +51,8 @@ module Ci
     has_many :latest_builds, -> { latest }, foreign_key: :commit_id, inverse_of: :pipeline, class_name: 'Ci::Build'
     has_many :downloadable_artifacts, -> { not_expired.downloadable }, through: :latest_builds, source: :job_artifacts
 
+    has_many :messages, class_name: 'Ci::PipelineMessage', inverse_of: :pipeline
+
     # Merge requests for which the current pipeline is running against
     # the merge request's latest commit.
     has_many :merge_requests_as_head_pipeline, foreign_key: "head_pipeline_id", class_name: 'MergeRequest'
@@ -349,6 +351,10 @@ module Ci
       success.group(:project_id).select('max(id) as id')
     end
 
+    def self.last_finished_for_ref_id(ci_ref_id)
+      where(ci_ref_id: ci_ref_id).ci_sources.finished.order(id: :desc).select(:id).take
+    end
+
     def self.truncate_sha(sha)
       sha[0...8]
     end
@@ -592,6 +598,10 @@ module Ci
       project.deployment_platform&.active?
     end
 
+    def freeze_period?
+      Ci::FreezePeriodStatus.new(project: project).execute
+    end
+
     def has_warnings?
       number_of_warnings.positive?
     end
@@ -624,6 +634,12 @@ module Ci
 
     def has_yaml_errors?
       yaml_errors.present?
+    end
+
+    def add_error_message(content)
+      return unless Gitlab::Ci::Features.store_pipeline_messages?(project)
+
+      messages.error.build(content: content)
     end
 
     # Manually set the notes for a Ci::Pipeline
@@ -702,6 +718,7 @@ module Ci
         end
 
         variables.append(key: 'CI_KUBERNETES_ACTIVE', value: 'true') if has_kubernetes_active?
+        variables.append(key: 'CI_DEPLOY_FREEZE', value: 'true') if freeze_period?
 
         if external_pull_request_event? && external_pull_request
           variables.concat(external_pull_request.predefined_variables)
@@ -948,7 +965,7 @@ module Ci
       stages.find_by!(name: name)
     end
 
-    def error_messages
+    def full_error_messages
       errors ? errors.full_messages.to_sentence : ""
     end
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHelpers do
+RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHelpers do
   include PartitioningHelpers
   include TriggerHelpers
 
@@ -165,10 +165,84 @@ describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHelpers 
       it 'creates a partition spanning over each month in the range given' do
         migration.partition_table_by_date template_table, partition_column, min_date: min_date, max_date: max_date
 
-        expect_range_partition_of("#{partitioned_table}_000000", partitioned_table, 'MINVALUE', "'2019-12-01 00:00:00'")
-        expect_range_partition_of("#{partitioned_table}_201912", partitioned_table, "'2019-12-01 00:00:00'", "'2020-01-01 00:00:00'")
-        expect_range_partition_of("#{partitioned_table}_202001", partitioned_table, "'2020-01-01 00:00:00'", "'2020-02-01 00:00:00'")
-        expect_range_partition_of("#{partitioned_table}_202002", partitioned_table, "'2020-02-01 00:00:00'", "'2020-03-01 00:00:00'")
+        expect_range_partitions_for(partitioned_table, {
+          '000000' => ['MINVALUE', "'2019-12-01 00:00:00'"],
+          '201912' => ["'2019-12-01 00:00:00'", "'2020-01-01 00:00:00'"],
+          '202001' => ["'2020-01-01 00:00:00'", "'2020-02-01 00:00:00'"],
+          '202002' => ["'2020-02-01 00:00:00'", "'2020-03-01 00:00:00'"],
+          '202003' => ["'2020-03-01 00:00:00'", "'2020-04-01 00:00:00'"]
+        })
+      end
+
+      context 'when min_date is not given' do
+        let(:template_table) { :todos }
+
+        context 'with records present already' do
+          before do
+            create(:todo, created_at: Date.parse('2019-11-05'))
+          end
+
+          it 'creates a partition spanning over each month from the first record' do
+            migration.partition_table_by_date template_table, partition_column, max_date: max_date
+
+            expect_range_partitions_for(partitioned_table, {
+              '000000' => ['MINVALUE', "'2019-11-01 00:00:00'"],
+              '201911' => ["'2019-11-01 00:00:00'", "'2019-12-01 00:00:00'"],
+              '201912' => ["'2019-12-01 00:00:00'", "'2020-01-01 00:00:00'"],
+              '202001' => ["'2020-01-01 00:00:00'", "'2020-02-01 00:00:00'"],
+              '202002' => ["'2020-02-01 00:00:00'", "'2020-03-01 00:00:00'"],
+              '202003' => ["'2020-03-01 00:00:00'", "'2020-04-01 00:00:00'"]
+            })
+          end
+        end
+
+        context 'without data' do
+          it 'creates the catchall partition plus two actual partition' do
+            migration.partition_table_by_date template_table, partition_column, max_date: max_date
+
+            expect_range_partitions_for(partitioned_table, {
+              '000000' => ['MINVALUE', "'2020-02-01 00:00:00'"],
+              '202002' => ["'2020-02-01 00:00:00'", "'2020-03-01 00:00:00'"],
+              '202003' => ["'2020-03-01 00:00:00'", "'2020-04-01 00:00:00'"]
+            })
+          end
+        end
+      end
+
+      context 'when max_date is not given' do
+        it 'creates partitions including the next month from today' do
+          today = Date.new(2020, 5, 8)
+
+          Timecop.freeze(today) do
+            migration.partition_table_by_date template_table, partition_column, min_date: min_date
+
+            expect_range_partitions_for(partitioned_table, {
+              '000000' => ['MINVALUE', "'2019-12-01 00:00:00'"],
+              '201912' => ["'2019-12-01 00:00:00'", "'2020-01-01 00:00:00'"],
+              '202001' => ["'2020-01-01 00:00:00'", "'2020-02-01 00:00:00'"],
+              '202002' => ["'2020-02-01 00:00:00'", "'2020-03-01 00:00:00'"],
+              '202003' => ["'2020-03-01 00:00:00'", "'2020-04-01 00:00:00'"],
+              '202004' => ["'2020-04-01 00:00:00'", "'2020-05-01 00:00:00'"],
+              '202005' => ["'2020-05-01 00:00:00'", "'2020-06-01 00:00:00'"],
+              '202006' => ["'2020-06-01 00:00:00'", "'2020-07-01 00:00:00'"]
+            })
+          end
+        end
+      end
+
+      context 'without min_date, max_date' do
+        it 'creates partitions for the current and next month' do
+          current_date = Date.new(2020, 05, 22)
+          Timecop.freeze(current_date.to_time) do
+            migration.partition_table_by_date template_table, partition_column
+
+            expect_range_partitions_for(partitioned_table, {
+              '000000' => ['MINVALUE', "'2020-05-01 00:00:00'"],
+              '202005' => ["'2020-05-01 00:00:00'", "'2020-06-01 00:00:00'"],
+              '202006' => ["'2020-06-01 00:00:00'", "'2020-07-01 00:00:00'"]
+            })
+          end
+        end
       end
     end
 
@@ -275,7 +349,7 @@ describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHelpers 
 
   describe '#drop_partitioned_table_for' do
     let(:expected_tables) do
-      %w[000000 201912 202001 202002].map { |suffix| "#{partitioned_table}_#{suffix}" }.unshift(partitioned_table)
+      %w[000000 201912 202001 202002].map { |suffix| "#{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}.#{partitioned_table}_#{suffix}" }.unshift(partitioned_table)
     end
 
     context 'when the table is not allowed' do
@@ -313,6 +387,38 @@ describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHelpers 
 
       expected_tables.each do |table|
         expect(connection.table_exists?(table)).to be(false)
+      end
+    end
+  end
+
+  describe '#create_hash_partitions' do
+    before do
+      connection.execute(<<~SQL)
+        CREATE TABLE #{partitioned_table}
+          (id serial not null, some_id integer not null, PRIMARY KEY (id, some_id))
+          PARTITION BY HASH (some_id);
+      SQL
+    end
+
+    it 'creates partitions for the full hash space (8 partitions)' do
+      partitions = 8
+
+      migration.create_hash_partitions(partitioned_table, partitions)
+
+      (0..partitions - 1).each do |partition|
+        partition_name = "#{partitioned_table}_#{"%01d" % partition}"
+        expect_hash_partition_of(partition_name, partitioned_table, partitions, partition)
+      end
+    end
+
+    it 'creates partitions for the full hash space (16 partitions)' do
+      partitions = 16
+
+      migration.create_hash_partitions(partitioned_table, partitions)
+
+      (0..partitions - 1).each do |partition|
+        partition_name = "#{partitioned_table}_#{"%02d" % partition}"
+        expect_hash_partition_of(partition_name, partitioned_table, partitions, partition)
       end
     end
   end

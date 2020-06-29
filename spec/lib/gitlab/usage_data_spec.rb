@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::UsageData, :aggregate_failures do
+RSpec.describe Gitlab::UsageData, :aggregate_failures do
   include UsageDataHelpers
 
   before do
@@ -126,8 +126,6 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:jira_imports_projects_count]).to eq(2)
       expect(count_data[:jira_imports_total_imported_count]).to eq(3)
       expect(count_data[:jira_imports_total_imported_issues_count]).to eq(13)
-      expect(count_data[:projects_slack_notifications_active]).to eq(2)
-      expect(count_data[:projects_slack_slash_active]).to eq(1)
       expect(count_data[:projects_slack_active]).to eq(2)
       expect(count_data[:projects_slack_slash_commands_active]).to eq(1)
       expect(count_data[:projects_custom_issue_tracker_active]).to eq(1)
@@ -174,7 +172,9 @@ describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:clusters_applications_jupyter]).to eq(1)
       expect(count_data[:clusters_management_project]).to eq(1)
 
-      expect(count_data[:snippets]).to eq(2)
+      expect(count_data[:snippets]).to eq(6)
+      expect(count_data[:personal_snippets]).to eq(2)
+      expect(count_data[:project_snippets]).to eq(4)
     end
 
     it 'gathers object store usage correctly' do
@@ -261,7 +261,9 @@ describe Gitlab::UsageData, :aggregate_failures do
     it 'gathers projects data correctly' do
       counts_monthly = subject[:counts_monthly]
 
-      expect(counts_monthly[:snippets]).to eq(1)
+      expect(counts_monthly[:snippets]).to eq(3)
+      expect(counts_monthly[:personal_snippets]).to eq(1)
+      expect(counts_monthly[:project_snippets]).to eq(2)
     end
   end
 
