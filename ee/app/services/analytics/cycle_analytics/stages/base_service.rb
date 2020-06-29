@@ -9,6 +9,7 @@ module Analytics
         def initialize(parent:, current_user:, params: {})
           @parent = parent
           @current_user = current_user
+          @params = params
         end
 
         def execute

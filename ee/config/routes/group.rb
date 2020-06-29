@@ -35,6 +35,15 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
               get :records
             end
           end
+          resources :value_streams do
+            resources :stages, only: [:index, :create, :update, :destroy] do
+              member do
+                get :duration_chart
+                get :median
+                get :records
+              end
+            end
+          end
           resource :summary, controller: :summary, only: :show
           get '/time_summary' => 'summary#time_summary'
         end
