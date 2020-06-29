@@ -7,10 +7,10 @@ RSpec.describe ProductAnalyticsEvent, type: :model do
   it { expect(described_class).to respond_to(:count_by_day_and_graph) }
 
   describe '.by_project' do
-    let_it_be(:event_1) { create(:product_analytics_event, app_id: '7') }
-    let_it_be(:event_2) { create(:product_analytics_event, app_id: '9') }
+    let_it_be(:event_1) { create(:product_analytics_event) }
+    let_it_be(:event_2) { create(:product_analytics_event) }
 
-    it { expect(described_class.by_project(7).to_json).to eq([event_1].to_json) }
+    it { expect(described_class.by_project(event_id.project_id).to_json).to eq([event_1].to_json) }
     it { expect(described_class.by_project(-1)).to be_empty }
   end
 

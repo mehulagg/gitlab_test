@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :product_analytics_event do
-    app_id { 99 }
+    project
     platform { 'web' }
     collector_tstamp { DateTime.now }
     dvce_created_tstamp { DateTime.now }

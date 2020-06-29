@@ -6,7 +6,7 @@ Gitlab::Seeder.quiet do
 
   35.times do |i| # At last get one month of data.
     ProductAnalyticsEvent.create!(
-      app_id: ["8", "8", "9", "10", "10", "9", "8", "8"][(i % 8)],
+      project_id: Project.all.sample.id,
       platform: ["web", "mob", "mob", "app"][(i % 4)],
       etl_tstamp: nil,
       collector_tstamp: (DateTime.now - i).to_time,

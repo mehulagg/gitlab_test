@@ -21178,9 +21178,6 @@ msgstr ""
 msgid "Showing all issues"
 msgstr ""
 
-msgid "Showing all labels"
-msgstr ""
-
 msgid "Showing graphs based on events of the last %{timerange} days."
 msgstr ""
 

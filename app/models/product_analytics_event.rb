@@ -7,10 +7,8 @@ class ProductAnalyticsEvent < ApplicationRecord
   # so there is no default Rails timestamps in the table
   scope :order_by_time, -> { order(collector_tstamp: :desc) }
 
-  # Currently app_id represents project id. For now we use the scope
-  # instead of ActiveRecord association. Once the database structure
-  # is established we can refactor it.
-  scope :by_project, ->(project_id) { where(app_id: project_id.to_s) }
+  # TODO: Refactor to use Rails associations
+  scope :by_project, ->(project_id) { where(project_id: project_id.to_s) }
 
   # If we decide to change this scope to use date_trunc('day', collector_tstamp),
   # we should remember that a btree index on collector_tstamp will be no longer effective.
