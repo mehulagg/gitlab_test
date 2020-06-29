@@ -125,8 +125,7 @@ module Gitlab
           jest\.config\.js |
           package\.json |
           yarn\.lock |
-          config/.+\.js |
-          \.gitlab/ci/frontend\.gitlab-ci\.yml
+          config/.+\.js
         )\z}x => :frontend,
 
         %r{\A(ee/)?db/(?!fixtures)[^/]+} => :database,
