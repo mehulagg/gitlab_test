@@ -181,6 +181,25 @@ module.exports = {
             VUE_VERSION,
             VUE_LOADER_VERSION,
           ].join('|'),
+          // from https://forum.vuejs.org/t/how-to-remove-attributes-from-tags-inside-vue-components/24138/9
+          compilerOptions: {
+            modules: [
+              {
+                preTransformNode(astEl) {
+                  if (IS_PRODUCTION) {
+                    const testId = 'data-testid';
+                    const { attrsMap, attrsList } = astEl;
+                    if (attrsMap[testId]) {
+                      delete attrsMap[testId];
+                      const index = attrsList.findIndex(x => x.name == testId);
+                      attrsList.splice(index, 1);
+                    }
+                  }
+                  return astEl;
+                },
+              },
+            ],
+          },
         },
       },
       {
