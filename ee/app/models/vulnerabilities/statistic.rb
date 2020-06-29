@@ -15,5 +15,7 @@ module Vulnerabilities
     validates :low, numericality: { greater_than_or_equal_to: 0 }
     validates :unknown, numericality: { greater_than_or_equal_to: 0 }
     validates :info, numericality: { greater_than_or_equal_to: 0 }
+
+    scope :current, -> { where(date: nil) }
   end
 end

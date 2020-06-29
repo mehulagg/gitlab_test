@@ -17,4 +17,13 @@ RSpec.describe Vulnerabilities::Statistic do
     it { is_expected.to validate_numericality_of(:info).is_greater_than_or_equal_to(0) }
     it { is_expected.to define_enum_for(:letter_grade).with_values(%i(a b c d f)) }
   end
+
+  describe '.current' do
+    let!(:current_record) { create(:vulnerability_statistic, :current) }
+    let!(:yesterday_record) { create(:vulnerability_statistic, date: '16/03/1962') }
+
+    subject { described_class.current.to_a }
+
+    it { is_expected.to eq([current_record]) }
+  end
 end
