@@ -100,13 +100,15 @@ module Gitlab
 
         validate_access_token!
 
-        access_token.user || user_from_project_token(access_token) || raise(UnauthorizedError)
+        actor_from_token(access_token) || raise(UnauthorizedError)
       end
 
-      def user_from_project_token(access_token)
-        return unless route_authentication_setting[:project_token_allowed]
+      def actor_from_token(access_token)
+        return access_token.user if access_token.user
 
-        ProjectTokenUser.new(pat: access_token)
+        if access_token.project && route_authentication_setting[:project_token_allowed]
+          return ProjectTokenActor.new(project_token: access_token)
+        end
       end
 
       # This returns a deploy token, not a user since a deploy token does not

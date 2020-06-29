@@ -3,14 +3,14 @@
 require_dependency 'declarative_policy'
 
 # Used when Project is accessed via a project token.
-# `user` here will be an instance of `ProjectTokenUser`
-class ProjectPolicyForTokenUser < DeclarativePolicy::Base
+# `user` here will be an instance of `ProjectTokenActor`
+class ProjectPolicyForProjectTokenActor < DeclarativePolicy::Base
   condition(:readable) do
     user.has_access_to?(project)
   end
 
   condition(:housekeep_project) do
-    user.pat.housekeep_project
+    user.project_token.housekeep_project
   end
 
   rule { readable }.policy do

@@ -85,7 +85,7 @@ module DeclarativePolicy
 
         begin
           policy_class = "#{name}Policy"
-          policy_class += 'ForTokenUser' if policy_class == 'ProjectPolicy' && user.is_a?(ProjectTokenUser)
+          policy_class += 'ForProjectTokenActor' if policy_class == 'ProjectPolicy' && user.is_a?(ProjectTokenActor)
 
           policy_class = policy_class.constantize
 
