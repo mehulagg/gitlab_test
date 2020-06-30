@@ -4,14 +4,14 @@ import {
   GlAvatar,
   GlBadge,
   GlLink,
-  GlPaginatedList,
+  GlPagination,
   GlTab,
   GlTabs,
   GlTable,
   GlTooltipDirective,
 } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { isScopedLabel } from '~/lib/utils/common_utils';
+import { getParameterByName } from '~/lib/utils/common_utils';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
 
@@ -25,17 +25,30 @@ export default {
     {
       key: 'title',
       label: __('Title'),
+      thClass: 'w-30p',
+      tdClass: 'table-col d-flex align-items-center d-sm-table-cell',
     },
-    { key: 'status', label: __('Status') },
-    { key: 'assignees', label: __('Assignees') },
+    {
+      key: 'status',
+      label: __('Status'),
+      thClass: 'w-30p',
+      tdClass: 'table-col d-flex align-items-center d-sm-table-cell',
+      class: 'text-truncate',
+    },
+    {
+      key: 'assignees',
+      label: __('Assignees'),
+      class: 'text-right',
+      thClass: 'w-30p',
+      tdClass: 'table-col d-flex align-items-center d-sm-table-cell',
+    },
   ],
-  isScopedLabel,
   components: {
     GlAlert,
     GlAvatar,
     GlBadge,
     GlLink,
-    GlPaginatedList,
+    GlPagination,
     GlTab,
     GlTabs,
     GlTable,
@@ -79,29 +92,15 @@ export default {
   data() {
     return {
       error: '',
-      currentPage: 0,
+      page:
+        getParameterByName('page', window.location.href) !== null
+          ? toNumber(getParameterByName('page'))
+          : 1,
     };
   },
   computed: {
-    totalIssues() {
+    totalItems() {
       return this.unstartedIssues.length + this.ongoingIssues.length + this.completedIssues.length;
-    },
-
-    groupedIssues() {
-      return [
-        {
-          title: __('Unstarted issues (open and unassigned)'),
-          issues: this.unstartedIssues,
-        },
-        {
-          title: __('Ongoing issues (open and assigned)'),
-          issues: this.ongoingIssues,
-        },
-        {
-          title: __('Completed issues (closed)'),
-          issues: this.completedIssues,
-        },
-      ];
     },
 
     unstartedIssues() {
@@ -115,9 +114,7 @@ export default {
       });
     },
     completedIssues() {
-      return this.issues.filter(issue => {
-        return issue.state === 'opened' && issue.assignees.length > 0;
-      });
+      return this.issues.filter(issue => issue.state === 'closed');
     },
   },
   methods: {
@@ -130,6 +127,7 @@ export default {
       }
       return __('Closed');
     },
+    onPaginate() {},
   },
 };
 </script>
@@ -142,30 +140,11 @@ export default {
     <gl-tab title="Issues">
       <template #title>
         <span>{{ __('Issues') }}</span
-        ><gl-badge class="ml-2" variant="neutral">{{ totalIssues }}</gl-badge>
+        ><gl-badge class="ml-2" variant="neutral">{{ totalItems }}</gl-badge>
       </template>
 
-      <gl-paginated-list
-        :list="issues"
-        :filterable="false"
-        filter="title"
-        :per-page="2"
-        :current-page="currentPage"
-      >
-        <template #header>
-          <div class="gl-display-none gl-display-sm-flex gl-justify-items-center">
-            <div>
-              {{ __('Title') }}
-            </div>
-            <div class="gl-w-12 gl-ml-auto">
-              {{ __('Status') }}
-            </div>
-            <div class="gl-w-12">
-              {{ __('Assignees') }}
-            </div>
-          </div>
-        </template>
-        <template #default="{ listItem: { iid, title, webUrl, state, assignees } }">
+      <gl-table :items="issues" :fields="$options.fields" :show-empty="true">
+        <template #cell(title)="{ item: { iid, title, webUrl } }">
           <div class="text-truncate">
             <gl-link class="gl-text-gray-900 gl-font-weight-bold" :href="webUrl">{{
               title
@@ -173,7 +152,13 @@ export default {
             <!-- TODO: add references.relative (project name) -->
             <div class="gl-text-secondary">#{{ iid }}</div>
           </div>
-          <span class="gl-w-6">{{ issueState(state, assignees.length) }}</span>
+        </template>
+
+        <template #cell(status)="{ item: { state, assignees } }">
+          <span class="gl-w-6 flex-shrink-0">{{ issueState(state, assignees.length) }}</span>
+        </template>
+
+        <template #cell(assignees)="{ item: { assignees } }">
           <span class="assignee-icon gl-w-6">
             <span
               v-for="assignee in assignees"
@@ -188,7 +173,17 @@ export default {
             </span>
           </span>
         </template>
-      </gl-paginated-list>
+      </gl-table>
+      <div class="mt-3">
+        <gl-pagination
+          v-if="totalItems"
+          :value="page"
+          :per-page="20"
+          :total-items="totalItems"
+          class="justify-content-center"
+          @input="onPaginate"
+        />
+      </div>
     </gl-tab>
   </gl-tabs>
 </template>
