@@ -4,7 +4,7 @@ require 'spec_helper'
 
 # rspec spec/controllers/projects/product_analytics_controller_spec.rb
 
-describe Projects::ProductAnalyticsController do
+RSpec.describe Projects::ProductAnalyticsController do
   let_it_be(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
 
