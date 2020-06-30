@@ -95,9 +95,7 @@ module Gitlab
     end
 
     def logger
-      strong_memoize(:logger) do
-        Checks::TimedLogger.new(timeout: INTERNAL_TIMEOUT, header: LOG_HEADER)
-      end
+      @logger ||= Checks::TimedLogger.new(timeout: INTERNAL_TIMEOUT, header: LOG_HEADER)
     end
 
     def guest_can_download_code?
