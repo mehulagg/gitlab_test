@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class GroupPolicy < BasePolicy
-  include Gitlab::Utils::StrongMemoize
   include FindGroupProjects
 
   desc "Group is public"
@@ -165,16 +164,12 @@ class GroupPolicy < BasePolicy
   rule { maintainer & can?(:create_projects) }.enable :transfer_projects
 
   def access_level
-    strong_memoize(:access_level) do
-      if @user.nil?
-        GroupMember::NO_ACCESS
-      else
-        lookup_access_level!
-      end
-    end
+    @access_level ||= lookup_access_level!
   end
 
   def lookup_access_level!
+    return GroupMember::NO_ACCESS if @user.nil?
+
     @subject.max_member_access_for_user(@user)
   end
 end
