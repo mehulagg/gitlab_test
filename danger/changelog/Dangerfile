@@ -29,7 +29,7 @@ merge_request: %<mr_iid>s
 SUGGEST_COMMENT
 
 def check_changelog_yaml(path)
-  raw_file = File.read(path)
+  raw_file = File.read(path + path)
   yaml = YAML.safe_load(raw_file)
 
   fail "`title` should be set, in #{gitlab.html_link(path)}! #{SEE_DOC}" if yaml["title"].nil?
