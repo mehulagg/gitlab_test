@@ -69,7 +69,7 @@ RSpec.describe Gitlab::GitAccessWiki do
             let(:group) { create(:group) }
 
             it 'returns not found' do
-              expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError, 'A repository for this group does not exist yet.')
+              expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError, 'A repository for this group wiki does not exist yet.')
             end
           end
         end

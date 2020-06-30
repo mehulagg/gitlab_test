@@ -249,9 +249,7 @@ module Gitlab
     end
 
     def check_repository_existence!
-      unless repository.exists?
-        raise NotFoundError, no_repo_message
-      end
+      raise NotFoundError, no_repo_message unless repository.exists?
     end
 
     def no_repo_message
@@ -266,8 +264,12 @@ module Gitlab
         guest_can_download_code?
 
       unless passed
-        raise ForbiddenError, ERROR_MESSAGES[:download]
+        raise ForbiddenError, download_forbidden_message
       end
+    end
+
+    def download_forbidden_message
+      ERROR_MESSAGES[:download]
     end
 
     def project?

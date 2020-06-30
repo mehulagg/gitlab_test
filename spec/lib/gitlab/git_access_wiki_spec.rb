@@ -4,8 +4,8 @@ require 'spec_helper'
 
 RSpec.describe Gitlab::GitAccessWiki do
   let(:access) { described_class.new(user, project, 'web', authentication_abilities: authentication_abilities, redirected_path: redirected_path) }
-  let(:project) { create(:project, :wiki_repo) }
-  let(:user) { create(:user) }
+  let_it_be(:project) { create(:project, :wiki_repo) }
+  let_it_be(:user) { create(:user) }
   let(:changes) { ['6f6d7e7ed 570e7b2ab refs/heads/master'] }
   let(:redirected_path) { nil }
   let(:authentication_abilities) do
@@ -17,13 +17,12 @@ RSpec.describe Gitlab::GitAccessWiki do
   end
 
   describe '#push_access_check' do
+    subject { access.check('git-receive-pack', changes) }
+
     context 'when user can :create_wiki' do
       before do
-        create(:protected_branch, name: 'master', project: project)
         project.add_developer(user)
       end
-
-      subject { access.check('git-receive-pack', changes) }
 
       it { expect { subject }.not_to raise_error }
 
@@ -37,37 +36,39 @@ RSpec.describe Gitlab::GitAccessWiki do
         end
       end
     end
+
+    context 'the user cannot :create_wiki' do
+      specify { expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError) }
+    end
   end
 
   describe '#access_check_download!' do
     subject { access.check('git-upload-pack', Gitlab::GitAccess::ANY) }
 
-    before do
-      project.add_developer(user)
-    end
-
-    context 'when wiki feature is enabled' do
-      it 'give access to download wiki code' do
-        expect { subject }.not_to raise_error
+    context 'the user can :download_wiki_code' do
+      before do
+        project.add_developer(user)
       end
 
-      context 'when the wiki repository does not exist' do
-        let(:project) { create(:project) }
+      context 'when wiki feature is disabled' do
+        it 'does not give access to download wiki code' do
+          project.project_feature.update_attribute(:wiki_access_level, ProjectFeature::DISABLED)
 
-        it 'returns not found' do
-          expect(project.wiki_repository_exists?).to eq(false)
-
-          expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError, 'A repository for this project does not exist yet.')
+          expect { subject }.to raise_error(Gitlab::GitAccess::ForbiddenError, include('wiki'))
         end
       end
+
+      context 'when the repository does not exist' do
+        before do
+          allow(project.wiki).to receive(:repository).and_return(double('Repository', exists?: false))
+        end
+
+        specify { expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError, include('for this wiki')) }
+      end
     end
 
-    context 'when wiki feature is disabled' do
-      it 'does not give access to download wiki code' do
-        project.project_feature.update_attribute(:wiki_access_level, ProjectFeature::DISABLED)
-
-        expect { subject }.to raise_error(Gitlab::GitAccess::ForbiddenError, 'You are not allowed to download code from this project.')
-      end
+    context 'the user cannot :download_wiki_code' do
+      specify { expect { subject }.to raise_error(Gitlab::GitAccess::NotFoundError, include('wiki')) }
     end
   end
 end
