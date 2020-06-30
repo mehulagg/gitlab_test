@@ -53,9 +53,9 @@ RSpec.describe Clusters::CreateService do
       include_context 'valid cluster create params'
       let!(:cluster) { create(:cluster, :provided_by_gcp, :production_environment, projects: [project]) }
 
-      it 'does not create a cluster' do
-        expect(ClusterProvisionWorker).not_to receive(:perform_async)
-        expect { subject }.to raise_error(ArgumentError).and change { Clusters::Cluster.count }.by(0)
+      it 'creates another cluster' do
+        expect(ClusterProvisionWorker).to receive(:perform_async)
+        expect { subject }.to change { Clusters::Cluster.count }.by(1)
       end
     end
   end

@@ -90,7 +90,6 @@ class License < ApplicationRecord
     merge_trains
     metrics_reports
     multiple_approval_rules
-    multiple_clusters
     multiple_group_issue_boards
     object_storage
     operations_dashboard

@@ -9,6 +9,7 @@ module Clusters
     end
 
     def execute(access_token: nil)
+
       raise ArgumentError, 'Unknown clusterable provided' unless clusterable
 
       cluster_params = params.merge(global_params).merge(clusterable_params)
@@ -57,7 +58,7 @@ module Clusters
 
     # EE would override this method
     def can_create_cluster?
-      clusterable.clusters.empty?
+      true
     end
 
     def validate_management_project_permissions(cluster)
@@ -67,4 +68,4 @@ module Clusters
   end
 end
 
-Clusters::CreateService.prepend_if_ee('EE::Clusters::CreateService')
+

@@ -86,7 +86,7 @@ class ClusterablePresenter < Gitlab::View::Presenter::Delegated
 
   # Overridden on EE module
   def multiple_clusters_available?
-    false
+    true
   end
 
   def has_no_clusters?

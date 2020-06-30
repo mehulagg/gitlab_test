@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module ClustersHelper
-  # EE overrides this
+  
   def has_multiple_clusters?
-    false
+    true
   end
 
   def create_new_cluster_label(provider: nil)

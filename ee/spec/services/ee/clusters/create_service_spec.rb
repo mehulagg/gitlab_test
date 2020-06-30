@@ -56,17 +56,4 @@ RSpec.describe Clusters::CreateService do
       include_examples 'create cluster service error'
     end
   end
-
-  context 'when license does not have multiple clusters feature' do
-    include_context 'valid cluster create params'
-
-    before do
-      allow(project).to receive(:feature_available?).with(:multiple_clusters).and_return(false)
-    end
-
-    it 'does not create a cluster' do
-      expect(ClusterProvisionWorker).not_to receive(:perform_async)
-      expect { subject }.to raise_error(ArgumentError).and change { Clusters::Cluster.count }.by(0)
-    end
-  end
 end
