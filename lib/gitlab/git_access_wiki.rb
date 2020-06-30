@@ -8,6 +8,7 @@ module Gitlab
 
     ERROR_MESSAGES = {
       read_only:     "You can't push code to a read-only GitLab instance.",
+      no_wiki_repo:  'A repository for this wiki does not exist yet.',
       write_to_wiki: "You are not allowed to write to this project's wiki."
     }.freeze
 
@@ -35,6 +36,10 @@ module Gitlab
 
     def write_to_wiki_message
       ERROR_MESSAGES[:write_to_wiki]
+    end
+
+    def no_repo_message
+      ERROR_MESSAGES[:no_wiki_repo]
     end
 
     override :repository

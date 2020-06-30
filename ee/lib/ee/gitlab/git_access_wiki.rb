@@ -7,7 +7,8 @@ module EE
       include GeoGitAccess
 
       ERROR_MESSAGES = {
-        write_to_group_wiki: "You are not allowed to write to this groups's wiki."
+        write_to_group_wiki: "You are not allowed to write to this groups's wiki.",
+        no_group_repo: 'A repository for this group wiki does not exist yet.'
       }.freeze
 
       override :check_namespace!
@@ -34,6 +35,13 @@ module EE
       override :write_to_wiki_message
       def write_to_wiki_message
         return ERROR_MESSAGES[:write_to_group_wiki] if group?
+
+        super
+      end
+
+      override :no_repo_message
+      def no_repo_message
+        return ERROR_MESSAGES[:no_group_repo] if group?
 
         super
       end
