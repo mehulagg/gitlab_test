@@ -25,7 +25,7 @@ module Gitlab
         @logger.append_message("Running checks for ref: #{@branch_name || @tag_name}")
       end
 
-      def exec
+      def validate!
         ref_level_checks
         # Check of commits should happen as the last step
         # given they're expensive in terms of performance
@@ -33,7 +33,6 @@ module Gitlab
 
         true
       end
-      alias_method :validate!, :exec
 
       def commits
         @commits ||= project.repository.new_commits(newrev)
