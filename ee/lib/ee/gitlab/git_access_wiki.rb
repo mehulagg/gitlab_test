@@ -8,6 +8,7 @@ module EE
 
       ERROR_MESSAGES = {
         write_to_group_wiki: "You are not allowed to write to this groups's wiki.",
+        group_not_found:     'The group wiki you were looking for could not be found.',
         no_group_repo: 'A repository for this group wiki does not exist yet.'
       }.freeze
 
@@ -49,7 +50,7 @@ module EE
       private
 
       def check_group!
-        not_found!(:group_not_found) unless can_read_group?
+        raise ::Gitlab::GitAccess::NotFoundError, ERROR_MESSAGES[:group_not_found] unless can_read_group?
       end
 
       def can_read_group?

@@ -23,18 +23,39 @@ module Gitlab
 
     override :check
     def check(cmd, changes)
-      # TODO: Investigate if expanding actor/authentication types are needed.
-      # https://gitlab.com/gitlab-org/gitlab/issues/202190
-      if actor && !actor.is_a?(User) && !actor.instance_of?(Key)
-        raise ForbiddenError, ERROR_MESSAGES[:authentication_mechanism]
-      end
-
       check_snippet_accessibility!
 
       super
     end
 
     private
+
+    # TODO: Implement EE/Geo https://gitlab.com/gitlab-org/gitlab/issues/205629
+    override :check_custom_action
+    def check_custom_action
+      nil # snippets never return custom actions, such as geo replication.
+    end
+
+    override :project?
+    def project?
+      false
+    end
+
+    override :project
+    def project
+      snippet&.project
+    end
+
+    override :check_valid_actor!
+    def check_valid_actor!
+      # TODO: Investigate if expanding actor/authentication types are needed.
+      # https://gitlab.com/gitlab-org/gitlab/issues/202190
+      if actor && !actor.is_a?(User) && !actor.instance_of?(Key)
+        raise ForbiddenError, ERROR_MESSAGES[:authentication_mechanism]
+      end
+
+      super
+    end
 
     override :download_ability
     def download_ability
@@ -44,11 +65,6 @@ module Gitlab
     override :push_ability
     def push_ability
       :update_snippet
-    end
-
-    override :project
-    def project
-      snippet&.project
     end
 
     override :check_namespace!
@@ -131,12 +147,6 @@ module Gitlab
     override :user_access
     def user_access
       @user_access ||= UserAccessSnippet.new(user, snippet: snippet)
-    end
-
-    # TODO: Implement EE/Geo https://gitlab.com/gitlab-org/gitlab/issues/205629
-    override :check_custom_action
-    def check_custom_action(cmd)
-      nil
     end
 
     override :check_size_limit?

@@ -8,6 +8,7 @@ module Gitlab
 
     ERROR_MESSAGES = {
       download:      'You are not allowed to download files from this wiki.',
+      not_found:     'The wiki you were looking for could not be found.',
       no_wiki_repo:  'A repository for this wiki does not exist yet.',
       read_only:     "You can't push code to a read-only GitLab instance.",
       write_to_wiki: "You are not allowed to write to this project's wiki."
@@ -41,6 +42,10 @@ module Gitlab
 
     def no_repo_message
       ERROR_MESSAGES[:no_wiki_repo]
+    end
+
+    def not_found_message
+      ERROR_MESSAGES[:not_found]
     end
 
     override :download_forbidden_message

@@ -54,11 +54,8 @@ module EE
       private
 
       override :check_custom_action
-      def check_custom_action(cmd)
-        custom_action = custom_action_for(cmd)
-        return custom_action if custom_action
-
-        super
+      def check_custom_action
+        geo_custom_action || super
       end
 
       override :check_for_console_messages

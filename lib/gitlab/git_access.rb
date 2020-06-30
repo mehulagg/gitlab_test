@@ -72,14 +72,14 @@ module Gitlab
       check_protocol!
       check_valid_actor!
       check_active_user!
-      check_authentication_abilities!(cmd)
-      check_command_disabled!(cmd)
-      check_command_existence!(cmd)
+      check_authentication_abilities!
+      check_command_disabled!
+      check_command_existence!
 
-      custom_action = check_custom_action(cmd)
+      custom_action = check_custom_action
       return custom_action if custom_action
 
-      check_db_accessibility!(cmd)
+      check_db_accessibility!
       check_namespace!
       check_container!
       check_repository_existence!
@@ -136,7 +136,7 @@ module Gitlab
       add_project_moved_message!
     end
 
-    def check_custom_action(cmd)
+    def check_custom_action
       nil
     end
 
@@ -187,7 +187,7 @@ module Gitlab
       end
     end
 
-    def check_authentication_abilities!(cmd)
+    def check_authentication_abilities!
       case cmd
       when *DOWNLOAD_COMMANDS
         unless authentication_abilities.include?(:download_code) || authentication_abilities.include?(:build_download_code)
@@ -202,8 +202,12 @@ module Gitlab
 
     def check_project_accessibility!
       if project.blank? || !can_read_project?
-        raise NotFoundError, ERROR_MESSAGES[:project_not_found]
+        raise NotFoundError, not_found_message
       end
+    end
+
+    def not_found_message
+      ERROR_MESSAGES[:project_not_found]
     end
 
     def add_project_moved_message!
@@ -214,10 +218,10 @@ module Gitlab
       project_moved.add_message
     end
 
-    def check_command_disabled!(cmd)
-      if upload_pack?(cmd)
+    def check_command_disabled!
+      if upload_pack?
         check_upload_pack_disabled!
-      elsif receive_pack?(cmd)
+      elsif receive_pack?
         check_receive_pack_disabled!
       end
     end
@@ -234,14 +238,14 @@ module Gitlab
       end
     end
 
-    def check_command_existence!(cmd)
+    def check_command_existence!
       unless ALL_COMMANDS.include?(cmd)
         raise ForbiddenError, ERROR_MESSAGES[:command_not_allowed]
       end
     end
 
-    def check_db_accessibility!(cmd)
-      return unless receive_pack?(cmd)
+    def check_db_accessibility!
+      return unless receive_pack?
 
       if Gitlab::Database.read_only?
         raise ForbiddenError, push_to_read_only_message
@@ -383,12 +387,12 @@ module Gitlab
       protocol == 'http'
     end
 
-    def upload_pack?(command = cmd)
-      command == 'git-upload-pack'
+    def upload_pack?
+      cmd == 'git-upload-pack'
     end
 
-    def receive_pack?(command = cmd)
-      command == 'git-receive-pack'
+    def receive_pack?
+      cmd == 'git-receive-pack'
     end
 
     def upload_pack_disabled_over_http?
@@ -505,10 +509,6 @@ module Gitlab
 
     def size_checker
       container.repository_size_checker
-    end
-
-    def not_found!(error_key)
-      raise NotFoundError, ERROR_MESSAGES[error_key]
     end
   end
 end
