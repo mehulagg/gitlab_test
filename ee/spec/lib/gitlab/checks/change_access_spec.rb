@@ -17,7 +17,7 @@ RSpec.describe Gitlab::Checks::ChangeAccess do
         expect(instance).to receive(:validate!)
       end
 
-      subject.exec
+      subject.validate!
     end
   end
 end
