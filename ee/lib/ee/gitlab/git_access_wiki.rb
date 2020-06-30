@@ -26,7 +26,7 @@ module EE
 
       override :check_push_access!
       def check_push_access!
-        return check_change_access! if container.is_a?(Group)
+        return check_change_access! if group?
 
         super
       end
