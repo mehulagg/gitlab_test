@@ -332,8 +332,8 @@ class Project < ApplicationRecord
   has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
   has_many :reviews, inverse_of: :project
 
-  # dependent: :destroy added per https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35168#note_368736529
-  has_many :product_analytics_events, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  # Discussion about use of dependent at https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35168#note_368736529
+  has_many :product_analytics_events, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
