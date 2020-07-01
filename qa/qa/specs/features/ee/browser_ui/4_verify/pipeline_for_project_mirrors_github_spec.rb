@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'github_api'
-require 'ffaker'
+require 'faker'
 
 module QA
   context 'Verify', :github, :docker, :skip_live_env, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/217674', type: :bug } do
@@ -41,14 +41,14 @@ module QA
 
       it 'user commits to GitHub triggers CI pipeline' do
         edit_github_file
-        visit_project #imported_project.visit!
+        visit_project
 
         trigger_project_mirror
-        visit_project #imported_project.visit!
+        visit_project
 
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
         Page::Project::Pipeline::Index.perform do |this_page|
-          expect(this_page.has_pipeline?).to be_truthy
+          expect(this_page).to have_pipeline
 
           this_page.wait_for_latest_pipeline_completion
           expect(this_page).to have_content(commit_message)
@@ -84,7 +84,7 @@ module QA
         file_path = file.body['path']
         github_client.update github_data[:repo_owner], github_data[:repo_name], github_data[:file_name],
                         path: file_path, message: commit_message,
-                        content: FFaker::Lorem.sentence,
+                        content: Faker::Lorem.sentence,
                         sha: file_sha
       end
 
@@ -98,11 +98,10 @@ module QA
       end
 
       def remove_runner
-        runner.remove_via_api!
-        # delete_runners_request = Runtime::API::Request.new(api_client, "/runners/#{runner_id}")
-        # delete delete_runners_request.url
-        #
-        # Service::DockerRun::GitlabRunner.new(runner.name).remove!
+        delete_runners_request = Runtime::API::Request.new(api_client, "/runners/#{runner_id}")
+        delete delete_runners_request.url
+
+        Service::DockerRun::GitlabRunner.new(runner.name).remove!
       end
 
       def runner_id

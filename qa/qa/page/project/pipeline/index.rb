@@ -40,11 +40,11 @@ module QA
               wait_for_latest_pipeline_success
             end
           end
-        end
-      end
 
-      def has_pipeline?
-        has_element? :pipeline_commit_status
+          def has_pipeline?
+            has_element? :pipeline_commit_status
+          end
+        end
       end
     end
   end
