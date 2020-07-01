@@ -4,6 +4,7 @@ import {
   GlAvatar,
   GlBadge,
   GlLink,
+  GlLoadingIcon,
   GlPagination,
   GlTab,
   GlTabs,
@@ -55,6 +56,7 @@ export default {
     GlAvatar,
     GlBadge,
     GlLink,
+    GlLoadingIcon,
     GlPagination,
     GlTab,
     GlTabs,
@@ -176,7 +178,8 @@ export default {
         ><gl-badge class="ml-2" variant="neutral">{{ issues.totalCount }}</gl-badge>
       </template>
 
-      <gl-table :items="issues.list" :fields="$options.fields" :show-empty="true">
+      <gl-loading-icon class="mt-2" size="md" v-if="$apollo.queries.issues.loading" />
+      <gl-table v-else :items="issues.list" :fields="$options.fields" :show-empty="true">
         <template #cell(title)="{ item: { iid, title, webUrl } }">
           <div class="text-truncate">
             <gl-link class="gl-text-gray-900 gl-font-weight-bold" :href="webUrl">{{
