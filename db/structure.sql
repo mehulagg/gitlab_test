@@ -11396,7 +11396,9 @@ CREATE TABLE public.emails (
     updated_at timestamp without time zone,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
-    confirmation_sent_at timestamp without time zone
+    confirmation_sent_at timestamp without time zone,
+    is_primary boolean DEFAULT false NOT NULL,
+    unconfirmed_email text
 );
 
 CREATE SEQUENCE public.emails_id_seq

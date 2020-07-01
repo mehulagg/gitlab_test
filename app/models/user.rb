@@ -25,6 +25,7 @@ class User < ApplicationRecord
   include IgnorableColumns
   include UpdateHighestRole
   include HasUserType
+  include Gitlab::Utils::StrongMemoize
 
   DEFAULT_NOTIFICATION_LEVEL = :participating
 
@@ -56,7 +57,7 @@ class User < ApplicationRecord
   serialize :otp_backup_codes, JSON # rubocop:disable Cop/ActiveRecordSerialize
 
   devise :lockable, :recoverable, :rememberable, :trackable,
-         :validatable, :omniauthable, :confirmable, :registerable
+         :omniauthable, :confirmable, :registerable
 
   # This module adds async behaviour to Devise emails
   # and should be added after Devise modules are initialized.
@@ -108,6 +109,8 @@ class User < ApplicationRecord
   has_many :gpg_keys
 
   has_many :emails
+  has_one :primary_email, -> { where(is_primary: true) }, class_name: 'Email'
+
   has_many :personal_access_tokens, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :identities, dependent: :destroy, autosave: true # rubocop:disable Cop/ActiveRecordDependent
   has_many :u2f_registrations, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -191,7 +194,16 @@ class User < ApplicationRecord
   validates :name, presence: true, length: { maximum: 255 }
   validates :first_name, length: { maximum: 127 }
   validates :last_name, length: { maximum: 127 }
-  validates :email, confirmation: true
+
+  with_options unless: :consolidated_primary_emails_enabled? do
+    validates :email, confirmation: true, presence: true, uniqueness: true
+    validates :email, format: { with: Devise.email_regexp }, allow_blank: true, if: :email_changed?
+    validate :unique_email, if: :email_changed?
+  end
+
+  validates :password, confirmation: true, presence: true, if: :password_required?
+  validates :password, length: { in: Devise.password_length }, allow_blank: true
+
   validates :notification_email, presence: true
   validates :notification_email, devise_email: true, if: ->(user) { user.notification_email != user.email }
   validates :public_email, presence: true, uniqueness: true, devise_email: true, allow_blank: true
@@ -204,7 +216,6 @@ class User < ApplicationRecord
   validates :namespace, presence: true
   validate :namespace_move_dir_allowed, if: :username_changed?
 
-  validate :unique_email, if: :email_changed?
   validate :owns_notification_email, if: :notification_email_changed?
   validate :owns_public_email, if: :public_email_changed?
   validate :owns_commit_email, if: :commit_email_changed?
@@ -235,7 +246,7 @@ class User < ApplicationRecord
   after_destroy :post_destroy_hook
   after_destroy :remove_key_cache
   after_commit(on: :update) do
-    if previous_changes.key?('email')
+    if previous_changes.key?('email') && !consolidated_primary_emails_enabled?
       # Grab previous_email here since previous_changes changes after
       # #update_emails_with_primary_email and #update_notification_email are called
       previous_confirmed_at = previous_changes.key?('confirmed_at') ? previous_changes['confirmed_at'][0] : confirmed_at
@@ -1718,13 +1729,48 @@ class User < ApplicationRecord
     created_at > Devise.confirm_within.ago
   end
 
+  # Provide backward compatibility when primary email is migrated to Email model
+  [:email, :unconfirmed_email].each do |attr|
+    define_method attr do
+      return read_attribute(attr) unless consolidated_primary_emails_enabled?
+
+      primary_email_attr_reader(attr)
+    end
+
+    define_method :"#{attr}=" do |value|
+      return write_attribute(attr, value) unless consolidated_primary_emails_enabled?
+
+      primary_email_attr_writer(attr, value)
+    end
+  end
+
+  [:skip_reconfirmation!, :skip_confirmation!].each do |attr|
+    define_method attr do
+      super unless consolidated_primary_emails_enabled?
+
+      primary_email_attr_reader(attr)
+    end
+  end
+
+  def email_confirmation=(email_confirmation)
+    super unless consolidated_primary_emails_enabled?
+
+    primary_email_attr_writer(:email_confirmation, email_confirmation)
+  end
+
+  def build_primary_email
+    strong_memoize(:built_primary_email) do
+      emails.build(is_primary: true)
+    end
+  end
+
   protected
 
-  # override, from Devise::Validatable
   def password_required?
     return false if internal? || project_bot?
 
-    super
+    # From Devise Validatable
+    !persisted? || !password.nil? || !password_confirmation.nil?
   end
 
   # override from Devise::Confirmable
@@ -1857,6 +1903,26 @@ class User < ApplicationRecord
   def update_highest_role_attribute
     id
   end
+
+  def consolidated_primary_emails_enabled?
+    strong_memoize(:consolidated_primary_emails) do
+      Feature.enabled?(:consolidated_primary_emails)
+    end
+  end
+
+  # rubocop:disable GitlabSecurity/PublicSend
+  def primary_email_attr_reader(attr)
+    return primary_email.public_send(attr) if primary_email
+
+    build_primary_email.public_send(attr)
+  end
+
+  def primary_email_attr_writer(attr, value)
+    return primary_email.public_send(:"#{attr}=", value) if primary_email
+
+    build_primary_email.public_send(:"#{attr}=", value)
+  end
+  # rubocop:enable GitlabSecurity/PublicSend
 end
 
 User.prepend_if_ee('EE::User')

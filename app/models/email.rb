@@ -7,8 +7,9 @@ class Email < ApplicationRecord
   belongs_to :user, optional: false
 
   validates :email, presence: true, uniqueness: true
+  validates :email, confirmation: true, if: -> { is_primary? }
   validate :validate_email_format
-  validate :unique_email, if: ->(email) { email.email_changed? }
+  validate :unique_email, if: ->(email) { email.email_changed? && Feature.disabled?(:consolidated_primary_emails) }
 
   scope :confirmed, -> { where.not(confirmed_at: nil) }
 
