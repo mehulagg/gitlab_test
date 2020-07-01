@@ -23,7 +23,6 @@ module Gitlab
       deploy_key_upload: 'This deploy key does not have write access to this project.',
       no_repo: 'A repository for this project does not exist yet.',
       project_not_found: 'The project you were looking for could not be found.',
-      namespace_not_found: 'The namespace you were looking for could not be found.',
       command_not_allowed: "The command you're trying to execute is not allowed.",
       upload_pack_disabled_over_http: 'Pulling over HTTP is not allowed.',
       receive_pack_disabled_over_http: 'Pushing over HTTP is not allowed.',
@@ -43,7 +42,9 @@ module Gitlab
     PUSH_COMMANDS = %w{git-receive-pack}.freeze
     ALL_COMMANDS = DOWNLOAD_COMMANDS + PUSH_COMMANDS
 
-    attr_reader :actor, :protocol, :authentication_abilities, :redirected_path, :auth_result_type, :cmd, :changes
+    attr_reader :actor, :protocol, :authentication_abilities,
+                :namespace_path, :redirected_path, :auth_result_type,
+                :cmd, :changes
     attr_accessor :container
 
     def initialize(actor, container, protocol, authentication_abilities:, namespace_path: nil, repository_path: nil, redirected_path: nil, auth_result_type: nil)
@@ -55,10 +56,6 @@ module Gitlab
       @repository_path = repository_path
       @redirected_path = redirected_path
       @auth_result_type = auth_result_type
-    end
-
-    def namespace_path
-      @namespace_path ||= project&.namespace&.full_path
     end
 
     def repository_path
@@ -80,7 +77,6 @@ module Gitlab
       return custom_action if custom_action
 
       check_db_accessibility!
-      check_namespace!
       check_container!
       check_repository_existence!
 
@@ -170,12 +166,6 @@ module Gitlab
       unless protocol_allowed?
         raise ForbiddenError, "Git access over #{protocol.upcase} is not allowed"
       end
-    end
-
-    def check_namespace!
-      return if namespace_path.present?
-
-      raise NotFoundError, ERROR_MESSAGES[:namespace_not_found]
     end
 
     def check_active_user!

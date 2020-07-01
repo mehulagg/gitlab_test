@@ -75,33 +75,6 @@ RSpec.describe Gitlab::GitAccess do
     end
   end
 
-  describe '#check_namespace!' do
-    context 'when namespace exists' do
-      before do
-        project.add_maintainer(user)
-      end
-
-      it 'allows push and pull access' do
-        aggregate_failures do
-          expect { push_access_check }.not_to raise_error
-          expect { pull_access_check }.not_to raise_error
-        end
-      end
-    end
-
-    context 'when namespace and project are nil' do
-      let(:project) { nil }
-      let(:namespace_path) { nil }
-
-      it 'does not allow push and pull access' do
-        aggregate_failures do
-          expect { push_access_check }.to raise_namespace_not_found
-          expect { pull_access_check }.to raise_namespace_not_found
-        end
-      end
-    end
-  end
-
   describe '#check_project_accessibility!' do
     context 'when the project exists' do
       context 'when actor exists' do
@@ -1078,15 +1051,11 @@ RSpec.describe Gitlab::GitAccess do
   end
 
   def raise_forbidden(message)
-    raise_error(Gitlab::GitAccess::ForbiddenError, message)
+    raise_error(described_class::ForbiddenError, message)
   end
 
   def raise_not_found
-    raise_error(Gitlab::GitAccess::NotFoundError, Gitlab::GitAccess::ERROR_MESSAGES[:project_not_found])
-  end
-
-  def raise_namespace_not_found
-    raise_error(Gitlab::GitAccess::NotFoundError, Gitlab::GitAccess::ERROR_MESSAGES[:namespace_not_found])
+    raise_error(described_class::NotFoundError, described_class::ERROR_MESSAGES[:project_not_found])
   end
 
   def build_authentication_abilities

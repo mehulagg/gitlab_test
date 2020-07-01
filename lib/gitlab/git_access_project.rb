@@ -6,21 +6,31 @@ module Gitlab
 
     CreationError = Class.new(StandardError)
 
+    ERROR_MESSAGES = {
+      namespace_not_found: 'The namespace you were looking for could not be found.'
+    }.freeze
+
     private
 
     override :check_container!
     def check_container!
+      check_namespace!
       ensure_project_on_push!
 
       super
     end
 
+    def check_namespace!
+      raise NotFoundError, ERROR_MESSAGES[:namespace_not_found] unless namespace_path.present?
+    end
+
+    def namespace
+      @namespace ||= Namespace.find_by_full_path(namespace_path)
+    end
+
     def ensure_project_on_push!
       return if project || deploy_key?
       return unless receive_pack? && changes == ANY && authentication_abilities.include?(:push_code)
-
-      namespace = Namespace.find_by_full_path(namespace_path)
-
       return unless user&.can?(:create_projects, namespace)
 
       project_params = {

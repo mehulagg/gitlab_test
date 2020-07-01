@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe Gitlab::GitAccessProject do
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project, :repository) }
+  let(:container) { project }
   let(:actor) { user }
   let(:project_path) { project.path }
   let(:namespace_path) { project&.namespace&.path }
@@ -13,19 +14,32 @@ RSpec.describe Gitlab::GitAccessProject do
   let(:changes) { Gitlab::GitAccess::ANY }
   let(:push_access_check) { access.check('git-receive-pack', changes) }
   let(:pull_access_check) { access.check('git-upload-pack', changes) }
+  let(:access) do
+    described_class.new(actor, container, protocol,
+                        authentication_abilities: authentication_abilities,
+                        repository_path: project_path, namespace_path: namespace_path)
+  end
+
+  describe '#check_namespace!' do
+    context 'when namespace and project are nil' do
+      let(:namespace_path) { nil }
+
+      it 'does not allow push and pull access' do
+        aggregate_failures do
+          expect { push_access_check }.to raise_namespace_not_found
+          expect { pull_access_check }.to raise_namespace_not_found
+        end
+      end
+    end
+  end
 
   describe '#check_project_accessibility!' do
     context 'when the project is nil' do
-      let(:project) { nil }
+      let(:container) { nil }
       let(:project_path) { "new-project" }
 
       context 'when user is allowed to create project in namespace' do
         let(:namespace_path) { user.namespace.path }
-        let(:access) do
-          described_class.new(actor, nil,
-            protocol, authentication_abilities: authentication_abilities,
-            repository_path: project_path, namespace_path: namespace_path)
-        end
 
         it 'blocks pull access with "not found"' do
           expect { pull_access_check }.to raise_not_found
@@ -39,11 +53,6 @@ RSpec.describe Gitlab::GitAccessProject do
       context 'when user is not allowed to create project in namespace' do
         let(:user2) { create(:user) }
         let(:namespace_path) { user2.namespace.path }
-        let(:access) do
-          described_class.new(actor, nil,
-            protocol, authentication_abilities: authentication_abilities,
-            repository_path: project_path, namespace_path: namespace_path)
-        end
 
         it 'blocks push and pull with "not found"' do
           aggregate_failures do
@@ -56,12 +65,6 @@ RSpec.describe Gitlab::GitAccessProject do
   end
 
   describe '#ensure_project_on_push!' do
-    let(:access) do
-      described_class.new(actor, project,
-        protocol, authentication_abilities: authentication_abilities,
-        repository_path: project_path, namespace_path: namespace_path)
-    end
-
     before do
       allow(access).to receive(:changes).and_return(changes)
     end
@@ -71,7 +74,7 @@ RSpec.describe Gitlab::GitAccessProject do
 
       context 'when project does not exist' do
         let(:project_path) { "nonexistent" }
-        let(:project) { nil }
+        let(:container) { nil }
 
         context 'when changes is _any' do
           let(:changes) { Gitlab::GitAccess::ANY }
@@ -123,7 +126,7 @@ RSpec.describe Gitlab::GitAccessProject do
 
       context 'when project exists' do
         let(:changes) { Gitlab::GitAccess::ANY }
-        let!(:project) { create(:project) }
+        let!(:container) { create(:project) }
 
         it 'does not create a new project' do
           expect { push_access_check rescue nil }.not_to change { Project.count }
@@ -134,7 +137,7 @@ RSpec.describe Gitlab::GitAccessProject do
         let(:key) { create(:deploy_key, user: user) }
         let(:actor) { key }
         let(:project_path) { "nonexistent" }
-        let(:project) { nil }
+        let(:container) { nil }
         let(:namespace_path) { user.namespace.path }
         let(:changes) { Gitlab::GitAccess::ANY }
 
@@ -151,7 +154,7 @@ RSpec.describe Gitlab::GitAccessProject do
       context 'when project does not exist' do
         let(:project_path) { "new-project" }
         let(:namespace_path) { user.namespace.path }
-        let(:project) { nil }
+        let(:container) { nil }
 
         it 'does not create a new project' do
           expect { pull_access_check rescue nil }.not_to change { Project.count }
@@ -162,5 +165,9 @@ RSpec.describe Gitlab::GitAccessProject do
 
   def raise_not_found
     raise_error(Gitlab::GitAccess::NotFoundError, Gitlab::GitAccess::ERROR_MESSAGES[:project_not_found])
+  end
+
+  def raise_namespace_not_found
+    raise_error(Gitlab::GitAccess::NotFoundError, described_class::ERROR_MESSAGES[:namespace_not_found])
   end
 end
