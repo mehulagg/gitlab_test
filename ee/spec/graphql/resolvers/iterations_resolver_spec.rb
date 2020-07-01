@@ -30,7 +30,7 @@ RSpec.describe Resolvers::IterationsResolver do
 
       context 'without parameters' do
         it 'calls IterationsFinder to retrieve all iterations' do
-          params = { id: nil, iid: nil, group_ids: Group.where(id: group.id).select(:id), state: 'all', start_date: nil, end_date: nil, search_title: nil }
+          params = { id: nil, iid: nil, group_ids: match_array(Group.where(id: group.id).select(:id)), state: 'all', start_date: nil, end_date: nil, search_title: nil }
 
           expect(IterationsFinder).to receive(:new).with(current_user, params).and_call_original
 

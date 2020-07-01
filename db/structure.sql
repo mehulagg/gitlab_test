@@ -20540,6 +20540,8 @@ CREATE UNIQUE INDEX index_namespaces_on_runners_token_encrypted ON public.namesp
 
 CREATE INDEX index_namespaces_on_shared_and_extra_runners_minutes_limit ON public.namespaces USING btree (shared_runners_minutes_limit, extra_shared_runners_minutes_limit);
 
+CREATE INDEX index_namespaces_on_traversal_ids ON public.namespaces USING gin (traversal_ids);
+
 CREATE INDEX index_namespaces_on_type_partial ON public.namespaces USING btree (type) WHERE (type IS NOT NULL);
 
 CREATE INDEX index_non_requested_project_members_on_source_id_and_type ON public.members USING btree (source_id, source_type) WHERE ((requested_at IS NULL) AND ((type)::text = 'ProjectMember'::text));

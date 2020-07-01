@@ -1,0 +1,5 @@
+---
+title: Faster namespace queries with linear methods
+merge_request: 36025
+author:
+type: performance

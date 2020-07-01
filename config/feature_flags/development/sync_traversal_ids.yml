@@ -1,0 +1,7 @@
+---
+name: sync_traversal_ids
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/36025
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/230456
+group: group::access
+type: development
+default_enabled: false

@@ -1052,13 +1052,21 @@ RSpec.describe Group do
         allow(project).to receive(:protected_for?).with('ref').and_return(true)
       end
 
-      it 'returns all variables belong to the group and parent groups' do
-        expected_array1 = [protected_variable, ci_variable]
-        expected_array2 = [variable_child, variable_child_2, variable_child_3]
-        got_array = group_child_3.ci_variables_for('ref', project).to_a
+      [true, false].each do |linear_groups|
+        context "linear_groups feature flag is #{linear_groups}" do
+          before do
+            stub_feature_flags(linear_groups: linear_groups)
+          end
 
-        expect(got_array.shift(2)).to contain_exactly(*expected_array1)
-        expect(got_array).to eq(expected_array2)
+          it 'returns all variables belong to the group and parent groups' do
+            expected_array1 = [protected_variable, ci_variable]
+            expected_array2 = [variable_child, variable_child_2, variable_child_3]
+            got_array = group_child_3.ci_variables_for('ref', project).to_a
+
+            expect(got_array.shift(2)).to contain_exactly(*expected_array1)
+            expect(got_array).to eq(expected_array2)
+          end
+        end
       end
     end
   end

@@ -7,7 +7,16 @@ module GroupDescendant
   # > project.hierarchy
   # => { parent_group => { child_group => project } }
   def hierarchy(hierarchy_top = nil, preloaded = nil)
-    preloaded ||= ancestors_upto(hierarchy_top)
+    # There is a quirk with the recursive ancestor_upto search where the search continues
+    # until the upto node is reached, or we run out of ancestors to recurse through.
+    # If upto is not an ancestor then the whole ancestor chain is returned. Linear traversal
+    # does not work in this way so we have to drop back to recursive search for now.
+    preloaded ||= if self.is_a?(Group) && Feature.enabled?(:linear_groups, root_ancestor)
+                    Gitlab::ObjectHierarchy.new(self.class.where(id: id)).ancestors(upto: hierarchy_top)
+                  else
+                    ancestors_upto(hierarchy_top)
+                  end
+
     expand_hierarchy_for_child(self, self, hierarchy_top, preloaded)
   end
 

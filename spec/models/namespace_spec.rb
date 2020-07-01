@@ -111,6 +111,32 @@ RSpec.describe Namespace do
 
   describe 'inclusions' do
     it { is_expected.to include_module(Gitlab::VisibilityLevel) }
+    it { is_expected.to include_module(Namespace::RecursiveTraversal) }
+    it { is_expected.to include_module(Namespace::Traversal) }
+  end
+
+  describe 'create' do
+    let(:group) { create(:group) }
+    let(:subgroup) { create(:group, parent: group) }
+
+    describe 'initialize traversal_ids' do
+      it { expect(group.traversal_ids).to eq [group.id] }
+      it { expect(subgroup.traversal_ids).to eq [group.id, subgroup.id] }
+    end
+  end
+
+  describe 'assigning a new parent' do
+    let!(:old_parent) { create(:group) }
+    let!(:new_parent) { create(:group) }
+    let!(:subgroup) { create(:group, parent: old_parent) }
+
+    before do
+      subgroup.update(parent: new_parent)
+    end
+
+    it 'updates traversal_ids' do
+      expect(subgroup.reload.traversal_ids).to eq [new_parent.id, subgroup.id]
+    end
   end
 
   describe '#visibility_level_field' do
@@ -756,13 +782,14 @@ RSpec.describe Namespace do
   describe '#self_and_hierarchy' do
     let!(:group) { create(:group, path: 'git_lab') }
     let!(:nested_group) { create(:group, parent: group) }
+    let!(:nested_sibling) { create(:group, parent: group) }
     let!(:deep_nested_group) { create(:group, parent: nested_group) }
     let!(:very_deep_nested_group) { create(:group, parent: deep_nested_group) }
     let!(:another_group) { create(:group, path: 'gitllab') }
     let!(:another_group_nested) { create(:group, path: 'foo', parent: another_group) }
 
     it 'returns the correct tree' do
-      expect(group.self_and_hierarchy).to contain_exactly(group, nested_group, deep_nested_group, very_deep_nested_group)
+      expect(group.self_and_hierarchy).to contain_exactly(group, nested_group, nested_sibling, deep_nested_group, very_deep_nested_group)
       expect(nested_group.self_and_hierarchy).to contain_exactly(group, nested_group, deep_nested_group, very_deep_nested_group)
       expect(very_deep_nested_group.self_and_hierarchy).to contain_exactly(group, nested_group, deep_nested_group, very_deep_nested_group)
     end

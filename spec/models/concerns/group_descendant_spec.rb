@@ -41,9 +41,17 @@ RSpec.describe GroupDescendant do
         expect(subsub_group.hierarchy(parent)).to eq(expected_hierarchy)
       end
 
-      it 'raises an error if specifying a base that is not part of the tree' do
-        expect { subsub_group.hierarchy(build_stubbed(:group)) }
-          .to raise_error('specified top is not part of the tree')
+      [true, false].each do |linear_groups|
+        context "when linear_groups feature flag is #{linear_groups}" do
+          before do
+            stub_feature_flags(linear_groups: linear_groups)
+          end
+
+          it 'raises an error if specifying a base that is not part of the tree' do
+            expect { subsub_group.hierarchy(build_stubbed(:group)) }
+              .to raise_error('specified top is not part of the tree')
+          end
+        end
       end
     end
 
@@ -107,16 +115,24 @@ RSpec.describe GroupDescendant do
     let(:project) { create(:project, namespace: subsub_group) }
 
     describe '#hierarchy' do
-      it 'builds a hierarchy for a project' do
-        expected_hierarchy = { parent => { subgroup => { subsub_group => project } } }
+      [true, false].each do |linear_groups|
+        context "when linear_groups feature flag is #{linear_groups}" do
+          before do
+            stub_feature_flags(linear_groups: linear_groups)
+          end
 
-        expect(project.hierarchy).to eq(expected_hierarchy)
-      end
+          it 'builds a hierarchy for a project' do
+            expected_hierarchy = { parent => { subgroup => { subsub_group => project } } }
 
-      it 'builds a hierarchy upto a specified parent' do
-        expected_hierarchy = { subsub_group => project }
+            expect(project.hierarchy).to eq(expected_hierarchy)
+          end
 
-        expect(project.hierarchy(subgroup)).to eq(expected_hierarchy)
+          it 'builds a hierarchy upto a specified parent' do
+            expected_hierarchy = { subsub_group => project }
+
+            expect(project.hierarchy(subgroup)).to eq(expected_hierarchy)
+          end
+        end
       end
     end
 

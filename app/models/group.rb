@@ -444,7 +444,12 @@ class Group < Namespace
     cache_key = "ci_variables_for:group:#{self&.id}:project:#{project&.id}:ref:#{ref}"
 
     ::Gitlab::SafeRequestStore.fetch(cache_key) do
-      list_of_ids = [self] + ancestors
+      list_of_ids = if Feature.enabled?(:linear_groups, root_ancestor)
+                      [self] + ancestors(hierarchy_order: :asc)
+                    else
+                      [self] + ancestors
+                    end
+
       variables = Ci::GroupVariable.where(group: list_of_ids)
       variables = variables.unprotected unless project.protected_for?(ref)
       variables = variables.group_by(&:group_id)

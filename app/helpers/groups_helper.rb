@@ -88,7 +88,7 @@ module GroupsHelper
     @has_group_title = true
     full_title = []
 
-    group.ancestors.reverse.each_with_index do |parent, index|
+    sorted_ancestors(group).reverse.each_with_index do |parent, index|
       if index > 0
         add_to_breadcrumb_dropdown(group_title_link(parent, hidable: false, show_avatar: true, for_dropdown: true), location: :before)
       else
@@ -235,8 +235,17 @@ module GroupsHelper
   end
 
   def oldest_consecutively_locked_ancestor(group)
-    group.ancestors.find do |group|
+    sorted_ancestors(group).find do |group|
       !group.has_parent? || !group.parent.share_with_group_lock?
+    end
+  end
+
+  # Ancestors sorted by hierarchy depth in bottom-top order.
+  def sorted_ancestors(group)
+    if Feature.enabled?(:linear_groups, group.root_ancestor)
+      group.ancestors(hierarchy_order: :asc)
+    else
+      group.ancestors
     end
   end
 
