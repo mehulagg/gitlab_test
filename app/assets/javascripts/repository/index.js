@@ -13,6 +13,7 @@ import { webIDEUrl } from '../lib/utils/url_utility';
 import { __ } from '../locale';
 import pathLastCommit from './queries/pathLastCommit.query.graphql';
 import getPermissions from './queries/getPermissions.query.graphql';
+import getFiles from './queries/getFiles.query.graphql';
 
 export default function setupVueRepositoryList() {
   const el = document.getElementById('js-tree-list');
@@ -41,6 +42,20 @@ export default function setupVueRepositoryList() {
       query: getPermissions,
       variables: {
         projectPath,
+      },
+    })
+    .subscribe();
+
+  apolloProvider.clients.defaultClient
+    .watchQuery({
+      query: getFiles,
+      variables: {
+        projectPath,
+        ref,
+        path: currentPath || '/',
+        nextPageCursor: '',
+        pageSize: 100,
+        vueLfsEnabled: gon.features?.vueFileListLfsBadge || false,
       },
     })
     .subscribe();
