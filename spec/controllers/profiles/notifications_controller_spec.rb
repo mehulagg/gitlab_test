@@ -53,6 +53,16 @@ RSpec.describe Profiles::NotificationsController do
       end
     end
 
+    context 'pagination' do
+      it 'paginates groups' do
+        sign_in(user)
+
+        get :show
+
+        expect(assigns(:group_notifications)).to be_kind_of(Kaminari::PaginatableArray)
+      end
+    end
+
     context 'with project notifications' do
       let!(:notification_setting) { create(:notification_setting, source: project, user: user, level: :watch) }
 
