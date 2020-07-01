@@ -11,12 +11,39 @@ import { updateFormAction } from './utils/dom';
 import { parseBoolean } from '../lib/utils/common_utils';
 import { webIDEUrl } from '../lib/utils/url_utility';
 import { __ } from '../locale';
+import pathLastCommit from './queries/pathLastCommit.query.graphql';
+import getPermissions from './queries/getPermissions.query.graphql';
 
 export default function setupVueRepositoryList() {
   const el = document.getElementById('js-tree-list');
   const { dataset } = el;
   const { projectPath, projectShortPath, ref, escapedRef, fullName } = dataset;
   const router = createRouter(projectPath, escapedRef);
+
+  const myRegex = /-\/tree\/master\/(.+$)/;
+  const match = window.location.href.match(myRegex);
+
+  const currentPath = match ? match[1] : '';
+
+  apolloProvider.clients.defaultClient
+    .watchQuery({
+      query: pathLastCommit,
+      variables: {
+        projectPath,
+        ref,
+        path: currentPath,
+      },
+    })
+    .subscribe();
+
+  apolloProvider.clients.defaultClient
+    .watchQuery({
+      query: getPermissions,
+      variables: {
+        projectPath,
+      },
+    })
+    .subscribe();
 
   apolloProvider.clients.defaultClient.cache.writeData({
     data: {
