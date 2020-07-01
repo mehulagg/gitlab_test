@@ -164,12 +164,12 @@ class GroupPolicy < BasePolicy
   rule { maintainer & can?(:create_projects) }.enable :transfer_projects
 
   def access_level
+    return GroupMember::NO_ACCESS if @user.nil?
+
     @access_level ||= lookup_access_level!
   end
 
   def lookup_access_level!
-    return GroupMember::NO_ACCESS if @user.nil?
-
     @subject.max_member_access_for_user(@user)
   end
 end
