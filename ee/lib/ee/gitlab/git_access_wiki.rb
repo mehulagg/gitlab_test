@@ -8,7 +8,7 @@ module EE
 
       ERROR_MESSAGES = {
         write_to_group_wiki: "You are not allowed to write to this groups's wiki.",
-        group_not_found:     'The group wiki you were looking for could not be found.',
+        group_not_found: 'The group you were looking for could not be found.',
         no_group_repo: 'A repository for this group wiki does not exist yet.'
       }.freeze
 

@@ -103,12 +103,14 @@ module Gitlab
         user_access.can_do_action?(download_ability)
     end
 
+    # @return [Symbol] the name of a Declarative Policy ability to check
     def download_ability
-      :download_code
+      raise NotImplementedError
     end
 
+    # @return [Symbol] the name of a Declarative Policy ability to check
     def push_ability
-      :push_code
+      raise NotImplementedError
     end
 
     def build_can_download_code?

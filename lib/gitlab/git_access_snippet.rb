@@ -28,6 +28,16 @@ module Gitlab
       super
     end
 
+    override :download_ability
+    def download_ability
+      :read_snippet
+    end
+
+    override :push_ability
+    def push_ability
+      :update_snippet
+    end
+
     private
 
     # TODO: Implement EE/Geo https://gitlab.com/gitlab-org/gitlab/issues/205629
@@ -53,23 +63,6 @@ module Gitlab
       if actor && !actor.is_a?(User) && !actor.instance_of?(Key)
         raise ForbiddenError, ERROR_MESSAGES[:authentication_mechanism]
       end
-
-      super
-    end
-
-    override :download_ability
-    def download_ability
-      :read_snippet
-    end
-
-    override :push_ability
-    def push_ability
-      :update_snippet
-    end
-
-    override :check_namespace!
-    def check_namespace!
-      return unless project_snippet?
 
       super
     end

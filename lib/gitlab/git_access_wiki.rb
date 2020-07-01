@@ -7,10 +7,10 @@ module Gitlab
     prepend_if_ee('EE::Gitlab::GitAccessWiki') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
     ERROR_MESSAGES = {
-      download:      'You are not allowed to download files from this wiki.',
-      not_found:     'The wiki you were looking for could not be found.',
-      no_wiki_repo:  'A repository for this wiki does not exist yet.',
-      read_only:     "You can't push code to a read-only GitLab instance.",
+      download: 'You are not allowed to download files from this wiki.',
+      not_found: 'The wiki you were looking for could not be found.',
+      no_wiki_repo: 'A repository for this wiki does not exist yet.',
+      read_only: "You can't push code to a read-only GitLab instance.",
       write_to_wiki: "You are not allowed to write to this project's wiki."
     }.freeze
 

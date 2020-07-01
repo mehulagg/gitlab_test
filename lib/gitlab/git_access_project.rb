@@ -10,6 +10,16 @@ module Gitlab
       namespace_not_found: 'The namespace you were looking for could not be found.'
     }.freeze
 
+    override :download_ability
+    def download_ability
+      :download_code
+    end
+
+    override :push_ability
+    def push_ability
+      :push_code
+    end
+
     private
 
     override :check_container!

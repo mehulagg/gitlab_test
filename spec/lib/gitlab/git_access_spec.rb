@@ -20,6 +20,18 @@ RSpec.describe Gitlab::GitAccess do
   let(:push_access_check) { access.check('git-receive-pack', changes) }
   let(:pull_access_check) { access.check('git-upload-pack', changes) }
 
+  let(:access_class) do
+    Class.new(described_class) do
+      def push_ability
+        :push_code
+      end
+
+      def download_ability
+        :download_code
+      end
+    end
+  end
+
   describe '#check with single protocols allowed' do
     def disable_protocol(protocol)
       allow(Gitlab::ProtocolAccess).to receive(:allowed?).with(protocol).and_return(false)
@@ -437,7 +449,7 @@ RSpec.describe Gitlab::GitAccess do
         let(:public_project) { create(:project, :public, :repository) }
         let(:project_path) { public_project.path }
         let(:namespace_path) { public_project.namespace.path }
-        let(:access) { described_class.new(nil, public_project, 'web', authentication_abilities: [:download_code], repository_path: project_path, namespace_path: namespace_path) }
+        let(:access) { access_class.new(nil, public_project, 'web', authentication_abilities: [:download_code], repository_path: project_path, namespace_path: namespace_path) }
 
         context 'when repository is enabled' do
           it 'give access to download code' do
@@ -1040,7 +1052,7 @@ RSpec.describe Gitlab::GitAccess do
   private
 
   def access
-    described_class.new(actor, project, protocol,
+    access_class.new(actor, project, protocol,
                         authentication_abilities: authentication_abilities,
                         namespace_path: namespace_path, repository_path: project_path,
                         redirected_path: redirected_path, auth_result_type: auth_result_type)

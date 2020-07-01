@@ -41,7 +41,7 @@ RSpec.describe Gitlab::GitAccessWiki do
         end
       end
 
-      context 'when user cannt :create_wiki' do
+      context 'when user cannot :create_wiki' do
         before do
           group.add_reporter(user)
         end
