@@ -11,12 +11,6 @@ RSpec.describe GroupClusterablePresenter do
   let(:cluster) { create(:cluster, :provided_by_gcp, :group) }
   let(:group) { cluster.group }
 
-  describe '#metrics_cluster_path' do
-    subject { presenter.metrics_cluster_path(cluster) }
-
-    it { is_expected.to eq(metrics_group_cluster_path(group, cluster)) }
-  end
-
   describe '#environments_cluster_path' do
     subject { presenter.environments_cluster_path(cluster) }
 

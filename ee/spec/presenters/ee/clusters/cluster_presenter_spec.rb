@@ -19,7 +19,6 @@ RSpec.describe Clusters::ClusterPresenter do
       it do
         is_expected.to match(
           'clusters-path': clusterable_presenter.index_path,
-          'metrics-endpoint': clusterable_presenter.metrics_cluster_path(cluster, format: :json),
           'dashboard-endpoint': clusterable_presenter.metrics_dashboard_path(cluster),
           'documentation-path': help_page_path('user/project/clusters/index', anchor: 'monitoring-your-kubernetes-cluster-ultimate'),
           'empty-getting-started-svg-path': match_asset_path('/assets/illustrations/monitoring/getting_started.svg'),

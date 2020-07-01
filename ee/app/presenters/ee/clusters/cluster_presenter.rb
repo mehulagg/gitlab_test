@@ -6,7 +6,6 @@ module EE
       def health_data(clusterable)
         {
           'clusters-path': clusterable.index_path,
-          'metrics-endpoint': clusterable.metrics_cluster_path(cluster, format: :json),
           'dashboard-endpoint': clusterable.metrics_dashboard_path(cluster),
           'documentation-path': help_page_path('user/project/clusters/index', anchor: 'monitoring-your-kubernetes-cluster-ultimate'),
           'empty-getting-started-svg-path': image_path('illustrations/monitoring/getting_started.svg'),

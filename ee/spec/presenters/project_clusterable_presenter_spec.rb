@@ -9,12 +9,6 @@ RSpec.describe ProjectClusterablePresenter do
   let(:cluster) { create(:cluster, :provided_by_gcp, :project) }
   let(:project) { cluster.project }
 
-  describe '#metrics_cluster_path' do
-    subject { presenter.metrics_cluster_path(cluster) }
-
-    it { is_expected.to eq(metrics_project_cluster_path(project, cluster)) }
-  end
-
   describe '#metrics_dashboard_path' do
     subject { presenter.metrics_dashboard_path(cluster) }
 

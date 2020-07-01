@@ -9,12 +9,6 @@ RSpec.describe InstanceClusterablePresenter do
   let(:cluster) { create(:cluster, :provided_by_gcp, :instance) }
   let(:instance) { cluster.instance }
 
-  describe '#metrics_cluster_path' do
-    subject { presenter.metrics_cluster_path(cluster) }
-
-    it { is_expected.to eq(metrics_admin_cluster_path(cluster)) }
-  end
-
   describe '#metrics_dashboard_path' do
     subject { presenter.metrics_dashboard_path(cluster) }
 

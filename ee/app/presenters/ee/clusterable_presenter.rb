@@ -4,10 +4,6 @@ module EE
   module ClusterablePresenter
     extend ::Gitlab::Utils::Override
 
-    def metrics_cluster_path(cluster, params = {})
-      raise NotImplementedError
-    end
-
     def metrics_dashboard_path(cluster)
       raise NotImplementedError
     end
