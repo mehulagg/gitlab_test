@@ -15,9 +15,16 @@ import { getParameterByName } from '~/lib/utils/common_utils';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
 
+const issuesPerPage = 20;
+
 const states = {
   opened: 'opened',
   closed: 'closed',
+};
+
+const initialPaginationState = {
+  currentPage: 1,
+  nextPageCursor: '',
 };
 
 export default {
@@ -60,22 +67,27 @@ export default {
     issues: {
       query,
       variables() {
-        return {
-          groupPath: this.groupPath,
-          id: getIdFromGraphQLId(this.iterationId),
-        };
+        return this.queryVariables;
       },
       update(data) {
         const issues = data?.group?.issues?.nodes || [];
+        const totalCount = data?.group?.issues?.totalCount;
+        const pageInfo = data?.group?.issues?.pageInfo || {};
 
-        return issues.map(issue => ({
+        const list = issues.map(issue => ({
           ...issue,
           labels: issue?.labels?.nodes || [],
           assignees: issue?.assignees?.nodes || [],
         }));
+
+        return {
+          pageInfo,
+          list,
+          totalCount,
+        };
       },
-      error(err) {
-        this.error = err.message || __('Error loading issues');
+      error() {
+        this.error = __('Error loading issues');
       },
     },
   },
@@ -91,30 +103,31 @@ export default {
   },
   data() {
     return {
+      issues: {
+        list: [],
+        pageInfo: {
+          nextPageCursor: '',
+        },
+      },
       error: '',
-      page:
-        getParameterByName('page', window.location.href) !== null
-          ? toNumber(getParameterByName('page'))
-          : 1,
+      pagination: initialPaginationState,
     };
   },
   computed: {
-    totalItems() {
-      return this.unstartedIssues.length + this.ongoingIssues.length + this.completedIssues.length;
+    queryVariables() {
+      return {
+        groupPath: this.groupPath,
+        id: getIdFromGraphQLId(this.iterationId),
+        nextPageCursor: this.pagination.nextPageCursor,
+      };
     },
 
-    unstartedIssues() {
-      return this.issues.filter(issue => {
-        return issue.state === 'opened' && issue.assignees.length === 0;
-      });
+    prevPage() {
+      return Math.max(this.pagination.currentPage - 1, 0);
     },
-    ongoingIssues() {
-      return this.issues.filter(issue => {
-        return issue.state === 'opened' && issue.assignees.length > 0;
-      });
-    },
-    completedIssues() {
-      return this.issues.filter(issue => issue.state === 'closed');
+    nextPage() {
+      const nextPage = this.pagination.currentPage + 1;
+      return nextPage > Math.ceil(this.issues.totalCount / issuesPerPage) ? null : nextPage;
     },
   },
   methods: {
@@ -127,7 +140,27 @@ export default {
       }
       return __('Closed');
     },
-    onPaginate() {},
+    handlePageChange(page) {
+      const { startCursor, endCursor, hasNextPage, hasPreviousPage } = this.issues.pageInfo;
+
+      if (page > this.pagination.currentPage) {
+        this.pagination = {
+          ...initialPaginationState,
+          nextPageCursor: endCursor,
+          currentPage: page,
+          hasNextPage,
+          hasPreviousPage,
+        };
+      } else {
+        this.pagination = {
+          lastPageSize: 5,
+          firstPageSize: null,
+          prevPageCursor: startCursor,
+          nextPageCursor: '',
+          currentPage: page,
+        };
+      }
+    },
   },
 };
 </script>
@@ -140,10 +173,10 @@ export default {
     <gl-tab title="Issues">
       <template #title>
         <span>{{ __('Issues') }}</span
-        ><gl-badge class="ml-2" variant="neutral">{{ totalItems }}</gl-badge>
+        ><gl-badge class="ml-2" variant="neutral">{{ issues.totalCount }}</gl-badge>
       </template>
 
-      <gl-table :items="issues" :fields="$options.fields" :show-empty="true">
+      <gl-table :items="issues.list" :fields="$options.fields" :show-empty="true">
         <template #cell(title)="{ item: { iid, title, webUrl } }">
           <div class="text-truncate">
             <gl-link class="gl-text-gray-900 gl-font-weight-bold" :href="webUrl">{{
@@ -176,12 +209,12 @@ export default {
       </gl-table>
       <div class="mt-3">
         <gl-pagination
-          v-if="totalItems"
-          :value="page"
-          :per-page="20"
-          :total-items="totalItems"
-          class="justify-content-center"
-          @input="onPaginate"
+          :value="pagination.currentPage"
+          :prev-page="prevPage"
+          :next-page="nextPage"
+          align="center"
+          class="gl-pagination gl-mt-3"
+          @input="handlePageChange"
         />
       </div>
     </gl-tab>
