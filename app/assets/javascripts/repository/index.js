@@ -14,6 +14,7 @@ import { __ } from '../locale';
 import pathLastCommit from './queries/pathLastCommit.query.graphql';
 import getPermissions from './queries/getPermissions.query.graphql';
 import getFiles from './queries/getFiles.query.graphql';
+import apolloSetup from '~/lib/apollo_setup';
 
 export default function setupVueRepositoryList() {
   const el = document.getElementById('js-tree-list');
@@ -21,44 +22,38 @@ export default function setupVueRepositoryList() {
   const { projectPath, projectShortPath, ref, escapedRef, fullName } = dataset;
   const router = createRouter(projectPath, escapedRef);
 
-  const myRegex = /-\/tree\/master\/(.+$)/;
-  const match = window.location.href.match(myRegex);
+  const pathRegex = /-\/tree\/master\/(.+$)/;
+  const matches = window.location.href.match(pathRegex);
 
-  const currentPath = match ? match[1] : '';
+  const currentRoutePath = matches ? matches[1] : '';
 
-  apolloProvider.clients.defaultClient
-    .watchQuery({
+  apolloSetup(apolloProvider.clients.defaultClient, [
+    {
       query: pathLastCommit,
       variables: {
         projectPath,
         ref,
-        path: currentPath,
+        path: currentRoutePath,
       },
-    })
-    .subscribe();
-
-  apolloProvider.clients.defaultClient
-    .watchQuery({
+    },
+    {
       query: getPermissions,
       variables: {
         projectPath,
       },
-    })
-    .subscribe();
-
-  apolloProvider.clients.defaultClient
-    .watchQuery({
+    },
+    {
       query: getFiles,
       variables: {
         projectPath,
         ref,
-        path: currentPath || '/',
+        path: currentRoutePath || '/',
         nextPageCursor: '',
         pageSize: 100,
         vueLfsEnabled: gon.features?.vueFileListLfsBadge || false,
       },
-    })
-    .subscribe();
+    },
+  ]);
 
   apolloProvider.clients.defaultClient.cache.writeData({
     data: {
