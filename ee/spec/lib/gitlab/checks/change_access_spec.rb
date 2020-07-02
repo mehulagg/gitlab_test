@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::Checks::ChangeAccess do
-  describe '#exec' do
+  describe '#validate!' do
     include_context 'push rules checks context'
 
     let(:push_rule) { create(:push_rule, deny_delete_tag: true) }
