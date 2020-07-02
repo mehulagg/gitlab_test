@@ -71,6 +71,14 @@ RSpec.describe Gitlab::Pagination::OffsetPagination do
           it_behaves_like 'response with pagination headers'
         end
 
+        context 'per_page 0' do
+          let(:query) { base_query.merge(per_page: 0) }
+
+          it "shouldn't bubble up an error" do
+            expect { subject.paginate(resource) }.not_to raise_error
+          end
+        end
+
         context 'when the api_kaminari_count_with_limit feature flag is disabled' do
           before do
             stub_feature_flags(api_kaminari_count_with_limit: false)
