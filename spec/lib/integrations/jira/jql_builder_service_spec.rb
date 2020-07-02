@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-RSpec.describe Jira::JqlBuilderService do
+RSpec.describe Integrations::Jira::JqlBuilder do
   describe '#execute' do
-    subject { described_class.new('PROJECT_KEY', params).execute }
+    subject { described_class.new('PROJECT_KEY', params).jql }
 
     context 'when no params' do
       let(:params) { {} }

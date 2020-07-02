@@ -44,9 +44,7 @@ RSpec.describe Projects::Integrations::Jira::IssuesFinder do
 
       before do
         jira_service.update!(project_key: 'TEST')
-        expect_next_instance_of(Jira::Requests::Issues::ListService) do |instance|
-          expect(instance).to receive(:client).at_least(:once).and_return(client)
-        end
+        expect(service).to receive(:client).at_least(:once).and_return(client)
       end
 
       context 'when Jira API request fails' do
