@@ -38,11 +38,10 @@ the project.
 In the case of sub-groups, GitLab uses the cluster of the closest ancestor group
 to the project, provided the cluster is not disabled.
 
-## Multiple Kubernetes clusters
+## Multiple Kubernetes clusters **(PREMIUM)**
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35094) to GitLab Core in 13.2.
-
-You can associate more than one Kubernetes cluster to your group, and maintain different clusters
+With [GitLab Premium](https://about.gitlab.com/pricing/premium/), you can associate
+more than one Kubernetes cluster to your group, and maintain different clusters
 for different environments, such as development, staging, and production.
 
 When adding another cluster,
