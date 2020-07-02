@@ -393,7 +393,7 @@ module Gitlab
       @user_access ||= if ci?
                          CiAccess.new
                        elsif user && request_from_ci_build?
-                         BuildAccess.new(user, project: project)
+                         BuildAccess.new(user, container: container)
                        else
                          UserAccess.new(user, container: container)
                        end
