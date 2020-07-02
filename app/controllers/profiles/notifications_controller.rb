@@ -12,7 +12,7 @@ class Profiles::NotificationsController < Profiles::ApplicationController
       exclude_group_ids: group_notifications.select(:source_id)
     ).execute.map { |group| current_user.notification_settings_for(group, inherit: true) }
 
-    @group_notifications = Kaminari.paginate_array(group_notifications,  total_count: group_notifications.size).page(params[:page]).per(5)
+    @group_notifications = Kaminari.paginate_array(group_notifications,  total_count: group_notifications.size).page(params[:page])
     @project_notifications = current_user.notification_settings.for_projects.order(:id)
                              .preload_source_route
                              .select { |notification| current_user.can?(:read_project, notification.source) }
