@@ -136,11 +136,7 @@ const createTestDetails = detailsEndpoint => {
   axios
     .get(detailsEndpoint)
     .then(({ data }) => {
-      if (!data.total_count) {
-        return;
-      }
-
-      document.querySelector('.js-test-report-badge-counter').innerHTML = data.total_count;
+      document.querySelector('.js-test-report-badge-counter').innerHTML = data.total_count || 0;
     })
     .catch(() => {});
 };

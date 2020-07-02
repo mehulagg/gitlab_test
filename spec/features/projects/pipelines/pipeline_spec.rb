@@ -384,7 +384,8 @@ RSpec.describe 'Pipeline', :js do
         let(:pipeline) { create(:ci_pipeline, project: project) }
 
         it 'shows nothing' do
-          expect(page.find('.js-test-report-badge-counter', visible: :all).text).to eq("")
+          expect(pipeline.test_reports.total_count).to eq(0)
+          expect(page.find('.js-test-report-badge-counter').text).to eq(pipeline.test_reports.total_count.to_s)
         end
       end
     end
