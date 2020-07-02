@@ -1,15 +1,11 @@
 import CEMergeRequestStore from '~/vue_merge_request_widget/stores/mr_widget_store';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { mapApprovalsResponse, mapApprovalRulesResponse } from '../mappers';
-import CodeQualityComparisonWorker from '../workers/code_quality_comparison_worker';
 
 export default class MergeRequestStore extends CEMergeRequestStore {
   constructor(data) {
     super(data);
 
-    const blobPath = data.blob_path || {};
-    this.headBlobPath = blobPath.head_path || '';
-    this.baseBlobPath = blobPath.base_path || '';
     this.sastHelp = data.sast_help_path;
     this.containerScanningHelp = data.container_scanning_help_path;
     this.dastHelp = data.dast_help_path;
@@ -18,7 +14,6 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.vulnerabilityFeedbackPath = data.vulnerability_feedback_path;
     this.vulnerabilityFeedbackHelpPath = data.vulnerability_feedback_help_path;
     this.approvalsHelpPath = data.approvals_help_path;
-    this.codequalityHelpPath = data.codequality_help_path;
     this.securityReportsPipelineId = data.pipeline_id;
     this.createVulnerabilityFeedbackIssuePath = data.create_vulnerability_feedback_issue_path;
     this.createVulnerabilityFeedbackMergeRequestPath =
@@ -28,7 +23,6 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.visualReviewAppAvailable = Boolean(data.visual_review_app_available);
     this.appUrl = gon && gon.gitlab_url;
 
-    this.initCodeclimate(data);
     this.initPerformanceReport(data);
     this.licenseScanning = data.license_scanning;
     this.metricsReportsPath = data.metrics_reports_path;
@@ -77,46 +71,12 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.approvalRules = mapApprovalRulesResponse(data.rules, this.approvals);
   }
 
-  initCodeclimate(data) {
-    this.codeclimate = data.codeclimate;
-    this.codeclimateMetrics = {
-      newIssues: [],
-      resolvedIssues: [],
-    };
-  }
-
   initPerformanceReport(data) {
     this.performance = data.performance;
     this.performanceMetrics = {
       improved: [],
       degraded: [],
     };
-  }
-
-  static doCodeClimateComparison(headIssues, baseIssues) {
-    // Do these comparisons in worker threads to avoid blocking the main thread
-    return new Promise((resolve, reject) => {
-      const worker = new CodeQualityComparisonWorker();
-      worker.addEventListener('message', ({ data }) =>
-        data.newIssues && data.resolvedIssues ? resolve(data) : reject(data),
-      );
-      worker.postMessage({
-        headIssues,
-        baseIssues,
-      });
-    });
-  }
-
-  compareCodeclimateMetrics(headIssues, baseIssues, headBlobPath, baseBlobPath) {
-    const parsedHeadIssues = MergeRequestStore.parseCodeclimateMetrics(headIssues, headBlobPath);
-    const parsedBaseIssues = MergeRequestStore.parseCodeclimateMetrics(baseIssues, baseBlobPath);
-
-    return MergeRequestStore.doCodeClimateComparison(parsedHeadIssues, parsedBaseIssues).then(
-      response => {
-        this.codeclimateMetrics.newIssues = response.newIssues;
-        this.codeclimateMetrics.resolvedIssues = response.resolvedIssues;
-      },
-    );
   }
 
   comparePerformanceMetrics(headMetrics, baseMetrics) {
@@ -170,39 +130,5 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     });
 
     return indexedSubjects;
-  }
-
-  static parseCodeclimateMetrics(issues = [], path = '') {
-    return issues.map(issue => {
-      const parsedIssue = {
-        ...issue,
-        name: issue.description,
-      };
-
-      if (issue.location) {
-        let parseCodeQualityUrl;
-
-        if (issue.location.path) {
-          parseCodeQualityUrl = `${path}/${issue.location.path}`;
-          parsedIssue.path = issue.location.path;
-
-          if (issue.location.lines && issue.location.lines.begin) {
-            parsedIssue.line = issue.location.lines.begin;
-            parseCodeQualityUrl += `#L${issue.location.lines.begin}`;
-          } else if (
-            issue.location.positions &&
-            issue.location.positions.begin &&
-            issue.location.positions.begin.line
-          ) {
-            parsedIssue.line = issue.location.positions.begin.line;
-            parseCodeQualityUrl += `#L${issue.location.positions.begin.line}`;
-          }
-
-          parsedIssue.urlPath = parseCodeQualityUrl;
-        }
-      }
-
-      return parsedIssue;
-    });
   }
 }
