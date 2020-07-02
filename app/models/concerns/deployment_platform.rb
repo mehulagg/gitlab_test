@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module DeploymentPlatform
-  # EE would override this and utilize environment argument
   # rubocop:disable Gitlab/ModuleWithInstanceVariables
   def deployment_platform(environment: nil)
     @deployment_platform ||= {}

@@ -19,10 +19,6 @@ module Clusters
 
       cluster = Clusters::Cluster.new(cluster_params)
 
-      unless can_create_cluster?
-        cluster.errors.add(:base, _('Instance does not support multiple Kubernetes clusters'))
-      end
-
       validate_management_project_permissions(cluster)
 
       return cluster if cluster.errors.present?
@@ -53,10 +49,6 @@ module Clusters
       else
         raise NotImplementedError
       end
-    end
-
-    def can_create_cluster?
-      true
     end
 
     def validate_management_project_permissions(cluster)

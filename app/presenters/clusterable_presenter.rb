@@ -13,12 +13,7 @@ class ClusterablePresenter < Gitlab::View::Presenter::Delegated
   end
 
   def can_add_cluster?
-    can?(current_user, :add_cluster, clusterable) &&
-      (has_no_clusters? || multiple_clusters_available?)
-  end
-
-  def can_create_cluster?
-    can?(current_user, :create_cluster, clusterable)
+    can?(current_user, :add_cluster, clusterable)
   end
 
   def index_path(options = {})
@@ -80,16 +75,6 @@ class ClusterablePresenter < Gitlab::View::Presenter::Delegated
 
   def learn_more_link
     raise NotImplementedError
-  end
-
-  private
-
-  def multiple_clusters_available?
-    true
-  end
-
-  def has_no_clusters?
-    clusterable.clusters.empty?
   end
 end
 
