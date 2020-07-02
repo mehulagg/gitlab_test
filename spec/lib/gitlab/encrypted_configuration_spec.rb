@@ -24,6 +24,16 @@ describe Gitlab::EncryptedConfiguration do
       FileUtils.rm_f(config_tmp_dir)
     end
 
+    describe '#write' do
+      it 'encrypts the file using the provided key' do
+        encryptor = ActiveSupport::MessageEncryptor.new([credentials_key].pack('H*'), cipher: 'aes-128-gcm')
+        config = described_class.new(config_path: credentials_config_path, key: credentials_key)
+
+        config.write('sample-content')
+        expect(encryptor.decrypt_and_verify(File.read(credentials_config_path))).to eq('sample-content')
+      end
+    end
+
     describe '#read' do
       it 'reads yaml configuration' do
         config = described_class.new(config_path: credentials_config_path, key: credentials_key)
