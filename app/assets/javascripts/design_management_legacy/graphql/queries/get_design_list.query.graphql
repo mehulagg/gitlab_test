@@ -1,7 +1,7 @@
 #import "../fragments/design_list.fragment.graphql"
 #import "../fragments/version.fragment.graphql"
 
-query getDesignList($fullPath: ID!, $iid: String!, $atVersion: ID) {
+query getDesignList($fullPath: ID!, $iid: String!, $atVersion: DesignManagementVersionID) {
   project(fullPath: $fullPath) {
     id
     issue(iid: $iid) {
