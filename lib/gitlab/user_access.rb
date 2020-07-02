@@ -8,12 +8,13 @@ module Gitlab
       [user&.id, container&.to_global_id]
     end
 
-    attr_reader :user
+    attr_reader :user, :push_ability
     attr_accessor :container
 
-    def initialize(user, container: nil)
+    def initialize(user, container: nil, push_ability: :push_code)
       @user = user
       @container = container
+      @push_ability = push_ability
     end
 
     def can_do_action?(action)
@@ -55,7 +56,7 @@ module Gitlab
       if protected?(ProtectedBranch, container, ref)
         user.can?(:push_to_delete_protected_branch, container)
       else
-        user.can?(:push_code, container)
+        can_push?
       end
     end
 
@@ -64,16 +65,9 @@ module Gitlab
     end
 
     request_cache def can_push_to_branch?(ref)
-      return false unless can_access_git?
       return false unless container
-
-      # Checking for an internal project or group to prevent an infinite loop:
-      # https://gitlab.com/gitlab-org/gitlab/issues/36805
-      if container.internal?
-        return false unless user.can?(:push_code, container)
-      else
-        return false if !user.can?(:push_code, container) && !container.try(:branch_allows_collaboration?, user, ref)
-      end
+      return false unless can_access_git?
+      return false unless can_collaborate?(ref)
 
       if protected?(ProtectedBranch, container, ref)
         protected_branch_accessible_to?(ref, action: :push)
@@ -88,17 +82,35 @@ module Gitlab
       if protected?(ProtectedBranch, container, ref)
         protected_branch_accessible_to?(ref, action: :merge)
       else
-        user.can?(:push_code, container)
+        can_push?
       end
     end
 
-    def can_read_project?
+    def can_read_container?
       return false unless can_access_git?
 
-      user.can?(:read_project, container)
+      user.can?(:"read_#{container.to_ability_name}", container)
+    end
+
+    def can_read_project?
+      container.is_a?(Project) && can_read_container?
     end
 
     private
+
+    def can_push?
+      return false unless user && container
+
+      user.can?(push_ability, container)
+    end
+
+    def can_collaborate?(branch_name)
+      # Checking for an internal project or group to prevent an infinite loop:
+      # https://gitlab.com/gitlab-org/gitlab/issues/36805
+      can_push? && (container.internal? ||
+        !container.respond_to?(:branch_allows_collaboration?) ||
+        container.branch_allows_collaboration?(user, branch_name))
+    end
 
     def permission_cache
       @permission_cache ||= {}
@@ -109,21 +121,17 @@ module Gitlab
     end
 
     def protected_branch_accessible_to?(ref, action:)
-      return false unless container.is_a?(Project)
-
       ProtectedBranch.protected_ref_accessible_to?(
         ref, user,
-        project: container,
+        project: container, # TODO: rename this key!
         action: action,
         protected_refs: container.protected_branches)
     end
 
     def protected_tag_accessible_to?(ref, action:)
-      return false unless container.is_a?(Project)
-
       ProtectedTag.protected_ref_accessible_to?(
         ref, user,
-        project: container,
+        project: container, # TODO: rename this key!
         action: action,
         protected_refs: container.protected_tags)
     end

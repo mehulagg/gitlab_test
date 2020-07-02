@@ -7,6 +7,35 @@ FactoryBot.modify do
         raise 'Failed to create wiki repository!' unless group.create_wiki
       end
     end
+
+    trait :wiki_repo_with_files do
+      wiki_repo
+
+      transient do
+        wiki_author { create(:user) }
+      end
+
+      after(:create) do |group, evaluator|
+        group.wiki.repository.create_file(
+          evaluator.wiki_author,
+          "home.md",
+          'The homepage',
+          message: 'created home',
+          branch_name: 'master')
+        group.wiki.repository.create_file(
+          evaluator.wiki_author,
+          "file_two.md",
+          'template_test',
+          message: 'test 1',
+          branch_name: 'master')
+        group.wiki.repository.create_file(
+          evaluator.wiki_author,
+          "feature_proposal.md",
+          'feature_proposal',
+          message: 'test 2',
+          branch_name: 'master')
+      end
+    end
   end
 end
 

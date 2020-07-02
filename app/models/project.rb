@@ -6,6 +6,7 @@ class Project < ApplicationRecord
   extend ::Gitlab::Utils::Override
   include Gitlab::ConfigHelper
   include Gitlab::VisibilityLevel
+  include AbilityName
   include AccessRequestable
   include Avatarable
   include CacheMarkdownField
@@ -1338,10 +1339,6 @@ class Project < ApplicationRecord
     group || namespace.try(:owner)
   end
 
-  def to_ability_name
-    model_name.singular
-  end
-
   # rubocop: disable CodeReuse/ServiceClass
   def execute_hooks(data, hooks_scope = :push_hooks)
     run_after_commit_or_now do
@@ -1515,6 +1512,13 @@ class Project < ApplicationRecord
     else
       project_members.find_by(user_id: user)
     end
+  end
+
+  def max_member_access_for_user(user)
+    return GroupMember::NO_ACCESS unless user
+    return GroupMember::OWNER if user.admin?
+
+    team.max_member_access(user.id) || GroupMember::NO_ACCESS
   end
 
   def bots

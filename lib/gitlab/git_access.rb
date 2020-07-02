@@ -426,7 +426,7 @@ module Gitlab
                        elsif user && request_from_ci_build?
                          BuildAccess.new(user, container: container)
                        else
-                         UserAccess.new(user, container: container)
+                         UserAccess.new(user, container: container, push_ability: push_ability)
                        end
     end
 

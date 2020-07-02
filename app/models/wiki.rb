@@ -5,6 +5,8 @@ class Wiki
   include HasRepository
   include Gitlab::Utils::StrongMemoize
 
+  delegate :max_member_access_for_user, :internal?, to: :container
+
   MARKUPS = { # rubocop:disable Style/MultilineIfModifier
     'Markdown' => :markdown,
     'RDoc'     => :rdoc,
@@ -206,6 +208,24 @@ class Wiki
 
   def wiki_base_path
     web_url(only_path: true).sub(%r{/#{Wiki::HOMEPAGE}\z}, '')
+  end
+
+  def to_global_id
+    ::URI::GID.build(app: GlobalID.app, model_name: self.class.name, model_id: container.id, params: nil).to_s
+  end
+
+  def default_branch_protected?
+    branch_protection = Gitlab::Access::BranchProtection.new(container.namespace.default_branch_protection)
+
+    branch_protection.fully_protected? || branch_protection.developer_can_merge?
+  end
+
+  def protected_branches
+    []
+  end
+
+  def protected_tags
+    []
   end
 
   private

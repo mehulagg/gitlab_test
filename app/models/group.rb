@@ -5,6 +5,7 @@ require 'carrierwave/orm/activerecord'
 class Group < Namespace
   include Gitlab::ConfigHelper
   include AfterCommitQueue
+  include AbilityName
   include AccessRequestable
   include Avatarable
   include Referable
@@ -502,6 +503,10 @@ class Group < Namespace
   def preload_shared_group_links
     preloader = ActiveRecord::Associations::Preloader.new
     preloader.preload(self, shared_with_group_links: [shared_with_group: :route])
+  end
+
+  def namespace
+    self
   end
 
   private

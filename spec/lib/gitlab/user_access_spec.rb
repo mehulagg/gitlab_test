@@ -5,12 +5,13 @@ require 'spec_helper'
 RSpec.describe Gitlab::UserAccess do
   include ProjectForksHelper
 
-  let(:access) { described_class.new(user, container: project) }
+  let(:access) { described_class.new(user, container: container) }
   let(:project) { create(:project, :repository) }
+  let(:container) { project }
   let(:user) { create(:user) }
 
   describe '#can_push_to_branch?' do
-    describe 'push to none protected branch' do
+    describe 'push to non-protected branch' do
       it 'returns true if user is a maintainer' do
         project.add_maintainer(user)
 

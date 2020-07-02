@@ -13,7 +13,7 @@ class ProtectedBranch < ApplicationRecord
     # Maintainers, owners and admins are allowed to create the default branch
 
     if project.empty_repo? && project.default_branch_protected?
-      return true if user.admin? || project.team.max_member_access(user.id) > Gitlab::Access::DEVELOPER
+      return true if user.admin? || project.max_member_access_for_user(user) > Gitlab::Access::DEVELOPER
     end
 
     super
