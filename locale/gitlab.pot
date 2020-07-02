@@ -1391,6 +1391,9 @@ msgstr ""
 msgid "Add approval rule"
 msgstr ""
 
+msgid "Add approvers"
+msgstr ""
+
 msgid "Add bold text"
 msgstr ""
 
@@ -2279,6 +2282,9 @@ msgid "An error occurred when updating the issue weight"
 msgstr ""
 
 msgid "An error occurred while acknowledging the notification. Refresh the page and try again."
+msgstr ""
+
+msgid "An error occurred while adding approvers"
 msgstr ""
 
 msgid "An error occurred while adding formatted title for epic"
@@ -12428,6 +12434,9 @@ msgstr ""
 msgid "Invalid query"
 msgstr ""
 
+msgid "Invalid repository bundle for snippet with id %{snippet_id}"
+msgstr ""
+
 msgid "Invalid repository path"
 msgstr ""
 
@@ -12716,10 +12725,16 @@ msgstr ""
 msgid "January"
 msgstr ""
 
+msgid "Jira Issues"
+msgstr ""
+
 msgid "Jira import is already running."
 msgstr ""
 
 msgid "Jira integration not configured."
+msgstr ""
+
+msgid "Jira project key is not configured"
 msgstr ""
 
 msgid "Jira project: %{importProject}"
@@ -13261,6 +13276,12 @@ msgstr ""
 msgid "License-Check"
 msgstr ""
 
+msgid "LicenseCompliance|%{docLinkStart}License Approvals%{docLinkEnd} are active"
+msgstr ""
+
+msgid "LicenseCompliance|%{docLinkStart}License Approvals%{docLinkEnd} are inactive"
+msgstr ""
+
 msgid "LicenseCompliance|Add a license"
 msgstr ""
 
@@ -13282,7 +13303,13 @@ msgstr ""
 msgid "LicenseCompliance|Deny"
 msgstr ""
 
+msgid "LicenseCompliance|Learn more about %{linkStart}License Approvals%{linkEnd}"
+msgstr ""
+
 msgid "LicenseCompliance|License"
+msgstr ""
+
+msgid "LicenseCompliance|License Approvals"
 msgstr ""
 
 msgid "LicenseCompliance|License Compliance detected %d license and policy violation for the source branch only; approval required"
@@ -19201,13 +19228,31 @@ msgstr ""
 msgid "Repository cleanup has started. You will receive an email once the cleanup operation is complete."
 msgstr ""
 
+msgid "Repository files count over the limit"
+msgstr ""
+
+msgid "Repository has an invalid default branch name."
+msgstr ""
+
+msgid "Repository has more than one branch."
+msgstr ""
+
 msgid "Repository has no locks."
+msgstr ""
+
+msgid "Repository has tags."
 msgstr ""
 
 msgid "Repository maintenance"
 msgstr ""
 
 msgid "Repository mirroring"
+msgstr ""
+
+msgid "Repository must contain at least 1 file."
+msgstr ""
+
+msgid "Repository size is above the limit."
 msgstr ""
 
 msgid "Repository static objects"
@@ -19505,6 +19550,9 @@ msgid "Reviewing (merge request !%{mergeRequestId})"
 msgstr ""
 
 msgid "Revoke"
+msgstr ""
+
+msgid "Revoked"
 msgstr ""
 
 msgid "Revoked impersonation token %{token_name}!"
@@ -24573,6 +24621,9 @@ msgstr ""
 msgid "Update approval rule"
 msgstr ""
 
+msgid "Update approvers"
+msgstr ""
+
 msgid "Update failed"
 msgstr ""
 
@@ -26657,6 +26708,9 @@ msgstr ""
 msgid "cannot block others"
 msgstr ""
 
+msgid "cannot contain HTML/XML tags, including any word between angle brackets (<,>)."
+msgstr ""
+
 msgid "cannot include leading slash or directory traversal."
 msgstr ""
 
@@ -27184,6 +27238,9 @@ msgid "limit of %{project_limit} reached"
 msgstr ""
 
 msgid "load it anyway"
+msgstr ""
+
+msgid "loading"
 msgstr ""
 
 msgid "locked by %{path_lock_user_name} %{created_at}"

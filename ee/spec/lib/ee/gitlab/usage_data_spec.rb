@@ -265,7 +265,7 @@ RSpec.describe Gitlab::UsageData do
     end
   end
 
-  describe '#operations_dashboard_usage' do
+  describe '.operations_dashboard_usage' do
     subject { described_class.operations_dashboard_usage }
 
     before_all do
@@ -360,6 +360,7 @@ RSpec.describe Gitlab::UsageData do
             keys: 1,
             merge_requests: 6,
             projects_enforcing_code_owner_approval: 0,
+            merge_requests_users: 0,
             merge_requests_with_optional_codeowners: 2,
             merge_requests_with_required_codeowners: 4,
             projects_imported_from_github: 1,

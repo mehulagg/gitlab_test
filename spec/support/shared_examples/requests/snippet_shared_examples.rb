@@ -74,13 +74,6 @@ RSpec.shared_examples 'update with repository actions' do
   end
 end
 
-RSpec.shared_examples 'snippet response without repository URLs' do
-  it 'skip inclusion of repository URLs' do
-    expect(json_response).not_to have_key('ssh_url_to_repo')
-    expect(json_response).not_to have_key('http_url_to_repo')
-  end
-end
-
 RSpec.shared_examples 'snippet blob content' do
   it 'returns content from repository' do
     subject
@@ -96,5 +89,17 @@ RSpec.shared_examples 'snippet blob content' do
 
       expect(response.body).to eq(snippet.content)
     end
+  end
+end
+
+RSpec.shared_examples 'snippet_multiple_files feature disabled' do
+  before do
+    stub_feature_flags(snippet_multiple_files: false)
+
+    subject
+  end
+
+  it 'does not return files attributes' do
+    expect(json_response).not_to have_key('files')
   end
 end

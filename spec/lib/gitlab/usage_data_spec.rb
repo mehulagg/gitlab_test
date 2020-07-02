@@ -77,6 +77,22 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
+    context 'for create' do
+      it 'include usage_activity_by_stage data' do
+        expect(described_class.uncached_data[:usage_activity_by_stage][:create])
+          .not_to include(
+            :merge_requests_users
+          )
+      end
+
+      it 'includes monthly usage_activity_by_stage data' do
+        expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:create])
+          .to include(
+            :merge_requests_users
+          )
+      end
+    end
+
     it 'ensures recorded_at is set before any other usage data calculation' do
       %i(alt_usage_data redis_usage_data distinct_count count).each do |method|
         expect(described_class).not_to receive(method)
@@ -87,7 +103,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '#data' do
+  describe '.data' do
     let!(:ud) { build(:usage_data) }
 
     before do
@@ -267,7 +283,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '#usage_data_counters' do
+  describe '.usage_data_counters' do
     subject { described_class.usage_data_counters }
 
     it { is_expected.to all(respond_to :totals) }
@@ -294,7 +310,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '#license_usage_data' do
+  describe '.license_usage_data' do
     subject { described_class.license_usage_data }
 
     it 'gathers license data' do
@@ -307,7 +323,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
   end
 
   context 'when not relying on database records' do
-    describe '#features_usage_data_ce' do
+    describe '.features_usage_data_ce' do
       subject { described_class.features_usage_data_ce }
 
       it 'gathers feature usage data', :aggregate_failures do
@@ -340,7 +356,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#components_usage_data' do
+    describe '.components_usage_data' do
       subject { described_class.components_usage_data }
 
       it 'gathers basic components usage data' do
@@ -364,7 +380,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#app_server_type' do
+    describe '.app_server_type' do
       subject { described_class.app_server_type }
 
       it 'successfully identifies runtime and returns the identifier' do
@@ -386,7 +402,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#object_store_config' do
+    describe '.object_store_config' do
       let(:component) { 'lfs' }
 
       subject { described_class.object_store_config(component) }
@@ -427,7 +443,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#object_store_usage_data' do
+    describe '.object_store_usage_data' do
       subject { described_class.object_store_usage_data }
 
       it 'fetches object store config of five components' do
@@ -446,7 +462,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#cycle_analytics_usage_data' do
+    describe '.cycle_analytics_usage_data' do
       subject { described_class.cycle_analytics_usage_data }
 
       it 'works when queries time out in new' do
@@ -464,7 +480,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#ingress_modsecurity_usage' do
+    describe '.ingress_modsecurity_usage' do
       subject { described_class.ingress_modsecurity_usage }
 
       let(:environment) { create(:environment) }
@@ -596,7 +612,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       end
     end
 
-    describe '#grafana_embed_usage_data' do
+    describe '.grafana_embed_usage_data' do
       subject { described_class.grafana_embed_usage_data }
 
       let(:project) { create(:project) }
@@ -662,7 +678,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '#merge_requests_usage' do
+  describe '.merge_requests_users' do
     let(:time_period) { { created_at: 2.days.ago..Time.current } }
     let(:merge_request) { create(:merge_request) }
     let(:other_user) { create(:user) }
@@ -679,9 +695,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
 
     it 'returns the distinct count of users using merge requests (via events table) within the specified time period' do
-      expect(described_class.merge_requests_usage(time_period)).to eq(
-        merge_requests_users: 2
-      )
+      expect(described_class.merge_requests_users(time_period)).to eq(2)
     end
   end
 

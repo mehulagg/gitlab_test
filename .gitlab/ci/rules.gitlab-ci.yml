@@ -591,6 +591,8 @@
       allow_failure: true
 
 .reports:rules:dast:
+  tags:
+    - prm
   rules:
     - if: '$DAST_DISABLED || $GITLAB_FEATURES !~ /\bdast\b/'
       when: never
@@ -599,7 +601,7 @@
       allow_failure: true
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-qa-patterns
-      when: manual
+      when: never
       allow_failure: true
 
 .reports:schedule-dast:
