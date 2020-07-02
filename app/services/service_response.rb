@@ -35,4 +35,20 @@ class ServiceResponse
   private
 
   attr_writer :status, :message, :http_status, :payload
+
+  module Hashlike
+    def [](key)
+      case key
+      when :success then success?
+      when :error then error?
+      when :message then message
+      when :http_status then http_status
+      when :status then success? ? :success : :error
+      else
+        payload[key]
+      end
+    end
+  end
+
+  include Hashlike
 end

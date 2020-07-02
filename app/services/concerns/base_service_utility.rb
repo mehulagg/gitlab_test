@@ -47,26 +47,27 @@ module BaseServiceUtility
 
   private
 
-  # Return a Hash with an `error` status
+  # Return a Hashlike `ServiceResponse` with an `error` status
   #
   # message     - Error message to include in the Hash
   # http_status - Optional HTTP status code override (default: nil)
   # pass_back   - Additional attributes to be included in the resulting Hash
   def error(message, http_status = nil, pass_back: {})
-    result = {
+    ServiceResponse.error(
       message: message,
-      status: :error
-    }.reverse_merge(pass_back)
-
-    result[:http_status] = http_status if http_status
-    result
+      http_status: http_status,
+      payload: pass_back
+    )
   end
 
-  # Return a Hash with a `success` status
+  # Return a Hashlike `ServiceResponse` with a `success` status
   #
   # pass_back - Additional attributes to be included in the resulting Hash
   def success(pass_back = {})
-    pass_back[:status] = :success
-    pass_back
+    ServiceResponse.success(
+      message: pass_back.delete(:message),
+      http_status: pass_back.delete(:http_status) || :ok,
+      payload: pass_back
+    )
   end
 end
