@@ -81,15 +81,10 @@ export default {
       required: false,
       default: '',
     },
-    isLinkedIssueBlock: {
+    showIssueTypeSelector: {
       type: Boolean,
       required: false,
-      default: true,
-    },
-    headerText: {
-      type: String,
-      required: false,
-      default: undefined,
+      default: false,
     },
     serviceClass: {
       type: Function,
@@ -245,8 +240,7 @@ export default {
     :auto-complete-sources="autoCompleteSources"
     :issuable-type="issuableType"
     :path-id-separator="pathIdSeparator"
-    :is-linked-issue-block="isLinkedIssueBlock"
-    :header-text="headerText"
+    :show-issue-type-selector="showIssueTypeSelector"
     @saveReorder="saveIssueOrder"
     @toggleAddRelatedIssuesForm="onToggleAddRelatedIssuesForm"
     @addIssuableFormInput="onInput"

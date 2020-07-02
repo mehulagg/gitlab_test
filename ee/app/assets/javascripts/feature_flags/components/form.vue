@@ -324,7 +324,7 @@ export default {
         v-if="showRelatedIssues"
         :endpoint="featureFlagIssuesEndpoint"
         :can-admin="true"
-        :is-linked-issue-block="false"
+        :show-issue-type-selector="false"
       />
 
       <template v-if="supportsStrategies">

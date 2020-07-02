@@ -24,16 +24,24 @@ describe('RelatedIssuesBlock', () => {
         propsData: {
           pathIdSeparator: PathIdSeparator.Issue,
           issuableType: 'issue',
+          showIssueTypeSelector: false,
         },
       });
     });
 
-    it('displays the header text in the header', async () => {
-      const headerText = 'custom header text';
-      wrapper.setProps({ headerText });
-      await wrapper.vm.$nextTick();
+    describe('header text', () => {
+      const headerText = () => wrapper.find('.card-title').text();
 
-      expect(wrapper.find('h3').text()).toContain(headerText);
+      it('displays "Related issues" by default', () => {
+        expect(headerText()).toContain('Related issues');
+      });
+
+      it('displays "Linked issues" if showIssueTypeSelector is true', async () => {
+        wrapper.setProps({ showIssueTypeSelector: true });
+        await wrapper.vm.$nextTick();
+
+        expect(headerText()).toContain('Linked issues');
+      });
     });
 
     it('unable to add new related issues', () => {
@@ -52,6 +60,7 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           isFetching: true,
           issuableType: 'issue',
+          showIssueTypeSelector: false,
         },
       });
     });
@@ -68,6 +77,7 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           canAdmin: true,
           issuableType: 'issue',
+          showIssueTypeSelector: false,
         },
       });
     });
@@ -84,6 +94,7 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           isFormVisible: true,
           issuableType: 'issue',
+          showIssueTypeSelector: false,
         },
       });
     });
@@ -93,41 +104,57 @@ describe('RelatedIssuesBlock', () => {
     });
   });
 
-  describe('with relatedIssues', () => {
-    let categorizedHeadings;
-
-    beforeEach(() => {
+  describe('showIssueTypeSelector prop', () => {
+    const issueList = () => wrapper.findAll('.js-related-issues-token-list-item');
+    const categorizedHeadings = () => wrapper.findAll('h4');
+    const headingTextAt = index =>
+      categorizedHeadings()
+        .at(index)
+        .text();
+    const mountComponent = showIssueTypeSelector => {
       wrapper = mount(RelatedIssuesBlock, {
         propsData: {
           pathIdSeparator: PathIdSeparator.Issue,
           relatedIssues: [issuable1, issuable2, issuable3],
           issuableType: 'issue',
+          showIssueTypeSelector,
         },
       });
+    };
 
-      categorizedHeadings = wrapper.findAll('h4');
+    describe('when showIssueTypeSelector=true', () => {
+      beforeEach(() => mountComponent(true));
+
+      it('should render issue tokens items', () => {
+        expect(issueList()).toHaveLength(3);
+      });
+
+      it('shows "Blocks" heading', () => {
+        const blocks = linkedIssueTypesTextMap[linkedIssueTypesMap.BLOCKS];
+
+        expect(headingTextAt(0)).toBe(blocks);
+      });
+
+      it('shows "Is blocked by" heading', () => {
+        const isBlockedBy = linkedIssueTypesTextMap[linkedIssueTypesMap.IS_BLOCKED_BY];
+
+        expect(headingTextAt(1)).toBe(isBlockedBy);
+      });
+
+      it('shows "Relates to" heading', () => {
+        const relatesTo = linkedIssueTypesTextMap[linkedIssueTypesMap.RELATES_TO];
+
+        expect(headingTextAt(2)).toBe(relatesTo);
+      });
     });
 
-    it('should render issue tokens items', () => {
-      expect(wrapper.findAll('.js-related-issues-token-list-item')).toHaveLength(3);
-    });
+    describe('when showIssueTypeSelector=false', () => {
+      it('should render issues as a flat list with no header', () => {
+        mountComponent(false);
 
-    it('shows "Blocks" heading', () => {
-      const blocks = linkedIssueTypesTextMap[linkedIssueTypesMap.BLOCKS];
-
-      expect(categorizedHeadings.at(0).text()).toBe(blocks);
-    });
-
-    it('shows "Is blocked by" heading', () => {
-      const isBlockedBy = linkedIssueTypesTextMap[linkedIssueTypesMap.IS_BLOCKED_BY];
-
-      expect(categorizedHeadings.at(1).text()).toBe(isBlockedBy);
-    });
-
-    it('shows "Relates to" heading', () => {
-      const relatesTo = linkedIssueTypesTextMap[linkedIssueTypesMap.RELATES_TO];
-
-      expect(categorizedHeadings.at(2).text()).toBe(relatesTo);
+        expect(issueList()).toHaveLength(3);
+        expect(categorizedHeadings()).toHaveLength(0);
+      });
     });
   });
 
@@ -147,6 +174,7 @@ describe('RelatedIssuesBlock', () => {
           propsData: {
             pathIdSeparator: PathIdSeparator.Issue,
             issuableType,
+            showIssueTypeSelector: false,
           },
         });
 

@@ -1,6 +1,5 @@
 <script>
 import { GlLink } from '@gitlab/ui';
-import { __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import AddIssuableForm from './add_issuable_form.vue';
 import RelatedIssuesList from './related_issues_list.vue';
@@ -78,15 +77,9 @@ export default {
       type: String,
       required: true,
     },
-    isLinkedIssueBlock: {
+    showIssueTypeSelector: {
       type: Boolean,
-      required: false,
-      default: true,
-    },
-    headerText: {
-      type: String,
-      required: false,
-      default: __('Linked issues'),
+      required: true,
     },
   },
   computed: {
@@ -94,12 +87,16 @@ export default {
       return this.relatedIssues.length > 0;
     },
     categorisedIssues() {
-      return Object.values(linkedIssueTypesMap)
-        .map(linkType => ({
-          linkType,
-          issues: this.relatedIssues.filter(issue => issue.linkType === linkType),
-        }))
-        .filter(obj => obj.issues.length > 0);
+      if (this.showIssueTypeSelector) {
+        return Object.values(linkedIssueTypesMap)
+          .map(linkType => ({
+            linkType,
+            issues: this.relatedIssues.filter(issue => issue.linkType === linkType),
+          }))
+          .filter(obj => obj.issues.length > 0);
+      }
+
+      return [{ issues: this.relatedIssues }];
     },
     shouldShowTokenBody() {
       return this.hasRelatedIssues || this.isFetching;
@@ -135,7 +132,7 @@ export default {
             href="#related-issues"
             aria-hidden="true"
           />
-          {{ headerText }}
+          {{ showIssueTypeSelector ? __('Linked issues') : __('Related issues') }}
           <a v-if="hasHelpPath" :href="helpPath">
             <i
               class="related-issues-header-help-icon fa fa-question-circle"
@@ -178,7 +175,7 @@ export default {
           class="js-add-related-issues-form-area card-body bordered-box bg-white"
         >
           <add-issuable-form
-            :is-linked-issue-block="isLinkedIssueBlock"
+            :show-issue-type-selector="showIssueTypeSelector"
             :is-submitting="isSubmitting"
             :issuable-type="issuableType"
             :input-value="inputValue"
@@ -193,34 +190,19 @@ export default {
           />
         </div>
         <template v-if="shouldShowTokenBody">
-          <template v-if="isLinkedIssueBlock">
-            <related-issues-list
-              v-for="category in categorisedIssues"
-              :key="category.linkType"
-              :heading="$options.linkedIssueTypesTextMap[category.linkType]"
-              :can-admin="canAdmin"
-              :can-reorder="canReorder"
-              :is-fetching="isFetching"
-              :issuable-type="issuableType"
-              :path-id-separator="pathIdSeparator"
-              :related-issues="category.issues"
-              @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
-              @saveReorder="$emit('saveReorder', $event)"
-            />
-          </template>
-          <!-- Show a flat list with no categories-->
-          <template v-else>
-            <related-issues-list
-              :can-admin="canAdmin"
-              :can-reorder="canReorder"
-              :is-fetching="isFetching"
-              :issuable-type="issuableType"
-              :path-id-separator="pathIdSeparator"
-              :related-issues="relatedIssues"
-              @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
-              @saveReorder="$emit('saveReorder', $event)"
-            />
-          </template>
+          <related-issues-list
+            v-for="category in categorisedIssues"
+            :key="category.linkType"
+            :heading="$options.linkedIssueTypesTextMap[category.linkType]"
+            :can-admin="canAdmin"
+            :can-reorder="canReorder"
+            :is-fetching="isFetching"
+            :issuable-type="issuableType"
+            :path-id-separator="pathIdSeparator"
+            :related-issues="category.issues"
+            @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
+            @saveReorder="$emit('saveReorder', $event)"
+          />
         </template>
       </div>
     </div>
