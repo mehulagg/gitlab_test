@@ -293,16 +293,14 @@ module Gitlab
     end
 
     def check_single_change_access(change, skip_lfs_integrity_check: false)
-      change_access = Checks::ChangeAccess.new(
+      Checks::ChangeAccess.new(
         change,
         user_access: user_access,
         project: project,
         skip_lfs_integrity_check: skip_lfs_integrity_check,
         protocol: protocol,
         logger: logger
-      )
-
-      change_access.exec
+      ).validate!
     rescue Checks::TimedLogger::TimeoutError
       raise TimeoutError, logger.full_message
     end
