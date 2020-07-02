@@ -48,6 +48,16 @@ class ServiceResponse
         payload[key]
       end
     end
+
+    def []=(key, value)
+      payload[key] = value
+    end
+
+    def merge(hash)
+      payload.update(hash)
+
+      self
+    end
   end
 
   include Hashlike
