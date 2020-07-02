@@ -33,22 +33,19 @@ export default {
     {
       key: 'title',
       label: __('Title'),
-      thClass: 'w-30p',
-      tdClass: 'table-col d-flex align-items-center d-sm-table-cell',
+      class: 'gl-bg-transparent! gl-border-b-1',
     },
     {
       key: 'status',
       label: __('Status'),
-      thClass: 'w-30p',
-      tdClass: 'table-col d-flex align-items-center d-sm-table-cell',
-      class: 'text-truncate',
+      class: 'gl-bg-transparent! text-truncate',
+      thClass: 'gl-w-eighth',
     },
     {
       key: 'assignees',
       label: __('Assignees'),
-      class: 'text-right',
-      thClass: 'w-30p',
-      tdClass: 'table-col d-flex align-items-center d-sm-table-cell',
+      class: 'gl-bg-transparent! text-right',
+      thClass: 'gl-w-eighth',
     },
   ],
   components: {
@@ -179,7 +176,14 @@ export default {
       </template>
 
       <gl-loading-icon class="mt-2" size="md" v-if="$apollo.queries.issues.loading" />
-      <gl-table v-else :items="issues.list" :fields="$options.fields" :show-empty="true">
+      <gl-table
+        v-else
+        :items="issues.list"
+        :fields="$options.fields"
+        :show-empty="true"
+        fixed
+        stacked="sm"
+      >
         <template #cell(title)="{ item: { iid, title, webUrl } }">
           <div class="text-truncate">
             <gl-link class="gl-text-gray-900 gl-font-weight-bold" :href="webUrl">{{
