@@ -173,7 +173,7 @@ module Metrics
       end
 
       def sequence
-        SEQUENCES[dashboard_template] || []
+        dashboard_service::BUILD_DASHBORD_SEQUENCE
       end
     end
   end

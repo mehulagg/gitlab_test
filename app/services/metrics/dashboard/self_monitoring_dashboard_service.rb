@@ -8,13 +8,18 @@ module Metrics
       DASHBOARD_PATH = 'config/prometheus/self_monitoring_default.yml'
       DASHBOARD_NAME = N_('Default dashboard')
 
-      SEQUENCE = [
-        STAGES::CustomMetricsInserter,
+      BUILD_DASHBORD_SEQUENCE = [
+        STAGES::CustomMetricsInserter
+      ].freeze
+
+      FRONTEND_HELPERS_SEQUENCE = [
         STAGES::MetricEndpointInserter,
         STAGES::VariableEndpointInserter,
         STAGES::PanelIdsInserter,
         STAGES::Sorter
       ].freeze
+
+      SEQUENCE = BUILD_DASHBORD_SEQUENCE + FRONTEND_HELPERS_SEQUENCE
 
       class << self
         def valid_params?(params)

@@ -8,9 +8,12 @@ module Metrics
       DASHBOARD_PATH = 'config/prometheus/common_metrics.yml'
       DASHBOARD_NAME = N_('Default dashboard')
 
-      SEQUENCE = [
+      BUILD_DASHBORD_SEQUENCE = [
         STAGES::CommonMetricsInserter,
-        STAGES::CustomMetricsInserter,
+        STAGES::CustomMetricsInserter
+      ].freeze
+
+      FRONTEND_HELPERS_SEQUENCE = [
         STAGES::CustomMetricsDetailsInserter,
         STAGES::MetricEndpointInserter,
         STAGES::VariableEndpointInserter,
@@ -18,6 +21,8 @@ module Metrics
         STAGES::Sorter,
         STAGES::AlertsInserter
       ].freeze
+
+      SEQUENCE = BUILD_DASHBORD_SEQUENCE + FRONTEND_HELPERS_SEQUENCE
 
       class << self
         def all_dashboard_paths(_project)

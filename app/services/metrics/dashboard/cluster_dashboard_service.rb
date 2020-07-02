@@ -8,11 +8,15 @@ module Metrics
       DASHBOARD_PATH = 'config/prometheus/cluster_metrics.yml'
       DASHBOARD_NAME = 'Cluster'
 
-      SEQUENCE = [
+      BUILD_DASHBORD_SEQUENCE = [].freeze
+
+      FRONTEND_HELPERS_SEQUENCE = [
         STAGES::ClusterEndpointInserter,
         STAGES::PanelIdsInserter,
         STAGES::Sorter
       ].freeze
+
+      SEQUENCE = BUILD_DASHBORD_SEQUENCE + FRONTEND_HELPERS_SEQUENCE
 
       class << self
         def valid_params?(params)
