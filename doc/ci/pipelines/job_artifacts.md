@@ -146,7 +146,7 @@ plan report will be uploaded to GitLab as an artifact and will be automatically 
 in merge requests. For more information, see
 [Output `terraform plan` information into a merge request](../../user/infrastructure/index.md#output-terraform-plan-information-into-a-merge-request).
 
-#### `artifacts:reports:codequality` **(STARTER)**
+#### `artifacts:reports:codequality`
 
 > - Introduced in GitLab 11.5.
 > - Requires GitLab Runner 11.5 and above.
