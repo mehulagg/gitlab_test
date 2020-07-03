@@ -1,5 +1,5 @@
 ---
-title: 'Move feature to core: Multiple Kubernetes clusters'
+title: 'Multiple Kubernetes clusters now available in GitLab core'
 merge_request: 35094
 author:
 type: changed

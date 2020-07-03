@@ -66,7 +66,7 @@ to:
 
 ### Multiple Kubernetes clusters
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35094) to GitLab Core in 13.2.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35094) to GitLab core in 13.2.
 
 You can associate more than one Kubernetes cluster to your
 project. That way you can have different clusters for different environments,

@@ -36,9 +36,8 @@ RSpec.describe 'Clusters', :js do
         visit project_clusters_path(project)
       end
 
-      it 'user sees a add cluster button ' do
-        expect(page).not_to have_selector('.js-add-cluster.readonly')
-        expect(page).to have_selector('.js-add-cluster')
+      it 'user sees an add cluster button' do
+        expect(page).to have_selector('.js-add-cluster:not(.readonly)')
       end
 
       context 'when user filled form with environment scope' do
@@ -65,7 +64,7 @@ RSpec.describe 'Clusters', :js do
           end
         end
 
-        it 'user sees a cluster details page' do
+        it 'updates the environment scope' do
           expect(page.find_field('cluster[environment_scope]').value).to eq('production/*')
         end
       end
@@ -88,7 +87,7 @@ RSpec.describe 'Clusters', :js do
       end
     end
 
-    context 'when user adds an Google Kubernetes Engine cluster' do
+    context 'when user adds a Google Kubernetes Engine cluster' do
       before do
         allow_any_instance_of(Projects::ClustersController)
           .to receive(:token_in_session).and_return('token')
@@ -113,8 +112,7 @@ RSpec.describe 'Clusters', :js do
       end
 
       it 'user sees a add cluster button ' do
-        expect(page).not_to have_selector('.js-add-cluster.readonly')
-        expect(page).to have_selector('.js-add-cluster')
+        expect(page).to have_selector('.js-add-cluster:not(.readonly)')
       end
 
       context 'when user filled form with environment scope' do
@@ -157,7 +155,7 @@ RSpec.describe 'Clusters', :js do
           end
         end
 
-        it 'user sees a cluster details page' do
+        it 'updates the environment scope' do
           expect(page.find_field('cluster[environment_scope]').value).to eq('production/*')
         end
       end
