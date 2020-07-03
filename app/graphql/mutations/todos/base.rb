@@ -16,7 +16,7 @@ module Mutations
       end
 
       def to_global_id(id)
-        ::URI::GID.build(app: GlobalID.app, model_name: Todo.name, model_id: id, params: nil).to_s
+        ::GlobalID.new(::Gitlab::GlobalId.build(model_name: Todo.name, id: id))
       end
     end
   end
