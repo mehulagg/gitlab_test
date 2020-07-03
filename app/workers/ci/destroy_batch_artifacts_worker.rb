@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class Ci::DestroyBatchArtifactsService
+  class DestroyBatchArtifactsWorker
     include ApplicationWorker
 
     feature_category :continuous_integration

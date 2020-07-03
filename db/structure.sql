@@ -9940,7 +9940,7 @@ CREATE TABLE public.ci_job_artifacts (
     file_format smallint,
     file_location smallint,
     locked boolean,
-    enqueued_for_removal boolean,
+    pending_delete boolean,
     CONSTRAINT check_27f0f6dbab CHECK ((file_store IS NOT NULL))
 );
 
