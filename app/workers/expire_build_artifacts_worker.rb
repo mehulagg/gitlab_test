@@ -10,6 +10,10 @@ class ExpireBuildArtifactsWorker # rubocop:disable Scalability/IdempotentWorker
   feature_category :continuous_integration
 
   def perform
-    Ci::DestroyExpiredJobArtifactsService.new.execute
+    if Gitlab::Ci::Features.batch_artifacts_removal?
+      Ci::Artifacts::BatchEnqueueRemovalService.new.execute
+    else
+      Ci::DestroyExpiredJobArtifactsService.new.execute
+    end
   end
 end

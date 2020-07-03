@@ -9940,6 +9940,7 @@ CREATE TABLE public.ci_job_artifacts (
     file_format smallint,
     file_location smallint,
     locked boolean,
+    enqueued_for_removal boolean,
     CONSTRAINT check_27f0f6dbab CHECK ((file_store IS NOT NULL))
 );
 
@@ -23827,6 +23828,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200626060151
 20200626130220
 20200628210938
+20200629091718
 20200629192638
 20200630091656
 20200630110826
