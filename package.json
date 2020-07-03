@@ -41,7 +41,7 @@
     "@babel/preset-env": "^7.8.4",
     "@gitlab/at.js": "1.5.5",
     "@gitlab/svgs": "1.137.0",
-    "@gitlab/ui": "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/619116897/artifacts/raw/gitlab-ui.824.tgz",
+    "@gitlab/ui": "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/619254871/artifacts/raw/gitlab-ui.824.tgz",
     "@gitlab/visual-review-tools": "1.6.1",
     "@rails/actioncable": "^6.0.3-1",
     "@sentry/browser": "^5.10.2",
