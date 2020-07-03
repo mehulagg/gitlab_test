@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+# QA file change to trigger package-and-qa
+
 module QA
   RSpec.describe 'Manage', :smoke do
     describe 'basic user login' do
-      it 'user logs in using basic credentials and logs out' do
+      it 'user logs in using basic credentials and logs out', status_issue: 'https://gitlab.com/mlapierre-test/testcases-test/-/issues/388' do
         Flow::Login.sign_in
 
         Page::Main::Menu.perform do |menu|

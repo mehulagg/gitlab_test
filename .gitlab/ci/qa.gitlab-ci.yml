@@ -64,3 +64,6 @@ package-and-qa:
       artifacts: false
     - job: build-assets-image
       artifacts: false
+  variables:
+    QA_BRANCH: "ml-find-testcases-by-status-issue-tag-test"
+

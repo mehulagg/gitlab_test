@@ -16,17 +16,8 @@ module QA
         Flow::Login.sign_in
       end
 
-      it 'creates a basic merge request', :smoke do
-        Resource::MergeRequest.fabricate_via_browser_ui! do |merge_request|
-          merge_request.project = project
-          merge_request.title = merge_request_title
-          merge_request.description = merge_request_description
-        end
-
-        Page::MergeRequest::Show.perform do |merge_request|
-          expect(merge_request).to have_title(merge_request_title)
-          expect(merge_request).to have_description(merge_request_description)
-        end
+      it 'creates a basic merge request', :smoke, status_issue: 'https://gitlab.com/mlapierre-test/testcases-test/-/issues/244' do
+        raise "Example failed test"
       end
 
       it 'creates a merge request with a milestone and label' do
