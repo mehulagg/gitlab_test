@@ -180,6 +180,8 @@ dependency_scanning:
 #       dast: gl-dast-report.json
 #     expire_in: 1 week  # GitLab-specific
 dast:
+ tags:
+    - prm
  extends:
    - .default-retry
    - .reports:rules:dast
