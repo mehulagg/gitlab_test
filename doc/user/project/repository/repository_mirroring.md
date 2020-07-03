@@ -110,12 +110,15 @@ update.
 NOTE: **Note:**
 After the mirror is created, this option can currently only be modified via the [API](../../../api/remote_mirrors.md).
 
-## Setting up a push mirror from GitLab to GitHub **(CORE)**
+### Setting up a push mirror from GitLab to GitHub via HTTPS **(CORE)**
 
 To set up a mirror from GitLab to GitHub, you need to follow these steps:
 
 1. Create a [GitHub personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with the `public_repo` box checked.
-1. Fill in the **Git repository URL** field using this format: `https://<your_github_username>@github.com/<your_github_group>/<your_github_project>.git`.
+
+    NOTE: **Note:** For private GitHub repositories check the `repo` box instead.
+
+1. Fill in the **Git repository URL** field using this format: `https://git@github.com/<your_github_group>/<your_github_project>.git`.
 1. Fill in **Password** field with your GitHub personal access token.
 1. Click the **Mirror repository** button.
 
@@ -123,12 +126,26 @@ The mirrored repository will be listed. For example, `https://*****:*****@github
 
 The repository will push soon. To force a push, click the appropriate button.
 
-## Setting up a push mirror to another GitLab instance with 2FA activated
+### Setting up a push mirror from GitLab to GitHub via SSH **(CORE)**
 
-1. On the destination GitLab instance, create a [personal access token](../../profile/personal_access_tokens.md) with `API` scope.
+1. Fill in the **Git repository URL** field using this format: `ssh://git@github.com/<your_github_group>/<your_github_project>.git`
+1. Select **Push** from the **Mirror direction** dropdown.
+1. Click **Detect host keys**
+1. If necessary, check the following boxes:
+   - **Keep divergent refs**
+   - **Only mirror protected branches**
+1. Click **Mirror repository**
+1. Click **Copy SSH public key**
+1. On GitHub, navigate to the **Settings -> Deploy Keys** section of the repository and add the key copied from GitLab.
+
+The repository will push soon. To force a push, click the appropriate button.
+
+### Setting up a push mirror to another GitLab instance with 2FA activated **(CORE ONLY)**
+
+1. On the destination GitLab instance, create a [personal access token](../../profile/personal_access_tokens.md) with `write_repository` scope.
 1. On the source GitLab instance:
    1. Fill in the **Git repository URL** field using this format: `https://oauth2@<destination host>/<your_gitlab_group_or_name>/<your_gitlab_project>.git`.
-   1. Fill in **Password** field with the GitLab personal access token created on the destination GitLab instance.
+   1. Fill in the **Password** field with the GitLab personal access token created on the destination GitLab instance.
    1. Click the **Mirror repository** button.
 
 ## Pulling from a remote repository **(STARTER)**
