@@ -89,6 +89,7 @@
 
 .yaml-patterns: &yaml-patterns
   - "**/*.yml"
+  - "**/*.md"
 
 .docs-patterns: &docs-patterns
   - ".gitlab/route-map.yml"
