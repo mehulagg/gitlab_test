@@ -5,9 +5,6 @@ lint-ci-gitlab:
     - .default-retry
     - .yaml:rules
   image: pipelinecomponents/yamllint:latest
-  #image: sdesbure/yamllint:latest
-  #  name: cytopia/yamllint:latest
-  #  entrypoint: ["/bin/ash", "-c"]
   stage: test
   needs: []
   variables:
@@ -15,6 +12,6 @@ lint-ci-gitlab:
   script:
     - '[[ ! -d "ee/" ]] || export LINT_PATHS="$LINT_PATHS ee/changelogs"'
     - apk update && apk add grep && grep --help
-    - grep "```yaml" doc/ci/yaml/README.md
+    - grep "yaml" doc/ci/yaml/README.md
     - grep -Pazo "(?s)(?<=```yaml).*?(?=```)" doc/ci/yaml/README.md
     - yamllint -f colored $LINT_PATHS
