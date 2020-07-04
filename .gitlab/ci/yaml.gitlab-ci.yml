@@ -13,4 +13,5 @@ lint-ci-gitlab:
     LINT_PATHS: .gitlab-ci.yml .gitlab/ci lib/gitlab/ci/templates changelogs
   script:
     - '[[ ! -d "ee/" ]] || export LINT_PATHS="$LINT_PATHS ee/changelogs"'
+    - grep -v
     - yamllint -f colored $LINT_PATHS
