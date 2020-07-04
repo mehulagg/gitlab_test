@@ -13,6 +13,8 @@ lint-ci-gitlab:
     - '[[ ! -d "ee/" ]] || export LINT_PATHS="$LINT_PATHS ee/changelogs"'
     - apk update && apk add grep # && grep --help
     # https://stackoverflow.com/a/7167115
+    - sed -n '/```yaml/,/```/{//!p}' doc/ci/yaml/README.md
+    - awk '/```yaml/{flag=1; next} /```/{flag=0} flag' doc/ci/yaml/README.md
     - grep -PazoHn '(?s)(?<=```yaml).*?(?=```)' doc/ci/yaml/README.md
     - grep -Pazo '(?s)(?<=```yaml).*?(?=```)' doc/ci/yaml/README.md | tr -d '\000' | yamllint -f colored -
     - grep -Pazo '(?s)(?<=```yaml).*?(?=```)' doc/ci/yaml/README.md > temp.yml
