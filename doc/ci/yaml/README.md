@@ -51,11 +51,7 @@ Jobs are:
 For example:
 
 ```yaml
-job1:
-  script: "execute-script-for-job1"
-
-job2:
-  script: "execute-script-for-job2"
+invalid
 ```
 
 The above example is the simplest possible CI/CD configuration with two separate
