@@ -13,5 +13,5 @@ lint-ci-gitlab:
     - '[[ ! -d "ee/" ]] || export LINT_PATHS="$LINT_PATHS ee/changelogs"'
     - apk update && apk add grep && grep --help
     - grep "yaml" doc/ci/yaml/README.md
-    - grep -Pazo "(?s)(?<=```yaml).*?(?=```)" doc/ci/yaml/README.md
+    - grep -Pazo "(?s)(?<='```yaml').*?(?='```')" doc/ci/yaml/README.md
     - yamllint -f colored $LINT_PATHS
