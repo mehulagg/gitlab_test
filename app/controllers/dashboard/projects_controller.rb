@@ -129,7 +129,6 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
   def ensure_admin!
     return render_404 unless current_user.admin?
   end
-
 end
 
 Dashboard::ProjectsController.prepend_if_ee('EE::Dashboard::ProjectsController')

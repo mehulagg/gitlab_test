@@ -1030,22 +1030,16 @@ describe ProjectsHelper do
   end
 
   describe '#scheduled_for_deletion?' do
+    subject { helper.scheduled_for_deletion?(project) }
 
-    describe 'Falsy test' do
-      subject { helper.scheduled_for_deletion?(project) }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:user) { create(:user) }
 
-      let(:project) { create(:project) }
-      let(:user) { create(:user) }
-
+    context 'Falsy test' do
       it { is_expected.to eq(false) }
     end
 
-    describe 'Truthy test' do
-      subject { helper.scheduled_for_deletion?(project) }
-
-      let(:project) { create(:project) }
-      let(:user) { create(:user) }
-
+    context 'Truthy test' do
       before do
         project.add_developer(user)
         ::Projects::UpdateService.new(
@@ -1059,7 +1053,5 @@ describe ProjectsHelper do
 
       it { is_expected.to eq(true) }
     end
-
   end
-
 end

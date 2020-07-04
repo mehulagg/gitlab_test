@@ -13493,6 +13493,9 @@ msgstr ""
 msgid "Markdown is supported"
 msgstr ""
 
+msgid "Marked For Deletion At - %{deletion_time}"
+msgstr ""
+
 msgid "Marked To Do as done."
 msgstr ""
 
@@ -18518,6 +18521,9 @@ msgstr ""
 msgid "Removed %{type} with id %{id}"
 msgstr ""
 
+msgid "Removed Projects"
+msgstr ""
+
 msgid "Removed all labels."
 msgstr ""
 
@@ -18530,6 +18536,9 @@ msgstr ""
 msgid "Removed parent epic %{epic_ref}."
 msgstr ""
 
+msgid "Removed projects"
+msgstr ""
+
 msgid "Removed projects cannot be restored!"
 msgstr ""
 
@@ -18540,6 +18549,12 @@ msgid "Removed the due date."
 msgstr ""
 
 msgid "Removed time estimate."
+msgstr ""
+
+msgid "RemovedProjects|Projects which are removed and are yet to be permanently removed are visible here."
+msgstr ""
+
+msgid "RemovedProjects|You haven’t removed any projects."
 msgstr ""
 
 msgid "Removes %{assignee_text} %{assignee_references}."
@@ -18980,6 +18995,9 @@ msgstr ""
 msgid "Restart Terminal"
 msgstr ""
 
+msgid "Restore"
+msgstr ""
+
 msgid "Restore group"
 msgstr ""
 
@@ -19271,6 +19289,9 @@ msgid "Schedule a new pipeline"
 msgstr ""
 
 msgid "Scheduled"
+msgstr ""
+
+msgid "Scheduled Deletion At - %{permanent_deletion_time}"
 msgstr ""
 
 msgid "Scheduled to merge this merge request (%{strategy})."
