@@ -4,9 +4,9 @@ lint-ci-gitlab:
   extends:
     - .default-retry
     - .yaml:rules
-  image:
-    name: cytopia/yamllint:latest
-    entrypoint: ["/bin/ash", "-c"]
+  image: sdesbure/yamllint:latest
+  #  name: cytopia/yamllint:latest
+  #  entrypoint: ["/bin/ash", "-c"]
   stage: test
   needs: []
   variables:
