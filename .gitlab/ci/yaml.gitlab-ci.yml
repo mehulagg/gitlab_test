@@ -4,7 +4,7 @@ lint-ci-gitlab:
   extends:
     - .default-retry
     - .yaml:rules
-  image: yamllint/yamllint:latest
+  image: cytopia/yamllint:latest
   stage: test
   needs: []
   variables:
