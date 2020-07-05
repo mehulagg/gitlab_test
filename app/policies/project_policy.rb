@@ -32,6 +32,12 @@ class ProjectPolicy < BasePolicy
       project.group&.has_owner?(@user)
   end
 
+  desc "Namespace is read only"
+  condition :owner do
+    (project.owner.present? && project.owner == @user) ||
+      project.group&.has_owner?(@user)
+  end
+
   desc "Project has public builds enabled"
   condition(:public_builds, scope: :subject, score: 0) { project.public_builds? }
 
@@ -403,6 +409,25 @@ class ProjectPolicy < BasePolicy
 
     READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
       prevent(*create_update_admin_destroy(feature))
+    end
+  end
+
+  condition(:read_only) do
+    @subject.root_namespace.read_only?
+  end
+
+  rule { read_only }.policy do
+    prevent :push_code
+    prevent :push_to_delete_protected_branch
+    prevent :request_access
+    prevent :upload_file
+    prevent :resolve_note
+    prevent :create_merge_request_from
+    prevent :create_merge_request_in
+    prevent :award_emoji
+
+    READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
+      prevent(*create_update_admin(feature))
     end
   end
 

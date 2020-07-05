@@ -19,5 +19,12 @@ module CrudPolicyHelpers
         :"destroy_#{name}"
       ]
     end
+
+    def create_update_admin(name)
+      [
+        :"create_#{name}",
+        :"update_#{name}",
+      ]
+    end
   end
 end

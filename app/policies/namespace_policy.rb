@@ -6,6 +6,7 @@ class NamespacePolicy < BasePolicy
   condition(:personal_project, scope: :subject) { @subject.kind == 'user' }
   condition(:can_create_personal_project, scope: :user) { @user.can_create_project? }
   condition(:owner) { @subject.owner == @user }
+  condition(:read_only?, scope: :subject) { @subject.read_only? }
 
   rule { owner | admin }.policy do
     enable :create_projects

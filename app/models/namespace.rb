@@ -141,6 +141,10 @@ class Namespace < ApplicationRecord
     super || Gitlab::CurrentSettings.default_branch_protection
   end
 
+  def read_only?
+    true
+  end
+
   def visibility_level_field
     :visibility_level
   end

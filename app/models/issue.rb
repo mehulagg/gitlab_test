@@ -30,6 +30,7 @@ class Issue < ApplicationRecord
   SORTING_PREFERENCE_FIELD = :issues_sort
 
   belongs_to :project
+  has_one :namespace, through: :project, class_name: 'Namespace'
   belongs_to :duplicated_to, class_name: 'Issue'
   belongs_to :closed_by, class_name: 'User'
   belongs_to :iteration, foreign_key: 'sprint_id'
@@ -227,6 +228,10 @@ class Issue < ApplicationRecord
 
   def hook_attrs
     Gitlab::HookData::IssueBuilder.new(self).build
+  end
+
+  def root_namespace
+    namespace.root_ancestor
   end
 
   # `from` argument can be a Namespace or Project.

@@ -12,6 +12,11 @@ class IssuePolicy < IssuablePolicy
     @user && IssueCollection.new([@subject]).visible_to(@user).any?
   end
 
+  desc "Namespace locked"
+  condition(:read_only) do
+    @subject.root_namespace.read_only?
+  end
+
   desc "Issue is confidential"
   condition(:confidential, scope: :subject) { @subject.confidential? }
 
@@ -38,5 +43,11 @@ class IssuePolicy < IssuablePolicy
   rule { locked | moved }.policy do
     prevent :create_design
     prevent :destroy_design
+  end
+
+  rule { read_only }.policy do
+    prevent :reopen_issue
+    prevent :create_note
+    prevent(*create_update_admin(:issue))
   end
 end
