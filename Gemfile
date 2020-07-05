@@ -327,6 +327,8 @@ group :metrics do
   gem 'raindrops', '~> 0.18'
 end
 
+gem 'concurrent-ruby-edge', require: false
+
 group :development do
   gem 'brakeman', '~> 4.2', require: false
   gem 'danger', '~> 6.0', require: false

@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'concurrent-edge'
+
 module MergeRequests
   class RefreshService < MergeRequests::BaseService
+    include Concurrent::Promises::FactoryMethods
+
     attr_reader :push
 
     def execute(oldrev, newrev, ref)
@@ -19,24 +23,33 @@ module MergeRequests
 
       # Be sure to close outstanding MRs before reloading them to avoid generating an
       # empty diff during a manual merge
-      close_upon_missing_source_branch_ref
-      post_merge_manually_merged
-      link_forks_lfs_objects
+      zip_futures(
+        future { close_upon_missing_source_branch_ref },
+        future { post_merge_manually_merged },
+        future { link_forks_lfs_objects }
+      ).wait
+
       reload_merge_requests
-      outdate_suggestions
-      refresh_pipelines_on_merge_requests
-      abort_auto_merges
-      abort_ff_merge_requests_with_when_pipeline_succeeds
-      mark_pending_todos_done
-      cache_merge_requests_closing_issues
+
+      zip_futures(
+        future { outdate_suggestions },
+        future { refresh_pipelines_on_merge_requests },
+        future { abort_auto_merges },
+        future { abort_ff_merge_requests_with_when_pipeline_succeeds },
+        future { mark_pending_todos_done },
+        future { cache_merge_requests_closing_issues }
+      ).wait
 
       # Leave a system note if a branch was deleted/added
       if @push.branch_added? || @push.branch_removed?
         comment_mr_branch_presence_changed
       end
 
-      notify_about_push
-      mark_mr_as_wip_from_commits
+      zip_futures(
+        future { notify_about_push },
+        future { mark_mr_as_wip_from_commits }
+      ).wait
+
       execute_mr_web_hooks
 
       true
