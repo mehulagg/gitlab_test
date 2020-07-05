@@ -24,7 +24,7 @@ describe('RelatedIssuesBlock', () => {
         propsData: {
           pathIdSeparator: PathIdSeparator.Issue,
           issuableType: 'issue',
-          showIssueTypeSelector: false,
+          showCategorizedIssues: false,
         },
       });
     });
@@ -36,8 +36,8 @@ describe('RelatedIssuesBlock', () => {
         expect(headerText()).toContain('Related issues');
       });
 
-      it('displays "Linked issues" if showIssueTypeSelector is true', async () => {
-        wrapper.setProps({ showIssueTypeSelector: true });
+      it('displays "Linked issues" if showCategorizedIssues is true', async () => {
+        wrapper.setProps({ showCategorizedIssues: true });
         await wrapper.vm.$nextTick();
 
         expect(headerText()).toContain('Linked issues');
@@ -60,7 +60,7 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           isFetching: true,
           issuableType: 'issue',
-          showIssueTypeSelector: false,
+          showCategorizedIssues: false,
         },
       });
     });
@@ -77,7 +77,7 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           canAdmin: true,
           issuableType: 'issue',
-          showIssueTypeSelector: false,
+          showCategorizedIssues: false,
         },
       });
     });
@@ -94,7 +94,7 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           isFormVisible: true,
           issuableType: 'issue',
-          showIssueTypeSelector: false,
+          showCategorizedIssues: false,
         },
       });
     });
@@ -104,25 +104,25 @@ describe('RelatedIssuesBlock', () => {
     });
   });
 
-  describe('showIssueTypeSelector prop', () => {
+  describe('showCategorizedIssues prop', () => {
     const issueList = () => wrapper.findAll('.js-related-issues-token-list-item');
     const categorizedHeadings = () => wrapper.findAll('h4');
     const headingTextAt = index =>
       categorizedHeadings()
         .at(index)
         .text();
-    const mountComponent = showIssueTypeSelector => {
+    const mountComponent = showCategorizedIssues => {
       wrapper = mount(RelatedIssuesBlock, {
         propsData: {
           pathIdSeparator: PathIdSeparator.Issue,
           relatedIssues: [issuable1, issuable2, issuable3],
           issuableType: 'issue',
-          showIssueTypeSelector,
+          showCategorizedIssues,
         },
       });
     };
 
-    describe('when showIssueTypeSelector=true', () => {
+    describe('when showCategorizedIssues=true', () => {
       beforeEach(() => mountComponent(true));
 
       it('should render issue tokens items', () => {
@@ -148,7 +148,7 @@ describe('RelatedIssuesBlock', () => {
       });
     });
 
-    describe('when showIssueTypeSelector=false', () => {
+    describe('when showCategorizedIssues=false', () => {
       it('should render issues as a flat list with no header', () => {
         mountComponent(false);
 
@@ -174,7 +174,7 @@ describe('RelatedIssuesBlock', () => {
           propsData: {
             pathIdSeparator: PathIdSeparator.Issue,
             issuableType,
-            showIssueTypeSelector: false,
+            showCategorizedIssues: false,
           },
         });
 

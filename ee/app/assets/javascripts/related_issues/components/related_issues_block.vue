@@ -77,7 +77,7 @@ export default {
       type: String,
       required: true,
     },
-    showIssueTypeSelector: {
+    showCategorizedIssues: {
       type: Boolean,
       required: true,
     },
@@ -87,7 +87,7 @@ export default {
       return this.relatedIssues.length > 0;
     },
     categorisedIssues() {
-      if (this.showIssueTypeSelector) {
+      if (this.showCategorizedIssues) {
         return Object.values(linkedIssueTypesMap)
           .map(linkType => ({
             linkType,
@@ -132,7 +132,7 @@ export default {
             href="#related-issues"
             aria-hidden="true"
           />
-          {{ showIssueTypeSelector ? __('Linked issues') : __('Related issues') }}
+          {{ showCategorizedIssues ? __('Linked issues') : __('Related issues') }}
           <a v-if="hasHelpPath" :href="helpPath">
             <i
               class="related-issues-header-help-icon fa fa-question-circle"
@@ -175,7 +175,7 @@ export default {
           class="js-add-related-issues-form-area card-body bordered-box bg-white"
         >
           <add-issuable-form
-            :show-issue-type-selector="showIssueTypeSelector"
+            :show-categorized-issues="showCategorizedIssues"
             :is-submitting="isSubmitting"
             :issuable-type="issuableType"
             :input-value="inputValue"

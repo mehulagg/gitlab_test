@@ -145,7 +145,7 @@ describe('AddIssuableForm', () => {
         wrapper = mount(AddIssuableForm, {
           propsData: {
             inputValue: '',
-            showIssueTypeSelector: true,
+            showCategorizedIssues: true,
             issuableType: issuableTypesMap.ISSUE,
             pathIdSeparator,
             pendingReferences: [],

@@ -17,7 +17,7 @@ export default function initRelatedIssues() {
             endpoint: relatedIssuesRootElement.dataset.endpoint,
             canAdmin: parseBoolean(relatedIssuesRootElement.dataset.canAddRelatedIssues),
             helpPath: relatedIssuesRootElement.dataset.helpPath,
-            showIssueTypeSelector: true,
+            showCategorizedIssues: true,
           },
         }),
     });

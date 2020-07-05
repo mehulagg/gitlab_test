@@ -81,7 +81,7 @@ export default {
       required: false,
       default: '',
     },
-    showIssueTypeSelector: {
+    showCategorizedIssues: {
       type: Boolean,
       required: false,
       default: false,
@@ -240,7 +240,7 @@ export default {
     :auto-complete-sources="autoCompleteSources"
     :issuable-type="issuableType"
     :path-id-separator="pathIdSeparator"
-    :show-issue-type-selector="showIssueTypeSelector"
+    :show-categorized-issues="showCategorizedIssues"
     @saveReorder="saveIssueOrder"
     @toggleAddRelatedIssuesForm="onToggleAddRelatedIssuesForm"
     @addIssuableFormInput="onInput"
