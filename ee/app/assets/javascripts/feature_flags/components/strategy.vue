@@ -12,7 +12,6 @@ import {
 } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
 import {
-  PERCENT_ROLLOUT_GROUP_ID,
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
   ROLLOUT_STRATEGY_USER_ID,
@@ -20,6 +19,17 @@ import {
 } from '../constants';
 
 import NewEnvironmentsDropdown from './new_environments_dropdown.vue';
+import Default from './strategies/default.vue';
+import PercentRollout from './strategies/percent_rollout.vue';
+import UsersWithId from './strategies/users_with_id.vue';
+import GitlabUserList from './strategies/gitlab_user_list.vue';
+
+const STRATEGIES = Object.freeze({
+  [ROLLOUT_STRATEGY_ALL_USERS]: Default,
+  [ROLLOUT_STRATEGY_PERCENT_ROLLOUT]: PercentRollout,
+  [ROLLOUT_STRATEGY_USER_ID]: UsersWithId,
+  [ROLLOUT_STRATEGY_GITLAB_USER_LIST]: GitlabUserList,
+});
 
 export default {
   components: {
@@ -65,13 +75,6 @@ export default {
     allEnvironments: __('All environments'),
     environmentsLabel: __('Environments'),
     removeLabel: s__('FeatureFlag|Delete strategy'),
-    rolloutPercentageDescription: __('Enter a whole number between 0 and 100'),
-    rolloutPercentageInvalid: s__(
-      'FeatureFlags|Percent rollout must be a whole number between 0 and 100',
-    ),
-    rolloutPercentageLabel: s__('FeatureFlag|Percentage'),
-    rolloutUserIdsDescription: __('Enter one or more user ID separated by commas'),
-    rolloutUserIdsLabel: s__('FeatureFlag|User IDs'),
     rolloutUserListLabel: s__('FeatureFlag|List'),
     rolloutUserListDescription: s__('FeatureFlag|Select a user list'),
     rolloutUserListNoListError: s__('FeatureFlag|There are no configured user lists'),
@@ -83,14 +86,6 @@ export default {
     return {
       environments: this.strategy.scopes || [],
       formStrategy: { ...this.strategy },
-      formPercentage:
-        this.strategy.name === ROLLOUT_STRATEGY_PERCENT_ROLLOUT
-          ? this.strategy.parameters.percentage
-          : '',
-      formUserIds:
-        this.strategy.name === ROLLOUT_STRATEGY_USER_ID ? this.strategy.parameters.userIds : '',
-      formUserListId:
-        this.strategy.name === ROLLOUT_STRATEGY_GITLAB_USER_LIST ? this.strategy.userListId : '',
       strategies: [
         {
           value: ROLLOUT_STRATEGY_ALL_USERS,
@@ -115,26 +110,8 @@ export default {
     strategyTypeId() {
       return `strategy-type-${this.index}`;
     },
-    strategyPercentageId() {
-      return `strategy-percentage-${this.index}`;
-    },
-    strategyUserIdsId() {
-      return `strategy-user-ids-${this.index}`;
-    },
-    strategyUserListId() {
-      return `strategy-user-list-${this.index}`;
-    },
     environmentsDropdownId() {
       return `environments-dropdown-${this.index}`;
-    },
-    isPercentRollout() {
-      return this.isStrategyType(ROLLOUT_STRATEGY_PERCENT_ROLLOUT);
-    },
-    isUserWithId() {
-      return this.isStrategyType(ROLLOUT_STRATEGY_USER_ID);
-    },
-    isUserList() {
-      return this.isStrategyType(ROLLOUT_STRATEGY_GITLAB_USER_LIST);
     },
     appliesToAllEnvironments() {
       return (
@@ -146,11 +123,8 @@ export default {
     filteredEnvironments() {
       return this.environments.filter(e => !e.shouldBeDestroyed);
     },
-    userListOptions() {
-      return this.userLists.map(({ name, id }) => ({ value: id, text: name }));
-    },
-    hasUserLists() {
-      return this.userListOptions.length > 0;
+    strategyComponent() {
+      return STRATEGIES[this.formStrategy.name];
     },
   },
   methods: {
@@ -160,32 +134,11 @@ export default {
         allEnvironmentsScope.shouldBeDestroyed = true;
       }
       this.environments.push({ environmentScope: environment });
-      this.onStrategyChange();
+      this.onStrategyChange({ ...this.formStrategy, scopes: this.environments });
     },
-    onStrategyChange() {
-      const parameters = {};
-      const strategy = {
-        ...this.formStrategy,
-        scopes: this.environments,
-      };
-      switch (this.formStrategy.name) {
-        case ROLLOUT_STRATEGY_PERCENT_ROLLOUT:
-          parameters.percentage = this.formPercentage;
-          parameters.groupId = PERCENT_ROLLOUT_GROUP_ID;
-          break;
-        case ROLLOUT_STRATEGY_USER_ID:
-          parameters.userIds = this.formUserIds;
-          break;
-        case ROLLOUT_STRATEGY_GITLAB_USER_LIST:
-          strategy.userListId = this.formUserListId;
-          break;
-        default:
-          break;
-      }
-      this.$emit('change', {
-        ...strategy,
-        parameters,
-      });
+    onStrategyChange(s) {
+      this.$emit('change', s);
+      this.formStrategy = s;
     },
     removeScope(environment) {
       if (isNumber(environment.id)) {
@@ -193,10 +146,7 @@ export default {
       } else {
         this.environments = this.environments.filter(e => e !== environment);
       }
-      this.onStrategyChange();
-    },
-    isStrategyType(type) {
-      return this.formStrategy.name === type;
+      this.onStrategyChange({ ...this.formStrategy, scopes: this.environments });
     },
   },
 };
@@ -210,62 +160,19 @@ export default {
           :description="$options.translations.strategyTypeDescription"
           :label-for="strategyTypeId"
         >
-          <gl-form-select
-            :id="strategyTypeId"
-            v-model="formStrategy.name"
-            :options="strategies"
-            @change="onStrategyChange"
-          />
+          <gl-form-select :id="strategyTypeId" v-model="formStrategy.name" :options="strategies" />
         </gl-form-group>
       </div>
 
       <div data-testid="strategy">
-        <gl-form-group
-          v-if="isPercentRollout"
-          :label="$options.translations.rolloutPercentageLabel"
-          :description="$options.translations.rolloutPercentageDescription"
-          :label-for="strategyPercentageId"
-          :invalid-feedback="$options.translations.rolloutPercentageInvalid"
-        >
-          <div class="flex align-items-center">
-            <gl-form-input
-              :id="strategyPercentageId"
-              v-model="formPercentage"
-              class="rollout-percentage text-right w-3rem"
-              type="number"
-              @input="onStrategyChange"
-            />
-            <span class="ml-1">%</span>
-          </div>
-        </gl-form-group>
-
-        <gl-form-group
-          v-if="isUserWithId"
-          :label="$options.translations.rolloutUserIdsLabel"
-          :description="$options.translations.rolloutUserIdsDescription"
-          :label-for="strategyUserIdsId"
-        >
-          <gl-form-textarea
-            :id="strategyUserIdsId"
-            v-model="formUserIds"
-            @input="onStrategyChange"
-          />
-        </gl-form-group>
-        <gl-form-group
-          v-if="isUserList"
-          :state="hasUserLists"
-          :invalid-feedback="$options.translations.rolloutUserListNoListError"
-          :label="$options.translations.rolloutUserListLabel"
-          :description="$options.translations.rolloutUserListDescription"
-          :label-for="strategyUserListId"
-        >
-          <gl-form-select
-            :id="strategyUserListId"
-            v-model="formUserListId"
-            :options="userListOptions"
-            @change="onStrategyChange"
-          />
-        </gl-form-group>
+        <component
+          :is="strategyComponent"
+          v-if="strategyComponent"
+          :index="index"
+          :strategy="strategy"
+          :user-lists="userLists"
+          @change="onStrategyChange"
+        />
       </div>
 
       <div class="align-self-end align-self-md-stretch order-first offset-md-0 order-md-0 ml-auto">

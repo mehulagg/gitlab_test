@@ -30,7 +30,7 @@ const badgeTextByType = {
 const scopeName = ({ environment_scope: scope }) =>
   scope === ALL_ENVIRONMENTS_NAME ? s__('FeatureFlags|All Environments') : scope;
 
-export default strategy => {
+export const labelForStrategy = strategy => {
   const { name, parameters } = badgeTextByType[strategy.name];
 
   if (parameters) {
@@ -46,3 +46,26 @@ export default strategy => {
     scopes: strategy.scopes.map(scopeName).join(', '),
   });
 };
+
+export const strategyComponent = updateStrategy => ({
+  props: {
+    index: {
+      required: true,
+      type: Number,
+    },
+    strategy: {
+      required: true,
+      type: Object,
+    },
+    userLists: {
+      required: false,
+      type: Array,
+      default: () => [],
+    },
+  },
+  methods: {
+    onParameterChange(value) {
+      this.$emit('change', updateStrategy(this.strategy, value));
+    },
+  },
+});
