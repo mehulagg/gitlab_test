@@ -1462,7 +1462,7 @@ Related GitLab issue: [Issue description](<link>)
 For example:
 
 ```markdown
-Deploy boards show duplicate pods. Follow [this issue](<link>) for details.
+Related GitLab issue: [Deploy boards show duplicate pods](<link>)
 ```
 
 Don't promise when the issue will be fixed or use the words "currently" or "at the moment."
