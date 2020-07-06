@@ -1465,10 +1465,6 @@ For example:
 Related GitLab issue: [Deploy boards show duplicate pods](<link>)
 ```
 
-```markdown
-We're working on improvements to feature <X>. Follow [name of issue](<link>) for more information.
-```
-
 If linking to an epic or merge request, use that language instead:
 
 ```markdown
