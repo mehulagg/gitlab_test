@@ -18,12 +18,12 @@ module Mutations
             description: 'The created annotation'
 
           argument :environment_id,
-            GraphQL::ID_TYPE,
+            ::Types::GlobalIDType[::Environment],
             required: false,
             description: 'The global id of the environment to add an annotation to'
 
           argument :cluster_id,
-            GraphQL::ID_TYPE,
+            ::Types::GlobalIDType[::Clusters::Cluster],
             required: false,
             description: 'The global id of the cluster to add an annotation to'
 

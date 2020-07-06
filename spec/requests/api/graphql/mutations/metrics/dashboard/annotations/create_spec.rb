@@ -101,7 +101,7 @@ RSpec.describe Mutations::Metrics::Dashboard::Annotations::Create do
           graphql_mutation(:create_annotation, variables)
         end
 
-        it_behaves_like 'a mutation that returns top-level errors', errors: ['invalid_id is not a valid GitLab ID.']
+        it_behaves_like 'an invalid argument to the mutation', argument_name: :environment_id
       end
     end
   end
@@ -188,7 +188,7 @@ RSpec.describe Mutations::Metrics::Dashboard::Annotations::Create do
         graphql_mutation(:create_annotation, variables)
       end
 
-      it_behaves_like 'a mutation that returns top-level errors', errors: ['invalid_id is not a valid GitLab ID.']
+      it_behaves_like 'an invalid argument to the mutation', argument_name: :cluster_id
     end
   end
 
@@ -226,6 +226,6 @@ RSpec.describe Mutations::Metrics::Dashboard::Annotations::Create do
       project.add_developer(current_user)
     end
 
-    it_behaves_like 'a mutation that returns top-level errors', errors: [described_class::INVALID_ANNOTATION_SOURCE_ERROR]
+    it_behaves_like 'an invalid argument to the mutation', argument_name: :environment_id
   end
 end
