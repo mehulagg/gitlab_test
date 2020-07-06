@@ -781,8 +781,8 @@ Aggregated summary of changes
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
 | `createdAt` | Time! | Timestamp of the discussion's creation |
-| `id` | ID! | ID of this discussion |
-| `replyId` | ID! | ID used to reply to this discussion |
+| `id` | DiscussionID! | ID of this discussion |
+| `replyId` | DiscussionID! | ID used to reply to this discussion |
 | `resolvable` | Boolean! | Indicates if the object can be resolved |
 | `resolved` | Boolean! | Indicates if the object is resolved |
 | `resolvedAt` | Time | Timestamp of when the object was resolved |
