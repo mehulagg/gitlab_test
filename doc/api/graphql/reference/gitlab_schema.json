@@ -26023,7 +26023,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "ID",
+                      "name": "LabelID",
                       "ofType": null
                     }
                   }
@@ -26292,7 +26292,7 @@
               "description": "The milestone to assign to the merge request.\n",
               "type": {
                 "kind": "SCALAR",
-                "name": "ID",
+                "name": "MilestoneID",
                 "ofType": null
               },
               "defaultValue": null

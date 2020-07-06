@@ -9307,7 +9307,7 @@ input MergeRequestSetLabelsInput {
   """
   The Label IDs to set. Replaces existing labels by default.
   """
-  labelIds: [ID!]!
+  labelIds: [LabelID!]!
 
   """
   Changes the operation mode. Defaults to REPLACE.
@@ -9402,7 +9402,7 @@ input MergeRequestSetMilestoneInput {
   """
   The milestone to assign to the merge request.
   """
-  milestoneId: ID
+  milestoneId: MilestoneID
 
   """
   The project the merge request to mutate is in
