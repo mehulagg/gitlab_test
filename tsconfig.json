@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "allowJs": true
+  },
+  "include": ["app/assets/javascripts/**/*"],
+  "exclude": ["node_modules", "app/assets/javascripts/locale/**/*"]
+}

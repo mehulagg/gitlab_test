@@ -291,3 +291,14 @@ bundle-size-review:
     expire_in: 31d
     paths:
       - bundle-size-review
+
+code_navigation:
+  image: node:latest
+  allow_failure: true
+  stage: prepare
+  script:
+    - npm install -g @sourcegraph/lsif-tsc
+    - lsif-tsc -p .
+  artifacts:
+    reports:
+      lsif: dump.lsif
