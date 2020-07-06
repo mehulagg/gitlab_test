@@ -1465,6 +1465,10 @@ For example:
 Related GitLab issue: [Deploy boards show duplicate pods](<link>)
 ```
 
+If linking to an epic or merge request, use that language instead:
+
+`Related GitLab epic: [Epic description](<link>)`
+
 Don't promise when the issue will be fixed or use the words "currently" or "at the moment."
 The docs represent the product as it is and these extra words are unnecessary.
 
