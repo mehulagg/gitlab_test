@@ -12,7 +12,6 @@ import {
   GlTooltipDirective,
 } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { getParameterByName } from '~/lib/utils/common_utils';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
 
@@ -105,6 +104,8 @@ export default {
       issues: {
         list: [],
         pageInfo: {
+          hasNextPage: true,
+          hasPreviousPage: false,
           nextPageCursor: '',
         },
       },
@@ -175,7 +176,7 @@ export default {
         ><gl-badge class="ml-2" variant="neutral">{{ issues.totalCount }}</gl-badge>
       </template>
 
-      <gl-loading-icon class="mt-2" size="md" v-if="$apollo.queries.issues.loading" />
+      <gl-loading-icon v-if="$apollo.queries.issues.loading" class="mt-2" size="md" />
       <gl-table
         v-else
         :items="issues.list"
