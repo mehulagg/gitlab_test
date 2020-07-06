@@ -65,16 +65,6 @@ RSpec.describe Resolvers::Users::SnippetsResolver do
 
         expect(snippets).to contain_exactly(private_personal_snippet, public_personal_snippet)
       end
-
-      it 'returns an error if the gid is invalid' do
-        args = {
-          ids: [private_personal_snippet.to_global_id, 'foo']
-        }
-
-        expect do
-          resolve_snippets(args: args)
-        end.to raise_error(Gitlab::Graphql::Errors::ArgumentError)
-      end
     end
   end
 
