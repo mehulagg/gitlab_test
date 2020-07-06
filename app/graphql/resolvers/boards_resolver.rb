@@ -4,7 +4,7 @@ module Resolvers
   class BoardsResolver < BaseResolver
     type Types::BoardType, null: true
 
-    argument :id, GraphQL::ID_TYPE,
+    argument :id, ::Types::GlobalIDType[::Board],
              required: false,
              description: 'Find a board by its ID'
 
