@@ -3489,7 +3489,7 @@ type Design implements DesignFields & Noteable {
     """
     The Global ID of the most recent acceptable version
     """
-    earlierOrEqualToId: ID
+    earlierOrEqualToId: DesignManagementVersionID
 
     """
     The SHA256 of the most recent acceptable version
@@ -3624,7 +3624,7 @@ type DesignCollection {
     """
     Find a design by its ID
     """
-    id: ID
+    id: DesignManagementDesignID
   ): Design
 
   """
@@ -3634,7 +3634,7 @@ type DesignCollection {
     """
     The Global ID of the design at this version
     """
-    id: ID!
+    id: DesignManagementDesignAtVersionID!
   ): DesignAtVersion
 
   """
@@ -3650,7 +3650,7 @@ type DesignCollection {
     Filters designs to only those that existed at the version. If argument is
     omitted or nil then all designs will reflect the latest version
     """
-    atVersion: ID
+    atVersion: DesignManagementVersionID
 
     """
     Returns the elements in the list that come before the specified cursor.
@@ -3670,7 +3670,7 @@ type DesignCollection {
     """
     Filters designs by their ID
     """
-    ids: [ID!]
+    ids: [DesignManagementDesignID!]
 
     """
     Returns the last _n_ elements from the list.
@@ -3695,7 +3695,7 @@ type DesignCollection {
     """
     The Global ID of the version
     """
-    id: ID
+    id: DesignManagementVersionID
 
     """
     The SHA256 of a specific version
@@ -3720,7 +3720,7 @@ type DesignCollection {
     """
     The Global ID of the most recent acceptable version
     """
-    earlierOrEqualToId: ID
+    earlierOrEqualToId: DesignManagementVersionID
 
     """
     The SHA256 of the most recent acceptable version
@@ -3834,7 +3834,7 @@ type DesignManagement {
     """
     The Global ID of the design at this version
     """
-    id: ID!
+    id: DesignManagementDesignAtVersionID!
   ): DesignAtVersion
 
   """
@@ -3844,7 +3844,7 @@ type DesignManagement {
     """
     The Global ID of the version
     """
-    id: ID!
+    id: DesignManagementVersionID!
   ): DesignVersion
 }
 
@@ -3892,6 +3892,11 @@ type DesignManagementDeletePayload {
   """
   version: DesignVersion
 }
+
+"""
+Identifier of DesignManagement::DesignAtVersion
+"""
+scalar DesignManagementDesignAtVersionID
 
 """
 Identifier of DesignManagement::Design
@@ -3994,6 +3999,11 @@ type DesignManagementUploadPayload {
 }
 
 """
+Identifier of DesignManagement::Version
+"""
+scalar DesignManagementVersionID
+
+"""
 A specific version in which designs were added, modified or deleted
 """
 type DesignVersion {
@@ -4004,7 +4014,7 @@ type DesignVersion {
     """
     The ID of a specific design
     """
-    designId: ID
+    designId: DesignManagementDesignID
 
     """
     The filename of a specific design
@@ -4014,7 +4024,7 @@ type DesignVersion {
     """
     The ID of the DesignAtVersion
     """
-    id: ID
+    id: DesignManagementDesignAtVersionID
   ): DesignAtVersion!
 
   """
@@ -4069,7 +4079,7 @@ type DesignVersion {
     """
     Filters designs by their ID
     """
-    ids: [ID!]
+    ids: [DesignManagementDesignID!]
 
     """
     Returns the last _n_ elements from the list.
