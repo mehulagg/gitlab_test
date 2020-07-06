@@ -15,7 +15,7 @@ module Resolvers
         type replicator_class.graphql_registry_type, null: true
 
         argument :ids,
-                 [GraphQL::ID_TYPE],
+                 [::Types::GlobalIDType],
                  required: false,
                  description: 'Filters registries by their ID'
 
@@ -35,7 +35,7 @@ module Resolvers
         end
 
         def registry_ids(ids)
-          ids&.map { |id| GlobalID.parse(id)&.model_id }&.compact
+          ids&.map { |id| id&.model_id }&.compact
         end
 
         # We can't query other nodes' tracking databases
