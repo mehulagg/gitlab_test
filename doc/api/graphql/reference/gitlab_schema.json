@@ -16569,7 +16569,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "SCALAR",
-                        "name": "ID",
+                        "name": "GlobalID",
                         "ofType": null
                       }
                     }
@@ -16789,6 +16789,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "GlobalID",
+          "description": "A global identifier",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },

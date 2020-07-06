@@ -5932,7 +5932,7 @@ type GeoNode {
     """
     Filters registries by their ID
     """
-    ids: [ID!]
+    ids: [GlobalID!]
 
     """
     Returns the last _n_ elements from the list.
@@ -6000,6 +6000,11 @@ type GeoNode {
   """
   verificationMaxCapacity: Int
 }
+
+"""
+A global identifier
+"""
+scalar GlobalID
 
 type GrafanaIntegration {
   """
