@@ -366,10 +366,6 @@ class ApplicationSetting < ApplicationRecord
     length: { maximum: 255 },
     allow_blank: true
 
-  validates :namespace_storage_size_limit,
-            presence: true,
-            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-
   validates :issues_create_limit,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 

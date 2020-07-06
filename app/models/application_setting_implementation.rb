@@ -122,7 +122,6 @@ module ApplicationSettingImplementation
         spam_check_endpoint_enabled: false,
         spam_check_endpoint_url: nil,
         minimum_password_length: DEFAULT_MINIMUM_PASSWORD_LENGTH,
-        namespace_storage_size_limit: 0,
         terminal_max_session_time: 0,
         throttle_authenticated_api_enabled: false,
         throttle_authenticated_api_period_in_seconds: 3600,
