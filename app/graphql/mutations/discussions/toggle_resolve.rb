@@ -8,7 +8,7 @@ module Mutations
       description 'Toggles the resolved state of a discussion'
 
       argument :id,
-                GraphQL::ID_TYPE,
+                ::Types::GlobalIDType[::Discussion],
                 required: true,
                 description: 'The global id of the discussion'
 

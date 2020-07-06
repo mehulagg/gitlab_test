@@ -9,9 +9,9 @@ module Types
 
       implements(Types::ResolvableInterface)
 
-      field :id, GraphQL::ID_TYPE, null: false,
+      field :id, ::Types::GlobalIDType[::Discussion], null: false,
             description: "ID of this discussion"
-      field :reply_id, GraphQL::ID_TYPE, null: false,
+      field :reply_id, ::Types::GlobalIDType[::Discussion], null: false,
             description: 'ID used to reply to this discussion'
       field :created_at, Types::TimeType, null: false,
             description: "Timestamp of the discussion's creation"
