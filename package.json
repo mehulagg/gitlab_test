@@ -84,6 +84,7 @@
     "emoji-unicode-version": "^0.2.1",
     "exports-loader": "^0.7.0",
     "file-loader": "^5.1.0",
+    "focus-visible": "^5.1.0",
     "formdata-polyfill": "^3.0.19",
     "fuzzaldrin-plus": "^0.6.0",
     "glob": "^7.1.6",

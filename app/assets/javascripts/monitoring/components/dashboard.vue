@@ -1,4 +1,5 @@
 <script>
+import 'focus-visible';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import Mousetrap from 'mousetrap';

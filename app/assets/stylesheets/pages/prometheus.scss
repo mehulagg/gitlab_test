@@ -31,6 +31,10 @@
   }
 }
 
+.prometheus-graphs :focus:not(.focus-visible) {
+  outline: none;
+}
+
 .draggable {
   &.draggable-enabled {
     .draggable-panel {
