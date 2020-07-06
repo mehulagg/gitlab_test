@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'declarative_policy'
+require_dependency "declarative_policy"
 
 class Ability
   class << self
