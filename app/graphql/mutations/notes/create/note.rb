@@ -6,8 +6,7 @@ module Mutations
       class Note < Base
         graphql_name 'CreateNote'
 
-        argument :discussion_id,
-                  GraphQL::ID_TYPE,
+        argument :discussion_id, ::Types::GlobalIDType[::Discussion],
                   required: false,
                   description: 'The global id of the discussion this note is in reply to'
 

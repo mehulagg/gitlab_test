@@ -7,8 +7,7 @@ module Mutations
 
       authorize :admin_note
 
-      argument :id,
-                GraphQL::ID_TYPE,
+      argument :id, ::Types::GlobalIDType[::Note],
                 required: true,
                 description: 'The global id of the note to destroy'
 
