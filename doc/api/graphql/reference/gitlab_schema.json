@@ -3718,7 +3718,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "ListID",
                   "ofType": null
                 }
               },
@@ -18188,7 +18188,7 @@
                   "description": "Find a board by its ID",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "ID",
+                    "name": "BoardID",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -18211,7 +18211,7 @@
                   "description": "Find a board by its ID",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "ID",
+                    "name": "BoardID",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -25665,6 +25665,16 @@
           "kind": "SCALAR",
           "name": "LabelID",
           "description": "Identifier of Label",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "ListID",
+          "description": "Identifier of List",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -35613,7 +35623,7 @@
                   "description": "Find a board by its ID",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "ID",
+                    "name": "BoardID",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -35636,7 +35646,7 @@
                   "description": "Find a board by its ID",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "ID",
+                    "name": "BoardID",
                     "ofType": null
                   },
                   "defaultValue": null
