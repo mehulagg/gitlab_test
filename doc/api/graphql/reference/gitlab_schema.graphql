@@ -4195,7 +4195,7 @@ input DestroySnippetInput {
   """
   The global id of the snippet to destroy
   """
-  id: ID!
+  id: SnippetID!
 }
 
 """
@@ -8518,7 +8518,7 @@ input MarkAsSpamSnippetInput {
   """
   The global id of the snippet to update
   """
-  id: ID!
+  id: SnippetID!
 }
 
 """
@@ -12214,7 +12214,7 @@ type Project {
     """
     Array of global snippet ids, e.g., "gid://gitlab/ProjectSnippet/1"
     """
-    ids: [ID!]
+    ids: [SnippetID!]
 
     """
     Returns the last _n_ elements from the list.
@@ -12392,6 +12392,11 @@ type ProjectEdge {
   """
   node: Project
 }
+
+"""
+Identifier of Project
+"""
+scalar ProjectID
 
 """
 Represents a Project Membership
@@ -12906,7 +12911,7 @@ type Query {
     """
     The ID of an author
     """
-    authorId: ID
+    authorId: UserID
 
     """
     Returns the elements in the list that come before the specified cursor.
@@ -12926,7 +12931,7 @@ type Query {
     """
     Array of global snippet ids, e.g., "gid://gitlab/ProjectSnippet/1"
     """
-    ids: [ID!]
+    ids: [SnippetID!]
 
     """
     Returns the last _n_ elements from the list.
@@ -12936,7 +12941,7 @@ type Query {
     """
     The ID of a project
     """
-    projectId: ID
+    projectId: ProjectID
 
     """
     The type of snippet
@@ -15281,6 +15286,11 @@ type SnippetEdge {
   node: Snippet
 }
 
+"""
+Identifier of Snippet
+"""
+scalar SnippetID
+
 type SnippetPermissions {
   """
   Indicates the user can perform `admin_snippet` on this resource
@@ -16708,7 +16718,7 @@ input UpdateSnippetInput {
   """
   The global id of the snippet to update
   """
-  id: ID!
+  id: SnippetID!
 
   """
   Title of the snippet
@@ -16986,7 +16996,7 @@ type User {
     """
     Array of global snippet ids, e.g., "gid://gitlab/ProjectSnippet/1"
     """
-    ids: [ID!]
+    ids: [SnippetID!]
 
     """
     Returns the last _n_ elements from the list.
@@ -17124,6 +17134,11 @@ type UserEdge {
   """
   node: User
 }
+
+"""
+Identifier of User
+"""
+scalar UserID
 
 type UserPermissions {
   """

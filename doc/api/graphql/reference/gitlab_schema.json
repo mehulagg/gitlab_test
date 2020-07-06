@@ -11569,7 +11569,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "SnippetID",
                   "ofType": null
                 }
               },
@@ -23688,7 +23688,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "SnippetID",
                   "ofType": null
                 }
               },
@@ -35904,7 +35904,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "SCALAR",
-                        "name": "ID",
+                        "name": "SnippetID",
                         "ofType": null
                       }
                     }
@@ -36445,6 +36445,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "ProjectID",
+          "description": "Identifier of Project",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -38092,7 +38102,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "SCALAR",
-                        "name": "ID",
+                        "name": "SnippetID",
                         "ofType": null
                       }
                     }
@@ -38114,7 +38124,7 @@
                   "description": "The ID of an author",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "ID",
+                    "name": "UserID",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -38124,7 +38134,7 @@
                   "description": "The ID of a project",
                   "type": {
                     "kind": "SCALAR",
-                    "name": "ID",
+                    "name": "ProjectID",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -45099,6 +45109,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "SnippetID",
+          "description": "Identifier of Snippet",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "SnippetPermissions",
           "description": null,
@@ -49188,7 +49208,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "SnippetID",
                   "ofType": null
                 }
               },
@@ -49894,7 +49914,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "SCALAR",
-                        "name": "ID",
+                        "name": "SnippetID",
                         "ofType": null
                       }
                     }
@@ -50356,6 +50376,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "UserID",
+          "description": "Identifier of User",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
