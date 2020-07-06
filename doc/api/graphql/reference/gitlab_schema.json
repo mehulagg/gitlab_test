@@ -16793,6 +16793,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "GitlabErrorTrackingDetailedErrorID",
+          "description": "Identifier of Gitlab::ErrorTracking::DetailedError",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "GrafanaIntegration",
           "description": null,
@@ -35745,7 +35755,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "ID",
+                      "name": "GitlabErrorTrackingDetailedErrorID",
                       "ofType": null
                     }
                   },
@@ -43167,7 +43177,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "ID",
+                      "name": "GitlabErrorTrackingDetailedErrorID",
                       "ofType": null
                     }
                   },
@@ -43194,7 +43204,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "ID",
+                      "name": "GitlabErrorTrackingDetailedErrorID",
                       "ofType": null
                     }
                   },
