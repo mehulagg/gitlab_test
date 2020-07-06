@@ -111,7 +111,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "AwardableID",
                   "ofType": null
                 }
               },
@@ -1969,7 +1969,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "AwardableID",
                   "ofType": null
                 }
               },
@@ -2085,7 +2085,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "AwardableID",
                   "ofType": null
                 }
               },
@@ -2201,7 +2201,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "AwardableID",
                   "ofType": null
                 }
               },
@@ -2318,6 +2318,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "AwardableID",
+          "description": "Identifier of Awardable",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -42835,7 +42845,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "AwardableID",
                   "ofType": null
                 }
               },
@@ -50302,7 +50312,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "AwardableID",
                   "ofType": null
                 }
               },

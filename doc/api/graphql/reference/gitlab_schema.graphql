@@ -32,7 +32,7 @@ input AddAwardEmojiInput {
   """
   The global id of the awardable resource
   """
-  awardableId: ID!
+  awardableId: AwardableID!
 
   """
   A unique identifier for the client performing the mutation.
@@ -772,7 +772,7 @@ input AwardEmojiAddInput {
   """
   The global id of the awardable resource
   """
-  awardableId: ID!
+  awardableId: AwardableID!
 
   """
   A unique identifier for the client performing the mutation.
@@ -812,7 +812,7 @@ input AwardEmojiRemoveInput {
   """
   The global id of the awardable resource
   """
-  awardableId: ID!
+  awardableId: AwardableID!
 
   """
   A unique identifier for the client performing the mutation.
@@ -852,7 +852,7 @@ input AwardEmojiToggleInput {
   """
   The global id of the awardable resource
   """
-  awardableId: ID!
+  awardableId: AwardableID!
 
   """
   A unique identifier for the client performing the mutation.
@@ -889,6 +889,11 @@ type AwardEmojiTogglePayload {
   """
   toggledOn: Boolean!
 }
+
+"""
+Identifier of Awardable
+"""
+scalar AwardableID
 
 type BaseService implements Service {
   """
@@ -14719,7 +14724,7 @@ input RemoveAwardEmojiInput {
   """
   The global id of the awardable resource
   """
-  awardableId: ID!
+  awardableId: AwardableID!
 
   """
   A unique identifier for the client performing the mutation.
@@ -17110,7 +17115,7 @@ input ToggleAwardEmojiInput {
   """
   The global id of the awardable resource
   """
-  awardableId: ID!
+  awardableId: AwardableID!
 
   """
   A unique identifier for the client performing the mutation.
