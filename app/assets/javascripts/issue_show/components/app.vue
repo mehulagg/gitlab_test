@@ -13,6 +13,7 @@ import descriptionComponent from './description.vue';
 import editedComponent from './edited.vue';
 import formComponent from './form.vue';
 import PinnedLinks from './pinned_links.vue';
+import RelatedIssues from 'ee/related_issues/components/related_issues_root.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
 
@@ -25,6 +26,7 @@ export default {
     editedComponent,
     formComponent,
     PinnedLinks,
+    RelatedIssues,
   },
   mixins: [recaptchaModalImplementor],
   props: {
@@ -151,6 +153,21 @@ export default {
       type: Number,
       required: false,
       default: 0,
+    },
+    issueLinkEndpoint: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    canAddRelatedIssues: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    relatedIssuesHelpPath: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   data() {
@@ -469,5 +486,11 @@ export default {
         :updated-by-path="state.updatedByPath"
       />
     </div>
+
+    <related-issues
+      :endpoint="issueLinkEndpoint"
+      :can-admin="canAddRelatedIssues"
+      :help-path="relatedIssuesHelpPath"
+    />
   </div>
 </template>

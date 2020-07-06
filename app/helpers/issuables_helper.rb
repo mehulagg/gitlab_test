@@ -271,6 +271,7 @@ module IssuablesHelper
 
   def issuable_initial_data(issuable)
     data = {
+      # TODO: many of these are duplicated int he store
       endpoint: issuable_path(issuable),
       updateEndpoint: "#{issuable_path(issuable)}.json",
       canUpdate: can?(current_user, :"update_#{issuable.to_ability_name}", issuable),
@@ -285,7 +286,11 @@ module IssuablesHelper
       initialTitleText: issuable.title,
       initialDescriptionHtml: markdown_field(issuable, :description),
       initialDescriptionText: issuable.description,
-      initialTaskStatus: issuable.task_status
+      initialTaskStatus: issuable.task_status,
+      sentryIssuePresent: @issue.sentry_issue.present?,
+      issueLinkEndpoint: can?(current_user, :read_issue_link, @project) ? project_issue_links_path(@project, @issue) : '',
+      canAddRelatedIssues: can?(current_user, :admin_issue_link, @issue),
+      relatedIssuesHelpPath: help_page_path('user/project/issues/related_issues')
     }
     data.merge!(issue_only_initial_data(issuable))
     data.merge!(path_data(parent))

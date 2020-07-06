@@ -4,6 +4,7 @@ import initShow from '~/pages/projects/issues/show';
 import UserCallout from '~/user_callout';
 import trackShowInviteMemberLink from 'ee/projects/track_invite_members';
 
+// TODO: don't forget
 document.addEventListener('DOMContentLoaded', () => {
   initShow();
   if (gon.features && !gon.features.vueIssuableSidebar) {

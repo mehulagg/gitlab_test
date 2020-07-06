@@ -5,6 +5,15 @@ import { parseIssuableData } from './utils/parse_data';
 import { store } from '~/notes/stores';
 
 export default function initIssueableApp() {
+  // eslint-disable-next-line no-new
+  new Vue({
+    el: document.getElementById('js-issuable-header-warnings'),
+    store,
+    render(createElement) {
+      return createElement(IssuableHeaderWarnings);
+    },
+  });
+
   return new Vue({
     el: document.getElementById('js-issuable-app'),
     components: {
@@ -14,16 +23,6 @@ export default function initIssueableApp() {
       return createElement('issuable-app', {
         props: parseIssuableData(),
       });
-    },
-  });
-}
-
-export function issuableHeaderWarnings() {
-  return new Vue({
-    el: document.getElementById('js-issuable-header-warnings'),
-    store,
-    render(createElement) {
-      return createElement(IssuableHeaderWarnings);
     },
   });
 }

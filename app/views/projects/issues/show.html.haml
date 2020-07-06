@@ -59,18 +59,10 @@
         New issue
 
 .issue-details.issuable-details
-  .detail-page-description.content-block
+  - if Feature.enabled?(:todo)
     -# haml-lint:disable InlineJavaScript
     %script#js-issuable-app-initial-data{ type: "application/json" }= issuable_initial_data(@issue).to_json
     #js-issuable-app
-      %h2.title= markdown_field(@issue, :title)
-      - if @issue.description.present?
-        .description{ class: can?(current_user, :update_issue, @issue) ? 'js-task-list-container' : '' }
-          .md= markdown_field(@issue, :description)
-          %textarea.hidden.js-task-list-field= @issue.description
-
-      = edited_time_ago_with_tooltip(@issue, placement: 'bottom', html_class: 'issue-edited-ago js-issue-edited-ago')
-
     - if @issue.sentry_issue.present?
       #js-sentry-error-stack-trace{ data: error_details_data(@project, @issue.sentry_issue.sentry_issue_identifier) }
 
@@ -84,6 +76,32 @@
     - if can?(current_user, :download_code, @project)
       #related-branches{ data: { url: related_branches_project_issue_path(@project, @issue) } }
         -# This element is filled in using JavaScript.
+  - else
+    .detail-page-description.content-block
+      -# haml-lint:disable InlineJavaScript
+      %script#js-issuable-app-initial-data{ type: "application/json" }= issuable_initial_data(@issue).to_json
+      #js-issuable-app
+        %h2.title= markdown_field(@issue, :title)
+        - if @issue.description.present?
+          .description{ class: can?(current_user, :update_issue, @issue) ? 'js-task-list-container' : '' }
+            .md= markdown_field(@issue, :description)
+            %textarea.hidden.js-task-list-field= @issue.description
+
+        = edited_time_ago_with_tooltip(@issue, placement: 'bottom', html_class: 'issue-edited-ago js-issue-edited-ago')
+
+      - if @issue.sentry_issue.present?
+        #js-sentry-error-stack-trace{ data: error_details_data(@project, @issue.sentry_issue.sentry_issue_identifier) }
+
+      - if Feature.enabled?(:design_management_moved, @project)
+        = render 'projects/issues/design_management'
+
+      = render_if_exists 'projects/issues/related_issues'
+
+      #js-related-merge-requests{ data: { endpoint: expose_path(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid)), project_namespace: @project.namespace.path, project_path: @project.path } }
+
+      - if can?(current_user, :download_code, @project)
+        #related-branches{ data: { url: related_branches_project_issue_path(@project, @issue) } }
+          -# This element is filled in using JavaScript.
 
   .content-block.emoji-block.emoji-block-sticky
     .row.gl-m-0.gl-justify-content-space-between
