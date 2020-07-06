@@ -6,7 +6,7 @@ module Mutations
       authorize :award_emoji
 
       argument :awardable_id,
-               GraphQL::ID_TYPE,
+               ::Types::GlobalIDType[::Awardable],
                required: true,
                description: 'The global id of the awardable resource'
 
@@ -23,13 +23,15 @@ module Mutations
       private
 
       def find_object(id:)
-        GitlabSchema.object_from_id(id)
+        GitlabSchema.object_from_id(id).sync.tap do |obj|
+          check_object_is_awardable!(obj)
+        end
       end
 
       # Called by mutations methods after performing an authorization check
       # of an awardable object.
       def check_object_is_awardable!(object)
-        unless object.is_a?(Awardable) && object.emoji_awardable?
+        unless object.emoji_awardable?
           raise Gitlab::Graphql::Errors::ResourceNotAvailable,
                 'Cannot award emoji to this resource'
         end
