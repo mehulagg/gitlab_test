@@ -1456,7 +1456,7 @@ The documentation can include information about known bugs or future features. W
 a GitLab issue, use this boilerplate text:
 
 ```markdown
-<Description of issue>. Follow [this issue](<link>) for details.
+Related GitLab issue: [Issue description](<link>)
 ```
 
 For example:
