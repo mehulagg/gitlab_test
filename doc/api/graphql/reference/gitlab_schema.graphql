@@ -1792,6 +1792,11 @@ Identifier of Clusters::AgentToken
 """
 scalar ClustersAgentTokenID
 
+"""
+Identifier of Clusters::Cluster
+"""
+scalar ClustersClusterID
+
 type Commit {
   """
   Author of the commit
@@ -2331,7 +2336,7 @@ input CreateAnnotationInput {
   """
   The global id of the cluster to add an annotation to
   """
-  clusterId: ID
+  clusterId: ClustersClusterID
 
   """
   The path to a file defining the dashboard on which the annotation should be added
@@ -2351,7 +2356,7 @@ input CreateAnnotationInput {
   """
   The global id of the environment to add an annotation to
   """
-  environmentId: ID
+  environmentId: EnvironmentID
 
   """
   Timestamp indicating starting moment to which the annotation relates
@@ -3330,7 +3335,7 @@ input DeleteAnnotationInput {
   """
   The global ID of the annotation to delete
   """
-  id: ID!
+  id: MetricsDashboardAnnotationID!
 }
 
 """
@@ -4762,6 +4767,11 @@ type EnvironmentEdge {
   """
   node: Environment
 }
+
+"""
+Identifier of Environment
+"""
+scalar EnvironmentID
 
 """
 Represents an epic.
@@ -9706,6 +9716,11 @@ type MetricsDashboardAnnotationEdge {
   """
   node: MetricsDashboardAnnotation
 }
+
+"""
+Identifier of Metrics::Dashboard::Annotation
+"""
+scalar MetricsDashboardAnnotationID
 
 """
 Represents a milestone.

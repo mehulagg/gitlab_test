@@ -4925,6 +4925,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "ClustersClusterID",
+          "description": "Identifier of Clusters::Cluster",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "Commit",
           "description": null,
@@ -6272,7 +6282,7 @@
               "description": "The global id of the environment to add an annotation to",
               "type": {
                 "kind": "SCALAR",
-                "name": "ID",
+                "name": "EnvironmentID",
                 "ofType": null
               },
               "defaultValue": null
@@ -6282,7 +6292,7 @@
               "description": "The global id of the cluster to add an annotation to",
               "type": {
                 "kind": "SCALAR",
-                "name": "ID",
+                "name": "ClustersClusterID",
                 "ofType": null
               },
               "defaultValue": null
@@ -9056,7 +9066,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "ID",
+                  "name": "MetricsDashboardAnnotationID",
                   "ofType": null
                 }
               },
@@ -13381,6 +13391,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "EnvironmentID",
+          "description": "Identifier of Environment",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -27197,6 +27217,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "MetricsDashboardAnnotationID",
+          "description": "Identifier of Metrics::Dashboard::Annotation",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
