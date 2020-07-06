@@ -8,7 +8,7 @@ module Mutations
       authorize :update_user
 
       field :updated_ids,
-            [GraphQL::ID_TYPE],
+            [::Types::GlobalIDType[::Todo]],
             null: false,
             deprecated: { reason: 'Use todos', milestone: '13.2' },
             description: 'Ids of the updated todos'

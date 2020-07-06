@@ -7,8 +7,7 @@ module Mutations
 
       authorize :update_todo
 
-      argument :id,
-               GraphQL::ID_TYPE,
+      argument :id, ::Types::GlobalIDType[::Todo],
                required: true,
                description: 'The global id of the todo to mark as done'
 
