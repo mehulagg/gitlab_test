@@ -3,7 +3,7 @@
 module Resolvers
   module ErrorTracking
     class SentryErrorStackTraceResolver < BaseResolver
-      argument :id, GraphQL::ID_TYPE,
+      argument :id, ::Types::GlobalIDType[::Gitlab::ErrorTracking::DetailedError],
                 required: true,
                 description: 'ID of the Sentry issue'
 
