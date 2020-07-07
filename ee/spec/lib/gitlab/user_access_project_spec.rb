@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::UserAccess do
+RSpec.describe Gitlab::UserAccessProject do
   include ExternalAuthorizationServiceHelpers
 
   let(:user) { create(:user) }

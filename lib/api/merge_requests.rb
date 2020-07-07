@@ -104,7 +104,7 @@ module API
         forbidden!('Source branch does not exist') unless
           merge_request.source_branch_exists?
 
-        user_access = Gitlab::UserAccess.new(
+        user_access = Gitlab::UserAccessProject.new(
           current_user,
           project: merge_request.source_project
         )

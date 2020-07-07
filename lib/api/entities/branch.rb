@@ -32,7 +32,7 @@ module API
       end
 
       expose :can_push do |repo_branch, options|
-        Gitlab::UserAccess.new(options[:current_user], project: options[:project]).can_push_to_branch?(repo_branch.name)
+        Gitlab::UserAccessProject.new(options[:current_user], project: options[:project]).can_push_to_branch?(repo_branch.name)
       end
 
       expose :default do |repo_branch, options|

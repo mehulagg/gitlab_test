@@ -68,7 +68,7 @@ module Metrics
       end
 
       def push_authorized?
-        Gitlab::UserAccess.new(current_user, project: project).can_push_to_branch?(branch)
+        Gitlab::UserAccessProject.new(current_user, project: project).can_push_to_branch?(branch)
       end
 
       def valid_branch_name?

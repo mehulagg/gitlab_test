@@ -42,7 +42,7 @@ module Ci
     end
 
     def ref_protected?(user, project, tag, ref)
-      access = ::Gitlab::UserAccess.new(user, project: project)
+      access = ::Gitlab::UserAccessProject.new(user, project: project)
 
       if tag
         !access.can_create_tag?(ref)

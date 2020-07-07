@@ -400,7 +400,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   def check_user_can_push_to_source_branch!
     return access_denied! unless @merge_request.source_branch_exists?
 
-    access_check = ::Gitlab::UserAccess
+    access_check = ::Gitlab::UserAccessProject
       .new(current_user, project: @merge_request.source_project)
       .can_push_to_branch?(@merge_request.source_branch)
 

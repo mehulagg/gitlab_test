@@ -1182,12 +1182,12 @@ class MergeRequest < ApplicationRecord
   end
 
   def can_be_merged_by?(user)
-    access = ::Gitlab::UserAccess.new(user, project: project)
+    access = ::Gitlab::UserAccessProject.new(user, project: project)
     access.can_update_branch?(target_branch)
   end
 
   def can_be_merged_via_command_line_by?(user)
-    access = ::Gitlab::UserAccess.new(user, project: project)
+    access = ::Gitlab::UserAccessProject.new(user, project: project)
     access.can_push_to_branch?(target_branch)
   end
 

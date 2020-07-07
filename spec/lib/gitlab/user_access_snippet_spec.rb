@@ -102,46 +102,4 @@ RSpec.describe Gitlab::UserAccessSnippet do
       end
     end
   end
-
-  describe '#can_create_tag?' do
-    it 'returns false' do
-      expect(access.can_create_tag?('random_tag')).to be_falsey
-    end
-
-    context 'when user is migration bot' do
-      let(:user) { migration_bot }
-
-      it 'returns false' do
-        expect(access.can_create_tag?('random_tag')).to be_falsey
-      end
-    end
-  end
-
-  describe '#can_delete_branch?' do
-    it 'returns false' do
-      expect(access.can_delete_branch?('random_branch')).to be_falsey
-    end
-
-    context 'when user is migration bot' do
-      let(:user) { migration_bot }
-
-      it 'returns false' do
-        expect(access.can_delete_branch?('random_branch')).to be_falsey
-      end
-    end
-  end
-
-  describe '#can_merge_to_branch?' do
-    it 'returns false' do
-      expect(access.can_merge_to_branch?('random_branch')).to be_falsey
-    end
-
-    context 'when user is migration bot' do
-      let(:user) { migration_bot }
-
-      it 'returns false' do
-        expect(access.can_merge_to_branch?('random_branch')).to be_falsey
-      end
-    end
-  end
 end

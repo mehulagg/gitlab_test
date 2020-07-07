@@ -34,7 +34,7 @@ module Gitlab
             end
 
             def allowed_to_write_ref?
-              access = Gitlab::UserAccess.new(current_user, project: project)
+              access = Gitlab::UserAccessProject.new(current_user, project: project)
 
               if @command.branch_exists?
                 access.can_update_branch?(@command.ref)
