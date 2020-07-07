@@ -98,8 +98,6 @@ module EE
 
         # rubocop: disable CodeReuse/ActiveRecord
         def service_desk_counts
-          return {} unless ::License.feature_available?(:service_desk)
-
           projects_with_service_desk = ::Project.where(service_desk_enabled: true)
 
           {
@@ -218,6 +216,8 @@ module EE
             projects_enforcing_code_owner_approval: distinct_count(::Project.requiring_code_owner_approval.where(time_period), :creator_id),
             merge_requests_with_optional_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_optional.where(time_period), :merge_request_id),
             merge_requests_with_required_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_required.where(time_period), :merge_request_id),
+            projects_with_disable_overriding_approvers_per_merge_request: count(::Project.where(time_period.merge(disable_overriding_approvers_per_merge_request: true))),
+            projects_without_disable_overriding_approvers_per_merge_request: count(::Project.where(time_period.merge(disable_overriding_approvers_per_merge_request: [false, nil]))),
             projects_imported_from_github: distinct_count(::Project.github_imported.where(time_period), :creator_id),
             projects_with_repositories_enabled: distinct_count(::Project.with_repositories_enabled.where(time_period),
                                                                :creator_id,
@@ -255,11 +255,6 @@ module EE
         override :usage_activity_by_stage_monitor
         def usage_activity_by_stage_monitor(time_period)
           super.merge({
-            clusters: distinct_count(::Clusters::Cluster.where(time_period), :user_id),
-            clusters_applications_prometheus: cluster_applications_user_distinct_count(::Clusters::Applications::Prometheus, time_period),
-            operations_dashboard_default_dashboard: count(::User.active.with_dashboard('operations').where(time_period),
-                                                          start: user_minimum_id,
-                                                          finish: user_maximum_id),
             operations_dashboard_users_with_projects_added: distinct_count(UsersOpsDashboardProject.joins(:user).merge(::User.active).where(time_period), :user_id),
             projects_prometheus_active: distinct_count(::Project.with_active_prometheus_service.where(time_period), :creator_id),
             projects_with_error_tracking_enabled: distinct_count(::Project.with_enabled_error_tracking.where(time_period), :creator_id),

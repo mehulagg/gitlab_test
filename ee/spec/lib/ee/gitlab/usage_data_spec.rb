@@ -216,34 +216,15 @@ RSpec.describe Gitlab::UsageData do
   describe '.service_desk_counts' do
     subject { described_class.service_desk_counts }
 
-    context 'when Service Desk is disabled' do
-      it 'returns an empty hash' do
-        stub_licensed_features(service_desk: false)
+    let(:project) { create(:project, :service_desk_enabled) }
 
-        expect(subject).to eq({})
-      end
-    end
+    it 'gathers Service Desk data' do
+      create_list(:issue, 2, confidential: true, author: User.support_bot, project: project)
 
-    context 'when there is no license' do
-      it 'returns an empty hash' do
-        allow(License).to receive(:current).and_return(nil)
+      allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).with(anything).and_return(true)
 
-        expect(subject).to eq({})
-      end
-    end
-
-    context 'when Service Desk is enabled' do
-      let(:project) { create(:project, :service_desk_enabled) }
-
-      it 'gathers Service Desk data' do
-        create_list(:issue, 2, confidential: true, author: User.support_bot, project: project)
-
-        stub_licensed_features(service_desk: true)
-        allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).with(anything).and_return(true)
-
-        expect(subject).to eq(service_desk_enabled_projects: 1,
-                              service_desk_issues: 2)
-      end
+      expect(subject).to eq(service_desk_enabled_projects: 1,
+                            service_desk_issues: 2)
     end
   end
 
@@ -265,7 +246,7 @@ RSpec.describe Gitlab::UsageData do
     end
   end
 
-  describe '#operations_dashboard_usage' do
+  describe '.operations_dashboard_usage' do
     subject { described_class.operations_dashboard_usage }
 
     before_all do
@@ -331,6 +312,8 @@ RSpec.describe Gitlab::UsageData do
             create(:deploy_key, user: user)
             create(:key, user: user)
             create(:project, creator: user)
+            create(:project, creator: user, disable_overriding_approvers_per_merge_request: true)
+            create(:project, creator: user, disable_overriding_approvers_per_merge_request: false)
             create(:protected_branch, project: project)
             create(:remote_mirror, project: project)
             create(:snippet, author: user)
@@ -348,6 +331,8 @@ RSpec.describe Gitlab::UsageData do
             projects_enforcing_code_owner_approval: 0,
             merge_requests_with_optional_codeowners: 4,
             merge_requests_with_required_codeowners: 8,
+            projects_with_disable_overriding_approvers_per_merge_request: 2,
+            projects_without_disable_overriding_approvers_per_merge_request: 16,
             projects_imported_from_github: 2,
             projects_with_repositories_enabled: 12,
             protected_branches: 2,
@@ -360,8 +345,11 @@ RSpec.describe Gitlab::UsageData do
             keys: 1,
             merge_requests: 6,
             projects_enforcing_code_owner_approval: 0,
+            merge_requests_users: 0,
             merge_requests_with_optional_codeowners: 2,
             merge_requests_with_required_codeowners: 4,
+            projects_with_disable_overriding_approvers_per_merge_request: 1,
+            projects_without_disable_overriding_approvers_per_merge_request: 8,
             projects_imported_from_github: 1,
             projects_with_repositories_enabled: 6,
             protected_branches: 1,
@@ -451,29 +439,20 @@ RSpec.describe Gitlab::UsageData do
         it 'includes accurate usage_activity_by_stage data' do
           for_defined_days_back do
             user    = create(:user, dashboard: 'operations')
-            cluster = create(:cluster, user: user)
             project = create(:project, creator: user)
-
-            create(:clusters_applications_prometheus, :installed, cluster: cluster)
             create(:users_ops_dashboard_project, user: user)
             create(:prometheus_service, project: project)
             create(:project_error_tracking_setting, project: project)
             create(:project_tracing_setting, project: project)
           end
 
-          expect(described_class.uncached_data[:usage_activity_by_stage][:monitor]).to eq(
-            clusters: 2,
-            clusters_applications_prometheus: 2,
-            operations_dashboard_default_dashboard: 2,
+          expect(described_class.uncached_data[:usage_activity_by_stage][:monitor]).to include(
             operations_dashboard_users_with_projects_added: 2,
             projects_prometheus_active: 2,
             projects_with_error_tracking_enabled: 2,
             projects_with_tracing_enabled: 2
           )
-          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:monitor]).to eq(
-            clusters: 1,
-            clusters_applications_prometheus: 1,
-            operations_dashboard_default_dashboard: 1,
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:monitor]).to include(
             operations_dashboard_users_with_projects_added: 1,
             projects_prometheus_active: 1,
             projects_with_error_tracking_enabled: 1,

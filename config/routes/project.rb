@@ -25,6 +25,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Use this scope for all new project routes.
       scope '-' do
         get 'archive/*id', constraints: { format: Gitlab::PathRegex.archive_formats_regex, id: /.+?/ }, to: 'repositories#archive', as: 'archive'
+        get 'metrics(/:dashboard_path)', constraints: { dashboard_path: /.+\.yml/ },
+          to: 'metrics_dashboard#show', as: :metrics_dashboard, format: false
 
         resources :artifacts, only: [:index, :destroy]
 
@@ -257,7 +259,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
             get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', format: false
 
-            get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy', as: :prometheus_api
+            get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#prometheus_proxy', as: :prometheus_api
 
             get '/sample_metrics', to: 'environments/sample_metrics#query'
           end

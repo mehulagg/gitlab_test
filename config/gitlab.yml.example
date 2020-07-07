@@ -210,7 +210,6 @@ production: &base
   ## within the types (e.g. artifacts, lfs, etc.).
   # object_store:
   #   enabled: false
-  #   remote_directory: artifacts # The bucket name
   #   proxy_download: false # Passthrough all downloads via GitLab instead of using Redirects to Object Storage
   #   connection:
   #     provider: AWS # Only AWS supported at the moment
@@ -520,6 +519,11 @@ production: &base
     # NOTE: This will only take effect if elasticsearch is enabled.
     elastic_index_initial_bulk_cron_worker:
       cron: "*/1 * * * *"
+
+    # Elasticsearch reindexing worker
+    # NOTE: This will only take effect if elasticsearch is enabled.
+    elastic_index_initial_bulk_cron_worker:
+      cron: "*/10 * * * *"
 
   registry:
     # enabled: true
@@ -1209,7 +1213,7 @@ test:
     # has been pushed).
     # when: always
     # The location where external diffs are stored (default: shared/external-diffs).
-    # storage_path: shared/external-diffs
+    storage_path: tmp/tests/external-diffs
     object_store:
       enabled: false
       remote_directory: external-diffs # The bucket name

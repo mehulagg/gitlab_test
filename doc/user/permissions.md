@@ -155,6 +155,7 @@ The following table depicts the various user permission levels in a project.
 | Remove project                                    |         |            |             |          | ✓      |
 | Archive project                                   |         |            |             |          | ✓      |
 | Delete issues                                     |         |            |             |          | ✓      |
+| Delete pipelines                                  |         |            |             |          | ✓      |
 | Delete merge request                              |         |            |             |          | ✓      |
 | Disable notification emails                       |         |            |             |          | ✓      |
 | Force push to protected branches (*4*)            |         |            |             |          |        |
@@ -256,6 +257,8 @@ group.
 | Edit epic comments (posted by any user) **(ULTIMATE)** |       |          |           | ✓ (2)      | ✓ (2) |
 | Edit group settings                                    |       |          |           |            | ✓     |
 | Manage group level CI/CD variables                     |       |          |           |            | ✓     |
+| List group deploy tokens                               |       |          |           | ✓          | ✓     |
+| Create/Delete group deploy tokens                      |       |          |           |            | ✓     |
 | Manage group members                                   |       |          |           |            | ✓     |
 | Delete group                                           |       |          |           |            | ✓     |
 | Delete group epic **(ULTIMATE)**                       |       |          |           |            | ✓     |
@@ -281,7 +284,7 @@ group.
 ### Subgroup permissions
 
 When you add a member to a subgroup, they inherit the membership and
-permission level from the parent group. This model allows access to
+permission level from the parent group(s). This model allows access to
 nested groups if you have membership in one of its parents.
 
 To learn more, read through the documentation on

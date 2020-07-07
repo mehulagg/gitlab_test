@@ -19,7 +19,6 @@ module Gitlab
 
       def print_status
         print_current_node_info
-        print_postgres_version
 
         print_gitlab_version
         print_geo_role
@@ -42,6 +41,23 @@ module Gitlab
         print_last_status_report_time
 
         puts
+      end
+
+      def print_replication_verification_status
+        print_repositories_status
+        print_verified_repositories
+        print_wikis_status
+        print_verified_wikis
+        print_lfs_objects_status
+        print_attachments_status
+        print_ci_job_artifacts_status
+        print_container_repositories_status
+        print_design_repositories_status
+        print_repositories_checked_status
+      end
+
+      def replication_verification_complete?
+        return replication_complete? && verification_complete?
       end
 
       private
@@ -134,16 +150,6 @@ module Gitlab
         end
       end
 
-      def print_postgres_version
-        unless Gitlab::Database.postgresql_minimum_supported_version?
-          puts
-          puts 'WARNING: Please upgrade PostgreSQL to version 9.6 or greater.'\
-            ' The status of the replication cannot be determined reliably '\
-            'with the current version.'.color(:red)
-          puts
-        end
-      end
-
       def print_repositories_status
         print 'Repositories: '.rjust(GEO_STATUS_COLUMN_WIDTH)
 
@@ -221,6 +227,44 @@ module Gitlab
           show_failed_value(current_node_status.repositories_checked_failed_count)
           print "#{current_node_status.repositories_checked_count}/#{current_node_status.projects_count} "
           puts using_percentage(current_node_status.repositories_checked_in_percentage)
+        end
+      end
+
+      def replication_complete?
+        replicables.all? { |failed_count| failed_count == 0 }
+      end
+
+      def verification_complete?
+        verifiables.all? { |failed_count| failed_count == 0 }
+      end
+
+      def replicables
+        [
+          current_node_status.repositories_failed_count,
+          current_node_status.wikis_failed_count,
+          current_node_status.lfs_objects_failed_count,
+          current_node_status.attachments_failed_count,
+          current_node_status.job_artifacts_failed_count,
+          current_node_status.design_repositories_failed_count
+        ].tap do |r|
+          if Gitlab.config.geo.registry_replication.enabled
+            r.push current_node_status.container_repositories_failed_count
+          end
+        end
+      end
+
+      def verifiables
+        [].tap do |v|
+          if Gitlab::Geo.repository_verification_enabled?
+            v.push(
+              current_node_status.repositories_verification_failed_count,
+              current_node_status.wikis_verification_failed_count
+            )
+          end
+
+          if Gitlab::CurrentSettings.repository_checks_enabled
+            v.push current_node_status.repositories_checked_failed_count
+          end
         end
       end
 

@@ -260,6 +260,11 @@ type AlertManagementAlert implements Noteable {
   issueIid: ID
 
   """
+  URL for metrics embed for the alert
+  """
+  metricsDashboardUrl: String
+
+  """
   Monitoring tool the alert came from
   """
   monitoringTool: String
@@ -390,12 +395,12 @@ enum AlertManagementAlertSort {
   EVENT_COUNT_DESC
 
   """
-  Severity by ascending order
+  Severity from less critical to more critical
   """
   SEVERITY_ASC
 
   """
-  Severity by descending order
+  Severity from more critical to less critical
   """
   SEVERITY_DESC
 
@@ -410,12 +415,12 @@ enum AlertManagementAlertSort {
   STARTED_AT_DESC
 
   """
-  Status by ascending order
+  Status by order: Ignored > Resolved > Acknowledged > Triggered
   """
   STATUS_ASC
 
   """
-  Status by descending order
+  Status by order: Triggered > Acknowledged > Resolved > Ignored
   """
   STATUS_DESC
 
@@ -807,6 +812,11 @@ type Blob implements Entry {
   Type of tree entry
   """
   type: EntryType!
+
+  """
+  Web path of the blob
+  """
+  webPath: String
 
   """
   Web URL of the blob
@@ -1210,6 +1220,11 @@ type Commit {
   The GitLab Flavored Markdown rendering of `title`
   """
   titleHtml: String
+
+  """
+  Web path of the commit
+  """
+  webPath: String!
 
   """
   Web URL of the commit
@@ -3159,6 +3174,11 @@ type DiffStatsSummary {
   Number of lines deleted
   """
   deletions: Int!
+
+  """
+  Number of files changed
+  """
+  fileCount: Int!
 }
 
 type Discussion implements ResolvableInterface {
@@ -5246,7 +5266,7 @@ type Group {
   """
   Total storage limit of the root namespace in bytes
   """
-  storageSizeLimit: Int
+  storageSizeLimit: Float
 
   """
   The permission level required to create subgroups within the group
@@ -5399,6 +5419,31 @@ type Group {
   ): VulnerabilitiesCountByDayAndSeverityConnection
 
   """
+  Vulnerability scanners reported on the project vulnerabilties of the group and its subgroups
+  """
+  vulnerabilityScanners(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): VulnerabilityScannerConnection
+
+  """
   Web URL of the group
   """
   webUrl: String!
@@ -5525,6 +5570,31 @@ type InstanceSecurityDashboard {
     """
     last: Int
   ): ProjectConnection!
+
+  """
+  Vulnerability scanners reported on the vulnerabilties from projects selected in Instance Security Dashboard
+  """
+  vulnerabilityScanners(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): VulnerabilityScannerConnection
 }
 
 """
@@ -6383,6 +6453,11 @@ input JiraImportStartInput {
   The project to import the Jira project into
   """
   projectPath: ID!
+
+  """
+  The mapping of Jira to GitLab users
+  """
+  usersMapping: [JiraUsersMappingInputType!]
 }
 
 """
@@ -6559,6 +6634,18 @@ type JiraUser {
   Email of the Jira user, returned only for users with public emails
   """
   jiraEmail: String
+}
+
+input JiraUsersMappingInputType {
+  """
+  Id of the GitLab user
+  """
+  gitlabId: Int
+
+  """
+  Jira account id of the user
+  """
+  jiraAccountId: String!
 }
 
 type Label {
@@ -8079,7 +8166,7 @@ type Namespace {
   """
   Total storage limit of the root namespace in bytes
   """
-  storageSizeLimit: Int
+  storageSizeLimit: Float
 
   """
   Visibility of the namespace
@@ -9585,6 +9672,11 @@ type Project {
   ): RequirementConnection
 
   """
+  SAST CI configuration for the project
+  """
+  sastCiConfiguration: SastCiConfiguration
+
+  """
   Detailed version of a Sentry error on the project
   """
   sentryDetailedError(
@@ -9773,6 +9865,31 @@ type Project {
     """
     state: [VulnerabilityState!]
   ): VulnerabilityConnection
+
+  """
+  Vulnerability scanners reported on the project vulnerabilties
+  """
+  vulnerabilityScanners(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): VulnerabilityScannerConnection
 
   """
   Counts for each severity of vulnerability of the project
@@ -11248,6 +11365,11 @@ type RootStorageStatistics {
   repositorySize: Float!
 
   """
+  The snippets size in bytes
+  """
+  snippetsSize: Float!
+
+  """
   The total storage in bytes
   """
   storageSize: Float!
@@ -11309,6 +11431,341 @@ type RunDASTScanPayload {
 }
 
 """
+Represents a CI configuration of SAST
+"""
+type SastCiConfiguration {
+  """
+  List of analyzers entities attached to SAST configuration.
+  """
+  analyzers(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): SastCiConfigurationAnalyzersEntityConnection
+
+  """
+  List of global entities related to SAST configuration.
+  """
+  global(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): SastCiConfigurationEntityConnection
+
+  """
+  List of pipeline entities related to SAST configuration.
+  """
+  pipeline(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): SastCiConfigurationEntityConnection
+}
+
+"""
+Represents an analyzer entity in SAST CI configuration
+"""
+type SastCiConfigurationAnalyzersEntity {
+  """
+  Analyzer description that is displayed on the form.
+  """
+  description: String
+
+  """
+  Indicates whether an analyzer is enabled.
+  """
+  enabled: Boolean
+
+  """
+  Analyzer label used in the config UI.
+  """
+  label: String
+
+  """
+  Name of the analyzer.
+  """
+  name: String
+}
+
+"""
+The connection type for SastCiConfigurationAnalyzersEntity.
+"""
+type SastCiConfigurationAnalyzersEntityConnection {
+  """
+  A list of edges.
+  """
+  edges: [SastCiConfigurationAnalyzersEntityEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [SastCiConfigurationAnalyzersEntity]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type SastCiConfigurationAnalyzersEntityEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: SastCiConfigurationAnalyzersEntity
+}
+
+"""
+Represents an entity in SAST CI configuration
+"""
+type SastCiConfigurationEntity {
+  """
+  Default value that is used if value is empty.
+  """
+  defaultValue: String
+
+  """
+  Entity description that is displayed on the form.
+  """
+  description: String
+
+  """
+  CI keyword of entity.
+  """
+  field: String
+
+  """
+  Label for entity used in the form.
+  """
+  label: String
+
+  """
+  Different possible values of the field.
+  """
+  options(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): SastCiConfigurationOptionsEntityConnection
+
+  """
+  Type of the field value.
+  """
+  type: String
+
+  """
+  Current value of the entity.
+  """
+  value: String
+}
+
+"""
+The connection type for SastCiConfigurationEntity.
+"""
+type SastCiConfigurationEntityConnection {
+  """
+  A list of edges.
+  """
+  edges: [SastCiConfigurationEntityEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [SastCiConfigurationEntity]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type SastCiConfigurationEntityEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: SastCiConfigurationEntity
+}
+
+"""
+Represents an entity for options in SAST CI configuration
+"""
+type SastCiConfigurationOptionsEntity {
+  """
+  Label of option entity.
+  """
+  label: String
+
+  """
+  Value of option entity.
+  """
+  value: String
+}
+
+"""
+The connection type for SastCiConfigurationOptionsEntity.
+"""
+type SastCiConfigurationOptionsEntityConnection {
+  """
+  A list of edges.
+  """
+  edges: [SastCiConfigurationOptionsEntityEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [SastCiConfigurationOptionsEntity]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type SastCiConfigurationOptionsEntityEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: SastCiConfigurationOptionsEntity
+}
+
+"""
+Represents a resource scanned by a security scan
+"""
+type ScannedResource {
+  """
+  The HTTP request method used to access the URL
+  """
+  requestMethod: String
+
+  """
+  The URL scanned by the scanner
+  """
+  url: String
+}
+
+"""
+The connection type for ScannedResource.
+"""
+type ScannedResourceConnection {
+  """
+  A list of edges.
+  """
+  edges: [ScannedResourceEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [ScannedResource]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type ScannedResourceEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: ScannedResource
+}
+
+"""
 Represents summary of a security report
 """
 type SecurityReportSummary {
@@ -11316,6 +11773,11 @@ type SecurityReportSummary {
   Aggregated counts for the container_scanning scan
   """
   containerScanning: SecurityReportSummarySection
+
+  """
+  Aggregated counts for the coverage_fuzzing scan
+  """
+  coverageFuzzing: SecurityReportSummarySection
 
   """
   Aggregated counts for the dast scan
@@ -11343,9 +11805,39 @@ Represents a section of a summary of a security report
 """
 type SecurityReportSummarySection {
   """
+  A list of the first 20 scanned resources
+  """
+  scannedResources(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): ScannedResourceConnection
+
+  """
   Total number of scanned resources
   """
   scannedResourcesCount: Int
+
+  """
+  Path to download all the scanned resources in CSV format
+  """
+  scannedResourcesCsvPath: String
 
   """
   Total number of vulnerabilities
@@ -11383,9 +11875,14 @@ type SentryDetailedError {
   firstReleaseLastCommit: String
 
   """
-  Release version the error was first seen
+  Release short version the error was first seen
   """
   firstReleaseShortVersion: String
+
+  """
+  Release version the error was first seen
+  """
+  firstReleaseVersion: String
 
   """
   Timestamp when the error was first seen
@@ -11423,9 +11920,14 @@ type SentryDetailedError {
   lastReleaseLastCommit: String
 
   """
-  Release version the error was last seen
+  Release short version the error was last seen
   """
   lastReleaseShortVersion: String
+
+  """
+  Release version the error was last seen
+  """
+  lastReleaseVersion: String
 
   """
   Timestamp when the error was last seen
@@ -12901,6 +13403,11 @@ type TreeEntry implements Entry {
   type: EntryType!
 
   """
+  Web path for the tree entry (directory)
+  """
+  webPath: String
+
+  """
   Web URL for the tree entry (directory)
   """
   webUrl: String
@@ -13802,6 +14309,11 @@ type User {
   username: String!
 
   """
+  Web path of the user
+  """
+  webPath: String!
+
+  """
   Web URL of the user
   """
   webUrl: String!
@@ -14002,7 +14514,8 @@ type Vulnerability {
 
   """
   Type of the security report that found the vulnerability (SAST,
-  DEPENDENCY_SCANNING, CONTAINER_SCANNING, DAST, SECRET_DETECTION)
+  DEPENDENCY_SCANNING, CONTAINER_SCANNING, DAST, SECRET_DETECTION,
+  COVERAGE_FUZZING)
   """
   reportType: VulnerabilityReportType
 
@@ -14340,6 +14853,7 @@ The type of the security scan that found the vulnerability.
 """
 enum VulnerabilityReportType {
   CONTAINER_SCANNING
+  COVERAGE_FUZZING
   DAST
   DEPENDENCY_SCANNING
   SAST
@@ -14359,6 +14873,51 @@ type VulnerabilityScanner {
   Name of the vulnerability scanner
   """
   name: String
+
+  """
+  Type of the vulnerability report
+  """
+  reportType: VulnerabilityReportType
+
+  """
+  Vendor of the vulnerability scanner
+  """
+  vendor: String
+}
+
+"""
+The connection type for VulnerabilityScanner.
+"""
+type VulnerabilityScannerConnection {
+  """
+  A list of edges.
+  """
+  edges: [VulnerabilityScannerEdge]
+
+  """
+  A list of nodes.
+  """
+  nodes: [VulnerabilityScanner]
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in a connection.
+"""
+type VulnerabilityScannerEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+
+  """
+  The item at the end of the edge.
+  """
+  node: VulnerabilityScanner
 }
 
 """

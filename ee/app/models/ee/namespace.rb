@@ -212,7 +212,7 @@ module EE
 
     def shared_runners_minutes_limit_enabled?
       shared_runner_minutes_supported? &&
-        shared_runners_enabled? &&
+        any_project_with_shared_runners_enabled? &&
         actual_shared_runners_minutes_limit.nonzero?
     end
 
@@ -238,7 +238,7 @@ module EE
         extra_shared_runners_minutes.to_i >= extra_shared_runners_minutes_limit
     end
 
-    def shared_runners_enabled?
+    def any_project_with_shared_runners_enabled?
       all_projects.with_shared_runners.any?
     end
 
@@ -307,7 +307,8 @@ module EE
       feature_available?(:secret_detection) ||
       feature_available?(:dependency_scanning) ||
       feature_available?(:container_scanning) ||
-      feature_available?(:dast)
+      feature_available?(:dast) ||
+      feature_available?(:coverage_fuzzing)
     end
 
     def free_plan?

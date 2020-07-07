@@ -9144,6 +9144,8 @@ CREATE TABLE public.application_settings (
     enforce_pat_expiration boolean DEFAULT true NOT NULL,
     compliance_frameworks smallint[] DEFAULT '{}'::smallint[] NOT NULL,
     notify_on_unknown_sign_in boolean DEFAULT true NOT NULL,
+    default_branch_name text,
+    CONSTRAINT check_51700b31b5 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_d03919528d CHECK ((char_length(container_registry_vendor) <= 255)),
     CONSTRAINT check_d820146492 CHECK ((char_length(spam_check_endpoint_url) <= 255)),
     CONSTRAINT check_e5aba18f02 CHECK ((char_length(container_registry_version) <= 255))
@@ -10816,6 +10818,26 @@ CREATE SEQUENCE public.conversational_development_index_metrics_id_seq
 
 ALTER SEQUENCE public.conversational_development_index_metrics_id_seq OWNED BY public.conversational_development_index_metrics.id;
 
+CREATE TABLE public.custom_emoji (
+    id bigint NOT NULL,
+    namespace_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    file text NOT NULL,
+    CONSTRAINT check_8c586dd507 CHECK ((char_length(name) <= 36)),
+    CONSTRAINT check_dd5d60f1fb CHECK ((char_length(file) <= 255))
+);
+
+CREATE SEQUENCE public.custom_emoji_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.custom_emoji_id_seq OWNED BY public.custom_emoji.id;
+
 CREATE TABLE public.dependency_proxy_blobs (
     id integer NOT NULL,
     group_id integer NOT NULL,
@@ -11070,6 +11092,33 @@ CREATE SEQUENCE public.draft_notes_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.draft_notes_id_seq OWNED BY public.draft_notes.id;
+
+CREATE TABLE public.elastic_reindexing_tasks (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    documents_count integer,
+    state smallint DEFAULT 0 NOT NULL,
+    in_progress boolean DEFAULT true NOT NULL,
+    index_name_from text,
+    index_name_to text,
+    elastic_task text,
+    error_message text,
+    documents_count_target integer,
+    CONSTRAINT check_04151aca42 CHECK ((char_length(index_name_from) <= 255)),
+    CONSTRAINT check_7f64acda8e CHECK ((char_length(error_message) <= 255)),
+    CONSTRAINT check_85ebff7124 CHECK ((char_length(index_name_to) <= 255)),
+    CONSTRAINT check_942e5aae53 CHECK ((char_length(elastic_task) <= 255))
+);
+
+CREATE SEQUENCE public.elastic_reindexing_tasks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.elastic_reindexing_tasks_id_seq OWNED BY public.elastic_reindexing_tasks.id;
 
 CREATE TABLE public.elasticsearch_indexed_namespaces (
     created_at timestamp with time zone NOT NULL,
@@ -12356,6 +12405,7 @@ CREATE TABLE public.jira_tracker_data (
     encrypted_password_iv character varying,
     jira_issue_transition_id character varying,
     project_key text,
+    issues_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_214cf6a48b CHECK ((char_length(project_key) <= 255))
 );
 
@@ -12973,7 +13023,8 @@ CREATE TABLE public.namespace_root_storage_statistics (
     wiki_size bigint DEFAULT 0 NOT NULL,
     build_artifacts_size bigint DEFAULT 0 NOT NULL,
     storage_size bigint DEFAULT 0 NOT NULL,
-    packages_size bigint DEFAULT 0 NOT NULL
+    packages_size bigint DEFAULT 0 NOT NULL,
+    snippets_size bigint DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE public.namespace_statistics (
@@ -13037,7 +13088,9 @@ CREATE TABLE public.namespaces (
     default_branch_protection smallint,
     unlock_membership_to_ldap boolean,
     max_personal_access_token_lifetime integer,
-    push_rule_id bigint
+    push_rule_id bigint,
+    shared_runners_enabled boolean DEFAULT true NOT NULL,
+    allow_descendants_override_disabled_shared_runners boolean DEFAULT false NOT NULL
 );
 
 CREATE SEQUENCE public.namespaces_id_seq
@@ -13710,7 +13763,31 @@ CREATE TABLE public.plan_limits (
     ci_pipeline_schedules integer DEFAULT 10 NOT NULL,
     offset_pagination_limit integer DEFAULT 50000 NOT NULL,
     ci_instance_level_variables integer DEFAULT 25 NOT NULL,
-    storage_size_limit integer DEFAULT 0 NOT NULL
+    storage_size_limit integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_lsif integer DEFAULT 20 NOT NULL,
+    ci_max_artifact_size_archive integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_metadata integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_trace integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_junit integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_sast integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_dependency_scanning integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_container_scanning integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_dast integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_codequality integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_license_management integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_license_scanning integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_performance integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_metrics integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_metrics_referee integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_network_referee integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_dotenv integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_cobertura integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_terraform integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_accessibility integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_cluster_applications integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_secret_detection integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_requirements integer DEFAULT 0 NOT NULL,
+    ci_max_artifact_size_coverage_fuzzing integer DEFAULT 0 NOT NULL
 );
 
 CREATE SEQUENCE public.plan_limits_id_seq
@@ -14140,6 +14217,8 @@ CREATE TABLE public.project_settings (
     push_rule_id bigint,
     show_default_award_emojis boolean DEFAULT true,
     allow_merge_on_skipped_pipeline boolean,
+    squash_option smallint DEFAULT 3,
+    has_confluence boolean DEFAULT false NOT NULL,
     CONSTRAINT check_bde223416c CHECK ((show_default_award_emojis IS NOT NULL))
 );
 
@@ -16390,6 +16469,8 @@ ALTER TABLE ONLY public.container_repositories ALTER COLUMN id SET DEFAULT nextv
 
 ALTER TABLE ONLY public.conversational_development_index_metrics ALTER COLUMN id SET DEFAULT nextval('public.conversational_development_index_metrics_id_seq'::regclass);
 
+ALTER TABLE ONLY public.custom_emoji ALTER COLUMN id SET DEFAULT nextval('public.custom_emoji_id_seq'::regclass);
+
 ALTER TABLE ONLY public.dependency_proxy_blobs ALTER COLUMN id SET DEFAULT nextval('public.dependency_proxy_blobs_id_seq'::regclass);
 
 ALTER TABLE ONLY public.dependency_proxy_group_settings ALTER COLUMN id SET DEFAULT nextval('public.dependency_proxy_group_settings_id_seq'::regclass);
@@ -16413,6 +16494,8 @@ ALTER TABLE ONLY public.design_user_mentions ALTER COLUMN id SET DEFAULT nextval
 ALTER TABLE ONLY public.diff_note_positions ALTER COLUMN id SET DEFAULT nextval('public.diff_note_positions_id_seq'::regclass);
 
 ALTER TABLE ONLY public.draft_notes ALTER COLUMN id SET DEFAULT nextval('public.draft_notes_id_seq'::regclass);
+
+ALTER TABLE ONLY public.elastic_reindexing_tasks ALTER COLUMN id SET DEFAULT nextval('public.elastic_reindexing_tasks_id_seq'::regclass);
 
 ALTER TABLE ONLY public.emails ALTER COLUMN id SET DEFAULT nextval('public.emails_id_seq'::regclass);
 
@@ -17345,6 +17428,9 @@ ALTER TABLE ONLY public.container_repositories
 ALTER TABLE ONLY public.conversational_development_index_metrics
     ADD CONSTRAINT conversational_development_index_metrics_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.custom_emoji
+    ADD CONSTRAINT custom_emoji_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.dependency_proxy_blobs
     ADD CONSTRAINT dependency_proxy_blobs_pkey PRIMARY KEY (id);
 
@@ -17383,6 +17469,9 @@ ALTER TABLE ONLY public.diff_note_positions
 
 ALTER TABLE ONLY public.draft_notes
     ADD CONSTRAINT draft_notes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.elastic_reindexing_tasks
+    ADD CONSTRAINT elastic_reindexing_tasks_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.emails
     ADD CONSTRAINT emails_pkey PRIMARY KEY (id);
@@ -18333,6 +18422,10 @@ CREATE UNIQUE INDEX idx_project_id_payload_key_self_managed_prometheus_alert_eve
 
 CREATE INDEX idx_project_repository_check_partial ON public.projects USING btree (repository_storage, created_at) WHERE (last_repository_check_at IS NULL);
 
+CREATE INDEX idx_projects_id_created_at_disable_overriding_approvers_false ON public.projects USING btree (id, created_at) WHERE ((disable_overriding_approvers_per_merge_request = false) OR (disable_overriding_approvers_per_merge_request IS NULL));
+
+CREATE INDEX idx_projects_id_created_at_disable_overriding_approvers_true ON public.projects USING btree (id, created_at) WHERE (disable_overriding_approvers_per_merge_request = true);
+
 CREATE INDEX idx_projects_on_repository_storage_last_repository_updated_at ON public.projects USING btree (id, repository_storage, last_repository_updated_at);
 
 CREATE INDEX idx_repository_states_on_last_repository_verification_ran_at ON public.project_repository_states USING btree (project_id, last_repository_verification_ran_at) WHERE ((repository_verification_checksum IS NOT NULL) AND (last_repository_verification_failure IS NULL));
@@ -18671,6 +18764,8 @@ CREATE INDEX index_ci_pipelines_on_project_idandrefandiddesc ON public.ci_pipeli
 
 CREATE INDEX index_ci_pipelines_on_status ON public.ci_pipelines USING btree (status);
 
+CREATE INDEX index_ci_pipelines_on_user_id_and_created_at_and_config_source ON public.ci_pipelines USING btree (user_id, created_at, config_source);
+
 CREATE INDEX index_ci_pipelines_on_user_id_and_created_at_and_source ON public.ci_pipelines USING btree (user_id, created_at, source);
 
 CREATE UNIQUE INDEX index_ci_refs_on_project_id_and_ref_path ON public.ci_refs USING btree (project_id, ref_path);
@@ -18811,6 +18906,8 @@ CREATE UNIQUE INDEX index_container_repositories_on_project_id_and_name ON publi
 
 CREATE INDEX index_container_repository_on_name_trigram ON public.container_repositories USING gin (name public.gin_trgm_ops);
 
+CREATE UNIQUE INDEX index_custom_emoji_on_namespace_id_and_name ON public.custom_emoji USING btree (namespace_id, name);
+
 CREATE UNIQUE INDEX index_daily_build_group_report_results_unique_columns ON public.ci_daily_build_group_report_results USING btree (project_id, ref_path, date, group_name);
 
 CREATE UNIQUE INDEX index_daily_report_results_unique_columns ON public.ci_daily_report_results USING btree (project_id, ref_path, param_type, date, title);
@@ -18894,6 +18991,10 @@ CREATE INDEX index_draft_notes_on_author_id ON public.draft_notes USING btree (a
 CREATE INDEX index_draft_notes_on_discussion_id ON public.draft_notes USING btree (discussion_id);
 
 CREATE INDEX index_draft_notes_on_merge_request_id ON public.draft_notes USING btree (merge_request_id);
+
+CREATE UNIQUE INDEX index_elastic_reindexing_tasks_on_in_progress ON public.elastic_reindexing_tasks USING btree (in_progress) WHERE in_progress;
+
+CREATE INDEX index_elastic_reindexing_tasks_on_state ON public.elastic_reindexing_tasks USING btree (state);
 
 CREATE INDEX index_elasticsearch_indexed_namespaces_on_created_at ON public.elasticsearch_indexed_namespaces USING btree (created_at);
 
@@ -20287,7 +20388,7 @@ CREATE UNIQUE INDEX index_vulnerability_scanners_on_project_id_and_external_id O
 
 CREATE INDEX index_vulnerability_statistics_on_letter_grade ON public.vulnerability_statistics USING btree (letter_grade);
 
-CREATE INDEX index_vulnerability_statistics_on_project_id ON public.vulnerability_statistics USING btree (project_id);
+CREATE UNIQUE INDEX index_vulnerability_statistics_on_unique_project_id ON public.vulnerability_statistics USING btree (project_id);
 
 CREATE UNIQUE INDEX index_vulnerability_user_mentions_on_note_id ON public.vulnerability_user_mentions USING btree (note_id) WHERE (note_id IS NOT NULL);
 
@@ -20384,6 +20485,8 @@ CREATE INDEX tmp_index_ci_builds_lock_version ON public.ci_builds USING btree (i
 CREATE INDEX tmp_index_ci_pipelines_lock_version ON public.ci_pipelines USING btree (id) WHERE (lock_version IS NULL);
 
 CREATE INDEX tmp_index_ci_stages_lock_version ON public.ci_stages USING btree (id) WHERE (lock_version IS NULL);
+
+CREATE UNIQUE INDEX unique_merge_request_metrics_by_merge_request_id ON public.merge_request_metrics USING btree (merge_request_id);
 
 CREATE UNIQUE INDEX users_security_dashboard_projects_unique_index ON public.users_security_dashboard_projects USING btree (project_id, user_id);
 
@@ -21775,6 +21878,9 @@ ALTER TABLE ONLY public.project_custom_attributes
 ALTER TABLE ONLY public.slack_integrations
     ADD CONSTRAINT fk_rails_73db19721a FOREIGN KEY (service_id) REFERENCES public.services(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.custom_emoji
+    ADD CONSTRAINT fk_rails_745925b412 FOREIGN KEY (namespace_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.merge_request_context_commit_diff_files
     ADD CONSTRAINT fk_rails_74a00a1787 FOREIGN KEY (merge_request_context_commit_id) REFERENCES public.merge_request_context_commits(id) ON DELETE CASCADE;
 
@@ -23070,6 +23176,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200227164113
 20200227165129
 20200228160542
+20200229171700
 20200302142052
 20200302152516
 20200303055348
@@ -23294,6 +23401,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200424043515
 20200424050250
 20200424101920
+20200424102023
 20200424135319
 20200427064130
 20200428134356
@@ -23320,6 +23428,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200508091106
 20200508140959
 20200508203901
+20200509203901
 20200511080113
 20200511083541
 20200511092246
@@ -23375,11 +23484,13 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200525144525
 20200526000407
 20200526013844
+20200526115436
 20200526120714
 20200526142550
 20200526153844
 20200526164946
 20200526164947
+20200526193555
 20200526231421
 20200527092027
 20200527094322
@@ -23426,6 +23537,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200615193524
 20200615232735
 20200615234047
+20200616124338
 20200616145031
 20200617000757
 20200617001001
@@ -23437,6 +23549,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200618105638
 20200618134223
 20200618134723
+20200619000316
 20200619154527
 20200619154528
 20200622040750
@@ -23449,10 +23562,20 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200623000148
 20200623000320
 20200623121135
+20200623141544
 20200623170000
 20200623185440
 20200624075411
+20200624222443
 20200625045442
+20200625082258
+20200625190458
+20200626060151
 20200626130220
+20200630110826
+20200702123805
+20200703154822
+20200704143633
+20200706005325
 \.
 

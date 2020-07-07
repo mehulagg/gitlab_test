@@ -15,8 +15,13 @@ module EE
         secret_detection: :secret_detection,
         dependency_scanning: :dependency_scanning,
         container_scanning: :container_scanning,
-        dast: :dast
+        dast: :dast,
+        coverage_fuzzing: :coverage_fuzzing
       }.with_indifferent_access.freeze
+
+      EE_RUNNER_FEATURES = {
+        secrets: -> (build) { build.ci_secrets_management_available? && build.secrets?}
+      }.freeze
 
       prepended do
         include UsageStatistics
@@ -134,12 +139,29 @@ module EE
         !merge_train_pipeline? && super
       end
 
+      def ci_secrets_management_available?
+        project.beta_feature_available?(:ci_secrets_management)
+      end
+
+      override :runner_required_feature_names
+      def runner_required_feature_names
+        super + ee_runner_required_feature_names
+      end
+
       private
 
       def parse_security_artifact_blob(security_report, blob)
         report_clone = security_report.clone_as_blank
         ::Gitlab::Ci::Parsers.fabricate!(security_report.type).parse!(blob, report_clone)
         security_report.merge!(report_clone)
+      end
+
+      def ee_runner_required_feature_names
+        strong_memoize(:ee_runner_required_feature_names) do
+          EE_RUNNER_FEATURES.select do |feature, method|
+            method.call(self)
+          end.keys
+        end
       end
     end
   end

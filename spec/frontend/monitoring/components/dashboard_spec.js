@@ -10,6 +10,7 @@ import { metricStates } from '~/monitoring/constants';
 import Dashboard from '~/monitoring/components/dashboard.vue';
 
 import DashboardHeader from '~/monitoring/components/dashboard_header.vue';
+import RefreshButton from '~/monitoring/components/refresh_button.vue';
 import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
 import CustomMetricsFormFields from '~/custom_metrics/components/custom_metrics_form_fields.vue';
 import DashboardsDropdown from '~/monitoring/components/dashboards_dropdown.vue';
@@ -26,11 +27,14 @@ import {
   setMetricResult,
   setupStoreWithData,
   setupStoreWithDataForPanelCount,
-  setupStoreWithVariable,
   setupStoreWithLinks,
 } from '../store_utils';
-import { environmentData, dashboardGitResponse, propsData } from '../mock_data';
-import { metricsDashboardViewModel, metricsDashboardPanelCount } from '../fixture_data';
+import { environmentData, dashboardGitResponse, storeVariables } from '../mock_data';
+import {
+  metricsDashboardViewModel,
+  metricsDashboardPanelCount,
+  dashboardProps,
+} from '../fixture_data';
 import createFlash from '~/flash';
 
 jest.mock('~/flash');
@@ -50,7 +54,7 @@ describe('Dashboard', () => {
 
   const createShallowWrapper = (props = {}, options = {}) => {
     wrapper = shallowMount(Dashboard, {
-      propsData: { ...propsData, ...props },
+      propsData: { ...dashboardProps, ...props },
       store,
       stubs: {
         DashboardHeader,
@@ -61,7 +65,7 @@ describe('Dashboard', () => {
 
   const createMountedWrapper = (props = {}, options = {}) => {
     wrapper = mount(Dashboard, {
-      propsData: { ...propsData, ...props },
+      propsData: { ...dashboardProps, ...props },
       store,
       stubs: {
         'graph-group': true,
@@ -422,6 +426,32 @@ describe('Dashboard', () => {
         );
       });
     });
+
+    describe('when custom dashboard is selected', () => {
+      const windowLocation = window.location;
+      const findDashboardDropdown = () => wrapper.find(DashboardHeader).find(DashboardsDropdown);
+
+      beforeEach(() => {
+        delete window.location;
+        window.location = { ...windowLocation, assign: jest.fn() };
+        createMountedWrapper();
+
+        return wrapper.vm.$nextTick();
+      });
+
+      afterEach(() => {
+        window.location = windowLocation;
+      });
+
+      it('encodes dashboard param', () => {
+        findDashboardDropdown().vm.$emit('selectDashboard', {
+          path: 'dashboard&copy.yml',
+        });
+        expect(window.location.assign).toHaveBeenCalledWith(
+          'http://localhost/?dashboard=dashboard%2526copy.yml',
+        );
+      });
+    });
   });
 
   describe('when all requests have been commited by the store', () => {
@@ -563,10 +593,9 @@ describe('Dashboard', () => {
     setupStoreWithData(store);
 
     return wrapper.vm.$nextTick().then(() => {
-      const refreshBtn = wrapper.find(DashboardHeader).findAll({ ref: 'refreshDashboardBtn' });
+      const refreshBtn = wrapper.find(DashboardHeader).find(RefreshButton);
 
-      expect(refreshBtn).toHaveLength(1);
-      expect(refreshBtn.is(GlDeprecatedButton)).toBe(true);
+      expect(refreshBtn.exists()).toBe(true);
     });
   });
 
@@ -574,8 +603,7 @@ describe('Dashboard', () => {
     beforeEach(() => {
       createShallowWrapper({ hasMetrics: true });
       setupStoreWithData(store);
-      setupStoreWithVariable(store);
-
+      store.state.monitoringDashboard.variables = storeVariables;
       return wrapper.vm.$nextTick();
     });
 
@@ -1137,6 +1165,34 @@ describe('Dashboard', () => {
       expect(getClipboardTextFirstPanel()).toContain(`group=`);
       expect(getClipboardTextFirstPanel()).toContain(`title=`);
       expect(getClipboardTextFirstPanel()).toContain(`y_label=`);
+    });
+  });
+
+  describe('keyboard shortcuts', () => {
+    const currentDashboard = dashboardGitResponse[1].path;
+    const panelRef = 'dashboard-panel-response-metrics-aws-elb-4-1'; // skip expanded panel
+
+    // While the recommendation in the documentation is to test
+    // with a data-testid attribute, I want to make sure that
+    // the dashboard panels have a ref attribute set.
+    const getDashboardPanel = () => wrapper.find({ ref: panelRef });
+
+    beforeEach(() => {
+      setupStoreWithData(store);
+      store.commit(`monitoringDashboard/${types.SET_INITIAL_STATE}`, {
+        currentDashboard,
+      });
+      createShallowWrapper({ hasMetrics: true });
+
+      wrapper.setData({ hoveredPanel: panelRef });
+
+      return wrapper.vm.$nextTick();
+    });
+
+    it('contains a ref attribute inside a DashboardPanel component', () => {
+      const dashboardPanel = getDashboardPanel();
+
+      expect(dashboardPanel.exists()).toBe(true);
     });
   });
 

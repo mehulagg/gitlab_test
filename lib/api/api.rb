@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module API
-  class API < Grape::API
+  class API < Grape::API::Instance
     include APIGuard
 
     LOG_FILENAME = Rails.root.join("log", "api_json.log")
@@ -46,6 +46,8 @@ module API
     end
 
     before do
+      coerce_nil_params_to_array!
+
       Gitlab::ApplicationContext.push(
         user: -> { @current_user },
         project: -> { @project },
@@ -154,6 +156,7 @@ module API
       mount ::API::Groups
       mount ::API::GroupContainerRepositories
       mount ::API::GroupVariables
+      mount ::API::ImportBitbucketServer
       mount ::API::ImportGithub
       mount ::API::Issues
       mount ::API::JobArtifacts

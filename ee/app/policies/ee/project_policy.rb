@@ -102,11 +102,6 @@ module EE
         end
       end
 
-      with_scope :global
-      condition(:cluster_health_available) do
-        License.feature_available?(:cluster_health)
-      end
-
       with_scope :subject
       condition(:group_push_rules_enabled) do
         @subject.group && ::Feature.enabled?(:group_push_rules, @subject.group.root_ancestor)
@@ -262,7 +257,10 @@ module EE
 
       rule { can?(:read_project) & iterations_available }.enable :read_iteration
 
-      rule { security_dashboard_enabled & can?(:developer_access) }.enable :read_vulnerability
+      rule { security_dashboard_enabled & can?(:developer_access) }.policy do
+        enable :read_vulnerability
+        enable :read_vulnerability_scanner
+      end
 
       rule { on_demand_scans_enabled & can?(:developer_access) }.enable :read_on_demand_scans
 
@@ -328,6 +326,7 @@ module EE
 
       rule { auditor & security_dashboard_enabled }.policy do
         enable :read_vulnerability
+        enable :read_vulnerability_scanner
       end
 
       rule { auditor & ~developer }.policy do
@@ -407,8 +406,6 @@ module EE
         prevent :modify_merge_request_committer_setting
       end
 
-      rule { can?(:read_cluster) & cluster_health_available }.enable :read_cluster_health
-
       rule { can?(:read_merge_request) & code_review_analytics_enabled }.enable :read_code_review_analytics
 
       rule { can?(:read_project) & requirements_available }.enable :read_requirement
@@ -426,6 +423,8 @@ module EE
 
       rule { status_page_available & can?(:owner_access) }.enable :mark_issue_for_publication
       rule { status_page_available & can?(:developer_access) }.enable :publish_status_page
+
+      rule { public_project }.enable :embed_analytics_report
     end
 
     override :lookup_access_level!

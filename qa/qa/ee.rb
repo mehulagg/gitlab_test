@@ -12,6 +12,8 @@ module QA
     end
 
     module Page
+      autoload :OperationsDashboard, 'qa/ee/page/operations_dashboard'
+
       module Component
         autoload :LicenseManagement, 'qa/ee/page/component/license_management'
         autoload :SecureReport, 'qa/ee/page/component/secure_report'
@@ -49,8 +51,7 @@ module QA
 
       module Main
         autoload :Banner, 'qa/ee/page/main/banner'
-        autoload :Login, 'qa/ee/page/main/login'
-        autoload :Onboarding, 'qa/ee/page/main/onboarding'
+        autoload :Menu, 'qa/ee/page/main/menu'
       end
 
       module Admin

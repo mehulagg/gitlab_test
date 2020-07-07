@@ -21,6 +21,8 @@ class MergeRequest < ApplicationRecord
   include MilestoneEventable
   include StateEventable
 
+  extend ::Gitlab::Utils::Override
+
   sha_attribute :squash_commit_sha
 
   self.reactive_cache_key = ->(model) { [model.project.id, model.iid] }
@@ -90,6 +92,9 @@ class MergeRequest < ApplicationRecord
   has_many :draft_notes
   has_many :reviews, inverse_of: :merge_request
 
+  has_many :approvals, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
+  has_many :approved_by_users, through: :approvals, source: :user
+
   KNOWN_MERGE_PARAMS = [
     :auto_merge_strategy,
     :should_remove_source_branch,
@@ -102,6 +107,7 @@ class MergeRequest < ApplicationRecord
 
   after_create :ensure_merge_request_diff
   after_update :clear_memoized_shas
+  after_update :clear_memoized_source_branch_exists
   after_update :reload_diff_if_branch_changed
   after_commit :ensure_metrics, on: [:create, :update], unless: :importing?
   after_commit :expire_etag_cache, unless: :importing?
@@ -517,7 +523,7 @@ class MergeRequest < ApplicationRecord
       participants << merge_user
     end
 
-    participants
+    participants.select { |participant| Ability.allowed?(participant, :read_merge_request, self) }
   end
 
   def first_commit
@@ -857,6 +863,10 @@ class MergeRequest < ApplicationRecord
     clear_memoization(:target_branch_head)
   end
 
+  def clear_memoized_source_branch_exists
+    clear_memoization(:source_branch_exists)
+  end
+
   def reload_diff_if_branch_changed
     if (saved_change_to_source_branch? || saved_change_to_target_branch?) &&
         (source_branch_head && target_branch_head)
@@ -1104,9 +1114,17 @@ class MergeRequest < ApplicationRecord
   end
 
   def source_branch_exists?
-    return false unless self.source_project
+    if Feature.enabled?(:memoize_source_branch_merge_request, project)
+      strong_memoize(:source_branch_exists) do
+        next false unless self.source_project
 
-    self.source_project.repository.branch_exists?(self.source_branch)
+        self.source_project.repository.branch_exists?(self.source_branch)
+      end
+    else
+      return false unless self.source_project
+
+      self.source_project.repository.branch_exists?(self.source_branch)
+    end
   end
 
   def target_branch_exists?
@@ -1140,6 +1158,13 @@ class MergeRequest < ApplicationRecord
     strong_memoize(:default_squash_commit_message) do
       recent_commits.without_merge_commits.reverse_each.find(&:description?)&.safe_message || title
     end
+  end
+
+  def squash_on_merge?
+    return true if target_project.squash_always?
+    return false if target_project.squash_never?
+
+    squash?
   end
 
   def has_ci?
@@ -1580,6 +1605,23 @@ class MergeRequest < ApplicationRecord
 
   def banzai_render_context(field)
     super.merge(label_url_method: :project_merge_requests_url)
+  end
+
+  override :ensure_metrics
+  def ensure_metrics
+    MergeRequest::Metrics.safe_find_or_create_by(merge_request_id: id).tap do |metrics_record|
+      # Make sure we refresh the loaded association object with the newly created/loaded item.
+      # This is needed in order to have the exact functionality than before.
+      #
+      # Example:
+      #
+      # merge_request.metrics.destroy
+      # merge_request.ensure_metrics
+      # merge_request.metrics # should return the metrics record and not nil
+      # merge_request.metrics.merge_request # should return the same MR record
+      metrics_record.association(:merge_request).target = self
+      association(:metrics).target = metrics_record
+    end
   end
 
   private

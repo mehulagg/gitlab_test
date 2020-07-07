@@ -21,7 +21,7 @@ import {
   trackAlertListViewsOptions,
   trackAlertStatusUpdateOptions,
 } from '~/alert_management/constants';
-import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert_status.graphql';
+import updateAlertStatus from '~/alert_management/graphql/mutations/update_alert_status.mutation.graphql';
 import mockAlerts from '../mocks/alerts.json';
 import Tracking from '~/tracking';
 
@@ -48,6 +48,7 @@ describe('AlertManagementList', () => {
   const findSeverityColumnHeader = () => wrapper.findAll('th').at(0);
   const findPagination = () => wrapper.find(GlPagination);
   const findSearch = () => wrapper.find(GlSearchBoxByType);
+  const findIssueFields = () => wrapper.findAll('[data-testid="issueField"]');
   const alertsCount = {
     open: 14,
     triggered: 10,
@@ -206,6 +207,15 @@ describe('AlertManagementList', () => {
       expect(findStatusDropdown().exists()).toBe(true);
     });
 
+    it('does not display a dropdown status header', () => {
+      mountComponent({
+        props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+        data: { alerts: { list: mockAlerts }, alertsCount, errored: false },
+        loading: false,
+      });
+      expect(findStatusDropdown().contains('.dropdown-title')).toBe(false);
+    });
+
     it('shows correct severity icons', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
@@ -276,6 +286,37 @@ describe('AlertManagementList', () => {
         .at(0)
         .trigger('click');
       expect(visitUrl).toHaveBeenCalledWith('/1527542/details');
+    });
+
+    describe('alert issue links', () => {
+      beforeEach(() => {
+        mountComponent({
+          props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
+          data: { alerts: { list: mockAlerts }, alertsCount, errored: false },
+          loading: false,
+        });
+      });
+
+      it('shows "None" when no link exists', () => {
+        expect(
+          findIssueFields()
+            .at(0)
+            .text(),
+        ).toBe('None');
+      });
+
+      it('renders a link when one exists', () => {
+        expect(
+          findIssueFields()
+            .at(1)
+            .text(),
+        ).toBe('#1');
+        expect(
+          findIssueFields()
+            .at(1)
+            .attributes('href'),
+        ).toBe('/gitlab-org/gitlab/-/issues/1');
+      });
     });
 
     describe('handle date fields', () => {

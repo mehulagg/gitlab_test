@@ -312,6 +312,7 @@ module EE
       ::Feature.enabled?(:repository_push_audit_event, self)
     end
 
+    override :feature_available?
     def feature_available?(feature, user = nil)
       if ::ProjectFeature::FEATURES.include?(feature)
         super
@@ -336,7 +337,7 @@ module EE
 
     override :service_desk_enabled
     def service_desk_enabled
-      ::EE::Gitlab::ServiceDesk.enabled?(project: self) && self[:service_desk_enabled]
+      ::EE::Gitlab::ServiceDesk.enabled?(project: self)
     end
     alias_method :service_desk_enabled?, :service_desk_enabled
 

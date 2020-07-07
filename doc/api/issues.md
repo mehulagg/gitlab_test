@@ -70,7 +70,7 @@ GET /issues?confidential=true
 | `updated_after`     | datetime         | no         | Return issues updated on or after the given time                                                                                                    |
 | `updated_before`    | datetime         | no         | Return issues updated on or before the given time                                                                                                   |
 | `confidential`      | boolean          | no         | Filter confidential or public issues.                                                                                                               |
-| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji`, `search`, `in` |
+| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji` |
 | `non_archived`      | boolean          | no         | Return issues only from non-archived projects. If `false`, response will return issues from both archived and non-archived projects. Default is `true`. _(Introduced in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/197170))_ |
 
 ```shell
@@ -627,7 +627,6 @@ the `epic` property:
 {
    "project_id" : 4,
    "description" : "Omnis vero earum sunt corporis dolor et placeat.",
-   "epic": {
    "epic_iid" : 5, //deprecated, use `iid` of the `epic` attribute
    "epic": {
      "id" : 42,
@@ -899,6 +898,25 @@ DELETE /projects/:id/issues/:issue_iid
 
 ```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/4/issues/85"
+```
+
+## Reorder an issue
+
+Reorders an issue, you can see the results when sorting issues manually
+
+```plaintext
+PUT /projects/:id/issues/:issue_iid/reorder
+```
+
+| Attribute   | Type    | Required | Description                          |
+|-------------|---------|----------|--------------------------------------|
+| `id`        | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user  |
+| `issue_iid` | integer | yes      | The internal ID of a project's issue |
+| `move_after_id` | integer | no | The ID of a projet's issue to move this issue after |
+| `move_before_id` | integer | no | The ID of a projet's issue to move this issue before |
+
+```shell
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/4/issues/85/reorder?move_after_id=51&move_before_id=92"
 ```
 
 ## Move an issue

@@ -40,7 +40,8 @@ module Ci
       cobertura: 'cobertura-coverage.xml',
       terraform: 'tfplan.json',
       cluster_applications: 'gl-cluster-applications.json',
-      requirements: 'requirements.json'
+      requirements: 'requirements.json',
+      coverage_fuzzing: 'gl-coverage-fuzzing.json'
     }.freeze
 
     INTERNAL_TYPES = {
@@ -73,7 +74,8 @@ module Ci
       license_scanning: :raw,
       performance: :raw,
       terraform: :raw,
-      requirements: :raw
+      requirements: :raw,
+      coverage_fuzzing: :raw
     }.freeze
 
     DOWNLOADABLE_TYPES = %w[
@@ -97,6 +99,8 @@ module Ci
     ].freeze
 
     TYPE_AND_FORMAT_PAIRS = INTERNAL_TYPES.merge(REPORT_TYPES).freeze
+
+    PLAN_LIMIT_PREFIX = 'ci_max_artifact_size_'
 
     # This is required since we cannot add a default to the database
     # https://gitlab.com/gitlab-org/gitlab/-/issues/215418
@@ -187,7 +191,8 @@ module Ci
       accessibility: 19,
       cluster_applications: 20,
       secret_detection: 21, ## EE-specific
-      requirements: 22 ## EE-specific
+      requirements: 22, ## EE-specific
+      coverage_fuzzing: 23 ## EE-specific
     }
 
     enum file_format: {
@@ -284,6 +289,21 @@ module Ci
 
     def self.archived_trace_exists_for?(job_id)
       where(job_id: job_id).trace.take&.file&.file&.exists?
+    end
+
+    def self.max_artifact_size(type:, project:)
+      max_size = if Feature.enabled?(:ci_max_artifact_size_per_type, project, default_enabled: false)
+                   limit_name = "#{PLAN_LIMIT_PREFIX}#{type}"
+
+                   project.actual_limits.limit_for(
+                     limit_name,
+                     alternate_limit: -> { project.closest_setting(:max_artifacts_size) }
+                   )
+                 else
+                   project.closest_setting(:max_artifacts_size)
+                 end
+
+      max_size&.megabytes.to_i
     end
 
     private

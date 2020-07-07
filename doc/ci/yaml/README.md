@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 type: reference
 ---
 
-# GitLab CI/CD Pipeline Configuration Reference
+# GitLab CI/CD pipeline configuration reference
 
 GitLab CI/CD [pipelines](../pipelines/index.md) are configured using a YAML file called `.gitlab-ci.yml` within each project.
 
@@ -383,7 +383,7 @@ NOTE: **Note:**
 The configuration is a snapshot in time and persisted in the database. Any changes to
 referenced `.gitlab-ci.yml` configuration won't be reflected in GitLab until the next pipeline is created.
 
-The files defined in `include` are:
+The files defined by `include` are:
 
 - Deep merged with those in `.gitlab-ci.yml`.
 - Always evaluated first and merged with the content of `.gitlab-ci.yml`,
@@ -391,11 +391,11 @@ The files defined in `include` are:
 
 TIP: **Tip:**
 Use merging to customize and override included CI/CD configurations with local
-definitions.
+definitions. Local definitions in `.gitlab-ci.yml` will override included definitions.
 
 NOTE: **Note:**
-Using YAML aliases across different YAML files sourced by `include` is not
-supported. You must only refer to aliases in the same file. Instead
+Using [YAML anchors](#anchors) across different YAML files sourced by `include` is not
+supported. You must only refer to anchors in the same file. Instead
 of using YAML anchors, you can use the [`extends` keyword](#extends).
 
 #### `include:local`
@@ -972,24 +972,38 @@ spinach:
 ```
 
 In GitLab 12.0 and later, it's also possible to use multiple parents for
-`extends`. The algorithm used for merge is "closest scope wins", so
-keys from the last member will always shadow anything defined on other
+`extends`.
+
+#### Merge details
+
+`extends` is able to merge hashes but not arrays.
+The algorithm used for merge is "closest scope wins", so
+keys from the last member will always override anything defined on other
 levels. For example:
 
 ```yaml
 .only-important:
+  variables:
+    URL: "http://my-url.internal"
+    IMPORTANT_VAR: "the details"
   only:
     - master
     - stable
   tags:
     - production
+  script:
+    - echo "Hello world!"
 
 .in-docker:
+  variables:
+    URL: "http://docker-url.internal"
   tags:
     - docker
   image: alpine
 
 rspec:
+  variables:
+    GITLAB: "is-awesome"
   extends:
     - .only-important
     - .in-docker
@@ -1001,6 +1015,10 @@ This results in the following `rspec` job:
 
 ```yaml
 rspec:
+  variables:
+    URL: "http://docker-url.internal"
+    IMPORTANT_VAR: "the details"
+    GITLAB: "is-awesome"
   only:
     - master
     - stable
@@ -1010,6 +1028,15 @@ rspec:
   script:
     - rake rspec
 ```
+
+Note that in the example above:
+
+- `variables` sections have been merged but that `URL: "http://my-url.internal"`
+has been overwritten by `URL: "http://docker-url.internal"`.
+- `tags: ['production']` has been overwritten by `tags: ['docker']`.
+- `script` has not been merged but rather `script: ['echo "Hello world!"']` has
+  been overwritten by `script: ['rake rspec']`. Arrays can be
+  merged using [YAML anchors](#anchors).
 
 #### Using `extends` and `include` together
 
@@ -1314,7 +1341,7 @@ docker build:
   script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
   rules:
     - changes:
-      - Dockerfile
+        - Dockerfile
       when: manual
       allow_failure: true
 ```
@@ -1340,7 +1367,7 @@ job:
   script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
   rules:
     - exists:
-      - Dockerfile
+        - Dockerfile
 ```
 
 You can also use glob patterns to match multiple files in any directory within
@@ -1353,7 +1380,7 @@ job:
   script: bundle exec rspec
   rules:
     - exists:
-      - spec/**.rb
+        - spec/**.rb
 ```
 
 NOTE: **Note:**
@@ -1400,8 +1427,8 @@ docker build:
   rules:
     - if: '$VAR == "string value"'
       changes: # Will include the job and set to when:manual if any of the follow paths match a modified file.
-      - Dockerfile
-      - docker/scripts/*
+        - Dockerfile
+        - docker/scripts/*
       when: manual
   # - when: never would be redundant here, this is implied any time rules are listed.
 ```
@@ -1944,7 +1971,7 @@ Feature::enable(:ci_dag_limit_needs)
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14311) in GitLab v12.6.
 
-When using `needs`, artifact downloads are controlled with `artifacts: true` or `artifacts: false`.
+When using `needs`, artifact downloads are controlled with `artifacts: true` (default) or `artifacts: false`.
 The `dependencies` keyword should not be used with `needs`, as this is deprecated since GitLab 12.6.
 
 In the example below, the `rspec` job will download the `build_job` artifacts, while the
@@ -2403,7 +2430,8 @@ review_app:
   stage: deploy
   script: make deploy-app
   environment:
-    name: review
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.example.com
     on_stop: stop_review_app
 
 stop_review_app:
@@ -2413,7 +2441,7 @@ stop_review_app:
   script: make delete-app
   when: manual
   environment:
-    name: review
+    name: review/$CI_COMMIT_REF_NAME
     action: stop
 ```
 
@@ -2438,8 +2466,6 @@ The `stop_review_app` job is **required** to have the following keywords defined
 - `when` - [reference](#when)
 - `environment:name`
 - `environment:action`
-- `stage` should be the same as the `review_app` in order for the environment
-  to stop automatically when the branch is deleted
 
 Additionally, both jobs should have matching [`rules`](../yaml/README.md#onlyexcept-basic)
 or [`only/except`](../yaml/README.md#onlyexcept-basic) configuration. In the example
@@ -2888,10 +2914,10 @@ For example, to match a single file:
 
 ```yaml
 test:
-  script: [ 'echo 1' ]
+  script: [ "echo 'test' > file.txt" ]
   artifacts:
     expose_as: 'artifact 1'
-    paths: ['path/to/file.txt']
+    paths: ['file.txt']
 ```
 
 With this configuration, GitLab will add a link **artifact 1** to the relevant merge request
@@ -2901,14 +2927,15 @@ An example that will match an entire directory:
 
 ```yaml
 test:
-  script: [ 'echo 1' ]
+  script: [ "mkdir test && echo 'test' > test/file.txt" ]
   artifacts:
     expose_as: 'artifact 1'
-    paths: ['path/to/directory/']
+    paths: ['test/']
 ```
 
 Note the following:
 
+- Artifacts do not display in the merge request UI when using variables to define the `artifacts:paths`.
 - A maximum of 10 job artifacts per merge request can be exposed.
 - Glob patterns are unsupported.
 - If a directory is specified, the link will be to the job [artifacts browser](../pipelines/job_artifacts.md#browsing-artifacts) if there is more than
@@ -3718,9 +3745,9 @@ Combining the individual examples given above for `release`, we'd have the follo
 
 ```yaml
 stages:
-- build
-- test
-- release-stg
+  - build
+  - test
+  - release-stg
 
 release_job:
   stage: release
@@ -4149,6 +4176,10 @@ of `.gitlab-ci.yml`.
 
 Read more about the various [YAML features](https://learnxinyminutes.com/docs/yaml/).
 
+In most cases, the [`extends` keyword](#extends) is more user friendly and should
+be used over these special YAML features. YAML anchors may still
+need to be used to merge arrays.
+
 ### Anchors
 
 > Introduced in GitLab 8.6 and GitLab Runner v1.1.1.
@@ -4156,7 +4187,8 @@ Read more about the various [YAML features](https://learnxinyminutes.com/docs/ya
 YAML has a handy feature called 'anchors', which lets you easily duplicate
 content across your document. Anchors can be used to duplicate/inherit
 properties, and is a perfect example to be used with [hidden jobs](#hide-jobs)
-to provide templates for your jobs.
+to provide templates for your jobs. When there is duplicate keys, GitLab will
+perform a reverse deep merge based on the keys.
 
 The following example uses anchors and map merging. It will create two jobs,
 `test1` and `test2`, that will inherit the parameters of `.job_template`, each
@@ -4217,6 +4249,8 @@ directive defined in `.postgres_services` and `.mysql_services` respectively:
 .job_template: &job_definition
   script:
     - test project
+  tags:
+    - dev
 
 .postgres_services:
   services: &postgres_definition
@@ -4231,6 +4265,8 @@ directive defined in `.postgres_services` and `.mysql_services` respectively:
 test:postgres:
   <<: *job_definition
   services: *postgres_definition
+  tags:
+    - postgres
 
 test:mysql:
   <<: *job_definition
@@ -4243,6 +4279,8 @@ The expanded version looks like this:
 .job_template:
   script:
     - test project
+  tags:
+    - dev
 
 .postgres_services:
   services:
@@ -4260,6 +4298,8 @@ test:postgres:
   services:
     - postgres
     - ruby
+  tags:
+    - postgres
 
 test:mysql:
   script:
@@ -4267,13 +4307,19 @@ test:mysql:
   services:
     - mysql
     - ruby
+  tags:
+    - dev
 ```
 
 You can see that the hidden jobs are conveniently used as templates.
 
 NOTE: **Note:**
+Note that `tags: [dev]` has been overwritten by `tags: [postgres]`.
+
+NOTE: **Note:**
 You can't use YAML anchors across multiple files when leveraging the [`include`](#include)
-feature. Anchors are only valid within the file they were defined in.
+feature. Anchors are only valid within the file they were defined in. Instead
+of using YAML anchors, you can use the [`extends` keyword](#extends).
 
 #### YAML anchors for `before_script` and `after_script`
 
@@ -4287,11 +4333,11 @@ Example:
 
 ```yaml
 .something_before: &something_before
-- echo 'something before'
+  - echo 'something before'
 
 .something_after: &something_after
-- echo 'something after'
-- echo 'another thing after'
+  - echo 'something after'
+  - echo 'another thing after'
 
 job_name:
   before_script:
@@ -4313,7 +4359,7 @@ For example:
 
 ```yaml
 .something: &something
-- echo 'something'
+  - echo 'something'
 
 job_name:
   script:

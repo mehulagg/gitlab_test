@@ -104,6 +104,35 @@ RSpec.shared_examples 'wiki controller actions' do
     end
   end
 
+  describe 'GET #diff' do
+    context 'when commit exists' do
+      it 'renders the diff' do
+        get :diff, params: routing_params.merge(id: wiki_title, version_id: wiki.repository.commit.id)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to render_template('shared/wikis/diff')
+        expect(assigns(:diffs)).to be_a(Gitlab::Diff::FileCollection::Base)
+        expect(assigns(:diff_notes_disabled)).to be(true)
+      end
+    end
+
+    context 'when commit does not exist' do
+      it 'returns a 404 error' do
+        get :diff, params: routing_params.merge(id: wiki_title, version_id: 'invalid')
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+
+    context 'when page does not exist' do
+      it 'returns a 404 error' do
+        get :diff, params: routing_params.merge(id: 'invalid')
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+  end
+
   describe 'GET #show' do
     render_views
 
@@ -158,46 +187,18 @@ RSpec.shared_examples 'wiki controller actions' do
     context 'when page is a file' do
       include WikiHelpers
 
-      let(:id) { upload_file_to_wiki(container, user, file_name) }
+      where(:file_name) { ['dk.png', 'unsanitized.svg', 'git-cheat-sheet.pdf'] }
 
-      context 'when file is an image' do
-        let(:file_name) { 'dk.png' }
+      with_them do
+        let(:id) { upload_file_to_wiki(container, user, file_name) }
 
-        it 'delivers the image' do
+        it 'delivers the file with the correct headers' do
           subject
 
           expect(response.headers['Content-Disposition']).to match(/^inline/)
-          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
-        end
-
-        context 'when file is a svg' do
-          let(:file_name) { 'unsanitized.svg' }
-
-          it 'delivers the image' do
-            subject
-
-            expect(response.headers['Content-Disposition']).to match(/^inline/)
-            expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
-          end
-        end
-
-        it_behaves_like 'project cache control headers' do
-          let(:project) { container }
-        end
-      end
-
-      context 'when file is a pdf' do
-        let(:file_name) { 'git-cheat-sheet.pdf' }
-
-        it 'sets the content type to sets the content response headers' do
-          subject
-
-          expect(response.headers['Content-Disposition']).to match(/^inline/)
-          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
-        end
-
-        it_behaves_like 'project cache control headers' do
-          let(:project) { container }
+          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq('true')
+          expect(response.cache_control[:public]).to be(false)
+          expect(response.cache_control[:extras]).to include('no-store')
         end
       end
     end

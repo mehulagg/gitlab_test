@@ -37,6 +37,8 @@ module AlertManagement
       MARKDOWN
     end
 
+    def metrics_dashboard_url; end
+
     private
 
     attr_reader :alert, :project
@@ -58,6 +60,7 @@ module AlertManagement
       metadata << list_item('Service', service) if service
       metadata << list_item('Monitoring tool', monitoring_tool) if monitoring_tool
       metadata << list_item('Hosts', host_links) if hosts.any?
+      metadata << list_item('Description', description) if description.present?
 
       metadata.join(MARKDOWN_LINE_BREAK)
     end

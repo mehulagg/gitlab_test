@@ -22,8 +22,8 @@ More useful links:
 
 - [Telemetry Direction](https://about.gitlab.com/direction/telemetry/)
 - [Data Analysis Process](https://about.gitlab.com/handbook/business-ops/data-team/#-data-analysis-process)
-- [Data for Product Managers](https://about.gitlab.com/handbook/business-ops/data-team/data-for-product-managers/)
-- [Data Infrastructure](https://about.gitlab.com/handbook/business-ops/data-team/data-infrastructure/)
+- [Data for Product Managers](https://about.gitlab.com/handbook/business-ops/data-team/data-programs/data-for-product-managers/)
+- [Data Infrastructure](https://about.gitlab.com/handbook/business-ops/data-team/data-platform/data-infrastructure/)
 
 ## What is Usage Ping?
 
@@ -299,7 +299,7 @@ Paste the SQL query into `#database-lab` to see how the query performs at scale.
 
 - `#database-lab` is a Slack channel which uses a production-sized environment to test your queries.
 - GitLab.com’s production database has a 15 second timeout.
-- For each query we require an execution time of under 1 second due to cold caches which can 10x this time.
+- Any single query must stay below 1 second execution time with cold caches.
 - Add a specialized index on columns involved to reduce the execution time.
 
 In order to have an understanding of the query's execution we add in the MR description the following information:
@@ -326,7 +326,7 @@ When adding, changing, or updating metrics, please update the [Usage Statistics 
 
 Check if new metrics need to be added to the Versions Application. See `usage_data` [schema](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/db/schema.rb#L147) and usage data [parameters accepted](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/app/services/usage_ping.rb). Any metrics added under the `counts` key are saved in the `counts` column.
 
-For further details, see the [Process to add additional instrumentation to the Usage Ping](https://about.gitlab.com/handbook/product/feature-instrumentation/#process-to-add-additional-instrumentation-to-the-usage-ping).
+For further details, see the [Process to add additional instrumentation to the Usage Ping](https://about.gitlab.com/handbook/product/product-processes/#process-to-add-additional-instrumentation-to-the-usage-ping).
 
 ### 6. Add the feature label
 
@@ -422,9 +422,12 @@ appear to be associated to any of the services running, since they all appear to
 | `auto_devops_disabled`                                    | `counts`                             | `configure`   |                  |         | Projects with Auto DevOps template disabled                                |
 | `deploy_keys`                                             | `counts`                             |               |                  |         |                                                                            |
 | `deployments`                                             | `counts`                             | `release`     |                  |         | Total deployments                                                          |
+| `deployments`                                             | `counts_monthly`                     | `release`     |                  |         | Total deployments last 28 days                                             |
 | `dast_jobs`                                               | `counts`                             |               |                  |         |                                                                            |
 | `successful_deployments`                                  | `counts`                             | `release`     |                  |         | Total successful deployments                                               |
+| `successful_deployments`                                  | `counts_monthly`                     | `release`     |                  |         | Total successful deployments last 28 days                                  |
 | `failed_deployments`                                      | `counts`                             | `release`     |                  |         | Total failed deployments                                                   |
+| `failed_deployments`                                      | `counts_monthly`                     | `release`     |                  |         | Total failed deployments last 28 days                                      |
 | `environments`                                            | `counts`                             | `release`     |                  |         | Total available and stopped environments                                   |
 | `clusters`                                                | `counts`                             | `configure`   |                  |         | Total GitLab Managed clusters both enabled and disabled                    |
 | `clusters_enabled`                                        | `counts`                             | `configure`   |                  |         | Total GitLab Managed clusters currently enabled                            |
@@ -591,6 +594,7 @@ appear to be associated to any of the services running, since they all appear to
 | `ldap_enabled`                                            |                                      |               |                  |         |                                                                            |
 | `mattermost_enabled`                                      |                                      |               |                  |         |                                                                            |
 | `omniauth_enabled`                                        |                                      |               |                  |         |                                                                            |
+| `prometheus_enabled`                                      |                                      |               |                  |         | Whether the bundled Prometheus is enabled                                  |
 | `prometheus_metrics_enabled`                              |                                      |               |                  |         |                                                                            |
 | `reply_by_email_enabled`                                  |                                      |               |                  |         |                                                                            |
 | `average`                                                 | `avg_cycle_analytics - code`         |               |                  |         |                                                                            |
@@ -644,6 +648,13 @@ appear to be associated to any of the services running, since they all appear to
 | `projects_slack_slash_active`                             | `usage_activity_by_stage`            | `configure`   |                  | EE      | Unique projects with Slack '/' commands enabled                            |
 | `projects_with_prometheus_alerts`                         | `usage_activity_by_stage`            | `configure`   |                  | EE      | Projects with Prometheus enabled and no alerts                             |
 | `deploy_keys`                                             | `usage_activity_by_stage`            | `create`      |                  |         |                                                                            |
+| `clusters`                                                | `usage_activity_by_stage`            | `monitor`     |                  | CE+EE   |                                                                            |
+| `clusters_applications_prometheus`                        | `usage_activity_by_stage`            | `monitor`     |                  | CE+EE   |                                                                            |
+| `operations_dashboard_default_dashboard`                  | `usage_activity_by_stage`            | `monitor`     |                  | CE+EE   |                                                                            |
+| `operations_dashboard_users_with_projects_added`          | `usage_activity_by_stage`            | `monitor`     |                  | EE      |                                                                            |
+| `projects_prometheus_active`                              | `usage_activity_by_stage`            | `monitor`     |                  | EE      |                                                                            |
+| `projects_with_error_tracking_enabled`                    | `usage_activity_by_stage`            | `monitor`     |                  | EE      |                                                                            |
+| `projects_with_tracing_enabled`                           | `usage_activity_by_stage`            | `monitor`     |                  | EE      |                                                                            |
 | `keys`                                                    | `usage_activity_by_stage`            | `create`      |                  |         |                                                                            |
 | `projects_jira_dvcs_server_active`                        | `usage_activity_by_stage`            | `plan`        |                  |         |                                                                            |
 | `service_desk_enabled_projects`                           | `usage_activity_by_stage`            | `plan`        |                  |         |                                                                            |
@@ -665,8 +676,11 @@ appear to be associated to any of the services running, since they all appear to
 | `ci_triggers`                                             | `usage_activity_by_stage`            | `verify`      |                  |         | Triggers enabled                                                           |
 | `clusters_applications_runner`                            | `usage_activity_by_stage`            | `verify`      |                  |         | Unique clusters with Runner enabled                                        |
 | `projects_reporting_ci_cd_back_to_github: 0`              | `usage_activity_by_stage`            | `verify`      |                  |         | Unique projects with a GitHub pipeline enabled                             |
-| `nodes`                                                   | `topology`                           | `enablement`  |                  |         | The list of server nodes on which GitLab components are running            |
+| `merge_requests_users`                                    | `usage_activity_by_stage_monthly`    | `create`      |                  |         | Unique count of users who used a merge request                             |
 | `duration_s`                                              | `topology`                           | `enablement`  |                  |         | Time it took to collect topology data                                      |
+| `application_requests_per_hour`                           | `topology`                           | `enablement`  |                  |         | Number of requests to the web application per hour                         |
+| `failures`                                                | `topology`                           | `enablement`  |                  |         | Contains information about failed queries                                  |
+| `nodes`                                                   | `topology`                           | `enablement`  |                  |         | The list of server nodes on which GitLab components are running            |
 | `node_memory_total_bytes`                                 | `topology > nodes`                   | `enablement`  |                  |         | The total available memory of this node                                    |
 | `node_cpus`                                               | `topology > nodes`                   | `enablement`  |                  |         | The number of CPU cores of this node                                       |
 | `node_services`                                           | `topology > nodes`                   | `enablement`  |                  |         | The list of GitLab services running on this node                           |
@@ -718,6 +732,7 @@ The following is example content of the Usage Ping payload.
   "ldap_enabled": false,
   "mattermost_enabled": false,
   "omniauth_enabled": true,
+  "prometheus_enabled": false,
   "prometheus_metrics_enabled": false,
   "reply_by_email_enabled": "incoming+%{key}@incoming.gitlab.com",
   "signup_enabled": true,
@@ -872,6 +887,9 @@ The following is example content of the Usage Ping payload.
     }
   },
   "topology": {
+    "duration_s": 0.013836685999194742,
+    "application_requests_per_hour": 4224,
+    "failures": [],
     "nodes": [
       {
         "node_memory_total_bytes": 33269903360,
@@ -896,8 +914,7 @@ The following is example content of the Usage Ping payload.
         ...
       },
       ...
-    ],
-    "duration_s": 0.013836685999194742
+    ]
   }
 }
 ```

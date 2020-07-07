@@ -37,7 +37,7 @@ RSpec.describe ProjectPolicy do
     let(:additional_developer_permissions) do
       %i[
         admin_vulnerability_feedback read_project_security_dashboard read_feature_flag
-        read_vulnerability create_vulnerability create_vulnerability_export admin_vulnerability
+        read_vulnerability read_vulnerability_scanner create_vulnerability create_vulnerability_export admin_vulnerability
         admin_vulnerability_issue_link read_merge_train
       ]
     end
@@ -53,7 +53,7 @@ RSpec.describe ProjectPolicy do
         read_pipeline read_build read_commit_status read_container_image
         read_environment read_deployment read_merge_request read_pages
         create_merge_request_in award_emoji
-        read_project_security_dashboard read_vulnerability
+        read_project_security_dashboard read_vulnerability read_vulnerability_scanner
         read_software_license_policy
         read_threat_monitoring read_merge_train
       ]
@@ -1252,48 +1252,6 @@ RSpec.describe ProjectPolicy do
     end
   end
 
-  describe 'read_cluster_health' do
-    let(:current_user) { owner }
-
-    context 'when cluster is readable' do
-      context 'and cluster health is available' do
-        before do
-          stub_licensed_features(cluster_health: true)
-        end
-
-        it { is_expected.to be_allowed(:read_cluster_health) }
-      end
-
-      context 'and cluster health is unavailable' do
-        before do
-          stub_licensed_features(cluster_health: false)
-        end
-
-        it { is_expected.to be_disallowed(:read_cluster_health) }
-      end
-    end
-
-    context 'when cluster is not readable to user' do
-      let(:current_user) { build(:user) }
-
-      context 'when cluster health is available' do
-        before do
-          stub_licensed_features(cluster_health: true)
-        end
-
-        it { is_expected.to be_disallowed(:read_cluster_health) }
-      end
-
-      context 'when cluster health is unavailable' do
-        before do
-          stub_licensed_features(cluster_health: false)
-        end
-
-        it { is_expected.to be_disallowed(:read_cluster_health) }
-      end
-    end
-  end
-
   shared_examples 'merge request rules' do
     let(:project) { create(:project, namespace: owner.namespace) }
 
@@ -1515,4 +1473,6 @@ RSpec.describe ProjectPolicy do
       it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
     end
   end
+
+  include_examples 'analytics report embedding'
 end

@@ -3,7 +3,7 @@ import { GlDropdown, GlDropdownItem, GlButton } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import Tracking from '~/tracking';
 import { trackAlertStatusUpdateOptions } from '../constants';
-import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql';
+import updateAlertStatus from '../graphql/mutations/update_alert_status.mutation.graphql';
 
 export default {
   statuses: {
@@ -88,7 +88,7 @@ export default {
       @keydown.esc.native="$emit('hide-dropdown')"
       @hide="$emit('hide-dropdown')"
     >
-      <div class="dropdown-title text-center">
+      <div v-if="isSidebar" class="dropdown-title text-center">
         <span class="alert-title">{{ s__('AlertManagement|Assign status') }}</span>
         <gl-button
           :aria-label="__('Close')"

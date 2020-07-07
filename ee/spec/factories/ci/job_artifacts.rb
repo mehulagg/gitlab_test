@@ -109,6 +109,16 @@ FactoryBot.define do
       end
     end
 
+    trait :dast_large_scanned_resources_field do
+      file_format { :raw }
+      file_type { :dast }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-dast-large-scanned-resources.json'), 'application/json')
+      end
+    end
+
     trait :low_severity_dast_report do
       file_format { :raw }
       file_type { :dast }
@@ -156,6 +166,16 @@ FactoryBot.define do
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(
           Rails.root.join('spec/fixtures/trace/sample_trace'), 'application/json')
+      end
+    end
+
+    trait :sast_with_missing_scanner do
+      file_type { :sast }
+      file_format { :raw }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-sast-missing-scanner.json'), 'application/json')
       end
     end
 
@@ -350,6 +370,17 @@ FactoryBot.define do
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(
           Rails.root.join('ee/spec/fixtures/requirements_management/report_by_requirement.json'), 'application/json')
+      end
+    end
+
+    trait :coverage_fuzzing do
+      file_format { :raw }
+      file_type { :coverage_fuzzing }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-coverage-fuzzing-report.json'),
+          'application/json')
       end
     end
   end

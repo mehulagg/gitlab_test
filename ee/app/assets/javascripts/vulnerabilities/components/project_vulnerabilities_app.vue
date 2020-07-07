@@ -109,6 +109,8 @@ export default {
       :empty-state-svg-path="emptyStateSvgPath"
       :filters="filters"
       :vulnerabilities="vulnerabilities"
+      :should-show-identifier="true"
+      :should-show-report-type="true"
       @refetch-vulnerabilities="refetchVulnerabilities"
     >
       <template #emptyState>

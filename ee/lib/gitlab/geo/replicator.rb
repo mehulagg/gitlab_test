@@ -28,8 +28,8 @@ module Gitlab
       #
       # @example Declaring support for :update and :delete events
       #   class MyReplicator < Gitlab::Geo::Replicator
-      #     event :update
-      #     event :delete
+      #     event :updated
+      #     event :deleted
       #   end
       #
       # @param [Symbol] event_name
@@ -123,6 +123,10 @@ module Gitlab
 
       def self.primary_total_count
         model.count
+      end
+
+      def self.registry_count
+        registry_class.count
       end
 
       def self.synced_count
@@ -224,7 +228,7 @@ module Gitlab
       #
       # @return [Geo::BaseRegistry] registry instance
       def registry
-        registry_class.for_model_record_id(model_record.id)
+        registry_class.for_model_record_id(model_record_id)
       end
 
       # Checksum value from the main database

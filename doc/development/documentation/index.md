@@ -26,7 +26,7 @@ The source of the documentation exists within the codebase of each GitLab applic
 | --- | --- |
 | [GitLab](https://gitlab.com/gitlab-org/gitlab/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab/tree/master/doc) |
 | [GitLab Runner](https://gitlab.com/gitlab-org/gitlab-runner/) | [`/docs`](https://gitlab.com/gitlab-org/gitlab-runner/tree/master/docs) |
-| [Omnibus GitLab](https://gitlab.com/gitlab-org/omnibus-gitlab/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab/tree/master/doc) |
+| [Omnibus GitLab](https://gitlab.com/gitlab-org/omnibus-gitlab/) | [`/doc`](https://gitlab.com/gitlab-org/omnibus-gitlab/tree/master/doc) |
 | [Charts](https://gitlab.com/gitlab-org/charts/gitlab) | [`/doc`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc) |
 
 Documentation issues and merge requests are part of their respective repositories and all have the label `Documentation`.
@@ -79,7 +79,7 @@ All values are treated as strings and are only used for the
 Each page should ideally have metadata related to the stage and group it
 belongs to, as well as an information block as described below:
 
-- `stage`: The [Stage](https://about.gitlab.com/handbook/product/categories/#devops-stages)
+- `stage`: The [Stage](https://about.gitlab.com/handbook/product/product-categories/#devops-stages)
   to which the majority of the page's content belongs.
 - `group`: The [Group](https://about.gitlab.com/company/team/structure/#product-groups)
   to which the majority of the page's content belongs.
@@ -286,9 +286,6 @@ it increases the work of the release managers.
 
 Every GitLab instance includes the documentation, which is available at `/help`
 (`https://gitlab.example.com/help`). For example, <https://gitlab.com/help>.
-
-There are [plans](https://gitlab.com/groups/gitlab-org/-/epics/693) to end this
-practice and instead link out from the GitLab application to <https://docs.gitlab.com> URLs.
 
 The documentation available online on <https://docs.gitlab.com> is deployed every four hours from the `master` branch of GitLab, Omnibus, and Runner. Therefore,
 after a merge request gets merged, it will be available online on the same day.

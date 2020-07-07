@@ -6,7 +6,7 @@ import { mergeURLVariables, parseTemplatingVariables } from './variable_mapping'
 import { DATETIME_RANGE_TYPES } from '~/lib/utils/constants';
 import { timeRangeToParams, getRangeType } from '~/lib/utils/datetime_range';
 import { isSafeURL, mergeUrlParams } from '~/lib/utils/url_utility';
-import { NOT_IN_DB_PREFIX, linkTypes, DEFAULT_DASHBOARD_PATH } from '../constants';
+import { NOT_IN_DB_PREFIX, linkTypes, OUT_OF_THE_BOX_DASHBOARDS_PATH_PREFIX } from '../constants';
 
 export const gqClient = createGqClient(
   {},
@@ -173,6 +173,7 @@ const mapPanelToViewModel = ({
   x_label,
   y_label,
   y_axis = {},
+  field,
   metrics = [],
   links = [],
   max_value,
@@ -193,6 +194,7 @@ const mapPanelToViewModel = ({
     y_label: yAxis.name, // Changing y_label to yLabel is pending https://gitlab.com/gitlab-org/gitlab/issues/207198
     yAxis,
     xAxis,
+    field,
     maxValue: max_value,
     links: links.map(mapLinksToViewModel),
     metrics: mapToMetricsViewModel(metrics),
@@ -289,7 +291,7 @@ export const mapToDashboardViewModel = ({
 }) => {
   return {
     dashboard,
-    variables: mergeURLVariables(parseTemplatingVariables(templating)),
+    variables: mergeURLVariables(parseTemplatingVariables(templating.variables)),
     links: links.map(mapLinksToViewModel),
     panelGroups: panel_groups.map(mapToPanelGroupViewModel),
   };
@@ -453,10 +455,10 @@ export const normalizeQueryResponseData = data => {
  *
  * This is currently only used by getters/getCustomVariablesParams
  *
- * @param {String} key Variable key that needs to be prefixed
+ * @param {String} name Variable key that needs to be prefixed
  * @returns {String}
  */
-export const addPrefixToCustomVariableParams = key => `variables[${key}]`;
+export const addPrefixToCustomVariableParams = name => `variables[${name}]`;
 
 /**
  * Normalize custom dashboard paths. This method helps support
@@ -479,7 +481,7 @@ export const normalizeCustomDashboardPath = (dashboard, dashboardPrefix = '') =>
     dashboardPath = '';
   } else if (
     currDashboard.startsWith(dashboardPrefix) ||
-    currDashboard.startsWith(DEFAULT_DASHBOARD_PATH)
+    currDashboard.startsWith(OUT_OF_THE_BOX_DASHBOARDS_PATH_PREFIX)
   ) {
     dashboardPath = currDashboard;
   }

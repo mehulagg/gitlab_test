@@ -14,7 +14,11 @@ module Projects
     end
 
     def execute
-      repository_storage_move.start!
+      repository_storage_move.with_lock do
+        return ServiceResponse.success unless repository_storage_move.scheduled? # rubocop:disable Cop/AvoidReturnFromBlocks
+
+        repository_storage_move.start!
+      end
 
       raise SameFilesystemError if same_filesystem?(repository.storage, destination_storage_name)
 
@@ -78,8 +82,6 @@ module Projects
         raw_repository.gl_repository,
         full_path
       )
-
-      new_repository.create_repository
 
       new_repository.replicate(raw_repository)
       new_checksum = new_repository.checksum

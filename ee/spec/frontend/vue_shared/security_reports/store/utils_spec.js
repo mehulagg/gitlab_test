@@ -5,6 +5,7 @@ import {
   countVulnerabilities,
   groupedReportText,
 } from 'ee/vue_shared/security_reports/store/utils';
+import convertReportType from 'ee/vue_shared/security_reports/store/utils/convert_report_type';
 import filterByKey from 'ee/vue_shared/security_reports/store/utils/filter_by_key';
 import getFileLocation from 'ee/vue_shared/security_reports/store/utils/get_file_location';
 import {
@@ -13,6 +14,7 @@ import {
   MEDIUM,
   LOW,
 } from 'ee/security_dashboard/store/modules/vulnerabilities/constants';
+import getPrimaryIdentifiers from 'ee/vue_shared/security_reports/store/utils/get_primary_identifier';
 
 describe('security reports utils', () => {
   describe('findIssueIndex', () => {
@@ -41,6 +43,24 @@ describe('security reports utils', () => {
 
       expect(findIssueIndex(issuesList, issue)).toEqual(-1);
     });
+  });
+
+  describe('convertReportType', () => {
+    it.each`
+      reportType               | output
+      ${'sast'}                | ${'SAST'}
+      ${'dependency_scanning'} | ${'Dependency Scanning'}
+      ${'CONTAINER_SCANNING'}  | ${'Container Scanning'}
+      ${'CUSTOM_SCANNER'}      | ${'Custom scanner'}
+      ${'mast'}                | ${'Mast'}
+      ${'TAST'}                | ${'Tast'}
+      ${undefined}             | ${''}
+    `(
+      'converts the report type "$reportType" to the human-readable string "$output"',
+      ({ reportType, output }) => {
+        expect(convertReportType(reportType)).toEqual(output);
+      },
+    );
   });
 
   describe('filterByKey', () => {
@@ -78,6 +98,25 @@ describe('security reports utils', () => {
       const result = getFileLocation(undefined);
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('getPrimaryIdentifier', () => {
+    const identifiers = [
+      { external_type: 'cve', name: 'CVE-1337' },
+      { external_type: 'gemnaisum', name: 'GEMNASIUM-1337' },
+    ];
+    it('should return the `cve` identifier if a `cve` identifier does exist', () => {
+      expect(getPrimaryIdentifiers(identifiers, 'external_type')).toBe(identifiers[0].name);
+    });
+    it('should return the first identifier if the property for type does not exist', () => {
+      expect(getPrimaryIdentifiers(identifiers, 'externalType')).toBe(identifiers[0].name);
+    });
+    it('should return the first identifier if a `cve` identifier does not exist', () => {
+      expect(getPrimaryIdentifiers([identifiers[1]], 'external_type')).toBe(identifiers[1].name);
+    });
+    it('should return an empty string if identifiers is empty', () => {
+      expect(getPrimaryIdentifiers()).toBe('');
     });
   });
 

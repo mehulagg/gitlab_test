@@ -37,7 +37,6 @@ class License < ApplicationRecord
     repository_size_limit
     seat_link
     send_emails_from_admin_area
-    service_desk
     scoped_issue_board
     usage_quotas
     visual_review_app
@@ -52,9 +51,11 @@ class License < ApplicationRecord
     board_assignee_lists
     board_milestone_lists
     ci_cd_projects
+    ci_secrets_management
     cluster_deployments
     code_owner_approval_required
     commit_committer_check
+    compliance_framework
     cross_project_pipelines
     custom_file_templates
     custom_file_templates_for_namespace
@@ -109,9 +110,8 @@ class License < ApplicationRecord
   EEP_FEATURES.freeze
 
   EEU_FEATURES = EEP_FEATURES + %i[
-    cluster_health
-    compliance_framework
     container_scanning
+    coverage_fuzzing
     credentials_inventory
     dast
     dependency_scanning
@@ -164,7 +164,6 @@ class License < ApplicationRecord
     related_issues
     repository_mirrors
     scoped_issue_board
-    service_desk
   ].freeze
 
   FEATURES_BY_PLAN = {
@@ -186,8 +185,7 @@ class License < ApplicationRecord
     'GitLab_Auditor_User' => :auditor_user,
     'GitLab_DeployBoard' => :deploy_board,
     'GitLab_FileLocks' => :file_locks,
-    'GitLab_Geo' => :geo,
-    'GitLab_ServiceDesk' => :service_desk
+    'GitLab_Geo' => :geo
   }.freeze
 
   # Global features that cannot be restricted to only a subset of projects or namespaces.

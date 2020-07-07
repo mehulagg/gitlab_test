@@ -18,7 +18,6 @@ module Gitlab
     class << self
       include Gitlab::Utils::UsageData
       include Gitlab::Utils::StrongMemoize
-      include Gitlab::UsageDataConcerns::Topology
 
       def data(force_refresh: false)
         Rails.cache.fetch('usage_data', force: force_refresh, expires_in: 2.weeks) do
@@ -39,7 +38,7 @@ module Gitlab
             .merge(object_store_usage_data)
             .merge(topology_usage_data)
             .merge(usage_activity_by_stage)
-            .merge(usage_activity_by_stage(:usage_activity_by_stage_monthly, default_time_period))
+            .merge(usage_activity_by_stage(:usage_activity_by_stage_monthly, last_28_days_time_period))
             .merge(analytics_unique_visits_data)
         end
       end
@@ -159,8 +158,7 @@ module Gitlab
             usage_counters,
             user_preferences_usage,
             ingress_modsecurity_usage,
-            container_expiration_policies_usage,
-            merge_requests_usage(default_time_period)
+            container_expiration_policies_usage
           ).tap do |data|
             data[:snippets] = data[:personal_snippets] + data[:project_snippets]
           end
@@ -171,8 +169,11 @@ module Gitlab
       def system_usage_data_monthly
         {
           counts_monthly: {
-            personal_snippets: count(PersonalSnippet.where(default_time_period)),
-            project_snippets: count(ProjectSnippet.where(default_time_period))
+            deployments: count(Deployment.where(last_28_days_time_period)),
+            successful_deployments: count(Deployment.success.where(last_28_days_time_period)),
+            failed_deployments: count(Deployment.failed.where(last_28_days_time_period)),
+            personal_snippets: count(PersonalSnippet.where(last_28_days_time_period)),
+            project_snippets: count(ProjectSnippet.where(last_28_days_time_period))
           }.tap do |data|
             data[:snippets] = data[:personal_snippets] + data[:project_snippets]
           end
@@ -208,6 +209,7 @@ module Gitlab
           ldap_enabled: alt_usage_data(fallback: nil) { Gitlab.config.ldap.enabled },
           mattermost_enabled: alt_usage_data(fallback: nil) { Gitlab.config.mattermost.enabled },
           omniauth_enabled: alt_usage_data(fallback: nil) { Gitlab::Auth.omniauth_enabled? },
+          prometheus_enabled: alt_usage_data(fallback: nil) { Gitlab::Prometheus::Internal.prometheus_enabled? },
           prometheus_metrics_enabled: alt_usage_data(fallback: nil) { Gitlab::Metrics.prometheus_metrics_enabled? },
           reply_by_email_enabled: alt_usage_data(fallback: nil) { Gitlab::IncomingEmail.enabled? },
           signup_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.allow_signup? },
@@ -299,6 +301,10 @@ module Gitlab
             packages: object_store_config('packages')
           }
         }
+      end
+
+      def topology_usage_data
+        Gitlab::UsageData::Topology.new.topology_usage_data
       end
 
       def ingress_modsecurity_usage
@@ -405,23 +411,19 @@ module Gitlab
       end
 
       # rubocop: disable CodeReuse/ActiveRecord
-      def merge_requests_usage(time_period)
+      def merge_requests_users(time_period)
         query =
           Event
             .where(target_type: Event::TARGET_TYPES[:merge_request].to_s)
             .where(time_period)
 
-        merge_request_users = distinct_count(
+        distinct_count(
           query,
           :author_id,
           batch_size: 5_000, # Based on query performance, this is the optimal batch size.
           start: User.minimum(:id),
           finish: User.maximum(:id)
         )
-
-        {
-          merge_requests_users: merge_request_users
-        }
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
@@ -433,7 +435,7 @@ module Gitlab
         end
       end
 
-      def default_time_period
+      def last_28_days_time_period
         { created_at: 28.days.ago..Time.current }
       end
 
@@ -477,9 +479,10 @@ module Gitlab
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      # Omitted because no user, creator or author associated: `lfs_objects`, `pool_repositories`, `web_hooks`
       def usage_activity_by_stage_create(time_period)
-        {}
+        {}.tap do |h|
+          h[:merge_requests_users] = merge_requests_users(time_period) if time_period.present?
+        end
       end
 
       # Omitted because no user, creator or author associated: `campaigns_imported_from_github`, `ldap_group_links`
@@ -487,9 +490,17 @@ module Gitlab
         {}
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_monitor(time_period)
-        {}
+        {
+          clusters: distinct_count(::Clusters::Cluster.where(time_period), :user_id),
+          clusters_applications_prometheus: cluster_applications_user_distinct_count(::Clusters::Applications::Prometheus, time_period),
+          operations_dashboard_default_dashboard: count(::User.active.with_dashboard('operations').where(time_period),
+                                                        start: user_minimum_id,
+                                                        finish: user_maximum_id)
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def usage_activity_by_stage_package(time_period)
         {}

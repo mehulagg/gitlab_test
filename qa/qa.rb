@@ -182,6 +182,7 @@ module QA
       autoload :Login, 'qa/page/main/login'
       autoload :Menu, 'qa/page/main/menu'
       autoload :OAuth, 'qa/page/main/oauth'
+      autoload :TwoFactorAuth, 'qa/page/main/two_factor_auth'
       autoload :SignUp, 'qa/page/main/sign_up'
       autoload :Terms, 'qa/page/main/terms'
     end
@@ -309,6 +310,7 @@ module QA
         autoload :New, 'qa/page/project/issue/new'
         autoload :Show, 'qa/page/project/issue/show'
         autoload :Index, 'qa/page/project/issue/index'
+        autoload :JiraImport, 'qa/page/project/issue/jira_import'
       end
 
       module Fork
@@ -318,6 +320,7 @@ module QA
       module Milestone
         autoload :New, 'qa/page/project/milestone/new'
         autoload :Index, 'qa/page/project/milestone/index'
+        autoload :Show, 'qa/page/project/milestone/show'
       end
 
       module Operations
@@ -342,6 +345,8 @@ module QA
         autoload :Edit, 'qa/page/project/wiki/edit'
         autoload :Show, 'qa/page/project/wiki/show'
         autoload :GitAccess, 'qa/page/project/wiki/git_access'
+        autoload :Sidebar, 'qa/page/project/wiki/sidebar'
+        autoload :List, 'qa/page/project/wiki/list'
       end
 
       module WebIDE
@@ -446,6 +451,7 @@ module QA
       autoload :ConfirmModal, 'qa/page/component/confirm_modal'
       autoload :CustomMetric, 'qa/page/component/custom_metric'
       autoload :DesignManagement, 'qa/page/component/design_management'
+      autoload :ProjectSelector, 'qa/page/component/project_selector'
 
       module Issuable
         autoload :Common, 'qa/page/component/issuable/common'
@@ -563,6 +569,7 @@ module QA
     autoload :Retrier, 'qa/support/retrier'
     autoload :Waiter, 'qa/support/waiter'
     autoload :WaitForRequests, 'qa/support/wait_for_requests'
+    autoload :OTP, 'qa/support/otp'
   end
 end
 

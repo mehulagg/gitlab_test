@@ -100,6 +100,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :dependencies, only: [:index]
         resources :licenses, only: [:index, :create, :update]
         resources :on_demand_scans, only: [:index], controller: :on_demand_scans
+
+        namespace :integrations do
+          namespace :jira do
+            resources :issues, only: [:index]
+          end
+        end
       end
       # End of the /-/ scope.
 
@@ -123,6 +129,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       resource :insights, only: [:show], trailing_slash: true do
         collection do
           post :query
+          get :embedded
         end
       end
       # All new routes should go under /-/ scope.
