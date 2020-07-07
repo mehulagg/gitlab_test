@@ -92,6 +92,7 @@ class License < ApplicationRecord
     multiple_group_issue_boards
     object_storage
     operations_dashboard
+    opsgenie_mvc
     packages
     pages_size_limit
     productivity_analytics
