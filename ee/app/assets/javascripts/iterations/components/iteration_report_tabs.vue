@@ -24,7 +24,8 @@ const states = {
 
 const initialPaginationState = {
   currentPage: 1,
-  nextPageCursor: '',
+  beforeCursor: '',
+  afterCursor: '',
 };
 
 export default {
@@ -106,7 +107,6 @@ export default {
         pageInfo: {
           hasNextPage: true,
           hasPreviousPage: false,
-          nextPageCursor: '',
         },
       },
       error: '',
@@ -118,16 +118,16 @@ export default {
       return {
         groupPath: this.groupPath,
         id: getIdFromGraphQLId(this.iterationId),
-        nextPageCursor: this.pagination.nextPageCursor,
+        beforeCursor: this.pagination.beforeCursor,
+        afterCursor: this.pagination.afterCursor,
       };
     },
 
     prevPage() {
-      return Math.max(this.pagination.currentPage - 1, 0);
+      return Number(this.issues.pageInfo.hasPreviousPage);
     },
     nextPage() {
-      const nextPage = this.pagination.currentPage + 1;
-      return nextPage > Math.ceil(this.issues.totalCount / issuesPerPage) ? null : nextPage;
+      return Number(this.issues.pageInfo.hasNextPage);
     },
   },
   methods: {
@@ -141,22 +141,18 @@ export default {
       return __('Closed');
     },
     handlePageChange(page) {
-      const { startCursor, endCursor, hasNextPage, hasPreviousPage } = this.issues.pageInfo;
+      const { startCursor, endCursor } = this.issues.pageInfo;
 
       if (page > this.pagination.currentPage) {
         this.pagination = {
           ...initialPaginationState,
-          nextPageCursor: endCursor,
+          afterCursor: endCursor,
           currentPage: page,
-          hasNextPage,
-          hasPreviousPage,
         };
       } else {
         this.pagination = {
-          lastPageSize: 5,
-          firstPageSize: null,
-          prevPageCursor: startCursor,
-          nextPageCursor: '',
+          ...initialPaginationState,
+          beforeCursor: startCursor,
           currentPage: page,
         };
       }

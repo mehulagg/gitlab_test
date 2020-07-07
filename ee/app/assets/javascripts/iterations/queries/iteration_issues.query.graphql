@@ -1,6 +1,11 @@
-query GroupIteration($groupPath: ID!, $id: ID!, $nextPageCursor: String = "") {
+query GroupIteration(
+  $groupPath: ID!
+  $id: ID!
+  $beforeCursor: String = ""
+  $afterCursor: String = ""
+) {
   group(fullPath: $groupPath) {
-    issues(iterationId: [$id], after: $nextPageCursor, first: 20) {
+    issues(iterationId: [$id], before: $beforeCursor, after: $afterCursor, first: 20) {
       totalCount
       pageInfo {
         endCursor

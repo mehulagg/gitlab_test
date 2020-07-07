@@ -7,7 +7,6 @@ import {
   GlIcon,
   GlNewDropdown,
   GlNewDropdownItem,
-  GlTooltipDirective,
 } from '@gitlab/ui';
 import { formatDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
@@ -33,9 +32,6 @@ export default {
     GlNewDropdownItem,
     IterationForm,
     IterationReportTabs,
-  },
-  directives: {
-    GlTooltip: GlTooltipDirective,
   },
   apollo: {
     group: {
@@ -85,9 +81,6 @@ export default {
   computed: {
     iteration() {
       return this.group.iteration;
-    },
-    issues() {
-      return this.group.issues;
     },
     hasIteration() {
       return !this.$apollo.queries.group.loading && this.iteration?.title;
