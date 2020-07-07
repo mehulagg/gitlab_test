@@ -5,7 +5,7 @@ module ActiveRecord
     attr_reader :log, :skip_cached, :cached, :data
     UNKNOWN = %w(unknown unknown).freeze
 
-    def initialize(skip_cached: true, query_recorder_debug: false, &block)
+    def initialize(skip_cached: false, query_recorder_debug: false, &block)
       @data = Hash.new { |h, k| h[k] = { count: 0, occurrences: [], backtrace: [] } }
       @log = []
       @cached = []
