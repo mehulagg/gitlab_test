@@ -147,7 +147,10 @@ export default {
     }, JSON_VALIDATE_DELAY),
   },
   created() {
-    if (this.glFeatures.alertIntegrationsDropdown && (this.activated.prometheus || this.activated.generic)) {
+    if (
+      this.glFeatures.alertIntegrationsDropdown &&
+      (this.activated.prometheus || this.activated.generic)
+    ) {
       this.options = this.options.filter(el => el.value !== 'opsgenie');
     }
   },

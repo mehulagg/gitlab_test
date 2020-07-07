@@ -2031,6 +2031,9 @@ msgstr ""
 msgid "AlertManagement|Open"
 msgstr ""
 
+msgid "AlertManagement|Opsgenie is enabled"
+msgstr ""
+
 msgid "AlertManagement|Overview"
 msgstr ""
 
@@ -2088,7 +2091,13 @@ msgstr ""
 msgid "AlertManagement|Unknown"
 msgstr ""
 
+msgid "AlertManagement|View alerts in OpsGenie"
+msgstr ""
+
 msgid "AlertManagement|View issue"
+msgstr ""
+
+msgid "AlertManagement|You have enabled the OpsGenie integration. Your alerts will be visible directly in OpsGenie."
 msgstr ""
 
 msgid "AlertService|Review your external service's documentation to learn where to provide this information to your external service, and the %{linkStart}GitLab documentation%{linkEnd} to learn more about configuring your endpoint."
@@ -2131,6 +2140,9 @@ msgid "AlertSettings|Integrations"
 msgstr ""
 
 msgid "AlertSettings|Learn more about our %{linkStart}upcoming integrations%{linkEnd}"
+msgstr ""
+
+msgid "AlertSettings|OpsGenie"
 msgstr ""
 
 msgid "AlertSettings|Prometheus API Base URL"

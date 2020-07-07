@@ -1,4 +1,4 @@
-import { s__ } from '~/locale';
+import { s__, __ } from '~/locale';
 
 export const ALERTS_SEVERITY_LABELS = {
   CRITICAL: s__('AlertManagement|Critical'),
@@ -70,11 +70,13 @@ export const AlertManagementListi18n = {
   noAlertsMsg: s__(
     'AlertManagement|No alerts available to display. See %{linkStart}enabling alert management%{linkEnd} for more information on adding alerts to the list.',
   ),
-    errorMsg: s__(
+  errorMsg: s__(
     "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear.",
   ),
-    searchPlaceholder: __('Search or filter results...'),
-    opsGenieEnabledTitle: s__('AlertManagement|Opsgenie is enabled'),
-    opsGenieEnabledDescription: s__('AlertManagement|You have enabled the OpsGenie integration. Your alerts will be visible directly in OpsGenie.'),
-    opsGenieEnabledButton: s__('AlertManagement|View alerts in OpsGenie')
+  searchPlaceholder: __('Search or filter results...'),
+  opsGenieEnabledTitle: s__('AlertManagement|Opsgenie is enabled'),
+  opsGenieEnabledDescription: s__(
+    'AlertManagement|You have enabled the OpsGenie integration. Your alerts will be visible directly in OpsGenie.',
+  ),
+  opsGenieEnabledButton: s__('AlertManagement|View alerts in OpsGenie'),
 };
