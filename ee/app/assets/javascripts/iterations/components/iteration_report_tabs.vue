@@ -15,18 +15,12 @@ import { __ } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
 
-const issuesPerPage = 20;
-
 const states = {
   opened: 'opened',
   closed: 'closed',
 };
 
-const initialPaginationState = {
-  currentPage: 1,
-  beforeCursor: '',
-  afterCursor: '',
-};
+const pageSize = 20;
 
 export default {
   fields: [
@@ -110,17 +104,27 @@ export default {
         },
       },
       error: '',
-      pagination: initialPaginationState,
+      pagination: {
+        currentPage: 1,
+      },
     };
   },
   computed: {
     queryVariables() {
-      return {
+      const vars = {
         groupPath: this.groupPath,
         id: getIdFromGraphQLId(this.iterationId),
-        beforeCursor: this.pagination.beforeCursor,
-        afterCursor: this.pagination.afterCursor,
       };
+
+      if (this.pagination.beforeCursor) {
+        vars.beforeCursor = this.pagination.beforeCursor;
+        vars.lastPageSize = pageSize;
+      } else {
+        vars.afterCursor = this.pagination.afterCursor;
+        vars.firstPageSize = pageSize;
+      }
+
+      return vars;
     },
 
     prevPage() {
@@ -145,13 +149,11 @@ export default {
 
       if (page > this.pagination.currentPage) {
         this.pagination = {
-          ...initialPaginationState,
           afterCursor: endCursor,
           currentPage: page,
         };
       } else {
         this.pagination = {
-          ...initialPaginationState,
           beforeCursor: startCursor,
           currentPage: page,
         };

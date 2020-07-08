@@ -3,9 +3,17 @@ query GroupIteration(
   $id: ID!
   $beforeCursor: String = ""
   $afterCursor: String = ""
+  $firstPageSize: Int = 20
+  $lastPageSize: Int
 ) {
   group(fullPath: $groupPath) {
-    issues(iterationId: [$id], before: $beforeCursor, after: $afterCursor, first: 20) {
+    issues(
+      iterationId: [$id]
+      before: $beforeCursor
+      after: $afterCursor
+      first: $firstPageSize
+      last: $lastPageSize
+    ) {
       totalCount
       pageInfo {
         endCursor
