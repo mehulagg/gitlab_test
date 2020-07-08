@@ -1,6 +1,7 @@
 dep_monitor:
   stage: test
+  needs: []
   extends:
-  - .default-retry
+    - .default-retry
   script:
     - scripts/dep-monitor-client.sh
