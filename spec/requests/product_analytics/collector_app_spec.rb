@@ -5,9 +5,8 @@ require 'spec_helper'
 RSpec.describe 'ProductAnalytics::CollectorApp' do
   let_it_be(:project) { create(:project) }
   let(:params) { {} }
-  let(:headers) { {} }
 
-  subject { get '/-/collector/i', params: params, headers: headers }
+  subject { get '/-/collector/i', params: params }
 
   context 'correct event params' do
     let(:params) do

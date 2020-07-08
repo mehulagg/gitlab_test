@@ -30,4 +30,10 @@ module RackAttackSpecHelpers
 
     expect(response).to have_gitlab_http_status(:too_many_requests)
   end
+
+  def expect_ok(&block)
+    yield
+
+    expect(response).to have_gitlab_http_status(:ok)
+  end
 end
