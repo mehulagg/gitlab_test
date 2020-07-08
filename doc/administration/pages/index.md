@@ -546,7 +546,7 @@ database encryption. Proceed with caution.
 
    ```ruby
    external_url 'http://<pages_server_IP>'
-   pages_external_url "http://<your_pages_server_URL>"
+   pages_external_url "http://<pages_server_URL>"
    postgresql['enable'] = false
    redis['enable'] = false
    prometheus['enable'] = false
@@ -574,7 +574,7 @@ database encryption. Proceed with caution.
 
    ```ruby
    gitlab_pages['enable'] = false
-   pages_external_url "http://<your_pages_server_URL>"
+   pages_external_url "http://<pages_server_URL>"
    gitlab_rails['pages_path'] = "/mnt/pages"
    ```
 
