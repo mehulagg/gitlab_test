@@ -48,48 +48,39 @@ module EachBatch
     #   `ORDER BY id ASC, updated_at ASC` means the same thing as `ORDER
     #   BY id ASC`.
     def each_batch(of: 1000, column: primary_key, order_hint: nil)
+      return if none?
+
       unless column
         raise ArgumentError,
           'the column: argument must be set to a column name to use for ordering rows'
       end
 
-      start = except(:select)
-        .select(column)
-        .reorder(column => :asc)
-
-      start = start.order(order_hint) if order_hint
-      start = start.take
-
-      return unless start
-
-      start_id = start[column]
       arel_table = self.arel_table
 
+      base_relation = reselect(column).reorder(column => :asc).limit(of)
+      base_relation.order!(order_hint) if order_hint
+
+      tuple = connection.execute("SELECT MIN(#{column}) as start, MAX(#{column}) as stop FROM (#{base_relation.to_sql}) subquery").first
+      lower_boundary, upper_boundary = tuple.values_at('start', 'stop')
+
+      return unless lower_boundary
+
+      relation = where(arel_table[column].gteq(lower_boundary))
+                 .where(arel_table[column].lteq(upper_boundary))
+
       1.step do |index|
-        stop = except(:select)
-          .select(column)
-          .where(arel_table[column].gteq(start_id))
-          .reorder(column => :asc)
-
-        stop = stop.order(order_hint) if order_hint
-        stop = stop
-          .offset(of)
-          .limit(1)
-          .take
-
-        relation = where(arel_table[column].gteq(start_id))
-
-        if stop
-          stop_id = stop[column]
-          start_id = stop_id
-          relation = relation.where(arel_table[column].lt(stop_id))
-        end
-
-        # Any ORDER BYs are useless for this relation and can lead to less
-        # efficient UPDATE queries, hence we get rid of it.
         yield relation.except(:order), index
 
-        break unless stop
+        base_relation = base_relation.unscope(:where).where(arel_table[column].gt(upper_boundary))
+        tuple = connection.execute("SELECT MAX(#{column}) as stop FROM (#{base_relation.to_sql}) subquery").first
+
+        lower_boundary = upper_boundary
+        upper_boundary = tuple['stop']
+
+        break unless upper_boundary
+
+        relation = where(arel_table[column].gt(lower_boundary))
+                   .where(arel_table[column].lteq(upper_boundary))
       end
     end
   end
