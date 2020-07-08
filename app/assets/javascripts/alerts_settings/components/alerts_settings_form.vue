@@ -167,14 +167,25 @@ export default {
       this.validateJson();
     }, JSON_VALIDATE_DELAY),
   },
-  created() {
+  mounted() {
     if (
       this.activated.prometheus || this.activated.generic
     ) {
-      this.options = this.options.filter(el => el.value !== 'opsgenie');
+      this.removeOpsGenieOption();
+    } else if (this.activated.opsgenie) {
+      this.setOpsGenieAsDefault();
     }
   },
   methods: {
+    setOpsGenieAsDefault() {
+      this.options = this.options.filter(el => el.value === 'opsgenie');
+      const [selected] = this.options;
+      this.selectedEndpoint = selected.value;
+      this.targetUrl = this.selectedService.targetUrl
+    },
+    removeOpsGenieOption() {
+      this.options = this.options.filter(el => el.value !== 'opsgenie');
+    },
     resetFormValues() {
       this.testAlert.json = null;
       this.targetUrl = this.selectedService.targetUrl;
@@ -228,6 +239,14 @@ export default {
         .then(() => {
           this.activated[this.selectedEndpoint] = value;
           this.toggleSuccess(value);
+
+          if(this.isOpsGenie && value) {
+            this.setOpsGenieAsDefault();
+          } else if (!this.isOpsGenie && value) {
+            this.removeOpsGenieOption();
+          } else {
+            this.options = serviceOptions;
+          }
         })
         .catch(() => {
           this.setFeedback({
@@ -254,6 +273,7 @@ export default {
         .then(() => {
           this.activated.prometheus = value;
           this.toggleSuccess(value);
+          this.removeOpsGenieOption();
         })
         .catch(() => {
           this.setFeedback({
