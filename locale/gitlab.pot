@@ -2106,6 +2106,9 @@ msgstr ""
 msgid "AlertService|You must provide this URL and authorization key to authorize an external service to send alerts to GitLab. You can provide this URL and key to multiple services. After configuring an external service, alerts from your service will display on the GitLab %{linkStart}Alerts%{linkEnd} page."
 msgstr ""
 
+msgid "AlertSettings|API URL"
+msgstr ""
+
 msgid "AlertSettings|Active"
 msgstr ""
 
@@ -2143,9 +2146,6 @@ msgid "AlertSettings|Learn more about our %{linkStart}upcoming integrations%{lin
 msgstr ""
 
 msgid "AlertSettings|OpsGenie"
-msgstr ""
-
-msgid "AlertSettings|Prometheus API Base URL"
 msgstr ""
 
 msgid "AlertSettings|Reset key"
@@ -2190,7 +2190,7 @@ msgstr ""
 msgid "AlertSettings|Your changes were successfully updated."
 msgstr ""
 
-msgid "AlertSettings|http://prometheus.example.com/"
+msgid "AlertSettings|http://example.com/"
 msgstr ""
 
 msgid "Alerts"
