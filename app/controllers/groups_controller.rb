@@ -276,7 +276,8 @@ class GroupsController < Groups::ApplicationController
     if Gitlab::ApplicationRateLimiter.throttled?(prefixed_action, scope: [current_user, scope].compact)
       Gitlab::ApplicationRateLimiter.log_request(request, "#{prefixed_action}_request_limit".to_sym, current_user)
 
-      render plain: _('This endpoint has been requested too many times. Try again later.'), status: :too_many_requests
+      flash[:alert] = _('This endpoint has been requested too many times. Try again later.')
+      redirect_to edit_group_path(@group)
     end
   end
 

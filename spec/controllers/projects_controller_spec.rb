@@ -1203,8 +1203,8 @@ RSpec.describe ProjectsController do
       it 'prevents requesting project export' do
         post action, params: { namespace_id: project.namespace, id: project }
 
-        expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
-        expect(response).to have_gitlab_http_status(:too_many_requests)
+        expect(flash[:alert]).to eq('This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status(:found)
       end
     end
 
@@ -1270,8 +1270,8 @@ RSpec.describe ProjectsController do
           it 'prevents requesting project export' do
             post action, params: { namespace_id: project.namespace, id: project }
 
-            expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
-            expect(response).to have_gitlab_http_status(:too_many_requests)
+            expect(flash[:alert]).to eq('This endpoint has been requested too many times. Try again later.')
+            expect(response).to have_gitlab_http_status(:found)
           end
         end
       end

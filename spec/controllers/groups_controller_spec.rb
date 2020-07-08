@@ -947,8 +947,8 @@ RSpec.describe GroupsController do
       it 'throttles the endpoint' do
         post :export, params: { id: group.to_param }
 
-        expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
-        expect(response).to have_gitlab_http_status :too_many_requests
+        expect(flash[:alert]).to eq('This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status(:found)
       end
     end
   end
@@ -1021,8 +1021,8 @@ RSpec.describe GroupsController do
       it 'throttles the endpoint' do
         get :download_export, params: { id: group.to_param }
 
-        expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
-        expect(response).to have_gitlab_http_status :too_many_requests
+        expect(flash[:alert]).to eq('This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status(:found)
       end
     end
   end
