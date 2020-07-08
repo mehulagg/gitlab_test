@@ -89,7 +89,8 @@ module Projects
 
         execute_system_hooks
 
-        Projects::UpdatePagesConfigurationService.new(project).execute(force=true)
+        force = true
+        Projects::UpdatePagesConfigurationService.new(project).execute(force)
       end
     rescue Exception # rubocop:disable Lint/RescueException
       rollback_side_effects
