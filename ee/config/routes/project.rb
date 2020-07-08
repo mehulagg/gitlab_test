@@ -104,6 +104,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         namespace :integrations do
           namespace :jira do
             resources :issues, only: [:index]
+            resources :search_suggestions, only: [:index]
           end
         end
       end
