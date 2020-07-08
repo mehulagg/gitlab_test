@@ -545,7 +545,7 @@ database encryption. Proceed with caution.
    to include:
 
    ```ruby
-   external_url 'http://<ip_address_of_the_server>'
+   external_url 'http://<pages_server_IP>'
    pages_external_url "http://<your_pages_server_URL>"
    postgresql['enable'] = false
    redis['enable'] = false
