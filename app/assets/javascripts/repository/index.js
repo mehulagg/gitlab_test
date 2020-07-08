@@ -12,18 +12,33 @@ import { setTitle } from './utils/title';
 import { updateFormAction } from './utils/dom';
 import { convertObjectPropsToCamelCase, parseBoolean } from '../lib/utils/common_utils';
 import { __ } from '../locale';
+import PathLastCommitQuery from './queries/path_last_commit.query.graphql';
 
 export default function setupVueRepositoryList() {
   const el = document.getElementById('js-tree-list');
   const { dataset } = el;
   const { projectPath, projectShortPath, ref, escapedRef, fullName } = dataset;
   const router = createRouter(projectPath, escapedRef);
+  const pathRegex = /-\/tree\/.+\/(.+$)/;
+  const matches = window.location.href.match(pathRegex);
+
+  const currentRoutePath = matches ? matches[1] : '';
 
   if (window.gl.graphql_startup_calls) {
     const { pathLastCommit } = window.gl.graphql_startup_calls;
     pathLastCommit.fetchCall
       .then(res => res.json())
-      .then(console.log)
+      .then(res => {
+        apolloProvider.clients.defaultClient.cache.writeQuery({
+          query: PathLastCommitQuery,
+          data: res.data,
+          variables: {
+            projectPath,
+            ref,
+            path: currentRoutePath,
+          },
+        });
+      })
       .catch(console.error);
   }
 

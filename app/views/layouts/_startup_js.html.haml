@@ -22,11 +22,51 @@
       var matches = window.location.href.match(pathRegex);
       var currentRoutePath = matches ? matches[1] : '';
 
-      var query = `
+      var pathLastCommitQuery = `
         query PathLastCommit {
           project(fullPath: "#{@project.full_path}") {
+            __typename
             repository {
-              rootRef
+              __typename
+              tree(path: "${currentRoutePath}", ref: "#{ref}") {
+                __typename
+                lastCommit {
+                  __typename
+                  sha
+                  title
+                  titleHtml
+                  description
+                  message
+                  webPath
+                  authoredDate
+                  authorName
+                  authorGravatar
+                  author {
+                    __typename
+                    name
+                    avatarUrl
+                    webPath
+                  }
+                  signatureHtml
+                  pipelines(ref: "#{ref}", first: 1) {
+                    __typename
+                    edges {
+                      __typename
+                      node {
+                        __typename
+                        detailedStatus {
+                          __typename
+                          detailsPath
+                          icon
+                          tooltip
+                          text
+                          group
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -34,12 +74,14 @@
       const opts = {
         method: "POST",
         headers: { "Content-Type": "application/json", 'X-CSRF-Token': "#{form_authenticity_token}" },
-        body: JSON.stringify({ query })
       };
 
       gl.graphql_startup_calls = {
         pathLastCommit: {
-          fetchCall: fetch(url, opts)
+          fetchCall: fetch(url, {
+            ...opts,
+            body: JSON.stringify({ query: pathLastCommitQuery })
+          })
         }
       };
     }
