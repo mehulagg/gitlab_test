@@ -41,6 +41,14 @@ When the number exceeds the limit the page displays an alert and links to a pagi
 
 - **Limit:** 3000 issues
 
+## Number of issues and sub-epics displayed under a single epic
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9647) in GitLab 13.2.
+
+The maximum number of issues and child epics loaded in the epic tree is 2000.
+
+- **Limit:** 2000 issues or epics
+
 ## Number of pipelines per Git push
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/51401) in GitLab 11.10.
