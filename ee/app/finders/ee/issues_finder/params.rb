@@ -11,15 +11,15 @@ module EE
       end
 
       def iterations?
-        params[:iteration_id].present?
+        iterations.present?
       end
 
       def filter_by_no_iteration?
-        params[:iteration_id].to_s.downcase == ::IssuableFinder::Params::FILTER_NONE
+        iterations.to_s.downcase == ::IssuableFinder::Params::FILTER_NONE
       end
 
       def filter_by_any_iteration?
-        params[:iteration_id].to_s.downcase == ::IssuableFinder::Params::FILTER_ANY
+        iterations.to_s.downcase == ::IssuableFinder::Params::FILTER_ANY
       end
 
       def filter_by_no_epic?

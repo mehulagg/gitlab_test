@@ -127,8 +127,8 @@ RSpec.describe IssuesFinder do
         let_it_be(:iteration_1) { create(:iteration, group: group) }
         let_it_be(:iteration_2) { create(:iteration, group: group) }
 
-        let_it_be(:issue_1) { create(:issue, project: project1, iteration: iteration_1) }
-        let_it_be(:issue_2) { create(:issue, project: project1, iteration: iteration_2) }
+        let_it_be(:iteration_1_issue) { create(:issue, project: project1, iteration: iteration_1) }
+        let_it_be(:iteration_2_issue) { create(:issue, project: project1, iteration: iteration_2) }
 
         context 'filter issues with no iteration' do
           let(:params) { { iteration_id: ::IssuableFinder::Params::FILTER_NONE } }
@@ -142,7 +142,7 @@ RSpec.describe IssuesFinder do
           let(:params) { { iteration_id: ::IssuableFinder::Params::FILTER_ANY } }
 
           it 'returns filtered issues' do
-            expect(issues).to contain_exactly(issue_1, issue_2)
+            expect(issues).to contain_exactly(iteration_1_issue, iteration_2_issue)
           end
         end
 
@@ -150,7 +150,7 @@ RSpec.describe IssuesFinder do
           let(:params) { { iteration_id: iteration_1.id } }
 
           it 'returns all issues with the iteration' do
-            expect(issues).to contain_exactly(issue_1)
+            expect(issues).to contain_exactly(iteration_1_issue)
           end
         end
 
@@ -158,7 +158,15 @@ RSpec.describe IssuesFinder do
           let(:params) { { iteration_id: [iteration_1.id, iteration_2.id] } }
 
           it 'returns all issues with the iteration' do
-            expect(issues).to contain_exactly(issue_1, issue_2)
+            expect(issues).to contain_exactly(iteration_1_issue, iteration_2_issue)
+          end
+        end
+
+        context 'without iteration_id param' do
+          let(:params) { { iteration_id: nil } }
+
+          it 'returns unfiltered issues' do
+            expect(issues).to contain_exactly(issue1, issue2, issue3, issue4, iteration_1_issue, iteration_2_issue)
           end
         end
       end
