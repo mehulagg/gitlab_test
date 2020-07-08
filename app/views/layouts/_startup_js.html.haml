@@ -1,4 +1,6 @@
 - return unless page_startup_api_calls.present?
+- ref = local_assigns.fetch(:ref) { current_ref }
+- root_url = root_url()
 
 = javascript_tag nonce: true do
   :plain
@@ -15,13 +17,29 @@
       });
     }
     if (window.fetch) {
-      var url = gon.relative_url_root + '/api/graphql'
+      var url = `#{root_url}/api/graphql`
+      var pathRegex = /-\/tree\/+.\/(.+$)/;
+      var matches = window.location.href.match(pathRegex);
+      var currentRoutePath = matches ? matches[1] : '';
+
+      var query = `
+        query PathLastCommit {
+          project(fullPath: "#{@project.full_path}") {
+            repository {
+              rootRef
+            }
+          }
+        }
+      `
+      const opts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json", 'X-CSRF-Token': "#{form_authenticity_token}" },
+        body: JSON.stringify({ query })
+      };
 
       gl.graphql_startup_calls = {
         pathLastCommit: {
-          fetchCall: {
-
-          }
+          fetchCall: fetch(url, opts)
         }
       };
     }

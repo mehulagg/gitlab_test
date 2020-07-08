@@ -19,6 +19,14 @@ export default function setupVueRepositoryList() {
   const { projectPath, projectShortPath, ref, escapedRef, fullName } = dataset;
   const router = createRouter(projectPath, escapedRef);
 
+  if (window.gl.graphql_startup_calls) {
+    const { pathLastCommit } = window.gl.graphql_startup_calls;
+    pathLastCommit.fetchCall
+      .then(res => res.json())
+      .then(console.log)
+      .catch(console.error);
+  }
+
   apolloProvider.clients.defaultClient.cache.writeData({
     data: {
       projectPath,
