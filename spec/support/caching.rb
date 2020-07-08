@@ -36,7 +36,7 @@ RSpec.configure do |config|
     Rails.cache = original_null_store
   end
 
-  config.around(:each, :use_sql_query_cache) do |example|
+  config.around do |example|
     ActiveRecord::Base.cache do
       example.run
     end
