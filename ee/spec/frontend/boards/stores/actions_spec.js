@@ -100,13 +100,13 @@ describe('toggleEpicSwimlanes', () => {
   });
 });
 
-describe('receiveSwimlanesSuccess', () => {
-  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', done => {
+describe('receiveBoardListsSuccess', () => {
+  it('should commit mutation RECEIVE_BOARD_LISTS_SUCCESS', done => {
     testAction(
-      actions.receiveSwimlanesSuccess,
+      actions.receiveBoardListsSuccess,
       {},
       {},
-      [{ type: types.RECEIVE_SWIMLANES_SUCCESS, payload: {} }],
+      [{ type: types.RECEIVE_BOARD_LISTS_SUCCESS, payload: {} }],
       [],
       done,
     );

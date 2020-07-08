@@ -1,11 +1,14 @@
+import { sortBy } from 'lodash';
 import axios from 'axios';
 import actionsCE from '~/boards/stores/actions';
 import boardsStoreEE from './boards_store_ee';
+import boardsStore from '~/boards/stores/boards_store';
 import * as types from './mutation_types';
 
 import createDefaultClient from '~/lib/graphql';
-import epicsSwimlanes from '../queries/epics_swimlanes.query.graphql';
-import groupEpics from '../queries/group_epics.query.graphql';
+import { BoardType } from '~/boards/constants';
+import groupEpicsSwimlanesQuery from '../queries/group_epics_swimlanes.query.graphql';
+import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -14,10 +17,12 @@ const notImplemented = () => {
 
 const gqlClient = createDefaultClient();
 
-const fetchEpicsSwimlanes = ({ endpoints }) => {
+const fetchEpicsSwimlanes = ({ endpoints, boardType }) => {
   const { fullPath, boardId } = endpoints;
 
-  const query = epicsSwimlanes;
+  const query =
+    boardType === BoardType.group ? groupEpicsSwimlanesQuery : projectEpicsSwimlanesQuery;
+
   const variables = {
     fullPath,
     boardId: `gid://gitlab/Board/${boardId}`,
@@ -29,27 +34,8 @@ const fetchEpicsSwimlanes = ({ endpoints }) => {
       variables,
     })
     .then(({ data }) => {
-      return data;
-    });
-};
-
-const fetchEpics = ({ endpoints }) => {
-  const { fullPath } = endpoints;
-
-  const query = groupEpics;
-  const variables = {
-    fullPath,
-  };
-
-  return gqlClient
-    .query({
-      query,
-      variables,
-    })
-    .then(({ data }) => {
-      const { group } = data;
-      const epics = group?.epics.nodes || [];
-      return epics.map(e => ({
+      const { epics, lists } = data[boardType]?.board;
+      const epicsFormatted = epics.nodes.map(e => ({
         ...e,
         issues: (e?.issues?.nodes || []).map(i => ({
           ...i,
@@ -57,6 +43,10 @@ const fetchEpics = ({ endpoints }) => {
           assignees: i.assignees?.nodes || [],
         })),
       }));
+      return {
+        epics: epicsFormatted,
+        lists: lists.nodes,
+      };
     });
 };
 
@@ -105,22 +95,30 @@ export default {
     commit(types.TOGGLE_EPICS_SWIMLANES);
 
     if (state.isShowingEpicsSwimlanes) {
-      Promise.all([fetchEpicsSwimlanes(state), fetchEpics(state)])
-        .then(([swimlanes, epics]) => {
-          if (swimlanes) {
-            dispatch('receiveSwimlanesSuccess', swimlanes);
+      fetchEpicsSwimlanes(state)
+        .then(({ lists, epics }) => {
+          if (lists) {
+            if (lists) {
+              let boardLists = lists.map(list =>
+                boardsStore.updateListPosition({ ...list, doNotFetchIssues: true }),
+              );
+              boardLists = sortBy([...boardLists], 'position');
+              dispatch('receiveBoardListsSuccess', boardLists);
+            }
           }
 
           if (epics) {
             dispatch('receiveEpicsSuccess', epics);
           }
         })
-        .catch(() => dispatch('receiveSwimlanesFailure'));
+        .catch(() => {
+          dispatch('receiveSwimlanesFailure');
+        });
     }
   },
 
-  receiveSwimlanesSuccess: ({ commit }, swimlanes) => {
-    commit(types.RECEIVE_SWIMLANES_SUCCESS, swimlanes);
+  receiveBoardListsSuccess: ({ commit }, swimlanes) => {
+    commit(types.RECEIVE_BOARD_LISTS_SUCCESS, swimlanes);
   },
 
   receiveSwimlanesFailure: ({ commit }) => {

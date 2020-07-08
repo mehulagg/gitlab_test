@@ -42,7 +42,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['isShowingEpicsSwimlanes']),
+    ...mapState(['isShowingEpicsSwimlanes', 'boardLists']),
     isSwimlanesOn() {
       return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
     },
@@ -73,7 +73,7 @@ export default {
     <epics-swimlanes
       v-else
       ref="swimlanes"
-      :lists="lists"
+      :lists="boardLists"
       :can-admin-list="canAdminList"
       :disabled="disabled"
       :board-id="boardId"

@@ -6,6 +6,6 @@ export default () => ({
   isShowingEpicsSwimlanes: false,
   epicsSwimlanesFetchInProgress: false,
   epicsSwimlanesFetchFailure: false,
-  epicsSwimlanes: {},
+  boardLists: [],
   epics: {},
 });
