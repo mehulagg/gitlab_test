@@ -60,10 +60,11 @@ export default {
         role="button"
         class="js-graph-group-toggle gl-text-gray-900"
         tabindex="0"
+        :aria-label="__('Toggle collapse')"
         @click="collapse"
         @keyup.enter="collapse"
       >
-        <icon :size="16" :aria-label="__('Toggle collapse')" :name="caretIcon" />
+        <icon :size="16" :name="caretIcon" />
       </a>
     </div>
     <div
