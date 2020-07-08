@@ -1,6 +1,11 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import { GlDeprecatedButton, GlFormCheckbox, GlSkeletonLoading } from '@gitlab/ui';
+import {
+  GlDeprecatedButton,
+  GlFormCheckbox,
+  GlSkeletonLoading,
+  GlTooltipDirective,
+} from '@gitlab/ui';
 import SeverityBadge from 'ee/vue_shared/security_reports/components/severity_badge.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import VulnerabilityActionButtons from './vulnerability_action_buttons.vue';
@@ -19,6 +24,9 @@ export default {
     SeverityBadge,
     VulnerabilityActionButtons,
     VulnerabilityIssueLink,
+  },
+  directives: {
+    GlTooltip: GlTooltipDirective,
   },
   props: {
     vulnerability: {
@@ -145,7 +153,12 @@ export default {
 
     <div class="table-section gl-white-space-normal section-15">
       <div class="table-mobile-header" role="rowheader">{{ s__('Reports|Identifier') }}</div>
-      <div class="table-mobile-content">
+      <div
+        v-gl-tooltip.hover
+        :aria-label="$vulnerabilityIdentifier"
+        :title="$vulnerabilityIdentifier"
+        class="table-mobile-content"
+      >
         {{ vulnerabilityIdentifier }}
       </div>
     </div>
