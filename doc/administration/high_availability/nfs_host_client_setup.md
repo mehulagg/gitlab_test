@@ -98,7 +98,7 @@ See [NFS documentation](nfs.md#nfs-client-mount-options) for guidance on mount o
 
 ```plaintext
 #/etc/fstab
-10.0.0.1:/nfs/home  /nfs/home  nfs4 defaults,hard,vers=4.1,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+<host_ip_address>:/home  /nfs/home  nfs4 defaults,hard,vers=4.1,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
 ```
 
 Reboot the client and confirm that the mount point is mounted automatically.
