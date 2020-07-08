@@ -16,7 +16,7 @@ export const i18n = {
   errorApiUrlMsg: s__(
     'AlertSettings|There was an error while trying to enable the alert settings. Please ensure you are using a valid URL.',
   ),
-  prometheusApiPlaceholder: s__('AlertSettings|http://prometheus.example.com/'),
+  targetUrlPlaceholder: s__('AlertSettings|http://example.com/'),
   restKeyInfo: s__(
     'AlertSettings|Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in.',
   ),
@@ -29,7 +29,7 @@ export const i18n = {
   resetKey: s__('AlertSettings|Reset key'),
   copyToClipboard: s__('AlertSettings|Copy'),
   integrationsLabel: s__('AlertSettings|Integrations'),
-  apiBaseUrlLabel: s__('AlertSettings|Prometheus API Base URL'),
+  apiBaseUrlLabel: s__('AlertSettings|API URL'),
   authKeyLabel: s__('AlertSettings|Authorization key'),
   urlLabel: s__('AlertSettings|Webhook URL'),
   activeLabel: s__('AlertSettings|Active'),

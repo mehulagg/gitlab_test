@@ -20,10 +20,14 @@ export default el => {
     formPath,
     authorizationKey,
     url,
+    opsgenieMvcFormPath,
+    opsgenieMvcEnabled,
+    opsgenieMvcTargetUrl,
   } = el.dataset;
 
   const activated = parseBoolean(activatedStr);
   const prometheusIsActivated = parseBoolean(prometheusActivated);
+  const opsgenieMvcActivated = parseBoolean(opsgenieMvcEnabled);
 
   return new Vue({
     el,
@@ -46,6 +50,11 @@ export default el => {
             initialAuthorizationKey: authorizationKey,
             url,
           },
+          opsgenie: {
+            formPath: opsgenieMvcFormPath,
+            opsgenieMvcActivated,
+            opsgenieMvcTargetUrl,
+          }
         },
       });
     },
