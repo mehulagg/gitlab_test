@@ -41,7 +41,7 @@ When the number exceeds the limit the page displays an alert and links to a pagi
 
 - **Limit:** 3000 issues
 
-## Number of issues and sub-epics displayed under a single epic
+## Number of issues and child epics displayed under a single epic
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9647) in GitLab 13.2.
 
