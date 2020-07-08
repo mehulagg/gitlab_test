@@ -12,4 +12,4 @@ do
     sleep 1
 done
 
-curl --silent -G -d "id=$JOBID" 46.101.173.169:3000
+curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq .
