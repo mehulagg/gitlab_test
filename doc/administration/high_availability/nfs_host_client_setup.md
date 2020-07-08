@@ -38,10 +38,10 @@ In this setup we will share the home directory on the host with the client. Edit
 
 ```plaintext
 #/etc/exports for one client
-/home <client-ip-address>(rw,sync,no_root_squash,no_subtree_check)
+/home <client_ip_address>(rw,sync,no_root_squash,no_subtree_check)
 
 #/etc/exports for three clients
-/home <client-ip-address>(rw,sync,no_root_squash,no_subtree_check) <client-2-ip-address>(rw,sync,no_root_squash,no_subtree_check) <client-3-ip-address>(rw,sync,no_root_squash,no_subtree_check)
+/home <client_ip_address>(rw,sync,no_root_squash,no_subtree_check) <client_2_ip_address>(rw,sync,no_root_squash,no_subtree_check) <client_3_ip_address>(rw,sync,no_root_squash,no_subtree_check)
 ```
 
 Restart the NFS server after making changes to the `exports` file for the changes
@@ -136,7 +136,7 @@ the command: `sudo ufw status`. If it's being blocked, then you can allow traffi
 client with the command below.
 
 ```shell
-sudo ufw allow from <client-ip-address> to any port nfs
+sudo ufw allow from <client_ip_address> to any port nfs
 ```
 
 <!-- ## Troubleshooting
