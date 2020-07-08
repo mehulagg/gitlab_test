@@ -718,6 +718,22 @@ projects_and_size.each do |ps|
 end
 ```
 
+## Elasticsearch
+### Change Elasticsearch Integration Settings - URL
+
+```ruby
+es_url = Gitlab::CurrentSettings.current_application_settings
+
+# Confirm the current ElasticSearch URL
+es_url.elasticsearch_url
+
+# Set the ElasticSearch URL
+es_url.elasticsearch_url = "http://<username>:<password>@your.es.url:9200"
+
+# Save the change
+es_url.save!
+```
+
 ## Sidekiq
 
 This content has been moved to the [Troubleshooting Sidekiq docs](./sidekiq.md).
