@@ -2091,13 +2091,13 @@ msgstr ""
 msgid "AlertManagement|Unknown"
 msgstr ""
 
-msgid "AlertManagement|View alerts in OpsGenie"
+msgid "AlertManagement|View alerts in Opsgenie"
 msgstr ""
 
 msgid "AlertManagement|View issue"
 msgstr ""
 
-msgid "AlertManagement|You have enabled the OpsGenie integration. Your alerts will be visible directly in OpsGenie."
+msgid "AlertManagement|You have enabled the Opsgenie integration. Your alerts will be visible directly in Opsgenie."
 msgstr ""
 
 msgid "AlertService|Review your external service's documentation to learn where to provide this information to your external service, and the %{linkStart}GitLab documentation%{linkEnd} to learn more about configuring your endpoint."
@@ -2145,7 +2145,7 @@ msgstr ""
 msgid "AlertSettings|Learn more about our %{linkStart}upcoming integrations%{linkEnd}"
 msgstr ""
 
-msgid "AlertSettings|OpsGenie"
+msgid "AlertSettings|Opsgenie"
 msgstr ""
 
 msgid "AlertSettings|Reset key"
@@ -2190,7 +2190,10 @@ msgstr ""
 msgid "AlertSettings|Your changes were successfully updated."
 msgstr ""
 
-msgid "AlertSettings|http://example.com/"
+msgid "AlertSettings|http://prometheus.example.com/"
+msgstr ""
+
+msgid "AlertSettings|https://app.opsgenie.com/alert/list/"
 msgstr ""
 
 msgid "Alerts"

@@ -161,6 +161,9 @@ export default {
     canSaveConfig() {
       return !this.loading && this.canSaveForm;
     },
+    baseUrlPlaceholder() {
+      return this.isOpsGenie ? this.$options.i18n.targetOpsgenieUrlPlaceholder : this.$options.i18n.targetPrometheusUrlPlaceholder;
+    }
   },
   watch: {
     'testAlert.json': debounce(function debouncedJsonValidate() {
@@ -415,7 +418,7 @@ export default {
           v-model="targetUrl"
           type="url"
           :value="selectedService.targetUrl"
-          :placeholder="$options.i18n.targetUrlPlaceholder"
+          :placeholder="baseUrlPlaceholder"
         />
         <span class="gl-text-gray-400">
           {{ $options.i18n.apiBaseUrlHelpText }}

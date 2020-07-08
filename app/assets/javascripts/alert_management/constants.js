@@ -76,9 +76,9 @@ export const AlertManagementListi18n = {
   searchPlaceholder: __('Search or filter results...'),
   opsGenieEnabledTitle: s__('AlertManagement|Opsgenie is enabled'),
   opsGenieEnabledDescription: s__(
-    'AlertManagement|You have enabled the OpsGenie integration. Your alerts will be visible directly in OpsGenie.',
+    'AlertManagement|You have enabled the Opsgenie integration. Your alerts will be visible directly in Opsgenie.',
   ),
-  opsGenieEnabledButton: s__('AlertManagement|View alerts in OpsGenie'),
+  opsGenieEnabledButton: s__('AlertManagement|View alerts in Opsgenie'),
   authExternalService: s__('AlertManagement|Authorize external service'),
   displayHelpInfo: s__(
     'AlertManagement|Display alerts from all your monitoring tools directly within GitLab. Streamline the investigation of your alerts and the escalation of alerts to incidents.',

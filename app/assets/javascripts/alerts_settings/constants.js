@@ -16,7 +16,8 @@ export const i18n = {
   errorApiUrlMsg: s__(
     'AlertSettings|There was an error while trying to enable the alert settings. Please ensure you are using a valid URL.',
   ),
-  targetUrlPlaceholder: s__('AlertSettings|http://example.com/'),
+  targetPrometheusUrlPlaceholder: s__('AlertSettings|http://prometheus.example.com/'),
+  targetOpsgenieUrlPlaceholder: s__('AlertSettings|https://app.opsgenie.com/alert/list/'),
   restKeyInfo: s__(
     'AlertSettings|Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in.',
   ),
@@ -47,7 +48,7 @@ export const i18n = {
 export const serviceOptions = [
   { value: 'generic', text: s__('AlertSettings|Generic') },
   { value: 'prometheus', text: s__('AlertSettings|External Prometheus') },
-  { value: 'opsgenie', text: s__('AlertSettings|OpsGenie') },
+  { value: 'opsgenie', text: s__('AlertSettings|Opsgenie') },
 ];
 
 export const JSON_VALIDATE_DELAY = 250;
