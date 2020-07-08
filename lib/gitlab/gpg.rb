@@ -61,6 +61,9 @@ module Gitlab
 
         GPGME::Key.find(:public, fingerprints).flat_map do |raw_key|
           raw_key.uids.each_with_object([]) do |uid, arr|
+            # Skip revoked or invalid uids. This prevents those from being matched against validated email addresses.
+            next if uid.revoked? || uid.invalid?
+
             name = uid.name.force_encoding('UTF-8')
             email = uid.email.force_encoding('UTF-8')
             arr << { name: name, email: email.downcase } if name.valid_encoding? && email.valid_encoding?
