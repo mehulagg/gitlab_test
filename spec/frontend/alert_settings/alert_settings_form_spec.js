@@ -30,18 +30,14 @@ const defaultProps = {
     formPath: INVALID_URL,
     opsgenieMvcActivated: ACTIVATED,
     opsgenieMvcTargetUrl: GENERIC_URL,
-  }
+  },
 };
 
 describe('AlertsSettingsForm', () => {
   let wrapper;
   let mockAxios;
 
-  const createComponent = (
-    props = defaultProps,
-    { methods } = {},
-    data,
-  ) => {
+  const createComponent = (props = defaultProps, { methods } = {}, data) => {
     wrapper = shallowMount(AlertsSettingsForm, {
       data() {
         return { ...data };
@@ -157,12 +153,44 @@ describe('AlertsSettingsForm', () => {
     });
 
     it('shows the API URL input', () => {
-      expect(findApiUrl().exists()).toBe(true);
+      wrapper.setData({
+        selectedEndpoint: 'prometheus',
+      });
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(findApiUrl().exists()).toBe(true);
+      });
     });
 
-    it('show a valid Alert URL', () => {
-      expect(findUrl().exists()).toBe(true);
-      expect(findUrl().attributes('value')).toBe(PROMETHEUS_URL);
+    it('shows the correct default API URL', () => {
+      wrapper.setData({
+        selectedEndpoint: 'prometheus',
+      });
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(findUrl().attributes('value')).toBe(PROMETHEUS_URL);
+      });
+    });
+  });
+
+  describe('opsgenie is active', () => {
+    beforeEach(() => {
+      createComponent(
+        { opsgenie: { ...defaultProps.opsgenie, opsgenieMvcActivated: true } },
+        {},
+        true,
+      );
+    });
+
+    it('shows a input for the opsgenie target URL', () => {
+      wrapper.setData({
+        selectedEndpoint: 'opsgenie',
+      });
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(findApiUrl().exists()).toBe(true);
+        expect(findApiUrl().attributes('value')).toBe(GENERIC_URL);
+      });
     });
   });
 

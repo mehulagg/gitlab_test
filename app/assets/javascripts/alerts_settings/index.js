@@ -54,7 +54,7 @@ export default el => {
             formPath: opsgenieMvcFormPath,
             opsgenieMvcActivated,
             opsgenieMvcTargetUrl,
-          }
+          },
         },
       });
     },

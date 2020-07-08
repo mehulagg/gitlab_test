@@ -108,7 +108,7 @@ export default {
       return this.selectedEndpoint === 'prometheus';
     },
     isOpsGenie() {
-      return  this.selectedEndpoint === 'opsgenie';
+      return this.selectedEndpoint === 'opsgenie';
     },
     selectedService() {
       switch (this.selectedEndpoint) {
@@ -168,9 +168,7 @@ export default {
     }, JSON_VALIDATE_DELAY),
   },
   mounted() {
-    if (
-      this.activated.prometheus || this.activated.generic
-    ) {
+    if (this.activated.prometheus || this.activated.generic) {
       this.removeOpsGenieOption();
     } else if (this.activated.opsgenie) {
       this.setOpsGenieAsDefault();
@@ -181,7 +179,7 @@ export default {
       this.options = this.options.filter(el => el.value === 'opsgenie');
       const [selected] = this.options;
       this.selectedEndpoint = selected.value;
-      this.targetUrl = this.selectedService.targetUrl
+      this.targetUrl = this.selectedService.targetUrl;
     },
     removeOpsGenieOption() {
       this.options = this.options.filter(el => el.value !== 'opsgenie');
@@ -225,22 +223,22 @@ export default {
       }
     },
     toggle(value) {
-      return this.isPrometheus
-        ? this.togglePrometheusActive(value)
-        : this.toggleActivated(value);
+      return this.isPrometheus ? this.togglePrometheusActive(value) : this.toggleActivated(value);
     },
     toggleActivated(value) {
       this.loading = true;
       return service
         .updateGenericActive({
           endpoint: this[this.selectedEndpoint].formPath,
-          params: this.isOpsGenie ? { service: { opsgenie_mvc_target_url: this.targetUrl, opsgenie_mvc_enabled: value } } : { service: { active: value } },
+          params: this.isOpsGenie
+            ? { service: { opsgenie_mvc_target_url: this.targetUrl, opsgenie_mvc_enabled: value } }
+            : { service: { active: value } },
         })
         .then(() => {
           this.activated[this.selectedEndpoint] = value;
           this.toggleSuccess(value);
 
-          if(this.isOpsGenie && value) {
+          if (this.isOpsGenie && value) {
             this.setOpsGenieAsDefault();
           } else if (!this.isOpsGenie && value) {
             this.removeOpsGenieOption();
@@ -423,7 +421,12 @@ export default {
           {{ $options.i18n.apiBaseUrlHelpText }}
         </span>
       </gl-form-group>
-      <gl-form-group v-if="selectedEndpoint !== 'opsgenie'" :label="$options.i18n.urlLabel" label-for="url" label-class="label-bold">
+      <gl-form-group
+        v-if="selectedEndpoint !== 'opsgenie'"
+        :label="$options.i18n.urlLabel"
+        label-for="url"
+        label-class="label-bold"
+      >
         <gl-form-input-group id="url" :readonly="true" :value="selectedService.url">
           <template #append>
             <clipboard-button
@@ -469,29 +472,27 @@ export default {
         </gl-modal>
       </gl-form-group>
       <div v-if="selectedEndpoint !== 'opsgenie'">
-      <gl-form-group
-        :label="$options.i18n.alertJson"
-        label-for="alert-json"
-        label-class="label-bold"
-        :invalid-feedback="testAlert.error"
-      >
-        <gl-form-textarea
-          id="alert-json"
-          v-model.trim="testAlert.json"
-          :disabled="!selectedService.active"
-          :state="jsonIsValid"
-          :placeholder="$options.i18n.alertJsonPlaceholder"
-          rows="6"
-          max-rows="10"
-        />
-      </gl-form-group>
-      <gl-button :disabled="!canTestAlert" @click="validateTestAlert">{{
-        $options.i18n.testAlertInfo
-      }}</gl-button>
+        <gl-form-group
+          :label="$options.i18n.alertJson"
+          label-for="alert-json"
+          label-class="label-bold"
+          :invalid-feedback="testAlert.error"
+        >
+          <gl-form-textarea
+            id="alert-json"
+            v-model.trim="testAlert.json"
+            :disabled="!selectedService.active"
+            :state="jsonIsValid"
+            :placeholder="$options.i18n.alertJsonPlaceholder"
+            rows="6"
+            max-rows="10"
+          />
+        </gl-form-group>
+        <gl-button :disabled="!canTestAlert" @click="validateTestAlert">{{
+          $options.i18n.testAlertInfo
+        }}</gl-button>
       </div>
-      <div
-        class="footer-block row-content-block gl-display-flex gl-justify-content-space-between"
-      >
+      <div class="footer-block row-content-block gl-display-flex gl-justify-content-space-between">
         <gl-button type="submit" variant="success" category="primary" :disabled="!canSaveConfig">
           {{ __('Save changes') }}
         </gl-button>
