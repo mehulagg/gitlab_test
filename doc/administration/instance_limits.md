@@ -47,7 +47,7 @@ When the number exceeds the limit the page displays an alert and links to a pagi
 
 The maximum number of issues and child epics loaded in the epic tree is 2000.
 When the number exceeds this limit, all child epics can be viewed in the
-roadmap, issues in an [issue list](https://docs.gitlab.com/ee/user/project/issues/) filtered by epic.
+roadmap, issues in an [issue list](../user/project/issues/#issues-list) filtered by epic.
 
 - **Limit:** 2000 issues or epics
 
