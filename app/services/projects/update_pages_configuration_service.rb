@@ -10,8 +10,8 @@ module Projects
       @project = project
     end
 
-    def execute
-      if file_equals?(pages_config_file, pages_config_json)
+    def execute(force = false)
+      if file_equals?(pages_config_file, pages_config_json) && force == false
         return success(reload: false)
       end
 

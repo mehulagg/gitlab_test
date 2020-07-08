@@ -88,6 +88,8 @@ module Projects
         update_repository_configuration(@new_path)
 
         execute_system_hooks
+
+        Projects::UpdatePagesConfigurationService.new(project).execute(force=true)
       end
     rescue Exception # rubocop:disable Lint/RescueException
       rollback_side_effects
