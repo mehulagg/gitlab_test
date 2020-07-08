@@ -57,13 +57,13 @@ Complementary reads:
 - [GitLab utilities](utilities.md)
 - [Issuable-like Rails models](issuable-like-models.md)
 - [Logging](logging.md)
-- [API styleguide](api_styleguide.md) for contributing to the API
-- [GraphQL API styleguide](api_graphql_styleguide.md) for contributing to the [GraphQL API](../api/graphql/index.md)
+- [API style guide](api_styleguide.md) for contributing to the API
+- [GraphQL API style guide](api_graphql_styleguide.md) for contributing to the [GraphQL API](../api/graphql/index.md)
 - [Sidekiq guidelines](sidekiq_style_guide.md) for working with Sidekiq workers
 - [Working with Gitaly](gitaly.md)
 - [Manage feature flags](feature_flags/index.md)
 - [Licensed feature availability](licensed_feature_availability.md)
-- [View sent emails or preview mailers](emails.md)
+- [Dealing with email/mailers](emails.md)
 - [Shell commands](shell_commands.md) in the GitLab codebase
 - [`Gemfile` guidelines](gemfile.md)
 - [Pry debugging](pry_debugging.md)
@@ -98,6 +98,9 @@ Complementary reads:
 - [Rails initializers](rails_initializers.md)
 - [Code comments](code_comments.md)
 - [Renaming features](renaming_features.md)
+- [Windows Development on GCP](windows.md)
+- [Code Intelligence](code_intelligence/index.md)
+- [Approval Rules](approval_rules.md)
 
 ## Performance guides
 
@@ -112,50 +115,7 @@ Complementary reads:
 
 ## Database guides
 
-### Tooling
-
-- [Understanding EXPLAIN plans](understanding_explain_plans.md)
-- [explain.depesz.com](https://explain.depesz.com/) for visualizing the output
-  of `EXPLAIN`
-- [pgFormatter](http://sqlformat.darold.net/) a PostgreSQL SQL syntax beautifier
-
-### Migrations
-
-- [What requires downtime?](what_requires_downtime.md)
-- [SQL guidelines](sql.md) for working with SQL queries
-- [Migrations style guide](migration_style_guide.md) for creating safe SQL migrations
-- [Testing Rails migrations](testing_guide/testing_migrations_guide.md) guide
-- [Post deployment migrations](post_deployment_migrations.md)
-- [Background migrations](background_migrations.md)
-- [Swapping tables](swapping_tables.md)
-- [Deleting migrations](deleting_migrations.md)
-
-### Debugging
-
-- Tracing the source of an SQL query using query comments with [Marginalia](database_query_comments.md)
-- Tracing the source of an SQL query in Rails console using [Verbose Query Logs](https://guides.rubyonrails.org/debugging_rails_applications.html#verbose-query-logs)
-
-### Best practices
-
-- [Adding database indexes](adding_database_indexes.md)
-- [Foreign keys & associations](foreign_keys.md)
-- [Single table inheritance](single_table_inheritance.md)
-- [Polymorphic associations](polymorphic_associations.md)
-- [Serializing data](serializing_data.md)
-- [Hash indexes](hash_indexes.md)
-- [Storing SHA1 hashes as binary](sha1_as_binary.md)
-- [Iterating tables in batches](iterating_tables_in_batches.md)
-- [Insert into tables in batches](insert_into_tables_in_batches.md)
-- [Ordering table columns](ordering_table_columns.md)
-- [Verifying database capabilities](verifying_database_capabilities.md)
-- [Database Debugging and Troubleshooting](database_debugging.md)
-- [Query Count Limits](query_count_limits.md)
-- [Creating enums](creating_enums.md)
-
-### Case studies
-
-- [Database case study: Filtering by label](filtering_by_label.md)
-- [Database case study: Namespaces storage statistics](namespaces_storage_statistics.md)
+See [database guidelines](database/index.md).
 
 ## Integration guides
 
@@ -176,7 +136,7 @@ Complementary reads:
 ## Documentation guides
 
 - [Writing documentation](documentation/index.md)
-- [Documentation styleguide](documentation/styleguide.md)
+- [Documentation style guide](documentation/styleguide.md)
 - [Markdown](../user/markdown.md)
 
 ## Internationalization (i18n) guides
@@ -187,10 +147,11 @@ Complementary reads:
 
 ## Telemetry guides
 
-- [Introduction](../telemetry/index.md)
-- [Snowplow tracking guide](../telemetry/snowplow.md)
+- [Telemetry guide](telemetry/index.md)
+- [Usage Ping guide](telemetry/usage_ping.md)
+- [Snowplow guide](telemetry/snowplow.md)
 
-## Experiment Guide
+## Experiment guide
 
 - [Introduction](experiment_guide/index.md)
 

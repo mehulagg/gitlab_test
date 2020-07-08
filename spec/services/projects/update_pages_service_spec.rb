@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe Projects::UpdatePagesService do
+RSpec.describe Projects::UpdatePagesService do
   let_it_be(:project, refind: true) { create(:project, :repository) }
   let_it_be(:pipeline) { create(:ci_pipeline, project: project, sha: project.commit('HEAD').sha) }
   let(:build) { create(:ci_build, pipeline: pipeline, ref: 'HEAD') }
@@ -156,6 +156,23 @@ describe Projects::UpdatePagesService do
           build.reload
           expect(deploy_status).to be_failed
           expect(project.pages_metadatum).not_to be_deployed
+        end
+      end
+
+      context 'with background jobs running', :sidekiq_inline do
+        where(:ci_atomic_processing) do
+          [true, false]
+        end
+
+        with_them do
+          before do
+            stub_feature_flags(ci_atomic_processing: ci_atomic_processing)
+          end
+
+          it 'succeeds' do
+            expect(project.pages_deployed?).to be_falsey
+            expect(execute).to eq(:success)
+          end
         end
       end
     end

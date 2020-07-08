@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe InstanceStatistics::CohortsController do
+RSpec.describe InstanceStatistics::CohortsController do
   let(:user) { create(:user) }
 
   before do
@@ -17,5 +17,12 @@ describe InstanceStatistics::CohortsController do
     get :index
 
     expect(response).to have_gitlab_http_status(:not_found)
+  end
+
+  describe 'GET #index' do
+    it_behaves_like 'tracking unique visits', :index do
+      let(:request_params) { {} }
+      let(:target_id) { 'i_analytics_cohorts' }
+    end
   end
 end

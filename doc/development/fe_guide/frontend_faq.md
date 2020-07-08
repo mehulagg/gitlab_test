@@ -82,7 +82,7 @@ To avoid this behavior, add the class `js-no-auto-disable` to the button.
 ### 5. Should I use a full URL (i.e. `gon.gitlab_url`) or a full path (i.e. `gon.relative_url_root`) when referencing backend endpoints?
 
 It's preferred to use a **full path** over a **full URL** because the URL will use the hostname configured with
-GitLab which may not match the request. This will cause [CORS issues like this Web IDE one](https://gitlab.com/gitlab-org/gitlab/issues/36810).
+GitLab which may not match the request. This will cause [CORS issues like this Web IDE one](https://gitlab.com/gitlab-org/gitlab/-/issues/36810).
 
 Example:
 
@@ -141,8 +141,25 @@ function initFoo() {
   });
 }
 
-// Vuex action can now reference the path from it's state :)
+// Vuex action can now reference the path from its state :)
 export const fetchFoos = ({ state }) => {
   return axios.get(state.settings.fooPath);
 };
 ```
+
+### 7. How can I test the production build locally?
+
+Sometimes it's necessary to test locally what the frontend production build would produce, to do so the steps are:
+
+1. Stop webpack: `gdk stop webpack`.
+1. Open `gitlab.yaml` located in your `gitlab` installation folder, scroll down to the `webpack` section and change `dev_server` to `enabled: false`.
+1. Run `yarn webpack-prod && gdk restart rails-web`.
+
+The production build takes a few minutes to be completed; any code change at this point will be
+displayed only after executing the item 3 above again.
+To return to the normal development mode:
+
+1. Open `gitlab.yaml` located in your `gitlab` installation folder, scroll down to the `webpack` section and change back `dev_server` to `enabled: true`.
+1. Run `yarn clean` to remove the production assets and free some space (optional).
+1. Start webpack again: `gdk start webpack`.
+1. Restart GDK: `gdk-restart rails-web`.

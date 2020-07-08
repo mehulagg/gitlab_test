@@ -191,23 +191,25 @@ describe('RelatedItemsTree', () => {
       });
 
       describe('stateIconClass', () => {
-        it('returns string `issue-token-state-icon-open` when `item.state` value is `opened`', () => {
+        it('returns string `issue-token-state-icon-open gl-text-green-500` when `item.state` value is `opened`', () => {
           wrapper.setProps({
             item: { ...mockItem, state: ChildState.Open },
           });
 
           return wrapper.vm.$nextTick(() => {
-            expect(wrapper.vm.stateIconClass).toBe('issue-token-state-icon-open');
+            expect(wrapper.vm.stateIconClass).toBe('issue-token-state-icon-open gl-text-green-500');
           });
         });
 
-        it('returns string `issue-token-state-icon-closed` when `item.state` value is `closed`', () => {
+        it('returns string `issue-token-state-icon-closed gl-text-blue-500` when `item.state` value is `closed`', () => {
           wrapper.setProps({
             item: { ...mockItem, state: ChildState.Closed },
           });
 
           return wrapper.vm.$nextTick(() => {
-            expect(wrapper.vm.stateIconClass).toBe('issue-token-state-icon-closed');
+            expect(wrapper.vm.stateIconClass).toBe(
+              'issue-token-state-icon-closed gl-text-blue-500',
+            );
           });
         });
       });
@@ -362,6 +364,25 @@ describe('RelatedItemsTree', () => {
         expect(epicWrapper.find('.issue-count-badge').exists()).toBe(true);
 
         epicWrapper.destroy();
+      });
+
+      it('renders health status when feature', () => {
+        function testExistence(exists) {
+          const healthStatus = wrapper.find('.item-health-status').exists();
+
+          expect(healthStatus).toBe(exists);
+        }
+
+        testExistence(false);
+
+        wrapper.vm.$store.commit('SET_INITIAL_CONFIG', {
+          ...mockInitialConfig,
+          allowIssuableHealthStatus: true,
+        });
+
+        return wrapper.vm.$nextTick(() => {
+          testExistence(true);
+        });
       });
     });
   });

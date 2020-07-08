@@ -27,10 +27,6 @@ export default {
       type: Object,
       required: true,
     },
-    milestonePath: {
-      type: String,
-      required: true,
-    },
     labelsPath: {
       type: String,
       required: true,
@@ -106,7 +102,8 @@ export default {
     <div v-if="!collapseScope || expanded">
       <board-milestone-select
         :board="board"
-        :milestone-path="milestonePath"
+        :group-id="groupId"
+        :project-id="projectId"
         :can-edit="canAdminBoard"
       />
 
@@ -118,7 +115,7 @@ export default {
         ability-name="issue"
         @onLabelClick="handleLabelClick"
       >
-        {{ __('Any Label') }}
+        {{ __('Any label') }}
       </board-labels-select>
 
       <assignee-select

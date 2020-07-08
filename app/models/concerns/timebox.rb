@@ -7,7 +7,9 @@ module Timebox
   include CacheMarkdownField
   include Gitlab::SQL::Pattern
   include IidRoutes
+  include Referable
   include StripAttribute
+  include FromUnion
 
   TimeboxStruct = Struct.new(:title, :name, :id) do
     # Ensure these models match the interface required for exporting
@@ -53,7 +55,6 @@ module Timebox
 
     scope :of_projects, ->(ids) { where(project_id: ids) }
     scope :of_groups, ->(ids) { where(group_id: ids) }
-    scope :active, -> { with_state(:active) }
     scope :closed, -> { with_state(:closed) }
     scope :for_projects, -> { where(group: nil).includes(:project) }
     scope :with_title, -> (title) { where(title: title) }
@@ -65,7 +66,11 @@ module Timebox
       groups = groups.compact if groups.is_a? Array
       groups = [] if groups.nil?
 
-      where(project_id: projects).or(where(group_id: groups))
+      if Feature.enabled?(:optimized_timebox_queries, default_enabled: true)
+        from_union([where(project_id: projects), where(group_id: groups)], remove_duplicates: false)
+      else
+        where(project_id: projects).or(where(group_id: groups))
+      end
     end
 
     scope :within_timeframe, -> (start_date, end_date) do
@@ -123,6 +128,35 @@ module Timebox
     end
   end
 
+  ##
+  # Returns the String necessary to reference a Timebox in Markdown. Group
+  # timeboxes only support name references, and do not support cross-project
+  # references.
+  #
+  # format - Symbol format to use (default: :iid, optional: :name)
+  #
+  # Examples:
+  #
+  #   Milestone.first.to_reference                           # => "%1"
+  #   Iteration.first.to_reference(format: :name)            # => "*iteration:\"goal\""
+  #   Milestone.first.to_reference(cross_namespace_project)  # => "gitlab-org/gitlab-foss%1"
+  #   Iteration.first.to_reference(same_namespace_project)   # => "gitlab-foss*iteration:1"
+  #
+  def to_reference(from = nil, format: :name, full: false)
+    format_reference = timebox_format_reference(format)
+    reference = "#{self.class.reference_prefix}#{format_reference}"
+
+    if project
+      "#{project.to_reference_base(from, full: full)}#{reference}"
+    else
+      reference
+    end
+  end
+
+  def reference_link_text(from = nil)
+    self.class.reference_prefix + self.title
+  end
+
   def title=(value)
     write_attribute(:title, sanitize_title(value)) if value.present?
   end
@@ -162,6 +196,20 @@ module Timebox
   end
 
   private
+
+  def timebox_format_reference(format = :iid)
+    raise ArgumentError, _('Unknown format') unless [:iid, :name].include?(format)
+
+    if group_timebox? && format == :iid
+      raise ArgumentError, _('Cannot refer to a group %{timebox_type} by an internal id!') % { timebox_type: timebox_name }
+    end
+
+    if format == :name && !name.include?('"')
+      %("#{name}")
+    else
+      iid
+    end
+  end
 
   # Timebox titles must be unique across project and group timeboxes
   def uniqueness_of_title

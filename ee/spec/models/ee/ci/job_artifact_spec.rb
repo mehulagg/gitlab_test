@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe EE::Ci::JobArtifact do
+RSpec.describe EE::Ci::JobArtifact do
   include EE::GeoHelpers
 
   describe '#destroy' do
@@ -56,13 +56,30 @@ describe EE::Ci::JobArtifact do
     subject { Ci::JobArtifact.security_reports }
 
     context 'when there is a security report' do
-      let!(:artifact) { create(:ee_ci_job_artifact, :sast) }
+      let!(:sast_artifact) { create(:ee_ci_job_artifact, :sast) }
+      let!(:secret_detection_artifact) { create(:ee_ci_job_artifact, :secret_detection) }
 
-      it { is_expected.to eq([artifact]) }
+      it { is_expected.to eq([sast_artifact, secret_detection_artifact]) }
     end
 
     context 'when there are no security reports' do
       let!(:artifact) { create(:ci_job_artifact, :archive) }
+
+      it { is_expected.to be_empty }
+    end
+  end
+
+  describe '.coverage_fuzzing_reports' do
+    subject { Ci::JobArtifact.coverage_fuzzing }
+
+    context 'when there is a metrics report' do
+      let!(:artifact) { create(:ee_ci_job_artifact, :coverage_fuzzing) }
+
+      it { is_expected.to eq([artifact]) }
+    end
+
+    context 'when there is no coverage fuzzing reports' do
+      let!(:artifact) { create(:ee_ci_job_artifact, :trace) }
 
       it { is_expected.to be_empty }
     end

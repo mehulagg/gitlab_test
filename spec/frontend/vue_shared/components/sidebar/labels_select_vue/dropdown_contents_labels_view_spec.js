@@ -1,9 +1,11 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
-import { GlButton, GlLoadingIcon, GlIcon, GlSearchBoxByType, GlLink } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon, GlSearchBoxByType, GlLink } from '@gitlab/ui';
 import { UP_KEY_CODE, DOWN_KEY_CODE, ENTER_KEY_CODE, ESC_KEY_CODE } from '~/lib/utils/keycodes';
+import SmartVirtualList from '~/vue_shared/components/smart_virtual_list.vue';
 import DropdownContentsLabelsView from '~/vue_shared/components/sidebar/labels_select_vue/dropdown_contents_labels_view.vue';
+import LabelItem from '~/vue_shared/components/sidebar/labels_select_vue/label_item.vue';
 
 import defaultState from '~/vue_shared/components/sidebar/labels_select_vue/store/state';
 import mutations from '~/vue_shared/components/sidebar/labels_select_vue/store/mutations';
@@ -78,16 +80,6 @@ describe('DropdownContentsLabelsView', () => {
   });
 
   describe('methods', () => {
-    describe('getDropdownLabelBoxStyle', () => {
-      it('returns an object containing `backgroundColor` based on provided `label` param', () => {
-        expect(wrapper.vm.getDropdownLabelBoxStyle(mockRegularLabel)).toEqual(
-          expect.objectContaining({
-            backgroundColor: mockRegularLabel.color,
-          }),
-        );
-      });
-    });
-
     describe('isLabelSelected', () => {
       it('returns true when provided `label` param is one of the selected labels', () => {
         expect(wrapper.vm.isLabelSelected(mockRegularLabel)).toBe(true);
@@ -233,17 +225,12 @@ describe('DropdownContentsLabelsView', () => {
       expect(searchInputEl.attributes('autofocus')).toBe('true');
     });
 
-    it('renders label elements for all labels', () => {
-      const labelsEl = wrapper.findAll('.dropdown-content li');
-      const labelItemEl = labelsEl.at(0).find(GlLink);
+    it('renders smart-virtual-list element', () => {
+      expect(wrapper.find(SmartVirtualList).exists()).toBe(true);
+    });
 
-      expect(labelsEl.length).toBe(mockLabels.length);
-      expect(labelItemEl.exists()).toBe(true);
-      expect(labelItemEl.find(GlIcon).props('name')).toBe('mobile-issue-close');
-      expect(labelItemEl.find('.dropdown-label-box').attributes('style')).toBe(
-        'background-color: rgb(186, 218, 85);',
-      );
-      expect(labelItemEl.find(GlLink).text()).toContain(mockLabels[0].title);
+    it('renders label elements for all labels', () => {
+      expect(wrapper.findAll(LabelItem)).toHaveLength(mockLabels.length);
     });
 
     it('renders label element with "is-focused" when value of `currentHighlightItem` is more than -1', () => {
@@ -253,9 +240,9 @@ describe('DropdownContentsLabelsView', () => {
 
       return wrapper.vm.$nextTick(() => {
         const labelsEl = wrapper.findAll('.dropdown-content li');
-        const labelItemEl = labelsEl.at(0).find(GlLink);
+        const labelItemEl = labelsEl.at(0).find(LabelItem);
 
-        expect(labelItemEl.attributes('class')).toContain('is-focused');
+        expect(labelItemEl.props('highlight')).toBe(true);
       });
     });
 
@@ -267,7 +254,7 @@ describe('DropdownContentsLabelsView', () => {
       return wrapper.vm.$nextTick(() => {
         const noMatchEl = wrapper.find('.dropdown-content li');
 
-        expect(noMatchEl.exists()).toBe(true);
+        expect(noMatchEl.isVisible()).toBe(true);
         expect(noMatchEl.text()).toContain('No matching results');
       });
     });

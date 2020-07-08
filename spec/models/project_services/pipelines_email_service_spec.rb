@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe PipelinesEmailService, :mailer do
+RSpec.describe PipelinesEmailService, :mailer do
   let(:pipeline) do
     create(:ci_pipeline, :failed,
       project: project,
@@ -34,22 +34,6 @@ describe PipelinesEmailService, :mailer do
       end
 
       it { is_expected.not_to validate_presence_of(:recipients) }
-    end
-  end
-
-  describe '#test_data' do
-    let(:build)   { create(:ci_build) }
-    let(:project) { build.project }
-    let(:user)    { create(:user) }
-
-    before do
-      project.add_developer(user)
-    end
-
-    it 'builds test data' do
-      data = subject.test_data(project, user)
-
-      expect(data[:object_kind]).to eq('pipeline')
     end
   end
 

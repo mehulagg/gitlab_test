@@ -1,10 +1,16 @@
+---
+stage: Configure
+group: Configure
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Managed Apps
 
 GitLab provides **GitLab Managed Apps**, a one-click install for various applications which can
 be added directly to your configured cluster.
 
 These applications are needed for [Review Apps](../../ci/review_apps/index.md)
-and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topics/autodevops/index.md).
+and [deployments](../../ci/environments/index.md) when using [Auto DevOps](../../topics/autodevops/index.md).
 
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
@@ -25,8 +31,6 @@ To see a list of available applications to install. For a:
   **{cloud-gear}** **Operations > Kubernetes**.
 - [Group-level cluster](../group/clusters/index.md), navigate to your group's
   **{cloud-gear}** **Kubernetes** page.
-
-Install Helm first as it's used to install other applications.
 
 NOTE: **Note:**
 As of GitLab 11.6, Helm will be upgraded to the latest version supported
@@ -65,16 +69,46 @@ can lead to confusion during deployments.
 
 > - Introduced in GitLab 10.2 for project-level clusters.
 > - Introduced in GitLab 11.6 for group-level clusters.
+> - A local Tiller option was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.2 behind a feature flag, enabled by default.
+> - The feature flag for local Tiller is enabled on GitLab.com.
 
 [Helm](https://helm.sh/docs/) is a package manager for Kubernetes and is
-required to install all the other applications. It is installed in its
-own pod inside the cluster which can run the `helm` CLI in a safe
-environment.
+used to install the GitLab-managed apps. GitLab runs each `helm` command
+in a pod within the `gitlab-managed-apps` namespace inside the cluster.
+
+As of GitLab 13.2, the integration uses a local
+[Tiller](https://v2.helm.sh/docs/glossary/#tiller) by default. When using a
+local Tiller, the Helm application does not need to be installed and will not
+be shown in the list of applications.
 
 NOTE: **Note:**
-Installing Helm as a GitLab-managed App behind a proxy is not supported,
-but a [workaround](../../topics/autodevops/index.md#installing-helm-behind-a-proxy)
+GitLab's Helm integration does not support installing applications behind a proxy,
+but a [workaround](../../topics/autodevops/index.md#install-applications-behind-a-proxy)
 is available.
+
+### Enable or disable local Tiller **(CORE ONLY)**
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.2
+> - The option to disable local Tiller is [planned for removal](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.3
+
+Local Tiller is under development, but is ready for production use. It is
+deployed behind a feature flag that is **enabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md)
+can enable it for your instance.
+
+To enable it:
+
+```ruby
+# Instance-wide
+Feature.enable(:managed_apps_local_tiller)
+```
+
+To disable it:
+
+```ruby
+# Instance-wide
+Feature.disable(:managed_apps_local_tiller)
+```
 
 ### cert-manager
 
@@ -326,7 +360,7 @@ Updating [Ingress](#ingress) to the most recent version enables you to take adva
 
 ##### Viewing Web Application Firewall traffic
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14707) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
 You can view Web Application Firewall traffic by navigating to your project's
 **Security & Compliance > Threat Monitoring** page.
@@ -452,7 +486,7 @@ file.
 
 ### Crossplane
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34702) in GitLab 12.5 for project-level clusters.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34702) in GitLab 12.5 for project-level clusters.
 
 [Crossplane](https://crossplane.github.io/docs/v0.9/) is a multi-cloud control plane useful for
 managing applications and infrastructure across multiple clouds. It extends the
@@ -477,7 +511,7 @@ For information on configuring Crossplane installed on the cluster, see
 [Crossplane configuration](crossplane.md).
 
 NOTE: **Note:**
-[`alpha/crossplane`](https://charts.crossplane.io/alpha/) chart v0.4.1 is used to
+[`alpha/crossplane`](https://github.com/crossplane/crossplane/tree/v0.4.1/cluster/charts/crossplane) chart v0.4.1 is used to
 install Crossplane using the
 [`values.yaml`](https://github.com/crossplane/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl)
 file.
@@ -499,20 +533,23 @@ Log data is automatically deleted after 30 days using [Curator](https://www.elas
 
 To enable log shipping:
 
+1. Ensure your cluster contains at least 3 nodes of instance types larger than
+   `f1-micro`, `g1-small`, or `n1-standard-1`.
 1. Navigate to **{cloud-gear}** **Operations > Kubernetes**.
 1. In **Kubernetes Cluster**, select a cluster.
 1. In the **Applications** section, find **Elastic Stack** and click **Install**.
 
 NOTE: **Note:**
-The [`stable/elastic-stack`](https://github.com/helm/charts/tree/master/stable/elastic-stack)
+The [`gitlab/elastic-stack`](https://gitlab.com/gitlab-org/charts/elastic-stack)
 chart is used to install this application with a
 [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/elastic_stack/values.yaml)
 file.
 
 NOTE: **Note:**
-The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node,
-with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
-which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+The chart deploys 3 identical Elasticsearch pods which can't be colocated, and each
+require 1 CPU and 2 GB of RAM, making them incompatible with clusters containing
+fewer than 3 nodes or consisting of `f1-micro`, `g1-small`, `n1-standard-1`, or
+`*-highcpu-2` instance types.
 
 NOTE: **Note:**
 The Elastic Stack cluster application is intended as a log aggregation solution and is not related to our
@@ -531,25 +568,25 @@ Save the following to `kibana.yml`:
 elasticsearch:
   enabled: false
 
-logstash:
+filebeat:
   enabled: false
 
 kibana:
   enabled: true
-  env:
-    ELASTICSEARCH_HOSTS: http://elastic-stack-elasticsearch-client.gitlab-managed-apps.svc.cluster.local:9200
+  elasticsearchHosts: http://elastic-stack-elasticsearch-master.gitlab-managed-apps.svc.cluster.local:9200
 ```
 
 Then install it on your cluster:
 
 ```shell
-helm install --name kibana stable/elastic-stack --values kibana.yml
+helm repo add gitlab https://charts.gitlab.io
+helm install --name kibana gitlab/elastic-stack --values kibana.yml
 ```
 
 To access Kibana, forward the port to your local machine:
 
 ```shell
-kubectl port-forward svc/kibana 5601:443
+kubectl port-forward svc/kibana-kibana 5601:5601
 ```
 
 Then, you can visit Kibana at `http://localhost:5601`.
@@ -600,12 +637,15 @@ Supported applications:
 - [Sentry](#install-sentry-using-gitlab-cicd)
 - [GitLab Runner](#install-gitlab-runner-using-gitlab-cicd)
 - [Cilium](#install-cilium-using-gitlab-cicd)
+- [Falco](#install-falco-using-gitlab-cicd)
 - [Vault](#install-vault-using-gitlab-cicd)
 - [JupyterHub](#install-jupyterhub-using-gitlab-cicd)
 - [Elastic Stack](#install-elastic-stack-using-gitlab-cicd)
 - [Crossplane](#install-crossplane-using-gitlab-cicd)
 - [Fluentd](#install-fluentd-using-gitlab-cicd)
 - [Knative](#install-knative-using-gitlab-cicd)
+- [PostHog](#install-posthog-using-gitlab-cicd)
+- [Prometheus](#install-prometheus-using-gitlab-cicd)
 
 ### Usage
 
@@ -622,6 +662,11 @@ To install applications using GitLab CI/CD:
    include:
      - template: Managed-Cluster-Applications.gitlab-ci.yml
    ```
+
+   NOTE: **Note:**
+   The job provided by this template connects to the cluster using tools provided
+   in a custom Docker image. It requires that you have a runner registered with the Docker,
+   Kubernetes, or Docker Machine executor.
 
 1. Add a `.gitlab/managed-apps/config.yaml` file to define which
   applications you would like to install. Define the `installed` key as
@@ -672,6 +717,10 @@ management project. Refer to the
 [chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress)
 for the available configuration options.
 
+NOTE: **Note:**
+Support for installing the Ingress managed application is provided by the GitLab Configure group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Configure group](https://about.gitlab.com/handbook/product/categories/#configure-group).
+
 ### Install cert-manager using GitLab CI/CD
 
 cert-manager is installed using GitLab CI/CD by defining configuration in
@@ -708,6 +757,10 @@ You can customize the installation of cert-manager by defining a
 management project. Refer to the
 [chart](https://hub.helm.sh/charts/jetstack/cert-manager) for the
 available configuration options.
+
+NOTE: **Note:**
+Support for installing the Cert Manager managed application is provided by the GitLab Configure group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Configure group](https://about.gitlab.com/handbook/product/categories/#configure-group).
 
 ### Install Sentry using GitLab CI/CD
 
@@ -770,6 +823,85 @@ postgresql:
   postgresqlPassword: example-postgresql-password
 ```
 
+NOTE: **Note:**
+Support for installing the Sentry managed application is provided by the GitLab Health group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Health group](https://about.gitlab.com/handbook/product/product-categories/#health-group).
+
+### Install PostHog using GitLab CI/CD
+
+[PostHog](https://www.posthog.com) 🦔 is a developer-friendly, open-source product analytics platform.
+
+To install PostHog into the `gitlab-managed-apps` namespace of your cluster,
+define the `.gitlab/managed-apps/config.yaml` file with:
+
+```yaml
+posthog:
+  installed: true
+```
+
+You can customize the installation of PostHog by defining `.gitlab/managed-apps/posthog/values.yaml`
+in your cluster management project. Refer to the [Configuration section of the PostHog chart's README](https://github.com/PostHog/charts/tree/master/charts/posthog)
+for the available configuration options.
+
+NOTE: **Note:**
+You must provide a PostgreSQL password in `postgresql.postgresqlPassword`
+or you will receive authentication errors.
+See the [PostgreSQL chart documentation](https://github.com/helm/charts/tree/master/stable/postgresql#upgrade) for more information.
+
+Redis pods are restarted between upgrades. To prevent downtime, provide a Redis
+password using the `redis.password` key. This prevents a new password from
+being generated on each restart.
+
+Here is an example configuration for PostHog:
+
+```yaml
+ingress:
+  enabled: true
+  hostname: "<posthog.example.com>"
+
+# This will be autogenerated if you skip it. Include if you have 2 or more web replicas
+posthogSecret: 'long-secret-key-used-to-sign-cookies'
+
+# Needs to be here between runs.
+# See https://github.com/helm/charts/tree/master/stable/postgresql#upgrade for more info
+postgresql:
+  postgresqlPassword: example-postgresql-password
+
+# Recommended to set this to a value to redis prevent downtime between upgrades
+redis:
+  password: example-redis-password
+```
+
+NOTE: **Note:**
+Support for the PostHog managed application is provided by the PostHog team.
+If you run into issues, please [open a support ticket](https://github.com/PostHog/posthog/issues/new/choose) directly.
+
+### Install Prometheus using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25138) in GitLab 12.8.
+
+[Prometheus](https://prometheus.io/docs/introduction/overview/) is an
+open-source monitoring and alerting system for supervising your
+deployed applications.
+
+To install Prometheus into the `gitlab-managed-apps` namespace of your cluster,
+define the `.gitlab/managed-apps/config.yaml` file with:
+
+```yaml
+prometheus:
+  installed: true
+```
+
+You can customize the installation of Prometheus by defining
+`.gitlab/managed-apps/prometheus/values.yaml` in your cluster management
+project. Refer to the
+[Configuration section of the Prometheus chart's README](https://github.com/helm/charts/tree/master/stable/prometheus#configuration)
+for the available configuration options.
+
+NOTE: **Note:**
+Support for installing the Prometheus managed application is provided by the GitLab APM group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [APM group](https://about.gitlab.com/handbook/product/product-categories/#apm-group).
+
 ### Install GitLab Runner using GitLab CI/CD
 
 GitLab Runner is installed using GitLab CI/CD by defining configuration in
@@ -800,6 +932,10 @@ You can customize the installation of GitLab Runner by defining
 management project. Refer to the
 [chart](https://gitlab.com/gitlab-org/charts/gitlab-runner) for the
 available configuration options.
+
+NOTE: **Note:**
+Support for installing the Elastic Stack managed application is provided by the GitLab Runner group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Runner group](https://about.gitlab.com/handbook/product/product-categories/#runner-group).
 
 ### Install Cilium using GitLab CI/CD
 
@@ -848,23 +984,21 @@ Major upgrades might require additional setup steps, please consult
 the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
 information.
 
-By default, Cilium will drop all non-whitelisted packets upon policy
-deployment. The audit mode is scheduled for release in
-[Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
-mode, non-whitelisted packets will not be dropped, and audit
-notifications will be generated instead. GitLab provides alternative Docker
-images for Cilium with the audit patch included. You can switch to the
-custom build and enable the audit mode by adding the following to
+By default, Cilium drops all disallowed packets upon policy
+deployment. In
+[auditmode](https://docs.cilium.io/en/v1.8/gettingstarted/policy-creation/?highlight=policy-audit#enable-policy-audit-mode),
+however, Cilium doesn't drop disallowed packets. You can use
+`policy-verdict` log to observe policy-related decisions. You can
+enable audit mode by adding the following to
 `.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yaml
-global:
-  registry: registry.gitlab.com/gitlab-org/defend/cilium
+config:
   policyAuditMode: true
 
 agent:
   monitor:
-    eventTypes: ["drop", "audit"]
+    eventTypes: ["drop", "policy-verdict"]
 ```
 
 The Cilium monitor log for traffic is logged out by the
@@ -886,27 +1020,124 @@ The [Hubble](https://github.com/cilium/hubble) monitoring daemon is
 enabled by default and it's set to collect per namespace flow
 metrics. This metrics are accessible on the [Threat Monitoring](../application_security/threat_monitoring/index.md)
 dashboard. You can disable Hubble by adding the following to
-`.gitlab/managed-apps/config.yaml`:
+`.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yaml
-cilium:
-  installed: true
+global:
   hubble:
-    installed: false
+    enabled: false
 ```
 
 You can also adjust Helm values for Hubble via
-`.gitlab/managed-apps/cilium/hubble-values.yaml`:
+`.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yaml
-metrics:
-  enabled:
-    - 'flow:sourceContext=namespace;destinationContext=namespace'
+global:
+  hubble:
+    enabled: true
+    metrics:
+      enabled:
+      - 'flow:sourceContext=namespace;destinationContext=namespace'
 ```
+
+NOTE: **Note:**
+Support for installing the Cilium managed application is provided by the GitLab Container Security group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Container Security group](https://about.gitlab.com/handbook/product/product-categories/#container-security-group).
+
+### Install Falco using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/91) in GitLab 13.1.
+
+GitLab Container Host Security Monitoring uses [Falco](https://falco.org/)
+as a runtime security tool that listens to the Linux kernel using eBPF. Falco parses system calls
+and asserts the stream against a configurable rules engine in real-time. For more information, see
+[Falco's Documentation](https://falco.org/docs/).
+
+You can enable Falco in the
+`.gitlab/managed-apps/config.yaml` file:
+
+```yaml
+falco:
+  installed: true
+```
+
+You can customize Falco's Helm variables by defining the
+`.gitlab/managed-apps/falco/values.yaml` file in your cluster
+management project. Refer to the
+[Falco chart](https://github.com/falcosecurity/charts/tree/master/falco)
+for the available configuration options.
+
+CAUTION: **Caution:**
+By default eBPF support is enabled and Falco will use an [eBPF probe](https://falco.org/docs/event-sources/drivers/#using-the-ebpf-probe) to pass system calls to userspace.
+If your cluster doesn't support this, you can configure it to use Falco kernel module instead by adding the following to `.gitlab/managed-apps/falco/values.yaml`:
+
+```yaml
+ebpf:
+  enabled: false
+```
+
+In rare cases where automatic probe installation on your cluster isn't possible and the kernel/probe
+isn't precompiled, you may need to manually prepare the kernel module or eBPF probe with
+[driverkit](https://github.com/falcosecurity/driverkit#against-a-kubernetes-cluster)
+and install it on each cluster node.
+
+By default, Falco is deployed with a limited set of rules. To add more rules, add the following to
+`.gitlab/managed-apps/falco/values.yaml` (you can get examples from
+[Cloud Native Security Hub](https://securityhub.dev/)):
+
+```yaml
+customRules:
+  file-integrity.yaml: |-
+    - rule: Detect New File
+      desc: detect new file created
+      condition: >
+        evt.type = chmod or evt.type = fchmod
+      output: >
+        File below a known directory opened for writing (user=%user.name
+        command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+      priority: ERROR
+      tags: [filesystem]
+    - rule: Detect New Directory
+      desc: detect new directory created
+      condition: >
+        mkdir
+      output: >
+        File below a known directory opened for writing (user=%user.name
+        command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+      priority: ERROR
+      tags: [filesystem]
+```
+
+By default, Falco only outputs security events to logs as JSON objects. To set it to output to an
+[external API](https://falco.org/docs/alerts/#https-output-send-alerts-to-an-https-end-point)
+or [application](https://falco.org/docs/alerts/#program-output),
+add the following to `.gitlab/managed-apps/falco/values.yaml`:
+
+```yaml
+falco:
+  programOutput:
+    enabled: true
+    keepAlive: false
+    program: mail -s "Falco Notification" someone@example.com
+
+  httpOutput:
+    enabled: true
+    url: http://some.url
+```
+
+You can check these logs with the following command:
+
+```shell
+kubectl logs -l app=falco -n gitlab-managed-apps
+```
+
+NOTE: **Note:**
+Support for installing the Falco managed application is provided by the GitLab Container Security group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Container Security group](https://about.gitlab.com/handbook/product/product-categories/#container-security-group).
 
 ### Install Vault using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9982) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9982) in GitLab 12.9.
 
 [Hashicorp Vault](https://www.vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more. A Vault
@@ -924,24 +1155,24 @@ vault:
   installed: true
 ```
 
-By default you will get a basic Vault setup with no high availability nor any scalable
-storage backend. This is enough for simple testing and small scale deployments, though has limits
+By default you will get a basic Vault setup with no scalable
+storage backend. This is enough for simple testing and small-scale deployments, though has limits
 to how much it can scale, and as it is a single instance deployment, you will experience downtime
 when upgrading the Vault application.
 
 To optimally use Vault in a production environment, it's ideal to have a good understanding
 of the internals of Vault and how to configure it. This can be done by reading the
-[the Vault documentation](https://www.vaultproject.io/docs/internals/) as well as
+[the Vault documentation](https://www.vaultproject.io/docs/internals) as well as
 the Vault Helm chart [`values.yaml` file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml).
 
 At a minimum you will likely set up:
 
-- A [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
+- A [seal](https://www.vaultproject.io/docs/configuration/seal) for extra encryption
   of the master key.
-- A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
+- A [storage backend](https://www.vaultproject.io/docs/configuration/storage) that is
   suitable for environment and storage security requirements.
-- [HA Mode](https://www.vaultproject.io/docs/concepts/ha/).
-- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui/).
+- [HA Mode](https://www.vaultproject.io/docs/concepts/ha).
+- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui).
 
 The following is an example values file (`.gitlab/managed-apps/vault/values.yaml`)
 that configures Google Key Management Service for auto-unseal, using a Google Cloud Storage backend, enabling
@@ -953,7 +1184,7 @@ below are examples and should be replaced with settings specific to your environ
 ui:
   enabled: true
 server:
-  # Disable the built in data storage volume as it's not safe for Hight Availablity mode
+  # Disable the built in data storage volume as it's not safe for Hight Availability mode
   dataStorage:
     enabled: false
   # Enable High Availability Mode
@@ -992,6 +1223,10 @@ kubectl -n gitlab-managed-apps exec -it vault-0 sh
 
 This should give you your unseal keys and initial root token. Make sure to note these down
 and keep these safe as you will need them to unseal the Vault throughout its lifecycle.
+
+NOTE: **Note:**
+Support for installing the Vault managed application is provided by the GitLab Release Management group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Release Management group](https://about.gitlab.com/handbook/product/product-categories/#release-management-group).
 
 ### Install JupyterHub using GitLab CI/CD
 
@@ -1039,12 +1274,16 @@ You can customize the installation of JupyterHub by defining a
 `.gitlab/managed-apps/jupyterhub/values.yaml` file in your cluster management project.
 
 Refer to the
-[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html) for the
+[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference/reference.html) for the
 available configuration options.
+
+NOTE: **Note:**
+Support for installing the JupyterHub managed application is provided by the GitLab Configure group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Configure group](https://about.gitlab.com/handbook/product/categories/#configure-group).
 
 ### Install Elastic Stack using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/45) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25138) in GitLab 12.8.
 
 Elastic Stack is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1063,15 +1302,19 @@ You can check the default [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/-
 You can customize the installation of Elastic Stack by defining
 `.gitlab/managed-apps/elastic-stack/values.yaml` file in your cluster
 management project. Refer to the
-[chart](https://github.com/helm/charts/blob/master/stable/elastic-stack/values.yaml) for the
+[chart](https://gitlab.com/gitlab-org/charts/elastic-stack) for the
 available configuration options.
 
 NOTE: **Note:**
 In this alpha implementation of installing Elastic Stack through CI, reading the environment logs through Elasticsearch is unsupported. This is supported if [installed via the UI](#elastic-stack).
 
+NOTE: **Note:**
+Support for installing the Elastic Stack managed application is provided by the GitLab APM group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [APM group](https://about.gitlab.com/handbook/product/product-categories/#apm-group).
+
 ### Install Crossplane using GitLab CI/CD
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/35675) in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/35675) in GitLab 12.9.
 
 Crossplane is installed using GitLab CI/CD by defining configuration in
 `.gitlab/managed-apps/config.yaml`.
@@ -1094,6 +1337,10 @@ You can customize the installation of Crossplane by defining
 management project. Refer to the
 [chart](https://github.com/crossplane/crossplane/tree/master/cluster/charts/crossplane#configuration) for the
 available configuration options. Note that this link points to the documentation for the current development release, which may differ from the version you have installed.
+
+NOTE: **Note:**
+Support for the Crossplane managed application is provided by the Crossplane team.
+If you run into issues, please [open a support ticket](https://github.com/crossplane/crossplane/issues/new/choose) directly.
 
 ### Install Fluentd using GitLab CI/CD
 
@@ -1119,6 +1366,10 @@ The configuration chart link points to the current development release, which
 may differ from the version you have installed. To ensure compatibility, switch
 to the specific branch or tag you are using.
 
+NOTE: **Note:**
+Support for installing the Fluentd managed application is provided by the GitLab Container Security group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Container Security group](https://about.gitlab.com/handbook/product/product-categories/#container-security-group).
+
 ### Install Knative using GitLab CI/CD
 
 To install Knative, define the `.gitlab/managed-apps/config.yaml` file
@@ -1141,6 +1392,10 @@ domain: 'my.wildcard.A.record.dns'
 
 If you plan to use GitLab Serverless capabilities, be sure to set an A record wildcard domain on your custom configuration.
 
+NOTE: **Note:**
+Support for installing the Knative managed application is provided by the GitLab Configure group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Configure group](https://about.gitlab.com/handbook/product/categories/#configure-group).
+
 #### Knative Metrics
 
 GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#invocation-metrics) for your functions. To collect these metrics, you must have:
@@ -1148,7 +1403,7 @@ GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#inv
 1. Knative and Prometheus managed applications installed on your cluster.
 1. Manually applied the custom metrics on your cluster by running the following command:
 
-   ```bash
+   ```shell
    kubectl apply -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
    ```
 
@@ -1157,9 +1412,50 @@ GitLab provides [Invocation Metrics](../project/clusters/serverless/index.md#inv
 To uninstall Knative, you must first manually remove any custom metrics you have added
 by running the following command:
 
-```bash
+```shell
 kubectl delete -f https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/raw/02c8231e30ef5b6725e6ba368bc63863ceb3c07d/src/default-data/knative/istio-metrics.yaml
 ```
+
+### Install AppArmor using GitLab CI/CD
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/100) in GitLab 13.1.
+
+To install AppArmor into the `gitlab-managed-apps` namespace of your cluster using GitLab CI/CD, define the following configuration in `.gitlab/managed-apps/config.yaml`:
+
+```yaml
+apparmor:
+  installed: true
+```
+
+You can define one or more AppArmor profiles by adding them into `.gitlab/managed-apps/apparmor/values.yaml` as the following:
+
+```yaml
+profiles:
+  profile-one: |-
+    profile profile-one {
+      file,
+    }
+```
+
+Refer to the [AppArmor chart](https://gitlab.com/gitlab-org/charts/apparmor) for more information on this chart.
+
+#### Using AppArmor profiles in your deployments
+
+After installing AppAmor, you can use profiles by adding Pod Annotations. If you're using Auto
+DevOps, you can [customize `auto-deploy-values.yaml`](../../topics/autodevops/customize.md#customize-values-for-helm-chart)
+to annotate your pods. Although it's helpful to be aware of the [list of custom attributes](https://gitlab.com/gitlab-org/charts/auto-deploy-app#gitlabs-auto-deploy-helm-chart), you're only required to set
+`podAnnotations` as follows:
+
+```yaml
+podAnnotations:
+  container.apparmor.security.beta.kubernetes.io/auto-deploy-app: localhost/profile-one
+```
+
+The only information to be changed here is the profile name which is `profile-one` in this example. Refer to the [AppArmor tutorial](https://kubernetes.io/docs/tutorials/clusters/apparmor/#securing-a-pod) for more information on how AppArmor is integrated in Kubernetes.
+
+NOTE: **Note:**
+Support for installing the AppArmor managed application is provided by the GitLab Container Security group.
+If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Container Security group](https://about.gitlab.com/handbook/product/product-categories/#container-security-group).
 
 ## Upgrading applications
 
@@ -1188,7 +1484,7 @@ chart plus the values set by
 
 ## Uninstalling applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/60665) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/60665) in GitLab 11.11.
 
 The applications below can be uninstalled.
 
@@ -1223,7 +1519,7 @@ epic](https://gitlab.com/groups/gitlab-org/-/epics/1201).
 
 Applications can fail with the following error:
 
-```text
+```plaintext
 Error: remote error: tls: bad certificate
 ```
 

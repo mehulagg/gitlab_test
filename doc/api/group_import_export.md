@@ -15,19 +15,6 @@ Group exports include the following:
 - Group members
 - Sub-groups. Each sub-group includes all data above
 
-## Version history
-
-GitLab can import bundles that were exported from a different GitLab deployment.
-This ability is limited to two previous GitLab [minor](../policy/maintenance.md#versioning)
-releases, which is similar to our process for [Security Releases](../policy/maintenance.md#security-releases).
-
-For example:
-
-| Current version | Can import bundles exported from |
-|-----------------|----------------------------------|
-| 13.0            | 13.0, 12.10, 12.9                |
-| 13.1            | 13.1, 13.0, 12.10                |
-
 ## Schedule new export
 
 Start a new group export.
@@ -41,7 +28,7 @@ POST /groups/:id/export
 | `id`      | integer/string | yes      | ID of the group owned by the authenticated user |
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/export
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/export"
 ```
 
 ```json
@@ -54,7 +41,7 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab
 
 Download the finished export.
 
-```text
+```plaintext
 GET /groups/:id/export/download
 ```
 
@@ -63,7 +50,7 @@ GET /groups/:id/export/download
 | `id`      | integer/string | yes      | ID of the group owned by the authenticated user |
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" --remote-header-name --remote-name https://gitlab.example.com/api/v4/groups/1/export/download
+curl --header "PRIVATE-TOKEN: <your_access_token>" --remote-header-name --remote-name "https://gitlab.example.com/api/v4/groups/1/export/download"
 ```
 
 ```shell
@@ -79,7 +66,7 @@ returns either:
 
 ## Import a file
 
-```text
+```plaintext
 POST /groups/import
 ```
 
@@ -96,8 +83,12 @@ The `file=` parameter must point to a file on your file system and be preceded
 by `@`. For example:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "name=imported-group" --form "path=imported-group" --form "file=@/path/to/file" https://gitlab.example.com/api/v4/groups/import
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "name=imported-group" --form "path=imported-group" --form "file=@/path/to/file" "https://gitlab.example.com/api/v4/groups/import"
 ```
+
+NOTE: **Note:**
+The maximum import file size can be set by the Administrator, default is 50MB.
+As an administrator, you can modify the maximum import file size. To do so, use the `max_import_size` option in the [Application settings API](settings.md#change-application-settings) or the [Admin UI](../user/admin_area/settings/account_and_limit_settings.md).
 
 ## Important notes
 

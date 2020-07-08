@@ -68,7 +68,7 @@ See [server hooks](../administration/server_hooks.md) for more information.
 NOTE: **Note:**
 GitLab administrators can set push rules globally under
 **Admin Area > Push Rules** that all new projects will inherit. You can later
-override them in a project's settings.
+override them in a project's settings. They can be also set on a [group level](../user/group/index.md#group-push-rules-starter).
 
 1. Navigate to your project's **Settings > Repository** and expand **Push Rules**
 1. Set the rule you want
@@ -95,15 +95,15 @@ GitLab uses [RE2 syntax](https://github.com/google/re2/wiki/Syntax) for regular 
 
 ## Prevent pushing secrets to the repository
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/385) in [GitLab Starter](https://about.gitlab.com/pricing/) 8.12.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/385) in [GitLab Starter](https://about.gitlab.com/pricing/) 8.12.
 
 Secrets such as credential files, SSH private keys, and other files containing secrets should never be committed to source control.
-GitLab allows you to turn on a predefined blacklist of files which won't be allowed to be
+GitLab allows you to turn on a predefined denylist of files which won't be allowed to be
 pushed to a repository, stopping those commits from reaching the remote repository.
 
 By selecting the checkbox *Prevent committing secrets to Git*, GitLab prevents
 pushes to the repository when a file matches a regular expression as read from
-[`files_blacklist.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/gitlab/checks/files_blacklist.yml) (make sure you are at the right branch
+[`files_denylist.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/gitlab/checks/files_denylist.yml) (make sure you are at the right branch
 as your GitLab version when viewing this file).
 
 NOTE: **Note:**

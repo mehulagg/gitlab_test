@@ -53,7 +53,9 @@ troubleshoot.
 
 Auto Build supports building your application using [Cloud Native Buildpacks](https://buildpacks.io)
 through the [`pack` command](https://github.com/buildpacks/pack). To use Cloud Native Buildpacks,
-set the CI variable `AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED` to a non-empty value.
+set the CI variable `AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED` to a non-empty
+value. The default builder is `heroku/buildpacks:18` but a different builder
+can be selected using the CI variable `AUTO_DEVOPS_BUILD_IMAGE_CNB_BUILDER`.
 
 Cloud Native Buildpacks (CNBs) are an evolution of Heroku buildpacks, and
 will eventually supersede Herokuish-based builds within Auto DevOps. For more
@@ -82,10 +84,38 @@ Auto Test runs the appropriate tests for your application using
 your project to detect the language and framework. Several languages and
 frameworks are detected automatically, but if your language is not detected,
 you may be able to create a [custom buildpack](customize.md#custom-buildpacks).
-Check the [currently supported languages](index.md#currently-supported-languages).
+Check the [currently supported languages](#currently-supported-languages).
 
 Auto Test uses tests you already have in your application. If there are no
 tests, it's up to you to add them.
+
+### Currently supported languages
+
+Note that not all buildpacks support Auto Test yet, as it's a relatively new
+enhancement. All of Heroku's
+[officially supported languages](https://devcenter.heroku.com/articles/heroku-ci#supported-languages)
+support Auto Test. The languages supported by Heroku's Herokuish buildpacks all
+support Auto Test, but notably the multi-buildpack does not.
+
+The supported buildpacks are:
+
+```plaintext
+- heroku-buildpack-multi
+- heroku-buildpack-ruby
+- heroku-buildpack-nodejs
+- heroku-buildpack-clojure
+- heroku-buildpack-python
+- heroku-buildpack-java
+- heroku-buildpack-gradle
+- heroku-buildpack-scala
+- heroku-buildpack-play
+- heroku-buildpack-php
+- heroku-buildpack-go
+- buildpack-nginx
+```
+
+If your application needs a buildpack that is not in the above list, you
+might want to use a [custom buildpack](customize.md#custom-buildpacks).
 
 ## Auto Code Quality **(STARTER)**
 
@@ -113,6 +143,22 @@ warnings.
 
 To learn more about [how SAST works](../../user/application_security/sast/index.md),
 see the documentation.
+
+## Auto Secret Detection **(ULTIMATE)**
+
+> Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.1.
+
+Secret Detection uses the
+[Secret Detection Docker image](https://gitlab.com/gitlab-org/security-products/analyzers/secrets) to run Secret Detection on the current code, and checks for leaked secrets. The
+Auto Secret Detection stage runs only on the
+[Ultimate](https://about.gitlab.com/pricing/) tier, and requires
+[GitLab Runner](https://docs.gitlab.com/runner/) 11.5 or above.
+
+After creating the report, it's uploaded as an artifact which you can later
+download and evaluate. The merge request widget also displays any security
+warnings.
+
+To learn more, see [Secret Detection](../../user/application_security/secret_detection/index.md).
 
 ## Auto Dependency Scanning **(ULTIMATE)**
 
@@ -166,7 +212,7 @@ see the documentation.
 ## Auto Review Apps
 
 This is an optional step, since many projects don't have a Kubernetes cluster
-available. If the [requirements](index.md#requirements) are not met, the job is
+available. If the [requirements](requirements.md) are not met, the job is
 silently skipped.
 
 [Review Apps](../../ci/review_apps/index.md) are temporary application environments based on the
@@ -267,7 +313,7 @@ Any performance differences between the source and target branches are also
 ## Auto Deploy
 
 This is an optional step, since many projects don't have a Kubernetes cluster
-available. If the [requirements](index.md#requirements) are not met, the job is skipped.
+available. If the [requirements](requirements.md) are not met, the job is skipped.
 
 After a branch or merge request is merged into the project's default branch (usually
 `master`), Auto Deploy deploys the application to a `production` environment in
@@ -324,34 +370,40 @@ as it attempts to fetch the image using `CI_REGISTRY_PASSWORD`.
 
 > - [Introduced](https://gitlab.com/gitlab-org/charts/auto-deploy-app/-/merge_requests/51) in GitLab 12.8.
 > - Support for deploying a PostgreSQL version that supports Kubernetes 1.16+ was [introduced](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/-/merge_requests/49) in GitLab 12.9.
+> - Supported out of the box for new deployments as of GitLab 13.0.
 
 CAUTION: **Deprecation**
-The default value of `extensions/v1beta1` for the `deploymentApiVersion` setting is
-deprecated, and is scheduled to be changed to a new default of `apps/v1` in
-[GitLab 13.0](https://gitlab.com/gitlab-org/charts/auto-deploy-app/issues/47).
+The default value for the `deploymentApiVersion` setting was changed from
+`extensions/v1beta` to `apps/v1` in [GitLab 13.0](https://gitlab.com/gitlab-org/charts/auto-deploy-app/-/issues/47).
 
 In Kubernetes 1.16 and later, a number of
 [APIs were removed](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/),
 including support for `Deployment` in the `extensions/v1beta1` version.
 
-To use Auto Deploy on a Kubernetes 1.16+ cluster, you must opt-in to using a
-version of the PostgreSQL chart that supports Kubernetes 1.16 and higher:
+To use Auto Deploy on a Kubernetes 1.16+ cluster:
 
-1. Set the following in the [`.gitlab/auto-deploy-values.yaml` file](customize.md#customize-values-for-helm-chart):
+1. If you are deploying your application for the first time on GitLab 13.0 or
+   newer, no configuration should be required.
 
-   ```yml
+1. On GitLab 12.10 or older, set the following in the [`.gitlab/auto-deploy-values.yaml` file](customize.md#customize-values-for-helm-chart):
+
+   ```yaml
    deploymentApiVersion: apps/v1
    ```
 
-1. Set the:
+1. If you have an in-cluster PostgreSQL database installed with
+   `AUTO_DEVOPS_POSTGRES_CHANNEL` set to `1`, follow the [guide to upgrade
+   PostgreSQL](upgrading_postgresql.md).
 
-   - `AUTO_DEVOPS_POSTGRES_CHANNEL` variable to `2`.
-   - `POSTGRES_VERSION` variable to `9.6.16` or higher.
+1. If you are deploying your application for the first time and are using
+   GitLab 12.9 or 12.10, set `AUTO_DEVOPS_POSTGRES_CHANNEL` to `2`.
 
-DANGER: **Danger:** Opting into `AUTO_DEVOPS_POSTGRES_CHANNEL` version `2` deletes
-the version `1` PostgreSQL database. Follow the
-[guide to upgrading PostgreSQL](upgrading_postgresql.md) to back up and restore
-your database before opting into version `2`.
+DANGER: **Danger:** On GitLab 12.9 and 12.10, opting into
+`AUTO_DEVOPS_POSTGRES_CHANNEL` version `2` deletes the version `1` PostgreSQL
+database. Follow the [guide to upgrading PostgreSQL](upgrading_postgresql.md)
+to back up and restore your database before opting into version `2` (On
+GitLab 13.0, an additional variable is required to trigger the database
+deletion).
 
 ### Migrations
 
@@ -417,16 +469,16 @@ workers:
   sidekiq:
     replicaCount: 1
     command:
-    - /bin/herokuish
-    - procfile
-    - exec
-    - sidekiq
+      - /bin/herokuish
+      - procfile
+      - exec
+      - sidekiq
     preStopCommand:
-    - /bin/herokuish
-    - procfile
-    - exec
-    - sidekiqctl
-    - quiet
+      - /bin/herokuish
+      - procfile
+      - exec
+      - sidekiqctl
+      - quiet
     terminationGracePeriodSeconds: 60
 ```
 
@@ -461,7 +513,7 @@ traffic within a local namespace, and from the `gitlab-managed-apps`
 namespace. All other inbound connections are blocked. Outbound
 traffic (for example, to the Internet) is not affected by the default policy.
 
-You can also provide a custom [policy specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#networkpolicyspec-v1-networking-k8s-io)
+You can also provide a custom [policy specification](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 in the `.gitlab/auto-deploy-values.yaml` file, for example:
 
 ```yaml
@@ -472,12 +524,12 @@ networkPolicy:
       matchLabels:
         app.gitlab.com/env: staging
     ingress:
-    - from:
-      - podSelector:
-          matchLabels: {}
-      - namespaceSelector:
-          matchLabels:
-            app.gitlab.com/managed_by: gitlab
+      - from:
+        - podSelector:
+            matchLabels: {}
+        - namespaceSelector:
+            matchLabels:
+              app.gitlab.com/managed_by: gitlab
 ```
 
 For more information on installing Network Policies, see
@@ -532,7 +584,7 @@ may require commands to be wrapped as follows:
 Some of the reasons you may need to wrap commands:
 
 - Attaching using `kubectl exec`.
-- Using GitLab's [Web Terminal](../../ci/environments.md#web-terminals).
+- Using GitLab's [Web Terminal](../../ci/environments/index.md#web-terminals).
 
 For example, to start a Rails console from the application root directory, run:
 
@@ -562,11 +614,11 @@ GitLab provides some initial alerts for you after you install Prometheus:
 
 To use Auto Monitoring:
 
-1. [Install and configure the requirements](index.md#requirements).
+1. [Install and configure the Auto DevOps requirements](requirements.md).
 1. [Enable Auto DevOps](index.md#enablingdisabling-auto-devops), if you haven't done already.
 1. Navigate to your project's **{rocket}** **CI/CD > Pipelines** and click **Run Pipeline**.
 1. After the pipeline finishes successfully, open the
-   [monitoring dashboard for a deployed environment](../../ci/environments.md#monitoring-environments)
+   [monitoring dashboard for a deployed environment](../../ci/environments/index.md#monitoring-environments)
    to view the metrics of your deployed application. To view the metrics of the
    whole Kubernetes cluster, navigate to **{cloud-gear}** **Operations > Metrics**.
 

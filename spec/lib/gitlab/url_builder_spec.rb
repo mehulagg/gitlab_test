@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::UrlBuilder do
+RSpec.describe Gitlab::UrlBuilder do
   subject { described_class }
 
   describe '#build' do
@@ -25,6 +25,7 @@ describe Gitlab::UrlBuilder do
       :project_snippet   | ->(snippet)       { "/#{snippet.project.full_path}/snippets/#{snippet.id}" }
       :project_wiki      | ->(wiki)          { "/#{wiki.container.full_path}/-/wikis/home" }
       :ci_build          | ->(build)         { "/#{build.project.full_path}/-/jobs/#{build.id}" }
+      :design            | ->(design)        { "/#{design.project.full_path}/-/design_management/designs/#{design.id}/raw_image" }
 
       :group             | ->(group)         { "/groups/#{group.full_path}" }
       :group_milestone   | ->(milestone)     { "/groups/#{milestone.group.full_path}/-/milestones/#{milestone.iid}" }
@@ -86,12 +87,83 @@ describe Gitlab::UrlBuilder do
     end
 
     context 'when passing a Snippet' do
-      let(:snippet) { build_stubbed(:personal_snippet) }
+      let_it_be(:personal_snippet) { create(:personal_snippet, :repository) }
+      let_it_be(:project_snippet)  { create(:project_snippet, :repository) }
+      let(:blob)                   { snippet.blobs.first }
+      let(:ref)                    { blob.repository.root_ref }
 
-      it 'returns a raw snippet URL if requested' do
-        url = subject.build(snippet, raw: true)
+      context 'for a PersonalSnippet' do
+        let(:snippet) { personal_snippet }
 
-        expect(url).to eq "#{Gitlab.config.gitlab.url}/snippets/#{snippet.id}/raw"
+        it 'returns a raw snippet URL if requested' do
+          url = subject.build(snippet, raw: true)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/snippets/#{snippet.id}/raw"
+        end
+
+        it 'returns a raw snippet blob URL if requested' do
+          url = subject.build(snippet, file: blob.path, ref: ref)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/-/snippets/#{snippet.id}/raw/#{ref}/#{blob.path}"
+        end
+      end
+
+      context 'for a ProjectSnippet' do
+        let(:snippet) { project_snippet }
+
+        it 'returns a raw snippet URL if requested' do
+          url = subject.build(snippet, raw: true)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/#{snippet.project.full_path}/snippets/#{snippet.id}/raw"
+        end
+
+        it 'returns a raw snippet blob URL if requested' do
+          url = subject.build(snippet, file: blob.path, ref: ref)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/#{snippet.project.full_path}/-/snippets/#{snippet.id}/raw/#{ref}/#{blob.path}"
+        end
+      end
+    end
+
+    context 'when passing a Wiki' do
+      let(:wiki) { build_stubbed(:project_wiki) }
+
+      describe '#wiki_url' do
+        it 'uses the default collection action' do
+          url = subject.wiki_url(wiki)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/#{wiki.project.full_path}/-/wikis/home"
+        end
+
+        it 'supports a custom collection action' do
+          url = subject.wiki_url(wiki, action: :pages)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/#{wiki.project.full_path}/-/wikis/pages"
+        end
+      end
+
+      describe '#wiki_page_url' do
+        it 'uses the default member action' do
+          url = subject.wiki_page_url(wiki, 'foo')
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/#{wiki.project.full_path}/-/wikis/foo"
+        end
+
+        it 'supports a custom member action' do
+          url = subject.wiki_page_url(wiki, 'foo', action: :edit)
+
+          expect(url).to eq "#{Gitlab.config.gitlab.url}/#{wiki.project.full_path}/-/wikis/foo/edit"
+        end
+      end
+    end
+
+    context 'when passing a DesignManagement::Design' do
+      let(:design) { build_stubbed(:design) }
+
+      it 'uses the given ref and size in the URL' do
+        url = subject.build(design, ref: 'feature', size: 'small')
+
+        expect(url).to eq "#{Settings.gitlab['url']}/#{design.project.full_path}/-/design_management/designs/#{design.id}/feature/resized_image/small"
       end
     end
 

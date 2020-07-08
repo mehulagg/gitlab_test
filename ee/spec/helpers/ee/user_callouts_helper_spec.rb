@@ -2,7 +2,9 @@
 
 require "spec_helper"
 
-describe EE::UserCalloutsHelper do
+RSpec.describe EE::UserCalloutsHelper do
+  using RSpec::Parameterized::TableSyntax
+
   describe '.render_enable_hashed_storage_warning' do
     context 'when we should show the enable warning' do
       it 'renders the enable warning' do
@@ -171,13 +173,11 @@ describe EE::UserCalloutsHelper do
   end
 
   describe '#render_dashboard_gold_trial' do
-    using RSpec::Parameterized::TableSyntax
-
     let_it_be(:namespace) { create(:namespace) }
     let_it_be(:gold_plan) { create(:gold_plan) }
     let(:user) { namespace.owner }
 
-    where(:has_some_namespaces_with_no_trials?, :show_gold_trial?, :user_default_dashboard?, :has_no_trial_or_paid_plan?, :should_render?) do
+    where(:any_namespace_without_trial?, :show_gold_trial?, :user_default_dashboard?, :has_no_trial_or_paid_plan?, :should_render?) do
       true  | true  | true  | true  | true
       true  | true  | true  | false | false
       true  | true  | false | true  | false
@@ -200,7 +200,7 @@ describe EE::UserCalloutsHelper do
       before do
         allow(helper).to receive(:show_gold_trial?) { show_gold_trial? }
         allow(helper).to receive(:user_default_dashboard?) { user_default_dashboard? }
-        allow(helper).to receive(:has_some_namespaces_with_no_trials?) { has_some_namespaces_with_no_trials? }
+        allow(user).to receive(:any_namespace_without_trial?) { any_namespace_without_trial? }
 
         unless has_no_trial_or_paid_plan?
           create(:gitlab_subscription, hosted_plan: gold_plan, namespace: namespace)
@@ -236,8 +236,6 @@ describe EE::UserCalloutsHelper do
   end
 
   describe '#render_billings_gold_trial' do
-    using RSpec::Parameterized::TableSyntax
-
     let(:namespace) { create(:namespace) }
     let_it_be(:free_plan) { create(:free_plan) }
     let_it_be(:silver_plan) { create(:silver_plan) }
@@ -289,8 +287,6 @@ describe EE::UserCalloutsHelper do
   end
 
   describe '#render_account_recovery_regular_check' do
-    using RSpec::Parameterized::TableSyntax
-
     let(:new_user) { create(:user) }
     let(:old_user) { create(:user, created_at: 4.months.ago )}
     let(:anonymous) { nil }
@@ -342,6 +338,58 @@ describe EE::UserCalloutsHelper do
     context 'when the threat monitoring info was dismissed' do
       before do
         create(:user_callout, user: user, feature_name: described_class::THREAT_MONITORING_INFO)
+      end
+
+      it { is_expected.to be_falsy }
+    end
+  end
+
+  describe '.show_token_expiry_notification?' do
+    subject { helper.show_token_expiry_notification? }
+
+    let_it_be(:user) { create(:user) }
+
+    where(:expiration_enforced?, :dismissed_callout?, :active?, :result) do
+      true  | true  | true  | false
+      true  | true  | false | false
+      true  | false | true  | false
+      false | true  | true  | false
+      true  | false | false | false
+      false | false | true  | true
+      false | true  | false | false
+      false | false | false | false
+    end
+
+    with_them do
+      before do
+        allow(helper).to receive(:current_user).and_return(user)
+        allow(user).to receive(:active?).and_return(active?)
+        allow(helper).to receive(:token_expiration_enforced?).and_return(expiration_enforced?)
+        allow(user).to receive(:dismissed_callout?).and_return(dismissed_callout?)
+      end
+
+      it do
+        expect(subject).to be result
+      end
+    end
+  end
+
+  describe '.show_standalone_vulnerabilities_introduction_banner?' do
+    subject { helper.show_standalone_vulnerabilities_introduction_banner? }
+
+    let(:user) { create(:user) }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+    end
+
+    context 'when the introduction banner has not been dismissed' do
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when the introduction banner was dismissed' do
+      before do
+        create(:user_callout, user: user, feature_name: described_class::STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER)
       end
 
       it { is_expected.to be_falsy }

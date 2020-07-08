@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Mutations::InstanceSecurityDashboard::RemoveProject do
+RSpec.describe Mutations::InstanceSecurityDashboard::RemoveProject do
   let(:mutation) { described_class.new(object: nil, context: { current_user: current_user }, field: nil) }
 
   describe '#resolve' do
@@ -17,7 +17,7 @@ describe Mutations::InstanceSecurityDashboard::RemoveProject do
       already_added_project.add_developer(user)
     end
 
-    subject { mutation.resolve(project_id: project_id) }
+    subject { mutation.resolve(id: project_id) }
 
     context 'when user is not logged_in' do
       let(:current_user) { nil }

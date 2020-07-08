@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Oauth::ApplicationsController do
+RSpec.describe Oauth::ApplicationsController do
   let(:user) { create(:user) }
   let(:application) { create(:oauth_application, owner: user) }
 
@@ -118,6 +118,22 @@ describe Oauth::ApplicationsController do
   context 'Helpers' do
     it 'current_user_mode available' do
       expect(subject.current_user_mode).not_to be_nil
+    end
+  end
+
+  describe 'locale' do
+    let(:user) { create(:user, preferred_language: 'uk') }
+
+    before do
+      sign_in(user)
+
+      allow(Gitlab::I18n).to receive(:with_locale).and_call_original
+    end
+
+    it "sets user's locale" do
+      expect(Gitlab::I18n).to receive(:with_locale).with('uk')
+
+      get :new
     end
   end
 

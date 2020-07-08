@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe NamespacelessProjectDestroyWorker do
+RSpec.describe NamespacelessProjectDestroyWorker do
   include ProjectForksHelper
 
   subject { described_class.new }
@@ -77,20 +77,6 @@ describe NamespacelessProjectDestroyWorker do
 
           expect(parent_project.forked_to_members).to be_empty
         end
-      end
-    end
-
-    context 'project has non-existing namespace' do
-      let!(:project) do
-        project = build(:project, namespace_id: non_existing_record_id)
-        project.save(validate: false)
-        project
-      end
-
-      it 'deletes the project' do
-        subject.perform(project.id)
-
-        expect(Project.unscoped.all).not_to include(project)
       end
     end
   end

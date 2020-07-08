@@ -1,69 +1,46 @@
 <script>
-import { debounce } from 'lodash';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
-import {
-  GlIcon,
-  GlButton,
-  GlDeprecatedButton,
-  GlDropdown,
-  GlDropdownItem,
-  GlDropdownHeader,
-  GlDropdownDivider,
-  GlModal,
-  GlLoadingIcon,
-  GlSearchBoxByType,
-  GlModalDirective,
-  GlTooltipDirective,
-} from '@gitlab/ui';
+import Mousetrap from 'mousetrap';
+import { GlIcon, GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
+import DashboardHeader from './dashboard_header.vue';
 import DashboardPanel from './dashboard_panel.vue';
 import { s__ } from '~/locale';
 import createFlash from '~/flash';
 import { ESC_KEY, ESC_KEY_IE11 } from '~/lib/utils/keys';
-import CustomMetricsFormFields from '~/custom_metrics/components/custom_metrics_form_fields.vue';
-import { mergeUrlParams, redirectTo, updateHistory } from '~/lib/utils/url_utility';
+import { mergeUrlParams, updateHistory } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
 import Icon from '~/vue_shared/components/icon.vue';
-import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
 
 import GraphGroup from './graph_group.vue';
 import EmptyState from './empty_state.vue';
 import GroupEmptyState from './group_empty_state.vue';
-import DashboardsDropdown from './dashboards_dropdown.vue';
+import VariablesSection from './variables_section.vue';
+import LinksSection from './links_section.vue';
 
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import {
-  getAddMetricTrackingOptions,
-  timeRangeToUrl,
   timeRangeFromUrl,
   panelToUrl,
   expandedPanelPayloadFromUrl,
+  convertVariablesForURL,
 } from '../utils';
-import { metricStates } from '../constants';
-import { defaultTimeRange, timeRanges } from '~/vue_shared/constants';
+import { metricStates, keyboardShortcutKeys } from '../constants';
+import { defaultTimeRange } from '~/vue_shared/constants';
 
 export default {
   components: {
     VueDraggable,
+    DashboardHeader,
     DashboardPanel,
     Icon,
     GlIcon,
     GlButton,
-    GlDeprecatedButton,
-    GlDropdown,
-    GlLoadingIcon,
-    GlDropdownItem,
-    GlDropdownHeader,
-    GlDropdownDivider,
-    GlSearchBoxByType,
-    GlModal,
-    CustomMetricsFormFields,
-
-    DateTimePicker,
     GraphGroup,
     EmptyState,
     GroupEmptyState,
-    DashboardsDropdown,
+    VariablesSection,
+    LinksSection,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -107,27 +84,10 @@ export default {
       type: String,
       required: true,
     },
-    projectPath: {
-      type: String,
-      required: true,
-    },
-    logsPath: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
     defaultBranch: {
       type: String,
-      required: true,
-    },
-    metricsEndpoint: {
-      type: String,
-      required: true,
-    },
-    deploymentsEndpoint: {
-      type: String,
       required: false,
-      default: null,
+      default: '',
     },
     emptyGettingStartedSvgPath: {
       type: String,
@@ -149,10 +109,6 @@ export default {
       type: String,
       required: true,
     },
-    currentEnvironmentName: {
-      type: String,
-      required: true,
-    },
     customMetricsAvailable: {
       type: Boolean,
       required: false,
@@ -167,21 +123,6 @@ export default {
       type: String,
       required: false,
       default: invalidUrl,
-    },
-    dashboardEndpoint: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
-    dashboardsEndpoint: {
-      type: String,
-      required: false,
-      default: invalidUrl,
-    },
-    currentDashboard: {
-      type: String,
-      required: false,
-      default: '',
     },
     smallEmptyState: {
       type: Boolean,
@@ -206,11 +147,10 @@ export default {
   },
   data() {
     return {
-      formIsValid: null,
       selectedTimeRange: timeRangeFromUrl() || defaultTimeRange,
-      hasValidDates: true,
-      timeRanges,
       isRearrangingPanels: false,
+      originalDocumentTitle: document.title,
+      hoveredPanel: '',
     };
   },
   computed: {
@@ -218,30 +158,18 @@ export default {
       'dashboard',
       'emptyState',
       'showEmptyState',
-      'useDashboardEndpoint',
-      'allDashboards',
-      'environmentsLoading',
       'expandedPanel',
+      'variables',
+      'links',
+      'currentDashboard',
+      'hasDashboardValidationWarnings',
     ]),
-    ...mapGetters('monitoringDashboard', ['getMetricStates', 'filteredEnvironments']),
-    firstDashboard() {
-      return this.allDashboards.length > 0 ? this.allDashboards[0] : {};
+    ...mapGetters('monitoringDashboard', ['selectedDashboard', 'getMetricStates']),
+    shouldShowVariablesSection() {
+      return Boolean(this.variables.length);
     },
-    selectedDashboard() {
-      return this.allDashboards.find(d => d.path === this.currentDashboard) || this.firstDashboard;
-    },
-    showRearrangePanelsBtn() {
-      return !this.showEmptyState && this.rearrangePanelsAvailable;
-    },
-    addingMetricsAvailable() {
-      return (
-        this.customMetricsAvailable &&
-        !this.showEmptyState &&
-        this.firstDashboard === this.selectedDashboard
-      );
-    },
-    shouldShowEnvironmentsDropdownNoMatchedMsg() {
-      return !this.environmentsLoading && this.filteredEnvironments.length === 0;
+    shouldShowLinksSection() {
+      return Object.keys(this.links).length > 0;
     },
   },
   watch: {
@@ -261,30 +189,40 @@ export default {
     },
     expandedPanel: {
       handler({ group, panel }) {
-        const dashboardPath = this.currentDashboard || this.firstDashboard.path;
+        const dashboardPath = this.currentDashboard || this.selectedDashboard?.path;
         updateHistory({
-          url: panelToUrl(dashboardPath, group, panel),
+          url: panelToUrl(dashboardPath, convertVariablesForURL(this.variables), group, panel),
           title: document.title,
         });
       },
       deep: true,
     },
+    selectedDashboard(dashboard) {
+      this.prependToDocumentTitle(dashboard?.display_name);
+    },
+    hasDashboardValidationWarnings(hasWarnings) {
+      /**
+       * This watcher is set for future SPA behaviour of the dashboard
+       */
+      if (hasWarnings) {
+        createFlash(
+          s__(
+            'Metrics|Your dashboard schema is invalid. Edit the dashboard to correct the YAML schema.',
+          ),
+          'warning',
+        );
+      }
+    },
   },
   created() {
-    this.setInitialState({
-      metricsEndpoint: this.metricsEndpoint,
-      deploymentsEndpoint: this.deploymentsEndpoint,
-      dashboardEndpoint: this.dashboardEndpoint,
-      dashboardsEndpoint: this.dashboardsEndpoint,
-      currentDashboard: this.currentDashboard,
-      projectPath: this.projectPath,
-      logsPath: this.logsPath,
-      currentEnvironmentName: this.currentEnvironmentName,
-    });
     window.addEventListener('keyup', this.onKeyup);
+
+    Mousetrap.bind(Object.values(keyboardShortcutKeys), this.runShortcut);
   },
   destroyed() {
     window.removeEventListener('keyup', this.onKeyup);
+
+    Mousetrap.unbind(Object.values(keyboardShortcutKeys));
   },
   mounted() {
     if (!this.hasMetrics) {
@@ -298,11 +236,8 @@ export default {
     ...mapActions('monitoringDashboard', [
       'setTimeRange',
       'fetchData',
-      'fetchDashboardData',
       'setGettingStartedEmptyState',
-      'setInitialState',
       'setPanelGroupMetrics',
-      'filterEnvironments',
       'setExpandedPanel',
       'clearExpandedPanel',
     ]),
@@ -318,37 +253,9 @@ export default {
         key,
       });
     },
-
-    onDateTimePickerInput(timeRange) {
-      redirectTo(timeRangeToUrl(timeRange));
-    },
-    onDateTimePickerInvalid() {
-      createFlash(
-        s__(
-          'Metrics|Link contains an invalid time window, please verify the link to see the requested time range.',
-        ),
-      );
-      // As a fallback, switch to default time range instead
-      this.selectedTimeRange = defaultTimeRange;
-    },
     generatePanelUrl(groupKey, panel) {
-      const dashboardPath = this.currentDashboard || this.firstDashboard.path;
-      return panelToUrl(dashboardPath, groupKey, panel);
-    },
-    hideAddMetricModal() {
-      this.$refs.addMetricModal.hide();
-    },
-    toggleRearrangingPanels() {
-      this.isRearrangingPanels = !this.isRearrangingPanels;
-    },
-    setFormValidity(isValid) {
-      this.formIsValid = isValid;
-    },
-    debouncedEnvironmentsSearch: debounce(function environmentsSearchOnInput(searchTerm) {
-      this.filterEnvironments(searchTerm);
-    }, 500),
-    submitCustomMetricsForm() {
-      this.$refs.customMetricsForm.submit();
+      const dashboardPath = this.currentDashboard || this.selectedDashboard?.path;
+      return panelToUrl(dashboardPath, convertVariablesForURL(this.variables), groupKey, panel);
     },
     /**
      * Return a single empty state for a group.
@@ -376,25 +283,20 @@ export default {
       // Collapse group if no data is available
       return !this.getMetricStates(groupKey).includes(metricStates.OK);
     },
-    getAddMetricTrackingOptions,
-
-    selectDashboard(dashboard) {
-      const params = {
-        dashboard: dashboard.path,
-      };
-      redirectTo(mergeUrlParams(params, window.location.href));
+    prependToDocumentTitle(text) {
+      if (text) {
+        document.title = `${text} · ${this.originalDocumentTitle}`;
+      }
     },
-
-    refreshDashboard() {
-      this.fetchDashboardData();
-    },
-
     onTimeRangeZoom({ start, end }) {
       updateHistory({
         url: mergeUrlParams({ start, end }, window.location.href),
         title: document.title,
       });
       this.selectedTimeRange = { start, end };
+      // keep the current dashboard time range
+      // in sync with the Vuex store
+      this.setTimeRange(this.selectedTimeRange);
     },
     onExpandPanel(group, panel) {
       this.setExpandedPanel({ group, panel });
@@ -408,10 +310,78 @@ export default {
         this.clearExpandedPanel();
       }
     },
-  },
-  addMetric: {
-    title: s__('Metrics|Add metric'),
-    modalId: 'add-metric',
+    onSetRearrangingPanels(isRearrangingPanels) {
+      this.isRearrangingPanels = isRearrangingPanels;
+    },
+    onDateTimePickerInvalid() {
+      createFlash(
+        s__(
+          'Metrics|Link contains an invalid time window, please verify the link to see the requested time range.',
+        ),
+      );
+      // As a fallback, switch to default time range instead
+      this.selectedTimeRange = defaultTimeRange;
+    },
+    isPanelHalfWidth(panelIndex, totalPanels) {
+      /**
+       * A single panel on a row should take the full width of its parent.
+       * All others should have half the width their parent.
+       */
+      const isNumberOfPanelsEven = totalPanels % 2 === 0;
+      const isLastPanel = panelIndex === totalPanels - 1;
+
+      return isNumberOfPanelsEven || !isLastPanel;
+    },
+    /**
+     * TODO: Investigate this to utilize the eventBus from Vue
+     * The intentation behind this cleanup is to allow for better tests
+     * as well as use the correct eventBus facilities that are compatible
+     * with Vue 3
+     * https://gitlab.com/gitlab-org/gitlab/-/issues/225583
+     */
+    //
+    runShortcut(e) {
+      const panel = this.$refs[this.hoveredPanel];
+
+      if (!panel) return;
+
+      const [panelInstance] = panel;
+      let actionToRun = '';
+
+      switch (e.key) {
+        case keyboardShortcutKeys.EXPAND:
+          actionToRun = 'onExpandFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.VISIT_LOGS:
+          actionToRun = 'visitLogsPageFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.SHOW_ALERT:
+          actionToRun = 'showAlertModalFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.DOWNLOAD_CSV:
+          actionToRun = 'downloadCsvFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.CHART_COPY:
+          actionToRun = 'copyChartLinkFromKeyboardShotcut';
+          break;
+
+        default:
+          actionToRun = 'onExpandFromKeyboardShortcut';
+          break;
+      }
+
+      panelInstance[actionToRun]();
+    },
+    setHoveredPanel(groupKey, graphIndex) {
+      this.hoveredPanel = `dashboard-panel-${groupKey}-${graphIndex}`;
+    },
+    clearHoveredPanel() {
+      this.hoveredPanel = '';
+    },
   },
   i18n: {
     goBackLabel: s__('Metrics|Go back (Esc)'),
@@ -421,170 +391,24 @@ export default {
 
 <template>
   <div class="prometheus-graphs" data-qa-selector="prometheus_graphs">
-    <div
+    <dashboard-header
       v-if="showHeader"
       ref="prometheusGraphsHeader"
       class="prometheus-graphs-header d-sm-flex flex-sm-wrap pt-2 pr-1 pb-0 pl-2 border-bottom bg-gray-light"
-    >
-      <div class="mb-2 pr-2 d-flex d-sm-block">
-        <dashboards-dropdown
-          id="monitor-dashboards-dropdown"
-          data-qa-selector="dashboards_filter_dropdown"
-          class="flex-grow-1"
-          toggle-class="dropdown-menu-toggle"
-          :default-branch="defaultBranch"
-          :selected-dashboard="selectedDashboard"
-          @selectDashboard="selectDashboard($event)"
-        />
-      </div>
-
-      <div class="mb-2 pr-2 d-flex d-sm-block">
-        <gl-dropdown
-          id="monitor-environments-dropdown"
-          ref="monitorEnvironmentsDropdown"
-          class="flex-grow-1"
-          data-qa-selector="environments_dropdown"
-          toggle-class="dropdown-menu-toggle"
-          menu-class="monitor-environment-dropdown-menu"
-          :text="currentEnvironmentName"
-        >
-          <div class="d-flex flex-column overflow-hidden">
-            <gl-dropdown-header class="monitor-environment-dropdown-header text-center">
-              {{ __('Environment') }}
-            </gl-dropdown-header>
-            <gl-dropdown-divider />
-            <gl-search-box-by-type
-              ref="monitorEnvironmentsDropdownSearch"
-              class="m-2"
-              @input="debouncedEnvironmentsSearch"
-            />
-            <gl-loading-icon
-              v-if="environmentsLoading"
-              ref="monitorEnvironmentsDropdownLoading"
-              :inline="true"
-            />
-            <div v-else class="flex-fill overflow-auto">
-              <gl-dropdown-item
-                v-for="environment in filteredEnvironments"
-                :key="environment.id"
-                :active="environment.name === currentEnvironmentName"
-                active-class="is-active"
-                :href="environment.metrics_path"
-                >{{ environment.name }}</gl-dropdown-item
-              >
-            </div>
-            <div
-              v-show="shouldShowEnvironmentsDropdownNoMatchedMsg"
-              ref="monitorEnvironmentsDropdownMsg"
-              class="text-secondary no-matches-message"
-            >
-              {{ __('No matching results') }}
-            </div>
-          </div>
-        </gl-dropdown>
-      </div>
-
-      <div class="mb-2 pr-2 d-flex d-sm-block">
-        <date-time-picker
-          ref="dateTimePicker"
-          class="flex-grow-1 show-last-dropdown"
-          data-qa-selector="show_last_dropdown"
-          :value="selectedTimeRange"
-          :options="timeRanges"
-          @input="onDateTimePickerInput"
-          @invalid="onDateTimePickerInvalid"
-        />
-      </div>
-
-      <div class="mb-2 pr-2 d-flex d-sm-block">
-        <gl-deprecated-button
-          ref="refreshDashboardBtn"
-          v-gl-tooltip
-          class="flex-grow-1"
-          variant="default"
-          :title="s__('Metrics|Refresh dashboard')"
-          @click="refreshDashboard"
-        >
-          <icon name="retry" />
-        </gl-deprecated-button>
-      </div>
-
-      <div class="flex-grow-1"></div>
-
-      <div class="d-sm-flex">
-        <div v-if="showRearrangePanelsBtn" class="mb-2 mr-2 d-flex">
-          <gl-deprecated-button
-            :pressed="isRearrangingPanels"
-            variant="default"
-            class="flex-grow-1 js-rearrange-button"
-            @click="toggleRearrangingPanels"
-          >
-            {{ __('Arrange charts') }}
-          </gl-deprecated-button>
-        </div>
-        <div v-if="addingMetricsAvailable" class="mb-2 mr-2 d-flex d-sm-block">
-          <gl-deprecated-button
-            ref="addMetricBtn"
-            v-gl-modal="$options.addMetric.modalId"
-            variant="outline-success"
-            data-qa-selector="add_metric_button"
-            class="flex-grow-1"
-          >
-            {{ $options.addMetric.title }}
-          </gl-deprecated-button>
-          <gl-modal
-            ref="addMetricModal"
-            :modal-id="$options.addMetric.modalId"
-            :title="$options.addMetric.title"
-          >
-            <form ref="customMetricsForm" :action="customMetricsPath" method="post">
-              <custom-metrics-form-fields
-                :validate-query-path="validateQueryPath"
-                form-operation="post"
-                @formValidation="setFormValidity"
-              />
-            </form>
-            <div slot="modal-footer">
-              <gl-deprecated-button @click="hideAddMetricModal">
-                {{ __('Cancel') }}
-              </gl-deprecated-button>
-              <gl-deprecated-button
-                ref="submitCustomMetricsFormBtn"
-                v-track-event="getAddMetricTrackingOptions()"
-                :disabled="!formIsValid"
-                variant="success"
-                @click="submitCustomMetricsForm"
-              >
-                {{ __('Save changes') }}
-              </gl-deprecated-button>
-            </div>
-          </gl-modal>
-        </div>
-
-        <div v-if="selectedDashboard.can_edit" class="mb-2 mr-2 d-flex d-sm-block">
-          <gl-deprecated-button
-            class="flex-grow-1 js-edit-link"
-            :href="selectedDashboard.project_blob_path"
-            data-qa-selector="edit_dashboard_button"
-          >
-            {{ __('Edit dashboard') }}
-          </gl-deprecated-button>
-        </div>
-
-        <div v-if="externalDashboardUrl.length" class="mb-2 mr-2 d-flex d-sm-block">
-          <gl-deprecated-button
-            class="flex-grow-1 js-external-dashboard-link"
-            variant="primary"
-            :href="externalDashboardUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {{ __('View full dashboard') }} <icon name="external-link" />
-          </gl-deprecated-button>
-        </div>
-      </div>
-    </div>
-
+      :default-branch="defaultBranch"
+      :rearrange-panels-available="rearrangePanelsAvailable"
+      :custom-metrics-available="customMetricsAvailable"
+      :custom-metrics-path="customMetricsPath"
+      :validate-query-path="validateQueryPath"
+      :external-dashboard-url="externalDashboardUrl"
+      :has-metrics="hasMetrics"
+      :is-rearranging-panels="isRearrangingPanels"
+      :selected-time-range="selectedTimeRange"
+      @dateTimePickerInvalid="onDateTimePickerInvalid"
+      @setRearrangingPanels="onSetRearrangingPanels"
+    />
+    <variables-section v-if="shouldShowVariablesSection && !showEmptyState" />
+    <links-section v-if="shouldShowLinksSection && !showEmptyState" />
     <div v-if="!showEmptyState">
       <dashboard-panel
         v-show="expandedPanel.panel"
@@ -633,8 +457,14 @@ export default {
             <div
               v-for="(graphData, graphIndex) in groupData.panels"
               :key="`dashboard-panel-${graphIndex}`"
-              class="col-12 col-lg-6 px-2 mb-2 draggable"
-              :class="{ 'draggable-enabled': isRearrangingPanels }"
+              data-testid="dashboard-panel-layout-wrapper"
+              class="col-12 px-2 mb-2 draggable"
+              :class="{
+                'draggable-enabled': isRearrangingPanels,
+                'col-lg-6': isPanelHalfWidth(graphIndex, groupData.panels.length),
+              }"
+              @mouseover="setHoveredPanel(groupData.key, graphIndex)"
+              @mouseout="clearHoveredPanel"
             >
               <div class="position-relative draggable-panel js-draggable-panel">
                 <div
@@ -648,6 +478,7 @@ export default {
                 </div>
 
                 <dashboard-panel
+                  :ref="`dashboard-panel-${groupData.key}-${graphIndex}`"
                   :settings-path="settingsPath"
                   :clipboard-text="generatePanelUrl(groupData.group, graphData)"
                   :graph-data="graphData"

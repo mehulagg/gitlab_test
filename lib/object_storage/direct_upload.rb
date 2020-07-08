@@ -2,7 +2,7 @@
 
 module ObjectStorage
   #
-  # The DirectUpload c;ass generates a set of presigned URLs
+  # The DirectUpload class generates a set of presigned URLs
   # that can be used to upload data to object storage from untrusted component: Workhorse, Runner?
   #
   # For Google it assumes that the platform supports variable Content-Length.
@@ -23,9 +23,9 @@ module ObjectStorage
     MINIMUM_MULTIPART_SIZE = 5.megabytes
 
     attr_reader :credentials, :bucket_name, :object_name
-    attr_reader :has_length, :maximum_size
+    attr_reader :has_length, :maximum_size, :consolidated_settings
 
-    def initialize(credentials, bucket_name, object_name, has_length:, maximum_size: nil)
+    def initialize(credentials, bucket_name, object_name, has_length:, maximum_size: nil, consolidated_settings: false)
       unless has_length
         raise ArgumentError, 'maximum_size has to be specified if length is unknown' unless maximum_size
       end
@@ -35,6 +35,7 @@ module ObjectStorage
       @object_name = object_name
       @has_length = has_length
       @maximum_size = maximum_size
+      @consolidated_settings = consolidated_settings
     end
 
     def to_hash
@@ -46,7 +47,7 @@ module ObjectStorage
         MultipartUpload: multipart_upload_hash,
         CustomPutHeaders: true,
         PutHeaders: upload_options
-      }.compact
+      }.merge(workhorse_client_hash).compact
     end
 
     def multipart_upload_hash
@@ -60,13 +61,45 @@ module ObjectStorage
       }
     end
 
+    def workhorse_client_hash
+      return {} unless aws?
+
+      {
+        UseWorkhorseClient: use_workhorse_s3_client?,
+        RemoteTempObjectID: object_name,
+        ObjectStorage: {
+          Provider: 'AWS',
+          S3Config: {
+            Bucket: bucket_name,
+            Region: credentials[:region],
+            Endpoint: credentials[:endpoint],
+            PathStyle: credentials.fetch(:path_style, false),
+            UseIamProfile: credentials.fetch(:use_iam_profile, false)
+          }
+        }
+      }
+    end
+
+    def use_workhorse_s3_client?
+      return false unless Feature.enabled?(:use_workhorse_s3_client, default_enabled: true)
+      return false unless credentials.fetch(:use_iam_profile, false) || consolidated_settings
+      # The Golang AWS SDK does not support V2 signatures
+      return false unless credentials.fetch(:aws_signature_version, 4).to_i >= 4
+
+      true
+    end
+
     def provider
       credentials[:provider].to_s
     end
 
     # Implements https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html
     def get_url
-      connection.get_object_url(bucket_name, object_name, expire_at)
+      if google?
+        connection.get_object_https_url(bucket_name, object_name, expire_at)
+      else
+        connection.get_object_url(bucket_name, object_name, expire_at)
+      end
     end
 
     # Implements https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectDELETE.html
@@ -138,6 +171,10 @@ module ObjectStorage
 
     def aws?
       provider == 'AWS'
+    end
+
+    def google?
+      provider == 'Google'
     end
 
     def requires_multipart_upload?

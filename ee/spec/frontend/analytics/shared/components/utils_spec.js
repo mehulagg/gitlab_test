@@ -2,6 +2,7 @@ import {
   buildGroupFromDataset,
   buildProjectFromDataset,
   buildCycleAnalyticsInitialData,
+  filterBySearchTerm,
 } from 'ee/analytics/shared/utils';
 
 const groupDataset = {
@@ -75,11 +76,17 @@ describe('buildProjectFromDataset', () => {
 
 describe('buildCycleAnalyticsInitialData', () => {
   it.each`
-    field                 | value
-    ${'group'}            | ${null}
-    ${'createdBefore'}    | ${null}
-    ${'createdAfter'}     | ${null}
-    ${'selectedProjects'} | ${[]}
+    field                  | value
+    ${'group'}             | ${null}
+    ${'createdBefore'}     | ${null}
+    ${'createdAfter'}      | ${null}
+    ${'selectedProjects'}  | ${[]}
+    ${'selectedAuthor'}    | ${null}
+    ${'selectedMilestone'} | ${null}
+    ${'selectedLabels'}    | ${[]}
+    ${'selectedAssignees'} | ${[]}
+    ${'labelsPath'}        | ${''}
+    ${'milestonesPath'}    | ${''}
   `('will set a default value for "$field" if is not present', ({ field, value }) => {
     expect(buildCycleAnalyticsInitialData()).toMatchObject({
       [field]: value,
@@ -131,6 +138,62 @@ describe('buildCycleAnalyticsInitialData', () => {
     });
   });
 
+  describe('selectedAssignees', () => {
+    it('will be set given an array of assignees', () => {
+      const selectedAssignees = ['krillin', 'chiao-tzu'];
+      expect(
+        buildCycleAnalyticsInitialData({ assignees: JSON.stringify(selectedAssignees) }),
+      ).toMatchObject({
+        selectedAssignees,
+      });
+    });
+
+    it.each`
+      field                  | value
+      ${'selectedAssignees'} | ${null}
+      ${'selectedAssignees'} | ${[]}
+      ${'selectedAssignees'} | ${''}
+    `('will be an empty array if given a value of `$value`', ({ value, field }) => {
+      expect(buildCycleAnalyticsInitialData({ projects: value })).toMatchObject({
+        [field]: [],
+      });
+    });
+  });
+
+  describe('selectedLabels', () => {
+    it('will be set given an array of labels', () => {
+      const selectedLabels = ['krillin', 'chiao-tzu'];
+      expect(
+        buildCycleAnalyticsInitialData({ labels: JSON.stringify(selectedLabels) }),
+      ).toMatchObject({ selectedLabels });
+    });
+
+    it.each`
+      field               | value
+      ${'selectedLabels'} | ${null}
+      ${'selectedLabels'} | ${[]}
+      ${'selectedLabels'} | ${''}
+    `('will be an empty array if given a value of `$value`', ({ value, field }) => {
+      expect(buildCycleAnalyticsInitialData({ projects: value })).toMatchObject({
+        [field]: [],
+      });
+    });
+  });
+
+  describe.each`
+    field          | key                    | value
+    ${'milestone'} | ${'selectedMilestone'} | ${'cell-saga'}
+    ${'author'}    | ${'selectedAuthor'}    | ${'cell'}
+  `('$field', ({ field, value, key }) => {
+    it(`will set ${key} field with the given value`, () => {
+      expect(buildCycleAnalyticsInitialData({ [field]: value })).toMatchObject({ [key]: value });
+    });
+
+    it(`will set ${key} to null if omitted`, () => {
+      expect(buildCycleAnalyticsInitialData()).toMatchObject({ [key]: null });
+    });
+  });
+
   describe.each`
     field              | value
     ${'createdBefore'} | ${'2019-12-31'}
@@ -144,6 +207,29 @@ describe('buildCycleAnalyticsInitialData', () => {
 
     it('will return null if omitted', () => {
       expect(buildCycleAnalyticsInitialData()).toMatchObject({ [field]: null });
+    });
+  });
+
+  describe('filterBySearchTerm', () => {
+    const data = [
+      { name: 'eins', title: 'one' },
+      { name: 'zwei', title: 'two' },
+      { name: 'drei', title: 'three' },
+    ];
+    const searchTerm = 'rei';
+
+    it('filters data by `name` for the provided search term', () => {
+      expect(filterBySearchTerm(data, searchTerm)).toEqual([data[2]]);
+    });
+
+    it('with no search term returns the data', () => {
+      ['', null].forEach(search => {
+        expect(filterBySearchTerm(data, search)).toEqual(data);
+      });
+    });
+
+    it('with a key, filters by the provided key', () => {
+      expect(filterBySearchTerm(data, 'ne', 'title')).toEqual([data[0]]);
     });
   });
 });

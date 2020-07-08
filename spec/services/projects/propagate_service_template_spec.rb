@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::PropagateServiceTemplate do
+RSpec.describe Projects::PropagateServiceTemplate do
   describe '.propagate' do
     let!(:service_template) do
       PushoverService.create(
@@ -62,8 +62,8 @@ describe Projects::PropagateServiceTemplate do
         }
       )
 
-      Service.build_from_template(project.id, service_template).save!
-      Service.build_from_template(project.id, other_service).save!
+      Service.build_from_integration(project.id, service_template).save!
+      Service.build_from_integration(project.id, other_service).save!
 
       expect { described_class.propagate(service_template) }
         .not_to change { Service.count }

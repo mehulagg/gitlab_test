@@ -91,29 +91,40 @@ describe('new file modal component', () => {
         expect(vm.entryName).toBe('test-path');
       });
 
-      it('updated name', () => {
-        vm.name = 'index.js';
+      it('does not reset entryName to its old value if empty', () => {
+        vm.entryName = 'hello';
+        vm.entryName = '';
 
-        expect(vm.entryName).toBe('index.js');
+        expect(vm.entryName).toBe('');
+      });
+    });
+
+    describe('open', () => {
+      it('sets entryName to path provided if modalType is rename', () => {
+        vm.open('rename', 'test-path');
+
+        expect(vm.entryName).toBe('test-path');
       });
 
-      it('removes leading/trailing spaces when found in the new name', () => {
-        vm.entryName = ' index.js ';
+      it("appends '/' to the path if modalType isn't rename", () => {
+        vm.open('blob', 'test-path');
 
-        expect(vm.entryName).toBe('index.js');
+        expect(vm.entryName).toBe('test-path/');
       });
 
-      it('does not remove internal spaces in the file name', () => {
-        vm.entryName = ' In Praise of Idleness.txt ';
+      it('leaves entryName blank if no path is provided', () => {
+        vm.open('blob');
 
-        expect(vm.entryName).toBe('In Praise of Idleness.txt');
+        expect(vm.entryName).toBe('');
       });
     });
   });
 
-  describe('submitForm', () => {
-    it('throws an error when target entry exists', () => {
-      const store = createStore();
+  describe('createFromTemplate', () => {
+    let store;
+
+    beforeEach(() => {
+      store = createStore();
       store.state.entries = {
         'test-path/test': {
           name: 'test',
@@ -122,6 +133,49 @@ describe('new file modal component', () => {
       };
 
       vm = createComponentWithStore(Component, store).$mount();
+      vm.open('blob');
+
+      jest.spyOn(vm, 'createTempEntry').mockImplementation();
+    });
+
+    it.each`
+      entryName                  | newFilePath
+      ${''}                      | ${'.gitignore'}
+      ${'README.md'}             | ${'.gitignore'}
+      ${'test-path/test/'}       | ${'test-path/test/.gitignore'}
+      ${'test-path/test'}        | ${'test-path/.gitignore'}
+      ${'test-path/test/abc.md'} | ${'test-path/test/.gitignore'}
+    `(
+      'creates a new file with the given template name in appropriate directory for path: $path',
+      ({ entryName, newFilePath }) => {
+        vm.entryName = entryName;
+
+        vm.createFromTemplate({ name: '.gitignore' });
+
+        expect(vm.createTempEntry).toHaveBeenCalledWith({
+          name: newFilePath,
+          type: 'blob',
+        });
+      },
+    );
+  });
+
+  describe('submitForm', () => {
+    let store;
+
+    beforeEach(() => {
+      store = createStore();
+      store.state.entries = {
+        'test-path/test': {
+          name: 'test',
+          deleted: false,
+        },
+      };
+
+      vm = createComponentWithStore(Component, store).$mount();
+    });
+
+    it('throws an error when target entry exists', () => {
       vm.open('rename', 'test-path/test');
 
       expect(createFlash).not.toHaveBeenCalled();
@@ -136,6 +190,26 @@ describe('new file modal component', () => {
         false,
         true,
       );
+    });
+
+    it('does not throw error when target entry does not exist', () => {
+      jest.spyOn(vm, 'renameEntry').mockImplementation();
+
+      vm.open('rename', 'test-path/test');
+      vm.entryName = 'test-path/test2';
+      vm.submitForm();
+
+      expect(createFlash).not.toHaveBeenCalled();
+    });
+
+    it('removes leading/trailing found in the new name', () => {
+      vm.open('rename', 'test-path/test');
+
+      vm.entryName = 'test-path /test';
+
+      vm.submitForm();
+
+      expect(vm.entryName).toBe('test-path/test');
     });
   });
 });

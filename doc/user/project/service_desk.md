@@ -1,6 +1,13 @@
+---
+stage: Plan
+group: Certify
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Service Desk **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/149) in [GitLab Premium 9.1](https://about.gitlab.com/releases/2017/04/22/gitlab-9-1-released/#service-desk-eep).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/149) in [GitLab Premium](https://about.gitlab.com/pricing/) 9.1.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/214839) to [GitLab Starter](https://about.gitlab.com/pricing/) in 13.0.
 
 ## Overview
 
@@ -28,14 +35,19 @@ with GitLab CI/CD.
 
 Here's how Service Desk will work for you:
 
-1. You'll provide a project-specific email address to your paying customers, who can email you directly from within the app
-1. Each email they send creates an issue in the appropriate project
-1. Your team members navigate to the Service Desk issue tracker, where they can see new support requests and respond inside associated issues
-1. Your team communicates back and forth with the customer to understand the request
-1. Your team starts working on implementing code to solve your customer's problem
-1. When your team finishes the implementation, whereupon the merge request is merged and the issue is closed automatically
-1. The customer will have been attended successfully via email, without having real access to your GitLab instance
-1. Your team saved time by not having to leave GitLab (or setup any integrations) to follow up with your customer
+1. You provide a project-specific email address to your paying customers, who can email you directly
+   from within the app.
+1. Each email they send creates an issue in the appropriate project.
+1. Your team members navigate to the Service Desk issue tracker, where they can see new support
+   requests and respond inside associated issues.
+1. Your team communicates back and forth with the customer to understand the request.
+1. Your team starts working on implementing code to solve your customer's problem.
+1. When your team finishes the implementation, whereupon the merge request is merged and the issue
+   is closed automatically.
+1. The customer will have been attended successfully via email, without having real access to your
+   GitLab instance.
+1. Your team saved time by not having to leave GitLab (or setup any integrations) to follow up with
+   your customer.
 
 ## How it works
 
@@ -56,7 +68,8 @@ If you have the correct access and a Premium license, you have the option to set
 Follow these steps to do so:
 
 1. [Set up incoming email](../../administration/incoming_email.md#set-it-up) for the GitLab instance.
-   This must support [email sub-addressing](../../administration/incoming_email.md#email-sub-addressing).
+     - We recommend using [email sub-addressing](../../administration/incoming_email.md#email-sub-addressing),
+     but in GitLab 11.7 and later you can also use [catch-all mailboxes](../../administration/incoming_email.md#catch-all-mailbox).
 1. Navigate to your project's **Settings > General** and locate the **Service Desk** section.
 1. Enable the **Activate Service Desk** toggle. This reveals a unique email address to email issues
    to the project. These issues will be [confidential](issues/confidential_issues.md), so they will
@@ -83,7 +96,7 @@ navigation's **Issues** menu.
 
 ### Using customized email templates
 
- > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/2460) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.7.
+ > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/2460) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.7.
 
 When a user submits a new issue using Service Desk, or when a new note is created on a Service Desk issue, an email is sent to the author.
 
@@ -110,14 +123,14 @@ in the email, `%{ISSUE_PATH}` placeholder which will be replaced by
 
 ### Using custom email display name
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7529) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/7529) in GitLab 12.8.
 
 You can customize the email display name. Emails sent from Service Desk will have
 this name in the `From` header. The default display name is `GitLab Support Bot`.
 
 ### Using custom email address
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/2201) in [GitLab Premium](https://about.gitlab.com/pricing/) 13.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/2201) in [GitLab Premium](https://about.gitlab.com/pricing/) 13.0.
 
 NOTE: **Note:**
 This feature is disabled by default. For steps to enable it, see [Enable custom email address](#enable-custom-email-address).
@@ -136,7 +149,9 @@ It can contain only lowercase letters (`a-z`), numbers (`0-9`), or underscores (
 
 ![Setting custom Service Desk email address](img/service_desk_custom_email_address_v13_0.png)
 
-For example, suppose you add the following to your configuration:
+You can add the following snippets to your configuration.
+
+Example for installations from source:
 
 ```yaml
 service_desk_email:
@@ -151,6 +166,33 @@ service_desk_email:
   log_path: "log/mailroom.log"
   mailbox: "inbox"
   idle_timeout: 60
+  expunge_deleted: true
+```
+
+Example for Omnibus GitLab installations:
+
+```ruby
+gitlab_rails['service_desk_email_enabled'] = true
+
+gitlab_rails['service_desk_email_address'] = "project_contact+%{key}@gmail.com"
+
+gitlab_rails['service_desk_email_email'] = "project_support@gmail.com"
+
+gitlab_rails['service_desk_email_password'] = "[REDACTED]"
+
+gitlab_rails['service_desk_email_mailbox_name'] = "inbox"
+
+gitlab_rails['service_desk_email_idle_timeout'] = 60
+
+gitlab_rails['service_desk_email_log_file'] = "/var/log/gitlab/mailroom/mail_room_json.log"
+
+gitlab_rails['service_desk_email_host'] = "imap.gmail.com"
+
+gitlab_rails['service_desk_email_port'] = 993
+
+gitlab_rails['service_desk_email_ssl'] = true
+
+gitlab_rails['service_desk_email_start_tls'] = false
 ```
 
 In this case, suppose the `mygroup/myproject` project Service Desk settings has the project name
@@ -159,12 +201,12 @@ As a result, a new Service Desk issue is created from this email in the `mygroup
 
 #### Enable custom email address
 
-This feature comes with the `service_desk_email` feature flag disabled by default.
+This feature comes with the `service_desk_custom_address` feature flag disabled by default.
 To turn on the feature, ask a GitLab administrator with Rails console access to run the following
 command:
 
 ```ruby
-Feature.enable(service_desk_email)
+Feature.enable(:service_desk_custom_address)
 ```
 
 The configuration options are the same as for configuring

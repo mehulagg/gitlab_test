@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Banzai::Filter::EpicReferenceFilter do
+RSpec.describe Banzai::Filter::EpicReferenceFilter do
   include FilterSpecHelper
 
   let(:urls) { Gitlab::Routing.url_helpers }
@@ -62,7 +62,7 @@ describe Banzai::Filter::EpicReferenceFilter do
       link = doc.css('a').first
 
       expect(link).to have_attribute('data-original')
-      expect(link.attr('data-original')).to eq(reference)
+      expect(link.attr('data-original')).to eq(CGI.escapeHTML(reference))
     end
 
     it 'ignores invalid epic IIDs' do

@@ -118,6 +118,29 @@ export default {
     baseUrl() {
       return window.location.href.replace(/(\?.*)?(#.*)?$/, '');
     },
+    paginationNext() {
+      return this.page + 1;
+    },
+    paginationPrev() {
+      return this.page - 1;
+    },
+    paginationProps() {
+      const paginationProps = { value: this.page };
+
+      if (this.totalItems) {
+        return {
+          ...paginationProps,
+          perPage: this.itemsPerPage,
+          totalItems: this.totalItems,
+        };
+      }
+
+      return {
+        ...paginationProps,
+        prevPage: this.paginationPrev,
+        nextPage: this.paginationNext,
+      };
+    },
   },
   watch: {
     selection() {
@@ -245,7 +268,7 @@ export default {
 
 <template>
   <ul v-if="loading" class="content-list">
-    <li v-for="n in $options.LOADING_LIST_ITEMS_LENGTH" :key="n" class="issue">
+    <li v-for="n in $options.LOADING_LIST_ITEMS_LENGTH" :key="n" class="issue gl-px-5! gl-py-5!">
       <gl-skeleton-loading />
     </li>
   </ul>
@@ -272,11 +295,8 @@ export default {
     </ul>
     <div class="mt-3">
       <gl-pagination
-        v-if="totalItems"
-        :value="page"
-        :per-page="itemsPerPage"
-        :total-items="totalItems"
-        class="justify-content-center"
+        v-bind="paginationProps"
+        class="gl-justify-content-center"
         @input="onPaginate"
       />
     </div>

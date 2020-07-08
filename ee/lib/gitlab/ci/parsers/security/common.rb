@@ -11,6 +11,8 @@ module Gitlab
             report_data = parse_report(json_data)
             raise SecurityReportParserError, "Invalid report format" unless report_data.is_a?(Hash)
 
+            report.scanned_resources = report_data.dig('scan', 'scanned_resources') || []
+
             collate_remediations(report_data).each do |vulnerability|
               create_vulnerability(report, vulnerability, report_data["version"])
             end
@@ -58,8 +60,8 @@ module Gitlab
                 name: data['message'],
                 compare_key: data['cve'] || '',
                 location: create_location(data['location'] || {}),
-                severity: parse_level(data['severity']),
-                confidence: parse_level(data['confidence']),
+                severity: parse_severity_level(data['severity']&.downcase),
+                confidence: parse_confidence_level(data['confidence']&.downcase),
                 scanner: scanner,
                 identifiers: identifiers,
                 raw_metadata: data.to_json,
@@ -72,7 +74,8 @@ module Gitlab
             report.add_scanner(
               ::Gitlab::Ci::Reports::Security::Scanner.new(
                 external_id: scanner['id'],
-                name: scanner['name']))
+                name: scanner['name'],
+                vendor: scanner.dig('vendor', 'name')))
           end
 
           def create_identifiers(report, identifiers)
@@ -99,9 +102,16 @@ module Gitlab
             { 'id' => tool, 'name' => tool.capitalize } if tool
           end
 
-          def parse_level(input)
-            input = input&.downcase
-            input.blank? || input == 'undefined' ? 'unknown' : input
+          def parse_severity_level(input)
+            return input if ::Vulnerabilities::Occurrence::SEVERITY_LEVELS.key?(input)
+
+            'unknown'
+          end
+
+          def parse_confidence_level(input)
+            return input if ::Vulnerabilities::Occurrence::CONFIDENCE_LEVELS.key?(input)
+
+            'unknown'
           end
 
           def create_location(location_data)

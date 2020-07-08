@@ -16,6 +16,7 @@ import {
   idleCallback,
   allDiscussionWrappersExpanded,
   prepareDiffData,
+  prepareLineForRenamedFile,
 } from './utils';
 import * as types from './mutation_types';
 import {
@@ -24,7 +25,6 @@ import {
   DIFF_VIEW_COOKIE_NAME,
   MR_TREE_SHOW_KEY,
   TREE_LIST_STORAGE_KEY,
-  WHITESPACE_STORAGE_KEY,
   TREE_LIST_WIDTH_STORAGE_KEY,
   OLD_LINE_KEY,
   NEW_LINE_KEY,
@@ -37,6 +37,9 @@ import {
   INLINE_DIFF_LINES_KEY,
   PARALLEL_DIFF_LINES_KEY,
   DIFFS_PER_PAGE,
+  DIFF_WHITESPACE_COOKIE_NAME,
+  SHOW_WHITESPACE,
+  NO_SHOW_WHITESPACE,
 } from '../constants';
 import { diffViewerModes } from '~/ide/constants';
 
@@ -117,12 +120,7 @@ export const fetchDiffFilesBatch = ({ commit, state }) => {
 
   const getBatch = (page = 1) =>
     axios
-      .get(state.endpointBatch, {
-        params: {
-          ...urlParams,
-          page,
-        },
-      })
+      .get(mergeUrlParams({ ...urlParams, page }, state.endpointBatch))
       .then(({ data: { pagination, diff_files } }) => {
         commit(types.SET_DIFF_DATA_BATCH, { diff_files });
         commit(types.SET_BATCH_LOADING, false);
@@ -488,11 +486,12 @@ export const setRenderTreeList = ({ commit }, renderTreeList) => {
 
 export const setShowWhitespace = ({ commit }, { showWhitespace, pushState = false }) => {
   commit(types.SET_SHOW_WHITESPACE, showWhitespace);
+  const w = showWhitespace ? SHOW_WHITESPACE : NO_SHOW_WHITESPACE;
 
-  localStorage.setItem(WHITESPACE_STORAGE_KEY, showWhitespace);
+  Cookies.set(DIFF_WHITESPACE_COOKIE_NAME, w);
 
   if (pushState) {
-    historyPushState(mergeUrlParams({ w: showWhitespace ? '0' : '1' }, window.location.href));
+    historyPushState(mergeUrlParams({ w }, window.location.href));
   }
 
   eventHub.$emit('refetchDiffData');
@@ -506,9 +505,6 @@ export const cacheTreeListWidth = (_, size) => {
   localStorage.setItem(TREE_LIST_WIDTH_STORAGE_KEY, size);
 };
 
-export const requestFullDiff = ({ commit }, filePath) => commit(types.REQUEST_FULL_DIFF, filePath);
-export const receiveFullDiffSucess = ({ commit }, { filePath }) =>
-  commit(types.RECEIVE_FULL_DIFF_SUCCESS, { filePath });
 export const receiveFullDiffError = ({ commit }, filePath) => {
   commit(types.RECEIVE_FULL_DIFF_ERROR, filePath);
   createFlash(s__('MergeRequest|Error loading full diff. Please try again.'));
@@ -599,7 +595,7 @@ export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
   }
 };
 
-export const fetchFullDiff = ({ dispatch }, file) =>
+export const fetchFullDiff = ({ commit, dispatch }, file) =>
   axios
     .get(file.context_lines_path, {
       params: {
@@ -608,15 +604,16 @@ export const fetchFullDiff = ({ dispatch }, file) =>
       },
     })
     .then(({ data }) => {
-      dispatch('receiveFullDiffSucess', { filePath: file.file_path });
+      commit(types.RECEIVE_FULL_DIFF_SUCCESS, { filePath: file.file_path });
+
       dispatch('setExpandedDiffLines', { file, data });
     })
     .catch(() => dispatch('receiveFullDiffError', file.file_path));
 
-export const toggleFullDiff = ({ dispatch, getters, state }, filePath) => {
+export const toggleFullDiff = ({ dispatch, commit, getters, state }, filePath) => {
   const file = state.diffFiles.find(f => f.file_path === filePath);
 
-  dispatch('requestFullDiff', filePath);
+  commit(types.REQUEST_FULL_DIFF, filePath);
 
   if (file.isShowingFullFile) {
     dispatch('loadCollapsedDiff', file)
@@ -626,6 +623,37 @@ export const toggleFullDiff = ({ dispatch, getters, state }, filePath) => {
     dispatch('fetchFullDiff', file);
   }
 };
+
+export function switchToFullDiffFromRenamedFile({ commit, dispatch, state }, { diffFile }) {
+  return axios
+    .get(diffFile.context_lines_path, {
+      params: {
+        full: true,
+        from_merge_request: true,
+      },
+    })
+    .then(({ data }) => {
+      const lines = data.map((line, index) =>
+        prepareLineForRenamedFile({
+          diffViewType: state.diffViewType,
+          line,
+          diffFile,
+          index,
+        }),
+      );
+
+      commit(types.SET_DIFF_FILE_VIEWER, {
+        filePath: diffFile.file_path,
+        viewer: {
+          ...diffFile.alternate_viewer,
+          collapsed: false,
+        },
+      });
+      commit(types.SET_CURRENT_VIEW_DIFF_FILE_LINES, { filePath: diffFile.file_path, lines });
+
+      dispatch('startRenderDiffsQueue');
+    });
+}
 
 export const setFileCollapsed = ({ commit }, { filePath, collapsed }) =>
   commit(types.SET_FILE_COLLAPSED, { filePath, collapsed });

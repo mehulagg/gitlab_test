@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Project navbar' do
+RSpec.describe 'Project navbar' do
   include NavbarStructureHelper
   include WaitForRequests
 
@@ -12,7 +12,16 @@ describe 'Project navbar' do
   let_it_be(:project) { create(:project, :repository) }
 
   before do
-    stub_licensed_features(service_desk: false)
+    # TODO - This can be moved into 'project navbar structure' shared
+    # context when service desk feature gets moved to core.
+    # More information in: https://gitlab.com/gitlab-org/gitlab/-/issues/215364
+    if Gitlab.ee?
+      insert_after_sub_nav_item(
+        _('Labels'),
+        within: _('Issues'),
+        new_sub_nav_item_name: _('Service Desk')
+      )
+    end
 
     project.add_maintainer(user)
     sign_in(user)
@@ -42,7 +51,7 @@ describe 'Project navbar' do
 
   context 'when pages are available' do
     before do
-      allow(Gitlab.config.pages).to receive(:enabled).and_return(true)
+      stub_config(pages: { enabled: true })
 
       insert_after_sub_nav_item(
         _('Operations'),
@@ -50,6 +59,23 @@ describe 'Project navbar' do
         new_sub_nav_item_name: _('Pages')
       )
 
+      visit project_path(project)
+    end
+
+    it_behaves_like 'verified navigation bar'
+  end
+
+  context 'when container registry is available' do
+    before do
+      stub_config(registry: { enabled: true })
+
+      insert_after_nav_item(
+        _('Operations'),
+        new_nav_item: {
+          nav_item: _('Packages & Registries'),
+          nav_sub_items: [_('Container Registry')]
+        }
+      )
       visit project_path(project)
     end
 

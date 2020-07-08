@@ -31,7 +31,10 @@ module MembershipActions
 
   def destroy
     member = membershipable.members_and_requesters.find(params[:id])
-    Members::DestroyService.new(current_user).execute(member)
+    # !! is used in case unassign_issuables contains empty string which would result in nil
+    unassign_issuables = !!ActiveRecord::Type::Boolean.new.cast(params.delete(:unassign_issuables))
+
+    Members::DestroyService.new(current_user).execute(member, unassign_issuables: unassign_issuables)
 
     respond_to do |format|
       format.html do
@@ -53,10 +56,16 @@ module MembershipActions
   end
 
   def request_access
-    membershipable.request_access(current_user)
+    access_requester = membershipable.request_access(current_user)
 
-    redirect_to polymorphic_path(membershipable),
-                notice: _('Your request for access has been queued for review.')
+    if access_requester.persisted?
+      redirect_to polymorphic_path(membershipable),
+                  notice: _('Your request for access has been queued for review.')
+    else
+      redirect_to polymorphic_path(membershipable),
+                  alert: _("Your request for access could not be processed: %{error_meesage}") %
+                    { error_meesage: access_requester.errors.full_messages.to_sentence }
+    end
   end
 
   def approve_access_request

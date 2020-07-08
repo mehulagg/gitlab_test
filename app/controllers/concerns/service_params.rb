@@ -6,6 +6,7 @@ module ServiceParams
   ALLOWED_PARAMS_CE = [
     :active,
     :add_pusher,
+    :alert_events,
     :api_key,
     :api_url,
     :api_version,
@@ -22,12 +23,13 @@ module ServiceParams
     :comment_detail,
     :confidential_issues_events,
     :default_irc_uri,
-    :description,
     :device,
     :disable_diffs,
     :drone_url,
     :enable_ssl_verification,
     :external_wiki_url,
+    :google_iap_service_account_json,
+    :google_iap_audience_client_id,
     # We're using `issues_events` and `merge_requests_events`
     # in the view so we still need to explicitly state them
     # here. `Service#event_names` would only give
@@ -58,7 +60,6 @@ module ServiceParams
     :sound,
     :subdomain,
     :teamcity_url,
-    :title,
     :token,
     :type,
     :url,

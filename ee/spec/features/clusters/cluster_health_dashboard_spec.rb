@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Cluster Health board', :js, :kubeclient, :use_clean_rails_memory_store_caching, :sidekiq_inline do
+RSpec.describe 'Cluster Health board', :js, :kubeclient, :use_clean_rails_memory_store_caching, :sidekiq_inline do
   include KubernetesHelpers
   include PrometheusHelpers
 
@@ -12,8 +12,6 @@ describe 'Cluster Health board', :js, :kubeclient, :use_clean_rails_memory_store
   let_it_be(:cluster_path) { project_cluster_path(clusterable, cluster) }
 
   before do
-    stub_licensed_features(cluster_health: true)
-
     clusterable.add_maintainer(current_user)
 
     sign_in(current_user)
@@ -78,7 +76,7 @@ describe 'Cluster Health board', :js, :kubeclient, :use_clean_rails_memory_store
         expect(page).to have_css('.prometheus-graph')
         expect(page).to have_css('.prometheus-graph-title')
         expect(page).to have_css('[_echarts_instance_]')
-        expect(page).to have_css('.gl-legend')
+        expect(page).to have_content('Avg')
       end
     end
 

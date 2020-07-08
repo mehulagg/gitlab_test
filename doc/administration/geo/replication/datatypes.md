@@ -1,3 +1,10 @@
+---
+stage: Enablement
+group: Geo
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+type: howto
+---
+
 # Geo data types support
 
 A Geo data type is a specific class of data that is required by one or more GitLab features to
@@ -38,6 +45,8 @@ verification methods:
 | Blobs    | Archived CI build traces _(object storage)_   | Geo with API/Managed (*2*)            | _Not implemented_      |
 | Blobs    | Container registry _(filesystem)_             | Geo with API/Docker API               | _Not implemented_      |
 | Blobs    | Container registry _(object storage)_         | Geo with API/Managed/Docker API (*2*) | _Not implemented_      |
+| Blobs    | Package registry _(filesystem)_         | Geo with API | _Not implemented_      |
+| Blobs    | Package registry _(object storage)_         | Geo with API/Managed (*2*) | _Not implemented_      |
 
 - (*1*): Redis replication can be used as part of HA with Redis sentinel. It's not used between Geo nodes.
 - (*2*): Object storage replication can be performed by Geo or by your object storage provider/appliance
@@ -79,7 +88,7 @@ GitLab stores files and blobs such as Issue attachments or LFS objects into eith
   - A Storage Appliance that exposes an Object Storage-compatible API.
 
 When using the filesystem store instead of Object Storage, you need to use network mounted filesystems
-to run GitLab when using more than one server (for example with a High Availability setup).
+to run GitLab when using more than one server.
 
 With respect to replication and verification:
 
@@ -124,33 +133,39 @@ replicating data from those features will cause the data to be **lost**.
 If you wish to use those features on a **secondary** node, or to execute a failover
 successfully, you must replicate their data using some other means.
 
-| Feature                                                              | Replicated                                               | Verified                                                | Notes                                                                                                      |
+| Feature                                                              | Replicated (added in GitLab version)                                              | Verified (added in GitLab version)                                               | Notes                                                                                                      |
 |:---------------------------------------------------------------------|:---------------------------------------------------------|:--------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------|
-| Application data in PostgreSQL                                       | **Yes**                                                  | **Yes**                                                 |                                                                                                            |
-| Project repository                                                   | **Yes**                                                  | **Yes**                                                 |                                                                                                            |
-| Project wiki repository                                              | **Yes**                                                  | **Yes**                                                 |                                                                                                            |
-| Project designs repository                                           | **Yes**                                                  | [No](https://gitlab.com/gitlab-org/gitlab/issues/32467) |                                                                                                            |
-| Uploads                                                              | **Yes**                                                  | [No](https://gitlab.com/groups/gitlab-org/-/epics/1817) | Verified only on transfer, or manually (*1*)                                                               |
-| LFS objects                                                          | **Yes**                                                  | [No](https://gitlab.com/gitlab-org/gitlab/issues/8922)  | Verified only on transfer, or manually (*1*). Unavailable for new LFS objects in 11.11.x and 12.0.x (*2*). |
-| CI job artifacts (other than traces)                                 | **Yes**                                                  | [No](https://gitlab.com/gitlab-org/gitlab/issues/8923)  | Verified only manually (*1*)                                                                               |
-| Archived traces                                                      | **Yes**                                                  | [No](https://gitlab.com/gitlab-org/gitlab/issues/8923)  | Verified only on transfer, or manually (*1*)                                                               |
-| Personal snippets                                                    | **Yes**                                                  | **Yes**                                                 |                                                                                                            |
-| Project snippets                                                     | **Yes**                                                  | **Yes**                                                 |                                                                                                            |
-| Object pools for forked project deduplication                        | **Yes**                                                  | No                                                      |                                                                                                            |
+| Application data in PostgreSQL                                       | **Yes** (10.2)                                                  | **Yes** (10.2)                                                 |                                                                                                            |
+| Project repository                                                   | **Yes** (10.2)                                                   | **Yes** (10.7)                                                 |                                                                                                            |
+| Project wiki repository                                              | **Yes** (10.2)                                                  | **Yes** (10.7)                                                 |                                                                                                            |
+| Project designs repository                                           | **Yes** (12.7)                                                 | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/32467) |                                                                                                            |
+| Uploads                                                              | **Yes** (10.2)                                                 | [No](https://gitlab.com/groups/gitlab-org/-/epics/1817) | Verified only on transfer, or manually (*1*)                                                               |
+| LFS objects                                                          | **Yes** (10.2)                                                  | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/8922)  | Verified only on transfer, or manually (*1*). Unavailable for new LFS objects in 11.11.x and 12.0.x (*2*). |
+| CI job artifacts (other than traces)                                 | **Yes** (10.4)                                                  | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/8923)  | Verified only manually (*1*)                                                                               |
+| Archived traces                                                      | **Yes** (10.4)                                                 | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/8923)  | Verified only on transfer, or manually (*1*)                                                               |
+| Personal snippets                                                    | **Yes** (10.2)                                                  | **Yes** (10.2)                                                  |                                                                                                            |
+| [Versioned snippets](../../../user/snippets.md#versioned-snippets) | [No](https://gitlab.com/groups/gitlab-org/-/epics/2809)  | [No](https://gitlab.com/groups/gitlab-org/-/epics/2810) |                                                                                                            |
+| Project snippets                                                     | **Yes** (10.2)                                                  | **Yes** (10.2)                                                  |                                                                                                            |
+| Object pools for forked project deduplication                        | **Yes**                                                   | No                                                      |                                                                                                            |
 | [Server-side Git Hooks](../../custom_hooks.md)                       | No                                                       | No                                                      |                                                                                                            |
 | [Elasticsearch integration](../../../integration/elasticsearch.md)   | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/1186) | No                                                      |                                                                                                            |
 | [GitLab Pages](../../pages/index.md)                                 | [No](https://gitlab.com/groups/gitlab-org/-/epics/589)   | No                                                      |                                                                                                            |
-| [Container Registry](../../packages/container_registry.md)           | **Yes**                                                  | No                                                      |                                                                                                            |
-| [NPM Registry](../../../user/packages/npm_registry/index.md)         | [No](https://gitlab.com/groups/gitlab-org/-/epics/2346)  | No                                                      |                                                                                                            |
-| [Maven Repository](../../../user/packages/maven_repository/index.md) | [No](https://gitlab.com/groups/gitlab-org/-/epics/2346)  | No                                                      |                                                                                                            |
-| [Conan Repository](../../../user/packages/conan_repository/index.md) | [No](https://gitlab.com/groups/gitlab-org/-/epics/2346)  | No                                                      |                                                                                                            |
-| [NuGet Repository](../../../user/packages/nuget_repository/index.md) | [No](https://gitlab.com/groups/gitlab-org/-/epics/2346)  | No                                                      |                                                                                                            |
-| [PyPi Repository](../../../user/packages/pypi_repository/index.md) | [No](https://gitlab.com/groups/gitlab-org/-/epics/2554)  | No                                                      |                                                                                                            |
-| [External merge request diffs](../../merge_request_diffs.md)         | [No](https://gitlab.com/gitlab-org/gitlab/issues/33817)  | No                                                      |                                                                                                            |
-| Content in object storage                                            | **Yes**                                                  | No                                                      |                                                                                                            |
+| [Container Registry](../../packages/container_registry.md)           | **Yes** (12.3)                                                 | No                                                      |                                                                                                            |
+| [NPM Registry](../../../user/packages/npm_registry/index.md)         | **Yes** (13.2)                                                 | No                                                      |                                                                                                            |
+| [Maven Repository](../../../user/packages/maven_repository/index.md) | **Yes** (13.2)                                                 | No                                                      |                                                                                                            |
+| [Conan Repository](../../../user/packages/conan_repository/index.md) | **Yes** (13.2)                                                 | No                                                      |                                                                                                            |
+| [NuGet Repository](../../../user/packages/nuget_repository/index.md) | **Yes** (13.2)                                                 | No                                                      |                                                                                                            |
+| [PyPi Repository](../../../user/packages/pypi_repository/index.md)   | **Yes** (13.2)                                                 | No                                                      |                                                                                                            |
+| [Composer Repository](../../../user/packages/composer_repository/index.md) | **Yes** (13.2)                                             | No                                                      |                                                                                                            |
+| [External merge request diffs](../../merge_request_diffs.md)         | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/33817)  | No                                                      |                                           |
+| [Terraform State](../../terraform_state.md)                                                                  | [No](https://gitlab.com/groups/gitlab-org/-/epics/3112)(*3*) | No                                                        |                                                                                                            |
+| [Vulnerability Export](../../../user/application_security/security_dashboard/#export-vulnerabilities)      | [No](https://gitlab.com/groups/gitlab-org/-/epics/3111)(*3*) | No                                                        |                                                                                                            |                                                                                                            |
+| Content in object storage                                            | **Yes** (12.4)                                                 | No                                                      |                                                                                                            |
 
 - (*1*): The integrity can be verified manually using
   [Integrity Check Rake Task](../../raketasks/check.md) on both nodes and comparing
   the output between them.
 - (*2*): GitLab versions 11.11.x and 12.0.x are affected by [a bug that prevents any new
-  LFS objects from replicating](https://gitlab.com/gitlab-org/gitlab/issues/32696).
+  LFS objects from replicating](https://gitlab.com/gitlab-org/gitlab/-/issues/32696).
+- (*3*): If you are using Object Storage, the replication can be performed by the
+  Object Storage provider if supported. Please see [Geo with Object Storage](object_storage.md)

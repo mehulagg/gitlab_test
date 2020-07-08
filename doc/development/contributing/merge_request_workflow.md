@@ -20,7 +20,7 @@ Merge requests should be submitted to the appropriate project at GitLab.com, for
 [Omnibus GitLab](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests), etc.
 
 If you are new to GitLab development (or web development in general), see the
-[I want to contribute!](index.md#i-want-to-contribute) section to get started with
+[how to contribute](index.md#how-to-contribute) section to get started with
 some potentially easy issues.
 
 To start developing GitLab, download the [GitLab Development Kit](https://gitlab.com/gitlab-org/gitlab-development-kit)
@@ -119,8 +119,7 @@ document from the Kubernetes team also has some great points regarding this.
 When writing commit messages, please follow the guidelines below:
 
 - The commit subject must contain at least 3 words.
-- The commit subject should ideally contain up to 50 characters,
-  and must not be longer than 72 characters.
+- The commit subject must not be longer than 72 characters.
 - The commit subject must start with a capital letter.
 - The commit subject must not end with a period.
 - The commit subject and body must be separated by a blank line.
@@ -138,7 +137,7 @@ For more information see [How to Write a Git Commit Message](https://chris.beams
 
 Example commit message template that can be used on your machine that embodies the above (guide for [how to apply template](https://codeinthehole.com/tips/a-useful-template-for-commit-messages/)):
 
-```text
+```plaintext
 # (If applied, this commit will...) <subject> (Max 50 char)
 # |<----  Using a Maximum Of 50 Characters  ---->|
 
@@ -221,7 +220,7 @@ requirements.
 1. [Changelog entry added](../changelog.md), if necessary.
 1. Reviewed by relevant (UX/FE/BE/tech writing) reviewers and all concerns are addressed.
 1. Merged by a project maintainer.
-1. Create an issue in the [infrastructure issue tracker](https://gitlab.com/gitlab-com/gl-infra/infrastructure/issues) to inform the Infrastructure department when your contribution is changing default settings or introduces a new setting, if relevant.
+1. Create an issue in the [infrastructure issue tracker](https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues) to inform the Infrastructure department when your contribution is changing default settings or introduces a new setting, if relevant.
 1. Confirmed to be working in the [Canary stage](https://about.gitlab.com/handbook/engineering/#canary-testing) or on GitLab.com once the contribution is deployed.
 1. Added to the [release post](https://about.gitlab.com/handbook/marketing/blog/release-posts/),
    if relevant.

@@ -65,7 +65,8 @@ module API
       end
 
       def find_user_from_sources
-        find_user_from_access_token ||
+        deploy_token_from_request ||
+          find_user_from_access_token ||
           find_user_from_job_token ||
           find_user_from_warden
       end
@@ -90,11 +91,15 @@ module API
       end
 
       def api_access_allowed?(user)
-        Gitlab::UserAccess.new(user).allowed? && user.can?(:access_api)
+        user_allowed_or_deploy_token?(user) && user.can?(:access_api)
       end
 
       def api_access_denied_message(user)
         Gitlab::Auth::UserAccessDeniedReason.new(user).rejection_message
+      end
+
+      def user_allowed_or_deploy_token?(user)
+        Gitlab::UserAccess.new(user).allowed? || user.is_a?(DeployToken)
       end
     end
 
@@ -148,7 +153,14 @@ module API
                 { scope: e.scopes })
             end
 
-          response.finish
+          status, headers, body = response.finish
+
+          # Grape expects a Rack::Response
+          # (https://github.com/ruby-grape/grape/commit/c117bff7d22971675f4b34367d3a98bc31c8fc02),
+          # so we need to recreate the response again even though
+          # response.finish already does this.
+          # (https://github.com/nov/rack-oauth2/blob/40c9a99fd80486ccb8de0e4869ae384547c0d703/lib/rack/oauth2/server/abstract/error.rb#L26).
+          Rack::Response.new(body, status, headers)
         end
       end
     end

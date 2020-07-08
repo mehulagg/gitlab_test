@@ -4,7 +4,7 @@ module Groups
   module Settings
     class RepositoryController < Groups::ApplicationController
       skip_cross_project_access_check :show
-      before_action :authorize_admin_group!
+      before_action :authorize_create_deploy_token!
       before_action :define_deploy_token_variables
       before_action do
         push_frontend_feature_flag(:ajax_new_deploy_token, @group)
@@ -46,7 +46,7 @@ module Groups
       end
 
       def deploy_token_params
-        params.require(:deploy_token).permit(:name, :expires_at, :read_repository, :read_registry, :write_registry, :username)
+        params.require(:deploy_token).permit(:name, :expires_at, :read_repository, :read_registry, :write_registry, :read_package_registry, :write_package_registry, :username)
       end
     end
   end

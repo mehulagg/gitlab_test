@@ -2,7 +2,6 @@
 import { mapState, mapActions } from 'vuex';
 import { groupBy, isNumber } from 'lodash';
 import { sprintf, __ } from '~/locale';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ApproversList from './approvers_list.vue';
 import ApproversSelect from './approvers_select.vue';
 import BranchesSelect from './branches_select.vue';
@@ -18,7 +17,6 @@ export default {
     ApproversSelect,
     BranchesSelect,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     initRule: {
       type: Object,
@@ -130,6 +128,9 @@ export default {
     isPersisted() {
       return this.initRule && this.initRule.id;
     },
+    isNameVisible() {
+      return !this.settings.lockedApprovalsRuleName;
+    },
     isNameDisabled() {
       return this.isPersisted && READONLY_NAMES.includes(this.name);
     },
@@ -139,7 +140,7 @@ export default {
     submissionData() {
       return {
         id: this.initRule && this.initRule.id,
-        name: this.name || DEFAULT_NAME,
+        name: this.settings.lockedApprovalsRuleName || this.name || DEFAULT_NAME,
         approvalsRequired: this.approvalsRequired,
         users: this.userIds,
         groups: this.groupIds,
@@ -150,7 +151,7 @@ export default {
       };
     },
     showProtectedBranch() {
-      return this.glFeatures.scopedApprovalRules && !this.isMrEdit && this.settings.allowMultiRule;
+      return !this.isMrEdit && this.settings.allowMultiRule;
     },
   },
   watch: {
@@ -268,7 +269,7 @@ export default {
 <template>
   <form novalidate @submit.prevent.stop="submit">
     <div class="row">
-      <div class="form-group col-sm-6">
+      <div v-if="isNameVisible" class="form-group col-sm-6">
         <label class="label-wrapper">
           <span class="mb-2 bold inline">{{ s__('ApprovalRule|Rule name') }}</span>
           <input

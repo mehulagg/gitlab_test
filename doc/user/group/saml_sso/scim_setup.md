@@ -1,5 +1,8 @@
 ---
 type: howto, reference
+stage: Manage
+group: Access
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # SCIM provisioning using SAML SSO for GitLab.com groups **(SILVER ONLY)**
@@ -117,7 +120,8 @@ Once synchronized, changing the field mapped to `id` and `externalId` will likel
 
 ### Okta configuration steps
 
-The SAML application that was created during [Single sign-on](index.md#okta-setup-notes) setup for [Okta](https://developer.okta.com/docs/guides/saml-application-setup/overview/) now needs to be set up for SCIM.
+The SAML application that was created during [Single sign-on](index.md#okta-setup-notes) setup for [Okta](https://developer.okta.com/docs/guides/build-sso-integration/saml2/overview/) now needs to be set up for SCIM.
+Before proceeding, be sure to complete the [GitLab configuration](#gitlab-configuration) process.
 
 1. Sign in to Okta.
 1. If you see an **Admin** button in the top right, click the button. This will
@@ -159,7 +163,7 @@ As long as [Group SAML](index.md) has been configured, prior to turning on sync,
 - By following these steps:
 
   1. Sign in to GitLab.com if needed.
-  1. Click on the GitLab app in the identity provider's dashboard or visit the **GitLab single sign on URL**.
+  1. Click on the GitLab app in the identity provider's dashboard or visit the **GitLab single sign-on URL**.
   1. Click on the **Authorize** button.
 
 New users and existing users on subsequent visits can access the group through the identify provider's dashboard or by visiting links directly.
@@ -171,7 +175,7 @@ For role information, please see the [Group SAML page](index.md#user-access-and-
 To rescind access to the group, we recommend removing the user from the identity
 provider or users list for the specific app.
 
-Upon the next sync, the user will be deprovisioned, which means that the user will be removed from the group. The user account will not be deleted unless using [group managed accounts](index.md#group-managed-accounts).
+Upon the next sync, the user will be deprovisioned, which means that the user will be removed from the group. The user account will not be deleted unless using [group managed accounts](group_managed_accounts.md).
 
 ## Troubleshooting
 

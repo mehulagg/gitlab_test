@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe JiraConnect::AppDescriptorController do
+RSpec.describe JiraConnect::AppDescriptorController do
   describe '#show' do
     it 'returns JSON app descriptor' do
       get :show
@@ -13,6 +13,9 @@ describe JiraConnect::AppDescriptorController do
         'lifecycle' => {
           'installed' => '/events/installed',
           'uninstalled' => '/events/uninstalled'
+        },
+        'links' => {
+          'documentation' => 'http://test.host/help/integration/jira_development_panel#gitlabcom-1'
         }
       )
     end

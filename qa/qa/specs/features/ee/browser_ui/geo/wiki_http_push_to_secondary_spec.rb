@@ -2,7 +2,7 @@
 
 module QA
   # https://gitlab.com/gitlab-org/gitlab/issues/35706
-  context 'Geo', :orchestrated, :geo do
+  RSpec.describe 'Geo', :orchestrated, :geo do
     describe 'GitLab Geo Wiki HTTP push secondary' do
       let(:wiki_content) { 'This tests wiki pushes via HTTP to secondary.' }
       let(:push_content_primary) { 'This is from the Geo wiki push to primary!' }
@@ -20,13 +20,13 @@ module QA
             project.description = 'Geo test project'
           end
 
-          wiki = Resource::Wiki.fabricate! do |wiki|
+          wiki = Resource::Wiki::ProjectPage.fabricate_via_api! do |wiki|
             wiki.project = project
             wiki.title = 'Geo wiki'
             wiki.content = wiki_content
-            wiki.message = 'First wiki commit'
           end
 
+          wiki.visit!
           expect(wiki).to have_content(wiki_content)
 
           # Perform a git push over HTTP directly to the primary
@@ -90,7 +90,7 @@ module QA
           expect(push.output).to match(/warning: redirecting to #{absolute_path}/)
 
           # Validate git push worked and new content is visible
-          Page::Project::Menu.perform(&:click_wiki)
+          push.visit!
 
           Page::Project::Wiki::Show.perform do |show|
             show.wait_for_repository_replication_with(push_content_secondary)

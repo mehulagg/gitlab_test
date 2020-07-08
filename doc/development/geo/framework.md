@@ -178,13 +178,17 @@ For example, to add support for files referenced by a `Widget` model with a
 
      mount_uploader :file, WidgetUploader
 
+     def self.replicables_for_geo_node
+       # Should be implemented. The idea of the method is to restrict
+       # the set of synced items depending on synchronization settings
+     end
      ...
    end
    ```
 
 1. Create `ee/app/replicators/geo/widget_replicator.rb`. Implement the
    `#carrierwave_uploader` method which should return a `CarrierWave::Uploader`.
-   And implement the private `#model` method to return the `Widget` class.
+   And implement the class method `.model` to return the `Widget` class.
 
    ```ruby
    # frozen_string_literal: true
@@ -193,14 +197,12 @@ For example, to add support for files referenced by a `Widget` model with a
      class WidgetReplicator < Gitlab::Geo::Replicator
        include ::Geo::BlobReplicatorStrategy
 
-       def carrierwave_uploader
-         model_record.file
+       def self.model
+         ::Widget
        end
 
-       private
-
-       def model
-         ::Widget
+       def carrierwave_uploader
+         model_record.file
        end
      end
    end
@@ -215,7 +217,7 @@ For example, to add support for files referenced by a `Widget` model with a
 
    require 'spec_helper'
 
-   describe Geo::WidgetReplicator do
+   RSpec.describe Geo::WidgetReplicator do
      let(:model_record) { build(:widget) }
 
      it_behaves_like 'a blob replicator'
@@ -231,20 +233,32 @@ For example, to add support for files referenced by a `Widget` model with a
    class CreateWidgetRegistry < ActiveRecord::Migration[6.0]
      DOWNTIME = false
 
-     def change
-       create_table :widget_registry, id: :serial, force: :cascade do |t|
-         t.integer :widget_id, null: false
-         t.integer :state, default: 0, null: false
-         t.integer :retry_count, default: 0
-         t.string :last_sync_failure, limit: 255
-         t.datetime_with_timezone :retry_at
-         t.datetime_with_timezone :last_synced_at
-         t.datetime_with_timezone :created_at, null: false
+     disable_ddl_transaction!
 
-         t.index :widget_id, name:  :index_widget_registry_on_repository_id, using: :btree
-         t.index :retry_at, name: :index_widget_registry_on_retry_at,  using: :btree
-         t.index :state, name: :index_widget_registry_on_state, using:  :btree
+     def up
+       unless table_exists?(:widget_registry)
+         ActiveRecord::Base.transaction do
+           create_table :widget_registry, id: :bigserial, force: :cascade do |t|
+             t.integer :widget_id, null: false
+             t.integer :state, default: 0, null: false, limit: 2
+             t.integer :retry_count, default: 0, limit: 2
+             t.text :last_sync_failure
+             t.datetime_with_timezone :retry_at
+             t.datetime_with_timezone :last_synced_at
+             t.datetime_with_timezone :created_at, null: false
+
+             t.index :widget_id
+             t.index :retry_at
+             t.index :state
+           end
+         end
        end
+
+       add_text_limit :widget_registry, :last_sync_failure, 255
+     end
+
+     def down
+       drop_table :widget_registry
      end
    end
    ```
@@ -255,11 +269,20 @@ For example, to add support for files referenced by a `Widget` model with a
    # frozen_string_literal: true
 
    class Geo::WidgetRegistry < Geo::BaseRegistry
-     include Geo::StateMachineRegistry
+     include Geo::ReplicableRegistry
+
+     MODEL_CLASS = ::Widget
+     MODEL_FOREIGN_KEY = :widget_id
 
      belongs_to :widget, class_name: 'Widget'
    end
    ```
+
+   The method `has_create_events?` should return `true` in most of the cases.
+   However, if the entity you add doesn't have the create event, don't add the
+   method at all.
+
+1. Update `REGISTRY_CLASSES` in `ee/app/workers/geo/secondary/registry_consistency_worker.rb`.
 
 1. Create `ee/spec/factories/geo/widget_registry.rb`:
 
@@ -267,7 +290,7 @@ For example, to add support for files referenced by a `Widget` model with a
    # frozen_string_literal: true
 
    FactoryBot.define do
-     factory :widget_registry, class: 'Geo::WidgetRegistry' do
+     factory :geo_widget_registry, class: 'Geo::WidgetRegistry' do
        widget
        state { Geo::WidgetRegistry.state_value(:pending) }
 
@@ -299,11 +322,17 @@ For example, to add support for files referenced by a `Widget` model with a
 
    require 'spec_helper'
 
-   describe Geo::WidgetRegistry, :geo, type: :model do
-     let_it_be(:registry) { create(:widget_registry) }
+   RSpec.describe Geo::WidgetRegistry, :geo, type: :model do
+     let_it_be(:registry) { create(:geo_widget_registry) }
 
      specify 'factory is valid' do
        expect(registry).to be_valid
+     end
+
+     include_examples 'a Geo framework registry'
+
+     describe '.find_registry_differences' do
+       ... # To be implemented
      end
    end
    ```
@@ -324,7 +353,7 @@ Widgets should now be replicated by Geo!
      def change
        add_column :widgets, :verification_retry_at, :datetime_with_timezone
        add_column :widgets, :verified_at, :datetime_with_timezone
-       add_column :widgets, :verification_checksum, :string
+       add_column :widgets, :verification_checksum, :binary, using: 'verification_checksum::bytea'
        add_column :widgets, :verification_failure, :string
        add_column :widgets, :verification_retry_count, :integer
      end
@@ -356,7 +385,8 @@ Widgets should now be replicated by Geo!
    end
    ```
 
-1. Add fields `widget_count`, `widget_checksummed_count`, and `widget_checksum_failed_count`
+1. Add fields `widget_count`, `widget_checksummed_count`, `widget_checksum_failed_count`,
+   `widget_synced_count` and `widget_failed_count`
    to `GeoNodeStatus#RESOURCE_STATUS_FIELDS` array in `ee/app/models/geo_node_status.rb`.
 1. Add the same fields to `GeoNodeStatus#PROMETHEUS_METRICS` hash in
    `ee/app/models/geo_node_status.rb`.
@@ -370,6 +400,8 @@ Widgets should now be replicated by Geo!
      self.widget_count = Geo::WidgetReplicator.model.count
      self.widget_checksummed_count = Geo::WidgetReplicator.checksummed.count
      self.widget_checksum_failed_count = Geo::WidgetReplicator.checksum_failed.count
+     self.widget_synced_count = Geo::WidgetReplicator.synced_count
+     self.widget_failed_count = Geo::WidgetReplicator.failed_count
    ```
 
 1. Make sure `Widget` model has `checksummed` and `checksum_failed` scopes.
@@ -421,8 +453,8 @@ Widgets should now be verified by Geo!
 
    require 'spec_helper'
 
-   describe Resolvers::Geo::WidgetRegistriesResolver do
-     it_behaves_like 'a Geo registries resolver', :widget_registry
+   RSpec.describe Resolvers::Geo::WidgetRegistriesResolver do
+     it_behaves_like 'a Geo registries resolver', :geo_widget_registry
    end
    ```
 
@@ -445,12 +477,12 @@ Widgets should now be verified by Geo!
 
    require 'spec_helper'
 
-   describe Geo::WidgetRegistryFinder do
-     it_behaves_like 'a framework registry finder', :widget_registry
+   RSpec.describe Geo::WidgetRegistryFinder do
+     it_behaves_like 'a framework registry finder', :geo_widget_registry
    end
    ```
 
-1. Create `ee/app/graphql/types/geo/package_file_registry_type.rb`:
+1. Create `ee/app/graphql/types/geo/widget_registry_type.rb`:
 
    ```ruby
    # frozen_string_literal: true
@@ -477,7 +509,7 @@ Widgets should now be verified by Geo!
 
    require 'spec_helper'
 
-   describe GitlabSchema.types['WidgetRegistry'] do
+   RSpec.describe GitlabSchema.types['WidgetRegistry'] do
      it_behaves_like 'a Geo registry type'
 
      it 'has the expected fields (other than those included in RegistryType)' do
@@ -496,13 +528,20 @@ Widgets should now be verified by Geo!
    it_behaves_like 'gets registries for', {
      field_name: 'widgetRegistries',
      registry_class_name: 'WidgetRegistry',
-     registry_factory: :widget_registry,
+     registry_factory: :geo_widget_registry,
      registry_foreign_key_field_name: 'widgetId'
    }
    ```
 
 Individual widget synchronization and verification data should now be available
 via the GraphQL API!
+
+1. Take care of replicating "update" events. Geo Framework does not currently support
+   replicating "update" events because all entities added to the framework, by this time,
+   are immutable. If this is the case
+   for the entity you're going to add, please follow <https://gitlab.com/gitlab-org/gitlab/-/issues/118743>
+   and <https://gitlab.com/gitlab-org/gitlab/-/issues/118745> as examples to add the new event type.
+   Please also remove this notice when you've added it.
 
 #### Admin UI
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module API
-  class Releases < Grape::API
+  class Releases < Grape::API::Instance
     include PaginationParams
 
     RELEASE_ENDPOINT_REQUIREMENTS = API::NAMESPACE_OR_PROJECT_REQUIREMENTS
@@ -54,7 +54,7 @@ module API
             requires :url, type: String
           end
         end
-        optional :milestones, type: Array, desc: 'The titles of the related milestones', default: []
+        optional :milestones, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'The titles of the related milestones', default: []
         optional :released_at, type: DateTime, desc: 'The date when the release will be/was ready. Defaults to the current time.'
       end
       route_setting :authentication, job_token_allowed: true
@@ -67,7 +67,6 @@ module API
 
         if result[:status] == :success
           log_release_created_audit_event(result[:release])
-          create_evidence!
 
           present result[:release], with: Entities::Release, current_user: current_user
         else
@@ -168,16 +167,6 @@ module API
 
       def log_release_milestones_updated_audit_event
         # This is a separate method so that EE can extend its behaviour
-      end
-
-      def create_evidence!
-        return if release.historical_release?
-
-        if release.upcoming_release?
-          CreateEvidenceWorker.perform_at(release.released_at, release.id) # rubocop:disable CodeReuse/Worker
-        else
-          CreateEvidenceWorker.perform_async(release.id) # rubocop:disable CodeReuse/Worker
-        end
       end
     end
   end

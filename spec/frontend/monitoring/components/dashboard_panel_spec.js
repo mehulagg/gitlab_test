@@ -4,7 +4,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import { setTestTimeout } from 'helpers/timeout';
 import invalidUrl from '~/lib/utils/invalid_url';
 import axios from '~/lib/utils/axios_utils';
-import { GlDropdownItem } from '@gitlab/ui';
+import { GlNewDropdownItem as GlDropdownItem } from '@gitlab/ui';
 import AlertWidget from '~/monitoring/components/alert_widget.vue';
 
 import DashboardPanel from '~/monitoring/components/dashboard_panel.vue';
@@ -18,8 +18,8 @@ import {
   singleStatMetricsResult,
   graphDataPrometheusQueryRangeMultiTrack,
   barMockData,
-  propsData,
 } from '../mock_data';
+import { dashboardProps, graphData, graphDataEmpty } from '../fixture_data';
 
 import { panelTypes } from '~/monitoring/constants';
 
@@ -32,7 +32,6 @@ import MonitorColumnChart from '~/monitoring/components/charts/column.vue';
 import MonitorBarChart from '~/monitoring/components/charts/bar.vue';
 import MonitorStackedColumnChart from '~/monitoring/components/charts/stacked_column.vue';
 
-import { graphData, graphDataEmpty } from '../fixture_data';
 import { createStore, monitoringDashboard } from '~/monitoring/stores';
 import { createStore as createEmbedGroupStore } from '~/monitoring/stores/embed_group';
 
@@ -55,18 +54,29 @@ describe('Dashboard Panel', () => {
   const findCopyLink = () => wrapper.find({ ref: 'copyChartLink' });
   const findTimeChart = () => wrapper.find({ ref: 'timeSeriesChart' });
   const findTitle = () => wrapper.find({ ref: 'graphTitle' });
-  const findContextualMenu = () => wrapper.find({ ref: 'contextualMenu' });
+  const findCtxMenu = () => wrapper.find({ ref: 'contextualMenu' });
+  const findMenuItems = () => wrapper.findAll(GlDropdownItem);
+  const findMenuItemByText = text => findMenuItems().filter(i => i.text() === text);
 
   const createWrapper = (props, options) => {
     wrapper = shallowMount(DashboardPanel, {
       propsData: {
         graphData,
-        settingsPath: propsData.settingsPath,
+        settingsPath: dashboardProps.settingsPath,
         ...props,
       },
       store,
       mocks,
       ...options,
+    });
+  };
+
+  const mockGetterReturnValue = (getter, value) => {
+    jest.spyOn(monitoringDashboard.getters, getter).mockReturnValue(value);
+    store = new Vuex.Store({
+      modules: {
+        monitoringDashboard,
+      },
     });
   };
 
@@ -119,12 +129,16 @@ describe('Dashboard Panel', () => {
     });
 
     it('does not contain graph widgets', () => {
-      expect(findContextualMenu().exists()).toBe(false);
+      expect(findCtxMenu().exists()).toBe(false);
     });
 
     it('The Empty Chart component is rendered and is a Vue instance', () => {
       expect(wrapper.find(MonitorEmptyChart).exists()).toBe(true);
       expect(wrapper.find(MonitorEmptyChart).isVueInstance()).toBe(true);
+    });
+
+    it('does not contain a tabindex attribute', () => {
+      expect(wrapper.find(MonitorEmptyChart).contains('[tabindex]')).toBe(false);
     });
   });
 
@@ -148,7 +162,7 @@ describe('Dashboard Panel', () => {
     });
 
     it('does not contain graph widgets', () => {
-      expect(findContextualMenu().exists()).toBe(false);
+      expect(findCtxMenu().exists()).toBe(false);
     });
 
     it('The Empty Chart component is rendered and is a Vue instance', () => {
@@ -171,7 +185,7 @@ describe('Dashboard Panel', () => {
     });
 
     it('contains graph widgets', () => {
-      expect(findContextualMenu().exists()).toBe(true);
+      expect(findCtxMenu().exists()).toBe(true);
       expect(wrapper.find({ ref: 'downloadCsvLink' }).exists()).toBe(true);
     });
 
@@ -218,23 +232,32 @@ describe('Dashboard Panel', () => {
         expect(wrapper.find(MonitorTimeSeriesChart).isVueInstance()).toBe(true);
       });
 
-      it.each`
-        data                                       | component
-        ${dataWithType(panelTypes.AREA_CHART)}     | ${MonitorTimeSeriesChart}
-        ${dataWithType(panelTypes.LINE_CHART)}     | ${MonitorTimeSeriesChart}
-        ${anomalyMockGraphData}                    | ${MonitorAnomalyChart}
-        ${dataWithType(panelTypes.COLUMN)}         | ${MonitorColumnChart}
-        ${dataWithType(panelTypes.STACKED_COLUMN)} | ${MonitorStackedColumnChart}
-        ${singleStatMetricsResult}                 | ${MonitorSingleStatChart}
-        ${graphDataPrometheusQueryRangeMultiTrack} | ${MonitorHeatmapChart}
-        ${barMockData}                             | ${MonitorBarChart}
-      `('wrapps a $data.type component binding attributes', ({ data, component }) => {
+      describe.each`
+        data                                       | component                    | hasCtxMenu
+        ${dataWithType(panelTypes.AREA_CHART)}     | ${MonitorTimeSeriesChart}    | ${true}
+        ${dataWithType(panelTypes.LINE_CHART)}     | ${MonitorTimeSeriesChart}    | ${true}
+        ${singleStatMetricsResult}                 | ${MonitorSingleStatChart}    | ${true}
+        ${anomalyMockGraphData}                    | ${MonitorAnomalyChart}       | ${false}
+        ${dataWithType(panelTypes.COLUMN)}         | ${MonitorColumnChart}        | ${false}
+        ${dataWithType(panelTypes.STACKED_COLUMN)} | ${MonitorStackedColumnChart} | ${false}
+        ${graphDataPrometheusQueryRangeMultiTrack} | ${MonitorHeatmapChart}       | ${false}
+        ${barMockData}                             | ${MonitorBarChart}           | ${false}
+      `('when $data.type data is provided', ({ data, component, hasCtxMenu }) => {
         const attrs = { attr1: 'attr1Value', attr2: 'attr2Value' };
-        createWrapper({ graphData: data }, { attrs });
 
-        expect(wrapper.find(component).exists()).toBe(true);
-        expect(wrapper.find(component).isVueInstance()).toBe(true);
-        expect(wrapper.find(component).attributes()).toMatchObject(attrs);
+        beforeEach(() => {
+          createWrapper({ graphData: data }, { attrs });
+        });
+
+        it(`renders the chart component and binds attributes`, () => {
+          expect(wrapper.find(component).exists()).toBe(true);
+          expect(wrapper.find(component).isVueInstance()).toBe(true);
+          expect(wrapper.find(component).attributes()).toMatchObject(attrs);
+        });
+
+        it(`contextual menu is ${hasCtxMenu ? '' : 'not '}shown`, () => {
+          expect(findCtxMenu().exists()).toBe(hasCtxMenu);
+        });
       });
     });
   });
@@ -292,7 +315,7 @@ describe('Dashboard Panel', () => {
 
       return wrapper.vm.$nextTick(() => {
         expect(findEditCustomMetricLink().text()).toBe('Edit metrics');
-        expect(findEditCustomMetricLink().attributes('href')).toBe(propsData.settingsPath);
+        expect(findEditCustomMetricLink().attributes('href')).toBe(dashboardProps.settingsPath);
       });
     });
   });
@@ -346,7 +369,7 @@ describe('Dashboard Panel', () => {
       });
     });
 
-    it('it is overriden when a datazoom event is received', () => {
+    it('it is overridden when a datazoom event is received', () => {
       state.logsPath = mockLogsPath;
       state.timeRange = mockTimeRange;
 
@@ -367,7 +390,7 @@ describe('Dashboard Panel', () => {
     });
   });
 
-  describe('when cliboard data is available', () => {
+  describe('when clipboard data is available', () => {
     const clipboardText = 'A value to copy.';
 
     beforeEach(() => {
@@ -392,7 +415,7 @@ describe('Dashboard Panel', () => {
     });
   });
 
-  describe('when cliboard data is not available', () => {
+  describe('when clipboard data is not available', () => {
     it('there is no "copy to clipboard" link for a null value', () => {
       createWrapper({ clipboardText: null });
       expect(findCopyLink().exists()).toBe(false);
@@ -409,7 +432,7 @@ describe('Dashboard Panel', () => {
       wrapper = shallowMount(DashboardPanel, {
         propsData: {
           clipboardText: exampleText,
-          settingsPath: propsData.settingsPath,
+          settingsPath: dashboardProps.settingsPath,
           graphData: {
             y_label: 'metric',
             ...graphData,
@@ -459,7 +482,7 @@ describe('Dashboard Panel', () => {
       wrapper = shallowMount(DashboardPanel, {
         propsData: {
           graphData,
-          settingsPath: propsData.settingsPath,
+          settingsPath: dashboardProps.settingsPath,
           namespace: mockNamespace,
         },
         store,
@@ -498,6 +521,34 @@ describe('Dashboard Panel', () => {
     });
   });
 
+  describe('panel timezone', () => {
+    it('displays a time chart in local timezone', () => {
+      createWrapper();
+      expect(findTimeChart().props('timezone')).toBe('LOCAL');
+    });
+
+    it('displays a heatmap in local timezone', () => {
+      createWrapper({ graphData: graphDataPrometheusQueryRangeMultiTrack });
+      expect(wrapper.find(MonitorHeatmapChart).props('timezone')).toBe('LOCAL');
+    });
+
+    describe('when timezone is set to UTC', () => {
+      beforeEach(() => {
+        store = createStore({ dashboardTimezone: 'UTC' });
+      });
+
+      it('displays a time chart with UTC', () => {
+        createWrapper();
+        expect(findTimeChart().props('timezone')).toBe('UTC');
+      });
+
+      it('displays a heatmap with UTC', () => {
+        createWrapper({ graphData: graphDataPrometheusQueryRangeMultiTrack });
+        expect(wrapper.find(MonitorHeatmapChart).props('timezone')).toBe('UTC');
+      });
+    });
+  });
+
   describe('Expand to full screen', () => {
     const findExpandBtn = () => wrapper.find({ ref: 'expandBtn' });
 
@@ -518,8 +569,10 @@ describe('Dashboard Panel', () => {
       });
 
       it('emits the `expand` event', () => {
-        findExpandBtn().vm.$emit('click');
+        const preventDefault = jest.fn();
+        findExpandBtn().vm.$emit('click', { preventDefault });
         expect(wrapper.emitted('expand')).toHaveLength(1);
+        expect(preventDefault).toHaveBeenCalled();
       });
     });
   });
@@ -528,17 +581,9 @@ describe('Dashboard Panel', () => {
     const setMetricsSavedToDb = val =>
       monitoringDashboard.getters.metricsSavedToDb.mockReturnValue(val);
     const findAlertsWidget = () => wrapper.find(AlertWidget);
-    const findMenuItemAlert = () =>
-      wrapper.findAll(GlDropdownItem).filter(i => i.text() === 'Alerts');
 
     beforeEach(() => {
-      jest.spyOn(monitoringDashboard.getters, 'metricsSavedToDb').mockReturnValue([]);
-
-      store = new Vuex.Store({
-        modules: {
-          monitoringDashboard,
-        },
-      });
+      mockGetterReturnValue('metricsSavedToDb', []);
 
       createWrapper();
     });
@@ -567,8 +612,99 @@ describe('Dashboard Panel', () => {
       });
 
       it(`${showsDesc} alert configuration`, () => {
-        expect(findMenuItemAlert().exists()).toBe(isShown);
+        expect(findMenuItemByText('Alerts').exists()).toBe(isShown);
       });
+    });
+  });
+
+  describe('When graphData contains links', () => {
+    const findManageLinksItem = () => wrapper.find({ ref: 'manageLinksItem' });
+    const mockLinks = [
+      {
+        url: 'https://example.com',
+        title: 'Example 1',
+      },
+      {
+        url: 'https://gitlab.com',
+        title: 'Example 2',
+      },
+    ];
+    const createWrapperWithLinks = (links = mockLinks) => {
+      createWrapper({
+        graphData: {
+          ...graphData,
+          links,
+        },
+      });
+    };
+
+    it('custom links are shown', () => {
+      createWrapperWithLinks();
+
+      mockLinks.forEach(({ url, title }) => {
+        const link = findMenuItemByText(title).at(0);
+
+        expect(link.exists()).toBe(true);
+        expect(link.attributes('href')).toBe(url);
+      });
+    });
+
+    it("custom links don't show unsecure content", () => {
+      createWrapperWithLinks([
+        {
+          title: '<script>alert("XSS")</script>',
+          url: 'http://example.com',
+        },
+      ]);
+
+      expect(findMenuItems().at(1).element.innerHTML).toBe(
+        '&lt;script&gt;alert("XSS")&lt;/script&gt;',
+      );
+    });
+
+    it("custom links don't show unsecure href attributes", () => {
+      const title = 'Owned!';
+
+      createWrapperWithLinks([
+        {
+          title,
+          // eslint-disable-next-line no-script-url
+          url: 'javascript:alert("Evil")',
+        },
+      ]);
+
+      const link = findMenuItemByText(title).at(0);
+      expect(link.attributes('href')).toBe('#');
+    });
+
+    it('when an editable dashboard is selected, shows `Manage chart links` link to the blob path', () => {
+      const editUrl = '/edit';
+      mockGetterReturnValue('selectedDashboard', {
+        can_edit: true,
+        project_blob_path: editUrl,
+      });
+      createWrapperWithLinks();
+
+      expect(findManageLinksItem().exists()).toBe(true);
+      expect(findManageLinksItem().attributes('href')).toBe(editUrl);
+    });
+
+    it('when no dashboard is selected, does not show `Manage chart links`', () => {
+      mockGetterReturnValue('selectedDashboard', null);
+      createWrapperWithLinks();
+
+      expect(findManageLinksItem().exists()).toBe(false);
+    });
+
+    it('when non-editable dashboard is selected, does not show `Manage chart links`', () => {
+      const editUrl = '/edit';
+      mockGetterReturnValue('selectedDashboard', {
+        can_edit: false,
+        project_blob_path: editUrl,
+      });
+      createWrapperWithLinks();
+
+      expect(findManageLinksItem().exists()).toBe(false);
     });
   });
 });

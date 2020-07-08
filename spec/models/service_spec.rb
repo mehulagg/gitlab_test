@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Service do
+RSpec.describe Service do
   describe "Associations" do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
@@ -87,6 +87,20 @@ describe Service do
       end
     end
 
+    describe '#operating?' do
+      it 'is false when the service is not active' do
+        expect(build(:service).operating?).to eq(false)
+      end
+
+      it 'is false when the service is not persisted' do
+        expect(build(:service, active: true).operating?).to eq(false)
+      end
+
+      it 'is true when the service is active and persisted' do
+        expect(create(:service, active: true).operating?).to eq(true)
+      end
+    end
+
     describe '.confidential_note_hooks' do
       it 'includes services where confidential_note_events is true' do
         create(:service, active: true, confidential_note_events: true)
@@ -98,6 +112,20 @@ describe Service do
         create(:service, active: true, confidential_note_events: false)
 
         expect(described_class.confidential_note_hooks.count).to eq 0
+      end
+    end
+
+    describe '.alert_hooks' do
+      it 'includes services where alert_events is true' do
+        create(:service, active: true, alert_events: true)
+
+        expect(described_class.alert_hooks.count).to eq 1
+      end
+
+      it 'excludes services where alert_events is false' do
+        create(:service, active: true, alert_events: false)
+
+        expect(described_class.alert_hooks.count).to eq 0
       end
     end
   end
@@ -250,22 +278,32 @@ describe Service do
       end
     end
 
-    describe '.build_from_template' do
-      context 'when template is invalid' do
-        it 'sets service template to inactive when template is invalid' do
-          template = build(:prometheus_service, template: true, active: true, properties: {})
-          template.save(validate: false)
+    describe '.build_from_integration' do
+      context 'when integration is invalid' do
+        let(:integration) do
+          build(:prometheus_service, :template, active: true, properties: {})
+            .tap { |integration| integration.save(validate: false) }
+        end
 
-          service = described_class.build_from_template(project.id, template)
+        it 'sets service to inactive' do
+          service = described_class.build_from_integration(project.id, integration)
 
           expect(service).to be_valid
           expect(service.active).to be false
         end
       end
 
-      describe 'build issue tracker from a template' do
-        let(:title) { 'custom title' }
-        let(:description) { 'custom description' }
+      context 'when integration is an instance' do
+        let(:integration) { create(:jira_service, :instance) }
+
+        it 'sets inherit_from_id from integration' do
+          service = described_class.build_from_integration(project.id, integration)
+
+          expect(service.inherit_from_id).to eq(integration.id)
+        end
+      end
+
+      describe 'build issue tracker from an integration' do
         let(:url) { 'http://jira.example.com' }
         let(:api_url) { 'http://api-jira.example.com' }
         let(:username) { 'jira-username' }
@@ -277,47 +315,47 @@ describe Service do
           }
         end
 
-        shared_examples 'service creation from a template' do
+        shared_examples 'service creation from an integration' do
           it 'creates a correct service' do
-            service = described_class.build_from_template(project.id, template)
+            service = described_class.build_from_integration(project.id, integration)
 
             expect(service).to be_active
-            expect(service.title).to eq(title)
-            expect(service.description).to eq(description)
             expect(service.url).to eq(url)
             expect(service.api_url).to eq(api_url)
             expect(service.username).to eq(username)
             expect(service.password).to eq(password)
+            expect(service.template).to eq(false)
+            expect(service.instance).to eq(false)
           end
         end
 
         # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab/issues/29404
         context 'when data are stored in properties' do
-          let(:properties) { data_params.merge(title: title, description: description) }
-          let!(:template) do
+          let(:properties) { data_params }
+          let!(:integration) do
             create(:jira_service, :without_properties_callback, template: true, properties: properties.merge(additional: 'something'))
           end
 
-          it_behaves_like 'service creation from a template'
+          it_behaves_like 'service creation from an integration'
         end
 
         context 'when data are stored in separated fields' do
-          let(:template) do
-            create(:jira_service, :template, data_params.merge(properties: {}, title: title, description: description))
+          let(:integration) do
+            create(:jira_service, :template, data_params.merge(properties: {}))
           end
 
-          it_behaves_like 'service creation from a template'
+          it_behaves_like 'service creation from an integration'
         end
 
         context 'when data are stored in both properties and separated fields' do
-          let(:properties) { data_params.merge(title: title, description: description) }
-          let(:template) do
+          let(:properties) { data_params }
+          let(:integration) do
             create(:jira_service, :without_properties_callback, active: true, template: true, properties: properties).tap do |service|
               create(:jira_tracker_data, data_params.merge(service: service))
             end
           end
 
-          it_behaves_like 'service creation from a template'
+          it_behaves_like 'service creation from an integration'
         end
       end
     end
@@ -472,17 +510,12 @@ describe Service do
     let(:service) do
       GitlabIssueTrackerService.create(
         project: create(:project),
-        title: 'random title',
         project_url: 'http://gitlab.example.com'
       )
     end
 
     it 'does not raise error' do
       expect { service }.not_to raise_error
-    end
-
-    it 'sets title correctly' do
-      expect(service.title).to eq('random title')
     end
 
     it 'sets data correctly' do

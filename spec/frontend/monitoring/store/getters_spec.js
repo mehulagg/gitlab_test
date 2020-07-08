@@ -3,7 +3,14 @@ import * as getters from '~/monitoring/stores/getters';
 import mutations from '~/monitoring/stores/mutations';
 import * as types from '~/monitoring/stores/mutation_types';
 import { metricStates } from '~/monitoring/constants';
-import { environmentData, metricsResult } from '../mock_data';
+import {
+  customDashboardBasePath,
+  environmentData,
+  metricsResult,
+  dashboardGitResponse,
+  storeVariables,
+  mockLinks,
+} from '../mock_data';
 import {
   metricsDashboardPayload,
   metricResultStatus,
@@ -21,7 +28,10 @@ describe('Monitoring store Getters', () => {
       const { metricId } = state.dashboard.panelGroups[group].panels[panel].metrics[metric];
       mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](state, {
         metricId,
-        result,
+        data: {
+          resultType: 'matrix',
+          result,
+        },
       });
     };
 
@@ -321,6 +331,122 @@ describe('Monitoring store Getters', () => {
       metricsSavedToDb = getters.metricsSavedToDb(state);
 
       expect(metricsSavedToDb).toEqual([`${id1}_${metric1.id}`, `${id2}_${metric2.id}`]);
+    });
+  });
+
+  describe('getCustomVariablesParams', () => {
+    let state;
+
+    beforeEach(() => {
+      state = {
+        variables: {},
+      };
+    });
+
+    it('transforms the variables object to an array in the [variable, variable_value] format for all variable types', () => {
+      state.variables = storeVariables;
+      const variablesArray = getters.getCustomVariablesParams(state);
+
+      expect(variablesArray).toEqual({
+        'variables[textSimple]': 'My default value',
+        'variables[textAdvanced]': 'A default value',
+        'variables[customSimple]': 'value1',
+        'variables[customAdvanced]': 'value2',
+        'variables[customAdvancedWithoutLabel]': 'value2',
+        'variables[customAdvancedWithoutOptText]': 'value2',
+      });
+    });
+
+    it('transforms the variables object to an empty array when no keys are present', () => {
+      state.variables = [];
+      const variablesArray = getters.getCustomVariablesParams(state);
+
+      expect(variablesArray).toEqual({});
+    });
+  });
+
+  describe('selectedDashboard', () => {
+    const { selectedDashboard } = getters;
+    const localGetters = state => ({
+      fullDashboardPath: getters.fullDashboardPath(state),
+    });
+
+    it('returns a dashboard', () => {
+      const state = {
+        allDashboards: dashboardGitResponse,
+        currentDashboard: dashboardGitResponse[0].path,
+        customDashboardBasePath,
+      };
+      expect(selectedDashboard(state, localGetters(state))).toEqual(dashboardGitResponse[0]);
+    });
+
+    it('returns a non-default dashboard', () => {
+      const state = {
+        allDashboards: dashboardGitResponse,
+        currentDashboard: dashboardGitResponse[1].path,
+        customDashboardBasePath,
+      };
+      expect(selectedDashboard(state, localGetters(state))).toEqual(dashboardGitResponse[1]);
+    });
+
+    it('returns a default dashboard when no dashboard is selected', () => {
+      const state = {
+        allDashboards: dashboardGitResponse,
+        currentDashboard: null,
+        customDashboardBasePath,
+      };
+      expect(selectedDashboard(state, localGetters(state))).toEqual(dashboardGitResponse[0]);
+    });
+
+    it('returns a default dashboard when dashboard cannot be found', () => {
+      const state = {
+        allDashboards: dashboardGitResponse,
+        currentDashboard: 'wrong_path',
+        customDashboardBasePath,
+      };
+      expect(selectedDashboard(state, localGetters(state))).toEqual(dashboardGitResponse[0]);
+    });
+
+    it('returns null when no dashboards are present', () => {
+      const state = {
+        allDashboards: [],
+        currentDashboard: dashboardGitResponse[0].path,
+        customDashboardBasePath,
+      };
+      expect(selectedDashboard(state, localGetters(state))).toEqual(null);
+    });
+  });
+
+  describe('linksWithMetadata', () => {
+    let state;
+    const setupState = (initState = {}) => {
+      state = {
+        ...state,
+        ...initState,
+      };
+    };
+
+    beforeAll(() => {
+      setupState({
+        links: mockLinks,
+      });
+    });
+
+    afterAll(() => {
+      state = null;
+    });
+
+    it.each`
+      timeRange                                                                 | output
+      ${{}}                                                                     | ${''}
+      ${{ start: '2020-01-01T00:00:00.000Z', end: '2020-01-31T23:59:00.000Z' }} | ${'start=2020-01-01T00%3A00%3A00.000Z&end=2020-01-31T23%3A59%3A00.000Z'}
+      ${{ duration: { seconds: 86400 } }}                                       | ${'duration_seconds=86400'}
+    `('linksWithMetadata returns URLs with time range', ({ timeRange, output }) => {
+      setupState({ timeRange });
+      const links = getters.linksWithMetadata(state);
+      links.forEach(({ url }) => {
+        expect(url).toMatch(output);
+      });
     });
   });
 });

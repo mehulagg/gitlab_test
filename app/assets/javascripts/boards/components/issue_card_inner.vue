@@ -147,13 +147,13 @@ export default {
 <template>
   <div>
     <div class="d-flex board-card-header" dir="auto">
-      <h4 class="board-card-title append-bottom-0 prepend-top-0">
+      <h4 class="board-card-title gl-mb-0 gl-mt-0">
         <icon
           v-if="issue.blocked"
           v-gl-tooltip
           name="issue-block"
           :title="__('Blocked issue')"
-          class="issue-blocked-icon append-right-4"
+          class="issue-blocked-icon gl-mr-2"
           :aria-label="__('Blocked issue')"
         />
         <icon
@@ -161,7 +161,7 @@ export default {
           v-gl-tooltip
           name="eye-slash"
           :title="__('Confidential')"
-          class="confidential-icon append-right-4"
+          class="confidential-icon gl-mr-2"
           :aria-label="__('Confidential')"
         />
         <a :href="issue.path" :title="issue.title" class="js-no-trigger" @mousemove.stop>{{
@@ -169,7 +169,7 @@ export default {
         }}</a>
       </h4>
     </div>
-    <div v-if="showLabelFooter" class="board-card-labels prepend-top-4 d-flex flex-wrap">
+    <div v-if="showLabelFooter" class="board-card-labels gl-mt-2 d-flex flex-wrap">
       <template v-for="label in orderedLabels">
         <gl-label
           :key="label.id"
@@ -188,7 +188,7 @@ export default {
       >
         <span
           v-if="issue.referencePath"
-          class="board-card-number overflow-hidden d-flex append-right-8 prepend-top-8"
+          class="board-card-number overflow-hidden d-flex gl-mr-3 gl-mt-3"
         >
           <tooltip-on-truncate
             v-if="issueReferencePath"
@@ -199,7 +199,7 @@ export default {
           >
           #{{ issue.iid }}
         </span>
-        <span class="board-info-items prepend-top-8 d-inline-block">
+        <span class="board-info-items gl-mt-3 d-inline-block">
           <issue-due-date v-if="issue.dueDate" :date="issue.dueDate" :closed="issue.closed" />
           <issue-time-estimate v-if="issue.timeEstimate" :estimate="issue.timeEstimate" />
           <issue-card-weight

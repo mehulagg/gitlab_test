@@ -2,7 +2,9 @@
 
 require 'spec_helper'
 
-describe Projects::Prometheus::Alerts::NotifyService do
+RSpec.describe Projects::Prometheus::Alerts::NotifyService do
+  include PrometheusHelpers
+
   let_it_be(:project, reload: true) { create(:project) }
 
   let(:service) { described_class.new(project, nil, payload) }
@@ -34,48 +36,8 @@ describe Projects::Prometheus::Alerts::NotifyService do
     end
   end
 
-  shared_examples 'processes incident issues' do |amount|
-    let(:create_incident_service) { spy }
-
-    it 'processes issues' do
-      expect(IncidentManagement::ProcessPrometheusAlertWorker)
-        .to receive(:perform_async)
-        .with(project.id, kind_of(Hash))
-        .exactly(amount).times
-
-      Sidekiq::Testing.inline! do
-        expect(subject).to be_success
-      end
-    end
-  end
-
-  shared_examples 'does not process incident issues' do
-    it 'does not process issues' do
-      expect(IncidentManagement::ProcessPrometheusAlertWorker)
-        .not_to receive(:perform_async)
-
-      expect(subject).to be_success
-    end
-  end
-
-  shared_examples 'persists events' do
-    let(:create_events_service) { spy }
-
-    it 'persists events' do
-      expect(Projects::Prometheus::Alerts::CreateEventsService)
-        .to receive(:new)
-        .and_return(create_events_service)
-
-      expect(create_events_service)
-        .to receive(:execute)
-
-      expect(subject).to be_success
-    end
-  end
-
   shared_examples 'notifies alerts' do
     it_behaves_like 'sends notification email'
-    it_behaves_like 'persists events'
   end
 
   shared_examples 'no notifications' do |http_status:|
@@ -94,7 +56,7 @@ describe Projects::Prometheus::Alerts::NotifyService do
   context 'with valid payload' do
     let(:alert_firing) { create(:prometheus_alert, project: project) }
     let(:alert_resolved) { create(:prometheus_alert, project: project) }
-    let(:payload_raw) { payload_for(firing: [alert_firing], resolved: [alert_resolved]) }
+    let(:payload_raw) { prometheus_alert_payload(firing: [alert_firing], resolved: [alert_resolved]) }
     let(:payload) { ActionController::Parameters.new(payload_raw).permit! }
     let(:payload_alert_firing) { payload_raw['alerts'].first }
     let(:token) { 'token' }
@@ -116,8 +78,6 @@ describe Projects::Prometheus::Alerts::NotifyService do
       end
 
       before do
-        stub_licensed_features(multiple_clusters: true)
-
         create(:clusters_applications_prometheus, :installed,
                cluster: prd_cluster, alert_manager_token: token)
         create(:clusters_applications_prometheus, :installed,
@@ -134,52 +94,5 @@ describe Projects::Prometheus::Alerts::NotifyService do
         it_behaves_like 'no notifications', http_status: :unauthorized
       end
     end
-  end
-
-  private
-
-  def payload_for(firing: [], resolved: [])
-    status = firing.any? ? 'firing' : 'resolved'
-    alerts = firing + resolved
-    alert_name = alerts.first.title
-    prometheus_metric_id = alerts.first.prometheus_metric_id.to_s
-
-    alerts_map = \
-      firing.map { |alert| map_alert_payload('firing', alert) } +
-      resolved.map { |alert| map_alert_payload('resolved', alert) }
-
-    # See https://prometheus.io/docs/alerting/configuration/#%3Cwebhook_config%3E
-    {
-      'version' => '4',
-      'receiver' => 'gitlab',
-      'status' => status,
-      'alerts' => alerts_map,
-      'groupLabels' => {
-        'alertname' => alert_name
-      },
-      'commonLabels' => {
-        'alertname' => alert_name,
-        'gitlab' => 'hook',
-        'gitlab_alert_id' => prometheus_metric_id
-      },
-      'commonAnnotations' => {},
-      'externalURL' => '',
-      'groupKey' => "{}:{alertname=\'#{alert_name}\'}"
-    }
-  end
-
-  def map_alert_payload(status, alert)
-    {
-      'status' => status,
-      'labels' => {
-        'alertname' => alert.title,
-        'gitlab' => 'hook',
-        'gitlab_alert_id' => alert.prometheus_metric_id.to_s
-      },
-      'annotations' => {},
-      'startsAt' => '2018-09-24T08:57:31.095725221Z',
-      'endsAt' => '0001-01-01T00:00:00Z',
-      'generatorURL' => 'http://prometheus-prometheus-server-URL'
-    }
   end
 end

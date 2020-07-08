@@ -2,13 +2,24 @@
 
 require 'spec_helper'
 
-describe GitlabSchema.types['Query'] do
+RSpec.describe GitlabSchema.types['Query'] do
   it 'is called Query' do
     expect(described_class.graphql_name).to eq('Query')
   end
 
   it 'has the expected fields' do
-    expected_fields = %i[project namespace group echo metadata current_user snippets]
+    expected_fields = %i[
+      project
+      namespace
+      group
+      echo
+      metadata
+      current_user
+      snippets
+      design_management
+      user
+      users
+    ]
 
     expect(described_class).to have_graphql_fields(*expected_fields).at_least
   end

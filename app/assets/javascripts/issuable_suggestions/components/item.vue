@@ -75,7 +75,11 @@ export default {
         name="eye-slash"
         class="suggestion-help-hover mr-1 suggestion-confidential"
       />
-      <gl-link :href="suggestion.webUrl" target="_blank" class="suggestion bold str-truncated-100">
+      <gl-link
+        :href="suggestion.webUrl"
+        target="_blank"
+        class="suggestion bold str-truncated-100 gl-text-gray-900!"
+      >
         {{ suggestion.title }}
       </gl-link>
     </div>
@@ -128,7 +132,7 @@ export default {
           :key="id"
           v-gl-tooltip.bottom
           :title="tooltipTitle"
-          class="suggestion-help-hover prepend-left-8 text-tertiary"
+          class="suggestion-help-hover gl-ml-3 text-tertiary"
         >
           <icon :name="icon" /> {{ count }}
         </span>

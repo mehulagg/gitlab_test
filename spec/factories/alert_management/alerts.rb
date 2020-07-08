@@ -3,12 +3,28 @@ require 'ffaker'
 
 FactoryBot.define do
   factory :alert_management_alert, class: 'AlertManagement::Alert' do
+    triggered
     project
     title { FFaker::Lorem.sentence }
     started_at { Time.current }
 
+    trait :with_validation_errors do
+      after(:create) do |alert|
+        too_many_hosts = Array.new(AlertManagement::Alert::HOSTS_MAX_LENGTH + 1) { |_| 'host' }
+        alert.update_columns(hosts: too_many_hosts)
+      end
+    end
+
     trait :with_issue do
-      issue
+      after(:create) do |alert|
+        create(:issue, alert_management_alert: alert, project: alert.project)
+      end
+    end
+
+    trait :with_assignee do |alert|
+      after(:create) do |alert|
+        alert.alert_assignees.create(assignee: create(:user))
+      end
     end
 
     trait :with_fingerprint do
@@ -23,8 +39,12 @@ FactoryBot.define do
       monitoring_tool { FFaker::AWS.product_description }
     end
 
+    trait :with_description do
+      description { FFaker::Lorem.sentence }
+    end
+
     trait :with_host do
-      hosts { FFaker::Internet.ip_v4_address }
+      hosts { [FFaker::Internet.ip_v4_address] }
     end
 
     trait :with_ended_at do
@@ -33,6 +53,11 @@ FactoryBot.define do
 
     trait :without_ended_at do
       ended_at { nil }
+    end
+
+    trait :triggered do
+      status { AlertManagement::Alert::STATUSES[:triggered] }
+      without_ended_at
     end
 
     trait :acknowledged do
@@ -50,12 +75,43 @@ FactoryBot.define do
       without_ended_at
     end
 
+    trait :critical do
+      severity { 'critical' }
+    end
+
+    trait :high do
+      severity { 'high' }
+    end
+
+    trait :medium do
+      severity { 'medium' }
+    end
+
+    trait :low do
+      severity { 'low' }
+    end
+
+    trait :info do
+      severity { 'info' }
+    end
+
+    trait :unknown do
+      severity { 'unknown' }
+    end
+
+    trait :prometheus do
+      monitoring_tool { Gitlab::AlertManagement::AlertParams::MONITORING_TOOLS[:prometheus] }
+    end
+
     trait :all_fields do
       with_issue
+      with_assignee
       with_fingerprint
       with_service
       with_monitoring_tool
       with_host
+      with_description
+      low
     end
   end
 end

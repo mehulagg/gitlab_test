@@ -10,8 +10,10 @@ class Projects::ReleasesController < Projects::ApplicationController
     push_frontend_feature_flag(:release_evidence_collection, project, default_enabled: true)
     push_frontend_feature_flag(:release_show_page, project, default_enabled: true)
     push_frontend_feature_flag(:release_asset_link_editing, project, default_enabled: true)
+    push_frontend_feature_flag(:release_asset_link_type, project, default_enabled: true)
   end
   before_action :authorize_update_release!, only: %i[edit update]
+  before_action :authorize_create_release!, only: :new
 
   def index
     respond_to do |format|

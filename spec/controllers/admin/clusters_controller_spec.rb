@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Admin::ClustersController do
+RSpec.describe Admin::ClustersController do
   include AccessMatchersForController
   include GoogleApi::CloudPlatformHelpers
 
@@ -40,6 +40,13 @@ describe Admin::ClustersController do
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('cluster_list')
+        end
+
+        it 'sets the polling interval header for json requests' do
+          get_index(format: :json)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response.headers['Poll-Interval']).to eq("10000")
         end
 
         context 'when page is specified' do
@@ -161,6 +168,29 @@ describe Admin::ClustersController do
       it { expect { get_new }.to be_allowed_for(:admin) }
       it { expect { get_new }.to be_denied_for(:user) }
       it { expect { get_new }.to be_denied_for(:external) }
+    end
+  end
+
+  describe 'GET #prometheus_proxy' do
+    let(:user) { admin }
+    let(:proxyable) do
+      create(:cluster, :instance, :provided_by_gcp)
+    end
+
+    it_behaves_like 'metrics dashboard prometheus api proxy' do
+      context 'with anonymous user' do
+        let(:prometheus_body) { nil }
+
+        before do
+          sign_out(admin)
+        end
+
+        it 'returns 404' do
+          get :prometheus_proxy, params: prometheus_proxy_params
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
     end
   end
 

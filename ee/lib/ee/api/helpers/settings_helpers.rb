@@ -20,13 +20,14 @@ module EE
 
             given elasticsearch_indexing: ->(val) { val } do
               optional :elasticsearch_search, type: Grape::API::Boolean, desc: 'Enable Elasticsearch search'
+              optional :elasticsearch_pause_indexing, type: Grape::API::Boolean, desc: 'Pause Elasticsearch indexing'
               requires :elasticsearch_url, type: String, desc: 'The url to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., "http://localhost:9200, http://localhost:9201")'
               optional :elasticsearch_limit_indexing, type: Grape::API::Boolean, desc: 'Limit Elasticsearch to index certain namespaces and projects'
             end
 
             given elasticsearch_limit_indexing: ->(val) { val } do
-              optional :elasticsearch_namespace_ids, type: Array[Integer], coerce_with: ::API::Validations::Types::LabelsList.coerce, desc: 'The namespace ids to index with Elasticsearch.'
-              optional :elasticsearch_project_ids, type: Array[Integer], coerce_with: ::API::Validations::Types::LabelsList.coerce, desc: 'The project ids to index with Elasticsearch.'
+              optional :elasticsearch_namespace_ids, type: Array[Integer], coerce_with: ::API::Validations::Types::CommaSeparatedToIntegerArray.coerce, desc: 'The namespace ids to index with Elasticsearch.'
+              optional :elasticsearch_project_ids, type: Array[Integer], coerce_with: ::API::Validations::Types::CommaSeparatedToIntegerArray.coerce, desc: 'The project ids to index with Elasticsearch.'
             end
 
             optional :email_additional_text, type: String, desc: 'Additional text added to the bottom of every email for legal/auditing/compliance reasons'
@@ -35,7 +36,7 @@ module EE
             optional :help_text, type: String, desc: 'GitLab server administrator information'
             optional :repository_size_limit, type: Integer, desc: 'Size limit per repository (MB)'
             optional :file_template_project_id, type: Integer, desc: 'ID of project where instance-level file templates are stored.'
-            optional :repository_storages, type: Array[String], desc: 'A list of names of enabled storage paths, taken from `gitlab.yml`. New projects will be created in one of these stores, chosen at random.'
+            optional :repository_storages, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'A list of names of enabled storage paths, taken from `gitlab.yml`. New projects will be created in one of these stores, chosen at random.'
             optional :usage_ping_enabled, type: Grape::API::Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
             optional :updating_name_disabled_for_users, type: Grape::API::Boolean, desc: 'Flag indicating if users are permitted to update their profile name'
             optional :disable_overriding_approvers_per_merge_request, type: Grape::API::Boolean, desc: 'Disable Users ability to overwrite approvers in merge requests.'

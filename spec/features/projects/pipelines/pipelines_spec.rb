@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Pipelines', :js do
+RSpec.describe 'Pipelines', :js do
   include ProjectForksHelper
 
   let(:project) { create(:project) }
@@ -65,19 +65,8 @@ describe 'Pipelines', :js do
           expect(page.find('.js-pipelines-tab-all .badge').text).to include('1')
         end
 
-        it 'shows a tab for Pending pipelines and count' do
-          expect(page.find('.js-pipelines-tab-pending').text).to include('Pending')
-          expect(page.find('.js-pipelines-tab-pending .badge').text).to include('0')
-        end
-
-        it 'shows a tab for Running pipelines and count' do
-          expect(page.find('.js-pipelines-tab-running').text).to include('Running')
-          expect(page.find('.js-pipelines-tab-running .badge').text).to include('1')
-        end
-
         it 'shows a tab for Finished pipelines and count' do
           expect(page.find('.js-pipelines-tab-finished').text).to include('Finished')
-          expect(page.find('.js-pipelines-tab-finished .badge').text).to include('0')
         end
 
         it 'shows a tab for Branches' do
@@ -89,9 +78,9 @@ describe 'Pipelines', :js do
         end
 
         it 'updates content when tab is clicked' do
-          page.find('.js-pipelines-tab-pending').click
+          page.find('.js-pipelines-tab-finished').click
           wait_for_requests
-          expect(page).to have_content('There are currently no pending pipelines.')
+          expect(page).to have_content('There are currently no finished pipelines.')
         end
       end
 
@@ -453,10 +442,12 @@ describe 'Pipelines', :js do
       context 'downloadable pipelines' do
         context 'with artifacts' do
           let!(:with_artifacts) do
-            create(:ci_build, :artifacts, :success,
+            build = create(:ci_build, :success,
               pipeline: pipeline,
               name: 'rspec tests',
               stage: 'test')
+
+            create(:ci_job_artifact, :codequality, job: build)
           end
 
           before do
@@ -470,7 +461,7 @@ describe 'Pipelines', :js do
           it 'has artifacts download dropdown' do
             find('.js-pipeline-dropdown-download').click
 
-            expect(page).to have_link(with_artifacts.name)
+            expect(page).to have_link(with_artifacts.file_type)
           end
 
           it 'has download attribute on download links' do

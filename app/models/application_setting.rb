@@ -5,12 +5,9 @@ class ApplicationSetting < ApplicationRecord
   include CacheMarkdownField
   include TokenAuthenticatable
   include ChronicDurationAttribute
-  include IgnorableColumns
 
   GRAFANA_URL_ERROR_MESSAGE = 'Please check your Grafana URL setting in ' \
     'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
-
-  ignore_column :elasticsearch_experimental_indexer, remove_with: '13.1', remove_after: '2020-05-22'
 
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
@@ -21,6 +18,12 @@ class ApplicationSetting < ApplicationRecord
   alias_attribute :self_monitoring_project_id, :instance_administration_project_id
 
   belongs_to :instance_administrators_group, class_name: "Group"
+
+  def self.repository_storages_weighted_attributes
+    @repository_storages_weighted_atributes ||= Gitlab.config.repositories.storages.keys.map { |k| "repository_storages_weighted_#{k}".to_sym }.freeze
+  end
+
+  store_accessor :repository_storages_weighted, *Gitlab.config.repositories.storages.keys, prefix: true
 
   # Include here so it can override methods from
   # `add_authentication_token_field`
@@ -42,6 +45,7 @@ class ApplicationSetting < ApplicationRecord
   cache_markdown_field :after_sign_up_text
 
   default_value_for :id, 1
+  default_value_for :repository_storages_weighted, {}
 
   chronic_duration_attr_writer :archive_builds_in_human_readable, :archive_builds_in_seconds
 
@@ -139,6 +143,10 @@ class ApplicationSetting < ApplicationRecord
             presence: true,
             numericality: { only_integer: true, greater_than: 0 }
 
+  validates :max_import_size,
+            presence: true,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
   validates :max_pages_size,
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0,
@@ -155,6 +163,7 @@ class ApplicationSetting < ApplicationRecord
 
   validates :repository_storages, presence: true
   validate :check_repository_storages
+  validate :check_repository_storages_weighted
 
   validates :auto_devops_domain,
             allow_blank: true,
@@ -266,11 +275,17 @@ class ApplicationSetting < ApplicationRecord
 
   validates :email_restrictions, untrusted_regexp: true
 
+  validates :hashed_storage_enabled, inclusion: { in: [true], message: _("Hashed storage can't be disabled anymore for new projects") }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end
 
   validates :allowed_key_types, presence: true
+
+  repository_storages_weighted_attributes.each do |attribute|
+    validates attribute, allow_nil: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  end
 
   validates_each :restricted_visibility_levels do |record, attr, value|
     value&.each do |level|
@@ -301,6 +316,13 @@ class ApplicationSetting < ApplicationRecord
   validates :external_authorization_service_timeout,
             numericality: { greater_than: 0, less_than_or_equal_to: 10 },
             if: :external_authorization_service_enabled
+
+  validates :spam_check_endpoint_url,
+            addressable_url: true, allow_blank: true
+
+  validates :spam_check_endpoint_url,
+            presence: true,
+            if: :spam_check_endpoint_enabled
 
   validates :external_auth_client_key,
             presence: true,
@@ -426,6 +448,12 @@ class ApplicationSetting < ApplicationRecord
 
   def recaptcha_or_login_protection_enabled
     recaptcha_enabled || login_recaptcha_protection_enabled
+  end
+
+  repository_storages_weighted_attributes.each do |attribute|
+    define_method :"#{attribute}=" do |value|
+      super(value.to_i)
+    end
   end
 
   private

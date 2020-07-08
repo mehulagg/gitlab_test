@@ -1,17 +1,64 @@
-import { omit } from 'lodash';
-import { queryToObject, mergeUrlParams, removeParams } from '~/lib/utils/url_utility';
+import { pickBy, mapKeys } from 'lodash';
+import {
+  queryToObject,
+  mergeUrlParams,
+  removeParams,
+  updateHistory,
+} from '~/lib/utils/url_utility';
+import { parseBoolean } from '~/lib/utils/common_utils';
 import {
   timeRangeParamNames,
   timeRangeFromParams,
   timeRangeToParams,
 } from '~/lib/utils/datetime_range';
+import { VARIABLE_PREFIX } from './constants';
+
+/**
+ * Extracts the initial state and props from HTML dataset
+ * and places them in separate objects to setup bundle.
+ * @param {*} dataset
+ */
+export const stateAndPropsFromDataset = (dataset = {}) => {
+  const {
+    currentDashboard,
+    deploymentsEndpoint,
+    dashboardEndpoint,
+    dashboardsEndpoint,
+    dashboardTimezone,
+    projectPath,
+    logsPath,
+    currentEnvironmentName,
+    customDashboardBasePath,
+    ...dataProps
+  } = dataset;
+
+  // HTML attributes are always strings, parse other types.
+  dataProps.hasMetrics = parseBoolean(dataProps.hasMetrics);
+  dataProps.customMetricsAvailable = parseBoolean(dataProps.customMetricsAvailable);
+  dataProps.prometheusAlertsAvailable = parseBoolean(dataProps.prometheusAlertsAvailable);
+
+  return {
+    initState: {
+      currentDashboard,
+      deploymentsEndpoint,
+      dashboardEndpoint,
+      dashboardsEndpoint,
+      dashboardTimezone,
+      projectPath,
+      logsPath,
+      currentEnvironmentName,
+      customDashboardBasePath,
+    },
+    dataProps,
+  };
+};
 
 /**
  * List of non time range url parameters
  * This will be removed once we add support for free text variables
  * via the dashboard yaml files in https://gitlab.com/gitlab-org/gitlab/-/issues/215689
  */
-export const dashboardParams = ['dashboard', 'group', 'title', 'y_label'];
+export const dashboardParams = ['dashboard', 'group', 'title', 'y_label', 'embedded'];
 
 /**
  * This method is used to validate if the graph data format for a chart component
@@ -122,18 +169,76 @@ export const timeRangeFromUrl = (search = window.location.search) => {
 };
 
 /**
- * Returns an array with user defined variables from the URL
+ * Variable labels are used as names for the dropdowns and also
+ * as URL params. Prefixing the name reduces the risk of
+ * collision with other URL params
  *
- * @returns {Array} The custom variables defined by the
- * user in the URL
- * @param {String} New URL
+ * @param {String} label label for the template variable
+ * @returns {String}
  */
+export const addPrefixToLabel = label => `${VARIABLE_PREFIX}${label}`;
 
-export const promCustomVariablesFromUrl = (search = window.location.search) => {
+/**
+ * Before the templating variables are passed to the backend the
+ * prefix needs to be removed.
+ *
+ * This method removes the prefix at the beginning of the string.
+ *
+ * @param {String} label label to remove prefix from
+ * @returns {String}
+ */
+export const removePrefixFromLabel = label =>
+  (label || '').replace(new RegExp(`^${VARIABLE_PREFIX}`), '');
+
+/**
+ * Convert parsed template variables to an object
+ * with just keys and values. Prepare the variables
+ * to be added to the URL. Keys of the object will
+ * have a prefix so that these params can be
+ * differentiated from other URL params.
+ *
+ * @param {Object} variables
+ * @returns {Object}
+ */
+export const convertVariablesForURL = variables =>
+  variables.reduce((acc, { name, value }) => {
+    if (value !== null) {
+      acc[addPrefixToLabel(name)] = value;
+    }
+    return acc;
+  }, {});
+
+/**
+ * User-defined variables from the URL are extracted. The variables
+ * begin with a constant prefix so that it doesn't collide with
+ * other URL params.
+ *
+ * @param {String} search URL
+ * @returns {Object} The custom variables defined by the user in the URL
+ */
+export const templatingVariablesFromUrl = (search = window.location.search) => {
   const params = queryToObject(search);
-  const paramsToRemove = timeRangeParamNames.concat(dashboardParams);
+  // pick the params with variable prefix
+  const paramsWithVars = pickBy(params, (val, key) => key.startsWith(VARIABLE_PREFIX));
+  // remove the prefix before storing in the Vuex store
+  return mapKeys(paramsWithVars, (val, key) => removePrefixFromLabel(key));
+};
 
-  return omit(params, paramsToRemove);
+/**
+ * Update the URL with variables. This usually get triggered when
+ * the user interacts with the dynamic input elements in the monitoring
+ * dashboard header.
+ *
+ * @param {Object} variables user defined variables
+ */
+export const setCustomVariablesFromUrl = variables => {
+  // prep the variables to append to URL
+  const parsedVariables = convertVariablesForURL(variables);
+  // update the URL
+  updateHistory({
+    url: mergeUrlParams(parsedVariables, window.location.href),
+    title: document.title,
+  });
 };
 
 /**
@@ -199,14 +304,22 @@ export const expandedPanelPayloadFromUrl = (dashboard, search = window.location.
  * If no group/panel is set, the dashboard URL is returned.
  *
  * @param {?String} dashboard - Dashboard path, used as identifier for a dashboard
+ * @param {?Object} variables - Custom variables that came from the URL
  * @param {?String} group - Group Identifier
  * @param {?Object} panel - Panel object from the dashboard
  * @param {?String} url - Base URL including current search params
  * @returns Dashboard URL which expands a panel (chart)
  */
-export const panelToUrl = (dashboard = null, group, panel, url = window.location.href) => {
+export const panelToUrl = (
+  dashboard = null,
+  variables,
+  group,
+  panel,
+  url = window.location.href,
+) => {
   const params = {
     dashboard,
+    ...variables,
   };
 
   if (group && panel) {

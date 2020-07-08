@@ -2,7 +2,9 @@
 
 require 'spec_helper'
 
-describe API::ProjectSnippets do
+RSpec.describe API::ProjectSnippets do
+  include SnippetHelpers
+
   let_it_be(:project) { create(:project, :public) }
   let_it_be(:user) { create(:user) }
   let_it_be(:admin) { create(:admin) }
@@ -84,19 +86,22 @@ describe API::ProjectSnippets do
   end
 
   describe 'GET /projects/:project_id/snippets/:id' do
-    let(:user) { create(:user) }
-    let(:snippet) { create(:project_snippet, :public, :repository, project: project) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:snippet) { create(:project_snippet, :public, :repository, project: project) }
 
     it 'returns snippet json' do
       get api("/projects/#{project.id}/snippets/#{snippet.id}", user)
 
-      expect(response).to have_gitlab_http_status(:ok)
+      aggregate_failures do
+        expect(response).to have_gitlab_http_status(:ok)
 
-      expect(json_response['title']).to eq(snippet.title)
-      expect(json_response['description']).to eq(snippet.description)
-      expect(json_response['file_name']).to eq(snippet.file_name_on_repo)
-      expect(json_response['ssh_url_to_repo']).to eq(snippet.ssh_url_to_repo)
-      expect(json_response['http_url_to_repo']).to eq(snippet.http_url_to_repo)
+        expect(json_response['title']).to eq(snippet.title)
+        expect(json_response['description']).to eq(snippet.description)
+        expect(json_response['file_name']).to eq(snippet.file_name_on_repo)
+        expect(json_response['files']).to eq(snippet.blobs.map { |blob| snippet_blob_file(blob) } )
+        expect(json_response['ssh_url_to_repo']).to eq(snippet.ssh_url_to_repo)
+        expect(json_response['http_url_to_repo']).to eq(snippet.http_url_to_repo)
+      end
     end
 
     it 'returns 404 for invalid snippet id' do
@@ -110,6 +115,10 @@ describe API::ProjectSnippets do
       it_behaves_like '403 response' do
         let(:request) { get api("/projects/#{project_no_snippets.id}/snippets/123", user) }
       end
+    end
+
+    it_behaves_like 'snippet_multiple_files feature disabled' do
+      subject { get api("/projects/#{project.id}/snippets/#{snippet.id}", user) }
     end
   end
 
@@ -216,12 +225,36 @@ describe API::ProjectSnippets do
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
-    it 'returns 400 for empty content field' do
+    it 'returns 400 if content is blank' do
       params[:content] = ''
 
       post api("/projects/#{project.id}/snippets/", admin), params: params
 
       expect(response).to have_gitlab_http_status(:bad_request)
+      expect(json_response['error']).to eq 'content is empty'
+    end
+
+    it 'returns 400 if title is blank' do
+      params[:title] = ''
+
+      post api("/projects/#{project.id}/snippets/", admin), params: params
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+      expect(json_response['error']).to eq 'title is empty'
+    end
+
+    context 'when save fails because the repository could not be created' do
+      before do
+        allow_next_instance_of(Snippets::CreateService) do |instance|
+          allow(instance).to receive(:create_repository).and_raise(Snippets::CreateService::CreateRepositoryError)
+        end
+      end
+
+      it 'returns 400' do
+        post api("/projects/#{project.id}/snippets", admin), params: params
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
     end
 
     context 'when the snippet is spam' do
@@ -309,10 +342,17 @@ describe API::ProjectSnippets do
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
-    it 'returns 400 for empty content field' do
+    it 'returns 400 if content is blank' do
       update_snippet(params: { content: '' })
 
       expect(response).to have_gitlab_http_status(:bad_request)
+    end
+
+    it 'returns 400 if title is blank' do
+      update_snippet(params: { title: '' })
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+      expect(json_response['error']).to eq 'title is empty'
     end
 
     it_behaves_like 'update with repository actions' do
@@ -412,7 +452,7 @@ describe API::ProjectSnippets do
       get api("/projects/#{snippet.project.id}/snippets/#{snippet.id}/raw", admin)
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(response.content_type).to eq 'text/plain'
+      expect(response.media_type).to eq 'text/plain'
     end
 
     it 'returns 404 for invalid snippet id' do

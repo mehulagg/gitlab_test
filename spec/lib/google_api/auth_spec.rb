@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe GoogleApi::Auth do
+RSpec.describe GoogleApi::Auth do
   let(:redirect_uri) { 'http://localhost:3000/google_api/authorizations/callback' }
   let(:redirect_to) { 'http://localhost:3000/namaspace/project/clusters' }
 
@@ -39,6 +39,20 @@ describe GoogleApi::Auth do
       token, expires_at = client.get_token('xxx')
       expect(token).to eq('token')
       expect(expires_at).to eq('expires_at')
+    end
+
+    it 'expects the client to receive default options' do
+      config = Gitlab::Auth::OAuth::Provider.config_for('google_oauth2')
+
+      expect(OAuth2::Client).to receive(:new).with(
+        config.app_id,
+        config.app_secret,
+        hash_including(
+          **config.args.client_options.deep_symbolize_keys
+        )
+      ).and_call_original
+
+      client.get_token('xxx')
     end
   end
 end

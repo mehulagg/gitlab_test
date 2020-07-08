@@ -15,7 +15,7 @@ scanner, as well as requirements and guidelines for the Docker image.
 
 ## Job definition
 
-This section desribes several important fields to add to the security scanner's job
+This section describes several important fields to add to the security scanner's job
 definition file. Full documentation on these and other available fields can be viewed
 in the [CI documentation](../../ci/yaml/README.md#image).
 
@@ -69,7 +69,7 @@ For example, here is the definition of a SAST job that generates a file named `g
 and uploads it as a SAST report:
 
 ```yaml
-mysec_sast_scanning:
+mysec_sast:
   image: registry.gitlab.com/secure/mysec
   artifacts:
     reports:
@@ -89,9 +89,9 @@ for variables such as `DEPENDENCY_SCANNING_DISABLED`, `CONTAINER_SCANNING_DISABL
 disable running the custom scanner.
 
 GitLab also defines a `CI_PROJECT_REPOSITORY_LANGUAGES` variable, which provides the list of
-languages in the repo. Depending on this value, your scanner may or may not do something different.
+languages in the repository. Depending on this value, your scanner may or may not do something different.
 Language detection currently relies on the [`linguist`](https://github.com/github/linguist) Ruby gem.
-See [GitLab CI/CD prefined variables](../../ci/variables/predefined_variables.md#variables-reference).
+See [GitLab CI/CD predefined variables](../../ci/variables/predefined_variables.md).
 
 #### Policy checking example
 
@@ -100,13 +100,12 @@ the project repository contains Java source code and the `dependency_scanning` f
 
 ```yaml
 mysec_dependency_scanning:
-  except:
-    variables:
-      - $DEPENDENCY_SCANNING_DISABLED
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
-        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjava\b/
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED
+      when: never
+    - if: $GITLAB_FEATURES =~ /\bdependency_scanning\b/
+      exists:
+        - '**/*.java'
 ```
 
 Any additional job policy should only be configured by users based on their needs.
@@ -124,9 +123,9 @@ regardless of the individual machine the scanner runs on.
 
 Depending on the CI infrastructure,
 the CI may have to fetch the Docker image every time the job runs.
-To make the scanning job run fast, and to avoid wasting bandwidth,
-it is important to make Docker images as small as possible,
-ideally smaller than 50 MB.
+For the scanning job to run fast and avoid wasting bandwidth, Docker images should be as small as
+possible. You should aim for 50MB or smaller. If that isn't possible, try to keep it below 1.46 GB,
+which is the size of a CD-ROM.
 
 If the scanner requires a fully functional Linux environment,
 it is recommended to use a [Debian](https://www.debian.org/intro/about) "slim" distribution or [Alpine Linux](https://www.alpinelinux.org/).
@@ -135,11 +134,27 @@ and to compile the scanner with all the libraries it needs.
 [Multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
 might also help with keeping the image small.
 
+To keep an image size small, consider using [dive](https://github.com/wagoodman/dive#dive) to analyze layers in a Docker image to
+identify where additional bloat might be originating from.
+
+In some cases, it might be difficult to remove files from an image. When this occurs, consider using
+[Zstandard](https://github.com/facebook/zstd)
+to compress files or large directories. Zstandard offers many different compression levels that can
+decrease the size of your image with very little impact to decompression speed. It may be helpful to
+automatically decompress any compressed directories as soon as an image launches. You can accomplish
+this by adding a step to the Docker image's `/etc/bashrc` or to a specific user's `$HOME/.bashrc`.
+Remember to change the entry point to launch a bash login shell if you chose the latter option.
+
+Here are some examples to get you started:
+
+- <https://gitlab.com/gitlab-org/security-products/license-management/-/blob/0b976fcffe0a9b8e80587adb076bcdf279c9331c/config/install.sh#L168-170>
+- <https://gitlab.com/gitlab-org/security-products/license-management/-/blob/0b976fcffe0a9b8e80587adb076bcdf279c9331c/config/.bashrc#L49>
+
 ### Image tag
 
 As documented in the [Docker Official Images](https://github.com/docker-library/official-images#tags-and-aliases) project,
 it is strongly encouraged that version number tags be given aliases which allows the user to easily refer to the "most recent" release of a particular series.
-See also [Docker Tagging: Best practices for tagging and versioning docker images](https://docs.microsoft.com/en-us/archive/blogs/stevelasker/docker-tagging-best-practices-for-tagging-and-versioning-docker-images).
+See also [Docker Tagging: Best practices for tagging and versioning Docker images](https://docs.microsoft.com/en-us/archive/blogs/stevelasker/docker-tagging-best-practices-for-tagging-and-versioning-docker-images).
 
 ## Command line
 
@@ -215,6 +230,32 @@ Scanners may use [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_c
 to colorize the messages they write to the Unix standard output and standard error streams.
 We recommend using red to report errors, yellow for warnings, and green for notices.
 Also, we recommend prefixing error messages with `[ERRO]`, warnings with `[WARN]`, and notices with `[INFO]`.
+
+#### Logging level
+
+The scanner should filter out a log message if its log level is lower than the
+one set in the `SECURE_LOG_LEVEL` variable. For instance, `info` and `warn`
+messages should be skipped when `SECURE_LOG_LEVEL` is set to `error`. Accepted
+values are as follows, listed from highest to lowest:
+
+- `fatal`
+- `error`
+- `warn`
+- `info`
+- `debug`
+
+It is recommended to use the `debug` level for verbose logging that could be
+useful when debugging. The default value for `SECURE_LOG_LEVEL` should be set
+to `info`.
+
+#### common logutil package
+
+If you are using [go](https://golang.org/) and
+[common](https://gitlab.com/gitlab-org/security-products/analyzers/common),
+then it is suggested that you use [logrus](https://github.com/Sirupsen/logrus)
+and [common's logutil package](https://gitlab.com/gitlab-org/security-products/analyzers/common/-/tree/master/logutil)
+to configure the formatter for [logrus](https://github.com/Sirupsen/logrus).
+See the [logutil README.md](https://gitlab.com/gitlab-org/security-products/analyzers/common/-/tree/master/logutil/README.md)
 
 ## Report
 
@@ -448,7 +489,7 @@ Right now, GitLab cannot track a vulnerability if its location changes
 as new Git commits are pushed, and this results in user feedback being lost.
 For instance, user feedback on a SAST vulnerability is lost
 if the affected file is renamed or the affected line moves down.
-This is addressed in [issue #7586](https://gitlab.com/gitlab-org/gitlab/issues/7586).
+This is addressed in [issue #7586](https://gitlab.com/gitlab-org/gitlab/-/issues/7586).
 
 In some cases, the multiple scans executed in the same CI pipeline result in duplicates
 that are automatically merged using the vulnerability location and identifiers.
@@ -469,6 +510,10 @@ Valid values are: `Unknown`, `Info`, `Low`, `Medium`, `High`, or `Critical`
 The confidence ranges from `Low` to `Confirmed`, but it can also be `Unknown`,
 `Experimental` or even `Ignore` if the vulnerability is to be ignored.
 Valid values are: `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, or `Confirmed`
+
+`Unknown` values means that data is unavailable to determine it's actual value. Therefore, it may be `high`, `medium`, or `low`,
+and needs to be investigated. We have [provided a chart](../../user/application_security/sast/analyzers.md#analyzers-data)
+of the available SAST Analyzers and what data is currently available.
 
 ### Remediations
 
@@ -527,3 +572,15 @@ remediation. `fixes[].id` contains a fixed vulnerability's [unique identifier](#
 
 The `diff` field is a base64-encoded remediation code diff, compatible with
 [`git apply`](https://git-scm.com/docs/git-format-patch#_discussion). This field is required.
+
+## Limitations
+
+### Container Scanning
+
+Container Scanning currently has these limitations:
+
+- Although the Security Dashboard can display scan results from multiple images, if multiple
+  vulnerabilities have the same fingerprint, only the first instance of that vulnerability is
+  displayed. We're working on removing this limitation. You can follow our progress on the issue
+  [Change location fingerprint for Container Scanning](https://gitlab.com/gitlab-org/gitlab/-/issues/215466).
+- Different scanners may each report the same vulnerability, resulting in duplicate findings.

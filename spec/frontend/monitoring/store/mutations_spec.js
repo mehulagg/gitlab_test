@@ -5,7 +5,7 @@ import * as types from '~/monitoring/stores/mutation_types';
 import state from '~/monitoring/stores/state';
 import { metricStates } from '~/monitoring/constants';
 
-import { deploymentData, dashboardGitResponse } from '../mock_data';
+import { deploymentData, dashboardGitResponse, storeTextVariables } from '../mock_data';
 import { metricsDashboardPayload } from '../fixture_data';
 
 describe('Monitoring mutations', () => {
@@ -72,6 +72,55 @@ describe('Monitoring mutations', () => {
     });
   });
 
+  describe('Dashboard starring mutations', () => {
+    it('REQUEST_DASHBOARD_STARRING', () => {
+      stateCopy = { isUpdatingStarredValue: false };
+      mutations[types.REQUEST_DASHBOARD_STARRING](stateCopy);
+
+      expect(stateCopy.isUpdatingStarredValue).toBe(true);
+    });
+
+    describe('RECEIVE_DASHBOARD_STARRING_SUCCESS', () => {
+      let allDashboards;
+
+      beforeEach(() => {
+        allDashboards = [...dashboardGitResponse];
+        stateCopy = {
+          allDashboards,
+          currentDashboard: allDashboards[1].path,
+          isUpdatingStarredValue: true,
+        };
+      });
+
+      it('sets a dashboard as starred', () => {
+        mutations[types.RECEIVE_DASHBOARD_STARRING_SUCCESS](stateCopy, {
+          selectedDashboard: stateCopy.allDashboards[1],
+          newStarredValue: true,
+        });
+
+        expect(stateCopy.isUpdatingStarredValue).toBe(false);
+        expect(stateCopy.allDashboards[1].starred).toBe(true);
+      });
+
+      it('sets a dashboard as unstarred', () => {
+        mutations[types.RECEIVE_DASHBOARD_STARRING_SUCCESS](stateCopy, {
+          selectedDashboard: stateCopy.allDashboards[1],
+          newStarredValue: false,
+        });
+
+        expect(stateCopy.isUpdatingStarredValue).toBe(false);
+        expect(stateCopy.allDashboards[1].starred).toBe(false);
+      });
+    });
+
+    it('RECEIVE_DASHBOARD_STARRING_FAILURE', () => {
+      stateCopy = { isUpdatingStarredValue: true };
+      mutations[types.RECEIVE_DASHBOARD_STARRING_FAILURE](stateCopy);
+
+      expect(stateCopy.isUpdatingStarredValue).toBe(false);
+    });
+  });
+
   describe('RECEIVE_DEPLOYMENTS_DATA_SUCCESS', () => {
     it('stores the deployment data', () => {
       stateCopy.deploymentData = [];
@@ -85,13 +134,11 @@ describe('Monitoring mutations', () => {
   describe('SET_INITIAL_STATE', () => {
     it('should set all the endpoints', () => {
       mutations[types.SET_INITIAL_STATE](stateCopy, {
-        metricsEndpoint: 'additional_metrics.json',
         deploymentsEndpoint: 'deployments.json',
         dashboardEndpoint: 'dashboard.json',
         projectPath: '/gitlab-org/gitlab-foss',
         currentEnvironmentName: 'production',
       });
-      expect(stateCopy.metricsEndpoint).toEqual('additional_metrics.json');
       expect(stateCopy.deploymentsEndpoint).toEqual('deployments.json');
       expect(stateCopy.dashboardEndpoint).toEqual('dashboard.json');
       expect(stateCopy.projectPath).toEqual('/gitlab-org/gitlab-foss');
@@ -136,12 +183,10 @@ describe('Monitoring mutations', () => {
   describe('SET_ENDPOINTS', () => {
     it('should set all the endpoints', () => {
       mutations[types.SET_ENDPOINTS](stateCopy, {
-        metricsEndpoint: 'additional_metrics.json',
         deploymentsEndpoint: 'deployments.json',
         dashboardEndpoint: 'dashboard.json',
         projectPath: '/gitlab-org/gitlab-foss',
       });
-      expect(stateCopy.metricsEndpoint).toEqual('additional_metrics.json');
       expect(stateCopy.deploymentsEndpoint).toEqual('deployments.json');
       expect(stateCopy.dashboardEndpoint).toEqual('dashboard.json');
       expect(stateCopy.projectPath).toEqual('/gitlab-org/gitlab-foss');
@@ -180,11 +225,28 @@ describe('Monitoring mutations', () => {
 
   describe('Individual panel/metric results', () => {
     const metricId = 'NO_DB_response_metrics_nginx_ingress_throughput_status_code';
-    const result = [
-      {
-        values: [[0, 1], [1, 1], [1, 3]],
-      },
-    ];
+    const data = {
+      resultType: 'matrix',
+      result: [
+        {
+          metric: {
+            __name__: 'up',
+            job: 'prometheus',
+            instance: 'localhost:9090',
+          },
+          values: [[1435781430.781, '1'], [1435781445.781, '1'], [1435781460.781, '1']],
+        },
+        {
+          metric: {
+            __name__: 'up',
+            job: 'node',
+            instance: 'localhost:9091',
+          },
+          values: [[1435781430.781, '0'], [1435781445.781, '0'], [1435781460.781, '1']],
+        },
+      ],
+    };
+
     const dashboard = metricsDashboardPayload;
     const getMetric = () => stateCopy.dashboard.panelGroups[1].panels[0].metrics[0];
 
@@ -217,7 +279,7 @@ describe('Monitoring mutations', () => {
 
         mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
           metricId,
-          result,
+          data,
         });
 
         expect(stateCopy.showEmptyState).toBe(false);
@@ -228,10 +290,10 @@ describe('Monitoring mutations', () => {
 
         mutations[types.RECEIVE_METRIC_RESULT_SUCCESS](stateCopy, {
           metricId,
-          result,
+          data,
         });
 
-        expect(getMetric().result).toHaveLength(result.length);
+        expect(getMetric().result).toHaveLength(data.result.length);
         expect(getMetric()).toEqual(
           expect.objectContaining({
             loading: false,
@@ -365,17 +427,53 @@ describe('Monitoring mutations', () => {
     });
   });
 
-  describe('SET_PROM_QUERY_VARIABLES', () => {
-    it('stores an empty variables array when no custom variables are given', () => {
-      mutations[types.SET_PROM_QUERY_VARIABLES](stateCopy, {});
+  describe('UPDATE_VARIABLE_VALUE', () => {
+    it('updates only the value of the variable in variables', () => {
+      stateCopy.variables = storeTextVariables;
+      mutations[types.UPDATE_VARIABLE_VALUE](stateCopy, { name: 'textSimple', value: 'New Value' });
 
-      expect(stateCopy.promVariables).toEqual([]);
+      expect(stateCopy.variables[0].value).toEqual('New Value');
     });
+  });
 
-    it('stores variables in the key key_value format in the array', () => {
-      mutations[types.SET_PROM_QUERY_VARIABLES](stateCopy, { pod: 'POD', stage: 'main ops' });
+  describe('UPDATE_VARIABLE_METRIC_LABEL_VALUES', () => {
+    it('updates options in a variable', () => {
+      const data = [
+        {
+          __name__: 'up',
+          job: 'prometheus',
+          env: 'prd',
+        },
+        {
+          __name__: 'up',
+          job: 'prometheus',
+          env: 'stg',
+        },
+        {
+          __name__: 'up',
+          job: 'node',
+          env: 'prod',
+        },
+        {
+          __name__: 'up',
+          job: 'node',
+          env: 'stg',
+        },
+      ];
 
-      expect(stateCopy.promVariables).toEqual(['pod', 'POD', 'stage', 'main%20ops']);
+      const variable = {
+        options: {},
+      };
+
+      mutations[types.UPDATE_VARIABLE_METRIC_LABEL_VALUES](stateCopy, {
+        variable,
+        label: 'job',
+        data,
+      });
+
+      expect(variable.options).toEqual({
+        values: [{ text: 'prometheus', value: 'prometheus' }, { text: 'node', value: 'node' }],
+      });
     });
   });
 });

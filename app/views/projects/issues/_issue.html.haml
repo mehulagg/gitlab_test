@@ -43,10 +43,11 @@
               = link_to_label(label, small: true)
 
           = render_if_exists "projects/issues/issue_weight", issue: issue
+          = render "projects/issues/issue_estimate", issue: issue
 
       .issuable-meta
         %ul.controls
-          - if issue.moved?
+          - if issue.closed? && issue.moved?
             %li.issuable-status
               = _('CLOSED (MOVED)')
           - elsif issue.closed?

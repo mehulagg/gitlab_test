@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Issues::CreateService do
+RSpec.describe Issues::CreateService do
   let(:project) { create(:project) }
   let(:user) { create(:user) }
 
@@ -284,7 +284,9 @@ describe Issues::CreateService do
       end
     end
 
-    it_behaves_like 'new issuable record that supports quick actions'
+    it_behaves_like 'issuable record that supports quick actions' do
+      let(:issuable) { described_class.new(project, user, params).execute }
+    end
 
     context 'Quick actions' do
       context 'with assignee and milestone in params and command' do
@@ -458,7 +460,7 @@ describe Issues::CreateService do
         context 'when SpamVerdictService requires reCAPTCHA' do
           before do
             expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
-              expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
+              expect(verdict_service).to receive(:execute).and_return(CONDITIONAL_ALLOW)
             end
           end
 

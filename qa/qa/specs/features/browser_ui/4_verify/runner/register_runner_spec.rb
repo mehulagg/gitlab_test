@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Verify', :docker, :runner do
+  RSpec.describe 'Verify', :docker, :runner do
     describe 'Runner registration' do
       let(:executor) { "qa-runner-#{Time.now.to_i}" }
       let!(:runner) do
         Resource::Runner.fabricate! do |runner|
           runner.name = executor
+          runner.tags = ['e2e-test']
         end
       end
 

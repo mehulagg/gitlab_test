@@ -121,9 +121,8 @@ export default {
             :href="commit.webUrl"
             :class="{ 'font-italic': !commit.message }"
             class="commit-row-message item-title"
-          >
-            {{ commit.title }}
-          </gl-link>
+            v-html="commit.titleHtml"
+          />
           <gl-deprecated-button
             v-if="commit.description"
             :class="{ open: showDescription }"
@@ -150,7 +149,7 @@ export default {
           <pre
             v-if="commit.description"
             :class="{ 'd-block': showDescription }"
-            class="commit-row-description append-bottom-8"
+            class="commit-row-description gl-mb-3"
             >{{ commit.description }}</pre
           >
         </div>

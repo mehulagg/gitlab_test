@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 comments: false
 type: index, howto
 ---
@@ -9,11 +12,24 @@ A lot of GitLab users have successfully migrated to GitLab CI/CD from Jenkins. T
 easier if you're just getting started, we've collected several resources here that you might find useful
 before diving in. Think of this page as a "GitLab CI/CD for Jenkins Users" guide.
 
-First of all, our [Quick Start Guide](../quick_start/README.md) contains a good overview of how GitLab CI/CD works.
-You may also be interested in [Auto DevOps](../../topics/autodevops/index.md) which can potentially be used to build, test,
-and deploy your applications with little to no configuration needed at all.
+The following list of recommended steps was created after observing organizations
+that were able to quickly complete this migration:
 
-For advanced CI/CD teams, [templates](#templates) can enable the reuse of pipeline configurations.
+1. Start by reading the GitLab CI/CD [Quick Start Guide](../quick_start/README.md) and [important product differences](#important-product-differences).
+1. Learn the importance of [managing the organizational transition](#managing-the-organizational-transition).
+1. [Add Runners](../runners/README.md) to your GitLab instance.
+1. Educate and enable your developers to independently perform the following steps in their projects:
+   1. Review the [Quick Start Guide](../quick_start/README.md) and [Pipeline Configuration Reference](../yaml/README.md).
+   1. Use the [Jenkins Wrapper](#jenkinsfile-wrapper) to temporarily maintain fragile Jenkins jobs.
+   1. Migrate the build and CI jobs and configure them to show results directly in your merge requests. They can use [Auto DevOps](../../topics/autodevops/index.md) as a starting point, and [customize](../../topics/autodevops/customize.md) or [decompose](../../topics/autodevops/customize.md#using-components-of-auto-devops) the configuration as needed.
+   1. Add [Review Apps](../review_apps/index.md).
+   1. Migrate the deployment jobs using [cloud deployment templates](../cloud_deployment/index.md), adding [environments](../environments/index.md), and [deploy boards](../..//user/project/deploy_boards.md).
+   1. Work to unwrap any jobs still running with the use of the Jenkins wrapper.
+1. Take stock of any common CI/CD job definitions then create and share [templates](#templates) for them.
+
+For an example of how to convert a Jenkins pipeline into a GitLab CI/CD pipeline,
+or how to use Auto DevOps to test your code automatically, watch the
+[Migrating from Jenkins to GitLab](https://www.youtube.com/watch?v=RlEVGOpYF5Y) video.
 
 Otherwise, read on for important information that will help you get the ball rolling. Welcome
 to GitLab!
@@ -40,6 +56,14 @@ things we have found that helps this:
   of the improvements that GitLab offers, and this requires (eventually) updating
   your implementation as part of the transition.
 
+## JenkinsFile Wrapper
+
+We are building a [JenkinsFile Wrapper](https://gitlab.com/gitlab-org/jfr-container-builder/) which will allow
+you to run a complete Jenkins instance inside of a GitLab job, including plugins. This can help ease the process
+of transition, by letting you delay the migration of less urgent pipelines for a period of time.
+
+If you are interested in helping GitLab test the wrapper, join our [public testing issue](https://gitlab.com/gitlab-org/gitlab/-/issues/215675) for instructions and to provide your feedback.
+
 ## Important product differences
 
 There are some high level differences between the products worth mentioning:
@@ -59,13 +83,13 @@ There are some high level differences between the products worth mentioning:
   with the [`rules` syntax](../yaml/README.md#rules).
 - GitLab [pipeline scheduling concepts](../pipelines/schedules.md) are also different than with Jenkins.
 - You can reuse pipeline configurations using the [`include` keyword](../yaml/README.md#include)
-  and [templates](#templates). Your templates can be kept in a central repo (with different
+  and [templates](#templates). Your templates can be kept in a central repository (with different
   permissions), and then any project can use them. This central project could also
   contain scripts or other reusable code.
 - You can also use the [`extends` keyword](../yaml/README.md#extends) to reuse configuration
   within a single pipeline configuration.
 - All jobs within a single stage always run in parallel, and all stages run in sequence. We are planning
-  to allow certain jobs to break this sequencing as needed with our [directed acyclic graph](https://gitlab.com/gitlab-org/gitlab-foss/issues/47063)
+  to allow certain jobs to break this sequencing as needed with our [directed acyclic graph](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/47063)
   feature.
 - The [`parallel`](../yaml/README.md#parallel) keyword can automatically parallelize tasks,
   like tests that support parallelization.
@@ -77,7 +101,7 @@ There are some high level differences between the products worth mentioning:
 - One important difference is that jobs run independently of each other and have a
   fresh environment in each job. Passing artifacts between jobs is controlled using the
   [`artifacts`](../yaml/README.md#artifacts) and [`dependencies`](../yaml/README.md#dependencies)
-  keywords. When finished, the planned [Workspaces](https://gitlab.com/gitlab-org/gitlab/issues/29265)
+  keywords. When finished, the planned [Workspaces](https://gitlab.com/gitlab-org/gitlab/-/issues/29265)
   feature will allow you to more easily persist a common workspace between serial jobs.
 - The `.gitlab-ci.yml` file is checked in to the root of your repository, much like a Jenkinsfile, but
   is in the YAML format (see [complete reference](../yaml/README.md)) instead of a Groovy DSL. It's most
@@ -102,13 +126,13 @@ agents you were using.
 
 There are some important differences in the way Runners work in comparison to agents:
 
-- Runners can be set up as [shared across an instance, be added at the group level, or set up at the project level](../runners/README.md#shared-specific-and-group-runners).
+- Runners can be set up as [shared across an instance, be added at the group level, or set up at the project level](../runners/README.md#types-of-runners).
   They will self-select jobs from the scopes you've defined automatically.
-- You can also [use tags](../runners/README.md#using-tags) for finer control, and
+- You can also [use tags](../runners/README.md#use-tags-to-limit-the-number-of-jobs-using-the-runner) for finer control, and
   associate runners with specific jobs. For example, you can use a tag for jobs that
   require dedicated, more powerful, or specific hardware.
 - GitLab has [autoscaling for Runners](https://docs.gitlab.com/runner/configuration/autoscale.html)
-  which will let configure them to be provisioned as needed, and scaled down when not.
+  which will let you configure them to be provisioned as needed, and scaled down when not.
   This is similar to ephemeral agents in Jenkins.
 
 If you are using `gitlab.com`, you can take advantage of our [shared Runner fleet](../../user/gitlab_com/index.md#shared-runners)
@@ -123,7 +147,7 @@ GitLab works a bit differently, we use the more highly structured [YAML](https:/
 places scripting elements inside of `script:` blocks separate from the pipeline specification itself.
 
 This is a strength of GitLab, in that it helps keep the learning curve much simpler to get up and running
-and avoids some of the problem of unconstrained complexity which can make your Jenkinsfiles hard to understand
+and avoids some of the problem of unconstrained complexity which can make your Jenkinsfile hard to understand
 and manage.
 
 That said, we do of course still value DRY (don't repeat yourself) principles and want to ensure that
@@ -157,8 +181,8 @@ pdf:
   script: xelatex mycv.tex
   artifacts:
     paths:
-    - ./mycv.pdf
-    - ./output/
+      - ./mycv.pdf
+      - ./output/
     expire_in: 1 week
 ```
 
@@ -189,12 +213,12 @@ be used by all projects in the group. An instance administrator can set a group 
 the source for [instance project templates](../../user/group/custom_project_templates.md),
 which can be used by projects in that instance.
 
-## Converting Declarative Jenkinsfiles
+## Converting a declarative Jenkinsfile
 
-Declarative Jenkinsfiles contain "Sections" and "Directives" which are used to control the behavior of your
+A declarative Jenkinsfile contains "Sections" and "Directives" which are used to control the behavior of your
 pipelines. There are equivalents for all of these in GitLab, which we've documented below.
 
-This section is based on the [Jenkinsfile syntax documentation](https://jenkins.io/doc/book/pipeline/syntax/)
+This section is based on the [Jenkinsfile syntax documentation](https://www.jenkins.io/doc/book/pipeline/syntax/)
 and is meant to be a mapping of concepts there to concepts in GitLab.
 
 ### Sections
@@ -204,7 +228,7 @@ and is meant to be a mapping of concepts there to concepts in GitLab.
 The agent section is used to define how a pipeline will be executed. For GitLab, we use the [GitLab Runner](../runners/README.md)
 to provide this capability. You can configure your own runners in Kubernetes or on any host, or take advantage
 of our shared runner fleet (note that the shared runner fleet is only available for GitLab.com users.) The link above will bring you to the documentation which will describe how to get
-up and running quickly. We also support using [tags](../runners/README.md#using-tags) to direct different jobs
+up and running quickly. We also support using [tags](../runners/README.md#use-tags-to-limit-the-number-of-jobs-using-the-runner) to direct different jobs
 to different Runners (execution agents).
 
 The `agent` section also allows you to define which Docker images should be used for execution, for which we use

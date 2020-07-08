@@ -1,5 +1,15 @@
 export default (initialState = {}) => ({
   endpoint: initialState.endpoint,
-  loading: false, // TODO - set this to true once integrated with BE
+  hasAncestorClusters: false,
   clusters: [],
+  clustersPerPage: 0,
+  loadingClusters: true,
+  loadingNodes: true,
+  page: 1,
+  providers: {
+    aws: { path: initialState.imgTagsAwsPath, text: initialState.imgTagsAwsText },
+    default: { path: initialState.imgTagsDefaultPath, text: initialState.imgTagsDefaultText },
+    gcp: { path: initialState.imgTagsGcpPath, text: initialState.imgTagsGcpText },
+  },
+  totalCulsters: 0,
 });

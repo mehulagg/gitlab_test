@@ -3,10 +3,12 @@
 require 'mime/types'
 
 module API
-  class Branches < Grape::API
+  class Branches < Grape::API::Instance
     include PaginationParams
 
     BRANCH_ENDPOINT_REQUIREMENTS = API::NAMESPACE_OR_PROJECT_REQUIREMENTS.merge(branch: API::NO_SLASH_URL_PART_REGEX)
+
+    after_validation { content_type "application/json" }
 
     before do
       require_repository_enabled!

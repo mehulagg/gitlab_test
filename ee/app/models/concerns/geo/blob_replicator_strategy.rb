@@ -9,19 +9,33 @@ module Geo
 
     included do
       event :created
+      event :deleted
     end
 
     def handle_after_create_commit
       publish(:created, **created_params)
 
-      return unless Feature.enabled?(:geo_self_service_framework)
+      return unless Feature.enabled?(:geo_self_service_framework_replication, default_enabled: true)
 
       schedule_checksum_calculation if needs_checksum?
     end
 
     # Called by Gitlab::Geo::Replicator#consume
     def consume_event_created(**params)
+      return if excluded_by_selective_sync?
+
       download
+    end
+
+    def handle_after_destroy
+      publish(:deleted, **deleted_params)
+    end
+
+    # Called by Gitlab::Geo::Replicator#consume
+    def consume_event_deleted(**params)
+      return if excluded_by_selective_sync?
+
+      replicate_destroy(params)
     end
 
     # Return the carrierwave uploader instance scoped to current model
@@ -30,6 +44,13 @@ module Geo
     # @return [Carrierwave::Uploader]
     def carrierwave_uploader
       raise NotImplementedError
+    end
+
+    # Return the absolute path to locally stored package file
+    #
+    # @return [String] File path
+    def blob_path
+      carrierwave_uploader.class.absolute_path(carrierwave_uploader)
     end
 
     def calculate_checksum!
@@ -59,7 +80,7 @@ module Geo
 
       model_record.update!(
         verification_checksum: checksum,
-        verified_at: Time.now,
+        verified_at: Time.current,
         verification_failure: failure,
         verification_retry_at: retry_at,
         verification_retry_count: retry_count
@@ -75,12 +96,24 @@ module Geo
       ::Geo::BlobDownloadService.new(replicator: self).execute
     end
 
+    def replicate_destroy(event_data)
+      ::Geo::FileRegistryRemovalService.new(
+        replicable_name,
+        model_record.id,
+        event_data[:blob_path]
+      ).execute
+    end
+
     def schedule_checksum_calculation
       Geo::BlobVerificationPrimaryWorker.perform_async(replicable_name, model_record.id)
     end
 
     def created_params
       { model_record_id: model_record.id }
+    end
+
+    def deleted_params
+      { model_record_id: model_record.id, blob_path: blob_path }
     end
 
     def needs_checksum?

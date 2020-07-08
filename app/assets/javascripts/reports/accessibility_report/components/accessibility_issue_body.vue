@@ -36,7 +36,7 @@ export default {
 };
 </script>
 <template>
-  <div class="report-block-list-issue-description prepend-top-5 append-bottom-5">
+  <div class="report-block-list-issue-description prepend-top-5 gl-mb-2">
     <div ref="accessibility-issue-description" class="report-block-list-issue-description-text">
       <div
         v-if="isNew"
@@ -55,7 +55,7 @@ export default {
           )
         }}
         <gl-link ref="accessibility-issue-learn-more" :href="learnMoreUrl" target="_blank">{{
-          s__('AccessibilityReport|Learn More')
+          s__('AccessibilityReport|Learn more')
         }}</gl-link>
       </div>
       {{ sprintf(s__('AccessibilityReport|Message: %{message}'), { message: issue.message }) }}

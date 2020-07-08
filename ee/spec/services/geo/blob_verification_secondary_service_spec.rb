@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Geo::BlobVerificationSecondaryService, :geo do
+RSpec.describe Geo::BlobVerificationSecondaryService, :geo do
   include ::EE::GeoHelpers
 
   let(:secondary) { create(:geo_node) }
@@ -14,7 +14,7 @@ describe Geo::BlobVerificationSecondaryService, :geo do
   describe '#execute' do
     let_it_be(:package_file) { create(:conan_package_file, :conan_recipe_file, verification_checksum: '62fc1ec4ce60') }
 
-    let_it_be(:registry) { create(:package_file_registry, :synced, package_file: package_file) }
+    let_it_be(:registry) { create(:geo_package_file_registry, :synced, package_file: package_file) }
 
     subject(:service) { described_class.new(package_file.replicator) }
 
@@ -67,7 +67,7 @@ describe Geo::BlobVerificationSecondaryService, :geo do
       expect(registry.reload).to have_attributes(
         verification_checksum: '62fc1ec4ce60',
         checksum_mismatch: false,
-        verified_at: be_within(1.minute).of(Time.now),
+        verified_at: be_within(1.minute).of(Time.current),
         verification_failure: nil,
         verification_retry_count: nil,
         retry_at: nil,
@@ -87,7 +87,7 @@ describe Geo::BlobVerificationSecondaryService, :geo do
           verification_checksum: nil,
           verification_checksum_mismatched: '99fc1ec4ce60',
           checksum_mismatch: true,
-          verified_at: be_within(1.minute).of(Time.now),
+          verified_at: be_within(1.minute).of(Time.current),
           verification_failure: 'checksum mismatch',
           verification_retry_count: 1,
           retry_at: be_present,
@@ -119,7 +119,7 @@ describe Geo::BlobVerificationSecondaryService, :geo do
           verification_checksum: nil,
           verification_checksum_mismatched: nil,
           checksum_mismatch: false,
-          verified_at: be_within(1.minute).of(Time.now),
+          verified_at: be_within(1.minute).of(Time.current),
           verification_failure: 'Error calculating checksum',
           verification_retry_count: 1,
           retry_at: be_present,

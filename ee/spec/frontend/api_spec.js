@@ -379,6 +379,32 @@ describe('Api', () => {
       });
     });
 
+    describe('cycleAnalyticsTimeSummaryData', () => {
+      it('fetches value stream analytics summary data', done => {
+        const response = [
+          { value: '10.0', title: 'Lead time', unit: 'per day' },
+          { value: '2.0', title: 'Cycle Time', unit: 'per day' },
+        ];
+        const params = {
+          ...defaultParams,
+        };
+
+        const expectedUrl = `${dummyCycleAnalyticsUrlRoot}/-/analytics/value_stream_analytics/time_summary`;
+        mock.onGet(expectedUrl).reply(200, response);
+
+        Api.cycleAnalyticsTimeSummaryData(groupId, params)
+          .then(responseObj =>
+            expectRequestWithCorrectParameters(responseObj, {
+              response,
+              params,
+              expectedUrl,
+            }),
+          )
+          .then(done)
+          .catch(done.fail);
+      });
+    });
+
     describe('cycleAnalyticsGroupStagesAndEvents', () => {
       it('fetches custom stage events and all stages', done => {
         const response = { events: [], stages: [] };
@@ -762,7 +788,7 @@ describe('Api', () => {
       it('GETs the right url', () => {
         mock.onGet(expectedUrl).replyOnce(200, []);
 
-        return Api.fetchFeatureFlagUserLists(dummyApiVersion, projectId).then(({ data }) => {
+        return Api.fetchFeatureFlagUserLists(projectId).then(({ data }) => {
           expect(data).toEqual([]);
         });
       });
@@ -776,11 +802,9 @@ describe('Api', () => {
         };
         mock.onPost(expectedUrl, mockUserListData).replyOnce(200, mockUserList);
 
-        return Api.createFeatureFlagUserList(dummyApiVersion, projectId, mockUserListData).then(
-          ({ data }) => {
-            expect(data).toEqual(mockUserList);
-          },
-        );
+        return Api.createFeatureFlagUserList(projectId, mockUserListData).then(({ data }) => {
+          expect(data).toEqual(mockUserList);
+        });
       });
     });
 
@@ -788,7 +812,7 @@ describe('Api', () => {
       it('GETs the right url', () => {
         mock.onGet(`${expectedUrl}/1`).replyOnce(200, mockUserList);
 
-        return Api.fetchFeatureFlagUserList(dummyApiVersion, projectId, 1).then(({ data }) => {
+        return Api.fetchFeatureFlagUserList(projectId, 1).then(({ data }) => {
           expect(data).toEqual(mockUserList);
         });
       });
@@ -798,7 +822,7 @@ describe('Api', () => {
       it('PUTs the right url', () => {
         mock.onPut(`${expectedUrl}/1`).replyOnce(200, { ...mockUserList, user_xids: '5' });
 
-        return Api.updateFeatureFlagUserList(dummyApiVersion, projectId, {
+        return Api.updateFeatureFlagUserList(projectId, {
           ...mockUserList,
           user_xids: '5',
         }).then(({ data }) => {
@@ -811,9 +835,25 @@ describe('Api', () => {
       it('DELETEs the right url', () => {
         mock.onDelete(`${expectedUrl}/1`).replyOnce(200, 'deleted');
 
-        return Api.deleteFeatureFlagUserList(dummyApiVersion, projectId, 1).then(({ data }) => {
+        return Api.deleteFeatureFlagUserList(projectId, 1).then(({ data }) => {
           expect(data).toBe('deleted');
         });
+      });
+    });
+  });
+
+  describe('getApplicationSettings', () => {
+    const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/application/settings`;
+    const apiResponse = { mock_setting: 1, mock_setting2: 2 };
+
+    it('fetches applications settings', () => {
+      jest.spyOn(Api, 'buildUrl').mockReturnValue(expectedUrl);
+      jest.spyOn(axios, 'get');
+      mock.onGet(expectedUrl).replyOnce(200, apiResponse);
+
+      return Api.getApplicationSettings().then(({ data }) => {
+        expect(data).toEqual(apiResponse);
+        expect(axios.get).toHaveBeenCalledWith(expectedUrl);
       });
     });
   });

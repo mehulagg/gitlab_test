@@ -22,7 +22,10 @@ export default class MergeRequestStore {
     const pipelineStatus = data.pipeline ? data.pipeline.details.status : null;
 
     this.squash = data.squash;
+    this.squashIsEnabledByDefault = data.squash_enabled_by_default;
+    this.squashIsReadonly = data.squash_readonly;
     this.enableSquashBeforeMerge = this.enableSquashBeforeMerge || true;
+    this.squashIsSelected = data.squash_readonly ? data.squash_on_merge : data.squash;
 
     this.iid = data.iid;
     this.title = data.title;
@@ -103,7 +106,7 @@ export default class MergeRequestStore {
     this.ciStatusFaviconPath = pipelineStatus ? pipelineStatus.favicon : null;
     this.terraformReportsPath = data.terraform_reports_path;
     this.testResultsPath = data.test_reports_path;
-    this.accessibility = data.accessibility || {};
+    this.accessibilityReportPath = data.accessibility_report_path;
     this.exposedArtifactsPath = data.exposed_artifacts_path;
     this.cancelAutoMergePath = data.cancel_auto_merge_path;
     this.canCancelAutomaticMerge = Boolean(data.cancel_auto_merge_path);

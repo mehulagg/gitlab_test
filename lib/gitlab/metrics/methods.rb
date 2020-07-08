@@ -35,7 +35,7 @@ module Gitlab
         end
 
         def init_metric(type, name, opts = {}, &block)
-          options = MetricOptions.new(opts)
+          options = ::Gitlab::Metrics::Methods::MetricOptions.new(opts)
           options.evaluate(&block)
 
           if disabled_by_feature(options)
@@ -52,7 +52,7 @@ module Gitlab
         end
 
         def disabled_by_feature(options)
-          options.with_feature && !::Feature.get(options.with_feature).enabled?
+          options.with_feature && !::Feature.enabled?(options.with_feature)
         end
 
         def build_metric!(type, name, options)

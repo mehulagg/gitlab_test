@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe SnippetPresenter do
+RSpec.describe SnippetPresenter do
   include Gitlab::Routing.url_helpers
 
   let_it_be(:user) { create(:user) }
@@ -160,6 +160,27 @@ describe SnippetPresenter do
 
       it 'returns repository first blob' do
         expect(subject).to eq snippet.blobs.first
+      end
+    end
+  end
+
+  describe '#blobs' do
+    let(:snippet) { personal_snippet }
+
+    subject { presenter.blobs }
+
+    context 'when snippet does not have a repository' do
+      it 'returns an array with one SnippetBlob' do
+        expect(subject.size).to eq(1)
+        expect(subject.first).to eq(snippet.blob)
+      end
+    end
+
+    context 'when snippet has a repository' do
+      let(:snippet) { create(:snippet, :repository, author: user) }
+
+      it 'returns an array with all repository blobs' do
+        expect(subject).to match_array(snippet.blobs)
       end
     end
   end

@@ -2,7 +2,6 @@
 import { escape } from 'lodash';
 import { mapActions, mapGetters } from 'vuex';
 import { GlDeprecatedButton, GlTooltipDirective, GlLoadingIcon } from '@gitlab/ui';
-import { polyfillSticky } from '~/lib/utils/sticky';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import FileIcon from '~/vue_shared/components/file_icon.vue';
@@ -124,9 +123,6 @@ export default {
       return s__('MRDiff|Show full file');
     },
   },
-  mounted() {
-    polyfillSticky(this.$refs.header);
-  },
   methods: {
     ...mapActions('diffs', [
       'toggleFileDiscussions',
@@ -170,13 +166,7 @@ export default {
         class="diff-toggle-caret append-right-5"
         @click.stop="handleToggleFile"
       />
-      <a
-        v-once
-        ref="titleWrapper"
-        class="append-right-4"
-        :href="titleLink"
-        @click="handleFileNameClick"
-      >
+      <a v-once ref="titleWrapper" class="gl-mr-2" :href="titleLink" @click="handleFileNameClick">
         <file-icon
           :file-name="filePath"
           :size="18"

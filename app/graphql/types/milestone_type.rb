@@ -9,6 +9,8 @@ module Types
 
     authorize :read_milestone
 
+    alias_method :milestone, :object
+
     field :id, GraphQL::ID_TYPE, null: false,
           description: 'ID of the milestone'
 
@@ -35,5 +37,26 @@ module Types
 
     field :updated_at, Types::TimeType, null: false,
           description: 'Timestamp of last milestone update'
+
+    field :project_milestone, GraphQL::BOOLEAN_TYPE, null: false,
+          description: 'Indicates if milestone is at project level',
+          method: :project_milestone?
+
+    field :group_milestone, GraphQL::BOOLEAN_TYPE, null: false,
+          description: 'Indicates if milestone is at group level',
+          method: :group_milestone?
+
+    field :subgroup_milestone, GraphQL::BOOLEAN_TYPE, null: false,
+          description: 'Indicates if milestone is at subgroup level',
+          method: :subgroup_milestone?
+
+    field :stats, Types::MilestoneStatsType, null: true,
+          description: 'Milestone statistics'
+
+    def stats
+      return unless Feature.enabled?(:graphql_milestone_stats, milestone.project || milestone.group, default_enabled: true)
+
+      milestone
+    end
   end
 end

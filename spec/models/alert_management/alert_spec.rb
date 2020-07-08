@@ -2,10 +2,16 @@
 
 require 'spec_helper'
 
-describe AlertManagement::Alert do
+RSpec.describe AlertManagement::Alert do
   describe 'associations' do
     it { is_expected.to belong_to(:project) }
-    it { is_expected.to belong_to(:issue) }
+    it { is_expected.to belong_to(:issue).optional }
+    it { is_expected.to belong_to(:prometheus_alert).optional }
+    it { is_expected.to belong_to(:environment).optional }
+    it { is_expected.to have_many(:assignees).through(:alert_assignees) }
+    it { is_expected.to have_many(:notes) }
+    it { is_expected.to have_many(:ordered_notes) }
+    it { is_expected.to have_many(:user_mentions) }
   end
 
   describe 'validations' do
@@ -123,29 +129,145 @@ describe AlertManagement::Alert do
     it { is_expected.to define_enum_for(:severity).with_values(severity_values) }
   end
 
-  describe '.for_iid' do
+  describe 'scopes' do
     let_it_be(:project) { create(:project) }
-    let_it_be(:alert_1) { create(:alert_management_alert, project: project) }
-    let_it_be(:alert_2) { create(:alert_management_alert, project: project) }
+    let_it_be(:triggered_alert) { create(:alert_management_alert, project: project) }
+    let_it_be(:resolved_alert) { create(:alert_management_alert, :resolved, project: project) }
+    let_it_be(:ignored_alert) { create(:alert_management_alert, :ignored, project: project) }
 
-    subject { AlertManagement::Alert.for_iid(alert_1.iid) }
+    describe '.for_iid' do
+      subject { AlertManagement::Alert.for_iid(triggered_alert.iid) }
 
-    it { is_expected.to match_array(alert_1) }
+      it { is_expected.to match_array(triggered_alert) }
+    end
+
+    describe '.for_status' do
+      let(:status) { AlertManagement::Alert::STATUSES[:resolved] }
+
+      subject { AlertManagement::Alert.for_status(status) }
+
+      it { is_expected.to match_array(resolved_alert) }
+
+      context 'with multiple statuses' do
+        let(:status) { AlertManagement::Alert::STATUSES.values_at(:resolved, :ignored) }
+
+        it { is_expected.to match_array([resolved_alert, ignored_alert]) }
+      end
+    end
+
+    describe '.for_fingerprint' do
+      let_it_be(:fingerprint) { SecureRandom.hex }
+      let_it_be(:alert_with_fingerprint) { create(:alert_management_alert, project: project, fingerprint: fingerprint) }
+      let_it_be(:unrelated_alert_with_finger_print) { create(:alert_management_alert, fingerprint: fingerprint) }
+
+      subject { described_class.for_fingerprint(project, fingerprint) }
+
+      it { is_expected.to contain_exactly(alert_with_fingerprint) }
+    end
+
+    describe '.for_environment' do
+      let(:environment) { create(:environment, project: project) }
+      let!(:env_alert) { create(:alert_management_alert, project: project, environment: environment) }
+
+      subject { described_class.for_environment(environment) }
+
+      it { is_expected.to match_array(env_alert) }
+    end
+
+    describe '.counts_by_status' do
+      subject { described_class.counts_by_status }
+
+      it do
+        is_expected.to eq(
+          triggered_alert.status => 1,
+          resolved_alert.status => 1,
+          ignored_alert.status => 1
+        )
+      end
+    end
+
+    describe '.counts_by_project_id' do
+      subject { described_class.counts_by_project_id }
+
+      let!(:alert_other_project) { create(:alert_management_alert) }
+
+      it do
+        is_expected.to eq(
+          project.id => 3,
+          alert_other_project.project.id => 1
+        )
+      end
+    end
+
+    describe '.open' do
+      subject { described_class.open }
+
+      let!(:acknowledged_alert) { create(:alert_management_alert, :acknowledged, project: project)}
+
+      it { is_expected.to contain_exactly(acknowledged_alert, triggered_alert) }
+    end
   end
 
-  describe '.for_fingerprint' do
-    let_it_be(:fingerprint) { SecureRandom.hex }
-    let_it_be(:project) { create(:project) }
-    let_it_be(:alert_1) { create(:alert_management_alert, project: project, fingerprint: fingerprint) }
-    let_it_be(:alert_2) { create(:alert_management_alert, project: project) }
-    let_it_be(:alert_3) { create(:alert_management_alert, fingerprint: fingerprint) }
+  describe '.last_prometheus_alert_by_project_id' do
+    subject { described_class.last_prometheus_alert_by_project_id }
 
-    subject { described_class.for_fingerprint(project, fingerprint) }
+    let(:project_1) { create(:project) }
+    let!(:alert_1) { create(:alert_management_alert, project: project_1) }
+    let!(:alert_2) { create(:alert_management_alert, project: project_1) }
 
-    it { is_expected.to contain_exactly(alert_1) }
+    let(:project_2) { create(:project) }
+    let!(:alert_3) { create(:alert_management_alert, project: project_2) }
+    let!(:alert_4) { create(:alert_management_alert, project: project_2) }
+
+    it 'returns the latest alert for each project' do
+      expect(subject).to contain_exactly(alert_2, alert_4)
+    end
   end
 
-  describe '.details' do
+  describe '.search' do
+    let_it_be(:alert) do
+      create(:alert_management_alert,
+        title: 'Title',
+        description: 'Desc',
+        service: 'Service',
+        monitoring_tool: 'Monitor'
+      )
+    end
+
+    subject { AlertManagement::Alert.search(query) }
+
+    context 'does not contain search string' do
+      let(:query) { 'something else' }
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'title includes query' do
+      let(:query) { alert.title.upcase }
+
+      it { is_expected.to contain_exactly(alert) }
+    end
+
+    context 'description includes query' do
+      let(:query) { alert.description.upcase }
+
+      it { is_expected.to contain_exactly(alert) }
+    end
+
+    context 'service includes query' do
+      let(:query) { alert.service.upcase }
+
+      it { is_expected.to contain_exactly(alert) }
+    end
+
+    context 'monitoring tool includes query' do
+      let(:query) { alert.monitoring_tool.upcase }
+
+      it { is_expected.to contain_exactly(alert) }
+    end
+  end
+
+  describe '#details' do
     let(:payload) do
       {
         'title' => 'Details title',
@@ -169,6 +291,12 @@ describe AlertManagement::Alert do
         'yet.another' => 'field'
       )
     end
+  end
+
+  describe '#to_reference' do
+    let(:alert) { build(:alert_management_alert) }
+
+    it { expect(alert.to_reference).to eq('') }
   end
 
   describe '#trigger' do
@@ -245,6 +373,34 @@ describe AlertManagement::Alert do
 
     it 'resets ended at' do
       expect { subject }.to change { alert.reload.ended_at }.to nil
+    end
+  end
+
+  describe '#register_new_event!' do
+    subject { alert.register_new_event! }
+
+    let(:alert) { create(:alert_management_alert) }
+
+    it 'increments the events count by 1' do
+      expect { subject }.to change { alert.events }.by(1)
+    end
+  end
+
+  describe '#present' do
+    context 'when alert is generic' do
+      let(:alert) { build(:alert_management_alert) }
+
+      it 'uses generic alert presenter' do
+        expect(alert.present).to be_kind_of(AlertManagement::AlertPresenter)
+      end
+    end
+
+    context 'when alert is Prometheus specific' do
+      let(:alert) { build(:alert_management_alert, :prometheus) }
+
+      it 'uses Prometheus Alert presenter' do
+        expect(alert.present).to be_kind_of(AlertManagement::PrometheusAlertPresenter)
+      end
     end
   end
 end

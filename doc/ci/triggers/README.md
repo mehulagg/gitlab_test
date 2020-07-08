@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: tutorial
 ---
 
@@ -20,7 +23,7 @@ The following methods of authentication are supported:
 - [Trigger token](#trigger-token)
 - [CI job token](#ci-job-token)
 
-If using the `$CI_PIPELINE_SOURCE` [predefined environment variable](../variables/predefined_variables.md#variables-reference)
+If using the `$CI_PIPELINE_SOURCE` [predefined environment variable](../variables/predefined_variables.md)
 to limit which jobs run in a pipeline, the value could be either `pipeline` or `trigger`,
 depending on which trigger method is used.
 
@@ -49,7 +52,7 @@ with the [GitLab Container Registry](../../user/packages/container_registry/inde
 #### When used with multi-project pipelines
 
 > - Use of `CI_JOB_TOKEN` for multi-project pipelines was [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/2017) in [GitLab Premium](https://about.gitlab.com/pricing/) 9.3.
-> - Use of `CI_JOB_TOKEN` for multi-project pipelines was [made available](https://gitlab.com/gitlab-org/gitlab/issues/31573) in all tiers in GitLab 12.4.
+> - Use of `CI_JOB_TOKEN` for multi-project pipelines was [made available](https://gitlab.com/gitlab-org/gitlab/-/issues/31573) in all tiers in GitLab 12.4.
 
 This way of triggering can only be used when invoked inside `.gitlab-ci.yml`,
 and it creates a dependent pipeline relation visible on the
@@ -59,9 +62,9 @@ and it creates a dependent pipeline relation visible on the
 build_docs:
   stage: deploy
   script:
-  - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.example.com/api/v4/projects/9/trigger/pipeline
+    - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.example.com/api/v4/projects/9/trigger/pipeline
   only:
-  - tags
+    - tags
 ```
 
 Pipelines triggered that way also expose a special variable:
@@ -83,11 +86,11 @@ build_submodule:
   image: debian
   stage: test
   script:
-  - apt update && apt install -y unzip
-  - curl --location --output artifacts.zip "https://gitlab.example.com/api/v4/projects/1/jobs/artifacts/master/download?job=test&job_token=$CI_JOB_TOKEN"
-  - unzip artifacts.zip
+    - apt update && apt install -y unzip
+    - curl --location --output artifacts.zip "https://gitlab.example.com/api/v4/projects/1/jobs/artifacts/master/download?job=test&job_token=$CI_JOB_TOKEN"
+    - unzip artifacts.zip
   only:
-  - tags
+    - tags
 ```
 
 This allows you to use that for multi-project pipelines and download artifacts
@@ -176,9 +179,9 @@ need to add in project A's `.gitlab-ci.yml`:
 build_docs:
   stage: deploy
   script:
-  - "curl --request POST --form token=TOKEN --form ref=master https://gitlab.example.com/api/v4/projects/9/trigger/pipeline"
+    - "curl --request POST --form token=TOKEN --form ref=master https://gitlab.example.com/api/v4/projects/9/trigger/pipeline"
   only:
-  - tags
+    - tags
 ```
 
 This means that whenever a new tag is pushed on project A, the job will run and the
@@ -232,24 +235,24 @@ variable is non-zero, `make upload` is run.
 
 ```yaml
 stages:
-- test
-- build
-- package
+  - test
+  - build
+  - package
 
 run_tests:
   stage: test
   script:
-  - make test
+    - make test
 
 build_package:
   stage: build
   script:
-  - make build
+    - make build
 
 upload_package:
   stage: package
   script:
-  - if [ -n "${UPLOAD_TO_S3}" ]; then make upload; fi
+    - if [ -n "${UPLOAD_TO_S3}" ]; then make upload; fi
 ```
 
 You can then trigger a rebuild while you pass the `UPLOAD_TO_S3` variable

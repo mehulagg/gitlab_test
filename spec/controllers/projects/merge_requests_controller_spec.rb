@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::MergeRequestsController do
+RSpec.describe Projects::MergeRequestsController do
   include ProjectForksHelper
   include Gitlab::Routing
 
@@ -442,7 +442,7 @@ describe Projects::MergeRequestsController do
           merge_request.update(squash: false)
           merge_with_sha(squash: '1')
 
-          expect(merge_request.reload.squash).to be_truthy
+          expect(merge_request.reload.squash_on_merge?).to be_truthy
         end
       end
 
@@ -451,7 +451,7 @@ describe Projects::MergeRequestsController do
           merge_request.update(squash: true)
           merge_with_sha(squash: '0')
 
-          expect(merge_request.reload.squash).to be_falsey
+          expect(merge_request.reload.squash_on_merge?).to be_falsey
         end
       end
 
@@ -1183,15 +1183,19 @@ describe Projects::MergeRequestsController do
           subject
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response).to match(
-            a_hash_including(
-              'tfplan.json' => hash_including(
-                'create' => 0,
-                'delete' => 0,
-                'update' => 1
+
+          pipeline.builds.each do |build|
+            expect(json_response).to match(
+              a_hash_including(
+                build.id.to_s => hash_including(
+                  'create' => 0,
+                  'delete' => 0,
+                  'update' => 1,
+                  'job_name' => build.options.dig(:artifacts, :name).to_s
+                )
               )
             )
-          )
+          end
         end
       end
 
@@ -1337,6 +1341,127 @@ describe Projects::MergeRequestsController do
 
         expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response).to eq({ 'status_reason' => 'Failed to parse test reports' })
+      end
+    end
+  end
+
+  describe 'GET accessibility_reports' do
+    let(:merge_request) do
+      create(:merge_request,
+        :with_diffs,
+        :with_merge_request_pipeline,
+        target_project: project,
+        source_project: project
+      )
+    end
+
+    let(:pipeline) do
+      create(:ci_pipeline,
+        :success,
+        project: merge_request.source_project,
+        ref: merge_request.source_branch,
+        sha: merge_request.diff_head_sha)
+    end
+
+    before do
+      allow_any_instance_of(MergeRequest)
+        .to receive(:compare_accessibility_reports)
+        .and_return(accessibility_comparison)
+
+      allow_any_instance_of(MergeRequest)
+        .to receive(:actual_head_pipeline)
+        .and_return(pipeline)
+    end
+
+    subject do
+      get :accessibility_reports, params: {
+        namespace_id: project.namespace.to_param,
+        project_id: project,
+        id: merge_request.iid
+      },
+      format: :json
+    end
+
+    context 'permissions on a public project with private CI/CD' do
+      let(:project) { create(:project, :repository, :public, :builds_private) }
+      let(:accessibility_comparison) { { status: :parsed, data: { summary: 1 } } }
+
+      context 'while signed out' do
+        before do
+          sign_out(user)
+        end
+
+        it 'responds with a 404' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:not_found)
+          expect(response.body).to be_blank
+        end
+      end
+
+      context 'while signed in as an unrelated user' do
+        before do
+          sign_in(create(:user))
+        end
+
+        it 'responds with a 404' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:not_found)
+          expect(response.body).to be_blank
+        end
+      end
+    end
+
+    context 'when pipeline has jobs with accessibility reports' do
+      before do
+        allow_any_instance_of(MergeRequest)
+          .to receive(:has_accessibility_reports?)
+          .and_return(true)
+      end
+
+      context 'when processing accessibility reports is in progress' do
+        let(:accessibility_comparison) { { status: :parsing } }
+
+        it 'sends polling interval' do
+          expect(Gitlab::PollingInterval).to receive(:set_header)
+
+          subject
+        end
+
+        it 'returns 204 HTTP status' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:no_content)
+        end
+      end
+
+      context 'when processing accessibility reports is completed' do
+        let(:accessibility_comparison) { { status: :parsed, data: { summary: 1 } } }
+
+        it 'returns accessibility reports' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to eq({ 'summary' => 1 })
+        end
+      end
+
+      context 'when user created corrupted accessibility reports' do
+        let(:accessibility_comparison) { { status: :error, status_reason: 'This merge request does not have accessibility reports' } }
+
+        it 'does not send polling interval' do
+          expect(Gitlab::PollingInterval).not_to receive(:set_header)
+
+          subject
+        end
+
+        it 'returns 400 HTTP status' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response).to eq({ 'status_reason' => 'This merge request does not have accessibility reports' })
+        end
       end
     end
   end

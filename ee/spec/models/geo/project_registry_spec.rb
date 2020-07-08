@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Geo::ProjectRegistry, :geo_fdw do
+RSpec.describe Geo::ProjectRegistry, :geo_fdw do
   include ::EE::GeoHelpers
   using RSpec::Parameterized::TableSyntax
 
@@ -23,6 +23,154 @@ describe Geo::ProjectRegistry, :geo_fdw do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:project) }
     it { is_expected.to validate_uniqueness_of(:project) }
+  end
+
+  describe '.find_registry_differences' do
+    let!(:secondary) { create(:geo_node) }
+    let!(:synced_group) { create(:group) }
+    let!(:nested_group) { create(:group, parent: synced_group) }
+    let!(:project_1) { create(:project, group: synced_group) }
+    let!(:project_2) { create(:project, group: nested_group) }
+    let!(:project_3) { create(:project) }
+    let!(:project_4) { create(:project) }
+    let!(:project_5) { create(:project, :broken_storage) }
+    let!(:project_6) { create(:project, :broken_storage) }
+
+    before do
+      stub_current_geo_node(secondary)
+    end
+
+    context 'untracked IDs' do
+      before do
+        create(:geo_project_registry, project_id: project_1.id)
+        create(:geo_project_registry, :sync_failed, project_id: project_3.id)
+        create(:geo_project_registry, project_id: project_5.id)
+      end
+
+      it 'includes project IDs without an entry on the tracking database' do
+        range = Project.minimum(:id)..Project.maximum(:id)
+
+        untracked_ids, _ = described_class.find_registry_differences(range)
+
+        expect(untracked_ids).to match_array([project_2.id, project_4.id, project_6.id])
+      end
+
+      it 'excludes projects outside the ID range' do
+        untracked_ids, _ = described_class.find_registry_differences(project_4.id..project_6.id)
+
+        expect(untracked_ids).to match_array([project_4.id, project_6.id])
+      end
+
+      context 'with selective sync by namespace' do
+        let(:secondary) { create(:geo_node, selective_sync_type: 'namespaces', namespaces: [synced_group]) }
+
+        it 'excludes project IDs that are not in selectively synced projects' do
+          range = Project.minimum(:id)..Project.maximum(:id)
+
+          untracked_ids, _ = described_class.find_registry_differences(range)
+
+          expect(untracked_ids).to match_array([project_2.id])
+        end
+      end
+
+      context 'with selective sync by shard' do
+        let(:secondary) { create(:geo_node, selective_sync_type: 'shards', selective_sync_shards: ['broken']) }
+
+        it 'excludes project IDs that are not in selectively synced projects' do
+          range = Project.minimum(:id)..Project.maximum(:id)
+
+          untracked_ids, _ = described_class.find_registry_differences(range)
+
+          expect(untracked_ids).to match_array([project_6.id])
+        end
+      end
+    end
+
+    context 'unused tracked IDs' do
+      context 'with an orphaned registry' do
+        let!(:orphaned) { create(:geo_project_registry, project_id: project_1.id) }
+
+        before do
+          project_1.delete
+        end
+
+        it 'includes tracked IDs that do not exist in the model table' do
+          range = project_1.id..project_1.id
+
+          _, unused_tracked_ids = described_class.find_registry_differences(range)
+
+          expect(unused_tracked_ids).to match_array([project_1.id])
+        end
+
+        it 'excludes IDs outside the ID range' do
+          range = (project_1.id + 1)..Project.maximum(:id)
+
+          _, unused_tracked_ids = described_class.find_registry_differences(range)
+
+          expect(unused_tracked_ids).to be_empty
+        end
+      end
+
+      context 'with selective sync by namespace' do
+        let(:secondary) { create(:geo_node, selective_sync_type: 'namespaces', namespaces: [synced_group]) }
+
+        context 'with a tracked project' do
+          context 'excluded from selective sync' do
+            let!(:registry_entry) { create(:geo_project_registry, project_id: project_3.id) }
+
+            it 'includes tracked project IDs that exist but are not in a selectively synced project' do
+              range = project_3.id..project_3.id
+
+              _, unused_tracked_ids = described_class.find_registry_differences(range)
+
+              expect(unused_tracked_ids).to match_array([project_3.id])
+            end
+          end
+
+          context 'included in selective sync' do
+            let!(:registry_entry) { create(:geo_project_registry, project_id: project_1.id) }
+
+            it 'excludes tracked project IDs that are in selectively synced projects' do
+              range = project_1.id..project_1.id
+
+              _, unused_tracked_ids = described_class.find_registry_differences(range)
+
+              expect(unused_tracked_ids).to be_empty
+            end
+          end
+        end
+      end
+
+      context 'with selective sync by shard' do
+        let(:secondary) { create(:geo_node, selective_sync_type: 'shards', selective_sync_shards: ['broken']) }
+
+        context 'with a tracked project' do
+          let!(:registry_entry) { create(:geo_project_registry, project_id: project_1.id) }
+
+          context 'excluded from selective sync' do
+            it 'includes tracked project IDs that exist but are not in a selectively synced project' do
+              range = project_1.id..project_1.id
+
+              _, unused_tracked_ids = described_class.find_registry_differences(range)
+
+              expect(unused_tracked_ids).to match_array([project_1.id])
+            end
+          end
+
+          context 'included in selective sync' do
+            let!(:registry_entry) { create(:geo_project_registry, project_id: project_5.id) }
+
+            it 'excludes tracked project IDs that are in selectively synced projects' do
+              range = project_5.id..project_5.id
+
+              _, unused_tracked_ids = described_class.find_registry_differences(range)
+
+              expect(unused_tracked_ids).to be_empty
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '.synced_repos' do
@@ -284,7 +432,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
 
   describe '#repository_sync_due?' do
     where(:last_synced_at, :resync, :retry_at, :expected) do
-      now = Time.now
+      now = Time.current
       past = now - 1.year
       future = now + 1.year
 
@@ -313,13 +461,13 @@ describe Geo::ProjectRegistry, :geo_fdw do
         )
       end
 
-      it { expect(registry.repository_sync_due?(Time.now)).to eq(expected) }
+      it { expect(registry.repository_sync_due?(Time.current)).to eq(expected) }
     end
   end
 
   describe '#wiki_sync_due?' do
     where(:last_synced_at, :resync, :retry_at, :expected) do
-      now = Time.now
+      now = Time.current
       past = now - 1.year
       future = now + 1.year
 
@@ -348,7 +496,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
         )
       end
 
-      it { expect(registry.wiki_sync_due?(Time.now)).to eq(expected) }
+      it { expect(registry.wiki_sync_due?(Time.current)).to eq(expected) }
     end
   end
 
@@ -405,7 +553,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
       it 'sets last_repository_synced_at to now' do
         subject.start_sync!(type)
 
-        expect(subject.last_repository_synced_at).to be_like_time(Time.now)
+        expect(subject.last_repository_synced_at).to be_like_time(Time.current)
       end
 
       context 'when repository_retry_count is nil' do
@@ -423,7 +571,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
       it 'sets last_wiki_synced_at to now' do
         subject.start_sync!(type)
 
-        expect(subject.last_wiki_synced_at).to be_like_time(Time.now)
+        expect(subject.last_wiki_synced_at).to be_like_time(Time.current)
       end
 
       context 'when wiki_retry_count is nil' do
@@ -456,7 +604,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
         Timecop.freeze do
           subject.finish_sync!(type)
 
-          expect(subject.reload.last_repository_successful_sync_at).to be_within(1).of(Time.now)
+          expect(subject.reload.last_repository_successful_sync_at).to be_within(1).of(Time.current)
         end
       end
 
@@ -551,7 +699,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
         Timecop.freeze do
           subject.finish_sync!(type)
 
-          expect(subject.reload.last_wiki_successful_sync_at).to be_within(1).of(Time.now)
+          expect(subject.reload.last_wiki_successful_sync_at).to be_within(1).of(Time.current)
         end
       end
 
@@ -645,7 +793,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
 
         subject.fail_sync!(type, message, error)
 
-        expect(subject.repository_retry_at > Time.now).to be(true)
+        expect(subject.repository_retry_at > Time.current).to be(true)
       end
 
       it 'ensures repository_retry_at is capped at one hour' do
@@ -730,7 +878,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
 
         subject.fail_sync!(type, message, error)
 
-        expect(subject.wiki_retry_at > Time.now).to be(true)
+        expect(subject.wiki_retry_at > Time.current).to be(true)
       end
 
       it 'ensures wiki_retry_at is capped at one hour' do
@@ -840,7 +988,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
                         repository_retry_count: 1,
                         repository_verification_retry_count: 1)
 
-        subject.repository_updated!(event.source, Time.now)
+        subject.repository_updated!(event.source, Time.current)
       end
 
       it 'resets sync state' do
@@ -851,7 +999,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
           force_to_redownload_repository: nil,
           last_repository_sync_failure: nil,
           repository_missing_on_primary: nil,
-          resync_repository_was_scheduled_at: be_within(1.minute).of(Time.now)
+          resync_repository_was_scheduled_at: be_within(1.minute).of(Time.current)
         )
       end
 
@@ -878,7 +1026,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
                         wiki_retry_count: 1,
                         wiki_verification_retry_count: 1)
 
-        subject.repository_updated!(event.source, Time.now)
+        subject.repository_updated!(event.source, Time.current)
       end
 
       it 'resets sync state' do
@@ -889,7 +1037,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
           force_to_redownload_wiki: nil,
           last_wiki_sync_failure: nil,
           wiki_missing_on_primary: nil,
-          resync_wiki_was_scheduled_at: be_within(1.minute).of(Time.now)
+          resync_wiki_was_scheduled_at: be_within(1.minute).of(Time.current)
         )
       end
 
@@ -1098,7 +1246,7 @@ describe Geo::ProjectRegistry, :geo_fdw do
 
     context 'when repository has successfully synced' do
       it 'returns true' do
-        registry = create(:geo_project_registry, last_repository_successful_sync_at: Time.now)
+        registry = create(:geo_project_registry, last_repository_successful_sync_at: Time.current)
 
         expect(registry.repository_has_successfully_synced?).to be_truthy
       end

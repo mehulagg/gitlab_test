@@ -79,12 +79,6 @@ module API
       @project ||= find_project!(params[:id])
     end
 
-    def wiki_page
-      page = ProjectWiki.new(user_project, current_user).find_page(params[:slug])
-
-      page || not_found!('Wiki Page')
-    end
-
     def available_labels_for(label_parent, include_ancestor_groups: true)
       search_params = { include_ancestor_groups: include_ancestor_groups }
 
@@ -437,7 +431,7 @@ module API
       if report_exception?(exception)
         define_params_for_grape_middleware
         Gitlab::ErrorTracking.with_context(current_user) do
-          Gitlab::ErrorTracking.track_exception(exception, params)
+          Gitlab::ErrorTracking.track_exception(exception)
         end
       end
 
@@ -534,6 +528,8 @@ module API
 
     def project_finder_params_ce
       finder_params = project_finder_params_visibility_ce
+      finder_params[:with_issues_enabled] = true if params[:with_issues_enabled].present?
+      finder_params[:with_merge_requests_enabled] = true if params[:with_merge_requests_enabled].present?
       finder_params[:without_deleted] = true
       finder_params[:search] = params[:search] if params[:search]
       finder_params[:search_namespaces] = true if params[:search_namespaces].present?
@@ -543,6 +539,7 @@ module API
       finder_params[:id_before] = params[:id_before] if params[:id_before]
       finder_params[:last_activity_after] = params[:last_activity_after] if params[:last_activity_after]
       finder_params[:last_activity_before] = params[:last_activity_before] if params[:last_activity_before]
+      finder_params[:repository_storage] = params[:repository_storage] if params[:repository_storage]
       finder_params
     end
 
@@ -609,8 +606,8 @@ module API
       header(*Gitlab::Workhorse.send_git_archive(repository, **kwargs))
     end
 
-    def send_artifacts_entry(build, entry)
-      header(*Gitlab::Workhorse.send_artifacts_entry(build, entry))
+    def send_artifacts_entry(file, entry)
+      header(*Gitlab::Workhorse.send_artifacts_entry(file, entry))
     end
 
     # The Grape Error Middleware only has access to `env` but not `params` nor

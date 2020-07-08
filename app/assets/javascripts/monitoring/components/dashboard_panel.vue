@@ -2,12 +2,14 @@
 import { mapState } from 'vuex';
 import { pickBy } from 'lodash';
 import invalidUrl from '~/lib/utils/invalid_url';
+import { relativePathToAbsolute, getBaseURL, visitUrl, isSafeURL } from '~/lib/utils/url_utility';
 import {
   GlResizeObserverDirective,
   GlIcon,
   GlLoadingIcon,
-  GlDropdown,
-  GlDropdownItem,
+  GlNewDropdown as GlDropdown,
+  GlNewDropdownItem as GlDropdownItem,
+  GlNewDropdownDivider as GlDropdownDivider,
   GlModal,
   GlModalDirective,
   GlTooltip,
@@ -43,6 +45,7 @@ export default {
     GlTooltip,
     GlDropdown,
     GlDropdownItem,
+    GlDropdownDivider,
     GlModal,
   },
   directives: {
@@ -115,15 +118,22 @@ export default {
       timeRange(state) {
         return state[this.namespace].timeRange;
       },
+      dashboardTimezone(state) {
+        return state[this.namespace].dashboardTimezone;
+      },
       metricsSavedToDb(state, getters) {
         return getters[`${this.namespace}/metricsSavedToDb`];
+      },
+      selectedDashboard(state, getters) {
+        return getters[`${this.namespace}/selectedDashboard`];
       },
     }),
     title() {
       return this.graphData?.title || '';
     },
     graphDataHasResult() {
-      return this.graphData?.metrics?.[0]?.result?.length > 0;
+      const metrics = this.graphData?.metrics || [];
+      return metrics.some(({ result }) => result?.length > 0);
     },
     graphDataIsLoading() {
       const metrics = this.graphData?.metrics || [];
@@ -198,7 +208,17 @@ export default {
       return MonitorTimeSeriesChart;
     },
     isContextualMenuShown() {
-      return Boolean(this.graphDataHasResult && !this.basicChartComponent);
+      if (!this.graphDataHasResult) {
+        return false;
+      }
+      // Only a few charts have a contextual menu, support
+      // for more chart types planned at:
+      // https://gitlab.com/groups/gitlab-org/-/epics/3573
+      return (
+        this.isPanelType(panelTypes.AREA_CHART) ||
+        this.isPanelType(panelTypes.LINE_CHART) ||
+        this.isPanelType(panelTypes.SINGLE_STAT)
+      );
     },
     editCustomMetricLink() {
       if (this.graphData.metrics.length > 1) {
@@ -214,12 +234,18 @@ export default {
       return metrics.some(({ metricId }) => this.metricsSavedToDb.includes(metricId));
     },
     alertWidgetAvailable() {
+      const supportsAlerts =
+        this.isPanelType(panelTypes.AREA_CHART) || this.isPanelType(panelTypes.LINE_CHART);
       return (
+        supportsAlerts &&
         this.prometheusAlertsAvailable &&
         this.alertsEndpoint &&
         this.graphData &&
         this.hasMetricsInDb
       );
+    },
+    alertModalId() {
+      return `alert-modal-${this.graphData.id}`;
     },
   },
   mounted() {
@@ -259,11 +285,47 @@ export default {
     onExpand() {
       this.$emit(events.expand);
     },
+    onExpandFromKeyboardShortcut() {
+      if (this.isContextualMenuShown) {
+        this.onExpand();
+      }
+    },
     setAlerts(alertPath, alertAttributes) {
       if (alertAttributes) {
         this.$set(this.allAlerts, alertPath, alertAttributes);
       } else {
         this.$delete(this.allAlerts, alertPath);
+      }
+    },
+    safeUrl(url) {
+      return isSafeURL(url) ? url : '#';
+    },
+    showAlertModal() {
+      this.$root.$emit('bv::show::modal', this.alertModalId);
+    },
+    showAlertModalFromKeyboardShortcut() {
+      if (this.isContextualMenuShown) {
+        this.showAlertModal();
+      }
+    },
+    visitLogsPage() {
+      if (this.logsPathWithTimeRange) {
+        visitUrl(relativePathToAbsolute(this.logsPathWithTimeRange, getBaseURL()));
+      }
+    },
+    visitLogsPageFromKeyboardShortcut() {
+      if (this.isContextualMenuShown) {
+        this.visitLogsPage();
+      }
+    },
+    downloadCsvFromKeyboardShortcut() {
+      if (this.csvText && this.isContextualMenuShown) {
+        this.$refs.downloadCsvLink.$el.firstChild.click();
+      }
+    },
+    copyChartLinkFromKeyboardShotcut() {
+      if (this.clipboardText && this.isContextualMenuShown) {
+        this.$refs.copyChartLink.$el.firstChild.click();
       }
     },
   },
@@ -272,11 +334,12 @@ export default {
 </script>
 <template>
   <div v-gl-resize-observer="onResize" class="prometheus-graph">
-    <div class="d-flex align-items-center mr-3">
+    <div class="d-flex align-items-center">
       <slot name="topLeft"></slot>
       <h5
         ref="graphTitle"
-        class="prometheus-graph-title gl-font-lg font-weight-bold text-truncate append-right-8"
+        class="prometheus-graph-title gl-font-lg font-weight-bold text-truncate gl-mr-3"
+        tabindex="0"
       >
         {{ title }}
       </h5>
@@ -286,7 +349,7 @@ export default {
       <alert-widget
         v-if="isContextualMenuShown && alertWidgetAvailable"
         class="mx-1"
-        :modal-id="`alert-modal-${graphData.id}`"
+        :modal-id="alertModalId"
         :alerts-endpoint="alertsEndpoint"
         :relevant-queries="graphData.metrics"
         :alerts-to-manage="getGraphAlerts(graphData.metrics)"
@@ -301,19 +364,23 @@ export default {
         ref="contextualMenu"
         data-qa-selector="prometheus_graph_widgets"
       >
-        <div class="d-flex align-items-center">
+        <div data-testid="dropdown-wrapper" class="d-flex align-items-center">
           <gl-dropdown
             v-gl-tooltip
-            toggle-class="btn btn-transparent border-0"
+            toggle-class="shadow-none border-0"
             data-qa-selector="prometheus_widgets_dropdown"
             right
-            no-caret
             :title="__('More actions')"
           >
             <template slot="button-content">
-              <gl-icon name="ellipsis_v" class="text-secondary" />
+              <gl-icon name="ellipsis_v" class="dropdown-icon text-secondary" />
             </template>
-            <gl-dropdown-item v-if="expandBtnAvailable" ref="expandBtn" @click="onExpand">
+            <gl-dropdown-item
+              v-if="expandBtnAvailable"
+              ref="expandBtn"
+              :href="clipboardText"
+              @click.prevent="onExpand"
+            >
               {{ s__('Metrics|Expand panel') }}
             </gl-dropdown-item>
             <gl-dropdown-item
@@ -352,11 +419,28 @@ export default {
             </gl-dropdown-item>
             <gl-dropdown-item
               v-if="alertWidgetAvailable"
-              v-gl-modal="`alert-modal-${graphData.id}`"
+              v-gl-modal="alertModalId"
               data-qa-selector="alert_widget_menu_item"
             >
               {{ __('Alerts') }}
             </gl-dropdown-item>
+
+            <template v-if="graphData.links && graphData.links.length">
+              <gl-dropdown-divider />
+              <gl-dropdown-item
+                v-for="(link, index) in graphData.links"
+                :key="index"
+                :href="safeUrl(link.url)"
+                class="text-break"
+                >{{ link.title }}</gl-dropdown-item
+              >
+            </template>
+            <template v-if="selectedDashboard && selectedDashboard.can_edit">
+              <gl-dropdown-divider />
+              <gl-dropdown-item ref="manageLinksItem" :href="selectedDashboard.project_blob_path">{{
+                s__('Metrics|Manage chart links')
+              }}</gl-dropdown-item>
+            </template>
           </gl-dropdown>
         </div>
       </div>
@@ -367,6 +451,7 @@ export default {
       :is="basicChartComponent"
       v-else-if="basicChartComponent"
       :graph-data="graphData"
+      :timezone="dashboardTimezone"
       v-bind="$attrs"
       v-on="$listeners"
     />
@@ -380,6 +465,7 @@ export default {
       :project-path="projectPath"
       :thresholds="getGraphAlertValues(graphData.metrics)"
       :group-id="groupId"
+      :timezone="dashboardTimezone"
       v-bind="$attrs"
       v-on="$listeners"
       @datazoom="onDatazoom"

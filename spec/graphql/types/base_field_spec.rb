@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Types::BaseField do
+RSpec.describe Types::BaseField do
   context 'when considering complexity' do
     let(:resolver) do
       Class.new(described_class) do
@@ -134,25 +134,6 @@ describe Types::BaseField do
 
         it 'returns true if the feature is enabled' do
           expect(field.visible?(context)).to eq(true)
-        end
-
-        context 'falsey feature_flag values' do
-          using RSpec::Parameterized::TableSyntax
-
-          where(:flag, :feature_value, :visible) do
-            ''  | false | true
-            ''  | true  | true
-            nil | false | true
-            nil | true  | true
-          end
-
-          with_them do
-            it 'returns the correct value' do
-              stub_feature_flags(flag => feature_value)
-
-              expect(field.visible?(context)).to eq(visible)
-            end
-          end
         end
       end
     end

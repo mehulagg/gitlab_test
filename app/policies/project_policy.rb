@@ -84,6 +84,16 @@ class ProjectPolicy < BasePolicy
     project.merge_requests_allowing_push_to_user(user).any?
   end
 
+  desc "Deploy token with read_package_registry scope"
+  condition(:read_package_registry_deploy_token) do
+    user.is_a?(DeployToken) && user.has_access_to?(project) && user.read_package_registry
+  end
+
+  desc "Deploy token with write_package_registry scope"
+  condition(:write_package_registry_deploy_token) do
+    user.is_a?(DeployToken) && user.has_access_to?(project) && user.write_package_registry
+  end
+
   with_scope :subject
   condition(:forking_allowed) do
     @subject.feature_available?(:forking, @user)
@@ -113,6 +123,9 @@ class ProjectPolicy < BasePolicy
     !@subject.design_management_enabled?
   end
 
+  with_scope :subject
+  condition(:service_desk_enabled) { @subject.service_desk_enabled? }
+
   # We aren't checking `:read_issue` or `:read_merge_request` in this case
   # because it could be possible for a user to see an issuable-iid
   # (`:read_issue_iid` or `:read_merge_request_iid`) but then wouldn't be
@@ -137,6 +150,10 @@ class ProjectPolicy < BasePolicy
     @user && @user.confirmed?
   end
 
+  condition(:build_service_proxy_enabled) do
+    ::Feature.enabled?(:build_service_proxy, @subject)
+  end
+
   features = %w[
     merge_requests
     issues
@@ -159,6 +176,7 @@ class ProjectPolicy < BasePolicy
   rule { guest | admin }.enable :read_project_for_iids
 
   rule { admin }.enable :update_max_artifacts_size
+  rule { can?(:read_all_resources) }.enable :read_confidential_issues
 
   rule { guest }.enable :guest_access
   rule { reporter }.enable :reporter_access
@@ -186,6 +204,7 @@ class ProjectPolicy < BasePolicy
     enable :set_issue_updated_at
     enable :set_note_created_at
     enable :set_emails_disabled
+    enable :set_show_default_award_emojis
   end
 
   rule { can?(:guest_access) }.policy do
@@ -239,6 +258,7 @@ class ProjectPolicy < BasePolicy
     enable :read_prometheus
     enable :read_metrics_dashboard_annotation
     enable :metrics_dashboard
+    enable :read_confidential_issues
   end
 
   # We define `:public_user_access` separately because there are cases in gitlab-ee
@@ -267,8 +287,12 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:metrics_dashboard) }.policy do
     enable :read_prometheus
-    enable :read_environment
     enable :read_deployment
+  end
+
+  rule { ~anonymous & can?(:metrics_dashboard) }.policy do
+    enable :create_metrics_user_starred_dashboard
+    enable :read_metrics_user_starred_dashboard
   end
 
   rule { owner | admin | guest | group_member }.prevent :request_access
@@ -300,6 +324,7 @@ class ProjectPolicy < BasePolicy
     enable :update_deployment
     enable :create_release
     enable :update_release
+    enable :daily_statistics
     enable :create_metrics_dashboard_annotation
     enable :delete_metrics_dashboard_annotation
     enable :update_metrics_dashboard_annotation
@@ -342,7 +367,6 @@ class ProjectPolicy < BasePolicy
     enable :create_environment_terminal
     enable :destroy_release
     enable :destroy_artifacts
-    enable :daily_statistics
     enable :admin_operations
     enable :read_deploy_token
     enable :create_deploy_token
@@ -350,6 +374,10 @@ class ProjectPolicy < BasePolicy
     enable :destroy_deploy_token
     enable :read_prometheus_alerts
     enable :admin_terraform_state
+    enable :create_freeze_period
+    enable :read_freeze_period
+    enable :update_freeze_period
+    enable :destroy_freeze_period
   end
 
   rule { public_project & metrics_dashboard_allowed }.policy do
@@ -427,6 +455,7 @@ class ProjectPolicy < BasePolicy
   rule { repository_disabled }.policy do
     prevent :push_code
     prevent :download_code
+    prevent :build_download_code
     prevent :fork_project
     prevent :read_commit_status
     prevent :read_pipeline
@@ -521,13 +550,43 @@ class ProjectPolicy < BasePolicy
 
   rule { can?(:read_issue) }.policy do
     enable :read_design
+    enable :read_design_activity
   end
 
   # Design abilities could also be prevented in the issue policy.
   rule { design_management_disabled }.policy do
     prevent :read_design
+    prevent :read_design_activity
     prevent :create_design
     prevent :destroy_design
+  end
+
+  rule { read_package_registry_deploy_token }.policy do
+    enable :read_package
+    enable :read_project
+  end
+
+  rule { write_package_registry_deploy_token }.policy do
+    enable :create_package
+    enable :read_project
+  end
+
+  rule { can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
+
+  rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
+
+  rule { can?(:download_code) }.policy do
+    enable :read_repository_graphs
+  end
+
+  rule { can?(:read_build) & can?(:read_pipeline) }.policy do
+    enable :read_build_report_results
+  end
+
+  rule { support_bot }.enable :guest_access
+  rule { support_bot & ~service_desk_enabled }.policy do
+    prevent :create_note
+    prevent :read_project
   end
 
   private
@@ -578,6 +637,7 @@ class ProjectPolicy < BasePolicy
 
   def lookup_access_level!
     return ::Gitlab::Access::REPORTER if alert_bot?
+    return ::Gitlab::Access::REPORTER if support_bot? && service_desk_enabled?
 
     # NOTE: max_member_access has its own cache
     project.team.max_member_access(@user.id)

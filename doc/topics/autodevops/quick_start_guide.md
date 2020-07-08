@@ -98,24 +98,10 @@ status on your [GCP dashboard](https://console.cloud.google.com/kubernetes).
 Next, you will install some applications on your cluster that are needed
 to take full advantage of Auto DevOps.
 
-## Install the package manager
-
-After creating your Kubernetes cluster, GitLab's Kubernetes integration provides
-[pre-defined applications](../../user/project/clusters/index.md#installing-applications)
-for you to install. To install them, you must next install Helm Tiller, the
-Kubernetes package manager for Kubernetes, to enable the installation of other applications.
-
-Next to **Helm Tiller**, click **Install**.
-
-![Cluster applications](img/guide_cluster_apps_v12_3.png)
-
-After installation completes, the page reloads, and you can install other
-applications.
-
 ## Install Ingress and Prometheus
 
-After installing **Helm Tiller**, you can install other applications that rely on it,
-including Ingress and Prometheus, which we will install in this quick start guide:
+After your cluster is running, you can install your first applications.
+In this guide, we will install Ingress and Prometheus:
 
 - Ingress - Provides load balancing, SSL termination, and name-based virtual hosting,
   using NGINX behind the scenes.
@@ -152,8 +138,6 @@ these steps to enable Auto DevOps if it's disabled:
 After you save your changes, GitLab creates a new pipeline. To view it, go to
 **{rocket}** **CI/CD > Pipelines**.
 
-![First pipeline](img/guide_first_pipeline_v12_3.png)
-
 In the next section, we explain what each job does in the pipeline.
 
 ## Deploy the application
@@ -167,7 +151,7 @@ without refreshing the page to **{status_success}** (for success) or
 
 The jobs are separated into stages:
 
-![Pipeline stages](img/guide_pipeline_stages_v12_3.png)
+![Pipeline stages](img/guide_pipeline_stages_v13_0.png)
 
 - **Build** - The application builds a Docker image and uploads it to your project's
   [Container Registry](../../user/packages/container_registry/index.md) ([Auto Build](stages.md#auto-build)).
@@ -182,8 +166,9 @@ The jobs are separated into stages:
   - The `dependency_scanning` job checks if the application has any dependencies
     susceptible to vulnerabilities and is allowed to fail
     ([Auto Dependency Scanning](stages.md#auto-dependency-scanning-ultimate)) **(ULTIMATE)**
-  - The `sast` job runs static analysis on the current code to check for potential
-    security issues and is allowed to fail ([Auto SAST](stages.md#auto-sast-ultimate)) **(ULTIMATE)**
+  - Jobs suffixed with `-sast` run static analysis on the current code to check for potential
+    security issues, and are allowed to fail ([Auto SAST](stages.md#auto-sast-ultimate)) **(ULTIMATE)**
+  - The `secret-detection` job checks for leaked secrets and is allowed to fail ([Auto Secret Detection](stages.md#auto-secret-detection-ultimate)) **(ULTIMATE)**
   - The `license_management` job searches the application's dependencies to determine each of their
     licenses and is allowed to fail
     ([Auto License Compliance](stages.md#auto-license-compliance-ultimate)) **(ULTIMATE)**
@@ -191,11 +176,16 @@ The jobs are separated into stages:
    NOTE: **Note:**
    All jobs except `test` are allowed to fail in the test stage.
 
+- **Review** - Pipelines on `master` include this stage with a `dast_environment_deploy` job.
+  To learn more, see [Dynamic Application Security Testing (DAST)](../../user/application_security/dast/index.md).
+
 - **Production** - After the tests and checks finish, the application deploys in
   Kubernetes ([Auto Deploy](stages.md#auto-deploy)).
 
 - **Performance** - Performance tests are run on the deployed application
   ([Auto Browser Performance Testing](stages.md#auto-browser-performance-testing-premium)). **(PREMIUM)**
+
+- **Cleanup** - Pipelines on `master` include this stage with a `stop_dast_environment` job.
 
 After running a pipeline, you should view your deployed website and learn how
 to monitor it.
@@ -215,12 +205,12 @@ you to common environment tasks:
   about the Kubernetes cluster and how the application
   affects it in terms of memory usage, CPU usage, and latency
 - **Deploy to** (**{play}** **{angle-down}**) - Displays a list of environments you can deploy to
-- **Terminal** (**{terminal}**) - Opens a [web terminal](../../ci/environments.md#web-terminals)
+- **Terminal** (**{terminal}**) - Opens a [web terminal](../../ci/environments/index.md#web-terminals)
   session inside the container where the application is running
 - **Re-deploy to environment** (**{repeat}**) - For more information, see
-  [Retrying and rolling back](../../ci/environments.md#retrying-and-rolling-back)
+  [Retrying and rolling back](../../ci/environments/index.md#retrying-and-rolling-back)
 - **Stop environment** (**{stop}**) - For more information, see
-  [Stopping an environment](../../ci/environments.md#stopping-an-environment)
+  [Stopping an environment](../../ci/environments/index.md#stopping-an-environment)
 
 GitLab displays the [Deploy Board](../../user/project/deploy_boards.md) below the
 environment's information, with squares representing pods in your
@@ -301,7 +291,7 @@ all within GitLab. Despite its automatic nature, Auto DevOps can also be configu
 and customized to fit your workflow. Here are some helpful resources for further reading:
 
 1. [Auto DevOps](index.md)
-1. [Multiple Kubernetes clusters](index.md#using-multiple-kubernetes-clusters-premium) **(PREMIUM)**
+1. [Multiple Kubernetes clusters](index.md#using-multiple-kubernetes-clusters)
 1. [Incremental rollout to production](customize.md#incremental-rollout-to-production-premium) **(PREMIUM)**
 1. [Disable jobs you don't need with environment variables](customize.md#environment-variables)
 1. [Use a static IP for your cluster](../../user/clusters/applications.md#using-a-static-ip)

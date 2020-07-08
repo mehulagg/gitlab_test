@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'layouts/nav/sidebar/_project' do
+RSpec.describe 'layouts/nav/sidebar/_project' do
   let(:project) { create(:project, :repository) }
 
   before do
@@ -66,7 +66,7 @@ describe 'layouts/nav/sidebar/_project' do
       it 'shows the wiki tab with the wiki internal link' do
         render
 
-        expect(rendered).to have_link('Wiki', href: project_wiki_path(project, :home))
+        expect(rendered).to have_link('Wiki', href: wiki_path(project.wiki))
       end
     end
 
@@ -76,7 +76,7 @@ describe 'layouts/nav/sidebar/_project' do
       it 'does not show the wiki tab' do
         render
 
-        expect(rendered).not_to have_link('Wiki', href: project_wiki_path(project, :home))
+        expect(rendered).not_to have_link('Wiki', href: wiki_path(project.wiki))
       end
     end
   end
@@ -104,7 +104,7 @@ describe 'layouts/nav/sidebar/_project' do
       it 'does not show the external wiki tab' do
         render
 
-        expect(rendered).not_to have_link('External Wiki', href: project_wiki_path(project, :home))
+        expect(rendered).not_to have_link('External Wiki')
       end
     end
   end
@@ -163,28 +163,10 @@ describe 'layouts/nav/sidebar/_project' do
     end
 
     describe 'Alert Management' do
-      context 'when alert_management_minimal is enabled' do
-        before do
-          stub_feature_flags(alert_management_minimal: true)
-        end
+      it 'shows the Alerts sidebar entry' do
+        render
 
-        it 'shows the Alerts sidebar entry' do
-          render
-
-          expect(rendered).to have_css('a[title="Alerts"]')
-        end
-      end
-
-      context 'when alert_management_minimal is disabled' do
-        before do
-          stub_feature_flags(alert_management_minimal: false)
-        end
-
-        it 'does not show the Alerts sidebar entry' do
-          render
-
-          expect(rendered).to have_no_css('a[title="Alerts"]')
-        end
+        expect(rendered).to have_css('a[title="Alerts"]')
       end
     end
   end
@@ -211,6 +193,32 @@ describe 'layouts/nav/sidebar/_project' do
         render
 
         expect(rendered).not_to have_link('Value Stream', href: project_cycle_analytics_path(project))
+      end
+    end
+  end
+
+  describe 'project access tokens' do
+    context 'self-managed instance' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(false)
+      end
+
+      it 'displays "Access Tokens" nav item' do
+        render
+
+        expect(rendered).to have_link('Access Tokens', href: project_settings_access_tokens_path(project))
+      end
+    end
+
+    context 'gitlab.com' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(true)
+      end
+
+      it 'does not display "Access Tokens" nav item' do
+        render
+
+        expect(rendered).not_to have_link('Access Tokens', href: project_settings_access_tokens_path(project))
       end
     end
   end

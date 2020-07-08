@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Groups::TransferService do
+RSpec.describe Groups::TransferService do
   let(:user) { create(:user) }
   let(:new_parent_group) { create(:group, :public) }
   let!(:group_member) { create(:group_member, :owner, group: group, user: user) }
@@ -213,6 +213,15 @@ describe Groups::TransferService do
 
         it 'creates a redirect for the group' do
           expect(group.redirect_routes.count).to eq(1)
+        end
+      end
+
+      context 'when a group is transferred to its subgroup' do
+        let(:new_parent_group) { create(:group, parent: group) }
+
+        it 'does not execute the transfer' do
+          expect(transfer_service.execute(new_parent_group)).to be_falsy
+          expect(transfer_service.error).to match(/Cannot transfer group to one of its subgroup/)
         end
       end
 

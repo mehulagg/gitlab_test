@@ -5,6 +5,7 @@
  * Components need to have `scope`, `page` and `requestData`
  */
 import { historyPushState, buildUrlWithCurrentLocation } from '../../lib/utils/common_utils';
+import { validateParams } from '~/pipelines/utils';
 
 export default {
   methods: {
@@ -35,13 +36,7 @@ export default {
     },
 
     onChangeWithFilter(params) {
-      const { username } = this.requestData;
-
-      if (username) {
-        return { ...params, username };
-      }
-
-      return params;
+      return { ...params, ...validateParams(this.requestData) };
     },
 
     updateInternalState(parameters) {

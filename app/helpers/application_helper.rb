@@ -54,6 +54,10 @@ module ApplicationHelper
     args.any? { |v| v.to_s.downcase == action_name }
   end
 
+  def admin_section?
+    controller.class.ancestors.include?(Admin::ApplicationController)
+  end
+
   def last_commit(project)
     if project.repo_exists?
       time_ago_with_tooltip(project.repository.commit.committed_date)
@@ -99,7 +103,7 @@ module ApplicationHelper
       page: body_data_page,
       page_type_id: controller.params[:id],
       find_file: find_file_path,
-      group: "#{@group&.path}"
+      group: @group&.path
     }.merge(project_data)
   end
 
@@ -109,6 +113,7 @@ module ApplicationHelper
     {
       project_id: @project.id,
       project: @project.path,
+      group: @project.group&.path,
       namespace_id: @project.namespace&.id
     }
   end
@@ -328,6 +333,15 @@ module ApplicationHelper
       "is#{browser.id.to_s.titlecase}": true,
       "is#{browser.platform.id.to_s.titlecase}": true
     }
+  end
+
+  def page_startup_api_calls
+    @api_startup_calls
+  end
+
+  def add_page_startup_api_call(api_path, options: {})
+    @api_startup_calls ||= {}
+    @api_startup_calls[api_path] = options
   end
 
   def autocomplete_data_sources(object, noteable_type)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe DesignManagement::DesignPolicy do
+RSpec.describe DesignManagement::DesignPolicy do
   include DesignManagementTestHelpers
 
   include_context 'ProjectPolicy context'
@@ -71,7 +71,14 @@ describe DesignManagement::DesignPolicy do
     context "for admins" do
       let(:current_user) { admin }
 
-      it { is_expected.to be_allowed(*design_abilities) }
+      context 'when admin mode enabled', :enable_admin_mode do
+        it { is_expected.to be_allowed(*design_abilities) }
+      end
+
+      context 'when admin mode disabled' do
+        it { is_expected.to be_allowed(*guest_design_abilities) }
+        it { is_expected.to be_disallowed(*developer_design_abilities) }
+      end
     end
 
     context "for maintainers" do

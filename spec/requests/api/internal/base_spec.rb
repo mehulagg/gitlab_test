@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Internal::Base do
+RSpec.describe API::Internal::Base do
   let_it_be(:user, reload: true) { create(:user) }
   let_it_be(:project, reload: true) { create(:project, :repository, :wiki_repo) }
   let_it_be(:personal_snippet) { create(:personal_snippet, :repository, author: user) }
@@ -218,7 +218,15 @@ describe API::Internal::Base do
         get(api('/internal/authorized_keys'), params: { fingerprint: key.fingerprint, secret_token: secret_token })
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response["key"]).to eq(key.key)
+        expect(json_response['id']).to eq(key.id)
+        expect(json_response['key'].split[1]).to eq(key.key.split[1])
+      end
+
+      it 'exposes the comment of the key as a simple identifier of username + hostname' do
+        get(api('/internal/authorized_keys'), params: { fingerprint: key.fingerprint, secret_token: secret_token })
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['key']).to include("#{key.user_name} (#{Gitlab.config.gitlab.host})")
       end
     end
 
@@ -239,11 +247,21 @@ describe API::Internal::Base do
     end
 
     context "sending the key" do
-      it "finds the key" do
-        get(api('/internal/authorized_keys'), params: { key: key.key.split[1], secret_token: secret_token })
+      context "using an existing key" do
+        it "finds the key" do
+          get(api('/internal/authorized_keys'), params: { key: key.key.split[1], secret_token: secret_token })
 
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response["key"]).to eq(key.key)
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['id']).to eq(key.id)
+          expect(json_response['key'].split[1]).to eq(key.key.split[1])
+        end
+
+        it 'exposes the comment of the key as a simple identifier of username + hostname' do
+          get(api('/internal/authorized_keys'), params: { fingerprint: key.fingerprint, secret_token: secret_token })
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['key']).to include("#{key.user_name} (#{Gitlab.config.gitlab.host})")
+        end
       end
 
       it "returns 404 with a partial key" do
@@ -396,7 +414,7 @@ describe API::Internal::Base do
 
       context "git pull" do
         before do
-          allow(Feature).to receive(:persisted_names).and_return(%w[gitaly_mep_mep])
+          stub_feature_flags(gitaly_mep_mep: true)
         end
 
         it "has the correct payload" do
@@ -449,21 +467,6 @@ describe API::Internal::Base do
             expect(json_response["git_config_options"]).to include("uploadpack.allowFilter=true")
             expect(json_response["git_config_options"]).to include("uploadpack.allowAnySHA1InWant=true")
           end
-
-          context 'when gitaly_upload_pack_filter feature flag is disabled' do
-            before do
-              stub_feature_flags(gitaly_upload_pack_filter: { enabled: false, thing: project })
-            end
-
-            it 'returns only maxInputSize and not partial clone git config' do
-              push(key, project)
-
-              expect(json_response["git_config_options"]).to be_present
-              expect(json_response["git_config_options"]).to include("receive.maxInputSize=1048576")
-              expect(json_response["git_config_options"]).not_to include("uploadpack.allowFilter=true")
-              expect(json_response["git_config_options"]).not_to include("uploadpack.allowAnySHA1InWant=true")
-            end
-          end
         end
 
         context 'when receive_max_input_size is empty' do
@@ -477,18 +480,6 @@ describe API::Internal::Base do
             expect(json_response["git_config_options"]).to be_present
             expect(json_response["git_config_options"]).to include("uploadpack.allowFilter=true")
             expect(json_response["git_config_options"]).to include("uploadpack.allowAnySHA1InWant=true")
-          end
-
-          context 'when gitaly_upload_pack_filter feature flag is disabled' do
-            before do
-              stub_feature_flags(gitaly_upload_pack_filter: { enabled: false, thing: project })
-            end
-
-            it 'returns an empty git config' do
-              push(key, project)
-
-              expect(json_response["git_config_options"]).to be_empty
-            end
           end
         end
       end
@@ -915,6 +906,23 @@ describe API::Internal::Base do
 
         expect(response).to have_gitlab_http_status(:not_found)
         expect(json_response['status']).to be_falsy
+      end
+    end
+
+    context 'for design repositories' do
+      let(:gl_repository) { Gitlab::GlRepository::DESIGN.identifier_for_container(project) }
+
+      it 'does not allow access' do
+        post(api('/internal/allowed'),
+             params: {
+               key_id: key.id,
+               project: project.full_path,
+               gl_repository: gl_repository,
+               secret_token: secret_token,
+               protocol: 'ssh'
+             })
+
+        expect(response).to have_gitlab_http_status(:unauthorized)
       end
     end
   end

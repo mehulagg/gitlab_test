@@ -1,14 +1,13 @@
 ---
 stage: Manage
 group: Analytics
-To determine the technical writer assigned to the Stage/Group associated with this page, see:
-  https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 # Value Stream Analytics
 
 > - Introduced as Cycle Analytics prior to GitLab 12.3 at the project level.
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12077) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.3 at the group level.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12077) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.3 at the group level.
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/23427) from Cycle Analytics to Value Stream Analytics in GitLab 12.8.
 
 Value Stream Analytics measures the time spent to go from an
@@ -47,11 +46,11 @@ There are seven stages that are tracked as part of the Value Stream Analytics ca
 - **Staging** (Continuous Deployment)
   - Time between merging and deploying to production
 - **Total** (Total)
-  - Total lifecycle time. That is, the velocity of the project or team. [Previously known](https://gitlab.com/gitlab-org/gitlab/issues/38317) as **Production**.
+  - Total lifecycle time. That is, the velocity of the project or team. [Previously known](https://gitlab.com/gitlab-org/gitlab/-/issues/38317) as **Production**.
 
 ## Date ranges
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13216) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13216) in GitLab 12.4.
 
 GitLab provides the ability to filter analytics based on a date range. To filter results:
 
@@ -59,9 +58,20 @@ GitLab provides the ability to filter analytics based on a date range. To filter
 1. Optionally select a project.
 1. Select a date range using the available date pickers.
 
-## How the data is measured
+## How Time metrics are measured
 
-Value Stream Analytics records cycle time and data based on the project issues with the
+The "Time" metrics near the top of the page are measured as follows:
+
+- **Lead time**: median time from issue created to issue closed.
+- **Cycle time**: median time from first commit to issue closed.
+
+Note: A commit is associated with an issue by [crosslinking](../project/issues/crosslinking_issues.md) in the commit message or by manually linking the merge request containing the commit.
+
+![Value stream analytics time metrics](img/vsa_time_metrics_v13_0.png "Time metrics for value stream analytics")
+
+## How the stages are measured
+
+Value Stream Analytics records stage time and data based on the project issues with the
 exception of the staging and total stages, where only data deployed to
 production are measured.
 
@@ -79,7 +89,7 @@ Each stage of Value Stream Analytics is further described in the table below.
 | Test      | Measures the median time to run the entire pipeline for that project. It's related to the time GitLab CI/CD takes to run every job for the commits pushed to that merge request defined in the previous stage. It is basically the start->finish time for all pipelines. |
 | Review    | Measures the median time taken to review the merge request that has a closing issue pattern, between its creation and until it's merged. |
 | Staging   | Measures the median time between merging the merge request with a closing issue pattern until the very first deployment to production. It's tracked by the environment set to `production` or matching `production/*` (case-sensitive, `Production` won't work) in your GitLab CI/CD configuration. If there isn't a production environment, this is not tracked. |
-| Total | The sum of all time (medians) taken to run the entire process, from issue creation to deploying the code to production. [Previously known](https://gitlab.com/gitlab-org/gitlab/issues/38317) as **Production**. |
+| Total | The sum of all time (medians) taken to run the entire process, from issue creation to deploying the code to production. [Previously known](https://gitlab.com/gitlab-org/gitlab/-/issues/38317) as **Production**. |
 
 How this works, behind the scenes:
 
@@ -168,6 +178,21 @@ development workflow.
 
 NOTE: **Note:**
 Customizability is [only available for group-level](https://gitlab.com/gitlab-org/gitlab/-/issues/35823#note_272558950) Value Stream Analytics.
+
+### Stage path
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/210315) in GitLab 13.0.
+
+Stages are visually depicted as a horizontal process flow. Selecting a stage will update the
+the content below the value stream.
+
+This is disabled by default. If you have a self-managed instance, an
+administrator can [open a Rails console](../../administration/troubleshooting/navigating_gitlab_via_rails_console.md)
+and enable it with the following command:
+
+```ruby
+Feature.enable(:value_stream_analytics_path_navigation)
+```
 
 ### Adding a stage
 
@@ -259,7 +284,7 @@ from within the chart itself.
 
 ### Chart median line
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36675) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36675) in GitLab 12.7.
 
 The median line on the chart displays data that is offset by the number of days selected.
 For example, if 30 days worth of data has been selected (for example, 2019-12-16 to 2020-01-15) the
@@ -306,12 +331,6 @@ The current permissions on the Project Value Stream Analytics dashboard are:
 - Private projects - any member Guest and above can access.
 
 You can [read more about permissions](../../ci/yaml/README.md) in general.
-
-NOTE: **Note:**
-As of GitLab 12.3, the project-level page is deprecated. You should access
-project-level Value Stream Analytics from **Analytics > Value Stream Analytics** in the top
-navigation bar. We will ensure that the same project-level functionality is available
-to CE users in the new analytics space.
 
 For Value Stream Analytics functionality introduced in GitLab 12.3 and later:
 

@@ -29,6 +29,7 @@ module AlertManagement
 
     def process_firing_alert_management_alert
       if am_alert.present?
+        am_alert.register_new_event!
         reset_alert_management_alert_status
       else
         create_alert_management_alert
@@ -47,7 +48,10 @@ module AlertManagement
 
     def create_alert_management_alert
       am_alert = AlertManagement::Alert.new(am_alert_params.merge(ended_at: nil))
-      return if am_alert.save
+      if am_alert.save
+        am_alert.execute_services
+        return
+      end
 
       logger.warn(
         message: 'Unable to create AlertManagement::Alert',
@@ -62,13 +66,27 @@ module AlertManagement
 
     def process_resolved_alert_management_alert
       return if am_alert.blank?
-      return if am_alert.resolve(ends_at)
+
+      if am_alert.resolve(ends_at)
+        close_issue(am_alert.issue)
+        return
+      end
 
       logger.warn(
         message: 'Unable to update AlertManagement::Alert status to resolved',
         project_id: project.id,
         alert_id: am_alert.id
       )
+    end
+
+    def close_issue(issue)
+      return if issue.blank? || issue.closed?
+
+      Issues::CloseService
+        .new(project, User.alert_bot)
+        .execute(issue, system_note: false)
+
+      SystemNoteService.auto_resolve_prometheus_alert(issue, project, User.alert_bot) if issue.reset.closed?
     end
 
     def logger

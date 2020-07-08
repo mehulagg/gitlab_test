@@ -10,7 +10,7 @@ storage shards) to distribute the storage load between several mount points.
 > - You must have at least one storage path called `default`.
 > - The paths are defined in key-value pairs. The key is an arbitrary name you
 >   can pick to name the file path.
-> - The target directories and any of its subpaths must not be a symlink.
+> - The target directories and any of its sub-paths must not be a symlink.
 > - No target directory may be a sub-directory of another; no nesting.
 
 Example: this is OK:
@@ -57,7 +57,7 @@ storage2:
 
 Now that you've read that big fat warning above, let's edit the configuration
 files and add the full paths of the alternative repository storage paths. In
-the example below, we add two more mountpoints that are named `nfs_1` and `nfs_2`
+the example below, we add two more mount points that are named `nfs_1` and `nfs_2`
 respectively.
 
 NOTE: **Note:** This example uses NFS. We do not recommend using EFS for storage as it may impact GitLab's performance. See the [relevant documentation](high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs) for more details.
@@ -110,7 +110,10 @@ Once you set the multiple storage paths, you can choose where new repositories
 will be stored under **Admin Area > Settings > Repository >
 Repository storage > Storage nodes for new repositories**.
 
-![Choose repository storage path in Admin Area](img/repository_storages_admin_ui_v12_10.png)
+Each storage can be assigned a weight from 0-100. When a new project is created, these
+weights are used to determine the storage location the repository will be created on.
+
+![Choose repository storage path in Admin Area](img/repository_storages_admin_ui_v13_1.png)
 
 Beginning with GitLab 8.13.4, multiple paths can be chosen. New repositories
 will be randomly placed on one of the selected paths.

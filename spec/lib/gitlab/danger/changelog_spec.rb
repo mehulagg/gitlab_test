@@ -6,7 +6,7 @@ require_relative 'danger_spec_helper'
 
 require 'gitlab/danger/changelog'
 
-describe Gitlab::Danger::Changelog do
+RSpec.describe Gitlab::Danger::Changelog do
   using RSpec::Parameterized::TableSyntax
   include DangerSpecHelper
 
@@ -65,9 +65,7 @@ describe Gitlab::Danger::Changelog do
     context 'added files contain a changelog' do
       [
         'changelogs/unreleased/entry.yml',
-        'ee/changelogs/unreleased/entry.yml',
-        'changelogs/unreleased-ee/entry.yml',
-        'ee/changelogs/unreleased-ee/entry.yml'
+        'ee/changelogs/unreleased/entry.yml'
       ].each do |file_path|
         let(:added_files) { [file_path] }
 

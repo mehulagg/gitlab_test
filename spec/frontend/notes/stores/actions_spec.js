@@ -15,8 +15,11 @@ import {
   userDataMock,
   noteableDataMock,
   individualNote,
+  batchSuggestionsInfoMock,
 } from '../mock_data';
 import axios from '~/lib/utils/axios_utils';
+import * as utils from '~/notes/stores/utils';
+import updateIssueConfidentialMutation from '~/sidebar/components/confidential/queries/update_issue_confidential.mutation.graphql';
 
 const TEST_ERROR_MESSAGE = 'Test error message';
 jest.mock('~/flash');
@@ -890,7 +893,23 @@ describe('Actions Notes Store', () => {
       testSubmitSuggestion(done, () => {
         expect(commit).not.toHaveBeenCalled();
         expect(dispatch).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(`${TEST_ERROR_MESSAGE}.`, 'alert', flashContainer);
+        expect(Flash).toHaveBeenCalledWith(TEST_ERROR_MESSAGE, 'alert', flashContainer);
+      });
+    });
+
+    it('when service fails, and no error message available, uses default message', done => {
+      const response = { response: 'foo' };
+
+      Api.applySuggestion.mockReturnValue(Promise.reject(response));
+
+      testSubmitSuggestion(done, () => {
+        expect(commit).not.toHaveBeenCalled();
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(Flash).toHaveBeenCalledWith(
+          'Something went wrong while applying the suggestion. Please try again.',
+          'alert',
+          flashContainer,
+        );
       });
     });
 
@@ -900,6 +919,130 @@ describe('Actions Notes Store', () => {
       testSubmitSuggestion(done, () => {
         expect(Flash).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('submitSuggestionBatch', () => {
+    const discussionIds = batchSuggestionsInfoMock.map(({ discussionId }) => discussionId);
+    const batchSuggestionsInfo = batchSuggestionsInfoMock;
+
+    let flashContainer;
+
+    beforeEach(() => {
+      jest.spyOn(Api, 'applySuggestionBatch');
+      dispatch.mockReturnValue(Promise.resolve());
+      Api.applySuggestionBatch.mockReturnValue(Promise.resolve());
+      state = { batchSuggestionsInfo };
+      flashContainer = {};
+    });
+
+    const testSubmitSuggestionBatch = (done, expectFn) => {
+      actions
+        .submitSuggestionBatch({ commit, dispatch, state }, { flashContainer })
+        .then(expectFn)
+        .then(done)
+        .catch(done.fail);
+    };
+
+    it('when service succeeds, commits, resolves discussions, resets batch and applying batch state', done => {
+      testSubmitSuggestionBatch(done, () => {
+        expect(commit.mock.calls).toEqual([
+          [mutationTypes.SET_APPLYING_BATCH_STATE, true],
+          [mutationTypes.APPLY_SUGGESTION, batchSuggestionsInfo[0]],
+          [mutationTypes.APPLY_SUGGESTION, batchSuggestionsInfo[1]],
+          [mutationTypes.CLEAR_SUGGESTION_BATCH],
+          [mutationTypes.SET_APPLYING_BATCH_STATE, false],
+        ]);
+
+        expect(dispatch.mock.calls).toEqual([
+          ['resolveDiscussion', { discussionId: discussionIds[0] }],
+          ['resolveDiscussion', { discussionId: discussionIds[1] }],
+        ]);
+
+        expect(Flash).not.toHaveBeenCalled();
+      });
+    });
+
+    it('when service fails, flashes error message, resets applying batch state', done => {
+      const response = { response: { data: { message: TEST_ERROR_MESSAGE } } };
+
+      Api.applySuggestionBatch.mockReturnValue(Promise.reject(response));
+
+      testSubmitSuggestionBatch(done, () => {
+        expect(commit.mock.calls).toEqual([
+          [mutationTypes.SET_APPLYING_BATCH_STATE, true],
+          [mutationTypes.SET_APPLYING_BATCH_STATE, false],
+        ]);
+
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(Flash).toHaveBeenCalledWith(TEST_ERROR_MESSAGE, 'alert', flashContainer);
+      });
+    });
+
+    it('when service fails, and no error message available, uses default message', done => {
+      const response = { response: 'foo' };
+
+      Api.applySuggestionBatch.mockReturnValue(Promise.reject(response));
+
+      testSubmitSuggestionBatch(done, () => {
+        expect(commit.mock.calls).toEqual([
+          [mutationTypes.SET_APPLYING_BATCH_STATE, true],
+          [mutationTypes.SET_APPLYING_BATCH_STATE, false],
+        ]);
+
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(Flash).toHaveBeenCalledWith(
+          'Something went wrong while applying the batch of suggestions. Please try again.',
+          'alert',
+          flashContainer,
+        );
+      });
+    });
+
+    it('when resolve discussions fails, fails gracefully, resets batch and applying batch state', done => {
+      dispatch.mockReturnValue(Promise.reject());
+
+      testSubmitSuggestionBatch(done, () => {
+        expect(commit.mock.calls).toEqual([
+          [mutationTypes.SET_APPLYING_BATCH_STATE, true],
+          [mutationTypes.APPLY_SUGGESTION, batchSuggestionsInfo[0]],
+          [mutationTypes.APPLY_SUGGESTION, batchSuggestionsInfo[1]],
+          [mutationTypes.CLEAR_SUGGESTION_BATCH],
+          [mutationTypes.SET_APPLYING_BATCH_STATE, false],
+        ]);
+
+        expect(Flash).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('addSuggestionInfoToBatch', () => {
+    const suggestionInfo = batchSuggestionsInfoMock[0];
+
+    it("adds a suggestion's info to the current batch", done => {
+      testAction(
+        actions.addSuggestionInfoToBatch,
+        suggestionInfo,
+        { batchSuggestionsInfo: [] },
+        [{ type: 'ADD_SUGGESTION_TO_BATCH', payload: suggestionInfo }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('removeSuggestionInfoFromBatch', () => {
+    const suggestionInfo = batchSuggestionsInfoMock[0];
+
+    it("removes a suggestion's info the current batch", done => {
+      testAction(
+        actions.removeSuggestionInfoFromBatch,
+        suggestionInfo.suggestionId,
+        { batchSuggestionsInfo: [suggestionInfo] },
+        [{ type: 'REMOVE_SUGGESTION_FROM_BATCH', payload: suggestionInfo.suggestionId }],
+        [],
+        done,
+      );
     });
   });
 
@@ -940,6 +1083,130 @@ describe('Actions Notes Store', () => {
         [],
         done,
       );
+    });
+  });
+
+  describe('softDeleteDescriptionVersion', () => {
+    const endpoint = '/path/to/diff/1';
+    const payload = {
+      endpoint,
+      startingVersion: undefined,
+      versionId: 1,
+    };
+
+    describe('if response contains no errors', () => {
+      it('dispatches requestDeleteDescriptionVersion', done => {
+        axiosMock.onDelete(endpoint).replyOnce(200);
+        testAction(
+          actions.softDeleteDescriptionVersion,
+          payload,
+          {},
+          [],
+          [
+            {
+              type: 'requestDeleteDescriptionVersion',
+            },
+            {
+              type: 'receiveDeleteDescriptionVersion',
+              payload: payload.versionId,
+            },
+          ],
+          done,
+        );
+      });
+    });
+
+    describe('if response contains errors', () => {
+      const errorMessage = 'Request failed with status code 503';
+      it('dispatches receiveDeleteDescriptionVersionError and throws an error', done => {
+        axiosMock.onDelete(endpoint).replyOnce(503);
+        testAction(
+          actions.softDeleteDescriptionVersion,
+          payload,
+          {},
+          [],
+          [
+            {
+              type: 'requestDeleteDescriptionVersion',
+            },
+            {
+              type: 'receiveDeleteDescriptionVersionError',
+              payload: new Error(errorMessage),
+            },
+          ],
+        )
+          .then(() => done.fail('Expected error to be thrown'))
+          .catch(() => {
+            expect(Flash).toHaveBeenCalled();
+            done();
+          });
+      });
+    });
+  });
+
+  describe('setConfidentiality', () => {
+    it('calls the correct mutation with the correct args', () => {
+      testAction(actions.setConfidentiality, true, { noteableData: { confidential: false } }, [
+        { type: mutationTypes.SET_ISSUE_CONFIDENTIAL, payload: true },
+      ]);
+    });
+  });
+
+  describe('updateAssignees', () => {
+    it('update the assignees state', done => {
+      testAction(
+        actions.updateAssignees,
+        [userDataMock.id],
+        { state: noteableDataMock },
+        [{ type: mutationTypes.UPDATE_ASSIGNEES, payload: [userDataMock.id] }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('updateConfidentialityOnIssue', () => {
+    state = { noteableData: { confidential: false } };
+    const iid = '1';
+    const projectPath = 'full/path';
+    const getters = { getNoteableData: { iid } };
+    const actionArgs = { fullPath: projectPath, confidential: true };
+    const confidential = true;
+
+    beforeEach(() => {
+      jest
+        .spyOn(utils.gqClient, 'mutate')
+        .mockResolvedValue({ data: { issueSetConfidential: { issue: { confidential } } } });
+    });
+
+    it('calls gqClient mutation one time', () => {
+      actions.updateConfidentialityOnIssue({ commit: () => {}, state, getters }, actionArgs);
+
+      expect(utils.gqClient.mutate).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls gqClient mutation with the correct values', () => {
+      actions.updateConfidentialityOnIssue({ commit: () => {}, state, getters }, actionArgs);
+
+      expect(utils.gqClient.mutate).toHaveBeenCalledWith({
+        mutation: updateIssueConfidentialMutation,
+        variables: { input: { iid, projectPath, confidential } },
+      });
+    });
+
+    describe('on success of mutation', () => {
+      it('calls commit with the correct values', () => {
+        const commitSpy = jest.fn();
+
+        return actions
+          .updateConfidentialityOnIssue({ commit: commitSpy, state, getters }, actionArgs)
+          .then(() => {
+            expect(commitSpy).toHaveBeenCalledWith(
+              mutationTypes.SET_ISSUE_CONFIDENTIAL,
+              confidential,
+            );
+          });
+      });
     });
   });
 });

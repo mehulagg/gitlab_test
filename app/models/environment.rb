@@ -21,6 +21,7 @@ class Environment < ApplicationRecord
   has_many :prometheus_alerts, inverse_of: :environment
   has_many :metrics_dashboard_annotations, class_name: 'Metrics::Dashboard::Annotation', inverse_of: :environment
   has_many :self_managed_prometheus_alert_events, inverse_of: :environment
+  has_many :alert_management_alerts, class_name: 'AlertManagement::Alert', inverse_of: :environment
 
   has_one :last_deployment, -> { success.order('deployments.id DESC') }, class_name: 'Deployment'
   has_one :last_deployable, through: :last_deployment, source: 'deployable', source_type: 'CommitStatus'
@@ -147,7 +148,7 @@ class Environment < ApplicationRecord
       Ci::Build.joins(inner_join_stop_actions)
                .with(cte.to_arel)
                .where(ci_builds[:commit_id].in(pipeline_ids))
-               .where(status: HasStatus::BLOCKED_STATUS)
+               .where(status: Ci::HasStatus::BLOCKED_STATUS)
                .preload_project_and_pipeline_project
                .preload(:user, :metadata, :deployment)
     end
@@ -224,6 +225,11 @@ class Environment < ApplicationRecord
 
   def stop_action_available?
     available? && stop_action.present?
+  end
+
+  def cancel_deployment_jobs!
+    jobs = all_deployments.active.with_deployable
+    jobs.each { |deployment| deployment.deployable.cancel! }
   end
 
   def stop_with_action!(current_user)
@@ -339,7 +345,7 @@ class Environment < ApplicationRecord
   end
 
   def auto_stop_in
-    auto_stop_at - Time.now if auto_stop_at
+    auto_stop_at - Time.current if auto_stop_at
   end
 
   def auto_stop_in=(value)
@@ -361,6 +367,11 @@ class Environment < ApplicationRecord
 
   def generate_slug
     self.slug = Gitlab::Slug::Environment.new(name).generate
+  end
+
+  # Overrides ReactiveCaching default to activate limit checking behind a FF
+  def reactive_cache_limit_enabled?
+    Feature.enabled?(:reactive_caching_limit_environment, project)
   end
 end
 

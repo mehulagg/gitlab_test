@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
+require 'spec_helper'
 
-describe Gitlab::Alerting::NotificationPayloadParser do
+RSpec.describe Gitlab::Alerting::NotificationPayloadParser do
+  let_it_be(:project) { build(:project) }
+
   describe '.call' do
     let(:starts_at) { Time.current.change(usec: 0) }
     let(:payload) do
@@ -12,11 +14,12 @@ describe Gitlab::Alerting::NotificationPayloadParser do
         'description' => 'Description',
         'monitoring_tool' => 'Monitoring tool name',
         'service' => 'Service',
-        'hosts' => ['gitlab.com']
+        'hosts' => ['gitlab.com'],
+        'severity' => 'low'
       }
     end
 
-    subject { described_class.call(payload) }
+    subject { described_class.call(payload, project) }
 
     it 'returns Prometheus-like payload' do
       is_expected.to eq(
@@ -26,7 +29,8 @@ describe Gitlab::Alerting::NotificationPayloadParser do
             'description' => 'Description',
             'monitoring_tool' => 'Monitoring tool name',
             'service' => 'Service',
-            'hosts' => ['gitlab.com']
+            'hosts' => ['gitlab.com'],
+            'severity' => 'low'
           },
           'startsAt' => starts_at.rfc3339
         }
@@ -67,10 +71,56 @@ describe Gitlab::Alerting::NotificationPayloadParser do
       let(:payload) { {} }
 
       it 'returns default parameters' do
-        is_expected.to eq(
-          'annotations' => { 'title' => 'New: Incident' },
+        is_expected.to match(
+          'annotations' => {
+            'title' => described_class::DEFAULT_TITLE,
+            'severity' => described_class::DEFAULT_SEVERITY
+          },
           'startsAt' => starts_at.rfc3339
         )
+      end
+
+      context 'when severity is blank' do
+        before do
+          payload[:severity] = ''
+        end
+
+        it 'sets severity to the default ' do
+          expect(subject.dig('annotations', 'severity')).to eq(described_class::DEFAULT_SEVERITY)
+        end
+      end
+    end
+
+    context 'with fingerprint' do
+      before do
+        payload[:fingerprint] = data
+      end
+
+      shared_examples 'fingerprint generation' do
+        it 'generates the fingerprint correctly' do
+          expect(result).to eq(Gitlab::AlertManagement::Fingerprint.generate(data))
+        end
+      end
+
+      context 'with blank fingerprint' do
+        it_behaves_like 'fingerprint generation' do
+          let(:data) { '   ' }
+          let(:result) { subject.dig('annotations', 'fingerprint') }
+        end
+      end
+
+      context 'with fingerprint given' do
+        it_behaves_like 'fingerprint generation' do
+          let(:data) { 'fingerprint' }
+          let(:result) { subject.dig('annotations', 'fingerprint') }
+        end
+      end
+
+      context 'with array fingerprint given' do
+        it_behaves_like 'fingerprint generation' do
+          let(:data) { [1, 'fingerprint', 'given'] }
+          let(:result) { subject.dig('annotations', 'fingerprint') }
+        end
       end
     end
 
@@ -88,7 +138,10 @@ describe Gitlab::Alerting::NotificationPayloadParser do
 
       it 'returns default parameters' do
         is_expected.to eq(
-          'annotations' => { 'title' => 'New: Incident' },
+          'annotations' => {
+            'title' => 'New: Incident',
+            'severity' => described_class::DEFAULT_SEVERITY
+          },
           'startsAt' => starts_at.rfc3339
         )
       end
@@ -112,6 +165,7 @@ describe Gitlab::Alerting::NotificationPayloadParser do
         is_expected.to eq(
           'annotations' => {
             'title' => 'New: Incident',
+            'severity' => described_class::DEFAULT_SEVERITY,
             'description' => 'Description',
             'additional.params.1' => 'Some value 1',
             'additional.params.2' => 'Some value 2'

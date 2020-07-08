@@ -8,9 +8,13 @@ import MockAdapter from 'axios-mock-adapter';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from 'ee/analytics/shared/components/projects_dropdown_filter.vue';
 import RecentActivityCard from 'ee/analytics/cycle_analytics/components/recent_activity_card.vue';
+import TimeMetricsCard from 'ee/analytics/cycle_analytics/components/time_metrics_card.vue';
+import PathNavigation from 'ee/analytics/cycle_analytics/components/path_navigation.vue';
 import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue';
-import 'bootstrap';
-import '~/gl_dropdown';
+import StageTableNav from 'ee/analytics/cycle_analytics/components/stage_table_nav.vue';
+import StageNavItem from 'ee/analytics/cycle_analytics/components/stage_nav_item.vue';
+import AddStageButton from 'ee/analytics/cycle_analytics/components/add_stage_button.vue';
+import FilterBar from 'ee/analytics/cycle_analytics/components/filter_bar.vue';
 import DurationChart from 'ee/analytics/cycle_analytics/components/duration_chart.vue';
 import Daterange from 'ee/analytics/shared/components/daterange.vue';
 import TypeOfWorkCharts from 'ee/analytics/cycle_analytics/components/type_of_work_charts.vue';
@@ -39,6 +43,24 @@ const defaultStubs = {
   'tasks-by-type-chart': true,
   'labels-selector': true,
   DurationChart: true,
+  GroupsDropdownFilter: true,
+};
+
+const defaultFeatureFlags = {
+  hasDurationChart: true,
+  hasDurationChartMedian: true,
+  hasPathNavigation: false,
+  hasFilterBar: false,
+};
+
+const initialCycleAnalyticsState = {
+  createdAfter: mockData.startDate,
+  createdBefore: mockData.endDate,
+  selectedMilestone: null,
+  selectedAuthor: null,
+  selectedAssignees: [],
+  selectedLabels: [],
+  group: selectedGroup,
 };
 
 function createComponent({
@@ -47,7 +69,7 @@ function createComponent({
   },
   shallow = true,
   withStageSelected = false,
-  scatterplotEnabled = true,
+  featureFlags = {},
   props = {},
 } = {}) {
   const func = shallow ? shallowMount : mount;
@@ -63,21 +85,20 @@ function createComponent({
       hideGroupDropDown,
       ...props,
     },
-    provide: {
-      glFeatures: {
-        cycleAnalyticsScatterplotEnabled: scatterplotEnabled,
-      },
-    },
     ...opts,
   });
 
   comp.vm.$store.dispatch('initializeCycleAnalytics', {
     createdAfter: mockData.startDate,
     createdBefore: mockData.endDate,
+    featureFlags: {
+      ...defaultFeatureFlags,
+      ...featureFlags,
+    },
   });
 
   if (withStageSelected) {
-    comp.vm.$store.dispatch('setSelectedGroup', {
+    comp.vm.$store.commit('SET_SELECTED_GROUP', {
       ...selectedGroup,
     });
 
@@ -95,10 +116,10 @@ describe('Cycle Analytics component', () => {
   let wrapper;
   let mock;
 
-  const selectStageNavItem = index =>
+  const findStageNavItemAtIndex = index =>
     wrapper
-      .find(StageTable)
-      .findAll('.stage-nav-item')
+      .find(StageTableNav)
+      .findAll(StageNavItem)
       .at(index);
 
   const shouldSetUrlParams = result => {
@@ -120,6 +141,10 @@ describe('Cycle Analytics component', () => {
     expect(wrapper.find(RecentActivityCard).exists()).toBe(flag);
   };
 
+  const displaysTimeMetricsCard = flag => {
+    expect(wrapper.find(TimeMetricsCard).exists()).toBe(flag);
+  };
+
   const displaysStageTable = flag => {
     expect(wrapper.find(StageTable).exists()).toBe(flag);
   };
@@ -132,13 +157,25 @@ describe('Cycle Analytics component', () => {
     expect(wrapper.find(TypeOfWorkCharts).exists()).toBe(flag);
   };
 
+  const displaysPathNavigation = flag => {
+    expect(wrapper.find(PathNavigation).exists()).toBe(flag);
+  };
+
+  const displaysAddStageButton = flag => {
+    expect(wrapper.find(AddStageButton).exists()).toBe(flag);
+  };
+
+  const displaysFilterBar = flag => {
+    expect(wrapper.find(FilterBar).exists()).toBe(flag);
+  };
+
   beforeEach(() => {
     mock = new MockAdapter(axios);
-    wrapper = createComponent();
-
-    wrapper.vm.$store.dispatch('initializeCycleAnalytics', {
-      createdAfter: mockData.startDate,
-      createdBefore: mockData.endDate,
+    wrapper = createComponent({
+      featureFlags: {
+        hasPathNavigation: true,
+        hasFilterBar: true,
+      },
     });
   });
 
@@ -172,8 +209,12 @@ describe('Cycle Analytics component', () => {
         displaysDateRangePicker(false);
       });
 
-      it('does not display the recent activity table', () => {
+      it('does not display the recent activity card', () => {
         displaysRecentActivityCard(false);
+      });
+
+      it('does not display the time metrics card', () => {
+        displaysTimeMetricsCard(false);
       });
 
       it('does not display the stage table', () => {
@@ -185,7 +226,11 @@ describe('Cycle Analytics component', () => {
       });
 
       it('does not display the add stage button', () => {
-        expect(wrapper.find('.js-add-stage-button').exists()).toBe(false);
+        displaysAddStageButton(false);
+      });
+
+      it('does not display the path navigation', () => {
+        displaysPathNavigation(false);
       });
 
       describe('hideGroupDropDown = true', () => {
@@ -207,8 +252,13 @@ describe('Cycle Analytics component', () => {
     describe('after a filter has been selected', () => {
       describe('the user has access to the group', () => {
         beforeEach(() => {
+          mock = new MockAdapter(axios);
           wrapper = createComponent({
             withStageSelected: true,
+            featureFlags: {
+              hasPathNavigation: true,
+              hasFilterBar: true,
+            },
           });
         });
 
@@ -232,8 +282,12 @@ describe('Cycle Analytics component', () => {
           displaysDateRangePicker(true);
         });
 
-        it('displays the recent activity table', () => {
+        it('displays the recent activity card', () => {
           displaysRecentActivityCard(true);
+        });
+
+        it('displays the time metrics card', () => {
+          displaysTimeMetricsCard(true);
         });
 
         it('displays the stage table', () => {
@@ -241,9 +295,18 @@ describe('Cycle Analytics component', () => {
         });
 
         it('displays the add stage button', () => {
-          wrapper = createComponent({ shallow: false, withStageSelected: true });
+          wrapper = createComponent({
+            opts: {
+              stubs: {
+                StageTable,
+                StageTableNav,
+              },
+            },
+            withStageSelected: true,
+          });
+
           return wrapper.vm.$nextTick().then(() => {
-            expect(wrapper.find('.js-add-stage-button').exists()).toBe(true);
+            displaysAddStageButton(true);
           });
         });
 
@@ -258,39 +321,103 @@ describe('Cycle Analytics component', () => {
           displaysDurationChart(true);
         });
 
+        describe('path navigation', () => {
+          describe('disabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                featureFlags: {
+                  hasPathNavigation: false,
+                },
+              });
+            });
+
+            it('does not display the path navigation', () => {
+              displaysPathNavigation(false);
+            });
+          });
+
+          describe('enabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                featureFlags: {
+                  hasPathNavigation: true,
+                },
+              });
+            });
+
+            it('displays the path navigation', () => {
+              displaysPathNavigation(true);
+            });
+          });
+        });
+
+        describe('filter bar', () => {
+          describe('disabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                featureFlags: {
+                  hasFilterBar: false,
+                },
+              });
+            });
+
+            it('does not display the filter bar', () => {
+              displaysFilterBar(false);
+            });
+          });
+
+          describe('enabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                featureFlags: {
+                  hasFilterBar: true,
+                },
+              });
+            });
+
+            it('displays the filter bar', () => {
+              displaysFilterBar(true);
+            });
+          });
+        });
+
         describe('StageTable', () => {
           beforeEach(() => {
             mock = new MockAdapter(axios);
+
             wrapper = createComponent({
               opts: {
                 stubs: {
-                  'stage-event-list': true,
-                  'add-stage-button': true,
-                  'stage-table-header': true,
+                  StageTable,
+                  StageTableNav,
+                  StageNavItem,
                 },
               },
-              shallow: false,
               withStageSelected: true,
             });
           });
 
           it('has the first stage selected by default', () => {
-            const first = selectStageNavItem(0);
-            const second = selectStageNavItem(1);
+            const first = findStageNavItemAtIndex(0);
+            const second = findStageNavItemAtIndex(1);
 
-            expect(first.classes('active')).toBe(true);
-            expect(second.classes('active')).toBe(false);
+            expect(first.props('isActive')).toBe(true);
+            expect(second.props('isActive')).toBe(false);
           });
 
           it('can navigate to different stages', () => {
-            selectStageNavItem(2).trigger('click');
+            findStageNavItemAtIndex(2).trigger('click');
 
             return wrapper.vm.$nextTick().then(() => {
-              const first = selectStageNavItem(0);
-              const third = selectStageNavItem(2);
+              const first = findStageNavItemAtIndex(0);
+              const third = findStageNavItemAtIndex(2);
 
-              expect(third.classes('active')).toBe(true);
-              expect(first.classes('active')).toBe(false);
+              expect(third.props('isActive')).toBe(true);
+              expect(first.props('isActive')).toBe(false);
             });
           });
         });
@@ -299,7 +426,7 @@ describe('Cycle Analytics component', () => {
       describe('the user does not have access to the group', () => {
         beforeEach(() => {
           mock = new MockAdapter(axios);
-          mock.onAny().reply(403);
+          mock.onAny().reply(httpStatusCodes.FORBIDDEN);
 
           wrapper.vm.onGroupSelect(mockData.group);
           return waitForPromises();
@@ -320,8 +447,12 @@ describe('Cycle Analytics component', () => {
           displaysDateRangePicker(false);
         });
 
-        it('does not display the recent activity table', () => {
+        it('does not display the recent activity card', () => {
           displaysRecentActivityCard(false);
+        });
+
+        it('does not display the time metrics card', () => {
+          displaysTimeMetricsCard(false);
         });
 
         it('does not display the stage table', () => {
@@ -329,7 +460,7 @@ describe('Cycle Analytics component', () => {
         });
 
         it('does not display the add stage button', () => {
-          expect(wrapper.find('.js-add-stage-button').exists()).toBe(false);
+          displaysAddStageButton(false);
         });
 
         it('does not display the tasks by type chart', () => {
@@ -338,6 +469,33 @@ describe('Cycle Analytics component', () => {
 
         it('does not display the duration chart', () => {
           displaysDurationChart(false);
+        });
+
+        describe('path navigation', () => {
+          describe('disabled', () => {
+            it('does not display the path navigation', () => {
+              displaysPathNavigation(false);
+            });
+          });
+
+          describe('enabled', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                withStageSelected: true,
+                pathNavigationEnabled: true,
+              });
+
+              mock = new MockAdapter(axios);
+              mock.onAny().reply(httpStatusCodes.FORBIDDEN);
+
+              wrapper.vm.onGroupSelect(mockData.group);
+              return waitForPromises();
+            });
+
+            it('displays the path navigation', () => {
+              displaysPathNavigation(false);
+            });
+          });
         });
       });
     });
@@ -478,30 +636,31 @@ describe('Cycle Analytics component', () => {
       name: 'New test group',
     };
 
+    const defaultParams = {
+      created_after: toYmd(mockData.startDate),
+      created_before: toYmd(mockData.endDate),
+      group_id: selectedGroup.fullPath,
+      'project_ids[]': [],
+      milestone_title: null,
+      author_username: null,
+      'assignee_username[]': [],
+      'label_name[]': [],
+    };
+
+    const selectedProjectIds = mockData.selectedProjects.map(({ id }) => id);
+
     beforeEach(() => {
       commonUtils.historyPushState = jest.fn();
       urlUtils.setUrlParams = jest.fn();
 
       mock = new MockAdapter(axios);
+      wrapper = createComponent();
 
-      wrapper = createComponent({
-        shallow: false,
-        scatterplotEnabled: false,
-        stubs: {
-          ...defaultStubs,
-        },
-      });
-
-      return wrapper.vm.$nextTick();
+      wrapper.vm.$store.dispatch('initializeCycleAnalytics', initialCycleAnalyticsState);
     });
 
     it('sets the created_after and created_before url parameters', () => {
-      return shouldSetUrlParams({
-        created_after: toYmd(mockData.startDate),
-        created_before: toYmd(mockData.endDate),
-        group_id: null,
-        'project_ids[]': [],
-      });
+      return shouldSetUrlParams(defaultParams);
     });
 
     describe('with hideGroupDropDown=true', () => {
@@ -512,31 +671,23 @@ describe('Cycle Analytics component', () => {
         mock = new MockAdapter(axios);
 
         wrapper = createComponent({
-          shallow: false,
-          scatterplotEnabled: false,
-          stubs: {
-            ...defaultStubs,
-          },
           props: {
             hideGroupDropDown: true,
           },
         });
 
         wrapper.vm.$store.dispatch('initializeCycleAnalytics', {
-          createdAfter: mockData.startDate,
-          createdBefore: mockData.endDate,
+          ...initialCycleAnalyticsState,
           group: fakeGroup,
         });
-
-        return wrapper.vm.$nextTick();
       });
 
       it('sets the group_id url parameter', () => {
         return shouldSetUrlParams({
+          ...defaultParams,
           created_after: toYmd(mockData.startDate),
           created_before: toYmd(mockData.endDate),
           group_id: null,
-          'project_ids[]': [],
         });
       });
     });
@@ -546,38 +697,56 @@ describe('Cycle Analytics component', () => {
         wrapper.vm.$store.dispatch('setSelectedGroup', {
           ...fakeGroup,
         });
-        return wrapper.vm.$nextTick();
       });
 
       it('sets the group_id url parameter', () => {
         return shouldSetUrlParams({
-          created_after: toYmd(mockData.startDate),
-          created_before: toYmd(mockData.endDate),
+          ...defaultParams,
           group_id: fakeGroup.fullPath,
-          'project_ids[]': [],
         });
       });
     });
 
     describe('with a group and selectedProjectIds set', () => {
-      const selectedProjectIds = mockData.selectedProjects.map(({ id }) => id);
-
       beforeEach(() => {
         wrapper.vm.$store.dispatch('setSelectedGroup', {
           ...selectedGroup,
         });
 
         wrapper.vm.$store.dispatch('setSelectedProjects', mockData.selectedProjects);
-
         return wrapper.vm.$nextTick();
       });
 
       it('sets the project_ids url parameter', () => {
         return shouldSetUrlParams({
+          ...defaultParams,
           created_after: toYmd(mockData.startDate),
           created_before: toYmd(mockData.endDate),
           group_id: selectedGroup.fullPath,
           'project_ids[]': selectedProjectIds,
+        });
+      });
+    });
+
+    describe.each`
+      stateKey               | payload                          | paramKey
+      ${'selectedMilestone'} | ${'12.0'}                        | ${'milestone_title'}
+      ${'selectedAuthor'}    | ${'rootUser'}                    | ${'author_username'}
+      ${'selectedAssignees'} | ${['rootUser', 'secondaryUser']} | ${'assignee_username[]'}
+      ${'selectedLabels'}    | ${['Afternix', 'Brouceforge']}   | ${'label_name[]'}
+    `('with a $stateKey updates the $paramKey url parameter', ({ stateKey, payload, paramKey }) => {
+      beforeEach(() => {
+        wrapper.vm.$store.dispatch('filters/setFilters', {
+          ...initialCycleAnalyticsState,
+          group: selectedGroup,
+          selectedProjects: mockData.selectedProjects,
+          [stateKey]: payload,
+        });
+      });
+      it(`sets the ${paramKey} url parameter`, () => {
+        return shouldSetUrlParams({
+          ...defaultParams,
+          [paramKey]: payload,
         });
       });
     });

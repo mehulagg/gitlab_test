@@ -2,7 +2,7 @@
 
 require 'rake_helper'
 
-describe 'gitlab:gitaly namespace rake task' do
+RSpec.describe 'gitlab:gitaly namespace rake task' do
   before :all do
     Rake.application.rake_require 'tasks/gitlab/gitaly'
   end
@@ -46,7 +46,7 @@ describe 'gitlab:gitaly namespace rake task' do
 
       it 'calls checkout_or_clone_version with the right arguments' do
         expect(main_object)
-          .to receive(:checkout_or_clone_version).with(version: version, repo: repo, target_dir: clone_path)
+          .to receive(:checkout_or_clone_version).with(version: version, repo: repo, target_dir: clone_path, clone_opts: %w[--depth 1])
 
         subject
       end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe EachBatch do
+RSpec.describe EachBatch do
   describe '.each_batch' do
     let(:model) do
       Class.new(ActiveRecord::Base) do
@@ -44,7 +44,7 @@ describe EachBatch do
       end
 
       it 'allows updating of the yielded relations' do
-        time = Time.now
+        time = Time.current
 
         model.each_batch do |relation|
           relation.update_all(updated_at: time)

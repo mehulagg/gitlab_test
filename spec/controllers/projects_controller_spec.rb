@@ -2,7 +2,7 @@
 
 require('spec_helper')
 
-describe ProjectsController do
+RSpec.describe ProjectsController do
   include ExternalAuthorizationServiceHelpers
   include ProjectForksHelper
 
@@ -41,6 +41,27 @@ describe ProjectsController do
           end
         end
       end
+
+      context 'with the new_create_project_ui experiment enabled and the user is part of the control group' do
+        before do
+          stub_experiment(new_create_project_ui: true)
+          stub_experiment_for_user(new_create_project_ui: false)
+          allow_any_instance_of(described_class).to receive(:experimentation_subject_id).and_return('uuid')
+        end
+
+        it 'passes the right tracking parameters to the frontend' do
+          get(:new)
+
+          expect(Gon.tracking_data).to eq(
+            {
+              category: 'Manage::Import::Experiment::NewCreateProjectUi',
+              action: 'click_tab',
+              label: 'uuid',
+              property: 'control_group'
+            }
+          )
+        end
+      end
     end
   end
 
@@ -65,11 +86,13 @@ describe ProjectsController do
   end
 
   describe "GET #activity as JSON" do
+    include DesignManagementTestHelpers
     render_views
 
     let(:project) { create(:project, :public, issues_access_level: ProjectFeature::PRIVATE) }
 
     before do
+      enable_design_management
       create(:event, :created, project: project, target: create(:issue))
 
       sign_in(user)
@@ -82,10 +105,43 @@ describe ProjectsController do
         project.add_developer(user)
       end
 
-      it 'returns count' do
+      def get_activity(project)
         get :activity, params: { namespace_id: project.namespace, id: project, format: :json }
+      end
+
+      it 'returns count' do
+        get_activity(project)
 
         expect(json_response['count']).to eq(1)
+      end
+
+      context 'design events are visible' do
+        include DesignManagementTestHelpers
+        let(:other_project) { create(:project, namespace: user.namespace) }
+
+        before do
+          enable_design_management
+          create(:design_event, project: project)
+          request.cookies[:event_filter] = EventFilter::DESIGNS
+        end
+
+        it 'returns correct count' do
+          get_activity(project)
+
+          expect(json_response['count']).to eq(1)
+        end
+
+        context 'the feature flag is disabled' do
+          before do
+            stub_feature_flags(design_activity_events: false)
+          end
+
+          it 'returns correct count' do
+            get_activity(project)
+
+            expect(json_response['count']).to eq(0)
+          end
+        end
       end
     end
 
@@ -330,34 +386,13 @@ describe ProjectsController do
       end
     end
 
-    context 'lfs_blob_ids instance variable' do
-      let(:project) { create(:project, :public, :repository) }
+    context 'namespace storage limit' do
+      let_it_be(:project) { create(:project, :public, :repository ) }
+      let(:namespace) { project.namespace }
 
-      before do
-        sign_in(user)
-      end
+      subject { get :show, params: { namespace_id: namespace, id: project } }
 
-      context 'with vue tree view enabled' do
-        before do
-          get :show, params: { namespace_id: project.namespace, id: project }
-        end
-
-        it 'is not set' do
-          expect(assigns[:lfs_blob_ids]).to be_nil
-        end
-      end
-
-      context 'with vue tree view disabled' do
-        before do
-          stub_feature_flags(vue_file_list: false)
-
-          get :show, params: { namespace_id: project.namespace, id: project }
-        end
-
-        it 'is set' do
-          expect(assigns[:lfs_blob_ids]).not_to be_nil
-        end
-      end
+      it_behaves_like 'namespace storage limit alert'
     end
   end
 
@@ -1020,6 +1055,32 @@ describe ProjectsController do
         expect(json_response['body']).to include(expanded_path)
       end
     end
+
+    context 'when path and ref parameters are provided' do
+      let(:project_with_repo) { create(:project, :repository) }
+      let(:preview_markdown_params) do
+        {
+          namespace_id: project_with_repo.namespace,
+          id: project_with_repo,
+          text: "![](./logo-white.png)\n",
+          ref: 'other_branch',
+          path: 'files/images/README.md'
+        }
+      end
+
+      before do
+        project_with_repo.add_maintainer(user)
+        project_with_repo.repository.create_branch('other_branch')
+      end
+
+      it 'renders JSON body with image links expanded' do
+        expanded_path = "/#{project_with_repo.full_path}/-/raw/other_branch/files/images/logo-white.png"
+
+        post :preview_markdown, params: preview_markdown_params
+
+        expect(json_response['body']).to include(expanded_path)
+      end
+    end
   end
 
   describe '#ensure_canonical_path' do
@@ -1134,16 +1195,16 @@ describe ProjectsController do
 
     shared_examples 'rate limits project export endpoint' do
       before do
-        allow(::Gitlab::ApplicationRateLimiter)
-          .to receive(:throttled?)
-          .and_return(true)
+        allow(Gitlab::ApplicationRateLimiter)
+          .to receive(:increment)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits["project_#{action}".to_sym][:threshold].call + 1)
       end
 
       it 'prevents requesting project export' do
         post action, params: { namespace_id: project.namespace, id: project }
 
-        expect(flash[:alert]).to eq('This endpoint has been requested too many times. Try again later.')
-        expect(response).to have_gitlab_http_status(:found)
+        expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
+        expect(response).to have_gitlab_http_status(:too_many_requests)
       end
     end
 
@@ -1200,7 +1261,18 @@ describe ProjectsController do
         end
 
         context 'when the endpoint receives requests above the limit', :clean_gitlab_redis_cache do
-          include_examples 'rate limits project export endpoint'
+          before do
+            allow(Gitlab::ApplicationRateLimiter)
+              .to receive(:increment)
+              .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold].call + 1)
+          end
+
+          it 'prevents requesting project export' do
+            post action, params: { namespace_id: project.namespace, id: project }
+
+            expect(response.body).to eq('This endpoint has been requested too many times. Try again later.')
+            expect(response).to have_gitlab_http_status(:too_many_requests)
+          end
         end
       end
     end

@@ -12,9 +12,10 @@ module Gitlab
           include ::Gitlab::Config::Entry::Attributable
 
           ALLOWED_KEYS =
-            %i[junit codequality sast dependency_scanning container_scanning
+            %i[junit codequality sast secret_detection dependency_scanning container_scanning
                dast performance license_management license_scanning metrics lsif
-               dotenv cobertura terraform accessibility].freeze
+               dotenv cobertura terraform accessibility cluster_applications
+               requirements coverage_fuzzing].freeze
 
           attributes ALLOWED_KEYS
 
@@ -24,8 +25,10 @@ module Gitlab
 
             with_options allow_nil: true do
               validates :junit, array_of_strings_or_string: true
-              validates :codequality, array_of_strings_or_string: true
+              validates :coverage_fuzzing, array_of_strings_or_string: true
               validates :sast, array_of_strings_or_string: true
+              validates :sast, array_of_strings_or_string: true
+              validates :secret_detection, array_of_strings_or_string: true
               validates :dependency_scanning, array_of_strings_or_string: true
               validates :container_scanning, array_of_strings_or_string: true
               validates :dast, array_of_strings_or_string: true
@@ -38,6 +41,8 @@ module Gitlab
               validates :cobertura, array_of_strings_or_string: true
               validates :terraform, array_of_strings_or_string: true
               validates :accessibility, array_of_strings_or_string: true
+              validates :cluster_applications, array_of_strings_or_string: true
+              validates :requirements, array_of_strings_or_string: true
             end
           end
 

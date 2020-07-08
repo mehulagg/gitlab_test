@@ -32,6 +32,8 @@
   - 1
 - - authorized_keys
   - 2
+- - authorized_project_update
+  - 1
 - - authorized_projects
   - 2
 - - auto_devops
@@ -76,13 +78,15 @@
   - 1
 - - detect_repository_languages
   - 1
-- - elastic_batch_project_indexer
-  - 1
 - - elastic_commit_indexer
+  - 1
+- - elastic_delete_project
   - 1
 - - elastic_full_index
   - 1
 - - elastic_indexer
+  - 1
+- - elastic_indexing_control
   - 1
 - - elastic_namespace_indexer
   - 1
@@ -146,6 +150,8 @@
   - 5
 - - merge_request_mergeability_check
   - 1
+- - metrics_dashboard_prune_old_annotations
+  - 1
 - - migrate_external_diffs
   - 1
 - - namespaceless_project_destroy
@@ -157,8 +163,6 @@
 - - new_merge_request
   - 2
 - - new_note
-  - 2
-- - notifications
   - 2
 - - object_pool
   - 1
@@ -208,6 +212,8 @@
   - 1
 - - prometheus_create_default_alerts
   - 1
+- - propagate_integration
+  - 1
 - - propagate_service_template
   - 1
 - - reactive_caching
@@ -234,6 +240,8 @@
   - 1
 - - repository_update_remote_mirror
   - 1
+- - requirements_management_process_requirements_reports
+  - 1
 - - security_scans
   - 2
 - - self_monitoring_project_create
@@ -249,6 +257,8 @@
 - - system_hook_push
   - 1
 - - todos_destroyer
+  - 1
+- - unassign_issuables
   - 1
 - - update_external_pull_requests
   - 3

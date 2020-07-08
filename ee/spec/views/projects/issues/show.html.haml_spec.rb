@@ -2,11 +2,13 @@
 
 require 'spec_helper'
 
-describe 'projects/issues/show' do
+RSpec.describe 'projects/issues/show' do
   include_context 'project show action'
 
   context 'when issue is created by a GitLab team member' do
-    let(:user) { create(:user, email: 'test@gitlab.com') }
+    let(:user) { create(:user) }
+
+    include_context 'gitlab team member'
 
     before do
       allow(Gitlab).to receive(:com?).and_return(true)

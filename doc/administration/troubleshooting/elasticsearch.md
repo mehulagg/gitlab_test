@@ -189,7 +189,7 @@ Moving past that, it is best to attempt the same search using the [Elasticsearch
 
 If the results:
 
-- Sync up, then there is not a technical "issue" per se. Instead, it might be a problem
+- Sync up, then there is not a technical "issue." Instead, it might be a problem
   with the Elasticsearch filters we are using. This can be complicated, so it is best to
   escalate to GitLab support to check these and guide you on the potential on whether or
   not a feature request is needed.
@@ -261,6 +261,9 @@ Beyond that, you will want to review the error. If it is:
 - Specifically from the indexer, this could be a bug/issue and should be escalated to
   GitLab support.
 - An OS issue, you will want to reach out to your systems administrator.
+- A `Faraday::TimeoutError (execution expired)` error **and** you're using a proxy,
+  [set a custom  `gitlab_rails['env']` environment variable, called `no_proxy`](https://docs.gitlab.com/omnibus/settings/environment-variables.html)
+  with the IP address of your Elasticsearch host.
 
 ### Troubleshooting performance
 
@@ -330,10 +333,10 @@ feel free to update that page with issues you encounter and solutions.
 
 Setting up Elasticsearch isn't too bad, but it can be a bit finicky and time consuming.
 
-The easiest method is to spin up a docker container with the required version and
+The easiest method is to spin up a Docker container with the required version and
 bind ports 9200/9300 so it can be used.
 
-The following is an example of running a docker container of Elasticsearch v7.2.0:
+The following is an example of running a Docker container of Elasticsearch v7.2.0:
 
 ```shell
 docker pull docker.elastic.co/elasticsearch/elasticsearch:7.2.0
@@ -342,7 +345,7 @@ docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elas
 
 From here, you can:
 
-- Grab the IP of the docker container (use `docker inspect <container_id>`)
+- Grab the IP of the Docker container (use `docker inspect <container_id>`)
 - Use `<IP.add.re.ss:9200>` to communicate with it.
 
 This is a quick method to test out Elasticsearch, but by no means is this a

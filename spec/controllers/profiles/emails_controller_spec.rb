@@ -2,11 +2,17 @@
 
 require 'spec_helper'
 
-describe Profiles::EmailsController do
+RSpec.describe Profiles::EmailsController do
   let(:user) { create(:user) }
 
   before do
     sign_in(user)
+  end
+
+  around do |example|
+    perform_enqueued_jobs do
+      example.run
+    end
   end
 
   describe '#create' do

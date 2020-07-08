@@ -21,11 +21,17 @@ module EE
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :service_desk, -> { where(author: ::User.support_bot) }
       scope :no_epic, -> { left_outer_joins(:epic_issue).where(epic_issues: { epic_id: nil }) }
+      scope :any_epic, -> { joins(:epic_issue) }
       scope :in_epics, ->(epics) do
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
         id_in(issue_ids)
       end
-      scope :on_status_page, -> { joins(project: :status_page_setting).where(status_page_settings: { enabled: true }).public_only }
+      scope :on_status_page, -> do
+        joins(project: :status_page_setting)
+        .where(status_page_settings: { enabled: true })
+        .joins(:status_page_published_incident)
+        .public_only
+      end
       scope :counts_by_health_status, -> { reorder(nil).group(:health_status).count }
       scope :with_health_status, -> { where.not(health_status: nil) }
 
@@ -35,12 +41,11 @@ module EE
 
       has_one :status_page_published_incident, class_name: 'StatusPage::PublishedIncident', inverse_of: :issue
 
-      has_and_belongs_to_many :self_managed_prometheus_alert_events, join_table: :issues_self_managed_prometheus_alert_events
-      has_and_belongs_to_many :prometheus_alert_events, join_table: :issues_prometheus_alert_events
-      has_many :prometheus_alerts, through: :prometheus_alert_events
-
       has_many :vulnerability_links, class_name: 'Vulnerabilities::IssueLink', inverse_of: :issue
       has_many :related_vulnerabilities, through: :vulnerability_links, source: :vulnerability
+
+      has_many :feature_flag_issues
+      has_many :feature_flags, through: :feature_flag_issues, class_name: '::Operations::FeatureFlag'
 
       validates :weight, allow_nil: true, numericality: { greater_than_or_equal_to: 0 }
       validate :validate_confidential_epic
@@ -122,6 +127,10 @@ module EE
 
     def supports_weight?
       project&.feature_available?(:issue_weights)
+    end
+
+    def can_assign_epic?(user)
+      user&.can?(:admin_epic, project.group)
     end
 
     def related_issues(current_user, preload: nil)

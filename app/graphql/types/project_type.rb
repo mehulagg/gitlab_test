@@ -95,6 +95,8 @@ module Types
           description: 'Status of Jira import background job of the project'
     field :only_allow_merge_if_pipeline_succeeds, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if merge requests of the project can only be merged with successful jobs'
+    field :allow_merge_on_skipped_pipeline, GraphQL::BOOLEAN_TYPE, null: true,
+          description: 'If `only_allow_merge_if_pipeline_succeeds` is true, indicates if merge requests of the project can also be merged with skipped jobs'
     field :request_access_enabled, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if users can request member access to the project'
     field :only_allow_merge_if_all_discussions_are_resolved, GraphQL::BOOLEAN_TYPE, null: true,
@@ -125,6 +127,7 @@ module Types
           Types::MergeRequestType.connection_type,
           null: true,
           description: 'Merge requests of the project',
+          extras: [:lookahead],
           resolver: Resolvers::MergeRequestsResolver
 
     field :merge_request,
@@ -139,11 +142,20 @@ module Types
           description: 'Issues of the project',
           resolver: Resolvers::IssuesResolver
 
+    field :project_members,
+          Types::ProjectMemberType.connection_type,
+          description: 'Members of the project',
+          resolver: Resolvers::ProjectMembersResolver
+
     field :environments,
           Types::EnvironmentType.connection_type,
           null: true,
           description: 'Environments of the project',
           resolver: Resolvers::EnvironmentsResolver
+
+    field :sast_ci_configuration, ::Types::CiConfiguration::Sast::Type, null: true,
+      description: 'SAST CI configuration for the project',
+      resolver: ::Resolvers::CiConfiguration::SastResolver
 
     field :issue,
           Types::IssueType,
@@ -156,6 +168,12 @@ module Types
           null: true,
           description: 'Build pipelines of the project',
           resolver: Resolvers::ProjectPipelinesResolver
+
+    field :pipeline,
+          Types::Ci::PipelineType,
+          null: true,
+          description: 'Build pipeline of the project',
+          resolver: Resolvers::ProjectPipelineResolver
 
     field :sentry_detailed_error,
           Types::ErrorTracking::SentryDetailedErrorType,
@@ -210,27 +228,77 @@ module Types
           Types::AlertManagement::AlertType.connection_type,
           null: true,
           description: 'Alert Management alerts of the project',
-          resolver: Resolvers::AlertManagementAlertResolver
+          extras: [:lookahead],
+          resolver: Resolvers::AlertManagement::AlertResolver
 
     field :alert_management_alert,
           Types::AlertManagement::AlertType,
           null: true,
           description: 'A single Alert Management alert of the project',
-          resolver: Resolvers::AlertManagementAlertResolver.single
+          resolver: Resolvers::AlertManagement::AlertResolver.single
+
+    field :alert_management_alert_status_counts,
+          Types::AlertManagement::AlertStatusCountsType,
+          null: true,
+          description: 'Counts of alerts by status for the project',
+          resolver: Resolvers::AlertManagement::AlertStatusCountsResolver
 
     field :releases,
           Types::ReleaseType.connection_type,
           null: true,
           description: 'Releases of the project',
-          resolver: Resolvers::ReleasesResolver,
-          feature_flag: :graphql_release_data
+          resolver: Resolvers::ReleasesResolver
 
     field :release,
           Types::ReleaseType,
           null: true,
           description: 'A single release of the project',
           resolver: Resolvers::ReleasesResolver.single,
-          feature_flag: :graphql_release_data
+          authorize: :download_code
+
+    field :container_expiration_policy,
+          Types::ContainerExpirationPolicyType,
+          null: true,
+          description: 'The container expiration policy of the project'
+
+    field :label,
+          Types::LabelType,
+          null: true,
+          description: 'A label available on this project' do
+            argument :title, GraphQL::STRING_TYPE,
+              required: true,
+              description: 'Title of the label'
+          end
+
+    def label(title:)
+      BatchLoader::GraphQL.for(title).batch(key: project) do |titles, loader, args|
+        LabelsFinder
+          .new(current_user, project: args[:key], title: titles)
+          .execute
+          .each { |label| loader.call(label.title, label) }
+      end
+    end
+
+    field :labels,
+          Types::LabelType.connection_type,
+          null: true,
+          description: 'Labels available on this project' do
+            argument :search_term, GraphQL::STRING_TYPE,
+              required: false,
+              description: 'A search term to find labels with'
+          end
+
+    def labels(search_term: nil)
+      LabelsFinder
+        .new(current_user, project: project, search: search_term)
+        .execute
+    end
+
+    private
+
+    def project
+      @project ||= object.respond_to?(:sync) ? object.sync : object
+    end
   end
 end
 

@@ -28,6 +28,8 @@ module Types
           description: 'Timestamp of when the merge request was created'
     field :updated_at, Types::TimeType, null: false,
           description: 'Timestamp of when the merge request was last updated'
+    field :merged_at, Types::TimeType, null: true, complexity: 5,
+          description: 'Timestamp of when the merge request was merged, null if not merged'
     field :source_project, Types::ProjectType, null: true,
           description: 'Source project of the merge request'
     field :target_project, Types::ProjectType, null: false,
@@ -52,6 +54,13 @@ module Types
           description: 'Indicates if the merge has been set to be merged when its pipeline succeeds (MWPS)'
     field :diff_head_sha, GraphQL::STRING_TYPE, null: true,
           description: 'Diff head SHA of the merge request'
+    field :diff_stats, [Types::DiffStatsType], null: true, calls_gitaly: true,
+          description: 'Details about which files were changed in this merge request' do
+      argument :path, GraphQL::STRING_TYPE, required: false, description: 'A specific file-path'
+    end
+
+    field :diff_stats_summary, Types::DiffStatsSummaryType, null: true, calls_gitaly: true,
+          description: 'Summary of which files were changed in this merge request'
     field :merge_commit_sha, GraphQL::STRING_TYPE, null: true,
           description: 'SHA of the merge request commit (set once merged)'
     field :user_notes_count, GraphQL::INT_TYPE, null: true,
@@ -81,8 +90,14 @@ module Types
           description: 'Default merge commit message of the merge request'
     field :merge_ongoing, GraphQL::BOOLEAN_TYPE, method: :merge_ongoing?, null: false,
           description: 'Indicates if a merge is currently occurring'
-    field :source_branch_exists, GraphQL::BOOLEAN_TYPE, method: :source_branch_exists?, null: false,
+    field :source_branch_exists, GraphQL::BOOLEAN_TYPE,
+          null: false, calls_gitaly: true,
+          method: :source_branch_exists?,
           description: 'Indicates if the source branch of the merge request exists'
+    field :target_branch_exists, GraphQL::BOOLEAN_TYPE,
+          null: false, calls_gitaly: true,
+          method: :target_branch_exists?,
+          description: 'Indicates if the target branch of the merge request exists'
     field :mergeable_discussions_state, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if all discussions in the merge request have been resolved, allowing the merge request to be merged'
     field :web_url, GraphQL::STRING_TYPE, null: true,
@@ -103,6 +118,8 @@ module Types
           resolve: -> (obj, _args, _ctx) { Gitlab::Graphql::Loaders::BatchModelLoader.new(Milestone, obj.milestone_id).find }
     field :assignees, Types::UserType.connection_type, null: true, complexity: 5,
           description: 'Assignees of the merge request'
+    field :author, Types::UserType, null: true,
+          description: 'User who created this merge request'
     field :participants, Types::UserType.connection_type, null: true, complexity: 5,
           description: 'Participants in the merge request'
     field :subscribed, GraphQL::BOOLEAN_TYPE, method: :subscribed?, null: false, complexity: 5,
@@ -124,5 +141,24 @@ module Types
     end
     field :task_completion_status, Types::TaskCompletionStatus, null: false,
           description: Types::TaskCompletionStatus.description
+
+    def diff_stats(path: nil)
+      stats = Array.wrap(object.diff_stats&.to_a)
+
+      if path.present?
+        stats.select { |s| s.path == path }
+      else
+        stats
+      end
+    end
+
+    def diff_stats_summary
+      nil_stats = { additions: 0, deletions: 0, file_count: 0 }
+      return nil_stats unless object.diff_stats.present?
+
+      object.diff_stats.each_with_object(nil_stats) do |status, hash|
+        hash.merge!(additions: status.additions, deletions: status.deletions, file_count: 1) { |_, x, y| x + y }
+      end
+    end
   end
 end

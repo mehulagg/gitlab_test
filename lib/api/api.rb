@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module API
-  class API < Grape::API
+  class API < Grape::API::Instance
     include APIGuard
 
     LOG_FILENAME = Rails.root.join("log", "api_json.log")
@@ -24,7 +24,8 @@ module API
                     Gitlab::GrapeLogging::Loggers::ExceptionLogger.new,
                     Gitlab::GrapeLogging::Loggers::QueueDurationLogger.new,
                     Gitlab::GrapeLogging::Loggers::PerfLogger.new,
-                    Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new
+                    Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new,
+                    Gitlab::GrapeLogging::Loggers::ContextLogger.new
                   ]
 
     allow_access_with_scope :api
@@ -45,6 +46,8 @@ module API
     end
 
     before do
+      coerce_nil_params_to_array!
+
       Gitlab::ApplicationContext.push(
         user: -> { @current_user },
         project: -> { @project },
@@ -120,6 +123,7 @@ module API
 
       # Keep in alphabetical order
       mount ::API::AccessRequests
+      mount ::API::Admin::Ci::Variables
       mount ::API::Admin::Sidekiq
       mount ::API::Appearance
       mount ::API::Applications
@@ -129,6 +133,8 @@ module API
       mount ::API::Boards
       mount ::API::Branches
       mount ::API::BroadcastMessages
+      mount ::API::Ci::Runner
+      mount ::API::Ci::Runners
       mount ::API::Commits
       mount ::API::CommitStatuses
       mount ::API::ContainerRegistryEvent
@@ -140,6 +146,7 @@ module API
       mount ::API::Events
       mount ::API::Features
       mount ::API::Files
+      mount ::API::FreezePeriods
       mount ::API::GroupBoards
       mount ::API::GroupClusters
       mount ::API::GroupExport
@@ -149,6 +156,7 @@ module API
       mount ::API::Groups
       mount ::API::GroupContainerRepositories
       mount ::API::GroupVariables
+      mount ::API::ImportBitbucketServer
       mount ::API::ImportGithub
       mount ::API::Issues
       mount ::API::JobArtifacts
@@ -156,16 +164,17 @@ module API
       mount ::API::Keys
       mount ::API::Labels
       mount ::API::Lint
-      mount ::API::LsifData
       mount ::API::Markdown
       mount ::API::Members
       mount ::API::MergeRequestDiffs
       mount ::API::MergeRequests
       mount ::API::Metrics::Dashboard::Annotations
+      mount ::API::Metrics::UserStarredDashboards
       mount ::API::Namespaces
       mount ::API::Notes
       mount ::API::Discussions
       mount ::API::ResourceLabelEvents
+      mount ::API::ResourceMilestoneEvents
       mount ::API::NotificationSettings
       mount ::API::Pages
       mount ::API::PagesDomains
@@ -178,6 +187,7 @@ module API
       mount ::API::ProjectImport
       mount ::API::ProjectHooks
       mount ::API::ProjectMilestones
+      mount ::API::ProjectRepositoryStorageMoves
       mount ::API::Projects
       mount ::API::ProjectSnapshots
       mount ::API::ProjectSnippets
@@ -190,8 +200,6 @@ module API
       mount ::API::Release::Links
       mount ::API::RemoteMirrors
       mount ::API::Repositories
-      mount ::API::Runner
-      mount ::API::Runners
       mount ::API::Search
       mount ::API::Services
       mount ::API::Settings

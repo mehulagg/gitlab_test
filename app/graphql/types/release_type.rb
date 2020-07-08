@@ -3,6 +3,7 @@
 module Types
   class ReleaseType < BaseObject
     graphql_name 'Release'
+    description 'Represents a release'
 
     authorize :read_release
 
@@ -10,23 +11,29 @@ module Types
 
     present_using ReleasePresenter
 
-    field :tag_name, GraphQL::STRING_TYPE, null: false, method: :tag,
-          description: 'Name of the tag associated with the release'
+    field :tag_name, GraphQL::STRING_TYPE, null: true, method: :tag,
+          description: 'Name of the tag associated with the release',
+          authorize: :download_code
     field :tag_path, GraphQL::STRING_TYPE, null: true,
-          description: 'Relative web path to the tag associated with the release'
+          description: 'Relative web path to the tag associated with the release',
+          authorize: :download_code
     field :description, GraphQL::STRING_TYPE, null: true,
           description: 'Description (also known as "release notes") of the release'
     markdown_field :description_html, null: true
     field :name, GraphQL::STRING_TYPE, null: true,
           description: 'Name of the release'
-    field :evidence_sha, GraphQL::STRING_TYPE, null: true,
-          description: "SHA of the release's evidence"
     field :created_at, Types::TimeType, null: true,
           description: 'Timestamp of when the release was created'
     field :released_at, Types::TimeType, null: true,
           description: 'Timestamp of when the release was released'
+    field :assets, Types::ReleaseAssetsType, null: true, method: :itself,
+          description: 'Assets of the release'
+    field :links, Types::ReleaseLinksType, null: true, method: :itself,
+          description: 'Links of the release'
     field :milestones, Types::MilestoneType.connection_type, null: true,
           description: 'Milestones associated to the release'
+    field :evidences, Types::EvidenceType.connection_type, null: true,
+          description: 'Evidence for the release'
 
     field :author, Types::UserType, null: true,
           description: 'User that created the release'
@@ -37,8 +44,7 @@ module Types
 
     field :commit, Types::CommitType, null: true,
           complexity: 10, calls_gitaly: true,
-          description: 'The commit associated with the release',
-          authorize: :reporter_access
+          description: 'The commit associated with the release'
 
     def commit
       return if release.sha.nil?

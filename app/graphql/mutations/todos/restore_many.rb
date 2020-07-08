@@ -14,7 +14,12 @@ module Mutations
 
       field :updated_ids, [GraphQL::ID_TYPE],
             null: false,
-            description: 'The ids of the updated todo items'
+            description: 'The ids of the updated todo items',
+            deprecated: { reason: 'Use todos', milestone: '13.2' }
+
+      field :todos, [::Types::TodoType],
+            null: false,
+            description: 'Updated todos'
 
       def resolve(ids:)
         check_update_amount_limit!(ids)
@@ -24,6 +29,7 @@ module Mutations
 
         {
             updated_ids: gids_of(updated_ids),
+            todos: Todo.id_in(updated_ids),
             errors: errors_on_objects(todos)
         }
       end
@@ -68,7 +74,7 @@ module Mutations
       end
 
       def restore(todos)
-        TodoService.new.mark_todos_as_pending(todos, current_user)
+        TodoService.new.restore_todos(todos, current_user)
       end
     end
   end

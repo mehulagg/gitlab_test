@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Project do
+RSpec.describe Project do
   include ProjectForksHelper
   include ::EE::GeoHelpers
   using RSpec::Parameterized::TableSyntax
@@ -27,11 +27,13 @@ describe Project do
     it { is_expected.to have_one(:repository_state).class_name('ProjectRepositoryState').inverse_of(:project) }
     it { is_expected.to have_one(:status_page_setting).class_name('StatusPage::ProjectSetting') }
     it { is_expected.to have_one(:compliance_framework_setting).class_name('ComplianceManagement::ComplianceFramework::ProjectSettings') }
+    it { is_expected.to have_one(:security_setting).class_name('ProjectSecuritySetting') }
+    it { is_expected.to have_one(:vulnerability_statistic).class_name('Vulnerabilities::Statistic') }
 
-    it { is_expected.to have_many(:reviews).inverse_of(:project) }
     it { is_expected.to have_many(:path_locks) }
     it { is_expected.to have_many(:vulnerability_feedback) }
     it { is_expected.to have_many(:vulnerability_exports) }
+    it { is_expected.to have_many(:vulnerability_scanners) }
     it { is_expected.to have_many(:audit_events).dependent(false) }
     it { is_expected.to have_many(:protected_environments) }
     it { is_expected.to have_many(:approvers).dependent(:destroy) }
@@ -187,6 +189,12 @@ describe Project do
     end
 
     describe '.with_shared_runners_limit_enabled' do
+      let(:public_cost_factor) { 1.0 }
+
+      before do
+        create(:ci_runner, :instance, public_projects_minutes_cost_factor: public_cost_factor)
+      end
+
       it 'does not return projects without shared runners' do
         project_with_shared_runners = create(:project, shared_runners_enabled: true)
         project_without_shared_runners = create(:project, shared_runners_enabled: false)
@@ -195,7 +203,7 @@ describe Project do
         expect(described_class.with_shared_runners_limit_enabled).not_to include(project_without_shared_runners)
       end
 
-      it 'return projects with shared runners with any visibility levels' do
+      it 'return projects with shared runners with positive public cost factor with any visibility levels' do
         public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
         internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
         private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
@@ -205,12 +213,10 @@ describe Project do
         expect(described_class.with_shared_runners_limit_enabled).to include(private_project_with_shared_runners)
       end
 
-      context 'and :ci_minutes_enforce_quota_for_public_projects FF is disabled' do
-        before do
-          stub_feature_flags(ci_minutes_enforce_quota_for_public_projects: false)
-        end
+      context 'and shared runners public cost factors set to 0' do
+        let(:public_cost_factor) { 0.0 }
 
-        it 'does not return public projects' do
+        it 'return projects with any visibility levels except public' do
           public_project_with_shared_runners = create(:project, :public, shared_runners_enabled: true)
           internal_project_with_shared_runners = create(:project, :internal, shared_runners_enabled: true)
           private_project_with_shared_runners = create(:project, :private, shared_runners_enabled: true)
@@ -302,7 +308,7 @@ describe Project do
             project.save
           end.to change { ProjectImportState.count }.by(1)
 
-          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+          expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
         end
       end
     end
@@ -317,7 +323,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id, import_url: generate(:url))
             end.to change { ProjectImportState.count }.by(1)
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -331,7 +337,7 @@ describe Project do
               project.update(mirror: true, mirror_user_id: project.creator.id)
             end.not_to change { ProjectImportState.count }
 
-            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.now)
+            expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
           end
         end
       end
@@ -339,7 +345,7 @@ describe Project do
   end
 
   describe '.mirrors_to_sync' do
-    let(:timestamp) { Time.now }
+    let(:timestamp) { Time.current }
 
     context 'when mirror is scheduled' do
       it 'returns empty' do
@@ -436,52 +442,44 @@ describe Project do
   end
 
   describe '#deployment_variables' do
-    context 'when project has a deployment platforms' do
-      context 'when multiple clusters (EEP) is enabled' do
-        before do
-          stub_licensed_features(multiple_clusters: true)
-        end
+    let(:project) { create(:project) }
 
-        let(:project) { create(:project) }
+    let!(:default_cluster) do
+      create(:cluster,
+              :not_managed,
+              platform_type: :kubernetes,
+              projects: [project],
+              environment_scope: '*',
+              platform_kubernetes: default_cluster_kubernetes)
+    end
 
-        let!(:default_cluster) do
-          create(:cluster,
-                 :not_managed,
-                 platform_type: :kubernetes,
-                 projects: [project],
-                 environment_scope: '*',
-                 platform_kubernetes: default_cluster_kubernetes)
-        end
+    let!(:review_env_cluster) do
+      create(:cluster,
+              :not_managed,
+              platform_type: :kubernetes,
+              projects: [project],
+              environment_scope: 'review/*',
+              platform_kubernetes: review_env_cluster_kubernetes)
+    end
 
-        let!(:review_env_cluster) do
-          create(:cluster,
-                 :not_managed,
-                 platform_type: :kubernetes,
-                 projects: [project],
-                 environment_scope: 'review/*',
-                 platform_kubernetes: review_env_cluster_kubernetes)
-        end
+    let(:default_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'default-AAA') }
+    let(:review_env_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'review-AAA') }
 
-        let(:default_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'default-AAA') }
-        let(:review_env_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'review-AAA') }
+    context 'when environment name is review/name' do
+      let!(:environment) { create(:environment, project: project, name: 'review/name') }
 
-        context 'when environment name is review/name' do
-          let!(:environment) { create(:environment, project: project, name: 'review/name') }
+      it 'returns variables from this service' do
+        expect(project.deployment_variables(environment: 'review/name'))
+          .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
+      end
+    end
 
-          it 'returns variables from this service' do
-            expect(project.deployment_variables(environment: 'review/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
-          end
-        end
+    context 'when environment name is other' do
+      let!(:environment) { create(:environment, project: project, name: 'staging/name') }
 
-        context 'when environment name is other' do
-          let!(:environment) { create(:environment, project: project, name: 'staging/name') }
-
-          it 'returns variables from this service' do
-            expect(project.deployment_variables(environment: 'staging/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
-          end
-        end
+      it 'returns variables from this service' do
+        expect(project.deployment_variables(environment: 'staging/name'))
+          .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
       end
     end
   end
@@ -516,31 +514,68 @@ describe Project do
 
   context 'merge requests related settings' do
     shared_examples 'setting modified by application setting' do
-      using RSpec::Parameterized::TableSyntax
+      context 'when compliance merge request approval settings feature flag is enabled' do
+        using RSpec::Parameterized::TableSyntax
 
-      where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
-        true     | true      | true   | true
-        false    | true      | true   | true
-        true     | false     | true   | true
-        false    | false     | true   | false
-        true     | true      | false  | true
-        false    | true      | false  | true
-        true     | false     | false  | false
-        false    | false     | false  | false
-      end
-
-      with_them do
-        let(:project) { create(:project) }
-
-        before do
-          stub_licensed_features(feature => feature_enabled)
-          stub_application_setting(application_setting => app_setting)
-          project.update(setting => project_setting)
+        where(:app_setting, :project_setting, :regulated_settings, :final_setting) do
+          true     | true      | true   | true
+          false    | true      | true   | false
+          true     | false     | true   | true
+          false    | false     | true   | false
+          true     | true      | false  | true
+          false    | true      | false  | true
+          true     | false     | false  | false
+          false    | false     | false  | false
         end
 
-        it 'shows proper setting' do
-          expect(project.send(setting)).to eq(final_setting)
-          expect(project.send("#{setting}?")).to eq(final_setting)
+        with_them do
+          let(:project) { create(:project) }
+
+          before do
+            stub_feature_flags(project_compliance_merge_request_approval_settings: true)
+            stub_licensed_features(admin_merge_request_approvers_rules: true)
+
+            allow(project).to receive(:has_regulated_settings?).and_return(regulated_settings)
+            stub_application_setting(application_setting => app_setting)
+            project.update(setting => project_setting)
+          end
+
+          it 'shows proper setting' do
+            expect(project.send(setting)).to eq(final_setting)
+            expect(project.send("#{setting}?")).to eq(final_setting)
+          end
+        end
+      end
+
+      context 'when compliance merge request approval settings feature flag is disabled' do
+        using RSpec::Parameterized::TableSyntax
+
+        where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
+          true     | true      | true   | true
+          false    | true      | true   | true
+          true     | false     | true   | true
+          false    | false     | true   | false
+          true     | true      | false  | true
+          false    | true      | false  | true
+          true     | false     | false  | false
+          false    | false     | false  | false
+        end
+
+        with_them do
+          let(:project) { create(:project) }
+
+          before do
+            stub_feature_flags(project_compliance_merge_request_approval_settings: false)
+
+            stub_licensed_features(feature => feature_enabled)
+            stub_application_setting(application_setting => app_setting)
+            project.update(setting => project_setting)
+          end
+
+          it 'shows proper setting' do
+            expect(project.send(setting)).to eq(final_setting)
+            expect(project.send("#{setting}?")).to eq(final_setting)
+          end
         end
       end
     end
@@ -562,36 +597,103 @@ describe Project do
     end
 
     describe '#merge_requests_author_approval' do
-      using RSpec::Parameterized::TableSyntax
+      let(:project) { create(:project) }
+      let(:feature) { :admin_merge_request_approvers_rules }
+      let(:setting) { :merge_requests_author_approval }
+      let(:application_setting) { :prevent_merge_requests_author_approval }
 
-      where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
-        true     | true      | true   | false
-        false    | true      | true   | true
-        true     | false     | true   | false
-        false    | false     | true   | false
-        true     | true      | false  | true
-        false    | true      | false  | true
-        true     | false     | false  | false
-        false    | false     | false  | false
-      end
+      context 'when compliance merge request approval settings feature flag is enabled' do
+        using RSpec::Parameterized::TableSyntax
 
-      with_them do
-        let(:project) { create(:project) }
-        let(:feature) { :admin_merge_request_approvers_rules }
-        let(:setting) { :merge_requests_author_approval }
-        let(:application_setting) { :prevent_merge_requests_author_approval }
-
-        before do
-          stub_licensed_features(feature => feature_enabled)
-          stub_application_setting(application_setting => app_setting)
-          project.update(setting => project_setting)
+        where(:app_setting, :project_setting, :regulated_settings, :final_setting) do
+          true     | true      | true   | false
+          false    | true      | true   | true
+          true     | false     | true   | false
+          false    | false     | true   | true
+          true     | true      | false  | true
+          false    | true      | false  | true
+          true     | false     | false  | false
+          false    | false     | false  | false
         end
 
-        it 'shows proper setting' do
-          expect(project.send(setting)).to eq(final_setting)
-          expect(project.send("#{setting}?")).to eq(final_setting)
+        with_them do
+          let(:project) { create(:project) }
+
+          before do
+            stub_feature_flags(project_compliance_merge_request_approval_settings: true)
+            stub_licensed_features(admin_merge_request_approvers_rules: true)
+
+            allow(project).to receive(:has_regulated_settings?).and_return(regulated_settings)
+            stub_application_setting(application_setting => app_setting)
+            project.update(setting => project_setting)
+          end
+
+          it 'shows proper setting' do
+            expect(project.send(setting)).to eq(final_setting)
+            expect(project.send("#{setting}?")).to eq(final_setting)
+          end
         end
       end
+
+      context 'when compliance merge request approval settings feature flag is disabled' do
+        using RSpec::Parameterized::TableSyntax
+
+        where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
+          true     | true      | true   | false
+          false    | true      | true   | true
+          true     | false     | true   | false
+          false    | false     | true   | false
+          true     | true      | false  | true
+          false    | true      | false  | true
+          true     | false     | false  | false
+          false    | false     | false  | false
+        end
+
+        with_them do
+          before do
+            stub_feature_flags(project_compliance_merge_request_approval_settings: false)
+
+            stub_licensed_features(feature => feature_enabled)
+            stub_application_setting(application_setting => app_setting)
+            project.update(setting => project_setting)
+          end
+
+          it 'shows proper setting' do
+            expect(project.send(setting)).to eq(final_setting)
+            expect(project.send("#{setting}?")).to eq(final_setting)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#has_regulated_settings?' do
+    let_it_be(:framework) { ComplianceManagement::ComplianceFramework::FRAMEWORKS.first }
+    let_it_be(:compliance_framework_setting) { create(:compliance_framework_project_setting, framework: framework.first.to_s) }
+    let_it_be(:project) { create(:project, compliance_framework_setting: compliance_framework_setting) }
+
+    subject { project.has_regulated_settings? }
+
+    context 'framework is regulated' do
+      before do
+        stub_application_setting(compliance_frameworks: [framework.last])
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'framework is not regulated' do
+      before do
+        stub_application_setting(compliance_frameworks: [])
+      end
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'project does not have compliance framework' do
+      let_it_be(:project) { create(:project) }
+
+      it { is_expected.to be_falsey }
     end
   end
 
@@ -751,9 +853,9 @@ describe Project do
       end
 
       License::EEU_FEATURES.each do |feature_sym|
-        let(:feature) { feature_sym }
-
         context feature_sym.to_s do
+          let(:feature) { feature_sym }
+
           unless License::GLOBAL_FEATURES.include?(feature_sym)
             context "checking #{feature_sym} availability both on Global and Namespace license" do
               let(:check_namespace_plan) { true }
@@ -809,6 +911,17 @@ describe Project do
                 it 'returns false' do
                   is_expected.to eq(false)
                 end
+              end
+
+              context 'with promo feature flag' do
+                let(:allowed_on_global_license) { true }
+
+                before do
+                  project.clear_memoization(:licensed_feature_available)
+                  stub_feature_flags("promo_#{feature}" => true)
+                end
+
+                it { is_expected.to be_truthy }
               end
             end
           end
@@ -994,14 +1107,6 @@ describe Project do
         end
 
         it { is_expected.to be_truthy }
-
-        context 'and :ci_minutes_track_for_public_projects FF is disabled' do
-          before do
-            stub_feature_flags(ci_minutes_track_for_public_projects: { enabled: false, thing: project.shared_runners_limit_namespace })
-          end
-
-          it { is_expected.to be_falsey }
-        end
       end
 
       context 'for internal project' do
@@ -1045,26 +1150,6 @@ describe Project do
     it 'is enabled' do
       expect(project.service_desk_enabled?).to be_truthy
       expect(project.service_desk_enabled).to be_truthy
-    end
-
-    context 'namespace plans active' do
-      before do
-        stub_application_setting(check_namespace_plan: true)
-      end
-
-      it 'is disabled' do
-        expect(project.service_desk_enabled?).to be_falsy
-        expect(project.service_desk_enabled).to be_falsy
-      end
-
-      context 'Service Desk available in namespace plan' do
-        let!(:gitlab_subscription) { create(:gitlab_subscription, :silver, namespace: namespace) }
-
-        it 'is enabled' do
-          expect(project.service_desk_enabled?).to be_truthy
-          expect(project.service_desk_enabled).to be_truthy
-        end
-      end
     end
   end
 
@@ -1307,7 +1392,7 @@ describe Project do
     subject { project.disabled_services }
 
     where(:license_feature, :disabled_services) do
-      :jenkins_integration                | %w(jenkins jenkins_deprecated)
+      :jenkins_integration                | %w(jenkins)
       :github_project_service_integration | %w(github)
     end
 
@@ -1431,7 +1516,7 @@ describe Project do
       allow(global_license).to receive(:features).and_return([
         :subepics, # Gold only
         :epics, # Silver and up
-        :service_desk, # Silver and up
+        :push_rules, # Silver and up
         :audit_events, # Bronze and up
         :geo # Global feature, should not be checked at namespace level
       ])
@@ -1448,7 +1533,7 @@ describe Project do
         let(:plan_license) { :bronze }
 
         it 'filters for bronze features' do
-          is_expected.to contain_exactly(:audit_events, :geo, :service_desk)
+          is_expected.to contain_exactly(:audit_events, :geo, :push_rules)
         end
       end
 
@@ -1456,7 +1541,7 @@ describe Project do
         let(:plan_license) { :silver }
 
         it 'filters for silver features' do
-          is_expected.to contain_exactly(:service_desk, :audit_events, :geo, :epics)
+          is_expected.to contain_exactly(:push_rules, :audit_events, :geo, :epics)
         end
       end
 
@@ -1464,7 +1549,7 @@ describe Project do
         let(:plan_license) { :gold }
 
         it 'filters for gold features' do
-          is_expected.to contain_exactly(:epics, :service_desk, :audit_events, :geo, :subepics)
+          is_expected.to contain_exactly(:epics, :push_rules, :audit_events, :geo, :subepics)
         end
       end
 
@@ -1481,7 +1566,7 @@ describe Project do
           let(:project) { create(:project, :public, group: group) }
 
           it 'includes all features in global license' do
-            is_expected.to contain_exactly(:epics, :service_desk, :audit_events, :geo, :subepics)
+            is_expected.to contain_exactly(:epics, :push_rules, :audit_events, :geo, :subepics)
           end
         end
       end
@@ -1489,7 +1574,7 @@ describe Project do
 
     context 'when namespace should not be checked' do
       it 'includes all features in global license' do
-        is_expected.to contain_exactly(:epics, :service_desk, :audit_events, :geo, :subepics)
+        is_expected.to contain_exactly(:epics, :push_rules, :audit_events, :geo, :subepics)
       end
     end
 
@@ -1729,6 +1814,41 @@ describe Project do
       expect(wiki_updated_service).not_to receive(:execute)
 
       project.after_import
+    end
+
+    context 'elasticsearch indexing disabled for this project' do
+      before do
+        expect(project).to receive(:use_elasticsearch?).and_return(false)
+      end
+
+      it 'does not index the wiki repository' do
+        expect(ElasticCommitIndexerWorker).not_to receive(:perform_async)
+
+        project.after_import
+      end
+    end
+
+    context 'elasticsearch indexing enabled for this project' do
+      before do
+        expect(project).to receive(:use_elasticsearch?).and_return(true)
+      end
+
+      it 'schedules a full index of the wiki repository' do
+        expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, nil, nil, true)
+
+        project.after_import
+      end
+
+      context 'when project is forked' do
+        before do
+          expect(project).to receive(:forked?).and_return(true)
+        end
+        it 'does not index the wiki repository' do
+          expect(ElasticCommitIndexerWorker).not_to receive(:perform_async)
+
+          project.after_import
+        end
+      end
     end
   end
 

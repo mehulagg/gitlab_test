@@ -5,7 +5,7 @@ module QA
     module Project
       module Settings
         class CICD < Page::Base
-          include Common
+          include QA::Page::Settings::Common
 
           view 'app/views/projects/settings/ci_cd/show.html.haml' do
             element :autodevops_settings_content
@@ -42,5 +42,3 @@ module QA
     end
   end
 end
-
-QA::Page::Project::Settings::CICD.prepend_if_ee('QA::EE::Page::Project::Settings::CICD')

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Dashboard::TodosController do
+RSpec.describe Dashboard::TodosController do
   let(:user) { create(:user) }
   let(:author)  { create(:user) }
   let(:project) { create(:project) }
@@ -41,6 +41,15 @@ describe Dashboard::TodosController do
         get :index, params: { project_id: authorized_project.id }
 
         expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      context 'tracking visits' do
+        let_it_be(:authorized_project) { create(:project, :public) }
+
+        it_behaves_like 'tracking unique visits', :index do
+          let(:request_params) { { project_id: authorized_project.id } }
+          let(:target_id) { 'u_analytics_todos' }
+        end
       end
     end
 

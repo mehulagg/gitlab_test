@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Search do
+RSpec.describe API::Search do
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:project, reload: true) { create(:project, :wiki_repo, :public, name: 'awesome project', group: group) }
@@ -13,6 +13,14 @@ describe API::Search do
     it { expect(response).to match_response_schema(schema) }
     it { expect(response).to include_limited_pagination_headers }
     it { expect(json_response.size).to eq(size) }
+  end
+
+  shared_examples 'ping counters' do |scope:, search: ''|
+    it 'increases usage ping searches counter' do
+      expect(Gitlab::UsageDataCounters::SearchCounter).to receive(:count).with(:all_searches)
+
+      get api(endpoint, user), params: { scope: scope, search: search }
+    end
   end
 
   shared_examples 'pagination' do |scope:, search: ''|
@@ -75,6 +83,8 @@ describe API::Search do
         it_behaves_like 'response is correct', schema: 'public_api/v4/projects'
 
         it_behaves_like 'pagination', scope: :projects
+
+        it_behaves_like 'ping counters', scope: :projects
       end
 
       context 'for issues scope' do
@@ -85,6 +95,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/issues'
+
+        it_behaves_like 'ping counters', scope: :issues
 
         describe 'pagination' do
           before do
@@ -103,6 +115,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/merge_requests'
+
+        it_behaves_like 'ping counters', scope: :merge_requests
 
         describe 'pagination' do
           before do
@@ -124,6 +138,8 @@ describe API::Search do
           end
 
           it_behaves_like 'response is correct', schema: 'public_api/v4/milestones'
+
+          it_behaves_like 'ping counters', scope: :milestones
 
           describe 'pagination' do
             before do
@@ -161,9 +177,11 @@ describe API::Search do
 
         it_behaves_like 'pagination', scope: :users
 
+        it_behaves_like 'ping counters', scope: :users
+
         context 'when users search feature is disabled' do
           before do
-            allow(Feature).to receive(:disabled?).with(:users_search, default_enabled: true).and_return(true)
+            stub_feature_flags(users_search: false)
 
             get api(endpoint, user), params: { scope: 'users', search: 'billy' }
           end
@@ -182,6 +200,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/snippets'
+
+        it_behaves_like 'ping counters', scope: :snippet_titles
 
         describe 'pagination' do
           before do
@@ -248,6 +268,8 @@ describe API::Search do
         it_behaves_like 'response is correct', schema: 'public_api/v4/projects'
 
         it_behaves_like 'pagination', scope: :projects
+
+        it_behaves_like 'ping counters', scope: :projects
       end
 
       context 'for issues scope' do
@@ -258,6 +280,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/issues'
+
+        it_behaves_like 'ping counters', scope: :issues
 
         describe 'pagination' do
           before do
@@ -277,6 +301,8 @@ describe API::Search do
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/merge_requests'
 
+        it_behaves_like 'ping counters', scope: :merge_requests
+
         describe 'pagination' do
           before do
             create(:merge_request, source_project: repo_project, title: 'another mr', target_branch: 'another_branch')
@@ -294,6 +320,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/milestones'
+
+        it_behaves_like 'ping counters', scope: :milestones
 
         describe 'pagination' do
           before do
@@ -326,6 +354,8 @@ describe API::Search do
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/user/basics'
 
+        it_behaves_like 'ping counters', scope: :users
+
         describe 'pagination' do
           before do
             create(:group_member, :developer, group: group)
@@ -336,7 +366,7 @@ describe API::Search do
 
         context 'when users search feature is disabled' do
           before do
-            allow(Feature).to receive(:disabled?).with(:users_search, default_enabled: true).and_return(true)
+            stub_feature_flags(users_search: false)
 
             get api(endpoint, user), params: { scope: 'users', search: 'billy' }
           end
@@ -395,7 +425,7 @@ describe API::Search do
       end
     end
 
-    context 'when user does can not see the project' do
+    context 'when user can not see the project' do
       it 'returns 404 error' do
         project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
 
@@ -414,6 +444,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/issues'
+
+        it_behaves_like 'ping counters', scope: :issues
 
         describe 'pagination' do
           before do
@@ -435,6 +467,8 @@ describe API::Search do
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/merge_requests'
 
+        it_behaves_like 'ping counters', scope: :merge_requests
+
         describe 'pagination' do
           before do
             create(:merge_request, source_project: repo_project, title: 'another mr', target_branch: 'another_branch')
@@ -455,6 +489,8 @@ describe API::Search do
           end
 
           it_behaves_like 'response is correct', schema: 'public_api/v4/milestones'
+
+          it_behaves_like 'ping counters', scope: :milestones
 
           describe 'pagination' do
             before do
@@ -491,6 +527,8 @@ describe API::Search do
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/user/basics'
 
+        it_behaves_like 'ping counters', scope: :users
+
         describe 'pagination' do
           before do
             create(:project_member, :developer, project: project)
@@ -501,7 +539,7 @@ describe API::Search do
 
         context 'when users search feature is disabled' do
           before do
-            allow(Feature).to receive(:disabled?).with(:users_search, default_enabled: true).and_return(true)
+            stub_feature_flags(users_search: false)
 
             get api(endpoint, user), params: { scope: 'users', search: 'billy' }
           end
@@ -520,6 +558,8 @@ describe API::Search do
         end
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/notes'
+
+        it_behaves_like 'ping counters', scope: :notes
 
         describe 'pagination' do
           before do
@@ -542,6 +582,8 @@ describe API::Search do
 
         it_behaves_like 'response is correct', schema: 'public_api/v4/blobs'
 
+        it_behaves_like 'ping counters', scope: :wiki_blobs
+
         describe 'pagination' do
           before do
             create(:wiki_page, wiki: wiki, title: 'home 2', content: 'Another page')
@@ -561,6 +603,8 @@ describe API::Search do
         it_behaves_like 'response is correct', schema: 'public_api/v4/commits_details'
 
         it_behaves_like 'pagination', scope: :commits, search: 'merge'
+
+        it_behaves_like 'ping counters', scope: :commits
       end
 
       context 'for commits scope with project path as id' do
@@ -581,6 +625,8 @@ describe API::Search do
         it_behaves_like 'response is correct', schema: 'public_api/v4/blobs', size: 2
 
         it_behaves_like 'pagination', scope: :blobs, search: 'monitors'
+
+        it_behaves_like 'ping counters', scope: :blobs
 
         context 'filters' do
           it 'by filename' do

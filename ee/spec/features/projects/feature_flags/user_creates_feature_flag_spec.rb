@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'User creates feature flag', :js do
+RSpec.describe 'User creates feature flag', :js do
   include FeatureFlagHelpers
 
   let(:user) { create(:user) }
@@ -47,6 +47,24 @@ describe 'User creates feature flag', :js do
     within_strategy_row(1) do
       expect(page).to have_text('All users')
       expect(page).to have_text('All environments')
+    end
+  end
+
+  it 'removes the correct strategy when a strategy is deleted' do
+    visit(new_project_feature_flag_path(project))
+    click_button 'Add strategy'
+    within_strategy_row(1) do
+      select 'All users', from: 'Type'
+    end
+    within_strategy_row(2) do
+      select 'Percent rollout (logged in users)', from: 'Type'
+    end
+    within_strategy_row(1) do
+      delete_strategy_button.click
+    end
+
+    within_strategy_row(1) do
+      expect(page).to have_select('Type', selected: 'Percent rollout (logged in users)')
     end
   end
 

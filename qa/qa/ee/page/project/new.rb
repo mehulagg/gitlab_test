@@ -5,8 +5,12 @@ module QA
     module Page
       module Project
         module New
-          def self.prepended(page)
-            page.module_eval do
+          extend QA::Page::PageConcern
+
+          def self.prepended(base)
+            super
+
+            base.class_eval do
               view 'ee/app/views/projects/_project_templates.html.haml' do
                 element :group_templates_tab
                 element :group_template_tab_badge
@@ -27,12 +31,10 @@ module QA
           end
 
           def go_to_create_from_template_group_tab
-            click_create_from_template_tab
             click_element(:group_templates_tab)
           end
 
           def go_to_create_from_template_instance_tab
-            click_create_from_template_tab
             click_element(:instance_templates_tab)
           end
 

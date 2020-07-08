@@ -194,6 +194,14 @@ module QA
         ENV['GITLAB_QA_PASSWORD_6']
       end
 
+      def gitlab_qa_2fa_owner_username_1
+        ENV['GITLAB_QA_2FA_OWNER_USERNAME_1'] || 'gitlab-qa-2fa-owner-user1'
+      end
+
+      def gitlab_qa_2fa_owner_password_1
+        ENV['GITLAB_QA_2FA_OWNER_PASSWORD_1']
+      end
+
       def gitlab_qa_1p_email
         ENV['GITLAB_QA_1P_EMAIL']
       end
@@ -208,6 +216,18 @@ module QA
 
       def gitlab_qa_1p_github_uuid
         ENV['GITLAB_QA_1P_GITHUB_UUID']
+      end
+
+      def jira_admin_username
+        ENV['JIRA_ADMIN_USERNAME']
+      end
+
+      def jira_admin_password
+        ENV['JIRA_ADMIN_PASSWORD']
+      end
+
+      def jira_hostname
+        ENV['JIRA_HOSTNAME']
       end
 
       def knapsack?

@@ -46,12 +46,17 @@ class Projects::IssuesController < Projects::ApplicationController
 
   before_action do
     push_frontend_feature_flag(:vue_issuable_sidebar, project.group)
-    push_frontend_feature_flag(:save_issuable_health_status, project.group, default_enabled: true)
+    push_frontend_feature_flag(:tribute_autocomplete, @project)
+    push_frontend_feature_flag(:vue_issuables_list, project)
   end
 
   before_action only: :show do
     push_frontend_feature_flag(:real_time_issue_sidebar, @project)
-    push_frontend_feature_flag(:confidential_notes, @project)
+    push_frontend_feature_flag(:confidential_apollo_sidebar, @project)
+  end
+
+  before_action only: :index do
+    push_frontend_feature_flag(:scoped_labels, @project)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:discussions]
@@ -188,7 +193,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def create_merge_request
     create_params = params.slice(:branch_name, :ref).merge(issue_iid: issue.iid)
-    create_params[:target_project_id] = params[:target_project_id] if helpers.create_confidential_merge_request_enabled?
+    create_params[:target_project_id] = params[:target_project_id]
     result = ::MergeRequests::CreateFromIssueService.new(project, current_user, create_params).execute
 
     if result[:status] == :success

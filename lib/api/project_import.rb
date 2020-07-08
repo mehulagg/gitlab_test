@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module API
-  class ProjectImport < Grape::API
+  class ProjectImport < Grape::API::Instance
     include PaginationParams
 
     MAXIMUM_FILE_SIZE = 50.megabytes
@@ -30,7 +30,10 @@ module API
         status 200
         content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
 
-        ImportExportUploader.workhorse_authorize(has_length: false, maximum_size: MAXIMUM_FILE_SIZE)
+        ImportExportUploader.workhorse_authorize(
+          has_length: false,
+          maximum_size: Gitlab::CurrentSettings.max_import_size.megabytes
+        )
       end
 
       params do

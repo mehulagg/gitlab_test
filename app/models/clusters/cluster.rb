@@ -2,6 +2,7 @@
 
 module Clusters
   class Cluster < ApplicationRecord
+    prepend HasEnvironmentScope
     include Presentable
     include Gitlab::Utils::StrongMemoize
     include FromUnion
@@ -36,6 +37,8 @@ module Clusters
     has_one :cluster_project, -> { order(id: :desc) }, class_name: 'Clusters::Project'
     has_many :deployment_clusters
     has_many :deployments, inverse_of: :cluster
+    has_many :successful_deployments, -> { success }, class_name: 'Deployment'
+    has_many :environments, -> { distinct }, through: :deployments
 
     has_many :cluster_groups, class_name: 'Clusters::Group'
     has_many :groups, through: :cluster_groups, class_name: '::Group'
@@ -79,6 +82,7 @@ module Clusters
     validate :no_groups, unless: :group_type?
     validate :no_projects, unless: :project_type?
     validate :unique_management_project_environment_scope
+    validate :unique_environment_scope
 
     after_save :clear_reactive_cache!
 
@@ -125,12 +129,23 @@ module Clusters
     scope :gcp_installed, -> { gcp_provided.joins(:provider_gcp).merge(Clusters::Providers::Gcp.with_status(:created)) }
     scope :aws_installed, -> { aws_provided.joins(:provider_aws).merge(Clusters::Providers::Aws.with_status(:created)) }
 
+    scope :with_enabled_modsecurity, -> { joins(:application_ingress).merge(::Clusters::Applications::Ingress.modsecurity_enabled) }
+    scope :with_available_elasticstack, -> { joins(:application_elastic_stack).merge(::Clusters::Applications::ElasticStack.available) }
+    scope :distinct_with_deployed_environments, -> { joins(:environments).merge(::Deployment.success).distinct }
+    scope :preload_elasticstack, -> { preload(:application_elastic_stack) }
+    scope :preload_environments, -> { preload(:environments) }
+
     scope :managed, -> { where(managed: true) }
     scope :with_persisted_applications, -> { eager_load(*APPLICATIONS_ASSOCIATIONS) }
     scope :default_environment, -> { where(environment_scope: DEFAULT_ENVIRONMENT) }
     scope :with_management_project, -> { where.not(management_project: nil) }
 
     scope :for_project_namespace, -> (namespace_id) { joins(:projects).where(projects: { namespace_id: namespace_id }) }
+    scope :with_application_prometheus, -> { includes(:application_prometheus).joins(:application_prometheus) }
+    scope :with_project_alert_service_data, -> (project_ids) do
+      conditions = { projects: { alerts_service: [:data] } }
+      includes(conditions).joins(conditions).where(projects: { id: project_ids })
+    end
 
     def self.ancestor_clusters_for_clusterable(clusterable, hierarchy_order: :asc)
       return [] if clusterable.is_a?(Instance)
@@ -206,10 +221,18 @@ module Clusters
       end
     end
 
+    def nodes
+      with_reactive_cache do |data|
+        data[:nodes]
+      end
+    end
+
     def calculate_reactive_cache
       return unless enabled?
 
-      { connection_status: retrieve_connection_status }
+      gitlab_kubernetes_nodes = Gitlab::Kubernetes::Node.new(self)
+
+      { connection_status: retrieve_connection_status, nodes: gitlab_kubernetes_nodes.all.presence }
     end
 
     def persisted_applications
@@ -217,9 +240,17 @@ module Clusters
     end
 
     def applications
-      APPLICATIONS_ASSOCIATIONS.map do |association_name|
-        public_send(association_name) || public_send("build_#{association_name}") # rubocop:disable GitlabSecurity/PublicSend
+      APPLICATIONS.each_value.map do |application_class|
+        find_or_build_application(application_class)
       end
+    end
+
+    def find_or_build_application(application_class)
+      raise ArgumentError, "#{application_class} is not in APPLICATIONS" unless APPLICATIONS.value?(application_class)
+
+      association_name = application_class.association_name
+
+      public_send(association_name) || public_send("build_#{association_name}") # rubocop:disable GitlabSecurity/PublicSend
     end
 
     def provider
@@ -307,6 +338,10 @@ module Clusters
       end
     end
 
+    def local_tiller_enabled?
+      Feature.enabled?(:managed_apps_local_tiller, clusterable, default_enabled: true)
+    end
+
     private
 
     def unique_management_project_environment_scope
@@ -317,6 +352,12 @@ module Clusters
         .where.not(id: id)
 
       if duplicate_management_clusters.any?
+        errors.add(:environment_scope, 'cannot add duplicated environment scope')
+      end
+    end
+
+    def unique_environment_scope
+      if clusterable.present? && clusterable.clusters.where(environment_scope: environment_scope).where.not(id: id).exists?
         errors.add(:environment_scope, 'cannot add duplicated environment scope')
       end
     end
@@ -348,30 +389,8 @@ module Clusters
     end
 
     def retrieve_connection_status
-      kubeclient.core_client.discover
-    rescue *Gitlab::Kubernetes::Errors::CONNECTION
-      :unreachable
-    rescue *Gitlab::Kubernetes::Errors::AUTHENTICATION
-      :authentication_failure
-    rescue Kubeclient::HttpError => e
-      kubeclient_error_status(e.message)
-    rescue => e
-      Gitlab::ErrorTracking.track_exception(e, cluster_id: id)
-
-      :unknown_failure
-    else
-      :connected
-    end
-
-    # KubeClient uses the same error class
-    # For connection errors (eg. timeout) and
-    # for Kubernetes errors.
-    def kubeclient_error_status(message)
-      if message&.match?(/timed out|timeout/i)
-        :unreachable
-      else
-        :authentication_failure
-      end
+      result = ::Gitlab::Kubernetes::KubeClient.graceful_request(id) { kubeclient.core_client.discover }
+      result[:status]
     end
 
     # To keep backward compatibility with AUTO_DEVOPS_DOMAIN

@@ -15,7 +15,7 @@ Organizations coming to Git from other version control systems frequently find i
 This article describes GitLab flow, which integrates the Git workflow with an issue tracking system.
 It offers a simple, transparent, and effective way to work with Git.
 
-![Four stages (working copy, index, local repo, remote repo) and three steps between them](img/gitlab_flow_four_stages.png)
+![Four stages (working copy, index, local repository, remote repository) and three steps between them](img/gitlab_flow_four_stages.png)
 
 When converting to Git, you have to get used to the fact that it takes three steps to share a commit with colleagues.
 Most version control systems have only one step: committing from the working copy to a shared server.
@@ -253,7 +253,7 @@ If you need to utilize some code that was introduced in `master` after you creat
 If your feature branch has a merge conflict, creating a merge commit is a standard way of solving this.
 
 NOTE: **Note:**
-Sometimes you can use .gitattributes to reduce merge conflicts.
+Sometimes you can use `.gitattributes` to reduce merge conflicts.
 For example, you can set your changelog file to use the [union merge driver](https://git-scm.com/docs/gitattributes#gitattributes-union) so that multiple new entries don't conflict with each other.
 
 The last reason for creating merge commits is to keep long-running feature branches up-to-date with the latest state of the project.

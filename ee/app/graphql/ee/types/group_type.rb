@@ -21,6 +21,10 @@ module EE
               max_page_size: 2000,
               resolver: ::Resolvers::EpicsResolver
 
+        field :iterations, ::Types::IterationType.connection_type, null: true,
+              description: 'Find iterations',
+              resolver: ::Resolvers::IterationsResolver
+
         field :timelogs, ::Types::TimelogType.connection_type, null: false,
               description: 'Time logged in issues by group members',
               complexity: 5,
@@ -31,6 +35,12 @@ module EE
               null: true,
               description: 'Vulnerabilities reported on the projects in the group and its subgroups',
               resolver: ::Resolvers::VulnerabilitiesResolver
+
+        field :vulnerability_scanners,
+              ::Types::VulnerabilityScannerType.connection_type,
+              null: true,
+              description: 'Vulnerability scanners reported on the project vulnerabilties of the group and its subgroups',
+              resolver: ::Resolvers::Vulnerabilities::ScannersResolver
 
         field :vulnerabilities_count_by_day_and_severity,
               ::Types::VulnerabilitiesCountByDayAndSeverityType.connection_type,

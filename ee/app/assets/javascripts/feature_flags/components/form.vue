@@ -1,16 +1,18 @@
 <script>
 import Vue from 'vue';
-import { memoize, isString, cloneDeep, isNumber } from 'lodash';
+import { memoize, isString, cloneDeep, isNumber, uniqueId } from 'lodash';
 import {
   GlDeprecatedButton,
-  GlBadge,
+  GlDeprecatedBadge as GlBadge,
   GlTooltip,
   GlTooltipDirective,
   GlFormTextarea,
   GlFormCheckbox,
   GlSprintf,
 } from '@gitlab/ui';
+import Api from 'ee/api';
 import { s__ } from '~/locale';
+import flash, { FLASH_TYPES } from '~/flash';
 import featureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ToggleButton from '~/vue_shared/components/toggle_button.vue';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -26,6 +28,7 @@ import {
   LEGACY_FLAG,
 } from '../constants';
 import { createNewEnvironmentScope } from '../store/modules/helpers';
+import RelatedIssuesRoot from 'ee/related_issues/components/related_issues_root.vue';
 
 export default {
   components: {
@@ -39,6 +42,7 @@ export default {
     Icon,
     EnvironmentsDropdown,
     Strategy,
+    RelatedIssuesRoot,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -60,6 +64,10 @@ export default {
       required: false,
       default: '',
     },
+    projectId: {
+      type: String,
+      required: true,
+    },
     scopes: {
       type: Array,
       required: false,
@@ -76,6 +84,11 @@ export default {
     environmentsEndpoint: {
       type: String,
       required: true,
+    },
+    featureFlagIssuesEndpoint: {
+      type: String,
+      required: false,
+      default: '',
     },
     strategies: {
       type: Array,
@@ -118,6 +131,7 @@ export default {
       formStrategies: cloneDeep(this.strategies),
 
       newScope: '',
+      userLists: [],
     };
   },
   computed: {
@@ -136,12 +150,30 @@ export default {
     supportsStrategies() {
       return this.glFeatures.featureFlagsNewVersion && this.version === NEW_VERSION_FLAG;
     },
-
-    canDeleteStrategy() {
-      return this.formStrategies.length > 1;
+    showRelatedIssues() {
+      return this.featureFlagIssuesEndpoint.length > 0;
     },
   },
+  mounted() {
+    if (this.supportsStrategies) {
+      Api.fetchFeatureFlagUserLists(this.projectId)
+        .then(({ data }) => {
+          this.userLists = data;
+        })
+        .catch(() => {
+          flash(s__('FeatureFlags|There was an error retrieving user lists'), FLASH_TYPES.WARNING);
+        });
+    }
+  },
   methods: {
+    keyFor(strategy) {
+      if (strategy.id) {
+        return strategy.id;
+      }
+
+      return uniqueId('strategy_');
+    },
+
     addStrategy() {
       this.formStrategies.push({ name: '', parameters: {}, scopes: [] });
     },
@@ -252,13 +284,8 @@ export default {
         scope.rolloutUserIds.length > 0 &&
         scope.rolloutStrategy === ROLLOUT_STRATEGY_PERCENT_ROLLOUT;
     },
-    onFormStrategyChange({ id, name, parameters, scopes }, index) {
-      Object.assign(this.filteredStrategies[index], {
-        id,
-        name,
-        parameters,
-        scopes,
-      });
+    onFormStrategyChange(strategy, index) {
+      Object.assign(this.filteredStrategies[index], strategy);
     },
   },
 };
@@ -293,6 +320,13 @@ export default {
         </div>
       </div>
 
+      <related-issues-root
+        v-if="showRelatedIssues"
+        :endpoint="featureFlagIssuesEndpoint"
+        :can-admin="true"
+        :is-linked-issue-block="false"
+      />
+
       <template v-if="supportsStrategies">
         <div class="row">
           <div class="col-md-12">
@@ -305,18 +339,18 @@ export default {
             </div>
           </div>
         </div>
-        <template v-if="filteredStrategies.length > 0">
+        <div v-if="filteredStrategies.length > 0" data-testid="feature-flag-strategies">
           <strategy
             v-for="(strategy, index) in filteredStrategies"
-            :key="strategy.id"
+            :key="keyFor(strategy)"
             :strategy="strategy"
             :index="index"
             :endpoint="environmentsEndpoint"
-            :can-delete="canDeleteStrategy"
+            :user-lists="userLists"
             @change="onFormStrategyChange($event, index)"
             @delete="deleteStrategy(strategy)"
           />
-        </template>
+        </div>
         <div v-else class="flex justify-content-center border-top py-4 w-100">
           <span>{{ $options.translations.noStrategiesText }}</span>
         </div>
@@ -334,7 +368,7 @@ export default {
             </template>
           </gl-sprintf>
 
-          <div class="js-scopes-table prepend-top-default">
+          <div class="js-scopes-table gl-mt-3">
             <div class="gl-responsive-table-row table-row-header" role="row">
               <div class="table-section section-30" role="columnheader">
                 {{ s__('FeatureFlags|Environment Spec') }}

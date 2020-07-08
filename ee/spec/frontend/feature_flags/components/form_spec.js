@@ -1,6 +1,7 @@
 import { uniqueId } from 'lodash';
 import { shallowMount } from '@vue/test-utils';
 import { GlFormTextarea, GlFormCheckbox, GlDeprecatedButton } from '@gitlab/ui';
+import Api from 'ee/api';
 import Form from 'ee/feature_flags/components/form.vue';
 import EnvironmentsDropdown from 'ee/feature_flags/components/environments_dropdown.vue';
 import Strategy from 'ee/feature_flags/components/strategy.vue';
@@ -13,7 +14,10 @@ import {
   NEW_VERSION_FLAG,
 } from 'ee/feature_flags/constants';
 import ToggleButton from '~/vue_shared/components/toggle_button.vue';
-import { featureFlag } from '../mock_data';
+import { featureFlag, userList } from '../mock_data';
+import RelatedIssuesRoot from 'ee/related_issues/components/related_issues_root.vue';
+
+jest.mock('ee/api.js');
 
 describe('feature flag form', () => {
   let wrapper;
@@ -21,6 +25,7 @@ describe('feature flag form', () => {
     cancelPath: 'feature_flags',
     submitText: 'Create',
     environmentsEndpoint: '/environments.json',
+    projectId: '1',
   };
 
   const factory = (props = {}) => {
@@ -34,6 +39,10 @@ describe('feature flag form', () => {
       },
     });
   };
+
+  beforeEach(() => {
+    Api.fetchFeatureFlagUserLists.mockResolvedValue({ data: [] });
+  });
 
   afterEach(() => {
     wrapper.destroy();
@@ -49,6 +58,21 @@ describe('feature flag form', () => {
     factory(requiredProps);
 
     expect(wrapper.find('.js-ff-cancel').attributes('href')).toEqual(requiredProps.cancelPath);
+  });
+
+  it('does not render the related issues widget without the featureFlagIssuesEndpoint', () => {
+    factory(requiredProps);
+
+    expect(wrapper.find(RelatedIssuesRoot).exists()).toBe(false);
+  });
+
+  it('renders the related issues widget when the featureFlagIssuesEndpoint is provided', () => {
+    factory({
+      ...requiredProps,
+      featureFlagIssuesEndpoint: '/some/endpoint',
+    });
+
+    expect(wrapper.find(RelatedIssuesRoot).exists()).toBe(true);
   });
 
   describe('without provided data', () => {
@@ -388,6 +412,7 @@ describe('feature flag form', () => {
 
   describe('with strategies', () => {
     beforeEach(() => {
+      Api.fetchFeatureFlagUserLists.mockResolvedValue({ data: [userList] });
       factory({
         ...requiredProps,
         name: featureFlag.name,
@@ -397,15 +422,21 @@ describe('feature flag form', () => {
         strategies: [
           {
             type: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
-            paramters: { percentage: '30' },
+            parameters: { percentage: '30' },
             scopes: [],
           },
           {
             type: ROLLOUT_STRATEGY_ALL_USERS,
-            paramters: {},
+            parameters: {},
             scopes: [{ environment_scope: 'review/*' }],
           },
         ],
+      });
+    });
+
+    it('should request the user lists on mount', () => {
+      return wrapper.vm.$nextTick(() => {
+        expect(Api.fetchFeatureFlagUserLists).toHaveBeenCalledWith('1');
       });
     });
 
@@ -414,7 +445,7 @@ describe('feature flag form', () => {
       expect(strategy.exists()).toBe(true);
       expect(strategy.props('strategy')).toEqual({
         type: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
-        paramters: { percentage: '30' },
+        parameters: { percentage: '30' },
         scopes: [],
       });
     });
@@ -431,7 +462,7 @@ describe('feature flag form', () => {
     it('should remove a strategy on delete', () => {
       const strategy = {
         type: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
-        paramters: { percentage: '30' },
+        parameters: { percentage: '30' },
         scopes: [],
       };
       wrapper.find(Strategy).vm.$emit('delete');
@@ -439,6 +470,10 @@ describe('feature flag form', () => {
         expect(wrapper.findAll(Strategy)).toHaveLength(1);
         expect(wrapper.find(Strategy).props('strategy')).not.toEqual(strategy);
       });
+    });
+
+    it('should provide the user lists to the strategy', () => {
+      expect(wrapper.find(Strategy).props('userLists')).toEqual([userList]);
     });
   });
 });

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe GroupsHelper do
+RSpec.describe GroupsHelper do
   using RSpec::Parameterized::TableSyntax
 
   let(:owner) { create(:user, group_view: :security_dashboard) }
@@ -19,17 +19,33 @@ describe GroupsHelper do
   describe '#group_epics_count' do
     before do
       stub_licensed_features(epics: true)
-
-      create_list(:epic, 3, :opened, group: group)
-      create_list(:epic, 2, :closed, group: group)
     end
 
-    it 'returns open epics count' do
-      expect(helper.group_epics_count(state: 'opened')).to eq(3)
+    describe 'filtering by state' do
+      before do
+        create_list(:epic, 3, :opened, group: group)
+        create_list(:epic, 2, :closed, group: group)
+      end
+
+      it 'returns open epics count' do
+        expect(helper.group_epics_count(state: 'opened')).to eq(3)
+      end
+
+      it 'returns closed epics count' do
+        expect(helper.group_epics_count(state: 'closed')).to eq(2)
+      end
     end
 
-    it 'returns closed epics count' do
-      expect(helper.group_epics_count(state: 'closed')).to eq(2)
+    it 'counts also epics from subgroups not visible to user' do
+      parent_group = create(:group, :public)
+      subgroup = create(:group, :private, parent: parent_group)
+      create(:epic, :opened, group: parent_group)
+      create(:epic, :opened, group: subgroup)
+      helper.instance_variable_set(:@group, parent_group)
+
+      expect(Ability.allowed?(owner, :read_epic, parent_group)).to be_truthy
+      expect(Ability.allowed?(owner, :read_epic, subgroup)).to be_falsey
+      expect(helper.group_epics_count(state: 'opened')).to eq(2)
     end
   end
 
@@ -143,9 +159,7 @@ describe GroupsHelper do
 
   describe '#show_group_activity_analytics?' do
     before do
-      allow(Feature).to receive(:enabled?).with(:group_activity_analytics, group).and_return(false)
-      allow(Feature).to receive(:enabled?).with(:group_activity_analytics).and_return(true)
-
+      stub_feature_flags(group_activity_analytics: feature_available)
       stub_licensed_features(group_activity_analytics: feature_available)
 
       allow(helper).to receive(:current_user) { current_user }
@@ -238,9 +252,11 @@ describe GroupsHelper do
         expect(helper.show_administration_nav?(subgroup)).to be false
       end
 
-      context 'when `group_administration_nav_item` feature flag is disabled for the group' do
+      context 'when `group_administration_nav_item` feature flag is enabled for another group' do
+        let(:another_group) { create(:group) }
+
         before do
-          stub_feature_flags(group_administration_nav_item: { enabled: false, thing: group })
+          stub_feature_flags(group_administration_nav_item: another_group)
         end
 
         it 'returns false' do

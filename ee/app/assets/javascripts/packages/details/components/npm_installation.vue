@@ -43,7 +43,7 @@ export default {
 <template>
   <installation-tabs :tracking-label="$options.trackingLabel">
     <template #installation>
-      <p class="prepend-top-8 font-weight-bold">{{ s__('PackageRegistry|npm') }}</p>
+      <p class="gl-mt-3 font-weight-bold">{{ s__('PackageRegistry|npm') }}</p>
       <code-instruction
         :instruction="npmCommand"
         :copy-text="s__('PackageRegistry|Copy npm command')"
@@ -51,7 +51,7 @@ export default {
         :tracking-action="$options.trackingActions.COPY_NPM_INSTALL_COMMAND"
       />
 
-      <p class="prepend-top-default font-weight-bold">{{ s__('PackageRegistry|yarn') }}</p>
+      <p class="gl-mt-3 font-weight-bold">{{ s__('PackageRegistry|yarn') }}</p>
       <code-instruction
         :instruction="yarnCommand"
         :copy-text="s__('PackageRegistry|Copy yarn command')"
@@ -61,7 +61,7 @@ export default {
     </template>
 
     <template #setup>
-      <p class="prepend-top-8 font-weight-bold">{{ s__('PackageRegistry|npm') }}</p>
+      <p class="gl-mt-3 font-weight-bold">{{ s__('PackageRegistry|npm') }}</p>
       <code-instruction
         :instruction="npmSetup"
         :copy-text="s__('PackageRegistry|Copy npm setup command')"
@@ -69,7 +69,7 @@ export default {
         :tracking-action="$options.trackingActions.COPY_NPM_SETUP_COMMAND"
       />
 
-      <p class="prepend-top-default font-weight-bold">{{ s__('PackageRegistry|yarn') }}</p>
+      <p class="gl-mt-3 font-weight-bold">{{ s__('PackageRegistry|yarn') }}</p>
       <code-instruction
         :instruction="yarnSetupCommand"
         :copy-text="s__('PackageRegistry|Copy yarn setup command')"

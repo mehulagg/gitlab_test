@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
-# A common state computation interface to wrap around ApprovalRuleLike models
+# A common state computation interface to wrap around ApprovalRuleLike models.
+#
+# There are 2 types of approval rules (`ApprovalProjectRule` and
+# `ApprovalMergeRequestRule`), we want to get the data we need for the approval
+# state of each rule via a common interface. That depends on the approvals data
+# of a merge request.
+#
+# `ApprovalProjectRule` doesn't have access to the merge request unlike
+# `ApprovalMergeRequestRule`. Given that, instead of having different checks and
+# methods when dealing with a `ApprovalProjectRule`, having a comon interface
+# is easier and simpler to interact with.
+#
+# Different types of `ApprovalWrappedRule` also helps since we have different
+# `rule_type`s that can behave differently.
 class ApprovalWrappedRule
   extend Forwardable
   include Gitlab::Utils::StrongMemoize
@@ -11,7 +24,7 @@ class ApprovalWrappedRule
   def_delegators(:@approval_rule,
                  :regular?, :any_approver?, :code_owner?, :report_approver?,
                  :overridden?, :id, :name, :users, :groups, :code_owner,
-                 :source_rule, :rule_type, :approvals_required)
+                 :source_rule, :rule_type, :approvals_required, :section)
 
   def self.wrap(merge_request, rule)
     if rule.any_approver?
@@ -36,7 +49,7 @@ class ApprovalWrappedRule
     filter_approvers(@approval_rule.approvers)
   end
 
-  # @return [Array<User>] all approvers related to this rule
+  # @return [Array<User>] of users who have approved the merge request
   #
   # This is dynamically calculated unless it is persisted as `approved_approvers`.
   #

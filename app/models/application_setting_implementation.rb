@@ -50,6 +50,7 @@ module ApplicationSettingImplementation
         default_artifacts_expire_in: '30 days',
         default_branch_protection: Settings.gitlab['default_branch_protection'],
         default_ci_config_path: nil,
+        default_branch_name: nil,
         default_group_visibility: Settings.gitlab.default_projects_features['visibility_level'],
         default_project_creation: Settings.gitlab['default_project_creation'],
         default_project_visibility: Settings.gitlab.default_projects_features['visibility_level'],
@@ -86,7 +87,9 @@ module ApplicationSettingImplementation
         local_markdown_version: 0,
         max_artifacts_size: Settings.artifacts['max_size'],
         max_attachment_size: Settings.gitlab['max_attachment_size'],
+        max_import_size: 50,
         mirror_available: true,
+        notify_on_unknown_sign_in: true,
         outbound_local_requests_whitelist: [],
         password_authentication_enabled_for_git: true,
         password_authentication_enabled_for_web: Settings.gitlab['signin_enabled'],
@@ -96,7 +99,7 @@ module ApplicationSettingImplementation
         plantuml_url: nil,
         polling_interval_multiplier: 1,
         project_export_enabled: true,
-        protected_ci_variables: false,
+        protected_ci_variables: true,
         push_event_hooks_limit: 3,
         push_event_activities_limit: 3,
         raw_blob_request_limit: 300,
@@ -104,6 +107,7 @@ module ApplicationSettingImplementation
         login_recaptcha_protection_enabled: false,
         repository_checks_enabled: true,
         repository_storages: ['default'],
+        repository_storages_weighted: { default: 100 },
         require_two_factor_authentication: false,
         restricted_visibility_levels: Settings.gitlab['restricted_visibility_levels'],
         session_expire_delay: Settings.gitlab['session_expire_delay'],
@@ -115,6 +119,8 @@ module ApplicationSettingImplementation
         sourcegraph_enabled: false,
         sourcegraph_url: nil,
         sourcegraph_public_only: true,
+        spam_check_endpoint_enabled: false,
+        spam_check_endpoint_url: nil,
         minimum_password_length: DEFAULT_MINIMUM_PASSWORD_LENGTH,
         namespace_storage_size_limit: 0,
         terminal_max_session_time: 0,
@@ -151,8 +157,14 @@ module ApplicationSettingImplementation
         snowplow_app_id: nil,
         snowplow_iglu_registry_url: nil,
         custom_http_clone_url_root: nil,
-        productivity_analytics_start_date: Time.now,
-        snippet_size_limit: 50.megabytes
+        productivity_analytics_start_date: Time.current,
+        snippet_size_limit: 50.megabytes,
+        project_import_limit: 6,
+        project_export_limit: 6,
+        project_download_export_limit: 1,
+        group_import_limit: 6,
+        group_export_limit: 6,
+        group_download_export_limit: 1
       }
     end
 
@@ -260,6 +272,10 @@ module ApplicationSettingImplementation
     Array(read_attribute(:repository_storages))
   end
 
+  def repository_storages_weighted
+    read_attribute(:repository_storages_weighted)
+  end
+
   def commit_email_hostname
     super.presence || self.class.default_commit_email_hostname
   end
@@ -289,10 +305,21 @@ module ApplicationSettingImplementation
     performance_bar_allowed_group_id.present?
   end
 
-  # Choose one of the available repository storage options. Currently all have
-  # equal weighting.
+  def normalized_repository_storage_weights
+    strong_memoize(:normalized_repository_storage_weights) do
+      weights_total = repository_storages_weighted.values.reduce(:+)
+
+      repository_storages_weighted.transform_values do |w|
+        next w if weights_total == 0
+
+        w.to_f / weights_total
+      end
+    end
+  end
+
+  # Choose one of the available repository storage options based on a normalized weighted probability.
   def pick_repository_storage
-    repository_storages.sample
+    normalized_repository_storage_weights.max_by { |_, weight| rand**(1.0 / weight) }.first
   end
 
   def runners_registration_token
@@ -417,6 +444,12 @@ module ApplicationSettingImplementation
   def check_repository_storages
     invalid = repository_storages - Gitlab.config.repositories.storages.keys
     errors.add(:repository_storages, "can't include: #{invalid.join(", ")}") unless
+      invalid.empty?
+  end
+
+  def check_repository_storages_weighted
+    invalid = repository_storages_weighted.keys - Gitlab.config.repositories.storages.keys
+    errors.add(:repository_storages_weighted, "can't include: %{invalid_storages}" % { invalid_storages: invalid.join(", ") }) unless
       invalid.empty?
   end
 

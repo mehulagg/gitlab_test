@@ -14,6 +14,7 @@ module QA
         end
       end
 
+      attribute :full_path
       attribute :id
       attribute :name
       attribute :runners_token
@@ -58,6 +59,10 @@ module QA
         "/groups/#{CGI.escape("#{sandbox.path}/#{path}")}"
       end
 
+      def api_put_path
+        "/groups/#{id}"
+      end
+
       def api_post_path
         '/groups'
       end
@@ -75,8 +80,13 @@ module QA
         "/groups/#{id}"
       end
 
-      def full_path
-        sandbox.path + ' / ' + path
+      def set_require_two_factor_authentication(value:)
+        put_body = { require_two_factor_authentication: value }
+        response = put Runtime::API::Request.new(api_client, api_put_path).url, put_body
+
+        unless response.code == HTTP_STATUS_OK
+          raise ResourceUpdateFailedError, "Could not update require_two_factor_authentication to #{value}. Request returned (#{response.code}): `#{response}`."
+        end
       end
     end
   end

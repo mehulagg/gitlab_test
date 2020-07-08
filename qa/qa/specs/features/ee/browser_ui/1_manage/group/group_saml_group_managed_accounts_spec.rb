@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Manage', :group_saml, :orchestrated, :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/issues/202260', type: :bug } do
+  RSpec.describe 'Manage', :group_saml, :orchestrated, :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/issues/202260', type: :bug } do
     describe 'Group SAML SSO - Group managed accounts' do
       include Support::Api
 
@@ -85,7 +85,7 @@ module QA
       after(:all) do
         page.visit Runtime::Scenario.gitlab_address
 
-        %w[enforced_sso enforced_sso_requires_session group_managed_accounts sign_up_on_sso group_scim group_administration_nav_item].each do |flag|
+        %w[group_managed_accounts sign_up_on_sso group_scim group_administration_nav_item].each do |flag|
           Runtime::Feature.remove(flag)
         end
 
@@ -119,7 +119,7 @@ module QA
     end
 
     def setup_and_enable_group_managed_accounts
-      %w[enforced_sso enforced_sso_requires_session group_managed_accounts sign_up_on_sso group_scim group_administration_nav_item].each do |flag|
+      %w[group_managed_accounts sign_up_on_sso group_scim group_administration_nav_item].each do |flag|
         Runtime::Feature.enable_and_verify(flag)
       end
 

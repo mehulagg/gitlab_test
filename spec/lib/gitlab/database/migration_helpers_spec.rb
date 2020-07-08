@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Database::MigrationHelpers do
+RSpec.describe Gitlab::Database::MigrationHelpers do
   let(:model) do
     ActiveRecord::Migration.new.extend(described_class)
   end
@@ -624,140 +624,12 @@ describe Gitlab::Database::MigrationHelpers do
   describe '#add_column_with_default' do
     let(:column) { Project.columns.find { |c| c.name == "id" } }
 
-    context 'outside of a transaction' do
-      context 'when a column limit is not set' do
-        before do
-          expect(model).to receive(:transaction_open?)
-            .and_return(false)
-            .at_least(:once)
+    it 'delegates to #add_column' do
+      expect(model).to receive(:add_column).with(:projects, :foo, :integer, default: 10, limit: nil, null: true)
 
-          expect(model).to receive(:transaction).and_yield
-
-          expect(model).to receive(:add_column)
-            .with(:projects, :foo, :integer, default: nil)
-
-          expect(model).to receive(:change_column_default)
-            .with(:projects, :foo, 10)
-
-          expect(model).to receive(:column_for)
-            .with(:projects, :foo).and_return(column)
-        end
-
-        it 'adds the column while allowing NULL values' do
-          expect(model).to receive(:update_column_in_batches)
-            .with(:projects, :foo, 10)
-
-          expect(model).not_to receive(:add_not_null_constraint)
-
-          model.add_column_with_default(:projects, :foo, :integer,
-                                        default: 10,
-                                        allow_null: true)
-        end
-
-        it 'adds the column while not allowing NULL values' do
-          expect(model).to receive(:update_column_in_batches)
-            .with(:projects, :foo, 10)
-
-          expect(model).to receive(:add_not_null_constraint)
-            .with(:projects, :foo)
-
-          model.add_column_with_default(:projects, :foo, :integer, default: 10)
-        end
-
-        it 'removes the added column whenever updating the rows fails' do
-          expect(model).to receive(:update_column_in_batches)
-            .with(:projects, :foo, 10)
-            .and_raise(RuntimeError)
-
-          expect(model).to receive(:remove_column)
-            .with(:projects, :foo)
-
-          expect do
-            model.add_column_with_default(:projects, :foo, :integer, default: 10)
-          end.to raise_error(RuntimeError)
-        end
-
-        it 'removes the added column whenever changing a column NULL constraint fails' do
-          expect(model).to receive(:add_not_null_constraint)
-            .with(:projects, :foo)
-            .and_raise(ActiveRecord::ActiveRecordError)
-
-          expect(model).to receive(:remove_column)
-            .with(:projects, :foo)
-
-          expect do
-            model.add_column_with_default(:projects, :foo, :integer, default: 10)
-          end.to raise_error(ActiveRecord::ActiveRecordError)
-        end
-      end
-
-      context 'when `update_column_in_batches_args` is given' do
-        let(:column) { UserDetail.columns.find { |c| c.name == "user_id" } }
-
-        it 'uses `user_id` for `update_column_in_batches`' do
-          allow(model).to receive(:transaction_open?).and_return(false)
-          allow(model).to receive(:transaction).and_yield
-          allow(model).to receive(:column_for).with(:user_details, :foo).and_return(column)
-          allow(model).to receive(:update_column_in_batches).with(:user_details, :foo, 10, batch_column_name: :user_id)
-          allow(model).to receive(:add_not_null_constraint).with(:user_details, :foo)
-          allow(model).to receive(:change_column_default).with(:user_details, :foo, 10)
-
-          expect(model).to receive(:add_column)
-            .with(:user_details, :foo, :integer, default: nil)
-
-          model.add_column_with_default(
-            :user_details,
-            :foo,
-            :integer,
-            default: 10,
-            update_column_in_batches_args: { batch_column_name: :user_id }
-          )
-        end
-      end
-
-      context 'when a column limit is set' do
-        it 'adds the column with a limit' do
-          allow(model).to receive(:transaction_open?).and_return(false)
-          allow(model).to receive(:transaction).and_yield
-          allow(model).to receive(:column_for).with(:projects, :foo).and_return(column)
-          allow(model).to receive(:update_column_in_batches).with(:projects, :foo, 10)
-          allow(model).to receive(:add_not_null_constraint).with(:projects, :foo)
-          allow(model).to receive(:change_column_default).with(:projects, :foo, 10)
-
-          expect(model).to receive(:add_column)
-            .with(:projects, :foo, :integer, default: nil, limit: 8)
-
-          model.add_column_with_default(:projects, :foo, :integer, default: 10, limit: 8)
-        end
-      end
-
-      it 'adds a column with an array default value for a jsonb type' do
-        create(:project)
-        allow(model).to receive(:transaction_open?).and_return(false)
-        allow(model).to receive(:transaction).and_yield
-        expect(model).to receive(:update_column_in_batches).with(:projects, :foo, '[{"foo":"json"}]').and_call_original
-
-        model.add_column_with_default(:projects, :foo, :jsonb, default: [{ foo: "json" }])
-      end
-
-      it 'adds a column with an object default value for a jsonb type' do
-        create(:project)
-        allow(model).to receive(:transaction_open?).and_return(false)
-        allow(model).to receive(:transaction).and_yield
-        expect(model).to receive(:update_column_in_batches).with(:projects, :foo, '{"foo":"json"}').and_call_original
-
-        model.add_column_with_default(:projects, :foo, :jsonb, default: { foo: "json" })
-      end
-    end
-
-    context 'inside a transaction' do
-      it 'raises RuntimeError' do
-        expect(model).to receive(:transaction_open?).and_return(true)
-
-        expect do
-          model.add_column_with_default(:projects, :foo, :integer, default: 10)
-        end.to raise_error(RuntimeError)
-      end
+      model.add_column_with_default(:projects, :foo, :integer,
+                                    default: 10,
+                                    allow_null: true)
     end
   end
 
@@ -818,17 +690,41 @@ describe Gitlab::Database::MigrationHelpers do
           model.rename_column_concurrently(:users, :old, :new)
         end
 
+        context 'with existing records and type casting' do
+          let(:trigger_name) { model.rename_trigger_name(:users, :id, :new) }
+          let(:user) { create(:user) }
+
+          it 'copies the value to the new column using the type_cast_function', :aggregate_failures do
+            expect(model).to receive(:copy_indexes).with(:users, :id, :new)
+            expect(model).to receive(:add_not_null_constraint).with(:users, :new)
+            expect(model).to receive(:execute).with("UPDATE \"users\" SET \"new\" = cast_to_jsonb_with_default(\"users\".\"id\") WHERE \"users\".\"id\" >= #{user.id}")
+            expect(model).to receive(:execute).with("DROP TRIGGER IF EXISTS #{trigger_name}\nON \"users\"\n")
+            expect(model).to receive(:execute).with("CREATE TRIGGER #{trigger_name}\nBEFORE INSERT OR UPDATE\nON \"users\"\nFOR EACH ROW\nEXECUTE PROCEDURE #{trigger_name}()\n")
+            expect(model).to receive(:execute).with("CREATE OR REPLACE FUNCTION #{trigger_name}()\nRETURNS trigger AS\n$BODY$\nBEGIN\n  NEW.\"new\" := NEW.\"id\";\n  RETURN NEW;\nEND;\n$BODY$\nLANGUAGE 'plpgsql'\nVOLATILE\n")
+
+            model.rename_column_concurrently(:users, :id, :new, type_cast_function: 'cast_to_jsonb_with_default')
+          end
+        end
+
         it 'passes the batch_column_name' do
           expect(model).to receive(:column_exists?).with(:users, :other_batch_column).and_return(true)
           expect(model).to receive(:check_trigger_permissions!).and_return(true)
 
           expect(model).to receive(:create_column_from).with(
-            :users, :old, :new, type: nil, batch_column_name: :other_batch_column
+            :users, :old, :new, type: nil, batch_column_name: :other_batch_column, type_cast_function: nil
           ).and_return(true)
 
           expect(model).to receive(:install_rename_triggers).and_return(true)
 
           model.rename_column_concurrently(:users, :old, :new, batch_column_name: :other_batch_column)
+        end
+
+        it 'passes the type_cast_function' do
+          expect(model).to receive(:create_column_from).with(
+            :users, :old, :new, type: nil, batch_column_name: :id, type_cast_function: 'JSON'
+          ).and_return(true)
+
+          model.rename_column_concurrently(:users, :old, :new, type_cast_function: 'JSON')
         end
 
         it 'raises an error with invalid batch_column_name' do
@@ -994,9 +890,18 @@ describe Gitlab::Database::MigrationHelpers do
   describe '#change_column_type_concurrently' do
     it 'changes the column type' do
       expect(model).to receive(:rename_column_concurrently)
-        .with('users', 'username', 'username_for_type_change', type: :text)
+        .with('users', 'username', 'username_for_type_change', type: :text, type_cast_function: nil)
 
       model.change_column_type_concurrently('users', 'username', :text)
+    end
+
+    context 'with type cast' do
+      it 'changes the column type with casting the value to the new type' do
+        expect(model).to receive(:rename_column_concurrently)
+          .with('users', 'username', 'username_for_type_change', type: :text, type_cast_function: 'JSON')
+
+        model.change_column_type_concurrently('users', 'username', :text, type_cast_function: 'JSON')
+      end
     end
   end
 
@@ -1343,166 +1248,6 @@ describe Gitlab::Database::MigrationHelpers do
     end
   end
 
-  describe '#bulk_queue_background_migration_jobs_by_range' do
-    context 'when the model has an ID column' do
-      let!(:id1) { create(:user).id }
-      let!(:id2) { create(:user).id }
-      let!(:id3) { create(:user).id }
-
-      before do
-        User.class_eval do
-          include EachBatch
-        end
-      end
-
-      context 'with enough rows to bulk queue jobs more than once' do
-        before do
-          stub_const('Gitlab::Database::MigrationHelpers::BACKGROUND_MIGRATION_JOB_BUFFER_SIZE', 1)
-        end
-
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.bulk_queue_background_migration_jobs_by_range(User, 'FooJob', batch_size: 2)
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id2]])
-            expect(BackgroundMigrationWorker.jobs[1]['args']).to eq(['FooJob', [id3, id3]])
-          end
-        end
-
-        it 'queues jobs in groups of buffer size 1' do
-          expect(BackgroundMigrationWorker).to receive(:bulk_perform_async).with([['FooJob', [id1, id2]]])
-          expect(BackgroundMigrationWorker).to receive(:bulk_perform_async).with([['FooJob', [id3, id3]]])
-
-          model.bulk_queue_background_migration_jobs_by_range(User, 'FooJob', batch_size: 2)
-        end
-      end
-
-      context 'with not enough rows to bulk queue jobs more than once' do
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.bulk_queue_background_migration_jobs_by_range(User, 'FooJob', batch_size: 2)
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id2]])
-            expect(BackgroundMigrationWorker.jobs[1]['args']).to eq(['FooJob', [id3, id3]])
-          end
-        end
-
-        it 'queues jobs in bulk all at once (big buffer size)' do
-          expect(BackgroundMigrationWorker).to receive(:bulk_perform_async).with([['FooJob', [id1, id2]],
-                                                                                  ['FooJob', [id3, id3]]])
-
-          model.bulk_queue_background_migration_jobs_by_range(User, 'FooJob', batch_size: 2)
-        end
-      end
-
-      context 'without specifying batch_size' do
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.bulk_queue_background_migration_jobs_by_range(User, 'FooJob')
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id3]])
-          end
-        end
-      end
-    end
-
-    context "when the model doesn't have an ID column" do
-      it 'raises error (for now)' do
-        expect do
-          model.bulk_queue_background_migration_jobs_by_range(ProjectAuthorization, 'FooJob')
-        end.to raise_error(StandardError, /does not have an ID/)
-      end
-    end
-  end
-
-  describe '#queue_background_migration_jobs_by_range_at_intervals' do
-    context 'when the model has an ID column' do
-      let!(:id1) { create(:user).id }
-      let!(:id2) { create(:user).id }
-      let!(:id3) { create(:user).id }
-
-      around do |example|
-        Timecop.freeze { example.run }
-      end
-
-      before do
-        User.class_eval do
-          include EachBatch
-        end
-      end
-
-      it 'returns the final expected delay' do
-        Sidekiq::Testing.fake! do
-          final_delay = model.queue_background_migration_jobs_by_range_at_intervals(User, 'FooJob', 10.minutes, batch_size: 2)
-
-          expect(final_delay.to_f).to eq(20.minutes.to_f)
-        end
-      end
-
-      it 'returns zero when nothing gets queued' do
-        Sidekiq::Testing.fake! do
-          final_delay = model.queue_background_migration_jobs_by_range_at_intervals(User.none, 'FooJob', 10.minutes)
-
-          expect(final_delay).to eq(0)
-        end
-      end
-
-      context 'with batch_size option' do
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.queue_background_migration_jobs_by_range_at_intervals(User, 'FooJob', 10.minutes, batch_size: 2)
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id2]])
-            expect(BackgroundMigrationWorker.jobs[0]['at']).to eq(10.minutes.from_now.to_f)
-            expect(BackgroundMigrationWorker.jobs[1]['args']).to eq(['FooJob', [id3, id3]])
-            expect(BackgroundMigrationWorker.jobs[1]['at']).to eq(20.minutes.from_now.to_f)
-          end
-        end
-      end
-
-      context 'without batch_size option' do
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.queue_background_migration_jobs_by_range_at_intervals(User, 'FooJob', 10.minutes)
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id3]])
-            expect(BackgroundMigrationWorker.jobs[0]['at']).to eq(10.minutes.from_now.to_f)
-          end
-        end
-      end
-
-      context 'with other_job_arguments option' do
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.queue_background_migration_jobs_by_range_at_intervals(User, 'FooJob', 10.minutes, other_job_arguments: [1, 2])
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id3, 1, 2]])
-            expect(BackgroundMigrationWorker.jobs[0]['at']).to eq(10.minutes.from_now.to_f)
-          end
-        end
-      end
-
-      context 'with initial_delay option' do
-        it 'queues jobs correctly' do
-          Sidekiq::Testing.fake! do
-            model.queue_background_migration_jobs_by_range_at_intervals(User, 'FooJob', 10.minutes, other_job_arguments: [1, 2], initial_delay: 10.minutes)
-
-            expect(BackgroundMigrationWorker.jobs[0]['args']).to eq(['FooJob', [id1, id3, 1, 2]])
-            expect(BackgroundMigrationWorker.jobs[0]['at']).to eq(20.minutes.from_now.to_f)
-          end
-        end
-      end
-    end
-
-    context "when the model doesn't have an ID column" do
-      it 'raises error (for now)' do
-        expect do
-          model.queue_background_migration_jobs_by_range_at_intervals(ProjectAuthorization, 'FooJob', 10.seconds)
-        end.to raise_error(StandardError, /does not have an ID/)
-      end
-    end
-  end
-
   describe '#change_column_type_using_background_migration' do
     let!(:issue) { create(:issue, :closed, closed_at: Time.zone.now) }
 
@@ -1613,26 +1358,6 @@ describe Gitlab::Database::MigrationHelpers do
     end
   end
 
-  describe '#perform_background_migration_inline?' do
-    it 'returns true in a test environment' do
-      stub_rails_env('test')
-
-      expect(model.perform_background_migration_inline?).to eq(true)
-    end
-
-    it 'returns true in a development environment' do
-      stub_rails_env('development')
-
-      expect(model.perform_background_migration_inline?).to eq(true)
-    end
-
-    it 'returns false in a production environment' do
-      stub_rails_env('production')
-
-      expect(model.perform_background_migration_inline?).to eq(false)
-    end
-  end
-
   describe '#index_exists_by_name?' do
     it 'returns true if an index exists' do
       ActiveRecord::Base.connection.execute(
@@ -1667,12 +1392,17 @@ describe Gitlab::Database::MigrationHelpers do
   end
 
   describe '#create_or_update_plan_limit' do
-    class self::Plan < ActiveRecord::Base
-      self.table_name = 'plans'
-    end
+    before do
+      stub_const('Plan', Class.new(ActiveRecord::Base))
+      stub_const('PlanLimits', Class.new(ActiveRecord::Base))
 
-    class self::PlanLimits < ActiveRecord::Base
-      self.table_name = 'plan_limits'
+      Plan.class_eval do
+        self.table_name = 'plans'
+      end
+
+      PlanLimits.class_eval do
+        self.table_name = 'plan_limits'
+      end
     end
 
     it 'properly escapes names' do
@@ -1688,28 +1418,28 @@ describe Gitlab::Database::MigrationHelpers do
     context 'when plan does not exist' do
       it 'does not create any plan limits' do
         expect { model.create_or_update_plan_limit('project_hooks', 'plan_name', 10) }
-          .not_to change { self.class::PlanLimits.count }
+          .not_to change { PlanLimits.count }
       end
     end
 
     context 'when plan does exist' do
-      let!(:plan) { self.class::Plan.create!(name: 'plan_name') }
+      let!(:plan) { Plan.create!(name: 'plan_name') }
 
       context 'when limit does not exist' do
         it 'inserts a new plan limits' do
           expect { model.create_or_update_plan_limit('project_hooks', 'plan_name', 10) }
-            .to change { self.class::PlanLimits.count }.by(1)
+            .to change { PlanLimits.count }.by(1)
 
-          expect(self.class::PlanLimits.pluck(:project_hooks)).to contain_exactly(10)
+          expect(PlanLimits.pluck(:project_hooks)).to contain_exactly(10)
         end
       end
 
       context 'when limit does exist' do
-        let!(:plan_limit) { self.class::PlanLimits.create!(plan_id: plan.id) }
+        let!(:plan_limit) { PlanLimits.create!(plan_id: plan.id) }
 
         it 'updates an existing plan limits' do
           expect { model.create_or_update_plan_limit('project_hooks', 'plan_name', 999) }
-            .not_to change { self.class::PlanLimits.count }
+            .not_to change { PlanLimits.count }
 
           expect(plan_limit.reload.project_hooks).to eq(999)
         end
@@ -1733,19 +1463,23 @@ describe Gitlab::Database::MigrationHelpers do
   describe '#backfill_iids' do
     include MigrationsHelpers
 
-    class self::Issue < ActiveRecord::Base
-      include AtomicInternalId
+    before do
+      stub_const('Issue', Class.new(ActiveRecord::Base))
 
-      self.table_name = 'issues'
-      self.inheritance_column = :_type_disabled
+      Issue.class_eval do
+        include AtomicInternalId
 
-      belongs_to :project, class_name: "::Project"
+        self.table_name = 'issues'
+        self.inheritance_column = :_type_disabled
 
-      has_internal_id :iid,
-        scope: :project,
-        init: ->(s) { s&.project&.issues&.maximum(:iid) },
-        backfill: true,
-        presence: false
+        belongs_to :project, class_name: "::Project"
+
+        has_internal_id :iid,
+          scope: :project,
+          init: ->(s) { s&.project&.issues&.maximum(:iid) },
+          backfill: true,
+          presence: false
+      end
     end
 
     let(:namespaces)     { table(:namespaces) }
@@ -1764,7 +1498,7 @@ describe Gitlab::Database::MigrationHelpers do
 
       model.backfill_iids('issues')
 
-      issue = self.class::Issue.create!(project_id: project.id)
+      issue = Issue.create!(project_id: project.id)
 
       expect(issue.iid).to eq(1)
     end
@@ -1775,7 +1509,7 @@ describe Gitlab::Database::MigrationHelpers do
 
       model.backfill_iids('issues')
 
-      issue_b = self.class::Issue.create!(project_id: project.id)
+      issue_b = Issue.create!(project_id: project.id)
 
       expect(issue_a.reload.iid).to eq(1)
       expect(issue_b.iid).to eq(2)
@@ -1790,8 +1524,8 @@ describe Gitlab::Database::MigrationHelpers do
 
       model.backfill_iids('issues')
 
-      issue_a = self.class::Issue.create!(project_id: project_a.id)
-      issue_b = self.class::Issue.create!(project_id: project_b.id)
+      issue_a = Issue.create!(project_id: project_a.id)
+      issue_b = Issue.create!(project_id: project_b.id)
 
       expect(issue_a.iid).to eq(2)
       expect(issue_b.iid).to eq(3)
@@ -1800,7 +1534,7 @@ describe Gitlab::Database::MigrationHelpers do
     context 'when the new code creates a row post deploy but before the migration runs' do
       it 'does not change the row iid' do
         project = setup
-        issue = self.class::Issue.create!(project_id: project.id)
+        issue = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
@@ -1811,7 +1545,7 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
@@ -1825,8 +1559,8 @@ describe Gitlab::Database::MigrationHelpers do
         project_b = setup
         issue_a = issues.create!(project_id: project_a.id)
         issue_b = issues.create!(project_id: project_b.id)
-        issue_c = self.class::Issue.create!(project_id: project_a.id)
-        issue_d = self.class::Issue.create!(project_id: project_b.id)
+        issue_c = Issue.create!(project_id: project_a.id)
+        issue_d = Issue.create!(project_id: project_b.id)
 
         model.backfill_iids('issues')
 
@@ -1840,12 +1574,12 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
-        issue_d = self.class::Issue.create!(project_id: project.id)
-        issue_e = self.class::Issue.create!(project_id: project.id)
+        issue_d = Issue.create!(project_id: project.id)
+        issue_e = Issue.create!(project_id: project.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(2)
@@ -1859,14 +1593,14 @@ describe Gitlab::Database::MigrationHelpers do
         project_b = setup
         issue_a = issues.create!(project_id: project_a.id)
         issue_b = issues.create!(project_id: project_b.id)
-        issue_c = self.class::Issue.create!(project_id: project_a.id)
-        issue_d = self.class::Issue.create!(project_id: project_b.id)
+        issue_c = Issue.create!(project_id: project_a.id)
+        issue_d = Issue.create!(project_id: project_b.id)
 
         model.backfill_iids('issues')
 
-        issue_e = self.class::Issue.create!(project_id: project_a.id)
-        issue_f = self.class::Issue.create!(project_id: project_b.id)
-        issue_g = self.class::Issue.create!(project_id: project_a.id)
+        issue_e = Issue.create!(project_id: project_a.id)
+        issue_f = Issue.create!(project_id: project_b.id)
+        issue_g = Issue.create!(project_id: project_a.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(1)
@@ -1882,7 +1616,7 @@ describe Gitlab::Database::MigrationHelpers do
       it 'backfills iids' do
         project = setup
         issue_a = issues.create!(project_id: project.id)
-        issue_b = self.class::Issue.create!(project_id: project.id)
+        issue_b = Issue.create!(project_id: project.id)
         issue_c = issues.create!(project_id: project.id)
 
         model.backfill_iids('issues')
@@ -1896,12 +1630,12 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_d = issues.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
-        issue_e = self.class::Issue.create!(project_id: project.id)
+        issue_e = Issue.create!(project_id: project.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(2)
@@ -1915,9 +1649,9 @@ describe Gitlab::Database::MigrationHelpers do
       it 'backfills iids' do
         project = setup
         issue_a = issues.create!(project_id: project.id)
-        issue_b = self.class::Issue.create!(project_id: project.id)
+        issue_b = Issue.create!(project_id: project.id)
         issue_c = issues.create!(project_id: project.id)
-        issue_d = self.class::Issue.create!(project_id: project.id)
+        issue_d = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
@@ -1931,13 +1665,13 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_d = issues.create!(project_id: project.id)
-        issue_e = self.class::Issue.create!(project_id: project.id)
+        issue_e = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
-        issue_f = self.class::Issue.create!(project_id: project.id)
+        issue_f = Issue.create!(project_id: project.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(2)
@@ -1953,7 +1687,7 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_c.delete
 
         model.backfill_iids('issues')
@@ -1966,12 +1700,12 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_c.delete
 
         model.backfill_iids('issues')
 
-        issue_d = self.class::Issue.create!(project_id: project.id)
+        issue_d = Issue.create!(project_id: project.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(2)
@@ -1984,7 +1718,7 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_c.delete
         issue_d = issues.create!(project_id: project.id)
 
@@ -1999,13 +1733,13 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_c.delete
         issue_d = issues.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
-        issue_e = self.class::Issue.create!(project_id: project.id)
+        issue_e = Issue.create!(project_id: project.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(2)
@@ -2019,9 +1753,9 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_c.delete
-        issue_d = self.class::Issue.create!(project_id: project.id)
+        issue_d = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
@@ -2034,13 +1768,13 @@ describe Gitlab::Database::MigrationHelpers do
         project = setup
         issue_a = issues.create!(project_id: project.id)
         issue_b = issues.create!(project_id: project.id)
-        issue_c = self.class::Issue.create!(project_id: project.id)
+        issue_c = Issue.create!(project_id: project.id)
         issue_c.delete
-        issue_d = self.class::Issue.create!(project_id: project.id)
+        issue_d = Issue.create!(project_id: project.id)
 
         model.backfill_iids('issues')
 
-        issue_e = self.class::Issue.create!(project_id: project.id)
+        issue_e = Issue.create!(project_id: project.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(2)
@@ -2057,7 +1791,7 @@ describe Gitlab::Database::MigrationHelpers do
 
         model.backfill_iids('issues')
 
-        issue_b = self.class::Issue.create!(project_id: project_b.id)
+        issue_b = Issue.create!(project_id: project_b.id)
 
         expect(issue_a.reload.iid).to eq(1)
         expect(issue_b.reload.iid).to eq(1)
@@ -2089,62 +1823,6 @@ describe Gitlab::Database::MigrationHelpers do
         expect(issue_b.reload.iid).to eq(1)
         expect(issue_c.reload.iid).to eq(2)
       end
-    end
-  end
-
-  describe '#migrate_async' do
-    it 'calls BackgroundMigrationWorker.perform_async' do
-      expect(BackgroundMigrationWorker).to receive(:perform_async).with("Class", "hello", "world")
-
-      model.migrate_async("Class", "hello", "world")
-    end
-
-    it 'pushes a context with the current class name as caller_id' do
-      expect(Gitlab::ApplicationContext).to receive(:with_context).with(caller_id: model.class.to_s)
-
-      model.migrate_async('Class', 'hello', 'world')
-    end
-  end
-
-  describe '#migrate_in' do
-    it 'calls BackgroundMigrationWorker.perform_in' do
-      expect(BackgroundMigrationWorker).to receive(:perform_in).with(10.minutes, 'Class', 'Hello', 'World')
-
-      model.migrate_in(10.minutes, 'Class', 'Hello', 'World')
-    end
-
-    it 'pushes a context with the current class name as caller_id' do
-      expect(Gitlab::ApplicationContext).to receive(:with_context).with(caller_id: model.class.to_s)
-
-      model.migrate_in(10.minutes, 'Class', 'Hello', 'World')
-    end
-  end
-
-  describe '#bulk_migrate_async' do
-    it 'calls BackgroundMigrationWorker.bulk_perform_async' do
-      expect(BackgroundMigrationWorker).to receive(:bulk_perform_async).with([%w(Class hello world)])
-
-      model.bulk_migrate_async([%w(Class hello world)])
-    end
-
-    it 'pushes a context with the current class name as caller_id' do
-      expect(Gitlab::ApplicationContext).to receive(:with_context).with(caller_id: model.class.to_s)
-
-      model.bulk_migrate_async([%w(Class hello world)])
-    end
-  end
-
-  describe '#bulk_migrate_in' do
-    it 'calls BackgroundMigrationWorker.bulk_perform_in_' do
-      expect(BackgroundMigrationWorker).to receive(:bulk_perform_in).with(10.minutes, [%w(Class hello world)])
-
-      model.bulk_migrate_in(10.minutes, [%w(Class hello world)])
-    end
-
-    it 'pushes a context with the current class name as caller_id' do
-      expect(Gitlab::ApplicationContext).to receive(:with_context).with(caller_id: model.class.to_s)
-
-      model.bulk_migrate_in(10.minutes, [%w(Class hello world)])
     end
   end
 
@@ -2192,6 +1870,34 @@ describe Gitlab::Database::MigrationHelpers do
   describe '#add_check_constraint' do
     before do
       allow(model).to receive(:check_constraint_exists?).and_return(false)
+    end
+
+    context 'constraint name validation' do
+      it 'raises an error when too long' do
+        expect do
+          model.add_check_constraint(
+            :test_table,
+            'name IS NOT NULL',
+            'a' * (Gitlab::Database::MigrationHelpers::MAX_IDENTIFIER_NAME_LENGTH + 1)
+          )
+        end.to raise_error(RuntimeError)
+      end
+
+      it 'does not raise error when the length is acceptable' do
+        constraint_name = 'a' * Gitlab::Database::MigrationHelpers::MAX_IDENTIFIER_NAME_LENGTH
+
+        expect(model).to receive(:transaction_open?).and_return(false)
+        expect(model).to receive(:check_constraint_exists?).and_return(false)
+        expect(model).to receive(:with_lock_retries).and_call_original
+        expect(model).to receive(:execute).with(/ADD CONSTRAINT/)
+
+        model.add_check_constraint(
+          :test_table,
+          'name IS NOT NULL',
+          constraint_name,
+          validate: false
+        )
+      end
     end
 
     context 'inside a transaction' do

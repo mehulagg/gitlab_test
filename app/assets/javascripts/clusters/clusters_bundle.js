@@ -108,7 +108,6 @@ export default class Clusters {
     });
 
     this.installApplication = this.installApplication.bind(this);
-    this.showToken = this.showToken.bind(this);
 
     this.errorContainer = document.querySelector('.js-cluster-error');
     this.successContainer = document.querySelector('.js-cluster-success');
@@ -119,7 +118,6 @@ export default class Clusters {
     );
     this.errorReasonContainer = this.errorContainer.querySelector('.js-error-reason');
     this.successApplicationContainer = document.querySelector('.js-cluster-application-notice');
-    this.showTokenButton = document.querySelector('.js-show-cluster-token');
     this.tokenField = document.querySelector('.js-cluster-token');
     this.ingressDomainHelpText = document.querySelector('.js-ingress-domain-help-text');
     this.ingressDomainSnippet =
@@ -224,7 +222,7 @@ export default class Clusters {
   initRemoveClusterActions() {
     const el = document.querySelector('#js-cluster-remove-actions');
     if (el && el.dataset) {
-      const { clusterName, clusterPath } = el.dataset;
+      const { clusterName, clusterPath, hasManagementProject } = el.dataset;
 
       this.removeClusterAction = new Vue({
         el,
@@ -233,6 +231,7 @@ export default class Clusters {
             props: {
               clusterName,
               clusterPath,
+              hasManagementProject,
             },
           });
         },
@@ -258,7 +257,6 @@ export default class Clusters {
   }
 
   addListeners() {
-    if (this.showTokenButton) this.showTokenButton.addEventListener('click', this.showToken);
     eventHub.$on('installApplication', this.installApplication);
     eventHub.$on('updateApplication', data => this.updateApplication(data));
     eventHub.$on('saveKnativeDomain', data => this.saveKnativeDomain(data));
@@ -275,7 +273,6 @@ export default class Clusters {
   }
 
   removeListeners() {
-    if (this.showTokenButton) this.showTokenButton.removeEventListener('click', this.showToken);
     eventHub.$off('installApplication', this.installApplication);
     eventHub.$off('updateApplication', this.updateApplication);
     eventHub.$off('saveKnativeDomain');
@@ -341,18 +338,6 @@ export default class Clusters {
 
     if (this.store.state.applications[KNATIVE]?.status === APPLICATION_STATUS.INSTALLED) {
       initServerlessSurveyBanner();
-    }
-  }
-
-  showToken() {
-    const type = this.tokenField.getAttribute('type');
-
-    if (type === 'password') {
-      this.tokenField.setAttribute('type', 'text');
-      this.showTokenButton.textContent = s__('ClusterIntegration|Hide');
-    } else {
-      this.tokenField.setAttribute('type', 'password');
-      this.showTokenButton.textContent = s__('ClusterIntegration|Show');
     }
   }
 
@@ -484,6 +469,11 @@ export default class Clusters {
         return;
       }
 
+      if (appId === KNATIVE && !params.hostname && !params.pages_domain_id) {
+        reject(s__('ClusterIntegration|You must specify a domain before you can install Knative.'));
+        return;
+      }
+
       resolve();
     });
   }
@@ -536,6 +526,7 @@ export default class Clusters {
     this.store.updateAppProperty(appId, 'isEditingDomain', true);
     this.store.updateAppProperty(appId, 'hostname', domain);
     this.store.updateAppProperty(appId, 'pagesDomain', domainId ? { id: domainId, domain } : null);
+    this.store.updateAppProperty(appId, 'validationError', null);
   }
 
   setCrossplaneProviderStack(data) {

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe GitlabSchema.types['Project'] do
+RSpec.describe GitlabSchema.types['Project'] do
   let_it_be(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
   let_it_be(:vulnerability) { create(:vulnerability, project: project, severity: :high) }
@@ -15,8 +15,9 @@ describe GitlabSchema.types['Project'] do
 
   it 'includes the ee specific fields' do
     expected_fields = %w[
-      service_desk_enabled service_desk_address vulnerabilities
-      requirement_states_count vulnerability_severities_count
+      service_desk_enabled service_desk_address vulnerabilities vulnerability_scanners
+      requirement_states_count vulnerability_severities_count packages
+      compliance_frameworks
     ]
 
     expect(described_class).to include_graphql_fields(*expected_fields)

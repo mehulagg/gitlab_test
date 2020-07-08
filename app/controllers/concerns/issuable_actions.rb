@@ -16,19 +16,6 @@ module IssuableActions
     end
   end
 
-  def permitted_keys
-    [
-      :issuable_ids,
-      :assignee_id,
-      :milestone_id,
-      :state_event,
-      :subscription_event,
-      label_ids: [],
-      add_label_ids: [],
-      remove_label_ids: []
-    ]
-  end
-
   def show
     respond_to do |format|
       format.html do
@@ -123,9 +110,13 @@ module IssuableActions
 
   def bulk_update
     result = Issuable::BulkUpdateService.new(parent, current_user, bulk_update_params).execute(resource_name)
-    quantity = result[:count]
 
-    render json: { notice: "#{quantity} #{resource_name.pluralize(quantity)} updated" }
+    if result.success?
+      quantity = result.payload[:count]
+      render json: { notice: "#{quantity} #{resource_name.pluralize(quantity)} updated" }
+    elsif result.error?
+      render json: { errors: result.message }, status: result.http_status
+    end
   end
 
   # rubocop:disable CodeReuse/ActiveRecord
@@ -221,10 +212,20 @@ module IssuableActions
   end
 
   def bulk_update_params
-    permitted_keys_array = permitted_keys.dup
-    permitted_keys_array << { assignee_ids: [] }
+    params.require(:update).permit(bulk_update_permitted_keys)
+  end
 
-    params.require(:update).permit(permitted_keys_array)
+  def bulk_update_permitted_keys
+    [
+      :issuable_ids,
+      :assignee_id,
+      :milestone_id,
+      :state_event,
+      :subscription_event,
+      assignee_ids: [],
+      add_label_ids: [],
+      remove_label_ids: []
+    ]
   end
 
   def resource_name

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Merge request > User posts diff notes', :js do
+RSpec.describe 'Merge request > User posts diff notes', :js do
   include MergeRequestDiffHelpers
 
   let(:merge_request) { create(:merge_request) }
@@ -46,7 +46,7 @@ describe 'Merge request > User posts diff notes', :js do
     end
 
     context 'with an old line on the left and a new line on the right' do
-      it 'allows commenting on the left side', quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/199050' do
+      it 'allows commenting on the left side', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/199050' do
         should_allow_commenting(find('[id="2f6fcd96b88b36ce98c38da085c795a27d92a3dd_9_9"]').find(:xpath, '..'), 'left')
       end
 
@@ -56,7 +56,7 @@ describe 'Merge request > User posts diff notes', :js do
     end
 
     context 'with an unchanged line on the left and an unchanged line on the right' do
-      it 'allows commenting on the left side', quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/196826' do
+      it 'allows commenting on the left side', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/196826' do
         should_allow_commenting(find('[id="2f6fcd96b88b36ce98c38da085c795a27d92a3dd_7_7"]', match: :first).find(:xpath, '..'), 'left')
       end
 
@@ -225,7 +225,7 @@ describe 'Merge request > User posts diff notes', :js do
   def should_allow_commenting(line_holder, diff_side = nil, asset_form_reset: true)
     write_comment_on_line(line_holder, diff_side)
 
-    click_button 'Comment'
+    click_button 'Add comment now'
 
     wait_for_requests
 

@@ -2,8 +2,9 @@
 
 require 'spec_helper'
 
-describe MergeRequestPollWidgetEntity do
+RSpec.describe MergeRequestPollWidgetEntity do
   include ProjectForksHelper
+  using RSpec::Parameterized::TableSyntax
 
   let(:project)  { create :project, :repository }
   let(:resource) { create(:merge_request, source_project: project, target_project: project) }
@@ -93,6 +94,28 @@ describe MergeRequestPollWidgetEntity do
     end
   end
 
+  describe 'accessibility_report_path' do
+    context 'when merge request has accessibility reports' do
+      before do
+        allow(resource).to receive(:has_accessibility_reports?).and_return(true)
+      end
+
+      it 'set the path to poll data' do
+        expect(subject[:accessibility_report_path]).to be_present
+      end
+    end
+
+    context 'when merge request has no accessibility reports' do
+      before do
+        allow(resource).to receive(:has_accessibility_reports?).and_return(false)
+      end
+
+      it 'set the path to poll data' do
+        expect(subject[:accessibility_report_path]).to be_nil
+      end
+    end
+  end
+
   describe 'exposed_artifacts_path' do
     context 'when merge request has exposed artifacts' do
       before do
@@ -146,6 +169,27 @@ describe MergeRequestPollWidgetEntity do
 
       it 'returns available auto merge strategies' do
         expect(subject[:available_auto_merge_strategies]).to eq(%w[merge_when_pipeline_succeeds])
+      end
+    end
+
+    describe 'squash defaults for projects' do
+      where(:squash_option, :value, :default, :readonly) do
+        'always'      | true  | true  | true
+        'never'       | false | false | true
+        'default_on'  | false | true  | false
+        'default_off' | false | false | false
+      end
+
+      with_them do
+        before do
+          project.project_setting.update!(squash_option: squash_option)
+        end
+
+        it 'the key reflects the correct value' do
+          expect(subject[:squash_on_merge]).to eq(value)
+          expect(subject[:squash_enabled_by_default]).to eq(default)
+          expect(subject[:squash_readonly]).to eq(readonly)
+        end
       end
     end
 

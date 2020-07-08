@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Todos do
+RSpec.describe API::Todos do
   let_it_be(:group) { create(:group) }
   let_it_be(:project_1) { create(:project, :repository, group: group) }
   let_it_be(:project_2) { create(:project) }
@@ -158,6 +158,46 @@ describe API::Todos do
 
       expect { get api('/todos', john_doe) }.not_to exceed_query_limit(control)
       expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    context 'when there is a Design Todo' do
+      let!(:design_todo) { create_todo_for_mentioned_in_design }
+
+      def create_todo_for_mentioned_in_design
+        issue = create(:issue, project: project_1)
+        create(:todo, :mentioned,
+               user: john_doe,
+               project: project_1,
+               target: create(:design, issue: issue),
+               author: create(:user),
+               note: create(:note, project: project_1, note: "I am note, hear me roar"))
+      end
+
+      def api_request
+        get api('/todos', john_doe)
+      end
+
+      before do
+        api_request
+      end
+
+      specify do
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      it 'avoids N+1 queries', :request_store do
+        control = ActiveRecord::QueryRecorder.new { api_request }
+
+        create_todo_for_mentioned_in_design
+
+        expect { api_request }.not_to exceed_query_limit(control)
+      end
+
+      it 'includes the Design Todo in the response' do
+        expect(json_response).to include(
+          a_hash_including('id' => design_todo.id)
+        )
+      end
     end
   end
 

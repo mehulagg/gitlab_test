@@ -2,6 +2,7 @@
 
 module MergeRequests
   class BaseService < ::IssuableBaseService
+    extend ::Gitlab::Utils::Override
     include MergeRequests::AssignsMergeParams
 
     def create_note(merge_request, state = merge_request.state)
@@ -29,6 +30,11 @@ module MergeRequests
                                  .execute_for_merge_request(merge_request)
     end
 
+    def cancel_review_app_jobs!(merge_request)
+      environments = merge_request.environments.in_review_folder.available
+      environments.each { |environment| environment.cancel_deployment_jobs! }
+    end
+
     def source_project
       @source_project ||= merge_request.source_project
     end
@@ -39,6 +45,8 @@ module MergeRequests
 
     # Don't try to print expensive instance variables.
     def inspect
+      return "#<#{self.class}>" unless respond_to?(:merge_request)
+
       "#<#{self.class} #{merge_request.to_reference(full: true)}>"
     end
 
@@ -54,6 +62,12 @@ module MergeRequests
       self.params = assign_allowed_merge_params(merge_request, params)
 
       super
+    end
+
+    override :handle_quick_actions
+    def handle_quick_actions(merge_request)
+      super
+      handle_wip_event(merge_request)
     end
 
     def handle_wip_event(merge_request)

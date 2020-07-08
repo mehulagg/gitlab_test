@@ -2,6 +2,7 @@
 
 class Clusters::ClustersController < Clusters::BaseController
   include RoutableActions
+  include Metrics::Dashboard::PrometheusApiProxy
 
   before_action :cluster, only: [:cluster_status, :show, :update, :destroy, :clear_cache]
   before_action :generate_gcp_authorize_url, only: [:new]
@@ -23,6 +24,7 @@ class Clusters::ClustersController < Clusters::BaseController
     respond_to do |format|
       format.html
       format.json do
+        Gitlab::PollingInterval.set_header(response, interval: STATUS_POLLING_INTERVAL)
         serializer = ClusterSerializer.new(current_user: current_user)
 
         render json: {
@@ -287,6 +289,29 @@ class Clusters::ClustersController < Clusters::BaseController
     cluster = Clusters::BuildService.new(clusterable.subject).execute
     cluster.build_provider_gcp
     @gcp_cluster = cluster.present(current_user: current_user)
+  end
+
+  def proxyable
+    cluster.cluster
+  end
+
+  # During first iteration of dashboard variables implementation
+  # cluster health case was omitted. Existing service for now is tied to
+  # environment, which is not always present for cluster health dashboard.
+  # It is planned to break coupling to environment https://gitlab.com/gitlab-org/gitlab/-/issues/213833.
+  # It is also planned to move cluster health to metrics dashboard section https://gitlab.com/gitlab-org/gitlab/-/issues/220214
+  # but for now I've used dummy class to stub variable substitution service, as there are no variables
+  # in cluster health dashboard
+  def proxy_variable_substitution_service
+    @empty_service ||= Class.new(BaseService) do
+      def initialize(proxyable, params)
+        @proxyable, @params = proxyable, params
+      end
+
+      def execute
+        success(params: @params)
+      end
+    end
   end
 
   def user_cluster

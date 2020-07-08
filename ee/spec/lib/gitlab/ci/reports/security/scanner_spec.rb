@@ -2,14 +2,15 @@
 
 require 'spec_helper'
 
-describe Gitlab::Ci::Reports::Security::Scanner do
+RSpec.describe Gitlab::Ci::Reports::Security::Scanner do
   describe '#initialize' do
     subject { described_class.new(**params) }
 
     let(:params) do
       {
         external_id: 'brakeman',
-        name: 'Brakeman'
+        name: 'Brakeman',
+        vendor: 'GitLab'
       }
     end
 
@@ -19,7 +20,8 @@ describe Gitlab::Ci::Reports::Security::Scanner do
 
         expect(subject).to have_attributes(
           external_id: 'brakeman',
-          name: 'Brakeman'
+          name: 'Brakeman',
+          vendor: 'GitLab'
         )
       end
     end
@@ -55,7 +57,8 @@ describe Gitlab::Ci::Reports::Security::Scanner do
     it 'returns expected hash' do
       is_expected.to eq({
         external_id: scanner.external_id,
-        name: scanner.name
+        name: scanner.name,
+        vendor: scanner.vendor
       })
     end
   end

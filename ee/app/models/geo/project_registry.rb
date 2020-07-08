@@ -5,6 +5,9 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   include ::EachBatch
   include ::ShaAttribute
 
+  MODEL_CLASS = ::Project
+  MODEL_FOREIGN_KEY = :project_id
+
   REGISTRY_TYPES = %i{repository wiki}.freeze
   RETRIES_BEFORE_REDOWNLOAD = 5
 
@@ -39,6 +42,30 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
     where(nil).pluck(:project_id)
   end
 
+  def self.registry_consistency_worker_enabled?
+    Feature.enabled?(:geo_project_registry_ssot_sync)
+  end
+
+  def self.find_registry_differences(range)
+    source_ids = Gitlab::Geo.current_node.projects.id_in(range).pluck_primary_key
+    tracked_ids = self.pluck_model_ids_in_range(range)
+
+    untracked_ids = source_ids - tracked_ids
+    unused_tracked_ids = tracked_ids - source_ids
+
+    [untracked_ids, unused_tracked_ids]
+  end
+
+  def self.delete_worker_class
+    ::GeoRepositoryDestroyWorker
+  end
+
+  def self.delete_for_model_ids(project_ids)
+    project_ids.map do |project_id|
+      delete_worker_class.perform_async(project_id)
+    end
+  end
+
   def self.failed
     repository_sync_failed = arel_table[:repository_retry_count].gt(0)
     wiki_sync_failed = arel_table[:wiki_retry_count].gt(0)
@@ -68,8 +95,8 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
 
   def self.retry_due
     where(
-      arel_table[:repository_retry_at].lt(Time.now)
-        .or(arel_table[:wiki_retry_at].lt(Time.now))
+      arel_table[:repository_retry_at].lt(Time.current)
+        .or(arel_table[:wiki_retry_at].lt(Time.current))
         .or(arel_table[:repository_retry_at].eq(nil))
         .or(arel_table[:wiki_retry_at].eq(nil))
     )
@@ -180,7 +207,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
       repository_checksum_mismatch: false,
       last_repository_verification_failure: nil,
       repository_verification_retry_count: nil,
-      resync_repository_was_scheduled_at: Time.now,
+      resync_repository_was_scheduled_at: Time.current,
       repository_retry_count: nil,
       repository_retry_at: nil
     )
@@ -223,7 +250,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
     ensure_valid_type!(type)
 
     update!(
-      "last_#{type}_synced_at" => Time.now,
+      "last_#{type}_synced_at" => Time.current,
       "#{type}_retry_count" => retry_count(type))
   end
 
@@ -235,7 +262,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
     ensure_valid_type!(type)
     update!(
       # Indicate that the sync succeeded (but separately mark as synced atomically)
-      "last_#{type}_successful_sync_at" => Time.now,
+      "last_#{type}_successful_sync_at" => Time.current,
       "#{type}_retry_count" => nil,
       "#{type}_retry_at" => nil,
       "force_to_redownload_#{type}" => false,
@@ -404,7 +431,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   #
   # This operation happens only in the database and the resync will be triggered after by the cron job
   def flag_repository_for_resync!
-    repository_updated!(:repository, Time.now)
+    repository_updated!(:repository, Time.current)
   end
 
   # Flag the repository to perform a full re-download

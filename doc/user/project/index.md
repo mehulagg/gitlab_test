@@ -100,10 +100,11 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Maven packages](../packages/maven_repository/index.md): your private Maven repository in GitLab. **(PREMIUM)**
 - [NPM packages](../packages/npm_registry/index.md): your private NPM package registry in GitLab. **(PREMIUM)**
 - [Code owners](code_owners.md): specify code owners for certain files **(STARTER)**
-- [License Compliance](../compliance/license_compliance/index.md): approve and blacklist licenses for projects. **(ULTIMATE)**
+- [License Compliance](../compliance/license_compliance/index.md): approve and deny licenses for projects. **(ULTIMATE)**
 - [Dependency List](../application_security/dependency_list/index.md): view project dependencies. **(ULTIMATE)**
 - [Requirements](requirements/index.md): Requirements allow you to create criteria to check your products against. **(ULTIMATE)**
 - [Static Site Editor](static_site_editor/index.md): quickly edit content on static websites without prior knowledge of the codebase or Git commands.
+- [Code Intelligence](code_intelligence.md): code navigation features.
 
 ### Project integrations
 
@@ -144,6 +145,17 @@ To view your starred projects:
    - Number of open merge requests
    - Number of open issues
 
+### Explore projects
+
+You can explore other popular projects available on GitLab. To explore projects:
+
+1. Click **Projects** in the navigation bar.
+1. Click **Explore Projects**.
+
+GitLab displays a list of projects, sorted by last updated date. To view
+projects with the most [stars](#star-a-project), click **Most stars**. To view
+projects with the largest number of comments in the past month, click **Trending**.
+
 ## Project settings
 
 Set the project's visibility level and the access levels to its various pages
@@ -160,6 +172,24 @@ Read through the documentation on [project settings](settings/index.md).
   - [FogBugz to GitLab](import/fogbugz.md)
 - [Export a project from GitLab](settings/import_export.md#exporting-a-project-and-its-data)
 - [Importing and exporting projects between GitLab instances](settings/import_export.md)
+
+## Remove a project
+
+To remove a project, first navigate to the home page for that project.
+
+1. Navigate to **Settings > General**.
+1. Expand the **Advanced** section.
+1. Scroll down to the **Remove project** section.
+1. Click **Remove project**
+1. Confirm this action by typing in the expected text.
+
+### Delayed removal **(PREMIUM)**
+
+By default, clicking to remove a project is followed by a seven day delay. Admins can restore the project during this period of time.
+This delay [may be changed by an admin](../admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+
+Admins can view all projects pending deletion. If you're an administrator, go to the top navigation bar, click **Projects > Your projects**, and then select the **Removed projects** tab.
+From this tab an admin can restore any project.
 
 ## CI/CD for external repositories **(PREMIUM)**
 
@@ -231,33 +261,89 @@ When [renaming a user](../profile/index.md#changing-your-username),
 
 ## Use your project as a Go package
 
-Any project can be used as a Go package including private projects in subgroups.
-GitLab responds correctly to `go get` and `godoc.org` discovery requests,
-including the [`go-import`](https://golang.org/cmd/go/#hdr-Remote_import_paths)
-and [`go-source`](https://github.com/golang/gddo/wiki/Source-Code-Links) meta
-tags, respectively. To use packages hosted in private projects with the `go get`
-command, use a [`.netrc` file](https://ec.haxx.se/usingcurl-netrc.html) and a
-[personal access token](../profile/personal_access_tokens.md) in the password
-field.
+Any project can be used as a Go package. GitLab responds correctly to `go get`
+and `godoc.org` discovery requests, including the
+[`go-import`](https://golang.org/cmd/go/#hdr-Remote_import_paths) and
+[`go-source`](https://github.com/golang/gddo/wiki/Source-Code-Links) meta tags.
+
+Private projects, including projects in subgroups, can be used as a Go package,
+but may require configuration to work correctly. GitLab will respond correctly
+to `go get` discovery requests for projects that *are not* in subgroups,
+regardless of authentication or authorization.
+[Authentication](#authenticate-go-requests) is required to use a private project
+in a subgroup as a Go package. Otherwise, GitLab will truncate the path for
+private projects in subgroups to the first two segments, causing `go get` to
+fail.
+
+GitLab implements its own Go proxy. This feature must be enabled by an
+administrator and requires additional configuration. See [GitLab Go
+Proxy](../packages/go_proxy/index.md).
+
+### Disable Go module features for private projects
+
+In Go 1.12 and later, Go queries module proxies and checksum databases in the
+process of [fetching a
+module](../../development/go_guide/dependencies.md#fetching). This can be
+selectively disabled with `GOPRIVATE` (disable both),
+[`GONOPROXY`](../../development/go_guide/dependencies.md#proxies) (disable proxy
+queries), and [`GONOSUMDB`](../../development/go_guide/dependencies.md#fetching)
+(disable checksum queries).
+
+`GOPRIVATE`, `GONOPROXY`, and `GONOSUMDB` are comma-separated lists of Go
+modules and Go module prefixes. For example,
+`GOPRIVATE=gitlab.example.com/my/private/project` will disable queries for that
+one project, but `GOPRIVATE=gitlab.example.com` will disable queries for *all*
+projects on GitLab.com. Go will not query module proxies if the module name or a
+prefix of it appears in `GOPRIVATE` or `GONOPROXY`. Go will not query checksum
+databases if the module name or a prefix of it appears in `GONOPRIVATE` or
+`GONOSUMDB`.
+
+### Authenticate Go requests
+
+To authenticate requests to private projects made by Go, use a [`.netrc`
+file](https://ec.haxx.se/usingcurl-netrc.html) and a [personal access
+token](../profile/personal_access_tokens.md) in the password field. **This only
+works if your GitLab instance can be accessed with HTTPS.** The `go` command
+will not transmit credentials over insecure connections. This will authenticate
+all HTTPS requests made directly by Go but will not authenticate requests made
+through Git.
 
 For example:
 
-```text
+```plaintext
 machine example.gitlab.com
 login <gitlab_user_name>
 password <personal_access_token>
 ```
 
+NOTE: **Note:**
+On Windows, Go reads `~/_netrc` instead of `~/.netrc`.
+
+### Authenticate Git fetches
+
+If a module cannot be fetched from a proxy, Go will fall back to using Git (for
+GitLab projects). Git will use `.netrc` to authenticate requests. Alternatively,
+Git can be configured to embed specific credentials in the request URL, or to
+use SSH instead of HTTPS (as Go always uses HTTPS to fetch Git repositories):
+
+```shell
+# embed credentials in any request to GitLab.com:
+git config --global url."https://${user}:${personal_access_token}@gitlab.example.com".insteadOf "https://gitlab.example.com"
+
+# use SSH instead of HTTPS:
+git config --global url."git@gitlab.example.com".insteadOf "https://gitlab.example.com"
+```
+
 ## Access project page with project ID
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/53671) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/53671) in GitLab 11.8.
 
 To quickly access a project from the GitLab UI using the project ID,
 visit the `/projects/:id` URL in your browser or other tool accessing the project.
 
 ## Project aliases **(PREMIUM ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3264) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.1.
 
 When migrating repositories to GitLab and they are being accessed by other systems,
 it's very useful to be able to access them using the same name especially when

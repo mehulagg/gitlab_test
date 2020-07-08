@@ -2,14 +2,17 @@ import { mount } from '@vue/test-utils';
 import { GlSkeletonLoading } from '@gitlab/ui';
 import MetricCard from 'ee/analytics/shared/components/metric_card.vue';
 
+const metrics = [
+  { key: 'first_metric', value: 10, label: 'First metric', unit: 'days', link: 'some_link' },
+  { key: 'second_metric', value: 20, label: 'Yet another metric' },
+  { key: 'third_metric', value: null, label: 'Null metric without value', unit: 'parsecs' },
+  { key: 'fourth_metric', value: '-', label: 'Metric without value', unit: 'parsecs' },
+];
+
 const defaultProps = {
   title: 'My fancy title',
-  metrics: [
-    { key: 'first_metric', value: 10, label: 'First metric' },
-    { key: 'second_metric', value: 20, label: 'Yet another metric' },
-    { key: 'third_metric', value: null, label: 'Metric without value' },
-  ],
   isLoading: false,
+  metrics,
 };
 
 describe('MetricCard', () => {
@@ -68,29 +71,27 @@ describe('MetricCard', () => {
       });
 
       it('renders two metrics', () => {
-        expect(findMetricItem()).toHaveLength(3);
+        expect(findMetricItem()).toHaveLength(metrics.length);
       });
 
       describe.each`
-        columnIndex | label                     | value
-        ${0}        | ${'First metric'}         | ${10}
-        ${1}        | ${'Yet another metric'}   | ${20}
-        ${2}        | ${'Metric without value'} | ${'-'}
-      `('metric columns', ({ columnIndex, label, value }) => {
-        it(`renders "${label}" as label`, () => {
-          expect(
-            findMetricItem()
-              .at(columnIndex)
-              .text(),
-          ).toContain(label);
-        });
+        columnIndex | label                          | value  | unit       | link
+        ${0}        | ${'First metric'}              | ${10}  | ${' days'} | ${'some_link'}
+        ${1}        | ${'Yet another metric'}        | ${20}  | ${''}      | ${null}
+        ${2}        | ${'Null metric without value'} | ${'-'} | ${''}      | ${null}
+        ${3}        | ${'Metric without value'}      | ${'-'} | ${''}      | ${null}
+      `('metric columns', ({ columnIndex, label, value, unit, link }) => {
+        it(`renders ${value}${unit} ${label} with URL ${link}`, () => {
+          const allMetricItems = findMetricItem();
+          const metricItem = allMetricItems.at(columnIndex);
 
-        it(`renders ${value} as value`, () => {
-          expect(
-            findMetricItem()
-              .at(columnIndex)
-              .text(),
-          ).toContain(value);
+          expect(metricItem.text()).toBe(`${value}${unit} ${label}`);
+
+          if (link) {
+            expect(metricItem.find('a').attributes('href')).toBe(link);
+          } else {
+            expect(metricItem.find('a').exists()).toBe(false);
+          }
         });
       });
     });

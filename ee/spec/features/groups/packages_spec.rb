@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Group Packages' do
+RSpec.describe 'Group Packages' do
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
@@ -39,9 +39,14 @@ describe 'Group Packages' do
     end
   end
 
-  context 'when there are packages', :js do
+  context 'when feature is available', :js do
     before do
       visit_group_packages
+    end
+
+    it 'sidebar menu is open' do
+      sidebar = find('.nav-sidebar')
+      expect(sidebar).to have_link _('Package Registry')
     end
 
     context 'when there are packages' do

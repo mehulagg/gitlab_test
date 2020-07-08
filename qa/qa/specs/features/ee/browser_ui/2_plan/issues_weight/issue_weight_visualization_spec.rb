@@ -8,7 +8,7 @@ module QA
       end
 
       let(:milestone) do
-        QA::EE::Resource::ProjectMilestone.fabricate_via_api!
+        Resource::ProjectMilestone.fabricate_via_api!
       end
 
       let(:weight) { 1000 }
@@ -31,7 +31,7 @@ module QA
           show.click_milestone_link
         end
 
-        QA::EE::Page::Project::Milestone::Show.perform do |show|
+        QA::Page::Project::Milestone::Show.perform do |show|
           expect(show.total_issue_weight_value).to have_content(weight)
         end
 

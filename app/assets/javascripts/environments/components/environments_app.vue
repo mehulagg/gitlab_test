@@ -158,13 +158,9 @@ export default {
       :deploy-boards-help-path="deployBoardsHelpPath"
       @onChangePage="onChangePage"
     >
-      <empty-state
-        v-if="!isLoading && state.environments.length === 0"
-        slot="emptyState"
-        :new-path="newEnvironmentPath"
-        :help-path="helpPagePath"
-        :can-create-environment="canCreateEnvironment"
-      />
+      <template v-if="!isLoading && state.environments.length === 0" #emptyState>
+        <empty-state :help-path="helpPagePath" />
+      </template>
     </container>
   </div>
 </template>

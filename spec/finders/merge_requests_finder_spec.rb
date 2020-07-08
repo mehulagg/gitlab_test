@@ -2,9 +2,27 @@
 
 require 'spec_helper'
 
-describe MergeRequestsFinder do
+RSpec.describe MergeRequestsFinder do
   context "multiple projects with merge requests" do
     include_context 'MergeRequestsFinder multiple projects with merge requests context'
+
+    shared_examples 'scalar or array parameter' do
+      let(:values) { merge_requests.pluck(attribute) }
+      let(:params) { {} }
+      let(:key) { attribute }
+
+      it 'takes scalar values' do
+        found = described_class.new(user, params.merge(key => values.first)).execute
+
+        expect(found).to contain_exactly(merge_requests.first)
+      end
+
+      it 'takes array values' do
+        found = described_class.new(user, params.merge(key => values)).execute
+
+        expect(found).to match_array(merge_requests)
+      end
+    end
 
     describe '#execute' do
       it 'filters by scope' do
@@ -33,6 +51,21 @@ describe MergeRequestsFinder do
         merge_requests = described_class.new(user, params).execute
 
         expect(merge_requests).to be_empty
+      end
+
+      context 'filtering by not author ID' do
+        let(:params) { { not: { author_id: user2.id } } }
+
+        before do
+          merge_request2.update!(author: user2)
+          merge_request3.update!(author: user2)
+        end
+
+        it 'returns merge requests not created by that user' do
+          merge_requests = described_class.new(user, params).execute
+
+          expect(merge_requests).to contain_exactly(merge_request1, merge_request4, merge_request5)
+        end
       end
 
       it 'filters by projects' do
@@ -91,28 +124,56 @@ describe MergeRequestsFinder do
         expect(merge_requests).to contain_exactly(merge_request1, merge_request2, merge_request3, merge_request5)
       end
 
-      it 'filters by iid' do
-        params = { project_id: project1.id, iids: merge_request1.iid }
-
-        merge_requests = described_class.new(user, params).execute
-
-        expect(merge_requests).to contain_exactly(merge_request1)
+      describe ':iid parameter' do
+        it_behaves_like 'scalar or array parameter' do
+          let(:params) { { project_id: project1.id } }
+          let(:merge_requests) { [merge_request1, merge_request2] }
+          let(:key) { :iids }
+          let(:attribute) { :iid }
+        end
       end
 
-      it 'filters by source branch' do
-        params = { source_branch: merge_request2.source_branch }
+      [:source_branch, :target_branch].each do |param|
+        describe "#{param} parameter" do
+          let(:merge_requests) { create_list(:merge_request, 2, :unique_branches, source_project: project4, target_project: project4, author: user) }
+          let(:attribute) { param }
 
-        merge_requests = described_class.new(user, params).execute
-
-        expect(merge_requests).to contain_exactly(merge_request2)
+          it_behaves_like 'scalar or array parameter'
+        end
       end
 
-      it 'filters by target branch' do
-        params = { target_branch: merge_request2.target_branch }
+      describe ':label_name parameter' do
+        let(:common_labels) { create_list(:label, 3) }
+        let(:distinct_labels) { create_list(:label, 3) }
+        let(:merge_requests) do
+          common_attrs = {
+            source_project: project1, target_project: project1, author: user
+          }
+          distinct_labels.map do |label|
+            labels = [label, *common_labels]
+            create(:labeled_merge_request, :closed, labels: labels, **common_attrs)
+          end
+        end
 
-        merge_requests = described_class.new(user, params).execute
+        def find(label_name)
+          described_class.new(user, label_name: label_name).execute
+        end
 
-        expect(merge_requests).to contain_exactly(merge_request2)
+        it 'accepts a single label' do
+          found = find(distinct_labels.first.title)
+          common = find(common_labels.first.title)
+
+          expect(found).to contain_exactly(merge_requests.first)
+          expect(common).to match_array(merge_requests)
+        end
+
+        it 'accepts an array of labels, all of which must match' do
+          all_distinct = find(distinct_labels.pluck(:title))
+          all_common = find(common_labels.pluck(:title))
+
+          expect(all_distinct).to be_empty
+          expect(all_common).to match_array(merge_requests)
+        end
       end
 
       it 'filters by source project id' do
@@ -158,7 +219,10 @@ describe MergeRequestsFinder do
 
           merge_requests = described_class.new(user, params).execute
 
-          expect(merge_requests).to contain_exactly(merge_request1, merge_request2, merge_request3, merge_request4, merge_request5, wip_merge_request1, wip_merge_request2, wip_merge_request3, wip_merge_request4)
+          expect(merge_requests).to contain_exactly(
+            merge_request1, merge_request2, merge_request3, merge_request4,
+            merge_request5, wip_merge_request1, wip_merge_request2, wip_merge_request3,
+            wip_merge_request4)
         end
 
         it 'adds wip to scalar params' do
@@ -209,6 +273,11 @@ describe MergeRequestsFinder do
           let(:expected_issuables) { [merge_request1, merge_request2] }
         end
 
+        it_behaves_like 'assignee NOT ID filter' do
+          let(:params) { { not: { assignee_id: user.id } } }
+          let(:expected_issuables) { [merge_request3, merge_request4, merge_request5] }
+        end
+
         it_behaves_like 'assignee username filter' do
           before do
             project2.add_developer(user3)
@@ -218,6 +287,15 @@ describe MergeRequestsFinder do
           let_it_be(:user3) { create(:user) }
           let(:params) { { assignee_username: [user2.username, user3.username] } }
           let(:expected_issuables) { [merge_request3] }
+        end
+
+        it_behaves_like 'assignee NOT username filter' do
+          before do
+            merge_request2.assignees = [user2]
+          end
+
+          let(:params) { { not: { assignee_username: [user.username, user2.username] } } }
+          let(:expected_issuables) { [merge_request4, merge_request5] }
         end
 
         it_behaves_like 'no assignee filter' do
@@ -244,6 +322,16 @@ describe MergeRequestsFinder do
             merge_requests = described_class.new(user, params).execute
 
             expect(merge_requests).to contain_exactly(merge_request2, merge_request3)
+          end
+
+          context 'using NOT' do
+            let(:params) { { not: { milestone_title: group_milestone.title } } }
+
+            it 'returns MRs not assigned to that group milestone' do
+              merge_requests = described_class.new(user, params).execute
+
+              expect(merge_requests).to contain_exactly(merge_request1, merge_request4, merge_request5)
+            end
           end
         end
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module API
-  class ProjectSnippets < Grape::API
+  class ProjectSnippets < Grape::API::Instance
     include PaginationParams
 
     before { authenticate! }
@@ -37,7 +37,7 @@ module API
         use :pagination
       end
       get ":id/snippets" do
-        present paginate(snippets_for_current_user), with: Entities::ProjectSnippet
+        present paginate(snippets_for_current_user), with: Entities::ProjectSnippet, current_user: current_user
       end
 
       desc 'Get a single project snippet' do
@@ -48,16 +48,16 @@ module API
       end
       get ":id/snippets/:snippet_id" do
         snippet = snippets_for_current_user.find(params[:snippet_id])
-        present snippet, with: Entities::ProjectSnippet
+        present snippet, with: Entities::ProjectSnippet, current_user: current_user
       end
 
       desc 'Create a new project snippet' do
         success Entities::ProjectSnippet
       end
       params do
-        requires :title, type: String, desc: 'The title of the snippet'
+        requires :title, type: String, allow_blank: false, desc: 'The title of the snippet'
         requires :file_name, type: String, desc: 'The file name of the snippet'
-        optional :content, type: String, allow_blank: false, desc: 'The content of the snippet'
+        requires :content, type: String, allow_blank: false, desc: 'The content of the snippet'
         optional :description, type: String, desc: 'The description of a snippet'
         requires :visibility, type: String,
                               values: Gitlab::VisibilityLevel.string_values,
@@ -70,12 +70,12 @@ module API
         service_response = ::Snippets::CreateService.new(user_project, current_user, snippet_params).execute
         snippet = service_response.payload[:snippet]
 
-        render_spam_error! if snippet.spam?
-
-        if snippet.persisted?
-          present snippet, with: Entities::ProjectSnippet
+        if service_response.success?
+          present snippet, with: Entities::ProjectSnippet, current_user: current_user
         else
-          render_validation_error!(snippet)
+          render_spam_error! if snippet.spam?
+
+          render_api_error!({ error: service_response.message }, service_response.http_status)
         end
       end
 
@@ -84,7 +84,7 @@ module API
       end
       params do
         requires :snippet_id, type: Integer, desc: 'The ID of a project snippet'
-        optional :title, type: String, desc: 'The title of the snippet'
+        optional :title, type: String, allow_blank: false, desc: 'The title of the snippet'
         optional :file_name, type: String, desc: 'The file name of the snippet'
         optional :content, type: String, allow_blank: false, desc: 'The content of the snippet'
         optional :description, type: String, desc: 'The description of a snippet'
@@ -106,12 +106,12 @@ module API
         service_response = ::Snippets::UpdateService.new(user_project, current_user, snippet_params).execute(snippet)
         snippet = service_response.payload[:snippet]
 
-        render_spam_error! if snippet.spam?
-
-        if snippet.valid?
-          present snippet, with: Entities::ProjectSnippet
+        if service_response.success?
+          present snippet, with: Entities::ProjectSnippet, current_user: current_user
         else
-          render_validation_error!(snippet)
+          render_spam_error! if snippet.spam?
+
+          render_api_error!({ error: service_response.message }, service_response.http_status)
         end
       end
       # rubocop: enable CodeReuse/ActiveRecord

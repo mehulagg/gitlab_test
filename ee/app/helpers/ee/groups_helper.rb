@@ -7,7 +7,7 @@ module EE
     def group_epics_count(state:)
       EpicsFinder
         .new(current_user, group_id: @group.id, state: state)
-        .execute
+        .execute(skip_visibility_check: true)
         .count
     end
 
@@ -144,6 +144,10 @@ module EE
 
       if @group.feature_available?(:productivity_analytics) && can?(current_user, :view_productivity_analytics, @group)
         links << :productivity_analytics
+      end
+
+      if ::Feature.enabled?(:group_iterations, @group) && @group.feature_available?(:iterations) && can?(current_user, :read_iteration, @group)
+        links << :iterations
       end
 
       links

@@ -6,12 +6,19 @@ module Types
       graphql_name 'AlertManagementAlert'
       description "Describes an alert from the project's Alert Management"
 
+      implements(Types::Notes::NoteableType)
+
       authorize :read_alert_management_alert
 
       field :iid,
             GraphQL::ID_TYPE,
             null: false,
             description: 'Internal ID of the alert'
+
+      field :issue_iid,
+            GraphQL::ID_TYPE,
+            null: true,
+            description: 'Internal ID of the GitLab issue attached to the alert'
 
       field :title,
             GraphQL::STRING_TYPE,
@@ -78,6 +85,21 @@ module Types
             Types::TimeType,
             null: true,
             description: 'Timestamp the alert was last updated'
+
+      field :assignees,
+            Types::UserType.connection_type,
+            null: true,
+            description: 'Assignees of the alert'
+
+      field :metrics_dashboard_url,
+            GraphQL::STRING_TYPE,
+            null: true,
+            description: 'URL for metrics embed for the alert',
+            resolve: -> (alert, _args, _context) { alert.present.metrics_dashboard_url }
+
+      def notes
+        object.ordered_notes
+      end
     end
   end
 end

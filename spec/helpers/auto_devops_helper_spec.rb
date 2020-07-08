@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe AutoDevopsHelper do
+RSpec.describe AutoDevopsHelper do
   let_it_be(:project, reload: true) { create(:project) }
   let_it_be(:user) { create(:user) }
 
@@ -13,7 +13,7 @@ describe AutoDevopsHelper do
       allow(helper).to receive(:can?).with(user, :admin_pipeline, project) { allowed }
       allow(helper).to receive(:current_user) { user }
 
-      Feature.get(:auto_devops_banner_disabled).disable
+      stub_feature_flags(auto_devops_banner_disabled: false)
     end
 
     subject { helper.show_auto_devops_callout?(project) }
@@ -32,7 +32,7 @@ describe AutoDevopsHelper do
 
     context 'when the banner is disabled by feature flag' do
       before do
-        Feature.get(:auto_devops_banner_disabled).enable
+        stub_feature_flags(auto_devops_banner_disabled: true)
       end
 
       it { is_expected.to be_falsy }

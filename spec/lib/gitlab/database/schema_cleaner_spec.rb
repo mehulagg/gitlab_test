@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Database::SchemaCleaner do
+RSpec.describe Gitlab::Database::SchemaCleaner do
   let(:example_schema) { fixture_file(File.join('gitlab', 'database', 'structure_example.sql')) }
   let(:io) { StringIO.new }
 
@@ -13,10 +13,6 @@ describe Gitlab::Database::SchemaCleaner do
 
   it 'removes comments on extensions' do
     expect(subject).not_to include('COMMENT ON EXTENSION')
-  end
-
-  it 'includes the plpgsql extension' do
-    expect(subject).to include('CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;')
   end
 
   it 'sets the search_path' do

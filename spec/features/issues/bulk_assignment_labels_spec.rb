@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Issues > Labels bulk assignment' do
+RSpec.describe 'Issues > Labels bulk assignment' do
   let(:user)      { create(:user) }
   let!(:project)  { create(:project) }
   let!(:issue1)   { create(:issue, project: project, title: "Issue 1") }
@@ -13,6 +13,9 @@ describe 'Issues > Labels bulk assignment' do
 
   context 'as an allowed user', :js do
     before do
+      # Make sure that issuables list FF is not turned on.
+      stub_feature_flags(vue_issuables_list: false)
+
       project.add_maintainer(user)
 
       sign_in user
@@ -274,7 +277,7 @@ describe 'Issues > Labels bulk assignment' do
           expect(find("#issue_#{issue2.id}")).to have_content 'First Release'
 
           check 'check-all-issues'
-          open_milestone_dropdown(['No Milestone'])
+          open_milestone_dropdown(['No milestone'])
           update_issues
 
           expect(find("#issue_#{issue1.id}")).to have_content 'bug'
@@ -302,7 +305,23 @@ describe 'Issues > Labels bulk assignment' do
         sleep 1 # needed
 
         expect(find("#issue_#{issue1.id}")).to have_content 'bug'
-        expect(find("#issue_#{issue1.id}")).not_to have_content 'feature'
+        expect(find("#issue_#{issue1.id}")).to have_content 'feature'
+      end
+    end
+
+    context 'mark previously toggled label' do
+      before do
+        enable_bulk_update
+      end
+
+      it do
+        open_labels_dropdown ['feature']
+
+        check_issue issue1
+
+        update_issues
+
+        expect(find("#issue_#{issue1.id}")).to have_content 'feature'
       end
     end
 

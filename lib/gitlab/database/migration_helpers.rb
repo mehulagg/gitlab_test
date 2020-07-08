@@ -3,8 +3,10 @@
 module Gitlab
   module Database
     module MigrationHelpers
-      BACKGROUND_MIGRATION_BATCH_SIZE = 1000 # Number of rows to process per job
-      BACKGROUND_MIGRATION_JOB_BUFFER_SIZE = 1000 # Number of jobs to bulk queue at a time
+      include Migrations::BackgroundMigrationHelpers
+
+      # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+      MAX_IDENTIFIER_NAME_LENGTH = 63
 
       PERMITTED_TIMESTAMP_COLUMNS = %i[created_at updated_at deleted_at].to_set.freeze
       DEFAULT_TIMESTAMP_COLUMNS = %i[created_at updated_at].freeze
@@ -451,66 +453,13 @@ module Gitlab
 
       # Adds a column with a default value without locking an entire table.
       #
-      # This method runs the following steps:
-      #
-      # 1. Add the column with a default value of NULL.
-      # 2. Change the default value of the column to the specified value.
-      # 3. Update all existing rows in batches.
-      # 4. Set a `NOT NULL` constraint on the column if desired (the default).
-      #
-      # These steps ensure a column can be added to a large and commonly used
-      # table without locking the entire table for the duration of the table
-      # modification.
-      #
-      # table - The name of the table to update.
-      # column - The name of the column to add.
-      # type - The column type (e.g. `:integer`).
-      # default - The default value for the column.
-      # limit - Sets a column limit. For example, for :integer, the default is
-      #         4-bytes. Set `limit: 8` to allow 8-byte integers.
-      # allow_null - When set to `true` the column will allow NULL values, the
-      #              default is to not allow NULL values.
-      #
-      # This method can also take a block which is passed directly to the
-      # `update_column_in_batches` method.
-      def add_column_with_default(table, column, type, default:, limit: nil, allow_null: false, update_column_in_batches_args: {}, &block)
-        if transaction_open?
-          raise 'add_column_with_default can not be run inside a transaction, ' \
-            'you can disable transactions by calling disable_ddl_transaction! ' \
-            'in the body of your migration class'
-        end
+      # @deprecated With PostgreSQL 11, adding columns with a default does not lead to a table rewrite anymore.
+      #             As such, this method is not needed anymore and the default `add_column` helper should be used.
+      #             This helper is subject to be removed in a >13.0 release.
+      def add_column_with_default(table, column, type, default:, limit: nil, allow_null: false)
+        raise 'Deprecated: add_column_with_default does not support being passed blocks anymore' if block_given?
 
-        disable_statement_timeout do
-          transaction do
-            if limit
-              add_column(table, column, type, default: nil, limit: limit)
-            else
-              add_column(table, column, type, default: nil)
-            end
-
-            # Changing the default before the update ensures any newly inserted
-            # rows already use the proper default value.
-            change_column_default(table, column, default)
-          end
-
-          begin
-            default_after_type_cast = connection.type_cast(default, column_for(table, column))
-
-            if update_column_in_batches_args.any?
-              update_column_in_batches(table, column, default_after_type_cast, **update_column_in_batches_args, &block)
-            else
-              update_column_in_batches(table, column, default_after_type_cast, &block)
-            end
-
-            add_not_null_constraint(table, column) unless allow_null
-          # We want to rescue _all_ exceptions here, even those that don't inherit
-          # from StandardError.
-          rescue Exception => error # rubocop: disable all
-            remove_column(table, column)
-
-            raise error
-          end
-        end
+        add_column(table, column, type, default: default, limit: limit, null: allow_null)
       end
 
       # Renames a column without requiring downtime.
@@ -528,7 +477,7 @@ module Gitlab
       #        type is used.
       # batch_column_name - option is for tables without primary key, in this
       #        case another unique integer column can be used. Example: :user_id
-      def rename_column_concurrently(table, old, new, type: nil, batch_column_name: :id)
+      def rename_column_concurrently(table, old, new, type: nil, type_cast_function: nil, batch_column_name: :id)
         unless column_exists?(table, batch_column_name)
           raise "Column #{batch_column_name} does not exist on #{table}"
         end
@@ -539,7 +488,7 @@ module Gitlab
 
         check_trigger_permissions!(table)
 
-        create_column_from(table, old, new, type: type, batch_column_name: batch_column_name)
+        create_column_from(table, old, new, type: type, batch_column_name: batch_column_name, type_cast_function: type_cast_function)
 
         install_rename_triggers(table, old, new)
       end
@@ -587,10 +536,10 @@ module Gitlab
       # table - The table containing the column.
       # column - The name of the column to change.
       # new_type - The new column type.
-      def change_column_type_concurrently(table, column, new_type)
+      def change_column_type_concurrently(table, column, new_type, type_cast_function: nil)
         temp_column = "#{column}_for_type_change"
 
-        rename_column_concurrently(table, column, temp_column, type: new_type)
+        rename_column_concurrently(table, column, temp_column, type: new_type, type_cast_function: type_cast_function)
       end
 
       # Performs cleanup of a concurrent type change.
@@ -837,10 +786,6 @@ module Gitlab
         end
       end
 
-      def perform_background_migration_inline?
-        Rails.env.test? || Rails.env.development?
-      end
-
       # Performs a concurrent column rename when using PostgreSQL.
       def install_rename_triggers_for_postgresql(trigger, table, old, new)
         execute <<-EOF.strip_heredoc
@@ -1024,106 +969,6 @@ into similar problems in the future (e.g. when new tables are created).
         end
       end
 
-      # Bulk queues background migration jobs for an entire table, batched by ID range.
-      # "Bulk" meaning many jobs will be pushed at a time for efficiency.
-      # If you need a delay interval per job, then use `queue_background_migration_jobs_by_range_at_intervals`.
-      #
-      # model_class - The table being iterated over
-      # job_class_name - The background migration job class as a string
-      # batch_size - The maximum number of rows per job
-      #
-      # Example:
-      #
-      #     class Route < ActiveRecord::Base
-      #       include EachBatch
-      #       self.table_name = 'routes'
-      #     end
-      #
-      #     bulk_queue_background_migration_jobs_by_range(Route, 'ProcessRoutes')
-      #
-      # Where the model_class includes EachBatch, and the background migration exists:
-      #
-      #     class Gitlab::BackgroundMigration::ProcessRoutes
-      #       def perform(start_id, end_id)
-      #         # do something
-      #       end
-      #     end
-      def bulk_queue_background_migration_jobs_by_range(model_class, job_class_name, batch_size: BACKGROUND_MIGRATION_BATCH_SIZE)
-        raise "#{model_class} does not have an ID to use for batch ranges" unless model_class.column_names.include?('id')
-
-        jobs = []
-        table_name = model_class.quoted_table_name
-
-        model_class.each_batch(of: batch_size) do |relation|
-          start_id, end_id = relation.pluck("MIN(#{table_name}.id)", "MAX(#{table_name}.id)").first
-
-          if jobs.length >= BACKGROUND_MIGRATION_JOB_BUFFER_SIZE
-            # Note: This code path generally only helps with many millions of rows
-            # We push multiple jobs at a time to reduce the time spent in
-            # Sidekiq/Redis operations. We're using this buffer based approach so we
-            # don't need to run additional queries for every range.
-            bulk_migrate_async(jobs)
-            jobs.clear
-          end
-
-          jobs << [job_class_name, [start_id, end_id]]
-        end
-
-        bulk_migrate_async(jobs) unless jobs.empty?
-      end
-
-      # Queues background migration jobs for an entire table, batched by ID range.
-      # Each job is scheduled with a `delay_interval` in between.
-      # If you use a small interval, then some jobs may run at the same time.
-      #
-      # model_class - The table or relation being iterated over
-      # job_class_name - The background migration job class as a string
-      # delay_interval - The duration between each job's scheduled time (must respond to `to_f`)
-      # batch_size - The maximum number of rows per job
-      # other_arguments - Other arguments to send to the job
-      #
-      # *Returns the final migration delay*
-      #
-      # Example:
-      #
-      #     class Route < ActiveRecord::Base
-      #       include EachBatch
-      #       self.table_name = 'routes'
-      #     end
-      #
-      #     queue_background_migration_jobs_by_range_at_intervals(Route, 'ProcessRoutes', 1.minute)
-      #
-      # Where the model_class includes EachBatch, and the background migration exists:
-      #
-      #     class Gitlab::BackgroundMigration::ProcessRoutes
-      #       def perform(start_id, end_id)
-      #         # do something
-      #       end
-      #     end
-      def queue_background_migration_jobs_by_range_at_intervals(model_class, job_class_name, delay_interval, batch_size: BACKGROUND_MIGRATION_BATCH_SIZE, other_job_arguments: [], initial_delay: 0)
-        raise "#{model_class} does not have an ID to use for batch ranges" unless model_class.column_names.include?('id')
-
-        # To not overload the worker too much we enforce a minimum interval both
-        # when scheduling and performing jobs.
-        if delay_interval < BackgroundMigrationWorker.minimum_interval
-          delay_interval = BackgroundMigrationWorker.minimum_interval
-        end
-
-        final_delay = 0
-
-        model_class.each_batch(of: batch_size) do |relation, index|
-          start_id, end_id = relation.pluck(Arel.sql('MIN(id), MAX(id)')).first
-
-          # `BackgroundMigrationWorker.bulk_perform_in` schedules all jobs for
-          # the same time, which is not helpful in most cases where we wish to
-          # spread the work over time.
-          final_delay = initial_delay + delay_interval * index
-          migrate_in(final_delay, job_class_name, [start_id, end_id] + other_job_arguments)
-        end
-
-        final_delay
-      end
-
       # Fetches indexes on a column by name for postgres.
       #
       # This will include indexes using an expression on the column, for example:
@@ -1182,30 +1027,6 @@ into similar problems in the future (e.g. when new tables are created).
         execute(sql)
       end
 
-      def migrate_async(*args)
-        with_migration_context do
-          BackgroundMigrationWorker.perform_async(*args)
-        end
-      end
-
-      def migrate_in(*args)
-        with_migration_context do
-          BackgroundMigrationWorker.perform_in(*args)
-        end
-      end
-
-      def bulk_migrate_in(*args)
-        with_migration_context do
-          BackgroundMigrationWorker.bulk_perform_in(*args)
-        end
-      end
-
-      def bulk_migrate_async(*args)
-        with_migration_context do
-          BackgroundMigrationWorker.bulk_perform_async(*args)
-        end
-      end
-
       # Returns the name for a check constraint
       #
       # type:
@@ -1262,6 +1083,8 @@ into similar problems in the future (e.g. when new tables are created).
       #
       # rubocop:disable Gitlab/RailsLogger
       def add_check_constraint(table, check, constraint_name, validate: true)
+        validate_check_constraint_name!(constraint_name)
+
         # Transactions would result in ALTER TABLE locks being held for the
         # duration of the transaction, defeating the purpose of this method.
         if transaction_open?
@@ -1297,6 +1120,8 @@ into similar problems in the future (e.g. when new tables are created).
       end
 
       def validate_check_constraint(table, constraint_name)
+        validate_check_constraint_name!(constraint_name)
+
         unless check_constraint_exists?(table, constraint_name)
           raise missing_schema_object_message(table, "check constraint", constraint_name)
         end
@@ -1309,6 +1134,8 @@ into similar problems in the future (e.g. when new tables are created).
       end
 
       def remove_check_constraint(table, constraint_name)
+        validate_check_constraint_name!(constraint_name)
+
         # DROP CONSTRAINT requires an EXCLUSIVE lock
         # Use with_lock_retries to make sure that this will not timeout
         with_lock_retries do
@@ -1383,6 +1210,12 @@ into similar problems in the future (e.g. when new tables are created).
 
       private
 
+      def validate_check_constraint_name!(constraint_name)
+        if constraint_name.to_s.length > MAX_IDENTIFIER_NAME_LENGTH
+          raise "The maximum allowed constraint name is #{MAX_IDENTIFIER_NAME_LENGTH} characters"
+        end
+      end
+
       def statement_timeout_disabled?
         # This is a string of the form "100ms" or "0" when disabled
         connection.select_value('SHOW statement_timeout') == "0"
@@ -1435,7 +1268,7 @@ into similar problems in the future (e.g. when new tables are created).
         "ON DELETE #{on_delete.upcase}"
       end
 
-      def create_column_from(table, old, new, type: nil, batch_column_name: :id)
+      def create_column_from(table, old, new, type: nil, batch_column_name: :id, type_cast_function: nil)
         old_col = column_for(table, old)
         new_type = type || old_col.type
 
@@ -1449,7 +1282,13 @@ into similar problems in the future (e.g. when new tables are created).
         # necessary since we copy over old values further down.
         change_column_default(table, new, old_col.default) unless old_col.default.nil?
 
-        update_column_in_batches(table, new, Arel::Table.new(table)[old], batch_column_name: batch_column_name)
+        old_value = Arel::Table.new(table)[old]
+
+        if type_cast_function.present?
+          old_value = Arel::Nodes::NamedFunction.new(type_cast_function, [old_value])
+        end
+
+        update_column_in_batches(table, new, old_value, batch_column_name: batch_column_name)
 
         add_not_null_constraint(table, new) unless old_col.null
 
@@ -1475,10 +1314,6 @@ into similar problems in the future (e.g. when new tables are created).
           You can disable transactions by calling `disable_ddl_transaction!` in the body of
           your migration class
         ERROR
-      end
-
-      def with_migration_context(&block)
-        Gitlab::ApplicationContext.with_context(caller_id: self.class.to_s, &block)
       end
     end
   end

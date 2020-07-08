@@ -3,10 +3,14 @@ import { mount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import waitForPromises from 'helpers/wait_for_promises';
-import PipelinesComponent from '~/pipelines/components/pipelines.vue';
+import PipelinesComponent from '~/pipelines/components/pipelines_list/pipelines.vue';
 import Store from '~/pipelines/stores/pipelines_store';
-import { pipelineWithStages, stageReply, users, mockSearch } from './mock_data';
+import { pipelineWithStages, stageReply, users, mockSearch, branches } from './mock_data';
+import { RAW_TEXT_WARNING } from '~/pipelines/constants';
 import { GlFilteredSearch } from '@gitlab/ui';
+import createFlash from '~/flash';
+
+jest.mock('~/flash', () => jest.fn());
 
 describe('Pipelines', () => {
   const jsonFixtureName = 'pipelines/pipelines.json';
@@ -52,6 +56,7 @@ describe('Pipelines', () => {
       propsData: {
         store: new Store(),
         projectId: '21',
+        params: {},
         ...props,
       },
       methods: {
@@ -63,7 +68,9 @@ describe('Pipelines', () => {
   beforeEach(() => {
     mock = new MockAdapter(axios);
     pipelines = getJSONFixture(jsonFixtureName);
+
     jest.spyOn(Api, 'projectUsers').mockResolvedValue(users);
+    jest.spyOn(Api, 'branches').mockResolvedValue({ data: branches });
   });
 
   afterEach(() => {
@@ -336,11 +343,7 @@ describe('Pipelines', () => {
       });
 
       it('should render navigation tabs', () => {
-        expect(wrapper.find('.js-pipelines-tab-pending').text()).toContain('Pending');
-
         expect(wrapper.find('.js-pipelines-tab-all').text()).toContain('All');
-
-        expect(wrapper.find('.js-pipelines-tab-running').text()).toContain('Running');
 
         expect(wrapper.find('.js-pipelines-tab-finished').text()).toContain('Finished');
 
@@ -445,8 +448,6 @@ describe('Pipelines', () => {
       it('returns default tabs', () => {
         expect(wrapper.vm.tabs).toEqual([
           { name: 'All', scope: 'all', count: undefined, isActive: true },
-          { name: 'Pending', scope: 'pending', count: undefined, isActive: false },
-          { name: 'Running', scope: 'running', count: undefined, isActive: false },
           { name: 'Finished', scope: 'finished', count: undefined, isActive: false },
           { name: 'Branches', scope: 'branches', isActive: false },
           { name: 'Tags', scope: 'tags', isActive: false },
@@ -455,11 +456,11 @@ describe('Pipelines', () => {
     });
 
     describe('emptyTabMessage', () => {
-      it('returns message with scope', () => {
-        wrapper.vm.scope = 'pending';
+      it('returns message with finished scope', () => {
+        wrapper.vm.scope = 'finished';
 
         return wrapper.vm.$nextTick().then(() => {
-          expect(wrapper.vm.emptyTabMessage).toEqual('There are currently no pending pipelines.');
+          expect(wrapper.vm.emptyTabMessage).toEqual('There are currently no finished pipelines.');
         });
       });
 
@@ -665,21 +666,46 @@ describe('Pipelines', () => {
   });
 
   describe('Pipeline filters', () => {
+    let updateContentMock;
+
     beforeEach(() => {
       mock.onGet(paths.endpoint).reply(200, pipelines);
       createComponent();
+
+      updateContentMock = jest.spyOn(wrapper.vm, 'updateContent');
 
       return waitForPromises();
     });
 
     it('updates request data and query params on filter submit', () => {
-      const updateContentMock = jest.spyOn(wrapper.vm, 'updateContent');
-      const expectedQueryParams = { page: '1', scope: 'all', username: 'root' };
+      const expectedQueryParams = {
+        page: '1',
+        scope: 'all',
+        username: 'root',
+        ref: 'master',
+        status: 'pending',
+      };
 
-      findFilteredSearch().vm.$emit('submit', [mockSearch]);
+      findFilteredSearch().vm.$emit('submit', mockSearch);
 
       expect(wrapper.vm.requestData).toEqual(expectedQueryParams);
       expect(updateContentMock).toHaveBeenCalledWith(expectedQueryParams);
+    });
+
+    it('does not add query params if raw text search is used', () => {
+      const expectedQueryParams = { page: '1', scope: 'all' };
+
+      findFilteredSearch().vm.$emit('submit', ['rawText']);
+
+      expect(wrapper.vm.requestData).toEqual(expectedQueryParams);
+      expect(updateContentMock).toHaveBeenCalledWith(expectedQueryParams);
+    });
+
+    it('displays a warning message if raw text search is used', () => {
+      findFilteredSearch().vm.$emit('submit', ['rawText']);
+
+      expect(createFlash).toHaveBeenCalledTimes(1);
+      expect(createFlash).toHaveBeenCalledWith(RAW_TEXT_WARNING, 'warning');
     });
   });
 });

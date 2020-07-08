@@ -6,30 +6,29 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # GitLab Prometheus metrics
 
->**Note:**
-Available since [Omnibus GitLab 9.3](https://gitlab.com/gitlab-org/gitlab-foss/issues/29118). For
-installations from source you'll have to configure it yourself.
-
 To enable the GitLab Prometheus metrics:
 
-1. Log into GitLab as an administrator.
-1. Navigate to **Admin Area > Settings > Metrics and profiling**.
+1. Log into GitLab as a user with [administrator permissions](../../../user/permissions.md).
+1. Navigate to **{admin}** **Admin Area > Settings > Metrics and profiling**.
 1. Find the **Metrics - Prometheus** section, and click **Enable Prometheus Metrics**.
 1. [Restart GitLab](../../restart_gitlab.md#omnibus-gitlab-restart) for the changes to take effect.
+
+NOTE: **Note:**
+For installations from source you must configure it yourself.
 
 ## Collecting the metrics
 
 GitLab monitors its own internal service metrics, and makes them available at the
-`/-/metrics` endpoint. Unlike other [Prometheus](https://prometheus.io) exporters, in order to access
-it, the client IP needs to be [included in a whitelist](../ip_whitelist.md).
+`/-/metrics` endpoint. Unlike other [Prometheus](https://prometheus.io) exporters, to access
+the metrics, the client IP address must be [explicitly allowed](../ip_whitelist.md).
 
-For Omnibus and Chart installations, these metrics are automatically enabled
-and collected as of [GitLab
-9.4](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/1702). For
-source installations or earlier versions, these metrics will need to be enabled
+For [Omnibus GitLab](https://docs.gitlab.com/omnibus/) and Chart installations,
+these metrics are enabled and collected as of
+[GitLab 9.4](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/1702).
+For source installations, these metrics must be enabled
 manually and collected by a Prometheus server.
 
-See also [Sidekiq metrics](#sidekiq-metrics) for how to enable and view metrics from Sidekiq nodes.
+For enabling and viewing metrics from Sidekiq nodes, see [Sidekiq metrics](#sidekiq-metrics).
 
 ## Metrics available
 
@@ -41,34 +40,35 @@ The following metrics are available:
 | `gitlab_banzai_cacheless_render_real_duration_seconds`         | Histogram |                    9.4 | Duration of rendering Markdown into HTML when cached output does not exist                          | `controller`, `action`                              |
 | `gitlab_cache_misses_total`                                    | Counter   |                   10.2 | Cache read miss                                                                                     | `controller`, `action`                              |
 | `gitlab_cache_operation_duration_seconds`                      | Histogram |                   10.2 | Cache access time                                                                                   |                                                     |
-| `gitlab_cache_operations_total`                                | Counter   |                   12.2 | Cache operations by controller/action                                                               | `controller`, `action`, `operation`                 |
+| `gitlab_cache_operations_total`                                | Counter   |                   12.2 | Cache operations by controller or action                                                               | `controller`, `action`, `operation`                 |
 | `gitlab_ci_pipeline_creation_duration_seconds`                 | Histogram |                   13.0 | Time in seconds it takes to create a CI/CD pipeline                                                 |                                                     |
+| `gitlab_ci_pipeline_size_builds`                               | Histogram |                   13.1 | Total number of builds within a pipeline grouped by a pipeline source                               | `source`                                            |
 | `job_waiter_started_total`                                     | Counter   |                   12.9 | Number of batches of jobs started where a web request is waiting for the jobs to complete           | `worker`                                            |
 | `job_waiter_timeouts_total`                                    | Counter   |                   12.9 | Number of batches of jobs that timed out where a web request is waiting for the jobs to complete    | `worker`                                            |
 | `gitlab_database_transaction_seconds`                          | Histogram |                   12.1 | Time spent in database transactions, in seconds                                                     |                                                     |
 | `gitlab_method_call_duration_seconds`                          | Histogram |                   10.2 | Method calls real duration                                                                          | `controller`, `action`, `module`, `method`          |
 | `gitlab_page_out_of_bounds`                                    | Counter   |                   12.8 | Counter for the PageLimiter pagination limit being hit                                              | `controller`, `action`, `bot`                       |
 | `gitlab_rails_queue_duration_seconds`                          | Histogram |                    9.4 | Measures latency between GitLab Workhorse forwarding a request to Rails                             |                                                     |
-| `gitlab_sql_duration_seconds`                                  | Histogram |                   10.2 | SQL execution time, excluding SCHEMA operations and BEGIN / COMMIT                                  |                                                     |
-| `gitlab_transaction_allocated_memory_bytes`                    | Histogram |                   10.2 | Allocated memory for all transactions (gitlab_transaction_* metrics)                                |                                                     |
+| `gitlab_sql_duration_seconds`                                  | Histogram |                   10.2 | SQL execution time, excluding `SCHEMA` operations and `BEGIN` / `COMMIT`                                  |                                                     |
+| `gitlab_transaction_allocated_memory_bytes`                    | Histogram |                   10.2 | Allocated memory for all transactions (`gitlab_transaction_*` metrics)                                |                                                     |
 | `gitlab_transaction_cache_<key>_count_total`                   | Counter   |                   10.2 | Counter for total Rails cache calls (per key)                                                       |                                                     |
 | `gitlab_transaction_cache_<key>_duration_total`                | Counter   |                   10.2 | Counter for total time (seconds) spent in Rails cache calls (per key)                               |                                                     |
 | `gitlab_transaction_cache_count_total`                         | Counter   |                   10.2 | Counter for total Rails cache calls (aggregate)                                                     |                                                     |
 | `gitlab_transaction_cache_duration_total`                      | Counter   |                   10.2 | Counter for total time (seconds) spent in Rails cache calls (aggregate)                             |                                                     |
 | `gitlab_transaction_cache_read_hit_count_total`                | Counter   |                   10.2 | Counter for cache hits for Rails cache calls                                                        | `controller`, `action`                              |
 | `gitlab_transaction_cache_read_miss_count_total`               | Counter   |                   10.2 | Counter for cache misses for Rails cache calls                                                      | `controller`, `action`                              |
-| `gitlab_transaction_duration_seconds`                          | Histogram |                   10.2 | Duration for all transactions (gitlab_transaction_* metrics)                                        | `controller`, `action`                              |
+| `gitlab_transaction_duration_seconds`                          | Histogram |                   10.2 | Duration for all transactions (`gitlab_transaction_*` metrics)                                        | `controller`, `action`                              |
 | `gitlab_transaction_event_build_found_total`                   | Counter   |                    9.4 | Counter for build found for API /jobs/request                                                       |                                                     |
 | `gitlab_transaction_event_build_invalid_total`                 | Counter   |                    9.4 | Counter for build invalid due to concurrency conflict for API /jobs/request                         |                                                     |
 | `gitlab_transaction_event_build_not_found_cached_total`        | Counter   |                    9.4 | Counter for cached response of build not found for API /jobs/request                                |                                                     |
 | `gitlab_transaction_event_build_not_found_total`               | Counter   |                    9.4 | Counter for build not found for API /jobs/request                                                   |                                                     |
 | `gitlab_transaction_event_change_default_branch_total`         | Counter   |                    9.4 | Counter when default branch is changed for any repository                                           |                                                     |
 | `gitlab_transaction_event_create_repository_total`             | Counter   |                    9.4 | Counter when any repository is created                                                              |                                                     |
-| `gitlab_transaction_event_etag_caching_cache_hit_total`        | Counter   |                    9.4 | Counter for etag cache hit.                                                                         | `endpoint`                                          |
-| `gitlab_transaction_event_etag_caching_header_missing_total`   | Counter   |                    9.4 | Counter for etag cache miss - header missing                                                        | `endpoint`                                          |
-| `gitlab_transaction_event_etag_caching_key_not_found_total`    | Counter   |                    9.4 | Counter for etag cache miss - key not found                                                         | `endpoint`                                          |
-| `gitlab_transaction_event_etag_caching_middleware_used_total`  | Counter   |                    9.4 | Counter for etag middleware accessed                                                                | `endpoint`                                          |
-| `gitlab_transaction_event_etag_caching_resource_changed_total` | Counter   |                    9.4 | Counter for etag cache miss - resource changed                                                      | `endpoint`                                          |
+| `gitlab_transaction_event_etag_caching_cache_hit_total`        | Counter   |                    9.4 | Counter for ETag cache hit.                                                                         | `endpoint`                                          |
+| `gitlab_transaction_event_etag_caching_header_missing_total`   | Counter   |                    9.4 | Counter for ETag cache miss - header missing                                                        | `endpoint`                                          |
+| `gitlab_transaction_event_etag_caching_key_not_found_total`    | Counter   |                    9.4 | Counter for ETag cache miss - key not found                                                         | `endpoint`                                          |
+| `gitlab_transaction_event_etag_caching_middleware_used_total`  | Counter   |                    9.4 | Counter for ETag middleware accessed                                                                | `endpoint`                                          |
+| `gitlab_transaction_event_etag_caching_resource_changed_total` | Counter   |                    9.4 | Counter for ETag cache miss - resource changed                                                      | `endpoint`                                          |
 | `gitlab_transaction_event_fork_repository_total`               | Counter   |                    9.4 | Counter for repository forks (RepositoryForkWorker). Only incremented when source repository exists |                                                     |
 | `gitlab_transaction_event_import_repository_total`             | Counter   |                    9.4 | Counter for repository imports (RepositoryImportWorker)                                             |                                                     |
 | `gitlab_transaction_event_push_branch_total`                   | Counter   |                    9.4 | Counter for all branch pushes                                                                       |                                                     |
@@ -92,6 +92,13 @@ The following metrics are available:
 | `gitlab_view_rendering_duration_seconds`                       | Histogram |                   10.2 | Duration for views (histogram)                                                                      | `controller`, `action`, `view`                      |
 | `http_requests_total`                                          | Counter   |                    9.4 | Rack request count                                                                                  | `method`                                            |
 | `http_request_duration_seconds`                                | Histogram |                    9.4 | HTTP response time from rack middleware                                                             | `method`, `status`                                  |
+| `gitlab_transaction_db_count_total`                            | Counter   |                   13.1 | Counter for total number of SQL calls                                                               | `controller`, `action`                              |
+| `gitlab_transaction_db_write_count_total`                      | Counter   |                   13.1 | Counter for total number of write SQL calls                                                         | `controller`, `action`                              |
+| `gitlab_transaction_db_cached_count_total`                     | Counter   |                   13.1 | Counter for total number of cached SQL calls                                                        | `controller`, `action`                              |
+| `http_redis_requests_duration_seconds`                         | Histogram |                   13.1 | Redis requests duration during web transactions                                                     | `controller`, `action`                              |
+| `http_redis_requests_total`                                    | Counter   |                   13.1 | Redis requests count during web transactions                                                        | `controller`, `action`                              |
+| `http_elasticsearch_requests_duration_seconds` **(STARTER)**   | Histogram |                   13.1 | Elasticsearch requests duration during web transactions                                             | `controller`, `action`                              |
+| `http_elasticsearch_requests_total` **(STARTER)**              | Counter   |                   13.1 | Elasticsearch requests count during web transactions                                                | `controller`, `action`                              |
 | `pipelines_created_total`                                      | Counter   |                    9.4 | Counter of pipelines created                                                                        |                                                     |
 | `rack_uncaught_errors_total`                                   | Counter   |                    9.4 | Rack connections handling uncaught errors count                                                     |                                                     |
 | `user_session_logins_total`                                    | Counter   |                    9.4 | Counter of how many users have logged in                                                            |                                                     |
@@ -99,7 +106,7 @@ The following metrics are available:
 | `failed_login_captcha_total`                                   | Gauge     |                   11.0 | Counter of failed CAPTCHA attempts during login                                                     |                                                     |
 | `successful_login_captcha_total`                               | Gauge     |                   11.0 | Counter of successful CAPTCHA attempts during login                                                 |                                                     |
 | `auto_devops_pipelines_completed_total`                        | Counter   |                   12.7 | Counter of completed Auto DevOps pipelines, labeled by status                                       |                                                     |
-| `gitlab_metrics_dashboard_processing_time_ms` | Summary | 12.10 | Metrics dashboard processing time in milliseconds | service, stages |
+| `gitlab_metrics_dashboard_processing_time_ms`                  | Summary   |                  12.10 | Metrics dashboard processing time in milliseconds | service, stages |
 
 ## Metrics controlled by a feature flag
 
@@ -113,19 +120,23 @@ The following metrics can be controlled by feature flags:
 ## Sidekiq metrics
 
 Sidekiq jobs may also gather metrics, and these metrics can be accessed if the
-Sidekiq exporter is enabled (for example, using the `monitoring.sidekiq_exporter`
+Sidekiq exporter is enabled: for example, using the `monitoring.sidekiq_exporter`
 configuration option in `gitlab.yml`. These metrics are served from the
 `/metrics` path on the configured port.
 
 | Metric                                         | Type    | Since | Description | Labels |
 |:---------------------------------------------- |:------- |:----- |:----------- |:------ |
-| `sidekiq_jobs_cpu_seconds`                     | Histogram | 12.4 | Seconds of cpu time to run Sidekiq job                                                              | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
+| `sidekiq_jobs_cpu_seconds`                     | Histogram | 12.4 | Seconds of CPU time to run Sidekiq job                                                              | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_completion_seconds`              | Histogram | 12.2 | Seconds to complete Sidekiq job                                                                     | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_db_seconds`                      | Histogram | 12.9 | Seconds of DB time to run Sidekiq job                                                               | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_gitaly_seconds`                  | Histogram | 12.9 | Seconds of Gitaly time to run Sidekiq job                                                           | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
+| `sidekiq_redis_requests_duration_seconds`      | Histogram | 13.1 | Duration in seconds that a Sidekiq job spent querying a Redis server                                | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
+| `sidekiq_elasticsearch_requests_duration_seconds`      | Histogram | 13.1 | Duration in seconds that a Sidekiq job spent in requests to an Elasticsearch server                                | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_jobs_queue_duration_seconds`          | Histogram | 12.5 | Duration in seconds that a Sidekiq job was queued before being executed                             | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
 | `sidekiq_jobs_failed_total`                    | Counter   | 12.2 | Sidekiq jobs failed                                                                                 | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
 | `sidekiq_jobs_retried_total`                   | Counter   | 12.2 | Sidekiq jobs retried                                                                                | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
+| `sidekiq_redis_requests_total`                 | Counter   | 13.1 | Redis requests during a Sidekiq job execution                                                       | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
+| `sidekiq_elasticsearch_requests_total`         | Counter   | 13.1 | Elasticsearch requests during a Sidekiq job execution                                                       | `queue`, `boundary`, `external_dependencies`, `feature_category`, `job_status`, `urgency` |
 | `sidekiq_running_jobs`                         | Gauge     | 12.2 | Number of Sidekiq jobs running                                                                      | `queue`, `boundary`, `external_dependencies`, `feature_category`, `urgency` |
 | `sidekiq_concurrency`                          | Gauge     | 12.5 | Maximum number of Sidekiq jobs                                                                      |                                                                   |
 | `geo_db_replication_lag_seconds`               | Gauge   | 10.2  | Database replication lag (seconds) | `url` |
@@ -162,6 +173,7 @@ configuration option in `gitlab.yml`. These metrics are served from the
 | `geo_repositories_retrying_verification_count` | Gauge   | 11.2  | Number of repositories verification failures that Geo is actively trying to correct on secondary  | `url` |
 | `geo_wikis_retrying_verification_count`        | Gauge   | 11.2  | Number of wikis verification failures that Geo is actively trying to correct on secondary | `url` |
 | `global_search_bulk_cron_queue_size`           | Gauge   | 12.10 | Number of database records waiting to be synchronized to Elasticsearch | |
+| `global_search_awaiting_indexing_queue_size`   | Gauge   | 13.2  | Number of database updates waiting to be synchronized to Elasticsearch while indexing is paused | |
 | `package_files_count`                          | Gauge   | 13.0  | Number of package files on primary | `url` |
 | `package_files_checksummed_count`              | Gauge   | 13.0  | Number of package files checksummed on primary | `url` |
 | `package_files_checksum_failed_count`          | Gauge   | 13.0  | Number of package files failed to calculate the checksum on primary
@@ -172,23 +184,46 @@ The following metrics are available:
 
 | Metric                            | Type      | Since                                                         | Description                            |
 |:--------------------------------- |:--------- |:------------------------------------------------------------- |:-------------------------------------- |
-| `db_load_balancing_hosts`         | Gauge     | [12.3](https://gitlab.com/gitlab-org/gitlab/issues/13630)     | Current number of load balancing hosts |
+| `db_load_balancing_hosts`         | Gauge     | [12.3](https://gitlab.com/gitlab-org/gitlab/-/issues/13630)     | Current number of load balancing hosts |
+
+## Connection pool metrics
+
+These metrics record the status of the database
+[connection pools](https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/ConnectionPool.html),
+and the metrics all have these labels:
+
+- `class` - the Ruby class being recorded.
+  - `ActiveRecord::Base` is the main database connection.
+  - `Geo::TrackingBase` is the connection to the Geo tracking database, if
+    enabled.
+- `host` - the host name used to connect to the database.
+- `port` - the port used to connect to the database.
+
+| Metric                                        | Type  | Since | Description                                       |
+|:----------------------------------------------|:------|:------|:--------------------------------------------------|
+| `gitlab_database_connection_pool_size`        | Gauge | 13.0  | Total connection pool capacity                    |
+| `gitlab_database_connection_pool_connections` | Gauge | 13.0  | Current connections in the pool                   |
+| `gitlab_database_connection_pool_busy`        | Gauge | 13.0  | Connections in use where the owner is still alive |
+| `gitlab_database_connection_pool_dead`        | Gauge | 13.0  | Connections in use where the owner is not alive   |
+| `gitlab_database_connection_pool_idle`        | Gauge | 13.0  | Connections not in use                            |
+| `gitlab_database_connection_pool_waiting`     | Gauge | 13.0  | Threads currently waiting on this queue           |
 
 ## Ruby metrics
 
 Some basic Ruby runtime metrics are available:
 
-| Metric                               | Type      | Since | Description |
-|:------------------------------------ |:--------- |:----- |:----------- |
-| `ruby_gc_duration_seconds`           | Counter   | 11.1  | Time spent by Ruby in GC |
-| `ruby_gc_stat_...`                   | Gauge     | 11.1  | Various metrics from [GC.stat](https://ruby-doc.org/core-2.6.5/GC.html#method-c-stat) |
-| `ruby_file_descriptors`              | Gauge     | 11.1  | File descriptors per process |
-| `ruby_memory_bytes`                  | Gauge     | 11.1  | Memory usage by process |
-| `ruby_sampler_duration_seconds`      | Counter   | 11.1  | Time spent collecting stats |
-| `ruby_process_cpu_seconds_total`     | Gauge     | 12.0  | Total amount of CPU time per process |
-| `ruby_process_max_fds`               | Gauge     | 12.0  | Maximum number of open file descriptors per process |
-| `ruby_process_resident_memory_bytes` | Gauge     | 12.0  | Memory usage by process |
-| `ruby_process_start_time_seconds`    | Gauge     | 12.0  | UNIX timestamp of process start time |
+| Metric                                   | Type      | Since | Description |
+|:---------------------------------------- |:--------- |:----- |:----------- |
+| `ruby_gc_duration_seconds`               | Counter   | 11.1  | Time spent by Ruby in GC |
+| `ruby_gc_stat_...`                       | Gauge     | 11.1  | Various metrics from [GC.stat](https://ruby-doc.org/core-2.6.5/GC.html#method-c-stat) |
+| `ruby_file_descriptors`                  | Gauge     | 11.1  | File descriptors per process |
+| `ruby_sampler_duration_seconds`          | Counter   | 11.1  | Time spent collecting stats |
+| `ruby_process_cpu_seconds_total`         | Gauge     | 12.0  | Total amount of CPU time per process |
+| `ruby_process_max_fds`                   | Gauge     | 12.0  | Maximum number of open file descriptors per process |
+| `ruby_process_resident_memory_bytes`     | Gauge     | 12.0  | Memory usage by process (RSS/Resident Set Size) |
+| `ruby_process_unique_memory_bytes`       | Gauge     | 13.0  | Memory usage by process (USS/Unique Set Size) |
+| `ruby_process_proportional_memory_bytes` | Gauge     | 13.0  | Memory usage by process (PSS/Proportional Set Size) |
+| `ruby_process_start_time_seconds`        | Gauge     | 12.0  | UNIX timestamp of process start time |
 
 ## Unicorn Metrics
 
@@ -204,31 +239,41 @@ Unicorn specific metrics, when Unicorn is used.
 
 When Puma is used instead of Unicorn, the following metrics are available:
 
-| Metric                                         | Type    | Since | Description |
-|:---------------------------------------------- |:------- |:----- |:----------- |
-| `puma_workers`                                 | Gauge   | 12.0  | Total number of workers |
-| `puma_running_workers`                         | Gauge   | 12.0  | Number of booted workers |
-| `puma_stale_workers`                           | Gauge   | 12.0  | Number of old workers |
-| `puma_running`                                 | Gauge   | 12.0  | Number of running threads |
-| `puma_queued_connections`                      | Gauge   | 12.0  | Number of connections in that worker's "to do" set waiting for a worker thread |
-| `puma_active_connections`                      | Gauge   | 12.0  | Number of threads processing a request |
-| `puma_pool_capacity`                           | Gauge   | 12.0  | Number of requests the worker is capable of taking right now |
-| `puma_max_threads`                             | Gauge   | 12.0  | Maximum number of worker threads |
-| `puma_idle_threads`                            | Gauge   | 12.0  | Number of spawned threads which are not processing a request |
-| `puma_killer_terminations_total`               | Gauge   | 12.0  | Number of workers terminated by PumaWorkerKiller |
+| Metric                            | Type    | Since | Description |
+|:--------------------------------- |:------- |:----- |:----------- |
+| `puma_workers`                    | Gauge   | 12.0  | Total number of workers |
+| `puma_running_workers`            | Gauge   | 12.0  | Number of booted workers |
+| `puma_stale_workers`              | Gauge   | 12.0  | Number of old workers |
+| `puma_running`                    | Gauge   | 12.0  | Number of running threads |
+| `puma_queued_connections`         | Gauge   | 12.0  | Number of connections in that worker's "to do" set waiting for a worker thread |
+| `puma_active_connections`         | Gauge   | 12.0  | Number of threads processing a request |
+| `puma_pool_capacity`              | Gauge   | 12.0  | Number of requests the worker is capable of taking right now |
+| `puma_max_threads`                | Gauge   | 12.0  | Maximum number of worker threads |
+| `puma_idle_threads`               | Gauge   | 12.0  | Number of spawned threads which are not processing a request |
+| `puma_killer_terminations_total`  | Gauge   | 12.0  | Number of workers terminated by PumaWorkerKiller |
+
+## Redis metrics
+
+These client metrics are meant to complement Redis server metrics.
+These metrics are broken down per [Redis
+instance](https://docs.gitlab.com/omnibus/settings/redis.html#running-with-multiple-redis-instances).
+These metrics all have a `storage` label which indicates the Redis
+instance (`cache`, `shared_state` etc.).
+
+| Metric                            | Type    | Since | Description |
+|:--------------------------------- |:------- |:----- |:----------- |
+| `gitlab_redis_client_exceptions_total`                    | Counter   | 13.2  | Number of Redis client exceptions, broken down by exception class |
+| `gitlab_redis_client_requests_total`                    | Counter   | 13.2  | Number of Redis client requests |
 
 ## Metrics shared directory
 
 GitLab's Prometheus client requires a directory to store metrics data shared between multi-process services.
 Those files are shared among all instances running under Unicorn server.
-The directory needs to be accessible to all running Unicorn's processes otherwise
-metrics will not function correctly.
+The directory must be accessible to all running Unicorn's processes, or
+metrics can't function correctly.
 
-For best performance its advisable that this directory will be located in `tmpfs`.
+This directory's location is configured using environment variable `prometheus_multiproc_dir`.
+For best performance, create this directory in `tmpfs`.
 
-Its location is configured using environment variable `prometheus_multiproc_dir`.
-
-If GitLab is installed using Omnibus and `tmpfs` is available then metrics
-directory will be automatically configured.
-
-[← Back to the main Prometheus page](index.md)
+If GitLab is installed using [Omnibus GitLab](https://docs.gitlab.com/omnibus/)
+and `tmpfs` is available, then GitLab configures the metrics directory for you.

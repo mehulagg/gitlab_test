@@ -6,8 +6,7 @@ import { mapGetters } from 'vuex';
 import createFlash from '~/flash';
 import { __ } from '~/locale';
 import { removeFlash } from '../utils';
-
-const DATA_REFETCH_DELAY = 250;
+import { DATA_REFETCH_DELAY } from '../../shared/constants';
 
 export default {
   name: 'LabelsSelector',
@@ -78,7 +77,7 @@ export default {
   },
   watch: {
     searchTerm() {
-      debounce(this.fetchData(), DATA_REFETCH_DELAY);
+      this.search();
     },
   },
   mounted() {
@@ -103,6 +102,9 @@ export default {
           this.loading = false;
         });
     },
+    search: debounce(function debouncedSearch() {
+      this.fetchData();
+    }, DATA_REFETCH_DELAY),
     labelTitle(label) {
       // there are 2 possible endpoints for group labels
       // one returns label.name the other label.title

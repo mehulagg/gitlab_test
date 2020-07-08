@@ -1,8 +1,14 @@
 query getStorageCounter($fullPath: ID!) {
   namespace(fullPath: $fullPath) {
     id
+    storageSizeLimit
     rootStorageStatistics {
       storageSize
+      repositorySize
+      lfsObjectsSize
+      buildArtifactsSize
+      packagesSize
+      wikiSize
     }
     projects(includeSubgroups: true) {
       edges {
@@ -21,6 +27,7 @@ query getStorageCounter($fullPath: ID!) {
             buildArtifactsSize
             packagesSize
             wikiSize
+            snippetsSize
           }
         }
       }

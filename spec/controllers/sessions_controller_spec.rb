@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe SessionsController do
+RSpec.describe SessionsController do
   include DeviseHelpers
   include LdapHelpers
 
@@ -97,6 +97,11 @@ describe SessionsController do
   describe '#create' do
     before do
       set_devise_mapping(context: @request)
+    end
+
+    it_behaves_like 'known sign in' do
+      let(:user) { create(:user) }
+      let(:post_action) { post(:create, params: { user: { login: user.username, password: user.password } }) }
     end
 
     context 'when using standard authentications' do

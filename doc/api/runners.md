@@ -1,3 +1,9 @@
+---
+stage: Verify
+group: Runner
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Runners API
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/2640) in GitLab 8.5
@@ -162,9 +168,9 @@ GET /runners/:id
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6"
 ```
 
-CAUTION: **Deprecation**
-The `token` attribute in the response is deprecated [since GitLab 12.10](https://gitlab.com/gitlab-org/gitlab/-/issues/214320).
-It will be removed in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/214322).
+NOTE: **Note:**
+The `token` attribute in the response was deprecated [in GitLab 12.10](https://gitlab.com/gitlab-org/gitlab/-/issues/214320).
+and removed in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/214322).
 
 Example response:
 
@@ -190,7 +196,6 @@ Example response:
             "path_with_namespace": "gitlab-org/gitlab-foss"
         }
     ],
-    "token": "205086a8e3b9a2b818ffac9b89d102",
     "revision": null,
     "tag_list": [
         "ruby",
@@ -225,9 +230,9 @@ PUT /runners/:id
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6" --form "description=test-1-20150125-test" --form "tag_list=ruby,mysql,tag1,tag2"
 ```
 
-CAUTION: **Deprecation**
-The `token` attribute in the response is deprecated [since GitLab 12.10](https://gitlab.com/gitlab-org/gitlab/-/issues/214320).
-It will be removed in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/214322).
+NOTE: **Note:**
+The `token` attribute in the response was deprecated [in GitLab 12.10](https://gitlab.com/gitlab-org/gitlab/-/issues/214320).
+and removed in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/214322).
 
 Example response:
 
@@ -253,7 +258,6 @@ Example response:
             "path_with_namespace": "gitlab-org/gitlab-foss"
         }
     ],
-    "token": "205086a8e3b9a2b818ffac9b89d102",
     "revision": null,
     "tag_list": [
         "ruby",

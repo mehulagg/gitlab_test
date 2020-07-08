@@ -2,6 +2,7 @@
 import { GlBanner } from '@gitlab/ui';
 import Cookies from 'js-cookie';
 import { parseBoolean } from '~/lib/utils/common_utils';
+import axios from '~/lib/utils/axios_utils';
 import ProjectVulnerabilitiesApp from 'ee/vulnerabilities/components/project_vulnerabilities_app.vue';
 import ReportsNotConfigured from 'ee/security_dashboard/components/empty_states/reports_not_configured.vue';
 import SecurityDashboardLayout from 'ee/security_dashboard/components/security_dashboard_layout.vue';
@@ -40,20 +41,35 @@ export default {
       required: false,
       default: '',
     },
-    hasPipelineData: {
+    hasVulnerabilities: {
       type: Boolean,
       required: false,
       default: false,
     },
     vulnerabilitiesExportEndpoint: {
       type: String,
+      required: false,
+      default: '',
+    },
+    showIntroductionBanner: {
+      type: Boolean,
       required: true,
+    },
+    userCalloutId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    userCalloutsPath: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   data() {
     return {
       filters: {},
-      isBannerVisible: !parseBoolean(Cookies.get(BANNER_COOKIE_KEY)),
+      isBannerVisible: this.showIntroductionBanner && !parseBoolean(Cookies.get(BANNER_COOKIE_KEY)), // The and statement is for backward compatibility. See https://gitlab.com/gitlab-org/gitlab/-/issues/213671 for more information.
     };
   },
   methods: {
@@ -61,8 +77,11 @@ export default {
       this.filters = filters;
     },
     handleBannerClose() {
-      Cookies.set(BANNER_COOKIE_KEY, 'true', { expires: 365 * 10 });
       this.isBannerVisible = false;
+
+      axios.post(this.userCalloutsPath, {
+        feature_name: this.userCalloutId,
+      });
     },
   },
 };
@@ -70,7 +89,7 @@ export default {
 
 <template>
   <div>
-    <template v-if="hasPipelineData">
+    <template v-if="hasVulnerabilities">
       <security-dashboard-layout>
         <template #header>
           <gl-banner
@@ -78,7 +97,7 @@ export default {
             class="mt-4"
             variant="introduction"
             :title="s__('SecurityReports|Introducing standalone vulnerabilities')"
-            :button-text="s__('SecurityReports|Learn More')"
+            :button-text="s__('SecurityReports|Learn more')"
             :button-link="dashboardDocumentation"
             @close="handleBannerClose"
           >
@@ -95,6 +114,8 @@ export default {
             <csv-export-button :vulnerabilities-export-endpoint="vulnerabilitiesExportEndpoint" />
           </div>
           <vulnerabilities-count-list :project-full-path="projectFullPath" />
+        </template>
+        <template #sticky>
           <filters @filterChange="handleFilterChange" />
         </template>
         <project-vulnerabilities-app

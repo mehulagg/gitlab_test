@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Metrics::Methods do
+RSpec.describe Gitlab::Metrics::Methods do
   subject { Class.new { include Gitlab::Metrics::Methods } }
 
   shared_context 'metric' do |metric_type, *args|
@@ -104,7 +104,7 @@ describe Gitlab::Metrics::Methods do
 
         context 'when feature is enabled' do
           before do
-            Feature.get(feature_name).enable
+            stub_feature_flags(feature_name => true)
           end
 
           it "initializes #{metric_type} metric" do
@@ -118,7 +118,7 @@ describe Gitlab::Metrics::Methods do
 
         context 'when feature is disabled' do
           before do
-            Feature.get(feature_name).disable
+            stub_feature_flags(feature_name => false)
           end
 
           it "returns NullMetric" do

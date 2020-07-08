@@ -1,6 +1,6 @@
-# API styleguide
+# API style guide
 
-This styleguide recommends best practices for API development.
+This style guide recommends best practices for API development.
 
 ## Instance variables
 
@@ -98,6 +98,46 @@ For instance:
 Model.create(foo: params[:foo])
 ```
 
+## Array types
+
+With Grape v1.3+, Array types must be defined with a `coerce_with`
+block, or parameters will fail to validate when passed a string from an
+API request. See the [Grape upgrading
+documentation](https://github.com/ruby-grape/grape/blob/master/UPGRADING.md#ensure-that-array-types-have-explicit-coercions)
+for more details.
+
+### Automatic coercion of nil inputs
+
+Prior to Grape v1.3.3, Array parameters with `nil` values would
+automatically be coerced to an empty Array. However, due to [this pull
+request in v1.3.3](https://github.com/ruby-grape/grape/pull/2040), this
+is no longer the case. For example, suppose you define a PUT `/test`
+request that has an optional parameter:
+
+```ruby
+optional :user_ids, type: Array[Integer], coerce_with: ::API::Validations::Types::CommaSeparatedToIntegerArray.coerce, desc: 'The user ids for this rule'
+```
+
+Normally, a request to PUT `/test?user_ids` would cause Grape to pass
+`params` of `{ user_ids: nil }`.
+
+This may introduce errors with endpoints that expect a blank array and
+do not handle `nil` inputs properly. To preserve the previous behavior,
+there is a helper method `coerce_nil_params_to_array!` that is used
+in the `before` block of all API calls:
+
+```ruby
+before do
+  coerce_nil_params_to_array!
+end
+```
+
+With this change, a request to PUT `/test?user_ids` will cause Grape to
+pass `params` to be `{ user_ids: [] }`.
+
+There is [an open issue in the Grape tracker](https://github.com/ruby-grape/grape/issues/2068)
+to make this easier.
+
 ## Using HTTP status helpers
 
 For non-200 HTTP responses, use the provided helpers in `lib/api/helpers.rb` to ensure correct behavior (`not_found!`, `no_content!` etc.). These will `throw` inside Grape and abort the execution of your endpoint.
@@ -115,6 +155,73 @@ For instance:
 ```haml
 - endpoint = expose_path(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid))
 ```
+
+## Custom Validators
+
+In order to validate some parameters in the API request, we validate them
+before sending them further (say Gitaly). The following are the
+[custom validators](https://GitLab.com/gitlab-org/gitlab/-/tree/master/lib/api/validations/validators),
+which we have added so far and how to use them. We also wrote a
+guide on how you can add a new custom validator.
+
+### Using custom validators
+
+- `FilePath`:
+
+  GitLab supports various functionalities where we need to traverse a file path.
+  The [`FilePath` validator](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/api/validations/validators/file_path.rb)
+  validates the parameter value for different cases. Mainly, it checks whether a
+  path is relative and does it contain `../../` relative traversal using
+  `File::Separator` or not, and whether the path is absolute, for example
+  `/etc/passwd/`.
+
+- `Git SHA`:
+
+  The [`Git SHA` validator](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/api/validations/validators/git_sha.rb)
+  checks whether the Git SHA parameter is a valid SHA.
+  It checks by using the regex mentioned in [`commit.rb`](https://gitlab.com/gitlab-org/gitlab/-/commit/b9857d8b662a2dbbf54f46ecdcecb44702affe55#d1c10892daedb4d4dd3d4b12b6d071091eea83df_30_30) file.
+
+- `Absence`:
+
+  The [`Absence` validator](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/api/validations/validators/absence.rb)
+  checks whether a particular parameter is absent in a given parameters hash.
+
+- `IntegerNoneAny`:
+
+  The [`IntegerNoneAny` validator](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/api/validations/validators/integer_none_any.rb)
+  checks if the value of the given parameter is either an `Integer`, `None`, or `Any`.
+  It allows only either of these mentioned values to move forward in the request.
+
+- `ArrayNoneAny`:
+
+  The [`ArrayNoneAny` validator](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/api/validations/validators/array_none_any.rb)
+  checks if the value of the given parameter is either an `Array`, `None`, or `Any`.
+  It allows only either of these mentioned values to move forward in the request.
+
+### Adding a new custom validator
+
+Custom validators are a great way to validate parameters before sending
+them to platform for further processing. It saves some back-and-forth
+from the server to the platform if we identify invalid parameters at the beginning.
+
+If you need to add a custom validator, it would be added to
+it's own file in the [`validators`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/api/validations/validators) directory.
+Since we use [Grape](https://github.com/ruby-grape/grape) to add our API
+we inherit from the `Grape::Validations::Base` class in our validator class.
+Now, all you have to do is define the `validate_param!` method which takes
+in two parameters: the `params` hash and the `param` name to validate.
+
+The body of the method does the hard work of validating the parameter value
+and returns appropriate error messages to the caller method.
+
+Lastly, we register the validator using the line below:
+
+```ruby
+Grape::Validations.register_validator(<validator name as symbol>, ::API::Helpers::CustomValidators::<YourCustomValidatorClassName>)
+```
+
+Once you add the validator, make sure you add the `rspec`s for it into
+it's own file in the [`validators`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/spec/lib/api/validations/validators) directory.
 
 ## Internal API
 

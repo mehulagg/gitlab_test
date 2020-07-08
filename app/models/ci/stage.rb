@@ -4,15 +4,16 @@ module Ci
   class Stage < ApplicationRecord
     extend Gitlab::Ci::Model
     include Importable
-    include HasStatus
+    include Ci::HasStatus
     include Gitlab::OptimisticLocking
 
-    enum status: HasStatus::STATUSES_ENUM
+    enum status: Ci::HasStatus::STATUSES_ENUM
 
     belongs_to :project
     belongs_to :pipeline
 
     has_many :statuses, class_name: 'CommitStatus', foreign_key: :stage_id
+    has_many :latest_statuses, -> { ordered.latest }, class_name: 'CommitStatus', foreign_key: :stage_id
     has_many :processables, class_name: 'Ci::Processable', foreign_key: :stage_id
     has_many :builds, foreign_key: :stage_id
     has_many :bridges, foreign_key: :stage_id
@@ -97,7 +98,7 @@ module Ci
         when 'scheduled' then delay
         when 'skipped', nil then skip
         else
-          raise HasStatus::UnknownStatusError,
+          raise Ci::HasStatus::UnknownStatusError,
                 "Unknown status `#{new_status}`"
         end
       end

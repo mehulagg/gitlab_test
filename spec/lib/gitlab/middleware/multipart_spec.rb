@@ -4,7 +4,7 @@ require 'spec_helper'
 
 require 'tempfile'
 
-describe Gitlab::Middleware::Multipart do
+RSpec.describe Gitlab::Middleware::Multipart do
   include_context 'multipart middleware context'
 
   RSpec.shared_examples_for 'multipart upload files' do
@@ -187,6 +187,17 @@ describe Gitlab::Middleware::Multipart do
   it 'allows files in the job artifact upload path' do
     with_tmp_dir('artifacts') do |dir, env|
       expect(JobArtifactUploader).to receive(:workhorse_upload_path).and_return(File.join(dir, 'artifacts'))
+      expect(app).to receive(:call) do |env|
+        expect(get_params(env)['file']).to be_a(::UploadedFile)
+      end
+
+      middleware.call(env)
+    end
+  end
+
+  it 'allows files in the lfs upload path' do
+    with_tmp_dir('lfs-objects') do |dir, env|
+      expect(LfsObjectUploader).to receive(:workhorse_upload_path).and_return(File.join(dir, 'lfs-objects'))
       expect(app).to receive(:call) do |env|
         expect(get_params(env)['file']).to be_a(::UploadedFile)
       end

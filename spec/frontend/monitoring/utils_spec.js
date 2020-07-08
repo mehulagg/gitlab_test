@@ -169,8 +169,8 @@ describe('monitoring/utils', () => {
     });
   });
 
-  describe('promCustomVariablesFromUrl', () => {
-    const { promCustomVariablesFromUrl } = monitoringUtils;
+  describe('templatingVariablesFromUrl', () => {
+    const { templatingVariablesFromUrl } = monitoringUtils;
 
     beforeEach(() => {
       jest.spyOn(urlUtils, 'queryToObject');
@@ -192,9 +192,10 @@ describe('monitoring/utils', () => {
         direction: 'left',
         anchor: 'top',
         pod: 'POD',
+        'var-pod': 'POD',
       });
 
-      expect(promCustomVariablesFromUrl()).toEqual(expect.objectContaining({ pod: 'POD' }));
+      expect(templatingVariablesFromUrl()).toEqual(expect.objectContaining({ pod: 'POD' }));
     });
 
     it('returns an empty object when no custom variables are present', () => {
@@ -202,7 +203,7 @@ describe('monitoring/utils', () => {
         dashboard: '.gitlab/dashboards/custom_dashboard.yml',
       });
 
-      expect(promCustomVariablesFromUrl()).toStrictEqual({});
+      expect(templatingVariablesFromUrl()).toStrictEqual({});
     });
   });
 
@@ -314,24 +315,31 @@ describe('monitoring/utils', () => {
     const getUrlParams = url => urlUtils.queryToObject(url.split('?')[1]);
 
     it('returns URL for a panel when query parameters are given', () => {
-      const params = getUrlParams(panelToUrl(dashboard, panelGroup.group, panel));
+      const params = getUrlParams(panelToUrl(dashboard, {}, panelGroup.group, panel));
 
-      expect(params).toEqual({
-        dashboard,
-        group: panelGroup.group,
-        title: panel.title,
-        y_label: panel.y_label,
-      });
+      expect(params).toEqual(
+        expect.objectContaining({
+          dashboard,
+          group: panelGroup.group,
+          title: panel.title,
+          y_label: panel.y_label,
+        }),
+      );
     });
 
     it('returns a dashboard only URL if group is missing', () => {
-      const params = getUrlParams(panelToUrl(dashboard, null, panel));
-      expect(params).toEqual({ dashboard: 'metrics.yml' });
+      const params = getUrlParams(panelToUrl(dashboard, {}, null, panel));
+      expect(params).toEqual(expect.objectContaining({ dashboard: 'metrics.yml' }));
     });
 
     it('returns a dashboard only URL if panel is missing', () => {
-      const params = getUrlParams(panelToUrl(dashboard, panelGroup.group, null));
-      expect(params).toEqual({ dashboard: 'metrics.yml' });
+      const params = getUrlParams(panelToUrl(dashboard, {}, panelGroup.group, null));
+      expect(params).toEqual(expect.objectContaining({ dashboard: 'metrics.yml' }));
+    });
+
+    it('returns URL for a panel when query paramters are given including custom variables', () => {
+      const params = getUrlParams(panelToUrl(dashboard, { pod: 'pod' }, panelGroup.group, null));
+      expect(params).toEqual(expect.objectContaining({ dashboard: 'metrics.yml', pod: 'pod' }));
     });
   });
 
@@ -396,5 +404,66 @@ describe('monitoring/utils', () => {
         );
       });
     });
+  });
+
+  describe('removePrefixFromLabel', () => {
+    it.each`
+      input               | expected
+      ${undefined}        | ${''}
+      ${null}             | ${''}
+      ${''}               | ${''}
+      ${'    '}           | ${'    '}
+      ${'pod-1'}          | ${'pod-1'}
+      ${'pod-var-1'}      | ${'pod-var-1'}
+      ${'pod-1-var'}      | ${'pod-1-var'}
+      ${'podvar--1'}      | ${'podvar--1'}
+      ${'povar-d-1'}      | ${'povar-d-1'}
+      ${'var-pod-1'}      | ${'pod-1'}
+      ${'var-var-pod-1'}  | ${'var-pod-1'}
+      ${'varvar-pod-1'}   | ${'varvar-pod-1'}
+      ${'var-pod-1-var-'} | ${'pod-1-var-'}
+    `('removePrefixFromLabel returns $expected with input $input', ({ input, expected }) => {
+      expect(monitoringUtils.removePrefixFromLabel(input)).toEqual(expected);
+    });
+  });
+
+  describe('convertVariablesForURL', () => {
+    it.each`
+      input                                                               | expected
+      ${[]}                                                               | ${{}}
+      ${[{ name: 'env', value: 'prod' }]}                                 | ${{ 'var-env': 'prod' }}
+      ${[{ name: 'env1', value: 'prod' }, { name: 'env2', value: null }]} | ${{ 'var-env1': 'prod' }}
+      ${[{ name: 'var-env', value: 'prod' }]}                             | ${{ 'var-var-env': 'prod' }}
+    `('convertVariablesForURL returns $expected with input $input', ({ input, expected }) => {
+      expect(monitoringUtils.convertVariablesForURL(input)).toEqual(expected);
+    });
+  });
+
+  describe('setCustomVariablesFromUrl', () => {
+    beforeEach(() => {
+      jest.spyOn(urlUtils, 'updateHistory');
+    });
+
+    afterEach(() => {
+      urlUtils.updateHistory.mockRestore();
+    });
+
+    it.each`
+      input                                                               | urlParams
+      ${[]}                                                               | ${''}
+      ${[{ name: 'env', value: 'prod' }]}                                 | ${'?var-env=prod'}
+      ${[{ name: 'env1', value: 'prod' }, { name: 'env2', value: null }]} | ${'?var-env=prod&var-env1=prod'}
+    `(
+      'setCustomVariablesFromUrl updates history with query "$urlParams" with input $input',
+      ({ input, urlParams }) => {
+        monitoringUtils.setCustomVariablesFromUrl(input);
+
+        expect(urlUtils.updateHistory).toHaveBeenCalledTimes(1);
+        expect(urlUtils.updateHistory).toHaveBeenCalledWith({
+          url: `http://localhost/${urlParams}`,
+          title: '',
+        });
+      },
+    );
   });
 });

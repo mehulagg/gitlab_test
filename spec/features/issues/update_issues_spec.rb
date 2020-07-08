@@ -2,12 +2,13 @@
 
 require 'spec_helper'
 
-describe 'Multiple issue updating from issues#index', :js do
+RSpec.describe 'Multiple issue updating from issues#index', :js do
   let!(:project)   { create(:project) }
   let!(:issue)     { create(:issue, project: project) }
   let!(:user)      { create(:user)}
 
   before do
+    stub_feature_flags(vue_issuables_list: false)
     project.add_maintainer(user)
     sign_in(user)
   end
@@ -95,7 +96,7 @@ describe 'Multiple issue updating from issues#index', :js do
       find('#check-all-issues').click
       find('.issues-bulk-update .js-milestone-select').click
 
-      find('.dropdown-menu-milestone a', text: "No Milestone").click
+      find('.dropdown-menu-milestone a', text: "No milestone").click
       click_update_issues_button
 
       expect(find('.issue:first-child')).not_to have_content milestone.title

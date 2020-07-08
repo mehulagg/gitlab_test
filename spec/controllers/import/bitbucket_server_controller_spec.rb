@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Import::BitbucketServerController do
+RSpec.describe Import::BitbucketServerController do
   let(:user) { create(:user) }
   let(:project_key) { 'test-project' }
   let(:repo_slug) { 'some-repo' }
@@ -33,7 +33,7 @@ describe Import::BitbucketServerController do
     let(:project_name) { "my-project_123" }
 
     before do
-      allow(controller).to receive(:bitbucket_client).and_return(client)
+      allow(controller).to receive(:client).and_return(client)
       repo = double(name: project_name)
       allow(client).to receive(:repo).with(project_key, repo_slug).and_return(repo)
       assign_session_tokens
@@ -46,7 +46,7 @@ describe Import::BitbucketServerController do
         .to receive(:new).with(project_key, repo_slug, anything, project_name, user.namespace, user, anything)
         .and_return(double(execute: project))
 
-      post :create, params: { project: project_key, repository: repo_slug }, format: :json
+      post :create, params: { bitbucketServerProject: project_key, bitbucketServerRepo: repo_slug }, format: :json
 
       expect(response).to have_gitlab_http_status(:ok)
     end
@@ -59,20 +59,20 @@ describe Import::BitbucketServerController do
           .to receive(:new).with(project_key, repo_slug, anything, project_name, user.namespace, user, anything)
           .and_return(double(execute: project))
 
-        post :create, params: { project: project_key, repository: repo_slug, format: :json }
+        post :create, params: { bitbucketServerProject: project_key, bitbucketServerRepo: repo_slug, format: :json }
 
         expect(response).to have_gitlab_http_status(:ok)
       end
     end
 
     it 'returns an error when an invalid project key is used' do
-      post :create, params: { project: 'some&project' }
+      post :create, params: { bitbucket_server_project: 'some&project' }
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
 
     it 'returns an error when an invalid repository slug is used' do
-      post :create, params: { project: 'some-project', repository: 'try*this' }
+      post :create, params: { bitbucket_server_project: 'some-project', bitbucket_server_repo: 'try*this' }
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
@@ -80,7 +80,7 @@ describe Import::BitbucketServerController do
     it 'returns an error when the project cannot be found' do
       allow(client).to receive(:repo).with(project_key, repo_slug).and_return(nil)
 
-      post :create, params: { project: project_key, repository: repo_slug }, format: :json
+      post :create, params: { bitbucket_server_project: project_key, bitbucket_server_repo: repo_slug }, format: :json
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
@@ -90,15 +90,15 @@ describe Import::BitbucketServerController do
         .to receive(:new).with(project_key, repo_slug, anything, project_name, user.namespace, user, anything)
         .and_return(double(execute: build(:project)))
 
-      post :create, params: { project: project_key, repository: repo_slug }, format: :json
+      post :create, params: { bitbucket_server_project: project_key, bitbucket_server_repo: repo_slug }, format: :json
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
 
     it "returns an error when the server can't be contacted" do
-      expect(client).to receive(:repo).with(project_key, repo_slug).and_raise(::BitbucketServer::Connection::ConnectionError)
+      allow(client).to receive(:repo).with(project_key, repo_slug).and_return([nil, nil])
 
-      post :create, params: { project: project_key, repository: repo_slug }, format: :json
+      post :create, params: { bitbucket_server_project: project_key, bitbucket_server_repo: repo_slug }, format: :json
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
@@ -123,7 +123,9 @@ describe Import::BitbucketServerController do
     end
 
     it 'sets the session variables' do
-      post :configure, params: { personal_access_token: token, bitbucket_username: username, bitbucket_server_url: url }
+      allow(controller).to receive(:allow_local_requests?).and_return(true)
+
+      post :configure, params: { personal_access_token: token, bitbucket_server_username: username, bitbucket_server_url: url }
 
       expect(session[:bitbucket_server_url]).to eq(url)
       expect(session[:bitbucket_server_username]).to eq(username)
@@ -139,12 +141,39 @@ describe Import::BitbucketServerController do
     let(:repos) { instance_double(BitbucketServer::Collection) }
 
     before do
-      allow(controller).to receive(:bitbucket_client).and_return(client)
+      allow(controller).to receive(:client).and_return(client)
 
       @repo = double(slug: 'vim', project_key: 'asd', full_name: 'asd/vim', "valid?" => true, project_name: 'asd', browse_url: 'http://test', name: 'vim')
-      @invalid_repo = double(slug: 'invalid', project_key: 'foobar', full_name: 'asd/foobar', "valid?" => false, browse_url: 'http://bad-repo')
+      @invalid_repo = double(slug: 'invalid', project_key: 'foobar', full_name: 'asd/foobar', "valid?" => false, browse_url: 'http://bad-repo', name: 'invalid')
       @created_repo = double(slug: 'created', project_key: 'existing', full_name: 'group/created', "valid?" => true, browse_url: 'http://existing')
       assign_session_tokens
+      stub_feature_flags(new_import_ui: false)
+    end
+
+    context 'with new_import_ui feature flag enabled' do
+      before do
+        stub_feature_flags(new_import_ui: true)
+      end
+
+      it 'returns invalid repos' do
+        allow(client).to receive(:repos).with(filter: nil, limit: 25, page_offset: 0).and_return([@repo, @invalid_repo])
+
+        get :status, format: :json
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['incompatible_repos'].length).to eq(1)
+        expect(json_response.dig("incompatible_repos", 0, "id")).to eq(@invalid_repo.full_name)
+        expect(json_response['provider_repos'].length).to eq(1)
+        expect(json_response.dig("provider_repos", 0, "id")).to eq(@repo.full_name)
+      end
+    end
+
+    it_behaves_like 'import controller with new_import_ui feature flag' do
+      let(:repo) { @repo }
+      let(:repo_id) { @repo.full_name }
+      let(:import_source) { @repo.browse_url }
+      let(:provider_name) { 'bitbucket_server' }
+      let(:client_repos_field) { :repos }
     end
 
     it 'assigns repository categories' do

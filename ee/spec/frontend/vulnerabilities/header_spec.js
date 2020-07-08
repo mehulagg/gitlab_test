@@ -1,21 +1,25 @@
 import { shallowMount } from '@vue/test-utils';
+import { GlDeprecatedButton } from '@gitlab/ui';
 import MockAdapter from 'axios-mock-adapter';
 import waitForPromises from 'helpers/wait_for_promises';
 import UsersMockHelper from 'helpers/user_mock_data_helper';
-import Api from '~/api';
+import Api from 'ee/api';
 import axios from '~/lib/utils/axios_utils';
+import download from '~/lib/utils/downloader';
 import * as urlUtility from '~/lib/utils/url_utility';
 import createFlash from '~/flash';
 import Header from 'ee/vulnerabilities/components/header.vue';
 import StatusDescription from 'ee/vulnerabilities/components/status_description.vue';
 import ResolutionAlert from 'ee/vulnerabilities/components/resolution_alert.vue';
+import SplitButton from 'ee/vue_shared/security_reports/components/split_button.vue';
 import VulnerabilityStateDropdown from 'ee/vulnerabilities/components/vulnerability_state_dropdown.vue';
 import VulnerabilitiesEventBus from 'ee/vulnerabilities/components/vulnerabilities_event_bus';
-import { VULNERABILITY_STATE_OBJECTS } from 'ee/vulnerabilities/constants';
+import { FEEDBACK_TYPES, VULNERABILITY_STATE_OBJECTS } from 'ee/vulnerabilities/constants';
 
 const vulnerabilityStateEntries = Object.entries(VULNERABILITY_STATE_OBJECTS);
 const mockAxios = new MockAdapter(axios);
 jest.mock('~/flash');
+jest.mock('~/lib/utils/downloader');
 
 describe('Vulnerability Header', () => {
   let wrapper;
@@ -25,35 +29,32 @@ describe('Vulnerability Header', () => {
     created_at: new Date().toISOString(),
     report_type: 'sast',
     state: 'detected',
-  };
-
-  const findingWithIssue = {
-    description: 'description',
-    identifiers: 'identifiers',
-    links: 'links',
-    location: 'location',
-    name: 'name',
-    issue_feedback: {
-      issue_iid: 12,
-    },
-  };
-
-  const findingWithoutIssue = {
-    description: 'description',
-    identifiers: 'identifiers',
-    links: 'links',
-    location: 'location',
-    name: 'name',
-  };
-
-  const dataset = {
-    createIssueUrl: 'create_issue_url',
-    projectFingerprint: 'abc123',
+    create_mr_url: '/create_mr_url',
+    create_issue_url: '/create_issue_url',
+    project_fingerprint: 'abc123',
     pipeline: {
       id: 2,
       created_at: new Date().toISOString(),
       url: 'pipeline_url',
+      sourceBranch: 'master',
     },
+    description: 'description',
+    identifiers: 'identifiers',
+    links: 'links',
+    location: 'location',
+    name: 'name',
+  };
+
+  const diff = 'some diff to download';
+
+  const getVulnerability = ({ shouldShowCreateIssueButton, shouldShowMergeRequestButton }) => {
+    return {
+      issue_feedback: shouldShowCreateIssueButton ? null : { issue_iid: 12 },
+      remediations: shouldShowMergeRequestButton ? [{ diff }] : null,
+      merge_request_feedback: {
+        merge_request_path: shouldShowMergeRequestButton ? null : 'some path',
+      },
+    };
   };
 
   const createRandomUser = () => {
@@ -64,17 +65,16 @@ describe('Vulnerability Header', () => {
     return user;
   };
 
-  const findCreateIssueButton = () => wrapper.find({ ref: 'create-issue-btn' });
+  const findGlDeprecatedButton = () => wrapper.find(GlDeprecatedButton);
+  const findSplitButton = () => wrapper.find(SplitButton);
   const findBadge = () => wrapper.find({ ref: 'badge' });
   const findResolutionAlert = () => wrapper.find(ResolutionAlert);
   const findStatusDescription = () => wrapper.find(StatusDescription);
 
-  const createWrapper = (vulnerability = {}, finding = findingWithoutIssue) => {
+  const createWrapper = (vulnerability = {}) => {
     wrapper = shallowMount(Header, {
       propsData: {
-        ...dataset,
         initialVulnerability: { ...defaultVulnerability, ...vulnerability },
-        finding,
       },
     });
   };
@@ -87,7 +87,7 @@ describe('Vulnerability Header', () => {
   });
 
   describe('state dropdown', () => {
-    beforeEach(createWrapper);
+    beforeEach(() => createWrapper());
 
     it('the vulnerability state dropdown is rendered', () => {
       expect(wrapper.find(VulnerabilityStateDropdown).exists()).toBe(true);
@@ -120,7 +120,7 @@ describe('Vulnerability Header', () => {
 
     it('when the vulnerability state dropdown emits a change event, the vulnerabilities event bus event is emitted with the proper event', () => {
       const newState = 'dismiss';
-      jest.spyOn(VulnerabilitiesEventBus, '$emit');
+      const spy = jest.spyOn(VulnerabilitiesEventBus, '$emit');
       mockAxios.onPost().reply(201, { state: newState });
       expect(findBadge().text()).not.toBe(newState);
 
@@ -129,8 +129,8 @@ describe('Vulnerability Header', () => {
       dropdown.vm.$emit('change');
 
       return waitForPromises().then(() => {
-        expect(VulnerabilitiesEventBus.$emit).toHaveBeenCalledTimes(1);
-        expect(VulnerabilitiesEventBus.$emit).toHaveBeenCalledWith('VULNERABILITY_STATE_CHANGE');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('VULNERABILITY_STATE_CHANGE');
       });
     });
 
@@ -147,54 +147,152 @@ describe('Vulnerability Header', () => {
     });
   });
 
-  describe('create issue button', () => {
-    beforeEach(createWrapper);
-
-    it('does display if there is not an issue already created', () => {
-      expect(findCreateIssueButton().exists()).toBe(true);
+  describe('split button', () => {
+    it('does render the create merge request and issue button as a split button', () => {
+      createWrapper(
+        getVulnerability({
+          shouldShowCreateIssueButton: true,
+          shouldShowMergeRequestButton: true,
+        }),
+      );
+      expect(findSplitButton().exists()).toBe(true);
+      const buttons = findSplitButton().props('buttons');
+      expect(buttons).toHaveLength(3);
+      expect(buttons[0].name).toBe('Resolve with merge request');
+      expect(buttons[1].name).toBe('Download patch to resolve');
+      expect(buttons[2].name).toBe('Create issue');
     });
 
-    it('does not display if there is an issue already created', () => {
-      createWrapper({}, findingWithIssue);
-      expect(findCreateIssueButton().exists()).toBe(false);
+    it('does not render the split button if there is only one action', () => {
+      createWrapper(getVulnerability({ shouldShowCreateIssueButton: true }));
+      expect(findSplitButton().exists()).toBe(false);
+    });
+  });
+
+  describe('single action button', () => {
+    it('does not display if there are no actions', () => {
+      createWrapper(getVulnerability({}));
+      expect(findGlDeprecatedButton().exists()).toBe(false);
     });
 
-    it('calls create issue endpoint on click and redirects to new issue', () => {
-      const issueUrl = '/group/project/issues/123';
-      const spy = jest.spyOn(urlUtility, 'redirectTo');
-      mockAxios.onPost(dataset.createIssueUrl).reply(200, {
-        issue_url: issueUrl,
+    describe('create issue', () => {
+      beforeEach(() => createWrapper(getVulnerability({ shouldShowCreateIssueButton: true })));
+
+      it('does display if there is only one action and not an issue already created', () => {
+        expect(findGlDeprecatedButton().exists()).toBe(true);
+        expect(findGlDeprecatedButton().text()).toBe('Create issue');
       });
-      findCreateIssueButton().vm.$emit('click');
-      return waitForPromises().then(() => {
-        expect(mockAxios.history.post).toHaveLength(1);
-        const [postRequest] = mockAxios.history.post;
-        expect(postRequest.url).toBe(dataset.createIssueUrl);
-        expect(JSON.parse(postRequest.data)).toMatchObject({
-          vulnerability_feedback: {
-            feedback_type: 'issue',
-            category: defaultVulnerability.report_type,
-            project_fingerprint: dataset.projectFingerprint,
-            vulnerability_data: {
-              ...defaultVulnerability,
-              ...findingWithoutIssue,
-              category: defaultVulnerability.report_type,
-              vulnerability_id: defaultVulnerability.id,
-            },
-          },
+
+      it('calls create issue endpoint on click and redirects to new issue', () => {
+        const issueUrl = '/group/project/issues/123';
+        const spy = jest.spyOn(urlUtility, 'redirectTo');
+        mockAxios.onPost(defaultVulnerability.create_issue_url).reply(200, {
+          issue_url: issueUrl,
         });
-        expect(spy).toHaveBeenCalledWith(issueUrl);
+        findGlDeprecatedButton().vm.$emit('click');
+        return waitForPromises().then(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          const [postRequest] = mockAxios.history.post;
+          expect(postRequest.url).toBe(defaultVulnerability.create_issue_url);
+          expect(JSON.parse(postRequest.data)).toMatchObject({
+            vulnerability_feedback: {
+              feedback_type: FEEDBACK_TYPES.ISSUE,
+              category: defaultVulnerability.report_type,
+              project_fingerprint: defaultVulnerability.project_fingerprint,
+              vulnerability_data: {
+                ...getVulnerability({ shouldShowCreateIssueButton: true }),
+                category: defaultVulnerability.report_type,
+                vulnerability_id: defaultVulnerability.id,
+              },
+            },
+          });
+          expect(spy).toHaveBeenCalledWith(issueUrl);
+        });
+      });
+
+      it('shows an error message when issue creation fails', () => {
+        mockAxios.onPost(defaultVulnerability.create_issue_url).reply(500);
+        findGlDeprecatedButton().vm.$emit('click');
+        return waitForPromises().then(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          expect(createFlash).toHaveBeenCalledWith(
+            'Something went wrong, could not create an issue.',
+          );
+        });
       });
     });
 
-    it('shows an error message when issue creation fails', () => {
-      mockAxios.onPost(dataset.createIssueUrl).reply(500);
-      findCreateIssueButton().vm.$emit('click');
-      return waitForPromises().then(() => {
-        expect(mockAxios.history.post).toHaveLength(1);
-        expect(createFlash).toHaveBeenCalledWith(
-          'Something went wrong, could not create an issue.',
-        );
+    describe('create merge request', () => {
+      beforeEach(() => {
+        createWrapper({
+          ...getVulnerability({ shouldShowMergeRequestButton: true }),
+          state: 'resolved',
+        });
+      });
+
+      it('only renders the create merge request button', () => {
+        expect(findGlDeprecatedButton().exists()).toBe(true);
+        expect(findGlDeprecatedButton().text()).toBe('Resolve with merge request');
+      });
+
+      it('emits createMergeRequest when create merge request button is clicked', () => {
+        const mergeRequestPath = '/group/project/merge_request/123';
+        const spy = jest.spyOn(urlUtility, 'redirectTo');
+        mockAxios.onPost(defaultVulnerability.create_mr_url).reply(200, {
+          merge_request_path: mergeRequestPath,
+        });
+        findGlDeprecatedButton().vm.$emit('click');
+        return waitForPromises().then(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          const [postRequest] = mockAxios.history.post;
+          expect(postRequest.url).toBe(defaultVulnerability.create_mr_url);
+          expect(JSON.parse(postRequest.data)).toMatchObject({
+            vulnerability_feedback: {
+              feedback_type: FEEDBACK_TYPES.MERGE_REQUEST,
+              category: defaultVulnerability.report_type,
+              project_fingerprint: defaultVulnerability.project_fingerprint,
+              vulnerability_data: {
+                ...getVulnerability({ shouldShowMergeRequestButton: true }),
+                category: defaultVulnerability.report_type,
+                state: 'resolved',
+              },
+            },
+          });
+          expect(spy).toHaveBeenCalledWith(mergeRequestPath);
+        });
+      });
+
+      it('shows an error message when merge request creation fails', () => {
+        mockAxios.onPost(defaultVulnerability.create_mr_url).reply(500);
+        findGlDeprecatedButton().vm.$emit('click');
+        return waitForPromises().then(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          expect(createFlash).toHaveBeenCalledWith(
+            'There was an error creating the merge request. Please try again.',
+          );
+        });
+      });
+    });
+
+    describe('can download patch', () => {
+      beforeEach(() => {
+        createWrapper({
+          ...getVulnerability({ shouldShowMergeRequestButton: true }),
+          create_mr_url: '',
+        });
+      });
+
+      it('only renders the download patch button', () => {
+        expect(findGlDeprecatedButton().exists()).toBe(true);
+        expect(findGlDeprecatedButton().text()).toBe('Download patch to resolve');
+      });
+
+      it('emits downloadPatch when download patch button is clicked', () => {
+        const glDeprecatedButton = findGlDeprecatedButton();
+        glDeprecatedButton.vm.$emit('click');
+        return wrapper.vm.$nextTick().then(() => {
+          expect(download).toHaveBeenCalledWith({ fileData: diff, fileName: `remediation.patch` });
+        });
       });
     });
   });
@@ -216,7 +314,8 @@ describe('Vulnerability Header', () => {
       const user = createRandomUser();
       const vulnerability = {
         ...defaultVulnerability,
-        ...{ state: 'confirmed', confirmed_by_id: user.id },
+        state: 'confirmed',
+        confirmed_by_id: user.id,
       };
 
       createWrapper(vulnerability);
@@ -225,7 +324,6 @@ describe('Vulnerability Header', () => {
         expect(findStatusDescription().exists()).toBe(true);
         expect(findStatusDescription().props()).toEqual({
           vulnerability,
-          pipeline: dataset.pipeline,
           user,
           isLoadingVulnerability: wrapper.vm.isLoadingVulnerability,
           isLoadingUser: wrapper.vm.isLoadingUser,
@@ -256,19 +354,12 @@ describe('Vulnerability Header', () => {
       expect(alert.props().defaultBranchName).toEqual(branchName);
     });
 
-    describe('when the vulnerability is already resolved', () => {
-      beforeEach(() => {
-        createWrapper({
-          resolved_on_default_branch: true,
-          state: 'resolved',
-        });
-      });
+    it('the resolution alert component should not be shown if when the vulnerability is already resolved', async () => {
+      wrapper.vm.vulnerability.state = 'resolved';
+      await wrapper.vm.$nextTick();
+      const alert = findResolutionAlert();
 
-      it('should not show the resolution alert component', () => {
-        const alert = findResolutionAlert();
-
-        expect(alert.exists()).toBe(false);
-      });
+      expect(alert.exists()).toBe(false);
     });
   });
 
@@ -316,6 +407,47 @@ describe('Vulnerability Header', () => {
         expect(mockAxios.history.get).toHaveLength(1);
         expect(findStatusDescription().props('isLoadingUser')).toBe(false);
       });
+    });
+  });
+
+  describe('when vulnerability state is changed', () => {
+    it('refreshes the vulnerability', async () => {
+      const url = Api.buildUrl(Api.vulnerabilityPath).replace(':id', defaultVulnerability.id);
+      const vulnerability = { state: 'dismissed' };
+      mockAxios.onGet(url).replyOnce(200, vulnerability);
+      createWrapper();
+      VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGED');
+      await waitForPromises();
+
+      expect(findBadge().text()).toBe(vulnerability.state);
+      expect(findStatusDescription().props('vulnerability')).toMatchObject(vulnerability);
+    });
+
+    it('shows an error message when the vulnerability cannot be loaded', async () => {
+      mockAxios.onGet().replyOnce(500);
+      createWrapper();
+      VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGED');
+      await waitForPromises();
+
+      expect(createFlash).toHaveBeenCalledTimes(1);
+      expect(mockAxios.history.get).toHaveLength(1);
+    });
+
+    it('cancels a pending refresh request if the vulnerability state has changed', async () => {
+      mockAxios.onGet().reply(200);
+      createWrapper();
+      VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGED');
+
+      const source = wrapper.vm.refreshVulnerabilitySource;
+      const spy = jest.spyOn(source, 'cancel');
+
+      VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGED');
+      await waitForPromises();
+
+      expect(createFlash).toHaveBeenCalledTimes(0);
+      expect(mockAxios.history.get).toHaveLength(1);
+      expect(spy).toHaveBeenCalled();
+      expect(wrapper.vm.refreshVulnerabilitySource).not.toBe(source); // Check that the source has changed.
     });
   });
 });

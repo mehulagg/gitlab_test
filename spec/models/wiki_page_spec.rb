@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe WikiPage do
+RSpec.describe WikiPage do
   let_it_be(:user) { create(:user) }
   let(:container) { create(:project, :wiki_repo) }
   let(:wiki) { Wiki.for_container(container, user) }
@@ -16,10 +16,7 @@ describe WikiPage do
   end
 
   def enable_front_matter_for(thing)
-    stub_feature_flags(Gitlab::WikiPages::FrontMatterParser::FEATURE_FLAG => {
-      thing: thing,
-      enabled: true
-    })
+    stub_feature_flags(Gitlab::WikiPages::FrontMatterParser::FEATURE_FLAG => thing)
   end
 
   describe '.group_by_directory' do
@@ -654,6 +651,7 @@ describe WikiPage do
 
     let(:untitled_page) { described_class.new(wiki) }
     let(:directory_page) { create(:wiki_page, title: 'parent directory/child page') }
+    let(:page_with_special_characters) { create(:wiki_page, title: 'test+page') }
 
     where(:page, :title, :changed) do
       :untitled_page  | nil                             | false
@@ -661,6 +659,8 @@ describe WikiPage do
 
       :new_page       | nil                             | true
       :new_page       | 'test page'                     | true
+      :new_page       | 'test-page'                     | true
+      :new_page       | 'test+page'                     | true
       :new_page       | 'new title'                     | true
 
       :existing_page  | nil                             | false
@@ -668,6 +668,7 @@ describe WikiPage do
       :existing_page  | 'test-page'                     | false
       :existing_page  | '/test page'                    | false
       :existing_page  | '/test-page'                    | false
+      :existing_page  | 'test+page'                     | true
       :existing_page  | ' test page '                   | true
       :existing_page  | 'new title'                     | true
       :existing_page  | 'new-title'                     | true
@@ -684,6 +685,11 @@ describe WikiPage do
       :directory_page | 'parent-directory / child-page' | true
       :directory_page | 'other directory/child page'    | true
       :directory_page | 'other-directory/child page'    | true
+
+      :page_with_special_characters | nil               | false
+      :page_with_special_characters | 'test+page'       | false
+      :page_with_special_characters | 'test-page'       | true
+      :page_with_special_characters | 'test page'       | true
     end
 
     with_them do
@@ -775,7 +781,7 @@ describe WikiPage do
 
   describe '#to_partial_path' do
     it 'returns the relative path to the partial to be used' do
-      expect(subject.to_partial_path).to eq('projects/wikis/wiki_page')
+      expect(subject.to_partial_path).to eq('../shared/wikis/wiki_page')
     end
   end
 
@@ -841,6 +847,38 @@ describe WikiPage do
       subject.attributes[:content] = 'test![WikiPage_Image](/uploads/abc/WikiPage_Image.png)'
 
       expect(subject.hook_attrs['content']).to eq("test![WikiPage_Image](#{Settings.gitlab.url}/uploads/abc/WikiPage_Image.png)")
+    end
+  end
+
+  describe '#version_commit_timestamp' do
+    context 'for a new page' do
+      it 'returns nil' do
+        expect(new_page.version_commit_timestamp).to be_nil
+      end
+    end
+
+    context 'for page that exists' do
+      it 'returns the timestamp of the commit' do
+        expect(existing_page.version_commit_timestamp).to eq(existing_page.version.commit.committed_date)
+      end
+    end
+  end
+
+  describe '#diffs' do
+    subject { existing_page }
+
+    it 'returns a diff instance' do
+      diffs = subject.diffs(foo: 'bar')
+
+      expect(diffs).to be_a(Gitlab::Diff::FileCollection::WikiPage)
+      expect(diffs.diffable).to be_a(Commit)
+      expect(diffs.diffable.id).to eq(subject.version.id)
+      expect(diffs.project).to be(subject.wiki)
+      expect(diffs.diff_options).to include(
+        expanded: true,
+        paths: [subject.path],
+        foo: 'bar'
+      )
     end
   end
 

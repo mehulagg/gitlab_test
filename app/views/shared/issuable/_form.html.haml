@@ -31,11 +31,11 @@
         = form.label :confidential, class: 'form-check-label' do
           This issue is confidential and should only be visible to team members with at least Reporter access.
 
-= render 'shared/issuable/form/metadata', issuable: issuable, form: form
+= render 'shared/issuable/form/metadata', issuable: issuable, form: form, project: project
 
 = render_if_exists 'shared/issuable/approvals', issuable: issuable, presenter: presenter, form: form
 
-= render 'shared/issuable/form/merge_params', issuable: issuable
+= render 'shared/issuable/form/merge_params', issuable: issuable, project: project
 
 = render 'shared/issuable/form/contribution', issuable: issuable, form: form
 

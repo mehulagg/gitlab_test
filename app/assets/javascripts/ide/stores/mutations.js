@@ -29,16 +29,6 @@ export default {
       });
     }
   },
-  [types.SET_LEFT_PANEL_COLLAPSED](state, collapsed) {
-    Object.assign(state, {
-      leftPanelCollapsed: collapsed,
-    });
-  },
-  [types.SET_RIGHT_PANEL_COLLAPSED](state, collapsed) {
-    Object.assign(state, {
-      rightPanelCollapsed: collapsed,
-    });
-  },
   [types.SET_RESIZING_STATUS](state, resizing) {
     Object.assign(state, {
       panelResizing: resizing,
@@ -75,13 +65,9 @@ export default {
 
       // NOTE: We can't clone `entry` in any of the below assignments because
       // we need `state.entries` and the `entry.tree` to reference the same object.
-      if (!foundEntry) {
+      if (!foundEntry || foundEntry.deleted) {
         Object.assign(state.entries, {
           [key]: entry,
-        });
-      } else if (foundEntry.deleted) {
-        Object.assign(state.entries, {
-          [key]: Object.assign(entry, { replaces: true }),
         });
       } else {
         const tree = entry.tree.filter(
@@ -157,7 +143,6 @@ export default {
       raw: file.content,
       changed: Boolean(changedFile),
       staged: false,
-      replaces: false,
       lastCommitSha: lastCommit.commit.id,
 
       prevId: undefined,
@@ -174,9 +159,6 @@ export default {
 
       Object.assign(state.entries[file.path], {
         rawPath: file.rawPath.replace(regex, file.path),
-        permalink: file.permalink.replace(regex, file.path),
-        commitsPath: file.commitsPath.replace(regex, file.path),
-        blamePath: file.blamePath.replace(regex, file.path),
       });
     }
   },
@@ -217,8 +199,6 @@ export default {
         state.changedFiles = state.changedFiles.concat(entry);
       }
     }
-
-    state.unusedSeal = false;
   },
   [types.RENAME_ENTRY](state, { path, name, parentPath }) {
     const oldEntry = state.entries[path];

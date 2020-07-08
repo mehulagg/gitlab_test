@@ -13,10 +13,34 @@ import sidebarTimeTrackingEventHub from '../../sidebar/event_hub';
 import { isInViewport, scrollToElement, isInMRPage } from '../../lib/utils/common_utils';
 import { mergeUrlParams } from '../../lib/utils/url_utility';
 import mrWidgetEventHub from '../../vue_merge_request_widget/event_hub';
+import updateIssueConfidentialMutation from '~/sidebar/components/confidential/queries/update_issue_confidential.mutation.graphql';
 import { __, sprintf } from '~/locale';
 import Api from '~/api';
 
 let eTagPoll;
+
+export const updateConfidentialityOnIssue = ({ commit, getters }, { confidential, fullPath }) => {
+  const { iid } = getters.getNoteableData;
+
+  return utils.gqClient
+    .mutate({
+      mutation: updateIssueConfidentialMutation,
+      variables: {
+        input: {
+          projectPath: fullPath,
+          iid: String(iid),
+          confidential,
+        },
+      },
+    })
+    .then(({ data }) => {
+      const {
+        issueSetConfidential: { issue },
+      } = data;
+
+      commit(types.SET_ISSUE_CONFIDENTIAL, issue.confidential);
+    });
+};
 
 export const expandDiscussion = ({ commit, dispatch }, data) => {
   if (data.discussionId) {
@@ -31,6 +55,8 @@ export const collapseDiscussion = ({ commit }, data) => commit(types.COLLAPSE_DI
 export const setNotesData = ({ commit }, data) => commit(types.SET_NOTES_DATA, data);
 
 export const setNoteableData = ({ commit }, data) => commit(types.SET_NOTEABLE_DATA, data);
+
+export const setConfidentiality = ({ commit }, data) => commit(types.SET_ISSUE_CONFIDENTIAL, data);
 
 export const setUserData = ({ commit }, data) => commit(types.SET_USER_DATA, data);
 
@@ -205,7 +231,6 @@ export const closeIssue = ({ commit, dispatch, state }) => {
     commit(types.CLOSE_ISSUE);
     dispatch('emitStateChangedEvent', data);
     dispatch('toggleStateButtonLoading', false);
-    dispatch('toggleBlockedIssueWarning', false);
   });
 };
 
@@ -524,11 +549,54 @@ export const submitSuggestion = (
       const defaultMessage = __(
         'Something went wrong while applying the suggestion. Please try again.',
       );
-      const flashMessage = err.response.data ? `${err.response.data.message}.` : defaultMessage;
+
+      const errorMessage = err.response.data?.message;
+
+      const flashMessage = errorMessage || defaultMessage;
 
       Flash(__(flashMessage), 'alert', flashContainer);
     });
 };
+
+export const submitSuggestionBatch = ({ commit, dispatch, state }, { flashContainer }) => {
+  const suggestionIds = state.batchSuggestionsInfo.map(({ suggestionId }) => suggestionId);
+
+  const applyAllSuggestions = () =>
+    state.batchSuggestionsInfo.map(suggestionInfo =>
+      commit(types.APPLY_SUGGESTION, suggestionInfo),
+    );
+
+  const resolveAllDiscussions = () =>
+    state.batchSuggestionsInfo.map(suggestionInfo => {
+      const { discussionId } = suggestionInfo;
+      return dispatch('resolveDiscussion', { discussionId }).catch(() => {});
+    });
+
+  commit(types.SET_APPLYING_BATCH_STATE, true);
+
+  return Api.applySuggestionBatch(suggestionIds)
+    .then(() => Promise.all(applyAllSuggestions()))
+    .then(() => Promise.all(resolveAllDiscussions()))
+    .then(() => commit(types.CLEAR_SUGGESTION_BATCH))
+    .catch(err => {
+      const defaultMessage = __(
+        'Something went wrong while applying the batch of suggestions. Please try again.',
+      );
+
+      const errorMessage = err.response.data?.message;
+
+      const flashMessage = errorMessage || defaultMessage;
+
+      Flash(__(flashMessage), 'alert', flashContainer);
+    })
+    .finally(() => commit(types.SET_APPLYING_BATCH_STATE, false));
+};
+
+export const addSuggestionInfoToBatch = ({ commit }, { suggestionId, noteId, discussionId }) =>
+  commit(types.ADD_SUGGESTION_TO_BATCH, { suggestionId, noteId, discussionId });
+
+export const removeSuggestionInfoFromBatch = ({ commit }, suggestionId) =>
+  commit(types.REMOVE_SUGGESTION_FROM_BATCH, suggestionId);
 
 export const convertToDiscussion = ({ commit }, noteId) =>
   commit(types.CONVERT_TO_DISCUSSION, noteId);
@@ -587,6 +655,10 @@ export const softDeleteDescriptionVersion = (
     .catch(error => {
       dispatch('receiveDeleteDescriptionVersionError', error);
       Flash(__('Something went wrong while deleting description changes. Please try again.'));
+
+      // Throw an error here because a component like SystemNote -
+      //  needs to know if the request failed to reset its internal state.
+      throw new Error();
     });
 };
 
@@ -598,6 +670,10 @@ export const receiveDeleteDescriptionVersion = ({ commit }, versionId) => {
 };
 export const receiveDeleteDescriptionVersionError = ({ commit }, error) => {
   commit(types.RECEIVE_DELETE_DESCRIPTION_VERSION_ERROR, error);
+};
+
+export const updateAssignees = ({ commit }, assignees) => {
+  commit(types.UPDATE_ASSIGNEES, assignees);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

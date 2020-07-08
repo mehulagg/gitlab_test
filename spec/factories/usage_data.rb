@@ -5,7 +5,8 @@ FactoryBot.define do
     skip_create # non-model factories (i.e. without #save)
 
     initialize_with do
-      projects = create_list(:project, 4)
+      projects = create_list(:project, 3)
+      projects << create(:project, :repository)
       create(:board, project: projects[0])
       create(:jira_service, project: projects[0])
       create(:jira_service, :without_properties_callback, project: projects[1])
@@ -28,17 +29,37 @@ FactoryBot.define do
       create(:project_error_tracking_setting, project: projects[1], enabled: false)
       create(:alerts_service, project: projects[0])
       create(:alerts_service, :inactive, project: projects[1])
-      create_list(:issue, 2, project: projects[0], author: User.alert_bot)
+      alert_bot_issues = create_list(:issue, 2, project: projects[0], author: User.alert_bot)
       create_list(:issue, 2, project: projects[1], author: User.alert_bot)
-      create_list(:issue, 4, project: projects[0])
-      create(:prometheus_alert, project: projects[0])
-      create(:prometheus_alert, project: projects[0])
+      issues = create_list(:issue, 4, project: projects[0])
+      create_list(:prometheus_alert, 2, project: projects[0])
       create(:prometheus_alert, project: projects[1])
+      create(:merge_request, :simple, :with_terraform_reports, source_project: projects[0])
+      create(:merge_request, :rebased, :with_terraform_reports, source_project: projects[0])
+      create(:merge_request, :simple, :with_terraform_reports, source_project: projects[1])
+      create(:terraform_state, project: projects[0])
+      create(:terraform_state, project: projects[0])
+      create(:terraform_state, project: projects[1])
       create(:zoom_meeting, project: projects[0], issue: projects[0].issues[0], issue_status: :added)
       create_list(:zoom_meeting, 2, project: projects[0], issue: projects[0].issues[1], issue_status: :removed)
       create(:zoom_meeting, project: projects[0], issue: projects[0].issues[2], issue_status: :added)
       create_list(:zoom_meeting, 2, project: projects[0], issue: projects[0].issues[2], issue_status: :removed)
       create(:sentry_issue, issue: projects[0].issues[0])
+
+      # Incident Labeled Issues
+      incident_label_attrs = IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES
+      incident_label = create(:label, project: projects[0], **incident_label_attrs)
+      create(:labeled_issue, project: projects[0], labels: [incident_label])
+      incident_group = create(:group)
+      incident_label_scoped_to_project = create(:label, project: projects[1], **incident_label_attrs)
+      incident_label_scoped_to_group = create(:group_label, group: incident_group, **incident_label_attrs)
+      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_project])
+      create(:labeled_issue, project: projects[1], labels: [incident_label_scoped_to_group])
+
+      # Alert Issues
+      create(:alert_management_alert, issue: issues[0], project: projects[0])
+      create(:alert_management_alert, issue: alert_bot_issues[0], project: projects[0])
+      create(:self_managed_prometheus_alert_event, related_issues: [issues[1]], project: projects[0])
 
       # Enabled clusters
       gcp_cluster = create(:cluster_provider_gcp, :created).cluster
@@ -69,6 +90,16 @@ FactoryBot.define do
       create(:grafana_integration, project: projects[2], enabled: false)
 
       ProjectFeature.first.update_attribute('repository_access_level', 0)
+
+      # Create fresh & a month (28-days SMAU) old  data
+      env = create(:environment, project: projects[3])
+      [2, 29].each do |n|
+        deployment_options = { created_at: n.days.ago, project: env.project, environment: env }
+        create(:deployment, :failed, deployment_options)
+        create(:deployment, :success, deployment_options)
+        create_list(:project_snippet, 2, project: projects[0], created_at: n.days.ago)
+        create(:personal_snippet, created_at: n.days.ago)
+      end
     end
   end
 end

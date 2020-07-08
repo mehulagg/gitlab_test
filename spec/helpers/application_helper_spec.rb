@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ApplicationHelper do
+RSpec.describe ApplicationHelper do
   describe 'current_controller?' do
     before do
       stub_controller_name('foo')
@@ -68,6 +68,28 @@ describe ApplicationHelper do
 
     def stub_action_name(value)
       allow(helper).to receive(:action_name).and_return(value)
+    end
+  end
+
+  describe '#admin_section?' do
+    context 'when controller is under the admin namespace' do
+      before do
+        allow(helper).to receive(:controller).and_return(Admin::UsersController.new)
+      end
+
+      it 'returns true' do
+        expect(helper.admin_section?).to eq(true)
+      end
+    end
+
+    context 'when controller is not under the admin namespace' do
+      before do
+        allow(helper).to receive(:controller).and_return(UsersController.new)
+      end
+
+      it 'returns true' do
+        expect(helper.admin_section?).to eq(false)
+      end
     end
   end
 
@@ -187,6 +209,16 @@ describe ApplicationHelper do
     end
   end
 
+  describe '#page_startup_api_calls' do
+    it 'returns map containing JS Page Startup Calls' do
+      helper.add_page_startup_api_call("testURL")
+
+      startup_calls = helper.page_startup_api_calls
+
+      expect(startup_calls["testURL"]).to eq({})
+    end
+  end
+
   describe '#autocomplete_data_sources' do
     let(:project) { create(:project) }
     let(:noteable_type) { Issue }
@@ -256,7 +288,7 @@ describe ApplicationHelper do
             page: 'application',
             page_type_id: nil,
             find_file: nil,
-            group: ''
+            group: nil
           }
         )
       end
@@ -295,12 +327,31 @@ describe ApplicationHelper do
             page: 'application',
             page_type_id: nil,
             find_file: nil,
-            group: '',
+            group: nil,
             project_id: project.id,
             project: project.name,
             namespace_id: project.namespace.id
           }
         )
+      end
+
+      context 'when @project is owned by a group' do
+        let_it_be(:project) { create(:project, :repository, group: create(:group)) }
+
+        it 'includes all possible body data elements and associates the project elements with project' do
+          expect(helper).to receive(:can?).with(nil, :download_code, project)
+          expect(helper.body_data).to eq(
+            {
+              page: 'application',
+              page_type_id: nil,
+              find_file: nil,
+              group: project.group.name,
+              project_id: project.id,
+              project: project.name,
+              namespace_id: project.namespace.id
+            }
+          )
+        end
       end
 
       context 'when controller is issues' do
@@ -320,7 +371,7 @@ describe ApplicationHelper do
                 page: 'projects:issues:show',
                 page_type_id: issue.id,
                 find_file: nil,
-                group: '',
+                group: nil,
                 project_id: issue.project.id,
                 project: issue.project.name,
                 namespace_id: issue.project.namespace.id

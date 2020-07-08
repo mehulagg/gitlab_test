@@ -27,7 +27,7 @@ module NavHelper
       end
     elsif current_path?('jobs#show')
       %w[page-gutter build-sidebar right-sidebar-expanded]
-    elsif current_controller?('wikis') && current_action?('show', 'create', 'edit', 'update', 'history', 'git_access', 'destroy')
+    elsif current_controller?('wikis') && current_action?('show', 'create', 'edit', 'update', 'history', 'git_access', 'destroy', 'diff')
       %w[page-gutter wiki-sidebar right-sidebar-expanded]
     else
       []
@@ -54,11 +54,12 @@ module NavHelper
     current_path?('merge_requests#show') ||
       current_path?('projects/merge_requests/conflicts#show') ||
       current_path?('issues#show') ||
-      current_path?('milestones#show')
+      current_path?('milestones#show') ||
+      current_path?('issues#designs')
   end
 
   def admin_monitoring_nav_links
-    %w(system_info background_jobs logs health_check requests_profiles)
+    %w(system_info background_jobs health_check requests_profiles)
   end
 
   def group_issues_sub_menu_items

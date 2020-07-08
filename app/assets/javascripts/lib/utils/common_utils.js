@@ -31,7 +31,7 @@ export const getProjectSlug = () => {
 };
 
 export const getGroupSlug = () => {
-  if (isInGroupsPage()) {
+  if (isInProjectPage() || isInGroupsPage()) {
     return $('body').data('group');
   }
   return null;
@@ -105,6 +105,7 @@ export const handleLocationHash = () => {
   const topPadding = 8;
   const diffFileHeader = document.querySelector('.js-file-title');
   const versionMenusContainer = document.querySelector('.mr-version-menus-container');
+  const fixedIssuableTitle = document.querySelector('.issue-sticky-header');
 
   let adjustment = 0;
   if (fixedNav) adjustment -= fixedNav.offsetHeight;
@@ -131,6 +132,10 @@ export const handleLocationHash = () => {
 
   if (versionMenusContainer) {
     adjustment -= versionMenusContainer.offsetHeight;
+  }
+
+  if (isInIssuePage()) {
+    adjustment -= fixedIssuableTitle.offsetHeight;
   }
 
   if (isInMRPage()) {
@@ -244,20 +249,26 @@ export const contentTop = () => {
   );
 };
 
-export const scrollToElement = element => {
+export const scrollToElement = (element, options = {}) => {
   let $el = element;
   if (!(element instanceof $)) {
     $el = $(element);
   }
   const { top } = $el.offset();
+  const { offset = 0 } = options;
 
   // eslint-disable-next-line no-jquery/no-animate
   return $('body, html').animate(
     {
-      scrollTop: top - contentTop(),
+      scrollTop: top - contentTop() + offset,
     },
     200,
   );
+};
+
+export const scrollToElementWithContext = element => {
+  const offsetMultiplier = -0.1;
+  return scrollToElement(element, { offset: window.innerHeight * offsetMultiplier });
 };
 
 /**
@@ -718,6 +729,8 @@ export const convertObjectProps = (conversionFunction, obj = {}, options = {}) =
       } else {
         acc[conversionFunction(prop)] = convertObjectProps(conversionFunction, val, options);
       }
+    } else if (isObjParameterArray) {
+      acc[prop] = val;
     } else {
       acc[conversionFunction(prop)] = val;
     }

@@ -1,5 +1,12 @@
 # Pipelines API
 
+## Pipelines pagination
+
+By default, `GET` requests return 20 results at a time because the API results
+are paginated.
+
+Read more on [pagination](README.md#pagination).
+
 ## List project pipelines
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/5837) in GitLab 8.11
@@ -135,7 +142,7 @@ Example of response
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/202525) in GitLab 13.0.
 
 CAUTION: **Caution:**
-This API route is part of the [JUnit test report](../ci/junit_test_reports.md) feature. It is protected by a [feature flag](../development/feature_flags/index.md) that is **disabled** due to performance issues with very large data sets. See [the documentation for the feature](../ci/junit_test_reports.md#enabling-the-feature) for further details.
+This API route is part of the [JUnit test report](../ci/junit_test_reports.md) feature. It is protected by a [feature flag](../development/feature_flags/index.md) that is **disabled** due to performance issues with very large data sets.
 
 ```plaintext
 GET /projects/:id/pipelines/:pipeline_id/test_report

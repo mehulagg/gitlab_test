@@ -5,38 +5,6 @@ GitLab offline, others do require a downtime period. This guide describes
 various operations, their impact, and how to perform them without requiring
 downtime.
 
-## Adding Columns
-
-You can safely add a new column to an existing table as long as it does **not**
-have a default value. For example, this query would not require downtime:
-
-```sql
-ALTER TABLE projects ADD COLUMN random_value int;
-```
-
-Add a column _with_ a default however does require downtime. For example,
-consider this query:
-
-```sql
-ALTER TABLE projects ADD COLUMN random_value int DEFAULT 42;
-```
-
-This requires updating every single row in the `projects` table so that
-`random_value` is set to `42` by default. This requires updating all rows and
-indexes in a table. This in turn acquires enough locks on the table for it to
-effectively block any other queries.
-
-Adding a column with a default value _can_ be done without requiring downtime
-when using the migration helper method
-`Gitlab::Database::MigrationHelpers#add_column_with_default`. This method works
-similar to `add_column` except it updates existing rows in batches without
-blocking access to the table being modified. See ["Adding Columns With Default
-Values"](migration_style_guide.md#adding-columns-with-default-values) for more
-information on how to use this method.
-
-Note that usage of `add_column_with_default` with `allow_null: false` to also add
-a `NOT NULL` constraint is [discouraged](https://gitlab.com/gitlab-org/gitlab/issues/38060).
-
 ## Dropping Columns
 
 Removing columns is tricky because running GitLab processes may still be using
@@ -162,12 +130,12 @@ class CleanupUsersUpdatedAtRename < ActiveRecord::Migration[4.2]
 end
 ```
 
-NOTE: **Note:** If you're renaming a [large table](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/migration_helpers.rb#L9), please carefully consider the state when the first migration has run but the second cleanup migration hasn't been run yet.
+NOTE: **Note:** If you're renaming a [large table](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/rubocop-migrations.yml#L3), please carefully consider the state when the first migration has run but the second cleanup migration hasn't been run yet.
 With [Canary](https://about.gitlab.com/handbook/engineering/infrastructure/library/canary/) it is possible that the system runs in this state for a significant amount of time.
 
 ## Changing Column Constraints
 
-Adding or removing a NOT NULL clause (or another constraint) can typically be
+Adding or removing a `NOT NULL` clause (or another constraint) can typically be
 done without requiring downtime. However, this does require that any application
 changes are deployed _first_. Thus, changing the constraints of a column should
 happen in a post-deployment migration.
@@ -175,35 +143,11 @@ happen in a post-deployment migration.
 NOTE: Avoid using `change_column` as it produces an inefficient query because it re-defines
 the whole column type.
 
-To add a NOT NULL constraint, use the `add_not_null_constraint` migration helper:
+You can check the following guides for each specific use case:
 
-```ruby
-# A post-deployment migration in db/post_migrate
-class AddNotNull < ActiveRecord::Migration[4.2]
-  include Gitlab::Database::MigrationHelpers
-
-  disable_ddl_transaction!
-
-  def up
-    add_not_null_constraint :users, :username
-  end
-
-  def down
-    remove_not_null_constraint :users, :username
-  end
-end
-```
-
-If the column to be updated requires cleaning first (e.g. there are `NULL` values), you should:
-
-1. Add the `NOT NULL` constraint with `validate: false`
-
-   `add_not_null_constraint :users, :username, validate: false`
-
-1. Clean up the data with a data migration
-1. Validate the `NOT NULL` constraint with a followup migration
-
-   `validate_not_null_constraint :users, :username`
+- [Adding foreign-key constraints](migration_style_guide.md#adding-foreign-key-constraints)
+- [Adding `NOT NULL` constraints](database/not_null_constraints.md)
+- [Adding limits to text columns](database/strings_and_the_text_data_type.md)
 
 ## Changing Column Types
 
@@ -257,6 +201,21 @@ end
 ```
 
 And that's it, we're done!
+
+### Casting data to a new type
+
+Some type changes require casting data to a new type. For example when changing from `text` to `jsonb`.
+In this case, use the `type_cast_function` option.
+Make sure there is no bad data and the cast will always succeed. You can also provide a custom function that handles
+casting errors.
+
+Example migration:
+
+```ruby
+  def up
+    change_column_type_concurrently :users, :settings, :jsonb, type_cast_function: 'jsonb'
+  end
+```
 
 ## Changing The Schema For Large Tables
 
@@ -373,30 +332,11 @@ migrations](background_migrations.md#cleaning-up).
 
 ## Adding Indexes
 
-Adding indexes is an expensive process that blocks INSERT and UPDATE queries for
-the duration. You can work around this by using the `CONCURRENTLY` option:
+Adding indexes does not require downtime when `add_concurrent_index`
+is used.
 
-```sql
-CREATE INDEX CONCURRENTLY index_name ON projects (column_name);
-```
-
-Migrations can take advantage of this by using the method
-`add_concurrent_index`. For example:
-
-```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
-  def up
-    add_concurrent_index :projects, :column_name
-  end
-
-  def down
-    remove_index(:projects, :column_name) if index_exists?(:projects, :column_name)
-  end
-end
-```
-
-Note that `add_concurrent_index` can not be reversed automatically, thus you
-need to manually define `up` and `down`.
+See also [Migration Style Guide](migration_style_guide.md#adding-indexes)
+for more information.
 
 ## Dropping Indexes
 

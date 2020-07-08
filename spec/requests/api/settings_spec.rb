@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::Settings, 'Settings' do
+RSpec.describe API::Settings, 'Settings' do
   let(:user) { create(:user) }
 
   let_it_be(:admin) { create(:admin) }
@@ -38,6 +38,8 @@ describe API::Settings, 'Settings' do
       expect(json_response).not_to have_key('performance_bar_allowed_group_path')
       expect(json_response).not_to have_key('performance_bar_enabled')
       expect(json_response['snippet_size_limit']).to eq(50.megabytes)
+      expect(json_response['spam_check_endpoint_enabled']).to be_falsey
+      expect(json_response['spam_check_endpoint_url']).to be_nil
     end
   end
 
@@ -50,7 +52,7 @@ describe API::Settings, 'Settings' do
         storages = Gitlab.config.repositories.storages
                      .merge({ 'custom' => 'tmp/tests/custom_repositories' })
         allow(Gitlab.config.repositories).to receive(:storages).and_return(storages)
-        Feature.get(:sourcegraph).enable
+        stub_feature_flags(sourcegraph: true)
       end
 
       it "updates application settings" do
@@ -60,14 +62,14 @@ describe API::Settings, 'Settings' do
             default_projects_limit: 3,
             default_project_creation: 2,
             password_authentication_enabled_for_web: false,
-            repository_storages: ['custom'],
+            repository_storages: 'custom',
             plantuml_enabled: true,
             plantuml_url: 'http://plantuml.example.com',
             sourcegraph_enabled: true,
             sourcegraph_url: 'https://sourcegraph.com',
             sourcegraph_public_only: false,
             default_snippet_visibility: 'internal',
-            restricted_visibility_levels: ['public'],
+            restricted_visibility_levels: 'public',
             default_artifacts_expire_in: '2 days',
             help_page_text: 'custom help text',
             help_page_hide_commercial_content: true,
@@ -90,7 +92,11 @@ describe API::Settings, 'Settings' do
             push_event_activities_limit: 2,
             snippet_size_limit: 5,
             issues_create_limit: 300,
-            raw_blob_request_limit: 300
+            raw_blob_request_limit: 300,
+            spam_check_endpoint_enabled: true,
+            spam_check_endpoint_url: 'https://example.com/spam_check',
+            disabled_oauth_sign_in_sources: 'unknown',
+            import_sources: 'github,bitbucket'
           }
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -129,6 +135,10 @@ describe API::Settings, 'Settings' do
         expect(json_response['snippet_size_limit']).to eq(5)
         expect(json_response['issues_create_limit']).to eq(300)
         expect(json_response['raw_blob_request_limit']).to eq(300)
+        expect(json_response['spam_check_endpoint_enabled']).to be_truthy
+        expect(json_response['spam_check_endpoint_url']).to eq('https://example.com/spam_check')
+        expect(json_response['disabled_oauth_sign_in_sources']).to eq([])
+        expect(json_response['import_sources']).to match_array(%w(github bitbucket))
       end
     end
 
@@ -157,6 +167,14 @@ describe API::Settings, 'Settings' do
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['allow_local_requests_from_hooks_and_services']).to eq(true)
+    end
+
+    it 'disables ability to switch to legacy storage' do
+      put api("/application/settings", admin),
+          params: { hashed_storage_enabled: false }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['hashed_storage_enabled']).to eq(true)
     end
 
     context 'external policy classification settings' do
@@ -380,6 +398,15 @@ describe API::Settings, 'Settings' do
 
         expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response['error']).to eq('sourcegraph_url is missing')
+      end
+    end
+
+    context "missing spam_check_endpoint_url value when spam_check_endpoint_enabled is true" do
+      it "returns a blank parameter error message" do
+        put api("/application/settings", admin), params: { spam_check_endpoint_enabled: true }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to eq('spam_check_endpoint_url is missing')
       end
     end
   end

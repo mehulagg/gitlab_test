@@ -43,11 +43,16 @@ class ReleasePresenter < Gitlab::View::Presenter::Delegated
     edit_project_release_url(project, release)
   end
 
-  def evidence_file_path
-    evidence = release.evidences.first
-    return unless evidence
+  def assets_count
+    if can_download_code?
+      release.assets_count
+    else
+      release.assets_count(except: [:sources])
+    end
+  end
 
-    project_evidence_url(project, release, evidence, format: :json)
+  def name
+    can_download_code? ? release.name : "Release-#{release.id}"
   end
 
   private

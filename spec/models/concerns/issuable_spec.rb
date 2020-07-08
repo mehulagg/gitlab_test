@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Issuable do
+RSpec.describe Issuable do
   include ProjectForksHelper
 
   let(:issuable_class) { Issue }
@@ -99,6 +99,22 @@ describe Issuable do
 
       expect(issuable.state).to eq('merged')
       expect(issuable.state_id).to eq(described_class::STATE_ID_MAP['merged'])
+    end
+  end
+
+  describe '.any_label' do
+    let_it_be(:issue_with_label) { create(:labeled_issue, labels: [create(:label)]) }
+    let_it_be(:issue_with_multiple_labels) { create(:labeled_issue, labels: [create(:label), create(:label)]) }
+    let_it_be(:issue_without_label) { create(:issue) }
+
+    it 'returns an issuable with at least one label' do
+      expect(issuable_class.any_label).to match_array([issue_with_label, issue_with_multiple_labels])
+    end
+
+    context 'for custom sorting' do
+      it 'returns an issuable with at least one label' do
+        expect(issuable_class.any_label('created_at')).to eq([issue_with_label, issue_with_multiple_labels])
+      end
     end
   end
 
@@ -400,6 +416,27 @@ describe Issuable do
   describe '#to_hook_data' do
     let(:builder) { double }
 
+    context 'when old_associations is empty' do
+      let(:label) { create(:label) }
+
+      before do
+        issue.update!(labels: [label])
+        issue.assignees << user
+        issue.spend_time(duration: 2, user_id: user.id, spent_at: Time.current)
+        expect(Gitlab::HookData::IssuableBuilder)
+          .to receive(:new).with(issue).and_return(builder)
+      end
+
+      it 'delegates to Gitlab::HookData::IssuableBuilder#build and does not set labels, assignees, nor total_time_spent' do
+        expect(builder).to receive(:build).with(
+          user: user,
+          changes: {})
+
+        # In some cases, old_associations is empty, e.g. on a close event
+        issue.to_hook_data(user)
+      end
+    end
+
     context 'labels are updated' do
       let(:labels) { create_list(:label, 2) }
 
@@ -422,7 +459,7 @@ describe Issuable do
 
     context 'total_time_spent is updated' do
       before do
-        issue.spend_time(duration: 2, user_id: user.id, spent_at: Time.now)
+        issue.spend_time(duration: 2, user_id: user.id, spent_at: Time.current)
         issue.save
         expect(Gitlab::HookData::IssuableBuilder)
           .to receive(:new).with(issue).and_return(builder)
@@ -572,8 +609,8 @@ describe Issuable do
       second_priority = create(:label, project: project, priority: 2)
       no_priority = create(:label, project: project)
 
-      first_milestone = create(:milestone, project: project, due_date: Time.now)
-      second_milestone = create(:milestone, project: project, due_date: Time.now + 1.month)
+      first_milestone = create(:milestone, project: project, due_date: Time.current)
+      second_milestone = create(:milestone, project: project, due_date: Time.current + 1.month)
       third_milestone = create(:milestone, project: project)
 
       # The issues here are ordered by label priority, to ensure that we don't

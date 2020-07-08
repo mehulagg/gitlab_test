@@ -5,12 +5,17 @@ import {
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
   ROLLOUT_STRATEGY_USER_ID,
+  ROLLOUT_STRATEGY_GITLAB_USER_LIST,
 } from 'ee/feature_flags/constants';
 import Strategy from 'ee/feature_flags/components/strategy.vue';
 import NewEnvironmentsDropdown from 'ee/feature_flags/components/new_environments_dropdown.vue';
 
+import { userList } from '../mock_data';
+
 describe('Feature flags strategy', () => {
   let wrapper;
+
+  const findStrategy = () => wrapper.find('[data-testid="strategy"]');
 
   const factory = (
     opts = {
@@ -18,7 +23,7 @@ describe('Feature flags strategy', () => {
         strategy: {},
         index: 0,
         endpoint: '',
-        canDelete: true,
+        userLists: [userList],
       },
     },
   ) => {
@@ -37,11 +42,11 @@ describe('Feature flags strategy', () => {
   });
 
   describe.each`
-    name                                | parameter       | value    | input
-    ${ROLLOUT_STRATEGY_ALL_USERS}       | ${null}         | ${null}  | ${null}
-    ${ROLLOUT_STRATEGY_PERCENT_ROLLOUT} | ${'percentage'} | ${'50'}  | ${GlFormInput}
-    ${ROLLOUT_STRATEGY_USER_ID}         | ${'userIds'}    | ${'1,2'} | ${GlFormTextarea}
-  `('with strategy $name', ({ name, parameter, value, input }) => {
+    name                                | parameter       | value    | newValue   | input
+    ${ROLLOUT_STRATEGY_ALL_USERS}       | ${null}         | ${null}  | ${null}    | ${null}
+    ${ROLLOUT_STRATEGY_PERCENT_ROLLOUT} | ${'percentage'} | ${'50'}  | ${'20'}    | ${GlFormInput}
+    ${ROLLOUT_STRATEGY_USER_ID}         | ${'userIds'}    | ${'1,2'} | ${'1,2,3'} | ${GlFormTextarea}
+  `('with strategy $name', ({ name, parameter, value, newValue, input }) => {
     let propsData;
     let strategy;
     beforeEach(() => {
@@ -50,33 +55,80 @@ describe('Feature flags strategy', () => {
         parameters[parameter] = value;
       }
       strategy = { name, parameters };
-      propsData = { strategy, index: 0, endpoint: '', canDelete: true };
+      propsData = { strategy, index: 0, endpoint: '' };
       factory({ propsData });
     });
 
     it('should set the select to match the strategy name', () => {
       expect(wrapper.find(GlFormSelect).attributes('value')).toBe(name);
     });
-    it('should not show inputs for other paramters', () => {
-      [GlFormTextarea, GlFormInput]
+
+    it('should not show inputs for other parameters', () => {
+      [GlFormTextarea, GlFormInput, GlFormSelect]
         .filter(component => component !== input)
-        .map(component => wrapper.findAll(component))
+        .map(component => findStrategy().findAll(component))
         .forEach(inputWrapper => expect(inputWrapper).toHaveLength(0));
     });
+
     if (parameter !== null) {
       it(`should show the input for ${parameter} with the correct value`, () => {
-        const inputWrapper = wrapper.find(input);
+        const inputWrapper = findStrategy().find(input);
         expect(inputWrapper.exists()).toBe(true);
         expect(inputWrapper.attributes('value')).toBe(value);
       });
+
       it(`should emit a change event when altering ${parameter}`, () => {
-        const inputWrapper = wrapper.find(input);
-        inputWrapper.vm.$emit('input', '');
+        const inputWrapper = findStrategy().find(input);
+        inputWrapper.vm.$emit('input', newValue);
         expect(wrapper.emitted('change')).toEqual([
-          [{ name, parameters: expect.objectContaining({ [parameter]: '' }), scopes: [] }],
+          [{ name, parameters: expect.objectContaining({ [parameter]: newValue }), scopes: [] }],
         ]);
       });
     }
+  });
+  describe('with strategy gitlabUserList', () => {
+    let propsData;
+    let strategy;
+    beforeEach(() => {
+      strategy = { name: ROLLOUT_STRATEGY_GITLAB_USER_LIST, userListId: '2', parameters: {} };
+      propsData = { strategy, index: 0, endpoint: '', userLists: [userList] };
+      factory({ propsData });
+    });
+
+    it('should set the select to match the strategy name', () => {
+      expect(wrapper.find(GlFormSelect).attributes('value')).toBe(
+        ROLLOUT_STRATEGY_GITLAB_USER_LIST,
+      );
+    });
+
+    it('should not show inputs for other parameters', () => {
+      expect(findStrategy().contains(GlFormTextarea)).toBe(false);
+      expect(findStrategy().contains(GlFormInput)).toBe(false);
+    });
+
+    it('should show the input for userListId with the correct value', () => {
+      const inputWrapper = findStrategy().find(GlFormSelect);
+      expect(inputWrapper.exists()).toBe(true);
+      expect(inputWrapper.attributes('value')).toBe('2');
+    });
+
+    it('should emit a change event when altering the userListId', () => {
+      const inputWrapper = findStrategy().find(GlFormSelect);
+      inputWrapper.vm.$emit('input', '3');
+      inputWrapper.vm.$emit('change', '3');
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted('change')).toEqual([
+          [
+            {
+              name: ROLLOUT_STRATEGY_GITLAB_USER_LIST,
+              userListId: '3',
+              scopes: [],
+              parameters: {},
+            },
+          ],
+        ]);
+      });
+    });
   });
 
   describe('with a strategy', () => {
@@ -89,7 +141,7 @@ describe('Feature flags strategy', () => {
           parameters: { percentage: '50' },
           scopes: [{ environmentScope: '*' }],
         };
-        const propsData = { strategy, index: 0, endpoint: '', canDelete: true };
+        const propsData = { strategy, index: 0, endpoint: '' };
         factory({ propsData });
       });
 
@@ -155,23 +207,16 @@ describe('Feature flags strategy', () => {
         wrapper.find(GlDeprecatedButton).vm.$emit('click');
         expect(wrapper.emitted('delete')).toEqual([[]]);
       });
-
-      it('should not display the delete button if can delete is false', () => {
-        const propsData = { strategy, index: 0, endpoint: '', canDelete: false };
-        factory({ propsData });
-
-        expect(wrapper.find(GlDeprecatedButton).exists()).toBe(false);
-      });
     });
 
-    describe('wihtout scopes defined', () => {
+    describe('without scopes defined', () => {
       beforeEach(() => {
         const strategy = {
           name: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
           parameters: { percentage: '50' },
           scopes: [],
         };
-        const propsData = { strategy, index: 0, endpoint: '', canDelete: true };
+        const propsData = { strategy, index: 0, endpoint: '' };
         factory({ propsData });
       });
 

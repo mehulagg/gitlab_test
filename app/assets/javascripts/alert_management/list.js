@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import createDefaultClient from '~/lib/graphql';
+import { defaultDataIdFromObject } from 'apollo-cache-inmemory';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import AlertManagementList from './components/alert_management_list.vue';
 
@@ -10,14 +11,32 @@ export default () => {
   const selector = '#js-alert_management';
 
   const domEl = document.querySelector(selector);
-  const { projectPath, enableAlertManagementPath, emptyAlertSvgPath } = domEl.dataset;
+  const {
+    projectPath,
+    enableAlertManagementPath,
+    emptyAlertSvgPath,
+    populatingAlertsHelpUrl,
+  } = domEl.dataset;
   let { alertManagementEnabled, userCanEnableAlertManagement } = domEl.dataset;
 
   alertManagementEnabled = parseBoolean(alertManagementEnabled);
   userCanEnableAlertManagement = parseBoolean(userCanEnableAlertManagement);
 
   const apolloProvider = new VueApollo({
-    defaultClient: createDefaultClient(),
+    defaultClient: createDefaultClient(
+      {},
+      {
+        cacheConfig: {
+          dataIdFromObject: object => {
+            // eslint-disable-next-line no-underscore-dangle
+            if (object.__typename === 'AlertManagementAlert') {
+              return object.iid;
+            }
+            return defaultDataIdFromObject(object);
+          },
+        },
+      },
+    ),
   });
 
   return new Vue({
@@ -31,6 +50,7 @@ export default () => {
         props: {
           projectPath,
           enableAlertManagementPath,
+          populatingAlertsHelpUrl,
           emptyAlertSvgPath,
           alertManagementEnabled,
           userCanEnableAlertManagement,

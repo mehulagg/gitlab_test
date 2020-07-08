@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe MergeRequestWidgetEntity do
+RSpec.describe MergeRequestWidgetEntity do
   include ProjectForksHelper
 
   let(:project) { create :project, :repository }
@@ -155,6 +155,36 @@ describe MergeRequestWidgetEntity do
             expect(subject[:merge_request_add_ci_config_path]).to be_nil
           end
         end
+
+        context 'when merge request is merged' do
+          before do
+            resource.mark_as_merged!
+          end
+
+          it 'returns a blank ci config path' do
+            expect(subject[:merge_request_add_ci_config_path]).to be_nil
+          end
+        end
+
+        context 'when merge request is closed' do
+          before do
+            resource.close!
+          end
+
+          it 'returns a blank ci config path' do
+            expect(subject[:merge_request_add_ci_config_path]).to be_nil
+          end
+        end
+
+        context 'when source branch does not exist' do
+          before do
+            resource.source_project.repository.rm_branch(user, resource.source_branch)
+          end
+
+          it 'returns a blank ci config path' do
+            expect(subject[:merge_request_add_ci_config_path]).to be_nil
+          end
+        end
       end
 
       context 'when user does not have permissions' do
@@ -178,7 +208,7 @@ describe MergeRequestWidgetEntity do
     project.add_maintainer(user)
 
     expect(subject[:new_project_pipeline_path])
-      .to eq("/#{resource.project.full_path}/pipelines/new")
+      .to eq("/#{resource.project.full_path}/-/pipelines/new")
   end
 
   describe 'when source project is deleted' do

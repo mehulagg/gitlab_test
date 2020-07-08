@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 6.0.2.2'
+gem 'rails', '~> 6.0.3.1'
 
 gem 'bootsnap', '~> 1.4.6'
 
@@ -19,14 +19,14 @@ gem 'default_value_for', '~> 3.3.0'
 gem 'pg', '~> 1.1'
 
 gem 'rugged', '~> 0.28'
-gem 'grape-path-helpers', '~> 1.2'
+gem 'grape-path-helpers', '~> 1.3'
 
 gem 'faraday', '~> 0.12'
 gem 'marginalia', '~> 1.8.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 5.0.2'
+gem 'doorkeeper', '~> 5.0.3'
 gem 'doorkeeper-openid_connect', '~> 1.6.3'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'
@@ -43,8 +43,7 @@ gem 'omniauth-shibboleth', '~> 1.3.0'
 gem 'omniauth-twitter', '~> 1.4'
 gem 'omniauth_crowd', '~> 2.2.0'
 gem 'omniauth-authentiq', '~> 0.3.3'
-gem 'omniauth_openid_connect', '~> 0.3.3'
-gem "omniauth-ultraauth", '~> 0.0.2'
+gem 'omniauth_openid_connect', '~> 0.3.5'
 gem 'omniauth-salesforce', '~> 1.0.5'
 gem 'rack-oauth2', '~> 1.9.3'
 gem 'jwt', '~> 2.1.0'
@@ -64,10 +63,10 @@ gem 'attr_encrypted', '~> 3.1.0'
 gem 'u2f', '~> 0.2.1'
 
 # GitLab Pages
-gem 'validates_hostname', '~> 1.0.6'
+gem 'validates_hostname', '~> 1.0.10'
 gem 'rubyzip', '~> 2.0.0', require: 'zip'
 # GitLab Pages letsencrypt support
-gem 'acme-client', '~> 2.0.5'
+gem 'acme-client', '~> 2.0', '>= 2.0.6'
 
 # Browser detection
 gem 'browser', '~> 2.5'
@@ -82,7 +81,7 @@ gem 'gitlab_omniauth-ldap', '~> 2.1.1', require: 'omniauth-ldap'
 gem 'net-ldap'
 
 # API
-gem 'grape', '~> 1.1.0'
+gem 'grape', '~> 1.3.3'
 gem 'grape-entity', '~> 0.7.1'
 gem 'rack-cors', '~> 1.0.6', require: 'rack/cors'
 
@@ -113,14 +112,14 @@ gem 'fog-aws', '~> 3.5'
 # Locked until fog-google resolves https://github.com/fog/fog-google/issues/421.
 # Also see config/initializers/fog_core_patch.rb.
 gem 'fog-core', '= 2.1.0'
-gem 'fog-google', '~> 1.9'
+gem 'fog-google', '~> 1.10'
 gem 'fog-local', '~> 0.6'
 gem 'fog-openstack', '~> 1.0'
 gem 'fog-rackspace', '~> 0.1.1'
 gem 'fog-aliyun', '~> 0.3'
 
 # for Google storage
-gem 'google-api-client', '~> 0.23'
+gem 'google-api-client', '~> 0.33'
 
 # for aws storage
 gem 'unf', '~> 0.1.4'
@@ -141,6 +140,7 @@ gem 'deckar01-task_list', '2.3.1'
 gem 'gitlab-markup', '~> 1.7.1'
 gem 'github-markup', '~> 1.7.0', require: 'github/markup'
 gem 'commonmarker', '~> 0.20'
+gem 'kramdown', '~> 2.2.1'
 gem 'RedCloth', '~> 4.3.2'
 gem 'rdoc', '~> 6.1.2'
 gem 'org-ruby', '~> 0.9.12'
@@ -148,8 +148,8 @@ gem 'creole', '~> 0.5.0'
 gem 'wikicloth', '0.8.1'
 gem 'asciidoctor', '~> 2.0.10'
 gem 'asciidoctor-include-ext', '~> 0.3.1', require: false
-gem 'asciidoctor-plantuml', '0.0.10'
-gem 'rouge', '~> 3.18.0'
+gem 'asciidoctor-plantuml', '~> 0.0.12'
+gem 'rouge', '~> 3.20.0'
 gem 'truncato', '~> 0.7.11'
 gem 'bootstrap_form', '~> 4.2.0'
 gem 'nokogiri', '~> 1.10.9'
@@ -164,6 +164,8 @@ gem 'diff_match_patch', '~> 0.1.0'
 
 # Application server
 gem 'rack', '~> 2.0.9'
+# https://github.com/sharpstone/rack-timeout/blob/master/README.md#rails-apps-manually
+gem 'rack-timeout', '~> 0.5.1', require: 'rack/timeout/base'
 
 group :unicorn do
   gem 'unicorn', '~> 5.5'
@@ -173,7 +175,6 @@ end
 group :puma do
   gem 'gitlab-puma', '~> 4.3.3.gitlab.2', require: false
   gem 'gitlab-puma_worker_killer', '~> 0.1.1.gitlab.1', require: false
-  gem 'rack-timeout', require: false
 end
 
 # State machine
@@ -230,7 +231,7 @@ gem 'discordrb-webhooks-blackst0ne', '~> 3.3', require: false
 gem 'hipchat', '~> 1.5.0'
 
 # Jira integration
-gem 'jira-ruby', '~> 1.7'
+gem 'jira-ruby', '~> 2.0.0'
 gem 'atlassian-jwt', '~> 0.2.0'
 
 # Flowdock integration
@@ -293,7 +294,7 @@ gem 'base32', '~> 0.3.0'
 gem "gitlab-license", "~> 1.0"
 
 # Protect against bruteforcing
-gem 'rack-attack', '~> 6.2.0'
+gem 'rack-attack', '~> 6.3.0'
 
 # Sentry integration
 gem 'sentry-raven', '~> 2.9'
@@ -318,13 +319,9 @@ gem 'peek', '~> 1.1'
 # Snowplow events tracking
 gem 'snowplow-tracker', '~> 0.6.1'
 
-# Memory benchmarks
-gem 'derailed_benchmarks', require: false
-
 # Metrics
 group :metrics do
   gem 'method_source', '~> 0.8', require: false
-  gem 'influxdb', '~> 0.2', require: false
 
   # Prometheus
   gem 'prometheus-client-mmap', '~> 0.10.0'
@@ -347,7 +344,7 @@ group :development do
 end
 
 group :development, :test do
-  gem 'bullet', '~> 6.0.2', require: !!ENV['ENABLE_BULLET']
+  gem 'bullet', '~> 6.0.2'
   gem 'pry-byebug', '~> 3.5.1', platform: :mri
   gem 'pry-rails', '~> 0.3.9'
 
@@ -366,15 +363,16 @@ group :development, :test do
   gem 'spring', '~> 2.0.0'
   gem 'spring-commands-rspec', '~> 1.0.4'
 
-  gem 'gitlab-styles', '~> 3.2.0', require: false
+  gem 'gitlab-styles', '~> 4.2.0', require: false
   # Pin these dependencies, otherwise a new rule could break the CI pipelines
-  gem 'rubocop', '~> 0.74.0'
-  gem 'rubocop-performance', '~> 1.4.1'
+  gem 'rubocop', '~> 0.82.0'
+  gem 'rubocop-performance', '~> 1.5.2'
   gem 'rubocop-rspec', '~> 1.37.0'
 
   gem 'scss_lint', '~> 0.56.0', require: false
   gem 'haml_lint', '~> 0.34.0', require: false
   gem 'simplecov', '~> 0.18.5', require: false
+  gem 'simplecov-cobertura', '~> 1.3.1', require: false
   gem 'bundler-audit', '~> 0.6.1', require: false
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
@@ -407,19 +405,21 @@ group :test do
 
   gem 'shoulda-matchers', '~> 4.0.1', require: false
   gem 'email_spec', '~> 2.2.0'
-  gem 'json-schema', '~> 2.8.0'
   gem 'webmock', '~> 3.5.1'
   gem 'rails-controller-testing'
   gem 'concurrent-ruby', '~> 1.1'
   gem 'test-prof', '~> 0.10.0'
   gem 'rspec_junit_formatter'
   gem 'guard-rspec'
+
+  # Moved in `test` because https://gitlab.com/gitlab-org/gitlab/-/issues/217527
+  gem 'derailed_benchmarks', require: false
 end
 
 gem 'octokit', '~> 4.15'
 
 # https://gitlab.com/gitlab-org/gitlab/issues/207207
-gem 'gitlab-mail_room', '~> 0.0.4', require: 'mail_room'
+gem 'gitlab-mail_room', '~> 0.0.6', require: 'mail_room'
 
 gem 'email_reply_trimmer', '~> 0.1'
 gem 'html2text'
@@ -455,7 +455,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 13.0.0.pre.rc1'
+gem 'gitaly', '~> 13.2.0.pre.rc2'
 
 gem 'grpc', '~> 1.24.0'
 
@@ -481,8 +481,6 @@ gem 'countries', '~> 3.0'
 
 gem 'retriable', '~> 3.1.2'
 
-gem 'liquid', '~> 4.0'
-
 # LRU cache
 gem 'lru_redux'
 
@@ -498,3 +496,7 @@ gem 'lockbox', '~> 0.3.3'
 
 # Email validation
 gem 'valid_email', '~> 0.1'
+
+# JSON
+gem 'json', '~> 2.3.0'
+gem 'json-schema', '~> 2.8.0'

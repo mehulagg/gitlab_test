@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe NotesHelper do
+RSpec.describe NotesHelper do
   include RepoHelpers
 
   let(:owner) { create(:owner) }
@@ -22,6 +22,36 @@ describe NotesHelper do
     project.add_maintainer(maintainer)
     project.add_reporter(reporter)
     project.add_guest(guest)
+  end
+
+  describe '#note_target_title' do
+    context 'note does not exist' do
+      it 'returns nil' do
+        expect(helper.note_target_title(nil)).to be_blank
+      end
+    end
+
+    context 'target does not exist' do
+      it 'returns nil' do
+        note = Note.new
+        expect(helper.note_target_title(note)).to be_blank
+      end
+    end
+
+    context 'when given a design target' do
+      it 'returns nil' do
+        note = build_stubbed(:note_on_design)
+        expect(helper.note_target_title(note)).to be_blank
+      end
+    end
+
+    context 'when given a non-design target' do
+      it 'returns the issue title' do
+        issue = build_stubbed(:issue, title: 'Issue 1')
+        note = build_stubbed(:note, noteable: issue)
+        expect(helper.note_target_title(note)).to eq('Issue 1')
+      end
+    end
   end
 
   describe "#notes_max_access_for_users" do

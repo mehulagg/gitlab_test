@@ -1,7 +1,6 @@
 <script>
-import Vue from 'vue';
 import { mapActions, mapGetters, mapState } from 'vuex';
-import { GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { modalTypes } from '../constants';
 import FindFile from '~/vue_shared/components/file_finder/index.vue';
@@ -25,22 +24,15 @@ export default {
     FindFile,
     ErrorMessage,
     CommitEditorHeader,
-    GlDeprecatedButton,
+    GlButton,
     GlLoadingIcon,
+    RightPane,
   },
   mixins: [glFeatureFlagsMixin()],
-  props: {
-    rightPaneComponent: {
-      type: Vue.Component,
-      required: false,
-      default: () => RightPane,
-    },
-  },
   computed: {
     ...mapState([
       'openFiles',
       'viewer',
-      'currentMergeRequestId',
       'fileFindVisible',
       'emptyStateSvgPath',
       'currentProjectId',
@@ -49,7 +41,6 @@ export default {
     ]),
     ...mapGetters([
       'activeFile',
-      'hasChanges',
       'someUncommittedChanges',
       'isCommitModeActive',
       'allBlobs',
@@ -108,14 +99,7 @@ export default {
       <div class="multi-file-edit-pane">
         <template v-if="activeFile">
           <commit-editor-header v-if="isCommitModeActive" :active-file="activeFile" />
-          <repo-tabs
-            v-else
-            :active-file="activeFile"
-            :files="openFiles"
-            :viewer="viewer"
-            :has-changes="hasChanges"
-            :merge-request-id="currentMergeRequestId"
-          />
+          <repo-tabs v-else :active-file="activeFile" :files="openFiles" :viewer="viewer" />
           <repo-editor :file="activeFile" class="multi-file-edit-pane-content" />
         </template>
         <template v-else>
@@ -137,14 +121,16 @@ export default {
                         )
                       }}
                     </p>
-                    <gl-deprecated-button
+                    <gl-button
                       variant="success"
+                      category="primary"
                       :title="__('New file')"
                       :aria-label="__('New file')"
+                      data-qa-selector="first_file_button"
                       @click="createNewFile()"
                     >
                       {{ __('New file') }}
-                    </gl-deprecated-button>
+                    </gl-button>
                   </template>
                   <gl-loading-icon v-else-if="!currentTree || currentTree.loading" size="md" />
                   <p v-else>
@@ -160,7 +146,7 @@ export default {
           </div>
         </template>
       </div>
-      <component :is="rightPaneComponent" v-if="currentProjectId" />
+      <right-pane v-if="currentProjectId" />
     </div>
     <ide-status-bar />
     <new-modal ref="newModal" />

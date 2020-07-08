@@ -84,7 +84,7 @@ To change the address/port that Prometheus listens on:
 1. Save the file and [reconfigure GitLab](../../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to
    take effect
 
-### Adding custom scrape configs
+### Adding custom scrape configurations
 
 You can configure additional scrape targets for the Omnibus GitLab-bundled
 Prometheus by editing `prometheus['scrape_configs']` in `/etc/gitlab/gitlab.rb`
@@ -114,7 +114,7 @@ prometheus['scrape_configs'] = [
 NOTE: **Note:**
 Prometheus and most exporters don't support authentication. We don't recommend exposing them outside the local network.
 
-A few configuration changes are required to allow GitLab to be monitored by an external Prometheus server. External servers are recommended for highly available deployments of GitLab with multiple nodes.
+A few configuration changes are required to allow GitLab to be monitored by an external Prometheus server. External servers are recommended for [GitLab deployments with multiple nodes](../../reference_architectures/index.md).
 
 To use an external Prometheus server:
 
@@ -165,54 +165,54 @@ To use an external Prometheus server:
 
    ```yaml
    scrape_configs:
-   - job_name: nginx
-     static_configs:
-     - targets:
-       - 1.1.1.1:8060
-   - job_name: redis
-     static_configs:
-     - targets:
-       - 1.1.1.1:9121
-   - job_name: postgres
-     static_configs:
-     - targets:
-       - 1.1.1.1:9187
-   - job_name: node
-     static_configs:
-     - targets:
-       - 1.1.1.1:9100
-   - job_name: gitlab-workhorse
-     static_configs:
-     - targets:
-       - 1.1.1.1:9229
-   - job_name: gitlab-rails
-     metrics_path: "/-/metrics"
-     static_configs:
-     - targets:
-       - 1.1.1.1:8080
-   - job_name: gitlab-sidekiq
-     static_configs:
-     - targets:
-       - 1.1.1.1:8082
-   - job_name: gitlab_exporter_database
-     metrics_path: "/database"
-     static_configs:
-     - targets:
-       - 1.1.1.1:9168
-   - job_name: gitlab_exporter_sidekiq
-     metrics_path: "/sidekiq"
-     static_configs:
-     - targets:
-       - 1.1.1.1:9168
-   - job_name: gitlab_exporter_process
-     metrics_path: "/process"
-     static_configs:
-     - targets:
-       - 1.1.1.1:9168
-   - job_name: gitaly
-     static_configs:
-     - targets:
-       - 1.1.1.1:9236
+     - job_name: nginx
+       static_configs:
+         - targets:
+           - 1.1.1.1:8060
+     - job_name: redis
+       static_configs:
+         - targets:
+           - 1.1.1.1:9121
+     - job_name: postgres
+       static_configs:
+         - targets:
+           - 1.1.1.1:9187
+     - job_name: node
+       static_configs:
+         - targets:
+           - 1.1.1.1:9100
+     - job_name: gitlab-workhorse
+       static_configs:
+         - targets:
+           - 1.1.1.1:9229
+     - job_name: gitlab-rails
+       metrics_path: "/-/metrics"
+       static_configs:
+         - targets:
+           - 1.1.1.1:8080
+     - job_name: gitlab-sidekiq
+       static_configs:
+         - targets:
+           - 1.1.1.1:8082
+     - job_name: gitlab_exporter_database
+       metrics_path: "/database"
+       static_configs:
+         - targets:
+           - 1.1.1.1:9168
+     - job_name: gitlab_exporter_sidekiq
+       metrics_path: "/sidekiq"
+       static_configs:
+         - targets:
+           - 1.1.1.1:9168
+     - job_name: gitlab_exporter_process
+       metrics_path: "/process"
+       static_configs:
+         - targets:
+           - 1.1.1.1:9168
+     - job_name: gitaly
+       static_configs:
+         - targets:
+           - 1.1.1.1:9236
    ```
 
 1. Reload the Prometheus server.

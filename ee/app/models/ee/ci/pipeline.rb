@@ -14,9 +14,8 @@ module EE
       prepended do
         include UsageStatistics
 
-        has_many :job_artifacts, through: :builds
-        has_many :vulnerabilities_occurrence_pipelines, class_name: 'Vulnerabilities::OccurrencePipeline'
-        has_many :vulnerability_findings, source: :occurrence, through: :vulnerabilities_occurrence_pipelines, class_name: 'Vulnerabilities::Occurrence'
+        has_many :vulnerabilities_finding_pipelines, class_name: 'Vulnerabilities::FindingPipeline'
+        has_many :vulnerability_findings, source: :occurrence, through: :vulnerabilities_finding_pipelines, class_name: 'Vulnerabilities::Occurrence'
 
         has_many :auto_canceled_pipelines, class_name: 'Ci::Pipeline', foreign_key: 'auto_canceled_by_id'
         has_many :auto_canceled_jobs, class_name: 'CommitStatus', foreign_key: 'auto_canceled_by_id'
@@ -29,11 +28,11 @@ module EE
 
         # Legacy way to fetch security reports based on job name. This has been replaced by the reports feature.
         scope :with_legacy_security_reports, -> do
-          joins(:artifacts).where(ci_builds: { name: %w[sast dependency_scanning sast:container container_scanning dast] })
+          joins(:downloadable_artifacts).where(ci_builds: { name: %w[sast secret_detection dependency_scanning sast:container container_scanning dast] })
         end
 
         scope :with_vulnerabilities, -> do
-          where('EXISTS (?)', ::Vulnerabilities::OccurrencePipeline.where('ci_pipelines.id=vulnerability_occurrence_pipelines.pipeline_id').select(1))
+          where('EXISTS (?)', ::Vulnerabilities::FindingPipeline.where('ci_pipelines.id=vulnerability_occurrence_pipelines.pipeline_id').select(1))
         end
 
         # This structure describes feature levels
@@ -41,13 +40,16 @@ module EE
         REPORT_LICENSED_FEATURES = {
           codequality: nil,
           sast: %i[sast],
+          secret_detection: %i[secret_detection],
           dependency_scanning: %i[dependency_scanning],
           container_scanning: %i[container_scanning],
           dast: %i[dast],
           performance: %i[merge_request_performance_metrics],
-          license_management: %i[license_scanning license_management],
-          license_scanning: %i[license_scanning license_management],
-          metrics: %i[metrics_reports]
+          license_management: %i[license_scanning],
+          license_scanning: %i[license_scanning],
+          metrics: %i[metrics_reports],
+          requirements: %i[requirements],
+          coverage_fuzzing: %i[coverage_fuzzing]
         }.freeze
 
         state_machine :status do
@@ -197,10 +199,6 @@ module EE
       def available_licensed_report_type?(file_type)
         feature_names = REPORT_LICENSED_FEATURES.fetch(file_type)
         feature_names.nil? || feature_names.any? { |feature| project.feature_available?(feature) }
-      end
-
-      def artifacts_with_files
-        @artifacts_with_files ||= artifacts.includes(:job_artifacts_metadata, :job_artifacts_archive).to_a
       end
     end
   end

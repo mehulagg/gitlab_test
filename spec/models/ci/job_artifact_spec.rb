@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Ci::JobArtifact do
+RSpec.describe Ci::JobArtifact do
   let(:artifact) { create(:ci_job_artifact, :archive) }
 
   describe "Associations" do
@@ -21,6 +21,14 @@ describe Ci::JobArtifact do
 
   it_behaves_like 'UpdateProjectStatistics' do
     subject { build(:ci_job_artifact, :archive, size: 107464) }
+  end
+
+  describe '.not_expired' do
+    it 'returns artifacts that have not expired' do
+      _expired_artifact = create(:ci_job_artifact, :expired)
+
+      expect(described_class.not_expired).to contain_exactly(artifact)
+    end
   end
 
   describe '.with_reports' do
@@ -115,6 +123,17 @@ describe Ci::JobArtifact do
       let!(:artifact) { create(:ci_job_artifact, :trace) }
 
       it { is_expected.to be_empty }
+    end
+  end
+
+  describe '.downloadable' do
+    subject { described_class.downloadable }
+
+    it 'filters for downloadable artifacts' do
+      downloadable_artifact = create(:ci_job_artifact, :codequality)
+      _not_downloadable_artifact = create(:ci_job_artifact, :trace)
+
+      expect(subject).to contain_exactly(downloadable_artifact)
     end
   end
 
@@ -239,8 +258,34 @@ describe Ci::JobArtifact do
     end
   end
 
+  describe 'validates if file format is supported' do
+    subject { artifact }
+
+    let(:artifact) { build(:ci_job_artifact, file_type: :license_management, file_format: :raw) }
+
+    context 'when license_management is supported' do
+      before do
+        stub_feature_flags(drop_license_management_artifact: false)
+      end
+
+      it { is_expected.to be_valid }
+    end
+
+    context 'when license_management is not supported' do
+      before do
+        stub_feature_flags(drop_license_management_artifact: true)
+      end
+
+      it { is_expected.not_to be_valid }
+    end
+  end
+
   describe 'validates file format' do
     subject { artifact }
+
+    before do
+      stub_feature_flags(drop_license_management_artifact: false)
+    end
 
     described_class::TYPE_AND_FORMAT_PAIRS.except(:trace).each do |file_type, file_format|
       context "when #{file_type} type with #{file_format} format" do
@@ -331,19 +376,75 @@ describe Ci::JobArtifact do
     end
   end
 
+  describe 'expired?' do
+    subject { artifact.expired? }
+
+    context 'when expire_at is nil' do
+      let(:artifact) { build(:ci_job_artifact, expire_at: nil) }
+
+      it 'returns false' do
+        is_expected.to be_falsy
+      end
+    end
+
+    context 'when expire_at is in the past' do
+      let(:artifact) { build(:ci_job_artifact, expire_at: Date.yesterday) }
+
+      it 'returns true' do
+        is_expected.to be_truthy
+      end
+    end
+
+    context 'when expire_at is in the future' do
+      let(:artifact) { build(:ci_job_artifact, expire_at: Date.tomorrow) }
+
+      it 'returns false' do
+        is_expected.to be_falsey
+      end
+    end
+  end
+
+  describe '#expiring?' do
+    subject { artifact.expiring? }
+
+    context 'when expire_at is nil' do
+      let(:artifact) { build(:ci_job_artifact, expire_at: nil) }
+
+      it 'returns false' do
+        is_expected.to be_falsy
+      end
+    end
+
+    context 'when expire_at is in the past' do
+      let(:artifact) { build(:ci_job_artifact, expire_at: Date.yesterday) }
+
+      it 'returns false' do
+        is_expected.to be_falsy
+      end
+    end
+
+    context 'when expire_at is in the future' do
+      let(:artifact) { build(:ci_job_artifact, expire_at: Date.tomorrow) }
+
+      it 'returns true' do
+        is_expected.to be_truthy
+      end
+    end
+  end
+
   describe '#expire_in' do
     subject { artifact.expire_in }
 
     it { is_expected.to be_nil }
 
     context 'when expire_at is specified' do
-      let(:expire_at) { Time.now + 7.days }
+      let(:expire_at) { Time.current + 7.days }
 
       before do
         artifact.expire_at = expire_at
       end
 
-      it { is_expected.to be_within(5).of(expire_at - Time.now) }
+      it { is_expected.to be_within(5).of(expire_at - Time.current) }
     end
   end
 
@@ -378,19 +479,6 @@ describe Ci::JobArtifact do
   describe 'file is being stored' do
     subject { create(:ci_job_artifact, :archive) }
 
-    context 'when object has nil store' do
-      before do
-        subject.update_column(:file_store, nil)
-        subject.reload
-      end
-
-      it 'is stored locally' do
-        expect(subject.file_store).to be(nil)
-        expect(subject.file).to be_file_storage
-        expect(subject.file.object_store).to eq(ObjectStorage::Store::LOCAL)
-      end
-    end
-
     context 'when existing object has local store' do
       it 'is stored locally' do
         expect(subject.file_store).to be(ObjectStorage::Store::LOCAL)
@@ -412,5 +500,101 @@ describe Ci::JobArtifact do
         end
       end
     end
+  end
+
+  describe '.file_types' do
+    context 'all file types have corresponding limit' do
+      let_it_be(:plan_limits) { create(:plan_limits) }
+
+      where(:file_type) do
+        described_class.file_types.keys
+      end
+
+      with_them do
+        let(:limit_name) { "#{described_class::PLAN_LIMIT_PREFIX}#{file_type}" }
+
+        it { expect(plan_limits.attributes).to include(limit_name), file_type_limit_failure_message(file_type, limit_name) }
+      end
+    end
+  end
+
+  describe '.max_artifact_size' do
+    let(:build) { create(:ci_build) }
+
+    subject(:max_size) { described_class.max_artifact_size(type: artifact_type, project: build.project) }
+
+    context 'when file type is supported' do
+      let(:project_closest_setting) { 1024 }
+      let(:artifact_type) { 'junit' }
+
+      before do
+        stub_feature_flags(ci_max_artifact_size_per_type: flag_enabled)
+        allow(build.project).to receive(:closest_setting).with(:max_artifacts_size).and_return(project_closest_setting)
+      end
+
+      shared_examples_for 'basing off the project closest setting' do
+        it { is_expected.to eq(project_closest_setting.megabytes.to_i) }
+      end
+
+      shared_examples_for 'basing off the plan limit' do
+        it { is_expected.to eq(max_size_for_type.megabytes.to_i) }
+      end
+
+      context 'and feature flag for custom max size per type is enabled' do
+        let(:flag_enabled) { true }
+        let(:limit_name) { "#{described_class::PLAN_LIMIT_PREFIX}#{artifact_type}" }
+
+        let!(:plan_limits) { create(:plan_limits, :default_plan) }
+
+        context 'and plan limit is disabled for the given artifact type' do
+          before do
+            plan_limits.update!(limit_name => 0)
+          end
+
+          it_behaves_like 'basing off the project closest setting'
+
+          context 'and project closest setting results to zero' do
+            let(:project_closest_setting) { 0 }
+
+            it { is_expected.to eq(0) }
+          end
+        end
+
+        context 'and plan limit is enabled for the given artifact type' do
+          before do
+            plan_limits.update!(limit_name => max_size_for_type)
+          end
+
+          context 'and plan limit is smaller than project setting' do
+            let(:max_size_for_type) { project_closest_setting - 1 }
+
+            it_behaves_like 'basing off the plan limit'
+          end
+
+          context 'and plan limit is smaller than project setting' do
+            let(:max_size_for_type) { project_closest_setting + 1 }
+
+            it_behaves_like 'basing off the project closest setting'
+          end
+        end
+      end
+
+      context 'and feature flag for custom max size per type is disabled' do
+        let(:flag_enabled) { false }
+
+        it_behaves_like 'basing off the project closest setting'
+      end
+    end
+  end
+
+  def file_type_limit_failure_message(type, limit_name)
+    <<~MSG
+      The artifact type `#{type}` is missing its counterpart plan limit which is expected to be named `#{limit_name}`.
+
+      Please refer to https://docs.gitlab.com/ee/development/application_limits.html on how to add new plan limit columns.
+
+      Take note that while existing max size plan limits default to 0, succeeding new limits are recommended to have
+      non-zero default values.
+    MSG
   end
 end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Every Sidekiq worker' do
+RSpec.describe 'Every Sidekiq worker' do
   let(:workers_without_defaults) do
     Gitlab::SidekiqConfig.workers - Gitlab::SidekiqConfig::DEFAULT_WORKERS
   end
@@ -37,6 +37,12 @@ describe 'Every Sidekiq worker' do
       queue_namespace = queue.split(':').first
 
       expect(config_queues).to include(queue).or(include(queue_namespace))
+    end
+  end
+
+  it 'has a value for loggable_arguments' do
+    workers_without_defaults.each do |worker|
+      expect(worker.klass.loggable_arguments).to be_an(Array)
     end
   end
 

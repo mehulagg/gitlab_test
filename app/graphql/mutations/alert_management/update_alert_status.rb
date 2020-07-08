@@ -11,7 +11,6 @@ module Mutations
 
       def resolve(args)
         alert = authorized_find!(project_path: args[:project_path], iid: args[:iid])
-
         result = update_status(alert, args[:status])
 
         prepare_response(result)
@@ -20,13 +19,15 @@ module Mutations
       private
 
       def update_status(alert, status)
-        ::AlertManagement::UpdateAlertStatusService.new(alert, status).execute
+        ::AlertManagement::UpdateAlertStatusService
+          .new(alert, current_user, status)
+          .execute
       end
 
       def prepare_response(result)
         {
           alert: result.payload[:alert],
-          errors: result.error? ? [result.message] : []
+          errors: result.errors
         }
       end
     end

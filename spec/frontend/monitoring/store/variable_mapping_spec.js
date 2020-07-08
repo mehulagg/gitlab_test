@@ -1,150 +1,209 @@
-import { parseTemplatingVariables } from '~/monitoring/stores/variable_mapping';
+import {
+  parseTemplatingVariables,
+  mergeURLVariables,
+  optionsFromSeriesData,
+} from '~/monitoring/stores/variable_mapping';
+import {
+  templatingVariablesExamples,
+  storeTextVariables,
+  storeCustomVariables,
+  storeMetricLabelValuesVariables,
+} from '../mock_data';
+import * as urlUtils from '~/lib/utils/url_utility';
 
-describe('parseTemplatingVariables', () => {
-  const generateMockTemplatingData = data => {
-    const vars = data
-      ? {
-          variables: {
-            ...data,
-          },
-        }
-      : {};
-    return {
-      dashboard: {
-        templating: vars,
-      },
-    };
-  };
+describe('Monitoring variable mapping', () => {
+  describe('parseTemplatingVariables', () => {
+    it.each`
+      case                                 | input
+      ${'For undefined templating object'} | ${undefined}
+      ${'For empty templating object'}     | ${{}}
+    `('$case, returns an empty array', ({ input }) => {
+      expect(parseTemplatingVariables(input)).toEqual([]);
+    });
 
-  const simpleVar = ['value1', 'value2', 'value3'];
-  const advVar = {
-    label: 'Advanced Var',
-    type: 'custom',
-    options: {
-      values: [
-        { value: 'value1', text: 'Var 1 Option 1' },
-        {
-          value: 'value2',
-          text: 'Var 1 Option 2',
-          default: true,
-        },
-      ],
-    },
-  };
-  const advVarWithoutOptions = {
-    type: 'custom',
-    options: {},
-  };
-  const advVarWithoutLabel = {
-    type: 'custom',
-    options: {
-      values: [
-        { value: 'value1', text: 'Var 1 Option 1' },
-        {
-          value: 'value2',
-          text: 'Var 1 Option 2',
-          default: true,
-        },
-      ],
-    },
-  };
-  const advVarWithoutType = {
-    label: 'Variable 2',
-    options: {
-      values: [
-        { value: 'value1', text: 'Var 1 Option 1' },
-        {
-          value: 'value2',
-          text: 'Var 1 Option 2',
-          default: true,
-        },
-      ],
-    },
-  };
+    it.each`
+      case                                                        | input                                            | output
+      ${'Returns parsed object for text variables'}               | ${templatingVariablesExamples.text}              | ${storeTextVariables}
+      ${'Returns parsed object for custom variables'}             | ${templatingVariablesExamples.custom}            | ${storeCustomVariables}
+      ${'Returns parsed object for metric label value variables'} | ${templatingVariablesExamples.metricLabelValues} | ${storeMetricLabelValuesVariables}
+    `('$case, returns an empty array', ({ input, output }) => {
+      expect(parseTemplatingVariables(input)).toEqual(output);
+    });
+  });
 
-  const responseForSimpleCustomVariable = {
-    simpleVar: {
-      label: 'simpleVar',
-      options: [
-        {
-          default: false,
-          text: 'value1',
-          value: 'value1',
-        },
-        {
-          default: false,
-          text: 'value2',
-          value: 'value2',
-        },
-        {
-          default: false,
-          text: 'value3',
-          value: 'value3',
-        },
-      ],
-      type: 'custom',
-    },
-  };
+  describe('mergeURLVariables', () => {
+    beforeEach(() => {
+      jest.spyOn(urlUtils, 'queryToObject');
+    });
 
-  const responseForAdvancedCustomVariableWithoutOptions = {
-    advVarWithoutOptions: {
-      label: 'advVarWithoutOptions',
-      options: [],
-      type: 'custom',
-    },
-  };
+    afterEach(() => {
+      urlUtils.queryToObject.mockRestore();
+    });
 
-  const responseForAdvancedCustomVariableWithoutLabel = {
-    advVarWithoutLabel: {
-      label: 'advVarWithoutLabel',
-      options: [
-        {
-          default: false,
-          text: 'Var 1 Option 1',
-          value: 'value1',
-        },
-        {
-          default: true,
-          text: 'Var 1 Option 2',
-          value: 'value2',
-        },
-      ],
-      type: 'custom',
-    },
-  };
+    it('returns empty object if variables are not defined in yml or URL', () => {
+      urlUtils.queryToObject.mockReturnValueOnce({});
 
-  const responseForAdvancedCustomVariable = {
-    ...responseForSimpleCustomVariable,
-    advVar: {
-      label: 'Advanced Var',
-      options: [
-        {
-          default: false,
-          text: 'Var 1 Option 1',
-          value: 'value1',
-        },
-        {
-          default: true,
-          text: 'Var 1 Option 2',
-          value: 'value2',
-        },
-      ],
-      type: 'custom',
-    },
-  };
+      expect(mergeURLVariables([])).toEqual([]);
+    });
 
-  it.each`
-    case                                                             | input                                                   | expected
-    ${'Returns empty object for no dashboard input'}                 | ${{}}                                                   | ${{}}
-    ${'Returns empty object for empty dashboard input'}              | ${{ dashboard: {} }}                                    | ${{}}
-    ${'Returns empty object for empty templating prop'}              | ${generateMockTemplatingData()}                         | ${{}}
-    ${'Returns empty object for empty variables prop'}               | ${generateMockTemplatingData({})}                       | ${{}}
-    ${'Returns parsed object for simple variable'}                   | ${generateMockTemplatingData({ simpleVar })}            | ${responseForSimpleCustomVariable}
-    ${'Returns parsed object for advanced variable without options'} | ${generateMockTemplatingData({ advVarWithoutOptions })} | ${responseForAdvancedCustomVariableWithoutOptions}
-    ${'Returns parsed object for advanced variable without type'}    | ${generateMockTemplatingData({ advVarWithoutType })}    | ${{}}
-    ${'Returns parsed object for advanced variable without label'}   | ${generateMockTemplatingData({ advVarWithoutLabel })}   | ${responseForAdvancedCustomVariableWithoutLabel}
-    ${'Returns parsed object for simple and advanced variables'}     | ${generateMockTemplatingData({ simpleVar, advVar })}    | ${responseForAdvancedCustomVariable}
-  `('$case', ({ input, expected }) => {
-    expect(parseTemplatingVariables(input?.dashboard?.templating)).toEqual(expected);
+    it('returns empty object if variables are defined in URL but not in yml', () => {
+      urlUtils.queryToObject.mockReturnValueOnce({
+        'var-env': 'one',
+        'var-instance': 'localhost',
+      });
+
+      expect(mergeURLVariables([])).toEqual([]);
+    });
+
+    it('returns yml variables if variables defined in yml but not in the URL', () => {
+      urlUtils.queryToObject.mockReturnValueOnce({});
+
+      const variables = [
+        {
+          name: 'env',
+          value: 'one',
+        },
+        {
+          name: 'instance',
+          value: 'localhost',
+        },
+      ];
+
+      expect(mergeURLVariables(variables)).toEqual(variables);
+    });
+
+    it('returns yml variables if variables defined in URL do not match with yml variables', () => {
+      const urlParams = {
+        'var-env': 'one',
+        'var-instance': 'localhost',
+      };
+      const variables = [
+        {
+          name: 'env',
+          value: 'one',
+        },
+        {
+          name: 'service',
+          value: 'database',
+        },
+      ];
+      urlUtils.queryToObject.mockReturnValueOnce(urlParams);
+
+      expect(mergeURLVariables(variables)).toEqual(variables);
+    });
+
+    it('returns merged yml and URL variables if there is some match', () => {
+      const urlParams = {
+        'var-env': 'one',
+        'var-instance': 'localhost:8080',
+      };
+      const variables = [
+        {
+          name: 'instance',
+          value: 'localhost',
+        },
+        {
+          name: 'service',
+          value: 'database',
+        },
+      ];
+
+      urlUtils.queryToObject.mockReturnValueOnce(urlParams);
+
+      expect(mergeURLVariables(variables)).toEqual([
+        {
+          name: 'instance',
+          value: 'localhost:8080',
+        },
+        {
+          name: 'service',
+          value: 'database',
+        },
+      ]);
+    });
+  });
+
+  describe('optionsFromSeriesData', () => {
+    it('fetches the label values from missing data', () => {
+      expect(optionsFromSeriesData({ label: 'job' })).toEqual([]);
+    });
+
+    it('fetches the label values from a simple series', () => {
+      const data = [
+        {
+          __name__: 'up',
+          job: 'job1',
+        },
+        {
+          __name__: 'up',
+          job: 'job2',
+        },
+      ];
+
+      expect(optionsFromSeriesData({ label: 'job', data })).toEqual([
+        { text: 'job1', value: 'job1' },
+        { text: 'job2', value: 'job2' },
+      ]);
+    });
+
+    it('fetches the label values from multiple series', () => {
+      const data = [
+        {
+          __name__: 'up',
+          job: 'job1',
+          instance: 'host1',
+        },
+        {
+          __name__: 'up',
+          job: 'job2',
+          instance: 'host1',
+        },
+        {
+          __name__: 'up',
+          job: 'job1',
+          instance: 'host2',
+        },
+        {
+          __name__: 'up',
+          job: 'job2',
+          instance: 'host2',
+        },
+      ];
+
+      expect(optionsFromSeriesData({ label: '__name__', data })).toEqual([
+        { text: 'up', value: 'up' },
+      ]);
+
+      expect(optionsFromSeriesData({ label: 'job', data })).toEqual([
+        { text: 'job1', value: 'job1' },
+        { text: 'job2', value: 'job2' },
+      ]);
+
+      expect(optionsFromSeriesData({ label: 'instance', data })).toEqual([
+        { text: 'host1', value: 'host1' },
+        { text: 'host2', value: 'host2' },
+      ]);
+    });
+
+    it('fetches the label values from a series with missing values', () => {
+      const data = [
+        {
+          __name__: 'up',
+          job: 'job1',
+        },
+        {
+          __name__: 'up',
+          job: 'job2',
+        },
+        {
+          __name__: 'up',
+        },
+      ];
+
+      expect(optionsFromSeriesData({ label: 'job', data })).toEqual([
+        { text: 'job1', value: 'job1' },
+        { text: 'job2', value: 'job2' },
+      ]);
+    });
   });
 });

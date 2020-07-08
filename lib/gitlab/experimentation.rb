@@ -8,22 +8,33 @@
 # - tracking_category (optional, used to set the category when tracking an experiment event)
 #
 # The experiment is controlled by a Feature Flag (https://docs.gitlab.com/ee/development/feature_flags/controls.html),
-# which is named "#{key}_experiment_percentage" and *must* be set with a percentage and not be used for other purposes.
-# To enable the experiment for 10% of the users (determined by the `experimentation_subject_index` value from a cookie):
+# which is named "#{experiment_key}_experiment_percentage" and *must* be set with a percentage and not be used for other purposes.
 #
-# chatops: `/chatops run feature set key_experiment_percentage 10`
-# console: `Feature.get(:key_experiment_percentage).enable_percentage_of_time(10)`
+# To enable the experiment for 10% of the users:
+#
+# chatops: `/chatops run feature set experiment_key_experiment_percentage 10`
+# console: `Feature.enable_percentage_of_time(:experiment_key_experiment_percentage, 10)`
 #
 # To disable the experiment:
 #
-# chatops: `/chatops run feature delete key_experiment_percentage`
-# console: `Feature.get(:key_experiment_percentage).remove`
+# chatops: `/chatops run feature delete experiment_key_experiment_percentage`
+# console: `Feature.remove(:experiment_key_experiment_percentage)`
 #
+# To check the current rollout percentage:
+#
+# chatops: `/chatops run feature get experiment_key_experiment_percentage`
+# console: `Feature.get(:experiment_key_experiment_percentage).percentage_of_time_value`
+#
+
+# TODO: see https://gitlab.com/gitlab-org/gitlab/-/issues/217490
 module Gitlab
   module Experimentation
     EXPERIMENTS = {
       signup_flow: {
         tracking_category: 'Growth::Acquisition::Experiment::SignUpFlow'
+      },
+      onboarding_issues: {
+        tracking_category: 'Growth::Conversion::Experiment::OnboardingIssues'
       },
       suggest_pipeline: {
         tracking_category: 'Growth::Expansion::Experiment::SuggestPipeline'
@@ -33,6 +44,15 @@ module Gitlab
       },
       buy_ci_minutes_version_a: {
         tracking_category: 'Growth::Expansion::Experiment::BuyCiMinutesVersionA'
+      },
+      upgrade_link_in_user_menu_a: {
+        tracking_category: 'Growth::Expansion::Experiment::UpgradeLinkInUserMenuA'
+      },
+      invite_members_version_a: {
+        tracking_category: 'Growth::Expansion::Experiment::InviteMembersVersionA'
+      },
+      new_create_project_ui: {
+        tracking_category: 'Manage::Import::Experiment::NewCreateProjectUi'
       }
     }.freeze
 
@@ -54,7 +74,6 @@ module Gitlab
 
         cookies.permanent.signed[:experimentation_subject_id] = {
           value: SecureRandom.uuid,
-          domain: :all,
           secure: ::Gitlab.config.gitlab.https,
           httponly: true
         }
@@ -167,7 +186,7 @@ module Gitlab
 
       # When a feature does not exist, the `percentage_of_time_value` method will return 0
       def experiment_percentage
-        @experiment_percentage ||= Feature.get(:"#{key}_experiment_percentage").percentage_of_time_value
+        @experiment_percentage ||= Feature.get(:"#{key}_experiment_percentage").percentage_of_time_value # rubocop:disable Gitlab/AvoidFeatureGet
       end
     end
   end

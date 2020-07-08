@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module ClustersHelper
-  # EE overrides this
   def has_multiple_clusters?
-    false
+    true
   end
 
   def create_new_cluster_label(provider: nil)
@@ -15,6 +14,25 @@ module ClustersHelper
     else
       s_('ClusterIntegration|Create new cluster')
     end
+  end
+
+  def js_clusters_list_data(path = nil)
+    {
+      endpoint: path,
+      img_tags: {
+        aws: { path: image_path('illustrations/logos/amazon_eks.svg'), text: s_('ClusterIntegration|Amazon EKS') },
+        default: { path: image_path('illustrations/logos/kubernetes.svg'), text: _('Kubernetes Cluster') },
+        gcp: { path: image_path('illustrations/logos/google_gke.svg'), text: s_('ClusterIntegration|Google GKE') }
+      }
+    }
+  end
+
+  # This method is depreciated and will be removed when associated HAML files are moved to JavaScript
+  def provider_icon(provider = nil)
+    img_data = js_clusters_list_data.dig(:img_tags, provider&.to_sym) ||
+               js_clusters_list_data.dig(:img_tags, :default)
+
+    image_tag img_data[:path], alt: img_data[:text], class: 'gl-h-full'
   end
 
   def render_gcp_signup_offer
@@ -76,5 +94,3 @@ module ClustersHelper
     can?(user, :admin_cluster, cluster)
   end
 end
-
-ClustersHelper.prepend_if_ee('EE::ClustersHelper')

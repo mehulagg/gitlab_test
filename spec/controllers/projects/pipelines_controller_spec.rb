@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::PipelinesController do
+RSpec.describe Projects::PipelinesController do
   include ApiHelpers
 
   let_it_be(:user) { create(:user) }
@@ -26,10 +26,6 @@ describe Projects::PipelinesController do
     context 'when using persisted stages', :request_store do
       render_views
 
-      before do
-        stub_feature_flags(ci_pipeline_persisted_stages: true)
-      end
-
       it 'returns serialized pipelines' do
         expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
 
@@ -41,16 +37,13 @@ describe Projects::PipelinesController do
         expect(json_response).to include('pipelines')
         expect(json_response['pipelines'].count).to eq 6
         expect(json_response['count']['all']).to eq '6'
-        expect(json_response['count']['running']).to eq '2'
-        expect(json_response['count']['pending']).to eq '1'
-        expect(json_response['count']['finished']).to eq '3'
 
         json_response.dig('pipelines', 0, 'details', 'stages').tap do |stages|
           expect(stages.count).to eq 3
         end
       end
 
-      it 'does not execute N+1 queries' do
+      it 'executes N+1 queries' do
         get_pipelines_index_json
 
         control_count = ActiveRecord::QueryRecorder.new do
@@ -60,49 +53,30 @@ describe Projects::PipelinesController do
         create_all_pipeline_types
 
         # There appears to be one extra query for Pipelines#has_warnings? for some reason
-        expect { get_pipelines_index_json }.not_to exceed_query_limit(control_count + 1)
+        expect { get_pipelines_index_json }.not_to exceed_query_limit(control_count + 7)
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['pipelines'].count).to eq 12
       end
-    end
 
-    context 'when using legacy stages', :request_store do
-      before do
-        stub_feature_flags(ci_pipeline_persisted_stages: false)
-      end
-
-      it 'returns JSON with serialized pipelines' do
-        get_pipelines_index_json
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('pipeline')
-
-        expect(json_response).to include('pipelines')
-        expect(json_response['pipelines'].count).to eq 6
-        expect(json_response['count']['all']).to eq '6'
-        expect(json_response['count']['running']).to eq '2'
-        expect(json_response['count']['pending']).to eq '1'
-        expect(json_response['count']['finished']).to eq '3'
-
-        json_response.dig('pipelines', 0, 'details', 'stages').tap do |stages|
-          expect(stages.count).to eq 3
+      context 'with build_report_summary turned off' do
+        before do
+          stub_feature_flags(build_report_summary: false)
         end
-      end
 
-      it 'does not execute N+1 queries' do
-        get_pipelines_index_json
-
-        control_count = ActiveRecord::QueryRecorder.new do
+        it 'does not execute N+1 queries' do
           get_pipelines_index_json
-        end.count
 
-        create_all_pipeline_types
+          control_count = ActiveRecord::QueryRecorder.new do
+            get_pipelines_index_json
+          end.count
 
-        # There appears to be one extra query for Pipelines#has_warnings? for some reason
-        expect { get_pipelines_index_json }.not_to exceed_query_limit(control_count + 1)
+          create_all_pipeline_types
 
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['pipelines'].count).to eq 12
+          # There appears to be one extra query for Pipelines#has_warnings? for some reason
+          expect { get_pipelines_index_json }.not_to exceed_query_limit(control_count + 1)
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['pipelines'].count).to eq 12
+        end
       end
     end
 
@@ -121,9 +95,9 @@ describe Projects::PipelinesController do
 
         expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
 
-        # ListCommitsByOid, RepositoryExists, HasLocalBranches
+        # ListCommitsByOid, RepositoryExists, HasLocalBranches, ListCommitsByRefNames
         expect { get_pipelines_index_json }
-          .to change { Gitlab::GitalyClient.get_request_count }.by(3)
+          .to change { Gitlab::GitalyClient.get_request_count }.by(4)
       end
     end
 
@@ -145,23 +119,27 @@ describe Projects::PipelinesController do
       end
     end
 
-    context 'filter by scope' do
-      it 'returns matched pipelines' do
-        get_pipelines_index_json(scope: 'running')
+    context 'when user tries to access legacy scope via URL' do
+      it 'redirects to all pipelines with that status instead' do
+        get_pipelines_index_html(scope: 'running')
 
-        check_pipeline_response(returned: 2, all: 6, running: 2, pending: 1, finished: 3)
+        expect(response).to redirect_to(project_pipelines_path(project, status: 'running', format: :html))
       end
+    end
 
+    context 'filter by scope' do
       context 'scope is branches or tags' do
         before do
           create(:ci_pipeline, :failed, project: project, ref: 'v1.0.0', tag: true)
+          create(:ci_pipeline, :failed, project: project, ref: 'master', tag: false)
+          create(:ci_pipeline, :failed, project: project, ref: 'feature', tag: false)
         end
 
         context 'when scope is branches' do
           it 'returns matched pipelines' do
             get_pipelines_index_json(scope: 'branches')
 
-            check_pipeline_response(returned: 1, all: 7, running: 2, pending: 1, finished: 4)
+            check_pipeline_response(returned: 2, all: 9)
           end
         end
 
@@ -169,7 +147,7 @@ describe Projects::PipelinesController do
           it 'returns matched pipelines' do
             get_pipelines_index_json(scope: 'tags')
 
-            check_pipeline_response(returned: 1, all: 7, running: 2, pending: 1, finished: 4)
+            check_pipeline_response(returned: 1, all: 9)
           end
         end
       end
@@ -182,7 +160,7 @@ describe Projects::PipelinesController do
         it 'returns matched pipelines' do
           get_pipelines_index_json(username: user.username)
 
-          check_pipeline_response(returned: 1, all: 1, running: 1, pending: 0, finished: 0)
+          check_pipeline_response(returned: 1, all: 1)
         end
       end
 
@@ -190,9 +168,63 @@ describe Projects::PipelinesController do
         it 'returns empty' do
           get_pipelines_index_json(username: 'invalid-username')
 
-          check_pipeline_response(returned: 0, all: 0, running: 0, pending: 0, finished: 0)
+          check_pipeline_response(returned: 0, all: 0)
         end
       end
+    end
+
+    context 'filter by ref' do
+      let!(:pipeline) { create(:ci_pipeline, :running, project: project, ref: 'branch-1') }
+
+      context 'when pipelines with the ref exists' do
+        it 'returns matched pipelines' do
+          get_pipelines_index_json(ref: 'branch-1')
+
+          check_pipeline_response(returned: 1, all: 1)
+        end
+      end
+
+      context 'when no pipeline with the ref exists' do
+        it 'returns empty list' do
+          get_pipelines_index_json(ref: 'invalid-ref')
+
+          check_pipeline_response(returned: 0, all: 0)
+        end
+      end
+    end
+
+    context 'filter by status' do
+      context 'when pipelines with the status exists' do
+        it 'returns matched pipelines' do
+          get_pipelines_index_json(status: 'success')
+
+          check_pipeline_response(returned: 1, all: 1)
+        end
+      end
+
+      context 'when no pipeline with the status exists' do
+        it 'returns empty list' do
+          get_pipelines_index_json(status: 'manual')
+
+          check_pipeline_response(returned: 0, all: 0)
+        end
+      end
+
+      context 'when invalid status' do
+        it 'returns all list' do
+          get_pipelines_index_json(status: 'invalid-status')
+
+          check_pipeline_response(returned: 6, all: 6)
+        end
+      end
+    end
+
+    def get_pipelines_index_html(params = {})
+      get :index, params: {
+                    namespace_id: project.namespace,
+                    project_id: project
+                  }.merge(params),
+                  format: :html
     end
 
     def get_pipelines_index_json(params = {})
@@ -224,7 +256,8 @@ describe Projects::PipelinesController do
       user = create(:user)
       pipeline = create(:ci_empty_pipeline, status: status,
                                             project: project,
-                                            sha: sha,
+                                            sha: sha.id,
+                                            ref: sha.id.first(8),
                                             user: user,
                                             merge_request: merge_request)
 
@@ -250,15 +283,12 @@ describe Projects::PipelinesController do
       )
     end
 
-    def check_pipeline_response(returned:, all:, running:, pending:, finished:)
+    def check_pipeline_response(returned:, all:)
       aggregate_failures do
         expect(response).to match_response_schema('pipeline')
 
         expect(json_response['pipelines'].count).to eq returned
         expect(json_response['count']['all'].to_i).to eq all
-        expect(json_response['count']['running'].to_i).to eq running
-        expect(json_response['count']['pending'].to_i).to eq pending
-        expect(json_response['count']['finished'].to_i).to eq finished
       end
     end
   end
@@ -528,6 +558,39 @@ describe Projects::PipelinesController do
     end
   end
 
+  describe 'GET dag.json' do
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    before do
+      create_build('build', 1, 'build')
+      create_build('test', 2, 'test', scheduling_type: 'dag').tap do |job|
+        create(:ci_build_need, build: job, name: 'build')
+      end
+    end
+
+    it 'returns the pipeline with DAG serialization' do
+      get :dag, params: { namespace_id: project.namespace, project_id: project, id: pipeline }, format: :json
+
+      expect(response).to have_gitlab_http_status(:ok)
+
+      expect(json_response.fetch('stages')).not_to be_empty
+
+      build_stage = json_response['stages'].first
+      expect(build_stage.fetch('name')).to eq 'build'
+      expect(build_stage.fetch('groups').first.fetch('jobs'))
+        .to eq [{ 'name' => 'build', 'scheduling_type' => 'stage' }]
+
+      test_stage = json_response['stages'].last
+      expect(test_stage.fetch('name')).to eq 'test'
+      expect(test_stage.fetch('groups').first.fetch('jobs'))
+        .to eq [{ 'name' => 'test', 'scheduling_type' => 'dag', 'needs' => ['build'] }]
+    end
+
+    def create_build(stage, stage_idx, name, params = {})
+      create(:ci_build, pipeline: pipeline, stage: stage, stage_idx: stage_idx, name: name, **params)
+    end
+  end
+
   describe 'GET stages.json' do
     let(:pipeline) { create(:ci_pipeline, project: project) }
 
@@ -646,6 +709,15 @@ describe Projects::PipelinesController do
     end
   end
 
+  describe 'GET #charts' do
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    it_behaves_like 'tracking unique visits', :charts do
+      let(:request_params) { { namespace_id: project.namespace, project_id: project, id: pipeline.id } }
+      let(:target_id) { 'p_analytics_pipelines' }
+    end
+  end
+
   describe 'POST create' do
     let(:project) { create(:project, :public, :repository) }
 
@@ -665,7 +737,7 @@ describe Projects::PipelinesController do
       end
 
       shared_examples 'creates a pipeline' do
-        it do
+        specify do
           expect { post_request }.to change { project.ci_pipelines.count }.by(1)
 
           pipeline = project.ci_pipelines.last
@@ -810,7 +882,7 @@ describe Projects::PipelinesController do
 
     context 'when feature is enabled' do
       before do
-        stub_feature_flags(junit_pipeline_view: true)
+        stub_feature_flags(junit_pipeline_view: project)
       end
 
       context 'when pipeline does not have a test report' do
@@ -858,7 +930,7 @@ describe Projects::PipelinesController do
 
       context 'when junit_pipeline_screenshots_view is enabled' do
         before do
-          stub_feature_flags(junit_pipeline_screenshots_view: { enabled: true, thing: project })
+          stub_feature_flags(junit_pipeline_screenshots_view: project)
         end
 
         context 'when test_report contains attachment and scope is with_attachment as a URL param' do
@@ -887,7 +959,7 @@ describe Projects::PipelinesController do
 
       context 'when junit_pipeline_screenshots_view is disabled' do
         before do
-          stub_feature_flags(junit_pipeline_screenshots_view: { enabled: false, thing: project })
+          stub_feature_flags(junit_pipeline_screenshots_view: false)
         end
 
         context 'when test_report contains attachment and scope is with_attachment as a URL param' do

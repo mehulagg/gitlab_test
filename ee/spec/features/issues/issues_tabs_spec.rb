@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Issue page tabs', :js do
+RSpec.describe 'Issue page tabs', :js do
   let(:user) { create(:user) }
   let(:project) { create(:project, :public) }
   let(:issue) { create(:issue, author: user, assignees: [user], project: project) }
@@ -10,6 +10,7 @@ describe 'Issue page tabs', :js do
   describe 'discussions tab counter' do
     before do
       allow(Ability).to receive(:allowed?) { true }
+      stub_feature_flags(design_management_moved: false)
     end
 
     subject do

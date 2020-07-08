@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference
 ---
 
@@ -16,6 +19,13 @@ that can be reused in different scripts.
 
 Variables are useful for customizing your jobs in GitLab CI/CD.
 When you use variables, you don't have to hard-code values.
+
+> For more information about advanced use of GitLab CI/CD:
+>
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Get to productivity faster with these [7 advanced GitLab CI workflow hacks](https://about.gitlab.com/webcast/7cicd-hacks/)
+>   shared by GitLab engineers.
+> - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>&nbsp;Learn how the Cloud Native Computing Foundation (CNCF) [eliminates the complexity](https://about.gitlab.com/customers/cncf/)
+>   of managing projects across many cloud providers with GitLab CI/CD.
 
 ## Predefined environment variables
 
@@ -106,7 +116,7 @@ From within the UI, you can add or update custom environment variables:
 1. Go to your project's **Settings > CI/CD** and expand the **Variables** section.
 1. Click the **Add Variable** button. In the **Add variable** modal, fill in the details:
 
-    - **Key**: Must be one line, with no spaces, using only letters, numbers, `-` or `_`.
+    - **Key**: Must be one line, with no spaces, using only letters, numbers, or `_`.
     - **Value**: No limitations.
     - **Type**: `File` or `Variable`.
     - **Environment scope**: `All`, or specific environments.
@@ -133,7 +143,7 @@ The output will be:
 
 ### Custom environment variables of type Variable
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46806) in GitLab 11.11.
 
 For variables with the type **Variable**, the Runner creates an environment variable
 that uses the key for the name and the value for the value.
@@ -143,13 +153,13 @@ which may be further validated. They appear when you add or update a variable in
 
 ### Custom environment variables of type File
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/46806) in GitLab 11.11.
 
 For variables with the type **File**, the Runner creates an environment variable that uses the key for the name.
 For the value, the Runner writes the variable value to a temporary file and uses this path.
 
 You can use tools like [the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
-and [kubectl](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
+and [`kubectl`](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 to customize your configuration by using **File** type variables.
 
 In the past, a common pattern was to read the value of a CI variable, save it in a file, and then
@@ -175,7 +185,7 @@ kubectl config set-cluster e2e --server="$KUBE_URL" --certificate-authority="$KU
 
 ### Mask a custom variable
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/13784) in GitLab 11.10
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/13784) in GitLab 11.10
 
 Variables can be masked so that the value of the variable will be hidden in job logs.
 
@@ -195,7 +205,7 @@ The value of the variable must:
 - Be at least 8 characters long.
 - Not be a predefined or custom environment variable.
 - Consist only of characters from the Base64 alphabet (RFC4648).
-  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/issues/63043)
+  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63043)
   and newer, `@` and `:` are also valid values.
 
 You can't mask variables that don't meet these requirements.
@@ -242,19 +252,48 @@ In most cases `bash` or `sh` is used to execute the job script.
 
 To access environment variables, use the syntax for your Runner's [shell](https://docs.gitlab.com/runner/executors/).
 
-| Shell                | Usage           |
-|----------------------|-----------------|
-| bash/sh              | `$variable`     |
-| windows batch        | `%variable%`    |
-| PowerShell           | `$env:variable` |
+| Shell                | Usage                                    |
+|----------------------|------------------------------------------|
+| bash/sh              | `$variable`                              |
+| PowerShell           | `$env:variable` (primary) or `$variable` |
+| Windows Batch        | `%variable%`                             |
 
-To access environment variables in bash, prefix the variable name with (`$`):
+### Bash
+
+To access environment variables in **bash**, prefix the variable name with (`$`):
 
 ```yaml
 job_name:
   script:
     - echo $CI_JOB_ID
 ```
+
+### PowerShell
+
+To access environment variables in a **Windows PowerShell** environment, prefix
+the variable name with (`$env:`). For environment variables set by GitLab CI, including those set by [`variables`](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/ci/yaml/README.md#variables)
+parameter, they can also be accessed by prefixing the variable name with (`$`)
+as of [GitLab Runner 1.0.0](https://gitlab.com/gitlab-org/gitlab-runner/-/commit/abc44bb158008cd3a49c0d8173717c38dadb29ae#47afd7e8f12afdb8f0246262488f24e6dd071a22).
+System set environment variables however must be accessed using (`$env:`).
+
+```yaml
+job_name:
+  script:
+    - echo $env:CI_JOB_ID
+    - echo $CI_JOB_ID
+    - echo $env:PATH
+```
+
+In [some cases](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4115#note_157692820)
+environment variables may need to be surrounded by quotes to expand properly:
+
+```yaml
+job_name:
+  script:
+    - D:\\qislsf\\apache-ant-1.10.5\\bin\\ant.bat "-DsosposDailyUsr=$env:SOSPOS_DAILY_USR" portal_test
+```
+
+### Windows Batch
 
 To access environment variables in **Windows Batch**, surround the variable
 with (`%`):
@@ -265,23 +304,18 @@ job_name:
     - echo %CI_JOB_ID%
 ```
 
-To access environment variables in a **Windows PowerShell** environment, prefix
-the variable name with (`$env:`):
+### List all environment variables
 
-```yaml
-job_name:
-  script:
-    - echo $env:CI_JOB_ID
-```
-
-You can also list all environment variables with the `export` command,
-but be aware that this will also expose the values of all the variables
+You can also list all environment variables with the `export` command in Bash
+or `dir env:` command in PowerShell.
+Be aware that this will also expose the values of all the variables
 you set, in the job log:
 
 ```yaml
 job_name:
   script:
     - export
+    # - 'dir env:' # use this for PowerShell
 ```
 
 Example values:
@@ -307,6 +341,7 @@ export CI_PROJECT_DIR="/builds/gitlab-org/gitlab-foss"
 export CI_PROJECT_NAME="gitlab-foss"
 export CI_PROJECT_TITLE="GitLab FOSS"
 export CI_PROJECT_NAMESPACE="gitlab-org"
+export CI_PROJECT_ROOT_NAMESPACE="gitlab-org"
 export CI_PROJECT_PATH="gitlab-org/gitlab-foss"
 export CI_PROJECT_URL="https://example.com/gitlab-org/gitlab-foss"
 export CI_REGISTRY="registry.example.com"
@@ -377,9 +412,8 @@ script:
 
 You can define per-project or per-group variables
 that are set in the pipeline environment. Group-level variables are stored out of
-the repository (not in `.gitlab-ci.yml`) and are securely passed to GitLab Runner
-making them available during a pipeline run. It's the **recommended method** to
-use for storing things like passwords, SSH keys, and credentials.
+the repository (not in `.gitlab-ci.yml`) and are securely passed to GitLab Runner,
+which makes them available during a pipeline run. For Premium users who do **not** use an external key store or who use GitLab's [integration with HashiCorp Vault](../examples/authenticating-with-hashicorp-vault/index.md), we recommend using group environment variables to store secrets like passwords, SSH keys, and credentials.
 
 Group-level variables can be added by:
 
@@ -394,6 +428,96 @@ Once you set them, they will be available for all subsequent pipelines. Any grou
 
 ![CI/CD settings - inherited variables](img/inherited_group_variables_v12_5.png)
 
+## Instance-level CI/CD environment variables
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14108) in GitLab 13.0.
+
+Instance variables are useful for no longer needing to manually enter the same credentials repeatedly for all your projects. Instance-level variables are available to all projects and groups on the instance.
+
+NOTE: **Note:**
+The maximum number of instance-level variables is [planned to be 25](https://gitlab.com/gitlab-org/gitlab/-/issues/216097).
+
+You can define instance-level variables via the UI or [API](../../api/instance_level_ci_variables.md).
+
+To add an instance-level variable:
+
+1. Navigate to your admin area's **Settings > CI/CD** and expand the **Variables** section.
+1. Click the **Add variable** button, and fill in the details:
+
+    - **Key**: Must be one line, using only letters, numbers, or `_` (underscore), with no spaces.
+    - **Value**: 700 characters allowed.
+    - **Type**: `File` or `Variable`.
+    - **Protect variable** (Optional): If selected, the variable will only be available in pipelines that run on protected branches or tags.
+    - **Mask variable** (Optional): If selected, the variable's **Value** will not be shown in job logs. The variable will not be saved if the value does not meet the [masking requirements](#masked-variable-requirements).
+
+After a variable is created, you can update any of the details by clicking the **{pencil}** **Edit** button.
+
+### Enable or disable UI interface for instance-level CI/CD variables
+
+The UI interface for Instance-level CI/CD variables is under development but ready for production use.
+It is deployed behind a feature flag that is **enabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md) can opt to disable it for your instance.
+
+To disable it:
+
+```ruby
+Feature.disable(:instance_variables_ui)
+```
+
+To enable it:
+
+```ruby
+Feature.enable(:instance_variables_ui)
+```
+
+## Inherit environment variables
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22638) in GitLab 13.0 behind a disabled [feature flag](../../administration/feature_flags.md): `ci_dependency_variables`.
+> - [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/217834) in GitLab 13.1.
+
+You can inherit environment variables from dependent jobs.
+
+This feature makes use of the [`artifacts:reports:dotenv`](../pipelines/job_artifacts.md#artifactsreportsdotenv) report feature.
+
+Example with [`dependencies`](../yaml/README.md#dependencies) keyword.
+
+```yaml
+build:
+  stage: build
+  script:
+    - echo "BUILD_VERSION=hello" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+deploy:
+  stage: deploy
+  script:
+    - echo $BUILD_VERSION # => hello
+  dependencies:
+    - build
+```
+
+Example with the [`needs`](../yaml/README.md#artifact-downloads-with-needs) keyword:
+
+```yaml
+build:
+  stage: build
+  script:
+    - echo "BUILD_VERSION=hello" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+deploy:
+  stage: deploy
+  script:
+    - echo $BUILD_VERSION # => hello
+  needs:
+    - job: build
+      artifacts: true
+```
+
 ## Priority of environment variables
 
 Variables of different types can take precedence over other
@@ -401,9 +525,11 @@ variables, depending on where they are defined.
 
 The order of precedence for variables is (from highest to lowest):
 
-1. [Trigger variables](../triggers/README.md#making-use-of-trigger-variables) or [scheduled pipeline variables](../pipelines/schedules.md#using-variables).
+1. [Trigger variables](../triggers/README.md#making-use-of-trigger-variables), [scheduled pipeline variables](../pipelines/schedules.md#using-variables),
+   and [manual pipeline run variables](#override-a-variable-by-manually-running-a-pipeline).
 1. Project-level [variables](#custom-environment-variables) or [protected variables](#protect-a-custom-variable).
 1. Group-level [variables](#group-level-environment-variables) or [protected variables](#protect-a-custom-variable).
+1. [Inherited environment variables](#inherit-environment-variables).
 1. YAML-defined [job-level variables](../yaml/README.md#variables).
 1. YAML-defined [global variables](../yaml/README.md#variables).
 1. [Deployment variables](#deployment-environment-variables).
@@ -419,8 +545,10 @@ variables take precedence over those defined in `.gitlab-ci.yml`.
 
 ## Unsupported variables
 
-There are cases where some variables cannot be used in the context of a
-`.gitlab-ci.yml` definition (for example under `script`). Read more about which variables are [not supported](where_variables_can_be_used.md).
+Variable names are limited by the underlying shell used to execute scripts (see [available shells](https://docs.gitlab.com/runner/shells/index.html).
+Each shell has its own unique set of reserved variable names.
+You will also want to keep in mind the [scope of environment variables](where_variables_can_be_used.md) to ensure a variable is defined in the scope
+in which you wish to use it.
 
 ## Where variables can be used
 
@@ -431,9 +559,9 @@ Click [here](where_variables_can_be_used.md) for a section that describes where 
 ### Limit the environment scopes of environment variables
 
 You can limit the environment scope of a variable by
-[defining which environments](../environments.md) it can be available for.
+[defining which environments](../environments/index.md) it can be available for.
 
-To learn more about scoping environments, see [Scoping environments with specs](../environments.md#scoping-environments-with-specs).
+To learn more about scoping environments, see [Scoping environments with specs](../environments/index.md#scoping-environments-with-specs).
 
 ### Deployment environment variables
 
@@ -442,7 +570,7 @@ To learn more about scoping environments, see [Scoping environments with specs](
 [Integrations](../../user/project/integrations/overview.md) that are
 responsible for deployment configuration may define their own variables that
 are set in the build environment. These variables are only defined for
-[deployment jobs](../environments.md). Please consult the documentation of
+[deployment jobs](../environments/index.md). Please consult the documentation of
 the integrations that you are using to learn which variables they define.
 
 An example integration that defines deployment variables is the
@@ -450,7 +578,7 @@ An example integration that defines deployment variables is the
 
 ### Auto DevOps environment variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/49056) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/49056) in GitLab 11.7.
 
 You can configure [Auto DevOps](../../topics/autodevops/index.md) to
 pass CI variables to the running application by prefixing the key of the
@@ -462,12 +590,12 @@ then be available as environment variables on the running application
 container.
 
 CAUTION: **Caution:**
-Variables with multiline values are not currently supported due to
+Variables with multi-line values are not currently supported due to
 limitations with the current Auto DevOps scripting environment.
 
 ### Override a variable by manually running a pipeline
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/44059) in GitLab 10.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/44059) in GitLab 10.8.
 
 You can override the value of a current variable by
 [running a pipeline manually](../pipelines/index.md#run-a-pipeline-manually).
@@ -487,8 +615,8 @@ value for this specific pipeline.
 
 ## Environment variables expressions
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
-> - [Expanded](https://gitlab.com/gitlab-org/gitlab/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.md#rules)
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
+> - [Expanded](https://gitlab.com/gitlab-org/gitlab/-/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.md#rules)
 
 Use variable expressions to limit which jobs are created
 within a pipeline after changes are pushed to GitLab.
@@ -544,8 +672,8 @@ Below you can find supported syntax reference:
 
    It sometimes happens that you want to check whether a variable is defined
    or not. To do that, you can compare a variable to `null` keyword, like
-   `$VARIABLE == null`. This expression is going to evaluate to truth if
-   variable is not defined when `==` is used, or to falsey if `!=` is used.
+   `$VARIABLE == null`. This expression evaluates to true if
+   variable is not defined when `==` is used, or to false if `!=` is used.
 
 1. Checking for an empty variable
 
@@ -576,7 +704,7 @@ Below you can find supported syntax reference:
    which means that it is defined and non-empty, you can simply use
    variable name as an expression, like `$STAGING`. If `$STAGING` variable
    is defined, and is non empty, expression will evaluate to truth.
-   `$STAGING` value needs to a string, with length higher than zero.
+   `$STAGING` value needs to be a string, with length higher than zero.
    Variable that contains only whitespace characters is not an empty variable.
 
 1. Pattern matching (introduced in GitLab 11.0)
@@ -584,7 +712,7 @@ Below you can find supported syntax reference:
    Examples:
 
    - `=~`: True if pattern is matched. Ex: `$VARIABLE =~ /^content.*/`
-   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/61900) in GitLab 11.11)
+   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/61900) in GitLab 11.11)
 
    Variable pattern matching with regular expressions uses the
    [RE2 regular expression syntax](https://github.com/google/re2/wiki/Syntax).
@@ -626,7 +754,7 @@ deploy_staging:
 ```
 
 NOTE: **Note:**
-The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
+The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/35438)
 for more details.
 
 If needed, you can use a test pipeline to determine whether a regular expression will
@@ -765,8 +893,8 @@ if [[ -d "/builds/gitlab-examples/ci-debug-trace/.git" ]]; then
 ++ CI_SERVER_VERSION_PATCH=0
 ++ export CI_SERVER_REVISION=f4cc00ae823
 ++ CI_SERVER_REVISION=f4cc00ae823
-++ export GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_clusters,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,cluster_health,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
-++ GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_clusters,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,cluster_health,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
+++ export GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
+++ GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,cluster_health,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
 ++ export CI_PROJECT_ID=17893
 ++ CI_PROJECT_ID=17893
 ++ export CI_PROJECT_NAME=ci-debug-trace
@@ -779,6 +907,8 @@ if [[ -d "/builds/gitlab-examples/ci-debug-trace/.git" ]]; then
 ++ CI_PROJECT_PATH_SLUG=gitlab-examples-ci-debug-trace
 ++ export CI_PROJECT_NAMESPACE=gitlab-examples
 ++ CI_PROJECT_NAMESPACE=gitlab-examples
+++ export CI_PROJECT_ROOT_NAMESPACE=gitlab-examples
+++ CI_PROJECT_ROOT_NAMESPACE=gitlab-examples
 ++ export CI_PROJECT_URL=https://gitlab.com/gitlab-examples/ci-debug-trace
 ++ CI_PROJECT_URL=https://gitlab.com/gitlab-examples/ci-debug-trace
 ++ export CI_PROJECT_VISIBILITY=public

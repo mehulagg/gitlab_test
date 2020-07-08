@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Verify', :docker, :runner do
+  RSpec.describe 'Verify', :docker, :runner do
     describe 'Code coverage statistics' do
       let(:simplecov) { '\(\d+.\d+\%\) covered' }
       let(:executor) { "qa-runner-#{Time.now.to_i}" }
       let(:runner) do
         Resource::Runner.fabricate_via_api! do |runner|
           runner.name = executor
+          runner.tags = ['e2e-test']
         end
       end
 
@@ -17,9 +18,7 @@ module QA
           mr.file_name = '.gitlab-ci.yml'
           mr.file_content = <<~EOF
             test:
-              tags:
-                - qa
-                - e2e
+              tags: [e2e-test]
               script:
                 - echo '(66.67%) covered'
           EOF

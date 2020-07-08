@@ -14,7 +14,9 @@ module Security
       sast: 1,
       dependency_scanning: 2,
       container_scanning: 3,
-      dast: 4
+      dast: 4,
+      secret_detection: 5,
+      coverage_fuzzing: 6
     }
   end
 end

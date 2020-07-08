@@ -7,9 +7,11 @@ module Mutations
 
     ERROR_MESSAGE = 'You cannot perform write operations on a read-only instance'
 
+    field_class ::Types::BaseField
+
     field :errors, [GraphQL::STRING_TYPE],
           null: false,
-          description: "Reasons why the mutation failed."
+          description: 'Errors encountered during execution of the mutation.'
 
     def current_user
       context[:current_user]

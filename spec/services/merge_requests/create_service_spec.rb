@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
+RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
   include ProjectForksHelper
 
   let(:project) { create(:project, :repository) }
@@ -59,7 +59,7 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
 
       it 'creates exactly 1 create MR event', :sidekiq_might_not_need_inline do
         attributes = {
-          action: Event::CREATED,
+          action: :created,
           target_id: merge_request.id,
           target_type: merge_request.class.name
         }
@@ -136,11 +136,11 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
         let!(:pipeline_3) { create(:ci_pipeline, project: project, ref: "other_branch", project_id: project.id) }
 
         before do
-          # rubocop: disable DestroyAll
+          # rubocop: disable Cop/DestroyAll
           project.merge_requests
             .where(source_branch: opts[:source_branch], target_branch: opts[:target_branch])
             .destroy_all
-          # rubocop: enable DestroyAll
+          # rubocop: enable Cop/DestroyAll
         end
 
         it 'sets head pipeline' do
@@ -339,13 +339,14 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
       end
     end
 
-    it_behaves_like 'new issuable record that supports quick actions' do
+    it_behaves_like 'issuable record that supports quick actions' do
       let(:default_params) do
         {
           source_branch: 'feature',
           target_branch: 'master'
         }
       end
+      let(:issuable) { described_class.new(project, user, params).execute }
     end
 
     context 'Quick actions' do

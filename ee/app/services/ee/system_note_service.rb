@@ -24,37 +24,6 @@ module EE
       issuables_service(noteable, noteable.project, user).unrelate_issue(noteable_ref)
     end
 
-    # Parameters:
-    #   - version [DesignManagement::Version]
-    #
-    # Example Note text:
-    #
-    #   "added [1 designs](link-to-version)"
-    #   "changed [2 designs](link-to-version)"
-    #
-    # Returns [Array<Note>]: the created Note objects
-    def design_version_added(version)
-      design_management_service(version.issue,
-                                version.issue.project,
-                                version.author).design_version_added(version)
-    end
-
-    # Called when a new discussion is created on a design
-    #
-    # discussion_note - DiscussionNote
-    #
-    # Example Note text:
-    #
-    #   "started a discussion on screen.png"
-    #
-    # Returns the created Note object
-    def design_discussion_added(discussion_note)
-      design = discussion_note.noteable
-      design_management_service(design.issue,
-                                design.project,
-                                discussion_note.author).design_discussion_added(discussion_note)
-    end
-
     def epic_issue(epic, issue, user, type)
       epics_service(epic, user).epic_issue(issue, type)
     end
@@ -75,22 +44,8 @@ module EE
       epics_service(epic, user).issue_epic_change(issue)
     end
 
-    # Called when the merge request is approved by user
-    #
-    # noteable - Noteable object
-    # user     - User performing approve
-    #
-    # Example Note text:
-    #
-    #   "approved this merge request"
-    #
-    # Returns the created Note object
-    def approve_mr(noteable, user)
-      merge_requests_service(noteable, noteable.project, user).approve_mr
-    end
-
-    def unapprove_mr(noteable, user)
-      merge_requests_service(noteable, noteable.project, user).unapprove_mr
+    def change_iteration(noteable, author, iteration)
+      issuables_service(noteable, noteable.project, author).change_iteration(iteration)
     end
 
     # Called when the weight of a Noteable is changed
@@ -192,16 +147,8 @@ module EE
       ::SystemNotes::IssuablesService.new(noteable: noteable, project: project, author: author)
     end
 
-    def design_management_service(noteable, project, author)
-      EE::SystemNotes::DesignManagementService.new(noteable: noteable, project: project, author: author)
-    end
-
     def epics_service(noteable, author)
       EE::SystemNotes::EpicsService.new(noteable: noteable, author: author)
-    end
-
-    def merge_requests_service(noteable, project, author)
-      ::SystemNotes::MergeRequestsService.new(noteable: noteable, project: project, author: author)
     end
 
     def merge_trains_service(noteable, project, author)

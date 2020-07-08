@@ -2,7 +2,7 @@
 require 'securerandom'
 
 module QA
-  context 'Manage' do
+  RSpec.describe 'Manage' do
     include Support::Api
 
     let(:api_client) { Runtime::API::Client.new(:gitlab) }
@@ -56,7 +56,7 @@ module QA
           Page::Group::Menu.perform(&:click_group_general_settings_item)
         end
 
-        it_behaves_like 'audit event', ['Add group'] do
+        it_behaves_like 'audit event', ['Added group'] do
           let(:group) do
             Resource::Group.fabricate_via_api! do |group|
               group.name = group_name
@@ -75,7 +75,7 @@ module QA
             settings.click_save_name_visibility_settings_button
           end
         end
-        it_behaves_like 'audit event', ['Change repository size limit']
+        it_behaves_like 'audit event', ['Changed repository size limit']
       end
 
       context 'Update group name' do
@@ -90,7 +90,7 @@ module QA
           end
         end
 
-        it_behaves_like 'audit event', ['Change name']
+        it_behaves_like 'audit event', ['Changed name']
       end
 
       context 'Add user, change access level, remove user' do
@@ -105,7 +105,7 @@ module QA
           end
         end
 
-        it_behaves_like 'audit event', ['Add user access as guest', 'Change access level', 'Remove user access']
+        it_behaves_like 'audit event', ['Added user access as Guest', 'Changed access level', 'Removed user access']
       end
 
       context 'Add and remove project access' do
@@ -113,20 +113,20 @@ module QA
           sign_in
           project.visit!
 
-          Page::Project::Menu.perform(&:go_to_members_settings)
-          Page::Project::Settings::Members.perform do |members|
+          Page::Project::Menu.perform(&:click_members)
+          Page::Project::Members.perform do |members|
             members.invite_group(@group.path)
           end
 
-          Page::Project::Menu.perform(&:go_to_members_settings)
-          Page::Project::Settings::Members.perform do |members|
+          Page::Project::Menu.perform(&:click_members)
+          Page::Project::Members.perform do |members|
             members.remove_group(@group.path)
           end
 
           @group.visit!
         end
 
-        it_behaves_like 'audit event', ['Add project access', 'Remove project access']
+        it_behaves_like 'audit event', ['Added project access', 'Removed project access']
       end
     end
 
@@ -141,20 +141,14 @@ module QA
 
     def get_audit_event_count(group)
       response = get Runtime::API::Request.new(api_client, "/groups/#{group.id}/audit_events").url
-      puts response
       parse_body(response).length
     end
 
     def wait_for_audit_events(expected_events, group)
       new_event_count = @event_count + expected_events.length
 
-      puts "****************"
-      puts "New event count #{new_event_count}"
-
       Support::Retrier.retry_until(max_duration: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME, sleep_interval: 1) do
-        current_event_count = get_audit_event_count(group)
-        puts "Current event count #{current_event_count}"
-        current_event_count == new_event_count
+        get_audit_event_count(group) >= new_event_count
       end
     end
   end

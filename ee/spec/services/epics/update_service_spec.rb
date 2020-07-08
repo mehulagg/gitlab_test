@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Epics::UpdateService do
+RSpec.describe Epics::UpdateService do
   let(:group) { create(:group, :internal) }
   let(:user) { create(:user) }
   let(:epic) { create(:epic, group: group) }
@@ -311,6 +311,16 @@ describe Epics::UpdateService do
     it_behaves_like 'existing issuable with scoped labels' do
       let(:issuable) { epic }
       let(:parent) { group }
+    end
+
+    context 'with quick actions in the description' do
+      let(:label) { create(:group_label, group: group) }
+
+      it 'adds labels to the epic' do
+        update_epic(description: "/label ~#{label.name}")
+
+        expect(epic.label_ids).to contain_exactly(label.id)
+      end
     end
   end
 end

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class EventFilter
+  include Gitlab::Utils::StrongMemoize
+
   attr_accessor :filter
 
   ALL = 'all'
@@ -10,6 +12,7 @@ class EventFilter
   COMMENTS = 'comments'
   TEAM = 'team'
   WIKI = 'wiki'
+  DESIGNS = 'designs'
 
   def initialize(filter)
     # Split using comma to maintain backward compatibility Ex/ "filter1,filter2"
@@ -27,17 +30,19 @@ class EventFilter
 
     case filter
     when PUSH
-      events.where(action: Event::PUSHED)
+      events.pushed_action
     when MERGED
-      events.where(action: Event::MERGED)
+      events.merged_action
     when COMMENTS
-      events.where(action: Event::COMMENTED)
+      events.commented_action
     when TEAM
-      events.where(action: [Event::JOINED, Event::LEFT, Event::EXPIRED])
+      events.where(action: [:joined, :left, :expired])
     when ISSUE
-      events.where(action: [Event::CREATED, Event::UPDATED, Event::CLOSED, Event::REOPENED], target_type: 'Issue')
+      events.where(action: [:created, :updated, :closed, :reopened], target_type: 'Issue')
     when WIKI
       wiki_events(events)
+    when DESIGNS
+      design_events(events)
     else
       events
     end
@@ -47,7 +52,8 @@ class EventFilter
   private
 
   def apply_feature_flags(events)
-    return events.not_wiki_page unless Feature.enabled?(:wiki_events)
+    events = events.not_wiki_page unless Feature.enabled?(:wiki_events)
+    events = events.not_design unless can_view_design_activity?
 
     events
   end
@@ -58,8 +64,18 @@ class EventFilter
     events.for_wiki_page
   end
 
+  def design_events(events)
+    return events.for_design if can_view_design_activity?
+
+    events
+  end
+
   def filters
-    [ALL, PUSH, MERGED, ISSUE, COMMENTS, TEAM, WIKI]
+    [ALL, PUSH, MERGED, ISSUE, COMMENTS, TEAM, WIKI, DESIGNS]
+  end
+
+  def can_view_design_activity?
+    Feature.enabled?(:design_activity_events)
   end
 end
 

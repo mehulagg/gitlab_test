@@ -95,6 +95,10 @@ export default {
     Object.assign(state, { noteableData: data });
   },
 
+  [types.SET_ISSUE_CONFIDENTIAL](state, data) {
+    state.noteableData.confidential = data;
+  },
+
   [types.SET_USER_DATA](state, data) {
     Object.assign(state, { userData: data });
   },
@@ -225,6 +229,39 @@ export default {
     }));
   },
 
+  [types.SET_APPLYING_BATCH_STATE](state, isApplyingBatch) {
+    state.batchSuggestionsInfo.forEach(suggestionInfo => {
+      const { discussionId, noteId, suggestionId } = suggestionInfo;
+
+      const noteObj = utils.findNoteObjectById(state.discussions, discussionId);
+      const comment = utils.findNoteObjectById(noteObj.notes, noteId);
+
+      comment.suggestions = comment.suggestions.map(suggestion => ({
+        ...suggestion,
+        is_applying_batch: suggestion.id === suggestionId && isApplyingBatch,
+      }));
+    });
+  },
+
+  [types.ADD_SUGGESTION_TO_BATCH](state, { noteId, discussionId, suggestionId }) {
+    state.batchSuggestionsInfo.push({
+      suggestionId,
+      noteId,
+      discussionId,
+    });
+  },
+
+  [types.REMOVE_SUGGESTION_FROM_BATCH](state, id) {
+    const index = state.batchSuggestionsInfo.findIndex(({ suggestionId }) => suggestionId === id);
+    if (index !== -1) {
+      state.batchSuggestionsInfo.splice(index, 1);
+    }
+  },
+
+  [types.CLEAR_SUGGESTION_BATCH](state) {
+    state.batchSuggestionsInfo.splice(0, state.batchSuggestionsInfo.length);
+  },
+
   [types.UPDATE_DISCUSSION](state, noteData) {
     const note = noteData;
     const selectedDiscussion = state.discussions.find(disc => disc.id === note.id);
@@ -321,5 +358,8 @@ export default {
   },
   [types.RECEIVE_DELETE_DESCRIPTION_VERSION_ERROR](state) {
     state.isLoadingDescriptionVersion = false;
+  },
+  [types.UPDATE_ASSIGNEES](state, assignees) {
+    state.noteableData.assignees = assignees;
   },
 };

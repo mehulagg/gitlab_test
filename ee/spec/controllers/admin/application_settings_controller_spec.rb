@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Admin::ApplicationSettingsController do
+RSpec.describe Admin::ApplicationSettingsController do
   include StubENV
 
   let(:admin) { create(:admin) }
@@ -160,6 +160,33 @@ describe Admin::ApplicationSettingsController do
       it_behaves_like 'settings for licensed features'
     end
 
+    context 'compliance frameworks' do
+      let(:settings) { { compliance_frameworks: [1, 2, 3, 4, 5] } }
+      let(:feature) { :admin_merge_request_approvers_rules }
+
+      context 'when feature flag is enabled' do
+        before do
+          stub_feature_flags(admin_compliance_merge_request_approval_settings: true)
+        end
+
+        it_behaves_like 'settings for licensed features'
+      end
+
+      context 'when feature flag is disabled' do
+        before do
+          stub_licensed_features(feature => true)
+          stub_feature_flags(admin_compliance_merge_request_approval_settings: false)
+        end
+
+        it 'does not update settings' do
+          attribute_names = settings.keys.map(&:to_s)
+
+          expect { put :update, params: { application_setting: settings } }
+            .not_to change { ApplicationSetting.current.reload.attributes.slice(*attribute_names) }
+        end
+      end
+    end
+
     context 'required instance ci template' do
       let(:settings) { { required_instance_ci_template: 'Auto-DevOps' } }
       let(:feature) { :required_ci_templates }
@@ -225,20 +252,11 @@ describe Admin::ApplicationSettingsController do
       end
     end
 
-    describe 'GET #geo_redirection' do
-      subject { get :geo_redirection }
+    it 'updates setting to enforce personal access token expiration' do
+      put :update, params: { application_setting: { enforce_pat_expiration: false } }
 
-      it 'redirects the user to the admin_geo_settings_url' do
-        subject
-
-        expect(response).to redirect_to(admin_geo_settings_url)
-      end
-
-      it 'fires a notice about the redirection' do
-        subject
-
-        expect(response).to set_flash[:notice]
-      end
+      expect(response).to redirect_to(general_admin_application_settings_path)
+      expect(ApplicationSetting.current.enforce_pat_expiration).to be_falsey
     end
   end
 
@@ -256,7 +274,7 @@ describe Admin::ApplicationSettingsController do
     end
 
     context 'when an admin user attempts a request' do
-      let_it_be(:yesterday) { Time.now.utc.yesterday.to_date }
+      let_it_be(:yesterday) { Time.current.utc.yesterday.to_date }
       let_it_be(:max_count) { 15 }
       let_it_be(:current_count) { 10 }
 

@@ -2,10 +2,13 @@ inherit_gem:
   gitlab-styles:
     - rubocop-default.yml
 
-inherit_from: .rubocop_todo.yml
 require:
   - ./rubocop/rubocop
   - rubocop-rspec
+
+inherit_from:
+  - .rubocop_todo.yml
+  - ./rubocop/rubocop-migrations.yml
 
 inherit_mode:
   merge:
@@ -13,7 +16,7 @@ inherit_mode:
 
 AllCops:
   TargetRubyVersion: 2.6
-  TargetRailsVersion: 5.0
+  TargetRailsVersion: 6.0
   Exclude:
     - 'vendor/**/*'
     - 'node_modules/**/*'
@@ -27,6 +30,13 @@ AllCops:
     - 'plugins/**/*'
     - 'file_hooks/**/*'
   CacheRootDirectory: tmp
+  MaxFilesInCache: 18000
+
+Cop/AvoidKeywordArgumentsInSidekiqWorkers:
+  Enabled: true
+  Include:
+    - 'app/workers/**/*'
+    - 'ee/app/workers/**/*'
 
 Cop/StaticTranslationDefinition:
   Enabled: true
@@ -172,6 +182,9 @@ Rails/ApplicationRecord:
     - ee/db/**/*.rb
     - ee/spec/**/*.rb
 
+Cop/DefaultScope:
+  Enabled: true
+
 Rails/FindBy:
   Enabled: true
   Include:
@@ -179,6 +192,14 @@ Rails/FindBy:
     - 'ee/lib/**/*.rb'
     - 'spec/**/*.rb'
     - 'ee/spec/**/*.rb'
+
+# This is currently exiting with a rubocop exception error and should be
+# resolved hopefully a future update
+# An error occurred while Rails/UniqueValidationWithoutIndex cop was inspecting
+# app/models/abuse_report.rb:15:2.
+# To see the complete backtrace run rubocop -d.
+Rails/UniqueValidationWithoutIndex:
+  Enabled: false
 
 # GitLab ###################################################################
 
@@ -219,6 +240,7 @@ Gitlab/Json:
     - 'scripts/**/*'
     - 'lib/rspec_flaky/**/*'
     - 'lib/quality/**/*'
+    - 'lib/gitlab/danger/**/*'
 
 GitlabSecurity/PublicSend:
   Enabled: true
@@ -234,10 +256,7 @@ GitlabSecurity/PublicSend:
     - 'ee/spec/**/*'
 
 Gitlab/DuplicateSpecLocation:
-  Exclude:
-    - ee/spec/lib/gitlab/gl_repository_spec.rb
-    - ee/spec/services/merge_requests/refresh_service_spec.rb
-    - ee/spec/services/ee/merge_requests/refresh_service_spec.rb
+  Enabled: true
 
 Cop/InjectEnterpriseEditionModule:
   Enabled: true
@@ -253,11 +272,14 @@ Style/ReturnNil:
 Performance/RegexpMatch:
   Enabled: false
 
-ActiveRecordAssociationReload:
+Cop/ActiveRecordAssociationReload:
   Enabled: true
   Exclude:
     - 'spec/**/*'
     - 'ee/spec/**/*'
+
+Gitlab/AvoidFeatureGet:
+  Enabled: true
 
 Naming/PredicateName:
   Enabled: true
@@ -286,6 +308,18 @@ Gitlab/Union:
     - 'spec/**/*'
     - 'ee/spec/**/*'
 
+API/GrapeAPIInstance:
+  Enabled: true
+  Include:
+    - 'lib/**/api/**/*.rb'
+    - 'ee/**/api/**/*.rb'
+
+API/GrapeArrayMissingCoerce:
+  Enabled: true
+  Include:
+    - 'lib/**/api/**/*.rb'
+    - 'ee/**/api/**/*.rb'
+
 Cop/SidekiqOptionsQueue:
   Enabled: true
   Exclude:
@@ -294,6 +328,9 @@ Cop/SidekiqOptionsQueue:
 
 Graphql/AuthorizeTypes:
   Enabled: true
+  Include:
+    - 'app/graphql/types/**/*'
+    - 'ee/app/graphql/types/**/*'
   Exclude:
     - 'spec/**/*.rb'
     - 'ee/spec/**/*.rb'
@@ -342,71 +379,18 @@ RSpec/LeakyConstantDeclaration:
   Enabled: true
   Exclude:
     - 'spec/db/schema_spec.rb'
-    - 'spec/graphql/gitlab_schema_spec.rb'
-    - 'spec/helpers/visibility_level_helper_spec.rb'
-    - 'spec/initializers/secret_token_spec.rb'
-    - 'spec/lib/declarative_policy_spec.rb'
     - 'spec/lib/feature_spec.rb'
-    - 'spec/lib/gitlab/background_migration/migrate_issue_trackers_sensitive_data_spec.rb'
-    - 'spec/lib/gitlab/ci/build/credentials/factory_spec.rb'
-    - 'spec/lib/gitlab/ci/config/entry/retry_spec.rb'
-    - 'spec/lib/gitlab/cluster/mixins/puma_cluster_spec.rb'
-    - 'spec/lib/gitlab/cluster/mixins/unicorn_http_server_spec.rb'
-    - 'spec/lib/gitlab/config/entry/factory_spec.rb'
     - 'spec/lib/gitlab/config/entry/simplifiable_spec.rb'
-    - 'spec/lib/gitlab/database/migration_helpers_spec.rb'
-    - 'spec/lib/gitlab/database/obsolete_ignored_columns_spec.rb'
-    - 'spec/lib/gitlab/database/with_lock_retries_spec.rb'
-    - 'spec/lib/gitlab/git/diff_collection_spec.rb'
-    - 'spec/lib/gitlab/graphql/pagination/keyset/connection_spec.rb'
-    - 'spec/lib/gitlab/health_checks/master_check_spec.rb'
-    - 'spec/lib/gitlab/import_export/attribute_configuration_spec.rb'
-    - 'spec/lib/gitlab/import_export/import_test_coverage_spec.rb'
-    - 'spec/lib/gitlab/import_export/project/relation_factory_spec.rb'
-    - 'spec/lib/gitlab/jira_import/issues_importer_spec.rb'
-    - 'spec/lib/gitlab/no_cache_headers_spec.rb'
-    - 'spec/lib/gitlab/path_regex_spec.rb'
     - 'spec/lib/gitlab/quick_actions/dsl_spec.rb'
-    - 'spec/lib/gitlab/sidekiq_middleware/client_metrics_spec.rb'
-    - 'spec/lib/gitlab/sidekiq_middleware/server_metrics_spec.rb'
-    - 'spec/lib/gitlab/sidekiq_middleware_spec.rb'
-    - 'spec/lib/gitlab/view/presenter/factory_spec.rb'
     - 'spec/lib/marginalia_spec.rb'
-    - 'spec/lib/omni_auth/strategies/jwt_spec.rb'
-    - 'spec/lib/system_check/simple_executor_spec.rb'
-    - 'spec/lib/system_check_spec.rb'
     - 'spec/mailers/notify_spec.rb'
-    - 'spec/migrations/20191125114345_add_admin_mode_protected_path_spec.rb'
-    - 'spec/migrations/encrypt_plaintext_attributes_on_application_settings_spec.rb'
-    - 'spec/migrations/cleanup_optimistic_locking_nulls_pt2_fixed_spec.rb'
-    - 'spec/models/clusters/cluster_spec.rb'
     - 'spec/models/concerns/batch_destroy_dependent_associations_spec.rb'
-    - 'spec/models/concerns/blocks_json_serialization_spec.rb'
     - 'spec/models/concerns/bulk_insert_safe_spec.rb'
     - 'spec/models/concerns/bulk_insertable_associations_spec.rb'
-    - 'spec/models/concerns/mentionable_spec.rb'
-    - 'spec/models/concerns/reactive_caching_spec.rb'
     - 'spec/models/concerns/triggerable_hooks_spec.rb'
     - 'spec/models/repository_spec.rb'
-    - 'spec/models/tree_spec.rb'
-    - 'spec/policies/merge_request_policy_spec.rb'
-    - 'spec/requests/api/graphql/tasks/task_completion_status_spec.rb'
-    - 'spec/requests/api/statistics_spec.rb'
-    - 'spec/rubocop/cop/rspec/env_assignment_spec.rb'
-    - 'spec/serializers/commit_entity_spec.rb'
-    - 'spec/services/ci/retry_build_service_spec.rb'
     - 'spec/services/clusters/applications/check_installation_progress_service_spec.rb'
-    - 'spec/services/clusters/applications/check_uninstall_progress_service_spec.rb'
-    - 'spec/services/clusters/applications/check_upgrade_progress_service_spec.rb'
-    - 'spec/services/clusters/applications/ingress_modsecurity_usage_service_spec.rb'
-    - 'spec/services/issues/resolve_discussions_spec.rb'
-    - 'spec/services/metrics/dashboard/clone_dashboard_service_spec.rb'
-    - 'spec/support/shared_contexts/spam_constants.rb'
     - 'spec/support/shared_examples/quick_actions/issuable/issuable_quick_actions_shared_examples.rb'
-    - 'spec/support_specs/helpers/active_record/query_recorder_spec.rb'
-    - 'spec/support_specs/matchers/exceed_query_limit_helpers_spec.rb'
-    - 'spec/uploaders/content_type_whitelist_spec.rb'
-    - 'spec/uploaders/records_uploads_spec.rb'
 
 RSpec/EmptyLineAfterHook:
   Enabled: false
@@ -464,3 +448,36 @@ Performance/ChainArrayAllocation:
     - 'lib/gitlab/import_export/**/*'
     - 'ee/lib/gitlab/import_export/**/*'
     - 'ee/lib/ee/gitlab/import_export/**/*'
+
+Rails/TimeZone:
+  Enabled: true
+  EnforcedStyle: 'flexible'
+  Include:
+    - 'app/controllers/**/*'
+    - 'app/services/**/*'
+    - 'spec/controllers/**/*'
+    - 'spec/services/**/*'
+    - 'ee/app/controllers/**/*'
+    - 'ee/app/services/**/*'
+    - 'ee/spec/controllers/**/*'
+    - 'ee/spec/services/**/*'
+    - 'app/models/**/*'
+    - 'spec/models/**/*'
+    - 'ee/app/models/**/*'
+    - 'ee/spec/models/**/*'
+    - 'app/workers/**/*'
+    - 'spec/workers/**/*'
+    - 'ee/app/workers/**/*'
+    - 'ee/spec/workers/**/*'
+
+
+# WIP: See https://gitlab.com/gitlab-org/gitlab/-/issues/220040
+Rails/SaveBang:
+  Enabled: true
+  AllowImplicitReturn: false
+  AllowedReceivers: ['ActionDispatch::TestRequest']
+  Include:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+    - 'qa/spec/**/*.rb'
+    - 'qa/qa/specs/**/*.rb'

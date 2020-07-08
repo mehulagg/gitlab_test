@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe 'Group Value Stream Analytics', :js do
+RSpec.describe 'Group Value Stream Analytics', :js do
   include DragTo
 
   let_it_be(:user) { create(:user) }
@@ -20,6 +20,8 @@ describe 'Group Value Stream Analytics', :js do
   let(:pipeline) { create(:ci_empty_pipeline, status: 'created', project: project, ref: mr.source_branch, sha: mr.source_branch_sha, head_pipeline_of: mr) }
 
   stage_nav_selector = '.stage-nav'
+  path_nav_selector = '.js-path-navigation'
+  filter_bar_selector = '.js-filter-bar'
 
   3.times do |i|
     let_it_be("issue_#{i}".to_sym) { create(:issue, title: "New Issue #{i}", project: project, created_at: 2.days.ago) }
@@ -151,6 +153,40 @@ describe 'Group Value Stream Analytics', :js do
     it 'shows the date filter' do
       expect(page).to have_selector('.js-daterange-picker', visible: true)
     end
+
+    it 'shows the path navigation' do
+      expect(page).to have_selector(path_nav_selector)
+    end
+
+    it 'shows the filter bar' do
+      expect(page).to have_selector(filter_bar_selector, visible: false)
+    end
+  end
+
+  context 'with path navigation feature flag disabled' do
+    before do
+      stub_feature_flags(value_stream_analytics_path_navigation: false)
+
+      visit analytics_cycle_analytics_path
+      select_group
+    end
+
+    it 'shows the path navigation' do
+      expect(page).not_to have_selector(path_nav_selector)
+    end
+  end
+
+  context 'with filter bar feature flag disabled' do
+    before do
+      stub_feature_flags(value_stream_analytics_filter_bar: false)
+
+      visit analytics_cycle_analytics_path
+      select_group
+    end
+
+    it 'does not show the filter bar' do
+      expect(page).not_to have_selector(filter_bar_selector)
+    end
   end
 
   def wait_for_stages_to_load
@@ -187,8 +223,13 @@ describe 'Group Value Stream Analytics', :js do
     context 'summary table', :js do
       it 'will display recent activity' do
         page.within(find('.js-recent-activity')) do
-          expect(page).to have_selector('.card-header')
           expect(page).to have_content(_('Recent Activity'))
+        end
+      end
+
+      it 'will display time metrics' do
+        page.within(find('.js-recent-activity')) do
+          expect(page).to have_content(_('Time'))
         end
       end
     end
@@ -216,6 +257,21 @@ describe 'Group Value Stream Analytics', :js do
         end
       end
     end
+
+    context 'path nav' do
+      before do
+        stub_feature_flags(value_stream_analytics_path_navigation: true)
+      end
+
+      it 'displays the default list of stages' do
+        path_nav = page.find(path_nav_selector)
+
+        %w[Issue Plan Code Test Review Staging Overview].each do |item|
+          string_id = "CycleAnalytics|#{item}"
+          expect(path_nav).to have_content(s_(string_id))
+        end
+      end
+    end
   end
 
   context 'with a group selected' do
@@ -230,14 +286,14 @@ describe 'Group Value Stream Analytics', :js do
     it_behaves_like 'group value stream analytics'
 
     it 'displays the number of issues' do
-      issue_count = page.all(card_metric_selector).first
+      issue_count = page.all(card_metric_selector)[2]
 
       expect(issue_count).to have_content(n_('New Issue', 'New Issues', 3))
       expect(issue_count).to have_content('3')
     end
 
     it 'displays the number of deploys' do
-      deploys_count = page.all(card_metric_selector)[1]
+      deploys_count = page.all(card_metric_selector)[3]
 
       expect(deploys_count).to have_content(n_('Deploy', 'Deploys', 0))
       expect(deploys_count).to have_content('-')
@@ -248,6 +304,20 @@ describe 'Group Value Stream Analytics', :js do
 
       expect(deployment_frequency).to have_content(_('Deployment Frequency'))
       expect(deployment_frequency).to have_content('-')
+    end
+
+    it 'displays the lead time' do
+      lead_time = page.all(card_metric_selector).first
+
+      expect(lead_time).to have_content(_('Lead Time'))
+      expect(lead_time).to have_content('-')
+    end
+
+    it 'displays the cycle time' do
+      cycle_time = page.all(card_metric_selector)[1]
+
+      expect(cycle_time).to have_content(_('Cycle Time'))
+      expect(cycle_time).to have_content('-')
     end
   end
 
@@ -486,7 +556,7 @@ describe 'Group Value Stream Analytics', :js do
           it_behaves_like 'manual ordering disabled'
         end
 
-        context 'with at least one custom stage' do
+        context 'with at least one custom stage', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/216745' do
           shared_examples 'draggable stage' do |original_order, updated_order, start_index, end_index,|
             before do
               page.driver.browser.manage.window.resize_to(1650, 1150)
@@ -892,15 +962,17 @@ describe 'Group Value Stream Analytics', :js do
       end
 
       context 'Duration chart' do
-        let(:duration_chart_dropdown) { page.find('.dropdown-stages') }
+        let(:duration_chart_dropdown) { page.find('.js-dropdown-stages') }
 
-        default_stages = Analytics::CycleAnalytics::StagePresenter::DEFAULT_STAGE_ATTRIBUTES
-          .each_value
-          .map { |value| value[:title].call }
-          .freeze
+        let_it_be(:translated_default_stage_names) do
+          Gitlab::Analytics::CycleAnalytics::DefaultStages.names.map do |name|
+            stage = Analytics::CycleAnalytics::GroupStage.new(name: name)
+            Analytics::CycleAnalytics::StagePresenter.new(stage).title
+          end.freeze
+        end
 
         def duration_chart_stages
-          duration_chart_dropdown.all('.dropdown-menu-link').collect(&:text)
+          duration_chart_dropdown.all('.dropdown-item').collect(&:text)
         end
 
         def toggle_duration_chart_dropdown
@@ -914,7 +986,7 @@ describe 'Group Value Stream Analytics', :js do
         it 'has all the default stages' do
           toggle_duration_chart_dropdown
 
-          expect(duration_chart_stages).to eq(default_stages)
+          expect(duration_chart_stages).to eq(translated_default_stage_names)
         end
 
         context 'hidden stage' do

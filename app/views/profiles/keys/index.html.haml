@@ -1,14 +1,14 @@
 - page_title _('SSH Keys')
 - @content_class = "limit-container-width" unless fluid_layout
 
-.row.prepend-top-default
+.row.gl-mt-3
   .col-lg-4.profile-settings-sidebar
-    %h4.prepend-top-0
+    %h4.gl-mt-0
       = page_title
     %p
       = _('SSH keys allow you to establish a secure connection between your computer and GitLab.')
   .col-lg-8
-    %h5.prepend-top-0
+    %h5.gl-mt-0
       = _('Add an SSH key')
     %p.profile-settings-content
       - generate_link_url = help_page_path("ssh/README", anchor: 'generating-a-new-ssh-key-pair')
@@ -20,5 +20,5 @@
     %hr
     %h5
       = _('Your SSH keys (%{count})') % { count:@keys.count }
-    .append-bottom-default
+    .gl-mb-3
       = render 'key_table'

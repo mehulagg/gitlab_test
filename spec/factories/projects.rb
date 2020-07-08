@@ -181,6 +181,7 @@ FactoryBot.define do
 
       transient do
         create_templates { nil }
+        create_branch { nil }
       end
 
       after :create do |project, evaluator|
@@ -205,6 +206,16 @@ FactoryBot.define do
             'feature_proposal',
             message: 'test 2',
             branch_name: 'master')
+        end
+
+        if evaluator.create_branch
+          project.repository.create_file(
+            project.creator,
+            'README.md',
+            "README on branch #{evaluator.create_branch}",
+            message: 'Add README.md',
+            branch_name: evaluator.create_branch)
+
         end
       end
     end
@@ -296,6 +307,12 @@ FactoryBot.define do
 
     trait :auto_devops_disabled do
       association :auto_devops, factory: [:project_auto_devops, :disabled]
+    end
+
+    trait :without_container_expiration_policy do
+      after :create do |project|
+        project.container_expiration_policy.destroy!
+      end
     end
   end
 

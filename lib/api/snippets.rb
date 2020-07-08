@@ -2,7 +2,7 @@
 
 module API
   # Snippets API
-  class Snippets < Grape::API
+  class Snippets < Grape::API::Instance
     include PaginationParams
 
     before { authenticate! }
@@ -31,7 +31,7 @@ module API
         use :pagination
       end
       get do
-        present paginate(snippets_for_current_user), with: Entities::Snippet
+        present paginate(snippets_for_current_user), with: Entities::Snippet, current_user: current_user
       end
 
       desc 'List all public personal snippets current_user has access to' do
@@ -42,7 +42,7 @@ module API
         use :pagination
       end
       get 'public' do
-        present paginate(public_snippets), with: Entities::PersonalSnippet
+        present paginate(public_snippets), with: Entities::PersonalSnippet, current_user: current_user
       end
 
       desc 'Get a single snippet' do
@@ -57,7 +57,7 @@ module API
 
         break not_found!('Snippet') unless snippet
 
-        present snippet, with: Entities::PersonalSnippet
+        present snippet, with: Entities::PersonalSnippet, current_user: current_user
       end
 
       desc 'Create new snippet' do
@@ -65,9 +65,9 @@ module API
         success Entities::PersonalSnippet
       end
       params do
-        requires :title, type: String, desc: 'The title of a snippet'
+        requires :title, type: String, allow_blank: false, desc: 'The title of a snippet'
         requires :file_name, type: String, desc: 'The name of a snippet file'
-        requires :content, type: String, desc: 'The content of a snippet'
+        requires :content, type: String, allow_blank: false, desc: 'The content of a snippet'
         optional :description, type: String, desc: 'The description of a snippet'
         optional :visibility, type: String,
                               values: Gitlab::VisibilityLevel.string_values,
@@ -81,12 +81,12 @@ module API
         service_response = ::Snippets::CreateService.new(nil, current_user, attrs).execute
         snippet = service_response.payload[:snippet]
 
-        render_spam_error! if snippet.spam?
-
-        if snippet.persisted?
-          present snippet, with: Entities::PersonalSnippet
+        if service_response.success?
+          present snippet, with: Entities::PersonalSnippet, current_user: current_user
         else
-          render_validation_error!(snippet)
+          render_spam_error! if snippet.spam?
+
+          render_api_error!({ error: service_response.message }, service_response.http_status)
         end
       end
 
@@ -96,9 +96,9 @@ module API
       end
       params do
         requires :id, type: Integer, desc: 'The ID of a snippet'
-        optional :title, type: String, desc: 'The title of a snippet'
+        optional :title, type: String, allow_blank: false, desc: 'The title of a snippet'
         optional :file_name, type: String, desc: 'The name of a snippet file'
-        optional :content, type: String, desc: 'The content of a snippet'
+        optional :content, type: String, allow_blank: false, desc: 'The content of a snippet'
         optional :description, type: String, desc: 'The description of a snippet'
         optional :visibility, type: String,
                               values: Gitlab::VisibilityLevel.string_values,
@@ -115,12 +115,12 @@ module API
         service_response = ::Snippets::UpdateService.new(nil, current_user, attrs).execute(snippet)
         snippet = service_response.payload[:snippet]
 
-        render_spam_error! if snippet.spam?
-
-        if snippet.persisted?
-          present snippet, with: Entities::PersonalSnippet
+        if service_response.success?
+          present snippet, with: Entities::PersonalSnippet, current_user: current_user
         else
-          render_validation_error!(snippet)
+          render_spam_error! if snippet.spam?
+
+          render_api_error!({ error: service_response.message }, service_response.http_status)
         end
       end
 

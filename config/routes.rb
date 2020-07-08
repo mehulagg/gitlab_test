@@ -45,12 +45,19 @@ Rails.application.routes.draw do
   use_doorkeeper_openid_connect
 
   # Sign up
-  get 'users/sign_up/welcome' => 'registrations#welcome'
-  patch 'users/sign_up/update_registration' => 'registrations#update_registration'
+  scope path: '/users/sign_up', module: :registrations, as: :users_sign_up do
+    get :welcome
+    patch :update_registration
+    resource :experience_level, only: [:show, :update]
+
+    Gitlab.ee do
+      resources :groups, only: [:new, :create]
+      resources :projects, only: [:new, :create]
+    end
+  end
 
   # Search
   get 'search' => 'search#show'
-  get 'search/autocomplete' => 'search#autocomplete', as: :search_autocomplete
   get 'search/count' => 'search#count', as: :search_count
 
   # JSON Web Token
@@ -129,6 +136,9 @@ Rails.application.routes.draw do
       scope '/push_from_secondary/:geo_node_id' do
         draw :git_http
       end
+
+      # Used for survey responses
+      resources :survey_responses, only: :index
     end
 
     if ENV['GITLAB_CHAOS_SECRET'] || Rails.env.development? || Rails.env.test?
@@ -180,7 +190,6 @@ Rails.application.routes.draw do
         Gitlab.ee do
           get :metrics, format: :json
           get :metrics_dashboard
-          get :'/prometheus/api/v1/*proxy_path', to: 'clusters#prometheus_proxy', as: :prometheus_api
           get :environments, format: :json
         end
 
@@ -190,6 +199,7 @@ Rails.application.routes.draw do
           delete '/:application', to: 'clusters/applications#destroy', as: :uninstall_applications
         end
 
+        get :'/prometheus/api/v1/*proxy_path', to: 'clusters#prometheus_proxy', as: :prometheus_api
         get :cluster_status, format: :json
         delete :clear_cache
       end
@@ -232,6 +242,8 @@ Rails.application.routes.draw do
     post :preview_markdown
   end
 
+  draw :group
+
   resources :projects, only: [:index, :new, :create]
 
   get '/projects/:id' => 'projects#resolve'
@@ -248,9 +260,16 @@ Rails.application.routes.draw do
   draw :admin
   draw :profile
   draw :dashboard
-  draw :group
   draw :user
   draw :project
+
+  # Serve snippet routes under /-/snippets.
+  # To ensure an old unscoped routing is used for the UI we need to
+  # add prefix 'as' to the scope routing and place it below original routing.
+  # Issue https://gitlab.com/gitlab-org/gitlab/-/issues/210024
+  scope '-', as: :scoped do
+    draw :snippets
+  end
 
   root to: "root#index"
 

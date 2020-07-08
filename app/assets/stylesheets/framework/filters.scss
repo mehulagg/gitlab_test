@@ -26,6 +26,12 @@
     margin-right: 6px;
   }
 
+  .bulk-update {
+    .filter-item {
+      margin-right: 0;
+    }
+  }
+
   .sort-filter {
     display: inline-block;
     float: right;
@@ -96,7 +102,7 @@
   }
 
   .name {
-    background-color: $white-normal;
+    background-color: $gray-50;
     color: $gl-text-color-secondary;
     border-radius: 2px 0 0 2px;
     margin-right: 1px;
@@ -259,6 +265,7 @@
   flex: 1;
   position: relative;
   min-width: 0;
+  background-color: $input-bg;
 }
 
 .filtered-search-input-dropdown-menu {
@@ -447,5 +454,19 @@
   .value {
     font-family: $monospace-font;
     font-size: 13px;
+  }
+}
+
+.vue-filtered-search-bar-container {
+  @include media-breakpoint-up(md) {
+    .sort-dropdown-container {
+      margin-left: 10px;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    .sort-dropdown-container {
+      margin-top: 10px;
+    }
   }
 }

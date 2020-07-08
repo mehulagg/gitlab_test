@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Users::DestroyService do
+RSpec.describe Users::DestroyService do
   describe "Deletes a user and all their personal projects" do
     let!(:user)      { create(:user) }
     let!(:admin)     { create(:admin) }
@@ -65,6 +65,18 @@ describe Users::DestroyService do
           expect(gitlab_shell.repository_exists?(repo1.shard_name, repo1.disk_path + '.git')).to be_falsey
           expect(gitlab_shell.repository_exists?(repo2.shard_name, repo2.disk_path + '.git')).to be_falsey
         end
+      end
+
+      it 'calls the bulk snippet destroy service with hard delete option if it is present' do
+        # this avoids getting into Projects::DestroyService as it would
+        # call Snippets::BulkDestroyService first!
+        allow(user).to receive(:personal_projects).and_return([])
+
+        expect_next_instance_of(Snippets::BulkDestroyService) do |bulk_destroy_service|
+          expect(bulk_destroy_service).to receive(:execute).with(hard_delete: true).and_call_original
+        end
+
+        service.execute(user, hard_delete: true)
       end
 
       it 'does not delete project snippets that the user is the author of' do

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Issue Boards', :js do
+RSpec.describe 'Issue Boards', :js do
   include BoardHelpers
   include FilteredSearchHelpers
 
@@ -217,7 +217,7 @@ describe 'Issue Boards', :js do
 
         wait_for_requests
 
-        click_link "No Milestone"
+        click_link "No milestone"
 
         wait_for_requests
 

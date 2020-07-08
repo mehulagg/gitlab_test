@@ -26,7 +26,7 @@ Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
 
 > **Note:**
 >
-> Most examples have a Jest and Karma example. See the Karma examples only as explanation to what's going on in the code, should you stumble over some usescases during your discovery. The Jest examples are the one you should follow.
+> Most examples have a Jest and Karma example. See the Karma examples only as explanation to what's going on in the code, should you stumble over some use cases during your discovery. The Jest examples are the one you should follow.
 
 ## Karma test suite
 
@@ -61,7 +61,7 @@ which could arise (especially with testing against browser specific features).
 - Jest runs in a Node.js environment, not in a browser. Support for running Jest tests in a browser [is planned](https://gitlab.com/gitlab-org/gitlab/-/issues/26982).
 - Because Jest runs in a Node.js environment, it uses [jsdom](https://github.com/jsdom/jsdom) by default. See also its [limitations](#limitations-of-jsdom) below.
 - Jest does not have access to Webpack loaders or aliases.
-  The aliases used by Jest are defined in its [own config](https://gitlab.com/gitlab-org/gitlab/blob/master/jest.config.js).
+  The aliases used by Jest are defined in its [own configuration](https://gitlab.com/gitlab-org/gitlab/blob/master/jest.config.js).
 - All calls to `setTimeout` and `setInterval` are mocked away. See also [Jest Timer Mocks](https://jestjs.io/docs/en/timer-mocks).
 - `rewire` is not required because Jest supports mocking modules. See also [Manual Mocks](https://jestjs.io/docs/en/manual-mocks).
 - No [context object](https://jasmine.github.io/tutorials/your_first_suite#section-The_%3Ccode%3Ethis%3C/code%3E_keyword) is passed to tests in Jest.
@@ -200,15 +200,15 @@ For example, it's better to use the generated markup to trigger a button click a
 
 ## Common practices
 
-Following you'll find some general common practices you will find as part of our testsuite. Should you stumble over something not following this guide, ideally fix it right away. 🎉
+Following you'll find some general common practices you will find as part of our test suite. Should you stumble over something not following this guide, ideally fix it right away. 🎉
 
 ### How to query DOM elements
 
-When it comes to querying DOM elements in your tests, it is best to uniquely target the element, without adding additional attributes specifically for testing purposes. Sometimes this cannot be done feasibly. In these cases, adding test attributes to simplify the selectors might be the best option.
+When it comes to querying DOM elements in your tests, it is best to uniquely and semantically target the element. Sometimes this cannot be done feasibly. In these cases, adding test attributes to simplify the selectors might be the best option.
 
 Preferentially, in component testing with `@vue/test-utils`, you should query for child components using the component itself. This helps enforce that specific behavior can be covered by that component's individual unit tests. Otherwise, try to use:
 
-- A behavioral attribute like `name` (also verifies that `name` was setup properly)
+- A semantic attribute like `name` (also verifies that `name` was setup properly)
 - A `data-testid` attribute ([recommended by maintainers of `@vue/test-utils`](https://github.com/vuejs/vue-test-utils/issues/1498#issuecomment-610133465))
 - a Vue `ref` (if using `@vue/test-utils`)
 
@@ -216,11 +216,17 @@ Examples:
 
 ```javascript
 it('exists', () => {
+    // Good
     wrapper.find(FooComponent);
     wrapper.find('input[name=foo]');
     wrapper.find('[data-testid="foo"]');
     wrapper.find({ ref: 'foo'});
+
+    // Bad
     wrapper.find('.js-foo');
+    wrapper.find('.btn-primary');
+    wrapper.find('.qa-foo-component');
+    wrapper.find('[data-qa-selector="foo"]');
 });
 ```
 
@@ -539,6 +545,99 @@ In order to ensure that a clean wrapper object and DOM are being used in each te
 
 See also the [Vue Test Utils documentation on `destroy`](https://vue-test-utils.vuejs.org/api/wrapper/#destroy).
 
+### Jest best practices
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/34209) in GitLab 13.2.
+
+#### Prefer `toBe` over `toEqual` when comparing primitive values
+
+Jest has [`toBe`](https://jestjs.io/docs/en/expect#tobevalue) and
+[`toEqual`](https://jestjs.io/docs/en/expect#toequalvalue) matchers.
+As [`toBe`](https://jestjs.io/docs/en/expect#tobevalue) uses
+[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+to compare values, it's faster (by default) than using `toEqual`.
+While the latter will eventually fallback to leverage [`Object.is`](https://github.com/facebook/jest/blob/master/packages/expect/src/jasmineUtils.ts#L91),
+for primitive values, it should only be used when complex objects need a comparison.
+
+Examples:
+
+```javascript
+const foo = 1;
+
+// good
+expect(foo).toBe(1);
+
+// bad
+expect(foo).toEqual(1);
+```
+
+#### Prefer more befitting matchers
+
+Jest provides useful matchers like `toHaveLength` or `toBeUndefined` to make your tests more
+readable and to produce more understandable error messages. Check their docs for the
+[full list of matchers](https://jestjs.io/docs/en/expect#methods).
+
+Examples:
+
+```javascript
+const arr = [1, 2];
+
+// prints:
+// Expected length: 1
+// Received length: 2
+expect(arr).toHaveLength(1);
+
+// prints:
+// Expected: 1
+// Received: 2
+expect(arr.length).toBe(1);
+
+// prints:
+// expect(received).toBe(expected) // Object.is equality
+// Expected: undefined
+// Received: "bar"
+const foo = 'bar';
+expect(foo).toBe(undefined);
+
+// prints:
+// expect(received).toBeUndefined()
+// Received: "bar"
+const foo = 'bar';
+expect(foo).toBeUndefined();
+```
+
+#### Avoid using `toBeTruthy` or `toBeFalsy`
+
+Jest also provides following matchers: `toBeTruthy` and `toBeFalsy`. We should not use them because
+they make tests weaker and produce false-positive results.
+
+For example, `expect(someBoolean).toBeFalsy()` passes when `someBoolean === null`, and when
+`someBoolean === false`.
+
+#### Tricky `toBeDefined` matcher
+
+Jest has the tricky `toBeDefined` matcher that can produce false positive test. Because it
+[validates](https://github.com/facebook/jest/blob/master/packages/expect/src/matchers.ts#L204)
+the given value for `undefined` only.
+
+```javascript
+// good
+expect(wrapper.find('foo').exists()).toBe(true);
+
+// bad
+// if finder returns null, the test will pass
+expect(wrapper.find('foo')).toBeDefined();
+```
+
+#### Avoid using `setImmediate`
+
+Try to avoid using `setImmediate`. `setImmediate` is an ad-hoc solution to run your callback after
+the I/O completes. And it's not part of the Web API, hence, we target NodeJS environments in our
+unit tests.
+
+Instead of `setImmediate`, use `jest.runAllTimers` or `jest.runOnlyPendingTimers` to run pending timers.
+The latter is useful when you have `setInterval` in the code. **Remember:** our Jest configuration uses fake timers.
+
 ## Factories
 
 TBU
@@ -556,7 +655,7 @@ The more challenging part are mocks, which can be used for functions or even dep
 ### Manual module mocks
 
 Manual mocks are used to mock modules across the entire Jest environment. This is a very powerful testing tool that helps simplify
-unit testing by mocking out modules which cannot be easily consumned in our test environment.
+unit testing by mocking out modules which cannot be easily consumed in our test environment.
 
 > **WARNING:** Do not use manual mocks if a mock should not be consistently applied in every spec (i.e. it's only needed by a few specs).
 > Instead, consider using [`jest.mock(..)`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options)
@@ -582,10 +681,10 @@ If a manual mock is needed for a CE module, please place it in `spec/frontend/mo
 - [`mocks/axios_utils`](https://gitlab.com/gitlab-org/gitlab/blob/bd20aeb64c4eed117831556c54b40ff4aee9bfd1/spec/frontend/mocks/ce/lib/utils/axios_utils.js#L1) -
   This mock is helpful because we don't want any unmocked requests to pass any tests. Also, we are able to inject some test helpers such as `axios.waitForAll`.
 - [`__mocks__/mousetrap/index.js`](https://gitlab.com/gitlab-org/gitlab/blob/cd4c086d894226445be9d18294a060ba46572435/spec/frontend/__mocks__/mousetrap/index.js#L1) -
-  This mock is helpful because the module itself uses amd format which webpack understands, but is incompatible with the jest environment. This mock doesn't remove
+  This mock is helpful because the module itself uses AMD format which webpack understands, but is incompatible with the jest environment. This mock doesn't remove
   any behavior, only provides a nice es6 compatible wrapper.
 - [`__mocks__/monaco-editor/index.js`](https://gitlab.com/gitlab-org/gitlab/blob/b7f914cddec9fc5971238cdf12766e79fa1629d7/spec/frontend/__mocks__/monaco-editor/index.js) -
-  This mock is helpful because the monaco package is completely incompatible in a Jest environment. In fact, webpack requires a special loader to make it work. This mock
+  This mock is helpful because the Monaco package is completely incompatible in a Jest environment. In fact, webpack requires a special loader to make it work. This mock
   simply makes this package consumable by Jest.
 
 ### Keep mocks light
@@ -611,7 +710,7 @@ As long as the fixtures don't change, `yarn test` is sufficient (and saves you s
 
 ### Live testing and focused testing -- Jest
 
-While you work on a testsuite, you may want to run these specs in watch mode, so they rerun automatically on every save.
+While you work on a test suite, you may want to run these specs in watch mode, so they rerun automatically on every save.
 
 ```shell
 # Watch and rerun all specs matching the name icon
@@ -801,9 +900,9 @@ Tests relevant for frontend development can be found at the following places:
 
 RSpec runs complete [feature tests](testing_levels.md#frontend-feature-tests), while the Jest and Karma directories contain [frontend unit tests](testing_levels.md#frontend-unit-tests), [frontend component tests](testing_levels.md#frontend-component-tests), and [frontend integration tests](testing_levels.md#frontend-integration-tests).
 
-All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/issues/52483)).
+All tests in `spec/javascripts/` will eventually be migrated to `spec/frontend/` (see also [#52483](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52483)).
 
-Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/issues/23036)).
+Before May 2018, `features/` also contained feature tests run by Spinach. These tests were removed from the codebase in May 2018 ([#23036](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/23036)).
 
 See also [Notes on testing Vue components](../fe_guide/vue.md#testing-vue-components).
 
@@ -830,48 +929,11 @@ testAction(
 );
 ```
 
-Check an example in [spec/javascripts/ide/stores/actions_spec.jsspec/javascripts/ide/stores/actions_spec.js](https://gitlab.com/gitlab-org/gitlab/blob/master/spec/javascripts/ide/stores/actions_spec.js).
+Check an example in [`spec/javascripts/ide/stores/actions_spec.jsspec/javascripts/ide/stores/actions_spec.js`](https://gitlab.com/gitlab-org/gitlab/blob/master/spec/javascripts/ide/stores/actions_spec.js).
 
-### Vue Helper: `mountComponent`
+### Wait until Axios requests finish
 
-To make mounting a Vue component easier and more readable, we have a few helpers available in `spec/helpers/vue_mount_component_helper`:
-
-- `createComponentWithStore`
-- `mountComponentWithStore`
-
-Examples of usage:
-
-```javascript
-beforeEach(() => {
-  vm = createComponentWithStore(Component, store);
-
-  vm.$store.state.currentBranchId = 'master';
-
-  vm.$mount();
-});
-```
-
-```javascript
-beforeEach(() => {
-  vm = mountComponentWithStore(Component, {
-    el: '#dummy-element',
-    store,
-    props: { badge },
-  });
-});
-```
-
-Don't forget to clean up:
-
-```javascript
-afterEach(() => {
-  vm.$destroy();
-});
-```
-
-### Wait until axios requests finish
-
-The axios utils mock module located in `spec/frontend/mocks/ce/lib/utils/axios_utils.js` contains two helper methods for Jest tests that spawn HTTP requests.
+The Axios Utils mock module located in `spec/frontend/mocks/ce/lib/utils/axios_utils.js` contains two helper methods for Jest tests that spawn HTTP requests.
 These are very useful if you don't have a handle to the request's Promise, for example when a Vue component does a request as part of its life cycle.
 
 - `waitFor(url, callback)`: Runs `callback` after a request to `url` finishes (either successfully or unsuccessfully).
@@ -881,13 +943,14 @@ Both functions run `callback` on the next tick after the requests finish (using 
 
 ## Testing with older browsers
 
-Some regressions only affect a specific browser version. We can install and test in particular browsers with either Firefox or Browserstack using the following steps:
+Some regressions only affect a specific browser version. We can install and test in particular browsers with either Firefox or BrowserStack using the following steps:
 
-### Browserstack
+### BrowserStack
 
-[Browserstack](https://www.browserstack.com/) allows you to test more than 1200 mobile devices and browsers.
+[BrowserStack](https://www.browserstack.com/) allows you to test more than 1200 mobile devices and browsers.
 You can use it directly through the [live app](https://www.browserstack.com/live) or you can install the [chrome extension](https://chrome.google.com/webstore/detail/browserstack/nkihdmlheodkdfojglpcjjmioefjahjb) for easy access.
-You can find the credentials on 1Password, under `frontendteam@gitlab.com`.
+Sign in to BrowserStack with the credentials saved in the **Engineering** vault of GitLab's
+[shared 1Password account](https://about.gitlab.com/handbook/security/#1password-guide).
 
 ### Firefox
 
@@ -897,7 +960,7 @@ You can download any older version of Firefox from the releases FTP server, <htt
 
 1. From the website, select a version, in this case `50.0.1`.
 1. Go to the mac folder.
-1. Select your preferred language, you will find the dmg package inside, download it.
+1. Select your preferred language, you will find the DMG package inside, download it.
 1. Drag and drop the application to any other folder but the `Applications` folder.
 1. Rename the application to something like `Firefox_Old`.
 1. Move the application to the `Applications` folder.

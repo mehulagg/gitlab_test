@@ -86,6 +86,8 @@ export default {
         milestone_id: this.form.find('input[name="update[milestone_id]"]').val(),
         issuable_ids: this.form.find('input[name="update[issuable_ids]"]').val(),
         subscription_event: this.form.find('input[name="update[subscription_event]"]').val(),
+        health_status: this.form.find('input[name="update[health_status]"]').val(),
+        epic_id: this.form.find('input[name="update[epic_id]"]').val(),
         add_label_ids: [],
         remove_label_ids: [],
       },
@@ -99,8 +101,11 @@ export default {
 
   setOriginalDropdownData() {
     const $labelSelect = $('.bulk-update .js-label-select');
+    const dirtyLabelIds = $labelSelect.data('marked') || [];
+    const chosenLabelIds = [...this.getOriginalMarkedIds(), ...dirtyLabelIds];
+
     $labelSelect.data('common', this.getOriginalCommonIds());
-    $labelSelect.data('marked', this.getOriginalMarkedIds());
+    $labelSelect.data('marked', chosenLabelIds);
     $labelSelect.data('indeterminate', this.getOriginalIndeterminateIds());
   },
 

@@ -20,7 +20,7 @@ Consider the following API spec:
 ```ruby
 require 'spec_helper'
 
-describe API::Labels do
+RSpec.describe API::Labels do
   it 'creates a first label' do
     create(:label)
 
@@ -71,7 +71,7 @@ Following is the fixed API spec:
 ```ruby
 require 'spec_helper'
 
-describe API::Labels do
+RSpec.describe API::Labels do
   it 'creates a first label' do
     create(:label, title: 'foo')
 
@@ -155,7 +155,7 @@ refresh_service.execute(oldrev, newrev, ref)
 See ["Why is it bad style to `rescue Exception => e` in Ruby?"](https://stackoverflow.com/questions/10048173/why-is-it-bad-style-to-rescue-exception-e-in-ruby).
 
 _**Note:** This rule is [enforced automatically by
-Rubocop](https://gitlab.com/gitlab-org/gitlab-foss/blob/8-4-stable/.rubocop.yml#L911-914)._
+RuboCop](https://gitlab.com/gitlab-org/gitlab-foss/blob/8-4-stable/.rubocop.yml#L911-914)._
 
 ## Do not use inline JavaScript in views
 

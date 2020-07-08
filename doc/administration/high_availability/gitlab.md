@@ -126,7 +126,7 @@ need some extra configuration.
    from running on upgrade. Only the primary GitLab application server should
    handle migrations.
 
-1. **Recommended** Configure host keys. Copy the contents (primary and public keys) of `/etc/ssh/` on
+1. **Recommended** Configure host keys. Copy the contents (private and public keys) of `/etc/ssh/` on
    the primary application server to `/etc/ssh` on all secondary servers. This
    prevents false man-in-the-middle-attack alerts when accessing servers in your
    High Availability cluster behind a load balancer.
@@ -138,11 +138,11 @@ migrations performed.
 
 ## Enable Monitoring
 
-> [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3786) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/3786) in GitLab 12.0.
 
 If you enable Monitoring, it must be enabled on **all** GitLab servers.
 
-1. Make sure to collect [`CONSUL_SERVER_NODES`](database.md#consul-information), which are the IP addresses or DNS records of the Consul server nodes, for the next step. Note they are presented as `Y.Y.Y.Y consul1.gitlab.example.com Z.Z.Z.Z`
+1. Make sure to collect [`CONSUL_SERVER_NODES`](../postgresql/replication_and_failover.md#consul-information), which are the IP addresses or DNS records of the Consul server nodes, for the next step. Note they are presented as `Y.Y.Y.Y consul1.gitlab.example.com Z.Z.Z.Z`
 
 1. Create/edit `/etc/gitlab/gitlab.rb` and add the following configuration:
 
@@ -162,7 +162,7 @@ If you enable Monitoring, it must be enabled on **all** GitLab servers.
    node_exporter['listen_address'] = '0.0.0.0:9100'
    gitlab_workhorse['prometheus_listen_addr'] = '0.0.0.0:9229'
    sidekiq['listen_address'] = "0.0.0.0"
-   unicorn['listen'] = '0.0.0.0'
+   puma['listen'] = '0.0.0.0'
 
    # Add the monitoring node's IP address to the monitoring whitelist and allow it to
    # scrape the NGINX metrics. Replace placeholder `monitoring.gitlab.example.com` with
@@ -174,9 +174,11 @@ If you enable Monitoring, it must be enabled on **all** GitLab servers.
 1. Run `sudo gitlab-ctl reconfigure` to compile the configuration.
 
    CAUTION: **Warning:**
-   After changing `unicorn['listen']` in `gitlab.rb`, and running `sudo gitlab-ctl reconfigure`,
-   it can take an extended period of time for Unicorn to complete reloading after receiving a `HUP`.
-   For more information, see the [issue](https://gitlab.com/gitlab-org/omnibus-gitlab/issues/4401).
+   If running Unicorn, after changing `unicorn['listen']` in `gitlab.rb`, and
+   running `sudo gitlab-ctl reconfigure`, it can take an extended period of time
+   for Unicorn to complete reloading after receiving a `HUP`. For more
+   information, see the
+   [issue](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/4401).
 
 ## Troubleshooting
 
@@ -201,7 +203,7 @@ for more details.
 
 Read more on high-availability configuration:
 
-1. [Configure the database](database.md)
+1. [Configure the database](../postgresql/replication_and_failover.md)
 1. [Configure Redis](redis.md)
 1. [Configure NFS](nfs.md)
 1. [Configure the load balancers](load_balancer.md)

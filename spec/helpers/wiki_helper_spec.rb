@@ -2,7 +2,39 @@
 
 require 'spec_helper'
 
-describe WikiHelper do
+RSpec.describe WikiHelper do
+  describe '#wiki_page_title' do
+    let_it_be(:page) { create(:wiki_page) }
+
+    it 'sets the title for the show action' do
+      expect(helper).to receive(:breadcrumb_title).with(page.human_title)
+      expect(helper).to receive(:wiki_breadcrumb_dropdown_links).with(page.slug)
+      expect(helper).to receive(:page_title).with(page.human_title, 'Wiki')
+      expect(helper).to receive(:add_to_breadcrumbs).with('Wiki', helper.wiki_path(page.wiki))
+
+      helper.wiki_page_title(page)
+    end
+
+    it 'sets the title for a custom action' do
+      expect(helper).to receive(:breadcrumb_title).with(page.human_title)
+      expect(helper).to receive(:wiki_breadcrumb_dropdown_links).with(page.slug)
+      expect(helper).to receive(:page_title).with('Edit', page.human_title, 'Wiki')
+      expect(helper).to receive(:add_to_breadcrumbs).with('Wiki', helper.wiki_path(page.wiki))
+
+      helper.wiki_page_title(page, 'Edit')
+    end
+
+    it 'sets the title for an unsaved page' do
+      expect(page).to receive(:persisted?).and_return(false)
+      expect(helper).not_to receive(:breadcrumb_title)
+      expect(helper).not_to receive(:wiki_breadcrumb_dropdown_links)
+      expect(helper).to receive(:page_title).with('Wiki')
+      expect(helper).to receive(:add_to_breadcrumbs).with('Wiki', helper.wiki_path(page.wiki))
+
+      helper.wiki_page_title(page)
+    end
+  end
+
   describe '#breadcrumb' do
     context 'when the page is at the root level' do
       it 'returns the capitalized page name' do
@@ -22,12 +54,12 @@ describe WikiHelper do
   end
 
   describe '#wiki_sort_controls' do
-    let(:project) { create(:project) }
-    let(:wiki_link) { helper.wiki_sort_controls(project, sort, direction) }
+    let(:wiki) { create(:project_wiki) }
+    let(:wiki_link) { helper.wiki_sort_controls(wiki, sort, direction) }
     let(:classes) { "btn btn-default has-tooltip reverse-sort-btn qa-reverse-sort rspec-reverse-sort" }
 
     def expected_link(sort, direction, icon_class)
-      path = "/#{project.full_path}/-/wikis/pages?direction=#{direction}&sort=#{sort}"
+      path = "/#{wiki.project.full_path}/-/wikis/pages?direction=#{direction}&sort=#{sort}"
 
       helper.link_to(path, type: 'button', class: classes, title: 'Sort direction') do
         helper.sprite_icon("sort-#{icon_class}", size: 16)

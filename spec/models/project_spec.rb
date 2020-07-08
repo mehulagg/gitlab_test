@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Project do
+RSpec.describe Project do
   include ProjectForksHelper
   include GitHelpers
   include ExternalAuthorizationServiceHelpers
@@ -21,7 +21,7 @@ describe Project do
     it { is_expected.to have_many(:merge_requests) }
     it { is_expected.to have_many(:issues) }
     it { is_expected.to have_many(:milestones) }
-    it { is_expected.to have_many(:sprints) }
+    it { is_expected.to have_many(:iterations) }
     it { is_expected.to have_many(:project_members).dependent(:delete_all) }
     it { is_expected.to have_many(:users).through(:project_members) }
     it { is_expected.to have_many(:requesters).dependent(:delete_all) }
@@ -36,6 +36,7 @@ describe Project do
     it { is_expected.to have_one(:mattermost_service) }
     it { is_expected.to have_one(:hangouts_chat_service) }
     it { is_expected.to have_one(:unify_circuit_service) }
+    it { is_expected.to have_one(:webex_teams_service) }
     it { is_expected.to have_one(:packagist_service) }
     it { is_expected.to have_one(:pushover_service) }
     it { is_expected.to have_one(:asana_service) }
@@ -78,6 +79,7 @@ describe Project do
     it { is_expected.to have_many(:ci_refs) }
     it { is_expected.to have_many(:builds) }
     it { is_expected.to have_many(:build_trace_section_names)}
+    it { is_expected.to have_many(:build_report_results) }
     it { is_expected.to have_many(:runner_projects) }
     it { is_expected.to have_many(:runners) }
     it { is_expected.to have_many(:variables) }
@@ -116,6 +118,7 @@ describe Project do
     it { is_expected.to have_many(:jira_imports) }
     it { is_expected.to have_many(:metrics_users_starred_dashboards).inverse_of(:project) }
     it { is_expected.to have_many(:repository_storage_moves) }
+    it { is_expected.to have_many(:reviews).inverse_of(:project) }
 
     it_behaves_like 'model with repository' do
       let_it_be(:container) { create(:project, :repository, path: 'somewhere') }
@@ -180,9 +183,9 @@ describe Project do
         expect(project.pages_metadatum).to be_persisted
       end
 
-      it 'automatically creates a project setting row' do
+      it 'automatically builds a project setting row' do
         expect(project.project_setting).to be_an_instance_of(ProjectSetting)
-        expect(project.project_setting).to be_persisted
+        expect(project.project_setting).to be_new_record
       end
     end
 
@@ -769,7 +772,7 @@ describe Project do
 
     describe 'last_activity_date' do
       it 'returns the creation date of the project\'s last event if present' do
-        new_event = create(:event, :closed, project: project, created_at: Time.now)
+        new_event = create(:event, :closed, project: project, created_at: Time.current)
 
         project.reload
         expect(project.last_activity_at.to_i).to eq(new_event.created_at.to_i)
@@ -1648,6 +1651,14 @@ describe Project do
       let(:project_name) { 'group.example.com' }
 
       it { is_expected.to eq("http://group.example.com") }
+
+      context 'mixed case path' do
+        before do
+          project.update!(path: 'Group.example.com')
+        end
+
+        it { is_expected.to eq("http://group.example.com") }
+      end
     end
 
     context 'project page' do
@@ -1655,6 +1666,14 @@ describe Project do
       let(:project_name) { 'Project' }
 
       it { is_expected.to eq("http://group.example.com/project") }
+
+      context 'mixed case path' do
+        before do
+          project.update!(path: 'Project')
+        end
+
+        it { is_expected.to eq("http://group.example.com/Project") }
+      end
     end
   end
 
@@ -2835,48 +2854,6 @@ describe Project do
     end
   end
 
-  describe '#change_repository_storage' do
-    let(:project) { create(:project, :repository) }
-    let(:read_only_project) { create(:project, :repository, repository_read_only: true) }
-
-    before do
-      stub_storage_settings('test_second_storage' => { 'path' => 'tmp/tests/extra_storage' })
-    end
-
-    it 'schedules the transfer of the repository to the new storage and locks the project' do
-      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'test_second_storage', anything)
-
-      project.change_repository_storage('test_second_storage')
-      project.save!
-
-      expect(project).to be_repository_read_only
-      expect(project.repository_storage_moves.last).to have_attributes(
-        source_storage_name: "default",
-        destination_storage_name: "test_second_storage"
-      )
-    end
-
-    it "doesn't schedule the transfer if the repository is already read-only" do
-      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
-
-      read_only_project.change_repository_storage('test_second_storage')
-      read_only_project.save!
-    end
-
-    it "doesn't lock or schedule the transfer if the storage hasn't changed" do
-      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
-
-      project.change_repository_storage(project.repository_storage)
-      project.save!
-
-      expect(project).not_to be_repository_read_only
-    end
-
-    it 'throws an error if an invalid repository storage is provided' do
-      expect { project.change_repository_storage('unknown') }.to raise_error(ArgumentError)
-    end
-  end
-
   describe '#pushes_since_gc' do
     let(:project) { create(:project) }
 
@@ -2936,28 +2913,73 @@ describe Project do
 
     subject { project.deployment_variables(environment: environment, kubernetes_namespace: namespace) }
 
-    before do
-      expect(project).to receive(:deployment_platform).with(environment: environment)
-        .and_return(deployment_platform)
-    end
-
-    context 'when project has no deployment platform' do
-      let(:deployment_platform) { nil }
-
-      it { is_expected.to eq [] }
-    end
-
-    context 'when project has a deployment platform' do
-      let(:platform_variables) { %w(platform variables) }
-      let(:deployment_platform) { double }
-
+    context 'when the deployment platform is stubbed' do
       before do
-        expect(deployment_platform).to receive(:predefined_variables)
-          .with(project: project, environment_name: environment, kubernetes_namespace: namespace)
-          .and_return(platform_variables)
+        expect(project).to receive(:deployment_platform).with(environment: environment)
+          .and_return(deployment_platform)
       end
 
-      it { is_expected.to eq platform_variables }
+      context 'when project has a deployment platform' do
+        let(:platform_variables) { %w(platform variables) }
+        let(:deployment_platform) { double }
+
+        before do
+          expect(deployment_platform).to receive(:predefined_variables)
+            .with(project: project, environment_name: environment, kubernetes_namespace: namespace)
+            .and_return(platform_variables)
+        end
+
+        it { is_expected.to eq platform_variables }
+      end
+
+      context 'when project has no deployment platform' do
+        let(:deployment_platform) { nil }
+
+        it { is_expected.to eq [] }
+      end
+    end
+
+    context 'when project has a deployment platforms' do
+      let(:project) { create(:project) }
+
+      let!(:default_cluster) do
+        create(:cluster,
+                :not_managed,
+                platform_type: :kubernetes,
+                projects: [project],
+                environment_scope: '*',
+                platform_kubernetes: default_cluster_kubernetes)
+      end
+
+      let!(:review_env_cluster) do
+        create(:cluster,
+                :not_managed,
+                platform_type: :kubernetes,
+                projects: [project],
+                environment_scope: 'review/*',
+                platform_kubernetes: review_env_cluster_kubernetes)
+      end
+
+      let(:default_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'default-AAA') }
+      let(:review_env_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'review-AAA') }
+
+      context 'when environment name is review/name' do
+        let!(:environment) { create(:environment, project: project, name: 'review/name') }
+
+        it 'returns variables from this service' do
+          expect(project.deployment_variables(environment: 'review/name'))
+            .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
+        end
+      end
+
+      context 'when environment name is other' do
+        let!(:environment) { create(:environment, project: project, name: 'staging/name') }
+
+        it 'returns variables from this service' do
+          expect(project.deployment_variables(environment: 'staging/name'))
+            .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
+        end
+      end
     end
   end
 
@@ -3134,6 +3156,45 @@ describe Project do
              partially_matched_variable,
              perfectly_matched_variable])
         end
+      end
+    end
+  end
+
+  describe '#ci_instance_variables_for' do
+    let(:project) { create(:project) }
+
+    let!(:instance_variable) do
+      create(:ci_instance_variable, value: 'secret')
+    end
+
+    let!(:protected_instance_variable) do
+      create(:ci_instance_variable, :protected, value: 'protected')
+    end
+
+    subject { project.ci_instance_variables_for(ref: 'ref') }
+
+    before do
+      stub_application_setting(
+        default_branch_protection: Gitlab::Access::PROTECTION_NONE)
+    end
+
+    context 'when the ref is not protected' do
+      before do
+        allow(project).to receive(:protected_for?).with('ref').and_return(false)
+      end
+
+      it 'contains only the CI variables' do
+        is_expected.to contain_exactly(instance_variable)
+      end
+    end
+
+    context 'when the ref is protected' do
+      before do
+        allow(project).to receive(:protected_for?).with('ref').and_return(true)
+      end
+
+      it 'contains all the variables' do
+        is_expected.to contain_exactly(instance_variable, protected_instance_variable)
       end
     end
   end
@@ -3580,7 +3641,7 @@ describe Project do
       expect(project).not_to receive(:visibility_level_allowed_as_fork).and_call_original
       expect(project).not_to receive(:visibility_level_allowed_by_group).and_call_original
 
-      project.update(updated_at: Time.now)
+      project.update(updated_at: Time.current)
     end
   end
 
@@ -3634,6 +3695,24 @@ describe Project do
         projects = described_class.all.public_or_visible_to_user(user, Gitlab::Access::REPORTER)
 
         expect(projects).to contain_exactly(public_project)
+      end
+    end
+
+    context 'with deploy token users' do
+      let_it_be(:private_project) { create(:project, :private) }
+
+      subject { described_class.all.public_or_visible_to_user(user) }
+
+      context 'deploy token user without project' do
+        let_it_be(:user) { create(:deploy_token) }
+
+        it { is_expected.to eq [] }
+      end
+
+      context 'deploy token user with project' do
+        let_it_be(:user) { create(:deploy_token, projects: [private_project]) }
+
+        it { is_expected.to include(private_project) }
       end
     end
   end
@@ -3708,7 +3787,7 @@ describe Project do
       context 'when feature is private' do
         let(:project) { create(:project, :public, :merge_requests_private) }
 
-        context 'when user does not has access to the feature' do
+        context 'when user does not have access to the feature' do
           it 'does not return projects with the project feature private' do
             is_expected.not_to include(project)
           end
@@ -3759,7 +3838,7 @@ describe Project do
     end
   end
 
-  describe '.filter_by_feature_visibility' do
+  describe '.filter_by_feature_visibility', :enable_admin_mode do
     include_context 'ProjectPolicyTable context'
     include ProjectHelpers
     using RSpec::Parameterized::TableSyntax
@@ -3952,16 +4031,6 @@ describe Project do
       expect(PagesWorker).to receive(:perform_in).with(5.minutes, :remove, namespace.full_path, anything)
 
       expect { project.remove_pages }.to change { pages_metadatum.reload.deployed }.from(true).to(false)
-    end
-
-    it 'is a no-op when there is no namespace' do
-      project.namespace.delete
-      project.reload
-
-      expect_any_instance_of(Projects::UpdatePagesConfigurationService).not_to receive(:execute)
-      expect_any_instance_of(Gitlab::PagesTransfer).not_to receive(:rename_project)
-
-      expect { project.remove_pages }.not_to change { pages_metadatum.reload.deployed }
     end
 
     it 'is run when the project is destroyed' do
@@ -4254,8 +4323,7 @@ describe Project do
 
   describe '#auto_devops_enabled?' do
     before do
-      allow(Feature).to receive(:enabled?).and_call_original
-      Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
+      Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 0)
     end
 
     let_it_be(:project, reload: true) { create(:project) }
@@ -4457,8 +4525,7 @@ describe Project do
     let_it_be(:project, reload: true) { create(:project) }
 
     before do
-      allow(Feature).to receive(:enabled?).and_call_original
-      Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
+      Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 0)
     end
 
     context 'when explicitly disabled' do
@@ -4504,7 +4571,7 @@ describe Project do
         before do
           create(:project_auto_devops, project: project, enabled: false)
 
-          Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(100)
+          Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 100)
         end
 
         it 'does not have auto devops implicitly disabled' do
@@ -4649,6 +4716,7 @@ describe Project do
       expect(project).to receive(:refresh_markdown_cache!)
       expect(InternalId).to receive(:flush_records!).with(project: project)
       expect(DetectRepositoryLanguagesWorker).to receive(:perform_async).with(project.id)
+      expect(project).to receive(:write_repository_config)
 
       project.after_import
     end
@@ -4803,6 +4871,32 @@ describe Project do
           project.execute_hooks(data, :merge_request_hooks)
         end
       end.not_to raise_error # Sidekiq::Worker::EnqueueFromTransactionError
+    end
+  end
+
+  describe '#execute_services' do
+    let(:service) { create(:slack_service, push_events: true, merge_requests_events: false, active: true) }
+
+    it 'executes services with the specified scope' do
+      data = 'any data'
+
+      expect(SlackService).to receive(:allocate).and_wrap_original do |method|
+        method.call.tap do |instance|
+          expect(instance).to receive(:async_execute).with(data).once
+        end
+      end
+
+      service.project.execute_services(data, :push_hooks)
+    end
+
+    it 'does not execute services that don\'t match the specified scope' do
+      expect(SlackService).not_to receive(:allocate).and_wrap_original do |method|
+        method.call.tap do |instance|
+          expect(instance).not_to receive(:async_execute)
+        end
+      end
+
+      service.project.execute_services(anything, :merge_request_hooks)
     end
   end
 
@@ -5193,25 +5287,21 @@ describe Project do
     end
   end
 
-  describe "#find_or_initialize_services" do
-    subject { build(:project) }
-
+  describe '#find_or_initialize_services' do
     it 'returns only enabled services' do
-      allow(Service).to receive(:available_services_names).and_return(%w(prometheus pushover))
-      allow(subject).to receive(:disabled_services).and_return(%w(prometheus))
+      allow(Service).to receive(:available_services_names).and_return(%w[prometheus pushover teamcity])
+      allow(subject).to receive(:disabled_services).and_return(%w[prometheus])
 
       services = subject.find_or_initialize_services
 
-      expect(services.count).to eq 1
-      expect(services).to include(PushoverService)
+      expect(services.count).to eq(2)
+      expect(services.map(&:title)).to eq(['JetBrains TeamCity CI', 'Pushover'])
     end
   end
 
-  describe "#find_or_initialize_service" do
-    subject { build(:project) }
-
+  describe '#find_or_initialize_service' do
     it 'avoids N+1 database queries' do
-      allow(Service).to receive(:available_services_names).and_return(%w(prometheus pushover))
+      allow(Service).to receive(:available_services_names).and_return(%w[prometheus pushover])
 
       control_count = ActiveRecord::QueryRecorder.new { subject.find_or_initialize_service('prometheus') }.count
 
@@ -5220,10 +5310,50 @@ describe Project do
       expect { subject.find_or_initialize_service('prometheus') }.not_to exceed_query_limit(control_count)
     end
 
-    it 'returns nil if service is disabled' do
-      allow(subject).to receive(:disabled_services).and_return(%w(prometheus))
+    it 'returns nil if integration is disabled' do
+      allow(subject).to receive(:disabled_services).and_return(%w[prometheus])
 
       expect(subject.find_or_initialize_service('prometheus')).to be_nil
+    end
+
+    context 'with an existing integration' do
+      subject { create(:project) }
+
+      before do
+        create(:prometheus_service, project: subject, api_url: 'https://prometheus.project.com/')
+      end
+
+      it 'retrieves the integration' do
+        expect(subject.find_or_initialize_service('prometheus').api_url).to eq('https://prometheus.project.com/')
+      end
+    end
+
+    context 'with an instance-level and template integrations' do
+      before do
+        create(:prometheus_service, :instance, api_url: 'https://prometheus.instance.com/')
+        create(:prometheus_service, :template, api_url: 'https://prometheus.template.com/')
+      end
+
+      it 'builds the service from the instance if exists' do
+        expect(subject.find_or_initialize_service('prometheus').api_url).to eq('https://prometheus.instance.com/')
+      end
+    end
+
+    context 'with an instance-level and template integrations' do
+      before do
+        create(:prometheus_service, :template, api_url: 'https://prometheus.template.com/')
+      end
+
+      it 'builds the service from the template if instance does not exists' do
+        expect(subject.find_or_initialize_service('prometheus').api_url).to eq('https://prometheus.template.com/')
+      end
+    end
+
+    context 'without an exisiting integration, nor instance-level or template' do
+      it 'builds the service if instance or template does not exists' do
+        expect(subject.find_or_initialize_service('prometheus')).to be_a(PrometheusService)
+        expect(subject.find_or_initialize_service('prometheus').api_url).to be_nil
+      end
     end
   end
 
@@ -5818,6 +5948,30 @@ describe Project do
     end
   end
 
+  describe '#prometheus_service_active?' do
+    let(:project) { create(:project) }
+
+    subject { project.prometheus_service_active? }
+
+    before do
+      create(:prometheus_service, project: project, manual_configuration: manual_configuration)
+    end
+
+    context 'when project has an activated prometheus service' do
+      let(:manual_configuration) { true }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when project has an inactive prometheus service' do
+      let(:manual_configuration) { false }
+
+      it 'the service is marked as inactive' do
+        expect(subject).to be_falsey
+      end
+    end
+  end
+
   describe '#self_monitoring?' do
     let_it_be(:project) { create(:project) }
 
@@ -5957,119 +6111,6 @@ describe Project do
     end
   end
 
-  describe '#validate_jira_import_settings!' do
-    include JiraServiceHelper
-
-    let_it_be(:project, reload: true) { create(:project) }
-
-    shared_examples 'raise Jira import error' do |message|
-      it 'returns error' do
-        expect { subject }.to raise_error(Projects::ImportService::Error, message)
-      end
-    end
-
-    shared_examples 'jira configuration base checks' do
-      context 'when feature flag is disabled' do
-        before do
-          stub_feature_flags(jira_issue_import: false)
-        end
-
-        it_behaves_like 'raise Jira import error', 'Jira import feature is disabled.'
-      end
-
-      context 'when feature flag is enabled' do
-        before do
-          stub_feature_flags(jira_issue_import: true)
-        end
-
-        context 'when Jira service was not setup' do
-          it_behaves_like 'raise Jira import error', 'Jira integration not configured.'
-        end
-
-        context 'when Jira service exists' do
-          let!(:jira_service) { create(:jira_service, project: project, active: true) }
-
-          context 'when Jira connection is not valid' do
-            before do
-              WebMock.stub_request(:get, 'https://jira.example.com/rest/api/2/serverInfo')
-                .to_raise(JIRA::HTTPError.new(double(message: 'Some failure.')))
-            end
-
-            it_behaves_like 'raise Jira import error', 'Unable to connect to the Jira instance. Please check your Jira integration configuration.'
-          end
-        end
-      end
-    end
-
-    before do
-      stub_jira_service_test
-    end
-
-    context 'without user param' do
-      subject { project.validate_jira_import_settings! }
-
-      it_behaves_like 'jira configuration base checks'
-
-      context 'when jira connection is valid' do
-        let!(:jira_service) { create(:jira_service, project: project, active: true) }
-
-        it 'does not return any error' do
-          expect { subject }.not_to raise_error
-        end
-      end
-    end
-
-    context 'with user param provided' do
-      let_it_be(:user) { create(:user) }
-
-      subject { project.validate_jira_import_settings!(user: user) }
-
-      context 'when user has permission to run import' do
-        before do
-          project.add_maintainer(user)
-        end
-
-        it_behaves_like 'jira configuration base checks'
-      end
-
-      context 'when feature flag is enabled' do
-        before do
-          stub_feature_flags(jira_issue_import: true)
-        end
-
-        context 'when user does not have permissions to run the import' do
-          before do
-            create(:jira_service, project: project, active: true)
-
-            project.add_developer(user)
-          end
-
-          it_behaves_like 'raise Jira import error', 'You do not have permissions to run the import.'
-        end
-
-        context 'when user has permission to run import' do
-          before do
-            project.add_maintainer(user)
-          end
-
-          let!(:jira_service) { create(:jira_service, project: project, active: true) }
-
-          context 'when issues feature is disabled' do
-            let_it_be(:project, reload: true) { create(:project, :issues_disabled) }
-
-            it_behaves_like 'raise Jira import error', 'Cannot import because issues are not available in this project.'
-          end
-
-          context 'when everything is ok' do
-            it 'does not return any error' do
-              expect { subject }.not_to raise_error
-            end
-          end
-        end
-      end
-    end
-  end
-
   describe '#design_management_enabled?' do
     let(:project) { build(:project) }
 
@@ -6107,6 +6148,14 @@ describe Project do
 
     it { is_expected.to contain_exactly(project_bot) }
     it { is_expected.not_to include(user) }
+  end
+
+  describe "#metrics_setting" do
+    let(:project) { build(:project) }
+
+    it 'creates setting if it does not exist' do
+      expect(project.metrics_setting).to be_an_instance_of(ProjectMetricsSetting)
+    end
   end
 
   def finish_job(export_job)

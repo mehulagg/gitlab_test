@@ -65,14 +65,17 @@ export default {
     };
   },
   computed: {
+    snippetHasBinary() {
+      return Boolean(this.snippet.blobs.find(blob => blob.binary));
+    },
     personalSnippetActions() {
       return [
         {
           condition: this.snippet.userPermissions.updateSnippet,
           text: __('Edit'),
           href: this.editLink,
-          disabled: this.snippet.blob.binary,
-          title: this.snippet.blob.binary
+          disabled: this.snippetHasBinary,
+          title: this.snippetHasBinary
             ? __('Snippets with non-text files can only be edited via Git.')
             : undefined,
         },
@@ -127,7 +130,7 @@ export default {
   },
   methods: {
     redirectToSnippets() {
-      window.location.pathname = 'dashboard/snippets';
+      window.location.pathname = `${this.snippet.project?.fullPath || 'dashboard'}/snippets`;
     },
     closeDeleteModal() {
       this.$refs.deleteModal.hide();
@@ -163,7 +166,8 @@ export default {
   <div class="detail-page-header">
     <div class="detail-page-header-body">
       <div
-        class="snippet-box qa-snippet-box has-tooltip d-flex align-items-center append-right-5 mb-1"
+        class="snippet-box has-tooltip d-flex align-items-center append-right-5 mb-1"
+        data-qa-selector="snippet_container"
         :title="snippetVisibilityLevelDescription"
         data-container="body"
       >
@@ -207,6 +211,8 @@ export default {
               :category="action.category"
               :class="action.cssClass"
               :href="action.href"
+              data-qa-selector="snippet_action_button"
+              :data-qa-action="action.text"
               @click="action.click ? action.click() : undefined"
             >
               {{ action.text }}

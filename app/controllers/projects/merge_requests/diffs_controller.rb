@@ -8,6 +8,9 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
   before_action :commit
   before_action :define_diff_vars
   before_action :define_diff_comment_vars, except: [:diffs_batch, :diffs_metadata]
+  before_action :update_diff_discussion_positions!
+
+  around_action :allow_gitaly_ref_name_caching
 
   def show
     render_diffs
@@ -160,8 +163,21 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
   def renderable_notes
     define_diff_comment_vars unless @notes
 
-    @notes
+    draft_notes =
+      if current_user
+        merge_request.draft_notes.authored_by(current_user)
+      else
+        []
+      end
+
+    @notes.concat(draft_notes)
+  end
+
+  def update_diff_discussion_positions!
+    return unless Feature.enabled?(:merge_ref_head_comments, @merge_request.target_project, default_enabled: true)
+    return unless Feature.enabled?(:merge_red_head_comments_position_on_demand, @merge_request.target_project, default_enabled: true)
+    return if @merge_request.has_any_diff_note_positions?
+
+    Discussions::CaptureDiffNotePositionsService.new(@merge_request).execute
   end
 end
-
-Projects::MergeRequests::DiffsController.prepend_if_ee('EE::Projects::MergeRequests::DiffsController')

@@ -1,3 +1,10 @@
+---
+stage: Defend
+group: Container Security
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
+
 # Web Application Firewall - ModSecurity
 
 A web application firewall (or WAF) filters, monitors, and blocks HTTP traffic to
@@ -70,7 +77,7 @@ more advanced rules around threat detection.
 
 ## Features
 
-ModSecurity is enabled with the [OWASP Core Rule Set (CRS)](https://modsecurity.org/crs/) by
+ModSecurity is enabled with the [OWASP Core Rule Set (CRS)](https://github.com/coreruleset/coreruleset/) by
 default. The OWASP CRS logs attempts to the following attacks:
 
 - [SQL Injection](https://wiki.owasp.org/index.php/OWASP_Periodic_Table_of_Vulnerabilities_-_SQL_Injection)
@@ -87,7 +94,7 @@ It is good to have a basic knowledge of the following:
 - [Kubernetes](https://kubernetes.io/docs/home/)
 - [Ingress](https://kubernetes.github.io/ingress-nginx/)
 - [ModSecurity](https://www.modsecurity.org/)
-- [OWASP Core Rule Set](https://modsecurity.org/crs/)
+- [OWASP Core Rule Set](https://github.com/coreruleset/coreruleset/)
 
 ## Roadmap
 

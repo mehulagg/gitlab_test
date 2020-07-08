@@ -8,6 +8,7 @@ import { __, s__ } from '~/locale';
 import Api from '~/api';
 import eventHub from './event_hub';
 import EmojiMenuInModal from './emoji_menu_in_modal';
+import * as Emoji from '~/emoji';
 
 const emojiMenuClass = 'js-modal-status-emoji-menu';
 
@@ -64,8 +65,8 @@ export default {
       const emojiAutocomplete = new GfmAutoComplete();
       emojiAutocomplete.setup($(this.$refs.statusMessageField), { emojis: true });
 
-      import(/* webpackChunkName: 'emoji' */ '~/emoji')
-        .then(Emoji => {
+      Emoji.initEmojiMap()
+        .then(() => {
           if (this.emoji) {
             this.emojiTag = Emoji.glEmojiTag(this.emoji);
           }
@@ -82,7 +83,8 @@ export default {
         })
         .catch(() => createFlash(__('Failed to load emoji list.')));
     },
-    showEmojiMenu() {
+    showEmojiMenu(e) {
+      e.stopPropagation();
       this.isEmojiMenuVisible = true;
       this.emojiMenu.showEmojiMenu($(this.$refs.toggleEmojiMenuButton));
     },

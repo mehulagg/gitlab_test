@@ -2,7 +2,7 @@ import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import createStore from 'ee/subscriptions/new/store';
 import Component from 'ee/subscriptions/new/components/checkout.vue';
-import ProgressBar from 'ee/subscriptions/new/components/checkout/progress_bar.vue';
+import ProgressBar from 'ee/registrations/components/progress_bar.vue';
 
 describe('Checkout', () => {
   const localVue = createLocalVue();
@@ -35,6 +35,39 @@ describe('Checkout', () => {
 
     it(`progress bar visibility is ${visible}`, () => {
       expect(findProgressBar().exists()).toBe(visible);
+    });
+  });
+
+  describe('passing the correct options to the progress bar component', () => {
+    beforeEach(() => {
+      store.state.isNewUser = true;
+    });
+
+    it('passes the steps', () => {
+      expect(findProgressBar().props('steps')).toEqual([
+        'Your profile',
+        'Checkout',
+        'Your GitLab group',
+      ]);
+    });
+
+    describe('when part of the onboarding issues experiment', () => {
+      beforeEach(() => {
+        store.state.isOnboardingIssuesExperimentEnabled = true;
+      });
+
+      it('passes the steps', () => {
+        expect(findProgressBar().props('steps')).toEqual([
+          'Your profile',
+          'Checkout',
+          'Your GitLab group',
+          'Your first project',
+        ]);
+      });
+    });
+
+    it('passes the current step', () => {
+      expect(findProgressBar().props('currentStep')).toEqual('Checkout');
     });
   });
 });

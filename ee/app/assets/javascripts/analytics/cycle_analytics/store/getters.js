@@ -2,6 +2,7 @@ import dateFormat from 'dateformat';
 import { isNumber } from 'lodash';
 import httpStatus from '~/lib/utils/http_status';
 import { dateFormats } from '../../shared/constants';
+import { transformStagesForPathNavigation } from '../utils';
 
 export const hasNoAccessError = state => state.errorCode === httpStatus.FORBIDDEN;
 
@@ -11,10 +12,24 @@ export const currentGroupPath = ({ selectedGroup }) =>
 export const selectedProjectIds = ({ selectedProjects }) =>
   selectedProjects.length ? selectedProjects.map(({ id }) => id) : [];
 
-export const cycleAnalyticsRequestParams = ({ startDate = null, endDate = null }, getters) => ({
+export const cycleAnalyticsRequestParams = (
+  {
+    startDate = null,
+    endDate = null,
+    selectedAuthor = null,
+    selectedMilestone = null,
+    selectedAssignees = [],
+    selectedLabels = [],
+  },
+  getters,
+) => ({
   project_ids: getters.selectedProjectIds,
   created_after: startDate ? dateFormat(startDate, dateFormats.isoDate) : null,
   created_before: endDate ? dateFormat(endDate, dateFormats.isoDate) : null,
+  author_username: selectedAuthor,
+  milestone_title: selectedMilestone,
+  assignee_username: selectedAssignees,
+  label_name: selectedLabels,
 });
 
 const filterStagesByHiddenStatus = (stages = [], isHidden = true) =>
@@ -28,3 +43,16 @@ export const enableCustomOrdering = ({ stages, errorSavingStageOrder }) =>
 
 export const customStageFormActive = ({ isCreatingCustomStage, isEditingCustomStage }) =>
   Boolean(isCreatingCustomStage || isEditingCustomStage);
+
+/**
+ * Until there are controls in place to edit stages outside of the stage table,
+ * the path navigation component will only display active stages.
+ *
+ * https://gitlab.com/gitlab-org/gitlab/-/issues/216227
+ */
+export const pathNavigationData = ({ stages, medians, selectedStage }) =>
+  transformStagesForPathNavigation({
+    stages: filterStagesByHiddenStatus(stages, false),
+    medians,
+    selectedStage,
+  });

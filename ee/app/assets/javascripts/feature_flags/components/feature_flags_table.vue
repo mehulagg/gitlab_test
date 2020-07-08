@@ -1,13 +1,13 @@
 <script>
 import { escape } from 'lodash';
-import { GlDeprecatedButton, GlTooltipDirective, GlModal, GlToggle, GlIcon } from '@gitlab/ui';
+import { GlButton, GlTooltipDirective, GlModal, GlToggle, GlIcon } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { ROLLOUT_STRATEGY_PERCENT_ROLLOUT, NEW_VERSION_FLAG } from '../constants';
 
 export default {
   components: {
-    GlDeprecatedButton,
+    GlButton,
     GlIcon,
     GlModal,
     GlToggle,
@@ -185,7 +185,7 @@ export default {
               v-for="scope in featureFlag.scopes"
               :key="scope.id"
               v-gl-tooltip.hover="scopeTooltipText(scope)"
-              class="badge append-right-8 prepend-top-2"
+              class="badge gl-mr-3 gl-mt-2"
               :class="{
                 'badge-active': scope.active,
                 'badge-inactive': !scope.active,
@@ -198,25 +198,25 @@ export default {
         <div class="table-section section-20 table-button-footer" role="gridcell">
           <div class="table-action-buttons btn-group">
             <template v-if="featureFlag.edit_path">
-              <gl-deprecated-button
+              <gl-button
                 v-gl-tooltip.hover.bottom="__('Edit')"
                 class="js-feature-flag-edit-button"
-                variant="outline-primary"
+                variant="default"
+                category="primary"
+                icon="pencil"
                 :href="featureFlag.edit_path"
-              >
-                <gl-icon name="pencil" :size="16" />
-              </gl-deprecated-button>
+              />
             </template>
             <template v-if="featureFlag.destroy_path">
-              <gl-deprecated-button
+              <gl-button
                 v-gl-tooltip.hover.bottom="__('Delete')"
                 class="js-feature-flag-delete-button"
                 variant="danger"
+                category="primary"
+                icon="remove"
                 :disabled="!canDeleteFlag(featureFlag)"
                 @click="setDeleteModalData(featureFlag)"
-              >
-                <gl-icon name="remove" :size="16" />
-              </gl-deprecated-button>
+              />
             </template>
           </div>
         </div>
@@ -230,6 +230,7 @@ export default {
       :modal-id="modalId"
       title-tag="h4"
       ok-variant="danger"
+      category="primary"
       @ok="onSubmit"
     >
       {{ deleteModalMessage }}

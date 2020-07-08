@@ -16,6 +16,7 @@ import {
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
   ROLLOUT_STRATEGY_USER_ID,
+  ROLLOUT_STRATEGY_GITLAB_USER_LIST,
 } from '../constants';
 
 import NewEnvironmentsDropdown from './new_environments_dropdown.vue';
@@ -49,14 +50,16 @@ export default {
       required: false,
       default: '',
     },
-    canDelete: {
-      type: Boolean,
-      required: true,
+    userLists: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
   },
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
   ROLLOUT_STRATEGY_USER_ID,
+  ROLLOUT_STRATEGY_GITLAB_USER_LIST,
 
   translations: {
     allEnvironments: __('All environments'),
@@ -69,6 +72,9 @@ export default {
     rolloutPercentageLabel: s__('FeatureFlag|Percentage'),
     rolloutUserIdsDescription: __('Enter one or more user ID separated by commas'),
     rolloutUserIdsLabel: s__('FeatureFlag|User IDs'),
+    rolloutUserListLabel: s__('FeatureFlag|List'),
+    rolloutUserListDescription: s__('FeatureFlag|Select a user list'),
+    rolloutUserListNoListError: s__('FeatureFlag|There are no configured user lists'),
     strategyTypeDescription: __('Select strategy activation method'),
     strategyTypeLabel: s__('FeatureFlag|Type'),
   },
@@ -83,6 +89,8 @@ export default {
           : '',
       formUserIds:
         this.strategy.name === ROLLOUT_STRATEGY_USER_ID ? this.strategy.parameters.userIds : '',
+      formUserListId:
+        this.strategy.name === ROLLOUT_STRATEGY_GITLAB_USER_LIST ? this.strategy.userListId : '',
       strategies: [
         {
           value: ROLLOUT_STRATEGY_ALL_USERS,
@@ -95,6 +103,10 @@ export default {
         {
           value: ROLLOUT_STRATEGY_USER_ID,
           text: __('User IDs'),
+        },
+        {
+          value: ROLLOUT_STRATEGY_GITLAB_USER_LIST,
+          text: __('List'),
         },
       ],
     };
@@ -109,6 +121,9 @@ export default {
     strategyUserIdsId() {
       return `strategy-user-ids-${this.index}`;
     },
+    strategyUserListId() {
+      return `strategy-user-list-${this.index}`;
+    },
     environmentsDropdownId() {
       return `environments-dropdown-${this.index}`;
     },
@@ -117,6 +132,9 @@ export default {
     },
     isUserWithId() {
       return this.isStrategyType(ROLLOUT_STRATEGY_USER_ID);
+    },
+    isUserList() {
+      return this.isStrategyType(ROLLOUT_STRATEGY_GITLAB_USER_LIST);
     },
     appliesToAllEnvironments() {
       return (
@@ -127,6 +145,12 @@ export default {
     },
     filteredEnvironments() {
       return this.environments.filter(e => !e.shouldBeDestroyed);
+    },
+    userListOptions() {
+      return this.userLists.map(({ name, id }) => ({ value: id, text: name }));
+    },
+    hasUserLists() {
+      return this.userListOptions.length > 0;
     },
   },
   methods: {
@@ -140,6 +164,10 @@ export default {
     },
     onStrategyChange() {
       const parameters = {};
+      const strategy = {
+        ...this.formStrategy,
+        scopes: this.environments,
+      };
       switch (this.formStrategy.name) {
         case ROLLOUT_STRATEGY_PERCENT_ROLLOUT:
           parameters.percentage = this.formPercentage;
@@ -148,13 +176,15 @@ export default {
         case ROLLOUT_STRATEGY_USER_ID:
           parameters.userIds = this.formUserIds;
           break;
+        case ROLLOUT_STRATEGY_GITLAB_USER_LIST:
+          strategy.userListId = this.formUserListId;
+          break;
         default:
           break;
       }
       this.$emit('change', {
-        ...this.formStrategy,
+        ...strategy,
         parameters,
-        scopes: this.environments,
       });
     },
     removeScope(environment) {
@@ -189,7 +219,7 @@ export default {
         </gl-form-group>
       </div>
 
-      <div>
+      <div data-testid="strategy">
         <gl-form-group
           v-if="isPercentRollout"
           :label="$options.translations.rolloutPercentageLabel"
@@ -221,10 +251,29 @@ export default {
             @input="onStrategyChange"
           />
         </gl-form-group>
+        <gl-form-group
+          v-if="isUserList"
+          :state="hasUserLists"
+          :invalid-feedback="$options.translations.rolloutUserListNoListError"
+          :label="$options.translations.rolloutUserListLabel"
+          :description="$options.translations.rolloutUserListDescription"
+          :label-for="strategyUserListId"
+        >
+          <gl-form-select
+            :id="strategyUserListId"
+            v-model="formUserListId"
+            :options="userListOptions"
+            @change="onStrategyChange"
+          />
+        </gl-form-group>
       </div>
 
       <div class="align-self-end align-self-md-stretch order-first offset-md-0 order-md-0 ml-auto">
-        <gl-deprecated-button v-if="canDelete" variant="danger" @click="$emit('delete')">
+        <gl-deprecated-button
+          data-testid="delete-strategy-button"
+          variant="danger"
+          @click="$emit('delete')"
+        >
           <span class="d-md-none">
             {{ $options.translations.removeLabel }}
           </span>

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Operations::FeatureFlag do
+RSpec.describe Operations::FeatureFlag do
   include FeatureFlagHelpers
 
   subject { create(:operations_feature_flag) }
@@ -58,7 +58,7 @@ describe Operations::FeatureFlag do
       end
     end
 
-    it_behaves_like 'AtomicInternalId', validate_presence: false do
+    it_behaves_like 'AtomicInternalId', validate_presence: true do
       let(:internal_id_attribute) { :iid }
       let(:instance) { build(:operations_feature_flag) }
       let(:scope) { :project }

@@ -127,9 +127,25 @@ export const lineWidths = {
   default: 2,
 };
 
-export const dateFormats = {
-  timeOfDay: 'h:MM TT',
-  default: 'dd mmm yyyy, h:MMTT',
+/**
+ * User-defined links can be passed in dashboard yml file.
+ * These are the supported type of links.
+ */
+export const linkTypes = {
+  GRAFANA: 'grafana',
+};
+
+/**
+ * These are the supported values for the GitLab-UI
+ * chart legend layout.
+ *
+ * Currently defined in
+ * https://gitlab.com/gitlab-org/gitlab-ui/-/blob/master/src/utils/charts/constants.js
+ *
+ */
+export const legendLayoutTypes = {
+  inline: 'inline',
+  table: 'table',
 };
 
 /**
@@ -140,7 +156,6 @@ export const dateFormats = {
  * Currently used in `receiveMetricsDashboardSuccess` action.
  */
 export const endpointKeys = [
-  'metricsEndpoint',
   'deploymentsEndpoint',
   'dashboardEndpoint',
   'dashboardsEndpoint',
@@ -193,6 +208,14 @@ export const annotationsSymbolIcon = 'path://m5 229 5 8h-10z';
  */
 export const DEFAULT_DASHBOARD_PATH = 'config/prometheus/common_metrics.yml';
 
+/**
+ * GitLab provide metrics dashboards that are available to a user once
+ * the Prometheus managed app has been installed, without any extra setup
+ * required. These "out of the box" dashboards are defined under the
+ * `config/prometheus` path.
+ */
+export const OUT_OF_THE_BOX_DASHBOARDS_PATH_PREFIX = 'config/prometheus/';
+
 export const OPERATORS = {
   greaterThan: '>',
   equalTo: '==',
@@ -215,4 +238,30 @@ export const OPERATORS = {
 export const VARIABLE_TYPES = {
   custom: 'custom',
   text: 'text',
+  metric_label_values: 'metric_label_values',
+};
+
+/**
+ * The names of templating variables defined in the dashboard yml
+ * file are prefixed with a constant so that it doesn't collide with
+ * other URL params that the monitoring dashboard relies on for
+ * features like panel fullscreen etc.
+ *
+ * The prefix is added before it is appended to the URL and removed
+ * before passing the data to the backend.
+ */
+export const VARIABLE_PREFIX = 'var-';
+
+/**
+ * All of the actions inside each panel dropdown can be accessed
+ * via keyboard shortcuts than can be activated via mouse hovers
+ * and or focus via tabs.
+ */
+
+export const keyboardShortcutKeys = {
+  EXPAND: 'e',
+  VISIT_LOGS: 'l',
+  SHOW_ALERT: 'a',
+  DOWNLOAD_CSV: 'd',
+  CHART_COPY: 'c',
 };

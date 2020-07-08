@@ -149,7 +149,8 @@ class Repository
       before: opts[:before],
       all: !!opts[:all],
       first_parent: !!opts[:first_parent],
-      order: opts[:order]
+      order: opts[:order],
+      literal_pathspec: opts.fetch(:literal_pathspec, true)
     }
 
     commits = Gitlab::Git::Commit.where(options)
@@ -676,24 +677,24 @@ class Repository
     end
   end
 
-  def list_last_commits_for_tree(sha, path, offset: 0, limit: 25)
-    commits = raw_repository.list_last_commits_for_tree(sha, path, offset: offset, limit: limit)
+  def list_last_commits_for_tree(sha, path, offset: 0, limit: 25, literal_pathspec: false)
+    commits = raw_repository.list_last_commits_for_tree(sha, path, offset: offset, limit: limit, literal_pathspec: literal_pathspec)
 
     commits.each do |path, commit|
       commits[path] = ::Commit.new(commit, container)
     end
   end
 
-  def last_commit_for_path(sha, path)
-    commit = raw_repository.last_commit_for_path(sha, path)
+  def last_commit_for_path(sha, path, literal_pathspec: false)
+    commit = raw_repository.last_commit_for_path(sha, path, literal_pathspec: literal_pathspec)
     ::Commit.new(commit, container) if commit
   end
 
-  def last_commit_id_for_path(sha, path)
+  def last_commit_id_for_path(sha, path, literal_pathspec: false)
     key = path.blank? ? "last_commit_id_for_path:#{sha}" : "last_commit_id_for_path:#{sha}:#{Digest::SHA1.hexdigest(path)}"
 
     cache.fetch(key) do
-      last_commit_for_path(sha, path)&.id
+      last_commit_for_path(sha, path, literal_pathspec: literal_pathspec)&.id
     end
   end
 
@@ -950,7 +951,6 @@ class Repository
     async_remove_remote(remote_name) if tmp_remote_name
   end
 
-  # rubocop:disable Gitlab/RailsLogger
   def async_remove_remote(remote_name)
     return unless remote_name
     return unless project
@@ -958,14 +958,13 @@ class Repository
     job_id = RepositoryRemoveRemoteWorker.perform_async(project.id, remote_name)
 
     if job_id
-      Rails.logger.info("Remove remote job scheduled for #{project.id} with remote name: #{remote_name} job ID #{job_id}.")
+      Gitlab::AppLogger.info("Remove remote job scheduled for #{project.id} with remote name: #{remote_name} job ID #{job_id}.")
     else
-      Rails.logger.info("Remove remote job failed to create for #{project.id} with remote name #{remote_name}.")
+      Gitlab::AppLogger.info("Remove remote job failed to create for #{project.id} with remote name #{remote_name}.")
     end
 
     job_id
   end
-  # rubocop:enable Gitlab/RailsLogger
 
   def fetch_source_branch!(source_repository, source_branch, local_ref)
     raw_repository.fetch_source_branch!(source_repository.raw_repository, source_branch, local_ref)
@@ -1115,7 +1114,7 @@ class Repository
   def project
     if repo_type.snippet?
       container.project
-    else
+    elsif container.is_a?(Project)
       container
     end
   end
@@ -1171,7 +1170,7 @@ class Repository
       if target
         target.committed_date
       else
-        Time.now
+        Time.current
       end
     end
   end

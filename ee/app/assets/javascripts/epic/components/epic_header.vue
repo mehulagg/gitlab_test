@@ -1,14 +1,12 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { GlDeprecatedButton } from '@gitlab/ui';
+import { GlDeprecatedButton, GlIcon } from '@gitlab/ui';
 
 import { __ } from '~/locale';
 
 import tooltip from '~/vue_shared/directives/tooltip';
-import Icon from '~/vue_shared/components/icon.vue';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import TimeagoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
-import GitlabTeamMemberBadge from '~/vue_shared/components/user_avatar/badges/gitlab_team_member_badge.vue';
 
 import epicUtils from '../utils/epic_utils';
 import { statusType } from '../constants';
@@ -18,11 +16,12 @@ export default {
     tooltip,
   },
   components: {
-    Icon,
+    GlIcon,
     GlDeprecatedButton,
     UserAvatarLink,
     TimeagoTooltip,
-    GitlabTeamMemberBadge,
+    GitlabTeamMemberBadge: () =>
+      import('ee_component/vue_shared/components/user_avatar/badges/gitlab_team_member_badge.vue'),
   },
   computed: {
     ...mapState([
@@ -32,6 +31,7 @@ export default {
       'author',
       'created',
       'canUpdate',
+      'confidential',
     ]),
     ...mapGetters(['isEpicOpen']),
     statusIcon() {
@@ -50,9 +50,6 @@ export default {
     },
     actionButtonText() {
       return this.isEpicOpen ? __('Close epic') : __('Reopen epic');
-    },
-    showGitlabTeamMemberBadge() {
-      return this.author?.isGitlabEmployee;
     },
   },
   mounted() {
@@ -85,10 +82,13 @@ export default {
         :class="{ 'status-box-open': isEpicOpen, 'status-box-issue-closed': !isEpicOpen }"
         class="issuable-status-box status-box"
       >
-        <icon :name="statusIcon" class="d-block d-sm-none" />
+        <gl-icon :name="statusIcon" class="d-block d-sm-none" />
         <span class="d-none d-sm-block">{{ statusText }}</span>
       </div>
       <div class="issuable-meta">
+        <div v-if="confidential" class="issuable-warning-icon inline">
+          <gl-icon name="eye-slash" class="icon" />
+        </div>
         {{ __('Opened') }}
         <timeago-tooltip :time="created" />
         {{ __('by') }}
@@ -101,7 +101,10 @@ export default {
             :username="author.name"
             img-css-classes="avatar-inline"
           />
-          <gitlab-team-member-badge v-if="showGitlabTeamMemberBadge" ref="gitlabTeamMemberBadge" />
+          <gitlab-team-member-badge
+            v-if="author && author.isGitlabEmployee"
+            ref="gitlabTeamMemberBadge"
+          />
         </strong>
       </div>
     </div>
@@ -110,15 +113,13 @@ export default {
         :loading="epicStatusChangeInProgress"
         :class="actionButtonClass"
         @click="toggleEpicStatus(isEpicOpen)"
+        >{{ actionButtonText }}</gl-deprecated-button
       >
-        {{ actionButtonText }}
-      </gl-deprecated-button>
     </div>
     <gl-deprecated-button
       :aria-label="__('Toggle sidebar')"
       variant="secondary"
-      class="float-right d-block d-sm-none
-gutter-toggle issuable-gutter-toggle js-sidebar-toggle"
+      class="float-right d-block d-sm-none gutter-toggle issuable-gutter-toggle js-sidebar-toggle"
       type="button"
       @click="toggleSidebar({ sidebarCollapsed })"
     >

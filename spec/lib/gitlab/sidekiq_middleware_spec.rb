@@ -3,13 +3,18 @@
 require 'spec_helper'
 require 'sidekiq/testing'
 
-describe Gitlab::SidekiqMiddleware do
-  class TestWorker
-    include Sidekiq::Worker
+RSpec.describe Gitlab::SidekiqMiddleware do
+  before do
+    stub_const('TestWorker', Class.new)
 
-    def perform(_arg)
-      Gitlab::SafeRequestStore['gitaly_call_actual'] = 1
-      Gitlab::GitalyClient.query_time = 5
+    TestWorker.class_eval do
+      include Sidekiq::Worker
+      include ApplicationWorker
+
+      def perform(_arg)
+        Gitlab::SafeRequestStore['gitaly_call_actual'] = 1
+        Gitlab::SafeRequestStore[:gitaly_query_time] = 5
+      end
     end
   end
 
@@ -51,6 +56,7 @@ describe Gitlab::SidekiqMiddleware do
        Gitlab::SidekiqMiddleware::ArgumentsLogger,
        Gitlab::SidekiqMiddleware::MemoryKiller,
        Gitlab::SidekiqMiddleware::RequestStoreMiddleware,
+       Gitlab::SidekiqMiddleware::ExtraDoneLogMetadata,
        Gitlab::SidekiqMiddleware::WorkerContext::Server,
        Gitlab::SidekiqMiddleware::AdminMode::Server,
        Gitlab::SidekiqMiddleware::DuplicateJobs::Server

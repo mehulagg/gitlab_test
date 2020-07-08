@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'project routing' do
+RSpec.describe 'project routing' do
   before do
     allow(Project).to receive(:find_by_full_path).and_return(false)
     allow(Project).to receive(:find_by_full_path).with('gitlab/gitlabhq', any_args).and_return(true)
@@ -77,6 +77,10 @@ describe 'project routing' do
   #                          DELETE /:id(.:format)          projects#destroy
   # preview_markdown_project POST   /:id/preview_markdown(.:format) projects#preview_markdown
   describe ProjectsController, 'routing' do
+    it 'to #index' do
+      expect(get('/projects')).to route_to('projects#index')
+    end
+
     it 'to #create' do
       expect(post('/projects')).to route_to('projects#create')
     end
@@ -230,6 +234,8 @@ describe 'project routing' do
       expect(delete('/gitlab/gitlabhq/-/tags/feature%2B45/foo/bar/baz')).to route_to('projects/tags#destroy', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45/foo/bar/baz')
       expect(delete('/gitlab/gitlabhq/-/tags/feature@45/foo/bar/baz')).to route_to('projects/tags#destroy', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45/foo/bar/baz')
     end
+
+    it_behaves_like 'redirecting a legacy project path', "/gitlab/gitlabhq/tags", "/gitlab/gitlabhq/-/tags"
   end
 
   #     project_deploy_keys GET    /:project_id/deploy_keys(.:format)          deploy_keys#index
@@ -405,6 +411,10 @@ describe 'project routing' do
     it 'to #destroy' do
       expect(delete('/gitlab/gitlabhq/snippets/1')).to route_to('projects/snippets#destroy', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1')
     end
+
+    it 'to #show from scope routing' do
+      expect(get('/gitlab/gitlabhq/-/snippets/1')).to route_to('projects/snippets#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1')
+    end
   end
 
   # test_project_hook POST    /:project_id/hooks/:id/test(.:format) hooks#test
@@ -480,8 +490,6 @@ describe 'project routing' do
       let(:controller) { 'project_members' }
       let(:controller_path) { '/-/project_members' }
     end
-
-    it_behaves_like 'redirecting a legacy project path', "/gitlab/gitlabhq/-/settings/members", "/gitlab/gitlabhq/-/project_members"
   end
 
   #     project_milestones    GET    /:project_id/milestones(.:format)          milestones#index
@@ -778,6 +786,12 @@ describe 'project routing' do
     end
   end
 
+  describe Projects::Settings::OperationsController, 'routing' do
+    it 'to #reset_alerting_token' do
+      expect(post('/gitlab/gitlabhq/-/settings/operations/reset_alerting_token')).to route_to('projects/settings/operations#reset_alerting_token', namespace_id: 'gitlab', project_id: 'gitlabhq')
+    end
+  end
+
   describe Projects::Settings::RepositoryController, 'routing' do
     it 'to #show' do
       expect(get('/gitlab/gitlabhq/-/settings/repository')).to route_to('projects/settings/repository#show', namespace_id: 'gitlab', project_id: 'gitlabhq')
@@ -817,6 +831,10 @@ describe 'project routing' do
   describe Projects::UsagePingController, 'routing' do
     it 'routes to usage_ping#web_ide_clientside_preview' do
       expect(post('/gitlab/gitlabhq/usage_ping/web_ide_clientside_preview')).to route_to('projects/usage_ping#web_ide_clientside_preview', namespace_id: 'gitlab', project_id: 'gitlabhq')
+    end
+
+    it 'routes to usage_ping#web_ide_pipelines_count' do
+      expect(post('/gitlab/gitlabhq/usage_ping/web_ide_pipelines_count')).to route_to('projects/usage_ping#web_ide_pipelines_count', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
   end
 
@@ -866,6 +884,14 @@ describe 'project routing' do
       expect(get('/gitlab/gitlabhq/-/design_management/designs/1/c6f00aa50b80887ada30a6fe517670be9f8f9ece/resized_image/v432x230')).to route_to('projects/design_management/designs/resized_image#show', namespace_id: 'gitlab', project_id: 'gitlabhq', design_id: '1', sha: 'c6f00aa50b80887ada30a6fe517670be9f8f9ece', id: 'v432x230')
       expect(get('/gitlab/gitlabhq/-/design_management/designs/1/invalid/resized_image/v432x230')).to route_to('application#route_not_found', unmatched_route: 'gitlab/gitlabhq/-/design_management/designs/1/invalid/resized_image/v432x230')
       expect(get('/gitlab/gitlabhq/-/design_management/designs/1/c6f00aa50b80887ada30a6fe517670be9f8f9ece/resized_image/small')).to route_to('application#route_not_found', unmatched_route: 'gitlab/gitlabhq/-/design_management/designs/1/c6f00aa50b80887ada30a6fe517670be9f8f9ece/resized_image/small')
+    end
+  end
+
+  describe Projects::Snippets::BlobsController, "routing" do
+    it "to #raw" do
+      expect(get('/gitlab/gitlabhq/-/snippets/1/raw/master/lib/version.rb'))
+        .to route_to('projects/snippets/blobs#raw', namespace_id: 'gitlab',
+                     project_id: 'gitlabhq', snippet_id: '1', ref: 'master', path: 'lib/version.rb')
     end
   end
 end

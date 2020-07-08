@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ContainerRepository do
+RSpec.describe ContainerRepository do
   let(:group) { create(:group, name: 'group') }
   let(:project) { create(:project, path: 'test', group: group) }
 
@@ -78,6 +78,12 @@ describe ContainerRepository do
   describe '#tags' do
     it 'returns non-empty tags list' do
       expect(repository.tags).not_to be_empty
+    end
+  end
+
+  describe '#tags_count' do
+    it 'returns the count of tags' do
+      expect(repository.tags_count).to eq(1)
     end
   end
 

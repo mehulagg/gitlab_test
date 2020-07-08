@@ -19,7 +19,7 @@ export default {
     UserAvatarLink,
   },
   props: {
-    hasPipelineData: {
+    hasVulnerabilities: {
       type: Boolean,
       required: false,
       default: false,
@@ -51,7 +51,8 @@ export default {
     },
     project: {
       type: Object,
-      required: true,
+      required: false,
+      default: undefined,
       validator: project => !isUndefined(project.id) && !isUndefined(project.name),
     },
     dashboardDocumentation: {
@@ -84,8 +85,8 @@ export default {
 </script>
 <template>
   <div>
-    <template v-if="hasPipelineData">
-      <div class="card security-dashboard prepend-top-default">
+    <template v-if="hasVulnerabilities">
+      <div class="card security-dashboard gl-mt-3">
         <div class="card-header border-bottom-0">
           <span class="js-security-dashboard-left">
             <gl-sprintf

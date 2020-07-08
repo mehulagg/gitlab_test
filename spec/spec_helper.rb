@@ -8,10 +8,12 @@ ENV["IN_MEMORY_APPLICATION_SETTINGS"] = 'true'
 ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 
 require File.expand_path('../config/environment', __dir__)
+
+require 'rspec/mocks'
 require 'rspec/rails'
-require 'shoulda/matchers'
 require 'rspec/retry'
 require 'rspec-parameterized'
+require 'shoulda/matchers'
 require 'test_prof/recipes/rspec/let_it_be'
 
 rspec_profiling_is_configured =
@@ -101,7 +103,6 @@ RSpec.configure do |config|
   config.include ActiveJob::TestHelper
   config.include ActiveSupport::Testing::TimeHelpers
   config.include CycleAnalyticsHelpers
-  config.include ExpectOffense
   config.include FactoryBot::Syntax::Methods
   config.include FixtureHelpers
   config.include NonExistingRecordsHelpers
@@ -137,6 +138,7 @@ RSpec.configure do |config|
   config.include IdempotentWorkerHelper, type: :worker
   config.include RailsHelpers
   config.include SidekiqMiddleware
+  config.include StubActionCableConnection, type: :channel
 
   if ENV['CI'] || ENV['RETRIES']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -153,6 +155,9 @@ RSpec.configure do |config|
   config.before(:suite) do
     Timecop.safe_mode = true
     TestEnv.init
+
+    # Reload all feature flags definitions
+    Feature.register_definitions
   end
 
   config.after(:all) do
@@ -170,38 +175,38 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    # Enable all features by default for testing
-    allow(Feature).to receive(:enabled?) { true }
+    if example.metadata.fetch(:stub_feature_flags, true)
+      # Enable all features by default for testing
+      stub_all_feature_flags
 
-    enabled = example.metadata[:enable_rugged].present?
+      # The following can be removed when we remove the staged rollout strategy
+      # and we can just enable it using instance wide settings
+      # (ie. ApplicationSetting#auto_devops_enabled)
+      stub_feature_flags(force_autodevops_on_by_default: false)
 
-    # Disable Rugged features by default
-    Gitlab::Git::RuggedImpl::Repository::FEATURE_FLAGS.each do |flag|
-      allow(Feature).to receive(:enabled?).with(flag).and_return(enabled)
+      # The following can be removed once Vue Issuable Sidebar
+      # is feature-complete and can be made default in place
+      # of older sidebar.
+      # See https://gitlab.com/groups/gitlab-org/-/epics/1863
+      stub_feature_flags(vue_issuable_sidebar: false)
+      stub_feature_flags(vue_issuable_epic_sidebar: false)
+
+      enable_rugged = example.metadata[:enable_rugged].present?
+
+      # Disable Rugged features by default
+      Gitlab::Git::RuggedImpl::Repository::FEATURE_FLAGS.each do |flag|
+        stub_feature_flags(flag => enable_rugged)
+      end
+
+      # Disable the usage of file_identifier_hash by default until it is ready
+      # See https://gitlab.com/gitlab-org/gitlab/-/issues/33867
+      stub_feature_flags(file_identifier_hash: false)
+
+      allow(Gitlab::GitalyClient).to receive(:can_use_disk?).and_return(enable_rugged)
     end
-
-    allow(Gitlab::GitalyClient).to receive(:can_use_disk?).and_return(enabled)
-
-    # The following can be removed when we remove the staged rollout strategy
-    # and we can just enable it using instance wide settings
-    # (ie. ApplicationSetting#auto_devops_enabled)
-    allow(Feature).to receive(:enabled?)
-      .with(:force_autodevops_on_by_default, anything)
-      .and_return(false)
 
     # Enable Marginalia feature for all specs in the test suite.
     allow(Gitlab::Marginalia).to receive(:cached_feature_enabled?).and_return(true)
-
-    # The following can be removed once Vue Issuable Sidebar
-    # is feature-complete and can be made default in place
-    # of older sidebar.
-    # See https://gitlab.com/groups/gitlab-org/-/epics/1863
-    allow(Feature).to receive(:enabled?)
-      .with(:vue_issuable_sidebar, anything)
-      .and_return(false)
-    allow(Feature).to receive(:enabled?)
-      .with(:vue_issuable_epic_sidebar, anything)
-      .and_return(false)
 
     # Stub these calls due to being expensive operations
     # It can be reenabled for specific tests via:
@@ -233,26 +238,25 @@ RSpec.configure do |config|
       ./ee/spec/features
       ./ee/spec/finders
       ./ee/spec/lib
-      ./ee/spec/models
-      ./ee/spec/policies
       ./ee/spec/requests/admin
       ./ee/spec/serializers
       ./ee/spec/services
       ./ee/spec/support/protected_tags
-      ./ee/spec/support/shared_examples
+      ./ee/spec/support/shared_examples/features
+      ./ee/spec/support/shared_examples/finders/geo
+      ./ee/spec/support/shared_examples/graphql/geo
+      ./ee/spec/support/shared_examples/services
       ./spec/features
       ./spec/finders
       ./spec/frontend
       ./spec/helpers
       ./spec/lib
-      ./spec/models
-      ./spec/policies
       ./spec/requests
       ./spec/serializers
       ./spec/services
-      ./spec/support/cycle_analytics_helpers
       ./spec/support/protected_tags
-      ./spec/support/shared_examples
+      ./spec/support/shared_examples/features
+      ./spec/support/shared_examples/requests
       ./spec/views
       ./spec/workers
     )
@@ -330,6 +334,8 @@ RSpec.configure do |config|
       Ability.allowed?(*args)
     end
   end
+
+  config.disable_monkey_patching!
 end
 
 ActiveRecord::Migration.maintain_test_schema!

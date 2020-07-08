@@ -1,6 +1,14 @@
-import { commitItemIconMap } from '~/ide/constants';
-import { getCommitIconMap, isTextFile, registerLanguages } from '~/ide/utils';
-import { decorateData } from '~/ide/stores/utils';
+import {
+  isTextFile,
+  registerLanguages,
+  registerSchemas,
+  trimPathComponents,
+  insertFinalNewline,
+  trimTrailingWhitespace,
+  getPathParents,
+  getPathParent,
+  readFileAsDataURL,
+} from '~/ide/utils';
 import { languages } from 'monaco-editor';
 
 describe('WebIDE utils', () => {
@@ -62,45 +70,18 @@ describe('WebIDE utils', () => {
     });
   });
 
-  const createFile = (name = 'name', id = name, type = '', parent = null) =>
-    decorateData({
-      id,
-      type,
-      icon: 'icon',
-      url: 'url',
-      name,
-      path: parent ? `${parent.path}/${name}` : name,
-      parentPath: parent ? parent.path : '',
-      lastCommit: {},
-    });
-
-  describe('getCommitIconMap', () => {
-    let entry;
-
-    beforeEach(() => {
-      entry = createFile('Entry item');
-    });
-
-    it('renders "deleted" icon for deleted entries', () => {
-      entry.deleted = true;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.deleted);
-    });
-
-    it('renders "addition" icon for temp entries', () => {
-      entry.tempFile = true;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.addition);
-    });
-
-    it('renders "modified" icon for newly-renamed entries', () => {
-      entry.prevPath = 'foo/bar';
-      entry.tempFile = false;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.modified);
-    });
-
-    it('renders "modified" icon even for temp entries if they are newly-renamed', () => {
-      entry.prevPath = 'foo/bar';
-      entry.tempFile = true;
-      expect(getCommitIconMap(entry)).toEqual(commitItemIconMap.modified);
+  describe('trimPathComponents', () => {
+    it.each`
+      input                           | output
+      ${'example path '}              | ${'example path'}
+      ${'p/somefile '}                | ${'p/somefile'}
+      ${'p /somefile '}               | ${'p/somefile'}
+      ${'p/ somefile '}               | ${'p/somefile'}
+      ${' p/somefile '}               | ${'p/somefile'}
+      ${'p/somefile  .md'}            | ${'p/somefile  .md'}
+      ${'path / to / some/file.doc '} | ${'path/to/some/file.doc'}
+    `('trims all path components in path: "$input"', ({ input, output }) => {
+      expect(trimPathComponents(input)).toEqual(output);
     });
   });
 
@@ -175,6 +156,139 @@ describe('WebIDE utils', () => {
         ['js', { comments: { blockComment: ['/*', '*/'] } }],
         ['html', { comments: { blockComment: ['<!--', '-->'] } }],
       ]);
+    });
+  });
+
+  describe('registerSchemas', () => {
+    let options;
+
+    beforeEach(() => {
+      options = {
+        validate: true,
+        enableSchemaRequest: true,
+        hover: true,
+        completion: true,
+        schemas: [
+          {
+            uri: 'http://myserver/foo-schema.json',
+            fileMatch: ['*'],
+            schema: {
+              id: 'http://myserver/foo-schema.json',
+              type: 'object',
+              properties: {
+                p1: { enum: ['v1', 'v2'] },
+                p2: { $ref: 'http://myserver/bar-schema.json' },
+              },
+            },
+          },
+          {
+            uri: 'http://myserver/bar-schema.json',
+            schema: {
+              id: 'http://myserver/bar-schema.json',
+              type: 'object',
+              properties: { q1: { enum: ['x1', 'x2'] } },
+            },
+          },
+        ],
+      };
+
+      jest.spyOn(languages.json.jsonDefaults, 'setDiagnosticsOptions');
+      jest.spyOn(languages.yaml.yamlDefaults, 'setDiagnosticsOptions');
+    });
+
+    it.each`
+      language  | defaultsObj
+      ${'json'} | ${languages.json.jsonDefaults}
+      ${'yaml'} | ${languages.yaml.yamlDefaults}
+    `(
+      'registers the given schemas with monaco for lang: $language',
+      ({ language, defaultsObj }) => {
+        registerSchemas({ language, options });
+
+        expect(defaultsObj.setDiagnosticsOptions).toHaveBeenCalledWith(options);
+      },
+    );
+  });
+
+  describe('trimTrailingWhitespace', () => {
+    it.each`
+      input                                                            | output
+      ${'text     \n   more text   \n'}                                | ${'text\n   more text\n'}
+      ${'text     \n   more text   \n\n   \n'}                         | ${'text\n   more text\n\n\n'}
+      ${'text  \t\t   \n   more text   \n\t\ttext\n   \n\t\t'}         | ${'text\n   more text\n\t\ttext\n\n'}
+      ${'text     \r\n   more text   \r\n'}                            | ${'text\r\n   more text\r\n'}
+      ${'text     \r\n   more text   \r\n\r\n   \r\n'}                 | ${'text\r\n   more text\r\n\r\n\r\n'}
+      ${'text  \t\t   \r\n   more text   \r\n\t\ttext\r\n   \r\n\t\t'} | ${'text\r\n   more text\r\n\t\ttext\r\n\r\n'}
+    `("trims trailing whitespace in each line of file's contents: $input", ({ input, output }) => {
+      expect(trimTrailingWhitespace(input)).toBe(output);
+    });
+  });
+
+  describe('addFinalNewline', () => {
+    it.each`
+      input              | output
+      ${'some text'}     | ${'some text\n'}
+      ${'some text\n'}   | ${'some text\n'}
+      ${'some text\n\n'} | ${'some text\n\n'}
+      ${'some\n text'}   | ${'some\n text\n'}
+    `('adds a newline if it doesnt already exist for input: $input', ({ input, output }) => {
+      expect(insertFinalNewline(input)).toBe(output);
+    });
+
+    it.each`
+      input                  | output
+      ${'some text'}         | ${'some text\r\n'}
+      ${'some text\r\n'}     | ${'some text\r\n'}
+      ${'some text\n'}       | ${'some text\n\r\n'}
+      ${'some text\r\n\r\n'} | ${'some text\r\n\r\n'}
+      ${'some\r\n text'}     | ${'some\r\n text\r\n'}
+    `('works with CRLF newline style; input: $input', ({ input, output }) => {
+      expect(insertFinalNewline(input, '\r\n')).toBe(output);
+    });
+  });
+
+  describe('getPathParents', () => {
+    it.each`
+      path                                  | parents
+      ${'foo/bar/baz/index.md'}             | ${['foo/bar/baz', 'foo/bar', 'foo']}
+      ${'foo/bar/baz'}                      | ${['foo/bar', 'foo']}
+      ${'index.md'}                         | ${[]}
+      ${'path with/spaces to/something.md'} | ${['path with/spaces to', 'path with']}
+    `('gets all parent directory names for path: $path', ({ path, parents }) => {
+      expect(getPathParents(path)).toEqual(parents);
+    });
+
+    it.each`
+      path                      | depth | parents
+      ${'foo/bar/baz/index.md'} | ${0}  | ${[]}
+      ${'foo/bar/baz/index.md'} | ${1}  | ${['foo/bar/baz']}
+      ${'foo/bar/baz/index.md'} | ${2}  | ${['foo/bar/baz', 'foo/bar']}
+      ${'foo/bar/baz/index.md'} | ${3}  | ${['foo/bar/baz', 'foo/bar', 'foo']}
+      ${'foo/bar/baz/index.md'} | ${4}  | ${['foo/bar/baz', 'foo/bar', 'foo']}
+    `('gets only the immediate $depth parents if when depth=$depth', ({ path, depth, parents }) => {
+      expect(getPathParents(path, depth)).toEqual(parents);
+    });
+  });
+
+  describe('getPathParent', () => {
+    it.each`
+      path                                  | parents
+      ${'foo/bar/baz/index.md'}             | ${'foo/bar/baz'}
+      ${'foo/bar/baz'}                      | ${'foo/bar'}
+      ${'index.md'}                         | ${undefined}
+      ${'path with/spaces to/something.md'} | ${'path with/spaces to'}
+    `('gets the immediate parent for path: $path', ({ path, parents }) => {
+      expect(getPathParent(path)).toEqual(parents);
+    });
+  });
+
+  describe('readFileAsDataURL', () => {
+    it('reads a file and returns its output as a data url', () => {
+      const file = new File(['foo'], 'foo.png', { type: 'image/png' });
+
+      return readFileAsDataURL(file).then(contents => {
+        expect(contents).toBe('data:image/png;base64,Zm9v');
+      });
     });
   });
 });

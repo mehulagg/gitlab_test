@@ -6,7 +6,7 @@ module QA
       include ::QA::Support::Dates
 
       let(:milestone) do
-        QA::EE::Resource::ProjectMilestone.fabricate_via_api! do |m|
+        Resource::ProjectMilestone.fabricate_via_api! do |m|
           m.start_date = current_date_yyyy_mm_dd
           m.due_date = next_month_yyyy_mm_dd
         end
@@ -24,7 +24,7 @@ module QA
       it 'shows burndown chart on milestone page' do
         milestone.visit!
 
-        QA::EE::Page::Project::Milestone::Show.perform do |show|
+        QA::Page::Project::Milestone::Show.perform do |show|
           expect(show.burndown_chart).to be_visible
           expect(show.burndown_chart).to have_content("Open issues")
 

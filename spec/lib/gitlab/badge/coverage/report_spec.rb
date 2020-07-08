@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe Gitlab::Badge::Coverage::Report do
+RSpec.describe Gitlab::Badge::Coverage::Report do
   let(:project) { create(:project, :repository) }
   let(:job_name) { nil }
 
   let(:badge) do
-    described_class.new(project, 'master', job_name)
+    described_class.new(project, 'master', opts: { job: job_name })
   end
 
   describe '#entity' do

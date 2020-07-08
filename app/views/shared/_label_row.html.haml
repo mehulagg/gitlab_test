@@ -6,14 +6,14 @@
 .label-name
   = render_label(label, tooltip: false)
 .label-description
-  .append-right-default.prepend-left-default
+  .label-description-wrapper
     - if label.description.present?
       .description-text
         = markdown_field(label, :description)
     %ul.label-links
       - if show_label_issues_link
         %li.label-link-item.inline
-          = link_to_label(label) { 'Issues' }
+          = link_to_label(label) { _('Issues') }
       - if show_label_merge_requests_link
         &middot;
         %li.label-link-item.inline

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::NotificationSettings do
+RSpec.describe API::NotificationSettings do
   let(:user) { create(:user) }
   let!(:group) { create(:group) }
   let!(:project) { create(:project, :public, creator_id: user.id, namespace: group) }
@@ -19,7 +19,7 @@ describe API::NotificationSettings do
   end
 
   describe "PUT /notification_settings" do
-    let(:email) { create(:email, user: user) }
+    let(:email) { create(:email, :confirmed, user: user) }
 
     it "updates global notification settings for the current user" do
       put api("/notification_settings", user), params: { level: 'watch', notification_email: email.email }

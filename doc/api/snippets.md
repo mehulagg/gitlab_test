@@ -21,14 +21,14 @@ Valid values for snippet visibility levels are:
 
 Get a list of the current user's snippets.
 
-```text
+```plaintext
 GET /snippets
 ```
 
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/snippets
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/snippets"
 ```
 
 Example response:
@@ -82,7 +82,7 @@ Example response:
 
 Get a single snippet.
 
-```text
+```plaintext
 GET /snippets/:id
 ```
 
@@ -95,7 +95,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/snippets/1
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/snippets/1"
 ```
 
 Example response:
@@ -128,7 +128,7 @@ Example response:
 
 Get a single snippet's raw contents.
 
-```text
+```plaintext
 GET /snippets/:id/raw
 ```
 
@@ -141,12 +141,12 @@ Parameters:
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/snippets/1/raw
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/snippets/1/raw"
 ```
 
 Example response:
 
-```text
+```plaintext
 Hello World snippet
 ```
 
@@ -157,7 +157,7 @@ Create a new snippet.
 NOTE: **Note:**
 The user must have permission to create new snippets.
 
-```text
+```plaintext
 POST /snippets
 ```
 
@@ -177,8 +177,8 @@ Example request:
 curl --request POST \
      --data '{"title": "This is a snippet", "content": "Hello world", "description": "Hello World snippet", "file_name": "test.txt", "visibility": "internal" }' \
      --header 'Content-Type: application/json' \
-     --header "PRIVATE-TOKEN: valid_api_token" \
-     https://gitlab.example.com/api/v4/snippets
+     --header "PRIVATE-TOKEN: <your_access_token>" \
+     "https://gitlab.example.com/api/v4/snippets"
 ```
 
 Example response:
@@ -214,7 +214,7 @@ Update an existing snippet.
 NOTE: **Note:**
 The user must have permission to change an existing snippet.
 
-```text
+```plaintext
 PUT /snippets/:id
 ```
 
@@ -235,8 +235,8 @@ Example request:
 curl --request PUT \
      --data '{"title": "foo", "content": "bar"}' \
      --header 'Content-Type: application/json' \
-     --header "PRIVATE-TOKEN: valid_api_token" \
-     https://gitlab.example.com/api/v4/snippets/1
+     --header "PRIVATE-TOKEN: <your_access_token>" \
+     "https://gitlab.example.com/api/v4/snippets/1"
 ```
 
 Example response:
@@ -269,7 +269,7 @@ Example response:
 
 Delete an existing snippet.
 
-```text
+```plaintext
 DELETE /snippets/:id
 ```
 
@@ -296,7 +296,7 @@ The following are possible return codes:
 
 List all public snippets.
 
-```text
+```plaintext
 GET /snippets/public
 ```
 
@@ -310,7 +310,7 @@ Parameters:
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/snippets/public?per_page=2&page=1
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/snippets/public?per_page=2&page=1"
 ```
 
 Example response:
@@ -364,7 +364,7 @@ Example response:
 NOTE: **Note:**
 Available only for administrators.
 
-```text
+```plaintext
 GET /snippets/:id/user_agent_detail
 ```
 
@@ -375,7 +375,7 @@ GET /snippets/:id/user_agent_detail
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/snippets/1/user_agent_detail
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/snippets/1/user_agent_detail"
 ```
 
 Example response:

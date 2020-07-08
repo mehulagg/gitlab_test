@@ -3,7 +3,6 @@
 module EE
   module MergeRequestPresenter
     include ::VisibleApprovable
-    include ::EE::ProjectsHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
 
     def approvals_path
       if expose_mr_approval_path?
@@ -42,7 +41,7 @@ module EE
     end
 
     def merge_train_when_pipeline_succeeds_docs_path
-      help_page_path('ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md', anchor: 'startadd-to-merge-train-when-pipeline-succeeds')
+      help_page_path('ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md', anchor: 'add-a-merge-request-to-a-merge-train')
     end
 
     def merge_immediately_docs_path
@@ -72,3 +71,5 @@ module EE
     end
   end
 end
+
+EE::MergeRequestPresenter.include_if_ee('::EE::ProjectsHelper')

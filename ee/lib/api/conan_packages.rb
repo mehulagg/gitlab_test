@@ -9,7 +9,7 @@
 #
 # Technical debt: https://gitlab.com/gitlab-org/gitlab/issues/35798
 module API
-  class ConanPackages < Grape::API
+  class ConanPackages < Grape::API::Instance
     helpers ::API::Helpers::PackagesManagerClientsHelpers
 
     PACKAGE_REQUIREMENTS = {
@@ -63,11 +63,7 @@ module API
         end
         route_setting :authentication, job_token_allowed: true
         get 'authenticate' do
-          token = if access_token
-                    ::Gitlab::ConanToken.from_personal_access_token(access_token)
-                  else
-                    ::Gitlab::ConanToken.from_job(find_job_from_token)
-                  end
+          unauthorized! unless token
 
           token.to_jwt
         end

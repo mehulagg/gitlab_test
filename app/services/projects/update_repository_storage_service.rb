@@ -14,7 +14,11 @@ module Projects
     end
 
     def execute
-      repository_storage_move.start!
+      repository_storage_move.with_lock do
+        return ServiceResponse.success unless repository_storage_move.scheduled? # rubocop:disable Cop/AvoidReturnFromBlocks
+
+        repository_storage_move.start!
+      end
 
       raise SameFilesystemError if same_filesystem?(repository.storage, destination_storage_name)
 
@@ -24,7 +28,7 @@ module Projects
         mark_old_paths_for_archive
 
         repository_storage_move.finish!
-        project.update!(repository_storage: destination_storage_name, repository_read_only: false)
+
         project.leave_pool_repository
         project.track_project_repository
       end
@@ -34,10 +38,7 @@ module Projects
       ServiceResponse.success
 
     rescue StandardError => e
-      project.transaction do
-        repository_storage_move.do_fail!
-        project.update!(repository_read_only: false)
-      end
+      repository_storage_move.do_fail!
 
       Gitlab::ErrorTracking.track_exception(e, project_path: project.full_path)
 
@@ -57,6 +58,10 @@ module Projects
 
       if project.wiki.repository_exists?
         mirror_repository(type: Gitlab::GlRepository::WIKI)
+      end
+
+      if project.design_repository.exists?
+        mirror_repository(type: ::Gitlab::GlRepository::DESIGN)
       end
     end
 
@@ -78,8 +83,6 @@ module Projects
         full_path
       )
 
-      new_repository.create_repository
-
       new_repository.replicate(raw_repository)
       new_checksum = new_repository.checksum
 
@@ -92,25 +95,32 @@ module Projects
       old_repository_storage = project.repository_storage
       new_project_path = moved_path(project.disk_path)
 
-      # Notice that the block passed to `run_after_commit` will run with `project`
+      # Notice that the block passed to `run_after_commit` will run with `repository_storage_move`
       # as its context
-      project.run_after_commit do
+      repository_storage_move.run_after_commit do
         GitlabShellWorker.perform_async(:mv_repository,
                                         old_repository_storage,
-                                        disk_path,
+                                        project.disk_path,
                                         new_project_path)
 
-        if wiki.repository_exists?
+        if project.wiki.repository_exists?
           GitlabShellWorker.perform_async(:mv_repository,
                                           old_repository_storage,
-                                          wiki.disk_path,
+                                          project.wiki.disk_path,
                                           "#{new_project_path}.wiki")
+        end
+
+        if project.design_repository.exists?
+          GitlabShellWorker.perform_async(:mv_repository,
+                                          old_repository_storage,
+                                          project.design_repository.disk_path,
+                                          "#{new_project_path}.design")
         end
       end
     end
 
     def moved_path(path)
-      "#{path}+#{project.id}+moved+#{Time.now.to_i}"
+      "#{path}+#{project.id}+moved+#{Time.current.to_i}"
     end
 
     # The underlying FetchInternalRemote call uses a `git fetch` to move data
@@ -140,5 +150,3 @@ module Projects
     end
   end
 end
-
-Projects::UpdateRepositoryStorageService.prepend_if_ee('EE::Projects::UpdateRepositoryStorageService')

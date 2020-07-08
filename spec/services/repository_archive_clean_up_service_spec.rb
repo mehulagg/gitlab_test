@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe RepositoryArchiveCleanUpService do
+RSpec.describe RepositoryArchiveCleanUpService do
   subject(:service) { described_class.new }
 
   describe '#execute (new archive locations)' do
@@ -110,6 +110,8 @@ describe RepositoryArchiveCleanUpService do
 
   def create_temporary_files(dir, extensions, mtime)
     FileUtils.mkdir_p(dir)
+    # rubocop: disable Rails/TimeZone
     FileUtils.touch(extensions.map { |ext| File.join(dir, "sample.#{ext}") }, mtime: Time.now - mtime)
+    # rubocop: enable Rails/TimeZone
   end
 end

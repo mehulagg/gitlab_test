@@ -1,6 +1,7 @@
 require 'gitlab/testing/request_blocker_middleware'
 require 'gitlab/testing/request_inspector_middleware'
 require 'gitlab/testing/clear_process_memory_cache_middleware'
+require 'gitlab/utils'
 
 Rails.application.configure do
   # Make sure the middleware is inserted first in middleware chain
@@ -43,7 +44,7 @@ Rails.application.configure do
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
 
-  config.eager_load = true
+  config.eager_load = Gitlab::Utils.to_boolean(ENV['GITLAB_TEST_EAGER_LOAD'], default: true)
 
   config.cache_store = :null_store
 
@@ -53,4 +54,8 @@ Rails.application.configure do
     config.logger = ActiveSupport::TaggedLogging.new(Logger.new(nil))
     config.log_level = :fatal
   end
+
+  # Mount the ActionCable Engine in-app so that we don't have to spawn another Puma
+  # process for feature specs
+  ENV['ACTION_CABLE_IN_APP'] = 'true'
 end

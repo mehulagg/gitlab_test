@@ -4,7 +4,7 @@ require 'spec_helper'
 
 module Gitlab
   module Ci
-    describe YamlProcessor do
+    RSpec.describe YamlProcessor do
       include StubRequests
 
       subject { described_class.new(config, user: nil) }
@@ -1364,13 +1364,31 @@ module Gitlab
 
           expect { described_class.new(config) }.to raise_error(described_class::ValidationError)
         end
+
+        it 'populates a build options with complete artifacts configuration' do
+          stub_feature_flags(ci_artifacts_exclude: true)
+
+          config = <<~YAML
+            test:
+              script: echo "Hello World"
+              artifacts:
+                paths:
+                  - my/test
+                exclude:
+                  - my/test/something
+          YAML
+
+          attributes = Gitlab::Ci::YamlProcessor.new(config).build_attributes('test')
+
+          expect(attributes.dig(*%i[options artifacts exclude])).to eq(%w[my/test/something])
+        end
       end
 
       describe "release" do
         let(:processor) { Gitlab::Ci::YamlProcessor.new(YAML.dump(config)) }
         let(:config) do
           {
-            stages: ["build", "test", "release"], # rubocop:disable Style/WordArray
+            stages: %w[build test release],
             release: {
               stage: "release",
               only: ["tags"],
@@ -1379,6 +1397,9 @@ module Gitlab
                 tag_name: "$CI_COMMIT_TAG",
                 name: "Release $CI_TAG_NAME",
                 description: "./release_changelog.txt",
+                ref: 'b3235930aa443112e639f941c69c578912189bdd',
+                released_at: '2019-03-15T08:00:00Z',
+                milestones: %w[m1 m2 m3],
                 assets: {
                   links: [
                     {

@@ -2,11 +2,13 @@
 
 require 'spec_helper'
 
-describe 'Service Desk Issue Tracker', :js do
+RSpec.describe 'Service Desk Issue Tracker', :js do
   let(:project) { create(:project, :private, service_desk_enabled: true) }
   let(:user) { create(:user) }
 
   before do
+    stub_feature_flags(vue_issuables_list: false)
+
     allow(License).to receive(:feature_available?).and_call_original
     allow(License).to receive(:feature_available?).with(:service_desk).and_return(true)
     allow(Gitlab::IncomingEmail).to receive(:enabled?).and_return(true)

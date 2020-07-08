@@ -25,10 +25,6 @@ export default {
       type: Boolean,
       required: true,
     },
-    milestonePath: {
-      type: String,
-      required: true,
-    },
     labelsPath: {
       type: String,
       required: true,
@@ -177,7 +173,7 @@ export default {
     @cancel="cancel"
     @submit="submit"
   >
-    <template slot="body">
+    <template #body>
       <p v-if="isDeleteForm">{{ __('Are you sure you want to delete this board?') }}</p>
       <form v-else class="js-board-config-modal" @submit.prevent>
         <div v-if="!readonly" class="append-bottom-20">
@@ -201,7 +197,6 @@ export default {
           :collapse-scope="isNewForm"
           :board="board"
           :can-admin-board="canAdminBoard"
-          :milestone-path="milestonePath"
           :labels-path="labelsPath"
           :enable-scoped-labels="enableScopedLabels"
           :project-id="projectId"

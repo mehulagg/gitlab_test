@@ -1,14 +1,3 @@
-build-qa-image:
-  extends:
-    - .use-kaniko
-    - .default-retry
-    - .review:rules:build-qa-image
-  stage: build-images
-  needs: []
-  script:
-    - export QA_IMAGE="${CI_REGISTRY}/${CI_PROJECT_PATH}/gitlab-ee-qa:${CI_COMMIT_REF_SLUG}"
-    - /kaniko/executor --context=${CI_PROJECT_DIR} --dockerfile=${CI_PROJECT_DIR}/qa/Dockerfile --destination=${QA_IMAGE} --cache=true
-
 review-cleanup:
   extends:
     - .default-retry
@@ -38,7 +27,7 @@ review-build-cng:
     - install_api_client_dependencies_with_apk
     - install_gitlab_gem
   needs:
-    - job: gitlab:assets:compile pull-cache
+    - job: compile-production-assets
       artifacts: false
   script:
     - BUILD_TRIGGER_TOKEN=$REVIEW_APPS_BUILD_TRIGGER_TOKEN ./scripts/trigger-build cng
@@ -52,8 +41,9 @@ review-build-cng:
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-helm3-kubectl1.14
   variables:
     HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}"
+    REVIEW_APPS_DOMAIN: "temp.gitlab-review.app"  # FIXME: using temporary domain
     DOMAIN: "-${CI_ENVIRONMENT_SLUG}.${REVIEW_APPS_DOMAIN}"
-    GITLAB_HELM_CHART_REF: "v3.2.2"
+    GITLAB_HELM_CHART_REF: "master"
   environment:
     name: review/${CI_COMMIT_REF_NAME}
     url: https://gitlab-${CI_ENVIRONMENT_SLUG}.${REVIEW_APPS_DOMAIN}
@@ -82,6 +72,7 @@ review-deploy:
     - download_chart
     - date
     - deploy || (display_deployment_debug && exit 1)
+    - disable_sign_ups
     # When the job is manual, review-qa-smoke is also manual and we don't want people
     # to have to manually start the jobs in sequence, so we do it for them.
     - '[ -z $CI_JOB_MANUAL ] || play_job "review-qa-smoke"'
@@ -141,6 +132,7 @@ review-stop:
     GITLAB_ADMIN_PASSWORD: "${REVIEW_APPS_ROOT_PASSWORD}"
     GITHUB_ACCESS_TOKEN: "${REVIEW_APPS_QA_GITHUB_ACCESS_TOKEN}"
     EE_LICENSE: "${REVIEW_APPS_EE_LICENSE}"
+    SIGNUP_DISABLED: "true"
   before_script:
     - export QA_IMAGE="${CI_REGISTRY}/${CI_PROJECT_PATH}/gitlab-ee-qa:${CI_COMMIT_REF_SLUG}"
     - export CI_ENVIRONMENT_URL="$(cat environment_url.txt)"
@@ -198,6 +190,7 @@ review-performance:
       - sitespeed-results/
     reports:
       performance: performance.json
+    expire_in: 31d
 
 parallel-spec-reports:
   extends:
@@ -223,17 +216,17 @@ parallel-spec-reports:
       - qa/gitlab-qa-run-*
     reports:
       junit: qa/gitlab-qa-run-*/**/rspec-*.xml
+    expire_in: 31d
 
 danger-review:
   extends:
     - .default-retry
-    - .default-cache
+    - .yarn-cache
     - .review:rules:danger
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
   stage: test
   needs: []
   script:
-    - git version
-    - node --version
-    - yarn install --frozen-lockfile --cache-folder .yarn-cache --prefer-offline
+    - source scripts/utils.sh
+    - retry yarn install --frozen-lockfile
     - danger --fail-on-errors=true --verbose

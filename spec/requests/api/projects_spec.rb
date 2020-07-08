@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-shared_examples 'languages and percentages JSON response' do
+RSpec.shared_examples 'languages and percentages JSON response' do
   let(:expected_languages) { project.repository.languages.map { |language| language.values_at(:label, :value)}.to_h }
 
   before do
@@ -46,7 +46,7 @@ shared_examples 'languages and percentages JSON response' do
   end
 end
 
-describe API::Projects do
+RSpec.describe API::Projects do
   include ProjectForksHelper
 
   let(:user) { create(:user) }
@@ -254,7 +254,10 @@ describe API::Projects do
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to include_pagination_headers
         expect(json_response).to be_an Array
-        expect(json_response.first).to include 'statistics'
+
+        statistics = json_response.first['statistics']
+        expect(statistics).to be_present
+        expect(statistics).to include('commit_count', 'storage_size', 'repository_size', 'wiki_size', 'lfs_objects_size', 'job_artifacts_size', 'snippets_size')
       end
 
       it "does not include license by default" do
@@ -584,6 +587,85 @@ describe API::Projects do
       end
     end
 
+    context 'sorting by project statistics' do
+      %w(repository_size storage_size wiki_size).each do |order_by|
+        context "sorting by #{order_by}" do
+          before do
+            ProjectStatistics.update_all(order_by => 100)
+            project4.statistics.update_columns(order_by => 10)
+            project.statistics.update_columns(order_by => 200)
+          end
+
+          context 'admin user' do
+            let(:current_user) { admin }
+
+            context "when sorting by #{order_by} ascendingly" do
+              it 'returns a properly sorted list of projects' do
+                get api('/projects', current_user), params: { order_by: order_by, sort: :asc }
+
+                expect(response).to have_gitlab_http_status(:ok)
+                expect(response).to include_pagination_headers
+                expect(json_response).to be_an Array
+                expect(json_response.first['id']).to eq(project4.id)
+              end
+            end
+
+            context "when sorting by #{order_by} descendingly" do
+              it 'returns a properly sorted list of projects' do
+                get api('/projects', current_user), params: { order_by: order_by, sort: :desc }
+
+                expect(response).to have_gitlab_http_status(:ok)
+                expect(response).to include_pagination_headers
+                expect(json_response).to be_an Array
+                expect(json_response.first['id']).to eq(project.id)
+              end
+            end
+          end
+
+          context 'non-admin user' do
+            let(:current_user) { user }
+            let(:projects) { [public_project, project, project2, project3] }
+
+            it 'returns projects ordered normally' do
+              get api('/projects', current_user), params: { order_by: order_by }
+
+              expect(response).to have_gitlab_http_status(:ok)
+              expect(response).to include_pagination_headers
+              expect(json_response).to be_an Array
+              expect(json_response.map { |project| project['id'] }).to eq(projects.map(&:id).reverse)
+            end
+          end
+        end
+      end
+    end
+
+    context 'filtering by repository_storage' do
+      before do
+        [project, project3].each { |proj| proj.update_columns(repository_storage: 'nfs-11') }
+        # Since we don't actually have Gitaly configured with an nfs-11 storage, an error would be raised
+        # when we present the projects in a response, as we ask Gitaly for stuff like default branch and Gitaly
+        # is not configured for a nfs-11 storage. So we trick Rails into thinking the storage for these projects
+        # is still default (in reality, it is).
+        allow_any_instance_of(Project).to receive(:repository_storage).and_return('default')
+      end
+
+      context 'admin user' do
+        it_behaves_like 'projects response' do
+          let(:filter) { { repository_storage: 'nfs-11' } }
+          let(:current_user) { admin }
+          let(:projects) { [project, project3] }
+        end
+      end
+
+      context 'non-admin user' do
+        it_behaves_like 'projects response' do
+          let(:filter) { { repository_storage: 'nfs-11' } }
+          let(:current_user) { user }
+          let(:projects) { [public_project, project, project2, project3] }
+        end
+      end
+    end
+
     context 'with keyset pagination' do
       let(:current_user) { user }
       let(:projects) { [public_project, project, project2, project3] }
@@ -597,6 +679,10 @@ describe API::Projects do
           expect(response.header).to include('Links')
           expect(response.header['Links']).to include('pagination=keyset')
           expect(response.header['Links']).to include("id_after=#{public_project.id}")
+
+          expect(response.header).to include('Link')
+          expect(response.header['Link']).to include('pagination=keyset')
+          expect(response.header['Link']).to include("id_after=#{public_project.id}")
         end
 
         it 'contains only the first project with per_page = 1' do
@@ -613,12 +699,17 @@ describe API::Projects do
           expect(response.header).to include('Links')
           expect(response.header['Links']).to include('pagination=keyset')
           expect(response.header['Links']).to include("id_after=#{project3.id}")
+
+          expect(response.header).to include('Link')
+          expect(response.header['Link']).to include('pagination=keyset')
+          expect(response.header['Link']).to include("id_after=#{project3.id}")
         end
 
         it 'does not include a next link when the page does not have any records' do
           get api('/projects', current_user), params: params.merge(id_after: Project.maximum(:id))
 
           expect(response.header).not_to include('Links')
+          expect(response.header).not_to include('Link')
         end
 
         it 'returns an empty array when the page does not have any records' do
@@ -644,6 +735,10 @@ describe API::Projects do
           expect(response.header).to include('Links')
           expect(response.header['Links']).to include('pagination=keyset')
           expect(response.header['Links']).to include("id_before=#{project3.id}")
+
+          expect(response.header).to include('Link')
+          expect(response.header['Link']).to include('pagination=keyset')
+          expect(response.header['Link']).to include("id_before=#{project3.id}")
         end
 
         it 'contains only the last project with per_page = 1' do
@@ -669,6 +764,11 @@ describe API::Projects do
 
             links = response.header['Links']
             url = links&.match(/<[^>]+(\/projects\?[^>]+)>; rel="next"/) do |match|
+              match[1]
+            end
+
+            link = response.header['Link']
+            url = link&.match(/<[^>]+(\/projects\?[^>]+)>; rel="next"/) do |match|
               match[1]
             end
 
@@ -746,7 +846,8 @@ describe API::Projects do
         resolve_outdated_diff_discussions: false,
         remove_source_branch_after_merge: true,
         autoclose_referenced_issues: true,
-        only_allow_merge_if_pipeline_succeeds: false,
+        only_allow_merge_if_pipeline_succeeds: true,
+        allow_merge_on_skipped_pipeline: true,
         request_access_enabled: true,
         only_allow_merge_if_all_discussions_are_resolved: false,
         ci_config_path: 'a/custom/path',
@@ -892,6 +993,22 @@ describe API::Projects do
       post api('/projects', user), params: project
 
       expect(json_response['only_allow_merge_if_pipeline_succeeds']).to be_truthy
+    end
+
+    it 'sets a project as not allowing merge when pipeline is skipped' do
+      project_params = attributes_for(:project, allow_merge_on_skipped_pipeline: false)
+
+      post api('/projects', user), params: project_params
+
+      expect(json_response['allow_merge_on_skipped_pipeline']).to be_falsey
+    end
+
+    it 'sets a project as allowing merge when pipeline is skipped' do
+      project_params = attributes_for(:project, allow_merge_on_skipped_pipeline: true)
+
+      post api('/projects', user), params: project_params
+
+      expect(json_response['allow_merge_on_skipped_pipeline']).to be_truthy
     end
 
     it 'sets a project as allowing merge even if discussions are unresolved' do
@@ -1227,14 +1344,34 @@ describe API::Projects do
 
     it 'sets a project as allowing merge even if build fails' do
       project = attributes_for(:project, only_allow_merge_if_pipeline_succeeds: false)
+
       post api("/projects/user/#{user.id}", admin), params: project
+
       expect(json_response['only_allow_merge_if_pipeline_succeeds']).to be_falsey
     end
 
     it 'sets a project as allowing merge only if pipeline succeeds' do
       project = attributes_for(:project, only_allow_merge_if_pipeline_succeeds: true)
+
       post api("/projects/user/#{user.id}", admin), params: project
+
       expect(json_response['only_allow_merge_if_pipeline_succeeds']).to be_truthy
+    end
+
+    it 'sets a project as not allowing merge when pipeline is skipped' do
+      project = attributes_for(:project, allow_merge_on_skipped_pipeline: false)
+
+      post api("/projects/user/#{user.id}", admin), params: project
+
+      expect(json_response['allow_merge_on_skipped_pipeline']).to be_falsey
+    end
+
+    it 'sets a project as allowing merge when pipeline is skipped' do
+      project = attributes_for(:project, allow_merge_on_skipped_pipeline: true)
+
+      post api("/projects/user/#{user.id}", admin), params: project
+
+      expect(json_response['allow_merge_on_skipped_pipeline']).to be_truthy
     end
 
     it 'sets a project as allowing merge even if discussions are unresolved' do
@@ -1376,6 +1513,7 @@ describe API::Projects do
         expect(json_response['shared_with_groups'][0]['group_name']).to eq(group.name)
         expect(json_response['shared_with_groups'][0]['group_access_level']).to eq(link.group_access)
         expect(json_response['only_allow_merge_if_pipeline_succeeds']).to eq(project.only_allow_merge_if_pipeline_succeeds)
+        expect(json_response['allow_merge_on_skipped_pipeline']).to eq(project.allow_merge_on_skipped_pipeline)
         expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to eq(project.only_allow_merge_if_all_discussions_are_resolved)
       end
     end
@@ -1443,6 +1581,7 @@ describe API::Projects do
         expect(json_response['shared_with_groups'][0]['group_access_level']).to eq(link.group_access)
         expect(json_response['shared_with_groups'][0]).to have_key('expires_at')
         expect(json_response['only_allow_merge_if_pipeline_succeeds']).to eq(project.only_allow_merge_if_pipeline_succeeds)
+        expect(json_response['allow_merge_on_skipped_pipeline']).to eq(project.allow_merge_on_skipped_pipeline)
         expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to eq(project.only_allow_merge_if_all_discussions_are_resolved)
         expect(json_response['ci_default_git_depth']).to eq(project.ci_default_git_depth)
         expect(json_response['merge_method']).to eq(project.merge_method.to_s)
@@ -1806,7 +1945,7 @@ describe API::Projects do
         first_user = json_response.first
         expect(first_user['username']).to eq(user.username)
         expect(first_user['name']).to eq(user.name)
-        expect(first_user.keys).to contain_exactly(*%w[name username id state avatar_url web_url])
+        expect(first_user.keys).to include(*%w[name username id state avatar_url web_url])
       end
     end
 
@@ -1889,6 +2028,17 @@ describe API::Projects do
           expect(project_fork_target.forked_from_project.id).to eq(project_fork_source.id)
           expect(project_fork_target.fork_network_member).to be_present
           expect(project_fork_target).to be_forked
+        end
+
+        it 'fails without permission from forked_from project' do
+          project_fork_source.project_feature.update_attribute(:forking_access_level, ProjectFeature::PRIVATE)
+
+          post api("/projects/#{project_fork_target.id}/fork/#{project_fork_source.id}", user)
+
+          expect(response).to have_gitlab_http_status(:forbidden)
+          expect(project_fork_target.forked_from_project).to be_nil
+          expect(project_fork_target.fork_network_member).not_to be_present
+          expect(project_fork_target).not_to be_forked
         end
 
         it 'denies project to be forked from a private project' do
@@ -2044,10 +2194,12 @@ describe API::Projects do
   end
 
   describe "POST /projects/:id/share" do
-    let(:group) { create(:group) }
+    let_it_be(:group) { create(:group, :private) }
+    let_it_be(:group_user) { create(:user) }
 
     before do
       group.add_developer(user)
+      group.add_developer(group_user)
     end
 
     it "shares project with group" do
@@ -2061,6 +2213,14 @@ describe API::Projects do
       expect(json_response['group_id']).to eq(group.id)
       expect(json_response['group_access']).to eq(Gitlab::Access::DEVELOPER)
       expect(json_response['expires_at']).to eq(expires_at.to_s)
+    end
+
+    it 'updates project authorization', :sidekiq_inline do
+      expect do
+        post api("/projects/#{project.id}/share", user), params: { group_id: group.id, group_access: Gitlab::Access::DEVELOPER }
+      end.to(
+        change { group_user.can?(:read_project, project) }.from(false).to(true)
+      )
     end
 
     it "returns a 400 error when group id is not given" do
@@ -2112,9 +2272,12 @@ describe API::Projects do
 
   describe 'DELETE /projects/:id/share/:group_id' do
     context 'for a valid group' do
-      let(:group) { create(:group, :public) }
+      let_it_be(:group) { create(:group, :private) }
+      let_it_be(:group_user) { create(:user) }
 
       before do
+        group.add_developer(group_user)
+
         create(:project_group_link, group: group, project: project)
       end
 
@@ -2123,6 +2286,14 @@ describe API::Projects do
 
         expect(response).to have_gitlab_http_status(:no_content)
         expect(project.project_group_links).to be_empty
+      end
+
+      it 'updates project authorization' do
+        expect do
+          delete api("/projects/#{project.id}/share/#{group.id}", user)
+        end.to(
+          change { group_user.can?(:read_project, project) }.from(true).to(false)
+        )
       end
 
       it_behaves_like '412 response' do
@@ -2427,6 +2598,21 @@ describe API::Projects do
         expect(json_response['container_expiration_policy']['keep_n']).to eq(1)
         expect(json_response['container_expiration_policy']['name_regex_keep']).to eq('foo.*')
       end
+
+      it "doesn't update container_expiration_policy with invalid regex" do
+        project_param = {
+          container_expiration_policy_attributes: {
+            cadence: '1month',
+            keep_n: 1,
+            name_regex_keep: '['
+          }
+        }
+
+        put api("/projects/#{project3.id}", user4), params: project_param
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']['container_expiration_policy.name_regex_keep']).to contain_exactly('not valid RE2 syntax: missing ]: [')
+      end
     end
 
     context 'when authenticated as project developer' do
@@ -2466,11 +2652,11 @@ describe API::Projects do
 
         let(:admin) { create(:admin) }
 
-        it 'returns 500 when repository storage is unknown' do
+        it 'returns 400 when repository storage is unknown' do
           put(api("/projects/#{new_project.id}", admin), params: { repository_storage: unknown_storage })
 
-          expect(response).to have_gitlab_http_status(:internal_server_error)
-          expect(json_response['message']).to match('ArgumentError')
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['message']['repository_storage_moves']).to eq(['is invalid'])
         end
 
         it 'returns 200 when repository storage has changed' do

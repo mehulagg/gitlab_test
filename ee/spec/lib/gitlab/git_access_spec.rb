@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::GitAccess do
+RSpec.describe Gitlab::GitAccess do
   include GitHelpers
   include EE::GeoHelpers
 
@@ -477,9 +477,8 @@ describe Gitlab::GitAccess do
     def self.run_group_permission_checks(permissions_matrix)
       permissions_matrix.each_pair do |role, matrix|
         it "has the correct permissions for group #{role}s" do
-          project
-            .project_group_links
-            .create(group: group, group_access: Gitlab::Access.sym_options[role])
+          create(:project_group_link, role, group: group,
+                                            project: project)
 
           protected_branch.save
 
@@ -598,6 +597,18 @@ describe Gitlab::GitAccess do
           run_permission_checks(permissions_matrix.deep_merge(developer: { push_protected_branch: true, push_all: true, merge_into_protected_branch: true },
                                                               guest: { push_protected_branch: false, merge_into_protected_branch: false },
                                                               reporter: { push_protected_branch: false, merge_into_protected_branch: false }))
+        end
+      end
+
+      context "when license blocks changes" do
+        before do
+          create_current_license(starts_at: 1.month.ago.to_date, block_changes_at: Date.current, notify_admins_at: Date.current)
+          user.update_attribute(:admin, true)
+          project.add_role(user, :developer)
+        end
+
+        it 'raises an error' do
+          expect { push_changes(changes[:any]) }.to raise_error(Gitlab::GitAccess::ForbiddenError, /Your subscription will expire/)
         end
       end
 

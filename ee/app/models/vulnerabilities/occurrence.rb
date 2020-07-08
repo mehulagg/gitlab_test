@@ -20,15 +20,15 @@ module Vulnerabilities
     belongs_to :primary_identifier, class_name: 'Vulnerabilities::Identifier', inverse_of: :primary_occurrences
     belongs_to :vulnerability, inverse_of: :findings
 
-    has_many :occurrence_identifiers, class_name: 'Vulnerabilities::OccurrenceIdentifier'
-    has_many :identifiers, through: :occurrence_identifiers, class_name: 'Vulnerabilities::Identifier'
-    has_many :occurrence_pipelines, class_name: 'Vulnerabilities::OccurrencePipeline'
-    has_many :pipelines, through: :occurrence_pipelines, class_name: 'Ci::Pipeline'
+    has_many :finding_identifiers, class_name: 'Vulnerabilities::FindingIdentifier'
+    has_many :identifiers, through: :finding_identifiers, class_name: 'Vulnerabilities::Identifier'
+    has_many :finding_pipelines, class_name: 'Vulnerabilities::FindingPipeline'
+    has_many :pipelines, through: :finding_pipelines, class_name: 'Ci::Pipeline'
 
     attr_writer :sha
 
     CONFIDENCE_LEVELS = {
-      undefined: 0,
+      # undefined: 0, no longer applicable
       ignore: 1,
       unknown: 2,
       experimental: 3,
@@ -53,7 +53,9 @@ module Vulnerabilities
       sast: 0,
       dependency_scanning: 1,
       container_scanning: 2,
-      dast: 3
+      dast: 3,
+      secret_detection: 4,
+      coverage_fuzzing: 5
     }.with_indifferent_access.freeze
 
     enum confidence: CONFIDENCE_LEVELS, _prefix: :confidence
@@ -78,7 +80,7 @@ module Vulnerabilities
     validates :metadata_version, presence: true
     validates :raw_metadata, presence: true
 
-    delegate :name, to: :scanner, prefix: true, allow_nil: true
+    delegate :name, :external_id, to: :scanner, prefix: true, allow_nil: true
 
     scope :report_type, -> (type) { where(report_type: report_types[type]) }
     scope :ordered, -> { order(severity: :desc, confidence: :desc, id: :asc) }
@@ -101,12 +103,12 @@ module Vulnerabilities
     end
 
     def self.for_pipelines(pipelines)
-      joins(:occurrence_pipelines)
+      joins(:finding_pipelines)
         .where(vulnerability_occurrence_pipelines: { pipeline_id: pipelines })
     end
 
     def self.count_by_day_and_severity(period)
-      joins(:occurrence_pipelines)
+      joins(:finding_pipelines)
         .select('CAST(vulnerability_occurrence_pipelines.created_at AS DATE) AS day', :severity, 'COUNT(distinct vulnerability_occurrences.id) as count')
         .where(['vulnerability_occurrence_pipelines.created_at >= ?', Time.zone.now.beginning_of_day - period])
         .group(:day, :severity)
@@ -114,8 +116,8 @@ module Vulnerabilities
     end
 
     def self.counted_by_severity
-      group(:severity).count.each_with_object({}) do |(severity, count), accum|
-        accum[SEVERITY_LEVELS[severity]] = count
+      group(:severity).count.transform_keys do |severity|
+        SEVERITY_LEVELS[severity]
       end
     end
 
@@ -138,7 +140,6 @@ module Vulnerabilities
 
     def state
       return 'dismissed' if dismissal_feedback.present?
-      return 'detected' unless Feature.enabled?(:first_class_vulnerabilities, project, default_enabled: true)
 
       if vulnerability.nil?
         'detected'
@@ -186,30 +187,26 @@ module Vulnerabilities
     end
 
     def feedback(feedback_type:)
-      params = {
-        project_id: project_id,
-        category: report_type,
-        project_fingerprint: project_fingerprint,
-        feedback_type: feedback_type
-      }
+      load_feedback.find { |f| f.feedback_type == feedback_type }
+    end
 
-      BatchLoader.for(params).batch do |items, loader|
-        project_ids = items.map { |i| i[:project_id] }
-        categories = items.map { |i| i[:category] }
-        fingerprints = items.map { |i| i[:project_fingerprint] }
+    def load_feedback
+      BatchLoader.for(occurrence_key).batch(replace_methods: false) do |occurrence_keys, loader|
+        project_ids = occurrence_keys.map { |key| key[:project_id] }
+        categories = occurrence_keys.map { |key| key[:category] }
+        fingerprints = occurrence_keys.map { |key| key[:project_fingerprint] }
 
-        Vulnerabilities::Feedback.all_preloaded.where(
+        feedback = Vulnerabilities::Feedback.all_preloaded.where(
           project_id: project_ids.uniq,
           category: categories.uniq,
           project_fingerprint: fingerprints.uniq
-        ).each do |feedback|
-          loaded_params = {
-            project_id: feedback.project_id,
-            category: feedback.category,
-            project_fingerprint: feedback.project_fingerprint,
-            feedback_type: feedback.feedback_type
-          }
-          loader.call(loaded_params, feedback)
+        ).to_a
+
+        occurrence_keys.each do |occurrence_key|
+          loader.call(
+            occurrence_key,
+            feedback.select { |f| occurrence_key == f.occurrence_key }
+          )
         end
       end
     end
@@ -228,7 +225,11 @@ module Vulnerabilities
 
     def metadata
       strong_memoize(:metadata) do
-        Gitlab::Json.parse(raw_metadata)
+        data = Gitlab::Json.parse(raw_metadata)
+
+        data = {} unless data.is_a?(Hash)
+
+        data
       rescue JSON::ParserError
         {}
       end
@@ -255,7 +256,19 @@ module Vulnerabilities
     end
 
     def evidence
-      metadata.dig('evidence', 'summary')
+      {
+        summary: metadata.dig('evidence', 'summary'),
+        request: {
+          headers: metadata.dig('evidence', 'request', 'headers') || [],
+          method: metadata.dig('evidence', 'request', 'method'),
+          url: metadata.dig('evidence', 'request', 'url')
+        },
+        response: {
+          headers: metadata.dig('evidence', 'response', 'headers') || [],
+          status_code: metadata.dig('evidence', 'response', 'status_code'),
+          reason_phrase: metadata.dig('evidence', 'response', 'reason_phrase')
+        }
+      }
     end
 
     def message
@@ -291,6 +304,16 @@ module Vulnerabilities
 
     def first_fingerprint
       identifiers.first&.fingerprint
+    end
+
+    private
+
+    def occurrence_key
+      {
+        project_id: project_id,
+        category: report_type,
+        project_fingerprint: project_fingerprint
+      }
     end
   end
 end

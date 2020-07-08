@@ -1,6 +1,4 @@
 import Vue from 'vue';
-import createRouter from './store/router';
-import syncWithRouter from './store/plugins/sync_with_router';
 import createStore from './store';
 import { DASHBOARD_TYPES } from './store/constants';
 import ProjectSecurityDashboard from './components/project_security_dashboard.vue';
@@ -10,10 +8,10 @@ export default () => {
   const securityTab = document.getElementById('js-security-report-app');
   const props = {
     ...securityTab.dataset,
-    hasPipelineData: parseBoolean(securityTab.dataset.hasPipelineData),
+    hasVulnerabilities: parseBoolean(securityTab.dataset.hasVulnerabilities),
   };
 
-  if (props.hasPipelineData) {
+  if (props.hasVulnerabilities) {
     Object.assign(props, {
       project: {
         id: props.projectId,
@@ -40,16 +38,13 @@ export default () => {
     });
   }
 
-  const router = createRouter();
   const store = createStore({
     dashboardType: DASHBOARD_TYPES.PROJECT,
-    plugins: [syncWithRouter(router)],
   });
 
   return new Vue({
     el: securityTab,
     store,
-    router,
     render(createElement) {
       return createElement(ProjectSecurityDashboard, {
         props,

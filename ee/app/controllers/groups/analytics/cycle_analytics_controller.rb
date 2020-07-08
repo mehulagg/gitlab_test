@@ -1,31 +1,13 @@
 # frozen_string_literal: true
 
-class Groups::Analytics::CycleAnalyticsController < Groups::Analytics::ApplicationController
-  include CycleAnalyticsParams
+class Groups::Analytics::CycleAnalyticsController < Analytics::CycleAnalyticsController
+  include Analytics::UniqueVisitsHelper
 
   layout 'group'
 
-  check_feature_flag Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG
-  increment_usage_counter Gitlab::UsageDataCounters::CycleAnalyticsCounter, :views, only: :show
-
   before_action do
-    push_frontend_feature_flag(:cycle_analytics_scatterplot_enabled, default_enabled: true)
-    push_frontend_feature_flag(:cycle_analytics_scatterplot_median_enabled, default_enabled: true)
+    render_403 unless can?(current_user, :read_group_cycle_analytics, @group)
   end
 
-  before_action :load_group, only: :show
-  before_action :load_project, only: :show
-  before_action :build_request_params, only: :show
-
-  def build_request_params
-    @request_params ||= Gitlab::Analytics::CycleAnalytics::RequestParams.new(allowed_params.merge(group: @group), current_user: current_user)
-  end
-
-  def allowed_params
-    params.permit(
-      :created_after,
-      :created_before,
-      project_ids: []
-    )
-  end
+  track_unique_visits :show, target_id: 'g_analytics_valuestream'
 end

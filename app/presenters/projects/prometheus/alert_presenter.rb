@@ -6,7 +6,7 @@ module Projects
       RESERVED_ANNOTATIONS = %w(gitlab_incident_markdown gitlab_y_label title).freeze
       GENERIC_ALERT_SUMMARY_ANNOTATIONS = %w(monitoring_tool service hosts).freeze
       MARKDOWN_LINE_BREAK = "  \n".freeze
-      INCIDENT_LABEL_NAME = IncidentManagement::CreateIssueService::INCIDENT_LABEL[:title].freeze
+      INCIDENT_LABEL_NAME = IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES[:title].freeze
       METRIC_TIME_WINDOW = 30.minutes
 
       def full_title
@@ -45,8 +45,8 @@ module Projects
         project_issues_url(project, label_name: INCIDENT_LABEL_NAME)
       end
 
-      def starts_at
-        super&.rfc3339
+      def start_time
+        starts_at&.strftime('%d %B %Y, %-l:%M%p (%Z)')
       end
 
       def issue_summary_markdown
@@ -56,6 +56,25 @@ module Projects
           #{metadata_list}
           #{alert_details}#{metric_embed_for_alert}
         MARKDOWN
+      end
+
+      def annotation_list
+        strong_memoize(:annotation_list) do
+          annotations
+            .reject { |annotation| annotation.label.in?(RESERVED_ANNOTATIONS | GENERIC_ALERT_SUMMARY_ANNOTATIONS) }
+            .map { |annotation| list_item(annotation.label, annotation.value) }
+            .join(MARKDOWN_LINE_BREAK)
+        end
+      end
+
+      def metric_embed_for_alert
+        "\n[](#{metrics_dashboard_url})" if metrics_dashboard_url
+      end
+
+      def metrics_dashboard_url
+        strong_memoize(:metrics_dashboard_url) do
+          embed_url_for_gitlab_alert || embed_url_for_self_managed_alert
+        end
       end
 
       private
@@ -73,7 +92,7 @@ module Projects
       def metadata_list
         metadata = []
 
-        metadata << list_item('Start time', starts_at) if starts_at
+        metadata << list_item('Start time', start_time) if start_time
         metadata << list_item('full_query', backtick(full_query)) if full_query
         metadata << list_item(service.label.humanize, service.value) if service
         metadata << list_item(monitoring_tool.label.humanize, monitoring_tool.value) if monitoring_tool
@@ -90,15 +109,6 @@ module Projects
 
             #{annotation_list}
           MARKDOWN
-        end
-      end
-
-      def annotation_list
-        strong_memoize(:annotation_list) do
-          annotations
-            .reject { |annotation| annotation.label.in?(RESERVED_ANNOTATIONS | GENERIC_ALERT_SUMMARY_ANNOTATIONS) }
-            .map { |annotation| list_item(annotation.label, annotation.value) }
-            .join(MARKDOWN_LINE_BREAK)
         end
       end
 
@@ -120,12 +130,6 @@ module Projects
         Array(hosts.value).join(' ')
       end
 
-      def metric_embed_for_alert
-        url = embed_url_for_gitlab_alert || embed_url_for_self_managed_alert
-
-        "\n[](#{url})" if url
-      end
-
       def embed_url_for_gitlab_alert
         return unless gitlab_alert
 
@@ -133,6 +137,7 @@ module Projects
           project,
           gitlab_alert.prometheus_metric_id,
           environment_id: environment.id,
+          embedded: true,
           **alert_embed_window_params(embed_time)
         )
       end
@@ -144,12 +149,13 @@ module Projects
           project,
           environment,
           embed_json: dashboard_for_self_managed_alert.to_json,
+          embedded: true,
           **alert_embed_window_params(embed_time)
         )
       end
 
       def embed_time
-        starts_at ? Time.rfc3339(starts_at) : Time.current
+        starts_at || Time.current
       end
 
       def alert_embed_window_params(time)

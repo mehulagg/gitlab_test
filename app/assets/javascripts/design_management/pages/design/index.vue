@@ -1,25 +1,24 @@
 <script>
-import { ApolloMutation } from 'vue-apollo';
 import Mousetrap from 'mousetrap';
 import { GlLoadingIcon, GlAlert } from '@gitlab/ui';
+import { ApolloMutation } from 'vue-apollo';
 import createFlash from '~/flash';
 import { fetchPolicies } from '~/lib/graphql';
 import allVersionsMixin from '../../mixins/all_versions';
 import Toolbar from '../../components/toolbar/index.vue';
-import DesignDiscussion from '../../components/design_notes/design_discussion.vue';
-import DesignReplyForm from '../../components/design_notes/design_reply_form.vue';
 import DesignDestroyer from '../../components/design_destroyer.vue';
 import DesignScaler from '../../components/design_scaler.vue';
-import Participants from '~/sidebar/components/participants/participants.vue';
 import DesignPresentation from '../../components/design_presentation.vue';
-import getDesignQuery from '../../graphql/queries/getDesign.query.graphql';
-import appDataQuery from '../../graphql/queries/appData.query.graphql';
-import createImageDiffNoteMutation from '../../graphql/mutations/createImageDiffNote.mutation.graphql';
-import updateImageDiffNoteMutation from '../../graphql/mutations/updateImageDiffNote.mutation.graphql';
+import DesignReplyForm from '../../components/design_notes/design_reply_form.vue';
+import DesignSidebar from '../../components/design_sidebar.vue';
+import getDesignQuery from '../../graphql/queries/get_design.query.graphql';
+import appDataQuery from '../../graphql/queries/app_data.query.graphql';
+import createImageDiffNoteMutation from '../../graphql/mutations/create_image_diff_note.mutation.graphql';
+import updateImageDiffNoteMutation from '../../graphql/mutations/update_image_diff_note.mutation.graphql';
+import updateActiveDiscussionMutation from '../../graphql/mutations/update_active_discussion.mutation.graphql';
 import {
   extractDiscussions,
   extractDesign,
-  extractParticipants,
   updateImageDiffNoteOptimisticResponse,
 } from '../../utils/design_management_utils';
 import {
@@ -37,19 +36,19 @@ import {
 } from '../../utils/error_messages';
 import { trackDesignDetailView } from '../../utils/tracking';
 import { DESIGNS_ROUTE_NAME } from '../../router/constants';
+import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../../constants';
 
 export default {
   components: {
     ApolloMutation,
+    DesignReplyForm,
     DesignPresentation,
-    DesignDiscussion,
     DesignScaler,
     DesignDestroyer,
     Toolbar,
-    DesignReplyForm,
     GlLoadingIcon,
     GlAlert,
-    Participants,
+    DesignSidebar,
   },
   mixins: [allVersionsMixin],
   props: {
@@ -67,6 +66,7 @@ export default {
       errorMessage: '',
       issueIid: '',
       scale: 1,
+      resolvedDiscussionsExpanded: false,
     };
   },
   apollo: {
@@ -101,19 +101,16 @@ export default {
       return this.$apollo.queries.design.loading && !this.design.filename;
     },
     discussions() {
+      if (!this.design.discussions) {
+        return [];
+      }
       return extractDiscussions(this.design.discussions);
-    },
-    discussionParticipants() {
-      return extractParticipants(this.design.issue.participants);
     },
     markdownPreviewPath() {
       return `/${this.projectPath}/preview_markdown?target_type=Issue`;
     },
     isSubmitButtonDisabled() {
       return this.comment.trim().length === 0;
-    },
-    renderDiscussions() {
-      return this.discussions.length || this.annotationCoordinates;
     },
     designVariables() {
       return {
@@ -142,18 +139,25 @@ export default {
         },
       };
     },
-    issue() {
-      return {
-        ...this.design.issue,
-        webPath: this.design.issue.webPath.substr(1),
-      };
-    },
     isAnnotating() {
       return Boolean(this.annotationCoordinates);
+    },
+    resolvedDiscussions() {
+      return this.discussions.filter(discussion => discussion.resolved);
+    },
+  },
+  watch: {
+    resolvedDiscussions(val) {
+      if (!val.length) {
+        this.resolvedDiscussionsExpanded = false;
+      }
     },
   },
   mounted() {
     Mousetrap.bind('esc', this.closeDesign);
+    this.trackEvent();
+    // We need to reset the active discussion when opening a new design
+    this.updateActiveDiscussion();
   },
   beforeDestroy() {
     Mousetrap.unbind('esc', this.closeDesign);
@@ -245,8 +249,14 @@ export default {
     onDesignDeleteError(e) {
       this.onError(designDeletionError({ singular: true }), e);
     },
+    onResolveDiscussionError(e) {
+      this.onError(UPDATE_IMAGE_DIFF_NOTE_ERROR, e);
+    },
     openCommentForm(annotationCoordinates) {
       this.annotationCoordinates = annotationCoordinates;
+      if (this.$refs.newDiscussionForm) {
+        this.$refs.newDiscussionForm.focusInput();
+      }
     },
     closeCommentForm() {
       this.comment = '';
@@ -259,22 +269,26 @@ export default {
       });
     },
     trackEvent() {
+      // TODO: This needs to be made aware of referers, or if it's rendered in a different context than a Issue
       trackDesignDetailView(
         'issue-design-collection',
+        'issue',
         this.$route.query.version || this.latestVersionId,
         this.isLatestVersion,
       );
     },
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.trackEvent();
-    });
-  },
-  beforeRouteUpdate(to, from, next) {
-    this.trackEvent();
-    this.closeCommentForm();
-    next();
+    updateActiveDiscussion(id) {
+      this.$apollo.mutate({
+        mutation: updateActiveDiscussionMutation,
+        variables: {
+          id,
+          source: ACTIVE_DISCUSSION_SOURCE_TYPES.discussion,
+        },
+      });
+    },
+    toggleResolvedComments() {
+      this.resolvedDiscussionsExpanded = !this.resolvedDiscussionsExpanded;
+    },
   },
   createImageDiffNoteMutation,
   DESIGNS_ROUTE_NAME,
@@ -301,7 +315,7 @@ export default {
               :is-deleting="loading"
               :is-latest-version="isLatestVersion"
               v-bind="design"
-              @delete="mutate()"
+              @delete="mutate"
             />
           </template>
         </design-destroyer>
@@ -317,7 +331,9 @@ export default {
           :discussions="discussions"
           :is-annotating="isAnnotating"
           :scale="scale"
+          :resolved-discussions-expanded="resolvedDiscussionsExpanded"
           @openCommentForm="openCommentForm"
+          @closeCommentForm="closeCommentForm"
           @moveNote="onMoveNote"
         />
 
@@ -325,32 +341,19 @@ export default {
           <design-scaler @scale="scale = $event" />
         </div>
       </div>
-      <div class="image-notes">
-        <h2 class="gl-font-size-20-deprecated-no-really-do-not-use-me font-weight-bold mt-0">
-          {{ issue.title }}
-        </h2>
-        <a class="text-tertiary text-decoration-none mb-3 d-block" :href="issue.webUrl">{{
-          issue.webPath
-        }}</a>
-        <participants
-          :participants="discussionParticipants"
-          :show-participant-label="false"
-          class="mb-4"
-        />
-        <template v-if="renderDiscussions">
-          <design-discussion
-            v-for="(discussion, index) in discussions"
-            :key="discussion.id"
-            :discussion="discussion"
-            :design-id="id"
-            :noteable-id="design.id"
-            :discussion-index="index + 1"
-            :markdown-preview-path="markdownPreviewPath"
-            @error="onDesignDiscussionError"
-            @updateNoteError="onUpdateNoteError"
-          />
+      <design-sidebar
+        :design="design"
+        :resolved-discussions-expanded="resolvedDiscussionsExpanded"
+        :markdown-preview-path="markdownPreviewPath"
+        @onDesignDiscussionError="onDesignDiscussionError"
+        @onCreateImageDiffNoteError="onCreateImageDiffNoteError"
+        @updateNoteError="onUpdateNoteError"
+        @resolveDiscussionError="onResolveDiscussionError"
+        @toggleResolvedComments="toggleResolvedComments"
+      >
+        <template #replyForm>
           <apollo-mutation
-            v-if="annotationCoordinates"
+            v-if="isAnnotating"
             #default="{ mutate, loading }"
             :mutation="$options.createImageDiffNoteMutation"
             :variables="{
@@ -361,18 +364,15 @@ export default {
             @error="onCreateImageDiffNoteError"
           >
             <design-reply-form
+              ref="newDiscussionForm"
               v-model="comment"
               :is-saving="loading"
               :markdown-preview-path="markdownPreviewPath"
               @submitForm="mutate"
               @cancelForm="closeCommentForm"
-            />
-          </apollo-mutation>
-        </template>
-        <h2 v-else class="new-discussion-disclaimer gl-font-base m-0">
-          {{ __("Click the image where you'd like to start a new discussion") }}
-        </h2>
-      </div>
+            /> </apollo-mutation
+        ></template>
+      </design-sidebar>
     </template>
   </div>
 </template>

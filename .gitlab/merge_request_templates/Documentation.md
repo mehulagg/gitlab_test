@@ -24,6 +24,8 @@
     - ~"development guidelines" and ~"Description templates (.gitlab/\*)" when creating/updating issue and MR description templates.
   - [ ] Assign the [designated Technical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments).
 
+Do not add the ~"feature", ~"frontend", ~"backend", ~"bug", or ~"database" labels if you are only updating documentation. These labels will cause the MR to be added to code verification QA issues.
+
 When applicable:
 
 - [ ] Update the [permissions table](https://docs.gitlab.com/ee/user/permissions.html).
@@ -46,6 +48,8 @@ All reviewers can help ensure accuracy, clarity, completeness, and adherence to 
 - [ ] Optional: Technical writer review. If not requested for this MR, must be scheduled post-merge. To request for this MR, assign the writer listed for the applicable [DevOps stage](https://about.gitlab.com/handbook/product/categories/#devops-stages).
   - [ ] Add ~"Technical Writing" and `docs::` workflow label.
   - [ ] Add ~docs-only when the only files changed are under `doc/*`.
+  - [ ] Add ~tw::doing when starting work on the MR.
+  - [ ] Add ~tw::finished after approving and/or merging the MR.
 
 **3. Maintainer**
 

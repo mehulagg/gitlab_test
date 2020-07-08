@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-describe Mutations::AlertManagement::UpdateAlertStatus do
+RSpec.describe Mutations::AlertManagement::UpdateAlertStatus do
   let_it_be(:current_user) { create(:user) }
-  let_it_be(:alert) { create(:alert_management_alert, status: 'triggered') }
+  let_it_be(:alert) { create(:alert_management_alert, :triggered) }
   let_it_be(:project) { alert.project }
-  let(:new_status) { 'acknowledged' }
+  let(:new_status) { Types::AlertManagement::StatusEnum.values['ACKNOWLEDGED'].value }
   let(:args) { { status: new_status, project_path: project.full_path, iid: alert.iid } }
 
   specify { expect(described_class).to require_graphql_authorizations(:update_alert_management_alert) }
@@ -33,7 +33,7 @@ describe Mutations::AlertManagement::UpdateAlertStatus do
       context 'error occurs when updating' do
         it 'returns the alert with errors' do
           # Stub an error on the alert
-          allow_next_instance_of(Resolvers::AlertManagementAlertResolver) do |resolver|
+          allow_next_instance_of(Resolvers::AlertManagement::AlertResolver) do |resolver|
             allow(resolver).to receive(:resolve).and_return(alert)
           end
 
@@ -53,7 +53,7 @@ describe Mutations::AlertManagement::UpdateAlertStatus do
           it 'returns the alert with errors' do
             expect(resolve).to eq(
               alert: alert,
-              errors: ['Invalid status']
+              errors: [_('Invalid status')]
             )
           end
         end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe EpicLinks::CreateService do
+RSpec.describe EpicLinks::CreateService do
   describe '#execute' do
     let(:group) { create(:group) }
     let(:user) { create(:user) }
@@ -257,6 +257,34 @@ describe EpicLinks::CreateService do
               subject { add_epic([]) }
 
               include_examples 'returns an error'
+            end
+
+            context 'when there are invalid references' do
+              let(:epic) { create(:epic, confidential: true, group: group) }
+              let(:invalid_epic1) { create(:epic, group: group) }
+              let(:valid_epic) { create(:epic, :confidential, group: group) }
+              let(:invalid_epic2) { create(:epic, group: group) }
+
+              subject do
+                add_epic([invalid_epic1.to_reference(full: true),
+                          valid_epic.to_reference(full: true),
+                          invalid_epic2.to_reference(full: true)])
+              end
+
+              it 'adds only valid references' do
+                subject
+
+                expect(epic.reload.children).to match_array([valid_epic])
+              end
+
+              it 'returns error status' do
+                expect(subject).to eq(
+                  status: :error,
+                  http_status: 422,
+                  message: "#{invalid_epic1.to_reference} cannot be added: Not-confidential epic cannot be assigned to a confidential parent epic. "\
+                           "#{invalid_epic2.to_reference} cannot be added: Not-confidential epic cannot be assigned to a confidential parent epic"
+                )
+              end
             end
           end
         end

@@ -16,6 +16,16 @@ exports[`ThreatMonitoringApp component given there is a default environment with
 />
 `;
 
+exports[`ThreatMonitoringApp component given there is a default environment with data renders the network policy tab 1`] = `
+<gl-tab-stub
+  title="Policies"
+>
+  <network-policy-list-stub
+    documentationpath="/docs"
+  />
+</gl-tab-stub>
+`;
+
 exports[`ThreatMonitoringApp component given there is a default environment with data renders the waf section 1`] = `
 <threat-monitoring-section-stub
   anomaloustitle="Anomalous Requests"

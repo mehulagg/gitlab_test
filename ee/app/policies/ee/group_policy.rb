@@ -66,8 +66,25 @@ module EE
       end
 
       with_scope :global
-      condition(:cluster_health_available) do
-        License.feature_available?(:cluster_health)
+      condition(:commit_committer_check_disabled_globally) do
+        !PushRule.global&.commit_committer_check
+      end
+
+      with_scope :global
+      condition(:reject_unsigned_commits_disabled_globally) do
+        !PushRule.global&.reject_unsigned_commits
+      end
+
+      condition(:commit_committer_check_available) do
+        @subject.feature_available?(:commit_committer_check)
+      end
+
+      condition(:reject_unsigned_commits_available) do
+        @subject.feature_available?(:reject_unsigned_commits)
+      end
+
+      condition(:push_rules_available) do
+        ::Feature.enabled?(:group_push_rules, @subject.root_ancestor) && @subject.feature_available?(:push_rules)
       end
 
       rule { public_group | logged_in_viewable }.policy do
@@ -80,7 +97,6 @@ module EE
       rule { reporter }.policy do
         enable :admin_list
         enable :admin_board
-        enable :read_prometheus
         enable :view_productivity_analytics
         enable :view_type_of_work_charts
         enable :read_group_timelogs
@@ -129,6 +145,7 @@ module EE
         enable :create_epic
         enable :admin_epic
         enable :update_epic
+        enable :read_confidential_epic
       end
 
       rule { reporter & subepics_available }.policy do
@@ -140,6 +157,7 @@ module EE
       rule { ~can?(:read_cross_project) }.policy do
         prevent :read_group_contribution_analytics
         prevent :read_epic
+        prevent :read_confidential_epic
         prevent :create_epic
         prevent :admin_epic
         prevent :update_epic
@@ -173,9 +191,12 @@ module EE
       rule { developer }.policy do
         enable :create_wiki
         enable :admin_merge_request
+        enable :read_ci_minutes_quota
       end
 
       rule { security_dashboard_enabled & developer }.enable :read_group_security_dashboard
+
+      rule { can?(:read_group_security_dashboard) }.enable :create_vulnerability_export
 
       rule { admin | owner }.policy do
         enable :read_group_compliance_dashboard
@@ -196,8 +217,6 @@ module EE
 
       rule { ~group_timelogs_available }.prevent :read_group_timelogs
 
-      rule { can?(:read_cluster) & cluster_health_available }.enable :read_cluster_health
-
       rule { ~(admin | allow_to_manage_default_branch_protection) }.policy do
         prevent :update_default_branch_protection
       end
@@ -209,6 +228,30 @@ module EE
         prevent(*create_read_update_admin_destroy(:wiki))
         prevent(:download_wiki_code)
       end
+
+      rule { admin | (commit_committer_check_disabled_globally & can?(:maintainer_access)) }.policy do
+        enable :change_commit_committer_check
+      end
+
+      rule { commit_committer_check_available }.policy do
+        enable :read_commit_committer_check
+      end
+
+      rule { ~commit_committer_check_available }.policy do
+        prevent :change_commit_committer_check
+      end
+
+      rule { admin | (reject_unsigned_commits_disabled_globally & can?(:maintainer_access)) }.enable :change_reject_unsigned_commits
+
+      rule { reject_unsigned_commits_available }.enable :read_reject_unsigned_commits
+
+      rule { ~reject_unsigned_commits_available }.prevent :change_reject_unsigned_commits
+
+      rule { can?(:maintainer_access) & push_rules_available }.enable :change_push_rules
+
+      rule { admin & is_gitlab_com }.enable :update_subscription_limit
+
+      rule { public_group }.enable :view_embedded_analytics_report
     end
 
     override :lookup_access_level!

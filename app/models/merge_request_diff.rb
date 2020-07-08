@@ -414,10 +414,16 @@ class MergeRequestDiff < ApplicationRecord
     return if stored_externally? || !use_external_diff? || merge_request_diff_files.count == 0
 
     rows = build_merge_request_diff_files(merge_request_diff_files)
+    rows = build_external_merge_request_diff_files(rows)
+
+    # Perform carrierwave activity before entering the database transaction.
+    # This is safe as until the `external_diff_store` column is changed, we will
+    # continue to consult the in-database content.
+    self.external_diff.store!
 
     transaction do
       MergeRequestDiffFile.where(merge_request_diff_id: id).delete_all
-      create_merge_request_diff_files(rows)
+      Gitlab::Database.bulk_insert('merge_request_diff_files', rows) # rubocop:disable Gitlab/BulkInsert
       save!
     end
 
@@ -437,7 +443,7 @@ class MergeRequestDiff < ApplicationRecord
 
     transaction do
       MergeRequestDiffFile.where(merge_request_diff_id: id).delete_all
-      Gitlab::Database.bulk_insert('merge_request_diff_files', rows)
+      Gitlab::Database.bulk_insert('merge_request_diff_files', rows) # rubocop:disable Gitlab/BulkInsert
       update!(stored_externally: false)
     end
 
@@ -495,7 +501,7 @@ class MergeRequestDiff < ApplicationRecord
     rows = build_external_merge_request_diff_files(rows) if use_external_diff?
 
     # Faster inserts
-    Gitlab::Database.bulk_insert('merge_request_diff_files', rows)
+    Gitlab::Database.bulk_insert('merge_request_diff_files', rows) # rubocop:disable Gitlab/BulkInsert
   end
 
   def build_external_diff_tempfile(rows)

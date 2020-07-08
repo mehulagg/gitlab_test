@@ -21,9 +21,19 @@ class Geo::LfsObjectRegistry < Geo::BaseRegistry
     ::Geo::LfsObjectRegistryFinder
   end
 
+  def self.find_registry_differences(range)
+    finder_class.new(current_node_id: Gitlab::Geo.current_node.id).find_registry_differences(range)
+  end
+
   # If false, RegistryConsistencyService will frequently check the end of the
   # table to quickly handle new replicables.
   def self.has_create_events?
     false
+  end
+
+  def self.delete_for_model_ids(lfs_object_ids)
+    lfs_object_ids.map do |lfs_object_id|
+      delete_worker_class.perform_async(:lfs, lfs_object_id)
+    end
   end
 end

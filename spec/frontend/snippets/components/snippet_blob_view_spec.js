@@ -3,6 +3,11 @@ import SnippetBlobView from '~/snippets/components/snippet_blob_view.vue';
 import BlobHeader from '~/blob/components/blob_header.vue';
 import BlobEmbeddable from '~/blob/components/blob_embeddable.vue';
 import BlobContent from '~/blob/components/blob_content.vue';
+import {
+  BLOB_RENDER_EVENT_LOAD,
+  BLOB_RENDER_EVENT_SHOW_SOURCE,
+  BLOB_RENDER_ERRORS,
+} from '~/blob/components/constants';
 import { RichViewer, SimpleViewer } from '~/vue_shared/components/blob_viewers';
 import {
   SNIPPET_VISIBILITY_PRIVATE,
@@ -18,17 +23,23 @@ describe('Blob Embeddable', () => {
     id: 'gid://foo.bar/snippet',
     webUrl: 'https://foo.bar',
     visibilityLevel: SNIPPET_VISIBILITY_PUBLIC,
-    blob: BlobMock,
   };
   const dataMock = {
     activeViewerType: SimpleViewerMock.type,
   };
 
-  function createComponent(props = {}, data = dataMock, contentLoading = false) {
+  function createComponent({
+    snippetProps = {},
+    data = dataMock,
+    blob = BlobMock,
+    contentLoading = false,
+  } = {}) {
     const $apollo = {
       queries: {
         blobContent: {
           loading: contentLoading,
+          refetch: jest.fn(),
+          skip: true,
         },
       },
     };
@@ -37,8 +48,9 @@ describe('Blob Embeddable', () => {
       propsData: {
         snippet: {
           ...snippet,
-          ...props,
+          ...snippetProps,
         },
+        blob,
       },
       data() {
         return {
@@ -56,7 +68,6 @@ describe('Blob Embeddable', () => {
   describe('rendering', () => {
     it('renders correct components', () => {
       createComponent();
-      expect(wrapper.find(BlobEmbeddable).exists()).toBe(true);
       expect(wrapper.find(BlobHeader).exists()).toBe(true);
       expect(wrapper.find(BlobContent).exists()).toBe(true);
     });
@@ -65,18 +76,13 @@ describe('Blob Embeddable', () => {
       'does not render blob-embeddable by default',
       visibilityLevel => {
         createComponent({
-          visibilityLevel,
+          snippetProps: {
+            visibilityLevel,
+          },
         });
         expect(wrapper.find(BlobEmbeddable).exists()).toBe(false);
       },
     );
-
-    it('does render blob-embeddable for public snippet', () => {
-      createComponent({
-        visibilityLevel: SNIPPET_VISIBILITY_PUBLIC,
-      });
-      expect(wrapper.find(BlobEmbeddable).exists()).toBe(true);
-    });
 
     it('sets simple viewer correctly', () => {
       createComponent();
@@ -85,7 +91,9 @@ describe('Blob Embeddable', () => {
 
     it('sets rich viewer correctly', () => {
       const data = { ...dataMock, activeViewerType: RichViewerMock.type };
-      createComponent({}, data);
+      createComponent({
+        data,
+      });
       expect(wrapper.find(RichViewer).exists()).toBe(true);
     });
 
@@ -106,6 +114,20 @@ describe('Blob Embeddable', () => {
         });
     });
 
+    it('passes information about render error down to blob header', () => {
+      createComponent({
+        blob: {
+          ...BlobMock,
+          simpleViewer: {
+            ...SimpleViewerMock,
+            renderError: BLOB_RENDER_ERRORS.REASONS.COLLAPSED.id,
+          },
+        },
+      });
+
+      expect(wrapper.find(BlobHeader).props('hasRenderError')).toBe(true);
+    });
+
     describe('URLS with hash', () => {
       beforeEach(() => {
         window.location.hash = '#LC2';
@@ -116,7 +138,9 @@ describe('Blob Embeddable', () => {
       });
 
       it('renders simple viewer by default if URL contains hash', () => {
-        createComponent({}, {});
+        createComponent({
+          data: {},
+        });
 
         expect(wrapper.vm.activeViewerType).toBe(SimpleViewerMock.type);
         expect(wrapper.find(SimpleViewer).exists()).toBe(true);
@@ -140,6 +164,36 @@ describe('Blob Embeddable', () => {
               expect(wrapper.find(SimpleViewer).exists()).toBe(true);
             });
         });
+      });
+    });
+  });
+
+  describe('functionality', () => {
+    describe('render error', () => {
+      const findContentEl = () => wrapper.find(BlobContent);
+
+      it('correctly sets blob on the blob-content-error component', () => {
+        createComponent();
+        expect(findContentEl().props('blob')).toEqual(BlobMock);
+      });
+
+      it(`refetches blob content on ${BLOB_RENDER_EVENT_LOAD} event`, () => {
+        createComponent();
+
+        expect(wrapper.vm.$apollo.queries.blobContent.refetch).not.toHaveBeenCalled();
+        findContentEl().vm.$emit(BLOB_RENDER_EVENT_LOAD);
+        expect(wrapper.vm.$apollo.queries.blobContent.refetch).toHaveBeenCalledTimes(1);
+      });
+
+      it(`sets '${SimpleViewerMock.type}' as active on ${BLOB_RENDER_EVENT_SHOW_SOURCE} event`, () => {
+        createComponent({
+          data: {
+            activeViewerType: RichViewerMock.type,
+          },
+        });
+
+        findContentEl().vm.$emit(BLOB_RENDER_EVENT_SHOW_SOURCE);
+        expect(wrapper.vm.activeViewerType).toEqual(SimpleViewerMock.type);
       });
     });
   });

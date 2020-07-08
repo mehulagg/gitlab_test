@@ -3,6 +3,7 @@ import DeleteSnippetMutation from '~/snippets/mutations/deleteSnippet.mutation.g
 import { ApolloMutation } from 'vue-apollo';
 import { GlButton, GlModal } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
+import { Blob, BinaryBlob } from 'jest/blob/components/mock_data';
 
 describe('Snippet header component', () => {
   let wrapper;
@@ -20,9 +21,7 @@ describe('Snippet header component', () => {
     author: {
       name: 'Thor Odinson',
     },
-    blob: {
-      binary: false,
-    },
+    blobs: [Blob],
   };
   const mutationVariables = {
     mutation: DeleteSnippetMutation,
@@ -49,7 +48,6 @@ describe('Snippet header component', () => {
     mutationRes = mutationTypes.RESOLVE,
     snippetProps = {},
   } = {}) {
-    // const defaultProps = Object.assign({}, snippet, snippetProps);
     const defaultProps = Object.assign(snippet, snippetProps);
     if (permissions) {
       Object.assign(defaultProps.userPermissions, {
@@ -131,15 +129,18 @@ describe('Snippet header component', () => {
     expect(wrapper.find(GlModal).exists()).toBe(true);
   });
 
-  it('renders Edit button as disabled for binary snippets', () => {
+  it.each`
+    blobs                 | isDisabled | condition
+    ${[Blob]}             | ${false}   | ${'no binary'}
+    ${[Blob, BinaryBlob]} | ${true}    | ${'several blobs. incl. a binary'}
+    ${[BinaryBlob]}       | ${true}    | ${'binary'}
+  `('renders Edit button when snippet contains $condition file', ({ blobs, isDisabled }) => {
     createComponent({
       snippetProps: {
-        blob: {
-          binary: true,
-        },
+        blobs,
       },
     });
-    expect(wrapper.find('[href*="edit"]').props('disabled')).toBe(true);
+    expect(wrapper.find('[href*="edit"]').props('disabled')).toBe(isDisabled);
   });
 
   describe('Delete mutation', () => {
@@ -172,14 +173,34 @@ describe('Snippet header component', () => {
       });
     });
 
-    it('closes modal and redirects to snippets listing in case of successful mutation', () => {
-      createComponent();
-      wrapper.vm.closeDeleteModal = jest.fn();
+    describe('in case of successful mutation, closes modal and redirects to correct listing', () => {
+      const createDeleteSnippet = (snippetProps = {}) => {
+        createComponent({
+          snippetProps,
+        });
+        wrapper.vm.closeDeleteModal = jest.fn();
 
-      wrapper.vm.deleteSnippet();
-      return wrapper.vm.$nextTick().then(() => {
-        expect(wrapper.vm.closeDeleteModal).toHaveBeenCalled();
-        expect(window.location.pathname).toEqual('dashboard/snippets');
+        wrapper.vm.deleteSnippet();
+        return wrapper.vm.$nextTick();
+      };
+
+      it('redirects to dashboard/snippets for personal snippet', () => {
+        return createDeleteSnippet().then(() => {
+          expect(wrapper.vm.closeDeleteModal).toHaveBeenCalled();
+          expect(window.location.pathname).toBe('dashboard/snippets');
+        });
+      });
+
+      it('redirects to project snippets for project snippet', () => {
+        const fullPath = 'foo/bar';
+        return createDeleteSnippet({
+          project: {
+            fullPath,
+          },
+        }).then(() => {
+          expect(wrapper.vm.closeDeleteModal).toHaveBeenCalled();
+          expect(window.location.pathname).toBe(`${fullPath}/snippets`);
+        });
       });
     });
   });

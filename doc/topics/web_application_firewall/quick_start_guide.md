@@ -1,3 +1,9 @@
+---
+stage: Defend
+group: Container Security
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Getting started with the Web Application Firewall
 
 This is a step-by-step guide that will help you use GitLab's [Web Application Firewall](index.md) after
@@ -86,19 +92,13 @@ status on your [GCP dashboard](https://console.cloud.google.com/kubernetes).
 The next step is to install some applications on your cluster that are needed
 to take full advantage of Auto DevOps.
 
-## Installing Helm and Ingress
+## Install Ingress
 
 GitLab's Kubernetes integration comes with some
 [pre-defined applications](../../user/project/clusters/index.md#installing-applications)
 for you to install.
 
 ![Cluster applications](../autodevops/img/guide_cluster_apps_v12_3.png)
-
-The first one to install is Helm Tiller, a package manager for Kubernetes, which
-is needed in order to install the rest of the applications. Go ahead and click
-its **Install** button.
-Once it is installed, the other applications that rely on it will each have their
-**Install** buttons enabled.
 
 For this guide, we need to install Ingress. Ingress provides load balancing,
 SSL termination, and name-based virtual hosting, using NGINX behind
@@ -150,7 +150,7 @@ By now you should see the pipeline running, but what is it running exactly?
 To navigate inside the pipeline, click its status badge (its status should be "Running").
 The pipeline is split into a few stages, each running a couple of jobs.
 
-![Pipeline stages](../autodevops/img/guide_pipeline_stages_v12_3.png)
+![Pipeline stages](../autodevops/img/guide_pipeline_stages_v13_0.png)
 
 In the **build** stage, the application is built into a Docker image and then
 uploaded to your project's [Container Registry](../../user/packages/container_registry/index.md) ([Auto Build](../autodevops/stages.md#auto-build)).
@@ -254,5 +254,5 @@ You can explore them in more detail:
 
 - [GitLab Defend Vision](https://about.gitlab.com/direction/defend/#waf)
 - [ModSecurity](https://www.modsecurity.org/)
-- [OWASP Core Rule Set](https://modsecurity.org/crs/)
+- [OWASP Core Rule Set](https://github.com/coreruleset/coreruleset/)
 - [AutoDevOps](../autodevops/index.md)

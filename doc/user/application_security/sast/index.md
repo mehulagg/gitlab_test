@@ -1,10 +1,13 @@
 ---
+stage: Secure
+group: Static Analysis
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, howto
 ---
 
 # Static Application Security Testing (SAST) **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
 
 NOTE: **4 of the top 6 attacks were application based.**
 Download our whitepaper,
@@ -25,7 +28,7 @@ You can take advantage of SAST by doing one of the following:
 GitLab checks the SAST report, compares the found vulnerabilities between the
 source and target branches, and shows the information right on the merge request.
 
-![SAST Widget](img/sast_v13_0.png)
+![SAST Widget](img/sast_v13_1.png)
 
 The results are sorted by the priority of the vulnerability:
 
@@ -48,14 +51,12 @@ A pipeline consists of multiple jobs, including SAST and DAST scanning. If any j
 
 ## Requirements
 
-To run a SAST job, by default, you need GitLab Runner with the
-[`docker`](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode) or
-[`kubernetes`](https://docs.gitlab.com/runner/install/kubernetes.html#running-privileged-containers-for-the-runners)
-executor running in privileged mode. If you're using the shared Runners on GitLab.com,
-this is enabled by default.
+To run SAST jobs, by default, you need GitLab Runner with the
+[`docker`](https://docs.gitlab.com/runner/executors/docker.html) or
+[`kubernetes`](https://docs.gitlab.com/runner/install/kubernetes.html) executor.
+If you're using the shared Runners on GitLab.com, this is enabled by default.
 
-Privileged mode is not necessary if you've [disabled Docker in Docker
-for SAST](#disabling-docker-in-docker-for-sast).
+Beginning with GitLab 13.0, Docker privileged mode is necessary only if you've [enabled Docker-in-Docker for SAST](#enabling-docker-in-docker).
 
 CAUTION: **Caution:** Our SAST jobs currently expect a Linux container type. Windows containers are not yet supported.
 
@@ -69,13 +70,15 @@ The following table shows which languages, package managers and frameworks are s
 
 | Language (package managers) / framework                                     | Scan tool                                                                              | Introduced in GitLab Version |
 |-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------|------------------------------|
-| .NET                                                                        | [Security Code Scan](https://security-code-scan.github.io)                             | 11.0                         |
+| .NET Core                                                                   | [Security Code Scan](https://security-code-scan.github.io)                             | 11.0                         |
+| .NET Framework                                                              | [Security Code Scan](https://security-code-scan.github.io)                             | 13.0                         |
 | Any                                                                         | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) | 11.9    |
 | Apex (Salesforce)                                                           | [PMD](https://pmd.github.io/pmd/index.html)                                            | 12.1                         |
-| C/C++                                                                       | [Flawfinder](https://dwheeler.com/flawfinder/)                                         | 10.7                         |
+| C/C++                                                                       | [Flawfinder](https://github.com/david-a-wheeler/flawfinder)                            | 10.7                         |
 | Elixir (Phoenix)                                                            | [Sobelow](https://github.com/nccgroup/sobelow)                                         | 11.10                        |
 | Go                                                                          | [Gosec](https://github.com/securego/gosec)                                             | 10.7                         |
 | Groovy ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.3 (Gradle) & 11.9 (Ant, Maven, SBT) |
+| Helm Charts                                                                 | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 13.1                         |
 | Java ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 10.6 (Maven), 10.8 (Gradle) & 11.9 (Ant, SBT) |
 | JavaScript                                                                  | [ESLint security plugin](https://github.com/nodesecurity/eslint-plugin-security)       | 11.8                         |
 | Kubernetes manifests                                                        | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 12.6                         |
@@ -83,7 +86,7 @@ The following table shows which languages, package managers and frameworks are s
 | PHP                                                                         | [phpcs-security-audit](https://github.com/FloeDesignTechnologies/phpcs-security-audit) | 10.8                         |
 | Python ([pip](https://pip.pypa.io/en/stable/))                              | [bandit](https://github.com/PyCQA/bandit)                                              | 10.3                         |
 | React                                                                       | [ESLint react plugin](https://github.com/yannickcr/eslint-plugin-react)                | 12.5                         |
-| Ruby on Rails                                                               | [brakeman](https://brakemanscanner.org)                                                | 10.3                         |
+| Ruby on Rails                                                               | [brakeman](https://brakemanscanner.org)                                                | 10.3, moved to Core in 13.1  |
 | Scala ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.0 (SBT) & 11.9 (Ant, Gradle, Maven) |
 | TypeScript                                                                  | [`tslint-config-security`](https://github.com/webschik/tslint-config-security/) | 11.9 |
 
@@ -91,6 +94,26 @@ NOTE: **Note:**
 The Java analyzers can also be used for variants like the
 [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html),
 [Grails](https://grails.org/) and the [Maven wrapper](https://github.com/takari/maven-wrapper).
+
+### Making SAST analyzers available to all GitLab tiers
+
+All open source (OSS) analyzers are in the process of being reviewed and potentially moved to GitLab Core tier. Progress can be
+tracked in the corresponding
+[epic](https://gitlab.com/groups/gitlab-org/-/epics/2098).
+
+#### Summary of features per tier
+
+Different features are available in different [GitLab tiers](https://about.gitlab.com/pricing/),
+as shown in the following table:
+
+| Capability                                                                | In Core             | In Ultimate        |
+|:--------------------------------------------------------------------------|:--------------------|:-------------------|
+| [Configure SAST Scanners](#configuration)                                 | **{check-circle}**  | **{check-circle}** |
+| [Customize SAST Settings](#customizing-the-sast-settings)                 | **{check-circle}**  | **{check-circle}** |
+| View [JSON Report](#reports-json-format)                                  | **{check-circle}**  | **{check-circle}** |
+| [Presentation of JSON Report in Merge Request](#overview)                 | **{dotted-circle}** | **{check-circle}** |
+| [Interaction with Vulnerabilities](#interacting-with-the-vulnerabilities) | **{dotted-circle}** | **{check-circle}** |
+| [Access to Security Dashboard](#security-dashboard)                       | **{dotted-circle}** | **{check-circle}** |
 
 ## Contribute your scanner
 
@@ -114,15 +137,13 @@ include:
   - template: SAST.gitlab-ci.yml
 ```
 
-The included template will create a `sast` job in your CI/CD pipeline and scan
+The included template will create SAST jobs in your CI/CD pipeline and scan
 your project's source code for possible vulnerabilities.
 
 The results will be saved as a
 [SAST report artifact](../../../ci/pipelines/job_artifacts.md#artifactsreportssast-ultimate)
 that you can later download and analyze. Due to implementation limitations, we
-always take the latest SAST artifact available. Behind the scenes, the
-[GitLab SAST Docker image](https://gitlab.com/gitlab-org/security-products/sast)
-is used to detect the languages or frameworks used, and in turn runs the matching scan tools.
+always take the latest SAST artifact available.
 
 ### Customizing the SAST settings
 
@@ -143,23 +164,24 @@ variables:
 Because the template is [evaluated before](../../../ci/yaml/README.md#include)
 the pipeline configuration, the last mention of the variable takes precedence.
 
-### Overriding the SAST template
+### Overriding SAST jobs
 
 CAUTION: **Deprecation:**
 Beginning in GitLab 13.0, the use of [`only` and `except`](../../../ci/yaml/README.md#onlyexcept-basic)
 is no longer supported. When overriding the template, you must use [`rules`](../../../ci/yaml/README.md#rules) instead.
 
-If you want to override the job definition (for example, change properties like
-`variables` or `dependencies`), you need to declare a `sast` job after the
-template inclusion and specify any additional keys under it. For example:
+To override a job definition, (for example, change properties like `variables` or `dependencies`),
+declare a job with the same name as the SAST job to override. Place this new job after the template
+inclusion and specify any additional keys under it. For example, this enables `FAIL_NEVER` for the
+`spotbugs` analyzer:
 
 ```yaml
 include:
   - template: SAST.gitlab-ci.yml
 
-sast:
+spotbugs-sast:
   variables:
-    CI_DEBUG_TRACE: "true"
+    FAIL_NEVER: 1
 ```
 
 ### Using environment variables to pass credentials for private repositories
@@ -177,44 +199,30 @@ you can use the `MAVEN_CLI_OPTS` environment variable.
 
 Read more on [how to use private Maven repositories](../index.md#using-private-maven-repos).
 
-### Disabling Docker in Docker for SAST
+### Enabling Docker-in-Docker
 
-You can avoid the need for Docker in Docker by running the individual analyzers.
-This does not require running the executor in privileged mode. For example:
+If needed, you can enable Docker-in-Docker to restore the SAST behavior that existed prior to GitLab
+13.0. Follow these steps to do so:
 
-```yaml
-include:
-  - template: SAST.gitlab-ci.yml
+1. Configure GitLab Runner with Docker-inDocker in [privileged mode](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
+1. Set the variable `SAST_DISABLE_DIND` set to `false`:
 
-variables:
-  SAST_DISABLE_DIND: "true"
-```
+   ```yaml
+   include:
+     - template: SAST.gitlab-ci.yml
 
-This will create individual `<analyzer-name>-sast` jobs for each analyzer that runs in your CI/CD pipeline.
+   variables:
+     SAST_DISABLE_DIND: "false"
+   ```
 
-By removing Docker-in-Docker (DIND), GitLab relies on [Linguist](https://github.com/github/linguist)
-to start relevant analyzers depending on the detected repository language(s) instead of the
-[orchestrator](https://gitlab.com/gitlab-org/security-products/dependency-scanning/). However, there
-are some differences in the way repository languages are detected between DIND and non-DIND. You can
-observe these differences by checking both Linguist and the common library. For instance, Linguist
-looks for `*.java` files to spin up the [SpotBugs](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs)
-image, while orchestrator only looks for the existence of `pom.xml`, `build.xml`, `gradlew`,
-`grailsw`, or `mvnw`. GitLab uses Linguist to detect new file types in the default branch.
-When introducing files or dependencies for a new language or package manager, the
-corresponding scans won't be triggered in the MR, and will only run on the default branch once the
-MR is merged. This will be addressed by [#211702](https://gitlab.com/gitlab-org/gitlab/-/issues/211702).
-
-NOTE: **Note:**
-With the current language detection logic, any new languages or frameworks introduced within the
-context of a merge request don't trigger a corresponding scan. These scans only occur once the code
-is committed to the default branch.
+This creates a single `sast` job in your CI/CD pipeline instead of multiple `<analyzer-name>-sast`
+jobs.
 
 #### Enabling Kubesec analyzer
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/12752) in GitLab Ultimate 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12752) in GitLab Ultimate 12.6.
 
-When [Docker in Docker is disabled](#disabling-docker-in-docker-for-sast),
-you will need to set `SCAN_KUBERNETES_MANIFESTS` to `"true"` to enable the
+You need to set `SCAN_KUBERNETES_MANIFESTS` to `"true"` to enable the
 Kubesec analyzer. In `.gitlab-ci.yml`, define:
 
 ```yaml
@@ -222,7 +230,6 @@ include:
   - template: SAST.gitlab-ci.yml
 
 variables:
-  SAST_DISABLE_DIND: "true"
   SCAN_KUBERNETES_MANIFESTS: "true"
 ```
 
@@ -235,7 +242,7 @@ a `before_script` execution to prepare your scan job.
 
 To pass your project's dependencies as artifacts, the dependencies must be included
 in the project's working directory and specified using the `artifacts:path` configuration.
-If all dependencies are present, the `-compile=false` flag can be provided to the
+If all dependencies are present, the `COMPILE=false` variable can be provided to the
 analyzer and compilation will be skipped:
 
 ```yaml
@@ -247,9 +254,6 @@ stages:
 
 include:
   - template: SAST.gitlab-ci.yml
-
-variables:
-  SAST_DISABLE_DIND: "true"
 
 build:
   stage: build
@@ -263,10 +267,9 @@ build:
 spotbugs-sast:
   dependencies:
     - build
-  script:
-    - /analyzer run -compile=false
   variables:
     MAVEN_REPO_PATH: ./.m2/repository
+    COMPILE: false
   artifacts:
     reports:
       sast: gl-sast-report.json
@@ -282,6 +285,16 @@ See [Analyzer settings](#analyzer-settings) for the complete list of available o
 
 SAST can be [configured](#customizing-the-sast-settings) using environment variables.
 
+#### Logging Level
+
+You can control the verbosity of logs by setting the `SECURE_LOG_LEVEL` env var. The default is set to `info`, you can set it to any of the following levels:
+
+- `fatal`
+- `error`
+- `warn`
+- `info`
+- `debug`
+
 #### Custom Certificate Authority
 
 To trust a custom Certificate Authority, set the `ADDITIONAL_CA_CERT_BUNDLE` variable to the bundle
@@ -293,10 +306,10 @@ The following are Docker image-related variables.
 
 | Environment variable         | Description                                                                                                                                                                                                              |
 |------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `SAST_ANALYZER_IMAGE_PREFIX` | Override the name of the Docker registry providing the default images (proxy). Read more about [customizing analyzers](analyzers.md).                                                                                    |
-| `SAST_ANALYZER_IMAGE_TAG`    | **DEPRECATED:** Override the Docker tag of the default images. Read more about [customizing analyzers](analyzers.md).                                                                                                                    |
+| `SECURE_ANALYZERS_PREFIX`    | Override the name of the Docker registry providing the default images (proxy). Read more about [customizing analyzers](analyzers.md).                                                                                    |
+| `SAST_ANALYZER_IMAGE_TAG`    | **DEPRECATED:** Override the Docker tag of the default images. Read more about [customizing analyzers](analyzers.md).                                                                                                        |
 | `SAST_DEFAULT_ANALYZERS`     | Override the names of default images. Read more about [customizing analyzers](analyzers.md).                                                                                                                             |
-| `SAST_DISABLE_DIND`          | Disable Docker in Docker and run analyzers [individually](#disabling-docker-in-docker-for-sast).                                                                                                                         |
+| `SAST_DISABLE_DIND`          | Disable Docker-in-Docker and run analyzers [individually](#enabling-docker-in-docker). This variable is `true` by default. |
 
 #### Vulnerability filters
 
@@ -304,30 +317,27 @@ Some analyzers make it possible to filter out vulnerabilities under a given thre
 
 | Environment variable    | Default value | Description |
 |-------------------------|---------------|-------------|
-| `SAST_EXCLUDED_PATHS`         | -   | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc,spec` ). Parent directories will also match patterns. |
-| `SAST_BANDIT_EXCLUDED_PATHS`  | -   | comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html) |
+| `SAST_EXCLUDED_PATHS`         | `spec, test, tests, tmp` | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc,spec` ). Parent directories will also match patterns. |
+| `SAST_BANDIT_EXCLUDED_PATHS`  |     | comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html); For example: `'*/tests/*'` |
 | `SAST_BRAKEMAN_LEVEL`   |         1 | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High. |
 | `SAST_FLAWFINDER_LEVEL` |         1 | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk. |
 | `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0 | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high. |
 | `SAST_GOSEC_LEVEL`      |         0 | Ignore Gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High. |
-| `SAST_GITLEAKS_COMMIT_FROM` | -     | The commit a Gitleaks scan starts at. |
-| `SAST_GITLEAKS_COMMIT_TO` | -       | The commit a Gitleaks scan ends at. |
+| `SAST_GITLEAKS_COMMIT_FROM` |       | The commit a Gitleaks scan starts at. |
+| `SAST_GITLEAKS_COMMIT_TO` |         | The commit a Gitleaks scan ends at. |
 | `SAST_GITLEAKS_HISTORIC_SCAN` | false | Flag to enable a historic Gitleaks scan. |
 
 #### Docker-in-Docker orchestrator
 
-The following variables configure the Docker-in-Docker orchestrator.
+The following variables configure the Docker-in-Docker orchestrator, and therefore are only used when the Docker-in-Docker mode is [enabled](#enabling-docker-in-docker).
 
 | Environment variable                     | Default value | Description |
 |------------------------------------------|---------------|-------------|
-| `SAST_ANALYZER_IMAGES`                   |         |  Comma-separated list of custom images. Default images are still enabled. Read more about [customizing analyzers](analyzers.md). Not available when [Docker-in-Docker is disabled](#disabling-docker-in-docker-for-sast). |
-| `SAST_PULL_ANALYZER_IMAGES`              |       1 | Pull the images from the Docker registry (set to 0 to disable). Read more about [customizing analyzers](analyzers.md). Not available when [Docker-in-Docker is disabled](#disabling-docker-in-docker-for-sast).          |
+| `SAST_ANALYZER_IMAGES`                   |         |  Comma-separated list of custom images. Default images are still enabled. Read more about [customizing analyzers](analyzers.md). |
+| `SAST_PULL_ANALYZER_IMAGES`              |       1 | Pull the images from the Docker registry (set to 0 to disable). Read more about [customizing analyzers](analyzers.md). |
 | `SAST_DOCKER_CLIENT_NEGOTIATION_TIMEOUT` |      2m | Time limit for Docker client negotiation. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h` or `2h45m`. |
 | `SAST_PULL_ANALYZER_IMAGE_TIMEOUT`       |      5m | Time limit when pulling the image of an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h` or `2h45m`. |
 | `SAST_RUN_ANALYZER_TIMEOUT`              |     20m | Time limit when running an analyzer. Timeouts are parsed using Go's [`ParseDuration`](https://golang.org/pkg/time/#ParseDuration). Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. For example, `300ms`, `1.5h` or `2h45m`.|
-
-NOTE: **Note:**
-Timeout variables are not applicable for setups with [disabled Docker In Docker](index.md#disabling-docker-in-docker-for-sast).
 
 #### Analyzer settings
 
@@ -335,18 +345,23 @@ Some analyzers can be customized with environment variables.
 
 | Environment variable        | Analyzer | Description |
 |-----------------------------|----------|-------------|
-| `SCAN_KUBERNETES_MANIFESTS` | Kubesec  | Set to `"true"` to scan Kubernetes manifests when [Docker in Docker](#disabling-docker-in-docker-for-sast) is disabled. |
-| `ANT_HOME`                  | SpotBugs | The `ANT_HOME` environment variable. |
-| `ANT_PATH`                  | SpotBugs | Path to the `ant` executable. |
-| `GRADLE_PATH`               | SpotBugs | Path to the `gradle` executable. |
-| `JAVA_OPTS`                 | SpotBugs | Additional arguments for the `java` executable. |
-| `JAVA_PATH`                 | SpotBugs | Path to the `java` executable. |
-| `SAST_JAVA_VERSION`         | SpotBugs | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
-| `MAVEN_CLI_OPTS`            | SpotBugs | Additional arguments for the `mvn` or `mvnw` executable. |
-| `MAVEN_PATH`                | SpotBugs | Path to the `mvn` executable. |
-| `MAVEN_REPO_PATH`           | SpotBugs | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
-| `SBT_PATH`                  | SpotBugs | Path to the `sbt` executable. |
-| `FAIL_NEVER`                | SpotBugs | Set to `1` to ignore compilation failure. |
+| `SCAN_KUBERNETES_MANIFESTS`           | Kubesec              | Set to `"true"` to scan Kubernetes manifests. |
+| `KUBESEC_HELM_CHARTS_PATH`            | Kubesec              | Optional path to Helm charts that `helm` will use to generate a Kubernetes manifest that `kubesec` will scan. If dependencies are defined, `helm dependency build` should be ran in a `before_script` to fetch the necessary dependencies. |
+| `KUBESEC_HELM_OPTIONS`                | Kubesec              | Additional arguments for the `helm` executable. |
+| `COMPILE`                             | SpotBugs             | Set to `"false"` to disable project compilation and dependency fetching |
+| `ANT_HOME`                            | SpotBugs             | The `ANT_HOME` environment variable. |
+| `ANT_PATH`                            | SpotBugs             | Path to the `ant` executable. |
+| `GRADLE_PATH`                         | SpotBugs             | Path to the `gradle` executable. |
+| `JAVA_OPTS`                           | SpotBugs             | Additional arguments for the `java` executable. |
+| `JAVA_PATH`                           | SpotBugs             | Path to the `java` executable. |
+| `SAST_JAVA_VERSION`                   | SpotBugs             | Which Java version to use. Supported versions are `8` and `11`. Defaults to `8`. |
+| `MAVEN_CLI_OPTS`                      | SpotBugs             | Additional arguments for the `mvn` or `mvnw` executable. |
+| `MAVEN_PATH`                          | SpotBugs             | Path to the `mvn` executable. |
+| `MAVEN_REPO_PATH`                     | SpotBugs             | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
+| `SBT_PATH`                            | SpotBugs             | Path to the `sbt` executable. |
+| `FAIL_NEVER`                          | SpotBugs             | Set to `1` to ignore compilation failure. |
+| `SAST_GOSEC_CONFIG`                   | Gosec                | Path to configuration for Gosec (optional). |
+| `PHPCS_SECURITY_AUDIT_PHP_EXTENSIONS` | phpcs-security-audit | Comma separated list of additional PHP Extensions. |
 
 #### Custom environment variables
 
@@ -363,11 +378,10 @@ analyzer containers: `DOCKER_`, `CI`, `GITLAB_`, `FF_`, `HOME`, `PWD`, `OLDPWD`,
 
 ## Reports JSON format
 
-CAUTION: **Caution:**
-The JSON report artifacts are not a public API of SAST and their format may change in the future.
+The SAST tool emits a JSON report file. For more information, see the
+[schema for this report](https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/master/dist/sast-report-format.json).
 
-The SAST tool emits a JSON report file. Here is an example of the report structure with all important parts of
-it highlighted:
+Here's an example SAST report:
 
 ```json-doc
 {
@@ -442,57 +456,9 @@ it highlighted:
 }
 ```
 
-CAUTION: **Deprecation:**
-Beginning with GitLab 12.9, SAST no longer reports `undefined` severity and confidence levels.
-
-Here is the description of the report file structure nodes and their meaning. All fields are mandatory in
-the report JSON unless stated otherwise. Presence of optional fields depends on the underlying analyzers being used.
-
-| Report JSON node                        | Function |
-|-----------------------------------------|----------|
-| `version`                               | Report syntax version used to generate this JSON. |
-| `vulnerabilities`                       | Array of vulnerability objects. |
-| `vulnerabilities[].id`                  | Unique identifier of the vulnerability. |
-| `vulnerabilities[].category`            | Where this vulnerability belongs (such as SAST, Dependency Scanning). For SAST, it will always be `sast`. |
-| `vulnerabilities[].name`                | Name of the vulnerability. Must not include the occurrence's specific information. Optional. |
-| `vulnerabilities[].message`             | A short text that describes the vulnerability, it may include the occurrence's specific information. Optional. |
-| `vulnerabilities[].description`         | A long text that describes the vulnerability. Optional. |
-| `vulnerabilities[].cve`                 | (**DEPRECATED - use `vulnerabilities[].id` instead**) A fingerprint string value that represents a concrete occurrence of the vulnerability. It's used to determine whether two vulnerability occurrences are same or different. May not be 100% accurate. **This is NOT a [CVE](https://cve.mitre.org/)**.                                                                                                                                      |
-| `vulnerabilities[].severity`            | How much the vulnerability impacts the software. Possible values: `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`. |
-| `vulnerabilities[].confidence`          | How reliable the vulnerability's assessment is. Possible values: `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`. |
-| `vulnerabilities[].solution`            | Explanation of how to fix the vulnerability. Optional. |
-| `vulnerabilities[].scanner`             | A node that describes the analyzer used to find this vulnerability. |
-| `vulnerabilities[].scanner.id`          | ID of the scanner as a snake_case string. |
-| `vulnerabilities[].scanner.name`        | Name of the scanner, for display purposes. |
-| `vulnerabilities[].location`            | A node that tells where the vulnerability is located. |
-| `vulnerabilities[].location.file`       | Path to the file where the vulnerability is located. Optional. |
-| `vulnerabilities[].location.start_line` | The first line of the code affected by the vulnerability. Optional. |
-| `vulnerabilities[].location.end_line`   | The last line of the code affected by the vulnerability. Optional. |
-| `vulnerabilities[].location.class`      | If specified, provides the name of the class where the vulnerability is located. Optional. |
-| `vulnerabilities[].location.method`     | If specified, provides the name of the method where the vulnerability is located. Optional. |
-| `vulnerabilities[].identifiers`         | An ordered array of references that identify a vulnerability on internal or external databases. |
-| `vulnerabilities[].identifiers[].type`  | Type of the identifier. Possible values: common identifier types (among `cve`, `cwe`, `osvdb`, and `usn`) or analyzer-dependent ones (like `bandit_test_id` for [Bandit analyzer](https://wiki.openstack.org/wiki/Security/Projects/Bandit)). |
-| `vulnerabilities[].identifiers[].name`  | Name of the identifier for display purposes. |
-| `vulnerabilities[].identifiers[].value` | Value of the identifier for matching purposes. |
-| `vulnerabilities[].identifiers[].url`   | URL to identifier's documentation. Optional. |
-
 ## Secret detection
 
-GitLab is also able to detect secrets and credentials that have been unintentionally pushed to the
-repository, such as an API key that allows write access to third-party deployment
-environments.
-
-This check is performed by a specific analyzer during the `sast` job. It runs regardless of the programming
-language of your app, and you don't need to change anything to your
-CI/CD configuration file to turn it on. Results are available in the SAST report.
-
-GitLab currently includes [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) checks.
-
-NOTE: **Note:**
-The secrets analyzer will ignore "Password in URL" vulnerabilities if the password begins
-with a dollar sign (`$`) as this likely indicates the password being used is an environment
-variable. For example, `https://username:$password@example.com/path/to/repo` won't be
-detected, whereas `https://username:password@example.com/path/to/repo` would be detected.
+Learn more about [Secret Detection](../secret_detection).
 
 ## Security Dashboard
 
@@ -505,7 +471,12 @@ vulnerabilities in your groups, projects and pipelines. Read more about the
 Once a vulnerability is found, you can interact with it. Read more on how to
 [interact with the vulnerabilities](../index.md#interacting-with-the-vulnerabilities).
 
-## Vulnerabilities database update
+## Vulnerabilities database
+
+Vulnerabilities contained within the vulnerability database can be searched
+and viewed at the [GitLab vulnerability advisory database](https://advisories.gitlab.com).
+
+### Vulnerabilities database update
 
 For more information about the vulnerabilities database update, check the
 [maintenance table](../index.md#maintenance-and-update-of-the-vulnerabilities-database).
@@ -520,7 +491,7 @@ run successfully. For more information, see [Offline environments](../offline_de
 
 To use SAST in an offline environment, you need:
 
-- To [disable Docker-In-Docker](#disabling-docker-in-docker-for-sast).
+- To keep Docker-In-Docker disabled (default).
 - GitLab Runner with the [`docker` or `kubernetes` executor](#requirements).
 - Docker Container Registry with locally available copies of SAST [analyzer](https://gitlab.com/gitlab-org/security-products/analyzers) images.
 
@@ -543,7 +514,6 @@ registry.gitlab.com/gitlab-org/security-products/analyzers/bandit:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/brakeman:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/eslint:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/flawfinder:2
-registry.gitlab.com/gitlab-org/security-products/analyzers/go-ast-scanner:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/gosec:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/kubesec:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:2
@@ -568,15 +538,14 @@ For details on saving and transporting Docker images as a file, see Docker's doc
 ### Set SAST CI job variables to use local SAST analyzers
 
 Add the following configuration to your `.gitlab-ci.yml` file. You must replace
-`SAST_ANALYZER_IMAGE_PREFIX` to refer to your local Docker container registry:
+`SECURE_ANALYZERS_PREFIX` to refer to your local Docker container registry:
 
   ```yaml
 include:
   - template: SAST.gitlab-ci.yml
 
 variables:
-  SAST_ANALYZER_IMAGE_PREFIX: "localhost:5000/analyzers"
-  SAST_DISABLE_DIND: "true"
+  SECURE_ANALYZERS_PREFIX: "localhost:5000/analyzers"
   ```
 
 The SAST job should now use local copies of the SAST analyzers to scan your code and generate
@@ -584,9 +553,9 @@ security reports without requiring internet access.
 
 ## Troubleshooting
 
-### Error response from daemon: error processing tar file: docker-tar: relocation error
+### `Error response from daemon: error processing tar file: docker-tar: relocation error`
 
-This error occurs when the Docker version used to run the SAST job is `19.03.0`.
+This error occurs when the Docker version that runs the SAST job is `19.03.0`.
 Consider updating to Docker `19.03.1` or greater. Older versions are not
 affected. Read more in
-[this issue](https://gitlab.com/gitlab-org/gitlab/issues/13830#note_211354992 "Current SAST container fails").
+[this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/13830#note_211354992 "Current SAST container fails").

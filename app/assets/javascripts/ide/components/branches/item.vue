@@ -2,7 +2,6 @@
 /* eslint-disable @gitlab/vue-require-i18n-strings */
 import Icon from '~/vue_shared/components/icon.vue';
 import Timeago from '~/vue_shared/components/time_ago_tooltip.vue';
-import router from '../../ide_router';
 
 export default {
   components: {
@@ -26,7 +25,7 @@ export default {
   },
   computed: {
     branchHref() {
-      return router.resolve(`/project/${this.projectId}/edit/${this.item.name}`).href;
+      return this.$router.resolve(`/project/${this.projectId}/edit/${this.item.name}`).href;
     },
   },
 };
@@ -34,7 +33,7 @@ export default {
 
 <template>
   <a :href="branchHref" class="btn-link d-flex align-items-center">
-    <span class="d-flex append-right-default ide-search-list-current-icon">
+    <span class="d-flex gl-mr-3 ide-search-list-current-icon">
       <icon v-if="isActive" :size="18" name="mobile-issue-close" />
     </span>
     <span>

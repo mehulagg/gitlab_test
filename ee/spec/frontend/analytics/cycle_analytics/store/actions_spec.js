@@ -4,8 +4,6 @@ import testAction from 'helpers/vuex_action_helper';
 import * as getters from 'ee/analytics/cycle_analytics/store/getters';
 import * as actions from 'ee/analytics/cycle_analytics/store/actions';
 import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
-import * as customStageActions from 'ee/analytics/cycle_analytics/store/modules/custom_stages/actions';
-import * as customStageTypes from 'ee/analytics/cycle_analytics/store/modules/custom_stages/mutation_types';
 import createFlash from '~/flash';
 import httpStatusCodes from '~/lib/utils/http_status';
 import {
@@ -58,11 +56,10 @@ describe('Cycle analytics actions', () => {
   it.each`
     action                   | type                       | stateKey                | payload
     ${'setFeatureFlags'}     | ${'SET_FEATURE_FLAGS'}     | ${'featureFlags'}       | ${{ hasDurationChart: true }}
-    ${'setSelectedGroup'}    | ${'SET_SELECTED_GROUP'}    | ${'selectedGroup'}      | ${'someNewGroup'}
     ${'setSelectedProjects'} | ${'SET_SELECTED_PROJECTS'} | ${'selectedProjectIds'} | ${[10, 20, 30, 40]}
     ${'setSelectedStage'}    | ${'SET_SELECTED_STAGE'}    | ${'selectedStage'}      | ${{ id: 'someStageId' }}
   `('$action should set $stateKey with $payload and type $type', ({ action, type, payload }) => {
-    testAction(
+    return testAction(
       actions[action],
       payload,
       state,
@@ -87,6 +84,48 @@ describe('Cycle analytics actions', () => {
         [{ type: types.SET_DATE_RANGE, payload: { startDate, endDate } }],
         [{ type: 'fetchCycleAnalyticsData' }],
       );
+    });
+  });
+
+  describe('setSelectedGroup', () => {
+    it('commits the setSelectedGroup mutation', () => {
+      return testAction(
+        actions.setSelectedGroup,
+        { ...selectedGroup },
+        state,
+        [{ type: types.SET_SELECTED_GROUP, payload: selectedGroup }],
+        [],
+      );
+    });
+
+    describe('with hasFilterBar=true', () => {
+      beforeEach(() => {
+        state = {
+          ...state,
+          featureFlags: {
+            ...state.featureFlags,
+            hasFilterBar: true,
+          },
+        };
+        mock = new MockAdapter(axios);
+      });
+
+      it('commits the setSelectedGroup mutation', () => {
+        return testAction(
+          actions.setSelectedGroup,
+          { full_path: selectedGroup.fullPath },
+          state,
+          [{ type: types.SET_SELECTED_GROUP, payload: { full_path: selectedGroup.fullPath } }],
+          [
+            {
+              type: 'filters/initialize',
+              payload: {
+                groupPath: selectedGroup.fullPath,
+              },
+            },
+          ],
+        );
+      });
     });
   });
 
@@ -200,7 +239,7 @@ describe('Cycle analytics actions', () => {
     });
 
     it(`dispatches actions for required value stream analytics analytics data`, () => {
-      testAction(
+      return testAction(
         actions.fetchCycleAnalyticsData,
         state,
         null,
@@ -650,9 +689,7 @@ describe('Cycle analytics actions', () => {
   });
 
   describe('receiveStageMedianValuesError', () => {
-    beforeEach(() => {});
-
-    it(`commits the ${types.RECEIVE_STAGE_MEDIANS_ERROR} mutation`, () => {
+    it(`commits the ${types.RECEIVE_STAGE_MEDIANS_ERROR} mutation`, () =>
       testAction(
         actions.receiveStageMedianValuesError,
         null,
@@ -663,8 +700,7 @@ describe('Cycle analytics actions', () => {
           },
         ],
         [],
-      );
-    });
+      ));
 
     it('will flash an error message', () => {
       actions.receiveStageMedianValuesError({ commit: () => {} });
@@ -681,136 +717,6 @@ describe('Cycle analytics actions', () => {
         [{ type: types.RECEIVE_STAGE_MEDIANS_SUCCESS, payload: { events: [] } }],
         [],
       );
-    });
-  });
-
-  describe('createStage', () => {
-    describe('with valid data', () => {
-      const customStageData = {
-        startEventIdentifier: 'start_event',
-        endEventIdentifier: 'end_event',
-        name: 'cool-new-stage',
-      };
-
-      beforeEach(() => {
-        state = { ...state, selectedGroup };
-        mock.onPost(endpoints.baseStagesEndpointstageData).reply(201, customStageData);
-      });
-
-      it(`dispatches the 'receiveCreateStageSuccess' action`, () =>
-        testAction(
-          customStageActions.createStage,
-          customStageData,
-          state,
-          [],
-          [
-            { type: 'clearFormErrors' },
-            { type: 'setSavingCustomStage' },
-            {
-              type: 'receiveCreateStageSuccess',
-              payload: { data: customStageData, status: 201 },
-            },
-          ],
-        ));
-    });
-
-    describe('with errors', () => {
-      const message = 'failed';
-      const errors = {
-        endEventIdentifier: ['Cant be blank'],
-      };
-      const customStageData = {
-        startEventIdentifier: 'start_event',
-        endEventIdentifier: '',
-        name: 'cool-new-stage',
-      };
-
-      beforeEach(() => {
-        state = { ...state, selectedGroup };
-        mock
-          .onPost(endpoints.baseStagesEndpointstageData)
-          .reply(httpStatusCodes.UNPROCESSABLE_ENTITY, {
-            message,
-            errors,
-          });
-      });
-
-      it(`dispatches the 'receiveCreateStageError' action`, () =>
-        testAction(
-          customStageActions.createStage,
-          customStageData,
-          state,
-          [],
-          [
-            { type: 'clearFormErrors' },
-            { type: 'setSavingCustomStage' },
-            {
-              type: 'receiveCreateStageError',
-              payload: {
-                data: customStageData,
-                errors,
-                message,
-                status: httpStatusCodes.UNPROCESSABLE_ENTITY,
-              },
-            },
-          ],
-        ));
-    });
-  });
-
-  describe('receiveCreateStageError', () => {
-    const response = {
-      data: { name: 'uh oh' },
-    };
-
-    beforeEach(() => {});
-
-    it('will commit the RECEIVE_CREATE_STAGE_ERROR mutation', () =>
-      testAction(
-        customStageActions.receiveCreateStageError,
-        response,
-        state,
-        [{ type: customStageTypes.RECEIVE_CREATE_STAGE_ERROR }],
-        [
-          {
-            type: 'setStageFormErrors',
-            payload: {},
-          },
-        ],
-      ));
-
-    it('will flash an error message', () => {
-      return customStageActions
-        .receiveCreateStageError(
-          {
-            dispatch: () => Promise.resolve(),
-            commit: () => {},
-          },
-          response,
-        )
-        .then(() => {
-          shouldFlashAMessage('There was a problem saving your custom stage, please try again');
-        });
-    });
-
-    describe('with a stage name error', () => {
-      it('will flash an error message', () => {
-        return customStageActions
-          .receiveCreateStageError(
-            {
-              dispatch: () => Promise.resolve(),
-              commit: () => {},
-            },
-            {
-              ...response,
-              status: httpStatusCodes.UNPROCESSABLE_ENTITY,
-              errors: { name: ['is reserved'] },
-            },
-          )
-          .then(() => {
-            shouldFlashAMessage("'uh oh' stage already exists");
-          });
-      });
     });
   });
 
@@ -871,38 +777,6 @@ describe('Cycle analytics actions', () => {
         [{ type: types.INITIALIZE_CYCLE_ANALYTICS_SUCCESS }],
         [],
       ));
-  });
-
-  describe('receiveCreateStageSuccess', () => {
-    const response = {
-      data: {
-        title: 'COOL',
-      },
-    };
-
-    it('will dispatch fetchGroupStagesAndEvents', () =>
-      testAction(
-        customStageActions.receiveCreateStageSuccess,
-        response,
-        state,
-        [{ type: customStageTypes.RECEIVE_CREATE_STAGE_SUCCESS }],
-        [{ type: 'fetchGroupStagesAndEvents', payload: null }, { type: 'clearSavingCustomStage' }],
-      ));
-
-    describe('with an error', () => {
-      it('will flash an error message', () =>
-        customStageActions
-          .receiveCreateStageSuccess(
-            {
-              dispatch: () => Promise.reject(),
-              commit: () => {},
-            },
-            response,
-          )
-          .then(() => {
-            shouldFlashAMessage('There was a problem refreshing the data, please try again');
-          }));
-    });
   });
 
   describe('reorderStage', () => {

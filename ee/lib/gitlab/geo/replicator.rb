@@ -10,19 +10,26 @@ module Gitlab
     #
     # Each replicator is tied to a specific replicable resource
     class Replicator
+      include ::Gitlab::Utils::StrongMemoize
       include ::Gitlab::Geo::LogHelpers
+      extend ::Gitlab::Geo::LogHelpers
 
       CLASS_SUFFIXES = %w(RegistryFinder RegistriesResolver).freeze
 
       attr_reader :model_record_id
+
       delegate :model, to: :class
+
+      class << self
+        delegate :find_unsynced_registries, :find_failed_registries, to: :registry_class
+      end
 
       # Declare supported event
       #
       # @example Declaring support for :update and :delete events
       #   class MyReplicator < Gitlab::Geo::Replicator
-      #     event :update
-      #     event :delete
+      #     event :updated
+      #     event :deleted
       #   end
       #
       # @param [Symbol] event_name
@@ -73,7 +80,7 @@ module Gitlab
         const_get("::Types::Geo::#{replicable_name.camelize}RegistryType", false)
       end
 
-      # Given a `replicable_name`, return the corresponding replicator
+      # Given a `replicable_name`, return the corresponding replicator class
       #
       # @param [String] replicable_name the replicable slug
       # @return [Class<Geo::Replicator>] replicator implementation
@@ -81,6 +88,25 @@ module Gitlab
         replicator_class_name = "::Geo::#{replicable_name.camelize}Replicator"
 
         const_get(replicator_class_name, false)
+      rescue NameError
+        message = "Cannot find a Geo::Replicator for #{replicable_name}"
+        e = NotImplementedError.new(message)
+
+        log_error(message, e, { replicable_name: replicable_name })
+
+        raise e
+      end
+
+      # Given the output of a replicator's `replicable_params`, reinstantiate
+      # the replicator instance
+      #
+      # @param [String] replicable_name of a replicator instance
+      # @param [Integer] replicable_id of a replicator instance
+      # @return [Geo::Replicator] replicator instance
+      def self.for_replicable_params(replicable_name:, replicable_id:)
+        replicator_class = for_replicable_name(replicable_name)
+
+        replicator_class.new(model_record_id: replicable_id)
       end
 
       def self.checksummed
@@ -97,6 +123,18 @@ module Gitlab
 
       def self.primary_total_count
         model.count
+      end
+
+      def self.registry_count
+        registry_class.count
+      end
+
+      def self.synced_count
+        registry_class.synced.count
+      end
+
+      def self.failed_count
+        registry_class.failed.count
       end
 
       # @example Given `Geo::PackageFileRegistryFinder`, this returns
@@ -118,7 +156,7 @@ module Gitlab
       # @param [Integer] model_record_id
       def initialize(model_record: nil, model_record_id: nil)
         @model_record = model_record
-        @model_record_id = model_record_id
+        @model_record_id = model_record_id || model_record&.id
       end
 
       # Instance of the replicable model
@@ -140,7 +178,7 @@ module Gitlab
       # @param [Symbol] event_name
       # @param [Hash] event_data
       def publish(event_name, **event_data)
-        return unless Feature.enabled?(:geo_self_service_framework)
+        return unless Feature.enabled?(:geo_self_service_framework_replication, default_enabled: true)
 
         raise ArgumentError, "Unsupported event: '#{event_name}'" unless self.class.event_supported?(event_name)
 
@@ -190,7 +228,7 @@ module Gitlab
       #
       # @return [Geo::BaseRegistry] registry instance
       def registry
-        registry_class.for_model_record_id(model_record.id)
+        registry_class.for_model_record_id(model_record_id)
       end
 
       # Checksum value from the main database
@@ -202,6 +240,34 @@ module Gitlab
 
       def secondary_checksum
         registry.verification_checksum
+      end
+
+      # This method does not yet cover resources that are owned by a namespace
+      # but not a project, because we do not have that use-case...yet.
+      # E.g. GroupWikis will need it.
+      def excluded_by_selective_sync?
+        # If the replicable is not owned by a project or namespace, then selective sync cannot apply to it.
+        return false unless parent_project_id
+
+        !current_node.projects_include?(parent_project_id)
+      end
+
+      def parent_project_id
+        strong_memoize(:parent_project_id) do
+          # We should never see this at runtime. All Replicators should be tested
+          # by `it_behaves_like 'a replicator'`, which would reveal this problem.
+          selective_sync_not_implemented_error(__method__) unless model_record.respond_to?(:project_id)
+
+          model_record.project_id
+        end
+      end
+
+      # Return exactly the data needed by `for_replicable_params` to
+      # reinstantiate this Replicator elsewhere.
+      #
+      # @return [Hash] the replicable name and ID
+      def replicable_params
+        { replicable_name: replicable_name, replicable_id: model_record_id }
       end
 
       protected
@@ -227,6 +293,15 @@ module Gitlab
         event
       rescue ActiveRecord::RecordInvalid, NoMethodError => e
         log_error("#{class_name} could not be created", e, params)
+      end
+
+      def current_node
+        Gitlab::Geo.current_node
+      end
+
+      def selective_sync_not_implemented_error(method_name)
+        raise NotImplementedError,
+            "#{self.class} does not implement #{method_name}. If selective sync is not applicable, just return nil."
       end
     end
   end

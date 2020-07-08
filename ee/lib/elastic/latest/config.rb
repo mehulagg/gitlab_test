@@ -16,6 +16,9 @@ module Elastic
         index: {
           number_of_shards: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_shards },
           number_of_replicas: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_replicas },
+          highlight: {
+            max_analyzed_offset: 1.megabyte
+          },
           codec: 'best_compression',
           analysis: {
             analyzer: {
@@ -35,7 +38,7 @@ module Elastic
               code_analyzer: {
                 type: 'custom',
                 tokenizer: 'whitespace',
-                filter: %w(code edgeNGram_filter lowercase asciifolding)
+                filter: %w(code lowercase asciifolding remove_duplicates)
               },
               code_search_analyzer: {
                 type: 'custom',
@@ -58,13 +61,8 @@ module Elastic
                   '"((?:\\"|[^"]|\\")*)"', # capture terms inside quotes, removing the quotes
                   "'((?:\\'|[^']|\\')*)'", # same as above, for single quotes
                   '\.([^.]+)(?=\.|\s|\Z)', # separate terms on periods
-                  '\/?([^\/]+)(?=\/|\b)' # separate path terms (like/this/one)
+                  '([\p{L}_.-]+)' # some common chars in file names to keep the whole filename intact (eg. my_file-name.txt)
                 ]
-              },
-              edgeNGram_filter: {
-                type: 'edgeNGram',
-                min_gram: 2,
-                max_gram: 40
               }
             },
             tokenizer: {

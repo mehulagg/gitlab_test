@@ -3,8 +3,8 @@
 import { GlLoadingIcon } from '@gitlab/ui';
 import MilestoneSelect from '~/milestone_select';
 
-const ANY_MILESTONE = 'Any Milestone';
-const NO_MILESTONE = 'No Milestone';
+const ANY_MILESTONE = 'Any milestone';
+const NO_MILESTONE = 'No milestone';
 
 export default {
   components: {
@@ -15,9 +15,15 @@ export default {
       type: Object,
       required: true,
     },
-    milestonePath: {
-      type: String,
-      required: true,
+    groupId: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    projectId: {
+      type: Number,
+      required: false,
+      default: 0,
     },
     canEdit: {
       type: Boolean,
@@ -84,7 +90,8 @@ export default {
         <button
           ref="dropdownButton"
           :data-selected="selected"
-          :data-milestones="milestonePath"
+          :data-project-id="projectId"
+          :data-group-id="groupId"
           :data-show-no="true"
           :data-show-any="true"
           :data-show-started="true"

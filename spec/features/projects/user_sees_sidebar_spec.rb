@@ -2,9 +2,13 @@
 
 require 'spec_helper'
 
-describe 'Projects > User sees sidebar' do
+RSpec.describe 'Projects > User sees sidebar' do
   let(:user) { create(:user) }
   let(:project) { create(:project, :private, public_builds: false, namespace: user.namespace) }
+
+  before do
+    stub_feature_flags(vue_issuables_list: false)
+  end
 
   # NOTE: See documented behaviour https://design.gitlab.com/regions/navigation#contextual-navigation
   context 'on different viewports', :js do

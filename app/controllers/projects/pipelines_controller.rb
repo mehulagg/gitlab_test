@@ -2,6 +2,7 @@
 
 class Projects::PipelinesController < Projects::ApplicationController
   include ::Gitlab::Utils::StrongMemoize
+  include Analytics::UniqueVisitsHelper
 
   before_action :whitelist_query_limiting, only: [:create, :retry]
   before_action :pipeline, except: [:index, :new, :create, :charts]
@@ -11,13 +12,19 @@ class Projects::PipelinesController < Projects::ApplicationController
   before_action :authorize_create_pipeline!, only: [:new, :create]
   before_action :authorize_update_pipeline!, only: [:retry, :cancel]
   before_action do
-    push_frontend_feature_flag(:junit_pipeline_view)
-    push_frontend_feature_flag(:filter_pipelines_search)
-    push_frontend_feature_flag(:dag_pipeline_tab)
+    push_frontend_feature_flag(:junit_pipeline_view, project)
+    push_frontend_feature_flag(:filter_pipelines_search, project, default_enabled: true)
+    push_frontend_feature_flag(:dag_pipeline_tab, project, default_enabled: false)
+    push_frontend_feature_flag(:pipelines_security_report_summary, project)
   end
   before_action :ensure_pipeline, only: [:show]
 
+  # Will be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/225596
+  before_action :redirect_for_legacy_scope_filter, only: [:index], if: -> { request.format.html? }
+
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show]
+
+  track_unique_visits :charts, target_id: 'p_analytics_pipelines'
 
   wrap_parameters Ci::Pipeline
 
@@ -30,9 +37,6 @@ class Projects::PipelinesController < Projects::ApplicationController
       .page(params[:page])
       .per(30)
 
-    @running_count = limited_pipelines_count(project, 'running')
-    @pending_count = limited_pipelines_count(project, 'pending')
-    @finished_count = limited_pipelines_count(project, 'finished')
     @pipelines_count = limited_pipelines_count(project)
 
     respond_to do |format|
@@ -43,10 +47,7 @@ class Projects::PipelinesController < Projects::ApplicationController
         render json: {
           pipelines: serialize_pipelines,
           count: {
-            all: @pipelines_count,
-            running: @running_count,
-            pending: @pending_count,
-            finished: @finished_count
+            all: @pipelines_count
           }
         }
       end
@@ -95,7 +96,14 @@ class Projects::PipelinesController < Projects::ApplicationController
   end
 
   def dag
-    render_show
+    respond_to do |format|
+      format.html { render_show }
+      format.json do
+        render json: Ci::DagPipelineSerializer
+          .new(project: @project, current_user: @current_user)
+          .represent(@pipeline)
+      end
+    end
   end
 
   def failures
@@ -178,7 +186,7 @@ class Projects::PipelinesController < Projects::ApplicationController
       format.json do
         render json: TestReportSerializer
           .new(current_user: @current_user)
-          .represent(pipeline_test_report, project: project)
+          .represent(pipeline_test_report, project: project, details: true)
       end
     end
   end
@@ -216,6 +224,12 @@ class Projects::PipelinesController < Projects::ApplicationController
 
   def ensure_pipeline
     render_404 unless pipeline
+  end
+
+  def redirect_for_legacy_scope_filter
+    return unless %w[running pending].include?(params[:scope])
+
+    redirect_to url_for(safe_params.except(:scope).merge(status: safe_params[:scope])), status: :moved_permanently
   end
 
   # rubocop: disable CodeReuse/ActiveRecord
@@ -269,7 +283,7 @@ class Projects::PipelinesController < Projects::ApplicationController
   end
 
   def index_params
-    params.permit(:scope, :username)
+    params.permit(:scope, :username, :ref, :status)
   end
 end
 

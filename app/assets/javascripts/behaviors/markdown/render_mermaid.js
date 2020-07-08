@@ -25,9 +25,10 @@ function importMermaidModule() {
   return import(/* webpackChunkName: 'mermaid' */ 'mermaid')
     .then(mermaid => {
       let theme = 'neutral';
+      const ideDarkThemes = ['dark', 'solarized-dark'];
 
       if (
-        window.gon?.user_color_scheme === 'dark' &&
+        ideDarkThemes.includes(window.gon?.user_color_scheme) &&
         // if on the Web IDE page
         document.querySelector('.ide')
       ) {
@@ -82,7 +83,7 @@ function renderMermaidEl(el) {
       return;
     }
 
-    svg.classList.add('mermaid', 'mw-100');
+    svg.classList.add('mermaid');
 
     // pre > code > svg
     svg.closest('pre').replaceWith(svg);
@@ -173,7 +174,7 @@ export default function renderMermaid($els) {
   if (!$els.length) return;
 
   const visibleMermaids = $els.filter(function filter() {
-    return $(this).closest('details').length === 0;
+    return $(this).closest('details').length === 0 && $(this).is(':visible');
   });
 
   renderMermaids(visibleMermaids);

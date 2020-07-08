@@ -6,13 +6,15 @@ module Gitlab
       BadPayloadError = Class.new(StandardError)
 
       DEFAULT_TITLE = 'New: Incident'
+      DEFAULT_SEVERITY = 'critical'
 
-      def initialize(payload)
+      def initialize(payload, project)
         @payload = payload.to_h.with_indifferent_access
+        @project = project
       end
 
-      def self.call(payload)
-        new(payload).call
+      def self.call(payload, project)
+        new(payload, project).call
       end
 
       def call
@@ -24,10 +26,18 @@ module Gitlab
 
       private
 
-      attr_reader :payload
+      attr_reader :payload, :project
 
       def title
         payload[:title].presence || DEFAULT_TITLE
+      end
+
+      def severity
+        payload[:severity].presence || DEFAULT_SEVERITY
+      end
+
+      def fingerprint
+        Gitlab::AlertManagement::Fingerprint.generate(payload[:fingerprint])
       end
 
       def annotations
@@ -43,7 +53,9 @@ module Gitlab
           'description' => payload[:description],
           'monitoring_tool' => payload[:monitoring_tool],
           'service' => payload[:service],
-          'hosts' => hosts.presence
+          'hosts' => hosts.presence,
+          'severity' => severity,
+          'fingerprint' => fingerprint
         }
       end
 
@@ -73,3 +85,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::Alerting::NotificationPayloadParser.prepend_if_ee('EE::Gitlab::Alerting::NotificationPayloadParser')

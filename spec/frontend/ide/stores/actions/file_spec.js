@@ -5,7 +5,7 @@ import { createStore } from '~/ide/stores';
 import * as actions from '~/ide/stores/actions/file';
 import * as types from '~/ide/stores/mutation_types';
 import service from '~/ide/services';
-import router from '~/ide/ide_router';
+import { createRouter } from '~/ide/ide_router';
 import eventHub from '~/ide/eventhub';
 import { file } from '../../helpers';
 
@@ -16,6 +16,7 @@ describe('IDE store file actions', () => {
   let mock;
   let originalGon;
   let store;
+  let router;
 
   beforeEach(() => {
     mock = new MockAdapter(axios);
@@ -26,6 +27,7 @@ describe('IDE store file actions', () => {
     };
 
     store = createStore();
+    router = createRouter(store);
 
     jest.spyOn(store, 'commit');
     jest.spyOn(store, 'dispatch');
@@ -44,7 +46,6 @@ describe('IDE store file actions', () => {
       localFile = file('testFile');
       localFile.active = true;
       localFile.opened = true;
-      localFile.parentTreeUrl = 'parentTreeUrl';
 
       store.state.openFiles.push(localFile);
       store.state.entries[localFile.path] = localFile;
@@ -254,13 +255,8 @@ describe('IDE store file actions', () => {
         mock.onGet(`${RELATIVE_URL_ROOT}/test/test/-/7297abc/${localFile.path}`).replyOnce(
           200,
           {
-            blame_path: 'blame_path',
-            commits_path: 'commits_path',
-            permalink: 'permalink',
             raw_path: 'raw_path',
             binary: false,
-            html: '123',
-            render_error: '',
           },
           {
             'page-title': 'testing getFileData',
@@ -275,17 +271,6 @@ describe('IDE store file actions', () => {
             expect(service.getFileData).toHaveBeenCalledWith(
               `${RELATIVE_URL_ROOT}/test/test/-/7297abc/${localFile.path}`,
             );
-
-            done();
-          })
-          .catch(done.fail);
-      });
-
-      it('sets the file data', done => {
-        store
-          .dispatch('getFileData', { path: localFile.path })
-          .then(() => {
-            expect(localFile.blamePath).toBe('blame_path');
 
             done();
           })
@@ -348,13 +333,8 @@ describe('IDE store file actions', () => {
         mock.onGet(`${RELATIVE_URL_ROOT}/test/test/-/7297abc/old-dull-file`).replyOnce(
           200,
           {
-            blame_path: 'blame_path',
-            commits_path: 'commits_path',
-            permalink: 'permalink',
             raw_path: 'raw_path',
             binary: false,
-            html: '123',
-            render_error: '',
           },
           {
             'page-title': 'testing old-dull-file',
@@ -466,6 +446,54 @@ describe('IDE store file actions', () => {
           })
           .catch(done.fail);
       });
+
+      describe('sets file loading to true', () => {
+        let loadingWhenGettingRawData;
+        let loadingWhenGettingBaseRawData;
+
+        beforeEach(() => {
+          loadingWhenGettingRawData = undefined;
+          loadingWhenGettingBaseRawData = undefined;
+
+          jest.spyOn(service, 'getRawFileData').mockImplementation(f => {
+            loadingWhenGettingRawData = f.loading;
+            return Promise.resolve('raw');
+          });
+          jest.spyOn(service, 'getBaseRawFileData').mockImplementation(f => {
+            loadingWhenGettingBaseRawData = f.loading;
+            return Promise.resolve('rawBase');
+          });
+        });
+
+        it('when getting raw file data', async () => {
+          expect(tmpFile.loading).toBe(false);
+
+          await store.dispatch('getRawFileData', { path: tmpFile.path });
+
+          expect(loadingWhenGettingRawData).toBe(true);
+          expect(tmpFile.loading).toBe(false);
+        });
+
+        it('when getting base raw file data', async () => {
+          tmpFile.mrChange = { new_file: false };
+
+          expect(tmpFile.loading).toBe(false);
+
+          await store.dispatch('getRawFileData', { path: tmpFile.path });
+
+          expect(loadingWhenGettingBaseRawData).toBe(true);
+          expect(tmpFile.loading).toBe(false);
+        });
+
+        it('when file was already loading', async () => {
+          tmpFile.loading = true;
+
+          await store.dispatch('getRawFileData', { path: tmpFile.path });
+
+          expect(loadingWhenGettingRawData).toBe(true);
+          expect(tmpFile.loading).toBe(false);
+        });
+      });
     });
 
     describe('return JSON', () => {
@@ -508,6 +536,12 @@ describe('IDE store file actions', () => {
               },
             });
           });
+      });
+
+      it('toggles loading off after error', async () => {
+        await expect(store.dispatch('getRawFileData', { path: tmpFile.path })).rejects.toThrow();
+
+        expect(tmpFile.loading).toBe(false);
       });
     });
   });
@@ -582,20 +616,6 @@ describe('IDE store file actions', () => {
         )
         .then(() => {
           expect(store.state.changedFiles.length).toBe(0);
-
-          done();
-        })
-        .catch(done.fail);
-    });
-
-    it('bursts unused seal', done => {
-      store
-        .dispatch('changeFileContent', {
-          path: tmpFile.path,
-          content: 'content',
-        })
-        .then(() => {
-          expect(store.state.unusedSeal).toBe(false);
 
           done();
         })

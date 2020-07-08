@@ -1,16 +1,19 @@
-export const sourceContent = `
----
+export const sourceContentHeader = `---
 layout: handbook-page-toc
 title: Handbook
 twitter_image: '/images/tweets/handbook-gitlab.png'
----
-
-## On this page
+---`;
+export const sourceContentSpacing = `
+`;
+export const sourceContentBody = `## On this page
 {:.no_toc .hidden-md .hidden-lg}
 
 - TOC
 {:toc .hidden-md .hidden-lg}
+
+![image](path/to/image1.png)
 `;
+export const sourceContent = `${sourceContentHeader}${sourceContentSpacing}${sourceContentBody}`;
 export const sourceContentTitle = 'Handbook';
 
 export const username = 'gitlabuser';
@@ -45,3 +48,10 @@ export const createMergeRequestResponse = {
   iid: '123',
   web_url: '/merge_requests/123',
 };
+
+export const trackingCategory = 'projects:static_site_editor:show';
+
+export const images = new Map([
+  ['path/to/image1.png', 'image1-content'],
+  ['path/to/image2.png', 'image2-content'],
+]);

@@ -130,8 +130,7 @@ module Gitlab
         ]
       end
 
-      def send_artifacts_entry(build, entry)
-        file = build.artifacts_file
+      def send_artifacts_entry(file, entry)
         archive = file.file_storage? ? file.path : file.url
 
         params = {
@@ -217,8 +216,8 @@ module Gitlab
 
       def gitaly_server_hash(repository)
         {
-          address: Gitlab::GitalyClient.address(repository.container.repository_storage),
-          token: Gitlab::GitalyClient.token(repository.container.repository_storage),
+          address: Gitlab::GitalyClient.address(repository.shard),
+          token: Gitlab::GitalyClient.token(repository.shard),
           features: Feature::Gitaly.server_feature_flags
         }
       end

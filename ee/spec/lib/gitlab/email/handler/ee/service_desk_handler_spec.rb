@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
+RSpec.describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
   include_context :email_shared_context
 
   before do
@@ -20,8 +20,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
     let_it_be(:project) { create(:project, :repository, :public, namespace: namespace, path: 'test', service_desk_enabled: true) }
 
     before do
-      allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
-      allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).with(project: project).and_return(true)
+      allow(::EE::Gitlab::ServiceDesk).to receive(:supported?).and_return(true)
     end
 
     shared_examples 'a new issue request' do
@@ -247,7 +246,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
       end
     end
 
-    context 'when license does not support service desk' do
+    context 'when service desk is not enabled for project' do
       before do
         allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).and_return(false)
       end

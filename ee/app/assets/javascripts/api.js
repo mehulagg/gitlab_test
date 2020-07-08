@@ -16,6 +16,7 @@ export default {
   cycleAnalyticsTasksByTypePath: '/groups/:id/-/analytics/type_of_work/tasks_by_type',
   cycleAnalyticsTopLabelsPath: '/groups/:id/-/analytics/type_of_work/tasks_by_type/top_labels',
   cycleAnalyticsSummaryDataPath: '/groups/:id/-/analytics/value_stream_analytics/summary',
+  cycleAnalyticsTimeSummaryDataPath: '/groups/:id/-/analytics/value_stream_analytics/time_summary',
   cycleAnalyticsGroupStagesAndEventsPath: '/groups/:id/-/analytics/value_stream_analytics/stages',
   cycleAnalyticsStageEventsPath:
     '/groups/:id/-/analytics/value_stream_analytics/stages/:stage_id/records',
@@ -34,9 +35,11 @@ export default {
   paymentFormPath: '/-/subscriptions/payment_form',
   paymentMethodPath: '/-/subscriptions/payment_method',
   confirmOrderPath: '/-/subscriptions',
-  vulnerabilitiesActionPath: '/api/:version/vulnerabilities/:id/:action',
+  vulnerabilityPath: '/api/:version/vulnerabilities/:id',
+  vulnerabilityActionPath: '/api/:version/vulnerabilities/:id/:action',
   featureFlagUserLists: '/api/:version/projects/:id/feature_flags_user_lists',
   featureFlagUserList: '/api/:version/projects/:id/feature_flags_user_lists/:list_iid',
+  applicationSettingsPath: '/api/:version/application/settings',
 
   userSubscription(namespaceId) {
     const url = Api.buildUrl(this.subscriptionPath).replace(':id', encodeURIComponent(namespaceId));
@@ -150,6 +153,12 @@ export default {
 
   cycleAnalyticsSummaryData(groupId, params = {}) {
     const url = Api.buildUrl(this.cycleAnalyticsSummaryDataPath).replace(':id', groupId);
+
+    return axios.get(url, { params });
+  },
+
+  cycleAnalyticsTimeSummaryData(groupId, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsTimeSummaryDataPath).replace(':id', groupId);
 
     return axios.get(url, { params });
   },
@@ -283,8 +292,13 @@ export default {
     return axios.post(url, params);
   },
 
+  fetchVulnerability(id, params) {
+    const url = Api.buildUrl(this.vulnerabilityPath).replace(':id', id);
+    return axios.get(url, params);
+  },
+
   changeVulnerabilityState(id, state) {
-    const url = Api.buildUrl(this.vulnerabilitiesActionPath)
+    const url = Api.buildUrl(this.vulnerabilityActionPath)
       .replace(':id', id)
       .replace(':action', state);
 
@@ -301,46 +315,44 @@ export default {
     return axios.put(`${url}/${node.id}`, node);
   },
 
-  fetchFeatureFlagUserLists(version, id) {
-    const url = Api.buildUrl(this.featureFlagUserLists)
-      .replace(':version', version)
-      .replace(':id', id);
+  fetchFeatureFlagUserLists(id, page) {
+    const url = Api.buildUrl(this.featureFlagUserLists).replace(':id', id);
 
-    return axios.get(url);
+    return axios.get(url, { params: { page } });
   },
 
-  createFeatureFlagUserList(version, id, list) {
-    const url = Api.buildUrl(this.featureFlagUserLists)
-      .replace(':version', version)
-      .replace(':id', id);
+  createFeatureFlagUserList(id, list) {
+    const url = Api.buildUrl(this.featureFlagUserLists).replace(':id', id);
 
     return axios.post(url, list);
   },
 
-  fetchFeatureFlagUserList(version, id, listIid) {
+  fetchFeatureFlagUserList(id, listIid) {
     const url = Api.buildUrl(this.featureFlagUserList)
-      .replace(':version', version)
       .replace(':id', id)
       .replace(':list_iid', listIid);
 
     return axios.get(url);
   },
 
-  updateFeatureFlagUserList(version, id, list) {
+  updateFeatureFlagUserList(id, list) {
     const url = Api.buildUrl(this.featureFlagUserList)
-      .replace(':version', version)
       .replace(':id', id)
       .replace(':list_iid', list.iid);
 
     return axios.put(url, list);
   },
 
-  deleteFeatureFlagUserList(version, id, listIid) {
+  deleteFeatureFlagUserList(id, listIid) {
     const url = Api.buildUrl(this.featureFlagUserList)
-      .replace(':version', version)
       .replace(':id', id)
       .replace(':list_iid', listIid);
 
     return axios.delete(url);
+  },
+
+  getApplicationSettings() {
+    const url = Api.buildUrl(this.applicationSettingsPath);
+    return axios.get(url);
   },
 };

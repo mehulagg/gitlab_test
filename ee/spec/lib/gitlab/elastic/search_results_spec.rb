@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inline do
+RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inline do
   before do
     stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
   end
@@ -537,7 +537,15 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       blobs = results.objects('blobs')
 
       expect(blobs.first.data).to include('def')
-      expect(results.blobs_count).to eq 7
+      expect(results.blobs_count).to eq 5
+    end
+
+    it 'finds blobs by prefix search' do
+      results = described_class.new(user, 'defau*', limit_project_ids)
+      blobs = results.objects('blobs')
+
+      expect(blobs.first.data).to include('default')
+      expect(results.blobs_count).to eq 3
     end
 
     it 'finds blobs from public projects only' do
@@ -547,13 +555,13 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       ensure_elasticsearch_index!
 
       results = described_class.new(user, 'def', [project_1.id])
-      expect(results.blobs_count).to eq 7
+      expect(results.blobs_count).to eq 5
       result_project_ids = results.objects('blobs').map(&:project_id)
       expect(result_project_ids.uniq).to eq([project_1.id])
 
       results = described_class.new(user, 'def', [project_1.id, project_2.id])
 
-      expect(results.blobs_count).to eq 14
+      expect(results.blobs_count).to eq 10
     end
 
     it 'returns zero when blobs are not found' do
@@ -580,7 +588,8 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
         expect(search_for('write')).to include('test.txt')
       end
 
-      it 'find by first two words' do
+      # Re-enable after fixing https://gitlab.com/gitlab-org/gitlab/-/issues/10693#note_349683299
+      xit 'find by first two words' do
         expect(search_for('writeString')).to include('test.txt')
       end
 
@@ -590,6 +599,10 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
       it 'find by exact match' do
         expect(search_for('writeStringToFile')).to include('test.txt')
+      end
+
+      it 'find by prefix search' do
+        expect(search_for('writeStr*')).to include('test.txt')
       end
     end
 
@@ -609,9 +622,21 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
           Foo.bar(x)
 
           include "bikes-3.4"
+          /a/longer/file-path/absolute_with_specials.txt
+          another/file-path/relative-with-specials.txt
+          /file-path/components-within-slashes/
+          another/file-path/differeñt-lønguage.txt
 
           us-east-2
           bye
+
+          MyJavaClass::javaLangStaticMethodCall
+          $my_perl_object->perlMethodCall
+          LanguageWithSingleColon:someSingleColonMethodCall
+          WouldHappenInManyLanguages,tokenAfterCommaWithNoSpace
+          ParenthesesBetweenTokens)tokenAfterParentheses
+          a.b.c=missing_token_around_equals
+
         FILE
       end
       let(:file_name) { 'elastic_specialchars_test.md' }
@@ -637,6 +662,46 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       it 'finds files with other special chars' do
         expect(search_for('"and;colons:too$"')).to include(file_name)
         expect(search_for('bar\(x\)')).to include(file_name)
+      end
+
+      it 'finds absolute file paths with slashes and other special chars' do
+        expect(search_for('"absolute_with_specials.txt"')).to include(file_name)
+      end
+
+      it 'finds relative file paths with slashes and other special chars' do
+        expect(search_for('"relative-with-specials.txt"')).to include(file_name)
+      end
+
+      it 'finds file path components within slashes for directories' do
+        expect(search_for('"components-within-slashes"')).to include(file_name)
+      end
+
+      it 'finds file paths for various languages' do
+        expect(search_for('"differeñt-lønguage.txt"')).to include(file_name)
+      end
+
+      it 'finds java style static method call after ::' do
+        expect(search_for('javaLangStaticMethodCall')).to include(file_name)
+      end
+
+      it 'finds perl object method call' do
+        expect(search_for('perlMethodCall')).to include(file_name)
+      end
+
+      it 'finds tokens after a colon' do
+        expect(search_for('someSingleColonMethodCall')).to include(file_name)
+      end
+
+      it 'finds tokens after a comma with no space' do
+        expect(search_for('tokenAfterCommaWithNoSpace')).to include(file_name)
+      end
+
+      it 'finds a token directly after parentheses' do
+        expect(search_for('tokenAfterParentheses')).to include(file_name)
+      end
+
+      it 'finds a token after = without a space' do
+        expect(search_for('missing_token_around_equals')).to include(file_name)
       end
     end
   end

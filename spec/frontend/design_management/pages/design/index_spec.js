@@ -1,12 +1,12 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import VueRouter from 'vue-router';
 import { GlAlert } from '@gitlab/ui';
 import { ApolloMutation } from 'vue-apollo';
 import createFlash from '~/flash';
 import DesignIndex from '~/design_management/pages/design/index.vue';
-import DesignDiscussion from '~/design_management/components/design_notes/design_discussion.vue';
-import DesignReplyForm from '~/design_management/components/design_notes/design_reply_form.vue';
-import Participants from '~/sidebar/components/participants/participants.vue';
-import createImageDiffNoteMutation from '~/design_management/graphql/mutations/createImageDiffNote.mutation.graphql';
+import DesignSidebar from '~/design_management/components/design_sidebar.vue';
+import DesignPresentation from '~/design_management/components/design_presentation.vue';
+import createImageDiffNoteMutation from '~/design_management/graphql/mutations/create_image_diff_note.mutation.graphql';
 import design from '../../mock_data/design';
 import mockResponseWithDesigns from '../../mock_data/designs';
 import mockResponseNoDesigns from '../../mock_data/no_designs';
@@ -16,6 +16,9 @@ import {
   DESIGN_VERSION_NOT_EXIST_ERROR,
 } from '~/design_management/utils/error_messages';
 import { DESIGNS_ROUTE_NAME } from '~/design_management/router/constants';
+import createRouter from '~/design_management/router';
+import * as utils from '~/design_management/utils/design_management_utils';
+import { DESIGN_DETAIL_LAYOUT_CLASSLIST } from '~/design_management/constants';
 
 jest.mock('~/flash');
 jest.mock('mousetrap', () => ({
@@ -23,8 +26,22 @@ jest.mock('mousetrap', () => ({
   unbind: jest.fn(),
 }));
 
+const focusInput = jest.fn();
+
+const DesignReplyForm = {
+  template: '<div><textarea ref="textarea"></textarea></div>',
+  methods: {
+    focusInput,
+  },
+};
+
+const localVue = createLocalVue();
+localVue.use(VueRouter);
+
 describe('Design management design index page', () => {
   let wrapper;
+  let router;
+
   const newComment = 'new comment';
   const annotationCoordinates = {
     x: 10,
@@ -32,7 +49,7 @@ describe('Design management design index page', () => {
     width: 100,
     height: 100,
   };
-  const mutationVariables = {
+  const createDiscussionMutationVariables = {
     mutation: createImageDiffNoteMutation,
     update: expect.anything(),
     variables: {
@@ -51,14 +68,14 @@ describe('Design management design index page', () => {
       },
     },
   };
+
   const mutate = jest.fn().mockResolvedValue();
-  const routerPush = jest.fn();
 
-  const findDiscussions = () => wrapper.findAll(DesignDiscussion);
   const findDiscussionForm = () => wrapper.find(DesignReplyForm);
-  const findParticipants = () => wrapper.find(Participants);
+  const findSidebar = () => wrapper.find(DesignSidebar);
+  const findDesignPresentation = () => wrapper.find(DesignPresentation);
 
-  function createComponent(loading = false, { routeQuery = {} } = {}) {
+  function createComponent(loading = false, data = {}) {
     const $apollo = {
       queries: {
         design: {
@@ -68,35 +85,28 @@ describe('Design management design index page', () => {
       mutate,
     };
 
-    const $router = {
-      push: routerPush,
-    };
-
-    const $route = {
-      query: routeQuery,
-    };
+    router = createRouter();
 
     wrapper = shallowMount(DesignIndex, {
       propsData: { id: '1' },
-      mocks: { $apollo, $router, $route },
+      mocks: { $apollo },
       stubs: {
         ApolloMutation,
+        DesignSidebar,
+        DesignReplyForm,
       },
-    });
-
-    wrapper.setData({
-      issueIid: '1',
-    });
-  }
-
-  function setDesign() {
-    createComponent(true);
-    wrapper.vm.$apollo.queries.design.loading = false;
-  }
-
-  function setDesignData() {
-    wrapper.setData({
-      design,
+      data() {
+        return {
+          issueIid: '1',
+          activeDiscussion: {
+            id: null,
+            source: null,
+          },
+          ...data,
+        };
+      },
+      localVue,
+      router,
     });
   }
 
@@ -104,75 +114,48 @@ describe('Design management design index page', () => {
     wrapper.destroy();
   });
 
+  describe('when navigating', () => {
+    it('applies fullscreen layout', () => {
+      const mockEl = {
+        classList: {
+          add: jest.fn(),
+          remove: jest.fn(),
+        },
+      };
+      jest.spyOn(utils, 'getPageLayoutElement').mockReturnValue(mockEl);
+      createComponent(true);
+
+      wrapper.vm.$router.push('/designs/test');
+      expect(mockEl.classList.add).toHaveBeenCalledTimes(1);
+      expect(mockEl.classList.add).toHaveBeenCalledWith(...DESIGN_DETAIL_LAYOUT_CLASSLIST);
+    });
+  });
+
   it('sets loading state', () => {
     createComponent(true);
 
-    return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.element).toMatchSnapshot();
-    });
+    expect(wrapper.element).toMatchSnapshot();
   });
 
   it('renders design index', () => {
-    setDesign();
-    setDesignData();
+    createComponent(false, { design });
 
-    return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.element).toMatchSnapshot();
-      expect(wrapper.find(GlAlert).exists()).toBe(false);
-    });
+    expect(wrapper.element).toMatchSnapshot();
+    expect(wrapper.find(GlAlert).exists()).toBe(false);
   });
 
-  it('renders participants', () => {
-    setDesign();
-    setDesignData();
+  it('passes correct props to sidebar component', () => {
+    createComponent(false, { design });
 
-    return wrapper.vm.$nextTick().then(() => {
-      expect(findParticipants().exists()).toBe(true);
-    });
-  });
-
-  it('passes the correct amount of participants to the Participants component', () => {
-    expect(findParticipants().props('participants')).toHaveLength(1);
-  });
-
-  describe('when has no discussions', () => {
-    beforeEach(() => {
-      setDesign();
-
-      wrapper.setData({
-        design: {
-          ...design,
-          discussions: {
-            nodes: [],
-          },
-        },
-      });
-    });
-
-    it('does not render discussions', () => {
-      expect(findDiscussions().exists()).toBe(false);
-    });
-
-    it('renders a message about possibility to create a new discussion', () => {
-      expect(wrapper.find('.new-discussion-disclaimer').exists()).toBe(true);
-    });
-  });
-
-  describe('when has discussions', () => {
-    beforeEach(() => {
-      setDesign();
-      setDesignData();
-    });
-
-    it('renders correct amount of discussions', () => {
-      expect(findDiscussions()).toHaveLength(1);
+    expect(findSidebar().props()).toEqual({
+      design,
+      markdownPreviewPath: '//preview_markdown?target_type=Issue',
+      resolvedDiscussionsExpanded: false,
     });
   });
 
   it('opens a new discussion form', () => {
-    setDesign();
-
-    wrapper.setData({
+    createComponent(false, {
       design: {
         ...design,
         discussions: {
@@ -181,17 +164,31 @@ describe('Design management design index page', () => {
       },
     });
 
-    wrapper.vm.openCommentForm({ x: 0, y: 0 });
+    findDesignPresentation().vm.$emit('openCommentForm', { x: 0, y: 0 });
 
     return wrapper.vm.$nextTick().then(() => {
       expect(findDiscussionForm().exists()).toBe(true);
     });
   });
 
-  it('sends a mutation on submitting form and closes form', () => {
-    setDesign();
+  it('keeps new discussion form focused', () => {
+    createComponent(false, {
+      design: {
+        ...design,
+        discussions: {
+          nodes: [],
+        },
+      },
+      annotationCoordinates,
+    });
 
-    wrapper.setData({
+    findDesignPresentation().vm.$emit('openCommentForm', { x: 10, y: 10 });
+
+    expect(focusInput).toHaveBeenCalled();
+  });
+
+  it('sends a mutation on submitting form and closes form', () => {
+    createComponent(false, {
       design: {
         ...design,
         discussions: {
@@ -202,13 +199,13 @@ describe('Design management design index page', () => {
       comment: newComment,
     });
 
+    findDiscussionForm().vm.$emit('submitForm');
+    expect(mutate).toHaveBeenCalledWith(createDiscussionMutationVariables);
+
     return wrapper.vm
       .$nextTick()
       .then(() => {
-        findDiscussionForm().vm.$emit('submitForm');
-
-        expect(mutate).toHaveBeenCalledWith(mutationVariables);
-        return mutate({ variables: mutationVariables });
+        return mutate({ variables: createDiscussionMutationVariables });
       })
       .then(() => {
         expect(findDiscussionForm().exists()).toBe(false);
@@ -216,9 +213,7 @@ describe('Design management design index page', () => {
   });
 
   it('closes the form and clears the comment on canceling form', () => {
-    setDesign();
-
-    wrapper.setData({
+    createComponent(false, {
       design: {
         ...design,
         discussions: {
@@ -229,24 +224,18 @@ describe('Design management design index page', () => {
       comment: newComment,
     });
 
-    return wrapper.vm
-      .$nextTick()
-      .then(() => {
-        findDiscussionForm().vm.$emit('cancelForm');
+    findDiscussionForm().vm.$emit('cancelForm');
 
-        expect(wrapper.vm.comment).toBe('');
-        return wrapper.vm.$nextTick();
-      })
-      .then(() => {
-        expect(findDiscussionForm().exists()).toBe(false);
-      });
+    expect(wrapper.vm.comment).toBe('');
+
+    return wrapper.vm.$nextTick().then(() => {
+      expect(findDiscussionForm().exists()).toBe(false);
+    });
   });
 
   describe('with error', () => {
     beforeEach(() => {
-      setDesign();
-
-      wrapper.setData({
+      createComponent(false, {
         design: {
           ...design,
           discussions: {
@@ -266,31 +255,35 @@ describe('Design management design index page', () => {
     describe('with no designs', () => {
       it('redirects to /designs', () => {
         createComponent(true);
+        router.push = jest.fn();
 
         wrapper.vm.onDesignQueryResult({ data: mockResponseNoDesigns, loading: false });
         return wrapper.vm.$nextTick().then(() => {
           expect(createFlash).toHaveBeenCalledTimes(1);
           expect(createFlash).toHaveBeenCalledWith(DESIGN_NOT_FOUND_ERROR);
-          expect(routerPush).toHaveBeenCalledTimes(1);
-          expect(routerPush).toHaveBeenCalledWith({ name: DESIGNS_ROUTE_NAME });
+          expect(router.push).toHaveBeenCalledTimes(1);
+          expect(router.push).toHaveBeenCalledWith({ name: DESIGNS_ROUTE_NAME });
         });
       });
     });
 
     describe('when no design exists for given version', () => {
       it('redirects to /designs', () => {
-        // attempt to query for a version of the design that doesn't exist
-        createComponent(true, { routeQuery: { version: '999' } });
+        createComponent(true);
         wrapper.setData({
           allVersions: mockAllVersions,
         });
+
+        // attempt to query for a version of the design that doesn't exist
+        router.push({ query: { version: '999' } });
+        router.push = jest.fn();
 
         wrapper.vm.onDesignQueryResult({ data: mockResponseWithDesigns, loading: false });
         return wrapper.vm.$nextTick().then(() => {
           expect(createFlash).toHaveBeenCalledTimes(1);
           expect(createFlash).toHaveBeenCalledWith(DESIGN_VERSION_NOT_EXIST_ERROR);
-          expect(routerPush).toHaveBeenCalledTimes(1);
-          expect(routerPush).toHaveBeenCalledWith({ name: DESIGNS_ROUTE_NAME });
+          expect(router.push).toHaveBeenCalledTimes(1);
+          expect(router.push).toHaveBeenCalledWith({ name: DESIGNS_ROUTE_NAME });
         });
       });
     });

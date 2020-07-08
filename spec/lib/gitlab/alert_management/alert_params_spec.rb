@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe Gitlab::AlertManagement::AlertParams do
+RSpec.describe Gitlab::AlertManagement::AlertParams do
   let_it_be(:project) { create(:project, :repository, :private) }
 
   describe '.from_generic_alert' do
     let(:started_at) { Time.current.change(usec: 0).rfc3339 }
-    let(:payload) do
+    let(:default_payload) do
       {
         'title' => 'Alert title',
         'description' => 'Description',
@@ -18,6 +18,7 @@ describe Gitlab::AlertManagement::AlertParams do
         'some' => { 'extra' => { 'payload' => 'here' } }
       }
     end
+    let(:payload) { default_payload }
 
     subject { described_class.from_generic_alert(project: project, payload: payload) }
 
@@ -28,10 +29,20 @@ describe Gitlab::AlertManagement::AlertParams do
         description: 'Description',
         monitoring_tool: 'Monitoring tool name',
         service: 'Service',
+        severity: 'critical',
         hosts: ['gitlab.com'],
         payload: payload,
-        started_at: started_at
+        started_at: started_at,
+        fingerprint: nil
       )
+    end
+
+    context 'when severity given' do
+      let(:payload) { default_payload.merge(severity: 'low') }
+
+      it 'returns Alert compatible parameters' do
+        expect(subject[:severity]).to eq('low')
+      end
     end
 
     context 'when there are no hosts in the payload' do
@@ -77,7 +88,9 @@ describe Gitlab::AlertManagement::AlertParams do
         payload: payload,
         started_at: parsed_alert.starts_at,
         ended_at: parsed_alert.ends_at,
-        fingerprint: parsed_alert.gitlab_fingerprint
+        fingerprint: parsed_alert.gitlab_fingerprint,
+        environment: parsed_alert.environment,
+        prometheus_alert: parsed_alert.gitlab_alert
       )
     end
   end

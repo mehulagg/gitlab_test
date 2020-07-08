@@ -1,12 +1,13 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { merge } from 'lodash';
 
 import createDefaultState from 'ee/security_dashboard/store/modules/project_selector/state';
 
 import { GlDeprecatedButton } from '@gitlab/ui';
 
 import ProjectManager from 'ee/security_dashboard/components/project_manager.vue';
-import ProjectList from 'ee/security_dashboard/components/project_list.vue';
+import ProjectList from 'ee/security_dashboard/components/first_class_project_manager/project_list.vue';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 
 const localVue = createLocalVue();
@@ -42,8 +43,7 @@ describe('Project Manager component', () => {
             isUpdatingProjects: jest.fn().mockReturnValue(isUpdatingProjects),
           },
           state: {
-            ...createDefaultState(),
-            ...state,
+            ...merge(createDefaultState(), state),
           },
         },
       },
@@ -155,11 +155,11 @@ describe('Project Manager component', () => {
     });
 
     it('passes the list of projects to the project-list component', () => {
-      const projects = [{}];
+      const projects = [{ foo: true }];
 
       factory({ state: { projects } });
 
-      expect(getProjectList().props('projects')).toBe(projects);
+      expect(getProjectList().props('projects')).toEqual(projects);
     });
 
     it.each([false, true])(

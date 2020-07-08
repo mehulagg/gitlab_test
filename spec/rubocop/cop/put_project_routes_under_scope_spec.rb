@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'fast_spec_helper'
 require 'rubocop'
 require_relative '../../../rubocop/cop/put_project_routes_under_scope'
 
-describe RuboCop::Cop::PutProjectRoutesUnderScope do
+RSpec.describe RuboCop::Cop::PutProjectRoutesUnderScope, type: :rubocop do
   include CopHelper
 
   subject(:cop) { described_class.new }
@@ -14,7 +14,7 @@ describe RuboCop::Cop::PutProjectRoutesUnderScope do
   end
 
   it 'registers an offense when route is outside scope' do
-    expect_offense(<<~PATTERN.strip_indent)
+    expect_offense(<<~PATTERN)
       scope '-' do
         resource :issues
       end
@@ -25,7 +25,7 @@ describe RuboCop::Cop::PutProjectRoutesUnderScope do
   end
 
   it 'does not register an offense when resource inside the scope' do
-    expect_no_offenses(<<~PATTERN.strip_indent)
+    expect_no_offenses(<<~PATTERN)
       scope '-' do
         resource :issues
         resource :notes
@@ -34,7 +34,7 @@ describe RuboCop::Cop::PutProjectRoutesUnderScope do
   end
 
   it 'does not register an offense when resource is deep inside the scope' do
-    expect_no_offenses(<<~PATTERN.strip_indent)
+    expect_no_offenses(<<~PATTERN)
       scope '-' do
         resource :issues
         resource :projects do

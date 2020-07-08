@@ -2,10 +2,6 @@
   .modal-dialog.modal-lg.modal-1040
     .modal-content
       .modal-header
-        %h4.modal-title
-          = _('Keyboard Shortcuts')
-          %small
-            = link_to _('(Show all)'), '#', class: 'js-more-help-button'
         .js-toggle-shortcuts
         %button.close{ type: "button", "data-dismiss": "modal", "aria-label" => _('Close') }
           %span{ "aria-hidden": true } &times;
@@ -313,6 +309,18 @@
                   %td.shortcut
                     %kbd p
                   %td= _('Previous unresolved discussion')
+              %tbody
+                %tr
+                  %th
+                  %th= _('Merge Request Commits')
+                %tr
+                  %td.shortcut
+                    %kbd c
+                  %td= _('Next commit')
+                %tr
+                  %td.shortcut
+                    %kbd x
+                  %td= _('Previous commit')
               %tbody
                 %tr
                   %th

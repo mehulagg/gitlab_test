@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-shared_examples 'approvals' do
+RSpec.shared_examples 'approvals' do
   let!(:approver) { create(:user) }
   let!(:approval_rule) { create(:approval_project_rule, project: project, users: [approver, user], approvals_required: 2) }
 
@@ -90,7 +90,7 @@ shared_examples 'approvals' do
   end
 end
 
-shared_examples 'authorize read pipeline' do
+RSpec.shared_examples 'authorize read pipeline' do
   context 'public project with private builds' do
     let(:comparison_status) { {} }
     let(:project) { create(:project, :public, :builds_private) }
@@ -113,7 +113,7 @@ shared_examples 'authorize read pipeline' do
   end
 end
 
-describe Projects::MergeRequestsController do
+RSpec.describe Projects::MergeRequestsController do
   include ProjectForksHelper
 
   let(:project)       { create(:project, :repository) }
@@ -432,7 +432,7 @@ describe Projects::MergeRequestsController do
 
     before do
       allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
-        .with(::Ci::CompareDependencyScanningReportsService, project.users.first).and_return(comparison_status)
+        .with(::Ci::CompareSecurityReportsService, viewer, 'dependency_scanning').and_return(comparison_status)
     end
 
     context 'when comparison is being processed' do
@@ -502,7 +502,7 @@ describe Projects::MergeRequestsController do
 
     before do
       allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
-        .with(::Ci::CompareContainerScanningReportsService, project.users.first).and_return(comparison_status)
+        .with(::Ci::CompareSecurityReportsService, viewer, 'container_scanning').and_return(comparison_status)
     end
 
     context 'when comparison is being processed' do
@@ -572,7 +572,7 @@ describe Projects::MergeRequestsController do
 
     before do
       allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
-        .with(::Ci::CompareSastReportsService, project.users.first).and_return(comparison_status)
+        .with(::Ci::CompareSecurityReportsService, viewer, 'sast').and_return(comparison_status)
     end
 
     context 'when comparison is being processed' do
@@ -628,6 +628,77 @@ describe Projects::MergeRequestsController do
     it_behaves_like 'authorize read pipeline'
   end
 
+  describe 'GET #secret_detection_reports' do
+    let(:merge_request) { create(:ee_merge_request, :with_secret_detection_reports, source_project: project, author: create(:user)) }
+    let(:params) do
+      {
+        namespace_id: project.namespace.to_param,
+        project_id: project,
+        id: merge_request.iid
+
+      }
+    end
+
+    subject { get :secret_detection_reports, params: params, format: :json }
+
+    before do
+      allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
+        .with(::Ci::CompareSecurityReportsService, viewer, 'secret_detection').and_return(comparison_status)
+    end
+
+    context 'when comparison is being processed' do
+      let(:comparison_status) { { status: :parsing } }
+
+      it 'sends polling interval' do
+        expect(::Gitlab::PollingInterval).to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 204 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:no_content)
+      end
+    end
+
+    context 'when comparison is done' do
+      let(:comparison_status) { { status: :parsed, data: { added: [], fixed: [], existing: [] } } }
+
+      it 'does not send polling interval' do
+        expect(::Gitlab::PollingInterval).not_to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 200 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to eq({ "added" => [], "fixed" => [], "existing" => [] })
+      end
+    end
+
+    context 'when user created corrupted vulnerability reports' do
+      let(:comparison_status) { { status: :error, status_reason: 'Failed to parse secret detection reports' } }
+
+      it 'does not send polling interval' do
+        expect(::Gitlab::PollingInterval).not_to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 400 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response).to eq({ 'status_reason' => 'Failed to parse secret detection reports' })
+      end
+    end
+
+    it_behaves_like 'authorize read pipeline'
+  end
+
   describe 'GET #dast_reports' do
     let(:merge_request) { create(:ee_merge_request, :with_dast_reports, source_project: project) }
     let(:params) do
@@ -642,7 +713,7 @@ describe Projects::MergeRequestsController do
 
     before do
       allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
-        .with(::Ci::CompareDastReportsService, project.users.first).and_return(comparison_status)
+        .with(::Ci::CompareSecurityReportsService, viewer, 'dast').and_return(comparison_status)
     end
 
     context 'when comparison is being processed' do
@@ -713,7 +784,7 @@ describe Projects::MergeRequestsController do
 
     before do
       allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
-        .with(::Ci::CompareLicenseScanningReportsService, project.users.first).and_return(comparison_status)
+        .with(::Ci::CompareLicenseScanningReportsService, viewer).and_return(comparison_status)
     end
 
     context 'when comparison is being processed' do
@@ -764,6 +835,10 @@ describe Projects::MergeRequestsController do
         expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response).to eq({ 'status_reason' => 'Failed to parse license scanning reports' })
       end
+    end
+
+    context "when authorizing access to license scan reports" do
+      it_behaves_like 'authorize read pipeline'
     end
   end
 

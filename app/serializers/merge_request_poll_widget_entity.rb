@@ -71,6 +71,12 @@ class MergeRequestPollWidgetEntity < Grape::Entity
     end
   end
 
+  expose :accessibility_report_path do |merge_request|
+    if merge_request.has_accessibility_reports?
+      accessibility_reports_project_merge_request_path(merge_request.project, merge_request, format: :json)
+    end
+  end
+
   expose :terraform_reports_path do |merge_request|
     if merge_request.has_terraform_reports?
       terraform_reports_project_merge_request_path(merge_request.project, merge_request, format: :json)
@@ -137,6 +143,18 @@ class MergeRequestPollWidgetEntity < Grape::Entity
 
   expose :revert_in_fork_path do |merge_request|
     presenter(merge_request).revert_in_fork_path
+  end
+
+  expose :squash_enabled_by_default do |merge_request|
+    presenter(merge_request).project.squash_enabled_by_default?
+  end
+
+  expose :squash_readonly do |merge_request|
+    presenter(merge_request).project.squash_readonly?
+  end
+
+  expose :squash_on_merge do |merge_request|
+    presenter(merge_request).squash_on_merge?
   end
 
   private

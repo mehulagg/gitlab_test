@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ::Gitlab::GlRepository do
+RSpec.describe ::Gitlab::GlRepository do
   describe '.parse' do
     let_it_be(:project) { create(:project, :repository) }
     let_it_be(:snippet) { create(:personal_snippet) }
@@ -11,7 +11,7 @@ describe ::Gitlab::GlRepository do
       expect(described_class.parse("project-#{project.id}")).to eq([project, project, Gitlab::GlRepository::PROJECT])
     end
 
-    it 'parses a wiki gl_repository' do
+    it 'parses a project wiki gl_repository' do
       expect(described_class.parse("wiki-#{project.id}")).to eq([project, project, Gitlab::GlRepository::WIKI])
     end
 

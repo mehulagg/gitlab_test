@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::MergeRequests::DiffsController do
+RSpec.describe Projects::MergeRequests::DiffsController do
   include ProjectForksHelper
 
   shared_examples '404 for unexistent diffable' do
@@ -91,6 +91,17 @@ describe Projects::MergeRequests::DiffsController do
     end
   end
 
+  shared_examples "diff note on-demand position creation" do
+    it "updates diff discussion positions" do
+      service = double("service")
+
+      expect(Discussions::CaptureDiffNotePositionsService).to receive(:new).with(merge_request).and_return(service)
+      expect(service).to receive(:execute)
+
+      go
+    end
+  end
+
   let(:project) { create(:project, :repository) }
   let(:user) { create(:user) }
   let(:merge_request) { create(:merge_request_with_diffs, target_project: project, source_project: project) }
@@ -146,6 +157,7 @@ describe Projects::MergeRequests::DiffsController do
 
     it_behaves_like 'persisted preferred diff view cookie'
     it_behaves_like 'cached diff collection'
+    it_behaves_like 'diff note on-demand position creation'
   end
 
   describe 'GET diffs_metadata' do

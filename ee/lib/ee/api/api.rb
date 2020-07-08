@@ -38,6 +38,7 @@ module EE
         mount ::API::ConanPackages
         mount ::API::MavenPackages
         mount ::API::NpmPackages
+        mount ::API::GoProxy
         mount ::API::MergeTrains
         mount ::API::ProjectPackages
         mount ::API::GroupPackages
@@ -57,7 +58,9 @@ module EE
         mount ::API::VisualReviewDiscussions
         mount ::API::Analytics::CodeReviewAnalytics
         mount ::API::Analytics::GroupActivityAnalytics
+        mount ::API::Analytics::Reports
         mount ::API::ProtectedEnvironments
+        mount ::API::ResourceWeightEvents
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,

@@ -25,6 +25,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Use this scope for all new project routes.
       scope '-' do
         get 'archive/*id', constraints: { format: Gitlab::PathRegex.archive_formats_regex, id: /.+?/ }, to: 'repositories#archive', as: 'archive'
+        get 'metrics(/:dashboard_path)', constraints: { dashboard_path: /.+\.yml/ },
+          to: 'metrics_dashboard#show', as: :metrics_dashboard, format: false
 
         resources :artifacts, only: [:index, :destroy]
 
@@ -49,9 +51,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :trace, defaults: { format: 'json' }
             get :raw
             get :terminal
+            get :proxy
 
-            # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
+            # These routes are also defined in gitlab-workhorse. Make sure to update accordingly.
             get '/terminal.ws/authorize', to: 'jobs#terminal_websocket_authorize', format: false
+            get '/proxy.ws/authorize', to: 'jobs#proxy_websocket_authorize', format: false
           end
 
           resource :artifacts, only: [] do
@@ -65,11 +69,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         namespace :ci do
           resource :lint, only: [:show, :create]
+          resources :daily_build_group_report_results, only: [:index], constraints: { format: /(csv|json)/ }
         end
 
         namespace :settings do
-          get :members, to: redirect("%{namespace_id}/%{project_id}/-/project_members")
-
           resource :ci_cd, only: [:show, :update], controller: 'ci_cd' do
             post :reset_cache
             put :reset_registration_token
@@ -180,7 +183,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :releases, only: [:index, :show, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
+        resources :releases, only: [:index, :new, :show, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
           member do
             get :downloads, path: 'downloads/*filepath', format: false
             scope module: :releases do
@@ -198,7 +201,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :starrers, only: [:index]
         resources :forks, only: [:index, :new, :create]
-        resources :group_links, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
+        resources :group_links, only: [:create, :update, :destroy], constraints: { id: /\d+/ }
 
         resource :import, only: [:new, :create, :show]
         resource :avatar, only: [:show, :destroy]
@@ -256,7 +259,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
             get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', format: false
 
-            get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy', as: :prometheus_api
+            get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#prometheus_proxy', as: :prometheus_api
 
             get '/sample_metrics', to: 'environments/sample_metrics#query'
           end
@@ -312,8 +315,15 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
+        get '/snippets/:snippet_id/raw/:ref/*path',
+          to: 'snippets/blobs#raw',
+          format: false,
+          as: :snippet_blob_raw,
+          constraints: { snippet_id: /\d+/ }
+
         draw :issues
         draw :merge_requests
+        draw :pipelines
 
         # The wiki and repository routing contains wildcard characters so
         # its preferable to keep it below all other project routes
@@ -322,9 +332,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         draw :wiki
 
         namespace :import do
-          resource :jira, only: [:show], controller: :jira do
-            post :import
-          end
+          resource :jira, only: [:show], controller: :jira
         end
       end
       # End of the /-/ scope.
@@ -363,6 +371,19 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
+      # Serve snippet routes under /-/snippets.
+      # To ensure an old unscoped routing is used for the UI we need to
+      # add prefix 'as' to the scope routing and place it below original routing.
+      # Issue https://gitlab.com/gitlab-org/gitlab/-/issues/29572
+      scope '-', as: :scoped do
+        resources :snippets, concerns: :awardable, constraints: { id: /\d+/ } do # rubocop: disable Cop/PutProjectRoutesUnderScope
+          member do
+            get :raw
+            post :mark_as_spam
+          end
+        end
+      end
+
       namespace :prometheus do
         resources :alerts, constraints: { id: /\d+/ }, only: [:index, :create, :show, :update, :destroy] do # rubocop: disable Cop/PutProjectRoutesUnderScope
           post :notify, on: :collection
@@ -378,17 +399,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       post 'alerts/notify', to: 'alerting/notifications#create'
-
-      # Unscoped route. It will be replaced with redirect to /-/pipelines/
-      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      draw :pipelines
-
-      # To ensure an old unscoped routing is used for the UI we need to
-      # add prefix 'as' to the scope routing and place it below original routing.
-      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      scope '-', as: 'scoped' do
-        draw :pipelines
-      end
 
       draw :legacy_builds
 
@@ -468,11 +478,24 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       scope :usage_ping, controller: :usage_ping do
         post :web_ide_clientside_preview
+        post :web_ide_pipelines_count
+      end
+
+      resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do # rubocop: disable Cop/PutProjectRoutesUnderScope
+        member do
+          post :cancel
+          post :retry
+        end
+
+        collection do
+          post :check_config
+        end
       end
 
       # Deprecated unscoped routing.
       # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
       scope as: 'deprecated' do
+        draw :pipelines
         draw :repository
       end
 
@@ -482,7 +505,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Legacy routes.
       # Introduced in 12.0.
       # Should be removed with https://gitlab.com/gitlab-org/gitlab/issues/28848.
-      Gitlab::Routing.redirect_legacy_paths(self, :mirror,
+      Gitlab::Routing.redirect_legacy_paths(self, :mirror, :tags,
                                             :cycle_analytics, :mattermost, :variables, :triggers,
                                             :environments, :protected_environments, :error_tracking, :alert_management,
                                             :serverless, :clusters, :audit_events, :wikis, :merge_requests,

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ProjectWiki do
+RSpec.describe ProjectWiki do
   it_behaves_like 'wiki model' do
     let(:wiki_container) { create(:project, :wiki_repo, namespace: user.namespace) }
     let(:wiki_container_without_repo) { create(:project, namespace: user.namespace) }
@@ -27,8 +27,8 @@ describe ProjectWiki do
         subject.create_page('Test Page', 'This is content')
         wiki_container.reload
 
-        expect(wiki_container.last_activity_at).to be_within(1.minute).of(Time.now)
-        expect(wiki_container.last_repository_updated_at).to be_within(1.minute).of(Time.now)
+        expect(wiki_container.last_activity_at).to be_within(1.minute).of(Time.current)
+        expect(wiki_container.last_repository_updated_at).to be_within(1.minute).of(Time.current)
       end
     end
   end

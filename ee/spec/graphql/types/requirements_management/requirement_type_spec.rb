@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe GitlabSchema.types['Requirement'] do
-  fields = %i[id iid title state project author created_at updated_at user_permissions]
+RSpec.describe GitlabSchema.types['Requirement'] do
+  fields = %i[id iid title state project author created_at updated_at user_permissions test_reports]
 
   it { expect(described_class).to expose_permissions_using(Types::PermissionTypes::Requirement) }
 

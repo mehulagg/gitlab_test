@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Testing
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, howto
 ---
 
@@ -60,7 +63,7 @@ on your code by using GitLab CI/CD and [sitespeed.io](https://www.sitespeed.io)
 using Docker-in-Docker.
 
 1. First, set up GitLab Runner with a
-   [docker-in-docker build](../../../ci/docker/using_docker_build.md#use-docker-in-docker-workflow-with-docker-executor).
+   [Docker-in-Docker build](../../../ci/docker/using_docker_build.md#use-docker-in-docker-workflow-with-docker-executor).
 1. After configuring the Runner, add a new job to `.gitlab-ci.yml` that generates
    the expected report.
 1. Define the `performance` job according to your version of GitLab:
@@ -122,6 +125,26 @@ documentation.
 
 TIP: **Tip:**
 Key metrics are automatically extracted and shown in the merge request widget.
+
+### Configuring degradation threshold
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/27599) in GitLab 13.0.
+
+You can configure the sensitivity of degradation alerts to avoid getting alerts for minor drops in metrics.
+This is done by setting the `DEGRADATION_THRESHOLD` variable. In the example below, the alert will only show up
+if the `Total Score` metric degrades by 5 points or more:
+
+```yaml
+include:
+  template: Verify/Browser-Performance.gitlab-ci.yml
+
+performance:
+  variables:
+    URL: https://example.com
+    DEGRADATION_THRESHOLD: 5
+```
+
+The `Total Score` metric is based on sitespeed.io's [coach performance score](https://www.sitespeed.io/documentation/sitespeed.io/metrics/#performance-score). There is more information in [the coach documentation](https://www.sitespeed.io/documentation/coach/how-to/#what-do-the-coach-do).
 
 ### Performance testing on Review Apps
 
