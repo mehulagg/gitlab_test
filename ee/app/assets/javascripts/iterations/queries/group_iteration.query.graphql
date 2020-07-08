@@ -11,30 +11,5 @@ query GroupIteration($groupPath: ID!, $id: ID!) {
         dueDate
       }
     }
-    issues(iterationId: [$id]) {
-      nodes {
-        iid
-        title
-        webUrl
-        state
-        labels {
-          nodes {
-            id
-            title
-            description
-            color
-          }
-        }
-        assignees {
-          nodes {
-            name
-            username
-            id
-            avatarUrl
-            webUrl
-          }
-        }
-      }
-    }
   }
 }

@@ -178,7 +178,7 @@ export default {
         ><gl-badge class="ml-2" variant="neutral">{{ issues.totalCount }}</gl-badge>
       </template>
 
-      <gl-loading-icon v-if="$apollo.queries.issues.loading" class="gl-mt-2" size="md" />
+      <gl-loading-icon v-if="$apollo.queries.issues.loading" class="gl-my-9" size="md" />
       <gl-table
         v-else
         :items="issues.list"
