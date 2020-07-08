@@ -61,7 +61,7 @@ class List {
       this.title = this.milestone.title;
     }
 
-    if (!typeInfo.isBlank && this.id) {
+    if (!typeInfo.isBlank && this.id && !obj.doNotFetchIssues) {
       this.getIssues().catch(() => {
         // TODO: handle request error
       });

@@ -6,8 +6,10 @@ const notImplemented = () => {
 };
 
 export default {
-  [mutationTypes.SET_ENDPOINTS]: (state, endpoints) => {
+  [mutationTypes.SET_INITIAL_BOARD_DATA]: (state, data) => {
+    const { boardType, ...endpoints } = data;
     state.endpoints = endpoints;
+    state.boardType = boardType;
   },
 
   [mutationTypes.REQUEST_ADD_LIST]: () => {

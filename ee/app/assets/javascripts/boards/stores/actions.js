@@ -4,7 +4,9 @@ import boardsStoreEE from './boards_store_ee';
 import * as types from './mutation_types';
 
 import createDefaultClient from '~/lib/graphql';
-import epicsSwimlanes from '../queries/epics_swimlanes.query.graphql';
+import { BoardType } from '~/boards/constants';
+import groupEpicsSwimlanesQuery from '../queries/group_epics_swimlanes.query.graphql';
+import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
 import groupEpics from '../queries/group_epics.query.graphql';
 
 const notImplemented = () => {
@@ -14,10 +16,12 @@ const notImplemented = () => {
 
 const gqlClient = createDefaultClient();
 
-const fetchEpicsSwimlanes = ({ endpoints }) => {
+const fetchEpicsSwimlanes = ({ endpoints, boardType }) => {
   const { fullPath, boardId } = endpoints;
 
-  const query = epicsSwimlanes;
+  const query =
+    boardType === BoardType.group ? groupEpicsSwimlanesQuery : projectEpicsSwimlanesQuery;
+
   const variables = {
     fullPath,
     boardId: `gid://gitlab/Board/${boardId}`,
@@ -29,7 +33,11 @@ const fetchEpicsSwimlanes = ({ endpoints }) => {
       variables,
     })
     .then(({ data }) => {
-      return data;
+      const { epicGroups, lists } = data[boardType]?.board;
+      return {
+        epics: epicGroups.nodes,
+        lists: lists.nodes,
+      };
     });
 };
 
@@ -109,9 +117,9 @@ export default {
 
     if (state.isShowingEpicsSwimlanes) {
       Promise.all([fetchEpicsSwimlanes(state), fetchEpics(state)])
-        .then(([swimlanes, epics]) => {
-          if (swimlanes) {
-            dispatch('receiveSwimlanesSuccess', swimlanes);
+        .then(([{ lists }, epics]) => {
+          if (lists) {
+            dispatch('receiveBoardListsSuccess', lists);
           }
 
           if (epics) {
@@ -122,8 +130,8 @@ export default {
     }
   },
 
-  receiveSwimlanesSuccess: ({ commit }, swimlanes) => {
-    commit(types.RECEIVE_SWIMLANES_SUCCESS, swimlanes);
+  receiveBoardListsSuccess: ({ commit }, swimlanes) => {
+    commit(types.RECEIVE_BOARD_LISTS_SUCCESS, swimlanes);
   },
 
   receiveSwimlanesFailure: ({ commit }) => {

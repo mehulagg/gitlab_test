@@ -42,7 +42,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['isShowingEpicsSwimlanes']),
+    ...mapState(['isShowingEpicsSwimlanes', 'boardLists']),
     isSwimlanesOn() {
       return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
     },
@@ -54,7 +54,7 @@ export default {
   <div>
     <div
       v-if="!isSwimlanesOn"
-      class="boards-list gl-w-full gl-py-5 gl-px-3 gl-white-space-nowrap"
+      class="plop boards-list gl-w-full gl-py-5 gl-px-3 gl-white-space-nowrap"
       data-qa-selector="boards_list"
     >
       <board-column
@@ -73,7 +73,7 @@ export default {
     <epics-swimlanes
       v-else
       ref="swimlanes"
-      :lists="lists"
+      :lists="boardLists"
       :can-admin-list="canAdminList"
       :disabled="disabled"
       :board-id="boardId"
