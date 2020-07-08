@@ -6,13 +6,18 @@ RSpec.describe JiraImport::StartImportService do
   include JiraServiceHelper
 
   let_it_be(:user) { create(:user) }
+  let_it_be(:mapped_user_1) { create(:user, username: 'test1') }
+  let_it_be(:mapped_user_2) { create(:user, username: 'test2') }
   let_it_be(:project, reload: true) { create(:project) }
   let(:key) { 'KEY' }
   let(:mapping) do
     [
       { jira_account_id: 'abc', gitlab_id: 12 },
       { jira_account_id: 'def', gitlab_id: nil },
-      { jira_account_id: nil, gitlab_id: 1 }
+      { jira_account_id: nil, gitlab_id: 1 },
+      { jira_account_id: 'xyz', gitlab_id: nil, gitlab_username: 'test1' },
+      { jira_account_id: 'uvw', gitlab_id: nil, gitlab_username: 'test2' },
+      { jira_account_id: 'jkl', gitlab_id: nil, gitlab_username: 'nouser' }
     ]
   end
 
@@ -71,7 +76,8 @@ RSpec.describe JiraImport::StartImportService do
       context 'when everything is ok' do
         context 'with complete mapping' do
           before do
-            expect(Gitlab::JiraImport).to receive(:cache_users_mapping).with(project.id, { 'abc' => 12 })
+            expect(Gitlab::JiraImport).to receive(:cache_users_mapping)
+              .with(project.id, { 'abc' => 12, 'xyz' => mapped_user_1.id, 'uvw' => mapped_user_2.id })
           end
 
           it 'returns success response' do

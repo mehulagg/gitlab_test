@@ -6628,6 +6628,11 @@ input JiraUsersMappingInputType {
   gitlabId: Int
 
   """
+  Username of the GitLab user
+  """
+  gitlabUsername: String
+
+  """
   Jira account id of the user
   """
   jiraAccountId: String!

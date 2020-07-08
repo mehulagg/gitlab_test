@@ -18384,6 +18384,16 @@
                 "ofType": null
               },
               "defaultValue": null
+            },
+            {
+              "name": "gitlabUsername",
+              "description": "Username of the GitLab user",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
             }
           ],
           "interfaces": null,

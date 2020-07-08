@@ -13,6 +13,10 @@ module Types
                GraphQL::INT_TYPE,
                required: false,
                description: 'Id of the GitLab user'
+    argument :gitlab_username,
+               GraphQL::STRING_TYPE,
+               required: false,
+               description: 'Username of the GitLab user'
   end
   # rubocop: enable Graphql/AuthorizeTypes
 end

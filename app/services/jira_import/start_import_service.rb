@@ -2,6 +2,8 @@
 
 module JiraImport
   class StartImportService
+    include Gitlab::Utils::StrongMemoize
+
     attr_reader :user, :project, :jira_project_key, :users_mapping
 
     def initialize(user, project, jira_project_key, users_mapping)
@@ -25,14 +27,26 @@ module JiraImport
       return if users_mapping.blank?
 
       mapping = users_mapping.map do |map|
-        next if !map[:jira_account_id] || !map[:gitlab_id]
+        gitlab_id = mapped_user_gitlab_id(map)
+        next if !map[:jira_account_id] || !gitlab_id
 
-        [map[:jira_account_id], map[:gitlab_id]]
+        [map[:jira_account_id], gitlab_id]
       end.compact.to_h
 
       return if mapping.blank?
 
       Gitlab::JiraImport.cache_users_mapping(project.id, mapping)
+    end
+
+    def mapped_user_gitlab_id(map)
+      map[:gitlab_id] || usernames_with_ids[map[:gitlab_username]]
+    end
+
+    def usernames_with_ids
+      strong_memoize(:usernames_with_ids) do
+        usernames = users_mapping.map { |map| map[:gitlab_username] }.compact
+        User.by_username(usernames).map { |user| [user.username, user.id] }.to_h
+      end
     end
 
     def create_and_schedule_import

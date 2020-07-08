@@ -15,7 +15,7 @@ RSpec.describe 'Starting a Jira Import' do
     variables = {
       jira_project_key: jira_project_key,
       project_path: project_path,
-      users_mapping: [{ jiraAccountId: 'abc', gitlabId: 5 }]
+      users_mapping: [{ jiraAccountId: 'abc', gitlabId: 5 }, { jiraAccountId: 'abc', gitlabUsername: 'test' }]
     }
 
     graphql_mutation(:jira_import_start, variables)
