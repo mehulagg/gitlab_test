@@ -54,7 +54,7 @@ systemctl restart nfs-kernel-server
 NOTE: **Note:**
 You may need to update your server's firewall. See the [firewall section](#nfs-in-a-firewalled-environment) at the end of this guide.
 
-## Client/ GitLab application node Setup
+## Client / GitLab application node Setup
 
 > Follow the instructions below to connect any GitLab Rails application node running
 inside your HA environment to the NFS server configured above.
@@ -90,7 +90,7 @@ df -h
 
 ### Step 3 - Set up Automatic Mounts on Boot
 
-Edit `/etc/fstab` on client as below to mount the remote shares automatically at boot.
+Edit `/etc/fstab` on the client as below to mount the remote shares automatically at boot.
 Note that GitLab requires advisory file locking, which is only supported natively in
 NFS version 4. NFSv3 also supports locking as long as Linux Kernel 2.6.5+ is used.
 We recommend using version 4 and do not specifically test NFSv3.
@@ -105,7 +105,7 @@ Reboot the client and confirm that the mount point is mounted automatically.
 
 ### Step 4 - Set up GitLab to Use NFS mounts
 
-When using the default Omnibus configuration you will need to share 5 data locations
+When using the default Omnibus configuration you will need to share 4 data locations
 between all GitLab cluster nodes. No other locations should be shared. Changing the
 default file locations in `gitlab.rb` on the client allows you to have one main mount
 point and have all the required locations as subdirectories to use the NFS mount for
