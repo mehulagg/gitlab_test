@@ -26,6 +26,11 @@ const defaultProps = {
     prometheusUrl: PROMETHEUS_URL,
     prometheusIsActivated: ACTIVATED,
   },
+  opsgenie: {
+    formPath: INVALID_URL,
+    opsgenieMvcActivated: ACTIVATED,
+    opsgenieMvcTargetUrl: GENERIC_URL,
+  }
 };
 
 describe('AlertsSettingsForm', () => {
@@ -35,7 +40,6 @@ describe('AlertsSettingsForm', () => {
   const createComponent = (
     props = defaultProps,
     { methods } = {},
-    alertIntegrationsDropdown = false,
     data,
   ) => {
     wrapper = shallowMount(AlertsSettingsForm, {
@@ -47,11 +51,6 @@ describe('AlertsSettingsForm', () => {
         ...props,
       },
       methods,
-      provide: {
-        glFeatures: {
-          alertIntegrationsDropdown,
-        },
-      },
     });
   };
 
@@ -178,7 +177,7 @@ describe('AlertsSettingsForm', () => {
     });
 
     it('should validate JSON input', () => {
-      createComponent({ generic: { ...defaultProps.generic } }, {}, true, {
+      createComponent({ generic: { ...defaultProps.generic } }, true, {
         testAlertJson: '{ "value": "test" }',
       });
 
@@ -196,7 +195,7 @@ describe('AlertsSettingsForm', () => {
 
         createComponent({ generic: { ...defaultProps.generic, formPath } });
 
-        return wrapper.vm.toggleGenericActivated(toggleService).then(() => {
+        return wrapper.vm.toggleActivated(toggleService).then(() => {
           expect(wrapper.find(GlAlert).attributes('variant')).toBe('info');
         });
       });
@@ -208,7 +207,7 @@ describe('AlertsSettingsForm', () => {
 
         createComponent({ generic: { ...defaultProps.generic, formPath } });
 
-        return wrapper.vm.toggleGenericActivated(toggleService).then(() => {
+        return wrapper.vm.toggleActivated(toggleService).then(() => {
           expect(wrapper.find(GlAlert).attributes('variant')).toBe('danger');
         });
       });
