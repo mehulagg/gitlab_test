@@ -52,6 +52,16 @@ RSpec.describe EachBatch do
 
         expect(model.where(updated_at: time).count).to eq(5)
       end
+
+      it 'consistently provides relations for at most configured amount of records' do
+        kwargs = kwargs.merge(of: 2)
+
+        model.each_batch(kwargs) do |relation, index|
+          create_list(:user, 2, updated_at: 1.day.ago) if index == 3
+
+          expect(relation.count).to be <= 2
+        end
+      end
     end
 
     it_behaves_like 'each_batch handling', {}
