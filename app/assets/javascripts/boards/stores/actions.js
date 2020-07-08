@@ -6,8 +6,8 @@ const notImplemented = () => {
 };
 
 export default {
-  setEndpoints: ({ commit }, endpoints) => {
-    commit(types.SET_ENDPOINTS, endpoints);
+  setInitialBoardData: ({ commit }, data) => {
+    commit(types.SET_INITIAL_BOARD_DATA, data);
   },
 
   fetchLists: () => {

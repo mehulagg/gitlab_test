@@ -43,7 +43,7 @@ export default {
   computed: {
     ...mapState(['epics']),
     issuesCount() {
-      return this.lists.reduce((total, list) => total + list.issues.length, 0);
+      return this.lists.reduce((total, list) => total + list.issues?.length, 0);
     },
     issuesCountTooltipText() {
       return n__(`%d unassigned issue`, `%d unassigned issues`, this.issuesCount);
