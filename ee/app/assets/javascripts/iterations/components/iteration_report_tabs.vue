@@ -11,7 +11,7 @@ import {
   GlTable,
   GlTooltipDirective,
 } from '@gitlab/ui';
-import { __ } from '~/locale';
+import { __, sprintf } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
 
@@ -32,13 +32,13 @@ export default {
     {
       key: 'status',
       label: __('Status'),
-      class: 'gl-bg-transparent! text-truncate',
+      class: 'gl-bg-transparent! gl-text-truncate',
       thClass: 'gl-w-eighth',
     },
     {
       key: 'assignees',
       label: __('Assignees'),
-      class: 'gl-bg-transparent! text-right',
+      class: 'gl-bg-transparent! gl-text-right',
       thClass: 'gl-w-eighth',
     },
   ],
@@ -126,7 +126,6 @@ export default {
 
       return vars;
     },
-
     prevPage() {
       return Number(this.issues.pageInfo.hasPreviousPage);
     },
@@ -135,6 +134,11 @@ export default {
     },
   },
   methods: {
+    tooltipText(assignee) {
+      return sprintf(__('Assigned to %{assigneeName}'), {
+        assigneeName: assignee.name,
+      });
+    },
     issueState(state, assigneeCount) {
       if (state === states.opened && assigneeCount === 0) {
         return __('Open');
@@ -174,7 +178,7 @@ export default {
         ><gl-badge class="ml-2" variant="neutral">{{ issues.totalCount }}</gl-badge>
       </template>
 
-      <gl-loading-icon v-if="$apollo.queries.issues.loading" class="mt-2" size="md" />
+      <gl-loading-icon v-if="$apollo.queries.issues.loading" class="gl-mt-2" size="md" />
       <gl-table
         v-else
         :items="issues.list"
@@ -184,7 +188,7 @@ export default {
         stacked="sm"
       >
         <template #cell(title)="{ item: { iid, title, webUrl } }">
-          <div class="text-truncate">
+          <div class="gl-text-truncate">
             <gl-link class="gl-text-gray-900 gl-font-weight-bold" :href="webUrl">{{
               title
             }}</gl-link>
@@ -194,7 +198,7 @@ export default {
         </template>
 
         <template #cell(status)="{ item: { state, assignees } }">
-          <span class="gl-w-6 flex-shrink-0">{{ issueState(state, assignees.length) }}</span>
+          <span class="gl-w-6 gl-flex-shrink-0">{{ issueState(state, assignees.length) }}</span>
         </template>
 
         <template #cell(assignees)="{ item: { assignees } }">
@@ -202,11 +206,7 @@ export default {
             <span
               v-for="assignee in assignees"
               :key="assignee.username"
-              v-gl-tooltip="
-                sprintf(__('Assigned to %{assigneeName}'), {
-                  assigneeName: assignee.name,
-                })
-              "
+              v-gl-tooltip="tooltipText(assignee)"
             >
               <gl-avatar :src="assignee.avatarUrl" :size="16" />
             </span>

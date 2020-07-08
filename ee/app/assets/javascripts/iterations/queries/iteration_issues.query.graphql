@@ -3,7 +3,7 @@ query GroupIteration(
   $id: ID!
   $beforeCursor: String = ""
   $afterCursor: String = ""
-  $firstPageSize: Int = 20
+  $firstPageSize: Int
   $lastPageSize: Int
 ) {
   group(fullPath: $groupPath) {
