@@ -1080,7 +1080,7 @@ added to it.
 CAUTION: **Caution:**
 `rules` can't be used in combination with [`only/except`](#onlyexcept-basic) because it is a replacement for
 that functionality. If you attempt to do this, the linter returns a
-`key may not be used with rules` error.
+``config key may not be used with `rules`: only`` error.
 
 #### Rules attributes
 
@@ -2151,7 +2151,8 @@ job3:
 
 NOTE: **Note:**
 When [`rules`](#rules) are used in job, `when` must be used within rule rather
-than at job level.
+than at job level. If you attempt to do this, the linter returns a
+``config key may not be used with `rules`: when`` error.
 
 `when` is used to implement jobs that are run in case of failure or despite the
 failure.
