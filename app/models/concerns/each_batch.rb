@@ -71,7 +71,7 @@ module EachBatch
       1.step do |index|
         yield relation.except(:order), index
 
-        base_relation = base_relation.unscope(:where).where(arel_table[column].gt(upper_boundary))
+        base_relation = base_relation.where(arel_table[column].gt(upper_boundary))
         tuple = connection.execute("SELECT MAX(#{column}) as stop FROM (#{base_relation.to_sql}) subquery").first
 
         lower_boundary = upper_boundary
