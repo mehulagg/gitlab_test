@@ -1223,8 +1223,9 @@ Also, we don't recommend mixing `only/except` jobs with `rules` jobs in the same
 It may not cause YAML errors, but debugging the exact execution behavior can be complex
 due to the different default behaviors of `only/except` and `rules`.
 
-[`when`](#when) cannot be used at job level when `rules` is used but instead must
-be used in `rules` section.
+When [`rules`](#rules) are used in job, `when` must be used within rule rather
+than at job level. If you attempt to use at job level, the linter returns a
+``config key may not be used with `rules`: when`` error.
 
 ##### `rules:if`
 
