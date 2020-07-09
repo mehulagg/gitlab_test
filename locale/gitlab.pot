@@ -3124,6 +3124,9 @@ msgstr ""
 msgid "Assigned Merge Requests"
 msgstr ""
 
+msgid "Assigned to %{assigneeName}"
+msgstr ""
+
 msgid "Assigned to %{assignee_name}"
 msgstr ""
 
@@ -9147,6 +9150,9 @@ msgstr ""
 msgid "Error loading file viewer."
 msgstr ""
 
+msgid "Error loading issues"
+msgstr ""
+
 msgid "Error loading last commit."
 msgstr ""
 
@@ -12814,9 +12820,6 @@ msgid "Iteration"
 msgstr ""
 
 msgid "Iteration changed to"
-msgstr ""
-
-msgid "Iteration not found"
 msgstr ""
 
 msgid "Iteration removed"

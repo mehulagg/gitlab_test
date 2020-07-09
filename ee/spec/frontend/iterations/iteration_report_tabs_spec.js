@@ -1,6 +1,6 @@
 import IterationReportTabs from 'ee/iterations/components/iteration_report_tabs.vue';
 import { shallowMount } from '@vue/test-utils';
-import { GlAlert, GlLoadingIcon, GlPagination, GlTable, GlTab, GlTabs } from '@gitlab/ui';
+import { GlAlert, GlLoadingIcon, GlTable, GlTab, GlTabs } from '@gitlab/ui';
 
 describe('Iterations report tabs', () => {
   let wrapper;
@@ -24,7 +24,6 @@ describe('Iterations report tabs', () => {
         GlLoadingIcon,
         GlTab,
         GlTabs,
-        GlTable,
       },
     });
   };
