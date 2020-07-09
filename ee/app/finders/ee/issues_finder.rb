@@ -65,7 +65,7 @@ module EE
 
     def by_iteration(items)
       return items unless params.iterations?
-  
+
       if params.filter_by_no_iteration?
         items.no_iteration
       elsif params.filter_by_any_iteration?

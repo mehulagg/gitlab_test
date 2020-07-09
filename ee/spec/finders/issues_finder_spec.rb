@@ -172,7 +172,6 @@ RSpec.describe IssuesFinder do
       end
     end
   end
-  
 
   describe '#with_confidentiality_access_check' do
     let_it_be(:guest) { create(:user) }
