@@ -363,7 +363,6 @@ RSpec.describe 'Pipeline', :js do
 
       context 'with test reports' do
         it 'shows badge counter in Tests tab' do
-          expect(pipeline.test_reports.total_count).to eq(4)
           expect(page.find('.js-test-report-badge-counter').text).to eq(pipeline.test_reports.total_count.to_s)
         end
 
