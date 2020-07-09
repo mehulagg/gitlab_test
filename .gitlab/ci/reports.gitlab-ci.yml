@@ -62,23 +62,25 @@ code_quality:
   variables:
     SAST_BRAKEMAN_LEVEL: 2
     SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
-  rules: *reports-rules-sast
 
 brakeman-sast:
   extends:
     - .sast-analyzer
     - .sast
+  rules: *reports-rules-sast
 
 eslint-sast:
   extends:
     - .sast-analyzer
     - .sast
+  rules: *reports-rules-sast
 
 # Temporary disabled as it's constantly failing. See https://gitlab.com/gitlab-org/gitlab/-/issues/213769.
 nodejs-scan-sast:
   extends:
     - .sast-analyzer
     - .sast
+  rules: *reports-rules-sast
   rules:
     - when: never
 
@@ -86,6 +88,7 @@ secrets-sast:
   extends:
     - .sast-analyzer
     - .sast
+  rules: *reports-rules-sast
 
 .dependency_scanning:
   extends:
