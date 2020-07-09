@@ -258,7 +258,6 @@ export default {
           });
         })
         .finally(() => {
-          this.canSaveForm = true;
           this.loading = false;
         });
     },
@@ -286,7 +285,6 @@ export default {
           });
         })
         .finally(() => {
-          this.canSaveForm = true;
           this.loading = false;
         });
     },
@@ -336,7 +334,6 @@ export default {
           });
         })
         .finally(() => {
-          this.canSaveForm = true;
           this.loading = false;
         });
     },
@@ -501,10 +498,10 @@ export default {
         }}</gl-button>
       </div>
       <div class="footer-block row-content-block gl-display-flex gl-justify-content-space-between">
-        <gl-button type="submit" variant="success" category="primary" :disabled="!canSaveConfig">
+        <gl-button variant="success" category="primary" :disabled="!canSaveConfig" @click="onSubmit">
           {{ __('Save changes') }}
         </gl-button>
-        <gl-button type="reset" variant="default" category="primary">
+        <gl-button variant="default" category="primary" @click="onReset">
           {{ __('Cancel') }}
         </gl-button>
       </div>
