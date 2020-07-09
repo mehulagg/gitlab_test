@@ -1,30 +1,15 @@
-#import "ee_else_ce/boards/queries/board_list.fragment.graphql"
-
-query GroupBoardEE($fullPath: ID!, $boardId: ID!) {
+query GroupListIssues($fullPath: ID!, $boardId: ID!, $listId: [ID!]) {
   group(fullPath: $fullPath) {
     board(id: $boardId) {
-      lists {
-        nodes{
-          ...BoardListFragment
-        }
-      }
-      epicGroups {
+      lists(id: $listId) {
         nodes {
           id
-          iid
-          title
-          state
-          reference
-          webUrl
-          createdAt
-          closedAt
-          descendantCounts {
-            openedIssues
-            closedIssues
+          label {
+            title
+            color
           }
-          issues {  
+          issues {
             nodes {
-              id
               iid
               title
               referencePath: reference
