@@ -172,7 +172,12 @@ export default {
     }, JSON_VALIDATE_DELAY),
   },
   mounted() {
-    if (this.activated.prometheus || this.activated.generic || !this.opsgenie.opsgenieMvcIsAvailable) {
+    if (
+      this.activated.prometheus ||
+      this.activated.generic ||
+      !this.opsgenie.opsgenieMvcIsAvailable ||
+      !this.glFeatures.opsgenieMvc
+    ) {
       this.removeOpsGenieOption();
     } else if (this.activated.opsgenie) {
       this.setOpsGenieAsDefault();
@@ -497,7 +502,12 @@ export default {
         }}</gl-button>
       </div>
       <div class="footer-block row-content-block gl-display-flex gl-justify-content-space-between">
-        <gl-button variant="success" category="primary" :disabled="!canSaveConfig" @click="onSubmit">
+        <gl-button
+          variant="success"
+          category="primary"
+          :disabled="!canSaveConfig"
+          @click="onSubmit"
+        >
           {{ __('Save changes') }}
         </gl-button>
         <gl-button variant="default" category="primary" @click="onReset">
