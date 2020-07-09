@@ -4,6 +4,44 @@ include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/DAST.gitlab-ci.yml
 
+.if-default-refs: &if-default-refs
+  if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME =~ /^[\d-]+-stable(-ee)?$/ || $CI_COMMIT_REF_NAME =~ /^\d+-\d+-auto-deploy-\d+$/ || $CI_COMMIT_REF_NAME =~ /^security\// || $CI_MERGE_REQUEST_IID || $CI_COMMIT_TAG || $FORCE_GITLAB_CI'
+
+.code-backstage-qa-patterns: &code-backstage-qa-patterns
+  - "{package.json,yarn.lock}"
+  - "babel.config.js"
+  - "jest.config.{base,integration,unit}.js"
+  - ".csscomb.json"
+  - "Dockerfile.assets"
+  - "vendor/assets/**/*"
+  - ".gitlab/ci/**/*"
+  - ".{eslintignore,gitattributes,nvmrc,prettierrc,stylelintrc,yamllint}"
+  - ".{codeclimate,eslintrc,gitlab-ci,haml-lint,haml-lint_todo,rubocop,rubocop_todo,scss-lint}.yml"
+  - "*_VERSION"
+  - "Gemfile{,.lock}"
+  - "Rakefile"
+  - "config.ru"
+  - "{,ee/}{app,bin,config,db,haml_lint,lib,locale,public,scripts,symbol,vendor}/**/*"
+  - "doc/api/graphql/reference/*"  # Files in this folder are auto-generated
+  # Backstage changes
+  - "Dangerfile"
+  - "danger/**/*"
+  - "{,ee/}fixtures/**/*"
+  - "{,ee/}rubocop/**/*"
+  - "{,ee/}spec/**/*"
+  # QA changes
+  - ".dockerignore"
+  - "qa/**/*"
+
+.reports:rules:sast:
+  rules:
+    - if: '$SAST_DISABLED || $GITLAB_FEATURES !~ /\bsast\b/'
+      when: never
+    # - <<: *if-master-refs  # To be done in a later iteration: https://gitlab.com/gitlab-org/gitlab/issues/31160#note_278188255
+    - <<: *if-default-refs
+      changes: *code-backstage-qa-patterns
+      allow_failure: true
+
 code_quality:
   extends:
     - .default-retry
