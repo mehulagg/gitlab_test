@@ -20,6 +20,7 @@ export default el => {
     formPath,
     authorizationKey,
     url,
+    opsgenieMvcAvailable,
     opsgenieMvcFormPath,
     opsgenieMvcEnabled,
     opsgenieMvcTargetUrl,
@@ -28,32 +29,40 @@ export default el => {
   const activated = parseBoolean(activatedStr);
   const prometheusIsActivated = parseBoolean(prometheusActivated);
   const opsgenieMvcActivated = parseBoolean(opsgenieMvcEnabled);
+  const opsgenieMvcIsAvailable = parseBoolean(opsgenieMvcAvailable);
+
+  const props = {
+      prometheus: {
+        prometheusIsActivated,
+        prometheusUrl,
+        prometheusAuthorizationKey,
+        prometheusFormPath,
+        prometheusResetKeyPath,
+        prometheusApiUrl,
+      },
+      generic: {
+        alertsSetupUrl,
+        alertsUsageUrl,
+        initialActivated: activated,
+        formPath,
+        initialAuthorizationKey: authorizationKey,
+        url,
+      }
+  };
 
   return new Vue({
     el,
     render(createElement) {
       return createElement(AlertSettingsForm, {
         props: {
-          prometheus: {
-            prometheusIsActivated,
-            prometheusUrl,
-            prometheusAuthorizationKey,
-            prometheusFormPath,
-            prometheusResetKeyPath,
-            prometheusApiUrl,
-          },
-          generic: {
-            alertsSetupUrl,
-            alertsUsageUrl,
-            initialActivated: activated,
-            formPath,
-            initialAuthorizationKey: authorizationKey,
-            url,
-          },
-          opsgenie: {
+          ...props,
+          opsgenie: opsgenieMvcIsAvailable ? {
             formPath: opsgenieMvcFormPath,
             opsgenieMvcActivated,
             opsgenieMvcTargetUrl,
+            opsgenieMvcIsAvailable
+          } : {
+            opsgenieMvcIsAvailable
           },
         },
       });

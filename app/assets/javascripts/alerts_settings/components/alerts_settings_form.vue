@@ -60,8 +60,7 @@ export default {
     },
     opsgenie: {
       type: Object,
-      required: false,
-      default: null,
+      required: true,
     },
   },
   data() {
@@ -69,7 +68,7 @@ export default {
       activated: {
         generic: this.generic.initialActivated,
         prometheus: this.prometheus.prometheusIsActivated,
-        opsgenie: this.opsgenie.opsgenieMvcActivated,
+        opsgenie: this.opsgenie?.opsgenieMvcActivated,
       },
       loading: false,
       authorizationKey: {
@@ -173,7 +172,7 @@ export default {
     }, JSON_VALIDATE_DELAY),
   },
   mounted() {
-    if (this.activated.prometheus || this.activated.generic) {
+    if (this.activated.prometheus || this.activated.generic || !this.opsgenie.opsgenieMvcIsAvailable) {
       this.removeOpsGenieOption();
     } else if (this.activated.opsgenie) {
       this.setOpsGenieAsDefault();
