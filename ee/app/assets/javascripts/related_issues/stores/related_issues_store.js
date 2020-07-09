@@ -14,9 +14,9 @@ class RelatedIssuesStore {
     this.state.relatedIssues = convertObjectPropsToCamelCase(issues, { deep: true });
   }
 
-  addRelatedIssues(issues) {
-    // The issues returned by the API is the list of all related issues, so we'll just set it.
-    this.setRelatedIssues(issues);
+  addRelatedIssues(...issues) {
+    const actualIssues = issues.filter(x => Boolean(x));
+    this.setRelatedIssues(this.state.relatedIssues.concat(...actualIssues));
   }
 
   removeRelatedIssue(issue) {

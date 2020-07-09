@@ -91,7 +91,7 @@ export default {
     this.store = new RelatedIssuesStore();
 
     return {
-      state: this.store.state,
+      state: undefined,
       isFetching: false,
       isSubmitting: false,
       isFormVisible: false,
@@ -116,10 +116,9 @@ export default {
       const issueToRemove = this.findRelatedIssueById(idToRemove);
 
       if (issueToRemove) {
-        this.service
-          .remove(issueToRemove)
+        RelatedIssuesService.remove(issueToRemove)
           .then(() => {
-            this.store.removeRelatedIssue(issueToRemove);
+            this.store.removeRelatedIssue(data.issuables);
           })
           .catch(res => {
             if (res && res.status !== 404) {
@@ -143,10 +142,10 @@ export default {
         this.isSubmitting = true;
         this.service
           .addRelatedIssues(this.state.pendingReferences, event.linkedIssueType)
-          .then(issues => {
+          .then(({ data }) => {
             // We could potentially lose some pending issues in the interim here
             this.store.setPendingReferences([]);
-            this.store.addRelatedIssues(issues);
+            this.store.addRelatedIssues(data.issuables);
 
             // Close the form on submission
             this.isFormVisible = false;
@@ -172,8 +171,8 @@ export default {
       this.isFetching = true;
       this.service
         .fetchRelatedIssues()
-        .then(issues => {
-          this.store.setRelatedIssues(issues);
+        .then(({ data }) => {
+          this.store.setRelatedIssues(data);
         })
         .catch(() => {
           this.store.setRelatedIssues([]);
@@ -187,12 +186,11 @@ export default {
       const issueToReorder = this.findRelatedIssueById(issueId);
 
       if (issueToReorder) {
-        this.service
-          .saveOrder({
-            issue: issueToReorder,
-            move_before_id: beforeId,
-            move_after_id: afterId,
-          })
+        RelatedIssuesService.saveOrder({
+          endpoint: issueToReorder.relationPath,
+          move_before_id: beforeId,
+          move_after_id: afterId,
+        })
           .then(({ data }) => {
             if (!data.message) {
               this.store.updateIssueOrder(oldIndex, newIndex);

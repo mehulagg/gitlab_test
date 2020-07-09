@@ -20,7 +20,7 @@ describe('RelatedIssuesStore', () => {
       expect(store.state.relatedIssues).toEqual([]);
     });
 
-    it('add issue', () => {
+    it('set issue', () => {
       const relatedIssues = [issuable1];
       store.setRelatedIssues(relatedIssues);
 
@@ -29,18 +29,25 @@ describe('RelatedIssuesStore', () => {
   });
 
   describe('addRelatedIssues', () => {
-    it('adds related issues', () => {
+    it('adds related issues when the new issues are passed as an array', () => {
       store.state.relatedIssues = [issuable1];
       store.addRelatedIssues([issuable2, issuable3]);
 
       expect(store.state.relatedIssues).toEqual([issuable1, issuable2, issuable3]);
     });
 
-    it('adds only new issues when some already exist', () => {
-      store.state.relatedIssues = [issuable1, issuable2];
-      store.addRelatedIssues([{ ...issuable1 }, { ...issuable2 }, issuable3]);
+    it('adds related issues when the new issues are passed as rest parameters', () => {
+      store.state.relatedIssues = [issuable1];
+      store.addRelatedIssues(issuable2, issuable3);
 
       expect(store.state.relatedIssues).toEqual([issuable1, issuable2, issuable3]);
+    });
+
+    it('does not modify existing issues when none are passed', () => {
+      store.state.relatedIssues = [issuable1];
+      store.addRelatedIssues(undefined);
+
+      expect(store.state.relatedIssues).toEqual([issuable1]);
     });
   });
 
