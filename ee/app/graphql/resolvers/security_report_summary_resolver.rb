@@ -7,6 +7,10 @@ module Resolvers
     alias_method :pipeline, :object
 
     def resolve(lookahead:)
+      # add random code to trigger spec danger
+      if pipeline
+        lookahead.selections
+      end
       Security::ReportSummaryService.new(
         pipeline,
         selection_information(lookahead)
