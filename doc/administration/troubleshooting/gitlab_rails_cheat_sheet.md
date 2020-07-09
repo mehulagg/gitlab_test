@@ -719,6 +719,7 @@ end
 ```
 
 ## Elasticsearch
+
 ### Change Elasticsearch Integration Settings - URL
 
 ```ruby
