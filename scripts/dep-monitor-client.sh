@@ -9,12 +9,12 @@ curl --silent -X POST -H "Authorization: Basic c29tZWJlcnQ6ajN2ZXBlNHlNQ21JKzY0b
     | tee /tmp/jobid.txt | jq . && JOBID=$(jq .id /tmp/jobid.txt); JOBID=${JOBID:1:36}
 
 
-STATUS = $(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
+STATUS=$(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
 while ( [ "$STATUS" = "pending" ] )
 do
     echo .
     sleep 2
-    STATUS = $(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
+    STATUS=$(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
 done
 
 curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq .
