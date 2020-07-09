@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe AlertsService do
   let(:service) { build_stubbed(:alerts_service) }
 
-  describe 'OpsGenie MVC' do
+  describe 'Opsgenie MVC' do
     describe '#opsgenie_mvc_target_url' do
       context 'when enabled' do
         before do

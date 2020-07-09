@@ -75,7 +75,7 @@ RSpec.describe OperationsHelper, :routing do
   describe '#alerts_settings_data' do
     subject { helper.alerts_settings_data }
 
-    describe 'OpsGenie MVC attributes' do
+    describe 'Opsgenie MVC attributes' do
       let_it_be(:alerts_service) do
         create(:alerts_service,
           project: project,
