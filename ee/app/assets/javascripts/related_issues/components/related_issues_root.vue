@@ -84,12 +84,7 @@ export default {
     showCategorizedIssues: {
       type: Boolean,
       required: false,
-      default: false,
-    },
-    serviceClass: {
-      type: Function,
-      required: false,
-      default: RelatedIssuesService,
+      default: true,
     },
   },
   data() {
@@ -110,7 +105,7 @@ export default {
     },
   },
   created() {
-    this.service = new this.serviceClass(this.endpoint); // eslint-disable-line new-cap
+    this.service = new RelatedIssuesService(this.endpoint);
     this.fetchRelatedIssues();
   },
   methods: {

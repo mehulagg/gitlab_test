@@ -79,7 +79,8 @@ export default {
     },
     showCategorizedIssues: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: true,
     },
   },
   computed: {
@@ -132,7 +133,7 @@ export default {
             href="#related-issues"
             aria-hidden="true"
           />
-          {{ showCategorizedIssues ? __('Linked issues') : __('Related issues') }}
+          <slot name="headerText">{{ __('Linked issues') }}</slot>
           <a v-if="hasHelpPath" :href="helpPath">
             <i
               class="related-issues-header-help-icon fa fa-question-circle"

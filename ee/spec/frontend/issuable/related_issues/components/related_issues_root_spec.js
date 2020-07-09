@@ -31,9 +31,9 @@ describe('RelatedIssuesRoot', () => {
     }
   });
 
-  const createComponent = (mountFn = mount, props) => {
+  const createComponent = (mountFn = mount) => {
     wrapper = mountFn(RelatedIssuesRoot, {
-      propsData: { ...defaultProps, ...props },
+      propsData: defaultProps,
     });
 
     // Wait for fetch request `fetchRelatedIssues` to complete before starting to test
@@ -336,26 +336,6 @@ describe('RelatedIssuesRoot', () => {
         expect(wrapper.vm.state.pendingReferences[0]).toEqual('asdf');
         expect(wrapper.vm.state.pendingReferences[1]).toEqual('#123');
       });
-    });
-  });
-
-  describe('customService prop', () => {
-    it('uses the default service if no custom service was provided', () => {
-      createComponent(shallowMount);
-
-      expect(wrapper.vm.service).toBeInstanceOf(relatedIssuesService);
-    });
-
-    it('uses the custom service if one was provided', () => {
-      class CustomService {
-        // eslint-disable-next-line class-methods-use-this
-        fetchRelatedIssues() {
-          return Promise.resolve();
-        }
-      }
-      createComponent(shallowMount, { serviceClass: CustomService });
-
-      expect(wrapper.vm.service).toBeInstanceOf(CustomService);
     });
   });
 });

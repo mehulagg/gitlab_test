@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { shallowMount, mount } from '@vue/test-utils';
 import RelatedIssuesBlock from 'ee/related_issues/components/related_issues_block.vue';
 import {
   issuable1,
@@ -24,24 +24,12 @@ describe('RelatedIssuesBlock', () => {
         propsData: {
           pathIdSeparator: PathIdSeparator.Issue,
           issuableType: 'issue',
-          showCategorizedIssues: false,
         },
       });
     });
 
-    describe('header text', () => {
-      const headerText = () => wrapper.find('.card-title').text();
-
-      it('displays "Related issues" by default', () => {
-        expect(headerText()).toContain('Related issues');
-      });
-
-      it('displays "Linked issues" if showCategorizedIssues is true', async () => {
-        wrapper.setProps({ showCategorizedIssues: true });
-        await wrapper.vm.$nextTick();
-
-        expect(headerText()).toContain('Linked issues');
-      });
+    it('displays "Linked issues" in the header', () => {
+      expect(wrapper.find('.card-title').text()).toContain('Linked issues');
     });
 
     it('unable to add new related issues', () => {
@@ -53,6 +41,22 @@ describe('RelatedIssuesBlock', () => {
     });
   });
 
+  describe('with headerText slot', () => {
+    it('displays header text slot data', () => {
+      const headerText = '<div>custom header text</div>';
+
+      wrapper = shallowMount(RelatedIssuesBlock, {
+        propsData: {
+          pathIdSeparator: PathIdSeparator.Issue,
+          issuableType: 'issue',
+        },
+        slots: { headerText },
+      });
+
+      expect(wrapper.find('.card-title').html()).toContain(headerText);
+    });
+  });
+
   describe('with isFetching=true', () => {
     beforeEach(() => {
       wrapper = mount(RelatedIssuesBlock, {
@@ -60,7 +64,6 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           isFetching: true,
           issuableType: 'issue',
-          showCategorizedIssues: false,
         },
       });
     });
@@ -77,7 +80,6 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           canAdmin: true,
           issuableType: 'issue',
-          showCategorizedIssues: false,
         },
       });
     });
@@ -94,7 +96,6 @@ describe('RelatedIssuesBlock', () => {
           pathIdSeparator: PathIdSeparator.Issue,
           isFormVisible: true,
           issuableType: 'issue',
-          showCategorizedIssues: false,
         },
       });
     });
@@ -174,7 +175,6 @@ describe('RelatedIssuesBlock', () => {
           propsData: {
             pathIdSeparator: PathIdSeparator.Issue,
             issuableType,
-            showCategorizedIssues: false,
           },
         });
 
