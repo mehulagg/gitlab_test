@@ -33,7 +33,6 @@
     "webpack-prod": "NODE_OPTIONS=\"--max-old-space-size=3584\" NODE_ENV=production webpack --config config/webpack.config.js"
   },
   "dependencies": {
-    "some-malicious-dependency": "gitlab:dappelt/some-malicious-dependency",
     "@babel/core": "^7.10.1",
     "@babel/plugin-proposal-class-properties": "^7.10.1",
     "@babel/plugin-proposal-json-strings": "^7.10.1",
