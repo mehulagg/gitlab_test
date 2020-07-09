@@ -7,7 +7,6 @@ import createDefaultClient from '~/lib/graphql';
 import { BoardType } from '~/boards/constants';
 import groupEpicsSwimlanesQuery from '../queries/group_epics_swimlanes.query.graphql';
 import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
-import groupEpics from '../queries/group_epics.query.graphql';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -34,30 +33,7 @@ const fetchEpicsSwimlanes = ({ endpoints, boardType }) => {
     })
     .then(({ data }) => {
       const { epicGroups, lists } = data[boardType]?.board;
-      return {
-        epics: epicGroups.nodes,
-        lists: lists.nodes,
-      };
-    });
-};
-
-const fetchEpics = ({ endpoints }) => {
-  const { fullPath } = endpoints;
-
-  const query = groupEpics;
-  const variables = {
-    fullPath,
-  };
-
-  return gqlClient
-    .query({
-      query,
-      variables,
-    })
-    .then(({ data }) => {
-      const { group } = data;
-      const epics = group?.epics.nodes || [];
-      return epics.map(e => ({
+      const epics = epicGroups.nodes.map(e => ({
         ...e,
         issues: (e?.issues?.nodes || []).map(i => ({
           ...i,
@@ -65,6 +41,10 @@ const fetchEpics = ({ endpoints }) => {
           assignees: i.assignees?.nodes || [],
         })),
       }));
+      return {
+        epics,
+        lists: lists.nodes,
+      };
     });
 };
 
@@ -116,8 +96,8 @@ export default {
     commit(types.TOGGLE_EPICS_SWIMLANES);
 
     if (state.isShowingEpicsSwimlanes) {
-      Promise.all([fetchEpicsSwimlanes(state), fetchEpics(state)])
-        .then(([{ lists }, epics]) => {
+      fetchEpicsSwimlanes(state)
+        .then(({ lists, epics }) => {
           if (lists) {
             dispatch('receiveBoardListsSuccess', lists);
           }

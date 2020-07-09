@@ -75,7 +75,9 @@ export default {
   },
 
   [mutationTypes.RECEIVE_BOARD_LISTS_SUCCESS]: (state, lists) => {
-    const boardLists = lists.map(list => boardsStore.addList({ ...list, doNotFetchIssues: true }));
+    const boardLists = lists.map(list =>
+      boardsStore.updateListPosition({ ...list, doNotFetchIssues: true }),
+    );
     state.boardLists = sortBy([...boardLists], 'position');
     state.epicsSwimlanesFetchInProgress = false;
   },
