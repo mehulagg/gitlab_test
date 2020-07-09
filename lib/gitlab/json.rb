@@ -130,6 +130,8 @@ module Gitlab
         return data unless Feature.enabled?(:json_wrapper_legacy_mode, default_enabled: true)
 
         raise parser_error if INVALID_LEGACY_TYPES.any? { |type| data.is_a?(type) }
+      rescue ActiveRecord::NoDatabaseError
+        data
       end
 
       # @return [Boolean]
@@ -137,6 +139,8 @@ module Gitlab
         return false unless Feature::FlipperFeature.table_exists?
 
         Feature.enabled?(:oj_json, default_enabled: true)
+      rescue ActiveRecord::NoDatabaseError
+        false
       end
     end
   end
