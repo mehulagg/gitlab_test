@@ -419,6 +419,8 @@ GEM
     github-markup (1.7.0)
     gitlab-chronic (0.10.5)
       numerizer (~> 0.2)
+    gitlab-dangerfiles (0.1.0)
+      danger
     gitlab-fog-azure-rm (0.7.0)
       azure-storage (~> 0.15.0.preview)
       fog-core (= 2.1.0)
@@ -1303,6 +1305,7 @@ DEPENDENCIES
   gitaly (~> 13.3.0.pre.rc1)
   github-markup (~> 1.7.0)
   gitlab-chronic (~> 0.10.5)
+  gitlab-dangerfiles (~> 0.1.0)
   gitlab-fog-azure-rm (~> 0.7)
   gitlab-labkit (= 0.12.1)
   gitlab-license (~> 1.0)

@@ -232,6 +232,7 @@ danger-review:
   stage: test
   needs: []
   script:
+    - bundle install
     - source scripts/utils.sh
     - retry yarn install --frozen-lockfile
-    - danger --fail-on-errors=true --verbose
+    - bundle exec danger --fail-on-errors=true --verbose
