@@ -38,10 +38,10 @@ exports[`AlertsSettingsForm with default values renders the initial template 1`]
       <gl-button-stub category=\\"tertiary\\" variant=\\"default\\" size=\\"medium\\" icon=\\"\\" disabled=\\"true\\">Test alert payload</gl-button-stub>
     </div>
     <div class=\\"footer-block row-content-block gl-display-flex gl-justify-content-space-between\\">
-      <gl-button-stub category=\\"primary\\" variant=\\"success\\" size=\\"medium\\" icon=\\"\\" disabled=\\"true\\" type=\\"submit\\">
+      <gl-button-stub category=\\"primary\\" variant=\\"success\\" size=\\"medium\\" icon=\\"\\" disabled=\\"true\\">
         Save changes
       </gl-button-stub>
-      <gl-button-stub category=\\"primary\\" variant=\\"default\\" size=\\"medium\\" icon=\\"\\" type=\\"reset\\">
+      <gl-button-stub category=\\"primary\\" variant=\\"default\\" size=\\"medium\\" icon=\\"\\">
         Cancel
       </gl-button-stub>
     </div>

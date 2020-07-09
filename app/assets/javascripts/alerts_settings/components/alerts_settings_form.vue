@@ -188,7 +188,9 @@ export default {
       this.options = this.options.filter(el => el.value === 'opsgenie');
       const [selected] = this.options;
       this.selectedEndpoint = selected.value;
-      this.targetUrl = this.selectedService.targetUrl;
+      if (this.targetUrl === null) {
+        this.targetUrl = this.selectedService.targetUrl;
+      }
     },
     removeOpsGenieOption() {
       this.options = this.options.filter(el => el.value !== 'opsgenie');
@@ -423,8 +425,8 @@ export default {
           id="api-url"
           v-model="targetUrl"
           type="url"
-          :value="selectedService.targetUrl"
           :placeholder="baseUrlPlaceholder"
+          @blur="canSaveForm = true"
         />
         <span class="gl-text-gray-400">
           {{ $options.i18n.apiBaseUrlHelpText }}

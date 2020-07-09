@@ -27,6 +27,7 @@ const defaultProps = {
     prometheusIsActivated: ACTIVATED,
   },
   opsgenie: {
+    opsgenieMvcIsAvailable: true,
     formPath: INVALID_URL,
     opsgenieMvcActivated: ACTIVATED,
     opsgenieMvcTargetUrl: GENERIC_URL,
@@ -47,6 +48,7 @@ describe('AlertsSettingsForm', () => {
         ...props,
       },
       methods,
+      provide: { glFeatures: { opsgenieMvc: true } },
     });
   };
 
