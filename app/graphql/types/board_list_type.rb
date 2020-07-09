@@ -22,7 +22,7 @@ module Types
 
     field :issues, ::Types::IssueType.connection_type, null: true,
           description: 'Board issues',
-          resolver: ::Resolvers::IssuesResolver
+          resolver: ::Resolvers::BoardListIssuesResolver
   end
   # rubocop: enable Graphql/AuthorizeTypes
 end
