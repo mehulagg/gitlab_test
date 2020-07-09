@@ -175,8 +175,7 @@ export default {
     if (
       this.activated.prometheus ||
       this.activated.generic ||
-      !this.opsgenie.opsgenieMvcIsAvailable ||
-      !this.glFeatures.opsgenieMvc
+      !this.opsgenie.opsgenieMvcIsAvailable
     ) {
       this.removeOpsGenieOption();
     } else if (this.activated.opsgenie) {

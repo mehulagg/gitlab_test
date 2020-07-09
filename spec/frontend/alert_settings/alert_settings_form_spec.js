@@ -48,7 +48,6 @@ describe('AlertsSettingsForm', () => {
         ...props,
       },
       methods,
-      provide: { glFeatures: { opsgenieMvc: true } },
     });
   };
 

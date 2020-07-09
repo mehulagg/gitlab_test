@@ -7,7 +7,6 @@ module Projects
       before_action :authorize_read_prometheus_alerts!, only: [:reset_alerting_token]
       before_action do
         push_frontend_feature_flag(:alert_integrations_dropdown, project)
-        push_frontend_feature_flag(:opsgenie_mvc, project)
       end
 
       respond_to :json, only: [:reset_alerting_token]
