@@ -131,20 +131,28 @@ module Gitlab
       # @return [Boolean, String, Array, Hash, Object]
       # @raise [JSON::ParserError]
       def handle_legacy_mode!(data)
-        return data unless Feature::FlipperFeature.table_exists?
+        return data unless feature_table_exists?
         return data unless Feature.enabled?(:json_wrapper_legacy_mode, default_enabled: true)
 
         raise parser_error if INVALID_LEGACY_TYPES.any? { |type| data.is_a?(type) }
-      rescue ActiveRecord::NoDatabaseError
-        data
       end
 
       # @return [Boolean]
       def enable_oj?
-        return false unless Feature::FlipperFeature.table_exists?
+        return false unless feature_table_exists?
 
         Feature.enabled?(:oj_json, default_enabled: true)
-      rescue ActiveRecord::NoDatabaseError
+      end
+
+      # There are a variety of database errors possible when checking the feature
+      # flags at the wrong time during boot, e.g. during migrations. We don't care
+      # about these errors, we just need to ensure that we skip feature detection
+      # if they will fail.
+      #
+      # @return [Boolean]
+      def feature_table_exists?
+        Feature::FlipperFeature.table_exists?
+      rescue
         false
       end
     end
