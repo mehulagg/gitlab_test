@@ -81,14 +81,14 @@ export const AlertManagementListi18n = {
       info: s__(
         'AlertManagement|You have enabled the Opsgenie integration. Your alerts will be visible directly in Opsgenie.',
       ),
-      buttonText:s__('AlertManagement|View alerts in Opsgenie'),
+      buttonText: s__('AlertManagement|View alerts in Opsgenie'),
     },
     gitlab: {
       title: s__('AlertManagement|Surface alerts in GitLab'),
-      info:  s__(
+      info: s__(
         'AlertManagement|Display alerts from all your monitoring tools directly within GitLab. Streamline the investigation of your alerts and the escalation of alerts to incidents.',
       ),
       buttonText: s__('AlertManagement|Authorize external service'),
-    }
+    },
   },
 };
