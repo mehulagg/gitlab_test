@@ -38,7 +38,9 @@ export default function setupVueRepositoryList() {
             path: currentRoutePath,
           },
         });
-
+      })
+      .catch(console.error)
+      .finally(() => {
         // eslint-disable-next-line no-new
         new Vue({
           el: document.getElementById('js-last-commit'),
@@ -52,8 +54,7 @@ export default function setupVueRepositoryList() {
             });
           },
         });
-      })
-      .catch(console.error);
+      });
   }
 
   apolloProvider.clients.defaultClient.cache.writeData({
