@@ -29,13 +29,27 @@ export default function setupVueRepositoryList() {
     pathLastCommit.fetchCall
       .then(res => res.json())
       .then(res => {
-        apolloProvider.clients.defaultClient.cache.writeQuery({
+        apolloProvider.clients.defaultClient.writeQuery({
           query: PathLastCommitQuery,
           data: res.data,
           variables: {
             projectPath,
             ref,
             path: currentRoutePath,
+          },
+        });
+
+        // eslint-disable-next-line no-new
+        new Vue({
+          el: document.getElementById('js-last-commit'),
+          router,
+          apolloProvider,
+          render(h) {
+            return h(LastCommit, {
+              props: {
+                currentPath: this.$route.params.path,
+              },
+            });
           },
         });
       })
@@ -99,20 +113,6 @@ export default function setupVueRepositoryList() {
       },
     });
   }
-
-  // eslint-disable-next-line no-new
-  new Vue({
-    el: document.getElementById('js-last-commit'),
-    router,
-    apolloProvider,
-    render(h) {
-      return h(LastCommit, {
-        props: {
-          currentPath: this.$route.params.path,
-        },
-      });
-    },
-  });
 
   const treeHistoryLinkEl = document.getElementById('js-tree-history-link');
   const { historyLink } = treeHistoryLinkEl.dataset;
