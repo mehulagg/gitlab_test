@@ -87,7 +87,12 @@ module Gitlab
         if enable_oj?
           Oj.dump(thing, opts)
         else
-          ::JSON.dump(thing, opts)
+          # JSON.dump doesn't support options, although it isn't obviously the case
+          if opts.empty?
+            ::JSON.dump(thing)
+          else
+            ::JSON.generate(thing, opts)
+          end
         end
       end
 
