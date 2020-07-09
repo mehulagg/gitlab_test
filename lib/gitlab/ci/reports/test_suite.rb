@@ -16,6 +16,12 @@ module Gitlab
           @duplicate_cases = []
         end
 
+        def self.collect(builds)
+          builds.map do |build|
+            build.collect_test_reports!(Gitlab::Ci::Reports::TestReports.new)
+          end.sum
+        end
+
         def add_test_case(test_case)
           @duplicate_cases << test_case if existing_key?(test_case)
 

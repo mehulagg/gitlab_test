@@ -174,6 +174,20 @@ RSpec.describe Gitlab::Ci::Reports::TestSuite do
     end
   end
 
+  describe '.collect' do
+    let(:build_1) { build(:ci_build, :test_reports) }
+    let(:build_2) { build(:ci_build, :test_reports_with_attachment) }
+
+    subject { described_class.collect([build_1])}
+
+    context 'when there is only one build' do
+      it 'returns the test suite associated to a build' do
+        binding.pry
+        expect(subject).to be_an_instance_of(described_class)
+      end
+    end
+  end
+
   Gitlab::Ci::Reports::TestCase::STATUS_TYPES.each do |status_type|
     describe "##{status_type}" do
       subject { test_suite.public_send("#{status_type}") }

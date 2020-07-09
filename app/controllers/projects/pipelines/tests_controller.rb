@@ -45,13 +45,9 @@ module Projects
       end
 
       def test_suite
-        if builds.present?
-          builds.map do |build|
-            build.collect_test_reports!(Gitlab::Ci::Reports::TestReports.new)
-          end.sum
-        else
-          render_404
-        end
+        return render_404 unless builds.any?
+
+        Gitlab::Ci::Reports::TestSuite.collect(builds)
       end
       # rubocop: enable CodeReuse/ActiveRecord
     end
