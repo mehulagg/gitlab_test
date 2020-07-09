@@ -55,7 +55,7 @@ module QA
         end
       end
 
-      context 'Group milestone' do
+      context 'Group milestone', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/227404', type: :bug } do
         let(:milestone) do
           Resource::GroupMilestone.fabricate_via_api! do |milestone|
             milestone.group = group
