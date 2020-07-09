@@ -10,6 +10,8 @@ curl --silent -X POST -H "Authorization: Basic c29tZWJlcnQ6ajN2ZXBlNHlNQ21JKzY0b
 
 
 STATUS=$(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
+set +x
+echo "analysing dependencies"
 while ( [ "$STATUS" = "pending" ] )
 do
     echo .
@@ -17,4 +19,11 @@ do
     STATUS=$(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
 done
 
-curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq .
+echo "Details"
+curl --silent -G -d "id=$JOBID" 46.101.173.169:3000
+
+echo "Summary"
+curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 \
+  | jq .result[].rule \
+  | sort \
+  | uniq -c
