@@ -192,4 +192,22 @@ RSpec.describe Gitlab::Json do
       subject.pretty_generate(*args)
     end
   end
+
+  context "the feature table is missing" do
+    before do
+      allow(Feature::FlipperFeature).to receive(:table_exists?).and_return(false)
+    end
+
+    it "skips legacy mode handling" do
+      expect(Feature).not_to receive(:enabled?).with(:json_wrapper_legacy_mode, default_enabled: true)
+
+      subject.send(:handle_legacy_mode!, {})
+    end
+
+    it "skips oj feature detection" do
+      expect(Feature).not_to receive(:enabled?).with(:oj_json, default_enabled: true)
+
+      subject.send(:enable_oj?)
+    end
+  end
 end
