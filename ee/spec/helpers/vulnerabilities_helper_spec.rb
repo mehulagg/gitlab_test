@@ -65,7 +65,8 @@ RSpec.describe VulnerabilitiesHelper do
         discussions_url: "/#{project.full_path}/-/security/vulnerabilities/#{vulnerability.id}/discussions",
         notes_url: "/#{project.full_path}/-/security/vulnerabilities/#{vulnerability.id}/notes",
         vulnerability_feedback_help_path: kind_of(String),
-        pipeline: anything
+        pipeline: anything,
+        can_edit_related_issues: be_in([true, false])
       )
     end
   end

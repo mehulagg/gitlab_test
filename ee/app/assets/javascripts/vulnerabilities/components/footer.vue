@@ -7,13 +7,15 @@ import { s__, __ } from '~/locale';
 import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue';
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
+import RelatedIssues from './related_issues.vue';
+import Api from 'ee/api';
 import HistoryEntry from './history_entry.vue';
 import VulnerabilitiesEventBus from './vulnerabilities_event_bus';
 import initUserPopovers from '~/user_popovers';
 
 export default {
   name: 'VulnerabilityFooter',
-  components: { IssueNote, SolutionCard, MergeRequestNote, HistoryEntry },
+  components: { IssueNote, SolutionCard, MergeRequestNote, HistoryEntry, RelatedIssues },
   props: {
     discussionsUrl: {
       type: String,
@@ -41,6 +43,14 @@ export default {
       required: false,
       default: () => null,
     },
+    vulnerabilityId: {
+      type: Number,
+      required: true,
+    },
+    canEditRelatedIssues: {
+      type: Boolean,
+      required: true,
+    },
   },
 
   data: () => ({
@@ -62,6 +72,9 @@ export default {
     },
     hasSolution() {
       return Boolean(this.solutionInfo.solution || this.solutionInfo.remediation);
+    },
+    issueLinksEndpoint() {
+      return Api.buildUrl(Api.vulnerabilityIssueLinksPath).replace(':id', this.vulnerabilityId);
     },
   },
 
@@ -193,6 +206,14 @@ export default {
         class="card-body"
       />
     </div>
+
+    <related-issues
+      data-testid="relatedIssues"
+      :endpoint="issueLinksEndpoint"
+      :can-admin="canEditRelatedIssues"
+      :project-path="project.url"
+    />
+
     <hr />
 
     <ul v-if="discussions.length" ref="historyList" class="notes discussion-body">

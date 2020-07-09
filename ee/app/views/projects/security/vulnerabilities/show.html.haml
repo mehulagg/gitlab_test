@@ -4,6 +4,7 @@
 - page_title @vulnerability.title
 - page_description @vulnerability.description
 - vulnerability_init_details = { vulnerability: vulnerability_details_json(@vulnerability, @pipeline)}
+- @gfm_form = true
 
 #js-vulnerability-header{ data: vulnerability_init_details }
 #js-vulnerability-details{ data: vulnerability_init_details }

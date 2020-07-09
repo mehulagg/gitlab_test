@@ -19262,6 +19262,9 @@ msgstr ""
 msgid "Related Merged Requests"
 msgstr ""
 
+msgid "Related issues"
+msgstr ""
+
 msgid "Related merge requests"
 msgstr ""
 
@@ -26091,6 +26094,9 @@ msgstr ""
 msgid "VulnerabilityManagement|Confirmed %{timeago} by %{user}"
 msgstr ""
 
+msgid "VulnerabilityManagement|Could not link %{issueReference}: %{errorMessage}."
+msgstr ""
+
 msgid "VulnerabilityManagement|Detected %{timeago} in pipeline %{pipelineLink}"
 msgstr ""
 
@@ -26116,6 +26122,9 @@ msgid "VulnerabilityManagement|Something went wrong while trying to retrieve the
 msgstr ""
 
 msgid "VulnerabilityManagement|Something went wrong while trying to save the comment. Please try again later."
+msgstr ""
+
+msgid "VulnerabilityManagement|Something went wrong while trying to unlink the issue. Please try again later."
 msgstr ""
 
 msgid "VulnerabilityManagement|Something went wrong, could not create an issue."
