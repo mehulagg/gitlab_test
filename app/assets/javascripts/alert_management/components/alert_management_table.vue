@@ -12,7 +12,7 @@ import {
   GlSearchBoxByType,
   GlSprintf,
 } from '@gitlab/ui';
-import { __, s__ } from '~/locale';
+import { s__ } from '~/locale';
 import { debounce, trim } from 'lodash';
 import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';
@@ -27,6 +27,7 @@ import {
   DEFAULT_PAGE_SIZE,
   trackAlertListViewsOptions,
   trackAlertStatusUpdateOptions,
+  AlertManagementListi18n,
 } from '../constants';
 import AlertStatus from './alert_status.vue';
 
@@ -45,15 +46,7 @@ const initialPaginationState = {
 };
 
 export default {
-  i18n: {
-    noAlertsMsg: s__(
-      'AlertManagement|No alerts available to display. See %{linkStart}enabling alert management%{linkEnd} for more information on adding alerts to the list.',
-    ),
-    errorMsg: s__(
-      "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear.",
-    ),
-    searchPlaceholder: __('Search or filter results...'),
-  },
+  i18n: AlertManagementListi18n,
   fields: [
     {
       key: 'severity',

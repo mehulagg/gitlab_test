@@ -47,6 +47,7 @@ export const i18n = {
 export const serviceOptions = [
   { value: 'generic', text: s__('AlertSettings|Generic') },
   { value: 'prometheus', text: s__('AlertSettings|External Prometheus') },
+  { value: 'opsgenie', text: s__('AlertSettings|OpsGenie') },
 ];
 
 export const JSON_VALIDATE_DELAY = 250;

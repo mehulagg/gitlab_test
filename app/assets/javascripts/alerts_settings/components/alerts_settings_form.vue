@@ -70,7 +70,7 @@ export default {
         generic: this.generic.initialAuthorizationKey,
         prometheus: this.prometheus.prometheusAuthorizationKey,
       },
-      selectedEndpoint: null,
+      selectedEndpoint: serviceOptions[0].value,
       options: serviceOptions,
       prometheusApiKey: this.prometheus.prometheusApiUrl,
       feedback: {
@@ -147,12 +147,8 @@ export default {
     }, JSON_VALIDATE_DELAY),
   },
   created() {
-    if (this.glFeatures.alertIntegrationsDropdown) {
-      this.selectedEndpoint = this.prometheus.prometheusIsActivated
-        ? this.options[1].value
-        : this.options[0].value;
-    } else {
-      this.selectedEndpoint = this.options[0].value;
+    if (this.glFeatures.alertIntegrationsDropdown && (this.activated.prometheus || this.activated.generic)) {
+      this.options = this.options.filter(el => el.value !== 'opsgenie');
     }
   },
   methods: {
