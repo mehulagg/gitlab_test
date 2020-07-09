@@ -52,10 +52,8 @@ module Resolvers
     end
 
     def extract_list_id(gid)
-      ap gid
       return unless gid.present?
 
-      ap "gid parsing #{GitlabSchema.parse_gid(gid, expected_type: ::List)}"
       GitlabSchema.parse_gid(gid, expected_type: ::List).model_id
     end
   end
