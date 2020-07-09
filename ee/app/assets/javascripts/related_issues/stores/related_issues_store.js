@@ -1,4 +1,3 @@
-import { unionBy } from 'lodash';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 class RelatedIssuesStore {
@@ -16,7 +15,8 @@ class RelatedIssuesStore {
   }
 
   addRelatedIssues(issues) {
-    this.setRelatedIssues(unionBy(this.state.relatedIssues, issues, x => x.id));
+    // The issues returned by the API is the list of all related issues, so we'll just set it.
+    this.setRelatedIssues(issues);
   }
 
   removeRelatedIssue(issue) {
