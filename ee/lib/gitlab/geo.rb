@@ -2,6 +2,8 @@
 
 module Gitlab
   module Geo
+    extend Gitlab::Utils::StrongMemoize
+
     OauthApplicationUndefinedError = Class.new(StandardError)
     GeoNodeNotFoundError = Class.new(StandardError)
     InvalidDecryptionKeyError = Class.new(StandardError)
@@ -156,6 +158,24 @@ module Gitlab
       STR
 
       _(template) % { url: url }
+    end
+
+    def self.replicator_classes
+      strong_memoize(:replicator_classes) do
+        replicator_names.map do |name|
+          Replicator.for_replicable_name(name)
+        end
+      end
+    end
+
+    def self.replicator_names
+      strong_memoize(:replicator_names) do
+        replicator_paths = Rails.root.join('ee', 'app', 'replicators', 'geo', '*_replicator.rb')
+
+        Dir[replicator_paths].map do |replicator_path|
+          replicator_path.match(%r{/(\w+)_replicator.rb\z})[1]
+        end
+      end
     end
   end
 end
