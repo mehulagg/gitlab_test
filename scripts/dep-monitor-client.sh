@@ -10,7 +10,7 @@ curl --silent -X POST -H "Authorization: Basic c29tZWJlcnQ6ajN2ZXBlNHlNQ21JKzY0b
 
 
 STATUS = $(curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq -r .status)
-while ( "$STATUS" == "pending" )
+while ( [ "$STATUS" = "pending" ] )
 do
     echo .
     sleep 2
