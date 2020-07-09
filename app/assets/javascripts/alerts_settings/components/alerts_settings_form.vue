@@ -162,8 +162,10 @@ export default {
       return !this.loading && this.canSaveForm;
     },
     baseUrlPlaceholder() {
-      return this.isOpsGenie ? this.$options.i18n.targetOpsgenieUrlPlaceholder : this.$options.i18n.targetPrometheusUrlPlaceholder;
-    }
+      return this.isOpsGenie
+        ? this.$options.i18n.targetOpsgenieUrlPlaceholder
+        : this.$options.i18n.targetPrometheusUrlPlaceholder;
+    },
   },
   watch: {
     'testAlert.json': debounce(function debouncedJsonValidate() {
@@ -256,6 +258,7 @@ export default {
           });
         })
         .finally(() => {
+          this.canSaveForm = true;
           this.loading = false;
         });
     },
@@ -283,6 +286,7 @@ export default {
           });
         })
         .finally(() => {
+          this.canSaveForm = true;
           this.loading = false;
         });
     },
@@ -332,6 +336,7 @@ export default {
           });
         })
         .finally(() => {
+          this.canSaveForm = true;
           this.loading = false;
         });
     },

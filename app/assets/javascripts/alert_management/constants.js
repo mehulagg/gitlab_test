@@ -74,15 +74,21 @@ export const AlertManagementListi18n = {
     "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear.",
   ),
   searchPlaceholder: __('Search or filter results...'),
-  opsGenieEnabledTitle: s__('AlertManagement|Opsgenie is enabled'),
-  opsGenieEnabledDescription: s__(
-    'AlertManagement|You have enabled the Opsgenie integration. Your alerts will be visible directly in Opsgenie.',
-  ),
-  opsGenieEnabledButton: s__('AlertManagement|View alerts in Opsgenie'),
-  authExternalService: s__('AlertManagement|Authorize external service'),
-  displayHelpInfo: s__(
-    'AlertManagement|Display alerts from all your monitoring tools directly within GitLab. Streamline the investigation of your alerts and the escalation of alerts to incidents.',
-  ),
-  displayHelpTitle: s__('AlertManagement|Surface alerts in GitLab'),
   moreInformation: s__('AlertManagement|More information'),
+  emptyState: {
+    opsgenie: {
+      title: s__('AlertManagement|Opsgenie is enabled'),
+      info: s__(
+        'AlertManagement|You have enabled the Opsgenie integration. Your alerts will be visible directly in Opsgenie.',
+      ),
+      buttonText:s__('AlertManagement|View alerts in Opsgenie'),
+    },
+    gitlab: {
+      title: s__('AlertManagement|Surface alerts in GitLab'),
+      info:  s__(
+        'AlertManagement|Display alerts from all your monitoring tools directly within GitLab. Streamline the investigation of your alerts and the escalation of alerts to incidents.',
+      ),
+      buttonText: s__('AlertManagement|Authorize external service'),
+    }
+  },
 };
