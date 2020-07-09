@@ -2151,7 +2151,7 @@ job3:
 
 NOTE: **Note:**
 When [`rules`](#rules) are used in job, `when` must be used within rule rather
-than at job level. If you attempt to do this, the linter returns a
+than at job level. If you attempt to use at job level, the linter returns a
 ``config key may not be used with `rules`: when`` error.
 
 `when` is used to implement jobs that are run in case of failure or despite the
