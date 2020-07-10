@@ -11,7 +11,6 @@ import {
 import isWipLimitsOn from 'ee_else_ce/boards/mixins/is_wip_limits';
 import { n__, s__ } from '~/locale';
 import AccessorUtilities from '../../lib/utils/accessor';
-import BoardDelete from './board_delete';
 import IssueCount from './issue_count.vue';
 import boardsStore from '../stores/boards_store';
 import eventHub from '../eventhub';
@@ -20,7 +19,6 @@ import { isScopedLabel } from '~/lib/utils/common_utils';
 
 export default {
   components: {
-    BoardDelete,
     GlButtonGroup,
     GlButton,
     GlLabel,
@@ -263,22 +261,6 @@ export default {
         </div>
       </gl-tooltip>
 
-      <board-delete
-        v-if="canAdminList && !list.preset && list.id"
-        :list="list"
-        inline-template="true"
-      >
-        <gl-button
-          v-gl-tooltip.hover.bottom
-          :class="{ 'gl-display-none': !list.isExpanded }"
-          :aria-label="__('Delete list')"
-          class="board-delete no-drag gl-pr-0 gl-shadow-none! gl-mr-3"
-          :title="__('Delete list')"
-          icon="remove"
-          size="small"
-          @click.stop="deleteBoard"
-        />
-      </board-delete>
       <div
         v-if="showBoardListAndBoardInfo"
         class="issue-count-badge gl-pr-0 no-drag text-secondary"

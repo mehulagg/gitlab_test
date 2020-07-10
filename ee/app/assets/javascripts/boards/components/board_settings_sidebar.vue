@@ -16,6 +16,7 @@ import eventHub from '~/sidebar/event_hub';
 import flash from '~/flash';
 import { isScopedLabel } from '~/lib/utils/common_utils';
 import { inactiveListId } from '~/boards/constants';
+import BoardDelete from '~/boards/components/board_delete';
 
 // NOTE: need to revisit how we handle headerHeight, because we have so many different header and footer options.
 export default {
@@ -33,6 +34,7 @@ export default {
   removeLimitText: __('Remove limit'),
   inputPlaceholderText: __('Enter number of issues'),
   components: {
+    BoardDelete,
     GlDrawer,
     GlLabel,
     GlDeprecatedButton,
@@ -243,6 +245,24 @@ export default {
             >
           </template>
         </div>
+      </div>
+      <!-- TODO: I removed canAdminList from v-if -->
+      <div>
+        <board-delete
+          v-if="activeListId && !activeList.preset"
+          :list="activeList"
+          inline-template="true"
+        >
+          <gl-button
+            v-gl-tooltip.hover.bottom
+            :block="true"
+            :class="{ 'gl-display-none': activeList && !activeList.isExpanded }"
+            class="board-delete"
+            @click.stop="deleteBoard"
+          >
+            {{ s__('Boards|Remove list') }}
+          </gl-button>
+        </board-delete>
       </div>
     </template>
   </gl-drawer>

@@ -202,16 +202,6 @@
   flex-grow: 1;
 }
 
-.board-delete.gl-button {
-  background-color: transparent;
-  outline: 0;
-
-  &:hover {
-    color: $blue-600;
-    box-shadow: none;
-  }
-}
-
 .board-blank-state,
 .board-promotion-state {
   background-color: $white;

@@ -22,7 +22,7 @@ export default Vue.extend({
       $(this.$el).tooltip('hide');
 
       // eslint-disable-next-line no-alert
-      if (window.confirm(__('Are you sure you want to delete this list?'))) {
+      if (window.confirm(__('Are you sure you want to remove this list?'))) {
         this.list.destroy();
       }
     },
