@@ -12545,6 +12545,24 @@ CREATE SEQUENCE public.labels_id_seq
 
 ALTER SEQUENCE public.labels_id_seq OWNED BY public.labels.id;
 
+CREATE TABLE public.launch_types (
+    id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    deploy_target_type text NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    CONSTRAINT check_b3a6dc191e CHECK ((char_length(deploy_target_type) <= 255))
+);
+
+CREATE SEQUENCE public.launch_types_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.launch_types_id_seq OWNED BY public.launch_types.id;
+
 CREATE TABLE public.ldap_group_links (
     id integer NOT NULL,
     cn character varying,
@@ -16705,6 +16723,8 @@ ALTER TABLE ONLY public.label_priorities ALTER COLUMN id SET DEFAULT nextval('pu
 
 ALTER TABLE ONLY public.labels ALTER COLUMN id SET DEFAULT nextval('public.labels_id_seq'::regclass);
 
+ALTER TABLE ONLY public.launch_types ALTER COLUMN id SET DEFAULT nextval('public.launch_types_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ldap_group_links ALTER COLUMN id SET DEFAULT nextval('public.ldap_group_links_id_seq'::regclass);
 
 ALTER TABLE ONLY public.lfs_file_locks ALTER COLUMN id SET DEFAULT nextval('public.lfs_file_locks_id_seq'::regclass);
@@ -17758,6 +17778,9 @@ ALTER TABLE ONLY public.label_priorities
 
 ALTER TABLE ONLY public.labels
     ADD CONSTRAINT labels_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.launch_types
+    ADD CONSTRAINT launch_types_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.ldap_group_links
     ADD CONSTRAINT ldap_group_links_pkey PRIMARY KEY (id);
@@ -19476,6 +19499,8 @@ CREATE INDEX index_labels_on_template ON public.labels USING btree (template) WH
 CREATE INDEX index_labels_on_title ON public.labels USING btree (title);
 
 CREATE INDEX index_labels_on_type_and_project_id ON public.labels USING btree (type, project_id);
+
+CREATE INDEX index_launch_types_on_project_id ON public.launch_types USING btree (project_id);
 
 CREATE UNIQUE INDEX index_lfs_file_locks_on_project_id_and_path ON public.lfs_file_locks USING btree (project_id, path);
 
@@ -22056,6 +22081,9 @@ ALTER TABLE ONLY public.clusters_kubernetes_namespaces
 ALTER TABLE ONLY public.approval_merge_request_rules_users
     ADD CONSTRAINT fk_rails_80e6801803 FOREIGN KEY (approval_merge_request_rule_id) REFERENCES public.approval_merge_request_rules(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.launch_types
+    ADD CONSTRAINT fk_rails_83143d741b FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
 ALTER TABLE ONLY public.deployment_merge_requests
     ADD CONSTRAINT fk_rails_86a6d8bf12 FOREIGN KEY (merge_request_id) REFERENCES public.merge_requests(id) ON DELETE CASCADE;
 
@@ -23733,5 +23761,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200708080631
 20200710102846
 20200710130234
+20200710190831
 \.
 

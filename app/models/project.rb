@@ -140,6 +140,7 @@ class Project < ApplicationRecord
   alias_attribute :parent_id, :namespace_id
 
   has_one :last_event, -> {order 'events.created_at DESC'}, class_name: 'Event'
+  has_many :launch_types, class_name: 'LaunchType', inverse_of: :project
   has_many :boards
 
   # Project services

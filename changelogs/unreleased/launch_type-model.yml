@@ -1,0 +1,5 @@
+---
+title: Adds a launch_type relation to project for tracking deploy targets
+merge_request: 36616
+author:
+type: added
