@@ -8,7 +8,6 @@ import {
   GlSprintf,
   GlTooltipDirective,
 } from '@gitlab/ui';
-import isWipLimitsOn from 'ee_else_ce/boards/mixins/is_wip_limits';
 import { n__, s__ } from '~/locale';
 import AccessorUtilities from '../../lib/utils/accessor';
 import IssueCount from './issue_count.vue';
@@ -30,7 +29,6 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [isWipLimitsOn],
   props: {
     list: {
       type: Object,
@@ -108,10 +106,7 @@ export default {
     },
     isSettingsShown() {
       return (
-        this.listType !== ListType.backlog &&
-        this.showListHeaderButton &&
-        this.list.isExpanded &&
-        this.isWipLimitsOn
+        this.listType !== ListType.backlog && this.showListHeaderButton && this.list.isExpanded
       );
     },
     showBoardListAndBoardInfo() {

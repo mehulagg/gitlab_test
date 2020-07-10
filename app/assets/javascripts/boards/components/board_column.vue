@@ -1,6 +1,5 @@
 <script>
 import Sortable from 'sortablejs';
-import isWipLimitsOn from 'ee_else_ce/boards/mixins/is_wip_limits';
 import Tooltip from '~/vue_shared/directives/tooltip';
 import EmptyComponent from '~/vue_shared/components/empty_component';
 import BoardBlankState from './board_blank_state.vue';
@@ -21,7 +20,6 @@ export default {
   directives: {
     Tooltip,
   },
-  mixins: [isWipLimitsOn],
   props: {
     list: {
       type: Object,

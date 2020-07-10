@@ -18,6 +18,10 @@ import { isScopedLabel } from '~/lib/utils/common_utils';
 import { inactiveListId } from '~/boards/constants';
 import BoardDelete from '~/boards/components/board_delete';
 
+import CeSidebar from '~/boards/components/board_settings_sidebar.vue';
+
+const isWipLimitsOn = Boolean(gon?.features?.wipLimits);
+
 // NOTE: need to revisit how we handle headerHeight, because we have so many different header and footer options.
 export default {
   headerHeight: process.env.NODE_ENV === 'development' ? '75px' : '40px',
@@ -34,8 +38,7 @@ export default {
   removeLimitText: __('Remove limit'),
   inputPlaceholderText: __('Enter number of issues'),
   components: {
-    BoardDelete,
-    GlDrawer,
+    CeSidebar,
     GlLabel,
     GlDeprecatedButton,
     GlFormInput,
@@ -66,25 +69,25 @@ export default {
       return this.activeListId !== inactiveListId;
     },
     activeListLabel() {
-      return this.activeList.label;
+      return this.activeList?.label;
     },
     activeListMilestone() {
-      return this.activeList.milestone;
+      return this.activeList?.milestone;
     },
     activeListAssignee() {
-      return this.activeList.assignee;
+      return this.activeList?.assignee;
     },
     wipLimitTypeText() {
-      return n__('%d issue', '%d issues', this.activeList.maxIssueCount);
+      return n__('%d issue', '%d issues', this.activeList?.maxIssueCount);
     },
     wipLimitIsSet() {
-      return this.activeList.maxIssueCount !== 0;
+      return this.activeList?.maxIssueCount !== 0;
     },
     activeListWipLimit() {
-      return this.activeList.maxIssueCount === 0 ? this.$options.noneText : this.wipLimitTypeText;
+      return this.activeList?.maxIssueCount === 0 ? this.$options.noneText : this.wipLimitTypeText;
     },
     boardListType() {
-      return this.activeList.type || null;
+      return this.activeList?.type || null;
     },
     listTypeTitle() {
       switch (this.boardListType) {
@@ -118,7 +121,7 @@ export default {
     showInput() {
       this.edit = true;
       this.currentWipLimit =
-        this.activeList.maxIssueCount > 0 ? this.activeList.maxIssueCount : null;
+        this.activeList?.maxIssueCount > 0 ? this.activeList?.maxIssueCount : null;
     },
     resetStateAfterUpdate() {
       this.edit = false;
@@ -126,7 +129,10 @@ export default {
       this.currentWipLimit = null;
     },
     offFocus() {
-      if (this.currentWipLimit !== this.activeList.maxIssueCount && this.currentWipLimit !== null) {
+      if (
+        this.currentWipLimit !== this.activeList?.maxIssueCount &&
+        this.currentWipLimit !== null
+      ) {
         this.updating = true;
         // need to reassign bc were clearing the ref in resetStateAfterUpdate.
         const wipLimit = this.currentWipLimit;
@@ -176,14 +182,8 @@ export default {
 </script>
 
 <template>
-  <gl-drawer
-    class="js-board-settings-sidebar"
-    :open="isSidebarOpen"
-    :header-height="$options.headerHeight"
-    @close="closeSidebar"
-  >
-    <template #header>{{ $options.listSettingsText }}</template>
-    <template v-if="isSidebarOpen">
+  <ce-sidebar v-bind="$attrs" v-on="$listeners">
+    <template #default>
       <div class="d-flex flex-column align-items-start">
         <label class="js-list-label">{{ listTypeTitle }}</label>
         <template v-if="boardListType === $options.label">
@@ -246,24 +246,6 @@ export default {
           </template>
         </div>
       </div>
-      <!-- TODO: I removed canAdminList from v-if -->
-      <div>
-        <board-delete
-          v-if="activeListId && !activeList.preset"
-          :list="activeList"
-          inline-template="true"
-        >
-          <gl-button
-            v-gl-tooltip.hover.bottom
-            :block="true"
-            :class="{ 'gl-display-none': activeList && !activeList.isExpanded }"
-            class="board-delete"
-            @click.stop="deleteBoard"
-          >
-            {{ s__('Boards|Remove list') }}
-          </gl-button>
-        </board-delete>
-      </div>
     </template>
-  </gl-drawer>
+  </ce-sidebar>
 </template>
