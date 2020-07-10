@@ -125,7 +125,7 @@ for each Elasticsearch node, per the [official guidelines](https://www.elastic.c
 Keep in mind, this is the **minimum requirements** as per Elasticsearch. For
 production instances, they recommend considerably more resources.
 
-Storage requirements are half the size of your repo. 
+Storage requirements are half the size of your repo.
 
 ## Enabling Elasticsearch
 
