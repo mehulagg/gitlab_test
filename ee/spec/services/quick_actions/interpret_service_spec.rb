@@ -927,6 +927,7 @@ RSpec.describe QuickActions::InterpretService do
       it_behaves_like 'quick action is unavailable', :weight do
         let(:content) { '/weight 5' }
       end
+
       it_behaves_like 'quick action is unavailable', :clear_weight do
         let(:content) { '/clear_weight' }
       end
