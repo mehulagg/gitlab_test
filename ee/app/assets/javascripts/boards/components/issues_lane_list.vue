@@ -1,5 +1,4 @@
 <script>
-import { mapActions } from 'vuex';
 import eventHub from '~/boards/eventhub';
 import BoardCard from '~/boards/components/board_card.vue';
 import BoardNewIssue from '~/boards/components/board_new_issue.vue';

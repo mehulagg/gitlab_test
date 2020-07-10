@@ -1,9 +1,10 @@
 import * as types from './mutation_types';
 
+import ListIssue from 'ee_else_ce/boards/models/issue';
 import createDefaultClient from '~/lib/graphql';
 import { BoardType } from '~/boards/constants';
-import groupListIssuesQuery from '../queries/group_list_issues.graphql';
-//import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
+import groupListsIssuesQuery from '../queries/group_lists_issues.graphql';
+// import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
 
 const gqlClient = createDefaultClient();
 
@@ -37,17 +38,19 @@ export default {
     notImplemented();
   },
 
-  fetchIssuesForList: ({ state }, listId) => {
+  fetchIssuesForList: () => {
+    notImplemented();
+  },
+
+  fetchIssuesForAllLists: ({ state, commit }) => {
     const { endpoints, boardType } = state;
     const { fullPath, boardId } = endpoints;
 
-    const query =
-      boardType === BoardType.group ? groupListIssuesQuery : groupListIssuesQuery;
+    const query = boardType === BoardType.group ? groupListsIssuesQuery : groupListsIssuesQuery;
 
     const variables = {
       fullPath,
       boardId: `gid://gitlab/Board/${boardId}`,
-      listId,
     };
 
     return gqlClient
@@ -57,14 +60,21 @@ export default {
       })
       .then(({ data }) => {
         const { lists } = data[boardType]?.board;
-        const listIssues = lists.nodes.map(l => ({
-          issues: (l?.issues?.nodes || []).map(i => ({
-            ...i,
-            labels: i.labels?.nodes || [],
-            assignees: i.assignees?.nodes || [],
-          })),
-        }));
-        console.log('listIssues', listIssues);
+        const listIssues = lists.nodes.reduce((map, list) => {
+          return {
+            ...map,
+            [list.id]: list.issues.nodes.map(
+              i =>
+                new ListIssue({
+                  ...i,
+                  id: Number(i.id.match(/\d+$/)[0]),
+                  labels: i.labels?.nodes || [],
+                  assignees: i.assignees?.nodes || [],
+                }),
+            ),
+          };
+        }, {});
+        commit(types.RECEIVE_ISSUES_FOR_ALL_LISTS_SUCCESS, listIssues);
         return listIssues;
       });
   },

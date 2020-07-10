@@ -27,6 +27,10 @@ export default {
       type: Array,
       required: true,
     },
+    issues: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -73,10 +77,12 @@ export default {
     },
   },
   methods: {
-    epicIssuesForList(listIssues) {
-      return this.epic.issues.filter(epicIssue =>
-        Boolean(listIssues.find(listIssue => String(listIssue.iid) === epicIssue.iid)),
-      );
+    epicIssuesForList(listId) {
+      if (this.issues[listId]) {
+        return this.issues[listId].filter(issue => issue.epic && issue.epic.id === this.epic.id);
+      }
+
+      return [];
     },
     toggleExpanded() {
       this.isExpanded = !this.isExpanded;
@@ -137,7 +143,7 @@ export default {
         v-for="list in lists"
         :key="`${list.id}-issues`"
         :list="list"
-        :issues="epicIssuesForList(list.issues)"
+        :issues="epicIssuesForList(list.id)"
       />
     </div>
   </div>

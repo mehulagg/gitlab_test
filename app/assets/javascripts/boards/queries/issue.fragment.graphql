@@ -1,13 +1,16 @@
-fragment IssueNode on EpicIssue {
+fragment IssueNode on Issue {
   id
   iid
   title
-  referencePath: reference
+  referencePath: reference(full: true)
   dueDate
   timeEstimate
   weight
   confidential
   path: webUrl
+  epic {
+    id
+  }
   assignees {
     nodes {
       id
