@@ -128,7 +128,6 @@ production instances, they recommend considerably more resources.
 Storage requirements also vary based on the installation side, but as a rule of
 thumb, you should allocate storage equale to half the size of your repo. Versions before 13.2 would require as much as 1.6 * your repo size.
 
-
 ## Enabling Elasticsearch
 
 In order to enable Elasticsearch, you need to have admin access. Navigate to
