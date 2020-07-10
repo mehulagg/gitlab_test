@@ -53,7 +53,7 @@ const matrixMultiResult = ({ values1 = ['1', '2', '3'], values2 = ['4', '5', '6'
  */
 // eslint-disable-next-line import/prefer-default-export
 export const timeSeriesGraphData = (panelOptions = {}, dataOptions = {}) => {
-  const { metricCount = 1, isMultiSeries = false } = dataOptions;
+  const { metricCount = 1, isMultiSeries = false} = dataOptions;
 
   return mapPanelToViewModel({
     title: 'Time Series Panel',

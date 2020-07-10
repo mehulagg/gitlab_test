@@ -1,4 +1,5 @@
 import * as monitoringUtils from '~/monitoring/utils';
+import { metricStates } from '~/monitoring/constants';
 import * as urlUtils from '~/lib/utils/url_utility';
 import { TEST_HOST } from 'jest/helpers/test_constants';
 import {
@@ -8,6 +9,7 @@ import {
   barMockData,
 } from './mock_data';
 import { metricsDashboardViewModel, graphData } from './fixture_data';
+import { timeSeriesGraphData } from './graph_data';
 
 const mockPath = `${TEST_HOST}${mockProjectDir}/-/environments/29/metrics`;
 
@@ -70,6 +72,84 @@ describe('monitoring/utils', () => {
         label: 'Chart title',
         property: chartTitle,
       });
+    });
+  });
+
+  describe('graphDataToCsv', () => {
+    const { graphDataToCsv } = monitoringUtils;
+    const expectCsvToMatchLines = (csv, lines) => expect(`${lines.join('\r\n')}\r\n`).toEqual(csv);
+
+    it('should return a csv with 0 metrics', () => {
+      const data = timeSeriesGraphData({}, { metricCount: 0 });
+
+      expect(graphDataToCsv(data)).toEqual('');
+    });
+
+    it('should return a csv with 1 metric with no data', () => {
+      const data = timeSeriesGraphData({}, { metricCount: 1 });
+
+      data.metrics[0].state = metricStates.NO_DATA;
+      data.metrics[0].result = null;
+
+      expect(graphDataToCsv(data)).toEqual('');
+    });
+
+    it('should return a csv with multiple metrics and one with no data', () => {
+      const data = timeSeriesGraphData({}, { metricCount: 2 });
+
+      data.metrics[0].state = metricStates.NO_DATA;
+      data.metrics[0].result = null;
+
+      expectCsvToMatchLines(graphDataToCsv(data), [
+        `timestamp,"Y Axis Metric 2 {}"`,
+        '2015-07-01T20:10:51.781Z,1',
+        '2015-07-01T20:11:06.781Z,2',
+        '2015-07-01T20:11:21.781Z,3',
+      ]);
+    });
+
+    it('should return a csv with 1 metric', () => {
+      const data = timeSeriesGraphData({}, { metricCount: 1 });
+
+      expectCsvToMatchLines(graphDataToCsv(data), [
+        `timestamp,"Y Axis Metric 1 {}"`,
+        '2015-07-01T20:10:51.781Z,1',
+        '2015-07-01T20:11:06.781Z,2',
+        '2015-07-01T20:11:21.781Z,3',
+      ]);
+    });
+
+    it('should return a csv with multiple metrics', () => {
+      const data = timeSeriesGraphData({}, { metricCount: 3 });
+
+      expectCsvToMatchLines(graphDataToCsv(data), [
+        `timestamp,"Y Axis Metric 1 {}","Y Axis Metric 2 {}","Y Axis Metric 3 {}"`,
+        '2015-07-01T20:10:51.781Z,1,1,1',
+        '2015-07-01T20:11:06.781Z,2,2,2',
+        '2015-07-01T20:11:21.781Z,3,3,3',
+      ]);
+    });
+
+    it('should return a csv with 1 metric and multiple series', () => {
+      const data = timeSeriesGraphData({}, { isMultiSeries: true });
+
+      expectCsvToMatchLines(graphDataToCsv(data), [
+        `timestamp,"Y Axis Metric 1 {__name__:'up', job:'prometheus', instance:'localhost:9090'}","Y Axis Metric 1 {__name__:'up', job:'node', instance:'localhost:9091'}"`,
+        '2015-07-01T20:10:51.781Z,1,4',
+        '2015-07-01T20:11:06.781Z,2,5',
+        '2015-07-01T20:11:21.781Z,3,6',
+      ]);
+    });
+
+    it('should return a csv with multiple metrics and multiple series', () => {
+      const data = timeSeriesGraphData({}, { metricCount: 3, isMultiSeries: true });
+
+      expectCsvToMatchLines(graphDataToCsv(data), [
+        `timestamp,"Y Axis Metric 1 {__name__:'up', job:'prometheus', instance:'localhost:9090'}","Y Axis Metric 1 {__name__:'up', job:'node', instance:'localhost:9091'}","Y Axis Metric 2 {__name__:'up', job:'prometheus', instance:'localhost:9090'}","Y Axis Metric 2 {__name__:'up', job:'node', instance:'localhost:9091'}","Y Axis Metric 3 {__name__:'up', job:'prometheus', instance:'localhost:9090'}","Y Axis Metric 3 {__name__:'up', job:'node', instance:'localhost:9091'}"`,
+        '2015-07-01T20:10:51.781Z,1,4,1,4,1,4',
+        '2015-07-01T20:11:06.781Z,2,5,2,5,2,5',
+        '2015-07-01T20:11:21.781Z,3,6,3,6,3,6',
+      ]);
     });
   });
 

@@ -130,6 +130,50 @@ export const downloadCSVOptions = title => {
 
   return { category, action, label: 'Chart title', property: title };
 };
+
+const metricHeader = (y_label, label, metric) => {
+  const metricDetails = Object.entries(metric)
+    .map(([label, val]) => {
+      return `${label}:'${val}'`;
+    }, '')
+    .join(', ');
+  return `"${y_label} ${label} {${metricDetails}}"`;
+};
+
+export const graphDataToCsv = graphData => {
+  const { metrics = [], y_label } = graphData;
+  const headers = ['timestamp'];
+  const rows = {};
+
+  metrics.forEach(panelMetric => {
+    const { label, result } = panelMetric;
+    if (!result) {
+      return;
+    }
+    result.forEach(res => {
+      const { metric, values } = res;
+      headers.push(metricHeader(y_label, label, metric));
+
+      values.forEach(([timestamp, val]) => {
+        if (!rows[timestamp]) {
+          rows[timestamp] = [];
+        }
+        rows[timestamp].push(val);
+      });
+    });
+  });
+
+  const timestamps = Object.keys(rows);
+  if (timestamps.length === 0) {
+    return '';
+  }
+
+  return timestamps.sort().reduce((csv, timestamp) => {
+    const row = `${timestamp},${rows[timestamp].join(',')}`;
+    return `${csv}${row}\r\n`;
+  }, `${headers.join(',')}\r\n`);
+};
+
 /* eslint-enable @gitlab/require-i18n-strings */
 
 /**
