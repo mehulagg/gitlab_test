@@ -47,8 +47,8 @@ export default {
     prometheus: {
       type: Object,
       required: true,
-      validator: ({ prometheusIsActivated }) => {
-        return prometheusIsActivated !== undefined;
+      validator: ({ activated }) => {
+        return activated !== undefined;
       },
     },
     generic: {
@@ -66,9 +66,9 @@ export default {
   data() {
     return {
       activated: {
-        generic: this.generic.initialActivated,
-        prometheus: this.prometheus.prometheusIsActivated,
-        opsgenie: this.opsgenie?.opsgenieMvcActivated,
+        generic: this.generic.activated,
+        prometheus: this.prometheus.activated,
+        opsgenie: this.opsgenie?.activated,
       },
       loading: false,
       authorizationKey: {
@@ -170,6 +170,11 @@ export default {
     'testAlert.json': debounce(function debouncedJsonValidate() {
       this.validateJson();
     }, JSON_VALIDATE_DELAY),
+    targetUrl(oldVal, newVal) {
+      if (newVal && oldVal !== this.selectedService.targetUrl) {
+        this.canSaveForm = true;
+      }
+    },
   },
   mounted() {
     if (
@@ -250,7 +255,7 @@ export default {
 
           if (this.isOpsgenie && value) {
             this.setOpsgenieAsDefault();
-          } else if(!this.isOpsgenie && value && !this.selectedService.authKey) {
+          } else if (!this.isOpsgenie && value && !this.selectedService.authKey) {
             window.location.reload();
           } else if (!this.isOpsgenie && value) {
             this.removeOpsGenieOption();
@@ -266,6 +271,7 @@ export default {
         })
         .finally(() => {
           this.loading = false;
+          this.canSaveForm = false;
         });
     },
     togglePrometheusActive(value) {
@@ -293,6 +299,7 @@ export default {
         })
         .finally(() => {
           this.loading = false;
+          this.canSaveForm = false;
         });
     },
     toggleSuccess(value) {
@@ -350,10 +357,11 @@ export default {
     onReset() {
       this.testAlert.json = null;
       this.dismissFeedback();
-      if(this.canSaveForm) {
+      this.targetUrl = this.selectedService.targetUrl;
+
+      if (this.canSaveForm) {
         this.canSaveForm = false;
-        this.activated[this.selectedEndpoint] = !this.activated[this.selectedEndpoint];
-        // this.selectedService.active = !this.selectedService.active;
+        this.activated[this.selectedEndpoint] = this[this.selectedEndpoint].activated;
       }
     },
   },
@@ -432,7 +440,7 @@ export default {
           v-model="targetUrl"
           type="url"
           :placeholder="baseUrlPlaceholder"
-          @blur="canSaveForm = true"
+          :disabled="!selectedService.active"
         />
         <span class="gl-text-gray-400">
           {{ $options.i18n.apiBaseUrlHelpText }}
@@ -514,7 +522,7 @@ export default {
         >
           {{ __('Save changes') }}
         </gl-button>
-        <gl-button variant="default" category="primary" @click="onReset">
+        <gl-button variant="default" category="primary" :disabled="!canSaveConfig" @click="onReset">
           {{ __('Cancel') }}
         </gl-button>
       </div>

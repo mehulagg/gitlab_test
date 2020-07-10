@@ -26,14 +26,14 @@ export default el => {
     opsgenieMvcTargetUrl,
   } = el.dataset;
 
-  const activated = parseBoolean(activatedStr);
+  const genericActivated = parseBoolean(activatedStr);
   const prometheusIsActivated = parseBoolean(prometheusActivated);
   const opsgenieMvcActivated = parseBoolean(opsgenieMvcEnabled);
   const opsgenieMvcIsAvailable = parseBoolean(opsgenieMvcAvailable);
 
   const props = {
     prometheus: {
-      prometheusIsActivated,
+      activated: prometheusIsActivated,
       prometheusUrl,
       prometheusAuthorizationKey,
       prometheusFormPath,
@@ -43,7 +43,7 @@ export default el => {
     generic: {
       alertsSetupUrl,
       alertsUsageUrl,
-      initialActivated: activated,
+      activated: genericActivated,
       formPath,
       initialAuthorizationKey: authorizationKey,
       url,
@@ -53,7 +53,7 @@ export default el => {
   if (opsgenieMvcIsAvailable) {
     props.opsgenie = {
       formPath: opsgenieMvcFormPath,
-      opsgenieMvcActivated,
+      activated: opsgenieMvcActivated,
       opsgenieMvcTargetUrl,
       opsgenieMvcIsAvailable,
     };
