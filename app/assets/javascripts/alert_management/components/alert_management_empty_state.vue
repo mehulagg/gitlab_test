@@ -20,7 +20,7 @@ export default {
         buttonText: s__('AlertManagement|Authorize external service'),
       },
     },
-    moreInformation: s__('AlertManagement|More information')
+    moreInformation: s__('AlertManagement|More information'),
   },
   components: {
     GlEmptyState,
@@ -61,28 +61,23 @@ export default {
     },
     alertsCanBeEnabled() {
       return this.userCanEnableAlertManagement || this.opsgenieMvcEnabled;
-    }
-  }
+    },
+  },
 };
 </script>
 <template>
   <div>
-    <gl-empty-state
-      :title="emptyState.title"
-      :svg-path="emptyAlertSvgPath"
-    >
+    <gl-empty-state :title="emptyState.title" :svg-path="emptyAlertSvgPath">
       <template #description>
         <div class="d-block">
-          <span>{{
-            emptyState.info
-          }}</span>
+          <span>{{ emptyState.info }}</span>
           <a href="/help/user/project/operations/alert_management.html" target="_blank">
             {{ $options.i18n.moreInformation }}
           </a>
         </div>
         <div v-if="alertsCanBeEnabled" class="d-block center pt-4">
           <gl-button category="primary" variant="success" :href="emptyState.link">
-          {{ emptyState.buttonText }}
+            {{ emptyState.buttonText }}
           </gl-button>
         </div>
       </template>

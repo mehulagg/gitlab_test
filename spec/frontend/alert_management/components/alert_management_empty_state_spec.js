@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { GlEmptyState, GlButton } from '@gitlab/ui';
 import AlertManagementEmptyState from '~/alert_management/components/alert_management_empty_state.vue';
 
@@ -10,15 +10,15 @@ describe('AlertManagementEmptyState', () => {
       alertManagementEnabled: false,
       userCanEnableAlertManagement: false,
     },
-    stubs = {}
+    stubs = {},
   } = {}) {
-    wrapper = shallowMount(AlertManagementEmptyState, {
+    wrapper = mount(AlertManagementEmptyState, {
       propsData: {
         enableAlertManagementPath: '/link',
         emptyAlertSvgPath: 'illustration/path',
         ...props,
       },
-      stubs
+      stubs,
     });
   }
 
@@ -32,23 +32,11 @@ describe('AlertManagementEmptyState', () => {
     }
   });
 
+  const EmptyState = () => wrapper.find(GlEmptyState);
+
   describe('Empty state', () => {
     it('shows empty state', () => {
-      expect(wrapper.find(GlEmptyState).exists()).toBe(true);
-    });
-
-    it('show default empty state when OpsGenie mcv is false', () => {
-      mountComponent({
-        props: {
-          alertManagementEnabled: false,
-          userCanEnableAlertManagement: false,
-        },
-      });
-      expect(
-        wrapper
-          .find(GlButton)
-          .attributes('href'),
-      ).toBe('/link');
+      expect(EmptyState().exists()).toBe(true);
     });
 
     it('show OpsGenie integration state when OpsGenie mcv is true', () => {
@@ -61,7 +49,7 @@ describe('AlertManagementEmptyState', () => {
         },
       });
       expect(
-        wrapper
+        EmptyState()
           .find(GlButton)
           .attributes('href'),
       ).toBe('https://opsgenie-url.com');
