@@ -106,7 +106,7 @@ export default {
     isPrometheus() {
       return this.selectedEndpoint === 'prometheus';
     },
-    isOpsGenie() {
+    isOpsgenie() {
       return this.selectedEndpoint === 'opsgenie';
     },
     selectedService() {
@@ -161,7 +161,7 @@ export default {
       return !this.loading && this.canSaveForm;
     },
     baseUrlPlaceholder() {
-      return this.isOpsGenie
+      return this.isOpsgenie
         ? this.$options.i18n.targetOpsgenieUrlPlaceholder
         : this.$options.i18n.targetPrometheusUrlPlaceholder;
     },
@@ -179,11 +179,11 @@ export default {
     ) {
       this.removeOpsGenieOption();
     } else if (this.activated.opsgenie) {
-      this.setOpsGenieAsDefault();
+      this.setOpsgenieAsDefault();
     }
   },
   methods: {
-    setOpsGenieAsDefault() {
+    setOpsgenieAsDefault() {
       this.options = this.options.filter(el => el.value === 'opsgenie');
       const [selected] = this.options;
       this.selectedEndpoint = selected.value;
@@ -240,7 +240,7 @@ export default {
       return service
         .updateGenericActive({
           endpoint: this[this.selectedEndpoint].formPath,
-          params: this.isOpsGenie
+          params: this.isOpsgenie
             ? { service: { opsgenie_mvc_target_url: this.targetUrl, opsgenie_mvc_enabled: value } }
             : { service: { active: value } },
         })
@@ -248,9 +248,9 @@ export default {
           this.activated[this.selectedEndpoint] = value;
           this.toggleSuccess(value);
 
-          if (this.isOpsGenie && value) {
-            this.setOpsGenieAsDefault();
-          } else if (!this.isOpsGenie && value) {
+          if (this.isOpsgenie && value) {
+            this.setOpsgenieAsDefault();
+          } else if (!this.isOpsgenie && value) {
             this.removeOpsGenieOption();
           } else {
             this.options = serviceOptions;
@@ -415,7 +415,7 @@ export default {
         />
       </gl-form-group>
       <gl-form-group
-        v-if="isOpsGenie || isPrometheus"
+        v-if="isOpsgenie || isPrometheus"
         :label="$options.i18n.apiBaseUrlLabel"
         label-for="api-url"
         label-class="label-bold"
@@ -431,7 +431,7 @@ export default {
           {{ $options.i18n.apiBaseUrlHelpText }}
         </span>
       </gl-form-group>
-      <template v-if="!isOpsGenie">
+      <template v-if="!isOpsgenie">
         <gl-form-group :label="$options.i18n.urlLabel" label-for="url" label-class="label-bold">
           <gl-form-input-group id="url" :readonly="true" :value="selectedService.url">
             <template #append>
