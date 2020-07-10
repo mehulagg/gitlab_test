@@ -1,5 +1,5 @@
 <script>
-import { mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import { n__ } from '~/locale';
 import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import BoardListHeader from 'ee_else_ce/boards/components/board_list_header.vue';
@@ -41,13 +41,19 @@ export default {
     },
   },
   computed: {
-    ...mapState(['epics']),
+    ...mapState(['epics', 'issuesByListId']),
     issuesCount() {
       return this.lists.reduce((total, list) => total + list.issues?.length, 0);
     },
     issuesCountTooltipText() {
       return n__(`%d unassigned issue`, `%d unassigned issues`, this.issuesCount);
     },
+  },
+  mounted() {
+    this.fetchIssuesForAllLists();
+  },
+  methods: {
+    ...mapActions(['fetchIssuesForAllLists']),
   },
 };
 </script>
@@ -76,7 +82,13 @@ export default {
       </div>
     </div>
     <div class="board-epics-swimlanes">
-      <epic-lane v-for="epic in epics" :key="epic.id" :epic="epic" :lists="lists" />
+      <epic-lane
+        v-for="epic in epics"
+        :key="epic.id"
+        :epic="epic"
+        :lists="lists"
+        :issues="issuesByListId"
+      />
       <div class="board-lane-unassigned-issues gl-sticky gl-display-inline-block gl-left-0">
         <div class="gl-left-0 gl-py-5 gl-px-3 gl-display-flex gl-align-items-center">
           <span
@@ -102,7 +114,7 @@ export default {
           v-for="list in lists"
           :key="`${list.id}-issues`"
           :list="list"
-          :issues="list.issues"
+          :issues="issuesByListId[list.id] || []"
           :group-id="groupId"
           :is-unassigned-issues-lane="true"
         />

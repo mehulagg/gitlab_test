@@ -1,6 +1,4 @@
-import { sortBy } from 'lodash';
 import mutationsCE from '~/boards/stores/mutations';
-import boardsStore from '~/boards/stores/boards_store';
 import * as mutationTypes from './mutation_types';
 
 const notImplemented = () => {
@@ -74,11 +72,8 @@ export default {
     state.epicsSwimlanesFetchInProgress = true;
   },
 
-  [mutationTypes.RECEIVE_BOARD_LISTS_SUCCESS]: (state, lists) => {
-    const boardLists = lists.map(list =>
-      boardsStore.updateListPosition({ ...list, doNotFetchIssues: true }),
-    );
-    state.boardLists = sortBy([...boardLists], 'position');
+  [mutationTypes.RECEIVE_BOARD_LISTS_SUCCESS]: (state, boardLists) => {
+    state.boardLists = boardLists;
     state.epicsSwimlanesFetchInProgress = false;
   },
 

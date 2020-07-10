@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { sortBy } from 'lodash';
+import boardsStore from '~/boards/stores/boards_store';
 import actionsCE from '~/boards/stores/actions';
 import boardsStoreEE from './boards_store_ee';
 import * as types from './mutation_types';
@@ -99,7 +101,11 @@ export default {
       fetchEpicsSwimlanes(state)
         .then(({ lists, epics }) => {
           if (lists) {
-            dispatch('receiveBoardListsSuccess', lists);
+            let boardLists = lists.map(list =>
+              boardsStore.updateListPosition({ ...list, doNotFetchIssues: true }),
+            );
+            boardLists = sortBy([...boardLists], 'position');
+            dispatch('receiveBoardListsSuccess', boardLists);
           }
 
           if (epics) {

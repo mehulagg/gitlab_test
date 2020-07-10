@@ -5,4 +5,5 @@ export default () => ({
   boardType: null,
   isShowingLabels: true,
   activeListId: inactiveListId,
+  issuesByListId: {},
 });

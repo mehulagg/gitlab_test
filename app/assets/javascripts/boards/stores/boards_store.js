@@ -858,13 +858,14 @@ const boardsStore = {
     issue.confidential = obj.confidential;
     issue.dueDate = obj.due_date;
     issue.sidebarInfoEndpoint = obj.issue_sidebar_endpoint;
-    issue.referencePath = obj.reference_path;
+    issue.referencePath = obj.reference_path || obj.referencePath;
     issue.path = obj.real_path;
     issue.toggleSubscriptionEndpoint = obj.toggle_subscription_endpoint;
     issue.project_id = obj.project_id;
     issue.timeEstimate = obj.time_estimate;
     issue.assignableLabelsEndpoint = obj.assignable_labels_endpoint;
     issue.blocked = obj.blocked;
+    issue.epic = obj.epic;
 
     if (obj.project) {
       issue.project = new IssueProject(obj.project);
