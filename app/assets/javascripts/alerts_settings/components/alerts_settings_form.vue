@@ -431,7 +431,7 @@ export default {
           {{ $options.i18n.apiBaseUrlHelpText }}
         </span>
       </gl-form-group>
-      <template v-if="selectedEndpoint !== 'opsgenie'">
+      <template v-if="!isOpsGenie">
         <gl-form-group :label="$options.i18n.urlLabel" label-for="url" label-class="label-bold">
           <gl-form-input-group id="url" :readonly="true" :value="selectedService.url">
             <template #append>
