@@ -48,25 +48,23 @@ export default el => {
       initialAuthorizationKey: authorizationKey,
       url,
     },
+    opsgenie: opsgenieMvcIsAvailable
+      ? {
+          formPath: opsgenieMvcFormPath,
+          opsgenieMvcActivated,
+          opsgenieMvcTargetUrl,
+          opsgenieMvcIsAvailable,
+        }
+      : {
+          opsgenieMvcIsAvailable,
+        },
   };
 
   return new Vue({
     el,
     render(createElement) {
       return createElement(AlertSettingsForm, {
-        props: {
-          ...props,
-          opsgenie: opsgenieMvcIsAvailable
-            ? {
-                formPath: opsgenieMvcFormPath,
-                opsgenieMvcActivated,
-                opsgenieMvcTargetUrl,
-                opsgenieMvcIsAvailable,
-              }
-            : {
-                opsgenieMvcIsAvailable,
-              },
-        },
+        props,
       });
     },
   });

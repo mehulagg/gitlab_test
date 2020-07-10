@@ -431,57 +431,53 @@ export default {
           {{ $options.i18n.apiBaseUrlHelpText }}
         </span>
       </gl-form-group>
-      <gl-form-group
-        v-if="selectedEndpoint !== 'opsgenie'"
-        :label="$options.i18n.urlLabel"
-        label-for="url"
-        label-class="label-bold"
-      >
-        <gl-form-input-group id="url" :readonly="true" :value="selectedService.url">
-          <template #append>
-            <clipboard-button
-              :text="selectedService.url"
-              :title="$options.i18n.copyToClipboard"
-              class="gl-m-0!"
-            />
-          </template>
-        </gl-form-input-group>
-        <span class="gl-text-gray-400">
-          {{ prometheusInfo }}
-        </span>
-      </gl-form-group>
-      <gl-form-group
-        v-if="selectedEndpoint !== 'opsgenie'"
-        :label="$options.i18n.authKeyLabel"
-        label-for="authorization-key"
-        label-class="label-bold"
-      >
-        <gl-form-input-group
-          id="authorization-key"
-          class="gl-mb-2"
-          :readonly="true"
-          :value="selectedService.authKey"
+      <template v-if="selectedEndpoint !== 'opsgenie'">
+        <gl-form-group :label="$options.i18n.urlLabel" label-for="url" label-class="label-bold">
+          <gl-form-input-group id="url" :readonly="true" :value="selectedService.url">
+            <template #append>
+              <clipboard-button
+                :text="selectedService.url"
+                :title="$options.i18n.copyToClipboard"
+                class="gl-m-0!"
+              />
+            </template>
+          </gl-form-input-group>
+          <span class="gl-text-gray-400">
+            {{ prometheusInfo }}
+          </span>
+        </gl-form-group>
+        <gl-form-group
+          :label="$options.i18n.authKeyLabel"
+          label-for="authorization-key"
+          label-class="label-bold"
         >
-          <template #append>
-            <clipboard-button
-              :text="selectedService.authKey"
-              :title="$options.i18n.copyToClipboard"
-              class="gl-m-0!"
-            />
-          </template>
-        </gl-form-input-group>
-        <gl-button v-gl-modal.authKeyModal class="gl-mt-3">{{ $options.i18n.resetKey }}</gl-button>
-        <gl-modal
-          modal-id="authKeyModal"
-          :title="$options.i18n.resetKey"
-          :ok-title="$options.i18n.resetKey"
-          ok-variant="danger"
-          @ok="selectedService.resetKey"
-        >
-          {{ $options.i18n.restKeyInfo }}
-        </gl-modal>
-      </gl-form-group>
-      <div v-if="selectedEndpoint !== 'opsgenie'">
+          <gl-form-input-group
+            id="authorization-key"
+            class="gl-mb-2"
+            :readonly="true"
+            :value="selectedService.authKey"
+          >
+            <template #append>
+              <clipboard-button
+                :text="selectedService.authKey"
+                :title="$options.i18n.copyToClipboard"
+                class="gl-m-0!"
+              />
+            </template>
+          </gl-form-input-group>
+          <gl-button v-gl-modal.authKeyModal class="gl-mt-3">{{
+            $options.i18n.resetKey
+          }}</gl-button>
+          <gl-modal
+            modal-id="authKeyModal"
+            :title="$options.i18n.resetKey"
+            :ok-title="$options.i18n.resetKey"
+            ok-variant="danger"
+            @ok="selectedService.resetKey"
+          >
+            {{ $options.i18n.restKeyInfo }}
+          </gl-modal>
+        </gl-form-group>
         <gl-form-group
           :label="$options.i18n.alertJson"
           label-for="alert-json"
@@ -501,7 +497,7 @@ export default {
         <gl-button :disabled="!canTestAlert" @click="validateTestAlert">{{
           $options.i18n.testAlertInfo
         }}</gl-button>
-      </div>
+      </template>
       <div class="footer-block row-content-block gl-display-flex gl-justify-content-space-between">
         <gl-button
           variant="success"

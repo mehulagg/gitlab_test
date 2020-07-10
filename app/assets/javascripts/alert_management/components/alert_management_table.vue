@@ -12,7 +12,7 @@ import {
   GlSearchBoxByType,
   GlSprintf,
 } from '@gitlab/ui';
-import { s__, __ } from '~/locale';
+import { __, s__ } from '~/locale';
 import { debounce, trim } from 'lodash';
 import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';

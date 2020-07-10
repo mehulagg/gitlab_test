@@ -22,7 +22,7 @@ exports[`AlertsSettingsForm with default values renders the initial template 1`]
     <gl-form-group-stub label=\\"Webhook URL\\" label-for=\\"url\\" label-class=\\"label-bold\\">
       <gl-form-input-group-stub value=\\"/alerts/notify.json\\" predefinedoptions=\\"[object Object]\\" id=\\"url\\" readonly=\\"true\\"></gl-form-input-group-stub> <span class=\\"gl-text-gray-400\\">
 
-      </span>
+        </span>
     </gl-form-group-stub>
     <gl-form-group-stub label=\\"Authorization key\\" label-for=\\"authorization-key\\" label-class=\\"label-bold\\">
       <gl-form-input-group-stub value=\\"abcedfg123\\" predefinedoptions=\\"[object Object]\\" id=\\"authorization-key\\" readonly=\\"true\\" class=\\"gl-mb-2\\"></gl-form-input-group-stub>
@@ -31,12 +31,10 @@ exports[`AlertsSettingsForm with default values renders the initial template 1`]
         Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in.
       </gl-modal-stub>
     </gl-form-group-stub>
-    <div>
-      <gl-form-group-stub label=\\"Alert test payload\\" label-for=\\"alert-json\\" label-class=\\"label-bold\\">
-        <gl-form-textarea-stub noresize=\\"true\\" id=\\"alert-json\\" disabled=\\"true\\" state=\\"true\\" placeholder=\\"Enter test alert JSON....\\" rows=\\"6\\" max-rows=\\"10\\"></gl-form-textarea-stub>
-      </gl-form-group-stub>
-      <gl-button-stub category=\\"tertiary\\" variant=\\"default\\" size=\\"medium\\" icon=\\"\\" disabled=\\"true\\">Test alert payload</gl-button-stub>
-    </div>
+    <gl-form-group-stub label=\\"Alert test payload\\" label-for=\\"alert-json\\" label-class=\\"label-bold\\">
+      <gl-form-textarea-stub noresize=\\"true\\" id=\\"alert-json\\" disabled=\\"true\\" state=\\"true\\" placeholder=\\"Enter test alert JSON....\\" rows=\\"6\\" max-rows=\\"10\\"></gl-form-textarea-stub>
+    </gl-form-group-stub>
+    <gl-button-stub category=\\"tertiary\\" variant=\\"default\\" size=\\"medium\\" icon=\\"\\" disabled=\\"true\\">Test alert payload</gl-button-stub>
     <div class=\\"footer-block row-content-block gl-display-flex gl-justify-content-space-between\\">
       <gl-button-stub category=\\"primary\\" variant=\\"success\\" size=\\"medium\\" icon=\\"\\" disabled=\\"true\\">
         Save changes
