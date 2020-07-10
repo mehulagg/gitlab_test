@@ -13,7 +13,6 @@ describe('AlertManagementList', () => {
       userCanEnableAlertManagement: false,
     },
     data = {},
-    loading = false,
     stubs = {},
   } = {}) {
     wrapper = shallowMount(AlertManagementList, {
@@ -26,17 +25,6 @@ describe('AlertManagementList', () => {
       },
       data() {
         return data;
-      },
-      mocks: {
-        $apollo: {
-          mutate: jest.fn(),
-          query: jest.fn(),
-          queries: {
-            alerts: {
-              loading,
-            },
-          },
-        },
       },
       stubs,
     });
@@ -58,7 +46,6 @@ describe('AlertManagementList', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
         data: { alerts: { list: mockAlerts } },
-        loading: false,
       });
     });
 
