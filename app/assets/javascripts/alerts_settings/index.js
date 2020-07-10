@@ -20,7 +20,6 @@ export default el => {
     formPath,
     authorizationKey,
     url,
-    opsgenieMvcAvailable,
     opsgenieMvcFormPath,
     opsgenieMvcEnabled,
     opsgenieMvcTargetUrl,
@@ -29,7 +28,6 @@ export default el => {
   const genericActivated = parseBoolean(activatedStr);
   const prometheusIsActivated = parseBoolean(prometheusActivated);
   const opsgenieMvcActivated = parseBoolean(opsgenieMvcEnabled);
-  const opsgenieMvcIsAvailable = parseBoolean(opsgenieMvcAvailable);
 
   const props = {
     prometheus: {
@@ -48,18 +46,12 @@ export default el => {
       initialAuthorizationKey: authorizationKey,
       url,
     },
-  };
-
-  if (opsgenieMvcIsAvailable) {
-    props.opsgenie = {
+    opsgenie: {
       formPath: opsgenieMvcFormPath,
       activated: opsgenieMvcActivated,
       opsgenieMvcTargetUrl,
-      opsgenieMvcIsAvailable,
-    };
-  } else {
-    props.opsgenie = { opsgenieMvcIsAvailable };
-  }
+    },
+  };
 
   return new Vue({
     el,

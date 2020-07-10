@@ -177,11 +177,7 @@ export default {
     },
   },
   mounted() {
-    if (
-      this.activated.prometheus ||
-      this.activated.generic ||
-      !this.opsgenie.opsgenieMvcIsAvailable
-    ) {
+    if (this.activated.prometheus || this.activated.generic) {
       this.removeOpsGenieOption();
     } else if (this.activated.opsgenie) {
       this.setOpsgenieAsDefault();

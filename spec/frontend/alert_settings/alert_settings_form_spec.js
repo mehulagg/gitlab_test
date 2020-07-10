@@ -18,18 +18,17 @@ const defaultProps = {
     url: GENERIC_URL,
     alertsSetupUrl: INVALID_URL,
     alertsUsageUrl: INVALID_URL,
-    initialActivated: ACTIVATED,
+    activated: ACTIVATED,
   },
   prometheus: {
     prometheusAuthorizationKey: KEY,
     prometheusFormPath: INVALID_URL,
     prometheusUrl: PROMETHEUS_URL,
-    prometheusIsActivated: ACTIVATED,
+    activated: ACTIVATED,
   },
   opsgenie: {
-    opsgenieMvcIsAvailable: true,
     formPath: INVALID_URL,
-    opsgenieMvcActivated: ACTIVATED,
+    activated: ACTIVATED,
     opsgenieMvcTargetUrl: GENERIC_URL,
   },
 };
@@ -132,7 +131,7 @@ describe('AlertsSettingsForm', () => {
       });
 
       it('restores previous value', () => {
-        createComponent({ generic: { ...defaultProps.generic, initialActivated: false } });
+        createComponent({ generic: { ...defaultProps.generic, activated: false } });
         return wrapper.vm.resetGenericKey().then(() => {
           expect(wrapper.find(ToggleButton).props('value')).toBe(false);
         });
@@ -142,11 +141,7 @@ describe('AlertsSettingsForm', () => {
 
   describe('prometheus is active', () => {
     beforeEach(() => {
-      createComponent(
-        { prometheus: { ...defaultProps.prometheus, prometheusIsActivated: true } },
-        {},
-        true,
-      );
+      createComponent({ prometheus: { ...defaultProps.prometheus, activated: true } }, {}, true);
     });
 
     it('renders a valid "select"', () => {
@@ -190,14 +185,13 @@ describe('AlertsSettingsForm', () => {
 
       return wrapper.vm.$nextTick().then(() => {
         expect(findApiUrl().exists()).toBe(true);
-        expect(findApiUrl().attributes('value')).toBe(GENERIC_URL);
       });
     });
   });
 
   describe('trigger test alert', () => {
     beforeEach(() => {
-      createComponent({ generic: { ...defaultProps.generic, initialActivated: true } }, {}, true);
+      createComponent({ generic: { ...defaultProps.generic, activated: true } }, {}, true);
     });
 
     it('should enable the JSON input', () => {
