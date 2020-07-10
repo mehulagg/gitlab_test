@@ -48,17 +48,18 @@ export default el => {
       initialAuthorizationKey: authorizationKey,
       url,
     },
-    opsgenie: opsgenieMvcIsAvailable
-      ? {
-          formPath: opsgenieMvcFormPath,
-          opsgenieMvcActivated,
-          opsgenieMvcTargetUrl,
-          opsgenieMvcIsAvailable,
-        }
-      : {
-          opsgenieMvcIsAvailable,
-        },
   };
+
+  if (opsgenieMvcIsAvailable) {
+    props.opsgenie = {
+      formPath: opsgenieMvcFormPath,
+      opsgenieMvcActivated,
+      opsgenieMvcTargetUrl,
+      opsgenieMvcIsAvailable,
+    };
+  } else {
+    props.opsgenie = { opsgenieMvcIsAvailable };
+  }
 
   return new Vue({
     el,

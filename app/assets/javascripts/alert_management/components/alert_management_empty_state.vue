@@ -71,7 +71,11 @@ export default {
       <template #description>
         <div class="d-block">
           <span>{{ emptyState.info }}</span>
-          <a href="/help/user/project/operations/alert_management.html" target="_blank">
+          <a
+            v-if="!this.opsgenieMvcEnabled"
+            href="/help/user/project/operations/alert_management.html"
+            target="_blank"
+          >
             {{ $options.i18n.moreInformation }}
           </a>
         </div>
