@@ -5,6 +5,7 @@ import { __, s__, sprintf } from '~/locale';
 import createFlash from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import Poll from '~/lib/utils/poll';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import eventHub from '../event_hub';
 import Service from '../services/index';
 import Store from '../stores';
@@ -17,6 +18,8 @@ import RelatedIssues from 'ee/related_issues/components/related_issues_root.vue'
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
 
+import DesignManagement from '~/design_management_new/components/app.vue';
+
 export default {
   components: {
     GlIcon,
@@ -27,8 +30,9 @@ export default {
     formComponent,
     PinnedLinks,
     RelatedIssues,
+    DesignManagement,
   },
-  mixins: [recaptchaModalImplementor],
+  mixins: [recaptchaModalImplementor, glFeatureFlagsMixin()],
   props: {
     endpoint: {
       required: true,
@@ -453,9 +457,7 @@ export default {
               <p
                 class="gl-font-weight-bold gl-overflow-hidden gl-white-space-nowrap gl-text-overflow-ellipsis gl-my-0"
                 :title="state.titleText"
-              >
-                {{ state.titleText }}
-              </p>
+              >{{ state.titleText }}</p>
             </div>
           </div>
         </transition>
@@ -487,10 +489,13 @@ export default {
       />
     </div>
 
-    <related-issues
-      :endpoint="issueLinkEndpoint"
-      :can-admin="canAddRelatedIssues"
-      :help-path="relatedIssuesHelpPath"
-    />
+    <template v-if="glFeatures.issueSingleVueApp">
+      <design-management v-if="glFeatures.designManagementMoved" />
+      <related-issues
+        :endpoint="issueLinkEndpoint"
+        :can-admin="canAddRelatedIssues"
+        :help-path="relatedIssuesHelpPath"
+      />
+    </template>
   </div>
 </template>

@@ -3,9 +3,13 @@ import createRouter from './router';
 import App from './components/app.vue';
 import apolloProvider from './graphql';
 
-export default () => {
-  const el = document.querySelector('.js-design-management-new');
-  const { issueIid, projectPath, issuePath } = el.dataset;
+
+export const createDesignManagement = ({ issueIid, projectPath, issuePath, projectNamespace }) => {
+  // NOTE: Design Management is not currently supported at the group level
+  // currently we are just pulling in the project path for the Graphql call
+  // but when we support groups we will need to add group path support for
+  // design management in issuables_helper.rb
+
   const router = createRouter(issuePath);
 
   apolloProvider.clients.defaultClient.cache.writeData({
@@ -18,14 +22,22 @@ export default () => {
     },
   });
 
-  return new Vue({
-    el,
+  return {
     router,
     apolloProvider,
     provide: {
-      projectPath,
+      projectPath: `${projectNamespace}/${projectPath}`,
       issueIid,
     },
+  }
+}
+
+export default () => {
+  const el = document.querySelector('.js-design-management-new');
+
+  return new Vue({
+    el,
+    ...createDesignManagement(el.dataset),
     render(createElement) {
       return createElement(App);
     },

@@ -59,17 +59,12 @@
         New issue
 
 .issue-details.issuable-details
-  - if Feature.enabled?(:todo)
+  - if Feature.enabled?(:issue_single_vue_app)
     -# haml-lint:disable InlineJavaScript
     %script#js-issuable-app-initial-data{ type: "application/json" }= issuable_initial_data(@issue).to_json
     #js-issuable-app
     - if @issue.sentry_issue.present?
       #js-sentry-error-stack-trace{ data: error_details_data(@project, @issue.sentry_issue.sentry_issue_identifier) }
-
-    - if Feature.enabled?(:design_management_moved, @project)
-      = render 'projects/issues/design_management'
-
-    = render_if_exists 'projects/issues/related_issues'
 
     #js-related-merge-requests{ data: { endpoint: expose_path(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid)), project_namespace: @project.namespace.path, project_path: @project.path } }
 

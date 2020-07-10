@@ -51,6 +51,8 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   before_action only: :show do
+    push_frontend_feature_flag(:issue_single_vue_app, @project)
+    push_frontend_feature_flag(:design_management_moved, @project)
     push_frontend_feature_flag(:real_time_issue_sidebar, @project)
     push_frontend_feature_flag(:confidential_apollo_sidebar, @project)
   end
