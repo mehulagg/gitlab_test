@@ -109,8 +109,6 @@ RSpec.describe Gitlab::QuickActions::Dsl do
         noop
         strips_param
       end
-    end
-  end
 
       command :with_named_argument do
         argument :foo
