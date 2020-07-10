@@ -18,14 +18,10 @@ export const receivePageConfigDataError = ({ commit }) => {
 export const fetchPageConfigData = ({ dispatch, state }) => {
   dispatch('requestPageConfigData');
 
-  const { groupPath, reportId, configEndpoint } = state;
+  const { reportId, configEndpoint } = state;
 
   return axios
-    .get(configEndpoint.replace('REPORT_ID', reportId), {
-      params: {
-        group_id: groupPath,
-      },
-    })
+    .get(configEndpoint.replace('REPORT_ID', reportId))
     .then(response => {
       const { data } = response;
       dispatch('receivePageConfigDataSuccess', data);

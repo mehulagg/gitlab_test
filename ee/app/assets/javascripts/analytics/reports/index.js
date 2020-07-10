@@ -13,12 +13,18 @@ export default () => {
 
   const store = createsStore();
 
-  const { configEndpoint } = el.dataset;
+  const { configEndpoint, seriesEndpoint } = el.dataset;
   const { groupName = null, groupPath = null, reportId = null } = queryToObject(
     document.location.search,
   );
 
-  store.dispatch('page/setInitialPageData', { configEndpoint, groupName, groupPath, reportId });
+  store.dispatch('page/setInitialPageData', {
+    configEndpoint,
+    seriesEndpoint,
+    groupName,
+    groupPath,
+    reportId,
+  });
 
   return new Vue({
     el,

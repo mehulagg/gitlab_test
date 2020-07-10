@@ -2,9 +2,10 @@ import * as types from './mutation_types';
 
 export default {
   [types.SET_INITIAL_PAGE_DATA](state, data) {
-    const { configEndpoint, reportId, groupName, groupPath } = data;
+    const { configEndpoint, seriesEndpoint, reportId, groupName, groupPath } = data;
 
     state.configEndpoint = configEndpoint;
+    state.seriesEndpoint = seriesEndpoint;
     state.reportId = reportId;
     state.groupName = groupName;
     state.groupPath = groupPath;

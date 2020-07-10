@@ -19519,6 +19519,9 @@ msgstr ""
 msgid "Report abuse to admin"
 msgstr ""
 
+msgid "ReportPage|Last 90 days"
+msgstr ""
+
 msgid "Reported %{timeAgo} by %{reportedBy}"
 msgstr ""
 
@@ -23567,6 +23570,9 @@ msgid "There was an error when subscribing to this label."
 msgstr ""
 
 msgid "There was an error when unsubscribing from this label."
+msgstr ""
+
+msgid "There was an error while fetching chart series data."
 msgstr ""
 
 msgid "There was an error while fetching configuration data."

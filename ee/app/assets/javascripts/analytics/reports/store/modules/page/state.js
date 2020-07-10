@@ -4,6 +4,7 @@ export default () => ({
   isLoading: false,
 
   configEndpoint: '',
+  seriesEndpoint: '',
   reportId: null,
 
   groupName: null,
@@ -11,6 +12,15 @@ export default () => ({
 
   config: {
     title: s__('GenericReports|Report'),
-    chart: null,
+    chart: {
+      series: [
+        {
+          id: null,
+          title: null,
+        },
+      ],
+      type: null,
+    },
+    id: null,
   },
 });

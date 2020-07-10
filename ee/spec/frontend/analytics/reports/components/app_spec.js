@@ -5,6 +5,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { GlBreadcrumb, GlLoadingIcon } from '@gitlab/ui';
 import httpStatusCodes from '~/lib/utils/http_status';
 import ReportsApp from 'ee/analytics/reports/components/app.vue';
+import ReportsChart from 'ee/analytics/reports/components/reports_chart.vue';
 import createStore from 'ee/analytics/reports/store';
 import { initialState, configData, pageData } from 'ee_jest/analytics/reports/mock_data';
 
@@ -28,6 +29,7 @@ describe('ReportsApp', () => {
 
   const findGlBreadcrumb = () => wrapper.find(GlBreadcrumb);
   const findGlLoadingIcon = () => wrapper.find(GlLoadingIcon);
+  const findReportChart = () => wrapper.find(ReportsChart);
 
   beforeEach(() => {
     mock = new MockAdapter(axios);
@@ -88,6 +90,26 @@ describe('ReportsApp', () => {
           { text: title, href: '' },
         ]);
       });
+    });
+  });
+
+  describe('displaying of report chart', () => {
+    it('does not display while the data is being retrieved', async () => {
+      wrapper = createComponent();
+
+      await wrapper.vm.$nextTick();
+
+      expect(findReportChart().exists()).toBe(false);
+    });
+
+    it('displays once the data has being retrieved', async () => {
+      wrapper = createComponent();
+
+      wrapper.vm.$store.dispatch('page/receivePageConfigDataSuccess', configData);
+
+      await wrapper.vm.$nextTick();
+
+      expect(findReportChart().exists()).toBe(true);
     });
   });
 });
