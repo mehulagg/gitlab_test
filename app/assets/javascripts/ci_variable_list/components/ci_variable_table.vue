@@ -179,7 +179,7 @@ export default {
         v-gl-modal-directive="$options.modalId"
         data-qa-selector="add_ci_variable_button"
         variant="success"
-        >{{ __('Add Variable') }}</gl-deprecated-button
+        >{{ __('Add variable') }}</gl-deprecated-button
       >
     </div>
   </div>
