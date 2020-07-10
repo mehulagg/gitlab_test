@@ -250,6 +250,8 @@ export default {
 
           if (this.isOpsgenie && value) {
             this.setOpsgenieAsDefault();
+          } else if(!this.isOpsgenie && value && !this.selectedService.authKey) {
+            window.location.reload();
           } else if (!this.isOpsgenie && value) {
             this.removeOpsGenieOption();
           } else {
@@ -348,6 +350,11 @@ export default {
     onReset() {
       this.testAlert.json = null;
       this.dismissFeedback();
+      if(this.canSaveForm) {
+        this.canSaveForm = false;
+        this.activated[this.selectedEndpoint] = !this.activated[this.selectedEndpoint];
+        // this.selectedService.active = !this.selectedService.active;
+      }
     },
   },
 };
@@ -465,7 +472,7 @@ export default {
               />
             </template>
           </gl-form-input-group>
-          <gl-button v-gl-modal.authKeyModal class="gl-mt-3">{{
+          <gl-button v-gl-modal.authKeyModal :disabled="!selectedService.active" class="gl-mt-3">{{
             $options.i18n.resetKey
           }}</gl-button>
           <gl-modal
