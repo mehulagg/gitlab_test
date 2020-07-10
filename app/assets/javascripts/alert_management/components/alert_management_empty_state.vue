@@ -72,7 +72,7 @@ export default {
         <div class="d-block">
           <span>{{ emptyState.info }}</span>
           <a
-            v-if="!this.opsgenieMvcEnabled"
+            v-if="!opsgenieMvcEnabled"
             href="/help/user/project/operations/alert_management.html"
             target="_blank"
           >
