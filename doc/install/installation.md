@@ -161,7 +161,7 @@ On Ubuntu, install Git from [its official PPA](https://git-scm.com/download/linu
 add-apt-repository ppa:git-core/ppa
 apt update
 apt install git
-ln -s /usr/bin/git /usr/local/bin/git 
+ln -s /usr/bin/git /usr/local/bin/git
 # repeat libpcre2 check as above
 ```
 
