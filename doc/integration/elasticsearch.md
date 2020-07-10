@@ -126,9 +126,7 @@ Keep in mind, this is the **minimum requirements** as per Elasticsearch. For
 production instances, they recommend considerably more resources.
 
 Storage requirements also vary based on the installation side, but as a rule of
-thumb, you should allocate the total size of your production database, **plus**
-two-thirds of the total size of your Git repositories. Efforts to reduce this
-total are being tracked in [epic &153](https://gitlab.com/groups/gitlab-org/-/epics/153).
+thumb, you should allocate storage equale to half the size of your repo. Versions before 13.2 would require as much as 1.6 * your repo size.
 
 ## Enabling Elasticsearch
 
