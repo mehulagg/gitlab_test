@@ -1481,7 +1481,6 @@ RSpec.describe QuickActions::InterpretService do
     end
 
     context 'submit_review command' do
-
       where(:note) do
         [
           'I like it',
