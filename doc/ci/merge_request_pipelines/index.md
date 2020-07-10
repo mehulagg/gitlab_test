@@ -166,31 +166,30 @@ Read the [documentation on Pipelines for Merged Results](pipelines_for_merged_re
 
 Read the [documentation on Merge Trains](pipelines_for_merged_results/merge_trains/index.md).
 
-## Important notes about merge requests from forked projects
+## Create pipelines in the parent project for merge requests from a forked project
 
-Note that the current behavior is subject to change. In the usual contribution
-flow, external contributors follow the following steps:
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217451) in GitLab 13.2.
 
-1. Fork a parent project.
-1. Create a merge request from the forked project that targets the `master` branch
-   in the parent project.
-1. A pipeline runs on the merge request.
-1. A maintainer from the parent project checks the pipeline result, and merge
-   into a target branch if the latest pipeline has passed.
+By default, external contibutors do not have permission to create pipelines in the
+parent project. When a pipeline for merge request is triggered by one of them, it's
+always created in the fork project instead of the parent project, and consumes the fork
+project's CI config/resource for running pipelines. However, there are some cases that
+parent project members want to create a pipeline in a parent project in order to ensure that the post-merge pipeline will pass in the parent project,
+for example, a fork project could be using a corrupted runner that doesn't execute test scripts properly,
+and parent project members might mistakenly trust the merge request with a fake-successful pipeline.
 
-Currently, those pipelines are created in a **forked** project, not in the
-parent project. This means you cannot completely trust the pipeline result,
-because, technically, external contributors can disguise their pipeline results
-by tweaking their GitLab Runner in the forked project.
+As of GitLab 13.2, parent project members can create pipelines in the parent project
+for merge requests from a forked project.
+To create a pipeline, visit **Merge Requests > Pipelines Tab** and click **Run Pipeline** button.
 
-There are multiple reasons why GitLab doesn't allow those pipelines to be
-created in the parent project, but one of the biggest reasons is security concern.
-External users could steal secret variables from the parent project by modifying
-`.gitlab-ci.yml`, which could be some sort of credentials. This should not happen.
+![Run pipeline button](img/run_pipeline_button.png)
 
-We're discussing a secure solution of running pipelines for merge requests
-that are submitted from forked projects,
-see [the issue about the permission extension](https://gitlab.com/gitlab-org/gitlab/-/issues/11934).
+Please note that fork merge requests could contain a malicious code to try to steal secrets
+in the parent project. You have to carefully review the changes of the merge request before actually
+triggering the pipeline. Gitlab shows the following warning to the pipeline triggerer
+not to miss this important security implication.
+
+![Fork MR Warning](img/fork_mr_warning.png)
 
 ## Additional predefined variables
 
