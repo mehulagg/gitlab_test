@@ -66,7 +66,7 @@ which could arise (especially with testing against browser specific features).
 - `rewire` is not required because Jest supports mocking modules. See also [Manual Mocks](https://jestjs.io/docs/en/manual-mocks).
 - No [context object](https://jasmine.github.io/tutorials/your_first_suite#section-The_%3Ccode%3Ethis%3C/code%3E_keyword) is passed to tests in Jest.
   This means sharing `this.something` between `beforeEach()` and `it()` for example does not work.
-  Instead you should declare shared variables in the context that they are needed (via `const` / `let`).
+  Instead you should declare shared variables in the context where they are needed (via `const` / `let`).
 - The following will cause tests to fail in Jest:
   - Unmocked requests.
   - Unhandled Promise rejections.
@@ -128,7 +128,7 @@ function getFahrenheit(celsius) {
 }
 ```
 
-It does not make sense to test our `getFahrenheit` function because underneath it does nothing else but invoking the library function, and we can expect that one is working as intended. (Simplified, I know)
+It does not make sense to test our `getFahrenheit` function because underneath it does nothing else but invoking the library function, and we should expect a library to be working as intended. (Simplified, I know)
 
 Let's take a short look into Vue land. Vue is a critical part of the GitLab JavaScript codebase. When writing specs for Vue components, a common gotcha is to actually end up testing Vue provided functionality, because it appears to be the easiest thing to test. Here's an example taken from our codebase.
 
@@ -160,11 +160,11 @@ and here's the corresponding spec
 });
 ```
 
-Testing the `hasMetricTypes` computed prop would seem like a given, but to test if the computed property is returning the length of `metricTypes`, is testing the Vue library itself. There is no value in this, besides it adding to the test suite. Better is to test it in the way the user interacts with it. Probably through the template.
+Testing the `hasMetricTypes` computed prop would seem like a given, but to test if the computed property is returning the length of `metricTypes` equals testing the Vue library itself: there is no value in it. Better is to test it in the way the user interacts with it: by testing the template.
 
 Keep an eye out for these kinds of tests, as they just make updating logic more fragile and tedious than it needs to be. This is also true for other libraries.
 
-Some more examples can be found in the [Frontend unit tests section](testing_levels.md#frontend-unit-tests)
+Some more examples can be found in the [Frontend unit tests section](testing_levels.md#frontend-unit-tests).
 
 ### Don't test your mock
 
@@ -191,7 +191,7 @@ expect(wrapper.find('div').html()).toBe('<div id="1234">...</div>')
 
 ### Follow the user
 
-The line between unit and integration tests can be quite blurry in a component heavy world. The most important guideline to give is the following:
+The line between unit and integration tests can be quite blurry in a component heavy world. The most important guideline is:
 
 - Write clean unit tests if there is actual value in testing a complex piece of logic in isolation to prevent it from breaking in the future
 - Otherwise, try to write your specs as close to the user's flow as possible
@@ -200,11 +200,11 @@ For example, it's better to use the generated markup to trigger a button click a
 
 ## Common practices
 
-Following you'll find some general common practices you will find as part of our test suite. Should you stumble over something not following this guide, ideally fix it right away. 🎉
+Here's some common practices we follow when writing our test suite. Should you stumble over something not following this guide, ideally fix it right away. 🎉
 
 ### How to query DOM elements
 
-When it comes to querying DOM elements in your tests, it is best to uniquely and semantically target the element. Sometimes this cannot be done feasibly. In these cases, adding test attributes to simplify the selectors might be the best option.
+When it comes to querying DOM elements in your tests, it is best to uniquely and semantically target the element. When it cannot be done, adding test attributes to simplify the selectors might be the best option.
 
 Preferentially, in component testing with `@vue/test-utils`, you should query for child components using the component itself. This helps enforce that specific behavior can be covered by that component's individual unit tests. Otherwise, try to use:
 
@@ -221,12 +221,6 @@ it('exists', () => {
     wrapper.find('input[name=foo]');
     wrapper.find('[data-testid="foo"]');
     wrapper.find({ ref: 'foo'});
-
-    // Bad
-    wrapper.find('.js-foo');
-    wrapper.find('.btn-primary');
-    wrapper.find('.qa-foo-component');
-    wrapper.find('[data-qa-selector="foo"]');
 });
 ```
 

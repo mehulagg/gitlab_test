@@ -2,12 +2,12 @@
 
 We use [Axios](https://github.com/axios/axios) to communicate with the server in Vue applications and most new code.
 
-In order to guarantee all defaults are set you *should not use Axios directly*, you should import Axios from `axios_utils`.
+In order to guarantee all defaults are set you *should not use Axios directly*, but import Axios from `axios_utils`.
 
 ## CSRF token
 
 All our requests require a CSRF token.
-To guarantee this token is set, we are importing [Axios](https://github.com/axios/axios), setting the token, and exporting `axios` .
+To guarantee this token is set, we are importing [Axios](https://github.com/axios/axios), setting the token, and exporting `axios`.
 
 This exported module should be used instead of directly using Axios to ensure the token is set.
 

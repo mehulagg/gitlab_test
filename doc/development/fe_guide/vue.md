@@ -12,7 +12,7 @@ What is described in the following sections can be found in these examples:
 
 ## Vue architecture
 
-All new features built with Vue.js must follow a [Flux architecture](https://facebook.github.io/flux/).
+All new features built with Vue.js must follow [Flux architecture](https://facebook.github.io/flux/).
 The main goal we are trying to achieve is to have only one data flow and only one data entry.
 In order to achieve this goal we use [vuex](#vuex).
 
@@ -172,10 +172,10 @@ Check this [page](vuex.md) for more details.
 
 ### Mixing Vue and jQuery
 
-- Mixing Vue and jQuery is not recommended.
-- If you need to use a specific jQuery plugin in Vue, [create a wrapper around it](https://vuejs.org/v2/examples/select2.html).
+- It is not recommended mixing Vue and jQuery.
+- It is not recommended addiing new jQuery events for Vue to interact with jQuery.
 - It is acceptable for Vue to listen to existing jQuery events using jQuery event listeners.
-- It is not recommended to add new jQuery events for Vue to interact with jQuery.
+- If you need to use a specific jQuery plugin in Vue, [create a wrapper around it](https://vuejs.org/v2/examples/select2.html).
 
 ## Style guide
 

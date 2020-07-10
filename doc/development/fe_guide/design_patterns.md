@@ -49,7 +49,7 @@ export default class MyThing {
 
 ## Manipulating the DOM in a JS Class
 
-When writing a class that needs to manipulate the DOM guarantee a container option is provided.
+When writing a class that needs to manipulate the DOM make sure a container option is provided.
 This is useful when we need that class to be instantiated more than once in the same page.
 
 Bad:
@@ -75,4 +75,4 @@ class Foo {
 new Foo({ container: '.my-element' });
 ```
 
-You can find an example of the above in this [class](https://gitlab.com/gitlab-org/gitlab/blob/master/app/assets/javascripts/mini_pipeline_graph_dropdown.js);
+You can find an example of the above in this [class](https://gitlab.com/gitlab-org/gitlab/blob/master/app/assets/javascripts/mini_pipeline_graph_dropdown.js).
