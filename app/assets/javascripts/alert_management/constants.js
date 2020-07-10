@@ -1,4 +1,4 @@
-import { s__, __ } from '~/locale';
+import { s__ } from '~/locale';
 
 export const ALERTS_SEVERITY_LABELS = {
   CRITICAL: s__('AlertManagement|Critical'),
@@ -65,30 +65,3 @@ export const trackAlertStatusUpdateOptions = {
 };
 
 export const DEFAULT_PAGE_SIZE = 10;
-
-export const AlertManagementListi18n = {
-  noAlertsMsg: s__(
-    'AlertManagement|No alerts available to display. See %{linkStart}enabling alert management%{linkEnd} for more information on adding alerts to the list.',
-  ),
-  errorMsg: s__(
-    "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear.",
-  ),
-  searchPlaceholder: __('Search or filter results...'),
-  moreInformation: s__('AlertManagement|More information'),
-  emptyState: {
-    opsgenie: {
-      title: s__('AlertManagement|Opsgenie is enabled'),
-      info: s__(
-        'AlertManagement|You have enabled the Opsgenie integration. Your alerts will be visible directly in Opsgenie.',
-      ),
-      buttonText: s__('AlertManagement|View alerts in Opsgenie'),
-    },
-    gitlab: {
-      title: s__('AlertManagement|Surface alerts in GitLab'),
-      info: s__(
-        'AlertManagement|Display alerts from all your monitoring tools directly within GitLab. Streamline the investigation of your alerts and the escalation of alerts to incidents.',
-      ),
-      buttonText: s__('AlertManagement|Authorize external service'),
-    },
-  },
-};
