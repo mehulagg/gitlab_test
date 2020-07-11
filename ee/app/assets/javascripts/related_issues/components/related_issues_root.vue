@@ -91,7 +91,7 @@ export default {
     this.store = new RelatedIssuesStore();
 
     return {
-      state: undefined,
+      state: this.store.state,
       isFetching: false,
       isSubmitting: false,
       isFormVisible: false,
@@ -116,9 +116,9 @@ export default {
       const issueToRemove = this.findRelatedIssueById(idToRemove);
 
       if (issueToRemove) {
-        RelatedIssuesService.remove(issueToRemove)
-          .then(() => {
-            this.store.removeRelatedIssue(data.issuables);
+        RelatedIssuesService.remove(issueToRemove.relationPath)
+          .then(({ data }) => {
+            this.store.setRelatedIssues(data.issuables);
           })
           .catch(res => {
             if (res && res.status !== 404) {
@@ -145,7 +145,7 @@ export default {
           .then(({ data }) => {
             // We could potentially lose some pending issues in the interim here
             this.store.setPendingReferences([]);
-            this.store.addRelatedIssues(data.issuables);
+            this.store.setRelatedIssues(data.issuables);
 
             // Close the form on submission
             this.isFormVisible = false;
@@ -202,7 +202,8 @@ export default {
       }
     },
     onInput({ untouchedRawReferences, touchedReference }) {
-      this.store.setPendingReferences(this.state.pendingReferences.concat(untouchedRawReferences));
+      this.store.addPendingReferences(untouchedRawReferences);
+
       this.inputValue = `${touchedReference}`;
     },
     onBlur(newValue) {
@@ -211,7 +212,7 @@ export default {
     processAllReferences(value = '') {
       const rawReferences = value.split(/\s+/).filter(reference => reference.trim().length > 0);
 
-      this.store.setPendingReferences(this.state.pendingReferences.concat(rawReferences));
+      this.store.addPendingReferences(rawReferences);
       this.inputValue = '';
     },
   },

@@ -20,7 +20,7 @@ describe('RelatedIssuesStore', () => {
       expect(store.state.relatedIssues).toEqual([]);
     });
 
-    it('set issue', () => {
+    it('sets issues', () => {
       const relatedIssues = [issuable1];
       store.setRelatedIssues(relatedIssues);
 
@@ -29,30 +29,16 @@ describe('RelatedIssuesStore', () => {
   });
 
   describe('addRelatedIssues', () => {
-    it('adds related issues when the new issues are passed as an array', () => {
+    it('adds related issues', () => {
       store.state.relatedIssues = [issuable1];
       store.addRelatedIssues([issuable2, issuable3]);
 
       expect(store.state.relatedIssues).toEqual([issuable1, issuable2, issuable3]);
     });
-
-    it('adds related issues when the new issues are passed as rest parameters', () => {
-      store.state.relatedIssues = [issuable1];
-      store.addRelatedIssues(issuable2, issuable3);
-
-      expect(store.state.relatedIssues).toEqual([issuable1, issuable2, issuable3]);
-    });
-
-    it('does not modify existing issues when none are passed', () => {
-      store.state.relatedIssues = [issuable1];
-      store.addRelatedIssues(undefined);
-
-      expect(store.state.relatedIssues).toEqual([issuable1]);
-    });
   });
 
   describe('removeRelatedIssue', () => {
-    it('remove issue', () => {
+    it('removes issue', () => {
       store.state.relatedIssues = [issuable1];
 
       store.removeRelatedIssue(issuable1);
@@ -60,7 +46,7 @@ describe('RelatedIssuesStore', () => {
       expect(store.state.relatedIssues).toEqual([]);
     });
 
-    it('remove issue with multiple in store', () => {
+    it('removes issue with multiple in store', () => {
       store.state.relatedIssues = [issuable1, issuable2];
 
       store.removeRelatedIssue(issuable1);
@@ -85,7 +71,7 @@ describe('RelatedIssuesStore', () => {
       expect(store.state.pendingReferences).toEqual([]);
     });
 
-    it('add reference', () => {
+    it('sets pending references', () => {
       const relatedIssues = [issuable1.reference];
       store.setPendingReferences(relatedIssues);
 
@@ -93,8 +79,21 @@ describe('RelatedIssuesStore', () => {
     });
   });
 
+  describe('addPendingReferences', () => {
+    it('adds a reference', () => {
+      store.state.pendingReferences = [issuable1.reference];
+      store.addPendingReferences([issuable2.reference, issuable3.reference]);
+
+      expect(store.state.pendingReferences).toEqual([
+        issuable1.reference,
+        issuable2.reference,
+        issuable3.reference,
+      ]);
+    });
+  });
+
   describe('removePendingRelatedIssue', () => {
-    it('remove issue', () => {
+    it('removes issue', () => {
       store.state.pendingReferences = [issuable1.reference];
 
       store.removePendingRelatedIssue(0);
@@ -102,7 +101,7 @@ describe('RelatedIssuesStore', () => {
       expect(store.state.pendingReferences).toEqual([]);
     });
 
-    it('remove issue with multiple in store', () => {
+    it('removes issue with multiple in store', () => {
       store.state.pendingReferences = [issuable1.reference, issuable2.reference];
 
       store.removePendingRelatedIssue(0);

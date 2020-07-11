@@ -14,9 +14,8 @@ class RelatedIssuesStore {
     this.state.relatedIssues = convertObjectPropsToCamelCase(issues, { deep: true });
   }
 
-  addRelatedIssues(...issues) {
-    const actualIssues = issues.filter(x => Boolean(x));
-    this.setRelatedIssues(this.state.relatedIssues.concat(...actualIssues));
+  addRelatedIssues(issues = []) {
+    this.setRelatedIssues(this.state.relatedIssues.concat(issues));
   }
 
   removeRelatedIssue(issue) {
@@ -34,6 +33,11 @@ class RelatedIssuesStore {
     // Remove duplicates but retain order.
     // If you don't do this, Vue will be confused by duplicates and refuse to delete them all.
     this.state.pendingReferences = issues.filter((ref, idx) => issues.indexOf(ref) === idx);
+  }
+
+  addPendingReferences(references = []) {
+    const issues = this.state.pendingReferences.concat(references);
+    this.setPendingReferences(issues);
   }
 
   removePendingRelatedIssue(indexToRemove) {
