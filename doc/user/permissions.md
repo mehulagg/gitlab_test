@@ -25,7 +25,7 @@ To add or import a user, you can follow the
 
 ## Principles behind permissions
 
-See our [product handbook on permissions](https://about.gitlab.com/handbook/product/#permissions-in-gitlab)
+See our [product handbook on permissions](https://about.gitlab.com/handbook/product/gitlab-the-product/#permissions-in-gitlab).
 
 ## Instance-wide user permissions
 
@@ -120,6 +120,7 @@ The following table depicts the various user permission levels in a project.
 | Rewrite/remove Git tags                           |         |            | ✓           | ✓        | ✓      |
 | Manage Feature Flags **(PREMIUM)**                |         |            | ✓           | ✓        | ✓      |
 | Create/edit/delete metrics dashboard annotations  |         |            | ✓           | ✓        | ✓      |
+| Run CI/CD pipeline against a protected branch     |         |            | ✓ (*5*)     | ✓        | ✓      |
 | Use environment terminals                         |         |            |             | ✓        | ✓      |
 | Run Web IDE's Interactive Web Terminals **(ULTIMATE ONLY)** |     |      |             | ✓        | ✓      |
 | Add new team members                              |         |            |             | ✓        | ✓      |

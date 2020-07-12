@@ -396,6 +396,8 @@ appear to be associated to any of the services running, since they all appear to
 | `installation_type`                                       |                                      |               |                  |         |                                                                            |
 | `active_user_count`                                       |                                      |               |                  |         |                                                                            |
 | `recorded_at`                                             |                                      |               |                  |         |                                                                            |
+| `recording_ce_finished_at`                                |                                      |               |                  | CE+EE   | When the core features were computed                                       |
+| `recording_ee_finished_at`                                |                                      |               |                  | EE      | When the EE-specific features were computed                                |
 | `edition`                                                 |                                      |               |                  |         |                                                                            |
 | `license_md5`                                             |                                      |               |                  |         |                                                                            |
 | `license_id`                                              |                                      |               |                  |         |                                                                            |
@@ -647,7 +649,23 @@ appear to be associated to any of the services running, since they all appear to
 | `projects_slack_notifications_active`                     | `usage_activity_by_stage`            | `configure`   |                  | EE      | Unique projects with Slack service enabled                                 |
 | `projects_slack_slash_active`                             | `usage_activity_by_stage`            | `configure`   |                  | EE      | Unique projects with Slack '/' commands enabled                            |
 | `projects_with_prometheus_alerts`                         | `usage_activity_by_stage`            | `configure`   |                  | EE      | Projects with Prometheus enabled and no alerts                             |
-| `deploy_keys`                                             | `usage_activity_by_stage`            | `create`      |                  |         |                                                                            |
+| `deploy_keys`                                                       | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `keys`                                                              | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `merge_requests`                                                    | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `projects_with_disable_overriding_approvers_per_merge_request`      | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `projects_without_disable_overriding_approvers_per_merge_request`   | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `remote_mirrors`                                                    | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `snippets`                                                          | `usage_activity_by_stage`            | `create`      |                  | CE+EE   |                                                                            |
+| `merge_requests_users`                                              | `usage_activity_by_stage_monthly`    | `create`      |                  | CE+EE   | Unique count of users who used a merge request                             |
+| `projects_enforcing_code_owner_approval`                            | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `merge_requests_with_optional_codeowners`                           | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `merge_requests_with_required_codeowners`                           | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `projects_imported_from_github`                                     | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `projects_with_repositories_enabled`                                | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `protected_branches`                                                | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `suggestions`                                                       | `usage_activity_by_stage`            | `create`      |                  | EE      |                                                                            |
+| `approval_project_rules`                                  | `usage_activity_by_stage`            | `create`      |                  | EE      | Number of project approval rules                                           |
+| `approval_project_rules_with_target_branch`               | `usage_activity_by_stage`            | `create`      |                  | EE      | Number of project approval rules with not default target branch            |
 | `clusters`                                                | `usage_activity_by_stage`            | `monitor`     |                  | CE+EE   |                                                                            |
 | `clusters_applications_prometheus`                        | `usage_activity_by_stage`            | `monitor`     |                  | CE+EE   |                                                                            |
 | `operations_dashboard_default_dashboard`                  | `usage_activity_by_stage`            | `monitor`     |                  | CE+EE   |                                                                            |
@@ -667,27 +685,35 @@ appear to be associated to any of the services running, since they all appear to
 | `ldap_group_sync_enabled`                                 | `usage_activity_by_stage`            | `manage`      |                  | EE      |                                                                            |
 | `ldap_admin_sync_enabled`                                 | `usage_activity_by_stage`            | `manage`      |                  | EE      |                                                                            |
 | `group_saml_enabled`                                      | `usage_activity_by_stage`            | `manage`      |                  | EE      |                                                                            |
-| `keys`                                                    | `usage_activity_by_stage`            | `create`      |                  |         |                                                                            |
-| `projects_jira_dvcs_server_active`                        | `usage_activity_by_stage`            | `plan`        |                  |         |                                                                            |
-| `service_desk_enabled_projects`                           | `usage_activity_by_stage`            | `plan`        |                  |         |                                                                            |
-| `service_desk_issues`                                     | `usage_activity_by_stage`            | `plan`        |                  |         |                                                                            |
-| `todos: 0`                                                | `usage_activity_by_stage`            | `plan`        |                  |         |                                                                            |
+| `issues`                                                  | `usage_activity_by_stage`            | `plan`        |                  | CE+EE   |                                                                            |
+| `notes`                                                   | `usage_activity_by_stage`            | `plan`        |                  | CE+EE   |                                                                            |
+| `projects`                                                | `usage_activity_by_stage`            | `plan`        |                  | CE+EE   |                                                                            |
+| `todos`                                                   | `usage_activity_by_stage`            | `plan`        |                  | CE+EE   |                                                                            |
+| `assignee_lists`                                          | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `epics`                                                   | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `label_lists`                                             | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `milestone_lists`                                         | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `projects_jira_active`                                    | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `projects_jira_dvcs_server_active`                        | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `projects_jira_dvcs_server_active`                        | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `service_desk_enabled_projects`                           | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
+| `service_desk_issues`                                     | `usage_activity_by_stage`            | `plan`        |                  | EE      |                                                                            |
 | `deployments`                                             | `usage_activity_by_stage`            | `release`     |                  | CE+EE   | Total deployments                                                          |
 | `failed_deployments`                                      | `usage_activity_by_stage`            | `release`     |                  | CE+EE   | Total failed deployments                                                   |
 | `projects_mirrored_with_pipelines_enabled`                | `usage_activity_by_stage`            | `release`     |                  | EE      | Projects with repository mirroring enabled                                 |
 | `releases`                                                | `usage_activity_by_stage`            | `release`     |                  | CE+EE   | Unique release tags in project                                             |
 | `successful_deployments`                                  | `usage_activity_by_stage`            | `release`     |                  | CE+EE   | Total successful deployments                                               |
-| `user_preferences_group_overview_security_dashboard: 0`   | `usage_activity_by_stage`            | `secure`      |                  |         |                                                                            |
-| `ci_builds`                                               | `usage_activity_by_stage`            | `verify`      |                  |         | Unique builds in project                                                   |
-| `ci_external_pipelines`                                   | `usage_activity_by_stage`            | `verify`      |                  |         | Total pipelines in external repositories                                   |
-| `ci_internal_pipelines`                                   | `usage_activity_by_stage`            | `verify`      |                  |         | Total pipelines in GitLab repositories                                     |
-| `ci_pipeline_config_auto_devops`                          | `usage_activity_by_stage`            | `verify`      |                  |         | Total pipelines from an Auto DevOps template                               |
-| `ci_pipeline_config_repository`                           | `usage_activity_by_stage`            | `verify`      |                  |         | Pipelines from templates in repository                                     |
-| `ci_pipeline_schedules`                                   | `usage_activity_by_stage`            | `verify`      |                  |         | Pipeline schedules in GitLab                                               |
-| `ci_pipelines`                                            | `usage_activity_by_stage`            | `verify`      |                  |         | Total pipelines                                                            |
-| `ci_triggers`                                             | `usage_activity_by_stage`            | `verify`      |                  |         | Triggers enabled                                                           |
-| `clusters_applications_runner`                            | `usage_activity_by_stage`            | `verify`      |                  |         | Unique clusters with Runner enabled                                        |
-| `projects_reporting_ci_cd_back_to_github: 0`              | `usage_activity_by_stage`            | `verify`      |                  |         | Unique projects with a GitHub pipeline enabled                             |
+| `user_preferences_group_overview_security_dashboard`      | `usage_activity_by_stage`            | `secure`      |                  |         |                                                                            |
+| `ci_builds`                                               | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Unique builds in project                                                   |
+| `ci_external_pipelines`                                   | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Total pipelines in external repositories                                   |
+| `ci_internal_pipelines`                                   | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Total pipelines in GitLab repositories                                     |
+| `ci_pipeline_config_auto_devops`                          | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Total pipelines from an Auto DevOps template                               |
+| `ci_pipeline_config_repository`                           | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Pipelines from templates in repository                                     |
+| `ci_pipeline_schedules`                                   | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Pipeline schedules in GitLab                                               |
+| `ci_pipelines`                                            | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Total pipelines                                                            |
+| `ci_triggers`                                             | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Triggers enabled                                                           |
+| `clusters_applications_runner`                            | `usage_activity_by_stage`            | `verify`      |                  | CE+EE   | Unique clusters with Runner enabled                                        |
+| `projects_reporting_ci_cd_back_to_github`                 | `usage_activity_by_stage`            | `verify`      |                  | EE      | Unique projects with a GitHub pipeline enabled                             |
 | `merge_requests_users`                                    | `usage_activity_by_stage_monthly`    | `create`      |                  |         | Unique count of users who used a merge request                             |
 | `duration_s`                                              | `topology`                           | `enablement`  |                  |         | Time it took to collect topology data                                      |
 | `application_requests_per_hour`                           | `topology`                           | `enablement`  |                  |         | Number of requests to the web application per hour                         |
@@ -695,6 +721,7 @@ appear to be associated to any of the services running, since they all appear to
 | `nodes`                                                   | `topology`                           | `enablement`  |                  |         | The list of server nodes on which GitLab components are running            |
 | `node_memory_total_bytes`                                 | `topology > nodes`                   | `enablement`  |                  |         | The total available memory of this node                                    |
 | `node_cpus`                                               | `topology > nodes`                   | `enablement`  |                  |         | The number of CPU cores of this node                                       |
+| `node_uname_info`                                         | `topology > nodes`                   | `enablement`  |                  |         | The basic hardware architecture and OS release information on this node    |
 | `node_services`                                           | `topology > nodes`                   | `enablement`  |                  |         | The list of GitLab services running on this node                           |
 | `name`                                                    | `topology > nodes > node_services`   | `enablement`  |                  |         | The name of the GitLab service running on this node                        |
 | `process_count`                                           | `topology > nodes > node_services`   | `enablement`  |                  |         | The number of processes running for this service                           |
@@ -907,6 +934,11 @@ The following is example content of the Usage Ping payload.
       {
         "node_memory_total_bytes": 33269903360,
         "node_cpus": 16,
+        "node_uname_info": {
+          "machine": "x86_64",
+          "sysname": "Linux",
+          "release": "4.19.76-linuxkit"
+        },
         "node_services": [
           {
             "name": "web",
