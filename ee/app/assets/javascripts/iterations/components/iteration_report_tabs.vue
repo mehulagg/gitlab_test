@@ -12,7 +12,6 @@ import {
   GlTooltipDirective,
 } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
-import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import query from '../queries/iteration_issues.query.graphql';
 
 const states = {
