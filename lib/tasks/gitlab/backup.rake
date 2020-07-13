@@ -43,7 +43,7 @@ namespace :gitlab do
       cleanup_required = backup.unpack
       backup.verify_backup_version
 
-      unless backup.skipped?('db')
+      unless backup.skipped?('db') || ENV["SKIP"].include?("db")
         begin
           unless ENV['force'] == 'yes'
             warning = <<-MSG.strip_heredoc
@@ -70,13 +70,13 @@ namespace :gitlab do
         end
       end
 
-      Rake::Task['gitlab:backup:repo:restore'].invoke unless backup.skipped?('repositories')
-      Rake::Task['gitlab:backup:uploads:restore'].invoke unless backup.skipped?('uploads')
-      Rake::Task['gitlab:backup:builds:restore'].invoke unless backup.skipped?('builds')
-      Rake::Task['gitlab:backup:artifacts:restore'].invoke unless backup.skipped?('artifacts')
-      Rake::Task['gitlab:backup:pages:restore'].invoke unless backup.skipped?('pages')
-      Rake::Task['gitlab:backup:lfs:restore'].invoke unless backup.skipped?('lfs')
-      Rake::Task['gitlab:backup:registry:restore'].invoke unless backup.skipped?('registry')
+      Rake::Task['gitlab:backup:repo:restore'].invoke unless backup.skipped?('repositories') || ENV["SKIP"].include?("repositories")
+      Rake::Task['gitlab:backup:uploads:restore'].invoke unless backup.skipped?('uploads')  || ENV["SKIP"].include?("uploads")
+      Rake::Task['gitlab:backup:builds:restore'].invoke unless backup.skipped?('builds')  || ENV["SKIP"].include?("builds")
+      Rake::Task['gitlab:backup:artifacts:restore'].invoke unless backup.skipped?('artifacts')  || ENV["SKIP"].include?("artifacts")
+      Rake::Task['gitlab:backup:pages:restore'].invoke unless backup.skipped?('pages')  || ENV["SKIP"].include?("pages")
+      Rake::Task['gitlab:backup:lfs:restore'].invoke unless backup.skipped?('lfs')  || ENV["SKIP"].include?("lfs")
+      Rake::Task['gitlab:backup:registry:restore'].invoke unless backup.skipped?('registry')  || ENV["SKIP"].include?("registry")
       Rake::Task['gitlab:shell:setup'].invoke
       Rake::Task['cache:clear'].invoke
 
