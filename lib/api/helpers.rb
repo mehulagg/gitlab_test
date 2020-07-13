@@ -368,6 +368,12 @@ module API
       render_api_error!(message.join(' '), 404)
     end
 
+    def check_sha_param!(params, merge_request)
+      if params[:sha] && merge_request.diff_head_sha != params[:sha]
+        render_api_error!("SHA does not match HEAD of source branch: #{merge_request.diff_head_sha}", 409)
+      end
+    end
+
     def unauthorized!
       render_api_error!('401 Unauthorized', 401)
     end
@@ -410,8 +416,12 @@ module API
 
     def render_validation_error!(model)
       if model.errors.any?
-        render_api_error!(model.errors.messages || '400 Bad Request', 400)
+        render_api_error!(model_error_messages(model) || '400 Bad Request', 400)
       end
+    end
+
+    def model_error_messages(model)
+      model.errors.messages
     end
 
     def render_spam_error!

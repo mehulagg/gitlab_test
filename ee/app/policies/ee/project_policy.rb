@@ -227,7 +227,6 @@ module EE
         enable :read_deploy_board
         enable :admin_issue_link
         enable :admin_epic_issue
-        enable :read_package
         enable :read_group_timelogs
       end
 
@@ -252,8 +251,6 @@ module EE
         enable :create_iteration
         enable :admin_iteration
       end
-
-      rule { can?(:public_access) }.enable :read_package
 
       rule { can?(:read_project) & iterations_available }.enable :read_iteration
 
@@ -424,7 +421,7 @@ module EE
       rule { status_page_available & can?(:owner_access) }.enable :mark_issue_for_publication
       rule { status_page_available & can?(:developer_access) }.enable :publish_status_page
 
-      rule { public_project }.enable :embed_analytics_report
+      rule { public_project }.enable :view_embedded_analytics_report
     end
 
     override :lookup_access_level!

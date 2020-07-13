@@ -75,6 +75,60 @@ RSpec.describe Projects::Integrations::Jira::IssuesFinder do
           expect(service.total_count).to eq 375
           expect(issues.map(&:key)).to eq(%w[TEST-1 TEST-2])
         end
+
+        context 'when sorting' do
+          shared_examples 'maps sort values' do
+            it do
+              expect(::Jira::JqlBuilderService).to receive(:new)
+                .with(jira_service.project_key, expected_sort_values)
+                .and_call_original
+
+              subject
+            end
+          end
+
+          it_behaves_like 'maps sort values' do
+            let(:params) { { sort: 'created_date' } }
+            let(:expected_sort_values) { { sort: 'created', sort_direction: 'DESC' } }
+          end
+
+          it_behaves_like 'maps sort values' do
+            let(:params) { { sort: 'created_desc' } }
+            let(:expected_sort_values) { { sort: 'created', sort_direction: 'DESC' } }
+          end
+
+          it_behaves_like 'maps sort values' do
+            let(:params) { { sort: 'created_asc' } }
+            let(:expected_sort_values) { { sort: 'created', sort_direction: 'ASC' } }
+          end
+
+          it_behaves_like 'maps sort values' do
+            let(:params) { { sort: 'updated_desc' } }
+            let(:expected_sort_values) { { sort: 'updated', sort_direction: 'DESC' } }
+          end
+
+          it_behaves_like 'maps sort values' do
+            let(:params) { { sort: 'updated_asc' } }
+            let(:expected_sort_values) { { sort: 'updated', sort_direction: 'ASC' } }
+          end
+
+          it_behaves_like 'maps sort values' do
+            let(:params) { { sort: 'unknown_sort' } }
+            let(:expected_sort_values) { { sort: 'created', sort_direction: 'DESC' } }
+          end
+        end
+
+        context 'when pagination params used' do
+          let(:params) { { page: '10', per_page: '20' } }
+
+          it 'passes them to JqlBuilderService ' do
+            expect(::Jira::JqlBuilderService).to receive(:new)
+              .with(jira_service.project_key, include({ page: '10', per_page: '20' }))
+              .and_call_original
+
+            subject
+          end
+        end
       end
     end
   end

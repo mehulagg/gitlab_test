@@ -145,9 +145,12 @@ module EE
     def sidebar_security_paths
       %w[
         projects/security/configuration#show
+        projects/security/sast_configuration#show
         projects/security/vulnerabilities#show
         projects/security/dashboard#index
         projects/on_demand_scans#index
+        projects/dast_profiles#index
+        projects/dast_site_profiles#new
         projects/dependencies#index
         projects/licenses#index
         projects/threat_monitoring#show

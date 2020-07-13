@@ -385,15 +385,6 @@ RSpec.describe ProjectsController do
           .not_to exceed_query_limit(2).for_query(expected_query)
       end
     end
-
-    context 'namespace storage limit' do
-      let_it_be(:project) { create(:project, :public, :repository ) }
-      let(:namespace) { project.namespace }
-
-      subject { get :show, params: { namespace_id: namespace, id: project } }
-
-      it_behaves_like 'namespace storage limit alert'
-    end
   end
 
   describe 'GET edit' do
@@ -1197,7 +1188,7 @@ RSpec.describe ProjectsController do
       before do
         allow(Gitlab::ApplicationRateLimiter)
           .to receive(:increment)
-          .and_return(Gitlab::ApplicationRateLimiter.rate_limits["project_#{action}".to_sym][:threshold] + 1)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits["project_#{action}".to_sym][:threshold].call + 1)
       end
 
       it 'prevents requesting project export' do
@@ -1264,7 +1255,7 @@ RSpec.describe ProjectsController do
           before do
             allow(Gitlab::ApplicationRateLimiter)
               .to receive(:increment)
-              .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold] + 1)
+              .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold].call + 1)
           end
 
           it 'prevents requesting project export' do

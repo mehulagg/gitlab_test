@@ -58,6 +58,7 @@ Rails.application.routes.draw do
 
   # Search
   get 'search' => 'search#show'
+  get 'search/autocomplete' => 'search#autocomplete', as: :search_autocomplete
   get 'search/count' => 'search#count', as: :search_count
 
   # JSON Web Token
@@ -242,6 +243,8 @@ Rails.application.routes.draw do
     post :preview_markdown
   end
 
+  draw :group
+
   resources :projects, only: [:index, :new, :create]
 
   get '/projects/:id' => 'projects#resolve'
@@ -258,7 +261,6 @@ Rails.application.routes.draw do
   draw :admin
   draw :profile
   draw :dashboard
-  draw :group
   draw :user
   draw :project
 

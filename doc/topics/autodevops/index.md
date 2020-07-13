@@ -104,7 +104,7 @@ knowledge of the following:
 - [GitLab Runner](https://docs.gitlab.com/runner/)
 - [Prometheus](https://prometheus.io/docs/introduction/overview/)
 
-Auto DevOps provides great defaults for all the stages; you can, however,
+Auto DevOps provides great defaults for all the stages and makes use of [CI templates](https://gitlab.com/gitlab-org/gitlab/-/tree/master/lib/gitlab/ci/templates); you can, however,
 [customize](customize.md) almost everything to your needs.
 
 For an overview on the creation of Auto DevOps, read more
@@ -113,6 +113,10 @@ For an overview on the creation of Auto DevOps, read more
 NOTE: **Note**
 Kubernetes clusters can [be used without](../../user/project/clusters/index.md)
 Auto DevOps.
+
+## Kubernetes requirements
+
+See [Auto DevOps requirements for Kubernetes](requirements.md#auto-devops-requirements-for-kubernetes).
 
 ## Auto DevOps base domain
 
@@ -162,6 +166,10 @@ set the Auto DevOps base domain to `1.2.3.4.nip.io`.
 
 After completing setup, all requests hit the load balancer, which routes requests
 to the Kubernetes pods running your application.
+
+### AWS ECS
+
+See [Auto DevOps requirements for Amazon ECS](requirements.md#auto-devops-requirements-for-amazon-ecs).
 
 ## Enabling/Disabling Auto DevOps
 
@@ -240,11 +248,11 @@ TIP: **Tip:**
 Use the [blue-green deployment](../../ci/environments/incremental_rollouts.md#blue-green-deployment) technique
 to minimize downtime and risk.
 
-## Using multiple Kubernetes clusters **(PREMIUM)**
+## Using multiple Kubernetes clusters
 
 When using Auto DevOps, you can deploy different environments to
 different Kubernetes clusters, due to the 1:1 connection
-[existing between them](../../user/project/clusters/index.md#multiple-kubernetes-clusters-premium).
+[existing between them](../../user/project/clusters/index.md#multiple-kubernetes-clusters).
 
 The [Deploy Job template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml)
 used by Auto DevOps currently defines 3 environment names:
@@ -271,8 +279,8 @@ To add a different cluster for each environment:
 1. Navigate to your project's **{cloud-gear}** **Operations > Kubernetes**.
 1. Create the Kubernetes clusters with their respective environment scope, as
    described from the table above.
-1. After creating the clusters, navigate to each cluster and install Helm Tiller
-   and Ingress. Wait for the Ingress IP address to be assigned.
+1. After creating the clusters, navigate to each cluster and install
+   Ingress. Wait for the Ingress IP address to be assigned.
 1. Make sure you've [configured your DNS](#auto-devops-base-domain) with the
    specified Auto DevOps domains.
 1. Navigate to each cluster's page, through **{cloud-gear}** **Operations > Kubernetes**,
@@ -293,9 +301,9 @@ No documented way of using private container registry with Auto DevOps exists.
 We strongly advise using GitLab Container Registry with Auto DevOps to
 simplify configuration and prevent any unforeseen issues.
 
-### Installing Helm behind a proxy
+### Install applications behind a proxy
 
-GitLab does not support installing [Helm as a GitLab-managed App](../../user/clusters/applications.md#helm) when
+GitLab's Helm integration does not support installing applications when
 behind a proxy. Users who want to do so must inject their proxy settings
 into the installation pods at runtime, such as by using a
 [`PodPreset`](https://kubernetes.io/docs/concepts/workloads/pods/podpreset/):

@@ -88,7 +88,7 @@ export default {
       type: String,
       required: true,
     },
-    iterationId: {
+    iterationIid: {
       type: String,
       required: true,
     },
@@ -112,7 +112,7 @@ export default {
     queryVariables() {
       const vars = {
         groupPath: this.groupPath,
-        id: this.iterationId,
+        id: this.iterationIid,
       };
 
       if (this.pagination.beforeCursor) {

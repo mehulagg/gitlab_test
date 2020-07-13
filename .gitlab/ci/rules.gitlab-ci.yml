@@ -116,10 +116,12 @@
   - "{,ee/}{app/channels,app/controllers,app/finders,app/graphql,app/helpers,app/mailers,app/models,app/policies,app/presenters,app/serializers,app/services,app/uploaders,app/validators,app/views,app/workers}/**/*"
   - "{,ee/}{bin,cable,config,db,lib}/**/*"
   - "{,ee/}spec/**/*.rb"
+  - ".gitlab-ci.yml"
+  - ".gitlab/ci/**/*"
 
 .db-patterns: &db-patterns
-  - "{,ee/}{db}/**/*"
-  - "{,ee}/spec/{db,migrations}/**/*"
+  - "{,ee/}{,spec/}{db,migrations}/**/*"
+  - "{,ee/}{,spec/}lib/{,ee/}gitlab/background_migration/**/*"
 
 .backstage-patterns: &backstage-patterns
   - "Dangerfile"
@@ -322,11 +324,8 @@
   rules:
     - <<: *if-not-ee
       when: never
-    - <<: *if-security-merge-request
+    - <<: *if-merge-request  # Always run for MRs since `compile-test-assets as-if-foss` is either needed by `rspec foss-impact` or the `rspec * as-if-foss` jobs.
       changes: *code-backstage-qa-patterns
-    - <<: *if-merge-request-title-as-if-foss
-    - <<: *if-merge-request
-      changes: *ci-patterns
 
 .frontend:rules:default-frontend-jobs:
   rules:
@@ -342,6 +341,15 @@
     - <<: *if-merge-request-title-as-if-foss
     - <<: *if-merge-request
       changes: *ci-patterns
+
+.frontend:rules:eslint-as-if-foss:
+  rules:
+    - <<: *if-not-ee
+      when: never
+    - <<: *if-merge-request-title-as-if-foss
+      when: never
+    - <<: *if-merge-request
+      changes: *frontend-patterns
 
 .frontend:rules:ee-mr-and-master-only:
   rules:
@@ -548,6 +556,20 @@
     - <<: *if-not-ee
       when: never
     - <<: *if-master-schedule-2-hourly
+
+.rails:rules:master-schedule-nightly--code-backstage:
+  rules:
+    - <<: *if-master-schedule-nightly
+    - <<: *if-merge-request
+      changes: [".gitlab/ci/rails.gitlab-ci.yml"]
+
+.rails:rules:master-schedule-nightly--code-backstage-ee-only:
+  rules:
+    - <<: *if-not-ee
+      when: never
+    - <<: *if-master-schedule-nightly
+    - <<: *if-merge-request
+      changes: [".gitlab/ci/rails.gitlab-ci.yml"]
 
 ##################
 # Releases rules #

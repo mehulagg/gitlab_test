@@ -12,15 +12,15 @@ module Integrations
       end
 
       expose :created_at do |jira_issue|
-        jira_issue.created
+        jira_issue.created.to_datetime.utc
       end
 
       expose :updated_at do |jira_issue|
-        jira_issue.updated
+        jira_issue.updated.to_datetime.utc
       end
 
       expose :closed_at do |jira_issue|
-        jira_issue.resolutiondate
+        jira_issue.resolutiondate&.to_datetime&.utc
       end
 
       expose :labels do |jira_issue|
@@ -39,7 +39,8 @@ module Integrations
 
       expose :author do |jira_issue|
         {
-          name: jira_issue.reporter.displayName
+          name: jira_issue.reporter.displayName,
+          web_url: author_web_url(jira_issue)
         }
       end
 
@@ -63,6 +64,23 @@ module Integrations
         {
           relative: jira_issue.key
         }
+      end
+
+      expose :external_tracker do |_jira_issue|
+        'jira'
+      end
+
+      private
+
+      def author_web_url(jira_issue)
+        # There are differences between Jira Cloud and Jira Server URLs and responses.
+        # accountId is only available on Jira Cloud.
+        # https://community.atlassian.com/t5/Jira-Questions/How-to-find-account-id-on-jira-on-premise/qaq-p/1168652
+        if jira_issue.reporter.try(:accountId)
+          "#{jira_issue.client.options[:site]}people/#{jira_issue.reporter.accountId}"
+        else
+          "#{jira_issue.client.options[:site]}secure/ViewProfile.jspa?name=#{jira_issue.reporter.name}"
+        end
       end
     end
   end

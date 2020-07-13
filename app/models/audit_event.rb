@@ -3,6 +3,7 @@
 class AuditEvent < ApplicationRecord
   include CreatedAtFilterable
   include IgnorableColumns
+  include BulkInsertSafe
 
   ignore_column :updated_at, remove_with: '13.4', remove_after: '2020-09-22'
 
@@ -52,7 +53,7 @@ class AuditEvent < ApplicationRecord
   private
 
   def default_author_value
-    ::Gitlab::Audit::NullAuthor.for(author_id, details[:author_name])
+    ::Gitlab::Audit::NullAuthor.for(author_id, (self[:author_name] || details[:author_name]))
   end
 end
 

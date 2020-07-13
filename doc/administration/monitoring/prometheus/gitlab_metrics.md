@@ -173,6 +173,7 @@ configuration option in `gitlab.yml`. These metrics are served from the
 | `geo_repositories_retrying_verification_count` | Gauge   | 11.2  | Number of repositories verification failures that Geo is actively trying to correct on secondary  | `url` |
 | `geo_wikis_retrying_verification_count`        | Gauge   | 11.2  | Number of wikis verification failures that Geo is actively trying to correct on secondary | `url` |
 | `global_search_bulk_cron_queue_size`           | Gauge   | 12.10 | Number of database records waiting to be synchronized to Elasticsearch | |
+| `global_search_awaiting_indexing_queue_size`   | Gauge   | 13.2  | Number of database updates waiting to be synchronized to Elasticsearch while indexing is paused | |
 | `package_files_count`                          | Gauge   | 13.0  | Number of package files on primary | `url` |
 | `package_files_checksummed_count`              | Gauge   | 13.0  | Number of package files checksummed on primary | `url` |
 | `package_files_checksum_failed_count`          | Gauge   | 13.0  | Number of package files failed to calculate the checksum on primary
@@ -250,6 +251,19 @@ When Puma is used instead of Unicorn, the following metrics are available:
 | `puma_max_threads`                | Gauge   | 12.0  | Maximum number of worker threads |
 | `puma_idle_threads`               | Gauge   | 12.0  | Number of spawned threads which are not processing a request |
 | `puma_killer_terminations_total`  | Gauge   | 12.0  | Number of workers terminated by PumaWorkerKiller |
+
+## Redis metrics
+
+These client metrics are meant to complement Redis server metrics.
+These metrics are broken down per [Redis
+instance](https://docs.gitlab.com/omnibus/settings/redis.html#running-with-multiple-redis-instances).
+These metrics all have a `storage` label which indicates the Redis
+instance (`cache`, `shared_state` etc.).
+
+| Metric                            | Type    | Since | Description |
+|:--------------------------------- |:------- |:----- |:----------- |
+| `gitlab_redis_client_exceptions_total`                    | Counter   | 13.2  | Number of Redis client exceptions, broken down by exception class |
+| `gitlab_redis_client_requests_total`                    | Counter   | 13.2  | Number of Redis client requests |
 
 ## Metrics shared directory
 

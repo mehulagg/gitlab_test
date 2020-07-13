@@ -347,12 +347,10 @@ Settings.uploads['object_store']['remote_directory'] ||= 'uploads'
 #
 # Packages
 #
-Gitlab.ee do
-  Settings['packages'] ||= Settingslogic.new({})
-  Settings.packages['enabled']      = true if Settings.packages['enabled'].nil?
-  Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], "packages"))
-  Settings.packages['object_store'] = ObjectStoreSettings.legacy_parse(Settings.packages['object_store'])
-end
+Settings['packages'] ||= Settingslogic.new({})
+Settings.packages['enabled']      = true if Settings.packages['enabled'].nil?
+Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], "packages"))
+Settings.packages['object_store'] = ObjectStoreSettings.legacy_parse(Settings.packages['object_store'])
 
 #
 # Dependency Proxy
@@ -522,9 +520,6 @@ Gitlab.ee do
   Settings.cron_jobs['geo_metrics_update_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['geo_metrics_update_worker']['cron'] ||= '*/1 * * * *'
   Settings.cron_jobs['geo_metrics_update_worker']['job_class'] ||= 'Geo::MetricsUpdateWorker'
-  Settings.cron_jobs['geo_migrated_local_files_clean_up_worker'] ||= Settingslogic.new({})
-  Settings.cron_jobs['geo_migrated_local_files_clean_up_worker']['cron'] ||= '15 */6 * * *'
-  Settings.cron_jobs['geo_migrated_local_files_clean_up_worker']['job_class'] ||= 'Geo::MigratedLocalFilesCleanUpWorker'
   Settings.cron_jobs['geo_prune_event_log_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['geo_prune_event_log_worker']['cron'] ||= '*/5 * * * *'
   Settings.cron_jobs['geo_prune_event_log_worker']['job_class'] ||= 'Geo::PruneEventLogWorker'
@@ -739,12 +734,6 @@ Settings.webpack['dev_server'] ||= Settingslogic.new({})
 Settings.webpack.dev_server['enabled'] ||= false
 Settings.webpack.dev_server['host']    ||= 'localhost'
 Settings.webpack.dev_server['port']    ||= 3808
-
-#
-# ActionCable settings
-#
-Settings['action_cable'] ||= Settingslogic.new({})
-Settings.action_cable['worker_pool_size'] ||= 4
 
 #
 # Monitoring settings

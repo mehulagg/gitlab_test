@@ -45,7 +45,6 @@ POST /import/bitbucket_server
 
 | Attribute  | Type    | Required | Description         |
 |------------|---------|----------|---------------------|
-
 | `bitbucket_server_url` | string | yes | Bitbucket Server URL |
 | `bitbucket_server_username` | string | yes | Bitbucket Server Username |
 | `personal_access_token` | string | yes | Bitbucket Server personal access token/password |
@@ -56,7 +55,7 @@ POST /import/bitbucket_server
 
 ```shell
 curl --request POST \
-  --url https://gitlab.example.com/api/v4/import/bitbucket/server \
+  --url https://gitlab.example.com/api/v4/import/bitbucket_server \
   --header "content-type: application/json" \
   --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" \
   --data '{

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  RSpec.describe 'Create' do
     describe 'Changing Gitaly repository storage', :requires_admin do
       shared_examples 'repository storage move' do
         it 'confirms a `finished` status after moving project repository storage' do
@@ -38,7 +38,7 @@ module QA
 
       # Note: This test doesn't have the :orchestrated tag because it runs in the Test::Integration::Praefect
       # scenario with other tests that aren't considered orchestrated.
-      context 'when moving from Gitaly to Gitaly Cluster', :requires_praefect do
+      context 'when moving from Gitaly to Gitaly Cluster', :requires_praefect, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/227127', type: :investigating } do
         let(:project) do
           Resource::Project.fabricate_via_api! do |project|
             project.name = 'repo-storage-move'

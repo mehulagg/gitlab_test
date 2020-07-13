@@ -12,25 +12,22 @@ RSpec.describe 'User views iteration' do
   let_it_be(:assigned_issue) { create(:issue, project: project, iteration: iteration, assignees: [user]) }
   let_it_be(:closed_issue) { create(:closed_issue, project: project, iteration: iteration) }
 
-  around do |example|
-    Timecop.freeze { example.run }
-  end
-
-  before do
-    sign_in(user)
-  end
-
-  context 'view an iteration', :js, quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/222915' do
+  context 'with license' do
     before do
-      visit group_iteration_path(iteration.group, iteration)
+      stub_licensed_features(iterations: true)
     end
 
-    it 'shows iteration info, and issues' do
-      expect(page).to have_content(iteration.title)
-      expect(page).to have_content(iteration.description)
-      expect(page).to have_content(issue.title)
-      expect(page).to have_content(assigned_issue.title)
-      expect(page).to have_content(closed_issue.title)
+    context 'view an iteration', :js do
+      before do
+        visit group_iteration_path(iteration.group, iteration)
+      end
+
+      it 'shows iteration info and dates' do
+        expect(page).to have_content(iteration.title)
+        expect(page).to have_content(iteration.description)
+        expect(page).to have_content(iteration.start_date.strftime('%b %-d, %Y'))
+        expect(page).to have_content(iteration.due_date.strftime('%b %-d, %Y'))
+      end
     end
   end
 end

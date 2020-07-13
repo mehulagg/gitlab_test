@@ -156,20 +156,6 @@ RSpec.describe Gitlab::Database do
     end
   end
 
-  describe '.replication_slots_supported?' do
-    it 'returns false when using PostgreSQL 9.3' do
-      allow(described_class).to receive(:version).and_return('9.3.1')
-
-      expect(described_class.replication_slots_supported?).to eq(false)
-    end
-
-    it 'returns true when using PostgreSQL 9.4.0 or newer' do
-      allow(described_class).to receive(:version).and_return('9.4.0')
-
-      expect(described_class.replication_slots_supported?).to eq(true)
-    end
-  end
-
   describe '.pg_wal_lsn_diff' do
     it 'returns old name when using PostgreSQL 9.6' do
       allow(described_class).to receive(:version).and_return('9.6')
@@ -283,7 +269,6 @@ RSpec.describe Gitlab::Database do
   describe '.bulk_insert' do
     before do
       allow(described_class).to receive(:connection).and_return(connection)
-      allow(described_class).to receive(:version).and_return(version)
       allow(connection).to receive(:quote_column_name, &:itself)
       allow(connection).to receive(:quote, &:itself)
       allow(connection).to receive(:execute)
@@ -297,8 +282,6 @@ RSpec.describe Gitlab::Database do
         { c: 6, a: 4, b: 5 }
       ]
     end
-
-    let_it_be(:version) { 9.6 }
 
     it 'does nothing with empty rows' do
       expect(connection).not_to receive(:execute)
@@ -366,28 +349,13 @@ RSpec.describe Gitlab::Database do
         expect(ids).to eq([10])
       end
 
-      context 'with version >= 9.5' do
-        it 'allows setting the upsert to do nothing' do
-          expect(connection)
-            .to receive(:execute)
-            .with(/ON CONFLICT DO NOTHING/)
+      it 'allows setting the upsert to do nothing' do
+        expect(connection)
+          .to receive(:execute)
+          .with(/ON CONFLICT DO NOTHING/)
 
-          described_class
-            .bulk_insert('test', [{ number: 10 }], on_conflict: :do_nothing)
-        end
-      end
-
-      context 'with version < 9.5' do
-        let(:version) { 9.4 }
-
-        it 'refuses setting the upsert' do
-          expect(connection)
-            .not_to receive(:execute)
-            .with(/ON CONFLICT/)
-
-          described_class
-            .bulk_insert('test', [{ number: 10 }], on_conflict: :do_nothing)
-        end
+        described_class
+          .bulk_insert('test', [{ number: 10 }], on_conflict: :do_nothing)
       end
     end
   end

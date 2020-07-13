@@ -259,6 +259,7 @@ class ProjectPolicy < BasePolicy
     enable :read_metrics_dashboard_annotation
     enable :metrics_dashboard
     enable :read_confidential_issues
+    enable :read_package
   end
 
   # We define `:public_user_access` separately because there are cases in gitlab-ee
@@ -475,6 +476,7 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { can?(:public_access) }.policy do
+    enable :read_package
     enable :read_project
     enable :read_board
     enable :read_list
@@ -650,7 +652,7 @@ class ProjectPolicy < BasePolicy
     when ProjectFeature::DISABLED
       false
     when ProjectFeature::PRIVATE
-      admin? || team_access_level >= ProjectFeature.required_minimum_access_level(feature)
+      can?(:read_all_resources) || team_access_level >= ProjectFeature.required_minimum_access_level(feature)
     else
       true
     end

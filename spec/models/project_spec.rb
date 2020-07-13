@@ -1378,6 +1378,62 @@ RSpec.describe Project do
     end
   end
 
+  describe '.service_desk_enabled' do
+    it 'returns the correct project' do
+      project_with_service_desk_enabled = create(:project)
+      project_with_service_desk_disabled = create(:project, :service_desk_disabled)
+
+      expect(described_class.service_desk_enabled).to include(project_with_service_desk_enabled)
+      expect(described_class.service_desk_enabled).not_to include(project_with_service_desk_disabled)
+    end
+  end
+
+  describe '#service_desk_enabled?' do
+    let_it_be(:namespace) { create(:namespace) }
+
+    subject(:project) { build(:project, :private, namespace: namespace, service_desk_enabled: true) }
+
+    before do
+      allow(Gitlab::IncomingEmail).to receive(:enabled?).and_return(true)
+      allow(Gitlab::IncomingEmail).to receive(:supports_wildcard?).and_return(true)
+    end
+
+    it 'is enabled' do
+      expect(project.service_desk_enabled?).to be_truthy
+      expect(project.service_desk_enabled).to be_truthy
+    end
+  end
+
+  describe '#service_desk_address' do
+    let_it_be(:project) { create(:project, service_desk_enabled: true) }
+
+    before do
+      allow(Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
+      allow(Gitlab.config.incoming_email).to receive(:enabled).and_return(true)
+      allow(Gitlab.config.incoming_email).to receive(:address).and_return("test+%{key}@mail.com")
+    end
+
+    it 'uses project full path as service desk address key' do
+      expect(project.service_desk_address).to eq("test+#{project.full_path_slug}-#{project.project_id}-issue-@mail.com")
+    end
+  end
+
+  describe '.find_by_service_desk_project_key' do
+    it 'returns the correct project' do
+      project1 = create(:project)
+      project2 = create(:project)
+      create(:service_desk_setting, project: project1, project_key: 'key1')
+      create(:service_desk_setting, project: project2, project_key: 'key2')
+
+      expect(Project.find_by_service_desk_project_key('key1')).to eq(project1)
+      expect(Project.find_by_service_desk_project_key('key2')).to eq(project2)
+    end
+
+    it 'returns nil if there is no project with the key' do
+      expect(Project.find_by_service_desk_project_key('some_key')).to be_nil
+    end
+  end
+
   context 'repository storage by default' do
     let(:project) { build(:project) }
 
@@ -1666,6 +1722,14 @@ RSpec.describe Project do
       let(:project_name) { 'Project' }
 
       it { is_expected.to eq("http://group.example.com/project") }
+
+      context 'mixed case path' do
+        before do
+          project.update!(path: 'Project')
+        end
+
+        it { is_expected.to eq("http://group.example.com/Project") }
+      end
     end
   end
 
@@ -2905,28 +2969,73 @@ RSpec.describe Project do
 
     subject { project.deployment_variables(environment: environment, kubernetes_namespace: namespace) }
 
-    before do
-      expect(project).to receive(:deployment_platform).with(environment: environment)
-        .and_return(deployment_platform)
-    end
-
-    context 'when project has no deployment platform' do
-      let(:deployment_platform) { nil }
-
-      it { is_expected.to eq [] }
-    end
-
-    context 'when project has a deployment platform' do
-      let(:platform_variables) { %w(platform variables) }
-      let(:deployment_platform) { double }
-
+    context 'when the deployment platform is stubbed' do
       before do
-        expect(deployment_platform).to receive(:predefined_variables)
-          .with(project: project, environment_name: environment, kubernetes_namespace: namespace)
-          .and_return(platform_variables)
+        expect(project).to receive(:deployment_platform).with(environment: environment)
+          .and_return(deployment_platform)
       end
 
-      it { is_expected.to eq platform_variables }
+      context 'when project has a deployment platform' do
+        let(:platform_variables) { %w(platform variables) }
+        let(:deployment_platform) { double }
+
+        before do
+          expect(deployment_platform).to receive(:predefined_variables)
+            .with(project: project, environment_name: environment, kubernetes_namespace: namespace)
+            .and_return(platform_variables)
+        end
+
+        it { is_expected.to eq platform_variables }
+      end
+
+      context 'when project has no deployment platform' do
+        let(:deployment_platform) { nil }
+
+        it { is_expected.to eq [] }
+      end
+    end
+
+    context 'when project has a deployment platforms' do
+      let(:project) { create(:project) }
+
+      let!(:default_cluster) do
+        create(:cluster,
+                :not_managed,
+                platform_type: :kubernetes,
+                projects: [project],
+                environment_scope: '*',
+                platform_kubernetes: default_cluster_kubernetes)
+      end
+
+      let!(:review_env_cluster) do
+        create(:cluster,
+                :not_managed,
+                platform_type: :kubernetes,
+                projects: [project],
+                environment_scope: 'review/*',
+                platform_kubernetes: review_env_cluster_kubernetes)
+      end
+
+      let(:default_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'default-AAA') }
+      let(:review_env_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'review-AAA') }
+
+      context 'when environment name is review/name' do
+        let!(:environment) { create(:environment, project: project, name: 'review/name') }
+
+        it 'returns variables from this service' do
+          expect(project.deployment_variables(environment: 'review/name'))
+            .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
+        end
+      end
+
+      context 'when environment name is other' do
+        let!(:environment) { create(:environment, project: project, name: 'staging/name') }
+
+        it 'returns variables from this service' do
+          expect(project.deployment_variables(environment: 'staging/name'))
+            .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
+        end
+      end
     end
   end
 
@@ -4007,7 +4116,7 @@ RSpec.describe Project do
     it 'returns the number of forks' do
       project = build(:project)
 
-      expect_any_instance_of(Projects::ForksCountService).to receive(:count).and_return(1)
+      expect_any_instance_of(::Projects::BatchForksCountService).to receive(:refresh_cache_and_retrieve_data).and_return({ project => 1 })
 
       expect(project.forks_count).to eq(1)
     end

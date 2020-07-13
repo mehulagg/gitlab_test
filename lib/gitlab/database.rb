@@ -99,16 +99,8 @@ module Gitlab
       version.to_f < 10
     end
 
-    def self.replication_slots_supported?
-      version.to_f >= 9.4
-    end
-
     def self.postgresql_minimum_supported_version?
       version.to_f >= MINIMUM_POSTGRES_VERSION
-    end
-
-    def self.upsert_supported?
-      version.to_f >= 9.5
     end
 
     def self.check_postgres_version_and_print_warning
@@ -221,9 +213,7 @@ module Gitlab
         VALUES #{tuples.map { |tuple| "(#{tuple.join(', ')})" }.join(', ')}
       EOF
 
-      if upsert_supported? && on_conflict == :do_nothing
-        sql = "#{sql} ON CONFLICT DO NOTHING"
-      end
+      sql = "#{sql} ON CONFLICT DO NOTHING" if on_conflict == :do_nothing
 
       sql = "#{sql} RETURNING id" if return_ids
 

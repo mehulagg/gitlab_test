@@ -136,10 +136,6 @@ describe('Dashboard Panel', () => {
       expect(wrapper.find(MonitorEmptyChart).exists()).toBe(true);
       expect(wrapper.find(MonitorEmptyChart).isVueInstance()).toBe(true);
     });
-
-    it('does not contain a tabindex attribute', () => {
-      expect(wrapper.find(MonitorEmptyChart).contains('[tabindex]')).toBe(false);
-    });
   });
 
   describe('When graphData is null', () => {
@@ -369,7 +365,7 @@ describe('Dashboard Panel', () => {
       });
     });
 
-    it('it is overriden when a datazoom event is received', () => {
+    it('it is overridden when a datazoom event is received', () => {
       state.logsPath = mockLogsPath;
       state.timeRange = mockTimeRange;
 

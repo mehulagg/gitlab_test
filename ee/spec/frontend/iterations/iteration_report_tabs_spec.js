@@ -6,7 +6,7 @@ describe('Iterations report tabs', () => {
   let wrapper;
   const defaultProps = {
     groupPath: 'gitlab-org',
-    iterationId: '3',
+    iterationIid: '3',
   };
 
   const mountComponent = ({ props = defaultProps, loading = false, data = {} } = {}) => {
@@ -127,7 +127,7 @@ describe('Iterations report tabs', () => {
         findPagination().vm.$emit('input', page);
         return findPagination().vm.$nextTick();
       };
-      const { iterationId: id, groupPath } = defaultProps;
+      const { iterationIid: id, groupPath } = defaultProps;
 
       it('passes prev, next, and current page props', () => {
         expect(findPagination().exists()).toBe(true);

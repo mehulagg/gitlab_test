@@ -2,6 +2,7 @@ import CEMergeRequestStore from '~/vue_merge_request_widget/stores/mr_widget_sto
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { mapApprovalsResponse, mapApprovalRulesResponse } from '../mappers';
 import CodeQualityComparisonWorker from '../workers/code_quality_comparison_worker';
+import { s__ } from '~/locale';
 
 export default class MergeRequestStore extends CEMergeRequestStore {
   constructor(data) {
@@ -29,7 +30,8 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.appUrl = gon && gon.gitlab_url;
 
     this.initCodeclimate(data);
-    this.initPerformanceReport(data);
+    this.initBrowserPerformanceReport(data);
+    this.initLoadPerformanceReport(data);
     this.licenseScanning = data.license_scanning;
     this.metricsReportsPath = data.metrics_reports_path;
 
@@ -85,11 +87,21 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     };
   }
 
-  initPerformanceReport(data) {
-    this.performance = data.performance;
-    this.performanceMetrics = {
+  initBrowserPerformanceReport(data) {
+    this.browserPerformance = data.browser_performance;
+    this.browserPerformanceMetrics = {
       improved: [],
       degraded: [],
+      same: [],
+    };
+  }
+
+  initLoadPerformanceReport(data) {
+    this.loadPerformance = data.load_performance;
+    this.loadPerformanceMetrics = {
+      improved: [],
+      degraded: [],
+      same: [],
     };
   }
 
@@ -119,11 +131,12 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     );
   }
 
-  comparePerformanceMetrics(headMetrics, baseMetrics) {
-    const headMetricsIndexed = MergeRequestStore.normalizePerformanceMetrics(headMetrics);
-    const baseMetricsIndexed = MergeRequestStore.normalizePerformanceMetrics(baseMetrics);
+  compareBrowserPerformanceMetrics(headMetrics, baseMetrics) {
+    const headMetricsIndexed = MergeRequestStore.normalizeBrowserPerformanceMetrics(headMetrics);
+    const baseMetricsIndexed = MergeRequestStore.normalizeBrowserPerformanceMetrics(baseMetrics);
     const improved = [];
     const degraded = [];
+    const same = [];
 
     Object.keys(headMetricsIndexed).forEach(subject => {
       const subjectMetrics = headMetricsIndexed[subject];
@@ -150,18 +163,20 @@ export default class MergeRequestStore extends CEMergeRequestStore {
             } else {
               degraded.push(metricData);
             }
+          } else {
+            same.push(metricData);
           }
         }
       });
     });
 
-    this.performanceMetrics = { improved, degraded };
+    this.browserPerformanceMetrics = { improved, degraded, same };
   }
 
-  // normalize performance metrics by indexing on performance subject and metric name
-  static normalizePerformanceMetrics(performanceData) {
+  // normalize browser performance metrics by indexing on performance subject and metric name
+  static normalizeBrowserPerformanceMetrics(browserPerformanceData) {
     const indexedSubjects = {};
-    performanceData.forEach(({ subject, metrics }) => {
+    browserPerformanceData.forEach(({ subject, metrics }) => {
       const indexedMetrics = {};
       metrics.forEach(({ name, ...data }) => {
         indexedMetrics[name] = data;
@@ -170,6 +185,72 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     });
 
     return indexedSubjects;
+  }
+
+  compareLoadPerformanceMetrics(headMetrics, baseMetrics) {
+    const headMetricsIndexed = MergeRequestStore.normalizeLoadPerformanceMetrics(headMetrics);
+    const baseMetricsIndexed = MergeRequestStore.normalizeLoadPerformanceMetrics(baseMetrics);
+    const improved = [];
+    const degraded = [];
+    const same = [];
+
+    Object.keys(headMetricsIndexed).forEach(metric => {
+      const headMetricData = headMetricsIndexed[metric];
+      if (metric in baseMetricsIndexed) {
+        const baseMetricData = baseMetricsIndexed[metric];
+        const metricData = {
+          name: metric,
+          score: headMetricData,
+          delta: parseFloat((parseFloat(headMetricData) - parseFloat(baseMetricData)).toFixed(2)),
+        };
+
+        if (metricData.delta !== 0.0) {
+          const isImproved = [s__('ciReport|RPS'), s__('ciReport|Checks')].includes(metric)
+            ? metricData.delta > 0
+            : metricData.delta < 0;
+
+          if (isImproved) {
+            improved.push(metricData);
+          } else {
+            degraded.push(metricData);
+          }
+        } else {
+          same.push(metricData);
+        }
+      }
+    });
+
+    this.loadPerformanceMetrics = { improved, degraded, same };
+  }
+
+  // normalize load performance metrics for comsumption
+  static normalizeLoadPerformanceMetrics(loadPerformanceData) {
+    if (!('metrics' in loadPerformanceData)) return {};
+
+    const { metrics } = loadPerformanceData;
+    const indexedMetrics = {};
+
+    Object.keys(loadPerformanceData.metrics).forEach(metric => {
+      switch (metric) {
+        case 'http_reqs':
+          indexedMetrics[s__('ciReport|RPS')] = metrics.http_reqs.rate;
+          break;
+        case 'http_req_waiting':
+          indexedMetrics[s__('ciReport|TTFB P90')] = metrics.http_req_waiting['p(90)'];
+          indexedMetrics[s__('ciReport|TTFB P95')] = metrics.http_req_waiting['p(95)'];
+          break;
+        case 'checks':
+          indexedMetrics[s__('ciReport|Checks')] = `${(
+            (metrics.checks.passes / (metrics.checks.passes + metrics.checks.fails)) *
+            100.0
+          ).toFixed(2)}%`;
+          break;
+        default:
+          break;
+      }
+    });
+
+    return indexedMetrics;
   }
 
   static parseCodeclimateMetrics(issues = [], path = '') {
