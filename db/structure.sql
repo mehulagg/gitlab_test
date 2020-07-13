@@ -10009,6 +10009,22 @@ CREATE SEQUENCE public.ci_pipeline_messages_id_seq
 
 ALTER SEQUENCE public.ci_pipeline_messages_id_seq OWNED BY public.ci_pipeline_messages.id;
 
+CREATE TABLE public.ci_pipeline_report_processors (
+    id bigint NOT NULL,
+    pipeline_id bigint NOT NULL,
+    coverage_report text NOT NULL,
+    CONSTRAINT check_5a3861dba9 CHECK ((char_length(coverage_report) <= 255))
+);
+
+CREATE SEQUENCE public.ci_pipeline_report_processors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.ci_pipeline_report_processors_id_seq OWNED BY public.ci_pipeline_report_processors.id;
+
 CREATE TABLE public.ci_pipeline_schedule_variables (
     id integer NOT NULL,
     key character varying NOT NULL,
@@ -16604,6 +16620,8 @@ ALTER TABLE ONLY public.ci_pipeline_chat_data ALTER COLUMN id SET DEFAULT nextva
 
 ALTER TABLE ONLY public.ci_pipeline_messages ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_messages_id_seq'::regclass);
 
+ALTER TABLE ONLY public.ci_pipeline_report_processors ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_report_processors_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ci_pipeline_schedule_variables ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_schedule_variables_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ci_pipeline_schedules ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_schedules_id_seq'::regclass);
@@ -17538,6 +17556,9 @@ ALTER TABLE ONLY public.ci_pipeline_chat_data
 
 ALTER TABLE ONLY public.ci_pipeline_messages
     ADD CONSTRAINT ci_pipeline_messages_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.ci_pipeline_report_processors
+    ADD CONSTRAINT ci_pipeline_report_processors_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.ci_pipeline_schedule_variables
     ADD CONSTRAINT ci_pipeline_schedule_variables_pkey PRIMARY KEY (id);
@@ -18999,6 +19020,8 @@ CREATE INDEX index_ci_pipeline_chat_data_on_chat_name_id ON public.ci_pipeline_c
 CREATE UNIQUE INDEX index_ci_pipeline_chat_data_on_pipeline_id ON public.ci_pipeline_chat_data USING btree (pipeline_id);
 
 CREATE INDEX index_ci_pipeline_messages_on_pipeline_id ON public.ci_pipeline_messages USING btree (pipeline_id);
+
+CREATE INDEX index_ci_pipeline_report_processors_on_pipeline_id ON public.ci_pipeline_report_processors USING btree (pipeline_id);
 
 CREATE UNIQUE INDEX index_ci_pipeline_schedule_variables_on_schedule_id_and_key ON public.ci_pipeline_schedule_variables USING btree (pipeline_schedule_id, key);
 
@@ -23990,6 +24013,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200713071042
 20200713141854
 20200713152443
+20200713200740
 20200714075739
 20200715124210
 20200715135130

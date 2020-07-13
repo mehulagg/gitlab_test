@@ -83,6 +83,7 @@ module Ci
 
     has_many :daily_build_group_report_results, class_name: 'Ci::DailyBuildGroupReportResult', foreign_key: :last_pipeline_id
     has_many :latest_builds_report_results, through: :latest_builds, source: :report_results
+    has_one :processed_report, class_name: 'Ci::PipelineReportProcessor', inverse_of: :pipeline
 
     accepts_nested_attributes_for :variables, reject_if: :persisted?
 
@@ -219,6 +220,10 @@ module Ci
             next unless merge_request.auto_merge_enabled?
 
             AutoMergeProcessWorker.perform_async(merge_request.id)
+          end
+
+          if pipeline.has_coverage_reports?
+            ::Ci::PipelineProcessReportWorker.perform_async(pipeline.id)
           end
 
           if pipeline.auto_devops_source?
@@ -908,6 +913,10 @@ module Ci
 
     def has_reports?(reports_scope)
       complete? && latest_report_builds(reports_scope).exists?
+    end
+
+    def has_coverage_reports?
+      self.has_reports?(Ci::JobArtifact.coverage_reports)
     end
 
     def test_report_summary

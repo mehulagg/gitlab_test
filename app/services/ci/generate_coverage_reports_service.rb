@@ -9,11 +9,14 @@ module Ci
   class GenerateCoverageReportsService < CompareReportsBaseService
     def execute(base_pipeline, head_pipeline)
       merge_request = MergeRequest.find_by_id(params[:id])
-      {
-        status: :parsed,
-        key: key(base_pipeline, head_pipeline),
-        data: head_pipeline.coverage_reports.pick(merge_request.new_paths)
-      }
+      head_pipeline.processed_report.coverage_report.open do |file|
+        raw_coverage = Gitlab::Json.parse(file.read)
+        {
+          status: :parsed,
+          key: key(base_pipeline, head_pipeline),
+          data: { files: pick(raw_coverage, merge_request.new_paths) }
+        }
+      end
     rescue => e
       Gitlab::ErrorTracking.track_exception(e, project_id: project.id)
       {
@@ -25,6 +28,14 @@ module Ci
 
     def latest?(base_pipeline, head_pipeline, data)
       data&.fetch(:key, nil) == key(base_pipeline, head_pipeline)
+    end
+
+    private
+
+    def pick(files, keys)
+      files.select do |key|
+        keys.include?(key)
+      end
     end
   end
 end

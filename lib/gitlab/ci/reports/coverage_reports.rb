@@ -18,6 +18,10 @@ module Gitlab
           { files: coverage_files }
         end
 
+        def to_json
+          ::Gitlab::Json.generate(files)
+        end
+
         def add_file(name, line_coverage)
           if files[name].present?
             line_coverage.each { |line, hits| combine_lines(name, line, hits) }
