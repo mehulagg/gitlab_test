@@ -176,3 +176,16 @@ retire-js-dependency_scanning:
           $DS_DEFAULT_ANALYZERS =~ /retire.js/
       exists:
         - '{package.json,*/package.json,*/*/package.json}'
+
+omnibus-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$SECURE_ANALYZERS_PREFIX/omnibus:$DS_MAJOR_VERSION"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED || $DS_DISABLE_DIND == 'false'
+      when: never
+    - if: $CI_COMMIT_BRANCH &&
+          $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+          $DS_DEFAULT_ANALYZERS =~ /omnibus/
+      exists:
+        - '{version-manifest.json,*/version-manifest.json,*/*/version-manifest.json}'
