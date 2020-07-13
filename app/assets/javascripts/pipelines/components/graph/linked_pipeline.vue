@@ -28,7 +28,8 @@ export default {
   },
   computed: {
     tooltipText() {
-      return `${this.projectName} - ${this.pipelineStatus.label}`;
+      return `${this.downstreamTitle} #${this.pipeline.id} - ${this.pipelineStatus.label}
+      ${__('Created by')} ${this.sourceJob}`;
     },
     buttonId() {
       return `js-linked-pipeline-${this.pipeline.id}`;
@@ -39,6 +40,9 @@ export default {
     projectName() {
       return this.pipeline.project.name;
     },
+    downstreamTitle() {
+      return this.childPipeline ? __('child-pipeline') : this.pipeline.project.name;
+    },
     parentPipeline() {
       // Refactor string match when BE returns Upstream/Downstream indicators
       return this.projectId === this.pipeline.project.id && this.columnTitle === __('Upstream');
@@ -48,16 +52,15 @@ export default {
       return this.projectId === this.pipeline.project.id && this.columnTitle === __('Downstream');
     },
     label() {
-      return this.parentPipeline ? __('Parent') : __('Child');
+      if (this.parentPipeline) {
+        return __('Parent');
+      } else if (this.childPipeline) {
+        return __('Child');
+      }
+      return __('Multi-project');
     },
-    childTooltipText() {
-      return __('This pipeline was triggered by a parent pipeline');
-    },
-    parentTooltipText() {
-      return __('This pipeline triggered a child pipeline');
-    },
-    labelToolTipText() {
-      return this.label === __('Parent') ? this.parentTooltipText : this.childTooltipText;
+    sourceJob() {
+      return this.pipeline.source_job.name;
     },
   },
   methods: {
@@ -95,15 +98,9 @@ export default {
         css-classes="position-top-0"
         class="js-linked-pipeline-status"
       />
-      <span class="str-truncated align-bottom"> {{ projectName }} &#8226; #{{ pipeline.id }} </span>
-      <div v-if="parentPipeline || childPipeline" class="parent-child-label-container">
-        <span
-          v-gl-tooltip.bottom
-          :title="labelToolTipText"
-          class="badge badge-primary"
-          @mouseover="hideTooltips"
-          >{{ label }}</span
-        >
+      <span class="str-truncated"> {{ downstreamTitle }} &#8226; #{{ pipeline.id }} </span>
+      <div class="gl-pt-2">
+        <span class="badge badge-primary" data-testid="downstream-pipeline-label">{{ label }}</span>
       </div>
     </gl-deprecated-button>
   </li>

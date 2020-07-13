@@ -11,7 +11,9 @@ const invalidTriggeredPipelineId = mockPipeline.project.id + 5;
 
 describe('Linked pipeline', () => {
   let wrapper;
+
   const findButton = () => wrapper.find('button');
+  const findPipelineLabel = () => wrapper.find('[data-testid="downstream-pipeline-label"]');
 
   const createWrapper = propsData => {
     wrapper = mount(LinkedPipelineComponent, {
@@ -69,6 +71,8 @@ describe('Linked pipeline', () => {
     it('should correctly compute the tooltip text', () => {
       expect(wrapper.vm.tooltipText).toContain(mockPipeline.project.name);
       expect(wrapper.vm.tooltipText).toContain(mockPipeline.details.status.label);
+      expect(wrapper.vm.tooltipText).toContain(mockPipeline.source_job.name);
+      expect(wrapper.vm.tooltipText).toContain(mockPipeline.id);
     });
 
     it('should render the tooltip text as the title attribute', () => {
@@ -83,9 +87,8 @@ describe('Linked pipeline', () => {
       expect(wrapper.find('.js-linked-pipeline-loading').exists()).toBe(false);
     });
 
-    it('should not display child label when pipeline project id is not the same as triggered pipeline project id', () => {
-      const labelContainer = wrapper.find('.parent-child-label-container');
-      expect(labelContainer.exists()).toBe(false);
+    it('should display multi-project label when pipeline project id is not the same as triggered pipeline project id', () => {
+      expect(findPipelineLabel().text()).toBe('Multi-project');
     });
   });
 
@@ -103,17 +106,17 @@ describe('Linked pipeline', () => {
 
     it('parent/child label container should exist', () => {
       createWrapper(downstreamProps);
-      expect(wrapper.find('.parent-child-label-container').exists()).toBe(true);
+      expect(findPipelineLabel().exists()).toBe(true);
     });
 
     it('should display child label when pipeline project id is the same as triggered pipeline project id', () => {
       createWrapper(downstreamProps);
-      expect(wrapper.find('.parent-child-label-container').text()).toContain('Child');
+      expect(findPipelineLabel().text()).toContain('Child');
     });
 
     it('should display parent label when pipeline project id is the same as triggered_by pipeline project id', () => {
       createWrapper(upstreamProps);
-      expect(wrapper.find('.parent-child-label-container').text()).toContain('Parent');
+      expect(findPipelineLabel().text()).toContain('Parent');
     });
   });
 

@@ -94,10 +94,7 @@ export default {
        * offsetTop and then subtracting either 15 (if child) or 30 (if not a child)
        * due to the height of node and stage name margin bottom.
        */
-      this.downstreamMarginTop = this.calculateMarginTop(
-        downstreamNode,
-        downstreamNode.classList.contains('child-pipeline') ? 15 : 30,
-      );
+      this.downstreamMarginTop = this.calculateMarginTop(downstreamNode, 15);
 
       /**
        * If the expanded trigger is defined and the id is different than the
