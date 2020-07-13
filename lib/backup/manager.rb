@@ -115,7 +115,8 @@ module Backup
             GitLab version mismatch:
               Your current GitLab version (#{Gitlab::VERSION}) differs from the GitLab version in the backup!
               Please switch to the following version and try again:
-              version: #{settings[:gitlab_version]}
+              Type (CE or EE) needs to be the same as well, see:
+              https://docs.gitlab.com/ce/raketasks/backup_restore.html
           HEREDOC
           progress.puts
           progress.puts "Hint: git checkout v#{settings[:gitlab_version]}"
