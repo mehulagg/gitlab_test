@@ -59,6 +59,10 @@
     height: calc(100vh - #{$issue-board-list-difference-md});
   }
 
+  @include media-breakpoint-up(lg) {
+    height: calc(100vh - #{$issue-board-list-difference-lg});
+  }
+
   .with-performance-bar & {
     height: calc(100vh - #{$issue-board-list-difference-xs} - #{$performance-bar-height});
 
@@ -68,6 +72,10 @@
 
     @include media-breakpoint-up(md) {
       height: calc(100vh - #{$issue-board-list-difference-md} - #{$performance-bar-height});
+    }
+
+    @include media-breakpoint-up(lg) {
+      height: calc(100vh - #{$issue-board-list-difference-lg} - #{$performance-bar-height});
     }
   }
 }
@@ -583,4 +591,24 @@
 
 .board-header-collapsed-info-icon:hover {
   color: $gray-900;
+}
+
+$closed-left-sidebar-width: 50px;
+$open-left-sidebar-width: 220px;
+$right-sidebar-width: 290px;
+
+.board-epic-lane {
+  max-width: calc(100vw - #{$open-left-sidebar-width} - 40px);
+
+  .page-with-icon-sidebar & {
+    max-width: calc(100vw - #{$closed-left-sidebar-width} - 40px);
+  }
+
+  .page-with-icon-sidebar .is-compact & {
+    max-width: calc(100vw - #{$closed-left-sidebar-width} - #{$right-sidebar-width} - 40px);
+  }
+
+  .is-compact & {
+    max-width: calc(100vw - #{$open-left-sidebar-width} - #{$right-sidebar-width} - 40px);
+  }
 }
