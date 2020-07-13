@@ -113,7 +113,7 @@ export default {
     queryVariables() {
       const vars = {
         groupPath: this.groupPath,
-        id: getIdFromGraphQLId(this.iterationId),
+        id: this.iterationId,
       };
 
       if (this.pagination.beforeCursor) {
@@ -183,6 +183,7 @@ export default {
         v-else
         :items="issues.list"
         :fields="$options.fields"
+        :empty-text="__('No iterations found')"
         :show-empty="true"
         fixed
         stacked="sm"
@@ -193,11 +194,12 @@ export default {
               title
             }}</gl-link>
             <!-- TODO: add references.relative (project name) -->
+            <!-- Depends on https://gitlab.com/gitlab-org/gitlab/-/issues/222763 -->
             <div class="gl-text-secondary">#{{ iid }}</div>
           </div>
         </template>
 
-        <template #cell(status)="{ item: { state, assignees } }">
+        <template #cell(status)="{ item: { state, assignees = [] } }">
           <span class="gl-w-6 gl-flex-shrink-0">{{ issueState(state, assignees.length) }}</span>
         </template>
 
