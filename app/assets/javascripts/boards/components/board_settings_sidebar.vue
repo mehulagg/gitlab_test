@@ -35,13 +35,13 @@ export default {
         Warning: Though a computed property it is not reactive because we are
         referencing a List Model class. Reactivity only applies to plain JS objects
       */
-      return boardsStore.store.state.lists.find(({ id }) => id === this.activeListId);
+      return boardsStore.state.lists.find(({ id }) => id === this.activeListId);
     },
     isSidebarOpen() {
       return this.activeListId !== inactiveListId;
     },
     activeListLabel() {
-      return this.activeList.label;
+      return this.activeList?.label;
     },
   },
   created() {

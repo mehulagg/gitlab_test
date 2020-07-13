@@ -63,7 +63,7 @@ export default {
         Warning: Though a computed property it is not reactive because we are
         referencing a List Model class. Reactivity only applies to plain JS objects
       */
-      return boardsStoreEE.store.state.lists.find(({ id }) => id === this.activeListId);
+      return boardsStoreEE.store.state.lists.find(({ id }) => id === this.activeListId) || {};
     },
     isSidebarOpen() {
       return this.activeListId !== inactiveListId;
