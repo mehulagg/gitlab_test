@@ -1,0 +1,17 @@
+<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+  <path d="M1.517 11.68c-.15.243-.32.53-.453.757a.462.462 0 00.155.63l3.013 1.863a.466.466 0 00.645-.158l.445-.735c1.197-1.97 2.402-1.732 4.571-.703l2.995 1.424a.468.468 0 00.626-.232l1.448-3.24a.466.466 0 00-.229-.606c-.633-.298-1.89-.89-3.016-1.434-4.089-2.004-7.551-1.86-10.2 2.434z" fill="url(#confluence__paint0_linear)"/>
+  <path d="M14.479 4.315c.15-.243.324-.53.456-.758a.46.46 0 00-.158-.63L11.752 1.07a.464.464 0 00-.644.158 22.81 22.81 0 01-.446.736c-1.196 1.972-2.4 1.733-4.567.703L3.102 1.243a.468.468 0 00-.625.231L1.04 4.72a.46.46 0 00.225.607c.633.298 1.892.89 3.014 1.435 4.097 1.99 7.556 1.858 10.199-2.446z" fill="url(#confluence__paint1_linear)"/>
+  <defs>
+    <linearGradient id="confluence__paint0_linear" x1="14.873" y1="15.883" x2="5.739" y2="10.625" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#344563"/>
+      <stop offset=".68" stop-color="#637088"/>
+      <stop offset="1" stop-color="#7A869A"/>
+    </linearGradient>
+    <linearGradient id="confluence__paint1_linear" x1="-168376" y1="-6722.4" x2="-168177" y2="-6493.53" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#344563"/>
+      <stop offset=".68" stop-color="#637088"/>
+      <stop offset="1" stop-color="#7A869A"/>
+    </linearGradient>
+  </defs>
+</svg>
+
