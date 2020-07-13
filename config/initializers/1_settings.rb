@@ -347,12 +347,10 @@ Settings.uploads['object_store']['remote_directory'] ||= 'uploads'
 #
 # Packages
 #
-Gitlab.ee do
-  Settings['packages'] ||= Settingslogic.new({})
-  Settings.packages['enabled']      = true if Settings.packages['enabled'].nil?
-  Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], "packages"))
-  Settings.packages['object_store'] = ObjectStoreSettings.legacy_parse(Settings.packages['object_store'])
-end
+Settings['packages'] ||= Settingslogic.new({})
+Settings.packages['enabled']      = true if Settings.packages['enabled'].nil?
+Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], "packages"))
+Settings.packages['object_store'] = ObjectStoreSettings.legacy_parse(Settings.packages['object_store'])
 
 #
 # Dependency Proxy
@@ -502,6 +500,9 @@ Settings.cron_jobs['users_create_statistics_worker']['job_class'] = 'Users::Crea
 Settings.cron_jobs['authorized_project_update_periodic_recalculate_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['authorized_project_update_periodic_recalculate_worker']['cron'] ||= '45 1 * * 6'
 Settings.cron_jobs['authorized_project_update_periodic_recalculate_worker']['job_class'] = 'AuthorizedProjectUpdate::PeriodicRecalculateWorker'
+Settings.cron_jobs['update_container_registry_info_worker'] ||= Settingslogic.new({})
+Settings.cron_jobs['update_container_registry_info_worker']['cron'] ||= '0 0 * * *'
+Settings.cron_jobs['update_container_registry_info_worker']['job_class'] = 'UpdateContainerRegistryInfoWorker'
 
 Gitlab.ee do
   Settings.cron_jobs['adjourned_group_deletion_worker'] ||= Settingslogic.new({})
@@ -736,12 +737,6 @@ Settings.webpack['dev_server'] ||= Settingslogic.new({})
 Settings.webpack.dev_server['enabled'] ||= false
 Settings.webpack.dev_server['host']    ||= 'localhost'
 Settings.webpack.dev_server['port']    ||= 3808
-
-#
-# ActionCable settings
-#
-Settings['action_cable'] ||= Settingslogic.new({})
-Settings.action_cable['worker_pool_size'] ||= 4
 
 #
 # Monitoring settings

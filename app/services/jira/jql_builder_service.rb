@@ -12,6 +12,10 @@ module Jira
       @jira_project_key = jira_project_key
       @search = params[:search]
       @labels = params[:labels]
+      @status = params[:status]
+      @state  = params[:state]
+      @reporter = params[:author_username]
+      @assignee = params[:assignee_username]
       @sort = params[:sort] || DEFAULT_SORT
       @sort_direction = params[:sort_direction] || DEFAULT_SORT_DIRECTION
     end
@@ -25,12 +29,16 @@ module Jira
 
     private
 
-    attr_reader :jira_project_key, :sort, :sort_direction, :search, :labels
+    attr_reader :jira_project_key, :sort, :sort_direction, :search, :labels, :status, :reporter, :assignee, :state
 
     def jql_filters
       [
         by_project,
         by_labels,
+        by_status,
+        by_reporter,
+        by_assignee,
+        by_open_and_closed,
         by_summary_and_description
       ].compact.join(' AND ')
     end
@@ -52,8 +60,37 @@ module Jira
       labels.map { |label| %Q[labels = "#{escape_quotes(label)}"] }.join(' AND ')
     end
 
+    def by_status
+      return if status.blank?
+
+      %Q[status = "#{escape_quotes(status)}"]
+    end
+
     def order_by
       "order by #{sort} #{sort_direction}"
+    end
+
+    def by_reporter
+      return if reporter.blank?
+
+      %Q[reporter = "#{escape_quotes(reporter)}"]
+    end
+
+    def by_assignee
+      return if assignee.blank?
+
+      %Q[assignee = "#{escape_quotes(assignee)}"]
+    end
+
+    def by_open_and_closed
+      return if state.blank?
+
+      case state
+      when 'opened'
+        %q[statusCategory != Done]
+      when 'closed'
+        %q[statusCategory = Done]
+      end
     end
 
     def escape_quotes(param)

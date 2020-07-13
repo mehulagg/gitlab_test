@@ -54,11 +54,59 @@ RSpec.describe Jira::JqlBuilderService do
       end
     end
 
+    context 'with status param' do
+      let(:params) { { status: "\"'try\"some'more\"quote'here\"" } }
+
+      it 'builds jql' do
+        expect(subject).to eq("project = PROJECT_KEY AND status = \"\\\"'try\\\"some'more\\\"quote'here\\\"\" order by created DESC")
+      end
+    end
+
+    context 'with author_username param' do
+      let(:params) { { author_username: "\"'try\"some'more\"quote'here\"" } }
+
+      it 'builds jql' do
+        expect(subject).to eq("project = PROJECT_KEY AND reporter = \"\\\"'try\\\"some'more\\\"quote'here\\\"\" order by created DESC")
+      end
+    end
+
+    context 'with assignee_username param' do
+      let(:params) { { assignee_username: "\"'try\"some'more\"quote'here\"" } }
+
+      it 'builds jql' do
+        expect(subject).to eq("project = PROJECT_KEY AND assignee = \"\\\"'try\\\"some'more\\\"quote'here\\\"\" order by created DESC")
+      end
+    end
+
     context 'with sort params' do
       let(:params) { { sort: 'updated', sort_direction: 'ASC' } }
 
       it 'builds jql' do
         expect(subject).to eq('project = PROJECT_KEY order by updated ASC')
+      end
+    end
+
+    context 'with opened state param' do
+      let(:params) { { state: 'opened' } }
+
+      it 'builds jql' do
+        expect(subject).to eq('project = PROJECT_KEY AND statusCategory != Done order by created DESC')
+      end
+    end
+
+    context 'with closed state param' do
+      let(:params) { { state: 'closed' } }
+
+      it 'builds jql' do
+        expect(subject).to eq('project = PROJECT_KEY AND statusCategory = Done order by created DESC')
+      end
+    end
+
+    context 'with any other state param' do
+      let(:params) { { state: 'all' } }
+
+      it 'builds jql' do
+        expect(subject).to eq('project = PROJECT_KEY order by created DESC')
       end
     end
   end

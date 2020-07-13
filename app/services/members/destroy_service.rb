@@ -2,8 +2,6 @@
 
 module Members
   class DestroyService < Members::BaseService
-    WAIT_FOR_DELETE = 1.hour
-
     def execute(member, skip_authorization: false, skip_subresources: false, unassign_issuables: false)
       raise Gitlab::Access::AccessDeniedError unless skip_authorization || can_destroy_member?(member)
 
@@ -71,8 +69,8 @@ module Members
     def enqueue_unassign_issuables(member)
       source_type = member.is_a?(GroupMember) ? 'Group' : 'Project'
 
-      member.run_after_commit do
-        MembersDestroyer::UnassignIssuablesWorker.perform_in(WAIT_FOR_DELETE, member.user_id, member.source_id, source_type)
+      member.run_after_commit_or_now do
+        MembersDestroyer::UnassignIssuablesWorker.perform_async(member.user_id, member.source_id, source_type)
       end
     end
   end

@@ -2,6 +2,7 @@
 
 module Clusters
   class Cluster < ApplicationRecord
+    prepend HasEnvironmentScope
     include Presentable
     include Gitlab::Utils::StrongMemoize
     include FromUnion
@@ -20,7 +21,8 @@ module Clusters
       Clusters::Applications::Jupyter.application_name => Clusters::Applications::Jupyter,
       Clusters::Applications::Knative.application_name => Clusters::Applications::Knative,
       Clusters::Applications::ElasticStack.application_name => Clusters::Applications::ElasticStack,
-      Clusters::Applications::Fluentd.application_name => Clusters::Applications::Fluentd
+      Clusters::Applications::Fluentd.application_name => Clusters::Applications::Fluentd,
+      Clusters::Applications::Cilium.application_name => Clusters::Applications::Cilium
     }.freeze
     DEFAULT_ENVIRONMENT = '*'
     KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'
@@ -64,6 +66,7 @@ module Clusters
     has_one_cluster_application :knative
     has_one_cluster_application :elastic_stack
     has_one_cluster_application :fluentd
+    has_one_cluster_application :cilium
 
     has_many :kubernetes_namespaces
     has_many :metrics_dashboard_annotations, class_name: 'Metrics::Dashboard::Annotation', inverse_of: :cluster
@@ -81,6 +84,7 @@ module Clusters
     validate :no_groups, unless: :group_type?
     validate :no_projects, unless: :project_type?
     validate :unique_management_project_environment_scope
+    validate :unique_environment_scope
 
     after_save :clear_reactive_cache!
 
@@ -337,7 +341,11 @@ module Clusters
     end
 
     def local_tiller_enabled?
-      Feature.enabled?(:managed_apps_local_tiller, clusterable, default_enabled: false)
+      Feature.enabled?(:managed_apps_local_tiller, clusterable, default_enabled: true)
+    end
+
+    def prometheus_adapter
+      application_prometheus
     end
 
     private
@@ -350,6 +358,12 @@ module Clusters
         .where.not(id: id)
 
       if duplicate_management_clusters.any?
+        errors.add(:environment_scope, 'cannot add duplicated environment scope')
+      end
+    end
+
+    def unique_environment_scope
+      if clusterable.present? && clusterable.clusters.where(environment_scope: environment_scope).where.not(id: id).exists?
         errors.add(:environment_scope, 'cannot add duplicated environment scope')
       end
     end
