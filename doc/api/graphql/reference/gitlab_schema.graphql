@@ -4351,6 +4351,11 @@ The connection type for EpicIssue.
 """
 type EpicIssueConnection {
   """
+  Total count of collection
+  """
+  count: Int!
+
+  """
   A list of edges.
   """
   edges: [EpicIssueEdge]
@@ -4364,11 +4369,6 @@ type EpicIssueConnection {
   Information to aid in pagination.
   """
   pageInfo: PageInfo!
-
-  """
-  Total count of collection
-  """
-  totalCount: Int!
 }
 
 """
@@ -5948,6 +5948,11 @@ The connection type for Issue.
 """
 type IssueConnection {
   """
+  Total count of collection
+  """
+  count: Int!
+
+  """
   A list of edges.
   """
   edges: [IssueEdge]
@@ -5961,11 +5966,6 @@ type IssueConnection {
   Information to aid in pagination.
   """
   pageInfo: PageInfo!
-
-  """
-  Total count of collection
-  """
-  totalCount: Int!
 }
 
 """
