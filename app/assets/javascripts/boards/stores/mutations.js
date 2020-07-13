@@ -48,8 +48,13 @@ export default {
     notImplemented();
   },
 
+  [mutationTypes.REQUEST_ISSUES_FOR_ALL_LISTS]: state => {
+    state.isLoadingIssues = true;
+  },
+
   [mutationTypes.RECEIVE_ISSUES_FOR_ALL_LISTS_SUCCESS]: (state, listIssues) => {
     state.issuesByListId = listIssues;
+    state.isLoadingIssues = false;
   },
 
   [mutationTypes.REQUEST_ADD_ISSUE]: () => {

@@ -39,14 +39,18 @@ export default {
       required: false,
       default: 0,
     },
+    rootPath: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
-    ...mapState(['epics', 'issuesByListId']),
-    issuesCount() {
+    ...mapState(['epics', 'issuesByListId', 'isLoadingIssues']),
+    unassignedIssuesCount() {
       return this.lists.reduce((total, list) => total + this.unassignedIssues(list).length, 0);
     },
-    issuesCountTooltipText() {
-      return n__(`%d unassigned issue`, `%d unassigned issues`, this.issuesCount);
+    unassignedIssuesCountTooltipText() {
+      return n__(`%d unassigned issue`, `%d unassigned issues`, this.unassignedIssuesCount);
     },
   },
   mounted() {
@@ -96,6 +100,9 @@ export default {
         :epic="epic"
         :lists="lists"
         :issues="issuesByListId"
+        :is-loading-issues="isLoadingIssues"
+        :disabled="disabled"
+        :root-path="rootPath"
       />
       <div class="board-lane-unassigned-issues gl-sticky gl-display-inline-block gl-left-0">
         <div class="gl-left-0 gl-py-5 gl-px-3 gl-display-flex gl-align-items-center">
@@ -106,14 +113,14 @@ export default {
           </span>
           <span
             v-gl-tooltip.hover
-            :title="issuesCountTooltipText"
+            :title="unassignedIssuesCountTooltipText"
             class="gl-display-flex gl-align-items-center gl-text-gray-700"
             tabindex="0"
-            :aria-label="issuesCountTooltipText"
+            :aria-label="unassignedIssuesCountTooltipText"
             data-testid="issues-lane-issue-count"
           >
             <gl-icon class="gl-mr-2 gl-flex-shrink-0" name="issues" aria-hidden="true" />
-            <span aria-hidden="true">{{ issuesCount }}</span>
+            <span aria-hidden="true">{{ unassignedIssuesCount }}</span>
           </span>
         </div>
       </div>
@@ -125,6 +132,9 @@ export default {
           :issues="unassignedIssues(list)"
           :group-id="groupId"
           :is-unassigned-issues-lane="true"
+          :is-loading="isLoadingIssues"
+          :disabled="disabled"
+          :root-path="rootPath"
         />
       </div>
     </div>

@@ -6,4 +6,5 @@ export default () => ({
   isShowingLabels: true,
   activeListId: inactiveListId,
   issuesByListId: {},
+  isLoadingIssues: false,
 });

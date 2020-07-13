@@ -8,6 +8,7 @@ fragment IssueNode on Issue {
   weight
   confidential
   path: webUrl
+  subscribed
   epic {
     id
   }
