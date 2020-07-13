@@ -43,7 +43,7 @@ export default {
   computed: {
     ...mapState(['epics', 'issuesByListId']),
     issuesCount() {
-      return this.lists.reduce((total, list) => total + list.issues?.length, 0);
+      return this.lists.reduce((total, list) => total + this.unassignedIssues(list).length, 0);
     },
     issuesCountTooltipText() {
       return n__(`%d unassigned issue`, `%d unassigned issues`, this.issuesCount);
@@ -54,6 +54,12 @@ export default {
   },
   methods: {
     ...mapActions(['fetchIssuesForAllLists']),
+    unassignedIssues(list) {
+      if (this.issuesByListId[list.id]) {
+        return this.issuesByListId[list.id].filter(i => i.epic === null);
+      }
+      return [];
+    },
   },
 };
 </script>
@@ -116,7 +122,7 @@ export default {
           v-for="list in lists"
           :key="`${list.id}-issues`"
           :list="list"
-          :issues="issuesByListId[list.id] || []"
+          :issues="unassignedIssues(list)"
           :group-id="groupId"
           :is-unassigned-issues-lane="true"
         />
