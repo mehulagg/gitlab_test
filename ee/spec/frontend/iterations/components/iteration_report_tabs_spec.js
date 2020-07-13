@@ -105,7 +105,7 @@ describe('Iterations report tabs', () => {
             startCursor: 'first-item',
             endCursor: 'last-item',
           },
-          totalCount: issues.length,
+          count: issues.length,
         },
       });
     });

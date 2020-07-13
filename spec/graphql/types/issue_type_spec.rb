@@ -22,20 +22,20 @@ RSpec.describe GitlabSchema.types['Issue'] do
     end
   end
 
-  describe 'pagination and totalCount' do
+  describe 'pagination and count' do
     let_it_be(:user) { create(:user) }
     let_it_be(:project) { create(:project, :public) }
     let_it_be(:now) { Time.now.change(usec: 0) }
     let_it_be(:issues) { create_list(:issue, 10, project: project, created_at: now) }
 
-    let(:total_count_path) { %w(data project issues totalCount) }
+    let(:count_path) { %w(data project issues count) }
     let(:page_size) { 3 }
     let(:query) do
       <<~GRAPHQL
         query project($fullPath: ID!, $first: Int, $after: String) {
           project(fullPath: $fullPath) {
             issues(first: $first, after: $after) {
-              totalCount
+              count
               edges {
                 node {
                   iid
@@ -70,16 +70,16 @@ RSpec.describe GitlabSchema.types['Issue'] do
       end
     end
 
-    context 'totalCount' do
+    context 'count' do
       let(:end_cursor) { %w(data project issues pageInfo endCursor) }
       let(:issues_edges) { %w(data project issues edges) }
 
       it 'returns total count' do
-        expect(subject.dig(*total_count_path)).to eq(issues.count)
+        expect(subject.dig(*count_path)).to eq(issues.count)
       end
 
       it 'total count does not change between pages' do
-        old_count = subject.dig(*total_count_path)
+        old_count = subject.dig(*count_path)
         new_cursor = subject.dig(*end_cursor)
 
         new_page = GitlabSchema.execute(
@@ -92,7 +92,7 @@ RSpec.describe GitlabSchema.types['Issue'] do
           }
         ).to_h
 
-        new_count = new_page.dig(*total_count_path)
+        new_count = new_page.dig(*count_path)
         expect(old_count).to eq(new_count)
       end
 

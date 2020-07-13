@@ -14,7 +14,7 @@ query GroupIteration(
       first: $firstPageSize
       last: $lastPageSize
     ) {
-      totalCount
+      count
       pageInfo {
         endCursor
         hasNextPage

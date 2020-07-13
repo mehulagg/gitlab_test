@@ -63,7 +63,7 @@ export default {
       },
       update(data) {
         const issues = data?.group?.issues?.nodes || [];
-        const totalCount = data?.group?.issues?.totalCount;
+        const count = data?.group?.issues?.count;
         const pageInfo = data?.group?.issues?.pageInfo || {};
 
         const list = issues.map(issue => ({
@@ -75,7 +75,7 @@ export default {
         return {
           pageInfo,
           list,
-          totalCount,
+          count,
         };
       },
       error() {
@@ -174,7 +174,7 @@ export default {
     <gl-tab title="Issues">
       <template #title>
         <span>{{ __('Issues') }}</span
-        ><gl-badge class="ml-2" variant="neutral">{{ issues.totalCount }}</gl-badge>
+        ><gl-badge class="ml-2" variant="neutral">{{ issues.count }}</gl-badge>
       </template>
 
       <gl-loading-icon v-if="$apollo.queries.issues.loading" class="gl-my-9" size="md" />
