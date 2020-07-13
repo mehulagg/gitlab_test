@@ -233,7 +233,7 @@ dast:
     # To be done in a later iteration
     # https://gitlab.com/gitlab-org/gitlab/-/issues/227154
     # DAST_VERSION: 1
-    DAST_VERSION: 1.17.1 #v1.18.0 disables the config option 
+    DAST_VERSION: 1.17.1 #v1.18.0 disables the config option
     DAST_ZAP_CLI_OPTIONS: "-Xmx4072m database.recoverylog=false" #To avoid OutOfMemoryError error
   dependencies: ["review-deploy"]
   stage: qa
