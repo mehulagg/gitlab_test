@@ -567,9 +567,9 @@ database encryption. Proceed with caution.
    gitlab_pages['access_control'] = true
    ```
    
-   [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure) it and copy
+   [Reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure) GitLab and copy
    the resulting `gitlab-secrets.json` file to the **Pages server**,
-   e.g. via the NFS share:
+   for example via the NFS share:
    
    ```shell
    # On GitLab server
