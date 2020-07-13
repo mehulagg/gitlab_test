@@ -511,22 +511,6 @@ The following procedure includes steps to back up and edit the
 `gitlab-secrets.json` file. This file contains secrets that control
 database encryption. Proceed with caution.
 
-1. On the **GitLab server**, to enable Pages, add the following to `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   gitlab_pages['enable'] = true
-   ```
-
-1. Optionally, to enable [access control](#access-control), add the following to `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   gitlab_pages['access_control'] = true
-   ```
-
-1. [Reconfigure the **GitLab server**](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the
-   changes to take effect. The `gitlab-secrets.json` file is now updated with the
-   new configuration.
-
 1. Create a backup of the secrets file on the **GitLab server**:
 
    ```shell
@@ -568,8 +552,6 @@ database encryption. Proceed with caution.
 1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the **GitLab server**
    to the **Pages server**.
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
-
 1. On the **GitLab server**, make the following changes to `/etc/gitlab/gitlab.rb`:
 
    ```ruby
@@ -578,7 +560,28 @@ database encryption. Proceed with caution.
    gitlab_rails['pages_path'] = "/mnt/pages"
    ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+1. Optionally, to enable [access control](#access-control), add the following to
+   the **GitLab server's** `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitlab_pages['access_control'] = true
+   ```
+   
+   [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure) it and copy
+   the resulting `gitlab-secrets.json` file to the **Pages server**,
+   e.g. via the NFS share:
+   
+   ```shell
+   # On GitLab server
+   cp /etc/gitlab/gitlab-secrets.json /var/opt/gitlab/gitlab-rails/shared/pages/gitlab-secrets.json
+   
+   # On Pages server
+   mv /mnt/pages/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+   ```
+
+1. [Reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure) both the
+   **GitLab server** (unless you completed the optional access control step just now)
+   and the **Pages server** for the changes to take effect.
 
 It is possible to run GitLab Pages on multiple servers if you wish to distribute
 the load. You can do this through standard load balancing practices such as
