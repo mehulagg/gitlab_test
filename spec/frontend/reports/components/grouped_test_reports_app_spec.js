@@ -94,6 +94,7 @@ describe('Grouped test reports app', () => {
         expect(fullTestReportLink.attributes('href')).toBe(`${pipelinePath}/test_report`);
       });
     });
+    
 
     describe('Without a pipelinePath', () => {
       beforeEach(() => {
