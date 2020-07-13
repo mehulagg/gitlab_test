@@ -3,8 +3,8 @@ import * as types from './mutation_types';
 import ListIssue from 'ee_else_ce/boards/models/issue';
 import createDefaultClient from '~/lib/graphql';
 import { BoardType } from '~/boards/constants';
-import groupListsIssuesQuery from '../queries/group_lists_issues.graphql';
-// import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
+import groupListsIssuesQuery from '../queries/group_lists_issues.query.graphql';
+import projectListsIssuesQuery from '../queries/project_lists_issues.query.graphql';
 
 const gqlClient = createDefaultClient();
 
@@ -43,10 +43,12 @@ export default {
   },
 
   fetchIssuesForAllLists: ({ state, commit }) => {
+    commit(types.REQUEST_ISSUES_FOR_ALL_LISTS);
+
     const { endpoints, boardType } = state;
     const { fullPath, boardId } = endpoints;
 
-    const query = boardType === BoardType.group ? groupListsIssuesQuery : groupListsIssuesQuery;
+    const query = boardType === BoardType.group ? groupListsIssuesQuery : projectListsIssuesQuery;
 
     const variables = {
       fullPath,

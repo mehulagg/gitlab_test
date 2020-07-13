@@ -31,6 +31,19 @@ export default {
       type: Object,
       required: true,
     },
+    isLoadingIssues: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    disabled: {
+      type: Boolean,
+      required: true,
+    },
+    rootPath: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -144,6 +157,9 @@ export default {
         :key="`${list.id}-issues`"
         :list="list"
         :issues="epicIssuesForList(list.id)"
+        :is-loading="isLoadingIssues"
+        :disabled="disabled"
+        :root-path="rootPath"
       />
     </div>
   </div>

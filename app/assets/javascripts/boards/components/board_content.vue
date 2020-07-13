@@ -54,7 +54,7 @@ export default {
   <div>
     <div
       v-if="!isSwimlanesOn"
-      class="plop boards-list gl-w-full gl-py-5 gl-px-3 gl-white-space-nowrap"
+      class="boards-list gl-w-full gl-py-5 gl-px-3 gl-white-space-nowrap"
       data-qa-selector="boards_list"
     >
       <board-column
@@ -78,6 +78,7 @@ export default {
       :disabled="disabled"
       :board-id="boardId"
       :group-id="groupId"
+      :root-path="rootPath"
     />
   </div>
 </template>
