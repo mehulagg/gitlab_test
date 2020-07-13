@@ -64,11 +64,12 @@ module EE
     end
 
     def by_iteration(items)
-      return items unless params.iterations?
+      return items unless params.iterations
 
-      if params.filter_by_no_iteration?
+      case params.iterations.to_s.downcase
+      when ::IssuableFinder::Params::FILTER_NONE
         items.no_iteration
-      elsif params.filter_by_any_iteration?
+      when ::IssuableFinder::Params::FILTER_ANY
         items.any_iteration
       else
         items.in_iterations(params.iterations)
