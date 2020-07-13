@@ -23,6 +23,8 @@ module QA
                 skip('Test is not compatible with this environment') unless Runtime::Env.address_matches?(example.metadata[:only])
               end
             end
+
+            config.disable_monkey_patching!
           end
         end
 

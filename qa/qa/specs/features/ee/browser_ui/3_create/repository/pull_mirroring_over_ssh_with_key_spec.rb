@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  RSpec.describe 'Create' do
     describe 'Pull mirror a repository over SSH with a private key', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/216297', type: :investigating } do
       let(:source) do
         Resource::Repository::ProjectPush.fabricate! do |project_push|

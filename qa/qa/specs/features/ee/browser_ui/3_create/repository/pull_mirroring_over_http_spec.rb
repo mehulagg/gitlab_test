@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  RSpec.describe 'Create' do
     # Use Admin credentials as a workaround for a permissions bug
     # See https://gitlab.com/gitlab-org/gitlab/issues/13769
     describe 'Pull mirror a repository over HTTP', :requires_admin do

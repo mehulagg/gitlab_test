@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples 'a QA scenario class' do
+RSpec.shared_examples 'a QA scenario class' do
   let(:attributes) { spy('Runtime::Scenario') }
   let(:runner) { spy('Specs::Runner') }
   let(:release) { spy('Runtime::Release') }
