@@ -115,7 +115,7 @@ module Backup
             GitLab version mismatch:
               Your current GitLab version (#{Gitlab::VERSION}) differs from the GitLab version in the backup!
               Please switch to the following version and try again:
-              The type (ce or ee) needs to be the same as well, see:
+              The type ("-ee", whereas no suffix means CE) needs to be the same as well, see:
               https://docs.gitlab.com/ce/raketasks/backup_restore.html
           HEREDOC
           progress.puts
