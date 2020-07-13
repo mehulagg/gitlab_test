@@ -4,20 +4,26 @@ exports[`Expand button on click when short text is provided renders button after
 <span>
   <button
     aria-label="Click to expand text"
-    class="btn js-text-expander-prepend text-expander btn-blank btn-secondary btn-md"
+    class="btn js-text-expander-prepend text-expander btn-blank btn-default btn-md gl-button"
     style="display: none;"
     type="button"
   >
     <!---->
      
-    <svg
-      aria-hidden="true"
-      class="s12 ic-ellipsis_h"
+    <!---->
+      
+    <span
+      class="gl-button-text"
     >
-      <use
-        xlink:href="#ellipsis_h"
-      />
-    </svg>
+      <svg
+        aria-hidden="true"
+        class="s12 ic-ellipsis_h"
+      >
+        <use
+          xlink:href="#ellipsis_h"
+        />
+      </svg>
+    </span>
   </button>
    
   <!---->
@@ -30,20 +36,26 @@ exports[`Expand button on click when short text is provided renders button after
    
   <button
     aria-label="Click to expand text"
-    class="btn js-text-expander-append text-expander btn-blank btn-secondary btn-md"
+    class="btn js-text-expander-append text-expander btn-blank btn-default btn-md gl-button"
     style=""
     type="button"
   >
     <!---->
      
-    <svg
-      aria-hidden="true"
-      class="s12 ic-ellipsis_h"
+    <!---->
+      
+    <span
+      class="gl-button-text"
     >
-      <use
-        xlink:href="#ellipsis_h"
-      />
-    </svg>
+      <svg
+        aria-hidden="true"
+        class="s12 ic-ellipsis_h"
+      >
+        <use
+          xlink:href="#ellipsis_h"
+        />
+      </svg>
+    </span>
   </button>
 </span>
 `;
@@ -52,19 +64,25 @@ exports[`Expand button when short text is provided renders button before text 1`
 <span>
   <button
     aria-label="Click to expand text"
-    class="btn js-text-expander-prepend text-expander btn-blank btn-secondary btn-md"
+    class="btn js-text-expander-prepend text-expander btn-blank btn-default btn-md gl-button"
     type="button"
   >
     <!---->
      
-    <svg
-      aria-hidden="true"
-      class="s12 ic-ellipsis_h"
+    <!---->
+      
+    <span
+      class="gl-button-text"
     >
-      <use
-        xlink:href="#ellipsis_h"
-      />
-    </svg>
+      <svg
+        aria-hidden="true"
+        class="s12 ic-ellipsis_h"
+      >
+        <use
+          xlink:href="#ellipsis_h"
+        />
+      </svg>
+    </span>
   </button>
    
   <span>
@@ -77,20 +95,26 @@ exports[`Expand button when short text is provided renders button before text 1`
    
   <button
     aria-label="Click to expand text"
-    class="btn js-text-expander-append text-expander btn-blank btn-secondary btn-md"
+    class="btn js-text-expander-append text-expander btn-blank btn-default btn-md gl-button"
     style="display: none;"
     type="button"
   >
     <!---->
      
-    <svg
-      aria-hidden="true"
-      class="s12 ic-ellipsis_h"
+    <!---->
+      
+    <span
+      class="gl-button-text"
     >
-      <use
-        xlink:href="#ellipsis_h"
-      />
-    </svg>
+      <svg
+        aria-hidden="true"
+        class="s12 ic-ellipsis_h"
+      >
+        <use
+          xlink:href="#ellipsis_h"
+        />
+      </svg>
+    </span>
   </button>
 </span>
 `;
