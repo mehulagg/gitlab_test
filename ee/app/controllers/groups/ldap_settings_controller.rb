@@ -7,7 +7,8 @@ class Groups::LdapSettingsController < Groups::ApplicationController
   before_action :authorize_manage_ldap_settings!
 
   def update
-    if @group.update(ldap_settings_params)
+    service = Groups::LdapMembershipService.new(group, current_user, ldap_settings_params)
+    if service.execute
       redirect_back_or_default(default: group_ldap_group_links_path(@group), options: { notice: _('LDAP settings updated') })
     else
       redirect_back_or_default(default: group_ldap_group_links_path(@group), options: { alert: _('Could not update the LDAP settings') })

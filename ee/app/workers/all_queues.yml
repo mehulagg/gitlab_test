@@ -483,6 +483,14 @@
   :weight: 1
   :idempotent:
   :tags: []
+- :name: groups:groups_remove_non_ldap_members
+  :feature_category: :authentication_and_authorization
+  :has_external_dependencies:
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent:
+  :tags: []
 - :name: personal_access_tokens:personal_access_tokens_groups_policy
   :feature_category: :authentication_and_authorization
   :has_external_dependencies:
