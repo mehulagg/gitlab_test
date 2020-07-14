@@ -13275,9 +13275,6 @@ msgstr ""
 msgid "Keys"
 msgstr ""
 
-msgid "Ki"
-msgstr ""
-
 msgid "Kubernetes"
 msgstr ""
 
@@ -14881,9 +14878,6 @@ msgid "Metrics|e.g. rate(http_requests_total[5m])"
 msgstr ""
 
 msgid "Metrics|e.g. req/sec"
-msgstr ""
-
-msgid "Mi"
 msgstr ""
 
 msgid "Microsoft Azure"

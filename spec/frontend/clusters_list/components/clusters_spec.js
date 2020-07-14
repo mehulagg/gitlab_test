@@ -5,7 +5,6 @@ import MockAdapter from 'axios-mock-adapter';
 import { apiData } from '../mock_data';
 import { mount } from '@vue/test-utils';
 import { GlLoadingIcon, GlPagination, GlSkeletonLoading, GlTable } from '@gitlab/ui';
-import * as Sentry from '@sentry/browser';
 
 describe('Clusters', () => {
   let mock;
@@ -44,11 +43,7 @@ describe('Clusters', () => {
     };
   };
 
-  let captureException;
-
   beforeEach(() => {
-    captureException = jest.spyOn(Sentry, 'captureException');
-
     mock = new MockAdapter(axios);
     mockPollingApi(200, apiData, paginationHeader());
 
@@ -58,7 +53,6 @@ describe('Clusters', () => {
   afterEach(() => {
     wrapper.destroy();
     mock.restore();
-    captureException.mockRestore();
   });
 
   describe('clusters table', () => {
@@ -174,24 +168,6 @@ describe('Clusters', () => {
         expect(size.find(GlSkeletonLoading).exists()).toBe(false);
       });
     });
-
-    describe('nodes with unknown quantity', () => {
-      it('notifies Sentry about all missing quantity types', () => {
-        expect(captureException).toHaveBeenCalledTimes(8);
-      });
-
-      it('notifies Sentry about CPU missing quantity types', () => {
-        const missingCpuTypeError = new Error('UnknownK8sCpuQuantity:1missingCpuUnit');
-
-        expect(captureException).toHaveBeenCalledWith(missingCpuTypeError);
-      });
-
-      it('notifies Sentry about Memory missing quantity types', () => {
-        const missingMemoryTypeError = new Error('UnknownK8sMemoryQuantity:1missingMemoryUnit');
-
-        expect(captureException).toHaveBeenCalledWith(missingMemoryTypeError);
-      });
-    });
   });
 
   describe('cluster CPU', () => {
@@ -200,8 +176,8 @@ describe('Clusters', () => {
       ${''}                | ${0}
       ${'1.93 (87% free)'} | ${1}
       ${'3.87 (86% free)'} | ${2}
-      ${'(% free)'}        | ${3}
-      ${'(% free)'}        | ${4}
+      ${''}                | ${3}
+      ${''}                | ${4}
       ${''}                | ${5}
     `('renders total cpu for each cluster', ({ clusterCpu, lineNumber }) => {
       const clusterCpus = findTable().findAll('td:nth-child(4)');
@@ -217,8 +193,8 @@ describe('Clusters', () => {
       ${''}                 | ${0}
       ${'5.92 (78% free)'}  | ${1}
       ${'12.86 (79% free)'} | ${2}
-      ${'(% free)'}         | ${3}
-      ${'(% free)'}         | ${4}
+      ${''}                 | ${3}
+      ${''}                 | ${4}
       ${''}                 | ${5}
     `('renders total memory for each cluster', ({ clusterMemory, lineNumber }) => {
       const clusterMemories = findTable().findAll('td:nth-child(5)');
