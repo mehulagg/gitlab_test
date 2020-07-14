@@ -16043,6 +16043,9 @@ msgstr ""
 msgid "No endpoint provided"
 msgstr ""
 
+msgid "No environments"
+msgstr ""
+
 msgid "No errors to display."
 msgstr ""
 
