@@ -26,16 +26,6 @@ class SyntheticNote < Note
     attrs
   end
 
-  def initialize(params)
-    @discussion_id = params[:discussion_id]
-
-    super
-  end
-
-  def discussion_id(noteable = nil)
-    @discussion_id
-  end
-
   def project
     resource_parent if resource_parent.is_a?(Project)
   end
