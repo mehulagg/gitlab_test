@@ -14,12 +14,14 @@ class StateNote < SyntheticNote
   private
 
   def note_text(html: false)
-    if event.close_after_error_tracking_resolve
-      return 'resolved the corresponding error and closed the issue.'
-    end
+    if event.state == 'closed'
+      if event.close_after_error_tracking_resolve
+        return 'resolved the corresponding error and closed the issue.'
+      end
 
-    if event.close_auto_resolve_prometheus_alert
-      return 'automatically closed this issue because the alert resolved.'
+      if event.close_auto_resolve_prometheus_alert
+        return 'automatically closed this issue because the alert resolved.'
+      end
     end
 
     event.state.dup.tap do |body|
