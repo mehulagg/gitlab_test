@@ -38,26 +38,26 @@ module NotificationHelpers
   end
 
   def expect_delivery_jobs_count(count)
-    expect(ActionMailer::MailDeliveryJob).to have_been_enqueued.exactly(count).times
+    expect(ActionMailer::DeliveryJob).to have_been_enqueued.exactly(count).times
   end
 
   def expect_no_delivery_jobs
-    expect(ActionMailer::MailDeliveryJob).not_to have_been_enqueued
+    expect(ActionMailer::DeliveryJob).not_to have_been_enqueued
   end
 
   def expect_any_delivery_jobs
-    expect(ActionMailer::MailDeliveryJob).to have_been_enqueued.at_least(:once)
+    expect(ActionMailer::DeliveryJob).to have_been_enqueued.at_least(:once)
   end
 
   def have_enqueued_email(*args, mailer: "Notify", mail: "", delivery: "deliver_now")
-    have_enqueued_job(ActionMailer::MailDeliveryJob).with(mailer, mail, delivery, args: args)
+    have_enqueued_job(ActionMailer::DeliveryJob).with(mailer, mail, delivery, *args)
   end
 
   def expect_enqueud_email(*args, mailer: "Notify", mail: "", delivery: "deliver_now")
-    expect(ActionMailer::MailDeliveryJob).to have_been_enqueued.with(mailer, mail, delivery, args: args)
+    expect(ActionMailer::DeliveryJob).to have_been_enqueued.with(mailer, mail, delivery, *args)
   end
 
   def expect_not_enqueud_email(*args, mailer: "Notify", mail: "")
-    expect(ActionMailer::MailDeliveryJob).not_to have_been_enqueued.with(mailer, mail, args: any_args)
+    expect(ActionMailer::DeliveryJob).not_to have_been_enqueued.with(mailer, mail, *args, any_args)
   end
 end
