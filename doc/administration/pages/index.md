@@ -572,10 +572,10 @@ database encryption. Proceed with caution.
    for example via the NFS share:
    
    ```shell
-   # On GitLab server
+   # On the GitLab server
    cp /etc/gitlab/gitlab-secrets.json /var/opt/gitlab/gitlab-rails/shared/pages/gitlab-secrets.json
    
-   # On Pages server
+   # On the Pages server
    mv /mnt/pages/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
    ```
 
