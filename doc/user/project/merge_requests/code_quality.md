@@ -28,7 +28,7 @@ Code Quality:
 ## Code Quality Widget
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1984) in [GitLab Starter](https://about.gitlab.com/pricing/) 9.3.
-> - Made [available in all tiers](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/36120) in 13.2.
+> - Made [available in all tiers](https://gitlab.com/gitlab-org/gitlab/-/issues/212499) in 13.2.
 
 Going a step further, GitLab can show the Code Quality report right
 in the merge request widget area:
