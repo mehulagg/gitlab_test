@@ -1480,7 +1480,7 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
-    context 'submit_review command' do
+    describe '/submit_review' do
       where(:note) do
         [
           'I like it',
@@ -1490,13 +1490,12 @@ RSpec.describe QuickActions::InterpretService do
 
       with_them do
         let(:content) { '/submit_review' }
+        let(:target) { merge_request }
         let!(:draft_note) { create(:draft_note, note: note, merge_request: merge_request, author: developer) }
 
         it 'submits the users current review' do
-          _, _, message = service.execute(content, merge_request)
-
-          expect { draft_note.reload }.to raise_error(ActiveRecord::RecordNotFound)
           expect(message).to eq('Submitted the current review.')
+          expect { draft_note.reload }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
     end

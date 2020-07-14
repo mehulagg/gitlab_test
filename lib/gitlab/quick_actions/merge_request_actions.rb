@@ -109,22 +109,22 @@ module Gitlab
         else
           warn _('No branch named %{branch_name}.') % { branch_name: branch_name }
         end
+      end
 
-        desc _('Submit a review')
-        explanation _('Submit the current review.')
-        types MergeRequest
-        condition do
-          quick_action_target.persisted?
-        end
-        command :submit_review do
-          next if params[:review_id]
+      desc _('Submit a review')
+      explanation _('Submit the current review.')
+      types MergeRequest
+      condition do
+        quick_action_target.persisted?
+      end
+      command :submit_review do
+        next if params[:review_id]
 
-          result = DraftNotes::PublishService.new(quick_action_target, current_user).execute
-          if result[:status] == :success
-            info _('Submitted the current review.')
-          else
-            warn result[:message]
-          end
+        result = DraftNotes::PublishService.new(quick_action_target, current_user).execute
+        if result[:status] == :success
+          info _('Submitted the current review.')
+        else
+          warn result[:message]
         end
       end
     end
