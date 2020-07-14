@@ -522,7 +522,7 @@ database encryption. Proceed with caution.
 1. Create an [NFS share](../high_availability/nfs_host_client_setup.md) on the new server and configure this share to
    allow access from your main **GitLab server**. For this example, we use the
    default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
-   as the shared folder on the new server and we will mount it to `/mnt/pages`
+   as the shared folder on the new server and we mount it to `/mnt/pages`
    on the **GitLab server**.
 
 1. On the **Pages server**, install Omnibus GitLab and modify `/etc/gitlab/gitlab.rb`
@@ -566,15 +566,15 @@ database encryption. Proceed with caution.
    ```ruby
    gitlab_pages['access_control'] = true
    ```
-   
+
    [Reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure) GitLab and copy
    the resulting `gitlab-secrets.json` file to the **Pages server**,
    for example via the NFS share:
-   
+
    ```shell
    # On the GitLab server
    cp /etc/gitlab/gitlab-secrets.json /var/opt/gitlab/gitlab-rails/shared/pages/gitlab-secrets.json
-   
+
    # On the Pages server
    mv /mnt/pages/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
    ```
@@ -583,7 +583,7 @@ database encryption. Proceed with caution.
    **GitLab server** (unless you completed the optional access control step just now)
    and the **Pages server** for the changes to take effect.
 
-It is possible to run GitLab Pages on multiple servers if you wish to distribute
+It's possible to run GitLab Pages on multiple servers if you wish to distribute
 the load. You can do this through standard load balancing practices such as
 configuring your DNS server to return multiple IPs for your Pages server,
 configuring a load balancer to work at the IP level, and so on. If you wish to
