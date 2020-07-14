@@ -100,7 +100,7 @@ module Gitlab
         test: "~test ~Quality for `spec/features/*`",
         engineering_productivity: '~"Engineering Productivity" for CI, Danger'
       }.freeze
-      # First-match win, so be sure to put more specific regex at the top...
+
       CATEGORIES = {
         %r{\Adoc/} => :docs,
         %r{\A(CONTRIBUTING|LICENSE|MAINTENANCE|PHILOSOPHY|PROCESS|README)(\.md)?\z} => :docs,
