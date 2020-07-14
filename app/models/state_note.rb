@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class StateNote < SyntheticNote
+  include Gitlab::Utils::StrongMemoize
+
   def self.from_event(event, resource: nil, resource_parent: nil)
     attrs = note_attributes(action_by(event), event, resource, resource_parent)
 
@@ -24,20 +26,18 @@ class StateNote < SyntheticNote
       end
     end
 
-    event.state.dup.tap do |body|
-      body << " via #{mentionable_source.gfm_reference(project)}" if mentionable_event_source
-    end
+    body = event.state.dup
+    body << " via #{event_source.gfm_reference(project)}" if event_source
+    body
   end
 
-  def mentionable_source
-    @mentionable_source ||= mentionable_event_source
-  end
-
-  def mentionable_event_source
-    if event.source_commit
-      project&.commit(event.source_commit)
-    else
-      event.source_merge_request
+  def event_source
+    strong_memoize(:event_source) do
+      if event.source_commit
+        project&.commit(event.source_commit)
+      else
+        event.source_merge_request
+      end
     end
   end
 
