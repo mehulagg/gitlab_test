@@ -230,6 +230,7 @@ dast:
     DAST_PASSWORD_FIELD: "user[password]"
     DAST_FULL_SCAN_ENABLED: "true"
     DAST_SPIDER_MINS: 0
+    DAST_ZAP_LOG_CONFIGURATION: "log4j.rootLogger=DEBUG"
     # To be done in a later iteration
     # https://gitlab.com/gitlab-org/gitlab/-/issues/227154
     # DAST_VERSION: 1
