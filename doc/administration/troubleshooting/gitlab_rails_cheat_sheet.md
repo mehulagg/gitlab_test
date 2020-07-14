@@ -718,6 +718,10 @@ projects_and_size.each do |ps|
 end
 ```
 
+### Container Tag Expiration / Cleanup Policies do not work
+
+Find this content in the [Container Registry troubleshooting docs](../packages/container_registry.md#container-tag-expiration-cleanup-policy-does-not-work).
+
 ## Sidekiq
 
 This content has been moved to the [Troubleshooting Sidekiq docs](./sidekiq.md).

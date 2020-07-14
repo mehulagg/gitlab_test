@@ -1066,6 +1066,31 @@ curl localhost:5001/debug/health
 curl localhost:5001/debug/vars
 ```
 
+### Container Tag Expiration / Cleanup Policy does not work
+
+Despite a project's [cleanup policy](../../user/packages/container_registry/index.md#cleanup-policy),
+a [known bug](https://gitlab.com/gitlab-org/gitlab/-/issues/219915)
+might prevent the automatic removal of old Docker image tags.
+As a manual workaround, try the following script in the
+[Rails console](../troubleshooting/navigating_gitlab_via_rails_console.md):
+
+```ruby
+# Numeric ID of the project whose container registry should be cleaned up
+P = <project_id>
+
+# Numeric ID of a developer, maintainer or owner in that project
+U = <user_id>
+
+# Get required details / objects
+user    = User.find_by_id(U)
+project = Project.find_by_id(P)
+repo    = ContainerRepository.find_by(project_id: P)
+policy  = ContainerExpirationPolicy.find_by(project_id: P)
+
+# Start the tag cleanup
+Projects::ContainerRepository::CleanupTagsService.new(project, user, policy.attributes.except("created_at", "updated_at")).execute(repo)
+```
+
 ### Advanced Troubleshooting
 
 NOTE: **Note:**
