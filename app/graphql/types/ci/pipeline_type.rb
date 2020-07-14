@@ -37,6 +37,8 @@ module Types
             description: "Timestamp of the pipeline's completion"
       field :committed_at, Types::TimeType, null: true,
             description: "Timestamp of the pipeline's commit"
+      field :stages, StageType.connection_type, null: false,
+            description: 'Pipeline stage'
 
       # TODO: Add triggering user as a type
     end
