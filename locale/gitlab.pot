@@ -12484,6 +12484,9 @@ msgstr ""
 msgid "IncidentSettings|Set up integrations with external tools to help better manage incidents."
 msgstr ""
 
+msgid "Incidents"
+msgstr ""
+
 msgid "Include a Terms of Service agreement and Privacy Policy that all users must accept."
 msgstr ""
 
