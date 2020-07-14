@@ -232,6 +232,12 @@
                   %span
                     = _('Alerts')
 
+            - if project_nav_tab?(:issues)
+              = nav_link(controller: :issues) do
+                = link_to project_issues_path(@project, scope: 'all', state: 'opened', label_name: 'incident'), title: _('Incidents'), class: 'shortcuts-tracking qa-operations-tracking-link' do
+                  %span
+                    = _('Incidents')
+
             - if project_nav_tab? :environments
               = render_if_exists "layouts/nav/sidebar/tracing_link"
 
