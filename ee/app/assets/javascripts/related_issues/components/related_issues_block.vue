@@ -134,12 +134,12 @@ export default {
             aria-hidden="true"
           />
           <slot name="headerText">{{ __('Linked issues') }}</slot>
-          <a v-if="hasHelpPath" :href="helpPath">
+          <gl-link v-if="hasHelpPath" :href="helpPath" target="_blank">
             <i
               class="related-issues-header-help-icon fa fa-question-circle"
               :aria-label="__('Read more about related issues')"
             ></i>
-          </a>
+          </gl-link>
           <div class="d-inline-flex lh-100 align-middle">
             <div
               class="js-related-issues-header-issue-count related-issues-header-issue-count issue-count-badge gl-display-inline-flex gl-mx-2"

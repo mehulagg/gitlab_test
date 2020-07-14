@@ -16,6 +16,7 @@ module VulnerabilitiesHelper
       discussions_url: discussions_project_security_vulnerability_path(vulnerability.project, vulnerability),
       notes_url: project_security_vulnerability_notes_path(vulnerability.project, vulnerability),
       vulnerability_feedback_help_path: help_page_path('user/application_security/index', anchor: 'interacting-with-the-vulnerabilities'),
+      related_issues_help_path: help_page_path('user/application_security/index', anchor: 'managing-related-issues-for-a-vulnerability'),
       pipeline: vulnerability_pipeline_data(pipeline),
       can_edit_related_issues: can?(current_user, :admin_vulnerability_issue_link, vulnerability),
     }

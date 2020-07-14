@@ -34,11 +34,12 @@ describe('Vulnerability Footer', () => {
     finding: {},
     notesUrl: '/notes',
     project: {
-      full_path: '/root/security-reports',
-      full_name: 'Administrator / Security Reports',
+      url: '/root/security-reports',
+      value: 'Administrator / Security Reports',
     },
     vulnerabilityId: 1,
     canEditRelatedIssues: true,
+    relatedIssuesHelpPath: 'help/path',
   };
 
   const solutionInfoProp = {

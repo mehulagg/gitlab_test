@@ -242,6 +242,38 @@ Click this button to create a merge request to apply the solution onto the sourc
 
 ![Create merge request from vulnerability](img/create_issue_with_list_hover.png)
 
+### Managing related issues for a vulnerability
+
+Issues can be linked to a vulnerability using the related issues block on the vulnerability page. The relationship is uni-directional; the vulnerability page will show related issues, but the issue page won't show the vulnerability it's related to. An issue can only be related to one vulnerability at a time. Issues can be linked across groups and projects.
+
+#### Adding a related issue
+
+You can link an issue by clicking on the "+" button in the Related Issues block:
+
+![Vulnerability related issues add button](img/vulnerability_related_issues_add_button_v13_2.png)
+
+A text box will appear that lets you type in an issue number or paste an issue link. You can type in multiple issues at once. Pressing spacebar after each issue number or link will convert them to tags that can be removed by clicking on the "x" icon to the right of the tag:
+
+![Vulnerability related issues text box tags animation](img/vulnerability_related_issues_text_box_tags_v13_2.gif)
+ 
+Typing a "#" followed by a number will show an autocomplete dropdown. Clicking on one of the issues in the dropdown will add it as a tag:
+
+![Vulnerability related issues text box autocomplete dropdown animation](img/vulnerability_related_issues_text_box_autocomplete_13_2.gif)
+
+Click on the Add button to add the issues shown in the text box as related issues:
+
+![Vulnerability related issues add animation](img/vulnerablity_related_issues_text_box_add_v13_2.gif)
+
+Click on the Cancel button to stop adding related issues, which clears out and hides the text box.
+
+### Removing a related issue
+
+Click on the "x" icon to right of an issue to remove it as a related issue:
+
+![Vulnerability related issues remove issue animation](img/vulnerability_related_issues_remove_v13_2.gif)
+
+Note that this only removes it as a related issue of the vulnerability, but does not modify or remove the issue itself. You may link it again to the vulnerability again if desired.
+
 ## Security approvals in merge requests
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9928) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.2.

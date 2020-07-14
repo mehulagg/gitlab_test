@@ -51,6 +51,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    relatedIssuesHelpPath: {
+      type: String,
+      required: true,
+    },
   },
 
   data: () => ({
@@ -212,6 +216,7 @@ export default {
       :endpoint="issueLinksEndpoint"
       :can-admin="canEditRelatedIssues"
       :project-path="project.url"
+      :help-path="relatedIssuesHelpPath"
     />
 
     <hr />
