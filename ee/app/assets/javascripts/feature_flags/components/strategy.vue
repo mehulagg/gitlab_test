@@ -63,6 +63,7 @@ export default {
 
   translations: {
     allEnvironments: __('All environments'),
+    noEnvironments: __('No environments'),
     environmentsLabel: __('Environments'),
     removeLabel: s__('FeatureFlag|Delete strategy'),
     rolloutPercentageDescription: __('Enter a whole number between 0 and 100'),
@@ -138,10 +139,12 @@ export default {
     },
     appliesToAllEnvironments() {
       return (
-        this.filteredEnvironments.length === 0 ||
-        (this.filteredEnvironments.length === 1 &&
-          this.filteredEnvironments[0].environmentScope === '*')
+        this.filteredEnvironments.length === 1 &&
+        this.filteredEnvironments[0].environmentScope === '*'
       );
+    },
+    appliesToNoEnvironments() {
+      return this.filteredEnvironments.length === 0;
     },
     filteredEnvironments() {
       return this.environments.filter(e => !e.shouldBeDestroyed);
@@ -157,7 +160,7 @@ export default {
     addEnvironment(environment) {
       const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
       if (allEnvironmentsScope) {
-        allEnvironmentsScope.shouldBeDestroyed = true;
+        Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', true);
       }
       this.environments.push({ environmentScope: environment });
       this.onStrategyChange();
@@ -193,6 +196,16 @@ export default {
       } else {
         this.environments = this.environments.filter(e => e !== environment);
       }
+
+      const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
+      if (this.filteredEnvironments.length === 0) {
+        if (allEnvironmentsScope) {
+          Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', false);
+        } else {
+          this.environments.push({ environmentScope: '*' });
+        }
+      }
+
       this.onStrategyChange();
     },
     isStrategyType(type) {
@@ -292,6 +305,9 @@ export default {
         />
         <span v-if="appliesToAllEnvironments" class="text-secondary mt-2 mt-md-0 ml-md-3">
           {{ $options.translations.allEnvironments }}
+        </span>
+        <span v-else-if="appliesToNoEnvironments" class="text-secondary mt-2 mt-md-0 ml-md-3">
+          {{ $options.translations.noEnvironments }}
         </span>
         <div v-else class="flex align-items-center">
           <gl-token

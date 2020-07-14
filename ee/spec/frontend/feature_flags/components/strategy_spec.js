@@ -209,6 +209,30 @@ describe('Feature flags strategy', () => {
       });
     });
 
+    describe('with a production scope with an id defined', () => {
+      beforeEach(() => {
+        const strategy = {
+          name: ROLLOUT_STRATEGY_ALL_USERS,
+          parameters: {},
+          scopes: [{ id: 1, environmentScope: 'production' }],
+        };
+        const propsData = { strategy, index: 0, endpoint: '' };
+        factory({ propsData });
+      });
+
+      it('displays all environments text when removing the scope, adding a new scope, and then removing the new scope', async () => {
+        const dropdown = wrapper.find(NewEnvironmentsDropdown);
+        wrapper.find(GlToken).vm.$emit('close');
+        await wrapper.vm.$nextTick();
+        dropdown.vm.$emit('add', 'staging');
+        await wrapper.vm.$nextTick();
+        wrapper.find(GlToken).vm.$emit('close');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toMatch(/All environments/);
+      });
+    });
+
     describe('without scopes defined', () => {
       beforeEach(() => {
         const strategy = {
@@ -256,6 +280,142 @@ describe('Feature flags strategy', () => {
           ]);
         });
       });
+
+      it('displays the proper text', () => {
+        expect(wrapper.text()).toMatch('No environments');
+      });
+    });
+  });
+
+  describe('removeScope', () => {
+    const setup = scopes => {
+      factory({
+        propsData: {
+          strategy: {
+            name: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
+            parameters: { percentage: '50' },
+            scopes,
+          },
+          index: 0,
+          endpoint: '',
+        },
+      });
+    };
+
+    it('sets shouldBeDestroyed to true for a scope with an id', () => {
+      setup([{ id: 1, environmentScope: 'production' }, { id: 2, environmentScope: 'staging' }]);
+      const scope = wrapper.props('strategy').scopes[0];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([
+        { id: 1, environmentScope: 'production', shouldBeDestroyed: true },
+        { id: 2, environmentScope: 'staging' },
+      ]);
+    });
+
+    it('removes the scope for a scope without an id', () => {
+      setup([{ environmentScope: 'production' }, { id: 2, environmentScope: 'staging' }]);
+      const scope = wrapper.props('strategy').scopes[0];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([{ id: 2, environmentScope: 'staging' }]);
+    });
+
+    it('adds a new all environments scope when the removed scope has an id and is the last one', () => {
+      setup([{ id: 1, environmentScope: 'production' }]);
+      const scope = wrapper.props('strategy').scopes[0];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([
+        { id: 1, environmentScope: 'production', shouldBeDestroyed: true },
+        { environmentScope: '*' },
+      ]);
+    });
+
+    it('adds a new all environments scope when the removed scope does not have an id and is the last one', () => {
+      setup([{ environmentScope: 'production' }]);
+      const scope = wrapper.props('strategy').scopes[0];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([{ environmentScope: '*' }]);
+    });
+
+    it('adds a new all environments scope when the removed scope is the last one and there are two scopes with an id', () => {
+      setup([
+        { id: 1, environmentScope: 'production', shouldBeDestroyed: true },
+        { id: 2, environmentScope: 'staging' },
+      ]);
+      const scope = wrapper.props('strategy').scopes[1];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([
+        { id: 1, environmentScope: 'production', shouldBeDestroyed: true },
+        { id: 2, environmentScope: 'staging', shouldBeDestroyed: true },
+        { environmentScope: '*' },
+      ]);
+    });
+
+    it('changes shouldBeDestroyed to false if the all environments scope is the last scope', () => {
+      setup([
+        { id: 1, environmentScope: '*', shouldBeDestroyed: true },
+        { environmentScope: 'production' },
+      ]);
+      const scope = wrapper.props('strategy').scopes[1];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([
+        { id: 1, environmentScope: '*', shouldBeDestroyed: false },
+      ]);
+    });
+
+    it('leaves shouldBeDestroyed true if the all environments scope is not the last scope', () => {
+      setup([
+        { id: 1, environmentScope: '*', shouldBeDestroyed: true },
+        { environmentScope: 'production' },
+        { environmentScope: 'staging' },
+      ]);
+      const scope = wrapper.props('strategy').scopes[1];
+
+      wrapper.vm.removeScope(scope);
+
+      expect(wrapper.vm.environments).toEqual([
+        { id: 1, environmentScope: '*', shouldBeDestroyed: true },
+        { environmentScope: 'staging' },
+      ]);
+    });
+  });
+
+  describe('appliesToAllEnvironments', () => {
+    const setup = scopes => {
+      factory({
+        propsData: {
+          strategy: {
+            name: ROLLOUT_STRATEGY_ALL_USERS,
+            parameters: {},
+            scopes,
+          },
+          index: 0,
+          endpoint: '',
+        },
+      });
+    };
+
+    it('returns true when there is an all environments scope', () => {
+      setup([{ id: 1, environmentScope: '*' }]);
+
+      expect(wrapper.vm.appliesToAllEnvironments).toBe(true);
+    });
+
+    it('returns false when there are no scopes', () => {
+      setup([]);
+
+      expect(wrapper.vm.appliesToAllEnvironments).toBe(false);
     });
   });
 });
