@@ -660,60 +660,68 @@ RSpec.describe ::SystemNotes::IssuablesService do
   end
 
   describe '#close_after_error_tracking_resolve' do
-    [true, false].each do |state_tracking_enabled|
-      context "when state tracking is #{state_tracking_enabled ? 'enabled' : 'disabled'}" do
-        before do
-          stub_feature_flags(track_resource_state_change_events: state_tracking_enabled)
-        end
+    subject { service.close_after_error_tracking_resolve }
 
-        subject { service.close_after_error_tracking_resolve }
+    context 'when state tracking is enabled' do
+      before do
+        stub_feature_flags(track_resource_state_change_events: true)
+      end
 
-        unless state_tracking_enabled
-          it_behaves_like 'a system note' do
-            let(:action) { 'closed' }
-          end
-        end
+      it 'creates the expected state event' do
+        subject
 
-        it "creates the expected #{state_tracking_enabled ? 'state event' : 'system note'}" do
-          if state_tracking_enabled
-            subject
-            event = ResourceStateEvent.last
-            expect(event.close_after_error_tracking_resolve).to eq(true)
-            expect(event.state).to eq('closed')
-          else
-            expect(subject.note)
-              .to eq('resolved the corresponding error and closed the issue.')
-          end
-        end
+        event = ResourceStateEvent.last
+
+        expect(event.close_after_error_tracking_resolve).to eq(true)
+        expect(event.state).to eq('closed')
+      end
+    end
+
+    context 'when state tracking is disabled' do
+      before do
+        stub_feature_flags(track_resource_state_change_events: false)
+      end
+
+      it_behaves_like 'a system note' do
+        let(:action) { 'closed' }
+      end
+
+      it 'creates the expected system note' do
+        expect(subject.note)
+          .to eq('resolved the corresponding error and closed the issue.')
       end
     end
   end
 
   describe '#auto_resolve_prometheus_alert' do
-    [true, false].each do |state_tracking_enabled|
-      context "when state tracking is #{state_tracking_enabled ? 'enabled' : 'disabled'}" do
-        before do
-          stub_feature_flags(track_resource_state_change_events: state_tracking_enabled)
-        end
+    subject { service.auto_resolve_prometheus_alert }
 
-        subject { service.auto_resolve_prometheus_alert }
+    context 'when state tracking is enabled' do
+      before do
+        stub_feature_flags(track_resource_state_change_events: true)
+      end
 
-        unless state_tracking_enabled
-          it_behaves_like 'a system note' do
-            let(:action) { 'closed' }
-          end
-        end
+      it 'creates the expected state event' do
+        subject
 
-        it "creates the expected #{state_tracking_enabled ? 'state event' : 'system note'}" do
-          if state_tracking_enabled
-            subject
-            event = ResourceStateEvent.last
-            expect(event.close_auto_resolve_prometheus_alert).to eq(true)
-            expect(event.state).to eq('closed')
-          else
-            expect(subject.note).to eq('automatically closed this issue because the alert resolved.')
-          end
-        end
+        event = ResourceStateEvent.last
+
+        expect(event.close_auto_resolve_prometheus_alert).to eq(true)
+        expect(event.state).to eq('closed')
+      end
+    end
+
+    context 'when state tracking is disabled' do
+      before do
+        stub_feature_flags(track_resource_state_change_events: false)
+      end
+
+      it_behaves_like 'a system note' do
+        let(:action) { 'closed' }
+      end
+
+      it 'creates the expected system note' do
+        expect(subject.note).to eq('automatically closed this issue because the alert resolved.')
       end
     end
   end
