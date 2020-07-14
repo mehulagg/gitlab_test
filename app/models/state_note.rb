@@ -15,7 +15,7 @@ class StateNote < SyntheticNote
 
   def note_text(html: false)
     if event.close_after_error_tracking_resolve
-      return _('resolved the corresponding error and closed the issue.')
+      return 'resolved the corresponding error and closed the issue.'
     end
 
     if event.close_auto_resolve_prometheus_alert

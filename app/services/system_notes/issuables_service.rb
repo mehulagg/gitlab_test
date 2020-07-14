@@ -293,7 +293,7 @@ module SystemNotes
       if state_change_tracking_enabled?
         create_resource_state_event(status: 'closed', close_after_error_tracking_resolve: true)
       else
-        body = _('resolved the corresponding error and closed the issue.')
+        body = 'resolved the corresponding error and closed the issue.'
 
         create_note(NoteSummary.new(noteable, project, author, body, action: 'closed'))
       end
