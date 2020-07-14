@@ -348,10 +348,11 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
-    context 'iteration command' do
+    describe 'iteration command' do
       let_it_be(:iteration) { create(:iteration, group: group) }
 
       let(:content) { "/iteration #{iteration.to_reference(project)}" }
+      let(:target) { issue }
 
       context 'when iterations are enabled' do
         before do
@@ -365,8 +366,6 @@ RSpec.describe QuickActions::InterpretService do
             end
 
             it 'assigns an iteration to an issue' do
-              _, updates, message = service.execute(content, issue)
-
               expect(updates).to eq(iteration: iteration)
               expect(message).to eq("Set the iteration to #{iteration.to_reference}.")
             end
@@ -379,8 +378,6 @@ RSpec.describe QuickActions::InterpretService do
             end
 
             it 'returns empty message' do
-              _, updates, message = service.execute(content, issue)
-
               expect(updates).to be_empty
               expect(message).to be_empty
             end
@@ -391,8 +388,6 @@ RSpec.describe QuickActions::InterpretService do
           let(:content) { "/iteration none" }
 
           it 'returns empty message' do
-            _, updates, message = service.execute(content, issue)
-
             expect(updates).to be_empty
             expect(message).to be_empty
           end
@@ -405,17 +400,16 @@ RSpec.describe QuickActions::InterpretService do
         end
 
         it 'does not recognize /iteration' do
-          _, updates = service.execute(content, issue)
-
           expect(updates).to be_empty
         end
       end
     end
 
-    context 'remove_iteration command' do
+    describe 'remove_iteration command' do
       let_it_be(:iteration) { create(:iteration, group: group) }
 
       let(:content) { '/remove_iteration' }
+      let(:target) { issue }
 
       context 'when iterations are enabled' do
         before do
@@ -424,8 +418,6 @@ RSpec.describe QuickActions::InterpretService do
         end
 
         it 'removes an assigned iteration from an issue' do
-          _, updates, message = service.execute(content, issue)
-
           expect(updates).to eq(iteration: nil)
           expect(message).to eq("Removed #{iteration.to_reference} iteration.")
         end
@@ -437,8 +429,6 @@ RSpec.describe QuickActions::InterpretService do
           end
 
           it 'returns empty message' do
-            _, updates, message = service.execute(content, issue)
-
             expect(updates).to be_empty
             expect(message).to be_empty
           end
@@ -451,8 +441,6 @@ RSpec.describe QuickActions::InterpretService do
         end
 
         it 'does not recognize /remove_iteration' do
-          _, updates = service.execute(content, issue)
-
           expect(updates).to be_empty
         end
       end
@@ -841,32 +829,6 @@ RSpec.describe QuickActions::InterpretService do
         end
 
         it_behaves_like 'quick action is unavailable', :approve
-      end
-    end
-
-    describe '/submit_review' do
-      where(:note) do
-        [
-          'I like it',
-          '/submit_review'
-        ]
-      end
-
-      with_them do
-        let(:target) { merge_request }
-        let(:content) { '/submit_review' }
-        let!(:draft_note) { create(:draft_note, note: note, merge_request: merge_request, author: current_user) }
-
-        before do
-          stub_licensed_features(batch_comments: true)
-        end
-
-        it 'submits the users current review', :aggregate_failures do
-          messages = service.execute.messages
-
-          expect { draft_note.reload }.to raise_error(ActiveRecord::RecordNotFound)
-          expect(messages).to eq('Submitted the current review.')
-        end
       end
     end
 
