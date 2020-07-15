@@ -20,7 +20,7 @@ do
 done
 
 echo "Details"
-curl --silent -G -d "id=$JOBID" 46.101.173.169:3000
+curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 | jq .
 
 echo "Summary"
 curl --silent -G -d "id=$JOBID" 46.101.173.169:3000 \
