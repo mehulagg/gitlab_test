@@ -395,8 +395,8 @@ Equations and formulas will be rendered using [KaTeX](https://katex.org/):
 ```plaintext
 latexmath:[C = \alpha + \beta Y^{\gamma} + \epsilon]
 
-[stem] 
-++++ 
+[stem]
+++++
 sqrt(4) = 2
 ++++
 
