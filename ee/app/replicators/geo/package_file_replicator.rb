@@ -11,5 +11,9 @@ module Geo
     def carrierwave_uploader
       model_record.file
     end
+
+    def self.replication_enabled_by_default?
+      false
+    end
   end
 end

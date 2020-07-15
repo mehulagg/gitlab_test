@@ -78,6 +78,7 @@ export default {
           detailsPath: `${this.node.url}admin/geo/designs`,
         },
         {
+          itemEnabled: this.nodeDetails.packageFiles.enabled,
           itemTitle: s__('GeoNodes|Package files'),
           itemValue: this.nodeDetails.packageFiles,
           itemValueType: VALUE_TYPE.GRAPH,

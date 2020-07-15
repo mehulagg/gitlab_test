@@ -14,7 +14,7 @@ module Gitlab
       include ::Gitlab::Geo::LogHelpers
       extend ::Gitlab::Geo::LogHelpers
 
-      CLASS_SUFFIXES = %w(RegistryFinder RegistriesResolver).freeze
+      CLASS_SUFFIXES = %w(RegistryFinder RegistriesResolver Registry).freeze
 
       attr_reader :model_record_id
 
@@ -160,9 +160,21 @@ module Gitlab
         registry_class.failed.count
       end
 
+      # If considering overriding this, would it be sufficient to override
+      # `.replication_enabled_by_default?`?
+      def self.replication_enabled?
+        Feature.enabled?(replication_enabled_feature_key, default_enabled: replication_enabled_by_default?)
+      end
+
+      def self.replication_enabled_by_default?
+        true
+      end
+
       # @example Given `Geo::PackageFileRegistryFinder`, this returns
       #   `::Geo::PackageFileReplicator`
       # @example Given `Resolver::Geo::PackageFileRegistriesResolver`, this
+      #   returns `::Geo::PackageFileReplicator`
+      # @example Given `Geo::PackageFileRegistry`, this
       #   returns `::Geo::PackageFileReplicator`
       #
       # @return [Class] a Replicator subclass
@@ -201,7 +213,7 @@ module Gitlab
       # @param [Symbol] event_name
       # @param [Hash] event_data
       def publish(event_name, **event_data)
-        return unless Feature.enabled?(:geo_self_service_framework_replication, default_enabled: true)
+        return unless self.class.replication_enabled?
 
         raise ArgumentError, "Unsupported event: '#{event_name}'" unless self.class.event_supported?(event_name)
 
@@ -294,6 +306,10 @@ module Gitlab
       end
 
       protected
+
+      def self.replication_enabled_feature_key
+        :"geo_#{replicable_name}_replication"
+      end
 
       # Store an event on the database
       #

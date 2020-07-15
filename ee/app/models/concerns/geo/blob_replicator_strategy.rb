@@ -15,7 +15,7 @@ module Geo
     def handle_after_create_commit
       publish(:created, **created_params)
 
-      return unless Feature.enabled?(:geo_self_service_framework_replication, default_enabled: true)
+      return unless self.class.replication_enabled?
 
       schedule_checksum_calculation if needs_checksum?
     end
