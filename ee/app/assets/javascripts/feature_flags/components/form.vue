@@ -175,7 +175,11 @@ export default {
     },
 
     addStrategy() {
-      this.formStrategies.push({ name: ROLLOUT_STRATEGY_ALL_USERS, parameters: {}, scopes: [] });
+      this.formStrategies.push({
+        name: ROLLOUT_STRATEGY_ALL_USERS,
+        parameters: {},
+        scopes: [{ environmentScope: '*' }],
+      });
     },
 
     deleteStrategy(s) {

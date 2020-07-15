@@ -71,7 +71,13 @@ export default {
       return !(this.hasNewVersionFlags || this.userDidDismissNewFlagAlert);
     },
     strategies() {
-      return [{ name: ROLLOUT_STRATEGY_ALL_USERS, parameters: {}, scopes: [] }];
+      return [
+        {
+          name: ROLLOUT_STRATEGY_ALL_USERS,
+          parameters: {},
+          scopes: [{ environmentScope: '*' }],
+        },
+      ];
     },
   },
   created() {

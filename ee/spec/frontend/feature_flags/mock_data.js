@@ -104,5 +104,5 @@ export const userList = {
 export const allUsersStrategy = {
   name: ROLLOUT_STRATEGY_ALL_USERS,
   parameters: {},
-  scopes: [],
+  scopes: [{ environmentScope: '*' }],
 };

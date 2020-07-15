@@ -68,6 +68,23 @@ RSpec.describe 'User creates feature flag', :js do
     end
   end
 
+  it 'is initialized with one strategy that applies to all environments' do
+    visit(new_project_feature_flag_path(project))
+
+    within_strategy_row(1) do
+      expect(page).to have_text 'All environments'
+    end
+  end
+
+  it "adds a new strategy that applies to all environments when clicking the 'Add strategy' button" do
+    visit(new_project_feature_flag_path(project))
+    click_button 'Add strategy'
+
+    within_strategy_row(2) do
+      expect(page).to have_text 'All environments'
+    end
+  end
+
   context 'with new version flags disabled' do
     before do
       stub_feature_flags(feature_flags_new_version: false)
