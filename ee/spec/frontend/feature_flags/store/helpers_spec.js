@@ -442,44 +442,6 @@ describe('feature flags helpers spec', () => {
       });
     });
 
-    it('should insert a default * scope if there are none', () => {
-      expect(
-        mapStrategiesToRails({
-          name: 'test',
-          description: 'test description',
-          version: NEW_VERSION_FLAG,
-          active: true,
-          strategies: [
-            {
-              id: '1',
-              name: 'default',
-              parameters: {},
-              scopes: [],
-            },
-          ],
-        }),
-      ).toEqual({
-        operations_feature_flag: {
-          name: 'test',
-          description: 'test description',
-          version: NEW_VERSION_FLAG,
-          active: true,
-          strategies_attributes: [
-            {
-              id: '1',
-              name: 'default',
-              parameters: {},
-              scopes_attributes: [
-                {
-                  environment_scope: '*',
-                },
-              ],
-            },
-          ],
-        },
-      });
-    });
-
     it('removes white space between user ids', () => {
       const result = mapStrategiesToRails({
         name: 'test',

@@ -146,13 +146,11 @@ export const createNewEnvironmentScope = (overrides = {}, featureFlagPermissions
 };
 
 const mapStrategyScopesToRails = scopes =>
-  scopes.length === 0
-    ? [{ environment_scope: '*' }]
-    : scopes.map(s => ({
-        id: s.id,
-        _destroy: s.shouldBeDestroyed,
-        environment_scope: s.environmentScope,
-      }));
+  scopes.map(s => ({
+    id: s.id,
+    _destroy: s.shouldBeDestroyed,
+    environment_scope: s.environmentScope,
+  }));
 
 const mapStrategyScopesToView = scopes =>
   scopes.map(s => ({
