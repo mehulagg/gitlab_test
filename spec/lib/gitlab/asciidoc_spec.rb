@@ -433,7 +433,7 @@ module Gitlab
           MD
 
           output = <<~HTML
-            <pre data-mermaid-style="display" class="code math js-render-mermaid">graph LR
+            <pre data-mermaid-style="display" class="js-render-mermaid">graph LR
                 A[Square Rect] -- Link text --&gt; B((Circle))
                 A --&gt; C(Round Rect)
                 B --&gt; D{Rhombus}
