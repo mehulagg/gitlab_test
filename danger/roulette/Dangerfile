@@ -42,7 +42,7 @@ OPTIONAL_REVIEW_TEMPLATE = "%{role} review is optional for %{category}".freeze
 NOT_AVAILABLE_TEMPLATE = 'No %{role} available'.freeze
 TIMEZONE_EXPERIMENT = true
 
-def mr_author
+def team_mr_author
   roulette.team.find { |person| person.username == gitlab.mr_author }
 end
 
@@ -51,7 +51,7 @@ def note_for_category_role(spin, role)
     return OPTIONAL_REVIEW_TEMPLATE % { role: role.capitalize, category: helper.label_for_category(spin.category) }
   end
 
-  spin.public_send(role)&.markdown_name(timezone_experiment: TIMEZONE_EXPERIMENT, author: mr_author) || NOT_AVAILABLE_TEMPLATE % { role: role } # rubocop:disable GitlabSecurity/PublicSend
+  spin.public_send(role)&.markdown_name(timezone_experiment: TIMEZONE_EXPERIMENT, author: team_mr_author) || NOT_AVAILABLE_TEMPLATE % { role: role } # rubocop:disable GitlabSecurity/PublicSend
 end
 
 def markdown_row_for_spin(spin)
@@ -81,7 +81,7 @@ if changes.any?
   roulette_spins = roulette.spin(project, categories, branch_name, timezone_experiment: TIMEZONE_EXPERIMENT)
   rows = roulette_spins.map do |spin|
     # MR includes QA changes, but also other changes, and author isn't an SET
-    if spin.category == :qa && categories.size > 1 && mr_author && !mr_author.reviewer?(project, spin.category, [])
+    if spin.category == :qa && categories.size > 1 && team_mr_author && !team_mr_author.reviewer?(project, spin.category, [])
       spin.optional_role = :maintainer
     end
 
