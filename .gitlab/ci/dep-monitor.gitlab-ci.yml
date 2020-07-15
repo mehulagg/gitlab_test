@@ -1,5 +1,6 @@
 dep_monitor:
   stage: test
+  when: manual
   needs: []
   extends:
     - .default-retry

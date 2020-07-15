@@ -1,4 +1,12 @@
 #!/bin/bash -x
+
+# check if variable Auth has been set
+
+if [ -z "$DEP_MONITOR_AUTH" ]; then 
+    echo "DEP_MONITOR_AUTH is not set. Please set it when starting the pipeline"
+    exit 1
+fi
+
 apt-get update && apt-get install -y jq
 cd /builds/gitlab-org/gitlab
 du -h -d 1 . | sort -h
