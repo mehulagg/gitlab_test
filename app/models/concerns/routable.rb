@@ -81,6 +81,8 @@ module Routable
   def build_full_path
     if parent && path
       parent.full_path + '/' + path
+    elsif pibling && name
+      pibling.full_path + '/' + path
     else
       path
     end
@@ -99,16 +101,18 @@ module Routable
   end
 
   def full_name_changed?
-    name_changed? || parent_changed?
+    name_changed? || parent_changed? || pibling_changed?
   end
 
   def full_path_changed?
-    path_changed? || parent_changed?
+    path_changed? || parent_changed? || pibling_changed?
   end
 
   def build_full_name
     if parent && name
       parent.human_name + ' / ' + name
+    elsif pibling && name
+      pibling.human_name + ' / ' + name
     else
       name
     end

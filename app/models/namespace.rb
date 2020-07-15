@@ -32,6 +32,8 @@ class Namespace < ApplicationRecord
 
   belongs_to :parent, class_name: "Namespace"
   has_many :children, class_name: "Namespace", foreign_key: :parent_id
+  belongs_to :pibling, class_name: 'Namespace'
+  has_many :niblings, class_name: "Namespace", foreign_key: :pibling_id
   has_many :custom_emoji, inverse_of: :namespace
   has_one :chat_team, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :root_storage_statistics, class_name: 'Namespace::RootStorageStatistics'
@@ -292,6 +294,10 @@ class Namespace < ApplicationRecord
     strong_memoize(:root_ancestor) do
       self_and_ancestors.reorder(nil).find_by(parent_id: nil)
     end
+  end
+
+  def root?
+    parent.nil? && pibling.nil?
   end
 
   def subgroup?

@@ -13137,7 +13137,8 @@ CREATE TABLE public.namespaces (
     shared_runners_enabled boolean DEFAULT true NOT NULL,
     allow_descendants_override_disabled_shared_runners boolean DEFAULT false NOT NULL,
     traversal_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    delayed_project_removal boolean DEFAULT false NOT NULL
+    delayed_project_removal boolean DEFAULT false NOT NULL,
+    pibling_id bigint
 );
 
 CREATE SEQUENCE public.namespaces_id_seq
@@ -19668,6 +19669,8 @@ CREATE INDEX index_namespaces_on_path ON public.namespaces USING btree (path);
 
 CREATE INDEX index_namespaces_on_path_trigram ON public.namespaces USING gin (path public.gin_trgm_ops);
 
+CREATE INDEX index_namespaces_on_pibling_id ON public.namespaces USING btree (pibling_id);
+
 CREATE UNIQUE INDEX index_namespaces_on_push_rule_id ON public.namespaces USING btree (push_rule_id);
 
 CREATE INDEX index_namespaces_on_require_two_factor_authentication ON public.namespaces USING btree (require_two_factor_authentication);
@@ -21833,6 +21836,9 @@ ALTER TABLE ONLY public.aws_roles
 ALTER TABLE ONLY public.security_scans
     ADD CONSTRAINT fk_rails_4ef1e6b4c6 FOREIGN KEY (build_id) REFERENCES public.ci_builds(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.namespaces
+    ADD CONSTRAINT fk_rails_4f3e2fccb0 FOREIGN KEY (pibling_id) REFERENCES public.namespaces(id);
+
 ALTER TABLE ONLY public.merge_request_diff_files
     ADD CONSTRAINT fk_rails_501aa0a391 FOREIGN KEY (merge_request_diff_id) REFERENCES public.merge_request_diffs(id) ON DELETE CASCADE;
 
@@ -23745,5 +23751,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200708080631
 20200710102846
 20200710130234
+20200715024224
 \.
 

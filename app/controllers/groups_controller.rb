@@ -224,6 +224,7 @@ class GroupsController < Groups::ApplicationController
       :share_with_group_lock,
       :visibility_level,
       :parent_id,
+      :pibling_id,
       :create_chat_team,
       :chat_team_name,
       :require_two_factor_authentication,

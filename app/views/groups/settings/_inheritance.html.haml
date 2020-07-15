@@ -1,0 +1,14 @@
+- return if @group.root?
+
+%p TODO We need a better UI here.
+.form-group.append-bottom-default
+  .form-check
+    = f.check_box :parent_id, {checked: @group.parent_id.present?, class: 'form-check-input'}, @group.parent_id || @group.pibling_id, ''
+    = f.label :parent_id, 'Inherit', class: 'form-check-label' do
+      %span.d-block= s_('GroupSettings|Enable inheritance')
+
+.form-group.append-bottom-default
+  .form-check
+    = f.check_box :pibling_id, {checked: @group.pibling_id.present?, class: 'form-check-input'}, @group.parent_id || @group.pibling_id, ''
+    = f.label :pibling_id, "Don't Inherit", class: 'form-check-label' do
+      %span.d-block= s_('GroupSettings| Disable inheritance')
