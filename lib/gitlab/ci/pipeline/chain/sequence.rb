@@ -9,7 +9,8 @@ module Gitlab
             @pipeline = pipeline
             @command = command
             @sequence = sequence
-            @start = Time.now
+            @start = Time.current
+            @completed = []
           end
 
           def build!
@@ -20,7 +21,7 @@ module Gitlab
               break if step.break?
             end
 
-            @command.observe_creation_duration(Time.now - @start)
+            @command.observe_creation_duration(Time.current - @start)
             @command.observe_pipeline_size(@pipeline)
 
             @pipeline

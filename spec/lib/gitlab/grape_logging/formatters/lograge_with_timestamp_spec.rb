@@ -30,7 +30,7 @@ RSpec.describe Gitlab::GrapeLogging::Formatters::LogrageWithTimestamp do
     }
   end
 
-  let(:time) { Time.now }
+  let(:time) { Time.current }
   let(:result) { Gitlab::Json.parse(subject) }
 
   subject { described_class.new.call(:info, time, nil, log_entry) }

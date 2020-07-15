@@ -260,7 +260,7 @@ namespace :gitlab do
     end
 
     def puts_time(msg)
-      progress.puts "#{Time.now} -- #{msg}"
+      progress.puts "#{Time.current} -- #{msg}"
     end
 
     def progress
