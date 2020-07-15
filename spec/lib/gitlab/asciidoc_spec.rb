@@ -434,10 +434,10 @@ module Gitlab
 
           output = <<~HTML
             <pre data-mermaid-style="display" class="code math js-render-mermaid">graph LR
-                A[Square Rect] -- Link text --> B((Circle))
-                A --> C(Round Rect)
-                B --> D{Rhombus}
-                C --> D</pre>
+                A[Square Rect] -- Link text --&gt; B((Circle))
+                A --&gt; C(Round Rect)
+                B --&gt; D{Rhombus}
+                C --&gt; D</pre>
           HTML
 
           expect(render(input, context)).to include(output.strip)
