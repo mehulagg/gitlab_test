@@ -26,9 +26,9 @@ module Gitlab
     attr_reader :api_url, :options
     private :api_url, :options
 
-    def initialize(api_url, options = {})
-      @api_url = api_url.chomp('/')
-      @options = options
+    def initialize(api_config)
+      @api_url = api_config.api_url.chomp('/')
+      @options = api_config.headers
     end
 
     def ping

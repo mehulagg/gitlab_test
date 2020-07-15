@@ -17,7 +17,7 @@ module Metrics::Dashboard::PrometheusApiProxy
     end
 
     prometheus_result = Prometheus::ProxyService.new(
-      proxyable,
+      api_config,
       proxy_method,
       proxy_path,
       variable_substitution_result[:params]
@@ -31,7 +31,7 @@ module Metrics::Dashboard::PrometheusApiProxy
 
   private
 
-  def proxyable
+  def api_config
     raise NotImplementedError, "#{self.class} must implement method: #{__callee__}"
   end
 

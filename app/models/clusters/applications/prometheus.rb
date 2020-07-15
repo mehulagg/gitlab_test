@@ -17,6 +17,8 @@ module Clusters
 
       default_value_for :version, VERSION
 
+      has_one :prometheus_api_config, :class_name => 'Metrics::PrometheusApiConfig'
+
       scope :preload_cluster_platform, -> { preload(cluster: [:platform_kubernetes]) }
       scope :with_clusters_with_cilium, -> { joins(:cluster).merge(Clusters::Cluster.with_available_cilium) }
 
@@ -100,19 +102,16 @@ module Clusters
         files.merge('values.yaml': replaced_values)
       end
 
-      def prometheus_client
+      def proxy_url
         return unless kube_client
 
-        proxy_url = kube_client.proxy_url('service', service_name, service_port, Gitlab::Kubernetes::Helm::NAMESPACE)
+        kube_client.proxy_url('service', service_name, service_port, Gitlab::Kubernetes::Helm::NAMESPACE)
+      end
 
-        # ensures headers containing auth data are appended to original k8s client options
-        options = kube_client.rest_client.options.merge(headers: kube_client.headers)
-        Gitlab::PrometheusClient.new(proxy_url, options)
-      rescue Kubeclient::HttpError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::ENETUNREACH
-        # If users have mistakenly set parameters or removed the depended clusters,
-        # `proxy_url` could raise an exception because gitlab can not communicate with the cluster.
-        # Since `PrometheusAdapter#can_query?` is eargely loaded on environement pages in gitlab,
-        # we need to silence the exceptions
+      def proxy_headers
+        return unless kube_client
+
+        kube_client.rest_client.options.merge(headers: kube_client.headers)
       end
 
       def configured?

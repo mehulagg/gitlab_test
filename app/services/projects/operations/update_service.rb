@@ -103,7 +103,9 @@ module Projects
 
         service = project.find_or_initialize_service(::PrometheusService.to_param)
         service.assign_attributes(attrs)
-
+        # most likely it sould be done evein in the Projects::UpdateService but for now just to mark this path i add it here
+        service.prometheus_api_configs.create(api_url: attrs[:api_url], headers: attrs[:headers])
+        
         { prometheus_service_attributes: service.attributes.except(*%w(id project_id created_at updated_at)) }
       end
 

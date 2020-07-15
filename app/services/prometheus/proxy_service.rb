@@ -56,8 +56,8 @@ module Prometheus
 
     # proxyable can be any model which responds to .prometheus_adapter
     # like Environment.
-    def initialize(proxyable, method, path, params)
-      @proxyable = proxyable
+    def initialize(api_config, method, path, params)
+      @api_config = api_config
       @path = path
 
       # Convert ActionController::Parameters to hash because reactive_cache_worker
@@ -115,7 +115,7 @@ module Prometheus
     end
 
     def prometheus_client_wrapper
-      prometheus_adapter&.prometheus_client
+      Gitlab::PrometheusClient.new(@api_config)
     end
 
     def can_query?

@@ -292,8 +292,8 @@ class Clusters::ClustersController < Clusters::BaseController
     @gcp_cluster = cluster.present(current_user: current_user)
   end
 
-  def proxyable
-    cluster.cluster
+  def api_config
+    cluster.cluster.application_prometheus.prometheus_api_config
   end
 
   # During first iteration of dashboard variables implementation

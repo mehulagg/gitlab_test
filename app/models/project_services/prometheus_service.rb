@@ -3,22 +3,7 @@
 class PrometheusService < MonitoringService
   include PrometheusAdapter
 
-  #  Access to prometheus is directly through the API
-  prop_accessor :api_url
-  prop_accessor :google_iap_service_account_json
-  prop_accessor :google_iap_audience_client_id
-  boolean_accessor :manual_configuration
-
-  # We need to allow the self-monitoring project to connect to the internal
-  # Prometheus instance.
-  # Since the internal Prometheus instance is usually a localhost URL, we need
-  # to allow localhost URLs when the following conditions are true:
-  # 1. project is the self-monitoring project.
-  # 2. api_url is the internal Prometheus URL.
-  with_options presence: true do
-    validates :api_url, public_url: true, if: ->(object) { object.manual_configuration? && !object.allow_local_api_url? }
-    validates :api_url, url: true, if: ->(object) { object.manual_configuration? && object.allow_local_api_url? }
-  end
+  has_many :prometheus_api_configs, :class_name => 'Metrics::PrometheusApiConfig'
 
   before_save :synchronize_service_state
 
@@ -94,19 +79,6 @@ class PrometheusService < MonitoringService
     { success: false, result: err }
   end
 
-  def prometheus_client
-    return unless should_return_client?
-
-    options = { allow_local_requests: allow_local_api_url? }
-
-    if behind_iap?
-      # Adds the Authorization header
-      options[:headers] = iap_client.apply({})
-    end
-
-    Gitlab::PrometheusClient.new(api_url, options)
-  end
-
   def prometheus_available?
     return false if template?
     return false unless project
@@ -122,18 +94,10 @@ class PrometheusService < MonitoringService
   end
 
   def configured?
-    should_return_client?
+    prometheus_api_configs.any?
   end
 
   private
-
-  def self_monitoring_project?
-    project && project.id == current_settings.self_monitoring_project_id
-  end
-
-  def internal_prometheus_url?
-    api_url.present? && api_url == ::Gitlab::Prometheus::Internal.uri
-  end
 
   def allow_local_requests_from_web_hooks_and_services?
     current_settings.allow_local_requests_from_web_hooks_and_services?
@@ -148,7 +112,7 @@ class PrometheusService < MonitoringService
   end
 
   def synchronize_service_state
-    self.active = prometheus_available? || manual_configuration?
+    self.active = prometheus_api_configs.any?
 
     true
   end
@@ -175,13 +139,5 @@ class PrometheusService < MonitoringService
     return unless project_id
 
     Prometheus::CreateDefaultAlertsWorker.perform_async(project_id)
-  end
-
-  def behind_iap?
-    manual_configuration? && google_iap_audience_client_id.present? && google_iap_service_account_json.present?
-  end
-
-  def iap_client
-    @iap_client ||= Google::Auth::Credentials.new(Gitlab::Json.parse(google_iap_service_account_json), target_audience: google_iap_audience_client_id).client
   end
 end

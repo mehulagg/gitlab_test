@@ -7,8 +7,8 @@ class Projects::Environments::PrometheusApiController < Projects::ApplicationCon
 
   private
 
-  def proxyable
-    @proxyable ||= project.environments.find(params[:id])
+  def api_config
+    project.prometheus_service.prometheus_api_configs.order(:priority).first
   end
 
   def proxy_variable_substitution_service
