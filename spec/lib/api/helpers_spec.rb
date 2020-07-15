@@ -266,7 +266,7 @@ RSpec.describe API::Helpers do
   end
 
   describe "#check_unmodified_since!" do
-    let(:unmodified_since_header) { Time.now.change(usec: 0) }
+    let(:unmodified_since_header) { Time.current.change(usec: 0) }
 
     before do
       allow(subject).to receive(:headers).and_return('If-Unmodified-Since' => unmodified_since_header.to_s)
@@ -302,7 +302,7 @@ RSpec.describe API::Helpers do
       it 'does not render error' do
         expect(subject).not_to receive(:render_api_error!)
 
-        subject.check_unmodified_since!(Time.now)
+        subject.check_unmodified_since!(Time.current)
       end
     end
 
@@ -312,7 +312,7 @@ RSpec.describe API::Helpers do
       it 'does not render error' do
         expect(subject).not_to receive(:render_api_error!)
 
-        subject.check_unmodified_since!(Time.now)
+        subject.check_unmodified_since!(Time.current)
       end
     end
   end
