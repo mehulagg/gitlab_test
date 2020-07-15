@@ -3,7 +3,7 @@
 
 query GroupIteration(
   $groupPath: ID!
-  $id: ID!
+  $iterationIid: ID!
   $beforeCursor: String = ""
   $afterCursor: String = ""
   $firstPageSize: Int
@@ -11,7 +11,7 @@ query GroupIteration(
 ) {
   group(fullPath: $groupPath) {
     issues(
-      iterationId: [$id]
+      iterationIid: [$iterationIid]
       before: $beforeCursor
       after: $afterCursor
       first: $firstPageSize

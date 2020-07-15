@@ -6,7 +6,7 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
-        argument :iteration_id, ::GraphQL::ID_TYPE.to_list_type,
+        argument :iteration_iid, ::GraphQL::ID_TYPE.to_list_type,
                  required: false,
                  description: 'Iterations applied to the issue'
       end

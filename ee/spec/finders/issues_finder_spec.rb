@@ -131,7 +131,7 @@ RSpec.describe IssuesFinder do
         let_it_be(:iteration_2_issue) { create(:issue, project: project1, iteration: iteration_2) }
 
         context 'filter issues with no iteration' do
-          let(:params) { { iteration_id: ::IssuableFinder::Params::FILTER_NONE } }
+          let(:params) { { iteration_iid: ::IssuableFinder::Params::FILTER_NONE } }
 
           it 'returns all issues without iterations' do
             expect(issues).to contain_exactly(issue1, issue2, issue3, issue4)
@@ -139,7 +139,7 @@ RSpec.describe IssuesFinder do
         end
 
         context 'filter issues with any iteration' do
-          let(:params) { { iteration_id: ::IssuableFinder::Params::FILTER_ANY } }
+          let(:params) { { iteration_iid: ::IssuableFinder::Params::FILTER_ANY } }
 
           it 'returns filtered issues' do
             expect(issues).to contain_exactly(iteration_1_issue, iteration_2_issue)
@@ -147,7 +147,7 @@ RSpec.describe IssuesFinder do
         end
 
         context 'filter issues by iteration' do
-          let(:params) { { iteration_id: iteration_1.id } }
+          let(:params) { { iteration_iid: iteration_1.id } }
 
           it 'returns all issues with the iteration' do
             expect(issues).to contain_exactly(iteration_1_issue)
@@ -155,15 +155,15 @@ RSpec.describe IssuesFinder do
         end
 
         context 'filter issues by multiple iterations' do
-          let(:params) { { iteration_id: [iteration_1.id, iteration_2.id] } }
+          let(:params) { { iteration_iid: [iteration_1.id, iteration_2.id] } }
 
           it 'returns all issues with the iteration' do
             expect(issues).to contain_exactly(iteration_1_issue, iteration_2_issue)
           end
         end
 
-        context 'without iteration_id param' do
-          let(:params) { { iteration_id: nil } }
+        context 'without iteration_iid param' do
+          let(:params) { { iteration_iid: nil } }
 
           it 'returns unfiltered issues' do
             expect(issues).to contain_exactly(issue1, issue2, issue3, issue4, iteration_1_issue, iteration_2_issue)

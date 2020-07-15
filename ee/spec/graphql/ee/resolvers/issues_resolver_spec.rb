@@ -38,7 +38,7 @@ RSpec.describe Resolvers::IssuesResolver do
         let_it_be(:issue_without_iteration) { create(:issue, project: project) }
 
         it 'returns issues with iteration' do
-          expect(resolve_issues(iteration_id: iteration1.id)).to eq [issue_with_iteration]
+          expect(resolve_issues(iteration_iid: iteration1.iid)).to eq [issue_with_iteration]
         end
       end
     end

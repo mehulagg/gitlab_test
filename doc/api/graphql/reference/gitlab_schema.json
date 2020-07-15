@@ -14016,7 +14016,7 @@
                   "defaultValue": "created_desc"
                 },
                 {
-                  "name": "iterationId",
+                  "name": "iterationIid",
                   "description": "Iterations applied to the issue",
                   "type": {
                     "kind": "LIST",
@@ -27290,7 +27290,7 @@
                   "defaultValue": "created_desc"
                 },
                 {
-                  "name": "iterationId",
+                  "name": "iterationIid",
                   "description": "Iterations applied to the issue",
                   "type": {
                     "kind": "LIST",
@@ -27483,7 +27483,7 @@
                   "defaultValue": "created_desc"
                 },
                 {
-                  "name": "iterationId",
+                  "name": "iterationIid",
                   "description": "Iterations applied to the issue",
                   "type": {
                     "kind": "LIST",

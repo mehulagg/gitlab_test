@@ -110,7 +110,7 @@ export default {
     queryVariables() {
       const vars = {
         groupPath: this.groupPath,
-        id: this.iterationIid,
+        iterationIid: this.iterationIid,
       };
 
       if (this.pagination.beforeCursor) {

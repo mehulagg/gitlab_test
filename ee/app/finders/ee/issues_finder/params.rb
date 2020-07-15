@@ -52,7 +52,7 @@ module EE
       end
 
       def iterations
-        params[:iteration_id]
+        params[:iteration_iid]
       end
     end
   end

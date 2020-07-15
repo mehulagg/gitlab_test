@@ -5031,7 +5031,7 @@ type Group {
     """
     Iterations applied to the issue
     """
-    iterationId: [ID]
+    iterationIid: [ID]
 
     """
     Labels applied to this issue
@@ -9151,7 +9151,7 @@ type Project {
     """
     Iterations applied to the issue
     """
-    iterationId: [ID]
+    iterationIid: [ID]
 
     """
     Labels applied to this issue
@@ -9251,7 +9251,7 @@ type Project {
     """
     Iterations applied to the issue
     """
-    iterationId: [ID]
+    iterationIid: [ID]
 
     """
     Labels applied to this issue
