@@ -11,7 +11,7 @@ prior notice.
 
 Project access tokens are scoped to a project and can be used to authenticate with the [GitLab API](../../../api/README.md#personalproject-access-tokens).
 
-You can also use project access tokens with Git to authenticate over HTTP or SSH.
+You can also use project access tokens with Git to authenticate over HTTP.
 
 Project access tokens expire on the date you define, at midnight UTC.
 
