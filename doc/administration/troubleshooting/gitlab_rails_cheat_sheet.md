@@ -720,7 +720,7 @@ end
 
 ## Elasticsearch
 
-### Change Elasticsearch Integration Settings - URL
+### View or Set the Elasticsearch URL
 
 ```ruby
 es_url = Gitlab::CurrentSettings.current_application_settings
