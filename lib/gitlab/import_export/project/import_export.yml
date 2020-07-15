@@ -168,6 +168,7 @@ excluded_attributes:
     - :marked_for_deletion_by_user_id
     - :compliance_framework_setting
     - :show_default_award_emojis
+    - :services
   namespaces:
     - :runners_token
     - :runners_token_encrypted
@@ -308,6 +309,7 @@ excluded_attributes:
     - :merge_request_id
     - :external_pull_request_id
     - :ci_ref_id
+    - :locked
   stages:
     - :pipeline_id
   merge_access_levels:

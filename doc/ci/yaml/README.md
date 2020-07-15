@@ -1069,12 +1069,11 @@ the `.template` job, and uses the `alpine` Docker image as defined in the local 
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/27863) in GitLab 12.3.
 
-The `rules` keyword is a way to set job policies that determine whether or not jobs
-are added to pipelines.
+The `rules` keyword can be used to include or exclude jobs in pipelines.
 
-A list of individual rule clauses are evaluated *in order*, until one matches. When
-matched, the job is either included or excluded from the pipeline, depending
-on the configuration. If included, the job also has [certain attributes](#rules-attributes)
+Rules are evaluated *in order* until the first match. When matched, the job
+is either included or excluded from the pipeline, depending on the configuration.
+If included, the job also has [certain attributes](#rules-attributes)
 added to it.
 
 CAUTION: **Caution:**
@@ -2831,7 +2830,12 @@ be available for download in the GitLab UI.
 
 Paths are relative to the project directory (`$CI_PROJECT_DIR`) and can't directly
 link outside it. Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
-patterns and [`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
+patterns and:
+
+- In [GitLab Runner 13.0](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2620) and later,
+[`doublestar.Glob`](https://pkg.go.dev/github.com/bmatcuk/doublestar@v1.2.2?tab=doc#Match).
+- In GitLab Runner 12.10 and earlier,
+[`filepath.Match`](https://pkg.go.dev/path/filepath/#Match).
 
 To restrict which jobs a specific job will fetch artifacts from, see [dependencies](#dependencies).
 

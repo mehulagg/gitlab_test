@@ -303,6 +303,11 @@ Performance/Detect:
 RSpec/ContextWording:
   Enabled: false
 
+# Offense count: 626
+# Cop supports --auto-correct.
+RSpec/EmptyLineAfterLetBlock:
+  Enabled: false
+
 # Offense count: 1121
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -738,14 +743,6 @@ Style/SymbolProc:
 # Configuration parameters: AllowImplicitReturn, AllowedReceivers.
 Rails/SaveBang:
   Exclude:
-    - 'ee/spec/controllers/boards/issues_controller_spec.rb'
-    - 'ee/spec/controllers/boards/lists_controller_spec.rb'
-    - 'ee/spec/controllers/ee/sent_notifications_controller_spec.rb'
-    - 'ee/spec/controllers/groups/epic_issues_controller_spec.rb'
-    - 'ee/spec/controllers/groups/epic_links_controller_spec.rb'
-    - 'ee/spec/controllers/groups/epics_controller_spec.rb'
-    - 'ee/spec/controllers/groups/roadmap_controller_spec.rb'
-    - 'ee/spec/controllers/groups/sso_controller_spec.rb'
     - 'ee/spec/controllers/projects/environments_controller_spec.rb'
     - 'ee/spec/controllers/projects/issues_controller_spec.rb'
     - 'ee/spec/controllers/projects/merge_requests/creations_controller_spec.rb'

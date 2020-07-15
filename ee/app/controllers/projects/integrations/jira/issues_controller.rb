@@ -12,16 +12,16 @@ module Projects
 
         before_action do
           push_frontend_feature_flag(:jira_integration, project)
-          push_frontend_feature_flag(:vue_issuables_list, project)
         end
+
+        rescue_from ::Projects::Integrations::Jira::IssuesFinder::IntegrationError, with: :render_integration_error
+        rescue_from ::Projects::Integrations::Jira::IssuesFinder::RequestError, with: :render_request_error
 
         def index
           respond_to do |format|
             format.html
             format.json do
               render json: issues_json
-            rescue Projects::Integrations::Jira::IntegrationError, Projects::Integrations::Jira::RequestError => e
-              render_bad_request(e)
             end
           end
         end
@@ -70,11 +70,19 @@ module Projects
         protected
 
         def check_feature_enabled!
-          return render_404 unless Feature.enabled?(:jira_integration, project)
+          return render_404 unless project.jira_issues_integration_available? && project.external_issue_tracker
         end
 
-        def render_bad_request(error)
-          render json: { errors: [error.message] }, status: :bad_request
+        # Return the informational message to the user
+        def render_integration_error(exception)
+          render json: { errors: [exception.message] }, status: :bad_request
+        end
+
+        # Log the specific request error details and return generic message
+        def render_request_error(exception)
+          Gitlab::AppLogger.error(exception)
+
+          render json: { errors: [_('An error occurred while requesting data from the Jira service')] }, status: :bad_request
         end
       end
     end

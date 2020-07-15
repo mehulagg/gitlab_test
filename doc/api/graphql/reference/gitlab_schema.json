@@ -14143,6 +14143,16 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "includeAncestors",
+                  "description": "Whether to include ancestor Iterations. Defaults to true",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "after",
                   "description": "Returns the elements in the list that come after the specified cursor.",
                   "type": {
@@ -14622,6 +14632,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "temporaryStorageIncreaseEndsOn",
+              "description": "Date until the temporary storage increase is active",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Time",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -18475,13 +18499,41 @@
           "fields": [
             {
               "name": "gitlabId",
-              "description": "Id of the matched GitLab user",
+              "description": "ID of the matched GitLab user",
               "args": [
 
               ],
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "gitlabName",
+              "description": "Name of the matched GitLab user",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "gitlabUsername",
+              "description": "Username of the matched GitLab user",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -24482,6 +24534,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Float",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "temporaryStorageIncreaseEndsOn",
+              "description": "Date until the temporary storage increase is active",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Time",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -36447,6 +36513,12 @@
             },
             {
               "name": "CAMPFIRE_SERVICE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CONFLUENCE_SERVICE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null

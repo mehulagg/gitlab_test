@@ -61,7 +61,7 @@ for. The rollout strategy will have no effect if the environment spec is disable
 It can be set to:
 
 - All users
-- [Percent rollout (logged in users)](#percent-rollout-logged-in-users)
+- [Percent of users](#percent-of-users)
   - Optionally, you can click the **Include additional user IDs** checkbox and add a list
     of specific users IDs to enable the feature for.
 - [User IDs](#user-ids)
@@ -82,9 +82,9 @@ for granular feature flag controls. GitLab Feature Flags can have multiple strat
 and the supported strategies are:
 
 - [All users](#all-users)
-- [Percent rollout (logged in users)](#percent-rollout-logged-in-users)
+- [Percent of Users](#percent-of-users)
 - [User IDs](#user-ids)
-- [List](#list)
+- [User List](#user-list)
 
 Strategies can be added to feature flags when [creating a feature flag](#create-a-feature-flag),
 or by editing an existing feature flag after creation by navigating to **Operations > Feature Flags**
@@ -95,7 +95,7 @@ and clicking **{pencil}** (edit).
 Enables the feature for all users. It uses the [`default`](https://unleash.github.io/docs/activation_strategy#default)
 Unleash activation strategy.
 
-### Percent rollout (logged in users)
+### Percent of Users
 
 Enables the feature for a percentage of authenticated users. It uses the
 [`gradualRolloutUserId`](https://unleash.github.io/docs/activation_strategy#gradualrolloutuserid)
@@ -104,6 +104,9 @@ Unleash activation strategy.
 For example, set a value of 15% to enable the feature for 15% of authenticated users.
 
 The rollout percentage can be from 0% to 100%.
+
+NOTE: **Note:**
+Stickiness (consistent application behavior for the same user) is guaranteed for logged-in users, but not anonymous users.
 
 CAUTION: **Caution:**
 If this strategy is selected, then the Unleash client **must** be given a user
@@ -120,11 +123,14 @@ activation strategy.
 Enter user IDs as a comma-separated list of values. For example,
 `user@example.com, user2@example.com`, or `username1,username2,username3`, and so on.
 
+NOTE: **Note:**
+User IDs are identifiers for your application users. They do not need to be GitLab users.
+
 CAUTION: **Caution:**
 The Unleash client **must** be given a user ID for the feature to be enabled for
 target users. See the [Ruby example](#ruby-application-example) below.
 
-### List
+### User List
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/35930) in GitLab 13.1.
 
@@ -159,6 +165,7 @@ to disable a feature flag for a specific environment:
 1. Navigate to your project's **Operations > Feature Flags**.
 1. For the feature flag you want to disable, click the Pencil icon.
 1. To disable the flag:
+
    - In GitLab 13.0 and earlier: Slide the Status toggle for the environment. Or, to delete the
      environment spec, on the right, click the **Remove (X)** icon.
    - In GitLab 13.1 and later: For each strategy it applies to, under **Environments**, delete the environment.
@@ -286,4 +293,36 @@ if unleash.is_enabled?("my_feature_name", unleash_context)
 else
   puts "hello, world!"
 end
+```
+
+## Feature Flag Related Issues
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/36617) in GitLab 13.2.
+> - It's deployed behind a feature flag, enabled by default.
+> - It's enabled on GitLab.com.
+> - It can't be enabled or disabled per-project
+> - It's recommended for production use.
+> - For GitLab self-managed instances, GitLab administrators can opt to disable it.
+
+You can link related issues to a feature flag. In the **Linked issues** section, click the `+` button and input the issue reference number or the full URL of the issue.
+
+This feature is similar to the [related issues](../user/project/issues/related_issues.md) feature.
+
+### Enable or disable Feature Flag Related Issues **(CORE ONLY)**
+
+Feature Flag Related Issues is under development but ready for production use.
+It is deployed behind a feature flag that is **enabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../administration/feature_flags.md)
+can opt to disable it for your instance.
+
+To disable it:
+
+```ruby
+Feature.disable(:feature_flags_issue_links)
+```
+
+To enable it:
+
+```ruby
+Feature.enable(:feature_flags_issue_links)
 ```

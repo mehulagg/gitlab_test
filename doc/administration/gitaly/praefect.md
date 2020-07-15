@@ -35,7 +35,8 @@ The availability objectives for Gitaly clusters are:
   Writes are replicated asynchronously. Any writes that have not been replicated
   to the newly promoted primary are lost.
 
-  [Strong consistency](#strong-consistency) can be used to improve this to "no loss".
+  [Strong consistency](#strong-consistency) can be used to avoid loss in some
+  circumstances.
 
 - **Recovery Time Objective (RTO):** Less than 10 seconds.
 
@@ -886,8 +887,8 @@ after the write to the primary Gitaly node has happened.
 Praefect can instead provide strong consistency by creating a transaction and writing
 changes to all Gitaly nodes at once. Strong consistency is currently in
 [alpha](https://about.gitlab.com/handbook/product/#alpha-beta-ga) and not enabled by
-default. For more information, see the
-[strong consistency epic](https://gitlab.com/groups/gitlab-org/-/epics/1189).
+default. If enabled, transactions are only available for a subset of RPCs. For more
+information, see the [strong consistency epic](https://gitlab.com/groups/gitlab-org/-/epics/1189).
 
 To enable strong consistency:
 
@@ -965,7 +966,7 @@ Virtual storage: default
 
 Currently `dataloss` only considers a repository up to date if it has been directly replicated to from the previous write-enabled primary. While reconciling from an up to date secondary can recover the data, this is not visible in the data loss report. This is due for improvement via [Gitaly#2866](https://gitlab.com/gitlab-org/gitaly/-/issues/2866).
 
-NOTE: **NOTE** `dataloss` is still in beta and the output format is subject to change.
+NOTE: **Note:** `dataloss` is still in beta and the output format is subject to change.
 
 ### Checking repository checksums
 

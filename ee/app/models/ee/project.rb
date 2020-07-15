@@ -130,7 +130,6 @@ module EE
       scope :with_active_prometheus_service, -> { joins(:prometheus_service).merge(PrometheusService.active) }
       scope :with_enabled_error_tracking, -> { joins(:error_tracking_setting).where(project_error_tracking_settings: { enabled: true }) }
       scope :with_tracing_enabled, -> { joins(:tracing_setting) }
-      scope :with_packages, -> { joins(:packages) }
       scope :mirrored_with_enabled_pipelines, -> do
         joins(:project_feature).mirror.where(mirror_trigger_builds: true,
                                              project_features: { builds_access_level: ::ProjectFeature::ENABLED })
@@ -178,8 +177,6 @@ module EE
         validates :import_url, presence: true
         validates :mirror_user, presence: true
       end
-
-      default_value_for :packages_enabled, true
 
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :status_page_setting, update_only: true, allow_destroy: true
@@ -314,6 +311,10 @@ module EE
       else
         licensed_feature_available?(feature, user)
       end
+    end
+
+    def jira_issues_integration_available?
+      feature_available?(:jira_issues_integration)
     end
 
     def multiple_approval_rules_available?
@@ -521,7 +522,7 @@ module EE
     override :disabled_services
     def disabled_services
       strong_memoize(:disabled_services) do
-        [].tap do |services|
+        super.tap do |services|
           services.push('jenkins') unless feature_available?(:jenkins_integration)
           services.push('github') unless feature_available?(:github_project_service_integration)
           ::Gitlab::CurrentSettings.slack_app_enabled ? services.push('slack_slash_commands') : services.push('gitlab_slack_application')
@@ -590,15 +591,6 @@ module EE
       feature_available?(:protected_environments)
     end
 
-    # Because we use default_value_for we need to be sure
-    # packages_enabled= method does exist even if we rollback migration.
-    # Otherwise many tests from spec/migrations will fail.
-    def packages_enabled=(value)
-      if has_attribute?(:packages_enabled)
-        write_attribute(:packages_enabled, value)
-      end
-    end
-
     # Update the default branch querying the remote to determine its HEAD
     def update_root_ref(remote_name)
       root_ref = repository.find_remote_root_ref(remote_name)
@@ -624,7 +616,8 @@ module EE
 
     def adjourned_deletion?
       feature_available?(:adjourned_deletion_for_projects_and_groups) &&
-        ::Gitlab::CurrentSettings.deletion_adjourned_period > 0
+        ::Gitlab::CurrentSettings.deletion_adjourned_period.positive? &&
+        group_deletion_mode_configured?
     end
 
     def marked_for_deletion?
@@ -757,6 +750,11 @@ module EE
           variables.append(key: 'CI_HAS_OPEN_REQUIREMENTS', value: 'true')
         end
       end
+    end
+
+    # Return the group's setting for delayed deletion, false for user namespace projects
+    def group_deletion_mode_configured?
+      group && group.delayed_project_removal?
     end
   end
 end
