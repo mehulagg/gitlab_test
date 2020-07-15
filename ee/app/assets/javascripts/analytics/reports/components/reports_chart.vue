@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     ...mapActions('chart', ['fetchChartSeriesData']),
-    onCreated(chart) {
+    onChartCreated(chart) {
       this.chart = chart;
     },
   },
@@ -54,7 +54,7 @@ export default {
       x-axis-type="category"
       :x-axis-title="xAxisTitle"
       :y-axis-title="yAxisTitle"
-      @created="onCreated"
+      @created="onChartCreated"
     />
     <gl-chart-legend v-if="chart" :chart="chart" :series-info="seriesInfo" />
   </div>
