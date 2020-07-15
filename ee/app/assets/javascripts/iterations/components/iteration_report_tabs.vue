@@ -62,9 +62,7 @@ export default {
         return this.queryVariables;
       },
       update(data) {
-        const issues = data?.group?.issues?.nodes || [];
-        const count = data?.group?.issues?.count;
-        const pageInfo = data?.group?.issues?.pageInfo || {};
+        const { nodes: issues = [], count, pageInfo = {} } = data?.group?.issues || {};
 
         const list = issues.map(issue => ({
           ...issue,

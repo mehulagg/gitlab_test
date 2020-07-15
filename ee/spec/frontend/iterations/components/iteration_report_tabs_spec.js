@@ -38,8 +38,8 @@ describe('Iterations report tabs', () => {
       loading: true,
     });
 
-    expect(wrapper.find(GlLoadingIcon).exists()).toBe(true);
-    expect(wrapper.find(GlTable).exists()).toBe(false);
+    expect(wrapper.contains(GlLoadingIcon)).toBe(true);
+    expect(wrapper.contains(GlTable)).toBe(false);
   });
 
   it('shows iterations list when not loading', () => {
@@ -47,9 +47,9 @@ describe('Iterations report tabs', () => {
       loading: false,
     });
 
-    expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
-    expect(wrapper.find(GlTable).exists()).toBe(true);
-    expect(wrapper.html()).toContain('No iterations found');
+    expect(wrapper.contains(GlLoadingIcon)).toBe(false);
+    expect(wrapper.contains(GlTable)).toBe(true);
+    expect(wrapper.text()).toContain('No iterations found');
   });
 
   it('shows error in a gl-alert', () => {
