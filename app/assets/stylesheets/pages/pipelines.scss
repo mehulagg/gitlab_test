@@ -669,24 +669,14 @@
     &.ci-action-icon-wrapper {
       height: 30px;
       width: 30px;
-      background: $white;
-      border: 1px solid $border-color;
       border-radius: 100%;
       display: block;
-
-      &:hover {
-        background-color: $gray-darker;
-        border: 1px solid $dropdown-toggle-active-border-color;
-
-        svg {
-          fill: $gl-text-color;
-        }
-      }
+      padding: 0;
+      line-height: initial;
 
       svg {
         fill: $gl-text-color-secondary;
-        position: relative;
-        top: -1px;
+        vertical-align: initial;
       }
 
       .spinner {
@@ -695,7 +685,8 @@
 
       &.play {
         svg {
-          left: 2px;
+          left: 1px;
+          top: 1px;
         }
       }
     }
@@ -846,19 +837,8 @@ button.mini-pipeline-graph-dropdown-toggle {
       height: $ci-action-dropdown-button-size;
       width: $ci-action-dropdown-button-size;
 
-      background: $white;
-      border: 1px solid $border-color;
       border-radius: 50%;
       display: block;
-
-      &:hover {
-        background-color: $gray-darker;
-        border: 1px solid $dropdown-toggle-active-border-color;
-
-        svg {
-          fill: $gl-text-color;
-        }
-      }
 
       .spinner,
       svg {
@@ -866,7 +846,7 @@ button.mini-pipeline-graph-dropdown-toggle {
         height: $ci-action-dropdown-svg-size;
         fill: $gl-text-color-secondary;
         position: relative;
-        top: auto;
+        top: 1px;
         vertical-align: initial;
       }
     }
