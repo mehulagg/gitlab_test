@@ -96,6 +96,8 @@ class Project < ApplicationRecord
 
   after_create :create_project_feature, unless: :project_feature
 
+  after_create :create_auto_devops, unless: :auto_devops
+
   after_create :create_ci_cd_settings,
     unless: :ci_cd_settings
 
