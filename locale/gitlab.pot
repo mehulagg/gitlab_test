@@ -16417,6 +16417,9 @@ msgstr ""
 msgid "Other Labels"
 msgstr ""
 
+msgid "Other Versions"
+msgstr ""
+
 msgid "Other information"
 msgstr ""
 
@@ -26041,9 +26044,6 @@ msgid "Verify configuration"
 msgstr ""
 
 msgid "Version"
-msgstr ""
-
-msgid "Versions"
 msgstr ""
 
 msgid "View Documentation"

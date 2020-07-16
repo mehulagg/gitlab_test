@@ -287,7 +287,7 @@ export default {
       </gl-tab>
 
       <gl-tab
-        :title="__('Versions')"
+        :title="__('Other Versions')"
         title-item-class="js-versions-tab"
         @click="getPackageVersions"
       >
