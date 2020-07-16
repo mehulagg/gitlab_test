@@ -75,8 +75,8 @@ review-deploy:
     - disable_sign_ups
     # When the job is manual, review-qa-smoke is also manual and we don't want people
     # to have to manually start the jobs in sequence, so we do it for them.
-    - '[ -z $CI_JOB_MANUAL ] || play_job "review-qa-smoke"'
-    - '[ -z $CI_JOB_MANUAL ] || play_job "review-performance"'
+    # - '[ -z $CI_JOB_MANUAL ] || play_job "review-qa-smoke"'
+    # - '[ -z $CI_JOB_MANUAL ] || play_job "review-performance"'
   artifacts:
     paths: [environment_url.txt]
     expire_in: 2 days
@@ -148,6 +148,9 @@ review-stop:
     when: always
 
 review-qa-smoke:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .review-qa-base
     - .review:rules:review-qa-smoke
@@ -165,6 +168,9 @@ review-qa-all:
     - gitlab-qa Test::Instance::Any "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}" -- --format RspecJunitFormatter --out tmp/rspec-${CI_JOB_ID}.xml --format html --out tmp/rspec.htm --color --format documentation
 
 review-performance:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise

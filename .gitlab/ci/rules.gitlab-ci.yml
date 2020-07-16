@@ -545,6 +545,8 @@
 
 .rails:rules:rspec-coverage:
   rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
     - <<: *if-not-ee
       when: never
     - <<: *if-master-schedule-2-hourly
@@ -601,7 +603,6 @@
       changes: *code-qa-patterns
       when: manual
       allow_failure: true
-
 .reports:schedule-dast:
   rules:
     - if: '$DAST_DISABLED || $GITLAB_FEATURES !~ /\bdast\b/'

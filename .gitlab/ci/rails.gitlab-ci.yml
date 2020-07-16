@@ -123,24 +123,36 @@ downtime_check:
     - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag level:migration"
 
 rspec migration pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11
     - .rspec-base-migration
   parallel: 5
 
 rspec unit pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11
     - .rails:rules:ee-and-foss-unit
   parallel: 20
 
 rspec integration pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11
     - .rails:rules:ee-and-foss-integration
   parallel: 8
 
 rspec system pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11
     - .rails:rules:ee-and-foss-system
@@ -278,18 +290,27 @@ rspec migration pg11-as-if-foss:
   parallel: 5
 
 rspec unit pg11-as-if-foss:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11-as-if-foss
     - .rails:rules:as-if-foss-unit
   parallel: 20
 
 rspec integration pg11-as-if-foss:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11-as-if-foss
     - .rails:rules:as-if-foss-integration
   parallel: 8
 
 rspec system pg11-as-if-foss:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11-as-if-foss
     - .rails:rules:as-if-foss-system
@@ -320,6 +341,9 @@ rspec-ee integration pg11:
   parallel: 4
 
 rspec-ee system pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg11
     - .rails:rules:ee-only-system

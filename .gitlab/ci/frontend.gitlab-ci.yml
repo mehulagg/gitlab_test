@@ -122,6 +122,9 @@ frontend-fixtures-as-if-foss:
     - .as-if-foss
 
 .frontend-test-base:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .yarn-cache

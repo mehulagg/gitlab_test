@@ -39,6 +39,9 @@ review-docs-cleanup:
     - ./scripts/trigger-build-docs cleanup
 
 docs lint:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .docs:rules:docs-lint
