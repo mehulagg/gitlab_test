@@ -1,5 +1,6 @@
 <script>
-import { GlIcon, GlIntersectionObserver } from '@gitlab/ui';
+import { GlAlert, GlIcon, GlIntersectionObserver } from '@gitlab/ui';
+import gql from 'graphql-tag';
 import Visibility from 'visibilityjs';
 import { __, s__, sprintf } from '~/locale';
 import createFlash from '~/flash';
@@ -15,9 +16,11 @@ import formComponent from './form.vue';
 import PinnedLinks from './pinned_links.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
+import getIssueDataQuery from '~/issue_show/queries/get_issue_data.query.graphql';
 
 export default {
   components: {
+    GlAlert,
     GlIcon,
     GlIntersectionObserver,
     descriptionComponent,
@@ -169,10 +172,21 @@ export default {
     return {
       store,
       state: store.state,
+      issueDetails: {
+        issue: {},
+      },
       showForm: false,
       templatesRequested: false,
       isStickyHeaderShowing: false,
     };
+  },
+  apollo: {
+    issueDetails: {
+      query: getIssueDataQuery,
+      update: ({ project }) => ({
+        ...project,
+      }),
+    },
   },
   computed: {
     issuableTemplates() {
@@ -257,6 +271,21 @@ export default {
     window.removeEventListener('beforeunload', this.handleBeforeUnloadEvent);
   },
   methods: {
+    toggleState() {
+      this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation($id: ID!) {
+              toggleIssue(id: $id) @client
+            }
+          `,
+          variables: {
+            id: 1,
+          },
+        })
+        .then(data => console.log('then', data))
+        .catch(error => console.log('error', error));
+    },
     handleBeforeUnloadEvent(e) {
       const event = e;
       if (this.showForm && this.issueChanged && !this.showRecaptcha) {
@@ -385,6 +414,11 @@ export default {
 
 <template>
   <div>
+    <gl-alert>
+      IssueShowRootApp [{{ issueDetails.issue.state }}]
+      <button @click="toggleState">Toggle state</button>
+    </gl-alert>
+
     <div v-if="canUpdate && showForm">
       <form-component
         :form-state="formState"

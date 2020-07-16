@@ -7,11 +7,39 @@ import initIssueableApp, { issuableHeaderWarnings } from '~/issue_show';
 import initSentryErrorStackTraceApp from '~/sentry_error_stack_trace';
 import initRelatedMergeRequestsApp from '~/related_merge_requests';
 import initVueIssuableSidebarApp from '~/issuable_sidebar/sidebar_bundle';
+import gql from 'graphql-tag';
+import Vue from 'vue';
+import VueApollo from 'vue-apollo';
+import getIssueDataQuery from '~/issue_show/queries/get_issue_data.query.graphql';
+import createDefaultClient from '~/lib/graphql';
 
 export default function() {
-  initIssueableApp();
+  Vue.use(VueApollo);
+
+  const typeDefs = gql`
+    type Mutation {
+      toggleIssue(id: ID!): Boolean
+    }
+  `;
+
+  const resolvers = {
+    Mutation: {
+      toggleIssue: (_, __, { cache }) => {
+        const data = cache.readQuery({ query: getIssueDataQuery });
+        data.project.issue.state = data.project.issue.state === 'closed' ? 'open' : 'closed';
+        cache.writeQuery({ query: getIssueDataQuery, data });
+        return data;
+      },
+    },
+  };
+
+  const apolloProvider = new VueApollo({
+    defaultClient: createDefaultClient(resolvers, { typeDefs }),
+  });
+
+  initIssueableApp(apolloProvider);
   initSentryErrorStackTraceApp();
-  initRelatedMergeRequestsApp();
+  initRelatedMergeRequestsApp(apolloProvider);
   issuableHeaderWarnings();
 
   import(/* webpackChunkName: 'design_management' */ '~/design_management')

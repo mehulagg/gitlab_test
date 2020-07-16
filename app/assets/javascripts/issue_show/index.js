@@ -4,9 +4,10 @@ import IssuableHeaderWarnings from './components/issuable_header_warnings.vue';
 import { parseIssuableData } from './utils/parse_data';
 import { store } from '~/notes/stores';
 
-export default function initIssueableApp() {
+export default function initIssueableApp(apolloProvider) {
   return new Vue({
     el: document.getElementById('js-issuable-app'),
+    apolloProvider,
     components: {
       issuableApp,
     },

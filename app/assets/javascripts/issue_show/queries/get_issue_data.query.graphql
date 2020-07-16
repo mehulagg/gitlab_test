@@ -1,0 +1,7 @@
+query {
+  project(fullPath: "gitlab-org/gitlab-test") {
+    issue(iid: "1") {
+      state
+    }
+  }
+}

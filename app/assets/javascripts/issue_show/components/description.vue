@@ -1,14 +1,19 @@
 <script>
+import { GlAlert } from '@gitlab/ui';
+import gql from 'graphql-tag';
 import $ from 'jquery';
 import { s__, sprintf } from '~/locale';
 import createFlash from '~/flash';
 import animateMixin from '../mixins/animate';
 import TaskList from '../../task_list';
 import recaptchaModalImplementor from '../../vue_shared/mixins/recaptcha_modal_implementor';
+import getIssueDataQuery from '~/issue_show/queries/get_issue_data.query.graphql';
 
 export default {
   mixins: [animateMixin, recaptchaModalImplementor],
-
+  components: {
+    GlAlert,
+  },
   props: {
     canUpdate: {
       type: Boolean,
@@ -47,7 +52,18 @@ export default {
     return {
       preAnimation: false,
       pulseAnimation: false,
+      issueDetails: {
+        issue: {},
+      },
     };
+  },
+  apollo: {
+    issueDetails: {
+      query: getIssueDataQuery,
+      update: ({ project }) => ({
+        ...project,
+      }),
+    },
   },
   watch: {
     descriptionHtml() {
@@ -66,6 +82,21 @@ export default {
     this.updateTaskStatusText();
   },
   methods: {
+    toggleState() {
+      this.$apollo
+        .mutate({
+          mutation: gql`
+            mutation($id: ID!) {
+              toggleIssue(id: $id) @client
+            }
+          `,
+          variables: {
+            id: 1,
+          },
+        })
+        .then(data => console.log('then', data))
+        .catch(error => console.log('error', error));
+    },
     renderGFM() {
       $(this.$refs['gfm-content']).renderGFM();
 
@@ -134,6 +165,11 @@ export default {
     }"
     class="description"
   >
+    <gl-alert>
+      IssueShowRootApp's CHILD component [{{ issueDetails.issue.state }}]
+      <button @click="toggleState">Toggle state</button>
+    </gl-alert>
+
     <div
       ref="gfm-content"
       :class="{

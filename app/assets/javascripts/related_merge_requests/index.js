@@ -2,7 +2,7 @@ import Vue from 'vue';
 import RelatedMergeRequests from './components/related_merge_requests.vue';
 import createStore from './store';
 
-export default function initRelatedMergeRequests() {
+export default function initRelatedMergeRequests(apolloProvider) {
   const relatedMergeRequestsElement = document.querySelector('#js-related-merge-requests');
 
   if (relatedMergeRequestsElement) {
@@ -11,6 +11,7 @@ export default function initRelatedMergeRequests() {
     // eslint-disable-next-line no-new
     new Vue({
       el: relatedMergeRequestsElement,
+      apolloProvider,
       components: {
         RelatedMergeRequests,
       },
