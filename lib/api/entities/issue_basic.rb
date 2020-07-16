@@ -28,6 +28,7 @@ module API
       expose :due_date
       expose :confidential
       expose :discussion_locked
+      expose :relative_position
 
       expose :web_url do |issue|
         Gitlab::UrlBuilder.build(issue)
