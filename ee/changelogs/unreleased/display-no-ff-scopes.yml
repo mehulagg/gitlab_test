@@ -1,0 +1,5 @@
+---
+title: Fix display and handling of feature flag scopes related to all environments
+merge_request: 37007
+author:
+type: fixed
