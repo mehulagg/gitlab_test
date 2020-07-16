@@ -7,6 +7,8 @@ export default (props = {}) => {
   const el = document.getElementById('environment-logs');
   const [currentPodName] = getParameterValues('pod_name');
 
+  console.log('hello');
+
   // eslint-disable-next-line no-new
   new Vue({
     el,
