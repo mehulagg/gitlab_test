@@ -77,6 +77,10 @@ module Gitlab
       def self.allow_to_create_merge_request_pipelines_in_target_project?(target_project)
         ::Feature.enabled?(:ci_allow_to_create_merge_request_pipelines_in_target_project, target_project)
       end
+
+      def self.lint_creates_pipeline_with_dry_run?(project)
+        ::Feature.enabled?(:ci_lint_creates_pipeline_with_dry_run, project)
+      end
     end
   end
 end

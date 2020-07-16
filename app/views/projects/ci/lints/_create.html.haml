@@ -3,41 +3,43 @@
     %p
       %b= _("Status:")
       = _("syntax is correct")
+  / dry run mode currently does not support rendering of jobs because
+  / they are returned as different format.
+  - unless @dry_run
+    .table-holder
+      %table.table.table-bordered
+        %thead
+          %tr
+            %th= _("Parameter")
+            %th= _("Value")
+        %tbody
+          - @stages.each do |stage|
+            - @builds.select { |build| build[:stage] == stage }.each do |build|
+              - job = @jobs[build[:name].to_sym]
+              %tr
+                %td #{stage.capitalize} Job - #{build[:name]}
+                %td
+                  %pre= job[:before_script].to_a.join('\n')
+                  %pre= job[:script].to_a.join('\n')
+                  %pre= job[:after_script].to_a.join('\n')
 
-  .table-holder
-    %table.table.table-bordered
-      %thead
-        %tr
-          %th= _("Parameter")
-          %th= _("Value")
-      %tbody
-        - @stages.each do |stage|
-          - @builds.select { |build| build[:stage] == stage }.each do |build|
-            - job = @jobs[build[:name].to_sym]
-            %tr
-              %td #{stage.capitalize} Job - #{build[:name]}
-              %td
-                %pre= job[:before_script].to_a.join('\n')
-                %pre= job[:script].to_a.join('\n')
-                %pre= job[:after_script].to_a.join('\n')
-
-                %br
-                %b= _("Tag list:")
-                = build[:tag_list].to_a.join(", ")
-                %br
-                %b= _("Only policy:")
-                = job[:only].to_a.join(", ")
-                %br
-                %b= _("Except policy:")
-                = job[:except].to_a.join(", ")
-                %br
-                %b= _("Environment:")
-                = build[:environment]
-                %br
-                %b= _("When:")
-                = build[:when]
-                - if build[:allow_failure]
-                  %b= _("Allowed to fail")
+                  %br
+                  %b= _("Tag list:")
+                  = build[:tag_list].to_a.join(", ")
+                  %br
+                  %b= _("Only policy:")
+                  = job[:only].to_a.join(", ")
+                  %br
+                  %b= _("Except policy:")
+                  = job[:except].to_a.join(", ")
+                  %br
+                  %b= _("Environment:")
+                  = build[:environment]
+                  %br
+                  %b= _("When:")
+                  = build[:when]
+                  - if build[:allow_failure]
+                    %b= _("Allowed to fail")
 
 - else
   .bs-callout.bs-callout-danger

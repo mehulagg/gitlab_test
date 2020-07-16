@@ -8,16 +8,27 @@ class Projects::Ci::LintsController < Projects::ApplicationController
 
   def create
     @content = params[:content]
-    result   = Gitlab::Ci::YamlProcessor.new_with_validation_errors(@content, yaml_processor_options)
+    @dry_run = Gitlab::Ci::Features.lint_creates_pipeline_with_dry_run?(@project)
 
-    @status = result.valid?
-    @errors = result.errors
+    if @dry_run
+      pipeline = Ci::CreatePipelineService.new(@project, current_user, ref: 'master')
+        .execute(:push, dry_run: true, content: @content)
 
-    if result.valid?
-      @config_processor = result.config
-      @stages = @config_processor.stages
-      @builds = @config_processor.builds
-      @jobs = @config_processor.jobs
+      @status = pipeline.error_messages.empty?
+      @errors = pipeline.error_messages.map(&:content)
+      @warnings = pipeline.warning_messages.map(&:content)
+    else
+      result = Gitlab::Ci::YamlProcessor.new_with_validation_errors(@content, yaml_processor_options)
+
+      @status = result.valid?
+      @errors = result.errors
+
+      if result.valid?
+        @config_processor = result.config
+        @stages = @config_processor.stages
+        @builds = @config_processor.builds
+        @jobs = @config_processor.jobs
+      end
     end
 
     render :show
