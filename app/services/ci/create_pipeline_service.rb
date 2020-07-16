@@ -140,8 +140,8 @@ module Ci
       end
     end
 
-    def extra_options(content: nil)
-      { content: content }
+    def extra_options(content: nil, dry_run: false)
+      { content: content, dry_run: dry_run }
     end
   end
 end

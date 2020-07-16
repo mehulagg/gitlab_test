@@ -24,7 +24,7 @@ module Gitlab
             end
 
             @pipeline.tap do
-              yield @pipeline, self if block_given?
+              yield @pipeline, self if block_given? && !@command.dry_run
 
               @command.observe_creation_duration(Time.now - @start)
               @command.observe_pipeline_size(@pipeline)

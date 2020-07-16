@@ -6,7 +6,7 @@ module Gitlab
       module Chain
         module Helpers
           def error(message, config_error: false, drop_reason: nil)
-            if config_error && command.save_incompleted
+            if config_error && persist_pipeline?
               drop_reason = :config_error
               pipeline.yaml_errors = message
             end
@@ -22,6 +22,12 @@ module Gitlab
 
           def warning(message)
             pipeline.add_warning_message(message)
+          end
+
+          def persist_pipeline?
+            return false if command.dry_run
+
+            command.save_incompleted
           end
         end
       end
