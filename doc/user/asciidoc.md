@@ -389,10 +389,13 @@ Color written inside backticks will be followed by a color "chip":
 
 ### STEM
 
-To activate equation and formula support, set the `stem` attribute in the document's header to `latexmath`.
+To activate equation and formula support,
+set the `stem` attribute in the document's header to `latexmath`.
 Equations and formulas will be rendered using [KaTeX](https://katex.org/):
 
 ```plaintext
+:stem: latexmath
+
 latexmath:[C = \alpha + \beta Y^{\gamma} + \epsilon]
 
 [stem]
@@ -405,13 +408,17 @@ A matrix can be written as stem:[[[a,b\],[c,d\]\]((n),(k))].
 
 ### Diagrams and flowcharts
 
-It's possible to generate diagrams and flowcharts from text in GitLab using [Mermaid](https://mermaidjs.github.io/) or [PlantUML](https://plantuml.com).
+It's possible to generate diagrams and flowcharts from text in GitLab using
+[Mermaid](https://mermaidjs.github.io/) or [PlantUML](https://plantuml.com).
 
 #### Mermaid
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/36127) in GitLab 13.3.
 
-Visit the [official page](https://mermaidjs.github.io/) for more details. If you're new to using Mermaid or need help identifying issues in your Mermaid code, the [Mermaid Live Editor](https://mermaid-js.github.io/mermaid-live-editor/) is a helpful tool for creating and resolving issues within Mermaid diagrams.
+Visit the [official page](https://mermaidjs.github.io/) for more details.
+If you're new to using Mermaid or need help identifying issues in your Mermaid code, 
+the [Mermaid Live Editor](https://mermaid-js.github.io/mermaid-live-editor/) is a helpful tool
+for creating and resolving issues within Mermaid diagrams.
 
 In order to generate a diagram or flowchart, you should write your text inside the `mermaid` block:
 
@@ -428,7 +435,8 @@ graph LR
 
 #### PlantUML
 
-To make PlantUML available in GitLab, a GitLab administrator needs to enable it first. Read more in [PlantUML & GitLab](../administration/integration/plantuml.md).
+To make PlantUML available in GitLab, a GitLab administrator needs to enable it first.
+Read more in [PlantUML & GitLab](../administration/integration/plantuml.md).
 
 Once enabled, you should write your text inside the `plantuml` block:
 
