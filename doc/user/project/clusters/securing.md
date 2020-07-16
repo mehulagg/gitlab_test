@@ -61,7 +61,7 @@ interface, it's inflexible and hard to debug. When something goes wrong, you can
 deployment logs. The Web Application Firewall feature uses this installation method.
 
 However, the next generation of GitLab Managed Apps V2 ([CI/CD-based GitLab Managed Apps](https://gitlab.com/groups/gitlab-org/-/epics/2103))
-don't use Sidekiq to deploy. All the applications are deployed using a GitLab CI/CD pipeline and
+doesn't use Sidekiq to deploy. All the applications are deployed using a GitLab CI/CD pipeline and
 therefore GitLab Runners.
 
 ```mermaid
@@ -89,7 +89,7 @@ to GitLab. Then [install](../../clusters/applications.md#installing-applications
 the Web Application Firewall from the project or group Kubernetes page.
 
 Note that your project doesn't have to be hosted or deployed through GitLab. You can manage a
-cluster independent of the applications that use the cluster.
+cluster independently of the applications that use the cluster.
 
 ## Set up a GitLab Runner
 
@@ -151,4 +151,4 @@ falco:
   installed: true
 ```
 
-[Read more] about configuring Container Host Security.
+[Read more](../../clusters/applications.md#install-falco-using-gitlab-cicd) about configuring Container Host Security.
