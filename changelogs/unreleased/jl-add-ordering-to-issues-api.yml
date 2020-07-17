@@ -1,5 +1,5 @@
 ---
 title: Add relative_position to IssueBasic API response
-merge_request:
+merge_request: 37111
 author:
 type: changed
