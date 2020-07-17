@@ -208,7 +208,7 @@ export default {
     removeScope(environment) {
       this.removeEnvironment(environment);
 
-      if (this.filteredEnvironments.length === 0) {
+      if (this.appliesToNoEnvironments) {
         this.setDefaultEnvironment();
       }
 
