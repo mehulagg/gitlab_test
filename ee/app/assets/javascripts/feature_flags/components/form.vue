@@ -22,7 +22,8 @@ import {
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
   ROLLOUT_STRATEGY_USER_ID,
-  ALL_ENVIRONMENTS_NAME,
+  ALL_ENVIRONMENTS,
+  ALL_ENVIRONMENTS_SCOPE,
   INTERNAL_ID_PREFIX,
   NEW_VERSION_FLAG,
   LEGACY_FLAG,
@@ -178,7 +179,7 @@ export default {
       this.formStrategies.push({
         name: ROLLOUT_STRATEGY_ALL_USERS,
         parameters: {},
-        scopes: [{ environmentScope: '*' }],
+        scopes: [ALL_ENVIRONMENTS_SCOPE],
       });
     },
 
@@ -191,7 +192,7 @@ export default {
     },
 
     isAllEnvironment(name) {
-      return name === ALL_ENVIRONMENTS_NAME;
+      return name === ALL_ENVIRONMENTS;
     },
 
     /**

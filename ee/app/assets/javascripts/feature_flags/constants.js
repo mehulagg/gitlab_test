@@ -10,7 +10,7 @@ export const PERCENT_ROLLOUT_GROUP_ID = 'default';
 
 export const DEFAULT_PERCENT_ROLLOUT = '100';
 
-export const ALL_ENVIRONMENTS_NAME = '*';
+export const ALL_ENVIRONMENTS = '*';
 
 export const INTERNAL_ID_PREFIX = 'internal_';
 
@@ -26,3 +26,5 @@ export const NEW_FLAG_ALERT = s__(
 
 export const FEATURE_FLAG_SCOPE = 'featureFlags';
 export const USER_LIST_SCOPE = 'userLists';
+
+export const ALL_ENVIRONMENTS_SCOPE = { environmentScope: ALL_ENVIRONMENTS };

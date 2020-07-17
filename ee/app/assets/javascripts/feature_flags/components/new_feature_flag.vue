@@ -4,6 +4,7 @@ import { GlAlert } from '@gitlab/ui';
 import store from '../store/index';
 import FeatureFlagForm from './form.vue';
 import {
+  ALL_ENVIRONMENTS_SCOPE,
   LEGACY_FLAG,
   NEW_VERSION_FLAG,
   NEW_FLAG_ALERT,
@@ -75,7 +76,7 @@ export default {
         {
           name: ROLLOUT_STRATEGY_ALL_USERS,
           parameters: {},
-          scopes: [{ environmentScope: '*' }],
+          scopes: [ALL_ENVIRONMENTS_SCOPE],
         },
       ];
     },
