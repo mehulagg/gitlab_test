@@ -140,11 +140,11 @@ RSpec.describe API::Snippets do
     end
   end
 
-  describe 'GET /snippets/:id/files/:ref/:file_path/raw' do
+  describe 'GET /snippets/:id/files/:file_path/raw' do
     let_it_be(:snippet) { create(:personal_snippet, :repository, :private) }
 
     it_behaves_like 'raw snippet files' do
-      let(:api_path) { "/snippets/#{snippet_id}/files/#{ref}/#{file_path}/raw" }
+      let(:api_path) { "/snippets/#{snippet_id}/files/#{file_path}/raw" }
     end
   end
 

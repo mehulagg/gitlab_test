@@ -5,7 +5,6 @@ RSpec.shared_examples 'raw snippet files' do
   let(:snippet_id) { snippet.id }
   let(:user)       { snippet.author }
   let(:file_path)  { '%2Egitattributes' }
-  let(:ref)        { 'master' }
 
   context 'with no user' do
     it 'requires authentication' do
@@ -52,19 +51,15 @@ RSpec.shared_examples 'raw snippet files' do
     end
   end
 
-  context 'with invalid params' do
+  context 'with invalid file paths' do
     using RSpec::Parameterized::TableSyntax
 
-    where(:file_path, :ref, :status, :key, :message) do
-      '%2Egitattributes'      | 'invalid-ref' | :not_found   | 'message' | '404 Reference Not Found'
-      '%2Egitattributes'      | nil           | :not_found   | 'error'   | '404 Not Found'
-      '%2Egitattributes'      | ''            | :not_found   | 'error'   | '404 Not Found'
-
-      'doesnotexist.rb'       | 'master'      | :not_found   | 'message' | '404 File Not Found'
-      '/does/not/exist.rb'    | 'master'      | :not_found   | 'error'   | '404 Not Found'
-      '%2E%2E%2Fetc%2Fpasswd' | 'master'      | :bad_request | 'error'   | 'file_path should be a valid file path'
-      '%2Fetc%2Fpasswd'       | 'master'      | :bad_request | 'error'   | 'file_path should be a valid file path'
-      '../../etc/passwd'      | 'master'      | :not_found   | 'error'   | '404 Not Found'
+    where(:file_path, :status, :key, :message) do
+      'doesnotexist.rb'       | :not_found   | 'message' | '404 File Not Found'
+      '/does/not/exist.rb'    | :not_found   | 'error'   | '404 Not Found'
+      '%2E%2E%2Fetc%2Fpasswd' | :bad_request | 'error'   | 'file_path should be a valid file path'
+      '%2Fetc%2Fpasswd'       | :bad_request | 'error'   | 'file_path should be a valid file path'
+      '../../etc/passwd'      | :not_found   | 'error'   | '404 Not Found'
     end
 
     with_them do

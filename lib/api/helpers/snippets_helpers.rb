@@ -7,7 +7,6 @@ module API
 
       params :raw_file_params do
         requires :file_path, type: String, file_path: true, desc: 'The url encoded path to the file, e.g. lib%2Fclass%2Erb'
-        requires :ref, type: String, desc: 'The name of branch, tag or commit'
       end
 
       def content_for(snippet)
@@ -26,7 +25,7 @@ module API
 
       def file_content_for(snippet)
         repo = snippet.repository
-        commit = repo.commit(params[:ref])
+        commit = repo.commit(repo.root_ref)
         not_found!('Reference') unless commit
 
         blob = repo.blob_at(commit.sha, params[:file_path])
