@@ -31,11 +31,23 @@ RSpec.describe 'CI Lint', :js do
       end
 
       it 'parses Yaml' do
-        within "table" do
-          expect(page).to have_content('Job - rspec')
-          expect(page).to have_content('Job - spinach')
-          expect(page).to have_content('Deploy Job - staging')
-          expect(page).to have_content('Deploy Job - production')
+        expect(page).to have_content('Status: syntax is correct')
+      end
+
+      context 'when ci_lint_creates_pipeline_with_dry_run feature flag is disabled' do
+        before do
+          stub_feature_flags(ci_lint_creates_pipeline_with_dry_run: false)
+        end
+
+        it 'parses Yaml and displays the jobs' do
+          expect(page).to have_content('Status: syntax is correct')
+
+          within "table" do
+            expect(page).to have_content('Job - rspec')
+            expect(page).to have_content('Job - spinach')
+            expect(page).to have_content('Deploy Job - staging')
+            expect(page).to have_content('Deploy Job - production')
+          end
         end
       end
     end

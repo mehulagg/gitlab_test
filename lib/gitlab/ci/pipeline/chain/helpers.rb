@@ -25,9 +25,7 @@ module Gitlab
           end
 
           def persist_pipeline?
-            return false if command.dry_run
-
-            command.save_incompleted
+            command.save_incompleted && !command.dry_run
           end
         end
       end
