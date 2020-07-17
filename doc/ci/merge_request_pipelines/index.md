@@ -168,28 +168,31 @@ Read the [documentation on Merge Trains](pipelines_for_merged_results/merge_trai
 
 ## Create pipelines in the parent project for merge requests from a forked project
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217451) in GitLab 13.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217451) in GitLab 13.3.
 
-By default, external contibutors do not have permission to create pipelines in the
-parent project. When a pipeline for merge request is triggered by one of them, it's
-always created in the fork project instead of the parent project, and consumes the fork
-project's CI config/resource for running pipelines. However, there are some cases that
-parent project members want to create a pipeline in a parent project in order to ensure that the post-merge pipeline will pass in the parent project,
-for example, a fork project could be using a corrupted runner that doesn't execute test scripts properly,
-and parent project members might mistakenly trust the merge request with a fake-successful pipeline.
+By default, external contributors working from forks can't create pipelines in the
+parent project. When a pipeline for merge requests is triggered by a merge request
+coming from a fork:
 
-As of GitLab 13.2, parent project members can create pipelines in the parent project
-for merge requests from a forked project.
-To create a pipeline, visit **Merge Requests > Pipelines Tab** and click **Run Pipeline** button.
+- It's created and runs in the fork (source) project, not the parent (target) project.
+- It uses the fork project's CI/CD configuration and resources.
 
-![Run pipeline button](img/run_pipeline_button.png)
+Sometimes parent project members want the pipeline to run in the parent
+project. This could be to ensure that the post-merge pipeline passes in the parent project.
+For example, a fork project could try to use a corrupted Runner that doesn't execute
+test scripts properly, but reports a passed pipeline. Reviewers in the parent project
+could mistakenly trust the merge request because it passed a faked pipeline.
 
-Please note that fork merge requests could contain a malicious code to try to steal secrets
-in the parent project. You have to carefully review the changes of the merge request before actually
-triggering the pipeline. Gitlab shows the following warning to the pipeline triggerer
-not to miss this important security implication.
+Parent project members with at least [Developer permissions](../../user/permissions.md)
+can create pipelines in the parent project for merge requests
+from a forked project. In the merge request, go to the **Pipelines** and click
+**Run Pipeline** button.
 
-![Fork MR Warning](img/fork_mr_warning.png)
+CAUTION: **Caution:**
+Fork merge requests could contain malicious code that tries to steal secrets in the
+parent project when the pipeline runs, even before merge. Reviewers must carefully
+check the changes in the merge request before triggering the pipeline. GitLab shows
+a warning that must be accepted before the pipeline can be triggered.
 
 ## Additional predefined variables
 
