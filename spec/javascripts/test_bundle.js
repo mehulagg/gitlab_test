@@ -1,15 +1,8 @@
-/* eslint-disable
-  jasmine/no-global-setup, no-underscore-dangle, no-console
-*/
-
-import $ from 'jquery';
-import 'core-js/features/set-immediate';
+/* eslint-disable no-console */
 import 'vendor/jasmine-jquery';
 import '~/commons';
 import Vue from 'vue';
-import jasmineDiff from 'jasmine-diff';
 import { config as testUtilsConfig } from '@vue/test-utils';
-import Translate from '~/vue_shared/translate';
 
 import { getDefaultAdapter } from '~/lib/utils/axios_utils';
 import { FIXTURES_PATH, TEST_HOST } from './test_constants';
@@ -45,25 +38,13 @@ Vue.config.errorHandler = function(err) {
   fail(err);
 };
 
-Vue.use(Translate);
-
 // enable test fixtures
 jasmine.getFixtures().fixturesPath = FIXTURES_PATH;
 jasmine.getJSONFixtures().fixturesPath = FIXTURES_PATH;
 
 beforeAll(() => {
-  jasmine.addMatchers(
-    jasmineDiff(jasmine, {
-      colors: window.__karma__.config.color,
-      inline: window.__karma__.config.color,
-    }),
-  );
   jasmine.addMatchers(customMatchers);
 });
-
-// globalize common libraries
-window.$ = $;
-window.jQuery = window.$;
 
 // stub expected globals
 window.gl = window.gl || {};
