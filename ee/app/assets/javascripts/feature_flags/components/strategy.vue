@@ -190,20 +190,26 @@ export default {
         parameters,
       });
     },
-    removeScope(environment) {
+    removeEnvironment(environment) {
       if (isNumber(environment.id)) {
         Vue.set(environment, 'shouldBeDestroyed', true);
       } else {
         this.environments = this.environments.filter(e => e !== environment);
       }
-
+    },
+    setDefaultEnvironment() {
       const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
+      if (allEnvironmentsScope) {
+        Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', false);
+      } else {
+        this.environments.push({ environmentScope: '*' });
+      }
+    },
+    removeScope(environment) {
+      this.removeEnvironment(environment);
+
       if (this.filteredEnvironments.length === 0) {
-        if (allEnvironmentsScope) {
-          Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', false);
-        } else {
-          this.environments.push({ environmentScope: '*' });
-        }
+        this.setDefaultEnvironment();
       }
 
       this.onStrategyChange();
