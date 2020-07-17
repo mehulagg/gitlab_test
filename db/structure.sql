@@ -20644,8 +20644,6 @@ CREATE UNIQUE INDEX issue_user_mentions_on_issue_id_index ON public.issue_user_m
 
 CREATE UNIQUE INDEX kubernetes_namespaces_cluster_and_namespace ON public.clusters_kubernetes_namespaces USING btree (cluster_id, namespace);
 
-CREATE INDEX merge_request_mentions_temp_index ON public.merge_requests USING btree (id) WHERE ((description ~~ '%@%'::text) OR ((title)::text ~~ '%@%'::text));
-
 CREATE UNIQUE INDEX merge_request_user_mentions_on_mr_id_and_note_id_index ON public.merge_request_user_mentions USING btree (merge_request_id, note_id);
 
 CREATE UNIQUE INDEX merge_request_user_mentions_on_mr_id_index ON public.merge_request_user_mentions USING btree (merge_request_id) WHERE (note_id IS NULL);
@@ -23864,5 +23862,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200713152443
 20200716044023
 20200716120419
+20200717141911
 \.
 
