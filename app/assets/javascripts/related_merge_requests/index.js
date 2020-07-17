@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import VueApollo from 'vue-apollo';
 import RelatedMergeRequests from './components/related_merge_requests.vue';
 import createStore from './store';
 
@@ -6,6 +7,8 @@ export default function initRelatedMergeRequests(apolloProvider) {
   const relatedMergeRequestsElement = document.querySelector('#js-related-merge-requests');
 
   if (relatedMergeRequestsElement) {
+    Vue.use(VueApollo);
+
     const { endpoint, projectPath, projectNamespace } = relatedMergeRequestsElement.dataset;
 
     // eslint-disable-next-line no-new

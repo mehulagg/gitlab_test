@@ -1,10 +1,13 @@
 import Vue from 'vue';
+import VueApollo from 'vue-apollo';
 import issuableApp from './components/app.vue';
 import IssuableHeaderWarnings from './components/issuable_header_warnings.vue';
 import { parseIssuableData } from './utils/parse_data';
 import { store } from '~/notes/stores';
 
 export default function initIssueableApp(apolloProvider) {
+  Vue.use(VueApollo);
+
   return new Vue({
     el: document.getElementById('js-issuable-app'),
     apolloProvider,

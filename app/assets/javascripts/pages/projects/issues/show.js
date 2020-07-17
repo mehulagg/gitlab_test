@@ -8,14 +8,11 @@ import initSentryErrorStackTraceApp from '~/sentry_error_stack_trace';
 import initRelatedMergeRequestsApp from '~/related_merge_requests';
 import initVueIssuableSidebarApp from '~/issuable_sidebar/sidebar_bundle';
 import gql from 'graphql-tag';
-import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import getIssueDataQuery from '~/issue_show/queries/get_issue_data.query.graphql';
 import createDefaultClient from '~/lib/graphql';
 
 export default function() {
-  Vue.use(VueApollo);
-
   const typeDefs = gql`
     type Mutation {
       toggleIssue(id: ID!): Boolean
