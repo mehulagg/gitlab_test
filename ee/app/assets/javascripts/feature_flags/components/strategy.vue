@@ -157,12 +157,46 @@ export default {
     },
   },
   methods: {
+    removeEnvironment(environment) {
+      if (isNumber(environment.id)) {
+        Vue.set(environment, 'shouldBeDestroyed', true);
+      } else {
+        this.environments = this.environments.filter(e => e !== environment);
+      }
+    },
     addEnvironment(environment) {
+      this.environments.push({ environmentScope: environment });
+    },
+    setDefaultEnvironment() {
+      const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
+      if (allEnvironmentsScope) {
+        Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', false);
+      } else {
+        this.environments.push({ environmentScope: '*' });
+      }
+    },
+    removeDefaultEnvironment() {
       const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
       if (allEnvironmentsScope) {
         Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', true);
       }
-      this.environments.push({ environmentScope: environment });
+    },
+    isStrategyType(type) {
+      return this.formStrategy.name === type;
+    },
+
+    addScope(environment) {
+      this.removeDefaultEnvironment();
+      this.addEnvironment(environment);
+      this.onStrategyChange();
+    },
+    removeScope(environment) {
+      this.removeEnvironment(environment);
+
+      if (this.appliesToNoEnvironments) {
+        this.setDefaultEnvironment();
+      }
+
       this.onStrategyChange();
     },
     onStrategyChange() {
@@ -189,33 +223,6 @@ export default {
         ...strategy,
         parameters,
       });
-    },
-    removeEnvironment(environment) {
-      if (isNumber(environment.id)) {
-        Vue.set(environment, 'shouldBeDestroyed', true);
-      } else {
-        this.environments = this.environments.filter(e => e !== environment);
-      }
-    },
-    setDefaultEnvironment() {
-      const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
-      if (allEnvironmentsScope) {
-        Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', false);
-      } else {
-        this.environments.push({ environmentScope: '*' });
-      }
-    },
-    removeScope(environment) {
-      this.removeEnvironment(environment);
-
-      if (this.appliesToNoEnvironments) {
-        this.setDefaultEnvironment();
-      }
-
-      this.onStrategyChange();
-    },
-    isStrategyType(type) {
-      return this.formStrategy.name === type;
     },
   },
 };
@@ -307,7 +314,7 @@ export default {
           :id="environmentsDropdownId"
           :endpoint="endpoint"
           class="mr-2"
-          @add="addEnvironment"
+          @add="addScope"
         />
         <span v-if="appliesToAllEnvironments" class="text-secondary mt-2 mt-md-0 ml-md-3">
           {{ $options.translations.allEnvironments }}
