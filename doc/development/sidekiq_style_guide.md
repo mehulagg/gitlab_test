@@ -173,9 +173,22 @@ same time, the second job can be skipped if the first job hasn't
 begun, because when the first job runs, it creates the
 authorizations for both projects.
 
-GitLab doesn't skip jobs scheduled in the future, as we assume that
+By default, GitLab doesn't skip jobs scheduled in the future, as we assume that
 the state will have changed by the time the job is scheduled to
 execute.
+
+However, this can be overriden using deduplication attributes of the worker, by
+adding the `including_scheduled: true` option.
+
+```ruby
+class AuthorizedProjectsWorker
+  include ApplicationWorker
+
+  deduplicate :until_executing, including_scheduled: true
+
+  # ...
+end
+```
 
 More [deduplication strategies have been suggested](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/195). If you are implementing a worker that
 could benefit from a different strategy, please comment in the issue.
