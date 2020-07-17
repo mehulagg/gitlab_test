@@ -7,7 +7,7 @@ class AddPendingDeleteToCiJobArtifacts < ActiveRecord::Migration[6.0]
 
   def up
     with_lock_retries do
-      add_column :ci_job_artifacts, :pending_delete, :boolean
+      add_column :ci_job_artifacts, :pending_delete, :boolean, default: false, null: false
     end
   end
 

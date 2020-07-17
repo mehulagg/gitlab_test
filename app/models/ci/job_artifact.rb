@@ -166,8 +166,7 @@ module Ci
     scope :expired, -> (limit) { where('expire_at < ?', Time.current).limit(limit) }
     scope :downloadable, -> { where(file_type: DOWNLOADABLE_TYPES) }
     scope :unlocked, -> { joins(job: :pipeline).merge(::Ci::Pipeline.unlocked).order(expire_at: :desc) }
-    scope :pending_delete, -> { where(pending_delete: true) }
-    scope :without_deleted, -> { where(pending_delete: [false, nil]) }
+    scope :without_deleted, -> { where(pending_delete: false) }
     scope :scoped_project, -> { where('ci_job_artifacts.project_id = projects.id') }
 
     delegate :filename, :exists?, :open, to: :file

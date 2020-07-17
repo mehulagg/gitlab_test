@@ -110,7 +110,7 @@ RSpec.describe Ci::Artifacts::BatchEnqueueRemovalService, :clean_gitlab_redis_sh
       end
 
       it 'destroys one artifact' do
-        expect { subject }.to change { Ci::JobArtifact.pending_delete.count }.by(1)
+        expect { subject }.to change { pending_delete_count }.by(1)
       end
     end
 
@@ -133,7 +133,7 @@ RSpec.describe Ci::Artifacts::BatchEnqueueRemovalService, :clean_gitlab_redis_sh
         expect(Ci::DestroyBatchArtifactsWorker).to receive(:bulk_perform_in).with(0, [artifact.id])
         expect(Ci::DestroyBatchArtifactsWorker).to receive(:bulk_perform_in).with(15, [second_artifact.id])
 
-        expect { subject }.to change { Ci::JobArtifact.pending_delete.count }.by(2)
+        expect { subject }.to change { pending_delete_count }.by(2)
       end
     end
 
@@ -153,6 +153,10 @@ RSpec.describe Ci::Artifacts::BatchEnqueueRemovalService, :clean_gitlab_redis_sh
 
         it { expect(service.send(:loop_limit)).to eq(0) }
       end
+    end
+
+    def pending_delete_count
+      Ci::JobArtifact.where(pending_delete: true).count
     end
   end
 end
