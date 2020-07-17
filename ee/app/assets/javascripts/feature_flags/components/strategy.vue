@@ -12,6 +12,7 @@ import {
 } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
 import {
+  ALL_ENVIRONMENTS,
   PERCENT_ROLLOUT_GROUP_ID,
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
@@ -140,7 +141,7 @@ export default {
     appliesToAllEnvironments() {
       return (
         this.filteredEnvironments.length === 1 &&
-        this.filteredEnvironments[0].environmentScope === '*'
+        this.filteredEnvironments[0].environmentScope === ALL_ENVIRONMENTS
       );
     },
     appliesToNoEnvironments() {
