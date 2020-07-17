@@ -9787,8 +9787,7 @@ CREATE TABLE public.ci_builds (
     resource_group_id bigint,
     waiting_for_resource_at timestamp with time zone,
     processed boolean,
-    scheduling_type smallint,
-    CONSTRAINT check_1e2fbd1b39 CHECK ((lock_version IS NOT NULL))
+    scheduling_type smallint
 );
 
 CREATE SEQUENCE public.ci_builds_id_seq
@@ -10098,8 +10097,7 @@ CREATE TABLE public.ci_pipelines (
     target_sha bytea,
     external_pull_request_id bigint,
     ci_ref_id bigint,
-    locked smallint DEFAULT 0 NOT NULL,
-    CONSTRAINT check_d7e99a025e CHECK ((lock_version IS NOT NULL))
+    locked smallint DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE public.ci_pipelines_config (
@@ -10284,8 +10282,7 @@ CREATE TABLE public.ci_stages (
     name character varying,
     status integer,
     lock_version integer DEFAULT 0,
-    "position" integer,
-    CONSTRAINT check_81b431e49b CHECK ((lock_version IS NOT NULL))
+    "position" integer
 );
 
 CREATE SEQUENCE public.ci_stages_id_seq
@@ -11346,8 +11343,7 @@ CREATE TABLE public.epics (
     start_date_sourcing_epic_id integer,
     due_date_sourcing_epic_id integer,
     confidential boolean DEFAULT false NOT NULL,
-    external_key character varying(255),
-    CONSTRAINT check_fcfb4a93ff CHECK ((lock_version IS NOT NULL))
+    external_key character varying(255)
 );
 
 CREATE SEQUENCE public.epics_id_seq
@@ -12390,8 +12386,7 @@ CREATE TABLE public.issues (
     promoted_to_epic_id integer,
     health_status smallint,
     external_key character varying(255),
-    sprint_id bigint,
-    CONSTRAINT check_fba63f706d CHECK ((lock_version IS NOT NULL))
+    sprint_id bigint
 );
 
 CREATE SEQUENCE public.issues_id_seq
@@ -12974,8 +12969,7 @@ CREATE TABLE public.merge_requests (
     state_id smallint DEFAULT 1 NOT NULL,
     rebase_jid character varying,
     squash_commit_sha bytea,
-    sprint_id bigint,
-    CONSTRAINT check_970d272570 CHECK ((lock_version IS NOT NULL))
+    sprint_id bigint
 );
 
 CREATE TABLE public.merge_requests_closing_issues (
@@ -19248,6 +19242,8 @@ CREATE INDEX index_epics_on_iid ON public.epics USING btree (iid);
 
 CREATE INDEX index_epics_on_last_edited_by_id ON public.epics USING btree (last_edited_by_id);
 
+CREATE INDEX index_epics_on_lock_version ON public.epics USING btree (lock_version) WHERE (lock_version IS NULL);
+
 CREATE INDEX index_epics_on_parent_id ON public.epics USING btree (parent_id);
 
 CREATE INDEX index_epics_on_start_date ON public.epics USING btree (start_date);
@@ -19494,6 +19490,8 @@ CREATE INDEX index_issues_on_duplicated_to_id ON public.issues USING btree (dupl
 
 CREATE INDEX index_issues_on_last_edited_by_id ON public.issues USING btree (last_edited_by_id);
 
+CREATE INDEX index_issues_on_lock_version ON public.issues USING btree (lock_version) WHERE (lock_version IS NULL);
+
 CREATE INDEX index_issues_on_milestone_id ON public.issues USING btree (milestone_id);
 
 CREATE INDEX index_issues_on_moved_to_id ON public.issues USING btree (moved_to_id) WHERE (moved_to_id IS NOT NULL);
@@ -19655,6 +19653,8 @@ CREATE INDEX index_merge_requests_on_description_trigram ON public.merge_request
 CREATE INDEX index_merge_requests_on_head_pipeline_id ON public.merge_requests USING btree (head_pipeline_id);
 
 CREATE INDEX index_merge_requests_on_latest_merge_request_diff_id ON public.merge_requests USING btree (latest_merge_request_diff_id);
+
+CREATE INDEX index_merge_requests_on_lock_version ON public.merge_requests USING btree (lock_version) WHERE (lock_version IS NULL);
 
 CREATE INDEX index_merge_requests_on_merge_user_id ON public.merge_requests USING btree (merge_user_id) WHERE (merge_user_id IS NOT NULL);
 
@@ -20677,6 +20677,12 @@ CREATE UNIQUE INDEX term_agreements_unique_index ON public.term_agreements USING
 CREATE INDEX tmp_build_stage_position_index ON public.ci_builds USING btree (stage_id, stage_idx) WHERE (stage_idx IS NOT NULL);
 
 CREATE INDEX tmp_idx_on_user_id_where_bio_is_filled ON public.users USING btree (id) WHERE ((COALESCE(bio, ''::character varying))::text IS DISTINCT FROM ''::text);
+
+CREATE INDEX tmp_index_ci_builds_lock_version ON public.ci_builds USING btree (id) WHERE (lock_version IS NULL);
+
+CREATE INDEX tmp_index_ci_pipelines_lock_version ON public.ci_pipelines USING btree (id) WHERE (lock_version IS NULL);
+
+CREATE INDEX tmp_index_ci_stages_lock_version ON public.ci_stages USING btree (id) WHERE (lock_version IS NULL);
 
 CREATE INDEX tmp_index_for_email_unconfirmation_migration ON public.emails USING btree (id) WHERE (confirmed_at IS NOT NULL);
 
@@ -23755,15 +23761,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200605160851
 20200608072931
 20200608075553
-20200608195222
-20200608203426
-20200608205813
-20200608212030
-20200608212435
-20200608212549
-20200608212652
-20200608212807
-20200608212824
 20200608214008
 20200609002841
 20200609012539
