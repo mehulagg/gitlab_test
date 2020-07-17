@@ -95,6 +95,7 @@ class GitlabSchema < GraphQL::Schema
     #
     # Options:
     #  * :expected_type [Class] - the type of object this GlobalID should refer to.
+    #      it can be a single type or an array of types
     #
     # e.g.
     #
@@ -104,18 +105,16 @@ class GitlabSchema < GraphQL::Schema
     #   gid.model_class == ::Project
     # ```
     def parse_gid(global_id, ctx = {})
-      expected_type = ctx[:expected_type]
+      expected_types = Array.wrap(ctx[:expected_type])
       gid = GlobalID.parse(global_id)
 
       raise Gitlab::Graphql::Errors::ArgumentError, "#{global_id} is not a valid GitLab id." unless gid
+      return gid unless expected_types.present?
+      return gid if expected_types.any? { |type| gid.model_class.ancestors.include?(type) }
 
-      if expected_type && !gid.model_class.ancestors.include?(expected_type)
-        vars = { global_id: global_id, expected_type: expected_type }
-        msg = _('%{global_id} is not a valid id for %{expected_type}.') % vars
-        raise Gitlab::Graphql::Errors::ArgumentError, msg
-      end
-
-      gid
+      vars = { global_id: global_id, expected_type: expected_types.join(', ') }
+      msg = _('%{global_id} is not a valid id for %{expected_type}.') % vars
+      raise Gitlab::Graphql::Errors::ArgumentError, msg
     end
 
     private
