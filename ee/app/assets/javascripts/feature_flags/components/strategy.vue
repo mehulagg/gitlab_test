@@ -157,6 +157,9 @@ export default {
     },
   },
   methods: {
+    addEnvironment(environment) {
+      this.environments.push({ environmentScope: environment });
+    },
     removeEnvironment(environment) {
       if (isNumber(environment.id)) {
         Vue.set(environment, 'shouldBeDestroyed', true);
@@ -164,10 +167,7 @@ export default {
         this.environments = this.environments.filter(e => e !== environment);
       }
     },
-    addEnvironment(environment) {
-      this.environments.push({ environmentScope: environment });
-    },
-    setDefaultEnvironment() {
+    addDefaultEnvironment() {
       const allEnvironmentsScope = this.environments.find(scope => scope.environmentScope === '*');
       if (allEnvironmentsScope) {
         Vue.set(allEnvironmentsScope, 'shouldBeDestroyed', false);
@@ -194,7 +194,7 @@ export default {
       this.removeEnvironment(environment);
 
       if (this.appliesToNoEnvironments) {
-        this.setDefaultEnvironment();
+        this.addDefaultEnvironment();
       }
 
       this.onStrategyChange();
