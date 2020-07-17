@@ -15,58 +15,89 @@ RSpec.describe SearchController, type: :request do
     get search_path, params: params
   end
 
+  shared_examples 'an efficient database result' do
+    it 'avoids N+1 database queries' do
+      create_list(object, 5, *creation_traits, creation_args)
+
+      ensure_elasticsearch_index! if elastic_search_enabled
+
+      control = ActiveRecord::QueryRecorder.new(skip_cached: false) { send_search_request(params) }
+      create_list(object, 5, *creation_traits, creation_args)
+
+      ensure_elasticsearch_index! if elastic_search_enabled
+
+      expect { send_search_request(path) }.not_to exceed_all_query_limit(control).with_threshold(threshold)
+    end
+  end
+
   describe 'GET /search' do
-    context 'when elasticsearch is enabled', :elastic, :sidekiq_inline do
-      before do
-        stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
+    let(:creation_traits) { [] }
+    let(:elastic_search_enabled) { false }
+
+    context 'for issues scope' do
+      let(:object) { :issue }
+      let(:creation_args) { { project: project } }
+      let(:params) { { search: '*', scope: 'issues' } }
+      let(:threshold) { 0 }
+
+      context 'when elasticsearch is not enabled' do
+        it_behaves_like 'an efficient database result'
       end
 
-      context 'for merge_request scope' do
+      context 'when elasticsearch is enabled', :elastic, :sidekiq_inline do
         before do
-          create(:merge_request, target_branch: 'feature_1', source_project: project)
-          create(:merge_request, target_branch: 'feature_2', source_project: project)
-          create(:merge_request, target_branch: 'feature_3', source_project: project)
-          create(:merge_request, target_branch: 'feature_4', source_project: project)
-          ensure_elasticsearch_index!
+          stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
         end
+        let(:elastic_search_enabled) { true }
 
-        it 'avoids N+1 queries' do
-          control = ActiveRecord::QueryRecorder.new(skip_cached: false) { send_search_request(scope: 'merge_requests', search: '*') }
+        it_behaves_like 'an efficient database result'
+      end
+    end
 
-          create(:merge_request, target_branch: 'feature_5', source_project: project)
-          create(:merge_request, target_branch: 'feature_6', source_project: project)
-          create(:merge_request, target_branch: 'feature_7', source_project: project)
-          create(:merge_request, target_branch: 'feature_8', source_project: project)
+    context 'for merge_request scope' do
+      let(:creation_traits) { [:unique_branches] }
+      let(:object) { :merge_request }
+      let(:creation_args) { { source_project: project } }
+      let(:params) { { search: '*', scope: 'merge_requests' } }
+      let(:threshold) { 0 }
 
-          ensure_elasticsearch_index!
-
-          # some N+1 queries still exist
-          expect { send_search_request(scope: 'merge_requests', search: '*') }
-            .not_to exceed_all_query_limit(control)
-        end
+      context 'when elasticsearch is not enabled' do
+        it_behaves_like 'an efficient database result'
       end
 
-      context 'for project scope' do
+      context 'when elasticsearch is enabled', :elastic, :sidekiq_inline do
         before do
-          create(:project, :public)
-          ensure_elasticsearch_index!
+          stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
         end
+        let(:elastic_search_enabled) { true }
 
-        it 'avoids N+1 queries' do
-          control = ActiveRecord::QueryRecorder.new(skip_cached: false) { send_search_request(scope: 'project', search: '*') }
+        it_behaves_like 'an efficient database result'
+      end
+    end
 
-          create_list(:project, 3, :public)
+    context 'for project scope' do
+      let(:creation_traits) { [:public] }
+      let(:object) { :project }
+      let(:creation_args) { {} }
+      let(:params) { { search: '*', scope: 'projects' } }
+      # some N+1 queries still exist
+      # each project requires 3 extra queries
+      #   - one count for forks
+      #   - one count for open MRs
+      #   - one count for open Issues
+      let(:threshold) { 15 }
 
-          ensure_elasticsearch_index!
+      context 'when elasticsearch is not enabled' do
+        it_behaves_like 'an efficient database result'
+      end
 
-          # some N+1 queries still exist
-          # each project requires 3 extra queries
-          #   - one count for forks
-          #   - one count for open MRs
-          #   - one count for open Issues
-          expect { send_search_request(scope: 'project', search: '*') }
-            .not_to exceed_all_query_limit(control).with_threshold(9)
+      context 'when elasticsearch is enabled', :elastic, :sidekiq_inline do
+        before do
+          stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
         end
+        let(:elastic_search_enabled) { true }
+
+        it_behaves_like 'an efficient database result'
       end
     end
   end
