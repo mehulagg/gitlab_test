@@ -111,6 +111,7 @@ export default {
     }"
     :index="index"
     :data-issue-id="issue.id"
+    :data-epic-issue-id="issue.epicIssueId"
     data-qa-selector="board_card"
     class="board-card p-3 rounded"
     @mousedown="mouseDown"

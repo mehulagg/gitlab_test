@@ -45,7 +45,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['epics', 'issuesByListId', 'isLoadingIssues']),
+    ...mapState(['epics', 'issuesByListId', 'isLoadingIssues', 'issuesByEpicId']),
     unassignedIssuesCount() {
       return this.lists.reduce((total, list) => total + this.unassignedIssues(list).length, 0);
     },
@@ -100,6 +100,7 @@ export default {
         :epic="epic"
         :lists="lists"
         :issues="issuesByListId"
+        :epic-issues="issuesByEpicId[epic.id] || []"
         :is-loading-issues="isLoadingIssues"
         :disabled="disabled"
         :root-path="rootPath"

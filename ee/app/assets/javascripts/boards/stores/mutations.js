@@ -84,5 +84,32 @@ export default {
 
   [mutationTypes.RECEIVE_EPICS_SUCCESS]: (state, epics) => {
     state.epics = epics;
+    state.issuesByEpicId = epics.reduce((map, epic) => ({
+      ...map,
+      [epic.id]: epic.issues,
+    }), {});
+  },
+
+  [mutationTypes.MOVE_ISSUE_EPIC_SWIMLANE]: (state, { listId, epicFromId, epicToId, targetIssueId, oldIndex, newIndex, isFirstChild }) => {
+    state.issuesByListId[listId].find(issue => issue.id === targetIssueId).epic = { id: epicToId };
+  },
+
+  [mutationTypes.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE]: (state, {listId, targetIssueId, epicFromId}) => {
+    state.issuesByListId[listId].find(issue => issue.id === targetIssueId).epic = { id: epicFromId };
+  },
+
+  [mutationTypes.RECEIVE_ISSUES_FOR_ALL_LISTS_SUCCESS]: (state, listIssues) => {
+    /* eslint-disable no-unused-vars */
+    Object.entries(listIssues).forEach(([key, value]) => {
+      value.forEach(issue => {
+        if (issue.epic?.id && state.issuesByEpicId[issue.epic.id]) {
+          const { epicIssueId } = state.issuesByEpicId[issue.epic.id].find(i => i.id === issue.idOriginal);
+          issue.updateData({ epicIssueId });
+        }
+      })
+    });
+
+    state.issuesByListId = listIssues;
+    state.isLoadingIssues = false;
   },
 };

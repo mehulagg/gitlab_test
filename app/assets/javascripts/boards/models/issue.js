@@ -21,6 +21,7 @@ class ListIssue {
     };
     this.closed = obj.closed;
     this.isLoading = {};
+    this.epicIssueId = obj.epicIssueId;
 
     this.refreshData(obj);
   }

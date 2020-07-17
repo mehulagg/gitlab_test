@@ -31,6 +31,10 @@ export default {
       type: Object,
       required: true,
     },
+    epicIssues: {
+      type: Array,
+      required: true,
+    },
     isLoadingIssues: {
       type: Boolean,
       required: false,
@@ -160,6 +164,7 @@ export default {
         :is-loading="isLoadingIssues"
         :disabled="disabled"
         :root-path="rootPath"
+        :epic-id="epic.id"
       />
     </div>
   </div>

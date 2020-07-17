@@ -70,6 +70,7 @@ export default {
                 new ListIssue({
                   ...i,
                   id: Number(i.id.match(/\d+$/)[0]),
+                  idOriginal: i.id,
                   labels: i.labels?.nodes || [],
                   assignees: i.assignees?.nodes || [],
                 }),

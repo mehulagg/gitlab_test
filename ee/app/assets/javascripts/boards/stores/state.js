@@ -8,4 +8,5 @@ export default () => ({
   epicsSwimlanesFetchFailure: false,
   boardLists: [],
   epics: {},
+  issuesByEpicId: {},
 });

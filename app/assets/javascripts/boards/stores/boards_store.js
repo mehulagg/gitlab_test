@@ -854,6 +854,7 @@ const boardsStore = {
   refreshIssueData(issue, obj) {
     issue.id = obj.id;
     issue.iid = obj.iid;
+    issue.idOriginal = obj.idOriginal || obj.id;
     issue.title = obj.title;
     issue.confidential = obj.confidential;
     issue.dueDate = obj.due_date || obj.dueDate;

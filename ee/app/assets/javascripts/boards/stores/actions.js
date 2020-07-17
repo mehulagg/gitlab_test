@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { sortBy } from 'lodash';
+import flash from '~/flash';
+import { __ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
 import actionsCE from '~/boards/stores/actions';
 import boardsStoreEE from './boards_store_ee';
@@ -9,6 +11,7 @@ import createDefaultClient from '~/lib/graphql';
 import { BoardType } from '~/boards/constants';
 import groupEpicsSwimlanesQuery from '../queries/group_epics_swimlanes.query.graphql';
 import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
+import epicChildReorderQuery from '../../related_items_tree/queries/epicChildReorder.mutation.graphql'
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -112,7 +115,10 @@ export default {
             dispatch('receiveEpicsSuccess', epics);
           }
         })
-        .catch(() => dispatch('receiveSwimlanesFailure'));
+        .catch((e) => {
+          console.log('ERROR', e);
+          dispatch('receiveSwimlanesFailure')
+        });
     }
   },
 
@@ -126,5 +132,74 @@ export default {
 
   receiveEpicsSuccess: ({ commit }, swimlanes) => {
     commit(types.RECEIVE_EPICS_SUCCESS, swimlanes);
+  },
+
+  moveIssueEpicSwimlane: ({ commit, state }, { listId, epicFromId, epicToId, targetIssueId, epicIssueId, oldIndex, newIndex }) => {
+    let adjacentItem;
+    let adjacentReferenceId;
+    let relativePosition = 'after';
+
+    let isFirstChild = false;
+    const newParentChildren = state.epics.find(epic => epic.id === epicToId).issues;
+
+    if (newParentChildren?.length > 0) {
+      adjacentItem = newParentChildren[newIndex];
+      if (!adjacentItem) {
+        adjacentItem = newParentChildren[newParentChildren.length - 1];
+        relativePosition = 'before';
+      }
+      adjacentReferenceId = adjacentItem.id;
+    } else {
+      isFirstChild = true;
+      relativePosition = 'before';
+    }
+
+    commit(types.MOVE_ISSUE_EPIC_SWIMLANE, {
+      listId,
+      epicFromId,
+      epicToId,
+      targetIssueId,
+      oldIndex,
+      newIndex,
+      isFirstChild,
+    });
+
+    return gqlClient
+      .mutate({
+        mutation: epicChildReorderQuery,
+        variables: {
+          epicTreeReorderInput: {
+            baseEpicId: epicFromId,
+            moved: {
+              id: epicIssueId,
+              // adjacentReferenceId,
+              relativePosition,
+              newParentId: epicToId,
+            },
+          },
+        },
+      })
+      .then(({ data }) => {
+        // Mutation was unsuccessful;
+        // revert to original epic
+        if (data.epicTreeReorder.errors.length) {
+          commit(types.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE, {
+            listId,
+            epicFromId,
+            targetIssueId,
+          });
+          flash(__('Something went wrong while moving issue.'));
+        }
+      })
+      .catch(() => {
+        // Mutation was unsuccessful;
+        // revert to original epic
+        commit(types.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE, {
+          listId,
+          epicFromId,
+          targetIssueId,
+        });
+        flash(__('Something went wrong while moving issue.'));
+      });
   },
 };

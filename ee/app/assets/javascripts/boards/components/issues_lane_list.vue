@@ -1,4 +1,8 @@
 <script>
+import Draggable from 'vuedraggable';
+import defaultSortableConfig from '~/sortable/sortable_config';
+
+import { mapActions } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
 import eventHub from '~/boards/eventhub';
 import BoardCard from '~/boards/components/board_card.vue';
@@ -42,11 +46,35 @@ export default {
       type: String,
       required: true,
     },
+    epicId: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   data() {
     return {
       showIssueForm: false,
     };
+  },
+  computed: {
+    treeRootWrapper() {
+      return Draggable;
+    },
+    treeRootOptions() {
+      const options = {
+        ...defaultSortableConfig,
+        fallbackOnBody: false,
+        group: 'board-epics-swimlanes',
+        tag: 'ul',
+        'ghost-class': 'tree-item-drag-active',
+        'data-epic-id': this.epicId,
+        'data-list-id': this.list.id,
+        value: this.issues,
+      };
+
+      return options;
+    },
   },
   created() {
     eventHub.$on(`toggle-issue-form-${this.list.id}`, this.toggleForm);
@@ -55,12 +83,29 @@ export default {
     eventHub.$off(`toggle-issue-form-${this.list.id}`, this.toggleForm);
   },
   methods: {
+    ...mapActions(['moveIssueEpicSwimlane']),
     toggleForm() {
       this.showIssueForm = !this.showIssueForm;
       if (this.showIssueForm && this.isUnassignedIssuesLane) {
         this.$el.scrollIntoView(false);
       }
     },
+    handleDragOnEnd(params) {
+      const { oldIndex, newIndex, from, to, item } = params;
+      const { issueId, epicIssueId } = item.dataset;
+
+      if (epicIssueId) {
+        this.moveIssueEpicSwimlane({
+          listId: to.dataset.listId,
+          epicFromId: from.dataset.epicId,
+          epicToId: to.dataset.epicId,
+          targetIssueId: Number(issueId),
+          epicIssueId,
+          oldIndex,
+          newIndex,
+        });
+      }
+    }
   },
 };
 </script>
@@ -77,7 +122,13 @@ export default {
         :group-id="groupId"
         :list="list"
       />
-      <ul v-if="list.isExpanded" class="gl-p-2 gl-m-0">
+      <component
+        :is="treeRootWrapper"
+        v-if="list.isExpanded"
+        v-bind="treeRootOptions"
+        class="gl-p-2 gl-m-0"
+        @end="handleDragOnEnd"
+      >
         <board-card
           v-for="(issue, index) in issues"
           ref="issue"
@@ -86,7 +137,7 @@ export default {
           :list="list"
           :issue="issue"
         />
-      </ul>
+      </component>
     </div>
   </div>
 </template>
