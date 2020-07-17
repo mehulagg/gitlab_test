@@ -229,7 +229,7 @@ describe('Feature flags strategy', () => {
         wrapper.find(GlToken).vm.$emit('close');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.text()).toMatch(/All environments/);
+        expect(wrapper.text()).toMatch('All environments');
       });
     });
 
