@@ -98,9 +98,6 @@ if (specFilters.length) {
 
   const CE_FILES = filteredSpecFiles.filter(file => !file.startsWith('ee'));
   createContext(CE_FILES, /[^e]{2}[\\\/]spec[\\\/]javascripts$/, 'spec/javascripts');
-
-  const EE_FILES = filteredSpecFiles.filter(file => file.startsWith('ee'));
-  createContext(EE_FILES, /ee[\\\/]spec[\\\/]javascripts$/, 'ee/spec/javascripts');
 }
 
 // Karma configuration
@@ -141,7 +138,6 @@ module.exports = function(config) {
     },
     preprocessors: {
       'spec/javascripts/**/*.js': ['webpack', 'sourcemap'],
-      'ee/spec/javascripts/**/*.js': ['webpack', 'sourcemap'],
     },
     reporters: ['mocha'],
     webpack: webpackConfig,

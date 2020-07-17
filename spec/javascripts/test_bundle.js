@@ -107,10 +107,6 @@ const axiosDefaultAdapter = getDefaultAdapter();
 // render all of our tests
 const testContexts = [require.context('spec', true, /_spec$/)];
 
-if (process.env.IS_EE) {
-  testContexts.push(require.context('ee_spec', true, /_spec$/));
-}
-
 testContexts.forEach(context => {
   context.keys().forEach(path => {
     try {

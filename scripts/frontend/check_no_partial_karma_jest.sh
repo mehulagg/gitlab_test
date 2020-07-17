@@ -2,10 +2,6 @@
 
 karma_directory=spec/javascripts
 
-if [ -d ee ]; then
-  karma_directory="$karma_directory ee/$karma_directory"
-fi
-
 karma_files=$(find $karma_directory -type f -name '*_spec.js' -not -path '*/helpers/*')
 violations=""
 
