@@ -27,7 +27,7 @@ export default {
   },
   computed: {
     ...mapState('embedGroup', ['module']),
-    ...mapGetters('embedGroup', ['metricsWithData']),
+    ...mapGetters('embedGroup', ['panelsWithData']),
     arrowIconName() {
       return this.isCollapsed ? 'chevron-right' : 'chevron-down';
     },
@@ -43,10 +43,10 @@ export default {
       return this.isSingleChart ? 'col-lg-12' : 'col-lg-6';
     },
     numCharts() {
-      if (this.metricsWithData === null) {
+      if (this.panelsWithData === null) {
         return 0;
       }
-      return sum(this.metricsWithData);
+      return sum(this.panelsWithData);
     },
     isSingleChart() {
       return this.numCharts === 1;
@@ -96,6 +96,7 @@ export default {
         :namespace="getNamespace(index)"
         :container-class="containerClass"
       />
+      <span>Panels: {{ panelsWithData.length }}</span>
     </div>
   </gl-card>
 </template>
