@@ -275,7 +275,7 @@ class ProjectsController < Projects::ApplicationController
     options = {}
 
     if find_branches
-      branches = BranchesFinder.new(@repository, params).execute.take(100).map(&:name)
+      branches = BranchesFinder.new(@repository, params.merge(default_branch_first: true)).execute.take(100).map(&:name)
       options['Branches'] = branches
     end
 

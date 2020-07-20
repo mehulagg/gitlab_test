@@ -6,17 +6,38 @@ class BranchesFinder < GitRefsFinder
   end
 
   def execute(gitaly_pagination: false)
-    if gitaly_pagination && names.blank? && search.blank?
-      repository.branches_sorted_by(sort, pagination_params)
-    else
-      branches = repository.branches_sorted_by(sort)
-      branches = by_search(branches)
-      branches = by_names(branches)
-      branches
-    end
+    branches =
+      if gitaly_pagination && names.blank? && search.blank?
+        repository.branches_sorted_by(sort, pagination_params)
+      else
+        branches = repository.branches_sorted_by(sort)
+        branches = by_search(branches)
+        by_names(branches)
+      end
+
+    sort_default_first(branches)
   end
 
   private
+
+  def project
+    @project ||= repository.project
+  end
+
+  def sort_default_first(branches)
+    return branches unless project.show_default_branch_first?
+    return branches unless project.default_branch.present?
+
+    branches.sort do |a, b|
+      if a.name == project.default_branch
+        -1
+      elsif b.name == project.default_branch
+        1
+      else
+        0
+      end
+    end
+  end
 
   def names
     @params[:names].presence

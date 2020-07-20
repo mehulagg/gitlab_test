@@ -390,7 +390,8 @@ class Project < ApplicationRecord
   delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
   delegate :allow_merge_on_skipped_pipeline, :allow_merge_on_skipped_pipeline?,
     :allow_merge_on_skipped_pipeline=, :has_confluence?,
-    to: :project_setting
+    :show_default_branch_first, :show_default_branch_first=,
+    :show_default_branch_first?, to: :project_setting
   delegate :active?, to: :prometheus_service, allow_nil: true, prefix: true
 
   delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
