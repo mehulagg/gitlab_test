@@ -16,6 +16,7 @@ class Snippet < ApplicationRecord
   include IgnorableColumns
   include HasRepository
   include AfterCommitQueue
+  include Importable
   extend ::Gitlab::Utils::Override
 
   MAX_FILE_COUNT = 10
@@ -70,7 +71,7 @@ class Snippet < ApplicationRecord
 
   validates :visibility_level, inclusion: { in: Gitlab::VisibilityLevel.values }
 
-  after_save :store_mentions!, if: :any_mentionable_attributes_changed?
+  after_save :store_mentions!, if: :any_mentionable_attributes_changed?, unless: :importing?
   after_create :create_statistics
 
   # Scopes

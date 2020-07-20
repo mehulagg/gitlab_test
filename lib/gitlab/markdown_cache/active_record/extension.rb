@@ -4,12 +4,14 @@ module Gitlab
   module MarkdownCache
     module ActiveRecord
       module Extension
+        include Importable
+
         extend ActiveSupport::Concern
 
         included do
           # Using before_update here conflicts with elasticsearch-model somehow
-          before_create :refresh_markdown_cache, if: :invalidated_markdown_cache?
-          before_update :refresh_markdown_cache, if: :invalidated_markdown_cache?
+          before_create :refresh_markdown_cache, if: :invalidated_markdown_cache?, unless: :importing?
+          before_update :refresh_markdown_cache, if: :invalidated_markdown_cache?, unless: :importing?
         end
 
         # Always exclude _html fields from attributes (including serialization).

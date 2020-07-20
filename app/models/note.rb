@@ -159,7 +159,7 @@ class Note < ApplicationRecord
   after_save :expire_etag_cache, unless: :importing?
   after_save :touch_noteable, unless: :importing?
   after_destroy :expire_etag_cache
-  after_save :store_mentions!, if: :any_mentionable_attributes_changed?
+  after_save :store_mentions!, if: :any_mentionable_attributes_changed?, unless: :importing?
   after_commit :notify_after_create, on: :create
   after_commit :notify_after_destroy, on: :destroy
 
