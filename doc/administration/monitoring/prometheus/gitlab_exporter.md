@@ -30,4 +30,18 @@ To enable the GitLab exporter in an Omnibus GitLab instance:
    for the changes to take effect.
 
 Prometheus automatically begins collecting performance data from
-the GitLab exporter exposed at `localhost:9168`.
+the GitLab exporter metrics exposed at `localhost:9168/metrics`.
+
+Note that GitLab Exporter, in additon to /metrics endpoint, also exposes the following endpoints:
+
+/database
+/git_process
+/process
+/sidekiq
+
+All of them combined are making up the /metrics endpoint.
+
+Note that, however, for Omnibus installations, /git_process endpoint is always going to be empty. Metrics
+exposed through it (git_pull_time_milliseconds, git_push_time_milliseconds and process_count (for Git processes))
+are not configured out-of-the-box for Omnibus installations and are outside of scope for support for now. You are
+more than welcome to play around with the exporter configuration on your own though to make them work for your instance.
