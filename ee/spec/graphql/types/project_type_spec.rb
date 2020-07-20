@@ -47,6 +47,8 @@ RSpec.describe GitlabSchema.types['Project'] do
       project.add_developer(user)
       create(:ci_build, :sast, pipeline: pipeline, status: 'success')
       create(:ci_build, :dast, pipeline: pipeline, status: 'success')
+      create(:ci_build, :license_scanning, pipeline: pipeline, status: 'success')
+      create(:ci_build, :license_management, pipeline: pipeline, status: 'success')
       create(:ci_build, :secret_detection, pipeline: pipeline, status: 'pending')
     end
 
