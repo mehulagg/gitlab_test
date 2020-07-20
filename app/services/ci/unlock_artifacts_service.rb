@@ -17,7 +17,10 @@ module Ci
       SQL
 
       loop do
-        break if ActiveRecord::Base.connection.exec_query(query).empty?
+        rows = ActiveRecord::Base.connection.exec_query(query).rows
+        break if rows.empty?
+
+        schedule_artifacts_removal(rows.flatten)
       end
     end
 
@@ -29,5 +32,16 @@ module Ci
 
       pipeline_scope.artifacts_locked
     end
+
+    # rubocop: disable CodeReuse/ActiveRecord
+    def schedule_artifacts_removal(pipeline_ids)
+      Ci::JobArtifact
+        .select(:id, :expire_at)
+        .joins(:job)
+        .merge(Ci::Build.where(pipeline_id: pipeline_ids))
+        .where.not(expire_at: nil)
+        .each_batch { |batch| Gitlab::Ci::JobArtifactsExpirationQueue.schedule_removal(batch) }
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end

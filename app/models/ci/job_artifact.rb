@@ -8,6 +8,7 @@ module Ci
     include UsageStatistics
     include Sortable
     include IgnorableColumns
+    include EachBatch
     extend Gitlab::Ci::Model
 
     NotSupportedAdapterError = Class.new(StandardError)
@@ -113,6 +114,7 @@ module Ci
 
     belongs_to :project
     belongs_to :job, class_name: "Ci::Build", foreign_key: :job_id
+    has_one :pipeline, through: :job
 
     mount_uploader :file, JobArtifactUploader
 
@@ -124,6 +126,7 @@ module Ci
     update_project_statistics project_statistics_name: :build_artifacts_size
 
     after_save :update_file_store, if: :saved_change_to_file?
+    after_commit :manage_removal, on: [:create, :update], if: -> { previous_changes.key?(:expire_at) }
 
     scope :not_expired, -> { where('expire_at IS NULL OR expire_at > ?', Time.current) }
     scope :with_files_stored_locally, -> { where(file_store: ::JobArtifactUploader::Store::LOCAL) }
@@ -326,6 +329,16 @@ module Ci
     def project_destroyed?
       # Use job.project to avoid extra DB query for project
       job.project.pending_delete?
+    end
+
+    def manage_removal
+      _old_expire_at, new_expire_at = previous_changes[:expire_at]
+
+      if new_expire_at && pipeline.unlocked?
+        Gitlab::Ci::JobArtifactsExpirationQueue.schedule_removal(self)
+      else
+        Gitlab::Ci::JobArtifactsExpirationQueue.cancel_removal(self)
+      end
     end
   end
 end

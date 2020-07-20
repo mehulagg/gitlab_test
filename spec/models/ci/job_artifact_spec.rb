@@ -479,6 +479,38 @@ RSpec.describe Ci::JobArtifact do
     end
   end
 
+  describe 'file is being scheduled for removal' do
+    context 'when creating a new artifact' do
+      let(:artifact) { build(:ci_job_artifact, :archive, expire_at: 1.day.since) }
+
+      it 'schedules removal' do
+        expect(Gitlab::Ci::JobArtifactsExpirationQueue).to receive(:schedule_removal).with(artifact)
+
+        artifact.save!
+      end
+    end
+
+    context 'when keeping an artifact' do
+      let!(:artifact) { create(:ci_job_artifact, :archive, expire_at: 1.day.since) }
+
+      it 'cancels the removal' do
+        expect(Gitlab::Ci::JobArtifactsExpirationQueue).to receive(:cancel_removal).with(artifact)
+
+        artifact.update!(expire_in: nil)
+      end
+    end
+
+    context 'when updating the expire_at timestamp' do
+      let!(:artifact) { build(:ci_job_artifact, :archive, expire_at: 1.day.since) }
+
+      it 'reschedules removal' do
+        expect(Gitlab::Ci::JobArtifactsExpirationQueue).to receive(:schedule_removal).with(artifact)
+
+        artifact.update!(expire_at: 2.days.since)
+      end
+    end
+  end
+
   describe 'file is being stored' do
     subject { create(:ci_job_artifact, :archive) }
 

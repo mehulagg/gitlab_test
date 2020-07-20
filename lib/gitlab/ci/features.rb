@@ -73,6 +73,10 @@ module Gitlab
       def self.allow_to_create_merge_request_pipelines_in_target_project?(target_project)
         ::Feature.enabled?(:ci_allow_to_create_merge_request_pipelines_in_target_project, target_project)
       end
+
+      def self.parallelize_artifacts_removal?
+        ::Feature.enabled?(:ci_parallelize_artifacts_removal, default_enabled: true)
+      end
     end
   end
 end
