@@ -6,6 +6,12 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
+        field :securityScanners, ::Types::SecurityScanners, null: true,
+          description: 'Information about security analyzers used in the project',
+          resolve: -> (project, _args, ctx) do
+            project
+          end
+
         field :vulnerabilities,
               ::Types::VulnerabilityType.connection_type,
               null: true,
@@ -41,10 +47,6 @@ module EE
 
                 Hash.new(0).merge(project.requirements.counts_by_state)
               end
-
-        field :packages, ::Types::PackageType.connection_type, null: true,
-              description: 'Packages of the project',
-              resolver: ::Resolvers::PackagesResolver
 
         field :compliance_frameworks, ::Types::ComplianceManagement::ComplianceFrameworkType.connection_type,
               description: 'Compliance frameworks associated with the project',

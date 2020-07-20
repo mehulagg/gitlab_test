@@ -8,10 +8,10 @@ import MrWidgetLicenses from 'ee/vue_shared/license_compliance/mr_widget_license
 import ReportSection from '~/reports/components/report_section.vue';
 import BlockingMergeRequestsReport from './components/blocking_merge_requests/blocking_merge_requests_report.vue';
 
-import { n__, s__, __, sprintf } from '~/locale';
+import { s__, __, sprintf } from '~/locale';
 import CEWidgetOptions from '~/vue_merge_request_widget/mr_widget_options.vue';
-import MrWidgetApprovals from './components/approvals/approvals.vue';
 import MrWidgetGeoSecondaryNode from './components/states/mr_widget_secondary_geo_node.vue';
+import MrWidgetPolicyViolation from './components/states/mr_widget_policy_violation.vue';
 import MergeTrainHelperText from './components/merge_train_helper_text.vue';
 import { MTWPS_MERGE_STRATEGY } from '~/vue_merge_request_widget/constants';
 
@@ -19,8 +19,8 @@ export default {
   components: {
     MergeTrainHelperText,
     MrWidgetLicenses,
-    MrWidgetApprovals,
     MrWidgetGeoSecondaryNode,
+    MrWidgetPolicyViolation,
     BlockingMergeRequestsReport,
     GroupedSecurityReportsApp,
     GroupedMetricsReportsApp,
@@ -31,32 +31,16 @@ export default {
   componentNames,
   data() {
     return {
-      isLoadingCodequality: false,
       isLoadingBrowserPerformance: false,
-      loadingCodequalityFailed: false,
+      isLoadingLoadPerformance: false,
       loadingBrowserPerformanceFailed: false,
+      loadingLoadPerformanceFailed: false,
       loadingLicenseReportFailed: false,
     };
   },
   computed: {
-    shouldRenderApprovals() {
-      return this.mr.hasApprovalsAvailable && this.mr.state !== 'nothingToMerge';
-    },
-    shouldRenderCodeQuality() {
-      const { codeclimate } = this.mr || {};
-      return codeclimate && codeclimate.head_path;
-    },
     shouldRenderLicenseReport() {
       return this.mr.enabledReports?.licenseScanning;
-    },
-    hasCodequalityIssues() {
-      return (
-        this.mr.codeclimateMetrics &&
-        ((this.mr.codeclimateMetrics.newIssues &&
-          this.mr.codeclimateMetrics.newIssues.length > 0) ||
-          (this.mr.codeclimateMetrics.resolvedIssues &&
-            this.mr.codeclimateMetrics.resolvedIssues.length > 0))
-      );
     },
     hasBrowserPerformanceMetrics() {
       return (
@@ -89,53 +73,24 @@ export default {
     shouldRenderBrowserPerformance() {
       return this.hasBrowserPerformancePaths && this.hasBrowserPerformanceDegradation;
     },
+    hasLoadPerformanceMetrics() {
+      return (
+        this.mr.loadPerformanceMetrics?.degraded?.length > 0 ||
+        this.mr.loadPerformanceMetrics?.improved?.length > 0 ||
+        this.mr.loadPerformanceMetrics?.same?.length > 0
+      );
+    },
+    hasLoadPerformancePaths() {
+      const loadPerformance = this.mr?.loadPerformance || {};
+
+      return Boolean(loadPerformance.head_path && loadPerformance.base_path);
+    },
     shouldRenderSecurityReport() {
       const { enabledReports } = this.mr;
       return (
         enabledReports &&
         this.$options.securityReportTypes.some(reportType => enabledReports[reportType])
       );
-    },
-    codequalityText() {
-      const { newIssues, resolvedIssues } = this.mr.codeclimateMetrics;
-      const text = [];
-
-      if (!newIssues.length && !resolvedIssues.length) {
-        text.push(s__('ciReport|No changes to code quality'));
-      } else if (newIssues.length || resolvedIssues.length) {
-        text.push(s__('ciReport|Code quality'));
-
-        if (resolvedIssues.length) {
-          text.push(n__(' improved on %d point', ' improved on %d points', resolvedIssues.length));
-        }
-
-        if (newIssues.length > 0 && resolvedIssues.length > 0) {
-          text.push(__(' and'));
-        }
-
-        if (newIssues.length) {
-          text.push(n__(' degraded on %d point', ' degraded on %d points', newIssues.length));
-        }
-      }
-
-      return text.join('');
-    },
-    codequalityPopover() {
-      const { codeclimate } = this.mr || {};
-      if (codeclimate && !codeclimate.base_path) {
-        return {
-          title: s__('ciReport|Base pipeline codequality artifact not found'),
-          content: sprintf(
-            s__('ciReport|%{linkStartTag}Learn more about codequality reports %{linkEndTag}'),
-            {
-              linkStartTag: `<a href="${this.mr.codequalityHelpPath}" target="_blank" rel="noopener noreferrer">`,
-              linkEndTag: '<i class="fa fa-external-link" aria-hidden="true"></i></a>',
-            },
-            false,
-          ),
-        };
-      }
-      return {};
     },
 
     browserPerformanceText() {
@@ -163,14 +118,42 @@ export default {
       return [...text, ...reportNumbers.join(', ')].join('');
     },
 
-    codequalityStatus() {
-      return this.checkReportStatus(this.isLoadingCodequality, this.loadingCodequalityFailed);
+    loadPerformanceText() {
+      const { improved, degraded, same } = this.mr.loadPerformanceMetrics;
+      const text = [];
+      const reportNumbers = [];
+
+      if (improved.length || degraded.length || same.length) {
+        text.push(s__('ciReport|Load performance test metrics: '));
+
+        if (degraded.length > 0)
+          reportNumbers.push(
+            sprintf(s__('ciReport|%{degradedNum} degraded'), { degradedNum: degraded.length }),
+          );
+        if (same.length > 0)
+          reportNumbers.push(sprintf(s__('ciReport|%{sameNum} same'), { sameNum: same.length }));
+        if (improved.length > 0)
+          reportNumbers.push(
+            sprintf(s__('ciReport|%{improvedNum} improved'), { improvedNum: improved.length }),
+          );
+      } else {
+        text.push(s__('ciReport|Load performance test metrics: No changes'));
+      }
+
+      return [...text, ...reportNumbers.join(', ')].join('');
     },
 
     browserPerformanceStatus() {
       return this.checkReportStatus(
         this.isLoadingBrowserPerformance,
         this.loadingBrowserPerformanceFailed,
+      );
+    },
+
+    loadPerformanceStatus() {
+      return this.checkReportStatus(
+        this.isLoadingLoadPerformance,
+        this.loadingLoadPerformanceFailed,
       );
     },
 
@@ -188,14 +171,14 @@ export default {
     },
   },
   watch: {
-    shouldRenderCodeQuality(newVal) {
-      if (newVal) {
-        this.fetchCodeQuality();
-      }
-    },
     hasBrowserPerformancePaths(newVal) {
       if (newVal) {
         this.fetchBrowserPerformance();
+      }
+    },
+    hasLoadPerformancePaths(newVal) {
+      if (newVal) {
+        this.fetchLoadPerformance();
       }
     },
   },
@@ -205,42 +188,8 @@ export default {
 
       return {
         ...base,
-        apiApprovalsPath: store.apiApprovalsPath,
         apiApprovalSettingsPath: store.apiApprovalSettingsPath,
-        apiApprovePath: store.apiApprovePath,
-        apiUnapprovePath: store.apiUnapprovePath,
       };
-    },
-    fetchCodeQuality() {
-      const { codeclimate } = this.mr || {};
-
-      if (!codeclimate.base_path) {
-        this.isLoadingCodequality = false;
-        this.loadingCodequalityFailed = true;
-        return;
-      }
-
-      this.isLoadingCodequality = true;
-
-      Promise.all([
-        this.service.fetchReport(codeclimate.head_path),
-        this.service.fetchReport(codeclimate.base_path),
-      ])
-        .then(values =>
-          this.mr.compareCodeclimateMetrics(
-            values[0],
-            values[1],
-            this.mr.headBlobPath,
-            this.mr.baseBlobPath,
-          ),
-        )
-        .then(() => {
-          this.isLoadingCodequality = false;
-        })
-        .catch(() => {
-          this.isLoadingCodequality = false;
-          this.loadingCodequalityFailed = true;
-        });
     },
 
     fetchBrowserPerformance() {
@@ -257,6 +206,23 @@ export default {
         })
         .finally(() => {
           this.isLoadingBrowserPerformance = false;
+        });
+    },
+
+    fetchLoadPerformance() {
+      const { head_path, base_path } = this.mr.loadPerformance;
+
+      this.isLoadingLoadPerformance = true;
+
+      Promise.all([this.service.fetchReport(head_path), this.service.fetchReport(base_path)])
+        .then(values => {
+          this.mr.compareLoadPerformanceMetrics(values[0], values[1]);
+        })
+        .catch(() => {
+          this.loadingLoadPerformanceFailed = true;
+        })
+        .finally(() => {
+          this.isLoadingLoadPerformance = false;
         });
     },
 
@@ -297,18 +263,13 @@ export default {
     />
     <div class="mr-section-container mr-widget-workflow">
       <blocking-merge-requests-report :mr="mr" />
-      <report-section
+      <grouped-codequality-reports-app
         v-if="shouldRenderCodeQuality"
-        :status="codequalityStatus"
-        :loading-text="translateText('codeclimate').loading"
-        :error-text="translateText('codeclimate').error"
-        :success-text="codequalityText"
-        :unresolved-issues="mr.codeclimateMetrics.newIssues"
-        :resolved-issues="mr.codeclimateMetrics.resolvedIssues"
-        :has-issues="hasCodequalityIssues"
-        :component="$options.componentNames.CodequalityIssueBody"
-        :popover-options="codequalityPopover"
-        class="js-codequality-widget mr-widget-border-top mr-report"
+        :base-path="mr.codeclimate.base_path"
+        :head-path="mr.codeclimate.head_path"
+        :head-blob-path="mr.headBlobPath"
+        :base-blob-path="mr.baseBlobPath"
+        :codequality-help-path="mr.codequalityHelpPath"
       />
       <report-section
         v-if="shouldRenderBrowserPerformance"
@@ -322,6 +283,19 @@ export default {
         :has-issues="hasBrowserPerformanceMetrics"
         :component="$options.componentNames.PerformanceIssueBody"
         class="js-browser-performance-widget mr-widget-border-top mr-report"
+      />
+      <report-section
+        v-if="hasLoadPerformancePaths"
+        :status="loadPerformanceStatus"
+        :loading-text="translateText('load-performance').loading"
+        :error-text="translateText('load-performance').error"
+        :success-text="loadPerformanceText"
+        :unresolved-issues="mr.loadPerformanceMetrics.degraded"
+        :resolved-issues="mr.loadPerformanceMetrics.improved"
+        :neutral-issues="mr.loadPerformanceMetrics.same"
+        :has-issues="hasLoadPerformanceMetrics"
+        :component="$options.componentNames.PerformanceIssueBody"
+        class="js-load-performance-widget mr-widget-border-top mr-report"
       />
       <grouped-metrics-reports-app
         v-if="mr.metricsReportsPath"
@@ -340,6 +314,7 @@ export default {
         :container-scanning-help-path="mr.containerScanningHelp"
         :dependency-scanning-help-path="mr.dependencyScanningHelp"
         :secret-scanning-help-path="mr.secretScanningHelp"
+        :can-read-vulnerability-feedback="mr.canReadVulnerabilityFeedback"
         :vulnerability-feedback-path="mr.vulnerabilityFeedbackPath"
         :vulnerability-feedback-help-path="mr.vulnerabilityFeedbackHelpPath"
         :create-vulnerability-feedback-issue-path="mr.createVulnerabilityFeedbackIssuePath"
@@ -349,6 +324,8 @@ export default {
         :create-vulnerability-feedback-dismissal-path="mr.createVulnerabilityFeedbackDismissalPath"
         :pipeline-path="mr.pipeline.path"
         :pipeline-id="mr.securityReportsPipelineId"
+        :pipeline-iid="mr.securityReportsPipelineIid"
+        :project-full-path="mr.sourceProjectFullPath"
         :diverged-commits-count="mr.divergedCommitsCount"
         :mr-state="mr.state"
         :target-branch-tree-path="mr.targetBranchTreePath"
@@ -358,6 +335,7 @@ export default {
       <mr-widget-licenses
         v-if="shouldRenderLicenseReport"
         :api-url="mr.licenseScanning.managed_licenses_path"
+        :approvals-api-path="mr.apiApprovalsPath"
         :licenses-api-path="licensesApiPath"
         :pipeline-path="mr.pipeline.path"
         :can-manage-licenses="mr.licenseScanning.can_manage_licenses"
@@ -371,7 +349,7 @@ export default {
         v-if="mr.testResultsPath"
         class="js-reports-container"
         :endpoint="mr.testResultsPath"
-        :pipeline-path="mr.mergeRequestAddCiConfigPath"
+        :pipeline-path="mr.pipeline.path"
       />
 
       <terraform-plan v-if="mr.terraformReportsPath" :endpoint="mr.terraformReportsPath" />

@@ -97,6 +97,10 @@ export const clearExpandedPanel = ({ commit }) => {
   });
 };
 
+export const setCurrentDashboard = ({ commit }, { currentDashboard }) => {
+  commit(types.SET_CURRENT_DASHBOARD, currentDashboard);
+};
+
 // All Data
 
 /**
@@ -356,14 +360,14 @@ export const receiveAnnotationsSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_ANNOTATIONS_SUCCESS, data);
 export const receiveAnnotationsFailure = ({ commit }) => commit(types.RECEIVE_ANNOTATIONS_FAILURE);
 
-export const fetchDashboardValidationWarnings = ({ state, dispatch }) => {
+export const fetchDashboardValidationWarnings = ({ state, dispatch, getters }) => {
   /**
    * Normally, the default dashboard won't throw any validation warnings.
    *
    * However, if a bug sneaks into the default dashboard making it invalid,
    * this might come handy for our clients
    */
-  const dashboardPath = state.currentDashboard || DEFAULT_DASHBOARD_PATH;
+  const dashboardPath = getters.fullDashboardPath || DEFAULT_DASHBOARD_PATH;
   return gqClient
     .mutate({
       mutation: getDashboardValidationWarnings,
@@ -375,7 +379,7 @@ export const fetchDashboardValidationWarnings = ({ state, dispatch }) => {
     })
     .then(resp => resp.data?.project?.environments?.nodes?.[0]?.metricsDashboard)
     .then(({ schemaValidationWarnings } = {}) => {
-      const hasWarnings = schemaValidationWarnings?.length !== 0;
+      const hasWarnings = schemaValidationWarnings && schemaValidationWarnings.length !== 0;
       /**
        * The payload of the dispatch is a boolean, because at the moment a standard
        * warning message is shown instead of the warnings the BE returns

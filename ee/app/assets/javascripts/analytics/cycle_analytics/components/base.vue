@@ -1,6 +1,5 @@
 <script>
-import { GlEmptyState, GlLoadingIcon, GlButton } from '@gitlab/ui';
-import { GlBreakpointInstance as bp } from '@gitlab/ui/dist/utils';
+import { GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
 import { PROJECTS_PER_PAGE, STAGE_ACTIONS } from '../constants';
@@ -20,13 +19,13 @@ import CustomStageForm from './custom_stage_form.vue';
 import PathNavigation from './path_navigation.vue';
 import MetricCard from '../../shared/components/metric_card.vue';
 import FilterBar from './filter_bar.vue';
+import ValueStreamSelect from './value_stream_select.vue';
 
 export default {
   name: 'CycleAnalytics',
   components: {
     DateRange,
     DurationChart,
-    GlButton,
     GlLoadingIcon,
     GlEmptyState,
     GroupsDropdownFilter,
@@ -40,6 +39,7 @@ export default {
     PathNavigation,
     MetricCard,
     FilterBar,
+    ValueStreamSelect,
   },
   mixins: [UrlSyncMixin],
   props: {
@@ -119,9 +119,6 @@ export default {
     isLoadingTypeOfWork() {
       return this.isLoadingTasksByTypeChartTopLabels || this.isLoadingTasksByTypeChart;
     },
-    isXSBreakpoint() {
-      return bp.getBreakpointSize() === 'xs';
-    },
     hasDateRangeSet() {
       return this.startDate && this.endDate;
     },
@@ -198,9 +195,6 @@ export default {
     onStageReorder(data) {
       this.reorderStage(data);
     },
-    onCreateValueStream() {
-      // stub handler - to be implemented in a follow up
-    },
   },
   multiProjectSelect: true,
   dateOptions: [7, 30, 90],
@@ -223,18 +217,10 @@ export default {
       class="gl-mb-3 gl-display-flex gl-flex-direction-column gl-sm-flex-direction-row gl-justify-content-space-between"
     >
       <h3>{{ __('Value Stream Analytics') }}</h3>
-      <div
+      <value-stream-select
         v-if="shouldDisplayCreateMultipleValueStreams"
-        class="gl-align-self-center"
-        :class="{
-          'gl-w-full': isXSBreakpoint,
-          'gl-mt-5': !isXSBreakpoint,
-        }"
-      >
-        <gl-button data-testid="create-value-stream" @click="onCreateValueStream">{{
-          __('Create new value stream')
-        }}</gl-button>
-      </div>
+        class="gl-align-self-start gl-sm-align-self-start gl-mt-0 gl-sm-mt-5"
+      />
     </div>
     <div class="mw-100">
       <div class="mt-3 py-2 px-3 bg-gray-light border-top border-bottom">

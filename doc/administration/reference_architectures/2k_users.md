@@ -473,7 +473,7 @@ nodes (including the Gitaly node using the certificate) and on all client nodes
 that communicate with it following the procedure described in
 [GitLab custom certificate configuration](https://docs.gitlab.com/omnibus/settings/ssl.html#install-custom-public-certificates).
 
-NOTE: **Note**
+NOTE: **Note:**
 The self-signed certificate must specify the address you use to access the
 Gitaly server. If you are addressing the Gitaly server by a hostname, you can
 either use the Common Name field for this, or add it as a Subject Alternative
@@ -658,7 +658,8 @@ On each node perform the following:
    sudo gitlab-ctl tail gitaly
    ```
 
-NOTE: **Note:** When you specify `https` in the `external_url`, as in the example
+NOTE: **Note:**
+When you specify `https` in the `external_url`, as in the example
 above, GitLab assumes you have SSL certificates in `/etc/gitlab/ssl/`. If
 certificates are not present, NGINX will fail to start. See the
 [NGINX documentation](https://docs.gitlab.com/omnibus/settings/nginx.html#enable-https)
@@ -816,7 +817,7 @@ on the features you intend to use:
 1. [Object storage for LFS objects](../lfs/index.md#storing-lfs-objects-in-remote-object-storage).
 1. [Object storage for uploads](../uploads.md#using-object-storage-core-only).
 1. [Object storage for merge request diffs](../merge_request_diffs.md#using-object-storage).
-1. [Object storage for Container Registry](../packages/container_registry.md#container-registry-storage-driver) (optional feature).
+1. [Object storage for Container Registry](../packages/container_registry.md#use-object-storage) (optional feature).
 1. [Object storage for Mattermost](https://docs.mattermost.com/administration/config-settings.html#file-storage) (optional feature).
 1. [Object storage for packages](../packages/index.md#using-object-storage) (optional feature). **(PREMIUM ONLY)**
 1. [Object storage for Dependency Proxy](../packages/dependency_proxy.md#using-object-storage) (optional feature). **(PREMIUM ONLY)**

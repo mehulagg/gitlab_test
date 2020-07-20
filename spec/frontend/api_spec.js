@@ -46,6 +46,77 @@ describe('Api', () => {
     });
   });
 
+  describe('packages', () => {
+    const projectId = 'project_a';
+    const packageId = 'package_b';
+    const apiResponse = [{ id: 1, name: 'foo' }];
+
+    describe('groupPackages', () => {
+      const groupId = 'group_a';
+
+      it('fetch all group packages', () => {
+        const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/groups/${groupId}/packages`;
+        jest.spyOn(axios, 'get');
+        mock.onGet(expectedUrl).replyOnce(200, apiResponse);
+
+        return Api.groupPackages(groupId).then(({ data }) => {
+          expect(data).toEqual(apiResponse);
+          expect(axios.get).toHaveBeenCalledWith(expectedUrl, {});
+        });
+      });
+    });
+
+    describe('projectPackages', () => {
+      it('fetch all project packages', () => {
+        const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/packages`;
+        jest.spyOn(axios, 'get');
+        mock.onGet(expectedUrl).replyOnce(200, apiResponse);
+
+        return Api.projectPackages(projectId).then(({ data }) => {
+          expect(data).toEqual(apiResponse);
+          expect(axios.get).toHaveBeenCalledWith(expectedUrl, {});
+        });
+      });
+    });
+
+    describe('buildProjectPackageUrl', () => {
+      it('returns the right url', () => {
+        const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/packages/${packageId}`;
+        const url = Api.buildProjectPackageUrl(projectId, packageId);
+        expect(url).toEqual(expectedUrl);
+      });
+    });
+
+    describe('projectPackage', () => {
+      it('fetch package details', () => {
+        const expectedUrl = `foo`;
+        jest.spyOn(Api, 'buildProjectPackageUrl').mockReturnValue(expectedUrl);
+        jest.spyOn(axios, 'get');
+        mock.onGet(expectedUrl).replyOnce(200, apiResponse);
+
+        return Api.projectPackage(projectId, packageId).then(({ data }) => {
+          expect(data).toEqual(apiResponse);
+          expect(axios.get).toHaveBeenCalledWith(expectedUrl);
+        });
+      });
+    });
+
+    describe('deleteProjectPackage', () => {
+      it('delete a package', () => {
+        const expectedUrl = `foo`;
+
+        jest.spyOn(Api, 'buildProjectPackageUrl').mockReturnValue(expectedUrl);
+        jest.spyOn(axios, 'delete');
+        mock.onDelete(expectedUrl).replyOnce(200, true);
+
+        return Api.deleteProjectPackage(projectId, packageId).then(({ data }) => {
+          expect(data).toEqual(true);
+          expect(axios.delete).toHaveBeenCalledWith(expectedUrl);
+        });
+      });
+    });
+  });
+
   describe('group', () => {
     it('fetches a group', done => {
       const groupId = '123456';
@@ -769,6 +840,85 @@ describe('Api', () => {
         })
         .then(done)
         .catch(done.fail);
+    });
+  });
+
+  describe('freezePeriods', () => {
+    it('fetches freezePeriods', () => {
+      const projectId = 8;
+      const freezePeriod = {
+        id: 3,
+        freeze_start: '5 4 * * *',
+        freeze_end: '5 9 * 8 *',
+        cron_timezone: 'America/New_York',
+        created_at: '2020-07-10T05:10:35.122Z',
+        updated_at: '2020-07-10T05:10:35.122Z',
+      };
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/freeze_periods`;
+      mock.onGet(expectedUrl).reply(200, [freezePeriod]);
+
+      return Api.freezePeriods(projectId).then(({ data }) => {
+        expect(data[0]).toStrictEqual(freezePeriod);
+      });
+    });
+  });
+
+  describe('createFreezePeriod', () => {
+    const projectId = 8;
+    const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/freeze_periods`;
+    const options = {
+      freeze_start: '* * * * *',
+      freeze_end: '* * * * *',
+      cron_timezone: 'America/Juneau',
+    };
+
+    const expectedResult = {
+      id: 10,
+      freeze_start: '* * * * *',
+      freeze_end: '* * * * *',
+      cron_timezone: 'America/Juneau',
+      created_at: '2020-07-11T07:04:50.153Z',
+      updated_at: '2020-07-11T07:04:50.153Z',
+    };
+
+    describe('when the freeze period is successfully created', () => {
+      it('resolves the Promise', () => {
+        mock.onPost(expectedUrl, options).replyOnce(201, expectedResult);
+
+        return Api.createFreezePeriod(projectId, options).then(({ data }) => {
+          expect(data).toStrictEqual(expectedResult);
+        });
+      });
+    });
+  });
+
+  describe('createPipeline', () => {
+    it('creates new pipeline', () => {
+      const redirectUrl = 'ci-project/-/pipelines/95';
+      const projectId = 8;
+      const postData = {
+        ref: 'tag-1',
+        variables: [
+          { key: 'test_file', value: 'test_file_val', variable_type: 'file' },
+          { key: 'test_var', value: 'test_var_val', variable_type: 'env_var' },
+        ],
+      };
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectId}/pipeline`;
+
+      jest.spyOn(axios, 'post');
+
+      mock.onPost(expectedUrl).replyOnce(200, {
+        web_url: redirectUrl,
+      });
+
+      return Api.createPipeline(projectId, postData).then(({ data }) => {
+        expect(data.web_url).toBe(redirectUrl);
+        expect(axios.post).toHaveBeenCalledWith(expectedUrl, postData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      });
     });
   });
 });

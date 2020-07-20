@@ -20,7 +20,9 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       it 'clears memoized values' do
         values = %i(issue_minimum_id issue_maximum_id
                     user_minimum_id user_maximum_id unique_visit_service
-                    deployment_minimum_id deployment_maximum_id)
+                    deployment_minimum_id deployment_maximum_id
+                    approval_merge_request_rule_minimum_id
+                    approval_merge_request_rule_maximum_id)
         values.each do |key|
           expect(described_class).to receive(:clear_memoization).with(key)
         end
@@ -87,6 +89,56 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
         end
       end
 
+      context 'for create' do
+        it 'include usage_activity_by_stage data' do
+          expect(described_class.uncached_data[:usage_activity_by_stage][:create])
+            .not_to include(
+              :merge_requests_users
+            )
+        end
+
+        it 'includes monthly usage_activity_by_stage data' do
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:create])
+            .to include(
+              :merge_requests_users
+            )
+        end
+
+        it 'includes accurate usage_activity_by_stage data' do
+          for_defined_days_back do
+            user = create(:user)
+            project = create(:project, :repository_private,
+                             :test_repo, :remote_mirror, creator: user)
+            create(:merge_request, source_project: project)
+            create(:deploy_key, user: user)
+            create(:key, user: user)
+            create(:project, creator: user, disable_overriding_approvers_per_merge_request: true)
+            create(:project, creator: user, disable_overriding_approvers_per_merge_request: false)
+            create(:remote_mirror, project: project)
+            create(:snippet, author: user)
+          end
+
+          expect(described_class.uncached_data[:usage_activity_by_stage][:create]).to include(
+            deploy_keys: 2,
+            keys: 2,
+            merge_requests: 2,
+            projects_with_disable_overriding_approvers_per_merge_request: 2,
+            projects_without_disable_overriding_approvers_per_merge_request: 4,
+            remote_mirrors: 2,
+            snippets: 2
+          )
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:create]).to include(
+            deploy_keys: 1,
+            keys: 1,
+            merge_requests: 1,
+            projects_with_disable_overriding_approvers_per_merge_request: 1,
+            projects_without_disable_overriding_approvers_per_merge_request: 2,
+            remote_mirrors: 1,
+            snippets: 1
+          )
+        end
+      end
+
       context 'for manage' do
         it 'includes accurate usage_activity_by_stage data' do
           stub_config(
@@ -120,6 +172,77 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
             OpenStruct.new(name: 'ldapmain'),
             OpenStruct.new(name: 'group_saml')
           ]
+        end
+      end
+
+      context 'for monitor' do
+        it 'includes accurate usage_activity_by_stage data' do
+          for_defined_days_back do
+            user    = create(:user, dashboard: 'operations')
+            cluster = create(:cluster, user: user)
+            create(:project, creator: user)
+            create(:clusters_applications_prometheus, :installed, cluster: cluster)
+          end
+
+          expect(described_class.uncached_data[:usage_activity_by_stage][:monitor]).to include(
+            clusters: 2,
+            clusters_applications_prometheus: 2,
+            operations_dashboard_default_dashboard: 2
+          )
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:monitor]).to include(
+            clusters: 1,
+            clusters_applications_prometheus: 1,
+            operations_dashboard_default_dashboard: 1
+          )
+        end
+      end
+
+      context 'for plan' do
+        it 'includes accurate usage_activity_by_stage data' do
+          for_defined_days_back do
+            user = create(:user)
+            project = create(:project, creator: user)
+            issue = create(:issue, project: project, author: user)
+            create(:note, project: project, noteable: issue, author: user)
+            create(:todo, project: project, target: issue, author: user)
+          end
+
+          expect(described_class.uncached_data[:usage_activity_by_stage][:plan]).to include(
+            issues: 2,
+            notes: 2,
+            projects: 2,
+            todos: 2
+          )
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:plan]).to include(
+            issues: 1,
+            notes: 1,
+            projects: 1,
+            todos: 1
+          )
+        end
+      end
+
+      context 'for release' do
+        it 'includes accurate usage_activity_by_stage data' do
+          for_defined_days_back do
+            user = create(:user)
+            create(:deployment, :failed, user: user)
+            create(:release, author: user)
+            create(:deployment, :success, user: user)
+          end
+
+          expect(described_class.uncached_data[:usage_activity_by_stage][:release]).to include(
+            deployments: 2,
+            failed_deployments: 2,
+            releases: 2,
+            successful_deployments: 2
+          )
+          expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:release]).to include(
+            deployments: 1,
+            failed_deployments: 1,
+            releases: 1,
+            successful_deployments: 1
+          )
         end
       end
 
@@ -160,102 +283,6 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
             clusters_applications_runner: 1
           )
         end
-      end
-    end
-
-    context 'for create' do
-      it 'include usage_activity_by_stage data' do
-        expect(described_class.uncached_data[:usage_activity_by_stage][:create])
-          .not_to include(
-            :merge_requests_users
-          )
-      end
-
-      it 'includes monthly usage_activity_by_stage data' do
-        expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:create])
-          .to include(
-            :merge_requests_users
-          )
-      end
-
-      it 'includes accurate usage_activity_by_stage data' do
-        for_defined_days_back do
-          user = create(:user)
-          project = create(:project, :repository_private,
-                           :test_repo, :remote_mirror, creator: user)
-          create(:merge_request, source_project: project)
-          create(:deploy_key, user: user)
-          create(:key, user: user)
-          create(:project, creator: user, disable_overriding_approvers_per_merge_request: true)
-          create(:project, creator: user, disable_overriding_approvers_per_merge_request: false)
-          create(:remote_mirror, project: project)
-          create(:snippet, author: user)
-        end
-
-        expect(described_class.uncached_data[:usage_activity_by_stage][:create]).to include(
-          deploy_keys: 2,
-          keys: 2,
-          merge_requests: 2,
-          projects_with_disable_overriding_approvers_per_merge_request: 2,
-          projects_without_disable_overriding_approvers_per_merge_request: 4,
-          remote_mirrors: 2,
-          snippets: 2
-        )
-        expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:create]).to include(
-          deploy_keys: 1,
-          keys: 1,
-          merge_requests: 1,
-          projects_with_disable_overriding_approvers_per_merge_request: 1,
-          projects_without_disable_overriding_approvers_per_merge_request: 2,
-          remote_mirrors: 1,
-          snippets: 1
-        )
-      end
-    end
-
-    context 'for monitor' do
-      it 'includes accurate usage_activity_by_stage data' do
-        for_defined_days_back do
-          user    = create(:user, dashboard: 'operations')
-          cluster = create(:cluster, user: user)
-          create(:project, creator: user)
-          create(:clusters_applications_prometheus, :installed, cluster: cluster)
-        end
-
-        expect(described_class.uncached_data[:usage_activity_by_stage][:monitor]).to include(
-          clusters: 2,
-          clusters_applications_prometheus: 2,
-          operations_dashboard_default_dashboard: 2
-        )
-        expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:monitor]).to include(
-          clusters: 1,
-          clusters_applications_prometheus: 1,
-          operations_dashboard_default_dashboard: 1
-        )
-      end
-    end
-
-    context 'for release' do
-      it 'includes accurate usage_activity_by_stage data' do
-        for_defined_days_back do
-          user = create(:user)
-          create(:deployment, :failed, user: user)
-          create(:release, author: user)
-          create(:deployment, :success, user: user)
-        end
-
-        expect(described_class.uncached_data[:usage_activity_by_stage][:release]).to include(
-          deployments: 2,
-          failed_deployments: 2,
-          releases: 2,
-          successful_deployments: 2
-        )
-        expect(described_class.uncached_data[:usage_activity_by_stage_monthly][:release]).to include(
-          deployments: 1,
-          failed_deployments: 1,
-          releases: 1,
-          successful_deployments: 1
-        )
       end
     end
 
@@ -352,6 +379,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:clusters_applications_elastic_stack]).to eq(1)
       expect(count_data[:grafana_integrated_projects]).to eq(2)
       expect(count_data[:clusters_applications_jupyter]).to eq(1)
+      expect(count_data[:clusters_applications_cilium]).to eq(1)
       expect(count_data[:clusters_management_project]).to eq(1)
 
       expect(count_data[:deployments]).to eq(4)
@@ -547,6 +575,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
 
       it 'gathers basic components usage data' do
         stub_runtime(:puma)
+        stub_application_setting(container_registry_vendor: 'gitlab', container_registry_version: 'x.y.z')
 
         expect(subject[:app_server][:type]).to eq('puma')
         expect(subject[:gitlab_pages][:enabled]).to eq(Gitlab.config.pages.enabled)
@@ -559,6 +588,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
         expect(subject[:gitaly][:clusters]).to be >= 0
         expect(subject[:gitaly][:filesystems]).to be_an(Array)
         expect(subject[:gitaly][:filesystems].first).to be_a(String)
+        expect(subject[:container_registry][:vendor]).to eq('gitlab')
+        expect(subject[:container_registry][:version]).to eq('x.y.z')
       end
 
       def stub_runtime(runtime)
@@ -893,6 +924,53 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
+  describe '#action_monthly_active_users', :clean_gitlab_redis_shared_state do
+    let(:time_period) { { created_at: 2.days.ago..time } }
+    let(:time) { Time.zone.now }
+
+    before do
+      stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => feature_flag)
+    end
+
+    context 'when the feature flag is enabled' do
+      let(:feature_flag) { true }
+
+      before do
+        counter = Gitlab::UsageDataCounters::TrackUniqueActions
+        project = Event::TARGET_TYPES[:project]
+        wiki = Event::TARGET_TYPES[:wiki]
+        design = Event::TARGET_TYPES[:design]
+
+        counter.track_action(event_action: :pushed, event_target: project, author_id: 1)
+        counter.track_action(event_action: :pushed, event_target: project, author_id: 1)
+        counter.track_action(event_action: :pushed, event_target: project, author_id: 2)
+        counter.track_action(event_action: :pushed, event_target: project, author_id: 3)
+        counter.track_action(event_action: :pushed, event_target: project, author_id: 4, time: time - 3.days)
+        counter.track_action(event_action: :created, event_target: project, author_id: 5, time: time - 3.days)
+        counter.track_action(event_action: :created, event_target: wiki, author_id: 3)
+        counter.track_action(event_action: :created, event_target: design, author_id: 3)
+      end
+
+      it 'returns the distinct count of user actions within the specified time period' do
+        expect(described_class.action_monthly_active_users(time_period)).to eq(
+          {
+            action_monthly_active_users_design_management: 1,
+            action_monthly_active_users_project_repo: 3,
+            action_monthly_active_users_wiki_repo: 1
+          }
+        )
+      end
+    end
+
+    context 'when the feature flag is disabled' do
+      let(:feature_flag) { false }
+
+      it 'returns an empty hash' do
+        expect(described_class.action_monthly_active_users(time_period)).to eq({})
+      end
+    end
+  end
+
   describe '.analytics_unique_visits_data' do
     subject { described_class.analytics_unique_visits_data }
 
@@ -916,7 +994,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           'p_analytics_insights' => 123,
           'p_analytics_issues' => 123,
           'p_analytics_repo' => 123,
-          'u_analytics_todos' => 123,
+          'u_todos' => 123,
           'i_analytics_cohorts' => 123,
           'i_analytics_dev_ops_score' => 123,
           'analytics_unique_visits_for_any_target' => 543

@@ -147,14 +147,15 @@ export default {
       return getEndLineNumber(this.lineRange);
     },
     showMultiLineComment() {
-      if (!this.glFeatures.multilineComments) return false;
+      if (!this.glFeatures.multilineComments || !this.discussionRoot) return false;
       if (this.isEditing) return true;
 
-      return this.line && this.discussionRoot && this.startLineNumber !== this.endLineNumber;
+      return this.line && this.startLineNumber !== this.endLineNumber;
+    },
+    showMultilineCommentForm() {
+      return Boolean(this.isEditing && this.note.position && this.diffFile && this.line);
     },
     commentLineOptions() {
-      if (!this.diffFile || !this.line) return [];
-
       const sideA = this.line.type === 'new' ? 'right' : 'left';
       const sideB = sideA === 'left' ? 'right' : 'left';
       const lines = this.diffFile.highlighted_diff_lines.length
@@ -186,6 +187,7 @@ export default {
     eventHub.$on('enterEditMode', ({ noteId }) => {
       if (noteId === this.note.id) {
         this.isEditing = true;
+        this.setSelectedCommentPositionHover();
         this.scrollToNoteIfNeeded($(this.$el));
       }
     });
@@ -205,9 +207,11 @@ export default {
       'toggleResolveNote',
       'scrollToNoteIfNeeded',
       'updateAssignees',
+      'setSelectedCommentPositionHover',
     ]),
     editHandler() {
       this.isEditing = true;
+      this.setSelectedCommentPositionHover();
       this.$emit('handleEdit');
     },
     deleteHandler() {
@@ -284,6 +288,7 @@ export default {
           } else {
             this.isRequesting = false;
             this.isEditing = true;
+            this.setSelectedCommentPositionHover();
             this.$nextTick(() => {
               const msg = __('Something went wrong while editing your comment. Please try again.');
               Flash(msg, 'alert', this.$el);
@@ -335,12 +340,12 @@ export default {
   >
     <div v-if="showMultiLineComment" data-testid="multiline-comment">
       <multiline-comment-form
-        v-if="isEditing && note.position"
+        v-if="showMultilineCommentForm"
         v-model="commentLineStart"
         :line="line"
         :comment-line-options="commentLineOptions"
         :line-range="note.position.line_range"
-        class="gl-mb-3 gl-text-gray-700"
+        class="gl-mb-3 gl-text-gray-700 gl-pb-3"
       />
       <div
         v-else

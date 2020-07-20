@@ -101,7 +101,7 @@ The following metrics are available:
 | `http_elasticsearch_requests_total` **(STARTER)**              | Counter   |                   13.1 | Elasticsearch requests count during web transactions                                                | `controller`, `action`                              |
 | `pipelines_created_total`                                      | Counter   |                    9.4 | Counter of pipelines created                                                                        |                                                     |
 | `rack_uncaught_errors_total`                                   | Counter   |                    9.4 | Rack connections handling uncaught errors count                                                     |                                                     |
-| `user_session_logins_total`                                    | Counter   |                    9.4 | Counter of how many users have logged in                                                            |                                                     |
+| `user_session_logins_total`                                    | Counter   |                    9.4 | Counter of how many users have logged in since GitLab was started or restarted                                                            |                                                     |
 | `upload_file_does_not_exist`                                   | Counter   | 10.7 in EE, 11.5 in CE | Number of times an upload record could not find its file                                            |                                                     |
 | `failed_login_captcha_total`                                   | Gauge     |                   11.0 | Counter of failed CAPTCHA attempts during login                                                     |                                                     |
 | `successful_login_captcha_total`                               | Gauge     |                   11.0 | Counter of successful CAPTCHA attempts during login                                                 |                                                     |
@@ -173,6 +173,7 @@ configuration option in `gitlab.yml`. These metrics are served from the
 | `geo_repositories_retrying_verification_count` | Gauge   | 11.2  | Number of repositories verification failures that Geo is actively trying to correct on secondary  | `url` |
 | `geo_wikis_retrying_verification_count`        | Gauge   | 11.2  | Number of wikis verification failures that Geo is actively trying to correct on secondary | `url` |
 | `global_search_bulk_cron_queue_size`           | Gauge   | 12.10 | Number of database records waiting to be synchronized to Elasticsearch | |
+| `global_search_awaiting_indexing_queue_size`   | Gauge   | 13.2  | Number of database updates waiting to be synchronized to Elasticsearch while indexing is paused | |
 | `package_files_count`                          | Gauge   | 13.0  | Number of package files on primary | `url` |
 | `package_files_checksummed_count`              | Gauge   | 13.0  | Number of package files checksummed on primary | `url` |
 | `package_files_checksum_failed_count`          | Gauge   | 13.0  | Number of package files failed to calculate the checksum on primary
@@ -263,6 +264,7 @@ instance (`cache`, `shared_state` etc.).
 |:--------------------------------- |:------- |:----- |:----------- |
 | `gitlab_redis_client_exceptions_total`                    | Counter   | 13.2  | Number of Redis client exceptions, broken down by exception class |
 | `gitlab_redis_client_requests_total`                    | Counter   | 13.2  | Number of Redis client requests |
+| `gitlab_redis_client_requests_duration_seconds`                    | Histogram   | 13.2  | Redis request latency, excluding blocking commands |
 
 ## Metrics shared directory
 

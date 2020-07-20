@@ -123,7 +123,7 @@ The following documentation relates to the DevOps **Plan** stage:
 | [Related Issues](user/project/issues/related_issues.md) **(STARTER)**                                                                                                                                                                                              | Create a relationship between issues.                                                                                                            |
 | [Requirements Management](user/project/requirements/index.md) **(ULTIMATE)** | Check your products against a set of criteria. |
 | [Roadmap](user/group/roadmap/index.md) **(ULTIMATE)**                                                                                                                                                                                                              | Visualize epic timelines.                                                                                                                        |
-| [Service Desk](user/project/service_desk.md) **(STARTER)**                                                                                                                                                                                                         | A simple way to allow people to create issues in your GitLab instance without needing their own user account.                                    |
+| [Service Desk](user/project/service_desk.md)                                                                                                                                                                                                         | A simple way to allow people to create issues in your GitLab instance without needing their own user account.                                    |
 | [Time Tracking](user/project/time_tracking.md)                                                                                                                                                                                                                         | Track time spent on issues and merge requests.                                                                                                   |
 | [Todos](user/todos.md)                                                                                                                                                                                                                                         | Keep track of work requiring attention with a chronological list displayed on a simple dashboard.                                                |
 
@@ -138,7 +138,7 @@ The following documentation relates to the DevOps **Plan** stage:
 Consolidate source code into a single [distributed version control system](https://en.wikipedia.org/wiki/Distributed_version_control)
 that’s easily managed and controlled without disrupting your workflow.
 
-GitLab’s Git repositories come complete with branching tools and access
+GitLab repositories come complete with branching tools and access
 controls, providing a scalable, single source of truth for collaborating
 on projects and code.
 
@@ -200,7 +200,7 @@ The following documentation relates to the DevOps **Create** stage:
 | [Cherry-picking](user/project/merge_requests/cherry_pick_changes.md)                                                                        | Use GitLab for cherry-picking changes.                                                                                                |
 | [Merge request thread resolution](user/discussions/index.md#moving-a-single-thread-to-a-new-issue)                                          | Resolve threads, move threads in a merge request to an issue, and only allow merge requests to be merged if all threads are resolved. |
 | [Merge requests](user/project/merge_requests/index.md)                                                                                      | Merge request management.                                                                                                             |
-| [Work In Progress "WIP" merge requests](user/project/merge_requests/work_in_progress_merge_requests.md)                                     | Prevent merges of work-in-progress merge requests.                                                                                    |
+| [**Draft** merge requests](user/project/merge_requests/work_in_progress_merge_requests.md)                                                      | Prevent merges of draft merge requests.                                                                                               |
 
 <div align="right">
   <a type="button" class="btn btn-default" href="#overview">
@@ -239,7 +239,7 @@ The following documentation relates to the DevOps **Verify** stage:
 
 | Verify topics                                                                     | Description                                                                                             |
 |:----------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------|
-| [Code Quality reports](user/project/merge_requests/code_quality.md) **(STARTER)** | Analyze source code quality.                                                                            |
+| [Code Quality reports](user/project/merge_requests/code_quality.md)               | Analyze source code quality.                                                                            |
 | [GitLab CI/CD](ci/README.md)                                                      | Explore the features and capabilities of Continuous Integration with GitLab.                            |
 | [JUnit test reports](ci/junit_test_reports.md)                                    | Display JUnit test reports on merge requests.                                                           |
 | [Multi-project pipelines](ci/multi_project_pipelines.md) **(PREMIUM)**            | Visualize entire pipelines that span multiple projects, including all cross-project inter-dependencies. |

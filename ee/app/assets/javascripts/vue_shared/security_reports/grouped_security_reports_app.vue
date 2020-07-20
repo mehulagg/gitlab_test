@@ -9,11 +9,15 @@ import Tracking from '~/tracking';
 import GroupedIssuesList from '~/reports/components/grouped_issues_list.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import IssueModal from './components/modal.vue';
+import DastModal from './components/dast_modal.vue';
 import securityReportsMixin from './mixins/security_report_mixin';
 import createStore from './store';
-import { GlSprintf, GlLink } from '@gitlab/ui';
+import { GlSprintf, GlLink, GlModalDirective } from '@gitlab/ui';
 import { mrStates } from '~/mr_popover/constants';
 import { trackMrSecurityReportDetails } from 'ee/vue_shared/security_reports/store/constants';
+import { fetchPolicies } from '~/lib/graphql';
+import securityReportSummaryQuery from './graphql/mr_security_report_summary.graphql';
+import SecuritySummary from './components/security_summary.vue';
 
 export default {
   store: createStore(),
@@ -21,12 +25,33 @@ export default {
     GroupedIssuesList,
     ReportSection,
     SummaryRow,
+    SecuritySummary,
     IssueModal,
     Icon,
     GlSprintf,
     GlLink,
+    DastModal,
+  },
+  directives: {
+    'gl-modal': GlModalDirective,
   },
   mixins: [securityReportsMixin, glFeatureFlagsMixin()],
+  apollo: {
+    dastSummary: {
+      query: securityReportSummaryQuery,
+      fetchPolicy: fetchPolicies.NETWORK_ONLY,
+      variables() {
+        return {
+          fullPath: this.projectFullPath,
+          pipelineIid: this.pipelineIid,
+        };
+      },
+      update(data) {
+        const dast = data?.project?.pipeline?.securityReportSummary?.dast;
+        return dast && Object.keys(dast).length ? dast : null;
+      },
+    },
+  },
   props: {
     enabledReports: {
       type: Object,
@@ -77,6 +102,11 @@ export default {
       required: false,
       default: '',
     },
+    canReadVulnerabilityFeedback: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     vulnerabilityFeedbackPath: {
       type: String,
       required: false,
@@ -107,6 +137,11 @@ export default {
       required: false,
       default: null,
     },
+    pipelineIid: {
+      type: Number,
+      required: false,
+      default: null,
+    },
     pipelinePath: {
       type: String,
       required: false,
@@ -131,6 +166,10 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+    projectFullPath: {
+      type: String,
+      required: true,
     },
   },
   componentNames,
@@ -197,6 +236,9 @@ export default {
         Tracking.event(category, action);
       });
     },
+    dastDownloadLink() {
+      return this.dastSummary?.scannedResourcesCsvPath || '';
+    },
   },
 
   created() {
@@ -204,6 +246,7 @@ export default {
     this.setBaseBlobPath(this.baseBlobPath);
     this.setSourceBranch(this.sourceBranch);
 
+    this.setCanReadVulnerabilityFeedback(this.canReadVulnerabilityFeedback);
     this.setVulnerabilityFeedbackPath(this.vulnerabilityFeedbackPath);
     this.setVulnerabilityFeedbackHelpPath(this.vulnerabilityFeedbackHelpPath);
     this.setCreateVulnerabilityFeedbackIssuePath(this.createVulnerabilityFeedbackIssuePath);
@@ -253,6 +296,7 @@ export default {
       'setHeadBlobPath',
       'setBaseBlobPath',
       'setSourceBranch',
+      'setCanReadVulnerabilityFeedback',
       'setVulnerabilityFeedbackPath',
       'setVulnerabilityFeedbackHelpPath',
       'setCreateVulnerabilityFeedbackIssuePath',
@@ -284,20 +328,22 @@ export default {
       fetchSastDiff: 'fetchDiff',
     }),
   },
+  summarySlots: ['success', 'error', 'loading'],
 };
 </script>
 <template>
   <report-section
     :status="summaryStatus"
-    :success-text="groupedSummaryText"
-    :loading-text="groupedSummaryText"
-    :error-text="groupedSummaryText"
     :has-issues="true"
     :should-emit-toggle-event="true"
     class="mr-widget-border-top grouped-security-reports mr-report"
     data-qa-selector="vulnerability_report_grouped"
     @toggleEvent="handleToggleEvent"
   >
+    <template v-for="slot in $options.summarySlots" #[slot]>
+      <security-summary :key="slot" :message="groupedSummaryText" />
+    </template>
+
     <template v-if="pipelinePath" #actionButtons>
       <div>
         <a :href="securityTab" target="_blank" class="btn btn-default btn-sm float-right gl-mr-3">
@@ -346,12 +392,15 @@ export default {
       <div class="mr-widget-grouped-section report-block">
         <template v-if="hasSastReports">
           <summary-row
-            :summary="groupedSastText"
             :status-icon="sastStatusIcon"
             :popover-options="sastPopover"
             class="js-sast-widget"
             data-qa-selector="sast_scan_report"
-          />
+          >
+            <template #summary>
+              <security-summary :message="groupedSastText" />
+            </template>
+          </summary-row>
 
           <grouped-issues-list
             v-if="sast.newIssues.length || sast.resolvedIssues.length"
@@ -365,12 +414,15 @@ export default {
 
         <template v-if="hasDependencyScanningReports">
           <summary-row
-            :summary="groupedDependencyText"
             :status-icon="dependencyScanningStatusIcon"
             :popover-options="dependencyScanningPopover"
             class="js-dependency-scanning-widget"
             data-qa-selector="dependency_scan_report"
-          />
+          >
+            <template #summary>
+              <security-summary :message="groupedDependencyText" />
+            </template>
+          </summary-row>
 
           <grouped-issues-list
             v-if="dependencyScanning.newIssues.length || dependencyScanning.resolvedIssues.length"
@@ -384,12 +436,15 @@ export default {
 
         <template v-if="hasContainerScanningReports">
           <summary-row
-            :summary="groupedContainerScanningText"
             :status-icon="containerScanningStatusIcon"
             :popover-options="containerScanningPopover"
             class="js-container-scanning"
             data-qa-selector="container_scan_report"
-          />
+          >
+            <template #summary>
+              <security-summary :message="groupedContainerScanningText" />
+            </template>
+          </summary-row>
 
           <grouped-issues-list
             v-if="containerScanning.newIssues.length || containerScanning.resolvedIssues.length"
@@ -403,26 +458,30 @@ export default {
 
         <template v-if="hasDastReports">
           <summary-row
-            :summary="groupedDastText"
             :status-icon="dastStatusIcon"
             :popover-options="dastPopover"
             class="js-dast-widget"
             data-qa-selector="dast_scan_report"
           >
+            <template #summary>
+              <security-summary :message="groupedDastText" />
+            </template>
+
             <template v-if="dastScans.length">
               <div class="text-nowrap">
                 {{ n__('%d URL scanned', '%d URLs scanned', dastScans[0].scanned_resources_count) }}
               </div>
-              <gl-link
-                class="ml-2"
-                data-qa-selector="dast-ci-job-link"
-                :href="dastScans[0].job_path"
-              >
+              <gl-link v-gl-modal.dastUrl class="ml-2" data-qa-selector="dast-ci-job-link">
                 {{ __('View details') }}
               </gl-link>
+              <dast-modal
+                v-if="dastSummary"
+                :scanned-urls="dastSummary.scannedResources.nodes"
+                :scanned-resources-count="dastSummary.scannedResourcesCount"
+                :download-link="dastDownloadLink"
+              />
             </template>
           </summary-row>
-
           <grouped-issues-list
             v-if="dast.newIssues.length || dast.resolvedIssues.length"
             :unresolved-issues="dast.newIssues"
@@ -435,12 +494,15 @@ export default {
 
         <template v-if="hasSecretScanningReports">
           <summary-row
-            :summary="groupedSecretScanningText"
             :status-icon="secretScanningStatusIcon"
             :popover-options="secretScanningPopover"
             class="js-secret-scanning"
             data-qa-selector="secret_scan_report"
-          />
+          >
+            <template #summary>
+              <security-summary :message="groupedSecretScanningText" />
+            </template>
+          </summary-row>
 
           <grouped-issues-list
             v-if="secretScanning.newIssues.length || secretScanning.resolvedIssues.length"

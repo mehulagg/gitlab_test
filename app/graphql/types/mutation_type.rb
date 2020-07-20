@@ -10,6 +10,7 @@ module Types
     mount_mutation Mutations::AlertManagement::CreateAlertIssue
     mount_mutation Mutations::AlertManagement::UpdateAlertStatus
     mount_mutation Mutations::AlertManagement::Alerts::SetAssignees
+    mount_mutation Mutations::AlertManagement::Alerts::Todo::Create
     mount_mutation Mutations::AwardEmojis::Add
     mount_mutation Mutations::AwardEmojis::Remove
     mount_mutation Mutations::AwardEmojis::Toggle
@@ -17,6 +18,7 @@ module Types
     mount_mutation Mutations::Commits::Create, calls_gitaly: true
     mount_mutation Mutations::Discussions::ToggleResolve
     mount_mutation Mutations::Issues::SetConfidential
+    mount_mutation Mutations::Issues::SetLocked
     mount_mutation Mutations::Issues::SetDueDate
     mount_mutation Mutations::Issues::Update
     mount_mutation Mutations::MergeRequests::Create

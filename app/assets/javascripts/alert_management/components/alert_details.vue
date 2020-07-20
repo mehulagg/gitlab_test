@@ -187,7 +187,7 @@ export default {
 <template>
   <div>
     <gl-alert v-if="showErrorMsg" variant="danger" @dismiss="dismissError">
-      {{ sidebarErrorMessage || $options.i18n.errorMsg }}
+      <p v-html="sidebarErrorMessage || $options.i18n.errorMsg"></p>
     </gl-alert>
     <gl-alert
       v-if="createIssueError"
@@ -204,7 +204,7 @@ export default {
       :class="{ 'pr-sm-8': sidebarStatus }"
     >
       <div
-        class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
+        class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-100 gl-border-b-solid flex-column flex-sm-row"
       >
         <div
           data-testid="alert-header"

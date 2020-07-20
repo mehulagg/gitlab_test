@@ -2,11 +2,11 @@
 
 Every API call to merge requests must be authenticated.
 
-CAUTION: **Deprecation**
+CAUTION: **Deprecation:**
 > `reference` attribute in response is deprecated in favour of `references`.
 > Introduced [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20354)
 
-NOTE: **Note**
+NOTE: **Note:**
 > `references.relative` is relative to the group / project that the merge request is being requested. When merge request is fetched from its project
 > `relative` format would be the same as `short` format and when requested across groups / projects it is expected to be the same as `full` format.
 
@@ -1303,7 +1303,7 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://git
 
 Merge changes submitted with MR using this API.
 
-If merge request is unable to be accepted (ie: Work in Progress, Closed, Pipeline Pending Completion, or Failed while requiring Success) - you'll get a `405` and the error message 'Method Not Allowed'
+If merge request is unable to be accepted (ie: Draft, Closed, Pipeline Pending Completion, or Failed while requiring Success) - you'll get a `405` and the error message 'Method Not Allowed'
 
 If it has some conflicts and can not be merged - you'll get a `406` and the error message 'Branch cannot be merged'
 

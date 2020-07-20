@@ -1,3 +1,12 @@
+.designs-root {
+  border: 2px dashed transparent;
+  transition: border $gl-transition-duration-medium $general-hover-transition-curve;
+
+  &:hover {
+    border-color: $gray-100;
+  }
+}
+
 .design-list-item {
   height: 280px;
   text-decoration: none;
@@ -16,4 +25,9 @@
   .card-body {
     height: 230px;
   }
+}
+
+// This is temporary class to be removed after feature flag removal: https://gitlab.com/gitlab-org/gitlab/-/issues/223197
+.design-list-item-new {
+  height: 210px;
 }

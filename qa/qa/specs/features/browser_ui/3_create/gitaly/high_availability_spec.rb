@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  RSpec.describe 'Create' do
     context 'Gitaly' do
       describe 'High Availability', :orchestrated, :gitaly_ha do
         let(:project) do
@@ -18,7 +18,7 @@ module QA
         end
 
         after do
-          praefect_manager.reset
+          praefect_manager.reset_cluster
         end
 
         it 'makes sure that automatic failover is happening' do
@@ -30,7 +30,7 @@ module QA
             push.file_content = "This should exist on both nodes"
           end
 
-          praefect_manager.stop_primary_node
+          praefect_manager.trigger_failover_by_stopping_primary_node
 
           project.visit!
 

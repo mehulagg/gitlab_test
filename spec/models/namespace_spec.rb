@@ -17,6 +17,7 @@ RSpec.describe Namespace do
     it { is_expected.to have_many :children }
     it { is_expected.to have_one :root_storage_statistics }
     it { is_expected.to have_one :aggregation_schedule }
+    it { is_expected.to have_one :namespace_settings }
     it { is_expected.to have_many :custom_emoji }
   end
 
@@ -884,8 +885,13 @@ RSpec.describe Namespace do
   end
 
   describe '#root_ancestor' do
+    let!(:root_group) { create(:group) }
+
+    it 'returns root_ancestor for root group without a query' do
+      expect { root_group.root_ancestor }.not_to exceed_query_limit(0)
+    end
+
     it 'returns the top most ancestor' do
-      root_group = create(:group)
       nested_group = create(:group, parent: root_group)
       deep_nested_group = create(:group, parent: nested_group)
       very_deep_nested_group = create(:group, parent: deep_nested_group)

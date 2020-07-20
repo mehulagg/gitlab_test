@@ -1087,7 +1087,8 @@ POST /projects
 | `group_with_project_templates_id` | integer | no | **(PREMIUM)** For group-level custom templates, specifies ID of group from which all the custom project templates are sourced. Leave empty for instance-level templates. Requires `use_custom_template` to be true |
 | `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
 
-NOTE: **Note:** If your HTTP repository is not publicly accessible,
+NOTE: **Note:**
+If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
 where `password` is a public access key with the `api` scope enabled.
 
@@ -1157,7 +1158,8 @@ POST /projects/user/:user_id
 | `group_with_project_templates_id` | integer | no | **(PREMIUM)** For group-level custom templates, specifies ID of group from which all the custom project templates are sourced. Leave empty for instance-level templates. Requires `use_custom_template` to be true |
 | `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
 
-NOTE: **Note:** If your HTTP repository is not publicly accessible,
+NOTE: **Note:**
+If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
 where `password` is a public access key with the `api` scope enabled.
 
@@ -1226,9 +1228,10 @@ PUT /projects/:id
 | `only_mirror_protected_branches` | boolean | no | **(STARTER)** Only mirror protected branches |
 | `mirror_overwrites_diverged_branches` | boolean | no | **(STARTER)** Pull mirror overwrites diverged branches |
 | `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
-| `service_desk_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable service desk feature |
+| `service_desk_enabled` | boolean | no | Enable or disable service desk feature |
 
-NOTE: **Note:** If your HTTP repository is not publicly accessible,
+NOTE: **Note:**
+If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
 where `password` is a public access key with the `api` scope enabled.
 
@@ -1831,12 +1834,19 @@ Example response:
 
 ## Remove project
 
-This endpoint either:
+This endpoint:
 
 - Removes a project including all associated resources (issues, merge requests etc).
-- From [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/32935) on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a project for deletion. Actual
-  deletion happens after number of days specified in
-  [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+- From [GitLab 13.2](https://gitlab.com/gitlab-org/gitlab/-/issues/220382) on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers,
+group admins can [configure](../user/group/index.md#enabling-delayed-project-removal-premium) projects within a group
+to be deleted after a delayed period.
+When enabled, actual deletion happens after the number of days
+specified in the [default deletion period](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+
+CAUTION: **Warning:**
+The default behavior of [Delayed Project deletion](https://gitlab.com/gitlab-org/gitlab/-/issues/32935) in GitLab 12.6
+was changed to [Immediate deletion](https://gitlab.com/gitlab-org/gitlab/-/issues/220382)
+in GitLab 13.2, as discussed in [Enabling delayed project removal](../user/group/index.md#enabling-delayed-project-removal-premium).
 
 ```plaintext
 DELETE /projects/:id

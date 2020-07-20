@@ -50,6 +50,7 @@ module EE
 
       delegate :additional_purchased_storage_size, :additional_purchased_storage_size=,
         :additional_purchased_storage_ends_on, :additional_purchased_storage_ends_on=,
+        :temporary_storage_increase_ends_on,
         to: :namespace_limit, allow_nil: true
 
       delegate :email, to: :owner, allow_nil: true, prefix: true
@@ -176,7 +177,9 @@ module EE
     end
 
     def over_storage_limit?
-      ::Namespace::RootStorageSize.new(root_ancestor).above_size_limit?
+      ::Gitlab.dev_env_or_com? &&
+        ::Feature.enabled?(:namespace_storage_limit, root_ancestor) &&
+        RootStorageSize.new(root_ancestor).above_size_limit?
     end
 
     def actual_size_limit

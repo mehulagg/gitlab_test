@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 type: howto
 ---
 
-# Geo data types support
+# Geo data types support **(PREMIUM ONLY)**
 
 A Geo data type is a specific class of data that is required by one or more GitLab features to
 store relevant information.
@@ -126,7 +126,7 @@ these epics/issues:
 - [Unreplicated Data Types](https://gitlab.com/groups/gitlab-org/-/epics/893)
 - [Verify all replicated data](https://gitlab.com/groups/gitlab-org/-/epics/1430)
 
-DANGER: **DANGER**
+DANGER: **Danger:**
 Features not on this list, or with **No** in the **Replicated** column,
 are not replicated on the **secondary** node. Failing over without manually
 replicating data from those features will cause the data to be **lost**.
@@ -147,7 +147,7 @@ successfully, you must replicate their data using some other means.
 | [Versioned snippets](../../../user/snippets.md#versioned-snippets) | [No](https://gitlab.com/groups/gitlab-org/-/epics/2809)  | [No](https://gitlab.com/groups/gitlab-org/-/epics/2810) |                                                                                                            |
 | Project snippets                                                     | **Yes** (10.2)                                                  | **Yes** (10.2)                                                  |                                                                                                            |
 | Object pools for forked project deduplication                        | **Yes**                                                   | No                                                      |                                                                                                            |
-| [Server-side Git Hooks](../../custom_hooks.md)                       | No                                                       | No                                                      |                                                                                                            |
+| [Server-side Git hooks](../../server_hooks.md)                       | No                                                       | No                                                      |                                                                                                            |
 | [Elasticsearch integration](../../../integration/elasticsearch.md)   | [No](https://gitlab.com/gitlab-org/gitlab/-/issues/1186) | No                                                      |                                                                                                            |
 | [GitLab Pages](../../pages/index.md)                                 | [No](https://gitlab.com/groups/gitlab-org/-/epics/589)   | No                                                      |                                                                                                            |
 | [Container Registry](../../packages/container_registry.md)           | **Yes** (12.3)                                                 | No                                                      |                                                                                                            |

@@ -66,8 +66,8 @@ module Gitlab
       # rubocop: disable Metrics/AbcSize
       # rubocop: disable CodeReuse/ActiveRecord
       def system_usage_data
-        alert_bot_incident_count = count(::Issue.authored(::User.alert_bot))
-        issues_created_manually_from_alerts = count(Issue.with_alert_management_alerts.not_authored_by(::User.alert_bot))
+        alert_bot_incident_count = count(::Issue.authored(::User.alert_bot), start: issue_minimum_id, finish: issue_maximum_id)
+        issues_created_manually_from_alerts = count(Issue.with_alert_management_alerts.not_authored_by(::User.alert_bot), start: issue_minimum_id, finish: issue_maximum_id)
 
         {
           counts: {
@@ -109,11 +109,12 @@ module Gitlab
             clusters_applications_knative: count(::Clusters::Applications::Knative.available),
             clusters_applications_elastic_stack: count(::Clusters::Applications::ElasticStack.available),
             clusters_applications_jupyter: count(::Clusters::Applications::Jupyter.available),
+            clusters_applications_cilium: count(::Clusters::Applications::Cilium.available),
             clusters_management_project: count(::Clusters::Cluster.with_management_project),
             in_review_folder: count(::Environment.in_review_folder),
             grafana_integrated_projects: count(GrafanaIntegration.enabled),
             groups: count(Group),
-            issues: count(Issue),
+            issues: count(Issue, start: issue_minimum_id, finish: issue_maximum_id),
             issues_created_from_gitlab_error_tracking_ui: count(SentryIssue),
             issues_with_associated_zoom_link: count(ZoomMeeting.added_to_issue),
             issues_using_zoom_quick_actions: distinct_count(ZoomMeeting, :issue_id),
@@ -123,7 +124,7 @@ module Gitlab
             issues_created_manually_from_alerts: issues_created_manually_from_alerts,
             incident_issues: alert_bot_incident_count,
             alert_bot_incident_issues: alert_bot_incident_count,
-            incident_labeled_issues: count(::Issue.with_label_attributes(IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES)),
+            incident_labeled_issues: count(::Issue.with_label_attributes(::IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES), start: issue_minimum_id, finish: issue_maximum_id),
             keys: count(Key),
             label_lists: count(List.label),
             lfs_objects: count(LfsObject),
@@ -253,6 +254,10 @@ module Gitlab
             enabled: alt_usage_data(fallback: nil) { Gitlab.config.pages.enabled },
             version: alt_usage_data { Gitlab::Pages::VERSION }
           },
+          container_registry: {
+            vendor: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.container_registry_vendor },
+            version: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.container_registry_version }
+          },
           database: {
             adapter: alt_usage_data { Gitlab::Database.adapter_name },
             version: alt_usage_data { Gitlab::Database.version }
@@ -368,18 +373,15 @@ module Gitlab
           projects_jira_active: 0
         }
 
-        Service.active
-          .by_type(:JiraService)
-          .includes(:jira_tracker_data)
-          .find_in_batches(batch_size: BATCH_SIZE) do |services|
+        JiraService.active.includes(:jira_tracker_data).find_in_batches(batch_size: BATCH_SIZE) do |services|
           counts = services.group_by do |service|
             # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab/issues/29404
             service_url = service.data_fields&.url || (service.properties && service.properties['url'])
             service_url&.include?('.atlassian.net') ? :cloud : :server
           end
 
-          results[:projects_jira_server_active] += counts[:server].count if counts[:server]
-          results[:projects_jira_cloud_active] += counts[:cloud].count if counts[:cloud]
+          results[:projects_jira_server_active] += counts[:server].size if counts[:server]
+          results[:projects_jira_cloud_active] += counts[:cloud].size if counts[:cloud]
           results[:projects_jira_active] += services.size
         end
 
@@ -489,7 +491,10 @@ module Gitlab
           remote_mirrors: distinct_count(::Project.with_remote_mirrors.where(time_period), :creator_id),
           snippets: distinct_count(::Snippet.where(time_period), :author_id)
         }.tap do |h|
-          h[:merge_requests_users] = merge_requests_users(time_period) if time_period.present?
+          if time_period.present?
+            h[:merge_requests_users] = merge_requests_users(time_period)
+            h.merge!(action_monthly_active_users(time_period))
+          end
         end
       end
       # rubocop: enable CodeReuse/ActiveRecord
@@ -525,9 +530,16 @@ module Gitlab
       # Omitted because no user, creator or author associated: `boards`, `labels`, `milestones`, `uploads`
       # Omitted because too expensive: `epics_deepest_relationship_level`
       # Omitted because of encrypted properties: `projects_jira_cloud_active`, `projects_jira_server_active`
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_plan(time_period)
-        {}
+        {
+          issues: distinct_count(::Issue.where(time_period), :author_id),
+          notes: distinct_count(::Note.where(time_period), :author_id),
+          projects: distinct_count(::Project.where(time_period), :creator_id),
+          todos: distinct_count(::Todo.where(time_period), :author_id)
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       # Omitted because no user, creator or author associated: `environments`, `feature_flags`, `in_review_folder`, `pages_domains`
       # rubocop: disable CodeReuse/ActiveRecord
@@ -574,6 +586,42 @@ module Gitlab
         { analytics_unique_visits: results }
       end
 
+      def action_monthly_active_users(time_period)
+        return {} unless Feature.enabled?(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG)
+
+        counter = Gitlab::UsageDataCounters::TrackUniqueActions
+
+        project_count = redis_usage_data do
+          counter.count_unique_events(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::PUSH_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        design_count = redis_usage_data do
+          counter.count_unique_events(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::DESIGN_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        wiki_count = redis_usage_data do
+          counter.count_unique_events(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::WIKI_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        {
+          action_monthly_active_users_project_repo: project_count,
+          action_monthly_active_users_design_management: design_count,
+          action_monthly_active_users_wiki_repo: wiki_count
+        }
+      end
+
       private
 
       def unique_visit_service
@@ -586,9 +634,9 @@ module Gitlab
         # Remove prometheus table queries once they are deprecated
         # To be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/217407.
         [
-          count(Issue.with_alert_management_alerts),
-          count(::Issue.with_self_managed_prometheus_alert_events),
-          count(::Issue.with_prometheus_alert_events)
+          count(Issue.with_alert_management_alerts, start: issue_minimum_id, finish: issue_maximum_id),
+          count(::Issue.with_self_managed_prometheus_alert_events, start: issue_minimum_id, finish: issue_maximum_id),
+          count(::Issue.with_prometheus_alert_events, start: issue_minimum_id, finish: issue_maximum_id)
         ].reduce(:+)
       end
 
@@ -636,6 +684,8 @@ module Gitlab
         clear_memoization(:unique_visit_service)
         clear_memoization(:deployment_minimum_id)
         clear_memoization(:deployment_maximum_id)
+        clear_memoization(:approval_merge_request_rule_minimum_id)
+        clear_memoization(:approval_merge_request_rule_maximum_id)
       end
 
       # rubocop: disable CodeReuse/ActiveRecord

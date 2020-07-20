@@ -117,6 +117,10 @@ module EE
       end
     end
 
+    def show_delayed_project_removal_setting?(group)
+      group.feature_available?(:adjourned_deletion_for_projects_and_groups)
+    end
+
     private
 
     def get_group_sidebar_links
@@ -146,7 +150,7 @@ module EE
         links << :productivity_analytics
       end
 
-      if ::Feature.enabled?(:group_iterations, @group) && @group.feature_available?(:iterations) && can?(current_user, :read_iteration, @group)
+      if ::Feature.enabled?(:group_iterations, @group, default_enabled: true) && @group.feature_available?(:iterations) && can?(current_user, :read_iteration, @group)
         links << :iterations
       end
 

@@ -1,11 +1,13 @@
 # Geo self-service framework (alpha)
 
-NOTE: **Note:** This document might be subjected to change. It's a
+NOTE: **Note:**
+This document might be subjected to change. It's a
 proposal we're working on and once the implementation is complete this
 documentation will be updated. Follow progress in the
 [epic](https://gitlab.com/groups/gitlab-org/-/epics/2161).
 
-NOTE: **Note:** The Geo self-service framework is currently in
+NOTE: **Note:**
+The Geo self-service framework is currently in
 alpha. If you need to replicate a new data type, reach out to the Geo
 team to discuss the options. You can contact them in `#g_geo` on Slack
 or mention `@geo-team` in the issue or merge request.
@@ -178,6 +180,11 @@ For example, to add support for files referenced by a `Widget` model with a
 
      mount_uploader :file, WidgetUploader
 
+     def local?
+       # Must to be implemented, Check the uploader's storage types
+       file_store == ObjectStorage::Store::LOCAL
+     end
+
      def self.replicables_for_geo_node
        # Should be implemented. The idea of the method is to restrict
        # the set of synced items depending on synchronization settings
@@ -225,7 +232,7 @@ For example, to add support for files referenced by a `Widget` model with a
    ```
 
 1. Create the `widget_registry` table so Geo secondaries can track the sync and
-   verification state of each Widget's file:
+   verification state of each Widget's file. This migration belongs in `ee/db/geo/migrate`:
 
    ```ruby
    # frozen_string_literal: true
@@ -283,6 +290,8 @@ For example, to add support for files referenced by a `Widget` model with a
    method at all.
 
 1. Update `REGISTRY_CLASSES` in `ee/app/workers/geo/secondary/registry_consistency_worker.rb`.
+
+1. Add `widget_registry` to `ActiveSupport::Inflector.inflections` in `config/initializers_before_autoloader/000_inflections.rb`.
 
 1. Create `ee/spec/factories/geo/widget_registry.rb`:
 

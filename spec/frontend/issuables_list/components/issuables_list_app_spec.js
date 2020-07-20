@@ -7,6 +7,7 @@ import { TEST_HOST } from 'helpers/test_constants';
 import flash from '~/flash';
 import IssuablesListApp from '~/issuables_list/components/issuables_list_app.vue';
 import Issuable from '~/issuables_list/components/issuable.vue';
+import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
 import issueablesEventBus from '~/issuables_list/eventhub';
 import { PAGE_SIZE, PAGE_SIZE_MANUAL, RELATIVE_POSITION } from '~/issuables_list/constants';
 
@@ -59,6 +60,7 @@ describe('Issuables list component', () => {
 
   const findLoading = () => wrapper.find(GlSkeletonLoading);
   const findIssuables = () => wrapper.findAll(Issuable);
+  const findFilteredSearchBar = () => wrapper.find(FilteredSearchBar);
   const findFirstIssuable = () => findIssuables().wrappers[0];
   const findEmptyState = () => wrapper.find(GlEmptyState);
 
@@ -75,6 +77,7 @@ describe('Issuables list component', () => {
 
   afterEach(() => {
     wrapper.destroy();
+    wrapper = null;
     mockAxios.restore();
     window.location = oldLocation;
   });
@@ -131,6 +134,7 @@ describe('Issuables list component', () => {
     });
 
     it('does not call API until mounted', () => {
+      factory();
       expect(apiSpy).not.toHaveBeenCalled();
     });
 
@@ -172,6 +176,12 @@ describe('Issuables list component', () => {
         expect(findIssuables().length).toBe(PAGE_SIZE);
         expect(wrapper.find(GlPagination).exists()).toBe(true);
       });
+    });
+
+    it('does not render FilteredSearchBar', () => {
+      factory();
+
+      expect(findFilteredSearchBar().exists()).toBe(false);
     });
   });
 
@@ -293,7 +303,7 @@ describe('Issuables list component', () => {
 
     describe('when page is not present in params', () => {
       const query =
-        '?assignee_username=root&author_username=root&confidential=yes&label_name%5B%5D=Aquapod&label_name%5B%5D=Astro&milestone_title=v3.0&my_reaction_emoji=airplane&scope=all&sort=priority&state=opened&utf8=%E2%9C%93&weight=0';
+        '?assignee_username=root&author_username=root&confidential=yes&label_name%5B%5D=Aquapod&label_name%5B%5D=Astro&milestone_title=v3.0&my_reaction_emoji=airplane&scope=all&sort=priority&state=opened&utf8=%E2%9C%93&weight=0&not[label_name][]=Afterpod&not[milestone_title][]=13';
 
       beforeEach(() => {
         setUrl(query);
@@ -310,7 +320,11 @@ describe('Issuables list component', () => {
 
       it('applies filters and sorts', () => {
         expect(wrapper.vm.hasFilters).toBe(true);
-        expect(wrapper.vm.filters).toEqual(expectedFilters);
+        expect(wrapper.vm.filters).toEqual({
+          ...expectedFilters,
+          'not[milestone]': ['13'],
+          'not[labels]': ['Afterpod'],
+        });
 
         expect(apiSpy).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -319,6 +333,8 @@ describe('Issuables list component', () => {
               with_labels_details: true,
               page: 1,
               per_page: PAGE_SIZE,
+              'not[milestone]': ['13'],
+              'not[labels]': ['Afterpod'],
             },
           }),
         );
@@ -520,6 +536,50 @@ describe('Issuables list component', () => {
           prevPage,
           value: page,
         });
+      });
+    });
+  });
+
+  describe('when type is "jira"', () => {
+    it('renders FilteredSearchBar', () => {
+      factory({ type: 'jira' });
+
+      expect(findFilteredSearchBar().exists()).toBe(true);
+    });
+
+    describe('initialSortBy', () => {
+      const query = '?sort=updated_asc';
+
+      it('sets default value', () => {
+        factory({ type: 'jira' });
+
+        expect(findFilteredSearchBar().props('initialSortBy')).toBe('created_desc');
+      });
+
+      it('sets value according to query', () => {
+        setUrl(query);
+
+        factory({ type: 'jira' });
+
+        expect(findFilteredSearchBar().props('initialSortBy')).toBe('updated_asc');
+      });
+    });
+
+    describe('initialFilterValue', () => {
+      it('does not set value when no query', () => {
+        factory({ type: 'jira' });
+
+        expect(findFilteredSearchBar().props('initialFilterValue')).toEqual([]);
+      });
+
+      it('sets value according to query', () => {
+        const query = '?search=free+text';
+
+        setUrl(query);
+
+        factory({ type: 'jira' });
+
+        expect(findFilteredSearchBar().props('initialFilterValue')).toEqual(['free text']);
       });
     });
   });

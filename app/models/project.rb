@@ -65,6 +65,7 @@ class Project < ApplicationRecord
 
   cache_markdown_field :description, pipeline: :description
 
+  default_value_for :packages_enabled, true
   default_value_for :archived, false
   default_value_for :resolve_outdated_diff_discussions, false
   default_value_for :container_registry_enabled, gitlab_config_features.container_registry
@@ -168,6 +169,7 @@ class Project < ApplicationRecord
   has_one :custom_issue_tracker_service
   has_one :bugzilla_service
   has_one :gitlab_issue_tracker_service, inverse_of: :project
+  has_one :confluence_service
   has_one :external_wiki_service
   has_one :prometheus_service, inverse_of: :project
   has_one :mock_ci_service
@@ -259,6 +261,7 @@ class Project < ApplicationRecord
   has_many :clusters, through: :cluster_project, class_name: 'Clusters::Cluster'
   has_many :kubernetes_namespaces, class_name: 'Clusters::KubernetesNamespace'
   has_many :management_clusters, class_name: 'Clusters::Cluster', foreign_key: :management_project_id, inverse_of: :management_project
+  has_many :cluster_agents, class_name: 'Clusters::Agent'
 
   has_many :prometheus_metrics
   has_many :prometheus_alerts, inverse_of: :project
@@ -382,7 +385,9 @@ class Project < ApplicationRecord
   delegate :default_git_depth, :default_git_depth=, to: :ci_cd_settings, prefix: :ci
   delegate :forward_deployment_enabled, :forward_deployment_enabled=, :forward_deployment_enabled?, to: :ci_cd_settings
   delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
-  delegate :allow_merge_on_skipped_pipeline, :allow_merge_on_skipped_pipeline?, :allow_merge_on_skipped_pipeline=, to: :project_setting
+  delegate :allow_merge_on_skipped_pipeline, :allow_merge_on_skipped_pipeline?,
+    :allow_merge_on_skipped_pipeline=, :has_confluence?,
+    to: :project_setting
   delegate :active?, to: :prometheus_service, allow_nil: true, prefix: true
 
   # Validations
@@ -446,6 +451,7 @@ class Project < ApplicationRecord
   # Sometimes queries (e.g. using CTEs) require explicit disambiguation with table name
   scope :projects_order_id_desc, -> { reorder(self.arel_table['id'].desc) }
 
+  scope :with_packages, -> { joins(:packages) }
   scope :in_namespace, ->(namespace_ids) { where(namespace_id: namespace_ids) }
   scope :personal, ->(user) { where(namespace_id: user.namespace_id) }
   scope :joined, ->(user) { where('namespace_id != ?', user.namespace_id) }
@@ -522,11 +528,6 @@ class Project < ApplicationRecord
       .where(project_pages_metadata: { project_id: nil })
   end
 
-  scope :with_api_entity_associations, -> {
-    preload(:project_feature, :route, :tags,
-            group: :ip_restrictions, namespace: [:route, :owner])
-  }
-
   scope :with_api_commit_entity_associations, -> {
     preload(:project_feature, :route, namespace: [:route, :owner])
   }
@@ -544,6 +545,10 @@ class Project < ApplicationRecord
 
   # Used by Projects::CleanupService to hold a map of rewritten object IDs
   mount_uploader :bfg_object_map, AttachmentUploader
+
+  def self.with_api_entity_associations
+    preload(:project_feature, :route, :tags, :group, namespace: [:route, :owner])
+  end
 
   def self.with_web_entity_associations
     preload(:project_feature, :route, :creator, :group, namespace: [:route, :owner])
@@ -599,6 +604,14 @@ class Project < ApplicationRecord
       # This has to be added to include features whose value is nil in the db
       visible << nil
       with_feature_access_level(feature, visible)
+    end
+  end
+
+  def self.projects_user_can(projects, user, action)
+    projects = where(id: projects)
+
+    DeclarativePolicy.user_scope do
+      projects.select { |project| Ability.allowed?(user, action, project) }
     end
   end
 
@@ -826,6 +839,10 @@ class Project < ApplicationRecord
     auto_devops_config[:scope] != :project && !auto_devops_config[:status]
   end
 
+  def has_packages?(package_type)
+    packages.where(package_type: package_type).exists?
+  end
+
   def first_auto_devops_config
     return namespace.first_auto_devops_config if auto_devops&.enabled.nil?
 
@@ -856,6 +873,15 @@ class Project < ApplicationRecord
   def design_repository
     strong_memoize(:design_repository) do
       DesignManagement::Repository.new(self)
+    end
+  end
+
+  # Because we use default_value_for we need to be sure
+  # packages_enabled= method does exist even if we rollback migration.
+  # Otherwise many tests from spec/migrations will fail.
+  def packages_enabled=(value)
+    if has_attribute?(:packages_enabled)
+      write_attribute(:packages_enabled, value)
     end
   end
 
@@ -2441,6 +2467,7 @@ class Project < ApplicationRecord
   def service_desk_enabled
     Gitlab::ServiceDesk.enabled?(project: self)
   end
+
   alias_method :service_desk_enabled?, :service_desk_enabled
 
   def service_desk_address

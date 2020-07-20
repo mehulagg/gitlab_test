@@ -191,12 +191,12 @@ RSpec.describe PlanLimits do
         ci_max_artifact_size_license_scanning
         ci_max_artifact_size_performance
         ci_max_artifact_size_browser_performance
+        ci_max_artifact_size_load_performance
         ci_max_artifact_size_metrics
         ci_max_artifact_size_metrics_referee
         ci_max_artifact_size_network_referee
         ci_max_artifact_size_dotenv
         ci_max_artifact_size_cobertura
-        ci_max_artifact_size_terraform
         ci_max_artifact_size_accessibility
         ci_max_artifact_size_cluster_applications
         ci_max_artifact_size_secret_detection

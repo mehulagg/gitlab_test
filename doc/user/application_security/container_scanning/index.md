@@ -32,7 +32,7 @@ You can enable container scanning by doing one of the following:
 GitLab compares the found vulnerabilities between the source and target branches, and shows the
 information directly in the merge request.
 
-![Container Scanning Widget](img/container_scanning_v13_1.png)
+![Container Scanning Widget](img/container_scanning_v13_2.png)
 
 <!-- NOTE: The container scanning tool references the following heading in the code, so if you
            make a change to this heading, make sure to update the documentation URLs used in the
@@ -58,10 +58,10 @@ To enable Container Scanning in your pipeline, you need the following:
 
   ```yaml
   build:
-    image: docker:19.03.11
+    image: docker:19.03.12
     stage: build
     services:
-      - docker:19.03.11-dind
+      - docker:19.03.12-dind
     variables:
       IMAGE_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
     script:
@@ -114,7 +114,7 @@ build:
   image: docker:stable
   stage: build
   services:
-    - docker:19.03.11-dind
+    - docker:19.03.12-dind
   variables:
     IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
@@ -283,7 +283,7 @@ stages:
 build_latest_vulnerabilities:
   stage: build
   services:
-    - docker:19.03.11-dind
+    - docker:19.03.12-dind
   script:
     - docker pull arminc/clair-db:latest
     - docker tag arminc/clair-db:latest $CI_REGISTRY/namespace/clair-vulnerabilities-db

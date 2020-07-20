@@ -61,12 +61,6 @@ RSpec.describe AuditEventPresenter do
         end
       end
 
-      context 'when author_name is set in the author_name column' do
-        it 'shows the author name as provided in the database column' do
-          expect(presenter.author_name).to eq('Jane Doe')
-        end
-      end
-
       context 'when `author_name` is included in the details and not in the author_name column' do
         before do
           audit_event.update!(author_name: nil)
@@ -138,7 +132,7 @@ RSpec.describe AuditEventPresenter do
 
   context 'exposes the object' do
     it 'returns the object path if it exists' do
-      expect(presenter.object).to eq(details[:entity_path])
+      expect(presenter.object).to eq(audit_event.entity_path)
     end
 
     it 'returns the stored name if it has been deleted' do

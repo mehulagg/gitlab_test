@@ -114,7 +114,7 @@
                 %span
                   = _('Labels')
 
-            = render_if_exists 'projects/sidebar/issues_service_desk'
+            = render 'projects/sidebar/issues_service_desk'
 
             = nav_link(controller: :milestones) do
               = link_to project_milestones_path(@project), title: _('Milestones'), class: 'qa-milestones-link' do
@@ -293,19 +293,22 @@
 
       = render 'layouts/nav/sidebar/analytics_links', links: project_analytics_navbar_links(@project, current_user)
 
-      - if project_nav_tab? :wiki
-        - wiki_url = wiki_path(@project.wiki)
-        = nav_link(controller: :wikis) do
-          = link_to wiki_url, class: 'shortcuts-wiki', data: { qa_selector: 'wiki_link' } do
+      - if project_nav_tab?(:confluence)
+        - confluence_url = project_wikis_confluence_path(@project)
+        = nav_link do
+          = link_to confluence_url, class: 'shortcuts-confluence' do
             .nav-icon-container
-              = sprite_icon('book')
+              = image_tag 'confluence.svg', alt: _('Confluence')
             %span.nav-item-name
-              = _('Wiki')
+              = _('Confluence')
           %ul.sidebar-sub-level-items.is-fly-out-only
-            = nav_link(controller: :wikis, html_options: { class: "fly-out-top-item" } ) do
-              = link_to wiki_url do
+            = nav_link(html_options: { class: 'fly-out-top-item' } ) do
+              = link_to confluence_url, target: '_blank', rel: 'noopener noreferrer' do
                 %strong.fly-out-top-item-name
-                  = _('Wiki')
+                  = _('Confluence')
+
+      - if project_nav_tab? :wiki
+        = render 'layouts/nav/sidebar/wiki_link', wiki_url: wiki_path(@project.wiki)
 
       - if project_nav_tab?(:external_wiki)
         - external_wiki_url = @project.external_wiki.external_wiki_url
@@ -348,7 +351,7 @@
 
       - if project_nav_tab? :settings
         = nav_link(path: sidebar_settings_paths) do
-          = link_to edit_project_path(@project), class: 'shortcuts-tree' do
+          = link_to edit_project_path(@project) do
             .nav-icon-container
               = sprite_icon('settings')
             %span.nav-item-name.qa-settings-item#js-onboarding-settings-link

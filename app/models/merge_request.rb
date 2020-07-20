@@ -20,6 +20,7 @@ class MergeRequest < ApplicationRecord
   include IgnorableColumns
   include MilestoneEventable
   include StateEventable
+  include ApprovableBase
 
   extend ::Gitlab::Utils::Override
 
@@ -91,9 +92,6 @@ class MergeRequest < ApplicationRecord
 
   has_many :draft_notes
   has_many :reviews, inverse_of: :merge_request
-
-  has_many :approvals, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
-  has_many :approved_by_users, through: :approvals, source: :user
 
   KNOWN_MERGE_PARAMS = [
     :auto_merge_strategy,
@@ -253,23 +251,23 @@ class MergeRequest < ApplicationRecord
   end
   scope :join_project, -> { joins(:target_project) }
   scope :references_project, -> { references(:target_project) }
-
-  PROJECT_ROUTE_AND_NAMESPACE_ROUTE = [
-    target_project: [:route, { namespace: :route }],
-    source_project: [:route, { namespace: :route }]
-  ].freeze
-
   scope :with_api_entity_associations, -> {
-    preload(:assignees, :author, :unresolved_notes, :labels, :milestone,
-            :timelogs, :latest_merge_request_diff,
-            *PROJECT_ROUTE_AND_NAMESPACE_ROUTE,
-            metrics: [:latest_closed_by, :merged_by])
+    preload_routables
+      .preload(:assignees, :author, :unresolved_notes, :labels, :milestone,
+               :timelogs, :latest_merge_request_diff,
+               target_project: :project_feature,
+               metrics: [:latest_closed_by, :merged_by])
   }
+
   scope :by_target_branch_wildcard, ->(wildcard_branch_name) do
     where("target_branch LIKE ?", ApplicationRecord.sanitize_sql_like(wildcard_branch_name).tr('*', '%'))
   end
   scope :by_target_branch, ->(branch_name) { where(target_branch: branch_name) }
   scope :preload_source_project, -> { preload(:source_project) }
+  scope :preload_routables, -> do
+    preload(target_project: [:route, { namespace: :route }],
+            source_project: [:route, { namespace: :route }])
+  end
 
   scope :with_auto_merge_enabled, -> do
     with_state(:opened).where(auto_merge_enabled: true)
@@ -1029,6 +1027,10 @@ class MergeRequest < ApplicationRecord
     target_project != source_project
   end
 
+  def for_same_project?
+    target_project == source_project
+  end
+
   # If the merge request closes any issues, save this information in the
   # `MergeRequestsClosingIssues` model. This is a performance optimization.
   # Calculating this information for a number of merge requests requires
@@ -1116,14 +1118,8 @@ class MergeRequest < ApplicationRecord
   end
 
   def source_branch_exists?
-    if Feature.enabled?(:memoize_source_branch_merge_request, project)
-      strong_memoize(:source_branch_exists) do
-        next false unless self.source_project
-
-        self.source_project.repository.branch_exists?(self.source_branch)
-      end
-    else
-      return false unless self.source_project
+    strong_memoize(:source_branch_exists) do
+      next false unless self.source_project
 
       self.source_project.repository.branch_exists?(self.source_branch)
     end
@@ -1300,7 +1296,7 @@ class MergeRequest < ApplicationRecord
 
   def all_pipelines
     strong_memoize(:all_pipelines) do
-      Ci::PipelinesForMergeRequestFinder.new(self).all
+      Ci::PipelinesForMergeRequestFinder.new(self, nil).all
     end
   end
 
