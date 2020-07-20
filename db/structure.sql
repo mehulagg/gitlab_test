@@ -10887,7 +10887,8 @@ CREATE TABLE public.dast_scanner_profiles (
     name text NOT NULL,
     project_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    CONSTRAINT check_568568fabf CHECK ((char_length(name) <= 255))
 );
 
 CREATE SEQUENCE public.dast_scanner_profiles_id_seq
