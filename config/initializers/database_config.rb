@@ -24,6 +24,10 @@ end
 # set the number of threads per process as the minimum DB connection pool size.
 # This is to avoid connectivity issues as was documented here:
 # https://github.com/rails/rails/pull/23057
+# Due to the architecture of AR it is guaranteed that if you're running with
+# fewer DB connections than your server has threads you will hit
+# ActiveRecord::ConnectionTimeoutError eventually if your app gets modest
+# amounts of traffic.
 if Gitlab::Runtime.multi_threaded?
   max_threads = Gitlab::Runtime.max_threads
   db_config = Gitlab::Database.config ||
