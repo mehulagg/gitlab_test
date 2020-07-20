@@ -9,7 +9,7 @@ module DastScanners
 
       find_or_create_by!(name)
     end
-  
+
     private
 
     def allowed?
@@ -21,4 +21,3 @@ module DastScanners
     end
   end
 end
-  
