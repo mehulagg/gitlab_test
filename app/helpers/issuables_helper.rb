@@ -287,7 +287,6 @@ module IssuablesHelper
       initialDescriptionHtml: markdown_field(issuable, :description),
       initialDescriptionText: issuable.description,
       initialTaskStatus: issuable.task_status,
-      sentryIssuePresent: @issue.sentry_issue.present?,
       issueLinkEndpoint: can?(current_user, :read_issue_link, @project) ? project_issue_links_path(@project, @issue) : '',
       canAddRelatedIssues: can?(current_user, :admin_issue_link, @issue),
       relatedIssuesHelpPath: help_page_path('user/project/issues/related_issues'),

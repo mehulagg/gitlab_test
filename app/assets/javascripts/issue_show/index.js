@@ -7,8 +7,9 @@ import { createDesignManagement } from '~/design_management_new';
 
 export default function initIssueableApp() {
   const issuableData = parseIssuableData();
-  const designManagmentData = issuableData.design_management_enabled ? createDesignManagement(issuableData) : {};
-  console.log(designManagmentData)
+  const designManagmentData = issuableData.design_management_enabled
+    ? createDesignManagement(issuableData)
+    : {};
 
   // eslint-disable-next-line no-new
   new Vue({
