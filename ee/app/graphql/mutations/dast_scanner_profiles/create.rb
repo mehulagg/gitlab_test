@@ -28,10 +28,10 @@ module Mutations
         service = ::DastScannerProfiles::CreateService.new(project, current_user)
         result = service.execute(name: profile_name)
 
-      if result.success?
-        { id: result.payload.to_global_id, errors: [] }
-      else
-        { errors: result.errors }
+        if result.success?
+          { id: result.payload.to_global_id, errors: [] }
+        else
+          { errors: result.errors }
       end
 
       end

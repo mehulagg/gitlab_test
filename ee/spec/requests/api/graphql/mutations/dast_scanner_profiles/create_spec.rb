@@ -14,7 +14,7 @@ RSpec.describe 'Creating a DAST Scanner Profile' do
     graphql_mutation(
       :dast_scanner_profile_create,
       full_path: full_path,
-      profile_name: profile_name,
+      profile_name: profile_name
     )
   end
 
