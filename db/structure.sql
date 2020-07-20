@@ -10884,7 +10884,7 @@ ALTER SEQUENCE public.custom_emoji_id_seq OWNED BY public.custom_emoji.id;
 
 CREATE TABLE public.dast_scanner_profiles (
     id bigint NOT NULL,
-    name character varying(255) NOT NULL,
+    name text NOT NULL,
     project_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
