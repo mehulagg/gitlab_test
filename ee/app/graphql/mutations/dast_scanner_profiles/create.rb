@@ -32,8 +32,7 @@ module Mutations
           { id: result.payload.to_global_id, errors: [] }
         else
           { errors: result.errors }
-      end
-
+        end
       end
 
       private
