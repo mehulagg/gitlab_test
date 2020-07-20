@@ -216,7 +216,7 @@ describe('Multi-file editor library', () => {
 
     it('registers custom schemas defined with Monaco', () => {
       expect(monacoLanguages.yaml.yamlDefaults.diagnosticsOptions).toMatchObject({
-        schemas: [{ fileMatch: ['*.gitlab-ci.yml'] }],
+        schemas: [{ fileMatch: ['*.gitlab-ci.yml'] }, { fileMatch: ['*.gitlab/dashboards/*.yml'] }],
       });
     });
   });

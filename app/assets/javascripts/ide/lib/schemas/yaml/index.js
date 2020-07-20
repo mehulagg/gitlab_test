@@ -1,4 +1,5 @@
 import gitlabCi from './gitlab_ci';
+import metricsDashboard from './metrics_dashboard';
 
 export default {
   language: 'yaml',
@@ -7,6 +8,6 @@ export default {
     enableSchemaRequest: true,
     hover: true,
     completion: true,
-    schemas: [gitlabCi],
+    schemas: [gitlabCi, metricsDashboard],
   },
 };
