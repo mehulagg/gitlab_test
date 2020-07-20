@@ -2,14 +2,11 @@ import Vuex from 'vuex';
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import Renamed from '~/vue_shared/components/diff_viewer/viewers/renamed.vue';
 import {
-  TRANSITION_LOAD_START,
-  TRANSITION_LOAD_ERROR,
-  TRANSITION_LOAD_SUCCEED,
-  TRANSITION_ACKNOWLEDGE_ERROR,
-  STATE_IDLING,
-  STATE_LOADING,
-  STATE_ERRORED,
-} from '~/diffs/constants';
+  RENAMED_TRANSITION_ACKNOWLEDGE_ERROR as TRANSITION_ACKNOWLEDGE_ERROR,
+  RENAMED_STATE_IDLING as STATE_IDLING,
+  RENAMED_STATE_LOADING as STATE_LOADING,
+  RENAMED_STATE_ERRORED as STATE_ERRORED,
+} from '~/vue_shared/components/diff_viewer/constants';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -52,63 +49,6 @@ describe('Renamed Diff Viewer', () => {
       wrapper.destroy();
       wrapper = null;
     }
-  });
-
-  describe('is', () => {
-    beforeEach(() => {
-      wrapper = createRenamedComponent({ props: { diffFile } });
-    });
-
-    it.each`
-      state        | request      | result
-      ${'idle'}    | ${'idle'}    | ${true}
-      ${'idle'}    | ${'loading'} | ${false}
-      ${'idle'}    | ${'errored'} | ${false}
-      ${'loading'} | ${'loading'} | ${true}
-      ${'loading'} | ${'idle'}    | ${false}
-      ${'loading'} | ${'errored'} | ${false}
-      ${'errored'} | ${'errored'} | ${true}
-      ${'errored'} | ${'idle'}    | ${false}
-      ${'errored'} | ${'loading'} | ${false}
-    `(
-      'returns the $result for "$request" when the state is "$state"',
-      ({ request, result, state }) => {
-        wrapper.vm.state = state;
-
-        expect(wrapper.vm.is(request)).toEqual(result);
-      },
-    );
-  });
-
-  describe('transition', () => {
-    beforeEach(() => {
-      wrapper = createRenamedComponent({ props: { diffFile } });
-    });
-
-    it.each`
-      state        | transition                      | result
-      ${'idle'}    | ${TRANSITION_LOAD_START}        | ${STATE_LOADING}
-      ${'idle'}    | ${TRANSITION_LOAD_ERROR}        | ${STATE_IDLING}
-      ${'idle'}    | ${TRANSITION_LOAD_SUCCEED}      | ${STATE_IDLING}
-      ${'idle'}    | ${TRANSITION_ACKNOWLEDGE_ERROR} | ${STATE_IDLING}
-      ${'loading'} | ${TRANSITION_LOAD_START}        | ${STATE_LOADING}
-      ${'loading'} | ${TRANSITION_LOAD_ERROR}        | ${STATE_ERRORED}
-      ${'loading'} | ${TRANSITION_LOAD_SUCCEED}      | ${STATE_IDLING}
-      ${'loading'} | ${TRANSITION_ACKNOWLEDGE_ERROR} | ${STATE_LOADING}
-      ${'errored'} | ${TRANSITION_LOAD_START}        | ${STATE_LOADING}
-      ${'errored'} | ${TRANSITION_LOAD_ERROR}        | ${STATE_ERRORED}
-      ${'errored'} | ${TRANSITION_LOAD_SUCCEED}      | ${STATE_ERRORED}
-      ${'errored'} | ${TRANSITION_ACKNOWLEDGE_ERROR} | ${STATE_IDLING}
-    `(
-      'correctly updates the state to "$result" when it starts as "$state" and the transition is "$transition"',
-      ({ state, transition, result }) => {
-        wrapper.vm.state = state;
-
-        wrapper.vm.transition(transition);
-
-        expect(wrapper.vm.state).toEqual(result);
-      },
-    );
   });
 
   describe('switchToFull', () => {
@@ -154,11 +94,11 @@ describe('Renamed Diff Viewer', () => {
       ({ after, resolvePromise }) => {
         store.dispatch[resolvePromise]();
 
-        expect(wrapper.vm.state).toEqual(STATE_IDLING);
+        expect(wrapper.vm.$options.state.current).toBe(STATE_IDLING);
 
         wrapper.vm.switchToFull();
 
-        expect(wrapper.vm.state).toEqual(STATE_LOADING);
+        expect(wrapper.vm.$options.state.current).toBe(STATE_LOADING);
 
         return (
           wrapper.vm
@@ -167,7 +107,7 @@ describe('Renamed Diff Viewer', () => {
             // This tick waits for the state change in the promise .then/.catch to bubble into the component
             .then(() => wrapper.vm.$nextTick())
             .then(() => {
-              expect(wrapper.vm.state).toEqual(after);
+              expect(wrapper.vm.$options.state.current).toBe(after);
             })
         );
       },
@@ -219,7 +159,7 @@ describe('Renamed Diff Viewer', () => {
 
     beforeEach(() => {
       wrapper = createRenamedComponent({ props: { diffFile } });
-      transitionSpy = jest.spyOn(wrapper.vm, 'transition');
+      transitionSpy = jest.spyOn(wrapper.vm.$options.state, 'transition');
     });
 
     it(`transitions the component with "${TRANSITION_ACKNOWLEDGE_ERROR}"`, () => {

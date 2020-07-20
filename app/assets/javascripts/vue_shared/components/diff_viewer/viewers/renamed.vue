@@ -11,14 +11,14 @@ import {
   STATE_IDLING,
   STATE_LOADING,
   STATE_ERRORED,
-  RENAMED_DIFF_TRANSITIONS,
-} from '~/diffs/constants';
+  getStateMachine,
+} from './renamed/state_machine';
 import { truncateSha } from '~/lib/utils/text_utility';
 
 export default {
   STATE_LOADING,
   STATE_ERRORED,
-  TRANSITIONS: RENAMED_DIFF_TRANSITIONS,
+  state: getStateMachine(),
   uiText: {
     showLink: __('Show file contents'),
     commitLink: __('View file @ %{commitSha}'),
@@ -50,25 +50,15 @@ export default {
   },
   methods: {
     ...mapActions('diffs', ['switchToFullDiffFromRenamedFile']),
-    transition(transitionEvent) {
-      const key = `${this.state}:${transitionEvent}`;
-
-      if (this.$options.TRANSITIONS[key]) {
-        this.state = this.$options.TRANSITIONS[key];
-      }
-    },
-    is(state) {
-      return this.state === state;
-    },
     switchToFull() {
-      this.transition(TRANSITION_LOAD_START);
+      this.$options.state.transition(TRANSITION_LOAD_START);
 
       this.switchToFullDiffFromRenamedFile({ diffFile: this.diffFile })
         .then(() => {
-          this.transition(TRANSITION_LOAD_SUCCEED);
+          this.$options.state.transition(TRANSITION_LOAD_SUCCEED);
         })
         .catch(() => {
-          this.transition(TRANSITION_LOAD_ERROR);
+          this.$options.state.transition(TRANSITION_LOAD_ERROR);
         });
     },
     clickLink(event) {
@@ -79,7 +69,7 @@ export default {
       }
     },
     dismissError() {
-      this.transition(TRANSITION_ACKNOWLEDGE_ERROR);
+      this.$options.state.transition(TRANSITION_ACKNOWLEDGE_ERROR);
     },
   },
 };
@@ -87,10 +77,10 @@ export default {
 
 <template>
   <div class="nothing-here-block">
-    <gl-loading-icon v-if="is($options.STATE_LOADING)" />
+    <gl-loading-icon v-if="$options.state.is($options.STATE_LOADING)" />
     <template v-else>
       <gl-alert
-        v-show="is($options.STATE_ERRORED)"
+        v-show="$options.state.is($options.STATE_ERRORED)"
         class="gl-mb-5 gl-text-left"
         variant="danger"
         @dismiss="dismissError"

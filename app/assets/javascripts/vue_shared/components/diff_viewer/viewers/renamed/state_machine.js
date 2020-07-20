@@ -1,0 +1,45 @@
+import { machine } from '~/lib/utils/finite_state_machine';
+import {
+  RENAMED_TRANSITION_LOAD_START as TRANSITION_LOAD_START,
+  RENAMED_TRANSITION_LOAD_ERROR as TRANSITION_LOAD_ERROR,
+  RENAMED_TRANSITION_LOAD_SUCCEED as TRANSITION_LOAD_SUCCEED,
+  RENAMED_TRANSITION_ACKNOWLEDGE_ERROR as TRANSITION_ACKNOWLEDGE_ERROR,
+  RENAMED_STATE_IDLING as STATE_IDLING,
+  RENAMED_STATE_LOADING as STATE_LOADING,
+  RENAMED_STATE_ERRORED as STATE_ERRORED,
+} from '../../constants';
+
+export function getStateMachine() {
+  return machine({
+    initial: STATE_IDLING,
+    states: {
+      [STATE_IDLING]: {
+        on: {
+          [TRANSITION_LOAD_START]: STATE_LOADING,
+        },
+      },
+      [STATE_LOADING]: {
+        on: {
+          [TRANSITION_LOAD_ERROR]: STATE_ERRORED,
+          [TRANSITION_LOAD_SUCCEED]: STATE_IDLING,
+        },
+      },
+      [STATE_ERRORED]: {
+        on: {
+          [TRANSITION_LOAD_START]: STATE_LOADING,
+          [TRANSITION_ACKNOWLEDGE_ERROR]: STATE_IDLING,
+        },
+      },
+    },
+  });
+}
+
+export {
+  TRANSITION_LOAD_START,
+  TRANSITION_LOAD_ERROR,
+  TRANSITION_LOAD_SUCCEED,
+  TRANSITION_ACKNOWLEDGE_ERROR,
+  STATE_IDLING,
+  STATE_LOADING,
+  STATE_ERRORED,
+};
