@@ -2089,19 +2089,14 @@ input DastScannerProfileCreateInput {
   clientMutationId: String
 
   """
+  The project the site profile belongs to.
+  """
+  fullPath: ID!
+
+  """
   The name of the scanner profile.
   """
   profileName: String!
-
-  """
-  Time in seconds the allow the scan to run.
-  """
-  spiderTimeout: Int
-
-  """
-  Time in seconds to wait for a response from the target website.
-  """
-  targetTimeout: Int
 }
 
 """

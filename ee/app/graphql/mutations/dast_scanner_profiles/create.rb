@@ -19,17 +19,9 @@ module Mutations
                 required: true,
                 description: 'The name of the scanner profile.'
 
-      argument :spider_timeout, GraphQL::INT_TYPE,
-                required: false,
-                description: 'Time in seconds the allow the scan to run.'
-
-      argument :target_timeout, GraphQL::INT_TYPE,
-                required: false,
-                description: 'Time in seconds to wait for a response from the target website.'
-
       authorize :run_ondemand_dast_scan
 
-      def resolve(full_path:, profile_name:, spider_timeout: nil, target_timeout: nil)
+      def resolve(full_path:, profile_name:)
         project = authorized_find!(full_path: full_path)
         raise_resource_not_available_error! unless Feature.enabled?(:security_on_demand_scans_feature_flag, project)
 

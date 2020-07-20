@@ -9,16 +9,12 @@ RSpec.describe 'Creating a DAST Scanner Profile' do
   let(:current_user) { create(:user) }
   let(:full_path) { project.full_path }
   let(:profile_name) { FFaker::Company.catch_phrase }
-  let(:spider_timeout) { 500 }
-  let(:target_timeout) { 100 }
 
   let(:mutation) do
     graphql_mutation(
       :dast_scanner_profile_create,
       full_path: full_path,
       profile_name: profile_name,
-      spider_timeout: spider_timeout,
-      target_timeout: target_timeout
     )
   end
 

@@ -5560,6 +5560,20 @@
           "fields": null,
           "inputFields": [
             {
+              "name": "fullPath",
+              "description": "The project the site profile belongs to.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
               "name": "profileName",
               "description": "The name of the scanner profile.",
               "type": {
@@ -5570,26 +5584,6 @@
                   "name": "String",
                   "ofType": null
                 }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "spiderTimeout",
-              "description": "Time in seconds the allow the scan to run.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "targetTimeout",
-              "description": "Time in seconds to wait for a response from the target website.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
               },
               "defaultValue": null
             },
