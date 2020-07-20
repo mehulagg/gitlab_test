@@ -126,6 +126,12 @@ You can edit existing additional custom metrics for your dashboard by clicking t
 
 ![Edit metric](../../user/project/integrations/img/prometheus_dashboard_edit_metric_link_v_12_9.png)
 
+## Adding instrumented application metrics to GitLab dashboard
+Instrumentation is a another big part of Prometheus. Before retrieving data from your applications, you want to instrument them.
+
+Instrumentation in Prometheus terms means adding client libraries to your application in order for them to expose metrics to Prometheus.
+
+
 ## Keyboard shortcuts for charts
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/202146) in GitLab 13.2.
