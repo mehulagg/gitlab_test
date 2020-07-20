@@ -16,33 +16,6 @@ RSpec.describe RuboCop::Cop::Gitlab::DuplicateSpecLocation, type: :rubocop do
     File.expand_path(File.join(rails_root, path), __dir__)
   end
 
-  context 'Non-EE spec file' do
-    it 'registers no offenses' do
-      expect_no_offenses(<<~SOURCE, full_path('spec/foo_spec.rb'))
-        describe 'Foo' do
-        end
-      SOURCE
-    end
-  end
-
-  context 'Non-EE application file' do
-    it 'registers no offenses' do
-      expect_no_offenses(<<~SOURCE, full_path('app/models/blog_post.rb'))
-        class BlogPost
-        end
-      SOURCE
-    end
-  end
-
-  context 'EE application file' do
-    it 'registers no offenses' do
-      expect_no_offenses(<<~SOURCE, full_path('ee/app/models/blog_post.rb'))
-        class BlogPost
-        end
-      SOURCE
-    end
-  end
-
   context 'EE spec file for EE only code' do
     let(:spec_file_path) { full_path('ee/spec/controllers/foo_spec.rb') }
 

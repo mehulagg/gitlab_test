@@ -23,9 +23,10 @@ module RuboCop
         include RuboCop::RSpec::TopLevelDescribe
 
         MSG = 'Duplicate spec location in `%<path>s`.'
+        REGEXP = %r{\A(?<prefix>ee/spec/.*?)(?<ee>/ee)?/(?<suffix>.*)}
 
         def on_top_level_describe(node, _args)
-          path = file_path_for_node(node).sub(/\A#{rails_root}\//, '')
+          path = file_path_for_node(node).delete_prefix("#{rails_root}/")
           duplicate_path = find_duplicate_path(path)
 
           if duplicate_path && File.exist?(File.join(rails_root, duplicate_path))
@@ -35,20 +36,12 @@ module RuboCop
 
         private
 
-        def ee_spec?(path)
-          File.fnmatch?('ee/spec/**/*.rb', path, File::FNM_PATHNAME)
-        end
-
         def find_duplicate_path(path)
-          return unless ee_spec?(path)
-
-          if File.fnmatch?('ee/spec/**/ee/**', path)
-            path.match('\A(ee/spec/[^/]+)/ee/(.+)') do |match|
-              File.join(match[1], match[2])
-            end
-          else
-            path.match('\A(ee/spec/[^/]+)/(.+)') do |match|
-              File.join(match[1], 'ee', match[2])
+          REGEXP.match(path) do |match|
+            if match[:ee]
+              File.join(match[:prefix], match[:suffix])
+            else
+              File.join(match[:prefix], 'ee', match[:suffix])
             end
           end
         end

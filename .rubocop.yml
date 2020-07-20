@@ -257,6 +257,8 @@ GitlabSecurity/PublicSend:
 
 Gitlab/DuplicateSpecLocation:
   Enabled: true
+  Include:
+    - 'ee/spec/**/*.rb'
 
 Cop/InjectEnterpriseEditionModule:
   Enabled: true
