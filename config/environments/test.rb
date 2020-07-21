@@ -57,5 +57,5 @@ Rails.application.configure do
 
   # Mount the ActionCable Engine in-app so that we don't have to spawn another Puma
   # process for feature specs
-  ENV['ACTION_CABLE_IN_APP'] = 'true'
+  ENV['GITLAB_ACTION_CABLE_IN_APP'] = 'true'
 end
