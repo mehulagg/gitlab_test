@@ -1,0 +1,5 @@
+---
+title: Remove use of LegacyGithubClient in GithubController
+merge_request: 37555
+author:
+type: other
