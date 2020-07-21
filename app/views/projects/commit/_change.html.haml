@@ -6,10 +6,12 @@
   - revert_commit = _('Revert this commit')
   - description = s_('ChangeTypeAction|This will create a new commit in order to revert the existing changes.')
   - title = commit.merged_merge_request(current_user) ? revert_merge_request : revert_commit
+  - form_url = revert_namespace_project_commit_path(@project.namespace, @project, commit)
 - when 'cherry-pick'
   - label = s_('ChangeTypeAction|Cherry-pick')
   - branch_label = s_('ChangeTypeActionLabel|Pick into branch')
   - title = commit.merged_merge_request(current_user) ? _('Cherry-pick this merge request') : _('Cherry-pick this commit')
+  - form_url = cherry_pick_namespace_project_commit_path(@project.namespace, @project, commit)
 
 .modal{ id: "modal-#{type}-commit", tabindex: -1 }
   .modal-dialog
@@ -21,7 +23,7 @@
       .modal-body
         - if description
           %p= description
-        = form_tag [type.underscore, @project.namespace.becomes(Namespace), @project, commit], method: :post, remote: false, class: "js-#{type}-form js-requires-input" do
+        = form_tag commit, url: form_url, method: :post, remote: false, class: "js-#{type}-form js-requires-input" do
           .form-group.branch
             = label_tag 'start_branch', branch_label, class: 'label-bold'
 
