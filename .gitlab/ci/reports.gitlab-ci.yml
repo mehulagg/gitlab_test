@@ -191,7 +191,7 @@ dependency_scanning:
   image:
     name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
   services:
-    - name: "${CI_REGISTRY}/${CI_PROJECT_PATH}/gitlab-ee-qa:${CI_COMMIT_REF_SLUG}"
+    - name: "registry.gitlab.com/gitlab-org/build/omnibus-gitlab-mirror/gitlab-ee:16c6b33fafaab999a5749846caf0f0640b8f6bf2"
       alias: gitlab
   variables:
     DAST_USERNAME: "root"
