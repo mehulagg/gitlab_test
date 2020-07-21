@@ -13,6 +13,8 @@ class Import::GithubController < Import::BaseController
   rescue_from Octokit::Unauthorized, with: :provider_unauthorized
   rescue_from Octokit::TooManyRequests, with: :provider_rate_limit
 
+  OAuthConfigMissingError = Class.new(StandardError)
+
   def new
     if !ci_cd_only? && github_import_configured? && logged_in_with_provider?
       go_to_provider_for_permissions
@@ -77,9 +79,7 @@ class Import::GithubController < Import::BaseController
   override :provider_url
   def provider_url
     strong_memoize(:provider_url) do
-      provider = Gitlab::Auth::OAuth::Provider.config_for('github')
-
-      provider&.dig('url').presence || 'https://github.com'
+      oauth_config&.dig('url').presence || 'https://github.com'
     end
   end
 
@@ -104,11 +104,46 @@ class Import::GithubController < Import::BaseController
   end
 
   def client
-    @client ||= Gitlab::LegacyGithubImport::Client.new(session[access_token_key], client_options)
+    @client ||= Gitlab::GithubImport::Client.new(session[access_token_key])
   end
 
   def client_repos
-    @client_repos ||= filtered(client.repos)
+    @client_repos ||= filtered(client.octokit.repos)
+  end
+
+  def oauth_client
+    unless oauth_config
+      raise OAuthConfigMissingError, 'OAuth configuration for GitHub missing.'
+    end
+
+    @oauth_client ||= ::OAuth2::Client.new(
+      oauth_config.app_id,
+      oauth_config.app_secret,
+      oauth_options.merge(ssl: { verify: oauth_config.dig('verify_ssl') })
+    )
+  end
+
+  def oauth_config
+    @oauth_config ||= Gitlab::Auth::OAuth::Provider.config_for('github')
+  end
+
+  def oauth_options
+    if oauth_config
+      oauth_config.dig('args', 'client_options').deep_symbolize_keys
+    else
+      OmniAuth::Strategies::GitHub.default_options[:client_options].symbolize_keys
+    end
+  end
+
+  def authorize_url(redirect_uri)
+    oauth_client.auth_code.authorize_url({
+       redirect_uri: redirect_uri,
+       scope: "repo, user, user:email"
+     })
+  end
+
+  def get_token(code)
+    oauth_client.auth_code.get_token(code).token
   end
 
   def verify_import_enabled
@@ -116,7 +151,7 @@ class Import::GithubController < Import::BaseController
   end
 
   def go_to_provider_for_permissions
-    redirect_to client.authorize_url(callback_import_url)
+    redirect_to authorize_url(callback_import_url)
   end
 
   def import_enabled?
