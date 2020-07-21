@@ -32,6 +32,24 @@ RSpec.describe SessionsController, :geo do
         end
       end
 
+      context 'when relative URL is configured' do
+        def stub_relative_url(host, script_name)
+          url_options = { host: host, protocol: "http", port: nil, script_name: script_name }
+
+          allow(Rails.application.routes).to receive(:default_url_options).and_return(url_options)
+        end
+
+        before do
+          host = 'http://this.is.my.host/secondary-relative-url-part'
+
+          stub_config_setting(url: host, https: false)
+          stub_relative_url("this.is.my.host", '/secondary-relative-url-part')
+          request.headers['HOST'] = host
+        end
+
+        it_behaves_like 'a valid oauth authentication redirect'
+      end
+
       context 'with a tampered HOST header' do
         before do
           request.headers['HOST'] = 'http://this.is.not.my.host'
