@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module QA
   module Service
     module DockerRun
       class K3s < Base
         def initialize
           @image = 'registry.gitlab.com/gitlab-org/cluster-integration/test-utils/k3s-gitlab-ci/releases/v0.6.1'
-          @name = 'k3s'
+          @name = "k3s-#{SecureRandom.hex(4)}"
           super
         end
 
@@ -21,6 +23,10 @@ module QA
           super
         end
 
+        def port
+          @port ||= rand(6_000..6_999)
+        end
+
         def kubeconfig
           read_file('/etc/rancher/k3s/k3s.yaml').chomp
         end
@@ -31,7 +37,7 @@ module QA
             --network #{network}
             --hostname #{host_name}
             --name #{@name}
-            --publish 6443:6443
+            --publish #{port}:6443
             --privileged
             #{@image} server
             --cluster-secret some-secret

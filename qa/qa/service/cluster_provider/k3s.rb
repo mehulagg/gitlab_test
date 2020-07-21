@@ -13,12 +13,12 @@ module QA
             k3s.remove!
             k3s.register!
 
-            shell "kubectl config set-cluster k3s --server https://#{k3s.host_name}:6443 --insecure-skip-tls-verify"
+            shell "kubectl config set-cluster k3s --server https://#{k3s.host_name}:#{k3s.port} --insecure-skip-tls-verify"
             shell 'kubectl config set-credentials default --username=node --password=some-secret'
             shell 'kubectl config set-context k3s --cluster=k3s --user=default'
             shell 'kubectl config use-context k3s'
 
-            wait_for_server(k3s.host_name) do
+            wait_for_server(k3s) do
               shell 'kubectl version'
 
               wait_for_namespaces do
@@ -52,8 +52,8 @@ module QA
 
         private
 
-        def wait_for_server(host_name)
-          print "Waiting for K3s server at `https://#{host_name}:6443` to become available "
+        def wait_for_server(server)
+          print "Waiting for K3s server at `https://#{server.host_name}:#{server.port}` to become available"
 
           60.times do
             if service_available?('kubectl version')
@@ -65,6 +65,9 @@ module QA
             sleep 1
             print '.'
           end
+
+          shell 'kubectl get pods --all-namespaces'
+          shell 'kubectl get events'
 
           raise 'K3s server never came up'
         end
