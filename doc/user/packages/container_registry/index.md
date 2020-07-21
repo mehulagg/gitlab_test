@@ -511,7 +511,7 @@ The cleanup policy is enabled for all projects by default.
   Support for projects created earlier
   [is planned](https://gitlab.com/gitlab-org/gitlab/-/issues/196124).
 - For self-managed GitLab instances, the project must have been created
-  before GitLab 12.7. However, an administrator can enable the cleanup policy
+  with GitLab 12.7 or newer. However, an administrator can enable the cleanup policy
   for all projects (even those created before 12.7) in
   [GitLab application settings](../../../api/settings.md#change-application-settings)
   by setting `container_expiration_policies_enable_historic_entries` to true.
