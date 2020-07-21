@@ -100,7 +100,6 @@ module Gitlab
       end
     end
 
-    override :check_change_access!
     def check_change_access!
       unless user_can_push?
         raise ForbiddenError, ERROR_MESSAGES[:update_snippet]
@@ -117,7 +116,6 @@ module Gitlab
       check_push_size!
     end
 
-    override :check_single_change_access
     def check_single_change_access(change, _skip_lfs_integrity_check: false)
       Checks::SnippetCheck.new(change, logger: logger).validate!
       Checks::PushFileCountCheck.new(change, repository: repository, limit: Snippet.max_file_limit(user), logger: logger).validate!

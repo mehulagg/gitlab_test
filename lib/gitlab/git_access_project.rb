@@ -22,6 +22,54 @@ module Gitlab
 
     private
 
+    override :check_push_access!
+    def check_push_access!
+      super
+
+      check_change_access!
+    end
+
+    def check_change_access!
+      # Deploy keys with write access can push anything
+      return if deploy_key?
+
+      if changes == ANY
+        can_push = user_can_push? ||
+          project&.any_branch_allows_collaboration?(user_access.user)
+
+        unless can_push
+          raise ForbiddenError, ERROR_MESSAGES[:push_code]
+        end
+      else
+        # If there are worktrees with a HEAD pointing to a non-existent object,
+        # calls to `git rev-list --all` will fail in git 2.15+. This should also
+        # clear stale lock files.
+        project.repository.clean_stale_repository_files
+
+        # Iterate over all changes to find if user allowed all of them to be applied
+        changes_list.each.with_index do |change, index|
+          first_change = index == 0
+
+          # If user does not have access to make at least one change, cancel all
+          # push by allowing the exception to bubble up
+          check_single_change_access(change, skip_lfs_integrity_check: !first_change)
+        end
+      end
+    end
+
+    def check_single_change_access(change, skip_lfs_integrity_check: false)
+      Checks::ChangeAccess.new(
+        change,
+        user_access: user_access,
+        project: project,
+        skip_lfs_integrity_check: skip_lfs_integrity_check,
+        protocol: protocol,
+        logger: logger
+      ).validate!
+    rescue Checks::TimedLogger::TimeoutError
+      raise TimeoutError, logger.full_message
+    end
+
     override :check_container!
     def check_container!
       check_namespace!

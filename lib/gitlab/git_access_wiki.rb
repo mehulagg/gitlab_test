@@ -22,12 +22,12 @@ module Gitlab
       :create_wiki
     end
 
-    override :check_change_access!
-    def check_change_access!
+    override :check_push_access!
+    def check_push_access!
+      super
+
       raise ForbiddenError, write_to_wiki_message unless user_can_push?
       raise ForbiddenError, push_to_read_only_message if Gitlab::Database.read_only?
-
-      true
     end
 
     def push_to_read_only_message
