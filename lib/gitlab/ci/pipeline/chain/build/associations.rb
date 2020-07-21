@@ -17,6 +17,10 @@ module Gitlab
               )
             end
 
+            def perform_on_dry_run?
+              true
+            end
+
             def break?
               false
             end

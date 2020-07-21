@@ -21,6 +21,10 @@ module Gitlab
               error('External validation failed', drop_reason: :external_validation_failure) unless pipeline_authorized
             end
 
+            def perform_on_dry_run?
+              true
+            end
+
             def break?
               @pipeline.errors.any?
             end

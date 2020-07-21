@@ -22,6 +22,8 @@ module Gitlab
             end
           end
 
+          alias_method :dry_run?, :dry_run
+
           def branch_exists?
             strong_memoize(:is_branch) do
               project.repository.branch_exists?(ref)

@@ -10,6 +10,10 @@ module Gitlab
               # to be overridden in EE
             end
 
+            def perform_on_dry_run?
+              true
+            end
+
             def break?
               false # to be overridden in EE
             end

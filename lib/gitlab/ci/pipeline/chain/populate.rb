@@ -28,6 +28,10 @@ module Gitlab
             raise Populate::PopulateError if pipeline.persisted?
           end
 
+          def perform_on_dry_run?
+            true
+          end
+
           def break?
             pipeline.errors.any?
           end

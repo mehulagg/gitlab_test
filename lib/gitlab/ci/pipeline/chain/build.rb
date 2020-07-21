@@ -26,6 +26,12 @@ module Gitlab
               # removed.
               locked: ::Gitlab::Ci::Features.keep_latest_artifacts_for_ref_enabled?(@command.project) ? :artifacts_locked : :unlocked
             )
+
+            @pipeline.readonly! if @command.dry_run?
+          end
+
+          def perform_on_dry_run?
+            true
           end
 
           def break?

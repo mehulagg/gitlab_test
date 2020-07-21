@@ -8,13 +8,15 @@ module Gitlab
           include Chain::Helpers
 
           def perform!
-            return if @command.dry_run
-
             BulkInsertableAssociations.with_bulk_insert(enabled: ::Gitlab::Ci::Features.bulk_insert_on_create?(project)) do
               pipeline.save!
             end
           rescue ActiveRecord::RecordInvalid => e
             error("Failed to persist the pipeline: #{e}")
+          end
+
+          def perform_on_dry_run?
+            false
           end
 
           def break?

@@ -15,6 +15,10 @@ module Gitlab
             end
           end
 
+          def perform_on_dry_run?
+            true
+          end
+
           def skipped?
             !@command.ignore_skip_ci && (commit_message_skips_ci? || push_option_skips_ci?)
           end

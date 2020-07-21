@@ -35,6 +35,10 @@ module Gitlab
                 config_error: true)
             end
 
+            def perform_on_dry_run?
+              true
+            end
+
             def break?
               @pipeline.errors.any? || @pipeline.persisted?
             end

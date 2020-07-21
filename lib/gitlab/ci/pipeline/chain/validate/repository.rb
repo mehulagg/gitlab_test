@@ -22,6 +22,10 @@ module Gitlab
               end
             end
 
+            def perform_on_dry_run?
+              true
+            end
+
             def break?
               @pipeline.errors.any?
             end

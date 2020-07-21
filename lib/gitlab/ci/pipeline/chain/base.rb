@@ -14,6 +14,18 @@ module Gitlab
             @command = command
           end
 
+          def applicable?
+            if @command.dry_run?
+              perform_on_dry_run?
+            else
+              true
+            end
+          end
+
+          def perform_on_dry_run?
+            raise NotImplementedError
+          end
+
           def perform!
             raise NotImplementedError
           end

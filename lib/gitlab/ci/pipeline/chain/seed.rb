@@ -34,6 +34,10 @@ module Gitlab
             @command.stage_seeds = stage_seeds
           end
 
+          def perform_on_dry_run?
+            true
+          end
+
           def break?
             pipeline.errors.any?
           end

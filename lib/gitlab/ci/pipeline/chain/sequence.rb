@@ -14,9 +14,7 @@ module Gitlab
           end
 
           def build!
-            @sequence.each do |chain|
-              step = chain.new(@pipeline, @command)
-
+            applicable_steps.each do |step|
               step.perform!
               break if step.break?
 
@@ -24,7 +22,9 @@ module Gitlab
             end
 
             @pipeline.tap do
-              yield @pipeline, self if block_given? && !@command.dry_run
+              next if @command.dry_run
+
+              yield @pipeline if block_given?
 
               @command.observe_creation_duration(Time.now - @start)
               @command.observe_pipeline_size(@pipeline)
@@ -32,7 +32,17 @@ module Gitlab
           end
 
           def complete?
-            @completed.size == @sequence.size
+            @completed.size == applicable_steps.size
+          end
+
+          private
+
+          def applicable_steps
+            @applicable_steps ||= all_steps.select(&:applicable?)
+          end
+
+          def all_steps
+            @all_steps ||= @sequence.map { |step_class| step_class.new(@pipeline, @command) }
           end
         end
       end

@@ -12,6 +12,10 @@ module Gitlab
             error('Pipeline filtered out by workflow rules.') unless workflow_passed?
           end
 
+          def perform_on_dry_run?
+            true
+          end
+
           def break?
             @pipeline.errors.any? || @pipeline.persisted?
           end

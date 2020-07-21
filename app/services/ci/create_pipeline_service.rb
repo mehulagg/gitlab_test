@@ -21,7 +21,10 @@ module Ci
                 Gitlab::Ci::Pipeline::Chain::Populate,
                 Gitlab::Ci::Pipeline::Chain::Create,
                 Gitlab::Ci::Pipeline::Chain::Limit::Activity,
-                Gitlab::Ci::Pipeline::Chain::Limit::JobActivity].freeze
+                Gitlab::Ci::Pipeline::Chain::Limit::JobActivity,
+                Gitlab::Ci::Pipeline::Chain::CancelPendingPipelines,
+                Gitlab::Ci::Pipeline::Chain::Metrics,
+                Gitlab::Ci::Pipeline::Chain::Process].freeze
 
     # Create a new pipeline in the specified project.
     #
@@ -71,17 +74,11 @@ module Ci
       sequence = Gitlab::Ci::Pipeline::Chain::Sequence
         .new(pipeline, command, SEQUENCE)
 
-      sequence.build! do |pipeline, sequence|
+      sequence.build! do |pipeline|
+        # TODO: this pipeline scheduling now occurs at the end of the sequence
+        # and after the ProcessPipelineService. Would this cause any race
+        # conditions?
         schedule_head_pipeline_update
-
-        if sequence.complete?
-          cancel_pending_pipelines if project.auto_cancel_pending_pipelines?
-          pipeline_created_counter.increment(source: source)
-
-          Ci::ProcessPipelineService
-            .new(pipeline)
-            .execute(nil, initial_process: true)
-        end
       end
 
       # If pipeline is not persisted, try to recover IID
@@ -109,25 +106,6 @@ module Ci
     def sha
       commit.try(:id)
     end
-
-    def cancel_pending_pipelines
-      Gitlab::OptimisticLocking.retry_lock(auto_cancelable_pipelines) do |cancelables|
-        cancelables.find_each do |cancelable|
-          cancelable.auto_cancel_running(pipeline)
-        end
-      end
-    end
-
-    # rubocop: disable CodeReuse/ActiveRecord
-    def auto_cancelable_pipelines
-      project.ci_pipelines
-        .where(ref: pipeline.ref)
-        .where.not(id: pipeline.same_family_pipeline_ids)
-        .where.not(sha: project.commit(pipeline.ref).try(:id))
-        .alive_or_scheduled
-        .with_only_interruptible_builds
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def pipeline_created_counter
       @pipeline_created_counter ||= Gitlab::Metrics

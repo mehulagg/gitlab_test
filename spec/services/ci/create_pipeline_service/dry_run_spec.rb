@@ -63,10 +63,7 @@ RSpec.describe Ci::CreatePipelineService do
 
           expect(subject.error_messages.map(&:content)).to eq([error_message])
           expect(subject.errors).not_to be_empty
-        end
-
-        it 'does not set yaml_errors because we are not persisting the pipeline' do
-          expect(subject.yaml_errors).to be_nil
+          expect(subject.yaml_errors).to eq(error_message)
         end
       end
 

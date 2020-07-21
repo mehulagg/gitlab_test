@@ -31,6 +31,10 @@ module Gitlab
               @pipeline.errors.any? || @pipeline.persisted?
             end
 
+            def perform_on_dry_run?
+              true
+            end
+
             private
 
             def find_config
