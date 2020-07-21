@@ -9,4 +9,5 @@ export default () => ({
   boardLists: [],
   epics: {},
   issuesByEpicId: {},
+  issuesByEpicAndListId: {},
 });

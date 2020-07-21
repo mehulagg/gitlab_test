@@ -140,7 +140,7 @@ export default {
     let relativePosition = 'after';
 
     let isFirstChild = false;
-    const newParentChildren = state.epics.find(epic => epic.id === epicToId).issues;
+    const newParentChildren = state.issuesByListId[listId].filter(i => i.epic?.id === epicToId);
 
     if (newParentChildren?.length > 0) {
       adjacentItem = newParentChildren[newIndex];
@@ -148,7 +148,7 @@ export default {
         adjacentItem = newParentChildren[newParentChildren.length - 1];
         relativePosition = 'before';
       }
-      adjacentReferenceId = adjacentItem.id;
+      adjacentReferenceId = adjacentItem.epicIssueId;
     } else {
       isFirstChild = true;
       relativePosition = 'before';
@@ -172,7 +172,7 @@ export default {
             baseEpicId: epicFromId,
             moved: {
               id: epicIssueId,
-              // adjacentReferenceId,
+              adjacentReferenceId,
               relativePosition,
               newParentId: epicToId,
             },

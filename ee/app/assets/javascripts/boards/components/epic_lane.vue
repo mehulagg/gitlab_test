@@ -31,10 +31,6 @@ export default {
       type: Object,
       required: true,
     },
-    epicIssues: {
-      type: Array,
-      required: true,
-    },
     isLoadingIssues: {
       type: Boolean,
       required: false,
@@ -74,8 +70,12 @@ export default {
       return this.isOpen ? 'gl-text-green-500' : 'gl-text-blue-500';
     },
     issuesCount() {
-      const { openedIssues, closedIssues } = this.epic.descendantCounts;
-      return openedIssues + closedIssues;
+      let total = 0;
+      /* eslint-disable no-unused-vars */
+      Object.entries(this.issues).forEach(([listId, listIssues]) => {
+        total += listIssues.length;
+      })
+      return total;
     },
     issuesCountTooltipText() {
       return n__(`%d issue in this group`, `%d issues in this group`, this.issuesCount);
@@ -94,13 +94,6 @@ export default {
     },
   },
   methods: {
-    epicIssuesForList(listId) {
-      if (this.issues[listId]) {
-        return this.issues[listId].filter(issue => issue.epic && issue.epic.id === this.epic.id);
-      }
-
-      return [];
-    },
     toggleExpanded() {
       this.isExpanded = !this.isExpanded;
     },
@@ -160,7 +153,7 @@ export default {
         v-for="list in lists"
         :key="`${list.id}-issues`"
         :list="list"
-        :issues="epicIssuesForList(list.id)"
+        :issues="issues[list.id] || []"
         :is-loading="isLoadingIssues"
         :disabled="disabled"
         :root-path="rootPath"

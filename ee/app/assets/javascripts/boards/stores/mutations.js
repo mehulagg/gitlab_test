@@ -100,14 +100,31 @@ export default {
 
   [mutationTypes.RECEIVE_ISSUES_FOR_ALL_LISTS_SUCCESS]: (state, listIssues) => {
     /* eslint-disable no-unused-vars */
-    Object.entries(listIssues).forEach(([key, value]) => {
-      value.forEach(issue => {
+    // Populate epicIssueId on all issues
+    Object.entries(listIssues).forEach(([listId, issues]) => {
+      issues.forEach(issue => {
         if (issue.epic?.id && state.issuesByEpicId[issue.epic.id]) {
           const { epicIssueId } = state.issuesByEpicId[issue.epic.id].find(i => i.id === issue.idOriginal);
           issue.updateData({ epicIssueId });
         }
       })
     });
+
+    // Create object of type [epicId]:[listId]:Array(issues)
+    const issuesByEpicAndListId = {};
+    Object.entries(state.issuesByEpicId).forEach(([epicId]) => {
+      issuesByEpicAndListId[epicId] = {};
+      Object.entries(listIssues).forEach(([listId, issues]) => {
+        issuesByEpicAndListId[epicId][listId] = issues.filter(i => i.epic?.id === epicId);
+      });
+    });
+    // Add issues unassigned to epic
+    issuesByEpicAndListId.noEpic = {};
+    Object.entries(listIssues).forEach(([listId, issues]) => {
+      issuesByEpicAndListId.noEpic[listId] =  issues.filter(i => i.epic === null);
+    });
+
+    state.issuesByEpicAndListId = issuesByEpicAndListId;
 
     state.issuesByListId = listIssues;
     state.isLoadingIssues = false;
