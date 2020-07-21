@@ -1,5 +1,8 @@
 ---
 type: howto
+stage: Plan
+group: Portfolio Management
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
 <!-- When adding a new section here, remember to mention it in index.md#manage-epics -->
@@ -30,7 +33,8 @@ You will be taken to the new epic where can edit the following details:
 
 An epic's page contains the following tabs:
 
-- **Epics and Issues**: epics and issues added to this epic. Child epics, and their issues, are shown in a tree view.
+- **Epics and Issues**: epics and issues added to this epic. Child epics, and their issues, are
+  shown in a tree view.
   - Click the <kbd>></kbd> beside a parent epic to reveal the child epics and issues.
   - Hover over the total counts to see a breakdown of open and closed items.
 - **Roadmap**: a roadmap view of child epics which have start and due dates.
@@ -134,8 +138,8 @@ confidential** checkbox.
 
 ### Enable Confidential Epics **(PREMIUM ONLY)**
 
-The Confidential Epics feature is under development and not ready for production use. It's deployed behind a
-feature flag that is **disabled by default**.
+The Confidential Epics feature is under development and not ready for production use.
+It's deployed behind a feature flag that is **disabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../../../administration/feature_flags.md)
 can enable it for your instance.
 
@@ -205,7 +209,7 @@ To remove an issue from an epic:
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9367) in GitLab 12.5.
 
 New issues are added to the top of their list in the **Epics and Issues** tab.
-You can reorder the list of issues. Issues and child epics cannot be intermingled.
+You can reorder the list of issues.
 
 To reorder issues assigned to an epic:
 
@@ -222,7 +226,7 @@ To reorder child epics assigned to an epic:
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/33039) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.0.
 
 New issues are added to the top of their list in the **Epics and Issues**
-tab. You can move issues from one epic to another. Issues and child epics cannot be intermingled.
+tab. You can move issues from one epic to another.
 
 To move an issue to another epic:
 
@@ -232,7 +236,7 @@ To move an issue to another epic:
 ### Promote an issue to an epic
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3777) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.6.
-> - In [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/-/issues/37081), it was moved to the Premium tier.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/37081) to [GitLab Premium](https://about.gitlab.com/pricing/) in 12.8.
 
 If you have [permissions](../../permissions.md) to close an issue and create an
 epic in the parent group, you can promote an issue to an epic with the `/promote`
@@ -263,7 +267,8 @@ To add a child epic to an epic:
 1. Click **Add an epic**.
 1. Identify the epic to be added, using either of the following methods:
    - Paste the link of the epic.
-   - Search for the desired issue by entering part of the epic's title, then selecting the desired match (introduced in [GitLab 12.5](https://gitlab.com/gitlab-org/gitlab/-/issues/9126)).
+   - Search for the desired issue by entering part of the epic's title, then selecting the desired
+     match (introduced in [GitLab 12.5](https://gitlab.com/gitlab-org/gitlab/-/issues/9126)).
 
    If there are multiple epics to be added, press <kbd>Spacebar</kbd> and repeat this step.
 1. Click **Add**.
@@ -287,7 +292,7 @@ To move child epics to another epic:
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9367) in GitLab 12.5.
 
 New child epics are added to the top of their list in the **Epics and Issues** tab.
-You can reorder the list of child epics. Issues and child epics cannot be intermingled.
+You can reorder the list of child epics.
 
 To reorder child epics assigned to an epic:
 

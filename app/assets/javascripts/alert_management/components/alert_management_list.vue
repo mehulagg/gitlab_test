@@ -10,7 +10,7 @@ import {
   GlDropdownItem,
   GlTabs,
   GlTab,
-  GlBadge,
+  GlDeprecatedBadge as GlBadge,
 } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
@@ -19,13 +19,20 @@ import { fetchPolicies } from '~/lib/graphql';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import getAlerts from '../graphql/queries/get_alerts.query.graphql';
 import getAlertsCountByStatus from '../graphql/queries/get_count_by_status.query.graphql';
-import { ALERTS_STATUS, ALERTS_STATUS_TABS, ALERTS_SEVERITY_LABELS } from '../constants';
+import {
+  ALERTS_STATUS,
+  ALERTS_STATUS_TABS,
+  ALERTS_SEVERITY_LABELS,
+  trackAlertListViewsOptions,
+  trackAlertStatusUpdateOptions,
+} from '../constants';
 import updateAlertStatus from '../graphql/mutations/update_alert_status.graphql';
 import { capitalizeFirstCharacter, convertToSnakeCase } from '~/lib/utils/text_utility';
+import Tracking from '~/tracking';
 
 const tdClass = 'table-col d-flex d-md-table-cell align-items-center';
 const bodyTrClass =
-  'gl-border-1 gl-border-t-solid gl-border-gray-100 hover-bg-blue-50 hover-gl-cursor-pointer hover-gl-border-b-solid hover-gl-border-blue-200';
+  'gl-border-1 gl-border-t-solid gl-border-gray-100 gl-hover-bg-blue-50 gl-hover-cursor-pointer gl-hover-border-b-solid gl-hover-border-blue-200';
 const findDefaultSortColumn = () => document.querySelector('.js-started-at');
 
 export default {
@@ -45,14 +52,14 @@ export default {
       sortable: true,
     },
     {
-      key: 'startTime',
+      key: 'startedAt',
       label: s__('AlertManagement|Start time'),
       thClass: 'js-started-at',
       tdClass,
       sortable: true,
     },
     {
-      key: 'endTime',
+      key: 'endedAt',
       label: s__('AlertManagement|End time'),
       tdClass,
       sortable: true,
@@ -65,7 +72,7 @@ export default {
       sortable: false,
     },
     {
-      key: 'eventsCount',
+      key: 'eventCount',
       label: s__('AlertManagement|Events'),
       thClass: 'text-right gl-pr-9 w-3rem',
       tdClass: `${tdClass} text-md-right`,
@@ -157,7 +164,7 @@ export default {
       errored: false,
       isAlertDismissed: false,
       isErrorAlertDismissed: false,
-      sort: 'START_TIME_ASC',
+      sort: 'STARTED_AT_ASC',
       statusFilter: this.$options.statusTabs[4].filters,
     };
   },
@@ -182,6 +189,7 @@ export default {
   },
   mounted() {
     findDefaultSortColumn().ariaSort = 'ascending';
+    this.trackPageViews();
   },
   methods: {
     filterAlertsByStatus(tabIndex) {
@@ -191,7 +199,7 @@ export default {
       const sortDirection = sortDesc ? 'DESC' : 'ASC';
       const sortColumn = convertToSnakeCase(sortBy).toUpperCase();
 
-      if (sortBy !== 'startTime') {
+      if (sortBy !== 'startedAt') {
         findDefaultSortColumn().ariaSort = 'none';
       }
       this.sort = `${sortColumn}_${sortDirection}`;
@@ -208,6 +216,7 @@ export default {
           },
         })
         .then(() => {
+          this.trackStatusUpdate(status);
           this.$apollo.queries.alerts.refetch();
           this.$apollo.queries.alertsCount.refetch();
         })
@@ -221,6 +230,14 @@ export default {
     },
     navigateToAlertDetails({ iid }) {
       return visitUrl(joinPaths(window.location.pathname, iid, 'details'));
+    },
+    trackPageViews() {
+      const { category, action } = trackAlertListViewsOptions;
+      Tracking.event(category, action);
+    },
+    trackStatusUpdate(status) {
+      const { category, action, label } = trackAlertStatusUpdateOptions;
+      Tracking.event(category, action, { label, property: status });
     },
   },
 };
@@ -277,15 +294,15 @@ export default {
           </div>
         </template>
 
-        <template #cell(startTime)="{ item }">
+        <template #cell(startedAt)="{ item }">
           <time-ago v-if="item.startedAt" :time="item.startedAt" />
         </template>
 
-        <template #cell(endTime)="{ item }">
+        <template #cell(endedAt)="{ item }">
           <time-ago v-if="item.endedAt" :time="item.endedAt" />
         </template>
-        <!-- TODO: Remove after: https://gitlab.com/gitlab-org/gitlab/-/issues/218467 -->
-        <template #cell(eventsCount)="{ item }">
+
+        <template #cell(eventCount)="{ item }">
           {{ item.eventCount }}
         </template>
 
