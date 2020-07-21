@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Configure' do
+  RSpec.describe 'Configure', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/230531', type: :investigating } do
     describe 'AutoDevOps Templates', only: { subdomain: :staging } do
       let(:optional_jobs) do
         %w[
