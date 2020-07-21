@@ -73,7 +73,26 @@ module Ci
       return unless has_environment?
 
       strong_memoize(:persisted_environment) do
-        Environment.find_by(name: expanded_environment_name, project: project)
+        if Feature.enabled?(:ci_build_lazy_persistent_env, project)
+          lazy_persisted_environment(project: project)&.itself
+        else
+          Environment.find_by(name: expanded_environment_name, project: project)
+        end
+      end
+    end
+
+    def lazy_persisted_environment(project:)
+      return unless has_environment?
+
+      BatchLoader.for(self).batch(key: project) do |builds, loader, args|
+        ActiveRecord::Associations::Preloader.new.preload(builds, :metadata)
+
+        envs = builds.map(&:expanded_environment_name)
+        envs_by_name = Environment.where(name: envs, project: args[:key]).index_by(&:name)
+
+        builds.each do |build|
+          loader.call(build, envs_by_name[build.expanded_environment_name])
+        end
       end
     end
 

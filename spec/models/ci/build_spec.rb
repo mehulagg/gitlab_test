@@ -2001,9 +2001,35 @@ RSpec.describe Ci::Build do
       let(:build) { create(:ci_build, :stop_review_app, pipeline: pipeline, environment: "foo-#{project.default_branch}") }
 
       it 'expands environment name' do
-        expect(build).to receive(:expanded_environment_name).and_call_original
+        expect(build).to receive(:lazy_persisted_environment).and_call_original
 
         is_expected.to eq(environment)
+      end
+
+      context 'when ci_build_lazy_persistent_env is disabled' do
+        it 'does not load the environment lazily' do
+          stub_feature_flags(ci_build_lazy_persistent_env: false)
+
+          expect(build).not_to receive(:lazy_persisted_environment)
+
+          is_expected.to eq(environment)
+        end
+      end
+    end
+
+    context 'fetching for multiple builds' do
+      it 'does not perform N + 1' do
+        builds = [
+          create(:ci_build, :with_deployment, :deploy_to_production, pipeline: pipeline),
+          create(:ci_build, :stop_review_app, pipeline: pipeline)
+        ]
+
+        allow(ExpandVariables).to receive(:expand).and_return(environment.name)
+
+        expect do
+          builds.each { |build| build.lazy_persisted_environment(project: project) }
+          builds.each(&:persisted_environment)
+        end.not_to exceed_query_limit(7)
       end
     end
   end

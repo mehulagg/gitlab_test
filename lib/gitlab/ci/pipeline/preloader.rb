@@ -6,7 +6,7 @@ module Gitlab
       # Class for preloading data associated with pipelines such as commit
       # authors.
       class Preloader
-        def self.preload!(pipelines)
+        def self.preload!(pipelines, project:)
           ##
           # This preloads all commits at once, because `Ci::Pipeline#commit` is
           # using a lazy batch loading, what results in only one batched Gitaly
@@ -15,7 +15,7 @@ module Gitlab
           pipelines.each(&:commit)
 
           pipelines.each do |pipeline|
-            self.new(pipeline).tap do |preloader|
+            self.new(pipeline, project).tap do |preloader|
               preloader.preload_commit_authors
               preloader.preload_ref_commits
               preloader.preload_pipeline_warnings
@@ -24,8 +24,9 @@ module Gitlab
           end
         end
 
-        def initialize(pipeline)
+        def initialize(pipeline, project)
           @pipeline = pipeline
+          @project = project
         end
 
         # This also preloads the author of every commit. We're using "lazy_author"
@@ -53,6 +54,12 @@ module Gitlab
         # queries.
         def preload_stages_warnings
           @pipeline.stages.each { |stage| stage.number_of_warnings }
+        end
+
+        def preload_persisted_environments
+          [@pipeline.manual_actions, @pipeline.scheduled_actions, @pipeline.failed_builds].flatten.each do |build|
+            build.lazy_persisted_environment(project: @project)
+          end
         end
       end
     end

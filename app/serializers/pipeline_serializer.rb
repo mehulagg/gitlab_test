@@ -15,7 +15,7 @@ class PipelineSerializer < BaseSerializer
     end
 
     if opts.delete(:preload)
-      resource = Gitlab::Ci::Pipeline::Preloader.preload!(resource)
+      resource = Gitlab::Ci::Pipeline::Preloader.preload!(resource, project: opts[:project])
     end
 
     super(resource, opts)
