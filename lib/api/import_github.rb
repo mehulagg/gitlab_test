@@ -10,15 +10,11 @@ module API
 
     helpers do
       def client
-        @client ||= Gitlab::LegacyGithubImport::Client.new(params[:personal_access_token], client_options)
+        @client ||= GithubImport::Client.new(params[:personal_access_token])
       end
 
       def access_params
         { github_access_token: params[:personal_access_token] }
-      end
-
-      def client_options
-        {}
       end
 
       def provider
