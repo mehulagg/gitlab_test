@@ -481,3 +481,6 @@ Rails/SaveBang:
     - 'ee/spec/**/*.rb'
     - 'qa/spec/**/*.rb'
     - 'qa/qa/specs/**/*.rb'
+
+Lint/AmbiguousRegexpLiteral:
+  Enabled: true
