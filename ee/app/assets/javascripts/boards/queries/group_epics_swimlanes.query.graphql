@@ -4,7 +4,7 @@ query GroupBoardEE($fullPath: ID!, $boardId: ID!) {
   group(fullPath: $fullPath) {
     board(id: $boardId) {
       lists {
-        nodes{
+        nodes {
           ...BoardListFragment
         }
       }
@@ -22,10 +22,11 @@ query GroupBoardEE($fullPath: ID!, $boardId: ID!) {
             openedIssues
             closedIssues
           }
-          issues {  
+          issues {
             nodes {
               id
               epicIssueId
+              relativePosition
             }
           }
         }

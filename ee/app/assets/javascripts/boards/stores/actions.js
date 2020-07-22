@@ -11,7 +11,8 @@ import createDefaultClient from '~/lib/graphql';
 import { BoardType } from '~/boards/constants';
 import groupEpicsSwimlanesQuery from '../queries/group_epics_swimlanes.query.graphql';
 import projectEpicsSwimlanesQuery from '../queries/project_epics_swimlanes.query.graphql';
-import epicChildReorderQuery from '../../related_items_tree/queries/epicChildReorder.mutation.graphql'
+import epicChildReorderQuery from '../../related_items_tree/queries/epicChildReorder.mutation.graphql';
+import epicAddIssueQuery from '../queries/epic_add_issue.mutation.graphql';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -115,9 +116,9 @@ export default {
             dispatch('receiveEpicsSuccess', epics);
           }
         })
-        .catch((e) => {
+        .catch(e => {
           console.log('ERROR', e);
-          dispatch('receiveSwimlanesFailure')
+          dispatch('receiveSwimlanesFailure');
         });
     }
   },
@@ -134,13 +135,15 @@ export default {
     commit(types.RECEIVE_EPICS_SUCCESS, swimlanes);
   },
 
-  moveIssueEpicSwimlane: ({ commit, state }, { listId, epicFromId, epicToId, targetIssueId, epicIssueId, oldIndex, newIndex }) => {
+  moveIssueEpicSwimlane: (
+    { commit, state },
+    { listId, epicFromId, epicToId, targetIssueId, epicIssueId, oldIndex, newIndex },
+  ) => {
     let adjacentItem;
     let adjacentReferenceId;
     let relativePosition = 'after';
 
-    let isFirstChild = false;
-    const newParentChildren = state.issuesByListId[listId].filter(i => i.epic?.id === epicToId);
+    const newParentChildren = state.issuesByEpicAndListId[epicToId][listId];
 
     if (newParentChildren?.length > 0) {
       adjacentItem = newParentChildren[newIndex];
@@ -150,7 +153,6 @@ export default {
       }
       adjacentReferenceId = adjacentItem.epicIssueId;
     } else {
-      isFirstChild = true;
       relativePosition = 'before';
     }
 
@@ -161,7 +163,6 @@ export default {
       targetIssueId,
       oldIndex,
       newIndex,
-      isFirstChild,
     });
 
     return gqlClient
@@ -186,7 +187,10 @@ export default {
           commit(types.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE, {
             listId,
             epicFromId,
+            epicToId,
             targetIssueId,
+            oldIndex,
+            newIndex,
           });
           flash(__('Something went wrong while moving issue.'));
         }
@@ -197,7 +201,10 @@ export default {
         commit(types.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE, {
           listId,
           epicFromId,
+          epicToId,
           targetIssueId,
+          oldIndex,
+          newIndex,
         });
         flash(__('Something went wrong while moving issue.'));
       });

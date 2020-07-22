@@ -74,7 +74,7 @@ export default {
       /* eslint-disable no-unused-vars */
       Object.entries(this.issues).forEach(([listId, listIssues]) => {
         total += listIssues.length;
-      })
+      });
       return total;
     },
     issuesCountTooltipText() {

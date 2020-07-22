@@ -72,7 +72,6 @@ export default {
       this.showDetail = false;
     },
     showIssue(e) {
-      console.log('ISSUE', this.issue.idOriginal);
       if (e.target.classList.contains('js-no-trigger')) return;
 
       // If no issues are opened, close all sidebars first

@@ -4,7 +4,7 @@ query ProjectBoardEE($fullPath: ID!, $boardId: ID!) {
   project(fullPath: $fullPath) {
     board(id: $boardId) {
       lists {
-        nodes{
+        nodes {
           ...BoardListFragment
         }
       }

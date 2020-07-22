@@ -105,7 +105,7 @@ export default {
           newIndex,
         });
       }
-    }
+    },
   },
 };
 </script>

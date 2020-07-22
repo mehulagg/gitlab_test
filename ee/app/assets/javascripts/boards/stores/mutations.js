@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash';
 import mutationsCE from '~/boards/stores/mutations';
 import * as mutationTypes from './mutation_types';
 
@@ -84,18 +85,43 @@ export default {
 
   [mutationTypes.RECEIVE_EPICS_SUCCESS]: (state, epics) => {
     state.epics = epics;
-    state.issuesByEpicId = epics.reduce((map, epic) => ({
-      ...map,
-      [epic.id]: epic.issues,
-    }), {});
+    state.issuesByEpicId = epics.reduce(
+      (map, epic) => ({
+        ...map,
+        [epic.id]: epic.issues,
+      }),
+      {},
+    );
   },
 
-  [mutationTypes.MOVE_ISSUE_EPIC_SWIMLANE]: (state, { listId, epicFromId, epicToId, targetIssueId, oldIndex, newIndex, isFirstChild }) => {
-    state.issuesByListId[listId].find(issue => issue.id === targetIssueId).epic = { id: epicToId };
+  [mutationTypes.MOVE_ISSUE_EPIC_SWIMLANE]: (
+    state,
+    { listId, epicFromId, epicToId, targetIssueId, oldIndex, newIndex },
+  ) => {
+    const targetIssue = state.issuesByEpicAndListId[epicFromId][listId].find(
+      issue => issue.id === targetIssueId,
+    );
+
+    // Remove from old position in previous parent
+    state.issuesByEpicAndListId[epicFromId][listId].splice(oldIndex, 1);
+
+    // Insert at new position in new parent
+    state.issuesByEpicAndListId[epicToId][listId].splice(newIndex, 0, targetIssue);
   },
 
-  [mutationTypes.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE]: (state, {listId, targetIssueId, epicFromId}) => {
-    state.issuesByListId[listId].find(issue => issue.id === targetIssueId).epic = { id: epicFromId };
+  [mutationTypes.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE]: (
+    state,
+    { listId, epicFromId, epicToId, targetIssueId, oldIndex, newIndex },
+  ) => {
+    const targetIssue = state.issuesByEpicAndListId[epicToId][listId].find(
+      issue => issue.id === targetIssueId,
+    );
+
+    // Remove from old position in previous parent
+    state.issuesByEpicAndListId[epicToId][listId].splice(newIndex, 1);
+
+    // Insert at new position in new parent
+    state.issuesByEpicAndListId[epicFromId][listId].splice(oldIndex, 0, targetIssue);
   },
 
   [mutationTypes.RECEIVE_ISSUES_FOR_ALL_LISTS_SUCCESS]: (state, listIssues) => {
@@ -104,10 +130,12 @@ export default {
     Object.entries(listIssues).forEach(([listId, issues]) => {
       issues.forEach(issue => {
         if (issue.epic?.id && state.issuesByEpicId[issue.epic.id]) {
-          const { epicIssueId } = state.issuesByEpicId[issue.epic.id].find(i => i.id === issue.idOriginal);
-          issue.updateData({ epicIssueId });
+          const { epicIssueId, relativePosition } = state.issuesByEpicId[issue.epic.id].find(
+            i => i.id === issue.idOriginal,
+          );
+          issue.updateData({ epicIssueId, position: relativePosition });
         }
-      })
+      });
     });
 
     // Create object of type [epicId]:[listId]:Array(issues)
@@ -115,13 +143,19 @@ export default {
     Object.entries(state.issuesByEpicId).forEach(([epicId]) => {
       issuesByEpicAndListId[epicId] = {};
       Object.entries(listIssues).forEach(([listId, issues]) => {
-        issuesByEpicAndListId[epicId][listId] = issues.filter(i => i.epic?.id === epicId);
+        issuesByEpicAndListId[epicId][listId] = sortBy(
+          [...issues.filter(i => i.epic?.id === epicId)],
+          'position',
+        );
       });
     });
     // Add issues unassigned to epic
     issuesByEpicAndListId.noEpic = {};
     Object.entries(listIssues).forEach(([listId, issues]) => {
-      issuesByEpicAndListId.noEpic[listId] =  issues.filter(i => i.epic === null);
+      issuesByEpicAndListId.noEpic[listId] = sortBy(
+        [...issues.filter(i => i.epic === null)],
+        'position',
+      );
     });
 
     state.issuesByEpicAndListId = issuesByEpicAndListId;
