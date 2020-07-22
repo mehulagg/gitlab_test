@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# This class is being used to persist generated report  common logic for creating new controllers in a pipeline context
+# This class is being used to persist generated report in a pipeline context
 
 module Ci
   class PipelineArtifact < ApplicationRecord
@@ -15,17 +15,17 @@ module Ci
     mount_uploader :file, Ci::PipelineArtifactUploader
 
     enum file_type: {
-      coverate_report: 1,
+      coverage_report: 1,
     }
 
-    enum file_format: {
-      raw: 1,
-      zip: 2,
-      gzip: 3
-    }, _suffix: true
+    enum file_format:
 
     REPORT_TYPES = {
       coverage: :raw
     }
+
+    def hashed_path?
+      true
+    end
   end
 end

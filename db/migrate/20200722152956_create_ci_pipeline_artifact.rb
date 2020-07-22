@@ -10,14 +10,14 @@ class CreateCiPipelineArtifact < ActiveRecord::Migration[6.0]
   def up
     unless table_exists?(:ci_pipeline_artifacts)
       create_table :ci_pipeline_artifacts do |t|
-        t.timestamps_with_timezone
         t.references :pipeline, foreign_key: { to_table: :ci_pipelines, on_delete: :cascade }, index: true, null: false
         t.references :project, foreign_key: { on_delete: :cascade }, index: true, null: false
+        t.timestamps_with_timezone
         t.integer :file_type, null: false
         t.integer :size, null: false
         t.integer :file_store, null: false, default: 1
         t.integer :file_format, null: false
-        t.text :file, null: false
+        t.text :file
       end
     end
 

@@ -1,5 +1,5 @@
 module Ci
-  class PipelineProcessReportWorker
+  class PipelineArtifactWorker
     include ApplicationWorker
     include PipelineBackgroundQueue
 
@@ -7,7 +7,7 @@ module Ci
 
     def perform(pipeline_id)
       Ci::Pipeline.find_by_id(pipeline_id).try do |pipeline|
-        Ci::PipelineProcessReportService.new.execute(pipeline)
+        Ci::PipelineArtifactService.new.execute(pipeline)
       end
     end
   end

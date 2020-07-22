@@ -9978,15 +9978,15 @@ ALTER SEQUENCE public.ci_job_variables_id_seq OWNED BY public.ci_job_variables.i
 
 CREATE TABLE public.ci_pipeline_artifacts (
     id bigint NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
     pipeline_id bigint NOT NULL,
     project_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
     file_type integer NOT NULL,
     size integer NOT NULL,
     file_store integer DEFAULT 1 NOT NULL,
     file_format integer NOT NULL,
-    file text NOT NULL,
+    file text,
     CONSTRAINT check_191b5850ec CHECK ((char_length(file) <= 255))
 );
 

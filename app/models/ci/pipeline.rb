@@ -223,7 +223,7 @@ module Ci
           end
 
           if pipeline.has_coverage_reports?
-            ::Ci::PipelineProcessReportWorker.perform_async(pipeline.id)
+            ::Ci::PipelineArtifactWorker.perform_async(pipeline.id)
           end
 
           if pipeline.auto_devops_source?
