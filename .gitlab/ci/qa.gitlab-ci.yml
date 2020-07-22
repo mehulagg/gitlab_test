@@ -64,3 +64,5 @@ package-and-qa:
       artifacts: false
     - job: build-assets-image
       artifacts: false
+    variables:
+      QA_BRANCH: "qa-shl-add-ability-to-run-spec-mutliple-times"
