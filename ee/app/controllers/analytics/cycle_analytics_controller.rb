@@ -19,6 +19,14 @@ class Analytics::CycleAnalyticsController < Analytics::ApplicationController
     push_frontend_feature_flag(:value_stream_analytics_create_multiple_value_streams, @group)
   end
 
+  def show
+    if can?(current_user, :read_instance_statistics)
+      redirect_to instance_statistics_dev_ops_score_index_path
+    else
+      render_404
+    end
+  end
+
   private
 
   override :all_cycle_analytics_params
