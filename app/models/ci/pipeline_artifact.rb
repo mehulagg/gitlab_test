@@ -7,8 +7,6 @@ module Ci
     include ObjectStorage::BackgroundMove
     extend Gitlab::Ci::Model
 
-    NotSupportedAdapterError = Class.new(StandardError)
-
     belongs_to :project, class_name: "Project", inverse_of: :pipeline_artifacts
     belongs_to :pipeline, class_name: "Ci::Pipeline", inverse_of: :pipeline_artifacts
 
@@ -18,7 +16,9 @@ module Ci
       coverage_report: 1,
     }
 
-    enum file_format:
+    enum file_format: {
+      json: 1
+    }, _suffix: true
 
     REPORT_TYPES = {
       coverage: :raw

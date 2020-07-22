@@ -9,7 +9,7 @@ module Ci
   class GenerateCoverageReportsService < CompareReportsBaseService
     def execute(base_pipeline, head_pipeline)
       merge_request = MergeRequest.find_by_id(params[:id])
-      head_pipeline.processed_report.coverage_report.open do |file|
+      head_pipeline.pipeline_artifacts.first.file.open do |file|
         raw_coverage = Gitlab::Json.parse(file.read)
         {
           status: :parsed,

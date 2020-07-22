@@ -10,7 +10,7 @@ module Ci
         project_id: pipeline.project_id,
         file_type: 1,
         size: pipeline.job_artifacts.coverage_reports.first.size,
-        file_format: 3,
+        file_format: 1,
         file: CarrierWaveStringFile.new(pipeline.coverage_reports.to_json)
       )
     end
