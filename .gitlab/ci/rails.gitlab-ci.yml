@@ -509,3 +509,6 @@ rspec foss-impact:
       - tmp/capybara/
 # EE: Canonical MR pipelines
 ##################################################
+
+include:
+  - template: Verify/FailFast.gitlab-ci.yml
