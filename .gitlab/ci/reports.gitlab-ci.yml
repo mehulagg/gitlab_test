@@ -237,7 +237,7 @@ DAST-fullscan-1/2:
 #     DAST_FULL_SCAN_ENABLED: "true"
 
 DAST-prepare:
-  stage: qa
+  stage: Review-after
   image: alpine
   script:
     - apk add jq curl
