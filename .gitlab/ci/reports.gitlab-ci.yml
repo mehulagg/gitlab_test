@@ -184,7 +184,7 @@ dependency_scanning:
 
 # Seed test data
 DAST-prepare:
-  stage: Review-after
+  stage: review-after
   image: alpine
   script:
     - apk add jq curl
