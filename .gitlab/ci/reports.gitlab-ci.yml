@@ -180,6 +180,19 @@ dependency_scanning:
 #       dast: gl-dast-report.json
 #     expire_in: 1 week  # GitLab-specific
 
+
+
+# Seed test data
+DAST-prepare:
+  stage: Review-after
+  image: alpine
+  script:
+    - apk add jq curl
+    - export REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
+    - export CI_ENVIRONMENT_URL=$(cat environment_url.txt)
+    - source scripts/review_apps/seed-dast-test-data.sh
+    - create_user "user1"
+
 # DAST full scan configurations
 # Common DAST configs that is applicable for DAST-fullscan-* jobs
 .dast_conf:
@@ -230,13 +243,3 @@ DAST-fullscan-1/2:
 #     - .reports:schedule-dast
 #   variables:
 #     DAST_FULL_SCAN_ENABLED: "true"
-
-DAST-prepare:
-  stage: Review-after
-  image: alpine
-  script:
-    - apk add jq curl
-    - export REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
-    - export CI_ENVIRONMENT_URL=$(cat environment_url.txt)
-    - source scripts/review_apps/seed-dast-test-data.sh
-    - create_user "user1"
