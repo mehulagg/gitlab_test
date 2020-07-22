@@ -9976,6 +9976,29 @@ CREATE SEQUENCE public.ci_job_variables_id_seq
 
 ALTER SEQUENCE public.ci_job_variables_id_seq OWNED BY public.ci_job_variables.id;
 
+CREATE TABLE public.ci_pipeline_artifacts (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    pipeline_id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    file_type integer NOT NULL,
+    size integer NOT NULL,
+    file_store integer DEFAULT 1 NOT NULL,
+    file_format integer NOT NULL,
+    file text NOT NULL,
+    CONSTRAINT check_191b5850ec CHECK ((char_length(file) <= 255))
+);
+
+CREATE SEQUENCE public.ci_pipeline_artifacts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.ci_pipeline_artifacts_id_seq OWNED BY public.ci_pipeline_artifacts.id;
+
 CREATE TABLE public.ci_pipeline_chat_data (
     id bigint NOT NULL,
     pipeline_id integer NOT NULL,
@@ -10008,22 +10031,6 @@ CREATE SEQUENCE public.ci_pipeline_messages_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.ci_pipeline_messages_id_seq OWNED BY public.ci_pipeline_messages.id;
-
-CREATE TABLE public.ci_pipeline_report_processors (
-    id bigint NOT NULL,
-    pipeline_id bigint NOT NULL,
-    coverage_report text NOT NULL,
-    CONSTRAINT check_5a3861dba9 CHECK ((char_length(coverage_report) <= 255))
-);
-
-CREATE SEQUENCE public.ci_pipeline_report_processors_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER SEQUENCE public.ci_pipeline_report_processors_id_seq OWNED BY public.ci_pipeline_report_processors.id;
 
 CREATE TABLE public.ci_pipeline_schedule_variables (
     id integer NOT NULL,
@@ -16616,11 +16623,11 @@ ALTER TABLE ONLY public.ci_job_artifacts ALTER COLUMN id SET DEFAULT nextval('pu
 
 ALTER TABLE ONLY public.ci_job_variables ALTER COLUMN id SET DEFAULT nextval('public.ci_job_variables_id_seq'::regclass);
 
+ALTER TABLE ONLY public.ci_pipeline_artifacts ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_artifacts_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ci_pipeline_chat_data ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_chat_data_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ci_pipeline_messages ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_messages_id_seq'::regclass);
-
-ALTER TABLE ONLY public.ci_pipeline_report_processors ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_report_processors_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ci_pipeline_schedule_variables ALTER COLUMN id SET DEFAULT nextval('public.ci_pipeline_schedule_variables_id_seq'::regclass);
 
@@ -17551,14 +17558,14 @@ ALTER TABLE ONLY public.ci_job_artifacts
 ALTER TABLE ONLY public.ci_job_variables
     ADD CONSTRAINT ci_job_variables_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.ci_pipeline_artifacts
+    ADD CONSTRAINT ci_pipeline_artifacts_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.ci_pipeline_chat_data
     ADD CONSTRAINT ci_pipeline_chat_data_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.ci_pipeline_messages
     ADD CONSTRAINT ci_pipeline_messages_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.ci_pipeline_report_processors
-    ADD CONSTRAINT ci_pipeline_report_processors_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.ci_pipeline_schedule_variables
     ADD CONSTRAINT ci_pipeline_schedule_variables_pkey PRIMARY KEY (id);
@@ -19015,13 +19022,15 @@ CREATE INDEX index_ci_job_variables_on_job_id ON public.ci_job_variables USING b
 
 CREATE UNIQUE INDEX index_ci_job_variables_on_key_and_job_id ON public.ci_job_variables USING btree (key, job_id);
 
+CREATE INDEX index_ci_pipeline_artifacts_on_pipeline_id ON public.ci_pipeline_artifacts USING btree (pipeline_id);
+
+CREATE INDEX index_ci_pipeline_artifacts_on_project_id ON public.ci_pipeline_artifacts USING btree (project_id);
+
 CREATE INDEX index_ci_pipeline_chat_data_on_chat_name_id ON public.ci_pipeline_chat_data USING btree (chat_name_id);
 
 CREATE UNIQUE INDEX index_ci_pipeline_chat_data_on_pipeline_id ON public.ci_pipeline_chat_data USING btree (pipeline_id);
 
 CREATE INDEX index_ci_pipeline_messages_on_pipeline_id ON public.ci_pipeline_messages USING btree (pipeline_id);
-
-CREATE INDEX index_ci_pipeline_report_processors_on_pipeline_id ON public.ci_pipeline_report_processors USING btree (pipeline_id);
 
 CREATE UNIQUE INDEX index_ci_pipeline_schedule_variables_on_schedule_id_and_key ON public.ci_pipeline_schedule_variables USING btree (pipeline_schedule_id, key);
 
@@ -22016,6 +22025,9 @@ ALTER TABLE ONLY public.vulnerability_feedback
 ALTER TABLE ONLY public.user_custom_attributes
     ADD CONSTRAINT fk_rails_47b91868a8 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.ci_pipeline_artifacts
+    ADD CONSTRAINT fk_rails_4a70390ca6 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.group_deletion_schedules
     ADD CONSTRAINT fk_rails_4b8c694a6c FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
 
@@ -22471,6 +22483,9 @@ ALTER TABLE ONLY public.resource_milestone_events
 
 ALTER TABLE ONLY public.term_agreements
     ADD CONSTRAINT fk_rails_a88721bcdf FOREIGN KEY (term_id) REFERENCES public.application_setting_terms(id);
+
+ALTER TABLE ONLY public.ci_pipeline_artifacts
+    ADD CONSTRAINT fk_rails_a9e811a466 FOREIGN KEY (pipeline_id) REFERENCES public.ci_pipelines(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.merge_request_user_mentions
     ADD CONSTRAINT fk_rails_aa1b2961b1 FOREIGN KEY (merge_request_id) REFERENCES public.merge_requests(id) ON DELETE CASCADE;
@@ -24013,7 +24028,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200713071042
 20200713141854
 20200713152443
-20200713200740
 20200714075739
 20200715124210
 20200715135130
@@ -24025,5 +24039,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200718040200
 20200718040300
 20200720154123
+20200722152956
 \.
 

@@ -83,7 +83,7 @@ module Ci
 
     has_many :daily_build_group_report_results, class_name: 'Ci::DailyBuildGroupReportResult', foreign_key: :last_pipeline_id
     has_many :latest_builds_report_results, through: :latest_builds, source: :report_results
-    has_one :processed_report, class_name: 'Ci::PipelineReportProcessor', inverse_of: :pipeline
+    has_many :pipeline_artifacts, class_name: 'Ci::PipelineArtifact', inverse_of: :pipeline
 
     accepts_nested_attributes_for :variables, reject_if: :persisted?
 
