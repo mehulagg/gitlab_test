@@ -219,9 +219,9 @@ DAST-fullscan-1/2:
   extends:
     - .dast_conf
   script:
-    - echo "ASDF"
-    - cat environment_url.txt
-    - cat environment_token.txt
+    - REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
+    - CI_ENVIRONMENT_URL=$(cat environment_url.txt)
+    - curl -vvv --show-error --request POST --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" "${CI_ENVIRONMENT_URL}/api/v4/users?email=user1@example.com&name=user1&username=user1&password=${REVIEW_APPS_ROOT_PASSWORD}"
     - sleep 60
     - curl -vvv gitlab/help
     - export DAST_WEBSITE="http://gitlab"
