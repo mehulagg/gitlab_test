@@ -39,7 +39,7 @@ module Projects
       end
 
       def create
-        policy = Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest])
+        policy = !ActiveModel::Type::Boolean.new.cast(params[:is_standard]) ? Gitlab::Kubernetes::CiliumNetworkPolicy.from_yaml(params[:manifest]) : Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest])
         response = NetworkPolicies::DeployResourceService.new(
           policy: policy,
           environment: environment
@@ -49,7 +49,7 @@ module Projects
       end
 
       def update
-        policy = Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest])
+        policy = !ActiveModel::Type::Boolean.new.cast(params[:is_standard]) ? Gitlab::Kubernetes::CiliumNetworkPolicy.from_yaml(params[:manifest]) : Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest])
         unless params[:enabled].nil?
           params[:enabled] ? policy.enable : policy.disable
         end
@@ -66,7 +66,8 @@ module Projects
       def destroy
         response = NetworkPolicies::DeleteResourceService.new(
           resource_name: params[:id],
-          environment: environment
+          environment: environment,
+          is_standard: params[:is_standard]
         ).execute
 
         respond_with_service_response(response)
