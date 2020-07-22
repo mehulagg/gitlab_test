@@ -37,7 +37,7 @@ RSpec.describe World do
     it 'returns the three letter abbreviated country name' do
       result = described_class.alpha3_from_alpha2('NL')
 
-      expect(result).to eq('NLD')
+      expect(result).to eq('NLDD')
     end
 
     it 'returns nil when given country cannot be found' do
