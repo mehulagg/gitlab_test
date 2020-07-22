@@ -12,7 +12,7 @@ module Ci
     belongs_to :project, class_name: "Project", inverse_of: :pipeline_artifacts
     belongs_to :pipeline, class_name: "Ci::Pipeline", inverse_of: :pipeline_artifacts
 
-    # mount_uploader :file, Ci::PipelineUploader
+    mount_uploader :file, Ci::PipelineArtifactUploader
 
     enum file_type: {
       coverate_report: 1,
