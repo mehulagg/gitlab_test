@@ -28,6 +28,18 @@ module RendersBlob
     render json: json
   end
 
+  def render_blobs_json(blobs)
+    return render_404 if blobs.empty?
+
+    json = []
+
+    blobs.each do |blob|
+      json << blob_json(blob)
+    end
+
+    render json: json
+  end
+
   def conditionally_expand_blob(blob)
     conditionally_expand_blobs([blob])
   end

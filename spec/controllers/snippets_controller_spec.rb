@@ -181,6 +181,14 @@ RSpec.describe SnippetsController do
           expect(assigns(:snippet)).to eq(personal_snippet)
           expect(response).to have_gitlab_http_status(:ok)
         end
+
+        context "when the request format is json" do
+          let(:snippet) { personal_snippet }
+
+          it_behaves_like 'show json request' do
+            subject { get :show, params: { id: snippet.to_param }, format: :json}
+          end
+        end
       end
 
       context 'when not signed in' do

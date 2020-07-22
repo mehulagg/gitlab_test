@@ -478,6 +478,14 @@ RSpec.describe Projects::SnippetsController do
     end
   end
 
+  describe "GET #show for js requests" do
+    let(:snippet) { create(:project_snippet, :repository, :public, project: project, author: user) }
+
+    it_behaves_like 'show json request' do
+      subject { get :show, params: { namespace_id: project.namespace, project_id: project, id: snippet.to_param }, format: :json }
+    end
+  end
+
   describe 'GET #raw' do
     let(:inline) { nil }
     let(:line_ending) { nil }

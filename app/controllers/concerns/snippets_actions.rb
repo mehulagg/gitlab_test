@@ -67,8 +67,8 @@ module SnippetsActions
       end
 
       format.json do
-        conditionally_expand_blob(blob)
-        render_blob_json(blob)
+        conditionally_expand_blobs(blobs)
+        render_blobs_json(blobs)
       end
 
       format.js do
