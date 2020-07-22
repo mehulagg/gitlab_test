@@ -38,7 +38,7 @@ module EE
 
     # Show just the title when we manage to find an iteration, without the reference pattern,
     # since it's long and unsightly.
-    def reference_link_text(from = nil)
+    def reference_link_text(from = nil, full: false)
       self.title
     end
 

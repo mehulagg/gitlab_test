@@ -31,8 +31,8 @@ module Referable
     to_reference(from, full: full)
   end
 
-  def reference_link_text(from = nil)
-    to_reference(from)
+  def reference_link_text(from = nil, full: false)
+    to_reference(from, full: full)
   end
 
   included do

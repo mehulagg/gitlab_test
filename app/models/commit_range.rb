@@ -101,7 +101,7 @@ class CommitRange
     end
   end
 
-  def reference_link_text(from = nil)
+  def reference_link_text(from = nil, full: false)
     project_reference = project.to_reference_base(from)
     reference         = ref_from + notation + ref_to
 

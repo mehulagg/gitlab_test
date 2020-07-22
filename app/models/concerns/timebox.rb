@@ -153,7 +153,7 @@ module Timebox
     end
   end
 
-  def reference_link_text(from = nil)
+  def reference_link_text(from = nil, full: false)
     self.class.reference_prefix + self.title
   end
 

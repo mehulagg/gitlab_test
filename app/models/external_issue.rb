@@ -42,7 +42,7 @@ class ExternalIssue
     reference_link_text
   end
 
-  def reference_link_text(from = nil)
+  def reference_link_text(from = nil, full: false)
     return "##{id}" if id =~ /^\d+$/
 
     id

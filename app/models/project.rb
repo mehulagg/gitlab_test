@@ -1185,7 +1185,7 @@ class Project < ApplicationRecord
     "#{base}#{self.class.reference_postfix}"
   end
 
-  # `from` argument can be a Namespace or Project.
+  # `from` argument can be a Namespace or Project
   def to_reference_base(from = nil, full: false)
     if full || cross_namespace_reference?(from)
       full_path
