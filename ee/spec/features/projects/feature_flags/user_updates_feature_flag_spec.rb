@@ -66,6 +66,44 @@ RSpec.describe 'User updates feature flag', :js do
     end
   end
 
+  context 'with a new version flag with a single strategy with one scope' do
+    let!(:feature_flag) do
+      create_flag(project, 'test_flag', false, version: Operations::FeatureFlag.versions['new_version_flag'],
+                  description: 'For testing')
+    end
+
+    let!(:strategy) do
+      create(:operations_strategy, feature_flag: feature_flag,
+             name: 'default', parameters: {})
+    end
+
+    let!(:scope) do
+      create(:operations_scope, strategy: strategy, environment_scope: 'production')
+    end
+
+    it 'saves an all environments scope when the user deletes the production scope' do
+      visit(edit_project_feature_flag_path(project, feature_flag))
+
+      within_strategy_row(1) do
+        production_scope = find("[data-testid='close-icon']")
+        production_scope.click
+      end
+
+      click_button 'Save changes'
+
+      expect(page).to have_text 'test_flag'
+
+      within_feature_flag_row(1) do
+        edit_feature_flag_button.click
+      end
+
+      within_strategy_row(1) do
+        expect(page).to have_text 'All environments'
+      end
+      expect(strategy.reload.scopes.map { |s| s.environment_scope }).to eq(['*'])
+    end
+  end
+
   context 'with a legacy feature flag' do
     let!(:feature_flag) do
       create_flag(project, 'ci_live_trace', true,
