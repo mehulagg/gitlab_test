@@ -20,6 +20,11 @@ but AJAX requests to URLs (like the GraphQL endpoint) won't match the pattern.
 With this canary setup, we'd be in this mixed-versions state for an extended period of time until canary is promoted to
 production and post-deployment migrations run.
 
+Also, there is a case that Sidekiq and Rails running in different versions becuase
+deployments to each fleet are not guarannteed to be finished exactly the same moment.
+This could cause an edge case that Rails changes a schema of data for a specific database column,
+meanwhile Sidekiq tyring to parse the data as an old schema version.
+
 ## Examples of previous incidents
 
 ### Some links to issues and MRs were broken
@@ -63,15 +68,21 @@ For more information, see [the relevant issue](https://gitlab.com/gitlab-com/gl-
 
 ### Downtime on release features between canary and production deployment
 
-To address the issue, we added a new column to an existing table with a `NOT NULL` constraint without
-specifying a default value. In other words, this requires the application to set a value to the column.
+We added a new column to an existing table with a `NOT NULL` constraint without specifying a default value,
+that requires the application to set a value to the column always.
 
-The older version of the application didn't set the `NOT NULL` constraint since the entity/concept didn't
-exist before.
+This seemed a reasonable implementation, however, the older version of the application
+didn't set the value since the column didn't exist before.
 
-The problem starts right after the canary deployment is complete. At that moment,
-the database migration (to add the column) has successfully run and canary instance starts using
-the new application code, hence QA was successful. Unfortunately, the production
-instance still uses the older code, so it started failing to insert a new release entry.
+The incident started occuring right after canary deployment finished. At that moment,
+the database migration for adding a column to a table has successfully run and canary servers started using
+the new version of code, hence QA was successful. Unfortunately, the production
+servers still uses the older code, so it started failing to insert a new Release entry.
 
-For more information, see [this issue related to the Releases API](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/64151).
+For more information, see [the relevant issue](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/64151).
+
+### Downtime on a CI feature due to mixed versions running in Sidekiq and Rails
+
+We changed a schema 
+
+For more information, see [the relevant issue](https://gitlab.com/gitlab-org/gitlab/-/issues/230739).
