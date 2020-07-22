@@ -190,12 +190,7 @@ dependency_scanning:
     - .default-retry
   image:
     name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
-  services:
-    - name: "registry.gitlab.com/gitlab-org/build/omnibus-gitlab-mirror/gitlab-ee:16c6b33fafaab999a5749846caf0f0640b8f6bf2"
-      alias: gitlab
   variables:
-    DAST_USERNAME: "root"
-    DAST_USERNAME_FIELD: "user[login]"
     DAST_PASSWORD_FIELD: "user[password]"
     DAST_FULL_SCAN_ENABLED: "true"
     DAST_SPIDER_MINS: 0
@@ -218,9 +213,9 @@ dependency_scanning:
 DAST-fullscan-1/2:
   extends:
     - .dast_conf
+  variables:
+    DAST_USERNAME: "user1"
   script:
-    - REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
-    - CI_ENVIRONMENT_URL=$(cat environment_url.txt)
     - DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"
     - DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"
     - 'curl -vvv --show-error --request POST --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" "${CI_ENVIRONMENT_URL}/api/v4/users?email=user1@example.com&name=user1&username=user1&password=${REVIEW_APPS_ROOT_PASSWORD}"'
@@ -241,5 +236,7 @@ DAST-prepare:
   image: alpine
   script:
     - apk add jq curl
+    - export REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
+    - export CI_ENVIRONMENT_URL=$(cat environment_url.txt)
     - source scripts/review_apps/seed-dast-test-data.sh
     - create_user "user1"
