@@ -5,4 +5,8 @@ class Projects::IncidentsController < Projects::ApplicationController
 
   def index
   end
+
+  def details
+    @incident_id = params[:id]
+  end
 end

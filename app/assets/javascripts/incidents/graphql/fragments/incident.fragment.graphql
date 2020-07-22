@@ -1,0 +1,5 @@
+fragment Incident on Issue {
+  iid
+  title
+  createdAt
+}

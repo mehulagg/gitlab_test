@@ -6,6 +6,7 @@ RSpec.describe Projects::IncidentsController do
   let_it_be(:project) { create(:project) }
   let_it_be(:developer) { create(:user) }
   let_it_be(:guest) { create(:user) }
+  let_it_be(:id) { 1 }
 
   before_all do
     project.add_developer(developer)
@@ -38,6 +39,28 @@ RSpec.describe Projects::IncidentsController do
       it 'shows 404' do
         sign_in(guest)
         make_request
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'GET #details' do
+    def make_details_request
+      get :details, params: { namespace_id: project.namespace, project_id: project, id: id }
+    end
+
+    it 'shows the page' do
+      sign_in(developer)
+      make_details_request
+
+      expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    context 'when user is unauthorized' do
+      it 'shows 404' do
+        sign_in(guest)
+        make_details_request
 
         expect(response).to have_gitlab_http_status(:not_found)
       end

@@ -1,0 +1,11 @@
+#import "../fragments/incident.fragment.graphql"
+
+query getIncident($projectPath: ID!, $id: String) {
+  project(fullPath: $projectPath) {
+    issues(iid: $id) {
+      nodes {
+        ...Incident
+      }
+    }
+  }
+}

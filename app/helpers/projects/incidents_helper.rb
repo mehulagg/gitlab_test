@@ -6,4 +6,11 @@ module Projects::IncidentsHelper
       'project-path' => project.full_path
     }
   end
+
+  def incident_detail_data(project, incident_id)
+    {
+      'incident-id' => incident_id,
+      'project-path' => project.full_path
+    }
+  end
 end
