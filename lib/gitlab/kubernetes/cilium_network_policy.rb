@@ -2,11 +2,9 @@
 
 module Gitlab
   module Kubernetes
-    class NetworkPolicy < NetworkPolicyCommon
-      # rubocop:disable Metrics/ParameterLists
-      def initialize(name:, namespace:, resource_version:, selector:, ingress:, labels: nil, creation_timestamp: nil, policy_types: ["Ingress"], egress: nil)
+    class CiliumNetworkPolicy < NetworkPolicyCommon
+      def initialize(name:, namespace:, resource_version:, selector: nil, ingress: nil, egress: nil, labels: nil, creation_timestamp: nil)
         super(name: name, namespace: namespace, resource_version: resource_version, selector: selector, labels: labels, creation_timestamp: creation_timestamp, ingress: ingress, egress: egress)
-        @policy_types = policy_types
       end
 
       def self.from_yaml(manifest)
@@ -22,8 +20,7 @@ module Gitlab
           namespace: metadata[:namespace],
           resource_version: metadata[:resourceVersion],
           labels: metadata[:labels],
-          selector: spec[:podSelector],
-          policy_types: spec[:policyTypes],
+          selector: spec[:endpointSelector],
           ingress: spec[:ingress],
           egress: spec[:egress]
         )
@@ -43,8 +40,7 @@ module Gitlab
           resource_version: metadata[:resourceVersion],
           labels: metadata[:labels]&.to_h,
           creation_timestamp: metadata[:creationTimestamp],
-          selector: spec[:podSelector],
-          policy_types: spec[:policyTypes],
+          selector: spec[:endpointSelector],
           ingress: spec[:ingress],
           egress: spec[:egress]
         )
@@ -52,14 +48,16 @@ module Gitlab
 
       private
 
-      attr_reader :policy_types
       def spec
         {
-          podSelector: selector,
-          policyTypes: policy_types,
+          endpointSelector: selector,
           ingress: ingress,
           egress: egress
-        }
+        }.compact
+      end
+
+      def self.api_version
+        "cilium.io/v2"
       end
     end
   end

@@ -1,0 +1,5 @@
+---
+title: Add CiliumNetworkPolicy model and updates its services and controller.
+merge_request: 37531
+author:
+type: changed

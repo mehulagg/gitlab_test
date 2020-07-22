@@ -3,10 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe NetworkPolicies::DeleteResourceService do
-  let(:service) { NetworkPolicies::DeleteResourceService.new(resource_name: 'policy', environment: environment) }
+  let(:service) { NetworkPolicies::DeleteResourceService.new(resource_name: 'policy', environment: environment, is_standard: is_standard) }
   let(:environment) { instance_double('Environment', deployment_platform: platform, deployment_namespace: 'namespace') }
   let(:platform) { instance_double('Clusters::Platforms::Kubernetes', kubeclient: kubeclient) }
   let(:kubeclient) { double('Kubeclient::Client') }
+  let(:is_standard) { true }
 
   describe '#execute' do
     subject { service.execute }
@@ -35,6 +36,15 @@ RSpec.describe NetworkPolicies::DeleteResourceService do
         expect(subject).to be_error
         expect(subject.http_status).to eq(:bad_request)
         expect(subject.message).not_to be_nil
+      end
+    end
+
+    context 'with is_standard set to false' do
+      let(:is_standard) { false }
+
+      it 'deletes resource from the deployment namespace and returns success response' do
+        expect(kubeclient).to receive(:delete_cilium_network_policy).with('policy', environment.deployment_namespace)
+        expect(subject).to be_success
       end
     end
   end

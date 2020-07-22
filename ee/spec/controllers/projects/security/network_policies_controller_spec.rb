@@ -142,13 +142,23 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
     subject { get :index, params: action_params, format: :json }
 
     context 'with authorized user' do
-      let(:service) { instance_double('NetworkPolicies::ResourcesService', execute: ServiceResponse.success(payload: [policy])) }
+      let(:service) { instance_double('NetworkPolicies::ResourcesService', execute: ServiceResponse.success(payload: [policy, cilium_policy])) }
       let(:policy) do
         Gitlab::Kubernetes::NetworkPolicy.new(
           name: 'policy',
           namespace: 'another',
-          pod_selector: { matchLabels: { role: 'db' } },
+          resource_version: '101',
+          selector: { matchLabels: { role: 'db' } },
           ingress: [{ from: [{ namespaceSelector: { matchLabels: { project: 'myproject' } } }] }]
+        )
+      end
+      let(:cilium_policy) do
+        Gitlab::Kubernetes::CiliumNetworkPolicy.new(
+          name: 'cilium_policy',
+          namespace: 'another',
+          resource_version: '102',
+          selector: { matchLabels: { role: 'db' } },
+          ingress: [{ fromEndpoints: [{ matchLabels: { project: 'myproject' } }] }]
         )
       end
 
@@ -161,7 +171,7 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
         subject
 
         expect(response).to have_gitlab_http_status(:success)
-        expect(response.body).to eq([policy].to_json)
+        expect(response.body).to eq([policy, cilium_policy].to_json)
       end
 
       include_examples 'CRUD service errors'
@@ -177,14 +187,16 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
   end
 
   describe 'POST #create' do
-    subject { post :create, params: action_params.merge(manifest: manifest), format: :json }
+    subject { post :create, params: action_params.merge(manifest: manifest, is_standard: is_standard), format: :json }
 
+    let(:is_standard) { true }
     let(:service) { instance_double('NetworkPolicies::DeployResourceService', execute: ServiceResponse.success(payload: policy)) }
     let(:policy) do
       Gitlab::Kubernetes::NetworkPolicy.new(
         name: 'policy',
         namespace: 'another',
-        pod_selector: { matchLabels: { role: 'db' } },
+        resource_version: '202',
+        selector: { matchLabels: { role: 'db' } },
         ingress: [{ from: [{ namespaceSelector: { matchLabels: { project: 'myproject' } } }] }]
       )
     end
@@ -227,6 +239,51 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
       end
 
       include_examples 'CRUD service errors'
+
+      context 'with is_standard set to false' do
+        let(:is_standard) { false }
+        let(:policy) do
+          Gitlab::Kubernetes::CiliumNetworkPolicy.new(
+            name: 'policy',
+            namespace: 'another',
+            resource_version: '202',
+            selector: { matchLabels: { role: 'db' } },
+            ingress: [{ fromEndpoints: [{ matchLabels: { project: 'myproject' } }] }]
+          )
+        end
+        let(:manifest) do
+          <<~POLICY
+            apiVersion: cilium.io/v2
+            kind: CiliumNetworkPolicy
+            metadata:
+              name: example-name
+              namespace: example-namespace
+            spec:
+              endpointSelector:
+                matchLabels:
+                  role: db
+              ingress:
+              - fromEndpoints:
+                - matchLabels:
+                    project: myproject
+          POLICY
+        end
+
+        before do
+          allow(NetworkPolicies::DeployResourceService).to(
+            receive(:new)
+              .with(policy: kind_of(Gitlab::Kubernetes::CiliumNetworkPolicy), environment: environment)
+              .and_return(service)
+          )
+        end
+
+        it 'responds with success' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:success)
+          expect(response.body).to eq(policy.to_json)
+        end
+      end
     end
 
     context 'with unauthorized user' do
@@ -239,15 +296,17 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
   end
 
   describe 'PUT #update' do
-    subject { put :update, params: action_params.merge(id: 'example-policy', manifest: manifest, enabled: enabled), as: :json }
+    subject { put :update, params: action_params.merge(id: 'example-policy', manifest: manifest, enabled: enabled, is_standard: is_standard), as: :json }
 
+    let(:is_standard) { true }
     let(:enabled) { nil }
     let(:service) { instance_double('NetworkPolicies::DeployResourceService', execute: ServiceResponse.success(payload: policy)) }
     let(:policy) do
       Gitlab::Kubernetes::NetworkPolicy.new(
         name: 'policy',
         namespace: 'another',
-        pod_selector: { matchLabels: { role: 'db' } },
+        resource_version: '303',
+        selector: { matchLabels: { role: 'db' } },
         ingress: [{ from: [{ namespaceSelector: { matchLabels: { project: 'myproject' } } }] }]
       )
     end
@@ -317,6 +376,52 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
             expect(response).to have_gitlab_http_status(:success)
           end
         end
+
+        context 'with is_standard set to false' do
+          let(:is_standard) { false }
+          let(:policy) do
+            Gitlab::Kubernetes::CiliumNetworkPolicy.new(
+              name: 'policy',
+              namespace: 'another',
+              resource_version: '303',
+              selector: { matchLabels: { role: 'db' } },
+              ingress: [{ fromEndpoints: [{ matchLabels: { project: 'myproject' } }] }]
+            )
+          end
+          let(:manifest) do
+            <<~POLICY
+              apiVersion: cilium.io/v1
+              kind: CiliumNetworkPolicy
+              metadata:
+                name: example-name
+                namespace: example-namespace
+              spec:
+                endpointSelector:
+                  matchLabels:
+                    role: db
+                ingress:
+                - fromEndpoints:
+                  - matchLabels:
+                      project: myproject
+            POLICY
+          end
+
+          before do
+            group.add_developer(user)
+            allow(NetworkPolicies::DeployResourceService).to(
+              receive(:new)
+                .with(policy: kind_of(Gitlab::Kubernetes::CiliumNetworkPolicy), environment: environment, resource_name: 'example-policy')
+                .and_return(service)
+            )
+          end
+
+          it 'responds with success' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:success)
+            expect(response.body).to eq(policy.to_json)
+          end
+        end
       end
     end
 
@@ -330,7 +435,7 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
   end
 
   describe 'DELETE #destroy' do
-    subject { delete :destroy, params: action_params.merge(id: 'example-policy'), format: :json }
+    subject { delete :destroy, params: action_params.merge(id: 'example-policy', is_standard: true), format: :json }
 
     let(:service) { instance_double('NetworkPolicies::DeleteResourceService', execute: ServiceResponse.success) }
 
@@ -339,7 +444,7 @@ RSpec.describe Projects::Security::NetworkPoliciesController do
         group.add_developer(user)
         allow(NetworkPolicies::DeleteResourceService).to(
           receive(:new)
-            .with(environment: environment, resource_name: 'example-policy')
+            .with(environment: environment, resource_name: 'example-policy', is_standard: 'true')
             .and_return(service)
         )
       end

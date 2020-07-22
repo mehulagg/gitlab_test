@@ -6,6 +6,7 @@ module NetworkPolicies
 
     def initialize(policy:, environment:, resource_name: nil)
       @policy = policy
+      @is_standard = !!policy&.standard?
       @platform = environment.deployment_platform
       @kubernetes_namespace = environment.deployment_namespace
       @resource_name = resource_name
@@ -17,7 +18,7 @@ module NetworkPolicies
 
       setup_resource
       resource = deploy_resource
-      policy = Gitlab::Kubernetes::NetworkPolicy.from_resource(resource)
+      policy = is_standard ? Gitlab::Kubernetes::NetworkPolicy.from_resource(resource) : Gitlab::Kubernetes::CiliumNetworkPolicy.from_resource(resource)
       ServiceResponse.success(payload: policy)
     rescue Kubeclient::HttpError => e
       kubernetes_error_response(e)
@@ -25,7 +26,7 @@ module NetworkPolicies
 
     private
 
-    attr_reader :platform, :policy, :resource_name, :resource, :kubernetes_namespace
+    attr_reader :platform, :policy, :resource_name, :resource, :kubernetes_namespace, :is_standard
 
     def setup_resource
       @resource = policy.generate
@@ -34,10 +35,18 @@ module NetworkPolicies
     end
 
     def deploy_resource
-      if resource_name
-        platform.kubeclient.update_network_policy(resource)
+      if is_standard
+        if resource_name
+          platform.kubeclient.update_network_policy(resource)
+        else
+          platform.kubeclient.create_network_policy(resource)
+        end
       else
-        platform.kubeclient.create_network_policy(resource)
+        if resource_name
+          platform.kubeclient.update_cilium_network_policy(resource)
+        else
+          platform.kubeclient.create_cilium_network_policy(resource)
+        end
       end
     end
   end
