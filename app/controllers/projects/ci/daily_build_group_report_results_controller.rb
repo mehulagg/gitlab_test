@@ -49,7 +49,7 @@ class Projects::Ci::DailyBuildGroupReportResultsController < Projects::Applicati
   def finder_params
     {
       current_user: current_user,
-      project: project,
+      projects: project,
       ref_path: params.require(:ref_path),
       start_date: start_date,
       end_date: end_date,
