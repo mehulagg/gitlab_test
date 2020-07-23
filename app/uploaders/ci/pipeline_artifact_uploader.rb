@@ -4,6 +4,10 @@ module Ci
   class PipelineArtifactUploader < JobArtifactUploader
     alias_method :upload, :model
 
+    def filename
+      "#{model.file_type}-#{model.pipeline_id}"
+    end
+
     def store_dir
       raise ObjectNotReadyError, 'JobArtifact is not ready' unless model.id
 
