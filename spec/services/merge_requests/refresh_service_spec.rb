@@ -141,18 +141,46 @@ RSpec.describe MergeRequests::RefreshService do
           ::Branches::DeleteService.new(@project, @user).execute(@merge_request.source_branch)
         end
 
-        it 'closes MRs without source branch ref' do
-          expect { refresh_service.execute(@oldrev, @newrev, 'refs/heads/master') }
-            .to change { @merge_request.reload.state }
-            .from('opened')
-            .to('closed')
+        context ":merge_request_refresh_async flag is enabled" do
+          before do
+            stub_feature_flags(merge_request_refresh_async: true)
+          end
 
-          expect(@fork_merge_request.reload).to be_open
+          it "enqueues a job to close the MRs" do
+            expect(MergeRequests::CloseWorker).to receive(:perform_async).with(
+              @merge_request.target_project.id,
+              @user.id,
+              @merge_request.id
+            )
+
+            expect(MergeRequests::CloseWorker).to receive(:perform_async).with(
+              @merge_request.target_project.id,
+              @user.id,
+              @another_merge_request.id
+            )
+
+            refresh_service.execute(@oldrev, @newrev, "refs/heads/master")
+          end
         end
 
-        it 'does not change the merge request diff' do
-          expect { refresh_service.execute(@oldrev, @newrev, 'refs/heads/master') }
-            .not_to change { @merge_request.reload.merge_request_diff }
+        context ":merge_request_refresh_async flag is disabled" do
+          before do
+            stub_feature_flags(merge_request_refresh_async: false)
+          end
+
+          it 'closes MRs without source branch ref' do
+            expect { refresh_service.execute(@oldrev, @newrev, 'refs/heads/master') }
+              .to change { @merge_request.reload.state }
+              .from('opened')
+              .to('closed')
+
+            expect(@fork_merge_request.reload).to be_open
+          end
+
+          it 'does not change the merge request diff' do
+            expect { refresh_service.execute(@oldrev, @newrev, 'refs/heads/master') }
+              .not_to change { @merge_request.reload.merge_request_diff }
+          end
         end
       end
     end

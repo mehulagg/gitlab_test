@@ -43,13 +43,23 @@ module MergeRequests
     end
 
     def close_upon_missing_source_branch_ref
+      async = Feature.enabled?(:merge_request_refresh_async)
+
       # MergeRequest#reload_diff ignores not opened MRs. This means it won't
       # create an `empty` diff for `closed` MRs without a source branch, keeping
       # the latest diff state as the last _valid_ one.
       merge_requests_for_source_branch.reject(&:source_branch_exists?).each do |mr|
-        MergeRequests::CloseService
-          .new(mr.target_project, @current_user)
-          .execute(mr)
+        if async
+          MergeRequests::CloseWorker.perform_async(
+            mr.target_project.id,
+            @current_user.id,
+            mr.id
+          )
+        else
+          MergeRequests::CloseService
+            .new(mr.target_project, @current_user)
+            .execute(mr)
+        end
       end
     end
 
