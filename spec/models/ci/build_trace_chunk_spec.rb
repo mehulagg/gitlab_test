@@ -262,12 +262,6 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
           expect(build_trace_chunk.data).to be_empty
         end
 
-        it 'does not read data when appending' do
-          expect(build_trace_chunk).not_to receive(:data)
-
-          build_trace_chunk.append(new_data, offset)
-        end
-
         it_behaves_like 'Appending correctly'
         it_behaves_like 'Scheduling sidekiq worker to flush data to persist store'
       end
@@ -492,7 +486,7 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.redis?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to eq(data)
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to be_nil
-            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
+            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
 
             subject
 
@@ -514,7 +508,7 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.redis?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to eq(data)
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to be_nil
-            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
+            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
           end
         end
       end
@@ -541,7 +535,7 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.database?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to be_nil
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to eq(data)
-            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
+            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
 
             subject
 
@@ -563,7 +557,7 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.database?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to be_nil
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to eq(data)
-            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
+            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
           end
         end
       end

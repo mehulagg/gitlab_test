@@ -75,16 +75,18 @@ module Ci
 
     def append(new_data, offset)
       raise ArgumentError, 'New data is missing' unless new_data
-      raise ArgumentError, 'Offset is out of range' if offset < 0 || offset > size
+      raise ArgumentError, 'Offset is out of range' if offset > size || offset < 0
       raise ArgumentError, 'Chunk size overflow' if CHUNK_SIZE < (offset + new_data.bytesize)
 
-      in_lock(*lock_params) { unsafe_append_data!(new_data, offset) }
+      in_lock(*lock_params) do # Write operation is atomic
+        unsafe_set_data!(data.byteslice(0, offset) + new_data)
+      end
 
       schedule_to_persist if full?
     end
 
     def size
-      @size ||= current_store.size(self) || data&.bytesize
+      data&.bytesize.to_i
     end
 
     def start_offset
@@ -116,7 +118,7 @@ module Ci
         raise FailedToPersistDataError, 'Data is not fulfilled in a bucket'
       end
 
-      old_store_class = current_store
+      old_store_class = self.class.get_store_class(data_store)
 
       self.raw_data = nil
       self.data_store = new_store
@@ -126,33 +128,16 @@ module Ci
     end
 
     def get_data
-      current_store.data(self)&.force_encoding(Encoding::BINARY) # Redis/Database return UTF-8 string as default
+      self.class.get_store_class(data_store).data(self)&.force_encoding(Encoding::BINARY) # Redis/Database return UTF-8 string as default
+    rescue Excon::Error::NotFound
+      # If the data store is :fog and the file does not exist in the object storage, this method returns nil.
     end
 
     def unsafe_set_data!(value)
       raise ArgumentError, 'New data size exceeds chunk size' if value.bytesize > CHUNK_SIZE
 
-      current_store.set_data(self, value)
-
+      self.class.get_store_class(data_store).set_data(self, value)
       @data = value
-      @size = value.bytesize
-
-      save! if changed?
-    end
-
-    def unsafe_append_data!(value, offset)
-      new_size = value.bytesize + offset
-
-      if new_size > CHUNK_SIZE
-        raise ArgumentError, 'New data size exceeds chunk size'
-      end
-
-      current_store.append_data(self, value, offset).then do |stored|
-        raise ArgumentError, 'Trace appended incorrectly' if stored != new_size
-      end
-
-      @data = nil
-      @size = new_size
 
       save! if changed?
     end
@@ -169,10 +154,6 @@ module Ci
 
     def full?
       size == CHUNK_SIZE
-    end
-
-    def current_store
-      self.class.get_store_class(data_store)
     end
 
     def lock_params
