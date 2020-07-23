@@ -595,7 +595,8 @@
     - if: '$DAST_DISABLED || $GITLAB_FEATURES !~ /\bdast\b/'
       when: never
     - <<: *if-dot-com-gitlab-org-merge-request
-      changes: *frontend-patterns
+      # changes: *frontend-patterns
+      when: manual #ng-test Remove
       allow_failure: true
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-qa-patterns
@@ -653,10 +654,12 @@
     - <<: *if-not-ee
       when: never
     - <<: *if-dot-com-gitlab-org-merge-request
-      changes: *ci-review-patterns
+      # changes: *ci-review-patterns
+      when: never
     - <<: *if-dot-com-gitlab-org-merge-request
-      changes: *frontend-patterns
+      # changes: *frontend-patterns
       allow_failure: true
+      when: never
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-qa-patterns
       when: manual

@@ -121,7 +121,7 @@ review-stop:
   stage: qa
   # This is needed so that manual jobs with needs don't block the pipeline.
   # See https://gitlab.com/gitlab-org/gitlab/-/issues/199979.
-  dependencies: ["review-deploy"]
+  dependencies: ["review-deploy", "DAST-fullscan-5/5"] #ng-test
   variables:
     QA_ARTIFACTS_DIR: "${CI_PROJECT_DIR}/qa"
     QA_CAN_TEST_GIT_PROTOCOL_V2: "false"
@@ -219,6 +219,9 @@ parallel-spec-reports:
     expire_in: 31d
 
 danger-review:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .yarn-cache
