@@ -13,7 +13,7 @@ function create_user() {
 
     [[ "$TRACE" ]] && cat /tmp/user.json
 
-    return jq .id /tmp/user.json
+    jq .id /tmp/user.json
 }
 
 function create_project_for_user() {
