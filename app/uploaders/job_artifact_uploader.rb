@@ -21,6 +21,12 @@ class JobArtifactUploader < GitlabUploader
     dynamic_segment
   end
 
+  def disk_hash
+    @disk_hash ||= Digest::SHA2.hexdigest(model.project_id.to_s)
+  end
+
+  private
+
   def dynamic_segment
     raise ObjectNotReadyError, 'JobArtifact is not ready' unless model.id
 
@@ -40,9 +46,5 @@ class JobArtifactUploader < GitlabUploader
 
   def legacy_path
     File.join(model.created_at.utc.strftime('%Y_%m'), model.project_id.to_s, model.job_id.to_s)
-  end
-
-  def disk_hash
-    @disk_hash ||= Digest::SHA2.hexdigest(model.project_id.to_s)
   end
 end
