@@ -48,7 +48,7 @@ Example response:
    "sign_in_text" : null,
    "container_expiration_policies_enable_historic_entries": true,
    "container_registry_token_expire_delay": 5,
-   "repository_storages": ["default"],
+   "repository_storages_weighted": {"default": 100},
    "plantuml_enabled": false,
    "plantuml_url": null,
    "terminal_max_session_time": 0,
@@ -71,8 +71,10 @@ Example response:
    "asset_proxy_url": "https://assets.example.com",
    "asset_proxy_whitelist": ["example.com", "*.example.com", "your-instance.com"],
    "npm_package_requests_forwarding": true,
+   "snippet_size_limit": 52428800,
    "issues_create_limit": 300,
-   "raw_blob_request_limit": 300
+   "raw_blob_request_limit": 300,
+   "wiki_page_max_content_bytes": 52428800
 }
 ```
 
@@ -161,8 +163,10 @@ Example response:
   "allow_local_requests_from_web_hooks_and_services": true,
   "allow_local_requests_from_system_hooks": false,
   "npm_package_requests_forwarding": true,
+  "snippet_size_limit": 52428800,
   "issues_create_limit": 300,
-  "raw_blob_request_limit": 300
+  "raw_blob_request_limit": 300,
+  "wiki_page_max_content_bytes": 52428800
 }
 ```
 
@@ -291,6 +295,8 @@ are listed in the descriptions of the relevant settings.
 | `mirror_max_capacity`                    | integer          | no                                   | **(PREMIUM)** Maximum number of mirrors that can be synchronizing at the same time. |
 | `mirror_max_delay`                       | integer          | no                                   | **(PREMIUM)** Maximum time (in minutes) between updates that a mirror can have when scheduled to synchronize. |
 | `npm_package_requests_forwarding`        | boolean          | no                                   | **(PREMIUM)** Use npmjs.org as a default remote repository when the package is not found in the GitLab NPM Registry  |
+| `maintenance_mode`                       | boolean          | no                                   | **(PREMIUM)** When instance is in maintenance mode, non-admin users can sign in with read-only access and make read-only API requests |
+| `maintenance_mode_message`               | string           | no                                   | **(PREMIUM)** Message displayed when instance is in maintenance mode |
 | `outbound_local_requests_whitelist`      | array of strings | no                                   | Define a list of trusted domains or ip addresses to which local requests are allowed when local requests for hooks and services are disabled.
 | `pages_domain_verification_enabled`      | boolean          | no                                   | Require users to prove ownership of custom domains. Domain verification is an essential security measure for public GitLab sites. Users are required to demonstrate they control a domain before it is enabled. |
 | `password_authentication_enabled_for_git` | boolean         | no                                   | Enable authentication for Git over HTTP(S) via a GitLab account password. Default is `true`. |
@@ -314,7 +320,8 @@ are listed in the descriptions of the relevant settings.
 | `receive_max_input_size`                 | integer          | no                                   | Maximum push size (MB). |
 | `repository_checks_enabled`              | boolean          | no                                   | GitLab will periodically run `git fsck` in all project and wiki repositories to look for silent disk corruption issues. |
 | `repository_size_limit`                  | integer          | no                                   | **(PREMIUM)** Size limit per repository (MB) |
-| `repository_storages`                    | array of strings | no                                   | A list of names of enabled storage paths, taken from `gitlab.yml`. New projects will be created in one of these stores, chosen at random. |
+| `repository_storages`                    | array of strings | no                                   | (GitLab 13.0 and earlier) List of names of enabled storage paths, taken from `gitlab.yml`. New projects are created in one of these stores, chosen at random. |
+| `repository_storages_weighted`           | hash of strings to integers | no                        | (GitLab 13.1 and later) Hash of names of taken from `gitlab.yml` to weights. New projects are created in one of these stores, chosen by a weighted random selection. |
 | `require_two_factor_authentication`      | boolean          | no                                   | (**If enabled, requires:** `two_factor_grace_period`) Require all users to set up Two-factor authentication. |
 | `restricted_visibility_levels`           | array of strings | no                                   | Selected levels cannot be used by non-admin users for groups, projects or snippets. Can take `private`, `internal` and `public` as a parameter. Default is `null` which means there is no restriction. |
 | `rsa_key_restriction`                    | integer          | no                                   | The minimum allowed bit length of an uploaded RSA key. Default is `0` (no restriction). `-1` disables RSA keys. |
@@ -364,5 +371,6 @@ are listed in the descriptions of the relevant settings.
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `web_ide_clientside_preview_enabled`     | boolean          | no                                   | Live Preview (allow live previews of JavaScript projects in the Web IDE using CodeSandbox Live Preview). |
 | `snippet_size_limit`                     | integer          | no                                   | Max snippet content size in **bytes**. Default: 52428800 Bytes (50MB).|
-| `issues_create_limit`                    | integer          | no                                   | Max number of issue creation requests per minute per user. Default: 300. To disable throttling set to 0.|
+| `issues_create_limit`                    | integer          | no                                   | Max number of issue creation requests per minute per user. Disabled by default.|
 | `raw_blob_request_limit`                 | integer          | no                                   | Max number of requests per minute for each raw path. Default: 300. To disable throttling set to 0.|
+| `wiki_page_max_content_bytes`            | integer          | no                                   | Max wiki page content size in **bytes**. Default: 52428800 Bytes (50MB).|

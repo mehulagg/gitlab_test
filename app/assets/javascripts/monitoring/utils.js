@@ -25,6 +25,8 @@ export const stateAndPropsFromDataset = (dataset = {}) => {
     dashboardEndpoint,
     dashboardsEndpoint,
     dashboardTimezone,
+    canAccessOperationsSettings,
+    operationsSettingsPath,
     projectPath,
     logsPath,
     currentEnvironmentName,
@@ -44,6 +46,8 @@ export const stateAndPropsFromDataset = (dataset = {}) => {
       dashboardEndpoint,
       dashboardsEndpoint,
       dashboardTimezone,
+      canAccessOperationsSettings,
+      operationsSettingsPath,
       projectPath,
       logsPath,
       currentEnvironmentName,
@@ -201,8 +205,10 @@ export const removePrefixFromLabel = label =>
  * @returns {Object}
  */
 export const convertVariablesForURL = variables =>
-  Object.keys(variables || {}).reduce((acc, key) => {
-    acc[addPrefixToLabel(key)] = variables[key]?.value;
+  variables.reduce((acc, { name, value }) => {
+    if (value !== null) {
+      acc[addPrefixToLabel(name)] = value;
+    }
     return acc;
   }, {});
 

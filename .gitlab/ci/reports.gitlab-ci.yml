@@ -58,7 +58,8 @@ code_quality:
     SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
     SAST_ANALYZER_IMAGE_TAG: 2
     SAST_BRAKEMAN_LEVEL: 2  # GitLab-specific
-    SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec  # GitLab-specific
+    SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec,config/gitlab.yml.example  # GitLab-specific
+    SAST_DISABLE_BABEL: "true"
   script:
     - /analyzer run
 
@@ -72,11 +73,10 @@ eslint-sast:
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
 
-# Temporary disabled as it's constantly failing. See https://gitlab.com/gitlab-org/gitlab/-/issues/213769.
-# nodejs-scan-sast:
-#   extends: .sast
-#   image:
-#     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+nodejs-scan-sast:
+  extends: .sast
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
 
 secrets-sast:
   extends: .sast
@@ -151,6 +151,10 @@ dependency_scanning:
 # See https://gitlab.com/gitlab-org/gitlab/issues/31371.
 # check for commit
 # Existing DAST configuration for Baseline scan
+# Temporarily disabling review apps
+## We need to duplicate this job's definition because it seems it's impossible to
+## override an included `only.refs`.
+## See https://gitlab.com/gitlab-org/gitlab/issues/31371.
 # dast:
 #   extends:
 #     - .default-retry

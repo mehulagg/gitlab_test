@@ -1,5 +1,6 @@
 import invalidUrl from '~/lib/utils/invalid_url';
 import { timezones } from '../format_date';
+import { dashboardEmptyStates } from '../constants';
 
 export default () => ({
   // API endpoints
@@ -20,8 +21,13 @@ export default () => ({
 
   // Dashboard data
   hasDashboardValidationWarnings: false,
-  emptyState: 'gettingStarted',
-  showEmptyState: true,
+
+  /**
+   * {?String} If set, dashboard should display a global
+   * empty state, there is no way to interact (yet)
+   * with the dashboard.
+   */
+  emptyState: dashboardEmptyStates.GETTING_STARTED,
   showErrorBanner: true,
   isUpdatingStarredValue: false,
   dashboard: {
@@ -47,7 +53,7 @@ export default () => ({
    * User-defined custom variables are passed
    * via the dashboard yml file.
    */
-  variables: {},
+  variables: [],
   /**
    * User-defined custom links are passed
    * via the dashboard yml file.
@@ -64,8 +70,16 @@ export default () => ({
 
   // GitLab paths to other pages
   projectPath: null,
+  operationsSettingsPath: '',
   logsPath: invalidUrl,
 
   // static paths
   customDashboardBasePath: '',
+
+  // current user data
+  /**
+   * Flag that denotes if the currently logged user can access
+   * the project Settings -> Operations
+   */
+  canAccessOperationsSettings: false,
 });

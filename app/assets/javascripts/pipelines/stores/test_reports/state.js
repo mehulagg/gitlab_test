@@ -1,6 +1,15 @@
-export default () => ({
-  endpoint: '',
+export default ({
+  fullReportEndpoint = '',
+  summaryEndpoint = '',
+  suiteEndpoint = '',
+  useBuildSummaryReport = false,
+}) => ({
+  summaryEndpoint,
+  suiteEndpoint,
+  fullReportEndpoint,
   testReports: {},
-  selectedSuite: {},
+  selectedSuiteIndex: null,
+  hasFullReport: false,
   isLoading: false,
+  useBuildSummaryReport,
 });

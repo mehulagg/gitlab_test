@@ -25,7 +25,7 @@ To add or import a user, you can follow the
 
 ## Principles behind permissions
 
-See our [product handbook on permissions](https://about.gitlab.com/handbook/product/#permissions-in-gitlab)
+See our [product handbook on permissions](https://about.gitlab.com/handbook/product/gitlab-the-product/#permissions-in-gitlab).
 
 ## Instance-wide user permissions
 
@@ -47,7 +47,7 @@ The following table depicts the various user permission levels in a project.
 |---------------------------------------------------|---------|------------|-------------|----------|--------|
 | Download project                                  | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | Leave comments                                    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
-| View allowed and denied licenses **(ULTIMATE)** | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View allowed and denied licenses **(ULTIMATE)**   | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View License Compliance reports **(ULTIMATE)**    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Security reports **(ULTIMATE)**              | ✓ (*3*) | ✓          | ✓           | ✓        | ✓      |
 | View Dependency list **(ULTIMATE)**               | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
@@ -85,8 +85,8 @@ The following table depicts the various user permission levels in a project.
 | Create new merge request                          |         | ✓          | ✓           | ✓        | ✓      |
 | View metrics dashboard annotations                |         | ✓          | ✓           | ✓        | ✓      |
 | Create/edit requirements **(ULTIMATE)**           |         | ✓          | ✓           | ✓        | ✓      |
-| Pull [packages](packages/index.md) **(PREMIUM)**  |         | ✓          | ✓           | ✓        | ✓      |
-| Publish [packages](packages/index.md) **(PREMIUM)**|         |            | ✓           | ✓        | ✓      |
+| Pull [packages](packages/index.md)                |         | ✓          | ✓           | ✓        | ✓      |
+| Publish [packages](packages/index.md)             |         |            | ✓           | ✓        | ✓      |
 | Upload [Design Management](project/issues/design_management.md) files |  |  | ✓        | ✓        | ✓      |
 | Create/edit/delete [Releases](project/releases/index.md)|   |            | ✓           | ✓        | ✓      |
 | Create new branches                               |         |            | ✓           | ✓        | ✓      |
@@ -120,6 +120,7 @@ The following table depicts the various user permission levels in a project.
 | Rewrite/remove Git tags                           |         |            | ✓           | ✓        | ✓      |
 | Manage Feature Flags **(PREMIUM)**                |         |            | ✓           | ✓        | ✓      |
 | Create/edit/delete metrics dashboard annotations  |         |            | ✓           | ✓        | ✓      |
+| Run CI/CD pipeline against a protected branch     |         |            | ✓ (*5*)     | ✓        | ✓      |
 | Use environment terminals                         |         |            |             | ✓        | ✓      |
 | Run Web IDE's Interactive Web Terminals **(ULTIMATE ONLY)** |     |      |             | ✓        | ✓      |
 | Add new team members                              |         |            |             | ✓        | ✓      |
@@ -141,6 +142,8 @@ The following table depicts the various user permission levels in a project.
 | Manage clusters                                   |         |            |             | ✓        | ✓      |
 | Manage Project Operations                         |         |            |             | ✓        | ✓      |
 | View Pods logs                                    |         |            |             | ✓        | ✓      |
+| Read Terraform state                              |         |            | ✓           | ✓        | ✓      |
+| Manage Terraform state                            |         |            |             | ✓        | ✓      |
 | Manage license policy **(ULTIMATE)**              |         |            |             | ✓        | ✓      |
 | Edit comments (posted by any user)                |         |            |             | ✓        | ✓      |
 | Manage Error Tracking                             |         |            |             | ✓        | ✓      |
@@ -155,6 +158,7 @@ The following table depicts the various user permission levels in a project.
 | Remove project                                    |         |            |             |          | ✓      |
 | Archive project                                   |         |            |             |          | ✓      |
 | Delete issues                                     |         |            |             |          | ✓      |
+| Delete pipelines                                  |         |            |             |          | ✓      |
 | Delete merge request                              |         |            |             |          | ✓      |
 | Disable notification emails                       |         |            |             |          | ✓      |
 | Force push to protected branches (*4*)            |         |            |             |          |        |
@@ -241,8 +245,8 @@ group.
 | Create/edit group epic **(ULTIMATE)**                  |       | ✓        | ✓         | ✓          | ✓     |
 | Manage group labels                                    |       | ✓        | ✓         | ✓          | ✓     |
 | See a container registry                               |       | ✓        | ✓         | ✓          | ✓     |
-| Pull [packages](packages/index.md) **(PREMIUM)**     |       | ✓        | ✓         | ✓          | ✓     |
-| Publish [packages](packages/index.md) **(PREMIUM)**  |       |          | ✓         | ✓          | ✓     |
+| Pull [packages](packages/index.md)                     |       | ✓        | ✓         | ✓          | ✓     |
+| Publish [packages](packages/index.md)                  |       |          | ✓         | ✓          | ✓     |
 | View metrics dashboard annotations                     |       | ✓        | ✓         | ✓          | ✓     |
 | Create project in group                                |       |          | ✓ (3)     | ✓ (3)      | ✓ (3) |
 | Share (invite) groups with groups                      |       |          |           |            | ✓     |

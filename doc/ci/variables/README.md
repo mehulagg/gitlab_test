@@ -227,18 +227,18 @@ To protect a variable:
 1. Select the **Protect variable** check box.
 1. Click **Update variable**.
 
-The variable is available for all subsequent pipelines.
+The variable is available for all subsequent pipelines. Protected variables can only
+be updated or viewed by project members with [maintainer permissions](../../user/permissions.md#project-members-permissions).
 
 ### Custom variables validated by GitLab
 
 Some variables are listed in the UI so you can choose them more quickly.
-GitLab validates the values of these variables to ensure they are in the correct format.
 
 | Variable                | Allowed Values                                     | Introduced in |
 |-------------------------|----------------------------------------------------|---------------|
-| `AWS_ACCESS_KEY_ID`     | 20 characters: letters, digits                     | 12.10         |
+| `AWS_ACCESS_KEY_ID`     | Any                                                | 12.10         |
 | `AWS_DEFAULT_REGION`    | Any                                                | 12.10         |
-| `AWS_SECRET_ACCESS_KEY` | 40 characters: letters, digits, special characters | 12.10         |
+| `AWS_SECRET_ACCESS_KEY` | Any                                                | 12.10         |
 
 NOTE: **Note:**
 When you store credentials, there are security implications. If you are using AWS keys,
@@ -458,9 +458,6 @@ The UI interface for Instance-level CI/CD variables is under development but rea
 It is deployed behind a feature flag that is **enabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md) can opt to disable it for your instance.
 
-NOTE: **Note:**
-This feature will not work if the [instance-level CI/CD variables API feature flag is disabled](../../api/instance_level_ci_variables.md#enable-or-disable-instance-level-cicd-variables-core-only).
-
 To disable it:
 
 ```ruby
@@ -652,94 +649,98 @@ This follows the usual rules for [`only` / `except` policies](../yaml/README.md#
 
 ### Syntax of environment variable expressions
 
-Below you can find supported syntax reference:
+Below you can find supported syntax reference.
 
-1. Equality matching using a string
+#### Equality matching using a string
 
-   Examples:
+Examples:
 
-   - `$VARIABLE == "some value"`
-   - `$VARIABLE != "some value"` (introduced in GitLab 11.11)
+- `$VARIABLE == "some value"`
+- `$VARIABLE != "some value"` (introduced in GitLab 11.11)
 
-   You can use equality operator `==` or `!=` to compare a variable content to a
-   string. We support both, double quotes and single quotes to define a string
-   value, so both `$VARIABLE == "some value"` and `$VARIABLE == 'some value'`
-   are supported. `"some value" == $VARIABLE` is correct too.
+You can use equality operator `==` or `!=` to compare a variable content to a
+string. We support both, double quotes and single quotes to define a string
+value, so both `$VARIABLE == "some value"` and `$VARIABLE == 'some value'`
+are supported. `"some value" == $VARIABLE` is correct too.
 
-1. Checking for an undefined value
+#### Checking for an undefined value
 
-   Examples:
+Examples:
 
-   - `$VARIABLE == null`
-   - `$VARIABLE != null` (introduced in GitLab 11.11)
+- `$VARIABLE == null`
+- `$VARIABLE != null` (introduced in GitLab 11.11)
 
-   It sometimes happens that you want to check whether a variable is defined
-   or not. To do that, you can compare a variable to `null` keyword, like
-   `$VARIABLE == null`. This expression evaluates to true if
-   variable is not defined when `==` is used, or to false if `!=` is used.
+It sometimes happens that you want to check whether a variable is defined
+or not. To do that, you can compare a variable to `null` keyword, like
+`$VARIABLE == null`. This expression evaluates to true if
+variable is not defined when `==` is used, or to false if `!=` is used.
 
-1. Checking for an empty variable
+#### Checking for an empty variable
 
-   Examples:
+Examples:
 
-   - `$VARIABLE == ""`
-   - `$VARIABLE != ""` (introduced in GitLab 11.11)
+- `$VARIABLE == ""`
+- `$VARIABLE != ""` (introduced in GitLab 11.11)
 
-   If you want to check whether a variable is defined, but is empty, you can
-   simply compare it against an empty string, like `$VAR == ''` or non-empty
-   string `$VARIABLE != ""`.
+If you want to check whether a variable is defined, but is empty, you can
+simply compare it against an empty string, like `$VAR == ''` or non-empty
+string `$VARIABLE != ""`.
 
-1. Comparing two variables
+#### Comparing two variables
 
-   Examples:
+Examples:
 
-   - `$VARIABLE_1 == $VARIABLE_2`
-   - `$VARIABLE_1 != $VARIABLE_2` (introduced in GitLab 11.11)
+- `$VARIABLE_1 == $VARIABLE_2`
+- `$VARIABLE_1 != $VARIABLE_2` (introduced in GitLab 11.11)
 
-   It is possible to compare two variables. This is going to compare values
-   of these variables.
+It is possible to compare two variables. This is going to compare values
+of these variables.
 
-1. Variable presence check
+#### Variable presence check
 
-   Example: `$STAGING`
+Example: `$STAGING`
 
-   If you only want to create a job when there is some variable present,
-   which means that it is defined and non-empty, you can simply use
-   variable name as an expression, like `$STAGING`. If `$STAGING` variable
-   is defined, and is non empty, expression will evaluate to truth.
-   `$STAGING` value needs to be a string, with length higher than zero.
-   Variable that contains only whitespace characters is not an empty variable.
+If you only want to create a job when there is some variable present,
+which means that it is defined and non-empty, you can simply use
+variable name as an expression, like `$STAGING`. If `$STAGING` variable
+is defined, and is non empty, expression will evaluate to truth.
+`$STAGING` value needs to be a string, with length higher than zero.
+Variable that contains only whitespace characters is not an empty variable.
 
-1. Pattern matching (introduced in GitLab 11.0)
+#### Regex pattern matching
 
-   Examples:
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/43601) in GitLab 11.0
 
-   - `=~`: True if pattern is matched. Ex: `$VARIABLE =~ /^content.*/`
-   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/61900) in GitLab 11.11)
+Examples:
 
-   Variable pattern matching with regular expressions uses the
-   [RE2 regular expression syntax](https://github.com/google/re2/wiki/Syntax).
-   Expressions evaluate as `true` if:
+- `=~`: True if pattern is matched. Ex: `$VARIABLE =~ /^content.*/`
+- `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/61900) in GitLab 11.11)
 
-   - Matches are found when using `=~`.
-   - Matches are *not* found when using `!~`.
+Variable pattern matching with regular expressions uses the
+[RE2 regular expression syntax](https://github.com/google/re2/wiki/Syntax).
+Expressions evaluate as `true` if:
 
-   Pattern matching is case-sensitive by default. Use `i` flag modifier, like
-   `/pattern/i` to make a pattern case-insensitive.
+- Matches are found when using `=~`.
+- Matches are *not* found when using `!~`.
 
-1. Conjunction / Disjunction ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/27925) in GitLab 12.0)
+Pattern matching is case-sensitive by default. Use `i` flag modifier, like
+`/pattern/i` to make a pattern case-insensitive.
 
-   Examples:
+#### Conjunction / Disjunction
 
-   - `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 == "something"`
-   - `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 =~ /thing$/ && $VARIABLE3`
-   - `$VARIABLE1 =~ /^content.*/ || $VARIABLE2 =~ /thing$/ && $VARIABLE3`
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/62867) in GitLab 12.0
 
-   It is possible to join multiple conditions using `&&` or `||`. Any of the otherwise
-   supported syntax may be used in a conjunctive or disjunctive statement.
-   Precedence of operators follows the
-   [Ruby 2.5 standard](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html),
-   so `&&` is evaluated before `||`.
+Examples:
+
+- `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 == "something"`
+- `$VARIABLE1 =~ /^content.*/ && $VARIABLE2 =~ /thing$/ && $VARIABLE3`
+- `$VARIABLE1 =~ /^content.*/ || $VARIABLE2 =~ /thing$/ && $VARIABLE3`
+
+It is possible to join multiple conditions using `&&` or `||`. Any of the otherwise
+supported syntax may be used in a conjunctive or disjunctive statement.
+Precedence of operators follows the
+[Ruby 2.5 standard](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html),
+so `&&` is evaluated before `||`.
 
 ### Storing regular expressions in variables
 
@@ -896,8 +897,8 @@ if [[ -d "/builds/gitlab-examples/ci-debug-trace/.git" ]]; then
 ++ CI_SERVER_VERSION_PATCH=0
 ++ export CI_SERVER_REVISION=f4cc00ae823
 ++ CI_SERVER_REVISION=f4cc00ae823
-++ export GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_clusters,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
-++ GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_clusters,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,cluster_health,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
+++ export GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
+++ GITLAB_FEATURES=audit_events,burndown_charts,code_owners,contribution_analytics,description_diffs,elastic_search,group_bulk_edit,group_burndown_charts,group_webhooks,issuable_default_templates,issue_weights,jenkins_integration,ldap_group_sync,member_lock,merge_request_approvers,multiple_issue_assignees,multiple_ldap_servers,multiple_merge_request_assignees,protected_refs_for_users,push_rules,related_issues,repository_mirrors,repository_size_limit,scoped_issue_board,usage_quotas,visual_review_app,wip_limits,adjourned_deletion_for_projects_and_groups,admin_audit_log,auditor_user,batch_comments,blocking_merge_requests,board_assignee_lists,board_milestone_lists,ci_cd_projects,cluster_deployments,code_analytics,code_owner_approval_required,commit_committer_check,cross_project_pipelines,custom_file_templates,custom_file_templates_for_namespace,custom_project_templates,custom_prometheus_metrics,cycle_analytics_for_groups,db_load_balancing,default_project_deletion_protection,dependency_proxy,deploy_board,design_management,email_additional_text,extended_audit_events,external_authorization_service_api_management,feature_flags,file_locks,geo,github_project_service_integration,group_allowed_email_domains,group_project_templates,group_saml,issues_analytics,jira_dev_panel_integration,ldap_group_sync_filter,merge_pipelines,merge_request_performance_metrics,merge_trains,metrics_reports,multiple_approval_rules,multiple_group_issue_boards,object_storage,operations_dashboard,packages,productivity_analytics,project_aliases,protected_environments,reject_unsigned_commits,required_ci_templates,scoped_labels,service_desk,smartcard_auth,group_timelogs,type_of_work_analytics,unprotection_restrictions,ci_project_subscriptions,cluster_health,container_scanning,dast,dependency_scanning,epics,group_ip_restriction,incident_management,insights,license_management,personal_access_token_expiration_policy,pod_logs,prometheus_alerts,pseudonymizer,report_approver_rules,sast,security_dashboard,tracing,web_ide_terminal
 ++ export CI_PROJECT_ID=17893
 ++ CI_PROJECT_ID=17893
 ++ export CI_PROJECT_NAME=ci-debug-trace

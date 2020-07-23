@@ -1703,112 +1703,6 @@ RSpec.describe Ci::Build do
         end
       end
     end
-
-    describe '#options_retry_max' do
-      context 'with retries max config option' do
-        subject { create(:ci_build, options: { retry: { max: 1 } }) }
-
-        context 'when build_metadata_config is set' do
-          before do
-            stub_feature_flags(ci_build_metadata_config: true)
-          end
-
-          it 'returns the number of configured max retries' do
-            expect(subject.options_retry_max).to eq 1
-          end
-        end
-
-        context 'when build_metadata_config is not set' do
-          before do
-            stub_feature_flags(ci_build_metadata_config: false)
-          end
-
-          it 'returns the number of configured max retries' do
-            expect(subject.options_retry_max).to eq 1
-          end
-        end
-      end
-
-      context 'without retries max config option' do
-        subject { create(:ci_build) }
-
-        it 'returns nil' do
-          expect(subject.options_retry_max).to be_nil
-        end
-      end
-
-      context 'when build is degenerated' do
-        subject { create(:ci_build, :degenerated) }
-
-        it 'returns nil' do
-          expect(subject.options_retry_max).to be_nil
-        end
-      end
-
-      context 'with integer only config option' do
-        subject { create(:ci_build, options: { retry: 1 }) }
-
-        it 'returns the number of configured max retries' do
-          expect(subject.options_retry_max).to eq 1
-        end
-      end
-    end
-
-    describe '#options_retry_when' do
-      context 'with retries when config option' do
-        subject { create(:ci_build, options: { retry: { when: ['some_reason'] } }) }
-
-        it 'returns the configured when' do
-          expect(subject.options_retry_when).to eq ['some_reason']
-        end
-      end
-
-      context 'without retries when config option' do
-        subject { create(:ci_build) }
-
-        it 'returns always array' do
-          expect(subject.options_retry_when).to eq ['always']
-        end
-      end
-
-      context 'with integer only config option' do
-        subject { create(:ci_build, options: { retry: 1 }) }
-
-        it 'returns always array' do
-          expect(subject.options_retry_when).to eq ['always']
-        end
-      end
-    end
-
-    describe '#retry_failure?' do
-      using RSpec::Parameterized::TableSyntax
-
-      let(:build) { create(:ci_build) }
-
-      subject { build.retry_failure? }
-
-      where(:description, :retry_count, :options, :failure_reason, :result) do
-        "retries are disabled" | 0 | { max: 0 } | nil | false
-        "max equals count" | 2 | { max: 2 } | nil | false
-        "max is higher than count" | 1 | { max: 2 } | nil | true
-        "matching failure reason" | 0 | { when: %w[api_failure], max: 2 } | :api_failure | true
-        "not matching with always" | 0 | { when: %w[always], max: 2 } | :api_failure | true
-        "not matching reason" | 0 | { when: %w[script_error], max: 2 } | :api_failure | false
-        "scheduler failure override" | 1 | { when: %w[scheduler_failure], max: 1 } | :scheduler_failure | false
-        "default for scheduler failure" | 1 | {} | :scheduler_failure | true
-      end
-
-      with_them do
-        before do
-          allow(build).to receive(:retries_count) { retry_count }
-
-          build.options[:retry] = options
-          build.failure_reason = failure_reason
-        end
-
-        it { is_expected.to eq(result) }
-      end
-    end
   end
 
   describe '.keep_artifacts!' do
@@ -3007,25 +2901,46 @@ RSpec.describe Ci::Build do
     end
 
     context 'when build is parallelized' do
-      let(:total) { 5 }
-      let(:index) { 3 }
+      shared_examples 'parallelized jobs config' do
+        let(:index) { 3 }
+        let(:total) { 5 }
 
-      before do
-        build.options[:parallel] = total
-        build.options[:instance] = index
-        build.name = "#{build.name} #{index}/#{total}"
+        before do
+          build.options[:parallel] = config
+          build.options[:instance] = index
+        end
+
+        it 'includes CI_NODE_INDEX' do
+          is_expected.to include(
+            { key: 'CI_NODE_INDEX', value: index.to_s, public: true, masked: false }
+          )
+        end
+
+        it 'includes correct CI_NODE_TOTAL' do
+          is_expected.to include(
+            { key: 'CI_NODE_TOTAL', value: total.to_s, public: true, masked: false }
+          )
+        end
       end
 
-      it 'includes CI_NODE_INDEX' do
-        is_expected.to include(
-          { key: 'CI_NODE_INDEX', value: index.to_s, public: true, masked: false }
-        )
+      context 'when parallel is a number' do
+        let(:config) { 5 }
+
+        it_behaves_like 'parallelized jobs config'
       end
 
-      it 'includes correct CI_NODE_TOTAL' do
-        is_expected.to include(
-          { key: 'CI_NODE_TOTAL', value: total.to_s, public: true, masked: false }
-        )
+      context 'when parallel is hash with the total key' do
+        let(:config) { { total: 5 } }
+
+        it_behaves_like 'parallelized jobs config'
+      end
+
+      context 'when parallel is nil' do
+        let(:config) {}
+
+        it_behaves_like 'parallelized jobs config' do
+          let(:total) { 1 }
+        end
       end
     end
 
@@ -3298,17 +3213,6 @@ RSpec.describe Ci::Build do
 
       it 'returns a regular hash created using valid ordering' do
         expect(build.scoped_variables_hash).to include('MY_VAR': 'my value 2')
-        expect(build.scoped_variables_hash).not_to include('MY_VAR': 'my value 1')
-      end
-    end
-
-    context 'when CI instance variables are disabled' do
-      before do
-        create(:ci_instance_variable, key: 'MY_VAR', value: 'my value 1')
-        stub_feature_flags(ci_instance_level_variables: false)
-      end
-
-      it 'does not include instance level variables' do
         expect(build.scoped_variables_hash).not_to include('MY_VAR': 'my value 1')
       end
     end

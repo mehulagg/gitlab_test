@@ -44,7 +44,7 @@ module Gitlab
       # Relative path of repo
       attr_reader :relative_path
 
-      attr_reader :storage, :gl_repository, :relative_path, :gl_project_path
+      attr_reader :storage, :gl_repository, :gl_project_path
 
       # This remote name has to be stable for all types of repositories that
       # can join an object pool. If it's structure ever changes, a migration
@@ -127,9 +127,9 @@ module Gitlab
         end
       end
 
-      def local_branches(sort_by: nil)
+      def local_branches(sort_by: nil, pagination_params: nil)
         wrapped_gitaly_errors do
-          gitaly_ref_client.local_branches(sort_by: sort_by)
+          gitaly_ref_client.local_branches(sort_by: sort_by, pagination_params: pagination_params)
         end
       end
 

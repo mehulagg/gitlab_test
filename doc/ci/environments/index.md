@@ -94,7 +94,7 @@ deploy_staging:
     name: staging
     url: https://staging.example.com
   only:
-  - master
+    - master
 ```
 
 We have defined three [stages](../yaml/README.md#stages):
@@ -124,7 +124,7 @@ The environment `name` and `url` is exposed in various places
 within GitLab. Each time a job that has an environment specified
 succeeds, a deployment is recorded, along with the Git SHA, and environment name.
 
-CAUTION: **Caution**:
+CAUTION: **Caution:**
 Some characters are not allowed in environment names. Use only letters,
 numbers, spaces, and `-`, `_`, `/`, `{`, `}`, or `.`. Also, it must not start nor end with `/`.
 
@@ -259,7 +259,7 @@ deploy_staging:
     name: staging
     url: https://staging.example.com
   only:
-  - master
+    - master
 
 deploy_prod:
   stage: deploy
@@ -270,7 +270,7 @@ deploy_prod:
     url: https://example.com
   when: manual
   only:
-  - master
+    - master
 ```
 
 The `when: manual` action:
@@ -402,7 +402,7 @@ deploy:
     kubernetes:
       namespace: production
   only:
-  - master
+    - master
 ```
 
 When deploying to a Kubernetes cluster using GitLab's Kubernetes integration,
@@ -483,7 +483,7 @@ deploy_staging:
     name: staging
     url: https://staging.example.com
   only:
-  - master
+    - master
 
 deploy_prod:
   stage: deploy
@@ -494,7 +494,7 @@ deploy_prod:
     url: https://example.com
   when: manual
   only:
-  - master
+    - master
 ```
 
 A more realistic example would also include copying files to a location where a
@@ -811,6 +811,31 @@ stopped environment:
 
 Environments can also be deleted by using the [Environments API](../../api/environments.md#delete-an-environment).
 
+### Prepare an environment
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/208655) in GitLab 13.2.
+
+By default, GitLab creates a [deployment](#viewing-deployment-history) every time a
+build with the specified environment runs. Newer deployments can also
+[cancel older ones](deployment_safety.md#skip-outdated-deployment-jobs).
+
+You may want to specify an environment keyword to
+[protect builds from unauthorized access](protected_environments.md), or to get
+access to [scoped variables](#scoping-environments-with-specs). In these cases,
+you can use the `action: prepare` keyword to ensure deployments won't be created,
+and no builds would be canceled:
+
+```yaml
+build:
+  stage: build
+  script:
+    - echo "Building the app"
+  environment:
+    name: staging
+    action: prepare
+    url: https://staging.example.com
+```
+
 ### Grouping similar environments
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7015) in GitLab 8.14.
@@ -867,7 +892,7 @@ versions of the app, all without leaving GitLab.
 
 #### Embedding metrics in GitLab Flavored Markdown
 
-Metric charts can be embedded within GitLab Flavored Markdown. See [Embedding Metrics within GitLab Flavored Markdown](../../user/project/integrations/prometheus.md#embedding-metric-charts-within-gitlab-flavored-markdown) for more details.
+Metric charts can be embedded within GitLab Flavored Markdown. See [Embedding Metrics within GitLab Flavored Markdown](../../operations/metrics/embed.md) for more details.
 
 ### Web terminals
 

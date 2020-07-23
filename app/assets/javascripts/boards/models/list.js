@@ -1,12 +1,11 @@
 /* eslint-disable no-underscore-dangle, class-methods-use-this */
-
-import ListIssue from 'ee_else_ce/boards/models/issue';
 import { __ } from '~/locale';
 import ListLabel from './label';
 import ListAssignee from './assignee';
 import flash from '~/flash';
 import boardsStore from '../stores/boards_store';
 import ListMilestone from './milestone';
+import 'ee_else_ce/boards/models/issue';
 
 const TYPES = {
   backlog: {
@@ -100,12 +99,6 @@ class List {
     return boardsStore.newListIssue(this, issue);
   }
 
-  createIssues(data) {
-    data.forEach(issueObj => {
-      this.addIssue(new ListIssue(issueObj));
-    });
-  }
-
   addMultipleIssues(issues, listFrom, newIndex) {
     boardsStore.addMultipleListIssues(this, issues, listFrom, newIndex);
   }
@@ -119,16 +112,12 @@ class List {
   }
 
   moveMultipleIssues({ issues, oldIndicies, newIndex, moveBeforeId, moveAfterId }) {
-    oldIndicies.reverse().forEach(index => {
-      this.issues.splice(index, 1);
-    });
-    this.issues.splice(newIndex, 0, ...issues);
-
     boardsStore
-      .moveMultipleIssues({
-        ids: issues.map(issue => issue.id),
-        fromListId: null,
-        toListId: null,
+      .moveListMultipleIssues({
+        list: this,
+        issues,
+        oldIndicies,
+        newIndex,
         moveBeforeId,
         moveAfterId,
       })
@@ -170,12 +159,7 @@ class List {
   }
 
   onNewIssueResponse(issue, data) {
-    issue.refreshData(data);
-
-    if (this.issuesSize > 1) {
-      const moveBeforeId = this.issues[1].id;
-      boardsStore.moveIssue(issue.id, null, null, null, moveBeforeId);
-    }
+    boardsStore.onNewListIssueResponse(this, issue, data);
   }
 }
 

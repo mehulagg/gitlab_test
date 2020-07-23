@@ -3,6 +3,9 @@
 class AuditEvent < ApplicationRecord
   include CreatedAtFilterable
   include IgnorableColumns
+  include BulkInsertSafe
+
+  PARALLEL_PERSISTENCE_COLUMNS = [:author_name, :entity_path, :target_details].freeze
 
   ignore_column :updated_at, remove_with: '13.4', remove_after: '2020-09-22'
 
@@ -19,6 +22,12 @@ class AuditEvent < ApplicationRecord
   scope :by_author_id, -> (author_id) { where(author_id: author_id) }
 
   after_initialize :initialize_details
+  # Note: The intention is to remove this once refactoring of AuditEvent
+  # has proceeded further.
+  #
+  # See further details in the epic:
+  # https://gitlab.com/groups/gitlab-org/-/epics/2765
+  after_validation :parallel_persist
 
   def self.order_by(method)
     case method.to_s
@@ -52,7 +61,11 @@ class AuditEvent < ApplicationRecord
   private
 
   def default_author_value
-    ::Gitlab::Audit::NullAuthor.for(author_id, details[:author_name])
+    ::Gitlab::Audit::NullAuthor.for(author_id, (self[:author_name] || details[:author_name]))
+  end
+
+  def parallel_persist
+    PARALLEL_PERSISTENCE_COLUMNS.each { |col| self[col] = details[col] }
   end
 end
 

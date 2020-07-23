@@ -50,6 +50,7 @@ RSpec.shared_examples 'logs the custom audit event' do
   it 'creates an event and logs to a file with the provided details' do
     expect(service).to receive(:file_logger).and_return(logger)
     expect(logger).to receive(:info).with(author_id: user.id,
+                                          author_name: user.name,
                                           entity_id: entity.id,
                                           entity_type: entity_type,
                                           action: :custom,
@@ -61,6 +62,7 @@ RSpec.shared_examples 'logs the custom audit event' do
 
     expect(security_event.details).to eq(custom_message: custom_message,
                                          ip_address: ip_address,
+                                         target_details: target_details,
                                          action: :custom)
     expect(security_event.author_id).to eq(user.id)
     expect(security_event.entity_id).to eq(entity.id)
@@ -87,6 +89,7 @@ RSpec.shared_examples 'logs the release audit event' do
   it 'logs the event to file' do
     expect(service).to receive(:file_logger).and_return(logger)
     expect(logger).to receive(:info).with(author_id: user.id,
+                                          author_name: user.name,
                                           entity_id: entity.id,
                                           entity_type: entity_type,
                                           ip_address: ip_address,

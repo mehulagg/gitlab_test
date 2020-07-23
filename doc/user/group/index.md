@@ -184,6 +184,33 @@ of a group:
   1. Give a different member **Owner** permissions.
   1. Have the new owner sign in and remove **Owner** permissions from you.
 
+## Remove a member from the group
+
+Only users with permissions of [Owner](../permissions.md#group-members-permissions) can manage
+group members.
+
+You can remove a member from the group if the given member has a direct membership in the group. If
+membership is inherited from a parent group, then the member can be removed only from the parent
+group itself.
+
+When removing a member, you can decide whether to unassign the user from all issues and merge
+requests they are currently assigned or leave the assignments as they are.
+
+- **Unassigning the removed member** from all issues and merge requests might be helpful when a user
+  is leaving a private group and you wish to revoke their access to any issues and merge requests
+  they are assigned.
+- **Keeping the issues and merge requests assigned** might be helpful for groups that accept public
+  contributions where a user doesn't have to be a member to be able to contribute to issues and
+  merge requests.
+
+To remove a member from a group:
+
+1. In a group, go to **{users}** **Members**.
+1. Click the **Delete** **{remove}** button next to a group member you want to remove.
+   A **Remove member** modal appears.
+1. (Optional) Select the **Also unassign this user from related issues and merge requests** checkbox.
+1. Click **Remove member**.
+
 ## Changing the default branch protection of a group
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/7583) in GitLab 12.9.
@@ -399,6 +426,7 @@ When transferring groups, note:
 - You must update your local repositories to point to the new location.
 - If the immediate parent group's visibility is lower than the group's current visibility, visibility levels for subgroups and projects will change to match the new parent group's visibility.
 - Only explicit group membership is transferred, not inherited membership. If the group's owners have only inherited membership, this leaves the group without an owner. In this case, the user transferring the group becomes the group's owner.
+- Transfers will fail if [packages](../packages/index.md) exist in any of the projects within the group, or in any of its subgroups.
 
 ## Group settings
 
@@ -435,7 +463,7 @@ It is currently not possible to rename a namespace if it contains a
 project with [Container Registry](../packages/container_registry/index.md) tags,
 because the project cannot be moved.
 
-TIP: **TIP:**
+TIP: **Tip:**
 If you want to retain ownership over the original namespace and
 protect the URL redirects, then instead of changing a group's path or renaming a
 username, you can create a new group and transfer projects to it.
@@ -516,7 +544,7 @@ underlying projects, issues, etc, by IP address. This can help ensure that
 particular content doesn't leave the premises, while not blocking off access to
 the entire instance.
 
-Add one or more allowed IP subnets using CIDR notation in comma separated format to the group settings and anyone
+Add one or more allowed IP subnets using CIDR notation to the group settings and anyone
 coming from a different IP address won't be able to access the restricted
 content.
 
@@ -528,6 +556,12 @@ Restriction currently applies to:
 
 To avoid accidental lock-out, admins and group owners are able to access
 the group regardless of the IP restriction.
+
+To enable this feature:
+
+1. Navigate to the group’s **Settings > General** page.
+1. Expand the **Permissions, LFS, 2FA** section, and enter IP address ranges into **Allow access to the following IP addresses** field.
+1. Click **Save changes**.
 
 #### Allowed domain restriction **(PREMIUM)**
 
@@ -554,7 +588,7 @@ Some domains cannot be restricted. These are the most popular public email domai
 To enable this feature:
 
 1. Navigate to the group's **Settings > General** page.
-1. Expand the **Permissions, LFS, 2FA** section, and enter the domain names into **Restrict membership by email** field. You can enter multiple domains by separating each domain with a comma (,).
+1. Expand the **Permissions, LFS, 2FA** section, and enter the domain names into **Restrict membership by email** field.
 1. Click **Save changes**.
 
 This will enable the domain-checking for all new users added to the group from this moment on.
@@ -615,6 +649,23 @@ To enable this feature:
 
 1. Navigate to the group's **Settings > General** page.
 1. Expand the **Permissions, LFS, 2FA** section, and select **Disable group mentions**.
+1. Click **Save changes**.
+
+#### Enabling delayed Project removal **(PREMIUM)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/220382) in GitLab 13.2.
+
+By default, projects within a group are deleted immediately.
+Optionally, on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers,
+you can configure the projects within a group to be deleted after a delayed interval.
+
+During this interval period, the projects will be in a read-only state and can be restored, if required.
+The interval period defaults to 7 days, and can be modified by an admin in the [instance settings](../admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+
+To enable delayed deletion of projects:
+
+1. Navigate to the group's **Settings > General** page.
+1. Expand the **Permissions, LFS, 2FA** section, and check **Enable delayed project removal**.
 1. Click **Save changes**.
 
 ### Advanced settings

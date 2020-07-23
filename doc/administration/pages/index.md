@@ -408,6 +408,9 @@ pages:
 
 ### Using a custom Certificate Authority (CA)
 
+NOTE: **Note:**
+[Before 13.3](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/4411), when using Omnibus, a [workaround was required](https://docs.gitlab.com/13.1/ee/administration/pages/index.html#using-a-custom-certificate-authority-ca).
+
 When using certificates issued by a custom CA, [Access Control](../../user/project/pages/pages_access_control.md#gitlab-pages-access-control) and
 the [online view of HTML job artifacts](../../ci/pipelines/job_artifacts.md#browsing-artifacts)
 will fail to work if the custom CA is not recognized.
@@ -415,28 +418,10 @@ will fail to work if the custom CA is not recognized.
 This usually results in this error:
 `Post /oauth/token: x509: certificate signed by unknown authority`.
 
-For installation from source this can be fixed by installing the custom Certificate
+For installation from source, this can be fixed by installing the custom Certificate
 Authority (CA) in the system certificate store.
 
-For Omnibus, normally this would be fixed by [installing a custom CA in Omnibus GitLab](https://docs.gitlab.com/omnibus/settings/ssl.html#install-custom-public-certificates)
-but a [bug](https://gitlab.com/gitlab-org/gitlab/-/issues/25411) is currently preventing
-that method from working. Use the following workaround:
-
-1. Append your GitLab server TLS/SSL certificate to `/opt/gitlab/embedded/ssl/certs/cacert.pem` where `gitlab-domain-example.com` is your GitLab application URL
-
-   ```shell
-   printf "\ngitlab-domain-example.com\n===========================\n" | sudo tee --append /opt/gitlab/embedded/ssl/certs/cacert.pem
-   echo -n | openssl s_client -connect gitlab-domain-example.com:443  | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee --append /opt/gitlab/embedded/ssl/certs/cacert.pem
-   ```
-
-1. [Restart](../restart_gitlab.md) the GitLab Pages Daemon. For Omnibus GitLab instances:
-
-   ```shell
-   sudo gitlab-ctl restart gitlab-pages
-   ```
-
-CAUTION: **Caution:**
-Some Omnibus GitLab upgrades will revert this workaround and you'll need to apply it again.
+For Omnibus, this is fixed by [installing a custom CA in Omnibus GitLab](https://docs.gitlab.com/omnibus/settings/ssl.html#install-custom-public-certificates).
 
 ## Activate verbose logging for daemon
 
@@ -526,10 +511,17 @@ The following procedure includes steps to back up and edit the
 `gitlab-secrets.json` file. This file contains secrets that control
 database encryption. Proceed with caution.
 
+1. Create a backup of the secrets file on the **GitLab server**:
+
+   ```shell
+   cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
+   ```
+
 1. On the **GitLab server**, to enable Pages, add the following to `/etc/gitlab/gitlab.rb`:
 
    ```ruby
    gitlab_pages['enable'] = true
+   pages_external_url "http://<pages_server_URL>"
    ```
 
 1. Optionally, to enable [access control](#access-control), add the following to `/etc/gitlab/gitlab.rb`:
@@ -542,26 +534,25 @@ database encryption. Proceed with caution.
    changes to take effect. The `gitlab-secrets.json` file is now updated with the
    new configuration.
 
-1. Create a backup of the secrets file on the **GitLab server**:
-
-   ```shell
-   cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
-   ```
-
 1. Set up a new server. This will become the **Pages server**.
 
-1. Create an [NFS share](../high_availability/nfs_host_client_setup.md) on the new server and configure this share to
-   allow access from your main **GitLab server**. For this example, we use the
+1. Create an [NFS share](../high_availability/nfs_host_client_setup.md)
+   on the **Pages server** and configure this share to
+   allow access from your main **GitLab server**.
+   Note that the example there is more general and
+   shares several sub-directories from `/home` to several `/nfs/home` mountpoints.
+   For our Pages-specific example here, we instead share only the
    default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
-   as the shared folder on the new server and we will mount it to `/mnt/pages`
+   from the **Pages server** and we mount it to `/mnt/pages`
    on the **GitLab server**.
+   Therefore, omit "Step 4" there.
 
 1. On the **Pages server**, install Omnibus GitLab and modify `/etc/gitlab/gitlab.rb`
    to include:
 
    ```ruby
-   external_url 'http://<ip-address-of-the-server>'
-   pages_external_url "http://<your-pages-server-URL>"
+   external_url 'http://<gitlab_server_IP_or_URL>'
+   pages_external_url "http://<pages_server_URL>"
    postgresql['enable'] = false
    redis['enable'] = false
    prometheus['enable'] = false
@@ -581,7 +572,15 @@ database encryption. Proceed with caution.
    ```
 
 1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the **GitLab server**
-   to the **Pages server**.
+   to the **Pages server**, for example via the NFS share.
+
+   ```shell
+   # On the GitLab server
+   cp /etc/gitlab/gitlab-secrets.json /mnt/pages/gitlab-secrets.json
+
+   # On the Pages server
+   mv /var/opt/gitlab/gitlab-rails/shared/pages/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+   ```
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
@@ -589,13 +588,13 @@ database encryption. Proceed with caution.
 
    ```ruby
    gitlab_pages['enable'] = false
-   pages_external_url "http://<your-pages-server-URL>"
+   pages_external_url "http://<pages_server_URL>"
    gitlab_rails['pages_path'] = "/mnt/pages"
    ```
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
-It is possible to run GitLab Pages on multiple servers if you wish to distribute
+It's possible to run GitLab Pages on multiple servers if you wish to distribute
 the load. You can do this through standard load balancing practices such as
 configuring your DNS server to return multiple IPs for your Pages server,
 configuring a load balancer to work at the IP level, and so on. If you wish to
@@ -682,3 +681,18 @@ sudo cp /etc/resolv.conf /var/opt/gitlab/gitlab-rails/shared/pages/etc
 sudo cp /opt/gitlab/embedded/ssl/certs/cacert.pem /var/opt/gitlab/gitlab-rails/shared/pages/opt/gitlab/embedded/ssl/certs/
 sudo cp /opt/gitlab/embedded/ssl/certs/cacert.pem /var/opt/gitlab/gitlab-rails/shared/pages/etc/ssl/ca-bundle.pem
 ```
+
+### 404 error after transferring project to a different group or user
+
+If you encounter a `404 Not Found` error a Pages site after transferring a project to
+another group or user, you must trigger adomain configuration update for Pages. To do
+so, write something in the `.update` file. The Pages daemon monitors for changes to this
+file, and reloads the configuration when changes occur.
+
+Use this example to fix a `404 Not Found` error after transferring a project with Pages:
+
+```shell
+date > /var/opt/gitlab/gitlab-rails/shared/pages/.update
+```
+
+If you've customized the Pages storage path, adjust the command above to use your custom path.

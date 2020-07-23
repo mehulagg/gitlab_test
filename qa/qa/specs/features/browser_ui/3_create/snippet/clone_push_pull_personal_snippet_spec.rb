@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  RSpec.describe 'Create' do
     describe 'Version control for personal snippets' do
       let(:new_file) { 'new_snippet_file' }
       let(:changed_content) { 'changes' }
@@ -87,7 +87,7 @@ module QA
           repository.init_repository
 
           expect { repository.pull(repository_uri_ssh, branch_name) }
-            .to raise_error(QA::Git::Repository::RepositoryCommandError, /[fatal: Could not read from remote repository.]+/)
+            .to raise_error(QA::Git::Repository::RepositoryCommandError, /fatal: Could not read from remote repository\./)
         end
       end
 

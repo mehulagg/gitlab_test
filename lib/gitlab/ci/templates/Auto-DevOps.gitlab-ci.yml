@@ -12,6 +12,7 @@
 # * code_quality: CODE_QUALITY_DISABLED
 # * license_management: LICENSE_MANAGEMENT_DISABLED
 # * performance: PERFORMANCE_DISABLED
+# * load_performance: LOAD_PERFORMANCE_DISABLED
 # * sast: SAST_DISABLED
 # * secret_detection: SECRET_DETECTION_DISABLED
 # * dependency_scanning: DEPENDENCY_SCANNING_DISABLED
@@ -74,7 +75,7 @@ stages:
 
 workflow:
   rules:
-    - if: '$BUILDPACK_URL || $AUTO_DEVOPS_EXPLICITLY_ENABLED == "1"'
+    - if: '$BUILDPACK_URL || $AUTO_DEVOPS_EXPLICITLY_ENABLED == "1" || $DOCKERFILE_PATH'
 
     - exists:
         - Dockerfile
@@ -161,4 +162,4 @@ include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Security/License-Scanning.gitlab-ci.yml
   - template: Security/SAST.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml
-  - template: Security/Secret-Detection.gitlab-ci.yml # https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Security/Secret-Detection.gitlab-ci.yml

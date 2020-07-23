@@ -20,6 +20,7 @@ module Gitlab
     module AuthFinders
       include Gitlab::Utils::StrongMemoize
       include ActionController::HttpAuthentication::Basic
+      include ActionController::HttpAuthentication::Token
 
       PRIVATE_TOKEN_HEADER = 'HTTP_PRIVATE_TOKEN'
       PRIVATE_TOKEN_PARAM = :private_token
@@ -52,6 +53,11 @@ module Gitlab
         return unless token
 
         User.find_by_feed_token(token) || raise(UnauthorizedError)
+      end
+
+      def find_user_from_bearer_token
+        find_user_from_job_bearer_token ||
+          find_user_from_access_token
       end
 
       def find_user_from_job_token
@@ -92,6 +98,8 @@ module Gitlab
 
         validate_access_token!(scopes: [:api])
 
+        ::PersonalAccessTokens::LastUsedService.new(access_token).execute
+
         access_token.user || raise(UnauthorizedError)
       end
 
@@ -99,6 +107,8 @@ module Gitlab
         return unless access_token
 
         validate_access_token!
+
+        ::PersonalAccessTokens::LastUsedService.new(access_token).execute
 
         access_token.user || raise(UnauthorizedError)
       end
@@ -122,6 +132,15 @@ module Gitlab
         deploy_token
       end
 
+      def cluster_agent_token_from_authorization_token
+        return unless route_authentication_setting[:cluster_agent_token_allowed]
+        return unless current_request.authorization.present?
+
+        authorization_token, _options = token_and_options(current_request)
+
+        ::Clusters::AgentToken.find_by_token(authorization_token)
+      end
+
       def find_runner_from_token
         return unless api_request?
 
@@ -132,6 +151,9 @@ module Gitlab
       end
 
       def validate_access_token!(scopes: [])
+        # return early if we've already authenticated via a job token
+        return if @current_authenticated_job.present? # rubocop:disable Gitlab/ModuleWithInstanceVariables
+
         # return early if we've already authenticated via a deploy token
         return if @current_authenticated_deploy_token.present? # rubocop:disable Gitlab/ModuleWithInstanceVariables
 
@@ -150,6 +172,20 @@ module Gitlab
       end
 
       private
+
+      def find_user_from_job_bearer_token
+        return unless route_authentication_setting[:job_token_allowed]
+
+        token = parsed_oauth_token
+        return unless token
+
+        job = ::Ci::Build.find_by_token(token)
+        return unless job
+
+        @current_authenticated_job = job # rubocop:disable Gitlab/ModuleWithInstanceVariables
+
+        job.user
+      end
 
       def route_authentication_setting
         return {} unless respond_to?(:route_setting)

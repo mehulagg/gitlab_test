@@ -12,9 +12,8 @@ class ProjectStatistics < ApplicationRecord
   before_save :update_storage_size
 
   COLUMNS_TO_REFRESH = [:repository_size, :wiki_size, :lfs_objects_size, :commit_count, :snippets_size].freeze
-  INCREMENTABLE_COLUMNS = { build_artifacts_size: %i[storage_size], packages_size: %i[storage_size] }.freeze
+  INCREMENTABLE_COLUMNS = { build_artifacts_size: %i[storage_size], packages_size: %i[storage_size], snippets_size: %i[storage_size] }.freeze
   NAMESPACE_RELATABLE_COLUMNS = [:repository_size, :wiki_size, :lfs_objects_size].freeze
-  FLAGGED_NAMESPACE_RELATABLE_COLUMNS = [*NAMESPACE_RELATABLE_COLUMNS, :snippets_size].freeze
 
   scope :for_project_ids, ->(project_ids) { where(project_id: project_ids) }
 
@@ -32,7 +31,7 @@ class ProjectStatistics < ApplicationRecord
       end
     end
 
-    if only.empty? || only.any? { |column| namespace_relatable_columns.include?(column) }
+    if only.empty? || only.any? { |column| NAMESPACE_RELATABLE_COLUMNS.include?(column) }
       schedule_namespace_aggregation_worker
     end
 
@@ -76,7 +75,12 @@ class ProjectStatistics < ApplicationRecord
   end
 
   def update_storage_size
-    self.storage_size = repository_size + wiki_size + lfs_objects_size + build_artifacts_size + packages_size + snippets_size
+    storage_size = repository_size + wiki_size + lfs_objects_size + build_artifacts_size + packages_size
+    # The `snippets_size` column was added on 20200622095419 but db/post_migrate/20190527194900_schedule_calculate_wiki_sizes.rb
+    # might try to update project statistics before the `snippets_size` column has been created.
+    storage_size += snippets_size if self.class.column_names.include?('snippets_size')
+
+    self.storage_size = storage_size
   end
 
   # Since this incremental update method does not call update_storage_size above,
@@ -110,10 +114,6 @@ class ProjectStatistics < ApplicationRecord
     run_after_commit do
       Namespaces::ScheduleAggregationWorker.perform_async(project.namespace_id)
     end
-  end
-
-  def namespace_relatable_columns
-    Feature.enabled?(:namespace_snippets_size_stat) ? FLAGGED_NAMESPACE_RELATABLE_COLUMNS : NAMESPACE_RELATABLE_COLUMNS
   end
 end
 

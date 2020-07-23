@@ -23,7 +23,7 @@ class JiraService < IssueTrackerService
 
   # TODO: we can probably just delegate as part of
   # https://gitlab.com/gitlab-org/gitlab/issues/29404
-  data_field :username, :password, :url, :api_url, :jira_issue_transition_id, :project_key
+  data_field :username, :password, :url, :api_url, :jira_issue_transition_id, :project_key, :issues_enabled
 
   before_update :reset_password
 
@@ -128,7 +128,7 @@ class JiraService < IssueTrackerService
   end
 
   def new_issue_url
-    "#{url}/secure/CreateIssue.jspa"
+    "#{url}/secure/CreateIssue!default.jspa"
   end
 
   alias_method :original_url, :url
@@ -440,3 +440,5 @@ class JiraService < IssueTrackerService
     end
   end
 end
+
+JiraService.prepend_if_ee('EE::JiraService')

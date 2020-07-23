@@ -290,8 +290,8 @@ because it’s friendly and easy to understand.
 When creating documentation, limit or avoid the use of the following verb
 tenses, words, and phrases:
 
-- Avoid jargon.
-- Avoid uncommon words.
+- Avoid jargon when possible, and when not possible, define the term or [link to a definition](#links-to-external-documentation).
+- Avoid uncommon words when a more-common alternative is possible, ensuring that content is accessible to more readers.
 - Don't write in the first person singular.
   (Tested in [`FirstPerson.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/FirstPerson.yml).)
   - Instead of "I" or "me," use "we," "you," "us," or "one."
@@ -325,9 +325,19 @@ tenses, words, and phrases:
 - Avoid using the word *currently* when talking about the product or its
   features. The documentation describes the product as it is, and not as it
   will be at some indeterminate point in the future.
+- Avoid the using the word *scalability* with increasing GitLab's performance
+  for additional users. Using the words *scale* or *scaling* in other cases is
+  acceptable, but references to increasing GitLab's performance for additional
+  users should direct readers to the GitLab
+  [reference architectures](../../administration/reference_architectures/index.md)
+  page.
+- Avoid all forms of the phrases *high availability* and *HA*, and instead
+  direct readers to the GitLab [reference architectures](../../administration/reference_architectures/index.md)
+  for information about configuring GitLab to have the performance needed for
+  additional users over time.
 - Don't use profanity or obscenities. Doing so may negatively affect other
   users and contributors, which is contrary to GitLab's value of
-  [diversity and inclusion](https://about.gitlab.com/handbook/values/#diversity-inclusion).
+  [Diversity, Inclusion, and Belonging](https://about.gitlab.com/handbook/values/#diversity-inclusion).
 - Avoid the use of [racially-insensitive terminology or phrases](https://www.marketplace.org/2020/06/17/tech-companies-update-language-to-avoid-offensive-terms/). For example:
   - Use *primary* and *secondary* for database and server relationships.
   - Use *allowlist* and *denylist* to describe access control lists.
@@ -760,7 +770,7 @@ Relative linking enables crosslinks to work:
 
 - in Review Apps, local previews, and `/help`.
 - when working on the docs locally, so you can verify that they work as early as possible in the process.
-- within the GitLab UI when browsing doc files in their respective repositories. For example, the links displayed at <https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/README.md>.
+- within the GitLab UI when browsing doc files in their respective repositories. For example, the links displayed at `https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/README.md`.
 
 To link to internal documentation:
 
@@ -790,7 +800,7 @@ To link to internal documentation:
   - `../../issues/tags.md`
   - `../../issues/tags.md#stages`
 
-NOTE: **Note**:
+NOTE: **Note:**
 Using the Markdown extension is necessary for the [`/help`](index.md#gitlab-help) section of GitLab.
 
 ### Links to external documentation
@@ -1125,48 +1135,39 @@ Usage examples:
   [Bootstrap utility class](https://getbootstrap.com/docs/4.4/utilities/float/):
   `**{tanuki, 32, float-right}**` renders as: **{tanuki, 32, float-right}**
 
-### Use GitLab SVGs to describe UI elements
+### When to use icons
 
-When using GitLab SVGs to describe screen elements, also include the name or tooltip of the element as text.
+Icons should be used sparingly, and only in ways that aid and do not hinder the readability of the
+text.
 
-For example, for references to the Admin Area:
-
-- Correct: `**{admin}** **Admin Area > Settings**` (**{admin}** **Admin Area > Settings**)
-- Incorrect: `**{admin}** **> Settings**` (**{admin}** **> Settings**)
-
-This will ensure that the source Markdown remains readable and should help with accessibility.
-
-The following are examples of source Markdown for menu items with their published output:
+For example, the following adds little to the accompanying text:
 
 ```markdown
 1. Go to **{home}** **Project overview > Details**
-1. Go to **{doc-text}** **Repository > Branches**
-1. Go to **{issues}** **Issues > List**
-1. Go to **{merge-request}** **Merge Requests**
-1. Go to **{rocket}** **CI/CD > Pipelines**
-1. Go to **{shield}** **Security & Compliance > Configuration**
-1. Go to **{cloud-gear}** **Operations > Metrics**
-1. Go to **{package}** **Packages > Container Registry**
-1. Go to **{chart}** **Project Analytics > Code Review**
-1. Go to **{book}** **Wiki**
-1. Go to **{snippet}** **Snippets**
-1. Go to **{users}** **Members**
-1. Select the **More actions** **{ellipsis_v}** icon  > **Hide stage**
 ```
 
 1. Go to **{home}** **Project overview > Details**
-1. Go to **{doc-text}** **Repository > Branches**
-1. Go to **{issues}** **Issues > List**
-1. Go to **{merge-request}** **Merge Requests**
-1. Go to **{rocket}** **CI/CD > Pipelines**
-1. Go to **{shield}** **Security & Compliance > Configuration**
-1. Go to **{cloud-gear}** **Operations > Metrics**
-1. Go to **{package}** **Packages > Container Registry**
-1. Go to **{chart}** **Project Analytics > Code Review**
-1. Go to **{book}** **Wiki**
-1. Go to **{snippet}** **Snippets**
-1. Go to **{users}** **Members**
-1. Select the **More actions** **{ellipsis_v}** icon > **Hide stage**
+
+However, the following might help the reader connect the text to the user interface:
+
+```markdown
+| Section                  | Description                                                                                                                 |
+|:-------------------------|:----------------------------------------------------------------------------------------------------------------------------|
+| **{overview}** Overview  | View your GitLab Dashboard, and administer projects, users, groups, jobs, Runners, and Gitaly servers.                      |
+| **{monitor}** Monitoring | View GitLab system information, and information on background jobs, logs, health checks, requests profiles, and audit logs. |
+| **{messages}** Messages  | Send and manage broadcast messages for your users.                                                                          |
+```
+
+| Section                  | Description                                                                                                                 |
+|:-------------------------|:----------------------------------------------------------------------------------------------------------------------------|
+| **{overview}** Overview  | View your GitLab Dashboard, and administer projects, users, groups, jobs, Runners, and Gitaly servers.                      |
+| **{monitor}** Monitoring | View GitLab system information, and information on background jobs, logs, health checks, requests profiles, and audit logs. |
+| **{messages}** Messages  | Send and manage broadcast messages for your users.                                                                          |
+
+Use an icon when you find youself having to describe an interface element. For example:
+
+- Do: Click the Admin Area icon ( **{admin}** ).
+- Don't: Click the Admin Area icon (the wrench icon).
 
 ## Alert boxes
 
@@ -1311,20 +1312,20 @@ The following are styles to follow when describing UI elements on a screen:
 
 ### Verbs for UI elements
 
-The following are recommended verbs for specific uses.
+The following are recommended verbs for specific uses with UI elements:
 
-| Recommended | Used for                   | Alternatives               |
-|:------------|:---------------------------|:---------------------------|
-| "click"     | buttons, links, menu items | "hit", "press", "select"   |
-| "check"     | checkboxes                 | "enable", "click", "press" |
-| "select"    | dropdowns                  | "pick"                     |
-| "expand"    | expandable sections        | "open"                     |
+| Recommended         | Used for                   | Replaces                   |
+|:--------------------|:---------------------------|:---------------------------|
+| *click*             | buttons, links, menu items | "hit", "press", "select"   |
+| *select* or *clear* | checkboxes                 | "enable", "click", "press" |
+| *select*            | dropdowns                  | "pick"                     |
+| *expand*            | expandable sections        | "open"                     |
 
 ### Other Verbs
 
-| Recommended | Used for                        | Alternatives       |
-|:------------|:--------------------------------|:-------------------|
-| "go"        | making a browser go to location | "navigate", "open" |
+| Recommended | Used for                        | Replaces              |
+|:------------|:--------------------------------|:----------------------|
+| *go to*     | making a browser go to location | "navigate to", "open" |
 
 ## GitLab versions and tiers
 
@@ -1335,6 +1336,11 @@ Tagged and released versions of GitLab documentation are available:
 
 The version introducing a new feature is added to the top of the topic in the documentation to provide
 a helpful link back to how the feature was developed.
+
+TIP: **Tip:**
+Whenever you have documentation related to the `gitlab.rb` file, you're working with a self-managed installation.
+The section or page is therefore likely to apply only to self-managed instances.
+If so, the relevant "`TIER` ONLY" [Product badge](#product-badges) should be included at the highest applicable heading level.
 
 ### Text for documentation requiring version text
 
@@ -1445,7 +1451,7 @@ lines with an inserted line break. Splitting product or feature names across
 lines makes searching for these items more difficult, and can cause problems if
 names change.
 
-For example, the followng Markdown content is *not* formatted correctly:
+For example, the following Markdown content is *not* formatted correctly:
 
 ```markdown
 When entering a product or feature name that includes a space (such as GitLab
@@ -1598,16 +1604,19 @@ can facilitate this by making sure the troubleshooting content addresses:
 1. How the user can confirm they have the problem.
 1. Steps the user can take towards resolution of the problem.
 
+If the contents of each category can be summarized in one line and a list of steps aren't required, consider setting up a
+[table](#tables) with headers of *Problem* \| *Cause* \| *Solution* (or *Workaround* if the fix is temporary), or *Error message* \| *Solution*.
+
 ## Feature flags
 
 Learn how to [document features deployed behind flags](feature_flags.md).
 For guidance on developing GitLab with feature flags, see
 [Feature flags in development of GitLab](../feature_flags/index.md).
 
-## API
+## RESTful API
 
-Here is a list of must-have items. Use them in the exact order that appears
-on this document. Further explanation is given below.
+Here is a list of must-have items for RESTful API documentation. Use them in the
+exact order that appears on this document. Further explanation is given below.
 
 - Every method must have the REST API request. For example:
 
@@ -1798,3 +1807,80 @@ exclude specific users when requesting a list of users for a project, you would 
 ```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" --data "skip_users[]=<user_id>" --data "skip_users[]=<user_id>" https://gitlab.example.com/api/v4/projects/<project_id>/users
 ```
+
+## GraphQL API
+
+GraphQL APIs are different from [RESTful APIs](#restful-api). Reference information is
+generated automatically in our [GraphQL reference](../../api/graphql/reference/index.md).
+
+However, it's helpful to include examples on how to use GraphQL for different "use cases",
+with samples that readers can use directly in the [GraphiQL explorer](../api_graphql_styleguide.md#graphiql).
+
+This section describes the steps required to add your GraphQL examples to GitLab documentation.
+
+### Add a dedicated GraphQL page
+
+To create a dedicated GraphQL page, create a new `.md` file in the `doc/api/graphql/` directory.
+Give that file a functional name, such as `import_from_specific_location.md`.
+
+### Start the page with an explanation
+
+Include a page title that describes the GraphQL functionality in a few words, such as:
+
+```markdown
+# Search for [substitute kind of data]
+```
+
+Describe the search. One sentence may be all you need. More information may help
+readers learn how to use the example for their GitLab deployments.
+
+### Include a procedure using the GraphiQL explorer
+
+The GraphiQL explorer can help readers test queries with working deployments. Set up the section with the following:
+
+- Use the following title:
+
+  ```markdown
+  ## Set up the GraphiQL explorer
+  ```
+
+- Include a code block with the query that anyone can include in their instance of
+  the GraphiQL explorer:
+
+  ````markdown
+  ```graphql
+  query {
+    <insert queries here>
+  }
+  ```
+  ````
+
+- Tell the user what to do:
+
+  ```markdown
+  1. Open the GraphiQL explorer tool in the following URL: `https://gitlab.com/-/graphql-explorer`.
+  1. Paste the `query` listed above into the left window of your GraphiQL explorer tool.
+  1. Click Play to get the result shown here:
+  ```
+
+- Include a screenshot of the result in the GraphiQL explorer. Follow the naming
+  convention described in the [Save the image](#save-the-image) section.
+- Follow up with an example of what you can do with the output.
+  Make sure the example is something that readers can do on their own deployments.
+- Include a link to the [GraphQL API resources](../../api/graphql/reference/index.md).
+
+### Add the GraphQL example to the Table of Contents
+
+You'll need to open a second MR, against the [GitLab Docs repository](https://gitlab.com/gitlab-org/gitlab-docs/).
+
+We store our Table of Contents in the `default-nav.yaml` file, in the `content/_data`
+subdirectory. You can find the GraphQL section under the following line:
+
+```yaml
+      - category_title: GraphQL
+```
+
+Be aware that CI tests for that second MR will fail with a bad link until the main MR
+that adds the new GraphQL page is merged.
+
+And that's all you need!

@@ -68,6 +68,7 @@ RSpec.describe 'SAST.gitlab-ci.yml' do
             'Groovy'               | { 'app.groovy' => '' }               | {}                                        | %w(spotbugs-sast secrets-sast)
             'Java'                 | { 'app.java' => '' }                 | {}                                        | %w(spotbugs-sast secrets-sast)
             'Javascript'           | { 'app.js' => '' }                   | {}                                        | %w(eslint-sast secrets-sast)
+            'JSX'                  | { 'app.jsx' => '' }                  | {}                                        | %w(eslint-sast secrets-sast)
             'Javascript Node'      | { 'package.json' => '' }             | {}                                        | %w(nodejs-scan-sast secrets-sast)
             'HTML'                 | { 'index.html' => '' }               | {}                                        | %w(eslint-sast secrets-sast)
             'Kubernetes Manifests' | { 'Chart.yaml' => '' }               | { 'SCAN_KUBERNETES_MANIFESTS' => 'true' } | %w(kubesec-sast secrets-sast)
@@ -76,7 +77,8 @@ RSpec.describe 'SAST.gitlab-ci.yml' do
             'Python'               | { 'app.py' => '' }                   | {}                                        | %w(bandit-sast secrets-sast)
             'Ruby'                 | { 'config/routes.rb' => '' }         | {}                                        | %w(brakeman-sast secrets-sast)
             'Scala'                | { 'app.scala' => '' }                | {}                                        | %w(spotbugs-sast secrets-sast)
-            'Typescript'           | { 'app.ts' => '' }                   | {}                                        | %w(tslint-sast secrets-sast)
+            'Typescript'           | { 'app.ts' => '' }                   | {}                                        | %w(eslint-sast secrets-sast)
+            'Typescript JSX'       | { 'app.tsx' => '' }                  | {}                                        | %w(eslint-sast secrets-sast)
             'Visual Basic'         | { 'app.vbproj' => '' }               | {}                                        | %w(security-code-scan-sast secrets-sast)
           end
 

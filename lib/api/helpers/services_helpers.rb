@@ -234,18 +234,6 @@ module API
               name: :project_url,
               type: String,
               desc: 'Project URL'
-            },
-            {
-              required: false,
-              name: :description,
-              type: String,
-              desc: 'Description'
-            },
-            {
-              required: false,
-              name: :title,
-              type: String,
-              desc: 'Title'
             }
           ],
           'buildkite' => [
@@ -259,15 +247,15 @@ module API
               required: true,
               name: :project_url,
               type: String,
-              desc: 'The buildkite project URL'
+              desc: 'The Buildkite pipeline URL'
             },
             {
               required: false,
               name: :enable_ssl_verification,
               type: Boolean,
-              desc: 'Enable SSL verification for communication'
+              desc: 'DEPRECATED: This parameter has no effect since SSL verification will always be enabled'
             }
-          ],
+        ],
           'campfire' => [
             {
               required: true,
@@ -288,6 +276,14 @@ module API
               desc: 'Campfire room'
             }
           ],
+          'confluence' => [
+            {
+              required: true,
+              name: :confluence_url,
+              type: String,
+              desc: 'The URL of the Confluence Cloud Workspace hosted on atlassian.net'
+            }
+          ],
           'custom-issue-tracker' => [
             {
               required: true,
@@ -306,18 +302,6 @@ module API
               name: :project_url,
               type: String,
               desc: 'Project URL'
-            },
-            {
-              required: false,
-              name: :description,
-              type: String,
-              desc: 'Description'
-            },
-            {
-              required: false,
-              name: :title,
-              type: String,
-              desc: 'Title'
             }
           ],
           'discord' => [
@@ -757,6 +741,7 @@ module API
           ::BambooService,
           ::BugzillaService,
           ::BuildkiteService,
+          ::ConfluenceService,
           ::CampfireService,
           ::CustomIssueTrackerService,
           ::DiscordService,

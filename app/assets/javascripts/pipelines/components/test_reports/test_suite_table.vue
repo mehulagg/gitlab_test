@@ -1,7 +1,6 @@
 <script>
 import { mapGetters } from 'vuex';
 import Icon from '~/vue_shared/components/icon.vue';
-import store from '~/pipelines/stores/test_reports';
 import { __ } from '~/locale';
 import { GlTooltipDirective } from '@gitlab/ui';
 import SmartVirtualList from '~/vue_shared/components/smart_virtual_list.vue';
@@ -15,7 +14,6 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  store,
   props: {
     heading: {
       type: String,
@@ -45,7 +43,7 @@ export default {
     <div v-if="hasSuites" class="test-reports-table gl-mb-3 js-test-cases-table">
       <div role="row" class="gl-responsive-table-row table-row-header font-weight-bold fgray">
         <div role="rowheader" class="table-section section-20">
-          {{ __('Class') }}
+          {{ __('Suite') }}
         </div>
         <div role="rowheader" class="table-section section-20">
           {{ __('Name') }}
@@ -72,23 +70,15 @@ export default {
           class="gl-responsive-table-row rounded align-items-md-start mt-xs-3 js-case-row"
         >
           <div class="table-section section-20 section-wrap">
-            <div role="rowheader" class="table-mobile-header">{{ __('Class') }}</div>
-            <div
-              v-gl-tooltip
-              :title="testCase.classname"
-              class="table-mobile-content pr-md-1 text-truncate"
-            >
+            <div role="rowheader" class="table-mobile-header">{{ __('Suite') }}</div>
+            <div class="table-mobile-content pr-md-1 gl-overflow-wrap-break">
               {{ testCase.classname }}
             </div>
           </div>
 
           <div class="table-section section-20 section-wrap">
             <div role="rowheader" class="table-mobile-header">{{ __('Name') }}</div>
-            <div
-              v-gl-tooltip
-              :title="testCase.name"
-              class="table-mobile-content pr-md-1 text-truncate"
-            >
+            <div class="table-mobile-content pr-md-1 gl-overflow-wrap-break">
               {{ testCase.name }}
             </div>
           </div>

@@ -305,6 +305,12 @@ Select one node as a primary node.
    CREATE EXTENSION pg_trgm;
    ```
 
+1. Enable the `btree_gist` extension:
+
+   ```shell
+   CREATE EXTENSION btree_gist;
+   ```
+
 1. Exit the database prompt by typing `\q` and Enter.
 
 1. Verify the cluster is initialized with one node:
@@ -736,9 +742,9 @@ consul['configuration'] = {
 
 After deploying the configuration follow these steps:
 
-1. On `10.6.0.31`, our primary database
+1. On `10.6.0.31`, our primary database:
 
-   Enable the `pg_trgm` extension
+   Enable the `pg_trgm` and `btree_gist` extensions:
 
    ```shell
    gitlab-psql -d gitlabhq_production
@@ -746,33 +752,34 @@ After deploying the configuration follow these steps:
 
    ```shell
    CREATE EXTENSION pg_trgm;
+   CREATE EXTENSION btree_gist;
    ```
 
-1. On `10.6.0.32`, our first standby database
+1. On `10.6.0.32`, our first standby database:
 
-   Make this node a standby of the primary
+   Make this node a standby of the primary:
 
    ```shell
    gitlab-ctl repmgr standby setup 10.6.0.21
    ```
 
-1. On `10.6.0.33`, our second standby database
+1. On `10.6.0.33`, our second standby database:
 
-   Make this node a standby of the primary
+   Make this node a standby of the primary:
 
    ```shell
    gitlab-ctl repmgr standby setup 10.6.0.21
    ```
 
-1. On `10.6.0.41`, our application server
+1. On `10.6.0.41`, our application server:
 
-   Set `gitlab-consul` user's PgBouncer password to `toomanysecrets`
+   Set `gitlab-consul` user's PgBouncer password to `toomanysecrets`:
 
    ```shell
    gitlab-ctl write-pgpass --host 127.0.0.1 --database pgbouncer --user pgbouncer --hostuser gitlab-consul
    ```
 
-   Run database migrations
+   Run database migrations:
 
    ```shell
    gitlab-rake gitlab:db:configure
@@ -966,7 +973,8 @@ after it has been restored to service.
   gitlab-ctl restart repmgrd
   ```
 
-  CAUTION: **Warning:** When the server is brought back online, and before
+  CAUTION: **Warning:**
+  When the server is brought back online, and before
   you switch it to a standby node, repmgr will report that there are two masters.
   If there are any clients that are still attempting to write to the old master,
   this will cause a split, and the old master will need to be resynced from
@@ -1129,7 +1137,8 @@ If you're running into an issue with a component not outlined here, be sure to c
 
 ## Patroni
 
-NOTE: **Note:** Starting from GitLab 13.1, Patroni is available for **experimental** use to replace repmgr. Due to its
+NOTE: **Note:**
+Starting from GitLab 13.1, Patroni is available for **experimental** use to replace repmgr. Due to its
 experimental nature, Patroni support is **subject to change without notice.**
 
 Patroni is an opinionated solution for PostgreSQL high-availability. It takes the control of PostgreSQL, overrides its
@@ -1250,24 +1259,27 @@ with:
 sudo gitlab-ctl stop patroni
 ```
 
-### Failover procedure for Patroni
+### Manual failover procedure for Patroni
 
-With Patroni, you have two slightly different options: failover and switchover. Essentially, failover allows you to
-perform a manual failover when there are no healthy nodes, while switchover only works when the cluster is healthy and
-allows you to schedule a switchover (it can happen immediately). For further details, see
-[Patroni documentation on this subject](https://patroni.readthedocs.io/en/latest/rest_api.html#switchover-and-failover-endpoints).
+While Patroni supports automatic failover, you also have the ability to perform
+a manual one, where you have two slightly different options:
 
-To schedule a switchover:
+- **Failover**: allows you to perform a manual failover when there are no healthy nodes.
+  You can perform this action in any PostgreSQL node:
 
-```shell
-sudo gitlab-ctl patroni switchover
-```
+  ```shell
+  sudo gitlab-ctl patroni failover
+  ```
 
-For manual failover:
+- **Switchover**: only works when the cluster is healthy and allows you to schedule a switchover (it can happen immediately).
+  You can perform this action in any PostgreSQL node:
 
-```shell
-sudo gitlab-ctl patroni failover
-```
+  ```shell
+  sudo gitlab-ctl patroni switchover
+  ```
+
+For further details on this subject, see the
+[Patroni documentation](https://patroni.readthedocs.io/en/latest/rest_api.html#switchover-and-failover-endpoints).
 
 ### Recovering the Patroni cluster
 
@@ -1317,8 +1329,9 @@ You can switch an exiting database cluster to use Patroni instead of repmgr with
    sudo gitlab-ctl stop postgresql
    ```
 
-   NOTE: **Note:**  Ensure that there is no `walsender` process running on the primary node.
-   `ps aux | grep walsender` must not show any running process.  
+   NOTE: **Note:**
+   Ensure that there is no `walsender` process running on the primary node.
+   `ps aux | grep walsender` must not show any running process.
 
 1. On the primary node, [configure Patroni](#configuring-patroni-cluster). Remove `repmgr` and any other
    repmgr-specific configuration. Also remove any configuration that is related to PostgreSQL replication.

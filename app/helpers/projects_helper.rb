@@ -180,7 +180,7 @@ module ProjectsHelper
   end
 
   def link_to_autodeploy_doc
-    link_to _('About auto deploy'), help_page_path('autodevops/index.md#auto-deploy'), target: '_blank'
+    link_to _('About auto deploy'), help_page_path('topics/autodevops/stages.md', anchor: 'auto-deploy'), target: '_blank'
   end
 
   def autodeploy_flash_notice(branch_name)
@@ -400,7 +400,7 @@ module ProjectsHelper
     nav_tabs = [:home]
 
     unless project.empty_repo?
-      nav_tabs << [:files, :commits, :network, :graphs, :forks] if can?(current_user, :download_code, project)
+      nav_tabs += [:files, :commits, :network, :graphs, :forks] if can?(current_user, :download_code, project)
       nav_tabs << :releases if can?(current_user, :read_release, project)
     end
 
@@ -421,30 +421,40 @@ module ProjectsHelper
       nav_tabs << :operations
     end
 
-    if can?(current_user, :read_cycle_analytics, project)
-      nav_tabs << :cycle_analytics
-    end
-
     tab_ability_map.each do |tab, ability|
       if can?(current_user, ability, project)
         nav_tabs << tab
       end
     end
 
-    nav_tabs << external_nav_tabs(project)
+    apply_external_nav_tabs(nav_tabs, project)
 
-    nav_tabs.flatten
+    nav_tabs += package_nav_tabs(project, current_user)
+
+    nav_tabs
   end
 
-  def external_nav_tabs(project)
+  def package_nav_tabs(project, current_user)
     [].tap do |tabs|
-      tabs << :external_issue_tracker if project.external_issue_tracker
-      tabs << :external_wiki if project.external_wiki
+      if ::Gitlab.config.packages.enabled && can?(current_user, :read_package, project)
+        tabs << :packages
+      end
+    end
+  end
+
+  def apply_external_nav_tabs(nav_tabs, project)
+    nav_tabs << :external_issue_tracker if project.external_issue_tracker
+    nav_tabs << :external_wiki if project.external_wiki
+
+    if project.has_confluence?
+      nav_tabs.delete(:wiki)
+      nav_tabs << :confluence
     end
   end
 
   def tab_ability_map
     {
+      cycle_analytics:    :read_cycle_analytics,
       environments:       :read_environment,
       metrics_dashboards: :metrics_dashboard,
       milestones:         :read_milestone,
@@ -584,6 +594,7 @@ module ProjectsHelper
   def project_permissions_settings(project)
     feature = project.project_feature
     {
+      packagesEnabled: !!project.packages_enabled,
       visibilityLevel: project.visibility_level,
       requestAccessEnabled: !!project.request_access_enabled,
       issuesAccessLevel: feature.issues_access_level,
@@ -604,6 +615,8 @@ module ProjectsHelper
 
   def project_permissions_panel_data(project)
     {
+      packagesAvailable: ::Gitlab.config.packages.enabled,
+      packagesHelpPath: help_page_path('user/packages/index'),
       currentSettings: project_permissions_settings(project),
       canDisableEmails: can_disable_emails?(project, current_user),
       canChangeVisibilityLevel: can_change_visibility_level?(project, current_user),

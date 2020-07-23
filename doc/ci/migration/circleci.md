@@ -1,4 +1,7 @@
 ---
+stage: Verify
+group: Continuous Integration
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 comments: false
 type: index, howto
 ---
@@ -250,14 +253,14 @@ image: node:latest
 cache:
   key: $CI_COMMIT_REF_SLUG
   paths:
-  - .npm/
+    - .npm/
 
 before_script:
   - npm ci --cache .npm --prefer-offline
 
 test_async:
   script:
-  - node ./specs/start.js ./specs/async.spec.js
+    - node ./specs/start.js ./specs/async.spec.js
 ```
 
 ## Contexts and variables

@@ -29,6 +29,22 @@ FactoryBot.define do
       confirmed_at { Time.current }
     end
 
+    trait :critical_severity do
+      severity { :critical }
+    end
+
+    trait :high_severity do
+      severity { :high }
+    end
+
+    trait :medium_severity do
+      severity { :medium }
+    end
+
+    trait :low_severity do
+      severity { :low }
+    end
+
     ::Vulnerabilities::Occurrence::SEVERITY_LEVELS.keys.each do |severity_level|
       trait severity_level do
         severity { severity_level }
@@ -62,7 +78,7 @@ FactoryBot.define do
 
     trait :with_issue_links do
       after(:create) do |vulnerability|
-        create_list(:issue, 2).each do |issue|
+        create_list(:issue, 2, project: vulnerability.project).each do |issue|
           create(:vulnerabilities_issue_link, vulnerability: vulnerability, issue: issue)
         end
       end

@@ -13,6 +13,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         module: :groups,
         as: :group,
         constraints: { group_id: Gitlab::PathRegex.full_namespace_route_regex }) do
+    draw :wiki
+
     resources :group_members, only: [], concerns: :access_requestable do
       patch :override, on: :member
     end
@@ -33,6 +35,15 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
               get :duration_chart
               get :median
               get :records
+            end
+          end
+          resources :value_streams, only: [:index, :create] do
+            resources :stages, only: [:index, :create, :update, :destroy] do
+              member do
+                get :duration_chart
+                get :median
+                get :records
+              end
             end
           end
           resource :summary, controller: :summary, only: :show
@@ -61,6 +72,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     resource :insights, only: [:show], trailing_slash: true do
       collection do
         post :query
+        get :embedded
       end
     end
 
@@ -164,7 +176,6 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     resource :roadmap, only: [:show], controller: 'roadmap'
 
     resource :dependency_proxy, only: [:show, :update]
-    resources :packages, only: [:index]
 
     post '/restore' => '/groups#restore', as: :restore
   end

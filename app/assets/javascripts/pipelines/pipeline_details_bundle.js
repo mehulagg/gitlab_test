@@ -10,8 +10,7 @@ import PipelinesMediator from './pipeline_details_mediator';
 import pipelineHeader from './components/header_component.vue';
 import eventHub from './event_hub';
 import TestReports from './components/test_reports/test_reports.vue';
-import testReportsStore from './stores/test_reports';
-import axios from '~/lib/utils/axios_utils';
+import createTestReportsStore from './stores/test_reports';
 
 Vue.use(Translate);
 
@@ -93,15 +92,11 @@ const createPipelineHeaderApp = mediator => {
   });
 };
 
-const createPipelinesTabs = dataset => {
+const createPipelinesTabs = testReportsStore => {
   const tabsElement = document.querySelector('.pipelines-tabs');
-  const testReportsEnabled =
-    window.gon && window.gon.features && window.gon.features.junitPipelineView;
 
-  if (tabsElement && testReportsEnabled) {
-    const fetchReportsAction = 'fetchReports';
-    testReportsStore.dispatch('setEndpoint', dataset.testReportEndpoint);
-
+  if (tabsElement) {
+    const fetchReportsAction = 'fetchFullReport';
     const isTestTabActive = Boolean(
       document.querySelector('.pipelines-tabs > li > a.test-tab.active'),
     );
@@ -121,28 +116,36 @@ const createPipelinesTabs = dataset => {
   }
 };
 
-const createTestDetails = detailsEndpoint => {
+const createTestDetails = () => {
+  if (!window.gon?.features?.junitPipelineView) {
+    return;
+  }
+
+  const el = document.querySelector('#js-pipeline-tests-detail');
+  const { fullReportEndpoint, summaryEndpoint, suiteEndpoint, countEndpoint } = el?.dataset || {};
+
+  const testReportsStore = createTestReportsStore({
+    fullReportEndpoint,
+    summaryEndpoint: summaryEndpoint || countEndpoint,
+    suiteEndpoint,
+    useBuildSummaryReport: window.gon?.features?.buildReportSummary,
+  });
+
+  if (!window.gon?.features?.buildReportSummary) {
+    createPipelinesTabs(testReportsStore);
+  }
+
   // eslint-disable-next-line no-new
   new Vue({
-    el: '#js-pipeline-tests-detail',
+    el,
     components: {
       TestReports,
     },
+    store: testReportsStore,
     render(createElement) {
       return createElement('test-reports');
     },
   });
-
-  axios
-    .get(detailsEndpoint)
-    .then(({ data }) => {
-      if (!data.total_count) {
-        return;
-      }
-
-      document.querySelector('.js-test-report-badge-counter').innerHTML = data.total_count;
-    })
-    .catch(() => {});
 };
 
 const createDagApp = () => {
@@ -178,7 +181,6 @@ export default () => {
 
   createPipelinesDetailApp(mediator);
   createPipelineHeaderApp(mediator);
-  createPipelinesTabs(dataset);
-  createTestDetails(dataset.testReportsCountEndpoint);
+  createTestDetails();
   createDagApp();
 };

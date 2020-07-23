@@ -2,17 +2,14 @@
 import Api from 'ee/api';
 import { __, s__ } from '~/locale';
 import createFlash from '~/flash';
-import { mergeUrlParams } from '~/lib/utils/url_utility';
 import MetricCard from '../../shared/components/metric_card.vue';
-
-const ENABLED_REPORT_PAGES = ['mergeRequests'];
 
 export default {
   name: 'GroupActivityCard',
   components: {
     MetricCard,
   },
-  inject: ['groupFullPath', 'groupName', 'reportPagesPath', 'enableReportPages'],
+  inject: ['groupFullPath', 'groupName'],
   data() {
     return {
       isLoading: false,
@@ -34,7 +31,6 @@ export default {
           key,
           value,
           label,
-          link: this.generateReportPageLink(key),
         };
       });
     },
@@ -61,20 +57,6 @@ export default {
           createFlash(__('Failed to load group activity metrics. Please try again.'));
           this.isLoading = false;
         });
-    },
-    displayReportLink(key) {
-      return this.enableReportPages && ENABLED_REPORT_PAGES.includes(key);
-    },
-    generateReportPageLink(key) {
-      return this.displayReportLink(key)
-        ? mergeUrlParams(
-            {
-              groupPath: this.groupFullPath,
-              groupName: this.groupName,
-            },
-            this.reportPagesPath,
-          )
-        : null;
     },
   },
 };

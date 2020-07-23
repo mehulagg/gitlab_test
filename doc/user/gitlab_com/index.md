@@ -29,7 +29,10 @@ gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAA
 ## Mail configuration
 
 GitLab.com sends emails from the `mg.gitlab.com` domain via [Mailgun](https://www.mailgun.com/) and has
-its own dedicated IP address (`198.61.254.240`).
+its own dedicated IP address (`192.237.158.143`).  
+
+NOTE: **Note:**
+The IP address for `mg.gitlab.com` is subject to change at any time.
 
 ## Backups
 
@@ -337,9 +340,9 @@ Windows Shared Runners:
 ```yaml
 .shared_windows_runners:
   tags:
-  - shared-windows
-  - windows
-  - windows-1809
+    - shared-windows
+    - windows
+    - windows-1809
 
 stages:
   - build
@@ -352,17 +355,17 @@ before_script:
 
 build:
   extends:
-  - .shared_windows_runners
+    - .shared_windows_runners
   stage: build
   script:
-  - echo "running scripts in the build job"
+    - echo "running scripts in the build job"
 
 test:
   extends:
-  - .shared_windows_runners
+    - .shared_windows_runners
   stage: test
   script:
-  - echo "running scripts in the test job"
+    - echo "running scripts in the test job"
 ```
 
 #### Limitations and known issues
@@ -584,9 +587,9 @@ is used to forward logs to an [Elastic cluster](https://gitlab.com/gitlab-com/ru
 
 You can view more information in our runbooks such as:
 
-- A [detailed list of what we're logging](https://gitlab.com/gitlab-com/runbooks/tree/master/logging/doc#what-are-we-logging)
-- Our [current log retention policies](https://gitlab.com/gitlab-com/runbooks/tree/master/logging/doc#retention)
-- A [diagram of our logging infrastructure](https://gitlab.com/gitlab-com/runbooks/tree/master/logging/doc#logging-infrastructure-overview)
+- A [detailed list of what we're logging](https://gitlab.com/gitlab-com/runbooks/-/tree/master/docs/logging#what-are-we-logging)
+- Our [current log retention policies](https://gitlab.com/gitlab-com/runbooks/-/tree/master/docs/logging#retention)
+- A [diagram of our logging infrastructure](https://gitlab.com/gitlab-com/runbooks/-/tree/master/docs/logging#logging-infrastructure-overview)
 
 ## GitLab.com at scale
 

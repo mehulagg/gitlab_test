@@ -229,8 +229,8 @@ Parameters:
 | Parameter | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
 | `token` | string | true | Buildkite project GitLab token |
-| `project_url` | string | true | `https://buildkite.com/example/project` |
-| `enable_ssl_verification` | boolean | false | Enable SSL verification |
+| `project_url` | string | true | Pipeline URL. For example, `https://buildkite.com/example/pipeline` |
+| `enable_ssl_verification` | boolean | false | DEPRECATED: This parameter has no effect since SSL verification will always be enabled |
 | `push_events` | boolean | false | Enable notifications for push events |
 
 ### Delete Buildkite service
@@ -491,6 +491,42 @@ Get Emails on push service settings for a project.
 
 ```plaintext
 GET /projects/:id/services/emails-on-push
+```
+
+## Confluence service
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/220934) in GitLab 13.2.
+
+Replaces the link to the internal wiki with a link to a Confluence Cloud Workspace.
+
+### Create/Edit Confluence service
+
+Set Confluence service for a project.
+
+```plaintext
+PUT /projects/:id/services/confluence
+```
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `confluence_url` | string | true | The URL of the Confluence Cloud Workspace hosted on atlassian.net.  |
+
+### Delete Confluence service
+
+Delete Confluence service for a project.
+
+```plaintext
+DELETE /projects/:id/services/confluence
+```
+
+### Get Confluence service settings
+
+Get Confluence service settings for a project.
+
+```plaintext
+GET /projects/:id/services/confluence
 ```
 
 ## External Wiki

@@ -3,18 +3,9 @@
 module EE
   module MergeRequestPresenter
     include ::VisibleApprovable
+    extend ::Gitlab::Utils::Override
 
-    def approvals_path
-      if expose_mr_approval_path?
-        expose_path(approvals_project_merge_request_path(project, merge_request))
-      end
-    end
-
-    def api_approvals_path
-      if expose_mr_approval_path?
-        expose_path(api_v4_projects_merge_requests_approvals_path(id: project.id, merge_request_iid: merge_request.iid))
-      end
-    end
+    APPROVALS_WIDGET_FULL_TYPE = 'full'
 
     def api_approval_settings_path
       if expose_mr_approval_path?
@@ -28,20 +19,8 @@ module EE
       end
     end
 
-    def api_approve_path
-      if expose_mr_approval_path?
-        expose_path(api_v4_projects_merge_requests_approve_path(id: project.id, merge_request_iid: merge_request.iid))
-      end
-    end
-
-    def api_unapprove_path
-      if expose_mr_approval_path?
-        expose_path(api_v4_projects_merge_requests_unapprove_path(id: project.id, merge_request_iid: merge_request.iid))
-      end
-    end
-
     def merge_train_when_pipeline_succeeds_docs_path
-      help_page_path('ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md', anchor: 'startadd-to-merge-train-when-pipeline-succeeds')
+      help_page_path('ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md', anchor: 'add-a-merge-request-to-a-merge-train')
     end
 
     def merge_immediately_docs_path
@@ -62,6 +41,11 @@ module EE
 
     def suggested_approvers
       merge_request.approval_state.suggested_approvers(current_user: current_user)
+    end
+
+    override :approvals_widget_type
+    def approvals_widget_type
+      expose_mr_approval_path? ? APPROVALS_WIDGET_FULL_TYPE : super
     end
 
     private

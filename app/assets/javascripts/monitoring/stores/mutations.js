@@ -4,7 +4,7 @@ import * as types from './mutation_types';
 import { mapToDashboardViewModel, normalizeQueryResponseData } from './utils';
 import httpStatusCodes from '~/lib/utils/http_status';
 import { BACKOFF_TIMEOUT } from '../../lib/utils/common_utils';
-import { endpointKeys, initialStateKeys, metricStates } from '../constants';
+import { dashboardEmptyStates, endpointKeys, initialStateKeys, metricStates } from '../constants';
 import { optionsFromSeriesData } from './variable_mapping';
 
 /**
@@ -58,8 +58,7 @@ export default {
    * Dashboard panels structure and global state
    */
   [types.REQUEST_METRICS_DASHBOARD](state) {
-    state.emptyState = 'loading';
-    state.showEmptyState = true;
+    state.emptyState = dashboardEmptyStates.LOADING;
   },
   [types.RECEIVE_METRICS_DASHBOARD_SUCCESS](state, dashboardYML) {
     const { dashboard, panelGroups, variables, links } = mapToDashboardViewModel(dashboardYML);
@@ -71,12 +70,15 @@ export default {
     state.links = links;
 
     if (!state.dashboard.panelGroups.length) {
-      state.emptyState = 'noData';
+      state.emptyState = dashboardEmptyStates.NO_DATA;
+    } else {
+      state.emptyState = null;
     }
   },
   [types.RECEIVE_METRICS_DASHBOARD_FAILURE](state, error) {
-    state.emptyState = error ? 'unableToConnect' : 'noData';
-    state.showEmptyState = true;
+    state.emptyState = error
+      ? dashboardEmptyStates.UNABLE_TO_CONNECT
+      : dashboardEmptyStates.NO_DATA;
   },
 
   [types.REQUEST_DASHBOARD_STARRING](state) {
@@ -93,6 +95,10 @@ export default {
   },
   [types.RECEIVE_DASHBOARD_STARRING_FAILURE](state) {
     state.isUpdatingStarredValue = false;
+  },
+
+  [types.SET_CURRENT_DASHBOARD](state, currentDashboard) {
+    state.currentDashboard = currentDashboard;
   },
 
   /**
@@ -150,7 +156,6 @@ export default {
     const metric = findMetricInDashboard(metricId, state.dashboard);
     metric.loading = false;
 
-    state.showEmptyState = false;
     if (!data.result || data.result.length === 0) {
       metric.state = metricStates.NO_DATA;
       metric.result = null;
@@ -180,11 +185,7 @@ export default {
     state.timeRange = timeRange;
   },
   [types.SET_GETTING_STARTED_EMPTY_STATE](state) {
-    state.emptyState = 'gettingStarted';
-  },
-  [types.SET_NO_DATA_EMPTY_STATE](state) {
-    state.showEmptyState = true;
-    state.emptyState = 'noData';
+    state.emptyState = dashboardEmptyStates.GETTING_STARTED;
   },
   [types.SET_ALL_DASHBOARDS](state, dashboards) {
     state.allDashboards = dashboards || [];
@@ -203,14 +204,13 @@ export default {
     state.expandedPanel.group = group;
     state.expandedPanel.panel = panel;
   },
-  [types.SET_VARIABLES](state, variables) {
-    state.variables = variables;
-  },
-  [types.UPDATE_VARIABLE_VALUE](state, { key, value }) {
-    Object.assign(state.variables[key], {
-      ...state.variables[key],
-      value,
-    });
+  [types.UPDATE_VARIABLE_VALUE](state, { name, value }) {
+    const variable = state.variables.find(v => v.name === name);
+    if (variable) {
+      Object.assign(variable, {
+        value,
+      });
+    }
   },
   [types.UPDATE_VARIABLE_METRIC_LABEL_VALUES](state, { variable, label, data = [] }) {
     const values = optionsFromSeriesData({ label, data });

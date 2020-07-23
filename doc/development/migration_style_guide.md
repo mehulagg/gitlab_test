@@ -88,7 +88,7 @@ body:
 For example:
 
 ```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
+class MyMigration < ActiveRecord::Migration[6.0]
   DOWNTIME = true
   DOWNTIME_REASON = 'This migration requires downtime because ...'
 
@@ -380,7 +380,8 @@ Example changes:
 - `change_column_default`
 - `create_table` / `drop_table`
 
-**Note:** `with_lock_retries` method **cannot** be used within the `change` method, you must manually define the `up` and `down` methods to make the migration reversible.
+NOTE: **Note:**
+`with_lock_retries` method **cannot** be used within the `change` method, you must manually define the `up` and `down` methods to make the migration reversible.
 
 ### How the helper method works
 
@@ -411,7 +412,7 @@ migration. For this to work your migration needs to include the module
 `Gitlab::Database::MultiThreadedMigration`:
 
 ```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
+class MyMigration < ActiveRecord::Migration[6.0]
   include Gitlab::Database::MigrationHelpers
   include Gitlab::Database::MultiThreadedMigration
 end
@@ -421,7 +422,7 @@ You can then use the method `with_multiple_threads` to perform work in separate
 threads. For example:
 
 ```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
+class MyMigration < ActiveRecord::Migration[6.0]
   include Gitlab::Database::MigrationHelpers
   include Gitlab::Database::MultiThreadedMigration
 
@@ -440,7 +441,8 @@ the `with_multiple_threads` block, instead of re-using the global connection
 pool. This ensures each thread has its own connection object, and won't time
 out when trying to obtain one.
 
-**NOTE:** PostgreSQL has a maximum amount of connections that it allows. This
+NOTE: **Note:**
+PostgreSQL has a maximum amount of connections that it allows. This
 limit can vary from installation to installation. As a result, it's recommended
 you do not use more than 32 threads in a single migration. Usually, 4-8 threads
 should be more than enough.
@@ -455,7 +457,7 @@ by calling the method `disable_ddl_transaction!` in the body of your migration
 class like so:
 
 ```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
+class MyMigration < ActiveRecord::Migration[6.0]
   include Gitlab::Database::MigrationHelpers
   disable_ddl_transaction!
 
@@ -536,7 +538,7 @@ Here's an example where we add a new column with a foreign key
 constraint. Note it includes `index: true` to create an index for it.
 
 ```ruby
-class Migration < ActiveRecord::Migration[4.2]
+class Migration < ActiveRecord::Migration[6.0]
 
   def change
     add_reference :model, :other_model, index: true, foreign_key: { on_delete: :cascade }
@@ -604,7 +606,8 @@ In this particular case, the default value exists and we're just changing the me
 `request_access_enabled` column, which does not imply a rewrite of all the existing records
 in the `namespaces` table. Only when creating a new column with a default, all the records are going be rewritten.
 
-NOTE: **Note:**  A faster [ALTER TABLE ADD COLUMN with a non-null default](https://www.depesz.com/2018/04/04/waiting-for-postgresql-11-fast-alter-table-add-column-with-a-non-null-default/)
+NOTE: **Note:**
+A faster [ALTER TABLE ADD COLUMN with a non-null default](https://www.depesz.com/2018/04/04/waiting-for-postgresql-11-fast-alter-table-add-column-with-a-non-null-default/)
 was introduced on PostgresSQL 11.0, removing the need of rewriting the table when a new column with a default value is added.
 
 For the reasons mentioned above, it's safe to use `change_column_default` in a single-transaction migration
@@ -854,15 +857,32 @@ If you need more complex logic, you can define and use models local to a
 migration. For example:
 
 ```ruby
-class MyMigration < ActiveRecord::Migration[4.2]
+class MyMigration < ActiveRecord::Migration[6.0]
   class Project < ActiveRecord::Base
     self.table_name = 'projects'
+  end
+
+  def up
+    # Reset the column information of all the models that update the database
+    # to ensure the Active Record's knowledge of the table structure is current
+    Project.reset_column_information
+
+    # ... ...
   end
 end
 ```
 
 When doing so be sure to explicitly set the model's table name, so it's not
 derived from the class name or namespace.
+
+Finally, make sure that `reset_column_information` is run in the `up` method of
+the migration for all local Models that update the database.
+
+The reason for that is that all migration classes are loaded at the beginning
+(when `db:migrate` starts), so they can get out of sync with the table schema
+they map to in case another migration updates that schema. That makes the data
+migration fail when trying to insert or make updates to the underlying table,
+as the new columns are reported as `unknown attribute` by `ActiveRecord`.
 
 ### Renaming reserved paths
 

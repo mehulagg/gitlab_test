@@ -3,7 +3,7 @@ import { GlAlert, GlLoadingIcon, GlTable } from '@gitlab/ui';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import AlertDetails from '~/alert_management/components/alert_details.vue';
-import createIssueMutation from '~/alert_management/graphql/mutations/create_issue_from_alert.graphql';
+import createIssueMutation from '~/alert_management/graphql/mutations/create_issue_from_alert.mutation.graphql';
 import { joinPaths } from '~/lib/utils/url_utility';
 import {
   trackAlertsDetailsViewsOptions,
@@ -55,9 +55,7 @@ describe('AlertDetails', () => {
 
   afterEach(() => {
     if (wrapper) {
-      if (wrapper) {
-        wrapper.destroy();
-      }
+      wrapper.destroy();
     }
     mock.restore();
   });
@@ -212,6 +210,13 @@ describe('AlertDetails', () => {
       it('displays a error state correctly', () => {
         mountComponent({ data: { errored: true } });
         expect(wrapper.find(GlAlert).exists()).toBe(true);
+      });
+
+      it('renders html-errors correctly', () => {
+        mountComponent({
+          data: { errored: true, sidebarErrorMessage: '<span data-testid="htmlError" />' },
+        });
+        expect(wrapper.find('[data-testid="htmlError"]').exists()).toBe(true);
       });
 
       it('does not display an error when dismissed', () => {

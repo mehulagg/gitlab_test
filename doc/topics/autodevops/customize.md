@@ -218,7 +218,7 @@ include:
 
 See the [Auto DevOps template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml) for information on available jobs.
 
-CAUTION: **Deprecation**
+CAUTION: **Deprecation:**
 Auto DevOps templates using the [`only`](../../ci/yaml/README.md#onlyexcept-basic) or
 [`except`](../../ci/yaml/README.md#onlyexcept-basic) syntax will switch
 to the [`rules`](../../ci/yaml/README.md#rules) syntax, starting in
@@ -243,7 +243,7 @@ postgres://user:password@postgres-host:postgres-port/postgres-database
 
 ### Upgrading PostgresSQL
 
-CAUTION: **Deprecation**
+CAUTION: **Deprecation:**
 The variable `AUTO_DEVOPS_POSTGRES_CHANNEL` that controls default provisioned
 PostgreSQL was changed to `2` in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/210499).
 To keep using the old PostgreSQL, set the `AUTO_DEVOPS_POSTGRES_CHANNEL` variable to
@@ -311,6 +311,7 @@ applications.
 | `AUTO_DEVOPS_CHART_REPOSITORY_USERNAME` | From GitLab 11.11, used to set a username to connect to the Helm repository. Defaults to no credentials. Also set `AUTO_DEVOPS_CHART_REPOSITORY_PASSWORD`. |
 | `AUTO_DEVOPS_CHART_REPOSITORY_PASSWORD` | From GitLab 11.11, used to set a password to connect to the Helm repository. Defaults to no credentials. Also set `AUTO_DEVOPS_CHART_REPOSITORY_USERNAME`. |
 | `AUTO_DEVOPS_DEPLOY_DEBUG`              | From GitLab 13.1, if this variable is present, Helm will output debug logs. |
+| `AUTO_DEVOPS_ALLOW_TO_FORCE_DEPLOY_V<N>` | From [auto-deploy-image](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image) v1.0.0, if this variable is present, a new major version of chart is forcibly deployed. [More details](upgrading_chart.md#ignore-warning-and-continue-deploying) |
 | `AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE` | From GitLab 12.5, used in combination with [ModSecurity feature flag](../../user/clusters/applications.md#web-application-firewall-modsecurity) to toggle [ModSecurity's `SecRuleEngine`](https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-(v2.x)#SecRuleEngine) behavior. Defaults to `DetectionOnly`. |
 | `BUILDPACK_URL`                         | Buildpack's full URL. Can point to either [a Git repository URL or a tarball URL](#custom-buildpacks). |
 | `CANARY_ENABLED`                        | From GitLab 11.0, used to define a [deploy policy for canary environments](#deploy-policy-for-canary-environments-premium). |
@@ -364,7 +365,8 @@ The following table lists variables used to disable jobs.
 | `DAST_DISABLED`                         | From GitLab 11.0, used to disable the `dast` job. If the variable is present, the job won't be created. |
 | `DEPENDENCY_SCANNING_DISABLED`          | From GitLab 11.0, used to disable the `dependency_scanning` job. If the variable is present, the job won't be created. |
 | `LICENSE_MANAGEMENT_DISABLED`           | From GitLab 11.0, used to disable the `license_management` job. If the variable is present, the job won't be created. |
-| `PERFORMANCE_DISABLED`                  | From GitLab 11.0, used to disable the `performance` job. If the variable is present, the job won't be created. |
+| `PERFORMANCE_DISABLED`                  | From GitLab 11.0, used to disable the browser `performance` job. If the variable is present, the job won't be created. |
+| `LOAD_PERFORMANCE_DISABLED`             | From GitLab 13.2, used to disable the `load_performance` job. If the variable is present, the job won't be created. |
 | `REVIEW_DISABLED`                       | From GitLab 11.0, used to disable the `review` and the manual `review:stop` job. If the variable is present, these jobs won't be created. |
 | `SAST_DISABLED`                         | From GitLab 11.0, used to disable the `sast` job. If the variable is present, the job won't be created. |
 | `TEST_DISABLED`                         | From GitLab 11.0, used to disable the `test` job. If the variable is present, the job won't be created. |
@@ -451,7 +453,7 @@ QA testing:
   environment:
     name: qa
   script:
-  - deploy foo
+    - deploy foo
 ```
 
 The track `foo` being referenced must also be defined in the application's Helm chart, like:

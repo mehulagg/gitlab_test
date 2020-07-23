@@ -10,6 +10,7 @@ module Gitlab
       included do
         # If this hook turns out not to apply to all Models, perhaps we should extract a `ReplicableBlobModel`
         after_create_commit -> { replicator.handle_after_create_commit if replicator.respond_to?(:handle_after_create_commit) }
+        after_destroy -> { replicator.handle_after_destroy if replicator.respond_to?(:handle_after_destroy) }
 
         scope :checksummed, -> { where('verification_checksum IS NOT NULL') }
         scope :checksum_failed, -> { where('verification_failure IS NOT NULL') }
@@ -24,8 +25,6 @@ module Gitlab
         def with_replicator(klass)
           raise ArgumentError, 'Must be a class inheriting from Gitlab::Geo::Replicator' unless klass < ::Gitlab::Geo::Replicator
 
-          Gitlab::Geo::ReplicableModel.add_replicator(klass)
-
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             define_method :replicator do
               @_replicator ||= klass.new(model_record: self)
@@ -36,16 +35,6 @@ module Gitlab
             end
           RUBY
         end
-      end
-
-      def self.add_replicator(klass)
-        @_replicators ||= []
-        @_replicators << klass
-      end
-
-      def self.replicators
-        @_replicators ||= []
-        @_replicators.filter { |replicator| const_defined?(replicator.to_s) }
       end
 
       # Geo Replicator
