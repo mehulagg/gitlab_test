@@ -13,17 +13,17 @@ function create_user() {
 
     [[ "$TRACE" ]] && cat /tmp/user.json
 
-    jq .id /tmp/user.json
+    return jq .id /tmp/user.json
 }
 
-function create_project_for_user () {
+function create_project_for_user() {
     local userid="${1}"
 
-    curl -vvv --show-error --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" \
+    curl --silent --show-error --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" \
         --data "user_id=${userid}" \
         --data "name=awesome-test-project-${userid}" \
         --data "visibility=private" \
         "${CI_ENVIRONMENT_URL}/api/v4/projects/user/${userid}" > /tmp/project.json
 
-        [[ "$TRACE" ]] && cat /tmp/project.json
+    [[ "$TRACE" ]] && cat /tmp/project.json
 }
