@@ -1,0 +1,12 @@
+mutation epicAddIssue($epicAddIssueInput: EpicAddIssueInput!) {
+  epicAddIssue(input: $epicAddIssueInput) {
+    clientMutationId
+    epic {
+      id
+    }
+    epicIssue {
+      epicIssueId
+    }
+    errors
+  }
+}

@@ -83,7 +83,7 @@ export default {
     eventHub.$off(`toggle-issue-form-${this.list.id}`, this.toggleForm);
   },
   methods: {
-    ...mapActions(['moveIssueEpicSwimlane']),
+    ...mapActions(['moveIssueEpicSwimlane', 'assignIssueToEpic']),
     toggleForm() {
       this.showIssueForm = !this.showIssueForm;
       if (this.showIssueForm && this.isUnassignedIssuesLane) {
@@ -94,6 +94,7 @@ export default {
       const { oldIndex, newIndex, from, to, item } = params;
       const { issueId, epicIssueId } = item.dataset;
 
+
       if (epicIssueId) {
         this.moveIssueEpicSwimlane({
           listId: to.dataset.listId,
@@ -101,6 +102,15 @@ export default {
           epicToId: to.dataset.epicId,
           targetIssueId: Number(issueId),
           epicIssueId,
+          oldIndex,
+          newIndex,
+        });
+      } else {
+        this.assignIssueToEpic({
+          listId: to.dataset.listId,
+          epicFromId: 'noEpic',
+          epicToId: to.dataset.epicId,
+          targetIssue: item.dataset,
           oldIndex,
           newIndex,
         });

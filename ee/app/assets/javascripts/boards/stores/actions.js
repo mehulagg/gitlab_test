@@ -135,6 +135,65 @@ export default {
     commit(types.RECEIVE_EPICS_SUCCESS, swimlanes);
   },
 
+  assignIssueToEpic: (
+    { commit, state },
+    { listId, epicFromId, epicToId, targetIssue, oldIndex, newIndex },
+  ) => {
+    const { issueId, issueIid, issuePath } = targetIssue;
+    const targetIssueId = Number(issueId);
+    const [groupPath, project] = issuePath.split(/[/#]/);
+
+    commit(types.MOVE_ISSUE_EPIC_SWIMLANE, {
+      listId,
+      epicFromId,
+      epicToId,
+      targetIssueId,
+      oldIndex,
+      newIndex,
+    });
+
+    return gqlClient
+      .mutate({
+        mutation: epicAddIssueQuery,
+        variables: {
+          epicAddIssueInput: {
+            iid: state.epics.find(e => e.id === epicToId).iid,
+            groupPath,
+            projectPath: `${groupPath}/${project}`,
+            issueIid,
+          },
+        },
+      })
+      .then(({ data }) => {
+        // Mutation was unsuccessful;
+        // revert to original epic
+        if (data.epicAddIssue.errors.length) {
+          commit(types.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE, {
+            listId,
+            epicFromId,
+            epicToId,
+            targetIssueId,
+            oldIndex,
+            newIndex,
+          });
+          flash(__('Something went wrong while moving issue.'));
+        }
+      })
+      .catch(() => {
+        // Mutation was unsuccessful;
+        // revert to original epic
+        commit(types.MOVE_ISSUE_EPIC_SWIMLANE_FAILURE, {
+          listId,
+          epicFromId,
+          epicToId,
+          targetIssueId,
+          oldIndex,
+          newIndex,
+        });
+        flash(__('Something went wrong while moving issue.'));
+      });
+  },
+
   moveIssueEpicSwimlane: (
     { commit, state },
     { listId, epicFromId, epicToId, targetIssueId, epicIssueId, oldIndex, newIndex },
