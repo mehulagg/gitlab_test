@@ -98,7 +98,7 @@ module QA
         Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster_settings|
           cluster_settings.project = @project
           cluster_settings.cluster = @cluster
-          cluster_settings.install_helm_tiller = true
+          cluster_settings.install_helm_tiller = false
           cluster_settings.install_runner = true
           cluster_settings.install_ingress = true
           cluster_settings.install_prometheus = true
