@@ -26,6 +26,7 @@ describe('Incidents Details', () => {
       provide: {
         projectPath: '/project/path',
         incidentId: '1',
+        glFeatures: { incidentDetails: true },
       },
     });
   }
