@@ -181,7 +181,6 @@ dependency_scanning:
 #     expire_in: 1 week  # GitLab-specific
 
 
-
 # Seed test data
 DAST-prepare:
   stage: review-after
