@@ -37,6 +37,12 @@ module EE
         assignee.present?
     end
 
+    def preferences_for(user)
+      return unless user
+
+      user_preferences.for_user(user).first
+    end
+
     def milestone
       return unless resource_parent&.feature_available?(:scoped_issue_board)
 

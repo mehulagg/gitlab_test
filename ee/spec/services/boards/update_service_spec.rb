@@ -148,6 +148,32 @@ RSpec.describe Boards::UpdateService, services: true do
           end
         end
       end
+
+      context 'when preferences parameters are present' do
+        let_it_be(:user) { create(:user) }
+        let_it_be(:params) { { weight: 1, preferences: { hide_labels: true } } }
+        let(:service) { described_class.new(group, user, params) }
+
+        before do
+          stub_licensed_features(scoped_issue_board: true)
+        end
+
+        it 'also updates board user preferences' do
+          expect(service.execute(board)).to be(true)
+          expect(board.preferences_for(user).hide_labels).to eq(true)
+          expect(board.reload.weight).to eq(1)
+        end
+
+        it 'returns false when board user preferences did not succeed' do
+          allow_next_instance_of(Boards::UserPreferences::UpdateService) do |instance|
+            allow(instance).to receive(:execute).and_return(false)
+          end
+
+          expect(service.execute(board)).to be(false)
+          expect(board.preferences_for(user)).to be_nil
+          expect(board.reload.weight).to be_nil
+        end
+      end
     end
   end
 end

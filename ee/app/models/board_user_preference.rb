@@ -7,4 +7,6 @@ class BoardUserPreference < ApplicationRecord
   validates :user, presence: true
   validates :board, presence: true
   validates :user_id, uniqueness: { scope: :board_id, message: "should have only one board preference per user" }
+
+  scope :for_user, ->(user) { where(user: user) }
 end

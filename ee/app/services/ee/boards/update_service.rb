@@ -20,7 +20,18 @@ module EE
         set_milestone
         set_labels
 
-        super
+        update_user_preferences_for(board) && super
+      end
+
+      private
+
+      def update_user_preferences_for(board)
+        preferences = params.delete(:preferences)
+
+        return true unless preferences
+        return true unless current_user
+
+        ::Boards::UserPreferences::UpdateService.new(current_user, preferences).execute(board)
       end
     end
   end

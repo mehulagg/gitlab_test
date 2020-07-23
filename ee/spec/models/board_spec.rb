@@ -121,4 +121,21 @@ RSpec.describe Board do
       expect(board).not_to be_scoped
     end
   end
+
+  describe '.preferences_for' do
+    let_it_be(:preference) { create(:board_user_preference, hide_labels: true) }
+
+    it 'returns user preferences' do
+      board = preference.board
+      user = preference.user
+
+      expect(board.preferences_for(user)).to eq(preference)
+    end
+
+    it 'returns nil when there is no preference for user' do
+      board = preference.board
+
+      expect(board.preferences_for(create(:user))).to eq(nil)
+    end
+  end
 end

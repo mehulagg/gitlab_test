@@ -16,4 +16,13 @@ RSpec.describe BoardUserPreference do
                        .with_message("should have only one board preference per user")
     end
   end
+
+  describe '.for_user' do
+    it 'returns board preferences for user' do
+      preference = create(:board_user_preference)
+      user = preference.user
+
+      expect(described_class.for_user(user)).to match_array([preference])
+    end
+  end
 end
