@@ -15504,6 +15504,9 @@ msgstr ""
 msgid "Network Policy|New rule"
 msgstr ""
 
+msgid "NetworkPolicies|.yaml"
+msgstr ""
+
 msgid "NetworkPolicies|.yaml mode"
 msgstr ""
 
@@ -15577,6 +15580,9 @@ msgid "NetworkPolicies|Policy status"
 msgstr ""
 
 msgid "NetworkPolicies|Policy type"
+msgstr ""
+
+msgid "NetworkPolicies|Rule"
 msgstr ""
 
 msgid "NetworkPolicies|Rule mode"

@@ -1,4 +1,5 @@
 <script>
+import { mapActions } from 'vuex';
 import {
   GlFormGroup,
   GlFormSelect,
@@ -15,6 +16,7 @@ import NetworkPolicyEditor from '../network_policy_editor.vue';
 import PolicyRuleBuilder from './policy_rule_builder.vue';
 import PolicyPreview from './policy_preview.vue';
 import PolicyActionPicker from './policy_action_picker.vue';
+import NetworkPolicy from '../../lib/network_policy';
 
 export default {
   name: 'PolicyEditor',
@@ -34,7 +36,29 @@ export default {
     PolicyActionPicker,
   },
   data() {
-    return { editorMode: 'rule' };
+    const policy = new NetworkPolicy();
+    return {
+      editorMode: 'rule',
+      policy,
+      policyYaml: policy.toYaml(),
+      policyDescription: policy.humanize(),
+    };
+  },
+  watch: {
+    policy: {
+      handler: 'updatePreview',
+      deep: true,
+    },
+  },
+  created() {
+    this.fetchEnvironments();
+  },
+  methods: {
+    ...mapActions('threatMonitoring', ['fetchEnvironments']),
+    updatePreview(policy) {
+      this.policyYaml = policy.toYaml();
+      this.policyDescription = policy.humanize();
+    },
   },
   policyTypes: [{ value: 'networkPolicy', text: s__('NetworkPolicies|Network Policy') }],
   editorModes: [
@@ -65,14 +89,14 @@ export default {
       </div>
       <div class="col-sm-6 col-md-6 col-lg-5 col-xl-4">
         <gl-form-group :label="s__('NetworkPolicies|Name')" label-for="policyName">
-          <gl-form-input id="policyName" />
+          <gl-form-input id="policyName" v-model="policy.name" />
         </gl-form-group>
       </div>
     </div>
     <div class="row">
       <div class="col-sm-12 col-md-10 col-lg-8 col-xl-6">
         <gl-form-group :label="s__('NetworkPolicies|Description')" label-for="policyDescription">
-          <gl-form-textarea id="policyDescription" />
+          <gl-form-textarea id="policyDescription" v-model="policy.description" />
         </gl-form-group>
       </div>
     </div>
@@ -82,7 +106,7 @@ export default {
     <div class="row">
       <div class="col-md-auto">
         <gl-form-group :label="s__('NetworkPolicies|Policy status')" label-for="policyStatus">
-          <gl-toggle id="policyStatus" />
+          <gl-toggle id="policyStatus" v-model="policy.isEnabled" />
         </gl-form-group>
       </div>
     </div>
@@ -108,7 +132,11 @@ export default {
       </div>
       <div class="col-sm-12 col-md-6 col-lg-5 col-xl-4">
         <h5>{{ s__('NetworkPolicies|Policy preview') }}</h5>
-        <policy-preview />
+        <policy-preview
+          data-testid="policy-preview"
+          :policy-yaml="policyYaml"
+          :policy-description="policyDescription"
+        />
       </div>
     </div>
     <div v-if="editorMode == 'yaml'" class="row" data-testid="yaml-editor">

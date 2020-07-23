@@ -23,6 +23,7 @@ describe('PolicyEditorApp component', () => {
 
   const findRuleEditor = () => wrapper.find('[data-testid="rule-editor"]');
   const findYamlEditor = () => wrapper.find('[data-testid="yaml-editor"]');
+  const findPreview = () => wrapper.find('[data-testid="policy-preview"]');
 
   beforeEach(() => {
     factory({});
@@ -58,6 +59,45 @@ describe('PolicyEditorApp component', () => {
       const editor = findYamlEditor();
       expect(editor.exists()).toBe(true);
       expect(editor.element).toMatchSnapshot();
+    });
+  });
+
+  describe('given there is a name change', () => {
+    let initialValue;
+
+    beforeEach(() => {
+      initialValue = findPreview().props('policyYaml');
+      wrapper.find("[id='policyName']").vm.$emit('input', 'new');
+    });
+
+    it('updates policy preview', () => {
+      expect(findPreview().props('policyYaml')).not.toEqual(initialValue);
+    });
+  });
+
+  describe('given there is a description change', () => {
+    let initialValue;
+
+    beforeEach(() => {
+      initialValue = findPreview().props('policyYaml');
+      wrapper.find("[id='policyDescription']").vm.$emit('input', 'new');
+    });
+
+    it('updates policy preview', () => {
+      expect(findPreview().props('policyYaml')).not.toEqual(initialValue);
+    });
+  });
+
+  describe('given there is an enforcement status change', () => {
+    let initialValue;
+
+    beforeEach(() => {
+      initialValue = findPreview().props('policyYaml');
+      wrapper.find("[id='policyStatus']").vm.$emit('change', true);
+    });
+
+    it('updates policy preview', () => {
+      expect(findPreview().props('policyYaml')).not.toEqual(initialValue);
     });
   });
 });
