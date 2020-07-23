@@ -14,8 +14,7 @@ module Gitlab
           include ::Gitlab::Config::Entry::Attributable
           include ::Gitlab::Config::Entry::Inheritable
 
-          PROCESSABLE_ALLOWED_KEYS = %i[extends stage only except rules variables
-                                        inherit allow_failure when needs].freeze
+          PROCESSABLE_ALLOWED_KEYS = %i[extends stage only except rules variables inherit].freeze
 
           included do
             validations do
