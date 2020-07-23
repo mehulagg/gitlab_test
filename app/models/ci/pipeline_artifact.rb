@@ -20,9 +20,8 @@ module Ci
       json: 1
     }, _suffix: true
 
-    REPORT_TYPES = {
-      coverage: :raw
-    }
+    validates :pipeline, :project, presence: true
+    validates :file_store, inclusion: { in: [1, 2] }
 
     def hashed_path?
       true

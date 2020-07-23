@@ -13,10 +13,10 @@ class CreateCiPipelineArtifact < ActiveRecord::Migration[6.0]
         t.references :pipeline, foreign_key: { to_table: :ci_pipelines, on_delete: :cascade }, index: true, null: false
         t.references :project, foreign_key: { on_delete: :cascade }, index: true, null: false
         t.timestamps_with_timezone
-        t.integer :file_type, null: false
+        t.integer :file_type, null: false, limit: 2
         t.integer :size, null: false
-        t.integer :file_store, null: false, default: 1
-        t.integer :file_format, null: false
+        t.integer :file_store, null: false, limit: 2
+        t.integer :file_format, null: false, limit: 2
         t.text :file
       end
     end
