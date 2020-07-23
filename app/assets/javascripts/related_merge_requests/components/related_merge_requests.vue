@@ -1,15 +1,14 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlLink, GlLoadingIcon } from '@gitlab/ui';
+import { GlLink, GlLoadingIcon, GlIcon } from '@gitlab/ui';
 import { sprintf, n__, s__ } from '~/locale';
-import Icon from '~/vue_shared/components/icon.vue';
 import RelatedIssuableItem from '~/vue_shared/components/issue/related_issuable_item.vue';
 import { parseIssuableData } from '../../issue_show/utils/parse_data';
 
 export default {
   name: 'RelatedMergeRequests',
   components: {
-    Icon,
+    GlIcon,
     GlLink,
     GlLoadingIcon,
     RelatedIssuableItem,
@@ -71,24 +70,20 @@ export default {
   >
     <div id="merge-requests" class="card card-slim mt-3">
       <div class="card-header">
-        <div class="card-title mt-0 mb-0 h5 merge-requests-title position-relative">
+        <div
+          class="card-title h5 merge-requests-title position-relative gl-my-0 gl-display-flex gl-align-items-center gl-h-7"
+        >
           <gl-link
             id="user-content-related-merge-requests"
             class="anchor position-absolute text-decoration-none"
             href="#related-merge-requests"
             aria-hidden="true"
           />
-          <span class="mr-1">
-            {{ __('Related merge requests') }}
-          </span>
-          <div v-if="totalCount" class="d-inline-flex lh-100 align-middle">
-            <div class="mr-count-badge gl-display-inline-flex">
-              <div class="mr-count-badge-count">
-                <svg class="s16 mr-1 text-secondary">
-                  <icon name="merge-request" class="mr-1 text-secondary" />
-                </svg>
-                <span class="js-items-count">{{ totalCount }}</span>
-              </div>
+          {{ __('Related merge requests') }}
+          <div v-if="totalCount" class="gl-display-inline-flex gl-mx-5">
+            <div class="gl-display-inline-flex gl-align-items-center">
+              <gl-icon name="merge-request" class="gl-mr-2 gl-text-gray-700" />
+              <span class="js-items-count">{{ totalCount }}</span>
             </div>
           </div>
         </div>

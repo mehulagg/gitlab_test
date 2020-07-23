@@ -67,7 +67,7 @@ RSpec.describe "Internal references", :js do
           it "shows references", :sidekiq_might_not_need_inline do
             page.within("#merge-requests .merge-requests-title") do
               expect(page).to have_content("Related merge requests")
-              expect(page).to have_css(".mr-count-badge")
+              expect(page).to have_css(".gl-display-inline-flex.gl-mx-5")
             end
 
             page.within("#merge-requests ul") do
