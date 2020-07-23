@@ -170,6 +170,7 @@ export default {
       :dismissible="false"
       variant="danger"
       class="gl-mb-4"
+      data-qa-selector="danger_alert_content"
       >{{ error }}</gl-alert
     >
     <gl-form-group :label="s__('Pipeline|Run for')">
@@ -242,7 +243,7 @@ export default {
     <div
       class="gl-border-t-solid gl-border-gray-100 gl-border-t-1 gl-p-5 gl-bg-gray-10 gl-display-flex gl-justify-content-space-between"
     >
-      <gl-button type="submit" category="primary" variant="success">{{
+      <gl-button type="submit" category="primary" variant="success" data-qa-selector="run_pipeline_button">{{
         s__('Pipeline|Run Pipeline')
       }}</gl-button>
       <gl-button :href="pipelinesPath">{{ __('Cancel') }}</gl-button>
