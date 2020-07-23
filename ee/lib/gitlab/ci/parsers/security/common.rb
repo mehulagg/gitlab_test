@@ -65,6 +65,12 @@ module Gitlab
                 confidence: parse_confidence_level(data['confidence']&.downcase),
                 scanner: scanner,
                 identifiers: identifiers,
+                report_data: {
+                  "Name": {
+                    "type": "text",
+                    "value": "This is a description"
+                  }
+                },
                 raw_metadata: data.to_json,
                 metadata_version: version))
           end
