@@ -104,7 +104,7 @@ describe('Design discussions component', () => {
 
     it('renders correct amount of discussion notes', () => {
       expect(findDesignNotes()).toHaveLength(2);
-      expect(findDesignNotes().wrappers.every(w => w.isVisible())).toBe(true);
+      expect(findDesignNotes().wrappers.every((w) => w.isVisible())).toBe(true);
     });
 
     it('renders reply placeholder', () => {
@@ -146,16 +146,8 @@ describe('Design discussions component', () => {
     });
 
     it('shows only the first note', () => {
-      expect(
-        findDesignNotes()
-          .at(0)
-          .isVisible(),
-      ).toBe(true);
-      expect(
-        findDesignNotes()
-          .at(1)
-          .isVisible(),
-      ).toBe(false);
+      expect(findDesignNotes().at(0).isVisible()).toBe(true);
+      expect(findDesignNotes().at(1).isVisible()).toBe(false);
     });
 
     it('renders resolved message', () => {
@@ -189,11 +181,7 @@ describe('Design discussions component', () => {
       });
 
       it('renders the second note', () => {
-        expect(
-          findDesignNotes()
-            .at(1)
-            .isVisible(),
-        ).toBe(true);
+        expect(findDesignNotes().at(1).isVisible()).toBe(true);
       });
 
       it('renders a reply placeholder', () => {
@@ -270,9 +258,9 @@ describe('Design discussions component', () => {
       },
     );
 
-    expect(wrapper.findAll(DesignNote).wrappers.every(note => note.classes('gl-bg-blue-50'))).toBe(
-      true,
-    );
+    expect(
+      wrapper.findAll(DesignNote).wrappers.every((note) => note.classes('gl-bg-blue-50')),
+    ).toBe(true);
   });
 
   it('calls toggleResolveDiscussion mutation on resolve thread button click', () => {

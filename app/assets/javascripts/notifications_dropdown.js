@@ -11,9 +11,7 @@ export default function notificationsDropdown() {
     }
 
     const notificationLevel = $(this).data('notificationLevel');
-    const form = $(this)
-      .parents('.notification-form')
-      .first();
+    const form = $(this).parents('.notification-form').first();
 
     form.find('.js-notification-loading').toggleClass('spinner');
     if (form.hasClass('no-label')) {
@@ -26,9 +24,7 @@ export default function notificationsDropdown() {
 
   $(document).on('ajax:success', '.notification-form', (e, data) => {
     if (data.saved) {
-      $(e.currentTarget)
-        .closest('.js-notification-dropdown')
-        .replaceWith(data.html);
+      $(e.currentTarget).closest('.js-notification-dropdown').replaceWith(data.html);
     } else {
       Flash(__('Failed to save new settings'), 'alert');
     }

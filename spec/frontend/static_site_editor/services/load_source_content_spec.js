@@ -11,7 +11,7 @@ describe('loadSourceContent', () => {
     beforeEach(() => {
       jest.spyOn(Api, 'getRawFile').mockResolvedValue({ data: sourceContent });
 
-      return loadSourceContent({ projectId, sourcePath }).then(_result => {
+      return loadSourceContent({ projectId, sourcePath }).then((_result) => {
         result = _result;
       });
     });

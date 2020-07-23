@@ -93,7 +93,7 @@ export const getIconName = (type, path) => {
   if (entryTypeIcons[type]) return entryTypeIcons[type];
 
   const extension = path.split('.').pop();
-  const file = fileTypeIcons.find(t => t.extensions.some(ext => ext === extension));
+  const file = fileTypeIcons.find((t) => t.extensions.some((ext) => ext === extension));
 
   return file ? file.name : 'file-text-o';
 };

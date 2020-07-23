@@ -13,8 +13,8 @@ import { SUCCESS } from '~/vue_merge_request_widget/components/deployment/consta
 
 jest.mock('~/smart_interval');
 
-const returnPromise = data =>
-  new Promise(resolve => {
+const returnPromise = (data) =>
+  new Promise((resolve) => {
     resolve({
       data,
     });
@@ -175,7 +175,7 @@ describe('mrWidgetOptions', () => {
           });
 
           describe('when merge request is opened', () => {
-            beforeEach(done => {
+            beforeEach((done) => {
               vm.mr.isOpen = true;
               vm.$nextTick(done);
             });
@@ -186,7 +186,7 @@ describe('mrWidgetOptions', () => {
           });
 
           describe('when merge request is not opened', () => {
-            beforeEach(done => {
+            beforeEach((done) => {
               vm.mr.isOpen = false;
               vm.$nextTick(done);
             });
@@ -203,7 +203,7 @@ describe('mrWidgetOptions', () => {
           });
 
           describe('when merge request is opened', () => {
-            beforeEach(done => {
+            beforeEach((done) => {
               vm.mr.isOpen = true;
               vm.$nextTick(done);
             });
@@ -217,7 +217,7 @@ describe('mrWidgetOptions', () => {
 
       describe('showMergePipelineForkWarning', () => {
         describe('when the source project and target project are the same', () => {
-          beforeEach(done => {
+          beforeEach((done) => {
             Vue.set(vm.mr, 'mergePipelinesEnabled', true);
             Vue.set(vm.mr, 'sourceProjectId', 1);
             Vue.set(vm.mr, 'targetProjectId', 1);
@@ -230,7 +230,7 @@ describe('mrWidgetOptions', () => {
         });
 
         describe('when merge pipelines are not enabled', () => {
-          beforeEach(done => {
+          beforeEach((done) => {
             Vue.set(vm.mr, 'mergePipelinesEnabled', false);
             Vue.set(vm.mr, 'sourceProjectId', 1);
             Vue.set(vm.mr, 'targetProjectId', 2);
@@ -243,7 +243,7 @@ describe('mrWidgetOptions', () => {
         });
 
         describe('when merge pipelines are enabled _and_ the source project and target project are different', () => {
-          beforeEach(done => {
+          beforeEach((done) => {
             Vue.set(vm.mr, 'mergePipelinesEnabled', true);
             Vue.set(vm.mr, 'sourceProjectId', 1);
             Vue.set(vm.mr, 'targetProjectId', 2);
@@ -343,8 +343,8 @@ describe('mrWidgetOptions', () => {
       describe('bindEventHubListeners', () => {
         it.each`
           event                        | method                   | methodArgs
-          ${'MRWidgetUpdateRequested'} | ${'checkStatus'}         | ${x => [x]}
-          ${'MRWidgetRebaseSuccess'}   | ${'checkStatus'}         | ${x => [x, true]}
+          ${'MRWidgetUpdateRequested'} | ${'checkStatus'}         | ${(x) => [x]}
+          ${'MRWidgetRebaseSuccess'}   | ${'checkStatus'}         | ${(x) => [x, true]}
           ${'FetchActionsContent'}     | ${'fetchActionsContent'} | ${() => []}
           ${'EnablePolling'}           | ${'resumePolling'}       | ${() => []}
           ${'DisablePolling'}          | ${'stopPolling'}         | ${() => []}
@@ -402,7 +402,7 @@ describe('mrWidgetOptions', () => {
           document.body.removeChild(document.getElementById('favicon'));
         });
 
-        it('should call setFavicon method', done => {
+        it('should call setFavicon method', (done) => {
           vm.mr.ciStatusFaviconPath = overlayDataUrl;
           vm.setFaviconHelper()
             .then(() => {
@@ -419,7 +419,7 @@ describe('mrWidgetOptions', () => {
             .catch(done.fail);
         });
 
-        it('should not call setFavicon when there is no ciStatusFaviconPath', done => {
+        it('should not call setFavicon when there is no ciStatusFaviconPath', (done) => {
           vm.mr.ciStatusFaviconPath = null;
           vm.setFaviconHelper()
             .then(() => {
@@ -494,7 +494,7 @@ describe('mrWidgetOptions', () => {
     });
 
     describe('rendering relatedLinks', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         vm.mr.relatedLinks = {
           assignToMe: null,
           closing: `
@@ -511,7 +511,7 @@ describe('mrWidgetOptions', () => {
         expect(vm.$el.querySelector('.close-related-link')).toBeDefined();
       });
 
-      it('does not render if state is nothingToMerge', done => {
+      it('does not render if state is nothingToMerge', (done) => {
         vm.mr.state = stateKey.nothingToMerge;
         Vue.nextTick(() => {
           expect(vm.$el.querySelector('.close-related-link')).toBeNull();
@@ -521,7 +521,7 @@ describe('mrWidgetOptions', () => {
     });
 
     describe('rendering source branch removal status', () => {
-      it('renders when user cannot remove branch and branch should be removed', done => {
+      it('renders when user cannot remove branch and branch should be removed', (done) => {
         vm.mr.canRemoveSourceBranch = false;
         vm.mr.shouldRemoveSourceBranch = true;
         vm.mr.state = 'readyToMerge';
@@ -538,7 +538,7 @@ describe('mrWidgetOptions', () => {
         });
       });
 
-      it('does not render in merged state', done => {
+      it('does not render in merged state', (done) => {
         vm.mr.canRemoveSourceBranch = false;
         vm.mr.shouldRemoveSourceBranch = true;
         vm.mr.state = 'merged';
@@ -582,7 +582,7 @@ describe('mrWidgetOptions', () => {
         status: SUCCESS,
       };
 
-      beforeEach(done => {
+      beforeEach((done) => {
         vm.mr.deployments.push(
           {
             ...deploymentMockData,
@@ -617,7 +617,7 @@ describe('mrWidgetOptions', () => {
 
     describe('pipeline for target branch after merge', () => {
       describe('with information for target branch pipeline', () => {
-        beforeEach(done => {
+        beforeEach((done) => {
           vm.mr.state = 'merged';
           vm.mr.mergePipeline = {
             id: 127,
@@ -733,7 +733,7 @@ describe('mrWidgetOptions', () => {
         });
 
         describe('with post merge deployments', () => {
-          beforeEach(done => {
+          beforeEach((done) => {
             vm.mr.postMergeDeployments = [
               {
                 id: 15,
@@ -776,7 +776,7 @@ describe('mrWidgetOptions', () => {
       });
 
       describe('without information for target branch pipeline', () => {
-        beforeEach(done => {
+        beforeEach((done) => {
           vm.mr.state = 'merged';
 
           vm.$nextTick(done);
@@ -788,7 +788,7 @@ describe('mrWidgetOptions', () => {
       });
 
       describe('when state is not merged', () => {
-        beforeEach(done => {
+        beforeEach((done) => {
           vm.mr.state = 'archived';
 
           vm.$nextTick(done);

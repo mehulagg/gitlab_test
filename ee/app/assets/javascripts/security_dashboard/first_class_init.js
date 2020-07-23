@@ -9,7 +9,7 @@ import createStore from './store';
 import createRouter from './router';
 import apolloProvider from './graphql/provider';
 
-const isRequired = message => {
+const isRequired = (message) => {
   throw new Error(message);
 };
 

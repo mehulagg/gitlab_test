@@ -70,7 +70,7 @@ export default {
             include_subgroups: true,
             ...additionalAttrs,
           },
-          projects => {
+          (projects) => {
             this.loading = false;
             callback(projects);
           },
@@ -89,7 +89,7 @@ export default {
             </li>
           `;
       },
-      text: project => project.name_with_namespace,
+      text: (project) => project.name_with_namespace,
     });
   },
 };

@@ -38,7 +38,7 @@ describe('FilteredSearchBar', () => {
     });
   };
 
-  const createComponent = store =>
+  const createComponent = (store) =>
     shallowMount(FilterBar, {
       localVue,
       store,
@@ -49,10 +49,10 @@ describe('FilteredSearchBar', () => {
   });
 
   const findFilteredSearch = () => wrapper.find(GlFilteredSearch);
-  const getSearchToken = type =>
+  const getSearchToken = (type) =>
     findFilteredSearch()
       .props('availableTokens')
-      .filter(token => token.type === type)[0];
+      .filter((token) => token.type === type)[0];
 
   it('renders GlFilteredSearch component', () => {
     vuexStore = createStore();

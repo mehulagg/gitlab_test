@@ -130,7 +130,7 @@ export default {
       }
     },
     filesTableRows() {
-      return this.packageFiles.map(x => ({
+      return this.packageFiles.map((x) => ({
         name: x.file_name,
         downloadPath: x.download_path,
         size: this.formatSize(x.size),

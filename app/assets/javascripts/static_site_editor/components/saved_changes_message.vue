@@ -3,7 +3,7 @@ import { isString } from 'lodash';
 
 import { GlLink, GlButton } from '@gitlab/ui';
 
-const validateUrlAndLabel = value => isString(value.label) && isString(value.url);
+const validateUrlAndLabel = (value) => isString(value.label) && isString(value.url);
 
 export default {
   components: {

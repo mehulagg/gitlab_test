@@ -15,8 +15,8 @@ describe('import_projects store mutations', () => {
       mutations[types.RECEIVE_IMPORT_SUCCESS](state, { importedProject, repoId });
 
       expect(state.reposBeingImported.includes(repoId)).toBe(false);
-      expect(state.providerRepos.some(repo => repo.id === repoId)).toBe(false);
-      expect(state.importedProjects.some(repo => repo.id === repoId)).toBe(true);
+      expect(state.providerRepos.some((repo) => repo.id === repoId)).toBe(false);
+      expect(state.importedProjects.some((repo) => repo.id === repoId)).toBe(true);
     });
   });
 

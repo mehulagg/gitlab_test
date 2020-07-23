@@ -19,7 +19,7 @@ export default class Wikis {
 
     const sidebarToggles = document.querySelectorAll('.js-sidebar-wiki-toggle');
     for (let i = 0; i < sidebarToggles.length; i += 1) {
-      sidebarToggles[i].addEventListener('click', e => this.handleToggleSidebar(e));
+      sidebarToggles[i].addEventListener('click', (e) => this.handleToggleSidebar(e));
     }
 
     this.isNewWikiPage = Boolean(document.querySelector('.js-new-wiki-page'));
@@ -34,7 +34,7 @@ export default class Wikis {
       if (this.editTitleInput.value) this.setWikiCommitMessage(this.editTitleInput.value);
 
       // Set the commit message as the page title is changed
-      this.editTitleInput.addEventListener('keyup', e => this.handleWikiTitleChange(e));
+      this.editTitleInput.addEventListener('keyup', (e) => this.handleWikiTitleChange(e));
     }
 
     window.addEventListener('resize', () => this.renderSidebar());
@@ -44,7 +44,7 @@ export default class Wikis {
     const linkExample = document.querySelector('.js-markup-link-example');
 
     if (changeFormatSelect) {
-      changeFormatSelect.addEventListener('change', e => {
+      changeFormatSelect.addEventListener('change', (e) => {
         linkExample.innerHTML = MARKDOWN_LINK_TEXT[e.target.value];
       });
     }

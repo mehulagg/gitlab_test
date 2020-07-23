@@ -138,12 +138,7 @@ export default {
     },
   },
   methods: {
-    addDiscussionComment(
-      store,
-      {
-        data: { createNote },
-      },
-    ) {
+    addDiscussionComment(store, { data: { createNote } }) {
       updateStoreAfterAddDiscussionComment(
         store,
         createNote,
@@ -182,7 +177,7 @@ export default {
             this.$emit('resolveDiscussionError', data.errors[0]);
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.$emit('resolveDiscussionError', err);
         })
         .finally(() => {

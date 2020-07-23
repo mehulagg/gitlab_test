@@ -33,7 +33,7 @@ export default () => {
     components: {
       ProjectPipelinesCharts,
     },
-    render: createElement =>
+    render: (createElement) =>
       createElement(ProjectPipelinesCharts, {
         props: {
           counts: {

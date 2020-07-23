@@ -66,10 +66,7 @@ describe('Selection Summary component', () => {
       it('should have the button enabled if a vulnerability is selected and an option is selected', () => {
         expect(wrapper.vm.dismissalReason).toBe(null);
         expect(wrapper.findAll('option')).toHaveLength(4);
-        formSelect()
-          .findAll('option')
-          .at(1)
-          .setSelected();
+        formSelect().findAll('option').at(1).setSelected();
         formSelect().trigger('change');
         return wrapper.vm.$nextTick().then(() => {
           expect(wrapper.vm.dismissalReason).toEqual(expect.any(String));

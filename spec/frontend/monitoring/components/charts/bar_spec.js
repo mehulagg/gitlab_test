@@ -45,7 +45,7 @@ describe('Bar component', () => {
       it('should return chartData as array of arrays', () => {
         expect(chartData).toBeInstanceOf(Array);
 
-        chartData.forEach(item => {
+        chartData.forEach((item) => {
           expect(item).toBeInstanceOf(Array);
         });
       });

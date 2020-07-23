@@ -44,11 +44,7 @@ describe('MRWidgetAutoMergeFailed', () => {
 
     return wrapper.vm.$nextTick(() => {
       expect(findButton().attributes('disabled')).toEqual('disabled');
-      expect(
-        findButton()
-          .find(GlLoadingIcon)
-          .exists(),
-      ).toBe(true);
+      expect(findButton().find(GlLoadingIcon).exists()).toBe(true);
     });
   });
 });

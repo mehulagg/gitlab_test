@@ -30,8 +30,8 @@ export default {
       this.isMakingRequest = true;
       this.service
         .removeWIP()
-        .then(res => res.data)
-        .then(data => {
+        .then((res) => res.data)
+        .then((data) => {
           eventHub.$emit('UpdateWidgetData', data);
           createFlash(__('The merge request can now be merged.'), 'notice');
           $('.merge-request .detail-page-description .title').text(this.mr.title);

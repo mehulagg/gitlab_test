@@ -105,9 +105,7 @@ const ResolveBtn = Vue.extend({
   methods: {
     updateTooltip() {
       this.$nextTick(() => {
-        $(this.$refs.button)
-          .tooltip('hide')
-          .tooltip('_fixTitle');
+        $(this.$refs.button).tooltip('hide').tooltip('_fixTitle');
       });
     },
     resolve() {
@@ -123,8 +121,8 @@ const ResolveBtn = Vue.extend({
       }
 
       promise
-        .then(resp => resp.json())
-        .then(data => {
+        .then((resp) => resp.json())
+        .then((data) => {
           this.loading = false;
 
           const resolvedBy = data ? data.resolved_by : null;

@@ -154,8 +154,7 @@ export default {
           :enable-scoped-labels="enableScopedLabels"
         />
         <div
-          class="dropdown-menu dropdown-select dropdown-menu-paging
-dropdown-menu-labels dropdown-menu-selectable"
+          class="dropdown-menu dropdown-select dropdown-menu-paging dropdown-menu-labels dropdown-menu-selectable"
         >
           <div class="dropdown-page-one">
             <dropdown-header v-if="showCreate" />

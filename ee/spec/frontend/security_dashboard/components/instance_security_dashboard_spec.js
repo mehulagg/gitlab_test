@@ -42,7 +42,7 @@ describe('Instance Security Dashboard component', () => {
     actionResolvers = [];
     jest.spyOn(store, 'dispatch').mockImplementation(
       () =>
-        new Promise(resolve => {
+        new Promise((resolve) => {
           actionResolvers.push(resolve);
         }),
     );
@@ -65,7 +65,7 @@ describe('Instance Security Dashboard component', () => {
   };
 
   const resolveActions = () => {
-    actionResolvers.forEach(resolve => resolve());
+    actionResolvers.forEach((resolve) => resolve());
   };
 
   const findProjectSelectorToggleButton = () => wrapper.find('.js-project-selector-toggle');

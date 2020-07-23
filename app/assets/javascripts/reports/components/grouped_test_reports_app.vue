@@ -37,8 +37,8 @@ export default {
   computed: {
     ...mapState(['reports', 'isLoading', 'hasError', 'summary']),
     ...mapState({
-      modalTitle: state => state.modal.title || '',
-      modalData: state => state.modal.data || {},
+      modalTitle: (state) => state.modal.title || '',
+      modalData: (state) => state.modal.data || {},
     }),
     ...mapGetters(['summaryStatus']),
     groupedSummaryText() {

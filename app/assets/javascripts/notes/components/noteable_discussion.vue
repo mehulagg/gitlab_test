@@ -197,14 +197,14 @@ export default {
       };
 
       this.saveNote(replyData)
-        .then(res => {
+        .then((res) => {
           if (res.hasFlash !== true) {
             this.isReplying = false;
             clearDraft(this.autosaveKey);
           }
           callback();
         })
-        .catch(err => {
+        .catch((err) => {
           this.removePlaceholderNotes();
           const msg = __(
             'Your comment could not be submitted! Please check your network connection and try again.',

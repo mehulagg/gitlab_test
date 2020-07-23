@@ -23,7 +23,7 @@ const setScoped = (label, scoped) => (label ? { ...label, scoped } : label);
  * @param {Object[]} labels Labels from the issue
  */
 export const findWorkflowLabel = (labels = []) =>
-  labels.find(l => l.title.toLowerCase().includes(WORKFLOW_PREFIX.toLowerCase()));
+  labels.find((l) => l.title.toLowerCase().includes(WORKFLOW_PREFIX.toLowerCase()));
 
 /**
  * Determines if an issue is accepting community contributions by checking if
@@ -31,21 +31,21 @@ export const findWorkflowLabel = (labels = []) =>
  * @param {Object[]} labels
  */
 export const findAcceptingContributionsLabel = (labels = []) =>
-  labels.find(l => l.title.toLowerCase() === ACCEPTING_CONTRIBUTIONS_TITLE.toLowerCase());
+  labels.find((l) => l.title.toLowerCase() === ACCEPTING_CONTRIBUTIONS_TITLE.toLowerCase());
 
 /**
  * Formats the GraphQL response into the format that the view template expects.
  * @param {Object} data GraphQL response
  */
-export const toViewModel = data => {
+export const toViewModel = (data) => {
   // This just flatterns the issues -> nodes and labels -> nodes hierarchy
   // into an array of objects.
-  const issues = (data.project?.issues?.nodes || []).map(i => ({
+  const issues = (data.project?.issues?.nodes || []).map((i) => ({
     ...i,
-    labels: (i.labels?.nodes || []).map(node => node),
+    labels: (i.labels?.nodes || []).map((node) => node),
   }));
 
-  return issues.map(x => ({
+  return issues.map((x) => ({
     ...x,
     labels: [
       setScoped(findWorkflowLabel(x.labels), true),

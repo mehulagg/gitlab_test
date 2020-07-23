@@ -73,7 +73,7 @@ export default class FilterableList {
       .get(this.getFilterEndpoint(), {
         params,
       })
-      .then(res => {
+      .then((res) => {
         this.onFilterSuccess(res, params);
         this.onFilterComplete();
       })

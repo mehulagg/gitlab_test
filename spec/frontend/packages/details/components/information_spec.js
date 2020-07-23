@@ -36,10 +36,7 @@ describe('PackageInformation', () => {
   const headingSelector = () => wrapper.find('.card-header > strong');
   const copyButton = () => wrapper.findAll(ClipboardButton);
   const informationSelector = () => wrapper.findAll('ul.content-list li');
-  const informationRowText = index =>
-    informationSelector()
-      .at(index)
-      .text();
+  const informationRowText = (index) => informationSelector().at(index).text();
   const informationLink = () => wrapper.find(GlLink);
 
   afterEach(() => {

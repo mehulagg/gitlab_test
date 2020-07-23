@@ -239,7 +239,7 @@ export default {
       return this.divergedCommitsCount > 0;
     },
     dastScans() {
-      return this.dast.scans.filter(scan => scan.scanned_resources_count > 0);
+      return this.dast.scans.filter((scan) => scan.scanned_resources_count > 0);
     },
     handleToggleEvent() {
       return once(() => {

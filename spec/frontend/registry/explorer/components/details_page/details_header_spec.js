@@ -6,7 +6,7 @@ import { DETAILS_PAGE_TITLE } from '~/registry/explorer/constants';
 describe('Details Header', () => {
   let wrapper;
 
-  const mountComponent = propsData => {
+  const mountComponent = (propsData) => {
     wrapper = shallowMount(component, {
       propsData,
       stubs: {

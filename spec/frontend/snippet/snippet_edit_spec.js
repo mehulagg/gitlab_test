@@ -8,7 +8,7 @@ jest.mock('~/snippet/snippet_bundle');
 jest.mock('~/snippets');
 
 describe('Snippet edit form initialization', () => {
-  const setFF = flag => {
+  const setFF = (flag) => {
     gon.features = { snippetsEditVue: flag };
   };
   let features;

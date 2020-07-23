@@ -33,7 +33,7 @@ describe('Feature flags New Module Actions', () => {
   });
 
   describe('setEndpoint', () => {
-    it('should commit SET_ENDPOINT mutation', done => {
+    it('should commit SET_ENDPOINT mutation', (done) => {
       testAction(
         setEndpoint,
         'feature_flags.json',
@@ -46,7 +46,7 @@ describe('Feature flags New Module Actions', () => {
   });
 
   describe('setPath', () => {
-    it('should commit SET_PATH mutation', done => {
+    it('should commit SET_PATH mutation', (done) => {
       testAction(
         setPath,
         '/feature_flags',
@@ -90,7 +90,7 @@ describe('Feature flags New Module Actions', () => {
     });
 
     describe('success', () => {
-      it('dispatches requestCreateFeatureFlag and receiveCreateFeatureFlagSuccess ', done => {
+      it('dispatches requestCreateFeatureFlag and receiveCreateFeatureFlagSuccess ', (done) => {
         const convertedActionParams = mapFromScopesViewModel(actionParams);
 
         mock.onPost(`${TEST_HOST}/endpoint.json`, convertedActionParams).replyOnce(200);
@@ -112,7 +112,7 @@ describe('Feature flags New Module Actions', () => {
         );
       });
 
-      it('sends strategies for new style feature flags', done => {
+      it('sends strategies for new style feature flags', (done) => {
         const newVersionFlagParams = {
           name: 'name',
           description: 'description',
@@ -151,7 +151,7 @@ describe('Feature flags New Module Actions', () => {
     });
 
     describe('error', () => {
-      it('dispatches requestCreateFeatureFlag and receiveCreateFeatureFlagError ', done => {
+      it('dispatches requestCreateFeatureFlag and receiveCreateFeatureFlagError ', (done) => {
         const convertedActionParams = mapFromScopesViewModel(actionParams);
 
         mock
@@ -179,7 +179,7 @@ describe('Feature flags New Module Actions', () => {
   });
 
   describe('requestCreateFeatureFlag', () => {
-    it('should commit REQUEST_CREATE_FEATURE_FLAG mutation', done => {
+    it('should commit REQUEST_CREATE_FEATURE_FLAG mutation', (done) => {
       testAction(
         requestCreateFeatureFlag,
         null,
@@ -192,7 +192,7 @@ describe('Feature flags New Module Actions', () => {
   });
 
   describe('receiveCreateFeatureFlagSuccess', () => {
-    it('should commit RECEIVE_CREATE_FEATURE_FLAG_SUCCESS mutation', done => {
+    it('should commit RECEIVE_CREATE_FEATURE_FLAG_SUCCESS mutation', (done) => {
       testAction(
         receiveCreateFeatureFlagSuccess,
         null,
@@ -209,7 +209,7 @@ describe('Feature flags New Module Actions', () => {
   });
 
   describe('receiveCreateFeatureFlagError', () => {
-    it('should commit RECEIVE_CREATE_FEATURE_FLAG_ERROR mutation', done => {
+    it('should commit RECEIVE_CREATE_FEATURE_FLAG_ERROR mutation', (done) => {
       testAction(
         receiveCreateFeatureFlagError,
         'There was an error',

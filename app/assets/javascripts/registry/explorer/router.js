@@ -26,7 +26,7 @@ export default function createRouter(base) {
         path: '/:id',
         component: Details,
         meta: {
-          nameGenerator: route => decodeAndParse(route.params.id).name,
+          nameGenerator: (route) => decodeAndParse(route.params.id).name,
         },
       },
     ],

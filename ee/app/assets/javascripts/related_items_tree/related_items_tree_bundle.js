@@ -65,6 +65,6 @@ export default () => {
     methods: {
       ...Vuex.mapActions(['setInitialParentItem', 'setInitialConfig']),
     },
-    render: createElement => createElement('related-items-tree-app'),
+    render: (createElement) => createElement('related-items-tree-app'),
   });
 };

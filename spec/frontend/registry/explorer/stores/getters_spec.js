@@ -16,7 +16,7 @@ describe('Getters RegistryExplorer  store', () => {
     });
 
     it(`returns ${prefix} concatenated with ${configParameter} and optionally suffixed with ${suffix}`, () => {
-      const expectedPieces = [prefix, state.config[configParameter], suffix].filter(p => p);
+      const expectedPieces = [prefix, state.config[configParameter], suffix].filter((p) => p);
       expect(getters[getter](state)).toBe(expectedPieces.join(' '));
     });
   });

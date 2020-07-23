@@ -7,7 +7,7 @@ import LicenseComponentLinks, {
 
 describe('LicenseComponentLinks component', () => {
   // data helpers
-  const createComponents = n => [...Array(n).keys()].map(i => ({ name: `component ${i + 1}` }));
+  const createComponents = (n) => [...Array(n).keys()].map((i) => ({ name: `component ${i + 1}` }));
   const addUrls = (components, numComponentsWithUrls = Infinity) =>
     components.map((comp, i) => ({
       ...comp,
@@ -47,7 +47,7 @@ describe('LicenseComponentLinks component', () => {
     expect(intersperseInstance.attributes('lastseparator')).toBe(' and ');
   });
 
-  it.each([3, 5, 8, 13])('limits the number of visible licenses to 2', numComponents => {
+  it.each([3, 5, 8, 13])('limits the number of visible licenses to 2', (numComponents) => {
     factory({ numComponents });
 
     expect(findComponentListItems()).toHaveLength(VISIBLE_COMPONENT_COUNT);
@@ -82,7 +82,7 @@ describe('LicenseComponentLinks component', () => {
 
     const links = wrapper.findAll(GlLink);
 
-    links.wrappers.forEach(link => {
+    links.wrappers.forEach((link) => {
       expect(link.attributes('target')).toBe('_blank');
     });
   });

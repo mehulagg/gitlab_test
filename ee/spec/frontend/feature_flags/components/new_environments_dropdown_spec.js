@@ -85,7 +85,7 @@ describe('New Environments Dropdown', () => {
       expect(wrapper.emitted('add')).toEqual([['prod']]);
     });
     it('should not display a create label', () => {
-      items = items.filter(i => i.text().startsWith('Create'));
+      items = items.filter((i) => i.text().startsWith('Create'));
       expect(items).toHaveLength(0);
     });
     it('should not display a message about no results', () => {

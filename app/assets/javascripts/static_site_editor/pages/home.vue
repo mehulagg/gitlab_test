@@ -90,7 +90,7 @@ export default {
         .then(() => {
           this.$router.push(SUCCESS_ROUTE);
         })
-        .catch(e => {
+        .catch((e) => {
           this.submitChangesError = e.message;
         })
         .finally(() => {

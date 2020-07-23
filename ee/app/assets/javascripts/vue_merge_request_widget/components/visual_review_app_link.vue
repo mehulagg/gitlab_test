@@ -78,7 +78,7 @@ export default {
       /* eslint-enable no-useless-escape */
     },
     filteredChanges() {
-      return this.changes.filter(change => change.path.includes(this.changesSearchTerm));
+      return this.changes.filter((change) => change.path.includes(this.changesSearchTerm));
     },
     instructionText() {
       return {

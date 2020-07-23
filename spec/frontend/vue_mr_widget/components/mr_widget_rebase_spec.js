@@ -49,7 +49,7 @@ describe('Merge request widget rebase component', () => {
       );
     });
 
-    it('it should render error message when it fails', done => {
+    it('it should render error message when it fails', (done) => {
       vm.rebasingError = 'Something went wrong!';
 
       Vue.nextTick(() => {
@@ -102,7 +102,7 @@ describe('Merge request widget rebase component', () => {
   });
 
   describe('methods', () => {
-    it('checkRebaseStatus', done => {
+    it('checkRebaseStatus', (done) => {
       jest.spyOn(eventHub, '$emit').mockImplementation(() => {});
       vm = mountComponent(Component, {
         mr: {},

@@ -162,18 +162,21 @@ describe('OnDemandScansApp', () => {
   });
 
   describe('target URL input', () => {
-    it.each(['asd', 'example.com'])('is marked as invalid provided an invalid URL', async value => {
-      const input = findTargetUrlInput();
-      input.vm.$emit('input', value);
-      await wrapper.vm.$nextTick();
+    it.each(['asd', 'example.com'])(
+      'is marked as invalid provided an invalid URL',
+      async (value) => {
+        const input = findTargetUrlInput();
+        input.vm.$emit('input', value);
+        await wrapper.vm.$nextTick();
 
-      expect(wrapper.vm.form.targetUrl).toEqual({
-        value,
-        state: false,
-        feedback: 'Please enter a valid URL format, ex: http://www.example.com/home',
-      });
-      expect(input.attributes().state).toBeUndefined();
-    });
+        expect(wrapper.vm.form.targetUrl).toEqual({
+          value,
+          state: false,
+          feedback: 'Please enter a valid URL format, ex: http://www.example.com/home',
+        });
+        expect(input.attributes().state).toBeUndefined();
+      },
+    );
 
     it('is marked as valid provided a valid URL', async () => {
       const input = findTargetUrlInput();

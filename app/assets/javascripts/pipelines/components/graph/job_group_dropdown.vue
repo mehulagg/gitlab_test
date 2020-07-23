@@ -46,7 +46,7 @@ export default {
       $(
         '.js-grouped-pipeline-dropdown button, .js-grouped-pipeline-dropdown a.mini-pipeline-graph-dropdown-item',
         this.$el,
-      ).on('click', e => {
+      ).on('click', (e) => {
         e.stopPropagation();
       });
     },

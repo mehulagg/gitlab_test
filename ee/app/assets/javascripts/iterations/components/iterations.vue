@@ -38,7 +38,7 @@ export default {
       variables() {
         return this.queryVariables;
       },
-      update: data => {
+      update: (data) => {
         return {
           iterations: data.group?.iterations?.nodes || [],
           pageInfo: data.group?.iterations?.pageInfo || {},

@@ -36,7 +36,7 @@ export default {
     state.isEmptyStage = false;
   },
   [types.RECEIVE_STAGE_DATA_SUCCESS](state, events = []) {
-    state.currentStageEvents = events.map(fields =>
+    state.currentStageEvents = events.map((fields) =>
       convertObjectPropsToCamelCase(fields, { deep: true }),
     );
     state.isEmptyStage = !events.length;

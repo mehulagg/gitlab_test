@@ -28,7 +28,7 @@ import {
 
 const MOCK_PATH = 'fake/path.json';
 
-const generateVuln = severity => ({ severity });
+const generateVuln = (severity) => ({ severity });
 
 describe('Security reports getters', () => {
   let state = {};

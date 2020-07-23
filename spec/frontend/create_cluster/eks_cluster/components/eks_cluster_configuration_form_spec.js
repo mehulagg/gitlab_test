@@ -142,7 +142,7 @@ describe('EksClusterConfigurationForm', () => {
     });
   };
 
-  const createValidStateStore = initialState => {
+  const createValidStateStore = (initialState) => {
     createStore({
       initialState: {
         clusterName: 'cluster name',

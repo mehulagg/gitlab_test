@@ -66,11 +66,11 @@ export default {
     },
     allBlobsHaveContent() {
       const entries = this.getActionsEntries;
-      return entries.length > 0 && !entries.find(action => !action.content);
+      return entries.length > 0 && !entries.find((action) => !action.content);
     },
     allBlobChangesRegistered() {
       const entries = this.getActionsEntries;
-      return entries.length > 0 && !entries.find(action => action.action === '');
+      return entries.length > 0 && !entries.find((action) => action.action === '');
     },
     updatePrevented() {
       return this.snippet.title === '' || !this.allBlobsHaveContent || this.isUpdating;
@@ -84,7 +84,7 @@ export default {
         title: this.snippet.title,
         description: this.snippet.description,
         visibilityLevel: this.snippet.visibilityLevel,
-        blobActions: this.getActionsEntries.filter(entry => entry.action !== ''),
+        blobActions: this.getActionsEntries.filter((entry) => entry.action !== ''),
       };
     },
     saveButtonLabel() {
@@ -181,7 +181,7 @@ export default {
     },
     getAttachedFiles() {
       const fileInputs = Array.from(this.$el.querySelectorAll('[name="files[]"]'));
-      return fileInputs.map(node => node.value);
+      return fileInputs.map((node) => node.value);
     },
     createMutation() {
       return {
@@ -218,7 +218,7 @@ export default {
             redirectTo(baseObj.snippet.webUrl);
           }
         })
-        .catch(e => {
+        .catch((e) => {
           this.flashAPIFailure(e);
         });
     },

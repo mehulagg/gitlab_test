@@ -148,7 +148,7 @@ describe('submitContentChanges', () => {
 
     beforeEach(() => {
       return submitContentChanges({ username, projectId, sourcePath, content, images }).then(
-        _result => {
+        (_result) => {
           result = _result;
         },
       );

@@ -188,7 +188,7 @@ export default {
   },
   mounted() {
     if (this.canBulkEdit) {
-      this.unsubscribeToggleBulkEdit = issueableEventHub.$on('issuables:toggleBulkEdit', val => {
+      this.unsubscribeToggleBulkEdit = issueableEventHub.$on('issuables:toggleBulkEdit', (val) => {
         this.isBulkEditing = val;
       });
     }
@@ -202,7 +202,7 @@ export default {
       return Boolean(this.selection[issuableId]);
     },
     setSelection(ids) {
-      ids.forEach(id => {
+      ids.forEach((id) => {
         this.select(id, true);
       });
     },
@@ -233,7 +233,7 @@ export default {
             per_page: this.itemsPerPage,
           },
         })
-        .then(response => {
+        .then((response) => {
           this.loading = false;
           this.issuables = response.data;
           this.totalItems = Number(response.headers['x-total']);
@@ -314,7 +314,7 @@ export default {
     handleFilter(filters) {
       let search = null;
 
-      filters.forEach(filter => {
+      filters.forEach((filter) => {
         if (typeof filter === 'string') {
           search = filter;
         }

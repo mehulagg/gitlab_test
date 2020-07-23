@@ -5,7 +5,7 @@ import LoadingButton from '~/vue_shared/components/loading_button.vue';
 describe('DismissalButton', () => {
   let wrapper;
 
-  const mountComponent = options => {
+  const mountComponent = (options) => {
     wrapper = mount(component, options);
   };
 

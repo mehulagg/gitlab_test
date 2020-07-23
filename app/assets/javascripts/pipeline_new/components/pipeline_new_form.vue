@@ -86,7 +86,7 @@ export default {
   computed: {
     filteredRefs() {
       const lowerCasedSearchTerm = this.searchTerm.toLowerCase();
-      return this.refs.filter(ref => ref.toLowerCase().includes(lowerCasedSearchTerm));
+      return this.refs.filter((ref) => ref.toLowerCase().includes(lowerCasedSearchTerm));
     },
     variablesLength() {
       return Object.keys(this.variables).length;
@@ -150,7 +150,7 @@ export default {
         variables: filteredVariables,
       })
         .then(({ data }) => redirectTo(data.web_url))
-        .catch(err => {
+        .catch((err) => {
           this.error = err.response.data.message.base;
         });
     },

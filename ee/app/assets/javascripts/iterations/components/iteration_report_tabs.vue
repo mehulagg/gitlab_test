@@ -65,7 +65,7 @@ export default {
       update(data) {
         const { nodes: issues = [], count, pageInfo = {} } = data?.group?.issues || {};
 
-        const list = issues.map(issue => ({
+        const list = issues.map((issue) => ({
           ...issue,
           labels: issue?.labels?.nodes || [],
           assignees: issue?.assignees?.nodes || [],

@@ -74,8 +74,8 @@ export const updateFilesAfterCommit = ({ commit, dispatch, rootState, rootGetter
     { root: true },
   );
 
-  rootState.stagedFiles.forEach(file => {
-    const changedFile = rootState.changedFiles.find(f => f.path === file.path);
+  rootState.stagedFiles.forEach((file) => {
+    const changedFile = rootState.changedFiles.find((f) => f.path === file.path);
 
     commit(
       rootTypes.UPDATE_FILE_AFTER_COMMIT,
@@ -182,12 +182,12 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
               },
               { root: true },
             )
-              .then(changeViewer => {
+              .then((changeViewer) => {
                 if (changeViewer) {
                   dispatch('updateViewer', 'diff', { root: true });
                 }
               })
-              .catch(e => {
+              .catch((e) => {
                 throw e;
               });
           } else {
@@ -215,7 +215,7 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
           ),
         );
     })
-    .catch(err => {
+    .catch((err) => {
       commit(types.UPDATE_LOADING, false);
 
       // don't catch bad request errors, let the view handle them

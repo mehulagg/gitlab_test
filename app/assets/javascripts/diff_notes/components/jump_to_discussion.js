@@ -42,7 +42,7 @@ const JumpToDiscussion = Vue.extend({
     },
     lastResolvedId() {
       let lastId;
-      Object.keys(this.discussions).forEach(discussionId => {
+      Object.keys(this.discussions).forEach((discussionId) => {
         const discussion = this.discussions[discussionId];
 
         if (!discussion.isResolved()) {
@@ -65,9 +65,9 @@ const JumpToDiscussion = Vue.extend({
       let hasDiscussionsToJumpTo = true;
       let jumpToFirstDiscussion = !this.discussionId;
 
-      const discussionIdsForElements = function(elements) {
+      const discussionIdsForElements = function (elements) {
         return elements
-          .map(function() {
+          .map(function () {
             return $(this).attr('data-discussion-id');
           })
           .toArray();

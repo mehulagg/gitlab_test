@@ -64,7 +64,7 @@ describe('IDE TerminalSession', () => {
     });
   });
 
-  [STARTING, PENDING, RUNNING].forEach(status => {
+  [STARTING, PENDING, RUNNING].forEach((status) => {
     it(`show stop button when status is ${status}`, () => {
       state.session = { status };
       factory();
@@ -79,7 +79,7 @@ describe('IDE TerminalSession', () => {
     });
   });
 
-  [STOPPING, STOPPED].forEach(status => {
+  [STOPPING, STOPPED].forEach((status) => {
     it(`show stop button when status is ${status}`, () => {
       state.session = { status };
       factory();

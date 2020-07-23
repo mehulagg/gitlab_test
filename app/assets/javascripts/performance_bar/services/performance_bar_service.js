@@ -7,7 +7,7 @@ export default class PerformanceBarService {
   }
 
   static registerInterceptor(peekUrl, callback) {
-    const interceptor = response => {
+    const interceptor = (response) => {
       const [fireCallback, requestId, requestUrl] = PerformanceBarService.callbackParams(
         response,
         peekUrl,

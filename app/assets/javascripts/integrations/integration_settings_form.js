@@ -26,13 +26,13 @@ export default class IntegrationSettingsForm {
       document.querySelector('.js-vue-integration-settings'),
       document.querySelector('.js-vue-admin-integration-settings'),
     );
-    eventHub.$on('toggle', active => {
+    eventHub.$on('toggle', (active) => {
       this.formActive = active;
       this.handleServiceToggle();
     });
 
     // Bind Event Listeners
-    this.$submitBtn.on('click', e => this.handleSettingsSave(e));
+    this.$submitBtn.on('click', (e) => this.handleSettingsSave(e));
   }
 
   handleSettingsSave(e) {
@@ -121,7 +121,7 @@ export default class IntegrationSettingsForm {
           if (data.test_failed) {
             flashActions = {
               title: __('Save anyway'),
-              clickHandler: e => {
+              clickHandler: (e) => {
                 e.preventDefault();
                 this.$form.submit();
               },

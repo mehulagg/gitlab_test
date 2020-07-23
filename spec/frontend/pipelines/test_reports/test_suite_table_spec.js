@@ -22,7 +22,7 @@ describe('Test reports suite table', () => {
 
   const noCasesMessage = () => wrapper.find('.js-no-test-cases');
   const allCaseRows = () => wrapper.findAll('.js-case-row');
-  const findCaseRowAtIndex = index => wrapper.findAll('.js-case-row').at(index);
+  const findCaseRowAtIndex = (index) => wrapper.findAll('.js-case-row').at(index);
   const findIconForRow = (row, status) => row.find(`.ci-status-icon-${status}`);
 
   const createComponent = (suite = testSuite) => {
@@ -63,12 +63,12 @@ describe('Test reports suite table', () => {
 
     it('renders the failed tests first', () => {
       const failedCaseNames = testCases
-        .filter(x => x.status === TestStatus.FAILED)
-        .map(x => x.name);
+        .filter((x) => x.status === TestStatus.FAILED)
+        .map((x) => x.name);
 
       const skippedCaseNames = testCases
-        .filter(x => x.status === TestStatus.SKIPPED)
-        .map(x => x.name);
+        .filter((x) => x.status === TestStatus.SKIPPED)
+        .map((x) => x.name);
 
       expect(findCaseRowAtIndex(0).text()).toContain(failedCaseNames[0]);
       expect(findCaseRowAtIndex(1).text()).toContain(failedCaseNames[1]);
@@ -76,9 +76,9 @@ describe('Test reports suite table', () => {
     });
 
     it('renders the correct icon for each status', () => {
-      const failedTest = testCases.findIndex(x => x.status === TestStatus.FAILED);
-      const skippedTest = testCases.findIndex(x => x.status === TestStatus.SKIPPED);
-      const successTest = testCases.findIndex(x => x.status === TestStatus.SUCCESS);
+      const failedTest = testCases.findIndex((x) => x.status === TestStatus.FAILED);
+      const skippedTest = testCases.findIndex((x) => x.status === TestStatus.SKIPPED);
+      const successTest = testCases.findIndex((x) => x.status === TestStatus.SUCCESS);
 
       const failedRow = findCaseRowAtIndex(failedTest);
       const skippedRow = findCaseRowAtIndex(skippedTest);

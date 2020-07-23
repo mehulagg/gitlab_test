@@ -29,7 +29,8 @@ export default {
     showSuccessMessage() {
       return (
         this.currentActivityView === leftSidebarViews.edit.name &&
-        (this.lastCommitMsg && !this.someUncommittedChanges)
+        this.lastCommitMsg &&
+        !this.someUncommittedChanges
       );
     },
   },

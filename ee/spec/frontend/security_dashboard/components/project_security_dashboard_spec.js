@@ -17,7 +17,7 @@ describe('Project Security Dashboard component', () => {
   const runDate = new Date();
   runDate.setDate(runDate.getDate() - 7);
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     wrapper = mount(ProjectSecurityDashboard, {
       store: createStore(),
       stubs: ['security-dashboard-table'],

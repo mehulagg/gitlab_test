@@ -60,7 +60,9 @@ export default {
       return ((closed / (open + closed)) * 100).toFixed(0);
     },
     showCards() {
-      return !this.$apollo.queries.issues.loading && Object.values(this.issues).every(a => a >= 0);
+      return (
+        !this.$apollo.queries.issues.loading && Object.values(this.issues).every((a) => a >= 0)
+      );
     },
     columns() {
       return [

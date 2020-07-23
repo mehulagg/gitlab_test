@@ -12,7 +12,7 @@ describe('InlineDiffView', () => {
   const getDiscussionsMockData = () => [{ ...discussionsMockData }];
   const notesLength = getDiscussionsMockData()[0].notes.length;
 
-  beforeEach(done => {
+  beforeEach((done) => {
     const diffFile = getDiffFileMock();
 
     const store = createStore();
@@ -36,7 +36,7 @@ describe('InlineDiffView', () => {
       expect(el.textContent.indexOf('Bad dates')).toBeGreaterThan(-1);
     });
 
-    it('should render discussions', done => {
+    it('should render discussions', (done) => {
       const el = component.$el;
       component.diffLines[1].discussions = getDiscussionsMockData();
       component.diffLines[1].discussionsExpanded = true;

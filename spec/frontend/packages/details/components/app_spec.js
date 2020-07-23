@@ -74,7 +74,7 @@ describe('PackagesApp', () => {
   const packageTitle = () => wrapper.find(PackageTitle);
   const emptyState = () => wrapper.find(GlEmptyState);
   const allPackageInformation = () => wrapper.findAll(PackageInformation);
-  const packageInformation = index => allPackageInformation().at(index);
+  const packageInformation = (index) => allPackageInformation().at(index);
   const npmInstallation = () => wrapper.find(NpmInstallation);
   const mavenInstallation = () => wrapper.find(MavenInstallation);
   const conanInstallation = () => wrapper.find(ConanInstallation);

@@ -22,7 +22,7 @@ export const fetchFeatureFlags = ({ state, dispatch }) => {
     .get(state.endpoint, {
       params: state.options,
     })
-    .then(response =>
+    .then((response) =>
       dispatch('receiveFeatureFlagsSuccess', {
         data: response.data || {},
         headers: response.headers,
@@ -56,7 +56,7 @@ export const toggleFeatureFlag = ({ dispatch }, flag) => {
     .put(flag.update_path, {
       operations_feature_flag: flag,
     })
-    .then(response => dispatch('receiveUpdateFeatureFlagSuccess', response.data))
+    .then((response) => dispatch('receiveUpdateFeatureFlagSuccess', response.data))
     .catch(() => dispatch('receiveUpdateFeatureFlagError', flag.id));
 };
 
@@ -72,7 +72,7 @@ export const deleteUserList = ({ state, dispatch }, list) => {
 
   return Api.deleteFeatureFlagUserList(state.projectId, list.iid)
     .then(() => dispatch('fetchUserLists'))
-    .catch(error =>
+    .catch((error) =>
       dispatch('receiveDeleteUserListError', {
         list,
         error: error?.response?.data ?? error,

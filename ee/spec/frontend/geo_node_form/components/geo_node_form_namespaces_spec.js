@@ -44,7 +44,7 @@ describe('GeoNodeFormNamespaces', () => {
   const findGlDropdown = () => wrapper.find(GlDropdown);
   const findGlDropdownSearch = () => findGlDropdown().find(GlSearchBoxByType);
   const findDropdownItems = () => findGlDropdown().findAll('li');
-  const findDropdownItemsText = () => findDropdownItems().wrappers.map(w => w.text());
+  const findDropdownItemsText = () => findDropdownItems().wrappers.map((w) => w.text());
   const findGlIcons = () => wrapper.findAll(GlIcon);
 
   describe('template', () => {
@@ -70,11 +70,11 @@ describe('GeoNodeFormNamespaces', () => {
       });
 
       it('renders an instance for each namespace', () => {
-        expect(findDropdownItemsText()).toStrictEqual(MOCK_SYNC_NAMESPACES.map(n => n.name));
+        expect(findDropdownItemsText()).toStrictEqual(MOCK_SYNC_NAMESPACES.map((n) => n.name));
       });
 
       it('hides GlIcon if namespace not in selectedNamespaces', () => {
-        expect(findGlIcons().wrappers.every(w => w.classes('invisible'))).toBe(true);
+        expect(findGlIcons().wrappers.every((w) => w.classes('invisible'))).toBe(true);
       });
     });
   });

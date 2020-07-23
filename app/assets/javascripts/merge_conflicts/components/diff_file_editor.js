@@ -7,7 +7,7 @@ import flash from '~/flash';
 import { __ } from '~/locale';
 import getModeByFileExtension from '~/lib/utils/ace_utils';
 
-(global => {
+((global) => {
   global.mergeConflicts = global.mergeConflicts || {};
 
   global.mergeConflicts.diffFileEditor = Vue.extend({

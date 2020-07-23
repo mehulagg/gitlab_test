@@ -17,7 +17,7 @@ describe('pipeling jobs actions', () => {
   describe('setPipelineJobsPath', () => {
     const pipelineJobsPath = 123;
 
-    it('should commit the SET_PIPELINE_JOBS_PATH mutation', done => {
+    it('should commit the SET_PIPELINE_JOBS_PATH mutation', (done) => {
       testAction(
         actions.setPipelineJobsPath,
         pipelineJobsPath,
@@ -37,7 +37,7 @@ describe('pipeling jobs actions', () => {
   describe('setProjectId', () => {
     const projectId = 123;
 
-    it('should commit the SET_PIPELINE_JOBS_PATH mutation', done => {
+    it('should commit the SET_PIPELINE_JOBS_PATH mutation', (done) => {
       testAction(
         actions.setProjectId,
         projectId,
@@ -72,7 +72,7 @@ describe('pipeling jobs actions', () => {
         mock.onGet(state.pipelineJobsPath).replyOnce(200, jobs);
       });
 
-      it('should commit the request and success mutations', done => {
+      it('should commit the request and success mutations', (done) => {
         testAction(
           actions.fetchPipelineJobs,
           {},
@@ -95,7 +95,7 @@ describe('pipeling jobs actions', () => {
         mock.onGet(state.pipelineJobsPath).replyOnce(200, jobs);
       });
 
-      it('should commit RECEIVE_PIPELINE_JOBS_ERROR mutation', done => {
+      it('should commit RECEIVE_PIPELINE_JOBS_ERROR mutation', (done) => {
         state.pipelineJobsPath = '';
 
         testAction(
@@ -118,7 +118,7 @@ describe('pipeling jobs actions', () => {
         mock.onGet(state.pipelineJobsPath).replyOnce(404);
       });
 
-      it('should commit REQUEST_PIPELINE_JOBS and RECEIVE_PIPELINE_JOBS_ERROR mutation', done => {
+      it('should commit REQUEST_PIPELINE_JOBS and RECEIVE_PIPELINE_JOBS_ERROR mutation', (done) => {
         testAction(
           actions.fetchPipelineJobs,
           {},

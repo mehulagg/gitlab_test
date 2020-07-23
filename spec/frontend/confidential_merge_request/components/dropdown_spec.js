@@ -46,11 +46,6 @@ describe('Confidential merge request project dropdown component', () => {
     ]);
 
     expect(vm.find('.js-active-project-check').classes()).not.toContain('icon');
-    expect(
-      vm
-        .findAll('.js-active-project-check')
-        .at(1)
-        .classes(),
-    ).toContain('icon');
+    expect(vm.findAll('.js-active-project-check').at(1).classes()).toContain('icon');
   });
 });

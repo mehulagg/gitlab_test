@@ -40,7 +40,7 @@ describe('GeoNodesStore', () => {
       store.setNodes(mockNodes);
       const nodeToBeRemoved = store.getNodes()[1];
       store.removeNode(nodeToBeRemoved);
-      store.getNodes().forEach(node => {
+      store.getNodes().forEach((node) => {
         expect(node.id).not.toBe(nodeToBeRemoved);
       });
     });

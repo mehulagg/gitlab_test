@@ -27,7 +27,7 @@ describe('Pipeline Status Token', () => {
     },
   };
 
-  const createComponent = options => {
+  const createComponent = (options) => {
     wrapper = shallowMount(PipelineStatusToken, {
       propsData: {
         ...defaultProps,

@@ -58,7 +58,7 @@ export default {
       const isProjectSelected = this.selectedProjects.some(({ id }) => id === project.id);
 
       if (isProjectSelected) {
-        this.selectedProjects = this.selectedProjects.filter(p => p.id !== project.id);
+        this.selectedProjects = this.selectedProjects.filter((p) => p.id !== project.id);
       } else {
         this.selectedProjects.push(project);
       }
@@ -66,7 +66,7 @@ export default {
     addProjects() {
       this.$emit('handleProjectManipulation', true);
 
-      const addProjectsPromises = this.selectedProjects.map(project => {
+      const addProjectsPromises = this.selectedProjects.map((project) => {
         return this.$apollo
           .mutate({
             mutation: addProjectToSecurityDashboard,
@@ -87,8 +87,10 @@ export default {
       });
 
       return Promise.all(addProjectsPromises)
-        .then(response => {
-          const invalidProjects = response.filter(value => value.error).map(value => value.project);
+        .then((response) => {
+          const invalidProjects = response
+            .filter((value) => value.error)
+            .map((value) => value.project);
           this.$emit('handleProjectManipulation', false);
 
           if (invalidProjects.length) {
@@ -118,7 +120,7 @@ export default {
               query: projectsQuery,
             });
             data.instanceSecurityDashboard.projects.nodes = data.instanceSecurityDashboard.projects.nodes.filter(
-              curr => curr.id !== id,
+              (curr) => curr.id !== id,
             );
             store.writeQuery({ query: projectsQuery, data });
           },
@@ -145,7 +147,7 @@ export default {
       }
 
       return this.searchProjects(this.searchQuery, this.pageInfo)
-        .then(payload => {
+        .then((payload) => {
           const {
             data: {
               projects: { nodes, pageInfo },

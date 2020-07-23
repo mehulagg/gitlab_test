@@ -16,7 +16,7 @@ describe('MilestoneToken', () => {
     });
   };
 
-  const findFilteredSearchSuggestion = index =>
+  const findFilteredSearchSuggestion = (index) =>
     wrapper.findAll(GlFilteredSearchSuggestion).at(index);
   const findFilteredSearchToken = () => wrapper.find(GlFilteredSearchToken);
   const findAllMilestoneSuggestions = () => wrapper.findAll({ ref: 'milestoneItem' });

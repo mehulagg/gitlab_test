@@ -43,7 +43,7 @@ describe('GroupItemComponent', () => {
         const { rowClass } = vm;
 
         expect(Object.keys(rowClass).length).toBe(classes.length);
-        Object.keys(rowClass).forEach(className => {
+        Object.keys(rowClass).forEach((className) => {
           expect(classes.indexOf(className)).toBeGreaterThan(-1);
         });
       });

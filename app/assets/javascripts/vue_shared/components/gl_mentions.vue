@@ -57,7 +57,7 @@ export default {
     this.tribute = new Tribute({
       trigger: '@',
       fillAttr: 'username',
-      lookup: value => value.name + value.username,
+      lookup: (value) => value.name + value.username,
       menuItemTemplate,
       values: this.getMembers,
     });
@@ -82,7 +82,7 @@ export default {
       } else if (this.dataSources.members) {
         axios
           .get(this.dataSources.members)
-          .then(response => {
+          .then((response) => {
             this.members = response.data;
             processValues(this.getFilteredMembers());
           })
@@ -96,15 +96,15 @@ export default {
 
       if (!this.assignees) {
         this.assignees =
-          SidebarMediator.singleton?.store?.assignees?.map(assignee => assignee.username) || [];
+          SidebarMediator.singleton?.store?.assignees?.map((assignee) => assignee.username) || [];
       }
 
       if (fullText.startsWith('/assign @')) {
-        return this.members.filter(member => !this.assignees.includes(member.username));
+        return this.members.filter((member) => !this.assignees.includes(member.username));
       }
 
       if (fullText.startsWith('/unassign @')) {
-        return this.members.filter(member => this.assignees.includes(member.username));
+        return this.members.filter((member) => this.assignees.includes(member.username));
       }
 
       return this.members;

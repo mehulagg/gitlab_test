@@ -26,7 +26,7 @@ export default {
   methods: {
     listenForQuickActions() {
       $(document).on('ajax:success', '.gfm-form', this.quickActionListened);
-      eventHub.$on('timeTrackingUpdated', data => {
+      eventHub.$on('timeTrackingUpdated', (data) => {
         this.quickActionListened(null, data);
       });
     },

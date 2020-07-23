@@ -111,8 +111,7 @@ export default {
     <gl-deprecated-button
       v-if="hasSidebarButton"
       id="toggleSidebar"
-      class="d-block d-sm-none
-sidebar-toggle-btn js-sidebar-build-toggle js-sidebar-build-toggle-header"
+      class="d-block d-sm-none sidebar-toggle-btn js-sidebar-build-toggle js-sidebar-build-toggle-header"
       @click="onClickSidebarButton"
     >
       <i class="fa fa-angle-double-left" aria-hidden="true" aria-labelledby="toggleSidebar"> </i>

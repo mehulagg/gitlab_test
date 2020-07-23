@@ -5,7 +5,7 @@ import { isAbsolute, redirectTo } from '~/lib/utils/url_utility';
 import { GlAlert, GlButton, GlForm, GlFormGroup, GlFormInput, GlModal } from '@gitlab/ui';
 import dastSiteProfileCreateMutation from '../graphql/dast_site_profile_create.mutation.graphql';
 
-const initField = value => ({
+const initField = (value) => ({
   value,
   state: null,
   feedback: null,
@@ -81,13 +81,13 @@ export default {
           mutation: dastSiteProfileCreateMutation,
           variables: this.formData,
         })
-        .then(data => {
+        .then((data) => {
           if (data.errors?.length > 0) {
             throw new Error(data.errors);
           }
           redirectTo(this.profilesLibraryPath);
         })
-        .catch(e => {
+        .catch((e) => {
           Sentry.captureException(e);
           this.showAlert = true;
           this.loading = false;

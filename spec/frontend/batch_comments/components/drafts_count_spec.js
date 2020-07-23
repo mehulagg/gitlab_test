@@ -27,7 +27,7 @@ describe('Batch comments drafts count component', () => {
     expect(vm.$el.querySelector('.drafts-count-number').textContent).toBe('1');
   });
 
-  it('renders screen reader text', done => {
+  it('renders screen reader text', (done) => {
     const el = vm.$el.querySelector('.sr-only');
 
     expect(el.textContent).toContain('draft');

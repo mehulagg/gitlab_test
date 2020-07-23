@@ -159,20 +159,12 @@ describe('IntegrationSettingsForm', () => {
       return integrationSettingsForm.testSettings(formData).then(() => {
         const $flashContainer = $('.flash-container');
 
-        expect(
-          $flashContainer
-            .find('.flash-text')
-            .text()
-            .trim(),
-        ).toEqual('Test failed. some error');
+        expect($flashContainer.find('.flash-text').text().trim()).toEqual(
+          'Test failed. some error',
+        );
 
         expect($flashContainer.find('.flash-action')).toBeDefined();
-        expect(
-          $flashContainer
-            .find('.flash-action')
-            .text()
-            .trim(),
-        ).toEqual('Save anyway');
+        expect($flashContainer.find('.flash-action').text().trim()).toEqual('Save anyway');
       });
     });
 
@@ -188,20 +180,12 @@ describe('IntegrationSettingsForm', () => {
       return integrationSettingsForm.testSettings(formData).then(() => {
         const $flashContainer = $('.flash-container');
 
-        expect(
-          $flashContainer
-            .find('.flash-text')
-            .text()
-            .trim(),
-        ).toEqual('Validations failed. some error');
+        expect($flashContainer.find('.flash-text').text().trim()).toEqual(
+          'Validations failed. some error',
+        );
 
         expect($flashContainer.find('.flash-action')).toBeDefined();
-        expect(
-          $flashContainer
-            .find('.flash-action')
-            .text()
-            .trim(),
-        ).toEqual('');
+        expect($flashContainer.find('.flash-action').text().trim()).toEqual('');
       });
     });
 
@@ -247,11 +231,7 @@ describe('IntegrationSettingsForm', () => {
       mock.onPut(integrationSettingsForm.testEndPoint).networkError();
 
       return integrationSettingsForm.testSettings(formData).then(() => {
-        expect(
-          $('.flash-container .flash-text')
-            .text()
-            .trim(),
-        ).toEqual(errorMessage);
+        expect($('.flash-container .flash-text').text().trim()).toEqual(errorMessage);
       });
     });
 

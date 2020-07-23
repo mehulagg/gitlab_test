@@ -191,9 +191,12 @@ describe('Diffs Module Getters', () => {
       discussionMock.diff_file.file_hash = diffFileMock.file_hash;
 
       expect(
-        getters.getDiffFileDiscussions(localState, {}, {}, { discussions: [discussionMock] })(
-          diffFileMock,
-        ).length,
+        getters.getDiffFileDiscussions(
+          localState,
+          {},
+          {},
+          { discussions: [discussionMock] },
+        )(diffFileMock).length,
       ).toEqual(1);
     });
 

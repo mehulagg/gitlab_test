@@ -25,7 +25,7 @@ export default {
     },
     buttonType: {
       required: false,
-      validator: value =>
+      validator: (value) =>
         ['primary', 'default', 'secondary', 'success', 'info', 'warning', 'danger'].indexOf(
           value,
         ) !== -1,
@@ -72,7 +72,7 @@ export default {
     filteredResults() {
       if (this.filter !== '') {
         return this.items.filter(
-          item =>
+          (item) =>
             item[this.filterKey] &&
             item[this.filterKey].toLowerCase().includes(this.filter.toLowerCase()),
         );

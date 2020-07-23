@@ -18,7 +18,7 @@ describe('AuditEventsApp', () => {
   let store;
 
   const events = [{ foo: 'bar' }];
-  const filterTokenOptions = AVAILABLE_TOKEN_TYPES.map(type => ({ type }));
+  const filterTokenOptions = AVAILABLE_TOKEN_TYPES.map((type) => ({ type }));
   const filterQaSelector = 'filter_qa_selector';
   const tableQaSelector = 'table_qa_selector';
 

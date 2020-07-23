@@ -16,7 +16,7 @@ describe('html output cell', () => {
   }
 
   describe('sanitizes output', () => {
-    Object.keys(sanitizeTests).forEach(key => {
+    Object.keys(sanitizeTests).forEach((key) => {
       it(key, () => {
         const test = sanitizeTests[key];
         const vm = createComponent(test.input);

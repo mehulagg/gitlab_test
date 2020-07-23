@@ -15,10 +15,10 @@ export const prepareTokens = ({
   const authorToken = author ? [{ type: 'author', value: { data: author } }] : [];
   const milestoneToken = milestone ? [{ type: 'milestone', value: { data: milestone } }] : [];
   const assigneeTokens = assignees?.length
-    ? assignees.map(data => ({ type: 'assignees', value: { data } }))
+    ? assignees.map((data) => ({ type: 'assignees', value: { data } }))
     : [];
   const labelTokens = labels?.length
-    ? labels.map(data => ({ type: 'labels', value: { data } }))
+    ? labels.map((data) => ({ type: 'labels', value: { data } }))
     : [];
 
   return [...authorToken, ...milestoneToken, ...assigneeTokens, ...labelTokens];
@@ -43,15 +43,15 @@ export default {
   },
   computed: {
     ...mapState('filters', {
-      milestones: state => state.milestones.data,
-      milestonesLoading: state => state.milestones.isLoading,
-      labels: state => state.labels.data,
-      labelsLoading: state => state.labels.isLoading,
-      authors: state => state.authors.data,
-      authorsLoading: state => state.authors.isLoading,
-      assignees: state => state.assignees.data,
-      assigneesLoading: state => state.assignees.isLoading,
-      initialTokens: state => state.initialTokens,
+      milestones: (state) => state.milestones.data,
+      milestonesLoading: (state) => state.milestones.isLoading,
+      labels: (state) => state.labels.data,
+      labelsLoading: (state) => state.labels.isLoading,
+      authors: (state) => state.authors.data,
+      authorsLoading: (state) => state.authors.isLoading,
+      assignees: (state) => state.assignees.data,
+      assigneesLoading: (state) => state.assignees.isLoading,
+      initialTokens: (state) => state.initialTokens,
     }),
     availableTokens() {
       return [
@@ -155,8 +155,8 @@ export default {
       this.setFilters({
         selectedAuthor: author ? author[0].value : null,
         selectedMilestone: milestone ? milestone[0].value : null,
-        selectedAssignees: assignees ? assignees.map(a => a.value) : [],
-        selectedLabels: labels ? labels.map(l => l.value) : [],
+        selectedAssignees: assignees ? assignees.map((a) => a.value) : [],
+        selectedLabels: labels ? labels.map((l) => l.value) : [],
       });
     },
   },

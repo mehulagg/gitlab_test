@@ -2,7 +2,7 @@ import mutations from 'ee/boards/stores/mutations';
 import { inactiveListId } from '~/boards/constants';
 import { mockLists, mockEpics } from '../mock_data';
 
-const expectNotImplemented = action => {
+const expectNotImplemented = (action) => {
   it('is not implemented', () => {
     expect(action).toThrow(new Error('Not implemented!'));
   });

@@ -43,7 +43,7 @@ describe('UpdateUsername component', () => {
     };
   };
 
-  it('has a disabled button if the username was not changed', done => {
+  it('has a disabled button if the username was not changed', (done) => {
     const { input, openModalBtn } = findElements();
     input.dispatchEvent(new Event('input'));
 
@@ -57,7 +57,7 @@ describe('UpdateUsername component', () => {
       .catch(done.fail);
   });
 
-  it('has an enabled button which if the username was changed', done => {
+  it('has an enabled button which if the username was changed', (done) => {
     const { input, openModalBtn } = findElements();
     input.value = newUsername;
     input.dispatchEvent(new Event('input'));
@@ -72,7 +72,7 @@ describe('UpdateUsername component', () => {
       .catch(done.fail);
   });
 
-  it('confirmation modal contains proper header and body', done => {
+  it('confirmation modal contains proper header and body', (done) => {
     const { modalBody, modalHeader } = findElements();
 
     vm.newUsername = newUsername;
@@ -88,7 +88,7 @@ describe('UpdateUsername component', () => {
       .catch(done.fail);
   });
 
-  it('confirmation modal should escape usernames properly', done => {
+  it('confirmation modal should escape usernames properly', (done) => {
     const { modalBody } = findElements();
 
     vm.username = '<i>Italic</i>';
@@ -103,7 +103,7 @@ describe('UpdateUsername component', () => {
       .catch(done.fail);
   });
 
-  it('executes API call on confirmation button click', done => {
+  it('executes API call on confirmation button click', (done) => {
     const { confirmModalBtn } = findElements();
 
     axiosMock.onPut(actionUrl).replyOnce(() => [200, { message: 'Username changed' }]);
@@ -121,7 +121,7 @@ describe('UpdateUsername component', () => {
       .catch(done.fail);
   });
 
-  it('sets the username after a successful update', done => {
+  it('sets the username after a successful update', (done) => {
     const { input, openModalBtn } = findElements();
 
     axiosMock.onPut(actionUrl).replyOnce(() => {
@@ -145,7 +145,7 @@ describe('UpdateUsername component', () => {
       .catch(done.fail);
   });
 
-  it('does not set the username after a erroneous update', done => {
+  it('does not set the username after a erroneous update', (done) => {
     const { input, openModalBtn } = findElements();
 
     axiosMock.onPut(actionUrl).replyOnce(() => {

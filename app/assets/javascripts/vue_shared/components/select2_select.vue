@@ -23,7 +23,7 @@ export default {
     $(this.$refs.dropdownInput)
       .val(this.value)
       .select2(this.options)
-      .on('change', event => this.$emit('input', event.target.value));
+      .on('change', (event) => this.$emit('input', event.target.value));
   },
 
   beforeDestroy() {

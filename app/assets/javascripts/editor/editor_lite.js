@@ -25,7 +25,7 @@ export default class Editor {
 
   static setupMonacoTheme() {
     const themeName = window.gon?.user_color_scheme || DEFAULT_THEME;
-    const theme = themes.find(t => t.name === themeName);
+    const theme = themes.find((t) => t.name === themeName);
     if (theme) monacoEditor.defineTheme(themeName, theme.data);
     monacoEditor.setTheme(theme ? themeName : DEFAULT_THEME);
   }
@@ -64,7 +64,7 @@ export default class Editor {
     const ext = `.${path.split('.').pop()}`;
     const language = monacoLanguages
       .getLanguages()
-      .find(lang => lang.extensions.indexOf(ext) !== -1);
+      .find((lang) => lang.extensions.indexOf(ext) !== -1);
     const id = language ? language.id : 'plaintext';
     monacoEditor.setModelLanguage(this.model, id);
   }

@@ -75,9 +75,9 @@ describe('Issuable component', () => {
     window.Date = DateOrig;
   });
 
-  const checkExists = findFn => () => findFn().exists();
+  const checkExists = (findFn) => () => findFn().exists();
   const hasIcon = (iconName, iconWrapper = wrapper) =>
-    iconWrapper.findAll(GlIcon).wrappers.some(icon => icon.props('name') === iconName);
+    iconWrapper.findAll(GlIcon).wrappers.some((icon) => icon.props('name') === iconName);
   const hasConfidentialIcon = () => hasIcon('eye-slash');
   const findTaskStatus = () => wrapper.find('.task-status');
   const findOpenedAgoContainer = () => wrapper.find('[data-testid="openedByMessage"]');
@@ -94,8 +94,8 @@ describe('Issuable component', () => {
   const findDownvotes = () => wrapper.find('[data-testid="downvotes"]');
   const findNotes = () => wrapper.find('[data-testid="notes-count"]');
   const findBulkCheckbox = () => wrapper.find('input.selected-issuable');
-  const findScopedLabels = () => findLabels().filter(w => isScopedLabel({ title: w.text() }));
-  const findUnscopedLabels = () => findLabels().filter(w => !isScopedLabel({ title: w.text() }));
+  const findScopedLabels = () => findLabels().filter((w) => isScopedLabel({ title: w.text() }));
+  const findUnscopedLabels = () => findLabels().filter((w) => !isScopedLabel({ title: w.text() }));
   const findIssuableTitle = () => wrapper.find('[data-testid="issuable-title"]');
   const findIssuableStatus = () => wrapper.find('[data-testid="issuable-status"]');
   const containsJiraLogo = () => wrapper.contains('[data-testid="jira-logo"]');
@@ -338,13 +338,13 @@ describe('Issuable component', () => {
     it('renders labels', () => {
       factory({ issuable });
 
-      const labels = findLabels().wrappers.map(label => ({
+      const labels = findLabels().wrappers.map((label) => ({
         href: label.props('target'),
         text: label.text(),
         tooltip: label.attributes('description'),
       }));
 
-      const expected = testLabels.map(label => ({
+      const expected = testLabels.map((label) => ({
         href: mergeUrlParams({ 'label_name[]': label.name }, TEST_BASE_URL),
         text: label.name,
         tooltip: label.description,
@@ -365,13 +365,13 @@ describe('Issuable component', () => {
     it('renders labels', () => {
       factory({ issuable });
 
-      const labels = findLabels().wrappers.map(label => ({
+      const labels = findLabels().wrappers.map((label) => ({
         href: label.props('target'),
         text: label.text(),
         tooltip: label.attributes('description'),
       }));
 
-      const expected = testLabels.map(label => ({
+      const expected = testLabels.map((label) => ({
         href: mergeUrlParams({ 'labels[]': label.name }, TEST_BASE_URL),
         text: label.name,
         tooltip: label.description,

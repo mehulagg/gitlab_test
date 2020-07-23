@@ -79,12 +79,9 @@ describe('DiscussionFilter component', () => {
   });
 
   it('renders the default selected item', () => {
-    expect(
-      wrapper
-        .find('#discussion-filter-dropdown')
-        .text()
-        .trim(),
-    ).toBe(discussionFiltersMock[0].title);
+    expect(wrapper.find('#discussion-filter-dropdown').text().trim()).toBe(
+      discussionFiltersMock[0].title,
+    );
   });
 
   it('updates to the selected item', () => {
@@ -147,7 +144,7 @@ describe('DiscussionFilter component', () => {
       window.mrTabs = undefined;
     });
 
-    it('only renders when discussion tab is active', done => {
+    it('only renders when discussion tab is active', (done) => {
       eventHub.$emit('MergeRequestTabChange', 'commit');
 
       wrapper.vm.$nextTick(() => {
@@ -162,7 +159,7 @@ describe('DiscussionFilter component', () => {
       window.location.hash = '';
     });
 
-    it('updates the filter when the URL links to a note', done => {
+    it('updates the filter when the URL links to a note', (done) => {
       window.location.hash = `note_${discussionMock.notes[0].id}`;
       wrapper.vm.currentValue = discussionFiltersMock[2].value;
       wrapper.vm.handleLocationHash();
@@ -173,7 +170,7 @@ describe('DiscussionFilter component', () => {
       });
     });
 
-    it('does not update the filter when the current filter is "Show all activity"', done => {
+    it('does not update the filter when the current filter is "Show all activity"', (done) => {
       window.location.hash = `note_${discussionMock.notes[0].id}`;
       wrapper.vm.handleLocationHash();
 
@@ -183,7 +180,7 @@ describe('DiscussionFilter component', () => {
       });
     });
 
-    it('only updates filter when the URL links to a note', done => {
+    it('only updates filter when the URL links to a note', (done) => {
       window.location.hash = `testing123`;
       wrapper.vm.handleLocationHash();
 
@@ -193,7 +190,7 @@ describe('DiscussionFilter component', () => {
       });
     });
 
-    it('fetches discussions when there is a hash', done => {
+    it('fetches discussions when there is a hash', (done) => {
       window.location.hash = `note_${discussionMock.notes[0].id}`;
       wrapper.vm.currentValue = discussionFiltersMock[2].value;
       jest.spyOn(wrapper.vm, 'selectFilter').mockImplementation(() => {});
@@ -205,7 +202,7 @@ describe('DiscussionFilter component', () => {
       });
     });
 
-    it('does not fetch discussions when there is no hash', done => {
+    it('does not fetch discussions when there is no hash', (done) => {
       window.location.hash = '';
       jest.spyOn(wrapper.vm, 'selectFilter').mockImplementation(() => {});
       wrapper.vm.handleLocationHash();

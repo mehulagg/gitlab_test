@@ -28,7 +28,7 @@ describe('IdeSidebar', () => {
     expect(vm.$el.querySelector('.multi-file-commit-panel-inner')).not.toBeNull();
   });
 
-  it('renders loading icon component', done => {
+  it('renders loading icon component', (done) => {
     vm.$store.state.loading = true;
 
     vm.$nextTick(() => {
@@ -44,7 +44,7 @@ describe('IdeSidebar', () => {
       expect(vm.$el.querySelector('.ide-file-list')).not.toBeNull();
     });
 
-    it('renders commit component', done => {
+    it('renders commit component', (done) => {
       vm.$store.state.currentActivityView = leftSidebarViews.commit.name;
 
       vm.$nextTick(() => {

@@ -14,7 +14,7 @@ describe('CommaSeparatedListTokenSelector', () => {
     ariaLabelledby: 'comma-separated-list-label',
   };
 
-  const createComponent = options => {
+  const createComponent = (options) => {
     wrapper = mount(CommaSeparatedListTokenSelector, {
       attachTo: div,
       ...options,

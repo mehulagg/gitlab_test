@@ -7,7 +7,7 @@ export default {
       type: String,
       required: false,
       default: calloutVariants[0],
-      validator: value => calloutVariants.includes(value),
+      validator: (value) => calloutVariants.includes(value),
     },
     message: {
       type: String,

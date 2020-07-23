@@ -28,7 +28,7 @@ export default {
   <div class="d-flex align-items-center">
     <gl-form-group>
       <div class="gl-display-flex gl-align-items-center">
-        <h4 class="gl-pr-3 gl-m-0 ">{{ s__('ClusterIntegration|GitLab Integration') }}</h4>
+        <h4 class="gl-pr-3 gl-m-0">{{ s__('ClusterIntegration|GitLab Integration') }}</h4>
         <input
           id="cluster_enabled"
           class="js-project-feature-toggle-input"

@@ -17,7 +17,7 @@ describe('UserToken', () => {
     });
   };
 
-  const findFilteredSearchSuggestion = index =>
+  const findFilteredSearchSuggestion = (index) =>
     wrapper.findAll(GlFilteredSearchSuggestion).at(index);
   const findFilteredSearchToken = () => wrapper.find(GlFilteredSearchToken);
   const findAllUserSuggestions = () => wrapper.findAll('[data-testid="user-item"]');

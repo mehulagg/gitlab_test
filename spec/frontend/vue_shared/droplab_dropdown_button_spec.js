@@ -59,7 +59,7 @@ describe('DroplabDropdownButton', () => {
     });
 
     describe('buttonSizeClass', () => {
-      it('returns string containing button sizing class based on `size` prop', done => {
+      it('returns string containing button sizing class based on `size` prop', (done) => {
         const wrapperWithSize = createComponent({
           size: 'sm',
         });

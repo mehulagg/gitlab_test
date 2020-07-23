@@ -149,7 +149,7 @@ describe('License Management', () => {
 
       describe.each([true, false])(
         'with licenseApprovals feature flag set to "%p"',
-        licenseApprovalsEnabled => {
+        (licenseApprovalsEnabled) => {
           beforeEach(() => {
             createComponent({
               state: { isLoadingManagedLicenses: false },
@@ -199,7 +199,7 @@ describe('License Management', () => {
 
       describe.each([true, false])(
         'when licenseComplianceDeniesMr feature flag is %p',
-        licenseComplianceDeniesMr => {
+        (licenseComplianceDeniesMr) => {
           it('should not show the developer only tooltip', () => {
             createComponent({
               state: { isLoadingManagedLicenses: false },

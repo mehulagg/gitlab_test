@@ -245,19 +245,11 @@ describe('Release block', () => {
       beforeEach(() => factory(release, { releaseIssueSummary: false }));
 
       it('renders the milestone icon', () => {
-        expect(
-          milestoneListLabel()
-            .find(Icon)
-            .exists(),
-        ).toBe(true);
+        expect(milestoneListLabel().find(Icon).exists()).toBe(true);
       });
 
       it('renders the label as "Milestones" if more than one milestone is passed in', () => {
-        expect(
-          milestoneListLabel()
-            .find('.js-label-text')
-            .text(),
-        ).toEqual('Milestones');
+        expect(milestoneListLabel().find('.js-label-text').text()).toEqual('Milestones');
       });
 
       it('renders a link to the milestone with a tooltip', () => {
@@ -278,11 +270,7 @@ describe('Release block', () => {
       release.milestones = release.milestones.slice(0, 1);
 
       return factory(release, { releaseIssueSummary: false }).then(() => {
-        expect(
-          milestoneListLabel()
-            .find('.js-label-text')
-            .text(),
-        ).toEqual('Milestone');
+        expect(milestoneListLabel().find('.js-label-text').text()).toEqual('Milestone');
       });
     });
   });

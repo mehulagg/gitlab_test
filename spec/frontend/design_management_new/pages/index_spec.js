@@ -420,16 +420,12 @@ describe('Design management index page', () => {
     });
 
     it('adds two designs to selected designs when their checkboxes are checked', () => {
-      findDesignCheckboxes()
-        .at(0)
-        .trigger('click');
+      findDesignCheckboxes().at(0).trigger('click');
 
       return wrapper.vm
         .$nextTick()
         .then(() => {
-          findDesignCheckboxes()
-            .at(1)
-            .trigger('click');
+          findDesignCheckboxes().at(1).trigger('click');
 
           return wrapper.vm.$nextTick();
         })
@@ -451,14 +447,12 @@ describe('Design management index page', () => {
       return wrapper.vm.$nextTick().then(() => {
         expect(findDeleteButton().props().hasSelectedDesigns).toBe(true);
         expect(findSelectAllButton().text()).toBe('Deselect all');
-        expect(wrapper.vm.selectedDesigns).toEqual(mockDesigns.map(design => design.filename));
+        expect(wrapper.vm.selectedDesigns).toEqual(mockDesigns.map((design) => design.filename));
       });
     });
 
     it('removes all designs from selected designs when at least one design was selected', () => {
-      findDesignCheckboxes()
-        .at(0)
-        .trigger('click');
+      findDesignCheckboxes().at(0).trigger('click');
 
       return wrapper.vm
         .$nextTick()

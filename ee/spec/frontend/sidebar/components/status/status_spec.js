@@ -4,15 +4,15 @@ import Vue from 'vue';
 import Status from 'ee/sidebar/components/status/status.vue';
 import { healthStatus, healthStatusTextMap } from 'ee/sidebar/constants';
 
-const getStatusText = wrapper => wrapper.find('.value .text-plain').text();
+const getStatusText = (wrapper) => wrapper.find('.value .text-plain').text();
 
-const getTooltipText = wrapper => wrapper.find(GlTooltip).text();
+const getTooltipText = (wrapper) => wrapper.find(GlTooltip).text();
 
-const getEditButton = wrapper => wrapper.find({ ref: 'editButton' });
+const getEditButton = (wrapper) => wrapper.find({ ref: 'editButton' });
 
-const getDropdownElement = wrapper => wrapper.find(GlDropdown);
+const getDropdownElement = (wrapper) => wrapper.find(GlDropdown);
 
-const getRemoveStatusItem = wrapper => wrapper.find(GlDropdownItem);
+const getRemoveStatusItem = (wrapper) => wrapper.find(GlDropdownItem);
 
 describe('Status', () => {
   let wrapper;
@@ -135,23 +135,28 @@ describe('Status', () => {
       });
     });
 
-    describe.each(Object.values(healthStatus))(`when "%s" is provided for status`, statusValue => {
-      beforeEach(() => {
-        const props = {
-          status: statusValue,
-        };
+    describe.each(Object.values(healthStatus))(
+      `when "%s" is provided for status`,
+      (statusValue) => {
+        beforeEach(() => {
+          const props = {
+            status: statusValue,
+          };
 
-        shallowMountStatus(props);
-      });
+          shallowMountStatus(props);
+        });
 
-      it(`shows "${healthStatusTextMap[statusValue]}"`, () => {
-        expect(getStatusText(wrapper)).toBe(healthStatusTextMap[statusValue]);
-      });
+        it(`shows "${healthStatusTextMap[statusValue]}"`, () => {
+          expect(getStatusText(wrapper)).toBe(healthStatusTextMap[statusValue]);
+        });
 
-      it(`shows "Status: ${healthStatusTextMap[statusValue]}" in the tooltip`, () => {
-        expect(getTooltipText(wrapper)).toBe(`Health status: ${healthStatusTextMap[statusValue]}`);
-      });
-    });
+        it(`shows "Status: ${healthStatusTextMap[statusValue]}" in the tooltip`, () => {
+          expect(getTooltipText(wrapper)).toBe(
+            `Health status: ${healthStatusTextMap[statusValue]}`,
+          );
+        });
+      },
+    );
   });
 
   describe('status dropdown', () => {
@@ -199,11 +204,7 @@ describe('Status', () => {
       it('shows text to ask the user to pick an option', () => {
         const message = 'Assign health status';
 
-        expect(
-          getDropdownElement(wrapper)
-            .find('.health-title')
-            .text(),
-        ).toContain(message);
+        expect(getDropdownElement(wrapper).find('.health-title').text()).toContain(message);
       });
 
       it('hides form when the `edit` button is clicked', () => {
@@ -226,7 +227,7 @@ describe('Status', () => {
     });
 
     describe('dropdown', () => {
-      const getIterableArray = arr => {
+      const getIterableArray = (arr) => {
         return arr.map((value, index) => [value, index]);
       };
 

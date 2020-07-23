@@ -42,7 +42,7 @@ const eventHandler = (e, func, opts = {}) => {
 };
 
 const eventHandlers = (category, func) => {
-  const handler = opts => e => eventHandler(e, func, { ...{ category }, ...opts });
+  const handler = (opts) => (e) => eventHandler(e, func, { ...{ category }, ...opts });
   const handlers = [];
   handlers.push({ name: 'click', func: handler() });
   handlers.push({ name: 'show.bs.dropdown', func: handler({ suffix: '_show' }) });
@@ -78,7 +78,7 @@ export default class Tracking {
     parent.trackingBound = true;
 
     const handlers = eventHandlers(category, (...args) => this.event(...args));
-    handlers.forEach(event => parent.addEventListener(event.name, event.func));
+    handlers.forEach((event) => parent.addEventListener(event.name, event.func));
     return handlers;
   }
 
@@ -87,7 +87,7 @@ export default class Tracking {
 
     const loadEvents = parent.querySelectorAll('[data-track-event="render"]');
 
-    loadEvents.forEach(element => {
+    loadEvents.forEach((element) => {
       const { action, data } = createEventPayload(element);
       this.event(category, action, data);
     });

@@ -101,8 +101,8 @@ export default class UserTabs {
   bindEvents() {
     this.$parentEl
       .off('shown.bs.tab', '.nav-links a[data-toggle="tab"]')
-      .on('shown.bs.tab', '.nav-links a[data-toggle="tab"]', event => this.tabShown(event))
-      .on('click', '.gl-pagination a', event => this.changeProjectsPage(event));
+      .on('shown.bs.tab', '.nav-links a[data-toggle="tab"]', (event) => this.tabShown(event))
+      .on('click', '.gl-pagination a', (event) => this.changeProjectsPage(event));
 
     window.addEventListener('resize', () => this.onResize());
   }
@@ -213,7 +213,7 @@ export default class UserTabs {
     const calendarPath = $calendarWrap.data('calendarPath');
 
     AjaxCache.retrieve(calendarPath)
-      .then(data => UserTabs.renderActivityCalendar(data, $calendarWrap))
+      .then((data) => UserTabs.renderActivityCalendar(data, $calendarWrap))
       .catch(() => flash(__('There was an error loading users activity calendar.')));
   }
 

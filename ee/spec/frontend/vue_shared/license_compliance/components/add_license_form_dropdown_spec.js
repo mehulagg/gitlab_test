@@ -16,9 +16,7 @@ describe('AddLicenseFormDropdown', () => {
     vm = mountComponent(Component);
     jest.spyOn(vm, '$emit').mockImplementation(() => {});
 
-    $(vm.$el)
-      .val('LGPL')
-      .trigger('change');
+    $(vm.$el).val('LGPL').trigger('change');
 
     expect(vm.$emit).toHaveBeenCalledWith('input', 'LGPL');
   });
@@ -39,7 +37,7 @@ describe('AddLicenseFormDropdown', () => {
     expect(vm.$el.value).toContain(value);
   });
 
-  it('shows all pre-defined licenses', done => {
+  it('shows all pre-defined licenses', (done) => {
     vm = mountComponent(Component);
 
     const element = $(vm.$el);

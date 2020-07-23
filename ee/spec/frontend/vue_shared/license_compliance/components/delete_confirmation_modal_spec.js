@@ -47,7 +47,7 @@ describe('DeleteConfirmationModal', () => {
         );
       });
 
-      it('escapes the license name', done => {
+      it('escapes the license name', (done) => {
         const name = '<a href="#">BAD</a>';
         const nameEscaped = '&lt;a href=&quot;#&quot;&gt;BAD&lt;/a&gt;';
 

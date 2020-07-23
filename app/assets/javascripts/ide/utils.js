@@ -2,17 +2,17 @@ import { SIDE_LEFT, SIDE_RIGHT } from './constants';
 import { languages } from 'monaco-editor';
 import { flatten } from 'lodash';
 
-const toLowerCase = x => x.toLowerCase();
+const toLowerCase = (x) => x.toLowerCase();
 
 const monacoLanguages = languages.getLanguages();
 const monacoExtensions = new Set(
-  flatten(monacoLanguages.map(lang => lang.extensions?.map(toLowerCase) || [])),
+  flatten(monacoLanguages.map((lang) => lang.extensions?.map(toLowerCase) || [])),
 );
 const monacoMimetypes = new Set(
-  flatten(monacoLanguages.map(lang => lang.mimetypes?.map(toLowerCase) || [])),
+  flatten(monacoLanguages.map((lang) => lang.mimetypes?.map(toLowerCase) || [])),
 );
 const monacoFilenames = new Set(
-  flatten(monacoLanguages.map(lang => lang.filenames?.map(toLowerCase) || [])),
+  flatten(monacoLanguages.map((lang) => lang.filenames?.map(toLowerCase) || [])),
 );
 
 const KNOWN_TYPES = [
@@ -43,7 +43,7 @@ const KNOWN_TYPES = [
 ];
 
 export function isTextFile(content, mimeType, fileName) {
-  const knownType = KNOWN_TYPES.find(type => type.isMatch(mimeType, fileName));
+  const knownType = KNOWN_TYPES.find((type) => type.isMatch(mimeType, fileName));
 
   if (knownType) return knownType.isText;
 
@@ -53,20 +53,20 @@ export function isTextFile(content, mimeType, fileName) {
   return asciiRegex.test(content);
 }
 
-export const createPathWithExt = p => {
+export const createPathWithExt = (p) => {
   const ext = p.lastIndexOf('.') >= 0 ? p.substring(p.lastIndexOf('.') + 1) : '';
 
   return `${p.substring(1, p.lastIndexOf('.') + 1 || p.length)}${ext || '.js'}`;
 };
 
-export const trimPathComponents = path =>
+export const trimPathComponents = (path) =>
   path
     .split('/')
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .join('/');
 
 export function registerLanguages(def, ...defs) {
-  defs.forEach(lang => registerLanguages(lang));
+  defs.forEach((lang) => registerLanguages(lang));
 
   const languageId = def.id;
 
@@ -76,7 +76,7 @@ export function registerLanguages(def, ...defs) {
 }
 
 export function registerSchemas({ language, options }, ...schemas) {
-  schemas.forEach(schema => registerSchemas(schema));
+  schemas.forEach((schema) => registerSchemas(schema));
 
   const defaults = {
     json: languages.json.jsonDefaults,
@@ -88,7 +88,7 @@ export function registerSchemas({ language, options }, ...schemas) {
   }
 }
 
-export const otherSide = side => (side === SIDE_RIGHT ? SIDE_LEFT : SIDE_RIGHT);
+export const otherSide = (side) => (side === SIDE_RIGHT ? SIDE_LEFT : SIDE_RIGHT);
 
 export function trimTrailingWhitespace(content) {
   return content.replace(/[^\S\r\n]+$/gm, '');
@@ -126,9 +126,9 @@ export function getPathParent(path) {
  * @param {File} file
  */
 export function readFileAsDataURL(file) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.addEventListener('load', e => resolve(e.target.result), { once: true });
+    reader.addEventListener('load', (e) => resolve(e.target.result), { once: true });
     reader.readAsDataURL(file);
   });
 }

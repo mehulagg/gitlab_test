@@ -13,7 +13,7 @@ describe('DAST Modal', () => {
 
   const findDownloadButton = () => wrapper.find('[data-testid="download-button"]');
 
-  const createWrapper = propsData => {
+  const createWrapper = (propsData) => {
     wrapper = shallowMount(Component, {
       propsData: {
         ...defaultProps,

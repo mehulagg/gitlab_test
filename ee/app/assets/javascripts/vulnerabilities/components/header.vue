@@ -106,7 +106,7 @@ export default {
         this.isLoadingUser = true;
 
         UsersCache.retrieveById(id)
-          .then(userData => {
+          .then((userData) => {
             this.user = userData;
           })
           .catch(() => {
@@ -237,7 +237,7 @@ export default {
         .then(({ data }) => {
           Object.assign(this.vulnerability, data);
         })
-        .catch(e => {
+        .catch((e) => {
           // Don't show an error message if the request was cancelled through the cancel token.
           if (!axios.isCancel(e)) {
             createFlash(
@@ -269,9 +269,7 @@ export default {
         <span
           v-else
           ref="badge"
-          :class="
-            `text-capitalize align-self-center issuable-status-box status-box status-box-${statusBoxStyle}`
-          "
+          :class="`text-capitalize align-self-center issuable-status-box status-box status-box-${statusBoxStyle}`"
         >
           {{ vulnerability.state }}
         </span>

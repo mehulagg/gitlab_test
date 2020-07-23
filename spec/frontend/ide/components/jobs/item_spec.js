@@ -27,7 +27,7 @@ describe('IDE jobs item', () => {
     expect(vm.$el.querySelector('.ic-status_success_borderless')).not.toBe(null);
   });
 
-  it('does not render view logs button if not started', done => {
+  it('does not render view logs button if not started', (done) => {
     vm.job.started = false;
 
     vm.$nextTick(() => {

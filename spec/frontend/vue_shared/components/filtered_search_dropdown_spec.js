@@ -67,7 +67,7 @@ describe('Filtered search dropdown', () => {
       });
     });
 
-    it('updates the results to match the typed value', done => {
+    it('updates the results to match the typed value', (done) => {
       vm.$el.querySelector('.js-filtered-dropdown-input').value = 'three';
       vm.$el.querySelector('.js-filtered-dropdown-input').dispatchEvent(new Event('input'));
       vm.$nextTick(() => {
@@ -77,7 +77,7 @@ describe('Filtered search dropdown', () => {
     });
 
     describe('when no value matches the typed one', () => {
-      it('does not render any result', done => {
+      it('does not render any result', (done) => {
         vm.$el.querySelector('.js-filtered-dropdown-input').value = 'six';
         vm.$el.querySelector('.js-filtered-dropdown-input').dispatchEvent(new Event('input'));
 
@@ -107,14 +107,14 @@ describe('Filtered search dropdown', () => {
         vm.$el.querySelector('.js-filtered-dropdown-input').dispatchEvent(new Event('input'));
       });
 
-      it('renders a create button', done => {
+      it('renders a create button', (done) => {
         vm.$nextTick(() => {
           expect(vm.$el.querySelector('.js-dropdown-create-button')).not.toBeNull();
           done();
         });
       });
 
-      it('renders computed button text', done => {
+      it('renders computed button text', (done) => {
         vm.$nextTick(() => {
           expect(vm.$el.querySelector('.js-dropdown-create-button').textContent.trim()).toEqual(
             'Create eleven',
@@ -124,7 +124,7 @@ describe('Filtered search dropdown', () => {
       });
 
       describe('on click create button', () => {
-        it('emits createItem event with the filter', done => {
+        it('emits createItem event with the filter', (done) => {
           jest.spyOn(vm, '$emit').mockImplementation(() => {});
           vm.$nextTick(() => {
             vm.$el.querySelector('.js-dropdown-create-button').click();
@@ -153,7 +153,7 @@ describe('Filtered search dropdown', () => {
         vm.$el.querySelector('.js-filtered-dropdown-input').dispatchEvent(new Event('input'));
       });
 
-      it('does not render a create button', done => {
+      it('does not render a create button', (done) => {
         vm.$nextTick(() => {
           expect(vm.$el.querySelector('.js-dropdown-create-button')).toBeNull();
           done();
@@ -179,7 +179,7 @@ describe('Filtered search dropdown', () => {
         vm.$el.querySelector('.js-filtered-dropdown-input').dispatchEvent(new Event('input'));
       });
 
-      it('does not render a create button', done => {
+      it('does not render a create button', (done) => {
         vm.$nextTick(() => {
           expect(vm.$el.querySelector('.js-dropdown-create-button')).toBeNull();
           done();

@@ -136,11 +136,9 @@ describe('NodeDetailsSectionVerification', () => {
       });
 
       it('contains text about Replicated data', () => {
-        expect(
-          findGlPopover()
-            .find(GlSprintf)
-            .attributes('message'),
-        ).toContain('Replicated data is verified');
+        expect(findGlPopover().find(GlSprintf).attributes('message')).toContain(
+          'Replicated data is verified',
+        );
       });
     });
   });

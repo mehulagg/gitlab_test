@@ -33,7 +33,7 @@ export default (epicCreate = false) => {
       methods: {
         ...mapActions(['setEpicMeta']),
       },
-      render: createElement =>
+      render: (createElement) =>
         createElement('epic-create-app', {
           props: {
             alignRight: el.dataset.alignRight,
@@ -65,6 +65,6 @@ export default (epicCreate = false) => {
     methods: {
       ...mapActions(['setEpicMeta', 'setEpicData']),
     },
-    render: createElement => createElement('epic-app'),
+    render: (createElement) => createElement('epic-app'),
   });
 };

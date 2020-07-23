@@ -31,7 +31,7 @@ export default class FilteredSearchIssueAnalytics extends FilteredSearchManager 
    * Updates issues analytics store and window history
    * with filter path
    */
-  updateObject = path => {
+  updateObject = (path) => {
     historyPushState(path);
 
     const filters = urlParamsToObject(path);

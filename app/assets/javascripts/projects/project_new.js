@@ -32,7 +32,7 @@ const setProjectNamePathHandlers = ($projectNameInput, $projectPathInput) => {
   });
 };
 
-const deriveProjectPathFromUrl = $projectImportUrl => {
+const deriveProjectPathFromUrl = ($projectImportUrl) => {
   const $currentProjectName = $projectImportUrl
     .parents('.toggle-import-form')
     .find('#project_name');
@@ -82,11 +82,9 @@ const bindEvents = () => {
     return;
   }
 
-  $('.how_to_import_link').on('click', e => {
+  $('.how_to_import_link').on('click', (e) => {
     e.preventDefault();
-    $(e.currentTarget)
-      .next('.modal')
-      .show();
+    $(e.currentTarget).next('.modal').show();
   });
 
   $('.modal-header .close').on('click', () => {
@@ -107,7 +105,7 @@ const bindEvents = () => {
     $pushNewProjectTipTrigger
       .removeAttr('rel')
       .removeAttr('target')
-      .on('click', e => {
+      .on('click', (e) => {
         e.preventDefault();
       })
       .popover({
@@ -117,7 +115,7 @@ const bindEvents = () => {
         content: $('.push-new-project-tip-template').html(),
       })
       .on('shown.bs.popover', () => {
-        $(document).on('click.popover touchstart.popover', event => {
+        $(document).on('click.popover touchstart.popover', (event) => {
           if ($(event.target).closest('.popover').length === 0) {
             $pushNewProjectTipTrigger.trigger('click');
           }
@@ -143,10 +141,7 @@ const bindEvents = () => {
 
     const selectedTemplate = DEFAULT_PROJECT_TEMPLATES[value];
     $selectedTemplateText.text(selectedTemplate.text);
-    $(selectedTemplate.icon)
-      .clone()
-      .addClass('d-block')
-      .appendTo($selectedIcon);
+    $(selectedTemplate.icon).clone().addClass('d-block').appendTo($selectedIcon);
 
     const $activeTabProjectName = $('.tab-pane.active #project_name');
     const $activeTabProjectPath = $('.tab-pane.active #project_path');

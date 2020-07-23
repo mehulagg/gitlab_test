@@ -62,14 +62,14 @@ describe('Issuable Time Tracker', () => {
       expect(vm).toBeDefined();
     });
 
-    it('should correctly set timeEstimate', done => {
+    it('should correctly set timeEstimate', (done) => {
       Vue.nextTick(() => {
         expect(vm.timeEstimate).toBe(initialData.timeEstimate);
         done();
       });
     });
 
-    it('should correctly set time_spent', done => {
+    it('should correctly set time_spent', (done) => {
       Vue.nextTick(() => {
         expect(vm.timeSpent).toBe(initialData.timeSpent);
         done();
@@ -89,7 +89,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should show the "Comparison" pane when timeEstimate and time_spent are truthy', done => {
+        it('should show the "Comparison" pane when timeEstimate and time_spent are truthy', (done) => {
           Vue.nextTick(() => {
             expect(vm.showComparisonState).toBe(true);
             const $comparisonPane = vm.$el.querySelector('.time-tracking-comparison-pane');
@@ -99,7 +99,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should show full times when the sidebar is collapsed', done => {
+        it('should show full times when the sidebar is collapsed', (done) => {
           Vue.nextTick(() => {
             const timeTrackingText = vm.$el.querySelector('.time-tracking-collapsed-summary span')
               .textContent;
@@ -110,7 +110,7 @@ describe('Issuable Time Tracker', () => {
         });
 
         describe('Remaining meter', () => {
-          it('should display the remaining meter with the correct width', done => {
+          it('should display the remaining meter with the correct width', (done) => {
             Vue.nextTick(() => {
               expect(
                 vm.$el.querySelector('.time-tracking-comparison-pane .progress[value="5"]'),
@@ -119,7 +119,7 @@ describe('Issuable Time Tracker', () => {
             });
           });
 
-          it('should display the remaining meter with the correct background color when within estimate', done => {
+          it('should display the remaining meter with the correct background color when within estimate', (done) => {
             Vue.nextTick(() => {
               expect(
                 vm.$el.querySelector('.time-tracking-comparison-pane .progress[variant="primary"]'),
@@ -128,7 +128,7 @@ describe('Issuable Time Tracker', () => {
             });
           });
 
-          it('should display the remaining meter with the correct background color when over estimate', done => {
+          it('should display the remaining meter with the correct background color when over estimate', (done) => {
             vm.timeEstimate = 10000; // 2h 46m
             vm.timeSpent = 20000000; // 231 days
             Vue.nextTick(() => {
@@ -152,7 +152,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should show the correct tooltip text', done => {
+        it('should show the correct tooltip text', (done) => {
           Vue.nextTick(() => {
             expect(vm.showComparisonState).toBe(true);
             const $title = vm.$el.querySelector('.time-tracking-content .compare-meter').dataset
@@ -174,7 +174,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should display the human readable version of time estimated', done => {
+        it('should display the human readable version of time estimated', (done) => {
           Vue.nextTick(() => {
             const estimateText = vm.$el.querySelector('.time-tracking-estimate-only-pane')
               .textContent;
@@ -196,7 +196,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should display the human readable version of time spent', done => {
+        it('should display the human readable version of time spent', (done) => {
           Vue.nextTick(() => {
             const spentText = vm.$el.querySelector('.time-tracking-spend-only-pane').textContent;
             const correctText = 'Spent: 1h 23m';
@@ -217,7 +217,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should only show the "No time tracking" pane when both timeEstimate and time_spent are falsey', done => {
+        it('should only show the "No time tracking" pane when both timeEstimate and time_spent are falsey', (done) => {
           Vue.nextTick(() => {
             const $noTrackingPane = vm.$el.querySelector('.time-tracking-no-tracking-pane');
             const noTrackingText = $noTrackingPane.textContent;
@@ -260,7 +260,7 @@ describe('Issuable Time Tracker', () => {
           });
         });
 
-        it('should not show the "Help" pane when help button is clicked and then closed', done => {
+        it('should not show the "Help" pane when help button is clicked and then closed', (done) => {
           helpButton().click();
 
           Vue.nextTick()

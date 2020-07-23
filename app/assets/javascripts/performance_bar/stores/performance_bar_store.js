@@ -20,7 +20,7 @@ export default class PerformanceBarStore {
   }
 
   findRequest(requestId) {
-    return this.requests.find(request => request.id === requestId);
+    return this.requests.find((request) => request.id === requestId);
   }
 
   addRequestDetails(requestId, requestDetails) {
@@ -43,11 +43,11 @@ export default class PerformanceBarStore {
   }
 
   requestsWithDetails() {
-    return this.requests.filter(request => request.details);
+    return this.requests.filter((request) => request.details);
   }
 
   canTrackRequest(requestUrl) {
-    return this.requests.filter(request => request.url === requestUrl).length < 2;
+    return this.requests.filter((request) => request.url === requestUrl).length < 2;
   }
 
   static truncateUrl(requestUrl) {

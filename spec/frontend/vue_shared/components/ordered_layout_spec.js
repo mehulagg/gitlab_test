@@ -27,7 +27,7 @@ describe('Ordered Layout', () => {
   let wrapper;
 
   const verifyOrder = () =>
-    wrapper.findAll('footer,header').wrappers.map(x => (x.is('footer') ? 'footer' : 'header'));
+    wrapper.findAll('footer,header').wrappers.map((x) => (x.is('footer') ? 'footer' : 'header'));
 
   const createComponent = (props = {}) => {
     wrapper = mount(TestComponent, {

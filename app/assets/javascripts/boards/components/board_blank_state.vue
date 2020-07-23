@@ -29,7 +29,7 @@ export default {
         });
       });
 
-      const loadListIssues = listObj => {
+      const loadListIssues = (listObj) => {
         const list = boardsStore.findList('title', listObj.title);
 
         if (!list) {
@@ -46,8 +46,8 @@ export default {
       // Save the labels
       boardsStore
         .generateDefaultLists()
-        .then(res => res.data)
-        .then(data => Promise.all(data.map(loadListIssues)))
+        .then((res) => res.data)
+        .then((data) => Promise.all(data.map(loadListIssues)))
         .catch(() => {
           boardsStore.removeList(undefined, 'label');
           Cookies.remove('issue_board_welcome_hidden', {

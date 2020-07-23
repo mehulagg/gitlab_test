@@ -7,7 +7,7 @@ import { CRITICAL, HIGH } from 'ee/security_dashboard/store/modules/vulnerabilit
  * @param {Object} issue
  */
 export const findIssueIndex = (issues, issue) =>
-  issues.findIndex(el => el.project_fingerprint === issue.project_fingerprint);
+  issues.findIndex((el) => el.project_fingerprint === issue.project_fingerprint);
 
 /**
  * Returns given vulnerability enriched with the corresponding
@@ -17,7 +17,7 @@ export const findIssueIndex = (issues, issue) =>
  */
 export const enrichVulnerabilityWithFeedback = (vulnerability, feedback = []) =>
   feedback
-    .filter(fb => fb.project_fingerprint === vulnerability.project_fingerprint)
+    .filter((fb) => fb.project_fingerprint === vulnerability.project_fingerprint)
     .reduce((vuln, fb) => {
       if (fb.feedback_type === 'dismissal') {
         return {
@@ -168,8 +168,8 @@ export const statusIcon = (loading = false, failed = false, newIssues = 0, neutr
  * @returns {{critical: number, high: number, other: number}}
  */
 export const countVulnerabilities = (vulnerabilities = []) => {
-  const critical = vulnerabilities.filter(vuln => vuln.severity === CRITICAL).length;
-  const high = vulnerabilities.filter(vuln => vuln.severity === HIGH).length;
+  const critical = vulnerabilities.filter((vuln) => vuln.severity === CRITICAL).length;
+  const high = vulnerabilities.filter((vuln) => vuln.severity === HIGH).length;
   const other = vulnerabilities.length - critical - high;
 
   return {
@@ -211,7 +211,7 @@ export const groupedReportText = (report, reportType, errorMessage, loadingMessa
  * @returns {Object}
  */
 export const parseDiff = (diff, enrichData) => {
-  const enrichVulnerability = vulnerability => ({
+  const enrichVulnerability = (vulnerability) => ({
     ...enrichVulnerabilityWithFeedback(vulnerability, enrichData),
     category: vulnerability.report_type,
     title: vulnerability.message || vulnerability.name,

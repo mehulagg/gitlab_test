@@ -26,13 +26,7 @@ export default [
         meta: {
           el: 'designs',
         },
-        beforeEnter(
-          {
-            params: { id },
-          },
-          from,
-          next,
-        ) {
+        beforeEnter({ params: { id } }, from, next) {
           if (typeof id === 'string') {
             next();
           }

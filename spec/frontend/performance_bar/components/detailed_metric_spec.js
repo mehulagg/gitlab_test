@@ -6,7 +6,7 @@ import { trimText } from 'helpers/text_helper';
 describe('detailedMetric', () => {
   let wrapper;
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     wrapper = shallowMount(DetailedMetric, {
       propsData: {
         ...props,
@@ -84,7 +84,7 @@ describe('detailedMetric', () => {
 
         expect(wrapper.find('.text-expander.js-toggle-button')).not.toBeNull();
 
-        wrapper.findAll('.performance-bar-modal td:nth-child(2)').wrappers.forEach(request => {
+        wrapper.findAll('.performance-bar-modal td:nth-child(2)').wrappers.forEach((request) => {
           expect(request.text()).toContain('world');
         });
       });

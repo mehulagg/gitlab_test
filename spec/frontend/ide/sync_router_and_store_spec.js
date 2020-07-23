@@ -17,11 +17,11 @@ describe('~/ide/sync_router_and_store', () => {
 
   const getRouterCurrentPath = () => router.currentRoute.fullPath;
   const getStoreCurrentPath = () => store.state.router.fullPath;
-  const updateRouter = path => {
+  const updateRouter = (path) => {
     router.push(path);
     return waitForPromises();
   };
-  const updateStore = path => {
+  const updateStore = (path) => {
     store.dispatch('router/push', path);
     return waitForPromises();
   };

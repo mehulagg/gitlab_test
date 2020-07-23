@@ -108,7 +108,7 @@ export default class MilestoneSelect {
             }
             $(`[data-milestone-id="${escape(selectedMilestone)}"] > a`).addClass('is-active');
           }),
-        renderRow: milestone => `
+        renderRow: (milestone) => `
           <li data-milestone-id="${escape(milestone.name)}">
             <a href='#' class='dropdown-menu-milestone-link'>
               ${escape(milestone.title)}
@@ -128,8 +128,8 @@ export default class MilestoneSelect {
         },
         defaultLabel,
         fieldName: $dropdown.data('fieldName'),
-        text: milestone => escape(milestone.title),
-        id: milestone => {
+        text: (milestone) => escape(milestone.title),
+        id: (milestone) => {
           if (milestone !== undefined) {
             if (!useId && !$dropdown.is('.js-issuable-form-dropdown')) {
               return milestone.name;
@@ -143,7 +143,7 @@ export default class MilestoneSelect {
           // display:block overrides the hide-collapse rule
           return $value.css('display', '');
         },
-        opened: e => {
+        opened: (e) => {
           const $el = $(e.currentTarget);
           if ($dropdown.hasClass('js-issue-board-sidebar') || options.handleClick) {
             selectedMilestone = $dropdown[0].dataset.selected || selectedMilestoneDefault;
@@ -152,7 +152,7 @@ export default class MilestoneSelect {
           $(`[data-milestone-id="${escape(selectedMilestone)}"] > a`, $el).addClass('is-active');
         },
         vue: $dropdown.hasClass('js-issue-board-sidebar'),
-        clicked: clickEvent => {
+        clicked: (clickEvent) => {
           const { e } = clickEvent;
           let selected = clickEvent.selectedObj;
 

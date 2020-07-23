@@ -37,11 +37,11 @@ describe('diff_stats', () => {
       },
     });
 
-    const findFileLine = name => wrapper.find(name);
-    const findIcon = name =>
+    const findFileLine = (name) => wrapper.find(name);
+    const findIcon = (name) =>
       wrapper
         .findAll(Icon)
-        .filter(c => c.attributes('name') === name)
+        .filter((c) => c.attributes('name') === name)
         .at(0).element.parentNode;
     const additions = findFileLine('.js-file-addition-line');
     const deletions = findFileLine('.js-file-deletion-line');

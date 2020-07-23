@@ -68,7 +68,7 @@ describe('Project Header', () => {
       const removeLink = wrapper
         .find('.dropdown-menu')
         .findAll('li')
-        .filter(w => w.text() === 'Remove');
+        .filter((w) => w.text() === 'Remove');
       expect(removeLink.exists()).toBe(true);
     });
 
@@ -76,11 +76,8 @@ describe('Project Header', () => {
       const removeLink = wrapper
         .find('.dropdown-menu')
         .findAll('li')
-        .filter(w => w.text() === 'Remove');
-      removeLink
-        .at(0)
-        .find(GlButton)
-        .vm.$emit('click');
+        .filter((w) => w.text() === 'Remove');
+      removeLink.at(0).find(GlButton).vm.$emit('click');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.emitted('remove')).toContainEqual([propsData.project.remove_path]);

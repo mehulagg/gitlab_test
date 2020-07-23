@@ -8,12 +8,8 @@ export default class MembersEE extends Members {
   addListeners() {
     super.addListeners();
 
-    $('.js-ldap-permissions')
-      .off('click')
-      .on('click', this.showLDAPPermissionsWarning.bind(this));
-    $('.js-ldap-override')
-      .off('click')
-      .on('click', this.toggleMemberAccessToggle.bind(this));
+    $('.js-ldap-permissions').off('click').on('click', this.showLDAPPermissionsWarning.bind(this));
+    $('.js-ldap-override').off('click').on('click', this.toggleMemberAccessToggle.bind(this));
   }
 
   dropdownClicked(options) {
@@ -72,7 +68,7 @@ export default class MembersEE extends Members {
         $toggle.enable();
         $dateInput.enable();
       })
-      .catch(xhr => {
+      .catch((xhr) => {
         $btn.enable();
 
         if (xhr.status === 403) {

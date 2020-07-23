@@ -8,7 +8,7 @@ import LoadingButton from '~/vue_shared/components/loading_button.vue';
 describe('Security Reports modal footer', () => {
   let wrapper;
 
-  const mountComponent = propsData => {
+  const mountComponent = (propsData) => {
     wrapper = mount(component, {
       propsData: {
         isCreatingIssue: false,

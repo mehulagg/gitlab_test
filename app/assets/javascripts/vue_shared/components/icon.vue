@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line global-require
   const data = require('@gitlab/svgs/dist/icons.json');
   const { icons } = data;
-  iconValidator = value => {
+  iconValidator = (value) => {
     if (icons.includes(value)) {
       return true;
     }
@@ -42,7 +42,7 @@ export default {
       type: Number,
       required: false,
       default: 16,
-      validator: value => validSizes.includes(value),
+      validator: (value) => validSizes.includes(value),
     },
   },
 

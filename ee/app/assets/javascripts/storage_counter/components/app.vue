@@ -55,7 +55,7 @@ export default {
        * For that reason we have to verify if `storageSize` is sent or
        * if we should render N/A
        */
-      update: data => ({
+      update: (data) => ({
         projects: data.namespace.projects.edges.map(({ node }) => node),
         totalUsage:
           data.namespace.rootStorageStatistics && data.namespace.rootStorageStatistics.storageSize

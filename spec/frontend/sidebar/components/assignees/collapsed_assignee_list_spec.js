@@ -99,7 +99,7 @@ describe('CollapsedAssigneeList component', () => {
 
     beforeEach(() => {
       users = UsersMockHelper.createNumberRandomUsers(3);
-      userNames = users.map(x => x.name).join(', ');
+      userNames = users.map((x) => x.name).join(', ');
     });
 
     describe('default', () => {

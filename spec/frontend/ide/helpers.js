@@ -12,9 +12,9 @@ export const file = (name = 'name', id = name, type = '', parent = null) =>
     parentPath: parent ? parent.path : '',
   });
 
-export const createEntriesFromPaths = paths =>
+export const createEntriesFromPaths = (paths) =>
   paths
-    .map(path => ({
+    .map((path) => ({
       name: pathUtils.basename(path),
       dir: pathUtils.dirname(path),
       ext: pathUtils.extname(path),

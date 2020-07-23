@@ -27,7 +27,7 @@ export default () => {
   window.ResolveService = new gl.DiffNotesResolveServiceClass(projectPath);
 
   gl.diffNotesCompileComponents = () => {
-    $('diff-note-avatars').each(function() {
+    $('diff-note-avatars').each(function () {
       const tmp = Vue.extend({
         template: $(this).get(0).outerHTML,
       });
@@ -40,12 +40,12 @@ export default () => {
       });
     });
 
-    const $components = $(COMPONENT_SELECTOR).filter(function() {
+    const $components = $(COMPONENT_SELECTOR).filter(function () {
       return $(this).closest('resolve-count').length !== 1;
     });
 
     if ($components) {
-      $components.each(function() {
+      $components.each(function () {
         const $this = $(this);
         const noteId = $this.attr(':note-id');
         const discussionId = $this.attr(':discussion-id');

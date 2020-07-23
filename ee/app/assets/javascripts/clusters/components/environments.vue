@@ -60,7 +60,7 @@ export default {
     podsInUseCount() {
       let podsInUse = 0;
 
-      this.environments.forEach(environment => {
+      this.environments.forEach((environment) => {
         if (this.hasInstances(environment.rolloutStatus)) {
           podsInUse += environment.rolloutStatus.instances.length;
         }
@@ -83,8 +83,8 @@ export default {
     ];
   },
   methods: {
-    hasInstances: rolloutStatus => rolloutStatus.instances && rolloutStatus.instances.length,
-    isLoadingRollout: rolloutStatus => rolloutStatus.status === 'loading',
+    hasInstances: (rolloutStatus) => rolloutStatus.instances && rolloutStatus.instances.length,
+    isLoadingRollout: (rolloutStatus) => rolloutStatus.status === 'loading',
   },
 };
 </script>
@@ -118,9 +118,7 @@ export default {
       </template>
 
       <!-- column: Job -->
-      <template #cell(lastDeployment)="data">
-        {{ __('deploy') }} #{{ data.value.id }}
-      </template>
+      <template #cell(lastDeployment)="data"> {{ __('deploy') }} #{{ data.value.id }} </template>
 
       <!-- column: Pods in use -->
       <template #head(rolloutStatus)="data">

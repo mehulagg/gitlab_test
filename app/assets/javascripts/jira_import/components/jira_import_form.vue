@@ -98,7 +98,7 @@ export default {
   },
   mounted() {
     this.searchUsers()
-      .then(data => {
+      .then((data) => {
         this.initialUsers = data;
       })
       .catch(() => {});

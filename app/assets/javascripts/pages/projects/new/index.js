@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     Array.from(
       document.querySelectorAll('.project-edit-container [data-experiment-track-label]'),
-    ).forEach(node =>
-      node.addEventListener('click', event => {
+    ).forEach((node) =>
+      node.addEventListener('click', (event) => {
         const { experimentTrackLabel: label } = event.currentTarget.dataset;
         Tracking.event(category, 'click_tab', { property, label });
       }),
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     import(
       /* webpackChunkName: 'experiment_new_project_creation' */ '../../../projects/experiment_new_project_creation'
     )
-      .then(m => {
+      .then((m) => {
         const el = document.querySelector('.js-experiment-new-project-creation');
 
         if (!el) {

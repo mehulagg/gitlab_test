@@ -30,7 +30,7 @@ export default {
       skip() {
         return this.isSearchEmpty;
       },
-      update: data => data.project.issues.edges.map(({ node }) => node),
+      update: (data) => data.project.issues.edges.map(({ node }) => node),
       variables() {
         return {
           fullPath: this.projectPath,

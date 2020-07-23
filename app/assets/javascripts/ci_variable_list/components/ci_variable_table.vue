@@ -68,7 +68,7 @@ export default {
     },
     fields() {
       if (this.isGroup) {
-        return this.$options.fields.filter(field => field.key !== 'environment_scope');
+        return this.$options.fields.filter((field) => field.key !== 'environment_scope');
       }
       return this.$options.fields;
     },

@@ -20,7 +20,7 @@ describe('Deploy Board', () => {
     });
 
   describe('with valid data', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper = createComponent();
       wrapper.vm.$nextTick(done);
     });
@@ -55,7 +55,7 @@ describe('Deploy Board', () => {
   });
 
   describe('with empty state', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper = createComponent({
         deployBoardData: {},
         isLoading: false,
@@ -74,7 +74,7 @@ describe('Deploy Board', () => {
   });
 
   describe('with loading state', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper = createComponent({
         deployBoardData: {},
         isLoading: true,
@@ -90,7 +90,7 @@ describe('Deploy Board', () => {
   });
 
   describe('with hasLegacyAppLabel equal true', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper = createComponent({
         isLoading: false,
         isEmpty: false,
@@ -113,7 +113,7 @@ describe('Deploy Board', () => {
 
   describe('has legend component', () => {
     let statuses = [];
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper = createComponent({
         isLoading: false,
         isEmpty: false,
@@ -132,7 +132,7 @@ describe('Deploy Board', () => {
       expect(deployBoardLegend.findAll('a')).toHaveLength(Object.keys(statuses).length);
     });
 
-    Object.keys(statuses).forEach(item => {
+    Object.keys(statuses).forEach((item) => {
       it(`with ${item} text next to deployment instance icon`, () => {
         expect(wrapper.find(`.deployment-instance-${item}`)).toBeDefined();
         expect(wrapper.find(`.deployment-instance-${item} + .legend-text`).text()).toBe(

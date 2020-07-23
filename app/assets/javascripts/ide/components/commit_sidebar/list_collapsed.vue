@@ -26,10 +26,10 @@ export default {
   },
   computed: {
     addedFilesLength() {
-      return this.files.filter(f => f.tempFile).length;
+      return this.files.filter((f) => f.tempFile).length;
     },
     modifiedFilesLength() {
-      return this.files.filter(f => !f.tempFile).length;
+      return this.files.filter((f) => !f.tempFile).length;
     },
     addedFilesIconClass() {
       return this.addedFilesLength ? 'multi-file-addition' : '';

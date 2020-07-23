@@ -78,7 +78,8 @@ export default {
       return Boolean(
         !this.isResolved &&
           this.remediation?.diff?.length > 0 &&
-          (!this.vulnerability.hasMergeRequest && this.remediation),
+          !this.vulnerability.hasMergeRequest &&
+          this.remediation,
       );
     },
     isResolved() {

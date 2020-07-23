@@ -55,11 +55,7 @@ describe('Pipeline New Form', () => {
       createComponent('master');
 
       expect(findDropdownItems().length).toBe(1);
-      expect(
-        findDropdownItems()
-          .at(0)
-          .text(),
-      ).toBe('master');
+      expect(findDropdownItems().at(0).text()).toBe('master');
     });
   });
 
@@ -80,9 +76,7 @@ describe('Pipeline New Form', () => {
     });
 
     it('removes ci variable row on remove icon button click', () => {
-      findRemoveIcons()
-        .at(1)
-        .trigger('click');
+      findRemoveIcons().at(1).trigger('click');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(findVariableRows().length).toBe(2);
@@ -96,9 +90,7 @@ describe('Pipeline New Form', () => {
     });
 
     it('creates blank variable on input change event', () => {
-      findKeyInputs()
-        .at(2)
-        .trigger('change');
+      findKeyInputs().at(2).trigger('change');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(findVariableRows().length).toBe(4);

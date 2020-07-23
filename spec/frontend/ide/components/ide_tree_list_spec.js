@@ -47,7 +47,7 @@ describe('IDE tree list', () => {
       expect(vm.updateViewer).toHaveBeenCalledWith('edit');
     });
 
-    it('renders loading indicator', done => {
+    it('renders loading indicator', (done) => {
       store.state.trees['abcproject/master'].loading = true;
 
       vm.$nextTick(() => {

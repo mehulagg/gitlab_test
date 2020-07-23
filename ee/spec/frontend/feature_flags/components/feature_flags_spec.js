@@ -103,7 +103,7 @@ describe('Feature flags', () => {
       userListsApiDocPath: '/help/api/user_lists',
     };
 
-    beforeEach(done => {
+    beforeEach((done) => {
       mock
         .onGet(`${TEST_HOST}/endpoint.json`, { params: { scope: FEATURE_FLAG_SCOPE, page: '1' } })
         .reply(200, getRequestData, {});
@@ -143,7 +143,7 @@ describe('Feature flags', () => {
     describe('without feature flags', () => {
       let emptyState;
 
-      beforeEach(done => {
+      beforeEach((done) => {
         mock
           .onGet(mockData.endpoint, { params: { scope: FEATURE_FLAG_SCOPE, page: '1' } })
           .replyOnce(
@@ -187,7 +187,7 @@ describe('Feature flags', () => {
     });
 
     describe('with paginated feature flags', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         mock
           .onGet(mockData.endpoint, { params: { scope: FEATURE_FLAG_SCOPE, page: '1' } })
           .replyOnce(200, getRequestData, {
@@ -263,7 +263,7 @@ describe('Feature flags', () => {
     });
 
     describe('in user lists tab', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         factory();
 
         setImmediate(() => {
@@ -286,7 +286,7 @@ describe('Feature flags', () => {
   });
 
   describe('unsuccessful request', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       mock
         .onGet(mockData.endpoint, { params: { scope: FEATURE_FLAG_SCOPE, page: '1' } })
         .replyOnce(500, {});
@@ -317,7 +317,7 @@ describe('Feature flags', () => {
   });
 
   describe('rotate instance id', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       mock
         .onGet(`${TEST_HOST}/endpoint.json`, { params: { scope: FEATURE_FLAG_SCOPE, page: '1' } })
         .reply(200, getRequestData, {});

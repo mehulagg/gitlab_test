@@ -80,7 +80,7 @@ export default {
       return this.selectedProjects.length === 1;
     },
     selectedProjectIds() {
-      return this.selectedProjects.map(p => p.id);
+      return this.selectedProjects.map((p) => p.id);
     },
     availableProjects() {
       return filterBySearchTerm(this.projects, this.searchTerm);
@@ -105,7 +105,7 @@ export default {
     getSelectedProjects(selectedProject, isMarking) {
       return isMarking
         ? this.selectedProjects.concat([selectedProject])
-        : this.selectedProjects.filter(project => project.id !== selectedProject.id);
+        : this.selectedProjects.filter((project) => project.id !== selectedProject.id);
     },
     singleSelectedProject(selectedObj, isMarking) {
       return isMarking ? [selectedObj] : [];
@@ -121,7 +121,7 @@ export default {
     },
     fetchData() {
       this.loading = true;
-      return Api.groupProjects(this.groupId, this.searchTerm, this.queryParams, projects => {
+      return Api.groupProjects(this.groupId, this.searchTerm, this.queryParams, (projects) => {
         this.projects = projects;
         this.loading = false;
       });

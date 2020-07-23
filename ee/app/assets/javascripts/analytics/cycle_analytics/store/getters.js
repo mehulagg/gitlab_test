@@ -4,7 +4,7 @@ import httpStatus from '~/lib/utils/http_status';
 import { dateFormats } from '../../shared/constants';
 import { transformStagesForPathNavigation } from '../utils';
 
-export const hasNoAccessError = state => state.errorCode === httpStatus.FORBIDDEN;
+export const hasNoAccessError = (state) => state.errorCode === httpStatus.FORBIDDEN;
 
 export const currentValueStreamId = ({ selectedValueStream }) => selectedValueStream?.id || null;
 
@@ -44,7 +44,7 @@ export const hiddenStages = ({ stages }) => filterStagesByHiddenStatus(stages);
 export const activeStages = ({ stages }) => filterStagesByHiddenStatus(stages, false);
 
 export const enableCustomOrdering = ({ stages, errorSavingStageOrder }) =>
-  stages.some(stage => isNumber(stage.id)) && !errorSavingStageOrder;
+  stages.some((stage) => isNumber(stage.id)) && !errorSavingStageOrder;
 
 export const customStageFormActive = ({ isCreatingCustomStage, isEditingCustomStage }) =>
   Boolean(isCreatingCustomStage || isEditingCustomStage);

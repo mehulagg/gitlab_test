@@ -34,7 +34,7 @@ describe('Security Dashboard Table Row', () => {
   });
 
   const findLoader = () => wrapper.find('.js-skeleton-loader');
-  const findContent = i => wrapper.findAll('.table-mobile-content').at(i);
+  const findContent = (i) => wrapper.findAll('.table-mobile-content').at(i);
   const findAllIssueCreated = () => wrapper.findAll('.ic-issue-created');
   const hasSelectedClass = () => wrapper.classes('gl-bg-blue-50');
   const findCheckbox = () => wrapper.find(GlFormCheckbox);
@@ -75,11 +75,7 @@ describe('Security Dashboard Table Row', () => {
     });
 
     it('should render the severity', () => {
-      expect(
-        findContent(0)
-          .text()
-          .toLowerCase(),
-      ).toContain(vulnerability.severity);
+      expect(findContent(0).text().toLowerCase()).toContain(vulnerability.severity);
     });
 
     it('should render the identifier name', () => {
@@ -87,11 +83,9 @@ describe('Security Dashboard Table Row', () => {
     });
 
     it('should render the report type', () => {
-      expect(
-        findContent(3)
-          .text()
-          .toLowerCase(),
-      ).toContain(vulnerability.report_type.toLowerCase());
+      expect(findContent(3).text().toLowerCase()).toContain(
+        vulnerability.report_type.toLowerCase(),
+      );
     });
 
     it('should render the scanner vendor if the scanner does exist', () => {

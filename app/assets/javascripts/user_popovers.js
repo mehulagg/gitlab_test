@@ -5,14 +5,14 @@ import sanitize from 'sanitize-html';
 import UsersCache from './lib/utils/users_cache';
 import UserPopover from './vue_shared/components/user_popover/user_popover.vue';
 
-const removeTitle = el => {
+const removeTitle = (el) => {
   // Removing titles so its not showing tooltips also
 
   el.dataset.originalTitle = '';
   el.setAttribute('title', '');
 };
 
-const getPreloadedUserInfo = dataset => {
+const getPreloadedUserInfo = (dataset) => {
   const userId = dataset.user || dataset.userId;
   const { username, name, avatarUrl } = dataset;
 
@@ -28,7 +28,7 @@ const getPreloadedUserInfo = dataset => {
  * Adds a UserPopover component to the body, hands over as much data as the target element has in data attributes.
  * loads based on data-user-id more data about a user from the API and sets it on the popover
  */
-const populateUserInfo = user => {
+const populateUserInfo = (user) => {
   const { userId } = user;
 
   return Promise.all([UsersCache.retrieveById(userId), UsersCache.retrieveStatusById(userId)]).then(
@@ -65,7 +65,7 @@ export default (elements = document.querySelectorAll('.js-user-link')) => {
 
   return userLinks
     .filter(({ dataset }) => dataset.user || dataset.userId)
-    .map(el => {
+    .map((el) => {
       if (initializedPopovers.has(el)) {
         return initializedPopovers.get(el);
       }

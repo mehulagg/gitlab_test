@@ -112,11 +112,9 @@ describe('ee merge request widget options', () => {
 
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
 
-        expect(
-          findSecurityWidget()
-            .querySelector(SAST_SELECTOR)
-            .textContent.trim(),
-        ).toContain('SAST is loading');
+        expect(findSecurityWidget().querySelector(SAST_SELECTOR).textContent.trim()).toContain(
+          'SAST is loading',
+        );
       });
     });
 
@@ -127,7 +125,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -149,7 +147,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -171,7 +169,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(trimText(findSecurityWidget().querySelector(SAST_SELECTOR).textContent)).toContain(
             'SAST: Loading resulted in an error',
@@ -217,7 +215,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -245,7 +243,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('renders no new vulnerabilities message', done => {
+      it('renders no new vulnerabilities message', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -267,7 +265,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -288,7 +286,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(
             trimText(findSecurityWidget().querySelector(DEPENDENCY_SCANNING_SELECTOR).textContent),
@@ -308,7 +306,7 @@ describe('ee merge request widget options', () => {
     });
 
     describe('when it is loading', () => {
-      it('should render loading indicator', done => {
+      it('should render loading indicator', (done) => {
         mock.onGet('head.json').reply(200, headBrowserPerformance);
         mock.onGet('base.json').reply(200, baseBrowserPerformance);
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
@@ -337,7 +335,7 @@ describe('ee merge request widget options', () => {
           setBrowserPerformance();
         });
 
-        it('should render provided data', done => {
+        it('should render provided data', (done) => {
           setImmediate(() => {
             expect(
               trimText(
@@ -349,7 +347,7 @@ describe('ee merge request widget options', () => {
         });
 
         describe('text connector', () => {
-          it('should only render information about fixed issues', done => {
+          it('should only render information about fixed issues', (done) => {
             setImmediate(() => {
               vm.mr.browserPerformanceMetrics.degraded = [];
               vm.mr.browserPerformanceMetrics.same = [];
@@ -366,7 +364,7 @@ describe('ee merge request widget options', () => {
             });
           });
 
-          it('should only render information about added issues', done => {
+          it('should only render information about added issues', (done) => {
             setImmediate(() => {
               vm.mr.browserPerformanceMetrics.improved = [];
               vm.mr.browserPerformanceMetrics.same = [];
@@ -412,7 +410,7 @@ describe('ee merge request widget options', () => {
     });
 
     describe('with empty successful request', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         mock.onGet(DEFAULT_BROWSER_PERFORMANCE.head_path).reply(200, []);
         mock.onGet(DEFAULT_BROWSER_PERFORMANCE.base_path).reply(200, []);
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
@@ -457,7 +455,7 @@ describe('ee merge request widget options', () => {
         vm.mr.browserPerformance = gl.mrWidgetData.browserPerformance;
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -479,7 +477,7 @@ describe('ee merge request widget options', () => {
     });
 
     describe('when it is loading', () => {
-      it('should render loading indicator', done => {
+      it('should render loading indicator', (done) => {
         mock.onGet(DEFAULT_LOAD_PERFORMANCE.head_path).reply(200, headLoadPerformance);
         mock.onGet(DEFAULT_LOAD_PERFORMANCE.base_path).reply(200, baseLoadPerformance);
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
@@ -504,7 +502,7 @@ describe('ee merge request widget options', () => {
       });
 
       describe('default', () => {
-        beforeEach(done => {
+        beforeEach((done) => {
           setLoadPerformance();
 
           // wait for network request from component watch update method
@@ -518,7 +516,7 @@ describe('ee merge request widget options', () => {
         });
 
         describe('text connector', () => {
-          it('should only render information about fixed issues', done => {
+          it('should only render information about fixed issues', (done) => {
             vm.mr.loadPerformanceMetrics.degraded = [];
             vm.mr.loadPerformanceMetrics.same = [];
 
@@ -532,7 +530,7 @@ describe('ee merge request widget options', () => {
             });
           });
 
-          it('should only render information about added issues', done => {
+          it('should only render information about added issues', (done) => {
             vm.mr.loadPerformanceMetrics.improved = [];
             vm.mr.loadPerformanceMetrics.same = [];
 
@@ -550,7 +548,7 @@ describe('ee merge request widget options', () => {
     });
 
     describe('with empty successful request', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         mock.onGet(DEFAULT_LOAD_PERFORMANCE.head_path).reply(200, {});
         mock.onGet(DEFAULT_LOAD_PERFORMANCE.base_path).reply(200, {});
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
@@ -591,7 +589,7 @@ describe('ee merge request widget options', () => {
         vm.mr.loadPerformance = gl.mrWidgetData.loadPerformance;
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(
             trimText(vm.$el.querySelector('.js-load-performance-widget .js-code-text').textContent),
@@ -637,7 +635,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -661,12 +659,10 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(
-            findSecurityWidget()
-              .querySelector(CONTAINER_SCANNING_SELECTOR)
-              .textContent.trim(),
+            findSecurityWidget().querySelector(CONTAINER_SCANNING_SELECTOR).textContent.trim(),
           ).toContain('Container scanning: Loading resulted in an error');
           done();
         });
@@ -695,11 +691,9 @@ describe('ee merge request widget options', () => {
 
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
 
-        expect(
-          findSecurityWidget()
-            .querySelector(DAST_SELECTOR)
-            .textContent.trim(),
-        ).toContain('DAST is loading');
+        expect(findSecurityWidget().querySelector(DAST_SELECTOR).textContent.trim()).toContain(
+          'DAST is loading',
+        );
       });
     });
 
@@ -711,7 +705,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             findSecurityWidget()
@@ -731,13 +725,11 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
-          expect(
-            findSecurityWidget()
-              .querySelector(DAST_SELECTOR)
-              .textContent.trim(),
-          ).toContain('DAST: Loading resulted in an error');
+          expect(findSecurityWidget().querySelector(DAST_SELECTOR).textContent.trim()).toContain(
+            'DAST: Loading resulted in an error',
+          );
           done();
         });
       });
@@ -766,9 +758,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
 
         expect(
-          findSecurityWidget()
-            .querySelector(COVERAGE_FUZZING_SELECTOR)
-            .textContent.trim(),
+          findSecurityWidget().querySelector(COVERAGE_FUZZING_SELECTOR).textContent.trim(),
         ).toContain('Coverage fuzzing is loading');
       });
     });
@@ -781,7 +771,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             findSecurityWidget()
@@ -803,12 +793,10 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(
-            findSecurityWidget()
-              .querySelector(COVERAGE_FUZZING_SELECTOR)
-              .textContent.trim(),
+            findSecurityWidget().querySelector(COVERAGE_FUZZING_SELECTOR).textContent.trim(),
           ).toContain('Coverage fuzzing: Loading resulted in an error');
           done();
         });
@@ -855,7 +843,7 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render provided data', done => {
+      it('should render provided data', (done) => {
         setImmediate(() => {
           expect(
             trimText(
@@ -879,12 +867,10 @@ describe('ee merge request widget options', () => {
         vm = mountComponent(Component, { mrData: gl.mrWidgetData });
       });
 
-      it('should render error indicator', done => {
+      it('should render error indicator', (done) => {
         setImmediate(() => {
           expect(
-            findSecurityWidget()
-              .querySelector(SECRET_SCANNING_SELECTOR)
-              .textContent.trim(),
+            findSecurityWidget().querySelector(SECRET_SCANNING_SELECTOR).textContent.trim(),
           ).toContain('Secret scanning: Loading resulted in an error');
           done();
         });
@@ -975,7 +961,7 @@ describe('ee merge request widget options', () => {
       });
     });
 
-    it('renders when user cannot remove branch and branch should be removed', done => {
+    it('renders when user cannot remove branch and branch should be removed', (done) => {
       vm.mr.canRemoveSourceBranch = false;
       vm.mr.shouldRemoveSourceBranch = true;
       vm.mr.state = 'readyToMerge';
@@ -992,7 +978,7 @@ describe('ee merge request widget options', () => {
       });
     });
 
-    it('does not render in merged state', done => {
+    it('does not render in merged state', (done) => {
       vm.mr.canRemoveSourceBranch = false;
       vm.mr.shouldRemoveSourceBranch = true;
       vm.mr.state = 'merged';
@@ -1021,7 +1007,7 @@ describe('ee merge request widget options', () => {
       status: SUCCESS,
     };
 
-    beforeEach(done => {
+    beforeEach((done) => {
       vm = mountComponent(Component, {
         mrData: {
           ...mockData,
@@ -1206,7 +1192,7 @@ describe('ee merge request widget options', () => {
       },
     ];
 
-    noSecurityReportsEnabledCases.forEach(noSecurityReportsEnabled => {
+    noSecurityReportsEnabledCases.forEach((noSecurityReportsEnabled) => {
       it('does not render the security reports widget', () => {
         gl.mrWidgetData = {
           ...mockData,

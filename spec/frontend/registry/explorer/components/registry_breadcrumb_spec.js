@@ -37,7 +37,7 @@ describe('Registry Breadcrumb', () => {
   const findChildRoute = () => wrapper.find({ ref: 'childRouteLink' });
   const findLastCrumb = () => wrapper.find({ ref: 'lastCrumb' });
 
-  const mountComponent = $route => {
+  const mountComponent = ($route) => {
     wrapper = shallowMount(component, {
       propsData: {
         crumbs,
@@ -121,11 +121,7 @@ describe('Registry Breadcrumb', () => {
     });
 
     it('has the same classes as the last children of the crumbs', () => {
-      expect(
-        findLastCrumb()
-          .classes()
-          .join(' '),
-      ).toEqual(lastChildren.className);
+      expect(findLastCrumb().classes().join(' ')).toEqual(lastChildren.className);
     });
 
     it('has a link to the current route', () => {

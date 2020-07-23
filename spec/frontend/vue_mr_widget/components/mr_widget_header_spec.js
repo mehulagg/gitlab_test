@@ -220,7 +220,7 @@ describe('MRWidgetHeader', () => {
         expect(link.getAttribute('href')).toBeNull();
       });
 
-      it('renders web ide button with blank query string if target & source project branch', done => {
+      it('renders web ide button with blank query string if target & source project branch', (done) => {
         vm.mr.targetProjectFullPath = 'root/gitlab-ce';
 
         vm.$nextTick(() => {
@@ -235,7 +235,7 @@ describe('MRWidgetHeader', () => {
         });
       });
 
-      it('renders web ide button with relative URL', done => {
+      it('renders web ide button with relative URL', (done) => {
         gon.relative_url_root = '/gitlab';
         vm.mr.iid = 2;
 

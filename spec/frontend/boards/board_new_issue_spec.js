@@ -58,7 +58,7 @@ describe('Issue boards new issue form', () => {
   });
 
   it('calls submit if submit button is clicked', () => {
-    jest.spyOn(vm, 'submit').mockImplementation(e => e.preventDefault());
+    jest.spyOn(vm, 'submit').mockImplementation((e) => e.preventDefault());
     vm.title = 'Testing Title';
 
     return Vue.nextTick().then(() => {

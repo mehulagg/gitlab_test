@@ -83,7 +83,7 @@ export default function initDiffsApp(store) {
     },
     computed: {
       ...mapState({
-        activeTab: state => state.page.activeTab,
+        activeTab: (state) => state.page.activeTab,
       }),
     },
     created() {

@@ -2,13 +2,13 @@ import dateFormat from 'dateformat';
 import { dateFormats } from './constants';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
-export const toYmd = date => dateFormat(date, dateFormats.isoDate);
+export const toYmd = (date) => dateFormat(date, dateFormats.isoDate);
 
 export default {
   toYmd,
 };
 
-export const formattedDate = d => dateFormat(d, dateFormats.defaultDate);
+export const formattedDate = (d) => dateFormat(d, dateFormats.defaultDate);
 
 /**
  * Creates a group object from a dataset. Returns null if no groupId is present.
@@ -16,7 +16,7 @@ export const formattedDate = d => dateFormat(d, dateFormats.defaultDate);
  * @param {Object} dataset - The container's dataset
  * @returns {Object} - A group object
  */
-export const buildGroupFromDataset = dataset => {
+export const buildGroupFromDataset = (dataset) => {
   const { groupId, groupName, groupFullPath, groupAvatarUrl, groupParentId } = dataset;
 
   if (groupId) {
@@ -38,7 +38,7 @@ export const buildGroupFromDataset = dataset => {
  * @param {Object} dataset - The container's dataset
  * @returns {Object} - A project object
  */
-export const buildProjectFromDataset = dataset => {
+export const buildProjectFromDataset = (dataset) => {
   const { projectId, projectName, projectPathWithNamespace, projectAvatarUrl } = dataset;
 
   if (projectId) {
@@ -112,5 +112,5 @@ export const buildCycleAnalyticsInitialData = ({
 
 export const filterBySearchTerm = (data = [], searchTerm = '', filterByKey = 'name') => {
   if (!searchTerm?.length) return data;
-  return data.filter(item => item[filterByKey].toLowerCase().includes(searchTerm.toLowerCase()));
+  return data.filter((item) => item[filterByKey].toLowerCase().includes(searchTerm.toLowerCase()));
 };

@@ -15,9 +15,9 @@ import { optionsFromSeriesData } from './variable_mapping';
  */
 const findMetricInDashboard = (metricId, dashboard) => {
   let res = null;
-  dashboard.panelGroups.forEach(group => {
-    group.panels.forEach(panel => {
-      panel.metrics.forEach(metric => {
+  dashboard.panelGroups.forEach((group) => {
+    group.panels.forEach((panel) => {
+      panel.metrics.forEach((metric) => {
         if (metric.metricId === metricId) {
           res = metric;
         }
@@ -31,7 +31,7 @@ const findMetricInDashboard = (metricId, dashboard) => {
  * Maps a backened error state to a `metricStates` constant
  * @param {Object} error - Error from backend response
  */
-const emptyStateFromError = error => {
+const emptyStateFromError = (error) => {
   if (!error) {
     return metricStates.UNKNOWN_ERROR;
   }
@@ -85,7 +85,7 @@ export default {
     state.isUpdatingStarredValue = true;
   },
   [types.RECEIVE_DASHBOARD_STARRING_SUCCESS](state, { selectedDashboard, newStarredValue }) {
-    const index = state.allDashboards.findIndex(d => d === selectedDashboard);
+    const index = state.allDashboards.findIndex((d) => d === selectedDashboard);
 
     state.isUpdatingStarredValue = false;
 
@@ -194,7 +194,7 @@ export default {
     state.showErrorBanner = enabled;
   },
   [types.SET_PANEL_GROUP_METRICS](state, payload) {
-    const panelGroup = state.dashboard.panelGroups.find(pg => payload.key === pg.key);
+    const panelGroup = state.dashboard.panelGroups.find((pg) => payload.key === pg.key);
     panelGroup.panels = payload.panels;
   },
   [types.SET_ENVIRONMENTS_FILTER](state, searchTerm) {
@@ -205,7 +205,7 @@ export default {
     state.expandedPanel.panel = panel;
   },
   [types.UPDATE_VARIABLE_VALUE](state, { name, value }) {
-    const variable = state.variables.find(v => v.name === name);
+    const variable = state.variables.find((v) => v.name === name);
     if (variable) {
       Object.assign(variable, {
         value,

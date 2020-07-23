@@ -5,7 +5,7 @@ import UrlSyncComponent from '~/vue_shared/components/url_sync.vue';
 import setWindowLocation from 'helpers/set_window_location_helper';
 
 jest.mock('~/lib/utils/url_utility', () => ({
-  setUrlParams: jest.fn(val => `urlParams: ${val}`),
+  setUrlParams: jest.fn((val) => `urlParams: ${val}`),
 }));
 
 jest.mock('~/lib/utils/common_utils', () => ({

@@ -7,7 +7,7 @@ describe('pipeline graph job item', () => {
 
   const findJobWithoutLink = () => wrapper.find('[data-testid="job-without-link"]');
 
-  const createWrapper = propsData => {
+  const createWrapper = (propsData) => {
     wrapper = mount(JobItem, {
       propsData,
     });
@@ -39,7 +39,7 @@ describe('pipeline graph job item', () => {
   });
 
   describe('name with link', () => {
-    it('should render the job name and status with a link', done => {
+    it('should render the job name and status with a link', (done) => {
       createWrapper({ job: mockJob });
 
       wrapper.vm.$nextTick(() => {

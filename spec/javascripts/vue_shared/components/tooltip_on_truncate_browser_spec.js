@@ -141,7 +141,7 @@ describe('TooltipOnTruncate component', () => {
         },
         propsData: {
           title: TEXT_LONG,
-          truncateTarget: el => el.childNodes[1],
+          truncateTarget: (el) => el.childNodes[1],
         },
         slots: {
           default: [

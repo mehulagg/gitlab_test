@@ -56,7 +56,7 @@ export const fetchVpcs = ({ region }) => {
     .describeVpcs()
     .promise()
     .then(({ Vpcs: vpcs }) =>
-      vpcs.map(vpc => ({
+      vpcs.map((vpc) => ({
         value: vpc.VpcId,
         name: lookupVpcName(vpc),
       })),

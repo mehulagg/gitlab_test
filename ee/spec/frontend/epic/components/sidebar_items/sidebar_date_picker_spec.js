@@ -27,13 +27,13 @@ describe('SidebarDatePicker', () => {
 
   let wrapper;
 
-  const findIconByName = name =>
+  const findIconByName = (name) =>
     wrapper
       .findAll(Icon)
-      .filter(w => w.props().name === name)
+      .filter((w) => w.props().name === name)
       .at(0);
   const findEditButton = () => wrapper.find({ ref: 'editButton' });
-  const findDirectiveCallByTitle = title =>
+  const findDirectiveCallByTitle = (title) =>
     mockPopoverBind.mock.calls.find(([, binding]) => binding.value.title === title);
   const findRemoveButton = () => wrapper.find({ ref: 'removeButton' });
 
@@ -44,7 +44,7 @@ describe('SidebarDatePicker', () => {
     findEditButton().vm.$emit('click', e);
   };
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     wrapper = shallowMount(SidebarDatepicker, {
       propsData: {
         ...mockDatePickerProps,

@@ -103,7 +103,7 @@ describe('~/static_site_editor/components/edit_area.vue', () => {
   });
 
   describe('when the mode changes', () => {
-    const setInitialMode = mode => {
+    const setInitialMode = (mode) => {
       wrapper.setData({ editorMode: mode });
     };
 

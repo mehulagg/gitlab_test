@@ -65,7 +65,8 @@ export default {
       },
       update({ project: { securityScanners = {} } = {} }) {
         const { available = [], enabled = [], pipelineRun = [] } = securityScanners;
-        const translateScannerName = scannerName => this.$options.i18n[scannerName] || scannerName;
+        const translateScannerName = (scannerName) =>
+          this.$options.i18n[scannerName] || scannerName;
 
         return {
           available: available.map(translateScannerName),

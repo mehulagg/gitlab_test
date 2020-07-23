@@ -36,7 +36,7 @@ const DiffNoteAvatars = Vue.extend({
       if (this.discussion) {
         notes = Object.keys(this.discussion.notes)
           .slice(0, this.shownAvatars)
-          .map(noteId => this.discussion.notes[noteId]);
+          .map((noteId) => this.discussion.notes[noteId]);
       }
 
       return notes;
@@ -84,11 +84,7 @@ const DiffNoteAvatars = Vue.extend({
       this.addNoCommentClass();
       this.setDiscussionVisible();
 
-      this.lineType = $(this.$el)
-        .closest('.diff-line-num')
-        .hasClass('old_line')
-        ? 'old'
-        : 'new';
+      this.lineType = $(this.$el).closest('.diff-line-num').hasClass('old_line') ? 'old' : 'new';
     });
 
     $(document).on('toggle.comments', () => {
@@ -125,9 +121,7 @@ const DiffNoteAvatars = Vue.extend({
         .toggleClass('no-comment-btn', notesCount > 0);
     },
     toggleDiscussionsToggleState() {
-      const $notesHolders = $(this.$el)
-        .closest('.code')
-        .find('.notes_holder');
+      const $notesHolders = $(this.$el).closest('.code').find('.notes_holder');
       const $visibleNotesHolders = $notesHolders.filter(':visible');
       const $toggleDiffCommentsBtn = $(this.$el)
         .closest('.diff-file')

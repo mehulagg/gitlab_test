@@ -28,7 +28,7 @@ describe('Snippet Visibility Edit component', () => {
   const findLabel = () => wrapper.find('label');
   const findRadios = () => wrapper.find(GlFormRadioGroup).findAll(GlFormRadio);
   const findRadiosData = () =>
-    findRadios().wrappers.map(x => {
+    findRadios().wrappers.map((x) => {
       return {
         value: x.find('input').attributes('value'),
         icon: x.find(GlIcon).props('name'),
@@ -86,11 +86,7 @@ describe('Snippet Visibility Edit component', () => {
     it('renders label help link', () => {
       createComponent();
 
-      expect(
-        findLabel()
-          .find(GlLink)
-          .attributes('href'),
-      ).toBe(defaultHelpLink);
+      expect(findLabel().find(GlLink).attributes('href')).toBe(defaultHelpLink);
     });
 
     it('when helpLink is not defined, does not render label help link', () => {

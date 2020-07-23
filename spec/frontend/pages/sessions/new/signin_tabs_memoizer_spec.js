@@ -58,7 +58,7 @@ describe('SigninTabsMemoizer', () => {
     };
     jest
       .spyOn(document, 'querySelector')
-      .mockImplementation(selector =>
+      .mockImplementation((selector) =>
         selector === `${tabSelector} a[href="#bogus"]` ? null : fakeTab,
       );
 

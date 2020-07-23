@@ -306,13 +306,13 @@ describe('Release detail actions', () => {
             {
               name: state.release.name,
               description: state.release.description,
-              milestones: state.release.milestones.map(milestone => milestone.title),
+              milestones: state.release.milestones.map((milestone) => milestone.title),
             },
           ],
         ]);
 
         expect(api.deleteReleaseLink).toHaveBeenCalledTimes(getters.releaseLinksToDelete.length);
-        getters.releaseLinksToDelete.forEach(link => {
+        getters.releaseLinksToDelete.forEach((link) => {
           expect(api.deleteReleaseLink).toHaveBeenCalledWith(
             state.projectId,
             state.tagName,
@@ -321,7 +321,7 @@ describe('Release detail actions', () => {
         });
 
         expect(api.createReleaseLink).toHaveBeenCalledTimes(getters.releaseLinksToCreate.length);
-        getters.releaseLinksToCreate.forEach(link => {
+        getters.releaseLinksToCreate.forEach((link) => {
           expect(api.createReleaseLink).toHaveBeenCalledWith(state.projectId, state.tagName, link);
         });
       });

@@ -268,7 +268,11 @@ describe('Monitoring mutations', () => {
             job: 'prometheus',
             instance: 'localhost:9090',
           },
-          values: [[1435781430.781, '1'], [1435781445.781, '1'], [1435781460.781, '1']],
+          values: [
+            [1435781430.781, '1'],
+            [1435781445.781, '1'],
+            [1435781460.781, '1'],
+          ],
         },
         {
           metric: {
@@ -276,7 +280,11 @@ describe('Monitoring mutations', () => {
             job: 'node',
             instance: 'localhost:9091',
           },
-          values: [[1435781430.781, '0'], [1435781445.781, '0'], [1435781460.781, '1']],
+          values: [
+            [1435781430.781, '0'],
+            [1435781445.781, '0'],
+            [1435781460.781, '1'],
+          ],
         },
       ],
     };
@@ -484,7 +492,10 @@ describe('Monitoring mutations', () => {
       });
 
       expect(variable.options).toEqual({
-        values: [{ text: 'prometheus', value: 'prometheus' }, { text: 'node', value: 'node' }],
+        values: [
+          { text: 'prometheus', value: 'prometheus' },
+          { text: 'node', value: 'node' },
+        ],
       });
     });
   });

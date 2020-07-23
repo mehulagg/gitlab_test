@@ -16,7 +16,7 @@ describe('Monitoring Component', () => {
   };
 
   const findIcons = () => wrapper.findAll(Icon);
-  const findIconsByName = name => findIcons().filter(icon => icon.props('name') === name);
+  const findIconsByName = (name) => findIcons().filter((icon) => icon.props('name') === name);
 
   beforeEach(() => {
     createWrapper();

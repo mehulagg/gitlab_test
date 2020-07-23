@@ -1,6 +1,6 @@
 const vNodeContainsText = (vnode, text) =>
   (vnode.text && vnode.text.includes(text)) ||
-  (vnode.children && vnode.children.filter(child => vNodeContainsText(child, text)).length);
+  (vnode.children && vnode.children.filter((child) => vNodeContainsText(child, text)).length);
 
 /**
  * Determines whether a `shallowMount` Wrapper contains text
@@ -15,7 +15,7 @@ const vNodeContainsText = (vnode, text) =>
  */
 export const shallowWrapperContainsSlotText = (shallowWrapper, slotName, text) =>
   Boolean(
-    shallowWrapper.vm.$slots[slotName].filter(vnode => vNodeContainsText(vnode, text)).length,
+    shallowWrapper.vm.$slots[slotName].filter((vnode) => vNodeContainsText(vnode, text)).length,
   );
 
 /**
@@ -25,8 +25,8 @@ export const shallowWrapperContainsSlotText = (shallowWrapper, slotName, text) =
  * @param {String} expectedMutationType - The Mutation to wait for
  */
 export const waitForMutation = (store, expectedMutationType) =>
-  new Promise(resolve => {
-    const unsubscribe = store.subscribe(mutation => {
+  new Promise((resolve) => {
+    const unsubscribe = store.subscribe((mutation) => {
       if (mutation.type === expectedMutationType) {
         unsubscribe();
         resolve();

@@ -74,8 +74,8 @@ export default {
   },
   methods: {
     epicIssuesForList(listIssues) {
-      return this.epic.issues.filter(epicIssue =>
-        Boolean(listIssues.find(listIssue => String(listIssue.iid) === epicIssue.iid)),
+      return this.epic.issues.filter((epicIssue) =>
+        Boolean(listIssues.find((listIssue) => String(listIssue.iid) === epicIssue.iid)),
       );
     },
     toggleExpanded() {
@@ -112,9 +112,7 @@ export default {
           {{ epic.title }}
         </h4>
         <gl-popover :target="() => $refs.epicTitle" triggers="hover" placement="top">
-          <template #title
-            >{{ epic.title }} &middot; {{ epic.reference }}</template
-          >
+          <template #title>{{ epic.title }} &middot; {{ epic.reference }}</template>
           <div>{{ epicTimeAgoString }}</div>
           <div class="gl-mb-2">{{ epicDateString }}</div>
           <gl-link :href="epic.webUrl" class="gl-font-sm">{{ __('Go to epic') }}</gl-link>

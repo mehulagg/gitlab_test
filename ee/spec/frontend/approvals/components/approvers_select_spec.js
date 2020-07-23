@@ -24,13 +24,13 @@ const TEST_USERS = [
 
 const localVue = createLocalVue();
 
-const waitForEvent = ($input, event) => new Promise(resolve => $input.one(event, resolve));
-const parseAvatar = element =>
+const waitForEvent = ($input, event) => new Promise((resolve) => $input.one(event, resolve));
+const parseAvatar = (element) =>
   element.classList.contains('identicon') ? null : element.getAttribute('src');
 const select2Container = () => document.querySelector('.select2-container');
 const select2DropdownOptions = () => document.querySelectorAll('#select2-drop .user-result');
 const select2DropdownItems = () =>
-  Array.prototype.map.call(select2DropdownOptions(), element => {
+  Array.prototype.map.call(select2DropdownOptions(), (element) => {
     const isGroup = element.classList.contains('group-result');
     const avatar = parseAvatar(element.querySelector('.avatar'));
 
@@ -88,7 +88,7 @@ describe('Approvals ApproversSelect', () => {
     expect(select2Container()).not.toBe(null);
   });
 
-  it('queries and displays groups and users', done => {
+  it('queries and displays groups and users', (done) => {
     factory();
 
     const expected = TEST_GROUPS.concat(TEST_USERS)
@@ -110,7 +110,7 @@ describe('Approvals ApproversSelect', () => {
   describe('with search term', () => {
     const term = 'lorem';
 
-    beforeEach(done => {
+    beforeEach((done) => {
       factory();
 
       waitForEvent($input, 'select2-loaded')
@@ -136,7 +136,7 @@ describe('Approvals ApproversSelect', () => {
     const skipGroupIds = [7, 8];
     const skipUserIds = [9, 10];
 
-    beforeEach(done => {
+    beforeEach((done) => {
       factory({
         propsData: {
           skipGroupIds,
@@ -166,7 +166,7 @@ describe('Approvals ApproversSelect', () => {
     });
   });
 
-  it('emits input when data changes', done => {
+  it('emits input when data changes', (done) => {
     factory();
 
     const expectedFinal = [

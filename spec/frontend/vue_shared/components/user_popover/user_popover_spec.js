@@ -139,9 +139,9 @@ describe('User Popover Component', () => {
 
       createWrapper({ user });
 
-      expect(wrapper.findAll(Icon).filter(icon => icon.props('name') === 'profile').length).toEqual(
-        1,
-      );
+      expect(
+        wrapper.findAll(Icon).filter((icon) => icon.props('name') === 'profile').length,
+      ).toEqual(1);
     });
 
     it('shows icon for work information', () => {
@@ -152,7 +152,9 @@ describe('User Popover Component', () => {
 
       createWrapper({ user });
 
-      expect(wrapper.findAll(Icon).filter(icon => icon.props('name') === 'work').length).toEqual(1);
+      expect(wrapper.findAll(Icon).filter((icon) => icon.props('name') === 'work').length).toEqual(
+        1,
+      );
     });
   });
 

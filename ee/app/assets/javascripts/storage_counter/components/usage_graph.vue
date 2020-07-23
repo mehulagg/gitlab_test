@@ -67,7 +67,7 @@ export default {
           size: snippetsSize,
         },
       ]
-        .filter(data => data.size !== 0)
+        .filter((data) => data.size !== 0)
         .sort((a, b) => b.size - a.size);
     },
   },

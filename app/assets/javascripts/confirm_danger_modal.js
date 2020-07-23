@@ -37,7 +37,7 @@ function getModal($btn) {
 }
 
 export default function initConfirmDangerModal() {
-  $(document).on('click', '.js-confirm-danger', e => {
+  $(document).on('click', '.js-confirm-danger', (e) => {
     const $btn = $(e.target);
     const checkFieldName = $btn.data('checkFieldName');
     const checkFieldCompareValue = $btn.data('checkCompareValue');

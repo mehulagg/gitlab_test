@@ -26,7 +26,7 @@ describe('Batch comments publish dropdown component', () => {
     vm.$destroy();
   });
 
-  it('toggles dropdown when clicking button', done => {
+  it('toggles dropdown when clicking button', (done) => {
     createComponent();
 
     jest.spyOn(vm.$store, 'dispatch');
@@ -61,7 +61,7 @@ describe('Batch comments publish dropdown component', () => {
   });
 
   it('renders list of drafts', () => {
-    createComponent(store => {
+    createComponent((store) => {
       Object.assign(store.state.notes, {
         isNotesFetched: true,
       });
@@ -71,7 +71,7 @@ describe('Batch comments publish dropdown component', () => {
   });
 
   it('adds is-last class to last item', () => {
-    createComponent(store => {
+    createComponent((store) => {
       Object.assign(store.state.notes, {
         isNotesFetched: true,
       });

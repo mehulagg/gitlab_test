@@ -40,7 +40,7 @@ describe('Dashboard header', () => {
   const findDuplicateDashboardModal = () => wrapper.find(DuplicateDashboardModal);
   const findCreateDashboardModal = () => wrapper.find('[data-testid="create-dashboard-modal"]');
 
-  const setSearchTerm = searchTerm => {
+  const setSearchTerm = (searchTerm) => {
     store.commit(`monitoringDashboard/${types.SET_ENVIRONMENTS_FILTER}`, searchTerm);
   };
 
@@ -111,7 +111,7 @@ describe('Dashboard header', () => {
       // https://gitlab.com/gitlab-org/gitlab/-/issues/230615
       // eslint-disable-next-line jest/no-disabled-tests
       it.skip('renders the environments dropdown with a single active element', () => {
-        const activeItem = findEnvsDropdownItems().wrappers.filter(itemWrapper =>
+        const activeItem = findEnvsDropdownItems().wrappers.filter((itemWrapper) =>
           itemWrapper.find('.active').exists(),
         );
 
@@ -231,7 +231,7 @@ describe('Dashboard header', () => {
 
     describe.each(duplicableCases)(
       'when the selected dashboard can be duplicated',
-      dashboardPath => {
+      (dashboardPath) => {
         it('contains a "Create New" menu item and a "Duplicate Dashboard" menu item', () => {
           store.state.monitoringDashboard.projectPath = mockProjectPath;
           setupAllDashboards(store, dashboardPath);
@@ -251,7 +251,7 @@ describe('Dashboard header', () => {
 
     describe.each(nonDuplicableCases)(
       'when the selected dashboard cannot be duplicated',
-      dashboardPath => {
+      (dashboardPath) => {
         it('contains a "Create New" menu item and no "Duplicate Dashboard" menu item', () => {
           store.state.monitoringDashboard.projectPath = mockProjectPath;
           setupAllDashboards(store, dashboardPath);

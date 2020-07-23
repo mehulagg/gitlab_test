@@ -14,7 +14,7 @@ import { CHART_TYPES } from 'ee/insights/constants';
 describe('Insights chart component', () => {
   let wrapper;
 
-  const factory = propsData =>
+  const factory = (propsData) =>
     shallowMount(InsightsChart, {
       propsData,
       stubs: { 'gl-column-chart': true, 'insights-chart-error': true },

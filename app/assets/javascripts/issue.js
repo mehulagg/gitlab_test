@@ -42,7 +42,7 @@ export default class Issue {
     }
 
     // Listen to state changes in the Vue app
-    document.addEventListener('issuable_vue_app:change', event => {
+    document.addEventListener('issuable_vue_app:change', (event) => {
       this.updateTopState(event.detail.isClosed, event.detail.data);
     });
   }
@@ -74,11 +74,7 @@ export default class Issue {
       this.toggleCloseReopenButton(isClosed);
 
       let numProjectIssues = Number(
-        projectIssuesCounter
-          .first()
-          .text()
-          .trim()
-          .replace(/[^\d]/, ''),
+        projectIssuesCounter.first().text().trim().replace(/[^\d]/, ''),
       );
       numProjectIssues = isClosed ? numProjectIssues - 1 : numProjectIssues + 1;
       projectIssuesCounter.text(addDelimiter(numProjectIssues));
@@ -104,7 +100,7 @@ export default class Issue {
     return $('.js-issuable-buttons[data-action="close-reopen"]').on(
       'click',
       '.btn-close, .btn-reopen, .btn-close-anyway',
-      e => {
+      (e) => {
         e.preventDefault();
         e.stopImmediatePropagation();
         const $button = $(e.currentTarget);
@@ -173,7 +169,7 @@ export default class Issue {
   }
 
   initIssueWarningBtnEventListener() {
-    return $(document).on('click', '.js-close-blocked-issue-warning button.btn-secondary', e => {
+    return $(document).on('click', '.js-close-blocked-issue-warning button.btn-secondary', (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
       this.toggleWarningAndCloseButton();
@@ -187,7 +183,7 @@ export default class Issue {
       alertMovedFromServiceDeskWarning.show();
     }
 
-    alertMovedFromServiceDeskWarning.on('click', '.js-close', e => {
+    alertMovedFromServiceDeskWarning.on('click', '.js-close', (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
       alertMovedFromServiceDeskWarning.remove();

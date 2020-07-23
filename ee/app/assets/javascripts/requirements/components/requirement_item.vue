@@ -37,7 +37,7 @@ export default {
     requirement: {
       type: Object,
       required: true,
-      validator: value =>
+      validator: (value) =>
         [
           'iid',
           'state',
@@ -47,7 +47,7 @@ export default {
           'updatedAt',
           'author',
           'testReports',
-        ].every(prop => value[prop]),
+        ].every((prop) => value[prop]),
     },
     showUpdateForm: {
       type: Boolean,

@@ -26,7 +26,7 @@ export const fetchReleases = ({ dispatch }, { page = '1', projectId }) => {
 
   api
     .releases(projectId, { page })
-    .then(response => dispatch('receiveReleasesSuccess', response))
+    .then((response) => dispatch('receiveReleasesSuccess', response))
     .catch(() => dispatch('receiveReleasesError'));
 };
 

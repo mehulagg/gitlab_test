@@ -2,7 +2,7 @@ import projectSelectorModule from '../modules/project_selector';
 import * as projectSelectorMutationTypes from '../modules/project_selector/mutation_types';
 import { BASE_FILTERS } from '../modules/filters/constants';
 
-export default store => {
+export default (store) => {
   store.registerModule('projectSelector', projectSelectorModule());
 
   store.subscribe(({ type, payload }) => {

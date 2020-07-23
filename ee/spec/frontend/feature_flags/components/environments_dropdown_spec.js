@@ -9,7 +9,7 @@ describe('Feature flags > Environments dropdown ', () => {
   let wrapper;
   let mock;
 
-  const factory = props => {
+  const factory = (props) => {
     wrapper = shallowMount(EnvironmentsDropdown, {
       propsData: {
         endpoint: `${TEST_HOST}/environments.json'`,
@@ -59,7 +59,7 @@ describe('Feature flags > Environments dropdown ', () => {
       });
 
       describe('with received data', () => {
-        beforeEach(done => setImmediate(() => done()));
+        beforeEach((done) => setImmediate(() => done()));
         it('sets is loading to false', () => {
           expect(wrapper.vm.isLoading).toEqual(false);
 
@@ -77,7 +77,7 @@ describe('Feature flags > Environments dropdown ', () => {
         it('emits event when a suggestion is clicked', () => {
           const button = wrapper
             .findAll(GlDeprecatedButton)
-            .filter(b => b.text() === 'production')
+            .filter((b) => b.text() === 'production')
             .at(0);
           button.vm.$emit('click');
 
@@ -103,7 +103,7 @@ describe('Feature flags > Environments dropdown ', () => {
   });
 
   describe('on click create button', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       mock.onGet(`${TEST_HOST}/environments.json'`).replyOnce(200, []);
 
       factory();
@@ -114,10 +114,7 @@ describe('Feature flags > Environments dropdown ', () => {
     });
 
     it('emits create event', () => {
-      wrapper
-        .findAll(GlDeprecatedButton)
-        .at(1)
-        .vm.$emit('click');
+      wrapper.findAll(GlDeprecatedButton).at(1).vm.$emit('click');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.emitted('createClicked')).toEqual([['production']]);

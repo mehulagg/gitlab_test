@@ -153,11 +153,7 @@ describe('registry_header', () => {
       });
 
       it('has the correct link', () => {
-        expect(
-          findIntroText()
-            .find(GlLink)
-            .attributes('href'),
-        ).toBe('bar');
+        expect(findIntroText().find(GlLink).attributes('href')).toBe('bar');
       });
     });
 
@@ -188,11 +184,9 @@ describe('registry_header', () => {
           });
 
           it('has the correct link', () => {
-            expect(
-              findDisabledExpirationPolicyMessage()
-                .find(GlLink)
-                .attributes('href'),
-            ).toBe('foo');
+            expect(findDisabledExpirationPolicyMessage().find(GlLink).attributes('href')).toBe(
+              'foo',
+            );
           });
         });
 

@@ -21,7 +21,7 @@ describe('EpicLane', () => {
   const createComponent = (props = {}) => {
     const defaultProps = {
       epic: mockEpic,
-      lists: mockLists.map(listMock => Vue.observable(new List(listMock))),
+      lists: mockLists.map((listMock) => Vue.observable(new List(listMock))),
     };
 
     wrapper = shallowMount(EpicLane, {

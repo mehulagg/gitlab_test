@@ -49,7 +49,7 @@ const getDataAxisOptions = ({ format, precision, name }) => {
     nameLocation: 'center', // same as gitlab-ui's default
     scale: true,
     axisLabel: {
-      formatter: val => formatter(val, precision, maxDataAxisTickLength),
+      formatter: (val) => formatter(val, precision, maxDataAxisTickLength),
     },
   };
 };
@@ -83,7 +83,7 @@ export const getTimeAxisOptions = ({
   name: __('Time'),
   type: axisTypes.time,
   axisLabel: {
-    formatter: date => formatDate(date, { format, timezone }),
+    formatter: (date) => formatDate(date, { format, timezone }),
   },
   axisPointer: {
     snap: false,
@@ -107,5 +107,5 @@ export const getTooltipFormatter = ({
   precision = defaultTooltipPrecision,
 } = {}) => {
   const formatter = getFormatter(format);
-  return num => formatter(num, precision);
+  return (num) => formatter(num, precision);
 };

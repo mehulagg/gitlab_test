@@ -1,22 +1,22 @@
 import { LOADING_VULNERABILITIES_ERROR_CODES } from './constants';
 
-export const dashboardError = state =>
+export const dashboardError = (state) =>
   state.errorLoadingVulnerabilities && state.errorLoadingVulnerabilitiesCount;
-export const dashboardListError = state =>
+export const dashboardListError = (state) =>
   state.errorLoadingVulnerabilities && !state.errorLoadingVulnerabilitiesCount;
-export const dashboardCountError = state =>
+export const dashboardCountError = (state) =>
   !state.errorLoadingVulnerabilities && state.errorLoadingVulnerabilitiesCount;
 
-export const loadingVulnerabilitiesFailedWithRecognizedErrorCode = state =>
+export const loadingVulnerabilitiesFailedWithRecognizedErrorCode = (state) =>
   state.errorLoadingVulnerabilities &&
   Object.values(LOADING_VULNERABILITIES_ERROR_CODES).includes(
     state.loadingVulnerabilitiesErrorCode,
   );
 
-export const getVulnerabilityHistoryByName = state => name =>
+export const getVulnerabilityHistoryByName = (state) => (name) =>
   state.vulnerabilitiesHistory[name.toLowerCase()];
 
-export const getFilteredVulnerabilitiesHistory = (state, getters) => name => {
+export const getFilteredVulnerabilitiesHistory = (state, getters) => (name) => {
   const history = getters.getVulnerabilityHistoryByName(name);
   const days = state.vulnerabilitiesHistoryDayRange;
 
@@ -30,13 +30,13 @@ export const getFilteredVulnerabilitiesHistory = (state, getters) => name => {
 
   startDate.setDate(currentDate.getDate() - days);
 
-  return data.filter(date => {
+  return data.filter((date) => {
     const parsedDate = Date.parse(date[0]);
     return parsedDate > startDate;
   });
 };
 
-export const selectedVulnerabilitiesCount = state =>
+export const selectedVulnerabilitiesCount = (state) =>
   Object.keys(state.selectedVulnerabilities).length;
 
 export const isSelectingVulnerabilities = (state, getters) =>

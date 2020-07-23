@@ -220,7 +220,7 @@ export const fetchJobsForStage = ({ dispatch }, stage = {}) => {
       },
     })
     .then(({ data }) => {
-      const retriedJobs = data.retried.map(job => ({ ...job, retried: true }));
+      const retriedJobs = data.retried.map((job) => ({ ...job, retried: true }));
       const jobs = data.latest_statuses.concat(retriedJobs);
 
       dispatch('receiveJobsForStageSuccess', jobs);
@@ -235,7 +235,7 @@ export const receiveJobsForStageError = ({ commit }) => {
 };
 
 export const triggerManualJob = ({ state }, variables) => {
-  const parsedVariables = variables.map(variable => {
+  const parsedVariables = variables.map((variable) => {
     const copyVar = { ...variable };
     delete copyVar.id;
     return copyVar;

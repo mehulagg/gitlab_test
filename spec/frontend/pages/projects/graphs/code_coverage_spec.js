@@ -145,11 +145,7 @@ describe('Code Coverage', () => {
 
       await wrapper.vm.$nextTick();
 
-      expect(
-        findFirstDropdownItem()
-          .find(GlIcon)
-          .exists(),
-      ).toBe(false);
+      expect(findFirstDropdownItem().find(GlIcon).exists()).toBe(false);
       expect(findSecondDropdownItem().contains(GlIcon)).toBe(true);
     });
 

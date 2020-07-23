@@ -23,7 +23,7 @@ const TEST_ENDPOINT = '/issues';
 const TEST_CREATE_ISSUES_PATH = '/createIssue';
 const TEST_EMPTY_SVG_PATH = '/emptySvg';
 
-const setUrl = query => {
+const setUrl = (query) => {
   window.location.href = `${TEST_LOCATION}${query}`;
   window.location.search = query;
 };
@@ -41,10 +41,10 @@ describe('Issuables list component', () => {
   let wrapper;
   let apiSpy;
 
-  const setupApiMock = cb => {
+  const setupApiMock = (cb) => {
     apiSpy = jest.fn(cb);
 
-    mockAxios.onGet(TEST_ENDPOINT).reply(cfg => apiSpy(cfg));
+    mockAxios.onGet(TEST_ENDPOINT).reply((cfg) => apiSpy(cfg));
   };
 
   const factory = (props = { sortKey: 'priority' }) => {

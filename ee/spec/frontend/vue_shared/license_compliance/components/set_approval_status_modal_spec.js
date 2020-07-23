@@ -44,7 +44,7 @@ describe('SetApprovalModal', () => {
   });
 
   describe('for approved license', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       store.replaceState({
         licenseManagement: {
           currentLicenseInModal: {
@@ -95,7 +95,7 @@ describe('SetApprovalModal', () => {
   });
 
   describe('for unapproved license', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       store.replaceState({
         licenseManagement: {
           currentLicenseInModal: {
@@ -147,7 +147,7 @@ describe('SetApprovalModal', () => {
   });
 
   describe('for blacklisted license', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       store.replaceState({
         licenseManagement: {
           currentLicenseInModal: {
@@ -198,7 +198,7 @@ describe('SetApprovalModal', () => {
   });
 
   describe('for user without the rights to manage licenses', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       store.replaceState({
         licenseManagement: {
           currentLicenseInModal: {
@@ -319,7 +319,7 @@ describe('SetApprovalModal', () => {
     });
   });
 
-  it('does not render a XSS link', done => {
+  it('does not render a XSS link', (done) => {
     // eslint-disable-next-line no-script-url
     const badURL = 'javascript:alert("")';
 

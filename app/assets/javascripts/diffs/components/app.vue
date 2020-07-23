@@ -113,19 +113,19 @@ export default {
   },
   computed: {
     ...mapState({
-      isLoading: state => state.diffs.isLoading,
-      isBatchLoading: state => state.diffs.isBatchLoading,
-      diffFiles: state => state.diffs.diffFiles,
-      diffViewType: state => state.diffs.diffViewType,
-      mergeRequestDiffs: state => state.diffs.mergeRequestDiffs,
-      mergeRequestDiff: state => state.diffs.mergeRequestDiff,
-      commit: state => state.diffs.commit,
-      renderOverflowWarning: state => state.diffs.renderOverflowWarning,
-      numTotalFiles: state => state.diffs.realSize,
-      numVisibleFiles: state => state.diffs.size,
-      plainDiffPath: state => state.diffs.plainDiffPath,
-      emailPatchPath: state => state.diffs.emailPatchPath,
-      retrievingBatches: state => state.diffs.retrievingBatches,
+      isLoading: (state) => state.diffs.isLoading,
+      isBatchLoading: (state) => state.diffs.isBatchLoading,
+      diffFiles: (state) => state.diffs.diffFiles,
+      diffViewType: (state) => state.diffs.diffViewType,
+      mergeRequestDiffs: (state) => state.diffs.mergeRequestDiffs,
+      mergeRequestDiff: (state) => state.diffs.mergeRequestDiff,
+      commit: (state) => state.diffs.commit,
+      renderOverflowWarning: (state) => state.diffs.renderOverflowWarning,
+      numTotalFiles: (state) => state.diffs.realSize,
+      numVisibleFiles: (state) => state.diffs.size,
+      plainDiffPath: (state) => state.diffs.plainDiffPath,
+      emailPatchPath: (state) => state.diffs.emailPatchPath,
+      retrievingBatches: (state) => state.diffs.retrievingBatches,
     }),
     ...mapState('diffs', ['showTreeList', 'isLoading', 'startVersion', 'currentDiffFileId']),
     ...mapGetters('diffs', ['isParallelView', 'currentDiffIndex']),
@@ -209,12 +209,7 @@ export default {
     const id = window?.location?.hash;
 
     if (id && id.indexOf('#note') !== 0) {
-      this.setHighlightedRow(
-        id
-          .split('diff-content')
-          .pop()
-          .slice(1),
-      );
+      this.setHighlightedRow(id.split('diff-content').pop().slice(1));
     }
   },
   created() {
@@ -337,10 +332,7 @@ export default {
     },
     setDiscussions() {
       requestIdleCallback(
-        () =>
-          this.assignDiscussionsToDiff()
-            .then(this.$nextTick)
-            .then(this.startTaskList),
+        () => this.assignDiscussionsToDiff().then(this.$nextTick).then(this.startTaskList),
         { timeout: 1000 },
       );
     },

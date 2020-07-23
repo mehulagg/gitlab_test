@@ -13,7 +13,7 @@ export default () => {
         list: listModule,
       },
     }),
-    render: h =>
+    render: (h) =>
       h(ReleaseListApp, {
         props: el.dataset,
       }),

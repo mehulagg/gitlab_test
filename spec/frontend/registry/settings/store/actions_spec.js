@@ -13,7 +13,7 @@ describe('Actions Registry Store', () => {
   `(
     '$actionName invokes $mutationName with payload $payload',
     ({ actionName, mutationName, payload }) => {
-      it('should set state', done => {
+      it('should set state', (done) => {
         testAction(actions[actionName], payload, {}, [{ type: mutationName, payload }], [], done);
       });
     },
@@ -42,7 +42,7 @@ describe('Actions Registry Store', () => {
       },
     };
 
-    it('should fetch the data from the API', done => {
+    it('should fetch the data from the API', (done) => {
       Api.project = jest.fn().mockResolvedValue(payload);
       testAction(
         actions.fetchSettings,
@@ -71,7 +71,7 @@ describe('Actions Registry Store', () => {
       },
     };
 
-    it('should fetch the data from the API', done => {
+    it('should fetch the data from the API', (done) => {
       Api.updateProject = jest.fn().mockResolvedValue(payload);
       testAction(
         actions.saveSettings,

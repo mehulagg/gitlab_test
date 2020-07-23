@@ -30,7 +30,7 @@ const groupsSelect = () => {
           axios[params.type.toLowerCase()](params.url, {
             params: params.data,
           })
-            .then(res => {
+            .then((res) => {
               const results = res.data || [];
               const headers = normalizeHeaders(res.headers);
               const currentPage = parseInt(headers['X-PAGE'], 10) || 0;
@@ -59,7 +59,7 @@ const groupsSelect = () => {
 
           const groups = data.length ? data : data.results || [];
           const more = data.pagination ? data.pagination.more : false;
-          const results = groups.filter(group => skipGroups.indexOf(group.id) === -1);
+          const results = groups.filter((group) => skipGroups.indexOf(group.id) === -1);
 
           return {
             results,

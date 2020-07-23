@@ -11,7 +11,7 @@ export const isValidDesignFile = ({ type }) =>
  * @param {Array} elements
  */
 
-export const extractNodes = elements => elements.edges.map(({ node }) => node);
+export const extractNodes = (elements) => elements.edges.map(({ node }) => node);
 
 /**
  * Returns formatted array of discussions that doesn't contain
@@ -20,7 +20,7 @@ export const extractNodes = elements => elements.edges.map(({ node }) => node);
  * @param {Array} discussions
  */
 
-export const extractDiscussions = discussions =>
+export const extractDiscussions = (discussions) =>
   discussions.nodes.map((discussion, index) => ({
     ...discussion,
     index: index + 1,
@@ -34,22 +34,22 @@ export const extractDiscussions = discussions =>
  */
 
 export const extractCurrentDiscussion = (discussions, id) =>
-  discussions.nodes.find(discussion => discussion.id === id);
+  discussions.nodes.find((discussion) => discussion.id === id);
 
-export const findVersionId = id => (id.match('::Version/(.+$)') || [])[1];
+export const findVersionId = (id) => (id.match('::Version/(.+$)') || [])[1];
 
-export const findNoteId = id => (id.match('DiffNote/(.+$)') || [])[1];
+export const findNoteId = (id) => (id.match('DiffNote/(.+$)') || [])[1];
 
-export const extractDesigns = data => data.project.issue.designCollection.designs.edges;
+export const extractDesigns = (data) => data.project.issue.designCollection.designs.edges;
 
-export const extractDesign = data => (extractDesigns(data) || [])[0]?.node;
+export const extractDesign = (data) => (extractDesigns(data) || [])[0]?.node;
 
 /**
  * Generates optimistic response for a design upload mutation
  * @param {Array<File>} files
  */
-export const designUploadOptimisticResponse = files => {
-  const designs = files.map(file => ({
+export const designUploadOptimisticResponse = (files) => {
+  const designs = files.map((file) => ({
     // False positive i18n lint: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26
     // eslint-disable-next-line @gitlab/require-i18n-strings
     __typename: 'Design',
@@ -117,12 +117,12 @@ export const updateImageDiffNoteOptimisticResponse = (note, { position }) => ({
   },
 });
 
-const normalizeAuthor = author => ({
+const normalizeAuthor = (author) => ({
   ...author,
   web_url: author.webUrl,
   avatar_url: author.avatarUrl,
 });
 
-export const extractParticipants = users => users.edges.map(({ node }) => normalizeAuthor(node));
+export const extractParticipants = (users) => users.edges.map(({ node }) => normalizeAuthor(node));
 
 export const getPageLayoutElement = () => document.querySelector('.layout-page');

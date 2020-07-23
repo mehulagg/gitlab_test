@@ -295,7 +295,7 @@ describe('monitoring/utils', () => {
       ${'NOT_A_GROUP'} | ${title}         | ${yLabel}          | ${'group'}
       ${group}         | ${'NOT_A_TITLE'} | ${yLabel}          | ${'title'}
       ${group}         | ${title}         | ${'NOT_A_Y_LABEL'} | ${'y_label'}
-    `('throws an error when $missingField is incorrect', params => {
+    `('throws an error when $missingField is incorrect', (params) => {
       const search = `?group=${params.group}&title=${params.title}&y_label=${params.yLabel}`;
       expect(() => expandedPanelPayloadFromUrl(metricsDashboardViewModel, search)).toThrow();
     });
@@ -308,7 +308,7 @@ describe('monitoring/utils', () => {
     const [panelGroup] = metricsDashboardViewModel.panelGroups;
     const [panel] = panelGroup.panels;
 
-    const getUrlParams = url => urlUtils.queryToObject(url.split('?')[1]);
+    const getUrlParams = (url) => urlUtils.queryToObject(url.split('?')[1]);
 
     it('returns URL for a panel when query parameters are given', () => {
       const params = getUrlParams(panelToUrl(dashboard, {}, panelGroup.group, panel));
@@ -425,11 +425,14 @@ describe('monitoring/utils', () => {
 
   describe('convertVariablesForURL', () => {
     it.each`
-      input                                                               | expected
-      ${[]}                                                               | ${{}}
-      ${[{ name: 'env', value: 'prod' }]}                                 | ${{ 'var-env': 'prod' }}
-      ${[{ name: 'env1', value: 'prod' }, { name: 'env2', value: null }]} | ${{ 'var-env1': 'prod' }}
-      ${[{ name: 'var-env', value: 'prod' }]}                             | ${{ 'var-var-env': 'prod' }}
+      input                                   | expected
+      ${[]}                                   | ${{}}
+      ${[{ name: 'env', value: 'prod' }]}     | ${{ 'var-env': 'prod' }}
+      ${[
+  { name: 'env1', value: 'prod' },
+  { name: 'env2', value: null },
+]} | ${{ 'var-env1': 'prod' }}
+      ${[{ name: 'var-env', value: 'prod' }]} | ${{ 'var-var-env': 'prod' }}
     `('convertVariablesForURL returns $expected with input $input', ({ input, expected }) => {
       expect(monitoringUtils.convertVariablesForURL(input)).toEqual(expected);
     });
@@ -445,10 +448,13 @@ describe('monitoring/utils', () => {
     });
 
     it.each`
-      input                                                               | urlParams
-      ${[]}                                                               | ${''}
-      ${[{ name: 'env', value: 'prod' }]}                                 | ${'?var-env=prod'}
-      ${[{ name: 'env1', value: 'prod' }, { name: 'env2', value: null }]} | ${'?var-env=prod&var-env1=prod'}
+      input                               | urlParams
+      ${[]}                               | ${''}
+      ${[{ name: 'env', value: 'prod' }]} | ${'?var-env=prod'}
+      ${[
+  { name: 'env1', value: 'prod' },
+  { name: 'env2', value: null },
+]} | ${'?var-env=prod&var-env1=prod'}
     `(
       'setCustomVariablesFromUrl updates history with query "$urlParams" with input $input',
       ({ input, urlParams }) => {

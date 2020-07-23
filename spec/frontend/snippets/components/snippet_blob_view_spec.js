@@ -74,7 +74,7 @@ describe('Blob Embeddable', () => {
 
     it.each([SNIPPET_VISIBILITY_INTERNAL, SNIPPET_VISIBILITY_PRIVATE, 'foo'])(
       'does not render blob-embeddable by default',
-      visibilityLevel => {
+      (visibilityLevel) => {
         createComponent({
           snippetProps: {
             visibilityLevel,

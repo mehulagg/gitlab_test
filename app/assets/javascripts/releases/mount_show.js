@@ -15,6 +15,6 @@ export default () => {
   return new Vue({
     el,
     store,
-    render: h => h(ReleaseShowApp),
+    render: (h) => h(ReleaseShowApp),
   });
 };

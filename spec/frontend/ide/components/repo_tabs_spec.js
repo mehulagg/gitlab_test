@@ -12,7 +12,7 @@ describe('RepoTabs', () => {
     vm.$destroy();
   });
 
-  it('renders a list of tabs', done => {
+  it('renders a list of tabs', (done) => {
     vm = createComponent(RepoTabs, {
       files: openedFiles,
       viewer: 'editor',

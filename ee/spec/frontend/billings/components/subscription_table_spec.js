@@ -15,7 +15,7 @@ describe('SubscriptionTable component', () => {
   let wrapper;
 
   const findButtonProps = () =>
-    wrapper.findAll('a').wrappers.map(x => ({ text: x.text(), href: x.attributes('href') }));
+    wrapper.findAll('a').wrappers.map((x) => ({ text: x.text(), href: x.attributes('href') }));
 
   const factory = (options = {}) => {
     store = createStore();
@@ -70,12 +70,7 @@ describe('SubscriptionTable component', () => {
     });
 
     it('should render the card title "GitLab.com: Gold"', () => {
-      expect(
-        wrapper
-          .find('.js-subscription-header strong')
-          .text()
-          .trim(),
-      ).toBe('GitLab.com: Gold');
+      expect(wrapper.find('.js-subscription-header strong').text().trim()).toBe('GitLab.com: Gold');
     });
 
     it('should render a "Usage" and a "Billing" row', () => {

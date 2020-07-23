@@ -3,19 +3,19 @@ import { mount } from '@vue/test-utils';
 import stubChildren from 'helpers/stub_children';
 import { trimText } from 'helpers/text_helper';
 
-const generateOption = index => ({
+const generateOption = (index) => ({
   name: `Option ${index}`,
   id: `option-${index}`,
 });
 
-const generateOptions = length => {
+const generateOptions = (length) => {
   return Array.from({ length }).map((_, i) => generateOption(i));
 };
 
 describe('Filter component', () => {
   let wrapper;
 
-  const createWrapper = propsData => {
+  const createWrapper = (propsData) => {
     wrapper = mount(Filter, {
       stubs: {
         ...stubChildren(Filter),
@@ -82,7 +82,7 @@ describe('Filter component', () => {
     });
 
     describe('when the dropdown is open', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         findDropdownToggle().trigger('click');
         wrapper.vm.$root.$on('bv::dropdown::shown', () => {
           done();

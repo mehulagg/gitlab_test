@@ -12,7 +12,7 @@ function createHeaderApp() {
   return new Vue({
     el,
 
-    render: h =>
+    render: (h) =>
       h(HeaderApp, {
         props: {
           initialVulnerability: vulnerability,
@@ -27,7 +27,7 @@ function createDetailsApp() {
 
   return new Vue({
     el,
-    render: h => h(DetailsApp, { props: { vulnerability } }),
+    render: (h) => h(DetailsApp, { props: { vulnerability } }),
   });
 }
 
@@ -79,7 +79,7 @@ function createFooterApp() {
 
   return new Vue({
     el,
-    render: h =>
+    render: (h) =>
       h(FooterApp, {
         props,
       }),

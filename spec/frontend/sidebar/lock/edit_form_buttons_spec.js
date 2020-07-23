@@ -4,7 +4,7 @@ import EditFormButtons from '~/sidebar/components/lock/edit_form_buttons.vue';
 describe('EditFormButtons', () => {
   let wrapper;
 
-  const mountComponent = propsData => shallowMount(EditFormButtons, { propsData });
+  const mountComponent = (propsData) => shallowMount(EditFormButtons, { propsData });
 
   afterEach(() => {
     wrapper.destroy();

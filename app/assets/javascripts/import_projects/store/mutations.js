@@ -36,7 +36,7 @@ export default {
       state.reposBeingImported.splice(existingRepoIndex, 1);
 
     const providerRepoIndex = state.providerRepos.findIndex(
-      providerRepo => providerRepo.id === repoId,
+      (providerRepo) => providerRepo.id === repoId,
     );
     state.providerRepos.splice(providerRepoIndex, 1);
     state.importedProjects.unshift(importedProject);
@@ -48,9 +48,9 @@ export default {
   },
 
   [types.RECEIVE_JOBS_SUCCESS](state, updatedProjects) {
-    updatedProjects.forEach(updatedProject => {
+    updatedProjects.forEach((updatedProject) => {
       const existingProject = state.importedProjects.find(
-        importedProject => importedProject.id === updatedProject.id,
+        (importedProject) => importedProject.id === updatedProject.id,
       );
 
       Vue.set(existingProject, 'importStatus', updatedProject.importStatus);

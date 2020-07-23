@@ -366,7 +366,7 @@ describe('Vulnerability Header', () => {
   describe('vulnerability user watcher', () => {
     it.each(vulnerabilityStateEntries)(
       `loads the correct user for the vulnerability state "%s"`,
-      state => {
+      (state) => {
         const user = createRandomUser();
         createWrapper({ state, [`${state}_by_id`]: user.id });
 

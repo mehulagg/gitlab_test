@@ -35,7 +35,7 @@ describe('Ref selector component', () => {
       },
       listeners: {
         // simulate a parent component v-model binding
-        input: selectedRef => {
+        input: (selectedRef) => {
           wrapper.setProps({ value: selectedRef });
         },
       },
@@ -59,13 +59,13 @@ describe('Ref selector component', () => {
 
     mock
       .onGet(`/api/v4/projects/${projectId}/repository/branches`)
-      .reply(config => branchesApiCallSpy(config));
+      .reply((config) => branchesApiCallSpy(config));
     mock
       .onGet(`/api/v4/projects/${projectId}/repository/tags`)
-      .reply(config => tagsApiCallSpy(config));
+      .reply((config) => tagsApiCallSpy(config));
     mock
       .onGet(new RegExp(`/api/v4/projects/${projectId}/repository/commits/.*`))
-      .reply(config => commitApiCallSpy(config));
+      .reply((config) => commitApiCallSpy(config));
   });
 
   afterEach(() => {
@@ -118,7 +118,7 @@ describe('Ref selector component', () => {
   //
   // Convenience methods
   //
-  const updateQuery = newQuery => {
+  const updateQuery = (newQuery) => {
     wrapper.find(GlSearchBoxByType).vm.$emit('input', newQuery);
   };
 
@@ -274,11 +274,9 @@ describe('Ref selector component', () => {
         });
 
         it('renders the "Branches" heading with a total number indicator', () => {
-          expect(
-            findBranchesSection()
-              .find('[data-testid="section-header"]')
-              .text(),
-          ).toBe('Branches 123');
+          expect(findBranchesSection().find('[data-testid="section-header"]').text()).toBe(
+            'Branches 123',
+          );
         });
 
         it("does not render an error message in the branches section's body", () => {
@@ -298,7 +296,7 @@ describe('Ref selector component', () => {
         it('renders the default branch as a selectable item with a "default" badge', () => {
           const dropdownItems = findBranchDropdownItems();
 
-          const defaultBranch = fixtures.branches.find(b => b.default);
+          const defaultBranch = fixtures.branches.find((b) => b.default);
           const defaultBranchIndex = fixtures.branches.indexOf(defaultBranch);
 
           expect(trimText(dropdownItems.at(defaultBranchIndex).text())).toBe(
@@ -353,11 +351,7 @@ describe('Ref selector component', () => {
         });
 
         it('renders the "Tags" heading with a total number indicator', () => {
-          expect(
-            findTagsSection()
-              .find('[data-testid="section-header"]')
-              .text(),
-          ).toBe('Tags 456');
+          expect(findTagsSection().find('[data-testid="section-header"]').text()).toBe('Tags 456');
         });
 
         it("does not render an error message in the tags section's body", () => {
@@ -421,11 +415,9 @@ describe('Ref selector component', () => {
         });
 
         it('renders the "Commits" heading with a total number indicator', () => {
-          expect(
-            findCommitsSection()
-              .find('[data-testid="section-header"]')
-              .text(),
-          ).toBe('Commits 1');
+          expect(findCommitsSection().find('[data-testid="section-header"]').text()).toBe(
+            'Commits 1',
+          );
         });
 
         it("does not render an error message in the comits section's body", () => {

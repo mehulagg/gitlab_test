@@ -20,12 +20,7 @@ describe('Insights config warning component', () => {
   });
 
   it('renders the component', () => {
-    expect(
-      wrapper
-        .findAll('.content-image')
-        .at(0)
-        .attributes('src'),
-    ).toContain(image);
+    expect(wrapper.findAll('.content-image').at(0).attributes('src')).toContain(image);
 
     expect(wrapper.find('.content-title').text()).toBe(title);
     expect(wrapper.find('.content-summary').text()).toBe(summary);

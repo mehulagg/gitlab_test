@@ -4,7 +4,7 @@ import GlCountdown from '~/vue_shared/components/gl_countdown.vue';
 document.addEventListener('DOMContentLoaded', () => {
   const remainingTimeElements = document.querySelectorAll('.js-remaining-time');
   remainingTimeElements.forEach(
-    el =>
+    (el) =>
       new Vue({
         ...GlCountdown,
         el,

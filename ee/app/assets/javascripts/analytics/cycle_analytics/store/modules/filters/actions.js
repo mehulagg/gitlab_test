@@ -4,7 +4,7 @@ import { __ } from '~/locale';
 import Api from '~/api';
 import * as types from './mutation_types';
 
-const appendExtension = path => (path.indexOf('.') > -1 ? path : `${path}.json`);
+const appendExtension = (path) => (path.indexOf('.') > -1 ? path : `${path}.json`);
 
 // TODO: After we remove instance VSA we can rely on the paths from the BE
 // https://gitlab.com/gitlab-org/gitlab/-/issues/223735

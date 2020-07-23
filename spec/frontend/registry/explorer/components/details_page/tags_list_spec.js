@@ -8,7 +8,7 @@ import { tagsListResponse } from '../../mock_data';
 describe('Tags List', () => {
   let wrapper;
   const tags = [...tagsListResponse.data];
-  const readOnlyTags = tags.map(t => ({ ...t, destroy_path: undefined }));
+  const readOnlyTags = tags.map((t) => ({ ...t, destroy_path: undefined }));
 
   const findTagsListRow = () => wrapper.findAll(TagsListRow);
   const findDeleteButton = () => wrapper.find(GlButton);
@@ -78,18 +78,14 @@ describe('Tags List', () => {
 
     it('is enabled when at least one item is selected', async () => {
       mountComponent();
-      findTagsListRow()
-        .at(0)
-        .vm.$emit('select');
+      findTagsListRow().at(0).vm.$emit('select');
       await wrapper.vm.$nextTick();
       expect(findDeleteButton().attributes('disabled')).toBe(undefined);
     });
 
     it('click event emits a deleted event with selected items', () => {
       mountComponent();
-      findTagsListRow()
-        .at(0)
-        .vm.$emit('select');
+      findTagsListRow().at(0).vm.$emit('select');
 
       findDeleteButton().vm.$emit('click');
       expect(wrapper.emitted('delete')).toEqual([[{ centos6: true }]]);
@@ -123,22 +119,14 @@ describe('Tags List', () => {
     describe('events', () => {
       it('select event update the selected items', async () => {
         mountComponent();
-        findTagsListRow()
-          .at(0)
-          .vm.$emit('select');
+        findTagsListRow().at(0).vm.$emit('select');
         await wrapper.vm.$nextTick();
-        expect(
-          findTagsListRow()
-            .at(0)
-            .attributes('selected'),
-        ).toBe('true');
+        expect(findTagsListRow().at(0).attributes('selected')).toBe('true');
       });
 
       it('delete event emit a delete event', () => {
         mountComponent();
-        findTagsListRow()
-          .at(0)
-          .vm.$emit('delete');
+        findTagsListRow().at(0).vm.$emit('delete');
         expect(wrapper.emitted('delete')).toEqual([[{ centos6: true }]]);
       });
     });

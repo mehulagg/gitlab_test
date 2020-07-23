@@ -151,7 +151,7 @@ export default {
         });
     },
     updateMapping(jiraAccountId, gitlabId, gitlabUsername) {
-      this.userMappings = this.userMappings.map(userMapping =>
+      this.userMappings = this.userMappings.map((userMapping) =>
         userMapping.jiraAccountId === jiraAccountId
           ? {
               ...userMapping,

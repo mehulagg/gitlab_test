@@ -162,9 +162,9 @@ describe('GfmAutoComplete', () => {
     const jointAllowedSymbols = allowedSymbols.join('');
 
     describe('should match regular symbols', () => {
-      flagsUseDefaultMatcher.forEach(flag => {
-        allowedSymbols.forEach(symbol => {
-          argumentSize.forEach(size => {
+      flagsUseDefaultMatcher.forEach((flag) => {
+        allowedSymbols.forEach((symbol) => {
+          argumentSize.forEach((size) => {
             const query = new Array(size + 1).join(symbol);
             const subtext = flag + query;
 
@@ -186,8 +186,8 @@ describe('GfmAutoComplete', () => {
       const shouldNotBeFollowedBy = flags.concat(['\x00', '\x10', '\x3f', '\n', ' ']);
       const shouldNotBePrependedBy = ['`'];
 
-      flagsUseDefaultMatcher.forEach(atSign => {
-        shouldNotBeFollowedBy.forEach(followedSymbol => {
+      flagsUseDefaultMatcher.forEach((atSign) => {
+        shouldNotBeFollowedBy.forEach((followedSymbol) => {
           const seq = atSign + followedSymbol;
 
           it(`should not match ${JSON.stringify(seq)}`, () => {
@@ -195,7 +195,7 @@ describe('GfmAutoComplete', () => {
           });
         });
 
-        shouldNotBePrependedBy.forEach(prependedSymbol => {
+        shouldNotBePrependedBy.forEach((prependedSymbol) => {
           const seq = prependedSymbol + atSign;
 
           it(`should not match "${seq}"`, () => {
@@ -412,8 +412,8 @@ describe('GfmAutoComplete', () => {
     };
 
     const allLabels = labelsFixture;
-    const assignedLabels = allLabels.filter(label => label.set);
-    const unassignedLabels = allLabels.filter(label => !label.set);
+    const assignedLabels = allLabels.filter((label) => label.set);
+    const unassignedLabels = allLabels.filter((label) => !label.set);
 
     let autocomplete;
     let $textarea;
@@ -428,11 +428,8 @@ describe('GfmAutoComplete', () => {
       autocomplete.destroy();
     });
 
-    const triggerDropdown = text => {
-      $textarea
-        .trigger('focus')
-        .val(text)
-        .caret('pos', -1);
+    const triggerDropdown = (text) => {
+      $textarea.trigger('focus').val(text).caret('pos', -1);
       $textarea.trigger('keyup');
 
       return new Promise(window.requestAnimationFrame);
@@ -441,12 +438,12 @@ describe('GfmAutoComplete', () => {
     const getDropdownItems = () => {
       const dropdown = document.getElementById('at-view-labels');
       const items = dropdown.getElementsByTagName('li');
-      return [].map.call(items, item => item.textContent.trim());
+      return [].map.call(items, (item) => item.textContent.trim());
     };
 
     const expectLabels = ({ input, output }) =>
       triggerDropdown(input).then(() => {
-        expect(getDropdownItems()).toEqual(output.map(label => label.title));
+        expect(getDropdownItems()).toEqual(output.map((label) => label.title));
       });
 
     describe('with no labels assigned', () => {

@@ -5,7 +5,7 @@ import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 describe('clipboard button', () => {
   let wrapper;
 
-  const createWrapper = propsData => {
+  const createWrapper = (propsData) => {
     wrapper = shallowMount(ClipboardButton, {
       propsData,
     });

@@ -53,7 +53,7 @@ export default {
     },
     onClick({ stage, isMarking }) {
       this.selectedStages = isMarking
-        ? this.selectedStages.filter(s => s.id !== stage.id)
+        ? this.selectedStages.filter((s) => s.id !== stage.id)
         : this.selectedStages.concat([stage]);
 
       this.$emit('selected', this.selectedStages);

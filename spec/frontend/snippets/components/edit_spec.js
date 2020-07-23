@@ -329,7 +329,7 @@ describe('Snippet Edit app', () => {
     });
 
     describe('correctly includes attached files into the mutation', () => {
-      const createMutationPayload = expectation => {
+      const createMutationPayload = (expectation) => {
         return expect.objectContaining({
           variables: {
             input: expect.objectContaining({ uploadedFiles: expectation }),
@@ -357,7 +357,7 @@ describe('Snippet Edit app', () => {
           },
         });
 
-        const fixtures = paths.map(path => {
+        const fixtures = paths.map((path) => {
           return path ? `<input name="files[]" value="${path}">` : undefined;
         });
         wrapper.vm.$el.innerHTML += fixtures.join('');
@@ -379,7 +379,7 @@ describe('Snippet Edit app', () => {
       let event;
       let returnValueSetter;
 
-      const bootstrap = data => {
+      const bootstrap = (data) => {
         createComponent({
           data,
         });

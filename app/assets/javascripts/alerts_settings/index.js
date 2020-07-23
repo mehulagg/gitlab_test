@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import AlertSettingsForm from './components/alerts_settings_form.vue';
 
-export default el => {
+export default (el) => {
   if (!el) {
     return null;
   }

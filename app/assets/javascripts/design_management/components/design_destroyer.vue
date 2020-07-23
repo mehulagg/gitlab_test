@@ -31,12 +31,7 @@ export default {
     },
   },
   methods: {
-    updateStoreAfterDelete(
-      store,
-      {
-        data: { designManagementDelete },
-      },
-    ) {
+    updateStoreAfterDelete(store, { data: { designManagementDelete } }) {
       updateStoreAfterDesignsDelete(
         store,
         designManagementDelete,

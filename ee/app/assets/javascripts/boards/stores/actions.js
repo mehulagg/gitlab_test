@@ -49,9 +49,9 @@ const fetchEpics = ({ endpoints }) => {
     .then(({ data }) => {
       const { group } = data;
       const epics = group?.epics.nodes || [];
-      return epics.map(e => ({
+      return epics.map((e) => ({
         ...e,
-        issues: (e?.issues?.nodes || []).map(i => ({
+        issues: (e?.issues?.nodes || []).map((i) => ({
           ...i,
           labels: i.labels?.nodes || [],
           assignees: i.assignees?.nodes || [],

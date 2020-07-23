@@ -29,7 +29,7 @@ export const addFreezePeriod = ({ state, dispatch, commit }) => {
       commit(types.RESET_MODAL);
       dispatch('fetchFreezePeriods');
     })
-    .catch(error => {
+    .catch((error) => {
       createFlash(__('Error: Unable to create deploy freeze'));
       dispatch('receiveAddFreezePeriodError', error);
     });
@@ -39,10 +39,10 @@ export const requestFreezePeriods = ({ commit }) => {
   commit(types.REQUEST_FREEZE_PERIODS);
 };
 export const receiveFreezePeriodsSuccess = ({ state, commit }, freezePeriods) => {
-  const addTimezoneIdentifier = freezePeriod =>
+  const addTimezoneIdentifier = (freezePeriod) =>
     convertObjectPropsToCamelCase({
       ...freezePeriod,
-      cron_timezone: state.timezoneData.find(tz => tz.identifier === freezePeriod.cron_timezone)
+      cron_timezone: state.timezoneData.find((tz) => tz.identifier === freezePeriod.cron_timezone)
         ?.name,
     });
 

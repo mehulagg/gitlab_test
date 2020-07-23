@@ -11,7 +11,7 @@ localVue.use(Vuex);
 
 const TEST_RULE = { id: 10 };
 
-const findButtonLabel = button => {
+const findButtonLabel = (button) => {
   const icon = button.find(Icon);
   return icon.exists() ? icon.attributes('aria-label') : button.text();
 };
@@ -32,14 +32,17 @@ describe('EE Approvals RuleControls', () => {
     });
   };
   const findButtons = () => wrapper.findAll(GlButton);
-  const findButton = label => findButtons().filter(button => hasLabel(button, label)).wrappers[0];
+  const findButton = (label) =>
+    findButtons().filter((button) => hasLabel(button, label)).wrappers[0];
   const findEditButton = () => findButton('Edit');
   const findRemoveButton = () => findButton('Remove');
 
   beforeEach(() => {
     store = createStoreOptions(MREditModule());
     ({ actions } = store.modules.approvals);
-    ['requestEditRule', 'requestDeleteRule'].forEach(actionName => jest.spyOn(actions, actionName));
+    ['requestEditRule', 'requestDeleteRule'].forEach((actionName) =>
+      jest.spyOn(actions, actionName),
+    );
   });
 
   afterEach(() => {

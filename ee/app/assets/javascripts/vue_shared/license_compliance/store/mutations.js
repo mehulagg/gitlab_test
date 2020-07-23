@@ -116,6 +116,6 @@ export default {
     state.pendingLicenses.push(id);
   },
   [types.REMOVE_PENDING_LICENSE](state, id) {
-    state.pendingLicenses = state.pendingLicenses.filter(pendingLicense => pendingLicense !== id);
+    state.pendingLicenses = state.pendingLicenses.filter((pendingLicense) => pendingLicense !== id);
   },
 };

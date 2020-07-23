@@ -165,8 +165,8 @@ export default {
       this.isMakingRequest = true;
       this.service
         .merge(options)
-        .then(res => res.data)
-        .then(data => {
+        .then((res) => res.data)
+        .then((data) => {
           const hasError = data.status === 'failed' || data.status === 'hook_validation_error';
 
           if (AUTO_MERGE_STRATEGIES.includes(data.status)) {
@@ -203,8 +203,8 @@ export default {
     handleMergePolling(continuePolling, stopPolling) {
       this.service
         .poll()
-        .then(res => res.data)
-        .then(data => {
+        .then((res) => res.data)
+        .then((data) => {
           if (data.state === 'merged') {
             // If state is merged we should update the widget and stop the polling
             eventHub.$emit('MRWidgetUpdateRequested');
@@ -245,8 +245,8 @@ export default {
     handleRemoveBranchPolling(continuePolling, stopPolling) {
       this.service
         .poll()
-        .then(res => res.data)
-        .then(data => {
+        .then((res) => res.data)
+        .then((data) => {
           // If source branch exists then we should continue polling
           // because removing a source branch is a background task and takes time
           if (data.source_branch_exists) {

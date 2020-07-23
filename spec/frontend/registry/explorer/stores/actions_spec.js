@@ -21,7 +21,7 @@ describe('Actions RegistryExplorer Store', () => {
     mock.restore();
   });
 
-  it('sets initial state', done => {
+  it('sets initial state', (done) => {
     const initialState = {
       config: {
         endpoint,
@@ -38,7 +38,7 @@ describe('Actions RegistryExplorer Store', () => {
     );
   });
 
-  it('setShowGarbageCollectionTip', done => {
+  it('setShowGarbageCollectionTip', (done) => {
     testAction(
       actions.setShowGarbageCollectionTip,
       true,
@@ -58,7 +58,7 @@ describe('Actions RegistryExplorer Store', () => {
       },
     };
 
-    it('images list response', done => {
+    it('images list response', (done) => {
       testAction(
         actions.receiveImagesListSuccess,
         response,
@@ -72,7 +72,7 @@ describe('Actions RegistryExplorer Store', () => {
       );
     });
 
-    it('tags list response', done => {
+    it('tags list response', (done) => {
       testAction(
         actions.receiveTagsListSuccess,
         response,
@@ -88,7 +88,7 @@ describe('Actions RegistryExplorer Store', () => {
   });
 
   describe('fetch images list', () => {
-    it('sets the imagesList and pagination', done => {
+    it('sets the imagesList and pagination', (done) => {
       mock.onGet(endpoint).replyOnce(200, reposServerResponse, {});
 
       testAction(
@@ -108,7 +108,7 @@ describe('Actions RegistryExplorer Store', () => {
       );
     });
 
-    it('should create flash on error', done => {
+    it('should create flash on error', (done) => {
       testAction(
         actions.requestImagesList,
         {},
@@ -134,7 +134,7 @@ describe('Actions RegistryExplorer Store', () => {
     const url = `${endpoint}/1}`;
     const params = window.btoa(JSON.stringify({ tags_path: `${endpoint}/1}` }));
 
-    it('sets the tagsList', done => {
+    it('sets the tagsList', (done) => {
       mock.onGet(url).replyOnce(200, registryServerResponse, {});
 
       testAction(
@@ -155,7 +155,7 @@ describe('Actions RegistryExplorer Store', () => {
       );
     });
 
-    it('should create flash on error', done => {
+    it('should create flash on error', (done) => {
       testAction(
         actions.requestTagsList,
         { params },
@@ -174,7 +174,7 @@ describe('Actions RegistryExplorer Store', () => {
   });
 
   describe('request delete single tag', () => {
-    it('successfully performs the delete request', done => {
+    it('successfully performs the delete request', (done) => {
       const deletePath = 'delete/path';
       const params = window.btoa(JSON.stringify({ tags_path: `${endpoint}/1}`, id: 1 }));
 
@@ -209,7 +209,7 @@ describe('Actions RegistryExplorer Store', () => {
       );
     });
 
-    it('should turn off loading on error', done => {
+    it('should turn off loading on error', (done) => {
       testAction(
         actions.requestDeleteTag,
         {
@@ -231,7 +231,7 @@ describe('Actions RegistryExplorer Store', () => {
     const url = `project-path/registry/repository/foo/tags`;
     const params = window.btoa(JSON.stringify({ tags_path: `${url}?format=json` }));
 
-    it('successfully performs the delete request', done => {
+    it('successfully performs the delete request', (done) => {
       mock.onDelete(`${url}/bulk_destroy`).replyOnce(200);
 
       testAction(
@@ -261,7 +261,7 @@ describe('Actions RegistryExplorer Store', () => {
       );
     });
 
-    it('should turn off loading on error', done => {
+    it('should turn off loading on error', (done) => {
       mock.onDelete(url).replyOnce(500);
 
       testAction(
@@ -287,7 +287,7 @@ describe('Actions RegistryExplorer Store', () => {
       destroy_path: 'delete/path',
     };
 
-    it('successfully performs the delete request', done => {
+    it('successfully performs the delete request', (done) => {
       mock.onDelete(image.destroy_path).replyOnce(200);
 
       testAction(
@@ -304,7 +304,7 @@ describe('Actions RegistryExplorer Store', () => {
       );
     });
 
-    it('should turn off loading on error', done => {
+    it('should turn off loading on error', (done) => {
       mock.onDelete(image.destroy_path).replyOnce(400);
       testAction(
         actions.requestDeleteImage,

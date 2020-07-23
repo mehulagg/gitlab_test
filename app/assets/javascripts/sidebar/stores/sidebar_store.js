@@ -76,12 +76,12 @@ export default class SidebarStore {
   }
 
   findAssignee(findAssignee) {
-    return this.assignees.find(assignee => assignee.id === findAssignee.id);
+    return this.assignees.find((assignee) => assignee.id === findAssignee.id);
   }
 
   removeAssignee(removeAssignee) {
     if (removeAssignee) {
-      this.assignees = this.assignees.filter(assignee => assignee.id !== removeAssignee.id);
+      this.assignees = this.assignees.filter((assignee) => assignee.id !== removeAssignee.id);
     }
   }
 

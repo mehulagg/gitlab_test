@@ -5,7 +5,7 @@ import Flash from '../flash';
 import LazyLoader from '../lazy_loader';
 import { togglePopover } from '../shared/popover';
 
-export const getSelector = highlightId => `.js-feature-highlight[data-highlight=${highlightId}]`;
+export const getSelector = (highlightId) => `.js-feature-highlight[data-highlight=${highlightId}]`;
 
 export function dismiss(highlightId) {
   axios

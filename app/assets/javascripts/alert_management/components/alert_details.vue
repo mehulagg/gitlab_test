@@ -160,15 +160,21 @@ export default {
             projectPath: this.projectPath,
           },
         })
-        .then(({ data: { createAlertIssue: { errors, issue } } }) => {
-          if (errors?.length) {
-            [this.createIssueError] = errors;
-            this.issueCreationInProgress = false;
-          } else if (issue) {
-            visitUrl(this.issuePath(issue.iid));
-          }
-        })
-        .catch(error => {
+        .then(
+          ({
+            data: {
+              createAlertIssue: { errors, issue },
+            },
+          }) => {
+            if (errors?.length) {
+              [this.createIssueError] = errors;
+              this.issueCreationInProgress = false;
+            } else if (issue) {
+              visitUrl(this.issuePath(issue.iid));
+            }
+          },
+        )
+        .catch((error) => {
           this.createIssueError = error;
           this.issueCreationInProgress = false;
         });

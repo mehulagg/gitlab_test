@@ -77,7 +77,7 @@ const approvedBy = {
   },
 };
 
-export default IssuableTokenKeys => {
+export default (IssuableTokenKeys) => {
   addExtraTokensForMergeRequests(IssuableTokenKeys);
   const tokenPosition = 2;
   const combinedTokens = [approvers.token, approvedBy.token];

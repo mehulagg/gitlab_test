@@ -55,7 +55,7 @@ export default {
       this.dismissSelectedVulnerabilities();
     },
     dismissSelectedVulnerabilities() {
-      const promises = this.selectedVulnerabilities.map(vulnerability =>
+      const promises = this.selectedVulnerabilities.map((vulnerability) =>
         this.$apollo.mutate({
           mutation: dismissVulnerability,
           variables: { id: vulnerability.id, comment: this.dismissalReason },

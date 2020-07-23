@@ -131,12 +131,7 @@ describe('MRWidgetConflicts', () => {
         },
       });
 
-      expect(
-        vm
-          .text()
-          .trim()
-          .replace(/\s\s+/g, ' '),
-      ).toContain('ask someone with write access');
+      expect(vm.text().trim().replace(/\s\s+/g, ' ')).toContain('ask someone with write access');
     });
 
     it('should not have action buttons', () => {

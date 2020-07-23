@@ -98,7 +98,7 @@ export default {
       'getDiscussion',
     ]),
     ...mapState({
-      currentDiscussionId: state => state.notes.currentDiscussionId,
+      currentDiscussionId: (state) => state.notes.currentDiscussionId,
     }),
   },
   methods: {

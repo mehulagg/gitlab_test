@@ -43,7 +43,7 @@ describe('Issue', () => {
       mock.restore();
     });
 
-    it(`displays warning when attempting to close the issue`, done => {
+    it(`displays warning when attempting to close the issue`, (done) => {
       setup();
 
       $btn = $('.js-issuable-close-button');
@@ -66,7 +66,7 @@ describe('Issue', () => {
       });
     });
 
-    it(`hides warning when cancelling closing the issue`, done => {
+    it(`hides warning when cancelling closing the issue`, (done) => {
       setup();
 
       $btn = $('.js-issuable-close-button');
@@ -87,7 +87,7 @@ describe('Issue', () => {
       });
     });
 
-    it('closes the issue when clicking alert close button', done => {
+    it('closes the issue when clicking alert close button', (done) => {
       $btn = $('.js-issuable-close-button');
       $boxOpen = $('div.status-box-open');
       $boxClosed = $('div.status-box-issue-closed');

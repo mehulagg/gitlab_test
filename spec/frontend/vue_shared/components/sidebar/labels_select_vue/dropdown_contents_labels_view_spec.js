@@ -270,14 +270,8 @@ describe('DropdownContentsLabelsView', () => {
     });
 
     it('renders footer list items', () => {
-      const createLabelLink = wrapper
-        .find('.dropdown-footer')
-        .findAll(GlLink)
-        .at(0);
-      const manageLabelsLink = wrapper
-        .find('.dropdown-footer')
-        .findAll(GlLink)
-        .at(1);
+      const createLabelLink = wrapper.find('.dropdown-footer').findAll(GlLink).at(0);
+      const manageLabelsLink = wrapper.find('.dropdown-footer').findAll(GlLink).at(1);
 
       expect(createLabelLink.exists()).toBe(true);
       expect(createLabelLink.text()).toBe('Create label');
@@ -289,10 +283,7 @@ describe('DropdownContentsLabelsView', () => {
       wrapper.vm.$store.state.allowLabelCreate = false;
 
       return wrapper.vm.$nextTick(() => {
-        const createLabelLink = wrapper
-          .find('.dropdown-footer')
-          .findAll(GlLink)
-          .at(0);
+        const createLabelLink = wrapper.find('.dropdown-footer').findAll(GlLink).at(0);
 
         expect(createLabelLink.text()).not.toBe('Create label');
       });

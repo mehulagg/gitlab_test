@@ -60,7 +60,7 @@ export default () => {
   const $boardApp = document.getElementById('board-app');
 
   // check for browser back and trigger a hard reload to circumvent browser caching.
-  window.addEventListener('pageshow', event => {
+  window.addEventListener('pageshow', (event) => {
     const isNavTypeBackForward =
       window.performance && window.performance.navigation.type === NavigationType.TYPE_BACK_FORWARD;
 
@@ -160,7 +160,7 @@ export default () => {
 
             const lists = this.getNodes(data);
 
-            lists.forEach(list =>
+            lists.forEach((list) =>
               boardsStore.addList({
                 ...list,
                 id: getIdFromGraphQLId(list.id),
@@ -177,9 +177,9 @@ export default () => {
       } else {
         boardsStore
           .all()
-          .then(res => res.data)
-          .then(lists => {
-            lists.forEach(list => boardsStore.addList(list));
+          .then((res) => res.data)
+          .then((lists) => {
+            lists.forEach((list) => boardsStore.addList(list));
             boardsStore.addBlankState();
             setPromotionState(boardsStore);
             this.loading = false;
@@ -202,8 +202,8 @@ export default () => {
           setEpicFetchingState(newIssue, true);
           boardsStore
             .getIssueInfo(sidebarInfoEndpoint)
-            .then(res => res.data)
-            .then(data => {
+            .then((res) => res.data)
+            .then((data) => {
               const {
                 subscribed,
                 totalTimeSpent,
@@ -313,7 +313,7 @@ export default () => {
           if (!this.store) {
             return true;
           }
-          return !this.store.lists.filter(list => !list.preset).length;
+          return !this.store.lists.filter((list) => !list.preset).length;
         },
         tooltipTitle() {
           if (this.disabled) {

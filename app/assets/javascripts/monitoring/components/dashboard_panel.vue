@@ -252,8 +252,8 @@ export default {
   methods: {
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
-      const metricIdsForChart = queries.map(q => q.metricId);
-      return pickBy(this.allAlerts, alert => metricIdsForChart.includes(alert.metricId));
+      const metricIdsForChart = queries.map((q) => q.metricId);
+      return pickBy(this.allAlerts, (alert) => metricIdsForChart.includes(alert.metricId));
     },
     getGraphAlertValues(queries) {
       return Object.values(this.getGraphAlerts(queries));

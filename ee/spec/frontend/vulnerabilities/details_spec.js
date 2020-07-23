@@ -15,7 +15,7 @@ describe('Vulnerability Details', () => {
     description: 'vulnerability description',
   };
 
-  const createWrapper = vulnerabilityOverrides => {
+  const createWrapper = (vulnerabilityOverrides) => {
     const propsData = {
       vulnerability: { ...vulnerability, ...vulnerabilityOverrides },
     };
@@ -23,9 +23,9 @@ describe('Vulnerability Details', () => {
     wrapper = mount(VulnerabilityDetails, { propsData });
   };
 
-  const getById = id => wrapper.find(`[data-testid="${id}"]`);
-  const getAllById = id => wrapper.findAll(`[data-testid="${id}"]`);
-  const getText = id => getById(id).text();
+  const getById = (id) => wrapper.find(`[data-testid="${id}"]`);
+  const getAllById = (id) => wrapper.findAll(`[data-testid="${id}"]`);
+  const getText = (id) => getById(id).text();
 
   afterEach(() => {
     wrapper.destroy();
@@ -88,13 +88,17 @@ describe('Vulnerability Details', () => {
 
   it('shows the vulnerability identifiers if they exist', () => {
     createWrapper({
-      identifiers: [{ url: '0', name: '00' }, { url: '1', name: '11' }, { url: '2', name: '22' }],
+      identifiers: [
+        { url: '0', name: '00' },
+        { url: '1', name: '11' },
+        { url: '2', name: '22' },
+      ],
     });
 
     const identifiers = getAllById('identifier');
     expect(identifiers).toHaveLength(3);
 
-    const checkIdentifier = index => {
+    const checkIdentifier = (index) => {
       const identifier = identifiers.at(index);
       expect(identifier.attributes('target')).toBe('_blank');
       expect(identifier.attributes('href')).toBe(index.toString());
@@ -172,7 +176,10 @@ describe('Vulnerability Details', () => {
   });
 
   describe('http data', () => {
-    const TEST_HEADERS = [{ name: 'Name1', value: 'Value1' }, { name: 'Name2', value: 'Value2' }];
+    const TEST_HEADERS = [
+      { name: 'Name1', value: 'Value1' },
+      { name: 'Name2', value: 'Value2' },
+    ];
     const TEST_URL = 'http://foo.bar/test';
     const EXPECT_HEADERS = {
       label: 'Headers:',
@@ -180,17 +187,17 @@ describe('Vulnerability Details', () => {
       isCode: true,
     };
 
-    const getTextContent = el => el.textContent.trim();
-    const getLabel = el => getTextContent(getByTestId(el, 'label'));
-    const getContent = el => getTextContent(getByTestId(el, 'value'));
-    const getSectionData = testId => {
+    const getTextContent = (el) => el.textContent.trim();
+    const getLabel = (el) => getTextContent(getByTestId(el, 'label'));
+    const getContent = (el) => getTextContent(getByTestId(el, 'value'));
+    const getSectionData = (testId) => {
       const section = getById(testId).element;
 
       if (!section) {
         return null;
       }
 
-      return getAllByRole(section, 'listitem').map(li => ({
+      return getAllByRole(section, 'listitem').map((li) => ({
         label: getLabel(li),
         content: getContent(li),
         ...(li.querySelector('code') ? { isCode: true } : {}),

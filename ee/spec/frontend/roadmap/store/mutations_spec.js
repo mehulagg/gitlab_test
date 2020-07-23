@@ -145,7 +145,7 @@ describe('Roadmap Store Mutations', () => {
 
       mutations[types.INIT_EPIC_CHILDREN_FLAGS](state, { epics });
 
-      epics.forEach(item => {
+      epics.forEach((item) => {
         expect(state.childrenFlags[item.id]).toMatchObject({
           itemExpanded: false,
           itemChildrenFetchInProgress: false,

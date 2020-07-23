@@ -25,7 +25,7 @@ class BoardsStoreEE {
     };
 
     const superSetCurrentBoard = this.store.setCurrentBoard.bind(this.store);
-    this.store.setCurrentBoard = board => {
+    this.store.setCurrentBoard = (board) => {
       superSetCurrentBoard(board);
       this.store.state.assignees = [];
       this.store.state.milestones = [];
@@ -94,7 +94,7 @@ class BoardsStoreEE {
         .concat(
           this.store.filter.path
             .split('&')
-            .filter(param => param.match(new RegExp(`^${key}=(.*)$`, 'g')) === null),
+            .filter((param) => param.match(new RegExp(`^${key}=(.*)$`, 'g')) === null),
         )
         .join('&');
     };
@@ -130,7 +130,7 @@ class BoardsStoreEE {
     }
 
     const filterPath = this.store.filter.path.split('&');
-    this.store.boardConfig.labels.forEach(label => {
+    this.store.boardConfig.labels.forEach((label) => {
       const labelTitle = encodeURIComponent(label.title);
       const param = `label_name[]=${labelTitle}`;
       const labelIndex = filterPath.indexOf(param);
@@ -196,8 +196,8 @@ class BoardsStoreEE {
       issue.setLoadingState('weight', true);
       this.store
         .updateWeight(issue.sidebarInfoEndpoint, newWeight)
-        .then(res => res.data)
-        .then(data => {
+        .then((res) => res.data)
+        .then((data) => {
           const lists = issue.getLists();
           const oldWeight = issue.weight;
           const weightDiff = newWeight - oldWeight;
@@ -206,7 +206,7 @@ class BoardsStoreEE {
           issue.updateData({
             weight: data.weight,
           });
-          lists.forEach(list => {
+          lists.forEach((list) => {
             list.addWeight(weightDiff);
           });
         })

@@ -41,11 +41,11 @@ function createComponent() {
   return wrapper;
 }
 
-const getPreviewLink = wrapper => wrapper.find('.nav-links .js-preview-link');
-const getWriteLink = wrapper => wrapper.find('.nav-links .js-write-link');
-const getMarkdownButton = wrapper => wrapper.find('.js-md');
-const getAllMarkdownButtons = wrapper => wrapper.findAll('.js-md');
-const getVideo = wrapper => wrapper.find('video');
+const getPreviewLink = (wrapper) => wrapper.find('.nav-links .js-preview-link');
+const getWriteLink = (wrapper) => wrapper.find('.nav-links .js-write-link');
+const getMarkdownButton = (wrapper) => wrapper.find('.js-md');
+const getAllMarkdownButtons = (wrapper) => wrapper.findAll('.js-md');
+const getVideo = (wrapper) => wrapper.find('video');
 
 describe('Markdown field component', () => {
   let axiosMock;

@@ -27,8 +27,8 @@ describe('Release block assets', () => {
     });
   };
 
-  const findSectionHeading = type =>
-    wrapper.findAll('h5').filter(h5 => h5.text() === sections[type]);
+  const findSectionHeading = (type) =>
+    wrapper.findAll('h5').filter((h5) => h5.text() === sections[type]);
 
   beforeEach(() => {
     defaultProps = { assets: cloneDeep(assets) };
@@ -54,7 +54,7 @@ describe('Release block assets', () => {
     });
 
     it('renders sources with the expected text and URL', () => {
-      defaultProps.assets.sources.forEach(s => {
+      defaultProps.assets.sources.forEach((s) => {
         const sourceLink = wrapper.find(`li>a[href="${s.url}"]`);
 
         expect(sourceLink.exists()).toBe(true);
@@ -63,7 +63,7 @@ describe('Release block assets', () => {
     });
 
     it('renders a heading for each assets type (except sources)', () => {
-      Object.keys(sections).forEach(type => {
+      Object.keys(sections).forEach((type) => {
         const sectionHeadings = findSectionHeading(type);
 
         expect(sectionHeadings).toHaveLength(1);
@@ -71,7 +71,7 @@ describe('Release block assets', () => {
     });
 
     it('renders asset links with the expected text and URL', () => {
-      defaultProps.assets.links.forEach(l => {
+      defaultProps.assets.links.forEach((l) => {
         const sourceLink = wrapper.find(`li>a[href="${l.directAssetUrl}"]`);
 
         expect(sourceLink.exists()).toBe(true);
@@ -85,7 +85,7 @@ describe('Release block assets', () => {
 
     beforeEach(() => {
       defaultProps.assets.links = defaultProps.assets.links.filter(
-        l => l.linkType !== typeToExclude,
+        (l) => l.linkType !== typeToExclude,
       );
       createComponent(defaultProps);
     });
@@ -99,7 +99,7 @@ describe('Release block assets', () => {
 
   describe('sources', () => {
     const testSources = ({ shouldSourcesBeRendered }) => {
-      assets.sources.forEach(s => {
+      assets.sources.forEach((s) => {
         expect(wrapper.find(`a[href="${s.url}"]`).exists()).toBe(shouldSourcesBeRendered);
       });
     };

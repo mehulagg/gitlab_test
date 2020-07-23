@@ -10,7 +10,7 @@ describe('Release block milestone info', () => {
   let wrapper;
   let milestones;
 
-  const factory = props => {
+  const factory = (props) => {
     wrapper = mount(ReleaseBlockMilestoneInfo, {
       propsData: props,
     });
@@ -54,9 +54,7 @@ describe('Release block milestone info', () => {
       expect(trimText(milestoneListContainer().text())).toContain('Milestones 13.6 • 13.5');
 
       milestones.forEach((m, i) => {
-        const milestoneLink = milestoneListContainer()
-          .findAll(GlLink)
-          .at(i);
+        const milestoneLink = milestoneListContainer().findAll(GlLink).at(i);
 
         expect(milestoneLink.text()).toBe(m.title);
         expect(milestoneLink.attributes('href')).toBe(m.webUrl);
@@ -95,19 +93,17 @@ describe('Release block milestone info', () => {
         });
       }
 
-      fullListString = lotsOfMilestones.map(m => m.title).join(' • ');
+      fullListString = lotsOfMilestones.map((m) => m.title).join(' • ');
       abbreviatedListString = lotsOfMilestones
         .slice(0, MAX_MILESTONES_TO_DISPLAY)
-        .map(m => m.title)
+        .map((m) => m.title)
         .join(' • ');
 
       return factory({ milestones: lotsOfMilestones });
     });
 
     const clickShowMoreFewerButton = () => {
-      milestoneListContainer()
-        .find(GlButton)
-        .trigger('click');
+      milestoneListContainer().find(GlButton).trigger('click');
 
       return wrapper.vm.$nextTick();
     };
@@ -148,7 +144,7 @@ describe('Release block milestone info', () => {
   /** Ensures we don't have any issues with dividing by zero when computing percentages */
   describe('when all issue counts are zero', () => {
     beforeEach(() => {
-      milestones = milestones.map(m => ({
+      milestones = milestones.map((m) => ({
         ...m,
         issueStats: {
           ...m.issueStats,
@@ -165,7 +161,7 @@ describe('Release block milestone info', () => {
 
   describe('if the API response is missing the "issue_stats" property', () => {
     beforeEach(() => {
-      milestones = milestones.map(m => ({
+      milestones = milestones.map((m) => ({
         ...m,
         issueStats: undefined,
       }));

@@ -73,7 +73,7 @@ export default {
           iid: this.issueIid,
         };
       },
-      update: data => data.project.issue.userPermissions,
+      update: (data) => data.project.issue.userPermissions,
     },
   },
   computed: {

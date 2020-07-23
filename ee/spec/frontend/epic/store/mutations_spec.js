@@ -372,7 +372,10 @@ describe('Epic Store Mutations', () => {
 
   describe('RECEIVE_EPIC_LABELS_SELECT_SUCCESS', () => {
     it('Should update `labels` array on state when new labels are added', () => {
-      const addedLabels = [{ id: 1, set: true }, { id: 2, set: true }];
+      const addedLabels = [
+        { id: 1, set: true },
+        { id: 2, set: true },
+      ];
       const state = {
         labels: [],
       };
@@ -385,7 +388,10 @@ describe('Epic Store Mutations', () => {
     it('Should update `labels` array on state when existing labels are removed', () => {
       const removedLabels = [{ id: 1, set: false }];
       const state = {
-        labels: [{ id: 1, set: true }, { id: 2, set: true }],
+        labels: [
+          { id: 1, set: true },
+          { id: 2, set: true },
+        ],
       };
 
       mutations[types.RECEIVE_EPIC_LABELS_SELECT_SUCCESS](state, removedLabels);
@@ -397,7 +403,10 @@ describe('Epic Store Mutations', () => {
       const removedLabels = [{ id: 1, set: false }];
       const addedLabels = [{ id: 3, set: true }];
       const state = {
-        labels: [{ id: 1, set: true }, { id: 2, set: true }],
+        labels: [
+          { id: 1, set: true },
+          { id: 2, set: true },
+        ],
       };
 
       mutations[types.RECEIVE_EPIC_LABELS_SELECT_SUCCESS](state, [
@@ -406,7 +415,10 @@ describe('Epic Store Mutations', () => {
       ]);
 
       expect(state.labels).toEqual(
-        expect.arrayContaining([{ id: 2, set: true }, { id: 3, set: true }]),
+        expect.arrayContaining([
+          { id: 2, set: true },
+          { id: 3, set: true },
+        ]),
       );
     });
   });

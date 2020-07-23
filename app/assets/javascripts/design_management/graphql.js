@@ -28,7 +28,7 @@ const defaultClient = createDefaultClient(
   // Should be removed as soon as https://gitlab.com/gitlab-org/gitlab/issues/13495 is resolved
   {
     cacheConfig: {
-      dataIdFromObject: object => {
+      dataIdFromObject: (object) => {
         // eslint-disable-next-line no-underscore-dangle, @gitlab/require-i18n-strings
         if (object.__typename === 'Design') {
           return object.id && object.image ? `${object.id}-${object.image}` : uniqueId();

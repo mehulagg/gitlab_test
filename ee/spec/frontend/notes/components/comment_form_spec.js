@@ -61,7 +61,7 @@ describe('issue_comment_form component', () => {
       wrapper.destroy();
     });
 
-    it('should close the issue when clicking close issue button', done => {
+    it('should close the issue when clicking close issue button', (done) => {
       jest.spyOn(wrapper.vm, 'closeIssue').mockResolvedValue();
       findCloseBtn().trigger('click');
 
@@ -93,7 +93,7 @@ describe('issue_comment_form component', () => {
       wrapper.destroy();
     });
 
-    it('should display alert warning when attempting to close issue, close button is hidden', done => {
+    it('should display alert warning when attempting to close issue, close button is hidden', (done) => {
       findCloseBtn().trigger('click');
 
       wrapper.vm.$nextTick(() => {
@@ -109,7 +109,7 @@ describe('issue_comment_form component', () => {
       });
     });
 
-    it('should close the issue when clicking close issue button in alert', done => {
+    it('should close the issue when clicking close issue button in alert', (done) => {
       jest.spyOn(wrapper.vm, 'closeIssue').mockResolvedValue();
       findCloseBtn().trigger('click');
 
@@ -128,7 +128,7 @@ describe('issue_comment_form component', () => {
       });
     });
 
-    it('should dismiss alert warning when clicking cancel button in alert', done => {
+    it('should dismiss alert warning when clicking cancel button in alert', (done) => {
       findCloseBtn().trigger('click');
 
       wrapper.vm.$nextTick(() => {

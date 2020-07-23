@@ -10,7 +10,7 @@ export default {
     state.errorLoadingPolicies = false;
   },
   [types.RECEIVE_POLICIES_SUCCESS](state, policies) {
-    state.policies = policies.map(policy => convertObjectPropsToCamelCase(policy));
+    state.policies = policies.map((policy) => convertObjectPropsToCamelCase(policy));
     state.isLoadingPolicies = false;
     state.errorLoadingPolicies = false;
   },
@@ -38,7 +38,7 @@ export default {
   },
   [types.RECEIVE_UPDATE_POLICY_SUCCESS](state, { policy, updatedPolicy }) {
     const newPolicy = convertObjectPropsToCamelCase(updatedPolicy);
-    state.policies = state.policies.map(pol => (pol.name === policy.name ? newPolicy : pol));
+    state.policies = state.policies.map((pol) => (pol.name === policy.name ? newPolicy : pol));
     state.isUpdatingPolicy = false;
     state.errorUpdatingPolicy = false;
   },

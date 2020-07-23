@@ -10,15 +10,12 @@ describe('U2FRegister', () => {
 
   preloadFixtures('u2f/register.html');
 
-  beforeEach(done => {
+  beforeEach((done) => {
     loadFixtures('u2f/register.html');
     u2fDevice = new MockU2FDevice();
     container = $('#js-register-u2f');
     component = new U2FRegister(container, $('#js-register-u2f-templates'), {}, 'token');
-    component
-      .start()
-      .then(done)
-      .catch(done.fail);
+    component.start().then(done).catch(done.fail);
   });
 
   it('allows registering a U2F device', () => {

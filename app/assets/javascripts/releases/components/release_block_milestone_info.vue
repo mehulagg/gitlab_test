@@ -56,13 +56,13 @@ export default {
       return Number.isNaN(percent) ? 0 : percent;
     },
     allIssueStats() {
-      return this.milestones.map(m => m.issueStats || {});
+      return this.milestones.map((m) => m.issueStats || {});
     },
     totalIssuesCount() {
-      return sum(this.allIssueStats.map(stats => stats.total || 0));
+      return sum(this.allIssueStats.map((stats) => stats.total || 0));
     },
     closedIssuesCount() {
-      return sum(this.allIssueStats.map(stats => stats.closed || 0));
+      return sum(this.allIssueStats.map((stats) => stats.closed || 0));
     },
     openIssuesCount() {
       return this.totalIssuesCount - this.closedIssuesCount;

@@ -57,8 +57,8 @@ describe('Project Manager component', () => {
     });
   };
 
-  const getMockAction = actionName => storeOptions.modules.projectSelector.actions[actionName];
-  const getMockActionDispatchedPayload = actionName => getMockAction(actionName).mock.calls[0][1];
+  const getMockAction = (actionName) => storeOptions.modules.projectSelector.actions[actionName];
+  const getMockActionDispatchedPayload = (actionName) => getMockAction(actionName).mock.calls[0][1];
 
   const getAddProjectsButton = () => wrapper.find(GlDeprecatedButton);
   const getProjectList = () => wrapper.find(ProjectList);
@@ -164,7 +164,7 @@ describe('Project Manager component', () => {
 
     it.each([false, true])(
       'passes showLoadingIndicator = %p to the project-list component',
-      isUpdatingProjects => {
+      (isUpdatingProjects) => {
         factory({ isUpdatingProjects });
 
         expect(getProjectList().props('showLoadingIndicator')).toBe(isUpdatingProjects);

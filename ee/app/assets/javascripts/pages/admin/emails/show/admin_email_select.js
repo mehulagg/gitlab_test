@@ -3,7 +3,7 @@ import Api from '~/api';
 import { sprintf, __ } from '~/locale';
 import { sanitizeItem } from '~/frequent_items/utils';
 
-const formatResult = selectedItem => {
+const formatResult = (selectedItem) => {
   if (selectedItem.path_with_namespace) {
     return `<div class='project-result'> <div class='project-name'>${selectedItem.name}</div> <div class='project-path'>${selectedItem.path_with_namespace}</div> </div>`;
   } else if (selectedItem.path) {
@@ -14,7 +14,7 @@ const formatResult = selectedItem => {
   )}</div> <div class='group-path'>${__('All groups and projects')}</div> </div>`;
 };
 
-const formatSelection = selectedItem => {
+const formatSelection = (selectedItem) => {
   if (selectedItem.path_with_namespace) {
     return sprintf(__('Project: %{name}'), { name: selectedItem.name });
   } else if (selectedItem.path) {

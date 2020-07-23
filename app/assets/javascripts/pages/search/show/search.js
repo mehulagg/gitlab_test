@@ -29,7 +29,7 @@ export default class Search {
         fields: ['full_name'],
       },
       data(term, callback) {
-        return Api.groups(term, {}, data => {
+        return Api.groups(term, {}, (data) => {
           data.unshift({
             full_name: __('Any'),
           });
@@ -56,7 +56,7 @@ export default class Search {
       },
       data: (term, callback) => {
         this.getProjectsData(term)
-          .then(data => {
+          .then((data) => {
             data.unshift({
               name_with_namespace: __('Any'),
             });
@@ -64,7 +64,7 @@ export default class Search {
 
             return data;
           })
-          .then(data => callback(data))
+          .then((data) => callback(data))
           .catch(() => new Flash(__('Error fetching projects')));
       },
       id(obj) {
@@ -80,9 +80,7 @@ export default class Search {
   }
 
   eventListeners() {
-    $(document)
-      .off('keyup', this.searchInput)
-      .on('keyup', this.searchInput, this.searchKeyUp);
+    $(document).off('keyup', this.searchInput).on('keyup', this.searchInput, this.searchKeyUp);
     $(document)
       .off('click', this.searchClear)
       .on('click', this.searchClear, this.clearSearchField.bind(this));
@@ -102,14 +100,11 @@ export default class Search {
   }
 
   clearSearchField() {
-    return $(this.searchInput)
-      .val('')
-      .trigger('keyup')
-      .focus();
+    return $(this.searchInput).val('').trigger('keyup').focus();
   }
 
   getProjectsData(term) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (this.groupId) {
         Api.groupProjects(this.groupId, term, {}, resolve);
       } else {

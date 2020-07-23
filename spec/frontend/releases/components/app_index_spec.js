@@ -29,7 +29,7 @@ describe('Releases App ', () => {
 
   beforeEach(() => {
     store = createStore({ modules: { list: listModule } });
-    releasesPagination = rge(21).map(index => ({
+    releasesPagination = rge(21).map((index) => ({
       ...convertObjectPropsToCamelCase(release, { deep: true }),
       tagName: `${index}.00`,
     }));
@@ -113,7 +113,7 @@ describe('Releases App ', () => {
       jest.spyOn(api, 'releases').mockResolvedValue({ data: [], headers: {} });
     });
 
-    const factory = additionalProps => {
+    const factory = (additionalProps) => {
       vm = mountComponentWithStore(Component, {
         props: {
           ...props,

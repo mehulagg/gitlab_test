@@ -127,7 +127,7 @@ export default {
     },
     hasErrors() {
       return (
-        this.eventMismatchError || Object.values(this.errors).some(errArray => errArray?.length)
+        this.eventMismatchError || Object.values(this.errors).some((errArray) => errArray?.length)
       );
     },
     isComplete() {
@@ -152,7 +152,7 @@ export default {
         requiredFields.push(endEventLabelId);
       }
       return requiredFields.every(
-        fieldValue => fieldValue && (fieldValue.length > 0 || fieldValue > 0),
+        (fieldValue) => fieldValue && (fieldValue.length > 0 || fieldValue > 0),
       );
     },
     isDirty() {

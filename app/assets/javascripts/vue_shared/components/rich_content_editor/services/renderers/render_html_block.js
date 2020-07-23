@@ -4,6 +4,6 @@ const canRender = ({ type }) => {
   return type === 'htmlBlock';
 };
 
-const render = node => buildUneditableHtmlAsTextTokens(node);
+const render = (node) => buildUneditableHtmlAsTextTokens(node);
 
 export default { canRender, render };

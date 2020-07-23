@@ -127,7 +127,7 @@ export default {
       formDescription: this.description,
 
       // operate on a clone to avoid mutating props
-      formScopes: this.scopes.map(s => ({ ...s })),
+      formScopes: this.scopes.map((s) => ({ ...s })),
       formStrategies: cloneDeep(this.strategies),
 
       newScope: '',
@@ -136,13 +136,13 @@ export default {
   },
   computed: {
     filteredScopes() {
-      return this.formScopes.filter(scope => !scope.shouldBeDestroyed);
+      return this.formScopes.filter((scope) => !scope.shouldBeDestroyed);
     },
     filteredStrategies() {
-      return this.formStrategies.filter(s => !s.shouldBeDestroyed);
+      return this.formStrategies.filter((s) => !s.shouldBeDestroyed);
     },
     canUpdateFlag() {
-      return !this.permissionsFlag || (this.formScopes || []).every(scope => scope.canUpdate);
+      return !this.permissionsFlag || (this.formScopes || []).every((scope) => scope.canUpdate);
     },
     permissionsFlag() {
       return this.glFeatures.featureFlagPermissions;
@@ -182,7 +182,7 @@ export default {
       if (isNumber(s.id)) {
         Vue.set(s, 'shouldBeDestroyed', true);
       } else {
-        this.formStrategies = this.formStrategies.filter(strategy => strategy !== s);
+        this.formStrategies = this.formStrategies.filter((strategy) => strategy !== s);
       }
     },
 
@@ -203,7 +203,7 @@ export default {
      */
     removeScope(scope) {
       if (isString(scope.id) && scope.id.startsWith(INTERNAL_ID_PREFIX)) {
-        this.formScopes = this.formScopes.filter(s => s !== scope);
+        this.formScopes = this.formScopes.filter((s) => s !== scope);
       } else {
         Vue.set(scope, 'shouldBeDestroyed', true);
       }
@@ -405,9 +405,9 @@ export default {
                     :value="scope.environmentScope"
                     :endpoint="environmentsEndpoint"
                     :disabled="!canUpdateScope(scope)"
-                    @selectEnvironment="env => (scope.environmentScope = env)"
-                    @createClicked="env => (scope.environmentScope = env)"
-                    @clearInput="env => (scope.environmentScope = '')"
+                    @selectEnvironment="(env) => (scope.environmentScope = env)"
+                    @createClicked="(env) => (scope.environmentScope = env)"
+                    @clearInput="(env) => (scope.environmentScope = '')"
                   />
 
                   <gl-badge v-if="permissionsFlag && scope.protected" variant="success">
@@ -424,7 +424,7 @@ export default {
                   <toggle-button
                     :value="scope.active"
                     :disabled-input="!active || !canUpdateScope(scope)"
-                    @change="status => (scope.active = status)"
+                    @change="(status) => (scope.active = status)"
                   />
                 </div>
               </div>
@@ -539,8 +539,8 @@ export default {
                     class="js-new-scope-name col-12"
                     :endpoint="environmentsEndpoint"
                     :value="newScope"
-                    @selectEnvironment="env => createNewScope({ environmentScope: env })"
-                    @createClicked="env => createNewScope({ environmentScope: env })"
+                    @selectEnvironment="(env) => createNewScope({ environmentScope: env })"
+                    @createClicked="(env) => createNewScope({ environmentScope: env })"
                   />
                 </div>
               </div>

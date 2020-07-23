@@ -31,7 +31,7 @@ const getDropdownConfig = (placeholder, apiPath, textProp) => ({
     },
     results(data) {
       return {
-        results: data.map(entity => ({
+        results: data.map((entity) => ({
           id: entity.id,
           text: entity[textProp],
         })),
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $container
     .find('.js-limit-checkbox')
-    .on('change', e =>
+    .on('change', (e) =>
       onLimitCheckboxChange(
         e.currentTarget.checked,
         $container.find('.js-limit-namespaces'),

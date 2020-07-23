@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     computed: {
       seriesData() {
-        return { full: this.chartData.map(d => [d.label, d.value]) };
+        return { full: this.chartData.map((d) => [d.label, d.value]) };
       },
     },
     render(h) {

@@ -63,11 +63,11 @@ export default class GLTerminal {
     const decoder = new TextDecoder('utf-8');
     const encoder = new TextEncoder('utf-8');
 
-    this.terminal.on('data', data => {
+    this.terminal.on('data', (data) => {
       this.socket.send(encoder.encode(data));
     });
 
-    this.socket.addEventListener('message', ev => {
+    this.socket.addEventListener('message', (ev) => {
       this.terminal.write(decoder.decode(ev.data));
     });
 
@@ -108,7 +108,7 @@ export default class GLTerminal {
     this.terminal.dispose();
     this.socket.close();
 
-    this.onDispose.forEach(fn => fn());
+    this.onDispose.forEach((fn) => fn());
     this.onDispose.length = 0;
   }
 

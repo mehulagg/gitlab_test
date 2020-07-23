@@ -13,10 +13,7 @@ jest.mock('~/blob/utils', () => jest.fn());
 
 jest.mock('~/lib/utils/url_utility', () => ({
   getBaseURL: jest.fn().mockReturnValue('foo/'),
-  joinPaths: jest
-    .fn()
-    .mockName('joinPaths')
-    .mockReturnValue('contentApiURL'),
+  joinPaths: jest.fn().mockName('joinPaths').mockReturnValue('contentApiURL'),
 }));
 
 jest.mock('~/flash');
@@ -34,7 +31,7 @@ describe('Snippet Blob Edit component', () => {
     content: contentMock,
     rawPath: rawPathMock,
   };
-  const findComponent = component => wrapper.find(component);
+  const findComponent = (component) => wrapper.find(component);
 
   function createComponent(props = {}, data = { isContentLoading: false }) {
     wrapper = shallowMount(SnippetBlobEdit, {
@@ -112,7 +109,7 @@ describe('Snippet Blob Edit component', () => {
     });
 
     describe('fetching blob content', () => {
-      const bootstrapForExistingSnippet = resp => {
+      const bootstrapForExistingSnippet = (resp) => {
         createComponent({
           blob: {
             ...blob,

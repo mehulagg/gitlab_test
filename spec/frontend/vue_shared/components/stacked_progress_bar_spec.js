@@ -3,7 +3,7 @@ import Vue from 'vue';
 import mountComponent from 'helpers/vue_mount_component_helper';
 import stackedProgressBarComponent from '~/vue_shared/components/stacked_progress_bar.vue';
 
-const createComponent = config => {
+const createComponent = (config) => {
   const Component = Vue.extend(stackedProgressBarComponent);
   const defaultConfig = {
     successLabel: 'Synced',

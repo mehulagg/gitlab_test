@@ -4,7 +4,7 @@ export const useFakeRequestAnimationFrame = () => {
 
   beforeEach(() => {
     orig = global.requestAnimationFrame;
-    global.requestAnimationFrame = cb => cb();
+    global.requestAnimationFrame = (cb) => cb();
   });
 
   afterEach(() => {

@@ -118,7 +118,7 @@ export default {
 
     axios
       .get(this.graphUrl)
-      .then(response => {
+      .then((response) => {
         processGraphData(response.data);
       })
       .catch(() => reportFailure(LOAD_FAILURE));

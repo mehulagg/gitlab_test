@@ -86,7 +86,7 @@ describe('Issue', () => {
     expect($btn).toHaveText(isIssueInitiallyOpen ? 'Close issue' : 'Reopen issue');
   }
 
-  [true, false].forEach(isIssueInitiallyOpen => {
+  [true, false].forEach((isIssueInitiallyOpen) => {
     describe(`with ${isIssueInitiallyOpen ? 'open' : 'closed'} issue`, () => {
       const action = isIssueInitiallyOpen ? 'close' : 'reopen';
       let mock;
@@ -138,7 +138,7 @@ describe('Issue', () => {
         $('div.flash-alert').remove();
       });
 
-      it(`${action}s the issue`, done => {
+      it(`${action}s the issue`, (done) => {
         mockCloseButtonResponseSuccess(testContext.$triggeredButton.attr('href'), {
           id: 34,
         });
@@ -160,7 +160,7 @@ describe('Issue', () => {
         });
       });
 
-      it(`fails to ${action} the issue if saved:false`, done => {
+      it(`fails to ${action} the issue if saved:false`, (done) => {
         mockCloseButtonResponseSuccess(testContext.$triggeredButton.attr('href'), {
           saved: false,
         });
@@ -182,7 +182,7 @@ describe('Issue', () => {
         });
       });
 
-      it(`fails to ${action} the issue if HTTP error occurs`, done => {
+      it(`fails to ${action} the issue if HTTP error occurs`, (done) => {
         mockCloseButtonResponseError(testContext.$triggeredButton.attr('href'));
         mockCanCreateBranch(isIssueInitiallyOpen);
 
@@ -212,7 +212,7 @@ describe('Issue', () => {
         expectNewBranchButtonState(false, false);
       });
 
-      it('does not trigger Ajax call if new branch button is missing', done => {
+      it('does not trigger Ajax call if new branch button is missing', (done) => {
         mockCloseButtonResponseError(testContext.$triggeredButton.attr('href'));
 
         document.querySelector('#related-branches').remove();

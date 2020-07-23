@@ -32,7 +32,7 @@ describe('BadgeSettings component', () => {
     vm.$destroy();
   });
 
-  it('displays modal if button is clicked', done => {
+  it('displays modal if button is clicked', (done) => {
     const badge = createDummyBadge();
     store.state.badgeInModal = badge;
     const modal = vm.$el.querySelector('#delete-badge-modal');
@@ -70,12 +70,10 @@ describe('BadgeSettings component', () => {
   });
 
   describe('when editing', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       store.state.isEditing = true;
 
-      Vue.nextTick()
-        .then(done)
-        .catch(done.fail);
+      Vue.nextTick().then(done).catch(done.fail);
     });
 
     it('displays a form to edit a badge', () => {

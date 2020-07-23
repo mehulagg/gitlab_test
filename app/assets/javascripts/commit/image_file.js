@@ -28,7 +28,7 @@ export default class ImageFile {
   initViewModes() {
     const viewMode = viewModes[0];
     $('.view-modes', this.file).removeClass('hide');
-    $('.view-modes-menu', this.file).on('click', 'li', event => {
+    $('.view-modes-menu', this.file).on('click', 'li', (event) => {
       if (!$(event.currentTarget).hasClass('active')) {
         return this.activateViewMode(event.currentTarget.className);
       }
@@ -58,15 +58,15 @@ export default class ImageFile {
     let dragging = false;
     const $body = $('body');
     const $offsetEl = $el.parent();
-    const dragStart = function() {
+    const dragStart = function () {
       dragging = true;
       $body.css('user-select', 'none');
     };
-    const dragStop = function() {
+    const dragStop = function () {
       dragging = false;
       $body.css('user-select', '');
     };
-    const dragMove = function(e) {
+    const dragMove = function (e) {
       const moveX = e.pageX || e.touches[0].pageX;
       const left = moveX - ($offsetEl.offset().left + padding);
       if (!dragging) return;
@@ -74,11 +74,7 @@ export default class ImageFile {
       callback(e, left);
     };
 
-    $el
-      .off('mousedown')
-      .off('touchstart')
-      .on('mousedown', dragStart)
-      .on('touchstart', dragStart);
+    $el.off('mousedown').off('touchstart').on('mousedown', dragStart).on('touchstart', dragStart);
 
     $body
       .off('mouseup')
@@ -109,9 +105,9 @@ export default class ImageFile {
   }
 
   views = {
-    'two-up': function() {
+    'two-up': function () {
       return $('.two-up.view .wrap', this.file).each((index, wrap) => {
-        $('img', wrap).each(function() {
+        $('img', wrap).each(function () {
           const currentWidth = $(this).width();
           if (currentWidth > availWidth / 2) {
             return $(this).width(availWidth / 2);
@@ -157,7 +153,7 @@ export default class ImageFile {
         });
       });
     },
-    'onion-skin': function() {
+    'onion-skin': function () {
       let maxHeight, maxWidth;
       maxWidth = 0;
       maxHeight = 0;

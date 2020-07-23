@@ -35,7 +35,10 @@ describe('Mutations Registry Explorer Store', () => {
       const defaultStatus = { deleting: false, failedDelete: false };
       const expectedState = {
         ...mockState,
-        images: [{ name: 'foo', ...defaultStatus }, { name: 'bar', ...defaultStatus }],
+        images: [
+          { name: 'foo', ...defaultStatus },
+          { name: 'bar', ...defaultStatus },
+        ],
       };
       mutations[types.SET_IMAGES_LIST_SUCCESS](mockState, images);
 
@@ -45,7 +48,10 @@ describe('Mutations Registry Explorer Store', () => {
 
   describe('UPDATE_IMAGE', () => {
     it('should update an image', () => {
-      mockState.images = [{ id: 1, name: 'foo' }, { id: 2, name: 'bar' }];
+      mockState.images = [
+        { id: 1, name: 'foo' },
+        { id: 2, name: 'bar' },
+      ];
       const payload = { id: 1, name: 'baz' };
       const expectedState = {
         ...mockState,

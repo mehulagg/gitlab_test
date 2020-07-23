@@ -10,8 +10,8 @@ import { jobsPathWithFilter, reposPathWithFilter } from './getters';
 
 let eTagPoll;
 
-const hasRedirectInError = e => e?.response?.data?.error?.redirect;
-const redirectToUrlInError = e => visitUrl(e.response.data.error.redirect);
+const hasRedirectInError = (e) => e?.response?.data?.error?.redirect;
+const redirectToUrlInError = (e) => visitUrl(e.response.data.error.redirect);
 
 export const clearJobsEtagPoll = () => {
   eTagPoll = null;
@@ -37,7 +37,7 @@ export const fetchRepos = ({ state, dispatch, commit }) => {
       commit(types.RECEIVE_REPOS_SUCCESS, convertObjectPropsToCamelCase(data, { deep: true })),
     )
     .then(() => dispatch('fetchJobs'))
-    .catch(e => {
+    .catch((e) => {
       if (hasRedirectInError(e)) {
         redirectToUrlInError(e);
       } else {
@@ -70,7 +70,7 @@ export const fetchImport = ({ state, commit }, { newName, targetNamespace, repo 
         repoId: repo.id,
       }),
     )
-    .catch(e => {
+    .catch((e) => {
       const serverErrorMessage = e?.response?.data?.errors;
       const flashMessage = serverErrorMessage
         ? sprintf(
@@ -106,7 +106,7 @@ export const fetchJobs = ({ state, commit, dispatch }) => {
     method: 'fetchJobs',
     successCallback: ({ data }) =>
       commit(types.RECEIVE_JOBS_SUCCESS, convertObjectPropsToCamelCase(data, { deep: true })),
-    errorCallback: e => {
+    errorCallback: (e) => {
       if (hasRedirectInError(e)) {
         redirectToUrlInError(e);
       } else {

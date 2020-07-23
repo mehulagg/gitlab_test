@@ -1,16 +1,16 @@
-const parseSourceFile = raw => {
+const parseSourceFile = (raw) => {
   const frontMatterRegex = /(^---$[\s\S]*?^---$)/m;
   const preGroupedRegex = /([\s\S]*?)(^---$[\s\S]*?^---$)(\s*)([\s\S]*)/m; // preFrontMatter, frontMatter, spacing, and content
   let initial;
   let editable;
 
-  const hasFrontMatter = source => frontMatterRegex.test(source);
+  const hasFrontMatter = (source) => frontMatterRegex.test(source);
 
   const buildPayload = (source, header, spacing, body) => {
     return { raw: source, header, spacing, body };
   };
 
-  const parse = source => {
+  const parse = (source) => {
     if (hasFrontMatter(source)) {
       const match = source.match(preGroupedRegex);
       const [, preFrontMatter, frontMatter, spacing, content] = match;

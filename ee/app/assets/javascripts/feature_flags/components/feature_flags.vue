@@ -210,7 +210,7 @@ export default {
     },
     updateFeatureFlagOptions(parameters) {
       const queryString = Object.keys(parameters)
-        .map(parameter => {
+        .map((parameter) => {
           const value = parameters[parameter];
           return `${parameter}=${encodeURIComponent(value)}`;
         })

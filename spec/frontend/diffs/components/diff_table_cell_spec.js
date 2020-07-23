@@ -43,7 +43,7 @@ describe('DiffTableCell', () => {
     wrapper.destroy();
   });
 
-  const setWindowLocation = value => {
+  const setWindowLocation = (value) => {
     Object.defineProperty(window, 'location', {
       writable: true,
       value,

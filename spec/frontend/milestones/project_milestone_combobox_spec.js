@@ -133,7 +133,7 @@ describe('Milestone selector', () => {
     });
 
     it('should not have a selecton icon on any item', () => {
-      items.wrappers.forEach(item => {
+      items.wrappers.forEach((item) => {
         expect(item.find('.selected-item').exists()).toBe(false);
       });
     });

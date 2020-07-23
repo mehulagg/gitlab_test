@@ -6,9 +6,9 @@ import { isBaseFilterOption } from './utils';
  * @returns Object
  * e.g. { type: ['sast'], severity: ['high', 'medium'] }
  */
-export const activeFilters = state => {
+export const activeFilters = (state) => {
   const filters = state.filters.reduce((acc, filter) => {
-    acc[filter.id] = [...Array.from(filter.selection)].filter(id => !isBaseFilterOption(id));
+    acc[filter.id] = [...Array.from(filter.selection)].filter((id) => !isBaseFilterOption(id));
     return acc;
   }, {});
   // hide_dismissed is hardcoded as it currently is an edge-case, more info in the MR:

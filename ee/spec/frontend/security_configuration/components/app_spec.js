@@ -42,7 +42,7 @@ describe('Security Configuration App', () => {
   });
 
   const generateFeatures = (n, overrides = {}) => {
-    return [...Array(n).keys()].map(i => ({
+    return [...Array(n).keys()].map((i) => ({
       type: `scan-type-${i}`,
       name: `name-feature-${i}`,
       description: `description-feature-${i}`,
@@ -57,7 +57,7 @@ describe('Security Configuration App', () => {
   const getFeaturesRows = () => getFeaturesTable().findAll('tbody tr');
   const getAlert = () => wrapper.find(GlAlert);
   const getCreateMergeRequestButton = () => wrapper.find(CreateMergeRequestButton);
-  const getRowCells = row => {
+  const getRowCells = (row) => {
     const [feature, status, manage] = row.findAll('td').wrappers;
     return { feature, status, manage };
   };

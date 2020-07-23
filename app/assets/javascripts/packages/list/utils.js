@@ -1,7 +1,7 @@
 import { LIST_KEY_PROJECT, TABLE_HEADER_FIELDS } from './constants';
 
-export default isGroupPage =>
-  TABLE_HEADER_FIELDS.filter(f => f.key !== LIST_KEY_PROJECT || isGroupPage);
+export default (isGroupPage) =>
+  TABLE_HEADER_FIELDS.filter((f) => f.key !== LIST_KEY_PROJECT || isGroupPage);
 
 /**
  * A small util function that works out if the delete action has deleted the

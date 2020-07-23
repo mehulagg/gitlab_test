@@ -65,9 +65,9 @@ describe('Feature flags strategy', () => {
 
     it('should not show inputs for other parameters', () => {
       [GlFormTextarea, GlFormInput, GlFormSelect]
-        .filter(component => component !== input)
-        .map(component => findStrategy().findAll(component))
-        .forEach(inputWrapper => expect(inputWrapper).toHaveLength(0));
+        .filter((component) => component !== input)
+        .map((component) => findStrategy().findAll(component))
+        .forEach((inputWrapper) => expect(inputWrapper).toHaveLength(0));
     });
 
     if (parameter !== null) {

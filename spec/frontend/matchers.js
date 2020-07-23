@@ -9,7 +9,7 @@ export default {
     }
 
     const iconReferences = [].slice.apply(element.querySelectorAll('svg use'));
-    const matchingIcon = iconReferences.find(reference =>
+    const matchingIcon = iconReferences.find((reference) =>
       reference.getAttribute('xlink:href').endsWith(`#${iconName}`),
     );
 
@@ -21,7 +21,7 @@ export default {
     } else {
       message = `${element.outerHTML} does not contain the sprite icon "${iconName}"!`;
 
-      const existingIcons = iconReferences.map(reference => {
+      const existingIcons = iconReferences.map((reference) => {
         const iconUrl = reference.getAttribute('xlink:href');
         return `"${iconUrl.replace(/^.+#/, '')}"`;
       });
@@ -40,10 +40,7 @@ export default {
     let clearMatch;
 
     try {
-      clearReceived = received
-        .replace(/\s\s+/gm, ' ')
-        .replace(/\s\./gm, '.')
-        .trim();
+      clearReceived = received.replace(/\s\s+/gm, ' ').replace(/\s\./gm, '.').trim();
     } catch (e) {
       return { actual: received, message: 'The received value is not a string', pass: false };
     }

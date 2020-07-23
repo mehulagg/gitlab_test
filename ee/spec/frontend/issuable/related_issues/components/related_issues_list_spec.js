@@ -180,21 +180,13 @@ describe('RelatedIssuesList', () => {
     });
 
     it('shows weight', () => {
-      expect(
-        wrapper
-          .find(IssueWeight)
-          .find('.board-card-info-text')
-          .text(),
-      ).toBe(issuable1.weight.toString());
+      expect(wrapper.find(IssueWeight).find('.board-card-info-text').text()).toBe(
+        issuable1.weight.toString(),
+      );
     });
 
     it('shows due date', () => {
-      expect(
-        wrapper
-          .find(IssueDueDate)
-          .find('.board-card-info-text')
-          .text(),
-      ).toBe('Nov 22, 2010');
+      expect(wrapper.find(IssueDueDate).find('.board-card-info-text').text()).toBe('Nov 22, 2010');
     });
   });
 });

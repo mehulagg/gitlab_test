@@ -46,7 +46,7 @@ describe('Edit feature flag form', () => {
     });
   };
 
-  beforeEach(done => {
+  beforeEach((done) => {
     mock = new MockAdapter(axios);
 
     mock.onGet(`${TEST_HOST}/feature_flags.json`).replyOnce(200, {

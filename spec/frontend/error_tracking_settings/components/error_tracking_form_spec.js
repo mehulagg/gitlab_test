@@ -36,12 +36,7 @@ describe('error tracking settings form', () => {
     it('is rendered', () => {
       expect(wrapper.findAll(GlFormInput).length).toBe(2);
       expect(wrapper.find(GlFormInput).attributes('id')).toBe('error-tracking-api-host');
-      expect(
-        wrapper
-          .findAll(GlFormInput)
-          .at(1)
-          .attributes('id'),
-      ).toBe('error-tracking-token');
+      expect(wrapper.findAll(GlFormInput).at(1).attributes('id')).toBe('error-tracking-token');
 
       expect(wrapper.findAll(LoadingButton).exists()).toBe(true);
     });
@@ -57,12 +52,9 @@ describe('error tracking settings form', () => {
       );
 
       expect(pageText).not.toContain('Connection has failed. Re-check Auth Token and try again');
-      expect(
-        wrapper
-          .findAll(GlFormInput)
-          .at(0)
-          .attributes('placeholder'),
-      ).toContain('https://mysentryserver.com');
+      expect(wrapper.findAll(GlFormInput).at(0).attributes('placeholder')).toContain(
+        'https://mysentryserver.com',
+      );
     });
   });
 

@@ -140,8 +140,8 @@ export default {
       } else {
         boardsStore
           .createBoard(this.board)
-          .then(resp => resp.data)
-          .then(data => {
+          .then((resp) => resp.data)
+          .then((data) => {
             visitUrl(data.board_path);
           })
           .catch(() => {

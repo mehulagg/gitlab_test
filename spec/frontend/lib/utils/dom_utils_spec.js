@@ -43,7 +43,7 @@ describe('DOM Utils', () => {
   });
 
   describe('canScrollUp', () => {
-    [1, 100].forEach(scrollTop => {
+    [1, 100].forEach((scrollTop) => {
       it(`is true if scrollTop is > 0 (${scrollTop})`, () => {
         expect(
           canScrollUp({
@@ -53,7 +53,7 @@ describe('DOM Utils', () => {
       });
     });
 
-    [0, -10].forEach(scrollTop => {
+    [0, -10].forEach((scrollTop) => {
       it(`is false if scrollTop is <= 0 (${scrollTop})`, () => {
         expect(
           canScrollUp({

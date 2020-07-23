@@ -53,7 +53,7 @@ export default {
       type: Object,
       required: false,
       default: undefined,
-      validator: project => !isUndefined(project.id) && !isUndefined(project.name),
+      validator: (project) => !isUndefined(project.id) && !isUndefined(project.name),
     },
     dashboardDocumentation: {
       type: String,

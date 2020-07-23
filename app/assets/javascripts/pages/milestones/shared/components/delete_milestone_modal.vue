@@ -79,7 +79,7 @@ Once deleted, it cannot be undone or recovered.`),
 
       return axios
         .delete(this.milestoneUrl)
-        .then(response => {
+        .then((response) => {
           eventHub.$emit('deleteMilestoneModal.requestFinished', {
             milestoneUrl: this.milestoneUrl,
             successful: true,
@@ -88,7 +88,7 @@ Once deleted, it cannot be undone or recovered.`),
           // follow the rediect to milestones overview page
           redirectTo(response.request.responseURL);
         })
-        .catch(error => {
+        .catch((error) => {
           eventHub.$emit('deleteMilestoneModal.requestFinished', {
             milestoneUrl: this.milestoneUrl,
             successful: false,

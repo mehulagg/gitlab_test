@@ -17,14 +17,14 @@ export const fetchMergeRequests = ({ commit, state, rootState }) => {
   const params = {
     project_id: projectId,
     milestone_title: milestoneTitle?.operator === '=' ? milestoneTitle.value : null,
-    label_name: labelNames?.filter(l => l.operator === '=').map(l => l.value),
-    'not[label_name]': labelNames?.filter(l => l.operator === '!=').map(l => l.value),
+    label_name: labelNames?.filter((l) => l.operator === '=').map((l) => l.value),
+    'not[label_name]': labelNames?.filter((l) => l.operator === '!=').map((l) => l.value),
     'not[milestone_title]': milestoneTitle?.operator === '!=' ? milestoneTitle.value : null,
     page: pageInfo.page,
   };
 
   return API.codeReviewAnalytics(params)
-    .then(response => {
+    .then((response) => {
       const { headers, data } = response;
       const normalizedHeaders = normalizeHeaders(headers);
       commit(types.RECEIVE_MERGE_REQUESTS_SUCCESS, {

@@ -4,11 +4,11 @@ import { getBinary } from './services/image_service';
 
 const imageRepository = () => {
   const images = new Map();
-  const flash = message => new Flash(message);
+  const flash = (message) => new Flash(message);
 
   const add = (file, url) => {
     getBinary(file)
-      .then(content => images.set(url, content))
+      .then((content) => images.set(url, content))
       .catch(() => flash(__('Something went wrong while inserting your image. Please try again.')));
   };
 

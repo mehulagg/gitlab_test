@@ -20,10 +20,10 @@ import {
 } from '../constants';
 
 export function findDiffFile(files, match, matchKey = 'file_hash') {
-  return files.find(file => file[matchKey] === match);
+  return files.find((file) => file[matchKey] === match);
 }
 
-export const getReversePosition = linePosition => {
+export const getReversePosition = (linePosition) => {
   if (linePosition === LINE_POSITION_RIGHT) {
     return LINE_POSITION_LEFT;
   }
@@ -100,7 +100,7 @@ export const findIndexInInlineLines = (lines, lineNumbers) => {
   const { oldLineNumber, newLineNumber } = lineNumbers;
 
   return lines.findIndex(
-    line => line.old_line === oldLineNumber && line.new_line === newLineNumber,
+    (line) => line.old_line === oldLineNumber && line.new_line === newLineNumber,
   );
 };
 
@@ -108,7 +108,7 @@ export const findIndexInParallelLines = (lines, lineNumbers) => {
   const { oldLineNumber, newLineNumber } = lineNumbers;
 
   return lines.findIndex(
-    line =>
+    (line) =>
       line.left &&
       line.right &&
       line.left.old_line === oldLineNumber &&
@@ -185,7 +185,7 @@ export function addLineReferences(lines, lineNumbers, bottom, isExpandDown, next
 
 function addParallelContextLines(options) {
   const { parallelLines, contextLines, lineNumbers, isExpandDown } = options;
-  const normalizedParallelLines = contextLines.map(line => ({
+  const normalizedParallelLines = contextLines.map((line) => ({
     left: line,
     right: line,
     line_code: line.line_code,
@@ -416,14 +416,14 @@ export function prepareDiffData(diff, priorFiles = []) {
 
 export function getDiffPositionByLineCode(diffFiles, useSingleDiffStyle) {
   let lines = [];
-  const hasInlineDiffs = diffFiles.some(file => file.highlighted_diff_lines.length > 0);
+  const hasInlineDiffs = diffFiles.some((file) => file.highlighted_diff_lines.length > 0);
 
   if (!useSingleDiffStyle || hasInlineDiffs) {
     // In either of these cases, we can use `highlighted_diff_lines` because
     // that will include all of the parallel diff lines, too
 
     lines = diffFiles.reduce((acc, diffFile) => {
-      diffFile.highlighted_diff_lines.forEach(line => {
+      diffFile.highlighted_diff_lines.forEach((line) => {
         acc.push({ file: diffFile, line });
       });
 
@@ -434,7 +434,7 @@ export function getDiffPositionByLineCode(diffFiles, useSingleDiffStyle) {
     // loaded yet, we need to parse the parallel lines
 
     lines = diffFiles.reduce((acc, diffFile) => {
-      diffFile.parallel_diff_lines.forEach(pair => {
+      diffFile.parallel_diff_lines.forEach((pair) => {
         // It's possible for a parallel line to have an opposite line that doesn't exist
         // For example: *deleted* lines will have `null` right lines, while
         // *added* lines will have `null` left lines.
@@ -490,21 +490,21 @@ export function isDiscussionApplicableToLine({ discussion, diffPosition, latestD
       ...(discussion.positions || []),
     ];
 
-    const removeLineRange = position => {
+    const removeLineRange = (position) => {
       const { line_range: pNotUsed, ...positionNoLineRange } = position;
       return positionNoLineRange;
     };
 
     return discussionPositions
       .map(removeLineRange)
-      .some(position => isEqual(position, diffPositionCopy));
+      .some((position) => isEqual(position, diffPositionCopy));
   }
 
   // eslint-disable-next-line
   return latestDiff && discussion.active && line_code === discussion.line_code;
 }
 
-export const getLowestSingleFolder = folder => {
+export const getLowestSingleFolder = (folder) => {
   const getFolder = (blob, start = []) =>
     blob.tree.reduce(
       (acc, file) => {
@@ -536,8 +536,8 @@ export const getLowestSingleFolder = folder => {
   };
 };
 
-export const flattenTree = tree => {
-  const flatten = blobTree =>
+export const flattenTree = (tree) => {
+  const flatten = (blobTree) =>
     blobTree.reduce((acc, file) => {
       const blob = file;
       let treeToFlatten = blob.tree;
@@ -559,7 +559,7 @@ export const flattenTree = tree => {
   return flatten(tree);
 };
 
-export const generateTreeList = files => {
+export const generateTreeList = (files) => {
   const { treeEntries, tree } = files.reduce(
     (acc, file) => {
       const split = file.new_path.split('/');
@@ -608,8 +608,8 @@ export const generateTreeList = files => {
   return { treeEntries, tree: flattenTree(tree) };
 };
 
-export const getDiffMode = diffFile => {
-  const diffModeKey = Object.keys(diffModes).find(key => diffFile[`${key}_file`]);
+export const getDiffMode = (diffFile) => {
+  const diffModeKey = Object.keys(diffModes).find((key) => diffFile[`${key}_file`]);
   return (
     diffModes[diffModeKey] ||
     (diffFile.viewer &&
@@ -657,12 +657,12 @@ export const convertExpandLines = ({
   return lines;
 };
 
-export const idleCallback = cb => requestIdleCallback(cb);
+export const idleCallback = (cb) => requestIdleCallback(cb);
 
 function getLinesFromFileByLineCode(file, lineCode) {
   const parallelLines = file.parallel_diff_lines;
   const inlineLines = file.highlighted_diff_lines;
-  const matchesCode = line => line.line_code === lineCode;
+  const matchesCode = (line) => line.line_code === lineCode;
 
   return [
     ...parallelLines.reduce((acc, line) => {
@@ -684,20 +684,20 @@ export const updateLineInFile = (selectedFile, lineCode, updateFn) => {
   getLinesFromFileByLineCode(selectedFile, lineCode).forEach(updateFn);
 };
 
-export const allDiscussionWrappersExpanded = diff => {
+export const allDiscussionWrappersExpanded = (diff) => {
   let discussionsExpanded = true;
-  const changeExpandedResult = line => {
+  const changeExpandedResult = (line) => {
     if (line && line.discussions.length) {
       discussionsExpanded = discussionsExpanded && line.discussionsExpanded;
     }
   };
 
-  diff.parallel_diff_lines.forEach(line => {
+  diff.parallel_diff_lines.forEach((line) => {
     changeExpandedResult(line.left);
     changeExpandedResult(line.right);
   });
 
-  diff.highlighted_diff_lines.forEach(line => {
+  diff.highlighted_diff_lines.forEach((line) => {
     changeExpandedResult(line);
   });
 

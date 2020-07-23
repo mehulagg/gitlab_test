@@ -125,7 +125,7 @@ export default {
       $(
         '.js-builds-dropdown-list button, .js-builds-dropdown-list a.mini-pipeline-graph-dropdown-item',
         this.$el,
-      ).on('click', e => {
+      ).on('click', (e) => {
         e.stopPropagation();
       });
     },

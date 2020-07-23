@@ -35,7 +35,7 @@ export default () => {
     el,
     name: 'CycleAnalyticsApp',
     store,
-    render: createElement =>
+    render: (createElement) =>
       createElement(CycleAnalytics, {
         props: {
           emptyStateSvgPath,

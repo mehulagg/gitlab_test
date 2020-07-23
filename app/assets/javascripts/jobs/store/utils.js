@@ -41,7 +41,7 @@ export const parseHeaderLine = (line = {}, lineNumber) => ({
  * @param Object durationLine
  */
 export function addDurationToHeader(data, durationLine) {
-  data.forEach(el => {
+  data.forEach((el) => {
     if (el.line && el.line.section === durationLine.section) {
       el.line.section_duration = durationLine.section_duration;
     }
@@ -70,7 +70,7 @@ export const isCollapsibleSection = (acc = [], last = {}, section = {}) =>
  * @param Array acc
  * @returns Number
  */
-export const getIncrementalLineNumber = acc => {
+export const getIncrementalLineNumber = (acc) => {
   let lineNumberValue;
   const lastIndex = acc.length - 1;
   const lastElement = acc[lastIndex];

@@ -27,7 +27,7 @@ describe('sast report actions', () => {
   });
 
   describe('setDiffEndpoint', () => {
-    it(`should commit ${types.SET_DIFF_ENDPOINT} with the correct path`, done => {
+    it(`should commit ${types.SET_DIFF_ENDPOINT} with the correct path`, (done) => {
       testAction(
         actions.setDiffEndpoint,
         diffEndpoint,
@@ -45,13 +45,13 @@ describe('sast report actions', () => {
   });
 
   describe('requestDiff', () => {
-    it(`should commit ${types.REQUEST_DIFF}`, done => {
+    it(`should commit ${types.REQUEST_DIFF}`, (done) => {
       testAction(actions.requestDiff, {}, state, [{ type: types.REQUEST_DIFF }], [], done);
     });
   });
 
   describe('receiveDiffSuccess', () => {
-    it(`should commit ${types.RECEIVE_DIFF_SUCCESS} with the correct response`, done => {
+    it(`should commit ${types.RECEIVE_DIFF_SUCCESS} with the correct response`, (done) => {
       testAction(
         actions.receiveDiffSuccess,
         reports,
@@ -69,7 +69,7 @@ describe('sast report actions', () => {
   });
 
   describe('receiveDiffError', () => {
-    it(`should commit ${types.RECEIVE_DIFF_ERROR} with the correct response`, done => {
+    it(`should commit ${types.RECEIVE_DIFF_ERROR} with the correct response`, (done) => {
       testAction(
         actions.receiveDiffError,
         error,
@@ -108,7 +108,7 @@ describe('sast report actions', () => {
           .replyOnce(200, reports.enrichData);
       });
 
-      it('should dispatch the `receiveDiffSuccess` action', done => {
+      it('should dispatch the `receiveDiffSuccess` action', (done) => {
         const { diff, enrichData } = reports;
         testAction(
           actions.fetchDiff,
@@ -136,7 +136,7 @@ describe('sast report actions', () => {
         mock.onGet(diffEndpoint).replyOnce(200, reports.diff);
       });
 
-      it('should dispatch the `receiveDiffSuccess` action with empty enrich data', done => {
+      it('should dispatch the `receiveDiffSuccess` action with empty enrich data', (done) => {
         const { diff } = reports;
         const enrichData = [];
         testAction(
@@ -168,7 +168,7 @@ describe('sast report actions', () => {
           .replyOnce(404);
       });
 
-      it('should dispatch the `receiveError` action', done => {
+      it('should dispatch the `receiveError` action', (done) => {
         testAction(
           actions.fetchDiff,
           {},
@@ -189,7 +189,7 @@ describe('sast report actions', () => {
           .replyOnce(200, reports.enrichData);
       });
 
-      it('should dispatch the `receiveDiffError` action', done => {
+      it('should dispatch the `receiveDiffError` action', (done) => {
         testAction(
           actions.fetchDiff,
           {},
@@ -203,7 +203,7 @@ describe('sast report actions', () => {
   });
 
   describe('updateVulnerability', () => {
-    it(`should commit ${types.UPDATE_VULNERABILITY} with the correct response`, done => {
+    it(`should commit ${types.UPDATE_VULNERABILITY} with the correct response`, (done) => {
       testAction(
         actions.updateVulnerability,
         issue,

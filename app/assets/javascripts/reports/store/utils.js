@@ -7,7 +7,7 @@ import {
   ICON_NOTFOUND,
 } from '../constants';
 
-const textBuilder = results => {
+const textBuilder = (results) => {
   const { failed, errored, resolved, total } = results;
 
   const failedOrErrored = (failed || 0) + (errored || 0);
@@ -48,7 +48,7 @@ export const reportTextBuilder = (name = '', results = {}) => {
   return sprintf(__('%{name} found %{resultsString}'), { name, resultsString });
 };
 
-export const statusIcon = status => {
+export const statusIcon = (status) => {
   if (status === STATUS_FAILED) {
     return ICON_WARNING;
   }

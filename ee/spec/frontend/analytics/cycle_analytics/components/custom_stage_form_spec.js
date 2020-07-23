@@ -76,7 +76,7 @@ describe('CustomStageForm', () => {
   let wrapper = null;
   let mock;
 
-  const findEvent = ev => wrapper.emitted()[ev];
+  const findEvent = (ev) => wrapper.emitted()[ev];
 
   const sel = {
     name: '[name="custom-stage-name"]',
@@ -93,10 +93,7 @@ describe('CustomStageForm', () => {
   };
 
   function getDropdownOption(_wrapper, dropdown, index) {
-    return _wrapper
-      .find(dropdown)
-      .findAll('option')
-      .at(index);
+    return _wrapper.find(dropdown).findAll('option').at(index);
   }
 
   function selectDropdownOption(_wrapper, dropdown, index) {
@@ -105,12 +102,12 @@ describe('CustomStageForm', () => {
 
   // Valid start and end event pair: merge request created - merge request closed
   const mergeRequestCreatedIndex = startEvents.findIndex(
-    e => e.identifier === MERGE_REQUEST_CREATED,
+    (e) => e.identifier === MERGE_REQUEST_CREATED,
   );
   const mergeRequestCreatedDropdownIndex = mergeRequestCreatedIndex;
   const mergeReqestCreatedEvent = startEvents[mergeRequestCreatedIndex];
   const mergeRequestClosedDropdownIndex = mergeReqestCreatedEvent.allowedEndEvents.findIndex(
-    e => e === MERGE_REQUEST_CLOSED,
+    (e) => e === MERGE_REQUEST_CLOSED,
   );
 
   function setEventDropdowns({
@@ -123,8 +120,8 @@ describe('CustomStageForm', () => {
     });
   }
 
-  const findNameField = _wrapper => _wrapper.find({ ref: 'name' });
-  const findNameFieldInput = _wrapper => _wrapper.find(sel.name);
+  const findNameField = (_wrapper) => _wrapper.find({ ref: 'name' });
+  const findNameFieldInput = (_wrapper) => _wrapper.find(sel.name);
 
   function setNameField(_wrapper, value = '') {
     findNameFieldInput(_wrapper).setValue(value);
@@ -205,8 +202,8 @@ describe('CustomStageForm', () => {
         const select = wrapper.find(sel.startEvent);
 
         events
-          .filter(ev => ev.canBeStartEvent)
-          .forEach(ev => {
+          .filter((ev) => ev.canBeStartEvent)
+          .forEach((ev) => {
             expect(select.html()).toHaveHtml(
               `<option value="${ev.identifier}">${ev.name}</option>`,
             );
@@ -217,8 +214,8 @@ describe('CustomStageForm', () => {
         const select = wrapper.find(sel.startEvent);
 
         events
-          .filter(ev => !ev.canBeStartEvent)
-          .forEach(ev => {
+          .filter((ev) => !ev.canBeStartEvent)
+          .forEach((ev) => {
             expect(select.html()).not.toHaveHtml(
               `<option value="${ev.identifier}">${ev.name}</option>`,
             );
@@ -316,7 +313,7 @@ describe('CustomStageForm', () => {
 
       return wrapper.vm.$nextTick().then(() => {
         stopOptions = wrapper.find(sel.endEvent);
-        selectedStartEvent.allowedEndEvents.forEach(identifier => {
+        selectedStartEvent.allowedEndEvents.forEach((identifier) => {
           expect(stopOptions.html()).toContain(identifier);
         });
       });
@@ -324,7 +321,7 @@ describe('CustomStageForm', () => {
 
     it('will display all the valid stop events', () => {
       let stopOptions = wrapper.find(sel.endEvent).findAll('option');
-      const possibleEndEvents = stopEvents.filter(ev => currAllowed.includes(ev.identifier));
+      const possibleEndEvents = stopEvents.filter((ev) => currAllowed.includes(ev.identifier));
 
       expect(stopOptions.at(0).html()).toEqual('<option value="">Select stop event</option>');
 
@@ -341,7 +338,7 @@ describe('CustomStageForm', () => {
 
     it('will not display stop events that are not in the list of allowed stop events', () => {
       let stopOptions = wrapper.find(sel.endEvent).findAll('option');
-      const excludedEndEvents = stopEvents.filter(ev => !currAllowed.includes(ev.identifier));
+      const excludedEndEvents = stopEvents.filter((ev) => !currAllowed.includes(ev.identifier));
 
       expect(stopOptions.at(0).html()).toEqual('<option value="">Select stop event</option>');
 
@@ -844,10 +841,7 @@ describe('CustomStageForm', () => {
       it(`emits the ${STAGE_ACTIONS.UPDATE} action when clicking on a stage to recover`, () => {
         wrapper.find(sel.recoverStageDropdownTrigger).trigger('click');
         return wrapper.vm.$nextTick().then(() => {
-          wrapper
-            .findAll(sel.hiddenStageDropdownOption)
-            .at(0)
-            .trigger('click');
+          wrapper.findAll(sel.hiddenStageDropdownOption).at(0).trigger('click');
 
           expect(wrapper.emitted()).toEqual({
             [STAGE_ACTIONS.UPDATE]: [[{ hidden: false, id: 'my-stage' }]],

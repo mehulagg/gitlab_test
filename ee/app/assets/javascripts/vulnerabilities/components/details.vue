@@ -70,7 +70,7 @@ export default {
           content: this.getHeadersAsCodeBlockLines(headers),
           isCode: true,
         },
-      ].filter(x => x.content);
+      ].filter((x) => x.content);
     },
     responseData() {
       const {
@@ -87,7 +87,7 @@ export default {
           content: this.getHeadersAsCodeBlockLines(headers),
           isCode: true,
         },
-      ].filter(x => x.content);
+      ].filter((x) => x.content);
     },
     shouldShowLocation() {
       return (

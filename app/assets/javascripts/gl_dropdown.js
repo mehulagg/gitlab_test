@@ -39,24 +39,21 @@ class GitLabDropdownInput {
     this.fieldName = this.options.fieldName || 'field-name';
     const $inputContainer = this.input.parent();
     const $clearButton = $inputContainer.find('.js-dropdown-input-clear');
-    $clearButton.on('click', e => {
+    $clearButton.on('click', (e) => {
       // Clear click
       e.preventDefault();
       e.stopPropagation();
-      return this.input
-        .val('')
-        .trigger('input')
-        .focus();
+      return this.input.val('').trigger('input').focus();
     });
 
     this.input
-      .on('keydown', e => {
+      .on('keydown', (e) => {
         const keyCode = e.which;
         if (keyCode === 13 && !options.elIsInput) {
           e.preventDefault();
         }
       })
-      .on('input', e => {
+      .on('input', (e) => {
         let val = e.currentTarget.value || this.options.inputFieldName;
         val = val
           .split(' ')
@@ -65,10 +62,7 @@ class GitLabDropdownInput {
           .toLowerCase() // replace non alphanumeric
           .replace(/(-)\1+/g, '-'); // replace repeated dashes
         this.cb(this.options.fieldName, val, {}, true);
-        this.input
-          .closest('.dropdown')
-          .find('.dropdown-toggle-text')
-          .text(val);
+        this.input.closest('.dropdown').find('.dropdown-toggle-text').text(val);
       });
   }
 
@@ -86,19 +80,16 @@ class GitLabDropdownFilter {
     this.filterInputBlur = (ref = this.options.filterInputBlur) != null ? ref : true;
     const $inputContainer = this.input.parent();
     const $clearButton = $inputContainer.find('.js-dropdown-input-clear');
-    $clearButton.on('click', e => {
+    $clearButton.on('click', (e) => {
       // Clear click
       e.preventDefault();
       e.stopPropagation();
-      return this.input
-        .val('')
-        .trigger('input')
-        .focus();
+      return this.input.val('').trigger('input').focus();
     });
     // Key events
     timeout = '';
     this.input
-      .on('keydown', e => {
+      .on('keydown', (e) => {
         const keyCode = e.which;
         if (keyCode === 13 && !options.elIsInput) {
           e.preventDefault();
@@ -117,7 +108,7 @@ class GitLabDropdownFilter {
           return (timeout = setTimeout(() => {
             $inputContainer.parent().addClass('is-loading');
 
-            return this.options.query(this.input.val(), data => {
+            return this.options.query(this.input.val(), (data) => {
               $inputContainer.parent().removeClass('is-loading');
               return this.options.callback(data);
             });
@@ -163,13 +154,13 @@ class GitLabDropdownFilter {
         // }
         else if (isObject(data)) {
           results = {};
-          Object.keys(data).forEach(key => {
+          Object.keys(data).forEach((key) => {
             group = data[key];
             tmp = fuzzaldrinPlus.filter(group, searchText, {
               key: this.options.keys,
             });
             if (tmp.length) {
-              results[key] = tmp.map(item => item);
+              results[key] = tmp.map((item) => item);
             }
           });
         }
@@ -179,7 +170,7 @@ class GitLabDropdownFilter {
     const elements = this.options.elements();
     if (searchText) {
       // eslint-disable-next-line func-names
-      elements.each(function() {
+      elements.each(function () {
         const $el = $(this);
         const matches = fuzzaldrinPlus.match($el.text().trim(), searchText);
         if (!$el.is('.dropdown-header')) {
@@ -213,7 +204,7 @@ class GitLabDropdownRemote {
       if (this.options.beforeSend) {
         this.options.beforeSend();
       }
-      return this.dataEndpoint('', data => {
+      return this.dataEndpoint('', (data) => {
         // Fetch the data by calling the data function
         if (this.options.success) {
           this.options.success(data);
@@ -277,7 +268,7 @@ class GitLabDropdown {
         this.remote = new GitLabDropdownRemote(this.options.data, {
           dataType: this.options.dataType,
           beforeSend: this.toggleLoading.bind(this),
-          success: data => {
+          success: (data) => {
             this.fullData = data;
             this.parseData(this.fullData);
             this.focusTextInput();
@@ -322,7 +313,7 @@ class GitLabDropdown {
           return $(selector, this.dropdown);
         },
         data: () => this.fullData,
-        callback: data => {
+        callback: (data) => {
           this.parseData(data);
           if (this.filterInput.val() !== '') {
             selector = SELECTABLE_CLASSES;
@@ -332,10 +323,7 @@ class GitLabDropdown {
             if ($(this.el).is('input')) {
               currentIndex = -1;
             } else {
-              $(selector, this.dropdown)
-                .first()
-                .find('a')
-                .addClass('is-focused');
+              $(selector, this.dropdown).first().find('a').addClass('is-focused');
               currentIndex = 0;
             }
           }
@@ -347,13 +335,13 @@ class GitLabDropdown {
     this.dropdown.on('hidden.bs.dropdown', this.hidden);
     $(this.el).on('update.label', this.updateLabel);
     this.dropdown.on('click', '.dropdown-menu, .dropdown-menu-close', this.shouldPropagate);
-    this.dropdown.on('keyup', e => {
+    this.dropdown.on('keyup', (e) => {
       // Escape key
       if (e.which === 27) {
         return $('.dropdown-menu-close', this.dropdown).trigger('click');
       }
     });
-    this.dropdown.on('blur', 'a', e => {
+    this.dropdown.on('blur', 'a', (e) => {
       let $dropdownMenu, $relatedTarget;
       if (e.relatedTarget != null) {
         $relatedTarget = $(e.relatedTarget);
@@ -364,7 +352,7 @@ class GitLabDropdown {
       }
     });
     if (this.dropdown.find('.dropdown-toggle-page').length) {
-      this.dropdown.find('.dropdown-toggle-page, .dropdown-menu-back').on('click', e => {
+      this.dropdown.find('.dropdown-toggle-page, .dropdown-menu-back').on('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         return this.togglePage();
@@ -375,7 +363,7 @@ class GitLabDropdown {
       if (this.dropdown.find('.dropdown-toggle-page').length) {
         selector = '.dropdown-page-one .dropdown-content a';
       }
-      this.dropdown.on('click', selector, e => {
+      this.dropdown.on('click', selector, (e) => {
         const $el = $(e.currentTarget);
         const selected = self.rowClicked($el);
         const selectedObj = selected ? selected[0] : null;
@@ -431,7 +419,7 @@ class GitLabDropdown {
     else if (isObject(data)) {
       html = [];
 
-      Object.keys(data).forEach(name => {
+      Object.keys(data).forEach((name) => {
         groupData = data[name];
         html.push(
           this.renderItem(
@@ -442,7 +430,7 @@ class GitLabDropdown {
             name,
           ),
         );
-        this.renderData(groupData, name).map(item => html.push(item));
+        this.renderData(groupData, name).map((item) => html.push(item));
       });
     } else {
       // Render each row
@@ -481,7 +469,7 @@ class GitLabDropdown {
 
   filteredFullData() {
     return this.fullData.filter(
-      r =>
+      (r) =>
         typeof r === 'object' &&
         !Object.prototype.hasOwnProperty.call(r, 'beforeDivider') &&
         !Object.prototype.hasOwnProperty.call(r, 'header'),
@@ -599,7 +587,7 @@ class GitLabDropdown {
         ...this.options,
         icon: this.icon,
         highlight: this.highlight,
-        highlightText: text => this.highlightTextMatches(text, this.filterInput.val()),
+        highlightText: (text) => this.highlightTextMatches(text, this.filterInput.val()),
         highlightTemplate: this.highlightTemplate.bind(this),
         parent,
       },
@@ -696,10 +684,7 @@ class GitLabDropdown {
       if (!this.options.multiSelect || el.hasClass('dropdown-clear-active')) {
         this.dropdown.find(`.${ACTIVE_CLASS}`).removeClass(ACTIVE_CLASS);
         if (!isInput) {
-          this.dropdown
-            .parent()
-            .find(`input[name='${fieldName}']`)
-            .remove();
+          this.dropdown.parent().find(`input[name='${fieldName}']`).remove();
         }
       }
       if (field && field.length && value == null) {
@@ -739,16 +724,13 @@ class GitLabDropdown {
       $(`input[name="${fieldName}"]`).remove();
     }
 
-    const $input = $('<input>')
-      .attr('type', 'hidden')
-      .attr('name', fieldName)
-      .val(value);
+    const $input = $('<input>').attr('type', 'hidden').attr('name', fieldName).val(value);
     if (this.options.inputId != null) {
       $input.attr('id', this.options.inputId);
     }
 
     if (this.options.multiSelect) {
-      Object.keys(selectedObject).forEach(attribute => {
+      Object.keys(selectedObject).forEach((attribute) => {
         $input.attr(`data-${attribute}`, selectedObject[attribute]);
       });
     }
@@ -789,7 +771,7 @@ class GitLabDropdown {
     if (this.dropdown.find('.dropdown-toggle-page').length) {
       selector = `.dropdown-page-one ${selector}`;
     }
-    return $('body').on('keydown', e => {
+    return $('body').on('keydown', (e) => {
       let $listItems, PREV_INDEX;
       const currentKeyCode = e.which;
       if (ARROW_KEY_CODES.indexOf(currentKeyCode) !== -1) {
@@ -879,9 +861,7 @@ class GitLabDropdown {
       toggleText = this.options.updateLabel;
     }
 
-    return $(this.el)
-      .find('.dropdown-toggle-text')
-      .text(toggleText);
+    return $(this.el).find('.dropdown-toggle-text').text(toggleText);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -891,9 +871,9 @@ class GitLabDropdown {
 }
 
 // eslint-disable-next-line func-names
-$.fn.glDropdown = function(opts) {
+$.fn.glDropdown = function (opts) {
   // eslint-disable-next-line func-names
-  return this.each(function() {
+  return this.each(function () {
     if (!$.data(this, 'glDropdown')) {
       return $.data(this, 'glDropdown', new GitLabDropdown(this, opts));
     }

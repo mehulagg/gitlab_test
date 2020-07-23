@@ -74,7 +74,7 @@ export default {
       variables() {
         return this.designVariables;
       },
-      update: data => extractDesign(data),
+      update: (data) => extractDesign(data),
       result(res) {
         this.onDesignQueryResult(res);
       },
@@ -132,7 +132,7 @@ export default {
       return Boolean(this.annotationCoordinates);
     },
     resolvedDiscussions() {
-      return this.discussions.filter(discussion => discussion.resolved);
+      return this.discussions.filter((discussion) => discussion.resolved);
     },
   },
   watch: {
@@ -152,12 +152,7 @@ export default {
     Mousetrap.unbind('esc', this.closeDesign);
   },
   methods: {
-    addImageDiffNoteToStore(
-      store,
-      {
-        data: { createImageDiffNote },
-      },
-    ) {
+    addImageDiffNoteToStore(store, { data: { createImageDiffNote } }) {
       updateStoreAfterAddImageDiffNote(
         store,
         createImageDiffNote,
@@ -165,12 +160,7 @@ export default {
         this.designVariables,
       );
     },
-    updateImageDiffNoteInStore(
-      store,
-      {
-        data: { updateImageDiffNote },
-      },
-    ) {
+    updateImageDiffNoteInStore(store, { data: { updateImageDiffNote } }) {
       return updateStoreAfterUpdateImageDiffNote(
         store,
         updateImageDiffNote,
@@ -198,7 +188,7 @@ export default {
         update: this.updateImageDiffNoteInStore,
       };
 
-      return this.$apollo.mutate(mutationPayload).catch(e => this.onUpdateImageDiffNoteError(e));
+      return this.$apollo.mutate(mutationPayload).catch((e) => this.onUpdateImageDiffNoteError(e));
     },
     onDesignQueryResult({ data, loading }) {
       // On the initial load with cache-and-network policy data is undefined while loading is true

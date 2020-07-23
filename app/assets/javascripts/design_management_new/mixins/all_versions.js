@@ -12,7 +12,7 @@ export default {
           atVersion: null,
         };
       },
-      update: data => data.project.issue.designCollection.versions.edges,
+      update: (data) => data.project.issue.designCollection.versions.edges,
     },
   },
   inject: {
@@ -28,7 +28,7 @@ export default {
       return (
         this.$route.query.version &&
         this.allVersions &&
-        this.allVersions.some(version => version.node.id.endsWith(this.$route.query.version))
+        this.allVersions.some((version) => version.node.id.endsWith(this.$route.query.version))
       );
     },
     designsVersion() {

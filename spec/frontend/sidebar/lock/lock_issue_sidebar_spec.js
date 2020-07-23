@@ -46,7 +46,7 @@ describe('LockIssueSidebar', () => {
     expect(vm2.$el.innerHTML.includes('Unlocked')).toBe(true);
   });
 
-  it('displays the edit form when editable', done => {
+  it('displays the edit form when editable', (done) => {
     expect(vm1.isLockDialogOpen).toBe(false);
 
     vm1.$el.querySelector('.lock-edit').click();
@@ -70,7 +70,7 @@ describe('LockIssueSidebar', () => {
     });
   });
 
-  it('displays the edit form when opened from collapsed state', done => {
+  it('displays the edit form when opened from collapsed state', (done) => {
     expect(vm1.isLockDialogOpen).toBe(false);
 
     vm1.$el.querySelector('.sidebar-collapsed-icon').click();
@@ -84,7 +84,7 @@ describe('LockIssueSidebar', () => {
     });
   });
 
-  it('does not display the edit form when opened from collapsed state if not editable', done => {
+  it('does not display the edit form when opened from collapsed state if not editable', (done) => {
     expect(vm2.isLockDialogOpen).toBe(false);
 
     vm2.$el.querySelector('.sidebar-collapsed-icon').click();

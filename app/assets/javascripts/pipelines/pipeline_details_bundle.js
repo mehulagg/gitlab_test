@@ -14,7 +14,7 @@ import createTestReportsStore from './stores/test_reports';
 
 Vue.use(Translate);
 
-const createPipelinesDetailApp = mediator => {
+const createPipelinesDetailApp = (mediator) => {
   // eslint-disable-next-line no-new
   new Vue({
     el: '#js-pipeline-graph-vue',
@@ -38,15 +38,15 @@ const createPipelinesDetailApp = mediator => {
           refreshPipelineGraph: this.requestRefreshPipelineGraph,
           onResetTriggered: (parentPipeline, pipeline) =>
             this.resetTriggeredPipelines(parentPipeline, pipeline),
-          onClickTriggeredBy: pipeline => this.clickTriggeredByPipeline(pipeline),
-          onClickTriggered: pipeline => this.clickTriggeredPipeline(pipeline),
+          onClickTriggeredBy: (pipeline) => this.clickTriggeredByPipeline(pipeline),
+          onClickTriggered: (pipeline) => this.clickTriggeredPipeline(pipeline),
         },
       });
     },
   });
 };
 
-const createPipelineHeaderApp = mediator => {
+const createPipelineHeaderApp = (mediator) => {
   // eslint-disable-next-line no-new
   new Vue({
     el: '#js-pipeline-header-vue',
@@ -92,7 +92,7 @@ const createPipelineHeaderApp = mediator => {
   });
 };
 
-const createPipelinesTabs = testReportsStore => {
+const createPipelinesTabs = (testReportsStore) => {
   const tabsElement = document.querySelector('.pipelines-tabs');
 
   if (tabsElement) {
@@ -104,7 +104,7 @@ const createPipelinesTabs = testReportsStore => {
     if (isTestTabActive) {
       testReportsStore.dispatch(fetchReportsAction);
     } else {
-      const tabClickHandler = e => {
+      const tabClickHandler = (e) => {
         if (e.target.className === 'test-tab') {
           testReportsStore.dispatch(fetchReportsAction);
           tabsElement.removeEventListener('click', tabClickHandler);

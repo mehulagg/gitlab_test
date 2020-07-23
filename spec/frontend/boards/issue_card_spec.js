@@ -77,7 +77,7 @@ describe('Issue card component', () => {
     expect(wrapper.find('.issue-blocked-icon').exists()).toBe(false);
   });
 
-  it('renders confidential icon', done => {
+  it('renders confidential icon', (done) => {
     wrapper.setProps({
       issue: {
         ...wrapper.props('issue'),
@@ -100,7 +100,7 @@ describe('Issue card component', () => {
     });
 
     describe('exists', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         wrapper.setProps({
           issue: {
             ...wrapper.props('issue'),
@@ -130,7 +130,7 @@ describe('Issue card component', () => {
         expect(wrapper.find('.board-card-assignee img').exists()).toBe(true);
       });
 
-      it('renders the avatar using avatar_url property', done => {
+      it('renders the avatar using avatar_url property', (done) => {
         wrapper.props('issue').updateData({
           ...wrapper.props('issue'),
           assignees: [
@@ -154,7 +154,7 @@ describe('Issue card component', () => {
     });
 
     describe('assignee default avatar', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         global.gon.default_avatar_url = 'default_avatar';
 
         wrapper.setProps({
@@ -187,7 +187,7 @@ describe('Issue card component', () => {
   });
 
   describe('multiple assignees', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper.setProps({
         issue: {
           ...wrapper.props('issue'),
@@ -222,7 +222,7 @@ describe('Issue card component', () => {
     });
 
     describe('more than three assignees', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         const { assignees } = wrapper.props('issue');
         assignees.push(
           new ListAssignee({
@@ -243,23 +243,18 @@ describe('Issue card component', () => {
       });
 
       it('renders more avatar counter', () => {
-        expect(
-          wrapper
-            .find('.board-card-assignee .avatar-counter')
-            .text()
-            .trim(),
-        ).toEqual('+2');
+        expect(wrapper.find('.board-card-assignee .avatar-counter').text().trim()).toEqual('+2');
       });
 
       it('renders two assignees', () => {
         expect(wrapper.findAll('.board-card-assignee .avatar').length).toEqual(2);
       });
 
-      it('renders 99+ avatar counter', done => {
+      it('renders 99+ avatar counter', (done) => {
         const assignees = [
           ...wrapper.props('issue').assignees,
           ...range(5, 103).map(
-            i =>
+            (i) =>
               new ListAssignee({
                 id: i,
                 name: 'name',
@@ -276,12 +271,7 @@ describe('Issue card component', () => {
         });
 
         wrapper.vm.$nextTick(() => {
-          expect(
-            wrapper
-              .find('.board-card-assignee .avatar-counter')
-              .text()
-              .trim(),
-          ).toEqual('99+');
+          expect(wrapper.find('.board-card-assignee .avatar-counter').text().trim()).toEqual('99+');
           done();
         });
       });
@@ -289,7 +279,7 @@ describe('Issue card component', () => {
   });
 
   describe('labels', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       issue.addLabel(label1);
       wrapper.setProps({ issue: { ...issue } });
 
@@ -304,7 +294,7 @@ describe('Issue card component', () => {
       expect(label.props('backgroundColor')).toEqual(label1.color);
     });
 
-    it('does not render label if label does not have an ID', done => {
+    it('does not render label if label does not have an ID', (done) => {
       issue.addLabel(
         new ListLabel({
           title: 'closed',
@@ -323,7 +313,7 @@ describe('Issue card component', () => {
   });
 
   describe('blocked', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper.setProps({
         issue: {
           ...wrapper.props('issue'),

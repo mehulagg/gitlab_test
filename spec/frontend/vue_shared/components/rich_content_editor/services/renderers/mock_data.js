@@ -1,6 +1,6 @@
 // Node spec helpers
 
-export const buildMockTextNode = literal => {
+export const buildMockTextNode = (literal) => {
   return {
     firstChild: null,
     literal,
@@ -12,7 +12,7 @@ export const normalTextNode = buildMockTextNode('This is just normal text.');
 
 // Token spec helpers
 
-const buildMockUneditableOpenToken = type => {
+const buildMockUneditableOpenToken = (type) => {
   return {
     type: 'openTag',
     tagName: type,
@@ -23,7 +23,7 @@ const buildMockUneditableOpenToken = type => {
   };
 };
 
-const buildMockUneditableCloseToken = type => {
+const buildMockUneditableCloseToken = (type) => {
   return { type: 'closeTag', tagName: type };
 };
 

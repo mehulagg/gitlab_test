@@ -10,11 +10,11 @@ describe('Expiration Policy Form', () => {
 
   const FORM_ELEMENTS_ID_PREFIX = '#expiration-policy';
 
-  const findFormGroup = name => wrapper.find(`${FORM_ELEMENTS_ID_PREFIX}-${name}-group`);
+  const findFormGroup = (name) => wrapper.find(`${FORM_ELEMENTS_ID_PREFIX}-${name}-group`);
   const findFormElements = (name, parent = wrapper) =>
     parent.find(`${FORM_ELEMENTS_ID_PREFIX}-${name}`);
 
-  const mountComponent = props => {
+  const mountComponent = (props) => {
     wrapper = shallowMount(component, {
       stubs: {
         GlSprintf,
@@ -25,7 +25,7 @@ describe('Expiration Policy Form', () => {
       },
       methods: {
         // override idGenerator to avoid having to test with dynamic uid
-        idGenerator: value => value,
+        idGenerator: (value) => value,
       },
     });
   };

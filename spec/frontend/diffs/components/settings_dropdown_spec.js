@@ -62,7 +62,7 @@ describe('Diff settiings dropdown component', () => {
     });
 
     it('sets list button as active when renderTreeList is false', () => {
-      createComponent(store => {
+      createComponent((store) => {
         Object.assign(store.state.diffs, {
           renderTreeList: false,
         });
@@ -73,7 +73,7 @@ describe('Diff settiings dropdown component', () => {
     });
 
     it('sets tree button as active when renderTreeList is true', () => {
-      createComponent(store => {
+      createComponent((store) => {
         Object.assign(store.state.diffs, {
           renderTreeList: true,
         });
@@ -86,7 +86,7 @@ describe('Diff settiings dropdown component', () => {
 
   describe('compare changes', () => {
     it('sets inline button as active', () => {
-      createComponent(store => {
+      createComponent((store) => {
         Object.assign(store.state.diffs, {
           diffViewType: INLINE_DIFF_VIEW_TYPE,
         });
@@ -97,7 +97,7 @@ describe('Diff settiings dropdown component', () => {
     });
 
     it('sets parallel button as active', () => {
-      createComponent(store => {
+      createComponent((store) => {
         Object.assign(store.state.diffs, {
           diffViewType: PARALLEL_DIFF_VIEW_TYPE,
         });
@@ -126,7 +126,7 @@ describe('Diff settiings dropdown component', () => {
 
   describe('whitespace toggle', () => {
     it('does not set as checked when showWhitespace is false', () => {
-      createComponent(store => {
+      createComponent((store) => {
         Object.assign(store.state.diffs, {
           showWhitespace: false,
         });
@@ -136,7 +136,7 @@ describe('Diff settiings dropdown component', () => {
     });
 
     it('sets as checked when showWhitespace is true', () => {
-      createComponent(store => {
+      createComponent((store) => {
         Object.assign(store.state.diffs, {
           showWhitespace: true,
         });

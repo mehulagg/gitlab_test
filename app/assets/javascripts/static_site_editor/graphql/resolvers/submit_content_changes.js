@@ -7,7 +7,7 @@ const submitContentChangesResolver = (
   { cache },
 ) => {
   return submitContentChanges({ projectId, username, sourcePath, content, images }).then(
-    savedContentMeta => {
+    (savedContentMeta) => {
       cache.writeQuery({
         query: savedContentMetaQuery,
         data: {

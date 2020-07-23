@@ -32,6 +32,10 @@ jest.mock('@gitlab/ui/dist/components/base/popover/popover.js', () => ({
     },
   },
   render(h) {
-    return h('div', this.$attrs, Object.keys(this.$slots).map(s => this.$slots[s]));
+    return h(
+      'div',
+      this.$attrs,
+      Object.keys(this.$slots).map((s) => this.$slots[s]),
+    );
   },
 }));

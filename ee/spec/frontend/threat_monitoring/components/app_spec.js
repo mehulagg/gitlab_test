@@ -68,7 +68,7 @@ describe('ThreatMonitoringApp component', () => {
 
   describe.each([-1, NaN, Math.PI])(
     'given an invalid default environment id of %p',
-    invalidEnvironmentId => {
+    (invalidEnvironmentId) => {
       beforeEach(() => {
         factory({
           propsData: {

@@ -18,7 +18,7 @@ export default {
           atVersion: this.designsVersion,
         };
       },
-      update: data => {
+      update: (data) => {
         const designEdges = propertyOf(data)(['project', 'issue', 'designCollection', 'designs']);
         if (designEdges) {
           return extractNodes(designEdges);

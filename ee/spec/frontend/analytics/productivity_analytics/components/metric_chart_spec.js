@@ -128,9 +128,7 @@ describe('MetricChart component', () => {
           it('should emit `metricTypeChange` event when dropdown item gets clicked', () => {
             jest.spyOn(wrapper.vm, '$emit');
 
-            findMetricDropdownItems()
-              .at(0)
-              .vm.$emit('click');
+            findMetricDropdownItems().at(0).vm.$emit('click');
 
             expect(wrapper.vm.$emit).toHaveBeenCalledWith('metricTypeChange', 'time_to_merge');
           });
@@ -139,12 +137,7 @@ describe('MetricChart component', () => {
             wrapper.setProps({ selectedMetric: 'time_to_last_commit' });
 
             return wrapper.vm.$nextTick().then(() => {
-              expect(
-                findMetricDropdownItems()
-                  .at(0)
-                  .find(Icon)
-                  .classes(),
-              ).toContain('invisible');
+              expect(findMetricDropdownItems().at(0).find(Icon).classes()).toContain('invisible');
             });
           });
         });

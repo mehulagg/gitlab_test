@@ -27,7 +27,7 @@ export default {
 
   [types.RECEIVE_DELETE_LICENSE_SUCCESS](state, { id }) {
     const queueIndex = state.deleteQueue.indexOf(id);
-    const licenseIndex = state.licenses.findIndex(license => id === license.id);
+    const licenseIndex = state.licenses.findIndex((license) => id === license.id);
 
     if (queueIndex !== -1) state.deleteQueue.splice(queueIndex, 1);
     if (licenseIndex !== -1) state.licenses.splice(licenseIndex, 1);

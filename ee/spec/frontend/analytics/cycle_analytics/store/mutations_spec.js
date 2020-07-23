@@ -110,9 +110,11 @@ describe('Cycle analytics mutations', () => {
       });
 
       it('will convert the stats object to stages', () => {
-        [issueStage, planStage, codeStage, stagingStage, reviewStage, totalStage].forEach(stage => {
-          expect(state.stages).toContainEqual(stage);
-        });
+        [issueStage, planStage, codeStage, stagingStage, reviewStage, totalStage].forEach(
+          (stage) => {
+            expect(state.stages).toContainEqual(stage);
+          },
+        );
       });
     });
   });

@@ -44,7 +44,7 @@ export const generateMavenSetupXml = () => `<repositories>
   </snapshotRepository>
 </distributionManagement>`;
 
-const generateCommonPackageInformation = packageEntity => [
+const generateCommonPackageInformation = (packageEntity) => [
   {
     label: 'Version',
     value: packageEntity.version,
@@ -62,7 +62,7 @@ const generateCommonPackageInformation = packageEntity => [
   },
 ];
 
-export const generateStandardPackageInformation = packageEntity => [
+export const generateStandardPackageInformation = (packageEntity) => [
   {
     label: 'Name',
     value: packageEntity.name,
@@ -71,7 +71,7 @@ export const generateStandardPackageInformation = packageEntity => [
   ...generateCommonPackageInformation(packageEntity),
 ];
 
-export const generateConanInformation = conanPackage => [
+export const generateConanInformation = (conanPackage) => [
   {
     label: 'Recipe',
     value: conanPackage.recipe,
@@ -80,7 +80,7 @@ export const generateConanInformation = conanPackage => [
   ...generateCommonPackageInformation(conanPackage),
 ];
 
-export const generateNugetInformation = nugetPackage =>
+export const generateNugetInformation = (nugetPackage) =>
   orderBy(
     [
       ...generateCommonPackageInformation(nugetPackage),

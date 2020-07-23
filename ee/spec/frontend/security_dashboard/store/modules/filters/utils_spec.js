@@ -18,7 +18,7 @@ describe('filters module utils', () => {
       beforeEach(() => {
         filter = {
           selection,
-          options: options.map(id => ({ id })),
+          options: options.map((id) => ({ id })),
         };
       });
 

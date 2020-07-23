@@ -48,8 +48,8 @@ export default () => {
             milestoneId,
           }) || {};
 
-        const openIssuesCount = burndownChartData.map(d => [d[0], d[1]]);
-        const openIssuesWeight = burndownChartData.map(d => [d[0], d[2]]);
+        const openIssuesCount = burndownChartData.map((d) => [d[0], d[1]]);
+        const openIssuesWeight = burndownChartData.map((d) => [d[0], d[2]]);
 
         return new Vue({
           el: container,

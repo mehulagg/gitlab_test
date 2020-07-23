@@ -41,7 +41,7 @@ export function initEmojiMap() {
               window.localStorage.setItem('gl-emoji-map', JSON.stringify(emojiMap));
             }
           })
-          .catch(err => {
+          .catch((err) => {
             reject(err);
           });
       }
@@ -64,11 +64,11 @@ export function isEmojiNameValid(name) {
 
 export function filterEmojiNames(filter) {
   const match = filter.toLowerCase();
-  return validEmojiNames.filter(name => name.indexOf(match) >= 0);
+  return validEmojiNames.filter((name) => name.indexOf(match) >= 0);
 }
 
 export function filterEmojiNamesByAlias(filter) {
-  return uniq(filterEmojiNames(filter).map(name => normalizeEmojiName(name)));
+  return uniq(filterEmojiNames(filter).map((name) => normalizeEmojiName(name)));
 }
 
 let emojiCategoryMap;
@@ -84,7 +84,7 @@ export function getEmojiCategoryMap() {
       symbols: [],
       flags: [],
     };
-    Object.keys(emojiMap).forEach(name => {
+    Object.keys(emojiMap).forEach((name) => {
       const emoji = emojiMap[name];
       if (emojiCategoryMap[emoji.c]) {
         emojiCategoryMap[emoji.c].push(name);
@@ -109,8 +109,9 @@ export function getEmojiInfo(query) {
 
 export function emojiFallbackImageSrc(inputName) {
   const { name } = getEmojiInfo(inputName);
-  return `${gon.asset_host || ''}${gon.relative_url_root ||
-    ''}/-/emojis/${EMOJI_VERSION}/${name}.png`;
+  return `${gon.asset_host || ''}${
+    gon.relative_url_root || ''
+  }/-/emojis/${EMOJI_VERSION}/${name}.png`;
 }
 
 export function emojiImageTag(name, src) {

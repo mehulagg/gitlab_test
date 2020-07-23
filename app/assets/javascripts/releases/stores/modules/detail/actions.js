@@ -29,7 +29,7 @@ export const fetchRelease = ({ dispatch, state }) => {
 
       dispatch('receiveReleaseSuccess', convertObjectPropsToCamelCase(release, { deep: true }));
     })
-    .catch(error => {
+    .catch((error) => {
       dispatch('receiveReleaseError', error);
     });
 };
@@ -55,7 +55,9 @@ export const updateRelease = ({ dispatch, state, getters }) => {
   dispatch('requestUpdateRelease');
 
   const { release } = state;
-  const milestones = release.milestones ? release.milestones.map(milestone => milestone.title) : [];
+  const milestones = release.milestones
+    ? release.milestones.map((milestone) => milestone.title)
+    : [];
 
   const updatedRelease = convertObjectPropsToSnakeCase(
     {
@@ -90,7 +92,7 @@ export const updateRelease = ({ dispatch, state, getters }) => {
       .then(() => {
         // Delete all links currently associated with this Release
         return Promise.all(
-          getters.releaseLinksToDelete.map(l =>
+          getters.releaseLinksToDelete.map((l) =>
             api.deleteReleaseLink(state.projectId, release.tagName, l.id),
           ),
         );
@@ -98,7 +100,7 @@ export const updateRelease = ({ dispatch, state, getters }) => {
       .then(() => {
         // Create a new link for each link in the form
         return Promise.all(
-          getters.releaseLinksToCreate.map(l =>
+          getters.releaseLinksToCreate.map((l) =>
             api.createReleaseLink(
               state.projectId,
               release.tagName,
@@ -108,7 +110,7 @@ export const updateRelease = ({ dispatch, state, getters }) => {
         );
       })
       .then(() => dispatch('receiveUpdateReleaseSuccess'))
-      .catch(error => {
+      .catch((error) => {
         dispatch('receiveUpdateReleaseError', error);
       })
   );

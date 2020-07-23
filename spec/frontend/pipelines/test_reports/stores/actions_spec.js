@@ -43,7 +43,7 @@ describe('Actions TestReports Store', () => {
     });
 
     describe('when useBuildSummaryReport in state is true', () => {
-      it('sets testReports and shows tests', done => {
+      it('sets testReports and shows tests', (done) => {
         testAction(
           actions.fetchSummary,
           null,
@@ -54,7 +54,7 @@ describe('Actions TestReports Store', () => {
         );
       });
 
-      it('should create flash on API error', done => {
+      it('should create flash on API error', (done) => {
         testAction(
           actions.fetchSummary,
           null,
@@ -73,7 +73,7 @@ describe('Actions TestReports Store', () => {
     });
 
     describe('when useBuildSummaryReport in state is false', () => {
-      it('sets testReports and shows tests', done => {
+      it('sets testReports and shows tests', (done) => {
         testAction(
           actions.fetchSummary,
           null,
@@ -84,7 +84,7 @@ describe('Actions TestReports Store', () => {
         );
       });
 
-      it('should create flash on API error', done => {
+      it('should create flash on API error', (done) => {
         testAction(
           actions.fetchSummary,
           null,
@@ -112,7 +112,7 @@ describe('Actions TestReports Store', () => {
         .replyOnce(200, testReports.test_suites[0], {});
     });
 
-    it('sets test suite and shows tests', done => {
+    it('sets test suite and shows tests', (done) => {
       const suite = testReports.test_suites[0];
       const index = 0;
 
@@ -126,7 +126,7 @@ describe('Actions TestReports Store', () => {
       );
     });
 
-    it('should create flash on API error', done => {
+    it('should create flash on API error', (done) => {
       const index = 0;
 
       testAction(
@@ -143,7 +143,7 @@ describe('Actions TestReports Store', () => {
     });
 
     describe('when we already have the suite data', () => {
-      it('should not fetch suite', done => {
+      it('should not fetch suite', (done) => {
         const index = 0;
         testReports.test_suites[0].hasFullSuite = true;
 
@@ -152,7 +152,7 @@ describe('Actions TestReports Store', () => {
     });
 
     describe('when we already have the full report data', () => {
-      it('should not fetch suite', done => {
+      it('should not fetch suite', (done) => {
         const index = 0;
         testReports.hasFullReport = true;
 
@@ -166,7 +166,7 @@ describe('Actions TestReports Store', () => {
       mock.onGet(fullReportEndpoint).replyOnce(200, testReports, {});
     });
 
-    it('sets testReports and shows tests', done => {
+    it('sets testReports and shows tests', (done) => {
       testAction(
         actions.fetchFullReport,
         null,
@@ -177,7 +177,7 @@ describe('Actions TestReports Store', () => {
       );
     });
 
-    it('should create flash on API error', done => {
+    it('should create flash on API error', (done) => {
       testAction(
         actions.fetchFullReport,
         null,
@@ -195,7 +195,7 @@ describe('Actions TestReports Store', () => {
   });
 
   describe('set selected suite index', () => {
-    it('sets selectedSuiteIndex', done => {
+    it('sets selectedSuiteIndex', (done) => {
       const selectedSuiteIndex = 0;
 
       testAction(
@@ -210,7 +210,7 @@ describe('Actions TestReports Store', () => {
   });
 
   describe('remove selected suite index', () => {
-    it('sets selectedSuiteIndex to null', done => {
+    it('sets selectedSuiteIndex to null', (done) => {
       testAction(
         actions.removeSelectedSuiteIndex,
         {},
@@ -223,11 +223,11 @@ describe('Actions TestReports Store', () => {
   });
 
   describe('toggles loading', () => {
-    it('sets isLoading to true', done => {
+    it('sets isLoading to true', (done) => {
       testAction(actions.toggleLoading, {}, state, [{ type: types.TOGGLE_LOADING }], [], done);
     });
 
-    it('toggles isLoading to false', done => {
+    it('toggles isLoading to false', (done) => {
       testAction(
         actions.toggleLoading,
         {},

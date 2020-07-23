@@ -3,7 +3,7 @@ import { renderUneditableBranch } from '~/vue_shared/components/rich_content_edi
 
 import { buildMockTextNode } from './mock_data';
 
-const buildMockListNode = literal => {
+const buildMockListNode = (literal) => {
   return {
     firstChild: {
       firstChild: {

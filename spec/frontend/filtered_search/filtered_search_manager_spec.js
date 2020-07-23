@@ -190,10 +190,10 @@ describe('Filtered Search Manager', () => {
       initializeManager();
     });
 
-    it('should search with a single word', done => {
+    it('should search with a single word', (done) => {
       input.value = 'searchTerm';
 
-      visitUrl.mockImplementation(url => {
+      visitUrl.mockImplementation((url) => {
         expect(url).toEqual(`${defaultParams}&search=searchTerm`);
         done();
       });
@@ -201,10 +201,10 @@ describe('Filtered Search Manager', () => {
       manager.search();
     });
 
-    it('should search with multiple words', done => {
+    it('should search with multiple words', (done) => {
       input.value = 'awesome search terms';
 
-      visitUrl.mockImplementation(url => {
+      visitUrl.mockImplementation((url) => {
         expect(url).toEqual(`${defaultParams}&search=awesome+search+terms`);
         done();
       });
@@ -212,10 +212,10 @@ describe('Filtered Search Manager', () => {
       manager.search();
     });
 
-    it('should search with special characters', done => {
+    it('should search with special characters', (done) => {
       input.value = '~!@#$%^&*()_+{}:<>,.?/';
 
-      visitUrl.mockImplementation(url => {
+      visitUrl.mockImplementation((url) => {
         expect(url).toEqual(
           `${defaultParams}&search=~!%40%23%24%25%5E%26*()_%2B%7B%7D%3A%3C%3E%2C.%3F%2F`,
         );
@@ -225,13 +225,13 @@ describe('Filtered Search Manager', () => {
       manager.search();
     });
 
-    it('removes duplicated tokens', done => {
+    it('removes duplicated tokens', (done) => {
       tokensContainer.innerHTML = FilteredSearchSpecHelper.createTokensContainerHTML(`
         ${FilteredSearchSpecHelper.createFilterVisualTokenHTML('label', '=', '~bug')}
         ${FilteredSearchSpecHelper.createFilterVisualTokenHTML('label', '=', '~bug')}
       `);
 
-      visitUrl.mockImplementation(url => {
+      visitUrl.mockImplementation((url) => {
         expect(url).toEqual(`${defaultParams}&label_name[]=bug`);
         done();
       });
@@ -570,7 +570,7 @@ describe('Filtered Search Manager', () => {
     it('correctly modifies params when custom modifier is passed', () => {
       const modifedParams = manager.getAllParams.call(
         {
-          modifyUrlParams: params => params.reverse(),
+          modifyUrlParams: (params) => params.reverse(),
         },
         [].concat(paramsArr),
       );

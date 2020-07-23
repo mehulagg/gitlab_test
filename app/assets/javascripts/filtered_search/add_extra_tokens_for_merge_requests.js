@@ -1,6 +1,6 @@
 import { __ } from '~/locale';
 
-export default IssuableTokenKeys => {
+export default (IssuableTokenKeys) => {
   const wipToken = {
     formattedKey: __('WIP'),
     key: 'wip',

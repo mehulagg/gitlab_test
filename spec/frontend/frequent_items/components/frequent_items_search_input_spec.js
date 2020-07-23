@@ -34,7 +34,7 @@ describe('FrequentItemsSearchInputComponent', () => {
   });
 
   describe('mounted', () => {
-    it('should listen `dropdownOpen` event', done => {
+    it('should listen `dropdownOpen` event', (done) => {
       jest.spyOn(eventHub, '$on').mockImplementation(() => {});
       const vmX = createComponent().vm;
 
@@ -49,7 +49,7 @@ describe('FrequentItemsSearchInputComponent', () => {
   });
 
   describe('beforeDestroy', () => {
-    it('should unbind event listeners on eventHub', done => {
+    it('should unbind event listeners on eventHub', (done) => {
       const vmX = createComponent().vm;
       jest.spyOn(eventHub, '$off').mockImplementation(() => {});
 

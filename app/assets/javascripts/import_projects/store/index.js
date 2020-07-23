@@ -9,7 +9,7 @@ Vue.use(Vuex);
 
 export { state, actions, getters, mutations };
 
-export default initialState =>
+export default (initialState) =>
   new Vuex.Store({
     state: { ...state(), ...initialState },
     actions,

@@ -6,7 +6,7 @@ describe('Boards blank state', () => {
   let vm;
   let fail = false;
 
-  beforeEach(done => {
+  beforeEach((done) => {
     const Comp = Vue.extend(BoardBlankState);
 
     boardsStore.create();
@@ -57,7 +57,7 @@ describe('Boards blank state', () => {
     );
   });
 
-  it('clears blank state', done => {
+  it('clears blank state', (done) => {
     vm.$el.querySelector('.btn-default').click();
 
     setImmediate(() => {
@@ -67,7 +67,7 @@ describe('Boards blank state', () => {
     });
   });
 
-  it('creates pre-defined labels', done => {
+  it('creates pre-defined labels', (done) => {
     vm.$el.querySelector('.btn-success').click();
 
     setImmediate(() => {
@@ -80,7 +80,7 @@ describe('Boards blank state', () => {
     });
   });
 
-  it('resets the store if request fails', done => {
+  it('resets the store if request fails', (done) => {
     fail = true;
 
     vm.$el.querySelector('.btn-success').click();

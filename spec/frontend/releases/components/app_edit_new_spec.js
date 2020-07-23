@@ -153,7 +153,7 @@ describe('Release edit/new component', () => {
     beforeEach(() => {
       commonUtils.getParameterByName = jest
         .fn()
-        .mockImplementation(paramToGet => ({ [BACK_URL_PARAM]: backUrl }[paramToGet]));
+        .mockImplementation((paramToGet) => ({ [BACK_URL_PARAM]: backUrl }[paramToGet]));
 
       factory();
     });

@@ -14,7 +14,7 @@ import {
  * @param {String} text
  * @returns {String}
  */
-export const addDelimiter = text =>
+export const addDelimiter = (text) =>
   text ? text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : text;
 
 /**
@@ -23,7 +23,7 @@ export const addDelimiter = text =>
  * @param {Number} count
  * @return {Number|String}
  */
-export const highCountTrim = count => (count > 99 ? '99+' : count);
+export const highCountTrim = (count) => (count > 99 ? '99+' : count);
 
 /**
  * Converts first char to uppercase and replaces the given separator with spaces
@@ -43,7 +43,7 @@ export const humanize = (string, separator = '_') => {
  * @param {*} str
  * @returns {String}
  */
-export const dasherize = str => str.replace(/[_\s]+/g, '-');
+export const dasherize = (str) => str.replace(/[_\s]+/g, '-');
 
 /**
  * Replaces whitespace and non-sluggish characters with a given separator
@@ -69,7 +69,7 @@ export const slugify = (str, separator = '-') => {
  * @param {String} str
  * @returns {String}
  */
-export const slugifyWithUnderscore = str => slugify(str, '_');
+export const slugifyWithUnderscore = (str) => slugify(str, '_');
 
 /**
  * Truncates given text
@@ -158,7 +158,7 @@ export const truncateWidth = (string, options = {}) => {
  * @param {String} sha
  * @returns {String}
  */
-export const truncateSha = sha => sha.substring(0, 8);
+export const truncateSha = (sha) => sha.substring(0, 8);
 
 const ELLIPSIS_CHAR = '…';
 export const truncatePathMiddleToLength = (text, maxWidth) => {
@@ -166,7 +166,7 @@ export const truncatePathMiddleToLength = (text, maxWidth) => {
   let ellipsisCount = 0;
 
   while (returnText.length >= maxWidth) {
-    const textSplit = returnText.split('/').filter(s => s !== ELLIPSIS_CHAR);
+    const textSplit = returnText.split('/').filter((s) => s !== ELLIPSIS_CHAR);
 
     if (textSplit.length === 0) {
       // There are n - 1 path separators for n segments, so 2n - 1 <= maxWidth
@@ -243,7 +243,7 @@ export const stripHtml = (string, replace = '') => {
  * // returns "trailingUnderscore_"
  * convertToCamelCase('trailing_underscore_')
  */
-export const convertToCamelCase = string =>
+export const convertToCamelCase = (string) =>
   string.replace(/([a-z0-9])_([a-z0-9])/gi, (match, p1, p2) => `${p1}${p2.toUpperCase()}`);
 
 /**
@@ -251,7 +251,7 @@ export const convertToCamelCase = string =>
  *
  * @param {*} string
  */
-export const convertToSnakeCase = string =>
+export const convertToSnakeCase = (string) =>
   slugifyWithUnderscore((string.match(/([a-zA-Z][^A-Z]*)/g) || [string]).join(' '));
 
 /**
@@ -260,7 +260,7 @@ export const convertToSnakeCase = string =>
  *
  * @param {*} string
  */
-export const convertToSentenceCase = string => {
+export const convertToSentenceCase = (string) => {
   const splitWord = string.split(' ').map((word, index) => (index > 0 ? word.toLowerCase() : word));
 
   return splitWord.join(' ');
@@ -273,7 +273,7 @@ export const convertToSentenceCase = string => {
  * @param {String} string
  * @returns {String}
  */
-export const convertToTitleCase = string => string.replace(/\b[a-z]/g, s => s.toUpperCase());
+export const convertToTitleCase = (string) => string.replace(/\b[a-z]/g, (s) => s.toUpperCase());
 
 /**
  * Splits camelCase or PascalCase words
@@ -281,7 +281,7 @@ export const convertToTitleCase = string => string.replace(/\b[a-z]/g, s => s.to
  *
  * @param {*} string
  */
-export const splitCamelCase = string =>
+export const splitCamelCase = (string) =>
   string
     .replace(/([A-Z]+)([A-Z][a-z])/g, ' $1 $2')
     .replace(/([a-z\d])([A-Z])/g, '$1 $2')
@@ -323,4 +323,4 @@ export const truncateNamespace = (string = '') => {
  * @param {String} obj The object to test
  * @returns {Boolean}
  */
-export const hasContent = obj => isString(obj) && obj.trim() !== '';
+export const hasContent = (obj) => isString(obj) && obj.trim() !== '';

@@ -29,7 +29,7 @@ describe('Board card', () => {
   const findUserAvatarLink = () => wrapper.find(userAvatarLink);
 
   // this particular mount component needs to be used after the root beforeEach because it depends on list being initialized
-  const mountComponent = propsData => {
+  const mountComponent = (propsData) => {
     wrapper = shallowMount(boardCard, {
       stubs: {
         issueCardInner,
@@ -154,9 +154,7 @@ describe('Board card', () => {
 
     it('does not set detail issue if link is clicked', () => {
       mountComponent();
-      findIssueCardInner()
-        .find('a')
-        .trigger('mouseup');
+      findIssueCardInner().find('a').trigger('mouseup');
 
       expect(boardsStore.detail.issue).toEqual({});
     });

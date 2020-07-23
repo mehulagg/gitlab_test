@@ -47,7 +47,7 @@ export default {
     groupedAwards() {
       const { thumbsup, thumbsdown, ...rest } = {
         ...this.groupedDefaultAwards,
-        ...groupBy(this.awards, x => x.name),
+        ...groupBy(this.awards, (x) => x.name),
       };
 
       return [
@@ -72,7 +72,7 @@ export default {
         return false;
       }
 
-      return awardList.some(award => award.user.id === this.currentUserId);
+      return awardList.some((award) => award.user.id === this.currentUserId);
     },
     createAwardList(name, list) {
       return {
@@ -94,11 +94,11 @@ export default {
 
       // Filter myself from list if I am awarded.
       if (hasReactionByCurrentUser) {
-        awardList = awardList.filter(award => award.user.id !== this.currentUserId);
+        awardList = awardList.filter((award) => award.user.id !== this.currentUserId);
       }
 
       // Get only 9-10 usernames to show in tooltip text.
-      const namesToShow = awardList.slice(0, TOOLTIP_NAME_COUNT).map(award => award.user.name);
+      const namesToShow = awardList.slice(0, TOOLTIP_NAME_COUNT).map((award) => award.user.name);
 
       // Get the remaining list to use in `and x more` text.
       const remainingAwardList = awardList.slice(TOOLTIP_NAME_COUNT, awardList.length);

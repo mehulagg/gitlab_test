@@ -110,16 +110,14 @@ export default {
   created() {
     this.isLoading = true;
 
-    this.fetchProjects()
-      .then(this.fetchSuccessHandler)
-      .catch(this.fetchFailureHandler);
+    this.fetchProjects().then(this.fetchSuccessHandler).catch(this.fetchFailureHandler);
   },
   methods: {
     ...mapActions(['fetchProjects', 'setIsValidatingProjectBilling', 'validateProjectBilling']),
     ...mapActions({ setItem: 'setProject' }),
     fetchSuccessHandler() {
       if (this.defaultValue) {
-        const projectToSelect = this.items.find(item => item.projectId === this.defaultValue);
+        const projectToSelect = this.items.find((item) => item.projectId === this.defaultValue);
 
         if (projectToSelect) {
           this.setItem(projectToSelect);

@@ -27,13 +27,13 @@ export default {
       return this.filter.selection;
     },
     firstSelectedOption() {
-      return this.filter.options.find(option => this.selection.has(option.id))?.name || '-';
+      return this.filter.options.find((option) => this.selection.has(option.id))?.name || '-';
     },
     extraOptionCount() {
       return this.selection.size - 1;
     },
     filteredOptions() {
-      return this.filter.options.filter(option =>
+      return this.filter.options.filter((option) =>
         option.name.toLowerCase().includes(this.filterTerm.toLowerCase()),
       );
     },

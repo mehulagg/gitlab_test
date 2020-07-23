@@ -9,7 +9,7 @@ jest.mock('~/pages/search/show/highlight_blob_search_result');
 describe('Search', () => {
   const fixturePath = 'search/show.html';
   const searchTerm = 'some search';
-  const fillDropdownInput = dropdownSelector => {
+  const fillDropdownInput = (dropdownSelector) => {
     const dropdownElement = document.querySelector(dropdownSelector).parentNode;
     const inputElement = dropdownElement.querySelector('.dropdown-input-field');
     inputElement.value = searchTerm;
@@ -37,7 +37,7 @@ describe('Search', () => {
     });
 
     it('requests groups from backend when filtering', () => {
-      jest.spyOn(Api, 'groups').mockImplementation(term => {
+      jest.spyOn(Api, 'groups').mockImplementation((term) => {
         expect(term).toBe(searchTerm);
       });
 
@@ -47,7 +47,7 @@ describe('Search', () => {
     });
 
     it('requests projects from backend when filtering', () => {
-      jest.spyOn(Api, 'projects').mockImplementation(term => {
+      jest.spyOn(Api, 'projects').mockImplementation((term) => {
         expect(term).toBe(searchTerm);
       });
       const inputElement = fillDropdownInput('.js-search-project-dropdown');

@@ -10,19 +10,19 @@
  */
 
 function onLoaded() {
-  var reqComplete = function() {
+  var reqComplete = function () {
     AP.navigator.reload();
   };
 
-  var reqFailed = function(res) {
+  var reqFailed = function (res) {
     alert(res.responseJSON.error);
   };
 
-  $('#add-subscription-form').on('submit', function(e) {
+  $('#add-subscription-form').on('submit', function (e) {
     var actionUrl = $(this).attr('action');
     e.preventDefault();
 
-    AP.context.getToken(function(token) {
+    AP.context.getToken(function (token) {
       // eslint-disable-next-line no-jquery/no-ajax
       $.post(actionUrl, {
         jwt: token,
@@ -34,11 +34,11 @@ function onLoaded() {
     });
   });
 
-  $('.remove-subscription').on('click', function(e) {
+  $('.remove-subscription').on('click', function (e) {
     var href = $(this).attr('href');
     e.preventDefault();
 
-    AP.context.getToken(function(token) {
+    AP.context.getToken(function (token) {
       // eslint-disable-next-line no-jquery/no-ajax
       $.ajax({
         url: href,

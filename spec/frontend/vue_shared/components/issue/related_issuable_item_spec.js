@@ -73,7 +73,7 @@ describe('RelatedIssuableItem', () => {
   describe('token state', () => {
     let tokenState;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper.setProps({ state: 'opened' });
 
       Vue.nextTick(() => {
@@ -104,7 +104,7 @@ describe('RelatedIssuableItem', () => {
       expect(tokenState.classes('issue-token-state-icon-open')).toBe(true);
     });
 
-    it('renders close icon when close state', done => {
+    it('renders close icon when close state', (done) => {
       wrapper.setProps({
         state: 'closed',
         closedAt: '2018-12-01T00:00:00.00Z',
@@ -121,7 +121,7 @@ describe('RelatedIssuableItem', () => {
   describe('token metadata', () => {
     let tokenMetadata;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       Vue.nextTick(() => {
         tokenMetadata = wrapper.find('.item-meta');
 
@@ -165,7 +165,7 @@ describe('RelatedIssuableItem', () => {
   describe('remove button', () => {
     let removeBtn;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       wrapper.setProps({ canRemove: true });
       Vue.nextTick(() => {
         removeBtn = wrapper.find({ ref: 'removeButton' });
@@ -178,7 +178,7 @@ describe('RelatedIssuableItem', () => {
       expect(removeBtn.exists()).toBe(true);
     });
 
-    it('renders disabled button when removeDisabled', done => {
+    it('renders disabled button when removeDisabled', (done) => {
       wrapper.vm.removeDisabled = true;
 
       Vue.nextTick(() => {

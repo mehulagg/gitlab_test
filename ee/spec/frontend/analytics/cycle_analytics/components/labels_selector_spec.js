@@ -9,10 +9,10 @@ import LabelsSelector from 'ee/analytics/cycle_analytics/components/labels_selec
 import { groupLabels } from '../mock_data';
 
 const selectedLabel = groupLabels[groupLabels.length - 1];
-const findActiveItem = wrapper =>
+const findActiveItem = (wrapper) =>
   wrapper
     .findAll('gl-dropdown-item-stub')
-    .filter(d => d.attributes('active'))
+    .filter((d) => d.attributes('active'))
     .at(0);
 
 const findFlashError = () => document.querySelector('.flash-container .flash-text');
@@ -65,7 +65,7 @@ describe('Value Stream Analytics LabelsSelector', () => {
       expect(wrapper.html()).toMatchSnapshot();
     });
 
-    it.each(labelNames)('generate a label item for the label %s', name => {
+    it.each(labelNames)('generate a label item for the label %s', (name) => {
       expect(wrapper.text()).toContain(name);
     });
 

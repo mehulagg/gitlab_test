@@ -144,7 +144,7 @@ describe('EpicSidebarComponent', () => {
       gon.current_user_id = originalUserId;
     });
 
-    it('renders component container element with classes `right-sidebar-expanded`, `right-sidebar` & `epic-sidebar`', done => {
+    it('renders component container element with classes `right-sidebar-expanded`, `right-sidebar` & `epic-sidebar`', (done) => {
       store.dispatch('toggleSidebarFlag', false);
 
       vm.$nextTick()
@@ -161,7 +161,7 @@ describe('EpicSidebarComponent', () => {
       expect(vm.$el.querySelector('.issuable-sidebar.js-issuable-update')).not.toBeNull();
     });
 
-    it('renders Todo toggle button element when sidebar is collapsed and user is signed in', done => {
+    it('renders Todo toggle button element when sidebar is collapsed and user is signed in', (done) => {
       store.dispatch('toggleSidebarFlag', true);
 
       vm.$nextTick()
@@ -175,7 +175,7 @@ describe('EpicSidebarComponent', () => {
         .catch(done.fail);
     });
 
-    it('renders Start date & Due date elements when sidebar is expanded', done => {
+    it('renders Start date & Due date elements when sidebar is expanded', (done) => {
       store.dispatch('toggleSidebarFlag', false);
 
       vm.$nextTick()
@@ -204,7 +204,7 @@ describe('EpicSidebarComponent', () => {
     });
 
     describe('when sub-epics feature is available', () => {
-      it('renders ancestors list', done => {
+      it('renders ancestors list', (done) => {
         store.dispatch('toggleSidebarFlag', false);
         store.dispatch('setEpicMeta', {
           ...mockEpicMeta,
@@ -221,7 +221,7 @@ describe('EpicSidebarComponent', () => {
     });
 
     describe('when sub-epics feature is not available', () => {
-      it('does not render ancestors list', done => {
+      it('does not render ancestors list', (done) => {
         store.dispatch('toggleSidebarFlag', false);
 
         vm.$nextTick()
@@ -230,18 +230,18 @@ describe('EpicSidebarComponent', () => {
 
             const reverseAncestors = [...mockAncestors].reverse();
 
-            const getEls = selector => Array.from(ancestorsEl.querySelectorAll(selector));
+            const getEls = (selector) => Array.from(ancestorsEl.querySelectorAll(selector));
 
             expect(ancestorsEl).not.toBeNull();
 
             expect(getEls('li.vertical-timeline-row')).toHaveLength(reverseAncestors.length);
 
-            expect(getEls('a').map(el => el.innerText.trim())).toEqual(
-              reverseAncestors.map(a => a.title),
+            expect(getEls('a').map((el) => el.innerText.trim())).toEqual(
+              reverseAncestors.map((a) => a.title),
             );
 
-            expect(getEls('li.vertical-timeline-row a').map(a => a.getAttribute('href'))).toEqual(
-              reverseAncestors.map(a => a.url),
+            expect(getEls('li.vertical-timeline-row a').map((a) => a.getAttribute('href'))).toEqual(
+              reverseAncestors.map((a) => a.url),
             );
           })
           .then(done)

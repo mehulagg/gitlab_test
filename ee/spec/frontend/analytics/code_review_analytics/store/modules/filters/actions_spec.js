@@ -79,7 +79,7 @@ describe('Code review analytics filters actions', () => {
         mock.onGet(state.milestonesEndpoint).replyOnce(500);
       });
 
-      it('dispatches error', done => {
+      it('dispatches error', (done) => {
         testAction(
           actions.fetchMilestones,
           null,
@@ -126,7 +126,7 @@ describe('Code review analytics filters actions', () => {
         mock.onGet(state.labelsEndpoint).replyOnce(500);
       });
 
-      it('dispatches error', done => {
+      it('dispatches error', (done) => {
         testAction(
           actions.fetchLabels,
           null,

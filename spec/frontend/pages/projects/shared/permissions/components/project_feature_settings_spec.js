@@ -6,13 +6,19 @@ import projectFeatureToggle from '~/vue_shared/components/toggle_button.vue';
 describe('Project Feature Settings', () => {
   const defaultProps = {
     name: 'Test',
-    options: [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]],
+    options: [
+      [1, 1],
+      [2, 2],
+      [3, 3],
+      [4, 4],
+      [5, 5],
+    ],
     value: 1,
     disabledInput: false,
   };
   let wrapper;
 
-  const mountComponent = customProps => {
+  const mountComponent = (customProps) => {
     const propsData = { ...defaultProps, ...customProps };
     return shallowMount(projectFeatureSetting, { propsData });
   };
@@ -73,10 +79,7 @@ describe('Project Feature Settings', () => {
       wrapper = mount(projectFeatureSetting, { propsData: defaultProps });
 
       expect(wrapper.emitted().change).toBeUndefined();
-      wrapper
-        .find(projectFeatureToggle)
-        .find('button')
-        .trigger('click');
+      wrapper.find(projectFeatureToggle).find('button').trigger('click');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.emitted().change.length).toBe(1);
@@ -87,12 +90,24 @@ describe('Project Feature Settings', () => {
 
   describe('Project repo select', () => {
     it.each`
-      disabledInput | value | options                     | isDisabled
-      ${true}       | ${0}  | ${[[1, 1]]}                 | ${true}
-      ${true}       | ${1}  | ${[[1, 1], [2, 2], [3, 3]]} | ${true}
-      ${false}      | ${0}  | ${[[1, 1], [2, 2], [3, 3]]} | ${true}
-      ${false}      | ${1}  | ${[[1, 1]]}                 | ${true}
-      ${false}      | ${1}  | ${[[1, 1], [2, 2], [3, 3]]} | ${false}
+      disabledInput | value | options     | isDisabled
+      ${true}       | ${0}  | ${[[1, 1]]} | ${true}
+      ${true} | ${1} | ${[
+  [1, 1],
+  [2, 2],
+  [3, 3],
+]} | ${true}
+      ${false} | ${0} | ${[
+  [1, 1],
+  [2, 2],
+  [3, 3],
+]} | ${true}
+      ${false}      | ${1}  | ${[[1, 1]]} | ${true}
+      ${false} | ${1} | ${[
+  [1, 1],
+  [2, 2],
+  [3, 3],
+]} | ${false}
     `(
       'should set disabled to $isDisabled when disabledInput is $disabledInput, the value is $value and options are $options',
       ({ disabledInput, value, options, isDisabled }) => {
@@ -110,10 +125,7 @@ describe('Project Feature Settings', () => {
 
     it('should emit the change when a new option is selected', () => {
       expect(wrapper.emitted().change).toBeUndefined();
-      wrapper
-        .findAll('option')
-        .at(1)
-        .trigger('change');
+      wrapper.findAll('option').at(1).trigger('change');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.emitted().change.length).toBe(1);

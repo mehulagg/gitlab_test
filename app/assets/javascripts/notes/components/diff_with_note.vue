@@ -29,7 +29,7 @@ export default {
   },
   computed: {
     ...mapState({
-      projectPath: state => state.diffs.projectPath,
+      projectPath: (state) => state.diffs.projectPath,
     }),
     diffMode() {
       return getDiffMode(this.discussion.diff_file);

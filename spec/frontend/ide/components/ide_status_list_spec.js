@@ -47,7 +47,7 @@ describe('ide/components/ide_status_list', () => {
     wrapper = null;
   });
 
-  const getEditorPosition = file => `${file.editorRow}:${file.editorColumn}`;
+  const getEditorPosition = (file) => `${file.editorRow}:${file.editorColumn}`;
 
   describe('with regular file', () => {
     beforeEach(() => {

@@ -27,7 +27,7 @@ $(document)
   });
 
 export default function initNewListDropdown() {
-  $('.js-new-board-list').each(function() {
+  $('.js-new-board-list').each(function () {
     const $dropdownToggle = $(this);
     const $dropdown = $dropdownToggle.closest('.dropdown');
     new CreateLabelDropdown(

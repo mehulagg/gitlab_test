@@ -13,18 +13,12 @@ function addBlockTags(blockTag, selected) {
 }
 
 function lineBefore(text, textarea) {
-  const split = text
-    .substring(0, textarea.selectionStart)
-    .trim()
-    .split('\n');
+  const split = text.substring(0, textarea.selectionStart).trim().split('\n');
   return split[split.length - 1];
 }
 
 function lineAfter(text, textarea) {
-  return text
-    .substring(textarea.selectionEnd)
-    .trim()
-    .split('\n')[0];
+  return text.substring(textarea.selectionEnd).trim().split('\n')[0];
 }
 
 function convertMonacoSelectionToAceFormat(sel) {
@@ -238,7 +232,7 @@ export function insertMarkdownText({
         : blockTagText(text, textArea, blockTag, selected);
     } else {
       textToInsert = selectedSplit
-        .map(val => {
+        .map((val) => {
           if (tag.indexOf(textPlaceholder) > -1) {
             return tag.replace(textPlaceholder, val);
           }
@@ -306,7 +300,7 @@ function updateText({ textArea, tag, cursorOffset, blockTag, wrap, select, tagCo
 export function addMarkdownListeners(form) {
   return $('.js-md', form)
     .off('click')
-    .on('click', function() {
+    .on('click', function () {
       const $this = $(this);
       const tag = this.dataset.mdTag;
 
@@ -325,7 +319,7 @@ export function addMarkdownListeners(form) {
 export function addEditorMarkdownListeners(editor) {
   $('.js-md')
     .off('click')
-    .on('click', e => {
+    .on('click', (e) => {
       const { mdTag, mdBlock, mdPrepend, mdSelect } = $(e.currentTarget).data();
 
       insertMarkdownText({

@@ -118,7 +118,7 @@ export default {
         :feature-flag-issues-endpoint="featureFlagIssuesEndpoint"
         :active="active"
         :version="version"
-        @handleSubmit="data => updateFeatureFlag(data)"
+        @handleSubmit="(data) => updateFeatureFlag(data)"
       />
     </template>
   </div>

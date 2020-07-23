@@ -6,7 +6,7 @@ const localVue = createLocalVue();
 describe('Squash before merge component', () => {
   let wrapper;
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     wrapper = shallowMount(localVue.extend(SquashBeforeMerge), {
       localVue,
       propsData: {
@@ -40,7 +40,7 @@ describe('Squash before merge component', () => {
       expect(findCheckbox().element.checked).toBeTruthy();
     });
 
-    it('changes value on click', done => {
+    it('changes value on click', (done) => {
       createComponent({
         value: false,
       });

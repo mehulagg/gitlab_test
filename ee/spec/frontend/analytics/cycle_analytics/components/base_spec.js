@@ -126,60 +126,57 @@ describe('Cycle Analytics component', () => {
   let wrapper;
   let mock;
 
-  const findStageNavItemAtIndex = index =>
-    wrapper
-      .find(StageTableNav)
-      .findAll(StageNavItem)
-      .at(index);
+  const findStageNavItemAtIndex = (index) =>
+    wrapper.find(StageTableNav).findAll(StageNavItem).at(index);
 
-  const shouldSetUrlParams = result => {
+  const shouldSetUrlParams = (result) => {
     return wrapper.vm.$nextTick().then(() => {
       expect(urlUtils.setUrlParams).toHaveBeenCalledWith(result, window.location.href, true);
       expect(commonUtils.historyPushState).toHaveBeenCalled();
     });
   };
 
-  const displaysProjectsDropdownFilter = flag => {
+  const displaysProjectsDropdownFilter = (flag) => {
     expect(wrapper.find(ProjectsDropdownFilter).exists()).toBe(flag);
   };
 
-  const displaysDateRangePicker = flag => {
+  const displaysDateRangePicker = (flag) => {
     expect(wrapper.find(Daterange).exists()).toBe(flag);
   };
 
-  const displaysRecentActivityCard = flag => {
+  const displaysRecentActivityCard = (flag) => {
     expect(wrapper.find(RecentActivityCard).exists()).toBe(flag);
   };
 
-  const displaysTimeMetricsCard = flag => {
+  const displaysTimeMetricsCard = (flag) => {
     expect(wrapper.find(TimeMetricsCard).exists()).toBe(flag);
   };
 
-  const displaysStageTable = flag => {
+  const displaysStageTable = (flag) => {
     expect(wrapper.find(StageTable).exists()).toBe(flag);
   };
 
-  const displaysDurationChart = flag => {
+  const displaysDurationChart = (flag) => {
     expect(wrapper.find(DurationChart).exists()).toBe(flag);
   };
 
-  const displaysTypeOfWork = flag => {
+  const displaysTypeOfWork = (flag) => {
     expect(wrapper.find(TypeOfWorkCharts).exists()).toBe(flag);
   };
 
-  const displaysPathNavigation = flag => {
+  const displaysPathNavigation = (flag) => {
     expect(wrapper.find(PathNavigation).exists()).toBe(flag);
   };
 
-  const displaysAddStageButton = flag => {
+  const displaysAddStageButton = (flag) => {
     expect(wrapper.find(AddStageButton).exists()).toBe(flag);
   };
 
-  const displaysFilterBar = flag => {
+  const displaysFilterBar = (flag) => {
     expect(wrapper.find(FilterBar).exists()).toBe(flag);
   };
 
-  const displaysCreateValueStream = flag => {
+  const displaysCreateValueStream = (flag) => {
     expect(wrapper.find(ValueStreamSelect).exists()).toBe(flag);
   };
 
@@ -590,7 +587,7 @@ describe('Cycle Analytics component', () => {
     });
 
     const findFlashError = () => document.querySelector('.flash-container .flash-text');
-    const selectGroupAndFindError = msg => {
+    const selectGroupAndFindError = (msg) => {
       wrapper.vm.onGroupSelect(mockData.group);
 
       return waitForPromises().then(() => {

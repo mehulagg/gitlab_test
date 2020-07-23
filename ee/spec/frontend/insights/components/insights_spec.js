@@ -16,7 +16,7 @@ describe('Insights component', () => {
     store = createStore();
     jest.spyOn(store, 'dispatch').mockImplementation(() => {});
 
-    mountComponent = data => {
+    mountComponent = (data) => {
       const el = null;
 
       const props = data || {

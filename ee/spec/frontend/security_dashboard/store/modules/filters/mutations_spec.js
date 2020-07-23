@@ -72,7 +72,7 @@ describe('filters module mutations', () => {
 
       const expected = new Set([ALL]);
 
-      state.filters.forEach(filter => {
+      state.filters.forEach((filter) => {
         expect(filter.selection).toEqual(expected);
       });
     });
@@ -89,7 +89,10 @@ describe('filters module mutations', () => {
   });
 
   describe('SET_FILTER_OPTIONS', () => {
-    const options = [{ id: 0, name: 'c' }, { id: 3, name: 'c' }];
+    const options = [
+      { id: 0, name: 'c' },
+      { id: 3, name: 'c' },
+    ];
 
     beforeEach(() => {
       const filterId = severityFilter.id;

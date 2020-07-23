@@ -47,7 +47,7 @@ export default {
   computed: {
     ...mapState(['settings']),
     approversByType() {
-      return groupBy(this.approvers, x => x.type);
+      return groupBy(this.approvers, (x) => x.type);
     },
     users() {
       return this.approversByType[TYPE_USER] || [];
@@ -56,10 +56,10 @@ export default {
       return this.approversByType[TYPE_GROUP] || [];
     },
     userIds() {
-      return this.users.map(x => x.id);
+      return this.users.map((x) => x.id);
     },
     groupIds() {
-      return this.groups.map(x => x.id);
+      return this.groups.map((x) => x.id);
     },
     validation() {
       if (!this.showValidation) {
@@ -110,12 +110,12 @@ export default {
     invalidBranches() {
       if (this.isMrEdit) return '';
 
-      const invalidTypes = this.branches.filter(id => typeof id !== 'number');
+      const invalidTypes = this.branches.filter((id) => typeof id !== 'number');
 
       return invalidTypes.length ? __('Please select a valid target branch') : '';
     },
     isValid() {
-      return Object.keys(this.validation).every(key => !this.validation[key]);
+      return Object.keys(this.validation).every((key) => !this.validation[key]);
     },
     isMultiSubmission() {
       return this.settings.allowMultiRule && !this.isFallbackSubmission;
@@ -245,9 +245,9 @@ export default {
 
       const { containsHiddenGroups = false, removeHiddenGroups = false } = this.initRule;
 
-      const users = this.initRule.users.map(x => ({ ...x, type: TYPE_USER }));
-      const groups = this.initRule.groups.map(x => ({ ...x, type: TYPE_GROUP }));
-      const branches = this.initRule.protectedBranches?.map(x => x.id) || [];
+      const users = this.initRule.users.map((x) => ({ ...x, type: TYPE_USER }));
+      const groups = this.initRule.groups.map((x) => ({ ...x, type: TYPE_GROUP }));
+      const branches = this.initRule.protectedBranches?.map((x) => x.id) || [];
 
       return {
         name: this.initRule.name || '',

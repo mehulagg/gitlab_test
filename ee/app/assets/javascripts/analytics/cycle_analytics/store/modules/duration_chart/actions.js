@@ -25,7 +25,7 @@ export const fetchDurationData = ({ dispatch, rootGetters }) => {
 
   const { cycleAnalyticsRequestParams, activeStages, currentGroupPath } = rootGetters;
   return Promise.all(
-    activeStages.map(stage => {
+    activeStages.map((stage) => {
       const { slug } = stage;
 
       return Api.cycleAnalyticsDurationChart(
@@ -39,7 +39,7 @@ export const fetchDurationData = ({ dispatch, rootGetters }) => {
       }));
     }),
   )
-    .then(data => dispatch('receiveDurationDataSuccess', data))
+    .then((data) => dispatch('receiveDurationDataSuccess', data))
     .catch(() => dispatch('receiveDurationDataError'));
 };
 
@@ -60,7 +60,7 @@ export const fetchDurationMedianData = ({ dispatch, rootState, rootGetters }) =>
   const offsetCreatedBefore = getDateInPast(new Date(endDate), offsetValue);
 
   return Promise.all(
-    activeStages.map(stage => {
+    activeStages.map((stage) => {
       const { slug } = stage;
 
       return Api.cycleAnalyticsDurationChart(currentGroupPath, slug, {
@@ -74,13 +74,13 @@ export const fetchDurationMedianData = ({ dispatch, rootState, rootGetters }) =>
       }));
     }),
   )
-    .then(data => dispatch('receiveDurationMedianDataSuccess', data))
+    .then((data) => dispatch('receiveDurationMedianDataSuccess', data))
     .catch(() => dispatch('receiveDurationMedianDataError'));
 };
 
 export const updateSelectedDurationChartStages = ({ state, commit }, stages) => {
-  const setSelectedPropertyOnStages = data =>
-    data.map(stage => {
+  const setSelectedPropertyOnStages = (data) =>
+    data.map((stage) => {
       const selected = stages.reduce((result, object) => {
         if (object.slug === stage.slug) return true;
         return result;

@@ -32,11 +32,12 @@ export const removeFlash = (type = 'alert') => {
 export const toggleSelectedLabel = ({ selectedLabelIds = [], value = null }) => {
   if (!value) return selectedLabelIds;
   return selectedLabelIds.includes(value)
-    ? selectedLabelIds.filter(v => v !== value)
+    ? selectedLabelIds.filter((v) => v !== value)
     : [...selectedLabelIds, value];
 };
 
-export const isStartEvent = ev => Boolean(ev) && Boolean(ev.canBeStartEvent) && ev.canBeStartEvent;
+export const isStartEvent = (ev) =>
+  Boolean(ev) && Boolean(ev.canBeStartEvent) && ev.canBeStartEvent;
 
 export const eventToOption = (obj = null) => {
   if (!obj || (!obj.text && !obj.identifier)) return null;
@@ -59,7 +60,7 @@ export const isLabelEvent = (labelEvents = [], ev = null) =>
   Boolean(ev) && labelEvents.length && labelEvents.includes(ev);
 
 export const getLabelEventsIdentifiers = (events = []) =>
-  events.filter(ev => ev.type && ev.type === EVENT_TYPE_LABEL).map(i => i.identifier);
+  events.filter((ev) => ev.type && ev.type === EVENT_TYPE_LABEL).map((i) => i.identifier);
 
 /**
  * Checks if the specified stage is in memory or persisted to storage based on the id
@@ -107,7 +108,7 @@ export const transformRawStages = (stages = []) =>
 
 export const transformRawTasksByTypeData = (data = []) => {
   if (!data.length) return [];
-  return data.map(d => convertObjectPropsToCamelCase(d, { deep: true }));
+  return data.map((d) => convertObjectPropsToCamelCase(d, { deep: true }));
 };
 
 /**
@@ -143,10 +144,10 @@ export const transformRawTasksByTypeData = (data = []) => {
  * @param {Array} data - The duration data for selected stages
  * @returns {Array} An array with each item being an object containing the duration_in_seconds and finished_at values for an event
  */
-export const flattenDurationChartData = data =>
+export const flattenDurationChartData = (data) =>
   data
-    .map(stage =>
-      stage.data.map(event => {
+    .map((stage) =>
+      stage.data.map((event) => {
         const date = new Date(event.finished_at);
         return {
           ...event,
@@ -205,7 +206,7 @@ export const getDurationChartData = (data, startDate, endDate) => {
     currentDate = dayAfter(currentDate)
   ) {
     const currentISODate = dateFormat(newDate(currentDate), dateFormats.isoDate);
-    const valuesForDay = flattenedData.filter(object => object.finished_at === currentISODate);
+    const valuesForDay = flattenedData.filter((object) => object.finished_at === currentISODate);
     const summedData = valuesForDay.reduce((total, value) => total + value.duration_in_seconds, 0);
     const summedDataInDays = secondsToDays(summedData);
 
@@ -243,7 +244,7 @@ export const getDurationChartMedianData = (data, startDate, endDate) => {
 
   const offsetDurationData = getDurationChartData(data, offsetStartDate, offsetEndDate);
 
-  const result = offsetDurationData.map(event => [
+  const result = offsetDurationData.map((event) => [
     dateFormat(getDateInFuture(new Date(event[0]), offsetValue), dateFormats.isoDate),
     event[1],
   ]);
@@ -251,7 +252,7 @@ export const getDurationChartMedianData = (data, startDate, endDate) => {
   return result;
 };
 
-export const orderByDate = (a, b, dateFmt = datetime => new Date(datetime).getTime()) =>
+export const orderByDate = (a, b, dateFmt = (datetime) => new Date(datetime).getTime()) =>
   dateFmt(a) - dateFmt(b);
 
 /**
@@ -263,7 +264,7 @@ export const orderByDate = (a, b, dateFmt = datetime => new Date(datetime).getTi
 export const flattenTaskByTypeSeries = (series = {}) =>
   Object.entries(series)
     .sort((a, b) => orderByDate(a[0], b[0]))
-    .map(dataSet => dataSet[1]);
+    .map((dataSet) => dataSet[1]);
 
 /**
  * @typedef {Object} RawTasksByTypeData
@@ -357,7 +358,7 @@ export const isStageNameExistsError = ({ status, errors }) =>
  * @returns {Array} An array of stages formatted with data required for the path navigation
  */
 export const transformStagesForPathNavigation = ({ stages, medians, selectedStage }) => {
-  const formattedStages = stages.map(stage => {
+  const formattedStages = stages.map((stage) => {
     const { days } = parseSeconds(medians[stage.id], {
       daysPerWeek: 7,
       hoursPerDay: 24,
@@ -374,7 +375,7 @@ export const transformStagesForPathNavigation = ({ stages, medians, selectedStag
     };
   });
 
-  return sortBy(formattedStages, stage =>
+  return sortBy(formattedStages, (stage) =>
     stage.title === CAPITALIZED_STAGE_NAME.OVERVIEW ? 0 : 1,
   );
 };

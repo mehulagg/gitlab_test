@@ -27,7 +27,7 @@ describe('Pipeline Url Component', () => {
     pipelineScheduleUrl: 'foo',
   };
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     wrapper = shallowMount(PipelineUrlComponent, {
       propsData: { ...defaultProps, ...props },
     });

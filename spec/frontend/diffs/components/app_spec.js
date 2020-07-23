@@ -99,13 +99,13 @@ describe('diffs/components/app', () => {
   });
 
   describe('fetch diff methods', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       const fetchResolver = () => {
         store.state.diffs.retrievingBatches = false;
         store.state.notes.discussions = 'test';
         return Promise.resolve({ real_size: 100 });
       };
-      jest.spyOn(window, 'requestIdleCallback').mockImplementation(fn => fn());
+      jest.spyOn(window, 'requestIdleCallback').mockImplementation((fn) => fn());
       createComponent();
       jest.spyOn(wrapper.vm, 'fetchDiffFiles').mockImplementation(fetchResolver);
       jest.spyOn(wrapper.vm, 'fetchDiffFilesMeta').mockImplementation(fetchResolver);
@@ -163,7 +163,7 @@ describe('diffs/components/app', () => {
         wrapper.vm.glFeatures.singleMrDiffView = true;
       });
 
-      it('fetches diffs if it has none', done => {
+      it('fetches diffs if it has none', (done) => {
         wrapper.vm.isLatestVersion = () => false;
 
         store.state.diffs.diffViewType = getOppositeViewType(wrapper.vm.diffViewType);
@@ -171,7 +171,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, batch: false, existingFiles: 0, done });
       });
 
-      it('fetches diffs if it has both view styles, but no lines in either', done => {
+      it('fetches diffs if it has both view styles, but no lines in either', (done) => {
         wrapper.vm.isLatestVersion = () => false;
 
         store.state.diffs.diffFiles.push(noLinesDiff);
@@ -180,7 +180,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, done });
       });
 
-      it('fetches diffs if it only has inline view style', done => {
+      it('fetches diffs if it only has inline view style', (done) => {
         wrapper.vm.isLatestVersion = () => false;
 
         store.state.diffs.diffFiles.push(inlineLinesDiff);
@@ -189,7 +189,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, done });
       });
 
-      it('fetches diffs if it only has parallel view style', done => {
+      it('fetches diffs if it only has parallel view style', (done) => {
         wrapper.vm.isLatestVersion = () => false;
 
         store.state.diffs.diffFiles.push(parallelLinesDiff);
@@ -198,7 +198,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, done });
       });
 
-      it('fetches batch diffs if it has none', done => {
+      it('fetches batch diffs if it has none', (done) => {
         wrapper.vm.glFeatures.diffsBatchLoad = true;
 
         store.state.diffs.diffViewType = getOppositeViewType(wrapper.vm.diffViewType);
@@ -206,7 +206,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, batch: true, existingFiles: 0, done });
       });
 
-      it('fetches batch diffs if it has both view styles, but no lines in either', done => {
+      it('fetches batch diffs if it has both view styles, but no lines in either', (done) => {
         wrapper.vm.glFeatures.diffsBatchLoad = true;
 
         store.state.diffs.diffFiles.push(noLinesDiff);
@@ -215,7 +215,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, batch: true, done });
       });
 
-      it('fetches batch diffs if it only has inline view style', done => {
+      it('fetches batch diffs if it only has inline view style', (done) => {
         wrapper.vm.glFeatures.diffsBatchLoad = true;
 
         store.state.diffs.diffFiles.push(inlineLinesDiff);
@@ -224,7 +224,7 @@ describe('diffs/components/app', () => {
         expectFetchToOccur({ vueInstance: wrapper.vm, batch: true, done });
       });
 
-      it('fetches batch diffs if it only has parallel view style', done => {
+      it('fetches batch diffs if it only has parallel view style', (done) => {
         wrapper.vm.glFeatures.diffsBatchLoad = true;
 
         store.state.diffs.diffFiles.push(parallelLinesDiff);
@@ -256,7 +256,7 @@ describe('diffs/components/app', () => {
       });
     });
 
-    it('calls fetchDiffFiles if diffsBatchLoad is not enabled', done => {
+    it('calls fetchDiffFiles if diffsBatchLoad is not enabled', (done) => {
       expect(wrapper.vm.diffFilesLength).toEqual(0);
       wrapper.vm.glFeatures.diffsBatchLoad = false;
       wrapper.vm.fetchData(false);
@@ -275,7 +275,7 @@ describe('diffs/components/app', () => {
       });
     });
 
-    it('calls batch methods if diffsBatchLoad is enabled, and not latest version', done => {
+    it('calls batch methods if diffsBatchLoad is enabled, and not latest version', (done) => {
       expect(wrapper.vm.diffFilesLength).toEqual(0);
       wrapper.vm.glFeatures.diffsBatchLoad = true;
       wrapper.vm.isLatestVersion = () => false;
@@ -294,7 +294,7 @@ describe('diffs/components/app', () => {
       });
     });
 
-    it('calls batch methods if diffsBatchLoad is enabled, and latest version', done => {
+    it('calls batch methods if diffsBatchLoad is enabled, and latest version', (done) => {
       expect(wrapper.vm.diffFilesLength).toEqual(0);
       wrapper.vm.glFeatures.diffsBatchLoad = true;
       wrapper.vm.fetchData(false);
@@ -373,7 +373,7 @@ describe('diffs/components/app', () => {
       window.location.hash = 'ABC_123';
     });
 
-    it('sets highlighted row if hash exists in location object', done => {
+    it('sets highlighted row if hash exists in location object', (done) => {
       createComponent({
         shouldShow: true,
       });
@@ -424,7 +424,7 @@ describe('diffs/components/app', () => {
     });
   });
 
-  it('marks current diff file based on currently highlighted row', done => {
+  it('marks current diff file based on currently highlighted row', (done) => {
     createComponent({
       shouldShow: true,
     });
@@ -596,7 +596,7 @@ describe('diffs/components/app', () => {
       wrapper.destroy();
     });
 
-    it('jumps to next and previous files in the list', done => {
+    it('jumps to next and previous files in the list', (done) => {
       wrapper.vm
         .$nextTick()
         .then(() => {
@@ -616,7 +616,7 @@ describe('diffs/components/app', () => {
         .catch(done.fail);
     });
 
-    it('does not jump to previous file from the first one', done => {
+    it('does not jump to previous file from the first one', (done) => {
       wrapper.vm
         .$nextTick()
         .then(() => {
@@ -633,7 +633,7 @@ describe('diffs/components/app', () => {
         .catch(done.fail);
     });
 
-    it('does not jump to next file from the last one', done => {
+    it('does not jump to next file from the last one', (done) => {
       wrapper.vm
         .$nextTick()
         .then(() => {

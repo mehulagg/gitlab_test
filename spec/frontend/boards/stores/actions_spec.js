@@ -2,7 +2,7 @@ import actions from '~/boards/stores/actions';
 import * as types from '~/boards/stores/mutation_types';
 import testAction from 'helpers/vuex_action_helper';
 
-const expectNotImplemented = action => {
+const expectNotImplemented = (action) => {
   it('is not implemented', () => {
     expect(action).toThrow(new Error('Not implemented!'));
   });

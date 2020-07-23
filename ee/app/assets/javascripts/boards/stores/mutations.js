@@ -67,7 +67,7 @@ export default {
     notImplemented();
   },
 
-  [mutationTypes.TOGGLE_EPICS_SWIMLANES]: state => {
+  [mutationTypes.TOGGLE_EPICS_SWIMLANES]: (state) => {
     state.isShowingEpicsSwimlanes = !state.isShowingEpicsSwimlanes;
     state.epicsSwimlanesFetchInProgress = true;
   },
@@ -77,7 +77,7 @@ export default {
     state.epicsSwimlanesFetchInProgress = false;
   },
 
-  [mutationTypes.RECEIVE_SWIMLANES_FAILURE]: state => {
+  [mutationTypes.RECEIVE_SWIMLANES_FAILURE]: (state) => {
     state.epicsSwimlanesFetchFailure = true;
     state.epicsSwimlanesFetchInProgress = false;
   },

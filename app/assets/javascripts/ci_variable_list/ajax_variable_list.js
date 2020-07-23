@@ -8,7 +8,7 @@ import VariableList from './ci_variable_list';
 
 function generateErrorBoxContent(errors) {
   const errorList = [].concat(errors).map(
-    errorString => `
+    (errorString) => `
     <li>
       ${escape(errorString)}
     </li>
@@ -72,12 +72,12 @@ export default class AjaxVariableList {
         {
           // We want to be able to process the `res.data` from a 400 error response
           // and print the validation messages such as duplicate variable keys
-          validateStatus: status =>
+          validateStatus: (status) =>
             (status >= statusCodes.OK && status < statusCodes.MULTIPLE_CHOICES) ||
             status === statusCodes.BAD_REQUEST,
         },
       )
-      .then(res => {
+      .then((res) => {
         loadingIcon.classList.toggle('hide', true);
         this.variableList.toggleEnableRow(true);
 
@@ -106,7 +106,7 @@ export default class AjaxVariableList {
       {},
     );
 
-    this.container.querySelectorAll('.js-row').forEach(row => {
+    this.container.querySelectorAll('.js-row').forEach((row) => {
       // If we submitted a row that was destroyed, remove it so we don't try
       // to destroy it again which would cause a BE error
       const destroyInput = row.querySelector('.js-ci-variable-input-destroy');

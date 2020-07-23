@@ -51,7 +51,7 @@ export default {
       type: Object,
       required: false,
       default: null,
-      validator: project => !isUndefined(project.id),
+      validator: (project) => !isUndefined(project.id),
     },
     pipelineId: {
       type: Number,

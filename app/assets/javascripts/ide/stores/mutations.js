@@ -62,7 +62,7 @@ export default {
         });
       } else {
         const tree = entry.tree.filter(
-          f => foundEntry.tree.find(e => e.path === f.path) === undefined,
+          (f) => foundEntry.tree.find((e) => e.path === f.path) === undefined,
         );
         Object.assign(foundEntry, {
           tree: sortTree(foundEntry.tree.concat(tree)),
@@ -73,7 +73,7 @@ export default {
     }, []);
 
     const foundEntry = state.trees[`${projectId}/${branchId}`].tree.find(
-      e => e.path === data.treeList[0].path,
+      (e) => e.path === data.treeList[0].path,
     );
 
     if (!foundEntry) {
@@ -127,7 +127,7 @@ export default {
     });
   },
   [types.UPDATE_FILE_AFTER_COMMIT](state, { file, lastCommit }) {
-    const changedFile = state.changedFiles.find(f => f.path === file.path);
+    const changedFile = state.changedFiles.find((f) => f.path === file.path);
     const { prevPath } = file;
 
     Object.assign(state.entries[file.path], {
@@ -175,7 +175,7 @@ export default {
     entry.deleted = true;
 
     if (parent) {
-      parent.tree = parent.tree.filter(f => f.path !== entry.path);
+      parent.tree = parent.tree.filter((f) => f.path !== entry.path);
     }
 
     if (entry.type === 'blob') {
@@ -184,8 +184,8 @@ export default {
         // changed and staged. Otherwise, we'd need to somehow evaluate the difference between
         // changed and HEAD.
         // https://gitlab.com/gitlab-org/create-stage/-/issues/12669
-        state.changedFiles = state.changedFiles.filter(f => f.path !== path);
-        state.stagedFiles = state.stagedFiles.filter(f => f.path !== path);
+        state.changedFiles = state.changedFiles.filter((f) => f.path !== path);
+        state.stagedFiles = state.stagedFiles.filter((f) => f.path !== path);
       } else {
         state.changedFiles = state.changedFiles.concat(entry);
       }

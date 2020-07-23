@@ -103,7 +103,7 @@ export default {
 
       this.service
         .getFolderContent(folder.folder_path)
-        .then(response => this.store.setfolderContent(folder, response.data.environments))
+        .then((response) => this.store.setfolderContent(folder, response.data.environments))
         .then(() => this.store.updateEnvironmentProp(folder, 'isLoadingFolderContent', false))
         .catch(() => {
           Flash(s__('Environments|An error occurred while fetching the environments.'));
@@ -117,7 +117,7 @@ export default {
       // We need to verify if any folder is open to also update it
       const openFolders = this.store.getOpenFolders();
       if (openFolders.length) {
-        openFolders.forEach(folder => this.fetchChildEnvironments(folder));
+        openFolders.forEach((folder) => this.fetchChildEnvironments(folder));
       }
     },
   },

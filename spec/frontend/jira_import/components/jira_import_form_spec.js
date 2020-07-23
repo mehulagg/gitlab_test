@@ -24,7 +24,7 @@ describe('JiraImportForm', () => {
 
   const getUserDropdown = () => getTable().find(GlNewDropdown);
 
-  const getHeader = name => getByRole(wrapper.element, 'columnheader', { name });
+  const getHeader = (name) => getByRole(wrapper.element, 'columnheader', { name });
 
   const mountComponent = ({
     isSubmitting = false,

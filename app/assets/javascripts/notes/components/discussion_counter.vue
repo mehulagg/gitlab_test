@@ -30,17 +30,17 @@ export default {
       return this.getNoteableData.create_issue_to_resolve_discussions_path;
     },
     toggeableDiscussions() {
-      return this.discussions.filter(discussion => !discussion.individual_note);
+      return this.discussions.filter((discussion) => !discussion.individual_note);
     },
     allExpanded() {
-      return this.toggeableDiscussions.every(discussion => discussion.expanded);
+      return this.toggeableDiscussions.every((discussion) => discussion.expanded);
     },
   },
   methods: {
     ...mapActions(['setExpandDiscussions']),
     handleExpandDiscussions() {
       this.setExpandDiscussions({
-        discussionIds: this.toggeableDiscussions.map(discussion => discussion.id),
+        discussionIds: this.toggeableDiscussions.map((discussion) => discussion.id),
         expanded: !this.allExpanded,
       });
     },

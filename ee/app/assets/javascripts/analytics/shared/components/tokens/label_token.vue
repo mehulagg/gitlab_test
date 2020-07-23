@@ -58,7 +58,7 @@ export default {
       immediate: true,
       handler(newValue) {
         if (!newValue && this.labels) {
-          this.activeLabel = this.labels.find(l => l.title === this.value?.data);
+          this.activeLabel = this.labels.find((l) => l.title === this.value?.data);
         }
       },
     },

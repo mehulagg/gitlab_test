@@ -69,7 +69,7 @@ describe('AccessDropdown', () => {
 
     describe('with only role', () => {
       beforeEach(() => {
-        dropdown.setSelectedItems(dummyItems.filter(item => item.type === LEVEL_TYPES.ROLE));
+        dropdown.setSelectedItems(dummyItems.filter((item) => item.type === LEVEL_TYPES.ROLE));
         $dropdownToggleText.addClass('is-default');
       });
 
@@ -83,7 +83,7 @@ describe('AccessDropdown', () => {
 
     describe('with only users', () => {
       beforeEach(() => {
-        dropdown.setSelectedItems(dummyItems.filter(item => item.type === LEVEL_TYPES.USER));
+        dropdown.setSelectedItems(dummyItems.filter((item) => item.type === LEVEL_TYPES.USER));
         $dropdownToggleText.addClass('is-default');
       });
 
@@ -97,7 +97,7 @@ describe('AccessDropdown', () => {
 
     describe('with only groups', () => {
       beforeEach(() => {
-        dropdown.setSelectedItems(dummyItems.filter(item => item.type === LEVEL_TYPES.GROUP));
+        dropdown.setSelectedItems(dummyItems.filter((item) => item.type === LEVEL_TYPES.GROUP));
         $dropdownToggleText.addClass('is-default');
       });
 
@@ -112,7 +112,7 @@ describe('AccessDropdown', () => {
     describe('with users and groups', () => {
       beforeEach(() => {
         const selectedTypes = [LEVEL_TYPES.GROUP, LEVEL_TYPES.USER];
-        dropdown.setSelectedItems(dummyItems.filter(item => selectedTypes.includes(item.type)));
+        dropdown.setSelectedItems(dummyItems.filter((item) => selectedTypes.includes(item.type)));
         $dropdownToggleText.addClass('is-default');
       });
 

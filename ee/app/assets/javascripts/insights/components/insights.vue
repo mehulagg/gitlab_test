@@ -54,7 +54,7 @@ export default {
         }
       }
 
-      return Object.keys(configData).map(key => ({
+      return Object.keys(configData).map((key) => ({
         name: configData[key].title,
         scope: key,
         isActive: this.activeTab === key,

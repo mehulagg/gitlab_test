@@ -21,7 +21,7 @@ describe('Test reports summary', () => {
     showBack: false,
   };
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     wrapper = mount(Summary, {
       propsData: {
         ...defaultProps,

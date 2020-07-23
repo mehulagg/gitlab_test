@@ -68,7 +68,7 @@ export default {
         .update('issue', { confidential })
         .then(({ data }) => this.checkForSpam(data))
         .then(() => window.location.reload())
-        .catch(error => {
+        .catch((error) => {
           if (error.name === 'SpamError') {
             this.openRecaptcha();
           } else {

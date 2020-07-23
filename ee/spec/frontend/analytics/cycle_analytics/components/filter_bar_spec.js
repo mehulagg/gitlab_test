@@ -38,7 +38,7 @@ describe('Filter bar', () => {
     });
   };
 
-  const createComponent = initialStore =>
+  const createComponent = (initialStore) =>
     shallowMount(FilterBar, {
       localVue,
       store: initialStore,
@@ -52,10 +52,10 @@ describe('Filter bar', () => {
   const selectedLabel = [filterLabels[0]];
 
   const findFilteredSearch = () => wrapper.find(GlFilteredSearch);
-  const getSearchToken = type =>
+  const getSearchToken = (type) =>
     findFilteredSearch()
       .props('availableTokens')
-      .filter(token => token.type === type)[0];
+      .filter((token) => token.type === type)[0];
 
   describe('default', () => {
     beforeEach(() => {
@@ -193,11 +193,14 @@ describe('Filter bar', () => {
     });
 
     it.each`
-      token          | value                     | result
-      ${'milestone'} | ${'v1.0'}                 | ${[{ type: 'milestone', value: { data: 'v1.0' } }]}
-      ${'author'}    | ${'mr.popo'}              | ${[{ type: 'author', value: { data: 'mr.popo' } }]}
-      ${'labels'}    | ${['z-fighters']}         | ${[{ type: 'labels', value: { data: 'z-fighters' } }]}
-      ${'assignees'} | ${['krillin', 'piccolo']} | ${[{ type: 'assignees', value: { data: 'krillin' } }, { type: 'assignees', value: { data: 'piccolo' } }]}
+      token          | value             | result
+      ${'milestone'} | ${'v1.0'}         | ${[{ type: 'milestone', value: { data: 'v1.0' } }]}
+      ${'author'}    | ${'mr.popo'}      | ${[{ type: 'author', value: { data: 'mr.popo' } }]}
+      ${'labels'}    | ${['z-fighters']} | ${[{ type: 'labels', value: { data: 'z-fighters' } }]}
+      ${'assignees'} | ${['krillin', 'piccolo']} | ${[
+  { type: 'assignees', value: { data: 'krillin' } },
+  { type: 'assignees', value: { data: 'piccolo' } },
+]}
     `('with $token=$value sets the $token key', ({ token, value, result }) => {
       const res = prepareTokens({ [token]: value });
       expect(res).toEqual(result);

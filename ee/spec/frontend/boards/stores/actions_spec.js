@@ -7,14 +7,14 @@ import { inactiveListId } from '~/boards/constants';
 
 jest.mock('axios');
 
-const expectNotImplemented = action => {
+const expectNotImplemented = (action) => {
   it('is not implemented', () => {
     expect(action).toThrow(new Error('Not implemented!'));
   });
 };
 
 describe('setShowLabels', () => {
-  it('should commit mutation SET_SHOW_LABELS', done => {
+  it('should commit mutation SET_SHOW_LABELS', (done) => {
     const state = {
       isShowingLabels: true,
     };
@@ -31,7 +31,7 @@ describe('setShowLabels', () => {
 });
 
 describe('setActiveListId', () => {
-  it('should commit mutation SET_ACTIVE_LIST_ID', done => {
+  it('should commit mutation SET_ACTIVE_LIST_ID', (done) => {
     const state = {
       activeListId: inactiveListId,
     };
@@ -66,7 +66,9 @@ describe('updateListWipLimit', () => {
     const activeListId = 1;
 
     return actions.updateListWipLimit({ state: { activeListId } }, { maxIssueCount }).then(() => {
-      expect(axios.put).toHaveBeenCalledWith(
+      expect(
+        axios.put,
+      ).toHaveBeenCalledWith(
         `${boardsStoreEE.store.state.endpoints.listsEndpoint}/${activeListId}`,
         { list: { max_issue_count: maxIssueCount } },
       );
@@ -119,7 +121,7 @@ describe('toggleEpicSwimlanes', () => {
 });
 
 describe('receiveSwimlanesSuccess', () => {
-  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', done => {
+  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', (done) => {
     testAction(
       actions.receiveSwimlanesSuccess,
       {},
@@ -132,7 +134,7 @@ describe('receiveSwimlanesSuccess', () => {
 });
 
 describe('receiveSwimlanesFailure', () => {
-  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', done => {
+  it('should commit mutation RECEIVE_SWIMLANES_SUCCESS', (done) => {
     testAction(
       actions.receiveSwimlanesFailure,
       null,

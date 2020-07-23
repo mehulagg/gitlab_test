@@ -27,7 +27,7 @@ export default {
       'undoFileTemplate',
     ]),
     setInitialType() {
-      const initialTemplateType = this.templateTypes.find(t => t.name === this.activeFile.name);
+      const initialTemplateType = this.templateTypes.find((t) => t.name === this.activeFile.name);
 
       if (initialTemplateType) {
         this.setSelectedTemplateType(initialTemplateType);

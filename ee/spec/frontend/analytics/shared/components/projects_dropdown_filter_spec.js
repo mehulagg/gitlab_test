@@ -54,17 +54,15 @@ describe('ProjectsDropdownFilter component', () => {
   const findDropdownItems = () =>
     findDropdown()
       .findAll(GlDropdownItem)
-      .filter(w => w.text() !== 'No matching results');
+      .filter((w) => w.text() !== 'No matching results');
 
-  const findDropdownAtIndex = index => findDropdownItems().at(index);
+  const findDropdownAtIndex = (index) => findDropdownItems().at(index);
 
   const findDropdownButton = () => findDropdown().find('.dropdown-toggle');
   const findDropdownButtonAvatar = () => findDropdown().find('.gl-avatar');
 
-  const selectDropdownItemAtIndex = index =>
-    findDropdownAtIndex(index)
-      .find('button')
-      .trigger('click');
+  const selectDropdownItemAtIndex = (index) =>
+    findDropdownAtIndex(index).find('button').trigger('click');
 
   describe('queryParams are applied when fetching data', () => {
     beforeEach(() => {

@@ -46,7 +46,7 @@ export default {
     },
   },
   mounted() {
-    this.detailsSlots = Object.keys(this.$slots).filter(k => k.startsWith('details_'));
+    this.detailsSlots = Object.keys(this.$slots).filter((k) => k.startsWith('details_'));
   },
   methods: {
     toggleDetails() {

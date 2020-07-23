@@ -35,7 +35,7 @@ describe('OnDemandScansApp', () => {
   const submitForm = () => findForm().vm.$emit('submit', { preventDefault: () => {} });
   const findAlert = () => wrapper.find(GlAlert);
 
-  const componentFactory = (mountFn = shallowMount) => options => {
+  const componentFactory = (mountFn = shallowMount) => (options) => {
     wrapper = mountFn(
       DastSiteProfileForm,
       merge(
@@ -100,12 +100,15 @@ describe('OnDemandScansApp', () => {
       createFullComponent();
     });
 
-    it.each(['asd', 'example.com'])('is marked as invalid provided an invalid URL', async value => {
-      findTargetUrlInput().setValue(value);
-      await wrapper.vm.$nextTick();
+    it.each(['asd', 'example.com'])(
+      'is marked as invalid provided an invalid URL',
+      async (value) => {
+        findTargetUrlInput().setValue(value);
+        await wrapper.vm.$nextTick();
 
-      expect(wrapper.text()).toContain(errorMessage);
-    });
+        expect(wrapper.text()).toContain(errorMessage);
+      },
+    );
 
     it('is marked as valid provided a valid URL', async () => {
       findTargetUrlInput().setValue(targetUrl);

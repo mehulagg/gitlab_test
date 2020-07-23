@@ -134,7 +134,7 @@ describe('Dashboard', () => {
   });
 
   describe('panel containers layout', () => {
-    const findPanelLayoutWrapperAt = index => {
+    const findPanelLayoutWrapperAt = (index) => {
       return wrapper
         .find(GraphGroup)
         .findAll('[data-testid="dashboard-panel-layout-wrapper"]')
@@ -233,7 +233,7 @@ describe('Dashboard', () => {
   describe('when the URL contains a reference to a panel', () => {
     let location;
 
-    const setSearch = search => {
+    const setSearch = (search) => {
       window.location = { ...location, search };
     };
 
@@ -430,7 +430,7 @@ describe('Dashboard', () => {
   });
 
   describe('when all panels in the first group are loading', () => {
-    const findGroupAt = i => wrapper.findAll(GraphGroup).at(i);
+    const findGroupAt = (i) => wrapper.findAll(GraphGroup).at(i);
 
     beforeEach(() => {
       setupStoreWithDashboard(store);
@@ -473,7 +473,7 @@ describe('Dashboard', () => {
       setupStoreWithData(store);
 
       wrapper.vm.$nextTick(() => {
-        wrapper.findAll(GraphGroup).wrappers.forEach(groupWrapper => {
+        wrapper.findAll(GraphGroup).wrappers.forEach((groupWrapper) => {
           expect(groupWrapper.props('isLoading')).toBe(false);
         });
       });
@@ -645,7 +645,7 @@ describe('Dashboard', () => {
       let group;
       let panel;
 
-      const mockKeyup = key => window.dispatchEvent(new KeyboardEvent('keyup', { key }));
+      const mockKeyup = (key) => window.dispatchEvent(new KeyboardEvent('keyup', { key }));
 
       const MockPanel = {
         template: `<div><slot name="topLeft"/></div>`,
@@ -672,7 +672,7 @@ describe('Dashboard', () => {
 
       it('displays a single panel and others are hidden', () => {
         const panels = wrapper.findAll(MockPanel);
-        const visiblePanels = panels.filter(w => w.isVisible());
+        const visiblePanels = panels.filter((w) => w.isVisible());
 
         expect(findExpandedPanel().isVisible()).toBe(true);
         // v-show for hiding panels is more performant than v-if
@@ -736,18 +736,15 @@ describe('Dashboard', () => {
     });
 
     it('group empty area displays a NO_DATA state', () => {
-      expect(
-        wrapper
-          .findAll({ ref: 'empty-group' })
-          .at(0)
-          .props('selectedState'),
-      ).toEqual(metricStates.NO_DATA);
+      expect(wrapper.findAll({ ref: 'empty-group' }).at(0).props('selectedState')).toEqual(
+        metricStates.NO_DATA,
+      );
     });
   });
 
   describe('drag and drop function', () => {
     const findDraggables = () => wrapper.findAll(VueDraggable);
-    const findEnabledDraggables = () => findDraggables().filter(f => !f.attributes('disabled'));
+    const findEnabledDraggables = () => findDraggables().filter((f) => !f.attributes('disabled'));
     const findDraggablePanels = () => wrapper.findAll('.js-draggable-panel');
     const findRearrangeButton = () => wrapper.find('.js-rearrange-button');
 
@@ -783,9 +780,7 @@ describe('Dashboard', () => {
 
       describe('when rearrange button is clicked', () => {
         const findFirstDraggableRemoveButton = () =>
-          findDraggablePanels()
-            .at(0)
-            .find('.js-draggable-remove');
+          findDraggablePanels().at(0).find('.js-draggable-remove');
 
         beforeEach(() => {
           findRearrangeButton().vm.$emit('click');
@@ -839,7 +834,7 @@ describe('Dashboard', () => {
   });
 
   describe('dashboard timezone', () => {
-    const setupWithTimezone = value => {
+    const setupWithTimezone = (value) => {
       store = createStore({ dashboardTimezone: value });
       setupStoreWithData(store);
       createShallowWrapper({ hasMetrics: true });
@@ -852,11 +847,7 @@ describe('Dashboard', () => {
       });
 
       it('shows the data time picker in local timezone', () => {
-        expect(
-          findDashboardHeader()
-            .find(DateTimePicker)
-            .props('utc'),
-        ).toBe(false);
+        expect(findDashboardHeader().find(DateTimePicker).props('utc')).toBe(false);
       });
     });
 
@@ -866,11 +857,7 @@ describe('Dashboard', () => {
       });
 
       it('shows the data time picker in local timezone', () => {
-        expect(
-          findDashboardHeader()
-            .find(DateTimePicker)
-            .props('utc'),
-        ).toBe(false);
+        expect(findDashboardHeader().find(DateTimePicker).props('utc')).toBe(false);
       });
     });
 
@@ -880,11 +867,7 @@ describe('Dashboard', () => {
       });
 
       it('shows the data time picker in UTC format', () => {
-        expect(
-          findDashboardHeader()
-            .find(DateTimePicker)
-            .props('utc'),
-        ).toBe(true);
+        expect(findDashboardHeader().find(DateTimePicker).props('utc')).toBe(true);
       });
     });
   });
@@ -1031,10 +1014,7 @@ describe('Dashboard', () => {
     const panelIndex = 1; // skip expanded panel
 
     const getClipboardTextFirstPanel = () =>
-      wrapper
-        .findAll(DashboardPanel)
-        .at(panelIndex)
-        .props('clipboardText');
+      wrapper.findAll(DashboardPanel).at(panelIndex).props('clipboardText');
 
     beforeEach(() => {
       setupStoreWithData(store);
@@ -1101,7 +1081,7 @@ describe('Dashboard', () => {
 
     describe('when available', () => {
       let origPage;
-      beforeEach(done => {
+      beforeEach((done) => {
         jest.spyOn(Tracking, 'event').mockReturnValue();
         createShallowWrapper({
           hasMetrics: true,
@@ -1127,7 +1107,7 @@ describe('Dashboard', () => {
         expect(wrapper.find(GlModal).exists()).toBe(true);
         expect(wrapper.find(GlModal).attributes().modalid).toBe('addMetric');
       });
-      it('adding new metric is tracked', done => {
+      it('adding new metric is tracked', (done) => {
         const submitButton = wrapper
           .find(DashboardHeader)
           .find({ ref: 'submitCustomMetricsFormBtn' }).vm;

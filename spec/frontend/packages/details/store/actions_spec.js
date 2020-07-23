@@ -11,7 +11,7 @@ jest.mock('~/api.js');
 
 describe('Actions Package details store', () => {
   describe('fetchPackageVersions', () => {
-    it('should fetch the package versions', done => {
+    it('should fetch the package versions', (done) => {
       Api.projectPackage = jest.fn().mockResolvedValue({ data: packageEntity });
 
       testAction(
@@ -34,14 +34,17 @@ describe('Actions Package details store', () => {
       );
     });
 
-    it("does not set the versions if they don't exist", done => {
+    it("does not set the versions if they don't exist", (done) => {
       Api.projectPackage = jest.fn().mockResolvedValue({ data: { packageEntity, versions: null } });
 
       testAction(
         fetchPackageVersions,
         undefined,
         { packageEntity },
-        [{ type: types.SET_LOADING, payload: true }, { type: types.SET_LOADING, payload: false }],
+        [
+          { type: types.SET_LOADING, payload: true },
+          { type: types.SET_LOADING, payload: false },
+        ],
         [],
         () => {
           expect(Api.projectPackage).toHaveBeenCalledWith(
@@ -53,14 +56,17 @@ describe('Actions Package details store', () => {
       );
     });
 
-    it('should create flash on API error', done => {
+    it('should create flash on API error', (done) => {
       Api.projectPackage = jest.fn().mockRejectedValue();
 
       testAction(
         fetchPackageVersions,
         undefined,
         { packageEntity },
-        [{ type: types.SET_LOADING, payload: true }, { type: types.SET_LOADING, payload: false }],
+        [
+          { type: types.SET_LOADING, payload: true },
+          { type: types.SET_LOADING, payload: false },
+        ],
         [],
         () => {
           expect(Api.projectPackage).toHaveBeenCalledWith(

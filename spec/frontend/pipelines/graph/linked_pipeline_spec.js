@@ -16,7 +16,7 @@ describe('Linked pipeline', () => {
   const findPipelineLabel = () => wrapper.find('[data-testid="downstream-pipeline-label"]');
   const findLinkedPipeline = () => wrapper.find({ ref: 'linkedPipeline' });
 
-  const createWrapper = propsData => {
+  const createWrapper = (propsData) => {
     wrapper = mount(LinkedPipelineComponent, {
       propsData,
     });

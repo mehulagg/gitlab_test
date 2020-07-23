@@ -7,7 +7,7 @@ import submitContentChangesResolver from './resolvers/submit_content_changes';
 
 Vue.use(VueApollo);
 
-const createApolloProvider = appData => {
+const createApolloProvider = (appData) => {
   const defaultClient = createDefaultClient(
     {
       Project: {

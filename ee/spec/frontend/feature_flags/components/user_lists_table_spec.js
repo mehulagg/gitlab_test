@@ -42,7 +42,7 @@ describe('User Lists Table', () => {
   it('should display a user list entry per user list', () => {
     const lists = wrapper.findAll('[data-testid="ffUserList"]');
     expect(lists).toHaveLength(5);
-    lists.wrappers.forEach(list => {
+    lists.wrappers.forEach((list) => {
       expect(list.contains('[data-testid="ffUserListName"]')).toBe(true);
       expect(list.contains('[data-testid="ffUserListIds"]')).toBe(true);
       expect(list.contains('[data-testid="ffUserListTimestamp"]')).toBe(true);

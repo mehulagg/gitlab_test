@@ -18,7 +18,7 @@ const datasetState = stateAndPropsFromDataset(
   // https://gitlab.com/gitlab-org/gitlab/-/merge_requests/33574
   convertObjectProps(
     // Some props use kebab-case, convert to snake_case first
-    key => convertToCamelCase(key.replace(/-/g, '_')),
+    (key) => convertToCamelCase(key.replace(/-/g, '_')),
     metricsDashboardResponse.metrics_data,
   ),
 );
@@ -66,7 +66,7 @@ const firstPanel = metricsDashboardViewModel.panelGroups[0].panels[0];
 
 export const graphData = {
   ...firstPanel,
-  metrics: firstPanel.metrics.map(metric => ({
+  metrics: firstPanel.metrics.map((metric) => ({
     ...metric,
     result: metricsResult,
     state: metricStates.OK,
@@ -75,7 +75,7 @@ export const graphData = {
 
 export const graphDataEmpty = {
   ...firstPanel,
-  metrics: firstPanel.metrics.map(metric => ({
+  metrics: firstPanel.metrics.map((metric) => ({
     ...metric,
     result: [],
     state: metricStates.NO_DATA,

@@ -23,19 +23,19 @@ program
 
 const shouldParallelize = program.parallel || program.watch;
 
-const isSuccess = code => code === SUCCESS_CODE;
+const isSuccess = (code) => code === SUCCESS_CODE;
 
-const combineExitCodes = codes => {
-  const firstFail = codes.find(x => !isSuccess(x));
+const combineExitCodes = (codes) => {
+  const firstFail = codes.find((x) => !isSuccess(x));
 
   return firstFail === undefined ? SUCCESS_CODE : firstFail;
 };
 
-const skipIfFail = fn => code => (isSuccess(code) ? fn() : code);
+const skipIfFail = (fn) => (code) => (isSuccess(code) ? fn() : code);
 
-const endWithEOL = str => (str[str.length - 1] === '\n' ? str : `${str}${EOL}`);
+const endWithEOL = (str) => (str[str.length - 1] === '\n' ? str : `${str}${EOL}`);
 
-const runTests = paths => {
+const runTests = (paths) => {
   if (shouldParallelize) {
     return Promise.all([runJest(paths), runKarma(paths)]).then(combineExitCodes);
   } else {
@@ -46,7 +46,7 @@ const runTests = paths => {
 const spawnYarnScript = (cmd, args) => {
   return new Promise((resolve, reject) => {
     const proc = spawn('yarn', ['run', cmd, ...args]);
-    const output = data => {
+    const output = (data) => {
       const text = data
         .toString()
         .split(/\r?\n/g)
@@ -58,15 +58,15 @@ const spawnYarnScript = (cmd, args) => {
       return endWithEOL(text);
     };
 
-    proc.stdout.on('data', data => {
+    proc.stdout.on('data', (data) => {
       process.stdout.write(output(data));
     });
 
-    proc.stderr.on('data', data => {
+    proc.stderr.on('data', (data) => {
       process.stderr.write(output(data));
     });
 
-    proc.on('close', code => {
+    proc.on('close', (code) => {
       process.stdout.write(output(`exited with code ${code}`));
 
       // We resolve even on a failure code because a `reject` would cause
@@ -77,35 +77,32 @@ const spawnYarnScript = (cmd, args) => {
   });
 };
 
-const runJest = args => {
+const runJest = (args) => {
   return spawnYarnScript('jest', [...jestArgs, ...toJestArgs(args)]);
 };
 
-const runKarma = args => {
+const runKarma = (args) => {
   return spawnYarnScript('karma', [...karmaArgs, ...toKarmaArgs(args)]);
 };
 
-const replacePath = to => path =>
-  path
-    .replace(JEST_ROUTE, to)
-    .replace(KARMA_ROUTE, to)
-    .replace('app/assets/javascripts', to);
+const replacePath = (to) => (path) =>
+  path.replace(JEST_ROUTE, to).replace(KARMA_ROUTE, to).replace('app/assets/javascripts', to);
 
 const replacePathForJest = replacePath(JEST_ROUTE);
 
 const replacePathForKarma = replacePath(KARMA_ROUTE);
 
-const toJestArgs = paths => paths.map(replacePathForJest);
+const toJestArgs = (paths) => paths.map(replacePathForJest);
 
-const toKarmaArgs = paths =>
+const toKarmaArgs = (paths) =>
   paths.reduce((acc, path) => acc.concat('-f', replacePathForKarma(path)), []);
 
-const main = paths => {
+const main = (paths) => {
   if (program.watch) {
     jestArgs.push('--watch');
     karmaArgs.push('--single-run', 'false', '--auto-watch');
   }
-  runTests(paths).then(code => {
+  runTests(paths).then((code) => {
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     if (isSuccess(code)) {
       console.log(chalk.bgGreen(chalk.black('All tests passed :)')));

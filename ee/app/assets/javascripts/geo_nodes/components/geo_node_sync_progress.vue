@@ -22,8 +22,10 @@ export default {
     itemValue: {
       type: Object,
       required: true,
-      validator: value =>
-        ['totalCount', 'successCount', 'failureCount'].every(key => typeof value[key] === 'number'),
+      validator: (value) =>
+        ['totalCount', 'successCount', 'failureCount'].every(
+          (key) => typeof value[key] === 'number',
+        ),
     },
     detailsPath: {
       type: String,

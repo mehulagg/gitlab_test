@@ -50,7 +50,7 @@ describe('ValueStreamSelect', () => {
   const submitButtonDisabledState = () => findModal().props('actionPrimary').attributes[1].disabled;
   const submitForm = () => findModal().vm.$emit('primary', mockEvent);
   const findSelectValueStreamDropdown = () => wrapper.find(GlDropdown);
-  const findSelectValueStreamDropdownOptions = _wrapper => findDropdownItemText(_wrapper);
+  const findSelectValueStreamDropdownOptions = (_wrapper) => findDropdownItemText(_wrapper);
   const findCreateValueStreamButton = () => wrapper.find(GlButton);
 
   beforeEach(() => {
@@ -76,7 +76,7 @@ describe('ValueStreamSelect', () => {
 
     it('renders each value stream including a create button', () => {
       const opts = findSelectValueStreamDropdownOptions(wrapper);
-      [...valueStreams.map(v => v.name), 'Create new Value Stream'].forEach(vs => {
+      [...valueStreams.map((v) => v.name), 'Create new Value Stream'].forEach((vs) => {
         expect(opts).toContain(vs);
       });
     });

@@ -392,8 +392,8 @@ describe('Issuable output', () => {
 
           wrapper.vm.poll.makeRequest();
 
-          return new Promise(resolve => {
-            wrapper.vm.$watch('formState.lockedWarningVisible', value => {
+          return new Promise((resolve) => {
+            wrapper.vm.$watch('formState.lockedWarningVisible', (value) => {
               if (value) {
                 resolve();
               }

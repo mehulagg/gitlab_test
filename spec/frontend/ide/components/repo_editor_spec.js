@@ -25,7 +25,7 @@ describe('RepoEditor', () => {
   let store;
 
   const waitForEditorSetup = () =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       vm.$once('editorSetup', resolve);
     });
 
@@ -43,7 +43,7 @@ describe('RepoEditor', () => {
     vm.$mount();
   };
 
-  const createOpenFile = path => {
+  const createOpenFile = (path) => {
     const origFile = store.state.openFiles[0];
     const newFile = { ...origFile, path, key: path };
 
@@ -117,7 +117,7 @@ describe('RepoEditor', () => {
       expect(findEditor()).not.toHaveCss({ display: 'none' });
     });
 
-    it('renders only an edit tab', done => {
+    it('renders only an edit tab', (done) => {
       Vue.nextTick(() => {
         const tabs = vm.$el.querySelectorAll('.ide-mode-tabs .nav-links li');
 
@@ -154,7 +154,7 @@ describe('RepoEditor', () => {
         mock.restore();
       });
 
-      it('renders an Edit and a Preview Tab', done => {
+      it('renders an Edit and a Preview Tab', (done) => {
         Vue.nextTick(() => {
           const tabs = vm.$el.querySelectorAll('.ide-mode-tabs .nav-links li');
 
@@ -166,7 +166,7 @@ describe('RepoEditor', () => {
         });
       });
 
-      it('renders markdown for tempFile', done => {
+      it('renders markdown for tempFile', (done) => {
         vm.file.tempFile = true;
 
         vm.$nextTick()
@@ -199,7 +199,7 @@ describe('RepoEditor', () => {
     });
 
     describe('when open file is binary and not raw', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         vm.file.binary = true;
 
         vm.$nextTick(done);
@@ -211,7 +211,7 @@ describe('RepoEditor', () => {
     });
 
     describe('createEditorInstance', () => {
-      it('calls createInstance when viewer is editor', done => {
+      it('calls createInstance when viewer is editor', (done) => {
         jest.spyOn(vm.editor, 'createInstance').mockImplementation();
 
         vm.createEditorInstance();
@@ -223,7 +223,7 @@ describe('RepoEditor', () => {
         });
       });
 
-      it('calls createDiffInstance when viewer is diff', done => {
+      it('calls createDiffInstance when viewer is diff', (done) => {
         vm.$store.state.viewer = 'diff';
 
         jest.spyOn(vm.editor, 'createDiffInstance').mockImplementation();
@@ -237,7 +237,7 @@ describe('RepoEditor', () => {
         });
       });
 
-      it('calls createDiffInstance when viewer is a merge request diff', done => {
+      it('calls createDiffInstance when viewer is a merge request diff', (done) => {
         vm.$store.state.viewer = 'mrdiff';
 
         jest.spyOn(vm.editor, 'createDiffInstance').mockImplementation();
@@ -338,7 +338,7 @@ describe('RepoEditor', () => {
         jest.spyOn(vm.editor, 'updateDiffView').mockImplementation();
       });
 
-      it('calls updateDimensions when panelResizing is false', done => {
+      it('calls updateDimensions when panelResizing is false', (done) => {
         vm.$store.state.panelResizing = true;
 
         vm.$nextTick()
@@ -354,7 +354,7 @@ describe('RepoEditor', () => {
           .catch(done.fail);
       });
 
-      it('does not call updateDimensions when panelResizing is true', done => {
+      it('does not call updateDimensions when panelResizing is true', (done) => {
         vm.$store.state.panelResizing = true;
 
         vm.$nextTick(() => {
@@ -365,7 +365,7 @@ describe('RepoEditor', () => {
         });
       });
 
-      it('calls updateDimensions when rightPane is opened', done => {
+      it('calls updateDimensions when rightPane is opened', (done) => {
         vm.$store.state.rightPane.isOpen = true;
 
         vm.$nextTick(() => {
@@ -382,7 +382,7 @@ describe('RepoEditor', () => {
         expect(vm.$el.querySelector('.nav-links')).not.toBe(null);
       });
 
-      it('hides tabs in review mode', done => {
+      it('hides tabs in review mode', (done) => {
         vm.$store.state.currentActivityView = leftSidebarViews.review.name;
 
         vm.$nextTick(() => {
@@ -392,7 +392,7 @@ describe('RepoEditor', () => {
         });
       });
 
-      it('hides tabs in commit mode', done => {
+      it('hides tabs in commit mode', (done) => {
         vm.$store.state.currentActivityView = leftSidebarViews.commit.name;
 
         vm.$nextTick(() => {
@@ -404,7 +404,7 @@ describe('RepoEditor', () => {
     });
 
     describe('when files view mode is preview', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         jest.spyOn(vm.editor, 'updateDimensions').mockImplementation();
         vm.file.viewMode = FILE_VIEW_MODE_PREVIEW;
         vm.$nextTick(done);
@@ -433,7 +433,7 @@ describe('RepoEditor', () => {
         jest.spyOn(vm, 'shouldHideEditor', 'get').mockReturnValue(true);
       });
 
-      it('does not fetch file information for temp entries', done => {
+      it('does not fetch file information for temp entries', (done) => {
         vm.file.tempFile = true;
 
         vm.initEditor();
@@ -445,7 +445,7 @@ describe('RepoEditor', () => {
           .catch(done.fail);
       });
 
-      it('is being initialised for files without content even if shouldHideEditor is `true`', done => {
+      it('is being initialised for files without content even if shouldHideEditor is `true`', (done) => {
         vm.file.content = '';
         vm.file.raw = '';
 
@@ -460,7 +460,7 @@ describe('RepoEditor', () => {
           .catch(done.fail);
       });
 
-      it('does not initialize editor for files already with content', done => {
+      it('does not initialize editor for files already with content', (done) => {
         vm.file.content = 'foo';
 
         vm.initEditor();
@@ -480,7 +480,7 @@ describe('RepoEditor', () => {
         jest.spyOn(vm, 'initEditor').mockImplementation();
       });
 
-      it('calls removePendingTab when old file is pending', done => {
+      it('calls removePendingTab when old file is pending', (done) => {
         jest.spyOn(vm, 'shouldHideEditor', 'get').mockReturnValue(true);
         jest.spyOn(vm, 'removePendingTab').mockImplementation();
 
@@ -500,7 +500,7 @@ describe('RepoEditor', () => {
           .catch(done.fail);
       });
 
-      it('does not call initEditor if the file did not change', done => {
+      it('does not call initEditor if the file did not change', (done) => {
         Vue.set(vm, 'file', vm.file);
 
         vm.$nextTick()
@@ -511,7 +511,7 @@ describe('RepoEditor', () => {
           .catch(done.fail);
       });
 
-      it('calls initEditor when file key is changed', done => {
+      it('calls initEditor when file key is changed', (done) => {
         expect(vm.initEditor).not.toHaveBeenCalled();
 
         Vue.set(vm, 'file', {
@@ -533,7 +533,7 @@ describe('RepoEditor', () => {
         vm.getRawFileData.mockRestore();
       });
 
-      const createRemoteFile = name => ({
+      const createRemoteFile = (name) => ({
         ...file(name),
         tmpFile: false,
       });
@@ -586,7 +586,7 @@ describe('RepoEditor', () => {
     });
 
     describe('onPaste', () => {
-      const setFileName = name => {
+      const setFileName = (name) => {
         Vue.set(vm, 'file', {
           ...vm.file,
           content: 'hello world\n',
@@ -608,8 +608,8 @@ describe('RepoEditor', () => {
         );
       };
 
-      const watchState = watched =>
-        new Promise(resolve => {
+      const watchState = (watched) =>
+        new Promise((resolve) => {
           const unwatch = vm.$store.watch(watched, () => {
             unwatch();
             resolve();
@@ -619,7 +619,7 @@ describe('RepoEditor', () => {
       // Pasting an image does a lot of things like using the FileReader API,
       // so, waitForPromises isn't very reliable (and causes a flaky spec)
       // Read more about state.watch: https://vuex.vuejs.org/api/#watch
-      const waitForFileContentChange = () => watchState(s => s.entries['foo/bar.md'].content);
+      const waitForFileContentChange = () => watchState((s) => s.entries['foo/bar.md'].content);
 
       beforeEach(() => {
         setFileName('bar.md');

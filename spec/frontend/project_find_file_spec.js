@@ -5,7 +5,7 @@ import sanitize from 'sanitize-html';
 import ProjectFindFile from '~/project_find_file';
 import axios from '~/lib/utils/axios_utils';
 
-jest.mock('sanitize-html', () => jest.fn(val => val));
+jest.mock('sanitize-html', () => jest.fn((val) => val));
 
 const BLOB_URL_TEMPLATE = `${TEST_HOST}/namespace/project/blob/master`;
 const FILE_FIND_URL = `${TEST_HOST}/namespace/project/files/master?format=json`;
@@ -36,7 +36,7 @@ describe('ProjectFindFile', () => {
     element
       .find('.tree-table tr')
       .toArray()
-      .map(el => ({
+      .map((el) => ({
         text: el.textContent,
         href: el.querySelector('a').href,
       }));
@@ -50,12 +50,15 @@ describe('ProjectFindFile', () => {
     { path: 'folde?rC/fil#F.txt', escaped: 'folde%3FrC/fil%23F.txt' },
   ];
 
-  beforeEach(done => {
+  beforeEach((done) => {
     // Create a mock adapter for stubbing axios API requests
     mock = new MockAdapter(axios);
 
     element = $(TEMPLATE);
-    mock.onGet(FILE_FIND_URL).replyOnce(200, files.map(x => x.path));
+    mock.onGet(FILE_FIND_URL).replyOnce(
+      200,
+      files.map((x) => x.path),
+    );
     getProjectFindFileInstance(); // This triggers a load / axios call + subsequent render in the constructor
 
     setImmediate(done);

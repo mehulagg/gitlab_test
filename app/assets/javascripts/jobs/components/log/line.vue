@@ -16,7 +16,7 @@ export default {
   render(h, { props }) {
     const { line, path } = props;
 
-    const chars = line.content.map(content => {
+    const chars = line.content.map((content) => {
       return h(
         'span',
         {

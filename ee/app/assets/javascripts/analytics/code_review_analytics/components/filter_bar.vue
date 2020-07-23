@@ -18,10 +18,10 @@ export default {
     ...mapState('filters', {
       milestonePath: 'milestonePath',
       labelsPath: 'labelsPath',
-      milestones: state => state.milestones.data,
-      milestonesLoading: state => state.milestones.isLoading,
-      labels: state => state.labels.data,
-      labelsLoading: state => state.labels.isLoading,
+      milestones: (state) => state.milestones.data,
+      milestonesLoading: (state) => state.milestones.isLoading,
+      labels: (state) => state.labels.data,
+      labelsLoading: (state) => state.labels.isLoading,
     }),
     tokens() {
       return [

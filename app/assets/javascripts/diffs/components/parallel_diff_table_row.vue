@@ -127,7 +127,7 @@ export default {
       const table = line.closest('table');
 
       table.removeClass('left-side-selected right-side-selected');
-      const [lineClass] = ['left-side', 'right-side'].filter(name => line.hasClass(name));
+      const [lineClass] = ['left-side', 'right-side'].filter((name) => line.hasClass(name));
 
       if (lineClass) {
         table.addClass(`${lineClass}-selected`);

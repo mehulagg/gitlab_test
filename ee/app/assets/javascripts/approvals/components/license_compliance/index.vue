@@ -16,8 +16,8 @@ export default {
   },
   computed: {
     ...mapState({
-      isLoading: state => state[APPROVALS].isLoading,
-      rules: state => state[APPROVALS].rules,
+      isLoading: (state) => state[APPROVALS].isLoading,
+      rules: (state) => state[APPROVALS].rules,
       documentationPath: ({ settings }) => settings.approvalsDocumentationPath,
       licenseCheckRuleName: ({ settings }) => settings.lockedApprovalsRuleName,
     }),

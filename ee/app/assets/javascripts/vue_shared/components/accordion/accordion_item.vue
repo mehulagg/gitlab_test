@@ -6,7 +6,7 @@ import Icon from '~/vue_shared/components/icon.vue';
 
 import accordionEventBus from './accordion_event_bus';
 
-const accordionItemUniqueId = name => uniqueId(`gl-accordion-item-${name}-`);
+const accordionItemUniqueId = (name) => uniqueId(`gl-accordion-item-${name}-`);
 
 export default {
   components: {

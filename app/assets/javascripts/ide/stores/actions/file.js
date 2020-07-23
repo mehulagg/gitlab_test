@@ -8,7 +8,7 @@ import { viewerTypes, stageKeys } from '../../constants';
 
 export const closeFile = ({ commit, state, dispatch }, file) => {
   const { path } = file;
-  const indexOfClosedFile = state.openFiles.findIndex(f => f.key === file.key);
+  const indexOfClosedFile = state.openFiles.findIndex((f) => f.key === file.key);
   const fileWasActive = file.active;
 
   if (file.pending) {
@@ -90,7 +90,7 @@ export const getFileData = (
     .catch(() => {
       dispatch('setErrorMessage', {
         text: __('An error occurred while loading the file.'),
-        action: payload =>
+        action: (payload) =>
           dispatch('getFileData', payload).then(() => dispatch('setErrorMessage', null)),
         actionText: __('Please try again'),
         actionPayload: { path, makeFileActive },
@@ -107,13 +107,13 @@ export const setFileMrChange = ({ commit }, { file, mrChange }) => {
 
 export const getRawFileData = ({ state, commit, dispatch, getters }, { path }) => {
   const file = state.entries[path];
-  const stagedFile = state.stagedFiles.find(f => f.path === path);
+  const stagedFile = state.stagedFiles.find((f) => f.path === path);
 
   const fileDeletedAndReadded = getters.isFileDeletedAndReadded(path);
   commit(types.TOGGLE_LOADING, { entry: file, forceValue: true });
   return service
     .getRawFileData(fileDeletedAndReadded ? stagedFile : file)
-    .then(raw => {
+    .then((raw) => {
       if (!(file.tempFile && !file.prevPath && !fileDeletedAndReadded))
         commit(types.SET_FILE_RAW_DATA, { file, raw, fileDeletedAndReadded });
 
@@ -121,7 +121,7 @@ export const getRawFileData = ({ state, commit, dispatch, getters }, { path }) =
         const baseSha =
           (getters.currentMergeRequest && getters.currentMergeRequest.baseCommitSha) || '';
 
-        return service.getBaseRawFileData(file, baseSha).then(baseRaw => {
+        return service.getBaseRawFileData(file, baseSha).then((baseRaw) => {
           commit(types.SET_FILE_BASE_RAW_DATA, {
             file,
             baseRaw,
@@ -131,10 +131,10 @@ export const getRawFileData = ({ state, commit, dispatch, getters }, { path }) =
       }
       return raw;
     })
-    .catch(e => {
+    .catch((e) => {
       dispatch('setErrorMessage', {
         text: __('An error occurred while loading the file content.'),
-        action: payload =>
+        action: (payload) =>
           dispatch('getRawFileData', payload).then(() => dispatch('setErrorMessage', null)),
         actionText: __('Please try again'),
         actionPayload: { path },
@@ -153,7 +153,7 @@ export const changeFileContent = ({ commit, state, getters }, { path, content })
     content,
   });
 
-  const indexOfChangedFile = state.changedFiles.findIndex(f => f.path === path);
+  const indexOfChangedFile = state.changedFiles.findIndex((f) => f.path === path);
 
   if (file.changed && indexOfChangedFile === -1) {
     commit(types.STAGE_CHANGE, { path, diffInfo: getters.getDiffInfo(path) });
@@ -220,7 +220,7 @@ export const discardFileChanges = ({ dispatch, state, commit, getters }, path) =
       .then(() => {
         dispatch('router/push', `/project${file.url}`, { root: true });
       })
-      .catch(e => {
+      .catch((e) => {
         throw e;
       });
   }
@@ -270,7 +270,7 @@ export const unstageChange = ({ commit, dispatch, getters }, path) => {
 export const openPendingTab = ({ commit, dispatch, getters, state }, { file, keyPrefix }) => {
   if (getters.activeFile && getters.activeFile.key === `${keyPrefix}-${file.key}`) return false;
 
-  state.openFiles.forEach(f => eventHub.$emit(`editor.update.model.dispose.${f.key}`));
+  state.openFiles.forEach((f) => eventHub.$emit(`editor.update.model.dispose.${f.key}`));
 
   commit(types.ADD_PENDING_TAB, { file, keyPrefix });
 

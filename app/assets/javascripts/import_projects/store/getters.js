@@ -1,6 +1,6 @@
 import { __ } from '~/locale';
 
-export const namespaceSelectOptions = state => {
+export const namespaceSelectOptions = (state) => {
   const serializedNamespaces = state.namespaces.map(({ fullPath }) => ({
     id: fullPath,
     text: fullPath,
@@ -15,13 +15,13 @@ export const namespaceSelectOptions = state => {
   ];
 };
 
-export const isImportingAnyRepo = state => state.reposBeingImported.length > 0;
+export const isImportingAnyRepo = (state) => state.reposBeingImported.length > 0;
 
-export const hasProviderRepos = state => state.providerRepos.length > 0;
+export const hasProviderRepos = (state) => state.providerRepos.length > 0;
 
-export const hasImportedProjects = state => state.importedProjects.length > 0;
+export const hasImportedProjects = (state) => state.importedProjects.length > 0;
 
-export const hasIncompatibleRepos = state => state.incompatibleRepos.length > 0;
+export const hasIncompatibleRepos = (state) => state.incompatibleRepos.length > 0;
 
 export const reposPathWithFilter = ({ reposPath, filter = '' }) =>
   filter ? `${reposPath}?filter=${filter}` : reposPath;

@@ -128,11 +128,7 @@ describe('AlertManagementTable', () => {
       });
       expect(findAlertsTable().exists()).toBe(true);
       expect(findLoader().exists()).toBe(true);
-      expect(
-        findAlerts()
-          .at(0)
-          .classes(),
-      ).not.toContain('gl-hover-bg-blue-50');
+      expect(findAlerts().at(0).classes()).not.toContain('gl-hover-bg-blue-50');
     });
 
     it('error state', () => {
@@ -145,11 +141,7 @@ describe('AlertManagementTable', () => {
       expect(findAlertsTable().text()).toContain('No alerts to display');
       expect(findLoader().exists()).toBe(false);
       expect(findAlert().props().variant).toBe('danger');
-      expect(
-        findAlerts()
-          .at(0)
-          .classes(),
-      ).not.toContain('gl-hover-bg-blue-50');
+      expect(findAlerts().at(0).classes()).not.toContain('gl-hover-bg-blue-50');
     });
 
     it('empty state', () => {
@@ -162,11 +154,7 @@ describe('AlertManagementTable', () => {
       expect(findAlertsTable().text()).toContain('No alerts to display');
       expect(findLoader().exists()).toBe(false);
       expect(findAlert().props().variant).toBe('info');
-      expect(
-        findAlerts()
-          .at(0)
-          .classes(),
-      ).not.toContain('gl-hover-bg-blue-50');
+      expect(findAlerts().at(0).classes()).not.toContain('gl-hover-bg-blue-50');
     });
 
     it('has data state', () => {
@@ -178,11 +166,7 @@ describe('AlertManagementTable', () => {
       expect(findLoader().exists()).toBe(false);
       expect(findAlertsTable().exists()).toBe(true);
       expect(findAlerts()).toHaveLength(mockAlerts.length);
-      expect(
-        findAlerts()
-          .at(0)
-          .classes(),
-      ).toContain('gl-hover-bg-blue-50');
+      expect(findAlerts().at(0).classes()).toContain('gl-hover-bg-blue-50');
     });
 
     it('displays status dropdown', () => {
@@ -212,11 +196,7 @@ describe('AlertManagementTable', () => {
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.find(GlTable).exists()).toBe(true);
-        expect(
-          findAlertsTable()
-            .find(GlIcon)
-            .classes('icon-critical'),
-        ).toBe(true);
+        expect(findAlertsTable().find(GlIcon).classes('icon-critical')).toBe(true);
       });
     });
 
@@ -227,11 +207,7 @@ describe('AlertManagementTable', () => {
         loading: false,
       });
 
-      expect(
-        findSeverityFields()
-          .at(0)
-          .text(),
-      ).toBe('Critical');
+      expect(findSeverityFields().at(0).text()).toBe('Critical');
     });
 
     it('renders Unassigned when no assignee(s) present', () => {
@@ -241,11 +217,7 @@ describe('AlertManagementTable', () => {
         loading: false,
       });
 
-      expect(
-        findAssignees()
-          .at(0)
-          .text(),
-      ).toBe('Unassigned');
+      expect(findAssignees().at(0).text()).toBe('Unassigned');
     });
 
     it('renders username(s) when assignee(s) present', () => {
@@ -255,11 +227,7 @@ describe('AlertManagementTable', () => {
         loading: false,
       });
 
-      expect(
-        findAssignees()
-          .at(1)
-          .text(),
-      ).toBe(mockAlerts[1].assignees.nodes[0].username);
+      expect(findAssignees().at(1).text()).toBe(mockAlerts[1].assignees.nodes[0].username);
     });
 
     it('navigates to the detail page when alert row is clicked', () => {
@@ -269,9 +237,7 @@ describe('AlertManagementTable', () => {
         loading: false,
       });
 
-      findAlerts()
-        .at(0)
-        .trigger('click');
+      findAlerts().at(0).trigger('click');
       expect(visitUrl).toHaveBeenCalledWith('/1527542/details');
     });
 
@@ -285,24 +251,12 @@ describe('AlertManagementTable', () => {
       });
 
       it('shows "None" when no link exists', () => {
-        expect(
-          findIssueFields()
-            .at(0)
-            .text(),
-        ).toBe('None');
+        expect(findIssueFields().at(0).text()).toBe('None');
       });
 
       it('renders a link when one exists', () => {
-        expect(
-          findIssueFields()
-            .at(1)
-            .text(),
-        ).toBe('#1');
-        expect(
-          findIssueFields()
-            .at(1)
-            .attributes('href'),
-        ).toBe('/gitlab-org/gitlab/-/issues/1');
+        expect(findIssueFields().at(1).text()).toBe('#1');
+        expect(findIssueFields().at(1).attributes('href')).toBe('/gitlab-org/gitlab/-/issues/1');
       });
     });
 
@@ -362,11 +316,7 @@ describe('AlertManagementTable', () => {
             loading: false,
           });
 
-          expect(
-            findAlerts()
-              .at(0)
-              .classes(),
-          ).toContain('new-alert');
+          expect(findAlerts().at(0).classes()).toContain('new-alert');
         });
 
         it('should not highlight the row when alert is not new', () => {
@@ -376,11 +326,7 @@ describe('AlertManagementTable', () => {
             loading: false,
           });
 
-          expect(
-            findAlerts()
-              .at(0)
-              .classes(),
-          ).not.toContain('new-alert');
+          expect(findAlerts().at(0).classes()).not.toContain('new-alert');
         });
       });
     });

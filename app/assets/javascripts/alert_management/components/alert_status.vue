@@ -58,7 +58,7 @@ export default {
             projectPath: this.projectPath,
           },
         })
-        .then(resp => {
+        .then((resp) => {
           this.trackStatusUpdate(status);
           this.$emit('hide-dropdown');
 

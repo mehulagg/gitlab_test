@@ -63,8 +63,8 @@ export default {
     initialRequirementsCount: {
       type: Object,
       required: true,
-      validator: value =>
-        ['OPENED', 'ARCHIVED', 'ALL'].every(prop => typeof value[prop] === 'number'),
+      validator: (value) =>
+        ['OPENED', 'ARCHIVED', 'ALL'].every((prop) => typeof value[prop] === 'number'),
     },
     page: {
       type: Number,
@@ -140,7 +140,7 @@ export default {
           pageInfo: requirementsRoot?.pageInfo || {},
         };
       },
-      error: e => {
+      error: (e) => {
         createFlash(__('Something went wrong while fetching requirements list.'));
         Sentry.captureException(e);
       },
@@ -161,7 +161,7 @@ export default {
           ALL: opened + archived,
         };
       },
-      error: e => {
+      error: (e) => {
         createFlash(__('Something went wrong while fetching requirements count.'));
         Sentry.captureException(e);
       },
@@ -250,7 +250,7 @@ export default {
       ];
     },
     getFilteredSearchValue() {
-      const value = this.authorUsernames.map(author => ({
+      const value = this.authorUsernames.map((author) => ({
         type: 'author_username',
         value: { data: author },
       }));
@@ -343,7 +343,7 @@ export default {
             updateRequirementInput,
           },
         })
-        .catch(e => {
+        .catch((e) => {
           createFlash(errorFlashMessage);
           Sentry.captureException(e);
         });
@@ -396,7 +396,7 @@ export default {
             throw new Error(`Error creating a requirement`);
           }
         })
-        .catch(e => {
+        .catch((e) => {
           createFlash(__('Something went wrong while creating a requirement.'));
           Sentry.captureException(e);
         })
@@ -464,7 +464,7 @@ export default {
       const authors = [];
       let textSearch = '';
 
-      filters.forEach(filter => {
+      filters.forEach((filter) => {
         if (typeof filter === 'string') {
           textSearch = filter;
         } else if (filter.value.data !== ANY_AUTHOR) {

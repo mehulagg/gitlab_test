@@ -74,8 +74,8 @@ describe('cli_commands', () => {
   `('form group at $index', ({ index, id, labelText, titleText, getter, trackedEvent }) => {
     let formGroup;
 
-    const findFormInputGroup = parent => parent.find(GlFormInputGroup);
-    const findClipboardButton = parent => parent.find(ClipboardButton);
+    const findFormInputGroup = (parent) => parent.find(GlFormInputGroup);
+    const findClipboardButton = (parent) => parent.find(ClipboardButton);
 
     beforeEach(() => {
       formGroup = findFormGroups().at(index);

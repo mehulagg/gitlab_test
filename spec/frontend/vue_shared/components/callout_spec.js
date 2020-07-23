@@ -7,7 +7,7 @@ const TEST_SLOT = '<button>This is a callout slot!</button>';
 describe('Callout Component', () => {
   let wrapper;
 
-  const factory = options => {
+  const factory = (options) => {
     wrapper = shallowMount(Callout, {
       ...options,
     });

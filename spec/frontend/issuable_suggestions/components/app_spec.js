@@ -85,12 +85,7 @@ describe('Issuable suggestions app component', () => {
       wrapper.setData(data);
 
       return wrapper.vm.$nextTick(() => {
-        expect(
-          wrapper
-            .findAll('li')
-            .at(0)
-            .is('.gl-mb-3'),
-        ).toBe(true);
+        expect(wrapper.findAll('li').at(0).is('.gl-mb-3')).toBe(true);
       });
     });
 
@@ -98,12 +93,7 @@ describe('Issuable suggestions app component', () => {
       wrapper.setData(data);
 
       return wrapper.vm.$nextTick(() => {
-        expect(
-          wrapper
-            .findAll('li')
-            .at(1)
-            .is('.gl-mb-3'),
-        ).toBe(false);
+        expect(wrapper.findAll('li').at(1).is('.gl-mb-3')).toBe(false);
       });
     });
   });

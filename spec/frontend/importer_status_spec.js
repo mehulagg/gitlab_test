@@ -38,7 +38,7 @@ describe('Importer Status', () => {
       });
     });
 
-    it('sets table row to active after post request', done => {
+    it('sets table row to active after post request', (done) => {
       mock.onPost(importUrl).reply(200, {
         id: 1,
         full_path: '/full_path',
@@ -55,7 +55,7 @@ describe('Importer Status', () => {
         .catch(done.fail);
     });
 
-    it('shows error message after failed POST request', done => {
+    it('shows error message after failed POST request', (done) => {
       setFixtures(`${fixtures}<div class="flash-container"></div>`);
 
       mock.onPost(importUrl).reply(422, {
@@ -118,22 +118,22 @@ describe('Importer Status', () => {
         .catch(done.fail);
     }
 
-    it('sets the job status to done', done => {
+    it('sets the job status to done', (done) => {
       setupMock('finished');
       expectJobStatus(done, 'Done');
     });
 
-    it('sets the job status to scheduled', done => {
+    it('sets the job status to scheduled', (done) => {
       setupMock('scheduled');
       expectJobStatus(done, 'Scheduled');
     });
 
-    it('sets the job status to started', done => {
+    it('sets the job status to started', (done) => {
       setupMock('started');
       expectJobStatus(done, 'Started');
     });
 
-    it('sets the job status to custom status', done => {
+    it('sets the job status to custom status', (done) => {
       setupMock('custom status');
       expectJobStatus(done, 'custom status');
     });

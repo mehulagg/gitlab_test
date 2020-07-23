@@ -54,7 +54,7 @@ describe('Dashboard Panel', () => {
   const findTitle = () => wrapper.find({ ref: 'graphTitle' });
   const findCtxMenu = () => wrapper.find({ ref: 'contextualMenu' });
   const findMenuItems = () => wrapper.findAll(GlDropdownItem);
-  const findMenuItemByText = text => findMenuItems().filter(i => i.text() === text);
+  const findMenuItemByText = (text) => findMenuItems().filter((i) => i.text() === text);
 
   const createWrapper = (props, options) => {
     wrapper = shallowMount(DashboardPanel, {
@@ -207,7 +207,7 @@ describe('Dashboard Panel', () => {
     });
 
     describe('Supports different panel types', () => {
-      const dataWithType = type => {
+      const dataWithType = (type) => {
         return {
           ...graphData,
           type,
@@ -572,7 +572,7 @@ describe('Dashboard Panel', () => {
   });
 
   describe('panel alerts', () => {
-    const setMetricsSavedToDb = val =>
+    const setMetricsSavedToDb = (val) =>
       monitoringDashboard.getters.metricsSavedToDb.mockReturnValue(val);
     const findAlertsWidget = () => wrapper.find(AlertWidget);
 

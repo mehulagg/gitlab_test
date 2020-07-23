@@ -39,7 +39,7 @@ export const fetchTopRankedGroupLabels = ({ dispatch, commit, state, rootGetters
     assignee_username,
   })
     .then(({ data }) => dispatch('receiveTopRankedGroupLabelsSuccess', data))
-    .catch(error =>
+    .catch((error) =>
       handleErrorOrRethrow({
         error,
         action: () => dispatch('receiveTopRankedGroupLabelsError', error),
@@ -83,7 +83,7 @@ export const fetchTasksByTypeData = ({ dispatch, commit, state, rootGetters }) =
       label_ids: selectedLabelIds,
     })
       .then(({ data }) => commit(types.RECEIVE_TASKS_BY_TYPE_DATA_SUCCESS, data))
-      .catch(error => dispatch('receiveTasksByTypeDataError', error));
+      .catch((error) => dispatch('receiveTasksByTypeDataError', error));
   }
   return commit(types.RECEIVE_TASKS_BY_TYPE_DATA_SUCCESS, []);
 };

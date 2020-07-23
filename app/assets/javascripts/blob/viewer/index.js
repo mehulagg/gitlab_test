@@ -6,7 +6,7 @@ import axios from '../../lib/utils/axios_utils';
 import eventHub from '../../notes/event_hub';
 import { __ } from '~/locale';
 
-const loadRichBlobViewer = type => {
+const loadRichBlobViewer = (type) => {
   switch (type) {
     case 'balsamiq':
       return import(/* webpackChunkName: 'balsamiq_viewer' */ '../balsamiq_viewer');
@@ -29,8 +29,8 @@ export const handleBlobRichViewer = (viewer, type) => {
   if (!viewer || !type) return;
 
   loadRichBlobViewer(type)
-    .then(module => module?.default(viewer))
-    .catch(error => {
+    .then((module) => module?.default(viewer))
+    .catch((error) => {
       Flash(__('Error loading file viewer.'));
       throw error;
     });
@@ -83,7 +83,7 @@ export default class BlobViewer {
 
   initBindings() {
     if (this.switcherBtns.length) {
-      Array.from(this.switcherBtns).forEach(el => {
+      Array.from(this.switcherBtns).forEach((el) => {
         el.addEventListener('click', this.switchViewHandler.bind(this));
       });
     }
@@ -154,7 +154,7 @@ export default class BlobViewer {
 
     this.toggleCopyButtonState();
     BlobViewer.loadViewer(newViewer)
-      .then(viewer => {
+      .then((viewer) => {
         $(viewer).renderGFM();
 
         this.$fileHolder.trigger('highlight:line');

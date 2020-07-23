@@ -56,8 +56,8 @@ describe('glDropdown', () => {
       search: {
         fields: ['name'],
       },
-      text: project => project.name_with_namespace || project.name,
-      id: project => project.id,
+      text: (project) => project.name_with_namespace || project.name,
+      id: (project) => project.id,
       ...extraOpts,
     };
     test.dropdownButtonElement = $(
@@ -232,10 +232,7 @@ describe('glDropdown', () => {
   it('should still have input value on close and restore', () => {
     const $searchInput = $(SEARCH_INPUT_SELECTOR);
     initDropDown.call(this, false, true);
-    $searchInput
-      .trigger('focus')
-      .val('g')
-      .trigger('input');
+    $searchInput.trigger('focus').val('g').trigger('input');
 
     expect($searchInput.val()).toEqual('g');
     test.dropdownButtonElement.trigger('hidden.bs.dropdown');

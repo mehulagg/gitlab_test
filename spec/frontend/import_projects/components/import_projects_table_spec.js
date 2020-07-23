@@ -32,7 +32,7 @@ describe('ImportProjectsTable', () => {
   const findImportAllButton = () =>
     wrapper
       .findAll(GlButton)
-      .filter(w => w.props().variant === 'success')
+      .filter((w) => w.props().variant === 'success')
       .at(0);
 
   function createComponent({
@@ -103,7 +103,7 @@ describe('ImportProjectsTable', () => {
     expect(
       wrapper
         .findAll('th')
-        .filter(w => w.text() === `From ${providerTitle}`)
+        .filter((w) => w.text() === `From ${providerTitle}`)
         .isEmpty(),
     ).toBe(false);
 

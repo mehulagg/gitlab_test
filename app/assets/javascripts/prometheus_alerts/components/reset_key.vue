@@ -66,7 +66,7 @@ export default {
     resetKey() {
       axios
         .post(this.changeKeyUrl)
-        .then(res => {
+        .then((res) => {
           this.authorizationKey = res.data.token;
         })
         .catch(() => {

@@ -48,7 +48,7 @@ export default {
       }
 
       return sprintf(__("%{authorsName}'s thread"), {
-        authorsName: this.discussion.notes.find(note => !note.system).author.name,
+        authorsName: this.discussion.notes.find((note) => !note.system).author.name,
       });
     },
     linePosition() {
@@ -110,9 +110,7 @@ export default {
           {{ titleText }}
         </span>
         <template v-if="showLinePosition">
-          <template v-if="!glFeatures.multilineComments"
-            >:{{ linePosition }}</template
-          >
+          <template v-if="!glFeatures.multilineComments">:{{ linePosition }}</template>
           <template v-else-if="startLineNumber === endLineNumber">
             :<span :class="getLineClasses(startLineNumber)">{{ startLineNumber }}</span>
           </template>

@@ -6,7 +6,7 @@ describe('MergeTrainPositionIndicator', () => {
   let wrapper;
   let vm;
 
-  const factory = propsData => {
+  const factory = (propsData) => {
     wrapper = shallowMount(MergeTrainPositionIndicator, {
       propsData,
     });

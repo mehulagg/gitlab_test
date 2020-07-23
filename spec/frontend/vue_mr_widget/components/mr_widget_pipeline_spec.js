@@ -146,21 +146,13 @@ describe('MRWidgetPipeline', () => {
       });
 
       it('should render pipeline ID', () => {
-        expect(
-          findPipelineID()
-            .text()
-            .trim(),
-        ).toBe(`#${mockData.pipeline.id}`);
+        expect(findPipelineID().text().trim()).toBe(`#${mockData.pipeline.id}`);
       });
 
       it('should render pipeline status and commit id', () => {
         expect(findPipelineInfoContainer().text()).toMatch(mockData.pipeline.details.status.label);
 
-        expect(
-          findCommitLink()
-            .text()
-            .trim(),
-        ).toBe(mockData.pipeline.commit.short_id);
+        expect(findCommitLink().text().trim()).toBe(mockData.pipeline.commit.short_id);
 
         expect(findCommitLink().attributes('href')).toBe(mockData.pipeline.commit.commit_path);
       });
@@ -189,11 +181,7 @@ describe('MRWidgetPipeline', () => {
       });
 
       it('should render pipeline ID', () => {
-        expect(
-          findPipelineID()
-            .text()
-            .trim(),
-        ).toBe(`#${mockData.pipeline.id}`);
+        expect(findPipelineID().text().trim()).toBe(`#${mockData.pipeline.id}`);
       });
 
       it('should render pipeline status', () => {

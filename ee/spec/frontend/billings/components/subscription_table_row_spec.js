@@ -43,7 +43,7 @@ describe('Subscription Table Row', () => {
     });
 
     it(`should not render a hidden column`, () => {
-      const hiddenColIdx = columns.find(c => !c.display);
+      const hiddenColIdx = columns.find((c) => !c.display);
       const hiddenCol = vm.$el.querySelectorAll('.grid-cell:not(.header-cell)')[hiddenColIdx];
 
       expect(hiddenCol).toBe(undefined);

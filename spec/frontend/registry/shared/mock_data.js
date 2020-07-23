@@ -1,4 +1,7 @@
-export const options = [{ key: 'foo', label: 'Foo' }, { key: 'bar', label: 'Bar', default: true }];
+export const options = [
+  { key: 'foo', label: 'Foo' },
+  { key: 'bar', label: 'Bar', default: true },
+];
 export const stringifiedOptions = JSON.stringify(options);
 export const stringifiedFormOptions = {
   cadenceOptions: stringifiedOptions,

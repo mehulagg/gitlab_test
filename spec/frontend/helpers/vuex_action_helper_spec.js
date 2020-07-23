@@ -18,7 +18,7 @@ describe('VueX test helper (testAction)', () => {
      */
     originalExpect = expect;
     assertion = null;
-    global.expect = actual => ({
+    global.expect = (actual) => ({
       toEqual: () => {
         originalExpect(actual).toEqual(assertion);
       },
@@ -65,13 +65,13 @@ describe('VueX test helper (testAction)', () => {
       testAction(action, null, {}, assertion.mutations, assertion.actions, noop);
     });
 
-    it('works with done callback once finished', done => {
+    it('works with done callback once finished', (done) => {
       assertion = { mutations: [], actions: [] };
 
       testAction(noop, null, {}, assertion.mutations, assertion.actions, done);
     });
 
-    it('returns a promise', done => {
+    it('returns a promise', (done) => {
       assertion = { mutations: [], actions: [] };
 
       testAction(noop, null, {}, assertion.mutations, assertion.actions)
@@ -89,7 +89,7 @@ describe('VueX test helper (testAction)', () => {
 
       return axios
         .get(TEST_HOST)
-        .catch(error => {
+        .catch((error) => {
           commit('ERROR');
           lastError = error;
           throw error;
@@ -104,7 +104,7 @@ describe('VueX test helper (testAction)', () => {
       lastError = null;
     });
 
-    it('works with done callback once finished', done => {
+    it('works with done callback once finished', (done) => {
       mock.onGet(TEST_HOST).replyOnce(200, 42);
 
       assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
@@ -112,34 +112,34 @@ describe('VueX test helper (testAction)', () => {
       testAction(asyncAction, null, {}, assertion.mutations, assertion.actions, done);
     });
 
-    it('returns original data of successful promise while checking actions/mutations', done => {
+    it('returns original data of successful promise while checking actions/mutations', (done) => {
       mock.onGet(TEST_HOST).replyOnce(200, 42);
 
       assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
 
       testAction(asyncAction, null, {}, assertion.mutations, assertion.actions)
-        .then(res => {
+        .then((res) => {
           originalExpect(res).toEqual(data);
           done();
         })
         .catch(done.fail);
     });
 
-    it('returns original error of rejected promise while checking actions/mutations', done => {
+    it('returns original error of rejected promise while checking actions/mutations', (done) => {
       mock.onGet(TEST_HOST).replyOnce(500, '');
 
       assertion = { mutations: [{ type: 'ERROR' }], actions: [{ type: 'ACTION' }] };
 
       testAction(asyncAction, null, {}, assertion.mutations, assertion.actions)
         .then(done.fail)
-        .catch(error => {
+        .catch((error) => {
           originalExpect(error).toBe(lastError);
           done();
         });
     });
   });
 
-  it('works with async actions not returning promises', done => {
+  it('works with async actions not returning promises', (done) => {
     const data = { FOO: 'BAR' };
 
     const asyncAction = ({ commit, dispatch }) => {
@@ -151,7 +151,7 @@ describe('VueX test helper (testAction)', () => {
           commit('SUCCESS');
           return data;
         })
-        .catch(error => {
+        .catch((error) => {
           commit('ERROR');
           throw error;
         });

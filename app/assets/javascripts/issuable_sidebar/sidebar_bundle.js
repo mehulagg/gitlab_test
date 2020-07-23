@@ -16,7 +16,7 @@ export default () => {
   return new Vue({
     el,
     components: { SidebarApp },
-    render: createElement =>
+    render: (createElement) =>
       createElement('sidebar-app', {
         props: {
           signedIn,

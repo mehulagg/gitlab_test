@@ -37,7 +37,7 @@ export default {
       type: String,
       required: false,
       default: DEFAULT_IMAGE_UPLOAD_PATH,
-      validator: prop => prop.endsWith('/'),
+      validator: (prop) => prop.endsWith('/'),
     },
   },
   data() {

@@ -63,7 +63,7 @@ export default {
         retryUrl: this.retryUrl,
         isLastDeployment: this.isLastDeployment,
       });
-      eventHub.$on('rollbackEnvironment', environment => {
+      eventHub.$on('rollbackEnvironment', (environment) => {
         if (environment.id === this.environment.id) {
           this.isLoading = true;
         }

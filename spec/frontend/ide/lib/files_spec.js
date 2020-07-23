@@ -5,10 +5,10 @@ import { decorateData } from '~/ide/stores/utils';
 const TEST_BRANCH_ID = 'lorem-ipsum';
 const TEST_PROJECT_ID = 10;
 
-const createEntries = paths => {
+const createEntries = (paths) => {
   const createEntry = (acc, { path, type, children }) => {
     // Sometimes we need to end the url with a '/'
-    const createUrl = base => (type === 'tree' ? `${base}/` : base);
+    const createUrl = (base) => (type === 'tree' ? `${base}/` : base);
 
     const { name, parent } = splitParent(path);
     const previewMode = viewerInformationForPath(name);
@@ -26,7 +26,7 @@ const createEntries = paths => {
         binary: (previewMode && previewMode.binary) || false,
         parentPath: parent,
       }),
-      tree: children.map(childName => expect.objectContaining({ name: childName })),
+      tree: children.map((childName) => expect.objectContaining({ name: childName })),
     };
 
     return acc;
@@ -67,7 +67,7 @@ describe('IDE lib decorate files', () => {
     const entryKeys = Object.keys(entries);
 
     expect(entryKeys).toEqual(Object.keys(expectedEntries));
-    entryKeys.forEach(key => {
+    entryKeys.forEach((key) => {
       expect(entries[key]).toEqual(expectedEntries[key]);
     });
 

@@ -23,14 +23,14 @@ describe('Releases State actions', () => {
   });
 
   describe('requestReleases', () => {
-    it('should commit REQUEST_RELEASES mutation', done => {
+    it('should commit REQUEST_RELEASES mutation', (done) => {
       testAction(requestReleases, null, mockedState, [{ type: types.REQUEST_RELEASES }], [], done);
     });
   });
 
   describe('fetchReleases', () => {
     describe('success', () => {
-      it('dispatches requestReleases and receiveReleasesSuccess', done => {
+      it('dispatches requestReleases and receiveReleasesSuccess', (done) => {
         jest.spyOn(api, 'releases').mockImplementation((id, options) => {
           expect(id).toEqual(1);
           expect(options.page).toEqual('1');
@@ -55,7 +55,7 @@ describe('Releases State actions', () => {
         );
       });
 
-      it('dispatches requestReleases and receiveReleasesSuccess on page two', done => {
+      it('dispatches requestReleases and receiveReleasesSuccess on page two', (done) => {
         jest.spyOn(api, 'releases').mockImplementation((_, options) => {
           expect(options.page).toEqual('2');
           return Promise.resolve({ data: releases, headers: pageInfoHeadersWithoutPagination });
@@ -81,7 +81,7 @@ describe('Releases State actions', () => {
     });
 
     describe('error', () => {
-      it('dispatches requestReleases and receiveReleasesError', done => {
+      it('dispatches requestReleases and receiveReleasesError', (done) => {
         jest.spyOn(api, 'releases').mockReturnValue(Promise.reject());
 
         testAction(
@@ -104,7 +104,7 @@ describe('Releases State actions', () => {
   });
 
   describe('receiveReleasesSuccess', () => {
-    it('should commit RECEIVE_RELEASES_SUCCESS mutation', done => {
+    it('should commit RECEIVE_RELEASES_SUCCESS mutation', (done) => {
       testAction(
         receiveReleasesSuccess,
         { data: releases, headers: pageInfoHeadersWithoutPagination },
@@ -117,7 +117,7 @@ describe('Releases State actions', () => {
   });
 
   describe('receiveReleasesError', () => {
-    it('should commit RECEIVE_RELEASES_ERROR mutation', done => {
+    it('should commit RECEIVE_RELEASES_ERROR mutation', (done) => {
       testAction(
         receiveReleasesError,
         null,

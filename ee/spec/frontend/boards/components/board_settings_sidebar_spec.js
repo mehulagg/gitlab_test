@@ -51,7 +51,7 @@ describe('BoardSettingsSideBar', () => {
     });
   };
 
-  const triggerBlur = type => {
+  const triggerBlur = (type) => {
     if (type === 'blur') {
       wrapper.find(GlFormInput).vm.$emit('blur');
     }

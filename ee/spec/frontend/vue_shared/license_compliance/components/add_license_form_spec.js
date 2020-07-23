@@ -20,7 +20,7 @@ describe('AddLicenseForm', () => {
   });
 
   describe('interaction', () => {
-    it('clicking the Submit button submits the data and closes the form', done => {
+    it('clicking the Submit button submits the data and closes the form', (done) => {
       const name = 'LICENSE_TEST';
       jest.spyOn(vm, '$emit').mockImplementation(() => {});
       vm.approvalStatus = LICENSE_APPROVAL_STATUS.ALLOWED;
@@ -107,7 +107,7 @@ describe('AddLicenseForm', () => {
       expect(radioButtonParents[1].querySelector('.form-check-input')).not.toBeNull();
     });
 
-    it('renders error text, if there is a duplicate license', done => {
+    it('renders error text, if there is a duplicate license', (done) => {
       vm = mountComponent(Component, { managedLicenses: [{ name: 'FOO' }] });
       vm.licenseName = 'FOO';
       Vue.nextTick(() => {
@@ -122,7 +122,7 @@ describe('AddLicenseForm', () => {
       });
     });
 
-    it('shows radio button descriptions, if licenseComplianceDeniesMr feature flag is enabled', done => {
+    it('shows radio button descriptions, if licenseComplianceDeniesMr feature flag is enabled', (done) => {
       const wrapper = shallowMount(LicenseIssueBody, {
         propsData: {
           managedLicenses: [{ name: 'FOO' }],
@@ -147,7 +147,7 @@ describe('AddLicenseForm', () => {
       });
     });
 
-    it('does not show radio button descriptions, if licenseComplianceDeniesMr feature flag is disabled', done => {
+    it('does not show radio button descriptions, if licenseComplianceDeniesMr feature flag is disabled', (done) => {
       vm = mountComponent(Component, { managedLicenses: [{ name: 'FOO' }] });
       vm.licenseName = 'FOO';
       Vue.nextTick(() => {
@@ -159,7 +159,7 @@ describe('AddLicenseForm', () => {
       });
     });
 
-    it('disables submit, if the form is invalid', done => {
+    it('disables submit, if the form is invalid', (done) => {
       vm.licenseName = '';
       Vue.nextTick(() => {
         expect(vm.submitDisabled).toBe(true);
@@ -172,7 +172,7 @@ describe('AddLicenseForm', () => {
       });
     });
 
-    it('disables submit and cancel while a new license is being added', done => {
+    it('disables submit and cancel while a new license is being added', (done) => {
       vm.loading = true;
       Vue.nextTick(() => {
         const submitButton = findSubmitButton();

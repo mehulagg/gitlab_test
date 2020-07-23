@@ -25,7 +25,7 @@ export default class PrometheusMetrics {
     this.activeMetricsEndpoint = this.$monitoredMetricsPanel.data('activeMetrics');
     this.helpMetricsPath = this.$monitoredMetricsPanel.data('metrics-help-path');
 
-    this.$panelToggle.on('click', e => this.handlePanelToggle(e));
+    this.$panelToggle.on('click', (e) => this.handlePanelToggle(e));
   }
 
   init() {
@@ -69,7 +69,7 @@ export default class PrometheusMetrics {
     let totalMissingEnvVarMetrics = 0;
     let totalExporters = 0;
 
-    metrics.forEach(metric => {
+    metrics.forEach((metric) => {
       if (metric.active_metrics > 0) {
         totalExporters += 1;
         this.$monitoredMetricsList.append(
@@ -135,7 +135,7 @@ export default class PrometheusMetrics {
         })
         .catch(stop);
     })
-      .then(res => {
+      .then((res) => {
         if (res && res.data && res.data.length) {
           this.populateActiveMetrics(res.data);
         } else {

@@ -17,9 +17,7 @@ let saveLabelCount = 0;
 let mock;
 
 function testLabelClicks(labelOrder, done) {
-  $('.edit-link')
-    .get(0)
-    .click();
+  $('.edit-link').get(0).click();
 
   jest.runOnlyPendingTimers();
 
@@ -36,9 +34,7 @@ function testLabelClicks(labelOrder, done) {
       }
     });
 
-    $('.edit-link')
-      .get(0)
-      .click();
+    $('.edit-link').get(0).click();
 
     setImmediate(() => {
       expect($('.sidebar-collapsed-icon').attr('data-original-title')).toBe(labelOrder);
@@ -87,12 +83,12 @@ describe('Issue dropdown sidebar', () => {
     mock.restore();
   });
 
-  it('changes collapsed tooltip when changing labels when less than 5', done => {
+  it('changes collapsed tooltip when changing labels when less than 5', (done) => {
     saveLabelCount = 5;
     testLabelClicks('test 0, test 1, test 2, test 3, test 4', done);
   });
 
-  it('changes collapsed tooltip when changing labels when more than 5', done => {
+  it('changes collapsed tooltip when changing labels when more than 5', (done) => {
     saveLabelCount = 6;
     testLabelClicks('test 0, test 1, test 2, test 3, test 4, and 1 more', done);
   });

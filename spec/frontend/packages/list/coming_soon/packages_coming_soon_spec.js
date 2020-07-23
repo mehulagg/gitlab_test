@@ -17,7 +17,7 @@ describe('packages_coming_soon', () => {
   const findSkeletonLoader = () => wrapper.find(GlSkeletonLoader);
   const findAllIssues = () => wrapper.findAll('[data-testid="issue-row"]');
   const findIssuesData = () =>
-    findAllIssues().wrappers.map(x => {
+    findAllIssues().wrappers.map((x) => {
       const titleLink = x.find('[data-testid="issue-title-link"]');
       const milestone = x.find('[data-testid="milestone"]');
       const issueIdLink = x.find('[data-testid="issue-id-link"]');
@@ -30,7 +30,7 @@ describe('packages_coming_soon', () => {
         iid: issueId,
         title: titleLink.text(),
         webUrl: titleLink.attributes('href'),
-        labels: labels.wrappers.map(label => ({
+        labels: labels.wrappers.map((label) => ({
           color: label.props('backgroundColor'),
           title: label.props('title'),
           scoped: label.props('scoped'),

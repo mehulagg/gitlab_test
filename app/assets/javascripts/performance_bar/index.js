@@ -52,7 +52,7 @@ export default ({ container }) =>
         this.store.addRequest(requestId, requestUrl);
 
         PerformanceBarService.fetchRequestDetails(this.peekUrl, requestId)
-          .then(res => {
+          .then((res) => {
             this.store.addRequestDetails(requestId, res.data);
 
             if (this.requestId === requestId) this.collectFrontendPerformanceMetrics();
@@ -81,7 +81,7 @@ export default ({ container }) =>
 
           if ('PerformanceObserver' in window) {
             // We start observing for more incoming timings
-            const observer = new PerformanceObserver(list => {
+            const observer = new PerformanceObserver((list) => {
               newEntries = newEntries.concat(list.getEntries().map(this.transformResourceEntry));
               this.updateFrontendPerformanceMetrics(durationString, newEntries);
             });

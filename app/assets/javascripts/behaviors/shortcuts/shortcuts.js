@@ -61,9 +61,7 @@ export default class Shortcuts {
       e.preventDefault();
     });
 
-    $('.js-shortcuts-modal-trigger')
-      .off('click')
-      .on('click', this.onToggleHelp);
+    $('.js-shortcuts-modal-trigger').off('click').on('click', this.onToggleHelp);
 
     if (shouldDisableShortcuts()) {
       disableShortcuts();

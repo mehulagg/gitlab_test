@@ -40,7 +40,7 @@ describe('Blob viewer', () => {
     window.location.hash = '';
   });
 
-  it('loads source file after switching views', done => {
+  it('loads source file after switching views', (done) => {
     document.querySelector('.js-blob-viewer-switch-btn[data-viewer="simple"]').click();
 
     setImmediate(() => {
@@ -54,7 +54,7 @@ describe('Blob viewer', () => {
     });
   });
 
-  it('loads source file when line number is in hash', done => {
+  it('loads source file when line number is in hash', (done) => {
     window.location.hash = '#L1';
 
     new BlobViewer();
@@ -72,7 +72,7 @@ describe('Blob viewer', () => {
 
   it('doesnt reload file if already loaded', () => {
     const asyncClick = () =>
-      new Promise(resolve => {
+      new Promise((resolve) => {
         document.querySelector('.js-blob-viewer-switch-btn[data-viewer="simple"]').click();
 
         setImmediate(resolve);
@@ -121,7 +121,7 @@ describe('Blob viewer', () => {
       expect(copyButton.blur).not.toHaveBeenCalled();
     });
 
-    it('enables after switching to simple view', done => {
+    it('enables after switching to simple view', (done) => {
       document.querySelector('.js-blob-viewer-switch-btn[data-viewer="simple"]').click();
 
       setImmediate(() => {
@@ -131,7 +131,7 @@ describe('Blob viewer', () => {
       });
     });
 
-    it('updates tooltip after switching to simple view', done => {
+    it('updates tooltip after switching to simple view', (done) => {
       document.querySelector('.js-blob-viewer-switch-btn[data-viewer="simple"]').click();
 
       setImmediate(() => {

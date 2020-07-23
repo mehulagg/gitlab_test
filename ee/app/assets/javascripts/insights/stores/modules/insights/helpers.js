@@ -1,7 +1,7 @@
 import { __ } from '~/locale';
 import { CHART_TYPES } from 'ee/insights/constants';
 
-const getAxisTitle = label => {
+const getAxisTitle = (label) => {
   switch (label) {
     case 'day':
       return __('Days');
@@ -32,13 +32,13 @@ export const transformChartDataForGlCharts = (
 
   switch (type) {
     case CHART_TYPES.STACKED_BAR:
-      formattedData.datasets = datasets.map(dataset => dataset.data);
-      formattedData.seriesNames = datasets.map(dataset => dataset.label);
+      formattedData.datasets = datasets.map((dataset) => dataset.data);
+      formattedData.seriesNames = datasets.map((dataset) => dataset.label);
 
       break;
     case CHART_TYPES.LINE:
       formattedData.datasets.push(
-        ...datasets.map(dataset => ({
+        ...datasets.map((dataset) => ({
           name: dataset.label,
           data: labels.map((label, i) => [label, dataset.data[i]]),
         })),

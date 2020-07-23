@@ -1,7 +1,7 @@
 import ipaddr from 'ipaddr.js';
 import { s__ } from '~/locale';
 
-const validateAddress = address => {
+const validateAddress = (address) => {
   try {
     // Checks if Valid IPv4/IPv6 (CIDR) - Throws if not
     return Boolean(ipaddr.parseCIDR(address));
@@ -11,15 +11,15 @@ const validateAddress = address => {
   }
 };
 
-const validateIP = data => {
+const validateIP = (data) => {
   let addresses = data.replace(/\s/g, '').split(',');
 
-  addresses = addresses.map(address => validateAddress(address));
+  addresses = addresses.map((address) => validateAddress(address));
 
-  return !addresses.some(a => !a);
+  return !addresses.some((a) => !a);
 };
 
-export const validateTimeout = data => {
+export const validateTimeout = (data) => {
   if (!data && data !== 0) {
     return s__("Geo|Connection timeout can't be blank");
   } else if (data && Number.isNaN(Number(data))) {
@@ -31,7 +31,7 @@ export const validateTimeout = data => {
   return '';
 };
 
-export const validateAllowedIp = data => {
+export const validateAllowedIp = (data) => {
   if (!data) {
     return s__("Geo|Allowed Geo IP can't be blank");
   } else if (data.length > 255) {

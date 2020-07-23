@@ -23,7 +23,7 @@ export default {
   components: {
     ToastEditor: () =>
       import(/* webpackChunkName: 'toast_editor' */ '@toast-ui/vue-editor').then(
-        toast => toast.Editor,
+        (toast) => toast.Editor,
       ),
     AddImageModal,
   },
@@ -55,7 +55,7 @@ export default {
     imageRoot: {
       type: String,
       required: true,
-      validator: prop => prop.endsWith('/'),
+      validator: (prop) => prop.endsWith('/'),
     },
   },
   data() {

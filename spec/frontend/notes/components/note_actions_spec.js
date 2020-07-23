@@ -61,12 +61,7 @@ describe('noteActions', () => {
     });
 
     it('should render access level badge', () => {
-      expect(
-        wrapper
-          .find('.note-role')
-          .text()
-          .trim(),
-      ).toEqual(props.accessLevel);
+      expect(wrapper.find('.note-role').text().trim()).toEqual(props.accessLevel);
     });
 
     it('should render emoji link', () => {
@@ -87,7 +82,7 @@ describe('noteActions', () => {
         expect(wrapper.find('.js-btn-copy-note-link').exists()).toBe(true);
       });
 
-      it('should not show copy link action when `noteUrl` prop is empty', done => {
+      it('should not show copy link action when `noteUrl` prop is empty', (done) => {
         wrapper.setProps({
           ...props,
           author: {
@@ -113,7 +108,7 @@ describe('noteActions', () => {
         expect(wrapper.find('.js-note-delete').exists()).toBe(true);
       });
 
-      it('closes tooltip when dropdown opens', done => {
+      it('closes tooltip when dropdown opens', (done) => {
         wrapper.find('.more-actions-toggle').trigger('click');
 
         const rootWrapper = createWrapper(wrapper.vm.$root);

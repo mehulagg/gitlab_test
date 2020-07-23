@@ -26,13 +26,14 @@ const issuable2 = {
 
 const pathIdSeparator = PathIdSeparator.Issue;
 
-const findFormInput = wrapper => wrapper.find('.js-add-issuable-form-input').element;
+const findFormInput = (wrapper) => wrapper.find('.js-add-issuable-form-input').element;
 
-const findRadioInput = (inputs, value) => inputs.filter(input => input.element.value === value)[0];
+const findRadioInput = (inputs, value) =>
+  inputs.filter((input) => input.element.value === value)[0];
 
-const findRadioInputs = wrapper => wrapper.findAll('[name="linked-issue-type-radio"]');
+const findRadioInputs = (wrapper) => wrapper.findAll('[name="linked-issue-type-radio"]');
 
-const constructWrapper = props => {
+const constructWrapper = (props) => {
   return shallowMount(AddIssuableForm, {
     propsData: {
       inputValue: '',
@@ -193,7 +194,7 @@ describe('AddIssuableForm', () => {
       });
 
       describe('when the form is submitted', () => {
-        it('emits an event with a "relates_to" link type when the "relates to" radio input selected', done => {
+        it('emits an event with a "relates_to" link type when the "relates to" radio input selected', (done) => {
           jest.spyOn(wrapper.vm, '$emit').mockImplementation(() => {});
 
           wrapper.vm.linkedIssueType = linkedIssueTypesMap.RELATES_TO;
@@ -208,7 +209,7 @@ describe('AddIssuableForm', () => {
           });
         });
 
-        it('emits an event with a "blocks" link type when the "blocks" radio input selected', done => {
+        it('emits an event with a "blocks" link type when the "blocks" radio input selected', (done) => {
           jest.spyOn(wrapper.vm, '$emit').mockImplementation(() => {});
 
           wrapper.vm.linkedIssueType = linkedIssueTypesMap.BLOCKS;
@@ -223,7 +224,7 @@ describe('AddIssuableForm', () => {
           });
         });
 
-        it('emits an event with a "is_blocked_by" link type when the "is blocked by" radio input selected', done => {
+        it('emits an event with a "is_blocked_by" link type when the "is blocked by" radio input selected', (done) => {
           jest.spyOn(wrapper.vm, '$emit').mockImplementation(() => {});
 
           wrapper.vm.linkedIssueType = linkedIssueTypesMap.IS_BLOCKED_BY;
@@ -238,7 +239,7 @@ describe('AddIssuableForm', () => {
           });
         });
 
-        it('shows error message when error is present', done => {
+        it('shows error message when error is present', (done) => {
           const itemAddFailureMessage = 'Something went wrong while submitting.';
           wrapper.setProps({
             hasError: true,

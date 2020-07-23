@@ -22,7 +22,7 @@ describe('InlineDiffTableRow', () => {
     vm = wrapper.vm;
   });
 
-  it('does not add hll class to line content when line does not match highlighted row', done => {
+  it('does not add hll class to line content when line does not match highlighted row', (done) => {
     vm.$nextTick()
       .then(() => {
         expect(wrapper.find('.line_content').classes('hll')).toBe(false);
@@ -31,7 +31,7 @@ describe('InlineDiffTableRow', () => {
       .catch(done.fail);
   });
 
-  it('adds hll class to lineContent when line is the highlighted row', done => {
+  it('adds hll class to lineContent when line is the highlighted row', (done) => {
     vm.$nextTick()
       .then(() => {
         vm.$store.state.diffs.highlightedRow = thisLine.line_code;
@@ -53,7 +53,7 @@ describe('InlineDiffTableRow', () => {
   });
 
   describe('sets coverage title and class', () => {
-    it('for lines with coverage', done => {
+    it('for lines with coverage', (done) => {
       vm.$nextTick()
         .then(() => {
           const name = diffFileMockData.file_path;
@@ -73,7 +73,7 @@ describe('InlineDiffTableRow', () => {
         .catch(done.fail);
     });
 
-    it('for lines without coverage', done => {
+    it('for lines without coverage', (done) => {
       vm.$nextTick()
         .then(() => {
           const name = diffFileMockData.file_path;
@@ -93,7 +93,7 @@ describe('InlineDiffTableRow', () => {
         .catch(done.fail);
     });
 
-    it('for unknown lines', done => {
+    it('for unknown lines', (done) => {
       vm.$nextTick()
         .then(() => {
           vm.$store.state.diffs.coverageFiles = {};

@@ -5,7 +5,7 @@ import GridColumnHeading from 'ee/compliance_dashboard/components/grid_column_he
 describe('GridColumnHeading component', () => {
   let wrapper;
 
-  const createComponent = heading => {
+  const createComponent = (heading) => {
     return shallowMount(GridColumnHeading, {
       propsData: { heading },
     });

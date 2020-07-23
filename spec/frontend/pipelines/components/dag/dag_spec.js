@@ -32,7 +32,7 @@ describe('Pipeline DAG graph wrapper', () => {
   const getAllAlerts = () => wrapper.findAll(GlAlert);
   const getGraph = () => wrapper.find(DagGraph);
   const getNotes = () => wrapper.find(DagAnnotations);
-  const getErrorText = type => wrapper.vm.$options.errorTexts[type];
+  const getErrorText = (type) => wrapper.vm.$options.errorTexts[type];
   const getEmptyState = () => wrapper.find(GlEmptyState);
 
   const dataPath = '/root/test/pipelines/90/dag.json';

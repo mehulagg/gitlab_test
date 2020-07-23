@@ -188,9 +188,7 @@ describe('ProductivityApp component', () => {
                   },
                 };
 
-                findMainMetricChart()
-                  .find(GlColumnChart)
-                  .vm.$emit('chartItemClicked', data);
+                findMainMetricChart().find(GlColumnChart).vm.$emit('chartItemClicked', data);
               });
 
               it('dispatches updateSelectedItems action', () => {
@@ -380,11 +378,7 @@ describe('ProductivityApp component', () => {
                 });
 
                 it('renders a loading indicator', () => {
-                  expect(
-                    findMrTableSection()
-                      .find(GlLoadingIcon)
-                      .exists(),
-                  ).toBe(true);
+                  expect(findMrTableSection().find(GlLoadingIcon).exists()).toBe(true);
                 });
               });
 
@@ -402,11 +396,7 @@ describe('ProductivityApp component', () => {
                   });
 
                   it('doesn’t render a "no data" message', () => {
-                    expect(
-                      findMrTableSection()
-                        .find('.js-no-data')
-                        .exists(),
-                    ).toBe(false);
+                    expect(findMrTableSection().find('.js-no-data').exists()).toBe(false);
                   });
 
                   it('should change the column metric', () => {
@@ -429,10 +419,7 @@ describe('ProductivityApp component', () => {
                     });
 
                     it('should change the sort field', () => {
-                      findSortFieldDropdown()
-                        .findAll(GlDropdownItem)
-                        .at(0)
-                        .vm.$emit('click');
+                      findSortFieldDropdown().findAll(GlDropdownItem).at(0).vm.$emit('click');
 
                       expect(actionSpies.setSortField).toHaveBeenCalled();
                     });
@@ -453,11 +440,7 @@ describe('ProductivityApp component', () => {
                   });
 
                   it('renders a "no data" message', () => {
-                    expect(
-                      findMrTableSection()
-                        .find('.js-no-data')
-                        .exists(),
-                    ).toBe(true);
+                    expect(findMrTableSection().find('.js-no-data').exists()).toBe(true);
                   });
 
                   it('doesn`t render the MR table', () => {
@@ -521,7 +504,7 @@ describe('ProductivityApp component', () => {
       milestone_title: null,
     };
 
-    const shouldSetUrlParams = result => {
+    const shouldSetUrlParams = (result) => {
       expect(urlUtils.setUrlParams).toHaveBeenCalledWith(result, window.location.href, true);
       expect(commonUtils.historyPushState).toHaveBeenCalled();
     };

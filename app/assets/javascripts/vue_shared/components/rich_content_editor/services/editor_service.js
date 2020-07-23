@@ -2,7 +2,7 @@ import Vue from 'vue';
 import ToolbarItem from '../toolbar_item.vue';
 import buildHtmlToMarkdownRenderer from './build_html_to_markdown_renderer';
 
-const buildWrapper = propsData => {
+const buildWrapper = (propsData) => {
   const instance = new Vue({
     render(createElement) {
       return createElement(ToolbarItem, propsData);
@@ -13,7 +13,7 @@ const buildWrapper = propsData => {
   return instance.$el;
 };
 
-export const generateToolbarItem = config => {
+export const generateToolbarItem = (config) => {
   const { icon, classes, event, command, tooltip, isDivider } = config;
 
   if (isDivider) {
@@ -40,14 +40,14 @@ export const removeCustomEventListener = (editorApi, event, handler) =>
 
 export const addImage = ({ editor }, image) => editor.exec('AddImage', image);
 
-export const getMarkdown = editorInstance => editorInstance.invoke('getMarkdown');
+export const getMarkdown = (editorInstance) => editorInstance.invoke('getMarkdown');
 
 /**
  * This function allow us to extend Toast UI HTML to Markdown renderer. It is
  * a temporary measure because Toast UI does not provide an API
  * to achieve this goal.
  */
-export const registerHTMLToMarkdownRenderer = editorApi => {
+export const registerHTMLToMarkdownRenderer = (editorApi) => {
   const { renderer } = editorApi.toMarkOptions;
 
   Object.assign(editorApi.toMarkOptions, {

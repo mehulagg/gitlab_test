@@ -73,7 +73,7 @@ export default {
     handleLabelClick(label) {
       if (label.isAny) {
         this.board.labels = [];
-      } else if (!this.board.labels.find(l => l.id === label.id)) {
+      } else if (!this.board.labels.find((l) => l.id === label.id)) {
         this.board.labels.push(
           new ListLabel({
             id: label.id,
@@ -84,7 +84,7 @@ export default {
         );
       } else {
         let { labels } = this.board;
-        labels = labels.filter(selected => selected.id !== label.id);
+        labels = labels.filter((selected) => selected.id !== label.id);
         this.board.labels = labels;
       }
     },

@@ -77,7 +77,7 @@ export default {
       return this.$options.translations.noMilestone;
     },
     milestoneTitles() {
-      return this.preselectedMilestones.map(milestone => milestone.title);
+      return this.preselectedMilestones.map((milestone) => milestone.title);
     },
     dropdownItems() {
       return this.searchResults.length ? this.searchResults : this.projectMilestones;
@@ -154,7 +154,7 @@ export default {
 
       this.selectedMilestones = intersection(
         this.projectMilestones,
-        milestones.map(milestone => milestone.title),
+        milestones.map((milestone) => milestone.title),
       );
     },
     isSelectedMilestone(milestoneTitle) {

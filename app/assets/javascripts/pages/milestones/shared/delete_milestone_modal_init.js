@@ -18,7 +18,7 @@ export default () => {
     button.querySelector('.js-loading-icon').classList.add('hidden');
   };
 
-  const onRequestStarted = milestoneUrl => {
+  const onRequestStarted = (milestoneUrl) => {
     const button = document.querySelector(
       `.js-delete-milestone-button[data-milestone-url="${milestoneUrl}"]`,
     );
@@ -27,7 +27,7 @@ export default () => {
     eventHub.$once('deleteMilestoneModal.requestFinished', onRequestFinished);
   };
 
-  const onDeleteButtonClick = event => {
+  const onDeleteButtonClick = (event) => {
     const button = event.currentTarget;
     const modalProps = {
       milestoneId: parseInt(button.dataset.milestoneId, 10),
@@ -41,12 +41,12 @@ export default () => {
   };
 
   const deleteMilestoneButtons = document.querySelectorAll('.js-delete-milestone-button');
-  deleteMilestoneButtons.forEach(button => {
+  deleteMilestoneButtons.forEach((button) => {
     button.addEventListener('click', onDeleteButtonClick);
   });
 
   eventHub.$once('deleteMilestoneModal.mounted', () => {
-    deleteMilestoneButtons.forEach(button => {
+    deleteMilestoneButtons.forEach((button) => {
       button.removeAttribute('disabled');
     });
   });

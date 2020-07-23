@@ -66,7 +66,7 @@ export default {
   methods: {
     ...mapActions(['requestTagsList', 'requestDeleteTag', 'requestDeleteTags']),
     deleteTags(toBeDeleted) {
-      this.itemsToBeDeleted = this.tags.filter(tag => toBeDeleted[tag.name]);
+      this.itemsToBeDeleted = this.tags.filter((tag) => toBeDeleted[tag.name]);
       this.track('click_button');
       this.$refs.deleteModal.show();
     },
@@ -86,7 +86,7 @@ export default {
       this.itemsToBeDeleted = [];
 
       return this.requestDeleteTags({
-        ids: itemsToBeDeleted.map(x => x.name),
+        ids: itemsToBeDeleted.map((x) => x.name),
         params: this.$route.params.id,
       })
         .then(() => {

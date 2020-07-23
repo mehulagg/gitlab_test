@@ -60,7 +60,7 @@ const addDiscussionCommentToStore = (store, createNote, query, queryVariables, d
   design.notesCount += 1;
   if (
     !design.issue.participants.edges.some(
-      participant => participant.node.username === createNote.note.author.username,
+      (participant) => participant.node.username === createNote.note.author.username,
     )
   ) {
     design.issue.participants.edges = [
@@ -109,7 +109,7 @@ const addImageDiffNoteToStore = (store, createImageDiffNote, query, variables) =
   design.discussions.nodes = [...design.discussions.nodes, newDiscussion];
   if (
     !design.issue.participants.edges.some(
-      participant => participant.node.username === createImageDiffNote.note.author.username,
+      (participant) => participant.node.username === createImageDiffNote.note.author.username,
     )
   ) {
     design.issue.participants.edges = [
@@ -167,7 +167,7 @@ const addNewDesignToStore = (store, designManagementUpload, query) => {
   const data = store.readQuery(query);
 
   const newDesigns = data.project.issue.designCollection.designs.edges.reduce((acc, design) => {
-    if (!acc.find(d => d.filename === design.node.filename)) {
+    if (!acc.find((d) => d.filename === design.node.filename)) {
       acc.push(design.node);
     }
 
@@ -175,7 +175,7 @@ const addNewDesignToStore = (store, designManagementUpload, query) => {
   }, designManagementUpload.designs);
 
   let newVersionNode;
-  const findNewVersions = designManagementUpload.designs.find(design => design.versions);
+  const findNewVersions = designManagementUpload.designs.find((design) => design.versions);
 
   if (findNewVersions) {
     const findNewVersionsEdges = findNewVersions.versions.edges;
@@ -194,7 +194,7 @@ const addNewDesignToStore = (store, designManagementUpload, query) => {
     __typename: 'DesignCollection',
     designs: {
       __typename: 'DesignConnection',
-      edges: newDesigns.map(design => ({
+      edges: newDesigns.map((design) => ({
         __typename: 'DesignEdge',
         node: design,
       })),

@@ -51,7 +51,7 @@ describe('IDE services', () => {
         raw: 'raw content',
       };
 
-      return services.getRawFileData(file).then(raw => {
+      return services.getRawFileData(file).then((raw) => {
         expect(raw).toBe('content');
       });
     });
@@ -65,7 +65,7 @@ describe('IDE services', () => {
         raw: 'raw content',
       };
 
-      return services.getRawFileData(file).then(raw => {
+      return services.getRawFileData(file).then((raw) => {
         expect(raw).toBe('raw content');
       });
     });
@@ -77,7 +77,7 @@ describe('IDE services', () => {
         raw: 'raw content',
       };
 
-      return services.getRawFileData(file).then(raw => {
+      return services.getRawFileData(file).then((raw) => {
         expect(raw).toBe('raw content');
       });
     });
@@ -89,7 +89,7 @@ describe('IDE services', () => {
         raw: '',
       };
 
-      return services.getRawFileData(file).then(raw => {
+      return services.getRawFileData(file).then((raw) => {
         expect(raw).toBe('');
       });
     });
@@ -116,7 +116,7 @@ describe('IDE services', () => {
       });
 
       it('sends a request to file.rawPath', () => {
-        return services.getRawFileData(file).then(raw => {
+        return services.getRawFileData(file).then((raw) => {
           expect(raw).toEqual('raw content');
         });
       });
@@ -146,7 +146,7 @@ describe('IDE services', () => {
     it('gives back file.baseRaw for files with that property present', () => {
       file.baseRaw = TEST_FILE_CONTENTS;
 
-      return services.getBaseRawFileData(file, TEST_COMMIT_SHA).then(content => {
+      return services.getBaseRawFileData(file, TEST_COMMIT_SHA).then((content) => {
         expect(content).toEqual(TEST_FILE_CONTENTS);
       });
     });
@@ -155,7 +155,7 @@ describe('IDE services', () => {
       file.tempFile = true;
       file.baseRaw = TEST_FILE_CONTENTS;
 
-      return services.getBaseRawFileData(file, TEST_COMMIT_SHA).then(content => {
+      return services.getBaseRawFileData(file, TEST_COMMIT_SHA).then((content) => {
         expect(content).toEqual(TEST_FILE_CONTENTS);
       });
     });
@@ -192,7 +192,7 @@ describe('IDE services', () => {
         });
 
         it('fetches file content', () =>
-          services.getBaseRawFileData(file, TEST_COMMIT_SHA).then(content => {
+          services.getBaseRawFileData(file, TEST_COMMIT_SHA).then((content) => {
             expect(content).toEqual(TEST_FILE_CONTENTS);
           }));
       },
@@ -209,7 +209,7 @@ describe('IDE services', () => {
       Api.project.mockReturnValue(Promise.resolve({ data: { ...projectData } }));
       query.mockReturnValue(Promise.resolve({ data: { project: gqlProjectData } }));
 
-      return services.getProjectData(TEST_NAMESPACE, TEST_PROJECT).then(response => {
+      return services.getProjectData(TEST_NAMESPACE, TEST_PROJECT).then((response) => {
         expect(response).toEqual({ data: { ...projectData, ...gqlProjectData } });
         expect(Api.project).toHaveBeenCalledWith(TEST_PROJECT_ID);
         expect(query).toHaveBeenCalledWith({

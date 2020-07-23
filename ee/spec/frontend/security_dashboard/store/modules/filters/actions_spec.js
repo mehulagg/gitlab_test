@@ -16,7 +16,7 @@ describe('filters actions', () => {
   });
 
   describe('setFilter', () => {
-    it('should commit the SET_FILTER mutuation', done => {
+    it('should commit the SET_FILTER mutuation', (done) => {
       const state = createState();
       const payload = { filterId: 'report_type', optionId: 'sast' };
 
@@ -35,7 +35,7 @@ describe('filters actions', () => {
       );
     });
 
-    it('should commit the SET_FILTER mutuation passing through lazy = true', done => {
+    it('should commit the SET_FILTER mutuation passing through lazy = true', (done) => {
       const state = createState();
       const payload = { filterId: 'report_type', optionId: 'sast', lazy: true };
 
@@ -56,7 +56,7 @@ describe('filters actions', () => {
   });
 
   describe('setFilterOptions', () => {
-    it('should commit the SET_FILTER_OPTIONS mutuation', done => {
+    it('should commit the SET_FILTER_OPTIONS mutuation', (done) => {
       const state = createState();
       const payload = { filterId: 'project_id', options: [{ id: ALL }] };
 
@@ -75,7 +75,7 @@ describe('filters actions', () => {
       );
     });
 
-    it('should commit the SET_FILTER_OPTIONS and SET_FILTER mutation when filter selection is invalid', done => {
+    it('should commit the SET_FILTER_OPTIONS and SET_FILTER mutation when filter selection is invalid', (done) => {
       const state = createState();
       const payload = { filterId: 'project_id', options: [{ id: 'foo' }] };
 
@@ -101,7 +101,7 @@ describe('filters actions', () => {
       );
     });
 
-    it('should commit the SET_FILTER_OPTIONS and SET_FILTER mutation when filter selection is invalid, passing the lazy flag', done => {
+    it('should commit the SET_FILTER_OPTIONS and SET_FILTER mutation when filter selection is invalid, passing the lazy flag', (done) => {
       const state = createState();
       const payload = { filterId: 'project_id', options: [{ id: 'foo' }] };
 
@@ -130,7 +130,7 @@ describe('filters actions', () => {
   });
 
   describe('setAllFilters', () => {
-    it('should commit the SET_ALL_FILTERS mutuation', done => {
+    it('should commit the SET_ALL_FILTERS mutuation', (done) => {
       const state = createState();
       const payload = { project_id: ['12', '15'] };
 
@@ -167,8 +167,8 @@ describe('filters actions', () => {
         returnValue: ['dismissed'],
         hideDismissedValue: true,
       },
-    ].forEach(testCase => {
-      it(testCase.description, done => {
+    ].forEach((testCase) => {
+      it(testCase.description, (done) => {
         getParameterValues.mockReturnValue(testCase.returnValue);
         const state = createState();
         testAction(
@@ -192,7 +192,7 @@ describe('filters actions', () => {
   });
 
   describe('setToggleValue', () => {
-    it('should commit the SET_TOGGLE_VALUE mutation', done => {
+    it('should commit the SET_TOGGLE_VALUE mutation', (done) => {
       const state = createState();
       const payload = { key: 'foo', value: 'bar' };
 

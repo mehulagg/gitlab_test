@@ -157,7 +157,7 @@ export default {
         !state.showDropdownButton &&
         !state.showDropdownContents
       ) {
-        this.handleDropdownClose(state.labels.filter(label => label.touched));
+        this.handleDropdownClose(state.labels.filter((label) => label.touched));
       }
     },
     /**
@@ -175,13 +175,13 @@ export default {
         'js-btn-cancel-create',
         'js-sidebar-dropdown-toggle',
       ].some(
-        className =>
+        (className) =>
           target?.classList.contains(className) ||
           target?.parentElement.classList.contains(className),
       );
 
       const hadExceptionParent = ['.js-btn-back', '.js-labels-list'].some(
-        className => $(target).parents(className).length,
+        (className) => $(target).parents(className).length,
       );
 
       if (

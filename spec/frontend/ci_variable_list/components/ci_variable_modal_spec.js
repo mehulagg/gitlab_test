@@ -29,14 +29,8 @@ describe('Ci variable modal', () => {
   };
 
   const findModal = () => wrapper.find(ModalStub);
-  const addOrUpdateButton = index =>
-    findModal()
-      .findAll(GlDeprecatedButton)
-      .at(index);
-  const deleteVariableButton = () =>
-    findModal()
-      .findAll(GlDeprecatedButton)
-      .at(1);
+  const addOrUpdateButton = (index) => findModal().findAll(GlDeprecatedButton).at(index);
+  const deleteVariableButton = () => findModal().findAll(GlDeprecatedButton).at(1);
 
   afterEach(() => {
     wrapper.destroy();

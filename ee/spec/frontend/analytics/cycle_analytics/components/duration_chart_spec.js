@@ -64,16 +64,13 @@ function createComponent({
 describe('DurationChart', () => {
   let wrapper;
 
-  const findNoDataContainer = _wrapper => _wrapper.find({ ref: 'duration-chart-no-data' });
-  const findScatterPlot = _wrapper => _wrapper.find(Scatterplot);
-  const findStageDropdown = _wrapper => _wrapper.find(StageDropdownFilter);
-  const findLoader = _wrapper => _wrapper.find(GlLoadingIcon);
+  const findNoDataContainer = (_wrapper) => _wrapper.find({ ref: 'duration-chart-no-data' });
+  const findScatterPlot = (_wrapper) => _wrapper.find(Scatterplot);
+  const findStageDropdown = (_wrapper) => _wrapper.find(StageDropdownFilter);
+  const findLoader = (_wrapper) => _wrapper.find(GlLoadingIcon);
 
   const selectStage = (_wrapper, index = 0) => {
-    findStageDropdown(_wrapper)
-      .findAll(GlNewDropdownItem)
-      .at(index)
-      .vm.$emit('click');
+    findStageDropdown(_wrapper).findAll(GlNewDropdownItem).at(index).vm.$emit('click');
   };
 
   beforeEach(() => {

@@ -38,7 +38,7 @@ describe('vulnerabilities count actions', () => {
   describe('setPipelineId', () => {
     const pipelineId = 123;
 
-    it('should commit the correct mutation', done => {
+    it('should commit the correct mutation', (done) => {
       testAction(
         actions.setPipelineId,
         pipelineId,
@@ -56,7 +56,7 @@ describe('vulnerabilities count actions', () => {
   });
 
   describe('setSourceBranch', () => {
-    it('should commit the correct mutation', done => {
+    it('should commit the correct mutation', (done) => {
       testAction(
         actions.setSourceBranch,
         sourceBranch,
@@ -74,7 +74,7 @@ describe('vulnerabilities count actions', () => {
   });
 
   describe('setVulnerabilitiesCountEndpoint', () => {
-    it('should commit the correct mutuation', done => {
+    it('should commit the correct mutuation', (done) => {
       const endpoint = 'fakepath.json';
 
       testAction(
@@ -114,7 +114,7 @@ describe('vulnerabilities count actions', () => {
           .replyOnce(200, data);
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.fetchVulnerabilitiesCount,
           {},
@@ -131,7 +131,7 @@ describe('vulnerabilities count actions', () => {
         );
       });
 
-      it('should send the passed filters to the endpoint', done => {
+      it('should send the passed filters to the endpoint', (done) => {
         testAction(
           actions.fetchVulnerabilitiesCount,
           params,
@@ -154,7 +154,7 @@ describe('vulnerabilities count actions', () => {
         mock.onGet(state.vulnerabilitiesCountEndpoint).replyOnce(404, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         testAction(
           actions.fetchVulnerabilitiesCount,
           {},
@@ -171,14 +171,14 @@ describe('vulnerabilities count actions', () => {
         state.vulnerabilitiesCountEndpoint = '';
       });
 
-      it('should not do anything', done => {
+      it('should not do anything', (done) => {
         testAction(actions.fetchVulnerabilitiesCount, {}, state, [], [], done);
       });
     });
   });
 
   describe('requestVulnerabilitiesCount', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       testAction(
         actions.requestVulnerabilitiesCount,
         {},
@@ -191,7 +191,7 @@ describe('vulnerabilities count actions', () => {
   });
 
   describe('receiveVulnerabilitiesCountSuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       testAction(
         actions.receiveVulnerabilitiesCountSuccess,
         { data },
@@ -204,7 +204,7 @@ describe('vulnerabilities count actions', () => {
   });
 
   describe('receiveVulnerabilitiesCountError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       testAction(
         actions.receiveVulnerabilitiesCountError,
         {},
@@ -220,7 +220,7 @@ describe('vulnerabilities count actions', () => {
 describe('vulnerabilities actions', () => {
   const data = mockDataVulnerabilities;
   const params = { filters: { severity: ['critical'] } };
-  const filteredData = mockDataVulnerabilities.filter(vuln => vuln.severity === 'critical');
+  const filteredData = mockDataVulnerabilities.filter((vuln) => vuln.severity === 'critical');
   const pageInfo = {
     page: 1,
     nextPage: 2,
@@ -264,7 +264,7 @@ describe('vulnerabilities actions', () => {
           .replyOnce(200, data, headers);
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.fetchVulnerabilities,
           {},
@@ -281,7 +281,7 @@ describe('vulnerabilities actions', () => {
         );
       });
 
-      it('should pass through the filters', done => {
+      it('should pass through the filters', (done) => {
         testAction(
           actions.fetchVulnerabilities,
           params,
@@ -306,7 +306,7 @@ describe('vulnerabilities actions', () => {
         mock.onGet(state.vulnerabilitiesEndpoint).replyOnce(errorCode, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         testAction(
           actions.fetchVulnerabilities,
           {},
@@ -326,14 +326,14 @@ describe('vulnerabilities actions', () => {
         state.vulnerabilitiesEndpoint = '';
       });
 
-      it('should not do anything', done => {
+      it('should not do anything', (done) => {
         testAction(actions.fetchVulnerabilities, {}, state, [], [], done);
       });
     });
   });
 
   describe('receiveVulnerabilitiesSuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       testAction(
         actions.receiveVulnerabilitiesSuccess,
         { headers, data },
@@ -351,7 +351,7 @@ describe('vulnerabilities actions', () => {
   });
 
   describe('receiveVulnerabilitiesError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       const errorCode = 403;
 
       testAction(
@@ -366,7 +366,7 @@ describe('vulnerabilities actions', () => {
   });
 
   describe('requestVulnerabilities', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       testAction(
         actions.requestVulnerabilities,
         {},
@@ -379,7 +379,7 @@ describe('vulnerabilities actions', () => {
   });
 
   describe('setVulnerabilitiesEndpoint', () => {
-    it('should commit the correct mutuation', done => {
+    it('should commit the correct mutuation', (done) => {
       const endpoint = 'fakepath.json';
 
       testAction(
@@ -399,7 +399,7 @@ describe('vulnerabilities actions', () => {
   });
 
   describe('setVulnerabilitiesPage', () => {
-    it('should commit the correct mutuation', done => {
+    it('should commit the correct mutuation', (done) => {
       const page = 3;
 
       testAction(
@@ -426,7 +426,7 @@ describe('openModal', () => {
     state = initialState();
   });
 
-  it('should commit the SET_MODAL_DATA mutation', done => {
+  it('should commit the SET_MODAL_DATA mutation', (done) => {
     const vulnerability = mockDataVulnerabilities[0];
 
     testAction(
@@ -499,7 +499,7 @@ describe('issue creation', () => {
           .replyOnce(200, { data });
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.createIssue,
           { vulnerability },
@@ -522,7 +522,7 @@ describe('issue creation', () => {
         mock.onPost(vulnerability.create_vulnerability_feedback_issue_path).replyOnce(404, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         const flashError = false;
 
         testAction(
@@ -541,7 +541,7 @@ describe('issue creation', () => {
   });
 
   describe('receiveCreateIssueSuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       const data = mockDataVulnerabilities[0];
 
       testAction(
@@ -561,7 +561,7 @@ describe('issue creation', () => {
   });
 
   describe('receiveCreateIssueError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       testAction(
         actions.receiveCreateIssueError,
         {},
@@ -574,7 +574,7 @@ describe('issue creation', () => {
   });
 
   describe('requestCreateIssue', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       testAction(
         actions.requestCreateIssue,
         {},
@@ -614,7 +614,7 @@ describe('merge request creation', () => {
           .replyOnce(200, { data });
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.createMergeRequest,
           { vulnerability },
@@ -637,7 +637,7 @@ describe('merge request creation', () => {
         mock.onPost(vulnerability.vulnerability_feedback_merge_request_path).replyOnce(404, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         const flashError = false;
 
         testAction(
@@ -656,7 +656,7 @@ describe('merge request creation', () => {
   });
 
   describe('receiveCreateMergeRequestSuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       const data = mockDataVulnerabilities[0];
 
       testAction(
@@ -676,7 +676,7 @@ describe('merge request creation', () => {
   });
 
   describe('receiveCreateMergeRequestError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       testAction(
         actions.receiveCreateMergeRequestError,
         {},
@@ -689,7 +689,7 @@ describe('merge request creation', () => {
   });
 
   describe('requestCreateMergeRequest', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       testAction(
         actions.requestCreateMergeRequest,
         {},
@@ -731,7 +731,7 @@ describe('vulnerability dismissal', () => {
           .replyOnce(200, data);
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.dismissVulnerability,
           { vulnerability, comment },
@@ -749,7 +749,7 @@ describe('vulnerability dismissal', () => {
         );
       });
 
-      it('should show the dismissal toast message', done => {
+      it('should show the dismissal toast message', (done) => {
         const checkToastMessage = () => {
           expect(toast).toHaveBeenCalledTimes(1);
           done();
@@ -778,7 +778,7 @@ describe('vulnerability dismissal', () => {
         mock.onPost(vulnerability.create_vulnerability_feedback_dismissal_path).replyOnce(404, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         const flashError = false;
 
         testAction(
@@ -808,7 +808,7 @@ describe('vulnerability dismissal', () => {
           .replyOnce(200, data);
       });
 
-      it('should show the dismissal toast message and refresh vulnerabilities', done => {
+      it('should show the dismissal toast message and refresh vulnerabilities', (done) => {
         const checkToastMessage = () => {
           const [message, options] = toast.mock.calls[0];
 
@@ -860,7 +860,7 @@ describe('vulnerability dismissal', () => {
   });
 
   describe('receiveDismissVulnerabilitySuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       const data = mockDataVulnerabilities[0];
 
       testAction(
@@ -880,7 +880,7 @@ describe('vulnerability dismissal', () => {
   });
 
   describe('receiveDismissVulnerabilityError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       testAction(
         actions.receiveDismissVulnerabilityError,
         {},
@@ -893,7 +893,7 @@ describe('vulnerability dismissal', () => {
   });
 
   describe('requestDismissVulnerability', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       testAction(
         actions.requestDismissVulnerability,
         {},
@@ -933,7 +933,7 @@ describe('add vulnerability dismissal comment', () => {
         mock.onPatch(url).replyOnce(200, data);
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         const checkPassedData = () => {
           const { project_id, id } = vulnerability.dismissal_feedback;
           const expected = JSON.stringify({ project_id, id, comment });
@@ -957,7 +957,7 @@ describe('add vulnerability dismissal comment', () => {
         );
       });
 
-      it('should show the add dismissal toast message', done => {
+      it('should show the add dismissal toast message', (done) => {
         const checkPassedData = () => {
           const { project_id, id } = vulnerability.dismissal_feedback;
           const expected = JSON.stringify({ project_id, id, comment });
@@ -987,7 +987,7 @@ describe('add vulnerability dismissal comment', () => {
         mock.onPatch(url).replyOnce(404);
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         testAction(
           actions.addDismissalComment,
           { vulnerability, comment },
@@ -1000,7 +1000,7 @@ describe('add vulnerability dismissal comment', () => {
     });
 
     describe('receiveAddDismissalCommentSuccess', () => {
-      it('should commit the success mutation', done => {
+      it('should commit the success mutation', (done) => {
         testAction(
           actions.receiveAddDismissalCommentSuccess,
           { data },
@@ -1013,7 +1013,7 @@ describe('add vulnerability dismissal comment', () => {
     });
 
     describe('receiveAddDismissalCommentError', () => {
-      it('should commit the error mutation', done => {
+      it('should commit the error mutation', (done) => {
         testAction(
           actions.receiveAddDismissalCommentError,
           {},
@@ -1026,7 +1026,7 @@ describe('add vulnerability dismissal comment', () => {
     });
 
     describe('requestAddDismissalComment', () => {
-      it('should commit the request mutation', done => {
+      it('should commit the request mutation', (done) => {
         testAction(
           actions.requestAddDismissalComment,
           {},
@@ -1059,7 +1059,7 @@ describe('add vulnerability dismissal comment', () => {
         mock.onPatch(url).replyOnce(200, data);
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         const checkPassedData = () => {
           const { project_id } = vulnerability.dismissal_feedback;
           const expected = JSON.stringify({ project_id, comment });
@@ -1085,7 +1085,7 @@ describe('add vulnerability dismissal comment', () => {
         );
       });
 
-      it('should show the delete dismissal comment toast message', done => {
+      it('should show the delete dismissal comment toast message', (done) => {
         const checkPassedData = () => {
           const { project_id } = vulnerability.dismissal_feedback;
           const expected = JSON.stringify({ project_id, comment });
@@ -1118,7 +1118,7 @@ describe('add vulnerability dismissal comment', () => {
         mock.onPatch(url).replyOnce(404);
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         testAction(
           actions.deleteDismissalComment,
           { vulnerability },
@@ -1134,7 +1134,7 @@ describe('add vulnerability dismissal comment', () => {
     });
 
     describe('receiveDeleteDismissalCommentSuccess', () => {
-      it('should commit the success mutation', done => {
+      it('should commit the success mutation', (done) => {
         testAction(
           actions.receiveDeleteDismissalCommentSuccess,
           { data },
@@ -1147,7 +1147,7 @@ describe('add vulnerability dismissal comment', () => {
     });
 
     describe('receiveDeleteDismissalCommentError', () => {
-      it('should commit the error mutation', done => {
+      it('should commit the error mutation', (done) => {
         testAction(
           actions.receiveDeleteDismissalCommentError,
           {},
@@ -1160,7 +1160,7 @@ describe('add vulnerability dismissal comment', () => {
     });
 
     describe('requestDeleteDismissalComment', () => {
-      it('should commit the request mutation', done => {
+      it('should commit the request mutation', (done) => {
         testAction(
           actions.requestDeleteDismissalComment,
           {},
@@ -1199,7 +1199,7 @@ describe('dismiss multiple vulnerabilities', () => {
       mock.restore();
     });
 
-    it('should fire the dismissSelected mutations when all is well', done => {
+    it('should fire the dismissSelected mutations when all is well', (done) => {
       mock
         .onPost(state.vulnerabilities[0].create_vulnerability_feedback_dismissal_path)
         .replyOnce(200)
@@ -1227,7 +1227,7 @@ describe('dismiss multiple vulnerabilities', () => {
       );
     });
 
-    it('should trigger the error state when something goes wrong', done => {
+    it('should trigger the error state when something goes wrong', (done) => {
       mock
         .onPost(state.vulnerabilities[0].create_vulnerability_feedback_dismissal_path)
         .replyOnce(200)
@@ -1248,7 +1248,7 @@ describe('dismiss multiple vulnerabilities', () => {
     });
 
     describe('receiveDismissSelectedVulnerabilitiesSuccess', () => {
-      it(`should commit ${types.RECEIVE_DISMISS_SELECTED_VULNERABILITIES_SUCCESS}`, done => {
+      it(`should commit ${types.RECEIVE_DISMISS_SELECTED_VULNERABILITIES_SUCCESS}`, (done) => {
         testAction(
           actions.receiveDismissSelectedVulnerabilitiesSuccess,
           { selectedVulnerabilities },
@@ -1261,7 +1261,7 @@ describe('dismiss multiple vulnerabilities', () => {
     });
 
     describe('receiveDismissSelectedVulnerabilitiesError', () => {
-      it(`should commit ${types.RECEIVE_DISMISS_SELECTED_VULNERABILITIES_ERROR}`, done => {
+      it(`should commit ${types.RECEIVE_DISMISS_SELECTED_VULNERABILITIES_ERROR}`, (done) => {
         testAction(
           actions.receiveDismissSelectedVulnerabilitiesError,
           {},
@@ -1283,7 +1283,7 @@ describe('selecting vulnerabilities', () => {
   });
 
   describe('selectVulnerability', () => {
-    it(`selectVulnerability should commit ${types.SELECT_VULNERABILITY}`, done => {
+    it(`selectVulnerability should commit ${types.SELECT_VULNERABILITY}`, (done) => {
       const id = 1234;
 
       testAction(
@@ -1298,7 +1298,7 @@ describe('selecting vulnerabilities', () => {
   });
 
   describe('deselectVulnerability', () => {
-    it(`should commit ${types.DESELECT_VULNERABILITY}`, done => {
+    it(`should commit ${types.DESELECT_VULNERABILITY}`, (done) => {
       const id = 1234;
 
       testAction(
@@ -1313,7 +1313,7 @@ describe('selecting vulnerabilities', () => {
   });
 
   describe('selectAllVulnerabilities', () => {
-    it(`should commit ${types.SELECT_ALL_VULNERABILITIES}`, done => {
+    it(`should commit ${types.SELECT_ALL_VULNERABILITIES}`, (done) => {
       testAction(
         actions.selectAllVulnerabilities,
         {},
@@ -1326,7 +1326,7 @@ describe('selecting vulnerabilities', () => {
   });
 
   describe('deselectAllVulnerabilities', () => {
-    it(`should commit ${types.DESELECT_ALL_VULNERABILITIES}`, done => {
+    it(`should commit ${types.DESELECT_ALL_VULNERABILITIES}`, (done) => {
       testAction(
         actions.deselectAllVulnerabilities,
         {},
@@ -1346,7 +1346,7 @@ describe('showDismissalDeleteButtons', () => {
     state = initialState();
   });
 
-  it('commits show dismissal delete buttons', done => {
+  it('commits show dismissal delete buttons', (done) => {
     testAction(
       actions.showDismissalDeleteButtons,
       null,
@@ -1369,7 +1369,7 @@ describe('hideDismissalDeleteButtons', () => {
     state = initialState();
   });
 
-  it('commits hide dismissal delete buttons', done => {
+  it('commits hide dismissal delete buttons', (done) => {
     testAction(
       actions.hideDismissalDeleteButtons,
       null,
@@ -1404,7 +1404,7 @@ describe('revert vulnerability dismissal', () => {
         mock.onDelete(url).replyOnce(200, {});
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.undoDismiss,
           { vulnerability },
@@ -1424,7 +1424,7 @@ describe('revert vulnerability dismissal', () => {
         mock.onDelete(url).replyOnce(404, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         const flashError = false;
 
         testAction(
@@ -1443,7 +1443,7 @@ describe('revert vulnerability dismissal', () => {
   });
 
   describe('receiveUndoDismissSuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       const state = initialState;
       const data = mockDataVulnerabilities[0];
 
@@ -1464,7 +1464,7 @@ describe('revert vulnerability dismissal', () => {
   });
 
   describe('receiveUndoDismissError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       const state = initialState;
 
       testAction(
@@ -1479,7 +1479,7 @@ describe('revert vulnerability dismissal', () => {
   });
 
   describe('requestUndoDismiss', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       const state = initialState;
 
       testAction(
@@ -1505,7 +1505,7 @@ describe('vulnerabilities history actions', () => {
   });
 
   describe('setVulnerabilitiesHistoryEndpoint', () => {
-    it('should commit the correct mutuation', done => {
+    it('should commit the correct mutuation', (done) => {
       const endpoint = 'fakepath.json';
 
       testAction(
@@ -1525,7 +1525,7 @@ describe('vulnerabilities history actions', () => {
   });
 
   describe('setVulnerabilitiesHistoryDayRange', () => {
-    it('should commit the number of past days to show', done => {
+    it('should commit the number of past days to show', (done) => {
       const days = DAYS.THIRTY;
       testAction(
         actions.setVulnerabilitiesHistoryDayRange,
@@ -1564,7 +1564,7 @@ describe('vulnerabilities history actions', () => {
           .replyOnce(200, data);
       });
 
-      it('should dispatch the request and success actions', done => {
+      it('should dispatch the request and success actions', (done) => {
         testAction(
           actions.fetchVulnerabilitiesHistory,
           {},
@@ -1581,7 +1581,7 @@ describe('vulnerabilities history actions', () => {
         );
       });
 
-      it('return the filtered results', done => {
+      it('return the filtered results', (done) => {
         testAction(
           actions.fetchVulnerabilitiesHistory,
           params,
@@ -1604,7 +1604,7 @@ describe('vulnerabilities history actions', () => {
         mock.onGet(state.vulnerabilitiesHistoryEndpoint).replyOnce(404, {});
       });
 
-      it('should dispatch the request and error actions', done => {
+      it('should dispatch the request and error actions', (done) => {
         testAction(
           actions.fetchVulnerabilitiesHistory,
           {},
@@ -1624,14 +1624,14 @@ describe('vulnerabilities history actions', () => {
         state.vulnerabilitiesHistoryEndpoint = '';
       });
 
-      it('should not do anything', done => {
+      it('should not do anything', (done) => {
         testAction(actions.fetchVulnerabilitiesHistory, {}, state, [], [], done);
       });
     });
   });
 
   describe('requestVulnerabilitiesHistory', () => {
-    it('should commit the request mutation', done => {
+    it('should commit the request mutation', (done) => {
       testAction(
         actions.requestVulnerabilitiesHistory,
         {},
@@ -1644,7 +1644,7 @@ describe('vulnerabilities history actions', () => {
   });
 
   describe('receiveVulnerabilitiesHistorySuccess', () => {
-    it('should commit the success mutation', done => {
+    it('should commit the success mutation', (done) => {
       testAction(
         actions.receiveVulnerabilitiesHistorySuccess,
         { data },
@@ -1657,7 +1657,7 @@ describe('vulnerabilities history actions', () => {
   });
 
   describe('receiveVulnerabilitiesHistoryError', () => {
-    it('should commit the error mutation', done => {
+    it('should commit the error mutation', (done) => {
       testAction(
         actions.receiveVulnerabilitiesHistoryError,
         {},
@@ -1670,7 +1670,7 @@ describe('vulnerabilities history actions', () => {
   });
 
   describe('openDismissalCommentBox', () => {
-    it('should commit the open comment mutation with a default payload', done => {
+    it('should commit the open comment mutation with a default payload', (done) => {
       testAction(
         actions.openDismissalCommentBox,
         undefined,
@@ -1683,7 +1683,7 @@ describe('vulnerabilities history actions', () => {
   });
 
   describe('closeDismissalCommentBox', () => {
-    it('should commit the close comment mutation', done => {
+    it('should commit the close comment mutation', (done) => {
       testAction(
         actions.closeDismissalCommentBox,
         {},

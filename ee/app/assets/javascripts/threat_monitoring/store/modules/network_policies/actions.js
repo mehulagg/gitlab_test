@@ -23,7 +23,7 @@ export const fetchPolicies = ({ state, commit }, environmentId) => {
   return axios
     .get(state.policiesEndpoint, { params: { environment_id: environmentId } })
     .then(({ data }) => commit(types.RECEIVE_POLICIES_SUCCESS, data))
-    .catch(error => commitReceivePoliciesError(commit, error?.response?.data));
+    .catch((error) => commitReceivePoliciesError(commit, error?.response?.data));
 };
 
 const commitPolicyError = (commit, type, payload) => {
@@ -54,7 +54,7 @@ export const createPolicy = ({ state, commit }, { environmentId, policy }) => {
         FLASH_TYPES.SUCCESS,
       );
     })
-    .catch(error =>
+    .catch((error) =>
       commitPolicyError(commit, types.RECEIVE_CREATE_POLICY_ERROR, error?.response?.data),
     );
 };
@@ -84,7 +84,7 @@ export const updatePolicy = ({ state, commit }, { environmentId, policy }) => {
         FLASH_TYPES.SUCCESS,
       );
     })
-    .catch(error =>
+    .catch((error) =>
       commitPolicyError(commit, types.RECEIVE_UPDATE_POLICY_ERROR, error?.response?.data),
     );
 };

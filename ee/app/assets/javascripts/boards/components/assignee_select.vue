@@ -118,7 +118,7 @@ export default {
       <div v-else class="text-secondary">{{ anyUserText }}</div>
     </div>
 
-    <div class="selectbox" style="display: none">
+    <div class="selectbox" style="display: none;">
       <div class="dropdown">
         <button
           ref="dropdown"
@@ -141,8 +141,7 @@ export default {
           />
         </button>
         <div
-          class="dropdown-menu dropdown-select dropdown-menu-paging
-dropdown-menu-user dropdown-menu-selectable dropdown-menu-author"
+          class="dropdown-menu dropdown-select dropdown-menu-paging dropdown-menu-user dropdown-menu-selectable dropdown-menu-author"
         >
           <div class="dropdown-input">
             <input

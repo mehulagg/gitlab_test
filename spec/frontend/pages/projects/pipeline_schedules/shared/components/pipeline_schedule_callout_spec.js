@@ -84,7 +84,7 @@ describe('Pipeline Schedule Callout', () => {
       expect(calloutComponent.$el.outerHTML).toContain(docsUrl);
     });
 
-    it('updates calloutDismissed when close button is clicked', done => {
+    it('updates calloutDismissed when close button is clicked', (done) => {
       calloutComponent.$el.querySelector('#dismiss-callout-btn').click();
 
       Vue.nextTick(() => {
@@ -93,7 +93,7 @@ describe('Pipeline Schedule Callout', () => {
       });
     });
 
-    it('#dismissCallout updates calloutDismissed', done => {
+    it('#dismissCallout updates calloutDismissed', (done) => {
       calloutComponent.dismissCallout();
 
       Vue.nextTick(() => {
@@ -102,7 +102,7 @@ describe('Pipeline Schedule Callout', () => {
       });
     });
 
-    it('is hidden when close button is clicked', done => {
+    it('is hidden when close button is clicked', (done) => {
       calloutComponent.$el.querySelector('#dismiss-callout-btn').click();
 
       Vue.nextTick(() => {

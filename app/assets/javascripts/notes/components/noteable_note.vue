@@ -160,7 +160,7 @@ export default {
       const sideB = sideA === 'left' ? 'right' : 'left';
       const lines = this.diffFile.highlighted_diff_lines.length
         ? this.diffFile.highlighted_diff_lines
-        : this.diffFile.parallel_diff_lines.map(l => l[sideA] || l[sideB]);
+        : this.diffFile.parallel_diff_lines.map((l) => l[sideA] || l[sideB]);
       return commentLineOptions(lines, this.commentLineStart, this.line.line_code, sideA);
     },
     diffFile() {
@@ -280,7 +280,7 @@ export default {
           this.updateSuccess();
           callback();
         })
-        .catch(response => {
+        .catch((response) => {
           if (response.status === httpStatusCodes.GONE) {
             this.removeNote(this.note);
             this.updateSuccess();

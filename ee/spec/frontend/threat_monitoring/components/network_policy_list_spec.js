@@ -7,7 +7,7 @@ import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { mockPoliciesResponse } from '../mock_data';
 import { PREDEFINED_NETWORK_POLICIES } from 'ee/threat_monitoring/constants';
 
-const mockData = mockPoliciesResponse.map(policy => convertObjectPropsToCamelCase(policy));
+const mockData = mockPoliciesResponse.map((policy) => convertObjectPropsToCamelCase(policy));
 
 describe('NetworkPolicyList component', () => {
   let store;
@@ -91,9 +91,7 @@ describe('NetworkPolicyList component', () => {
   });
 
   it('renders opened editor drawer on row selection', () => {
-    findPoliciesTable()
-      .find('td')
-      .trigger('click');
+    findPoliciesTable().find('td').trigger('click');
 
     return wrapper.vm.$nextTick().then(() => {
       const editorDrawer = findEditorDrawer();

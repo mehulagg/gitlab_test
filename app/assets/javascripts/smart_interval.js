@@ -95,9 +95,7 @@ export default class SmartInterval {
     window.removeEventListener('blur', this.onWindowVisibilityChange);
     window.removeEventListener('focus', this.onWindowVisibilityChange);
     this.cancel();
-    $(document)
-      .off('visibilitychange')
-      .off('beforeunload');
+    $(document).off('visibilitychange').off('beforeunload');
   }
 
   /* private */
@@ -120,7 +118,7 @@ export default class SmartInterval {
       .then(() => {
         this.isLoading = false;
       })
-      .catch(err => {
+      .catch((err) => {
         this.isLoading = false;
         throw err;
       });

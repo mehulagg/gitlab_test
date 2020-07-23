@@ -53,12 +53,7 @@ describe('graph component', () => {
 
       expect(wrapper.find(stageColumnComponent).classes()).toContain('no-margin');
 
-      expect(
-        wrapper
-          .findAll(stageColumnComponent)
-          .at(1)
-          .classes(),
-      ).toContain('left-margin');
+      expect(wrapper.findAll(stageColumnComponent).at(1).classes()).toContain('left-margin');
 
       expect(wrapper.find('.stage-column:nth-child(2) .build:nth-child(1)').classes()).toContain(
         'left-connector',
@@ -120,23 +115,13 @@ describe('graph component', () => {
     describe('computeds and methods', () => {
       describe('capitalizeStageName', () => {
         it('it capitalizes the stage name', () => {
-          expect(
-            wrapper
-              .findAll('.stage-column .stage-name')
-              .at(1)
-              .text(),
-          ).toBe('Prebuild');
+          expect(wrapper.findAll('.stage-column .stage-name').at(1).text()).toBe('Prebuild');
         });
       });
 
       describe('stageConnectorClass', () => {
         it('it returns left-margin when there is a triggerer', () => {
-          expect(
-            wrapper
-              .findAll(stageColumnComponent)
-              .at(1)
-              .classes(),
-          ).toContain('left-margin');
+          expect(wrapper.findAll(stageColumnComponent).at(1).classes()).toContain('left-margin');
         });
       });
     });
@@ -180,7 +165,7 @@ describe('graph component', () => {
         });
 
         describe('with expanded pipeline', () => {
-          it('should render expanded pipeline', done => {
+          it('should render expanded pipeline', (done) => {
             // expand the pipeline
             store.state.pipeline.triggered_by[0].isExpanded = true;
 
@@ -225,7 +210,7 @@ describe('graph component', () => {
         });
 
         describe('with expanded pipeline', () => {
-          it('should render expanded pipeline', done => {
+          it('should render expanded pipeline', (done) => {
             // expand the pipeline
             store.state.pipeline.triggered[0].isExpanded = true;
 
@@ -279,12 +264,7 @@ describe('graph component', () => {
       });
 
       it('it returns left-margin when no triggerer and not the first stage', () => {
-        expect(
-          wrapper
-            .findAll(stageColumnComponent)
-            .at(1)
-            .classes(),
-        ).toContain('left-margin');
+        expect(wrapper.findAll(stageColumnComponent).at(1).classes()).toContain('left-margin');
       });
     });
   });
@@ -299,12 +279,9 @@ describe('graph component', () => {
         },
       });
 
-      expect(
-        wrapper
-          .find('.stage-column:nth-child(2) .stage-name')
-          .text()
-          .trim(),
-      ).toEqual('Deploy &lt;img src=x onerror=alert(document.domain)&gt;');
+      expect(wrapper.find('.stage-column:nth-child(2) .stage-name').text().trim()).toEqual(
+        'Deploy &lt;img src=x onerror=alert(document.domain)&gt;',
+      );
     });
   });
 });

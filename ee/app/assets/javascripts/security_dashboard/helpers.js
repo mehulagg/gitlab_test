@@ -5,13 +5,13 @@ import { ALL, BASE_FILTERS } from 'ee/security_dashboard/store/modules/filters/c
 import { REPORT_TYPES, SEVERITY_LEVELS } from 'ee/security_dashboard/store/constants';
 import { VULNERABILITY_STATES } from 'ee/vulnerabilities/constants';
 
-const parseOptions = obj =>
+const parseOptions = (obj) =>
   Object.entries(obj).map(([id, name]) => ({ id: id.toUpperCase(), name }));
 
-export const mapProjects = projects =>
-  projects.map(p => ({ id: p.id.split('/').pop(), name: p.name }));
+export const mapProjects = (projects) =>
+  projects.map((p) => ({ id: p.id.split('/').pop(), name: p.name }));
 
-export const initFirstClassVulnerabilityFilters = projects => {
+export const initFirstClassVulnerabilityFilters = (projects) => {
   const filters = [
     {
       name: s__('SecurityReports|Status'),
@@ -92,7 +92,7 @@ export const getFormattedSummary = (rawSummary = {}) => {
     return name ? [name, scanSummary] : null;
   });
   // Filter out keys that could not be matched with any translation and are thus considered invalid
-  return formattedEntries.filter(entry => entry !== null);
+  return formattedEntries.filter((entry) => entry !== null);
 };
 
 export default () => ({});

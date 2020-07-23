@@ -28,7 +28,7 @@ export default {
       return this.pageConfig.charts;
     },
     chartKeys() {
-      return this.charts.map(chart => chart.title);
+      return this.charts.map((chart) => chart.title);
     },
     storeKeys() {
       return Object.keys(this.chartData);
@@ -52,7 +52,7 @@ export default {
       if (this.hasChartsConfigured) {
         this.initChartData(this.chartKeys);
 
-        const insightsRequests = this.charts.map(chart =>
+        const insightsRequests = this.charts.map((chart) =>
           this.fetchChartData({ endpoint: this.queryEndpoint, chart }),
         );
         Promise.all(insightsRequests)
@@ -65,7 +65,7 @@ export default {
       }
     },
     storePopulated() {
-      return this.chartKeys.filter(key => this.storeKeys.includes(key)).length > 0;
+      return this.chartKeys.filter((key) => this.storeKeys.includes(key)).length > 0;
     },
   },
 };

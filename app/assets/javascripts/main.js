@@ -53,7 +53,7 @@ window.$ = jQuery;
 jQuery.ajaxSetup({
   converters: {
     // eslint-disable-next-line @gitlab/require-i18n-strings, func-names
-    'text script': function(text) {
+    'text script': function (text) {
       jQuery.globalEval(text, { nonce: getCspNonceValue() });
       return text;
     },
@@ -118,10 +118,7 @@ function deferredInitialisation() {
   addSelectOnFocusBehaviour('.js-select-on-focus');
 
   $('.remove-row').on('ajax:success', function removeRowAjaxSuccessCallback() {
-    $(this)
-      .tooltip('dispose')
-      .closest('li')
-      .fadeOut();
+    $(this).tooltip('dispose').closest('li').fadeOut();
   });
 
   $('.js-remove-tr').on('ajax:before', function removeTRAjaxBeforeCallback() {
@@ -130,9 +127,7 @@ function deferredInitialisation() {
 
   $('.js-remove-tr').on('ajax:success', function removeTRAjaxSuccessCallback() {
     // eslint-disable-next-line no-jquery/no-fade
-    $(this)
-      .closest('tr')
-      .fadeOut();
+    $(this).closest('tr').fadeOut();
   });
 
   const glTooltipDelay = localStorage.getItem('gl-tooltip-delay');
@@ -267,15 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
     $this.toggleClass('active');
 
     if ($this.hasClass('active')) {
-      notesHolders
-        .show()
-        .find('.hide, .content')
-        .show();
+      notesHolders.show().find('.hide, .content').show();
     } else {
-      notesHolders
-        .hide()
-        .find('.content')
-        .hide();
+      notesHolders.hide().find('.content').hide();
     }
 
     $(document).trigger('toggle.comments');
@@ -297,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (flashContainer && flashContainer.children.length) {
     flashContainer
       .querySelectorAll('.flash-alert, .flash-notice, .flash-success')
-      .forEach(flashEl => {
+      .forEach((flashEl) => {
         removeFlashClickListener(flashEl);
       });
   }

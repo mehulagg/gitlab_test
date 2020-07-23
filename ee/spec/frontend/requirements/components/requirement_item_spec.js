@@ -257,12 +257,7 @@ describe('RequirementItem', () => {
       });
 
       return wrapper.vm.$nextTick(() => {
-        expect(
-          wrapper
-            .find('.requirement-archive')
-            .find(GlLoadingIcon)
-            .exists(),
-        ).toBe(true);
+        expect(wrapper.find('.requirement-archive').find(GlLoadingIcon).exists()).toBe(true);
       });
     });
 

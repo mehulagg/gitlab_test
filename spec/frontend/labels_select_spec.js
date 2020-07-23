@@ -104,12 +104,9 @@ describe('LabelsSelect', () => {
         expect($labelEl.find('span.gl-label-text').attr('style')).toBe(
           `background-color: ${label.color}; color: ${label.text_color};`,
         );
-        expect(
-          $labelEl
-            .find('span.gl-label-text')
-            .last()
-            .attr('style'),
-        ).toBe(`color: ${label.color};`);
+        expect($labelEl.find('span.gl-label-text').last().attr('style')).toBe(
+          `color: ${label.color};`,
+        );
       });
 
       it('generated label item has a badge class', () => {
@@ -135,12 +132,9 @@ describe('LabelsSelect', () => {
         expect($labelEl.find('span.gl-label-text').attr('style')).toBe(
           `background-color: ${label.color}; color: ${label.text_color};`,
         );
-        expect(
-          $labelEl
-            .find('span.gl-label-text')
-            .last()
-            .attr('style'),
-        ).toBe(`color: ${label.text_color};`);
+        expect($labelEl.find('span.gl-label-text').last().attr('style')).toBe(
+          `color: ${label.text_color};`,
+        );
       });
     });
   });

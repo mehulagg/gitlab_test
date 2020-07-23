@@ -82,7 +82,7 @@ describe('issue_comment_form component', () => {
         expect(wrapper.vm.toggleIssueState).toHaveBeenCalled();
       });
 
-      it('should disable action button while submitting', done => {
+      it('should disable action button while submitting', (done) => {
         const saveNotePromise = Promise.resolve();
         wrapper.vm.note = 'hello world';
         jest.spyOn(wrapper.vm, 'saveNote').mockReturnValue(saveNotePromise);
@@ -114,7 +114,7 @@ describe('issue_comment_form component', () => {
         );
       });
 
-      it('should make textarea disabled while requesting', done => {
+      it('should make textarea disabled while requesting', (done) => {
         const $submitButton = $(wrapper.find('.js-comment-submit-button').element);
         wrapper.vm.note = 'hello world';
         jest.spyOn(wrapper.vm, 'stopPolling');
@@ -143,26 +143,18 @@ describe('issue_comment_form component', () => {
       it('should link to markdown docs', () => {
         const { markdownDocsPath } = notesDataMock;
 
-        expect(
-          wrapper
-            .find(`a[href="${markdownDocsPath}"]`)
-            .text()
-            .trim(),
-        ).toEqual('Markdown');
+        expect(wrapper.find(`a[href="${markdownDocsPath}"]`).text().trim()).toEqual('Markdown');
       });
 
       it('should link to quick actions docs', () => {
         const { quickActionsDocsPath } = notesDataMock;
 
-        expect(
-          wrapper
-            .find(`a[href="${quickActionsDocsPath}"]`)
-            .text()
-            .trim(),
-        ).toEqual('quick actions');
+        expect(wrapper.find(`a[href="${quickActionsDocsPath}"]`).text().trim()).toEqual(
+          'quick actions',
+        );
       });
 
-      it('should resize textarea after note discarded', done => {
+      it('should resize textarea after note discarded', (done) => {
         jest.spyOn(wrapper.vm, 'discard');
 
         wrapper.vm.note = 'foo';
@@ -216,12 +208,7 @@ describe('issue_comment_form component', () => {
 
     describe('actions', () => {
       it('should be possible to close the issue', () => {
-        expect(
-          wrapper
-            .find('.btn-comment-and-close')
-            .text()
-            .trim(),
-        ).toEqual('Close issue');
+        expect(wrapper.find('.btn-comment-and-close').text().trim()).toEqual('Close issue');
       });
 
       it('should render comment button as disabled', () => {
@@ -230,7 +217,7 @@ describe('issue_comment_form component', () => {
         );
       });
 
-      it('should enable comment button if it has note', done => {
+      it('should enable comment button if it has note', (done) => {
         wrapper.vm.note = 'Foo';
         wrapper.vm.$nextTick(() => {
           expect(wrapper.find('.js-comment-submit-button').attributes('disabled')).toBeFalsy();
@@ -238,36 +225,30 @@ describe('issue_comment_form component', () => {
         });
       });
 
-      it('should update buttons texts when it has note', done => {
+      it('should update buttons texts when it has note', (done) => {
         wrapper.vm.note = 'Foo';
         wrapper.vm.$nextTick(() => {
-          expect(
-            wrapper
-              .find('.btn-comment-and-close')
-              .text()
-              .trim(),
-          ).toEqual('Comment & close issue');
+          expect(wrapper.find('.btn-comment-and-close').text().trim()).toEqual(
+            'Comment & close issue',
+          );
 
           done();
         });
       });
 
-      it('updates button text with noteable type', done => {
+      it('updates button text with noteable type', (done) => {
         wrapper.setProps({ noteableType: constants.MERGE_REQUEST_NOTEABLE_TYPE });
 
         wrapper.vm.$nextTick(() => {
-          expect(
-            wrapper
-              .find('.btn-comment-and-close')
-              .text()
-              .trim(),
-          ).toEqual('Close merge request');
+          expect(wrapper.find('.btn-comment-and-close').text().trim()).toEqual(
+            'Close merge request',
+          );
           done();
         });
       });
 
       describe('when clicking close/reopen button', () => {
-        it('should disable button and show a loading spinner', done => {
+        it('should disable button and show a loading spinner', (done) => {
           const toggleStateButton = wrapper.find('.js-action-button');
 
           toggleStateButton.trigger('click');
@@ -281,7 +262,7 @@ describe('issue_comment_form component', () => {
       });
 
       describe('when toggling state', () => {
-        it('should update MR count', done => {
+        it('should update MR count', (done) => {
           jest.spyOn(wrapper.vm, 'closeIssue').mockResolvedValue();
 
           wrapper.vm.toggleIssueState();
@@ -296,7 +277,7 @@ describe('issue_comment_form component', () => {
     });
 
     describe('issue is confidential', () => {
-      it('shows information warning', done => {
+      it('shows information warning', (done) => {
         store.dispatch('setNoteableData', Object.assign(noteableDataMock, { confidential: true }));
         wrapper.vm.$nextTick(() => {
           expect(wrapper.find('.confidential-issue-warning')).toBeDefined();

@@ -53,7 +53,7 @@ const createComponent = (
 describe('RoadmapShellComponent', () => {
   let vm;
 
-  beforeEach(done => {
+  beforeEach((done) => {
     vm = createComponent({});
     vm.$nextTick(done);
   });
@@ -79,7 +79,7 @@ describe('RoadmapShellComponent', () => {
     });
 
     describe('handleScroll', () => {
-      it('emits `epicsListScrolled` event via eventHub', done => {
+      it('emits `epicsListScrolled` event via eventHub', (done) => {
         const vmWithParentEl = createComponent({}, document.getElementById('roadmap-shell'));
         jest.spyOn(eventHub, '$emit').mockImplementation(() => {});
 
@@ -102,7 +102,7 @@ describe('RoadmapShellComponent', () => {
       expect(vm.$el.classList.contains('roadmap-shell')).toBe(true);
     });
 
-    it('renders skeleton loader element when Epics list is empty', done => {
+    it('renders skeleton loader element when Epics list is empty', (done) => {
       vm.epics = [];
 
       vm.$nextTick()

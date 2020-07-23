@@ -41,7 +41,7 @@ describe('First class Project Security Dashboard component', () => {
   const findCsvExportButton = () => wrapper.find(CsvExportButton);
   const findIntroductionBanner = () => wrapper.find(GlBanner);
 
-  const createComponent = options => {
+  const createComponent = (options) => {
     wrapper = shallowMount(FirstClassProjectSecurityDashboard, {
       propsData: {
         ...props,
@@ -114,9 +114,7 @@ describe('First class Project Security Dashboard component', () => {
     });
 
     it('hides the banner when the user clicks on the dismiss button', () => {
-      findIntroductionBanner()
-        .find('button.close')
-        .trigger('click');
+      findIntroductionBanner().find('button.close').trigger('click');
 
       return waitForPromises().then(() => {
         expect(findIntroductionBanner().exists()).toBe(false);

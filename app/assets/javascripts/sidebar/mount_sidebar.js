@@ -36,7 +36,7 @@ function mountAssigneesComponent(mediator) {
     components: {
       SidebarAssignees,
     },
-    render: createElement =>
+    render: (createElement) =>
       createElement('sidebar-assignees', {
         props: {
           mediator,
@@ -67,7 +67,7 @@ function mountConfidentialComponent(mediator) {
     components: {
       ConfidentialIssueSidebar,
     },
-    render: createElement =>
+    render: (createElement) =>
       createElement('confidential-issue-sidebar', {
         props: {
           iid: String(iid),
@@ -110,7 +110,7 @@ function mountParticipantsComponent(mediator) {
     components: {
       sidebarParticipants,
     },
-    render: createElement =>
+    render: (createElement) =>
       createElement('sidebar-participants', {
         props: {
           mediator,
@@ -130,7 +130,7 @@ function mountSubscriptionsComponent(mediator) {
     components: {
       sidebarSubscriptions,
     },
-    render: createElement =>
+    render: (createElement) =>
       createElement('sidebar-subscriptions', {
         props: {
           mediator,
@@ -150,7 +150,7 @@ function mountTimeTrackingComponent() {
     components: {
       SidebarTimeTracking,
     },
-    render: createElement => createElement('sidebar-time-tracking', {}),
+    render: (createElement) => createElement('sidebar-time-tracking', {}),
   });
 }
 

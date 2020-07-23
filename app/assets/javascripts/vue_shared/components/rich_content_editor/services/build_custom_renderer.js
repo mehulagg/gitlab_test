@@ -13,14 +13,14 @@ const paragraphRenderers = [renderIdentifierParagraph];
 const textRenderers = [renderKramdownText, renderEmbeddedRubyText, renderIdentifierInstanceText];
 
 const executeRenderer = (renderers, node, context) => {
-  const availableRenderer = renderers.find(renderer => renderer.canRender(node, context));
+  const availableRenderer = renderers.find((renderer) => renderer.canRender(node, context));
 
   return availableRenderer ? availableRenderer.render(node, context) : context.origin();
 };
 
 const buildCustomRendererFunctions = (customRenderers, defaults) => {
-  const customTypes = Object.keys(customRenderers).filter(type => !defaults[type]);
-  const customEntries = customTypes.map(type => {
+  const customTypes = Object.keys(customRenderers).filter((type) => !defaults[type]);
+  const customEntries = customTypes.map((type) => {
     const fn = (node, context) => executeRenderer(customRenderers[type], node, context);
     return [type, fn];
   });

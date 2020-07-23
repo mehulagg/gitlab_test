@@ -5,7 +5,7 @@ import ApprovalsFooter from 'ee/vue_merge_request_widget/components/approvals/ap
 import Icon from '~/vue_shared/components/icon.vue';
 import UserAvatarList from '~/vue_shared/components/user_avatar/user_avatar_list.vue';
 
-const testSuggestedApprovers = () => Array.from({ length: 11 }, (_, i) => i).map(id => ({ id }));
+const testSuggestedApprovers = () => Array.from({ length: 11 }, (_, i) => i).map((id) => ({ id }));
 const testApprovalRules = () => [{ name: 'Lorem' }, { name: 'Ipsum' }];
 
 describe('EE MRWidget approvals footer', () => {
@@ -180,7 +180,7 @@ describe('EE MRWidget approvals footer', () => {
         expect(button.text()).toBe('View eligible approvers');
       });
 
-      it('expands when clicked', done => {
+      it('expands when clicked', (done) => {
         expect(wrapper.props('value')).toBe(false);
 
         button.vm.$emit('click');

@@ -95,7 +95,7 @@ class IssuesFilteredSearchTokenKeysEE extends FilteredSearchTokenKeys {
    * Changes assignee token to accept multiple values.
    */
   enableMultipleAssignees() {
-    const assigneeTokenKey = this.tokenKeys.find(tk => tk.key === 'assignee');
+    const assigneeTokenKey = this.tokenKeys.find((tk) => tk.key === 'assignee');
 
     // Add the original as an alternative token key
     this.tokenKeysWithAlternative.push({ ...assigneeTokenKey });
@@ -105,7 +105,7 @@ class IssuesFilteredSearchTokenKeysEE extends FilteredSearchTokenKeys {
   }
 
   removeEpicToken() {
-    const index = this.tokenKeys.findIndex(token => token.key === epicTokenKey.key);
+    const index = this.tokenKeys.findIndex((token) => token.key === epicTokenKey.key);
     if (index >= 0) {
       this.tokenKeys.splice(index, 1);
     }

@@ -19,7 +19,7 @@ const initLabelIndex = () => {
     }
   };
 
-  const onRequestStarted = labelUrl => {
+  const onRequestStarted = (labelUrl) => {
     const button = document.querySelector(
       `.js-promote-project-label-button[data-url="${labelUrl}"]`,
     );
@@ -27,7 +27,7 @@ const initLabelIndex = () => {
     eventHub.$once('promoteLabelModal.requestFinished', onRequestFinished);
   };
 
-  const onDeleteButtonClick = event => {
+  const onDeleteButtonClick = (event) => {
     const button = event.currentTarget;
     const modalProps = {
       labelTitle: button.dataset.labelTitle,
@@ -41,12 +41,12 @@ const initLabelIndex = () => {
   };
 
   const promoteLabelButtons = document.querySelectorAll('.js-promote-project-label-button');
-  promoteLabelButtons.forEach(button => {
+  promoteLabelButtons.forEach((button) => {
     button.addEventListener('click', onDeleteButtonClick);
   });
 
   eventHub.$once('promoteLabelModal.mounted', () => {
-    promoteLabelButtons.forEach(button => {
+    promoteLabelButtons.forEach((button) => {
       button.removeAttribute('disabled');
     });
   });

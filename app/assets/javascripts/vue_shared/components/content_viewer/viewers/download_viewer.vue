@@ -41,9 +41,7 @@ export default {
     <div class="file-content">
       <p class="prepend-top-10 file-info">
         {{ fileName }}
-        <template v-if="fileSize > 0">
-          ({{ fileSizeReadable }})
-        </template>
+        <template v-if="fileSize > 0"> ({{ fileSizeReadable }}) </template>
       </p>
       <gl-link
         :href="path"

@@ -4,7 +4,7 @@ const twoDaysAgo = () => {
   return date.toISOString();
 };
 
-const createUser = id => ({
+const createUser = (id) => ({
   id,
   avatar_url: `https://${id}`,
   name: `User ${id}`,
@@ -41,7 +41,7 @@ export const createMergeRequest = ({ id = 1, pipeline, approvers, approvalStatus
   return mergeRequest;
 };
 
-export const createPipelineStatus = status => ({
+export const createPipelineStatus = (status) => ({
   details_path: '/h5bp/html5-boilerplate/pipelines/58',
   favicon: '',
   group: status,
@@ -53,7 +53,7 @@ export const createPipelineStatus = status => ({
   tooltip: status,
 });
 
-export const createApprovers = count => {
+export const createApprovers = (count) => {
   return Array(count)
     .fill()
     .map((_, id) => createUser(id));

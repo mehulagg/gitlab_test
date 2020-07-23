@@ -1,8 +1,8 @@
 import * as filtersMutationTypes from '../modules/filters/mutation_types';
 import * as vulnerabilitiesMutationTypes from '../modules/vulnerabilities/mutation_types';
 
-export default store => {
-  const refreshVulnerabilities = payload => {
+export default (store) => {
+  const refreshVulnerabilities = (payload) => {
     store.dispatch('vulnerabilities/fetchVulnerabilities', payload);
     store.dispatch('vulnerabilities/fetchVulnerabilitiesCount', payload);
     store.dispatch('vulnerabilities/fetchVulnerabilitiesHistory', payload);

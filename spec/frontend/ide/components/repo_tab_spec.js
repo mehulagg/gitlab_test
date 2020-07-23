@@ -40,7 +40,7 @@ describe('RepoTab', () => {
     expect(name.textContent.trim()).toEqual(vm.tab.name);
   });
 
-  it('does not call openPendingTab when tab is active', done => {
+  it('does not call openPendingTab when tab is active', (done) => {
     vm = createComponent({
       tab: {
         ...file(),
@@ -84,7 +84,7 @@ describe('RepoTab', () => {
     expect(vm.closeFile).toHaveBeenCalledWith(vm.tab);
   });
 
-  it('changes icon on hover', done => {
+  it('changes icon on hover', (done) => {
     const tab = file();
     tab.changed = true;
     vm = createComponent({
@@ -142,7 +142,7 @@ describe('RepoTab', () => {
 
   describe('methods', () => {
     describe('closeTab', () => {
-      it('closes tab if file has changed', done => {
+      it('closes tab if file has changed', (done) => {
         const tab = file();
         tab.changed = true;
         tab.opened = true;
@@ -164,7 +164,7 @@ describe('RepoTab', () => {
         });
       });
 
-      it('closes tab when clicking close btn', done => {
+      it('closes tab when clicking close btn', (done) => {
         const tab = file('lose');
         tab.opened = true;
         vm = createComponent({

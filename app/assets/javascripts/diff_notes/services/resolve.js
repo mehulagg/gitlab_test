@@ -34,8 +34,8 @@ class ResolveServiceClass {
     }
 
     promise
-      .then(resp => resp.json())
-      .then(data => {
+      .then((resp) => resp.json())
+      .then((data) => {
         discussion.loading = false;
         const resolvedBy = data ? data.resolved_by : null;
 

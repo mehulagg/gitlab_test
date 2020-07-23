@@ -4,7 +4,7 @@ import SecuritySummary from 'ee/vue_shared/security_reports/components/security_
 describe('Severity Summary', () => {
   let wrapper;
 
-  const createWrapper = message => {
+  const createWrapper = (message) => {
     wrapper = mount({
       components: {
         SecuritySummary,
@@ -29,7 +29,7 @@ describe('Severity Summary', () => {
     '%{criticalStart}1 critical%{criticalEnd}',
     '%{highStart}1 high%{highEnd}',
     '%{criticalStart}1 critical%{criticalEnd} and %{highStart}2 high%{highEnd}',
-  ])('given the message %p', message => {
+  ])('given the message %p', (message) => {
     beforeEach(() => {
       createWrapper(message);
     });

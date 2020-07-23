@@ -164,11 +164,7 @@ describe('IDE pipelines list', () => {
         const isLoadingJobs = true;
         createComponent({ pipelines: { ...withLatestPipelineState, stages, isLoadingJobs } });
 
-        const jobProps = wrapper
-          .findAll(Tab)
-          .at(0)
-          .find(JobsList)
-          .props();
+        const jobProps = wrapper.findAll(Tab).at(0).find(JobsList).props();
         expect(jobProps.stages).toBe(stages);
         expect(jobProps.loading).toBe(isLoadingJobs);
       });
@@ -179,11 +175,7 @@ describe('IDE pipelines list', () => {
         const isLoadingJobs = true;
         createComponent({ pipelines: { ...withLatestPipelineState, isLoadingJobs } });
 
-        const jobProps = wrapper
-          .findAll(Tab)
-          .at(1)
-          .find(JobsList)
-          .props();
+        const jobProps = wrapper.findAll(Tab).at(1).find(JobsList).props();
         expect(jobProps.stages).toBe(failedStages);
         expect(jobProps.loading).toBe(isLoadingJobs);
       });

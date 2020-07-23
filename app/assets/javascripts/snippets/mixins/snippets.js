@@ -12,7 +12,7 @@ export const getSnippetMixin = {
           ids: this.snippetGid,
         };
       },
-      update: data => data.snippets.edges[0]?.node,
+      update: (data) => data.snippets.edges[0]?.node,
       result(res) {
         this.blobs = res.data.snippets.edges[0]?.node?.blobs || blobsDefault;
         if (this.onSnippetFetch) {

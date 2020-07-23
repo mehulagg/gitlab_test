@@ -38,7 +38,7 @@ export default {
     state.epicsFetchInProgress = false;
     state.epicsFetchForTimeframeInProgress = false;
     state.epicsFetchFailure = true;
-    Object.keys(state.childrenEpics).forEach(id => {
+    Object.keys(state.childrenEpics).forEach((id) => {
       Vue.set(state.childrenFlags, id, {
         itemChildrenFetchInProgress: false,
       });
@@ -54,7 +54,7 @@ export default {
   },
 
   [types.INIT_EPIC_CHILDREN_FLAGS](state, { epics }) {
-    epics.forEach(item => {
+    epics.forEach((item) => {
       Vue.set(state.childrenFlags, item.id, {
         itemExpanded: false,
         itemChildrenFetchInProgress: false,

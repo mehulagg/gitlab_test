@@ -6,7 +6,7 @@ import MergeTrainHelperText from 'ee/vue_merge_request_widget/components/merge_t
 describe('MergeTrainHelperText', () => {
   let wrapper;
 
-  const factory = propsData => {
+  const factory = (propsData) => {
     wrapper = shallowMount(MergeTrainHelperText, {
       propsData,
     });

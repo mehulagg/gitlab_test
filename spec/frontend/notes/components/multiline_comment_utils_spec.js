@@ -7,7 +7,7 @@ import {
 
 describe('Multiline comment utilities', () => {
   describe('get start & end line numbers', () => {
-    const lineRanges = ['old', 'new', null].map(type => ({
+    const lineRanges = ['old', 'new', null].map((type) => ({
       start: { new_line: 1, old_line: 1, type },
       end: { new_line: 2, old_line: 2, type },
     }));

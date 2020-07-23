@@ -7,7 +7,7 @@ import flash from './flash';
 import { capitalizeFirstCharacter } from './lib/utils/text_utility';
 
 export default function initCompareAutocomplete(limitTo = null, clickHandler = () => {}) {
-  $('.js-compare-dropdown').each(function() {
+  $('.js-compare-dropdown').each(function () {
     const $dropdown = $(this);
     const selected = $dropdown.data('selected');
     const $dropdownContainer = $dropdown.closest('.dropdown');
@@ -49,9 +49,7 @@ export default function initCompareAutocomplete(limitTo = null, clickHandler = (
           .text(ref)
           .attr('data-ref', ref);
         if (ref.header != null) {
-          return $('<li />')
-            .addClass('dropdown-header')
-            .text(ref.header);
+          return $('<li />').addClass('dropdown-header').text(ref.header);
         }
         return $('<li />').append(link);
       },
@@ -63,7 +61,7 @@ export default function initCompareAutocomplete(limitTo = null, clickHandler = (
       },
       clicked: () => clickHandler($dropdown),
     });
-    $filterInput.on('keyup', e => {
+    $filterInput.on('keyup', (e) => {
       const keyCode = e.keyCode || e.which;
       if (keyCode !== 13) return;
       const text = $filterInput.val();
@@ -72,7 +70,7 @@ export default function initCompareAutocomplete(limitTo = null, clickHandler = (
       $dropdownContainer.removeClass('open');
     });
 
-    $dropdownContainer.on('click', '.dropdown-content a', e => {
+    $dropdownContainer.on('click', '.dropdown-content a', (e) => {
       $dropdown.prop('title', e.target.text.replace(/_+?/g, '-'));
       if ($dropdown.hasClass('has-tooltip')) {
         $dropdown.tooltip('_fixTitle');

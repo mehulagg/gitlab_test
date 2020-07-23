@@ -25,10 +25,10 @@ describe('DiffFile', () => {
   });
 
   const findDiffContent = () => vm.$el.querySelector('.diff-content');
-  const isVisible = el => el.style.display !== 'none';
+  const isVisible = (el) => el.style.display !== 'none';
 
   describe('template', () => {
-    it('should render component with file header, file content components', done => {
+    it('should render component with file header, file content components', (done) => {
       const el = vm.$el;
       const { file_hash, file_path } = vm.file;
 
@@ -53,7 +53,7 @@ describe('DiffFile', () => {
         .catch(done.fail);
     });
 
-    it('should track a click event on copy to clip board button', done => {
+    it('should track a click event on copy to clip board button', (done) => {
       const el = vm.$el;
 
       expect(el.querySelector('.btn-clipboard')).toBeDefined();
@@ -72,7 +72,7 @@ describe('DiffFile', () => {
     });
 
     describe('collapsed', () => {
-      it('should not have file content', done => {
+      it('should not have file content', (done) => {
         expect(isVisible(findDiffContent())).toBe(true);
         expect(vm.isCollapsed).toEqual(false);
         vm.isCollapsed = true;
@@ -85,7 +85,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should have collapsed text and link', done => {
+      it('should have collapsed text and link', (done) => {
         vm.renderIt = true;
         vm.isCollapsed = true;
 
@@ -97,7 +97,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should have collapsed text and link even before rendered', done => {
+      it('should have collapsed text and link even before rendered', (done) => {
         vm.renderIt = false;
         vm.isCollapsed = true;
 
@@ -109,7 +109,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should be collapsable for unreadable files', done => {
+      it('should be collapsable for unreadable files', (done) => {
         vm.$destroy();
         vm = createComponentWithStore(Vue.extend(DiffFileComponent), createStore(), {
           file: JSON.parse(JSON.stringify(diffFileMockDataUnreadable)),
@@ -128,7 +128,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should be collapsed for renamed files', done => {
+      it('should be collapsed for renamed files', (done) => {
         vm.renderIt = true;
         vm.isCollapsed = false;
         vm.file.highlighted_diff_lines = null;
@@ -141,7 +141,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should be collapsed for mode changed files', done => {
+      it('should be collapsed for mode changed files', (done) => {
         vm.renderIt = true;
         vm.isCollapsed = false;
         vm.file.highlighted_diff_lines = null;
@@ -154,7 +154,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should have loading icon while loading a collapsed diffs', done => {
+      it('should have loading icon while loading a collapsed diffs', (done) => {
         vm.isCollapsed = true;
         vm.isLoadingCollapsedDiff = true;
 
@@ -165,7 +165,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('should update store state', done => {
+      it('should update store state', (done) => {
         jest.spyOn(vm.$store, 'dispatch').mockImplementation(() => {});
 
         vm.isCollapsed = true;
@@ -180,7 +180,7 @@ describe('DiffFile', () => {
         });
       });
 
-      it('updates local state when changing file state', done => {
+      it('updates local state when changing file state', (done) => {
         vm.file.viewer.collapsed = true;
 
         vm.$nextTick(() => {
@@ -193,7 +193,7 @@ describe('DiffFile', () => {
   });
 
   describe('too large diff', () => {
-    it('should have too large warning and blob link', done => {
+    it('should have too large warning and blob link', (done) => {
       const BLOB_LINK = '/file/view/path';
       vm.file.viewer.error = diffViewerErrors.too_large;
       vm.file.viewer.error_message =
@@ -212,7 +212,7 @@ describe('DiffFile', () => {
   });
 
   describe('watch collapsed', () => {
-    it('calls handleLoadCollapsedDiff if collapsed changed & file has no lines', done => {
+    it('calls handleLoadCollapsedDiff if collapsed changed & file has no lines', (done) => {
       jest.spyOn(vm, 'handleLoadCollapsedDiff').mockImplementation(() => {});
 
       vm.file.highlighted_diff_lines = undefined;
@@ -232,7 +232,7 @@ describe('DiffFile', () => {
         .catch(done.fail);
     });
 
-    it('does not call handleLoadCollapsedDiff if collapsed changed & file is unreadable', done => {
+    it('does not call handleLoadCollapsedDiff if collapsed changed & file is unreadable', (done) => {
       vm.$destroy();
       vm = createComponentWithStore(Vue.extend(DiffFileComponent), createStore(), {
         file: JSON.parse(JSON.stringify(diffFileMockDataUnreadable)),

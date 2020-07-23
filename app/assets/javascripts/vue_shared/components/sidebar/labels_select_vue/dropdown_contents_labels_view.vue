@@ -39,7 +39,7 @@ export default {
     ...mapGetters(['selectedLabelsList', 'isDropdownVariantSidebar', 'isDropdownVariantEmbedded']),
     visibleLabels() {
       if (this.searchKey) {
-        return this.labels.filter(label =>
+        return this.labels.filter((label) =>
           label.title.toLowerCase().includes(this.searchKey.toLowerCase()),
         );
       }

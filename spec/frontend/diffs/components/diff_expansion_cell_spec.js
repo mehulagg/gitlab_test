@@ -16,8 +16,8 @@ const lineSources = {
   [PARALLEL_DIFF_VIEW_TYPE]: 'parallel_diff_lines',
 };
 const lineHandlers = {
-  [INLINE_DIFF_VIEW_TYPE]: line => line,
-  [PARALLEL_DIFF_VIEW_TYPE]: line => line.right || line.left,
+  [INLINE_DIFF_VIEW_TYPE]: (line) => line,
+  [PARALLEL_DIFF_VIEW_TYPE]: (line) => line.right || line.left,
 };
 
 function makeLoadMoreLinesPayload({

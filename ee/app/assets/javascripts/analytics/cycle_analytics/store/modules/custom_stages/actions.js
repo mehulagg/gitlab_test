@@ -74,7 +74,7 @@ export const createStage = ({ dispatch, rootState }, data) => {
   dispatch('setSavingCustomStage');
 
   return Api.cycleAnalyticsCreateStage(fullPath, data)
-    .then(response => {
+    .then((response) => {
       const { status, data: responseData } = response;
       return dispatch('receiveCreateStageSuccess', { status, data: responseData });
     })

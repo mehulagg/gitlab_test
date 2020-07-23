@@ -9,7 +9,7 @@ describe('PipelineStatus component', () => {
   const findCiIcon = () => wrapper.find('.ci-icon');
   const findCiLink = () => wrapper.find('a');
 
-  const createComponent = status => {
+  const createComponent = (status) => {
     return shallowMount(PipelineStatus, {
       propsData: { status },
       stubs: {

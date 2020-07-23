@@ -53,7 +53,7 @@ export const getCspNonceValue = () => {
   return metaTag && metaTag.content;
 };
 
-export const rstrip = val => {
+export const rstrip = (val) => {
   if (val) {
     return val.replace(/\s+$/, '');
   }
@@ -70,7 +70,7 @@ export const disableButtonIfEmptyField = (fieldSelector, buttonSelector, eventNa
     closestSubmit.disable();
   }
   // eslint-disable-next-line func-names
-  return field.on(eventName, function() {
+  return field.on(eventName, function () {
     if (rstrip($(this).val()) === '') {
       return closestSubmit.disable();
     }
@@ -151,13 +151,13 @@ export const isInViewport = (el, offset = {}) => {
   );
 };
 
-export const parseUrl = url => {
+export const parseUrl = (url) => {
   const parser = document.createElement('a');
   parser.href = url;
   return parser;
 };
 
-export const parseUrlPathname = url => {
+export const parseUrlPathname = (url) => {
   const parsedUrl = parseUrl(url);
   // parsedUrl.pathname will return an absolute path for Firefox and a relative path for IE11
   // We have to make sure we always have an absolute path.
@@ -168,8 +168,8 @@ const splitPath = (path = '') => path.replace(/^\?/, '').split('&');
 
 export const urlParamsToArray = (path = '') =>
   splitPath(path)
-    .filter(param => param.length > 0)
-    .map(param => {
+    .filter((param) => param.length > 0)
+    .map((param) => {
       const split = param.split('=');
       return [decodeURI(split[0]), split[1]].join('=');
     });
@@ -211,13 +211,13 @@ export const urlParamsToObject = (path = '') =>
     return data;
   }, {});
 
-export const isMetaKey = e => e.metaKey || e.ctrlKey || e.altKey || e.shiftKey;
+export const isMetaKey = (e) => e.metaKey || e.ctrlKey || e.altKey || e.shiftKey;
 
 // Identify following special clicks
 // 1) Cmd + Click on Mac (e.metaKey)
 // 2) Ctrl + Click on PC (e.ctrlKey)
 // 3) Middle-click or Mouse Wheel Click (e.which is 2)
-export const isMetaClick = e => e.metaKey || e.ctrlKey || e.which === 2;
+export const isMetaClick = (e) => e.metaKey || e.ctrlKey || e.which === 2;
 
 export const contentTop = () => {
   const perfBar = $('#js-peek').outerHeight() || 0;
@@ -256,7 +256,7 @@ export const scrollToElement = (element, options = {}) => {
   );
 };
 
-export const scrollToElementWithContext = element => {
+export const scrollToElementWithContext = (element) => {
   const offsetMultiplier = -0.1;
   return scrollToElement(element, { offset: window.innerHeight * offsetMultiplier });
 };
@@ -266,7 +266,7 @@ export const scrollToElementWithContext = element => {
  * each browser screen repaint.
  * @param {Function} fn
  */
-export const debounceByAnimationFrame = fn => {
+export const debounceByAnimationFrame = (fn) => {
   let requestId;
 
   return function debounced(...args) {
@@ -313,7 +313,7 @@ const handleSelectedRange = (range, restrictToNode) => {
   return range.cloneContents();
 };
 
-export const getSelectedFragment = restrictToNode => {
+export const getSelectedFragment = (restrictToNode) => {
   const selection = window.getSelection();
   if (selection.rangeCount === 0) return null;
   // Most usages of the selection only want text from a part of the page (e.g. discussion)
@@ -369,10 +369,10 @@ export const insertText = (target, text) => {
   this will take in the headers from an API response and normalize them
   this way we don't run into production issues when nginx gives us lowercased header keys
 */
-export const normalizeHeaders = headers => {
+export const normalizeHeaders = (headers) => {
   const upperCaseHeaders = {};
 
-  Object.keys(headers || {}).forEach(e => {
+  Object.keys(headers || {}).forEach((e) => {
     upperCaseHeaders[e.toUpperCase()] = headers[e];
   });
 
@@ -385,7 +385,7 @@ export const normalizeHeaders = headers => {
  * @param {Object} paginationInformation
  * @returns {Object}
  */
-export const parseIntPagination = paginationInformation => ({
+export const parseIntPagination = (paginationInformation) => ({
   perPage: parseInt(paginationInformation['X-PER-PAGE'], 10),
   page: parseInt(paginationInformation['X-PAGE'], 10),
   total: parseInt(paginationInformation['X-TOTAL'], 10),
@@ -424,10 +424,10 @@ export const parseQueryStringIntoObject = (query = '') => {
  */
 export const objectToQueryString = (params = {}) =>
   Object.keys(params)
-    .map(param => `${param}=${params[param]}`)
+    .map((param) => `${param}=${params[param]}`)
     .join('&');
 
-export const buildUrlWithCurrentLocation = param => {
+export const buildUrlWithCurrentLocation = (param) => {
   if (param) return `${window.location.pathname}${param}`;
 
   return window.location.pathname;
@@ -439,7 +439,7 @@ export const buildUrlWithCurrentLocation = param => {
  *
  * @param {String} param
  */
-export const historyPushState = newUrl => {
+export const historyPushState = (newUrl) => {
   window.history.pushState({}, document.title, newUrl);
 };
 
@@ -449,7 +449,7 @@ export const historyPushState = newUrl => {
  *
  * @param {String} param
  */
-export const historyReplaceState = newUrl => {
+export const historyReplaceState = (newUrl) => {
   window.history.replaceState({}, document.title, newUrl);
 };
 
@@ -461,7 +461,7 @@ export const historyReplaceState = newUrl => {
  * @param  {String} value
  * @returns {Boolean}
  */
-export const parseBoolean = value => (value && value.toString()) === 'true';
+export const parseBoolean = (value) => (value && value.toString()) === 'true';
 
 export const BACKOFF_TIMEOUT = 'BACKOFF_TIMEOUT';
 
@@ -508,7 +508,7 @@ export const backOff = (fn, timeout = 60000) => {
   let timeElapsed = 0;
 
   return new Promise((resolve, reject) => {
-    const stop = arg => (arg instanceof Error ? reject(arg) : resolve(arg));
+    const stop = (arg) => (arg instanceof Error ? reject(arg) : resolve(arg));
 
     const next = () => {
       if (timeElapsed < timeout) {
@@ -527,7 +527,7 @@ export const backOff = (fn, timeout = 60000) => {
 export const createOverlayIcon = (iconPath, overlayPath) => {
   const faviconImage = document.createElement('img');
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     faviconImage.onload = () => {
       const size = 32;
 
@@ -573,7 +573,7 @@ export const createOverlayIcon = (iconPath, overlayPath) => {
   });
 };
 
-export const setFaviconOverlay = overlayPath => {
+export const setFaviconOverlay = (overlayPath) => {
   const faviconEl = document.getElementById('favicon');
 
   if (!faviconEl) {
@@ -582,7 +582,7 @@ export const setFaviconOverlay = overlayPath => {
 
   const iconPath = faviconEl.getAttribute('data-original-href');
 
-  return createOverlayIcon(iconPath, overlayPath).then(faviconWithOverlayUrl =>
+  return createOverlayIcon(iconPath, overlayPath).then((faviconWithOverlayUrl) =>
     faviconEl.setAttribute('href', faviconWithOverlayUrl),
   );
 };
@@ -596,7 +596,7 @@ export const resetFavicon = () => {
   }
 };
 
-export const setCiStatusFavicon = pageUrl =>
+export const setCiStatusFavicon = (pageUrl) =>
   axios
     .get(pageUrl)
     .then(({ data }) => {
@@ -605,7 +605,7 @@ export const setCiStatusFavicon = pageUrl =>
       }
       return resetFavicon();
     })
-    .catch(error => {
+    .catch((error) => {
       resetFavicon();
       throw error;
     });
@@ -707,7 +707,7 @@ export const convertObjectPropsToCamelCase = (obj = {}, options = {}) =>
 export const convertObjectPropsToSnakeCase = (obj = {}, options = {}) =>
   convertObjectProps(convertToSnakeCase, obj, options);
 
-export const imagePath = imgUrl =>
+export const imagePath = (imgUrl) =>
   `${gon.asset_host || ''}${gon.relative_url_root || ''}/assets/${imgUrl}`;
 
 export const addSelectOnFocusBehaviour = (selector = '.js-select-on-focus') => {
@@ -716,7 +716,7 @@ export const addSelectOnFocusBehaviour = (selector = '.js-select-on-focus') => {
   $(selector).on('focusin', function selectOnFocusCallback() {
     $(this)
       .select()
-      .one('mouseup', e => {
+      .one('mouseup', (e) => {
         e.preventDefault();
       });
   });
@@ -794,7 +794,7 @@ export const searchBy = (query = '', searchSpace = {}) => {
 
   const normalizedQuery = query.toLowerCase();
   const matches = targetKeys
-    .filter(item => {
+    .filter((item) => {
       const searchItem = `${searchSpace[item]}`.toLowerCase();
 
       return (
@@ -828,9 +828,9 @@ export const isScopedLabel = ({ title = '' }) => title.indexOf('::') !== -1;
 // Methods to set and get Cookie
 export const setCookie = (name, value) => Cookies.set(name, value, { expires: 365 });
 
-export const getCookie = name => Cookies.get(name);
+export const getCookie = (name) => Cookies.get(name);
 
-export const removeCookie = name => Cookies.remove(name);
+export const removeCookie = (name) => Cookies.remove(name);
 
 /**
  * Returns the status of a feature flag.
@@ -845,4 +845,4 @@ export const removeCookie = name => Cookies.remove(name);
  * @param {String} flag Feature flag
  * @returns {Boolean} on/off
  */
-export const isFeatureFlagEnabled = flag => window.gon.features?.[flag];
+export const isFeatureFlagEnabled = (flag) => window.gon.features?.[flag];

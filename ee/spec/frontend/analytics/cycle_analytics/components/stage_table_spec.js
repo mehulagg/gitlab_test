@@ -62,7 +62,7 @@ describe('StageTable', () => {
       expect(renderedHeaders).toHaveLength(headers.length);
 
       const headerText = wrapper.find($sel.headersList).text();
-      headers.forEach(title => {
+      headers.forEach((title) => {
         expect(headerText).toContain(title);
       });
     });
@@ -86,7 +86,7 @@ describe('StageTable', () => {
       expect(evs).toHaveLength(allowedStages.length);
 
       const nav = wrapper.find($sel.nav).html();
-      allowedStages.forEach(stage => {
+      allowedStages.forEach((stage) => {
         expect(nav).toContain(stage.title);
       });
     });
@@ -106,7 +106,7 @@ describe('StageTable', () => {
       expect(evs).toHaveLength(issueEvents.length);
 
       const evshtml = wrapper.find($sel.eventList).html();
-      issueEvents.forEach(ev => {
+      issueEvents.forEach((ev) => {
         expect(evshtml).toContain(ev.title);
       });
     });

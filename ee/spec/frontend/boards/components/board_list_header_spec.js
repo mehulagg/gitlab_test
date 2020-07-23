@@ -89,7 +89,7 @@ describe('Board List Header Component', () => {
   describe('Settings Button', () => {
     it.each(Object.values(ListType))(
       'when feature flag is off: does not render for List Type `%s`',
-      listType => {
+      (listType) => {
         window.gon = {
           features: {
             wipLimits: false,
@@ -113,20 +113,20 @@ describe('Board List Header Component', () => {
         };
       });
 
-      it.each(hasSettings)('does render for List Type `%s`', listType => {
+      it.each(hasSettings)('does render for List Type `%s`', (listType) => {
         createComponent({ listType });
 
         expect(findSettingsButton().exists()).toBe(true);
       });
 
-      it.each(hasNoSettings)('does not render for List Type `%s`', listType => {
+      it.each(hasNoSettings)('does not render for List Type `%s`', (listType) => {
         createComponent({ listType });
 
         expect(findSettingsButton().exists()).toBe(false);
       });
 
       it('has a test for each list type', () => {
-        Object.values(ListType).forEach(value => {
+        Object.values(ListType).forEach((value) => {
           expect([...hasSettings, ...hasNoSettings]).toContain(value);
         });
       });

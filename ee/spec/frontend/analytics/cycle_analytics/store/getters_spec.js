@@ -63,7 +63,7 @@ describe('Cycle analytics getters', () => {
     });
 
     describe('without a selectedGroup set', () => {
-      it.each([[''], [{}], [null]])('given "%s" will return null', value => {
+      it.each([[''], [{}], [null]])('given "%s" will return null', (value) => {
         state = { selectedGroup: value };
         expect(getters.currentGroupPath(state)).toEqual(null);
       });

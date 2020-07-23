@@ -1,7 +1,7 @@
 import { viewerInformationForPath } from '~/vue_shared/components/content_viewer/lib/viewer_utils';
 import { decorateData, sortTree } from '../stores/utils';
 
-export const splitParent = path => {
+export const splitParent = (path) => {
   const idx = path.lastIndexOf('/');
 
   return {
@@ -29,7 +29,7 @@ export const decorateFiles = ({
   let file;
   let parentPath;
 
-  const insertParent = path => {
+  const insertParent = (path) => {
     if (!path) {
       return null;
     } else if (entries[path]) {
@@ -67,7 +67,7 @@ export const decorateFiles = ({
     return tree;
   };
 
-  data.forEach(path => {
+  data.forEach((path) => {
     const { parent, name } = splitParent(path);
 
     const fileFolder = parent && insertParent(parent);

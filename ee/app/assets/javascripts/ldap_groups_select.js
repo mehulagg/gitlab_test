@@ -5,10 +5,10 @@ import Api from 'ee/api';
 import { __ } from '~/locale';
 
 export default function initLDAPGroupsSelect() {
-  const ldapGroupResult = function(group) {
+  const ldapGroupResult = function (group) {
     return group.cn;
   };
-  const groupFormatSelection = function(group) {
+  const groupFormatSelection = function (group) {
     return group.cn;
   };
   import(/* webpackChunkName: 'select2' */ 'select2/select2')
@@ -22,7 +22,7 @@ export default function initLDAPGroupsSelect() {
           minimumInputLength: 1,
           query(query) {
             const provider = $('#ldap_group_link_provider').val();
-            return Api.ldapGroups(query.term, provider, groups => {
+            return Api.ldapGroups(query.term, provider, (groups) => {
               const data = {
                 results: groups,
               };

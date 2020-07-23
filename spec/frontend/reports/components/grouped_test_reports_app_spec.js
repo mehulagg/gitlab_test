@@ -41,7 +41,7 @@ describe('Grouped test reports app', () => {
     });
   };
 
-  const setReports = reports => {
+  const setReports = (reports) => {
     mockStore.state.status = reports.status;
     mockStore.state.summary = reports.summary;
     mockStore.state.reports = reports.suites;
@@ -209,11 +209,9 @@ describe('Grouped test reports app', () => {
     });
 
     it('renders resolved errors', () => {
-      expect(
-        findAllIssueDescriptions()
-          .at(2)
-          .text(),
-      ).toContain(resolvedFailures.suites[0].resolved_errors[0].name);
+      expect(findAllIssueDescriptions().at(2).text()).toContain(
+        resolvedFailures.suites[0].resolved_errors[0].name,
+      );
     });
   });
 

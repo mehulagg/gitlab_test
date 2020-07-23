@@ -81,7 +81,7 @@ export function mergeUrlParams(params, url) {
     query
       .substr(1)
       .split('&')
-      .forEach(part => {
+      .forEach((part) => {
         if (part.length) {
           const kv = part.split('=');
           merged[decodeUrlParameter(kv[0])] = decodeUrlParameter(kv.slice(1).join('='));
@@ -92,8 +92,8 @@ export function mergeUrlParams(params, url) {
   Object.assign(merged, params);
 
   const newQuery = Object.keys(merged)
-    .filter(key => merged[key] !== null)
-    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(merged[key])}`)
+    .filter((key) => merged[key] !== null)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(merged[key])}`)
     .join('&');
 
   if (newQuery) {
@@ -120,11 +120,11 @@ export function removeParams(params, url = window.location.href, skipEncoding = 
     return url;
   }
 
-  const removableParams = skipEncoding ? params : params.map(param => encodeURIComponent(param));
+  const removableParams = skipEncoding ? params : params.map((param) => encodeURIComponent(param));
 
   const updatedQuery = query
     .split('&')
-    .filter(paramPair => {
+    .filter((paramPair) => {
       const [foundParam] = paramPair.split('=');
       return removableParams.indexOf(foundParam) < 0;
     })
@@ -207,7 +207,7 @@ export function redirectTo(url) {
   return window.location.assign(url);
 }
 
-export const escapeFileUrl = fileUrl => encodeURIComponent(fileUrl).replace(/%2F/g, '/');
+export const escapeFileUrl = (fileUrl) => encodeURIComponent(fileUrl).replace(/%2F/g, '/');
 
 export function webIDEUrl(route = undefined) {
   let returnUrl = `${gon.relative_url_root || ''}/-/ide/`;
@@ -333,7 +333,7 @@ export function queryToObject(query) {
  */
 export function objectToQuery(obj) {
   return Object.keys(obj)
-    .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(obj[k])}`)
+    .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(obj[k])}`)
     .join('&');
 }
 
@@ -357,7 +357,7 @@ export const setUrlParams = (
   const queryString = urlObj.search;
   const searchParams = clearParams ? new URLSearchParams('') : new URLSearchParams(queryString);
 
-  Object.keys(params).forEach(key => {
+  Object.keys(params).forEach((key) => {
     if (params[key] === null || params[key] === undefined) {
       searchParams.delete(key);
     } else if (Array.isArray(params[key])) {

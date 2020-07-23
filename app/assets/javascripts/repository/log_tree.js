@@ -8,7 +8,9 @@ let fetchpromise;
 let resolvers = [];
 
 export function resolveCommit(commits, path, { resolve, entry }) {
-  const commit = commits.find(c => c.filePath === `${path}/${entry.name}` && c.type === entry.type);
+  const commit = commits.find(
+    (c) => c.filePath === `${path}/${entry.name}` && c.type === entry.type,
+  );
 
   if (commit) {
     resolve(commit);
@@ -43,7 +45,7 @@ export function fetchLogsTree(client, path, offset, resolver = null) {
         data: { commits: newCommitData },
       });
 
-      resolvers.forEach(r => resolveCommit(newCommitData, path, r));
+      resolvers.forEach((r) => resolveCommit(newCommitData, path, r));
 
       fetchpromise = null;
 

@@ -19,8 +19,8 @@ export default class FilteredSearchBoards extends FilteredSearchManager {
     // Issue boards is slightly different, we handle all the requests async
     // instead or reloading the page, we just re-fire the list ajax requests
     this.isHandledAsync = true;
-    this.cantEdit = cantEdit.filter(i => typeof i === 'string');
-    this.cantEditWithValue = cantEdit.filter(i => typeof i === 'object');
+    this.cantEdit = cantEdit.filter((i) => typeof i === 'string');
+    this.cantEditWithValue = cantEdit.filter((i) => typeof i === 'object');
   }
 
   updateObject(path) {
@@ -35,7 +35,7 @@ export default class FilteredSearchBoards extends FilteredSearchManager {
     const tokens = FilteredSearchContainer.container.querySelectorAll('.js-visual-token');
 
     // Remove all the tokens as they will be replaced by the search manager
-    [].forEach.call(tokens, el => {
+    [].forEach.call(tokens, (el) => {
       el.parentNode.removeChild(el);
     });
 
@@ -55,7 +55,7 @@ export default class FilteredSearchBoards extends FilteredSearchManager {
     if (this.cantEdit.includes(tokenName)) return false;
     return (
       this.cantEditWithValue.findIndex(
-        token => token.name === tokenName && token.value === tokenValue,
+        (token) => token.name === tokenName && token.value === tokenValue,
       ) === -1
     );
   }

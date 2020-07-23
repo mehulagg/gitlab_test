@@ -94,7 +94,7 @@ export default {
       :strategies="strategies"
       :environments-endpoint="environmentsEndpoint"
       :version="version"
-      @handleSubmit="data => createFeatureFlag(data)"
+      @handleSubmit="(data) => createFeatureFlag(data)"
     />
   </div>
 </template>

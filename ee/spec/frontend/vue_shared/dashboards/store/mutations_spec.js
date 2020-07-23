@@ -11,7 +11,7 @@ describe('mutations', () => {
   useLocalStorageSpy();
 
   const projects = mockProjectData(3);
-  const projectIds = projects.map(p => p.id);
+  const projectIds = projects.map((p) => p.id);
   const mockEndpoint = 'https://mock-endpoint';
   let localState;
 
@@ -134,7 +134,7 @@ describe('mutations', () => {
     });
 
     it('orders the projects from localstorage', () => {
-      jest.spyOn(window.localStorage, 'getItem').mockImplementation(key => {
+      jest.spyOn(window.localStorage, 'getItem').mockImplementation((key) => {
         if (key === projectListEndpoint) {
           return '2,0,1';
         }
@@ -148,7 +148,7 @@ describe('mutations', () => {
     });
 
     it('places unsorted projects after sorted ones', () => {
-      jest.spyOn(window.localStorage, 'getItem').mockImplementation(key => {
+      jest.spyOn(window.localStorage, 'getItem').mockImplementation((key) => {
         if (key === projectListEndpoint) {
           return '1,2';
         }

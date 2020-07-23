@@ -16,7 +16,7 @@ let cancelTokenSource;
 function backOffRequest(makeRequestCallback) {
   return backOff((next, stop) => {
     makeRequestCallback()
-      .then(resp => {
+      .then((resp) => {
         if (resp.status === statusCodes.OK) {
           stop(resp);
         } else {
@@ -26,7 +26,7 @@ function backOffRequest(makeRequestCallback) {
       // If the request is cancelled by axios
       // then consider it as noop so that its not
       // caught by subsequent catches
-      .catch(thrown => (axios.isCancel(thrown) ? undefined : stop(thrown)));
+      .catch((thrown) => (axios.isCancel(thrown) ? undefined : stop(thrown)));
   }, VALIDATION_REQUEST_TIMEOUT);
 }
 
@@ -138,7 +138,7 @@ export default {
       // as well.
       cancelTokenSource = axiosCancelToken.source();
       this.requestValidation(this.query, cancelTokenSource.token)
-        .then(res => {
+        .then((res) => {
           const response = res.data;
           const { valid, error } = response.query;
           if (response.success) {

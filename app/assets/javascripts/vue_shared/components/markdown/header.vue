@@ -101,7 +101,7 @@ export default {
       const area = this.$el.parentNode.querySelector('textarea');
 
       CopyAsGFM.nodeToGFM(transformed)
-        .then(gfm => {
+        .then((gfm) => {
           CopyAsGFM.insertPastedText(area, documentFragment.textContent, CopyAsGFM.quoted(gfm));
         })
         .catch(() => {});

@@ -64,7 +64,7 @@ export default {
       this.poll = new Poll({
         resource: this.service,
         method: 'fetchData',
-        successCallback: response => this.successCallback(response),
+        successCallback: (response) => this.successCallback(response),
         errorCallback: this.errorCallback,
       });
 
@@ -84,10 +84,7 @@ export default {
       });
     },
     fetchPipelineCommitData() {
-      this.service
-        .fetchData()
-        .then(this.successCallback)
-        .catch(this.errorCallback);
+      this.service.fetchData().then(this.successCallback).catch(this.errorCallback);
     },
   },
 };

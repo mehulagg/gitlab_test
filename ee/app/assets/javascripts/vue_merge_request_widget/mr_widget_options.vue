@@ -56,7 +56,7 @@ export default {
     },
     degradedBrowserPerformanceTotalScore() {
       return this.mr?.browserPerformanceMetrics?.degraded.find(
-        metric => metric.name === __('Total Score'),
+        (metric) => metric.name === __('Total Score'),
       );
     },
     hasBrowserPerformanceDegradation() {
@@ -89,7 +89,7 @@ export default {
       const { enabledReports } = this.mr;
       return (
         enabledReports &&
-        this.$options.securityReportTypes.some(reportType => enabledReports[reportType])
+        this.$options.securityReportTypes.some((reportType) => enabledReports[reportType])
       );
     },
 
@@ -198,7 +198,7 @@ export default {
       this.isLoadingBrowserPerformance = true;
 
       Promise.all([this.service.fetchReport(head_path), this.service.fetchReport(base_path)])
-        .then(values => {
+        .then((values) => {
           this.mr.compareBrowserPerformanceMetrics(values[0], values[1]);
         })
         .catch(() => {
@@ -215,7 +215,7 @@ export default {
       this.isLoadingLoadPerformance = true;
 
       Promise.all([this.service.fetchReport(head_path), this.service.fetchReport(base_path)])
-        .then(values => {
+        .then((values) => {
           this.mr.compareLoadPerformanceMetrics(values[0], values[1]);
         })
         .catch(() => {

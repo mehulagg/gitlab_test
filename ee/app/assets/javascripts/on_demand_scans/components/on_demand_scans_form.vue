@@ -16,7 +16,7 @@ import {
 import runDastScanMutation from '../graphql/run_dast_scan.mutation.graphql';
 import { SCAN_TYPES } from '../constants';
 
-const initField = value => ({
+const initField = (value) => ({
   value,
   state: null,
   feedback: null,
@@ -99,10 +99,16 @@ export default {
           mutation: runDastScanMutation,
           variables: this.formData,
         })
-        .then(({ data: { runDastScan: { pipelineUrl } } }) => {
-          redirectTo(pipelineUrl);
-        })
-        .catch(e => {
+        .then(
+          ({
+            data: {
+              runDastScan: { pipelineUrl },
+            },
+          }) => {
+            redirectTo(pipelineUrl);
+          },
+        )
+        .catch((e) => {
           Sentry.captureException(e);
           createFlash(s__('OnDemandScans|Could not run the scan. Please try again.'));
           this.loading = false;

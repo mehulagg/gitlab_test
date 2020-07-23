@@ -8,7 +8,7 @@ import initVueIssuableSidebarApp from '~/issuable_sidebar/sidebar_bundle';
 import initSourcegraph from '~/sourcegraph';
 import initPopover from '~/mr_tabs_popover';
 
-export default function() {
+export default function () {
   new ZenMode(); // eslint-disable-line no-new
   if (gon.features && gon.features.vueIssuableSidebar) {
     initVueIssuableSidebarApp();

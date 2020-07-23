@@ -115,7 +115,7 @@ describe('DiffsStoreUtils', () => {
   });
 
   describe('addContextLines', () => {
-    [INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE].forEach(diffViewType => {
+    [INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE].forEach((diffViewType) => {
       it(`should add context lines for ${diffViewType}`, () => {
         const diffFile = getDiffFileMock();
         const inlineLines = diffFile.highlighted_diff_lines;
@@ -488,7 +488,7 @@ describe('DiffsStoreUtils', () => {
 
       it('adds line_code to all lines', () => {
         expect(
-          preparedDiff.diff_files[0].parallel_diff_lines.filter(line => !line.line_code),
+          preparedDiff.diff_files[0].parallel_diff_lines.filter((line) => !line.line_code),
         ).toHaveLength(0);
       });
 

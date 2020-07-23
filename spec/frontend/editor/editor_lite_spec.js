@@ -213,7 +213,7 @@ describe('Base editor', () => {
     });
 
     it('sets default syntax highlighting theme', () => {
-      const expectedTheme = themes.find(t => t.name === DEFAULT_THEME);
+      const expectedTheme = themes.find((t) => t.name === DEFAULT_THEME);
 
       editor = new Editor();
 
@@ -222,7 +222,7 @@ describe('Base editor', () => {
     });
 
     it('sets correct theme if it is set in users preferences', () => {
-      const expectedTheme = themes.find(t => t.name !== DEFAULT_THEME);
+      const expectedTheme = themes.find((t) => t.name !== DEFAULT_THEME);
 
       expect(expectedTheme.name).not.toBe(DEFAULT_THEME);
 

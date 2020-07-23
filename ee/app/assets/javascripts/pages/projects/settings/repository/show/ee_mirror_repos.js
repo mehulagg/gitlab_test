@@ -36,7 +36,7 @@ export default class EEMirrorRepos extends MirrorRepos {
   }
 
   hideForm() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (!this.$insertionPoint.html()) return resolve();
 
       this.$insertionPoint.one('hidden.bs.collapse', () => {
@@ -47,7 +47,7 @@ export default class EEMirrorRepos extends MirrorRepos {
   }
 
   showForm() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.$insertionPoint.one('shown.bs.collapse', () => {
         resolve();
       });

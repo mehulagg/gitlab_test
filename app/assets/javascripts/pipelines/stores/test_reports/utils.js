@@ -12,9 +12,9 @@ export function iconForTestStatus(status) {
   }
 }
 
-export const formattedTime = timeInSeconds => formatTime(secondsToMilliseconds(timeInSeconds));
+export const formattedTime = (timeInSeconds) => formatTime(secondsToMilliseconds(timeInSeconds));
 
-export const addIconStatus = testCase => ({
+export const addIconStatus = (testCase) => ({
   ...testCase,
   icon: iconForTestStatus(testCase.status),
   formattedTime: formattedTime(testCase.execution_time),

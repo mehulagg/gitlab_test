@@ -4,7 +4,7 @@ import { TEST_HOST } from 'helpers/test_constants';
 import waitForPromises from './helpers/wait_for_promises';
 import { useMockMutationObserver, useMockIntersectionObserver } from 'helpers/mock_dom_observer';
 
-const execImmediately = callback => {
+const execImmediately = (callback) => {
   callback();
 };
 
@@ -20,7 +20,7 @@ describe('LazyLoader', () => {
     triggerMutation(document.body, { options: { childList: true, subtree: true } });
   };
 
-  const triggerIntersectionWithRatio = img => {
+  const triggerIntersectionWithRatio = (img) => {
     triggerIntersection(img, { entry: { intersectionRatio: 0.1 } });
   };
 

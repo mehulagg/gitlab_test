@@ -85,7 +85,7 @@ export default {
       <p class="gl-mb-4">
         {{ $options.i18n.addImageText }}
       </p>
-      <gl-form-input-group class="gl-mb-4 ">
+      <gl-form-input-group class="gl-mb-4">
         <gl-form-input
           :value="dockerBuildCommand"
           readonly

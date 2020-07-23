@@ -6,4 +6,4 @@
  */
 // eslint-disable-next-line import/prefer-default-export
 export const isSubset = (subset, superset) =>
-  Array.from(subset).every(value => superset.has(value));
+  Array.from(subset).every((value) => superset.has(value));

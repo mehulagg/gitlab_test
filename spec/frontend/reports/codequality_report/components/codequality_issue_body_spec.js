@@ -14,7 +14,7 @@ describe('code quality issue body issue body', () => {
     urlPath: '/Gemfile.lock#L22',
   };
 
-  const mountWithStatus = initialStatus => {
+  const mountWithStatus = (initialStatus) => {
     wrapper = shallowMount(component, {
       propsData: {
         issue: codequalityIssue,

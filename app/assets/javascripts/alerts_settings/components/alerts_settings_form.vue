@@ -202,7 +202,7 @@ export default {
       this.serverError = Object.values(errors)[0][0];
     },
     setOpsgenieAsDefault() {
-      this.options = this.options.map(el => {
+      this.options = this.options.map((el) => {
         if (el.value !== 'opsgenie') {
           return { ...el, disabled: true };
         }
@@ -214,7 +214,7 @@ export default {
       }
     },
     removeOpsGenieOption() {
-      this.options = this.options.map(el => {
+      this.options = this.options.map((el) => {
         if (el.value !== 'opsgenie') {
           return { ...el, disabled: false };
         }

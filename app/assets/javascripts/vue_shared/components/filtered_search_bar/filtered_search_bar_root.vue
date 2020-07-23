@@ -55,7 +55,7 @@ export default {
       type: String,
       required: false,
       default: '',
-      validator: value => value === '' || /(_desc)|(_asc)/g.test(value),
+      validator: (value) => value === '' || /(_desc)|(_asc)/g.test(value),
     },
     searchInputPlaceholder: {
       type: String,
@@ -70,7 +70,7 @@ export default {
     if (this.initialSortBy) {
       selectedSortOption = this.sortOptions
         .filter(
-          sortBy =>
+          (sortBy) =>
             sortBy.sortDirection.ascending === this.initialSortBy ||
             sortBy.sortDirection.descending === this.initialSortBy,
         )
@@ -159,12 +159,12 @@ export default {
 
       this.recentSearchesStore = new RecentSearchesStore({
         isLocalStorageAvailable: RecentSearchesService.isAvailable(),
-        allowedKeys: this.tokens.map(token => token.type),
+        allowedKeys: this.tokens.map((token) => token.type),
       });
 
       this.recentSearchesPromise = this.recentSearchesService
         .fetch()
-        .catch(error => {
+        .catch((error) => {
           if (error.name === 'RecentSearchesServiceError') return undefined;
 
           createFlash(__('An error occurred while parsing recent searches'));
@@ -172,7 +172,7 @@ export default {
           // Gracefully fail to empty array
           return [];
         })
-        .then(searches => {
+        .then((searches) => {
           if (!searches) return;
 
           // Put any searches that may have come in before

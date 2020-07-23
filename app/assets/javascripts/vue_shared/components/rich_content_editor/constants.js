@@ -31,7 +31,7 @@ const TOOLBAR_ITEM_CONFIGS = [
 ];
 
 export const EDITOR_OPTIONS = {
-  toolbarItems: TOOLBAR_ITEM_CONFIGS.map(config => generateToolbarItem(config)),
+  toolbarItems: TOOLBAR_ITEM_CONFIGS.map((config) => generateToolbarItem(config)),
   customHTMLRenderer: buildCustomHTMLRenderer(),
 };
 

@@ -22,10 +22,10 @@ export default {
   },
   computed: {
     ...mapState({
-      emptyListIllustration: state => state.config.emptyListIllustration,
-      emptyListHelpUrl: state => state.config.emptyListHelpUrl,
-      comingSoon: state => state.config.comingSoon,
-      filterQuery: state => state.filterQuery,
+      emptyListIllustration: (state) => state.config.emptyListIllustration,
+      emptyListHelpUrl: (state) => state.config.emptyListHelpUrl,
+      comingSoon: (state) => state.config.comingSoon,
+      filterQuery: (state) => state.filterQuery,
     }),
     tabsToRender() {
       return PACKAGE_REGISTRY_TABS;

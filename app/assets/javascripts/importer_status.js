@@ -15,9 +15,7 @@ class ImporterStatus {
   }
 
   initStatusPage() {
-    $('.js-add-to-import')
-      .off('click')
-      .on('click', this.addToImport.bind(this));
+    $('.js-add-to-import').off('click').on('click', this.addToImport.bind(this));
 
     $('.js-import-all')
       .off('click')
@@ -83,7 +81,7 @@ class ImporterStatus {
           ),
         );
       })
-      .catch(error => {
+      .catch((error) => {
         let details = error;
 
         const $statusField = $tr.find('.job-status');
@@ -99,7 +97,7 @@ class ImporterStatus {
 
   autoUpdate() {
     return axios.get(this.jobsUrl).then(({ data = [] }) => {
-      data.forEach(job => {
+      data.forEach((job) => {
         const jobItem = $(`#project_${job.id}`);
         const statusField = jobItem.find('.job-status');
 

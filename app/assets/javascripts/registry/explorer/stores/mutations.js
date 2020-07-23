@@ -13,7 +13,7 @@ export default {
   },
 
   [types.SET_IMAGES_LIST_SUCCESS](state, images) {
-    state.images = images.map(i => ({
+    state.images = images.map((i) => ({
       ...i,
       status: undefined,
       deleting: i.status === IMAGE_DELETE_SCHEDULED_STATUS,
@@ -22,7 +22,7 @@ export default {
   },
 
   [types.UPDATE_IMAGE](state, image) {
-    const index = state.images.findIndex(i => i.id === image.id);
+    const index = state.images.findIndex((i) => i.id === image.id);
     state.images.splice(index, 1, { ...image });
   },
 

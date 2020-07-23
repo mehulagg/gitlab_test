@@ -39,11 +39,11 @@ describe('DashboardsDropdown', () => {
   }
 
   const findItems = () => wrapper.findAll(GlDropdownItem);
-  const findItemAt = i => wrapper.findAll(GlDropdownItem).at(i);
+  const findItemAt = (i) => wrapper.findAll(GlDropdownItem).at(i);
   const findSearchInput = () => wrapper.find({ ref: 'monitorDashboardsDropdownSearch' });
   const findNoItemsMsg = () => wrapper.find({ ref: 'monitorDashboardsDropdownMsg' });
   const findStarredListDivider = () => wrapper.find({ ref: 'starredListDivider' });
-  const setSearchTerm = searchTerm => wrapper.setData({ searchTerm });
+  const setSearchTerm = (searchTerm) => wrapper.setData({ searchTerm });
 
   beforeEach(() => {
     mockDashboards = dashboardGitResponse;
@@ -98,7 +98,7 @@ describe('DashboardsDropdown', () => {
 
   describe('when the dashboard is missing a display name', () => {
     beforeEach(() => {
-      mockDashboards = dashboardGitResponse.map(d => ({ ...d, display_name: undefined }));
+      mockDashboards = dashboardGitResponse.map((d) => ({ ...d, display_name: undefined }));
       wrapper = createComponent();
     });
 
@@ -156,7 +156,7 @@ describe('DashboardsDropdown', () => {
     selfMonitoringDashboardGitResponse[0],
   ];
 
-  describe.each(duplicableCases)('when the selected dashboard can be duplicated', dashboard => {
+  describe.each(duplicableCases)('when the selected dashboard can be duplicated', (dashboard) => {
     let duplicateDashboardAction;
     let modalDirective;
 
@@ -215,7 +215,7 @@ describe('DashboardsDropdown', () => {
 
   describe.each(nonDuplicableCases)(
     'when the selected dashboard can not be duplicated',
-    dashboard => {
+    (dashboard) => {
       beforeEach(() => {
         mockSelectedDashboard = dashboard;
 

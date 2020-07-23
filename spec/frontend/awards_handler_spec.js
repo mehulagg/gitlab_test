@@ -21,15 +21,13 @@ describe('AwardsHandler', () => {
   preloadFixtures('snippets/show.html');
 
   const openAndWaitForEmojiMenu = (sel = '.js-add-award') => {
-    $(sel)
-      .eq(0)
-      .click();
+    $(sel).eq(0).click();
 
     jest.advanceTimersByTime(200);
 
     const $menu = $('.emoji-menu');
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       $menu.one('build-emoji-menu-finish', () => {
         resolve();
       });
@@ -304,9 +302,7 @@ describe('AwardsHandler', () => {
     it('should remove already selected emoji', async () => {
       await openEmojiMenuAndAddEmoji();
 
-      $('.js-add-award')
-        .eq(0)
-        .click();
+      $('.js-add-award').eq(0).click();
       const $block = $('.js-awards-block');
       const $emoji = $('.emoji-menu').find(
         `.emoji-menu-list:not(.frequent-emojis) ${emojiSelector}`,
@@ -327,7 +323,7 @@ describe('AwardsHandler', () => {
       await openAndWaitForEmojiMenu();
 
       const emojiMenu = document.querySelector('.emoji-menu');
-      Array.prototype.forEach.call(emojiMenu.querySelectorAll('.emoji-menu-title'), title => {
+      Array.prototype.forEach.call(emojiMenu.querySelectorAll('.emoji-menu-title'), (title) => {
         expect(title.textContent.trim().toLowerCase()).not.toBe('frequently used');
       });
     });
@@ -340,7 +336,7 @@ describe('AwardsHandler', () => {
       const emojiMenu = document.querySelector('.emoji-menu');
       const hasFrequentlyUsedHeading = Array.prototype.some.call(
         emojiMenu.querySelectorAll('.emoji-menu-title'),
-        title => title.textContent.trim().toLowerCase() === 'frequently used',
+        (title) => title.textContent.trim().toLowerCase() === 'frequently used',
       );
 
       expect(hasFrequentlyUsedHeading).toBe(true);

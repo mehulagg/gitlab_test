@@ -126,7 +126,7 @@ export default {
       this.focusedIndex = 0;
     }
 
-    Mousetrap.bind(['t', 'command+p', 'ctrl+p'], e => {
+    Mousetrap.bind(['t', 'command+p', 'ctrl+p'], (e) => {
       if (e.preventDefault) {
         e.preventDefault();
       }

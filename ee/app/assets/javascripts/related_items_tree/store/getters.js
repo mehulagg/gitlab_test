@@ -2,10 +2,10 @@ import { issuableTypesMap, PathIdSeparator } from 'ee/related_issues/constants';
 
 export const autoCompleteSources = () => gl.GfmAutoComplete && gl.GfmAutoComplete.dataSources;
 
-export const directChildren = state => state.children[state.parentItem.reference] || [];
+export const directChildren = (state) => state.children[state.parentItem.reference] || [];
 
 export const anyParentHasChildren = (state, getters) =>
-  getters.directChildren.some(item => item.hasChildren || item.hasIssues);
+  getters.directChildren.some((item) => item.hasChildren || item.hasIssues);
 
 export const itemAutoCompleteSources = (state, getters) => {
   if (getters.isEpic) {
@@ -17,4 +17,4 @@ export const itemAutoCompleteSources = (state, getters) => {
 export const itemPathIdSeparator = (state, getters) =>
   getters.isEpic ? PathIdSeparator.Epic : PathIdSeparator.Issue;
 
-export const isEpic = state => state.issuableType === issuableTypesMap.EPIC;
+export const isEpic = (state) => state.issuableType === issuableTypesMap.EPIC;

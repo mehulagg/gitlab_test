@@ -13,7 +13,7 @@ describe('Deploy freeze timezone dropdown', () => {
   let wrapper;
   let store;
 
-  const createComponent = term => {
+  const createComponent = (term) => {
     store = createStore({
       projectId: '8',
       timezoneData: mockTimezoneData,
@@ -30,7 +30,7 @@ describe('Deploy freeze timezone dropdown', () => {
   };
 
   const findAllDropdownItems = () => wrapper.findAll(GlDropdownItem);
-  const findDropdownItemByIndex = index => wrapper.findAll(GlDropdownItem).at(index);
+  const findDropdownItemByIndex = (index) => wrapper.findAll(GlDropdownItem).at(index);
 
   afterEach(() => {
     wrapper.destroy();

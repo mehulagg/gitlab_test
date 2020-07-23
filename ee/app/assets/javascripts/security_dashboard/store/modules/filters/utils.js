@@ -1,7 +1,7 @@
 import { isSubset } from '~/lib/utils/set';
 import { ALL } from './constants';
 
-export const isBaseFilterOption = id => id === ALL;
+export const isBaseFilterOption = (id) => id === ALL;
 
 /**
  * Returns whether or not the given state filter has a valid selection,
@@ -23,7 +23,7 @@ export const hasValidSelection = ({ selection, options }) =>
  * @returns {Array} the mutated filters array
  */
 export const setFilter = (filters, { optionId, filterId }) =>
-  filters.map(filter => {
+  filters.map((filter) => {
     if (filter.id === filterId) {
       const { selection } = filter;
 

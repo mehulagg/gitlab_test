@@ -33,13 +33,13 @@ describe('Details Page', () => {
 
   const routeId = window.btoa(JSON.stringify({ name: 'foo', tags_path: 'bar' }));
 
-  const tagsArrayToSelectedTags = tags =>
+  const tagsArrayToSelectedTags = (tags) =>
     tags.reduce((acc, c) => {
       acc[c.name] = true;
       return acc;
     }, {});
 
-  const mountComponent = options => {
+  const mountComponent = (options) => {
     wrapper = shallowMount(component, {
       store,
       stubs: {
@@ -238,7 +238,7 @@ describe('Details Page', () => {
         it('dispatch requestDeleteTags with the right parameters', () => {
           findDeleteModal().vm.$emit('confirmDelete');
           expect(dispatchSpy).toHaveBeenCalledWith('requestDeleteTags', {
-            ids: store.state.tags.map(t => t.name),
+            ids: store.state.tags.map((t) => t.name),
             params: routeId,
           });
         });

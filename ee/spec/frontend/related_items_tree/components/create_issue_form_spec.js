@@ -181,18 +181,13 @@ describe('CreateIssueForm', () => {
         expect(dropdownItems).toHaveLength(mockProjects.length);
         expect(dropdownItems.at(0).text()).toContain(mockProjects[0].name);
         expect(dropdownItems.at(0).text()).toContain(mockProjects[0].namespace.name);
-        expect(
-          dropdownItems
-            .at(0)
-            .find(ProjectAvatar)
-            .exists(),
-        ).toBe(true);
+        expect(dropdownItems.at(0).find(ProjectAvatar).exists()).toBe(true);
       });
     });
 
     it('renders Projects dropdown contents containing only matching project when searchKey is provided', () => {
       const searchKey = 'Underscore';
-      const filteredMockProjects = mockProjects.filter(project => project.name === searchKey);
+      const filteredMockProjects = mockProjects.filter((project) => project.name === searchKey);
       jest.spyOn(wrapper.vm, 'fetchProjects').mockImplementation(jest.fn());
 
       wrapper.find(GlDropdown).trigger('click');
@@ -213,7 +208,7 @@ describe('CreateIssueForm', () => {
 
     it('renders Projects dropdown contents containing string string "No matches found" when searchKey provided does not match any project', () => {
       const searchKey = "this-project-shouldn't exist";
-      const filteredMockProjects = mockProjects.filter(project => project.name === searchKey);
+      const filteredMockProjects = mockProjects.filter((project) => project.name === searchKey);
       jest.spyOn(wrapper.vm, 'fetchProjects').mockImplementation(jest.fn());
 
       wrapper.find(GlDropdown).trigger('click');

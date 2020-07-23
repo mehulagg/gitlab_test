@@ -22,7 +22,7 @@ export default class FilteredSearchCodeReviewAnalytics extends FilteredSearchMan
   /**
    * Updates filters in code review analytics store
    */
-  updateObject = path => {
+  updateObject = (path) => {
     const filters = urlParamsToObject(path);
     const { selectedLabels, selectedMilestone } = transformFilters(filters);
 

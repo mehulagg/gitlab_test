@@ -31,7 +31,7 @@ export default () => {
     computed: {
       ...mapGetters(['discussionTabCounter']),
       ...mapState({
-        activeTab: state => state.page.activeTab,
+        activeTab: (state) => state.page.activeTab,
       }),
       isShowTabActive() {
         return this.activeTab === 'show';

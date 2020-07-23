@@ -110,7 +110,7 @@ describe('feature flag form', () => {
           });
         });
 
-        it('should be disabled if the feature flag is not active', done => {
+        it('should be disabled if the feature flag is not active', (done) => {
           wrapper.setProps({ active: false });
           wrapper.vm.$nextTick(() => {
             expect(wrapper.find(ToggleButton).props('disabledInput')).toBe(true);
@@ -183,7 +183,7 @@ describe('feature flag form', () => {
             expect(wrapper.vm.formScopes[0].active).toBe(false);
           });
 
-          it('should be disabled if the feature flag is not active', done => {
+          it('should be disabled if the feature flag is not active', (done) => {
             wrapper.setProps({ active: false });
 
             wrapper.vm.$nextTick(() => {
@@ -293,7 +293,7 @@ describe('feature flag form', () => {
     });
 
     describe('on submit', () => {
-      const selectFirstRolloutStrategyOption = dropdownIndex => {
+      const selectFirstRolloutStrategyOption = (dropdownIndex) => {
         wrapper
           .findAll('select.js-rollout-strategy')
           .at(dropdownIndex)
@@ -339,10 +339,7 @@ describe('feature flag form', () => {
             return wrapper.vm.$nextTick();
           })
           .then(() => {
-            wrapper
-              .find('.js-add-new-scope')
-              .find(ToggleButton)
-              .vm.$emit('change', true);
+            wrapper.find('.js-add-new-scope').find(ToggleButton).vm.$emit('change', true);
           })
           .then(() => {
             wrapper.find(ToggleButton).vm.$emit('change', true);

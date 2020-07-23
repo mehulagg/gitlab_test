@@ -81,9 +81,9 @@ describe('EnvironmentActions Component', () => {
       playable: true,
       scheduledAt: '2018-10-05T08:23:00Z',
     };
-    const findDropdownItem = action => {
+    const findDropdownItem = (action) => {
       const buttons = vm.findAll('.dropdown-menu li button');
-      return buttons.filter(button => button.text().startsWith(action.name)).at(0);
+      return buttons.filter((button) => button.text().startsWith(action.name)).at(0);
     };
 
     beforeEach(() => {

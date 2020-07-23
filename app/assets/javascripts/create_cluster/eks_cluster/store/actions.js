@@ -4,7 +4,7 @@ import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
-const getErrorMessage = data => {
+const getErrorMessage = (data) => {
   const errorKey = Object.keys(data)[0];
 
   return data[errorKey][0];
@@ -31,7 +31,7 @@ export const createRole = ({ dispatch, state: { createRolePath } }, payload) => 
       role_external_id: payload.externalId,
     })
     .then(({ data }) => dispatch('createRoleSuccess', convertObjectPropsToCamelCase(data)))
-    .catch(error => dispatch('createRoleError', { error }));
+    .catch((error) => dispatch('createRoleError', { error }));
 };
 
 export const requestCreateRole = ({ commit }) => {

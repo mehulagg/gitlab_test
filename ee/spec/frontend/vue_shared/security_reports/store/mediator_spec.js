@@ -5,7 +5,7 @@ const mockedStore = {
   dispatch: jest.fn(),
 };
 
-mockedStore.subscribe = callback => {
+mockedStore.subscribe = (callback) => {
   mockedStore.commit = callback;
 };
 
@@ -23,7 +23,7 @@ describe('security reports mediator', () => {
       ${'updateDastIssue'}               | ${'dast'}
       ${'updateDependencyScanningIssue'} | ${'dependency_scanning'}
       ${'updateContainerScanningIssue'}  | ${'container_scanning'}
-    `(`should trigger $action on when a $category is updated`, data => {
+    `(`should trigger $action on when a $category is updated`, (data) => {
       const { action, category } = data;
       const payload = { category };
       mockedStore.commit({ type, payload });

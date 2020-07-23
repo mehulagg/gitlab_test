@@ -74,7 +74,7 @@ export default class Model {
   }
 
   onChange(cb) {
-    this.events.add(this.disposable.add(this.model.onDidChangeContent(e => cb(this, e))));
+    this.events.add(this.disposable.add(this.model.onDidChangeContent((e) => cb(this, e))));
   }
 
   onDispose(cb) {
@@ -120,7 +120,7 @@ export default class Model {
   dispose() {
     if (!this.model.isDisposed()) this.applyCustomOptions();
 
-    this.events.forEach(cb => {
+    this.events.forEach((cb) => {
       if (typeof cb === 'function') cb();
     });
 

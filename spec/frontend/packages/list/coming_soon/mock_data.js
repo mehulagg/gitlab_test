@@ -37,7 +37,7 @@ export const fakeIssues = [
 export const asGraphQLResponse = {
   project: {
     issues: {
-      nodes: fakeIssues.map(x => ({
+      nodes: fakeIssues.map((x) => ({
         ...x,
         labels: {
           nodes: x.labels,

@@ -54,7 +54,7 @@ describe('DiffFileHeader component', () => {
       diffHasDiscussionsResultMock,
       diffHasExpandedDiscussionsResultMock,
       ...Object.values(mockStoreConfig.modules.diffs.actions),
-    ].forEach(mock => mock.mockReset());
+    ].forEach((mock) => mock.mockReset());
   });
 
   const findHeader = () => wrapper.find({ ref: 'header' });
@@ -69,8 +69,8 @@ describe('DiffFileHeader component', () => {
   const findViewFileButton = () => wrapper.find({ ref: 'viewButton' });
   const findCollapseIcon = () => wrapper.find({ ref: 'collapseIcon' });
 
-  const findIconByName = iconName => {
-    const icons = wrapper.findAll(Icon).filter(w => w.props('name') === iconName);
+  const findIconByName = (iconName) => {
+    const icons = wrapper.findAll(Icon).filter((w) => w.props('name') === iconName);
     if (icons.length === 0) return icons;
     if (icons.length > 1) {
       throw new Error(`Multiple icons found for ${iconName}`);
@@ -78,7 +78,7 @@ describe('DiffFileHeader component', () => {
     return icons.at(0);
   };
 
-  const createComponent = props => {
+  const createComponent = (props) => {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     const store = new Vuex.Store(mockStoreConfig);
@@ -194,7 +194,7 @@ describe('DiffFileHeader component', () => {
   });
 
   describe('for any file', () => {
-    const otherModes = Object.keys(diffViewerModes).filter(m => m !== 'mode_changed');
+    const otherModes = Object.keys(diffViewerModes).filter((m) => m !== 'mode_changed');
 
     it('when edit button emits showForkMessage event it is re-emitted', () => {
       createComponent({
@@ -221,20 +221,23 @@ describe('DiffFileHeader component', () => {
       expect(findModeChangedLine().text()).toMatch(/old-mode.+new-mode/);
     });
 
-    it.each(otherModes.map(m => [m]))('for %s file mode does not display mode changes', mode => {
-      createComponent({
-        diffFile: {
-          ...diffFile,
-          a_mode: 'old-mode',
-          b_mode: 'new-mode',
-          viewer: {
-            ...diffFile.viewer,
-            name: diffViewerModes[mode],
+    it.each(otherModes.map((m) => [m]))(
+      'for %s file mode does not display mode changes',
+      (mode) => {
+        createComponent({
+          diffFile: {
+            ...diffFile,
+            a_mode: 'old-mode',
+            b_mode: 'new-mode',
+            viewer: {
+              ...diffFile.viewer,
+              name: diffViewerModes[mode],
+            },
           },
-        },
-      });
-      expect(findModeChangedLine().exists()).toBeFalsy();
-    });
+        });
+        expect(findModeChangedLine().exists()).toBeFalsy();
+      },
+    );
 
     it('displays the LFS label for files stored in LFS', () => {
       createComponent({

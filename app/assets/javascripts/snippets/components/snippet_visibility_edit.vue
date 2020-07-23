@@ -38,7 +38,7 @@ export default {
         SNIPPET_VISIBILITY_PRIVATE,
         SNIPPET_VISIBILITY_INTERNAL,
         SNIPPET_VISIBILITY_PUBLIC,
-      ].map(key => ({ value: key, ...SNIPPET_VISIBILITY[key] }));
+      ].map((key) => ({ value: key, ...SNIPPET_VISIBILITY[key] }));
     },
   },
 };

@@ -6,7 +6,7 @@ import StackedColumnChart from '~/monitoring/components/charts/stacked_column.vu
 import { stackedColumnMockedData } from '../../mock_data';
 
 jest.mock('~/lib/utils/icon_utils', () => ({
-  getSvgIconPathContent: jest.fn().mockImplementation(icon => Promise.resolve(`${icon}-content`)),
+  getSvgIconPathContent: jest.fn().mockImplementation((icon) => Promise.resolve(`${icon}-content`)),
 }));
 
 describe('Stacked column chart component', () => {
@@ -46,7 +46,7 @@ describe('Stacked column chart component', () => {
 
       data.forEach((series, index) => {
         const { values } = stackedColumnMockedData.metrics[index].result[0];
-        expect(series).toEqual(values.map(value => value[1]));
+        expect(series).toEqual(values.map((value) => value[1]));
       });
     });
 

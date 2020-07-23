@@ -125,7 +125,7 @@ export default {
     },
   },
   mounted() {
-    this.unwatchShouldShowCommentButton = this.$watch('shouldShowCommentButton', newVal => {
+    this.unwatchShouldShowCommentButton = this.$watch('shouldShowCommentButton', (newVal) => {
       if (newVal) {
         this.isCommentButtonRendered = true;
         this.unwatchShouldShowCommentButton();

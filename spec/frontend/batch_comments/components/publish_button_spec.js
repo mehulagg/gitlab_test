@@ -40,7 +40,7 @@ describe('Batch comments publish button component', () => {
     );
   });
 
-  it('sets loading when isPublishing is true', done => {
+  it('sets loading when isPublishing is true', (done) => {
     vm.$store.state.batchComments.isPublishing = true;
 
     vm.$nextTick(() => {

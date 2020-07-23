@@ -41,7 +41,7 @@ function prometheusMetricQueryParams(timeRange) {
 function backOffRequest(makeRequestCallback) {
   return backOff((next, stop) => {
     makeRequestCallback()
-      .then(resp => {
+      .then((resp) => {
         if (resp.status === statusCodes.NO_CONTENT) {
           next();
         } else {
@@ -54,8 +54,8 @@ function backOffRequest(makeRequestCallback) {
 
 function getPrometheusQueryData(prometheusEndpoint, params) {
   return backOffRequest(() => axios.get(prometheusEndpoint, { params }))
-    .then(res => res.data)
-    .then(response => {
+    .then((res) => res.data)
+    .then((response) => {
       if (response.status === 'error') {
         throw new Error(response.error);
       }
@@ -127,8 +127,8 @@ export const fetchDashboard = ({ state, commit, dispatch, getters }) => {
   }
 
   return backOffRequest(() => axios.get(state.dashboardEndpoint, { params }))
-    .then(resp => resp.data)
-    .then(response => {
+    .then((resp) => resp.data)
+    .then((response) => {
       dispatch('receiveMetricsDashboardSuccess', { response });
       /**
        * After the dashboard is fetched, there can be non-blocking invalid syntax
@@ -139,7 +139,7 @@ export const fetchDashboard = ({ state, commit, dispatch, getters }) => {
        */
       dispatch('fetchDashboardValidationWarnings');
     })
-    .catch(error => {
+    .catch((error) => {
       Sentry.captureException(error);
 
       commit(types.SET_ALL_DASHBOARDS, error.response?.data?.all_dashboards ?? []);
@@ -199,9 +199,9 @@ export const fetchDashboardData = ({ state, dispatch, getters }) => {
   dispatch('fetchVariableMetricLabelValues', { defaultQueryParams });
 
   const promises = [];
-  state.dashboard.panelGroups.forEach(group => {
-    group.panels.forEach(panel => {
-      panel.metrics.forEach(metric => {
+  state.dashboard.panelGroups.forEach((group) => {
+    group.panels.forEach((panel) => {
+      panel.metrics.forEach((metric) => {
         promises.push(dispatch('fetchPrometheusMetric', { metric, defaultQueryParams }));
       });
     });
@@ -245,10 +245,10 @@ export const fetchPrometheusMetric = (
   commit(types.REQUEST_METRIC_RESULT, { metricId: metric.metricId });
 
   return getPrometheusQueryData(metric.prometheusEndpointPath, queryParams)
-    .then(data => {
+    .then((data) => {
       commit(types.RECEIVE_METRIC_RESULT_SUCCESS, { metricId: metric.metricId, data });
     })
-    .catch(error => {
+    .catch((error) => {
       Sentry.captureException(error);
 
       commit(types.RECEIVE_METRIC_RESULT_FAILURE, { metricId: metric.metricId, error });
@@ -265,15 +265,15 @@ export const fetchDeploymentsData = ({ state, dispatch }) => {
   }
   return axios
     .get(state.deploymentsEndpoint)
-    .then(resp => resp.data)
-    .then(response => {
+    .then((resp) => resp.data)
+    .then((response) => {
       if (!response || !response.deployments) {
         createFlash(s__('Metrics|Unexpected deployment data response from prometheus endpoint'));
       }
 
       dispatch('receiveDeploymentsDataSuccess', response.deployments);
     })
-    .catch(error => {
+    .catch((error) => {
       Sentry.captureException(error);
       dispatch('receiveDeploymentsDataFailure');
       createFlash(s__('Metrics|There was an error getting deployment information.'));
@@ -299,10 +299,10 @@ export const fetchEnvironmentsData = ({ state, dispatch }) => {
         states: [ENVIRONMENT_AVAILABLE_STATE],
       },
     })
-    .then(resp =>
+    .then((resp) =>
       parseEnvironmentsResponse(resp.data?.project?.data?.environments, state.projectPath),
     )
-    .then(environments => {
+    .then((environments) => {
       if (!environments) {
         createFlash(
           s__('Metrics|There was an error fetching the environments data, please try again'),
@@ -311,7 +311,7 @@ export const fetchEnvironmentsData = ({ state, dispatch }) => {
 
       dispatch('receiveEnvironmentsDataSuccess', environments);
     })
-    .catch(err => {
+    .catch((err) => {
       Sentry.captureException(err);
       dispatch('receiveEnvironmentsDataFailure');
       createFlash(s__('Metrics|There was an error getting environments information.'));
@@ -340,16 +340,18 @@ export const fetchAnnotations = ({ state, dispatch, getters }) => {
         startingFrom: start,
       },
     })
-    .then(resp => resp.data?.project?.environments?.nodes?.[0].metricsDashboard?.annotations.nodes)
+    .then(
+      (resp) => resp.data?.project?.environments?.nodes?.[0].metricsDashboard?.annotations.nodes,
+    )
     .then(parseAnnotationsResponse)
-    .then(annotations => {
+    .then((annotations) => {
       if (!annotations) {
         createFlash(s__('Metrics|There was an error fetching annotations. Please try again.'));
       }
 
       dispatch('receiveAnnotationsSuccess', annotations);
     })
-    .catch(err => {
+    .catch((err) => {
       Sentry.captureException(err);
       dispatch('receiveAnnotationsFailure');
       createFlash(s__('Metrics|There was an error getting annotations information.'));
@@ -377,7 +379,7 @@ export const fetchDashboardValidationWarnings = ({ state, dispatch, getters }) =
         dashboardPath,
       },
     })
-    .then(resp => resp.data?.project?.environments?.nodes?.[0]?.metricsDashboard)
+    .then((resp) => resp.data?.project?.environments?.nodes?.[0]?.metricsDashboard)
     .then(({ schemaValidationWarnings } = {}) => {
       const hasWarnings = schemaValidationWarnings && schemaValidationWarnings.length !== 0;
       /**
@@ -386,7 +388,7 @@ export const fetchDashboardValidationWarnings = ({ state, dispatch, getters }) =
        */
       dispatch('receiveDashboardValidationWarningsSuccess', hasWarnings || false);
     })
-    .catch(err => {
+    .catch((err) => {
       Sentry.captureException(err);
       dispatch('receiveDashboardValidationWarningsFailure');
       createFlash(
@@ -451,9 +453,9 @@ export const duplicateSystemDashboard = ({ state }, payload) => {
 
   return axios
     .post(state.dashboardsEndpoint, params)
-    .then(response => response.data)
-    .then(data => data.dashboard)
-    .catch(error => {
+    .then((response) => response.data)
+    .then((data) => data.dashboard)
+    .catch((error) => {
       Sentry.captureException(error);
 
       const { response } = error;
@@ -480,7 +482,7 @@ export const fetchVariableMetricLabelValues = ({ state, commit }, { defaultQuery
   const { start_time, end_time } = defaultQueryParams;
   const optionsRequests = [];
 
-  state.variables.forEach(variable => {
+  state.variables.forEach((variable) => {
     if (variable.type === VARIABLE_TYPES.metric_label_values) {
       const { prometheusEndpointPath, label } = variable.options;
 
@@ -490,7 +492,7 @@ export const fetchVariableMetricLabelValues = ({ state, commit }, { defaultQuery
         }),
       )
         .then(({ data }) => data.data)
-        .then(data => {
+        .then((data) => {
           commit(types.UPDATE_VARIABLE_METRIC_LABEL_VALUES, { variable, label, data });
         })
         .catch(() => {

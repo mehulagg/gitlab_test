@@ -27,7 +27,7 @@ export default {
           rich: this.activeViewerType === RICH_BLOB_VIEWER,
         };
       },
-      update: data =>
+      update: (data) =>
         data.snippets.edges[0].node.blob.richData || data.snippets.edges[0].node.blob.plainData,
       result() {
         if (this.activeViewerType === RICH_BLOB_VIEWER) {

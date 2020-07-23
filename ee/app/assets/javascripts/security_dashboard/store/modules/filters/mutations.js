@@ -4,7 +4,7 @@ import { setFilter } from './utils';
 
 export default {
   [types.SET_ALL_FILTERS](state, payload = {}) {
-    state.filters = state.filters.map(filter => {
+    state.filters = state.filters.map((filter) => {
       // If the payload is empty, we fall back to an empty selection
       const selectedOptions = (payload && payload[filter.id]) || [];
 
@@ -26,7 +26,7 @@ export default {
   },
   [types.SET_FILTER_OPTIONS](state, payload) {
     const { filterId, options } = payload;
-    state.filters.find(filter => filter.id === filterId).options = options;
+    state.filters.find((filter) => filter.id === filterId).options = options;
   },
   [types.HIDE_FILTER](state, { filterId }) {
     const hiddenFilter = state.filters.find(({ id }) => id === filterId);

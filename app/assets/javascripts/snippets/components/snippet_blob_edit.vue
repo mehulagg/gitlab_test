@@ -74,11 +74,11 @@ export default {
 
       axios
         .get(url)
-        .then(res => {
+        .then((res) => {
           this.originalContent = res.data;
           this.content = res.data;
         })
-        .catch(e => this.flashAPIFailure(e))
+        .catch((e) => this.flashAPIFailure(e))
         .finally(() => {
           this.isContentLoading = false;
         });

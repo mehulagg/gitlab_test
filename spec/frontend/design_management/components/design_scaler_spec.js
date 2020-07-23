@@ -15,7 +15,7 @@ describe('Design management design scaler component', () => {
     wrapper.destroy();
   });
 
-  const getButton = type => {
+  const getButton = (type) => {
     const buttonTypeOrder = ['minus', 'reset', 'plus'];
     const buttons = wrapper.findAll('button');
     return buttons.at(buttonTypeOrder.indexOf(type));

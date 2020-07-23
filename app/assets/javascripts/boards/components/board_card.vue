@@ -58,7 +58,7 @@ export default {
       return this.detailIssue.issue && this.detailIssue.issue.id === this.issue.id;
     },
     multiSelectVisible() {
-      return this.multiSelect.list.findIndex(issue => issue.id === this.issue.id) > -1;
+      return this.multiSelect.list.findIndex((issue) => issue.id === this.issue.id) > -1;
     },
     canMultiSelect() {
       return gon.features && gon.features.multiSelectBoard;

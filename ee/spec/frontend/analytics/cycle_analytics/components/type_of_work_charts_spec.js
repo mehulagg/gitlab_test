@@ -52,9 +52,9 @@ describe('TypeOfWorkCharts', () => {
 
   let wrapper = null;
 
-  const findSubjectFilters = _wrapper => _wrapper.find(TasksByTypeFilters);
-  const findTasksByTypeChart = _wrapper => _wrapper.find(TasksByTypeChart);
-  const findLoader = _wrapper => _wrapper.find(GlLoadingIcon);
+  const findSubjectFilters = (_wrapper) => _wrapper.find(TasksByTypeFilters);
+  const findTasksByTypeChart = (_wrapper) => _wrapper.find(TasksByTypeChart);
+  const findLoader = (_wrapper) => _wrapper.find(GlLoadingIcon);
   const selectedFilterText =
     "Type of work Showing data for group 'Gitlab Org' from Dec 11, 2019 to Jan 10, 2020";
 

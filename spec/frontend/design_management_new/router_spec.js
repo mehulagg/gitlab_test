@@ -45,7 +45,7 @@ describe('Design management router', () => {
     window.location.hash = '';
   });
 
-  describe.each([['/'], [{ name: DESIGNS_ROUTE_NAME }]])('root route', routeArg => {
+  describe.each([['/'], [{ name: DESIGNS_ROUTE_NAME }]])('root route', (routeArg) => {
     it('pushes home component', () => {
       const wrapper = factory(routeArg);
 
@@ -55,7 +55,7 @@ describe('Design management router', () => {
 
   describe.each([['/designs/1'], [{ name: DESIGN_ROUTE_NAME, params: { id: '1' } }]])(
     'designs detail route',
-    routeArg => {
+    (routeArg) => {
       it('pushes designs detail component', () => {
         const wrapper = factory(routeArg);
 

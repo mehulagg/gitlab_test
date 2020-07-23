@@ -3,7 +3,7 @@ import { uniqueId, cloneDeep } from 'lodash';
 import { DEFAULT_ASSET_LINK_TYPE } from '../../../constants';
 
 const findReleaseLink = (release, id) => {
-  return release.assets.links.find(l => l.id === id);
+  return release.assets.links.find((l) => l.id === id);
 };
 
 export default {
@@ -70,6 +70,6 @@ export default {
   },
 
   [types.REMOVE_ASSET_LINK](state, linkIdToRemove) {
-    state.release.assets.links = state.release.assets.links.filter(l => l.id !== linkIdToRemove);
+    state.release.assets.links = state.release.assets.links.filter((l) => l.id !== linkIdToRemove);
   },
 };

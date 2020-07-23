@@ -314,7 +314,7 @@ describe('List Page', () => {
       mountComponent();
     });
 
-    const testTrackingCall = action => {
+    const testTrackingCall = (action) => {
       expect(Tracking.event).toHaveBeenCalledWith(undefined, action, {
         label: 'registry_repository_delete',
       });
