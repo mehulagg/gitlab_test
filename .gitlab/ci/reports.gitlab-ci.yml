@@ -228,7 +228,7 @@ DAST-prepare:
     DAST_SPIDER_MINS: 0
     DAST_VERSION: 1
     DAST_ZAP_CLI_OPTIONS: "-Xmx6144m -config database.recoverylog=false" #To avoid OutOfMemoryError error
-  needs: 
+  needs:
     - job: DAST-prepare
       artifacts: false
     - job: review-deploy
