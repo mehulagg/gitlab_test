@@ -18,6 +18,12 @@ module EE
               description: 'Status of the temporary storage increase',
               resolve: -> (obj, _args, _ctx) { obj.temporary_storage_increase_enabled? }
 
+        field :is_eligible_for_temporary_storage_increase,
+              GraphQL::BOOLEAN_TYPE,
+              null: false,
+              description: 'Eligibility for increasing storage temporarily',
+              resolve: -> (obj, _args, _ctx) { obj.eligible_for_temporary_storage_increase? }
+
         field :temporary_storage_increase_ends_on,
               ::Types::TimeType,
               null: true,

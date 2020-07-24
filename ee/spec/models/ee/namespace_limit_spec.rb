@@ -55,6 +55,14 @@ RSpec.describe NamespaceLimit do
       let(:usage_ratio) { 0.5 }
 
       it { is_expected.to be_truthy }
+
+      context 'when feature is disabled' do
+        before do
+          stub_feature_flags(temporary_storage_increase: false)
+        end
+
+        it { is_expected.to eq(false) }
+      end
     end
 
     context 'when usage ratio is below the threshold' do
