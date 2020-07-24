@@ -9,6 +9,7 @@ import { userList } from '../../feature_flags/mock_data';
 import createStore from 'ee/user_lists/store/edit';
 import EditUserList from 'ee/user_lists/components/edit_user_list.vue';
 import UserListForm from 'ee/user_lists/components/user_list_form.vue';
+import { useComponent } from 'helpers/resources';
 
 jest.mock('ee/api');
 jest.mock('~/lib/utils/url_utility');
@@ -17,35 +18,24 @@ const localVue = createLocalVue(Vue);
 localVue.use(Vuex);
 
 describe('ee/user_lists/components/edit_user_list', () => {
-  let wrapper;
+  const [wrapper, factory] = useComponent(() =>
+    mount(EditUserList, {
+      localVue,
+      store: createStore({ projectId: '1', userListIid: '2' }),
+      provide: {
+        userListsDocsPath: '/docs/user_lists',
+      },
+    }),
+  );
 
   const setInputValue = value => wrapper.find('[data-testid="user-list-name"]').setValue(value);
 
   const click = button => wrapper.find(`[data-testid="${button}"]`).trigger('click');
   const clickSave = () => click('save-user-list');
 
-  const destroy = () => wrapper?.destroy();
-
-  const factory = () => {
-    destroy();
-
-    wrapper = mount(EditUserList, {
-      localVue,
-      store: createStore({ projectId: '1', userListIid: '2' }),
-      provide: {
-        userListsDocsPath: '/docs/user_lists',
-      },
-    });
-  };
-
-  afterEach(() => {
-    destroy();
-  });
-
   describe('loading', () => {
     beforeEach(() => {
       Api.fetchFeatureFlagUserList.mockReturnValue(new Promise(() => {}));
-      factory();
     });
 
     it('should show a loading icon', () => {
@@ -81,7 +71,6 @@ describe('ee/user_lists/components/edit_user_list', () => {
   describe('update', () => {
     beforeEach(() => {
       Api.fetchFeatureFlagUserList.mockResolvedValue({ data: userList });
-      factory();
 
       return wrapper.vm.$nextTick();
     });
