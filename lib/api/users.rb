@@ -179,7 +179,7 @@ module API
         else
           conflict!('Email has already been taken') if User
             .by_any_email(user.email.downcase)
-            .any?
+            any?
 
           conflict!('Username has already been taken') if User
             .by_username(user.username)
@@ -701,7 +701,8 @@ module API
             success Entities::PersonalAccessTokenWithToken
           end
           params do
-            requires :name, type: String, desc: 'The name of the personal access token'
+            requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: ::Gitlab::Auth.all_available_scopes.map(&:to_s),
+              desc: 'The array of scopes of the personal access token'
             optional :expires_at, type: Date, desc: 'The expiration date in the format YEAR-MONTH-DAY of the personal access token'
             optional :scopes, type: Array, desc: 'The array of scopes of the personal access token'
           end
@@ -736,7 +737,7 @@ module API
             token = find_token
 
             destroy_conditionally!(token) do
-              token.revoke!lib/api/users.rb
+              token.revoke!
             end
           end
         end
@@ -778,18 +779,6 @@ module API
         present paginate(keys), with: Entities::SSHKey
       end
 
-      desc "Get the currently authenticated user's personal access tokens" do
-        success Entities::PersonalAccessToken
-      end
-      params do
-        use :pagination
-      end
-      get "personal_access_tokens" do
-        tokens = current_user.personal_access_tokens
-
-        present paginate(tokens), with: Entities::PersonalAccessToken
-      end
-
       desc 'Get a single key owned by currently authenticated user' do
         success Entities::SSHKey
       end
@@ -823,25 +812,6 @@ module API
         end
       end
 
-      desc 'Add a new personal access token to the currently authenticated user' do
-        success Entities::PersonalAccessTokenWithToken
-      end
-      params do
-        requires :name, type: String, desc: 'The new personal access token name'
-        requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: ::Gitlab::Auth.all_available_scopes.map(&:to_s),
-          desc: 'Indicates the deploy token scopes. Must be at least one of "read_repository", "read_registry", "write_registry", "read_package_registry", or "write_package_registry".'
-        optional :expires_at, type: DateTime, desc: 'The expiration date of the SSH key in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)'
-      end
-      post "personal_access_tokens" do
-        token = PersonalAccessTokensFinder.new({ user: current_user, impersonation: false }).build(declared_params(include_missing: false))
-
-        if token.save
-          present token, with: Entities::PersonalAccessTokenWithToken
-        else
-          render_validation_error!(token)
-        end
-      end
-
       desc 'Delete an SSH key from the currently authenticated user' do
         success Entities::SSHKey
       end
@@ -859,6 +829,65 @@ module API
         end
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      desc "Get the currently authenticated user's personal access tokens" do
+        success Entities::PersonalAccessToken
+      end
+      params do
+        use :pagination
+      end
+      get "personal_access_tokens" do
+        tokens = current_user.personal_access_tokens
+
+        present paginate(tokens), with: Entities::PersonalAccessToken
+      end
+
+      desc 'Get a single personal access token owned by currently authenticated user' do
+        success Entities::PersonalAccessToken
+      end
+      params do
+        requires :token_id, type: Integer, desc: 'The ID of the personal access token'
+      end
+      get "personal_access_tokens/:token_id" do
+        token = current_user.personal_access_tokens.find_by(id: params[:token_id])
+        not_found!('Personal Access Token') unless token
+
+        present token, with: Entities::PersonalAccessToken
+      end
+
+      desc 'Add a new personal access token to the currently authenticated user' do
+        success Entities::PersonalAccessTokenWithToken
+      end
+      params do
+        requires :name, type: String, desc: 'The new personal access token name'
+        requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: ::Gitlab::Auth.all_available_scopes.map(&:to_s),
+          desc: 'The array of scopes of the personal access token'
+        optional :expires_at, type: DateTime, desc: 'The expiration date of the personal access token ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)'
+      end
+      post "personal_access_tokens" do
+        token = PersonalAccessTokensFinder.new({ user: current_user, impersonation: false }).build(declared_params(include_missing: false))
+
+        if token.save
+          present token, with: Entities::PersonalAccessTokenWithToken
+        else
+          render_validation_error!(token)
+        end
+      end
+
+      desc 'Delete a personal access token of the currently authenticated user' do
+        success Entities::PersonalAccessToken
+      end
+      params do
+        requires :token_id, type: Integer, desc: 'The ID of the personal access token'
+      end
+      delete "personal_access_tokens/:token_id" do
+        token = current_user.personal_access_tokens.find_by(id: params[:token_id])
+        not_found!('Personal Access Token') unless token
+
+        destroy_conditionally!(token) do |token|
+          token.revoke!
+        end
+      end
 
       desc "Get the currently authenticated user's GPG keys" do
         detail 'This feature was added in GitLab 10.0'
@@ -1004,8 +1033,8 @@ module API
         authenticated_as_admin!
 
         activities = User
-          .where(User.arel_table[:last_activity_on].gteq(params[:from]))
-          .reorder(last_activity_on: :asc)
+                       .where(User.arel_table[:last_activity_on].gteq(params[:from]))
+                       .reorder(last_activity_on: :asc)
 
         present paginate(activities), with: Entities::UserActivity
       end
