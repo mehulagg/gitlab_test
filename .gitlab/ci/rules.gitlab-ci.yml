@@ -633,7 +633,6 @@
       when: never
     - <<: *if-dot-com-gitlab-org-merge-request
       # changes: *frontend-patterns
-      when: manual #ng-test Remove
       allow_failure: true
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-qa-patterns

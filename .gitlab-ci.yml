@@ -8,7 +8,11 @@ stages:
   - review-prepare
   - review
   - review-after
-  - sec-dast
+  - DAST-fullscan-1/5
+  - DAST-fullscan-2/5
+  - DAST-fullscan-3/5
+  - DAST-fullscan-4/5
+  - DAST-fullscan-5/5
   - qa
   - post-qa
   - pages
