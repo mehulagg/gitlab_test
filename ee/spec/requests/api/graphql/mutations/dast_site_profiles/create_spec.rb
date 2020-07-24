@@ -47,10 +47,20 @@ RSpec.describe 'Creating a DAST Site Profile' do
         project.add_developer(current_user)
       end
 
+      subject { post_graphql_mutation(mutation, current_user: current_user) }
+
       it 'returns the dast_site_profile id' do
-        post_graphql_mutation(mutation, current_user: current_user)
+        subject
 
         expect(mutation_response["id"]).to eq(dast_site_profile.to_global_id.to_s)
+      end
+
+      context 'when a validation error occurs' do
+        before do
+          subject
+        end
+
+        it_behaves_like 'a mutation that returns errors in the response', errors: ['Name has already been taken']
       end
 
       context 'when an unknown error occurs' do
