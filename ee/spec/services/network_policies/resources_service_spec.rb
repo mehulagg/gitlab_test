@@ -11,7 +11,8 @@ RSpec.describe NetworkPolicies::ResourcesService do
     Gitlab::Kubernetes::NetworkPolicy.new(
       name: 'policy',
       namespace: 'another',
-      pod_selector: { matchLabels: { role: 'db' } },
+      resource_version: '101',
+      selector: { matchLabels: { role: 'db' } },
       ingress: [{ from: [{ namespaceSelector: { matchLabels: { project: 'myproject' } } }] }]
     )
   end
