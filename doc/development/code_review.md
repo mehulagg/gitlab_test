@@ -447,6 +447,8 @@ Enterprise Edition instance. This has some implications:
    1. Don't forget, not every instance will upgrade to every intermediate version
       (some people may go from X.1.0 to X.10.0, or even try bigger upgrades!), so
       try to be liberal in accepting the old format if it is cheap to do so.
+1. **Multi version compatibility** [must be considered when you introduce database change](multi_version_compatibility.md).
+   1. You should [make sure that the old application code is compatible with the new database change](multi_version_compatibility.md#detecting-a-breaking-change-before-merge)
 1. **Cached values** may persist across releases. If you are changing the type a
    cached value returns (say, from a string or nil to an array), change the
    cache key at the same time.

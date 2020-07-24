@@ -166,6 +166,11 @@ Example commit message template that can be used on your machine that embodies t
 # --------------------
 ```
 
+### Commit order guidelines
+
+When introducing both application change and database change in one merge request,
+please create commits [in this specific order to verify multi-version compatibility](../multi_version_compatibility.md#detecting-a-breaking-change-before-merge)
+
 ## Contribution acceptance criteria
 
 To make sure that your merge request can be approved, please ensure that it meets

@@ -36,6 +36,31 @@ since point releases bundle many changes together. Minimizing the time
 between when versions are out of sync across the fleet may help mitigate
 errors caused by upgrades.
 
+## Detecting a breaking change before merge
+
+Often it's hard to detect a breaking change through MR reviews, because application
+change (e.g. Ruby code in [GitLab](https://gitlab.com/gitlab-org/gitlab) and
+database change (e.g. PostgreSQL, Redis, Gitaly, etc) are mixed in one merge request that looks logically
+correct at glance. The following method works for detecting incompatibility between
+_new_ database change and _old_ application code:
+
+- Separate commits between application change and database change,
+  and create commits for database change **before** commits for application change.
+- Make sure that CI pipelines passed in the latest commits for **both** types of changes.
+
+Please keep in mind that database change includes **application change that modifies persisting value to an existing column**,
+e.g. changing JSON schema on `jsonb` column, adding a new `enum` entry, etc.
+
+A few notes:
+
+- Changes to the database might not be related to the file names.
+  For example, changing the JSON schema in an existing column doesn't affect any files in `db/*`,
+  however, this is certainly one of the changes to the database.
+- There must be an enough test coverage in the old application code.
+  If it's missing, you should add at least one test case beforehand.
+
+Please read [commit order guideline](contributing/merge_request_workflow.md#commit-order-guidelines) for more information.
+
 ## Examples of previous incidents
 
 ### Some links to issues and MRs were broken
@@ -79,11 +104,10 @@ For more information, see [the relevant issue](https://gitlab.com/gitlab-com/gl-
 
 ### Downtime on release features between canary and production deployment
 
-To address the issue, we added a new column to an existing table with a `NOT NULL` constraint without
-specifying a default value. In other words, this requires the application to set a value to the column.
-
-The older version of the application didn't set the `NOT NULL` constraint since the entity/concept didn't
-exist before.
+We added a new column to an existing table with a `NOT NULL` constraint without specifying a default value,
+that requires the application to set a value to the column always. This seemed a
+reasonable implementation, however, the old application didn't set the value
+since the column didn't exist before.
 
 The problem starts right after the canary deployment is complete. At that moment,
 the database migration (to add the column) has successfully run and canary instance starts using
