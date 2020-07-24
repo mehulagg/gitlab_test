@@ -2,9 +2,21 @@ import { shallowMount } from '@vue/test-utils';
 import { trimText } from 'helpers/text_helper';
 import frequentItemsListItemComponent from '~/frequent_items/components/frequent_items_list_item.vue';
 import { mockProject } from '../mock_data'; // can also use 'mockGroup', but not useful to test here
+import { useComponent } from 'helpers/resources';
 
 describe('FrequentItemsListItemComponent', () => {
-  let wrapper;
+  const [wrapper, createComponent] = useComponent((props = {}) =>
+    shallowMount(frequentItemsListItemComponent, {
+      propsData: {
+        itemId: mockProject.id,
+        itemName: mockProject.name,
+        namespace: mockProject.namespace,
+        webUrl: mockProject.webUrl,
+        avatarUrl: mockProject.avatarUrl,
+        ...props,
+      },
+    }),
+  );
 
   const findTitle = () => wrapper.find({ ref: 'frequentItemsItemTitle' });
   const findAvatar = () => wrapper.find({ ref: 'frequentItemsItemAvatar' });
@@ -15,24 +27,6 @@ describe('FrequentItemsListItemComponent', () => {
   const findAvatarContainer = () => wrapper.findAll({ ref: 'frequentItemsItemAvatarContainer' });
   const findAllMetadataContainers = () =>
     wrapper.findAll({ ref: 'frequentItemsItemMetadataContainer' });
-
-  const createComponent = (props = {}) => {
-    wrapper = shallowMount(frequentItemsListItemComponent, {
-      propsData: {
-        itemId: mockProject.id,
-        itemName: mockProject.name,
-        namespace: mockProject.namespace,
-        webUrl: mockProject.webUrl,
-        avatarUrl: mockProject.avatarUrl,
-        ...props,
-      },
-    });
-  };
-
-  afterEach(() => {
-    wrapper.destroy();
-    wrapper = null;
-  });
 
   describe('computed', () => {
     describe('highlightedItemName', () => {
@@ -67,10 +61,6 @@ describe('FrequentItemsListItemComponent', () => {
   });
 
   describe('template', () => {
-    beforeEach(() => {
-      createComponent();
-    });
-
     it('should render avatar if avatarUrl is present', () => {
       wrapper.setProps({ avatarUrl: 'path/to/avatar.png' });
 
