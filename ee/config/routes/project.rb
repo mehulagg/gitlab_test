@@ -15,13 +15,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :requirements, only: [:index]
         end
 
-        resources :packages, only: [:index, :show, :destroy], module: :packages
-        resources :package_files, only: [], module: :packages do
-          member do
-            get :download
-          end
-        end
-
         resources :feature_flags, param: :iid do
           resources :feature_flag_issues, only: [:index, :create, :destroy], as: 'issues', path: 'issues'
         end
@@ -44,7 +37,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :subscriptions, only: [:create, :destroy]
 
-        resource :threat_monitoring, only: [:show], controller: :threat_monitoring
+        resource :threat_monitoring, only: [:show], controller: :threat_monitoring do
+          resources :policies, only: [:new], controller: :threat_monitoring
+        end
 
         resources :protected_environments, only: [:create, :update, :destroy], constraints: { id: /\d+/ } do
           collection do
@@ -67,6 +62,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
           resource :configuration, only: [:show], controller: :configuration do
             post :auto_fix, on: :collection
+            resource :sast, only: [:show, :create], controller: :sast_configuration
           end
 
           resource :discover, only: [:show], controller: :discover
@@ -76,6 +72,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
               get :summary
             end
           end
+
+          resources :scanned_resources, only: [:index]
 
           resources :vulnerabilities, only: [:show] do
             member do
@@ -99,7 +97,14 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :vulnerability_feedback, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
         resources :dependencies, only: [:index]
         resources :licenses, only: [:index, :create, :update]
-        resources :on_demand_scans, only: [:index], controller: :on_demand_scans
+
+        scope :on_demand_scans do
+          root 'on_demand_scans#index', as: 'on_demand_scans'
+          scope :profiles do
+            root 'dast_profiles#index', as: 'profiles'
+            resources :dast_site_profiles, only: [:new]
+          end
+        end
 
         namespace :integrations do
           namespace :jira do
@@ -121,14 +126,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       resource :tracing, only: [:show]
 
-      get '/service_desk' => 'service_desk#show', as: :service_desk
-      put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
-
       post '/restore' => '/projects#restore', as: :restore
 
       resource :insights, only: [:show], trailing_slash: true do
         collection do
           post :query
+          get :embedded
         end
       end
       # All new routes should go under /-/ scope.

@@ -1,6 +1,6 @@
 /* eslint-disable no-shadow, no-param-reassign,consistent-return */
 /* global List */
-
+/* global ListIssue */
 import $ from 'jquery';
 import { sortBy } from 'lodash';
 import Vue from 'vue';
@@ -294,6 +294,15 @@ const boardsStore = {
 
   startMoving(list, issue) {
     Object.assign(this.moving, { list, issue });
+  },
+
+  onNewListIssueResponse(list, issue, data) {
+    issue.refreshData(data);
+
+    if (list.issuesSize > 1) {
+      const moveBeforeId = list.issues[1].id;
+      this.moveIssue(issue.id, null, null, null, moveBeforeId);
+    }
   },
 
   moveMultipleIssuesToList({ listFrom, listTo, issues, newIndex }) {
@@ -632,7 +641,9 @@ const boardsStore = {
           list.issues = [];
         }
 
-        list.createIssues(data.issues);
+        data.issues.forEach(issueObj => {
+          list.addIssue(new ListIssue(issueObj));
+        });
 
         return data;
       });
@@ -672,6 +683,21 @@ const boardsStore = {
       move_before_id: moveBeforeId,
       move_after_id: moveAfterId,
       ids,
+    });
+  },
+
+  moveListMultipleIssues({ list, issues, oldIndicies, newIndex, moveBeforeId, moveAfterId }) {
+    oldIndicies.reverse().forEach(index => {
+      list.issues.splice(index, 1);
+    });
+    list.issues.splice(newIndex, 0, ...issues);
+
+    return this.moveMultipleIssues({
+      ids: issues.map(issue => issue.id),
+      fromListId: null,
+      toListId: null,
+      moveBeforeId,
+      moveAfterId,
     });
   },
 

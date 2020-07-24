@@ -30,11 +30,12 @@ details.
 
 This sets a maximum size limit on each namespace. The following are included in the namespace size:
 
-- repository
-- wiki
+- Repository
+- Wiki
 - LFS objects
-- build artifacts
-- packages
+- Build artifacts
+- Packages
+- Snippets
 
 NOTE: **Note:**
 This limit is not currently enforced but will be in a future release.
@@ -85,7 +86,8 @@ The first push of a new project, including LFS objects, will be checked for size
 and **will** be rejected if the sum of their sizes exceeds the maximum allowed
 repository size.
 
-**Note:** The repository size limit includes repository files and LFS, and does not include artifacts.
+NOTE: **Note:**
+The repository size limit includes repository files and LFS, and does not include artifacts.
 
 For details on manually purging files, see [reducing the repository size using Git](../../project/repository/reducing_the_repo_size_using_git.md).
 
@@ -158,19 +160,19 @@ To do this:
 
 ### Enable or disable optional enforcement of Personal Access Token expiry Feature **(CORE ONLY)**
 
-Optional Enforcement of Personal Access Token Expiry is under development and not ready for production use. It is deployed behind a feature flag that is **disabled by default**.
+Optional Enforcement of Personal Access Token Expiry is deployed behind a feature flag and is **disabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../../../administration/feature_flags.md) can enable it for your instance from the [rails console](../../../administration/feature_flags.md#start-the-gitlab-rails-console).
 
 To enable it:
 
 ```ruby
-Feature.enable(:enforce_personal_access_token_expiration)
+Feature.enable(:enforce_pat_expiration)
 ```
 
 To disable it:
 
 ```ruby
-Feature.disable(:enforce_personal_access_token_expiration)
+Feature.disable(:enforce_pat_expiration)
 ```
 
 ## Disabling user profile name changes **(PREMIUM ONLY)**

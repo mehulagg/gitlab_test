@@ -19,6 +19,7 @@ import CustomStageForm from './custom_stage_form.vue';
 import PathNavigation from './path_navigation.vue';
 import MetricCard from '../../shared/components/metric_card.vue';
 import FilterBar from './filter_bar.vue';
+import ValueStreamSelect from './value_stream_select.vue';
 
 export default {
   name: 'CycleAnalytics',
@@ -38,6 +39,7 @@ export default {
     PathNavigation,
     MetricCard,
     FilterBar,
+    ValueStreamSelect,
   },
   mixins: [UrlSyncMixin],
   props: {
@@ -110,6 +112,9 @@ export default {
       // TODO: After we remove instance VSA currentGroupPath will be always set
       // https://gitlab.com/gitlab-org/gitlab/-/issues/223735
       return this.featureFlags.hasFilterBar && this.currentGroupPath;
+    },
+    shouldDisplayCreateMultipleValueStreams() {
+      return Boolean(this.featureFlags.hasCreateMultipleValueStreams);
     },
     isLoadingTypeOfWork() {
       return this.isLoadingTasksByTypeChartTopLabels || this.isLoadingTasksByTypeChart;
@@ -208,8 +213,14 @@ export default {
 </script>
 <template>
   <div>
-    <div class="mb-3">
+    <div
+      class="gl-mb-3 gl-display-flex gl-flex-direction-column gl-sm-flex-direction-row gl-justify-content-space-between"
+    >
       <h3>{{ __('Value Stream Analytics') }}</h3>
+      <value-stream-select
+        v-if="shouldDisplayCreateMultipleValueStreams"
+        class="gl-align-self-start gl-sm-align-self-start gl-mt-0 gl-sm-mt-5"
+      />
     </div>
     <div class="mw-100">
       <div class="mt-3 py-2 px-3 bg-gray-light border-top border-bottom">

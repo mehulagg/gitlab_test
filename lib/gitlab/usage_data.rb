@@ -18,7 +18,6 @@ module Gitlab
     class << self
       include Gitlab::Utils::UsageData
       include Gitlab::Utils::StrongMemoize
-      include Gitlab::UsageDataConcerns::Topology
 
       def data(force_refresh: false)
         Rails.cache.fetch('usage_data', force: force_refresh, expires_in: 2.weeks) do
@@ -67,8 +66,8 @@ module Gitlab
       # rubocop: disable Metrics/AbcSize
       # rubocop: disable CodeReuse/ActiveRecord
       def system_usage_data
-        alert_bot_incident_count = count(::Issue.authored(::User.alert_bot))
-        issues_created_manually_from_alerts = count(Issue.with_alert_management_alerts.not_authored_by(::User.alert_bot))
+        alert_bot_incident_count = count(::Issue.authored(::User.alert_bot), start: issue_minimum_id, finish: issue_maximum_id)
+        issues_created_manually_from_alerts = count(Issue.with_alert_management_alerts.not_authored_by(::User.alert_bot), start: issue_minimum_id, finish: issue_maximum_id)
 
         {
           counts: {
@@ -85,9 +84,9 @@ module Gitlab
             auto_devops_enabled: count(::ProjectAutoDevops.enabled),
             auto_devops_disabled: count(::ProjectAutoDevops.disabled),
             deploy_keys: count(DeployKey),
-            deployments: count(Deployment),
-            successful_deployments: count(Deployment.success),
-            failed_deployments: count(Deployment.failed),
+            deployments: deployment_count(Deployment),
+            successful_deployments: deployment_count(Deployment.success),
+            failed_deployments: deployment_count(Deployment.failed),
             environments: count(::Environment),
             clusters: count(::Clusters::Cluster),
             clusters_enabled: count(::Clusters::Cluster.enabled),
@@ -110,11 +109,12 @@ module Gitlab
             clusters_applications_knative: count(::Clusters::Applications::Knative.available),
             clusters_applications_elastic_stack: count(::Clusters::Applications::ElasticStack.available),
             clusters_applications_jupyter: count(::Clusters::Applications::Jupyter.available),
+            clusters_applications_cilium: count(::Clusters::Applications::Cilium.available),
             clusters_management_project: count(::Clusters::Cluster.with_management_project),
             in_review_folder: count(::Environment.in_review_folder),
             grafana_integrated_projects: count(GrafanaIntegration.enabled),
             groups: count(Group),
-            issues: count(Issue),
+            issues: count(Issue, start: issue_minimum_id, finish: issue_maximum_id),
             issues_created_from_gitlab_error_tracking_ui: count(SentryIssue),
             issues_with_associated_zoom_link: count(ZoomMeeting.added_to_issue),
             issues_using_zoom_quick_actions: distinct_count(ZoomMeeting, :issue_id),
@@ -124,7 +124,7 @@ module Gitlab
             issues_created_manually_from_alerts: issues_created_manually_from_alerts,
             incident_issues: alert_bot_incident_count,
             alert_bot_incident_issues: alert_bot_incident_count,
-            incident_labeled_issues: count(::Issue.with_label_attributes(IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES)),
+            incident_labeled_issues: count(::Issue.with_label_attributes(::IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES), start: issue_minimum_id, finish: issue_maximum_id),
             keys: count(Key),
             label_lists: count(List.label),
             lfs_objects: count(LfsObject),
@@ -159,7 +159,8 @@ module Gitlab
             usage_counters,
             user_preferences_usage,
             ingress_modsecurity_usage,
-            container_expiration_policies_usage
+            container_expiration_policies_usage,
+            service_desk_counts
           ).tap do |data|
             data[:snippets] = data[:personal_snippets] + data[:project_snippets]
           end
@@ -170,6 +171,9 @@ module Gitlab
       def system_usage_data_monthly
         {
           counts_monthly: {
+            deployments: deployment_count(Deployment.where(last_28_days_time_period)),
+            successful_deployments: deployment_count(Deployment.success.where(last_28_days_time_period)),
+            failed_deployments: deployment_count(Deployment.failed.where(last_28_days_time_period)),
             personal_snippets: count(PersonalSnippet.where(last_28_days_time_period)),
             project_snippets: count(ProjectSnippet.where(last_28_days_time_period))
           }.tap do |data|
@@ -207,6 +211,7 @@ module Gitlab
           ldap_enabled: alt_usage_data(fallback: nil) { Gitlab.config.ldap.enabled },
           mattermost_enabled: alt_usage_data(fallback: nil) { Gitlab.config.mattermost.enabled },
           omniauth_enabled: alt_usage_data(fallback: nil) { Gitlab::Auth.omniauth_enabled? },
+          prometheus_enabled: alt_usage_data(fallback: nil) { Gitlab::Prometheus::Internal.prometheus_enabled? },
           prometheus_metrics_enabled: alt_usage_data(fallback: nil) { Gitlab::Metrics.prometheus_metrics_enabled? },
           reply_by_email_enabled: alt_usage_data(fallback: nil) { Gitlab::IncomingEmail.enabled? },
           signup_enabled: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.allow_signup? },
@@ -250,20 +255,15 @@ module Gitlab
             enabled: alt_usage_data(fallback: nil) { Gitlab.config.pages.enabled },
             version: alt_usage_data { Gitlab::Pages::VERSION }
           },
+          container_registry: {
+            vendor: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.container_registry_vendor },
+            version: alt_usage_data(fallback: nil) { Gitlab::CurrentSettings.container_registry_version }
+          },
           database: {
             adapter: alt_usage_data { Gitlab::Database.adapter_name },
             version: alt_usage_data { Gitlab::Database.version }
-          },
-          app_server: { type: app_server_type }
+          }
         }
-      end
-
-      def app_server_type
-        Gitlab::Runtime.identify.to_s
-      rescue Gitlab::Runtime::IdentificationError => e
-        Gitlab::AppLogger.error(e.message)
-        Gitlab::ErrorTracking.track_exception(e)
-        'unknown_app_server_type'
       end
 
       def object_store_config(component)
@@ -298,6 +298,10 @@ module Gitlab
             packages: object_store_config('packages')
           }
         }
+      end
+
+      def topology_usage_data
+        Gitlab::UsageData::Topology.new.topology_usage_data
       end
 
       def ingress_modsecurity_usage
@@ -361,18 +365,15 @@ module Gitlab
           projects_jira_active: 0
         }
 
-        Service.active
-          .by_type(:JiraService)
-          .includes(:jira_tracker_data)
-          .find_in_batches(batch_size: BATCH_SIZE) do |services|
+        JiraService.active.includes(:jira_tracker_data).find_in_batches(batch_size: BATCH_SIZE) do |services|
           counts = services.group_by do |service|
             # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab/issues/29404
             service_url = service.data_fields&.url || (service.properties && service.properties['url'])
             service_url&.include?('.atlassian.net') ? :cloud : :server
           end
 
-          results[:projects_jira_server_active] += counts[:server].count if counts[:server]
-          results[:projects_jira_cloud_active] += counts[:cloud].count if counts[:cloud]
+          results[:projects_jira_server_active] += counts[:server].size if counts[:server]
+          results[:projects_jira_cloud_active] += counts[:cloud].size if counts[:cloud]
           results[:projects_jira_active] += services.size
         end
 
@@ -413,9 +414,8 @@ module Gitlab
         distinct_count(
           query,
           :author_id,
-          batch_size: 5_000, # Based on query performance, this is the optimal batch size.
-          start: User.minimum(:id),
-          finish: User.maximum(:id)
+          start: user_minimum_id,
+          finish: user_maximum_id
         )
       end
       # rubocop: enable CodeReuse/ActiveRecord
@@ -472,20 +472,48 @@ module Gitlab
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_create(time_period)
-        {}.tap do |h|
-          h[:merge_requests_users] = merge_requests_users(time_period) if time_period.present?
+        {
+          deploy_keys: distinct_count(::DeployKey.where(time_period), :user_id),
+          keys: distinct_count(::Key.regular_keys.where(time_period), :user_id),
+          merge_requests: distinct_count(::MergeRequest.where(time_period), :author_id),
+          projects_with_disable_overriding_approvers_per_merge_request: count(::Project.where(time_period.merge(disable_overriding_approvers_per_merge_request: true))),
+          projects_without_disable_overriding_approvers_per_merge_request: count(::Project.where(time_period.merge(disable_overriding_approvers_per_merge_request: [false, nil]))),
+          remote_mirrors: distinct_count(::Project.with_remote_mirrors.where(time_period), :creator_id),
+          snippets: distinct_count(::Snippet.where(time_period), :author_id)
+        }.tap do |h|
+          if time_period.present?
+            h[:merge_requests_users] = merge_requests_users(time_period)
+            h.merge!(action_monthly_active_users(time_period))
+          end
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       # Omitted because no user, creator or author associated: `campaigns_imported_from_github`, `ldap_group_links`
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_manage(time_period)
-        {}
+        {
+          events: distinct_count(::Event.where(time_period), :author_id),
+          groups: distinct_count(::GroupMember.where(time_period), :user_id),
+          users_created: count(::User.where(time_period), start: user_minimum_id, finish: user_maximum_id),
+          omniauth_providers: filtered_omniauth_provider_names.reject { |name| name == 'group_saml' }
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_monitor(time_period)
-        {}
+        {
+          clusters: distinct_count(::Clusters::Cluster.where(time_period), :user_id),
+          clusters_applications_prometheus: cluster_applications_user_distinct_count(::Clusters::Applications::Prometheus, time_period),
+          operations_dashboard_default_dashboard: count(::User.active.with_dashboard('operations').where(time_period),
+                                                        start: user_minimum_id,
+                                                        finish: user_maximum_id)
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def usage_activity_by_stage_package(time_period)
         {}
@@ -494,19 +522,47 @@ module Gitlab
       # Omitted because no user, creator or author associated: `boards`, `labels`, `milestones`, `uploads`
       # Omitted because too expensive: `epics_deepest_relationship_level`
       # Omitted because of encrypted properties: `projects_jira_cloud_active`, `projects_jira_server_active`
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_plan(time_period)
-        {}
+        {
+          issues: distinct_count(::Issue.where(time_period), :author_id),
+          notes: distinct_count(::Note.where(time_period), :author_id),
+          projects: distinct_count(::Project.where(time_period), :creator_id),
+          todos: distinct_count(::Todo.where(time_period), :author_id),
+          service_desk_enabled_projects: distinct_count_service_desk_enabled_projects(time_period),
+          service_desk_issues: count(::Issue.service_desk.where(time_period))
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       # Omitted because no user, creator or author associated: `environments`, `feature_flags`, `in_review_folder`, `pages_domains`
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_release(time_period)
-        {}
+        {
+          deployments: distinct_count(::Deployment.where(time_period), :user_id),
+          failed_deployments: distinct_count(::Deployment.failed.where(time_period), :user_id),
+          releases: distinct_count(::Release.where(time_period), :author_id),
+          successful_deployments: distinct_count(::Deployment.success.where(time_period), :user_id)
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       # Omitted because no user, creator or author associated: `ci_runners`
+      # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_verify(time_period)
-        {}
+        {
+          ci_builds: distinct_count(::Ci::Build.where(time_period), :user_id),
+          ci_external_pipelines: distinct_count(::Ci::Pipeline.external.where(time_period), :user_id, start: user_minimum_id, finish: user_maximum_id),
+          ci_internal_pipelines: distinct_count(::Ci::Pipeline.internal.where(time_period), :user_id, start: user_minimum_id, finish: user_maximum_id),
+          ci_pipeline_config_auto_devops: distinct_count(::Ci::Pipeline.auto_devops_source.where(time_period), :user_id, start: user_minimum_id, finish: user_maximum_id),
+          ci_pipeline_config_repository: distinct_count(::Ci::Pipeline.repository_source.where(time_period), :user_id, start: user_minimum_id, finish: user_maximum_id),
+          ci_pipeline_schedules: distinct_count(::Ci::PipelineSchedule.where(time_period), :owner_id),
+          ci_pipelines: distinct_count(::Ci::Pipeline.where(time_period), :user_id, start: user_minimum_id, finish: user_maximum_id),
+          ci_triggers: distinct_count(::Ci::Trigger.where(time_period), :owner_id),
+          clusters_applications_runner: cluster_applications_user_distinct_count(::Clusters::Applications::Runner, time_period)
+        }
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       # Currently too complicated and to get reliable counts for these stats:
       # container_scanning_jobs, dast_jobs, dependency_scanning_jobs, license_management_jobs, sast_jobs, secret_detection_jobs
@@ -524,7 +580,67 @@ module Gitlab
         { analytics_unique_visits: results }
       end
 
+      def action_monthly_active_users(time_period)
+        return {} unless Feature.enabled?(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG)
+
+        counter = Gitlab::UsageDataCounters::TrackUniqueActions
+
+        project_count = redis_usage_data do
+          counter.count_unique_events(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::PUSH_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        design_count = redis_usage_data do
+          counter.count_unique_events(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::DESIGN_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        wiki_count = redis_usage_data do
+          counter.count_unique_events(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::WIKI_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        {
+          action_monthly_active_users_project_repo: project_count,
+          action_monthly_active_users_design_management: design_count,
+          action_monthly_active_users_wiki_repo: wiki_count
+        }
+      end
+
       private
+
+      def distinct_count_service_desk_enabled_projects(time_period)
+        project_creator_id_start = user_minimum_id
+        project_creator_id_finish = user_maximum_id
+
+        distinct_count(::Project.service_desk_enabled.where(time_period), :creator_id, start: project_creator_id_start, finish: project_creator_id_finish) # rubocop: disable CodeReuse/ActiveRecord
+      end
+
+      # rubocop: disable CodeReuse/ActiveRecord
+      def service_desk_counts
+        projects_with_service_desk = ::Project.where(service_desk_enabled: true)
+
+        {
+          service_desk_enabled_projects: count(projects_with_service_desk),
+          service_desk_issues: count(
+            ::Issue.where(
+              project: projects_with_service_desk,
+              author: ::User.support_bot,
+              confidential: true
+            )
+          )
+        }
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def unique_visit_service
         strong_memoize(:unique_visit_service) do
@@ -536,9 +652,9 @@ module Gitlab
         # Remove prometheus table queries once they are deprecated
         # To be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/217407.
         [
-          count(Issue.with_alert_management_alerts),
-          count(::Issue.with_self_managed_prometheus_alert_events),
-          count(::Issue.with_prometheus_alert_events)
+          count(Issue.with_alert_management_alerts, start: issue_minimum_id, finish: issue_maximum_id),
+          count(::Issue.with_self_managed_prometheus_alert_events, start: issue_minimum_id, finish: issue_maximum_id),
+          count(::Issue.with_prometheus_alert_events, start: issue_minimum_id, finish: issue_maximum_id)
         ].reduce(:+)
       end
 
@@ -566,10 +682,28 @@ module Gitlab
         end
       end
 
+      def deployment_minimum_id
+        strong_memoize(:deployment_minimum_id) do
+          ::Deployment.minimum(:id)
+        end
+      end
+
+      def deployment_maximum_id
+        strong_memoize(:deployment_maximum_id) do
+          ::Deployment.maximum(:id)
+        end
+      end
+
       def clear_memoized
+        clear_memoization(:issue_minimum_id)
+        clear_memoization(:issue_maximum_id)
         clear_memoization(:user_minimum_id)
         clear_memoization(:user_maximum_id)
         clear_memoization(:unique_visit_service)
+        clear_memoization(:deployment_minimum_id)
+        clear_memoization(:deployment_maximum_id)
+        clear_memoization(:approval_merge_request_rule_minimum_id)
+        clear_memoization(:approval_merge_request_rule_maximum_id)
       end
 
       # rubocop: disable CodeReuse/ActiveRecord
@@ -581,6 +715,22 @@ module Gitlab
         distinct_count(clusters.where(time_period), :user_id)
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      def omniauth_provider_names
+        ::Gitlab.config.omniauth.providers.map(&:name)
+      end
+
+      # LDAP provider names are set by customers and could include
+      # sensitive info (server names, etc). LDAP providers normally
+      # don't appear in omniauth providers but filter to ensure
+      # no internal details leak via usage ping.
+      def filtered_omniauth_provider_names
+        omniauth_provider_names.reject { |name| name.starts_with?('ldap') }
+      end
+
+      def deployment_count(relation)
+        count relation, start: deployment_minimum_id, finish: deployment_maximum_id
+      end
     end
   end
 end

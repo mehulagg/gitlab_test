@@ -20,6 +20,7 @@ class MergeRequest < ApplicationRecord
   include IgnorableColumns
   include MilestoneEventable
   include StateEventable
+  include ApprovableBase
 
   extend ::Gitlab::Utils::Override
 
@@ -92,9 +93,6 @@ class MergeRequest < ApplicationRecord
   has_many :draft_notes
   has_many :reviews, inverse_of: :merge_request
 
-  has_many :approvals, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
-  has_many :approved_by_users, through: :approvals, source: :user
-
   KNOWN_MERGE_PARAMS = [
     :auto_merge_strategy,
     :should_remove_source_branch,
@@ -107,6 +105,7 @@ class MergeRequest < ApplicationRecord
 
   after_create :ensure_merge_request_diff
   after_update :clear_memoized_shas
+  after_update :clear_memoized_source_branch_exists
   after_update :reload_diff_if_branch_changed
   after_commit :ensure_metrics, on: [:create, :update], unless: :importing?
   after_commit :expire_etag_cache, unless: :importing?
@@ -252,23 +251,23 @@ class MergeRequest < ApplicationRecord
   end
   scope :join_project, -> { joins(:target_project) }
   scope :references_project, -> { references(:target_project) }
-
-  PROJECT_ROUTE_AND_NAMESPACE_ROUTE = [
-    target_project: [:route, { namespace: :route }],
-    source_project: [:route, { namespace: :route }]
-  ].freeze
-
   scope :with_api_entity_associations, -> {
-    preload(:assignees, :author, :unresolved_notes, :labels, :milestone,
-            :timelogs, :latest_merge_request_diff,
-            *PROJECT_ROUTE_AND_NAMESPACE_ROUTE,
-            metrics: [:latest_closed_by, :merged_by])
+    preload_routables
+      .preload(:assignees, :author, :unresolved_notes, :labels, :milestone,
+               :timelogs, :latest_merge_request_diff,
+               target_project: :project_feature,
+               metrics: [:latest_closed_by, :merged_by])
   }
+
   scope :by_target_branch_wildcard, ->(wildcard_branch_name) do
     where("target_branch LIKE ?", ApplicationRecord.sanitize_sql_like(wildcard_branch_name).tr('*', '%'))
   end
   scope :by_target_branch, ->(branch_name) { where(target_branch: branch_name) }
   scope :preload_source_project, -> { preload(:source_project) }
+  scope :preload_routables, -> do
+    preload(target_project: [:route, { namespace: :route }],
+            source_project: [:route, { namespace: :route }])
+  end
 
   scope :with_auto_merge_enabled, -> do
     with_state(:opened).where(auto_merge_enabled: true)
@@ -390,25 +389,27 @@ class MergeRequest < ApplicationRecord
     end
   end
 
-  WIP_REGEX = /\A*(\[WIP\]\s*|WIP:\s*|WIP\s+)+\s*/i.freeze
+  # WIP is deprecated in favor of Draft. Currently both options are supported
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/227426
+  DRAFT_REGEX = /\A*#{Regexp.union(Gitlab::Regex.merge_request_wip, Gitlab::Regex.merge_request_draft)}+\s*/i.freeze
 
   def self.work_in_progress?(title)
-    !!(title =~ WIP_REGEX)
+    !!(title =~ DRAFT_REGEX)
   end
 
   def self.wipless_title(title)
-    title.sub(WIP_REGEX, "")
+    title.sub(DRAFT_REGEX, "")
   end
 
   def self.wip_title(title)
-    work_in_progress?(title) ? title : "WIP: #{title}"
+    work_in_progress?(title) ? title : "Draft: #{title}"
   end
 
   def committers
     @committers ||= commits.committers
   end
 
-  # Verifies if title has changed not taking into account WIP prefix
+  # Verifies if title has changed not taking into account Draft prefix
   # for merge requests.
   def wipless_title_changed(old_title)
     self.class.wipless_title(old_title) != self.wipless_title
@@ -862,6 +863,10 @@ class MergeRequest < ApplicationRecord
     clear_memoization(:target_branch_head)
   end
 
+  def clear_memoized_source_branch_exists
+    clear_memoization(:source_branch_exists)
+  end
+
   def reload_diff_if_branch_changed
     if (saved_change_to_source_branch? || saved_change_to_target_branch?) &&
         (source_branch_head && target_branch_head)
@@ -1022,6 +1027,10 @@ class MergeRequest < ApplicationRecord
     target_project != source_project
   end
 
+  def for_same_project?
+    target_project == source_project
+  end
+
   # If the merge request closes any issues, save this information in the
   # `MergeRequestsClosingIssues` model. This is a performance optimization.
   # Calculating this information for a number of merge requests requires
@@ -1109,9 +1118,11 @@ class MergeRequest < ApplicationRecord
   end
 
   def source_branch_exists?
-    return false unless self.source_project
+    strong_memoize(:source_branch_exists) do
+      next false unless self.source_project
 
-    self.source_project.repository.branch_exists?(self.source_branch)
+      self.source_project.repository.branch_exists?(self.source_branch)
+    end
   end
 
   def target_branch_exists?
@@ -1169,12 +1180,12 @@ class MergeRequest < ApplicationRecord
   end
 
   def can_be_merged_by?(user)
-    access = ::Gitlab::UserAccess.new(user, project: project)
+    access = ::Gitlab::UserAccess.new(user, container: project)
     access.can_update_branch?(target_branch)
   end
 
   def can_be_merged_via_command_line_by?(user)
-    access = ::Gitlab::UserAccess.new(user, project: project)
+    access = ::Gitlab::UserAccess.new(user, container: project)
     access.can_push_to_branch?(target_branch)
   end
 
@@ -1285,7 +1296,7 @@ class MergeRequest < ApplicationRecord
 
   def all_pipelines
     strong_memoize(:all_pipelines) do
-      Ci::PipelinesForMergeRequestFinder.new(self).all
+      Ci::PipelinesForMergeRequestFinder.new(self, nil).all
     end
   end
 

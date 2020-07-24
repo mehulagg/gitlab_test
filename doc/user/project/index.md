@@ -78,7 +78,7 @@ When you create a project in GitLab, you'll have access to a large number of
       timeout (defines the maximum amount of time in minutes that a job is able run), custom path for `.gitlab-ci.yml`, test coverage parsing, pipeline's visibility, and much more
   - [Kubernetes cluster integration](clusters/index.md): Connecting your GitLab project
     with a Kubernetes cluster
-  - [Feature Flags](operations/feature_flags.md): Feature flags allow you to ship a project in
+  - [Feature Flags](../../operations/feature_flags.md): Feature flags allow you to ship a project in
     different flavors by dynamically toggling certain functionality **(PREMIUM)**
 - [GitLab Pages](pages/index.md): Build, test, and deploy your static
   website with GitLab Pages
@@ -96,9 +96,9 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Releases](releases/index.md): a way to track deliverables in your project as snapshot in time of
   the source, build output, other metadata, and other artifacts
   associated with a released version of your code.
-- [Conan packages](../packages/conan_repository/index.md): your private Conan repository in GitLab. **(PREMIUM)**
-- [Maven packages](../packages/maven_repository/index.md): your private Maven repository in GitLab. **(PREMIUM)**
-- [NPM packages](../packages/npm_registry/index.md): your private NPM package registry in GitLab. **(PREMIUM)**
+- [Conan packages](../packages/conan_repository/index.md): your private Conan repository in GitLab.
+- [Maven packages](../packages/maven_repository/index.md): your private Maven repository in GitLab.
+- [NPM packages](../packages/npm_registry/index.md): your private NPM package registry in GitLab.
 - [Code owners](code_owners.md): specify code owners for certain files **(STARTER)**
 - [License Compliance](../compliance/license_compliance/index.md): approve and deny licenses for projects. **(ULTIMATE)**
 - [Dependency List](../application_security/dependency_list/index.md): view project dependencies. **(ULTIMATE)**

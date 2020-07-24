@@ -9,9 +9,9 @@ type: reference, howto
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3775) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.3.
 
-NOTE: **4 of the top 6 attacks were application based.**
-Download our whitepaper,
-["A Seismic Shift in Application Security"](https://about.gitlab.com/resources/whitepaper-seismic-shift-application-security/)
+NOTE: **Note:**
+The whitepaper ["A Seismic Shift in Application Security"](https://about.gitlab.com/resources/whitepaper-seismic-shift-application-security/)
+explains how **4 of the top 6 attacks were application based**. Download it
 to learn how to protect your organization.
 
 ## Overview
@@ -28,7 +28,7 @@ You can take advantage of SAST by doing one of the following:
 GitLab checks the SAST report, compares the found vulnerabilities between the
 source and target branches, and shows the information right on the merge request.
 
-![SAST Widget](img/sast_v13_1.png)
+![SAST Widget](img/sast_v13_2.png)
 
 The results are sorted by the priority of the vulnerability:
 
@@ -51,14 +51,15 @@ A pipeline consists of multiple jobs, including SAST and DAST scanning. If any j
 
 ## Requirements
 
-To run SAST jobs, by default, you need GitLab Runner with the
+To run SAST jobs, by default, you need a GitLab Runner with the
 [`docker`](https://docs.gitlab.com/runner/executors/docker.html) or
 [`kubernetes`](https://docs.gitlab.com/runner/install/kubernetes.html) executor.
 If you're using the shared Runners on GitLab.com, this is enabled by default.
 
 Beginning with GitLab 13.0, Docker privileged mode is necessary only if you've [enabled Docker-in-Docker for SAST](#enabling-docker-in-docker).
 
-CAUTION: **Caution:** Our SAST jobs currently expect a Linux container type. Windows containers are not yet supported.
+CAUTION: **Caution:**
+Our SAST jobs currently expect a Linux container type. Windows containers are not yet supported.
 
 CAUTION: **Caution:**
 If you use your own Runners, make sure the Docker version installed
@@ -70,25 +71,25 @@ The following table shows which languages, package managers and frameworks are s
 
 | Language (package managers) / framework                                     | Scan tool                                                                              | Introduced in GitLab Version |
 |-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------|------------------------------|
-| .NET Core                                                                   | [Security Code Scan](https://security-code-scan.github.io)                             | 11.0                         |
-| .NET Framework                                                              | [Security Code Scan](https://security-code-scan.github.io)                             | 13.0                         |
-| Any                                                                         | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) | 11.9    |
-| Apex (Salesforce)                                                           | [PMD](https://pmd.github.io/pmd/index.html)                                            | 12.1                         |
-| C/C++                                                                       | [Flawfinder](https://github.com/david-a-wheeler/flawfinder)                            | 10.7                         |
-| Elixir (Phoenix)                                                            | [Sobelow](https://github.com/nccgroup/sobelow)                                         | 11.10                        |
-| Go                                                                          | [Gosec](https://github.com/securego/gosec)                                             | 10.7                         |
-| Groovy ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.3 (Gradle) & 11.9 (Ant, Maven, SBT) |
-| Helm Charts                                                                 | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 13.1                         |
+| .NET Core                                                                   | [Security Code Scan](https://security-code-scan.github.io)                             | 11.0                             |
+| .NET Framework                                                              | [Security Code Scan](https://security-code-scan.github.io)                             | 13.0                             |
+| Any                                                                         | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) | 11.9        |
+| Apex (Salesforce)                                                           | [PMD](https://pmd.github.io/pmd/index.html)                                            | 12.1                             |
+| C/C++                                                                       | [Flawfinder](https://github.com/david-a-wheeler/flawfinder)                            | 10.7                             |
+| Elixir (Phoenix)                                                            | [Sobelow](https://github.com/nccgroup/sobelow)                                         | 11.10                            |
+| Go                                                                          | [Gosec](https://github.com/securego/gosec)                                             | 10.7                             |
+| Groovy ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the     [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.3 (Gradle) & 11.9 (Ant, Maven, SBT) |
+| Helm Charts                                                                 | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 13.1                             |
 | Java ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 10.6 (Maven), 10.8 (Gradle) & 11.9 (Ant, SBT) |
-| JavaScript                                                                  | [ESLint security plugin](https://github.com/nodesecurity/eslint-plugin-security)       | 11.8                         |
+| JavaScript                                                                  | [ESLint security plugin](https://github.com/nodesecurity/eslint-plugin-security)       | 11.8, moved to [GitLab Core](https://about.gitlab.com/pricing/) in 13.2  |
 | Kubernetes manifests                                                        | [Kubesec](https://github.com/controlplaneio/kubesec)                                   | 12.6                         |
 | Node.js                                                                     | [NodeJsScan](https://github.com/ajinabraham/NodeJsScan)                                | 11.1                         |
 | PHP                                                                         | [phpcs-security-audit](https://github.com/FloeDesignTechnologies/phpcs-security-audit) | 10.8                         |
 | Python ([pip](https://pip.pypa.io/en/stable/))                              | [bandit](https://github.com/PyCQA/bandit)                                              | 10.3                         |
 | React                                                                       | [ESLint react plugin](https://github.com/yannickcr/eslint-plugin-react)                | 12.5                         |
-| Ruby on Rails                                                               | [brakeman](https://brakemanscanner.org)                                                | 10.3, moved to Core in 13.1  |
+| Ruby on Rails                                                               | [brakeman](https://brakemanscanner.org)                                                | 10.3, moved to [GitLab Core](https://about.gitlab.com/pricing/) in 13.1  |
 | Scala ([Ant](https://ant.apache.org/), [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) and [SBT](https://www.scala-sbt.org/)) | [SpotBugs](https://spotbugs.github.io/) with the [find-sec-bugs](https://find-sec-bugs.github.io/) plugin | 11.0 (SBT) & 11.9 (Ant, Gradle, Maven) |
-| TypeScript                                                                  | [`tslint-config-security`](https://github.com/webschik/tslint-config-security/) | 11.9 |
+| TypeScript                                                                  | [ESLint security plugin](https://github.com/nodesecurity/eslint-plugin-security)       | 11.9, merged with ESLint in 13.2 |
 
 NOTE: **Note:**
 The Java analyzers can also be used for variants like the
@@ -97,9 +98,12 @@ The Java analyzers can also be used for variants like the
 
 ### Making SAST analyzers available to all GitLab tiers
 
-All open source (OSS) analyzers are in the process of being reviewed and potentially moved to GitLab Core tier. Progress can be
+All open source (OSS) analyzers are in the process of being reviewed and potentially moved to the GitLab Core tier. Progress can be
 tracked in the corresponding
 [epic](https://gitlab.com/groups/gitlab-org/-/epics/2098).
+
+Please note that support for [Docker-in-Docker](#enabling-docker-in-docker)
+will not be extended to the GitLab Core tier.
 
 #### Summary of features per tier
 
@@ -204,7 +208,7 @@ Read more on [how to use private Maven repositories](../index.md#using-private-m
 If needed, you can enable Docker-in-Docker to restore the SAST behavior that existed prior to GitLab
 13.0. Follow these steps to do so:
 
-1. Configure GitLab Runner with Docker-inDocker in [privileged mode](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
+1. Configure a GitLab Runner with Docker-in-Docker in [privileged mode](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
 1. Set the variable `SAST_DISABLE_DIND` set to `false`:
 
    ```yaml
@@ -285,14 +289,16 @@ See [Analyzer settings](#analyzer-settings) for the complete list of available o
 
 SAST can be [configured](#customizing-the-sast-settings) using environment variables.
 
-#### Logging Level
+#### Logging level
 
-You can control the verbosity of logs by setting the `SECURE_LOG_LEVEL` env var. The default is set to `info`, you can set it to any of the following levels:
+To control the verbosity of logs set the `SECURE_LOG_LEVEL` environment variable. Messages of this logging level or higher are output. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10880) in GitLab 13.1.
+
+From highest to lowest severity, the logging levels are:
 
 - `fatal`
 - `error`
 - `warn`
-- `info`
+- `info` (default)
 - `debug`
 
 #### Custom Certificate Authority
@@ -315,17 +321,18 @@ The following are Docker image-related variables.
 
 Some analyzers make it possible to filter out vulnerabilities under a given threshold.
 
-| Environment variable    | Default value | Description |
-|-------------------------|---------------|-------------|
+| Environment variable          | Default value            | Description                                                                                                                                                                                                                 |
+|-------------------------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `SAST_EXCLUDED_PATHS`         | `spec, test, tests, tmp` | Exclude vulnerabilities from output based on the paths. This is a comma-separated list of patterns. Patterns can be globs, or file or folder paths (for example, `doc,spec` ). Parent directories will also match patterns. |
-| `SAST_BANDIT_EXCLUDED_PATHS`  |     | comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html); For example: `'*/tests/*'` |
-| `SAST_BRAKEMAN_LEVEL`   |         1 | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High. |
-| `SAST_FLAWFINDER_LEVEL` |         1 | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk. |
-| `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0 | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high. |
-| `SAST_GOSEC_LEVEL`      |         0 | Ignore Gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High. |
-| `SAST_GITLEAKS_COMMIT_FROM` |       | The commit a Gitleaks scan starts at. |
-| `SAST_GITLEAKS_COMMIT_TO` |         | The commit a Gitleaks scan ends at. |
-| `SAST_GITLEAKS_HISTORIC_SCAN` | false | Flag to enable a historic Gitleaks scan. |
+| `SAST_BANDIT_EXCLUDED_PATHS`  |                          | Comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html); For example: `'*/tests/*, */venv/*'`                                                            |
+| `SAST_BRAKEMAN_LEVEL`         | 1                        | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High.                                                                                                                                        |
+| `SAST_DISABLE_BABEL`          | `false`                  | Disable Babel processing for the NodeJsScan scanner. Set to `true` to disable Babel processing. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/33065) in GitLab 13.2.                                           |
+| `SAST_FLAWFINDER_LEVEL`       | 1                        | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk.                                                                                                                                  |
+| `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0                      | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high.                                                                                                                                                         |
+| `SAST_GOSEC_LEVEL`            | 0                        | Ignore Gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High.                                                                                                                   |
+| `SAST_GITLEAKS_COMMIT_FROM`   |                          | The commit a Gitleaks scan starts at.                                                                                                                                                                                       |
+| `SAST_GITLEAKS_COMMIT_TO`     |                          | The commit a Gitleaks scan ends at.                                                                                                                                                                                         |
+| `SAST_GITLEAKS_HISTORIC_SCAN` | `false`                  | Flag to enable a historic Gitleaks scan.                                                                                                                                                                                    |
 
 #### Docker-in-Docker orchestrator
 
@@ -343,12 +350,12 @@ The following variables configure the Docker-in-Docker orchestrator, and therefo
 
 Some analyzers can be customized with environment variables.
 
-| Environment variable        | Analyzer | Description |
-|-----------------------------|----------|-------------|
+| Environment variable                  | Analyzer             | Description |
+|---------------------------------------|----------------------|-------------|
 | `SCAN_KUBERNETES_MANIFESTS`           | Kubesec              | Set to `"true"` to scan Kubernetes manifests. |
 | `KUBESEC_HELM_CHARTS_PATH`            | Kubesec              | Optional path to Helm charts that `helm` will use to generate a Kubernetes manifest that `kubesec` will scan. If dependencies are defined, `helm dependency build` should be ran in a `before_script` to fetch the necessary dependencies. |
 | `KUBESEC_HELM_OPTIONS`                | Kubesec              | Additional arguments for the `helm` executable. |
-| `COMPILE`                             | SpotBugs             | Set to `"false"` to disable project compilation and dependency fetching |
+| `COMPILE`                             | SpotBugs             | Set to `false` to disable project compilation and dependency fetching. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/195252) in GitLab 13.1. |
 | `ANT_HOME`                            | SpotBugs             | The `ANT_HOME` environment variable. |
 | `ANT_PATH`                            | SpotBugs             | Path to the `ant` executable. |
 | `GRADLE_PATH`                         | SpotBugs             | Path to the `gradle` executable. |
@@ -362,6 +369,7 @@ Some analyzers can be customized with environment variables.
 | `FAIL_NEVER`                          | SpotBugs             | Set to `1` to ignore compilation failure. |
 | `SAST_GOSEC_CONFIG`                   | Gosec                | Path to configuration for Gosec (optional). |
 | `PHPCS_SECURITY_AUDIT_PHP_EXTENSIONS` | phpcs-security-audit | Comma separated list of additional PHP Extensions. |
+| `SEARCH_MAX_DEPTH`                    | any                  | Maximum number of directories traversed when searching for source code files. Default: `4`. |
 
 #### Custom environment variables
 
@@ -380,6 +388,9 @@ analyzer containers: `DOCKER_`, `CI`, `GITLAB_`, `FF_`, `HOME`, `PWD`, `OLDPWD`,
 
 The SAST tool emits a JSON report file. For more information, see the
 [schema for this report](https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/master/dist/sast-report-format.json).
+
+The JSON report file can be downloaded from the CI pipelines page, for more
+information see [Downloading artifacts](../../../ci/pipelines/job_artifacts.md).
 
 Here's an example SAST report:
 
@@ -492,8 +503,8 @@ run successfully. For more information, see [Offline environments](../offline_de
 To use SAST in an offline environment, you need:
 
 - To keep Docker-In-Docker disabled (default).
-- GitLab Runner with the [`docker` or `kubernetes` executor](#requirements).
-- Docker Container Registry with locally available copies of SAST [analyzer](https://gitlab.com/gitlab-org/security-products/analyzers) images.
+- A GitLab Runner with the [`docker` or `kubernetes` executor](#requirements).
+- A Docker Container Registry with locally available copies of SAST [analyzer](https://gitlab.com/gitlab-org/security-products/analyzers) images.
 
 NOTE: **Note:**
 GitLab Runner has a [default `pull policy` of `always`](https://docs.gitlab.com/runner/executors/docker.html#using-the-always-pull-policy),
@@ -523,7 +534,6 @@ registry.gitlab.com/gitlab-org/security-products/analyzers/secrets:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/security-code-scan:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/sobelow:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2
-registry.gitlab.com/gitlab-org/security-products/analyzers/tslint:2
 ```
 
 The process for importing Docker images into a local offline Docker registry depends on

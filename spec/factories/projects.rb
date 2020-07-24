@@ -61,7 +61,7 @@ FactoryBot.define do
         hash.store("pages_access_level", evaluator.pages_access_level)
       end
 
-      project.project_feature.update(hash)
+      project.project_feature.update!(hash)
 
       # Normally the class Projects::CreateService is used for creating
       # projects, and this class takes care of making sure the owner and current
@@ -82,7 +82,7 @@ FactoryBot.define do
         import_state.jid = evaluator.import_jid
         import_state.correlation_id_value = evaluator.import_correlation_id
         import_state.last_error = evaluator.import_last_error
-        import_state.save
+        import_state.save!
       end
     end
 
@@ -316,6 +316,14 @@ FactoryBot.define do
     end
   end
 
+  trait :service_desk_disabled do
+    service_desk_enabled { nil }
+  end
+
+  trait(:service_desk_enabled) do
+    service_desk_enabled { true }
+  end
+
   # Project with empty repository
   #
   # This is a case when you just created a project
@@ -372,6 +380,13 @@ FactoryBot.define do
           manual_configuration: true
         }
       )
+    end
+  end
+
+  factory :project_with_design, parent: :project do
+    after(:create) do |project|
+      issue = create(:issue, project: project)
+      create(:design, project: project, issue: issue)
     end
   end
 end

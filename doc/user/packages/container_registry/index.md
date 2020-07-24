@@ -71,7 +71,7 @@ This view will:
 - Allow you to [delete](#delete-images-from-within-gitlab) one or more image repository.
 - Allow you to navigate to the image repository details page.
 - Show a **Quick start** dropdown with the most common commands to log in, build and push
-- Optionally, a banner will be visible if the [expiration policy](#expiration-policy) is enabled for this project.
+- Optionally, a banner will be visible if the [cleanup policy](#cleanup-policy) is enabled for this project.
 
 ### Control Container Registry for your group
 
@@ -248,10 +248,10 @@ should look similar to this:
 
 ```yaml
 build:
-  image: docker:19.03.11
+  image: docker:19.03.12
   stage: build
   services:
-    - docker:19.03.11-dind
+    - docker:19.03.12-dind
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY/group/project/image:latest .
@@ -262,10 +262,10 @@ You can also make use of [other variables](../../../ci/variables/README.md) to a
 
 ```yaml
 build:
-  image: docker:19.03.11
+  image: docker:19.03.12
   stage: build
   services:
-    - docker:19.03.11-dind
+    - docker:19.03.12-dind
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   script:
@@ -288,9 +288,9 @@ when needed. Changes to `master` also get tagged as `latest` and deployed using
 an application-specific deploy script:
 
 ```yaml
-image: docker:19.03.11
+image: docker:19.03.12
 services:
-  - docker:19.03.11-dind
+  - docker:19.03.12-dind
 
 stages:
   - build
@@ -363,9 +363,9 @@ Below is an example of what your `.gitlab-ci.yml` should look like:
 
 ```yaml
  build:
-   image: $CI_REGISTRY/group/project/docker:19.03.11
+   image: $CI_REGISTRY/group/project/docker:19.03.12
    services:
-     - name: $CI_REGISTRY/group/project/docker:19.03.11-dind
+     - name: $CI_REGISTRY/group/project/docker:19.03.12-dind
        alias: docker
    stage: build
    script:
@@ -373,7 +373,7 @@ Below is an example of what your `.gitlab-ci.yml` should look like:
      - docker run my-docker-image /script/to/run/tests
 ```
 
-If you forget to set the service alias, the `docker:19.03.11` image won't find the
+If you forget to set the service alias, the `docker:19.03.12` image won't find the
 `dind` service, and an error like the following will be thrown:
 
 ```plaintext
@@ -443,10 +443,10 @@ stages:
   - clean
 
 build_image:
-  image: docker:19.03.11
+  image: docker:19.03.12
   stage: build
   services:
-    - docker:19.03.11-dind
+    - docker:19.03.12-dind
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   script:
@@ -459,10 +459,10 @@ build_image:
     - master
 
 delete_image:
-  image: docker:19.03.11
+  image: docker:19.03.12
   stage: clean
   services:
-    - docker:19.03.11-dind
+    - docker:19.03.12-dind
   variables:
     IMAGE_TAG: $CI_PROJECT_PATH:$CI_COMMIT_REF_SLUG
     REG_SHA256: ade837fc5224acd8c34732bf54a94f579b47851cc6a7fd5899a98386b782e228
@@ -486,93 +486,85 @@ You can download the latest `reg` release from
 the code example by changing the `REG_SHA256` and `REG_VERSION` variables
 defined in the `delete_image` job.
 
-### Delete images using an expiration policy
+### Delete images by using a cleanup policy
 
-You can create a per-project [expiration policy](#expiration-policy) to ensure
-older tags and images are regularly removed from the Container Registry.
+You can create a per-project [cleanup policy](#cleanup-policy) to ensure older tags and images are regularly removed from the
+Container Registry.
 
-## Expiration policy
+## Cleanup policy
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15398) in GitLab 12.8.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15398) in GitLab 12.8.
+> - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/218737) from "expiration policy" to "cleanup policy" in GitLab 13.2.
 
-For a specific project, if you want to remove tags you no longer need,
-you can create an expiration policy. When the policy is applied, tags matching the regex pattern are removed.
+The cleanup policy is a scheduled job you can use to remove tags from the Container Registry.
+For the project where it's defined, tags matching the regex pattern are removed.
 The underlying layers and images remain.
 
-To delete the underlying layers and images no longer associated with any tags, Instance Administrators can use
+To delete the underlying layers and images that aren't associated with any tags, administrators can use
 [garbage collection](../../../administration/packages/container_registry.md#removing-unused-layers-not-referenced-by-manifests) with the `-m` switch.
 
-NOTE: **Note:**
-For GitLab.com, expiration policies are not available for projects created before GitLab 12.8.
-For self-managed instances, expiration policies may be enabled by an admin in the
-[CI/CD Package Registry settings](./../../admin_area/settings/index.md#cicd).
-Note the inherent [risks involved](./index.md#use-with-external-container-registries).
+### Enable the cleanup policy
 
-The expiration policy algorithm starts by collecting all the tags for a given repository in a list,
-then goes through a process of excluding tags from it until only the ones to be deleted remain:
+Cleanup policies can be run on all projects, with these exceptions:
 
-1. Collect all the tags for a given repository in a list.
+- For GitLab.com, the project must have been created after 2020-02-22.
+  Support for projects created earlier
+  [is planned](https://gitlab.com/gitlab-org/gitlab/-/issues/196124).
+- For self-managed GitLab instances, the project must have been created
+  in GitLab 12.8 or later. However, an administrator can enable the cleanup policy
+  for all projects (even those created before 12.8) in
+  [GitLab application settings](../../../api/settings.md#change-application-settings)
+  by setting `container_expiration_policies_enable_historic_entries` to true.
+
+  There are performance risks with enabling it for all projects, especially if you
+  are using an [external registry](./index.md#use-with-external-container-registries).
+
+### How the cleanup policy works
+
+The cleanup policy collects all tags in the Container Registry and excludes tags
+until only the tags to be deleted remain.
+
+The cleanup policy:
+
+1. Collects all tags for a given repository in a list.
 1. Excludes the tag named `latest` from the list.
-1. Evaluates the `name_regex`, excluding non-matching names from the list.
-1. Excludes any tags that do not have a manifest (not part of the options).
+1. Evaluates the `name_regex` (tags to expire), excluding non-matching names from the list.
+1. Excludes any tags that do not have a manifest (not part of the options in the UI).
 1. Orders the remaining tags by `created_date`.
 1. Excludes from the list the N tags based on the `keep_n` value (Number of tags to retain).
 1. Excludes from the list the tags more recent than the `older_than` value (Expiration interval).
-1. Excludes from the list any tags matching the `name_regex_keep` value (Images to preserve).
+1. Excludes from the list any tags matching the `name_regex_keep` value (tags to preserve).
 1. Finally, the remaining tags in the list are deleted from the Container Registry.
 
-### Managing project expiration policy through the UI
+### Create a cleanup policy
 
-To manage project expiration policy, navigate to **{settings}** **Settings > CI/CD > Container Registry tag expiration policy**.
+You can create a cleanup policy in [the API](#use-the-cleanup-policy-api) or the UI.
 
-![Expiration Policy App](img/expiration_policy_app_v13_0.png)
+To create a cleanup policy in the UI:
 
-The UI allows you to configure the following:
+1. For your project, go to **Settings > CI/CD**.
+1. Expand the **Cleanup policy for tags** section.
+1. Complete the fields.
 
-- **Expiration policy:** enable or disable the expiration policy.
-- **Expiration interval:** how long tags are exempt from being deleted.
-- **Expiration schedule:** how often the cron job checking the tags should run.
-- **Number of tags to retain:** how many tags to _always_ keep for each image.
-- **Docker tags with names matching this regex pattern will expire:** the regex used to determine what tags should be expired. To qualify all tags for expiration, use the default value of `.*`.
-- **Docker tags with names matching this regex pattern will be preserved:** the regex used to determine what tags should be preserved. To preserve all tags, use the default value of `.*`.
+   | Field                                                                     | Description                                                                                                       |
+   |---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+   | **Cleanup policy**                                                        | Turn the policy on or off.                                                                                        |
+   | **Expiration interval**                                                   | How long tags are exempt from being deleted.                                                                      |
+   | **Expiration schedule**                                                   | How often the policy should run.                                                                                  |
+   | **Number of tags to retain**                                              | How many tags to _always_ keep for each image.                                                                    |
+   | **Tags with names matching this regex pattern will expire:**              | The regex pattern that determines which tags to remove. For all tags, use `.*`. See other [regex pattern examples](#regex-pattern-examples). |
+   | **Tags with names matching this regex pattern will be preserved:**        | The regex pattern that determines which tags to preserve. The `latest` tag is always preserved. For all tags, use `.*`. See other [regex pattern examples](#regex-pattern-examples). |
 
-#### Troubleshooting expiration policies
+1. Click **Set cleanup policy**.
 
-If you see the following message:
+Depending on the interval you chose, the policy is scheduled to run.
 
-"Something went wrong while updating the expiration policy."
-
-Check the regex patterns to ensure they are valid.
-
-You can use [Rubular](https://rubular.com/) to check your regex.
-View some common [regex pattern examples](#regex-pattern-examples).
-
-### Managing project expiration policy through the API
-
-You can set, update, and disable the expiration policies using the GitLab API.
-
-Examples:
-
-- Select all tags, keep at least 1 tag per image, expire any tag older than 14 days, run once a month, preserve any images with the name `master` and the policy is enabled:
-
-  ```shell
-  curl --request PUT --header 'Content-Type: application/json;charset=UTF-8' --header "PRIVATE-TOKEN: <your_access_token>" --data-binary '{"container_expiration_policy_attributes":{"cadence":"1month","enabled":true,"keep_n":1,"older_than":"14d","name_regex":"","name_regex_delete":".*","name_regex_keep":".*-master"}}' 'https://gitlab.example.com/api/v4/projects/2'
-  ```
-
-See the API documentation for further details: [Edit project](../../../api/projects.md#edit-project).
-
-### Use with external container registries
-
-When using an [external container registry](./../../../administration/packages/container_registry.md#use-an-external-container-registry-with-gitlab-as-an-auth-endpoint),
-running an expiration policy on a project may have some performance risks. If a project is going to run
-a policy that will remove large quantities of tags (in the thousands), the GitLab background jobs that
-run the policy may get backed up or fail completely. It is recommended you only enable container expiration
-policies for projects that were created before GitLab 12.8 if you are confident the amount of tags
-being cleaned up will be minimal.
+NOTE: **Note:**
+If you edit the policy and click **Set cleanup policy** again, the interval is reset.
 
 ### Regex pattern examples
 
-Expiration policies use regex patterns to determine which tags should be preserved or removed, both in the UI and the API.
+Cleanup policies use regex patterns to determine which tags should be preserved or removed, both in the UI and the API.
 
 Here are examples of regex patterns you may want to use:
 
@@ -600,6 +592,40 @@ Here are examples of regex patterns you may want to use:
   (?:v.+|master|release)
   ```
 
+### Use the cleanup policy API
+
+You can set, update, and disable the cleanup policies using the GitLab API.
+
+Examples:
+
+- Select all tags, keep at least 1 tag per image, clean up any tag older than 14 days, run once a month, preserve any images with the name `master` and the policy is enabled:
+
+  ```shell
+  curl --request PUT --header 'Content-Type: application/json;charset=UTF-8' --header "PRIVATE-TOKEN: <your_access_token>" --data-binary '{"container_expiration_policy_attributes":{"cadence":"1month","enabled":true,"keep_n":1,"older_than":"14d","name_regex":"","name_regex_delete":".*","name_regex_keep":".*-master"}}' 'https://gitlab.example.com/api/v4/projects/2'
+  ```
+
+See the API documentation for further details: [Edit project](../../../api/projects.md#edit-project).
+
+### Use with external container registries
+
+When using an [external container registry](./../../../administration/packages/container_registry.md#use-an-external-container-registry-with-gitlab-as-an-auth-endpoint),
+running a cleanup policy on a project may have some performance risks. If a project is going to run
+a policy that will remove large quantities of tags (in the thousands), the GitLab background jobs that
+run the policy may get backed up or fail completely. It is recommended you only enable container cleanup
+policies for projects that were created before GitLab 12.8 if you are confident the amount of tags
+being cleaned up will be minimal.
+
+### Troubleshooting cleanup policies
+
+If you see the following message:
+
+"Something went wrong while updating the cleanup policy."
+
+Check the regex patterns to ensure they are valid.
+
+You can use [Rubular](https://rubular.com/) to check your regex.
+View some common [regex pattern examples](#regex-pattern-examples).
+
 ## Use the Container Registry to store Helm Charts
 
 With the launch of [Helm v3](https://helm.sh/docs/topics/registries/),
@@ -616,7 +642,7 @@ once you have pushed images, because the images are signed, and the
 signature includes the repository name. To move or rename a repository with a
 Container Registry, you will have to delete all existing images.
 - Prior to GitLab 12.10, any tags that use the same image ID as the `latest` tag
-will not be deleted by the expiration policy.
+will not be deleted by the cleanup policy.
 
 ## Troubleshooting the GitLab Container Registry
 

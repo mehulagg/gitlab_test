@@ -44,7 +44,6 @@ import {
   deploymentData,
   environmentData,
   annotationsData,
-  mockTemplatingData,
   dashboardGitResponse,
   mockDashboardsErrorResponse,
 } from '../mock_data';
@@ -303,32 +302,6 @@ describe('Monitoring store actions', () => {
         metricsDashboardResponse.dashboard,
       );
       expect(dispatch).toHaveBeenCalledWith('fetchDashboardData');
-    });
-
-    it('stores templating variables', () => {
-      const response = {
-        ...metricsDashboardResponse.dashboard,
-        ...mockTemplatingData.allVariableTypes.dashboard,
-      };
-
-      receiveMetricsDashboardSuccess(
-        { state, commit, dispatch },
-        {
-          response: {
-            ...metricsDashboardResponse,
-            dashboard: {
-              ...metricsDashboardResponse.dashboard,
-              ...mockTemplatingData.allVariableTypes.dashboard,
-            },
-          },
-        },
-      );
-
-      expect(commit).toHaveBeenCalledWith(
-        types.RECEIVE_METRICS_DASHBOARD_SUCCESS,
-
-        response,
-      );
     });
 
     it('sets the dashboards loaded from the repository', () => {
@@ -899,6 +872,11 @@ describe('Monitoring store actions', () => {
       state.projectPath = 'gitlab-org/gitlab-test';
       state.currentEnvironmentName = 'production';
       state.currentDashboard = '.gitlab/dashboards/dashboard_with_warnings.yml';
+      // testAction doesn't have access to getters. The state is passed in as getters
+      // instead of the actual getters inside the testAction method implementation.
+      // All methods downstream that needs access to getters will throw and error.
+      // For that reason, the result of the getter is set as a state variable.
+      state.fullDashboardPath = store.getters['monitoringDashboard/fullDashboardPath'];
 
       mockMutate = jest.spyOn(gqClient, 'mutate');
       mutationVariables = {
@@ -906,7 +884,7 @@ describe('Monitoring store actions', () => {
         variables: {
           projectPath: state.projectPath,
           environmentName: state.currentEnvironmentName,
-          dashboardPath: state.currentDashboard,
+          dashboardPath: state.fullDashboardPath,
         },
       };
     });
@@ -960,6 +938,25 @@ describe('Monitoring store actions', () => {
               ],
             },
           },
+        },
+      });
+
+      return testAction(
+        fetchDashboardValidationWarnings,
+        null,
+        state,
+        [],
+        [{ type: 'receiveDashboardValidationWarningsSuccess', payload: false }],
+        () => {
+          expect(mockMutate).toHaveBeenCalledWith(mutationVariables);
+        },
+      );
+    });
+
+    it('dispatches receiveDashboardValidationWarningsSuccess with false payload when the response is empty ', () => {
+      mockMutate.mockResolvedValue({
+        data: {
+          project: null,
         },
       });
 
@@ -1144,11 +1141,13 @@ describe('Monitoring store actions', () => {
   describe('fetchVariableMetricLabelValues', () => {
     const variable = {
       type: 'metric_label_values',
+      name: 'label1',
       options: {
-        prometheusEndpointPath: '/series',
+        prometheusEndpointPath: '/series?match[]=metric_name',
         label: 'job',
       },
     };
+
     const defaultQueryParams = {
       start_time: '2019-08-06T12:40:02.184Z',
       end_time: '2019-08-06T20:40:02.184Z',
@@ -1158,9 +1157,7 @@ describe('Monitoring store actions', () => {
       state = {
         ...state,
         timeRange: defaultTimeRange,
-        variables: {
-          label1: variable,
-        },
+        variables: [variable],
       };
     });
 
@@ -1176,7 +1173,7 @@ describe('Monitoring store actions', () => {
         },
       ];
 
-      mock.onGet('/series').reply(200, {
+      mock.onGet('/series?match[]=metric_name').reply(200, {
         status: 'success',
         data,
       });
@@ -1196,7 +1193,7 @@ describe('Monitoring store actions', () => {
     });
 
     it('should notify the user that dynamic options were not loaded', () => {
-      mock.onGet('/series').reply(500);
+      mock.onGet('/series?match[]=metric_name').reply(500);
 
       return testAction(fetchVariableMetricLabelValues, { defaultQueryParams }, state, [], []).then(
         () => {

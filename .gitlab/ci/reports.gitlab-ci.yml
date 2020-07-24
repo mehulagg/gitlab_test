@@ -58,7 +58,8 @@ code_quality:
     SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
     SAST_ANALYZER_IMAGE_TAG: 2
     SAST_BRAKEMAN_LEVEL: 2  # GitLab-specific
-    SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec  # GitLab-specific
+    SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec,config/gitlab.yml.example  # GitLab-specific
+    SAST_DISABLE_BABEL: "true"
   script:
     - /analyzer run
 
@@ -72,11 +73,10 @@ eslint-sast:
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
 
-# Temporary disabled as it's constantly failing. See https://gitlab.com/gitlab-org/gitlab/-/issues/213769.
-# nodejs-scan-sast:
-#   extends: .sast
-#   image:
-#     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+nodejs-scan-sast:
+  extends: .sast
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
 
 secrets-sast:
   extends: .sast
@@ -146,73 +146,187 @@ dependency_scanning:
       dependency_scanning: gl-dependency-scanning-report.json
     expire_in: 1 week  # GitLab-specific
 
-<<<<<<< HEAD
+# We need to duplicate this job's definition because it seems it's impossible to
+# override an included `only.refs`.
+# See https://gitlab.com/gitlab-org/gitlab/issues/31371.
+# check for commit
+# Existing DAST configuration for Baseline scan
 # Temporarily disabling review apps
 ## We need to duplicate this job's definition because it seems it's impossible to
 ## override an included `only.refs`.
 ## See https://gitlab.com/gitlab-org/gitlab/issues/31371.
-#dast:
-#  extends:
-#    - .default-retry
-#    - .reports:rules:dast
-#  # This is needed so that manual jobs with needs don't block the pipeline.
-#  # See https://gitlab.com/gitlab-org/gitlab/-/issues/199979.
-#  dependencies: ["review-deploy"]
-#  stage: qa  # GitLab-specific
-#  image:
-#    name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
-#  variables:
-#    # To be done in a later iteration
-#    # DAST_USERNAME: "root"
-#    # DAST_USERNAME_FIELD: "user[login]"
-#    # DAST_PASSWORD_FIELD: "user[passowrd]"
-#    DAST_VERSION: 1
-#  script:
-#    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
-#    # To be done in a later iteration
-#    # - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
-#    # - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-#    - /analyze -t $DAST_WEBSITE
-#  artifacts:
-#    paths:
-#      - gl-dast-report.json  # GitLab-specific
-#    reports:
-#      dast: gl-dast-report.json
-#    expire_in: 1 week  # GitLab-specific
-=======
-# We need to duplicate this job's definition because it seems it's impossible to
-# override an included `only.refs`.
-# See https://gitlab.com/gitlab-org/gitlab/issues/31371.
-dast:
-  extends:
-    - .default-retry
-    - .reports:rules:dast
-  # This is needed so that manual jobs with needs don't block the pipeline.
-  # See https://gitlab.com/gitlab-org/gitlab/-/issues/199979.
-  dependencies: ["review-deploy"]
-  stage: qa  # GitLab-specific
-  image:
-    name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
-  variables:
-    # To be done in a later iteration
-    DAST_USERNAME: "root"
-    DAST_USERNAME_FIELD: "user[login]"
-    DAST_PASSWORD_FIELD: "user[passowrd]"
-    DAST_VERSION: 1
+# dast:
+#   extends:
+#     - .default-retry
+#     - .reports:rules:dast
+#   # This is needed so that manual jobs with needs don't block the pipeline.
+#   # See https://gitlab.com/gitlab-org/gitlab/-/issues/199979.
+#   dependencies: ["review-deploy"]
+#   stage: qa  # GitLab-specific
+#   image:
+#     name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
+#   variables:
+#     # To be done in a later iteration
+#     # DAST_USERNAME: "root"
+#     # DAST_USERNAME_FIELD: "user[login]"
+#     # DAST_PASSWORD_FIELD: "user[passowrd]"
+#     DAST_VERSION: 1
+#   script:
+#     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+#     # To be done in a later iteration
+#     # - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+#     # - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+#     - /analyze -t $DAST_WEBSITE
+#   artifacts:
+#     paths:
+#       - gl-dast-report.json  # GitLab-specific
+#     reports:
+#       dast: gl-dast-report.json
+#     expire_in: 1 week  # GitLab-specific
+
+# Seed test data
+DAST-prepare:
+  stage: review-after
+  image: alpine
+  needs: ["review-deploy"]
   script:
-    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
-    # To be done in a later iteration
-    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
-    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-    - /analyze -t $DAST_WEBSITE
+    - apk add jq curl
+    - export REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
+    - export CI_ENVIRONMENT_URL=$(cat environment_url.txt)
+    - source scripts/review_apps/seed-dast-test-data.sh
+    - USERID=$(create_user "user1")
+    - create_project_for_user $(USERID)
+    - USERID=$(create_user "user2")
+    - create_project_for_user $(USERID)
+    - USERID=$(create_user "user3")
+    - create_project_for_user $(USERID)
+    - USERID=$(create_user "user4")
+    - create_project_for_user $(USERID)
+    - USERID=$(create_user "user5")
+    - create_project_for_user $(USERID)
+
+# DAST full scan configurations
+# Common DAST configs that is applicable for DAST-fullscan-* jobs
+.dast_conf:
+  tags:
+    - prm
+  extends:
+    - .reports:rules:dast
+    # - .default-retry
+  image:
+    # name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
+    # Image details: https://gitlab.com/gitlab-org/gitlab/-/issues/228635#note_381361029
+    name: registry.gitlab.com/gitlab-org/security-products/dast/da-print-urls-before-rules-run:6d543dd73e478a147aae3ba6ab9d0bb01775a17b
+    # name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
+  timeout: 2h
+  variables:
+    DAST_USERNAME_FIELD: "user[login]"
+    DAST_PASSWORD_FIELD: "user[password]"
+    DAST_FULL_SCAN_ENABLED: "true"
+    DAST_SPIDER_MINS: 0
+    DAST_VERSION: 1
+    DAST_ZAP_CLI_OPTIONS: "-Xmx6144m -config database.recoverylog=false" #To avoid OutOfMemoryError error
+  needs: ["DAST-prepare"]
+  stage: sec-dast
   artifacts:
     paths:
       - gl-dast-report.json  # GitLab-specific
     reports:
       dast: gl-dast-report.json
     expire_in: 1 week  # GitLab-specific
->>>>>>> Uncomment exisiting DAST config
-
+# DAST-fullscan-1/2 - This job runs the DAST scan with Release rule
+# DAST-fullscan-1/2:
+#   extends:
+#     - .dast_conf
+#   resource_group: dynamic_testing
+#   script:
+#     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+#     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+#     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+#     - 'mkdir -p /zap/wrk'
+#     - 'printf "41\tIGNORE\t(Source Code Disclosure - Git - Active/beta)\n42\tIGNORE\t(Source Code Disclosure - SVN - Active/beta)\n43\tIGNORE\t(Source Code Disclosure - File Inclusion - Active/beta)\n10027\tIGNORE\t(Information Disclosure - Suspicious Comments - Passive/release)\n10032\tIGNORE\t(Viewstate Scanner - Passive/release)\n10041\tIGNORE\t(HTTP to HTTPS Insecure Transition in Form Post - Passive/beta)\n10042\tIGNORE\t(HTTPS to HTTP Insecure Transition in Form Post - Passive/beta)\n10045\tIGNORE\t(Source Code Disclosure - /WEB-INF folder - Active/release)\n10047\tIGNORE\t(HTTPS Content Available via HTTP - Active/beta)\n10052\tIGNORE\t(X-ChromeLogger-Data (XCOLD) Header Information Leak - Passive/beta)\n10053\tIGNORE\t(Apache Range Header DoS (CVE-2011-3192) - Active/beta)\n10057\tIGNORE\t(Username Hash Found - Passive/release)\n10061\tIGNORE\t(X-AspNet-Version Response Header Scanner - Passive/release)\n10096\tIGNORE\t(Timestamp Disclosure - Passive/release)\n10097\tIGNORE\t(Hash Disclosure - Passive/beta)\n10104\tIGNORE\t(User Agent Fuzzer - Active/beta)\n10106\tIGNORE\t(HTTP Only Site - Active/beta)\n20012\tIGNORE\t(Anti CSRF Tokens Scanner - Active/beta)\n20014\tIGNORE\t(HTTP Parameter Pollution scanner - Active/beta)\n20015\tIGNORE\t(Heartbleed OpenSSL Vulnerability - Active/beta)\n20016\tIGNORE\t(Cross-Domain Misconfiguration - Active/beta)\n20017\tIGNORE\t(Source Code Disclosure - CVE-2012-1823 - Active/beta)\n20018\tIGNORE\t(Remote Code Execution - CVE-2012-1823 - Active/beta)\n40019\tIGNORE\t(SQL Injection - MySQL - Active/beta)\n40020\tIGNORE\t(SQL Injection - Hypersonic SQL - Active/beta)\n40021\tIGNORE\t(SQL Injection - Oracle - Active/beta)\n40024\tIGNORE\t(SQL Injection - SQLite - Active/beta)\n40025\tIGNORE\t(Proxy Disclosure - Active/beta)\n40027\tIGNORE\t(SQL Injection - MsSQL - Active/beta)\n40029\tIGNORE\t(Trace.axd Information Leak - Active/beta)\n40032\tIGNORE\t(.htaccess Information Leak - Active/beta)\n90001\tIGNORE\t(Insecure JSF ViewState - Passive/release)\n10026\tIGNORE\t(HTTP Parameter Override - Passive/beta)\n10028\tIGNORE\t(Open Redirect - Passive/beta)\n10029\tIGNORE\t(Cookie Poisoning - Passive/beta)\n10030\tIGNORE\t(User Controllable Charset - Passive/beta)\n10031\tIGNORE\t(User Controllable HTML Element Attribute (Potential XSS) - Passive/beta)\n10033\tIGNORE\t(Directory Browsing - Passive/beta)\n10034\tIGNORE\t(Heartbleed OpenSSL Vulnerability (Indicative) - Passive/beta)\n10035\tIGNORE\t(Strict-Transport-Security Header Scanner - Passive/beta)\n10036\tIGNORE\t(HTTP Server Response Header Scanner - Passive/beta)\n10038\tIGNORE\t(Content Security Policy (CSP) Header Not Set - Passive/beta)\n10039\tIGNORE\t(X-Backend-Server Header Information Leak - Passive/beta)\n10043\tIGNORE\t(User Controllable JavaScript Event (XSS) - Passive/beta)\n10044\tIGNORE\t(Big Redirect Detected (Potential Sensitive Information Leak) - Passive/beta)\n10048\tIGNORE\t(Remote Code Execution - Shell Shock - Active/beta)\n10050\tIGNORE\t(Retrieved from Cache - Passive/beta)\n10051\tIGNORE\t(Relative Path Confusion - Active/beta)\n10058\tIGNORE\t(GET for POST - Active/beta)\n10062\tIGNORE\t(PII Scanner - Passive/beta)\n10095\tIGNORE\t(Backup File Disclosure - Active/beta)\n10107\tIGNORE\t(Httpoxy - Proxy Header Misuse - Active/beta)\n10108\tIGNORE\t(Reverse Tabnabbing - Passive/beta)\n30003\tIGNORE\t(Integer Overflow Error - Active/beta)\n40013\tIGNORE\t(Session Fixation - Active/beta)\n40022\tIGNORE\t(SQL Injection - PostgreSQL - Active/beta)\n40023\tIGNORE\t(Possible Username Enumeration - Active/beta)\n40028\tIGNORE\t(ELMAH Information Leak - Active/beta)\n90021\tIGNORE\t(XPath Injection - Active/beta)\n90023\tIGNORE\t(XML External Entity Attack - Active/beta)\n90024\tIGNORE\t(Generic Padding Oracle - Active/beta)\n90025\tIGNORE\t(Expression Language Injection - Active/beta)\n90027\tIGNORE\t(Cookie Slack Detector - Active/beta)\n90028\tIGNORE\t(Insecure HTTP Method - Active/beta)\n0\tWARN\t(Directory Browsing - Active/release)\n2\tWARN\t(Private IP Disclosure - Passive/release)\n3\tWARN\t(Session ID in URL Rewrite - Passive/release)\n6\tWARN\t(Path Traversal - Active/release)\n7\tWARN\t(Remote File Inclusion - Active/release)\n10010\tWARN\t(Cookie No HttpOnly Flag - Passive/release)\n10011\tWARN\t(Cookie Without Secure Flag - Passive/release)\n10015\tWARN\t(Incomplete or No Cache-control and Pragma HTTP Header Set - Passive/release)\n10017\tWARN\t(Cross-Domain JavaScript Source File Inclusion - Passive/release)\n10019\tWARN\t(Content-Type Header Missing - Passive/release)\n10020\tWARN\t(X-Frame-Options Header Scanner - Passive/release)\n10021\tWARN\t(X-Content-Type-Options Header Missing - Passive/release)\n10023\tWARN\t(Information Disclosure - Debug Error Messages - Passive/release)\n10024\tWARN\t(Information Disclosure - Sensitive Information in URL - Passive/release)\n10025\tWARN\t(Information Disclosure - Sensitive Information in HTTP Referrer Header - Passive/release)\n10037\tWARN\t(Server Leaks Information via X-Powered-By HTTP Response Header Field(s) - Passive/release)\n10040\tWARN\t(Secure Pages Include Mixed Content - Passive/release)\n10054\tWARN\t(Cookie Without SameSite Attribute - Passive/release)\n10055\tWARN\t(CSP Scanner - Passive/release)\n10056\tWARN\t(X-Debug-Token Information Leak - Passive/release)\n10098\tWARN\t(Cross-Domain Misconfiguration - Passive/release)\n10105\tWARN\t(Weak Authentication Method - Passive/release)\n10202\tWARN\t(Absence of Anti-CSRF Tokens - Passive/release)\n20019\tWARN\t(External Redirect - Active/release)\n30001\tWARN\t(Buffer Overflow - Active/release)\n30002\tWARN\t(Format String Error - Active/release)\n40003\tWARN\t(CRLF Injection - Active/release)\n40008\tWARN\t(Parameter Tampering - Active/release)\n40009\tWARN\t(Server Side Include - Active/release)\n40012\tWARN\t(Cross Site Scripting (Reflected) - Active/release)\n40014\tWARN\t(Cross Site Scripting (Persistent) - Active/release)\n40016\tWARN\t(Cross Site Scripting (Persistent) - Prime - Active/release)\n40017\tWARN\t(Cross Site Scripting (Persistent) - Spider - Active/release)\n40018\tWARN\t(SQL Injection - Active/release)\n50000\tWARN\t(Script Active Scan Rules - Active/release)\n50001\tWARN\t(Script Passive Scan Rules - Passive/release)\n90011\tWARN\t(Charset Mismatch - Passive/release)\n90019\tWARN\t(Server Side Code Injection - Active/release)\n90020\tWARN\t(Remote OS Command Injection - Active/release)\n90022\tWARN\t(Application Error Disclosure - Passive/release)\n90033\tWARN\t(Loosely Scoped Cookie - Passive/release)\n" > /zap/wrk/scan_config.txt'
+#     - '/analyze -t $DAST_WEBSITE -c scan_config.txt -d'
+# Release rule 1 to 4 jobs, BETA rules 5th job
+DAST-fullscan-1/5:
+  extends:
+    - .dast_conf
+  resource_group: dynamic_testing
+  variables:
+    DAST_USERNAME: "user1"
+    DAST_EXCLUDE_RULES: "0,2,3,6,7,10010,10011,10015,10017,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90019,90020,90022,90033,41,42,43,10027,10032,10041,10042,10045,10047,10052,10053,10057,10061,10096,10097,10104,10106,20012,20014,20015,20016,20017,20018,40019,40020,40021,40024,40025,40027,40029,40032,90001,10026,10028,10029,10030,10031,10033,10034,10035,10036,10038,10039,10043,10044,10048,10050,10051,10058,10062,10095,10107,10108,30003,40013,40022,40023,40028,90021,90023,90024,90025,90027,90028"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - '/analyze -t $DAST_WEBSITE -d'
+DAST-fullscan-2/5:
+  extends:
+    - .dast_conf
+  resource_group: dynamic_testing
+  variables:
+    DAST_USERNAME: "user2"
+    DAST_EXCLUDE_RULES: "10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,41,42,43,10027,10032,10041,10042,10045,10047,10052,10053,10057,10061,10096,10097,10104,10106,20012,20014,20015,20016,20017,20018,40019,40020,40021,40024,40025,40027,40029,40032,90001,10026,10028,10029,10030,10031,10033,10034,10035,10036,10038,10039,10043,10044,10048,10050,10051,10058,10062,10095,10107,10108,30003,40013,40022,40023,40028,90021,90023,90024,90025,90027,90028"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - '/analyze -t $DAST_WEBSITE'
+DAST-fullscan-3/5:
+  extends:
+    - .dast_conf
+  resource_group: dynamic_testing
+  variables:
+    DAST_USERNAME: "user3"
+    DAST_EXCLUDE_RULES: "10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90019,90020,90022,90033,41,42,43,10027,10032,10041,10042,10045,10047,10052,10053,10057,10061,10096,10097,10104,10106,20012,20014,20015,20016,20017,20018,40019,40020,40021,40024,40025,40027,40029,40032,90001,10026,10028,10029,10030,10031,10033,10034,10035,10036,10038,10039,10043,10044,10048,10050,10051,10058,10062,10095,10107,10108,30003,40013,40022,40023,40028,90021,90023,90024,90025,90027,90028"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - '/analyze -t $DAST_WEBSITE'
+DAST-fullscan-4/5:
+  extends:
+    - .dast_conf
+  resource_group: dynamic_testing
+  variables:
+    DAST_USERNAME: "user4"
+    DAST_EXCLUDE_RULES: "40016,40017,40018,50000,50001,90011,90019,90020,90022,90033,0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,41,42,43,10027,10032,10041,10042,10045,10047,10052,10053,10057,10061,10096,10097,10104,10106,20012,20014,20015,20016,20017,20018,40019,40020,40021,40024,40025,40027,40029,40032,90001,10026,10028,10029,10030,10031,10033,10034,10035,10036,10038,10039,10043,10044,10048,10050,10051,10058,10062,10095,10107,10108,30003,40013,40022,40023,40028,90021,90023,90024,90025,90027,90028"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - '/analyze -t $DAST_WEBSITE'
+DAST-fullscan-5/5:
+  extends:
+    - .dast_conf
+  resource_group: dynamic_testing
+  variables:
+    DAST_USERNAME: "user5"
+    DAST_EXCLUDE_RULES: "41,42,43,10027,10032,10041,10042,10045,10047,10052,10053,10057,10061,10096,10097,10104,10106,20012,20014,20015,20016,20017,20018,40019,40020,40021,40024,40025,40027,40029,40032,90001,0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90019,90020,90022,90033"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - '/analyze -t $DAST_WEBSITE'
 # To be done in a later iteration: https://gitlab.com/gitlab-org/gitlab/issues/31160#note_278188255
 # schedule:dast:
 #   extends:

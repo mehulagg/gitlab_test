@@ -8,6 +8,99 @@ GitLab, like most large applications, enforces limits within certain features to
 minimum quality of performance. Allowing some features to be limitless could affect security,
 performance, data, or could even exhaust the allocated resources for the application.
 
+## Rate limits
+
+Rate limits can be used to improve the security and durability of GitLab.
+
+For example, a simple script can make thousands of web requests per second. Whether malicious, apathetic, or just a bug, your application and infrastructure may not be able to cope with the load. Rate limits can help mitigate these types of attacks.
+
+Read more about [configuring rate limits](../security/rate_limits.md) in the Security documentation.
+
+### Issue creation
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/28129) in GitLab 12.10.
+
+This setting limits the request rate to the issue creation endpoint.
+
+Read more on [issue creation rate limits](../user/admin_area/settings/rate_limit_on_issues_creation.md).
+
+- **Default rate limit** - Disabled by default
+
+### By User or IP
+
+This setting limits the request rate per user or IP.
+
+Read more on [User and IP rate limits](../user/admin_area/settings/user_and_ip_rate_limits.md).
+
+- **Default rate limit** - Disabled by default
+
+### By raw endpoint
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/30829) in GitLab 12.2.
+
+This setting limits the request rate per endpoint.
+
+Read more on [raw endpoint rate limits](../user/admin_area/settings/rate_limits_on_raw_endpoints.md).
+
+- **Default rate limit** - 300 requests per project, per commit and per file path
+
+### By protected path
+
+This setting limits the request rate on specific paths.
+
+GitLab rate limits the following paths by default:
+
+```plaintext
+'/users/password',
+'/users/sign_in',
+'/api/#{API::API.version}/session.json',
+'/api/#{API::API.version}/session',
+'/users',
+'/users/confirmation',
+'/unsubscribes/',
+'/import/github/personal_access_token',
+'/admin/session'
+```
+
+Read more on [protected path rate limits](../user/admin_area/settings/protected_paths.md).
+
+- **Default rate limit** - After 10 requests, the client must wait 60 seconds before trying again
+
+### Import/Export
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35728) in GitLab 13.2.
+
+This setting limits the import/export actions for groups and projects.
+
+| Limit | Default (per minute per user) |
+| ----- | ----------------------------- |
+| Project Import | 6 |
+| Project Export | 6 |
+| Project Export Download | 1 |
+| Group Import | 6 |
+| Group Export | 6 |
+| Group Export | Download | 1 |
+
+Read more on [import/export rate limits](../user/admin_area/settings/import_export_rate_limits.md).
+
+### Rack attack
+
+This method of rate limiting is cumbersome, but has some advantages. It allows
+throttling of specific paths, and is also integrated into Git and container
+registry requests.
+
+Read more on the [Rack Attack initializer](../security/rack_attack.md) method of setting rate limits.
+
+- **Default rate limit** - Disabled
+
+## Gitaly concurrency limit
+
+Clone traffic can put a large strain on your Gitaly service. To prevent such workloads from overwhelming your Gitaly server, you can set concurrency limits in Gitaly’s configuration file.
+
+Read more on [Gitaly concurrency limits](gitaly/index.md#limit-rpc-concurrency).
+
+- **Default rate limit** - Disabled
+
 ## Number of comments per issue, merge request or commit
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/22388) in GitLab 12.4.
@@ -83,7 +176,8 @@ Plan.default.actual_limits.update!(project_hooks: 100)
 Plan.default.actual_limits.update!(group_hooks: 100)
 ```
 
-NOTE: **Note:** Set the limit to `0` to disable it.
+NOTE: **Note:**
+Set the limit to `0` to disable it.
 
 ## Incoming emails from auto-responders
 
@@ -120,7 +214,8 @@ Plan.default.actual_limits.update!(offset_pagination_limit: 10000)
 
 - **Default offset pagination limit:** 50000
 
-NOTE: **Note:** Set the limit to `0` to disable it.
+NOTE: **Note:**
+Set the limit to `0` to disable it.
 
 ## CI/CD limits
 
@@ -152,7 +247,8 @@ To set this limit on a self-managed installation, run the following in the
 Plan.default.actual_limits.update!(ci_active_jobs: 500)
 ```
 
-NOTE: **Note:** Set the limit to `0` to disable it.
+NOTE: **Note:**
+Set the limit to `0` to disable it.
 
 ### Number of CI/CD subscriptions to a project
 
@@ -174,7 +270,8 @@ To set this limit on a self-managed installation, run the following in the
 Plan.default.actual_limits.update!(ci_project_subscriptions: 500)
 ```
 
-NOTE: **Note:** Set the limit to `0` to disable it.
+NOTE: **Note:**
+Set the limit to `0` to disable it.
 
 ### Number of pipeline schedules
 
@@ -217,6 +314,58 @@ To update this limit to a new value on a self-managed installation, run the foll
 Plan.default.actual_limits.update!(ci_instance_level_variables: 30)
 ```
 
+### Maximum file size per type of artifact
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/37226) in GitLab 13.3.
+
+Job artifacts defined with [`artifacts:reports`](../ci/pipelines/job_artifacts.md#artifactsreports)
+that are uploaded by the Runner are rejected if the file size exceeds the maximum
+file size limit. The limit is determined by comparing the project's
+[maximum artifact size setting](../user/admin_area/settings/continuous_integration.md#maximum-artifacts-size-core-only)
+with the instance limit for the given artifact type, and choosing the smaller value.
+
+Limits are set in megabytes, so the smallest possible value that can be defined is `1 MB`.
+
+Each type of artifact has a size limit that can be set. A default of `0` means there
+is no limit for that specific artifact type, and the project's maximum artifact size
+setting is used:
+
+| Artifact limit name                         | Default value |
+|---------------------------------------------|---------------|
+| `ci_max_artifact_size_accessibility`        | 0             |
+| `ci_max_artifact_size_archive`              | 0             |
+| `ci_max_artifact_size_browser_performance`  | 0             |
+| `ci_max_artifact_size_cluster_applications` | 0             |
+| `ci_max_artifact_size_cobertura`            | 0             |
+| `ci_max_artifact_size_codequality`          | 0             |
+| `ci_max_artifact_size_container_scanning`   | 0             |
+| `ci_max_artifact_size_coverage_fuzzing`     | 0             |
+| `ci_max_artifact_size_dast`                 | 0             |
+| `ci_max_artifact_size_dependency_scanning`  | 0             |
+| `ci_max_artifact_size_dotenv`               | 0             |
+| `ci_max_artifact_size_junit`                | 0             |
+| `ci_max_artifact_size_license_management`   | 0             |
+| `ci_max_artifact_size_license_scanning`     | 0             |
+| `ci_max_artifact_size_load_performance`     | 0             |
+| `ci_max_artifact_size_lsif`                 | 20 MB ([introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/37226) in GitLab 13.3) |
+| `ci_max_artifact_size_metadata`             | 0             |
+| `ci_max_artifact_size_metrics_referee`      | 0             |
+| `ci_max_artifact_size_metrics`              | 0             |
+| `ci_max_artifact_size_network_referee`      | 0             |
+| `ci_max_artifact_size_performance`          | 0             |
+| `ci_max_artifact_size_requirements`         | 0             |
+| `ci_max_artifact_size_sast`                 | 0             |
+| `ci_max_artifact_size_secret_detection`     | 0             |
+| `ci_max_artifact_size_terraform`            | 5 MB ([introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/37018) in GitLab 13.3) |
+| `ci_max_artifact_size_trace`                | 0             |
+
+For example, to set the `ci_max_artifact_size_junit` limit to 10MB on a self-managed
+installation, run the following in the [GitLab Rails console](troubleshooting/debug.md#starting-a-rails-console-session):
+
+```ruby
+Plan.default.actual_limits.update!(ci_max_artifact_size_junit: 10)
+```
+
 ## Instance monitoring and metrics
 
 ### Incident Management inbound alert limits
@@ -242,6 +391,38 @@ Prometheus alert payloads sent to the `notify.json` endpoint are limited to 1 MB
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/16441) in GitLab 12.4.
 
 Alert payloads sent to the `notify.json` endpoint are limited to 1 MB in size.
+
+### Metrics dashboard YAML files
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/34834) in GitLab 13.2.
+
+The memory occupied by a parsed metrics dashboard YAML file cannot exceed 1 MB.
+
+The maximum depth of each YAML file is limited to 100. The maximum depth of a YAML
+file is the amount of nesting of its most nested key. Each hash and array on the
+path of the most nested key counts towards its depth. For example, the depth of the
+most nested key in the following YAML is 7:
+
+```yaml
+dashboard: 'Test dashboard'
+links:
+- title: Link 1
+  url: https://gitlab.com
+panel_groups:
+- group: Group A
+  priority: 1
+  panels:
+  - title: "Super Chart A1"
+    type: "area-chart"
+    y_label: "y_label"
+    weight: 1
+    max_value: 1
+    metrics:
+    - id: metric_a1
+      query_range: 'query'
+      unit: unit
+      label: Legend Label
+```
 
 ## Environment data on Deploy Boards
 
@@ -274,10 +455,12 @@ characters and the rest will not be indexed and hence will not be searchable.
 This limit can be configured for self-managed installations when [enabling
 Elasticsearch](../integration/elasticsearch.md#enabling-elasticsearch).
 
-NOTE: **Note:** Set the limit to `0` to disable it.
+NOTE: **Note:**
+Set the limit to `0` to disable it.
 
 ## Wiki limits
 
+- [Wiki page content size limit](wikis/index.md#wiki-page-content-size-limit).
 - [Length restrictions for file and directory names](../user/project/wiki/index.md#length-restrictions-for-file-and-directory-names).
 
 ## Snippets limits

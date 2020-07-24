@@ -28,8 +28,8 @@ module Gitlab
       #
       # @example Declaring support for :update and :delete events
       #   class MyReplicator < Gitlab::Geo::Replicator
-      #     event :update
-      #     event :delete
+      #     event :updated
+      #     event :deleted
       #   end
       #
       # @param [Symbol] event_name
@@ -54,15 +54,38 @@ module Gitlab
         @events.include?(event_name.to_sym)
       end
 
-      # Return the name of the replicable, e.g. "package_file"
+      # Return the canonical name of the replicable, e.g. "package_file".
       #
       # This can be used to retrieve the replicator class again
-      # by using the `.for_replicable_name` method
+      # by using the `.for_replicable_name` method.
       #
       # @see .for_replicable_name
       # @return [String] slug that identifies this replicator
       def self.replicable_name
         self.name.demodulize.sub('Replicator', '').underscore
+      end
+
+      # Return the pluralized replicable name, e.g. "package_files". In general,
+      # it is preferable to use the canonical replicable_name if possible.
+      #
+      # @return [String] slug that identifies this replicator, pluralized
+      def self.replicable_name_plural
+        self.replicable_name.pluralize
+      end
+
+      # @return [String] human-readable title of this replicator. E.g. "Package File"
+      def self.replicable_title
+        self.replicable_name.titleize
+      end
+
+      # @return [String] human-readable title of this replicator, pluralized. E.g. "Package Files"
+      def self.replicable_title_plural
+        self.replicable_name.pluralize.titleize
+      end
+
+      # @return [String] GraphQL registries field name. E.g. "packageFileRegistries"
+      def self.graphql_field_name
+        "#{self.replicable_name.camelize(:lower)}Registries"
       end
 
       # Return the registry related to the replicable resource
@@ -123,6 +146,10 @@ module Gitlab
 
       def self.primary_total_count
         model.count
+      end
+
+      def self.registry_count
+        registry_class.count
       end
 
       def self.synced_count

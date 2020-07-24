@@ -13,6 +13,54 @@ RSpec.describe AuditEvent, type: :model do
     it { is_expected.to validate_presence_of(:entity_type) }
   end
 
+  describe 'callbacks' do
+    context 'parallel_persist' do
+      let_it_be(:details) do
+        { author_name: 'Kungfu Panda', entity_path: 'gitlab-org/gitlab', target_details: 'Project X' }
+      end
+      let_it_be(:event) { create(:project_audit_event, details: details, target_details: nil) }
+
+      it 'sets author_name' do
+        expect(event[:author_name]).to eq('Kungfu Panda')
+      end
+
+      it 'sets entity_path' do
+        expect(event[:entity_path]).to eq('gitlab-org/gitlab')
+      end
+
+      it 'sets target_details' do
+        expect(event[:target_details]).to eq('Project X')
+      end
+    end
+
+    describe '#truncate_target_details' do
+      where(:database_column, :details_value, :expected_value) do
+        text_limit = described_class::TEXT_LIMIT[:target_details]
+        long_value = 'a' * (text_limit + 1)
+        truncated_long_value = long_value.truncate(text_limit)
+        short_value = 'a' * text_limit
+
+        [
+          [nil, nil, nil],
+          [long_value, nil, truncated_long_value],
+          [short_value, nil, short_value],
+          [nil, long_value, truncated_long_value],
+          [nil, short_value, short_value],
+          [long_value, 'something', truncated_long_value]
+        ]
+      end
+
+      with_them do
+        let(:audit_event) { create(:audit_event, target_details: database_column, details: { target_details: details_value }) }
+
+        it 'expects both values to be the same and correct' do
+          expect(audit_event.target_details).to eq(expected_value)
+          expect(audit_event.details[:target_details]).to eq(expected_value)
+        end
+      end
+    end
+  end
+
   describe '.by_entity' do
     let_it_be(:project_event_1) { create(:project_audit_event) }
     let_it_be(:project_event_2) { create(:project_audit_event) }
@@ -64,12 +112,18 @@ RSpec.describe AuditEvent, type: :model do
     end
 
     context 'when user does not exist anymore' do
-      subject(:event) { described_class.new(author_id: non_existing_record_id) }
+      context 'when database contains author_name' do
+        subject(:event) { described_class.new(author_id: non_existing_record_id, author_name: 'Jane Doe') }
+
+        it 'returns author_name' do
+          expect(event.author_name).to eq 'Jane Doe'
+        end
+      end
 
       context 'when details contains author_name' do
-        it 'returns author_name' do
-          subject.details = { author_name: 'John Doe' }
+        subject(:event) { described_class.new(author_id: non_existing_record_id, details: { author_name: 'John Doe' }) }
 
+        it 'returns author_name' do
           expect(event.author_name).to eq 'John Doe'
         end
       end
@@ -108,6 +162,26 @@ RSpec.describe AuditEvent, type: :model do
 
       it 'returns a NullEntity' do
         expect(event.entity).to be_a(Gitlab::Audit::NullEntity)
+      end
+    end
+  end
+
+  describe '#entity_path' do
+    context 'when entity_path exists in both details hash and entity_path column' do
+      subject(:event) do
+        described_class.new(entity_path: 'gitlab-org/gitlab', details: { entity_path: 'gitlab-org/gitlab-foss' })
+      end
+
+      it 'returns the value from entity_path column' do
+        expect(event.entity_path).to eq('gitlab-org/gitlab')
+      end
+    end
+
+    context 'when entity_path exists in details hash but not in entity_path column' do
+      subject(:event) { described_class.new(details: { entity_path: 'gitlab-org/gitlab-foss' }) }
+
+      it 'returns the value from details hash' do
+        expect(event.entity_path).to eq('gitlab-org/gitlab-foss')
       end
     end
   end

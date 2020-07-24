@@ -88,16 +88,6 @@ RSpec.shared_examples 'cluster application status specs' do |application_name|
         end
       end
 
-      it 'sets the correct version of the application' do
-        subject.update!(version: '0.0.0')
-
-        subject.make_installed!
-
-        subject.reload
-
-        expect(subject.version).to eq(subject.class.const_get(:VERSION, false))
-      end
-
       context 'application is updating' do
         subject { create(application_name, :updating) }
 
@@ -145,16 +135,6 @@ RSpec.shared_examples 'cluster application status specs' do |application_name|
               expect { subject.make_installed! }.not_to raise_error
             end
           end
-        end
-
-        it 'updates the version of the application' do
-          subject.update!(version: '0.0.0')
-
-          subject.make_installed!
-
-          subject.reload
-
-          expect(subject.version).to eq(subject.class.const_get(:VERSION, false))
         end
       end
     end
@@ -282,6 +262,14 @@ RSpec.shared_examples 'cluster application status specs' do |application_name|
 
           expect(subject).to be_installed
         end
+
+        it 'clears #status_reason' do
+          expect(subject.status_reason).not_to be_nil
+
+          subject.make_externally_installed!
+
+          expect(subject.status_reason).to be_nil
+        end
       end
     end
 
@@ -311,6 +299,14 @@ RSpec.shared_examples 'cluster application status specs' do |application_name|
           subject.make_externally_uninstalled
 
           expect(subject).to be_uninstalled
+        end
+
+        it 'clears #status_reason' do
+          expect(subject.status_reason).not_to be_nil
+
+          subject.make_externally_uninstalled!
+
+          expect(subject.status_reason).to be_nil
         end
       end
     end

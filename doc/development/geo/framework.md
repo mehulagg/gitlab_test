@@ -1,11 +1,13 @@
 # Geo self-service framework (alpha)
 
-NOTE: **Note:** This document might be subjected to change. It's a
+NOTE: **Note:**
+This document might be subjected to change. It's a
 proposal we're working on and once the implementation is complete this
 documentation will be updated. Follow progress in the
 [epic](https://gitlab.com/groups/gitlab-org/-/epics/2161).
 
-NOTE: **Note:** The Geo self-service framework is currently in
+NOTE: **Note:**
+The Geo self-service framework is currently in
 alpha. If you need to replicate a new data type, reach out to the Geo
 team to discuss the options. You can contact them in `#g_geo` on Slack
 or mention `@geo-team` in the issue or merge request.
@@ -178,6 +180,11 @@ For example, to add support for files referenced by a `Widget` model with a
 
      mount_uploader :file, WidgetUploader
 
+     def local?
+       # Must to be implemented, Check the uploader's storage types
+       file_store == ObjectStorage::Store::LOCAL
+     end
+
      def self.replicables_for_geo_node
        # Should be implemented. The idea of the method is to restrict
        # the set of synced items depending on synchronization settings
@@ -225,7 +232,7 @@ For example, to add support for files referenced by a `Widget` model with a
    ```
 
 1. Create the `widget_registry` table so Geo secondaries can track the sync and
-   verification state of each Widget's file:
+   verification state of each Widget's file. This migration belongs in `ee/db/geo/migrate`:
 
    ```ruby
    # frozen_string_literal: true
@@ -283,6 +290,8 @@ For example, to add support for files referenced by a `Widget` model with a
    method at all.
 
 1. Update `REGISTRY_CLASSES` in `ee/app/workers/geo/secondary/registry_consistency_worker.rb`.
+
+1. Add `widget_registry` to `ActiveSupport::Inflector.inflections` in `config/initializers_before_autoloader/000_inflections.rb`.
 
 1. Create `ee/spec/factories/geo/widget_registry.rb`:
 
@@ -351,11 +360,33 @@ Widgets should now be replicated by Geo!
      DOWNTIME = false
 
      def change
-       add_column :widgets, :verification_retry_at, :datetime_with_timezone
-       add_column :widgets, :verified_at, :datetime_with_timezone
-       add_column :widgets, :verification_checksum, :binary, using: 'verification_checksum::bytea'
-       add_column :widgets, :verification_failure, :string
-       add_column :widgets, :verification_retry_count, :integer
+       change_table(:widgets) do |t|
+         t.integer :verification_retry_count, limit: 2
+         t.column :verification_retry_at, :datetime_with_timezone
+         t.column :verified_at, :datetime_with_timezone
+         t.binary :verification_checksum, using: 'verification_checksum::bytea'
+
+         # rubocop:disable Migration/AddLimitToTextColumns
+         t.text :verification_failure
+         # rubocop:enable Migration/AddLimitToTextColumns
+       end
+     end
+   end
+   ```
+
+   Adding a `text` column also [requires](../database/strings_and_the_text_data_type.md#add-a-text-column-to-an-existing-table)
+   setting a limit:
+
+   ```ruby
+   # frozen_string_literal: true
+
+   class AddVerificationFailureLimitToWidgets < ActiveRecord::Migration[6.0]
+     DOWNTIME = false
+
+     disable_ddl_transaction!
+
+     def change
+       add_text_limit :widgets, :verification_failure, 255
      end
    end
    ```
@@ -385,36 +416,58 @@ Widgets should now be replicated by Geo!
    end
    ```
 
-1. Add fields `widget_count`, `widget_checksummed_count`, `widget_checksum_failed_count`,
-   `widget_synced_count` and `widget_failed_count`
-   to `GeoNodeStatus#RESOURCE_STATUS_FIELDS` array in `ee/app/models/geo_node_status.rb`.
-1. Add the same fields to `GeoNodeStatus#PROMETHEUS_METRICS` hash in
-   `ee/app/models/geo_node_status.rb`.
-1. Add the same fields to `Sidekiq metrics` table in
-   `doc/administration/monitoring/prometheus/gitlab_metrics.md`.
-1. Add the same fields to `GET /geo_nodes/status` example response in `doc/api/geo_nodes.md`.
-1. Modify `GeoNodeStatus#load_verification_data` to make sure the fields mantioned above
-   are set:
-
-   ```ruby
-     self.widget_count = Geo::WidgetReplicator.model.count
-     self.widget_checksummed_count = Geo::WidgetReplicator.checksummed.count
-     self.widget_checksum_failed_count = Geo::WidgetReplicator.checksum_failed.count
-     self.widget_synced_count = Geo::WidgetReplicator.synced_count
-     self.widget_failed_count = Geo::WidgetReplicator.failed_count
-   ```
-
-1. Make sure `Widget` model has `checksummed` and `checksum_failed` scopes.
-1. Update `ee/spec/fixtures/api/schemas/public_api/v4/geo_node_status.json` with new fields.
-1. Update `GeoNodeStatus#PROMETHEUS_METRICS` hash in `ee/app/models/geo_node_status.rb` with new fields.
-1. Update `Sidekiq metrics` table in `doc/administration/monitoring/prometheus/gitlab_metrics.md` with new fields.
-1. Update `GET /geo_nodes/status` example response in `doc/api/geo_nodes.md` with new fields.
-1. Update `ee/spec/models/geo_node_status_spec.rb` and `ee/spec/factories/geo_node_statuses.rb` with new fields.
-
 To do: Add verification on secondaries. This should be done as part of
 [Geo: Self Service Framework - First Implementation for Package File verification](https://gitlab.com/groups/gitlab-org/-/epics/1817)
 
 Widgets should now be verified by Geo!
+
+#### Metrics
+
+Metrics are gathered by `Geo::MetricsUpdateWorker`, persisted in
+`GeoNodeStatus` for display in the UI, and sent to Prometheus.
+
+1. Add fields `widget_count`, `widget_checksummed_count`,
+   `widget_checksum_failed_count`, `widget_synced_count`,
+   `widget_failed_count`, and `widget_registry_count` to
+   `GeoNodeStatus#RESOURCE_STATUS_FIELDS` array in
+   `ee/app/models/geo_node_status.rb`.
+1. Add the same fields to `GeoNodeStatus#PROMETHEUS_METRICS` hash in
+   `ee/app/models/geo_node_status.rb`.
+1. Add the same fields to `Sidekiq metrics` table in
+   `doc/administration/monitoring/prometheus/gitlab_metrics.md`.
+1. Add the same fields to `GET /geo_nodes/status` example response in
+   `doc/api/geo_nodes.md`.
+1. Add the same fields to `ee/spec/models/geo_node_status_spec.rb` and
+   `ee/spec/factories/geo_node_statuses.rb`.
+1. Set `widget_count` in `GeoNodeStatus#load_data_from_current_node`:
+
+   ```ruby
+   self.widget_count = Geo::WidgetReplicator.primary_total_count
+   ```
+
+1. Add `GeoNodeStatus#load_widgets_data` to set `widget_synced_count`,
+   `widget_failed_count`, and `widget_registry_count`:
+
+   ```ruby
+   def load_widget_data
+     self.widget_synced_count = Geo::WidgetReplicator.synced_count
+     self.widget_failed_count = Geo::WidgetReplicator.failed_count
+     self.widget_registry_count = Geo::WidgetReplicator.registry_count
+   end
+   ```
+
+1. Call `GeoNodeStatus#load_widgets_data` in
+   `GeoNodeStatus#load_secondary_data`.
+
+1. Set `widget_checksummed_count` and `widget_checksum_failed_count` in
+   `GeoNodeStatus#load_verification_data`:
+
+   ```ruby
+   self.widget_checksummed_count = Geo::WidgetReplicator.checksummed_count   self.widget_checksum_failed_count = Geo::WidgetReplicator.checksum_failed_count
+   ```
+
+Widget replication and verification metrics should now be available in the API,
+the Admin Area UI, and Prometheus!
 
 #### GraphQL API
 

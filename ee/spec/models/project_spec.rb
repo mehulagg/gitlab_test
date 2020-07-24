@@ -34,17 +34,18 @@ RSpec.describe Project do
     it { is_expected.to have_many(:vulnerability_feedback) }
     it { is_expected.to have_many(:vulnerability_exports) }
     it { is_expected.to have_many(:vulnerability_scanners) }
+    it { is_expected.to have_many(:dast_site_profiles) }
+    it { is_expected.to have_many(:dast_sites) }
     it { is_expected.to have_many(:audit_events).dependent(false) }
     it { is_expected.to have_many(:protected_environments) }
     it { is_expected.to have_many(:approvers).dependent(:destroy) }
     it { is_expected.to have_many(:approver_users).through(:approvers) }
     it { is_expected.to have_many(:approver_groups).dependent(:destroy) }
-    it { is_expected.to have_many(:packages).class_name('Packages::Package') }
-    it { is_expected.to have_many(:package_files).class_name('Packages::PackageFile') }
     it { is_expected.to have_many(:upstream_project_subscriptions) }
     it { is_expected.to have_many(:upstream_projects) }
     it { is_expected.to have_many(:downstream_project_subscriptions) }
     it { is_expected.to have_many(:downstream_projects) }
+    it { is_expected.to have_many(:vulnerability_historical_statistics).class_name('Vulnerabilities::HistoricalStatistic') }
 
     it { is_expected.to have_one(:github_service) }
     it { is_expected.to have_many(:project_aliases) }
@@ -91,16 +92,6 @@ RSpec.describe Project do
 
         expect(described_class.with_active_jira_services).to include(active_jira_service.project)
         expect(described_class.with_active_jira_services).not_to include(active_service.project)
-      end
-    end
-
-    describe '.service_desk_enabled' do
-      it 'returns the correct project' do
-        project_with_service_desk_enabled = create(:project)
-        project_with_service_desk_disabled = create(:project, :service_desk_disabled)
-
-        expect(described_class.service_desk_enabled).to include(project_with_service_desk_enabled)
-        expect(described_class.service_desk_enabled).not_to include(project_with_service_desk_disabled)
       end
     end
 
@@ -171,20 +162,6 @@ RSpec.describe Project do
 
         expect(described_class.with_active_prometheus_service).to include(project_with_active_prometheus_service)
         expect(described_class.with_active_prometheus_service).not_to include(project_without_active_prometheus_service)
-      end
-    end
-
-    describe '.find_by_service_desk_project_key' do
-      it 'returns the correct project' do
-        project2 = create(:project)
-        create(:service_desk_setting, project: project, project_key: 'key1')
-        create(:service_desk_setting, project: project2, project_key: 'key2')
-
-        expect(Project.find_by_service_desk_project_key('key2')).to eq(project2)
-      end
-
-      it 'returns nil if there is no project with the key' do
-        expect(Project.find_by_service_desk_project_key('some_key')).to be_nil
       end
     end
 
@@ -442,52 +419,44 @@ RSpec.describe Project do
   end
 
   describe '#deployment_variables' do
-    context 'when project has a deployment platforms' do
-      context 'when multiple clusters (EEP) is enabled' do
-        before do
-          stub_licensed_features(multiple_clusters: true)
-        end
+    let(:project) { create(:project) }
 
-        let(:project) { create(:project) }
+    let!(:default_cluster) do
+      create(:cluster,
+              :not_managed,
+              platform_type: :kubernetes,
+              projects: [project],
+              environment_scope: '*',
+              platform_kubernetes: default_cluster_kubernetes)
+    end
 
-        let!(:default_cluster) do
-          create(:cluster,
-                 :not_managed,
-                 platform_type: :kubernetes,
-                 projects: [project],
-                 environment_scope: '*',
-                 platform_kubernetes: default_cluster_kubernetes)
-        end
+    let!(:review_env_cluster) do
+      create(:cluster,
+              :not_managed,
+              platform_type: :kubernetes,
+              projects: [project],
+              environment_scope: 'review/*',
+              platform_kubernetes: review_env_cluster_kubernetes)
+    end
 
-        let!(:review_env_cluster) do
-          create(:cluster,
-                 :not_managed,
-                 platform_type: :kubernetes,
-                 projects: [project],
-                 environment_scope: 'review/*',
-                 platform_kubernetes: review_env_cluster_kubernetes)
-        end
+    let(:default_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'default-AAA') }
+    let(:review_env_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'review-AAA') }
 
-        let(:default_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'default-AAA') }
-        let(:review_env_cluster_kubernetes) { create(:cluster_platform_kubernetes, token: 'review-AAA') }
+    context 'when environment name is review/name' do
+      let!(:environment) { create(:environment, project: project, name: 'review/name') }
 
-        context 'when environment name is review/name' do
-          let!(:environment) { create(:environment, project: project, name: 'review/name') }
+      it 'returns variables from this service' do
+        expect(project.deployment_variables(environment: 'review/name'))
+          .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
+      end
+    end
 
-          it 'returns variables from this service' do
-            expect(project.deployment_variables(environment: 'review/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
-          end
-        end
+    context 'when environment name is other' do
+      let!(:environment) { create(:environment, project: project, name: 'staging/name') }
 
-        context 'when environment name is other' do
-          let!(:environment) { create(:environment, project: project, name: 'staging/name') }
-
-          it 'returns variables from this service' do
-            expect(project.deployment_variables(environment: 'staging/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
-          end
-        end
+      it 'returns variables from this service' do
+        expect(project.deployment_variables(environment: 'staging/name'))
+          .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
       end
     end
   end
@@ -522,68 +491,31 @@ RSpec.describe Project do
 
   context 'merge requests related settings' do
     shared_examples 'setting modified by application setting' do
-      context 'when compliance merge request approval settings feature flag is enabled' do
-        using RSpec::Parameterized::TableSyntax
-
-        where(:app_setting, :project_setting, :regulated_settings, :final_setting) do
-          true     | true      | true   | true
-          false    | true      | true   | false
-          true     | false     | true   | true
-          false    | false     | true   | false
-          true     | true      | false  | true
-          false    | true      | false  | true
-          true     | false     | false  | false
-          false    | false     | false  | false
-        end
-
-        with_them do
-          let(:project) { create(:project) }
-
-          before do
-            stub_feature_flags(project_compliance_merge_request_approval_settings: true)
-            stub_licensed_features(admin_merge_request_approvers_rules: true)
-
-            allow(project).to receive(:has_regulated_settings?).and_return(regulated_settings)
-            stub_application_setting(application_setting => app_setting)
-            project.update(setting => project_setting)
-          end
-
-          it 'shows proper setting' do
-            expect(project.send(setting)).to eq(final_setting)
-            expect(project.send("#{setting}?")).to eq(final_setting)
-          end
-        end
+      where(:app_setting, :project_setting, :regulated_settings, :final_setting) do
+        true  | true  | true  | true
+        false | true  | true  | false
+        true  | false | true  | true
+        false | false | true  | false
+        true  | true  | false | true
+        false | true  | false | true
+        true  | false | false | false
+        false | false | false | false
       end
 
-      context 'when compliance merge request approval settings feature flag is disabled' do
-        using RSpec::Parameterized::TableSyntax
+      with_them do
+        let(:project) { create(:project) }
 
-        where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
-          true     | true      | true   | true
-          false    | true      | true   | true
-          true     | false     | true   | true
-          false    | false     | true   | false
-          true     | true      | false  | true
-          false    | true      | false  | true
-          true     | false     | false  | false
-          false    | false     | false  | false
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+
+          allow(project).to receive(:has_regulated_settings?).and_return(regulated_settings)
+          stub_application_setting(application_setting => app_setting)
+          project.update(setting => project_setting)
         end
 
-        with_them do
-          let(:project) { create(:project) }
-
-          before do
-            stub_feature_flags(project_compliance_merge_request_approval_settings: false)
-
-            stub_licensed_features(feature => feature_enabled)
-            stub_application_setting(application_setting => app_setting)
-            project.update(setting => project_setting)
-          end
-
-          it 'shows proper setting' do
-            expect(project.send(setting)).to eq(final_setting)
-            expect(project.send("#{setting}?")).to eq(final_setting)
-          end
+        it 'shows proper setting' do
+          expect(project.send(setting)).to eq(final_setting)
+          expect(project.send("#{setting}?")).to eq(final_setting)
         end
       end
     end
@@ -610,75 +542,40 @@ RSpec.describe Project do
       let(:setting) { :merge_requests_author_approval }
       let(:application_setting) { :prevent_merge_requests_author_approval }
 
-      context 'when compliance merge request approval settings feature flag is enabled' do
-        using RSpec::Parameterized::TableSyntax
-
-        where(:app_setting, :project_setting, :regulated_settings, :final_setting) do
-          true     | true      | true   | false
-          false    | true      | true   | true
-          true     | false     | true   | false
-          false    | false     | true   | true
-          true     | true      | false  | true
-          false    | true      | false  | true
-          true     | false     | false  | false
-          false    | false     | false  | false
-        end
-
-        with_them do
-          let(:project) { create(:project) }
-
-          before do
-            stub_feature_flags(project_compliance_merge_request_approval_settings: true)
-            stub_licensed_features(admin_merge_request_approvers_rules: true)
-
-            allow(project).to receive(:has_regulated_settings?).and_return(regulated_settings)
-            stub_application_setting(application_setting => app_setting)
-            project.update(setting => project_setting)
-          end
-
-          it 'shows proper setting' do
-            expect(project.send(setting)).to eq(final_setting)
-            expect(project.send("#{setting}?")).to eq(final_setting)
-          end
-        end
+      where(:app_setting, :project_setting, :regulated_settings, :final_setting) do
+        true  | true  | true  | false
+        false | true  | true  | true
+        true  | false | true  | false
+        false | false | true  | true
+        true  | true  | false | true
+        false | true  | false | true
+        true  | false | false | false
+        false | false | false | false
       end
 
-      context 'when compliance merge request approval settings feature flag is disabled' do
-        using RSpec::Parameterized::TableSyntax
+      with_them do
+        let(:project) { create(:project) }
 
-        where(:app_setting, :project_setting, :feature_enabled, :final_setting) do
-          true     | true      | true   | false
-          false    | true      | true   | true
-          true     | false     | true   | false
-          false    | false     | true   | false
-          true     | true      | false  | true
-          false    | true      | false  | true
-          true     | false     | false  | false
-          false    | false     | false  | false
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+
+          allow(project).to receive(:has_regulated_settings?).and_return(regulated_settings)
+          stub_application_setting(application_setting => app_setting)
+          project.update(setting => project_setting)
         end
 
-        with_them do
-          before do
-            stub_feature_flags(project_compliance_merge_request_approval_settings: false)
-
-            stub_licensed_features(feature => feature_enabled)
-            stub_application_setting(application_setting => app_setting)
-            project.update(setting => project_setting)
-          end
-
-          it 'shows proper setting' do
-            expect(project.send(setting)).to eq(final_setting)
-            expect(project.send("#{setting}?")).to eq(final_setting)
-          end
+        it 'shows proper setting' do
+          expect(project.send(setting)).to eq(final_setting)
+          expect(project.send("#{setting}?")).to eq(final_setting)
         end
       end
     end
   end
 
   describe '#has_regulated_settings?' do
-    let_it_be(:framework) { ComplianceManagement::ComplianceFramework::FRAMEWORKS.first }
-    let_it_be(:compliance_framework_setting) { create(:compliance_framework_project_setting, framework: framework.first.to_s) }
-    let_it_be(:project) { create(:project, compliance_framework_setting: compliance_framework_setting) }
+    let(:framework) { ComplianceManagement::ComplianceFramework::FRAMEWORKS.first }
+    let(:compliance_framework_setting) { build(:compliance_framework_project_setting, framework: framework.first.to_s) }
+    let(:project) { build(:project, compliance_framework_setting: compliance_framework_setting) }
 
     subject { project.has_regulated_settings? }
 
@@ -699,7 +596,7 @@ RSpec.describe Project do
     end
 
     context 'project does not have compliance framework' do
-      let_it_be(:project) { create(:project) }
+      let(:project) { build(:project) }
 
       it { is_expected.to be_falsey }
     end
@@ -961,7 +858,7 @@ RSpec.describe Project do
       expect(project).to receive(:load_licensed_feature_available)
                              .once.and_call_original
 
-      2.times { project.feature_available?(:service_desk) }
+      2.times { project.feature_available?(:push_rules) }
     end
 
     context 'when feature symbol is not included on Namespace features code' do
@@ -1140,58 +1037,6 @@ RSpec.describe Project do
       end
 
       it { is_expected.to be_falsey }
-    end
-  end
-
-  describe '#service_desk_enabled?' do
-    let!(:license) { create(:license, plan: License::PREMIUM_PLAN) }
-    let(:namespace) { create(:namespace) }
-
-    subject(:project) { build(:project, :private, namespace: namespace, service_desk_enabled: true) }
-
-    before do
-      allow(::Gitlab).to receive(:com?).and_return(true)
-      allow(::Gitlab::IncomingEmail).to receive(:enabled?).and_return(true)
-      allow(::Gitlab::IncomingEmail).to receive(:supports_wildcard?).and_return(true)
-    end
-
-    it 'is enabled' do
-      expect(project.service_desk_enabled?).to be_truthy
-      expect(project.service_desk_enabled).to be_truthy
-    end
-
-    context 'namespace plans active' do
-      before do
-        stub_application_setting(check_namespace_plan: true)
-      end
-
-      it 'is disabled' do
-        expect(project.service_desk_enabled?).to be_falsy
-        expect(project.service_desk_enabled).to be_falsy
-      end
-
-      context 'Service Desk available in namespace plan' do
-        let!(:gitlab_subscription) { create(:gitlab_subscription, :silver, namespace: namespace) }
-
-        it 'is enabled' do
-          expect(project.service_desk_enabled?).to be_truthy
-          expect(project.service_desk_enabled).to be_truthy
-        end
-      end
-    end
-  end
-
-  describe '#service_desk_address' do
-    let(:project) { create(:project, service_desk_enabled: true) }
-
-    before do
-      allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
-      allow(Gitlab.config.incoming_email).to receive(:enabled).and_return(true)
-      allow(Gitlab.config.incoming_email).to receive(:address).and_return("test+%{key}@mail.com")
-    end
-
-    it 'uses project full path as service desk address key' do
-      expect(project.service_desk_address).to eq("test+#{project.full_path_slug}-#{project.project_id}-issue-@mail.com")
     end
   end
 
@@ -1544,7 +1389,7 @@ RSpec.describe Project do
       allow(global_license).to receive(:features).and_return([
         :subepics, # Gold only
         :epics, # Silver and up
-        :service_desk, # Silver and up
+        :push_rules, # Silver and up
         :audit_events, # Bronze and up
         :geo # Global feature, should not be checked at namespace level
       ])
@@ -1561,7 +1406,7 @@ RSpec.describe Project do
         let(:plan_license) { :bronze }
 
         it 'filters for bronze features' do
-          is_expected.to contain_exactly(:audit_events, :geo, :service_desk)
+          is_expected.to contain_exactly(:audit_events, :geo, :push_rules)
         end
       end
 
@@ -1569,7 +1414,7 @@ RSpec.describe Project do
         let(:plan_license) { :silver }
 
         it 'filters for silver features' do
-          is_expected.to contain_exactly(:service_desk, :audit_events, :geo, :epics)
+          is_expected.to contain_exactly(:push_rules, :audit_events, :geo, :epics)
         end
       end
 
@@ -1577,7 +1422,7 @@ RSpec.describe Project do
         let(:plan_license) { :gold }
 
         it 'filters for gold features' do
-          is_expected.to contain_exactly(:epics, :service_desk, :audit_events, :geo, :subepics)
+          is_expected.to contain_exactly(:epics, :push_rules, :audit_events, :geo, :subepics)
         end
       end
 
@@ -1594,7 +1439,7 @@ RSpec.describe Project do
           let(:project) { create(:project, :public, group: group) }
 
           it 'includes all features in global license' do
-            is_expected.to contain_exactly(:epics, :service_desk, :audit_events, :geo, :subepics)
+            is_expected.to contain_exactly(:epics, :push_rules, :audit_events, :geo, :subepics)
           end
         end
       end
@@ -1602,7 +1447,7 @@ RSpec.describe Project do
 
     context 'when namespace should not be checked' do
       it 'includes all features in global license' do
-        is_expected.to contain_exactly(:epics, :service_desk, :audit_events, :geo, :subepics)
+        is_expected.to contain_exactly(:epics, :push_rules, :audit_events, :geo, :subepics)
       end
     end
 
@@ -2008,12 +1853,6 @@ RSpec.describe Project do
         expect(project.gitlab_custom_project_template_import?).to be false
       end
     end
-  end
-
-  describe '#packages_enabled' do
-    subject { create(:project).packages_enabled }
-
-    it { is_expected.to be true }
   end
 
   describe '#update_root_ref' do
@@ -2467,33 +2306,6 @@ RSpec.describe Project do
       .and_return(host: host)
   end
 
-  describe '#package_already_taken?' do
-    let(:namespace) { create(:namespace) }
-    let(:project) { create(:project, :public, namespace: namespace) }
-    let!(:package) { create(:npm_package, project: project, name: "@#{namespace.path}/foo") }
-
-    context 'no package exists with the same name' do
-      it 'returns false' do
-        result = project.package_already_taken?("@#{namespace.path}/bar")
-        expect(result).to be false
-      end
-
-      it 'returns false if it is the project that the package belongs to' do
-        result = project.package_already_taken?("@#{namespace.path}/foo")
-        expect(result).to be false
-      end
-    end
-
-    context 'a package already exists with the same name' do
-      let(:alt_project) { create(:project, :public, namespace: namespace) }
-
-      it 'returns true' do
-        result = alt_project.package_already_taken?("@#{namespace.path}/foo")
-        expect(result).to be true
-      end
-    end
-  end
-
   describe '#ancestor_marked_for_deletion' do
     context 'adjourned deletion feature is not available' do
       before do
@@ -2552,108 +2364,45 @@ RSpec.describe Project do
   end
 
   describe '#adjourned_deletion?' do
-    context 'when marking for deletion feature is available' do
-      let(:project) { create(:project) }
+    using RSpec::Parameterized::TableSyntax
+
+    subject { project.adjourned_deletion? }
+
+    where(:licensed?, :feature_enabled_on_group?, :adjourned_period, :result) do
+      true    | true  | 0 | false
+      true    | true  | 1 | true
+      true    | false | 0 | false
+      true    | false | 1 | false
+      false   | true  | 0 | false
+      false   | true  | 1 | false
+      false   | false | 0 | false
+      false   | false | 1 | false
+    end
+
+    with_them do
+      let_it_be(:group) { create(:group) }
+      let_it_be(:project) { create(:project, group: group) }
+
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: licensed?)
+        stub_application_setting(deletion_adjourned_period: adjourned_period)
+        allow(group).to receive(:delayed_project_removal?).and_return(feature_enabled_on_group?)
+      end
+
+      it { is_expected.to be result }
+    end
+
+    context 'when project belongs to user namespace' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:user_project) { create(:project, namespace: user.namespace) }
 
       before do
         stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
+        stub_application_setting(deletion_adjourned_period: 7)
       end
 
-      context 'when number of days is set to more than 0' do
-        it 'returns true' do
-          stub_application_setting(deletion_adjourned_period: 1)
-
-          expect(project.adjourned_deletion?).to eq(true)
-        end
-      end
-
-      context 'when number of days is set to 0' do
-        it 'returns false' do
-          stub_application_setting(deletion_adjourned_period: 0)
-
-          expect(project.adjourned_deletion?).to eq(false)
-        end
-      end
-    end
-
-    context 'when marking for deletion feature is not available' do
-      let(:project) { create(:project) }
-
-      before do
-        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
-      end
-
-      context 'when number of days is set to more than 0' do
-        it 'returns false' do
-          stub_application_setting(deletion_adjourned_period: 1)
-
-          expect(project.adjourned_deletion?).to eq(false)
-        end
-      end
-
-      context 'when number of days is set to 0' do
-        it 'returns false' do
-          stub_application_setting(deletion_adjourned_period: 0)
-
-          expect(project.adjourned_deletion?).to eq(false)
-        end
-      end
-    end
-  end
-
-  describe '#has_packages?' do
-    let(:project) { create(:project, :public) }
-
-    subject { project.has_packages?(package_type) }
-
-    shared_examples 'returning true examples' do
-      let!(:package) { create("#{package_type}_package", project: project) }
-
-      it { is_expected.to be true }
-    end
-
-    shared_examples 'returning false examples' do
-      it { is_expected.to be false }
-    end
-
-    context 'with packages disabled' do
-      before do
-        stub_licensed_features(packages: false)
-      end
-
-      it_behaves_like 'returning false examples' do
-        let!(:package) { create(:maven_package, project: project) }
-        let(:package_type) { :maven }
-      end
-    end
-
-    context 'with packages enabled' do
-      before do
-        stub_licensed_features(packages: true)
-      end
-
-      context 'with maven packages' do
-        it_behaves_like 'returning true examples' do
-          let(:package_type) { :maven }
-        end
-      end
-
-      context 'with npm packages' do
-        it_behaves_like 'returning true examples' do
-          let(:package_type) { :npm }
-        end
-      end
-
-      context 'with conan packages' do
-        it_behaves_like 'returning true examples' do
-          let(:package_type) { :conan }
-        end
-      end
-
-      context 'with no package type' do
-        it_behaves_like 'returning false examples' do
-          let(:package_type) { nil }
-        end
+      it 'deletes immediately' do
+        expect(user_project.adjourned_deletion?).to be nil
       end
     end
   end

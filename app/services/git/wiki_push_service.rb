@@ -23,7 +23,7 @@ module Git
     end
 
     def can_process_wiki_events?
-      Feature.enabled?(:wiki_events) && Feature.enabled?(:wiki_events_on_git_push, project)
+      Feature.enabled?(:wiki_events_on_git_push, project)
     end
 
     def push_changes
@@ -41,7 +41,12 @@ module Git
     end
 
     def create_event_for(change)
-      event_service.execute(change.last_known_slug, change.page, change.event_action)
+      event_service.execute(
+        change.last_known_slug,
+        change.page,
+        change.event_action,
+        change.sha
+      )
     end
 
     def event_service

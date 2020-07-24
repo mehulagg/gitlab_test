@@ -80,7 +80,7 @@ RSpec.describe Ci::CreatePipelineService do
       it 'records pipeline size in a prometheus histogram' do
         histogram = spy('pipeline size histogram')
 
-        allow(Gitlab::Ci::Pipeline::Chain::Metrics)
+        allow(Gitlab::Ci::Pipeline::Metrics)
           .to receive(:new).and_return(histogram)
 
         execute_service
@@ -512,7 +512,7 @@ RSpec.describe Ci::CreatePipelineService do
         it 'pull it from Auto-DevOps' do
           pipeline = execute_service
           expect(pipeline).to be_auto_devops_source
-          expect(pipeline.builds.map(&:name)).to match_array(%w[test code_quality build])
+          expect(pipeline.builds.map(&:name)).to match_array(%w[build code_quality eslint-sast test])
         end
       end
 
@@ -905,6 +905,7 @@ RSpec.describe Ci::CreatePipelineService do
         stub_ci_pipeline_yaml_file(YAML.dump({
           rspec: { script: 'rspec', retry: retry_value }
         }))
+        rspec_job.update!(options: { retry: retry_value })
       end
 
       context 'as an integer' do
@@ -912,8 +913,6 @@ RSpec.describe Ci::CreatePipelineService do
 
         it 'correctly creates builds with auto-retry value configured' do
           expect(pipeline).to be_persisted
-          expect(rspec_job.options_retry_max).to eq 2
-          expect(rspec_job.options_retry_when).to eq ['always']
         end
       end
 
@@ -922,8 +921,6 @@ RSpec.describe Ci::CreatePipelineService do
 
         it 'correctly creates builds with auto-retry value configured' do
           expect(pipeline).to be_persisted
-          expect(rspec_job.options_retry_max).to eq 2
-          expect(rspec_job.options_retry_when).to eq ['runner_system_failure']
         end
       end
     end
@@ -1683,6 +1680,12 @@ RSpec.describe Ci::CreatePipelineService do
         it 'creates a pipeline with build_a and test_a' do
           expect(pipeline).to be_persisted
           expect(pipeline.builds.pluck(:name)).to contain_exactly("build_a", "test_a")
+        end
+
+        it 'bulk inserts all needs' do
+          expect(Ci::BuildNeed).to receive(:bulk_insert!).and_call_original
+
+          expect(pipeline).to be_persisted
         end
       end
 

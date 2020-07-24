@@ -15,12 +15,52 @@ RSpec.describe GitlabSchema.types['Project'] do
 
   it 'includes the ee specific fields' do
     expected_fields = %w[
-      service_desk_enabled service_desk_address vulnerabilities vulnerability_scanners
-      requirement_states_count vulnerability_severities_count packages
-      compliance_frameworks
+      vulnerabilities vulnerability_scanners requirement_states_count
+      vulnerability_severities_count packages compliance_frameworks
     ]
 
     expect(described_class).to include_graphql_fields(*expected_fields)
+  end
+
+  describe 'security_scanners' do
+    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project, sha: project.commit.id, ref: project.default_branch) }
+    let_it_be(:user) { create(:user) }
+
+    let_it_be(:query) do
+      %(
+        query {
+            project(fullPath: "#{project.full_path}") {
+             securityScanners {
+                   enabled
+                   available
+                   pipelineRun
+               }
+             }
+       }
+      )
+    end
+
+    subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
+
+    before do
+      project.add_developer(user)
+      create(:ci_build, :success, :sast, pipeline: pipeline)
+      create(:ci_build, :success, :dast, pipeline: pipeline)
+      create(:ci_build, :success, :license_scanning, pipeline: pipeline)
+      create(:ci_build, :success, :license_management, pipeline: pipeline)
+      create(:ci_build, :pending, :secret_detection, pipeline: pipeline)
+    end
+
+    it 'returns a list of analyzers enabled for the project' do
+      query_result = subject.dig('data', 'project', 'securityScanners', 'enabled')
+      expect(query_result).to match_array(%w(SAST DAST SECRET_DETECTION))
+    end
+
+    it 'returns a list of analyzers which were run in the last pipeline for the project' do
+      query_result = subject.dig('data', 'project', 'securityScanners', 'pipelineRun')
+      expect(query_result).to match_array(%w(DAST SAST))
+    end
   end
 
   describe 'vulnerabilities' do

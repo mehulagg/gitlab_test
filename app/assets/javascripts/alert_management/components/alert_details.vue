@@ -19,13 +19,14 @@ import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import highlightCurrentUser from '~/behaviors/markdown/highlight_current_user';
 import initUserPopovers from '~/user_popovers';
 import { ALERTS_SEVERITY_LABELS, trackAlertsDetailsViewsOptions } from '../constants';
-import createIssueMutation from '../graphql/mutations/create_issue_from_alert.graphql';
+import createIssueMutation from '../graphql/mutations/create_issue_from_alert.mutation.graphql';
 import toggleSidebarStatusMutation from '../graphql/mutations/toggle_sidebar_status.mutation.graphql';
 import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
 import Tracking from '~/tracking';
 import { toggleContainerClasses } from '~/lib/utils/dom_utils';
 import SystemNote from './system_notes/system_note.vue';
 import AlertSidebar from './alert_sidebar.vue';
+import AlertMetrics from './alert_metrics.vue';
 
 const containerEl = document.querySelector('.page-with-contextual-sidebar');
 
@@ -36,6 +37,7 @@ export default {
     ),
     fullAlertDetailsTitle: s__('AlertManagement|Alert details'),
     overviewTitle: s__('AlertManagement|Overview'),
+    metricsTitle: s__('AlertManagement|Metrics'),
     reportedAt: s__('AlertManagement|Reported %{when}'),
     reportedAtWithTool: s__('AlertManagement|Reported %{when} by %{tool}'),
   },
@@ -53,6 +55,7 @@ export default {
     TimeAgoTooltip,
     AlertSidebar,
     SystemNote,
+    AlertMetrics,
   },
   inject: {
     projectPath: {
@@ -177,9 +180,6 @@ export default {
       const { category, action } = trackAlertsDetailsViewsOptions;
       Tracking.event(category, action);
     },
-    alertRefresh() {
-      this.$apollo.queries.alert.refetch();
-    },
   },
 };
 </script>
@@ -187,7 +187,7 @@ export default {
 <template>
   <div>
     <gl-alert v-if="showErrorMsg" variant="danger" @dismiss="dismissError">
-      {{ sidebarErrorMessage || $options.i18n.errorMsg }}
+      <p v-html="sidebarErrorMessage || $options.i18n.errorMsg"></p>
     </gl-alert>
     <gl-alert
       v-if="createIssueError"
@@ -204,7 +204,7 @@ export default {
       :class="{ 'pr-sm-8': sidebarStatus }"
     >
       <div
-        class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-200 gl-border-b-solid flex-column flex-sm-row"
+        class="gl-display-flex gl-justify-content-space-between gl-align-items-baseline gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-100 gl-border-b-solid flex-column flex-sm-row"
       >
         <div
           data-testid="alert-header"
@@ -332,10 +332,12 @@ export default {
             </template>
           </gl-table>
         </gl-tab>
+        <gl-tab data-testId="metricsTab" :title="$options.i18n.metricsTitle">
+          <alert-metrics :dashboard-url="alert.metricsDashboardUrl" />
+        </gl-tab>
       </gl-tabs>
       <alert-sidebar
         :alert="alert"
-        @alert-refresh="alertRefresh"
         @toggle-sidebar="toggleSidebar"
         @alert-error="handleAlertSidebarError"
       />

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class Projects::EnvironmentsController < Projects::ApplicationController
+  # Metrics dashboard code is getting decoupled from environments and is being moved
+  # into app/controllers/projects/metrics_dashboard_controller.rb
+  # See https://gitlab.com/gitlab-org/gitlab/-/issues/226002 for more details.
+
   include MetricsDashboard
 
   layout 'project'
@@ -9,6 +13,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
     authorize_metrics_dashboard!
 
     push_frontend_feature_flag(:prometheus_computed_alerts)
+    push_frontend_feature_flag(:disable_metric_dashboard_refresh_rate)
   end
   before_action :authorize_read_environment!, except: [:metrics, :additional_metrics, :metrics_dashboard, :metrics_redirect]
   before_action :authorize_create_environment!, only: [:new, :create]

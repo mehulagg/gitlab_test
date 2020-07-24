@@ -294,6 +294,7 @@ class NotificationService
     return true if note.system_note_with_references?
 
     send_new_note_notifications(note)
+    send_service_desk_notification(note)
   end
 
   def send_new_note_notifications(note)
@@ -303,6 +304,21 @@ class NotificationService
     recipients.each do |recipient|
       mailer.send(notify_method, recipient.user.id, note.id, recipient.reason).deliver_later
     end
+  end
+
+  def send_service_desk_notification(note)
+    return unless Gitlab::ServiceDesk.supported?
+    return unless note.noteable_type == 'Issue'
+
+    issue = note.noteable
+    support_bot = User.support_bot
+
+    return unless issue.service_desk_reply_to.present?
+    return unless issue.project.service_desk_enabled?
+    return if note.author == support_bot
+    return unless issue.subscribed?(support_bot, issue.project)
+
+    mailer.service_desk_new_note_email(issue.id, note.id).deliver_later
   end
 
   # Notify users when a new release is created
@@ -408,7 +424,7 @@ class NotificationService
   end
 
   def project_was_moved(project, old_path_with_namespace)
-    recipients = project.private? ? project.team.members_in_project_and_ancestors : project.team.members
+    recipients = project_moved_recipients(project)
     recipients = notifiable_users(recipients, :mention, project: project)
 
     recipients.each do |recipient|
@@ -566,6 +582,14 @@ class NotificationService
     end
   end
 
+  def merge_when_pipeline_succeeds(merge_request, current_user)
+    recipients = ::NotificationRecipients::BuildService.build_recipients(merge_request, current_user, action: 'merge_when_pipeline_succeeds')
+
+    recipients.each do |recipient|
+      mailer.merge_when_pipeline_succeeds_email(recipient.user.id, merge_request.id, current_user.id).deliver_later
+    end
+  end
+
   protected
 
   def new_resource_email(target, method)
@@ -679,6 +703,14 @@ class NotificationService
     end
 
     recipients
+  end
+
+  def project_moved_recipients(project)
+    finder = MembersFinder.new(project, nil, params: {
+      active_without_invites_and_requests: true,
+      owners_and_maintainers: true
+    })
+    finder.execute.preload_user_and_notification_settings.map(&:user)
   end
 
   def project_maintainers_recipients(target, action:)

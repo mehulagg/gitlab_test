@@ -25,8 +25,17 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # Use this scope for all new project routes.
       scope '-' do
         get 'archive/*id', constraints: { format: Gitlab::PathRegex.archive_formats_regex, id: /.+?/ }, to: 'repositories#archive', as: 'archive'
+        get 'metrics(/:dashboard_path)', constraints: { dashboard_path: /.+\.yml/ },
+          to: 'metrics_dashboard#show', as: :metrics_dashboard, format: false
 
         resources :artifacts, only: [:index, :destroy]
+
+        resources :packages, only: [:index, :show, :destroy], module: :packages
+        resources :package_files, only: [], module: :packages do
+          member do
+            get :download
+          end
+        end
 
         resources :jobs, only: [:index, :show], constraints: { id: /\d+/ } do
           collection do
@@ -80,6 +89,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resource :operations, only: [:show, :update] do
             member do
               post :reset_alerting_token
+              post :reset_pagerduty_token
             end
           end
 
@@ -288,6 +298,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get 'details', on: :member
         end
 
+        post 'incidents/integrations/pagerduty', to: 'incident_management/pager_duty_incidents#create'
+
         namespace :error_tracking do
           resources :projects, only: :index
         end
@@ -337,6 +349,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       # All new routes should go under /-/ scope.
       # Look for scope '-' at the top of the file.
+
+      #
+      # Service Desk
+      #
+      get '/service_desk' => 'service_desk#show', as: :service_desk
+      put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
       #
       # Templates

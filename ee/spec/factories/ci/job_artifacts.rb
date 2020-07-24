@@ -169,8 +169,18 @@ FactoryBot.define do
       end
     end
 
+    trait :sast_with_missing_scanner do
+      file_type { :sast }
+      file_format { :raw }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-sast-missing-scanner.json'), 'application/json')
+      end
+    end
+
     trait :license_management do
-      to_create { |instance| instance.save(validate: false) }
+      to_create { |instance| instance.save!(validate: false) }
 
       file_type { :license_management }
       file_format { :raw }
@@ -204,6 +214,26 @@ FactoryBot.define do
     trait :performance do
       file_format { :raw }
       file_type { :performance }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/trace/sample_trace'), 'text/plain')
+      end
+    end
+
+    trait :browser_performance do
+      file_format { :raw }
+      file_type { :browser_performance }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/trace/sample_trace'), 'text/plain')
+      end
+    end
+
+    trait :load_performance do
+      file_format { :raw }
+      file_type { :load_performance }
 
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(

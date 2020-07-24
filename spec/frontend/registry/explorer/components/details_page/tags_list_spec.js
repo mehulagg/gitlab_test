@@ -8,6 +8,7 @@ import { tagsListResponse } from '../../mock_data';
 describe('Tags List', () => {
   let wrapper;
   const tags = [...tagsListResponse.data];
+  const readOnlyTags = tags.map(t => ({ ...t, destroy_path: undefined }));
 
   const findTagsListRow = () => wrapper.findAll(TagsListRow);
   const findDeleteButton = () => wrapper.find(GlButton);
@@ -39,17 +40,20 @@ describe('Tags List', () => {
   });
 
   describe('delete button', () => {
-    it('is not shown on mobile view', () => {
-      mountComponent({ tags, isDesktop: false });
+    it.each`
+      inputTags       | isDesktop | isVisible
+      ${tags}         | ${true}   | ${true}
+      ${tags}         | ${false}  | ${false}
+      ${readOnlyTags} | ${true}   | ${false}
+      ${readOnlyTags} | ${false}  | ${false}
+    `(
+      'is $isVisible that delete button exists when tags is $inputTags and isDesktop is $isDesktop',
+      ({ inputTags, isDesktop, isVisible }) => {
+        mountComponent({ tags: inputTags, isDesktop });
 
-      expect(findDeleteButton().exists()).toBe(false);
-    });
-
-    it('is shown on desktop view', () => {
-      mountComponent();
-
-      expect(findDeleteButton().exists()).toBe(true);
-    });
+        expect(findDeleteButton().exists()).toBe(isVisible);
+      },
+    );
 
     it('has the correct text', () => {
       mountComponent();
@@ -102,12 +106,16 @@ describe('Tags List', () => {
     it('the correct props are bound to it', () => {
       mountComponent();
 
-      expect(
-        findTagsListRow()
-          .at(0)
-          .attributes(),
-      ).toMatchObject({
-        index: '0',
+      const rows = findTagsListRow();
+
+      expect(rows.at(0).attributes()).toMatchObject({
+        first: 'true',
+        isdesktop: 'true',
+      });
+
+      // The list has only two tags and for some reasons .at(-1) does not work
+      expect(rows.at(1).attributes()).toMatchObject({
+        last: 'true',
         isdesktop: 'true',
       });
     });

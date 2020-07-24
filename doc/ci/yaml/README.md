@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 type: reference
 ---
 
-# GitLab CI/CD Pipeline Configuration Reference
+# GitLab CI/CD pipeline configuration reference
 
 GitLab CI/CD [pipelines](../pipelines/index.md) are configured using a YAML file called `.gitlab-ci.yml` within each project.
 
@@ -117,7 +117,7 @@ The following table lists available parameters for jobs:
 | [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                  |
 | [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, `environment:auto_stop_in` and `environment:action`. |
 | [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, and `cache:policy`.                                     |
-| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, `artifacts:reports:junit`, `artifacts:reports:cobertura`, and `artifacts:reports:terraform`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_scanning`, `artifacts:reports:license_management` (removed in GitLab 13.0),`artifacts:reports:performance` and `artifacts:reports:metrics`. |
+| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, `artifacts:reports:codequality`, `artifacts:reports:junit`, `artifacts:reports:cobertura`, and `artifacts:reports:terraform`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_scanning`, `artifacts:reports:license_management` (removed in GitLab 13.0), `artifacts:reports:performance`, `artifacts:reports:load_performance`, and `artifacts:reports:metrics`. |
 | [`dependencies`](#dependencies)                    | Restrict which artifacts are passed to a specific job by providing a list of jobs to fetch artifacts from.                                                                          |
 | [`coverage`](#coverage)                            | Code coverage settings for a given job.                                                                                                                                             |
 | [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                             |
@@ -298,6 +298,26 @@ determine whether or not a pipeline is created. It currently accepts a single
 `rules:` key that operates similarly to [`rules:` defined within jobs](#rules),
 enabling dynamic configuration of the pipeline.
 
+If you are new to GitLab CI/CD and `workflow: rules`, you may find the [`workflow:rules` templates](#workflowrules-templates) useful.
+
+To define your own `workflow: rules`, the configuration options currently available are:
+
+- [`if`](#rulesif): Define a rule.
+- [`when`](#when): May be set to `always` or `never` only. If not provided, the default value is `always`​.
+
+The list of `if` rules is evaluated until a single one is matched. If none
+match, the last `when` will be used:
+
+```yaml
+workflow:
+  rules:
+    - if: $CI_COMMIT_REF_NAME =~ /-wip$/
+      when: never
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
+```
+
 #### `workflow:rules` templates
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217732) in GitLab 13.0.
@@ -333,24 +353,6 @@ It is [included](#include) as follows:
 ```yaml
 include:
   - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
-```
-
-If you prefer to define your own rules, the configuration options currently available are:​
-
-- [`if`](#rulesif): Define a rule.
-- [`when`](#when): May be set to `always` or `never` only. If not provided, the default value is `always`​.
-
-The list of `if` rules is evaluated until a single one is matched. If none
-match, the last `when` will be used:
-
-```yaml
-workflow:
-  rules:
-    - if: $CI_COMMIT_REF_NAME =~ /-wip$/
-      when: never
-    - if: $CI_COMMIT_TAG
-      when: never
-    - when: always
 ```
 
 ### `include`
@@ -1067,12 +1069,11 @@ the `.template` job, and uses the `alpine` Docker image as defined in the local 
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/27863) in GitLab 12.3.
 
-The `rules` keyword is a way to set job policies that determine whether or not jobs
-are added to pipelines.
+The `rules` keyword can be used to include or exclude jobs in pipelines.
 
-A list of individual rule clauses are evaluated *in order*, until one matches. When
-matched, the job is either included or excluded from the pipeline, depending
-on the configuration. If included, the job also has [certain attributes](#rules-attributes)
+Rules are evaluated *in order* until the first match. When matched, the job
+is either included or excluded from the pipeline, depending on the configuration.
+If included, the job also has [certain attributes](#rules-attributes)
 added to it.
 
 CAUTION: **Caution:**
@@ -1088,7 +1089,7 @@ The job attributes allowed by `rules` are:
   - If used as `when: delayed`, `start_in` is also required.
 - [`allow_failure`](#allow_failure): If not defined, defaults to `allow_failure: false`.
 
-If `when` is evaluated to any value except `never`, the job is included in the pipeline.
+If a rule evaluates to true, and `when` has any value except `never`, the job is included in the pipeline.
 
 For example:
 
@@ -1180,7 +1181,7 @@ job:
 - If the pipeline is a scheduled pipeline, the job is **not** be added to the pipeline.
 - In **all other cases**, the job is added to the pipeline, with `when: on_success`.
 
-CAUTION: **Caution**
+CAUTION: **Caution:**
 If you use `when: on_success`, `always`, or `delayed` as the final rule, two
 simultaneous pipelines may start. Both push pipelines and merge request pipelines can
 be triggered by the same event (a push to the source branch for an open merge request).
@@ -1189,10 +1190,11 @@ for more details.
 
 #### Differences between `rules` and `only`/`except`
 
-A very important difference between `rules` and `only/except`, is that jobs defined
-with `only/except` do not trigger merge request pipelines without explicit configuration.
-`rules` *can* trigger all types of pipelines, without explicitly configuring each
-type.
+Jobs defined with `only/except` do not trigger merge request pipelines by default.
+You must explicitly add `only: merge_requests`.
+
+Jobs defined with `rules` can trigger all types of pipelines.
+You do not have to explicitly configure each type.
 
 For example:
 
@@ -1259,6 +1261,8 @@ Some details regarding the logic that determines the `when` for the job:
   rule without `if` or `changes`, always matches, and is always used if reached.
 - If a rule matches and has no `when` defined, the rule uses the `when`
   defined for the job, which defaults to `on_success` if not defined.
+- You can define `when` once per rule, or once at the job-level, which applies to
+  all rules. You can't mix `when` at the job-level with `when` in rules.
 
 For behavior similar to the [`only`/`except` keywords](#onlyexcept-basic), you can
 check the value of the `$CI_PIPELINE_SOURCE` variable.
@@ -1271,7 +1275,7 @@ check the value of the `$CI_PIPELINE_SOURCE` variable.
 | `schedule`                    | For [scheduled pipelines](../pipelines/schedules.md).                                                                                                                                                                                                                                                                                                 |
 | `api`                         | For pipelines triggered by the [pipelines API](../../api/pipelines.md#create-a-new-pipeline).                                                                                                                                                                                                                                                         |
 | `external`                    | When using CI services other than GitLab.                                                                                                                                                                                                                                                                                                             |
-| `pipelines`                   | For multi-project pipelines created by [using the API with `CI_JOB_TOKEN`](../triggers/README.md#when-used-with-multi-project-pipelines).                                                                                                                                                                                                             |
+| `pipeline`                   | For multi-project pipelines created by [using the API with `CI_JOB_TOKEN`](../triggers/README.md#when-used-with-multi-project-pipelines).                                                                                                                                                                                                             |
 | `chat`                        | For pipelines created by using a [GitLab ChatOps](../chatops/README.md) command.                                                                                                                                                                                                                                                                      |
 | `webide`                      | For pipelines created by using the [WebIDE](../../user/project/web_ide/index.md).                                                                                                                                                                                                                                                                     |
 | `merge_request_event`         | For pipelines created when a merge request is created or updated. Required to enable [merge request pipelines](../merge_request_pipelines/index.md), [merged results pipelines](../merge_request_pipelines/pipelines_for_merged_results/index.md), and [merge trains](../merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md). |
@@ -1341,7 +1345,7 @@ docker build:
   script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
   rules:
     - changes:
-      - Dockerfile
+        - Dockerfile
       when: manual
       allow_failure: true
 ```
@@ -1367,7 +1371,7 @@ job:
   script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
   rules:
     - exists:
-      - Dockerfile
+        - Dockerfile
 ```
 
 You can also use glob patterns to match multiple files in any directory within
@@ -1380,7 +1384,7 @@ job:
   script: bundle exec rspec
   rules:
     - exists:
-      - spec/**.rb
+        - spec/**.rb
 ```
 
 NOTE: **Note:**
@@ -1427,8 +1431,8 @@ docker build:
   rules:
     - if: '$VAR == "string value"'
       changes: # Will include the job and set to when:manual if any of the follow paths match a modified file.
-      - Dockerfile
-      - docker/scripts/*
+        - Dockerfile
+        - docker/scripts/*
       when: manual
   # - when: never would be redundant here, this is implied any time rules are listed.
 ```
@@ -1565,7 +1569,7 @@ and must be surrounded by `/`.
 So `issue-/.*/` won't work to match all tag names or branch names
 that begin with `issue-`.
 
-TIP: **Tip**
+TIP: **Tip:**
 Use anchors `^` and `$` to avoid the regular expression
 matching only a substring of the tag name or branch name.
 For example, `/^issue-.*$/` is equivalent to `/^issue-/`,
@@ -1972,7 +1976,10 @@ Feature::enable(:ci_dag_limit_needs)
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/14311) in GitLab v12.6.
 
 When using `needs`, artifact downloads are controlled with `artifacts: true` (default) or `artifacts: false`.
-The `dependencies` keyword should not be used with `needs`, as this is deprecated since GitLab 12.6.
+
+Since GitLab 12.6, you can't combine the [`dependencies`](#dependencies) keyword
+with `needs` to control artifact downloads in jobs. `dependencies` is still valid
+in jobs that do not use `needs`.
 
 In the example below, the `rspec` job will download the `build_job` artifacts, while the
 `rubocop` job won't:
@@ -2420,8 +2427,13 @@ Read the `environment:action` section for an example.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/22191) in GitLab 8.13.
 
-The `action` keyword is to be used in conjunction with `on_stop` and is defined
-in the job that is called to close the environment.
+The `action` keyword can be used to specify jobs that prepare, start, or stop environments.
+
+| **Value** | **Description**                                                                                                                                               |
+|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| start     | Default value. Indicates that job starts the environment. Deployment will be created after job starts.                                                          |
+| prepare   | Indicates that job is only preparing the environment. Does not affect deployments. [Read more about environments](../environments/index.md#prepare-an-environment) |
+| stop      | Indicates that job stops deployment. See the example below.                                                                                                   |
 
 Take for instance:
 
@@ -2823,7 +2835,12 @@ be available for download in the GitLab UI.
 
 Paths are relative to the project directory (`$CI_PROJECT_DIR`) and can't directly
 link outside it. Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
-patterns and [`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
+patterns and:
+
+- In [GitLab Runner 13.0](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2620) and later,
+[`doublestar.Glob`](https://pkg.go.dev/github.com/bmatcuk/doublestar@v1.2.2?tab=doc#Match).
+- In GitLab Runner 12.10 and earlier,
+[`filepath.Match`](https://pkg.go.dev/path/filepath/#Match).
 
 To restrict which jobs a specific job will fetch artifacts from, see [dependencies](#dependencies).
 
@@ -2914,10 +2931,10 @@ For example, to match a single file:
 
 ```yaml
 test:
-  script: [ 'echo 1' ]
+  script: [ "echo 'test' > file.txt" ]
   artifacts:
     expose_as: 'artifact 1'
-    paths: ['path/to/file.txt']
+    paths: ['file.txt']
 ```
 
 With this configuration, GitLab will add a link **artifact 1** to the relevant merge request
@@ -2927,14 +2944,15 @@ An example that will match an entire directory:
 
 ```yaml
 test:
-  script: [ 'echo 1' ]
+  script: [ "mkdir test && echo 'test' > test/file.txt" ]
   artifacts:
     expose_as: 'artifact 1'
-    paths: ['path/to/directory/']
+    paths: ['test/']
 ```
 
 Note the following:
 
+- Artifacts do not display in the merge request UI when using variables to define the `artifacts:paths`.
 - A maximum of 10 job artifacts per merge request can be exposed.
 - Glob patterns are unsupported.
 - If a directory is specified, the link will be to the job [artifacts browser](../pipelines/job_artifacts.md#browsing-artifacts) if there is more than
@@ -3115,8 +3133,10 @@ job:
 ```
 
 NOTE: **Note:**
-For artifacts created in [GitLab 13.1](https://gitlab.com/gitlab-org/gitlab/-/issues/16267)
-and later, the latest artifact for a ref is always kept, regardless of the expiry time.
+Since [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/16267), the latest
+artifacts for refs can be locked against deletion, and kept regardless of the expiry time. This feature is disabled
+by default and is not ready for production use. It can be enabled for testing by
+enabling the `:keep_latest_artifact_for_ref` and `:destroy_only_unlocked_expired_artifacts` [feature flags](../../administration/feature_flags.md).
 
 #### `artifacts:reports`
 
@@ -3132,14 +3152,15 @@ These are the available report types:
 | [`artifacts:reports:dotenv`](../pipelines/job_artifacts.md#artifactsreportsdotenv)                                                   | The `dotenv` report collects a set of environment variables.                     |
 | [`artifacts:reports:cobertura`](../pipelines/job_artifacts.md#artifactsreportscobertura)                                             | The `cobertura` report collects Cobertura coverage XML files.                    |
 | [`artifacts:reports:terraform`](../pipelines/job_artifacts.md#artifactsreportsterraform)                                             | The `terraform` report collects Terraform `tfplan.json` files.                   |
-| [`artifacts:reports:codequality`](../pipelines/job_artifacts.md#artifactsreportscodequality-starter) **(STARTER)**                   | The `codequality` report collects CodeQuality issues.                            |
+| [`artifacts:reports:codequality`](../pipelines/job_artifacts.md#artifactsreportscodequality)                                         | The `codequality` report collects CodeQuality issues.                            |
 | [`artifacts:reports:sast`](../pipelines/job_artifacts.md#artifactsreportssast-ultimate) **(ULTIMATE)**                               | The `sast` report collects Static Application Security Testing vulnerabilities.  |
 | [`artifacts:reports:dependency_scanning`](../pipelines/job_artifacts.md#artifactsreportsdependency_scanning-ultimate) **(ULTIMATE)** | The `dependency_scanning` report collects Dependency Scanning vulnerabilities.   |
 | [`artifacts:reports:container_scanning`](../pipelines/job_artifacts.md#artifactsreportscontainer_scanning-ultimate) **(ULTIMATE)**   | The `container_scanning` report collects Container Scanning vulnerabilities.     |
 | [`artifacts:reports:dast`](../pipelines/job_artifacts.md#artifactsreportsdast-ultimate) **(ULTIMATE)**                               | The `dast` report collects Dynamic Application Security Testing vulnerabilities. |
 | [`artifacts:reports:license_management`](../pipelines/job_artifacts.md#artifactsreportslicense_management-ultimate) **(ULTIMATE)**   | The `license_management` report collects Licenses (*removed from GitLab 13.0*).  |
 | [`artifacts:reports:license_scanning`](../pipelines/job_artifacts.md#artifactsreportslicense_scanning-ultimate) **(ULTIMATE)**       | The `license_scanning` report collects Licenses.                                 |
-| [`artifacts:reports:performance`](../pipelines/job_artifacts.md#artifactsreportsperformance-premium) **(PREMIUM)**                   | The `performance` report collects Performance metrics.                           |
+| [`artifacts:reports:performance`](../pipelines/job_artifacts.md#artifactsreportsperformance-premium) **(PREMIUM)**                   | The `performance` report collects Browser Performance metrics.                   |
+| [`artifacts:reports:load_performance`](../pipelines/job_artifacts.md#artifactsreportsload_performance-premium) **(PREMIUM)**         | The `load_performance` report collects load performance metrics.                 |
 | [`artifacts:reports:metrics`](../pipelines/job_artifacts.md#artifactsreportsmetrics-premium) **(PREMIUM)**                           | The `metrics` report collects Metrics.                                           |
 
 #### `dependencies`
@@ -3382,6 +3403,48 @@ Please be aware that semaphore_test_boosters reports usages statistics to the au
 You can then navigate to the **Jobs** tab of a new pipeline build and see your RSpec
 job split into three separate jobs.
 
+#### Parallel `matrix` jobs
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15356) in GitLab 13.2.
+
+`matrix:` allows you to configure different variables for jobs that are running in parallel.
+There can be from 2 to 50 jobs.
+
+Every job gets the same `CI_NODE_TOTAL` [environment variable](../variables/README.md#predefined-environment-variables) value, and a unique `CI_NODE_INDEX` value.
+
+```yaml
+deploystacks:
+  stage: deploy
+  script:
+    - bin/deploy
+  parallel:
+    matrix:
+      - PROVIDER: aws
+        STACK:
+          - monitoring
+          - app1
+          - app2
+      - PROVIDER: ovh
+        STACK: [monitoring, backup, app]
+      - PROVIDER: [gcp, vultr]
+        STACK: [data, processing]
+```
+
+This generates 10 parallel `deploystacks` jobs, each with different values for `PROVIDER` and `STACK`:
+
+```plaintext
+deploystacks 1/10 with PROVIDER=aws and STACK=monitoring
+deploystacks 2/10 with PROVIDER=aws and STACK=app1
+deploystacks 3/10 with PROVIDER=aws and STACK=app2
+deploystacks 4/10 with PROVIDER=ovh and STACK=monitoring
+deploystacks 5/10 with PROVIDER=ovh and STACK=backup
+deploystacks 6/10 with PROVIDER=ovh and STACK=app
+deploystacks 7/10 with PROVIDER=gcp and STACK=data
+deploystacks 8/10 with PROVIDER=gcp and STACK=processing
+deploystacks 9/10 with PROVIDER=vultr and STACK=data
+deploystacks 10/10 with PROVIDER=vultr and STACK=processing
+```
+
 ### `trigger`
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/8997) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8.
@@ -3395,6 +3458,10 @@ This keyword allows the creation of two different types of downstream pipelines:
 
 - [Multi-project pipelines](../multi_project_pipelines.md#creating-multi-project-pipelines-from-gitlab-ciyml)
 - [Child pipelines](../parent_child_pipelines.md)
+
+[Since GitLab 13.2](https://gitlab.com/gitlab-org/gitlab/-/issues/197140/), you can
+see which job triggered a downstream pipeline by hovering your mouse cursor over
+the downstream pipeline job in the [pipeline graph](../pipelines/index.md#visualize-pipelines).
 
 NOTE: **Note:**
 Using a `trigger` with `when:manual` together results in the error `jobs:#{job-name}
@@ -3540,7 +3607,7 @@ is enabled.
 
 When enabled, a pipeline on the same branch will be canceled when:
 
-- it's made redundant by a newer pipeline run.
+- It's made redundant by a newer pipeline run.
 - Either all jobs are set as interruptible, or any uninterruptible jobs haven't started.
 
 Pending jobs are always considered interruptible.
@@ -3625,29 +3692,20 @@ For more information, see [Deployments Safety](../environments/deployment_safety
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/19298) in GitLab 13.2.
 
-`release` indicates that the job will create a [Release](../../user/project/releases/index.md),
-and optionally include URLs for Release assets.
+`release` indicates that the job creates a [Release](../../user/project/releases/index.md),
+and optionally includes URLs for Release assets.
 
 These methods are supported:
 
-- [`name`](#releasename)
-- [`description`](#releasedescription)
 - [`tag_name`](#releasetag_name)
-- [`ref`](#releaseref)
-- [`milestones`](#releasemilestones)
-- [`released_at`](#releasereleased_at)
+- [`name`](#releasename) (optional)
+- [`description`](#releasedescription) (optional)
+- [`ref`](#releaseref) (optional)
+- [`milestones`](#releasemilestones) (optional)
+- [`released_at`](#releasereleased_at) (optional)
 
 The Release is created only if the job processes without error. If the Rails API
 returns an error during Release creation, the `release` job fails.
-
-#### Tags
-
-A `release` job should not be run against a tag commit, or it will continually re-trigger itself. This can be specified by including:
-
-```yaml
-only:
-  - tags
-```
 
 #### `release-cli` Docker image
 
@@ -3673,23 +3731,25 @@ A pipeline can have multiple `release` jobs, for example:
 
 ```yaml
 ios-release:
-  script: release > changelog.md
+  script:
+    - echo 'iOS release job'
   release:
      tag_name: v1.0.0-ios
-     description: changelog.md
+     description: 'iOS release v1.0.0'
 
 android-release:
-  script: release > changelog.md
+  script:
+    - echo 'Android release job'
   release:
      tag_name: v1.0.0-android
-     description: changelog.md
+     description: 'Android release v1.0.0'
 ```
 
 #### `release:tag_name`
 
 The `tag_name` must be specified. It can refer to an existing Git tag or can be specified by the user.
 
-When the specified tag doesn't exist in repository, a new tag is created from the associated SHA of the pipeline.
+When the specified tag doesn't exist in the repository, a new tag is created from the associated SHA of the pipeline.
 
 For example, when creating a Release from a Git tag:
 
@@ -3698,8 +3758,6 @@ job:
   release:
     tag_name: $CI_COMMIT_TAG
     description: changelog.txt
-  only:
-    - tags
 ```
 
 It is also possible to create any unique tag, in which case `only: tags` is not mandatory.
@@ -3718,17 +3776,16 @@ job:
 
 #### `release:name`
 
-The Release name. This is an optional field. If omitted, it is populated with
-`release:tag_name`.
+The Release name. If omitted, it is populated with the value of `release: tag_name`.
 
 #### `release:description`
 
-Specifies a file containing the longer description of the Release. This is a mandatory
-field and can point to a changelog.
+Specifies the longer description of the Release.
 
 #### `release:ref`
 
-When the `tag_name` does not exist, `release:ref` specifies the commit to be used instead of the pipeline `ref`. If `tag_name` doesn’t exist, the release will be created from `ref`. `ref` can be a commit SHA, another tag name, or a branch name.
+If the `release: tag_name` doesn’t exist yet, the release is created from `ref`.
+`ref` can be a commit SHA, another tag name, or a branch name.
 
 #### `release:milestones`
 
@@ -3736,36 +3793,64 @@ The title of each milestone the release is associated with.
 
 #### `release:released_at`
 
-The date when the release will be or was ready. Defaults to the current time. Expected in ISO 8601 format (2019-03-15T08:00:00Z).
+The date and time when the release is ready. Defaults to the current date and time if not
+defined. Expected in ISO 8601 format (2019-03-15T08:00:00Z).
 
 #### Complete example for `release`
 
-Combining the individual examples given above for `release`, we'd have the following code snippet:
+Combining the individual examples given above for `release` results in the following
+code snippets. There are two options, depending on how you generate the
+tags. These options cannot be used together, so choose one:
 
-```yaml
-stages:
-- build
-- test
-- release-stg
+- To create a release when you push a Git tag, or when you add a Git tag
+  in the UI by going to **Repository > Tags**:
 
-release_job:
-  stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  only:
-    - tags
-  script:
-    - echo 'running release_job'
-  release:
-     name: 'Release $CI_COMMIT_SHA'
-     description: 'Created using the release-cli $EXTRA_DESCRIPTION'
-     tag_name: 'release-$CI_COMMIT_SHA'
-     ref: '$CI_COMMIT_SHA'
-     milestones:
-       - 'm1'
-       - 'm2'
-       - 'm3'
-     released_at: '2020-07-15T08:00:00Z'
-```
+  ```yaml
+  release_job:
+    stage: release
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    rules:
+      - if: $CI_COMMIT_TAG                  # Run this job when a tag is created manually
+    script:
+      - echo 'running release_job'
+    release:
+       name: 'Release $CI_COMMIT_TAG'
+       description: 'Created using the release-cli $EXTRA_DESCRIPTION' # $EXTRA_DESCRIPTION must be defined
+       tag_name: '$CI_COMMIT_TAG'                                      # elsewhere in the pipeline.
+       ref: '$CI_COMMIT_TAG'
+       milestones:
+         - 'm1'
+         - 'm2'
+         - 'm3'
+       released_at: '2020-07-15T08:00:00Z'  # Optional, will auto generate if not defined,
+                                            # or can use a variable.
+  ```
+
+- To create a release automatically when changes are pushed to the default branch,
+  using a new Git tag that is defined with variables:
+
+  ```yaml
+  release_job:
+    stage: release
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    rules:
+      - if: $CI_COMMIT_TAG
+        when: never                                 # Do not run this job when a tag is created manually
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when the default branch changes
+    script:
+      - echo 'running release_job'
+    release:
+       name: 'Release $CI_COMMIT_SHA'
+       description: 'Created using the release-cli $EXTRA_DESCRIPTION' # $EXTRA_DESCRIPTION and the tag_name
+       tag_name: 'v${MAJOR}.${MINOR}.${REVISION}'                      # variables must be defined elsewhere
+       ref: '$CI_COMMIT_SHA'                                           # in the pipeline.
+       milestones:
+         - 'm1'
+         - 'm2'
+         - 'm3'
+       released_at: '2020-07-15T08:00:00Z'          # Optional, will auto generate if not defined,
+                                                    # or can use a variable.
+  ```
 
 #### `releaser-cli` command line
 
@@ -3773,10 +3858,10 @@ The entries under the `:release` node are transformed into a `bash` command line
 to the Docker container, which contains the [release-cli](https://gitlab.com/gitlab-org/release-cli).
 You can also call the `release-cli` directly from a `script` entry.
 
-The YAML described above would be transferred into a command line like this:
+The YAML described above would be translated into a CLI command like this:
 
 ```shell
-release-cli create --name "Release $CI_COMMIT_SHA" --description "Created using the release-cli $EXTRA_DESCRIPTION" --tag-name "release-$CI_COMMIT_SHA" --ref "$CI_COMMIT_SHA" --released-at "2020-07-15T08:00:00Z" --milestone "m1" --milestone "m2" --milestone "m3"
+release-cli create --name "Release $CI_COMMIT_SHA" --description "Created using the release-cli $EXTRA_DESCRIPTION" --tag-name "v${MAJOR}.${MINOR}.${REVISION}" --ref "$CI_COMMIT_SHA" --released-at "2020-07-15T08:00:00Z" --milestone "m1" --milestone "m2" --milestone "m3"
 ```
 
 ### `pages`
@@ -3887,7 +3972,8 @@ variables:
   GIT_STRATEGY: none
 ```
 
-NOTE: **Note:** `GIT_STRATEGY` is not supported for
+NOTE: **Note:**
+`GIT_STRATEGY` is not supported for
 [Kubernetes executor](https://docs.gitlab.com/runner/executors/kubernetes.html),
 but may be in the future. See the [support Git strategy with Kubernetes executor feature proposal](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/3847)
 for updates.
@@ -4052,7 +4138,7 @@ You can set them globally or per-job in the [`variables`](#variables) section.
 
 > Introduced in GitLab 8.9 as an experimental feature.
 
-NOTE: **Note**:
+NOTE: **Note:**
 As of GitLab 12.0, newly created projects will automatically have a [default `git depth` value of `50`](../pipelines/settings.md#git-shallow-clone).
 
 You can specify the depth of fetching and cloning using `GIT_DEPTH`. This allows
@@ -4332,11 +4418,11 @@ Example:
 
 ```yaml
 .something_before: &something_before
-- echo 'something before'
+  - echo 'something before'
 
 .something_after: &something_after
-- echo 'something after'
-- echo 'another thing after'
+  - echo 'something after'
+  - echo 'another thing after'
 
 job_name:
   before_script:
@@ -4358,7 +4444,7 @@ For example:
 
 ```yaml
 .something: &something
-- echo 'something'
+  - echo 'something'
 
 job_name:
   script:

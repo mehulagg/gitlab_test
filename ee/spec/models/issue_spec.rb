@@ -69,16 +69,6 @@ RSpec.describe Issue do
   end
 
   context 'scopes' do
-    describe '.service_desk' do
-      it 'returns the service desk issue' do
-        service_desk_issue = create(:issue, author: ::User.support_bot)
-        regular_issue = create(:issue)
-
-        expect(described_class.service_desk).to include(service_desk_issue)
-        expect(described_class.service_desk).not_to include(regular_issue)
-      end
-    end
-
     describe '.counts_by_health_status' do
       it 'returns counts grouped by health_status' do
         create(:issue, health_status: :on_track)
@@ -137,6 +127,39 @@ RSpec.describe Issue do
         it 'returns only issues in selected epics' do
           expect(described_class.count).to eq 3
           expect(described_class.in_epics([epic1])).to eq [epic_issue1.issue]
+        end
+      end
+    end
+
+    context 'iterations' do
+      let_it_be(:iteration1) { create(:iteration) }
+      let_it_be(:iteration2) { create(:iteration) }
+      let_it_be(:iteration1_issue) { create(:issue, iteration: iteration1) }
+      let_it_be(:iteration2_issue) { create(:issue, iteration: iteration2) }
+      let_it_be(:issue_no_iteration) { create(:issue) }
+
+      before do
+        stub_licensed_features(iterations: true)
+      end
+
+      describe '.no_iteration' do
+        it 'returns only issues without an iteration assigned' do
+          expect(described_class.count).to eq 3
+          expect(described_class.no_iteration).to eq [issue_no_iteration]
+        end
+      end
+
+      describe '.any_iteration' do
+        it 'returns only issues with an iteration assigned' do
+          expect(described_class.count).to eq 3
+          expect(described_class.any_iteration).to eq [iteration1_issue, iteration2_issue]
+        end
+      end
+
+      describe '.in_iterations' do
+        it 'returns only issues in selected iterations' do
+          expect(described_class.count).to eq 3
+          expect(described_class.in_iterations([iteration1])).to eq [iteration1_issue]
         end
       end
     end
@@ -670,22 +693,6 @@ RSpec.describe Issue do
   end
 
   it_behaves_like 'having health status'
-
-  describe '#service_desk?' do
-    subject { issue.from_service_desk? }
-
-    context 'when issue author is support bot' do
-      let(:issue) { create(:issue, author: ::User.support_bot) }
-
-      it { is_expected.to be_truthy }
-    end
-
-    context 'when issue author is not support bot' do
-      let(:issue) { create(:issue) }
-
-      it { is_expected.to be_falsey }
-    end
-  end
 
   describe '#can_assign_epic?' do
     let(:user)    { create(:user) }

@@ -73,6 +73,7 @@ For a list of supported languages on JUnit tests, check the
 To enable the JUnit reports in merge requests, you need to add
 [`artifacts:reports:junit`](pipelines/job_artifacts.md#artifactsreportsjunit)
 in `.gitlab-ci.yml`, and specify the path(s) of the generated test reports.
+The reports must be `.xml` files, otherwise [GitLab returns an Error 500](https://gitlab.com/gitlab-org/gitlab/-/issues/216575).
 
 In the following examples, the job in the `test` stage runs and GitLab
 collects the JUnit test report from each job. After each job is executed, the
@@ -263,7 +264,7 @@ following command:
 ```ruby
 Feature.enable(:junit_pipeline_view)
 
-# Enable the feature for a specific project
+# Enable the feature for a specific project, GitLab 13.0 and above only.
 Feature.enable(:junit_pipeline_view, Project.find(<your-project-id-here>))
 ```
 

@@ -1,7 +1,9 @@
 import renderer from '~/vue_shared/components/rich_content_editor/services/renderers/render_kramdown_text';
-import { buildUneditableTokens } from '~/vue_shared/components/rich_content_editor/services/renderers/build_uneditable_token';
+import { renderUneditableLeaf } from '~/vue_shared/components/rich_content_editor/services/renderers/render_utils';
 
-import { kramdownTextNode, normalTextNode } from '../../mock_data';
+import { buildMockTextNode, normalTextNode } from './mock_data';
+
+const kramdownTextNode = buildMockTextNode('{:toc}');
 
 describe('Render Kramdown Text renderer', () => {
   describe('canRender', () => {
@@ -15,14 +17,8 @@ describe('Render Kramdown Text renderer', () => {
   });
 
   describe('render', () => {
-    const origin = jest.fn();
-
-    it('should return uneditable tokens', () => {
-      const context = { origin };
-
-      expect(renderer.render(kramdownTextNode, context)).toStrictEqual(
-        buildUneditableTokens(origin()),
-      );
+    it('should delegate rendering to the renderUneditableLeaf util', () => {
+      expect(renderer.render).toBe(renderUneditableLeaf);
     });
   });
 });

@@ -1,6 +1,7 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
+import Mousetrap from 'mousetrap';
 import { GlIcon, GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
 import DashboardHeader from './dashboard_header.vue';
 import DashboardPanel from './dashboard_panel.vue';
@@ -24,7 +25,7 @@ import {
   expandedPanelPayloadFromUrl,
   convertVariablesForURL,
 } from '../utils';
-import { metricStates } from '../constants';
+import { metricStates, keyboardShortcutKeys } from '../constants';
 import { defaultTimeRange } from '~/vue_shared/constants';
 
 export default {
@@ -68,6 +69,10 @@ export default {
       default: true,
     },
     documentationPath: {
+      type: String,
+      required: true,
+    },
+    addDashboardDocumentationPath: {
       type: String,
       required: true,
     },
@@ -149,13 +154,13 @@ export default {
       selectedTimeRange: timeRangeFromUrl() || defaultTimeRange,
       isRearrangingPanels: false,
       originalDocumentTitle: document.title,
+      hoveredPanel: '',
     };
   },
   computed: {
     ...mapState('monitoringDashboard', [
       'dashboard',
       'emptyState',
-      'showEmptyState',
       'expandedPanel',
       'variables',
       'links',
@@ -163,8 +168,11 @@ export default {
       'hasDashboardValidationWarnings',
     ]),
     ...mapGetters('monitoringDashboard', ['selectedDashboard', 'getMetricStates']),
+    shouldShowEmptyState() {
+      return Boolean(this.emptyState);
+    },
     shouldShowVariablesSection() {
-      return Object.keys(this.variables).length > 0;
+      return Boolean(this.variables.length);
     },
     shouldShowLinksSection() {
       return Object.keys(this.links).length > 0;
@@ -214,9 +222,13 @@ export default {
   },
   created() {
     window.addEventListener('keyup', this.onKeyup);
+
+    Mousetrap.bind(Object.values(keyboardShortcutKeys), this.runShortcut);
   },
   destroyed() {
     window.removeEventListener('keyup', this.onKeyup);
+
+    Mousetrap.unbind(Object.values(keyboardShortcutKeys));
   },
   mounted() {
     if (!this.hasMetrics) {
@@ -266,6 +278,14 @@ export default {
         return states[0];
       }
       return null;
+    },
+    /**
+     * Return true if the entire group is loading.
+     * @param {String} groupKey - Identifier for group
+     * @returns {boolean}
+     */
+    isGroupLoading(groupKey) {
+      return this.groupSingleEmptyState(groupKey) === metricStates.LOADING;
     },
     /**
      * A group should be not collapsed if any metric is loaded (OK)
@@ -326,6 +346,56 @@ export default {
 
       return isNumberOfPanelsEven || !isLastPanel;
     },
+    /**
+     * TODO: Investigate this to utilize the eventBus from Vue
+     * The intentation behind this cleanup is to allow for better tests
+     * as well as use the correct eventBus facilities that are compatible
+     * with Vue 3
+     * https://gitlab.com/gitlab-org/gitlab/-/issues/225583
+     */
+    //
+    runShortcut(e) {
+      const panel = this.$refs[this.hoveredPanel];
+
+      if (!panel) return;
+
+      const [panelInstance] = panel;
+      let actionToRun = '';
+
+      switch (e.key) {
+        case keyboardShortcutKeys.EXPAND:
+          actionToRun = 'onExpandFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.VISIT_LOGS:
+          actionToRun = 'visitLogsPageFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.SHOW_ALERT:
+          actionToRun = 'showAlertModalFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.DOWNLOAD_CSV:
+          actionToRun = 'downloadCsvFromKeyboardShortcut';
+          break;
+
+        case keyboardShortcutKeys.CHART_COPY:
+          actionToRun = 'copyChartLinkFromKeyboardShotcut';
+          break;
+
+        default:
+          actionToRun = 'onExpandFromKeyboardShortcut';
+          break;
+      }
+
+      panelInstance[actionToRun]();
+    },
+    setHoveredPanel(groupKey, graphIndex) {
+      this.hoveredPanel = `dashboard-panel-${groupKey}-${graphIndex}`;
+    },
+    clearHoveredPanel() {
+      this.hoveredPanel = '';
+    },
   },
   i18n: {
     goBackLabel: s__('Metrics|Go back (Esc)'),
@@ -339,6 +409,7 @@ export default {
       v-if="showHeader"
       ref="prometheusGraphsHeader"
       class="prometheus-graphs-header d-sm-flex flex-sm-wrap pt-2 pr-1 pb-0 pl-2 border-bottom bg-gray-light"
+      :add-dashboard-documentation-path="addDashboardDocumentationPath"
       :default-branch="defaultBranch"
       :rearrange-panels-available="rearrangePanelsAvailable"
       :custom-metrics-available="customMetricsAvailable"
@@ -351,9 +422,9 @@ export default {
       @dateTimePickerInvalid="onDateTimePickerInvalid"
       @setRearrangingPanels="onSetRearrangingPanels"
     />
-    <variables-section v-if="shouldShowVariablesSection && !showEmptyState" />
-    <links-section v-if="shouldShowLinksSection && !showEmptyState" />
-    <div v-if="!showEmptyState">
+    <template v-if="!shouldShowEmptyState">
+      <variables-section v-if="shouldShowVariablesSection" />
+      <links-section v-if="shouldShowLinksSection" />
       <dashboard-panel
         v-show="expandedPanel.panel"
         ref="expandedPanel"
@@ -388,6 +459,7 @@ export default {
           :key="`${groupData.group}.${groupData.priority}`"
           :name="groupData.group"
           :show-panels="showPanels"
+          :is-loading="isGroupLoading(groupData.key)"
           :collapse-group="collapseGroup(groupData.key)"
         >
           <vue-draggable
@@ -407,6 +479,8 @@ export default {
                 'draggable-enabled': isRearrangingPanels,
                 'col-lg-6': isPanelHalfWidth(graphIndex, groupData.panels.length),
               }"
+              @mouseover="setHoveredPanel(groupData.key, graphIndex)"
+              @mouseout="clearHoveredPanel"
             >
               <div class="position-relative draggable-panel js-draggable-panel">
                 <div
@@ -420,6 +494,7 @@ export default {
                 </div>
 
                 <dashboard-panel
+                  :ref="`dashboard-panel-${groupData.key}-${graphIndex}`"
                   :settings-path="settingsPath"
                   :clipboard-text="generatePanelUrl(groupData.group, graphData)"
                   :graph-data="graphData"
@@ -442,7 +517,7 @@ export default {
           </div>
         </graph-group>
       </div>
-    </div>
+    </template>
     <empty-state
       v-else
       :selected-state="emptyState"

@@ -13,9 +13,9 @@ GitLab offers integrated cluster creation for the following Kubernetes providers
 
 GitLab can also integrate with any standard Kubernetes provider, either on-premise or hosted.
 
-NOTE: **Scalable app deployment with GitLab and Google Cloud Platform**
-[Watch the webcast](https://about.gitlab.com/webcast/scalable-app-deploy/) and
-learn how to spin up a Kubernetes cluster managed by Google Cloud Platform (GCP)
+NOTE: **Note:**
+Watch the webcast [Scalable app deployment with GitLab and Google Cloud Platform](https://about.gitlab.com/webcast/scalable-app-deploy/)
+and learn how to spin up a Kubernetes cluster managed by Google Cloud Platform (GCP)
 in a few clicks.
 
 TIP: **Tip:**
@@ -57,14 +57,10 @@ to manage the newly created cluster.
 NOTE: **Note:**
 Restricted service account for deployment was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/51716) in GitLab 11.5.
 
-When you install Helm into your cluster, the `tiller` service account
-is created with `cluster-admin` privileges in the `gitlab-managed-apps`
-namespace.
-
-This service account will be:
-
-- Added to the installed Helm Tiller.
-- Used by Helm to install and run [GitLab managed applications](index.md#installing-applications).
+The first time you install an application into your cluster, the `tiller` service
+account is created with `cluster-admin` privileges in the
+`gitlab-managed-apps` namespace. This service account will be used by Helm to
+install and run [GitLab managed applications](index.md#installing-applications).
 
 Helm will also create additional service accounts and other resources for each
 installed application. Consult the documentation of the Helm charts for each application
@@ -93,8 +89,8 @@ GitLab creates the following resources for RBAC clusters.
 | `gitlab`              | `ServiceAccount`     | `default` namespace                                                                                        | Creating a new cluster |
 | `gitlab-admin`        | `ClusterRoleBinding` | [`cluster-admin`](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles) roleRef | Creating a new cluster |
 | `gitlab-token`        | `Secret`             | Token for `gitlab` ServiceAccount                                                                          | Creating a new cluster |
-| `tiller`              | `ServiceAccount`     | `gitlab-managed-apps` namespace                                                                            | Installing Helm Tiller |
-| `tiller-admin`        | `ClusterRoleBinding` | `cluster-admin` roleRef                                                                                    | Installing Helm Tiller |
+| `tiller`              | `ServiceAccount`     | `gitlab-managed-apps` namespace                                                                            | Installing Helm charts |
+| `tiller-admin`        | `ClusterRoleBinding` | `cluster-admin` roleRef                                                                                    | Installing Helm charts |
 | Environment namespace | `Namespace`          | Contains all environment-specific resources                                                                | Deploying to a cluster |
 | Environment namespace | `ServiceAccount`     | Uses namespace of environment                                                                              | Deploying to a cluster |
 | Environment namespace | `Secret`             | Token for environment ServiceAccount                                                                       | Deploying to a cluster |
@@ -108,8 +104,8 @@ GitLab creates the following resources for ABAC clusters.
 |:----------------------|:---------------------|:-------------------------------------|:---------------------------|
 | `gitlab`              | `ServiceAccount`     | `default` namespace                         | Creating a new cluster |
 | `gitlab-token`        | `Secret`             | Token for `gitlab` ServiceAccount           | Creating a new cluster |
-| `tiller`              | `ServiceAccount`     | `gitlab-managed-apps` namespace             | Installing Helm Tiller |
-| `tiller-admin`        | `ClusterRoleBinding` | `cluster-admin` roleRef                     | Installing Helm Tiller |
+| `tiller`              | `ServiceAccount`     | `gitlab-managed-apps` namespace             | Installing Helm charts |
+| `tiller-admin`        | `ClusterRoleBinding` | `cluster-admin` roleRef                     | Installing Helm charts |
 | Environment namespace | `Namespace`          | Contains all environment-specific resources | Deploying to a cluster |
 | Environment namespace | `ServiceAccount`     | Uses namespace of environment               | Deploying to a cluster |
 | Environment namespace | `Secret`             | Token for environment ServiceAccount        | Deploying to a cluster |
@@ -156,11 +152,6 @@ Amazon Elastic Kubernetes Service (EKS) at the project, group, or instance level
 ## Add existing cluster
 
 If you have an existing Kubernetes cluster, you can add it to a project, group, or instance.
-
-For more information, see information for adding an:
-
-- [Existing Kubernetes cluster](#existing-kubernetes-cluster), including GKE clusters.
-- [Existing EKS cluster](add_eks_clusters.md#existing-eks-cluster).
 
 NOTE: **Note:**
 Kubernetes integration is not supported for arm64 clusters. See the issue
@@ -227,9 +218,9 @@ To add a Kubernetes cluster to your project, group, or instance:
            kind: ClusterRole
            name: cluster-admin
          subjects:
-         - kind: ServiceAccount
-           name: gitlab-admin
-           namespace: kube-system
+           - kind: ServiceAccount
+             name: gitlab-admin
+             namespace: kube-system
          ```
 
       1. Apply the service account and cluster role binding to your cluster:
@@ -317,7 +308,8 @@ integration to work properly.
 
 ![rbac](img/rbac_v13_1.png)
 
-NOTE: **Note**: Disabling RBAC means that any application running in the cluster,
+NOTE: **Note:**
+Disabling RBAC means that any application running in the cluster,
 or user who can authenticate to the cluster, has full API access. This is a
 [security concern](index.md#security-implications), and may not be desirable.
 

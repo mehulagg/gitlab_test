@@ -77,10 +77,6 @@ export const setTimeRange = ({ commit }, timeRange) => {
   commit(types.SET_TIME_RANGE, timeRange);
 };
 
-export const setVariables = ({ commit }, variables) => {
-  commit(types.SET_VARIABLES, variables);
-};
-
 export const filterEnvironments = ({ commit, dispatch }, searchTerm) => {
   commit(types.SET_ENVIRONMENTS_FILTER, searchTerm);
   dispatch('fetchEnvironmentsData');
@@ -99,6 +95,10 @@ export const clearExpandedPanel = ({ commit }) => {
     group: null,
     panel: null,
   });
+};
+
+export const setCurrentDashboard = ({ commit }, { currentDashboard }) => {
+  commit(types.SET_CURRENT_DASHBOARD, currentDashboard);
 };
 
 // All Data
@@ -235,7 +235,7 @@ export const fetchPrometheusMetric = (
     queryParams.step = metric.step;
   }
 
-  if (Object.keys(state.variables).length > 0) {
+  if (state.variables.length > 0) {
     queryParams = {
       ...queryParams,
       ...getters.getCustomVariablesParams,
@@ -360,14 +360,14 @@ export const receiveAnnotationsSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_ANNOTATIONS_SUCCESS, data);
 export const receiveAnnotationsFailure = ({ commit }) => commit(types.RECEIVE_ANNOTATIONS_FAILURE);
 
-export const fetchDashboardValidationWarnings = ({ state, dispatch }) => {
+export const fetchDashboardValidationWarnings = ({ state, dispatch, getters }) => {
   /**
    * Normally, the default dashboard won't throw any validation warnings.
    *
    * However, if a bug sneaks into the default dashboard making it invalid,
    * this might come handy for our clients
    */
-  const dashboardPath = state.currentDashboard || DEFAULT_DASHBOARD_PATH;
+  const dashboardPath = getters.fullDashboardPath || DEFAULT_DASHBOARD_PATH;
   return gqClient
     .mutate({
       mutation: getDashboardValidationWarnings,
@@ -378,7 +378,7 @@ export const fetchDashboardValidationWarnings = ({ state, dispatch }) => {
       },
     })
     .then(resp => resp.data?.project?.environments?.nodes?.[0]?.metricsDashboard)
-    .then(({ schemaValidationWarnings }) => {
+    .then(({ schemaValidationWarnings } = {}) => {
       const hasWarnings = schemaValidationWarnings && schemaValidationWarnings.length !== 0;
       /**
        * The payload of the dispatch is a boolean, because at the moment a standard
@@ -480,7 +480,7 @@ export const fetchVariableMetricLabelValues = ({ state, commit }, { defaultQuery
   const { start_time, end_time } = defaultQueryParams;
   const optionsRequests = [];
 
-  Object.entries(state.variables).forEach(([key, variable]) => {
+  state.variables.forEach(variable => {
     if (variable.type === VARIABLE_TYPES.metric_label_values) {
       const { prometheusEndpointPath, label } = variable.options;
 
@@ -496,7 +496,7 @@ export const fetchVariableMetricLabelValues = ({ state, commit }, { defaultQuery
         .catch(() => {
           createFlash(
             sprintf(s__('Metrics|There was an error getting options for variable "%{name}".'), {
-              name: key,
+              name: variable.name,
             }),
           );
         });
@@ -506,6 +506,3 @@ export const fetchVariableMetricLabelValues = ({ state, commit }, { defaultQuery
 
   return Promise.all(optionsRequests);
 };
-
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};

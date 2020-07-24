@@ -58,12 +58,15 @@ prerequisites:
 
 If you're using custom Helm values for Cilium, you must enable Hubble
 with flow metrics for each namespace by adding the following lines to
-your [Hubble values](../../clusters/applications.md#install-cilium-using-gitlab-cicd):
+your [Cilium values](../../clusters/applications.md#install-cilium-using-gitlab-cicd):
 
 ```yaml
-metrics:
-  enabled:
-    - 'flow:sourceContext=namespace;destinationContext=namespace'
+global:
+  hubble:
+    enabled: true
+    metrics:
+      enabled:
+      - 'flow:sourceContext=namespace;destinationContext=namespace'
 ```
 
 The **Container Network Policy** section displays the following information
@@ -95,6 +98,11 @@ Network policies are fetched directly from the selected environment's
 deployment platform. Changes performed outside of this tab are
 reflected upon refresh. Enforcement status changes are deployed
 directly to a deployment namespace of the selected environment.
+
+By default, the network policy list contains predefined policies in a
+disabled state. Once enabled,a predefined policy deploys to the
+selected environment's deployment platform and you can manage it like
+the regular policies.
 
 NOTE: **Note:**
 If you're using [Auto DevOps](../../../topics/autodevops/index.md) and

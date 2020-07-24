@@ -28,6 +28,7 @@ module GroupsHelper
 
   def group_packages_nav_link_paths
     %w[
+      groups/packages#index
       groups/container_registries#index
     ]
   end
@@ -157,6 +158,15 @@ module GroupsHelper
     groups.to_json
   end
 
+  def group_packages_nav?
+    group_packages_list_nav? ||
+      group_container_registry_nav?
+  end
+
+  def group_packages_list_nav?
+    @group.packages_feature_enabled?
+  end
+
   private
 
   def get_group_sidebar_links
@@ -174,6 +184,10 @@ module GroupsHelper
 
     if can?(current_user, :admin_group, @group)
       links << :settings
+    end
+
+    if can?(current_user, :read_wiki, @group)
+      links << :wiki
     end
 
     links

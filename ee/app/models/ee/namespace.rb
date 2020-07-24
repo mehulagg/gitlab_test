@@ -36,13 +36,6 @@ module EE
       scope :include_gitlab_subscription, -> { includes(:gitlab_subscription) }
       scope :join_gitlab_subscription, -> { joins("LEFT OUTER JOIN gitlab_subscriptions ON gitlab_subscriptions.namespace_id=namespaces.id") }
 
-      scope :requiring_ci_extra_minutes_recalculation, -> do
-        joins(:namespace_statistics)
-          .where('namespaces.shared_runners_minutes_limit > 0')
-          .where('namespaces.extra_shared_runners_minutes_limit > 0')
-          .where('namespace_statistics.shared_runners_seconds > (namespaces.shared_runners_minutes_limit * 60)')
-      end
-
       scope :with_feature_available_in_plan, -> (feature) do
         plans = plans_with_feature(feature)
         matcher = ::Plan.where(name: plans)
@@ -57,7 +50,8 @@ module EE
 
       delegate :additional_purchased_storage_size, :additional_purchased_storage_size=,
         :additional_purchased_storage_ends_on, :additional_purchased_storage_ends_on=,
-        to: :namespace_limit, allow_nil: true
+        :temporary_storage_increase_ends_on, :temporary_storage_increase_ends_on=,
+        :temporary_storage_increase_enabled?, to: :namespace_limit, allow_nil: true
 
       delegate :email, to: :owner, allow_nil: true, prefix: true
 
@@ -182,6 +176,12 @@ module EE
       actual_plan_name
     end
 
+    def over_storage_limit?
+      ::Gitlab.dev_env_or_com? &&
+        ::Feature.enabled?(:namespace_storage_limit, root_ancestor) &&
+        RootStorageSize.new(root_ancestor).above_size_limit?
+    end
+
     def actual_size_limit
       ::Gitlab::CurrentSettings.repository_size_limit
     end
@@ -212,7 +212,7 @@ module EE
 
     def shared_runners_minutes_limit_enabled?
       shared_runner_minutes_supported? &&
-        shared_runners_enabled? &&
+        any_project_with_shared_runners_enabled? &&
         actual_shared_runners_minutes_limit.nonzero?
     end
 
@@ -238,7 +238,7 @@ module EE
         extra_shared_runners_minutes.to_i >= extra_shared_runners_minutes_limit
     end
 
-    def shared_runners_enabled?
+    def any_project_with_shared_runners_enabled?
       all_projects.with_shared_runners.any?
     end
 

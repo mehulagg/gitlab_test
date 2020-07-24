@@ -170,22 +170,14 @@ Some more examples can be found in the [Frontend unit tests section](testing_lev
 
 Another common gotcha is that the specs end up verifying the mock is working. If you are using mocks, the mock should support the test, but not be the target of the test.
 
-**Bad:**
-
 ```javascript
 const spy = jest.spyOn(idGenerator, 'create')
 spy.mockImplementation = () = '1234'
 
+// Bad
 expect(idGenerator.create()).toBe('1234')
-```
 
-**Good:**
-
-```javascript
-const spy = jest.spyOn(idGenerator, 'create')
-spy.mockImplementation = () = '1234'
-
-// Actually focusing on the logic of your component and just leverage the controllable mocks output
+// Good: actually focusing on the logic of your component and just leverage the controllable mocks output
 expect(wrapper.find('div').html()).toBe('<div id="1234">...</div>')
 ```
 
@@ -212,21 +204,21 @@ Preferentially, in component testing with `@vue/test-utils`, you should query fo
 - A `data-testid` attribute ([recommended by maintainers of `@vue/test-utils`](https://github.com/vuejs/vue-test-utils/issues/1498#issuecomment-610133465))
 - a Vue `ref` (if using `@vue/test-utils`)
 
-Examples:
-
 ```javascript
+// Bad
 it('exists', () => {
-    // Good
-    wrapper.find(FooComponent);
-    wrapper.find('input[name=foo]');
-    wrapper.find('[data-testid="foo"]');
-    wrapper.find({ ref: 'foo'});
-
-    // Bad
     wrapper.find('.js-foo');
     wrapper.find('.btn-primary');
     wrapper.find('.qa-foo-component');
     wrapper.find('[data-qa-selector="foo"]');
+});
+
+// Good
+it('exists', () => {
+    wrapper.find(FooComponent);
+    wrapper.find('input[name=foo]');
+    wrapper.find('[data-testid="foo"]');
+    wrapper.find({ ref: 'foo'});
 });
 ```
 
@@ -239,23 +231,26 @@ Do not use a `.qa-*` class or `data-qa-selector` attribute for any tests other t
 When writing describe test blocks to test specific functions/methods,
 please use the method name as the describe block name.
 
-```javascript
-// Good
-describe('methodName', () => {
-  it('passes', () => {
-    expect(true).toEqual(true);
-  });
-});
+**Bad**:
 
-// Bad
+```javascript
 describe('#methodName', () => {
   it('passes', () => {
     expect(true).toEqual(true);
   });
 });
 
-// Bad
 describe('.methodName', () => {
+  it('passes', () => {
+    expect(true).toEqual(true);
+  });
+});
+```
+
+**Good**:
+
+```javascript
+describe('methodName', () => {
   it('passes', () => {
     expect(true).toEqual(true);
   });
@@ -286,36 +281,17 @@ it('tests a promise rejection', async () => {
 
 You can also work with Promise chains. In this case, you can make use of the `done` callback and `done.fail` in case an error occurred. Following are some examples:
 
+**Bad**:
+
 ```javascript
-// Good
-it('tests a promise', done => {
-  promise
-    .then(data => {
-      expect(data).toBe(asExpected);
-    })
-    .then(done)
-    .catch(done.fail);
-});
-
-// Good
-it('tests a promise rejection', done => {
-  promise
-    .then(done.fail)
-    .catch(error => {
-      expect(error).toBe(expectedError);
-    })
-    .then(done)
-    .catch(done.fail);
-});
-
-// Bad (missing done callback)
+// missing done callback
 it('tests a promise', () => {
   promise.then(data => {
     expect(data).toBe(asExpected);
   });
 });
 
-// Bad (missing catch)
+// missing catch
 it('tests a promise', done => {
   promise
     .then(data => {
@@ -324,7 +300,7 @@ it('tests a promise', done => {
     .then(done);
 });
 
-// Bad (use done.fail in asynchronous tests)
+// use done.fail in asynchronous tests
 it('tests a promise', done => {
   promise
     .then(data => {
@@ -334,13 +310,38 @@ it('tests a promise', done => {
     .catch(fail);
 });
 
-// Bad (missing catch)
+// missing catch
 it('tests a promise rejection', done => {
   promise
     .catch(error => {
       expect(error).toBe(expectedError);
     })
     .then(done);
+});
+```
+
+**Good**:
+
+```javascript
+// handling success
+it('tests a promise', done => {
+  promise
+    .then(data => {
+      expect(data).toBe(asExpected);
+    })
+    .then(done)
+    .catch(done.fail);
+});
+
+// failure case
+it('tests a promise rejection', done => {
+  promise
+    .then(done.fail)
+    .catch(error => {
+      expect(error).toBe(expectedError);
+    })
+    .then(done)
+    .catch(done.fail);
 });
 ```
 
@@ -545,6 +546,98 @@ In order to ensure that a clean wrapper object and DOM are being used in each te
 
 See also the [Vue Test Utils documentation on `destroy`](https://vue-test-utils.vuejs.org/api/wrapper/#destroy).
 
+### Jest best practices
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/34209) in GitLab 13.2.
+
+#### Prefer `toBe` over `toEqual` when comparing primitive values
+
+Jest has [`toBe`](https://jestjs.io/docs/en/expect#tobevalue) and
+[`toEqual`](https://jestjs.io/docs/en/expect#toequalvalue) matchers.
+As [`toBe`](https://jestjs.io/docs/en/expect#tobevalue) uses
+[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+to compare values, it's faster (by default) than using `toEqual`.
+While the latter will eventually fallback to leverage [`Object.is`](https://github.com/facebook/jest/blob/master/packages/expect/src/jasmineUtils.ts#L91),
+for primitive values, it should only be used when complex objects need a comparison.
+
+Examples:
+
+```javascript
+const foo = 1;
+
+// Bad
+expect(foo).toEqual(1);
+
+// Good
+expect(foo).toBe(1);
+```
+
+#### Prefer more befitting matchers
+
+Jest provides useful matchers like `toHaveLength` or `toBeUndefined` to make your tests more
+readable and to produce more understandable error messages. Check their docs for the
+[full list of matchers](https://jestjs.io/docs/en/expect#methods).
+
+Examples:
+
+```javascript
+const arr = [1, 2];
+
+// prints:
+// Expected length: 1
+// Received length: 2
+expect(arr).toHaveLength(1);
+
+// prints:
+// Expected: 1
+// Received: 2
+expect(arr.length).toBe(1);
+
+// prints:
+// expect(received).toBe(expected) // Object.is equality
+// Expected: undefined
+// Received: "bar"
+const foo = 'bar';
+expect(foo).toBe(undefined);
+
+// prints:
+// expect(received).toBeUndefined()
+// Received: "bar"
+const foo = 'bar';
+expect(foo).toBeUndefined();
+```
+
+#### Avoid using `toBeTruthy` or `toBeFalsy`
+
+Jest also provides following matchers: `toBeTruthy` and `toBeFalsy`. We should not use them because
+they make tests weaker and produce false-positive results.
+
+For example, `expect(someBoolean).toBeFalsy()` passes when `someBoolean === null`, and when
+`someBoolean === false`.
+
+#### Tricky `toBeDefined` matcher
+
+Jest has the tricky `toBeDefined` matcher that can produce false positive test. Because it
+[validates](https://github.com/facebook/jest/blob/master/packages/expect/src/matchers.ts#L204)
+the given value for `undefined` only.
+
+```javascript
+// Bad: if finder returns null, the test will pass
+expect(wrapper.find('foo')).toBeDefined();
+
+// Good
+expect(wrapper.find('foo').exists()).toBe(true);
+```
+
+#### Avoid using `setImmediate`
+
+Try to avoid using `setImmediate`. `setImmediate` is an ad-hoc solution to run your callback after
+the I/O completes. And it's not part of the Web API, hence, we target NodeJS environments in our
+unit tests.
+
+Instead of `setImmediate`, use `jest.runAllTimers` or `jest.runOnlyPendingTimers` to run pending timers.
+The latter is useful when you have `setInterval` in the code. **Remember:** our Jest configuration uses fake timers.
+
 ## Factories
 
 TBU
@@ -678,13 +771,37 @@ yarn karma -f 'spec/javascripts/ide/**/file_spec.js'
 
 ## Frontend test fixtures
 
-Code that is added to HAML templates (in `app/views/`) or makes Ajax requests to the backend has tests that require HTML or JSON from the backend.
-Fixtures for these tests are located at:
+Frontend fixtures are files containing responses from backend controllers. These responses can be either HTML
+generated from haml templates or JSON payloads. Frontend tests that rely on these responses are
+often using fixtures to validate correct integration with the backend code.
+
+### Generate fixtures
+
+You can find code to generate test fixtures in:
 
 - `spec/frontend/fixtures/`, for running tests in CE.
 - `ee/spec/frontend/fixtures/`, for running tests in EE.
 
-Fixture files in:
+You can generate fixtures by running:
+
+- `bin/rake frontend:fixtures` to generate all fixtures
+- `bin/rspec spec/frontend/fixtures/merge_requests.rb` to generate specific fixtures (in this case for `merge_request.rb`)
+
+You can find generated fixtures are in `tmp/tests/frontend/fixtures-ee`.
+
+#### Creating new fixtures
+
+For each fixture, you can find the content of the `response` variable in the output file.
+For example, test named `"merge_requests/diff_discussion.json"` in `spec/frontend/fixtures/merge_requests.rb`
+will produce output file `tmp/tests/frontend/fixtures-ee/merge_requests/diff_discussion.json`.
+The `response` variable gets automatically set if the test is marked as `type: :request` or `type: :controller`.
+
+When creating a new fixture, it often makes sense to take a look at the corresponding tests for the
+endpoint in `(ee/)spec/controllers/` or `(ee/)spec/requests/`.
+
+### Use fixtures
+
+Jest and Karma test suites import fixtures in different ways:
 
 - The Karma test suite are served by [jasmine-jquery](https://github.com/velesin/jasmine-jquery).
 - Jest use `spec/frontend/helpers/fixtures.js`.
@@ -709,14 +826,6 @@ it('uses some HTML element', () => {
   // ...
 });
 ```
-
-HTML and JSON fixtures are generated from backend views and controllers using RSpec (see `spec/frontend/fixtures/*.rb`).
-
-For each fixture, the content of the `response` variable is stored in the output file.
-This variable gets automatically set if the test is marked as `type: :request` or `type: :controller`.
-Fixtures are regenerated using the `bin/rake frontend:fixtures` command but you can also generate them individually,
-for example `bin/rspec spec/frontend/fixtures/merge_requests.rb`.
-When creating a new fixture, it often makes sense to take a look at the corresponding tests for the endpoint in `(ee/)spec/controllers/` or `(ee/)spec/requests/`.
 
 ## Data-driven tests
 

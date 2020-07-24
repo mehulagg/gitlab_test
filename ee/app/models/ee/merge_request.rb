@@ -36,6 +36,7 @@ module EE
       delegate :sha, to: :head_pipeline, prefix: :head_pipeline, allow_nil: true
       delegate :sha, to: :base_pipeline, prefix: :base_pipeline, allow_nil: true
       delegate :merge_requests_author_approval?, to: :target_project, allow_nil: true
+      delegate :merge_requests_disable_committers_approval?, to: :target_project, allow_nil: true
 
       scope :without_approvals, -> { left_outer_joins(:approvals).where(approvals: { id: nil }) }
       scope :with_approvals, -> { joins(:approvals) }
@@ -147,6 +148,8 @@ module EE
       return false if ::Feature.disabled?(:license_compliance_denies_mr, project, default_enabled: false)
       return false unless has_license_scanning_reports?
 
+      return false if has_approved_license_check?
+
       actual_head_pipeline.license_scanning_report.violates?(project.software_license_policies)
     end
 
@@ -156,12 +159,13 @@ module EE
         container_scanning: report_type_enabled?(:container_scanning),
         dast: report_type_enabled?(:dast),
         dependency_scanning: report_type_enabled?(:dependency_scanning),
-        license_scanning: report_type_enabled?(:license_scanning)
+        license_scanning: report_type_enabled?(:license_scanning),
+        coverage_fuzzing: report_type_enabled?(:coverage_fuzzing)
       }
     end
 
     def has_dependency_scanning_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.dependency_list_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.dependency_list_reports)
     end
 
     def compare_dependency_scanning_reports(current_user)
@@ -171,11 +175,11 @@ module EE
     end
 
     def has_license_scanning_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.license_scanning_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.license_scanning_reports)
     end
 
     def has_container_scanning_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.container_scanning_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.container_scanning_reports)
     end
 
     def compare_container_scanning_reports(current_user)
@@ -185,11 +189,11 @@ module EE
     end
 
     def has_sast_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.sast_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.sast_reports)
     end
 
     def has_secret_detection_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.secret_detection_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.secret_detection_reports)
     end
 
     def compare_sast_reports(current_user)
@@ -205,7 +209,7 @@ module EE
     end
 
     def has_dast_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.dast_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.dast_reports)
     end
 
     def compare_dast_reports(current_user)
@@ -221,13 +225,23 @@ module EE
     end
 
     def has_metrics_reports?
-      !!(actual_head_pipeline&.has_reports?(::Ci::JobArtifact.metrics_reports))
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.metrics_reports)
     end
 
     def compare_metrics_reports
       return missing_report_error("metrics") unless has_metrics_reports?
 
       compare_reports(::Ci::CompareMetricsReportsService)
+    end
+
+    def has_coverage_fuzzing_reports?
+      !!actual_head_pipeline&.has_reports?(::Ci::JobArtifact.coverage_fuzzing_reports)
+    end
+
+    def compare_coverage_fuzzing_reports(current_user)
+      return missing_report_error("coverage fuzzing") unless has_coverage_fuzzing_reports?
+
+      compare_reports(::Ci::CompareSecurityReportsService, current_user, 'coverage_fuzzing')
     end
 
     def synchronize_approval_rules_from_target_project
@@ -240,6 +254,12 @@ module EE
     end
 
     private
+
+    def has_approved_license_check?
+      if rule = approval_rules.license_compliance.last
+        ApprovalWrappedRule.wrap(self, rule).approved?
+      end
+    end
 
     def missing_report_error(report_type)
       { status: :error, status_reason: "This merge request does not have #{report_type} reports" }

@@ -15,7 +15,10 @@ RSpec.describe 'Group navbar' do
     group.add_maintainer(user)
     stub_feature_flags(group_push_rules: false)
     stub_feature_flags(group_iterations: false)
+    stub_feature_flags(group_wiki: false)
     sign_in(user)
+
+    insert_package_nav(_('Kubernetes'))
   end
 
   context 'when productivity analytics is available' do
@@ -147,19 +150,9 @@ RSpec.describe 'Group navbar' do
   context 'when packages are available' do
     before do
       stub_config(packages: { enabled: true }, registry: { enabled: false })
-      stub_licensed_features(packages: true)
 
-      insert_after_nav_item(
-        _('Kubernetes'),
-        new_nav_item: {
-          nav_item: _('Packages & Registries'),
-          nav_sub_items: [_('Package Registry')]
-        }
-      )
       visit group_path(group)
     end
-
-    it_behaves_like 'verified navigation bar'
 
     context 'when container registry is available' do
       before do
@@ -212,6 +205,23 @@ RSpec.describe 'Group navbar' do
         new_sub_nav_item_name: _('Iterations')
       )
 
+      visit group_path(group)
+    end
+
+    it_behaves_like 'verified navigation bar'
+  end
+
+  context 'when group wiki is available' do
+    before do
+      stub_feature_flags(group_wiki: true)
+
+      insert_after_nav_item(
+        _('Analytics'),
+        new_nav_item: {
+          nav_item: _('Wiki'),
+          nav_sub_items: []
+        }
+      )
       visit group_path(group)
     end
 

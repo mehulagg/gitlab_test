@@ -25,7 +25,7 @@ GitLab displays identified secrets as part of the SAST reports visibly in a few 
 - Pipelines' **Security** tab
 - Report in the merge request widget
 
-![Secret Detection in merge request widget](img/secret-detection-merge-request-ui.png)
+![Secret Detection in merge request widget](img/secret_detection_v13_2.png)
 
 ## Use cases
 
@@ -39,7 +39,8 @@ To run Secret Detection jobs, by default, you need GitLab Runner with the
 [`kubernetes`](https://docs.gitlab.com/runner/install/kubernetes.html) executor.
 If you're using the shared Runners on GitLab.com, this is enabled by default.
 
-CAUTION: **Caution:** Our Secret Detection jobs currently expect a Linux container type. Windows containers are not yet supported.
+CAUTION: **Caution:**
+Our Secret Detection jobs currently expect a Linux container type. Windows containers are not yet supported.
 
 CAUTION: **Caution:**
 If you use your own Runners, make sure the Docker version installed
@@ -146,14 +147,16 @@ Secret Detection can be customized by defining available variables:
 | `SECRET_DETECTION_COMMIT_TO` | -       | The commit a Gitleaks scan ends at. |
 | `SECRET_DETECTION_HISTORIC_SCAN` | false | Flag to enable a historic Gitleaks scan. |
 
-### Logging Level
+### Logging level
 
-You can control the verbosity of logs by setting the `SECURE_LOG_LEVEL` env var. The default is set to `info`, you can set it to any of the following levels:
+To control the verbosity of logs set the `SECURE_LOG_LEVEL` environment variable. Messages of this logging level or higher are output. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10880) in GitLab 13.1.
+
+From highest to lowest severity, the logging levels are:
 
 - `fatal`
 - `error`
 - `warn`
-- `info`
+- `info` (default)
 - `debug`
 
 ## Full History Secret Scan

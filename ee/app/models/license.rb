@@ -37,7 +37,6 @@ class License < ApplicationRecord
     repository_size_limit
     seat_link
     send_emails_from_admin_area
-    service_desk
     scoped_issue_board
     usage_quotas
     visual_review_app
@@ -83,6 +82,7 @@ class License < ApplicationRecord
     group_saml
     issues_analytics
     jira_dev_panel_integration
+    jira_issues_integration
     ldap_group_sync_filter
     merge_pipelines
     merge_request_performance_metrics
@@ -90,11 +90,11 @@ class License < ApplicationRecord
     merge_trains
     metrics_reports
     multiple_approval_rules
-    multiple_clusters
     multiple_group_issue_boards
     object_storage
     operations_dashboard
-    packages
+    opsgenie_integration
+    package_forwarding
     pages_size_limit
     productivity_analytics
     project_aliases
@@ -165,7 +165,6 @@ class License < ApplicationRecord
     related_issues
     repository_mirrors
     scoped_issue_board
-    service_desk
   ].freeze
 
   FEATURES_BY_PLAN = {
@@ -187,8 +186,7 @@ class License < ApplicationRecord
     'GitLab_Auditor_User' => :auditor_user,
     'GitLab_DeployBoard' => :deploy_board,
     'GitLab_FileLocks' => :file_locks,
-    'GitLab_Geo' => :geo,
-    'GitLab_ServiceDesk' => :service_desk
+    'GitLab_Geo' => :geo
   }.freeze
 
   # Global features that cannot be restricted to only a subset of projects or namespaces.

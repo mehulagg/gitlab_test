@@ -78,7 +78,7 @@ module Gitlab
           end
 
           def metrics
-            @metrics ||= Chain::Metrics.new
+            @metrics ||= ::Gitlab::Ci::Pipeline::Metrics.new
           end
 
           def observe_creation_duration(duration)
@@ -89,6 +89,10 @@ module Gitlab
           def observe_pipeline_size(pipeline)
             metrics.pipeline_size_histogram
               .observe({ source: pipeline.source.to_s }, pipeline.total_size)
+          end
+
+          def dangling_build?
+            %i[ondemand_dast_scan webide].include?(source)
           end
         end
       end

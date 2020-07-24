@@ -14,10 +14,6 @@ class Geo::UploadRegistry < Geo::BaseRegistry
   scope :fresh, -> { order(created_at: :desc) }
   scope :never, -> { where(success: false, retry_count: nil) }
 
-  def self.registry_consistency_worker_enabled?
-    Feature.enabled?(:geo_file_registry_ssot_sync, default_enabled: true)
-  end
-
   def self.finder_class
     ::Geo::AttachmentRegistryFinder
   end
@@ -62,10 +58,6 @@ class Geo::UploadRegistry < Geo::BaseRegistry
     else
       all
     end
-  end
-
-  def self.replication_enabled?
-    FileUploader.object_store_enabled? ? Gitlab::Geo.current_node.sync_object_storage? : true
   end
 
   def file

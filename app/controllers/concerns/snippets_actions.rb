@@ -8,6 +8,7 @@ module SnippetsActions
   include PaginatedCollection
   include Gitlab::NoteableMetadata
   include Snippets::SendBlob
+  include SnippetsSort
 
   included do
     skip_before_action :verify_authenticity_token,
@@ -131,6 +132,8 @@ module SnippetsActions
   end
 
   def redirect_if_binary
+    return if Feature.enabled?(:snippets_binary_blob)
+
     redirect_to gitlab_snippet_path(snippet) if blob&.binary?
   end
 end

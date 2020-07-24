@@ -36,6 +36,14 @@ To get started with a GitLab-managed Terraform State, there are two different op
 - [Use a local machine](#get-started-using-local-development).
 - [Use GitLab CI](#get-started-using-gitlab-ci).
 
+## Permissions for using Terraform
+
+In GitLab version 13.1, [Maintainer access](../permissions.md) was required to use a
+GitLab managed Terraform state backend. In GitLab versions 13.2 and greater,
+[Maintainer access](../permissions.md) is required to lock, unlock and write to the state
+(using `terraform apply`), while [Developer access](../permissions.md) is required to read
+the state (using `terraform plan -lock=false`).
+
 ## Get started using local development
 
 If you plan to only run `terraform plan` and `terraform apply` commands from your
@@ -54,8 +62,7 @@ local machine, this is a simple way to get started:
    ```
 
 1. Create a [Personal Access Token](../profile/personal_access_tokens.md) with
-   the `api` scope. The Terraform backend is restricted to users with
-   [Maintainer access](../permissions.md) to the repository.
+   the `api` scope.
 
 1. On your local machine, run `terraform init`, passing in the following options,
    replacing `<YOUR-PROJECT-NAME>`, `<YOUR-PROJECT-ID>`,  `<YOUR-USERNAME>` and
@@ -89,10 +96,6 @@ Next, [configure the backend](#configure-the-backend).
 After executing the `terraform init` command, you must configure the Terraform backend
 and the CI YAML file:
 
-CAUTION: **Important:**
-The Terraform backend is restricted to users with [Maintainer access](../permissions.md)
-to the repository.
-
 1. In your Terraform project, define the [HTTP backend](https://www.terraform.io/docs/backends/types/http.html)
    by adding the following code block in a `.tf` file (such as `backend.tf`) to
    define the remote backend:
@@ -114,19 +117,21 @@ to the repository.
    ```
 
 1. In the `.gitlab-ci.yaml` file, define some environment variables to ease
-   development. In this example, `TF_STATE` is the name of the Terraform state
-   (projects may have multiple states), `TF_ADDRESS` is the URL to the state on
-   the GitLab instance where this pipeline runs, and `TF_ROOT` is the directory
-   where the Terraform commands must be executed:
+   development. In this example, `TF_ROOT` is the directory where the Terraform
+   commands must be executed, `TF_ADDRESS` is the URL to the state on the GitLab
+   instance where this pipeline runs, and the final path segment in `TF_ADDRESS`
+   is the name of the Terraform state. Projects may have multiple states, and
+   this name is arbitrary, so in this example we will set it to the name of the
+   project, and we will ensure that the `.terraform` directory is cached between
+   jobs in the pipeline using a cache key based on the state name:
 
    ```yaml
    variables:
-     TF_STATE: ${CI_PROJECT_NAME}
-     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE}
      TF_ROOT: ${CI_PROJECT_DIR}/environments/cloudflare/production
+     TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}
 
    cache:
-     key: ${TF_STATE}
+     key: ${CI_PROJECT_NAME}
      paths:
        - ${TF_ROOT}/.terraform
    ```
@@ -220,6 +225,18 @@ can configure this manually as follows:
      - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
    ```
 
+   NOTE: **Note:**
+   In distributions that use Bash (for example, Ubuntu), `alias` statements are not
+   expanded in non-interactive mode. If your pipelines fail with the error
+   `convert_report: command not found`, alias expansion can be activated explicitly
+   by adding a `shopt` command to your script:
+
+   ```yaml
+   before_script:
+     - shopt -s expand_aliases
+     - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
+   ```
+
 1. Define a `script` that runs `terraform plan` and `terraform show`. These commands
    pipe the output and convert the relevant bits into a store variable `PLAN_JSON`.
    This JSON is used to create a
@@ -245,7 +262,7 @@ can configure this manually as follows:
 
 1. Running the pipeline displays the widget in the merge request, like this:
 
-   ![MR Terraform widget](img/terraform_plan_widget_v13_2.png)
+   ![Merge Request Terraform widget](img/terraform_plan_widget_v13_2.png)
 
 1. Clicking the **View Full Log** button in the widget takes you directly to the
    plan output present in the pipeline logs:
@@ -258,12 +275,11 @@ can configure this manually as follows:
 image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
 
 variables:
-  TF_STATE: ${CI_PROJECT_NAME}
-  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE}
   TF_ROOT: ${CI_PROJECT_DIR}/environments/cloudflare/production
+  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}
 
 cache:
-  key: ${TF_STATE}
+  key: ${CI_PROJECT_NAME}
   paths:
     - ${TF_ROOT}/.terraform
 
@@ -367,3 +383,47 @@ production_plan:
   artifacts:
     name: Production
 ```
+
+## Using a GitLab managed Terraform state backend as a remote data source
+
+You can use a GitLab-managed Terraform state as a
+[Terraform data source](https://www.terraform.io/docs/providers/terraform/d/remote_state.html).
+To use your existing Terraform state backend as a data source, provide the following details
+as [Terraform input variables](https://www.terraform.io/docs/configuration/variables.html):
+
+- **address**: The URL of the remote state backend you want to use as a data source.
+  For example, `https://gitlab.com/api/v4/projects/<TARGET-PROJECT-ID>/terraform/state/<TARGET-STATE-NAME>`.
+- **username**: The username to authenticate with the data source. If you are using a [Personal Access Token](../profile/personal_access_tokens.md) for
+  authentication, this is your GitLab username. If you are using GitLab CI, this is `'gitlab-ci-token'`.
+- **password**: The password to authenticate with the data source. If you are using a Personal Access Token for
+  authentication, this is the token value. If you are using GitLab CI, it is the contents of the `${CI_JOB_TOKEN}` CI variable.
+
+An example setup is shown below:
+
+1. Create a file named `example.auto.tfvars` with the following contents:
+
+   ```plaintext
+   example_remote_state_address=https://gitlab.com/api/v4/projects/<TARGET-PROJECT-ID>/terraform/state/<TARGET-STATE-NAME>
+   example_username=<GitLab username>
+   example_access_token=<GitLab Personal Acceess Token>
+   ```
+
+1. Define the data source by adding the following code block in a `.tf` file (such as `data.tf`):
+
+   ```hcl
+   data "terraform_remote_state" "example" {
+     backend = "http"
+
+     config = {
+       address = var.example_remote_state_address
+       username = var.example_username
+       password = var.example_access_token
+     }
+   }
+   ```
+
+Outputs from the data source can now be referenced within your Terraform resources
+using `data.terraform_remote_state.example.outputs.<OUTPUT-NAME>`.
+
+You need at least [developer access](../permissions.md) to the target project
+to read the Terraform state.

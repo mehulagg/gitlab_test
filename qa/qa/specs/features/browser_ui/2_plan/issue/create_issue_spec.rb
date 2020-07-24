@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Plan', :smoke do
+  RSpec.describe 'Plan', :smoke do
     describe 'Issue creation' do
       let(:closed_issue) { Resource::Issue.fabricate_via_api! }
 
@@ -19,7 +19,7 @@ module QA
         end
       end
 
-      it 'closes an issue' do
+      it 'closes an issue', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/225303', type: :bug } do
         closed_issue.visit!
 
         Page::Project::Issue::Show.perform do |issue_page|
