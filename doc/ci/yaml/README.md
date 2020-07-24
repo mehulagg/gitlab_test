@@ -1406,7 +1406,8 @@ job:
         - Dockerfile
 ```
 
-You can also use glob patterns to match multiple files in any directory within
+You can also use [glob](https://en.wikipedia.org/wiki/Glob_(programming))
+patterns to match multiple files in any directory within
 the repository.
 
 For example:
@@ -1806,7 +1807,8 @@ CAUTION: **Warning:**
 If using `only:changes` with [only allow merge requests to be merged if the pipeline succeeds](../../user/project/merge_requests/merge_when_pipeline_succeeds.md#only-allow-merge-requests-to-be-merged-if-the-pipeline-succeeds),
 undesired behavior could result if you don't [also use `only:merge_requests`](#using-onlychanges-with-pipelines-for-merge-requests).
 
-You can also use glob patterns to match multiple files in either the root directory
+You can also use [glob](https://en.wikipedia.org/wiki/Glob_(programming))
+patterns to match multiple files in either the root directory
 of the repository, or in _any_ directory within the repository, but they must be wrapped
 in double quotes or GitLab will fail to parse the `.gitlab-ci.yml`. For example:
 
@@ -2935,8 +2937,12 @@ archive.
 
 Similar to [`artifacts:paths`](#artifactspaths), `exclude` paths are relative
 to the project directory. Wildcards can be used that follow the
-[glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns and
-[`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
+[glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns and:
+
+- In [GitLab Runner 13.0](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2620) and later,
+[`doublestar.Glob`](https://pkg.go.dev/github.com/bmatcuk/doublestar@v1.2.2?tab=doc#Match).
+- In GitLab Runner 12.10 and earlier,
+[`filepath.Match`](https://pkg.go.dev/path/filepath/#Match).
 
 For example, to store all files in `binaries/`, but not `*.o` files located in
 subdirectories of `binaries/`:
