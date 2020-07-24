@@ -105,7 +105,7 @@ export default {
             <div role="rowheader" class="table-mobile-header gl-font-weight-bold">
               {{ __('Duration') }}
             </div>
-            <div class="table-mobile-content gl-md-text-left">
+            <div class="table-mobile-content text-md-left">
               {{ testSuite.formattedTime }}
             </div>
           </div>
@@ -138,7 +138,7 @@ export default {
             <div class="table-mobile-content">{{ testSuite.success_count }}</div>
           </div>
 
-          <div class="table-section section-10 gl-text-right gl-md-pr-6">
+          <div class="table-section section-10 gl-text-right pr-md-3">
             <div role="rowheader" class="table-mobile-header gl-font-weight-bold">
               {{ __('Total') }}
             </div>

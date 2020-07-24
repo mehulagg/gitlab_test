@@ -70,18 +70,18 @@ export default {
         <div
           v-for="(testCase, index) in getSuiteTests"
           :key="index"
-          class="gl-responsive-table-row gl-rounded-base align-items-md-start gl-xs-mt-6 js-case-row"
+          class="gl-responsive-table-row gl-rounded-base align-items-md-start mt-xs-3 js-case-row"
         >
           <div class="table-section section-20 section-wrap">
             <div role="rowheader" class="table-mobile-header">{{ __('Suite') }}</div>
-            <div class="table-mobile-content gl-md-pr-2 gl-overflow-wrap-break">
+            <div class="table-mobile-content pr-md-1 gl-overflow-wrap-break">
               {{ testCase.classname }}
             </div>
           </div>
 
           <div class="table-section section-20 section-wrap">
             <div role="rowheader" class="table-mobile-header">{{ __('Name') }}</div>
-            <div class="table-mobile-content gl-md-pr-2 gl-overflow-wrap-break">
+            <div class="table-mobile-content pr-md-1 gl-overflow-wrap-break">
               {{ testCase.name }}
             </div>
           </div>
@@ -90,7 +90,7 @@ export default {
             <div role="rowheader" class="table-mobile-header">{{ __('Status') }}</div>
             <div class="table-mobile-content gl-text-center">
               <div
-                class="add-border ci-status-icon gl-display-flex gl-align-items-center gl-justify-content-end gl-justify-content-md-center"
+                class="add-border ci-status-icon gl-display-flex gl-align-items-center gl-justify-content-end justify-content-md-center"
                 :class="`ci-status-icon-${testCase.status}`"
               >
                 <icon :size="24" :name="testCase.icon" />
@@ -112,7 +112,7 @@ export default {
             <div role="rowheader" class="table-mobile-header">
               {{ __('Duration') }}
             </div>
-            <div class="table-mobile-content text-right gl-sm-pr-2">
+            <div class="table-mobile-content text-right pr-sm-1">
               {{ testCase.formattedTime }}
             </div>
           </div>
