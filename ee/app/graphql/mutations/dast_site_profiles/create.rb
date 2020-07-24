@@ -35,6 +35,11 @@ module Mutations
         if result.success?
           { id: result.payload.to_global_id, errors: [] }
         else
+          # Rails.logger.error("*" * 80)
+          # Rails.logger.error("failed")
+          # Rails.logger.error(result.errors)
+          # Rails.logger.error("*" * 80)
+
           { errors: result.errors }
         end
       end
