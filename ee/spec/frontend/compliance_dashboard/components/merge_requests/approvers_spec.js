@@ -4,15 +4,10 @@ import { GlAvatarLink } from '@gitlab/ui';
 import Approvers from 'ee/compliance_dashboard/components/merge_requests/approvers.vue';
 import { PRESENTABLE_APPROVERS_LIMIT } from 'ee/compliance_dashboard/constants';
 import { createApprovers } from '../../mock_data';
+import { useComponent, useFactoryArgs } from 'helpers/resources';
 
 describe('MergeRequest component', () => {
-  let wrapper;
-
-  const findMessage = () => wrapper.find('[data-testid="approvers"]');
-  const findCounter = () => wrapper.find('.avatar-counter');
-  const findAvatarLinks = () => wrapper.findAll(GlAvatarLink);
-
-  const createComponent = (approvers = []) => {
+  const [wrapper] = useComponent((approvers = []) => {
     return shallowMount(Approvers, {
       propsData: {
         approvers,
@@ -21,26 +16,20 @@ describe('MergeRequest component', () => {
         GlAvatarLink,
       },
     });
-  };
-
-  afterEach(() => {
-    wrapper.destroy();
   });
 
-  describe('when there are no approvers', () => {
-    beforeEach(() => {
-      wrapper = createComponent();
-    });
+  const findMessage = () => wrapper.find('[data-testid="approvers"]');
+  const findCounter = () => wrapper.find('.avatar-counter');
+  const findAvatarLinks = () => wrapper.findAll(GlAvatarLink);
 
+  describe('when there are no approvers', () => {
     it('displays the "no approvers" message', () => {
       expect(findMessage().text()).toEqual('no approvers');
     });
   });
 
   describe('when there are approvers', () => {
-    beforeEach(() => {
-      wrapper = createComponent(createApprovers(1));
-    });
+    useFactoryArgs(wrapper, createApprovers(1));
 
     it('matches snapshot', () => {
       expect(wrapper.element).toMatchSnapshot();
@@ -48,11 +37,7 @@ describe('MergeRequest component', () => {
   });
 
   describe('when the amount of approvers matches the presentable limit', () => {
-    const approvers = createApprovers(PRESENTABLE_APPROVERS_LIMIT);
-
-    beforeEach(() => {
-      wrapper = createComponent(approvers);
-    });
+    useFactoryArgs(wrapper, createApprovers(PRESENTABLE_APPROVERS_LIMIT));
 
     it('does not display the additional approvers count', () => {
       expect(findCounter().exists()).toEqual(false);
@@ -65,10 +50,7 @@ describe('MergeRequest component', () => {
 
   describe('when the amount of approvers is over the presentable limit', () => {
     const additional = 1;
-
-    beforeEach(() => {
-      wrapper = createComponent(createApprovers(PRESENTABLE_APPROVERS_LIMIT + additional));
-    });
+    useFactoryArgs(wrapper, createApprovers(PRESENTABLE_APPROVERS_LIMIT + additional));
 
     it(`displays only ${PRESENTABLE_APPROVERS_LIMIT} user avatar links`, () => {
       expect(findAvatarLinks().length).toEqual(PRESENTABLE_APPROVERS_LIMIT);
