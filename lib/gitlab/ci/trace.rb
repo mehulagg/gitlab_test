@@ -14,6 +14,7 @@ module Gitlab
       UPDATE_FREQUENCY_DEFAULT = 30.seconds
       UPDATE_FREQUENCY_WHEN_BEING_WATCHED = 3.seconds
 
+      RangeError = Class.new(StandardError)
       ArchiveError = Class.new(StandardError)
       AlreadyArchivedError = Class.new(StandardError)
 
@@ -59,12 +60,17 @@ module Gitlab
       def append(data, offset)
         write('a+b') do |stream|
           current_length = stream.size
+          # TODO, this makes it impossible to append with overwrite
           break current_length unless current_length == offset
 
           data = job.hide_secrets(data)
           stream.append(data, offset)
           stream.size
         end
+      rescue RangeError => e
+        Gitlab::ErrorTracking.log_exception(e)
+
+        read { |stream| stream.size }
       end
 
       def exist?

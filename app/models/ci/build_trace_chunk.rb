@@ -15,6 +15,7 @@ module Ci
     WRITE_LOCK_SLEEP = 0.01.seconds
     WRITE_LOCK_TTL = 1.minute
 
+    ChunkError = Class.new(::Gitlab::Ci::Trace::RangeError)
     FailedToPersistDataError = Class.new(StandardError)
 
     # Note: The ordering of this enum is related to the precedence of persist store.
@@ -67,16 +68,16 @@ module Ci
     end
 
     def truncate(offset = 0)
-      raise ArgumentError, 'Offset is out of range' if offset > size || offset < 0
+      raise ChunkError, 'Offset is out of range' if offset > size || offset < 0
       return if offset == size # Skip the following process as it doesn't affect anything
 
       self.append("", offset)
     end
 
     def append(new_data, offset)
-      raise ArgumentError, 'New data is missing' unless new_data
-      raise ArgumentError, 'Offset is out of range' if offset < 0 || offset > size
-      raise ArgumentError, 'Chunk size overflow' if CHUNK_SIZE < (offset + new_data.bytesize)
+      raise ChunkError, 'New data is missing' unless new_data
+      raise ChunkError, 'Offset is out of range' if offset < 0 || offset > size
+      raise ChunkError, 'Chunk size overflow' if CHUNK_SIZE < (offset + new_data.bytesize)
 
       in_lock(*lock_params) { unsafe_append_data!(new_data, offset) }
 
@@ -130,7 +131,7 @@ module Ci
     end
 
     def unsafe_set_data!(value)
-      raise ArgumentError, 'New data size exceeds chunk size' if value.bytesize > CHUNK_SIZE
+      raise ChunkError, 'New data size exceeds chunk size' if value.bytesize > CHUNK_SIZE
 
       current_store.set_data(self, value)
 
@@ -144,11 +145,11 @@ module Ci
       new_size = value.bytesize + offset
 
       if new_size > CHUNK_SIZE
-        raise ArgumentError, 'New data size exceeds chunk size'
+        raise ChunkError, 'New data size exceeds chunk size'
       end
 
       current_store.append_data(self, value, offset).then do |stored|
-        raise ArgumentError, 'Trace appended incorrectly' if stored != new_size
+        raise ChunkError, 'Trace appended incorrectly' if stored != new_size
       end
 
       @data = nil

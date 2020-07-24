@@ -25,6 +25,20 @@ RSpec.describe Gitlab::Ci::Trace, :clean_gitlab_redis_shared_state do
     end
 
     it_behaves_like 'trace with enabled live trace feature'
+
+    context 'when trace could not be appended' do
+      before do
+        trace.set('abcdef')
+
+        allow_any_instance_of(::Ci::BuildTraceChunks::Redis)
+          .to receive(:append_data)
+          .and_return(-1)
+      end
+
+      it 'returns total stream size' do
+        expect(trace.append('1234', 6)).to eq 6
+      end
+    end
   end
 
   describe '#update_interval' do
