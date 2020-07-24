@@ -1,0 +1,5 @@
+---
+title: Add JSON-formatted response to CoverageReportsController#index
+merge_request: 37774
+author:
+type: added
