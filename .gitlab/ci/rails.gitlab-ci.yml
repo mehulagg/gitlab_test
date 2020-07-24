@@ -491,21 +491,22 @@ rspec-ee system pg12 geo:
 
 ##################################################
 # EE: Canonical MR pipelines
-rspec foss-impact:
-  extends:
-    - .rspec-base-pg11-as-if-foss
-    - .rails:rules:ee-mr-only
-  script:
-    - install_gitlab_gem
-    - run_timed_command "scripts/gitaly-test-build"
-    - run_timed_command "scripts/gitaly-test-spawn"
-    - source scripts/rspec_helpers.sh
-    - tooling/bin/find_foss_tests tmp/matching_foss_tests.txt
-    - rspec_matched_tests tmp/matching_foss_tests.txt "--tag ~quarantine"
-  artifacts:
-    expire_in: 7d
-    paths:
-      - tmp/matching_foss_tests.txt
-      - tmp/capybara/
+# ng-test
+# rspec foss-impact:
+#   extends:
+#     - .rspec-base-pg11-as-if-foss
+#     - .rails:rules:ee-mr-only
+#   script:
+#     - install_gitlab_gem
+#     - run_timed_command "scripts/gitaly-test-build"
+#     - run_timed_command "scripts/gitaly-test-spawn"
+#     - source scripts/rspec_helpers.sh
+#     - tooling/bin/find_foss_tests tmp/matching_foss_tests.txt
+#     - rspec_matched_tests tmp/matching_foss_tests.txt "--tag ~quarantine"
+#   artifacts:
+#     expire_in: 7d
+#     paths:
+#       - tmp/matching_foss_tests.txt
+#       - tmp/capybara/
 # EE: Canonical MR pipelines
 ##################################################
