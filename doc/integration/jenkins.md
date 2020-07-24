@@ -1,4 +1,4 @@
-# Jenkins CI service **(STARTER)**
+# Jenkins CI service
 
 NOTE: **Note:**
 This documentation focuses only on how to **configure** a Jenkins *integration* with
