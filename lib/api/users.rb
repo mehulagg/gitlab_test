@@ -179,7 +179,7 @@ module API
         else
           conflict!('Email has already been taken') if User
             .by_any_email(user.email.downcase)
-            any?
+            .any?
 
           conflict!('Username has already been taken') if User
             .by_username(user.username)
@@ -1033,8 +1033,8 @@ module API
         authenticated_as_admin!
 
         activities = User
-                       .where(User.arel_table[:last_activity_on].gteq(params[:from]))
-                       .reorder(last_activity_on: :asc)
+          .where(User.arel_table[:last_activity_on].gteq(params[:from]))
+          .reorder(last_activity_on: :asc)
 
         present paginate(activities), with: Entities::UserActivity
       end
