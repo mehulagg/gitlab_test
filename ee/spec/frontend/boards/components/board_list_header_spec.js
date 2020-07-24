@@ -10,6 +10,7 @@ import axios from '~/lib/utils/axios_utils';
 import sidebarEventHub from '~/sidebar/event_hub';
 
 import { TEST_HOST } from 'helpers/test_constants';
+import { useSmartResource, useSetupArgs } from 'helpers/resources';
 import { listObj } from 'jest/boards/mock_data';
 
 // board_promotion_state tries to mount on the real DOM,
@@ -21,68 +22,63 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe('Board List Header Component', () => {
-  let store;
-  let wrapper;
-  let axiosMock;
+  const [axiosMock] = useSmartResource(() => new AxiosMockAdapter(axios), mock => mock.restore());
+  const [store] = useSmartResource(() => new Vuex.Store({ state: { activeId: inactiveId } }));
+  const [wrapper, createComponent] = useSmartResource(
+    ({
+      listType = ListType.backlog,
+      collapsed = false,
+      withLocalStorage = true,
+      isSwimlanesHeader = false,
+    } = {}) => {
+      const boardId = '1';
+
+      const listMock = {
+        ...listObj,
+        list_type: listType,
+        collapsed,
+      };
+
+      if (listType === ListType.assignee) {
+        delete listMock.label;
+        listMock.user = {};
+      }
+
+      // Making List reactive
+      const list = Vue.observable(new List(listMock));
+
+      if (withLocalStorage) {
+        localStorage.setItem(
+          `boards.${boardId}.${list.type}.${list.id}.expanded`,
+          (!collapsed).toString(),
+        );
+      }
+
+      return shallowMount(BoardListHeader, {
+        store,
+        localVue,
+        propsData: {
+          boardId,
+          disabled: false,
+          issueLinkBase: '/',
+          rootPath: '/',
+          list,
+          isSwimlanesHeader,
+        },
+      });
+    },
+    x => x.destroy(),
+  );
 
   beforeEach(() => {
     window.gon = {};
-    axiosMock = new AxiosMockAdapter(axios);
     axiosMock.onGet(`${TEST_HOST}/lists/1/issues`).reply(200, { issues: [] });
-    store = new Vuex.Store({ state: { activeId: inactiveId } });
     jest.spyOn(store, 'dispatch').mockImplementation();
   });
 
   afterEach(() => {
-    axiosMock.restore();
-
-    wrapper.destroy();
-
     localStorage.clear();
   });
-
-  const createComponent = ({
-    listType = ListType.backlog,
-    collapsed = false,
-    withLocalStorage = true,
-    isSwimlanesHeader = false,
-  } = {}) => {
-    const boardId = '1';
-
-    const listMock = {
-      ...listObj,
-      list_type: listType,
-      collapsed,
-    };
-
-    if (listType === ListType.assignee) {
-      delete listMock.label;
-      listMock.user = {};
-    }
-
-    // Making List reactive
-    const list = Vue.observable(new List(listMock));
-
-    if (withLocalStorage) {
-      localStorage.setItem(
-        `boards.${boardId}.${list.type}.${list.id}.expanded`,
-        (!collapsed).toString(),
-      );
-    }
-
-    wrapper = shallowMount(BoardListHeader, {
-      store,
-      localVue,
-      propsData: {
-        boardId,
-        disabled: false,
-        issueLinkBase: '/',
-        rootPath: '/',
-        list,
-        isSwimlanesHeader,
-      },
-    });
-  };
 
   const findSettingsButton = () => wrapper.find({ ref: 'settingsBtn' });
 
@@ -132,13 +128,14 @@ describe('Board List Header Component', () => {
       });
 
       describe('emits sidebar.closeAll event on openSidebarSettings', () => {
+        useSetupArgs(wrapper, { listType: hasSettings[0] });
+
         beforeEach(() => {
           jest.spyOn(sidebarEventHub, '$emit');
         });
 
         it('emits event if no active List', () => {
           // Shares the same behavior for any settings-enabled List type
-          createComponent({ listType: hasSettings[0] });
           wrapper.vm.openSidebarSettings();
 
           expect(sidebarEventHub.$emit).toHaveBeenCalledWith('sidebar.closeAll');
@@ -146,7 +143,7 @@ describe('Board List Header Component', () => {
 
         it('does not emits event when there is an active List', () => {
           store.state.activeId = listObj.id;
-          createComponent({ listType: hasSettings[0] });
+
           wrapper.vm.openSidebarSettings();
 
           expect(sidebarEventHub.$emit).not.toHaveBeenCalled();
@@ -155,9 +152,9 @@ describe('Board List Header Component', () => {
     });
 
     describe('Swimlanes header', () => {
-      it('when collapsed, it displays info icon', () => {
-        createComponent({ isSwimlanesHeader: true, collapsed: true });
+      useSetupArgs(wrapper, { isSwimlanesHeader: true, collapsed: true });
 
+      it('when collapsed, it displays info icon', () => {
         expect(wrapper.contains('.board-header-collapsed-info-icon')).toBe(true);
       });
     });
