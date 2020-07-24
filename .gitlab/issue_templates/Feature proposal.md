@@ -10,21 +10,25 @@
 
 Personas are described at https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/
 
-* [Cameron (Compliance Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#cameron-compliance-manager)
-* [Parker (Product Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#parker-product-manager)
-* [Delaney (Development Team Lead)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#delaney-development-team-lead)
-* [Presley (Product Designer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#presley-product-designer)
-* [Sasha (Software Developer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sasha-software-developer)
-* [Devon (DevOps Engineer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#devon-devops-engineer)
-* [Sidney (Systems Administrator)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sidney-systems-administrator)
-* [Sam (Security Analyst)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sam-security-analyst)
-* [Rachel (Release Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#rachel-release-manager) 
-* [Alex (Security Operations Engineer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#alex-security-operations-engineer)
-* [Simone (Software Engineer in Test)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#simone-software-engineer-in-test)
-* [Allison (Application Ops)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#allison-application-ops) 
-* [Priyanka (Platform Engineer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#priyanka-platform-engineer)
-* [Dana (Data Analyst)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#dana-data-analyst)
+Select all the appicable personas for this feature
 -->
+
+
+* [ ] [Cameron (Compliance Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#cameron-compliance-manager)
+* [ ] [Parker (Product Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#parker-product-manager)
+* [ ] [Delaney (Development Team Lead)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#delaney-development-team-lead)
+* [ ] [Presley (Product Designer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#presley-product-designer)
+* [ ] [Sasha (Software Developer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sasha-software-developer)
+* [ ] [Devon (DevOps Engineer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#devon-devops-engineer)
+* [ ] [Sidney (Systems Administrator)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sidney-systems-administrator)
+* [ ] [Sam (Security Analyst)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sam-security-analyst)
+* [ ] [Rachel (Release Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#rachel-release-manager) 
+* [ ] [Alex (Security Operations Engineer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#alex-security-operations-engineer)
+* [ ] [Simone (Software Engineer in Test)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#simone-software-engineer-in-test)
+* [ ] [Allison (Application Ops)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#allison-application-ops) 
+* [ ] [Priyanka (Platform Engineer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#priyanka-platform-engineer)
+* [ ] [Dana (Data Analyst)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#dana-data-analyst)
+
 
 ### User experience goal
 
