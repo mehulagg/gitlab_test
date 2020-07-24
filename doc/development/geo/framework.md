@@ -231,6 +231,14 @@ For example, to add support for files referenced by a `Widget` model with a
    end
    ```
 
+1. Add the new `Replicator` class to `Gitlab::Geo.replicator_classes`.
+
+   ```ruby
+   def self.replicator_classes
+     [::Geo::PackageFileReplicator, ::Geo::WidgetReplicator]
+   end
+   ```
+
 1. Create the `widget_registry` table so Geo secondaries can track the sync and
    verification state of each Widget's file. This migration belongs in `ee/db/geo/migrate`:
 
