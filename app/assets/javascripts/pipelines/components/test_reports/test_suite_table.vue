@@ -41,20 +41,23 @@ export default {
     </div>
 
     <div v-if="hasSuites" class="test-reports-table gl-mb-3 js-test-cases-table">
-      <div role="row" class="gl-responsive-table-row table-row-header font-weight-bold fgray">
+      <div
+        role="row"
+        class="gl-responsive-table-row table-row-header gl-font-weight-bold gl-fill-gray-700"
+      >
         <div role="rowheader" class="table-section section-20">
           {{ __('Suite') }}
         </div>
         <div role="rowheader" class="table-section section-20">
           {{ __('Name') }}
         </div>
-        <div role="rowheader" class="table-section section-10 text-center">
+        <div role="rowheader" class="table-section section-10 gl-text-center">
           {{ __('Status') }}
         </div>
-        <div role="rowheader" class="table-section flex-grow-1">
+        <div role="rowheader" class="table-section gl-flex-grow-1">
           {{ __('Trace'), }}
         </div>
-        <div role="rowheader" class="table-section section-10 text-right">
+        <div role="rowheader" class="table-section section-10 gl-text-right">
           {{ __('Duration') }}
         </div>
       </div>
@@ -67,27 +70,27 @@ export default {
         <div
           v-for="(testCase, index) in getSuiteTests"
           :key="index"
-          class="gl-responsive-table-row rounded align-items-md-start mt-xs-3 js-case-row"
+          class="gl-responsive-table-row gl-rounded-base align-items-md-start gl-xs-mt-6 js-case-row"
         >
           <div class="table-section section-20 section-wrap">
             <div role="rowheader" class="table-mobile-header">{{ __('Suite') }}</div>
-            <div class="table-mobile-content pr-md-1 gl-overflow-wrap-break">
+            <div class="table-mobile-content gl-md-pr-2 gl-overflow-wrap-break">
               {{ testCase.classname }}
             </div>
           </div>
 
           <div class="table-section section-20 section-wrap">
             <div role="rowheader" class="table-mobile-header">{{ __('Name') }}</div>
-            <div class="table-mobile-content pr-md-1 gl-overflow-wrap-break">
+            <div class="table-mobile-content gl-md-pr-2 gl-overflow-wrap-break">
               {{ testCase.name }}
             </div>
           </div>
 
           <div class="table-section section-10 section-wrap">
             <div role="rowheader" class="table-mobile-header">{{ __('Status') }}</div>
-            <div class="table-mobile-content text-center">
+            <div class="table-mobile-content gl-text-center">
               <div
-                class="add-border ci-status-icon d-flex align-items-center justify-content-end justify-content-md-center"
+                class="add-border ci-status-icon gl-display-flex gl-align-items-center gl-justify-content-end gl-justify-content-md-center"
                 :class="`ci-status-icon-${testCase.status}`"
               >
                 <icon :size="24" :name="testCase.icon" />
@@ -95,13 +98,13 @@ export default {
             </div>
           </div>
 
-          <div class="table-section flex-grow-1">
+          <div class="table-section gl-flex-grow-1">
             <div role="rowheader" class="table-mobile-header">{{ __('Trace'), }}</div>
             <div class="table-mobile-content">
               <pre
                 v-if="testCase.system_output"
-                class="build-trace build-trace-rounded text-left"
-              ><code class="bash p-0">{{testCase.system_output}}</code></pre>
+                class="build-trace build-trace-rounded gl-text-left"
+              ><code class="bash gl-p-0">{{testCase.system_output}}</code></pre>
             </div>
           </div>
 
@@ -109,7 +112,7 @@ export default {
             <div role="rowheader" class="table-mobile-header">
               {{ __('Duration') }}
             </div>
-            <div class="table-mobile-content text-right pr-sm-1">
+            <div class="table-mobile-content text-right gl-sm-pr-2">
               {{ testCase.formattedTime }}
             </div>
           </div>
