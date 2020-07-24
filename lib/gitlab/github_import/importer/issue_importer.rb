@@ -69,7 +69,7 @@ module Gitlab
         def create_assignees(issue_id)
           assignees = []
 
-          issue.assignees.each do |assignee|
+          issue.assignees.try(:each) do |assignee|
             if (user_id = user_finder.user_id_for(assignee))
               assignees << { issue_id: issue_id, user_id: user_id }
             end

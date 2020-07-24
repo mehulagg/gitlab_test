@@ -3,10 +3,15 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::GithubImport::SequentialImporter do
+  let(:repository) { double(:repository) }
+  let(:project) { double(:project, id: 1, repository: repository) }
+
   describe '#execute' do
+    before do
+      allow(project).to receive(:gitea_import?).and_return(false)
+    end
+
     it 'imports a project in sequence' do
-      repository = double(:repository)
-      project = double(:project, id: 1, repository: repository)
       importer = described_class.new(project, token: 'foo')
 
       expect_next_instance_of(Gitlab::GithubImport::Importer::RepositoryImporter) do |instance|

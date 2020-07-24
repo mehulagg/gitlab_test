@@ -22,14 +22,29 @@ module Gitlab
         finish: Stage::FinishImportWorker
       }.freeze
 
+      # Gitea importer stages. Gitea does not support pull request comments. For this reason
+      # ImportIssuesAndDiffNotesWorker needs to be left out from import process.
+      GITEA_STAGES = {
+        issues: Stage::ImportIssuesWorker,
+        notes: Stage::ImportNotesWorker,
+        lfs_objects: Stage::ImportLfsObjectsWorker,
+        finish: Stage::FinishImportWorker
+      }.freeze
+
       def find_import_state(project_id)
         ProjectImportState.jid_by(project_id: project_id, status: :started)
       end
 
       private
 
-      def next_stage_worker(next_stage)
-        STAGES.fetch(next_stage.to_sym)
+      def next_stage_worker(next_stage, project_id)
+        project = Project.find(project_id)
+
+        if project.gitea_import?
+          GITEA_STAGES.fetch(next_stage.to_sym)
+        else
+          STAGES.fetch(next_stage.to_sym)
+        end
       end
     end
   end

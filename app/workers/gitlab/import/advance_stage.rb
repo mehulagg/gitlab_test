@@ -27,7 +27,7 @@ module Gitlab
           # JobWaiter.
           import_state.refresh_jid_expiration
 
-          next_stage_worker(next_stage).perform_async(project_id)
+          next_stage_worker(next_stage, project_id).perform_async(project_id)
         else
           self.class.perform_in(INTERVAL, project_id, new_waiters, next_stage)
         end
@@ -53,7 +53,7 @@ module Gitlab
 
       private
 
-      def next_stage_worker(next_stage)
+      def next_stage_worker(next_stage, project_id)
         raise NotImplementedError
       end
     end

@@ -12,7 +12,7 @@ module Gitlab
         expose_attribute :noteable_id, :noteable_type, :author, :note,
                          :created_at, :updated_at, :github_id
 
-        NOTEABLE_TYPE_REGEX = %r{/(?<type>(pull|issues))/(?<iid>\d+)}i.freeze
+        NOTEABLE_TYPE_REGEX = %r{/(?<type>(pull|pulls|issues))/(?<iid>\d+)}i.freeze
 
         # Builds a note from a GitHub API response.
         #
@@ -28,7 +28,7 @@ module Gitlab
           end
 
           noteable_type =
-            if matches[:type] == 'pull'
+            if matches[:type] == 'pull' || matches[:type] == 'pulls'
               'MergeRequest'
             else
               'Issue'
