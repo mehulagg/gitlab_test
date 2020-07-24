@@ -63,9 +63,9 @@ module API
 
         params :sort_params do
           optional :order_by, type: String, values: %w[id name username created_at updated_at],
-                              default: 'id', desc: 'Return users ordered by a field'
+            default: 'id', desc: 'Return users ordered by a field'
           optional :sort, type: String, values: %w[asc desc], default: 'desc',
-                          desc: 'Return users sorted in ascending and descending order'
+            desc: 'Return users sorted in ascending and descending order'
         end
       end
 
@@ -209,12 +209,12 @@ module API
         not_found!('User') unless user
 
         conflict!('Email has already been taken') if params[:email] &&
-            User.by_any_email(params[:email].downcase)
-                .where.not(id: user.id).exists?
+          User.by_any_email(params[:email].downcase)
+            .where.not(id: user.id).exists?
 
         conflict!('Username has already been taken') if params[:username] &&
-            User.by_username(params[:username])
-                .where.not(id: user.id).exists?
+          User.by_username(params[:username])
+            .where.not(id: user.id).exists?
 
         user_params = declared_params(include_missing: false)
 
@@ -671,6 +671,75 @@ module API
             end
           end
         end
+
+        resource :personal_access_tokens do
+          helpers do
+            def finder(options = {})
+              user = find_user_by_id(params)
+              PersonalAccessTokensFinder.new({ user: user, impersonation: false }.merge(options))
+            end
+
+            def find_token
+              finder.find_by_id(declared_params[:personal_access_token_id]) || not_found!('Personal Access Token')
+            end
+          end
+
+          before { authenticated_as_admin! }
+
+          desc 'Retrieve personal access tokens. Available only for admins.' do
+            detail 'This feature was introduced in GitLab 13.x'
+            success Entities::PersonalAccessToken
+          end
+          params do
+            use :pagination
+            optional :state, type: String, default: 'all', values: %w[all active inactive], desc: 'Filters (all|active|inactive) personal_access_tokens'
+          end
+          get { present paginate(finder(declared_params(include_missing: false)).execute), with: Entities::PersonalAccessToken }
+
+          desc 'Create a personal access token. Available only for admins.' do
+            detail 'This feature was introduced in GitLab 13.x'
+            success Entities::PersonalAccessTokenWithToken
+          end
+          params do
+            requires :name, type: String, desc: 'The name of the personal access token'
+            optional :expires_at, type: Date, desc: 'The expiration date in the format YEAR-MONTH-DAY of the personal access token'
+            optional :scopes, type: Array, desc: 'The array of scopes of the personal access token'
+          end
+          post do
+            personal_access_token = finder.build(declared_params(include_missing: false))
+
+            if personal_access_token.save
+              present personal_access_token, with: Entities::PersonalAccessTokenWithToken
+            else
+              render_validation_error!(personal_access_token)
+            end
+          end
+
+          desc 'Retrieve personal access token. Available only for admins.' do
+            detail 'This feature was introduced in GitLab 13.x'
+            success Entities::PersonalAccessToken
+          end
+          params do
+            requires :personal_access_token_id, type: Integer, desc: 'The ID of the personal access token'
+          end
+          get ':personal_access_token_id' do
+            present find_token, with: Entities::PersonalAccessToken
+          end
+
+          desc 'Revoke a personal access token. Available only for admins.' do
+            detail 'This feature was introduced in GitLab 13.x'
+          end
+          params do
+            requires :personal_access_token_id, type: Integer, desc: 'The ID of the personal access token'
+          end
+          delete ':personal_access_token_id' do
+            token = find_token
+
+            destroy_conditionally!(token) do
+              token.revoke!lib/api/users.rb
+            end
+          end
+        end
       end
     end
 
@@ -709,6 +778,18 @@ module API
         present paginate(keys), with: Entities::SSHKey
       end
 
+      desc "Get the currently authenticated user's personal access tokens" do
+        success Entities::PersonalAccessToken
+      end
+      params do
+        use :pagination
+      end
+      get "personal_access_tokens" do
+        tokens = current_user.personal_access_tokens
+
+        present paginate(tokens), with: Entities::PersonalAccessToken
+      end
+
       desc 'Get a single key owned by currently authenticated user' do
         success Entities::SSHKey
       end
@@ -739,6 +820,25 @@ module API
           present key, with: Entities::SSHKey
         else
           render_validation_error!(key)
+        end
+      end
+
+      desc 'Add a new personal access token to the currently authenticated user' do
+        success Entities::PersonalAccessTokenWithToken
+      end
+      params do
+        requires :name, type: String, desc: 'The new personal access token name'
+        requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: ::Gitlab::Auth.all_available_scopes.map(&:to_s),
+          desc: 'Indicates the deploy token scopes. Must be at least one of "read_repository", "read_registry", "write_registry", "read_package_registry", or "write_package_registry".'
+        optional :expires_at, type: DateTime, desc: 'The expiration date of the SSH key in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)'
+      end
+      post "personal_access_tokens" do
+        token = PersonalAccessTokensFinder.new({ user: current_user, impersonation: false }).build(declared_params(include_missing: false))
+
+        if token.save
+          present token, with: Entities::PersonalAccessTokenWithToken
+        else
+          render_validation_error!(token)
         end
       end
 
