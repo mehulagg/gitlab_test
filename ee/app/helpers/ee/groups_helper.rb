@@ -151,6 +151,10 @@ module EE
         links << :iterations
       end
 
+      if true
+        links << :repositories_analytics
+      end
+
       links
     end
   end
