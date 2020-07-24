@@ -16,6 +16,10 @@ class Timelog < ApplicationRecord
     )
   end
 
+  scope :for_issues_in_project, -> (project) do
+    joins(:issue).where('EXISTS (?)', "issues.project_id in (?)", project)
+  end
+
   scope :between_times, -> (start_time, end_time) do
     where('spent_at BETWEEN ? AND ?', start_time, end_time)
   end

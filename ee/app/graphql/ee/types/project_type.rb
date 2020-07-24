@@ -53,6 +53,11 @@ module EE
               resolver: ::Resolvers::ComplianceFrameworksResolver,
               null: true
 
+        field :timelogs, ::Types::TimelogType.connection_type, null: false,
+              description: 'Time logged in issues by project members',
+              complexity: 5,
+              resolver: ::Resolvers::TimelogResolver
+
         def self.requirements_available?(project, user)
           ::Feature.enabled?(:requirements_management, project, default_enabled: true) && Ability.allowed?(user, :read_requirement, project)
         end

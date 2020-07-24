@@ -31,12 +31,12 @@ module Resolvers
     private
 
     def find_timelogs(args)
-      group.timelogs(args[:start_time], args[:end_time])
+      parent.timelogs(args[:start_time], args[:end_time])
     end
 
     def timelogs_available_for_user?
-      group&.feature_available?(:group_timelogs) &&
-        group&.user_can_access_group_timelogs?(context[:current_user])
+      parent&.feature_available?(:parent_timelogs) &&
+        parent&.user_can_access_parent_timelogs?(context[:current_user])
     end
 
     def validate_params_presence!(args)
@@ -96,8 +96,8 @@ module Resolvers
       raise Gitlab::Graphql::Errors::ArgumentError, message
     end
 
-    def group
-      @group ||= object.respond_to?(:sync) ? object.sync : object
+    def parent
+      @parent ||= object.respond_to?(:sync) ? object.sync : object
     end
   end
 end
