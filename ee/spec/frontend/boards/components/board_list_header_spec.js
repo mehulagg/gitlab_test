@@ -1,16 +1,17 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import AxiosMockAdapter from 'axios-mock-adapter';
-
 import BoardListHeader from 'ee/boards/components/board_list_header.vue';
 import List from '~/boards/models/list';
 import { ListType, inactiveId } from '~/boards/constants';
-import axios from '~/lib/utils/axios_utils';
 import sidebarEventHub from '~/sidebar/event_hub';
-
 import { TEST_HOST } from 'helpers/test_constants';
-import { useSmartResource, useSetupArgs } from 'helpers/resources';
+import {
+  useSmartResource,
+  useFactoryArgs,
+  useAxiosMockAdapter,
+  useComponent,
+} from 'helpers/resources';
 import { listObj } from 'jest/boards/mock_data';
 
 // board_promotion_state tries to mount on the real DOM,
@@ -22,9 +23,9 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe('Board List Header Component', () => {
-  const [axiosMock] = useSmartResource(() => new AxiosMockAdapter(axios), mock => mock.restore());
+  const [axiosMock] = useAxiosMockAdapter();
   const [store] = useSmartResource(() => new Vuex.Store({ state: { activeId: inactiveId } }));
-  const [wrapper, createComponent] = useSmartResource(
+  const [wrapper, createComponent] = useComponent(
     ({
       listType = ListType.backlog,
       collapsed = false,
@@ -67,7 +68,6 @@ describe('Board List Header Component', () => {
         },
       });
     },
-    x => x.destroy(),
   );
 
   beforeEach(() => {
@@ -128,7 +128,7 @@ describe('Board List Header Component', () => {
       });
 
       describe('emits sidebar.closeAll event on openSidebarSettings', () => {
-        useSetupArgs(wrapper, { listType: hasSettings[0] });
+        useFactoryArgs(wrapper, { listType: hasSettings[0] });
 
         beforeEach(() => {
           jest.spyOn(sidebarEventHub, '$emit');
@@ -152,7 +152,7 @@ describe('Board List Header Component', () => {
     });
 
     describe('Swimlanes header', () => {
-      useSetupArgs(wrapper, { isSwimlanesHeader: true, collapsed: true });
+      useFactoryArgs(wrapper, { isSwimlanesHeader: true, collapsed: true });
 
       it('when collapsed, it displays info icon', () => {
         expect(wrapper.contains('.board-header-collapsed-info-icon')).toBe(true);
