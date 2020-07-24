@@ -70,6 +70,30 @@ RSpec.describe Gitlab::GithubImport::Importer::IssueImporter, :clean_gitlab_redi
 
       importer.execute
     end
+
+    context 'when there are no assignees' do
+      let(:issue) do
+        Gitlab::GithubImport::Representation::Issue.new(
+          iid: 1,
+          title: 'issue',
+          description: 'issue',
+          state: :opened,
+          assignees: nil,
+          author: Gitlab::GithubImport::Representation::User.new(id: 5, login: 'test'),
+          created_at: created_at,
+          updated_at: updated_at,
+          pull_request: false
+        )
+      end
+
+      before do
+        allow(importer).to receive(:create_issue).and_return(10)
+      end
+
+      it 'does not raise error' do
+        expect { importer.execute }.not_to raise_error
+      end
+    end
   end
 
   describe '#create_issue' do

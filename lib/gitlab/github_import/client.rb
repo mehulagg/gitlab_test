@@ -39,7 +39,9 @@ module Gitlab
       #            this value to `true` for parallel importing is crucial as
       #            otherwise hitting the rate limit will result in a thread
       #            being blocked in a `sleep()` call for up to an hour.
-      def initialize(token, per_page: 100, parallel: true)
+      def initialize(token, per_page: 100, parallel: true, host: nil, api_version: nil)
+        @host = host.to_s.sub(%r{/+\z}, '')
+        @api_version = api_version
         @octokit = ::Octokit::Client.new(
           access_token: token,
           per_page: per_page,
@@ -181,7 +183,7 @@ module Gitlab
       end
 
       def api_endpoint
-        custom_api_endpoint || default_api_endpoint
+        passed_in_endpoint || custom_api_endpoint || default_api_endpoint
       end
 
       def custom_api_endpoint
@@ -212,6 +214,12 @@ module Gitlab
           :github_importer_request_count,
           'The number of GitHub API calls performed when importing projects'
         )
+      end
+
+      private
+
+      def passed_in_endpoint
+        "#{@host}/api/#{@api_version}" if @host.present? && @api_version.present?
       end
     end
   end

@@ -74,7 +74,7 @@ RSpec.describe Gitlab::ImportSources do
       'fogbugz' => Gitlab::FogbugzImport::Importer,
       'git' => nil,
       'gitlab_project' => Gitlab::ImportExport::Importer,
-      'gitea' => Gitlab::LegacyGithubImport::Importer,
+      'gitea' => Gitlab::GithubImport::ParallelImporter,
       'manifest' => nil,
       'phabricator' => Gitlab::PhabricatorImport::Importer
     }
@@ -109,7 +109,7 @@ RSpec.describe Gitlab::ImportSources do
   end
 
   describe 'imports_repository? checker' do
-    let(:allowed_importers) { %w[github gitlab_project bitbucket_server phabricator] }
+    let(:allowed_importers) { %w[github gitea gitlab_project bitbucket_server phabricator] }
 
     it 'fails if any importer other than the allowed ones implements this method' do
       current_importers = described_class.values.select { |kind| described_class.importer(kind).try(:imports_repository?) }

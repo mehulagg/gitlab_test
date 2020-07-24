@@ -63,6 +63,31 @@ RSpec.describe Gitlab::GithubImport::Representation::Note do
       let(:note) { described_class.from_api_response(response) }
     end
 
+    context 'when resource is merge request' do
+      shared_examples 'a merge request note' do |html_url|
+        let(:response) do
+          double(
+            :response,
+            html_url: html_url,
+            user: double(:user, id: 4, login: 'alice'),
+            body: 'Hello world',
+            created_at: created_at,
+            updated_at: updated_at,
+            id: 1
+          )
+        end
+
+        let(:note) { described_class.from_api_response(response) }
+
+        it 'includes notable type' do
+          expect(note.noteable_type).to eq('MergeRequest')
+        end
+      end
+
+      it_behaves_like 'a merge request note', 'https://github.com/foo/bar/pull/42'
+      it_behaves_like 'a merge request note', 'https://github.com/foo/bar/pulls/42'
+    end
+
     it 'does not set the user if the response did not include a user' do
       allow(response)
         .to receive(:user)

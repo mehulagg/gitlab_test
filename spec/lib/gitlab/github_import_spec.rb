@@ -6,26 +6,47 @@ RSpec.describe Gitlab::GithubImport do
   let(:project) { double(:project) }
 
   describe '.new_client_for' do
-    it 'returns a new Client with a custom token' do
-      expect(described_class::Client)
-        .to receive(:new)
-        .with('123', parallel: true)
+    context 'when importing from GitHub' do
+      before do
+        allow(project).to receive(:gitea_import?).and_return(false)
+      end
 
-      described_class.new_client_for(project, token: '123')
+      it 'returns a new Client with a custom token' do
+        expect(described_class::Client)
+          .to receive(:new)
+          .with('123', parallel: true)
+
+        described_class.new_client_for(project, token: '123')
+      end
+
+      it 'returns a new Client with a token stored in the import data' do
+        import_data = double(:import_data, credentials: { user: '123' })
+
+        expect(project)
+          .to receive(:import_data)
+          .and_return(import_data)
+
+        expect(described_class::Client)
+          .to receive(:new)
+          .with('123', parallel: true)
+
+        described_class.new_client_for(project)
+      end
     end
 
-    it 'returns a new Client with a token stored in the import data' do
-      import_data = double(:import_data, credentials: { user: '123' })
+    context 'when importing from Gitea' do
+      before do
+        allow(project).to receive(:gitea_import?).and_return(true)
+        allow(project).to receive(:import_url).and_return('https://gitea.example.com/testing/repo.git')
+      end
 
-      expect(project)
-        .to receive(:import_data)
-        .and_return(import_data)
+      it 'returns a new Client with gitea opts' do
+        expect(described_class::Client)
+          .to receive(:new)
+          .with('123', parallel: true, host: 'https://gitea.example.com:443', api_version: 'v1')
 
-      expect(described_class::Client)
-        .to receive(:new)
-        .with('123', parallel: true)
-
-      described_class.new_client_for(project)
+        described_class.new_client_for(project, token: '123')
+      end
     end
   end
 
@@ -43,6 +64,21 @@ RSpec.describe Gitlab::GithubImport do
       2.times do
         described_class.ghost_user_id
       end
+    end
+  end
+
+  describe '.gitea_opts' do
+    before do
+      allow(project).to receive(:import_url).and_return('https://gitea.example.com/testing/repo.git')
+    end
+
+    it 'returns host and api version' do
+      expected_opts = {
+        host: 'https://gitea.example.com:443',
+        api_version: 'v1'
+      }
+
+      expect(described_class.gitea_opts(project)).to eq(expected_opts)
     end
   end
 end

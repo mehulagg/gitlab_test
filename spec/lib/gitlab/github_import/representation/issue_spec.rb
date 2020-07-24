@@ -97,6 +97,31 @@ RSpec.describe Gitlab::GithubImport::Representation::Issue do
 
       expect(issue.author).to be_nil
     end
+
+    context 'when collections in the response return nil' do
+      let(:response) do
+        double(
+          :response,
+          number: 1,
+          title: 'issue',
+          body: 'issue',
+          milestone: double(:milestone, number: 1),
+          state: 'open',
+          assignees: nil,
+          labels: nil,
+          user: double(:user, id: 1, login: 'test'),
+          created_at: created_at,
+          updated_at: updated_at,
+          pull_request: false
+        )
+      end
+
+      let(:issue) { described_class.from_api_response(response) }
+
+      it 'does not raise error' do
+        expect { issue }.not_to raise_error
+      end
+    end
   end
 
   describe '.from_json_hash' do

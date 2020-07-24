@@ -297,6 +297,16 @@ RSpec.describe Gitlab::GithubImport::Client do
         expect(client.api_endpoint).to eq(endpoint)
       end
     end
+
+    context 'with passed in endpoint' do
+      let(:client) { described_class.new('foo', host: 'https://example.com', api_version: 'v2') }
+
+      it 'returns passed in endpoint' do
+        endpoint = 'https://example.com/api/v2'
+
+        expect(client.api_endpoint).to eq(endpoint)
+      end
+    end
   end
 
   describe '#custom_api_endpoint' do

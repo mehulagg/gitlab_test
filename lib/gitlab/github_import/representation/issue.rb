@@ -29,10 +29,10 @@ module Gitlab
             description: issue.body,
             milestone_number: issue.milestone&.number,
             state: issue.state == 'open' ? :opened : :closed,
-            assignees: issue.assignees.map do |u|
+            assignees: Array.wrap(issue.assignees).map do |u|
               Representation::User.from_api_response(u)
             end,
-            label_names: issue.labels.map(&:name),
+            label_names: Array.wrap(issue.labels).map(&:name),
             author: user,
             created_at: issue.created_at,
             updated_at: issue.updated_at,
@@ -47,7 +47,7 @@ module Gitlab
           hash = Representation.symbolize_hash(raw_hash)
 
           hash[:state] = hash[:state].to_sym
-          hash[:assignees].map! { |u| Representation::User.from_json_hash(u) }
+          Array.wrap(hash[:assignees]).map! { |u| Representation::User.from_json_hash(u) }
           hash[:author] &&= Representation::User.from_json_hash(hash[:author])
 
           new(hash)

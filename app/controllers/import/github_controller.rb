@@ -106,7 +106,7 @@ class Import::GithubController < Import::BaseController
 
   def client
     @client ||= if Feature.enabled?(:remove_legacy_github_client, default_enabled: false)
-                  Gitlab::GithubImport::Client.new(session[access_token_key])
+                  Gitlab::GithubImport::Client.new(session[access_token_key], client_options)
                 else
                   Gitlab::LegacyGithubImport::Client.new(session[access_token_key], client_options)
                 end
@@ -229,7 +229,11 @@ class Import::GithubController < Import::BaseController
   end
 
   def client_options
-    { wait_for_rate_limit_reset: false }
+    if Feature.enabled?(:remove_legacy_github_client)
+      { parallel: true }
+    else
+      { wait_for_rate_limit_reset: false }
+    end
   end
 
   def extra_import_params
