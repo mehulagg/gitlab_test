@@ -11,7 +11,7 @@ function create_user() {
         --data "skip_confirmation=true" \
         "${CI_ENVIRONMENT_URL}/api/v4/users" > /tmp/user.json
 
-    [[ "$TRACE" ]] && cat /tmp/user.json
+    [[ "$TRACE" ]] && cat /tmp/user.json >&2
 
     jq .id /tmp/user.json
 }
@@ -25,5 +25,5 @@ function create_project_for_user() {
         --data "visibility=private" \
         "${CI_ENVIRONMENT_URL}/api/v4/projects/user/${userid}" > /tmp/project.json
 
-    [[ "$TRACE" ]] && cat /tmp/project.json
+    [[ "$TRACE" ]] && cat /tmp/project.json >&2
 }
