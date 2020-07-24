@@ -1,27 +1,29 @@
 import { mount, shallowMount } from '@vue/test-utils';
-import axios from '~/lib/utils/axios_utils';
-import MockAdapter from 'axios-mock-adapter';
 import Container from '~/environments/components/container.vue';
 import EmptyState from '~/environments/components/empty_state.vue';
 import EnvironmentsApp from '~/environments/components/environments_app.vue';
 import { environment, folder } from './mock_data';
+import { useComponent, useAxiosMockAdapter } from 'helpers/resources';
+
+const mockData = {
+  endpoint: 'environments.json',
+  canCreateEnvironment: true,
+  canReadEnvironment: true,
+  newEnvironmentPath: 'environments/new',
+  helpPagePath: 'help',
+  canaryDeploymentFeatureId: 'canary_deployment',
+  showCanaryDeploymentCallout: true,
+  userCalloutsPath: '/callouts',
+  lockPromotionSvgPath: '/assets/illustrations/lock-promotion.svg',
+  helpCanaryDeploymentsPath: 'help/canary-deployments',
+};
 
 describe('Environment', () => {
-  let mock;
-  let wrapper;
-
-  const mockData = {
-    endpoint: 'environments.json',
-    canCreateEnvironment: true,
-    canReadEnvironment: true,
-    newEnvironmentPath: 'environments/new',
-    helpPagePath: 'help',
-    canaryDeploymentFeatureId: 'canary_deployment',
-    showCanaryDeploymentCallout: true,
-    userCalloutsPath: '/callouts',
-    lockPromotionSvgPath: '/assets/illustrations/lock-promotion.svg',
-    helpCanaryDeploymentsPath: 'help/canary-deployments',
-  };
+  const [mock] = useAxiosMockAdapter();
+  const [wrapper, createWrapper] = useComponent((shallow = false) => {
+    const fn = shallow ? shallowMount : mount;
+    return fn(EnvironmentsApp, { propsData: mockData });
+  });
 
   const mockRequest = (response, body) => {
     mock.onGet(mockData.endpoint).reply(response, body, {
@@ -34,39 +36,32 @@ describe('Environment', () => {
     });
   };
 
-  const createWrapper = (shallow = false) => {
-    const fn = shallow ? shallowMount : mount;
-    wrapper = fn(EnvironmentsApp, { propsData: mockData });
-    return axios.waitForAll();
+  const createWrapperAndWait = (...args) => {
+    createWrapper(...args);
+
+    return mock.axiosInstance.waitForAll();
   };
-
-  beforeEach(() => {
-    mock = new MockAdapter(axios);
-  });
-
-  afterEach(() => {
-    wrapper.destroy();
-    mock.restore();
-  });
 
   describe('successful request', () => {
     describe('without environments', () => {
       beforeEach(() => {
         mockRequest(200, { environments: [] });
-        return createWrapper();
       });
 
-      it('should render the empty state', () => {
+      it('should render the empty state', async () => {
+        await createWrapperAndWait();
+
         expect(wrapper.find(EmptyState).exists()).toBe(true);
       });
 
       describe('when it is possible to enable a review app', () => {
         beforeEach(() => {
           mockRequest(200, { environments: [], review_app: { can_setup_review_app: true } });
-          return createWrapper();
         });
 
-        it('should render the enable review app button', () => {
+        it('should render the enable review app button', async () => {
+          await createWrapperAndWait();
+
           expect(wrapper.find('.js-enable-review-app-button').text()).toContain(
             'Enable review app',
           );
@@ -83,7 +78,7 @@ describe('Environment', () => {
           stopped_count: 1,
           available_count: 0,
         });
-        return createWrapper();
+        return createWrapperAndWait();
       });
 
       it('should render a conatiner table with environments', () => {
@@ -118,7 +113,7 @@ describe('Environment', () => {
   describe('unsuccessful request', () => {
     beforeEach(() => {
       mockRequest(500, {});
-      return createWrapper();
+      return createWrapperAndWait();
     });
 
     it('should render empty state', () => {
@@ -136,10 +131,10 @@ describe('Environment', () => {
 
       mock.onGet(environment.folder_path).reply(200, { environments: [environment] });
 
-      return createWrapper().then(() => {
+      return createWrapperAndWait().then(() => {
         // open folder
         wrapper.find('.folder-name').trigger('click');
-        return axios.waitForAll();
+        return mock.axiosInstance.waitForAll();
       });
     });
 
