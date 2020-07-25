@@ -134,7 +134,7 @@ module Projects
 
         def process_incident_issues
           alerts.each do |alert|
-            IncidentManagement::ProcessPrometheusAlertWorker
+            ::IncidentManagement::ProcessPrometheusAlertWorker
               .perform_async(project.id, alert.to_h)
           end
         end

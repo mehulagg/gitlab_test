@@ -52,7 +52,7 @@ module IncidentManagement
       IncidentManagement::CreateIssueService
         .new(project, alert)
         .execute
-        .dig(:issue)
+        .payload[:issue]
     end
 
     def close_issue(project, issue)
