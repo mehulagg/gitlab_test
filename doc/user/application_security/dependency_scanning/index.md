@@ -54,7 +54,7 @@ Beginning with GitLab 13.0, Docker privileged mode is necessary only if you've [
 ## Supported languages and package managers
 
 GitLab relies on [`rules`](../../../ci/yaml/README.md#rules) to start relevant analyzers depending on the languages detected in the repository.
-The current detection logic limits the maximum search depth to two levels. For example, the `gemnasium-dependency_scanning` job is enabled if a repository contains either a `Gemfile` or `api/Gemfile` file, but not if the only supported dependency file is `api/client/Gemfile`.
+The current detection logic limits the maximum search depth to four levels. For example, the `gemnasium-dependency_scanning` job is enabled if a repository contains a `Gemfile`, `client/Gemfile`, `api/client/Gemfile` or `src/api/client/Gemfile` file, but not if the only supported dependency file is `project/src/api/client/Gemfile`. This can be changed using the `SEARCH_MAX_DEPTH` [analyzer setting](https://docs.gitlab.com/ee/user/application_security/sast/#analyzer-settings).
 
 The following languages and dependency managers are supported:
 
