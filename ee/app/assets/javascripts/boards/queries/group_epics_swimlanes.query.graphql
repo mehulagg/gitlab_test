@@ -18,6 +18,7 @@ query GroupBoardEE($fullPath: ID!, $boardId: ID!) {
           webUrl
           createdAt
           closedAt
+          confidential
           descendantCounts {
             openedIssues
             closedIssues

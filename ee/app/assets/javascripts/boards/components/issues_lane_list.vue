@@ -51,10 +51,16 @@ export default {
       required: false,
       default: null,
     },
+    epicIsConfidential: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
   },
   data() {
     return {
       showIssueForm: false,
+      isDropzone: true,
     };
   },
   computed: {
@@ -78,9 +84,13 @@ export default {
   },
   created() {
     eventHub.$on(`toggle-issue-form-${this.list.id}`, this.toggleForm);
+    eventHub.$on('drag-issue', this.onDragIssue);
+    eventHub.$on('reset-dropzones', this.resetDropzone);
   },
   beforeDestroy() {
     eventHub.$off(`toggle-issue-form-${this.list.id}`, this.toggleForm);
+    eventHub.$off('drag-issue', this.onDragIssue);
+    eventHub.$off('reset-dropzones', this.resetDropzone);
   },
   methods: {
     ...mapActions(['moveIssueEpicSwimlane', 'assignIssueToEpic']),
@@ -90,7 +100,26 @@ export default {
         this.$el.scrollIntoView(false);
       }
     },
+    onDragIssue(isIssueConfidential) {
+      // Block dropping non confidential issue in confidential epic
+      if (!isIssueConfidential && this.epicIsConfidential && !this.isUnassignedIssuesLane) {
+        this.isDropzone = false;
+      } else {
+        this.isDropzone = true;
+      }
+    },
+    resetDropzone() {
+      this.isDropzone = true;
+    },
+    handleDragOnStart(params) {
+      if (params.item.dataset.isConfidential) {
+        eventHub.$emit('drag-issue', true);
+      } else {
+        eventHub.$emit('drag-issue', false);
+      }
+    },
     handleDragOnEnd(params) {
+      eventHub.$emit('reset-dropzones');
       const { oldIndex, newIndex, from, to, item } = params;
       const { issueId, epicIssueId } = item.dataset;
 
@@ -137,6 +166,8 @@ export default {
         v-if="list.isExpanded"
         v-bind="treeRootOptions"
         class="gl-p-2 gl-m-0"
+        :disabled="!isDropzone"
+        @start="handleDragOnStart"
         @end="handleDragOnEnd"
       >
         <board-card

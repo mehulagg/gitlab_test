@@ -158,6 +158,7 @@ export default {
         :disabled="disabled"
         :root-path="rootPath"
         :epic-id="epic.id"
+        :epic-is-confidential="epic.confidential"
       />
     </div>
   </div>

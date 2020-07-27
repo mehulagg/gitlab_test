@@ -114,6 +114,7 @@ export default {
     :data-issue-iid="issue.iid"
     :data-epic-issue-id="issue.epicIssueId"
     :data-issue-path="issue.referencePath"
+    :data-is-confidential="issue.confidential"
     data-qa-selector="board_card"
     class="board-card p-3 rounded"
     @mousedown="mouseDown"

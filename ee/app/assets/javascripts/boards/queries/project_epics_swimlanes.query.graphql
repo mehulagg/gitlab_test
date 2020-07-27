@@ -18,9 +18,17 @@ query ProjectBoardEE($fullPath: ID!, $boardId: ID!) {
           webUrl
           createdAt
           closedAt
+          confidential
           descendantCounts {
             openedIssues
             closedIssues
+          }
+          issues {
+            nodes {
+              id
+              epicIssueId
+              relativePosition
+            }
           }
         }
       }
