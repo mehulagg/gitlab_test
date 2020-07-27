@@ -35,6 +35,7 @@ module EE
     def temporary_storage_increase_visible?(namespace)
       return false unless ::Gitlab.dev_env_or_com?
       return false unless ::Feature.enabled?(:temporary_storage_increase, namespace)
+      return false unless namespace.eligible_for_temporary_storage_increase?
 
       current_user.can?(:admin_namespace, namespace.root_ancestor)
     end

@@ -1,11 +1,12 @@
 <script>
-import { GlModal, GlSprintf } from '@gitlab/ui';
+import { GlModal, GlSprintf, GlButton } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
 
 export default {
   components: {
     GlModal,
     GlSprintf,
+    GlButton,
   },
   props: {
     limit: {
@@ -15,6 +16,25 @@ export default {
     modalId: {
       type: String,
       required: true,
+    },
+    increaseStorageTemporarily: {
+      type: Function,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      isLoading: false,
+    };
+  },
+  methods: {
+    async submit() {
+      this.isLoading = true;
+      await this.increaseStorageTemporarily();
+      this.$refs.modal.hide();
+    },
+    closeModal() {
+      this.$refs.modal.hide();
     },
   },
   modalBody: s__(
@@ -30,9 +50,9 @@ export default {
     size="sm"
     ok-variant="success"
     :title="$options.modalTitle"
-    :ok-title="$options.okTitle"
-    :cancel-title="$options.cancelTitle"
     :modal-id="modalId"
+    ref="modal"
+    @ok="submit"
   >
     <gl-sprintf :message="$options.modalBody">
       <template #strong="{ content }">
@@ -40,5 +60,11 @@ export default {
       </template>
       <template #limit>{{ limit }}</template>
     </gl-sprintf>
+    <template #modal-footer>
+      <gl-button @click="closeModal">{{ $options.cancelTitle }}</gl-button>
+      <gl-button variant="success" category="primary" :loading="isLoading" @click="submit">
+        {{ $options.okTitle }}
+      </gl-button>
+    </template>
   </gl-modal>
 </template>

@@ -1,0 +1,9 @@
+mutation NamespaceIncreaseStorageTemporarily($input: NamespaceIncreaseStorageTemporarilyInput!) {
+  namespaceIncreaseStorageTemporarily(input: $input) {
+    errors
+    namespace {
+      id
+      temporaryStorageIncreaseEndsOn
+    }
+  }
+}

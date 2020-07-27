@@ -3,10 +3,14 @@ import { GlLink, GlSprintf, GlModalDirective, GlButton } from '@gitlab/ui';
 import Project from './project.vue';
 import UsageGraph from './usage_graph.vue';
 import query from '../queries/storage.query.graphql';
+import createFlash from '~/flash';
+import namespaceIncreaseStorageTemporarily from '../mutations/increaseStorageTemporarily.mutation.graphql';
 import TemporaryStorageIncreaseModal from './temporary_storage_increase_modal.vue';
+import { s__, sprintf } from '~/locale';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import Icon from '~/vue_shared/components/icon.vue';
+import { formatDate } from '~/lib/utils/datetime_utility';
 
 export default {
   components: {
@@ -56,6 +60,9 @@ export default {
        * if we should render N/A
        */
       update: data => ({
+        id: data.namespace.id,
+        temporaryStorageIncreaseEndsOn: data.namespace.temporaryStorageIncreaseEndsOn,
+        isTemporaryStorageIncreaseEnabled: data.namespace.isTemporaryStorageIncreaseEnabled,
         projects: data.namespace.projects.edges.map(({ node }) => node),
         totalUsage:
           data.namespace.rootStorageStatistics && data.namespace.rootStorageStatistics.storageSize
@@ -73,15 +80,56 @@ export default {
   },
   computed: {
     isStorageIncreaseModalVisible() {
-      return parseBoolean(this.isTemporaryStorageIncreaseVisible);
+      return (
+        parseBoolean(this.isTemporaryStorageIncreaseVisible) &&
+        this.namespace.isTemporaryStorageIncreaseEnabled != undefined &&
+        !this.namespace.isTemporaryStorageIncreaseEnabled
+      );
     },
   },
   methods: {
     formatSize(size) {
       return numberToHumanSize(size);
     },
+    formatDate(date) {
+      return formatDate(date, 'mmm d, yyyy');
+    },
+    increaseStorageTemporarily() {
+      return this.$apollo
+        .mutate({
+          mutation: namespaceIncreaseStorageTemporarily,
+          variables: {
+            input: {
+              id: this.namespace.id,
+            },
+          },
+        })
+        .then(
+          ({
+            data: { namespaceIncreaseStorageTemporarily: { namespace = {}, errors = [] } } = {},
+          } = {}) => {
+            if (errors[0]) {
+              createFlash(errors[0]);
+            } else {
+              this.$apollo.queries.namespace.refetch();
+              createFlash(
+                sprintf(this.$options.temporaryStorageIncreaseSuccess, {
+                  date: namespace.temporaryStorageIncreaseEndsOn,
+                }),
+                'success',
+              );
+            }
+          },
+        );
+    },
   },
   modalId: 'temporary-increase-storage-modal',
+  temporaryStorageIncreaseSuccess: s__(
+    'TemporaryStorageIncrease|Your storage has been temporarily increased to unlimited until %{date}',
+  ),
+  temporaryStorageIncreaseInfo: s__(
+    'TemporaryStorageIncrease|Your storage has been temporarily set to %{strongStart}Unlimited until %{date}.%{strongEnd}',
+  ),
 };
 </script>
 <template>
@@ -89,7 +137,7 @@ export default {
     <div class="pipeline-quota container-fluid py-4 px-2 m-0">
       <div class="row py-0 d-flex align-items-center">
         <div class="col-lg-6">
-          <gl-sprintf :message="s__('UsageQuota|You used: %{usage} %{limit}')">
+          <gl-sprintf :message="s__('UsageQuota|You used: %{usage} %{limit}.')">
             <template #usage>
               <span class="gl-font-weight-bold" data-testid="total-usage">
                 {{ namespace.totalUsage }}
@@ -97,13 +145,32 @@ export default {
             </template>
             <template #limit>
               <gl-sprintf
-                v-if="namespace.limit"
+                v-if="namespace.limit && !namespace.isTemporaryStorageIncreaseEnabled"
                 :message="s__('UsageQuota|out of %{formattedLimit} of your namespace storage')"
               >
                 <template #formattedLimit>
                   <span class="gl-font-weight-bold">{{ formatSize(namespace.limit) }}</span>
                 </template>
               </gl-sprintf>
+              <span
+                v-else-if="namespace.isTemporaryStorageIncreaseEnabled"
+                class="gl-font-weight-bold"
+                >{{ s__('UsageQuota|out of Unlimited') }}</span
+              >
+            </template>
+          </gl-sprintf>
+          <gl-sprintf
+            v-if="namespace.isTemporaryStorageIncreaseEnabled"
+            :message="$options.temporaryStorageIncreaseInfo"
+          >
+            <template #strong="{ content }">
+              <span class="gl-font-weight-bold" data-testid="total-usage">
+                <gl-sprintf :message="content">
+                  <template #date>{{
+                    formatDate(namespace.temporaryStorageIncreaseEndsOn)
+                  }}</template></gl-sprintf
+                >
+              </span>
             </template>
           </gl-sprintf>
           <gl-link
@@ -162,6 +229,7 @@ export default {
       v-if="isStorageIncreaseModalVisible"
       :limit="formatSize(namespace.limit)"
       :modal-id="$options.modalId"
+      :increaseStorageTemporarily="increaseStorageTemporarily"
     />
   </div>
 </template>
