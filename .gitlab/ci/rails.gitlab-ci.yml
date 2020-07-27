@@ -243,6 +243,9 @@ rspec system pg11:
     - .rspec-system-parallel
 
 rspec fast_spec_helper:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11
     - .rails:rules:ee-and-foss-fast_spec_helper
@@ -352,6 +355,9 @@ rspec:coverage:
 ##################################################
 # EE: default refs (MRs, master, schedules) jobs #
 rspec migration pg11-as-if-foss:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11-as-if-foss
     - .rspec-base-migration
@@ -386,6 +392,9 @@ rspec system pg11-as-if-foss:
     - .rspec-system-parallel
 
 rspec-ee migration pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg11
     - .rspec-base-migration
@@ -393,12 +402,18 @@ rspec-ee migration pg11:
     - .rspec-ee-migration-parallel
 
 rspec-ee unit pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg11
     - .rails:rules:ee-only-unit
     - .rspec-ee-unit-parallel
 
 rspec-ee integration pg11:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg11
     - .rails:rules:ee-only-integration
@@ -414,17 +429,26 @@ rspec-ee system pg11:
     - .rspec-ee-system-parallel
 
 rspec-ee unit pg11 geo:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-geo-pg11
     - .rails:rules:ee-only-unit
     - .rspec-ee-unit-geo-parallel
 
 rspec-ee integration pg11 geo:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-geo-pg11
     - .rails:rules:ee-only-integration
 
 rspec-ee system pg11 geo:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-geo-pg11
     - .rails:rules:ee-only-system
@@ -442,6 +466,9 @@ db:rollback geo:
 ##########################################
 # EE/FOSS: master nightly scheduled jobs #
 rspec migration pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg12
     - .rspec-base-migration
@@ -449,18 +476,27 @@ rspec migration pg12:
     - .rspec-migration-parallel
 
 rspec unit pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg12
     - .rails:rules:master-schedule-nightly--code-backstage
     - .rspec-unit-parallel
 
 rspec integration pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg12
     - .rails:rules:master-schedule-nightly--code-backstage
     - .rspec-integration-parallel
 
 rspec system pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg12
     - .rails:rules:master-schedule-nightly--code-backstage
@@ -471,6 +507,9 @@ rspec system pg12:
 #####################################
 # EE: master nightly scheduled jobs #
 rspec-ee migration pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg12
     - .rspec-base-migration
@@ -478,24 +517,36 @@ rspec-ee migration pg12:
     - .rspec-ee-migration-parallel
 
 rspec-ee unit pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg12
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
     - .rspec-ee-unit-parallel
 
 rspec-ee integration pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg12
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
     - .rspec-ee-integration-parallel
 
 rspec-ee system pg12:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-pg12
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
     - .rspec-ee-system-parallel
 
 rspec-ee unit pg12 geo:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-geo-pg12
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
@@ -507,6 +558,9 @@ rspec-ee integration pg12 geo:
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
 
 rspec-ee system pg12 geo:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-geo-pg12
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
@@ -516,6 +570,9 @@ rspec-ee system pg12 geo:
 ##################################################
 # EE: Canonical MR pipelines
 rspec foss-impact:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-base-pg11-as-if-foss
     - .rails:rules:ee-mr-only
