@@ -426,7 +426,7 @@ describe('MyComponent', () => {
   // define our `createComponent` factory
   function createComponent() {
     // mount component and reassign `wrapper`
-    wrapper = shallowMount(MyComponent)
+    wrapper = shallowMount(MyComponent);
   }
 
   it('mounts', () => {
