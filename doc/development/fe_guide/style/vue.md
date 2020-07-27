@@ -406,9 +406,13 @@ Useful links:
 
 Typically, when testing a Vue component, the component should be "re-mounted" in every test block.
 
-To achieve this, we create a mutable `wrapper` variable inside the top-level `describe` block, mount the component using [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount), and reassign the resulting [`Wrapper`](https://vue-test-utils.vuejs.org/api/wrapper/#wrapper) instance to our `wrapper` variable.
+To achieve this, we:
 
-To avoid duplicating our mounting logic, we typically define a `createComponent` factory that we can reuse in each test block.
+1. create a mutable `wrapper` variable inside the top-level `describe` block;
+1. mount the component using [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount), and finally;
+1. reassign the resulting [`Wrapper`](https://vue-test-utils.vuejs.org/api/wrapper/#wrapper) instance to our `wrapper` variable.
+
+To avoid duplicating our mounting logic, it is useful to define a `createComponent` factory that we can reuse in each test block.
 This is a closure which should reassign our `wrapper` variable to the result of [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount).
 
 ```javascript
@@ -454,23 +458,23 @@ describe('MyComponent', () => {
 
 ### Setting component state
 
-Where possible, avoid using [`setData`](https://vue-test-utils.vuejs.org/api/wrapper/#setdata) and [`setProps`](https://vue-test-utils.vuejs.org/api/wrapper/#setprops) to set component state. Instead, set the components [`data`](https://vue-test-utils.vuejs.org/api/options.html#data) and [`propsData`](https://vue-test-utils.vuejs.org/api/options.html#propsdata) when mounting the component.
+1. Where possible, avoid using [`setData`](https://vue-test-utils.vuejs.org/api/wrapper/#setdata) and [`setProps`](https://vue-test-utils.vuejs.org/api/wrapper/#setprops) to set component state. Instead, set the components [`data`](https://vue-test-utils.vuejs.org/api/options.html#data) and [`propsData`](https://vue-test-utils.vuejs.org/api/options.html#propsdata) when mounting the component.
 
-```javascript
-// bad
-wrapper = shallowMount(MyComponent)
-wrapper.setData({
-  myData: 123
-});
-wrapper.setProps({
-  myProp: 'my cool prop'
-})
+    ```javascript
+    // bad
+    wrapper = shallowMount(MyComponent)
+    wrapper.setData({
+      myData: 123
+    });
+    wrapper.setProps({
+      myProp: 'my cool prop'
+    })
 
-// good
-wrapper = shallowMount({ data: { myData: 123 }, propsData: { myProp: 'my cool prop' } })
-```
+    // good
+    wrapper = shallowMount({ data: { myData: 123 }, propsData: { myProp: 'my cool prop' } })
+    ```
 
-The exception here is when you wish to test component reactivity in some way. For example, you may want to test the output of a component when after a particular watcher has executed.
+    The exception here is when you wish to test component reactivity in some way. For example, you may want to test the output of a component when after a particular watcher has executed.
 
 ### Accessing props
 
