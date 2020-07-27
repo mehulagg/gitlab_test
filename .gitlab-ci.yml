@@ -62,13 +62,7 @@ variables:
   ES_JAVA_OPTS: "-Xms256m -Xmx256m"
   ELASTIC_URL: "http://elastic:changeme@elasticsearch:9200"
   DOCKER_VERSION: "19.03.0"
-  DAST_ENV: "test"
-  SAST_DISABLED: "true"
-  LOAD_PERFORMANCE_DISABLED: "true"
-  PERFORMANCE_DISABLED: "true"
-  CODE_QUALITY_DISABLED: "true"
-  DEPENDENCY_SCANNING_DISABLED: "true"
-  TEST_DISABLED: "true"
+  DAST_TEST: "true"
 
 include:
   - local: .gitlab/ci/build-images.gitlab-ci.yml

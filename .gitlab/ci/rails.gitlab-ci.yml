@@ -1,6 +1,9 @@
 ######################
 # rspec job base specs
 .rails-job-base:
+  rules:
+    - if: '$DAST_TEST'
+      when: never
   extends:
     - .default-retry
     - .default-before_script

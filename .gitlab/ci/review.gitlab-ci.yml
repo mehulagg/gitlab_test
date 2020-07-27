@@ -116,6 +116,9 @@ review-stop:
     - delete_release
 
 .review-qa-base:
+  rules:
+    - if: '$DAST_TEST'
+      when: never
   extends:
     - .default-retry
     - .use-docker-in-docker
