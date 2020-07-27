@@ -26,5 +26,5 @@ export default {
 </script>
 
 <template>
-  <div class="code">{{module}}+{{hexOffset}}</div>
+  <code>{{module}}+{{hexOffset}}</code>
 </template>

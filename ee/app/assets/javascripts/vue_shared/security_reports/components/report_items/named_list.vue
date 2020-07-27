@@ -37,10 +37,9 @@ export default {
         :value="item.value"
        />
 
-      <vulnerability-detail :label="name">
+      <vulnerability-detail :label="name" v-if="item.type!='label'">
         <component
           :is="'report-item-' + item.type"
-          v-if="item.type != 'label'"
           v-bind="item"
         />
       </vulnerability-detail>

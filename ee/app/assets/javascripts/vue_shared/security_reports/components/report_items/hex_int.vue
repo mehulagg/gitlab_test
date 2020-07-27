@@ -22,5 +22,5 @@ export default {
 </script>
 
 <template>
-  <div class="code">{{hexVal}}</div>
+  <code>{{hexVal}}</code>
 </template>
