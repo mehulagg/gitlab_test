@@ -28,6 +28,7 @@ class Vulnerabilities::FindingEntity < Grape::Entity
     expose :location
     expose :remediations
     expose :solution
+    expose(:report_data) { |model, _| puts model.report_data.inspect ; model.report_data }
     expose(:evidence) { |model, _| model.evidence[:summary] }
     expose(:request, using: Vulnerabilities::RequestEntity) { |model, _| model.evidence[:request] }
     expose(:response, using: Vulnerabilities::ResponseEntity) { |model, _| model.evidence[:response] }

@@ -64,7 +64,9 @@ module Gitlab
             scanner = create_scanner(report, data['scanner'] || mutate_scanner_tool(data['tool']))
             identifiers = create_identifiers(report, data['identifiers'])
 
-            begin
+            puts "#CREATE VULNERABILITY: #{data.inspect}"
+            puts "#CREATE VULNERABILITY report_data: #{data['report_data'].inspect}"
+
             o = ::Gitlab::Ci::Reports::Security::Occurrence.new(
                 uuid: SecureRandom.uuid,
                 report_type: report.type,
@@ -75,18 +77,9 @@ module Gitlab
                 confidence: parse_confidence_level(data['confidence']&.downcase),
                 scanner: scanner,
                 identifiers: identifiers,
-                report_data: {
-                  "Name": {
-                    "type": "text",
-                    "value": "This is a description"
-                  }
-                },
+                report_data: data['report_data'],
                 raw_metadata: data.to_json,
                 metadata_version: version)
-            rescue StandardError => e
-              puts "OCC ERROR: #{e}"
-            end
-            puts o.report_data
 
             report.add_occurrence(o)
           end
