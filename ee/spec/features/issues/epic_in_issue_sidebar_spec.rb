@@ -22,60 +22,6 @@ RSpec.describe 'Epic in issue sidebar', :js do
       it 'shows epic in issue sidebar' do
         expect(page.find('.js-epic-block .value')).to have_content(epic1.title)
       end
-
-      it 'shows edit button in issue sidebar' do
-        expect(page.find('.js-epic-block .sidebar-dropdown-toggle')).to have_content('Edit')
-      end
-
-      it 'shows epics select dropdown' do
-        page.within(find('.js-epic-block')) do
-          page.find('.sidebar-dropdown-toggle').click
-
-          wait_for_requests
-
-          expect(page).to have_selector('.js-epic-select', visible: true)
-          expect(page.all('.dropdown-content li a').length).to eq(4) # `No Epic` + 3 epics
-        end
-      end
-
-      it 'supports searching for an epic' do
-        page.within(find('.js-epic-block')) do
-          page.find('.sidebar-dropdown-toggle').click
-
-          wait_for_requests
-
-          page.find('.dropdown-input-field').send_keys('Foo')
-
-          wait_for_requests
-
-          expect(page).to have_selector('.dropdown-content li a', count: 2) # `No Epic` + 1 matching epic
-        end
-      end
-
-      it 'select an epic from the dropdown' do
-        page.within(find('.js-epic-block')) do
-          page.find('.sidebar-dropdown-toggle').click
-
-          wait_for_requests
-
-          click_link epic2.title
-
-          wait_for_requests
-
-          expect(page.find('.value')).to have_content(epic2.title)
-        end
-      end
-    end
-
-    context 'personal projects' do
-      it 'does not show epic in issue sidebar' do
-        personal_project = create(:project, :public)
-        other_issue = create(:issue, project: personal_project)
-
-        visit project_issue_path(personal_project, other_issue)
-
-        expect_no_epic
-      end
     end
   end
 
@@ -87,8 +33,6 @@ RSpec.describe 'Epic in issue sidebar', :js do
       visit project_issue_path(project, issue)
       wait_for_requests
     end
-
-    it_behaves_like 'epic in issue sidebar'
 
     context 'with namespaced plans' do
       before do
@@ -102,30 +46,6 @@ RSpec.describe 'Epic in issue sidebar', :js do
 
         it_behaves_like 'epic in issue sidebar'
       end
-
-      context 'group has no license' do
-        it 'does not show epic for public projects and groups' do
-          visit project_issue_path(project, issue)
-
-          expect_no_epic
-        end
-      end
     end
-  end
-
-  context 'when epics unavailable' do
-    before do
-      stub_licensed_features(epics: false)
-    end
-
-    it 'does not show epic in issue sidebar' do
-      visit project_issue_path(project, issue)
-
-      expect_no_epic
-    end
-  end
-
-  def expect_no_epic
-    expect(page).not_to have_selector('.block.epic')
   end
 end
