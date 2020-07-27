@@ -134,6 +134,10 @@ function run_task() {
   kubectl exec -it --namespace "${namespace}" "${task_runner_pod}" -- gitlab-rails runner "${ruby_cmd}"
 }
 
+function disable_2fa_allgroup() {
+  local ruby_cmd="Group.update_all(require_two_factor_authentication: false)" #todo
+  run_task "${ruby_cmd}"
+}
 function disable_sign_ups() {
   if [ -z ${REVIEW_APPS_ROOT_TOKEN+x} ]; then
     echoerr "In order to protect Review Apps, REVIEW_APPS_ROOT_TOKEN variable must be set"

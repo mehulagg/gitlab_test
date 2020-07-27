@@ -77,8 +77,10 @@ review-deploy:
     # to have to manually start the jobs in sequence, so we do it for them.
     - '[ -z $CI_JOB_MANUAL ] || play_job "review-qa-smoke"'
     - '[ -z $CI_JOB_MANUAL ] || play_job "review-performance"'
+  after_script:
+    - echo "${REVIEW_APPS_ROOT_TOKEN}" > environment_token.txt
   artifacts:
-    paths: [environment_url.txt]
+    paths: [environment_url.txt, environment_token.txt]
     expire_in: 2 days
     when: always
 
