@@ -214,7 +214,7 @@ DAST-prepare:
     - prm
   extends:
     - .reports:rules:dast
-    # - .default-retry
+    - .default-retry
   image:
     # name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
     # Image details: https://gitlab.com/gitlab-org/gitlab/-/issues/228635#note_381361029
