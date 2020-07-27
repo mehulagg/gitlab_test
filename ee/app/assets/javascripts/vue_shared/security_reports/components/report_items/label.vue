@@ -13,14 +13,22 @@ export default {
     },
     value: {
       type: String,
-      required: true,
-    }
+      required: false,
+    },
+    indented: {
+      type: Boolean,
+      default: true,
+      required: false
+    },
   },
 }
 </script>
 
 <template>
-  <vulnerability-detail :label="name">
-    {{ value }}
-  </vulnerability-detail>
+  <tr>
+    <td class="report-item-label-td">
+        <label class="font-weight-bold">{{name}}</label>
+    </td>
+    <td>{{value}}</td>
+  </tr>
 </template>

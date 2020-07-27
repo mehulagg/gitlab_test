@@ -4,6 +4,10 @@ import ReportItemNamedList from './named_list.vue';
 import ReportItemModuleLocation from './module_location.vue';
 import ReportItemHexInt from './hex_int.vue';
 
+const tableAwareTypes = [
+  "label",
+];
+
 export default {
   name: 'ReportItemList',
   components: {
@@ -24,13 +28,12 @@ export default {
 </script>
 
 <template>
-  <div class="report-item-list">
-    <div v-for="item in items" v-if="items">
-      <component
-        :is="'report-item-' + item.type"
-        v-if="item.type"
-        v-bind="item"
-      />
-    </div>
-  </div>
+  <table class="table report-item-table">
+    <component
+      v-for="item in items"
+      :is="'report-item-' + item.type"
+      v-if="item.type"
+      v-bind="item"
+    />
+  </table>
 </template>
