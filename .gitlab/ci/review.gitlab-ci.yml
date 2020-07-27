@@ -117,7 +117,7 @@ review-stop:
 
 .review-qa-base:
   rules:
-    - if: '$DAST_TEST'
+    - if: '$DAST_TEST == "true"'
       when: never
   extends:
     - .default-retry

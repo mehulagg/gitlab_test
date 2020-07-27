@@ -2,7 +2,7 @@
 # rspec job base specs
 .rails-job-base:
   rules:
-    - if: '$DAST_TEST'
+    - if: '$DAST_TEST == "true"'
       when: never
   extends:
     - .default-retry
