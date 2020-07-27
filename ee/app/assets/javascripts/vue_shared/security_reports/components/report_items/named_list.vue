@@ -5,21 +5,20 @@ import ReportItemHexInt from './hex_int.vue';
 import ReportItemPlain from './plain.vue';
 import ReportItemFileLocation from './file_location.vue';
 import ReportItemModuleLocation from './module_location.vue';
-import VulnerabilityDetail from '../vulnerability_detail.vue';
+import ReportItemCode from './code.vue';
+import ReportItemLabelValue from './label_value.vue';
 
 export default {
   name: 'ReportItemNamedList',
-  beforeCreate() {
-    this.$options.components.ReportItemList = require('./list.vue').default;
-  },
   components: {
     ReportItemList,
-    VulnerabilityDetail,
     ReportItemLabel,
     ReportItemModuleLocation,
     ReportItemFileLocation,
     ReportItemHexInt,
-    ReportItemPlain
+    ReportItemPlain,
+    ReportItemCode,
+    ReportItemLabelValue
   },
   props: {
     items: {
@@ -28,6 +27,9 @@ export default {
     }
   },
   computed: {
+  },
+  beforeCreate() {
+    this.$options.components.ReportItemList = require('./list.vue').default;
   },
 };
 </script>
@@ -38,7 +40,12 @@ export default {
       <td class="report-item-label-td">
           <label class="font-weight-bold">{{name}}</label>
       </td>
-      <td>
+
+      <td v-if="item.type == 'label'">
+        <report-item-label-value :value="item.value" />
+      </td>
+
+      <td v-else>
         <component
           :is="'report-item-' + item.type"
           v-bind="item"

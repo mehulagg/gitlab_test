@@ -2,11 +2,10 @@
 import ReportItemLabel from './label.vue';
 import ReportItemNamedList from './named_list.vue';
 import ReportItemModuleLocation from './module_location.vue';
+import ReportItemFileLocation from './file_location.vue';
 import ReportItemHexInt from './hex_int.vue';
-
-const tableAwareTypes = [
-  "label",
-];
+import ReportItemCode from './code.vue';
+import ReportItemPlain from './plain.vue';
 
 export default {
   name: 'ReportItemList',
@@ -14,7 +13,10 @@ export default {
     ReportItemLabel,
     ReportItemNamedList,
     ReportItemModuleLocation,
-    ReportItemHexInt
+    ReportItemHexInt,
+    ReportItemCode, 
+    ReportItemFileLocation,
+    ReportItemPlain
   },
   props: {
     items: {

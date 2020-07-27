@@ -1,10 +1,10 @@
 <script>
-import VulnerabilityDetail from '../vulnerability_detail.vue';
+import ReportItemLabelValue from './label_value.vue';
 
 export default {
   name: 'ReportItemLabel',
   components: {
-    VulnerabilityDetail
+    ReportItemLabelValue
   },
   props: {
     name: {
@@ -13,12 +13,7 @@ export default {
     },
     value: {
       type: String,
-      required: false,
-    },
-    indented: {
-      type: Boolean,
-      default: true,
-      required: false
+      required: true,
     },
   },
 }
@@ -29,6 +24,8 @@ export default {
     <td class="report-item-label-td">
         <label class="font-weight-bold">{{name}}</label>
     </td>
-    <td>{{value}}</td>
+    <td>
+      <report-item-label-value :value="value" />
+    </td>
   </tr>
 </template>
