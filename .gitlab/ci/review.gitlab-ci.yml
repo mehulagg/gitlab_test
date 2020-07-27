@@ -116,9 +116,6 @@ review-stop:
     - delete_release
 
 .review-qa-base:
-  rules:
-    - if: '$DAST_TEST == "true"'
-      when: never
   extends:
     - .default-retry
     - .use-docker-in-docker
@@ -153,6 +150,9 @@ review-stop:
     when: always
 
 review-qa-smoke:
+  rules:
+    - if: '$DAST_TEST == "true"'
+      when: never
   extends:
     - .review-qa-base
     - .review:rules:review-qa-smoke
@@ -160,6 +160,9 @@ review-qa-smoke:
     - gitlab-qa Test::Instance::Smoke "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}"
 
 review-qa-all:
+  rules:
+    - if: '$DAST_TEST == "true"'
+      when: never
   extends:
     - .review-qa-base
     - .review:rules:mr-only-manual
@@ -170,6 +173,9 @@ review-qa-all:
     - gitlab-qa Test::Instance::Any "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}" -- --format RspecJunitFormatter --out tmp/rspec-${CI_JOB_ID}.xml --format html --out tmp/rspec.htm --color --format documentation
 
 review-performance:
+  rules:
+    - if: '$DAST_TEST == "true"'
+      when: never
   extends:
     - .default-retry
     - .review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise
