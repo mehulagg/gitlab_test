@@ -7,6 +7,7 @@ import ReportItemFileLocation from './file_location.vue';
 import ReportItemModuleLocation from './module_location.vue';
 import ReportItemCode from './code.vue';
 import ReportItemLabelValue from './label_value.vue';
+import ReportItemLink from './link.vue';
 
 export default {
   name: 'ReportItemNamedList',
@@ -18,7 +19,8 @@ export default {
     ReportItemHexInt,
     ReportItemPlain,
     ReportItemCode,
-    ReportItemLabelValue
+    ReportItemLabelValue,
+    ReportItemLink
   },
   props: {
     items: {

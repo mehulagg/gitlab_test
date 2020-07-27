@@ -137,6 +137,7 @@
 
   table.report-item-table {
     margin-top: -5px;
+    margin-bottom: 0;
 
     label {
       margin-bottom: 0;
@@ -151,6 +152,10 @@
     td {
       width: 100%;
       padding: 5px 10px !important;
+
+      table.report-item-table {
+        margin-top: 0;
+      }
     }
     td:first-child {
       vertical-align: top;
