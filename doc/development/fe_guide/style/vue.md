@@ -400,6 +400,122 @@ Useful links:
    $('span').tooltip('_fixTitle');
    ```
 
+## Testing Vue components
+
+### Mounting a component
+
+Typically, when testing a Vue component, the component should be "re-mounted" in every test block.
+
+To achieve this, we create a mutable `wrapper` variable inside the top-level `describe` block, mount the component using [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount), and reassign the resulting [`Wrapper`](https://vue-test-utils.vuejs.org/api/wrapper/#wrapper) instance to our `wrapper` variable.
+
+To avoid duplicating our mounting logic, we typically define a `createComponent` factory that we can reuse in each test block.
+This is a closure which should reassign our `wrapper` variable to the result of [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount).
+
+```javascript
+import MyComponent from '~/path/to/my_component.vue';
+import { shallowMount } from '@vue/test-utils';
+
+describe('MyComponent', () => {
+  // Initiate the "global" wrapper variable. This will be used throughout our test
+  let wrapper;
+
+  // define our `createComponent` factory
+  function createComponent() {
+    // mount component and reassign `wrapper`
+    wrapper = shallowMount(MyComponent)
+  }
+
+  it('mounts', () => {
+    createComponent();
+
+    expect(wrapper.exists()).toBe(true);
+  })
+
+  it('should do something amazing', () => {
+    createComponent();
+
+    // expect(...).toBe(...);
+  })
+})
+```
+
+#### The `createComponent` factory
+
+1. Prefer `shallowMount` over `mount`. Use `mount` only when necessary (e.g. to test how child components render/interact with parent component)
+1. When defining arguments, prefer a single object argument over multiple arguments.
+
+    ```javascript
+    // bad
+    function createComponent(data, props, methods, isLoading ) { }
+
+    // good
+    function createComponent({ data, props, methods, stubs, isLoading } = {}) { }
+    ```
+
+### Setting component state
+
+Where possible, avoid using [`setData`](https://vue-test-utils.vuejs.org/api/wrapper/#setdata) and [`setProps`](https://vue-test-utils.vuejs.org/api/wrapper/#setprops) to set component state. Instead, set the components [`data`](https://vue-test-utils.vuejs.org/api/options.html#data) and [`propsData`](https://vue-test-utils.vuejs.org/api/options.html#propsdata) when mounting the component.
+
+```javascript
+// bad
+wrapper = shallowMount(MyComponent)
+wrapper.setData({
+  myData: 123
+});
+wrapper.setProps({
+  myProp: 'my cool prop'
+})
+
+// good
+wrapper = shallowMount({ data: { myData: 123 }, propsData: { myProp: 'my cool prop' } })
+```
+
+The exception here is when you wish to test component reactivity in some way. For example, you may want to test the output of a component when after a particular watcher has executed.
+
+### Accessing props
+
+1. Access props using the `wrapper.props('myProp')` as opposed to `wrapper.props().myProp`:
+
+    ```javascript
+    // bad
+    expect(wrapper.props().myProp).toBe(true)
+
+    // good
+    expect(wrapper.props('myProp)').toBe(true)
+    ```
+
+1. When asserting multiple props, check the deep equality of the `props()` object with [`toEqual`](https://jestjs.io/docs/en/expect#toequalvalue):
+
+    ```javascript
+    // bad
+    expect(wrapper.props('propA')).toBe('valueA');
+    expect(wrapper.props('propB')).toBe('valueB');
+    expect(wrapper.props('propC')).toBe('valueC');
+
+    // good
+    expect(wrapper.props()).toEqual({
+      propA: 'valueA',
+      propB: 'valueB',
+      propC: 'valueC',
+    });
+    ```
+
+1. If you are only interested in some of the props, you can use [`toMatchObject`](https://jestjs.io/docs/en/expect#tomatchobjectobject). Prefer `toMatchObject` over [`expect.objectContaining`](https://jestjs.io/docs/en/expect#expectobjectcontainingobject):
+
+    ```javascript
+    // bad
+    expect(wrapper.props()).toEqual(expect.objectContaining({
+      propA: 'valueA',
+      propB: 'valueB',
+    }));
+
+    // good
+    expect(wrapper.props()).toMatchObject({
+      propA: 'valueA',
+      propB: 'valueB',
+    });
+    ```
+
 ## The JavaScript/Vue Accord
 
 The goal of this accord is to make sure we are all on the same page.
