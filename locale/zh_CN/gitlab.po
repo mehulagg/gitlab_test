@@ -20297,7 +20297,7 @@ msgstr "选择时间范围"
 msgid "Select user"
 msgstr "选择用户"
 
-msgid "Selected levels cannot be used by non-admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users."
+msgid "Restricted levels can only be used by admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users."
 msgstr "非管理员用户无法为群组、项目或代码片段使用所选级别。如果公共级别受到限制，则用户配置文件仅对登录用户可见。"
 
 msgid "Selecting a GitLab user will add a link to the GitLab user in the descriptions of issues and comments (e.g. \"By <a href=\"#\">@johnsmith</a>\"). It will also associate and/or assign these issues and comments with the selected user."

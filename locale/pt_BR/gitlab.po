@@ -20418,7 +20418,7 @@ msgstr "Selecionar período"
 msgid "Select user"
 msgstr "Selecionar usuário"
 
-msgid "Selected levels cannot be used by non-admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users."
+msgid "Restricted levels can only be used by admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users."
 msgstr "Os níveis selecionados não podem ser usados por usuários não administradores para grupos, projetos ou snippets. Se o nível público for restrito, os perfis de usuário só serão visíveis para usuários conectados."
 
 msgid "Selecting a GitLab user will add a link to the GitLab user in the descriptions of issues and comments (e.g. \"By <a href=\"#\">@johnsmith</a>\"). It will also associate and/or assign these issues and comments with the selected user."

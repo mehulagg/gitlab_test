@@ -27,7 +27,7 @@
         .form-check
           = level
       %span.form-text.text-muted#restricted-visibility-help
-        = _('Selected levels cannot be used by non-admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users.')
+        = _('Restricted levels can only be used by admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users.')
     .form-group
       = f.label :import_sources, class: 'label-bold'
       = hidden_field_tag 'application_setting[import_sources][]'

@@ -119,7 +119,7 @@ module API
       given require_two_factor_authentication: ->(val) { val } do
         requires :two_factor_grace_period, type: Integer, desc: 'Amount of time (in hours) that users are allowed to skip forced configuration of two-factor authentication'
       end
-      optional :restricted_visibility_levels, type: Array[String], coerce_with: Validations::Types::CommaSeparatedToArray.coerce, desc: 'Selected levels cannot be used by non-admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users.'
+      optional :restricted_visibility_levels, type: Array[String], coerce_with: Validations::Types::CommaSeparatedToArray.coerce, desc: 'Restricted levels can only be used by admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users.'
       optional :send_user_confirmation_email, type: Boolean, desc: 'Send confirmation email on sign-up'
       optional :session_expire_delay, type: Integer, desc: 'Session duration in minutes. GitLab restart is required to apply changes.'
       optional :shared_runners_enabled, type: Boolean, desc: 'Enable shared runners for new projects'
