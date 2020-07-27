@@ -310,9 +310,8 @@ module Clusters
 
     def predefined_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
-        break variables unless kube_ingress_domain
-
-        variables.append(key: KUBE_INGRESS_BASE_DOMAIN, value: kube_ingress_domain)
+        variables.append(key: 'CI_CLUSTER_PROVIDER', value: provider_type)
+        variables.append(key: KUBE_INGRESS_BASE_DOMAIN, value: kube_ingress_domain) if kube_ingress_domain
       end
     end
 

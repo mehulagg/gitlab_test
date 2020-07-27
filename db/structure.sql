@@ -11167,7 +11167,9 @@ CREATE TABLE public.deployments (
     on_stop character varying,
     status smallint NOT NULL,
     finished_at timestamp with time zone,
-    cluster_id integer
+    cluster_id integer,
+    provider_type smallint,
+    platform_type smallint
 );
 
 CREATE SEQUENCE public.deployments_id_seq
@@ -19375,6 +19377,8 @@ CREATE INDEX index_deployments_on_id_and_status_and_created_at ON public.deploym
 
 CREATE INDEX index_deployments_on_id_where_cluster_id_present ON public.deployments USING btree (id) WHERE (cluster_id IS NOT NULL);
 
+CREATE INDEX index_deployments_on_platform_type ON public.deployments USING btree (platform_type);
+
 CREATE INDEX index_deployments_on_project_id_and_id ON public.deployments USING btree (project_id, id DESC);
 
 CREATE UNIQUE INDEX index_deployments_on_project_id_and_iid ON public.deployments USING btree (project_id, iid);
@@ -19386,6 +19390,8 @@ CREATE INDEX index_deployments_on_project_id_and_status ON public.deployments US
 CREATE INDEX index_deployments_on_project_id_and_status_and_created_at ON public.deployments USING btree (project_id, status, created_at);
 
 CREATE INDEX index_deployments_on_project_id_and_updated_at_and_id ON public.deployments USING btree (project_id, updated_at DESC, id DESC);
+
+CREATE INDEX index_deployments_on_provider_type ON public.deployments USING btree (provider_type);
 
 CREATE INDEX index_deployments_on_user_id_and_status_and_created_at ON public.deployments USING btree (user_id, status, created_at);
 

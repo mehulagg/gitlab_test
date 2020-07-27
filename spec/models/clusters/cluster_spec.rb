@@ -979,8 +979,8 @@ RSpec.describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     context 'with no domain' do
       let(:cluster) { build(:cluster, :provided_by_gcp, :project) }
 
-      it 'returns an empty array' do
-        expect(subject.to_hash).to be_empty
+      it 'includes predefined variables' do
+        expect(subject.to_hash).to eq({ "CI_CLUSTER_PROVIDER" => "gcp" })
       end
     end
   end

@@ -30,6 +30,8 @@ module Gitlab
                 cluster_id: cluster.id,
                 kubernetes_namespace: cluster.kubernetes_namespace_for(deployment.environment, deployable: job)
               )
+              deployment.provider_type = cluster.provider_type
+              deployment.platform_type = cluster.platform_type
             end
 
             # Allocate IID for deployments.
@@ -50,6 +52,11 @@ module Gitlab
               tag: job.tag,
               sha: job.sha,
               on_stop: job.on_stop
+              # FIXME: This doesn't actually work because we get:
+              #        "environment" => { "provider" => "$CI_CLUSTER_PROVIDER", [...] }
+              #        And of course "$CI_CLUSTER_PROVIDER" is NOT a valid value.
+              # provider_type: job&.options&.dig(:environment, :provider),
+              # platform_type: job&.options&.dig(:environment, :platform),
             }
           end
         end

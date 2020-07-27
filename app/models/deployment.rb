@@ -96,6 +96,18 @@ class Deployment < ApplicationRecord
     canceled: 4
   }
 
+  enum provider_type: {
+      user: 0,
+      gcp: 1,
+      aws: 2
+  }
+
+  enum platform_type: {
+    ecs: 0,
+    kubernetes: 1,
+    fargate: 2
+  }
+
   def self.last_for_environment(environment)
     ids = self
       .for_environment(environment)

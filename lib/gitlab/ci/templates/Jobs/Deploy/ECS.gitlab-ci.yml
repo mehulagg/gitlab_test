@@ -18,12 +18,16 @@
   extends: .deploy_to_ecs
   environment:
     name: review/$CI_COMMIT_REF_NAME
+    provider: aws
+    platform: ecs
 
 .production_ecs_base:
   stage: production
   extends: .deploy_to_ecs
   environment:
     name: production
+    provider: aws
+    platform: ecs
 
 review_ecs:
   extends: .review_ecs_base
@@ -40,6 +44,8 @@ review_ecs:
 
 review_fargate:
   extends: .review_ecs_base
+  environment:
+    platform: fargate
   rules:
     - if: '$AUTO_DEVOPS_PLATFORM_TARGET != "FARGATE"'
       when: never
@@ -64,6 +70,8 @@ production_ecs:
 
 production_fargate:
   extends: .production_ecs_base
+  environment:
+    platform: fargate
   rules:
     - if: '$AUTO_DEVOPS_PLATFORM_TARGET != "FARGATE"'
       when: never
