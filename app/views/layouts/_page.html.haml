@@ -7,6 +7,7 @@
       = render 'shared/outdated_browser'
       = render_if_exists 'layouts/header/users_over_license_banner'
       = render_if_exists "layouts/header/licensed_user_count_threshold"
+      = render_if_exists "layouts/header/token_expiry_notification"
       = render "layouts/broadcast"
       = render "layouts/header/read_only_banner"
       = render "layouts/nav/classification_level_banner"
@@ -14,6 +15,7 @@
       = render "shared/ping_consent"
       = render_account_recovery_regular_check
       = render_if_exists "layouts/header/ee_subscribable_banner"
+      = render_if_exists "shared/namespace_storage_limit_alert"
       - unless @hide_breadcrumbs
         = render "layouts/nav/breadcrumbs"
       .d-flex

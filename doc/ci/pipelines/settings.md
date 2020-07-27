@@ -36,7 +36,7 @@ in `.gitlab-ci.yml`.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/28919) in GitLab 12.0.
 
-NOTE: **Note**:
+NOTE: **Note:**
 As of GitLab 12.0, newly created projects will automatically have a default
 `git depth` value of `50`.
 
@@ -309,6 +309,8 @@ https://example.gitlab.com/<namespace>/<project>/badges/<branch>/coverage.svg?st
 ![Badge flat square style](https://gitlab.com/gitlab-org/gitlab/badges/master/coverage.svg?job=coverage&style=flat-square)
 
 ### Custom badge text
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/17555) in GitLab 13.1.
 
 The text for a badge can be customized. This can be useful to differentiate between multiple coverage jobs that run in the same pipeline. Customize the badge text and width by adding the `key_text=custom_text` and `key_width=custom_key_width` parameters to the URL:
 

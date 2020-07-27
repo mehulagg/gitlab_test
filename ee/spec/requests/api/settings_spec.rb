@@ -186,7 +186,23 @@ RSpec.describe API::Settings, 'EE Settings' do
 
   context 'updating npm packages request forwarding' do
     let(:settings) { { npm_package_requests_forwarding: true } }
-    let(:feature) { :packages }
+    let(:feature) { :package_forwarding }
+
+    it_behaves_like 'settings for licensed features'
+  end
+
+  context 'maintenance mode' do
+    before do
+      stub_feature_flags(maintenance_mode: true)
+    end
+
+    let(:settings) do
+      {
+        maintenance_mode: true,
+        maintenance_mode_message: 'GitLab is in maintenance'
+      }
+    end
+    let(:feature) { :geo }
 
     it_behaves_like 'settings for licensed features'
   end

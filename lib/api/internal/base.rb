@@ -67,7 +67,7 @@ module API
                                    "uploadpack.allowAnySHA1InWant=true"],
               gitaly: gitaly_payload(params[:action]),
               gl_console_messages: check_result.console_messages
-            }
+            }.merge!(actor.key_details)
 
             # Custom option for git-receive-pack command
 
@@ -92,7 +92,7 @@ module API
 
             # If we have created a project directly from a git push
             # we have to assign its value to both @project and @container
-            @project = @container = access_checker.project
+            @project = @container = access_checker.container
           end
         end
       end

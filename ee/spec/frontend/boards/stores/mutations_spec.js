@@ -1,6 +1,6 @@
 import mutations from 'ee/boards/stores/mutations';
-import { inactiveListId } from '~/boards/constants';
-import { mockSwimlanes, mockEpics } from '../mock_data';
+import { inactiveId } from '~/boards/constants';
+import { mockLists, mockEpics } from '../mock_data';
 
 const expectNotImplemented = action => {
   it('is not implemented', () => {
@@ -8,25 +8,15 @@ const expectNotImplemented = action => {
   });
 };
 
-describe('TOGGLE_LABELS', () => {
-  it('toggles isShowingLabels from true to false', () => {
+describe('SET_SHOW_LABELS', () => {
+  it('updates isShowingLabels', () => {
     const state = {
       isShowingLabels: true,
     };
 
-    mutations.TOGGLE_LABELS(state);
+    mutations.SET_SHOW_LABELS(state, false);
 
     expect(state.isShowingLabels).toBe(false);
-  });
-
-  it('toggles isShowingLabels from false to true', () => {
-    const state = {
-      isShowingLabels: false,
-    };
-
-    mutations.TOGGLE_LABELS(state);
-
-    expect(state.isShowingLabels).toBe(true);
   });
 });
 
@@ -34,12 +24,12 @@ describe('SET_ACTIVE_LIST_ID', () => {
   it('updates aciveListId to be the value that is passed', () => {
     const expectedId = 1;
     const state = {
-      activeListId: inactiveListId,
+      activeId: inactiveId,
     };
 
     mutations.SET_ACTIVE_LIST_ID(state, expectedId);
 
-    expect(state.activeListId).toBe(expectedId);
+    expect(state.activeId).toBe(expectedId);
   });
 });
 
@@ -134,10 +124,10 @@ describe('RECEIVE_SWIMLANES_SUCCESS', () => {
       epicsSwimlanes: {},
     };
 
-    mutations.RECEIVE_SWIMLANES_SUCCESS(state, mockSwimlanes);
+    mutations.RECEIVE_SWIMLANES_SUCCESS(state, mockLists);
 
     expect(state.epicsSwimlanesFetchInProgress).toBe(false);
-    expect(state.epicsSwimlanes).toEqual(mockSwimlanes);
+    expect(state.epicsSwimlanes).toEqual(mockLists);
   });
 });
 

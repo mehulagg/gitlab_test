@@ -14,7 +14,8 @@ module Gitlab
           include ::Gitlab::Config::Entry::Attributable
           include ::Gitlab::Config::Entry::Inheritable
 
-          PROCESSABLE_ALLOWED_KEYS = %i[extends stage only except rules variables inherit].freeze
+          PROCESSABLE_ALLOWED_KEYS = %i[extends stage only except rules variables
+                                        inherit allow_failure when needs].freeze
 
           included do
             validations do
@@ -80,6 +81,10 @@ module Gitlab
                 # defaults are not considered as defined
                 @entries.delete(:only) unless only_defined? # rubocop:disable Gitlab/ModuleWithInstanceVariables
                 @entries.delete(:except) unless except_defined? # rubocop:disable Gitlab/ModuleWithInstanceVariables
+              end
+
+              if has_rules? && !has_workflow_rules && Gitlab::Ci::Features.raise_job_rules_without_workflow_rules_warning?
+                add_warning('uses `rules` without defining `workflow:rules`')
               end
 
               # inherit root variables

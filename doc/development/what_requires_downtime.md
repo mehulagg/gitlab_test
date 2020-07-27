@@ -103,7 +103,8 @@ end
 This will take care of renaming the column, ensuring data stays in sync, copying
 over indexes and foreign keys, etc.
 
-**NOTE:** if a column contains 1 or more indexes that do not contain the name of
+NOTE: **Note:**
+If a column contains 1 or more indexes that do not contain the name of
 the original column, the above procedure will fail. In this case you will first
 need to rename these indexes.
 
@@ -130,7 +131,8 @@ class CleanupUsersUpdatedAtRename < ActiveRecord::Migration[4.2]
 end
 ```
 
-NOTE: **Note:** If you're renaming a [large table](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/rubocop-migrations.yml#L3), please carefully consider the state when the first migration has run but the second cleanup migration hasn't been run yet.
+NOTE: **Note:**
+If you're renaming a [large table](https://gitlab.com/gitlab-org/gitlab/-/blob/master/rubocop/rubocop-migrations.yml#L3), please carefully consider the state when the first migration has run but the second cleanup migration hasn't been run yet.
 With [Canary](https://about.gitlab.com/handbook/engineering/infrastructure/library/canary/) it is possible that the system runs in this state for a significant amount of time.
 
 ## Changing Column Constraints
@@ -201,6 +203,21 @@ end
 ```
 
 And that's it, we're done!
+
+### Casting data to a new type
+
+Some type changes require casting data to a new type. For example when changing from `text` to `jsonb`.
+In this case, use the `type_cast_function` option.
+Make sure there is no bad data and the cast will always succeed. You can also provide a custom function that handles
+casting errors.
+
+Example migration:
+
+```ruby
+  def up
+    change_column_type_concurrently :users, :settings, :jsonb, type_cast_function: 'jsonb'
+  end
+```
 
 ## Changing The Schema For Large Tables
 

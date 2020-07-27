@@ -8,6 +8,7 @@ import createFlash from '~/flash';
 import { defaultTimeRange } from '~/vue_shared/constants';
 import * as getters from '~/monitoring/stores/getters';
 import { ENVIRONMENT_AVAILABLE_STATE } from '~/monitoring/constants';
+import { backoffMockImplementation } from 'jest/helpers/backoff_helper';
 
 import { createStore } from '~/monitoring/stores';
 import * as types from '~/monitoring/stores/mutation_types';
@@ -44,7 +45,6 @@ import {
   deploymentData,
   environmentData,
   annotationsData,
-  mockTemplatingData,
   dashboardGitResponse,
   mockDashboardsErrorResponse,
 } from '../mock_data';
@@ -74,19 +74,7 @@ describe('Monitoring store actions', () => {
     commit = jest.fn();
     dispatch = jest.fn();
 
-    jest.spyOn(commonUtils, 'backOff').mockImplementation(callback => {
-      const q = new Promise((resolve, reject) => {
-        const stop = arg => (arg instanceof Error ? reject(arg) : resolve(arg));
-        const next = () => callback(next, stop);
-        // Define a timeout based on a mock timer
-        setTimeout(() => {
-          callback(next, stop);
-        });
-      });
-      // Run all resolved promises in chain
-      jest.runOnlyPendingTimers();
-      return q;
-    });
+    jest.spyOn(commonUtils, 'backOff').mockImplementation(backoffMockImplementation);
   });
 
   afterEach(() => {
@@ -305,32 +293,6 @@ describe('Monitoring store actions', () => {
       expect(dispatch).toHaveBeenCalledWith('fetchDashboardData');
     });
 
-    it('stores templating variables', () => {
-      const response = {
-        ...metricsDashboardResponse.dashboard,
-        ...mockTemplatingData.allVariableTypes.dashboard,
-      };
-
-      receiveMetricsDashboardSuccess(
-        { state, commit, dispatch },
-        {
-          response: {
-            ...metricsDashboardResponse,
-            dashboard: {
-              ...metricsDashboardResponse.dashboard,
-              ...mockTemplatingData.allVariableTypes.dashboard,
-            },
-          },
-        },
-      );
-
-      expect(commit).toHaveBeenCalledWith(
-        types.RECEIVE_METRICS_DASHBOARD_SUCCESS,
-
-        response,
-      );
-    });
-
     it('sets the dashboards loaded from the repository', () => {
       const params = {};
       const response = metricsDashboardResponse;
@@ -510,7 +472,6 @@ describe('Monitoring store actions', () => {
         ],
         [],
         () => {
-          expect(mock.history.get).toHaveLength(1);
           done();
         },
       ).catch(done.fail);
@@ -596,46 +557,8 @@ describe('Monitoring store actions', () => {
       });
     });
 
-    it('commits result, when waiting for results', done => {
-      // Mock multiple attempts while the cache is filling up
-      mock.onGet(prometheusEndpointPath).replyOnce(statusCodes.NO_CONTENT);
-      mock.onGet(prometheusEndpointPath).replyOnce(statusCodes.NO_CONTENT);
-      mock.onGet(prometheusEndpointPath).replyOnce(statusCodes.NO_CONTENT);
-      mock.onGet(prometheusEndpointPath).reply(200, { data }); // 4th attempt
-
-      testAction(
-        fetchPrometheusMetric,
-        { metric, defaultQueryParams },
-        state,
-        [
-          {
-            type: types.REQUEST_METRIC_RESULT,
-            payload: {
-              metricId: metric.metricId,
-            },
-          },
-          {
-            type: types.RECEIVE_METRIC_RESULT_SUCCESS,
-            payload: {
-              metricId: metric.metricId,
-              data,
-            },
-          },
-        ],
-        [],
-        () => {
-          expect(mock.history.get).toHaveLength(4);
-          done();
-        },
-      ).catch(done.fail);
-    });
-
     it('commits failure, when waiting for results and getting a server error', done => {
-      // Mock multiple attempts while the cache is filling up and fails
-      mock.onGet(prometheusEndpointPath).replyOnce(statusCodes.NO_CONTENT);
-      mock.onGet(prometheusEndpointPath).replyOnce(statusCodes.NO_CONTENT);
-      mock.onGet(prometheusEndpointPath).replyOnce(statusCodes.NO_CONTENT);
-      mock.onGet(prometheusEndpointPath).reply(500); // 4th attempt
+      mock.onGet(prometheusEndpointPath).reply(500);
 
       const error = new Error('Request failed with status code 500');
 
@@ -660,7 +583,6 @@ describe('Monitoring store actions', () => {
         ],
         [],
       ).catch(e => {
-        expect(mock.history.get).toHaveLength(4);
         expect(e).toEqual(error);
         done();
       });
@@ -899,6 +821,11 @@ describe('Monitoring store actions', () => {
       state.projectPath = 'gitlab-org/gitlab-test';
       state.currentEnvironmentName = 'production';
       state.currentDashboard = '.gitlab/dashboards/dashboard_with_warnings.yml';
+      // testAction doesn't have access to getters. The state is passed in as getters
+      // instead of the actual getters inside the testAction method implementation.
+      // All methods downstream that needs access to getters will throw and error.
+      // For that reason, the result of the getter is set as a state variable.
+      state.fullDashboardPath = store.getters['monitoringDashboard/fullDashboardPath'];
 
       mockMutate = jest.spyOn(gqClient, 'mutate');
       mutationVariables = {
@@ -906,7 +833,7 @@ describe('Monitoring store actions', () => {
         variables: {
           projectPath: state.projectPath,
           environmentName: state.currentEnvironmentName,
-          dashboardPath: state.currentDashboard,
+          dashboardPath: state.fullDashboardPath,
         },
       };
     });
@@ -960,6 +887,25 @@ describe('Monitoring store actions', () => {
               ],
             },
           },
+        },
+      });
+
+      return testAction(
+        fetchDashboardValidationWarnings,
+        null,
+        state,
+        [],
+        [{ type: 'receiveDashboardValidationWarningsSuccess', payload: false }],
+        () => {
+          expect(mockMutate).toHaveBeenCalledWith(mutationVariables);
+        },
+      );
+    });
+
+    it('dispatches receiveDashboardValidationWarningsSuccess with false payload when the response is empty ', () => {
+      mockMutate.mockResolvedValue({
+        data: {
+          project: null,
         },
       });
 
@@ -1144,11 +1090,13 @@ describe('Monitoring store actions', () => {
   describe('fetchVariableMetricLabelValues', () => {
     const variable = {
       type: 'metric_label_values',
+      name: 'label1',
       options: {
-        prometheusEndpointPath: '/series',
+        prometheusEndpointPath: '/series?match[]=metric_name',
         label: 'job',
       },
     };
+
     const defaultQueryParams = {
       start_time: '2019-08-06T12:40:02.184Z',
       end_time: '2019-08-06T20:40:02.184Z',
@@ -1158,9 +1106,7 @@ describe('Monitoring store actions', () => {
       state = {
         ...state,
         timeRange: defaultTimeRange,
-        variables: {
-          label1: variable,
-        },
+        variables: [variable],
       };
     });
 
@@ -1176,7 +1122,7 @@ describe('Monitoring store actions', () => {
         },
       ];
 
-      mock.onGet('/series').reply(200, {
+      mock.onGet('/series?match[]=metric_name').reply(200, {
         status: 'success',
         data,
       });
@@ -1196,7 +1142,7 @@ describe('Monitoring store actions', () => {
     });
 
     it('should notify the user that dynamic options were not loaded', () => {
-      mock.onGet('/series').reply(500);
+      mock.onGet('/series?match[]=metric_name').reply(500);
 
       return testAction(fetchVariableMetricLabelValues, { defaultQueryParams }, state, [], []).then(
         () => {

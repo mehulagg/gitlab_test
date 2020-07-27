@@ -11,6 +11,9 @@ const Api = {
   groupMembersPath: '/api/:version/groups/:id/members',
   subgroupsPath: '/api/:version/groups/:id/subgroups',
   namespacesPath: '/api/:version/namespaces.json',
+  groupPackagesPath: '/api/:version/groups/:id/packages',
+  projectPackagesPath: '/api/:version/projects/:id/packages',
+  projectPackagePath: '/api/:version/projects/:id/packages/:package_id',
   groupProjectsPath: '/api/:version/groups/:id/projects.json',
   projectsPath: '/api/:version/projects.json',
   projectPath: '/api/:version/projects/:id',
@@ -36,7 +39,9 @@ const Api = {
   userStatusPath: '/api/:version/users/:id/status',
   userProjectsPath: '/api/:version/users/:id/projects',
   userPostStatusPath: '/api/:version/user/status',
-  commitPath: '/api/:version/projects/:id/repository/commits',
+  commitPath: '/api/:version/projects/:id/repository/commits/:sha',
+  commitsPath: '/api/:version/projects/:id/repository/commits',
+
   applySuggestionPath: '/api/:version/suggestions/:id/apply',
   applySuggestionBatchPath: '/api/:version/suggestions/batch_apply',
   commitPipelinesPath: '/:project_id/commit/:sha/pipelines',
@@ -50,10 +55,12 @@ const Api = {
   adminStatisticsPath: '/api/:version/application/statistics',
   pipelineSinglePath: '/api/:version/projects/:id/pipelines/:pipeline_id',
   pipelinesPath: '/api/:version/projects/:id/pipelines/',
+  createPipelinePath: '/api/:version/projects/:id/pipeline',
   environmentsPath: '/api/:version/projects/:id/environments',
   rawFilePath: '/api/:version/projects/:id/repository/files/:path/raw',
   issuePath: '/api/:version/projects/:id/issues/:issue_iid',
   tagsPath: '/api/:version/projects/:id/repository/tags',
+  freezePeriodsPath: '/api/:version/projects/:id/freeze_periods',
 
   group(groupId, callback = () => {}) {
     const url = Api.buildUrl(Api.groupPath).replace(':id', groupId);
@@ -62,6 +69,32 @@ const Api = {
 
       return data;
     });
+  },
+
+  groupPackages(id, options = {}) {
+    const url = Api.buildUrl(this.groupPackagesPath).replace(':id', id);
+    return axios.get(url, options);
+  },
+
+  projectPackages(id, options = {}) {
+    const url = Api.buildUrl(this.projectPackagesPath).replace(':id', id);
+    return axios.get(url, options);
+  },
+
+  buildProjectPackageUrl(projectId, packageId) {
+    return Api.buildUrl(this.projectPackagePath)
+      .replace(':id', projectId)
+      .replace(':package_id', packageId);
+  },
+
+  projectPackage(projectId, packageId) {
+    const url = this.buildProjectPackageUrl(projectId, packageId);
+    return axios.get(url);
+  },
+
+  deleteProjectPackage(projectId, packageId) {
+    const url = this.buildProjectPackageUrl(projectId, packageId);
+    return axios.delete(url);
   },
 
   groupMembers(id, options) {
@@ -308,9 +341,17 @@ const Api = {
       .catch(() => flash(__('Something went wrong while fetching projects')));
   },
 
+  commit(id, sha, params = {}) {
+    const url = Api.buildUrl(this.commitPath)
+      .replace(':id', encodeURIComponent(id))
+      .replace(':sha', encodeURIComponent(sha));
+
+    return axios.get(url, { params });
+  },
+
   commitMultiple(id, data) {
     // see https://docs.gitlab.com/ce/api/commits.html#create-a-commit-with-multiple-files-and-actions
-    const url = Api.buildUrl(Api.commitPath).replace(':id', encodeURIComponent(id));
+    const url = Api.buildUrl(Api.commitsPath).replace(':id', encodeURIComponent(id));
     return axios.post(url, JSON.stringify(data), {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -489,6 +530,12 @@ const Api = {
     return axios.get(url);
   },
 
+  createRelease(projectPath, release) {
+    const url = Api.buildUrl(this.releasesPath).replace(':id', encodeURIComponent(projectPath));
+
+    return axios.post(url, release);
+  },
+
   updateRelease(projectPath, tagName, release) {
     const url = Api.buildUrl(this.releasePath)
       .replace(':id', encodeURIComponent(projectPath))
@@ -536,6 +583,16 @@ const Api = {
     });
   },
 
+  createPipeline(id, data) {
+    const url = Api.buildUrl(this.createPipelinePath).replace(':id', encodeURIComponent(id));
+
+    return axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  },
+
   environments(id) {
     const url = Api.buildUrl(this.environmentsPath).replace(':id', encodeURIComponent(id));
     return axios.get(url);
@@ -575,6 +632,18 @@ const Api = {
         ...options,
       },
     });
+  },
+
+  freezePeriods(id) {
+    const url = Api.buildUrl(this.freezePeriodsPath).replace(':id', encodeURIComponent(id));
+
+    return axios.get(url);
+  },
+
+  createFreezePeriod(id, freezePeriod = {}) {
+    const url = Api.buildUrl(this.freezePeriodsPath).replace(':id', encodeURIComponent(id));
+
+    return axios.post(url, freezePeriod);
   },
 
   buildUrl(url) {

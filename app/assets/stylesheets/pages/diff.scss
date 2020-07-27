@@ -935,11 +935,10 @@ table.code {
   }
 }
 
-.files:not([data-can-create-note='true']) .frame {
+.files:not([data-can-create-note]) .frame {
   cursor: auto;
 }
 
-.frame,
 .frame.click-to-comment,
 .btn-transparent.image-diff-overlay-add-comment {
   position: relative;
@@ -993,7 +992,8 @@ table.code {
 }
 
 .frame .badge.badge-pill,
-.frame .image-comment-badge {
+.frame .image-comment-badge,
+.frame .comment-indicator {
   // Center align badges on the frame
   transform: translate(-50%, -50%);
 }

@@ -14,7 +14,6 @@ RSpec.describe Namespace do
 
   it { is_expected.to have_one(:namespace_statistics) }
   it { is_expected.to have_one(:namespace_limit) }
-  it { is_expected.to have_one(:gitlab_subscription).dependent(:destroy) }
   it { is_expected.to have_one(:elasticsearch_indexed_namespace) }
 
   it { is_expected.to delegate_method(:extra_shared_runners_minutes).to(:namespace_statistics) }
@@ -29,6 +28,9 @@ RSpec.describe Namespace do
   it { is_expected.to delegate_method(:additional_purchased_storage_size=).to(:namespace_limit).with_arguments(:args) }
   it { is_expected.to delegate_method(:additional_purchased_storage_ends_on).to(:namespace_limit) }
   it { is_expected.to delegate_method(:additional_purchased_storage_ends_on=).to(:namespace_limit).with_arguments(:args) }
+  it { is_expected.to delegate_method(:temporary_storage_increase_ends_on).to(:namespace_limit) }
+  it { is_expected.to delegate_method(:temporary_storage_increase_ends_on=).to(:namespace_limit).with_arguments(:args) }
+  it { is_expected.to delegate_method(:temporary_storage_increase_enabled?).to(:namespace_limit) }
 
   shared_examples 'plan helper' do |namespace_plan|
     let(:namespace) { create(:namespace_with_plan, plan: "#{plan_name}_plan") }
@@ -271,7 +273,7 @@ RSpec.describe Namespace do
     it 'only checks the plan once' do
       expect(group).to receive(:load_feature_available).once.and_call_original
 
-      2.times { group.feature_available?(:service_desk) }
+      2.times { group.feature_available?(:push_rules) }
     end
 
     context 'when checking namespace plan' do
@@ -429,8 +431,8 @@ RSpec.describe Namespace do
     end
   end
 
-  describe '#shared_runners_enabled?' do
-    subject { namespace.shared_runners_enabled? }
+  describe '#any_project_with_shared_runners_enabled?' do
+    subject { namespace.any_project_with_shared_runners_enabled? }
 
     context 'without projects' do
       it { is_expected.to be_falsey }
@@ -557,8 +559,8 @@ RSpec.describe Namespace do
     end
   end
 
-  describe '#shared_runners_enabled?' do
-    subject { namespace.shared_runners_enabled? }
+  describe '#any_project_with_shared_runners_enabled?' do
+    subject { namespace.any_project_with_shared_runners_enabled? }
 
     context 'subgroup with shared runners enabled project' do
       let(:subgroup) { create(:group, parent: namespace) }
@@ -1307,6 +1309,35 @@ RSpec.describe Namespace do
       end
 
       it { is_expected.to be false }
+    end
+  end
+
+  describe '#over_storage_limit?' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:is_dot_com, :feature_enabled, :above_size_limit, :result) do
+      false | false | false | false
+      false | false | true  | false
+      false | true  | false | false
+      false | true  | true  | false
+      true  | false | false | false
+      true  | false | true  | false
+      true  | true  | false | false
+      true  | true  | true  | true
+    end
+
+    with_them do
+      before do
+        allow(Gitlab).to receive(:dev_env_or_com?).and_return(is_dot_com)
+        stub_feature_flags(namespace_storage_limit: feature_enabled)
+        allow_next_instance_of(EE::Namespace::RootStorageSize, namespace.root_ancestor) do |project|
+          allow(project).to receive(:above_size_limit?).and_return(above_size_limit)
+        end
+      end
+
+      it 'returns a boolean indicating whether the root namespace is over the storage limit' do
+        expect(namespace.over_storage_limit?).to be result
+      end
     end
   end
 

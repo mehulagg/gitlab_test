@@ -32,20 +32,11 @@ module EE
       end
     end
 
-    override :namespace_storage_usage_link
-    def namespace_storage_usage_link(namespace)
-      if namespace.group?
-        group_usage_quotas_path(namespace, anchor: 'storage-quota-tab')
-      else
-        profile_usage_quotas_path(anchor: 'storage-quota-tab')
-      end
-    end
+    def temporary_storage_increase_visible?(namespace)
+      return false unless ::Gitlab.dev_env_or_com?
+      return false unless ::Feature.enabled?(:temporary_storage_increase, namespace)
 
-    def purchase_storage_url
-      return unless ::Gitlab.dev_env_or_com?
-      return unless ::Feature.enabled?(:buy_storage_link)
-
-      EE::SUBSCRIPTIONS_MORE_STORAGE_URL
+      current_user.can?(:admin_namespace, namespace.root_ancestor)
     end
   end
 end

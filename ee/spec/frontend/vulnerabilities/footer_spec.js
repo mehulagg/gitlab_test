@@ -1,16 +1,20 @@
 import { shallowMount } from '@vue/test-utils';
+import Api from 'ee/api';
 import VulnerabilityFooter from 'ee/vulnerabilities/components/footer.vue';
 import HistoryEntry from 'ee/vulnerabilities/components/history_entry.vue';
 import VulnerabilitiesEventBus from 'ee/vulnerabilities/components/vulnerabilities_event_bus';
+import RelatedIssues from 'ee/vulnerabilities/components/related_issues.vue';
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue';
 import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
+import initUserPopovers from '~/user_popovers';
 
 const mockAxios = new MockAdapter(axios);
 jest.mock('~/flash');
+jest.mock('~/user_popovers');
 
 describe('Vulnerability Footer', () => {
   let wrapper;
@@ -30,9 +34,12 @@ describe('Vulnerability Footer', () => {
     finding: {},
     notesUrl: '/notes',
     project: {
-      full_path: '/root/security-reports',
-      full_name: 'Administrator / Security Reports',
+      url: '/root/security-reports',
+      value: 'Administrator / Security Reports',
     },
+    vulnerabilityId: 1,
+    canModifyRelatedIssues: true,
+    relatedIssuesHelpPath: 'help/path',
   };
 
   const solutionInfoProp = {
@@ -130,6 +137,18 @@ describe('Vulnerability Footer', () => {
       });
     });
 
+    it('calls initUserPopovers when a new history item is retrieved', () => {
+      const historyItems = [{ id: 1, note: 'some note' }];
+      mockAxios.onGet(discussionUrl).replyOnce(200, historyItems, { date: Date.now() });
+
+      expect(initUserPopovers).not.toHaveBeenCalled();
+      createWrapper();
+
+      return axios.waitForAll().then(() => {
+        expect(initUserPopovers).toHaveBeenCalled();
+      });
+    });
+
     it('shows an error the history list could not be retrieved', () => {
       mockAxios.onGet(discussionUrl).replyOnce(500);
       createWrapper();
@@ -194,6 +213,16 @@ describe('Vulnerability Footer', () => {
         });
       });
 
+      it('calls initUserPopovers when a new note is retrieved', () => {
+        expect(initUserPopovers).not.toHaveBeenCalled();
+        const note = { id: 300, note: 'new note on a new discussion', discussion_id: 3 };
+        createNotesRequest(note);
+
+        return axios.waitForAll().then(() => {
+          expect(initUserPopovers).toHaveBeenCalled();
+        });
+      });
+
       it('shows an error if the notes poll fails', () => {
         mockAxios.onGet(minimumProps.notesUrl).replyOnce(500);
 
@@ -212,6 +241,26 @@ describe('Vulnerability Footer', () => {
 
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith('VULNERABILITY_STATE_CHANGED');
+      });
+    });
+  });
+
+  describe('related issues', () => {
+    const relatedIssues = () => wrapper.find(RelatedIssues);
+
+    it('has the correct props', () => {
+      const endpoint = Api.buildUrl(Api.vulnerabilityIssueLinksPath).replace(
+        ':id',
+        minimumProps.vulnerabilityId,
+      );
+      createWrapper();
+
+      expect(relatedIssues().exists()).toBe(true);
+      expect(relatedIssues().props()).toMatchObject({
+        endpoint,
+        canModifyRelatedIssues: minimumProps.canModifyRelatedIssues,
+        projectPath: minimumProps.project.url,
+        helpPath: minimumProps.relatedIssuesHelpPath,
       });
     });
   });

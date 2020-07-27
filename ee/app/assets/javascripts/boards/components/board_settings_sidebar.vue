@@ -2,7 +2,7 @@
 import {
   GlDrawer,
   GlLabel,
-  GlDeprecatedButton,
+  GlButton,
   GlFormInput,
   GlAvatarLink,
   GlAvatarLabeled,
@@ -15,7 +15,7 @@ import boardsStoreEE from '../stores/boards_store_ee';
 import eventHub from '~/sidebar/event_hub';
 import flash from '~/flash';
 import { isScopedLabel } from '~/lib/utils/common_utils';
-import { inactiveListId } from '~/boards/constants';
+import { inactiveId } from '~/boards/constants';
 
 // NOTE: need to revisit how we handle headerHeight, because we have so many different header and footer options.
 export default {
@@ -35,7 +35,7 @@ export default {
   components: {
     GlDrawer,
     GlLabel,
-    GlDeprecatedButton,
+    GlButton,
     GlFormInput,
     GlAvatarLink,
     GlAvatarLabeled,
@@ -52,16 +52,16 @@ export default {
     };
   },
   computed: {
-    ...mapState(['activeListId']),
+    ...mapState(['activeId']),
     activeList() {
       /*
         Warning: Though a computed property it is not reactive because we are
         referencing a List Model class. Reactivity only applies to plain JS objects
       */
-      return boardsStoreEE.store.state.lists.find(({ id }) => id === this.activeListId);
+      return boardsStoreEE.store.state.lists.find(({ id }) => id === this.activeId);
     },
     isSidebarOpen() {
-      return this.activeListId !== inactiveListId;
+      return this.activeId !== inactiveId;
     },
     activeListLabel() {
       return this.activeList.label;
@@ -108,10 +108,10 @@ export default {
     eventHub.$off('sidebar.closeAll', this.closeSidebar);
   },
   methods: {
-    ...mapActions(['setActiveListId', 'updateListWipLimit']),
+    ...mapActions(['setActiveId', 'updateListWipLimit']),
     closeSidebar() {
       this.edit = false;
-      this.setActiveListId(inactiveListId);
+      this.setActiveId(inactiveId);
     },
     showInput() {
       this.edit = true;
@@ -128,7 +128,7 @@ export default {
         this.updating = true;
         // need to reassign bc were clearing the ref in resetStateAfterUpdate.
         const wipLimit = this.currentWipLimit;
-        const id = this.activeListId;
+        const id = this.activeId;
 
         this.updateListWipLimit({ maxIssueCount: this.currentWipLimit, id })
           .then(() => {
@@ -137,7 +137,7 @@ export default {
           })
           .catch(() => {
             this.resetStateAfterUpdate();
-            this.setActiveListId(inactiveListId);
+            this.setActiveId(inactiveId);
             flash(__('Something went wrong while updating your list settings'));
           });
       } else {
@@ -145,14 +145,14 @@ export default {
       }
     },
     clearWipLimit() {
-      this.updateListWipLimit({ maxIssueCount: 0, id: this.activeListId })
+      this.updateListWipLimit({ maxIssueCount: 0, id: this.activeId })
         .then(() => {
-          boardsStoreEE.setMaxIssueCountOnList(this.activeListId, 0);
+          boardsStoreEE.setMaxIssueCountOnList(this.activeId, 0);
           this.resetStateAfterUpdate();
         })
         .catch(() => {
           this.resetStateAfterUpdate();
-          this.setActiveListId(inactiveListId);
+          this.setActiveId(inactiveId);
           flash(__('Something went wrong while updating your list settings'));
         });
     },
@@ -202,19 +202,19 @@ export default {
           </gl-avatar-link>
         </template>
         <template v-else-if="boardListType === $options.milestone">
-          <gl-link class="js-milestone" :href="activeListMilestone.webUrl">{{
-            activeListMilestone.title
-          }}</gl-link>
+          <gl-link class="js-milestone" :href="activeListMilestone.webUrl">
+            {{ activeListMilestone.title }}
+          </gl-link>
         </template>
       </div>
       <div class="d-flex justify-content-between flex-column">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <label class="m-0">{{ $options.wipLimitText }}</label>
-          <gl-deprecated-button
-            class="js-edit-button h-100 border-0 gl-line-height-14-deprecated-no-really-do-not-use-me text-dark"
+          <gl-button
+            class="js-edit-button h-100 border-0 text-dark"
             variant="link"
             @click="showInput"
-            >{{ $options.editLinkText }}</gl-deprecated-button
+            >{{ $options.editLinkText }}</gl-button
           >
         </div>
         <gl-form-input
@@ -235,11 +235,11 @@ export default {
           <p class="js-wip-limit bold m-0 text-secondary">{{ activeListWipLimit }}</p>
           <template v-if="wipLimitIsSet">
             <span class="m-1">-</span>
-            <gl-deprecated-button
-              class="js-remove-limit h-100 border-0 gl-line-height-14-deprecated-no-really-do-not-use-me text-secondary"
+            <gl-button
+              class="js-remove-limit h-100 border-0 text-secondary"
               variant="link"
               @click="clearWipLimit"
-              >{{ $options.removeLimitText }}</gl-deprecated-button
+              >{{ $options.removeLimitText }}</gl-button
             >
           </template>
         </div>

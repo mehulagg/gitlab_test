@@ -1,4 +1,4 @@
-import { s__ } from '~/locale';
+import { s__, __ } from '~/locale';
 
 //  Translations strings
 export const DETAILS_PAGE_TITLE = s__('ContainerRegistry|%{imageName} tags');
@@ -16,8 +16,15 @@ export const DELETE_TAGS_SUCCESS_MESSAGE = s__(
 );
 
 export const TAGS_LIST_TITLE = s__('ContainerRegistry|Image tags');
-export const SHORT_REVISION_LABEL = s__('ContainerRegistry|Image ID: %{imageId}');
+export const DIGEST_LABEL = s__('ContainerRegistry|Digest: %{imageId}');
 export const CREATED_AT_LABEL = s__('ContainerRegistry|Published %{timeInfo}');
+export const PUBLISHED_DETAILS_ROW_TEXT = s__(
+  'ContainerRegistry|Published to the %{repositoryPath} image repository at %{time} on %{date}',
+);
+export const MANIFEST_DETAILS_ROW_TEST = s__('ContainerRegistry|Manifest digest: %{digest}');
+export const CONFIGURATION_DETAILS_ROW_TEST = s__(
+  'ContainerRegistry|Configuration digest: %{digest}',
+);
 
 export const REMOVE_TAG_BUTTON_TITLE = s__('ContainerRegistry|Remove tag');
 export const REMOVE_TAGS_BUTTON_TITLE = s__('ContainerRegistry|Delete selected');
@@ -38,9 +45,15 @@ export const ADMIN_GARBAGE_COLLECTION_TIP = s__(
 );
 
 export const REMOVE_TAG_BUTTON_DISABLE_TOOLTIP = s__(
-  'ContainerRegistry|Missing or insufficient permission, delete button disabled',
+  'ContainerRegistry|Deletion disabled due to missing or insufficient permissions.',
 );
 
+export const MISSING_MANIFEST_WARNING_TOOLTIP = s__(
+  'ContainerRegistry|Invalid tag: missing manifest digest',
+);
+
+export const NOT_AVAILABLE_TEXT = __('N/A');
+export const NOT_AVAILABLE_SIZE = __('0 bytes');
 // Parameters
 
 export const DEFAULT_PAGE = 1;

@@ -26,6 +26,11 @@ module AlertManagement
       ignored: :ignore
     }.freeze
 
+    OPEN_STATUSES = [
+      :triggered,
+      :acknowledged
+    ].freeze
+
     DETAILS_IGNORED_PARAMS = %w(start_time).freeze
 
     belongs_to :project
@@ -55,8 +60,12 @@ module AlertManagement
     validates :severity,        presence: true
     validates :status,          presence: true
     validates :started_at,      presence: true
-    validates :fingerprint,     uniqueness: { scope: :project }, allow_blank: true
-    validate  :hosts_length
+    validates :fingerprint,     allow_blank: true, uniqueness: {
+      scope: :project,
+      conditions: -> { not_resolved },
+      message: -> (object, data) { _('Cannot have multiple unresolved alerts') }
+    }, unless: :resolved?
+    validate :hosts_length
 
     enum severity: {
       critical: 0,
@@ -115,17 +124,28 @@ module AlertManagement
     scope :for_fingerprint, -> (project, fingerprint) { where(project: project, fingerprint: fingerprint) }
     scope :for_environment, -> (environment) { where(environment: environment) }
     scope :search, -> (query) { fuzzy_search(query, [:title, :description, :monitoring_tool, :service]) }
-    scope :open, -> { with_status(:triggered, :acknowledged) }
+    scope :open, -> { with_status(OPEN_STATUSES) }
+    scope :not_resolved, -> { where.not(status: STATUSES[:resolved]) }
     scope :with_prometheus_alert, -> { includes(:prometheus_alert) }
 
     scope :order_start_time,    -> (sort_order) { order(started_at: sort_order) }
     scope :order_end_time,      -> (sort_order) { order(ended_at: sort_order) }
     scope :order_event_count,   -> (sort_order) { order(events: sort_order) }
-    scope :order_severity,      -> (sort_order) { order(severity: sort_order) }
-    scope :order_status,        -> (sort_order) { order(status: sort_order) }
+
+    # Ascending sort order sorts severity from less critical to more critical.
+    # Descending sort order sorts severity from more critical to less critical.
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/221242#what-is-the-expected-correct-behavior
+    scope :order_severity,      -> (sort_order) { order(severity: sort_order == :asc ? :desc : :asc) }
+
+    # Ascending sort order sorts statuses: Ignored > Resolved > Acknowledged > Triggered
+    # Descending sort order sorts statuses: Triggered > Acknowledged > Resolved > Ignored
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/221242#what-is-the-expected-correct-behavior
+    scope :order_status,        -> (sort_order) { order(status: sort_order == :asc ? :desc : :asc) }
 
     scope :counts_by_status, -> { group(:status).count }
     scope :counts_by_project_id, -> { group(:project_id).count }
+
+    alias_method :state, :status_name
 
     def self.sort_by_attribute(method)
       case method.to_s

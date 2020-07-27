@@ -7,6 +7,7 @@ RSpec.describe EE::AuditEvents::ImpersonationAuditEventService do
   let(:ip_address) { '127.0.0.1' }
   let(:message) { 'Impersonation Started' }
   let(:logger) { instance_double(Gitlab::AuditJsonLogger) }
+  let(:target_details) { nil }
   let(:service) { described_class.new(impersonator, ip_address, message) }
 
   describe '#security_event' do
@@ -17,6 +18,7 @@ RSpec.describe EE::AuditEvents::ImpersonationAuditEventService do
     it 'creates an event and logs to a file with the provided details' do
       expect(service).to receive(:file_logger).and_return(logger)
       expect(logger).to receive(:info).with(author_id: impersonator.id,
+                                            author_name: impersonator.name,
                                             entity_id: impersonator.id,
                                             entity_type: "User",
                                             action: :custom,
@@ -27,8 +29,9 @@ RSpec.describe EE::AuditEvents::ImpersonationAuditEventService do
       security_event = SecurityEvent.last
 
       expect(security_event.details).to eq(custom_message: message,
-                                               ip_address: ip_address,
-                                               action: :custom)
+                                           ip_address: ip_address,
+                                           action: :custom,
+                                           target_details: target_details)
       expect(security_event.author_id).to eq(impersonator.id)
       expect(security_event.entity_id).to eq(impersonator.id)
       expect(security_event.entity_type).to eq('User')

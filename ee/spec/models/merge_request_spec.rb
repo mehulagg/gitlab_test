@@ -16,6 +16,8 @@ RSpec.describe MergeRequest do
   subject(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
   describe 'associations' do
+    subject { build_stubbed(:merge_request) }
+
     it { is_expected.to have_many(:approvals).dependent(:delete_all) }
     it { is_expected.to have_many(:approvers).dependent(:delete_all) }
     it { is_expected.to have_many(:approver_users).through(:approvers) }
@@ -115,6 +117,26 @@ RSpec.describe MergeRequest do
             end
 
             it { is_expected.to be_falsey }
+          end
+
+          context 'with License-Check enabled' do
+            let!(:license_check) { create(:report_approver_rule, :license_scanning, merge_request: merge_request) }
+
+            context 'when rule is not approved' do
+              before do
+                allow_any_instance_of(ApprovalWrappedRule).to receive(:approved?).and_return(false)
+              end
+
+              it { is_expected.to be_truthy }
+            end
+
+            context 'when rule is approved' do
+              before do
+                allow_any_instance_of(ApprovalWrappedRule).to receive(:approved?).and_return(true)
+              end
+
+              it { is_expected.to be_falsey }
+            end
           end
         end
       end

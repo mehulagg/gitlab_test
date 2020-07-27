@@ -32,8 +32,11 @@ request removing the feature flag or the merge request where the default value o
 the feature flag is set to true. If the feature contains any DB migration it
 should include a changelog entry for DB changes.
 
-If you need the feature flag to be on automatically, use `default_enabled: true`
-when checking:
+NOTE: **Note:**
+All newly-introduced feature flags should be [off by default](./process.md#feature-flags-in-gitlab-development).
+
+In rare cases you may need to set the feature flag on by default. If so, please explain the reasoning
+in the merge request. To enable an active feature flag, use `default_enabled: true` when checking:
 
 ```ruby
 Feature.enabled?(:feature_flag, project, default_enabled: true)
@@ -58,7 +61,7 @@ the feature flag check will default to `true`.**
 
 This is relevant when developing the feature using
 [several smaller merge requests](https://about.gitlab.com/handbook/values/#make-small-merge-requests), or when the feature is considered to be an
-[alpha or beta](https://about.gitlab.com/handbook/product/#alpha-beta-ga), and
+[alpha or beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga), and
 should not be available by default.
 
 As an example, if you were to ship the frontend half of a feature without the
@@ -67,7 +70,7 @@ also ready to be shipped. To make sure this feature is disabled for both
 GitLab.com and self-managed instances, you should use the
 [`Namespace#alpha_feature_available?`](https://gitlab.com/gitlab-org/gitlab/blob/458749872f4a8f27abe8add930dbb958044cb926/ee/app/models/ee/namespace.rb#L113) or
 [`Namespace#beta_feature_available?`](https://gitlab.com/gitlab-org/gitlab/blob/458749872f4a8f27abe8add930dbb958044cb926/ee/app/models/ee/namespace.rb#L100-112)
-method, according to our [definitions](https://about.gitlab.com/handbook/product/#alpha-beta-ga). This ensures the feature is disabled unless the feature flag is
+method, according to our [definitions](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga). This ensures the feature is disabled unless the feature flag is
 _explicitly_ enabled.
 
 ## Feature groups

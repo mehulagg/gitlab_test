@@ -69,12 +69,14 @@ You can filter the vulnerabilities by:
 - Severity
 - Report type
 
+By default, detected and confirmed vulnerabilities will be displayed.
+
 You can also dismiss vulnerabilities in the table:
 
 1. Select the checkbox for each vulnerability you want to dismiss.
 1. In the menu that appears, select the reason for dismissal and click **Dismiss Selected**.
 
-![Project Security Dashboard](img/project_security_dashboard_v13_2_noNav.png)
+![Project Security Dashboard](img/project_security_dashboard_v13_2.png)
 
 ## Group Security Dashboard
 
@@ -96,6 +98,8 @@ You can filter which vulnerabilities the Security Dashboard displays by:
 - Severity
 - Report type
 - Project
+
+By default, detected and confirmed vulnerabilities will be displayed.
 
 A table lists the vulnerabilities, sorted by severity. The table shows each vulnerability's status,
 severity, and description. Clicking a vulnerability takes you to its [Vulnerability Details](../vulnerabilities)
@@ -176,6 +180,14 @@ daily security scan. This will update the information displayed on the Security
 Dashboard regardless of how often the default branch is updated.
 
 That way, reports are created even if no code change happens.
+
+CAUTION: **Warning:**
+Running Dependency Scanning from a scheduled pipeline might result in false negatives if your
+project doesn't have a lock file and isn't configured for Continuous Delivery. A lock file is a file
+that lists all transient dependencies and keeps track of their exact versions. The false negative
+can occur because the dependency version resolved during the scan might differ from the ones
+resolved when your project was built and released, in a previous pipeline. Java projects can't have
+lock files. Python projects can have lock files, but GitLab Secure tools don't support them.
 
 ## Security scans using Auto DevOps
 

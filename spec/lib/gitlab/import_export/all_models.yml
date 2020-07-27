@@ -46,6 +46,7 @@ issues:
 - system_note_metadata
 - alert_management_alert
 - status_page_published_incident
+- namespace
 events:
 - author
 - project
@@ -312,6 +313,7 @@ project:
 - chat_services
 - cluster
 - clusters
+- cluster_agents
 - cluster_project
 - creator
 - cycle_analytics_stages
@@ -322,6 +324,7 @@ project:
 - last_event
 - services
 - campfire_service
+- confluence_service
 - discord_service
 - drone_ci_service
 - emails_on_push_service
@@ -463,6 +466,8 @@ project:
 - vulnerability_feedback
 - vulnerability_identifiers
 - vulnerability_scanners
+- dast_site_profiles
+- dast_sites
 - operations_feature_flags
 - operations_feature_flags_client
 - operations_feature_flags_user_lists
@@ -512,6 +517,8 @@ project:
 - webex_teams_service
 - build_report_results
 - vulnerability_statistic
+- vulnerability_historical_statistics
+- product_analytics_events
 award_emoji:
 - awardable
 - user

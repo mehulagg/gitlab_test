@@ -132,6 +132,16 @@ RSpec.shared_examples 'noteable API' do |parent_type, noteable_type, id_name|
 
       expect(response).to have_gitlab_http_status(:created)
       expect(json_response['body']).to eq('hi!')
+      expect(json_response['confidential']).to be_falsey
+      expect(json_response['author']['username']).to eq(user.username)
+    end
+
+    it "creates a confidential note if confidential is set to true" do
+      post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/notes", user), params: { body: 'hi!', confidential: true }
+
+      expect(response).to have_gitlab_http_status(:created)
+      expect(json_response['body']).to eq('hi!')
+      expect(json_response['confidential']).to be_truthy
       expect(json_response['author']['username']).to eq(user.username)
     end
 
@@ -148,9 +158,11 @@ RSpec.shared_examples 'noteable API' do |parent_type, noteable_type, id_name|
     end
 
     it "creates an activity event when a note is created", :sidekiq_might_not_need_inline do
-      expect(Event).to receive(:create!)
+      uri = "/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/notes"
 
-      post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/notes", user), params: { body: 'hi!' }
+      expect do
+        post api(uri, user), params: { body: 'hi!' }
+      end.to change(Event, :count).by(1)
     end
 
     context 'setting created_at' do

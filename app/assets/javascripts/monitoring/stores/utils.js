@@ -165,7 +165,7 @@ const mapLinksToViewModel = ({ url = null, title = '', type } = {}) => {
  * @param {Object} panel - Metrics panel
  * @returns {Object}
  */
-const mapPanelToViewModel = ({
+export const mapPanelToViewModel = ({
   id = null,
   title = '',
   type,
@@ -173,6 +173,7 @@ const mapPanelToViewModel = ({
   x_label,
   y_label,
   y_axis = {},
+  field,
   metrics = [],
   links = [],
   max_value,
@@ -193,6 +194,7 @@ const mapPanelToViewModel = ({
     y_label: yAxis.name, // Changing y_label to yLabel is pending https://gitlab.com/gitlab-org/gitlab/issues/207198
     yAxis,
     xAxis,
+    field,
     maxValue: max_value,
     links: links.map(mapLinksToViewModel),
     metrics: mapToMetricsViewModel(metrics),
@@ -289,7 +291,7 @@ export const mapToDashboardViewModel = ({
 }) => {
   return {
     dashboard,
-    variables: mergeURLVariables(parseTemplatingVariables(templating)),
+    variables: mergeURLVariables(parseTemplatingVariables(templating.variables)),
     links: links.map(mapLinksToViewModel),
     panelGroups: panel_groups.map(mapToPanelGroupViewModel),
   };
@@ -453,10 +455,10 @@ export const normalizeQueryResponseData = data => {
  *
  * This is currently only used by getters/getCustomVariablesParams
  *
- * @param {String} key Variable key that needs to be prefixed
+ * @param {String} name Variable key that needs to be prefixed
  * @returns {String}
  */
-export const addPrefixToCustomVariableParams = key => `variables[${key}]`;
+export const addPrefixToCustomVariableParams = name => `variables[${name}]`;
 
 /**
  * Normalize custom dashboard paths. This method helps support

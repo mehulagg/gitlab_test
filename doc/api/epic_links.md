@@ -1,7 +1,6 @@
 # Epic Links API **(ULTIMATE)**
 
->**Note:**
-> This endpoint was [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/9188) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/9188) in GitLab 11.8.
 
 Manages parent-child [epic relationships](../user/group/epics/index.md#multi-level-child-epics-ultimate).
 
@@ -9,7 +8,8 @@ Every API call to `epic_links` must be authenticated.
 
 If a user is not a member of a group and the group is private, a `GET` request on that group will result to a `404` status code.
 
-Epics are available only in the [Ultimate/Gold tier](https://about.gitlab.com/pricing/). If the epics feature is not available, a `403` status code will be returned.
+Multi-level Epics are available only in GitLab [Ultimate/Gold](https://about.gitlab.com/pricing/).
+If the Multi-level Epics feature is not available, a `403` status code will be returned.
 
 ## List epics related to a given epic
 

@@ -15,57 +15,26 @@ RSpec.describe 'Admin updates EE-only settings' do
 
   context 'Geo settings' do
     context 'when the license has Geo feature' do
-      context 'when enable_geo_settings_form_js is false' do
-        before do
-          stub_feature_flags(enable_geo_settings_form_js: false)
-          visit admin_geo_settings_path
-        end
-
-        it 'hides JS alert' do
-          expect(page).not_to have_content("Geo is only available for users who have at least a Premium license.")
-        end
-
-        it 'renders HAML form instead of JS' do
-          expect(page).not_to have_css("#js-geo-settings-form")
-          expect(page).to have_css(".geo-haml-form")
-        end
-
-        it 'allows users to change Geo settings' do
-          page.within('section') do
-            fill_in 'Connection timeout', with: 15
-            fill_in 'Allowed Geo IP', with: '192.34.34.34'
-            click_button 'Save changes'
-          end
-
-          expect(current_settings.geo_status_timeout).to eq(15)
-          expect(current_settings.geo_node_allowed_ips).to eq('192.34.34.34')
-          expect(page).to have_content 'Application settings saved successfully'
-        end
+      before do
+        visit admin_geo_settings_path
       end
 
-      context 'when enable_geo_settings_form_js is true' do
-        before do
-          stub_feature_flags(enable_geo_settings_form_js: true)
-          visit admin_geo_settings_path
-        end
+      it 'hides JS alert' do
+        expect(page).not_to have_content("Geo is only available for users who have at least a Premium license.")
+      end
 
-        it 'hides JS alert' do
-          expect(page).not_to have_content("Geo is only available for users who have at least a Premium license.")
-        end
-
-        it 'renders JS form instead of HAML' do
-          expect(page).to have_css("#js-geo-settings-form")
-          expect(page).not_to have_css(".geo-haml-form")
-        end
+      it 'renders JS form' do
+        expect(page).to have_css("#js-geo-settings-form")
       end
     end
 
     context 'when the license does not have Geo feature' do
-      it 'shows JS alert' do
+      before do
         allow(License).to receive(:feature_available?).and_return(false)
-
         visit admin_geo_settings_path
+      end
 
+      it 'shows JS alert' do
         expect(page).to have_content("Geo is only available for users who have at least a Premium license.")
       end
     end
@@ -96,6 +65,7 @@ RSpec.describe 'Admin updates EE-only settings' do
         check 'Search with Elasticsearch enabled'
         fill_in 'Number of Elasticsearch shards', with: '120'
         fill_in 'Number of Elasticsearch replicas', with: '2'
+        fill_in 'Maximum file size indexed (KiB)', with: '5000'
         fill_in 'Maximum field length', with: '100000'
         fill_in 'Maximum bulk request size (MiB)', with: '17'
         fill_in 'Bulk request concurrency', with: '23'
@@ -108,6 +78,7 @@ RSpec.describe 'Admin updates EE-only settings' do
         expect(current_settings.elasticsearch_search).to be_truthy
         expect(current_settings.elasticsearch_shards).to eq(120)
         expect(current_settings.elasticsearch_replicas).to eq(2)
+        expect(current_settings.elasticsearch_indexed_file_size_limit_kb).to eq(5000)
         expect(current_settings.elasticsearch_indexed_field_length_limit).to eq(100000)
         expect(current_settings.elasticsearch_max_bulk_size_mb).to eq(17)
         expect(current_settings.elasticsearch_max_bulk_concurrency).to eq(23)

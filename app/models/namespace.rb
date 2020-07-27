@@ -22,6 +22,7 @@ class Namespace < ApplicationRecord
 
   has_many :projects, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :project_statistics
+  has_one :namespace_settings, inverse_of: :namespace, class_name: 'NamespaceSetting', autosave: true
 
   has_many :runner_namespaces, inverse_of: :namespace, class_name: 'Ci::RunnerNamespace'
   has_many :runners, through: :runner_namespaces, source: :runner, class_name: 'Ci::Runner'
@@ -47,6 +48,13 @@ class Namespace < ApplicationRecord
     presence: true,
     length: { maximum: 255 },
     namespace_path: true
+
+  # Introduce minimal path length of 2 characters.
+  # Allow change of other attributes without forcing users to
+  # rename their user or group. At the same time prevent changing
+  # the path without complying with new 2 chars requirement.
+  # Issue https://gitlab.com/gitlab-org/gitlab/-/issues/225214
+  validates :path, length: { minimum: 2 }, if: :path_changed?
 
   validates :max_artifacts_size, numericality: { only_integer: true, greater_than: 0, allow_nil: true }
 
@@ -211,7 +219,7 @@ class Namespace < ApplicationRecord
     Gitlab.config.lfs.enabled
   end
 
-  def shared_runners_enabled?
+  def any_project_with_shared_runners_enabled?
     projects.with_shared_runners.any?
   end
 
@@ -280,6 +288,8 @@ class Namespace < ApplicationRecord
   end
 
   def root_ancestor
+    return self if persisted? && parent_id.nil?
+
     strong_memoize(:root_ancestor) do
       self_and_ancestors.reorder(nil).find_by(parent_id: nil)
     end

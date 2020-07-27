@@ -105,6 +105,7 @@ are very appreciative of the work done by translators and proofreaders!
   - Proofreaders needed.
 - Turkish
   - Ali Demirtaş - [GitLab](https://gitlab.com/alidemirtas), [CrowdIn](https://crowdin.com/profile/alidemirtas)
+  - Rıfat Ünalmış (Rifat Unalmis) - [GitLab](https://gitlab.com/runalmis), [CrowdIn](https://crowdin.com/profile/runalmis)
 - Ukrainian
   - Volodymyr Sobotovych - [GitLab](https://gitlab.com/wheleph), [CrowdIn](https://crowdin.com/profile/wheleph)
   - Andrew Vityuk - [GitLab](https://gitlab.com/3_1_3_u), [CrowdIn](https://crowdin.com/profile/andruwa13)
@@ -114,9 +115,10 @@ are very appreciative of the work done by translators and proofreaders!
 
 ## Become a proofreader
 
-> **Note:** Before requesting Proofreader permissions in CrowdIn please make
-> sure that you have a history of contributing translations to the GitLab
-> project.
+NOTE: **Note:**
+Before requesting Proofreader permissions in CrowdIn please make
+sure that you have a history of contributing translations to the GitLab
+project.
 
 1. Contribute translations to GitLab. See instructions for
    [translating GitLab](translation.md).

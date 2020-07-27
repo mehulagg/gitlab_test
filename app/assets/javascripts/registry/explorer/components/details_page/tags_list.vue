@@ -33,6 +33,9 @@ export default {
     hasSelectedItems() {
       return this.tags.some(tag => this.selectedItems[tag.name]);
     },
+    showMultiDeleteButton() {
+      return this.tags.some(tag => tag.destroy_path) && this.isDesktop;
+    },
   },
   methods: {
     updateSelectedItems(name) {
@@ -50,7 +53,7 @@ export default {
       </h5>
 
       <gl-button
-        v-if="isDesktop"
+        v-if="showMultiDeleteButton"
         :disabled="!hasSelectedItems"
         category="secondary"
         variant="danger"
@@ -63,7 +66,8 @@ export default {
       v-for="(tag, index) in tags"
       :key="tag.path"
       :tag="tag"
-      :index="index"
+      :first="index === 0"
+      :last="index === tags.length - 1"
       :selected="selectedItems[tag.name]"
       :is-desktop="isDesktop"
       @select="updateSelectedItems(tag.name)"

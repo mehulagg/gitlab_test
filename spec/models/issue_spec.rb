@@ -5,10 +5,13 @@ require 'spec_helper'
 RSpec.describe Issue do
   include ExternalAuthorizationServiceHelpers
 
+  let_it_be(:user) { create(:user) }
+
   describe "Associations" do
     it { is_expected.to belong_to(:milestone) }
     it { is_expected.to belong_to(:iteration) }
     it { is_expected.to belong_to(:project) }
+    it { is_expected.to have_one(:namespace).through(:project) }
     it { is_expected.to belong_to(:moved_to).class_name('Issue') }
     it { is_expected.to have_one(:moved_from).class_name('Issue') }
     it { is_expected.to belong_to(:duplicated_to).class_name('Issue') }
@@ -55,6 +58,26 @@ RSpec.describe Issue do
     end
   end
 
+  describe 'validations' do
+    subject { issue.valid? }
+
+    describe 'issue_type' do
+      let(:issue) { build(:issue, issue_type: issue_type) }
+
+      context 'when a valid type' do
+        let(:issue_type) { :issue }
+
+        it { is_expected.to eq(true) }
+      end
+
+      context 'empty type' do
+        let(:issue_type) { nil }
+
+        it { is_expected.to eq(false) }
+      end
+    end
+  end
+
   subject { create(:issue) }
 
   describe 'callbacks' do
@@ -92,29 +115,6 @@ RSpec.describe Issue do
 
       expect(subject).to contain_exactly(alert.issue)
       expect(subject).not_to include(issue)
-    end
-  end
-
-  describe 'locking' do
-    using RSpec::Parameterized::TableSyntax
-
-    where(:lock_version) do
-      [
-        [0],
-        ["0"]
-      ]
-    end
-
-    with_them do
-      it 'works when an issue has a NULL lock_version' do
-        issue = create(:issue)
-
-        described_class.where(id: issue.id).update_all('lock_version = NULL')
-
-        issue.update!(lock_version: lock_version, title: 'locking test')
-
-        expect(issue.reload.title).to eq('locking test')
-      end
     end
   end
 
@@ -189,39 +189,9 @@ RSpec.describe Issue do
 
       expect { issue.close }.to change { issue.state_id }.from(open_state).to(closed_state)
     end
-
-    context 'when there is an associated Alert Management Alert' do
-      context 'when alert can be resolved' do
-        let!(:alert) { create(:alert_management_alert, project: issue.project, issue: issue) }
-
-        it 'resolves an alert' do
-          expect { issue.close }.to change { alert.reload.resolved? }.to(true)
-        end
-      end
-
-      context 'when alert cannot be resolved' do
-        let!(:alert) { create(:alert_management_alert, :with_validation_errors, project: issue.project, issue: issue) }
-
-        before do
-          allow(Gitlab::AppLogger).to receive(:warn).and_call_original
-        end
-
-        it 'writes a warning into the log' do
-          issue.close
-
-          expect(Gitlab::AppLogger).to have_received(:warn).with(
-            message: 'Cannot resolve an associated Alert Management alert',
-            issue_id: issue.id,
-            alert_id: alert.id,
-            alert_errors: { hosts: ['hosts array is over 255 chars'] }
-          )
-        end
-      end
-    end
   end
 
   describe '#reopen' do
-    let(:user) { create(:user) }
     let(:issue) { create(:issue, state: 'closed', closed_at: Time.current, closed_by: user) }
 
     it 'sets closed_at to nil when an issue is reopend' do
@@ -305,7 +275,6 @@ RSpec.describe Issue do
   end
 
   describe '#assignee_or_author?' do
-    let(:user) { create(:user) }
     let(:issue) { create(:issue) }
 
     it 'returns true for a user that is assigned to an issue' do
@@ -326,7 +295,6 @@ RSpec.describe Issue do
   end
 
   describe '#can_move?' do
-    let(:user) { create(:user) }
     let(:issue) { create(:issue) }
 
     subject { issue.can_move?(user) }
@@ -403,6 +371,22 @@ RSpec.describe Issue do
       let(:issue) { create(:issue, duplicated_to: duplicated_to_issue) }
 
       it { is_expected.to eq true }
+    end
+  end
+
+  describe '#from_service_desk?' do
+    subject { issue.from_service_desk? }
+
+    context 'when issue author is support bot' do
+      let(:issue) { create(:issue, author: ::User.support_bot) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when issue author is not support bot' do
+      let(:issue) { create(:issue) }
+
+      it { is_expected.to be_falsey }
     end
   end
 
@@ -999,6 +983,16 @@ RSpec.describe Issue do
       let(:composite_ids) do
         all_results.map { |issue| { project_id: issue.project_id, iid: issue.iid } }
       end
+    end
+  end
+
+  describe '.service_desk' do
+    it 'returns the service desk issue' do
+      service_desk_issue = create(:issue, author: ::User.support_bot)
+      regular_issue = create(:issue)
+
+      expect(described_class.service_desk).to include(service_desk_issue)
+      expect(described_class.service_desk).not_to include(regular_issue)
     end
   end
 

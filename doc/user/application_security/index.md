@@ -64,6 +64,7 @@ GitLab uses the following tools to scan and report known vulnerabilities found i
 | [Secret Detection](secret_detection/index.md) **(ULTIMATE)**                | Analyze Git history for leaked secrets.                                |
 | [Security Dashboard](security_dashboard/index.md) **(ULTIMATE)**             | View vulnerabilities in all your projects and groups.                  |
 | [Static Application Security Testing (SAST)](sast/index.md) **(ULTIMATE)**   | Analyze source code for known vulnerabilities.                         |
+| [Coverage fuzzing](coverage_fuzzing/index.md) **(ULTIMATE)**                 | Find unknown bugs and vulnerabilities with coverage-guided fuzzing.    |
 
 ## Security Scanning with Auto DevOps
 
@@ -242,6 +243,36 @@ Click this button to create a merge request to apply the solution onto the sourc
 
 ![Create merge request from vulnerability](img/create_issue_with_list_hover.png)
 
+### Managing related issues for a vulnerability
+
+Issues can be linked to a vulnerability using the related issues block on the vulnerability page.
+The relationship is uni-directional. The vulnerability page shows related issues, but the issue page
+doesn't show the vulnerability it's related to. An issue can only be related to one vulnerability at
+a time. Issues can be linked across groups and projects.
+
+#### Adding a related issue
+
+You can link an issue by clicking the **{plus}** button in the **Related Issues** block.
+
+![Vulnerability related issues add button](img/vulnerability_related_issues_add_button_v13_2.png)
+
+A text box appears that lets you type an issue number or paste an issue link. You can enter multiple
+issues at once. Pressing the space bar after each issue number or link converts them to tags that
+you can remove by clicking the **{close}** icon to the tag's right. Typing `#` followed by a number
+shows an autocomplete menu. Click an issue in the menu to add it as a tag. When you're finished
+entering issues, click the **Add** button to link the issues to the vulnerability. Alternatively,
+click **Cancel** to exit without linking any issues.
+
+![Vulnerability related issues text box tags animation](img/vulnerability_related_issues_text_box_tags_v13_2.gif)
+
+### Removing a related issue
+
+Click the **{close}** icon to right of an issue to remove it as a related issue. Note that this only
+removes it as a related issue of the vulnerability; it doesn't modify or remove the issue itself.
+You can link it to the vulnerability again if desired.
+
+![Vulnerability related issues remove issue animation](img/vulnerability_related_issues_remove_v13_2.gif)
+
 ## Security approvals in merge requests
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9928) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.2.
@@ -296,14 +327,16 @@ An approval is optional when a security report:
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13067) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.3.
 
-To enable License Approvals, a [project approval rule](../project/merge_requests/merge_request_approvals.md#multiple-approval-rules-premium)
-must be created with the case-sensitive name `License-Check`. This approval group must be set
-with the number of approvals required greater than zero.
+`License-Check` is an approval rule you can enable to allow an individual or group to approve a
+merge request that contains a `denied` license.
 
-Once this group is added to your project, the approval rule is enabled for all Merge Requests. To
-configure how this rule behaves, you can choose which licenses to `allow` or `deny` in the
-[project policies for License Compliance](../compliance/license_compliance/index.md#policies)
-section.
+You can enable `License-Check` one of two ways:
+
+- Create a [project approval rule](../project/merge_requests/merge_request_approvals.md#multiple-approval-rules-premium)
+  with the case-sensitive name `License-Check`.
+- Create an approval group in the [project policies section for License Compliance](../compliance/license_compliance/index.md#policies).
+  You must set this approval group's number of approvals required to greater than zero. Once you
+  enable this group in your project, the approval rule is enabled for all merge requests.
 
 Any code changes cause the approvals required to reset.
 

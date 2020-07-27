@@ -6,7 +6,7 @@ RSpec.describe ProjectsController do
   include ExternalAuthorizationServiceHelpers
   include ProjectForksHelper
 
-  let(:project) { create(:project) }
+  let(:project) { create(:project, service_desk_enabled: false) }
   let(:public_project) { create(:project, :public) }
   let(:user) { create(:user) }
   let(:jpg) { fixture_file_upload('spec/fixtures/rails_sample.jpg', 'image/jpg') }
@@ -129,18 +129,6 @@ RSpec.describe ProjectsController do
           get_activity(project)
 
           expect(json_response['count']).to eq(1)
-        end
-
-        context 'the feature flag is disabled' do
-          before do
-            stub_feature_flags(design_activity_events: false)
-          end
-
-          it 'returns correct count' do
-            get_activity(project)
-
-            expect(json_response['count']).to eq(0)
-          end
         end
       end
     end
@@ -384,15 +372,6 @@ RSpec.describe ProjectsController do
         expect { get(:show, params: { namespace_id: public_project.namespace, id: public_project }) }
           .not_to exceed_query_limit(2).for_query(expected_query)
       end
-    end
-
-    context 'namespace storage limit' do
-      let_it_be(:project) { create(:project, :public, :repository ) }
-      let(:namespace) { project.namespace }
-
-      subject { get :show, params: { namespace_id: namespace, id: project } }
-
-      it_behaves_like 'namespace storage limit alert'
     end
   end
 
@@ -1197,7 +1176,7 @@ RSpec.describe ProjectsController do
       before do
         allow(Gitlab::ApplicationRateLimiter)
           .to receive(:increment)
-          .and_return(Gitlab::ApplicationRateLimiter.rate_limits["project_#{action}".to_sym][:threshold] + 1)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits["project_#{action}".to_sym][:threshold].call + 1)
       end
 
       it 'prevents requesting project export' do
@@ -1264,7 +1243,7 @@ RSpec.describe ProjectsController do
           before do
             allow(Gitlab::ApplicationRateLimiter)
               .to receive(:increment)
-              .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold] + 1)
+              .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:project_download_export][:threshold].call + 1)
           end
 
           it 'prevents requesting project export' do
@@ -1403,6 +1382,27 @@ RSpec.describe ProjectsController do
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
+  end
+
+  it 'updates Service Desk attributes' do
+    project.add_maintainer(user)
+    sign_in(user)
+    allow(Gitlab::IncomingEmail).to receive(:enabled?) { true }
+    allow(Gitlab::IncomingEmail).to receive(:supports_wildcard?) { true }
+    params = {
+      service_desk_enabled: true
+    }
+
+    put :update,
+        params: {
+          namespace_id: project.namespace,
+          id: project,
+          project: params
+        }
+    project.reload
+
+    expect(response).to have_gitlab_http_status(:found)
+    expect(project.service_desk_enabled).to eq(true)
   end
 
   def project_moved_message(redirect_route, project)

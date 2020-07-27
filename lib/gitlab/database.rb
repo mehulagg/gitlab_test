@@ -4,6 +4,24 @@ module Gitlab
   module Database
     include Gitlab::Metrics::Methods
 
+    # Minimum PostgreSQL version requirement per documentation:
+    # https://docs.gitlab.com/ee/install/requirements.html#postgresql-requirements
+    MINIMUM_POSTGRES_VERSION = 11
+
+    # Upcoming PostgreSQL version requirements
+    # Allows a soft warning about an upcoming minimum version requirement
+    # so administrators can prepare to upgrade
+    UPCOMING_POSTGRES_VERSION_DETAILS = {
+      gl_version: '13.6.0',
+      gl_version_date: 'November 22, 2020',
+      pg_version_minimum: 12,
+      url: 'https://gitlab.com/groups/gitlab-org/-/epics/2374'
+    }.freeze
+
+    # Specifies the maximum number of days in advance to display a notice
+    # regarding an upcoming PostgreSQL version deprecation.
+    DEPRECATION_WINDOW_DAYS = 90
+
     # https://www.postgresql.org/docs/9.2/static/datatype-numeric.html
     MAX_INT_VALUE = 2147483647
 
@@ -97,16 +115,51 @@ module Gitlab
       version.to_f < 10
     end
 
-    def self.replication_slots_supported?
-      version.to_f >= 9.4
-    end
-
     def self.postgresql_minimum_supported_version?
-      version.to_f >= 9.6
+      version.to_f >= MINIMUM_POSTGRES_VERSION
     end
 
-    def self.upsert_supported?
-      version.to_f >= 9.5
+    def self.postgresql_upcoming_deprecation?
+      version.to_f < UPCOMING_POSTGRES_VERSION_DETAILS[:pg_version_minimum]
+    end
+
+    def self.days_until_deprecation
+      (
+        Date.parse(UPCOMING_POSTGRES_VERSION_DETAILS[:gl_version_date]) -
+        Date.today
+      ).to_i
+    end
+    private_class_method :days_until_deprecation
+
+    def self.within_deprecation_notice_window?
+      days_until_deprecation <= DEPRECATION_WINDOW_DAYS
+    end
+
+    def self.check_postgres_version_and_print_warning
+      return if Gitlab::Database.postgresql_minimum_supported_version?
+      return if Gitlab::Runtime.rails_runner?
+
+      Kernel.warn ERB.new(Rainbow.new.wrap(<<~EOS).red).result
+
+                  ██     ██  █████  ██████  ███    ██ ██ ███    ██  ██████ 
+                  ██     ██ ██   ██ ██   ██ ████   ██ ██ ████   ██ ██      
+                  ██  █  ██ ███████ ██████  ██ ██  ██ ██ ██ ██  ██ ██   ███ 
+                  ██ ███ ██ ██   ██ ██   ██ ██  ██ ██ ██ ██  ██ ██ ██    ██ 
+                   ███ ███  ██   ██ ██   ██ ██   ████ ██ ██   ████  ██████  
+
+        ******************************************************************************
+          You are using PostgreSQL <%= Gitlab::Database.version %>, but PostgreSQL >= <%= Gitlab::Database::MINIMUM_POSTGRES_VERSION %>
+          is required for this version of GitLab.
+          <% if Rails.env.development? || Rails.env.test? %>
+          If using gitlab-development-kit, please find the relevant steps here:
+            https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/master/doc/howto/postgresql.md#upgrade-postgresql
+          <% end %>
+          Please upgrade your environment to a supported PostgreSQL version, see
+          https://docs.gitlab.com/ee/install/requirements.html#database for details.
+        ******************************************************************************
+      EOS
+    rescue ActiveRecord::ActiveRecordError, PG::Error
+      # ignore - happens when Rake tasks yet have to create a database, e.g. for testing
     end
 
     # map some of the function names that changed between PostgreSQL 9 and 10
@@ -192,9 +245,7 @@ module Gitlab
         VALUES #{tuples.map { |tuple| "(#{tuple.join(', ')})" }.join(', ')}
       EOF
 
-      if upsert_supported? && on_conflict == :do_nothing
-        sql = "#{sql} ON CONFLICT DO NOTHING"
-      end
+      sql = "#{sql} ON CONFLICT DO NOTHING" if on_conflict == :do_nothing
 
       sql = "#{sql} RETURNING id" if return_ids
 

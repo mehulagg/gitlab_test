@@ -218,7 +218,7 @@ RSpec.describe Git::WikiPushService, services: true do
       message = 'something went very very wrong'
       allow_next_instance_of(WikiPages::EventCreateService, current_user) do |service|
         allow(service).to receive(:execute)
-          .with(String, WikiPage, Symbol)
+          .with(String, WikiPage, Symbol, String)
           .and_return(ServiceResponse.error(message: message))
       end
 
@@ -245,14 +245,6 @@ RSpec.describe Git::WikiPushService, services: true do
 
           service.execute
         end
-      end
-
-      context 'the wiki_events feature is disabled' do
-        before do
-          stub_feature_flags(wiki_events: false)
-        end
-
-        it_behaves_like 'a no-op push'
       end
 
       context 'the wiki_events_on_git_push feature is disabled' do

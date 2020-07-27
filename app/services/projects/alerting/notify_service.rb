@@ -4,7 +4,7 @@ module Projects
   module Alerting
     class NotifyService < BaseService
       include Gitlab::Utils::StrongMemoize
-      include IncidentManagement::Settings
+      include ::IncidentManagement::Settings
 
       def execute(token)
         return forbidden unless alerts_service_activated?
@@ -55,17 +55,13 @@ module Projects
       def find_alert_by_fingerprint(fingerprint)
         return unless fingerprint
 
-        AlertManagement::Alert.for_fingerprint(project, fingerprint).first
-      end
-
-      def send_email?
-        incident_management_setting.send_email?
+        AlertManagement::Alert.not_resolved.for_fingerprint(project, fingerprint).first
       end
 
       def process_incident_issues(alert)
         return if alert.issue
 
-        IncidentManagement::ProcessAlertWorker.perform_async(nil, nil, alert.id)
+        ::IncidentManagement::ProcessAlertWorker.perform_async(nil, nil, alert.id)
       end
 
       def send_alert_email

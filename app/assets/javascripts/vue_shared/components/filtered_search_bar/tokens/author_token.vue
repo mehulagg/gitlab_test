@@ -3,7 +3,7 @@ import {
   GlFilteredSearchToken,
   GlAvatar,
   GlFilteredSearchSuggestion,
-  GlDropdownDivider,
+  GlDeprecatedDropdownDivider,
   GlLoadingIcon,
 } from '@gitlab/ui';
 import { debounce } from 'lodash';
@@ -19,7 +19,7 @@ export default {
     GlFilteredSearchToken,
     GlAvatar,
     GlFilteredSearchSuggestion,
-    GlDropdownDivider,
+    GlDeprecatedDropdownDivider,
     GlLoadingIcon,
   },
   props: {
@@ -44,6 +44,16 @@ export default {
     },
     activeAuthor() {
       return this.authors.find(author => author.username.toLowerCase() === this.currentValue);
+    },
+  },
+  watch: {
+    active: {
+      immediate: true,
+      handler(newValue) {
+        if (!newValue && !this.authors.length) {
+          this.fetchAuthorBySearchTerm(this.value.data);
+        }
+      },
     },
   },
   methods: {
@@ -89,10 +99,10 @@ export default {
       <span>{{ activeAuthor ? activeAuthor.name : inputValue }}</span>
     </template>
     <template #suggestions>
-      <gl-filtered-search-suggestion :value="$options.anyAuthor">{{
-        __('Any')
-      }}</gl-filtered-search-suggestion>
-      <gl-dropdown-divider />
+      <gl-filtered-search-suggestion :value="$options.anyAuthor">
+        {{ __('Any') }}
+      </gl-filtered-search-suggestion>
+      <gl-deprecated-dropdown-divider />
       <gl-loading-icon v-if="loading" />
       <template v-else>
         <gl-filtered-search-suggestion

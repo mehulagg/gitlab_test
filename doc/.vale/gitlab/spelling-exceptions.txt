@@ -225,6 +225,7 @@ LDAP
 ldapsearch
 Leiningen
 Libravatar
+liveness
 Lograge
 Logstash
 lookahead
@@ -307,6 +308,8 @@ Piwik
 PgBouncer
 plaintext
 Poedit
+polyfill
+polyfills
 pooler
 PostgreSQL
 precompile
@@ -329,6 +332,7 @@ profiler
 Prometheus
 proxied
 proxies
+proxyable
 proxying
 pseudonymized
 pseudonymizer

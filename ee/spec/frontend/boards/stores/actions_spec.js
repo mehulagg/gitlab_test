@@ -3,7 +3,7 @@ import boardsStoreEE from 'ee/boards/stores/boards_store_ee';
 import actions from 'ee/boards/stores/actions';
 import * as types from 'ee/boards/stores/mutation_types';
 import testAction from 'helpers/vuex_action_helper';
-import { inactiveListId } from '~/boards/constants';
+import { inactiveId } from '~/boards/constants';
 
 jest.mock('axios');
 
@@ -13,24 +13,31 @@ const expectNotImplemented = action => {
   });
 };
 
-describe('toggleShowLabels', () => {
-  it('should commit mutation TOGGLE_LABELS', done => {
+describe('setShowLabels', () => {
+  it('should commit mutation SET_SHOW_LABELS', done => {
     const state = {
       isShowingLabels: true,
     };
 
-    testAction(actions.toggleShowLabels, null, state, [{ type: types.TOGGLE_LABELS }], [], done);
+    testAction(
+      actions.setShowLabels,
+      false,
+      state,
+      [{ type: types.SET_SHOW_LABELS, payload: false }],
+      [],
+      done,
+    );
   });
 });
 
-describe('setActiveListId', () => {
+describe('setActiveId', () => {
   it('should commit mutation SET_ACTIVE_LIST_ID', done => {
     const state = {
-      activeListId: inactiveListId,
+      activeId: inactiveId,
     };
 
     testAction(
-      actions.setActiveListId,
+      actions.setActiveId,
       1,
       state,
       [{ type: types.SET_ACTIVE_LIST_ID, payload: 1 }],
@@ -56,11 +63,11 @@ describe('updateListWipLimit', () => {
   it('should call the correct url', () => {
     axios.put.mockResolvedValue({ data: {} });
     const maxIssueCount = 0;
-    const activeListId = 1;
+    const activeId = 1;
 
-    return actions.updateListWipLimit({ state: { activeListId } }, { maxIssueCount }).then(() => {
+    return actions.updateListWipLimit({ state: { activeId } }, { maxIssueCount }).then(() => {
       expect(axios.put).toHaveBeenCalledWith(
-        `${boardsStoreEE.store.state.endpoints.listsEndpoint}/${activeListId}`,
+        `${boardsStoreEE.store.state.endpoints.listsEndpoint}/${activeId}`,
         { list: { max_issue_count: maxIssueCount } },
       );
     });

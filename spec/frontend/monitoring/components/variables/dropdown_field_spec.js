@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlDropdown, GlDropdownItem } from '@gitlab/ui';
+import { GlDeprecatedDropdown, GlDeprecatedDropdownItem } from '@gitlab/ui';
 import DropdownField from '~/monitoring/components/variables/dropdown_field.vue';
 
 describe('Custom variable component', () => {
@@ -23,8 +23,8 @@ describe('Custom variable component', () => {
     });
   };
 
-  const findDropdown = () => wrapper.find(GlDropdown);
-  const findDropdownItems = () => wrapper.findAll(GlDropdownItem);
+  const findDropdown = () => wrapper.find(GlDeprecatedDropdown);
+  const findDropdownItems = () => wrapper.findAll(GlDeprecatedDropdownItem);
 
   it('renders dropdown element when all necessary props are passed', () => {
     createShallowWrapper();
@@ -59,7 +59,7 @@ describe('Custom variable component', () => {
       .vm.$emit('click');
 
     return wrapper.vm.$nextTick(() => {
-      expect(wrapper.vm.$emit).toHaveBeenCalledWith('onUpdate', 'env', 'canary');
+      expect(wrapper.vm.$emit).toHaveBeenCalledWith('input', 'canary');
     });
   });
 });

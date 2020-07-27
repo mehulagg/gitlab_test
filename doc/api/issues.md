@@ -16,11 +16,11 @@ are paginated.
 
 Read more on [pagination](README.md#pagination).
 
-CAUTION: **Deprecation**
+CAUTION: **Deprecation:**
 > `reference` attribute in response is deprecated in favour of `references`.
 > Introduced [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20354)
 
-NOTE: **Note**
+NOTE: **Note:**
 > `references.relative` is relative to the group / project that the issue is being requested. When issue is fetched from its project
 > `relative` format would be the same as `short` format and when requested across groups / projects it is expected to be the same as `full` format.
 
@@ -70,7 +70,7 @@ GET /issues?confidential=true
 | `updated_after`     | datetime         | no         | Return issues updated on or after the given time                                                                                                    |
 | `updated_before`    | datetime         | no         | Return issues updated on or before the given time                                                                                                   |
 | `confidential`      | boolean          | no         | Filter confidential or public issues.                                                                                                               |
-| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji`, `search`, `in` |
+| `not`               | Hash             | no         | Return issues that do not match the parameters supplied. Accepts: `labels`, `milestone`, `author_id`, `author_username`, `assignee_id`, `assignee_username`, `my_reaction_emoji` |
 | `non_archived`      | boolean          | no         | Return issues only from non-archived projects. If `false`, response will return issues from both archived and non-archived projects. Default is `true`. _(Introduced in [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/197170))_ |
 
 ```shell
@@ -620,7 +620,7 @@ the `weight` parameter:
 }
 ```
 
-Users on GitLab [Ultimate](https://about.gitlab.com/pricing/) will additionally see
+Users on GitLab [Premium](https://about.gitlab.com/pricing/) will additionally see
 the `epic` property:
 
 ```javascript
@@ -669,8 +669,8 @@ POST /projects/:id/issues
 | `merge_request_to_resolve_discussions_of` | integer        | no       | The IID of a merge request in which to resolve all issues. This will fill the issue with a default description and mark all discussions as resolved. When passing a description or title, these values will take precedence over the default values.|
 | `discussion_to_resolve`                   | string         | no       | The ID of a discussion to resolve. This will fill in the issue with a default description and mark the discussion as resolved. Use in combination with `merge_request_to_resolve_discussions_of`. |
 | `weight` **(STARTER)**                    | integer        | no       | The weight of the issue. Valid values are greater than or equal to 0. |
-| `epic_id` **(ULTIMATE)** | integer | no | ID of the epic to add the issue to. Valid values are greater than or equal to 0. |
-| `epic_iid` **(ULTIMATE)** | integer | no | IID of the epic to add the issue to. Valid values are greater than or equal to 0. (deprecated, [will be removed in version 5](https://gitlab.com/gitlab-org/gitlab/-/issues/35157)) |
+| `epic_id` **(PREMIUM)** | integer | no | ID of the epic to add the issue to. Valid values are greater than or equal to 0. |
+| `epic_iid` **(PREMIUM)** | integer | no | IID of the epic to add the issue to. Valid values are greater than or equal to 0. (deprecated, [will be removed in version 5](https://gitlab.com/gitlab-org/gitlab/-/issues/35157)) |
 
 ```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/4/issues?title=Issues%20with%20auth&labels=bug"
@@ -755,11 +755,8 @@ the `weight` parameter:
 
 ## Rate limits
 
-To help avoid abuse, users are limited to:
-
-| Request Type     | Limit                       |
-| ---------------- | --------------------------- |
-| Create           | 300 issues per minute       |
+To help avoid abuse, users can be limited to a specific number of `Create` requests per minute.
+See [Issues rate limits](../user/admin_area/settings/rate_limit_on_issues_creation.md).
 
 ## Edit issue
 
@@ -787,8 +784,8 @@ PUT /projects/:id/issues/:issue_iid
 | `due_date`     | string  | no       | Date time string in the format YEAR-MONTH-DAY, for example `2016-03-11`                                           |
 | `weight` **(STARTER)** | integer | no | The weight of the issue. Valid values are greater than or equal to 0. 0                                                                    |
 | `discussion_locked` | boolean | no  | Flag indicating if the issue's discussion is locked. If the discussion is locked only project members can add or edit comments. |
-| `epic_id` **(ULTIMATE)** | integer | no | ID of the epic to add the issue to. Valid values are greater than or equal to 0. |
-| `epic_iid` **(ULTIMATE)** | integer | no | IID of the epic to add the issue to. Valid values are greater than or equal to 0. (deprecated, [will be removed in version 5](https://gitlab.com/gitlab-org/gitlab/-/issues/35157)) |
+| `epic_id` **(PREMIUM)** | integer | no | ID of the epic to add the issue to. Valid values are greater than or equal to 0. |
+| `epic_iid` **(PREMIUM)** | integer | no | IID of the epic to add the issue to. Valid values are greater than or equal to 0. (deprecated, [will be removed in version 5](https://gitlab.com/gitlab-org/gitlab/-/issues/35157)) |
 
 ```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/4/issues/85?state_event=close"
@@ -877,10 +874,10 @@ the `weight` parameter:
 NOTE: **Note:**
 At least one of following parameters is required to be passed for the request to be successful: `:assignee_id`, `:assignee_ids`, `:confidential`, `:created_at`, `:description`, `:discussion_locked`, `:due_date`, `:labels`, `:milestone_id`, `:state_event`, or `:title`.
 
-NOTE: **Note**:
+NOTE: **Note:**
 `assignee` column is deprecated. We now show it as a single-sized array `assignees` to conform to the GitLab EE API.
 
-NOTE: **Note**:
+NOTE: **Note:**
 The `closed_by` attribute was [introduced in GitLab 10.6](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17042). This value will only be present for issues which were closed after GitLab 10.6 and when the user account that closed the issue still exists.
 
 ## Delete an issue
@@ -901,6 +898,8 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://git
 ```
 
 ## Reorder an issue
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/211864) as a [community contribution](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35349) in GitLab 13.2.
 
 Reorders an issue, you can see the results when sorting issues manually
 
@@ -1773,3 +1772,8 @@ Example response:
   "akismet_submitted": false
 }
 ```
+
+## List issue state events
+
+To track which state was set, who did it, and when it happened, check out
+[Resource state events API](./resource_state_events.md#issues).

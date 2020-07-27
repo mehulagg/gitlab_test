@@ -12,13 +12,12 @@ import {
 } from './constants';
 
 import {
+  registerHTMLToMarkdownRenderer,
   addCustomEventListener,
   removeCustomEventListener,
   addImage,
   getMarkdown,
 } from './services/editor_service';
-
-import { getUrl } from './services/image_service';
 
 export default {
   components: {
@@ -53,6 +52,11 @@ export default {
       required: false,
       default: EDITOR_PREVIEW_STYLE,
     },
+    imageRoot: {
+      type: String,
+      required: true,
+      validator: prop => prop.endsWith('/'),
+    },
   },
   data() {
     return {
@@ -69,15 +73,23 @@ export default {
     },
   },
   beforeDestroy() {
-    removeCustomEventListener(
-      this.editorApi,
-      CUSTOM_EVENTS.openAddImageModal,
-      this.onOpenAddImageModal,
-    );
-
-    this.editorApi.eventManager.removeEventHandler('changeMode', this.onChangeMode);
+    this.removeListeners();
   },
   methods: {
+    addListeners(editorApi) {
+      addCustomEventListener(editorApi, CUSTOM_EVENTS.openAddImageModal, this.onOpenAddImageModal);
+
+      editorApi.eventManager.listen('changeMode', this.onChangeMode);
+    },
+    removeListeners() {
+      removeCustomEventListener(
+        this.editorApi,
+        CUSTOM_EVENTS.openAddImageModal,
+        this.onOpenAddImageModal,
+      );
+
+      this.editorApi.eventManager.removeEventHandler('changeMode', this.onChangeMode);
+    },
     resetInitialValue(newVal) {
       this.editorInstance.invoke('setMarkdown', newVal);
     },
@@ -87,13 +99,9 @@ export default {
     onLoad(editorApi) {
       this.editorApi = editorApi;
 
-      addCustomEventListener(
-        this.editorApi,
-        CUSTOM_EVENTS.openAddImageModal,
-        this.onOpenAddImageModal,
-      );
+      registerHTMLToMarkdownRenderer(editorApi);
 
-      this.editorApi.eventManager.listen('changeMode', this.onChangeMode);
+      this.addListeners(editorApi);
     },
     onOpenAddImageModal() {
       this.$refs.addImageModal.show();
@@ -102,10 +110,8 @@ export default {
       const image = { imageUrl, altText };
 
       if (file) {
-        image.imageUrl = getUrl(file);
-        // TODO - persist images locally (local image repository)
+        this.$emit('uploadImage', { file, imageUrl });
         // TODO - ensure that the actual repo URL for the image is used in Markdown mode
-        // TODO - upload images to the project repository (on submit)
       }
 
       addImage(this.editorInstance, image);
@@ -128,6 +134,6 @@ export default {
       @change="onContentChanged"
       @load="onLoad"
     />
-    <add-image-modal ref="addImageModal" @addImage="onAddImage" />
+    <add-image-modal ref="addImageModal" :image-root="imageRoot" @addImage="onAddImage" />
   </div>
 </template>

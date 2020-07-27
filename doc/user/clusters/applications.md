@@ -32,8 +32,6 @@ To see a list of available applications to install. For a:
 - [Group-level cluster](../group/clusters/index.md), navigate to your group's
   **{cloud-gear}** **Kubernetes** page.
 
-Install Helm first as it's used to install other applications.
-
 NOTE: **Note:**
 As of GitLab 11.6, Helm will be upgraded to the latest version supported
 by GitLab before installing any of the applications.
@@ -71,32 +69,30 @@ can lead to confusion during deployments.
 
 > - Introduced in GitLab 10.2 for project-level clusters.
 > - Introduced in GitLab 11.6 for group-level clusters.
-> - A local Tiller option was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.2 behind a feature flag, disabled by default.
+> - A local Tiller option was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.2 behind a feature flag, enabled by default.
 > - The feature flag for local Tiller is enabled on GitLab.com.
 
 [Helm](https://helm.sh/docs/) is a package manager for Kubernetes and is
-required to install all the other applications. It is installed in its
-own pod inside the cluster which can run the `helm` CLI in a safe
-environment.
+used to install the GitLab-managed apps. GitLab runs each `helm` command
+in a pod within the `gitlab-managed-apps` namespace inside the cluster.
 
-The [Tiller](https://v2.helm.sh/docs/glossary/#tiller) server used by Helm is
-installed into the `gitlab-managed-apps` namespace, but this is changing to
-instead use a *local Tiller* server. It can be enabled or disabled using the
-`managed_apps_local_tiller` feature flag. When the local Tiller feature is
-enabled, the Helm application does not need to be installed and will not be
-shown in the list of applications.
+As of GitLab 13.2, the integration uses a local
+[Tiller](https://v2.helm.sh/docs/glossary/#tiller) by default. When using a
+local Tiller, the Helm application does not need to be installed and will not
+be shown in the list of applications.
 
 NOTE: **Note:**
-Installing Helm as a GitLab-managed App behind a proxy is not supported,
-but a [workaround](../../topics/autodevops/index.md#installing-helm-behind-a-proxy)
+GitLab's Helm integration does not support installing applications behind a proxy,
+but a [workaround](../../topics/autodevops/index.md#install-applications-behind-a-proxy)
 is available.
 
 ### Enable or disable local Tiller **(CORE ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.2
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.2
+> - The option to disable local Tiller is [planned for removal](https://gitlab.com/gitlab-org/gitlab/-/issues/209736) in GitLab 13.3
 
 Local Tiller is under development, but is ready for production use. It is
-deployed behind a feature flag that is **disabled by default**.
+deployed behind a feature flag that is **enabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md)
 can enable it for your instance.
 
@@ -315,7 +311,7 @@ This feature:
   For example:
 
   ```shell
-  kubectl logs -n gitlab-managed-apps $(kubectl get pod -n gitlab-managed-apps -l app=nginx-ingress,component=controller --no-headers=true -o custom-columns=:metadata.name) modsecurity-log -f
+  kubectl -n gitlab-managed-apps logs -l app=nginx-ingress,component=controller -c modsecurity-log -f
   ```
 
 To enable WAF, switch its respective toggle to the enabled position when installing or updating [Ingress application](#ingress).
@@ -938,7 +934,7 @@ management project. Refer to the
 available configuration options.
 
 NOTE: **Note:**
-Support for installing the Elastic Stack managed application is provided by the GitLab Runner group.
+Support for installing the Runner managed application is provided by the GitLab Runner group.
 If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Runner group](https://about.gitlab.com/handbook/product/product-categories/#runner-group).
 
 ### Install Cilium using GitLab CI/CD
@@ -967,8 +963,8 @@ a corresponding cluster type. The default value is blank. You can
 check the recommended variables for each cluster type in the official
 documentation:
 
-- [Google GKE](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#prepare-deploy-cilium)
-- [AWS EKS](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-eks/#prepare-deploy-cilium)
+- [Google GKE](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-gke/#deploy-cilium)
+- [AWS EKS](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-eks/#deploy-cilium)
 
 You can customize Cilium's Helm variables by defining the
 `.gitlab/managed-apps/cilium/values.yaml` file in your cluster
@@ -978,9 +974,9 @@ for the available configuration options.
 
 CAUTION: **Caution:**
 Installation and removal of the Cilium requires a **manual**
-[restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
+[restart](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-gke/#restart-unmanaged-pods)
 of all affected pods in all namespaces to ensure that they are
-[managed](https://cilium.readthedocs.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium)
+[managed](https://docs.cilium.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium)
 by the correct networking plugin.
 
 NOTE: **Note:**
@@ -988,30 +984,27 @@ Major upgrades might require additional setup steps, please consult
 the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
 information.
 
-By default, Cilium will drop all disallowed packets upon policy
-deployment. The audit mode is scheduled for release in
-[Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
-mode, disallowed packets will not be dropped, and audit
-notifications will be generated instead. GitLab provides alternative Docker
-images for Cilium with the audit patch included. You can switch to the
-custom build and enable the audit mode by adding the following to
+By default, Cilium's [audit
+mode](https://docs.cilium.io/en/v1.8/gettingstarted/policy-creation/?highlight=policy-audit#enable-policy-audit-mode)
+is enabled. In audit mode, Cilium doesn't drop disallowed packets. You
+can use `policy-verdict` log to observe policy-related decisions. You
+can disable audit mode by adding the following to
 `.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yaml
-global:
-  registry: registry.gitlab.com/gitlab-org/defend/cilium
-  policyAuditMode: true
+config:
+  policyAuditMode: false
 
 agent:
   monitor:
-    eventTypes: ["drop", "audit"]
+    eventTypes: ["drop"]
 ```
 
 The Cilium monitor log for traffic is logged out by the
 `cilium-monitor` sidecar container. You can check these logs with the following command:
 
 ```shell
-kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
+kubectl -n gitlab-managed-apps logs -l k8s-app=cilium -c cilium-monitor
 ```
 
 You can disable the monitor log in `.gitlab/managed-apps/cilium/values.yaml`:
@@ -1026,22 +1019,24 @@ The [Hubble](https://github.com/cilium/hubble) monitoring daemon is
 enabled by default and it's set to collect per namespace flow
 metrics. This metrics are accessible on the [Threat Monitoring](../application_security/threat_monitoring/index.md)
 dashboard. You can disable Hubble by adding the following to
-`.gitlab/managed-apps/config.yaml`:
+`.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yaml
-cilium:
-  installed: true
+global:
   hubble:
-    installed: false
+    enabled: false
 ```
 
 You can also adjust Helm values for Hubble via
-`.gitlab/managed-apps/cilium/hubble-values.yaml`:
+`.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yaml
-metrics:
-  enabled:
-    - 'flow:sourceContext=namespace;destinationContext=namespace'
+global:
+  hubble:
+    enabled: true
+    metrics:
+      enabled:
+      - 'flow:sourceContext=namespace;destinationContext=namespace'
 ```
 
 NOTE: **Note:**
@@ -1132,7 +1127,7 @@ falco:
 You can check these logs with the following command:
 
 ```shell
-kubectl logs -l app=falco -n gitlab-managed-apps
+kubectl -n gitlab-managed-apps logs -l app=falco
 ```
 
 NOTE: **Note:**
@@ -1457,9 +1452,54 @@ podAnnotations:
 
 The only information to be changed here is the profile name which is `profile-one` in this example. Refer to the [AppArmor tutorial](https://kubernetes.io/docs/tutorials/clusters/apparmor/#securing-a-pod) for more information on how AppArmor is integrated in Kubernetes.
 
+#### Using PodSecurityPolicy in your deployments
+
+NOTE: **Note:**
+To enable AppArmor annotations on a Pod Security Policy you must first
+load the correspondingAppArmor profile.
+
+[Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/)are
+resources at the cluster level that control security-related
+properties of deployed pods. You can use such a policy to enable
+loaded AppArmor profiles and apply necessary pod restrictions across a
+cluster. You can deploy a new policy by adding the following
+to`.gitlab/managed-apps/apparmor/values.yaml`:
+
+```yaml
+securityPolicies:
+  example:
+    defaultProfile: profile-one
+    allowedProfiles:
+    - profile-one
+    - profile-two
+    spec:
+      privileged: false
+      seLinux:
+        rule: RunAsAny
+      supplementalGroups:
+        rule: RunAsAny
+      runAsUser:
+        rule: RunAsAny
+      fsGroup:
+        rule: RunAsAny
+      volumes:
+        - '*'
+```
+
+This example creates a single policy named `example` with the provided
+specification, and enables [AppArmor
+annotations](https://kubernetes.io/docs/tutorials/clusters/apparmor/#podsecuritypolicy-annotations)on
+it.
+
 NOTE: **Note:**
 Support for installing the AppArmor managed application is provided by the GitLab Container Security group.
 If you run into unknown issues, please [open a new issue](https://gitlab.com/gitlab-org/gitlab/-/issues/new) and ping at least 2 people from the [Container Security group](https://about.gitlab.com/handbook/product/product-categories/#container-security-group).
+
+## Browse applications logs
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/36769) in GitLab 13.2.
+
+Logs produced by pods running **GitLab Managed Apps** can be browsed using [**Log Explorer**](../project/clusters/kubernetes_pod_logs.md).
 
 ## Upgrading applications
 
@@ -1560,3 +1600,16 @@ The number and size of nodes might not have enough IP addresses to run or instal
 
 For reference, all the AWS instance IP limits are found
 [in this AWS repository on GitHub](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/pkg/awsutils/vpc_ip_resource_limit.go) (search for `InstanceENIsAvailable`).
+
+### Unable to install Prometheus
+
+Installing Prometheus is failing with the following error:
+
+```shell
+# kubectl -n gitlab-managed-apps logs install-prometheus
+...
+Error: Could not get apiVersions from Kubernetes: unable to retrieve the complete list of server APIs: admission.certmanager.k8s.io/v1beta1: the server is currently unable to handle the request
+```
+
+This is a bug that was introduced in Helm `2.15` and fixed in `3.0.2`. As a workaround, you'll need
+to make sure that [`cert-manager`](#cert-manager) is installed successfully prior to installing Prometheus.

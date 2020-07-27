@@ -3,14 +3,6 @@
 module Geo::SelectiveSync
   extend ActiveSupport::Concern
 
-  def attachments
-    if selective_sync?
-      uploads_model.where(group_attachments.or(project_attachments).or(other_attachments))
-    else
-      uploads_model.all
-    end
-  end
-
   def projects_outside_selected_namespaces
     return project_model.none unless selective_sync_by_namespaces?
 
@@ -45,6 +37,33 @@ module Geo::SelectiveSync
 
   def selective_sync_by_shards?
     selective_sync_type == 'shards'
+  end
+
+  # This method should only be used when:
+  #
+  # - Selective sync is enabled
+  # - A replicable model is associated to Namespace but not to any Project
+  #
+  # When selectively syncing by namespace: We must sync every replicable of
+  # every selected namespace and descendent namespaces.
+  #
+  # When selectively syncing by shard: We must sync every replicable of every
+  # namespace of every project in those shards. We must also sync every ancestor
+  # of those namespaces.
+  #
+  # When selective sync is disabled: This method raises, instead of returning
+  # the technically correct `Namespace.all`, because it is easy for it to become
+  # part of an unnecessarily complex and inefficient query.
+  #
+  # @return [ActiveRecord::Relation<Namespace>] returns namespaces based on selective sync settings
+  def namespaces_for_group_owned_replicables
+    if selective_sync_by_namespaces?
+      selected_namespaces_and_descendants
+    elsif selective_sync_by_shards?
+      selected_leaf_namespaces_and_ancestors
+    else
+      raise 'This scope should not be needed without selective sync'
+    end
   end
 
   private
@@ -106,35 +125,6 @@ module Geo::SelectiveSync
     relation
   end
 
-  def group_attachments
-    namespaces =
-      if selective_sync_by_namespaces?
-        selected_namespaces_and_descendants
-      elsif selective_sync_by_shards?
-        selected_leaf_namespaces_and_ancestors
-      else
-        namespaces_model.none
-      end
-
-    attachments_for_model_type_with_id_in('Namespace', namespaces.select(:id))
-  end
-
-  def project_attachments
-    attachments_for_model_type_with_id_in('Project', projects.select(:id))
-  end
-
-  def other_attachments
-    uploads_table[:model_type].not_in(%w[Namespace Project])
-  end
-
-  def attachments_for_model_type_with_id_in(model_type, model_ids)
-    uploads_table[:model_type]
-        .eq(model_type)
-        .and(
-          uploads_table[:model_id].in(model_ids.arel)
-        )
-  end
-
   # This concern doesn't define a geo_node_namespace_links relation. That's
   # done in ::GeoNode or ::Geo::Fdw::GeoNode respectively. So when we use the
   # same code from the two places, they act differently - the first doesn't
@@ -164,14 +154,5 @@ module Geo::SelectiveSync
 
   def projects_table
     project_model.arel_table
-  end
-
-  def uploads_model
-    raise NotImplementedError,
-      "#{self.class} does not implement #{__method__}"
-  end
-
-  def uploads_table
-    uploads_model.arel_table
   end
 end

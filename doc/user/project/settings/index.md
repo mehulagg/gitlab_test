@@ -57,7 +57,7 @@ Use the switches to enable or disable the following features:
 | **Pipelines**                     | ✓                         | Enables [CI/CD](../../../ci/README.md) functionality                                                                                                                                           |
 | **Container Registry**            |                           | Activates a [registry](../../packages/container_registry/) for your Docker images                                                                                                              |
 | **Git Large File Storage**        |                           | Enables the use of [large files](../../../topics/git/lfs/index.md#git-large-file-storage-lfs)                                                                                    |
-| **Packages**                      |                           | Supports configuration of a [package registry](../../../administration/packages/index.md#gitlab-package-registry-administration-premium-only) functionality                                    |
+| **Packages**                      |                           | Supports configuration of a [package registry](../../../administration/packages/index.md#gitlab-package-registry-administration) functionality                                    |
 | **Wiki**                          | ✓                         | Enables a separate system for [documentation](../wiki/)                                                                                                                                        |
 | **Snippets**                      | ✓                         | Enables [sharing of code and text](../../snippets.md)                                                                                                                                          |
 | **Pages**                         | ✓                         | Allows you to [publish static websites](../pages/)                                                                                                                                             |
@@ -68,7 +68,7 @@ Some features depend on others:
 - If you disable the **Issues** option, GitLab also removes the following
   features:
   - **Issue Boards**
-  - [**Service Desk**](#service-desk-starter) **(STARTER)**
+  - [**Service Desk**](#service-desk-starter)
 
   NOTE: **Note:**
   When the **Issues** option is disabled, you can still access **Milestones**
@@ -128,7 +128,7 @@ no longer actively maintained. Projects that have been archived can also be
 unarchived. Only project Owners and Admin users have the
 [permissions](../../permissions.md#project-members-permissions) to archive a project.
 
-When a project is archived, the repository, issues, merge requests, and all
+When a project is archived, the repository, packages, issues, merge requests, and all
 other features are read-only. Archived projects are also hidden
 in project listings.
 
@@ -223,13 +223,18 @@ To remove a project:
 1. In the Remove project section, click the **Remove project** button.
 1. Confirm the action when asked to.
 
-This action either:
+This action:
 
 - Removes a project including all associated resources (issues, merge requests etc).
-- Since [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/issues/32935), on
-  [GitLab Premium or GitLab.com Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a project for
-  deletion. The deletion will happen 7 days later by default, but this can be changed in the
-  [instance settings](../../admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+- From [GitLab 13.2](https://gitlab.com/gitlab-org/gitlab/-/issues/220382) on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers,
+group admins can [configure](../../group/index.md#enabling-delayed-project-removal-premium) projects within a group
+to be deleted after a delayed period.
+When enabled, actual deletion happens after number of days
+specified in [instance settings](../../admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+
+CAUTION: **Warning:**
+The default behavior of [Delayed Project deletion](https://gitlab.com/gitlab-org/gitlab/-/issues/32935) in GitLab 12.6 was changed to
+[Immediate deletion](https://gitlab.com/gitlab-org/gitlab/-/issues/220382) in GitLab 13.2.
 
 #### Restore a project **(PREMIUM)**
 
@@ -265,13 +270,13 @@ to remove a fork relationship.
 
 ### Error Tracking
 
-Configure Error Tracking to discover and view [Sentry errors within GitLab](../operations/error_tracking.md).
+Configure Error Tracking to discover and view [Sentry errors within GitLab](../../../operations/error_tracking.md).
 
 ### Jaeger tracing **(ULTIMATE)**
 
-Add the URL of a Jaeger server to allow your users to [easily access the Jaeger UI from within GitLab](../operations/tracing.md).
+Add the URL of a Jaeger server to allow your users to [easily access the Jaeger UI from within GitLab](../../../operations/tracing.md).
 
 ### Status Page
 
-[Add Storage credentials](../status_page/#syncing-incidents-to-the-status-page)
-to enable the syncing of public Issues to a [deployed status page](../status_page/#status-page-project).
+[Add Storage credentials](../../../operations/incident_management/status_page.md#syncing-incidents-to-the-status-page)
+to enable the syncing of public Issues to a [deployed status page](../../../operations/incident_management/status_page.md#status-page-project).

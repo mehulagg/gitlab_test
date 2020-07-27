@@ -17,6 +17,7 @@ RSpec.describe Namespace do
     it { is_expected.to have_many :children }
     it { is_expected.to have_one :root_storage_statistics }
     it { is_expected.to have_one :aggregation_schedule }
+    it { is_expected.to have_one :namespace_settings }
     it { is_expected.to have_many :custom_emoji }
   end
 
@@ -63,6 +64,36 @@ RSpec.describe Namespace do
         let(:group) { build(:group, path: 'tree') }
 
         it { expect(group).to be_valid }
+      end
+    end
+
+    describe '1 char path length' do
+      it 'does not allow to create one' do
+        namespace = build(:namespace, path: 'j')
+
+        expect(namespace).not_to be_valid
+        expect(namespace.errors[:path].first).to eq('is too short (minimum is 2 characters)')
+      end
+
+      it 'does not allow to update one' do
+        namespace = create(:namespace)
+        namespace.update(path: 'j')
+
+        expect(namespace).not_to be_valid
+        expect(namespace.errors[:path].first).to eq('is too short (minimum is 2 characters)')
+      end
+
+      it 'allows updating other attributes for existing record' do
+        namespace = build(:namespace, path: 'j')
+        namespace.save(validate: false)
+        namespace.reload
+
+        expect(namespace.path).to eq('j')
+
+        namespace.update(name: 'something new')
+
+        expect(namespace).to be_valid
+        expect(namespace.name).to eq('something new')
       end
     end
   end
@@ -854,8 +885,13 @@ RSpec.describe Namespace do
   end
 
   describe '#root_ancestor' do
+    let!(:root_group) { create(:group) }
+
+    it 'returns root_ancestor for root group without a query' do
+      expect { root_group.root_ancestor }.not_to exceed_query_limit(0)
+    end
+
     it 'returns the top most ancestor' do
-      root_group = create(:group)
       nested_group = create(:group, parent: root_group)
       deep_nested_group = create(:group, parent: nested_group)
       very_deep_nested_group = create(:group, parent: deep_nested_group)

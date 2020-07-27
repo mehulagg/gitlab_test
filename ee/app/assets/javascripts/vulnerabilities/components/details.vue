@@ -1,11 +1,13 @@
 <script>
 import { GlLink, GlSprintf } from '@gitlab/ui';
+import CodeBlock from '~/vue_shared/components/code_block.vue';
 import SeverityBadge from 'ee/vue_shared/security_reports/components/severity_badge.vue';
+import { __ } from '~/locale';
 import DetailItem from './detail_item.vue';
 
 export default {
   name: 'VulnerabilityDetails',
-  components: { GlLink, SeverityBadge, DetailItem, GlSprintf },
+  components: { CodeBlock, GlLink, SeverityBadge, DetailItem, GlSprintf },
   props: {
     vulnerability: {
       type: Object,
@@ -15,6 +17,9 @@ export default {
   computed: {
     location() {
       return this.vulnerability.location || {};
+    },
+    stacktraceSnippet() {
+      return this.vulnerability.stacktrace_snippet || '';
     },
     scanner() {
       return this.vulnerability.scanner || {};
@@ -47,6 +52,54 @@ export default {
         component: 'span',
         properties: {},
       };
+    },
+    requestData() {
+      const { request: { method, url, headers = [] } = {} } = this.vulnerability;
+
+      return [
+        {
+          label: __('%{labelStart}Method:%{labelEnd} %{method}'),
+          content: method,
+        },
+        {
+          label: __('%{labelStart}URL:%{labelEnd} %{url}'),
+          content: url,
+        },
+        {
+          label: __('%{labelStart}Headers:%{labelEnd} %{headers}'),
+          content: this.getHeadersAsCodeBlockLines(headers),
+          isCode: true,
+        },
+      ].filter(x => x.content);
+    },
+    responseData() {
+      const {
+        response: { status_code: statusCode, reason_phrase: reasonPhrase, headers = [] } = {},
+      } = this.vulnerability;
+
+      return [
+        {
+          label: __('%{labelStart}Status:%{labelEnd} %{status}'),
+          content: statusCode && reasonPhrase ? `${statusCode} ${reasonPhrase}` : '',
+        },
+        {
+          label: __('%{labelStart}Headers:%{labelEnd} %{headers}'),
+          content: this.getHeadersAsCodeBlockLines(headers),
+          isCode: true,
+        },
+      ].filter(x => x.content);
+    },
+    shouldShowLocation() {
+      return (
+        this.location.crash_address || this.location.crash_type || this.location.stacktrace_snippet
+      );
+    },
+  },
+  methods: {
+    getHeadersAsCodeBlockLines(headers) {
+      return Array.isArray(headers)
+        ? headers.map(({ name, value }) => `${name}: ${value}`).join('\n')
+        : '';
     },
   },
 };
@@ -109,6 +162,23 @@ export default {
       </detail-item>
     </ul>
 
+    <template v-if="shouldShowLocation">
+      <h3>{{ __('Location') }}</h3>
+      <ul>
+        <detail-item
+          v-if="location.crash_address"
+          :sprintf-message="__('%{labelStart}Crash Address:%{labelEnd} %{crash_address}')"
+          >{{ location.crash_address }}
+        </detail-item>
+        <detail-item
+          v-if="location.stacktrace_snippet"
+          :sprintf-message="__('%{labelStart}Crash State:%{labelEnd} %{stacktrace_snippet}')"
+        >
+          <code-block :code="location.stacktrace_snippet" max-height="225px" />
+        </detail-item>
+      </ul>
+    </template>
+
     <template v-if="location.file">
       <h3>{{ __('Location') }}</h3>
       <ul>
@@ -156,5 +226,37 @@ export default {
         </li>
       </ul>
     </template>
+
+    <section v-if="requestData.length" data-testid="request">
+      <h3>{{ s__('Vulnerability|Request') }}</h3>
+      <ul>
+        <detail-item
+          v-for="{ label, isCode, content } in requestData"
+          :key="label"
+          :sprintf-message="label"
+        >
+          <code-block v-if="isCode" class="mt-1" :code="content" max-height="225px" />
+          <template v-else>
+            {{ content }}
+          </template>
+        </detail-item>
+      </ul>
+    </section>
+
+    <section v-if="responseData.length" data-testid="response">
+      <h3>{{ s__('Vulnerability|Response') }}</h3>
+      <ul>
+        <detail-item
+          v-for="{ label, isCode, content } in responseData"
+          :key="label"
+          :sprintf-message="label"
+        >
+          <code-block v-if="isCode" class="mt-1" :code="content" max-height="225px" />
+          <template v-else>
+            {{ content }}
+          </template>
+        </detail-item>
+      </ul>
+    </section>
   </div>
 </template>

@@ -1,23 +1,10 @@
-# Webhooks
+---
+stage: Create
+group: Ecosystem
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
 
-> **Note:**
-> Starting from GitLab 8.5:
->
-> - the `repository` key is deprecated in favor of the `project` key
-> - the `project.ssh_url` key is deprecated in favor of the `project.git_ssh_url` key
-> - the `project.http_url` key is deprecated in favor of the `project.git_http_url` key
->
-> **Note:**
-> Starting from GitLab 11.1, the logs of webhooks are automatically removed after
-> one month.
->
-> **Note:**
-> Starting from GitLab 11.2:
->
-> - The `description` field for issues, merge requests, comments, and wiki pages
->   is rewritten so that simple Markdown image references (like
->   `![](/uploads/...)`) have their target URL changed to an absolute URL. See
->   [image URL rewriting](#image-url-rewriting) for more details.
+# Webhooks
 
 Project webhooks allow you to trigger a URL if for example new code is pushed or
 a new issue is created. You can configure webhooks to listen for specific events
@@ -49,6 +36,24 @@ Navigate to the webhooks page by going to your project's
 
 NOTE: **Note:**
 On GitLab.com, the [maximum number of webhooks](../../../user/gitlab_com/index.md#maximum-number-of-webhooks) per project, and per group, is limited.
+
+## Version history
+
+Starting from GitLab 8.5:
+
+- the `repository` key is deprecated in favor of the `project` key
+- the `project.ssh_url` key is deprecated in favor of the `project.git_ssh_url` key
+- the `project.http_url` key is deprecated in favor of the `project.git_http_url` key
+
+Starting from GitLab 11.1, the logs of webhooks are automatically removed after
+one month.
+
+Starting from GitLab 11.2:
+
+- The `description` field for issues, merge requests, comments, and wiki pages
+  is rewritten so that simple Markdown image references (like
+  `![](/uploads/...)`) have their target URL changed to an absolute URL. See
+  [image URL rewriting](#image-url-rewriting) for more details.
 
 ## Use-cases
 
@@ -1339,7 +1344,8 @@ On this page, you can see data that GitLab sends (request headers and body) and 
 
 From this page, you can repeat delivery with the same data by clicking `Resend Request` button.
 
-> **Note:** If URL or secret token of the webhook were updated, data will be delivered to the new address.
+NOTE: **Note:**
+If URL or secret token of the webhook were updated, data will be delivered to the new address.
 
 ### Receiving duplicate or multiple webhook requests triggered by one event
 

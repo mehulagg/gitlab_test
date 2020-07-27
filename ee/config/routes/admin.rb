@@ -60,9 +60,10 @@ namespace :admin do
       end
 
       resources :designs, only: [:index]
-      resources :package_files, only: [:index]
 
       resources :uploads, only: [:index, :destroy]
+
+      get '/:replicable_name_plural', to: 'replicables#index', as: 'replicables'
     end
 
     resource :settings, only: [:show, :update]
@@ -70,5 +71,6 @@ namespace :admin do
 
   namespace :elasticsearch do
     post :enqueue_index
+    post :trigger_reindexing
   end
 end

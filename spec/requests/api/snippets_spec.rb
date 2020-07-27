@@ -84,8 +84,8 @@ RSpec.describe API::Snippets do
           public_snippet.id,
           public_snippet_other.id)
         expect(json_response.map { |snippet| snippet['web_url']} ).to contain_exactly(
-          "http://localhost/snippets/#{public_snippet.id}",
-          "http://localhost/snippets/#{public_snippet_other.id}")
+          "http://localhost/-/snippets/#{public_snippet.id}",
+          "http://localhost/-/snippets/#{public_snippet_other.id}")
         expect(json_response[0]['files'].first).to eq snippet_blob_file(public_snippet_other.blobs.first)
         expect(json_response[1]['files'].first).to eq snippet_blob_file(public_snippet.blobs.first)
       end
@@ -107,12 +107,7 @@ RSpec.describe API::Snippets do
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(response.media_type).to eq 'text/plain'
-    end
-
-    it 'forces attachment content disposition' do
-      get api("/snippets/#{snippet.id}/raw", author)
-
-      expect(headers['Content-Disposition']).to match(/^attachment/)
+      expect(headers['Content-Disposition']).to match(/^inline/)
     end
 
     it 'returns 404 for invalid snippet id' do
@@ -142,6 +137,14 @@ RSpec.describe API::Snippets do
       let_it_be(:snippet_with_empty_repo) { create(:personal_snippet, :empty_repo, :private, author: author) }
 
       subject { get api("/snippets/#{snippet.id}/raw", snippet.author) }
+    end
+  end
+
+  describe 'GET /snippets/:id/files/:ref/:file_path/raw' do
+    let_it_be(:snippet) { create(:personal_snippet, :repository, :private) }
+
+    it_behaves_like 'raw snippet files' do
+      let(:api_path) { "/snippets/#{snippet_id}/files/#{ref}/#{file_path}/raw" }
     end
   end
 

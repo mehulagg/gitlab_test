@@ -36,11 +36,11 @@
   }
 
   .status-neutral {
-    background-color: $gray-200;
+    background-color: $gray-100;
     color: $gl-gray-dark;
 
     &:hover {
-      background-color: $gray-300;
+      background-color: $gray-200;
     }
   }
 

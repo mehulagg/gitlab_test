@@ -52,8 +52,6 @@ RSpec.describe GroupsController do
         expect(assigns(:events).map(&:id)).to contain_exactly(event.id)
       end
     end
-
-    it_behaves_like 'namespace storage limit alert'
   end
 
   describe 'GET #show' do
@@ -941,7 +939,7 @@ RSpec.describe GroupsController do
 
         allow(Gitlab::ApplicationRateLimiter)
           .to receive(:increment)
-          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_export][:threshold] + 1)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_export][:threshold].call + 1)
       end
 
       it 'throttles the endpoint' do
@@ -1015,7 +1013,7 @@ RSpec.describe GroupsController do
 
         allow(Gitlab::ApplicationRateLimiter)
           .to receive(:increment)
-          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_download_export][:threshold] + 1)
+          .and_return(Gitlab::ApplicationRateLimiter.rate_limits[:group_download_export][:threshold].call + 1)
       end
 
       it 'throttles the endpoint' do
@@ -1165,18 +1163,6 @@ RSpec.describe GroupsController do
         get_activity
 
         expect(json_response['count']).to eq(3)
-      end
-
-      context 'the design_activity_events feature flag is disabled' do
-        before do
-          stub_feature_flags(design_activity_events: false)
-        end
-
-        it 'does not include the design activity' do
-          get_activity
-
-          expect(json_response['count']).to eq(1)
-        end
       end
     end
 

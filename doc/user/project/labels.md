@@ -43,7 +43,7 @@ To assign a label to an issue, merge request or epic:
      click on them. You can search repeatedly and add more labels.
 1. Click **X** or anywhere outside the label section and the labels are applied.
 
-You can also assign a label with the [`/assign @username` quick action](quick_actions.md).
+You can also assign a label with the [`/label ~label1 ~label2` quick action](quick_actions.md).
 
 ## Label management
 
@@ -94,7 +94,7 @@ also be merged.
 All issues, merge requests, issue board lists, issue board filters, and label subscriptions
 with the old labels will be assigned to the new group label.
 
-WARNING: **Caution:**
+CAUTION: **Caution:**
 Promoting a label is a permanent action, and cannot be reversed.
 
 To promote a project label to a group label:
@@ -251,3 +251,16 @@ If you sort by `Priority`, GitLab uses this sort comparison order:
 Ties are broken arbitrarily.
 
 ![Labels sort priority](img/labels_sort_priority.png)
+
+## Troubleshooting
+
+### Some label titles end with `_duplicate<number>`
+
+In specific circumstances it was possible to create labels with duplicate titles in the same
+namespace.
+
+To resolve the duplication, [in GitLab 13.2](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21384)
+and later, some duplicate labels have `_duplicate<number>` appended to their titles.
+
+You can safely change these labels' titles if you prefer.
+For details of the original problem, see [issue 30390](https://gitlab.com/gitlab-org/gitlab/issues/30390).

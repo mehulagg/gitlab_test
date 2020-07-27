@@ -72,6 +72,7 @@ RSpec.describe ApplicationSetting do
     it { is_expected.not_to allow_value(nil).for(:push_event_activities_limit) }
 
     it { is_expected.to validate_numericality_of(:snippet_size_limit).only_integer.is_greater_than(0) }
+    it { is_expected.to validate_numericality_of(:wiki_page_max_content_bytes).only_integer.is_greater_than(0) }
     it { is_expected.to validate_presence_of(:max_artifacts_size) }
     it { is_expected.to validate_numericality_of(:max_artifacts_size).only_integer.is_greater_than(0) }
     it { is_expected.to validate_presence_of(:max_pages_size) }
@@ -106,6 +107,7 @@ RSpec.describe ApplicationSetting do
     it { is_expected.not_to allow_value(false).for(:hashed_storage_enabled) }
 
     it { is_expected.not_to allow_value(101).for(:repository_storages_weighted_default) }
+    it { is_expected.to allow_value('90').for(:repository_storages_weighted_default) }
     it { is_expected.not_to allow_value(-1).for(:repository_storages_weighted_default) }
     it { is_expected.to allow_value(100).for(:repository_storages_weighted_default) }
     it { is_expected.to allow_value(0).for(:repository_storages_weighted_default) }

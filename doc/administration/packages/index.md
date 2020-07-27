@@ -4,7 +4,7 @@ group: Package
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
-# GitLab Package Registry administration **(PREMIUM ONLY)**
+# GitLab Package Registry administration
 
 GitLab Packages allows organizations to utilize GitLab as a private repository
 for a variety of common package managers. Users are able to build and publish
@@ -98,6 +98,9 @@ Instead of relying on the local storage, you can use an object storage to
 store packages.
 
 [Read more about using object storage with GitLab](../object_storage.md).
+
+NOTE: **Note:**
+We recommend using the [consolidated object storage settings](../object_storage.md#consolidated-object-storage-configuration). The following instructions apply to the original config format.
 
 **Omnibus GitLab installations**
 

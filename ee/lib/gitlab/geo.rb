@@ -157,5 +157,14 @@ module Gitlab
 
       _(template) % { url: url }
     end
+
+    # TODO: Avoid having to maintain a list. Discussions related to possible
+    # solutions can be found at
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/227693
+    def self.replicator_classes
+      classes = [::Geo::PackageFileReplicator]
+
+      classes.select(&:enabled?)
+    end
   end
 end

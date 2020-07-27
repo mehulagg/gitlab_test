@@ -3,7 +3,7 @@
 - mirror_settings_enabled = can?(current_user, :admin_remote_mirror, @project)
 - mirror_settings_class = "#{'expanded' if expanded} #{'js-mirror-settings' if mirror_settings_enabled}".strip
 
-%section.settings.project-mirror-settings.no-animate#js-push-remote-settings{ class: mirror_settings_class, data: { qa_selector: 'mirroring_repositories_settings_section' } }
+%section.settings.project-mirror-settings.no-animate#js-push-remote-settings{ class: mirror_settings_class, data: { qa_selector: 'mirroring_repositories_settings_content' } }
   .settings-header
     %h4= _('Mirroring repositories')
     %button.btn.js-settings-toggle
@@ -27,7 +27,7 @@
 
             = render 'projects/mirrors/mirror_repos_form', f: f
 
-            .form-check.append-bottom-10
+            .form-check.gl-mb-3
               = check_box_tag :only_protected_branches, '1', false, class: 'js-mirror-protected form-check-input'
               = label_tag :only_protected_branches, _('Only mirror protected branches'), class: 'form-check-label'
               = link_to icon('question-circle'), help_page_path('user/project/protected_branches'), target: '_blank'

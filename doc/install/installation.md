@@ -200,7 +200,8 @@ needs to be installed.
 sudo apt-get install -y graphicsmagick
 ```
 
-**Note:** In order to receive mail notifications, make sure to install a mail server. By default, Debian is shipped with exim4 but this [has problems](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/12754) while Ubuntu does not ship with one. The recommended mail server is postfix and you can install it with:
+NOTE: **Note:**
+In order to receive mail notifications, make sure to install a mail server. By default, Debian is shipped with exim4 but this [has problems](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/12754) while Ubuntu does not ship with one. The recommended mail server is postfix and you can install it with:
 
 ```shell
 sudo apt-get install -y postfix
@@ -219,8 +220,9 @@ sudo apt-get install -y libimage-exiftool-perl
 
 The Ruby interpreter is required to run GitLab.
 
-**Note:** The current supported Ruby (MRI) version is 2.6.x. GitLab 12.2
-  dropped support for Ruby 2.5.x.
+NOTE: **Note:**
+The current supported Ruby (MRI) version is 2.6.x. GitLab 12.2
+dropped support for Ruby 2.5.x.
 
 The use of Ruby version managers such as [RVM](https://rvm.io/), [rbenv](https://github.com/rbenv/rbenv) or [chruby](https://github.com/postmodern/chruby) with GitLab
 in production, frequently leads to hard to diagnose problems. Version managers
@@ -310,8 +312,7 @@ sudo adduser --disabled-login --gecos 'GitLab' git
 ## 6. Database
 
 NOTE: **Note:**
-Starting from GitLab 12.1, only PostgreSQL is supported. Because we need to make
-use of extensions and concurrent index removal, you need at least PostgreSQL 9.2.
+Starting from GitLab 12.1, only PostgreSQL is supported. Since GitLab 13.0, we require PostgreSQL 11+.
 
 1. Install the database packages:
 
@@ -332,10 +333,16 @@ use of extensions and concurrent index removal, you need at least PostgreSQL 9.2
    sudo -u postgres psql -d template1 -c "CREATE USER git CREATEDB;"
    ```
 
-1. Create the `pg_trgm` extension (required for GitLab 8.6+):
+1. Create the `pg_trgm` extension:
 
    ```shell
    sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+   ```
+
+1. Create the `btree_gist` extension (required for GitLab 13.1+):
+
+   ```shell
+   sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
    ```
 
 1. Create the GitLab production database and grant all privileges on the database:
@@ -356,6 +363,24 @@ use of extensions and concurrent index removal, you need at least PostgreSQL 9.2
    SELECT true AS enabled
    FROM pg_available_extensions
    WHERE name = 'pg_trgm'
+   AND installed_version IS NOT NULL;
+   ```
+
+   If the extension is enabled this will produce the following output:
+
+   ```plaintext
+   enabled
+   ---------
+    t
+   (1 row)
+   ```
+
+1. Check if the `btree_gist` extension is enabled:
+
+   ```sql
+   SELECT true AS enabled
+   FROM pg_available_extensions
+   WHERE name = 'btree_gist'
    AND installed_version IS NOT NULL;
    ```
 
@@ -426,9 +451,18 @@ cd /home/git
 
 ### Clone the Source
 
+Clone Community Edition:
+
 ```shell
 # Clone GitLab repository
 sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-foss.git -b X-Y-stable gitlab
+```
+
+Clone Enterprise Edition:
+
+```shell
+# Clone GitLab repository
+sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-ee.git -b X-Y-stable gitlab
 ```
 
 Make sure to replace `X-Y-stable` with the stable branch that matches the
@@ -601,7 +635,7 @@ You can specify a different Git repository by providing it as an extra parameter
 sudo -u git -H bundle exec rake "gitlab:workhorse:install[/home/git/gitlab-workhorse,https://example.com/gitlab-workhorse.git]" RAILS_ENV=production
 ```
 
-### Install GitLab-Elasticsearch-indexer
+### Install GitLab-Elasticsearch-indexer on Enterprise Edition
 
 GitLab-Elasticsearch-Indexer uses [GNU Make](https://www.gnu.org/software/make/). The
 following command-line will install GitLab-Elasticsearch-Indexer in `/home/git/gitlab-elasticsearch-indexer`
@@ -619,6 +653,9 @@ sudo -u git -H bundle exec rake "gitlab:indexer:install[/home/git/gitlab-elastic
 
 The source code will first be fetched to the path specified by the first parameter. Then a binary will be built under its `bin` directory.
 You will then need to update `gitlab.yml`'s `production -> elasticsearch -> indexer_path` setting to point to that binary.
+
+NOTE: **Note:**
+Elasticsearch is a feature of GitLab Enterprise Edition and isn't included in GitLab Community Edition.
 
 ### Install GitLab Pages
 
@@ -801,7 +838,8 @@ If you intend to enable GitLab Pages, there is a separate NGINX config you need
 to use. Read all about the needed configuration at the
 [GitLab Pages administration guide](../administration/pages/index.md).
 
-**Note:** If you want to use HTTPS, replace the `gitlab` NGINX config with `gitlab-ssl`. See [Using HTTPS](#using-https) for HTTPS configuration details.
+NOTE: **Note:**
+If you want to use HTTPS, replace the `gitlab` NGINX config with `gitlab-ssl`. See [Using HTTPS](#using-https) for HTTPS configuration details.
 
 ### Test Configuration
 

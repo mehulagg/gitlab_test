@@ -9,24 +9,36 @@ RSpec.describe Ci::InstanceVariable do
 
   it { is_expected.to include_module(Ci::Maskable) }
   it { is_expected.to validate_uniqueness_of(:key).with_message(/\(\w+\) has already been taken/) }
-  it { is_expected.to validate_length_of(:encrypted_value).is_at_most(1024).with_message(/Variables over 700 characters risk exceeding the limit/) }
+  it { is_expected.to validate_length_of(:value).is_at_most(10_000).with_message(/The value of the provided variable exceeds the 10000 character limit/) }
 
   it_behaves_like 'includes Limitable concern' do
     subject { build(:ci_instance_variable) }
   end
 
-  context 'with instance level variable feature flag disabled' do
-    let(:plan_limits) { create(:plan_limits, :default_plan) }
+  describe '#value' do
+    context 'without application limit' do
+      # Ensures breakage if encryption algorithm changes
+      let(:variable) { build(:ci_instance_variable, key: 'too_long', value: value) }
 
-    before do
-      stub_feature_flags(ci_instance_level_variables_limit: false)
-      plan_limits.update(described_class.limit_name => 1)
-      create(:ci_instance_variable)
-    end
+      before do
+        allow(variable).to receive(:valid?).and_return(true)
+      end
 
-    it 'can create new models exceeding the plan limits', :aggregate_failures do
-      expect { subject.save }.to change { described_class.count }
-      expect(subject.errors[:base]).to be_empty
+      context 'when value is over the limit' do
+        let(:value) { SecureRandom.alphanumeric(10_002) }
+
+        it 'raises a database level error' do
+          expect { variable.save }.to raise_error(ActiveRecord::StatementInvalid)
+        end
+      end
+
+      context 'when value is under the limit' do
+        let(:value) { SecureRandom.alphanumeric(10_000) }
+
+        it 'does not raise database level error' do
+          expect { variable.save }.not_to raise_error
+        end
+      end
     end
   end
 

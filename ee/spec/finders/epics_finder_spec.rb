@@ -228,6 +228,22 @@ RSpec.describe EpicsFinder do
           end
         end
 
+        context 'by confidential' do
+          let_it_be(:confidential_epic) { create(:epic, :confidential, group: group) }
+
+          it 'returns only confidential epics when confidential is true' do
+            params = { confidential: true }
+
+            expect(epics(params)).to contain_exactly(confidential_epic)
+          end
+
+          it 'does not include confidential epics when confidential is false' do
+            params = { confidential: false }
+
+            expect(epics(params)).not_to include(confidential_epic)
+          end
+        end
+
         context 'by iids' do
           let_it_be(:subgroup) { create(:group, :private, parent: group) }
           let_it_be(:subepic1) { create(:epic, group: subgroup, iid: epic1.iid) }
@@ -321,16 +337,6 @@ RSpec.describe EpicsFinder do
 
             it 'returns all epics' do
               expect(subject).to match_array([base_epic1, base_epic2, private_epic1, private_epic2, public_epic1, public_epic2])
-            end
-
-            context 'when skip_epic_count_visibility_check is disabled' do
-              before do
-                stub_feature_flags(skip_epic_count_visibility_check: false)
-              end
-
-              it 'returns only public epics' do
-                expect(subject).to match_array([base_epic2, public_epic1])
-              end
             end
           end
 

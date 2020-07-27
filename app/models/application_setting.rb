@@ -9,7 +9,7 @@ class ApplicationSetting < ApplicationRecord
   GRAFANA_URL_ERROR_MESSAGE = 'Please check your Grafana URL setting in ' \
     'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
 
-  add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
+  add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
   add_authentication_token_field :static_objects_external_storage_auth_token
 
@@ -272,6 +272,7 @@ class ApplicationSetting < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0 }
 
   validates :snippet_size_limit, numericality: { only_integer: true, greater_than: 0 }
+  validates :wiki_page_max_content_bytes, numericality: { only_integer: true, greater_than: 0 }
 
   validates :email_restrictions, untrusted_regexp: true
 
@@ -282,10 +283,6 @@ class ApplicationSetting < ApplicationRecord
   end
 
   validates :allowed_key_types, presence: true
-
-  repository_storages_weighted_attributes.each do |attribute|
-    validates attribute, allow_nil: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
-  end
 
   validates_each :restricted_visibility_levels do |record, attr, value|
     value&.each do |level|

@@ -425,6 +425,73 @@ RSpec.describe API::MergeRequests do
         end
       end
 
+      context 'NOT params' do
+        let(:merge_request2) do
+          create(
+            :merge_request,
+            :simple,
+            milestone: milestone,
+            author: user,
+            assignees: [user],
+            merge_request_context_commits: [merge_request_context_commit],
+            source_project: project,
+            target_project: project,
+            source_branch: 'what',
+            title: "What",
+            created_at: base_time
+          )
+        end
+
+        before do
+          create(:label_link, label: label, target: merge_request)
+          create(:label_link, label: label2, target: merge_request2)
+        end
+
+        it 'returns merge requests without any of the labels given', :aggregate_failures do
+          get api(endpoint_path, user), params: { not: { labels: ["#{label.title}, #{label2.title}"] } }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_an(Array)
+          expect(json_response.length).to eq(3)
+          json_response.each do |mr|
+            expect(mr['labels']).not_to include(label2.title, label.title)
+          end
+        end
+
+        it 'returns merge requests without any of the milestones given', :aggregate_failures do
+          get api(endpoint_path, user), params: { not: { milestone: milestone.title } }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_an(Array)
+          expect(json_response.length).to eq(4)
+          json_response.each do |mr|
+            expect(mr['milestone']).not_to eq(milestone.title)
+          end
+        end
+
+        it 'returns merge requests without the author given', :aggregate_failures do
+          get api(endpoint_path, user), params: { not: { author_id: user2.id } }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_an(Array)
+          expect(json_response.length).to eq(5)
+          json_response.each do |mr|
+            expect(mr['author']['id']).not_to eq(user2.id)
+          end
+        end
+
+        it 'returns merge requests without the assignee given', :aggregate_failures do
+          get api(endpoint_path, user), params: { not: { assignee_id: user2.id } }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response).to be_an(Array)
+          expect(json_response.length).to eq(5)
+          json_response.each do |mr|
+            expect(mr['assignee']['id']).not_to eq(user2.id)
+          end
+        end
+      end
+
       context 'source_branch param' do
         it 'returns merge requests with the given source branch' do
           get api(endpoint_path, user), params: { source_branch: merge_request_closed.source_branch, state: 'all' }
@@ -1484,25 +1551,33 @@ RSpec.describe API::MergeRequests do
       it "returns 422 when source_branch equals target_branch" do
         post api("/projects/#{project.id}/merge_requests", user),
         params: { title: "Test merge_request", source_branch: "master", target_branch: "master", author: user }
+
         expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response['message']).to eq(["You can't use same project/branch for source and target"])
       end
 
       it "returns 400 when source_branch is missing" do
         post api("/projects/#{project.id}/merge_requests", user),
         params: { title: "Test merge_request", target_branch: "master", author: user }
+
         expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to eq('source_branch is missing')
       end
 
       it "returns 400 when target_branch is missing" do
         post api("/projects/#{project.id}/merge_requests", user),
         params: { title: "Test merge_request", source_branch: "markdown", author: user }
+
         expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to eq('target_branch is missing')
       end
 
       it "returns 400 when title is missing" do
         post api("/projects/#{project.id}/merge_requests", user),
         params: { target_branch: 'master', source_branch: 'markdown' }
+
         expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to eq('title is missing')
       end
 
       context 'with existing MR' do
@@ -1527,7 +1602,9 @@ RSpec.describe API::MergeRequests do
                    author: user
                  }
           end.to change { MergeRequest.count }.by(0)
+
           expect(response).to have_gitlab_http_status(:conflict)
+          expect(json_response['message']).to eq(["Another open merge request already exists for this source branch: !5"])
         end
       end
 

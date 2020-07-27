@@ -5,6 +5,7 @@ import {
   GlCollapse,
   GlDeprecatedButton,
   GlFormCheckbox,
+  GlFormCombobox,
   GlFormGroup,
   GlFormInput,
   GlFormSelect,
@@ -26,7 +27,6 @@ import {
   AWS_TIP_MESSAGE,
 } from '../constants';
 import { awsTokens, awsTokenList } from './ci_variable_autocomplete_tokens';
-import CiKeyField from './ci_key_field.vue';
 import CiEnvironmentsDropdown from './ci_environments_dropdown.vue';
 
 export default {
@@ -36,12 +36,12 @@ export default {
   awsTipMessage: AWS_TIP_MESSAGE,
   components: {
     CiEnvironmentsDropdown,
-    CiKeyField,
     GlAlert,
     GlButton,
     GlCollapse,
     GlDeprecatedButton,
     GlFormCheckbox,
+    GlFormCombobox,
     GlFormGroup,
     GlFormInput,
     GlFormSelect,
@@ -205,10 +205,11 @@ export default {
     @shown="setVariableProtectedByDefault"
   >
     <form>
-      <ci-key-field
+      <gl-form-combobox
         v-if="glFeatures.ciKeyAutocomplete"
         v-model="key"
         :token-list="$options.tokenList"
+        :label-text="__('Key')"
       />
 
       <gl-form-group v-else :label="__('Key')" label-for="ci-variable-key">
@@ -241,7 +242,7 @@ export default {
         <gl-form-group
           :label="__('Type')"
           label-for="ci-variable-type"
-          class="w-50 append-right-15"
+          class="w-50 gl-mr-5"
           :class="{ 'w-100': isGroup }"
         >
           <gl-form-select id="ci-variable-type" v-model="variable_type" :options="typeOptions" />

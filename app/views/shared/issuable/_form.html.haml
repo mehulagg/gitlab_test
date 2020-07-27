@@ -9,7 +9,7 @@
   .alert.alert-danger
     Someone edited the #{issuable.class.model_name.human.downcase} the same time you did.
     Please check out
-    = link_to "the #{issuable.class.model_name.human.downcase}", polymorphic_path([@project.namespace.becomes(Namespace), @project, issuable]), target: "_blank", rel: 'noopener noreferrer'
+    = link_to "the #{issuable.class.model_name.human.downcase}", polymorphic_path([@project, issuable]), target: "_blank", rel: 'noopener noreferrer'
     and make sure your changes will not unintentionally remove theirs
 
 = render 'shared/issuable/form/branch_chooser', issuable: issuable, form: form
@@ -35,7 +35,7 @@
 
 = render_if_exists 'shared/issuable/approvals', issuable: issuable, presenter: presenter, form: form
 
-= render 'shared/issuable/form/merge_params', issuable: issuable
+= render 'shared/issuable/form/merge_params', issuable: issuable, project: project
 
 = render 'shared/issuable/form/contribution', issuable: issuable, form: form
 
@@ -63,13 +63,13 @@
 .row-content-block{ class: (is_footer ? "footer-block" : "middle-block") }
   .float-right
     - if issuable.new_record?
-      = link_to 'Cancel', polymorphic_path([@project.namespace.becomes(Namespace), @project, issuable.class]), class: 'btn btn-cancel'
+      = link_to 'Cancel', polymorphic_path([@project, issuable.class]), class: 'btn btn-cancel'
     - else
       - if can?(current_user, :"destroy_#{issuable.to_ability_name}", @project)
-        = link_to 'Delete', polymorphic_path([@project.namespace.becomes(Namespace), @project, issuable], params: { destroy_confirm: true }), data: { confirm: "#{issuable.human_class_name} will be removed! Are you sure?" }, method: :delete, class: 'btn btn-danger btn-grouped'
-      = link_to 'Cancel', polymorphic_path([@project.namespace.becomes(Namespace), @project, issuable]), class: 'btn btn-grouped btn-cancel'
+        = link_to 'Delete', polymorphic_path([@project, issuable], params: { destroy_confirm: true }), data: { confirm: "#{issuable.human_class_name} will be removed! Are you sure?" }, method: :delete, class: 'btn btn-danger btn-grouped'
+      = link_to 'Cancel', polymorphic_path([@project, issuable]), class: 'btn btn-grouped btn-cancel'
 
-  %span.append-right-10
+  %span.gl-mr-3
     - if issuable.new_record?
       = form.submit "Submit #{issuable.class.model_name.human.downcase}", class: 'btn btn-success qa-issuable-create-button'
     - else

@@ -5,7 +5,7 @@ import { featureAccessLevel } from '~/pages/projects/shared/permissions/constant
 import { PROJECTS_PER_PAGE, STAGE_ACTIONS } from '../constants';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_filter.vue';
-import { LAST_ACTIVITY_AT, DATE_RANGE_LIMIT } from '../../shared/constants';
+import { SIMILARITY_ORDER, LAST_ACTIVITY_AT, DATE_RANGE_LIMIT } from '../../shared/constants';
 import DateRange from '../../shared/components/daterange.vue';
 import StageTable from './stage_table.vue';
 import DurationChart from './duration_chart.vue';
@@ -19,6 +19,7 @@ import CustomStageForm from './custom_stage_form.vue';
 import PathNavigation from './path_navigation.vue';
 import MetricCard from '../../shared/components/metric_card.vue';
 import FilterBar from './filter_bar.vue';
+import ValueStreamSelect from './value_stream_select.vue';
 
 export default {
   name: 'CycleAnalytics',
@@ -38,6 +39,7 @@ export default {
     PathNavigation,
     MetricCard,
     FilterBar,
+    ValueStreamSelect,
   },
   mixins: [UrlSyncMixin],
   props: {
@@ -77,6 +79,7 @@ export default {
       'startDate',
       'endDate',
       'medians',
+      'isLoadingValueStreams',
     ]),
     // NOTE: formEvents are fetched in the same request as the list of stages (fetchGroupStagesAndEvents)
     // so i think its ok to bind formEvents here even though its only used as a prop to the custom-stage-form
@@ -111,6 +114,11 @@ export default {
       // https://gitlab.com/gitlab-org/gitlab/-/issues/223735
       return this.featureFlags.hasFilterBar && this.currentGroupPath;
     },
+    shouldDisplayCreateMultipleValueStreams() {
+      return Boolean(
+        this.featureFlags.hasCreateMultipleValueStreams && !this.isLoadingValueStreams,
+      );
+    },
     isLoadingTypeOfWork() {
       return this.isLoadingTasksByTypeChartTopLabels || this.isLoadingTasksByTypeChart;
     },
@@ -135,6 +143,16 @@ export default {
     hasProject() {
       return this.selectedProjectIds.length > 0;
     },
+    projectsQueryParams() {
+      return {
+        per_page: PROJECTS_PER_PAGE,
+        with_shared: false,
+        order_by: this.featureFlags.hasAnalyticsSimilaritySearch
+          ? SIMILARITY_ORDER
+          : LAST_ACTIVITY_AT,
+        include_subgroups: true,
+      };
+    },
   },
 
   methods: {
@@ -149,7 +167,6 @@ export default {
       'removeStage',
       'updateStage',
       'reorderStage',
-      'setSelectedFilters',
     ]),
     ...mapActions('customStages', [
       'hideForm',
@@ -196,20 +213,20 @@ export default {
   groupsQueryParams: {
     min_access_level: featureAccessLevel.EVERYONE,
   },
-  projectsQueryParams: {
-    per_page: PROJECTS_PER_PAGE,
-    with_shared: false,
-    order_by: LAST_ACTIVITY_AT,
-    include_subgroups: true,
-  },
   maxDateRange: DATE_RANGE_LIMIT,
   STAGE_ACTIONS,
 };
 </script>
 <template>
   <div>
-    <div class="mb-3">
+    <div
+      class="gl-mb-3 gl-display-flex gl-flex-direction-column gl-sm-flex-direction-row gl-justify-content-space-between"
+    >
       <h3>{{ __('Value Stream Analytics') }}</h3>
+      <value-stream-select
+        v-if="shouldDisplayCreateMultipleValueStreams"
+        class="gl-align-self-start gl-sm-align-self-start gl-mt-0 gl-sm-mt-5"
+      />
     </div>
     <div class="mw-100">
       <div class="mt-3 py-2 px-3 bg-gray-light border-top border-bottom">
@@ -239,7 +256,7 @@ export default {
               :key="selectedGroup.id"
               class="js-projects-dropdown-filter project-select"
               :group-id="selectedGroup.id"
-              :query-params="$options.projectsQueryParams"
+              :query-params="projectsQueryParams"
               :multi-select="$options.multiProjectSelect"
               :default-projects="selectedProjects"
               @selected="onProjectsSelect"

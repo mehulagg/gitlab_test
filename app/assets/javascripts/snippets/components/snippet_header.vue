@@ -7,8 +7,8 @@ import {
   GlModal,
   GlAlert,
   GlLoadingIcon,
-  GlDropdown,
-  GlDropdownItem,
+  GlDeprecatedDropdown,
+  GlDeprecatedDropdownItem,
   GlButton,
   GlTooltipDirective,
 } from '@gitlab/ui';
@@ -26,8 +26,8 @@ export default {
     GlModal,
     GlAlert,
     GlLoadingIcon,
-    GlDropdown,
-    GlDropdownItem,
+    GlDeprecatedDropdown,
+    GlDeprecatedDropdownItem,
     TimeAgoTooltip,
     GlButton,
   },
@@ -91,8 +91,8 @@ export default {
           condition: this.canCreateSnippet,
           text: __('New snippet'),
           href: this.snippet.project
-            ? `${this.snippet.project.webUrl}/snippets/new`
-            : '/snippets/new',
+            ? `${this.snippet.project.webUrl}/-/snippets/new`
+            : '/-/snippets/new',
           variant: 'success',
           category: 'secondary',
           cssClass: 'ml-2',
@@ -130,7 +130,9 @@ export default {
   },
   methods: {
     redirectToSnippets() {
-      window.location.pathname = `${this.snippet.project?.fullPath || 'dashboard'}/snippets`;
+      window.location.pathname = this.snippet.project
+        ? `${this.snippet.project.fullPath}/-/snippets`
+        : 'dashboard/snippets';
     },
     closeDeleteModal() {
       this.$refs.deleteModal.hide();
@@ -166,7 +168,7 @@ export default {
   <div class="detail-page-header">
     <div class="detail-page-header-body">
       <div
-        class="snippet-box has-tooltip d-flex align-items-center append-right-5 mb-1"
+        class="snippet-box has-tooltip d-flex align-items-center gl-mr-2 mb-1"
         data-qa-selector="snippet_container"
         :title="snippetVisibilityLevelDescription"
         data-container="body"
@@ -221,17 +223,17 @@ export default {
         </template>
       </div>
       <div class="d-block d-sm-none dropdown">
-        <gl-dropdown :text="__('Options')" class="w-100" toggle-class="text-center">
-          <gl-dropdown-item
+        <gl-deprecated-dropdown :text="__('Options')" class="w-100" toggle-class="text-center">
+          <gl-deprecated-dropdown-item
             v-for="(action, index) in personalSnippetActions"
             :key="index"
             :disabled="action.disabled"
             :title="action.title"
             :href="action.href"
             @click="action.click ? action.click() : undefined"
-            >{{ action.text }}</gl-dropdown-item
+            >{{ action.text }}</gl-deprecated-dropdown-item
           >
-        </gl-dropdown>
+        </gl-deprecated-dropdown>
       </div>
     </div>
 

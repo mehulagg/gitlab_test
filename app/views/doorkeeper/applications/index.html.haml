@@ -41,10 +41,10 @@
                         %div= uri
                     %td= application.access_tokens.count
                     %td
-                      = link_to edit_oauth_application_path(application), class: "btn btn-transparent append-right-5" do
+                      = link_to edit_oauth_application_path(application), class: "btn btn-transparent gl-mr-2" do
                         %span.sr-only
                           = _('Edit')
-                        = icon('pencil')
+                        = sprite_icon('pencil')
                       = render 'delete_form', application: application, small: true
         - else
           .settings-message.text-center

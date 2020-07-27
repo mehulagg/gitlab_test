@@ -16,7 +16,7 @@ function mountComponent({ rootStorageStatistics, limit }) {
 function findStorageTypeUsagesSerialized() {
   return wrapper
     .findAll('[data-testid="storage-type-usage"]')
-    .wrappers.map(wp => wp.element.style.width);
+    .wrappers.map(wp => wp.element.style.flex);
 }
 
 describe('Storage Counter usage graph component', () => {
@@ -28,7 +28,8 @@ describe('Storage Counter usage graph component', () => {
         packagesSize: 3000,
         lfsObjectsSize: 2000,
         buildArtifactsSize: 1000,
-        storageSize: 15000,
+        snippetsSize: 2000,
+        storageSize: 17000,
       },
       limit: 2000,
     };
@@ -48,6 +49,7 @@ describe('Storage Counter usage graph component', () => {
       packagesSize,
       repositorySize,
       wikiSize,
+      snippetsSize,
     } = data.rootStorageStatistics;
 
     expect(types.at(0).text()).toMatchInterpolatedText(`Wikis ${numberToHumanSize(wikiSize)}`);
@@ -61,6 +63,9 @@ describe('Storage Counter usage graph component', () => {
       `LFS Objects ${numberToHumanSize(lfsObjectsSize)}`,
     );
     expect(types.at(4).text()).toMatchInterpolatedText(
+      `Snippets ${numberToHumanSize(snippetsSize)}`,
+    );
+    expect(types.at(5).text()).toMatchInterpolatedText(
       `Build Artifacts ${numberToHumanSize(buildArtifactsSize)}`,
     );
   });
@@ -93,8 +98,15 @@ describe('Storage Counter usage graph component', () => {
       mountComponent(data);
     });
 
-    it('sets correct width values', () => {
-      expect(findStorageTypeUsagesSerialized()).toStrictEqual(['33%', '27%', '20%', '13%', '7%']);
+    it('sets correct flex values', () => {
+      expect(findStorageTypeUsagesSerialized()).toStrictEqual([
+        '0.29411764705882354',
+        '0.23529411764705882',
+        '0.17647058823529413',
+        '0.11764705882352941',
+        '0.11764705882352941',
+        '0.058823529411764705',
+      ]);
     });
   });
 
@@ -105,7 +117,14 @@ describe('Storage Counter usage graph component', () => {
     });
 
     it('it does render correclty', () => {
-      expect(findStorageTypeUsagesSerialized()).toStrictEqual(['33%', '27%', '20%', '13%', '7%']);
+      expect(findStorageTypeUsagesSerialized()).toStrictEqual([
+        '0.29411764705882354',
+        '0.23529411764705882',
+        '0.17647058823529413',
+        '0.11764705882352941',
+        '0.11764705882352941',
+        '0.058823529411764705',
+      ]);
     });
   });
 });

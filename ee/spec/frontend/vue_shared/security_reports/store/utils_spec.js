@@ -6,7 +6,6 @@ import {
   groupedReportText,
 } from 'ee/vue_shared/security_reports/store/utils';
 import convertReportType from 'ee/vue_shared/security_reports/store/utils/convert_report_type';
-import filterByKey from 'ee/vue_shared/security_reports/store/utils/filter_by_key';
 import getFileLocation from 'ee/vue_shared/security_reports/store/utils/get_file_location';
 import {
   CRITICAL,
@@ -63,15 +62,6 @@ describe('security reports utils', () => {
     );
   });
 
-  describe('filterByKey', () => {
-    it('filters the array with the provided key', () => {
-      const array1 = [{ id: '1234' }, { id: 'abg543' }, { id: '214swfA' }];
-      const array2 = [{ id: '1234' }, { id: 'abg543' }, { id: '453OJKs' }];
-
-      expect(filterByKey(array1, array2, 'id')).toEqual([{ id: '214swfA' }]);
-    });
-  });
-
   describe('getFileLocation', () => {
     const hostname = 'https://hostna.me';
     const path = '/deeply/nested/route';
@@ -107,10 +97,13 @@ describe('security reports utils', () => {
       { external_type: 'gemnaisum', name: 'GEMNASIUM-1337' },
     ];
     it('should return the `cve` identifier if a `cve` identifier does exist', () => {
-      expect(getPrimaryIdentifiers(identifiers)).toBe(identifiers[0].name);
+      expect(getPrimaryIdentifiers(identifiers, 'external_type')).toBe(identifiers[0].name);
+    });
+    it('should return the first identifier if the property for type does not exist', () => {
+      expect(getPrimaryIdentifiers(identifiers, 'externalType')).toBe(identifiers[0].name);
     });
     it('should return the first identifier if a `cve` identifier does not exist', () => {
-      expect(getPrimaryIdentifiers([identifiers[1]])).toBe(identifiers[1].name);
+      expect(getPrimaryIdentifiers([identifiers[1]], 'external_type')).toBe(identifiers[1].name);
     });
     it('should return an empty string if identifiers is empty', () => {
       expect(getPrimaryIdentifiers()).toBe('');
@@ -125,21 +118,21 @@ describe('security reports utils', () => {
     it.each`
       vulnerabilities              | message
       ${undefined}                 | ${' detected no new vulnerabilities.'}
-      ${{ critical }}              | ${' detected 2 critical severity vulnerabilities.'}
-      ${{ high }}                  | ${' detected 4 high severity vulnerabilities.'}
+      ${{ critical }}              | ${' detected %{criticalStart}2 new critical%{criticalEnd} severity vulnerabilities.'}
+      ${{ high }}                  | ${' detected %{highStart}4 new high%{highEnd} severity vulnerabilities.'}
       ${{ other }}                 | ${' detected 7 vulnerabilities.'}
-      ${{ critical, high }}        | ${' detected 2 critical and 4 high severity vulnerabilities.'}
-      ${{ critical, other }}       | ${' detected 2 critical severity vulnerabilities out of 9.'}
-      ${{ high, other }}           | ${' detected 4 high severity vulnerabilities out of 11.'}
-      ${{ critical, high, other }} | ${' detected 2 critical and 4 high severity vulnerabilities out of 13.'}
+      ${{ critical, high }}        | ${' detected %{criticalStart}2 new critical%{criticalEnd} and %{highStart}4 new high%{highEnd} severity vulnerabilities.'}
+      ${{ critical, other }}       | ${' detected %{criticalStart}2 new critical%{criticalEnd} severity vulnerabilities out of 9.'}
+      ${{ high, other }}           | ${' detected %{highStart}4 new high%{highEnd} severity vulnerabilities out of 11.'}
+      ${{ critical, high, other }} | ${' detected %{criticalStart}2 new critical%{criticalEnd} and %{highStart}4 new high%{highEnd} severity vulnerabilities out of 13.'}
     `('should build the message as "$message"', ({ vulnerabilities, message }) => {
       expect(groupedTextBuilder(vulnerabilities)).toEqual(message);
     });
 
     it.each`
       vulnerabilities    | message
-      ${{ critical: 1 }} | ${' detected 1 critical severity vulnerability.'}
-      ${{ high: 1 }}     | ${' detected 1 high severity vulnerability.'}
+      ${{ critical: 1 }} | ${' detected %{criticalStart}1 new critical%{criticalEnd} severity vulnerability.'}
+      ${{ high: 1 }}     | ${' detected %{highStart}1 new high%{highEnd} severity vulnerability.'}
       ${{ other: 1 }}    | ${' detected 1 vulnerability.'}
     `('should handle single vulnerabilities for "$message"', ({ vulnerabilities, message }) => {
       expect(groupedTextBuilder(vulnerabilities)).toEqual(message);

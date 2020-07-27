@@ -3,7 +3,7 @@
 require_relative '../../../../tooling/lib/tooling/test_file_finder'
 
 RSpec.describe Tooling::TestFileFinder do
-  subject { Tooling::TestFileFinder.new(file) }
+  subject { described_class.new(file) }
 
   describe '#test_files' do
     context 'when given non .rb files' do
@@ -117,6 +117,22 @@ RSpec.describe Tooling::TestFileFinder do
 
       it 'returns the matching initializer spec' do
         expect(subject.test_files).to contain_exactly('spec/initializers/action_mailer_hooks_spec.rb')
+      end
+    end
+
+    context 'when given a haml view' do
+      let(:file) { 'app/views/admin/users/_user.html.haml' }
+
+      it 'returns the matching view spec' do
+        expect(subject.test_files).to contain_exactly('spec/views/admin/users/_user.html.haml_spec.rb')
+      end
+    end
+
+    context 'when given a haml view in ee/' do
+      let(:file) { 'ee/app/views/admin/users/_user.html.haml' }
+
+      it 'returns the matching view spec' do
+        expect(subject.test_files).to contain_exactly('ee/spec/views/admin/users/_user.html.haml_spec.rb')
       end
     end
 

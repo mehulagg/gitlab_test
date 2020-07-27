@@ -5,18 +5,18 @@ module Gitlab
     # Normally each analytics feature should be guarded with a feature flag.
     CYCLE_ANALYTICS_FEATURE_FLAG = :cycle_analytics
     PRODUCTIVITY_ANALYTICS_FEATURE_FLAG = :productivity_analytics
-    REPORT_PAGES_FEATURE_FLAG = :report_pages
+    GROUP_COVERAGE_REPORTS_FEATURE_FLAG = :group_coverage_reports
 
     FEATURE_FLAGS = [
       CYCLE_ANALYTICS_FEATURE_FLAG,
-      PRODUCTIVITY_ANALYTICS_FEATURE_FLAG,
-      REPORT_PAGES_FEATURE_FLAG
+      GROUP_COVERAGE_REPORTS_FEATURE_FLAG,
+      PRODUCTIVITY_ANALYTICS_FEATURE_FLAG
     ].freeze
 
     FEATURE_FLAG_DEFAULTS = {
       PRODUCTIVITY_ANALYTICS_FEATURE_FLAG => true,
-      CYCLE_ANALYTICS_FEATURE_FLAG => true,
-      REPORT_PAGES_FEATURE_FLAG => false
+      GROUP_COVERAGE_REPORTS_FEATURE_FLAG => false,
+      CYCLE_ANALYTICS_FEATURE_FLAG => true
     }.freeze
 
     def self.any_features_enabled?
@@ -31,8 +31,8 @@ module Gitlab
       feature_enabled?(PRODUCTIVITY_ANALYTICS_FEATURE_FLAG)
     end
 
-    def self.report_pages_enabled?
-      feature_enabled?(REPORT_PAGES_FEATURE_FLAG)
+    def self.group_coverage_reports_enabled?
+      feature_enabled?(GROUP_COVERAGE_REPORTS_FEATURE_FLAG)
     end
 
     def self.feature_enabled_by_default?(flag)

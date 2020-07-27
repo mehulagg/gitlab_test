@@ -21,7 +21,8 @@ describe('Feature flags', () => {
     csrfToken: 'testToken',
     errorStateSvgPath: '/assets/illustrations/feature_flag.svg',
     featureFlagsHelpPagePath: '/help/feature-flags',
-    featureFlagsAnchoredHelpPagePath: '/help/feature-flags#unleash-clients',
+    featureFlagsClientLibrariesHelpPagePath: '/help/feature-flags#unleash-clients',
+    featureFlagsClientExampleHelpPagePath: '/help/feature-flags#client-example',
     userListsApiDocPath: '/help/api/user_lists',
     unleashApiUrl: `${TEST_HOST}/api/unleash`,
     unleashApiInstanceId: 'oP6sCNRqtRHmpy1gw2-F',
@@ -40,8 +41,8 @@ describe('Feature flags', () => {
     });
   };
 
-  const configureButton = () => wrapper.find('.js-ff-configure');
-  const newButton = () => wrapper.find('.js-ff-new');
+  const configureButton = () => wrapper.find('[data-testid="ff-configure-button"]');
+  const newButton = () => wrapper.find('[data-testid="ff-new-button"]');
 
   beforeEach(() => {
     mock = new MockAdapter(axios);
@@ -96,7 +97,8 @@ describe('Feature flags', () => {
       featureFlagsHelpPagePath: '/help/feature-flags',
       canUserConfigure: false,
       canUserRotateToken: false,
-      featureFlagsAnchoredHelpPagePath: '/help/feature-flags#unleash-clients',
+      featureFlagsClientLibrariesHelpPagePath: '/help/feature-flags#unleash-clients',
+      featureFlagsClientExampleHelpPagePath: '/help/feature-flags#client-example',
       unleashApiUrl: `${TEST_HOST}/api/unleash`,
       unleashApiInstanceId: 'oP6sCNRqtRHmpy1gw2-F',
       projectId: '8',

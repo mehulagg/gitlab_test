@@ -19,6 +19,7 @@
 #   include_ancestor_groups: boolean
 #   include_descendant_groups: boolean
 #   starts_with_iid: string (containing a number)
+#   confidential: boolean
 
 class EpicsFinder < IssuableFinder
   include TimeFrameFilter
@@ -114,6 +115,7 @@ class EpicsFinder < IssuableFinder
     items = by_parent(items)
     items = by_iids(items)
     items = by_my_reaction_emoji(items)
+    items = by_confidential(items)
 
     starts_with_iid(items)
   end
@@ -201,7 +203,7 @@ class EpicsFinder < IssuableFinder
   end
 
   def can_read_all_epics_in_related_groups?(groups)
-    return true if skip_visibility_check?
+    return true if @skip_visibility_check
     return false unless current_user
 
     # If a user is a member of a group, he also inherits access to all subgroups,
@@ -218,7 +220,9 @@ class EpicsFinder < IssuableFinder
     Ability.allowed?(current_user, :read_confidential_epic, parent)
   end
 
-  def skip_visibility_check?
-    @skip_visibility_check && Feature.enabled?(:skip_epic_count_visibility_check, group, default_enabled: true)
+  def by_confidential(items)
+    return items if params[:confidential].nil?
+
+    params[:confidential] ? items.confidential : items.public_only
   end
 end

@@ -2,10 +2,10 @@
 require 'pathname'
 
 module QA
-  RSpec.describe 'Monitor' do
+  RSpec.describe 'Monitor', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/230927', type: :stale } do
     describe 'with Prometheus in a Gitlab-managed cluster', :orchestrated, :kubernetes do
       before :all do
-        @cluster = Service::KubernetesCluster.new.create!
+        @cluster = Service::KubernetesCluster.new(provider_class: Service::ClusterProvider::K3s).create!
         @project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'monitoring-project'
           project.auto_devops_enabled = true
@@ -35,19 +35,6 @@ module QA
         end
       end
 
-      it 'observes cluster health graph' do
-        Page::Project::Menu.perform(&:go_to_operations_kubernetes)
-
-        Page::Project::Operations::Kubernetes::Index.perform do |cluster_list|
-          cluster_list.click_on_cluster(@cluster)
-        end
-
-        Page::Project::Operations::Kubernetes::Show.perform do |cluster_panel|
-          cluster_panel.open_health
-          cluster_panel.wait_for_cluster_health
-        end
-      end
-
       it 'creates and sets an incident template' do
         create_incident_template
 
@@ -58,9 +45,6 @@ module QA
             incident_settings.enable_issues_for_incidents
             incident_settings.select_issue_template('incident')
             incident_settings.save_incident_settings
-          end
-          settings.expand_incidents do |incident_settings|
-            expect(incident_settings).to have_template('incident')
           end
         end
       end

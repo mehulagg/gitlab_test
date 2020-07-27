@@ -218,6 +218,7 @@ Only available to [administrators](../user/permissions.md).
 
 All API requests support performing an API call as if you were another user,
 provided you are authenticated as an administrator with an OAuth or Personal Access Token that has the `sudo` scope.
+The API requests are executed with the permissions of the impersonated user.
 
 You need to pass the `sudo` parameter either via query string or a header with an ID/username of
 the user you want to perform the operation as. If passed as a header, the
@@ -423,7 +424,7 @@ Status: 200 OK
 ```
 
 CAUTION: **Deprecation:**
-The `Links` Header will be removed in GitLab 14.0 to be aligned with the [W3C specification](https://www.w3.org/wiki/LinkHeader)
+The `Links` Header will be removed in GitLab 14.0 to be aligned with the [W3C `Link` specification](https://www.w3.org/wiki/LinkHeader)
 
 The link to the next page contains an additional filter `id_after=42` which excludes records we have retrieved already.
 Note the type of filter depends on the `order_by` option used and we may have more than one additional filter.

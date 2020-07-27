@@ -101,6 +101,7 @@ export default {
       isResolving: this.resolveDiscussion,
       isUnresolving: !this.resolveDiscussion,
       resolveAsThread: true,
+      isSubmittingWithKeydown: false,
     };
   },
   computed: {
@@ -241,6 +242,10 @@ export default {
       this.$emit('cancelForm', shouldConfirm, this.noteBody !== this.updatedNoteBody);
     },
     onInput() {
+      if (this.isSubmittingWithKeydown) {
+        return;
+      }
+
       if (this.autosaveKey) {
         const { autosaveKey, updatedNoteBody: text } = this;
         updateDraft(autosaveKey, text);
@@ -250,6 +255,7 @@ export default {
       if (this.showBatchCommentsActions) {
         this.handleAddToReview();
       } else {
+        this.isSubmittingWithKeydown = true;
         this.handleUpdate();
       }
     },
@@ -404,7 +410,7 @@ export default {
           </button>
           <button
             v-if="discussion.resolvable"
-            class="btn btn-nr btn-default append-right-10 js-comment-resolve-button"
+            class="btn btn-nr btn-default gl-mr-3 js-comment-resolve-button"
             @click.prevent="handleUpdate(true)"
           >
             {{ resolveButtonTitle }}

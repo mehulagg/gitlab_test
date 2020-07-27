@@ -66,7 +66,7 @@ you want using steps 1 and 2 from the GitLab downloads page.
    gitlab_rails['auto_migrate'] = false
    ```
 
-   Remember to add the Sidekiq nodes to the PostgreSQL whitelist:
+   Remember to add the Sidekiq nodes to PostgreSQL's trusted addresses:
 
    ```ruby
    postgresql['trust_auth_cidr_addresses'] = %w(127.0.0.1/32 10.10.1.30/32 10.10.1.31/32 10.10.1.32/32 10.10.1.33/32 10.10.1.38/32)
@@ -94,7 +94,8 @@ you want using steps 1 and 2 from the GitLab downloads page.
 
 1. Run `gitlab-ctl reconfigure`.
 
-NOTE: **Note:** You will need to restart the Sidekiq nodes after an update has occurred and database
+NOTE: **Note:**
+You will need to restart the Sidekiq nodes after an update has occurred and database
 migrations performed.
 
 ## Example configuration

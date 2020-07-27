@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 type: howto
 ---
 
-# Geo Troubleshooting **(PREMIUM ONLY)**
+# Troubleshooting Geo **(PREMIUM ONLY)**
 
 Setting up Geo requires careful attention to details and sometimes it's easy to
 miss a step.
@@ -390,13 +390,13 @@ to respect the CIDR format (i.e. `1.2.3.4/32`).
 
 GitLab places a timeout on all repository clones, including project imports
 and Geo synchronization operations. If a fresh `git clone` of a repository
-on the **primary** takes more than a few minutes, you may be affected by this.
+on the **primary** takes more than the default three hours, you may be affected by this.
 
 To increase the timeout, add the following line to `/etc/gitlab/gitlab.rb`
 on the **secondary** node:
 
 ```ruby
-gitlab_rails['gitlab_shell_git_timeout'] = 10800
+gitlab_rails['gitlab_shell_git_timeout'] = 14400
 ```
 
 Then reconfigure GitLab:
@@ -405,7 +405,7 @@ Then reconfigure GitLab:
 sudo gitlab-ctl reconfigure
 ```
 
-This will increase the timeout to three hours (10800 seconds). Choose a time
+This will increase the timeout to four hours (14400 seconds). Choose a time
 long enough to accommodate a full clone of your largest repositories.
 
 ### New LFS objects are never replicated
@@ -452,13 +452,13 @@ to start again from scratch, there are a few steps that can help you:
    chown git:git /var/opt/gitlab/git-data/repositories
    ```
 
-   TIP: **Tip**
+   TIP: **Tip:**
    You may want to remove the `/var/opt/gitlab/git-data/repositories.old` in the future
    as soon as you confirmed that you don't need it anymore, to save disk space.
 
 1. _(Optional)_ Rename other data folders and create new ones
 
-   CAUTION: **Caution**:
+   CAUTION: **Caution:**
    You may still have files on the **secondary** node that have been removed from **primary** node but
    removal have not been reflected. If you skip this step, they will never be removed
    from this Geo node.
@@ -701,7 +701,8 @@ To check the configuration:
    Description          |
    ```
 
-   NOTE: **Note:** Pay particular attention to the host and port under
+   NOTE: **Note:**
+   Pay particular attention to the host and port under
    FDW options. That configuration should point to the Geo secondary
    database.
 

@@ -31,12 +31,6 @@ module EE
 
       nav_tabs += get_project_security_nav_tabs(project, current_user)
 
-      if ::Gitlab.config.packages.enabled &&
-          project.feature_available?(:packages) &&
-          can?(current_user, :read_package, project)
-        nav_tabs << :packages
-      end
-
       if can?(current_user, :read_code_review_analytics, project)
         nav_tabs << :code_review
       end
@@ -61,21 +55,6 @@ module EE
       tab_ability_map = super
       tab_ability_map[:feature_flags] = :read_feature_flag
       tab_ability_map
-    end
-
-    override :project_permissions_settings
-    def project_permissions_settings(project)
-      super.merge(
-        packagesEnabled: !!project.packages_enabled
-      )
-    end
-
-    override :project_permissions_panel_data
-    def project_permissions_panel_data(project)
-      super.merge(
-        packagesAvailable: ::Gitlab.config.packages.enabled && project.feature_available?(:packages),
-        packagesHelpPath: help_page_path('user/packages/index')
-      )
     end
 
     override :default_url_to_repo
@@ -104,10 +83,10 @@ module EE
 
     override :remove_project_message
     def remove_project_message(project)
-      return super unless project.feature_available?(:adjourned_deletion_for_projects_and_groups)
+      return super unless project.adjourned_deletion?
 
       date = permanent_deletion_date(Time.now.utc)
-      _("Removing a project places it into a read-only state until %{date}, at which point the project will be permanantly removed. Are you ABSOLUTELY sure?") %
+      _("Removing a project places it into a read-only state until %{date}, at which point the project will be permanently removed. Are you ABSOLUTELY sure?") %
         { date: date }
     end
 
@@ -145,11 +124,22 @@ module EE
     def sidebar_security_paths
       %w[
         projects/security/configuration#show
+        projects/security/sast_configuration#show
+        projects/security/vulnerabilities#show
         projects/security/dashboard#index
         projects/on_demand_scans#index
+        projects/dast_profiles#index
+        projects/dast_site_profiles#new
         projects/dependencies#index
         projects/licenses#index
         projects/threat_monitoring#show
+        projects/threat_monitoring#new
+      ]
+    end
+
+    def sidebar_external_tracker_paths
+      %w[
+        projects/integrations/jira/issues#index
       ]
     end
 
@@ -191,7 +181,10 @@ module EE
           vulnerabilities_export_endpoint: api_v4_security_projects_vulnerability_exports_path(id: project.id),
           vulnerability_feedback_help_path: help_page_path("user/application_security/index", anchor: "interacting-with-the-vulnerabilities"),
           empty_state_svg_path: image_path('illustrations/security-dashboard-empty-state.svg'),
+          no_vulnerabilities_svg_path: image_path('illustrations/issues.svg'),
           dashboard_documentation: help_page_path('user/application_security/security_dashboard/index'),
+          not_enabled_scanners_help_path: help_page_path('user/application_security/index', anchor: 'quick-start'),
+          no_pipeline_run_scanners_help_path: new_project_pipeline_path(project),
           security_dashboard_help_path: help_page_path('user/application_security/security_dashboard/index'),
           user_callouts_path: user_callouts_path,
           user_callout_id: UserCalloutsHelper::STANDALONE_VULNERABILITIES_INTRODUCTION_BANNER,

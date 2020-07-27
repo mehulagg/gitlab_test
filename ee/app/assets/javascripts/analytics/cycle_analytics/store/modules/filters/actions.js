@@ -55,31 +55,36 @@ const fetchUser = ({ commit, endpoint, query, action, errorMessage }) => {
 };
 
 export const fetchAuthors = ({ commit, rootGetters }, query = '') => {
-  const { currentGroupPath } = rootGetters;
+  const { currentGroupParentPath } = rootGetters;
   return fetchUser({
     commit,
     query,
-    endpoint: currentGroupPath,
+    endpoint: currentGroupParentPath,
     action: 'AUTHORS',
     errorMessage: __('Failed to load authors. Please try again.'),
   });
 };
 
 export const fetchAssignees = ({ commit, rootGetters }, query = '') => {
-  const { currentGroupPath } = rootGetters;
+  const { currentGroupParentPath } = rootGetters;
   return fetchUser({
     commit,
     query,
-    endpoint: currentGroupPath,
+    endpoint: currentGroupParentPath,
     action: 'ASSIGNEES',
     errorMessage: __('Failed to load assignees. Please try again.'),
   });
 };
 
-export const setFilters = ({ dispatch }, nextFilters) =>
-  dispatch('setSelectedFilters', nextFilters, { root: true });
+export const setFilters = ({ dispatch }, nextFilters) => {
+  return Promise.resolve()
+    .then(() => dispatch('setSelectedFilters', nextFilters, { root: true }))
+    .then(() => dispatch('fetchCycleAnalyticsData', null, { root: true }));
+};
 
 export const initialize = ({ dispatch, commit }, initialFilters) => {
   commit(types.INITIALIZE, initialFilters);
-  return dispatch('setPaths', initialFilters).then(() => dispatch('setFilters', initialFilters));
+  return Promise.resolve()
+    .then(() => dispatch('setPaths', initialFilters))
+    .then(() => dispatch('setSelectedFilters', initialFilters, { root: true }));
 };

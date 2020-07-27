@@ -160,7 +160,7 @@ RSpec.describe IssuablesHelper do
       end
 
       before do
-        user.destroy
+        user.destroy!
       end
 
       it 'returns "Ghost user" as edited_by' do
@@ -300,6 +300,30 @@ RSpec.describe IssuablesHelper do
         end
 
         it { is_expected.to include({ can_merge: can_merge })}
+      end
+    end
+  end
+
+  describe '#issuable_squash_option?' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:issuable_persisted, :squash, :squash_enabled_by_default, :expectation) do
+      true  | true  | true  | true
+      true  | false | true  | false
+      false | false | false | false
+      false | false | true  | true
+      false | true  | false | false
+      false | true  | true  | true
+    end
+
+    with_them do
+      it 'returns the correct value' do
+        project = double(
+          squash_enabled_by_default?: squash_enabled_by_default
+        )
+        issuable = double(persisted?: issuable_persisted, squash: squash)
+
+        expect(helper.issuable_squash_option?(issuable, project)).to eq(expectation)
       end
     end
   end

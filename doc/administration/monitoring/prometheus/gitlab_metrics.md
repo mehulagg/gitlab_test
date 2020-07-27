@@ -50,6 +50,8 @@ The following metrics are available:
 | `gitlab_page_out_of_bounds`                                    | Counter   |                   12.8 | Counter for the PageLimiter pagination limit being hit                                              | `controller`, `action`, `bot`                       |
 | `gitlab_rails_queue_duration_seconds`                          | Histogram |                    9.4 | Measures latency between GitLab Workhorse forwarding a request to Rails                             |                                                     |
 | `gitlab_sql_duration_seconds`                                  | Histogram |                   10.2 | SQL execution time, excluding `SCHEMA` operations and `BEGIN` / `COMMIT`                                  |                                                     |
+| `gitlab_ruby_threads_max_expected_threads`                     | Gauge |                       13.3 | Maximum number of threads expected to be running and performing application work                    |
+| `gitlab_ruby_threads_running_threads`                          | Gauge |                       13.3 | Number of running Ruby threads by name                    |
 | `gitlab_transaction_allocated_memory_bytes`                    | Histogram |                   10.2 | Allocated memory for all transactions (`gitlab_transaction_*` metrics)                                |                                                     |
 | `gitlab_transaction_cache_<key>_count_total`                   | Counter   |                   10.2 | Counter for total Rails cache calls (per key)                                                       |                                                     |
 | `gitlab_transaction_cache_<key>_duration_total`                | Counter   |                   10.2 | Counter for total time (seconds) spent in Rails cache calls (per key)                               |                                                     |
@@ -101,7 +103,7 @@ The following metrics are available:
 | `http_elasticsearch_requests_total` **(STARTER)**              | Counter   |                   13.1 | Elasticsearch requests count during web transactions                                                | `controller`, `action`                              |
 | `pipelines_created_total`                                      | Counter   |                    9.4 | Counter of pipelines created                                                                        |                                                     |
 | `rack_uncaught_errors_total`                                   | Counter   |                    9.4 | Rack connections handling uncaught errors count                                                     |                                                     |
-| `user_session_logins_total`                                    | Counter   |                    9.4 | Counter of how many users have logged in                                                            |                                                     |
+| `user_session_logins_total`                                    | Counter   |                    9.4 | Counter of how many users have logged in since GitLab was started or restarted                                                            |                                                     |
 | `upload_file_does_not_exist`                                   | Counter   | 10.7 in EE, 11.5 in CE | Number of times an upload record could not find its file                                            |                                                     |
 | `failed_login_captcha_total`                                   | Gauge     |                   11.0 | Counter of failed CAPTCHA attempts during login                                                     |                                                     |
 | `successful_login_captcha_total`                               | Gauge     |                   11.0 | Counter of successful CAPTCHA attempts during login                                                 |                                                     |
@@ -173,6 +175,7 @@ configuration option in `gitlab.yml`. These metrics are served from the
 | `geo_repositories_retrying_verification_count` | Gauge   | 11.2  | Number of repositories verification failures that Geo is actively trying to correct on secondary  | `url` |
 | `geo_wikis_retrying_verification_count`        | Gauge   | 11.2  | Number of wikis verification failures that Geo is actively trying to correct on secondary | `url` |
 | `global_search_bulk_cron_queue_size`           | Gauge   | 12.10 | Number of database records waiting to be synchronized to Elasticsearch | |
+| `global_search_awaiting_indexing_queue_size`   | Gauge   | 13.2  | Number of database updates waiting to be synchronized to Elasticsearch while indexing is paused | |
 | `package_files_count`                          | Gauge   | 13.0  | Number of package files on primary | `url` |
 | `package_files_checksummed_count`              | Gauge   | 13.0  | Number of package files checksummed on primary | `url` |
 | `package_files_checksum_failed_count`          | Gauge   | 13.0  | Number of package files failed to calculate the checksum on primary
@@ -250,6 +253,20 @@ When Puma is used instead of Unicorn, the following metrics are available:
 | `puma_max_threads`                | Gauge   | 12.0  | Maximum number of worker threads |
 | `puma_idle_threads`               | Gauge   | 12.0  | Number of spawned threads which are not processing a request |
 | `puma_killer_terminations_total`  | Gauge   | 12.0  | Number of workers terminated by PumaWorkerKiller |
+
+## Redis metrics
+
+These client metrics are meant to complement Redis server metrics.
+These metrics are broken down per [Redis
+instance](https://docs.gitlab.com/omnibus/settings/redis.html#running-with-multiple-redis-instances).
+These metrics all have a `storage` label which indicates the Redis
+instance (`cache`, `shared_state` etc.).
+
+| Metric                            | Type    | Since | Description |
+|:--------------------------------- |:------- |:----- |:----------- |
+| `gitlab_redis_client_exceptions_total`                    | Counter   | 13.2  | Number of Redis client exceptions, broken down by exception class |
+| `gitlab_redis_client_requests_total`                    | Counter   | 13.2  | Number of Redis client requests |
+| `gitlab_redis_client_requests_duration_seconds`                    | Histogram   | 13.2  | Redis request latency, excluding blocking commands |
 
 ## Metrics shared directory
 

@@ -108,6 +108,20 @@ module API
           end
           optional :job_age, type: Integer, desc: %q(Job should be older than passed age in seconds to be ran on runner)
         end
+
+        # Since we serialize the build output ourselves to ensure Gitaly
+        # gRPC calls succeed, we need a custom Grape format to handle
+        # this:
+        # 1. Grape will ordinarily call `JSON.dump` when Content-Type is set
+        # to application/json. To avoid this, we need to define a custom type in
+        # `content_type` and a custom formatter to go with it.
+        # 2. Grape will parse the request input with the parser defined for
+        # `content_type`. If no such parser exists, it will be treated as text. We
+        # reuse the existing JSON parser to preserve the previous behavior.
+        content_type :build_json, 'application/json'
+        formatter :build_json, ->(object, _) { object }
+        parser :build_json, ::Grape::Parser::Json
+
         post '/request' do
           authenticate_runner!
 
@@ -128,9 +142,10 @@ module API
           result = ::Ci::RegisterJobService.new(current_runner).execute(runner_params)
 
           if result.valid?
-            if result.build
+            if result.build_json
               Gitlab::Metrics.add_event(:build_found)
-              present ::Ci::BuildRunnerPresenter.new(result.build), with: Entities::JobRequest::Response
+              env['api.format'] = :build_json
+              body result.build_json
             else
               Gitlab::Metrics.add_event(:build_not_found)
               header 'X-GitLab-Last-Update', new_update
@@ -218,25 +233,31 @@ module API
         params do
           requires :id, type: Integer, desc: %q(Job's ID)
           optional :token, type: String, desc: %q(Job's authentication token)
+
+          # NOTE:
+          # In current runner, filesize parameter would be empty here. This is because archive is streamed by runner,
+          # so the archive size is not known ahead of time. Streaming is done to not use additional I/O on
+          # Runner to first save, and then send via Network.
           optional :filesize, type: Integer, desc: %q(Artifacts filesize)
+
           optional :artifact_type, type: String, desc: %q(The type of artifact),
                                   default: 'archive', values: ::Ci::JobArtifact.file_types.keys
         end
         post '/:id/artifacts/authorize' do
           not_allowed! unless Gitlab.config.artifacts.enabled
           require_gitlab_workhorse!
-          Gitlab::Workhorse.verify_api_request!(headers)
 
           job = authenticate_job!
 
-          service = ::Ci::AuthorizeJobArtifactService.new(job, params, max_size: max_artifacts_size(job))
+          result = ::Ci::CreateJobArtifactsService.new(job).authorize(artifact_type: params[:artifact_type], filesize: params[:filesize])
 
-          forbidden! if service.forbidden?
-          file_too_large! if service.too_large?
-
-          status 200
-          content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
-          service.headers
+          if result[:status] == :success
+            content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
+            status :ok
+            result[:headers]
+          else
+            render_api_error!(result[:message], result[:http_status])
+          end
         end
 
         desc 'Upload artifacts for job' do
@@ -267,9 +288,7 @@ module API
           artifacts = params[:file]
           metadata = params[:metadata]
 
-          file_too_large! unless artifacts.size < max_artifacts_size(job)
-
-          result = ::Ci::CreateJobArtifactsService.new(job.project).execute(job, artifacts, params, metadata_file: metadata)
+          result = ::Ci::CreateJobArtifactsService.new(job).execute(artifacts, params, metadata_file: metadata)
 
           if result[:status] == :success
             status :created

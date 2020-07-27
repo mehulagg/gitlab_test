@@ -6,7 +6,7 @@
 
       - git_access_url = wiki_path(@wiki, action: :git_access)
       = link_to git_access_url, class: active_nav_link?(path: 'wikis#git_access') ? 'active' : '', data: { qa_selector: 'clone_repository_link' } do
-        = icon('cloud-download', class: 'append-right-5')
+        = sprite_icon('download', size: 16, css_class: 'gl-mr-2')
         %span= _("Clone repository")
 
     .blocks-container
@@ -18,5 +18,5 @@
             = render @sidebar_wiki_entries, context: 'sidebar'
       .block.w-100
         - if @sidebar_limited
-          = link_to wiki_path(@wiki, action: :pages), class: 'btn btn-block' do
+          = link_to wiki_path(@wiki, action: :pages), class: 'btn btn-block', data: { qa_selector: 'view_all_pages_button' } do
             = s_("Wiki|View All Pages")

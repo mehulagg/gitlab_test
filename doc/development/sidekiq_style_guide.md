@@ -145,10 +145,27 @@ authorizations for both projects.
 
 GitLab doesn't skip jobs scheduled in the future, as we assume that
 the state will have changed by the time the job is scheduled to
-execute.
+execute. If you do want to deduplicate jobs scheduled in the future
+this can be specified on the worker as follows:
 
-More [deduplication strategies have been suggested](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/195). If you are implementing a worker that
-could benefit from a different strategy, please comment in the issue.
+```ruby
+module AuthorizedProjectUpdate
+  class UserRefreshOverUserRangeWorker
+    include ApplicationWorker
+
+    deduplicate :until_executing, including_scheduled: true
+    idempotent!
+
+    # ...
+  end
+end
+```
+
+This strategy is called `until_executing`. More [deduplication
+strategies have been
+suggested](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/195). If
+you are implementing a worker that could benefit from a different
+strategy, please comment in the issue.
 
 If the automatic deduplication were to cause issues in certain
 queues. This can be temporarily disabled by enabling a feature flag
@@ -303,7 +320,8 @@ class ExternalDependencyWorker
 end
 ```
 
-NOTE: **Note:** Note that a job cannot be both high urgency and have
+NOTE: **Note:**
+Note that a job cannot be both high urgency and have
 external dependencies.
 
 ## CPU-bound and Memory-bound Workers
@@ -378,55 +396,10 @@ We use the following approach to determine whether a worker is CPU-bound:
 - Note that these values should not be used over small sample sizes, but
   rather over fairly large aggregates.
 
-## Feature Categorization
+## Feature category
 
-Each Sidekiq worker, or one of its ancestor classes, must declare a
-`feature_category` attribute. This attribute maps each worker to a feature
-category. This is done for error budgeting, alert routing, and team attribution
-for Sidekiq workers.
-
-The declaration uses the `feature_category` class method, as shown below.
-
-```ruby
-class SomeScheduledTaskWorker
-  include ApplicationWorker
-
-  # Declares that this worker is part of the
-  # `continuous_integration` feature category
-  feature_category :continuous_integration
-
-  # ...
-end
-```
-
-The list of value values can be found in the file `config/feature_categories.yml`.
-This file is, in turn generated from the [`stages.yml` from the GitLab Company Handbook
-source](https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/stages.yml).
-
-### Updating `config/feature_categories.yml`
-
-Occasionally new features will be added to GitLab stages. When this occurs, you
-can automatically update `config/feature_categories.yml` by running
-`scripts/update-feature-categories`. This script will fetch and parse
-[`stages.yml`](https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/stages.yml)
-and generate a new version of the file, which needs to be checked into source control.
-
-### Excluding Sidekiq workers from feature categorization
-
-A few Sidekiq workers, that are used across all features, cannot be mapped to a
-single category. These should be declared as such using the `feature_category_not_owned!`
- declaration, as shown below:
-
-```ruby
-class SomeCrossCuttingConcernWorker
-  include ApplicationWorker
-
-  # Declares that this worker does not map to a feature category
-  feature_category_not_owned!
-
-  # ...
-end
-```
+All Sidekiq workers must define a known [feature
+category](feature_categorization/index.md#sidekiq-workers).
 
 ## Job weights
 
@@ -640,7 +613,6 @@ There are two options for safely adding new arguments to Sidekiq workers:
 
 1. Set up a [multi-step deployment](#multi-step-deployment) in which the new argument is first added to the worker
 1. Use a [parameter hash](#parameter-hash) for additional arguments. This is perhaps the most flexible option.
-1. Use a parameter hash for additional arguments. This is perhaps the most flexible option.
 
 ##### Multi-step deployment
 

@@ -15,6 +15,7 @@ module API
         optional :auto_cancel_pending_pipelines, type: String, values: %w(disabled enabled), desc: 'Auto-cancel pending pipelines'
         optional :build_coverage_regex, type: String, desc: 'Test coverage parsing'
         optional :ci_config_path, type: String, desc: 'The path to CI config file. Defaults to `.gitlab-ci.yml`'
+        optional :service_desk_enabled, type: Boolean, desc: 'Disable or enable the service desk'
 
         # TODO: remove in API v5, replaced by *_access_level
         optional :issues_enabled, type: Boolean, desc: 'Flag indication if the issue tracker is enabled'
@@ -60,6 +61,7 @@ module API
         optional :auto_devops_deploy_strategy, type: String, values: %w(continuous manual timed_incremental), desc: 'Auto Deploy strategy'
         optional :autoclose_referenced_issues, type: Boolean, desc: 'Flag indication if referenced issues auto-closing is enabled'
         optional :repository_storage, type: String, desc: 'Which storage shard the repository is on. Available only to admins'
+        optional :packages_enabled, type: Boolean, desc: 'Enable project packages feature'
       end
 
       params :optional_project_params_ee do
@@ -136,6 +138,8 @@ module API
           :suggestion_commit_message,
           :repository_storage,
           :compliance_framework_setting,
+          :packages_enabled,
+          :service_desk_enabled,
 
           # TODO: remove in API v5, replaced by *_access_level
           :issues_enabled,

@@ -1,19 +1,14 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex';
 import {
-  GlAlert,
   GlIcon,
-  GlDropdown,
-  GlDropdownItem,
-  GlDropdownHeader,
-  GlDropdownDivider,
+  GlDeprecatedDropdown,
+  GlDeprecatedDropdownItem,
+  GlDeprecatedDropdownHeader,
+  GlDeprecatedDropdownDivider,
   GlSearchBoxByType,
-  GlModal,
-  GlLoadingIcon,
   GlModalDirective,
 } from '@gitlab/ui';
-import { s__ } from '~/locale';
-import DuplicateDashboardForm from './duplicate_dashboard_form.vue';
 
 const events = {
   selectDashboard: 'selectDashboard',
@@ -21,16 +16,12 @@ const events = {
 
 export default {
   components: {
-    GlAlert,
     GlIcon,
-    GlDropdown,
-    GlDropdownItem,
-    GlDropdownHeader,
-    GlDropdownDivider,
+    GlDeprecatedDropdown,
+    GlDeprecatedDropdownItem,
+    GlDeprecatedDropdownHeader,
+    GlDeprecatedDropdownDivider,
     GlSearchBoxByType,
-    GlModal,
-    GlLoadingIcon,
-    DuplicateDashboardForm,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -40,20 +31,21 @@ export default {
       type: String,
       required: true,
     },
+    modalId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
-      alert: null,
-      loading: false,
-      form: {},
       searchTerm: '',
     };
   },
   computed: {
     ...mapState('monitoringDashboard', ['allDashboards']),
     ...mapGetters('monitoringDashboard', ['selectedDashboard']),
-    isSystemDashboard() {
-      return this.selectedDashboard?.system_dashboard;
+    isOutOfTheBoxDashboard() {
+      return this.selectedDashboard?.out_of_the_box_dashboard;
     },
     selectedDashboardText() {
       return this.selectedDashboard?.display_name;
@@ -76,10 +68,6 @@ export default {
     nonStarredDashboards() {
       return this.filteredDashboards.filter(({ starred }) => !starred);
     },
-
-    okButtonText() {
-      return this.loading ? s__('Metrics|Duplicating...') : s__('Metrics|Duplicate');
-    },
   },
   methods: {
     ...mapActions('monitoringDashboard', ['duplicateSystemDashboard']),
@@ -89,51 +77,20 @@ export default {
     selectDashboard(dashboard) {
       this.$emit(events.selectDashboard, dashboard);
     },
-    ok(bvModalEvt) {
-      // Prevent modal from hiding in case submit fails
-      bvModalEvt.preventDefault();
-
-      this.loading = true;
-      this.alert = null;
-      this.duplicateSystemDashboard(this.form)
-        .then(createdDashboard => {
-          this.loading = false;
-          this.alert = null;
-
-          // Trigger hide modal as submit is successful
-          this.$refs.duplicateDashboardModal.hide();
-
-          // Dashboards in the default branch become available immediately.
-          // Not so in other branches, so we refresh the current dashboard
-          const dashboard =
-            this.form.branch === this.defaultBranch ? createdDashboard : this.selectedDashboard;
-          this.$emit(events.selectDashboard, dashboard);
-        })
-        .catch(error => {
-          this.loading = false;
-          this.alert = error;
-        });
-    },
-    hide() {
-      this.alert = null;
-    },
-    formChange(form) {
-      this.form = form;
-    },
   },
 };
 </script>
 <template>
-  <gl-dropdown
+  <gl-deprecated-dropdown
     toggle-class="dropdown-menu-toggle"
     menu-class="monitor-dashboard-dropdown-menu"
     :text="selectedDashboardText"
   >
     <div class="d-flex flex-column overflow-hidden">
-      <gl-dropdown-header class="monitor-dashboard-dropdown-header text-center">{{
+      <gl-deprecated-dropdown-header class="monitor-dashboard-dropdown-header text-center">{{
         __('Dashboard')
-      }}</gl-dropdown-header>
-      <gl-dropdown-divider />
+      }}</gl-deprecated-dropdown-header>
+      <gl-deprecated-dropdown-divider />
       <gl-search-box-by-type
         ref="monitorDashboardsDropdownSearch"
         v-model="searchTerm"
@@ -141,7 +98,7 @@ export default {
       />
 
       <div class="flex-fill overflow-auto">
-        <gl-dropdown-item
+        <gl-deprecated-dropdown-item
           v-for="dashboard in starredDashboards"
           :key="dashboard.path"
           :active="dashboard.path === selectedDashboardPath"
@@ -152,14 +109,14 @@ export default {
             {{ dashboardDisplayName(dashboard) }}
             <gl-icon class="text-muted ml-auto" name="star" />
           </div>
-        </gl-dropdown-item>
+        </gl-deprecated-dropdown-item>
 
-        <gl-dropdown-divider
+        <gl-deprecated-dropdown-divider
           v-if="starredDashboards.length && nonStarredDashboards.length"
           ref="starredListDivider"
         />
 
-        <gl-dropdown-item
+        <gl-deprecated-dropdown-item
           v-for="dashboard in nonStarredDashboards"
           :key="dashboard.path"
           :active="dashboard.path === selectedDashboardPath"
@@ -167,7 +124,7 @@ export default {
           @click="selectDashboard(dashboard)"
         >
           {{ dashboardDisplayName(dashboard) }}
-        </gl-dropdown-item>
+        </gl-deprecated-dropdown-item>
       </div>
 
       <div
@@ -178,35 +135,17 @@ export default {
         {{ __('No matching results') }}
       </div>
 
-      <template v-if="isSystemDashboard">
-        <gl-dropdown-divider />
+      <!-- 
+           This Duplicate Dashboard item will be removed from the dashboards dropdown 
+           in https://gitlab.com/gitlab-org/gitlab/-/issues/223223
+      -->
+      <template v-if="isOutOfTheBoxDashboard">
+        <gl-deprecated-dropdown-divider />
 
-        <gl-modal
-          ref="duplicateDashboardModal"
-          modal-id="duplicateDashboardModal"
-          :title="s__('Metrics|Duplicate dashboard')"
-          ok-variant="success"
-          @ok="ok"
-          @hide="hide"
-        >
-          <gl-alert v-if="alert" class="mb-3" variant="danger" @dismiss="alert = null">
-            {{ alert }}
-          </gl-alert>
-          <duplicate-dashboard-form
-            :dashboard="selectedDashboard"
-            :default-branch="defaultBranch"
-            @change="formChange"
-          />
-          <template #modal-ok>
-            <gl-loading-icon v-if="loading" inline color="light" />
-            {{ okButtonText }}
-          </template>
-        </gl-modal>
-
-        <gl-dropdown-item ref="duplicateDashboardItem" v-gl-modal="'duplicateDashboardModal'">
+        <gl-deprecated-dropdown-item v-gl-modal="modalId" data-testid="duplicateDashboardItem">
           {{ s__('Metrics|Duplicate dashboard') }}
-        </gl-dropdown-item>
+        </gl-deprecated-dropdown-item>
       </template>
     </div>
-  </gl-dropdown>
+  </gl-deprecated-dropdown>
 </template>

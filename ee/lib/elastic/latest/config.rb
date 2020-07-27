@@ -17,7 +17,13 @@ module Elastic
           number_of_shards: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_shards },
           number_of_replicas: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_replicas },
           highlight: {
-            max_analyzed_offset: 1.megabyte
+            # `highlight.max_analyzed_offset` is technically not measured in
+            # bytes, but rather in characters. Since this is an uppper bound on
+            # the number of characters that can be highlighted before
+            # Elasticsearch will error it is fine to use the number of bytes as
+            # the upper limit since you cannot fit more characters than bytes
+            # in a file.
+            max_analyzed_offset: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_indexed_file_size_limit_kb.kilobytes }
           },
           codec: 'best_compression',
           analysis: {
@@ -61,7 +67,8 @@ module Elastic
                   '"((?:\\"|[^"]|\\")*)"', # capture terms inside quotes, removing the quotes
                   "'((?:\\'|[^']|\\')*)'", # same as above, for single quotes
                   '\.([^.]+)(?=\.|\s|\Z)', # separate terms on periods
-                  '([\p{L}_.-]+)' # some common chars in file names to keep the whole filename intact (eg. my_file-name.txt)
+                  '([\p{L}_.-]+)', # some common chars in file names to keep the whole filename intact (eg. my_file-name.txt)
+                  '([\p{L}\d_]+)' # letters, numbers and underscores are the most common tokens in programming. Always capture them greedily regardless of context.
                 ]
               }
             },
