@@ -63,7 +63,7 @@ RSpec.describe Projects::UpdatePagesService do
       end
 
       it 'removes pages after destroy' do
-        expect(PagesWorker).to receive(:perform_in)
+        expect(PagesDeleteCleanupWorker).to receive(:perform_in)
         expect(project.pages_deployed?).to be_falsey
         expect(Dir.exist?(File.join(project.pages_path))).to be_falsey
 
@@ -181,7 +181,7 @@ RSpec.describe Projects::UpdatePagesService do
   end
 
   it 'fails to remove project pages when no pages is deployed' do
-    expect(PagesWorker).not_to receive(:perform_in)
+    expect(PagesDeleteCleanupWorker).not_to receive(:perform_in)
     expect(project.pages_deployed?).to be_falsey
     project.destroy
   end

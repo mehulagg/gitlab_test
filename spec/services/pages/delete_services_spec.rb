@@ -10,7 +10,7 @@ RSpec.describe Pages::DeleteService do
 
   it 'deletes published pages' do
     expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project).and_return true
-    expect(PagesWorker).to receive(:perform_in).with(5.minutes, :remove, project.namespace.full_path, anything)
+    expect(PagesDeleteCleanupWorker).to receive(:perform_in).with(5.minutes, project.namespace.full_path, anything)
 
     service.execute
 

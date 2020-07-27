@@ -1484,7 +1484,15 @@
   :weight: 2
   :idempotent: 
   :tags: []
-- :name: pages
+- :name: pages_delete_cleanup
+  :feature_category: :pages
+  :has_external_dependencies: 
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: 
+  :tags: []
+- :name: pages_deploy
   :feature_category: :pages
   :has_external_dependencies: 
   :urgency: :low

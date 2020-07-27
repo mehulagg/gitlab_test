@@ -170,7 +170,9 @@
   - 1
 - - package_repositories
   - 1
-- - pages
+- - pages_delete_cleanup
+  - 1
+- - pages_deploy
   - 1
 - - pages_domain_ssl_renewal
   - 1

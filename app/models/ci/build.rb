@@ -330,7 +330,7 @@ module Ci
 
         build.run_after_commit do
           BuildSuccessWorker.perform_async(id)
-          PagesWorker.perform_async(:deploy, id) if build.pages_generator?
+          PagesDeployWorker.perform_async(id) if build.pages_generator?
         end
       end
 

@@ -4128,7 +4128,7 @@ RSpec.describe Project do
     it 'removes the pages directory and marks the project as not having pages deployed' do
       expect_any_instance_of(Projects::UpdatePagesConfigurationService).to receive(:execute)
       expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project).and_return(true)
-      expect(PagesWorker).to receive(:perform_in).with(5.minutes, :remove, namespace.full_path, anything)
+      expect(PagesDeleteCleanupWorker).to receive(:perform_in).with(5.minutes, namespace.full_path, anything)
 
       expect { project.remove_pages }.to change { pages_metadatum.reload.deployed }.from(true).to(false)
     end

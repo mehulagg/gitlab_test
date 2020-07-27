@@ -1811,7 +1811,7 @@ class Project < ApplicationRecord
     temp_path = "#{path}.#{SecureRandom.hex}.deleted"
 
     if Gitlab::PagesTransfer.new.rename_project(path, temp_path, namespace.full_path)
-      PagesWorker.perform_in(5.minutes, :remove, namespace.full_path, temp_path)
+      PagesDeleteCleanupWorker.perform_in(5.minutes, namespace.full_path, temp_path)
     end
   end
   # rubocop: enable CodeReuse/ServiceClass

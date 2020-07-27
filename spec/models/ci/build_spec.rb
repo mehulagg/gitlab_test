@@ -3705,7 +3705,7 @@ RSpec.describe Ci::Build do
 
         context 'job succeeds' do
           it "calls pages worker" do
-            expect(PagesWorker).to receive(:perform_async).with(:deploy, build.id)
+            expect(PagesDeployWorker).to receive(:perform_async).with(build.id)
 
             build.success!
           end
@@ -3713,7 +3713,7 @@ RSpec.describe Ci::Build do
 
         context 'job fails' do
           it "does not call pages worker" do
-            expect(PagesWorker).not_to receive(:perform_async)
+            expect(PagesDeployWorker).not_to receive(:perform_async)
 
             build.drop!
           end
@@ -3731,7 +3731,7 @@ RSpec.describe Ci::Build do
 
         context 'job succeeds' do
           it "does not call pages worker" do
-            expect(PagesWorker).not_to receive(:perform_async)
+            expect(PagesDeployWorker).not_to receive(:perform_async)
 
             build.success!
           end
@@ -3750,7 +3750,7 @@ RSpec.describe Ci::Build do
 
       context 'job succeeds' do
         it "does not call pages worker" do
-          expect(PagesWorker).not_to receive(:perform_async)
+          expect(PagesDeployWorker).not_to receive(:perform_async)
 
           build.success
         end
