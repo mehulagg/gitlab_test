@@ -12,8 +12,8 @@ module Gitlab
     # Allows a soft warning about an upcoming minimum version requirement
     # so administrators can prepare to upgrade
     UPCOMING_POSTGRES_VERSION_DETAILS = {
-      gl_version: '13.6.0',
-      gl_version_date: 'November 22, 2020',
+      gl_version: '14.0.0',
+      gl_version_date: 'April 22, 2021',
       pg_version_minimum: 12,
       url: 'https://gitlab.com/groups/gitlab-org/-/epics/2374'
     }.freeze
