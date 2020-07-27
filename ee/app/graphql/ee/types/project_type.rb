@@ -53,6 +53,11 @@ module EE
               resolver: ::Resolvers::ComplianceFrameworksResolver,
               null: true
 
+        field :dast_site_profiles,
+              ::Types::DastSiteProfileType.connection_type,
+              null: false,
+              description: 'DAST Site Profiles associated with the project'
+
         def self.requirements_available?(project, user)
           ::Feature.enabled?(:requirements_management, project, default_enabled: true) && Ability.allowed?(user, :read_requirement, project)
         end
