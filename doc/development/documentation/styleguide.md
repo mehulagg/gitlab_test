@@ -182,6 +182,7 @@ The table below shows what kind of documentation goes where.
 | `doc/install/`        | Contains instructions for installing GitLab. |
 | `doc/update/`         | Contains instructions for updating GitLab. |
 | `doc/topics/`         | Indexes per topic (`doc/topics/topic-name/index.md`): all resources for that topic. |
+| `doc/architecture`    | Contains instructions about architectural decisions for GitLab |
 
 ### Work with directories and files
 
