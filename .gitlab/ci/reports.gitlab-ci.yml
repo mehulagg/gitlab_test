@@ -265,7 +265,7 @@ DAST-fullscan-1/5:
     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help,${DAST_WEBSITE}/help/*,${DAST_WEBSITE}/help/*/*,${DAST_WEBSITE}/help/*/*/*"
+    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help.*"
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
@@ -288,7 +288,7 @@ DAST-fullscan-2/5:
     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help,${DAST_WEBSITE}/help/*,${DAST_WEBSITE}/help/*/*,${DAST_WEBSITE}/help/*/*/*"
+    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help.*"
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
@@ -311,7 +311,7 @@ DAST-fullscan-3/5:
     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help,${DAST_WEBSITE}/help/*,${DAST_WEBSITE}/help/*/*,${DAST_WEBSITE}/help/*/*/*"
+    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help.*"
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
@@ -334,7 +334,7 @@ DAST-fullscan-4/5:
     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help,${DAST_WEBSITE}/help/*,${DAST_WEBSITE}/help/*/*,${DAST_WEBSITE}/help/*/*/*"
+    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help.*"
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
@@ -357,7 +357,7 @@ DAST-fullscan-5/5:
     - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
-    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help,${DAST_WEBSITE}/help/*,${DAST_WEBSITE}/help/*/*,${DAST_WEBSITE}/help/*/*/*"
+    - export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help.*"
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
