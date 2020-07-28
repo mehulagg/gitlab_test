@@ -151,8 +151,8 @@ review-stop:
 
 review-qa-smoke:
   rules:
-      - if: '$DAST_TEST == "true"' # Skip this job for DAST test
-        when: never
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .review-qa-base
     - .review:rules:review-qa-smoke
@@ -161,8 +161,8 @@ review-qa-smoke:
 
 review-qa-all:
   rules:
-      - if: '$DAST_TEST == "true"' # Skip this job for DAST test
-        when: never
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .review-qa-base
     - .review:rules:mr-only-manual
@@ -174,8 +174,8 @@ review-qa-all:
 
 review-performance:
   rules:
-      - if: '$DAST_TEST == "true"' # Skip this job for DAST test
-        when: never
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise
