@@ -12,7 +12,7 @@
  *    css-class="btn-transparent"
  * />
  */
-import { GlDeprecatedButton, GlTooltipDirective, GlIcon } from '@gitlab/ui';
+import { GlButton, GlTooltipDirective, GlIcon } from '@gitlab/ui';
 
 export default {
   name: 'ClipboardButton',
@@ -20,7 +20,7 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   components: {
-    GlDeprecatedButton,
+    GlButton,
     GlIcon,
   },
   props: {
@@ -65,13 +65,13 @@ export default {
 </script>
 
 <template>
-  <gl-deprecated-button
+  <gl-button
     v-gl-tooltip="{ placement: tooltipPlacement, container: tooltipContainer }"
     v-gl-tooltip.hover.blur
     :class="cssClass"
     :title="title"
     :data-clipboard-text="clipboardText"
-  >
-    <gl-icon name="copy-to-clipboard" />
-  </gl-deprecated-button>
+    icon="copy-to-clipboard"
+    :aria-label="__('Copy to clipboard')"
+  />
 </template>
