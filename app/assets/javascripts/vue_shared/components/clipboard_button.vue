@@ -12,7 +12,7 @@
  *    css-class="btn-transparent"
  * />
  */
-import { GlButton, GlTooltipDirective, GlIcon } from '@gitlab/ui';
+import { GlButton, GlTooltipDirective } from '@gitlab/ui';
 
 export default {
   name: 'ClipboardButton',
@@ -20,8 +20,7 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   components: {
-    GlButton,
-    GlIcon,
+    GlButton
   },
   props: {
     text: {
