@@ -10,8 +10,13 @@ module Clusters
       ::Feature.enabled?(feature, type: :licensed, default_enabled: true)
     end
 
+    # TODO: Why we do it?
     def flipper_id
       self.class.to_s
+    end
+
+    def flipper_actor
+      self.class.name
     end
   end
 end

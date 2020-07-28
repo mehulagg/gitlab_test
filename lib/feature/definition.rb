@@ -57,12 +57,19 @@ class Feature
       end
     end
 
-    def valid_usage!(type_in_code:, default_enabled_in_code:)
+    def valid_usage!(type_in_code:, actor_in_code:, default_enabled_in_code:)
       unless Array(type).include?(type_in_code.to_s)
         # Raise exception in test and dev
         raise Feature::InvalidFeatureFlagError, "The `type:` of `#{key}` is not equal to config: " \
           "#{type_in_code} vs #{type}. Ensure to use valid type in #{path} or ensure that you use " \
           "a valid syntax: #{TYPES.dig(type, :example)}"
+      end
+
+      # We accept an array of actors as some features are undefined
+      unless actor.nil? || actor_in_code.nil? || Array(actor).include?(actor_in_code)
+        # Raise exception in test and dev
+        raise Feature::InvalidFeatureFlagError, "The `actor:` of `#{key}` is not equal to config: " \
+          "#{actor_in_code} vs #{actor}. Ensure to update #{path}"
       end
 
       # We accept an array of defaults as some features are undefined
@@ -104,11 +111,11 @@ class Feature
         definitions
       end
 
-      def valid_usage!(key, type:, default_enabled:)
-        lazily_create!(key, type: type, default_enabled: default_enabled)
+      def valid_usage!(key, type:, default_enabled:, actor:)
+        lazily_create!(key, type: type, default_enabled: default_enabled, actor: actor)
 
         if definition = definitions[key.to_sym]
-          definition.valid_usage!(type_in_code: type, default_enabled_in_code: default_enabled)
+          definition.valid_usage!(type_in_code: type, actor_in_code: actor, default_enabled_in_code: default_enabled)
         elsif type_definition = self::TYPES[type]
           raise InvalidFeatureFlagError, "Missing feature definition for `#{key}`" unless type_definition[:optional]
         else
@@ -141,9 +148,18 @@ class Feature
       end
 
       # TODO: Temporary code to lazily create feature flags
-      def lazily_create!(key, type:, default_enabled:)
+      def lazily_create!(key, type:, actor:, default_enabled:)
         return unless Gitlab::Utils.to_boolean(ENV.fetch('LAZILY_CREATE_FEATURE_FLAG', '1').to_s)
-        return if definitions[key.to_sym]
+
+        if definition = definitions[key.to_sym]
+          # Append actor to have a comprehensive list
+          if actor
+            definition.attributes[:actor] = Array(definition.attributes[:actor]).append(actor).uniq.sort
+            definition.save!
+          end
+
+          return
+        end
 
         dir = File.dirname(paths.first) # strip /*.yml
         dir = File.dirname(dir) # strip /**/
@@ -154,7 +170,8 @@ class Feature
           path,
           name: key.to_s,
           type: type.to_s,
-          default_enabled: default_enabled
+          default_enabled: default_enabled,
+          actor: actor
         ).tap(&:save!)
 
         definitions[definition.key] = definition

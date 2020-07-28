@@ -7,6 +7,10 @@ module StubFeatureFlags
     def initialize(flipper_id)
       @flipper_id = flipper_id
     end
+
+    def flipper_actor
+      self.class.name
+    end
   end
 
   def stub_all_feature_flags

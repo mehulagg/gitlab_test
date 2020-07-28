@@ -6,7 +6,8 @@ RSpec.describe Feature::Definition do
   let(:attributes) do
     { name: 'feature_flag',
       type: 'development',
-      default_enabled: true }
+      default_enabled: true,
+      actor: 'Project' }
   end
 
   let(:path) { File.join('development', 'feature_flag.yml') }
@@ -58,15 +59,22 @@ RSpec.describe Feature::Definition do
   describe '#valid_usage!' do
     context 'validates type' do
       it 'raises exception for invalid type' do
-        expect { definition.valid_usage!(type_in_code: :invalid, default_enabled_in_code: false) }
+        expect { definition.valid_usage!(type_in_code: :invalid, actor_in_code: nil, default_enabled_in_code: false) }
           .to raise_error(/The `type:` of `feature_flag` is not equal to config/)
       end
     end
 
     context 'validates default enabled' do
       it 'raises exception for different value' do
-        expect { definition.valid_usage!(type_in_code: :development, default_enabled_in_code: false) }
+        expect { definition.valid_usage!(type_in_code: :development, actor_in_code: nil, default_enabled_in_code: false) }
           .to raise_error(/The `default_enabled:` of `feature_flag` is not equal to config/)
+      end
+    end
+
+    context 'validates actor' do
+      it 'raises exception for different value' do
+        expect { definition.valid_usage!(type_in_code: :development, actor_in_code: 'Invalid', default_enabled_in_code: true) }
+          .to raise_error(/The `actor:` of `feature_flag` is not equal to config/)
       end
     end
   end
@@ -168,7 +176,7 @@ RSpec.describe Feature::Definition do
       it 'validates it usage' do
         expect(definition).to receive(:valid_usage!)
 
-        described_class.valid_usage!(:feature_flag, type: :development, default_enabled: false)
+        described_class.valid_usage!(:feature_flag, type: :development, default_enabled: false, actor: 'Project')
       end
     end
 
@@ -182,7 +190,7 @@ RSpec.describe Feature::Definition do
 
         it 'raises exception' do
           expect do
-            described_class.valid_usage!(:unknown_feature_flag, type: :development, default_enabled: false)
+            described_class.valid_usage!(:unknown_feature_flag, type: :development, default_enabled: false, actor: 'Project')
           end.to raise_error(/Missing feature definition for `unknown_feature_flag`/)
         end
       end
@@ -196,7 +204,7 @@ RSpec.describe Feature::Definition do
 
         it 'does not raise exception' do
           expect do
-            described_class.valid_usage!(:unknown_feature_flag, type: :development, default_enabled: false)
+            described_class.valid_usage!(:unknown_feature_flag, type: :development, default_enabled: false, actor: 'Project')
           end.not_to raise_error
         end
       end
@@ -204,7 +212,7 @@ RSpec.describe Feature::Definition do
       context 'for an unknown type' do
         it 'raises exception' do
           expect do
-            described_class.valid_usage!(:unknown_feature_flag, type: :unknown_type, default_enabled: false)
+            described_class.valid_usage!(:unknown_feature_flag, type: :unknown_type, default_enabled: false, actor: 'Project')
           end.to raise_error(/Unknown feature flag type used: `unknown_type`/)
         end
       end

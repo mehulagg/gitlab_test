@@ -12,7 +12,7 @@ RSpec.describe 'bin/feature-flag' do
   end
 
   describe FeatureFlagCreator do
-    let(:argv) { %w[feature-flag-name -t development -g group::memory -i https://url] }
+    let(:argv) { %w[feature-flag-name -a Project -t development -g group::memory -i https://url] }
     let(:options) { FeatureFlagOptionParser.parse(argv) }
     let(:creator) { described_class.new(options) }
     let(:existing_flag) { File.join('config', 'feature_flags', 'development', 'existing-feature-flag.yml') }
@@ -93,6 +93,10 @@ RSpec.describe 'bin/feature-flag' do
         :group             | %w[foo --group group::memory]           | 'group::memory'
         :group             | %w[foo -g invalid]                      | nil
         :group             | %w[foo --group invalid]                 | nil
+        :actor             | %w[foo -a Project]                      | 'Project'
+        :actor             | %w[foo --actor Project]                 | 'Project'
+        :actor             | %w[foo -a invalid]                      | nil
+        :actor             | %w[foo --actor invalid]                 | nil
       end
 
       with_them do
@@ -158,6 +162,42 @@ RSpec.describe 'bin/feature-flag' do
             end.to output(/specify the type/).to_stdout
               .and output(/Invalid type specified/).to_stderr
           end
+        end
+      end
+    end
+
+    describe '.read_actor' do
+      let(:actor) { 'Project' }
+      let(:type) { 'development' }
+      let(:options) { OpenStruct.new(type: type) }
+
+      it 'reads actor from $stdin' do
+        expect($stdin).to receive(:gets).and_return(actor)
+
+        expect do
+          expect(described_class.read_actor(options)).to eq('Project')
+        end.to output(/specify the actor/).to_stdout
+      end
+
+      context 'type with default actors is given' do
+        let(:type) { :ops }
+
+        it 'returns a default set of actors' do
+          expect(described_class.read_actor(options)).to eq('Instance')
+        end
+      end
+
+      context 'invalid group given' do
+        let(:actor) { 'invalid' }
+
+        it 'shows error message and retries' do
+          expect($stdin).to receive(:gets).and_return(actor)
+          expect($stdin).to receive(:gets).and_raise('EOF')
+
+          expect do
+            expect { described_class.read_actor(options) }.to raise_error(/EOF/)
+          end.to output(/specify the actor/).to_stdout
+            .and output(/Invalid actor specified/).to_stderr
         end
       end
     end

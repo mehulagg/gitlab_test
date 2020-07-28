@@ -61,7 +61,10 @@ class Feature
             "The thing '#{thing.class.name}' for feature flag '#{key}' needs to include `FeatureGate` or implement `flipper_id`"
         end
 
-        Feature::Definition.valid_usage!(key, type: type, default_enabled: default_enabled)
+        Feature::Definition.valid_usage!(key,
+          type: type,
+          actor: thing&.flipper_actor,
+          default_enabled: default_enabled)
       end
 
       # During setup the database does not exist yet. So we haven't stored a value

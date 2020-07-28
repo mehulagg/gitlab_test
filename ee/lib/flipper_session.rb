@@ -17,6 +17,10 @@ class FlipperSession
     "flipper_session:#{id}"
   end
 
+  def flipper_actor
+    self.class.name
+  end
+
   private
 
   def generate_id
