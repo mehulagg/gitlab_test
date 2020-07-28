@@ -123,7 +123,7 @@ review-stop:
   stage: qa
   # This is needed so that manual jobs with needs don't block the pipeline.
   # See https://gitlab.com/gitlab-org/gitlab/-/issues/199979.
-  dependencies: ["review-deploy", "DAST-fullscan-5/5"] #ng-test
+  dependencies: ["review-deploy"] #ng-test
   variables:
     QA_ARTIFACTS_DIR: "${CI_PROJECT_DIR}/qa"
     QA_CAN_TEST_GIT_PROTOCOL_V2: "false"
@@ -150,6 +150,9 @@ review-stop:
     when: always
 
 review-qa-smoke:
+  rules:
+      - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+        when: never
   extends:
     - .review-qa-base
     - .review:rules:review-qa-smoke
@@ -157,6 +160,9 @@ review-qa-smoke:
     - gitlab-qa Test::Instance::Smoke "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}"
 
 review-qa-all:
+  rules:
+      - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+        when: never
   extends:
     - .review-qa-base
     - .review:rules:mr-only-manual
@@ -167,6 +173,9 @@ review-qa-all:
     - gitlab-qa Test::Instance::Any "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}" -- --format RspecJunitFormatter --out tmp/rspec-${CI_JOB_ID}.xml --format html --out tmp/rspec.htm --color --format documentation
 
 review-performance:
+  rules:
+      - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+        when: never
   extends:
     - .default-retry
     - .review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise
