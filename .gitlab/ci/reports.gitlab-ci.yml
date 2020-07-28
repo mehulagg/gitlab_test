@@ -298,7 +298,7 @@ DAST-fullscan-ruleset1:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
 # DAST scan with Release rules-set 2
 DAST-fullscan-ruleset2:
@@ -316,7 +316,7 @@ DAST-fullscan-ruleset2:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
 # DAST scan with Release rules-set 3
 DAST-fullscan-ruleset3:
@@ -334,7 +334,7 @@ DAST-fullscan-ruleset3:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
 # DAST scan with Release rules-set 4
 DAST-fullscan-ruleset4:
@@ -352,7 +352,7 @@ DAST-fullscan-ruleset4:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
 
 # DAST scan with Release rules-set 4.1
@@ -370,7 +370,7 @@ DAST-fullscan-ruleset41:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
 
 # DAST scan with Release rules-set 5
@@ -389,7 +389,7 @@ DAST-fullscan-ruleset5:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
 
 # DAST scan with Beta rules-set 1
@@ -408,5 +408,5 @@ DAST-fullscan-ruleset6:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/groups/*/-/edit,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
     - '/analyze -t $DAST_WEBSITE -d'
