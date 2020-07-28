@@ -149,13 +149,12 @@ exports[`PolicyEditorApp component renders the policy editor layout 1`] = `
       <h4>
         Rules
       </h4>
-       
-      <policy-rule-builder-stub />
-       
+        
       <div
-        class="my-3 p-3 bordered-box"
+        class="p-3 bordered-box"
       >
         <gl-link-stub
+          data-testid="add-rule"
           href="#"
         >
           New rule
@@ -184,8 +183,8 @@ kind: CiliumNetworkPolicy
 metadata:
   name: ''
 spec:
-  podSelector:
-    matchSelector:
+  endpointSelector:
+    matchLabels:
       network-policy.gitlab.com/disabled_by: gitlab
 "
       />

@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import PolicyEditorApp from 'ee/threat_monitoring/components/policy_editor/app.vue';
+import PolicyRuleBuilder from 'ee/threat_monitoring/components/policy_editor/policy_rule_builder.vue';
 import createStore from 'ee/threat_monitoring/store';
 
 describe('PolicyEditorApp component', () => {
@@ -98,6 +99,25 @@ describe('PolicyEditorApp component', () => {
 
     it('updates policy preview', () => {
       expect(findPreview().props('policyYaml')).not.toEqual(initialValue);
+    });
+  });
+
+  it('adds a new rule', () => {
+    expect(wrapper.findAll(PolicyRuleBuilder).length).toEqual(0);
+    const button = wrapper.find("[data-testid='add-rule']");
+    button.vm.$emit('click');
+    button.vm.$emit('click');
+    return wrapper.vm.$nextTick().then(() => {
+      const elements = wrapper.findAll(PolicyRuleBuilder);
+      expect(elements.length).toEqual(2);
+
+      const builder1 = elements.at(0);
+      expect(builder1.props().ruleIndex).toEqual(0);
+      expect(builder1.props().endpointSelectorDisabled).toEqual(false);
+
+      const builder2 = elements.at(1);
+      expect(builder2.props().ruleIndex).toEqual(1);
+      expect(builder2.props().endpointSelectorDisabled).toEqual(true);
     });
   });
 });

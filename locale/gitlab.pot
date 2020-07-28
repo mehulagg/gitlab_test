@@ -15510,7 +15510,16 @@ msgstr ""
 msgid "NetworkPolicies|.yaml mode"
 msgstr ""
 
+msgid "NetworkPolicies|0.0.0.0/24"
+msgstr ""
+
+msgid "NetworkPolicies|80/tcp"
+msgstr ""
+
 msgid "NetworkPolicies|Actions"
+msgstr ""
+
+msgid "NetworkPolicies|All selected"
 msgstr ""
 
 msgid "NetworkPolicies|Choose whether to enforce this policy."
@@ -15534,6 +15543,12 @@ msgstr ""
 msgid "NetworkPolicies|Environment does not have deployment platform"
 msgstr ""
 
+msgid "NetworkPolicies|IP/subnet"
+msgstr ""
+
+msgid "NetworkPolicies|If"
+msgstr ""
+
 msgid "NetworkPolicies|If you are using Auto DevOps, your %{monospacedStart}auto-deploy-values.yaml%{monospacedEnd} file will not be updated if you change a policy in this section. Auto DevOps users should make changes by following the %{linkStart}Container Network Policy documentation%{linkEnd}."
 msgstr ""
 
@@ -15552,10 +15567,16 @@ msgstr ""
 msgid "NetworkPolicies|Network Policy"
 msgstr ""
 
+msgid "NetworkPolicies|Network Traffic"
+msgstr ""
+
 msgid "NetworkPolicies|New policy"
 msgstr ""
 
 msgid "NetworkPolicies|No policies detected"
+msgstr ""
+
+msgid "NetworkPolicies|None selected"
 msgstr ""
 
 msgid "NetworkPolicies|Policies are a specification of how groups of pods are allowed to communicate with each other's network endpoints."
@@ -15601,6 +15622,54 @@ msgid "NetworkPolicies|Status"
 msgstr ""
 
 msgid "NetworkPolicies|YAML editor"
+msgstr ""
+
+msgid "NetworkPolicies|and is inbound from a"
+msgstr ""
+
+msgid "NetworkPolicies|and is outbound to a"
+msgstr ""
+
+msgid "NetworkPolicies|any pod"
+msgstr ""
+
+msgid "NetworkPolicies|any port"
+msgstr ""
+
+msgid "NetworkPolicies|domain name"
+msgstr ""
+
+msgid "NetworkPolicies|entity"
+msgstr ""
+
+msgid "NetworkPolicies|inbound to"
+msgstr ""
+
+msgid "NetworkPolicies|is"
+msgstr ""
+
+msgid "NetworkPolicies|key:value"
+msgstr ""
+
+msgid "NetworkPolicies|on"
+msgstr ""
+
+msgid "NetworkPolicies|outbound from"
+msgstr ""
+
+msgid "NetworkPolicies|pod with labels"
+msgstr ""
+
+msgid "NetworkPolicies|pods with labels"
+msgstr ""
+
+msgid "NetworkPolicies|ports/protocols"
+msgstr ""
+
+msgid "NetworkPolicies|remote-service.com"
+msgstr ""
+
+msgid "NetworkPolicies|selected"
 msgstr ""
 
 msgid "Never"

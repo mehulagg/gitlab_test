@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PolicyRuleBuilder component renders policy builder layout 1`] = `
+<div
+  class="gl-bg-gray-10 gl-border-solid gl-border-1 gl-border-gray-100 gl-rounded-base px-3 pt-3"
+>
+  <form
+    class="form-inline"
+  >
+    <label
+      class="text-uppercase gl-font-lg gl-mr-4 gl-mb-5!"
+      for="ruleType"
+    >
+      If
+    </label>
+     
+    <select
+      class="gl-form-select gl-mr-4 gl-mb-5! custom-select"
+      id="ruleType"
+    >
+      <option
+        value="network"
+      >
+        Network Traffic
+      </option>
+    </select>
+     
+    <label
+      class="gl-mr-4 gl-mb-5!"
+      for="direction"
+    >
+      is
+    </label>
+     
+    <select
+      class="gl-form-select gl-mr-4 gl-mb-5 custom-select"
+      id="direction"
+    >
+      <option
+        value="ingress"
+      >
+        inbound to
+      </option>
+      <option
+        value="egress"
+      >
+        outbound from
+      </option>
+    </select>
+     
+    <select
+      class="gl-form-select gl-mr-4 gl-mb-5 custom-select"
+      data-testid="endpoint-match-mode"
+      id="__BVID__10"
+    >
+      <option
+        value="any"
+      >
+        any pod
+      </option>
+      <option
+        value="label"
+      >
+        pods with labels
+      </option>
+    </select>
+     
+    <!---->
+     
+    <label
+      class="gl-mr-4 gl-mb-5!"
+      for="ruleMode"
+    >
+      and is inbound from a
+    </label>
+     
+    <select
+      class="gl-form-select gl-mr-4 gl-mb-5 custom-select"
+      id="ruleMode"
+    >
+      <option
+        value="NetworkPolicyRuleEndpoint"
+      >
+        pod with labels
+      </option>
+      <option
+        value="NetworkPolicyRuleEntity"
+      >
+        entity
+      </option>
+      <option
+        value="NetworkPolicyRuleCIDR"
+      >
+        IP/subnet
+      </option>
+      <option
+        value="NetworkPolicyRuleFQDN"
+      >
+        domain name
+      </option>
+    </select>
+     
+    <input
+      class="gl-form-input gl-mr-4 gl-mb-5 form-control"
+      data-testid="rule-endpoint"
+      id="__BVID__14"
+      placeholder="key:value"
+      type="text"
+    />
+     
+    <!---->
+     
+    <!---->
+     
+    <!---->
+     
+    <label
+      class="gl-mr-4 gl-mb-5!"
+      for="ports"
+    >
+      on
+    </label>
+     
+    <select
+      class="gl-form-select gl-mr-4 gl-mb-5 custom-select"
+      id="portMatch"
+    >
+      <option
+        value="any"
+      >
+        any port
+      </option>
+      <option
+        value="port/protocol"
+      >
+        ports/protocols
+      </option>
+    </select>
+     
+    <!---->
+  </form>
+</div>
+`;

@@ -59,6 +59,9 @@ export default {
       this.policyYaml = policy.toYaml();
       this.policyDescription = policy.humanize();
     },
+    addNewRule() {
+      this.policy.addRule();
+    },
   },
   policyTypes: [{ value: 'networkPolicy', text: s__('NetworkPolicies|Network Policy') }],
   editorModes: [
@@ -121,10 +124,19 @@ export default {
     <div v-if="editorMode == 'rule'" class="row" data-testid="rule-editor">
       <div class="col-sm-12 col-md-6 col-lg-7 col-xl-8">
         <h4>{{ s__('NetworkPolicies|Rules') }}</h4>
-        <policy-rule-builder />
+        <policy-rule-builder
+          v-for="(rule, idx) in policy.rules"
+          :key="idx"
+          class="gl-mb-4"
+          :policy="policy"
+          :rule-index="idx"
+          :endpoint-selector-disabled="idx > 0"
+        />
 
-        <div class="my-3 p-3 bordered-box">
-          <gl-link href="#">{{ s__('Network Policy|New rule') }}</gl-link>
+        <div class="p-3 bordered-box">
+          <gl-link href="#" data-testid="add-rule" @click="addNewRule">{{
+            s__('Network Policy|New rule')
+          }}</gl-link>
         </div>
 
         <h4>{{ s__('NetworkPolicies|Actions') }}</h4>
