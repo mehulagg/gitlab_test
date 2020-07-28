@@ -251,11 +251,7 @@ DAST-prepare:
   retry:
     max: 1  # This is confusing but this means "2 runs at max".
     when:
-      - unknown_failure
-      - api_failure
-      - runner_system_failure
-      - job_execution_timeout
-      - stuck_or_timeout_failure
+      - always
   image:
     name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
   variables:
