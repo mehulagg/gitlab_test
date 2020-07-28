@@ -1,0 +1,10 @@
+name: group_merge_request_analytics
+introduced_by_url: 
+rollout_issue_url: 
+author: 
+group: 
+type: licensed
+# This default is undefined as
+# it is often executed by `feature_available?` with `default_enabled: true`
+# it is often executed by `ee/lib/gitlab/analytics.rb` with `default_enabled: false`
+default_enabled: [false, true]
