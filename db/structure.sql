@@ -16330,7 +16330,7 @@ CREATE TABLE public.vulnerability_occurrences (
     metadata_version character varying NOT NULL,
     raw_metadata text NOT NULL,
     vulnerability_id bigint,
-    report_data jsonb DEFAULT '"{}"'::jsonb NOT NULL
+    details jsonb DEFAULT '"{}"'::jsonb NOT NULL
 );
 
 CREATE SEQUENCE public.vulnerability_occurrences_id_seq

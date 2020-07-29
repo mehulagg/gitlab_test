@@ -56,7 +56,7 @@ module VulnerabilitiesHelper
       :solution,
       :request,
       :response,
-      :report_data
+      :details
     )
 
     if data[:location]['file']

@@ -37,8 +37,6 @@ module Security
         occurrences.concat(filtered_occurrences)
       end
 
-      puts "HERE WE ARE IN PIPELINE VULNS"
-
       Gitlab::Ci::Reports::Security::AggregatedReport.new(requested_reports.values, sort_occurrences(occurrences))
     end
 
@@ -82,9 +80,6 @@ module Security
           .except(:compare_key, :identifiers, :location, :scanner)
 
         occurrence = Vulnerabilities::Occurrence.new(occurrence_hash)
-        puts "OCC occurrence class: #{occurrence.class.name}"
-        puts "OCC occurrence hash: #{occurrence_hash}"
-        puts "OCC report_data: #{occurrence.report_data}"
         # assigning Vulnerabilities to Findings to enable the computed state
         occurrence.location_fingerprint = report_occurrence.location.fingerprint
         occurrence.vulnerability = vulnerabilities[occurrence.project_fingerprint]

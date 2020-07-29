@@ -8,23 +8,15 @@ module Gitlab
           SecurityReportParserError = Class.new(Gitlab::Ci::Parsers::ParserError)
 
           def parse!(json_data, report)
-            puts "PARSING REPORT"
-            puts "PARSING REPORT"
-            puts "PARSING REPORT"
-            puts "PARSING REPORT"
-            puts "PARSING REPORT"
-            puts "PARSING REPORT"
             report_data = parse_report(json_data)
             raise SecurityReportParserError, "Invalid report format" unless report_data.is_a?(Hash)
 
             report.scanned_resources = report_data.dig('scan', 'scanned_resources') || []
             create_scanner(report, report_data.dig('scan', 'scanner'))
 
-            res = collate_remediations(report_data).each do |vulnerability|
+            collate_remediations(report_data).each do |vulnerability|
               create_vulnerability(report, vulnerability, report_data["version"])
             end
-            puts res.inspect
-            res
           rescue JSON::ParserError
             raise SecurityReportParserError, 'JSON parsing failed'
           rescue => e
@@ -60,12 +52,8 @@ module Gitlab
           end
 
           def create_vulnerability(report, data, version)
-            puts "CREATING VULNERABILITY"
             scanner = create_scanner(report, data['scanner'] || mutate_scanner_tool(data['tool']))
             identifiers = create_identifiers(report, data['identifiers'])
-
-            puts "#CREATE VULNERABILITY: #{data.inspect}"
-            puts "#CREATE VULNERABILITY report_data: #{data['report_data'].inspect}"
 
             o = ::Gitlab::Ci::Reports::Security::Occurrence.new(
                 uuid: SecureRandom.uuid,
@@ -77,7 +65,7 @@ module Gitlab
                 confidence: parse_confidence_level(data['confidence']&.downcase),
                 scanner: scanner,
                 identifiers: identifiers,
-                report_data: data['report_data'],
+                details: data['details'],
                 raw_metadata: data.to_json,
                 metadata_version: version)
 

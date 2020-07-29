@@ -29,10 +29,10 @@ class AddVulnReportDataField < ActiveRecord::Migration[6.0]
   # disable_ddl_transaction!
 
   def change
-    add_column :vulnerability_occurrences, :report_data, :jsonb, null: false, default: '{}'
+    add_column :vulnerability_occurrences, :details, :jsonb, null: false, default: '{}'
   end
 
   def down
-    remove_column :vulnerability_occurrences, :report_data, :jsonb
+    remove_column :vulnerability_occurrences, :details, :jsonb
   end
 end
