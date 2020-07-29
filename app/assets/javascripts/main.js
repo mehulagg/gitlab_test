@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Cookies from 'js-cookie';
 
 // bootstrap webpack, common libs, polyfills, and behaviors
+import svg4everybody from 'svg4everybody';
 import './webpack';
 import './commons';
 import './behaviors';
@@ -44,6 +45,8 @@ import { __ } from './locale';
 import 'ee_else_ce/main_ee';
 
 applyGitLabUIConfig();
+
+svg4everybody();
 
 // expose jQuery as global (TODO: remove these)
 window.jQuery = jQuery;
