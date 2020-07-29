@@ -4,6 +4,34 @@ group: APM
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
+## Populate your metrics dashboard
+Before metrics get populated make sure you connected a Prometheus instance to GitLab. 
+There are two ways to set up Prometheus integration, depending on where your apps are running:
+
+* For deployments on Kubernetes, GitLab can automatically [deploy and manage Prometheus.](https://docs.gitlab.com/ee/user/project/integrations/prometheus.html#managed-prometheus-on-kubernetes)
+* If you already have a running instance of Prometheus, [simply specify the Prometheus server.](https://docs.gitlab.com/ee/user/project/integrations/prometheus.html#manual-configuration-of-prometheus)
+
+After [configuring Prometheus for a cluster](../../user/project/integrations/prometheus.md),
+you must also deploy code for the **{cloud-gear}** **Operations > Metrics** page
+to contain data. Setting up [Auto DevOps](../../topics/autodevops/index.md)
+helps quickly create a deployment:
+
+1. Navigate to your project's **{cloud-gear}** **Operations > Kubernetes** page.
+1. Ensure that, in addition to Prometheus, you also have Runner and Ingress
+   installed.
+1. After installing Ingress, copy its endpoint.
+1. Navigate to your project's **Settings > CI/CD** page. In the
+   **Auto DevOps** section, select a deployment strategy and save your changes.
+1. On the same page, in the **Variables** section, add a variable named
+   `KUBE_INGRESS_BASE_DOMAIN` with the value of the Ingress endpoint you
+   copied previously. Leave the type as **Variable**.
+1. Navigate to your project's **{rocket}** **CI/CD > Pipelines** page, and run a
+   pipeline on any branch.
+1. When the pipeline has run successfully, graphs are available on the
+   **{cloud-gear}** **Operations > Metrics** page.
+
+![Monitoring Dashboard](img/prometheus_monitoring_dashboard_v13_1.png)
+
 # Metrics dashboard for your CI/CD environment **(CORE)**
 
 After [configuring Prometheus for a cluster](../../user/project/integrations/prometheus.md),
@@ -49,28 +77,6 @@ navigation bar contains:
 - **Metrics settings** - Configure the
   [settings for this dashboard](dashboards/index.md#manage-the-metrics-dashboard-settings).
 
-## Populate your metrics dashboard
-
-After [configuring Prometheus for a cluster](../../user/project/integrations/prometheus.md),
-you must also deploy code for the **{cloud-gear}** **Operations > Metrics** page
-to contain data. Setting up [Auto DevOps](../../topics/autodevops/index.md)
-helps quickly create a deployment:
-
-1. Navigate to your project's **{cloud-gear}** **Operations > Kubernetes** page.
-1. Ensure that, in addition to Prometheus, you also have Runner and Ingress
-   installed.
-1. After installing Ingress, copy its endpoint.
-1. Navigate to your project's **Settings > CI/CD** page. In the
-   **Auto DevOps** section, select a deployment strategy and save your changes.
-1. On the same page, in the **Variables** section, add a variable named
-   `KUBE_INGRESS_BASE_DOMAIN` with the value of the Ingress endpoint you
-   copied previously. Leave the type as **Variable**.
-1. Navigate to your project's **{rocket}** **CI/CD > Pipelines** page, and run a
-   pipeline on any branch.
-1. When the pipeline has run successfully, graphs are available on the
-   **{cloud-gear}** **Operations > Metrics** page.
-
-![Monitoring Dashboard](img/prometheus_monitoring_dashboard_v13_1.png)
 
 ## Customize your metrics dashboard
 
