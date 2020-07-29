@@ -191,8 +191,8 @@ The table below shows what kind of documentation goes where.
    directory names, branch names, and anything that generates a path.
 1. When creating or renaming a file or directory and it has more than one word in its name,
    use underscores (`_`) instead of spaces or dashes. For example,
-   proper naming would be `import_project/import_from_github.md`. This applies to 
-   image files as well as markdown files.
+   proper naming would be `import_project/import_from_github.md`. This applies to
+   image files as well as Markdown files.
 1. For image files, do not exceed 100KB.
 1. Do not upload video files to the product repositories.
    [Link or embed videos](#videos) instead.
