@@ -184,6 +184,9 @@ karma-as-if-foss:
     - run_timed_command "yarn jest --ci --coverage --testSequencer ./scripts/frontend/parallel_ci_sequencer.js"
 
 jest:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .jest-base
     - .frontend:rules:default-frontend-jobs
