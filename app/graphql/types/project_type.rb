@@ -280,6 +280,12 @@ module Types
               description: 'Title of the label'
           end
 
+    field :issue_type_counts,
+          Types::IssueTypeCountsType,
+          null: true,
+          description: 'Counts of issue by issue type for the project',
+          resolver: Resolvers::IssueTypeCountsResolver
+
     def label(title:)
       BatchLoader::GraphQL.for(title).batch(key: project) do |titles, loader, args|
         LabelsFinder

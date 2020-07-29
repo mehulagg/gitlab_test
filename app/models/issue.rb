@@ -112,6 +112,7 @@ class Issue < ApplicationRecord
   scope :confidential_only, -> { where(confidential: true) }
 
   scope :counts_by_state, -> { reorder(nil).group(:state_id).count }
+  scope :counts_by_issue_type, -> { reorder(nil).group(:issue_type).count }
 
   scope :service_desk, -> { where(author: ::User.support_bot) }
 

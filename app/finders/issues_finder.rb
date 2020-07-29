@@ -34,6 +34,10 @@ class IssuesFinder < IssuableFinder
     @scalar_params ||= super + [:due_date]
   end
 
+  def self.counts_by_issue_type(current_user, project, params = {})
+    new(current_user, project_id: project.id, **params).execute.counts_by_issue_type
+  end
+
   # rubocop: disable CodeReuse/ActiveRecord
   def klass
     Issue.includes(:author)
