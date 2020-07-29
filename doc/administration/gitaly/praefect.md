@@ -59,7 +59,12 @@ Follow the [HA Gitaly epic](https://gitlab.com/groups/gitlab-org/-/epics/1489)
 for improvements including
 [horizontally distributing reads](https://gitlab.com/groups/gitlab-org/-/epics/2013).
 
-## Requirements for configuring a Gitaly Cluster
+## Minimum Requirements for configuring a Gitaly Cluster
+
+NOTE: **Note:**
+The below minimum requirements do not include any additional standby database nodes needed to avoid 
+a single point of failure at the database level. For more information on setting up an HA database, please see our page 
+on [PostgreSQL replication and failover](https://docs.gitlab.com/ee/administration/postgresql/replication_and_failover.html).
 
 The minimum recommended configuration for a Gitaly Cluster requires:
 
