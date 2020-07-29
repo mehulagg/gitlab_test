@@ -74,6 +74,20 @@ export default {
         .unwrap()
         .html();
     },
+    expandLinesUrl() {
+      try {
+        const commitIdLineCode = /start_sha=(.*)"/.exec(this.actionTextHtml)[1];
+        if (!commitIdLineCode) return '';
+
+        const [commitId, lineCode] = commitIdLineCode.split('#');
+        const lineNumber = parseInt(lineCode.split('_').pop(), 10);
+        const url = `http://localhost:3000/h5bp/html5-boilerplate/-/blob/${commitId}/LICENSE.txt/diff?since=${lineNumber -
+          3}&to=${lineNumber}&bottom=false&offset=0&unfold=false&view=inline&from_merge_request=true`;
+        return url;
+      } catch {
+        return '';
+      }
+    },
     hasMoreCommits() {
       return (
         $(this.note.note_html)
