@@ -10,13 +10,9 @@ class Groups::ReleasesController < Groups::ApplicationController
   private
 
   def releases
-    projects_releases = []
-    group = Namespace.includes(projects: :releases).where.not(releases: { tag: nil }).find(@group.id) # rubocop: disable CodeReuse/ActiveRecord
-    group.projects.each do |project|
-      if Ability.allowed?(current_user, :read_release, project)
-        projects_releases = projects_releases.concat(project.releases)
-      end
-    end
-    projects_releases.sort_by { |release| release[:released_at] }.reverse!
+    GroupReleasesFinder
+      .new(group: @group, current_user: current_user, params: {}, options: { include_subgroups: false, preload: true })
+      .execute
+      .page(params[:page])
   end
 end

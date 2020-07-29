@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Groups::ReleasesController do
+RSpec.describe Groups::ReleasesController do
   let(:group) { create(:group) }
   let!(:project)         { create(:project, :repository, :public, namespace: group) }
   let!(:private_project) { create(:project, :repository, :private, namespace: group) }
@@ -20,17 +20,33 @@ describe Groups::ReleasesController do
     context 'as json' do
       let(:format) { :json }
 
-      before do
-        get :index, params: { group_id: group, format: format }
-      end
+      subject { get :index, params: { group_id: group }, format: format }
 
-      it 'returns an application/json content_type' do
-        expect(response.content_type).to eq 'application/json'
+      context 'json_response' do
+        before do
+          subject
+        end
+
+        it 'returns an application/json content_type' do
+          expect(response.content_type).to eq 'application/json'
+        end
+
+        it 'returns OK' do
+          expect(response).to have_gitlab_http_status(:ok)
+        end
       end
 
       context 'the user is not authorized' do
+        before do
+          subject
+        end
+
         it "returns all group's public project's releases as JSON, ordered by released_at" do
           expect(response.body).to eq([release_2, release_1].to_json)
+        end
+
+        it 'returns OK' do
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
 
@@ -38,9 +54,19 @@ describe Groups::ReleasesController do
         it "returns all group's public and private project's releases as JSON, ordered by released_at" do
           sign_in(developer)
 
-          get :index, params: { group_id: group, format: format }
+          subject
 
           expect(response.body).to eq([private_release_2, private_release_1, release_2, release_1].to_json)
+        end
+      end
+
+      context 'N+1 queries' do
+        it 'avoids N+1 database queries' do
+          control_count = ActiveRecord::QueryRecorder.new { subject }.count
+
+          create_list(:release, 5, project: project)
+
+          expect { subject }.not_to exceed_query_limit(control_count)
         end
       end
     end
