@@ -10,8 +10,10 @@ import {
 } from '@gitlab/ui';
 import { formatDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import IterationReportSummary from './iteration_report_summary.vue';
 import IterationForm from './iteration_form.vue';
+import BurnChartsGraphql from 'ee/burndown_chart/components/burn_charts_graphql.vue';
 import IterationReportTabs from './iteration_report_tabs.vue';
 import query from '../queries/group_iteration.query.graphql';
 
@@ -23,6 +25,7 @@ const iterationStates = {
 
 export default {
   components: {
+    BurnChartsGraphql,
     GlAlert,
     GlBadge,
     GlLoadingIcon,
@@ -55,6 +58,7 @@ export default {
       },
     },
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     groupPath: {
       type: String,
@@ -159,6 +163,13 @@ export default {
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
       <div ref="description" v-text="iteration.description"></div>
       <iteration-report-summary :group-path="groupPath" :iteration-id="iteration.id" />
+      <burn-charts-graphql
+        v-if="glFeatures.iterationCharts"
+        :start-date="iteration.startDate"
+        :due-date="iteration.dueDate"
+        :full-path="groupPath"
+        :iteration-id="iteration.id"
+      />
       <iteration-report-tabs :group-path="groupPath" :iteration-id="iteration.id" />
     </template>
   </div>

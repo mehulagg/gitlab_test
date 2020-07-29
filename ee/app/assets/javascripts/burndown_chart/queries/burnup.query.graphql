@@ -1,0 +1,15 @@
+query BurnupData($fullPath: ID!, $iterationId: ID!) {
+  group(fullPath: $fullPath) {
+    iterations(id: $iterationId, first: 1) {
+      series {
+        nodes {
+          date
+          scopeCount
+          scopeWeight
+          completedCount
+          completedWeight
+        }
+      }
+    }
+  }
+}

@@ -4,6 +4,10 @@ class Groups::IterationsController < Groups::ApplicationController
   before_action :check_iterations_available!
   before_action :authorize_show_iteration!, only: [:index, :show]
   before_action :authorize_create_iteration!, only: :new
+  before_action do
+    push_frontend_feature_flag(:iteration_charts, group)
+    push_frontend_feature_flag(:burnup_charts, group)
+  end
 
   def index; end
 
