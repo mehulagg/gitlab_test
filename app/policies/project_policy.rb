@@ -270,10 +270,6 @@ class ProjectPolicy < BasePolicy
     enable :fork_project
   end
 
-  rule { metrics_dashboard_disabled }.policy do
-    prevent(:metrics_dashboard)
-  end
-
   rule { can?(:metrics_dashboard) }.policy do
     enable :read_prometheus
     enable :read_deployment
