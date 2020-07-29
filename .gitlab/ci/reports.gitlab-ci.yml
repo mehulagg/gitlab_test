@@ -243,6 +243,16 @@ DAST-prepare:
     - create_project_for_user $USERID
     - USERID=$(create_user "user7")
     - create_project_for_user $USERID
+    - USERID=$(create_user "user8")
+    - create_project_for_user $USERID
+    - USERID=$(create_user "user9")
+    - create_project_for_user $USERID
+    - USERID=$(create_user "user10")
+    - create_project_for_user $USERID
+    - USERID=$(create_user "user11")
+    - create_project_for_user $USERID
+    - USERID=$(create_user "user11")
+    - create_project_for_user $USERID
 .dast_conf:
   tags:
     - prm
@@ -299,7 +309,7 @@ DAST-prepare:
 #     - 'mkdir -p /zap/xml'
 #     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
 #     - 'cat /zap/xml/config.xml'
-#     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+#     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
 #     - '/analyze -t $DAST_WEBSITE -d'
 # DAST scan with Release rules-set 2
 # Disable 90020 - command injection plugin - Takes more than 2 hrs 
@@ -318,7 +328,7 @@ DAST-fullscan-ruleset2:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
     - '/analyze -t $DAST_WEBSITE -d'
 # DAST scan with Release rules-set 3
 # 40018 WARN SQL Injection -Active/release
@@ -337,7 +347,7 @@ DAST-fullscan-ruleset3:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
     - '/analyze -t $DAST_WEBSITE -d'
 # DAST scan with Release rules-set 4
 # Disable 6-Path travesal
@@ -356,7 +366,7 @@ DAST-fullscan-ruleset4:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
     - '/analyze -t $DAST_WEBSITE -d'
 
 # DAST scan with Release rules-set 4.1
@@ -375,7 +385,7 @@ DAST-fullscan-ruleset4:
 #     - 'mkdir -p /zap/xml'
 #     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
 #     - 'cat /zap/xml/config.xml'
-#     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+#     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
 #     - '/analyze -t $DAST_WEBSITE -d'
 
 # DAST scan with Release rules-set 5
@@ -394,7 +404,7 @@ DAST-fullscan-ruleset5:
     - 'mkdir -p /zap/xml'
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
     - 'cat /zap/xml/config.xml'
-    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
     - '/analyze -t $DAST_WEBSITE -d'
 
 # DAST scan with Beta rules-set 1
@@ -414,5 +424,95 @@ DAST-fullscan-ruleset5:
 #     - 'mkdir -p /zap/xml'
 #     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
 #     - 'cat /zap/xml/config.xml'
-#     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}//users/sign_out"'
+#     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
 #     - '/analyze -t $DAST_WEBSITE -d'
+
+#Runs 20019 external redirect rule
+DAST-fullscan-rule-20019:
+  extends:
+    - .dast_conf
+  resource_group: dast_scan
+  variables:
+    DAST_USERNAME: "user8"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_EXCLUDE_RULES="${DAST_ALWAYS_EXCLUDE_RULES},${DAST_BETA_RULES},0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90020,90022,90033"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
+    - '/analyze -t $DAST_WEBSITE -d'
+
+#10107- (Httpoxy - Proxy Header Misuse - Active/beta)
+DAST-fullscan-rule-10107:
+  extends:
+    - .dast_conf
+  resource_group: dast_scan
+  variables:
+    DAST_USERNAME: "user9"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_EXCLUDE_RULES="${DAST_ALWAYS_EXCLUDE_RULES},${DAST_RELEASE_RULES},"10026,10028,10029,10030,10031,10033,10034,10035,10036,10038,10039,10043,10044,10048,10050,10051,10058,10062,10095,10108,30003,40013,40022,40023,40028,90021,90023,90024,90025,90027,90028"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth"'
+    - '/analyze -t $DAST_WEBSITE -d'
+
+# 90020 - command injection plugin
+DAST-fullscan-rule-90020:
+  extends:
+    - .dast_conf
+  resource_group: dast_scan
+  variables:
+    DAST_USERNAME: "user10"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_EXCLUDE_RULES="${DAST_ALWAYS_EXCLUDE_RULES},${DAST_BETA_RULES},0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90022,90033"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
+    - '/analyze -t $DAST_WEBSITE -d'
+
+# 40018 SQL Injection -Active/release
+DAST-fullscan-rule-40018:
+  extends:
+    - .dast_conf
+  resource_group: dast_scan
+  variables:
+    DAST_USERNAME: "user11"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_EXCLUDE_RULES="${DAST_ALWAYS_EXCLUDE_RULES},${DAST_BETA_RULES},0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,50000,50001,90011,90020,90022,90033"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
+    - '/analyze -t $DAST_WEBSITE -d'
+
+# RUN  6-Path travesal
+DAST-fullscan-rule-6:
+  extends:
+    - .dast_conf
+  resource_group: dast_scan
+  variables:
+    DAST_USERNAME: "user12"
+  script:
+    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
+    - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
+    - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
+    - 'export DAST_EXCLUDE_RULES="${DAST_ALWAYS_EXCLUDE_RULES},${DAST_BETA_RULES},0,2,3,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90020,90022,90033"'
+    - 'mkdir -p /zap/xml'
+    - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
+    - 'cat /zap/xml/config.xml'
+    - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
+    - '/analyze -t $DAST_WEBSITE -d'
