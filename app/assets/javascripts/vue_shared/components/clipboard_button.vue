@@ -20,7 +20,7 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   components: {
-    GlButton
+    GlButton,
   },
   props: {
     text: {
@@ -71,6 +71,7 @@ export default {
     :title="title"
     :data-clipboard-text="clipboardText"
     icon="copy-to-clipboard"
-    :aria-label="__('Copy to clipboard')"
+    variant="link"
+    :aria-label="__('copy me')"
   />
 </template>
