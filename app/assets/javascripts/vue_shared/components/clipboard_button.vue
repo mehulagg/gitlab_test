@@ -69,7 +69,7 @@ export default {
     v-gl-tooltip.hover.blur
     :class="cssClass"
     :title="title"
-    :data-clipboard-text="clipboardText"
+    :data-clipboard-text="copy me"
     icon="copy-to-clipboard"
     variant="link"
     :aria-label="__('copy me')"
