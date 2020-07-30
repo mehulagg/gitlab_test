@@ -691,7 +691,7 @@ The Security Dashboard is a good place to get an overview of all the security
 vulnerabilities in your groups, projects and pipelines. Read more about the
 [Security Dashboard](../security_dashboard/index.md).
 
-### View details of a DAST vulnerability
+## View details of a DAST vulnerability
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/36332) in [GitLab Ultimate](https://about.gitlab.com/pricing/) in 13.1.
 
@@ -724,12 +724,12 @@ To view details of DAST vulnerabilities:
    | Links            | Links to further details of the detected vulnerability.                                                                                                                       |
    | Solution         | Details of a recommended solution to the vulnerability (optional).                                                                                                            |
 
-#### Hide sensitive information in headers
+### Hide sensitive information in headers
 
 HTTP request and response headers may contain sensitive information, including cookies and
 authorization credentials. By default, content of specific headers are masked in DAST vulnerability
 reports. You can specify the list of all headers to be masked. For details, see
-[Hide sensitive information](dast/index.md#hide-sensitive-information).
+[Hide sensitive information](#hide-sensitive-information).
 
 ## Bleeding-edge vulnerability definitions
 
