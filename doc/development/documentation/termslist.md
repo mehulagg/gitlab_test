@@ -11,7 +11,6 @@ GitLab Pages. In most other cases, we tend toward lowercase.
 | Container Registry | Title case.                                       | Store Docker images in the Container Registry.                                                           |
 | deploy freeze      | Lowercase.                                        | Set a deploy freeze window. Implement a deploy freeze by specifying a deploy freeze window.              |
 | epic               | Lowercase.                                        | Create an epic to track quarterly goals.                                                                 |
-| feature flags      | Lowercase?                                        |                                                                                                          |
 | Geo                | Uppercase?                                        |                                                                                                          |
 | group Runner       | Lowercase for group.                              | If you want a Runner to be used by several groups but not the whole organization, create a group Runner. |
 | issue              | Lowercase.                                        | Create an issue to track problems in your application.                                                   |
