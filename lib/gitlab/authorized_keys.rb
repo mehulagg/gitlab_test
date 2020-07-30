@@ -153,11 +153,13 @@ module Gitlab
     end
 
     def command(id)
-      unless /\A[a-z0-9-]+\z/ =~ id
-        raise KeyError, "Invalid ID: #{id.inspect}"
-      end
+      raise KeyError, "Invalid ID: #{id.inspect}" unless valid_id?(id)
 
       "#{File.join(Gitlab.config.gitlab_shell.path, 'bin', 'gitlab-shell')} #{id}"
+    end
+
+    def valid_id?(id)
+      /\A[a-z0-9-]+\z/ =~ id
     end
 
     def strip(key)
