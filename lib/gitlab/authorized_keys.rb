@@ -155,6 +155,12 @@ module Gitlab
     def command(id)
       raise KeyError, "Invalid ID: #{id.inspect}" unless valid_id?(id)
 
+      raw_command(id)
+    end
+
+    def raw_command(id)
+      raise KeyError, "Invalid ID: #{id.inspect}" unless valid_id?(id)
+
       "#{File.join(Gitlab.config.gitlab_shell.path, 'bin', 'gitlab-shell')} #{id}"
     end
 
