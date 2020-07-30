@@ -17,6 +17,7 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
     url_builder.build(epic, only_path: true)
   end
 
+  alias_method :web_url, :group_epic_url
   def group_epic_url
     url_builder.build(epic)
   end
