@@ -34,8 +34,6 @@ module Geo
 
     # Called by Gitlab::Geo::Replicator#consume
     def consume_event_deleted(**params)
-      return unless in_replicables_for_geo_node?
-
       replicate_destroy(params)
     end
 

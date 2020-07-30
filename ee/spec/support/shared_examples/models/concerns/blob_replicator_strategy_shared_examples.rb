@@ -133,7 +133,7 @@ RSpec.shared_examples 'a blob replicator' do
   describe '#consume_event_deleted' do
     context "when the blob's project is in replicables for this geo node" do
       it 'invokes Geo::FileRegistryRemovalService' do
-        expect(replicator).to receive(:in_replicables_for_geo_node?).and_return(true)
+        allow(replicator).to receive(:in_replicables_for_geo_node?).and_return(true)
         service = double(:service)
 
         expect(service).to receive(:execute)
@@ -145,12 +145,15 @@ RSpec.shared_examples 'a blob replicator' do
     end
 
     context "when the blob's project is not in replicables for this geo node" do
-      it 'does not invoke Geo::FileRegistryRemovalService' do
-        expect(replicator).to receive(:in_replicables_for_geo_node?).and_return(false)
+      it 'still invokes Geo::FileRegistryRemovalService' do
+        allow(replicator).to receive(:in_replicables_for_geo_node?).and_return(false)
+        service = double(:service)
 
-        expect(::Geo::FileRegistryRemovalService).not_to receive(:new)
+        expect(service).to receive(:execute)
+        expect(::Geo::FileRegistryRemovalService)
+          .to receive(:new).with(replicator.replicable_name, replicator.model_record_id, 'blob_path').and_return(service)
 
-        replicator.consume_event_deleted({ blob_path: '' })
+        replicator.consume_event_deleted({ blob_path: 'blob_path' })
       end
     end
   end
