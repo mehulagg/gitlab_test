@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { noop, identity } from 'lodash';
 
-const INTERNAL_RESOURCE = '$_resource';
+const INTERNAL_RESOURCE = Symbol('resource');
 
 /**
  * This proxy handler is used to wrap a Resource and delegates all props to the Resource.instance
