@@ -8,7 +8,8 @@ export default {
   props: {
     error: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     hasTruncatedDiffLines: {
       type: Boolean,
@@ -20,7 +21,8 @@ export default {
     },
     onClick: {
       type: Function,
-      required: true,
+      required: false,
+      default: () => {},
     },
   },
   methods: {

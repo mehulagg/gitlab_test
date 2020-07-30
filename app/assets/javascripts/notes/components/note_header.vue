@@ -183,14 +183,6 @@ export default {
           <time-ago-tooltip :time="createdAt" tooltip-placement="bottom" />
         </a>
         <time-ago-tooltip v-else ref="noteTimestamp" :time="createdAt" tooltip-placement="bottom" />
-        <button
-          class="note-action-button discussion-toggle-button js-vue-toggle-button"
-          type="button"
-          @click="handleToggle"
-        >
-          <i ref="chevronIcon" :class="toggleChevronClass" class="fa" aria-hidden="true"></i>
-          {{ __('Toggle diff') }}
-        </button>
       </template>
       <gl-icon
         v-if="isConfidential"

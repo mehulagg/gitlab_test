@@ -16,6 +16,7 @@
  *    }"
  *   />
  */
+import Api from '~/api';
 import $ from 'jquery';
 import { mapGetters, mapActions, mapState } from 'vuex';
 import { GlDeprecatedButton, GlSkeletonLoading, GlTooltipDirective } from '@gitlab/ui';
@@ -26,6 +27,7 @@ import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import TimelineEntryItem from './timeline_entry_item.vue';
 import { spriteIcon } from '../../../lib/utils/common_utils';
 import initMRPopovers from '~/mr_popover/';
+import NoteDiffLines from '~/notes/components/note_diff_lines.vue';
 
 const MAX_VISIBLE_COMMIT_LIST_COUNT = 3;
 
@@ -37,6 +39,7 @@ export default {
     TimelineEntryItem,
     GlDeprecatedButton,
     GlSkeletonLoading,
+    NoteDiffLines,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -51,6 +54,7 @@ export default {
   data() {
     return {
       expanded: false,
+      changedLines: undefined,
     };
   },
   computed: {
@@ -74,18 +78,24 @@ export default {
         .unwrap()
         .html();
     },
-    expandLinesUrl() {
+    expandLinesParams() {
       try {
-        const commitIdLineCode = /start_sha=(.*)"/.exec(this.actionTextHtml)[1];
-        if (!commitIdLineCode) return '';
+        // eslint-disable-next-line no-unused-vars
+        const [_, commitIdLineCode] = /start_sha=(.*)"/.exec(this.actionTextHtml);
+        const lineRange = this.note.position.line_range;
+        if (!commitIdLineCode || !lineRange) return '';
 
-        const [commitId, lineCode] = commitIdLineCode.split('#');
-        const lineNumber = parseInt(lineCode.split('_').pop(), 10);
-        const url = `http://localhost:3000/h5bp/html5-boilerplate/-/blob/${commitId}/LICENSE.txt/diff?since=${lineNumber -
-          3}&to=${lineNumber}&bottom=false&offset=0&unfold=false&view=inline&from_merge_request=true`;
-        return url;
+        // eslint-disable-next-line no-unused-vars
+        const [__, namespacePath, projectPath] = this.note.path.split('/');
+        const [commitId] = commitIdLineCode.split('#');
+        const path = this.note.position.new_path;
+        const since = Math.max(lineRange.start.new_line - 3, 1);
+        const to = lineRange.end.new_line;
+        // const url = `/h5bp/html5-boilerplate/-/blob/${commitId}/LICENSE.txt/diff?since=${lineNumber -
+        //   3}&to=${lineNumber}&bottom=false&offset=0&unfold=false&view=inline&from_merge_request=true`;
+        return { namespacePath, projectPath, commitId, path, since, to };
       } catch {
-        return '';
+        return undefined;
       }
     },
     hasMoreCommits() {
@@ -104,6 +114,14 @@ export default {
   },
   methods: {
     ...mapActions(['fetchDescriptionVersion', 'softDeleteDescriptionVersion']),
+    async getChangedLines() {
+      try {
+        this.changedLines = await Api.changedDiff(this.expandLinesParams);
+      } catch (err) {
+        console.error(err);
+        this.changedLines = undefined;
+      }
+    },
   },
 };
 </script>
@@ -119,6 +137,14 @@ export default {
       <div class="note-header">
         <note-header :author="note.author" :created-at="note.created_at" :note-id="note.id">
           <span v-html="actionTextHtml"></span>
+          <button
+            class="note-action-button discussion-toggle-button js-vue-toggle-button"
+            type="button"
+            @click="getChangedLines"
+          >
+            <!-- <i ref="chevronIcon" :class="toggleChevronClass" class="fa" aria-hidden="true"></i> -->
+            {{ __('Toggle diff') }}
+          </button>
           <template v-if="canSeeDescriptionVersion" slot="extra-controls">
             &middot;
             <button type="button" class="btn-blank btn-link" @click="toggleDescriptionVersion">
@@ -157,6 +183,7 @@ export default {
           </gl-deprecated-button>
         </div>
       </div>
+      <note-diff-lines v-if="changedLines" :has-truncated-diff-lines="true" :lines="changedLines" />
     </div>
   </timeline-entry-item>
 </template>
