@@ -83,7 +83,8 @@ export default () => {
       Board: () => import('ee_else_ce/boards/components/board_column.vue'),
       BoardSidebar,
       BoardAddIssuesModal,
-      BoardSettingsSidebar: () => import('~/boards/components/board_settings_sidebar.vue'),
+      BoardSettingsSidebar: () =>
+        import('ee_component/boards/components/board_settings_sidebar.vue'),
     },
     store,
     apolloProvider,
