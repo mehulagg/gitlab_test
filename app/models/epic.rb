@@ -4,6 +4,7 @@
 # It reserves '&' as a reference prefix, but the table does not exist in FOSS
 class Epic < ApplicationRecord
   include IgnorableColumns
+  include Presentable
 
   def self.link_reference_pattern
     nil
