@@ -90,6 +90,13 @@ module Gitlab
       false
     end
 
+    # Check if a key exists in the authorized keys file
+    #
+    # @return [Boolean]
+    def key_exists?(id)
+      yield_if_key_exists(id)
+    end
+
     # Clear the authorized_keys file
     #
     # @return [Boolean]
@@ -125,6 +132,27 @@ module Gitlab
     end
 
     private
+
+    def yield_if_key_exists(id)
+      return unless accessible?
+
+      exists = false
+
+      lock do
+        logger.info("Looking for key (#{id})")
+        open_authorized_keys_file('r+') do |f|
+          while line = f.gets
+            if line.match?(/command="#{raw_command(id)}"/)
+              exists = true
+              yield(f, line) if block_given?
+              break
+            end
+          end
+        end
+      end
+
+      exists
+    end
 
     def lock(timeout = 10)
       File.open("#{file}.lock", "w+") do |f|

@@ -162,6 +162,52 @@ RSpec.describe Gitlab::AuthorizedKeys do
     end
   end
 
+  describe '#key_exists?' do
+    let(:key_id) { 'key-741' }
+    let(:key) { { id: key_id, key: 'ssh-rsa AAAAB3NzaC1yc2E' } }
+    let(:other_key) { { id: 'key-742', key: 'ssh-rsa AAAAB3NzaDAxx2E' } }
+
+    subject { authorized_keys.key_exists?(key_id) }
+
+    context 'authorized_keys file exists' do
+      before do
+        create_authorized_keys_fixture
+
+        authorized_keys.add_key(other_key[:id], other_key[:key])
+      end
+
+      after do
+        delete_authorized_keys_file
+      end
+
+      context 'but the key has not been added' do
+        it { is_expected.to be_falsey }
+      end
+
+      context 'and the key has been added' do
+        before do
+          authorized_keys.add_key(key[:id], key[:key])
+        end
+
+        shared_examples 'key exists' do |stub_ssl_cert_dir|
+          it 'returns true' do
+            expect(subject).to be_truthy
+          end
+        end
+
+        include_examples 'key exists', nil
+      end
+    end
+
+    context 'authorized_keys file does not exist' do
+      before do
+        delete_authorized_keys_file
+      end
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe '#remove_key' do
     let(:key) { 'key-741' }
 
