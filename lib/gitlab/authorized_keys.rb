@@ -71,23 +71,18 @@ module Gitlab
     # @param [String] id identifier of the key to be removed prefixed by `key-`
     # @return [Boolean]
     def remove_key(id)
-      lock do
-        logger.info("Removing key (#{id})")
-        open_authorized_keys_file('r+') do |f|
-          while line = f.gets
-            next unless line.start_with?("command=\"#{command(id)}\"")
+      return unless accessible?
 
-            f.seek(-line.length, IO::SEEK_CUR)
-            # Overwrite the line with #'s. Because the 'line' variable contains
-            # a terminating '\n', we write line.length - 1 '#' characters.
-            f.write('#' * (line.length - 1))
-          end
-        end
+      logger.info("Removing key (#{id})")
+
+      yield_if_key_exists(id) do |f, line|
+        f.seek(-line.length, IO::SEEK_CUR)
+        # Overwrite the line with #'s. Because the 'line' variable contains
+        # a terminating '\n', we write line.length - 1 '#' characters.
+        f.write('#' * (line.length - 1))
       end
 
       true
-    rescue Errno::ENOENT
-      false
     end
 
     # Check if a key exists in the authorized keys file
