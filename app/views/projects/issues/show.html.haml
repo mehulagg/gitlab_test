@@ -5,11 +5,7 @@
 - page_description     @issue.description
 - page_card_attributes @issue.card_attributes
 - if @issue.relocation_target
-  - if @issue.promoted?
-    - page_canonical_link group_epic_url(@issue.relocation_target)
-  - else
-    - page_canonical_link issue_url(@issue.relocation_target)
-
+  - page_canonical_link url_builder(@issue.relocation_target)
 
 - can_update_issue = can?(current_user, :update_issue, @issue)
 - can_reopen_issue = can?(current_user, :reopen_issue, @issue)
