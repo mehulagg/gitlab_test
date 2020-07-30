@@ -100,12 +100,6 @@ RSpec.describe 'projects/issues/show' do
       expect(rendered).to have_selector('.status-box-issue-closed:not(.hidden)', text: 'Closed')
     end
 
-    it 'has no canonical URL if it has not been moved or duplicated' do
-      render
-
-      expect(rendered).not_to have_xpath('//link[@rel="canonical"]')
-    end
-
     it 'shows "Closed" if discussion is locked' do
       allow(issue).to receive(:discussion_locked).and_return(true)
       render
