@@ -53,6 +53,11 @@ module EE
               resolver: ::Resolvers::ComplianceFrameworksResolver,
               null: true
 
+        field :merge_request_aggregate, ::Types::MergeRequestAggregateType,
+          description: 'aggregate merge requests',
+          resolver: ::Resolvers::MergeRequestAggregateResolver
+
+
         def self.requirements_available?(project, user)
           ::Feature.enabled?(:requirements_management, project, default_enabled: true) && Ability.allowed?(user, :read_requirement, project)
         end
