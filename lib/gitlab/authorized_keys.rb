@@ -137,7 +137,7 @@ module Gitlab
         logger.info("Looking for key (#{id})")
         open_authorized_keys_file('r+') do |f|
           while line = f.gets
-            if line.match?(/command="#{raw_command(id)}"/)
+            if line.match?(/^command="(?:SSL_CERT_DIR=.+ )?#{raw_command(id)}"/)
               exists = true
               yield(f, line) if block_given?
               break
@@ -178,7 +178,8 @@ module Gitlab
     def command(id)
       raise KeyError, "Invalid ID: #{id.inspect}" unless valid_id?(id)
 
-      raw_command(id)
+      ssl_cert_dir = "SSL_CERT_DIR=#{ENV['SSL_CERT_DIR']} " if ENV['SSL_CERT_DIR']
+      "#{ssl_cert_dir}#{raw_command(id)}"
     end
 
     def raw_command(id)

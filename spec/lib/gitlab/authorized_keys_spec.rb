@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::AuthorizedKeys do
+  include StubENV
+
   let(:logger) { double('logger').as_null_object }
 
   subject(:authorized_keys) { described_class.new(logger) }
@@ -99,6 +101,15 @@ RSpec.describe Gitlab::AuthorizedKeys do
 
         expect(File.read(tmp_authorized_keys_path)).to eq("existing content\n#{auth_line}\n")
       end
+
+      it 'includes SSL_CERT_DIR if defined in ENV' do
+        stub_env('SSL_CERT_DIR', '/tmp/certs')
+
+        auth_line = "command=\"SSL_CERT_DIR=/tmp/certs #{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-741\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa AAAAB3NzaDAxx2E"
+        subject
+
+        expect(File.read(tmp_authorized_keys_path)).to eq("existing content\n#{auth_line}\n")
+      end
     end
 
     context 'authorized_keys file does not exist' do
@@ -190,17 +201,36 @@ RSpec.describe Gitlab::AuthorizedKeys do
       end
 
       context 'and the key has been added' do
+        let(:stub_ssl_cert_dir_at_create_time) { nil }
+
         before do
+          stub_env('SSL_CERT_DIR', '/tmp/certs') if stub_ssl_cert_dir_at_create_time
           authorized_keys.add_key(key[:id], key[:key])
         end
 
         shared_examples 'key exists' do |stub_ssl_cert_dir|
           it 'returns true' do
+            stub_env('SSL_CERT_DIR', '/tmp/certs') if stub_ssl_cert_dir
+
             expect(subject).to be_truthy
           end
         end
 
         include_examples 'key exists', nil
+
+        context 'when a key has been written without SSL_CERT_DIR defined in ENV' do
+          let(:stub_ssl_cert_dir_at_create_time) { false }
+
+          include_examples 'key exists', true
+          include_examples 'key exists', false
+        end
+
+        context 'when a key has been written with SSL_CERT_DIR defined in ENV' do
+          let(:stub_ssl_cert_dir_at_create_time) { true }
+
+          include_examples 'key exists', true
+          include_examples 'key exists', false
+        end
       end
     end
 
@@ -221,10 +251,12 @@ RSpec.describe Gitlab::AuthorizedKeys do
     context 'authorized_keys file exists' do
       let(:delete_key) { { id: key_id, key: 'ssh-rsa AAAAB3NzaC1yc2E' } }
       let(:other_key) { { id: 'key-742', key: 'ssh-rsa AAAAB3NzaDAxx2E' } }
+      let(:stub_ssl_cert_dir_at_create_time) { nil }
 
       before do
         create_authorized_keys_fixture
 
+        stub_env('SSL_CERT_DIR', '/tmp/certs') if stub_ssl_cert_dir_at_create_time
         authorized_keys.add_key(other_key[:id], other_key[:key])
         authorized_keys.add_key(delete_key[:id], delete_key[:key])
       end
@@ -236,6 +268,31 @@ RSpec.describe Gitlab::AuthorizedKeys do
       it 'is successful and is logged' do
         expect(logger).to receive(:info).with('Removing key (key-741)')
         expect(subject).to be_truthy
+      end
+
+      shared_examples 'key removal' do |stub_ssl_cert_dir|
+        it 'removes the right key' do
+          stub_env('SSL_CERT_DIR', '/tmp/certs') if stub_ssl_cert_dir
+
+          expect(subject).to be_truthy
+          expect(authorized_keys.key_exists?(key_id)).to be_falsey
+        end
+      end
+
+      include_examples 'key removal', nil
+
+      context 'when a key has been written without SSL_CERT_DIR defined in ENV' do
+        let(:stub_ssl_cert_dir_at_create_time) { false }
+
+        include_examples 'key removal', true
+        include_examples 'key removal', false
+      end
+
+      context 'when a key has been written with SSL_CERT_DIR defined in ENV' do
+        let(:stub_ssl_cert_dir_at_create_time) { true }
+
+        include_examples 'key removal', true
+        include_examples 'key removal', false
       end
     end
 
