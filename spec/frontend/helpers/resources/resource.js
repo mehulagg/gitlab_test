@@ -48,6 +48,7 @@ class SmartResource {
     this._factory = factory;
     this._teardown = teardown;
     this._isCreated = false;
+    this._selfRefGuard = false;
     this._instance = null;
   }
 
@@ -63,10 +64,24 @@ class SmartResource {
     if (this._isCreated) {
       throw new Error('Cannot create resource twice');
     }
+    if (this._selfRefGuard) {
+      throw new Error(
+        'Tried to create resource instance while it was already being created. Are we in a self referential loop?',
+      );
+    }
 
-    this._instance = this._factory(...args);
-    this._isCreated = true;
-    return this._instance;
+    this._selfRefGuard = true;
+    try {
+      this._instance = this._factory(...args);
+      this._selfRefGuard = false;
+      this._isCreated = true;
+
+      return this._instance;
+    } catch (e) {
+      this._selfRefGuard = false;
+
+      throw e;
+    }
   }
 
   teardown() {
@@ -106,12 +121,15 @@ const createResourceInstance = (resourceProxy, ...args) => {
 const useFactory = (resourceProxy, factory = identity, teardown = null) => {
   const resource = unboxResourceProxy(resourceProxy);
 
+  // We store the very original factory as what we'll use to extend. This way it's easier
+  // for useFactoryArgs to overwrite eachother.
+  const veryOrigFactory = resource._factory;
   let origFactory;
 
   // beforeAll will always run before any beforeEach, so we're able to overwrite our factory method!
   beforeAll(() => {
     origFactory = resource._factory;
-    resource._factory = factory(origFactory);
+    resource._factory = factory(veryOrigFactory);
   });
 
   // after we exit our context (i.e. inner describe), let's go back to the previous factory/teardown.
@@ -133,6 +151,8 @@ const useFactory = (resourceProxy, factory = identity, teardown = null) => {
     });
   }
 };
+
+export const unbox = proxy => unboxResourceProxy(proxy).instance;
 
 export const useFactoryArgs = (resourceProxy, ...factoryArgs) => {
   useFactory(resourceProxy, factory => () => factory(...factoryArgs));
