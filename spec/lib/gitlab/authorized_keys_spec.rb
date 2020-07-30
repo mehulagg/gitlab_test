@@ -88,11 +88,15 @@ RSpec.describe Gitlab::AuthorizedKeys do
         delete_authorized_keys_file
       end
 
-      it "adds a line at the end of the file and strips trailing garbage" do
-        auth_line = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-741\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa AAAAB3NzaDAxx2E"
-
+      it 'is successful and is logged' do
         expect(logger).to receive(:info).with('Adding key (key-741): ssh-rsa AAAAB3NzaDAxx2E')
         expect(subject).to be_truthy
+      end
+
+      it "adds a line at the end of the file and strips trailing garbage" do
+        auth_line = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-741\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa AAAAB3NzaDAxx2E"
+        subject
+
         expect(File.read(tmp_authorized_keys_path)).to eq("existing content\n#{auth_line}\n")
       end
     end
@@ -112,10 +116,12 @@ RSpec.describe Gitlab::AuthorizedKeys do
   end
 
   describe '#batch_add_keys' do
+    let(:key_id_1) { 'key-123' }
+    let(:key_id_2) { 'key-456' }
     let(:keys) do
       [
-        double(shell_id: 'key-12', key: 'ssh-dsa ASDFASGADG trailing garbage'),
-        double(shell_id: 'key-123', key: 'ssh-rsa GFDGDFSGSDFG')
+        double(shell_id: key_id_1, key: 'ssh-dsa ASDFASGADG trailing garbage'),
+        double(shell_id: key_id_2, key: 'ssh-rsa GFDGDFSGSDFG')
       ]
     end
 
@@ -131,13 +137,12 @@ RSpec.describe Gitlab::AuthorizedKeys do
       end
 
       it "adds lines at the end of the file" do
-        auth_line1 = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-12\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-dsa ASDFASGADG"
-        auth_line2 = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-123\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa GFDGDFSGSDFG"
-
-        expect(logger).to receive(:info).with('Adding key (key-12): ssh-dsa ASDFASGADG')
-        expect(logger).to receive(:info).with('Adding key (key-123): ssh-rsa GFDGDFSGSDFG')
+        expect(logger).to receive(:info).with('Adding key (key-123): ssh-dsa ASDFASGADG')
+        expect(logger).to receive(:info).with('Adding key (key-456): ssh-rsa GFDGDFSGSDFG')
         expect(subject).to be_truthy
-        expect(File.read(tmp_authorized_keys_path)).to eq("existing content\n#{auth_line1}\n#{auth_line2}\n")
+
+        expect(authorized_keys.key_exists?(key_id_1)).to be_truthy
+        expect(authorized_keys.key_exists?(key_id_2)).to be_truthy
       end
 
       context "invalid key" do
@@ -209,33 +214,28 @@ RSpec.describe Gitlab::AuthorizedKeys do
   end
 
   describe '#remove_key' do
-    let(:key) { 'key-741' }
+    let(:key_id) { 'key-741' }
 
-    subject { authorized_keys.remove_key(key) }
+    subject { authorized_keys.remove_key(key_id) }
 
     context 'authorized_keys file exists' do
-      let(:other_line) { "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-742\",options ssh-rsa AAAAB3NzaDAxx2E" }
-      let(:delete_line) { "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-741\",options ssh-rsa AAAAB3NzaDAxx2E" }
+      let(:delete_key) { { id: key_id, key: 'ssh-rsa AAAAB3NzaC1yc2E' } }
+      let(:other_key) { { id: 'key-742', key: 'ssh-rsa AAAAB3NzaDAxx2E' } }
 
       before do
         create_authorized_keys_fixture
 
-        File.open(tmp_authorized_keys_path, 'a') do |auth_file|
-          auth_file.puts delete_line
-          auth_file.puts other_line
-        end
+        authorized_keys.add_key(other_key[:id], other_key[:key])
+        authorized_keys.add_key(delete_key[:id], delete_key[:key])
       end
 
       after do
         delete_authorized_keys_file
       end
 
-      it "removes the right line" do
-        erased_line = delete_line.gsub(/./, '#')
-
+      it 'is successful and is logged' do
         expect(logger).to receive(:info).with('Removing key (key-741)')
         expect(subject).to be_truthy
-        expect(File.read(tmp_authorized_keys_path)).to eq("existing content\n#{erased_line}\n#{other_line}\n")
       end
     end
 
