@@ -221,6 +221,9 @@ jest-as-if-foss:
   parallel: 2
 
 coverage-frontend:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .yarn-cache
