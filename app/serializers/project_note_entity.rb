@@ -25,8 +25,6 @@ class ProjectNoteEntity < NoteEntity
     delete_attachment_project_note_path(note.project, note)
   end
 
-  expose :original_position, if: -> (note, _) { note.type == "DiffNote" }
-
   expose :diff_note_diff_path, if: -> (note, _) { note.type == "DiffNote" } do |note|
     project_blob_diff_path(
       note.project,

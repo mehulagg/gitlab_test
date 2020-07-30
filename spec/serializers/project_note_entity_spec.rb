@@ -19,8 +19,8 @@ RSpec.describe ProjectNoteEntity do
     expect(subject).to include(:human_access, :toggle_award_path, :path)
   end
 
-  it 'does not expose DiffNote-specific fields' do
-    expect(subject).not_to include(:diff_note_diff_path, :original_position)
+  it 'does not expose :diff_note_diff_path' do
+    expect(subject).not_to include(:diff_note_diff_path)
   end
 
   context 'when note is part of resolvable discussion' do
@@ -37,8 +37,8 @@ RSpec.describe ProjectNoteEntity do
   context 'when note is a DiffNote' do
     let(:note) { create(:diff_note_on_merge_request) }
 
-    it 'exposes DiffNote-specific fields' do
-      expect(subject).to include(:diff_note_diff_path, :original_position)
+    it 'exposes :diff_note_diff_path' do
+      expect(subject).to include(:diff_note_diff_path)
     end
   end
 end
