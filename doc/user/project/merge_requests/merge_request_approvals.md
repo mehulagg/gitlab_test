@@ -7,11 +7,17 @@ type: reference, concepts
 
 # Merge Request Approvals
 
+> - Introduced in [GitLab Enterprise Edition 7.12](https://about.gitlab.com/releases/2015/06/22/gitlab-7-12-released/#merge-request-approvers-ee-only).
+> - Made [Available in all tiers](https://gitlab.com/gitlab-org/gitlab/-/issues/27426) in GitLab 13.2.
+> - Updated interface [introduced in](https://gitlab.com/gitlab-org/gitlab/-/issues/1979) GitLab 11.8, behind the `:approval_rules` feature flag.
+> - Updated interface [feature flag made default enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/10684) in GitLab 11.10.
+> - Updated inferface [feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/10685) in GitLab 12.10.
+
 Code review is an essential practice of every successful project, and giving your
 approval once a merge request is in good shape is an important part of the review
 process, as it clearly communicates the ability to merge the change.
 
-## Optional Approvals **(CORE ONLY)**
+## Optional Approvals
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/27426) in GitLab 13.2.
 
@@ -21,8 +27,6 @@ maintainers to know when a change is ready to merge. Approvals in Core are optio
 not prevent a merge request from being merged when there is no approval.
 
 ## Required Approvals **(STARTER)**
-
-> [Introduced](https://about.gitlab.com/releases/2015/06/22/gitlab-7-12-released/#merge-request-approvers-ee-only) in GitLab Enterprise Edition 7.12. Available in [GitLab Starter](https://about.gitlab.com/pricing/) and higher tiers.
 
 Required approvals enable enforced code review by requiring specified people
 to approve a merge request before it can be merged.
@@ -309,26 +313,6 @@ of your security team when a vulnerability would be introduced by a merge reques
 
 For more information, see
 [Security approvals in merge requests](../../application_security/index.md#security-approvals-in-merge-requests).
-
-### Enabling the new approvals interface
-
-Since [GitLab v12.0](https://gitlab.com/gitlab-org/gitlab/-/issues/10685), an updated approvals
-interface is available by default. In versions older than 12.0, the updated interface is not
-available unless the `approval_rules` feature flag is enabled, which can be done from
-the Rails console by instance administrators.
-
-Use these commands to start the Rails console:
-
-```shell
-# Omnibus GitLab
-gitlab-rails console
-
-# Installation from source
-cd /home/git/gitlab
-sudo -u git -H bin/rails console -e production
-```
-
-Then run `Feature.enable(:approval_rules)` to enable the updated interface.
 
 <!-- ## Troubleshooting
 
