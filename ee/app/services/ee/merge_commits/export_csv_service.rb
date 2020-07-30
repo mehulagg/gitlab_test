@@ -4,9 +4,9 @@ module MergeCommits
   class ExportCsvService
     TARGET_FILESIZE = 15000000
 
-    def initialize(current_user, group)
+    def initialize(current_user, group_id)
       @current_user = current_user
-      @group = group
+      @group_id = group_id
     end
 
     def csv_data
@@ -15,7 +15,7 @@ module MergeCommits
 
     private
 
-    attr_reader :current_user, :group
+    attr_reader :current_user, :group_id
 
     def csv_builder
       @csv_builder ||= CsvBuilder.new(data, header_to_value_hash)
@@ -27,7 +27,7 @@ module MergeCommits
 
     def finder_options
       {
-        group_id: group.id
+        group_id: group_id
       }
     end
 
@@ -36,11 +36,11 @@ module MergeCommits
         'Merge commit sha' => 'merge_commit_sha',
         'Author' => -> (merge_request) { merge_request.author&.name },
         'Merge Request' => 'id',
-        'Merged By' => -> (merge_request) { merge_request.metrics.merged_by&.name },
-        'Pipeline' => -> (merge_request) { merge_request.metrics.pipeline_id },
+        'Merged By' => -> (merge_request) { merge_request.metrics&.merged_by&.name },
+        'Pipeline' => -> (merge_request) { merge_request.metrics&.pipeline_id },
         'Group' => -> (merge_request) { merge_request.source_project_namespace },
         'Project' => -> (merge_request) { merge_request.project&.name },
-        'Approvers' => -> (merge_request) { merge_request.approved_by_users.map(&:name).join(" | ") }
+        'Approver(s)' => -> (merge_request) { merge_request.approved_by_users.map(&:name).join(" | ") }
       }
     end
   end

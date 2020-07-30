@@ -147,7 +147,6 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     namespace :security do
       resource :dashboard, only: [:show], controller: :dashboard
-      resource :compliance_dashboard, only: [:show]
       resources :vulnerable_projects, only: [:index]
       resource :discover, only: [:show], controller: :discover
       resources :credentials, only: [:index]
@@ -156,6 +155,12 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         collection do
           get :summary
           get :history
+        end
+      end
+
+      resource :compliance_dashboard, only: [:show] do
+        collection do
+          get :merge_commits_csv_export
         end
       end
     end

@@ -1,5 +1,5 @@
 <script>
-import { GlTabs, GlTab, GlTooltipDirective } from '@gitlab/ui';
+import { GlTabs, GlTab, GlTooltipDirective, GlButton } from '@gitlab/ui';
 import { isEmpty } from 'lodash';
 
 import { sprintf, __, s__ } from '~/locale';
@@ -28,6 +28,7 @@ export default {
     PipelineStatus,
     GlTab,
     GlTabs,
+    GlButton,
   },
   mixins: [timeagoMixin],
   props: {
@@ -43,6 +44,9 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    mergeCommitsCsvExportPath: {
+      type: String
     },
   },
   computed: {
@@ -84,6 +88,9 @@ export default {
       <h4>{{ $options.strings.heading }}</h4>
       <p>{{ $options.strings.subheading }}</p>
     </header>
+    <gl-button :href="mergeCommitsCsvExportPath">
+      {{ __('List of all merge commits') }}
+    </gl-button>
     <gl-tabs>
       <gl-tab>
         <template #title>

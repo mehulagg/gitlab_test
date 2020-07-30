@@ -11,6 +11,15 @@ class Groups::Security::ComplianceDashboardsController < Groups::ApplicationCont
     @merge_requests = serialize(paginated_merge_requests)
   end
 
+  def merge_commits_csv_export
+    csv_data = MergeCommits::ExportCsvService.new(current_user, @group.id).csv_data
+
+    send_data(
+      csv_data,
+      type: 'text/csv; charset=utf-8; header=present'
+    )
+  end
+
   private
 
   def paginated_merge_requests
