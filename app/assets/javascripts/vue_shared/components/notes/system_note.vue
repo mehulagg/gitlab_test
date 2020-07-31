@@ -56,6 +56,7 @@ export default {
       expanded: false,
       changedLines: undefined,
       changedLinesError: false,
+      changedLinesExpanded: false,
     };
   },
   computed: {
@@ -75,7 +76,7 @@ export default {
     },
     // following 2 methods taken from code in `collapseLongCommitList` of notes.js:
     actionTextHtml() {
-      return $(this.note.note_html)
+      return $(this.noteHtmlStripped)
         .unwrap()
         .html();
     },
@@ -89,12 +90,22 @@ export default {
     descriptionVersion() {
       return this.descriptionVersions[this.note.description_version_id];
     },
+    noteHtmlStripped() {
+      return this.note.note_html.replace(/<a href.*?>(.*)<\/a>/, (_, p1) => p1);
+    },
+    showChangedLines() {
+      return this.changedLines && this.changedLinesExpanded;
+    },
   },
   mounted() {
     initMRPopovers(this.$el.querySelectorAll('.gfm-merge_request'));
   },
   methods: {
     ...mapActions(['fetchDescriptionVersion', 'softDeleteDescriptionVersion']),
+    handleClickCompareButton() {
+      if (!this.changedLines) this.getChangedLines();
+      this.changedLinesExpanded = !this.changedLinesExpanded;
+    },
     async getChangedLines() {
       try {
         this.changedLinesError = false;
@@ -118,16 +129,14 @@ export default {
     <div class="timeline-icon" v-html="iconHtml"></div>
     <div class="timeline-content">
       <div class="note-header">
-        <note-header :author="note.author" :created-at="note.created_at" :note-id="note.id">
+        <note-header
+          :author="note.author"
+          :created-at="note.created_at"
+          :note-id="note.id"
+          :show-compare-button="true"
+          :on-click-compare-button="handleClickCompareButton"
+        >
           <span v-html="actionTextHtml"></span>
-          <button
-            class="note-action-button discussion-toggle-button js-vue-toggle-button"
-            type="button"
-            @click="getChangedLines"
-          >
-            <!-- <i ref="chevronIcon" :class="toggleChevronClass" class="fa" aria-hidden="true"></i> -->
-            {{ __('Toggle diff') }}
-          </button>
           <template v-if="canSeeDescriptionVersion" slot="extra-controls">
             &middot;
             <button type="button" class="btn-blank btn-link" @click="toggleDescriptionVersion">
@@ -166,13 +175,17 @@ export default {
           </gl-deprecated-button>
         </div>
       </div>
-      <note-diff-lines
-        v-if="changedLines"
-        :has-truncated-diff-lines="true"
-        :lines="changedLines"
-        :error="changedLinesError"
-        :reload-diff-fn="getChangedLines"
-      />
+      <div
+        v-if="showChangedLines"
+        class="gl-mt-5 gl-mr-6 gl-mb-3 gl-ml-6 gl-border-solid gl-border-gray-100 gl-border-1"
+      >
+        <note-diff-lines
+          :has-truncated-diff-lines="true"
+          :lines="changedLines"
+          :error="changedLinesError"
+          :reload-diff-fn="getChangedLines"
+        />
+      </div>
     </div>
   </timeline-entry-item>
 </template>

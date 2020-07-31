@@ -76,7 +76,7 @@ export default {
         :error="error"
         :has-truncated-diff-lines="hasTruncatedDiffLines"
         :lines="discussion.truncated_diff_lines"
-        :on-click="fetchDiff"
+        :reload-diff-fn="fetchDiff"
       >
         <slot></slot>
       </note-diff-lines>

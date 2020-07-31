@@ -54,17 +54,31 @@ export default {
       required: false,
       default: false,
     },
+    showCompareButton: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    onClickCompareButton: {
+      type: Function,
+      required: false,
+      default: () => {},
+    },
   },
   data() {
     return {
       isUsernameLinkHovered: false,
       emojiTitle: '',
       authorStatusHasTooltip: false,
+      compareLinesExpanded: false,
     };
   },
   computed: {
     toggleChevronClass() {
       return this.expanded ? 'fa-chevron-up' : 'fa-chevron-down';
+    },
+    toggleCompareChevronName() {
+      return this.compareLinesExpanded ? 'chevron-up' : 'chevron-down';
     },
     noteTimestampLink() {
       return this.noteId ? `#note_${this.noteId}` : undefined;
@@ -118,6 +132,10 @@ export default {
     handleUsernameMouseLeave() {
       this.$refs.authorNameLink.dispatchEvent(new Event('mouseleave'));
       this.isUsernameLinkHovered = false;
+    },
+    handleCompareClick() {
+      this.compareLinesExpanded = !this.compareLinesExpanded;
+      this.onClickCompareButton();
     },
   },
 };
@@ -184,6 +202,11 @@ export default {
         </a>
         <time-ago-tooltip v-else ref="noteTimestamp" :time="createdAt" tooltip-placement="bottom" />
       </template>
+      <span v-if="showCompareButton">&bull;</span>
+      <a v-if="showCompareButton" href="#" @click.prevent="handleCompareClick">
+        {{ __('Compare with previous version') }}
+        <gl-icon :name="toggleCompareChevronName" :size="12" />
+      </a>
       <gl-icon
         v-if="isConfidential"
         v-gl-tooltip:tooltipcontainer.bottom
