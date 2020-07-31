@@ -16,7 +16,8 @@ class Groups::Security::ComplianceDashboardsController < Groups::ApplicationCont
 
     send_data(
       csv_data,
-      type: 'text/csv; charset=utf-8; header=present'
+      type: 'text/csv; charset=utf-8; header=present',
+      filename: merge_commits_csv_filename
     )
   end
 
@@ -35,5 +36,9 @@ class Groups::Security::ComplianceDashboardsController < Groups::ApplicationCont
 
   def authorize_compliance_dashboard!
     render_404 unless group_level_compliance_dashboard_available?(group)
+  end
+
+  def merge_commits_csv_filename
+    "#{@group.id}-merge-commits-#{Time.current.to_i}.csv"
   end
 end
