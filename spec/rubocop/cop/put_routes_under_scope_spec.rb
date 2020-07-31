@@ -2,9 +2,9 @@
 
 require 'fast_spec_helper'
 require 'rubocop'
-require_relative '../../../rubocop/cop/put_project_routes_under_scope'
+require_relative '../../../rubocop/cop/put_routes_under_scope'
 
-RSpec.describe RuboCop::Cop::PutProjectRoutesUnderScope, type: :rubocop do
+RSpec.describe RuboCop::Cop::PutRoutesUnderScope, type: :rubocop do
   include CopHelper
 
   subject(:cop) { described_class.new }
@@ -15,28 +15,36 @@ RSpec.describe RuboCop::Cop::PutProjectRoutesUnderScope, type: :rubocop do
       marker = '^' * offense.size
 
       expect_offense(<<~PATTERN)
-      scope '-' do
+      scope(path: 'groups/*group_id/-', module: :groups) do
         resource :issues
       end
 
       #{offense}
-      #{marker} Put new project routes under /-/ scope
+      #{marker} Put new routes under /-/ scope
       PATTERN
     end
   end
 
   it 'does not register an offense when resource inside the scope' do
     expect_no_offenses(<<~PATTERN)
-      scope '-' do
+      scope(path: 'groups/*group_id/-', module: :groups) do
         resource :issues
         resource :notes
       end
     PATTERN
   end
 
+  it 'does not register an offense when routes specify dash' do
+    expect_no_offenses(<<~PATTERN)
+      get '-', action: :foo
+      post '-' => :foo
+      delete :foo, path: '-/delete'
+    PATTERN
+  end
+
   it 'does not register an offense when resource is deep inside the scope' do
     expect_no_offenses(<<~PATTERN)
-      scope '-' do
+      scope(path: 'groups/*group_id/-', module: :groups) do
         resource :issues
         resource :projects do
           resource :issues do

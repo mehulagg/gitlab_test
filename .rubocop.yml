@@ -483,12 +483,9 @@ Rails/SaveBang:
     - 'qa/spec/**/*.rb'
     - 'qa/qa/specs/**/*.rb'
 
-Cop/PutProjectRoutesUnderScope:
+Cop/PutRoutesUnderScope:
   Include:
     - 'config/routes/project.rb'
     - 'ee/config/routes/project.rb'
-
-Cop/PutGroupRoutesUnderScope:
-  Include:
     - 'config/routes/group.rb'
     - 'ee/config/routes/group.rb'
