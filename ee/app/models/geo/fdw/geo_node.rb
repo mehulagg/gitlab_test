@@ -14,18 +14,6 @@ module Geo
       has_many :geo_node_namespace_links, class_name: 'Geo::Fdw::GeoNodeNamespaceLink'
       has_many :namespaces, class_name: 'Geo::Fdw::Namespace', through: :geo_node_namespace_links
 
-      def projects_outside_selective_sync
-        projects = if selective_sync_by_namespaces?
-                     projects_outside_selected_namespaces
-                   elsif selective_sync_by_shards?
-                     projects_outside_selected_shards
-                   else
-                     Geo::Fdw::Project.none
-                   end
-
-        projects.inner_join_project_registry
-      end
-
       def projects
         return Geo::Fdw::Project.all unless selective_sync?
 
@@ -35,18 +23,6 @@ module Geo
           projects_for_selected_shards
         else
           Geo::Fdw::Project.none
-        end
-      end
-
-      def project_registries
-        return Geo::ProjectRegistry.all unless selective_sync?
-
-        if selective_sync_by_namespaces?
-          registries_for_selected_namespaces
-        elsif selective_sync_by_shards?
-          registries_for_selected_shards
-        else
-          Geo::ProjectRegistry.none
         end
       end
 
@@ -65,16 +41,6 @@ module Geo
 
       def projects_for_selected_shards
         Geo::Fdw::Project.within_shards(selective_sync_shards)
-      end
-
-      def registries_for_selected_namespaces
-        Gitlab::Geo::Fdw::ProjectRegistryQueryBuilder.new
-          .within_namespaces(selected_namespaces_and_descendants.select(:id))
-      end
-
-      def registries_for_selected_shards
-        Gitlab::Geo::Fdw::ProjectRegistryQueryBuilder.new
-          .within_shards(selective_sync_shards)
       end
 
       def project_model

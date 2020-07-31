@@ -2,7 +2,6 @@
 import {
   GlBadge,
   GlButton,
-  GlIcon,
   GlModal,
   GlModalDirective,
   GlTooltipDirective,
@@ -15,6 +14,7 @@ import {
 } from '@gitlab/ui';
 import Tracking from '~/tracking';
 import PackageActivity from './activity.vue';
+import PackageHistory from './package_history.vue';
 import PackageInformation from './information.vue';
 import PackageTitle from './package_title.vue';
 import ConanInstallation from './conan_installation.vue';
@@ -27,6 +27,7 @@ import PackageListRow from '../../shared/components/package_list_row.vue';
 import DependencyRow from './dependency_row.vue';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
+import FileIcon from '~/vue_shared/components/file_icon.vue';
 import { generatePackageInfo } from '../utils';
 import { __, s__ } from '~/locale';
 import { PackageType, TrackingActions } from '../../shared/constants';
@@ -44,7 +45,7 @@ export default {
     GlTab,
     GlTabs,
     GlTable,
-    GlIcon,
+    FileIcon,
     GlSprintf,
     PackageActivity,
     PackageInformation,
@@ -57,6 +58,7 @@ export default {
     PackagesListLoader,
     PackageListRow,
     DependencyRow,
+    PackageHistory,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -66,6 +68,7 @@ export default {
   trackingActions: { ...TrackingActions },
   computed: {
     ...mapState([
+      'projectName',
       'packageEntity',
       'packageFiles',
       'isLoading',
@@ -74,6 +77,7 @@ export default {
       'svgPath',
       'npmPath',
       'npmHelpPath',
+      'oneColumnView',
     ]),
     installationComponent() {
       switch (this.packageEntity.package_type) {
@@ -219,43 +223,56 @@ export default {
 
     <gl-tabs>
       <gl-tab :title="__('Detail')">
-        <div class="row" data-qa-selector="package_information_content">
-          <div class="col-sm-6">
-            <package-information :information="packageInformation" />
-            <package-information
-              v-if="packageMetadata"
-              :heading="packageMetadataTitle"
-              :information="packageMetadata"
-              :show-copy="true"
-            />
+        <template v-if="!oneColumnView">
+          <div
+            class="row"
+            data-qa-selector="package_information_content"
+            data-testid="old-package-info"
+          >
+            <div class="col-sm-6">
+              <package-information :information="packageInformation" />
+              <package-information
+                v-if="packageMetadata"
+                :heading="packageMetadataTitle"
+                :information="packageMetadata"
+                :show-copy="true"
+              />
+            </div>
+
+            <div class="col-sm-6">
+              <component
+                :is="installationComponent"
+                v-if="installationComponent"
+                :name="packageEntity.name"
+                :registry-url="npmPath"
+                :help-url="npmHelpPath"
+              />
+            </div>
           </div>
 
-          <div class="col-sm-6">
-            <component
-              :is="installationComponent"
-              v-if="installationComponent"
-              :name="packageEntity.name"
-              :registry-url="npmPath"
-              :help-url="npmHelpPath"
-            />
-          </div>
-        </div>
+          <package-activity />
+        </template>
 
-        <package-activity />
+        <package-history v-else :package-entity="packageEntity" :project-name="projectName" />
 
+        <h3 class="gl-font-lg">{{ __('Files') }}</h3>
         <gl-table
           :fields="$options.filesTableHeaderFields"
           :items="filesTableRows"
           tbody-tr-class="js-file-row"
         >
           <template #cell(name)="items">
-            <gl-icon name="doc-code" class="space-right" />
             <gl-link
               :href="items.item.downloadPath"
-              class="js-file-download"
+              class="js-file-download gl-relative"
               @click="track($options.trackingActions.PULL_PACKAGE)"
             >
-              {{ items.item.name }}
+              <file-icon
+                :file-name="items.item.name"
+                css-classes="gl-relative file-icon"
+                class="gl-mr-1 gl-relative"
+              />
+              <span class="gl-relative">{{ items.item.name }}</span>
             </gl-link>
           </template>
 

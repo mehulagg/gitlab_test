@@ -3,7 +3,68 @@
 require 'spec_helper'
 
 RSpec.describe Ci::Ref do
+  using RSpec::Parameterized::TableSyntax
+
   it { is_expected.to belong_to(:project) }
+
+  describe 'state machine transitions' do
+    context 'unlock artifacts transition' do
+      let(:ci_ref) { create(:ci_ref) }
+      let(:unlock_artifacts_worker_spy) { class_spy(::Ci::PipelineSuccessUnlockArtifactsWorker) }
+
+      before do
+        stub_const('Ci::PipelineSuccessUnlockArtifactsWorker', unlock_artifacts_worker_spy)
+      end
+
+      context 'when keep latest artifact feature is enabled' do
+        before do
+          stub_feature_flags(keep_latest_artifacts_for_ref: true)
+        end
+
+        where(:initial_state, :action, :count) do
+          :unknown | :succeed! | 1
+          :unknown | :do_fail! | 0
+          :success | :succeed! | 1
+          :success | :do_fail! | 0
+          :failed | :succeed! | 1
+          :failed | :do_fail! | 0
+          :fixed | :succeed! | 1
+          :fixed | :do_fail! | 0
+          :broken | :succeed! | 1
+          :broken | :do_fail! | 0
+          :still_failing | :succeed | 1
+          :still_failing | :do_fail | 0
+        end
+
+        with_them do
+          context "when transitioning states" do
+            before do
+              status_value = Ci::Ref.state_machines[:status].states[initial_state].value
+              ci_ref.update!(status: status_value)
+            end
+
+            it 'calls unlock artifacts service' do
+              ci_ref.send(action)
+
+              expect(unlock_artifacts_worker_spy).to have_received(:perform_async).exactly(count).times
+            end
+          end
+        end
+      end
+
+      context 'when keep latest artifact feature is not enabled' do
+        before do
+          stub_feature_flags(keep_latest_artifacts_for_ref: false)
+        end
+
+        it 'does not call unlock artifacts service' do
+          ci_ref.succeed!
+
+          expect(unlock_artifacts_worker_spy).not_to have_received(:perform_async)
+        end
+      end
+    end
+  end
 
   describe '.ensure_for' do
     let_it_be(:project) { create(:project, :repository) }
@@ -64,7 +125,7 @@ RSpec.describe Ci::Ref do
 
   describe '#last_finished_pipeline_id' do
     let(:pipeline_status) { :running }
-    let(:config_source) { Ci::PipelineEnums.config_sources[:repository_source] }
+    let(:config_source) { Enums::Ci::Pipeline.config_sources[:repository_source] }
     let(:pipeline) { create(:ci_pipeline, pipeline_status, config_source: config_source) }
     let(:ci_ref) { pipeline.ci_ref }
 
@@ -82,7 +143,7 @@ RSpec.describe Ci::Ref do
       end
 
       context 'when the pipeline is not a ci_source' do
-        let(:config_source) { Ci::PipelineEnums.config_sources[:parameter_source] }
+        let(:config_source) { Enums::Ci::Pipeline.config_sources[:parameter_source] }
 
         it 'returns nil' do
           expect(ci_ref.last_finished_pipeline_id).to be_nil

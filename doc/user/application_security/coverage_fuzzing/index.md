@@ -23,10 +23,10 @@ Coverage Guided Fuzzing by including the CI job in your existing `.gitlab-ci.yml
 
 GitLab supports these languages through the fuzzing engine listed for each. We currently provide a Docker image for apps written in Go, but you can test the other languages below by providing a Docker image with the fuzz engine to run your app.
 
-| Language | Fuzzing Engine                                                            | Example |
-|----------|---------------------------------------------------------------------------|---------|
-| C/C++    | [libFuzzer](https://llvm.org/docs/LibFuzzer.html)                         |         |
-| GoLang   | [go-fuzz (libFuzzer support)](https://github.com/dvyukov/go-fuzz)         |         |
+| Language | Fuzzing Engine | Example |
+|----------|----------------|---------|
+| C/C++    | [libFuzzer](https://llvm.org/docs/LibFuzzer.html) | [c-cpp-example](https://gitlab.com/gitlab-org/security-products/demos/c-cpp-fuzzing-example) |
+| GoLang   | [go-fuzz (libFuzzer support)](https://github.com/dvyukov/go-fuzz) | [go-fuzzing-example](https://gitlab.com/gitlab-org/security-products/demos/go-fuzzing-example) |
 | Rust     | [cargo-fuzz (libFuzzer support)](https://github.com/rust-fuzz/cargo-fuzz) |         |
 
 ## Configuration
@@ -109,6 +109,12 @@ any option available in the underlying fuzzing engine.
 |---------------------------|--------------------------------------------------------------------|
 | `COVERAGE_FUZZING_BRANCH` | The branch for long-running fuzzing jobs. The default is `master`. |
 | `CI_SEED_CORPUS`          | Path to a seed corpus directory. The default is empty.             |
+
+The files in the seed corpus (`CI_SEED_CORPUS`), if provided, aren't updated unless you commit new
+files to your Git repository. There's usually no need to frequently update the seed corpus. As part
+of the GitLab artifacts system, GitLab saves in a corpus directory the new test cases that every run
+generates. In any subsequent runs, GitLab also reuses the generated corpus together with the seed
+corpus.
 
 ### Additional Configuration
 

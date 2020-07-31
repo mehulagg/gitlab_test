@@ -604,25 +604,25 @@ msgstr[1] ""
 msgid "%{remaining_approvals} left"
 msgstr ""
 
-msgid "%{reportType} %{status} detected %{criticalStart}%{critical} new critical%{criticalEnd} and %{highStart}%{high} new high%{highEnd} severity vulnerabilities out of %{total}."
+msgid "%{reportType} %{status} detected %{criticalStart}%{critical} critical%{criticalEnd} and %{highStart}%{high} high%{highEnd} severity vulnerabilities out of %{total}."
 msgstr ""
 
-msgid "%{reportType} %{status} detected %{criticalStart}%{critical} new critical%{criticalEnd} and %{highStart}%{high} new high%{highEnd} severity vulnerabilities."
+msgid "%{reportType} %{status} detected %{criticalStart}%{critical} critical%{criticalEnd} and %{highStart}%{high} high%{highEnd} severity vulnerabilities."
 msgstr ""
 
-msgid "%{reportType} %{status} detected %{criticalStart}%{critical} new critical%{criticalEnd} severity vulnerabilities out of %{total}."
+msgid "%{reportType} %{status} detected %{criticalStart}%{critical} critical%{criticalEnd} severity vulnerabilities out of %{total}."
 msgstr ""
 
-msgid "%{reportType} %{status} detected %{criticalStart}%{critical} new critical%{criticalEnd} severity vulnerability."
-msgid_plural "%{reportType} %{status} detected %{criticalStart}%{critical} new critical%{criticalEnd} severity vulnerabilities."
+msgid "%{reportType} %{status} detected %{criticalStart}%{critical} critical%{criticalEnd} severity vulnerability."
+msgid_plural "%{reportType} %{status} detected %{criticalStart}%{critical} critical%{criticalEnd} severity vulnerabilities."
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "%{reportType} %{status} detected %{highStart}%{high} new high%{highEnd} severity vulnerabilities out of %{total}."
+msgid "%{reportType} %{status} detected %{highStart}%{high} high%{highEnd} severity vulnerabilities out of %{total}."
 msgstr ""
 
-msgid "%{reportType} %{status} detected %{highStart}%{high} new high%{highEnd} severity vulnerability."
-msgid_plural "%{reportType} %{status} detected %{highStart}%{high} new high%{highEnd} severity vulnerabilities."
+msgid "%{reportType} %{status} detected %{highStart}%{high} high%{highEnd} severity vulnerability."
+msgid_plural "%{reportType} %{status} detected %{highStart}%{high} high%{highEnd} severity vulnerabilities."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -631,7 +631,7 @@ msgid_plural "%{reportType} %{status} detected %{other} vulnerabilities."
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "%{reportType} %{status} detected no new vulnerabilities."
+msgid "%{reportType} %{status} detected no vulnerabilities."
 msgstr ""
 
 msgid "%{retryButtonStart}Try again%{retryButtonEnd} or %{newFileButtonStart}attach a new file%{newFileButtonEnd}"
@@ -1367,6 +1367,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "Add %{linkStart}assets%{linkEnd} to your Release. GitLab automatically includes read-only assets, like source code and release evidence."
+msgstr ""
+
+msgid "Add .gitlab-ci.yml to enable or configure SAST"
+msgstr ""
+
+msgid "Add .gitlab-ci.yml to enable or configure SAST security scanning using the GitLab managed template. You can [add variable overrides](https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings) to customize SAST settings."
 msgstr ""
 
 msgid "Add CHANGELOG"
@@ -4404,7 +4410,7 @@ msgstr ""
 msgid "Changing a Release tag is only supported via Releases API. %{linkStart}More information%{linkEnd}"
 msgstr ""
 
-msgid "Changing group path can have unintended side effects."
+msgid "Changing group URL can have unintended side effects."
 msgstr ""
 
 msgid "Channel handle (e.g. town-square)"
@@ -4486,6 +4492,9 @@ msgid "Checking approval status"
 msgstr ""
 
 msgid "Checking branch availability..."
+msgstr ""
+
+msgid "Checking group URL availability..."
 msgstr ""
 
 msgid "Checking group path availability..."
@@ -7600,9 +7609,6 @@ msgstr ""
 msgid "Default classification label"
 msgstr ""
 
-msgid "Default dashboard"
-msgstr ""
-
 msgid "Default deletion adjourned period"
 msgstr ""
 
@@ -8653,6 +8659,9 @@ msgstr ""
 msgid "Edit Release"
 msgstr ""
 
+msgid "Edit Requirement"
+msgstr ""
+
 msgid "Edit Slack integration"
 msgstr ""
 
@@ -8756,6 +8765,9 @@ msgid "Elastic|None. Select projects to index."
 msgstr ""
 
 msgid "Email"
+msgstr ""
+
+msgid "Email %{number}"
 msgstr ""
 
 msgid "Email Notification"
@@ -9884,6 +9896,9 @@ msgid "Explore projects"
 msgstr ""
 
 msgid "Explore public groups"
+msgstr ""
+
+msgid "Export"
 msgstr ""
 
 msgid "Export as CSV"
@@ -11941,10 +11956,10 @@ msgstr ""
 msgid "GroupSettings|Cannot update the path because there are projects under this group that contain Docker images in their Container Registry. Please remove the images from your projects first and try again."
 msgstr ""
 
-msgid "GroupSettings|Change group path"
+msgid "GroupSettings|Change group URL"
 msgstr ""
 
-msgid "GroupSettings|Changing group path can have unintended side effects."
+msgid "GroupSettings|Changing group URL can have unintended side effects."
 msgstr ""
 
 msgid "GroupSettings|Custom project templates"
@@ -11986,7 +12001,7 @@ msgstr ""
 msgid "GroupSettings|Pipeline settings was updated for the group"
 msgstr ""
 
-msgid "GroupSettings|Please choose a group path with no special characters."
+msgid "GroupSettings|Please choose a group URL with no special characters."
 msgstr ""
 
 msgid "GroupSettings|Prevent sharing a project within %{group} with other groups"
@@ -12710,7 +12725,13 @@ msgstr ""
 msgid "Incident Management Limits"
 msgstr ""
 
+msgid "IncidentManagement|All incidents"
+msgstr ""
+
 msgid "IncidentManagement|Assignees"
+msgstr ""
+
+msgid "IncidentManagement|Closed"
 msgstr ""
 
 msgid "IncidentManagement|Create incident"
@@ -12728,10 +12749,22 @@ msgstr ""
 msgid "IncidentManagement|No incidents to display."
 msgstr ""
 
+msgid "IncidentManagement|Open"
+msgstr ""
+
+msgid "IncidentManagement|Published"
+msgstr ""
+
+msgid "IncidentManagement|Published to status page"
+msgstr ""
+
 msgid "IncidentManagement|There was an error displaying the incidents."
 msgstr ""
 
 msgid "IncidentManagement|Unassigned"
+msgstr ""
+
+msgid "IncidentManagement|Unpublished"
 msgstr ""
 
 msgid "IncidentSettings|Alert integration"
@@ -13057,10 +13090,19 @@ msgstr ""
 msgid "Invite Members"
 msgstr ""
 
+msgid "Invite another teammate"
+msgstr ""
+
 msgid "Invite group"
 msgstr ""
 
 msgid "Invite member"
+msgstr ""
+
+msgid "Invite teammates (optional)"
+msgstr ""
+
+msgid "Invited users will be added with developer level permissions. You can always change this later."
 msgstr ""
 
 msgid "Invocations"
@@ -14687,6 +14729,9 @@ msgstr ""
 msgid "Merge Requests"
 msgstr ""
 
+msgid "Merge Requests closed"
+msgstr ""
+
 msgid "Merge Requests created"
 msgstr ""
 
@@ -14984,13 +15029,22 @@ msgstr ""
 msgid "Metrics|Add metric"
 msgstr ""
 
+msgid "Metrics|Add panel"
+msgstr ""
+
 msgid "Metrics|Avg"
+msgstr ""
+
+msgid "Metrics|Back to dashboard"
 msgstr ""
 
 msgid "Metrics|Cancel"
 msgstr ""
 
 msgid "Metrics|Check out the CI/CD documentation on deploying to an environment"
+msgstr ""
+
+msgid "Metrics|Copy YAML"
 msgstr ""
 
 msgid "Metrics|Create custom dashboard %{fileName}"
@@ -15009,6 +15063,12 @@ msgid "Metrics|Create your dashboard configuration file"
 msgstr ""
 
 msgid "Metrics|Current"
+msgstr ""
+
+msgid "Metrics|Define and preview panel"
+msgstr ""
+
+msgid "Metrics|Define panel YAML to preview panel."
 msgstr ""
 
 msgid "Metrics|Delete metric"
@@ -15077,6 +15137,15 @@ msgid "Metrics|New metric"
 msgstr ""
 
 msgid "Metrics|Open repository"
+msgstr ""
+
+msgid "Metrics|Panel YAML"
+msgstr ""
+
+msgid "Metrics|Panel YAML copied"
+msgstr ""
+
+msgid "Metrics|Preview panel"
 msgstr ""
 
 msgid "Metrics|PromQL query is valid"
@@ -15773,6 +15842,9 @@ msgstr ""
 msgid "New Project"
 msgstr ""
 
+msgid "New Requirement"
+msgstr ""
+
 msgid "New Snippet"
 msgstr ""
 
@@ -16382,6 +16454,9 @@ msgstr ""
 msgid "Number of employees"
 msgstr ""
 
+msgid "Number of events"
+msgstr ""
+
 msgid "Number of events for this project: %{total_count}."
 msgstr ""
 
@@ -16750,10 +16825,19 @@ msgstr ""
 msgid "Package was removed"
 msgstr ""
 
+msgid "PackageRegistry|%{name} version %{version} was created %{datetime}"
+msgstr ""
+
+msgid "PackageRegistry|%{name} version %{version} was updated %{datetime}"
+msgstr ""
+
 msgid "PackageRegistry|Add Conan Remote"
 msgstr ""
 
 msgid "PackageRegistry|Add NuGet Source"
+msgstr ""
+
+msgid "PackageRegistry|Commit %{link} on branch %{branch}"
 msgstr ""
 
 msgid "PackageRegistry|Composer"
@@ -16871,6 +16955,12 @@ msgid "PackageRegistry|Pip Command"
 msgstr ""
 
 msgid "PackageRegistry|Pipeline %{linkStart}%{linkEnd} triggered %{timestamp} by %{author}"
+msgstr ""
+
+msgid "PackageRegistry|Pipeline %{link} triggered %{datetime} by %{author}"
+msgstr ""
+
+msgid "PackageRegistry|Published to the %{project} Package Registry %{datetime}"
 msgstr ""
 
 msgid "PackageRegistry|Published to the repository at %{timestamp}"
@@ -17900,6 +17990,9 @@ msgid "Proceed"
 msgstr ""
 
 msgid "Product Analytics"
+msgstr ""
+
+msgid "ProductAnalytics|There is no data for this type of chart currently. Please see the Setup tab if you have not configured the product analytics tool already."
 msgstr ""
 
 msgid "Productivity"
@@ -20284,9 +20377,6 @@ msgstr ""
 msgid "Required in this project."
 msgstr ""
 
-msgid "Requirement"
-msgstr ""
-
 msgid "Requirement %{reference} has been added"
 msgstr ""
 
@@ -21979,6 +22069,9 @@ msgstr ""
 msgid "Showing all issues"
 msgstr ""
 
+msgid "Showing graphs based on events of the last %{timerange} days."
+msgstr ""
+
 msgid "Showing last %{size} of log -"
 msgstr ""
 
@@ -23616,9 +23709,6 @@ msgid_plural "The %{type} contains the following errors:"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "The .gitlab-ci.yml has been successfully created."
-msgstr ""
-
 msgid "The Advanced Global Search in GitLab is a powerful search service that saves you time. Instead of creating duplicate code and wasting time, you can now search for code within other teams that can help your own project."
 msgstr ""
 
@@ -23829,6 +23919,9 @@ msgid "The name \"%{name}\" is already taken in this directory."
 msgstr ""
 
 msgid "The number of changes to be fetched from GitLab when cloning a repository. This can speed up Pipelines execution. Keep empty or set to 0 to disable shallow clone by default and make GitLab CI fetch all branches and tags each time."
+msgstr ""
+
+msgid "The number of merge requests merged to the master branch by month."
 msgstr ""
 
 msgid "The number of times an upload record could not find its file"
@@ -24060,6 +24153,9 @@ msgid "There is a limit of %{ci_project_subscriptions_limit} subscriptions from 
 msgstr ""
 
 msgid "There is already a repository with that name on disk"
+msgstr ""
+
+msgid "There is no data available."
 msgstr ""
 
 msgid "There is no data available. Please change your selection."
@@ -24798,6 +24894,9 @@ msgid "ThreatMonitoring|Web Application Firewall"
 msgstr ""
 
 msgid "ThreatMonitoring|While it's rare to have no traffic coming to your application, it can happen. In any event, we ask that you double check your settings to make sure you've set up the WAF correctly."
+msgstr ""
+
+msgid "Throughput"
 msgstr ""
 
 msgid "Thursday"
@@ -29242,6 +29341,9 @@ msgid "syntax is incorrect"
 msgstr ""
 
 msgid "tag name"
+msgstr ""
+
+msgid "teammate%{number}@company.com"
 msgstr ""
 
 msgid "the following issue(s)"

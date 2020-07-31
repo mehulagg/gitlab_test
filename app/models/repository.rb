@@ -43,7 +43,7 @@ class Repository
                       gitlab_ci_yml branch_names tag_names branch_count
                       tag_count avatar exists? root_ref merged_branch_names
                       has_visible_content? issue_template_names merge_request_template_names
-                      metrics_dashboard_paths xcode_project?).freeze
+                      user_defined_metrics_dashboard_paths xcode_project?).freeze
 
   # Methods that use cache_method but only memoize the value
   MEMOIZED_CACHED_METHODS = %i(license).freeze
@@ -61,7 +61,7 @@ class Repository
     avatar: :avatar,
     issue_template: :issue_template_names,
     merge_request_template: :merge_request_template_names,
-    metrics_dashboard: :metrics_dashboard_paths,
+    metrics_dashboard: :user_defined_metrics_dashboard_paths,
     xcode_config: :xcode_project?
   }.freeze
 
@@ -576,10 +576,10 @@ class Repository
   end
   cache_method :merge_request_template_names, fallback: []
 
-  def metrics_dashboard_paths
-    Gitlab::Metrics::Dashboard::Finder.find_all_paths_from_source(project)
+  def user_defined_metrics_dashboard_paths
+    Gitlab::Metrics::Dashboard::RepoDashboardFinder.list_dashboards(project)
   end
-  cache_method :metrics_dashboard_paths
+  cache_method :user_defined_metrics_dashboard_paths, fallback: []
 
   def readme
     head_tree&.readme
@@ -852,7 +852,7 @@ class Repository
 
   def revert(
     user, commit, branch_name, message,
-    start_branch_name: nil, start_project: project)
+    start_branch_name: nil, start_project: project, dry_run: false)
 
     with_cache_hooks do
       raw_repository.revert(
@@ -861,14 +861,15 @@ class Repository
         branch_name: branch_name,
         message: message,
         start_branch_name: start_branch_name,
-        start_repository: start_project.repository.raw_repository
+        start_repository: start_project.repository.raw_repository,
+        dry_run: dry_run
       )
     end
   end
 
   def cherry_pick(
     user, commit, branch_name, message,
-    start_branch_name: nil, start_project: project)
+    start_branch_name: nil, start_project: project, dry_run: false)
 
     with_cache_hooks do
       raw_repository.cherry_pick(
@@ -877,7 +878,8 @@ class Repository
         branch_name: branch_name,
         message: message,
         start_branch_name: start_branch_name,
-        start_repository: start_project.repository.raw_repository
+        start_repository: start_project.repository.raw_repository,
+        dry_run: dry_run
       )
     end
   end

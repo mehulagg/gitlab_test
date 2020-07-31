@@ -89,6 +89,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         namespace :analytics do
           resources :code_reviews, only: [:index]
           resource :issues_analytics, only: [:show]
+          resource :merge_request_analytics, only: :show, constraints: -> (req) { Gitlab::Analytics.project_merge_request_analytics_enabled? }
         end
 
         resources :approvers, only: :destroy
@@ -111,6 +112,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             resources :issues, only: [:index]
           end
         end
+
+        resources :iterations, only: [:index]
       end
       # End of the /-/ scope.
 
