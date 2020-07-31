@@ -1,7 +1,10 @@
 !!! 5
 %html.devise-layout-html.navless{ class: system_message_class }
+  - content_for :page_specific_javascripts do
+    = render "layouts/google_tag_manager_head"
   = render "layouts/head"
   %body.ui-indigo.signup-page{ class: "#{client_class_list}", data: { page: body_data_page, qa_selector: 'signup_page' } }
+    = render "layouts/google_tag_manager_body"
     = render "layouts/header/logo_with_title"
     = render "layouts/init_client_detection_flags"
     .page-wrap

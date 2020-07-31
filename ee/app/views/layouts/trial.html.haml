@@ -1,7 +1,10 @@
 !!! 5
 %html{ lang: "en" }
+  - content_for :page_specific_javascripts do
+    = render "layouts/google_tag_manager_head"
   = render "layouts/head"
   %body.ui-indigo.login-page.application.navless
+    = render "layouts/google_tag_manager_body"
     = render "layouts/header/logo_with_title"
     = render "layouts/broadcast"
     .container.navless-container.pt-0
