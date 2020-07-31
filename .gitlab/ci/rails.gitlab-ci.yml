@@ -187,8 +187,8 @@ update-static-analysis-cache:
 
 static-analysis:
   rules:
-  - if: '$DAST_TEST == "true"' # Skip this job for DAST test
-    when: never
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .static-analysis-base
     - .rails:rules:default-refs-code-backstage-qa
