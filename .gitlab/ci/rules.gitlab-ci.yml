@@ -35,7 +35,7 @@
   if: '$CI_MERGE_REQUEST_IID'
 
 .if-merge-request-title-as-if-foss: &if-merge-request-title-as-if-foss
-  if: '$CI_MERGE_REQUEST_TITLE =~ /RUN AS-IF-FOSS/'
+  if: '$CI_MERGE_REQUEST_TITLE =~ /RUN AS-IF-FOSS|to foss|to core|to ce/i'
 
 .if-merge-request-title-update-caches: &if-merge-request-title-update-caches
   if: '$CI_MERGE_REQUEST_TITLE =~ /UPDATE CACHE/'
