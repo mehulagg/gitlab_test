@@ -63,8 +63,6 @@ const Api = {
   issuePath: '/api/:version/projects/:id/issues/:issue_iid',
   tagsPath: '/api/:version/projects/:id/repository/tags',
   freezePeriodsPath: '/api/:version/projects/:id/freeze_periods',
-  changedDiffPath:
-    '/:namespace_path/:project_path/-/blob/:commit_id/:path/diff?since=:since&to=:to&offset=0&unfold=false&from_merge_request=true',
 
   group(groupId, callback = () => {}) {
     const url = Api.buildUrl(Api.groupPath).replace(':id', groupId);
@@ -662,16 +660,8 @@ const Api = {
     });
   },
 
-  changedDiff({ namespacePath, projectPath, commitId, path, since, to }) {
-    const url = Api.buildUrl(Api.changedDiffPath)
-      .replace(':namespace_path', namespacePath)
-      .replace(':project_path', projectPath)
-      .replace(':commit_id', commitId)
-      .replace(':path', path)
-      .replace(':since', since)
-      .replace(':to', to);
-
-    return axios.get(url).then(({ data }) => data);
+  changedDiff(url) {
+    return axios.get(Api.buildUrl(url)).then(({ data }) => data);
   },
 
   freezePeriods(id) {

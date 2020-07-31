@@ -55,6 +55,7 @@ export default {
     return {
       expanded: false,
       changedLines: undefined,
+      changedLinesError: false,
     };
   },
   computed: {
@@ -78,26 +79,6 @@ export default {
         .unwrap()
         .html();
     },
-    expandLinesParams() {
-      try {
-        // eslint-disable-next-line no-unused-vars
-        const [_, commitIdLineCode] = /start_sha=(.*)"/.exec(this.actionTextHtml);
-        const lineRange = this.note.position.line_range;
-        if (!commitIdLineCode || !lineRange) return '';
-
-        // eslint-disable-next-line no-unused-vars
-        const [__, namespacePath, projectPath] = this.note.path.split('/');
-        const [commitId] = commitIdLineCode.split('#');
-        const path = this.note.position.new_path;
-        const since = Math.max(lineRange.start.new_line - 3, 1);
-        const to = lineRange.end.new_line;
-        // const url = `/h5bp/html5-boilerplate/-/blob/${commitId}/LICENSE.txt/diff?since=${lineNumber -
-        //   3}&to=${lineNumber}&bottom=false&offset=0&unfold=false&view=inline&from_merge_request=true`;
-        return { namespacePath, projectPath, commitId, path, since, to };
-      } catch {
-        return undefined;
-      }
-    },
     hasMoreCommits() {
       return (
         $(this.note.note_html)
@@ -116,10 +97,12 @@ export default {
     ...mapActions(['fetchDescriptionVersion', 'softDeleteDescriptionVersion']),
     async getChangedLines() {
       try {
-        this.changedLines = await Api.changedDiff(this.expandLinesParams);
+        this.changedLinesError = false;
+        const url = /href="(.*)"/.exec(this.note.note_html);
+        const changedLines = await Api.changedDiff(url[1]);
+        this.changedLines = changedLines.diff_files[0].highlighted_diff_lines;
       } catch (err) {
-        console.error(err);
-        this.changedLines = undefined;
+        this.changedLinesError = true;
       }
     },
   },
@@ -183,7 +166,13 @@ export default {
           </gl-deprecated-button>
         </div>
       </div>
-      <note-diff-lines v-if="changedLines" :has-truncated-diff-lines="true" :lines="changedLines" />
+      <note-diff-lines
+        v-if="changedLines"
+        :has-truncated-diff-lines="true"
+        :lines="changedLines"
+        :error="changedLinesError"
+        :reload-diff-fn="getChangedLines"
+      />
     </div>
   </timeline-entry-item>
 </template>

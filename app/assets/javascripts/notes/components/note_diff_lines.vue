@@ -8,8 +8,7 @@ export default {
   props: {
     error: {
       type: Boolean,
-      required: false,
-      default: false,
+      required: true,
     },
     hasTruncatedDiffLines: {
       type: Boolean,
@@ -19,10 +18,9 @@ export default {
       type: Array,
       required: true,
     },
-    onClick: {
+    reloadDiffFn: {
       type: Function,
-      required: false,
-      default: () => {},
+      required: true,
     },
   },
   methods: {
@@ -50,7 +48,7 @@ export default {
         {{ __('Unable to load the diff') }}
         <button
           class="btn-link btn-link-retry btn-no-padding js-toggle-lazy-diff-retry-button"
-          @click="onClick"
+          @click="reloadDiffFn"
         >
           {{ __('Try again') }}
         </button>
