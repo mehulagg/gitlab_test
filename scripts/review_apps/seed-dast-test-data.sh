@@ -10,6 +10,7 @@ function create_user() {
     # which leads to the DAST scan getting "stuck" on the 2FA set up page.
     # Once https://gitlab.com/gitlab-org/gitlab/-/issues/231447 is resolved, we can use 
     # DAST_AUTH_EXCLUDE_URLS instead to prevent DAST from enabling 2FA.
+    echo "Adding user ${user}"
     curl --silent --show-error --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" \
         --data "email=${user}@example.com" \
         --data "name=${user}" \
@@ -26,7 +27,7 @@ function create_user() {
 
 function create_project_for_user() {
     local userid="${1}"
-
+    echo "Creating project for ${userid}"
     # API details at https://docs.gitlab.com/ee/api/projects.html#create-project-for-user
     curl --silent --show-error --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" \
         --data "user_id=${userid}" \
