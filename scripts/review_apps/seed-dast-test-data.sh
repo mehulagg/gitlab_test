@@ -37,32 +37,32 @@ function create_project_for_user() {
 }
 
 function trigger_proj_user_creation(){
-    USERID=$(create_user "user1")
-    create_project_for_user $USERID
-    USERID=$(create_user "user2")
-    create_project_for_user $USERID
-    USERID=$(create_user "user3")
-    create_project_for_user $USERID
-    USERID=$(create_user "user4")
-    create_project_for_user $USERID
-    USERID=$(create_user "user5")
-    create_project_for_user $USERID
-    USERID=$(create_user "user6")
-    create_project_for_user $USERID
-    USERID=$(create_user "user7")
-    create_project_for_user $USERID
-    USERID=$(create_user "user8")
-    create_project_for_user $USERID
-    USERID=$(create_user "user9")
-    create_project_for_user $USERID
-    USERID=$(create_user "user10")
-    create_project_for_user $USERID
-    USERID=$(create_user "user11")
-    create_project_for_user $USERID
-    USERID=$(create_user "user12")
-    create_project_for_user $USERID
-    USERID=$(create_user "user13")
-    create_project_for_user $USERID
-    USERID=$(create_user "user14")
-    create_project_for_user $USERID
+    local u1=$(create_user "user1")
+    create_project_for_user $u1
+    local u2=$(create_user "user2")
+    create_project_for_user $u2
+    local u3=$(create_user "user3")
+    create_project_for_user $u3
+    local u4=$(create_user "user4")
+    create_project_for_user $u4
+    local u5=$(create_user "user5")
+    create_project_for_user $u5
+    local u6=$(create_user "user6")
+    create_project_for_user $u6
+    local u7=$(create_user "user7")
+    create_project_for_user $u7
+    local u8=$(create_user "user8")
+    create_project_for_user $u8
+    local u9=$(create_user "user9")
+    create_project_for_user $u9
+    local u10=$(create_user "user10")
+    create_project_for_user $u10
+    local u11=$(create_user "user11")
+    create_project_for_user $u11
+    local u12=$(create_user "user12")
+    create_project_for_user $u12
+    local u13=$(create_user "user13")
+    create_project_for_user $u13
+    local u14=$(create_user "user14")
+    create_project_for_user $u14
 }
