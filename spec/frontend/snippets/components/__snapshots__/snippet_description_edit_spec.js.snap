@@ -26,9 +26,7 @@ exports[`Snippet Description Edit component rendering matches the snapshot 1`] =
     <div
       class="js-vue-markdown-field md-area position-relative js-expanded gfm-form"
     >
-      <markdown-header-stub
-        linecontent=""
-      />
+      <markdown-header-stub />
        
       <div
         class="md-write-holder"
@@ -71,6 +69,7 @@ exports[`Snippet Description Edit component rendering matches the snapshot 1`] =
            
           <markdown-toolbar-stub
             canattachfile="true"
+            linecontent=""
             markdowndocspath="help/"
             quickactionsdocspath=""
           />

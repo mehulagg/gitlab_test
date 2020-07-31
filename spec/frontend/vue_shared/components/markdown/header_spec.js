@@ -35,7 +35,6 @@ describe('Markdown field header component', () => {
       'Add bold text',
       'Add italic text',
       'Insert a quote',
-      'Insert suggestion',
       'Insert code',
       'Add a link',
       'Add a bullet list',
@@ -103,19 +102,5 @@ describe('Markdown field header component', () => {
     expect(tableButton.props('tag')).toEqual(
       '| header | header |\n| ------ | ------ |\n| cell | cell |\n| cell | cell |',
     );
-  });
-
-  it('renders suggestion template', () => {
-    expect(findToolbarButtonByProp('buttonTitle', 'Insert suggestion').props('tag')).toEqual(
-      '```suggestion:-0+0\n{text}\n```',
-    );
-  });
-
-  it('does not render suggestion button if `canSuggest` is set to false', () => {
-    createWrapper({
-      canSuggest: false,
-    });
-
-    expect(wrapper.find('.js-suggestion-btn').exists()).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 <script>
 import $ from 'jquery';
-import { GlPopover, GlButton, GlTooltipDirective, GlIcon } from '@gitlab/ui';
+import { GlTooltipDirective, GlIcon } from '@gitlab/ui';
 import { getSelectedFragment } from '~/lib/utils/common_utils';
 import { CopyAsGFM } from '../../../behaviors/markdown/copy_as_gfm';
 import ToolbarButton from './toolbar_button.vue';
@@ -9,8 +9,6 @@ export default {
   components: {
     ToolbarButton,
     GlIcon,
-    GlPopover,
-    GlButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -19,21 +17,6 @@ export default {
     previewMarkdown: {
       type: Boolean,
       required: true,
-    },
-    lineContent: {
-      type: String,
-      required: false,
-      default: '',
-    },
-    canSuggest: {
-      type: Boolean,
-      required: false,
-      default: true,
-    },
-    showSuggestPopover: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
   },
   data() {
@@ -50,9 +33,6 @@ export default {
         '| cell | cell |', // eslint-disable-line @gitlab/require-i18n-strings
         '| cell | cell |', // eslint-disable-line @gitlab/require-i18n-strings
       ].join('\n');
-    },
-    mdSuggestion() {
-      return ['```suggestion:-0+0', `{text}`, '```'].join('\n');
     },
   },
   mounted() {
@@ -83,9 +63,6 @@ export default {
       if (!this.isValid(form)) return;
 
       this.$emit('write-markdown');
-    },
-    handleSuggestDismissed() {
-      this.$emit('handleSuggestDismissed');
     },
     handleQuote() {
       const documentFragment = getSelectedFragment();
@@ -139,43 +116,6 @@ export default {
           />
         </div>
         <div class="d-inline-block ml-md-2 ml-0">
-          <template v-if="canSuggest">
-            <toolbar-button
-              ref="suggestButton"
-              :tag="mdSuggestion"
-              :prepend="true"
-              :button-title="__('Insert suggestion')"
-              :cursor-offset="4"
-              :tag-content="lineContent"
-              icon="doc-code"
-              class="js-suggestion-btn"
-              @click="handleSuggestDismissed"
-            />
-            <gl-popover
-              v-if="showSuggestPopover && $refs.suggestButton"
-              :target="$refs.suggestButton"
-              :css-classes="['diff-suggest-popover']"
-              placement="bottom"
-              :show="showSuggestPopover"
-            >
-              <strong>{{ __('New! Suggest changes directly') }}</strong>
-              <p class="mb-2">
-                {{
-                  __(
-                    'Suggest code changes which can be immediately applied in one click. Try it out!',
-                  )
-                }}
-              </p>
-              <gl-button
-                variant="info"
-                category="primary"
-                size="sm"
-                @click="handleSuggestDismissed"
-              >
-                {{ __('Got it') }}
-              </gl-button>
-            </gl-popover>
-          </template>
           <toolbar-button tag="`" tag-block="```" :button-title="__('Insert code')" icon="code" />
           <toolbar-button
             tag="[{text}](url)"

@@ -13468,9 +13468,6 @@ msgstr ""
 msgid "Insert inline code"
 msgstr ""
 
-msgid "Insert suggestion"
-msgstr ""
-
 msgid "Insights"
 msgstr ""
 
@@ -24349,6 +24346,9 @@ msgid "Successfully unlocked"
 msgstr ""
 
 msgid "Successfully verified domain ownership"
+msgstr ""
+
+msgid "Suggest changes"
 msgstr ""
 
 msgid "Suggest code changes which can be immediately applied in one click. Try it out!"

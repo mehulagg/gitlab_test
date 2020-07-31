@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlLink, GlLoadingIcon, GlSprintf, GlIcon } from '@gitlab/ui';
+import { GlButton, GlLink, GlLoadingIcon, GlSprintf, GlIcon, GlPopover } from '@gitlab/ui';
 
 export default {
   components: {
@@ -8,6 +8,7 @@ export default {
     GlLoadingIcon,
     GlSprintf,
     GlIcon,
+    GlPopover,
   },
   props: {
     markdownDocsPath: {
@@ -24,12 +25,28 @@ export default {
       required: false,
       default: true,
     },
+    lineContent: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    canSuggest: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    showSuggestPopover: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   computed: {
     hasQuickActionsDocsPath() {
       return this.quickActionsDocsPath !== '';
     },
   },
+  mdSuggestion: ['```suggestion:-0+0', `{text}`, '```'].join('\n'),
 };
 </script>
 
@@ -101,5 +118,38 @@ export default {
         {{ __('Cancel') }}
       </gl-button>
     </span>
+    <template v-if="canSuggest">
+      <gl-button
+        ref="suggestButton"
+        variant="link"
+        class="markdown-selector js-md float-right mr-2"
+        :data-md-tag="$options.mdSuggestion"
+        data-md-cursor-offset="4"
+        :data-md-tag-content="lineContent"
+        data-md-prepend="true"
+        data-testid="suggestBtn"
+      >
+        <gl-icon name="doc-code" :size="16" />
+        {{ __('Suggest changes') }}
+      </gl-button>
+      <gl-popover
+        v-if="showSuggestPopover"
+        show
+        :target="() => $refs.suggestButton.$el"
+        :css-classes="['diff-suggest-popover']"
+        placement="top"
+        triggers="manual"
+      >
+        <strong>{{ __('New! Suggest changes directly') }}</strong>
+        <p class="mb-2">
+          {{
+            __('Suggest code changes which can be immediately applied in one click. Try it out!')
+          }}
+        </p>
+        <gl-button variant="info" size="small" @click="() => $emit('handleSuggestDismissed')">
+          {{ __('Got it') }}
+        </gl-button>
+      </gl-popover>
+    </template>
   </div>
 </template>
