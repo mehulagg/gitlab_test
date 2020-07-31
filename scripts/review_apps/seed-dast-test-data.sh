@@ -37,8 +37,32 @@ function create_project_for_user() {
 }
 
 function trigger_proj_user_creation(){
-    for i in $(seq 1 14); do 
-    local USERID=$(create_user "user$i");
-    create_project_for_user $USERID;
-    done
+    USERID=$(create_user "user1")
+    create_project_for_user $USERID
+    USERID=$(create_user "user2")
+    create_project_for_user $USERID
+    USERID=$(create_user "user3")
+    create_project_for_user $USERID
+    USERID=$(create_user "user4")
+    create_project_for_user $USERID
+    USERID=$(create_user "user5")
+    create_project_for_user $USERID
+    USERID=$(create_user "user6")
+    create_project_for_user $USERID
+    USERID=$(create_user "user7")
+    create_project_for_user $USERID
+    USERID=$(create_user "user8")
+    create_project_for_user $USERID
+    USERID=$(create_user "user9")
+    create_project_for_user $USERID
+    USERID=$(create_user "user10")
+    create_project_for_user $USERID
+    USERID=$(create_user "user11")
+    create_project_for_user $USERID
+    USERID=$(create_user "user12")
+    create_project_for_user $USERID
+    USERID=$(create_user "user13")
+    create_project_for_user $USERID
+    USERID=$(create_user "user14")
+    create_project_for_user $USERID
 }
