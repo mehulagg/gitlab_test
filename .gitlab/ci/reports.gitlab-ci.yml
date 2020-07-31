@@ -218,45 +218,45 @@ dependency_scanning:
 # DAST full scan configurations
 # Common DAST configs that is applicable for DAST-fullscan-* jobs
 # Seed test data
-DAST-prepare:
-  stage: review-after
-  image: alpine
-  variables:
-    TRACE: 1
-  needs: ["review-deploy"]
-  script:
-    - apk add jq curl
-    - REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
-    - CI_ENVIRONMENT_URL=$(cat environment_url.txt)
-    - source scripts/review_apps/seed-dast-test-data.sh
-    - USERID=$(create_user "user1")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user2")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user3")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user4")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user5")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user6")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user7")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user8")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user9")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user10")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user11")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user12")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user13")
-    - create_project_for_user $USERID
-    - USERID=$(create_user "user14")
-    - create_project_for_user $USERID
+# DAST-prepare:
+#   stage: review-after
+#   image: alpine
+#   variables:
+#     TRACE: 1
+#   needs: ["review-deploy"]
+#   script:
+#     - apk add jq curl
+#     - REVIEW_APPS_ROOT_TOKEN=$(cat environment_token.txt)
+#     - CI_ENVIRONMENT_URL=$(cat environment_url.txt)
+#     - source scripts/review_apps/seed-dast-test-data.sh
+#     - USERID=$(create_user "user1")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user2")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user3")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user4")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user5")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user6")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user7")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user8")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user9")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user10")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user11")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user12")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user13")
+#     - create_project_for_user $USERID
+#     - USERID=$(create_user "user14")
+#     - create_project_for_user $USERID
 .dast_conf:
   tags:
     - prm
@@ -268,7 +268,9 @@ DAST-prepare:
   #   when:
   #     - always
   image:
-    name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
+    # name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/231326
+    name: "http://registry.gitlab.com/gitlab-org/security-products/dast/master:3590fc976c9c2f8fd67685dbff1a9d0d00cbe965"
   variables:
     DAST_USERNAME_FIELD: "user[login]"
     DAST_PASSWORD_FIELD: "user[password]"
@@ -283,8 +285,8 @@ DAST-prepare:
     # All Release rules that run in DAST jobs
     DAST_RELEASE_RULES: "0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90020,90022,90033"
   needs:
-    - job: DAST-prepare
-      artifacts: false
+    # - job: DAST-prepare
+    #   artifacts: false
     - job: review-deploy
       artifacts: true
   stage: sec-dast

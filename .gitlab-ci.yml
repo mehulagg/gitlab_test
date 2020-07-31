@@ -7,7 +7,6 @@ stages:
   - post-test
   - review-prepare
   - review
-  - review-after
   - sec-dast
   - qa
   - post-qa
@@ -65,6 +64,7 @@ variables:
   DOCKER_VERSION: "19.03.0"
   # Added for DAST test
   DAST_TEST: "true"
+  DAST_RUN: "true"
 
 include:
   - local: .gitlab/ci/build-images.gitlab-ci.yml
