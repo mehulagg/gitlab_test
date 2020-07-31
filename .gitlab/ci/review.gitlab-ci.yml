@@ -78,7 +78,7 @@ review-deploy:
     - '[ -z $CI_JOB_MANUAL ] || play_job "review-qa-smoke"'
     - '[ -z $CI_JOB_MANUAL ] || play_job "review-performance"'
   after_script:
-    - if [ "$DAST_RUN" == "true" ]; then source scripts/review_apps/seed-dast-test-data.sh; for i in $(seq 1 14); do echo "Adding user and project";USERID=$(create_user "user$i");echo $USERID;create_project_for_user $USERID; done fi
+    - if [ "$DAST_RUN" == "true" ]; then source scripts/review_apps/seed-dast-test-data.sh; trigger_proj_user_creation; fi
   artifacts:
     paths: [environment_url.txt]
     expire_in: 2 days
