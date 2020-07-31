@@ -178,7 +178,7 @@ export default {
           :description="label.description"
           size="sm"
           :scoped="showScopedLabel(label)"
-          @click="filterByLabel(label)"
+          @click.stop="filterByLabel(label)"
         />
       </template>
     </div>

@@ -43,6 +43,8 @@ export default {
   computed: {
     ...mapState(['epics']),
     issuesCount() {
+      console.log(this.lists, 'lists')
+      console.log(this.epics, 'epics') // can get issues in here
       return this.lists.reduce((total, list) => total + list.issues.length, 0);
     },
     issuesCountTooltipText() {

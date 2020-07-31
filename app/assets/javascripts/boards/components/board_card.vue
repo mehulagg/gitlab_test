@@ -4,6 +4,7 @@ import IssueCardInner from './issue_card_inner.vue';
 import eventHub from '../eventhub';
 import sidebarEventHub from '~/sidebar/event_hub';
 import boardsStore from '../stores/boards_store';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'BoardsIssueCard',
@@ -65,6 +66,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['setActiveId']),
     mouseDown() {
       this.showDetail = true;
     },
@@ -72,6 +74,12 @@ export default {
       this.showDetail = false;
     },
     showIssue(e) {
+      // debugger
+      // this.setActiveId(this.issue.id);
+      // return;
+
+      ////
+
       if (e.target.classList.contains('js-no-trigger')) return;
 
       // If no issues are opened, close all sidebars first
@@ -92,6 +100,7 @@ export default {
             eventHub.$emit('newDetailIssue', this.issue, isMultiSelect);
           }
         } else {
+          console.log('here')
           eventHub.$emit('newDetailIssue', this.issue, isMultiSelect);
           boardsStore.setListDetail(this.list);
         }

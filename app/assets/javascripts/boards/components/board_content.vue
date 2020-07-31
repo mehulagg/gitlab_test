@@ -1,13 +1,16 @@
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import BoardColumn from 'ee_else_ce/boards/components/board_column.vue';
 import EpicsSwimlanes from 'ee_component/boards/components/epics_swimlanes.vue';
+import { GlDrawer } from '@gitlab/ui';
 
 export default {
+  headerHeight: '75px',
   components: {
     BoardColumn,
     EpicsSwimlanes,
+    GlDrawer,
   },
   mixins: [glFeatureFlagMixin()],
   props: {
@@ -42,7 +45,8 @@ export default {
     },
   },
   computed: {
-    ...mapState(['isShowingEpicsSwimlanes']),
+    ...mapGetters(['getIssueByEpicTitle']),
+    ...mapState(['isShowingEpicsSwimlanes', 'activeId', 'sidebarType']),
     isSwimlanesOn() {
       return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
     },
@@ -79,5 +83,13 @@ export default {
       :board-id="boardId"
       :group-id="groupId"
     />
+
+    <gl-drawer
+      v-if="isSwimlanesOn && sidebarType === 'Issuable'"
+      :open="activeId !== 0"
+      :header-height="$options.headerHeight"
+    >
+      <template #header>{{ getIssueByEpicTitle }}</template>
+    </gl-drawer>
   </div>
 </template>
