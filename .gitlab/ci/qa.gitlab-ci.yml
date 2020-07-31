@@ -18,6 +18,9 @@ qa:internal:
     - bundle exec rspec
 
 qa:internal-as-if-foss:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - qa:internal
     - .qa:rules:as-if-foss

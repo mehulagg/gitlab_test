@@ -8,6 +8,9 @@
 # override an included `only.refs`.
 # See https://gitlab.com/gitlab-org/gitlab/issues/31371.
 code_quality:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .default-retry
     - .reports:rules:code_quality

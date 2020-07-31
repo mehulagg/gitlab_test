@@ -213,6 +213,9 @@ jest-integration:
   needs: ["frontend-fixtures"]
 
 jest-as-if-foss:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .jest-base
     - .frontend:rules:default-frontend-jobs-as-if-foss

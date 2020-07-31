@@ -186,6 +186,9 @@ update-static-analysis-cache:
     policy: pull-push
 
 static-analysis:
+  rules:
+  - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+    when: never
   extends:
     - .static-analysis-base
     - .rails:rules:default-refs-code-backstage-qa
@@ -553,6 +556,9 @@ rspec-ee unit pg12 geo:
     - .rspec-ee-unit-geo-parallel
 
 rspec-ee integration pg12 geo:
+  rules:
+    - if: '$DAST_TEST == "true"' # Skip this job for DAST test
+      when: never
   extends:
     - .rspec-ee-base-geo-pg12
     - .rails:rules:master-schedule-nightly--code-backstage-ee-only
