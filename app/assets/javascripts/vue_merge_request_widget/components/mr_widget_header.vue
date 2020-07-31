@@ -113,7 +113,7 @@ export default {
             ref="copyBranchNameButton"
             :text="branchNameClipboardData"
             :title="__('Copy branch name')"
-            css-class="btn-default btn-transparent btn-clipboard"
+            category="tertiary"
           />
           {{ s__('mrWidget|into') }}
           <tooltip-on-truncate
