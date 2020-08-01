@@ -10,8 +10,9 @@ export default {
     state.endpoints = endpoints;
   },
 
-  [mutationTypes.SET_ACTIVE_ID](state, id) {
+  [mutationTypes.SET_ACTIVE_ID](state, { id, sidebarType }) {
     state.activeId = id;
+    state.sidebarType = sidebarType;
   },
 
   [mutationTypes.REQUEST_ADD_LIST]: () => {

@@ -24,7 +24,7 @@ export default {
       import('ee_component/boards/components/board_settings_list_types.vue'),
   },
   computed: {
-    ...mapState(['activeId']),
+    ...mapState(['activeId', 'sidebarType']),
     activeList() {
       /*
         Warning: Though a computed property it is not reactive because we are
@@ -65,6 +65,7 @@ export default {
 
 <template>
   <gl-drawer
+    v-if="sidebarType === 'List'"
     class="js-board-settings-sidebar"
     :open="isSidebarOpen"
     :header-height="$options.headerHeight"

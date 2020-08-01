@@ -10,8 +10,8 @@ export default {
     commit(types.SET_ENDPOINTS, endpoints);
   },
 
-  setActiveId({ commit }, id) {
-    commit(types.SET_ACTIVE_ID, id);
+  setActiveId({ commit }, { id, sidebarType }) {
+    commit(types.SET_ACTIVE_ID, { id, sidebarType });
   },
 
   fetchLists: () => {

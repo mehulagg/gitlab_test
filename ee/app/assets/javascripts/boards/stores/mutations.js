@@ -1,6 +1,5 @@
 import mutationsCE from '~/boards/stores/mutations';
 import * as mutationTypes from './mutation_types';
-import { uniqBy, flatten } from 'lodash';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -82,12 +81,5 @@ export default {
 
   [mutationTypes.RECEIVE_EPICS_SUCCESS]: (state, epics) => {
     state.epics = epics;
-
-    const issues = epics.map(epic => {
-      return epic.issues;
-    });
-    console.log(uniqBy(flatten(issues), 'id'))
-    debugger
-    state.issuesByListId = uniqBy(flatten(issues), 'id');
   },
 };

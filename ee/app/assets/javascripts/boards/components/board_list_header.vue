@@ -45,7 +45,7 @@ export default {
         eventHub.$emit('sidebar.closeAll');
       }
 
-      this.setActiveId(this.list.id);
+      this.setActiveId({ id: this.list.id, sidebarType: 'List' });
     },
   },
 };

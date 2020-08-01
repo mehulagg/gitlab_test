@@ -4,13 +4,15 @@ import IssueCardInner from './issue_card_inner.vue';
 import eventHub from '../eventhub';
 import sidebarEventHub from '~/sidebar/event_hub';
 import boardsStore from '../stores/boards_store';
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
+import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
   name: 'BoardsIssueCard',
   components: {
     IssueCardInner,
   },
+  mixins: [glFeatureFlagMixin()],
   props: {
     list: {
       type: Object,
@@ -55,7 +57,15 @@ export default {
     };
   },
   computed: {
+    ...mapState(['activeId', 'isShowingEpicsSwimlanes']),
+    isSwimlanesOn() {
+      return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
+    },
     issueDetailVisible() {
+      if(this.isSwimlanesOn) {
+        return this.issue.id === this.activeId;
+      }
+
       return this.detailIssue.issue && this.detailIssue.issue.id === this.issue.id;
     },
     multiSelectVisible() {
@@ -74,11 +84,10 @@ export default {
       this.showDetail = false;
     },
     showIssue(e) {
-      // debugger
-      // this.setActiveId(this.issue.id);
-      // return;
+      if(this.isSwimlanesOn) {
+        return this.setActiveId({ id: this.issue.id, sidebarType: 'Issuable' });
+      }
 
-      ////
 
       if (e.target.classList.contains('js-no-trigger')) return;
 
@@ -100,7 +109,6 @@ export default {
             eventHub.$emit('newDetailIssue', this.issue, isMultiSelect);
           }
         } else {
-          console.log('here')
           eventHub.$emit('newDetailIssue', this.issue, isMultiSelect);
           boardsStore.setListDetail(this.list);
         }
