@@ -39,9 +39,9 @@ module Resolvers
         provided = [filename, id].map(&:present?)
 
         if provided.none?
-          error('one of id or filename must be passed')
+          error('one of ID or filename must be passed')
         elsif provided.all?
-          error('only one of id or filename may be passed')
+          error('only one of ID or filename may be passed')
         elsif filename.present?
           { filenames: [filename] }
         else

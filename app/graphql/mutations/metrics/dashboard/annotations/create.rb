@@ -7,8 +7,8 @@ module Mutations
         class Create < BaseMutation
           graphql_name 'CreateAnnotation'
 
-          ANNOTATION_SOURCE_ARGUMENT_ERROR = 'Either a cluster or environment global id is required'
-          INVALID_ANNOTATION_SOURCE_ERROR = 'Invalid cluster or environment id'
+          ANNOTATION_SOURCE_ARGUMENT_ERROR = 'Either a cluster or environment global ID is required'
+          INVALID_ANNOTATION_SOURCE_ERROR = 'Invalid cluster or environment ID'
 
           authorize :create_metrics_dashboard_annotation
 
@@ -20,12 +20,12 @@ module Mutations
           argument :environment_id,
             GraphQL::ID_TYPE,
             required: false,
-            description: 'The global id of the environment to add an annotation to'
+            description: 'The global ID of the environment to add an annotation to'
 
           argument :cluster_id,
             GraphQL::ID_TYPE,
             required: false,
-            description: 'The global id of the cluster to add an annotation to'
+            description: 'The global ID of the cluster to add an annotation to'
 
           argument :starting_at, Types::TimeType,
             required: true,

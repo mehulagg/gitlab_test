@@ -40,7 +40,7 @@ module ResolvesSnippets
     return unless gid.present?
 
     GlobalID.parse(gid)&.model_id.tap do |id|
-      raise Gitlab::Graphql::Errors::ArgumentError, "Invalid global id format for param #{argument}" if id.nil?
+      raise Gitlab::Graphql::Errors::ArgumentError, "Invalid global ID format for param #{argument}" if id.nil?
     end
   end
 

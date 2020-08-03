@@ -105,7 +105,7 @@
           "inputFields": [
             {
               "name": "awardableId",
-              "description": "The global id of the awardable resource",
+              "description": "The global ID of the awardable resource",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -1917,7 +1917,7 @@
           "inputFields": [
             {
               "name": "awardableId",
-              "description": "The global id of the awardable resource",
+              "description": "The global ID of the awardable resource",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -2033,7 +2033,7 @@
           "inputFields": [
             {
               "name": "awardableId",
-              "description": "The global id of the awardable resource",
+              "description": "The global ID of the awardable resource",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -2149,7 +2149,7 @@
           "inputFields": [
             {
               "name": "awardableId",
-              "description": "The global id of the awardable resource",
+              "description": "The global ID of the awardable resource",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -4583,7 +4583,7 @@
           "inputFields": [
             {
               "name": "environmentId",
-              "description": "The global id of the environment to add an annotation to",
+              "description": "The global ID of the environment to add an annotation to",
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -4593,7 +4593,7 @@
             },
             {
               "name": "clusterId",
-              "description": "The global id of the cluster to add an annotation to",
+              "description": "The global ID of the cluster to add an annotation to",
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -4873,7 +4873,7 @@
           "inputFields": [
             {
               "name": "noteableId",
-              "description": "The global id of the resource to add a note to",
+              "description": "The global ID of the resource to add a note to",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -5221,7 +5221,7 @@
           "inputFields": [
             {
               "name": "noteableId",
-              "description": "The global id of the resource to add a note to",
+              "description": "The global ID of the resource to add a note to",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -5509,7 +5509,7 @@
           "inputFields": [
             {
               "name": "noteableId",
-              "description": "The global id of the resource to add a note to",
+              "description": "The global ID of the resource to add a note to",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -5547,7 +5547,7 @@
             },
             {
               "name": "discussionId",
-              "description": "The global id of the discussion this note is in reply to",
+              "description": "The global ID of the discussion this note is in reply to",
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -6729,7 +6729,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the annotation to delete",
+              "description": "The global ID of the annotation to delete",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -9008,7 +9008,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the note to destroy",
+              "description": "The global ID of the note to destroy",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -9110,7 +9110,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the snippet to destroy",
+              "description": "The global ID of the snippet to destroy",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -10327,7 +10327,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the discussion",
+              "description": "The global ID of the discussion",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -20607,7 +20607,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the snippet to update",
+              "description": "The global ID of the snippet to update",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -26666,7 +26666,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the namespace to mutate",
+              "description": "The global ID of the namespace to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -35005,7 +35005,7 @@
           "inputFields": [
             {
               "name": "awardableId",
-              "description": "The global id of the awardable resource",
+              "description": "The global ID of the awardable resource",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -41450,7 +41450,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the todo to mark as done",
+              "description": "The global ID of the todo to mark as done",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -41556,7 +41556,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the todo to restore",
+              "description": "The global ID of the todo to restore",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -42006,7 +42006,7 @@
           "inputFields": [
             {
               "name": "awardableId",
-              "description": "The global id of the awardable resource",
+              "description": "The global ID of the awardable resource",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -43239,7 +43239,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the note to update",
+              "description": "The global ID of the note to update",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -43729,7 +43729,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the note to update",
+              "description": "The global ID of the note to update",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -43987,7 +43987,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The global id of the snippet to update",
+              "description": "The global ID of the snippet to update",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
