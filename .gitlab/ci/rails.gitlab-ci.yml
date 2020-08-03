@@ -9,6 +9,13 @@
 .rspec-base:
   extends: .rails-job-base
   stage: test
+  variables:
+    RUBY_GC_HEAP_INIT_SLOTS: 500000
+    RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR: '0.5'
+    RUBY_GC_MALLOC_LIMIT: 128000000
+    RUBY_GC_MALLOC_LIMIT_MAX: 256000000
+    RUBY_GC_OLDMALLOC_LIMIT: 128000000
+    RUBY_GC_OLDMALLOC_LIMIT_MAX: 256000000
   needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets"]
   script:
     - run_timed_command "scripts/gitaly-test-build"
