@@ -44,6 +44,8 @@ module EE
       has_many :cycle_analytics_stages, class_name: 'Analytics::CycleAnalytics::GroupStage'
       has_many :value_streams, class_name: 'Analytics::CycleAnalytics::GroupValueStream'
 
+      has_many :protected_environment_clusters_logs_access_level, class_name: '::ProtectedEnvironment::ClustersLogsAccessLevel', inverse_of: :group
+
       has_one :deletion_schedule, class_name: 'GroupDeletionSchedule'
       delegate :deleting_user, :marked_for_deletion_on, to: :deletion_schedule, allow_nil: true
       delegate :enforced_group_managed_accounts?, :enforced_sso?, to: :saml_provider, allow_nil: true

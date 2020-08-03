@@ -55,6 +55,8 @@ module EE
       has_many :protected_branch_push_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::PushAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
       has_many :protected_branch_unprotect_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::UnprotectAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
 
+      has_many :protected_environment_clusters_logs_access_level, class_name: '::ProtectedEnvironment::ClustersLogsAccessLevel', inverse_of: :user
+
       has_many :smartcard_identities
       has_many :scim_identities
 

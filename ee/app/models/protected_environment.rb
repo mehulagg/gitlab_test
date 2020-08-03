@@ -4,6 +4,7 @@ class ProtectedEnvironment < ApplicationRecord
 
   belongs_to :project
   has_many :deploy_access_levels, inverse_of: :protected_environment
+  has_many :clusters_logs_access_levels, inverse_of: :protected_environment
 
   accepts_nested_attributes_for :deploy_access_levels, allow_destroy: true
 

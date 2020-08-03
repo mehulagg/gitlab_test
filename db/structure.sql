@@ -14827,6 +14827,25 @@ CREATE SEQUENCE public.protected_branches_id_seq
 
 ALTER SEQUENCE public.protected_branches_id_seq OWNED BY public.protected_branches.id;
 
+CREATE TABLE public.protected_environment_clusters_logs_access_levels (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    access_level integer DEFAULT 40,
+    protected_environment_id bigint NOT NULL,
+    user_id bigint,
+    namespace_id bigint
+);
+
+CREATE SEQUENCE public.protected_environment_clusters_logs_access_levels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.protected_environment_clusters_logs_access_levels_id_seq OWNED BY public.protected_environment_clusters_logs_access_levels.id;
+
 CREATE TABLE public.protected_environment_deploy_access_levels (
     id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -17246,6 +17265,8 @@ ALTER TABLE ONLY public.protected_branch_unprotect_access_levels ALTER COLUMN id
 
 ALTER TABLE ONLY public.protected_branches ALTER COLUMN id SET DEFAULT nextval('public.protected_branches_id_seq'::regclass);
 
+ALTER TABLE ONLY public.protected_environment_clusters_logs_access_levels ALTER COLUMN id SET DEFAULT nextval('public.protected_environment_clusters_logs_access_levels_id_seq'::regclass);
+
 ALTER TABLE ONLY public.protected_environment_deploy_access_levels ALTER COLUMN id SET DEFAULT nextval('public.protected_environment_deploy_access_levels_id_seq'::regclass);
 
 ALTER TABLE ONLY public.protected_environments ALTER COLUMN id SET DEFAULT nextval('public.protected_environments_id_seq'::regclass);
@@ -18468,6 +18489,9 @@ ALTER TABLE ONLY public.protected_branch_unprotect_access_levels
 ALTER TABLE ONLY public.protected_branches
     ADD CONSTRAINT protected_branches_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.protected_environment_clusters_logs_access_levels
+    ADD CONSTRAINT protected_environment_clusters_logs_access_levels_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.protected_environment_deploy_access_levels
     ADD CONSTRAINT protected_environment_deploy_access_levels_pkey PRIMARY KEY (id);
 
@@ -18910,6 +18934,8 @@ CREATE UNIQUE INDEX epic_user_mentions_on_epic_id_index ON public.epic_user_ment
 CREATE INDEX idx_ci_pipelines_artifacts_locked ON public.ci_pipelines USING btree (ci_ref_id, id) WHERE (locked = 1);
 
 CREATE INDEX idx_container_scanning_findings ON public.vulnerability_occurrences USING btree (id) WHERE (report_type = 2);
+
+CREATE INDEX idx_clusters_logs_access_levels_on_protected_environment_id ON public.protected_environment_clusters_logs_access_levels USING btree (protected_environment_id);
 
 CREATE INDEX idx_deployment_clusters_on_cluster_id_and_kubernetes_namespace ON public.deployment_clusters USING btree (cluster_id, kubernetes_namespace);
 
@@ -19446,6 +19472,10 @@ CREATE INDEX index_clusters_kubernetes_namespaces_on_cluster_project_id ON publi
 CREATE INDEX index_clusters_kubernetes_namespaces_on_environment_id ON public.clusters_kubernetes_namespaces USING btree (environment_id);
 
 CREATE INDEX index_clusters_kubernetes_namespaces_on_project_id ON public.clusters_kubernetes_namespaces USING btree (project_id);
+
+CREATE INDEX index_clusters_logs_access_levels_on_namespace_id ON public.protected_environment_clusters_logs_access_levels USING btree (namespace_id);
+
+CREATE INDEX index_clusters_logs_access_levels_on_user_id ON public.protected_environment_clusters_logs_access_levels USING btree (user_id);
 
 CREATE INDEX index_clusters_on_enabled_and_provider_type_and_id ON public.clusters USING btree (enabled, provider_type, id);
 
@@ -22886,11 +22916,17 @@ ALTER TABLE ONLY public.external_pull_requests
 ALTER TABLE ONLY public.elasticsearch_indexed_projects
     ADD CONSTRAINT fk_rails_bd13bbdc3d FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.protected_environment_clusters_logs_access_levels
+    ADD CONSTRAINT fk_rails_bd6ca0b903 FOREIGN KEY (namespace_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.elasticsearch_indexed_namespaces
     ADD CONSTRAINT fk_rails_bdcf044f37 FOREIGN KEY (namespace_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.vulnerability_occurrence_identifiers
     ADD CONSTRAINT fk_rails_be2e49e1d0 FOREIGN KEY (identifier_id) REFERENCES public.vulnerability_identifiers(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.protected_environment_clusters_logs_access_levels
+    ADD CONSTRAINT fk_rails_bedffa24ca FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.vulnerability_occurrences
     ADD CONSTRAINT fk_rails_bf5b788ca7 FOREIGN KEY (scanner_id) REFERENCES public.vulnerability_scanners(id) ON DELETE CASCADE;
@@ -22963,6 +22999,9 @@ ALTER TABLE ONLY public.board_group_recent_visits
 
 ALTER TABLE ONLY public.issues_self_managed_prometheus_alert_events
     ADD CONSTRAINT fk_rails_cc5d88bbb0 FOREIGN KEY (issue_id) REFERENCES public.issues(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.protected_environment_clusters_logs_access_levels
+    ADD CONSTRAINT fk_rails_cca7997b38 FOREIGN KEY (protected_environment_id) REFERENCES public.protected_environments(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.operations_strategies_user_lists
     ADD CONSTRAINT fk_rails_ccb7e4bc0b FOREIGN KEY (user_list_id) REFERENCES public.operations_user_lists(id) ON DELETE CASCADE;
