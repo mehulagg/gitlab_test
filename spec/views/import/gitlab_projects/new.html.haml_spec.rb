@@ -13,7 +13,7 @@ RSpec.describe 'import/gitlab_projects/new.html.haml' do
   end
 
   context 'when the user has no other namespaces' do
-    it 'adds a namespace_id hidden field tag with the namespace id as value' do
+    it 'adds a namespace_id hidden field tag with the namespace ID as value' do
       render
 
       expect(rendered).to have_css("input[name='namespace_id'][value='#{namespace.id}']", count: 1, visible: false)

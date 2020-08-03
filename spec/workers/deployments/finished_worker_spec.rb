@@ -44,7 +44,7 @@ RSpec.describe Deployments::FinishedWorker do
       expect(ProjectServiceWorker).not_to have_received(:perform_async)
     end
 
-    it 'does nothing if a deployment with the given id does not exist' do
+    it 'does nothing if a deployment with the given ID does not exist' do
       worker.perform(0)
 
       expect(ProjectServiceWorker).not_to have_received(:perform_async)

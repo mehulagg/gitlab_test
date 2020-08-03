@@ -126,7 +126,7 @@ RSpec.describe 'rake gitlab:storage:*' do
       it_behaves_like 'handles custom BATCH env var', ::HashedStorage::MigratorWorker
     end
 
-    context 'with same id in range' do
+    context 'with same ID in range' do
       it 'displays message when project cant be found' do
         stub_env('ID_FROM', non_existing_record_id)
         stub_env('ID_TO', non_existing_record_id)

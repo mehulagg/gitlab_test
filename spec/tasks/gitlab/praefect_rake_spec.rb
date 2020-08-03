@@ -11,7 +11,7 @@ RSpec.describe 'gitlab:praefect:replicas' do
   let(:repository) { project.repository }
 
   describe 'replicas', :praefect do
-    context 'when a valid project id is used as the argument' do
+    context 'when a valid project ID is used as the argument' do
       let(:project_arg) { project.id }
 
       it "calls praefect info service's replicas method" do
@@ -27,7 +27,7 @@ RSpec.describe 'gitlab:praefect:replicas' do
       end
     end
 
-    context 'when a non existent project id is used as the argument' do
+    context 'when a non existent project ID is used as the argument' do
       let(:project_arg) { '2' }
 
       it "does not call praefect info service's replicas method" do

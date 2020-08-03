@@ -119,11 +119,11 @@ RSpec.describe GitlabSchema do
   end
 
   describe '.id_from_object' do
-    it 'returns a global id' do
+    it 'returns a global ID' do
       expect(described_class.id_from_object(build(:project, id: 1))).to be_a(GlobalID)
     end
 
-    it "raises a meaningful error if a global id couldn't be generated" do
+    it "raises a meaningful error if a global ID couldn't be generated" do
       expect { described_class.id_from_object(build(:wiki_directory)) }
         .to raise_error(RuntimeError, /include `GlobalID::Identification` into/i)
     end

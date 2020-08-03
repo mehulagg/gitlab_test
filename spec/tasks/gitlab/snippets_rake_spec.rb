@@ -56,7 +56,7 @@ RSpec.describe 'gitlab:snippets namespace rake task' do
     it 'fails if the ids are invalid' do
       stub_env('SNIPPET_IDS' => '1,2,a')
 
-      expect { subject }.to raise_error(RuntimeError, 'Invalid id provided')
+      expect { subject }.to raise_error(RuntimeError, 'Invalid ID provided')
     end
 
     it 'fails if the snippet background migration is running' do

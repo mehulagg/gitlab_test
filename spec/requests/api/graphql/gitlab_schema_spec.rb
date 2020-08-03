@@ -206,8 +206,8 @@ RSpec.describe 'GitlabSchema configurations' do
     end
   end
 
-  context "global id's" do
-    it 'uses GlobalID to expose ids' do
+  context "global ID's" do
+    it 'uses GlobalID to expose IDs' do
       post_graphql(graphql_query_for('project', { 'fullPath' => project.full_path }, %w(id)),
                    current_user: project.owner)
 

@@ -32,7 +32,7 @@ RSpec.describe 'shared/runners/show.html.haml' do
     end
   end
 
-  describe 'Runner id and type' do
+  describe 'Runner ID and type' do
     context 'when runner is of type instance' do
       it { is_expected.to have_content("Runner ##{runner.id} Shared") }
     end
