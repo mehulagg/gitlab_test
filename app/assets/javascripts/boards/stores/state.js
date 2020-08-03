@@ -4,6 +4,5 @@ export default () => ({
   endpoints: {},
   isShowingLabels: true,
   activeId: inactiveId,
-  issuesByListId: [],
   sidebarType: '',
 });

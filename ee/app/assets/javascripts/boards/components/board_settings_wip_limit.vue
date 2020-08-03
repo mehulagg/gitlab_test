@@ -80,7 +80,7 @@ export default {
             boardsStoreEE.setMaxIssueCountOnList(id, wipLimit);
           })
           .catch(() => {
-            this.setActiveId(0);
+            this.setActiveId({ id: inactiveId });
             flash(__('Something went wrong while updating your list settings'));
           })
           .finally(() => {

@@ -1,6 +1,6 @@
 <script>
 import { GlDrawer, GlLabel } from '@gitlab/ui';
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 import { __ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
 import eventHub from '~/sidebar/event_hub';
@@ -15,6 +15,7 @@ export default {
   milestone: 'milestone',
   label: 'label',
   labelListText: __('Label'),
+  sidebarTypeList: 'List',
   components: {
     GlDrawer,
     GlLabel,
@@ -24,6 +25,7 @@ export default {
       import('ee_component/boards/components/board_settings_list_types.vue'),
   },
   computed: {
+    ...mapGetters(['isSidebarOpen']),
     ...mapState(['activeId', 'sidebarType']),
     activeList() {
       /*
@@ -31,9 +33,6 @@ export default {
         referencing a List Model class. Reactivity only applies to plain JS objects
       */
       return boardsStore.state.lists.find(({ id }) => id === this.activeId);
-    },
-    isSidebarOpen() {
-      return this.activeId !== inactiveId;
     },
     activeListLabel() {
       return this.activeList.label;
@@ -65,7 +64,7 @@ export default {
 
 <template>
   <gl-drawer
-    v-if="sidebarType === 'List'"
+    v-if="sidebarType === $options.sidebarTypeList"
     class="js-board-settings-sidebar"
     :open="isSidebarOpen"
     :header-height="$options.headerHeight"

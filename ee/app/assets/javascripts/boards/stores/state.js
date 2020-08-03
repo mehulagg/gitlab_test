@@ -7,5 +7,5 @@ export default () => ({
   epicsSwimlanesFetchInProgress: false,
   epicsSwimlanesFetchFailure: false,
   epicsSwimlanes: {},
-  epics: {}, // here
+  epics: {},
 });
