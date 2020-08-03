@@ -24,7 +24,6 @@ export default {
   components: {
     DateRange,
     DurationChart,
-    GlLoadingIcon,
     GlEmptyState,
     GroupsDropdownFilter,
     ProjectsDropdownFilter,
@@ -300,46 +299,41 @@ export default {
       />
       <div v-else-if="!errorCode">
         <metrics :group-path="currentGroupPath" :request-params="cycleAnalyticsRequestParams" />
-        <div v-if="isLoading">
-          <gl-loading-icon class="mt-4" size="md" />
-        </div>
-        <div v-else>
-          <stage-table
-            v-if="selectedStage"
-            :key="stageCount"
-            class="js-stage-table"
-            :current-stage="selectedStage"
-            :is-loading="isLoadingStage"
-            :is-empty-stage="isEmptyStage"
-            :custom-stage-form-active="customStageFormActive"
-            :current-stage-events="currentStageEvents"
-            :no-data-svg-path="noDataSvgPath"
-          >
-            <template #nav>
-              <stage-table-nav
-                :current-stage="selectedStage"
-                :stages="activeStages"
-                :medians="medians"
-                :is-creating-custom-stage="isCreatingCustomStage"
-                :custom-ordering="enableCustomOrdering"
-                @reorderStage="onStageReorder"
-                @selectStage="onStageSelect"
-                @editStage="onShowEditStageForm"
-                @showAddStageForm="onShowAddStageForm"
-                @hideStage="onUpdateCustomStage"
-                @removeStage="onRemoveStage"
-              />
-            </template>
-            <template v-if="customStageFormActive" #content>
-              <custom-stage-form
-                :events="formEvents"
-                @createStage="onCreateCustomStage"
-                @updateStage="onUpdateCustomStage"
-                @clearErrors="$emit('clear-form-errors')"
-              />
-            </template>
-          </stage-table>
-        </div>
+        <stage-table
+          v-if="selectedStage"
+          :key="stageCount"
+          class="js-stage-table"
+          :current-stage="selectedStage"
+          :is-loading="isLoadingStage"
+          :is-empty-stage="isEmptyStage"
+          :custom-stage-form-active="customStageFormActive"
+          :current-stage-events="currentStageEvents"
+          :no-data-svg-path="noDataSvgPath"
+        >
+          <template #nav>
+            <stage-table-nav
+              :current-stage="selectedStage"
+              :stages="activeStages"
+              :medians="medians"
+              :is-creating-custom-stage="isCreatingCustomStage"
+              :custom-ordering="enableCustomOrdering"
+              @reorderStage="onStageReorder"
+              @selectStage="onStageSelect"
+              @editStage="onShowEditStageForm"
+              @showAddStageForm="onShowAddStageForm"
+              @hideStage="onUpdateCustomStage"
+              @removeStage="onRemoveStage"
+            />
+          </template>
+          <template v-if="customStageFormActive" #content>
+            <custom-stage-form
+              :events="formEvents"
+              @createStage="onCreateCustomStage"
+              @updateStage="onUpdateCustomStage"
+              @clearErrors="$emit('clearFormErrors')"
+            />
+          </template>
+        </stage-table>
         <url-sync :query="query" />
       </div>
       <duration-chart v-if="shouldDisplayDurationChart" class="mt-3" :stages="activeStages" />
