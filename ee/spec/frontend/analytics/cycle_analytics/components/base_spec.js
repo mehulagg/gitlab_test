@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import store from 'ee/analytics/cycle_analytics/store';
 import Component from 'ee/analytics/cycle_analytics/components/base.vue';
-import { GlEmptyState } from '@gitlab/ui';
+import { GlEmptyState, GlSkeletonLoading } from '@gitlab/ui';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
@@ -45,6 +45,8 @@ const defaultStubs = {
   GroupsDropdownFilter: true,
   ValueStreamSelect: true,
   Metrics: true,
+  ChartSkeletonLoader: true,
+  GlSkeletonLoading: true,
 };
 
 const defaultFeatureFlags = {
@@ -412,6 +414,7 @@ describe('Cycle Analytics component', () => {
               withValueStreamSelected: false,
               withStageSelected: true,
             });
+            return wrapper.vm.$nextTick();
           });
 
           it('has the first stage selected by default', () => {
@@ -423,6 +426,7 @@ describe('Cycle Analytics component', () => {
           });
 
           it('can navigate to different stages', () => {
+            // console.log('wrapper', wrapper.html());
             findStageNavItemAtIndex(2).trigger('click');
 
             return wrapper.vm.$nextTick().then(() => {

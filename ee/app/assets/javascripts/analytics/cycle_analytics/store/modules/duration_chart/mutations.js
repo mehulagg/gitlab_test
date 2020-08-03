@@ -1,6 +1,9 @@
 import * as types from './mutation_types';
 
 export default {
+  [types.INITIALIZE](state) {
+    state.isLoading = true;
+  },    
   [types.UPDATE_SELECTED_DURATION_CHART_STAGES](
     state,
     { updatedDurationStageData, updatedDurationStageMedianData },

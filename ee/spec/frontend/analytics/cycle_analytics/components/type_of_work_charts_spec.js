@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlLoadingIcon } from '@gitlab/ui';
+import ChartSkeletonLoader from '~/vue_shared/components/resizable_chart/skeleton_loader.vue';
 import tasksByTypeStore from 'ee/analytics/cycle_analytics/store/modules/type_of_work';
 import TypeOfWorkCharts from 'ee/analytics/cycle_analytics/components/type_of_work_charts.vue';
 import TasksByTypeChart from 'ee/analytics/cycle_analytics/components/tasks_by_type/tasks_by_type_chart.vue';
@@ -54,7 +54,7 @@ describe('TypeOfWorkCharts', () => {
 
   const findSubjectFilters = _wrapper => _wrapper.find(TasksByTypeFilters);
   const findTasksByTypeChart = _wrapper => _wrapper.find(TasksByTypeChart);
-  const findLoader = _wrapper => _wrapper.find(GlLoadingIcon);
+  const findLoader = _wrapper => _wrapper.find(ChartSkeletonLoader);
   const selectedFilterText =
     "Type of work Showing data for group 'Gitlab Org' from Dec 11, 2019 to Jan 10, 2020";
 

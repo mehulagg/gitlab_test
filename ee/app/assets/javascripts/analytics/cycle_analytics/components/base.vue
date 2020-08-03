@@ -1,5 +1,5 @@
 <script>
-import { GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
+import { GlEmptyState } from '@gitlab/ui';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
 import { PROJECTS_PER_PAGE } from '../constants';
@@ -59,7 +59,6 @@ export default {
     ...mapState([
       'featureFlags',
       'isLoading',
-      'isLoadingStage',
       'isEmptyStage',
       'selectedGroup',
       'selectedProjects',
@@ -96,10 +95,10 @@ export default {
       return this.selectedGroup && !this.errorCode;
     },
     shouldDisplayDurationChart() {
-      return this.featureFlags.hasDurationChart && !this.hasNoAccessError && !this.isLoading;
+      return this.featureFlags.hasDurationChart && !this.hasNoAccessError;
     },
     shouldDisplayTypeOfWorkCharts() {
-      return !this.hasNoAccessError && !this.isLoading;
+      return !this.hasNoAccessError;
     },
     shouldDisplayPathNavigation() {
       return this.featureFlags.hasPathNavigation && !this.hasNoAccessError && this.selectedStage;
@@ -113,9 +112,6 @@ export default {
       return Boolean(
         this.featureFlags.hasCreateMultipleValueStreams && !this.isLoadingValueStreams,
       );
-    },
-    isLoadingTypeOfWork() {
-      return this.isLoadingTasksByTypeChartTopLabels || this.isLoadingTasksByTypeChart;
     },
     hasDateRangeSet() {
       return this.startDate && this.endDate;
@@ -153,6 +149,7 @@ export default {
 
   methods: {
     ...mapActions([
+      'fetchValueStreamData',
       'fetchCycleAnalyticsData',
       'fetchStageData',
       'setSelectedGroup',
@@ -177,7 +174,7 @@ export default {
     },
     onProjectsSelect(projects) {
       this.setSelectedProjects(projects);
-      this.fetchCycleAnalyticsData();
+      this.fetchValueStreamData();
     },
     onStageSelect(stage) {
       this.hideForm();
@@ -300,17 +297,12 @@ export default {
       <div v-else-if="!errorCode">
         <metrics :group-path="currentGroupPath" :request-params="cycleAnalyticsRequestParams" />
         <stage-table
-          v-if="selectedStage"
           :key="stageCount"
           class="js-stage-table"
-          :current-stage="selectedStage"
-          :is-loading="isLoadingStage"
-          :is-empty-stage="isEmptyStage"
           :custom-stage-form-active="customStageFormActive"
-          :current-stage-events="currentStageEvents"
           :no-data-svg-path="noDataSvgPath"
         >
-          <template #nav>
+          <template v-if="selectedStage" #nav>
             <stage-table-nav
               :current-stage="selectedStage"
               :stages="activeStages"
@@ -330,14 +322,14 @@ export default {
               :events="formEvents"
               @createStage="onCreateCustomStage"
               @updateStage="onUpdateCustomStage"
-              @clearErrors="$emit('clearFormErrors')"
+              @clearErrors="$emit('clear-form-errors')"
             />
           </template>
         </stage-table>
         <url-sync :query="query" />
       </div>
-      <duration-chart v-if="shouldDisplayDurationChart" class="mt-3" :stages="activeStages" />
-      <type-of-work-charts v-if="shouldDisplayTypeOfWorkCharts" :is-loading="isLoadingTypeOfWork" />
+      <duration-chart v-if="shouldDisplayDurationChart" class="gl-mt-3" :stages="activeStages" />
+      <type-of-work-charts v-if="shouldDisplayTypeOfWorkCharts" />
     </div>
   </div>
 </template>

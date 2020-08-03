@@ -4,6 +4,10 @@ import { transformRawTasksByTypeData, toggleSelectedLabel } from '../../../utils
 import { TASKS_BY_TYPE_FILTERS } from '../../../constants';
 
 export default {
+  [types.INITIALIZE](state) {
+    state.isLoadingTasksByTypeChartTopLabels = true;
+    state.isLoadingTasksByTypeChart = true;
+  },  
   [types.REQUEST_TOP_RANKED_GROUP_LABELS](state) {
     state.isLoadingTasksByTypeChartTopLabels = true;
     state.topRankedLabels = [];

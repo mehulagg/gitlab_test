@@ -4,6 +4,8 @@ import { __ } from '~/locale';
 import * as types from './mutation_types';
 import { handleErrorOrRethrow } from '../../../utils';
 
+export const initialize = ({ commit }) => commit(types.INITIALIZE);
+
 export const receiveTopRankedGroupLabelsSuccess = ({ commit, dispatch }, data) => {
   commit(types.RECEIVE_TOP_RANKED_GROUP_LABELS_SUCCESS, data);
   dispatch('fetchTasksByTypeData');

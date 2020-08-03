@@ -62,8 +62,7 @@ export default {
 };
 </script>
 <template>
-  <div class="js-tasks-by-type-chart row">
-    <!-- <gl-loading-icon v-if="isLoading" size="md" class="col-12 my-4 py-4" /> -->
+  <div class="js-tasks-by-type-chart row">  
     <div class="col-12">
       <h3>{{ s__('CycleAnalytics|Type of work') }}</h3>
       <p>{{ summaryDescription }}</p>

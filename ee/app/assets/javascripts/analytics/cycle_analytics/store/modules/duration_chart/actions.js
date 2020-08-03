@@ -6,6 +6,8 @@ import { __ } from '~/locale';
 import * as types from './mutation_types';
 import { dateFormats } from '../../../../shared/constants';
 
+export const initialize = ({ commit }) => commit(types.INITIALIZE);
+
 export const requestDurationData = ({ commit }) => commit(types.REQUEST_DURATION_DATA);
 
 export const receiveDurationDataSuccess = ({ commit, rootState, dispatch }, data) => {

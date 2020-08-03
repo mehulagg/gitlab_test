@@ -97,13 +97,6 @@ export const fetchStageMedianValues = ({ dispatch, getters }) => {
     );
 };
 
-export const requestCycleAnalyticsData = ({ commit }) => commit(types.REQUEST_CYCLE_ANALYTICS_DATA);
-
-export const receiveCycleAnalyticsDataSuccess = ({ commit, dispatch }) => {
-  commit(types.RECEIVE_CYCLE_ANALYTICS_DATA_SUCCESS);
-  dispatch('typeOfWork/fetchTopRankedGroupLabels');
-};
-
 export const receiveCycleAnalyticsDataError = ({ commit }, { response }) => {
   const { status = null } = response; // non api errors thrown won't have a status field
   commit(types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR, status);
@@ -112,14 +105,15 @@ export const receiveCycleAnalyticsDataError = ({ commit }, { response }) => {
     createFlash(__('There was an error while fetching value stream analytics data.'));
 };
 
-export const fetchCycleAnalyticsData = ({ dispatch }) => {
+export const fetchCycleAnalyticsData = ({ dispatch, commit }) => {
   removeFlash();
-
-  dispatch('requestCycleAnalyticsData');
+  commit(types.REQUEST_CYCLE_ANALYTICS_DATA);
 
   return Promise.resolve()
-    .then(() => dispatch('fetchValueStreams'))
-    .then(() => dispatch('receiveCycleAnalyticsDataSuccess'))
+    .then(() => {
+      dispatch('fetchValueStreamData');
+    })
+    .then(() => commit(types.RECEIVE_CYCLE_ANALYTICS_DATA_SUCCESS))
     .catch(error => dispatch('receiveCycleAnalyticsDataError', error));
 };
 
@@ -251,7 +245,13 @@ export const initializeCycleAnalytics = ({ dispatch, commit }, initialData = {})
 
   if (initialData.group?.fullPath) {
     return dispatch('filters/initialize', { groupPath: initialData.group.fullPath, ...initialData })
-      .then(() => dispatch('fetchCycleAnalyticsData'))
+      .then(() =>
+        Promise.all([
+          dispatch('durationChart/initialize'),
+          dispatch('typeOfWork/initialize'),
+          dispatch('fetchValueStreams'),
+        ]),
+      )
       .then(() => dispatch('initializeCycleAnalyticsSuccess'));
   }
   return dispatch('initializeCycleAnalyticsSuccess');
@@ -283,7 +283,7 @@ export const reorderStage = ({ dispatch, getters }, initialData) => {
 
 export const receiveCreateValueStreamSuccess = ({ commit, dispatch }) => {
   commit(types.RECEIVE_CREATE_VALUE_STREAM_SUCCESS);
-  return dispatch('fetchValueStreams');
+  return dispatch('fetchCycleAnalyticsData');
 };
 
 export const createValueStream = ({ commit, dispatch, getters }, data) => {
@@ -298,15 +298,24 @@ export const createValueStream = ({ commit, dispatch, getters }, data) => {
     });
 };
 
-export const fetchValueStreamData = ({ dispatch }) =>
-  Promise.resolve()
+export const fetchValueStreamData = ({ dispatch, commit }) => {
+  commit(types.REQUEST_VALUE_STREAM_DATA);
+  return Promise.resolve()
     .then(() => dispatch('fetchGroupStagesAndEvents'))
-    .then(() => dispatch('fetchStageMedianValues'))
-    .then(() => dispatch('durationChart/fetchDurationData'));
+    .then(() =>
+      Promise.all([
+        dispatch('fetchStageMedianValues'),
+        dispatch('durationChart/fetchDurationData'),
+        dispatch('typeOfWork/fetchTopRankedGroupLabels'),
+      ]),
+    )
+    .then(() => commit(types.RECEIVE_VALUE_STREAM_DATA_SUCCESS))
+    .catch(() => commit(types.RECEIVE_VALUE_STREAM_DATA_ERROR));
+};
 
 export const setSelectedValueStream = ({ commit, dispatch }, streamId) => {
   commit(types.SET_SELECTED_VALUE_STREAM, streamId);
-  return dispatch('fetchValueStreamData');
+  return dispatch('fetchCycleAnalyticsData');
 };
 
 export const receiveValueStreamsSuccess = ({ commit, dispatch }, data = []) => {
@@ -334,5 +343,5 @@ export const fetchValueStreams = ({ commit, dispatch, getters, state }) => {
         commit(types.RECEIVE_VALUE_STREAMS_ERROR, data);
       });
   }
-  return dispatch('fetchValueStreamData');
+  return dispatch('fetchCycleAnalyticsData');
 };

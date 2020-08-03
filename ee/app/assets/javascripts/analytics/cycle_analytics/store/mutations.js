@@ -151,4 +151,13 @@ export default {
       return aName.toUpperCase() > bName.toUpperCase() ? 1 : -1;
     });
   },
+  [types.REQUEST_VALUE_STREAM_DATA](state) {
+    state.isLoadingValueStreamData = true;
+  },
+  [types.RECEIVE_VALUE_STREAM_DATA_ERROR](state) {
+    state.isLoadingValueStreamData = false;
+  },
+  [types.RECEIVE_VALUE_STREAM_DATA_SUCCESS](state) {
+    state.isLoadingValueStreamData = false;
+  },
 };

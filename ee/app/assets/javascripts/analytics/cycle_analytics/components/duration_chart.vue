@@ -22,7 +22,7 @@ export default {
     ...mapState('durationChart', ['isLoading']),
     ...mapGetters('durationChart', ['durationChartPlottableData', 'durationChartMedianData']),
     hasData() {
-      return Boolean(this.durationChartPlottableData.length);
+      return Boolean(!this.isLoading && this.durationChartPlottableData.length);
     },
   },
   methods: {
@@ -48,7 +48,7 @@ export default {
     </div>
     <chart-skeleton-loader v-if="isLoading" size="md" class="gl-my-4 gl-py-4" />
     <scatterplot
-      v-else-if="!isLoading && hasData"
+      v-else-if="hasData"
       :x-axis-title="s__('CycleAnalytics|Date')"
       :y-axis-title="s__('CycleAnalytics|Total days to completion')"
       :tooltip-date-format="$options.durationChartTooltipDateFormat"

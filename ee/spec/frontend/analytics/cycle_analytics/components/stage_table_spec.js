@@ -1,5 +1,5 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlSkeletonLoading } from '@gitlab/ui';
 import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue';
 import { issueEvents, issueStage, allowedStages } from '../mock_data';
 
@@ -114,7 +114,7 @@ describe('StageTable', () => {
 
   it('isLoading = true', () => {
     wrapper = createComponent({ isLoading: true }, true);
-    expect(wrapper.find(GlLoadingIcon).exists()).toEqual(true);
+    expect(wrapper.find(GlSkeletonLoading).exists()).toEqual(true);
   });
 
   describe('isEmptyStage = true', () => {

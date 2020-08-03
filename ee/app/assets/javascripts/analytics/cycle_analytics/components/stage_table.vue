@@ -1,16 +1,26 @@
 <script>
 import { mapState } from 'vuex';
-import { GlTooltipDirective, GlLoadingIcon, GlEmptyState, GlSkeletonLoading } from '@gitlab/ui';
+import { GlTooltipDirective, GlLoadingIcon, GlEmptyState, GlSkeletonLoader } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
 import StageEventList from './stage_event_list.vue';
 import StageTableHeader from './stage_table_header.vue';
+
+const MIN_TABLE_HEIGHT = 568;
+const SKELETON = {
+  HEIGHT: 320,
+  NAV_HEIGHT: 65,
+  NAV_WIDTH: 385,
+  NAV_Y_PADDING: 15,
+  NAV_X_PADDING: 5,
+  STAGE_X_POS: 415,
+};
 
 export default {
   name: 'StageTable',
   components: {
     GlLoadingIcon,
     GlEmptyState,
-    GlSkeletonLoading,
+    GlSkeletonLoader,
     StageEventList,
     StageTableHeader,
   },
@@ -18,24 +28,8 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   props: {
-    currentStage: {
-      type: Object,
-      required: true,
-    },
-    isLoading: {
-      type: Boolean,
-      required: true,
-    },
-    isEmptyStage: {
-      type: Boolean,
-      required: true,
-    },
     customStageFormActive: {
       type: Boolean,
-      required: true,
-    },
-    currentStageEvents: {
-      type: Array,
       required: true,
     },
     noDataSvgPath: {
@@ -45,16 +39,27 @@ export default {
   },
   data() {
     return {
-      stageNavHeight: 0,
+      stageNavHeight: MIN_TABLE_HEIGHT,
+      stageWidth: 0,
     };
   },
   computed: {
-    ...mapState(['customStageFormInitialData']),
+    ...mapState([
+      'selectedStage',
+      'currentStageEvents',
+      'isLoading',
+      'isLoadingValueStreamData',
+      'isLoadingStage',
+      'isEmptyStage',
+    ]),
+    isLoadingStageTable() {
+      return Boolean(this.isLoading || this.isLoadingValueStreamData);
+    },
     stageEventsHeight() {
       return `${this.stageNavHeight}px`;
     },
     stageName() {
-      return this.currentStage ? this.currentStage.title : __('Related Issues');
+      return this.selectedStage?.title || __('Related Issues');
     },
     shouldDisplayStage() {
       const { currentStageEvents = [], isLoading, isEmptyStage } = this;
@@ -89,20 +94,67 @@ export default {
       ];
     },
   },
-  mounted() {
-    // this.$set(this, 'stageNavHeight', this.$refs.stageNav.clientHeight);
+  updated() {
+    this.$set(this, 'stageWidth', this.$refs.stagePanel.clientWidth);
+    if (!this.isLoadingStageTable && this.$refs.stageNav) {
+      this.$set(this, 'stageNavHeight', this.$refs.stageNav.clientHeight);
+    }
   },
-  minSkeletonHeight: '620px',
-  minSkeletonLines: 3,
+  skeletonConfig: SKELETON,
 };
 </script>
 <template>
-  <div class="stage-panel-container">
-    <gl-skeleton-loading
-      v-if="isLoading"
-      class="gl-mx-6 gl-my-6"
-      :lines="$options.minSkeletonLines"
-    />
+  <div ref="stagePanel" class="stage-panel-container">
+    <div
+      v-if="isLoadingStageTable"
+      class="stage-panel-body gl-display-flex gl-flex-direction-column"
+      :style="{ 'min-height': 320, width: '100%' }"
+    >
+      <gl-skeleton-loader
+        :width="stageWidth"
+        :height="$options.skeletonConfig.HEIGHT"
+        preserve-aspect-ratio="xMinYMax meet"
+      >
+        <!-- LHS nav -->
+        <!-- TODO: cleanup -->
+        <rect
+          :width="$options.skeletonConfig.NAV_WIDTH"
+          :height="$options.skeletonConfig.NAV_HEIGHT"
+          :x="$options.skeletonConfig.NAV_X_PADDING"
+          :y="0"
+          rx="4"
+        />
+        <rect
+          :width="$options.skeletonConfig.NAV_WIDTH"
+          :height="$options.skeletonConfig.NAV_HEIGHT"
+          :x="$options.skeletonConfig.NAV_X_PADDING"
+          :y="80"
+          rx="4"
+        />
+        <rect
+          :width="$options.skeletonConfig.NAV_WIDTH"
+          :height="$options.skeletonConfig.NAV_HEIGHT"
+          :x="$options.skeletonConfig.NAV_X_PADDING"
+          :y="160"
+          rx="4"
+        />
+        <rect
+          :width="$options.skeletonConfig.NAV_WIDTH"
+          :height="$options.skeletonConfig.NAV_HEIGHT"
+          :x="$options.skeletonConfig.NAV_X_PADDING"
+          :y="240"
+          rx="4"
+        />
+        <!-- RHS pane -->
+        <rect
+          :width="stageWidth - $options.skeletonConfig.STAGE_X_POS"
+          :height="$options.skeletonConfig.HEIGHT - $options.skeletonConfig.NAV_Y_PADDING"
+          :x="$options.skeletonConfig.STAGE_X_POS - $options.skeletonConfig.NAV_Y_PADDING"
+          :y="0"
+          rx="4"
+        />
+      </gl-skeleton-loader>
+    </div>
     <div v-else class="card stage-panel">
       <div class="card-header gl-border-b-0">
         <nav class="col-headers">
@@ -122,19 +174,22 @@ export default {
         <nav ref="stageNav" class="stage-nav gl-pl-2">
           <slot name="nav"></slot>
         </nav>
-        <div class="section stage-events overflow-auto" :style="{ height: stageEventsHeight }">
+        <div
+          class="section stage-events overflow-auto"
+          :style="{ 'min-height': $options.minTableHeight, height: stageEventsHeight }"
+        >
           <slot name="content">
-            <gl-loading-icon v-if="isLoading" class="gl-mt-4" size="md" />
+            <gl-loading-icon v-if="isLoadingStage" class="gl-mt-4" size="md" />
             <template v-else>
               <stage-event-list
                 v-if="shouldDisplayStage"
-                :stage="currentStage"
+                :stage="selectedStage"
                 :events="currentStageEvents"
               />
               <gl-empty-state
                 v-if="isEmptyStage"
                 :title="__('We don\'t have enough data to show this stage.')"
-                :description="currentStage.emptyStageText"
+                :description="selectedStage.emptyStageText"
                 :svg-path="noDataSvgPath"
               />
             </template>
