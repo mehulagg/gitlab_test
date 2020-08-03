@@ -36,14 +36,14 @@ export default {
   <table class="code js-syntax-highlight" :class="$options.userColorSchemeClass">
     <template v-if="hasTruncatedDiffLines">
       <tr v-for="line in lines" v-once :key="line.line_code" class="line_holder">
-        <td :class="line.type" class="diff-line-num old_line">{{ line.old_line }}</td>
-        <td :class="line.type" class="diff-line-num new_line">{{ line.new_line }}</td>
+        <td :class="line.type" class="no-border diff-line-num old_line">{{ line.old_line }}</td>
+        <td :class="line.type" class="no-border diff-line-num new_line">{{ line.new_line }}</td>
         <td :class="line.type" class="line_content" v-html="trimChar(line.rich_text)"></td>
       </tr>
     </template>
     <tr v-else class="line_holder line-holder-placeholder">
-      <td class="old_line diff-line-num"></td>
-      <td class="new_line diff-line-num"></td>
+      <td class="old_line no-border diff-line-num"></td>
+      <td class="new_line no-border diff-line-num"></td>
       <td v-if="error" class="js-error-lazy-load-diff diff-loading-error-block">
         {{ __('Unable to load the diff') }}
         <button

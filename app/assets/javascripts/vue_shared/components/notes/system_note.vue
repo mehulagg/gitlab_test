@@ -28,6 +28,7 @@ import TimelineEntryItem from './timeline_entry_item.vue';
 import { spriteIcon } from '../../../lib/utils/common_utils';
 import initMRPopovers from '~/mr_popover/';
 import NoteDiffLines from '~/notes/components/note_diff_lines.vue';
+import { DIFF_NOTE_TYPE } from '~/diffs/constants';
 
 const MAX_VISIBLE_COMMIT_LIST_COUNT = 3;
 
@@ -96,6 +97,9 @@ export default {
     showChangedLines() {
       return this.changedLines && this.changedLinesExpanded;
     },
+    isDiffNote() {
+      return this.note.type === DIFF_NOTE_TYPE;
+    },
   },
   mounted() {
     initMRPopovers(this.$el.querySelectorAll('.gfm-merge_request'));
@@ -133,12 +137,12 @@ export default {
           :author="note.author"
           :created-at="note.created_at"
           :note-id="note.id"
-          :show-compare-button="true"
+          :show-compare-button="isDiffNote"
           :on-click-compare-button="handleClickCompareButton"
         >
           <span v-html="actionTextHtml"></span>
           <template v-if="canSeeDescriptionVersion" slot="extra-controls">
-            &middot;
+            &#xB7;
             <button type="button" class="btn-blank btn-link" @click="toggleDescriptionVersion">
               {{ __('Compare with previous version') }}
               <icon :name="descriptionVersionToggleIcon" :size="12" class="append-left-5" />

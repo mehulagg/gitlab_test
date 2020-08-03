@@ -490,7 +490,7 @@ $note-form-margin-left: 72px;
   .notes_holder {
     font-family: $regular-font;
 
-    td {
+    td:not(.no-border) {
       border: 1px solid $border-color;
       border-left: 0;
 

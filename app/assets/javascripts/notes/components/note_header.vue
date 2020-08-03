@@ -202,11 +202,16 @@ export default {
         </a>
         <time-ago-tooltip v-else ref="noteTimestamp" :time="createdAt" tooltip-placement="bottom" />
       </template>
-      <span v-if="showCompareButton">&bull;</span>
-      <a v-if="showCompareButton" href="#" @click.prevent="handleCompareClick">
+      <span v-if="showCompareButton">&#xB7;</span>
+      <button
+        v-if="showCompareButton"
+        type="button"
+        class="btn-blank btn-link"
+        @click.prevent="handleCompareClick"
+      >
         {{ __('Compare with previous version') }}
         <gl-icon :name="toggleCompareChevronName" :size="12" />
-      </a>
+      </button>
       <gl-icon
         v-if="isConfidential"
         v-gl-tooltip:tooltipcontainer.bottom
