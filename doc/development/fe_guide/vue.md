@@ -181,9 +181,9 @@ Check this [page](vuex.md) for more details.
 
 ### Mixing Vue and Javascript classes ( in the data function )
 
-- Using a Javascript class in a data function is not recomended
-- It's okay to maintain existing implementations using such approach but not to add new ones
-- Instead of using a class, using [Vuex](vuex.md) or a set of components is recomnded
+- Do not use or create a Javascript class in your [data function](https://vuejs.org/v2/api/#data), eg. `user: new User()`
+- Rather use [Vuex](vuex.md) or a set of components if cannot use simple primitives or objects.
+- It's okay to maintain existing implementations using such approach but not to add new ones.
 
 ## Style guide
 
