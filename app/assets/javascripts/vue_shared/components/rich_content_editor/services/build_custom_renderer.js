@@ -10,8 +10,8 @@ import renderSoftbreak from './renderers/render_softbreak';
 const htmlInlineRenderers = [renderFontAwesomeHtmlInline];
 const htmlBlockRenderers = [renderBlockHtml];
 const listRenderers = [renderKramdownList];
-const paragraphRenderers = [renderIdentifierParagraph];
-const textRenderers = [renderKramdownText, renderEmbeddedRubyText, renderIdentifierInstanceText];
+const paragraphRenderers = [renderIdentifierParagraph, renderEmbeddedRubyText];
+const textRenderers = [renderKramdownText, renderIdentifierInstanceText];
 const softbreakRenderers = [renderSoftbreak];
 
 const executeRenderer = (renderers, node, context) => {
@@ -31,6 +31,7 @@ const buildCustomRendererFunctions = (customRenderers, defaults) => {
 };
 
 const buildCustomHTMLRenderer = (
+  sourceContent,
   customRenderers = {
     htmlBlock: [],
     htmlInline: [],
@@ -59,7 +60,7 @@ const buildCustomHTMLRenderer = (
     paragraph(node, context) {
       const allParagraphRenderers = [...customRenderers.paragraph, ...paragraphRenderers];
 
-      return executeRenderer(allParagraphRenderers, node, context);
+      return executeRenderer(allParagraphRenderers, node, Object.assign(context, { sourceContent }));
     },
     text(node, context) {
       const allTextRenderers = [...customRenderers.text, ...textRenderers];

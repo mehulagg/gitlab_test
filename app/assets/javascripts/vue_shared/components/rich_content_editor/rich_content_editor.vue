@@ -19,6 +19,8 @@ import {
   getMarkdown,
 } from './services/editor_service';
 
+import buildCustomHTMLRenderer from './services/build_custom_renderer';
+
 export default {
   components: {
     ToastEditor: () =>
@@ -62,11 +64,19 @@ export default {
     return {
       editorApi: null,
       previousMode: null,
+      currentContent: this.content,
     };
   },
   computed: {
     editorOptions() {
-      return { ...EDITOR_OPTIONS, ...this.options };
+
+      return {
+        ...EDITOR_OPTIONS,
+        ...this.options,
+        customHTMLRenderer: buildCustomHTMLRenderer({
+          sourceContent: () => this.currentContent
+        }),
+      };
     },
     editorInstance() {
       return this.$refs.editor;
@@ -91,9 +101,12 @@ export default {
       this.editorApi.eventManager.removeEventHandler('changeMode', this.onChangeMode);
     },
     resetInitialValue(newVal) {
+      this.currentContent = getMarkdown(this.newVal)
+
       this.editorInstance.invoke('setMarkdown', newVal);
     },
     onContentChanged() {
+      this.currentContent = getMarkdown(this.editorInstance)
       this.$emit('input', getMarkdown(this.editorInstance));
     },
     onLoad(editorApi) {
