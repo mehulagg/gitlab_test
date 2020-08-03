@@ -629,7 +629,7 @@ To enable it:
 # Instance-wide
 Feature.enable(:security_on_demand_scans_feature_flag)
 # or by project
-Feature.enable(:security_on_demand_scans_feature_flag, Project.find(<project id>))
+Feature.enable(:security_on_demand_scans_feature_flag, Project.find(<project ID>))
 ```
 
 To disable it:
@@ -638,7 +638,7 @@ To disable it:
 # Instance-wide
 Feature.disable(:security_on_demand_scans_feature_flag)
 # or by project
-Feature.disable(:security_on_demand_scans_feature_flag, Project.find(<project id>))
+Feature.disable(:security_on_demand_scans_feature_flag, Project.find(<project ID>))
 ```
 
 ## Reports
