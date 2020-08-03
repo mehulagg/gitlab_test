@@ -24,6 +24,8 @@ module Gitlab
           commit_url(object, **options)
         when Group
           instance.group_canonical_url(object, **options)
+        when Epic
+          instance.group_epic_url(object.group, object, **options)
         when Issue
           instance.issue_url(object, **options)
         when MergeRequest
