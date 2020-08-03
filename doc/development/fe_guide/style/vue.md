@@ -400,7 +400,11 @@ Useful links:
    $('span').tooltip('_fixTitle');
    ```
 
-## Testing Vue components
+## Vue testing
+
+Over time, a number of programming patterns and style preferences have emerged in our efforts to effectively test Vue components.
+The following guide describes some of these. **These are not strict guidelines**, but rather a collection of suggestions and tips
+that aim to provide insight into how we write Vue tests at GitLab.
 
 ### Mounting a component
 
@@ -412,8 +416,27 @@ To achieve this, we:
 1. mount the component using [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount), and finally;
 1. reassign the resulting [`Wrapper`](https://vue-test-utils.vuejs.org/api/wrapper/#wrapper) instance to our `wrapper` variable.
 
-To avoid duplicating our mounting logic, it is useful to define a `createComponent` factory that we can reuse in each test block.
-This is a closure which should reassign our `wrapper` variable to the result of [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount).
+Creating a global, mutable wrapper provides a number of advantages, including the ability to:
+
+- define common functions for finding components/DOM elements
+  
+  ```javascript
+  import MyComponent from '~/path/to/my_component.vue';
+  describe('MyComponent', () => {
+    let wrapper;
+
+    // this can now be reused across tests
+    const findMyComponent = wrapper.find(MyComponent);
+    // ...
+  })
+  ```
+
+- use a `beforeEach` block to mount the component (see [the `createComponent` factory](#the-createcomponent-factory) for more information)
+- use an `afterEach` block to destroy the component e.g. `wrapper.destroy()`
+
+#### The `createComponent` factory
+
+To avoid duplicating our mounting logic, it is useful to define a `createComponent` factory function that we can reuse in each test block.This is a closure which should reassign our `wrapper` variable to the result of [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount).
 
 ```javascript
 import MyComponent from '~/path/to/my_component.vue';
@@ -433,70 +456,115 @@ describe('MyComponent', () => {
     createComponent();
 
     expect(wrapper.exists()).toBe(true);
-  })
+  });
 
   it('should do something amazing', () => {
     createComponent();
 
     // expect(...).toBe(...);
-  })
+  });
 })
 ```
 
-#### The `createComponent` factory
+Similarly, we could further de-duplicate our test by calling `createComponent` in a `beforeEach` block:
 
-1. Prefer `shallowMount` over `mount`. Use `mount` only when necessary (e.g. to test how child components render/interact with parent component)
-1. When defining arguments, prefer a single object argument over multiple arguments.
+```javascript
+import MyComponent from '~/path/to/my_component.vue';
+import { shallowMount } from '@vue/test-utils';
+
+describe('MyComponent', () => {
+  // Initiate the "global" wrapper variable. This will be used throughout our test
+  let wrapper;
+
+  // define our `createComponent` factory
+  function createComponent() {
+    // mount component and reassign `wrapper`
+    wrapper = shallowMount(MyComponent);
+  }
+
+  beforeEach(() => {
+    createComponent();
+  });
+
+  it('mounts', () => {
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it('should do something amazing', () => {
+    // expect(...).toBe(...);
+  });
+})
+```
+
+#### `createComponent` tips
+
+1. Consider using a single (or a limited number of) object arguments over many arguments. Defining single parameters for common data like `props` is okay,
+but keep in mind our [Javascript style guide](/javascript.md#limit-number-of-parameters) and stay within the parameter number limit.
 
     ```javascript
     // bad
-    function createComponent(data, props, methods, isLoading ) { }
+    function createComponent(data, props, methods, isLoading, mountFn) { }
 
     // good
     function createComponent({ data, props, methods, stubs, isLoading } = {}) { }
+
+    // good
+    function createComponent(props = {}, { data, methods, stubs, isLoading } = {}) { }
+    ```
+
+1. If you require both `mount` _and_ `shallowMount` within the same set of tests, it
+can be useful define a `mountFn` parameter for the `createComponent` factory that accepts
+the mounting function (`mount` or `shallowMount`) to be used to mount the component.
+
+    ```javascript
+    import { shallowMount } from '@vue/test-utils';
+
+    function createComponent({ mountFn = shallowMount } = {}) { }
     ```
 
 ### Setting component state
 
-1. Where possible, avoid using [`setData`](https://vue-test-utils.vuejs.org/api/wrapper/#setdata) and [`setProps`](https://vue-test-utils.vuejs.org/api/wrapper/#setprops) to set component state. Instead, set the components [`data`](https://vue-test-utils.vuejs.org/api/options.html#data) and [`propsData`](https://vue-test-utils.vuejs.org/api/options.html#propsdata) when mounting the component.
+1. Avoid using [`setData`](https://vue-test-utils.vuejs.org/api/wrapper/#setdata) and, where possible, [`setProps`](https://vue-test-utils.vuejs.org/api/wrapper/#setprops), to set component state. Instead, set the components [`data`](https://vue-test-utils.vuejs.org/api/options.html#data) and [`propsData`](https://vue-test-utils.vuejs.org/api/options.html#propsdata) when mounting the component.
 
     ```javascript
     // bad
-    wrapper = shallowMount(MyComponent)
+    wrapper = shallowMount(MyComponent);
     wrapper.setData({
       myData: 123
     });
     wrapper.setProps({
       myProp: 'my cool prop'
-    })
+    });
 
     // good
-    wrapper = shallowMount({ data: { myData: 123 }, propsData: { myProp: 'my cool prop' } })
+    wrapper = shallowMount({ data: { myData: 123 }, propsData: { myProp: 'my cool prop' } });
     ```
 
-    The exception here is when you wish to test component reactivity in some way. For example, you may want to test the output of a component when after a particular watcher has executed.
+    The exception here is when you wish to test component reactivity in some way. For example, you may want to test the output of a component when after a particular watcher has executed. Using `setProps` to test such behavior is okay.
 
-### Accessing props
+### Accessing component state
 
-1. Access props using the `wrapper.props('myProp')` as opposed to `wrapper.props().myProp`:
+1. When accessing props or attributes, prefer the `wrapper.props('myProp')` syntax over `wrapper.props().myProp`:
 
     ```javascript
-    // bad
-    expect(wrapper.props().myProp).toBe(true)
+    // okay
+    expect(wrapper.props().myProp).toBe(true);
+    expect(wrapper.attributes().myAttr).toBe(true);
 
-    // good
-    expect(wrapper.props('myProp)').toBe(true)
+    // better
+    expect(wrapper.props('myProp').toBe(true);
+    expect(wrapper.attributes('myAttr')).toBe(true);
     ```
 
 1. When asserting multiple props, check the deep equality of the `props()` object with [`toEqual`](https://jestjs.io/docs/en/expect#toequalvalue):
 
     ```javascript
-    // bad
+    // okay
     expect(wrapper.props('propA')).toBe('valueA');
     expect(wrapper.props('propB')).toBe('valueB');
     expect(wrapper.props('propC')).toBe('valueC');
 
-    // good
+    // better
     expect(wrapper.props()).toEqual({
       propA: 'valueA',
       propB: 'valueB',
@@ -507,13 +575,13 @@ describe('MyComponent', () => {
 1. If you are only interested in some of the props, you can use [`toMatchObject`](https://jestjs.io/docs/en/expect#tomatchobjectobject). Prefer `toMatchObject` over [`expect.objectContaining`](https://jestjs.io/docs/en/expect#expectobjectcontainingobject):
 
     ```javascript
-    // bad
+    // okay
     expect(wrapper.props()).toEqual(expect.objectContaining({
       propA: 'valueA',
       propB: 'valueB',
     }));
 
-    // good
+    // better
     expect(wrapper.props()).toMatchObject({
       propA: 'valueA',
       propB: 'valueB',
