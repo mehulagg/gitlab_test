@@ -264,7 +264,8 @@ dependency_scanning:
   image:
     # name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
     # https://gitlab.com/gitlab-org/gitlab/-/issues/231326
-    name: "registry.gitlab.com/gitlab-org/security-products/dast/master:3590fc976c9c2f8fd67685dbff1a9d0d00cbe965"
+    # name: "registry.gitlab.com/gitlab-org/security-products/dast/master:3590fc976c9c2f8fd67685dbff1a9d0d00cbe965"
+    name: "registry.gitlab.com/gitlab-org/security-products/dast/remove-clean-registry:2de343d1769e0e00381ee16f1eb0cfa6f5c4a873"
   variables:
     DAST_USERNAME_FIELD: "user[login]"
     DAST_PASSWORD_FIELD: "user[password]"
