@@ -280,7 +280,7 @@ class ProjectsController < Projects::ApplicationController
       options['Tags'] = tags
     end
 
-    # If reference is commit id - we should add it to branch/tag selectbox
+    # If reference is commit ID - we should add it to branch/tag selectbox
     ref = Addressable::URI.unescape(params[:ref])
     if find_commits && ref && options.flatten(2).exclude?(ref) && ref =~ /\A[0-9a-zA-Z]{6,52}\z/
       options['Commits'] = [ref]

@@ -40,7 +40,7 @@ module Projects
       end
     end
 
-    # cluster is selected either via environment or directly by id
+    # cluster is selected either via environment or directly by ID
     def cluster_params
       params.permit(:environment_name, :cluster_id)
     end

@@ -36,7 +36,7 @@ class Projects::ProductAnalyticsController < Projects::ApplicationController
   end
 
   def tracker_variables
-    # We use project id as Snowplow appId
+    # We use project ID as Snowplow appId
     @project_id = @project.id.to_s
 
     # Snowplow remembers values like appId and platform between reloads.
