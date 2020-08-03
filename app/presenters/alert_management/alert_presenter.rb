@@ -37,6 +37,10 @@ module AlertManagement
       MARKDOWN
     end
 
+    def runbook
+      alerting_alert.runbook
+    end
+
     def metrics_dashboard_url; end
 
     private

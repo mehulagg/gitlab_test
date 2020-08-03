@@ -32,18 +32,18 @@ RSpec.describe Gitlab::Alerting::Alert do
     end
   end
 
-  shared_examples 'parse payload' do |*pairs|
+  shared_examples 'parse payload' do |*paths|
     context 'without payload' do
       it { is_expected.to be_nil }
     end
 
-    pairs.each do |pair|
-      context "with #{pair}" do
+    paths.each do |path|
+      context "with #{path}" do
         let(:value) { 'some value' }
 
         before do
-          section, name = pair.split('/')
-          payload[section] = { name => value }
+          section, name = path.split('/')
+          payload[section] = name ? { name => value } : value
         end
 
         it { is_expected.to eq(value) }
@@ -244,6 +244,12 @@ RSpec.describe Gitlab::Alerting::Alert do
     subject { alert.alert_markdown }
 
     it_behaves_like 'parse payload', 'annotations/gitlab_incident_markdown'
+  end
+
+  describe '#runbook' do
+    subject { alert.runbook }
+
+    it_behaves_like 'parse payload', 'annotations/runbook', 'runbook'
   end
 
   describe '#gitlab_fingerprint' do

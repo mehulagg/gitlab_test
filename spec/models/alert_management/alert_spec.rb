@@ -267,6 +267,11 @@ RSpec.describe AlertManagement::Alert do
     end
   end
 
+  describe 'delegations' do
+    it { is_expected.to delegate_method(:metrics_dashboard_url).to(:present) }
+    it { is_expected.to delegate_method(:runbook).to(:present) }
+  end
+
   describe '.last_prometheus_alert_by_project_id' do
     subject { described_class.last_prometheus_alert_by_project_id }
 
