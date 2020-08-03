@@ -3,9 +3,9 @@
 # Search for milestones
 #
 # params - Hash
-#   ids - filters by id.
-#   project_ids: Array of project ids or single project id or ActiveRecord relation.
-#   group_ids: Array of group ids or single group id or ActiveRecord relation.
+#   ids - filters by ID.
+#   project_ids: Array of project ids or single project ID or ActiveRecord relation.
+#   group_ids: Array of group ids or single group ID or ActiveRecord relation.
 #   order - Orders by field default due date asc.
 #   title - filter by title.
 #   state - filters by state.

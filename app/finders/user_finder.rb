@@ -11,12 +11,12 @@ class UserFinder
     @username_or_id = username_or_id
   end
 
-  # Tries to find a User by id, returning nil if none could be found.
+  # Tries to find a User by ID, returning nil if none could be found.
   def find_by_id
     User.find_by_id(@username_or_id)
   end
 
-  # Tries to find a User by id, raising a `ActiveRecord::RecordNotFound` if it could
+  # Tries to find a User by ID, raising a `ActiveRecord::RecordNotFound` if it could
   # not be found.
   def find_by_id!
     User.find(@username_or_id)
@@ -33,7 +33,7 @@ class UserFinder
     User.find_by_username!(@username_or_id)
   end
 
-  # Tries to find a User by username or id, returning nil if none could be found.
+  # Tries to find a User by username or ID, returning nil if none could be found.
   def find_by_id_or_username
     if input_is_id?
       find_by_id
@@ -42,7 +42,7 @@ class UserFinder
     end
   end
 
-  # Tries to find a User by username or id, raising a `ActiveRecord::RecordNotFound` if it could
+  # Tries to find a User by username or ID, raising a `ActiveRecord::RecordNotFound` if it could
   # not be found.
   def find_by_id_or_username!
     if input_is_id?
