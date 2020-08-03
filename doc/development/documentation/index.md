@@ -391,7 +391,9 @@ To preview your changes to documentation locally, follow this
 The live preview is currently enabled for the following projects:
 
 - [`gitlab`](https://gitlab.com/gitlab-org/gitlab)
+- [`omnibus-gitlab`](https://gitlab.com/gitlab-org/omnibus-gitlab)
 - [`gitlab-runner`](https://gitlab.com/gitlab-org/gitlab-runner)
+- [`charts`](https://gitlab.com/gitlab-org/charts/gitlab)
 
 If your merge request has docs changes, you can use the manual `review-docs-deploy` job
 to deploy the docs review app for your merge request.
@@ -406,8 +408,8 @@ The `review-docs-deploy*` job will:
 
 1. Create a new branch in the [`gitlab-docs`](https://gitlab.com/gitlab-org/gitlab-docs)
    project named after the scheme: `docs-preview-$DOCS_GITLAB_REPO_SUFFIX-$CI_MERGE_REQUEST_IID`,
-   where `DOCS_GITLAB_REPO_SUFFIX` is the suffix for each product, e.g, `ee` for
-   EE, `omnibus` for Omnibus GitLab, etc, and `CI_MERGE_REQUEST_IID` is the ID
+   where `DOCS_GITLAB_REPO_SUFFIX` is the suffix for each product, e.g, `gitlab` for
+   GitLab, `omnibus` for Omnibus GitLab, etc., and `CI_MERGE_REQUEST_IID` is the ID
    of the respective merge request.
 1. Trigger a cross project pipeline and build the docs site with your changes.
 
@@ -423,10 +425,9 @@ contributors) cannot run the manual job. In that case, you can
 ask someone from the GitLab team who has the permissions to do that for you.
 
 NOTE: **Note:**
-Make sure that you always delete the branch of the merge request you were
-working on. If you don't, the remote docs branch won't be removed either,
-and the server where the Review Apps are hosted will eventually be out of
-disk space.
+The review apps are hosted in a Google Cloud bucket. See
+[this issue](https://gitlab.com/gitlab-org/gitlab-docs/-/issues/735)
+for more information.
 
 ### Troubleshooting review apps
 
@@ -461,10 +462,7 @@ If you want to know the in-depth details, here's what's really happening:
 1. In the docs project, the pipeline is created and it
    [skips the test jobs](https://gitlab.com/gitlab-org/gitlab-docs/blob/8d5d5c750c602a835614b02f9db42ead1c4b2f5e/.gitlab-ci.yml#L50-55)
    to lower the build time.
-1. Once the docs site is built, the HTML files are uploaded as artifacts.
-1. A specific Runner tied only to the docs project, runs the Review App job
-   that downloads the artifacts and uses `rsync` to transfer the files over
-   to a location where NGINX serves them.
+1. Once the docs site is built, the HTML files are uploaded in a Google Cloud bucket.
 
 The following GitLab features are used among others:
 
