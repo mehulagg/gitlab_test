@@ -631,6 +631,11 @@ module Ci
       trace.archived_trace_exist?
     end
 
+    def update_trace_checksum()
+      trace_checksum = trace.checksum()
+      update(trace_checksum: trace_checksum)
+    end
+
     def artifacts_file
       job_artifacts_archive&.file
     end

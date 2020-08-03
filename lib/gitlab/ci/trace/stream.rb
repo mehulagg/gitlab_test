@@ -10,7 +10,7 @@ module Gitlab
 
         attr_reader :stream
 
-        delegate :close, :tell, :seek, :size, :url, :truncate, to: :stream, allow_nil: true
+        delegate :close, :read, :tell, :seek, :size, :url, :truncate, to: :stream, allow_nil: true
 
         delegate :valid?, to: :stream, allow_nil: true
 

@@ -159,12 +159,15 @@ module API
         end
 
         desc 'Updates a job' do
-          http_codes [[200, 'Job was updated'], [403, 'Forbidden']]
+          http_codes [[200, 'Job was updated'],
+                      [409, 'Invalid trace checksum'],
+                      [403, 'Forbidden']]
         end
         params do
           requires :token, type: String, desc: %q(Runners's authentication token)
           requires :id, type: Integer, desc: %q(Job's ID)
           optional :trace, type: String, desc: %q(Job's full trace)
+          optional :trace_checksum, type: String, desc: %q(Job's full trace checksum)
           optional :state, type: String, desc: %q(Job's status: success, failed)
           optional :failure_reason, type: String, desc: %q(Job's failure_reason)
         end
@@ -174,6 +177,13 @@ module API
           job.trace.set(params[:trace]) if params[:trace]
 
           Gitlab::Metrics.add_event(:update_build)
+
+          if params[:state].to_s != 'running'
+            job.update_trace_checksum()
+            if params[:trace_checksum]
+              error!('409 Invalid trace checksum', 409) unless job.trace_checksum == params[:trace_checksum]
+            end
+          end
 
           case params[:state].to_s
           when 'running'

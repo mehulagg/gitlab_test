@@ -103,6 +103,18 @@ module Gitlab
         end
       end
 
+      def checksum()
+        h = Digest::SHA256.new
+
+        read do |stream|
+          while buf = stream.read(Gitlab::Ci::Trace::Stream::BUFFER_SIZE)
+            h.update buf
+          end
+        end
+
+        "sha256:" + h.hexdigest
+      end
+
       def erase!
         ##
         # Erase the archived trace
