@@ -179,6 +179,12 @@ Check this [page](vuex.md) for more details.
 - It is acceptable for Vue to listen to existing jQuery events using jQuery event listeners.
 - It is not recommended to add new jQuery events for Vue to interact with jQuery.
 
+### Mixing Vue and Javascript classes ( in the data function )
+
+- Using a Javascript class in a data function is not recomended
+- It's okay to maintain existing implementations using such approach but not to add new ones
+- Instead of using a class, using [Vuex](vuex.md) or a set of components is recomnded
+
 ## Style guide
 
 Please refer to the Vue section of our [style guide](style/vue.md)
