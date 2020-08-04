@@ -266,7 +266,7 @@ dependency_scanning:
     DAST_FULL_SCAN_ENABLED: "true"
     DAST_SPIDER_MINS: 0
     # TBD pin to a version
-    DAST_VERSION: 1.21.1
+    DAST_VERSION: 1.22.0
     # database.recoverylog is set to false to disable the recovery logs generation which speed up the scans.
     # -Xmx is used to set the JVM memory to 6GB to prevent DAST OutOfMemoryError.
     DAST_ZAP_CLI_OPTIONS: "-Xmx6144m -config database.recoverylog=false"
@@ -281,9 +281,9 @@ dependency_scanning:
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
     # Below two lines can be removed in all jobs once https://gitlab.com/gitlab-org/gitlab/-/issues/230687 is fixed
-    -  mkdir -p /zap/xml
+    - mkdir -p /zap/xml
     - 'sed -i "84 s/true/false/" /zap/xml/config.xml'
-    -  cat /zap/xml/config.xml
+    - cat /zap/xml/config.xml
     # Help pages are excluded from scan as they are static pages.
     # profile/two_factor_auth is to prevent 2FA from being turned on from user profile.
     - 'export DAST_AUTH_EXCLUDE_URLS="${DAST_WEBSITE}/help/.*,${DAST_WEBSITE}/profile/two_factor_auth,${DAST_WEBSITE}/users/sign_out"'
