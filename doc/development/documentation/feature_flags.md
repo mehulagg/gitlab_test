@@ -27,8 +27,8 @@ See how to document them below, according to the state of the flag:
 - [Features disabled by default](#features-disabled-by-default).
 - [Features that became enabled by default](#features-that-became-enabled-by-default).
 - [Features directly enabled by default](#features-directly-enabled-by-default).
-- [Features with the feature flag removed](#features-with-flag-removed).
 - [Features that can be enabled for a single project](#features-enabled-per-project).
+- [Features with the feature flag removed](#features-with-flag-removed).
 
 NOTE: **Note:**
 The [`**(CORE ONLY)**`](styleguide.md#product-badges) badge or equivalent for
@@ -90,8 +90,8 @@ Feature.disable(:<feature flag>)
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
-Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
-accordingly.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`,
+and `#anchor-to-section` accordingly.
 
 ### Features that became enabled by default
 
@@ -145,8 +145,8 @@ Feature.disable(:<feature flag>)
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
-Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
-accordingly.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`,
+and `#anchor-to-section` accordingly.
 
 ### Features directly enabled by default
 
@@ -197,8 +197,8 @@ Feature.disable(:<feature flag>)
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
-Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
-accordingly.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`,
+and `#anchor-to-section` accordingly.
 
 ### Features enabled per project
 
@@ -221,7 +221,6 @@ Feature.enable(:<feature flag>, Project.find(<project id>))
 ```
 
 Disable code:
-
 
 ```ruby
 # For the instance
@@ -274,8 +273,8 @@ Feature.disable(:<feature flag>, Project.find(<project id>))
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
-Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
-accordingly.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`,
+and `#anchor-to-section` accordingly.
 
 ### Features with flag removed
 
