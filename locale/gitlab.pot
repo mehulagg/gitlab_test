@@ -9534,7 +9534,7 @@ msgstr ""
 msgid "Error creating new iteration"
 msgstr ""
 
-msgid "Error creating repository for snippet with id %{snippet_id}"
+msgid "Error creating repository for snippet with ID %{snippet_id}"
 msgstr ""
 
 msgid "Error creating the snippet"
@@ -13119,7 +13119,7 @@ msgstr ""
 msgid "Invalid query"
 msgstr ""
 
-msgid "Invalid repository bundle for snippet with id %{snippet_id}"
+msgid "Invalid repository bundle for snippet with ID %{snippet_id}"
 msgstr ""
 
 msgid "Invalid repository path"
