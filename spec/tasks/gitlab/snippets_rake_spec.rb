@@ -53,7 +53,7 @@ RSpec.describe 'gitlab:snippets namespace rake task' do
       expect { subject }.to raise_error(RuntimeError, 'Invalid limit value')
     end
 
-    it 'fails if the ids are invalid' do
+    it 'fails if the IDs are invalid' do
       stub_env('SNIPPET_IDS' => '1,2,a')
 
       expect { subject }.to raise_error(RuntimeError, 'Invalid ID provided')
