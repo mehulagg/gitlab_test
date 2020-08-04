@@ -181,9 +181,13 @@ Check this [page](vuex.md) for more details.
 
 ### Mixing Vue and JavaScript classes (in the data function)
 
+In the Vue docs the Data function/object is defined as follow
+
+> The data object for the Vue instance. Vue will recursively convert its properties into getter/setters to make it “reactive”. The object must be plain: native objects such as browser API objects and prototype properties are ignored. A rule of thumb is that data should just be data - it is not recommended to observe objects with their own stateful behavior.
+
 - Do not use or create a JavaScript class in your [data function](https://vuejs.org/v2/api/#data), eg. `user: new User()`
-- Rather use [GraphQL](https://docs.gitlab.com/ee/development/api_graphql_styleguide.html), [Vuex](vuex.md) or a set of components if cannot use simple primitives or objects.
-- It's okay to maintain existing implementations using such approach but not to add new ones. Whenever there are changes in the components which use such implementations, it's also advised to migrate them to a pure object model either in a follow up issue or within the same MR if it doesn't bloat the MR size. 
+- Rather use [GraphQL](../api_graphql_styleguide.html), [Vuex](vuex.md) or a set of components if cannot use simple primitives or objects.
+- It's okay to maintain existing implementations using such approach but not to add new ones. Whenever there are changes in the components which use such implementations, it's also advised to migrate them to a pure object model either in a follow up issue or within the same MR if it doesn't bloat the MR size.
 - You can add business logic to helpers or utils, so you can test them separately from your component.
 
 ## Style guide
