@@ -6,6 +6,7 @@ import sidebarEventHub from '~/sidebar/event_hub';
 import boardsStore from '../stores/boards_store';
 import { mapActions, mapState } from 'vuex';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { sidebarTypes } from '~/boards/constants';
 
 export default {
   name: 'BoardsIssueCard',
@@ -62,7 +63,7 @@ export default {
       return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
     },
     issueDetailVisible() {
-      if(this.isSwimlanesOn) {
+      if (this.isSwimlanesOn) {
         return this.issue.id === this.activeId;
       }
 
@@ -84,10 +85,10 @@ export default {
       this.showDetail = false;
     },
     showIssue(e) {
-      if(this.isSwimlanesOn) {
-        return this.setActiveId({ id: this.issue.id, sidebarType: 'Issuable' });
+      if (this.isSwimlanesOn) {
+        this.setActiveId({ id: this.issue.id, sidebarType: sidebarTypes.issuable });
+        return;
       }
-
 
       if (e.target.classList.contains('js-no-trigger')) return;
 

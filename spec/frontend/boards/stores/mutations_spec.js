@@ -34,11 +34,12 @@ describe('Board Store Mutations', () => {
 
   describe('SET_ACTIVE_ID', () => {
     it('updates aciveListId to be the value that is passed', () => {
-      const expectedId = 1;
+      const expected = { id: 1, sidebarType: '' };
 
-      mutations.SET_ACTIVE_ID(state, expectedId);
+      mutations.SET_ACTIVE_ID(state, expected);
 
-      expect(state.activeId).toBe(expectedId);
+      expect(state.activeId).toBe(expected.id);
+      expect(state.sidebarType).toBe(expected.sidebarType);
     });
   });
 

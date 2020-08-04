@@ -19,6 +19,7 @@ import boardCard from '~/boards/components/board_card.vue';
 import issueCardInner from '~/boards/components/issue_card_inner.vue';
 import userAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import { listObj, boardsMockInterceptor, setMockEndpoints } from './mock_data';
+import { sidebarTypes } from '~/boards/constants';
 
 describe('Board card', () => {
   let wrapper;
@@ -43,6 +44,11 @@ describe('Board card', () => {
         index: 0,
         rootPath: '/',
         ...propsData,
+      },
+      provide: {
+        glFeatures: {
+          boardsWithSwimlanes: true,
+        },
       },
     });
   };
@@ -233,6 +239,38 @@ describe('Board card', () => {
       wrapper.trigger('mousedown');
 
       expect(sidebarEventHub.$emit).not.toHaveBeenCalledWith('sidebar.closeAll');
+    });
+  });
+
+  describe('when boardsWithSwimlanes is on', () => {
+    describe('when isShowingEpicsSwimlanes', () => {
+      describe('when a board card is clicked', () => {
+        beforeEach(() => {
+          jest.spyOn(store, 'dispatch').mockImplementation();
+
+          store.state.isShowingEpicsSwimlanes = true;
+          store.state.activeId = 1;
+
+          mountComponent();
+        });
+
+        it('calls setActiveId', () => {
+          wrapper.trigger('mouseup');
+
+          expect(store.dispatch).toHaveBeenCalledWith('setActiveId', {
+            id: 1,
+            sidebarType: sidebarTypes.issuable,
+          });
+        });
+
+        it('sets card to active', async () => {
+          wrapper.trigger('mouseup');
+
+          await waitForPromises();
+
+          expect(wrapper.find('[data-qa-selector="board_card"]').classes()).toContain('is-active');
+        });
+      });
     });
   });
 });

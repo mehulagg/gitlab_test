@@ -164,7 +164,7 @@ describe('BoardSettingsSidebar', () => {
   describe('when sidebarType is not List', () => {
     beforeEach(() => {
       createComponent({ activeId: listId });
-    })
+    });
 
     it('does not render GlDrawer', () => {
       expect(findDrawer().exists()).toBe(false);

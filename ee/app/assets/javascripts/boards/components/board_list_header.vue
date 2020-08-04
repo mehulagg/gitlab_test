@@ -3,7 +3,7 @@ import { mapState, mapActions } from 'vuex';
 import BoardListHeaderFoss from '~/boards/components/board_list_header.vue';
 import { __, sprintf, s__ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
-import { inactiveId } from '~/boards/constants';
+import { inactiveId, sidebarTypes } from '~/boards/constants';
 import eventHub from '~/sidebar/event_hub';
 
 export default {
@@ -45,7 +45,7 @@ export default {
         eventHub.$emit('sidebar.closeAll');
       }
 
-      this.setActiveId({ id: this.list.id, sidebarType: 'List' });
+      this.setActiveId({ id: this.list.id, sidebarType: sidebarTypes.list });
     },
   },
 };

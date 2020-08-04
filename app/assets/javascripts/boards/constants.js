@@ -15,6 +15,11 @@ export const ListType = {
 
 export const inactiveId = 0;
 
+export const sidebarTypes = {
+  list: 'list',
+  issuable: 'issuable',
+};
+
 export default {
   BoardType,
   ListType,

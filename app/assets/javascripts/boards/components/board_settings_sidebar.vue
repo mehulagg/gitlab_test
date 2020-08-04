@@ -5,7 +5,7 @@ import { __ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
 import eventHub from '~/sidebar/event_hub';
 import { isScopedLabel } from '~/lib/utils/common_utils';
-import { inactiveId } from '~/boards/constants';
+import { inactiveId, sidebarTypes } from '~/boards/constants';
 
 // NOTE: need to revisit how we handle headerHeight, because we have so many different header and footer options.
 export default {
@@ -15,7 +15,6 @@ export default {
   milestone: 'milestone',
   label: 'label',
   labelListText: __('Label'),
-  sidebarTypeList: 'List',
   components: {
     GlDrawer,
     GlLabel,
@@ -43,6 +42,9 @@ export default {
     listTypeTitle() {
       return this.$options.labelListText;
     },
+    showSidebar() {
+      return this.sidebarType === sidebarTypes.list;
+    }
   },
   created() {
     eventHub.$on('sidebar.closeAll', this.closeSidebar);
@@ -64,7 +66,7 @@ export default {
 
 <template>
   <gl-drawer
-    v-if="sidebarType === $options.sidebarTypeList"
+    v-if="showSidebar"
     class="js-board-settings-sidebar"
     :open="isSidebarOpen"
     :header-height="$options.headerHeight"
