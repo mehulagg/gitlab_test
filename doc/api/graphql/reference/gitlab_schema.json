@@ -20332,7 +20332,7 @@
             },
             {
               "name": "gitlabId",
-              "description": "Id of the GitLab user",
+              "description": "ID of the GitLab user",
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
