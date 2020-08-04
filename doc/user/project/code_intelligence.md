@@ -40,7 +40,17 @@ The generated LSIF file must be less than 170MiB.
 
 After the job succeeds, code intelligence data can be viewed while browsing the code:
 
-![Code intelligence](img/code_intelligence_v13_1.png)
+![Code intelligence](img/code_intelligence_v13_3.png)
+
+## Find references
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217392) in GitLab 13.2.
+> - [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/225621) in GitLab 13.3.
+
+To find where a particular object is being used, links to the actual lines of code
+can be seen under the **References** tab:
+
+![Find references](img/code_intelligence_find_references_v13_3.png)
 
 ## Language support
 
