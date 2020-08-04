@@ -48,7 +48,7 @@ RSpec.describe 'User' do
       post_graphql(query)
 
       expect(graphql_errors).to include(
-        a_hash_including('message' => a_string_matching(%r{Provide either a single username or id}))
+        a_hash_including('message' => a_string_matching(%r{Provide either a single username or ID}))
       )
     end
   end

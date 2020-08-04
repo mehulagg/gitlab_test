@@ -23,7 +23,7 @@ RSpec.describe 'Query.project(fullPath).issue(iid)' do
     query_graphql_field(:issue, issue_params, issue_fields)
   end
 
-  shared_examples 'being able to fetch a design-like object by ID' do
+  shared_examples 'being able to fetch a design-like object by id' do
     let(:design) { design_a }
     let(:path) { %w[project issue designCollection] + [GraphqlHelpers.fieldnamerize(object_field_name)] }
 
@@ -113,9 +113,9 @@ RSpec.describe 'Query.project(fullPath).issue(iid)' do
 
       let_it_be(:object_on_other_issue) { create(:design, issue: issue_b) }
 
-      it_behaves_like 'being able to fetch a design-like object by ID'
+      it_behaves_like 'being able to fetch a design-like object by id'
 
-      it_behaves_like 'being able to fetch a design-like object by ID' do
+      it_behaves_like 'being able to fetch a design-like object by id' do
         let(:object_params) { { filename: design.filename } }
       end
     end
@@ -165,7 +165,7 @@ RSpec.describe 'Query.project(fullPath).issue(iid)' do
     end
 
     describe '.designAtVersion' do
-      it_behaves_like 'being able to fetch a design-like object by ID' do
+      it_behaves_like 'being able to fetch a design-like object by id' do
         let(:object) { build(:design_at_version, design: design, version: version) }
         let(:object_field_name) { :design_at_version }
 
