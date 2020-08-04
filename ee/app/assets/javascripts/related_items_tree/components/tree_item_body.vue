@@ -5,7 +5,7 @@ import {
   GlModalDirective,
   GlLink,
   GlIcon,
-  GlDeprecatedButton,
+  GlButton,
   GlTooltip,
 } from '@gitlab/ui';
 import { isEmpty } from 'lodash';
@@ -30,7 +30,7 @@ export default {
     GlIcon,
     GlLink,
     GlTooltip,
-    GlDeprecatedButton,
+    GlButton,
     StateTooltip,
     ItemMilestone,
     ItemAssignees,
@@ -267,17 +267,17 @@ export default {
           </div>
         </div>
 
-        <gl-deprecated-button
+        <gl-button
           v-if="parentItem.userPermissions.adminEpic"
           v-gl-tooltip.hover
           v-gl-modal-directive="$options.itemRemoveModalId"
           :title="__('Remove')"
+          :aria-label="__('Remove')"
+          icon="close"
           :disabled="itemActionInProgress"
           class="btn-svg btn-item-remove js-issue-item-remove-button qa-remove-issue-button align-self-start"
           @click="handleRemoveClick"
-        >
-          <gl-icon name="close" class="btn-item-remove-icon" />
-        </gl-deprecated-button>
+        />
         <span v-if="showEmptySpacer" class="p-3"></span>
       </div>
     </div>
