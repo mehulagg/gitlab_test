@@ -19438,6 +19438,15 @@ msgstr ""
 msgid "PrometheusAlerts|Threshold"
 msgstr ""
 
+msgid "PrometheusAlerts|exceeded"
+msgstr ""
+
+msgid "PrometheusAlerts|is equal to"
+msgstr ""
+
+msgid "PrometheusAlerts|is less than"
+msgstr ""
+
 msgid "PrometheusService|%{exporters} with %{metrics} were found"
 msgstr ""
 
