@@ -774,6 +774,15 @@ resources they are mutating, similar to our services. They should
 inherit `Mutations::BaseMutation`. The fields defined on the mutation
 will be returned as the result of the mutation.
 
+#### Update mutation granularity
+
+Our service-oriented architecture means that most mutations will call a create, delete or update service, for example `UpdateIssueService`.
+For Update mutations, a client may wish to only update one aspect of an object, and thus will only require a _fine-grained_ mutation, for example `MergeRequest::SetWip`.
+
+It is acceptable to have both fine-grained mutations alongside the coarse-grained mutations, but be aware that too many fine-grained mutations can lead to organizational challenges.
+
+See [gitlab-org/gitlab#233063](https://gitlab.com/gitlab-org/gitlab/-/issues/233063) for further context.
+
 ### Naming conventions
 
 Each mutation must define a `graphql_name`, which is the name of the mutation in the GraphQL schema.
