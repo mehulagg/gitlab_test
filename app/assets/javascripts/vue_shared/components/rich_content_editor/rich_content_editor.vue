@@ -69,12 +69,11 @@ export default {
   },
   computed: {
     editorOptions() {
-
       return {
         ...EDITOR_OPTIONS,
         ...this.options,
         customHTMLRenderer: buildCustomHTMLRenderer({
-          sourceContent: () => this.currentContent
+          sourceContent: () => this.currentContent,
         }),
       };
     },
@@ -101,12 +100,11 @@ export default {
       this.editorApi.eventManager.removeEventHandler('changeMode', this.onChangeMode);
     },
     resetInitialValue(newVal) {
-      this.currentContent = getMarkdown(this.newVal)
-
+      this.currentContent = getMarkdown(this.editorInstance);
       this.editorInstance.invoke('setMarkdown', newVal);
     },
     onContentChanged() {
-      this.currentContent = getMarkdown(this.editorInstance)
+      this.currentContent = getMarkdown(this.editorInstance);
       this.$emit('input', getMarkdown(this.editorInstance));
     },
     onLoad(editorApi) {

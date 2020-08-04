@@ -3,14 +3,14 @@ import renderKramdownList from './renderers/render_kramdown_list';
 import renderKramdownText from './renderers/render_kramdown_text';
 import renderIdentifierInstanceText from './renderers/render_identifier_instance_text';
 import renderIdentifierParagraph from './renderers/render_identifier_paragraph';
-import renderEmbeddedRubyText from './renderers/render_embedded_ruby_text';
+import renderEmbeddedRubyParagraph from './renderers/render_embedded_ruby_paragraph';
 import renderFontAwesomeHtmlInline from './renderers/render_font_awesome_html_inline';
 import renderSoftbreak from './renderers/render_softbreak';
 
 const htmlInlineRenderers = [renderFontAwesomeHtmlInline];
 const htmlBlockRenderers = [renderBlockHtml];
 const listRenderers = [renderKramdownList];
-const paragraphRenderers = [renderIdentifierParagraph, renderEmbeddedRubyText];
+const paragraphRenderers = [renderIdentifierParagraph, renderEmbeddedRubyParagraph];
 const textRenderers = [renderKramdownText, renderIdentifierInstanceText];
 const softbreakRenderers = [renderSoftbreak];
 
@@ -60,7 +60,7 @@ const buildCustomHTMLRenderer = (
     paragraph(node, context) {
       const allParagraphRenderers = [...customRenderers.paragraph, ...paragraphRenderers];
 
-      return executeRenderer(allParagraphRenderers, node, Object.assign(context, { sourceContent }));
+      return executeRenderer(allParagraphRenderers, node, Object.assign(context, sourceContent));
     },
     text(node, context) {
       const allTextRenderers = [...customRenderers.text, ...textRenderers];
