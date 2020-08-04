@@ -50,6 +50,7 @@ For feature flags disabled by default, if they can be used by end users:
 - If the feature can be enabled per project, add the [per-project information](#features-enabled-per-project). Otherwise, do not say anything about this.
 - Say whether it's recommended for production use.
 - Document how to enable and disable it.
+- Add a warning to the user saying that the feature is disabled.
 
 For example, for a feature disabled by default, disabled on GitLab.com, and
 not ready for production use:
@@ -58,10 +59,13 @@ not ready for production use:
 # Feature Name
 
 > - [Introduced](link-to-issue) in GitLab 12.0.
-> - It's deployed behind a feature flag, disabled by default.
+> - It's [deployed behind a feature flag](path/to/user/feature_flags.md), disabled by default.
 > - It's disabled on GitLab.com.
 > - It's not recommended for production use.
 > - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#anchor-to-section). **(CORE ONLY)**
+
+CAUTION: **Warning:**
+This feature might not be available to you. Check the **version history** note above for details.
 
 (...)
 
@@ -70,7 +74,7 @@ not ready for production use:
 <Feature Name> is under development and not ready for production use. It is
 deployed behind a feature flag that is **disabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../path/to/administration/feature_flags.md)
-can enable it for your instance.
+can enable it.
 
 To enable it:
 
@@ -86,6 +90,8 @@ Feature.disable(:<feature flag>)
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
+accordingly.
 
 ### Features that became enabled by default
 
@@ -97,6 +103,7 @@ default:
 - If the feature can be enabled per project, add the [per-project information](#features-enabled-per-project). Otherwise, do not say anything about this.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
+- Add a warning to the user saying that the feature might be disabled.
 
 For example, for a feature initially deployed disabled by default, that became
 enabled by default, that is enabled on GitLab.com, and is ready for production
@@ -106,11 +113,14 @@ use:
 # Feature Name
 
 > - [Introduced](link-to-issue) in GitLab 12.0.
-> - It was deployed behind a feature flag, disabled by default.
+> - It was deployed [deployed behind a feature flag](path/to/user/feature_flags.md), disabled by default.
 > - [Became enabled by default](link-to-issue) on GitLab 12.1.
 > - It's enabled on GitLab.com.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
+
+CAUTION: **Warning:**
+This feature might not be available to you. Check the **version history** note above for details.
 
 (...)
 
@@ -135,6 +145,8 @@ Feature.disable(:<feature flag>)
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
+accordingly.
 
 ### Features directly enabled by default
 
@@ -145,6 +157,7 @@ For features enabled by default:
 - If the feature can be enabled per project, add the [per-project information](#features-enabled-per-project). Otherwise, do not say anything about this.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
+- Add a warning to the user saying that the feature might be disabled.
 
 For example, for a feature enabled by default, enabled on GitLab.com,
 and is ready for production use:
@@ -153,10 +166,13 @@ and is ready for production use:
 # Feature Name
 
 > - [Introduced](link-to-issue) in GitLab 12.0.
-> - It's deployed behind a feature flag, enabled by default.
+> - It's [deployed behind a feature flag](path/to/user/feature_flags.md), enabled by default.
 > - It's enabled on GitLab.com.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
+
+CAUTION: **Warning:**
+This feature might not be available to you. Check the **version history** note above for details.
 
 (...)
 
@@ -181,22 +197,8 @@ Feature.disable(:<feature flag>)
 ````
 
 Adjust the blurb according to the state of the feature you're documenting.
-
-### Features with flag removed
-
-Once the feature is ready and the flag has been removed, clean up the
-documentation. Remove the feature flag mention keeping only a note that
-mentions the flag in the version history notes:
-
-````markdown
-# Feature Name
-
-> - [Introduced](link-to-issue) in GitLab 12.0.
-> - [Feature flag removed](link-to-issue) in GitLab 12.2.
-
-(...)
-
-````
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
+accordingly.
 
 ### Features enabled per project
 
@@ -234,11 +236,14 @@ For example, for a feature enabled by default, enabled on GitLab.com, that can b
 # Feature Name
 
 > - [Introduced](link-to-issue) in GitLab 12.0.
-> - It's deployed behind a feature flag, enabled by default.
+> - It's [deployed behind a feature flag](path/to/user/feature_flags.md), enabled by default.
 > - It's enabled on GitLab.com.
 > - It can be enabled per project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
+
+CAUTION: **Warning:**
+This feature might not be available to you. Check the **version history** note above for details.
 
 (...)
 
@@ -266,4 +271,24 @@ Feature.disable(:<feature flag>)
 # For a single project
 Feature.disable(:<feature flag>, Project.find(<project id>))
 ```
+````
+
+Adjust the blurb according to the state of the feature you're documenting.
+Replace `<Feature name>`, `**(CORE ONLY)**`, `<feature flag>`, and `path/to/`
+accordingly.
+
+### Features with flag removed
+
+Once the feature is ready and the flag has been removed, clean up the
+documentation. Remove the feature flag mention keeping only a note that
+mentions the flag in the version history notes:
+
+````markdown
+# Feature Name
+
+> - [Introduced](link-to-issue) in GitLab 12.0.
+> - [Feature flag removed](link-to-issue) in GitLab 12.2.
+
+(...)
+
 ````
