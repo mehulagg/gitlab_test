@@ -81,7 +81,7 @@ RSpec.describe Projects::GroupLinksController do
       end
     end
 
-    context 'when project group id equal link group id' do
+    context 'when project group ID equal link group ID' do
       before do
         group2.add_developer(user)
 
@@ -104,7 +104,7 @@ RSpec.describe Projects::GroupLinksController do
       end
     end
 
-    context 'when link group id is not present' do
+    context 'when link group ID is not present' do
       before do
         post(:create, params: {
                         namespace_id: project.namespace,

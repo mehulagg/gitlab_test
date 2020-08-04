@@ -40,7 +40,7 @@ RSpec.describe Banzai::Filter::MergeRequestReferenceFilter do
       expect(tag_el["data-iid"]).to eq(merge.iid.to_s)
     end
 
-    it 'adds project data attribute with project id' do
+    it 'adds project data attribute with project ID' do
       expect(tag_el["data-project-path"]).to eq(project.full_path)
     end
 

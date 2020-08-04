@@ -39,7 +39,7 @@ RSpec.describe Mutations::DastScannerProfiles::Create do
         group.add_owner(user)
       end
 
-      it 'returns the dast_scanner_profile id' do
+      it 'returns the dast_scanner_profile ID' do
         expect(subject[:id]).to eq(dast_scanner_profile.to_global_id)
       end
 

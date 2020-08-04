@@ -104,7 +104,7 @@ RSpec.describe API::ProjectSnippets do
       end
     end
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       get api("/projects/#{project.id}/snippets/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -329,7 +329,7 @@ RSpec.describe API::ProjectSnippets do
       expect(snippet.description).to eq(new_description)
     end
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       update_snippet(snippet_id: non_existing_record_id, params: { title: 'foo' })
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -427,7 +427,7 @@ RSpec.describe API::ProjectSnippets do
       expect(response).to have_gitlab_http_status(:no_content)
     end
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       delete api("/projects/#{snippet.project.id}/snippets/#{non_existing_record_id}", admin)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -455,7 +455,7 @@ RSpec.describe API::ProjectSnippets do
       expect(response.media_type).to eq 'text/plain'
     end
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       get api("/projects/#{snippet.project.id}/snippets/#{non_existing_record_id}/raw", admin)
 
       expect(response).to have_gitlab_http_status(:not_found)

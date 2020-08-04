@@ -43,7 +43,7 @@ RSpec.describe PurgeDependencyProxyCacheWorker do
       it_behaves_like 'returns nil'
     end
 
-    context 'an invalid user id' do
+    context 'an invalid user ID' do
       let(:user) { double('User', id: 99999 ) }
 
       it_behaves_like 'returns nil'

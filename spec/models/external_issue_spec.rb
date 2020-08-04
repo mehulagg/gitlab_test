@@ -25,13 +25,13 @@ RSpec.describe ExternalIssue do
   end
 
   describe '#reference_link_text' do
-    context 'if issue id has a prefix' do
+    context 'if issue ID has a prefix' do
       it 'returns the issue ID' do
         expect(issue.reference_link_text).to eq 'EXT-1234'
       end
     end
 
-    context 'if issue id is a number' do
+    context 'if issue ID is a number' do
       let(:issue) { described_class.new('1234', project) }
 
       it 'returns the issue ID prefixed by #' do

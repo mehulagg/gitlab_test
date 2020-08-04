@@ -256,7 +256,7 @@ RSpec.describe API::Issues do
         expect_paginated_array_response(issue2.id)
       end
 
-      it 'returns issues authored by the given author id' do
+      it 'returns issues authored by the given author ID' do
         issue2 = create(:issue, author: user2, project: project)
 
         get api('/issues', user), params: { author_id: user2.id, scope: 'all' }
@@ -264,7 +264,7 @@ RSpec.describe API::Issues do
         expect_paginated_array_response(issue2.id)
       end
 
-      it 'returns issues assigned to the given assignee id' do
+      it 'returns issues assigned to the given assignee ID' do
         issue2 = create(:issue, assignees: [user2], project: project)
 
         get api('/issues', user), params: { assignee_id: user2.id, scope: 'all' }
@@ -272,7 +272,7 @@ RSpec.describe API::Issues do
         expect_paginated_array_response(issue2.id)
       end
 
-      it 'returns issues authored by the given author id and assigned to the given assignee id' do
+      it 'returns issues authored by the given author ID and assigned to the given assignee ID' do
         issue2 = create(:issue, author: user2, assignees: [user2], project: project)
 
         get api('/issues', user), params: { author_id: user2.id, assignee_id: user2.id, scope: 'all' }
@@ -915,7 +915,7 @@ RSpec.describe API::Issues do
           expect(response).to have_gitlab_http_status(:unprocessable_entity)
         end
 
-        it 'returns a not found 404 response for invalid issue id' do
+        it 'returns a not found 404 response for invalid issue ID' do
           put api("/projects/#{project.id}/issues/#{non_existing_record_iid}/reorder", user), params: { move_after_id: issue2.id, move_before_id: issue3.id }
 
           expect(response).to have_gitlab_http_status(:not_found)

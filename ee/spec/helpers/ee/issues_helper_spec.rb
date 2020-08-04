@@ -65,7 +65,7 @@ RSpec.describe EE::IssuesHelper do
 
     it 'returns true if epic_id parameter is not the same as issue epic_id' do
       # When issue_in_subepic? is used, any epic with a different
-      # id than the one on the params is considered a child
+      # ID than the one on the params is considered a child
       expect(helper.issue_in_subepic?(issue, 'subepic_id')).to be_truthy
     end
   end

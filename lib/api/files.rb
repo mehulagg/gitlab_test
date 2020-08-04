@@ -73,7 +73,7 @@ module API
         use :simple_file_params
         requires :content, type: String, desc: 'File content'
         optional :encoding, type: String, values: %w[base64], desc: 'File encoding'
-        optional :last_commit_id, type: String, desc: 'Last known commit id for this file'
+        optional :last_commit_id, type: String, desc: 'Last known commit ID for this file'
       end
     end
 

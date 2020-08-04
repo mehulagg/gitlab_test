@@ -1257,7 +1257,7 @@ RSpec.describe Project do
 
         it_behaves_like 'giving the correct pipeline'
 
-        context 'with supplied id' do
+        context 'with supplied ID' do
           let!(:other_pipeline) { create_pipeline(project) }
 
           subject { project.pipeline_for('master', pipeline.sha, other_pipeline.id) }
@@ -4316,13 +4316,13 @@ RSpec.describe Project do
     end
 
     describe '#base_dir' do
-      it 'returns base_dir based on hash of project id' do
+      it 'returns base_dir based on hash of project ID' do
         expect(project.base_dir).to eq(hashed_prefix)
       end
     end
 
     describe '#disk_path' do
-      it 'returns disk_path based on hash of project id' do
+      it 'returns disk_path based on hash of project ID' do
         expect(project.disk_path).to eq(hashed_path)
       end
     end

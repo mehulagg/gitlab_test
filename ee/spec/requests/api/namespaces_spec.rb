@@ -141,7 +141,7 @@ RSpec.describe API::Namespaces do
         end
       end
 
-      it 'updates namespace using id' do
+      it 'updates namespace using ID' do
         put api("/namespaces/#{group1.id}", admin), params: params
 
         expect(response).to have_gitlab_http_status(:ok)

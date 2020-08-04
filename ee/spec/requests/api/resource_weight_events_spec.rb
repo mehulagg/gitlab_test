@@ -23,7 +23,7 @@ RSpec.describe ::API::ResourceWeightEvents do
       expect(json_response.first['id']).to eq(event.id)
     end
 
-    it "returns a 404 error when issue id not found" do
+    it "returns a 404 error when issue ID not found" do
       get api("/projects/#{project.id}/issues/#{non_existing_record_id}/resource_weight_events", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

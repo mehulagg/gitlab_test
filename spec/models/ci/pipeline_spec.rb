@@ -2685,7 +2685,7 @@ RSpec.describe Ci::Pipeline, :mailer do
     subject(:same_family_pipeline_ids) { pipeline.same_family_pipeline_ids }
 
     context 'when pipeline is not child nor parent' do
-      it 'returns just the pipeline id' do
+      it 'returns just the pipeline ID' do
         expect(same_family_pipeline_ids).to contain_exactly(pipeline.id)
       end
     end

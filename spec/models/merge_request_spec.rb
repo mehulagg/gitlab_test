@@ -2080,7 +2080,7 @@ RSpec.describe MergeRequest do
   describe '#short_merge_commit_sha' do
     let(:merge_request) { build_stubbed(:merge_request) }
 
-    it 'returns short id when there is a merge_commit_sha' do
+    it 'returns short ID when there is a merge_commit_sha' do
       merge_request.merge_commit_sha = 'f7ce827c314c9340b075657fd61c789fb01cf74d'
 
       expect(merge_request.short_merge_commit_sha).to eq('f7ce827c')

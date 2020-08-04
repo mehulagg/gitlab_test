@@ -426,7 +426,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
         expect(json_response.first['username']).to eq(user.username)
       end
 
-      it 'returns the correct order when sorted by id' do
+      it 'returns the correct order when sorted by ID' do
         # order of let_it_be definitions:
         # - admin
         # - user
@@ -614,7 +614,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
       end
     end
 
-    it "returns a 404 error if user id not found" do
+    it "returns a 404 error if user ID not found" do
       get api("/users/0", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -629,7 +629,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
   end
 
   describe 'GET /users/:id_or_username/status' do
-    context 'when finding the user by id' do
+    context 'when finding the user by ID' do
       it_behaves_like 'rendering user status' do
         let(:path) { "/users/#{user.id}/status" }
       end
@@ -2443,7 +2443,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
       expect(user.reload.state).to eq('active')
     end
 
-    it 'returns a 404 error if user id not found' do
+    it 'returns a 404 error if user ID not found' do
       post api('/users/0/block', admin)
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 User Not Found')
@@ -2493,7 +2493,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
       expect(user.reload.state).to eq('active')
     end
 
-    it 'returns a 404 error if user id not found' do
+    it 'returns a 404 error if user ID not found' do
       post api('/users/0/block', admin)
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 User Not Found')

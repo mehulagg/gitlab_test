@@ -7,7 +7,7 @@ RSpec.describe Clusters::DeploymentEntity do
 
   subject { described_class.new(deployment).as_json }
 
-  it 'exposes id' do
+  it 'exposes ID' do
     expect(subject).to include(:id)
   end
 

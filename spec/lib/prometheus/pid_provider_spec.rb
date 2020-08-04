@@ -67,7 +67,7 @@ RSpec.describe Prometheus::PidProvider do
         end
       end
 
-      context 'when unicorn worker id is specified in process name' do
+      context 'when unicorn worker ID is specified in process name' do
         context 'when running in Omnibus' do
           let(:process_name) { "unicorn worker[1] -D -E production -c /var/opt/gitlab/gitlab-rails/etc/unicorn.rb /opt/gitlab/embedded/service/gitlab-rails/config.ru" }
 
@@ -81,7 +81,7 @@ RSpec.describe Prometheus::PidProvider do
         end
       end
 
-      context 'when no specified unicorn master or worker id in process name' do
+      context 'when no specified unicorn master or worker ID in process name' do
         let(:process_name) { "bin/unknown_process"}
 
         it { is_expected.to eq "process_#{Process.pid}" }
@@ -97,13 +97,13 @@ RSpec.describe Prometheus::PidProvider do
           .and_return(process_name)
       end
 
-      context 'when cluster worker id is specified in process name' do
+      context 'when cluster worker ID is specified in process name' do
         let(:process_name) { 'puma: cluster worker 1: 17483 [gitlab-puma-worker]' }
 
         it { is_expected.to eq 'puma_1' }
       end
 
-      context 'when no worker id is specified in process name' do
+      context 'when no worker ID is specified in process name' do
         let(:process_name) { 'bin/puma' }
 
         it { is_expected.to eq 'puma_master' }

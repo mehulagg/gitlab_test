@@ -98,7 +98,7 @@ module API
           end
           optional :encoding, type: String, desc: '`text` or `base64`', default: 'text', values: %w[text base64]
           given action: ->(action) { %w[update move delete].include? action } do
-            optional :last_commit_id, type: String, desc: 'Last known file commit id'
+            optional :last_commit_id, type: String, desc: 'Last known file commit ID'
           end
           given action: ->(action) { action == 'chmod' } do
             requires :execute_filemode, type: Boolean, desc: 'When `true/false` enables/disables the execute flag on the file.'

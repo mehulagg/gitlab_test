@@ -39,7 +39,7 @@ RSpec.describe Ci::RunnerJobsFinder do
     end
 
     context 'when order_by and sort are specified' do
-      context 'when order_by id and sort is asc' do
+      context 'when order_by ID and sort is asc' do
         let(:params) { { order_by: 'id', sort: 'asc' } }
         let!(:jobs) { create_list(:ci_build, 2, runner: runner, project: project, user: create(:user)) }
 
@@ -50,7 +50,7 @@ RSpec.describe Ci::RunnerJobsFinder do
     end
 
     context 'when order_by is specified and sort is not specified' do
-      context 'when order_by id and sort is not specified' do
+      context 'when order_by ID and sort is not specified' do
         let(:params) { { order_by: 'id' } }
         let!(:jobs) { create_list(:ci_build, 2, runner: runner, project: project, user: create(:user)) }
 

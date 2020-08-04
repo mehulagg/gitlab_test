@@ -63,7 +63,7 @@ module API
                  values: %w[created-by-me assigned-to-me created_by_me assigned_to_me all],
                  desc: 'Return merge requests for the given scope: `created_by_me`, `assigned_to_me` or `all`'
         optional :source_branch, type: String, desc: 'Return merge requests with the given source branch'
-        optional :source_project_id, type: Integer, desc: 'Return merge requests with the given source project id'
+        optional :source_project_id, type: Integer, desc: 'Return merge requests with the given source project ID'
         optional :target_branch, type: String, desc: 'Return merge requests with the given target branch'
         optional :search,
                  type: String,

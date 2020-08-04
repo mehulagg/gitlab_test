@@ -360,7 +360,7 @@ RSpec.describe ApplicationHelper do
         end
 
         context 'when params[:id] is present and the issue exsits and action_name is show' do
-          it 'sets all project and id elements correctly related to the issue' do
+          it 'sets all project and ID elements correctly related to the issue' do
             issue = create(:issue, project: project)
             stub_controller_method(:action_name, 'show')
             stub_controller_method(:params, { id: issue.id })

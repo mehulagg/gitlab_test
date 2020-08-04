@@ -623,7 +623,7 @@ RSpec.describe API::Issues do
         expect(json_response['moved_to_id']).to be_nil
       end
 
-      it 'returns issue id when moved' do
+      it 'returns issue ID when moved' do
         get api("/projects/#{project.id}/issues/#{moved_issue.iid}", user)
 
         expect(json_response['moved_to_id']).to eq(issue.id)
@@ -650,7 +650,7 @@ RSpec.describe API::Issues do
       end
     end
 
-    it 'returns a project issue by internal id' do
+    it 'returns a project issue by internal ID' do
       get api("/projects/#{project.id}/issues/#{issue.iid}", user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -658,7 +658,7 @@ RSpec.describe API::Issues do
       expect(json_response['iid']).to eq(issue.iid)
     end
 
-    it 'returns 404 if issue id not found' do
+    it 'returns 404 if issue ID not found' do
       get api("/projects/#{project.id}/issues/54321", user)
       expect(response).to have_gitlab_http_status(:not_found)
     end

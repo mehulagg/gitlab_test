@@ -35,11 +35,11 @@ RSpec.describe IssuablesHelper do
       expect(group_dropdown_label('0', default)).to eq('Any group')
     end
 
-    it 'returns group full path when a group was found for the provided id' do
+    it 'returns group full path when a group was found for the provided ID' do
       expect(group_dropdown_label(group.id, default)).to eq(group.full_name)
     end
 
-    it 'returns default label when a group was not found for the provided id' do
+    it 'returns default label when a group was not found for the provided ID' do
       expect(group_dropdown_label(non_existing_record_id, default)).to eq('default label')
     end
   end

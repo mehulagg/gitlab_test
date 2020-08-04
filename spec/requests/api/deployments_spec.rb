@@ -17,7 +17,7 @@ RSpec.describe API::Deployments do
     let!(:deployment_3) { create(:deployment, :success, project: project, iid: 8, ref: 'master', created_at: 2.days.ago, updated_at: 1.hour.ago) }
 
     context 'as member of the project' do
-      it 'returns projects deployments sorted by id asc' do
+      it 'returns projects deployments sorted by ID asc' do
         get api("/projects/#{project.id}/deployments", user)
 
         expect(response).to have_gitlab_http_status(:ok)

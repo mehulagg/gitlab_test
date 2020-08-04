@@ -21,7 +21,7 @@ RSpec.describe UsersFinder do
         expect(users).to contain_exactly(normal_user)
       end
 
-      it 'filters by id' do
+      it 'filters by ID' do
         users = described_class.new(user, id: normal_user.id).execute
 
         expect(users).to contain_exactly(normal_user)

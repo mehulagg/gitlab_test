@@ -125,7 +125,7 @@ RSpec.describe MergeTrains::RefreshMergeRequestsService do
           subject
         end
 
-        it 'enqueues the merge request id to BatchPopQueueing' do
+        it 'enqueues the merge request ID to BatchPopQueueing' do
           expect_next_instance_of(Gitlab::BatchPopQueueing) do |queuing|
             expect(queuing).to receive(:enqueue).with([merge_request_1.id], anything).and_call_original
           end

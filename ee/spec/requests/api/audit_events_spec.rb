@@ -65,7 +65,7 @@ RSpec.describe API::AuditEvents do
               end
             end
 
-            it 'returns audit_events of the provided entity id' do
+            it 'returns audit_events of the provided entity ID' do
               get api(url, admin), params: { entity_type: 'User', entity_id: user_audit_event.entity_id }
 
               expect(json_response.size).to eq 1

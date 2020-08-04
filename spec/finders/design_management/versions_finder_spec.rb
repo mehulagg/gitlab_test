@@ -110,7 +110,7 @@ RSpec.describe DesignManagement::VersionsFinder do
           end
         end
 
-        describe 'mixing id and sha' do
+        describe 'mixing ID and sha' do
           context 'when arguments are consistent' do
             let(:params) { { version_id: version_1.id, sha: version_1.sha } }
 

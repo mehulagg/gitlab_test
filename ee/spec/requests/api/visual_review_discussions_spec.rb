@@ -87,7 +87,7 @@ RSpec.describe API::VisualReviewDiscussions do
         expect(response_note['author']['username']).to eq(User.visual_review_bot.username)
       end
 
-      it 'returns the id of the merge request as the parent noteable_id' do
+      it 'returns the ID of the merge request as the parent noteable_id' do
         expect(response_note['noteable_id']).to eq(merge_request.id)
       end
 

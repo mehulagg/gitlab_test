@@ -14,7 +14,7 @@ RSpec.describe 'ProductAnalytics::CollectorApp throttle' do
     allow(ProductAnalyticsEvent).to receive(:create).and_return(true)
   end
 
-  context 'per application id' do
+  context 'per application ID' do
     let(:params) do
       {
         aid: project1.id,

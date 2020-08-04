@@ -82,7 +82,7 @@ RSpec.describe PrometheusMetricsFinder do
             it { is_expected.to contain_exactly(unique_metric) }
           end
 
-          context 'with id' do
+          context 'with ID' do
             let(:params) { { id: 14, identifier: 'string' } }
 
             it 'raises an error' do
@@ -94,7 +94,7 @@ RSpec.describe PrometheusMetricsFinder do
           end
         end
 
-        context 'with id' do
+        context 'with ID' do
           let(:params) { { id: common_metric.id } }
 
           it { is_expected.to contain_exactly(common_metric) }

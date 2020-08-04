@@ -185,7 +185,7 @@ RSpec.describe API::Environments do
         expect(response).to have_gitlab_http_status(:no_content)
       end
 
-      it 'returns a 404 for non existing id' do
+      it 'returns a 404 for non existing ID' do
         delete api("/projects/#{project.id}/environments/#{non_existing_record_id}", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -228,7 +228,7 @@ RSpec.describe API::Environments do
         end
       end
 
-      it 'returns a 404 for non existing id' do
+      it 'returns a 404 for non existing ID' do
         post api("/projects/#{project.id}/environments/#{non_existing_record_id}/stop", user)
 
         expect(response).to have_gitlab_http_status(:not_found)

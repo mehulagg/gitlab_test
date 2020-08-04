@@ -129,7 +129,7 @@ RSpec.describe Gitlab::DatabaseImporters::SelfMonitoring::Project::CreateService
         expect(project.owner).to eq(group)
       end
 
-      it 'saves the project id' do
+      it 'saves the project ID' do
         expect(result[:status]).to eq(:success)
         expect(application_setting.reload.self_monitoring_project_id).to eq(project.id)
       end

@@ -94,11 +94,11 @@ RSpec.describe ::Gitlab::RepoPath do
   end
 
   describe '.find_snippet' do
-    it 'extracts path and id from personal snippet route' do
+    it 'extracts path and ID from personal snippet route' do
       expect(described_class.find_snippet("snippets/#{personal_snippet.id}")).to eq([personal_snippet, nil])
     end
 
-    it 'extracts path and id from project snippet route' do
+    it 'extracts path and ID from project snippet route' do
       expect(described_class.find_snippet("#{project.full_path}/snippets/#{project_snippet.id}")).to eq([project_snippet, nil])
     end
 

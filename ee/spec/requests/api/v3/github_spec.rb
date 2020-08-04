@@ -187,7 +187,7 @@ RSpec.describe API::V3::Github do
           expect(json_response.size).to eq(2)
         end
 
-        it 'ensures each event has a unique id' do
+        it 'ensures each event has a unique ID' do
           jira_get v3_api(events_path, user)
 
           ids = json_response.map { |event| event['id'] }.uniq

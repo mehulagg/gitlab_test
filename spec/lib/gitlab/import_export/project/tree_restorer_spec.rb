@@ -135,7 +135,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer do
           expect(pipeline.merge_request.source_branch).to eq('feature_conflict')
         end
 
-        it 'restores pipelines based on ascending id order' do
+        it 'restores pipelines based on ascending ID order' do
           expected_ordered_shas = %w[
           2ea1f3dec713d940208fb5ce4a38765ecb5d3f73
           ce84140e8b878ce6e7c4d298c7202ff38170e3ac

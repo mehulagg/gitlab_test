@@ -103,7 +103,7 @@ RSpec.describe PersonalAccessTokensFinder do
         end
       end
 
-      describe 'with id' do
+      describe 'with ID' do
         subject { finder(params).find_by_id(active_personal_access_token.id) }
 
         it { is_expected.to eq(active_personal_access_token) }
@@ -236,7 +236,7 @@ RSpec.describe PersonalAccessTokensFinder do
         end
       end
 
-      describe 'with id' do
+      describe 'with ID' do
         subject { finder(params).find_by_id(active_personal_access_token.id) }
 
         it { is_expected.to eq(active_personal_access_token) }

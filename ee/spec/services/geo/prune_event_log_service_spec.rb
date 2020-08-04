@@ -61,7 +61,7 @@ RSpec.describe Geo::PruneEventLogService do
   context 'with event_log_min_id' do
     let(:min_id) { events[1].id }
 
-    it 'prunes events up to, but not including, the min id' do
+    it 'prunes events up to, but not including, the min ID' do
       expect { service.execute }.to change { Geo::EventLog.count }.by(-1)
     end
 

@@ -20,7 +20,7 @@ RSpec.shared_examples 'noteable API' do |parent_type, noteable_type, id_name|
           expect(response_dates).to eq(response_dates.sort.reverse)
         end
 
-        it 'fetches notes using parent path as id paremeter' do
+        it 'fetches notes using parent path as ID paremeter' do
           parent_id = CGI.escape(parent.full_path)
 
           get api("/#{parent_type}/#{parent_id}/#{noteable_type}/#{noteable[id_name]}/notes", user)
@@ -96,7 +96,7 @@ RSpec.shared_examples 'noteable API' do |parent_type, noteable_type, id_name|
       expect(json_response.first['body']).to eq(note.note)
     end
 
-    it "returns a 404 error when noteable id not found" do
+    it "returns a 404 error when noteable ID not found" do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{non_existing_record_id}/notes", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -326,7 +326,7 @@ RSpec.shared_examples 'noteable API' do |parent_type, noteable_type, id_name|
       end
     end
 
-    it 'returns a 404 error when note id not found' do
+    it 'returns a 404 error when note ID not found' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/notes/#{non_existing_record_id}", user),
               params: { body: 'Hello!' }
 
@@ -353,7 +353,7 @@ RSpec.shared_examples 'noteable API' do |parent_type, noteable_type, id_name|
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns a 404 error when note id not found' do
+    it 'returns a 404 error when note ID not found' do
       delete api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/notes/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

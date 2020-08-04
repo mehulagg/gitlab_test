@@ -24,7 +24,7 @@ RSpec.describe Constraints::ProjectUrlConstrainer do
         end
       end
 
-      context "project id ending with .git" do
+      context "project ID ending with .git" do
         let(:request) { build_request(namespace.full_path, project.path + '.git') }
 
         it { expect(subject.matches?(request)).to be_falsey }

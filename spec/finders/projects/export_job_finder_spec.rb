@@ -20,7 +20,7 @@ RSpec.describe Projects::ExportJobFinder do
       end
     end
 
-    context 'when queried by job id' do
+    context 'when queried by job ID' do
       let(:params) { { jid: project_export_job1.jid } }
 
       it 'filters records' do

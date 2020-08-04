@@ -64,7 +64,7 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
       expect(json_response['resolved']).to eq(true)
     end
 
-    it 'returns a 404 error when note id not found' do
+    it 'returns a 404 error when note ID not found' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}/notes/#{non_existing_record_id}", user),
               params: { body: 'Hello!' }

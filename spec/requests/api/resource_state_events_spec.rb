@@ -25,7 +25,7 @@ RSpec.describe API::ResourceStateEvents do
         expect(json_response.first['state']).to eq(event.state.to_s)
       end
 
-      it "returns a 404 error when eventable id not found" do
+      it "returns a 404 error when eventable ID not found" do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{non_existing_record_id}/resource_state_events", user)
 
         expect(response).to have_gitlab_http_status(:not_found)

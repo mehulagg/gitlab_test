@@ -77,7 +77,7 @@ RSpec.describe Gitlab::BackgroundMigration::LinkLfsObjectsProjects, :migration, 
   end
 
   context 'when there are LFS objects to be linked' do
-    it 'creates LfsObjectsProject records for forks based on the specified range of LfsObjectProject id' do
+    it 'creates LfsObjectsProject records for forks based on the specified range of LfsObjectProject ID' do
       expect_next_instance_of(Gitlab::BackgroundMigration::Logger) do |logger|
         expect(logger).to receive(:info).exactly(4).times
       end

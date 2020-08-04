@@ -7,7 +7,7 @@ RSpec.describe Gitlab::Graphql::Loaders::BatchModelLoader do
     let(:issue) { create(:issue) }
     let(:user) { create(:user) }
 
-    it 'finds a model by id' do
+    it 'finds a model by ID' do
       issue_result = described_class.new(Issue, issue.id).find
       user_result = described_class.new(User, user.id).find
 

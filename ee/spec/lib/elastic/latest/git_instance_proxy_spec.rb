@@ -18,7 +18,7 @@ RSpec.describe Elastic::Latest::GitInstanceProxy do
   end
 
   describe '#es_parent' do
-    it 'contains project id' do
+    it 'contains project ID' do
       expect(subject.es_parent).to eq("project_#{project.id}")
     end
   end

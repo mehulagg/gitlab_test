@@ -54,11 +54,11 @@ RSpec.describe Resolvers::ErrorTracking::SentryDetailedErrorResolver do
       end
     end
 
-    context 'if id does not match issue' do
+    context 'if ID does not match issue' do
       it_behaves_like 'it resolves to nil'
     end
 
-    context 'blank id' do
+    context 'blank ID' do
       let(:args) { { id: '' } }
 
       it_behaves_like 'it resolves to nil'

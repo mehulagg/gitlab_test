@@ -15,7 +15,7 @@ RSpec.describe Gitlab::PhabricatorImport::Representation::User do
   end
 
   describe '#phabricator_id' do
-    it 'returns the phabricator id' do
+    it 'returns the phabricator ID' do
       expect(user.phabricator_id).to eq('the-phid')
     end
   end

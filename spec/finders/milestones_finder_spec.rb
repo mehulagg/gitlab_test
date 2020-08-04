@@ -56,7 +56,7 @@ RSpec.describe MilestonesFinder do
       milestone_3.close
     end
 
-    it 'filters by id' do
+    it 'filters by ID' do
       params[:ids] = [milestone_1.id, milestone_2.id]
 
       result = described_class.new(params).execute

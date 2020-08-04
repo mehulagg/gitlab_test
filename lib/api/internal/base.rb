@@ -102,7 +102,7 @@ module API
         #
         # Params:
         #   key_id - ssh key id for Git over SSH
-        #   user_id - user id for Git over HTTP or over SSH in keyless SSH CERT mode
+        #   user_id - user ID for Git over HTTP or over SSH in keyless SSH CERT mode
         #   username - user name for Git over SSH in keyless SSH cert mode
         #   protocol - Git access protocol being used, e.g. HTTP or SSH
         #   project - project full_path (not path on disk)
@@ -145,7 +145,7 @@ module API
         # rubocop: enable CodeReuse/ActiveRecord
 
         #
-        # Discover user by ssh key, user id or username
+        # Discover user by ssh key, user ID or username
         #
         get '/discover' do
           present actor.user, with: Entities::UserSafe

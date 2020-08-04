@@ -25,7 +25,7 @@ RSpec.describe Gitlab::ConanToken do
   end
 
   describe '.from_personal_access_token' do
-    it 'sets access token id and user id' do
+    it 'sets access token ID and user ID' do
       access_token = double(id: 123, user_id: 456)
 
       token = described_class.from_personal_access_token(access_token)
@@ -36,7 +36,7 @@ RSpec.describe Gitlab::ConanToken do
   end
 
   describe '.from_job' do
-    it 'sets access token id and user id' do
+    it 'sets access token ID and user ID' do
       user = double(id: 456)
       job = double(token: 123, user: user)
 
@@ -48,7 +48,7 @@ RSpec.describe Gitlab::ConanToken do
   end
 
   describe '.from_deploy_token' do
-    it 'sets access token id and user id' do
+    it 'sets access token ID and user ID' do
       deploy_token = double(token: '123', username: 'bob')
 
       token = described_class.from_deploy_token(deploy_token)
@@ -59,7 +59,7 @@ RSpec.describe Gitlab::ConanToken do
   end
 
   describe '.decode' do
-    it 'sets access token id and user id' do
+    it 'sets access token ID and user ID' do
       jwt = build_jwt(access_token_id: 123, user_id: 456)
 
       token = described_class.decode(jwt.encoded)

@@ -73,7 +73,7 @@ RSpec.shared_examples 'issues list service' do
     end
   end
 
-  context 'with invalid list id' do
+  context 'with invalid list ID' do
     it 'raises an error' do
       service = described_class.new(parent, user, board_id: board.id, id: nil)
 

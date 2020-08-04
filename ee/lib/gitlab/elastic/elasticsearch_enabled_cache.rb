@@ -23,7 +23,7 @@ module Gitlab
         # as the key for the specific record.
         #
         # @param type [Symbol] the type of resource, `:project` or `:namespace`
-        # @param record_id [Integer] the id of the record
+        # @param record_id [Integer] the ID of the record
         # @return [true, false]
         def fetch(type, record_id, &blk)
           Gitlab::Redis::Cache.with do |redis|

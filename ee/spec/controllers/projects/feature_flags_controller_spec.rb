@@ -404,7 +404,7 @@ RSpec.describe Projects::FeatureFlagsController do
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it 'returns strategies ordered by id' do
+      it 'returns strategies ordered by ID' do
         first_strategy = create(:operations_strategy, feature_flag: new_version_feature_flag)
         second_strategy = create(:operations_strategy, feature_flag: new_version_feature_flag)
 
@@ -1429,7 +1429,7 @@ RSpec.describe Projects::FeatureFlagsController do
         expect(::Operations::FeatureFlags::UserList.first).to eq(user_list)
       end
 
-      it 'returns not found when trying to create a gitlabUserList strategy with an invalid user list id' do
+      it 'returns not found when trying to create a gitlabUserList strategy with an invalid user list ID' do
         put_request(new_version_flag, strategies_attributes: [{
           name: 'gitlabUserList',
           parameters: {},

@@ -56,7 +56,7 @@ RSpec.describe Projects::FeatureFlagIssuesController do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'orders by feature_flag_issue id' do
+    it 'orders by feature_flag_issue ID' do
       feature_flag = create(:operations_feature_flag, project: project)
       issue_a = create(:issue, project: project)
       issue_b = create(:issue, project: project)

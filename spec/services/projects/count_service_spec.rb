@@ -13,7 +13,7 @@ RSpec.describe Projects::CountService do
   end
 
   describe '#relation_for_count' do
-    it 'calls the class method query with the project id' do
+    it 'calls the class method query with the project ID' do
       expect(described_class).to receive(:query).with(project.id)
 
       service.relation_for_count

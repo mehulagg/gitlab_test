@@ -146,7 +146,7 @@ RSpec.describe Todo do
   end
 
   describe '#target_reference' do
-    it 'returns commit full reference with short id' do
+    it 'returns commit full reference with short ID' do
       project = create(:project, :repository)
       commit = project.commit
 

@@ -16,7 +16,7 @@ RSpec.describe API::Unleash do
   end
 
   shared_examples 'authenticated request' do
-    context 'when using instance id' do
+    context 'when using instance ID' do
       let(:client) { create(:operations_feature_flags_client, project: project) }
       let(:params) { { instance_id: client.token } }
 
@@ -48,7 +48,7 @@ RSpec.describe API::Unleash do
       end
     end
 
-    context 'when using bogus instance id' do
+    context 'when using bogus instance ID' do
       let(:params) { { instance_id: 'token' } }
 
       it 'responds with unauthorized' do

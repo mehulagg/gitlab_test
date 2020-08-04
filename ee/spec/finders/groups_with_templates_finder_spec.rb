@@ -26,7 +26,7 @@ RSpec.describe GroupsWithTemplatesFinder do
     create(:gitlab_subscription, :silver, namespace: group_2)
   end
 
-  describe 'without group id' do
+  describe 'without group ID' do
     it 'returns all groups' do
       expect(described_class.new.execute).to contain_exactly(group_1, group_2, group_3)
     end
@@ -53,7 +53,7 @@ RSpec.describe GroupsWithTemplatesFinder do
     end
   end
 
-  describe 'with group id' do
+  describe 'with group ID' do
     it 'returns given group with it descendants' do
       expect(described_class.new(group_1.id).execute).to contain_exactly(group_1)
     end

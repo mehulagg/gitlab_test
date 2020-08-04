@@ -706,7 +706,7 @@ RSpec.describe Issues::UpdateService, :mailer do
         end
       end
 
-      context 'when same id is passed as add_label_ids and remove_label_ids' do
+      context 'when same ID is passed as add_label_ids and remove_label_ids' do
         let(:params) { { add_label_ids: [label.id], remove_label_ids: [label.id] } }
 
         context 'for a label assigned to an issue' do
@@ -742,7 +742,7 @@ RSpec.describe Issues::UpdateService, :mailer do
         expect(issue.reload.assignees).to eq([user3])
       end
 
-      it 'unassigns assignee when user id is 0' do
+      it 'unassigns assignee when user ID is 0' do
         update_issue(assignee_ids: [0])
 
         expect(issue.reload.assignees).to be_empty

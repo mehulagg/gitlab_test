@@ -27,7 +27,7 @@ RSpec.describe ::Gitlab::GlRepository do
       expect { described_class.parse("badformat-#{project.id}") }.to raise_error(ArgumentError)
     end
 
-    it 'throws an argument error on an invalid gl_repository id' do
+    it 'throws an argument error on an invalid gl_repository ID' do
       expect { described_class.parse("project-foo") }.to raise_error(ArgumentError)
     end
   end

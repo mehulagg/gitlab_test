@@ -27,7 +27,7 @@ RSpec.describe Projects::CommitController do
       get :show, params: params.merge(extra_params)
     end
 
-    context 'with valid id' do
+    context 'with valid ID' do
       it 'responds with 200' do
         go(id: commit.id)
 
@@ -35,7 +35,7 @@ RSpec.describe Projects::CommitController do
       end
     end
 
-    context 'with invalid id' do
+    context 'with invalid ID' do
       it 'responds with 404' do
         go(id: commit.id.reverse)
 

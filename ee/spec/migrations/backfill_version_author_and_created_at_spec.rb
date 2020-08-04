@@ -28,7 +28,7 @@ RSpec.describe BackfillVersionAuthorAndCreatedAt do
   end
 
   describe 'scheduling' do
-    it 'schedules background migrations in bulk, one job per unique issue id' do
+    it 'schedules background migrations in bulk, one job per unique issue ID' do
       create_version(sha: 'foo', issue_id: issue_1.id)
       create_version(sha: 'bar', issue_id: issue_1.id)
       create_version(sha: 'baz', issue_id: issue_2.id)

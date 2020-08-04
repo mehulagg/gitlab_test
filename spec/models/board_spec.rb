@@ -21,7 +21,7 @@ RSpec.describe Board do
     let!(:board_a) { create(:board, project: project, name: 'a') }
     let!(:board_A) { create(:board, project: project, name: 'A') }
 
-    it 'returns in case-insensitive alphabetical order and then by ascending id' do
+    it 'returns in case-insensitive alphabetical order and then by ascending ID' do
       expect(project.boards.order_by_name_asc).to eq [board_a, board_A, board_B, board_C]
     end
   end

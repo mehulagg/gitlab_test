@@ -65,7 +65,7 @@ RSpec.describe ResourceWeightEvent, type: :model do
   describe '#discussion_id' do
     let_it_be(:event) { create(:resource_weight_event, issue: issue1, created_at: Time.utc(2019, 12, 30)) }
 
-    it 'returns the expected id' do
+    it 'returns the expected ID' do
       allow(Digest::SHA1).to receive(:hexdigest)
                                .with("ResourceWeightEvent-#{event.id}-#{user1.id}")
                                .and_return('73d167c478')

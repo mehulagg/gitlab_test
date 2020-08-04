@@ -23,7 +23,7 @@ RSpec.shared_examples 'issuable participants endpoint' do
     expect(response).to have_gitlab_http_status(:not_found)
   end
 
-  it 'returns a 404 when id is used instead of iid' do
+  it 'returns a 404 when ID is used instead of iid' do
     get api("/projects/#{project.id}/#{area}/#{entity.id}/participants", user)
 
     expect(response).to have_gitlab_http_status(:not_found)

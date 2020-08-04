@@ -272,11 +272,11 @@ RSpec.describe Repository do
   describe '#last_commit_id_for_path' do
     subject { repository.last_commit_id_for_path(sample_commit.id, '.gitignore') }
 
-    it "returns last commit id for a given path" do
+    it "returns last commit ID for a given path" do
       is_expected.to eq('c1acaa58bbcbc3eafe538cb8274ba387047b69f8')
     end
 
-    it "caches last commit id for a given path" do
+    it "caches last commit ID for a given path" do
       cache = repository.send(:cache)
       key = "last_commit_id_for_path:#{sample_commit.id}:#{Digest::SHA1.hexdigest('.gitignore')}"
 
@@ -1591,7 +1591,7 @@ RSpec.describe Repository do
     let(:merge_request) { create(:merge_request, source_branch: 'feature', target_branch: 'master', source_project: project) }
     let(:message) { 'Test \r\n\r\n message' }
 
-    it 'merges the code and returns the commit id' do
+    it 'merges the code and returns the commit ID' do
       expect(merge_commit).to be_present
       expect(repository.blob_at(merge_commit.id, 'files/ruby/feature.rb')).to be_present
     end
@@ -1642,7 +1642,7 @@ RSpec.describe Repository do
       repository.add_branch(user, 'ff-target', 'feature~5')
     end
 
-    it 'merges the code and return the commit id' do
+    it 'merges the code and return the commit ID' do
       merge_request = create(:merge_request, source_branch: 'feature', target_branch: 'ff-target', source_project: project)
       merge_commit_id = repository.ff_merge(user,
                                             merge_request.diff_head_sha,

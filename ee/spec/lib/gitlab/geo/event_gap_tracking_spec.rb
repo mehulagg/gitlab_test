@@ -18,7 +18,7 @@ RSpec.describe Gitlab::Geo::EventGapTracking, :clean_gitlab_redis_cache do
       expect(described_class.min_gap_id).to eq(nil)
     end
 
-    it 'returns the lowest gap id' do
+    it 'returns the lowest gap ID' do
       Timecop.travel(50.minutes.ago) do
         gap_tracking.previous_id = 18
         gap_tracking.send(:track_gaps, 20)
@@ -50,7 +50,7 @@ RSpec.describe Gitlab::Geo::EventGapTracking, :clean_gitlab_redis_cache do
   end
 
   describe '#check!' do
-    it 'does nothing when previous id not valid' do
+    it 'does nothing when previous ID not valid' do
       gap_tracking.previous_id = 0
 
       expect(gap_tracking).not_to receive(:gap?)
@@ -144,7 +144,7 @@ RSpec.describe Gitlab::Geo::EventGapTracking, :clean_gitlab_redis_cache do
       gap_tracking.send(:track_gaps, event_id_with_gap)
     end
 
-    it 'saves the gap id in redis' do
+    it 'saves the gap ID in redis' do
       Timecop.freeze do
         gap_tracking.send(:track_gaps, event_id_with_gap)
 
@@ -152,7 +152,7 @@ RSpec.describe Gitlab::Geo::EventGapTracking, :clean_gitlab_redis_cache do
       end
     end
 
-    it 'saves a range of gaps id in redis' do
+    it 'saves a range of gaps ID in redis' do
       Timecop.freeze do
         gap_tracking.send(:track_gaps, event_id_with_gap + 3)
 
@@ -197,7 +197,7 @@ RSpec.describe Gitlab::Geo::EventGapTracking, :clean_gitlab_redis_cache do
       expect(gap_tracking.send(:gap?, previous_event_id - 1)).to be_falsy
     end
 
-    it 'returns false when previous id is 0' do
+    it 'returns false when previous ID is 0' do
       gap_tracking.previous_id = 0
 
       expect(gap_tracking.send(:gap?, 100)).to be_falsy

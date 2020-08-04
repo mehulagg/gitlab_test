@@ -11,16 +11,16 @@ module Gitlab
 
       # Schedule a range of projects to be bulk migrated with #bulk_migrate asynchronously
       #
-      # @param [Integer] start first project id for the range
-      # @param [Integer] finish last project id for the range
+      # @param [Integer] start first project ID for the range
+      # @param [Integer] finish last project ID for the range
       def bulk_schedule_migration(start:, finish:)
         ::HashedStorage::MigratorWorker.perform_async(start, finish)
       end
 
       # Schedule a range of projects to be bulk rolledback with #bulk_rollback asynchronously
       #
-      # @param [Integer] start first project id for the range
-      # @param [Integer] finish last project id for the range
+      # @param [Integer] start first project ID for the range
+      # @param [Integer] finish last project ID for the range
       def bulk_schedule_rollback(start:, finish:)
         ::HashedStorage::RollbackerWorker.perform_async(start, finish)
       end
@@ -30,8 +30,8 @@ module Gitlab
       # Flagging a project to be migrated is a synchronous action
       # but the migration runs through async jobs
       #
-      # @param [Integer] start first project id for the range
-      # @param [Integer] finish last project id for the range
+      # @param [Integer] start first project ID for the range
+      # @param [Integer] finish last project ID for the range
       # rubocop: disable CodeReuse/ActiveRecord
       def bulk_migrate(start:, finish:)
         projects = build_relation(start, finish)
@@ -47,8 +47,8 @@ module Gitlab
       # Flagging a project to be rolled back is a synchronous action
       # but the rollback runs through async jobs
       #
-      # @param [Integer] start first project id for the range
-      # @param [Integer] finish last project id for the range
+      # @param [Integer] start first project ID for the range
+      # @param [Integer] finish last project ID for the range
       # rubocop: disable CodeReuse/ActiveRecord
       def bulk_rollback(start:, finish:)
         projects = build_relation(start, finish)

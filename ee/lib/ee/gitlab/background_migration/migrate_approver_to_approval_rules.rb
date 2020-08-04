@@ -174,7 +174,7 @@ module EE
         ALLOWED_TARGET_TYPES = %w{MergeRequest Project}.freeze
 
         # @param target_type [String] class of target, either 'MergeRequest' or 'Project'
-        # @param target_id [Integer] id of target
+        # @param target_id [Integer] ID of target
         override :perform
         def perform(target_type, target_id, sync_code_owner_rule: true)
           @target_type = target_type

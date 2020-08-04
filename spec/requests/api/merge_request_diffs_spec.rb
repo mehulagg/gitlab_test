@@ -26,7 +26,7 @@ RSpec.describe API::MergeRequestDiffs, 'MergeRequestDiffs' do
       expect(json_response.first['head_commit_sha']).to eq(merge_request_diff.head_commit_sha)
     end
 
-    it 'returns a 404 when merge_request id is used instead of the iid' do
+    it 'returns a 404 when merge_request ID is used instead of the iid' do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.id}/versions", user)
       expect(response).to have_gitlab_http_status(:not_found)
     end
@@ -49,7 +49,7 @@ RSpec.describe API::MergeRequestDiffs, 'MergeRequestDiffs' do
       expect(json_response['diffs'].size).to eq(merge_request_diff.diffs.size)
     end
 
-    it 'returns a 404 when merge_request id is used instead of the iid' do
+    it 'returns a 404 when merge_request ID is used instead of the iid' do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.id}/versions/#{merge_request_diff.id}", user)
       expect(response).to have_gitlab_http_status(:not_found)
     end

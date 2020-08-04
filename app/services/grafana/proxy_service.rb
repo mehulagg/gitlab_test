@@ -17,7 +17,7 @@ module Grafana
 
     attr_accessor :project, :datasource_id, :proxy_path, :query_params
 
-    # @param project_id [Integer] Project id for which grafana is configured.
+    # @param project_id [Integer] Project ID for which grafana is configured.
     #
     # See #initialize for other parameters.
     def self.from_cache(project_id, datasource_id, proxy_path, query_params)
@@ -27,7 +27,7 @@ module Grafana
     end
 
     # @param project [Project] Project for which grafana is configured.
-    # @param datasource_id [String] Grafana datasource id for Prometheus instance
+    # @param datasource_id [String] Grafana datasource ID for Prometheus instance
     # @param proxy_path [String] Path to Prometheus endpoint; EX) 'api/v1/query_range'
     # @param query_params [Hash<String, String>] Supported params: [query, start, end, step]
     def initialize(project, datasource_id, proxy_path, query_params)

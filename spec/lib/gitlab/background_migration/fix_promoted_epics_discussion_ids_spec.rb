@@ -38,7 +38,7 @@ RSpec.describe Gitlab::BackgroundMigration::FixPromotedEpicsDiscussionIds, schem
       expect(note1.discussion_id).not_to eq(note3.discussion_id)
     end
 
-    it 'skips notes with discussion id not in range' do
+    it 'skips notes with discussion ID not in range' do
       note4 = create_note('20000000')
 
       subject.perform(%w(00000000 10000000))

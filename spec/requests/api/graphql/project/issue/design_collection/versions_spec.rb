@@ -73,7 +73,7 @@ RSpec.describe 'Getting versions related to an issue' do
     end
   end
 
-  describe 'filter by id' do
+  describe 'filter by ID' do
     let(:id) { global_id_of(version_c) }
 
     let(:version_params) { { earlier_or_equal_to_id: id } }

@@ -85,7 +85,7 @@ RSpec.describe Gitlab::DatabaseImporters::InstanceAdministrators::CreateGroup do
         )
       end
 
-      it 'saves the group id' do
+      it 'saves the group ID' do
         expect(result[:status]).to eq(:success)
         expect(application_setting.instance_administrators_group_id).to eq(group.id)
       end

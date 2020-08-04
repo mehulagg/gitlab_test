@@ -183,7 +183,7 @@ RSpec.describe Geo::RegistryConsistencyService, :geo, :use_clean_rails_memory_st
           end
         end
 
-        context 'when the unused registry foreign key ids are lower than the first replicable model id' do
+        context 'when the unused registry foreign key ids are lower than the first replicable model ID' do
           let(:records) { create_list(model_class_factory, batch_size) }
           let(:unused_registry_ids) { [records.first].map(&:id) }
 
@@ -208,7 +208,7 @@ RSpec.describe Geo::RegistryConsistencyService, :geo, :use_clean_rails_memory_st
           end
         end
 
-        context 'when the unused registry foreign key ids are greater than the last replicable model id' do
+        context 'when the unused registry foreign key ids are greater than the last replicable model ID' do
           let(:records) { create_list(model_class_factory, batch_size) }
           let(:unused_registry_ids) { [records.last].map(&:id) }
 

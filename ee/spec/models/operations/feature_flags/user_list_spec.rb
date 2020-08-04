@@ -56,7 +56,7 @@ RSpec.describe Operations::FeatureFlags::UserList do
   end
 
   describe 'url_helpers' do
-    it 'generates paths based on the internal id' do
+    it 'generates paths based on the internal ID' do
       create(:operations_feature_flag_user_list)
       project_b = create(:project)
       list_b = create(:operations_feature_flag_user_list, project: project_b)

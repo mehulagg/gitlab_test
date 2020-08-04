@@ -483,7 +483,7 @@ RSpec.describe API::Labels do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns 404 if label by id does not exist' do
+    it 'returns 404 if label by ID does not exist' do
       put api("/projects/#{project.id}/labels", user),
           params: {
             label_id: 0,
@@ -493,7 +493,7 @@ RSpec.describe API::Labels do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns 400 if no label name and id is given' do
+    it 'returns 400 if no label name and ID is given' do
       put api("/projects/#{project.id}/labels", user), params: { new_name: 'label2' }
 
       expect(response).to have_gitlab_http_status(:bad_request)

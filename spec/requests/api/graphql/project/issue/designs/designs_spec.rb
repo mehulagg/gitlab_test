@@ -142,7 +142,7 @@ RSpec.describe 'Getting designs related to an issue' do
         NODE
       end
 
-      it 'includes the version id' do
+      it 'includes the version ID' do
         post_graphql(query, current_user: current_user)
 
         version_id = design_response['versions']['edges'].first['node']['id']

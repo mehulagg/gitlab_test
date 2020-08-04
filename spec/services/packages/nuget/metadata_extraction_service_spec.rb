@@ -9,7 +9,7 @@ RSpec.describe Packages::Nuget::MetadataExtractionService do
   describe '#execute' do
     subject { service.execute }
 
-    context 'with valid package file id' do
+    context 'with valid package file ID' do
       expected_metadata = {
         package_name: 'DummyProject.DummyPackage',
         package_version: '1.0.0',
@@ -65,7 +65,7 @@ RSpec.describe Packages::Nuget::MetadataExtractionService do
       it { expect(subject[:icon_url]).to eq('https://opensource.org/files/osi_keyhole_300X300_90ppi_0.png') }
     end
 
-    context 'with invalid package file id' do
+    context 'with invalid package file ID' do
       let(:package_file) { OpenStruct.new(id: 555) }
 
       it { expect { subject }.to raise_error(::Packages::Nuget::MetadataExtractionService::ExtractionError, 'invalid package file') }
@@ -79,7 +79,7 @@ RSpec.describe Packages::Nuget::MetadataExtractionService do
       it { expect { subject }.to raise_error(::Packages::Nuget::MetadataExtractionService::ExtractionError, 'invalid package file') }
     end
 
-    context 'with a 0 byte package file id' do
+    context 'with a 0 byte package file ID' do
       before do
         allow_any_instance_of(Packages::PackageFileUploader).to receive(:size).and_return(0)
       end

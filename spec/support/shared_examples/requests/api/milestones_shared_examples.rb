@@ -105,7 +105,7 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
   end
 
   describe "GET #{route_definition}/:milestone_id" do
-    it 'returns a milestone by id' do
+    it 'returns a milestone by ID' do
       get api(resource_route, user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -119,7 +119,7 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
       expect(response).to have_gitlab_http_status(:unauthorized)
     end
 
-    it 'returns a 404 error if milestone id not found' do
+    it 'returns a 404 error if milestone ID not found' do
       get api("#{route}/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -182,7 +182,7 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
       expect(json_response['due_date']).to be_nil
     end
 
-    it 'returns a 404 error if milestone id not found' do
+    it 'returns a 404 error if milestone ID not found' do
       put api("#{route}/#{non_existing_record_id}", user), params: { title: 'updated title' }
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -366,7 +366,7 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
       expect(json_response.third['id']).to eq(merge_request_3.id)
     end
 
-    it 'returns a 404 error if milestone id not found' do
+    it 'returns a 404 error if milestone ID not found' do
       not_found_route = "#{route}/#{non_existing_record_id}/merge_requests"
 
       get api(not_found_route, user)

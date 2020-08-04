@@ -72,7 +72,7 @@ RSpec.describe Groups::GroupLinksController do
         expect { subject }.to change { group_member.can?(:read_project, project) }.from(false).to(true)
       end
 
-      context 'when shared with group id is not present' do
+      context 'when shared with group ID is not present' do
         let(:shared_with_group_id) { nil }
 
         it 'redirects to group links page' do

@@ -109,7 +109,7 @@ module Elastic
           }
         }
 
-        # For each project id filter,
+        # For each project ID filter,
         # extract the noteable_type attribute,
         # and use that to filter at Note level.
         project_query[:should].flatten.each do |condition|

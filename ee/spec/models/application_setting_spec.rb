@@ -485,7 +485,7 @@ RSpec.describe ApplicationSetting do
       end
 
       describe '#custom_project_template_id' do
-        it 'returns group id' do
+        it 'returns group ID' do
           expect(setting.custom_project_templates_group_id).to eq group.id
         end
       end

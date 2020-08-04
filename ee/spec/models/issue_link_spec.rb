@@ -100,7 +100,7 @@ RSpec.describe IssueLink do
     end
 
     describe '.blocking_issues_for_collection' do
-      it 'returns blocking issues count grouped by issue id' do
+      it 'returns blocking issues count grouped by issue ID' do
         results = described_class.blocking_issues_for_collection([blocking_issue_1, blocking_issue_2])
 
         expect(results.find { |link| link.blocking_issue_id == blocking_issue_1.id }.count).to eq(2)
@@ -109,7 +109,7 @@ RSpec.describe IssueLink do
     end
 
     describe '.blocked_issues_for_collection' do
-      it 'returns blocked issues count grouped by issue id' do
+      it 'returns blocked issues count grouped by issue ID' do
         results = described_class.blocked_issues_for_collection([blocked_issue_1, blocked_issue_2, blocked_issue_3])
 
         expect(result_by(results, blocked_issue_1.id).count).to eq(1)

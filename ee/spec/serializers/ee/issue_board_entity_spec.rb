@@ -32,7 +32,7 @@ RSpec.describe IssueBoardEntity do
       expect(subject[:blocked]).to be_falsey
     end
 
-    context 'when blocked_issue_ids contains the issue id' do
+    context 'when blocked_issue_ids contains the issue ID' do
       let(:blocked_ids) { [issue.id] }
 
       it 'the issue is blocked' do

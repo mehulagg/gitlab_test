@@ -29,7 +29,7 @@ RSpec.describe Dashboard::Projects::ListService do
       project.add_developer(user)
     end
 
-    context 'when passing a project id' do
+    context 'when passing a project ID' do
       let(:projects) { [project.id] }
 
       it_behaves_like 'project found'
@@ -41,7 +41,7 @@ RSpec.describe Dashboard::Projects::ListService do
       it_behaves_like 'project found'
     end
 
-    context 'when passing invalid project id' do
+    context 'when passing invalid project ID' do
       let(:projects) { [-1] }
 
       it_behaves_like 'project not found'

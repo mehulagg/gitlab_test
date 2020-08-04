@@ -133,7 +133,7 @@ RSpec.describe Gitlab::Geo::RegistryBatcher, :geo, :use_clean_rails_memory_store
       end
     end
 
-    context 'when there are records and orphaned registries with foreign key greater than last record id' do
+    context 'when there are records and orphaned registries with foreign key greater than last record ID' do
       let!(:records) { create_list(model_class.underscore, 3) }
       let(:orphaned_registry_foreign_key_id) { records.last.id }
       let!(:registry) { create(registry_class_factory, model_foreign_key => orphaned_registry_foreign_key_id) }

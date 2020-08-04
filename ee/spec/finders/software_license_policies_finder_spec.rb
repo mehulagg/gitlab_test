@@ -35,10 +35,10 @@ RSpec.describe SoftwareLicensePoliciesFinder do
       end
     end
 
-    context 'with an id' do
+    context 'with an ID' do
       let(:params) { { name_or_id: software_license_policy.id.to_s } }
 
-      it 'by name or id finds the software license policy by id' do
+      it 'by name or ID finds the software license policy by ID' do
         expect(finder.execute.take).to eq(software_license_policy)
       end
     end

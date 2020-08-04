@@ -110,7 +110,7 @@ RSpec.describe API::Snippets do
       expect(headers['Content-Disposition']).to match(/^inline/)
     end
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       snippet.destroy
 
       get api("/snippets/#{snippet.id}/raw", author)
@@ -200,7 +200,7 @@ RSpec.describe API::Snippets do
         expect(response).to have_gitlab_http_status(:ok)
       end
 
-      it 'returns 404 for invalid snippet id' do
+      it 'returns 404 for invalid snippet ID' do
         private_snippet.destroy
 
         subject
@@ -479,7 +479,7 @@ RSpec.describe API::Snippets do
 
     it_behaves_like 'snippet updates'
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       update_snippet(snippet_id: non_existing_record_id, params: { title: 'Foo' })
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -606,7 +606,7 @@ RSpec.describe API::Snippets do
       end.to change { PersonalSnippet.count }.by(-1)
     end
 
-    it 'returns 404 for invalid snippet id' do
+    it 'returns 404 for invalid snippet ID' do
       delete api("/snippets/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

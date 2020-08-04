@@ -43,7 +43,7 @@ RSpec.describe Gitlab::JiraImport::BaseImporter do
             end
 
             describe '#mark_as_imported', :clean_gitlab_redis_cache do
-              it 'stores id in redis cache' do
+              it 'stores ID in redis cache' do
                 expect(Gitlab::Cache::Import::Caching).to receive(:set_add).once.and_call_original
 
                 subject.send(:mark_as_imported, 'some-id')

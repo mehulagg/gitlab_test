@@ -90,7 +90,7 @@ module API
 
       # To avoid name collision we require project path and project package be the same.
       # For packages that have different name from the project we should use
-      # the endpoint that includes project id
+      # the endpoint that includes project ID
       project = find_project_by_path(params[:path])
 
       authorize_read_package!(project)

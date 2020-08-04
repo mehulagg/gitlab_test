@@ -492,13 +492,13 @@ RSpec.describe Epic do
     let(:epic) { create(:epic, iid: 1, group: group) }
 
     context 'when nil argument' do
-      it 'returns epic id' do
+      it 'returns epic ID' do
         expect(epic.to_reference).to eq('&1')
       end
     end
 
     context 'when from argument equals epic group' do
-      it 'returns epic id' do
+      it 'returns epic ID' do
         expect(epic.to_reference(epic.group)).to eq('&1')
       end
     end
@@ -510,7 +510,7 @@ RSpec.describe Epic do
     end
 
     context 'when from argument is a project under the epic group' do
-      it 'returns epic id' do
+      it 'returns epic ID' do
         expect(epic.to_reference(group_project)).to eq('&1')
       end
     end

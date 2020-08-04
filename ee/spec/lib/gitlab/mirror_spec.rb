@@ -140,7 +140,7 @@ RSpec.describe Gitlab::Mirror do
       end
     end
 
-    context 'with non-existent id' do
+    context 'with non-existent ID' do
       it 'does not decrement capacity' do
         expect { described_class.decrement_capacity(id) }.not_to change { described_class.available_capacity }
       end

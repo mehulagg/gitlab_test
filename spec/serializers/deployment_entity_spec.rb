@@ -22,7 +22,7 @@ RSpec.describe DeploymentEntity do
     allow(request).to receive(:project).and_return(project)
   end
 
-  it 'exposes internal deployment id' do
+  it 'exposes internal deployment ID' do
     expect(subject).to include(:iid)
   end
 

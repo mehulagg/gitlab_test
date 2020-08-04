@@ -32,7 +32,7 @@ RSpec.describe Packages::Nuget::ExtractionWorker, type: :worker do
       end
     end
 
-    context 'with invalid package file id' do
+    context 'with invalid package file ID' do
       let(:package_file_id) { 5555 }
 
       it "doesn't update package and package file" do

@@ -21,7 +21,7 @@ RSpec.describe MergeTrainsFinder do
     let!(:merge_train_1) { create(:merge_train, target_project: project) }
     let!(:merge_train_2) { create(:merge_train, target_project: project) }
 
-    it 'returns merge trains ordered by id' do
+    it 'returns merge trains ordered by ID' do
       is_expected.to eq([merge_train_1, merge_train_2])
     end
 

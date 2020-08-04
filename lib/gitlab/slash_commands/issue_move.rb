@@ -9,7 +9,7 @@ module Gitlab
           issue\s+move\s+                    # the command
           \#?(?<iid>\d+)\s+                  # the issue id, may preceded by hash sign
           (to\s+)?                           # aid the command to be much more human-ly
-          (?<project_path>[^\s]+)            # named group for id of dest. project
+          (?<project_path>[^\s]+)            # named group for ID of dest. project
         }x.match(text)
       end
 

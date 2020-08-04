@@ -151,7 +151,7 @@ RSpec.describe 'Query.project(fullPath).issue(iid).designCollection.version(sha)
       describe 'by design-id' do
         let(:dav_params) { { ids: designs.map { |d| global_id_of(d) } } }
 
-        it 'finds the designs by id' do
+        it 'finds the designs by ID' do
           expect(data.map { |e| e.dig('node', 'filename') }).to match_array(filenames)
         end
       end

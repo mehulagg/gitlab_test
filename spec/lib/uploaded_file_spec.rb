@@ -73,7 +73,7 @@ RSpec.describe UploadedFile do
           end
         end
 
-        RSpec.shared_examples 'using the remote id' do |filename:, content_type:, sha256:, size:, remote_id:|
+        RSpec.shared_examples 'using the remote ID' do |filename:, content_type:, sha256:, size:, remote_id:|
           it 'sets properly the attributes' do
             expect(subject.original_filename).to eq(filename)
             expect(subject.content_type).to eq('application/octet-stream')
@@ -120,7 +120,7 @@ RSpec.describe UploadedFile do
                           path_suffix: 'override'
         end
 
-        context 'with a remote id' do
+        context 'with a remote ID' do
           let(:params) do
             {
               'file.name' => 'dir/my file&.txt',
@@ -134,7 +134,7 @@ RSpec.describe UploadedFile do
 
           it { is_expected.not_to be_nil }
 
-          it_behaves_like 'using the remote id',
+          it_behaves_like 'using the remote ID',
                           filename: 'my_file_.txt',
                           content_type: 'application/octet-stream',
                           sha256: 'sha256',
@@ -142,7 +142,7 @@ RSpec.describe UploadedFile do
                           remote_id: '1234567890'
         end
 
-        context 'with a path and a remote id' do
+        context 'with a path and a remote ID' do
           let(:params) do
             {
               'file.path' => temp_file.path,
@@ -157,7 +157,7 @@ RSpec.describe UploadedFile do
 
           it { is_expected.not_to be_nil }
 
-          it_behaves_like 'using the remote id',
+          it_behaves_like 'using the remote ID',
                           filename: 'my_file_.txt',
                           content_type: 'application/octet-stream',
                           sha256: 'sha256',
@@ -165,7 +165,7 @@ RSpec.describe UploadedFile do
                           remote_id: '1234567890'
         end
 
-        context 'with a path override and a remote id' do
+        context 'with a path override and a remote ID' do
           include_context 'filepath override'
 
           let(:params) do
@@ -181,7 +181,7 @@ RSpec.describe UploadedFile do
 
           it { is_expected.not_to be_nil }
 
-          it_behaves_like 'using the remote id',
+          it_behaves_like 'using the remote ID',
                           filename: 'my_file_.txt',
                           content_type: 'application/octet-stream',
                           sha256: 'sha256',

@@ -174,7 +174,7 @@ RSpec.describe API::Epics do
         stub_licensed_features(epics: true)
       end
 
-      it 'returns epics authored by the given author id' do
+      it 'returns epics authored by the given author ID' do
         get api(url), params: { author_id: user2.id }
 
         expect_paginated_array_response([epic2.id])

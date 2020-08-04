@@ -7,7 +7,7 @@ RSpec.describe Sortable do
     let(:arel_table) { Group.arel_table }
     let(:relation) { Group.all }
 
-    describe 'ordering by id' do
+    describe 'ordering by ID' do
       it 'ascending' do
         expect(relation).to receive(:reorder).with(arel_table['id'].asc)
 
@@ -97,7 +97,7 @@ RSpec.describe Sortable do
     let!(:group3) { create(:group, name: 'BB', id: 3, created_at: ref_time - 5.seconds, updated_at: ref_time - 10.seconds) }
     let!(:group4) { create(:group, name: 'bbb', id: 4, created_at: ref_time, updated_at: ref_time - 15.seconds) }
 
-    it 'sorts groups by id' do
+    it 'sorts groups by ID' do
       expect(ordered_group_names('id_asc')).to eq(%w(aa AAA BB bbb))
       expect(ordered_group_names('id_desc')).to eq(%w(bbb BB AAA aa))
     end

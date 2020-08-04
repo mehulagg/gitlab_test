@@ -31,7 +31,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::AdminMode::Server, :do_not_mock_admin_
   context 'job has admin mode field' do
     let(:admin) { create(:admin) }
 
-    context 'nil admin mode id' do
+    context 'nil admin mode ID' do
       let(:job) { { 'admin_mode_user_id' => nil } }
 
       it 'session is not bypassed' do
@@ -41,7 +41,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::AdminMode::Server, :do_not_mock_admin_
       end
     end
 
-    context 'valid admin mode id' do
+    context 'valid admin mode ID' do
       let(:job) { { 'admin_mode_user_id' => admin.id } }
 
       it 'session is bypassed' do

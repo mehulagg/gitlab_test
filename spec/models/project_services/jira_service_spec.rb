@@ -485,7 +485,7 @@ RSpec.describe JiraService do
         ).once
       end
 
-      it 'logs exception when transition id is not valid' do
+      it 'logs exception when transition ID is not valid' do
         allow(@jira_service).to receive(:log_error)
         WebMock.stub_request(:post, @transitions_url).with(basic_auth: %w(gitlab_jira_username gitlab_jira_password)).and_raise("Bad Request")
 

@@ -455,7 +455,7 @@ RSpec.describe Projects::IssuesController do
           expect(response).to have_gitlab_http_status(:unprocessable_entity)
         end
 
-        it 'returns a not found 404 response for invalid issue id' do
+        it 'returns a not found 404 response for invalid issue ID' do
           reorder_issue(object_double(issue1, iid: non_existing_record_iid),
             move_after_id: issue2.id,
             move_before_id: issue3.id)
@@ -1594,7 +1594,7 @@ RSpec.describe Projects::IssuesController do
       expect(assigns(:issues)).to contain_exactly(service_desk_issue_2)
     end
 
-    it 'allows an assignee to be specified by id' do
+    it 'allows an assignee to be specified by ID' do
       get_service_desk(assignee_id: other_user.id)
 
       expect(assigns(:users)).to contain_exactly(other_user, support_bot)

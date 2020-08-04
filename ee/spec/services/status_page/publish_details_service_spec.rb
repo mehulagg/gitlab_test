@@ -24,7 +24,7 @@ RSpec.describe StatusPage::PublishDetailsService do
 
     include_examples 'publish incidents'
 
-    context 'when serialized content is missing id' do
+    context 'when serialized content is missing ID' do
       let(:content) { { other_id: incident_id } }
 
       it 'returns an error' do

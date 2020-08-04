@@ -122,7 +122,7 @@ RSpec.describe AuditEvent, type: :model do
     context 'when sort by created_at in ascending order' do
       let(:method) { 'created_asc' }
 
-      it 'sorts results by id in ascending order' do
+      it 'sorts results by ID in ascending order' do
         expect(event).to eq([event_1, event_2, event_3])
       end
     end
@@ -130,7 +130,7 @@ RSpec.describe AuditEvent, type: :model do
     context 'when it is default' do
       let(:method) { nil }
 
-      it 'sorts results by id in descending order' do
+      it 'sorts results by ID in descending order' do
         expect(event).to eq([event_3, event_2, event_1])
       end
     end

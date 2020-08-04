@@ -268,7 +268,7 @@ RSpec.describe AuditLogFinder do
 
     it { is_expected.to eq(user_audit_event) }
 
-    context 'non-existent id provided' do
+    context 'non-existent ID provided' do
       let(:id) { 'non-existent-id' }
 
       it 'raises exception' do

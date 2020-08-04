@@ -301,7 +301,7 @@ RSpec.describe Projects::DeployKeysController do
         end
       end
 
-      context 'when a different deploy key id param is injected' do
+      context 'when a different deploy key ID param is injected' do
         let(:extra_params) { deploy_key_params('updated title', '1') }
         let(:hacked_params) do
           extra_params.reverse_merge(id: other_deploy_key_id,
@@ -311,7 +311,7 @@ RSpec.describe Projects::DeployKeysController do
 
         subject { put :update, params: hacked_params }
 
-        context 'and that deploy key id exists' do
+        context 'and that deploy key ID exists' do
           let(:other_project) { create(:project) }
           let(:other_deploy_key) do
             key = create(:deploy_key)
@@ -326,7 +326,7 @@ RSpec.describe Projects::DeployKeysController do
           end
         end
 
-        context 'and that deploy key id does not exist' do
+        context 'and that deploy key ID does not exist' do
           let(:other_deploy_key_id) { 9999 }
 
           it 'returns 404' do

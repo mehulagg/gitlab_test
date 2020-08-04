@@ -22,7 +22,7 @@ RSpec.describe Milestones::DestroyService do
       expect { milestone.reload }.to raise_error ActiveRecord::RecordNotFound
     end
 
-    it 'deletes milestone id from issuables' do
+    it 'deletes milestone ID from issuables' do
       issue = create(:issue, project: project, milestone: milestone)
       merge_request = create(:merge_request, source_project: project, milestone: milestone)
 
@@ -51,7 +51,7 @@ RSpec.describe Milestones::DestroyService do
 
       it { expect(service.execute(group_milestone)).to eq(group_milestone) }
 
-      it 'deletes milestone id from issuables' do
+      it 'deletes milestone ID from issuables' do
         issue = create(:issue, project: project, milestone: group_milestone)
         merge_request = create(:merge_request, source_project: project, milestone: group_milestone)
 

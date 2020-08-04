@@ -44,7 +44,7 @@ RSpec.context Kramdown::Parser::AtlassianDocumentFormat do
 
     it_behaves_like 'render elements to markdown', 'complex_document'
 
-    it 'renders header id to html' do
+    it 'renders header ID to html' do
       source = fixture_file(File.join(fixtures_path, 'heading.json'))
       parser = Kramdown::Document.new(source, options)
 

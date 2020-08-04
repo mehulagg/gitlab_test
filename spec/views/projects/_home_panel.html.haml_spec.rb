@@ -115,7 +115,7 @@ RSpec.describe 'projects/_home_panel' do
     end
   end
 
-  context 'project id' do
+  context 'project ID' do
     let(:project) { create(:project) }
     let(:user) { create(:user) }
 

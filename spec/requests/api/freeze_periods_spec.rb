@@ -425,7 +425,7 @@ RSpec.describe API::FreezePeriods do
         end.to change { Ci::FreezePeriod.count }.by(-1)
       end
 
-      context 'when it is a non-existing freeze period id' do
+      context 'when it is a non-existing freeze period ID' do
         let(:freeze_period_id) { 0 }
 
         it '404' do

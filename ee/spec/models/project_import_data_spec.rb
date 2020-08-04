@@ -37,13 +37,13 @@ RSpec.describe ProjectImportData do
 
     subject { import_data.ssh_known_hosts_verified_by }
 
-    it 'is a user when ssh_known_hosts_verified_by_id is a valid id' do
+    it 'is a user when ssh_known_hosts_verified_by_id is a valid ID' do
       import_data.ssh_known_hosts_verified_by_id = user.id
 
       is_expected.to eq(user)
     end
 
-    it 'is nil when ssh_known_hosts_verified_by_id is an invalid id' do
+    it 'is nil when ssh_known_hosts_verified_by_id is an invalid ID' do
       import_data.ssh_known_hosts_verified_by_id = -1
 
       is_expected.to be_nil

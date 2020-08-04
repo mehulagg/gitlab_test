@@ -23,7 +23,7 @@ RSpec.describe EE::FlipperSessionHelper do
         expect(subject).to be_instance_of(FlipperSession)
       end
 
-      it 'sets a predictable FlipperSession id to session' do
+      it 'sets a predictable FlipperSession ID to session' do
         subject
 
         expect(session).to include(FlipperSession::SESSION_KEY => predictable_id)

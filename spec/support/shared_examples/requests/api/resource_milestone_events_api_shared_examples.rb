@@ -39,7 +39,7 @@ RSpec.shared_examples 'resource_milestone_events API' do |parent_type, eventable
       end
     end
 
-    it "returns a 404 error when eventable id not found" do
+    it "returns a 404 error when eventable ID not found" do
       get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{non_existing_record_id}/resource_milestone_events", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

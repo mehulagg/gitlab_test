@@ -249,7 +249,7 @@ RSpec.describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state 
   describe '#handle_events' do
     let(:batch) { create_list(:geo_event_log, 2) }
 
-    it 'passes the previous batch id on to gap tracking' do
+    it 'passes the previous batch ID on to gap tracking' do
       expect(daemon.send(:gap_tracking)).to receive(:previous_id=).with(55).ordered
       batch.each do |event_log|
         expect(daemon.send(:gap_tracking)).to receive(:previous_id=).with(event_log.id).ordered
@@ -258,7 +258,7 @@ RSpec.describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state 
       daemon.send(:handle_events, batch, 55)
     end
 
-    it 'checks for gaps for each id in batch' do
+    it 'checks for gaps for each ID in batch' do
       batch.each do |event_log|
         expect(daemon.send(:gap_tracking)).to receive(:check!).with(event_log.id)
       end

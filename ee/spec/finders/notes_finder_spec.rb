@@ -19,20 +19,20 @@ RSpec.describe NotesFinder do
       expect(subject).to eq(epic)
     end
 
-    it 'fails if group id is missing' do
+    it 'fails if group ID is missing' do
       expect {  described_class.new(user, { target_id: epic.id, target_type: 'epic' }).target }.to raise_error(ArgumentError)
     end
   end
 
   describe '#execute' do
-    context 'when using target id and type of epics' do
+    context 'when using target ID and type of epics' do
       subject { described_class.new(user, { target_id: epic.id, target_type: 'epic', group_id: group.id }).execute }
 
       it 'returns the expected notes' do
         expect(subject).to eq([note])
       end
 
-      it 'fails if group id is missing' do
+      it 'fails if group ID is missing' do
         expect { described_class.new(user, { target_id: epic.id, target_type: 'epic' }).execute }.to raise_error(ArgumentError)
       end
     end

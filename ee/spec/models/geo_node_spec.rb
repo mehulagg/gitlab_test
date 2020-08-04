@@ -293,7 +293,7 @@ RSpec.describe GeoNode, :request_store, :geo, type: :model do
       expect(unhealthy_nodes).to contain_exactly(geo_node)
     end
 
-    it 'returns a node not having a cursor last event id' do
+    it 'returns a node not having a cursor last event ID' do
       geo_node_status = create(:geo_node_status, :healthy, cursor_last_event_id: nil)
 
       expect(unhealthy_nodes).to contain_exactly(geo_node_status.geo_node)
@@ -561,7 +561,7 @@ RSpec.describe GeoNode, :request_store, :geo, type: :model do
   end
 
   describe '#node_api_url' do
-    it 'returns an api url based on the node uri and provided node id' do
+    it 'returns an api url based on the node uri and provided node ID' do
       expect(new_primary_node.node_api_url(new_node)).to eq("https://localhost:3000/gitlab/api/#{api_version}/geo_nodes/#{new_node.id}")
     end
   end

@@ -22,7 +22,7 @@ RSpec.describe Lfs::LocksFinderService do
     let!(:lock_1) { create(:lfs_file_lock, project: project) }
     let!(:lock_2) { create(:lfs_file_lock, project: project, path: 'README') }
 
-    context 'find by id' do
+    context 'find by ID' do
       context 'with results' do
         let(:params) do
           { id: lock_1.id }

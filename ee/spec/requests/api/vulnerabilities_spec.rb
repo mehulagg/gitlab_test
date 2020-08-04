@@ -135,7 +135,7 @@ RSpec.describe API::Vulnerabilities do
         expect(response).to match_response_schema('public_api/v4/vulnerability', dir: 'ee')
       end
 
-      context 'when finding id is unknown' do
+      context 'when finding ID is unknown' do
         let(:finding_id) { 0 }
 
         it 'responds with expected error' do

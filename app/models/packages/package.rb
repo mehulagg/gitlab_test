@@ -70,7 +70,7 @@ class Packages::Package < ApplicationRecord
     )
   end
   scope :preload_files, -> { preload(:package_files) }
-  scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS id').group(:version)) }
+  scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS ID').group(:version)) }
   scope :limit_recent, ->(limit) { order_created_desc.limit(limit) }
   scope :select_distinct_name, -> { select(:name).distinct }
 

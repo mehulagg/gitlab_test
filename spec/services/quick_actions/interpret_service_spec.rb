@@ -1474,13 +1474,13 @@ RSpec.describe QuickActions::InterpretService do
         expect(updates[:remove_label_ids]).to match_array([todo.id, inprogress.id])
       end
 
-      it 'populates add_label_ids with the id of the given label' do
+      it 'populates add_label_ids with the ID of the given label' do
         _, updates, _ = service.execute(content, issue)
 
         expect(updates[:add_label_ids]).to eq([inreview.id])
       end
 
-      it 'does not include the given label id in remove_label_ids' do
+      it 'does not include the given label ID in remove_label_ids' do
         issue.update!(label_ids: [todo.id, inreview.id])
 
         _, updates, _ = service.execute(content, issue)

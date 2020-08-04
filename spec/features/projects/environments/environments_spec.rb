@@ -202,7 +202,7 @@ RSpec.describe 'Environments page', :js do
             .not_to change { Ci::Pipeline.count }
         end
 
-        it 'shows build name and id' do
+        it 'shows build name and ID' do
           expect(page).to have_link("#{build.name} ##{build.id}")
         end
 

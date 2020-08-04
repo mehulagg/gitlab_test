@@ -233,7 +233,7 @@ RSpec.describe TodosFinder do
           end
         end
 
-        context 'when filtering by target id' do
+        context 'when filtering by target ID' do
           it 'returns the expected todos for the target' do
             todos = finder.new(user, { target_id: issue.id }).execute
 
@@ -246,7 +246,7 @@ RSpec.describe TodosFinder do
             expect(todos).to match_array([todo1, todo2])
           end
 
-          it 'returns the expected todos for empty target id collection' do
+          it 'returns the expected todos for empty target ID collection' do
             todos = finder.new(user, { target_id: [] }).execute
 
             expect(todos).to match_array([todo1, todo2])

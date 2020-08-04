@@ -35,7 +35,7 @@ RSpec.describe Projects::Prometheus::AlertsFinder do
           it { is_expected.to eq([alert]) }
         end
 
-        context 'with matching metric id' do
+        context 'with matching metric ID' do
           before do
             params[:metric] = alert.prometheus_metric_id
           end
@@ -100,7 +100,7 @@ RSpec.describe Projects::Prometheus::AlertsFinder do
           it { is_expected.to be_empty }
         end
 
-        context 'with matching id' do
+        context 'with matching ID' do
           before do
             params[:id] = alert.id
           end
@@ -108,7 +108,7 @@ RSpec.describe Projects::Prometheus::AlertsFinder do
           it { is_expected.to eq([alert]) }
         end
 
-        context 'with a nil id' do
+        context 'with a nil ID' do
           before do
             params[:id] = nil
           end
@@ -126,7 +126,7 @@ RSpec.describe Projects::Prometheus::AlertsFinder do
         it { is_expected.to be_empty }
       end
 
-      context 'with id' do
+      context 'with ID' do
         before do
           params[:id] = alert.id
         end
@@ -142,7 +142,7 @@ RSpec.describe Projects::Prometheus::AlertsFinder do
         it { is_expected.to eq([alert, other_alert]) }
       end
 
-      context 'with non-matching id' do
+      context 'with non-matching ID' do
         before do
           params[:id] = -5
         end

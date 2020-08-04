@@ -237,7 +237,7 @@ RSpec.describe Issues::CreateService do
           project.add_maintainer(user)
         end
 
-        it 'removes assignee when user id is invalid' do
+        it 'removes assignee when user ID is invalid' do
           opts = { title: 'Title', description: 'Description', assignee_ids: [-1] }
 
           issue = described_class.new(project, user, opts).execute
@@ -245,7 +245,7 @@ RSpec.describe Issues::CreateService do
           expect(issue.assignees).to be_empty
         end
 
-        it 'removes assignee when user id is 0' do
+        it 'removes assignee when user ID is 0' do
           opts = { title: 'Title', description: 'Description', assignee_ids: [0] }
 
           issue = described_class.new(project, user, opts).execute
@@ -253,7 +253,7 @@ RSpec.describe Issues::CreateService do
           expect(issue.assignees).to be_empty
         end
 
-        it 'saves assignee when user id is valid' do
+        it 'saves assignee when user ID is valid' do
           project.add_maintainer(assignee)
           opts = { title: 'Title', description: 'Description', assignee_ids: [assignee.id] }
 

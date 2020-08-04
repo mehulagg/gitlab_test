@@ -50,7 +50,7 @@ RSpec.describe Issues::ResolveDiscussions do
           discussion_to_resolve: discussion.id,
           merge_request_to_resolve_discussions_of: merge_request.iid
         )
-        # We need to compare discussion id's because the Discussion-objects are rebuilt
+        # We need to compare discussion ID's because the Discussion-objects are rebuilt
         # which causes the object-id's not to be different.
         discussion_ids = service.discussions_to_resolve.map(&:id)
 
@@ -67,7 +67,7 @@ RSpec.describe Issues::ResolveDiscussions do
           user,
           merge_request_to_resolve_discussions_of: merge_request.iid
         )
-        # We need to compare discussion id's because the Discussion-objects are rebuilt
+        # We need to compare discussion ID's because the Discussion-objects are rebuilt
         # which causes the object-id's not to be different.
         discussion_ids = service.discussions_to_resolve.map(&:id)
 
@@ -85,7 +85,7 @@ RSpec.describe Issues::ResolveDiscussions do
           user,
           merge_request_to_resolve_discussions_of: merge_request.iid
         )
-        # We need to compare discussion id's because the Discussion-objects are rebuilt
+        # We need to compare discussion ID's because the Discussion-objects are rebuilt
         # which causes the object-id's not to be different.
         discussion_ids = service.discussions_to_resolve.map(&:id)
 

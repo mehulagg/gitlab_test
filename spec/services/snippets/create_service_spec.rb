@@ -132,7 +132,7 @@ RSpec.describe Snippets::CreateService do
           expect(snippet.errors[:repository]).to eq ['Error creating the snippet - Repository could not be created']
         end
 
-        it 'does not return a snippet with an id' do
+        it 'does not return a snippet with an ID' do
           expect(snippet.id).to be_nil
         end
       end

@@ -8,7 +8,7 @@ RSpec.describe Serverless::DomainEntity do
 
     subject { described_class.new(domain).as_json }
 
-    it 'has an id' do
+    it 'has an ID' do
       expect(subject[:id]).to eq(domain.id)
     end
 

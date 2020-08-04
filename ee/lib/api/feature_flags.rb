@@ -148,12 +148,12 @@ module API
           optional :description, type: String, desc: 'The description of the feature flag'
           optional :active, type: Boolean, desc: 'Active/inactive value of the flag'
           optional :strategies, type: Array do
-            optional :id, type: Integer, desc: 'The strategy id'
+            optional :id, type: Integer, desc: 'The strategy ID'
             optional :name, type: String, desc: 'The strategy type'
             optional :parameters, type: JSON, desc: 'The strategy parameters'
             optional :_destroy, type: Boolean, desc: 'Delete the strategy when true'
             optional :scopes, type: Array do
-              optional :id, type: Integer, desc: 'The environment scope id'
+              optional :id, type: Integer, desc: 'The environment scope ID'
               optional :environment_scope, type: String, desc: 'The environment scope of the scope'
               optional :_destroy, type: Boolean, desc: 'Delete the scope when true'
             end

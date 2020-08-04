@@ -46,8 +46,8 @@ module EE
       return false if %w(any none).include?(epic_id)
       return false if issue.epic_issue.nil?
 
-      # An issue is member of a subepic when its epic id is different
-      # than the filter epic id on params
+      # An issue is member of a subepic when its epic ID is different
+      # than the filter epic ID on params
       epic_id.to_i != issue.epic_issue.epic_id
     end
   end

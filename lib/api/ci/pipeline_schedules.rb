@@ -33,7 +33,7 @@ module API
           success Entities::PipelineScheduleDetails
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
         end
         get ':id/pipeline_schedules/:pipeline_schedule_id' do
           present pipeline_schedule, with: Entities::PipelineScheduleDetails
@@ -67,7 +67,7 @@ module API
           success Entities::PipelineScheduleDetails
         end
         params do
-          requires :pipeline_schedule_id, type: Integer,  desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer,  desc: 'The pipeline schedule ID'
           optional :description, type: String, desc: 'The description of pipeline schedule'
           optional :ref, type: String, desc: 'The branch/tag name will be triggered'
           optional :cron, type: String, desc: 'The cron'
@@ -88,7 +88,7 @@ module API
           success Entities::PipelineScheduleDetails
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
         end
         post ':id/pipeline_schedules/:pipeline_schedule_id/take_ownership' do
           authorize! :update_pipeline_schedule, pipeline_schedule
@@ -104,7 +104,7 @@ module API
           success Entities::PipelineScheduleDetails
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
         end
         delete ':id/pipeline_schedules/:pipeline_schedule_id' do
           authorize! :admin_pipeline_schedule, pipeline_schedule
@@ -116,7 +116,7 @@ module API
           detail 'This feature was added in GitLab 12.8'
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
         end
         post ':id/pipeline_schedules/:pipeline_schedule_id/play' do
           authorize! :play_pipeline_schedule, pipeline_schedule
@@ -135,7 +135,7 @@ module API
           success Entities::Variable
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
           requires :key, type: String, desc: 'The key of the variable'
           requires :value, type: String, desc: 'The value of the variable'
           optional :variable_type, type: String, values: ::Ci::PipelineScheduleVariable.variable_types.keys, desc: 'The type of variable, must be one of env_var or file. Defaults to env_var'
@@ -156,7 +156,7 @@ module API
           success Entities::Variable
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
           requires :key, type: String, desc: 'The key of the variable'
           optional :value, type: String, desc: 'The value of the variable'
           optional :variable_type, type: String, values: ::Ci::PipelineScheduleVariable.variable_types.keys, desc: 'The type of variable, must be one of env_var or file'
@@ -175,7 +175,7 @@ module API
           success Entities::Variable
         end
         params do
-          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule id'
+          requires :pipeline_schedule_id, type: Integer, desc: 'The pipeline schedule ID'
           requires :key, type: String, desc: 'The key of the variable'
         end
         delete ':id/pipeline_schedules/:pipeline_schedule_id/variables/:key' do

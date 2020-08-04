@@ -52,7 +52,7 @@ RSpec.shared_examples 'multiple boards list service' do
     end
 
     context 'when wanting a specific board' do
-      it 'returns board specified by id' do
+      it 'returns board specified by ID' do
         service = described_class.new(parent, double, board_id: board_c.id)
 
         expect(service.execute).to eq [board_c]

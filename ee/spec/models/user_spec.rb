@@ -276,7 +276,7 @@ RSpec.describe User do
       end
     end
 
-    context 'for nil source id' do
+    context 'for nil source ID' do
       let(:user) { build(:user, email_opted_in_source_id: nil) }
 
       it 'returns blank' do
@@ -284,7 +284,7 @@ RSpec.describe User do
       end
     end
 
-    context 'for non-existent source id' do
+    context 'for non-existent source ID' do
       let(:user) { build(:user, email_opted_in_source_id: 2) }
 
       it 'returns blank' do

@@ -10,7 +10,7 @@ RSpec.shared_examples 'a synthetic note' do |action|
       allow(event).to receive(:discussion_id).and_return('foobar42')
     end
 
-    it 'returns the expected discussion id' do
+    it 'returns the expected discussion ID' do
       expect(subject.discussion_id(nil)).to eq('foobar42')
     end
   end

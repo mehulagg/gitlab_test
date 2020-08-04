@@ -34,14 +34,14 @@ RSpec.describe Resolvers::SnippetsResolver do
     end
 
     context 'when using filters' do
-      context 'by author id' do
+      context 'by author ID' do
         it 'returns the snippets' do
           snippets = resolve_snippets(args: { author_id: current_user.to_global_id })
 
           expect(snippets).to contain_exactly(personal_snippet, project_snippet)
         end
 
-        it 'returns an error if the param id is invalid' do
+        it 'returns an error if the param ID is invalid' do
           expect do
             resolve_snippets(args: { author_id: 'foo' })
           end.to raise_error(Gitlab::Graphql::Errors::ArgumentError)
@@ -55,14 +55,14 @@ RSpec.describe Resolvers::SnippetsResolver do
         end
       end
 
-      context 'by project id' do
+      context 'by project ID' do
         it 'returns the snippets' do
           snippets = resolve_snippets(args: { project_id: project.to_global_id })
 
           expect(snippets).to contain_exactly(project_snippet, other_project_snippet)
         end
 
-        it 'returns an error if the param id is invalid' do
+        it 'returns an error if the param ID is invalid' do
           expect do
             resolve_snippets(args: { project_id: 'foo' })
           end.to raise_error(Gitlab::Graphql::Errors::ArgumentError)

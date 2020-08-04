@@ -635,7 +635,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer do
         expect(merge_request.reload.assignees).to eq([user])
       end
 
-      it 'unassigns assignee when user id is 0' do
+      it 'unassigns assignee when user ID is 0' do
         merge_request.update(assignee_ids: [user.id])
 
         update_merge_request(assignee_ids: [0])
@@ -643,7 +643,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer do
         expect(merge_request.assignee_ids).to be_empty
       end
 
-      it 'saves assignee when user id is valid' do
+      it 'saves assignee when user ID is valid' do
         update_merge_request(assignee_ids: [user.id])
 
         expect(merge_request.assignee_ids).to eq([user.id])

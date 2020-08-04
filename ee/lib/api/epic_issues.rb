@@ -23,10 +23,10 @@ module API
       desc 'Update epic issue association' do
       end
       params do
-        requires :epic_iid, type: Integer, desc: 'The iid of the epic'
-        requires :epic_issue_id, type: Integer, desc: 'The id of the epic issue association to update'
-        optional :move_before_id, type: Integer, desc: 'The id of the epic issue association that should be positioned before the actual issue'
-        optional :move_after_id, type: Integer, desc: 'The id of the epic issue association that should be positioned after the actual issue'
+        requires :epic_iid, type: Integer, desc: 'The IID of the epic'
+        requires :epic_issue_id, type: Integer, desc: 'The ID of the epic issue association to update'
+        optional :move_before_id, type: Integer, desc: 'The ID of the epic issue association that should be positioned before the actual issue'
+        optional :move_after_id, type: Integer, desc: 'The ID of the epic issue association that should be positioned after the actual issue'
       end
       put ':id/(-/)epics/:epic_iid/issues/:epic_issue_id' do
         authorize_can_admin_epic!
@@ -53,7 +53,7 @@ module API
         success EE::API::Entities::EpicIssue
       end
       params do
-        requires :epic_iid, type: Integer, desc: 'The iid of the epic'
+        requires :epic_iid, type: Integer, desc: 'The IID of the epic'
       end
       get ':id/(-/)epics/:epic_iid/issues' do
         authorize_can_read!
@@ -67,7 +67,7 @@ module API
         success EE::API::Entities::EpicIssueLink
       end
       params do
-        requires :epic_iid, type: Integer, desc: 'The iid of the epic'
+        requires :epic_iid, type: Integer, desc: 'The IID of the epic'
       end
       # rubocop: disable CodeReuse/ActiveRecord
       post ':id/(-/)epics/:epic_iid/issues/:issue_id' do
@@ -93,8 +93,8 @@ module API
         success EE::API::Entities::EpicIssueLink
       end
       params do
-        requires :epic_iid, type: Integer, desc: 'The iid of the epic'
-        requires :epic_issue_id, type: Integer, desc: 'The id of the association'
+        requires :epic_iid, type: Integer, desc: 'The IID of the epic'
+        requires :epic_issue_id, type: Integer, desc: 'The ID of the association'
       end
       delete ':id/(-/)epics/:epic_iid/issues/:epic_issue_id' do
         authorize_can_admin_epic!

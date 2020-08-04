@@ -1094,15 +1094,15 @@ RSpec.describe Group do
 
     subject(:related_group_ids) { nested_group.related_group_ids }
 
-    it 'returns id' do
+    it 'returns ID' do
       expect(related_group_ids).to include(nested_group.id)
     end
 
-    it 'returns ancestor id' do
+    it 'returns ancestor ID' do
       expect(related_group_ids).to include(group.id)
     end
 
-    it 'returns shared with group id' do
+    it 'returns shared with group ID' do
       expect(related_group_ids).to include(shared_with_group.id)
     end
 

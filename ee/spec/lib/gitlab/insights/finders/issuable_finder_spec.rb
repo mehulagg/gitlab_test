@@ -227,7 +227,7 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
           issuable1.update!(attributes)
         end
 
-        context 'when `projects.only` are specified by one id' do
+        context 'when `projects.only` are specified by one ID' do
           let(:projects) { { only: [project.id] } }
 
           it 'returns issuables for that project' do
@@ -249,7 +249,7 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
           end
         end
 
-        context 'when `projects.only` are specified by bad id' do
+        context 'when `projects.only` are specified by bad ID' do
           let(:projects) { { only: [0] } }
 
           it 'returns nothing' do
@@ -257,7 +257,7 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
           end
         end
 
-        context 'when `projects.only` are specified by bad id and good id' do
+        context 'when `projects.only` are specified by bad ID and good ID' do
           let(:projects) { { only: [0, project.id] } }
 
           it 'returns issuables for good project' do
@@ -273,7 +273,7 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
           end
         end
 
-        context 'when `projects.only` are specified by project full path and id' do
+        context 'when `projects.only` are specified by project full path and ID' do
           let(:projects) { { only: [project.id, other_project.full_path] } }
 
           it 'returns issuables for all valid projects' do

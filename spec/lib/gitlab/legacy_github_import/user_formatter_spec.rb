@@ -14,19 +14,19 @@ RSpec.describe Gitlab::LegacyGithubImport::UserFormatter do
 
   describe '#gitlab_id' do
     context 'when GitHub user is a GitLab user' do
-      it 'return GitLab user id when user associated their account with GitHub' do
+      it 'return GitLab user ID when user associated their account with GitHub' do
         gl_user = create(:omniauth_user, extern_uid: octocat.id, provider: 'github')
 
         expect(user.gitlab_id).to eq gl_user.id
       end
 
-      it 'returns GitLab user id when user primary email matches GitHub email' do
+      it 'returns GitLab user ID when user primary email matches GitHub email' do
         gl_user = create(:user, email: octocat.email)
 
         expect(user.gitlab_id).to eq gl_user.id
       end
 
-      it 'returns GitLab user id when any of user linked emails matches GitHub email' do
+      it 'returns GitLab user ID when any of user linked emails matches GitHub email' do
         gl_user = create(:user, email: 'johndoe@example.com')
         create(:email, user: gl_user, email: octocat.email)
 

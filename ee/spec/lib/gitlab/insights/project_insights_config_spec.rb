@@ -55,7 +55,7 @@ RSpec.describe Gitlab::Insights::ProjectInsightsConfig do
   end
 
   context 'when not included in the projects.only filter' do
-    context 'by project id' do
+    context 'by project ID' do
       before do
         chart = config[:item1][:charts].last
         chart[:projects] = { only: [-1] }
@@ -83,7 +83,7 @@ RSpec.describe Gitlab::Insights::ProjectInsightsConfig do
   end
 
   context 'when included in projects.only filter' do
-    context 'by project id' do
+    context 'by project ID' do
       before do
         chart = config[:item1][:charts].last
         chart[:projects] = { only: [project.id] }

@@ -42,26 +42,26 @@ RSpec.describe Board do
         stub_licensed_features(scoped_issue_board: true)
       end
 
-      it 'returns Milestone::Upcoming for upcoming milestone id' do
+      it 'returns Milestone::Upcoming for upcoming milestone ID' do
         board.milestone_id = Milestone::Upcoming.id
 
         expect(board.milestone).to eq Milestone::Upcoming
       end
 
-      it 'returns Milestone::Started for started milestone id' do
+      it 'returns Milestone::Started for started milestone ID' do
         board.milestone_id = Milestone::Started.id
 
         expect(board.milestone).to eq Milestone::Started
       end
 
-      it 'returns milestone for valid milestone id' do
+      it 'returns milestone for valid milestone ID' do
         milestone = create(:milestone)
         board.milestone_id = milestone.id
 
         expect(board.milestone).to eq milestone
       end
 
-      it 'returns nil for invalid milestone id' do
+      it 'returns nil for invalid milestone ID' do
         board.milestone_id = -1
 
         expect(board.milestone).to be_nil

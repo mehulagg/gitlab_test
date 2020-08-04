@@ -35,7 +35,7 @@ RSpec.describe 'Adding a Note' do
 
     it_behaves_like 'a Note mutation when there are active record validation errors'
 
-    it_behaves_like 'a Note mutation when the given resource id is not for a Noteable'
+    it_behaves_like 'a Note mutation when the given resource ID is not for a Noteable'
 
     it 'returns the note' do
       post_graphql_mutation(mutation, current_user: current_user)

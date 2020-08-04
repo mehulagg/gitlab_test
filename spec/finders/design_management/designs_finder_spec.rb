@@ -79,14 +79,14 @@ RSpec.describe DesignManagement::DesignsFinder do
             it { is_expected.to eq([design1]) }
           end
 
-          context 'when arguments are version and id' do
-            context 'when id is absent at version' do
+          context 'when arguments are version and ID' do
+            context 'when ID is absent at version' do
               let(:params) { { visible_at_version: first_version, ids: [design2.id] } }
 
               it { is_expected.to eq([]) }
             end
 
-            context 'when id is present at version' do
+            context 'when ID is present at version' do
               let(:params) { { visible_at_version: second_version, ids: [design2.id] } }
 
               it { is_expected.to eq([design2]) }

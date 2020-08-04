@@ -23,7 +23,7 @@ module Projects
     end
 
     def global_count(project)
-      raise NotImplementedError, 'global_count must be implemented and return an hash indexed by the project id'
+      raise NotImplementedError, 'global_count must be implemented and return an hash indexed by the project ID'
     end
 
     def count_service

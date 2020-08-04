@@ -173,7 +173,7 @@ RSpec.describe PrometheusAdapter, :use_clean_rails_memory_store_caching do
     context 'when active record models are included' do
       let(:args) { [double(:environment, id: 12)] }
 
-      it 'serializes by id' do
+      it 'serializes by ID' do
         is_expected.to eq [12]
       end
     end

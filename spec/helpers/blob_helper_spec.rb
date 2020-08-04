@@ -324,7 +324,7 @@ RSpec.describe BlobHelper do
   describe 'suggest_pipeline_commit_cookie_name' do
     let(:project) { create(:project) }
 
-    it 'uses project id to make up the cookie name' do
+    it 'uses project ID to make up the cookie name' do
       assign(:project, project)
 
       expect(helper.suggest_pipeline_commit_cookie_name).to eq "suggest_gitlab_ci_yml_commit_#{project.id}"

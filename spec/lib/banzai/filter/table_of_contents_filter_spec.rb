@@ -34,12 +34,12 @@ RSpec.describe Banzai::Filter::TableOfContentsFilter do
       expect(doc.css('h1 a').first.attr('class')).to eq 'anchor'
     end
 
-    it 'has a namespaced id' do
+    it 'has a namespaced ID' do
       doc = filter(header(1, 'Header'))
       expect(doc.css('h1 a').first.attr('id')).to eq 'user-content-header'
     end
 
-    it 'links to the non-namespaced id' do
+    it 'links to the non-namespaced ID' do
       doc = filter(header(1, 'Header'))
       expect(doc.css('h1 a').first.attr('href')).to eq '#header'
     end

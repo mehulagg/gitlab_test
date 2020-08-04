@@ -473,7 +473,7 @@ RSpec.describe API::Projects do
       end
 
       context 'and using sorting' do
-        it 'returns the correct order when sorted by id' do
+        it 'returns the correct order when sorted by ID' do
           get api('/projects', user), params: { order_by: 'id', sort: 'desc' }
 
           expect(response).to have_gitlab_http_status(:ok)
@@ -735,7 +735,7 @@ RSpec.describe API::Projects do
           expect(json_response).to eq([])
         end
 
-        it 'responds with 501 if order_by is different from id' do
+        it 'responds with 501 if order_by is different from ID' do
           get api('/projects', current_user), params: params.merge(order_by: :created_at)
 
           expect(response).to have_gitlab_http_status(:method_not_allowed)
@@ -1125,7 +1125,7 @@ RSpec.describe API::Projects do
       expect(json_response['message']).to eq('404 User Not Found')
     end
 
-    it 'returns projects filtered by user id' do
+    it 'returns projects filtered by user ID' do
       get api("/users/#{user4.id}/projects/", user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -1181,7 +1181,7 @@ RSpec.describe API::Projects do
     context 'and using both id_before and id_after' do
       let!(:more_projects) { create_list(:project, 5, :public, creator_id: user4.id, namespace: user4.namespace) }
 
-      it 'only returns projects with id matching the range' do
+      it 'only returns projects with ID matching the range' do
         get api("/users/#{user4.id}/projects?id_after=#{more_projects.first.id}&id_before=#{more_projects.last.id}", user)
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -1486,7 +1486,7 @@ RSpec.describe API::Projects do
     end
 
     context 'when authenticated as an admin' do
-      it 'returns a project by id' do
+      it 'returns a project by ID' do
         project
         project_member
         group = create(:group)
@@ -1540,7 +1540,7 @@ RSpec.describe API::Projects do
         project_member
       end
 
-      it 'returns a project by id' do
+      it 'returns a project by ID' do
         group = create(:group)
         link = create(:project_group_link, project: project, group: group)
 
@@ -2247,7 +2247,7 @@ RSpec.describe API::Projects do
       )
     end
 
-    it "returns a 400 error when group id is not given" do
+    it "returns a 400 error when group ID is not given" do
       post api("/projects/#{project.id}/share", user), params: { group_access: Gitlab::Access::DEVELOPER }
       expect(response).to have_gitlab_http_status(:bad_request)
     end
@@ -2325,7 +2325,7 @@ RSpec.describe API::Projects do
       end
     end
 
-    it 'returns a 400 when group id is not an integer' do
+    it 'returns a 400 when group ID is not an integer' do
       delete api("/projects/#{project.id}/share/foo", user)
 
       expect(response).to have_gitlab_http_status(:bad_request)
@@ -3095,7 +3095,7 @@ RSpec.describe API::Projects do
         expect(json_response['message']).to eq('404 Project Not Found')
       end
 
-      it 'forks with explicit own user namespace id' do
+      it 'forks with explicit own user namespace ID' do
         post api("/projects/#{project.id}/fork", user2), params: { namespace: user2.namespace.id }
 
         expect(response).to have_gitlab_http_status(:created)

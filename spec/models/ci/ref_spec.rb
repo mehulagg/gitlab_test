@@ -138,7 +138,7 @@ RSpec.describe Ci::Ref do
     context 'when there are finished pipelines' do
       let(:pipeline_status) { :success }
 
-      it 'returns the pipeline id' do
+      it 'returns the pipeline ID' do
         expect(ci_ref.last_finished_pipeline_id).to eq(pipeline.id)
       end
 

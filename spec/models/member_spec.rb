@@ -308,7 +308,7 @@ RSpec.describe Member do
         end
 
         context 'with no current_user' do
-          context 'when called with a known user id' do
+          context 'when called with a known user ID' do
             it 'adds the user as a member' do
               expect(source.users).not_to include(user)
 
@@ -318,7 +318,7 @@ RSpec.describe Member do
             end
           end
 
-          context 'when called with an unknown user id' do
+          context 'when called with an unknown user ID' do
             it 'adds the user as a member' do
               expect(source.users).not_to include(user)
 

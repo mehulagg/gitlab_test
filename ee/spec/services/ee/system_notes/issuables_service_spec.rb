@@ -158,7 +158,7 @@ RSpec.describe ::SystemNotes::IssuablesService do
       it_behaves_like 'a note with overridable created_at'
 
       context 'when iteration added' do
-        it 'sets the note text to use the iteration id' do
+        it 'sets the note text to use the iteration ID' do
           expect(subject.note).to eq "changed iteration to #{iteration.to_reference(format: :id)}"
         end
       end

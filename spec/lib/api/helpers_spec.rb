@@ -200,7 +200,7 @@ RSpec.describe API::Helpers do
       context 'with ascending order' do
         let(:params) { { order_by: 'name', sort: 'asc' } }
 
-        it 'adds id based ordering with same direction as primary order' do
+        it 'adds ID based ordering with same direction as primary order' do
           is_expected.to eq({ 'name' => 'asc', 'id' => 'asc' })
         end
       end
@@ -208,7 +208,7 @@ RSpec.describe API::Helpers do
       context 'with descending order' do
         let(:params) { { order_by: 'name', sort: 'desc' } }
 
-        it 'adds id based ordering with same direction as primary order' do
+        it 'adds ID based ordering with same direction as primary order' do
           is_expected.to eq({ 'name' => 'desc', 'id' => 'desc' })
         end
       end
@@ -222,7 +222,7 @@ RSpec.describe API::Helpers do
       end
     end
 
-    context 'with id order given' do
+    context 'with ID order given' do
       let(:params) { { order_by: 'id', sort: 'asc' } }
 
       it 'does not add an additional order' do

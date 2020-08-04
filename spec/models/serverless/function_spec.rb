@@ -6,7 +6,7 @@ RSpec.describe ::Serverless::Function do
   let(:project) { create(:project) }
   let(:func) { described_class.new(project, 'test', 'test-ns') }
 
-  it 'has a proper id' do
+  it 'has a proper ID' do
     expect(func.id).to eql("#{project.id}/test/test-ns")
     expect(func.name).to eql("test")
     expect(func.namespace).to eql("test-ns")

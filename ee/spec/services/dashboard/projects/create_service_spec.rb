@@ -21,7 +21,7 @@ RSpec.describe Dashboard::Projects::CreateService do
     context 'with projects' do
       let(:output) { [project] }
 
-      context 'with integer id' do
+      context 'with integer ID' do
         let(:input) { [project.id] }
 
         it 'adds a project' do
@@ -29,7 +29,7 @@ RSpec.describe Dashboard::Projects::CreateService do
         end
       end
 
-      context 'with string id' do
+      context 'with string ID' do
         let(:input) { [project.id.to_s] }
 
         it 'adds a project' do
@@ -37,7 +37,7 @@ RSpec.describe Dashboard::Projects::CreateService do
         end
       end
 
-      context 'with repeating project id' do
+      context 'with repeating project ID' do
         let(:input) { [project.id, project.id] }
 
         it 'adds a project only once' do

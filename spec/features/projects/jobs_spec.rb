@@ -127,7 +127,7 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state do
     end
 
     context 'pipeline info block', :js do
-      it 'shows pipeline id and source branch' do
+      it 'shows pipeline ID and source branch' do
         visit project_job_path(project, job)
 
         within '.js-pipeline-info' do

@@ -81,7 +81,7 @@ RSpec.describe Issues::MoveService do
           expect(new_issue.author).to eq author
         end
 
-        it 'creates a new internal id for issue' do
+        it 'creates a new internal ID for issue' do
           expect(new_issue.iid).to be 1
         end
 

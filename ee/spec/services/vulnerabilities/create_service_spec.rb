@@ -55,7 +55,7 @@ RSpec.describe Vulnerabilities::CreateService do
       expect(Vulnerabilities::Finding).to have_received(:transaction).with(requires_new: true).once
     end
 
-    context 'when finding id is unknown' do
+    context 'when finding ID is unknown' do
       let(:finding_id) { 0 }
 
       it 'adds expected error to the response' do

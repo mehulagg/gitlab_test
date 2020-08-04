@@ -34,15 +34,15 @@ RSpec.describe Gitlab::Metrics::Dashboard::Stages::PanelIdsInserter do
     end
 
     context 'when dashboard panels has duplicated ids' do
-      it 'no panel has assigned id' do
+      it 'no panel has assigned ID' do
         panel_double = instance_double(::PerformanceMonitoring::PrometheusPanel)
         allow(::PerformanceMonitoring::PrometheusPanel).to receive(:new).and_return(panel_double)
-        allow(panel_double).to receive(:id).and_return('duplicated id')
+        allow(panel_double).to receive(:id).and_return('duplicated ID')
 
         transform!
 
         expect(fetch_panel_ids(dashboard)).to all be_nil
-        expect(fetch_panel_ids(dashboard)).not_to include 'duplicated id'
+        expect(fetch_panel_ids(dashboard)).not_to include 'duplicated ID'
       end
     end
 
@@ -72,7 +72,7 @@ RSpec.describe Gitlab::Metrics::Dashboard::Stages::PanelIdsInserter do
         allow(::PerformanceMonitoring::PrometheusPanel).to receive(:new).and_raise(error)
       end
 
-      it 'no panel has assigned id' do
+      it 'no panel has assigned ID' do
         transform!
 
         expect(fetch_panel_ids(dashboard)).to all be_nil

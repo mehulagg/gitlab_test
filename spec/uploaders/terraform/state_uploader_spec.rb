@@ -24,7 +24,7 @@ RSpec.describe Terraform::StateUploader do
   end
 
   describe '#key' do
-    it 'creates a digest with a secret key and the project id' do
+    it 'creates a digest with a secret key and the project ID' do
       expect(OpenSSL::HMAC)
         .to receive(:digest)
         .with('SHA256', Gitlab::Application.secrets.db_key_base, terraform_state.project_id.to_s)

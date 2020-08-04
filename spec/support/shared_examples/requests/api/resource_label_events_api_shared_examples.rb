@@ -14,7 +14,7 @@ RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_typ
         expect(json_response.first['id']).to eq(event.id)
       end
 
-      it "returns a 404 error when eventable id not found" do
+      it "returns a 404 error when eventable ID not found" do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{non_existing_record_id}/resource_label_events", user)
 
         expect(response).to have_gitlab_http_status(:not_found)

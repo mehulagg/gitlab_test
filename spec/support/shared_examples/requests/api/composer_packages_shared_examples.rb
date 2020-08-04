@@ -105,7 +105,7 @@ RSpec.shared_context 'Composer api group access' do |project_visibility_level, u
   end
 end
 
-RSpec.shared_examples 'rejects Composer access with unknown group id' do
+RSpec.shared_examples 'rejects Composer access with unknown group ID' do
   context 'with an unknown group' do
     let(:group) { double(id: non_existing_record_id) }
 
@@ -121,7 +121,7 @@ RSpec.shared_examples 'rejects Composer access with unknown group id' do
   end
 end
 
-RSpec.shared_examples 'rejects Composer access with unknown project id' do
+RSpec.shared_examples 'rejects Composer access with unknown project ID' do
   context 'with an unknown project' do
     let(:project) { double(id: non_existing_record_id) }
 

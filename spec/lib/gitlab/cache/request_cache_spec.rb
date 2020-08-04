@@ -74,7 +74,7 @@ RSpec.describe Gitlab::Cache::RequestCache do
         end
       end
 
-      it 'computes twice for the different keys, id' do
+      it 'computes twice for the different keys, ID' do
         algorithm.compute(true)
         algorithm.id = 'ad'
         result = algorithm.compute(true)

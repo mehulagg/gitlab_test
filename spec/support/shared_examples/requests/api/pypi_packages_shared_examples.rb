@@ -149,7 +149,7 @@ RSpec.shared_examples 'process PyPi api request' do |user_type, status, add_memb
   end
 end
 
-RSpec.shared_examples 'rejects PyPI access with unknown project id' do
+RSpec.shared_examples 'rejects PyPI access with unknown project ID' do
   context 'with an unknown project' do
     let(:project) { OpenStruct.new(id: 1234567890) }
 

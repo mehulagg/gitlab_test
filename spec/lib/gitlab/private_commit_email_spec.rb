@@ -19,7 +19,7 @@ RSpec.describe Gitlab::PrivateCommitEmail do
   end
 
   describe '.user_id_for_email' do
-    it 'parses user id from email' do
+    it 'parses user ID from email' do
       expect(described_class.user_id_for_email(valid_email)).to eq(id)
     end
 

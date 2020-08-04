@@ -19,7 +19,7 @@ RSpec.describe ResolvesProject do
     expect(sync(instance.resolve_project(full_path: project.full_path))).to eq(project)
   end
 
-  it 'can resolve projects by id' do
+  it 'can resolve projects by ID' do
     expect(sync(instance.resolve_project(project_id: global_id_of(project)))).to eq(project)
   end
 

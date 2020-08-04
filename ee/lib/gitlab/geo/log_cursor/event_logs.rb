@@ -31,12 +31,12 @@ module Gitlab
           event_state.update!(event_id: event_id)
         end
 
-        # @return [Integer] id of last replicated event or nil if it does not exist
+        # @return [Integer] ID of last replicated event or nil if it does not exist
         def last_processed_id
           ::Geo::EventLogState.last_processed&.id
         end
 
-        # @return [Integer] id of the event we need to start processing from
+        # @return [Integer] ID of the event we need to start processing from
         def last_event_log_id
           last_id = ::Geo::EventLog.last&.id
 

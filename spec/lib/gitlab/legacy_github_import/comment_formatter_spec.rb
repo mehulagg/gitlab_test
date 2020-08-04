@@ -76,13 +76,13 @@ RSpec.describe Gitlab::LegacyGithubImport::CommentFormatter do
     context 'when author is a GitLab user' do
       let(:raw) { double(base.merge(user: octocat)) }
 
-      it 'returns GitLab user id associated with GitHub id as author_id' do
+      it 'returns GitLab user ID associated with GitHub ID as author_id' do
         gl_user = create(:omniauth_user, extern_uid: octocat.id, provider: 'github')
 
         expect(comment.attributes.fetch(:author_id)).to eq gl_user.id
       end
 
-      it 'returns GitLab user id associated with GitHub email as author_id' do
+      it 'returns GitLab user ID associated with GitHub email as author_id' do
         gl_user = create(:user, email: octocat.email)
 
         expect(comment.attributes.fetch(:author_id)).to eq gl_user.id

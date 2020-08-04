@@ -74,7 +74,7 @@ RSpec.describe MergeTrain do
     let!(:merge_train_1) { create(:merge_train, target_project: project, target_branch: 'master') }
     let!(:merge_train_2) { create(:merge_train, target_project: project, target_branch: 'master') }
 
-    it 'returns merge trains by id ASC' do
+    it 'returns merge trains by ID ASC' do
       is_expected.to eq([merge_train_1, merge_train_2])
     end
   end
@@ -197,7 +197,7 @@ RSpec.describe MergeTrain do
         end
       end
 
-      context "when specifies merge request 2's id only" do
+      context "when specifies merge request 2's ID only" do
         let(:merge_request_ids) { [merge_request_2.id] }
 
         it 'returns the first merge request on the merge train from the given ids' do

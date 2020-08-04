@@ -194,7 +194,7 @@ RSpec.describe ApprovalRules::CreateService do
 
     it_behaves_like "creatable"
 
-    context 'when project rule id is present' do
+    context 'when project rule ID is present' do
       let_it_be(:project_user) { create(:user) }
       let_it_be(:public_group) { create(:group, :public) }
       let(:project_user_approvers) { [project_user] }

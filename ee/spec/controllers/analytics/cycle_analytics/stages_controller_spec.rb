@@ -176,7 +176,7 @@ RSpec.describe Analytics::CycleAnalytics::StagesController do
 
     include_examples 'group permission check on the controller level'
 
-    context 'when persisted stage id is passed' do
+    context 'when persisted stage ID is passed' do
       it 'succeeds' do
         subject
 
@@ -190,7 +190,7 @@ RSpec.describe Analytics::CycleAnalytics::StagesController do
       end
     end
 
-    context 'when default stage id is passed' do
+    context 'when default stage ID is passed' do
       before do
         params[:id] = Gitlab::Analytics::CycleAnalytics::DefaultStages.names.first
       end

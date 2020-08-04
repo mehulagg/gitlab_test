@@ -387,7 +387,7 @@ RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
           project.add_maintainer(user)
         end
 
-        it 'removes assignee_id when user id is invalid' do
+        it 'removes assignee_id when user ID is invalid' do
           opts = { title: 'Title', description: 'Description', assignee_ids: [-1] }
 
           merge_request = described_class.new(project, user, opts).execute
@@ -395,7 +395,7 @@ RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
           expect(merge_request.assignee_ids).to be_empty
         end
 
-        it 'removes assignee_id when user id is 0' do
+        it 'removes assignee_id when user ID is 0' do
           opts = { title: 'Title', description: 'Description', assignee_ids: [0] }
 
           merge_request = described_class.new(project, user, opts).execute
@@ -403,7 +403,7 @@ RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
           expect(merge_request.assignee_ids).to be_empty
         end
 
-        it 'saves assignee when user id is valid' do
+        it 'saves assignee when user ID is valid' do
           project.add_maintainer(assignee)
           opts = { title: 'Title', description: 'Description', assignee_ids: [assignee.id] }
 
@@ -548,7 +548,7 @@ RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
       end
     end
 
-    context 'when user sets source project id' do
+    context 'when user sets source project ID' do
       let(:another_project) { create(:project) }
 
       let(:opts) do

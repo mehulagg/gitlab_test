@@ -50,7 +50,7 @@ RSpec.describe Projects::AlertManagementController do
   end
 
   describe 'set_alert_id' do
-    it 'sets alert id from the route' do
+    it 'sets alert ID from the route' do
       get :details, params: { namespace_id: project.namespace, project_id: project, id: id }
 
       expect(assigns(:alert_id)).to eq(id.to_s)

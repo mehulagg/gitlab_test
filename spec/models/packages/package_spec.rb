@@ -212,7 +212,7 @@ RSpec.describe Packages::Package, type: :model do
     end
 
     Packages::Package.package_types.keys.without('conan').each do |pt|
-      context "project id, name, version and package type uniqueness for package type #{pt}" do
+      context "project ID, name, version and package type uniqueness for package type #{pt}" do
         let(:package) { create("#{pt}_package") }
 
         it "will not allow a #{pt} package with same project, name, version and package_type" do

@@ -232,7 +232,7 @@ RSpec.describe API::MergeRequests do
         get api('/merge_requests', user), params: { approver_ids: approvers_param, scope: :all }
       end
 
-      context 'with specified approver id' do
+      context 'with specified approver ID' do
         let(:approvers_param) { [merge_request_with_approver.approvers.first.user_id] }
 
         it 'returns an array of merge requests which have specified the user as an approver' do
@@ -277,7 +277,7 @@ RSpec.describe API::MergeRequests do
         get api('/merge_requests', user), params: { approved_by_ids: approvals_param, scope: :all }
       end
 
-      context 'with specified approved_by id' do
+      context 'with specified approved_by ID' do
         let(:approvals_param) { [user2.id] }
 
         it 'returns an array of merge requests which have specified the user as an approver' do

@@ -332,7 +332,7 @@ RSpec.describe API::Search do
         end
       end
 
-      context 'for milestones scope with group path as id' do
+      context 'for milestones scope with group path as ID' do
         before do
           another_project = create(:project, :public)
           create(:milestone, project: project, title: 'awesome milestone')
@@ -377,7 +377,7 @@ RSpec.describe API::Search do
         end
       end
 
-      context 'for users scope with group path as id' do
+      context 'for users scope with group path as ID' do
         before do
           user1 = create(:user, name: 'billy')
           create(:group_member, :developer, user: user1, group: group)
@@ -607,7 +607,7 @@ RSpec.describe API::Search do
         it_behaves_like 'ping counters', scope: :commits
       end
 
-      context 'for commits scope with project path as id' do
+      context 'for commits scope with project path as ID' do
         before do
           get api("/projects/#{CGI.escape(repo_project.full_path)}/search", user), params: { scope: 'commits', search: '498214de67004b1da3d820901307bed2a68a8ef6' }
         end

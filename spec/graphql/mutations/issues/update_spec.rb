@@ -71,7 +71,7 @@ RSpec.describe Mutations::Issues::Update do
           expect(issue.reload.labels).to match_array([label_1, label_2])
         end
 
-        it 'does not add label if label id is nil' do
+        it 'does not add label if label ID is nil' do
           mutation_params[:add_label_ids] = [nil, label_2.id]
 
           subject

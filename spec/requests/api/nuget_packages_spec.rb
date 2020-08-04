@@ -57,9 +57,9 @@ RSpec.describe API::NugetPackages do
 
       it_behaves_like 'deploy token for package GET requests'
 
-      it_behaves_like 'rejects nuget access with unknown project id'
+      it_behaves_like 'rejects nuget access with unknown project ID'
 
-      it_behaves_like 'rejects nuget access with invalid project id'
+      it_behaves_like 'rejects nuget access with invalid project ID'
     end
   end
 
@@ -111,9 +111,9 @@ RSpec.describe API::NugetPackages do
 
       it_behaves_like 'deploy token for package uploads'
 
-      it_behaves_like 'rejects nuget access with unknown project id'
+      it_behaves_like 'rejects nuget access with unknown project ID'
 
-      it_behaves_like 'rejects nuget access with invalid project id'
+      it_behaves_like 'rejects nuget access with invalid project ID'
     end
   end
 
@@ -178,9 +178,9 @@ RSpec.describe API::NugetPackages do
 
       it_behaves_like 'deploy token for package uploads'
 
-      it_behaves_like 'rejects nuget access with unknown project id'
+      it_behaves_like 'rejects nuget access with unknown project ID'
 
-      it_behaves_like 'rejects nuget access with invalid project id'
+      it_behaves_like 'rejects nuget access with invalid project ID'
     end
   end
 
@@ -238,9 +238,9 @@ RSpec.describe API::NugetPackages do
 
         it_behaves_like 'deploy token for package GET requests'
 
-        it_behaves_like 'rejects nuget access with unknown project id'
+        it_behaves_like 'rejects nuget access with unknown project ID'
 
-        it_behaves_like 'rejects nuget access with invalid project id'
+        it_behaves_like 'rejects nuget access with invalid project ID'
       end
     end
   end
@@ -356,9 +356,9 @@ RSpec.describe API::NugetPackages do
 
       it_behaves_like 'deploy token for package GET requests'
 
-      it_behaves_like 'rejects nuget access with unknown project id'
+      it_behaves_like 'rejects nuget access with unknown project ID'
 
-      it_behaves_like 'rejects nuget access with invalid project id'
+      it_behaves_like 'rejects nuget access with invalid project ID'
     end
   end
 
@@ -411,9 +411,9 @@ RSpec.describe API::NugetPackages do
 
       it_behaves_like 'deploy token for package GET requests'
 
-      it_behaves_like 'rejects nuget access with unknown project id'
+      it_behaves_like 'rejects nuget access with unknown project ID'
 
-      it_behaves_like 'rejects nuget access with invalid project id'
+      it_behaves_like 'rejects nuget access with invalid project ID'
     end
   end
 
@@ -474,9 +474,9 @@ RSpec.describe API::NugetPackages do
 
       it_behaves_like 'deploy token for package GET requests'
 
-      it_behaves_like 'rejects nuget access with unknown project id'
+      it_behaves_like 'rejects nuget access with unknown project ID'
 
-      it_behaves_like 'rejects nuget access with invalid project id'
+      it_behaves_like 'rejects nuget access with invalid project ID'
     end
   end
 end

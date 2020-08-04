@@ -10,7 +10,7 @@ module Mutations
       argument :base_epic_id,
                GraphQL::ID_TYPE,
                required: true,
-               description: 'The id of the base epic of the tree'
+               description: 'The ID of the base epic of the tree'
 
       argument :moved,
                Types::EpicTree::EpicTreeNodeInputType,

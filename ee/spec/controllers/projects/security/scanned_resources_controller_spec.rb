@@ -37,7 +37,7 @@ RSpec.describe Projects::Security::ScannedResourcesController do
         expect(subject).to have_gitlab_http_status(:ok)
       end
 
-      context 'when the pipeline id is missing' do
+      context 'when the pipeline ID is missing' do
         let_it_be(:action_params) { { project_id: project, namespace_id: project.namespace } }
 
         before do

@@ -266,7 +266,7 @@ RSpec.describe MergeRequestWidgetEntity do
         expect(subject[:user_callouts_path]).to eq '/-/user_callouts'
       end
 
-      it 'provides a valid value for suggest pipeline feature id' do
+      it 'provides a valid value for suggest pipeline feature ID' do
         expect(subject[:suggest_pipeline_feature_id]).to eq described_class::SUGGEST_PIPELINE
       end
 
@@ -302,7 +302,7 @@ RSpec.describe MergeRequestWidgetEntity do
         expect(subject[:user_callouts_path]).to be_nil
       end
 
-      it 'provides no valid value for suggest pipeline feature id' do
+      it 'provides no valid value for suggest pipeline feature ID' do
         expect(subject[:suggest_pipeline_feature_id]).to be_nil
       end
 

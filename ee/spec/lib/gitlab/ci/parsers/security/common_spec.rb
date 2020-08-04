@@ -105,7 +105,7 @@ RSpec.describe Gitlab::Ci::Parsers::Security::Common do
         expect(vulnerability.raw_metadata).to include fix_with_cve.to_json
       end
 
-      it 'finds remediation with same id' do
+      it 'finds remediation with same ID' do
         fix_with_id = {
           "fixes": [
             {
@@ -124,7 +124,7 @@ RSpec.describe Gitlab::Ci::Parsers::Security::Common do
         expect(vulnerability.raw_metadata).to include fix_with_id.to_json
       end
 
-      it 'finds cve and id' do
+      it 'finds CVE and ID' do
         fix_with_id = {
           "fixes": [
             {
@@ -154,7 +154,7 @@ RSpec.describe Gitlab::Ci::Parsers::Security::Common do
         expect(vulnerability_1020.raw_metadata).to include fix_with_cve.to_json
       end
 
-      it 'does not find remediation with different id' do
+      it 'does not find remediation with different ID' do
         fix_with_id = {
           "fixes": [
             {

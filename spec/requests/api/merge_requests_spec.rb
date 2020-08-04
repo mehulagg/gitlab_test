@@ -1208,7 +1208,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns a 404 when merge_request id is used instead of iid' do
+    it 'returns a 404 when merge_request ID is used instead of iid' do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.id}/commits", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -1246,7 +1246,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns a 404 when merge_request id is used instead of iid' do
+    it 'returns a 404 when merge_request ID is used instead of iid' do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.id}/changes", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -1851,7 +1851,7 @@ RSpec.describe API::MergeRequests do
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it "returns 404 if the merge request id is used instead of iid" do
+      it "returns 404 if the merge request ID is used instead of iid" do
         delete api("/projects/#{project.id}/merge_requests/#{merge_request.id}", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -2062,7 +2062,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it "returns 404 if the merge request id is used instead of iid" do
+    it "returns 404 if the merge request ID is used instead of iid" do
       put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -2487,7 +2487,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it "returns 404 if the merge request id is used instead of iid" do
+    it "returns 404 if the merge request ID is used instead of iid" do
       put api("/projects/#{project.id}/merge_requests/#{merge_request.id}", user), params: { state_event: "close" }
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -2552,7 +2552,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it "returns 404 if the merge request id is used instead of iid" do
+    it "returns 404 if the merge request ID is used instead of iid" do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.id}/closes_issues", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -2579,7 +2579,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns 404 if the merge request id is used instead of iid' do
+    it 'returns 404 if the merge request ID is used instead of iid' do
       post api("/projects/#{project.id}/merge_requests/#{merge_request.id}/subscribe", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -2615,7 +2615,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns 404 if the merge request id is used instead of iid' do
+    it 'returns 404 if the merge request ID is used instead of iid' do
       post api("/projects/#{project.id}/merge_requests/#{merge_request.id}/unsubscribe", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -2648,7 +2648,7 @@ RSpec.describe API::MergeRequests do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns 404 if the merge request id is used instead of iid' do
+    it 'returns 404 if the merge request ID is used instead of iid' do
       post api("/projects/#{project.id}/merge_requests/#{merge_request.id}/cancel_merge_when_pipeline_succeeds", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

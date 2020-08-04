@@ -30,7 +30,7 @@ RSpec.describe Resolvers::DesignManagement::VersionResolver do
   context 'the current user is authorized' do
     let(:current_user) { developer }
 
-    context 'the id parameter is provided' do
+    context 'the ID parameter is provided' do
       it 'returns the specified version' do
         expect(resolve_version).to eq(version)
       end

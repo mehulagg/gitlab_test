@@ -48,7 +48,7 @@ RSpec.describe Mutations::DastSiteProfiles::Create do
       end
 
       context 'when the user is an owner' do
-        it 'returns the dast_site_profile id' do
+        it 'returns the dast_site_profile ID' do
           group.add_owner(user)
 
           expect(subject[:id]).to eq(dast_site_profile.to_global_id)
@@ -56,7 +56,7 @@ RSpec.describe Mutations::DastSiteProfiles::Create do
       end
 
       context 'when the user is a maintainer' do
-        it 'returns the dast_site_profile id' do
+        it 'returns the dast_site_profile ID' do
           project.add_maintainer(user)
 
           expect(subject[:id]).to eq(dast_site_profile.to_global_id)
@@ -68,7 +68,7 @@ RSpec.describe Mutations::DastSiteProfiles::Create do
           project.add_developer(user)
         end
 
-        it 'returns the dast_site_profile id' do
+        it 'returns the dast_site_profile ID' do
           expect(subject[:id]).to eq(dast_site_profile.to_global_id)
         end
 

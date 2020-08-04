@@ -25,7 +25,7 @@ RSpec.describe API::AwardEmoji do
         expect(json_response.first['name']).to eq(award_emoji.name)
       end
 
-      it "returns a 404 error when issue id not found" do
+      it "returns a 404 error when issue ID not found" do
         get api("/projects/#{project.id}/issues/#{non_existing_record_iid}/award_emoji", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -274,7 +274,7 @@ RSpec.describe API::AwardEmoji do
         end.to change { merge_request.award_emoji.count }.from(1).to(0)
       end
 
-      it 'returns a 404 error when note id not found' do
+      it 'returns a 404 error when note ID not found' do
         delete api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/notes/#{non_existing_record_id}", user)
 
         expect(response).to have_gitlab_http_status(:not_found)

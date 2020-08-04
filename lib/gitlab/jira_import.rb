@@ -86,9 +86,9 @@ module Gitlab
       cache_class.expire(self.already_imported_cache_key(:issues, project_id), JIRA_IMPORT_CACHE_TIMEOUT)
     end
 
-    # Caches the mapping of jira_account_id -> gitlab user id
-    # project_id - id of a project
-    # mapping - hash in format of jira_account_id -> gitlab user id
+    # Caches the mapping of jira_account_id -> gitlab user ID
+    # project_id - ID of a project
+    # mapping - hash in format of jira_account_id -> gitlab user ID
     def self.cache_users_mapping(project_id, mapping)
       cache_class.write_multiple(mapping, key_prefix: jira_user_key_prefix(project_id))
     end

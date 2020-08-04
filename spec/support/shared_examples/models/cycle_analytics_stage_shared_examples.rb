@@ -113,7 +113,7 @@ end
 
 RSpec.shared_examples 'cycle analytics label based stage' do
   context 'when creating label based event' do
-    context 'when the label id is not passed' do
+    context 'when the label ID is not passed' do
       it 'returns validation error when `start_event_label_id` is missing' do
         stage = described_class.new({
           name: 'My Stage',

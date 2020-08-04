@@ -82,13 +82,13 @@ RSpec.describe Gitlab::LegacyGithubImport::IssueFormatter do
         expect(issue.attributes.fetch(:assignee_ids)).to be_empty
       end
 
-      it 'returns GitLab user id associated with GitHub id as assignee_id' do
+      it 'returns GitLab user ID associated with GitHub ID as assignee_id' do
         gl_user = create(:omniauth_user, extern_uid: octocat.id, provider: 'github')
 
         expect(issue.attributes.fetch(:assignee_ids)).to eq [gl_user.id]
       end
 
-      it 'returns GitLab user id associated with GitHub email as assignee_id' do
+      it 'returns GitLab user ID associated with GitHub email as assignee_id' do
         gl_user = create(:user, email: octocat.email)
 
         expect(issue.attributes.fetch(:assignee_ids)).to eq [gl_user.id]
@@ -117,13 +117,13 @@ RSpec.describe Gitlab::LegacyGithubImport::IssueFormatter do
         expect(issue.attributes.fetch(:author_id)).to eq project.creator_id
       end
 
-      it 'returns GitLab user id associated with GitHub id as author_id' do
+      it 'returns GitLab user ID associated with GitHub ID as author_id' do
         gl_user = create(:omniauth_user, extern_uid: octocat.id, provider: 'github')
 
         expect(issue.attributes.fetch(:author_id)).to eq gl_user.id
       end
 
-      it 'returns GitLab user id associated with GitHub email as author_id' do
+      it 'returns GitLab user ID associated with GitHub email as author_id' do
         gl_user = create(:user, email: octocat.email)
 
         expect(issue.attributes.fetch(:author_id)).to eq gl_user.id

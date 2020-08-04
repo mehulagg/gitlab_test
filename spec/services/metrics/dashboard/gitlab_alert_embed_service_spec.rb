@@ -41,13 +41,13 @@ RSpec.describe Metrics::Dashboard::GitlabAlertEmbedService do
       it { is_expected.to be_falsey }
     end
 
-    context 'missing alert id' do
+    context 'missing alert ID' do
       let(:params) { valid_params.except(:prometheus_alert_id) }
 
       it { is_expected.to be_falsey }
     end
 
-    context 'missing alert id' do
+    context 'missing alert ID' do
       let(:params) { valid_params.merge(prometheus_alert_id: 'none') }
 
       it { is_expected.to be_falsey }

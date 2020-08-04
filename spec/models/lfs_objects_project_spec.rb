@@ -18,7 +18,7 @@ RSpec.describe LfsObjectsProject do
     it { is_expected.to validate_presence_of(:lfs_object_id) }
     it { is_expected.to validate_presence_of(:project_id) }
 
-    it 'validates object id' do
+    it 'validates object ID' do
       is_expected.to validate_uniqueness_of(:lfs_object_id)
         .scoped_to(:project_id, :repository_type)
         .with_message("already exists in repository")

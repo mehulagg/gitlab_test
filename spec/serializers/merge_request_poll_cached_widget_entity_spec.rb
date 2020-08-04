@@ -67,7 +67,7 @@ RSpec.describe MergeRequestPollCachedWidgetEntity do
     end
 
     context 'when diff head commit present' do
-      it 'returns diff head commit short id' do
+      it 'returns diff head commit short ID' do
         expect(subject[:diff_head_sha]).to eq('sha')
       end
     end

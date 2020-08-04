@@ -48,7 +48,7 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
       describe "GET #{route_definition}/:board_id" do
         let(:url) { "#{root_url}/#{board.id}" }
 
-        it 'get a single board by id' do
+        it 'get a single board by ID' do
           get api(url, user)
 
           expect_schema_match_for(response, 'public_api/v4/board', ee)
@@ -130,7 +130,7 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
       expect(json_response['position']).to eq(1)
     end
 
-    it "returns 404 error if list id not found" do
+    it "returns 404 error if list ID not found" do
       put api("#{url}/44444", user), params: { position: 1 }
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -158,7 +158,7 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
       expect(response).to have_gitlab_http_status(:forbidden)
     end
 
-    it "returns 404 error if list id not found" do
+    it "returns 404 error if list ID not found" do
       delete api("#{url}/44444", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

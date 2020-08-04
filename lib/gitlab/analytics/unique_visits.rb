@@ -50,7 +50,7 @@ module Gitlab
       private
 
       def key(target_id, time)
-        raise "Invalid target id #{target_id}" unless TARGET_IDS.include?(target_id.to_s)
+        raise "Invalid target ID #{target_id}" unless TARGET_IDS.include?(target_id.to_s)
 
         target_key = target_id.to_s.gsub('analytics', '{analytics}')
         year_week = time.strftime('%G-%V')

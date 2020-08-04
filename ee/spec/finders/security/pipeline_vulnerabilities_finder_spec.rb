@@ -219,7 +219,7 @@ RSpec.describe Security::PipelineVulnerabilitiesFinder do
       context 'when `zaproxy`' do
         subject { described_class.new(pipeline: pipeline, params: { scanner: 'zaproxy' } ).execute }
 
-        it 'returns only vulnerabilities with selected scanner external id' do
+        it 'returns only vulnerabilities with selected scanner external ID' do
           expect(subject.findings.map(&:scanner).map(&:external_id).uniq).to match_array(%w[zaproxy])
         end
       end

@@ -154,7 +154,7 @@ RSpec.describe SearchHelper do
         @project = create(:project, :repository)
       end
 
-      it 'includes id with type' do
+      it 'includes ID with type' do
         expect(search_filter_input_options('type')[:id]).to eq('filtered-search-type')
       end
 

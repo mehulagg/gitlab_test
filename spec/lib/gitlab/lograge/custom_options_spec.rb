@@ -44,7 +44,7 @@ RSpec.describe Gitlab::Lograge::CustomOptions do
       end
     end
 
-    it 'adds the user id' do
+    it 'adds the user ID' do
       expect(subject[:user_id]).to eq('test')
     end
 

@@ -82,7 +82,7 @@ RSpec.describe Gitlab::Alerting::Alert do
         )
       end
 
-      context 'alert id given in params' do
+      context 'alert ID given in params' do
         before do
           payload['labels'] = {
             'gitlab_alert_id' => gitlab_alert.prometheus_metric_id.to_s,
@@ -93,11 +93,11 @@ RSpec.describe Gitlab::Alerting::Alert do
         it { is_expected.to eq(second_gitlab_alert) }
       end
 
-      context 'metric id given in params' do
+      context 'metric ID given in params' do
         # This tests the case when two alerts are found, as metric id
         # is not unique.
 
-        # Note the metric id was incorrectly named as 'gitlab_alert_id'
+        # Note the metric ID was incorrectly named as 'gitlab_alert_id'
         # in PrometheusAlert#to_param.
         before do
           payload['labels'] = { 'gitlab_alert_id' => gitlab_alert.prometheus_metric_id }

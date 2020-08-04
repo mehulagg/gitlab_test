@@ -74,7 +74,7 @@ RSpec.describe Gitlab::Gfm::ReferenceRewriter do
         context 'description with project labels' do
           let!(:label) { create(:label, id: 123, name: 'test', project: old_project) }
 
-          context 'label referenced by id' do
+          context 'label referenced by ID' do
             let(:text) { '#1 and ~123' }
 
             it { is_expected.to eq %Q{#{old_project_ref}#1 and #{old_project_ref}~123} }
@@ -95,7 +95,7 @@ RSpec.describe Gitlab::Gfm::ReferenceRewriter do
             old_project.update(namespace: old_group)
           end
 
-          context 'label referenced by id' do
+          context 'label referenced by ID' do
             let(:text) { '#1 and ~321' }
 
             it { is_expected.to eq %Q{#{old_project_ref}#1 and #{old_project_ref}~321} }

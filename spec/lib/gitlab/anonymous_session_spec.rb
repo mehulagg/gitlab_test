@@ -13,7 +13,7 @@ RSpec.describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
   end
 
   describe '#store_session_id_per_ip' do
-    it 'adds session id to proper key' do
+    it 'adds session ID to proper key' do
       subject.store_session_id_per_ip
 
       Gitlab::Redis::SharedState.with do |redis|
@@ -31,7 +31,7 @@ RSpec.describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
       end
     end
 
-    it 'adds id only once' do
+    it 'adds ID only once' do
       subject.store_session_id_per_ip
       subject.store_session_id_per_ip
 
@@ -41,7 +41,7 @@ RSpec.describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
     end
 
     context 'when there is already one session' do
-      it 'adds session id to proper key' do
+      it 'adds session ID to proper key' do
         subject.store_session_id_per_ip
         new_anonymous_session(additional_session_id).store_session_id_per_ip
 

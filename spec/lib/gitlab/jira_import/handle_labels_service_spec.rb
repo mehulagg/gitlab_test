@@ -25,7 +25,7 @@ RSpec.describe Gitlab::JiraImport::HandleLabelsService do
         expect(created_labels.map(&:title)).to match_array(%w(feature group::new))
       end
 
-      it 'returns the id of all labels matching the title' do
+      it 'returns the ID of all labels matching the title' do
         expect(subject).to match_array([project_label.id, group_label.id] + created_labels.map(&:id))
       end
     end
@@ -37,7 +37,7 @@ RSpec.describe Gitlab::JiraImport::HandleLabelsService do
         expect { subject }.not_to change { Label.count }.from(3)
       end
 
-      it 'returns the id of all labels matching the title' do
+      it 'returns the ID of all labels matching the title' do
         expect(subject).to match_array([project_label.id, group_label.id])
       end
     end

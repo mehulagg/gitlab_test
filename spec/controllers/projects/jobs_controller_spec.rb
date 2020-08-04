@@ -1082,7 +1082,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         allow(Gitlab::Workhorse).to receive(:verify_api_request!).and_return(nil)
       end
 
-      context 'and valid id' do
+      context 'and valid ID' do
         it 'returns the terminal for the job' do
           expect(Gitlab::Workhorse)
             .to receive(:channel_websocket)
@@ -1096,7 +1096,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         end
       end
 
-      context 'and invalid id' do
+      context 'and invalid ID' do
         it 'returns 404' do
           get_terminal_websocket(id: non_existing_record_id)
 
@@ -1256,7 +1256,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         allow(Gitlab::Workhorse).to receive(:verify_api_request!).and_return(nil)
       end
 
-      context 'and the id is valid' do
+      context 'and the ID is valid' do
         it 'returns the proxy data for the service running in the job' do
           make_request
 
@@ -1266,7 +1266,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         end
       end
 
-      context 'and the id is invalid' do
+      context 'and the ID is invalid' do
         let(:extra_params) { { id: non_existing_record_id } }
 
         it 'returns 404' do

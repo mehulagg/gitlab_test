@@ -74,7 +74,7 @@ RSpec.describe API::ProjectHooks, 'ProjectHooks' do
         expect(json_response['enable_ssl_verification']).to eq(hook.enable_ssl_verification)
       end
 
-      it "returns a 404 error if hook id is not available" do
+      it "returns a 404 error if hook ID is not available" do
         get api("/projects/#{project.id}/hooks/#{non_existing_record_id}", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -179,7 +179,7 @@ RSpec.describe API::ProjectHooks, 'ProjectHooks' do
       expect(hook.reload.token).to eq(token)
     end
 
-    it "returns 404 error if hook id not found" do
+    it "returns 404 error if hook ID not found" do
       put api("/projects/#{project.id}/hooks/#{non_existing_record_id}", user), params: { url: 'http://example.org' }
       expect(response).to have_gitlab_http_status(:not_found)
     end
@@ -209,7 +209,7 @@ RSpec.describe API::ProjectHooks, 'ProjectHooks' do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it "returns a 404 error if hook id not given" do
+    it "returns a 404 error if hook ID not given" do
       delete api("/projects/#{project.id}/hooks", user)
 
       expect(response).to have_gitlab_http_status(:not_found)

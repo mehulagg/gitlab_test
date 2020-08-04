@@ -24,7 +24,7 @@ RSpec.describe Boards::IssuesController do
   describe 'GET index', :request_store do
     let(:johndoe) { create(:user, avatar: fixture_file_upload(File.join('spec/fixtures/dk.png'))) }
 
-    context 'with invalid board id' do
+    context 'with invalid board ID' do
       it 'returns a not found 404 response' do
         list_issues user: user, board: non_existing_record_id, list: list2
 
@@ -32,8 +32,8 @@ RSpec.describe Boards::IssuesController do
       end
     end
 
-    context 'when list id is present' do
-      context 'with valid list id' do
+    context 'when list ID is present' do
+      context 'with valid list ID' do
         let(:group) { create(:group, :private, projects: [project]) }
         let(:group_board) { create(:board, group: group) }
         let!(:list3) { create(:list, board: group_board, label: development, position: 2) }
@@ -121,7 +121,7 @@ RSpec.describe Boards::IssuesController do
         end
       end
 
-      context 'with invalid list id' do
+      context 'with invalid list ID' do
         it 'returns a not found 404 response' do
           list_issues user: user, board: board, list: non_existing_record_id
 
@@ -130,7 +130,7 @@ RSpec.describe Boards::IssuesController do
       end
     end
 
-    context 'when list id is missing' do
+    context 'when list ID is missing' do
       it 'returns opened issues without board labels applied' do
         bug = create(:label, project: project, name: 'Bug')
         create(:issue, project: project)
@@ -439,7 +439,7 @@ RSpec.describe Boards::IssuesController do
         end
       end
 
-      context 'with invalid board id' do
+      context 'with invalid board ID' do
         it 'returns a not found 404 response' do
           create_issue user: user, board: non_existing_record_id, list: list1, title: 'New issue'
 
@@ -447,7 +447,7 @@ RSpec.describe Boards::IssuesController do
         end
       end
 
-      context 'with invalid list id' do
+      context 'with invalid list ID' do
         it 'returns a not found 404 response' do
           create_issue user: user, board: board, list: non_existing_record_id, title: 'New issue'
 
@@ -511,13 +511,13 @@ RSpec.describe Boards::IssuesController do
         expect(response).to have_gitlab_http_status(:unprocessable_entity)
       end
 
-      it 'returns a not found 404 response for invalid board id' do
+      it 'returns a not found 404 response for invalid board ID' do
         move user: user, board: non_existing_record_id, issue: issue, from_list_id: list1.id, to_list_id: list2.id
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it 'returns a not found 404 response for invalid issue id' do
+      it 'returns a not found 404 response for invalid issue ID' do
         move user: user, board: board, issue: double(id: non_existing_record_id), from_list_id: list1.id, to_list_id: list2.id
 
         expect(response).to have_gitlab_http_status(:not_found)

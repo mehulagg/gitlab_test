@@ -267,7 +267,7 @@ RSpec.describe MergeRequestWidgetEntity do
     expect(subject.as_json).to include(:can_read_vulnerability_feedback)
   end
 
-  it 'has pipeline id' do
+  it 'has pipeline ID' do
     allow(merge_request).to receive(:head_pipeline).and_return(pipeline)
 
     expect(subject.as_json).to include(:pipeline_id)

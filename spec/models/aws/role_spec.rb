@@ -76,7 +76,7 @@ RSpec.describe Aws::Role do
     context 'role_external_id is already set' do
       let(:external_id) { 'external-id' }
 
-      it 'does not change the existing external id' do
+      it 'does not change the existing external ID' do
         subject
 
         expect(role.role_external_id).to eq external_id

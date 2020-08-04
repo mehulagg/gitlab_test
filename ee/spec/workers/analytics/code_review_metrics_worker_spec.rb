@@ -22,7 +22,7 @@ RSpec.describe Analytics::CodeReviewMetricsWorker do
         worker.perform(operation, merge_request.id, force: true)
       end
 
-      context 'for invalid MR id' do
+      context 'for invalid MR ID' do
         it 'does not  execute  operation' do
           expect(operation.constantize).not_to receive(:new)
 

@@ -125,7 +125,7 @@ RSpec.describe RemoteMirror, :mailer do
     end
 
     context 'when remote name is not persisted in the database' do
-      it 'returns remote name with remote mirror id' do
+      it 'returns remote name with remote mirror ID' do
         remote_mirror = create(:remote_mirror)
         remote_mirror.remote_name = nil
 

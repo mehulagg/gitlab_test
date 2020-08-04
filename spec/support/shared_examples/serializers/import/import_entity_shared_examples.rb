@@ -2,7 +2,7 @@
 
 RSpec.shared_examples 'exposes required fields for import entity' do
   describe 'exposes required fields' do
-    it 'correctly exposes id' do
+    it 'correctly exposes ID' do
       expect(subject[:id]).to eql(expected_values[:id])
     end
 

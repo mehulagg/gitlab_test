@@ -19,7 +19,7 @@ RSpec.shared_examples 'a where_composite scope' do |scope_name|
     end
   end
 
-  context 'we pass a singleton composite id' do
+  context 'we pass a singleton composite ID' do
     let(:ids) { composite_ids.first }
 
     it 'finds the first result' do

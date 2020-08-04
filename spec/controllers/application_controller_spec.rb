@@ -516,7 +516,7 @@ RSpec.describe ApplicationController do
       expect(controller.last_payload.has_key?(:response)).to be_falsey
     end
 
-    it 'does log correlation id' do
+    it 'does log correlation ID' do
       Labkit::Correlation::CorrelationId.use_id('new-id') do
         get :index
       end

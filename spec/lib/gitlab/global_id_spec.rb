@@ -28,7 +28,7 @@ RSpec.describe Gitlab::GlobalId do
       )
     end
 
-    it 'returns an error if model_name and id are not able to be determined' do
+    it 'returns an error if model_name and ID are not able to be determined' do
       expect { described_class.build(id: 'myid') }.to raise_error(URI::InvalidComponentError)
       expect { described_class.build(model_name: 'MyModel') }.to raise_error(URI::InvalidComponentError)
       expect { described_class.build }.to raise_error(URI::InvalidComponentError)

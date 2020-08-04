@@ -53,12 +53,12 @@ RSpec.describe Gitlab::Analytics::UniqueVisits, :clean_gitlab_redis_shared_state
       end
     end
 
-    it 'raises an error if an invalid target id is given' do
+    it 'raises an error if an invalid target ID is given' do
       invalid_target_id = "x_invalid"
 
       expect do
         unique_visits.track_visit(visitor1_id, invalid_target_id)
-      end.to raise_error("Invalid target id #{invalid_target_id}")
+      end.to raise_error("Invalid target ID #{invalid_target_id}")
     end
   end
 end

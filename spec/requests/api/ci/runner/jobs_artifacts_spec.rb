@@ -384,7 +384,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state do
                 end
 
                 context 'when invalid remote_id is used' do
-                  let(:remote_id) { 'invalid id' }
+                  let(:remote_id) { 'invalid ID' }
 
                   it 'responds with bad request' do
                     expect(response).to have_gitlab_http_status(:internal_server_error)

@@ -89,7 +89,7 @@ RSpec.describe Projects::ErrorTrackingHelper do
 
     let(:result) { helper.error_details_data(project, issue_id) }
 
-    it 'returns the correct issue id' do
+    it 'returns the correct issue ID' do
       expect(result['issue-id']).to eq issue_id
     end
 

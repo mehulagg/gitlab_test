@@ -70,7 +70,7 @@ RSpec.describe Projects::RepositoriesController do
         expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-archive:")
       end
 
-      it 'handles legacy queries with the ref specified as id in params' do
+      it 'handles legacy queries with the ref specified as ID in params' do
         get :archive, params: { namespace_id: project.namespace, project_id: project, id: 'feature' }, format: 'zip'
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -78,7 +78,7 @@ RSpec.describe Projects::RepositoriesController do
         expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-archive:")
       end
 
-      it 'prioritizes the id param over the ref param when both are specified' do
+      it 'prioritizes the ID param over the ref param when both are specified' do
         get :archive, params: { namespace_id: project.namespace, project_id: project, id: 'feature', ref: 'feature_conflict' }, format: 'zip'
 
         expect(response).to have_gitlab_http_status(:ok)

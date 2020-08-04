@@ -97,7 +97,7 @@ RSpec.describe Gitlab::Ci::Jwt do
 
     subject(:jwt) { described_class.for_build(build) }
 
-    it 'generates JWT with key id' do
+    it 'generates JWT with key ID' do
       _payload, headers = JWT.decode(jwt, rsa_key.public_key, true, { algorithm: 'RS256' })
 
       expect(headers['kid']).to eq(rsa_key.public_key.to_jwk['kid'])

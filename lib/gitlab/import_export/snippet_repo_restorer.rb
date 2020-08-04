@@ -41,7 +41,7 @@ module Gitlab
           snippet.snippet_repository.delete
           snippet.repository.expire_exists_cache
 
-          raise SnippetRepositoryError, _("Invalid repository bundle for snippet with id %{snippet_id}") % { snippet_id: snippet.id }
+          raise SnippetRepositoryError, _("Invalid repository bundle for snippet with ID %{snippet_id}") % { snippet_id: snippet.id }
         else
           Snippets::UpdateStatisticsService.new(snippet).execute
         end
@@ -51,7 +51,7 @@ module Gitlab
         Gitlab::BackgroundMigration::BackfillSnippetRepositories.new.perform_by_ids([snippet.id])
 
         unless snippet.reset.snippet_repository
-          raise SnippetRepositoryError, _("Error creating repository for snippet with id %{snippet_id}") % { snippet_id: snippet.id }
+          raise SnippetRepositoryError, _("Error creating repository for snippet with ID %{snippet_id}") % { snippet_id: snippet.id }
         end
       end
     end

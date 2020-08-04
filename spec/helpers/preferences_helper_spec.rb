@@ -77,7 +77,7 @@ RSpec.describe PreferencesHelper do
         expect(helper.user_application_theme).to eq 'ui-light'
       end
 
-      it 'returns the default when id is invalid' do
+      it 'returns the default when ID is invalid' do
         stub_user(theme_id: Gitlab::Themes.count + 5)
 
         allow(Gitlab.config.gitlab).to receive(:default_theme).and_return(1)
@@ -104,7 +104,7 @@ RSpec.describe PreferencesHelper do
         expect(helper.user_color_scheme).to eq 'solarized-light'
       end
 
-      it 'returns the default when id is invalid' do
+      it 'returns the default when ID is invalid' do
         allow(helper).to receive(:current_user)
           .and_return(double(color_scheme_id: Gitlab::ColorSchemes.count + 5))
       end

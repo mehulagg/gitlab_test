@@ -69,8 +69,8 @@ RSpec.describe Projects::AuditEventsController do
         end
 
         context 'ordering' do
-          shared_examples 'orders by id descending' do
-            it 'orders by id descending' do
+          shared_examples 'orders by ID descending' do
+            it 'orders by ID descending' do
               request
 
               expect(assigns(:events)).to eq(project.audit_events.order(id: :desc))
@@ -82,19 +82,19 @@ RSpec.describe Projects::AuditEventsController do
           end
 
           context 'when no sort order is specified' do
-            it_behaves_like 'orders by id descending'
+            it_behaves_like 'orders by ID descending'
           end
 
           context 'when sorting by latest events first' do
             let(:sort) { 'created_desc' }
 
-            it_behaves_like 'orders by id descending'
+            it_behaves_like 'orders by ID descending'
           end
 
           context 'when sorting by oldest events first' do
             let(:sort) { 'created_asc' }
 
-            it 'orders by id ascending' do
+            it 'orders by ID ascending' do
               request
 
               expect(assigns(:events)).to eq(project.audit_events.order(id: :asc))
@@ -104,7 +104,7 @@ RSpec.describe Projects::AuditEventsController do
           context 'when sorting by an unsupported sort order' do
             let(:sort) { 'FOO' }
 
-            it_behaves_like 'orders by id descending'
+            it_behaves_like 'orders by ID descending'
           end
         end
       end

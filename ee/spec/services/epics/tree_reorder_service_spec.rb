@@ -121,7 +121,7 @@ RSpec.describe Epics::TreeReorderService do
               it_behaves_like 'error for the tree update', "The sibling object's parent must match the new parent epic."
             end
 
-            context 'when the new_parent_id matches the parent id of the relative positioning object' do
+            context 'when the new_parent_id matches the parent ID of the relative positioning object' do
               let(:new_parent_id) { GitlabSchema.id_from_object(epic) }
 
               it 'reorders the objects' do

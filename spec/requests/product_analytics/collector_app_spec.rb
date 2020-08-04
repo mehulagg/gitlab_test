@@ -55,7 +55,7 @@ RSpec.describe 'ProductAnalytics::CollectorApp' do
     it_behaves_like 'not found'
   end
 
-  context 'invalid project id in params' do
+  context 'invalid project ID in params' do
     let(:params) do
       {
         aid: '-1',

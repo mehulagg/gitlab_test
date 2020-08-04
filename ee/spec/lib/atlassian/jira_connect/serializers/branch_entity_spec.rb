@@ -8,7 +8,7 @@ RSpec.describe Atlassian::JiraConnect::Serializers::BranchEntity do
 
   subject { described_class.represent(branch, project: project).as_json }
 
-  it 'sets the hash of the branch name as the id' do
+  it 'sets the hash of the branch name as the ID' do
     expect(subject[:id]).to eq('bbfba9b197ace5da93d03382a7ce50081ae89d99faac1f2326566941288871ce')
   end
 end

@@ -66,7 +66,7 @@ RSpec.describe EpicsFinder do
             expect(epics(sort: :start_date_asc)).to eq([epic3, epic2, epic1])
           end
 
-          it 'sorts by id when not supported sorting param provided' do
+          it 'sorts by ID when not supported sorting param provided' do
             expect(epics(sort: :not_supported_param)).to eq([epic3, epic2, epic1])
           end
         end
@@ -273,7 +273,7 @@ RSpec.describe EpicsFinder do
             expect(epics(params)).to contain_exactly(epic1, epic2)
           end
 
-          it 'returns the expected epics if the exact id is given' do
+          it 'returns the expected epics if the exact ID is given' do
             params = { iid_starts_with: '1112' }
 
             expect(epics(params)).to contain_exactly(epic2)

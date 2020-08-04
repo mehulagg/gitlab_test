@@ -219,7 +219,7 @@ RSpec.describe ProductivityAnalytics do
         context 'with unknown sorting' do
           let(:custom_sort) { 'weird_stuff' }
 
-          it 'sorts by id desc' do
+          it 'sorts by ID desc' do
             expect(merge_requests).to eq [short_mr_2, short_mr, medium_mr, long_mr]
           end
         end

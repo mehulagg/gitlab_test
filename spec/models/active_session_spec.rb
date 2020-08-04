@@ -34,7 +34,7 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_shared_state do
       expect(active_session.current?(session)).to be false
     end
 
-    it 'returns false if the session id is nil' do
+    it 'returns false if the session ID is nil' do
       active_session = ActiveSession.new(session_id: nil)
       session = double(:session, id: nil)
 
@@ -43,7 +43,7 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_shared_state do
   end
 
   describe '#public_id' do
-    it 'returns an encrypted, url-encoded session id' do
+    it 'returns an encrypted, URL-encoded session ID' do
       original_session_id = Rack::Session::SessionId.new("!*'();:@&\n=+$,/?%abcd#123[4567]8")
       active_session = ActiveSession.new(session_id: original_session_id)
       encrypted_id = active_session.public_id
@@ -263,7 +263,7 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_shared_state do
   end
 
   describe '.destroy_with_public_id' do
-    it 'receives a user and public id and destroys the associated session' do
+    it 'receives a user and public ID and destroys the associated session' do
       ActiveSession.set(user, request)
       session = ActiveSession.list(user).first
 
@@ -273,7 +273,7 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_shared_state do
       expect(total_sessions).to eq 0
     end
 
-    it 'handles invalid input for public id' do
+    it 'handles invalid input for public ID' do
       expect do
         ActiveSession.destroy_with_public_id(user, nil)
       end.not_to raise_error
@@ -287,7 +287,7 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_shared_state do
       end.not_to raise_error
     end
 
-    it 'does not attempt to destroy session when given invalid input for public id' do
+    it 'does not attempt to destroy session when given invalid input for public ID' do
       expect(ActiveSession).not_to receive(:destroy)
 
       ActiveSession.destroy_with_public_id(user, nil)

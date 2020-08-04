@@ -103,7 +103,7 @@ RSpec.describe ProtectedEnvironment do
   describe '.with_environment_id' do
     subject(:protected_environments) { described_class.with_environment_id }
 
-    it "sets corresponding environment id if there is environment matching by name and project" do
+    it "sets corresponding environment ID if there is environment matching by name and project" do
       project = create(:project)
       environment = create(:environment, project: project, name: 'production')
 

@@ -73,7 +73,7 @@ RSpec.describe PerformanceMonitoring::PrometheusPanel do
   end
 
   describe '.id' do
-    it 'returns hexdigest of group_title, type and title as the panel id' do
+    it 'returns hexdigest of group_title, type and title as the panel ID' do
       group_title = 'Business Group'
       panel_type  = 'area-chart'
       panel_title = 'New feature requests made'

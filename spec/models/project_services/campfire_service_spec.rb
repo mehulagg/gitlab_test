@@ -58,7 +58,7 @@ RSpec.describe CampfireService do
         headers: @headers
       )
 
-      # stub the speak request with the room id found in the previous request's response
+      # stub the speak request with the room ID found in the previous request's response
       speak_url = 'https://project-name.campfirenow.com/room/123/speak.json'
       stub_full_request(speak_url, method: :post).with(basic_auth: @auth)
 

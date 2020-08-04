@@ -24,7 +24,7 @@ RSpec.describe Gitlab::Geo::Replication::FileRetriever, :geo do
           end
         end
 
-        context 'when the extra_params id does not match the upload model_id' do
+        context 'when the extra_params ID does not match the upload model_id' do
           let(:extra_params) { { id: 10000, type: upload.model_type, checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } }
 
           it 'returns an error hash' do

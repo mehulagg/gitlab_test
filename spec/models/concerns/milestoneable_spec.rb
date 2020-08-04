@@ -24,13 +24,13 @@ RSpec.describe Milestoneable do
           it { is_expected.to be_valid }
         end
 
-        context 'with nil milestone id' do
+        context 'with nil milestone ID' do
           let(:milestone_id) { nil }
 
           it { is_expected.to be_valid }
         end
 
-        context 'with a milestone id from another project' do
+        context 'with a milestone ID from another project' do
           let(:milestone_id) { create(:milestone).id }
 
           it { is_expected.to be_invalid }

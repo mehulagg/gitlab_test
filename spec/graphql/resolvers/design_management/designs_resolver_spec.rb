@@ -61,7 +61,7 @@ RSpec.describe Resolvers::DesignManagement::DesignsResolver do
         end
       end
 
-      describe 'by id' do
+      describe 'by ID' do
         let(:second_version) { create(:design_version) }
         let(:second_design) { create(:design, issue: issue, versions: [second_version]) }
 

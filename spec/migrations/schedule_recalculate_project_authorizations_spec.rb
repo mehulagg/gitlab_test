@@ -36,7 +36,7 @@ RSpec.describe ScheduleRecalculateProjectAuthorizations do
     end
   end
 
-  it 'ignores projects with higher id than maximum group id' do
+  it 'ignores projects with higher ID than maximum group ID' do
     another_user = users_table.create!(name: 'another user', email: 'another-user@example.com',
                                        projects_limit: 1)
     ignored_project = projects_table.create!(id: 2, name: 'ignored-project', path: 'ignored-project',

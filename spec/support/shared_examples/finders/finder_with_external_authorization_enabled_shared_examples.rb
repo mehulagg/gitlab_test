@@ -23,7 +23,7 @@ RSpec.shared_examples 'a finder with external authorization service' do
       expect(described_class.new(user).execute).not_to include(subject)
     end
 
-    it 'includes the subject when a project id was given' do
+    it 'includes the subject when a project ID was given' do
       expect(described_class.new(user, project_params).execute).to include(subject)
     end
   end

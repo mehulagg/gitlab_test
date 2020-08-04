@@ -29,7 +29,7 @@ RSpec.describe 'User' do
     end
   end
 
-  context 'when id parameter is used' do
+  context 'when ID parameter is used' do
     let(:query) { graphql_query_for(:user, { id: current_user.to_global_id.to_s }) }
 
     it_behaves_like 'a working user query'
@@ -41,7 +41,7 @@ RSpec.describe 'User' do
     it_behaves_like 'a working user query'
   end
 
-  context 'when username and id parameter are used' do
+  context 'when username and ID parameter are used' do
     let_it_be(:query) { graphql_query_for(:user, { id: current_user.to_global_id.to_s, username: current_user.username }, 'id') }
 
     it 'displays an error' do

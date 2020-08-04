@@ -185,7 +185,7 @@ RSpec.shared_examples 'wiki controller actions' do
           expect(response).to render_template('shared/wikis/edit')
         end
 
-        it 'builds a new wiki page with the id as the title' do
+        it 'builds a new wiki page with the ID as the title' do
           expect(assigns(:page).title).to eq(id)
         end
 
@@ -253,7 +253,7 @@ RSpec.shared_examples 'wiki controller actions' do
       end
     end
 
-    context 'when id param is blank' do
+    context 'when ID param is blank' do
       let(:id_param) { ' ' }
 
       it 'redirects to the home page' do

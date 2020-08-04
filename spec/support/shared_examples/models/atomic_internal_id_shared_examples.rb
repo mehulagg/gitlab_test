@@ -44,10 +44,10 @@ RSpec.shared_examples 'AtomicInternalId' do |validate_presence: true|
       end
     end
 
-    describe 'internal id generation' do
+    describe 'internal ID generation' do
       subject { instance.save! }
 
-      it 'calls InternalId.generate_next and sets internal id attribute' do
+      it 'calls InternalId.generate_next and sets internal ID attribute' do
         iid = rand(1..1000)
 
         expect(InternalId).to receive(:generate_next).with(instance, scope_attrs, usage, any_args).and_return(iid)
@@ -55,7 +55,7 @@ RSpec.shared_examples 'AtomicInternalId' do |validate_presence: true|
         expect(read_internal_id).to eq(iid)
       end
 
-      it 'does not overwrite an existing internal id' do
+      it 'does not overwrite an existing internal ID' do
         write_internal_id(4711)
 
         expect { subject }.not_to change { read_internal_id }

@@ -145,7 +145,7 @@ RSpec.describe Gitlab::Database::BatchCount do
       it 'will raise an error if distinct count with the :id column is requested' do
         expect do
           described_class.batch_count(described_class.batch_distinct_count(model, :id))
-        end.to raise_error 'Use distinct count only with non id fields'
+        end.to raise_error 'Use distinct count only with non ID fields'
       end
     end
   end

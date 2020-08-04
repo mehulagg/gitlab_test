@@ -369,8 +369,8 @@ RSpec.shared_examples 'process nuget search request' do |user_type, status, add_
   end
 end
 
-RSpec.shared_examples 'rejects nuget access with invalid project id' do
-  context 'with a project id with invalid integers' do
+RSpec.shared_examples 'rejects nuget access with invalid project ID' do
+  context 'with a project ID with invalid integers' do
     using RSpec::Parameterized::TableSyntax
 
     let(:project) { OpenStruct.new(id: id) }
@@ -391,7 +391,7 @@ RSpec.shared_examples 'rejects nuget access with invalid project id' do
   end
 end
 
-RSpec.shared_examples 'rejects nuget access with unknown project id' do
+RSpec.shared_examples 'rejects nuget access with unknown project ID' do
   context 'with an unknown project' do
     let(:project) { OpenStruct.new(id: 1234567890) }
 

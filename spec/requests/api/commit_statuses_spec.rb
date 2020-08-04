@@ -269,7 +269,7 @@ RSpec.describe API::CommitStatuses do
           end
         end
 
-        context 'when a pipeline id is specified' do
+        context 'when a pipeline ID is specified' do
           let!(:first_pipeline) { project.ci_pipelines.create(source: :push, sha: commit.id, ref: 'master', status: 'created') }
           let!(:other_pipeline) { project.ci_pipelines.create(source: :push, sha: commit.id, ref: 'master', status: 'created') }
 

@@ -65,7 +65,7 @@ RSpec.describe Resolvers::DesignManagement::Version::DesignsAtVersionResolver do
         end
       end
 
-      describe 'by id' do
+      describe 'by ID' do
         let(:red_herring) { create(:design, issue: create(:issue, project: project)) }
         let(:args) { { ids: [design_a, red_herring].map { |x| global_id_of(x) } } }
 

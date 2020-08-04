@@ -21,7 +21,7 @@ RSpec.describe API::MergeTrains do
       let_it_be(:merge_train_1) { create(:merge_train, :merged, target_project: project) }
       let_it_be(:merge_train_2) { create(:merge_train, :idle, target_project: project) }
 
-      it 'returns merge trains sorted by id in descending order' do
+      it 'returns merge trains sorted by ID in descending order' do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -43,7 +43,7 @@ RSpec.describe API::MergeTrains do
       context 'when sort is specified' do
         let(:params) { { sort: 'asc' } }
 
-        it 'returns merge trains sorted by id in ascending order' do
+        it 'returns merge trains sorted by ID in ascending order' do
           subject
 
           expect(json_response.first['id']).to eq(merge_train_1.id)

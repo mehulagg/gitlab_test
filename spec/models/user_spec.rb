@@ -2531,7 +2531,7 @@ RSpec.describe User do
       expect(described_class.sort_by_attribute('created_asc').first).to eq(@user2)
     end
 
-    it 'sorts users by id in descending order when nil is passed' do
+    it 'sorts users by ID in descending order when nil is passed' do
       expect(described_class.sort_by_attribute(nil).first).to eq(@user2)
     end
   end

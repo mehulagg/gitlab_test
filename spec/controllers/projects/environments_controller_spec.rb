@@ -165,7 +165,7 @@ RSpec.describe Projects::EnvironmentsController do
   end
 
   describe 'GET show' do
-    context 'with valid id' do
+    context 'with valid ID' do
       it 'responds with a status code 200' do
         get :show, params: environment_params
 
@@ -173,7 +173,7 @@ RSpec.describe Projects::EnvironmentsController do
       end
     end
 
-    context 'with invalid id' do
+    context 'with invalid ID' do
       it 'responds with a status code 404' do
         params = environment_params
         params[:id] = non_existing_record_id
@@ -274,7 +274,7 @@ RSpec.describe Projects::EnvironmentsController do
   end
 
   describe 'GET #terminal' do
-    context 'with valid id' do
+    context 'with valid ID' do
       it 'responds with a status code 200' do
         get :terminal, params: environment_params
 
@@ -291,7 +291,7 @@ RSpec.describe Projects::EnvironmentsController do
       end
     end
 
-    context 'with invalid id' do
+    context 'with invalid ID' do
       it 'responds with a status code 404' do
         get :terminal, params: environment_params(id: 666)
 
@@ -306,7 +306,7 @@ RSpec.describe Projects::EnvironmentsController do
         allow(Gitlab::Workhorse).to receive(:verify_api_request!).and_return(nil)
       end
 
-      context 'and valid id' do
+      context 'and valid ID' do
         it 'returns the first terminal for the environment' do
           # In EE we have to stub EE::Environment since it overwrites the
           # "terminals" method.
@@ -327,7 +327,7 @@ RSpec.describe Projects::EnvironmentsController do
         end
       end
 
-      context 'and invalid id' do
+      context 'and invalid ID' do
         it 'returns 404' do
           get :terminal_websocket_authorize, params: environment_params(id: 666)
 

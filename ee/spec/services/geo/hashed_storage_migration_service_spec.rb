@@ -66,7 +66,7 @@ RSpec.describe Geo::HashedStorageMigrationService do
       service.async_execute
     end
 
-    it 'returns job id' do
+    it 'returns job ID' do
       allow(Geo::HashedStorageMigrationWorker).to receive(:perform_async).and_return('foo')
 
       expect(service.async_execute).to eq('foo')

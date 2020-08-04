@@ -78,7 +78,7 @@ RSpec.describe Projects::Security::ScannedResourcesController, type: :request do
         include_examples 'returns a 404'
       end
 
-      context 'when the pipeline id exists under another project' do
+      context 'when the pipeline ID exists under another project' do
         let(:pipeline_id) { pipeline_on_another_project.id }
 
         before do

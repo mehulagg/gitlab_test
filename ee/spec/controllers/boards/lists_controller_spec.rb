@@ -487,7 +487,7 @@ RSpec.describe Boards::ListsController do
       end
     end
 
-    context 'with invalid list id' do
+    context 'with invalid list ID' do
       it 'returns a not found 404 response' do
         move user: user, board: board, list: non_existing_record_id, position: 1
 
@@ -519,7 +519,7 @@ RSpec.describe Boards::ListsController do
   describe 'DELETE destroy' do
     let!(:planning) { create(:list, board: board, position: 0) }
 
-    context 'with valid list id' do
+    context 'with valid list ID' do
       it 'returns a successful 200 response' do
         remove_board_list user: user, board: board, list: planning
 
@@ -531,7 +531,7 @@ RSpec.describe Boards::ListsController do
       end
     end
 
-    context 'with invalid list id' do
+    context 'with invalid list ID' do
       it 'returns a not found 404 response' do
         remove_board_list user: user, board: board, list: non_existing_record_id
 

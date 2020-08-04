@@ -44,7 +44,7 @@ RSpec.describe 'Creating a DAST Scanner Profile' do
       project.add_developer(current_user)
     end
 
-    it 'returns the dast_scanner_profile id' do
+    it 'returns the dast_scanner_profile ID' do
       post_graphql_mutation(mutation, current_user: current_user)
 
       expect(mutation_response["id"]).to eq(dast_scanner_profile.to_global_id.to_s)

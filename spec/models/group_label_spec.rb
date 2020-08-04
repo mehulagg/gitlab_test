@@ -22,7 +22,7 @@ RSpec.describe GroupLabel do
   describe '#to_reference' do
     let(:label) { create(:group_label, title: 'feature') }
 
-    context 'using id' do
+    context 'using ID' do
       it 'returns a String reference to the object' do
         expect(label.to_reference).to eq "~#{label.id}"
       end
@@ -33,7 +33,7 @@ RSpec.describe GroupLabel do
         expect(label.to_reference(format: :name)).to eq %(~"#{label.name}")
       end
 
-      it 'uses id when name contains double quote' do
+      it 'uses ID when name contains double quote' do
         label = create(:label, name: %q{"irony"})
         expect(label.to_reference(format: :name)).to eq "~#{label.id}"
       end

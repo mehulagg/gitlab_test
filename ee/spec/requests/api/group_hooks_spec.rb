@@ -81,7 +81,7 @@ RSpec.describe API::GroupHooks do
         expect(response).to match_response_schema('public_api/v4/group_hook', dir: 'ee')
       end
 
-      it "returns 404 if hook id is invalid" do
+      it "returns 404 if hook ID is invalid" do
         make_single_hook_request(group.id, 1234, group_admin)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -182,7 +182,7 @@ RSpec.describe API::GroupHooks do
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it "returns 404 if group id is not found" do
+      it "returns 404 if group ID is not found" do
         make_put_group_hook_request(1234, hook.id, group_admin, hook_params)
 
         expect(response).to have_gitlab_http_status(:not_found)
@@ -216,19 +216,19 @@ RSpec.describe API::GroupHooks do
         expect(response).to have_gitlab_http_status(:no_content)
       end
 
-      it "returns 404 when hook id is not given" do
+      it "returns 404 when hook ID is not given" do
         make_delete_group_hook_request(group.id, nil, group_admin)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it "returns 404 if hook id is invalid" do
+      it "returns 404 if hook ID is invalid" do
         make_delete_group_hook_request(group.id, 1234, group_admin)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it "returns 404 if group id is invalid" do
+      it "returns 404 if group ID is invalid" do
         make_delete_group_hook_request(1234, hook.id, group_admin)
 
         expect(response).to have_gitlab_http_status(:not_found)

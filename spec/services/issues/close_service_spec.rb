@@ -180,7 +180,7 @@ RSpec.describe Issues::CloseService do
       end
 
       context 'when user cannot read the commit' do
-        it 'does not mention the commit id' do
+        it 'does not mention the commit ID' do
           project.project_feature.update_attribute(:repository_access_level, ProjectFeature::DISABLED)
           perform_enqueued_jobs do
             described_class.new(project, user).close_issue(issue, closed_via: closing_commit)

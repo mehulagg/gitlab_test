@@ -123,14 +123,14 @@ RSpec.describe Emails::ServiceDesk do
         it_behaves_like 'handle template content', 'thank_you'
       end
 
-      context 'with an issue id and issue path placeholders' do
+      context 'with an issue ID and issue path placeholders' do
         let(:template_content) { 'thank you, **your new issue:** %{ISSUE_ID}, path: %{ISSUE_PATH}' }
         let(:expected_body) { "thank you, <strong>your new issue:</strong> ##{issue.iid}, path: #{project.full_path}##{issue.iid}" }
 
         it_behaves_like 'handle template content', 'thank_you'
       end
 
-      context 'with an issue id placeholder with whitespace' do
+      context 'with an issue ID placeholder with whitespace' do
         let(:template_content) { 'thank you, **your new issue:** %{  ISSUE_ID}' }
         let(:expected_body) { "thank you, <strong>your new issue:</strong> ##{issue.iid}" }
 
@@ -170,7 +170,7 @@ RSpec.describe Emails::ServiceDesk do
         it_behaves_like 'handle template content', 'new_note'
       end
 
-      context 'with an issue id placeholder with whitespace' do
+      context 'with an issue ID placeholder with whitespace' do
         let(:template_content) { 'thank you, **new note on issue:** %{  ISSUE_ID}: %{ NOTE_TEXT  }' }
         let(:expected_body) { "thank you, <strong>new note on issue:</strong> ##{issue.iid}: #{note.note}" }
 

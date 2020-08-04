@@ -95,7 +95,7 @@ module API
         success EE::API::Entities::Vulnerability
       end
       params do
-        requires :finding_id, type: Integer, desc: 'The id of confirmed vulnerability finding'
+        requires :finding_id, type: Integer, desc: 'The ID of confirmed vulnerability finding'
       end
       post ':id/vulnerabilities' do
         authorize! :create_vulnerability, user_project

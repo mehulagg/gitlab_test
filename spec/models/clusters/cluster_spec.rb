@@ -907,7 +907,7 @@ RSpec.describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     let(:default_namespace) { Gitlab::Kubernetes::DefaultNamespace.new(cluster, project: cluster.project).from_environment_slug(environment.slug) }
     let(:build_options) { {} }
 
-    it 'validates the project id' do
+    it 'validates the project ID' do
       environment.project_id = build.project_id + 1
       expect { subject }.to raise_error ArgumentError, 'environment.project_id must match deployable.project_id'
     end

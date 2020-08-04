@@ -113,7 +113,7 @@ module Gitlab
       def check_mode!(mode)
         raise "The mode #{mode.inspect} is not supported" unless ALLOWED_MODES.include?(mode)
         raise 'Use distinct count for optimized distinct counting' if @relation.limit(1).distinct_value.present? && mode != :distinct
-        raise 'Use distinct count only with non id fields' if @column == :id && mode == :distinct
+        raise 'Use distinct count only with non ID fields' if @column == :id && mode == :distinct
       end
     end
   end

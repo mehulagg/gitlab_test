@@ -169,7 +169,7 @@ RSpec.describe Projects::BoardsController do
       end
     end
 
-    context 'with invalid board id' do
+    context 'with invalid board ID' do
       it 'returns a not found 404 response' do
         update_board non_existing_record_id, name: nil
 
@@ -207,7 +207,7 @@ RSpec.describe Projects::BoardsController do
     let!(:boards) { create_pair(:board, project: project) }
     let(:board)   { project.boards.first }
 
-    context 'with valid board id' do
+    context 'with valid board ID' do
       it 'redirects to the issue boards page' do
         remove_board board: board
 
@@ -219,7 +219,7 @@ RSpec.describe Projects::BoardsController do
       end
     end
 
-    context 'with invalid board id' do
+    context 'with invalid board ID' do
       it 'returns a not found 404 response' do
         remove_board board: non_existing_record_id
 

@@ -385,7 +385,7 @@ RSpec.describe Gitlab::JsonCache do
         end
 
         context 'when the cached value is an instance of ActiveRecord::Base' do
-          it 'returns a persisted record when id is set' do
+          it 'returns a persisted record when ID is set' do
             backend.write(expanded_key, broadcast_message.to_json)
 
             result = cache.fetch(key, as: BroadcastMessage) { 'block result' }
@@ -393,7 +393,7 @@ RSpec.describe Gitlab::JsonCache do
             expect(result).to be_persisted
           end
 
-          it 'returns a new record when id is nil' do
+          it 'returns a new record when ID is nil' do
             backend.write(expanded_key, build(:broadcast_message).to_json)
 
             result = cache.fetch(key, as: BroadcastMessage) { 'block result' }
@@ -401,7 +401,7 @@ RSpec.describe Gitlab::JsonCache do
             expect(result).to be_new_record
           end
 
-          it 'returns a new record when id is missing' do
+          it 'returns a new record when ID is missing' do
             backend.write(expanded_key, build(:broadcast_message).attributes.except('id').to_json)
 
             result = cache.fetch(key, as: BroadcastMessage) { 'block result' }

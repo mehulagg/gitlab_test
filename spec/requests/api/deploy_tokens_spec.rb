@@ -184,13 +184,13 @@ RSpec.describe API::DeployTokens do
       end
 
       context 'invalid request' do
-        it 'returns not found with invalid group id' do
+        it 'returns not found with invalid group ID' do
           delete api("/projects/bad_id/deploy_tokens/#{group_deploy_token.id}", user)
 
           expect(response).to have_gitlab_http_status(:not_found)
         end
 
-        it 'returns bad_request with invalid token id' do
+        it 'returns bad_request with invalid token ID' do
           expect(::Projects::DeployTokens::DestroyService).to receive(:new)
             .with(project, user, token_id: 999)
             .and_raise(ActiveRecord::RecordNotFound)
@@ -347,13 +347,13 @@ RSpec.describe API::DeployTokens do
       end
 
       context 'invalid request' do
-        it 'returns bad request with invalid group id' do
+        it 'returns bad request with invalid group ID' do
           delete api("/groups/bad_id/deploy_tokens/#{group_deploy_token.id}", user)
 
           expect(response).to have_gitlab_http_status(:not_found)
         end
 
-        it 'returns not found with invalid deploy token id' do
+        it 'returns not found with invalid deploy token ID' do
           expect(::Groups::DeployTokens::DestroyService).to receive(:new)
             .with(group, user, token_id: 999)
             .and_raise(ActiveRecord::RecordNotFound)

@@ -22,7 +22,7 @@ module Mutations
       argument :id,
                GraphQL::ID_TYPE,
                required: true,
-               description: 'The id of the iteration'
+               description: 'The ID of the iteration'
 
       argument :title,
                GraphQL::STRING_TYPE,

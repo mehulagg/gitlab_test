@@ -16,7 +16,7 @@ module Resolvers
 
     def ready?(id: nil, username: nil)
       unless id.present? ^ username.present?
-        raise Gitlab::Graphql::Errors::ArgumentError, 'Provide either a single username or id'
+        raise Gitlab::Graphql::Errors::ArgumentError, 'Provide either a single username or ID'
       end
 
       super

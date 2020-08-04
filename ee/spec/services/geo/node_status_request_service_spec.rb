@@ -22,7 +22,7 @@ RSpec.describe Geo::NodeStatusRequestService, :geo do
       stub_current_geo_node(primary)
     end
 
-    it 'does not include id in the payload' do
+    it 'does not include ID in the payload' do
       expect(Gitlab::HTTP).to receive(:perform_request)
                                 .with(
                                   Net::HTTP::Post,

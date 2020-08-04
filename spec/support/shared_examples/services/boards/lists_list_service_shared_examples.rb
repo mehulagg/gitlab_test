@@ -30,7 +30,7 @@ RSpec.shared_examples 'lists list service' do
   context 'when wanting a specific list' do
     let!(:list1) { create(:list, board: board) }
 
-    it 'returns list specified by id' do
+    it 'returns list specified by ID' do
       service = described_class.new(parent, user, list_id: list1.id)
 
       expect(service.execute(board, create_default_lists: false)).to eq [list1]

@@ -65,7 +65,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(json_response.first['id']).to eq(note.discussion_id)
     end
 
-    it "returns a 404 error when noteable id not found" do
+    it "returns a 404 error when noteable ID not found" do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{non_existing_record_iid}/discussions", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -246,7 +246,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(json_response['body']).to eq('Hello!')
     end
 
-    it 'returns a 404 error when note id not found' do
+    it 'returns a 404 error when note ID not found' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}/notes/#{non_existing_record_id}", user),
               params: { body: 'Hello!' }
@@ -274,7 +274,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns a 404 error when note id not found' do
+    it 'returns a 404 error when note ID not found' do
       delete api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
                  "discussions/#{note.discussion_id}/notes/#{non_existing_record_id}", user)
 

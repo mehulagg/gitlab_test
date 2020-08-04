@@ -281,7 +281,7 @@ RSpec.describe API::Terraform::State do
 
     subject(:request) { delete api("#{state_path}/lock"), headers: auth_header, params: params }
 
-    context 'with the correct lock id' do
+    context 'with the correct lock ID' do
       let(:lock_id) { '123-456' }
 
       it 'removes the terraform state lock' do
@@ -291,7 +291,7 @@ RSpec.describe API::Terraform::State do
       end
     end
 
-    context 'with no lock id (force-unlock)' do
+    context 'with no lock ID (force-unlock)' do
       let(:params) { {} }
 
       it 'removes the terraform state lock' do
@@ -301,7 +301,7 @@ RSpec.describe API::Terraform::State do
       end
     end
 
-    context 'with an incorrect lock id' do
+    context 'with an incorrect lock ID' do
       let(:lock_id) { '456-789' }
 
       it 'returns an error' do
@@ -311,7 +311,7 @@ RSpec.describe API::Terraform::State do
       end
     end
 
-    context 'with a longer than 255 character lock id' do
+    context 'with a longer than 255 character lock ID' do
       let(:lock_id) { '0' * 256 }
 
       it 'returns an error' do

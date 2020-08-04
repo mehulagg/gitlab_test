@@ -25,13 +25,13 @@ RSpec.describe Resolvers::DesignManagement::VersionInCollectionResolver do
 
     subject(:result) { resolve_version(issue.design_collection) }
 
-    context 'Neither id nor sha is passed as parameters' do
+    context 'Neither ID nor sha is passed as parameters' do
       it 'raises an appropriate error' do
         expect { result }.to raise_error(appropriate_error)
       end
     end
 
-    context 'we pass an id' do
+    context 'we pass an ID' do
       let(:params) { { id: global_id_of(first_version) } }
 
       it { is_expected.to eq(first_version) }
@@ -43,13 +43,13 @@ RSpec.describe Resolvers::DesignManagement::VersionInCollectionResolver do
       it { is_expected.to eq(first_version) }
     end
 
-    context 'we pass an inconsistent mixture of sha and version id' do
+    context 'we pass an inconsistent mixture of sha and version ID' do
       let(:params) { { sha: first_version.sha, id: global_id_of(create(:design_version)) } }
 
       it { is_expected.to be_nil }
     end
 
-    context 'we pass the id of something that is not a design_version' do
+    context 'we pass the ID of something that is not a design_version' do
       let(:params) { { id: global_id_of(project) } }
 
       it 'raises an appropriate error' do

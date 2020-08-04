@@ -18,7 +18,7 @@ module Geo
       return if Gitlab::Database.read_only?
 
       try_obtain_lease do
-        log_info('Prune Geo Event Log entries up to id', geo_event_log_id: event_log_min_id)
+        log_info('Prune Geo Event Log entries up to ID', geo_event_log_id: event_log_min_id)
 
         prunable_relations.reduce(TOTAL_LIMIT) do |limit, relation|
           break if limit <= 0

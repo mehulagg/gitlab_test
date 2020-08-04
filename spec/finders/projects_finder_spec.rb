@@ -61,7 +61,7 @@ RSpec.describe ProjectsFinder, :do_not_mock_admin_mode do
       end
 
       describe 'with id_after' do
-        context 'only returns projects with a project id greater than given' do
+        context 'only returns projects with a project ID greater than given' do
           let(:params) { { id_after: internal_project.id }}
 
           it { is_expected.to eq([public_project]) }
@@ -69,7 +69,7 @@ RSpec.describe ProjectsFinder, :do_not_mock_admin_mode do
       end
 
       describe 'with id_before' do
-        context 'only returns projects with a project id less than given' do
+        context 'only returns projects with a project ID less than given' do
           let(:params) { { id_before: public_project.id }}
 
           it { is_expected.to eq([internal_project]) }
@@ -77,7 +77,7 @@ RSpec.describe ProjectsFinder, :do_not_mock_admin_mode do
       end
 
       describe 'with both id_before and id_after' do
-        context 'only returns projects with a project id less than given' do
+        context 'only returns projects with a project ID less than given' do
           let!(:projects) { create_list(:project, 5, :public) }
           let(:params) { { id_after: projects.first.id, id_before: projects.last.id }}
 
@@ -86,7 +86,7 @@ RSpec.describe ProjectsFinder, :do_not_mock_admin_mode do
       end
 
       describe 'regression: Combination of id_before/id_after and joins requires fully qualified column names' do
-        context 'only returns projects with a project id less than given and matching search' do
+        context 'only returns projects with a project ID less than given and matching search' do
           subject { finder.execute.joins(:route) }
 
           let(:params) { { id_before: public_project.id }}
@@ -94,7 +94,7 @@ RSpec.describe ProjectsFinder, :do_not_mock_admin_mode do
           it { is_expected.to eq([internal_project]) }
         end
 
-        context 'only returns projects with a project id greater than given and matching search' do
+        context 'only returns projects with a project ID greater than given and matching search' do
           subject { finder.execute.joins(:route) }
 
           let(:params) { { id_after: internal_project.id }}

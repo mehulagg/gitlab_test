@@ -20,7 +20,7 @@ module API
         optional :all_available, type: Boolean, desc: 'Show all group that you have access to'
         optional :search, type: String, desc: 'Search for a specific group'
         optional :owned, type: Boolean, default: false, desc: 'Limit by owned by authenticated user'
-        optional :order_by, type: String, values: %w[name path id], default: 'name', desc: 'Order by name, path or id'
+        optional :order_by, type: String, values: %w[name path id], default: 'name', desc: 'Order by name, path or ID'
         optional :sort, type: String, values: %w[asc desc], default: 'asc', desc: 'Sort by asc (ascending) or desc (descending)'
         optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Minimum access level of authenticated user'
         optional :top_level_only, type: Boolean, desc: 'Only include top level groups'
@@ -153,7 +153,7 @@ module API
       params do
         requires :name, type: String, desc: 'The name of the group'
         requires :path, type: String, desc: 'The path of the group'
-        optional :parent_id, type: Integer, desc: 'The parent group id for creating nested group'
+        optional :parent_id, type: Integer, desc: 'The parent group ID for creating nested group'
 
         use :optional_params
       end

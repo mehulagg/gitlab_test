@@ -294,7 +294,7 @@ RSpec.describe API::Groups do
         expect(response_groups).to eq(groups_visible_to_user(user1).order(:path).pluck(:name))
       end
 
-      it "sorts by id in the order_by param" do
+      it "sorts by ID in the order_by param" do
         get api("/groups", user1), params: { order_by: "id" }
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -303,7 +303,7 @@ RSpec.describe API::Groups do
         expect(response_groups).to eq(groups_visible_to_user(user1).order(:id).pluck(:name))
       end
 
-      it "sorts also by descending id with pagination fix" do
+      it "sorts also by descending ID with pagination fix" do
         get api("/groups", user1), params: { order_by: "id", sort: "desc" }
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -312,7 +312,7 @@ RSpec.describe API::Groups do
         expect(response_groups).to eq(groups_visible_to_user(user1).order(id: :desc).pluck(:name))
       end
 
-      it "sorts identical keys by id for good pagination" do
+      it "sorts identical keys by ID for good pagination" do
         get api("/groups", user1), params: { search: "same-name", order_by: "name" }
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -321,7 +321,7 @@ RSpec.describe API::Groups do
         expect(response_groups_ids).to eq(Group.select { |group| group['name'] == 'same-name' }.map { |group| group['id'] }.sort)
       end
 
-      it "sorts descending identical keys by id for good pagination" do
+      it "sorts descending identical keys by ID for good pagination" do
         get api("/groups", user1), params: { search: "same-name", order_by: "name", sort: "desc" }
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -1668,7 +1668,7 @@ RSpec.describe API::Groups do
         expect(json_response['shared_with_groups'][0]['expires_at']).to eq(expires_at.to_s)
       end
 
-      it "returns a 400 error when group id is not given" do
+      it "returns a 400 error when group ID is not given" do
         post api("/groups/#{group.id}/share", user), params: { group_access: Gitlab::Access::DEVELOPER }
         expect(response).to have_gitlab_http_status(:bad_request)
       end
@@ -1752,7 +1752,7 @@ RSpec.describe API::Groups do
         end.to change { shared_group.shared_with_group_links.count }.by(-1)
       end
 
-      it 'requires the group id to be an integer' do
+      it 'requires the group ID to be an integer' do
         delete api("/groups/#{shared_group.id}/share/foo", user)
 
         expect(response).to have_gitlab_http_status(:bad_request)

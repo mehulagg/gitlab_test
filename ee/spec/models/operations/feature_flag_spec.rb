@@ -242,7 +242,7 @@ RSpec.describe Operations::FeatureFlag do
       expect(flags).to eq([])
     end
 
-    it 'returns feature flags ordered by id' do
+    it 'returns feature flags ordered by ID' do
       create(:operations_scope, strategy: strategy, environment_scope: 'production')
       feature_flag_b = create(:operations_feature_flag, project: project,
                               name: 'feature2', active: true, version: 2)

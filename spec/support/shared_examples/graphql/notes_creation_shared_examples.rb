@@ -47,7 +47,7 @@ RSpec.shared_examples 'a Note mutation when there are active record validation e
   end
 end
 
-RSpec.shared_examples 'a Note mutation when the given resource id is not for a Noteable' do
+RSpec.shared_examples 'a Note mutation when the given resource ID is not for a Noteable' do
   let(:noteable) { create(:label, project: project) }
 
   it_behaves_like 'a Note mutation that does not create a Note'
@@ -55,7 +55,7 @@ RSpec.shared_examples 'a Note mutation when the given resource id is not for a N
   it_behaves_like 'a mutation that returns top-level errors', errors: ['Cannot add notes to this resource']
 end
 
-RSpec.shared_examples 'a Note mutation when the given resource id is not for a Note' do
+RSpec.shared_examples 'a Note mutation when the given resource ID is not for a Note' do
   let(:note) { create(:issue) }
 
   it_behaves_like 'a mutation that returns top-level errors', errors: ['Resource is not a note']

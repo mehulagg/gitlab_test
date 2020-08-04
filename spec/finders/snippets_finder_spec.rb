@@ -68,7 +68,7 @@ RSpec.describe SnippetsFinder do
         end
       end
 
-      context 'when the author is the User id' do
+      context 'when the author is the User ID' do
         it 'returns all public and internal snippets' do
           snippets = described_class.new(create(:user), author: user.id).execute
 
@@ -132,7 +132,7 @@ RSpec.describe SnippetsFinder do
         end
       end
 
-      context 'when project is a Project id' do
+      context 'when project is a Project ID' do
         it 'returns public personal and project snippets for unauthorized user' do
           snippets = described_class.new(nil, project: project.id).execute
 
@@ -303,7 +303,7 @@ RSpec.describe SnippetsFinder do
     end
 
     context 'no sort param is provided' do
-      it 'returns snippets sorted by id' do
+      it 'returns snippets sorted by ID' do
         snippets = described_class.new(admin).execute
 
         expect(snippets.ids).to eq(Snippet.order_id_desc.ids)

@@ -57,7 +57,7 @@ RSpec.describe API::PypiPackages do
 
     it_behaves_like 'deploy token for package GET requests'
 
-    it_behaves_like 'rejects PyPI access with unknown project id'
+    it_behaves_like 'rejects PyPI access with unknown project ID'
   end
 
   describe 'POST /api/v4/projects/:id/packages/pypi/authorize' do
@@ -107,7 +107,12 @@ RSpec.describe API::PypiPackages do
 
     it_behaves_like 'deploy token for package uploads'
 
+<<<<<<< HEAD
     it_behaves_like 'rejects PyPI access with unknown project id'
+=======
+      it_behaves_like 'rejects PyPI access with unknown project ID'
+    end
+>>>>>>> e4566323d8a... Edit many rb files
   end
 
   describe 'POST /api/v4/projects/:id/packages/pypi' do
@@ -178,7 +183,11 @@ RSpec.describe API::PypiPackages do
         project.add_developer(user)
       end
 
+<<<<<<< HEAD
       it_behaves_like 'returning response status', :bad_request
+=======
+      it_behaves_like 'rejects PyPI access with unknown project ID'
+>>>>>>> e4566323d8a... Edit many rb files
     end
 
     it_behaves_like 'deploy token for package uploads'
@@ -246,6 +255,6 @@ RSpec.describe API::PypiPackages do
       end
     end
 
-    it_behaves_like 'rejects PyPI access with unknown project id'
+    it_behaves_like 'rejects PyPI access with unknown project ID'
   end
 end

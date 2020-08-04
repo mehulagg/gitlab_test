@@ -46,7 +46,7 @@ RSpec.describe 'Adding a DiffNote' do
     context do
       let(:diff_refs) { build(:merge_request).diff_refs } # Allow fake diff refs so arguments are valid
 
-      it_behaves_like 'a Note mutation when the given resource id is not for a Noteable'
+      it_behaves_like 'a Note mutation when the given resource ID is not for a Noteable'
     end
 
     it 'returns the note with the correct position' do

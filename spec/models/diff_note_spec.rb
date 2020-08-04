@@ -418,7 +418,7 @@ RSpec.describe DiffNote do
       end
     end
 
-    context "when it didn't store a discussion id before" do
+    context "when it didn't store a discussion ID before" do
       before do
         note.update_column(:discussion_id, nil)
       end

@@ -126,7 +126,7 @@ RSpec.shared_examples_for 'metrics dashboard prometheus api proxy' do
     end
   end
 
-  context 'with invalid proxyable id' do
+  context 'with invalid proxyable ID' do
     let(:prometheus_body) { nil }
 
     it 'returns 404' do

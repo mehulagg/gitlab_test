@@ -176,7 +176,7 @@ RSpec.describe MergeRequestsFinder do
         end
       end
 
-      it 'filters by source project id' do
+      it 'filters by source project ID' do
         params = { source_project_id: merge_request2.source_project_id }
 
         merge_requests = described_class.new(user, params).execute

@@ -954,7 +954,7 @@ RSpec.describe Note do
       end
     end
 
-    context "when it didn't store a discussion id before" do
+    context "when it didn't store a discussion ID before" do
       before do
         note.update_column(:discussion_id, nil)
       end
@@ -971,7 +971,7 @@ RSpec.describe Note do
     context 'when the note is displayed out of context' do
       let(:merge_request) { create(:merge_request) }
 
-      it 'overrides the discussion id' do
+      it 'overrides the discussion ID' do
         expect(note.discussion_id(merge_request)).not_to eq(note.discussion_id)
       end
     end

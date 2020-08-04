@@ -229,7 +229,7 @@ RSpec.describe Issue do
     let(:issue)     { build(:issue, iid: 1, project: project) }
 
     context 'when nil argument' do
-      it 'returns issue id' do
+      it 'returns issue ID' do
         expect(issue.to_reference).to eq "#1"
       end
 
@@ -240,7 +240,7 @@ RSpec.describe Issue do
 
     context 'when argument is a project' do
       context 'when same project' do
-        it 'returns issue id' do
+        it 'returns issue ID' do
           expect(issue.to_reference(project)).to eq("#1")
         end
 

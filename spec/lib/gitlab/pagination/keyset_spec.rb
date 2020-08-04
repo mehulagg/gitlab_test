@@ -31,13 +31,13 @@ RSpec.describe Gitlab::Pagination::Keyset do
       end
     end
 
-    context 'with order-by id asc' do
+    context 'with order-by ID asc' do
       let(:order_by) { { id: :asc } }
 
       it_behaves_like 'keyset pagination is available'
     end
 
-    context 'with order-by id desc' do
+    context 'with order-by ID desc' do
       let(:order_by) { { id: :desc } }
 
       it_behaves_like 'keyset pagination is available'

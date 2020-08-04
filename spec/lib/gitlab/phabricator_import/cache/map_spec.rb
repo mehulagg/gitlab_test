@@ -9,7 +9,7 @@ RSpec.describe Gitlab::PhabricatorImport::Cache::Map, :clean_gitlab_redis_cache 
   subject(:map) { described_class.new(project) }
 
   describe '#get_gitlab_model' do
-    it 'returns nil if there was nothing cached for the phabricator id' do
+    it 'returns nil if there was nothing cached for the phabricator ID' do
       expect(map.get_gitlab_model('does not exist')).to be_nil
     end
 
@@ -53,7 +53,7 @@ RSpec.describe Gitlab::PhabricatorImport::Cache::Map, :clean_gitlab_redis_cache 
       Timecop.freeze { example.run }
     end
 
-    it 'sets the class and id in redis with a ttl' do
+    it 'sets the class and ID in redis with a ttl' do
       issue = create(:issue, project: project)
 
       map.set_gitlab_model(issue, 'it is set')

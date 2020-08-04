@@ -36,7 +36,7 @@ RSpec.describe 'Updating a Note' do
   context 'when the user has permission' do
     let(:current_user) { note.author }
 
-    it_behaves_like 'a Note mutation when the given resource id is not for a Note'
+    it_behaves_like 'a Note mutation when the given resource ID is not for a Note'
 
     it 'updates the Note' do
       post_graphql_mutation(mutation, current_user: current_user)

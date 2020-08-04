@@ -43,7 +43,7 @@ module Banzai
         end
 
         # If project does not belong to a group
-        # and does not have the same project id as the current project
+        # and does not have the same project ID as the current project
         # base class will check if user can read the project that contains
         # the user reference.
         visible + super(current_user, remaining)

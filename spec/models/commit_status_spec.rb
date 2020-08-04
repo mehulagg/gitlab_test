@@ -468,7 +468,7 @@ RSpec.describe CommitStatus do
     let(:status_1) { create_status(lock_version: 1) }
     let(:status_2) { create_status(lock_version: 2) }
 
-    it 'returns statuses that match the given id and lock versions' do
+    it 'returns statuses that match the given ID and lock versions' do
       params = [
         { id: status_1.id, lock_version: 1 },
         { id: status_2.id, lock_version: 3 }

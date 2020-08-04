@@ -50,7 +50,7 @@ RSpec.describe API::ComposerPackages do
         end
       end
 
-      it_behaves_like 'rejects Composer access with unknown group id'
+      it_behaves_like 'rejects Composer access with unknown group ID'
     end
   end
 
@@ -93,7 +93,7 @@ RSpec.describe API::ComposerPackages do
         end
       end
 
-      it_behaves_like 'rejects Composer access with unknown group id'
+      it_behaves_like 'rejects Composer access with unknown group ID'
     end
   end
 
@@ -143,7 +143,7 @@ RSpec.describe API::ComposerPackages do
         end
       end
 
-      it_behaves_like 'rejects Composer access with unknown group id'
+      it_behaves_like 'rejects Composer access with unknown group ID'
     end
   end
 
@@ -190,7 +190,7 @@ RSpec.describe API::ComposerPackages do
           end
         end
 
-        it_behaves_like 'rejects Composer access with unknown project id'
+        it_behaves_like 'rejects Composer access with unknown project ID'
       end
     end
 
@@ -296,7 +296,7 @@ RSpec.describe API::ComposerPackages do
         end
       end
 
-      it_behaves_like 'rejects Composer access with unknown project id'
+      it_behaves_like 'rejects Composer access with unknown project ID'
     end
   end
 end

@@ -93,7 +93,7 @@ RSpec.describe API::Issues do
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it 'returns 404 error if issue id is used instead of the iid' do
+    it 'returns 404 error if issue ID is used instead of the iid' do
       put api("/projects/#{project.id}/issues/#{issue.id}", user), params: { title: updated_title }
 
       expect(response).to have_gitlab_http_status(:not_found)

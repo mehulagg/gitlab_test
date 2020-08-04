@@ -161,23 +161,23 @@ RSpec.describe Gitlab::Git::Commit, :seed_helper do
         expect(described_class.find(repository, "+123_4532530XYZ")).to be_nil
       end
 
-      it "returns nil for id started with dash" do
+      it "returns nil for ID started with dash" do
         expect(described_class.find(repository, "-HEAD")).to be_nil
       end
 
-      it "returns nil for id containing colon" do
+      it "returns nil for ID containing colon" do
         expect(described_class.find(repository, "HEAD:")).to be_nil
       end
 
-      it "returns nil for id containing space" do
+      it "returns nil for ID containing space" do
         expect(described_class.find(repository, "HE AD")).to be_nil
       end
 
-      it "returns nil for id containing tab" do
+      it "returns nil for ID containing tab" do
         expect(described_class.find(repository, "HE\tAD")).to be_nil
       end
 
-      it "returns nil for id containing NULL" do
+      it "returns nil for ID containing NULL" do
         expect(described_class.find(repository, "HE\x00AD")).to be_nil
       end
 
@@ -322,7 +322,7 @@ RSpec.describe Gitlab::Git::Commit, :seed_helper do
       it { is_expected.not_to include("eb49186cfa5c4338011f5f590fac11bd66c5c631") }
     end
 
-    context 'ref is commit id' do
+    context 'ref is commit ID' do
       subject do
         commits = described_class.where(
           repo: repository,

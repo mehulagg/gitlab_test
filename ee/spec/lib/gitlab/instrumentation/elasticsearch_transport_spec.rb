@@ -58,7 +58,7 @@ RSpec.describe ::Gitlab::Instrumentation::ElasticsearchTransportInterceptor, :el
     expect(::Gitlab::Instrumentation::ElasticsearchTransport.detail_store).not_to be_empty
   end
 
-  it 'adds the labkit correlation id as X-Opaque-Id to all requests' do
+  it 'adds the labkit correlation ID as X-Opaque-Id to all requests' do
     allow(Labkit::Correlation::CorrelationId).to receive(:current_or_new_id).and_return('new-correlation-id')
 
     elasticsearch_url = Gitlab::CurrentSettings.elasticsearch_url[0]

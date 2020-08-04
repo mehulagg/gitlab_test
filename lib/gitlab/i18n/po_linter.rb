@@ -83,7 +83,7 @@ module Gitlab
         end
 
         if entry.plural_id_contains_unescaped_chars?
-          errors << 'plural id contains unescaped `%`, escape it using `%%`'
+          errors << 'plural ID contains unescaped `%`, escape it using `%%`'
         end
 
         if entry.translations_contain_unescaped_chars?
@@ -100,7 +100,7 @@ module Gitlab
         end
 
         if entry.plural_id_contains_potential_html? && !entry.plural_id_html_allowed?
-          errors << 'plural id ' + common_message
+          errors << 'plural ID ' + common_message
         end
 
         if entry.translations_contain_potential_html? && !entry.translations_html_allowed?

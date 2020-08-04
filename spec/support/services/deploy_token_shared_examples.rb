@@ -71,7 +71,7 @@ RSpec.shared_examples 'a deploy token deletion service' do
         .and change { DeployToken.count }.by(-1)
     end
 
-    context 'invalid token id' do
+    context 'invalid token ID' do
       let(:deploy_token_params) { { token_id: 9999 } }
 
       it 'raises an error' do

@@ -31,7 +31,7 @@ module API
 
       desc 'Delete a license'
       params do
-        requires :id, type: Integer, desc: 'The license id'
+        requires :id, type: Integer, desc: 'The license ID'
       end
       delete ':id' do
         license = LicensesFinder.new(current_user, id: params[:id]).execute.first

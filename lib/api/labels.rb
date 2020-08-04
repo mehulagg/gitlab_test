@@ -53,7 +53,7 @@ module API
         success Entities::ProjectLabel
       end
       params do
-        optional :label_id, type: Integer, desc: 'The id of the label to be updated'
+        optional :label_id, type: Integer, desc: 'The ID of the label to be updated'
         optional :name, type: String, desc: 'The name of the label to be updated'
         use :project_label_update_params
         exactly_one_of :label_id, :name
@@ -67,7 +67,7 @@ module API
         success Entities::ProjectLabel
       end
       params do
-        optional :label_id, type: Integer, desc: 'The id of the label to be deleted'
+        optional :label_id, type: Integer, desc: 'The ID of the label to be deleted'
         optional :name, type: String, desc: 'The name of the label to be deleted'
         exactly_one_of :label_id, :name
       end
@@ -91,7 +91,7 @@ module API
         success Entities::ProjectLabel
       end
       params do
-        requires :name, type: String, desc: 'The name or id of the label to be updated'
+        requires :name, type: String, desc: 'The name or ID of the label to be updated'
         use :project_label_update_params
       end
       put ':id/labels/:name' do
@@ -103,7 +103,7 @@ module API
         success Entities::ProjectLabel
       end
       params do
-        requires :name, type: String, desc: 'The name or id of the label to be deleted'
+        requires :name, type: String, desc: 'The name or ID of the label to be deleted'
       end
       delete ':id/labels/:name' do
         delete_label(user_project)
@@ -114,7 +114,7 @@ module API
         success Entities::GroupLabel
       end
       params do
-        requires :name, type: String, desc: 'The name or id of the label to be promoted'
+        requires :name, type: String, desc: 'The name or ID of the label to be promoted'
       end
       put ':id/labels/:name/promote' do
         promote_label(user_project)

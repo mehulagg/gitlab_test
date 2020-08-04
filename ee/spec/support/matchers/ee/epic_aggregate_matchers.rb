@@ -9,7 +9,7 @@ RSpec::Matchers.define :have_aggregate do |type, facet, state, expected_value|
   failure_message do |epic_node_result|
     aggregate_object = epic_node_result.public_send(:"aggregate_#{facet}")
     aggregate_method = method_name(type, state)
-    "Epic node with id #{epic_node_result.epic_id} called #{aggregate_method} on aggregate object. Value was expected to be #{expected_value} but was #{aggregate_object.send(aggregate_method)}."
+    "Epic node with ID #{epic_node_result.epic_id} called #{aggregate_method} on aggregate object. Value was expected to be #{expected_value} but was #{aggregate_object.send(aggregate_method)}."
   end
 
   def method_name(type, state)
