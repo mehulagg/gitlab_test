@@ -194,7 +194,7 @@ For the purposes of this guide, we will use this example project on GitLab.com:
 [https://gitlab.com/gitlab-tests/sample-project/](https://gitlab.com/gitlab-tests/sample-project/).
 
 To use it, log into GitLab.com and fork the example project into your
-namespace to have your own copy to playing with. Your sample
+namespace to have your own copy to play with. Your sample
 project will be available under `https://gitlab.com/<your-namespace>/sample-project/`.
 
 You can also choose any other project to follow this guide. Then, replace the
