@@ -1490,7 +1490,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the alert to mutate",
+              "description": "The IID of the alert to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -1666,7 +1666,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the alert to mutate",
+              "description": "The IID of the alert to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -4453,7 +4453,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the alert to mutate",
+              "description": "The IID of the alert to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -8315,7 +8315,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the issue to modify designs for",
+              "description": "The IID of the issue to modify designs for",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -8453,7 +8453,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the issue to modify designs for",
+              "description": "The IID of the issue to modify designs for",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -11943,7 +11943,7 @@
           "inputFields": [
             {
               "name": "iid",
-              "description": "The iid of the epic to mutate",
+              "description": "The IID of the epic to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -11985,7 +11985,7 @@
             },
             {
               "name": "issueIid",
-              "description": "The iid of the issue to be added",
+              "description": "The IID of the issue to be added",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -13580,7 +13580,7 @@
           "inputFields": [
             {
               "name": "iid",
-              "description": "The iid of the epic to mutate",
+              "description": "The IID of the epic to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -13797,7 +13797,7 @@
           "inputFields": [
             {
               "name": "id",
-              "description": "The id of the epic_issue or epic that is being moved",
+              "description": "The ID of the epic_issue or epic that is being moved",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -13811,7 +13811,7 @@
             },
             {
               "name": "adjacentReferenceId",
-              "description": "The id of the epic_issue or issue that the actual epic or issue is switched with",
+              "description": "The ID of the epic_issue or issue that the actual epic or issue is switched with",
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
@@ -13852,7 +13852,7 @@
           "inputFields": [
             {
               "name": "baseEpicId",
-              "description": "The id of the base epic of the tree",
+              "description": "The ID of the base epic of the tree",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -20254,7 +20254,7 @@
             },
             {
               "name": "jiraAccountId",
-              "description": "Account id of the Jira user",
+              "description": "Account ID of the Jira user",
               "args": [
 
               ],
@@ -20318,7 +20318,7 @@
           "inputFields": [
             {
               "name": "jiraAccountId",
-              "description": "Jira account id of the user",
+              "description": "Jira account ID of the user",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -22523,7 +22523,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -22671,7 +22671,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -22819,7 +22819,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -22949,7 +22949,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -23075,7 +23075,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -23205,7 +23205,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -23376,7 +23376,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the merge request to mutate",
+              "description": "The IID of the merge request to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -42650,7 +42650,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the alert to mutate",
+              "description": "The IID of the alert to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -43007,7 +43007,7 @@
           "inputFields": [
             {
               "name": "iid",
-              "description": "The iid of the epic to mutate",
+              "description": "The IID of the epic to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -43587,7 +43587,7 @@
             },
             {
               "name": "id",
-              "description": "The id of the iteration",
+              "description": "The ID of the iteration",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -43871,7 +43871,7 @@
             },
             {
               "name": "iid",
-              "description": "The iid of the requirement to update",
+              "description": "The IID of the requirement to update",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
