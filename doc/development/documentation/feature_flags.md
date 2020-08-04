@@ -1,5 +1,8 @@
 ---
-type: reference
+type: reference, dev
+stage: none
+group: Development
+info: "See the Technical Writers assigned to Development Guidelines: https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments-to-development-guidelines"
 description: "GitLab development - how to document features deployed behind feature flags"
 ---
 
@@ -25,6 +28,7 @@ See how to document them below, according to the state of the flag:
 - [Features that became enabled by default](#features-that-became-enabled-by-default).
 - [Features directly enabled by default](#features-directly-enabled-by-default).
 - [Features with the feature flag removed](#features-with-flag-removed).
+- [Features that can be enabled for a single project](#features-enabled-per-project).
 
 NOTE: **Note:**
 The [`**(CORE ONLY)**`](styleguide.md#product-badges) badge or equivalent for
@@ -43,11 +47,11 @@ For feature flags disabled by default, if they can be used by end users:
 
 - Say that it's disabled by default.
 - Say whether it's enabled on GitLab.com.
-- Say whether it can be enabled or disabled per-project.
+- If the feature can be enabled per project, add the [per-project information](#features-enabled-per-project). Otherwise, do not say anything about this.
 - Say whether it's recommended for production use.
 - Document how to enable and disable it.
 
-For example, for a feature disabled by default, disabled on GitLab.com, can be enabled or disabled per-project, and
+For example, for a feature disabled by default, disabled on GitLab.com, and
 not ready for production use:
 
 ````markdown
@@ -56,7 +60,6 @@ not ready for production use:
 > - [Introduced](link-to-issue) in GitLab 12.0.
 > - It's deployed behind a feature flag, disabled by default.
 > - It's disabled on GitLab.com.
-> - It's able to be enabled or disabled per-project.
 > - It's not recommended for production use.
 > - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#anchor-to-section). **(CORE ONLY)**
 
@@ -67,24 +70,18 @@ not ready for production use:
 <Feature Name> is under development and not ready for production use. It is
 deployed behind a feature flag that is **disabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../path/to/administration/feature_flags.md)
-can enable it for your instance. <Feature Name> can be enabled or disabled per-project.
+can enable it for your instance.
 
 To enable it:
 
 ```ruby
-# Instance-wide
 Feature.enable(:<feature flag>)
-# or by project
-Feature.enable(:<feature flag>, Project.find(<project id>))
 ```
 
 To disable it:
 
 ```ruby
-# Instance-wide
 Feature.disable(:<feature flag>)
-# or by project
-Feature.disable(:<feature flag>, Project.find(<project id>))
 ```
 ````
 
@@ -92,15 +89,18 @@ Adjust the blurb according to the state of the feature you're documenting.
 
 ### Features that became enabled by default
 
-For features that became enabled by default:
+For features that were released disabled by default but became enabled by
+default:
 
 - Say that it became enabled by default.
 - Say whether it's enabled on GitLab.com.
-- Say whether it can be enabled or disabled per-project.
+- If the feature can be enabled per project, add the [per-project information](#features-enabled-per-project). Otherwise, do not say anything about this.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
 
-For example, for a feature initially deployed disabled by default, that became enabled by default, that is enabled on GitLab.com, that cannot be enabled or disabled per-project, and ready for production use:
+For example, for a feature initially deployed disabled by default, that became
+enabled by default, that is enabled on GitLab.com, and is ready for production
+use:
 
 ````markdown
 # Feature Name
@@ -109,7 +109,6 @@ For example, for a feature initially deployed disabled by default, that became e
 > - It was deployed behind a feature flag, disabled by default.
 > - [Became enabled by default](link-to-issue) on GitLab 12.1.
 > - It's enabled on GitLab.com.
-> - It's not able to be enabled or disabled per-project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
 
@@ -120,18 +119,18 @@ For example, for a feature initially deployed disabled by default, that became e
 <Feature Name> is under development but ready for production use.
 It is deployed behind a feature flag that is **enabled by default**.
 [GitLab administrators with access to the GitLab Rails console](..path/to/administration/feature_flags.md)
-can opt to disable it for your instance it cannot be enabled or disabled per-project.
-
-To disable it:
-
-```ruby
-Feature.disable(:<feature flag>)
-```
+can opt to disable it.
 
 To enable it:
 
 ```ruby
 Feature.enable(:<feature flag>)
+```
+
+To disable it:
+
+```ruby
+Feature.disable(:<feature flag>)
 ```
 ````
 
@@ -143,11 +142,12 @@ For features enabled by default:
 
 - Say it's enabled by default.
 - Say whether it's enabled on GitLab.com.
-- Say whether it can be enabled or disabled per-project.
+- If the feature can be enabled per project, add the [per-project information](#features-enabled-per-project). Otherwise, do not say anything about this.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
 
-For example, for a feature enabled by default, enabled on GitLab.com, cannot be enabled or disabled per-project, and ready for production use:
+For example, for a feature enabled by default, enabled on GitLab.com,
+and is ready for production use:
 
 ````markdown
 # Feature Name
@@ -155,7 +155,6 @@ For example, for a feature enabled by default, enabled on GitLab.com, cannot be 
 > - [Introduced](link-to-issue) in GitLab 12.0.
 > - It's deployed behind a feature flag, enabled by default.
 > - It's enabled on GitLab.com.
-> - It's not able to be enabled or disabled per-project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
 
@@ -166,18 +165,18 @@ For example, for a feature enabled by default, enabled on GitLab.com, cannot be 
 <Feature Name> is under development but ready for production use.
 It is deployed behind a feature flag that is **enabled by default**.
 [GitLab administrators with access to the GitLab Rails console](..path/to/administration/feature_flags.md)
-can opt to disable it for your instance.
-
-To disable it:
-
-```ruby
-Feature.disable(:<feature flag>)
-```
+can opt to disable it.
 
 To enable it:
 
 ```ruby
 Feature.enable(:<feature flag>)
+```
+
+To disable it:
+
+```ruby
+Feature.disable(:<feature flag>)
 ```
 ````
 
@@ -197,4 +196,74 @@ mentions the flag in the version history notes:
 
 (...)
 
+````
+
+### Features enabled per project
+
+If the feature can be enabled per project, include in the version history
+note:
+
+```markdown
+> - It can be enabled per project.
+```
+
+Then add the per-project code to the code blocks:
+
+Enable code:
+
+```ruby
+# For the instance
+Feature.enable(:<feature flag>)
+# For a single project
+Feature.enable(:<feature flag>, Project.find(<project id>))
+```
+
+Disable code:
+
+
+```ruby
+# For the instance
+Feature.disable(:<feature flag>)
+# For a single project
+Feature.disable(:<feature flag>, Project.find(<project id>))
+```
+
+For example, for a feature enabled by default, enabled on GitLab.com, that can be enabled per project, and is ready for production use:
+
+````markdown
+# Feature Name
+
+> - [Introduced](link-to-issue) in GitLab 12.0.
+> - It's deployed behind a feature flag, enabled by default.
+> - It's enabled on GitLab.com.
+> - It can be enabled per project.
+> - It's recommended for production use.
+> - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
+
+(...)
+
+### Enable or disable <Feature Name> **(CORE ONLY)**
+
+<Feature Name> is under development but ready for production use.
+It is deployed behind a feature flag that is **enabled by default**.
+[GitLab administrators with access to the GitLab Rails console](..path/to/administration/feature_flags.md)
+can opt to disable it.
+
+To enabled it:
+
+```ruby
+# For the instance
+Feature.enable(:<feature flag>)
+# For a single project
+Feature.enable(:<feature flag>, Project.find(<project id>))
+```
+
+To disable it:
+
+```ruby
+# For the instance
+Feature.disable(:<feature flag>)
+# For a single project
+Feature.disable(:<feature flag>, Project.find(<project id>))
+```
 ````
