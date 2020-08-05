@@ -1,4 +1,5 @@
 import { __ } from '~/locale';
+import sanitize from 'sanitize-html';
 
 export const issuableTypesMap = {
   ISSUE: 'issue',
@@ -20,9 +21,9 @@ export const linkedIssueTypesTextMap = {
 
 export const autoCompleteTextMap = {
   true: {
-    [issuableTypesMap.ISSUE]: __(' or &lt;#issue ID&gt;'),
-    [issuableTypesMap.EPIC]: __(' or &lt;&epic ID&gt;'),
-    [issuableTypesMap.MERGE_REQUEST]: __(' or &lt;!merge request ID&gt;'),
+    [issuableTypesMap.ISSUE]: sanitize(__(' or &lt;#issue ID&gt;')),
+    [issuableTypesMap.EPIC]: sanitize(__(' or &lt;&epic ID&gt;')),
+    [issuableTypesMap.MERGE_REQUEST]: sanitize( __(' or &lt;!merge request ID&gt;')),
   },
   false: {
     [issuableTypesMap.ISSUE]: '',
