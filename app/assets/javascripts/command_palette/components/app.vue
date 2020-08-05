@@ -65,8 +65,6 @@ export default {
       console.log(__('lets go'));
     },
     fetchAssignees(data) {
-      console.log('fetching', data);
-
       return Api.users(data, {}).then(response => {
         this.assignees = response.data;
       });

@@ -40,8 +40,8 @@ export default {
       <gl-loading-icon v-if="config.isLoading" />
       <template v-else>
         <gl-filtered-search-suggestion
-          v-for="suggestion in config.suggestions"
-          :key="suggestion.id"
+          v-for="(suggestion, index) in config.suggestions"
+          :key="index"
           :value="suggestion.username"
         >
           <div class="gl-display-flex">
