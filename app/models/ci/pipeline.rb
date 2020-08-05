@@ -784,6 +784,7 @@ module Ci
           variables.concat(merge_request.predefined_variables)
         end
 
+        variables.append(key: 'CI_HAS_OPEN_MERGE_REQUEST', value: 'true') if all_merge_requests.exists?
         variables.append(key: 'CI_KUBERNETES_ACTIVE', value: 'true') if has_kubernetes_active?
         variables.append(key: 'CI_DEPLOY_FREEZE', value: 'true') if freeze_period?
 
