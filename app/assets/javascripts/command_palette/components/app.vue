@@ -26,6 +26,15 @@ export default {
     };
   },
   computed: {
+    commandsByType() {
+      return {
+        assignees: {
+          callback: payload => {
+            console.log(__('callback payload'), payload);
+          },
+        },
+      };
+    },
     availableTokens() {
       return [
         {
@@ -61,8 +70,19 @@ export default {
         this.isVisible = true;
       }
     },
-    submitCommand() {
+    submitCommand(submittedCommands) {
       console.log(__('lets go'));
+
+      // iterate over array and kick off action?
+      this.activeActions(submittedCommands);
+    },
+    activeActions(actions) {
+      actions.map(action => {
+        console.log(action.type);
+        console.log(action.value.data);
+        this.commandsByType[action.type].callback(action.value.data);
+        return 'foo';
+      });
     },
     fetchAssignees(data) {
       return Api.users(data, {}).then(response => {
