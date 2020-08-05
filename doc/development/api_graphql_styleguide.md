@@ -779,7 +779,7 @@ will be returned as the result of the mutation.
 Our service-oriented architecture means that most mutations will call a create, delete or update service, for example `UpdateIssueService`.
 For Update mutations, a client may wish to only update one aspect of an object, and thus will only require a _fine-grained_ mutation, for example `MergeRequest::SetWip`.
 
-It is acceptable to have both fine-grained mutations alongside the coarse-grained mutations, but be aware that too many fine-grained mutations can lead to organizational challenges.
+It is acceptable to have both fine-grained mutations alongside the coarse-grained mutations, but be aware that too many fine-grained mutations can lead to organizational challenges in maintainability, code comprehensibility and testing. Each mutation requires a new class to be written for it, and this incurs technical debt, which we will want to keep to a minimum. It will also mean the schema becomes very big, and we want users to easily navigate our schema. Since each new mutation also requires tests (including slower request integration tests) adding mutations slows down the test suite.
 
 See [gitlab-org/gitlab#233063](https://gitlab.com/gitlab-org/gitlab/-/issues/233063) for further context.
 
