@@ -98,6 +98,11 @@ export const setCurrentDashboard = ({ commit }, { currentDashboard }) => {
  * skeleton has been loaded.
  */
 export const fetchData = ({ dispatch }) => {
+  if (cancelTokenSource) {
+    cancelTokenSource.cancel();
+  }
+  cancelTokenSource = axiosCancelToken.source();
+
   dispatch('fetchEnvironmentsData');
   dispatch('fetchDashboard');
   dispatch('fetchAnnotations');
@@ -109,11 +114,12 @@ export const fetchDashboard = ({ state, commit, dispatch, getters }) => {
   dispatch('requestMetricsDashboard');
 
   const params = {};
+
   if (getters.fullDashboardPath) {
     params.dashboard = getters.fullDashboardPath;
   }
 
-  return getDashboard(state.dashboardEndpoint, params)
+  return getDashboard(state.dashboardEndpoint, { ...params, cancelToken: cancelTokenSource.token })
     .then(response => {
       dispatch('receiveMetricsDashboardSuccess', { response });
       /**
@@ -230,7 +236,10 @@ export const fetchPrometheusMetric = (
 
   commit(types.REQUEST_METRIC_RESULT, { metricId: metric.metricId });
 
-  return getPrometheusQueryData(metric.prometheusEndpointPath, queryParams)
+  return getPrometheusQueryData(metric.prometheusEndpointPath, {
+    ...queryParams,
+    cancelToken: cancelTokenSource.token,
+  })
     .then(data => {
       commit(types.RECEIVE_METRIC_RESULT_SUCCESS, { metricId: metric.metricId, data });
     })

@@ -482,7 +482,7 @@ export const addPrefixToCustomVariableParams = name => `variables[${name}]`;
  * @returns {String} normalized dashboard path
  */
 export const normalizeCustomDashboardPath = (dashboard, dashboardPrefix = '') => {
-  const currDashboard = dashboard || '';
+  const currDashboard = decodeURIComponent(dashboard || '');
   let dashboardPath = `${dashboardPrefix}/${currDashboard}`;
 
   if (!currDashboard) {

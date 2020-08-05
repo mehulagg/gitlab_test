@@ -120,16 +120,12 @@ export default {
     },
   },
   methods: {
-    ...mapActions('monitoringDashboard', ['filterEnvironments']),
+    ...mapActions('monitoringDashboard', ['filterEnvironments', 'setCurrentDashboard']),
     selectDashboard(dashboard) {
-      // Once the sidebar See metrics link is updated to the new URL,
-      // this sort of hardcoding will not be necessary.
-      // https://gitlab.com/gitlab-org/gitlab/-/issues/229277
-      const baseURL = `${this.projectPath}/-/metrics`;
       const dashboardPath = encodeURIComponent(
         dashboard.out_of_the_box_dashboard ? dashboard.path : dashboard.display_name,
       );
-      redirectTo(`${baseURL}/${dashboardPath}`);
+      this.setCurrentDashboard({ currentDashboard: dashboardPath });
     },
     debouncedEnvironmentsSearch: debounce(function environmentsSearchOnInput(searchTerm) {
       this.filterEnvironments(searchTerm);

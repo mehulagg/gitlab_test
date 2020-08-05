@@ -170,6 +170,15 @@ export default {
     },
   },
   watch: {
+    currentDashboard(newDashboard) {
+      this.$router.push({
+        name: 'dashboard',
+        params: {
+          dashboard: newDashboard,
+        },
+      });
+      this.fetchData();
+    },
     dashboard(newDashboard) {
       try {
         const expandedPanel = expandedPanelPayloadFromUrl(newDashboard);
