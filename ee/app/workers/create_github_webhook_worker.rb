@@ -18,7 +18,7 @@ class CreateGithubWebhookWorker # rubocop:disable Scalability/IdempotentWorker
   end
 
   def create_webhook
-    client.create_hook(
+    client.octokit.create_hook(
       project.import_source,
       'web',
       {
@@ -37,7 +37,11 @@ class CreateGithubWebhookWorker # rubocop:disable Scalability/IdempotentWorker
   private
 
   def client
-    @client ||= Gitlab::LegacyGithubImport::Client.new(access_token)
+    @client ||= if Feature.enabled?(:remove_legacy_github_client)
+                  Gitlab::GithubImport::Client.new(access_token)
+                else
+                  Gitlab::LegacyGithubImport::Client.new(access_token)
+                end
   end
 
   def access_token

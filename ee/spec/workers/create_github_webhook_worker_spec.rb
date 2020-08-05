@@ -22,26 +22,48 @@ RSpec.describe CreateGithubWebhookWorker do
       project.save
     end
 
-    it 'creates the webhook' do
-      expect_next_instance_of(Gitlab::LegacyGithubImport::Client) do |instance|
-        expect(instance).to receive(:create_hook)
-          .with(
-            'foo/bar',
-            'web',
-            {
-              url: "http://localhost#{api_v4_projects_mirror_pull_path(id: project.id)}",
-              content_type: 'json',
-              secret: project.external_webhook_token,
-              insecure_ssl: 1
-            },
-            {
-              events: %w[push pull_request],
-              active: true
-            }
-          )
+    shared_examples 'creates a webhook' do |client_klass|
+      it 'creates a webhook' do
+        expect_next_instance_of(client_klass) do |client|
+          expect(client).to receive(:octokit).and_call_original
+        end
+
+        expect_next_instance_of(Octokit::Client) do |instance|
+          expect(instance).to receive(:create_hook)
+            .with(
+              'foo/bar',
+              'web',
+              {
+                url: "http://localhost#{api_v4_projects_mirror_pull_path(id: project.id)}",
+                content_type: 'json',
+                secret: project.external_webhook_token,
+                insecure_ssl: 1
+              },
+              {
+                events: %w[push pull_request],
+                active: true
+              }
+            )
+        end
+
+        subject.perform(project.id)
+      end
+    end
+
+    context 'when remove_legacy_github_client feature flag is enabled' do
+      before do
+        stub_feature_flags(remove_legacy_github_client: true)
       end
 
-      subject.perform(project.id)
+      include_examples 'creates a webhook', Gitlab::GithubImport::Client
+    end
+
+    context 'when remove_legacy_github_client feature flag is disabled' do
+      before do
+        stub_feature_flags(remove_legacy_github_client: false)
+      end
+
+      include_examples 'creates a webhook', Gitlab::LegacyGithubImport::Client
     end
   end
 end
