@@ -5,7 +5,6 @@ import BoardColumn from 'ee_else_ce/boards/components/board_column.vue';
 import EpicsSwimlanes from 'ee_component/boards/components/epics_swimlanes.vue';
 
 export default {
-  headerHeight: '75px',
   components: {
     BoardColumn,
     EpicsSwimlanes,
