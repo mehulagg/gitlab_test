@@ -44,7 +44,7 @@ export default {
     },
     showSidebar() {
       return this.sidebarType === sidebarTypes.list;
-    }
+    },
   },
   created() {
     eventHub.$on('sidebar.closeAll', this.closeSidebar);
@@ -55,7 +55,7 @@ export default {
   methods: {
     ...mapActions(['setActiveId']),
     closeSidebar() {
-      this.setActiveId(inactiveId);
+      this.setActiveId({ id: inactiveId });
     },
     showScopedLabels(label) {
       return boardsStore.scopedLabels.enabled && isScopedLabel(label);

@@ -22,7 +22,10 @@ describe('BoardSettingsSidebar', () => {
   const labelColor = '#FFFF';
   const listId = 1;
 
-  const createComponent = (state = { activeId: inactiveId, sidebarType: sidebarTypes.list }, actions = {}) => {
+  const createComponent = (
+    state = { activeId: inactiveId, sidebarType: sidebarTypes.list },
+    actions = {},
+  ) => {
     storeActions = actions;
 
     const store = new Vuex.Store({
@@ -58,7 +61,10 @@ describe('BoardSettingsSidebar', () => {
     describe('on close', () => {
       it('calls closeSidebar', async () => {
         const spy = jest.fn();
-        createComponent({ activeId: inactiveId, sidebarType: sidebarTypes.list }, { setActiveId: spy });
+        createComponent(
+          { activeId: inactiveId, sidebarType: sidebarTypes.list },
+          { setActiveId: spy },
+        );
 
         findDrawer().vm.$emit('close');
 
@@ -66,7 +72,7 @@ describe('BoardSettingsSidebar', () => {
 
         expect(storeActions.setActiveId).toHaveBeenCalledWith(
           expect.anything(),
-          inactiveId,
+          { id: inactiveId },
           undefined,
         );
       });
@@ -80,7 +86,7 @@ describe('BoardSettingsSidebar', () => {
 
         expect(storeActions.setActiveId).toHaveBeenCalledWith(
           expect.anything(),
-          inactiveId,
+          { id: inactiveId },
           undefined,
         );
       });
