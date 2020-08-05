@@ -38,7 +38,9 @@ module AlertManagement
     end
 
     def runbook
-      alerting_alert.runbook
+      strong_memoize(:runbook) do
+        payload&.dig('runbook')
+      end
     end
 
     def metrics_dashboard_url; end

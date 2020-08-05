@@ -13,7 +13,7 @@ RSpec.describe AlertManagement::AlertPresenter do
     }
   end
   let_it_be(:alert) do
-    create(:alert_management_alert, :with_description, :with_host, :with_service, :with_monitoring_tool, project: project, payload: generic_payload)
+    build(:alert_management_alert, :with_description, :with_host, :with_service, :with_monitoring_tool, project: project, payload: generic_payload)
   end
 
   subject(:presenter) { described_class.new(alert) }

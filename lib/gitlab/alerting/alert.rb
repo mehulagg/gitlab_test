@@ -93,13 +93,6 @@ module Gitlab
         end
       end
 
-      def runbook
-        strong_memoize(:runbook) do
-          payload&.dig('runbook') ||
-            payload&.dig('annotations', 'runbook')
-        end
-      end
-
       def firing?
         status == 'firing'
       end
