@@ -1,4 +1,6 @@
 <script>
+import { getDayDifference } from '~/lib/utils/datetime_utility';
+import dateFormat from 'dateformat';
 import BurnCharts from './burn_charts.vue';
 import BurnupQuery from '../queries/burnup.query.graphql';
 
@@ -21,7 +23,7 @@ export default {
     },
   },
   apollo: {
-    burnupData: {
+    sparseBurnupData: {
       query: BurnupQuery,
       variables() {
         return {
@@ -29,17 +31,42 @@ export default {
         };
       },
       update(data) {
-        // TODO: remove the empty array..
-        return [] || data?.group?.iterations.nodes[0]?.data?.nodes;
+        return data?.iteration?.burnupTimeSeries?.nodes;
       },
     },
   },
   data() {
     return {
-      burnupData: [],
+      sparseBurnupData: [],
     };
   },
   computed: {
+    burnupData() {
+      return this.sparseBurnupData.reduce((acc = [], current) => {
+        const { date } = current;
+
+        if (date !== this.startDate) {
+          const { date: prevDate, ...previousValues } = acc[acc.length - 1];
+
+          const currentDateUTC = new Date(`${date}T00:00:00`);
+          const prevDateUTC = new Date(`${prevDate}T00:00:00`);
+
+          const gap = getDayDifference(prevDateUTC, currentDateUTC);
+
+          for (let i = 1; i < gap; i += 1) {
+            const nDaysAfter = new Date(prevDateUTC).setDate(prevDateUTC.getDate() + i);
+            acc.push({
+              date: dateFormat(nDaysAfter, 'yyyy-mm-dd'),
+              ...previousValues,
+            });
+          }
+        }
+
+        acc.push(current);
+
+        return acc;
+      }, []);
+    },
     openIssuesCount() {
       return this.burnupData.map(({ date, scopeCount, completedCount }) => {
         return [date, scopeCount - completedCount];
@@ -51,9 +78,7 @@ export default {
       });
     },
     burnupScope() {
-      // TODO: data in graphql response is sparse dates, go through list and
-      // fill in dates where there is more than a one day gap
-      return this.burnupData;
+      return this.burnupData.map(val => [val.date, val.scopeCount]);
     },
   },
 };

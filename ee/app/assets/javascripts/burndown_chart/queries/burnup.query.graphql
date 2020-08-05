@@ -1,14 +1,12 @@
-query BurnupData($fullPath: ID!, $iterationId: ID!) {
-  group(fullPath: $fullPath) {
-    iterations(id: $iterationId, first: 1) {
-      series {
-        nodes {
-          date
-          scopeCount
-          scopeWeight
-          completedCount
-          completedWeight
-        }
+query IterationBurnupTimesSeriesData($iterationId: ID!) {
+  iteration(id: $iterationId) {
+    burnupTimeSeries {
+      nodes {
+        date
+        scopeCount
+        scopeWeight
+        completedCount
+        completedWeight
       }
     }
   }
