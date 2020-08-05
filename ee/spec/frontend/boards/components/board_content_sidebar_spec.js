@@ -3,8 +3,9 @@ import { GlDrawer } from '@gitlab/ui';
 import BoardContentSidebar from 'ee_component/boards/components/board_content_sidebar.vue';
 import store from '~/boards/stores';
 import waitForPromises from 'helpers/wait_for_promises';
+import { sidebarTypes } from '~/boards/constants';
 
-describe('ee/BoardContent', () => {
+describe('ee/BoardContentSidebar', () => {
   let wrapper;
   let storeCopy;
 
@@ -21,8 +22,7 @@ describe('ee/BoardContent', () => {
 
   beforeEach(() => {
     storeCopy = store;
-    storeCopy.state.isShowingEpicsSwimlanes = true;
-    storeCopy.state.sidebarType = 'Issuable';
+    storeCopy.state.sidebarType = sidebarTypes.issuable;
     storeCopy.state.activeId = 1;
   });
 
@@ -33,6 +33,8 @@ describe('ee/BoardContent', () => {
   describe('when boardsWithSwimlanes is on', () => {
     describe('when isShowingEpicsSwimlanes', () => {
       beforeEach(() => {
+        storeCopy.state.isShowingEpicsSwimlanes = true;
+
         createComponent();
       });
 

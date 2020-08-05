@@ -8,7 +8,7 @@ import BoardSettingsSidebar from '~/boards/components/board_settings_sidebar.vue
 import boardsStore from '~/boards/stores/boards_store';
 import getters from '~/boards/stores/getters';
 import sidebarEventHub from '~/sidebar/event_hub';
-import { inactiveId } from '~/boards/constants';
+import { inactiveId, sidebarTypes } from '~/boards/constants';
 
 const localVue = createLocalVue();
 
@@ -22,7 +22,7 @@ describe('BoardSettingsSidebar', () => {
   const labelColor = '#FFFF';
   const listId = 1;
 
-  const createComponent = (state = { activeId: inactiveId, sidebarType: 'List' }, actions = {}) => {
+  const createComponent = (state = { activeId: inactiveId, sidebarType: sidebarTypes.list }, actions = {}) => {
     storeActions = actions;
 
     const store = new Vuex.Store({
@@ -48,7 +48,7 @@ describe('BoardSettingsSidebar', () => {
     wrapper.destroy();
   });
 
-  describe('when sidebarType is List', () => {
+  describe('when sidebarType is "list"', () => {
     it('finds a GlDrawer component', () => {
       createComponent();
 
@@ -58,7 +58,7 @@ describe('BoardSettingsSidebar', () => {
     describe('on close', () => {
       it('calls closeSidebar', async () => {
         const spy = jest.fn();
-        createComponent({ activeId: inactiveId, sidebarType: 'List' }, { setActiveId: spy });
+        createComponent({ activeId: inactiveId, sidebarType: sidebarTypes.list }, { setActiveId: spy });
 
         findDrawer().vm.$emit('close');
 
@@ -110,7 +110,7 @@ describe('BoardSettingsSidebar', () => {
       });
 
       it('renders GlDrawer with open false', () => {
-        createComponent({ activeId: 1, sidebarType: 'List' });
+        createComponent({ activeId: 1, sidebarType: sidebarTypes.list });
 
         expect(findDrawer().props('open')).toBe(true);
       });
@@ -126,7 +126,7 @@ describe('BoardSettingsSidebar', () => {
           list_type: 'label',
         });
 
-        createComponent({ activeId: listId, sidebarType: 'List' });
+        createComponent({ activeId: listId, sidebarType: sidebarTypes.list });
       });
 
       afterEach(() => {
