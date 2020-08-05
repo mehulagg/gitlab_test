@@ -155,7 +155,7 @@ RSpec.describe Gitlab::I18n::PoLinter do
 
         expect(errors[message_id]).to match_array [
           a_string_starting_with('contains < or >.'),
-          a_string_starting_with('plural id contains < or >.'),
+          a_string_starting_with('plural ID contains < or >.'),
           a_string_starting_with('translation contains < or >.')
         ]
       end

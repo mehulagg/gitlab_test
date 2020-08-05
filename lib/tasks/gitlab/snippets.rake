@@ -37,7 +37,7 @@ namespace :gitlab do
     def parse_snippet_ids!
       ids = ENV['SNIPPET_IDS'].delete(' ').split(',').map do |id|
         id.to_i.tap do |value|
-          raise "Invalid id provided" if value.zero?
+          raise "Invalid ID provided" if value.zero?
         end
       end
 

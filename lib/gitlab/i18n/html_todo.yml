@@ -16,7 +16,7 @@
 # why this change has been made.
 #
 
-" or <!merge request id>":
+" or <!merge request ID>":
   translations:
     - " ወይም <!merge request id>"
     - " ou <!merge request id>"
@@ -32,13 +32,13 @@
     - " veya <!merge request id>"
     - " neu <!merge request id>"
     - " neu <#issue id>"
-" or <#issue id>":
+" or <#issue ID>":
   translations:
     - "或 <#issue id>"
     - " ወይም ‹#issue id›"
     - " ou <identificación #issue>"
     - " ou <#issue id>"
-    - " または <#課題 ID>"
+    - " または <#課題 id>"
     - " o <#issue id>"
     - "或 <#議題 id>"
     - " ou <#issue id>"
@@ -48,14 +48,14 @@
     - " oder <#issue id>"
     - " o <#issue id>"
     - " 또는 <#issue id>"
-    - " ou <#issue id>"
+    - " ou <#issue iid>"
     - " o <#issue id>"
     - " veya <#issue id>"
     - " neu <#issue id>"
-" or <&epic id>":
+" or <&epic ID>":
   translations:
     - " ወይም <&epic id>"
-    - " または <&エピックID>"
+    - " または <&エピックid>"
     - " 或 <#史詩 id>"
     - " или <&epic id>"
     - " 或<#epic id>"

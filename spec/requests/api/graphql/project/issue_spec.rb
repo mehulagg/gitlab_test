@@ -108,7 +108,7 @@ RSpec.describe 'Query.project(fullPath).issue(iid)' do
       let(:object_field_name) { :design }
 
       let(:no_argument_error) do
-        custom_graphql_error(path, a_string_matching(%r/id or filename/))
+        custom_graphql_error(path, a_string_matching(%r/ID or filename/))
       end
 
       let_it_be(:object_on_other_issue) { create(:design, issue: issue_b) }
