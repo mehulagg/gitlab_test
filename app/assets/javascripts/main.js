@@ -38,6 +38,7 @@ import GlFieldErrors from './gl_field_errors';
 import initUserPopovers from './user_popovers';
 import initBroadcastNotifications from './broadcast_notification';
 import initPersistentUserCallouts from './persistent_user_callouts';
+import initCommandPalette from './command_palette';
 import { initUserTracking } from './tracking';
 import { __ } from './locale';
 
@@ -112,6 +113,7 @@ function deferredInitialisation() {
   initBroadcastNotifications();
   initFrequentItemDropdowns();
   initPersistentUserCallouts();
+  initCommandPalette();
 
   if (document.querySelector('.search')) initSearchAutocomplete();
 
