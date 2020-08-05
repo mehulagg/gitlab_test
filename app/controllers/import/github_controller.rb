@@ -113,7 +113,21 @@ class Import::GithubController < Import::BaseController
   end
 
   def client_repos
-    @client_repos ||= filtered(client.octokit.repos)
+    @client_repos ||= if Feature.enabled?(:remove_legacy_github_client, default_enabled: false)
+                        filtered(concatenated_repos)
+                      else
+                        filtered(client.repos)
+                      end
+  end
+
+  def concatenated_repos
+    repos = []
+
+    return repos unless client.respond_to?(:each_page)
+
+    client.each_page(:repos) { |page| repos << page.objects }
+
+    repos.flatten
   end
 
   def oauth_client

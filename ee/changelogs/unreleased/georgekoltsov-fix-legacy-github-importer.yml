@@ -1,0 +1,5 @@
+---
+title: Fix GitHub importer not showing full list of projects
+merge_request: 38722
+author:
+type: fixed

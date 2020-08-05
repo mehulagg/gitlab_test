@@ -94,7 +94,8 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
   end
 
   it "touches the etag cache store" do
-    expect(stub_client(repos: [], orgs: [])).to receive(:repos)
+    stub_client(repos: [], orgs: [], each_page: [])
+
     expect_next_instance_of(Gitlab::EtagCaching::Store) do |store|
       expect(store).to receive(:touch) { "realtime_changes_import_#{provider}_path" }
     end
@@ -102,20 +103,11 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     get :status, format: :json
   end
 
-  it "requests provider repos list" do
-    expect(stub_client(repos: [], orgs: [])).to receive(:repos)
-
-    get :status
-
-    expect(response).to have_gitlab_http_status(:ok)
-  end
-
   it "handles an invalid access token" do
-    allow_any_instance_of(Gitlab::LegacyGithubImport::Client).to receive(:repos).and_raise(Octokit::Unauthorized)
+    client = stub_client(repos: [], orgs: [], each_page: [])
 
-    allow_next_instance_of(Octokit::Client) do |client|
-      allow(client).to receive(:repos).and_raise(Octokit::Unauthorized)
-    end
+    allow(client).to receive(:repos).and_raise(Octokit::Unauthorized)
+    allow(client).to receive(:each_page).and_raise(Octokit::Unauthorized)
 
     get :status
 
@@ -147,10 +139,12 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     let(:repo_2) { OpenStruct.new(login: 'emacs', full_name: 'asd/emacs', name: 'emacs', owner: { login: 'owner' }) }
     let(:project) { create(:project, import_type: provider, namespace: user.namespace, import_status: :finished, import_source: 'example/repo') }
     let(:group) { create(:group) }
+    let(:repos) { [repo, repo_2, org_repo] }
 
     before do
       group.add_owner(user)
-      stub_client(repos: [repo, repo_2, org_repo], orgs: [org], org_repos: [org_repo])
+      client = stub_client(repos: repos, orgs: [org], org_repos: [org_repo])
+      allow(client).to receive(:each_page).and_yield(OpenStruct.new(objects: repos))
     end
 
     it 'filters list of repositories by name' do
