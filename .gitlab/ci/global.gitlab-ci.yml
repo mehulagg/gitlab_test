@@ -36,7 +36,7 @@
 
 .qa-cache:
   cache:
-    key: "qa-v1"
+    key: "qa-v2"
     paths:
       - qa/vendor/ruby/
     policy: pull
