@@ -33,7 +33,7 @@ describe('RelatedIssuableInput', () => {
         const wrapper = shallowMount(RelatedIssuableInput, { propsData });
 
         expect(wrapper.find({ ref: 'input' }).element.placeholder).toBe(
-          'Paste issue link or <#issue ID>',
+          'Paste issue link or &lt;#issue ID&gt;',
         );
       });
 

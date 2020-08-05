@@ -20,9 +20,9 @@ export const linkedIssueTypesTextMap = {
 
 export const autoCompleteTextMap = {
   true: {
-    [issuableTypesMap.ISSUE]: __(' or <#issue ID>'),
-    [issuableTypesMap.EPIC]: __(' or <&epic ID>'),
-    [issuableTypesMap.MERGE_REQUEST]: __(' or <!merge request ID>'),
+    [issuableTypesMap.ISSUE]: __(' or &lt;#issue ID&gt;'),
+    [issuableTypesMap.EPIC]: __(' or &lt;&epic ID&gt;'),
+    [issuableTypesMap.MERGE_REQUEST]: __(' or &lt;!merge request ID&gt;'),
   },
   false: {
     [issuableTypesMap.ISSUE]: '',
