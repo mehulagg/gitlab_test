@@ -7,7 +7,7 @@ import {
 } from '@gitlab/ui';
 import CommandToken from './command_token.vue';
 import { __ } from '~/locale';
-import UsersCache from '~/lib/utils/users_cache';
+
 import Api from '../../api';
 
 export default {
@@ -22,6 +22,7 @@ export default {
     return {
       isVisible: true, // false,
       value: [],
+      assignees: null,
     };
   },
   computed: {
@@ -61,20 +62,14 @@ export default {
       }
     },
     submitCommand() {
-      console.log('lets go');
+      console.log(__('lets go'));
     },
     fetchAssignees(data) {
       console.log('fetching', data);
-      return UsersCache.retrieve(data)
-        .then(userData => {
-          this.assignees = userData;
-        })
-        .catch(() => {
-          console.log('fetch failed');
-        });
-      // return Api.users(data, {}).then(data => {
-      //   console.log({ data });
-      // });
+
+      return Api.users(data, {}).then(response => {
+        this.assignees = response.data;
+      });
     },
   },
 };

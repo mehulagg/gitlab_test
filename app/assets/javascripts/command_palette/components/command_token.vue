@@ -29,22 +29,24 @@ export default {
 <template>
   <gl-filtered-search-token
     :config="config"
-    v-bind="{...$props, ...$attrs}"
+    v-bind="{ ...$props, ...$attrs }"
     v-on="$listeners"
     @input="search"
   >
     <template #view="{inputValue}">
-      <span>{{inputValue}}</span>
+      <span>{{ inputValue }}</span>
     </template>
     <template #suggestions>
       <gl-loading-icon v-if="config.isLoading" />
       <template v-else>
         <gl-filtered-search-suggestion
           v-for="suggestion in config.suggestions"
-          :key="suggestion.value"
-          :value="suggestion.value"
+          :key="suggestion.id"
+          :value="suggestion.username"
         >
-          <div class="gl-display-flex"></div>
+          <div class="gl-display-flex">
+            {{ suggestion.username }}
+          </div>
         </gl-filtered-search-suggestion>
       </template>
     </template>
