@@ -9,9 +9,8 @@
 # More about including CI templates: https://docs.gitlab.com/ee/ci/yaml/#includetemplate
 
 .deploy_to_ecs:
-  image: 'registry.gitlab.com/gitlab-org/cloud-deploy/aws-ecs:latest'
-  script:
-    - ecs update-task-definition
+  image: 'registry.gitlab.com/ebaque/cloud-deploy/aws-ecs:latest'
+  script: ecs update-task-definition
 
 .review_ecs_base:
   stage: review
