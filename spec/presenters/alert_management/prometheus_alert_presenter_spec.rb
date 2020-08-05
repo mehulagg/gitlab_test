@@ -15,6 +15,7 @@ RSpec.describe AlertManagement::PrometheusAlertPresenter do
       'generatorURL' => 'http://8d467bd4607a:9090/graph?g0.expr=vector%281%29&g0.tab=1'
     }
   end
+
   let(:alert) do
     create(:alert_management_alert, :prometheus, project: project, payload: payload)
   end
