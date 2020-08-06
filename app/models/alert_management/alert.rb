@@ -118,7 +118,7 @@ module AlertManagement
     end
 
     delegate :iid, to: :issue, prefix: true, allow_nil: true
-    delegate :metrics_dashboard_url, :runbook, to: :present
+    delegate :metrics_dashboard_url, :runbook, to: :parsed_payload
 
     scope :for_iid, -> (iid) { where(iid: iid) }
     scope :for_status, -> (status) { where(status: status) }
@@ -168,6 +168,18 @@ module AlertManagement
     def self.last_prometheus_alert_by_project_id
       ids = select(arel_table[:id].maximum).group(:project_id)
       with_prometheus_alert.where(id: ids)
+    end
+
+    def self.new_from_payload(project, payload, monitoring_tool: nil)
+      alert_params = Gitlab::AlertManagement::Payload
+        .parse(project, payload, monitoring_tool: monitoring_tool)
+        .alert_params
+
+      new(alert_params)
+    end
+
+    def parsed_payload
+      Gitlab::AlertManagement::Payload.parse(project, payload, monitoring_tool: monitoring_tool)
     end
 
     def details

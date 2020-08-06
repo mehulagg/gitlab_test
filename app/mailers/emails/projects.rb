@@ -60,8 +60,8 @@ module Emails
       @project = ::Project.find(project_id)
       user = ::User.find(user_id)
 
-      @alert = ::Gitlab::Alerting::Alert
-        .new(project: @project, payload: alert_payload)
+      @alert = AlertManagement::Alert
+        .new_from_payload(project: @project, payload: alert_payload)
         .present
       return unless @alert.valid?
 
