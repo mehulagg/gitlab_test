@@ -12,7 +12,6 @@ and makes exceptions as needed. If a term is not listed here, use the Style Guid
 | deploy freeze      | Lowercase.                                        | Set a deploy freeze window. Implement a deploy freeze by specifying a deploy freeze window.              |
 | epic               | Lowercase.                                        | Create an epic to track quarterly goals.                                                                 |
 | Geo                | Uppercase?                                        |                                                                                                          |
-| group Runner       | Lowercase for group.                              | If you want a Runner to be used by several groups but not the whole organization, create a group Runner. |
 | issue              | Lowercase.                                        | Create an issue to track problems in your application.                                                   |
 | issue board        | Lowercase?                                        |                                                                                                          |
 | merge requests     | Lowercase.                                        | Create a merge request. On the toolbar, click **New merge request**.                                     |
