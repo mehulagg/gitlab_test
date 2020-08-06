@@ -134,7 +134,7 @@ export default {
         <markdown-field
           :markdown-preview-path="markdownPreviewPath"
           :markdown-docs-path="markdownDocsPath"
-          :can-suggest="false"
+          :can-suggest="true"
           :can-attach-file="true"
           :enable-autocomplete="true"
           :add-spacing-classes="false"
