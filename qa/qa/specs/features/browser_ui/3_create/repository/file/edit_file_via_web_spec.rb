@@ -3,13 +3,18 @@
 module QA
   RSpec.describe 'Create' do
     context 'File management' do
-      before do
+      let(:file) do
         Resource::File.fabricate_via_api! do |file|
           file.name = 'QA Test - File name'
           file.content = 'QA Test - File content'
           file.commit_message = 'QA Test - Create new file'
         end
+      end
+
+      before do
         Flow::Login.sign_in
+        file.project.visit!
+        find_link(file.api_response[:file_path]).click
       end
 
       it 'user edits a file via the Web' do
