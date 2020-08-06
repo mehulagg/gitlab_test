@@ -113,9 +113,24 @@ export default {
     async getChangedLines() {
       try {
         this.changedLinesError = false;
+        const startPosition = this.note.position.line_range.start;
+        const endPosition = this.note.position.line_range.end;
         const url = /href="(.*)"/.exec(this.note.note_html);
         const changedLines = await Api.changedDiff(url[1]);
-        this.changedLines = changedLines.diff_files[0].highlighted_diff_lines;
+        const diffLines = changedLines.diff_files[0].highlighted_diff_lines;
+        const getIndex = position => line => {
+          if (!line.type === 'match') return false;
+          if (line.type === 'old') return line.old_line === position.old_line;
+          return line.new_line === position.new_line;
+        };
+
+        const startIndex = diffLines.findIndex(getIndex(startPosition));
+        const endIndex = diffLines.findIndex(getIndex(endPosition));
+
+        this.changedLines = changedLines.diff_files[0].highlighted_diff_lines.slice(
+          startIndex,
+          endIndex + 1,
+        );
       } catch (err) {
         this.changedLinesError = true;
       }

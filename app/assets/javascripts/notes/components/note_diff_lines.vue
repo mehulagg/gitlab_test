@@ -59,7 +59,7 @@ export default {
         <span></span>
       </td>
     </tr>
-    <tr class="notes_holder">
+    <tr v-if="$slots.default" class="notes_holder">
       <td class="notes-content" colspan="3"><slot></slot></td>
     </tr>
   </table>
