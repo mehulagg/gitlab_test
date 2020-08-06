@@ -1,4 +1,9 @@
 ---
+# Warning: gitlab.EphemerialHeadings
+#
+# Don't use words in headings that will alter deep links when the status changes.
+#
+# For a list of all options, see https://errata-ai.gitbook.io/vale/getting-started/styles
 extends: existence
 message: "Don't use ephemeral words ('%s') in headings or subheadings."
 ignorecase: true
@@ -7,3 +12,4 @@ level: warning
 tokens:
   - alpha
   - beta
+  - experimental
