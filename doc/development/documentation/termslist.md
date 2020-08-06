@@ -2,8 +2,8 @@
 
 Use this terms list when you're not sure how to use a word in GitLab docs, the UI, and in marketing materials.
 
-In general, if a term is a formal GitLab feature, it is capitalized, like GitLab Runner or
-GitLab Pages. In most other cases, we tend toward lowercase.
+The list follows rules in the [Documentation Style Guide](https://docs.gitlab.com/ee/development/documentation/styleguide.html#capitalization)
+and makes exceptions as needed. If a term is not listed here, use the Style Guide and consider raising an MR to add it.
 
 | Term               | Usage                                             | Example                                                                                                  |
 |--------------------|---------------------------------------------------|----------------------------------------------------------------------------------------------------------|
