@@ -67,9 +67,21 @@ sudo -u git -H bundle exec rails console -e production
 
 For details, see [starting a Rails console session](troubleshooting/debug.md#starting-a-rails-console-session).
 
+### Show all feature flags that are enabled / disabled
+
+```ruby
+# Regular output
+Feature.all
+
+# Nice output
+Feature.all.map {|f| [f.name, f.state]}
+```
+
+If the specific feature flag is not displayed once you run the command above, that means the feature flag configuration is the default value. You can see the list of available feature flag & default value in this [feature.rb](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/features.rb) file (change the branch to your specific version)
+
 ### Enable or disable the feature
 
-Once the Rails console session has started, run the `Feature.enable` or
+From the Rails console session, run the `Feature.enable` or
 `Feature.disable` commands accordingly. The specific flag can be found
 in the feature's documentation itself.
 
