@@ -7,6 +7,8 @@ module Gitlab
 
       def generate
         ::Kubeclient::Resource.new.tap do |resource|
+          resource.kind = self.class.kind if self.class.respond_to?(:kind)
+          resource.apiVersion = self.class.api_version if self.class.respond_to?(:api_version)
           resource.metadata = metadata
           resource.spec = spec
         end
@@ -56,6 +58,7 @@ module Gitlab
       def metadata
         meta = { name: name, namespace: namespace }
         meta[:labels] = labels if labels
+        meta[:resourceVersion] = resource_version if defined?(resource_version)
         meta
       end
 
