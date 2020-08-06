@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import EditorLite from './editor/dag_editor.vue';
+import DagEditorContainer from './editor/components/dag_editor_container.vue';
 
 const createDagPreviewApp = () => {
   const el = document.querySelector('#js-dag-preview');
@@ -8,7 +8,7 @@ const createDagPreviewApp = () => {
   new Vue({
     el,
     render(createElement) {
-      return createElement(EditorLite);
+      return createElement(DagEditorContainer);
     },
   });
 };

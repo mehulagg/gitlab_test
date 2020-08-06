@@ -1,5 +1,5 @@
 <script>
-import { initEditorLite } from './utils/utils';
+import { initEditorLite } from '../utils/utils';
 import { debounce } from 'lodash';
 
 export default {
@@ -19,33 +19,33 @@ export default {
     return {
       editor: null,
       blobContent: `
-      build_a:
-        stage: build
-        script: make
-      build_b:
-        stage: build
-        script: make
-      build_c:
-        stage: build
-        script: make
-      build_d:
-        stage: build
-        script: make
-        parallel: 3
-      test_a:
-        stage: test
-        script: ls
-        needs: [build_a, build_b, build_c]
-      test_b:
-        stage: test
-        script: ls
-        parallel: 2
-        needs: [build_a, build_b, build_d]
-      test_c:
-        stage: test
-        script: ls
-        needs: [build_a, build_b, build_c]
-      `,
+build_a:
+  stage: build
+  script: make
+build_b:
+  stage: build
+  script: make
+build_c:
+  stage: build
+  script: make
+build_d:
+  stage: build
+  script: make
+  parallel: 3
+test_a:
+  stage: test
+  script: ls
+  needs: [build_a, build_b, build_c]
+test_b:
+  stage: test
+  script: ls
+  parallel: 2
+  needs: [build_a, build_b, build_d]
+test_c:
+  stage: test
+  script: ls
+  needs: [build_a, build_b, build_c]
+`,
     };
   },
   watch: {
@@ -64,6 +64,8 @@ export default {
       height: this.editor.instance.getModel().getLineCount() * 19,
       width: 1000,
     });
+
+    this.$emit('input', this.editor.getValue());
   },
   methods: {
     triggerFileChange: debounce(function debouncedFileChange() {
