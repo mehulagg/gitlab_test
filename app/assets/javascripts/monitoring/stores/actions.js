@@ -109,6 +109,7 @@ export const fetchDashboard = ({ state, commit, dispatch, getters }) => {
   dispatch('requestMetricsDashboard');
 
   const params = {};
+
   if (getters.fullDashboardPath) {
     params.dashboard = getters.fullDashboardPath;
   }
@@ -184,6 +185,11 @@ export const fetchDashboardData = ({ state, dispatch, getters }) => {
 
   dispatch('fetchVariableMetricLabelValues', { defaultQueryParams });
 
+  if (cancelTokenSource) {
+    cancelTokenSource.cancel();
+  }
+  cancelTokenSource = axiosCancelToken.source();
+
   const promises = [];
   state.dashboard.panelGroups.forEach(group => {
     group.panels.forEach(panel => {
@@ -230,7 +236,9 @@ export const fetchPrometheusMetric = (
 
   commit(types.REQUEST_METRIC_RESULT, { metricId: metric.metricId });
 
-  return getPrometheusQueryData(metric.prometheusEndpointPath, queryParams)
+  return getPrometheusQueryData(metric.prometheusEndpointPath, queryParams, {
+    cancelToken: cancelTokenSource.token,
+  })
     .then(data => {
       commit(types.RECEIVE_METRIC_RESULT_SUCCESS, { metricId: metric.metricId, data });
     })
