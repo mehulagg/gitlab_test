@@ -603,9 +603,10 @@ RSpec.describe QuickActions::InterpretService do
             let(:child_epic) { create(:epic, group: another_group) }
             let(:command_updates) { {} }
             let(:warning) do
-              ["This epic can't be added",
-               "because it must belong to the same group as the parent,",
-               "or subgroup of the parent epic’s group"].join(' ')
+              [
+                "This epic cannot be added.",
+                "An epic must belong to the same group or subgroup as its parent epic."
+              ].join(' ')
             end
 
             it_behaves_like 'epic relation is not added'
