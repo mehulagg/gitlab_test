@@ -318,9 +318,11 @@ export default {
           <package-list-row
             v-for="v in packageEntity.versions"
             :key="v.id"
+            :package-entity="{ name: packageEntity.name, ...v }"
             :package-link="v.id.toString()"
             :disable-delete="true"
             :show-package-type="false"
+            show-only-version
           />
         </template>
 

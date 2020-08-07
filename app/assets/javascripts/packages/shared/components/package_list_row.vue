@@ -43,6 +43,11 @@ export default {
       default: true,
       required: false,
     },
+    showOnlyVersion: {
+    type:  Boolean,
+    default:  false,
+    required:  false,
+    },
   },
   computed: {
     packageType() {
@@ -57,6 +62,9 @@ export default {
     deleteAvailable() {
       return !this.disableDelete && !this.isGroup;
     },
+    packageNameOrVersion() {
+      return this.showOnlyVersion? this.packageEntity.version :this.packageEntity.name;
+    },
   },
 };
 </script>
@@ -70,7 +78,7 @@ export default {
           data-qa-selector="package_link"
           class="text-dark font-weight-bold mb-md-1"
         >
-          {{ packageEntity.name }}
+          {{ packageNameOrVersion }}
         </gl-link>
 
         <package-tags
@@ -83,7 +91,7 @@ export default {
       </div>
 
       <div class="d-flex text-secondary text-truncate mt-md-2">
-        <span>{{ packageEntity.version }}</span>
+        <span v-if="showOnlyVersion">{{ packageEntity.version }}</span>
 
         <div v-if="hasPipeline" class="d-none d-md-inline-block ml-1">
           <gl-sprintf :message="s__('PackageRegistry|published by %{author}')">
