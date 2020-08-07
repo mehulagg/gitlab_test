@@ -409,10 +409,10 @@ RSpec.describe RegistrationsController do
   describe '#welcome' do
     subject { get :welcome }
 
-    it 'renders the devise_experimental_separate_sign_up_flow layout' do
+    it 'renders the devise_signup layout' do
       sign_in(create(:user))
 
-      expected_layout = Gitlab.ee? ? :checkout : :devise_experimental_separate_sign_up_flow
+      expected_layout = Gitlab.ee? ? :checkout : :devise_signup
 
       expect(subject).to render_template(expected_layout)
     end

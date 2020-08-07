@@ -194,7 +194,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def choose_layout
-    'devise_experimental_separate_sign_up_flow'
+    'devise_signup'
   end
 
   def show_onboarding_issues_experiment?
