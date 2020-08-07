@@ -30,9 +30,6 @@
 module Gitlab
   module Experimentation
     EXPERIMENTS = {
-      signup_flow: {
-        tracking_category: 'Growth::Acquisition::Experiment::SignUpFlow'
-      },
       onboarding_issues: {
         tracking_category: 'Growth::Conversion::Experiment::OnboardingIssues'
       },

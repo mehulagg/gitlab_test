@@ -63,6 +63,12 @@ RSpec.describe RegistrationsController do
 
     it { is_expected.to redirect_to dashboard_projects_path }
 
+    it 'sets flash message' do
+      subject
+
+      expect(flash[:notice]).to eq(I18n.t('devise.registrations.signed_up'))
+    end
+
     context 'when part of the onboarding issues experiment' do
       before do
         stub_experiment_for_user(onboarding_issues: true)

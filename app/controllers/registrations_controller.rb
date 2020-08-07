@@ -31,9 +31,8 @@ class RegistrationsController < Devise::RegistrationsController
       yield new_user if block_given?
     end
 
-    # Do not show the signed_up notice message when the signup_flow experiment is enabled.
-    # Instead, show it after successfully updating the role.
-    flash[:notice] = nil if experiment_enabled?(:signup_flow)
+    # Show notice after successfully updating the role.
+    flash[:notice] = nil
   rescue Gitlab::Access::AccessDeniedError
     redirect_to(new_user_session_path)
   end
@@ -81,7 +80,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def set_role_required(new_user)
-    new_user.set_role_required! if new_user.persisted? && experiment_enabled?(:signup_flow)
+    new_user.set_role_required! if new_user.persisted?
   end
 
   def destroy_confirmation_valid?
@@ -107,9 +106,7 @@ class RegistrationsController < Devise::RegistrationsController
   def after_sign_up_path_for(user)
     Gitlab::AppLogger.info(user_created_message(confirmed: user.confirmed?))
 
-    return users_sign_up_welcome_path if experiment_enabled?(:signup_flow)
-
-    path_for_signed_in_user(user)
+    users_sign_up_welcome_path
   end
 
   def after_inactive_sign_up_path_for(resource)
@@ -146,7 +143,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def sign_up_params
-    params.require(:user).permit(:username, :email, :email_confirmation, :name, :first_name, :last_name, :password)
+    params.require(:user).permit(:username, :email, :email_confirmation, :first_name, :last_name, :password)
   end
 
   def resource_name
@@ -188,7 +185,6 @@ class RegistrationsController < Devise::RegistrationsController
   def requires_confirmation?(user)
     return false if user.confirmed?
     return false if Feature.enabled?(:soft_email_confirmation)
-    return false if experiment_enabled?(:signup_flow)
 
     true
   end
