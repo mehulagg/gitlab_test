@@ -40,7 +40,7 @@
                 = _('None')
           .title.hide-collapsed
             = _('Milestone')
-            = icon('spinner spin', class: 'hidden block-loading', 'aria-hidden': 'true')
+            = loading_icon(css_class: 'gl-vertical-align-text-bottom hidden block-loading')
             - if can_edit_issuable
               = link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link float-right', data: { qa_selector: "edit_milestone_link", track_label: "right_sidebar", track_property: "milestone", track_event: "click_edit_button", track_value: "" }
           .value.hide-collapsed
@@ -59,7 +59,7 @@
           // Fallback while content is loading
           .title.hide-collapsed
             = _('Time tracking')
-            = icon('spinner spin', 'aria-hidden': 'true')
+            = loading_icon(css_class: 'gl-vertical-align-text-bottom')
 
         - if issuable_sidebar.has_key?(:due_date)
           .block.due_date
@@ -69,7 +69,7 @@
                 = issuable_sidebar[:due_date].try(:to_s, :medium) || _('None')
             .title.hide-collapsed
               = _('Due date')
-              = icon('spinner spin', class: 'hidden block-loading', 'aria-hidden': 'true')
+              = loading_icon(css_class: 'gl-vertical-align-text-bottom hidden block-loading')
               - if can_edit_issuable
                 = link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link float-right', data: { track_label: "right_sidebar", track_property: "due_date", track_event: "click_edit_button", track_value: "" }
             .value.hide-collapsed
@@ -105,7 +105,7 @@
               = selected_labels.size
           .title.hide-collapsed
             = _('Labels')
-            = icon('spinner spin', class: 'hidden block-loading', 'aria-hidden': 'true')
+            = loading_icon(css_class: 'gl-vertical-align-text-bottom hidden block-loading')
             - if can_edit_issuable
               = link_to _('Edit'), '#', class: 'js-sidebar-dropdown-toggle edit-link float-right', data: { qa_selector: "edit_labels_link", track_label: "right_sidebar", track_property: "labels", track_event: "click_edit_button", track_value: "" }
           .value.issuable-show-labels.dont-hide.hide-collapsed{ class: ("has-labels" if selected_labels.any?), data: { qa_selector: 'labels_block' } }
@@ -174,7 +174,7 @@
                 = dropdown_footer add_content_class: true do
                   %button.btn.btn-success.sidebar-move-issue-confirmation-button.js-move-issue-confirmation-button{ type: 'button', disabled: true }
                     = _('Move')
-                    = icon('spinner spin', class: 'sidebar-move-issue-confirmation-loading-icon')
+                    = loading_icon(css_class: 'gl-vertical-align-text-bottom sidebar-move-issue-confirmation-loading-icon')
 
       -# haml-lint:disable InlineJavaScript
       %script.js-sidebar-options{ type: "application/json" }= issuable_sidebar_options(issuable_sidebar).to_json.html_safe
