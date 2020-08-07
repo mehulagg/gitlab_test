@@ -19,6 +19,8 @@ Need to expose search_box_by_click icon if we want to reuse search box.
 
 Good to reuse search tokens since this is a known UX component for the user.
 
+Need to verify that passing in `token`s ala FilteredSearch isn't a large memory drain.
+
 ## Should this support multiple commands at once?
 
 ### cons

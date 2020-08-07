@@ -15,6 +15,8 @@ import formComponent from './form.vue';
 import PinnedLinks from './pinned_links.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
+import commandPaletteEventHub from '~/command_palette/event_hub';
+import CommandToken from '~/command_palette/components/command_token.vue';
 
 export default {
   components: {
@@ -184,6 +186,21 @@ export default {
     hasUpdated() {
       return Boolean(this.state.updatedAt);
     },
+    availableTokens() {
+      return [
+        {
+          type: 'assignees',
+          title: __('Assign'),
+          icon: 'user',
+          token: CommandToken,
+          suggestions: this.assignees,
+          active: true,
+          operators: [{ value: '=', description: 'is', default: 'true' }],
+          isLoading: this.assigneesLoading,
+          fetchData: this.fetchAssignees,
+        },
+      ];
+    },
     issueChanged() {
       const {
         store: {
@@ -218,6 +235,10 @@ export default {
     shouldShowStickyHeader() {
       return this.isStickyHeaderShowing && this.issuableType === IssuableType.Issue;
     },
+  },
+  mounted() {
+    console.log(__('issuable mounted'));
+    commandPaletteEventHub.$emit('registerCommands', this.availableTokens);
   },
   created() {
     this.service = new Service(this.endpoint);

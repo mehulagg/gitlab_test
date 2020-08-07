@@ -7,8 +7,9 @@ import {
 } from '@gitlab/ui';
 import CommandToken from './command_token.vue';
 import { __ } from '~/locale';
+import eventHub from '../event_hub';
 
-import Api from '../../api';
+import Api from '~/api';
 
 export default {
   name: 'CommandPalette',
@@ -23,41 +24,24 @@ export default {
       isVisible: true, // false,
       value: [],
       assignees: null,
+      availableTokens: [],
     };
   },
-  computed: {
-    commandsByType() {
-      return {
-        assignees: {
-          callback: payload => {
-            console.log(__('callback payload'), payload);
-          },
-        },
-      };
-    },
-    availableTokens() {
-      return [
-        {
-          type: 'assignees',
-          title: __('Assign'),
-          icon: 'user',
-          token: CommandToken,
-          suggestions: this.assignees,
-          active: true,
-          operators: [{ value: '=', description: 'is', default: 'true' }],
-          isLoading: this.assigneesLoading,
-          fetchData: this.fetchAssignees,
-        },
-      ];
-    },
-  },
+
   mounted() {
+    console.log(__('command palette mounted'));
     this.registerKeyEventListener();
+    eventHub.$on('registerCommands', this.registerCommands);
+    eventHub.$on('assignees', value => console.log('eventHubbin', value));
   },
   beforeDestroy() {
     this.removeKeyEventListerner();
   },
   methods: {
+    registerCommands(commands) {
+      console.log(__('registering commands'));
+      this.availableTokens = this.availableTokens.concat(commands);
+    },
     registerKeyEventListener() {
       document.addEventListener('keydown', this.keyDown);
     },
@@ -77,12 +61,7 @@ export default {
       this.activeActions(submittedCommands);
     },
     activeActions(actions) {
-      actions.map(action => {
-        console.log(action.type);
-        console.log(action.value.data);
-        this.commandsByType[action.type].callback(action.value.data);
-        return 'foo';
-      });
+      actions.map(action => eventHub.$emit(action.type, action.value.data));
     },
     fetchAssignees(data) {
       return Api.users(data, {}).then(response => {

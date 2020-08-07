@@ -76,6 +76,8 @@ if (process.env.NODE_ENV !== 'production' && gon?.test_env) {
   import(/* webpackMode: "eager" */ './test_utils/'); // eslint-disable-line no-unused-expressions
 }
 
+initCommandPalette();
+
 document.addEventListener('beforeunload', () => {
   // Unbind scroll events
   $(document).off('scroll');
@@ -113,7 +115,6 @@ function deferredInitialisation() {
   initBroadcastNotifications();
   initFrequentItemDropdowns();
   initPersistentUserCallouts();
-  initCommandPalette();
 
   if (document.querySelector('.search')) initSearchAutocomplete();
 
