@@ -16,6 +16,8 @@ import PinnedLinks from './pinned_links.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
 import commandPaletteEventHub from '~/command_palette/event_hub';
+import commandPaletteStore from '~/command_palette/store';
+import { registerCommands } from '~/command_palette/commands';
 import CommandToken from '~/command_palette/components/command_token.vue';
 
 export default {
@@ -238,7 +240,9 @@ export default {
   },
   mounted() {
     console.log(__('issuable mounted'));
-    commandPaletteEventHub.$emit('registerCommands', this.availableTokens);
+    // commandPaletteEventHub.$emit('registerCommands', this.availableTokens);
+    registerCommands({ commands: this.availableTokens });
+    // commandPaletteStore.registerCommands(this.availableTokens);
   },
   created() {
     this.service = new Service(this.endpoint);
