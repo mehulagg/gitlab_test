@@ -12,69 +12,27 @@ RSpec.describe RegistrationsController do
   describe '#new' do
     subject { get :new }
 
-    context 'with the experimental signup flow enabled and the user is part of the experimental group' do
-      before do
-        stub_experiment(signup_flow: true)
-        stub_experiment_for_user(signup_flow: true)
-      end
-
-      it 'renders new template and sets the resource variable' do
-        expect(subject).to render_template(:new)
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(assigns(:resource)).to be_a(User)
-      end
+    it 'renders new template and sets the resource variable' do
+      expect(subject).to render_template(:new)
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(assigns(:resource)).to be_a(User)
     end
 
-    context 'with the experimental signup flow enabled and the user is part of the control group' do
+    context 'when user is part of the terms experiment' do
       before do
-        stub_experiment(signup_flow: true)
-        stub_experiment_for_user(signup_flow: false)
+        stub_experiment(terms_opt_in: true)
+        stub_experiment_for_user(terms_opt_in: true)
       end
 
-      it 'renders new template and sets the resource variable' do
+      it 'tracks event with right parameters' do
+        expect(Gitlab::Tracking).to receive(:event).with(
+          'Growth::Acquisition::Experiment::TermsOptIn',
+          'start',
+          label: anything,
+          property: 'experimental_group'
+        )
+
         subject
-        expect(response).to have_gitlab_http_status(:found)
-        expect(response).to redirect_to(new_user_session_path(anchor: 'register-pane'))
-      end
-    end
-
-    context 'with sign up flow and terms_opt_in experiment being enabled' do
-      before do
-        stub_experiment(signup_flow: true, terms_opt_in: true)
-      end
-
-      context 'when user is not part of the experiment' do
-        before do
-          stub_experiment_for_user(signup_flow: true, terms_opt_in: false)
-        end
-
-        it 'tracks event with right parameters' do
-          expect(Gitlab::Tracking).to receive(:event).with(
-            'Growth::Acquisition::Experiment::TermsOptIn',
-            'start',
-            label: anything,
-            property: 'control_group'
-          )
-
-          subject
-        end
-      end
-
-      context 'when user is part of the experiment' do
-        before do
-          stub_experiment_for_user(signup_flow: true, terms_opt_in: true)
-        end
-
-        it 'tracks event with right parameters' do
-          expect(Gitlab::Tracking).to receive(:event).with(
-            'Growth::Acquisition::Experiment::TermsOptIn',
-            'start',
-            label: anything,
-            property: 'experimental_group'
-          )
-
-          subject
-        end
       end
     end
   end
