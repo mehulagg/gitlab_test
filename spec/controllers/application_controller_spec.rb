@@ -790,13 +790,8 @@ RSpec.describe ApplicationController do
     end
 
     let(:user) { create(:user) }
-    let(:experiment_enabled) { true }
 
-    before do
-      stub_experiment_for_user(signup_flow: experiment_enabled)
-    end
-
-    context 'experiment enabled and user with required role' do
+    context 'user with required role' do
       before do
         user.set_role_required!
         sign_in(user)
@@ -806,20 +801,8 @@ RSpec.describe ApplicationController do
       it { is_expected.to redirect_to users_sign_up_welcome_path }
     end
 
-    context 'experiment enabled and user without a required role' do
+    context 'user without a required role' do
       before do
-        sign_in(user)
-        get :index
-      end
-
-      it { is_expected.not_to redirect_to users_sign_up_welcome_path }
-    end
-
-    context 'experiment disabled' do
-      let(:experiment_enabled) { false }
-
-      before do
-        user.set_role_required!
         sign_in(user)
         get :index
       end
