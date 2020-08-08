@@ -19,7 +19,7 @@ module Branches
       end
 
       if repository.rm_branch(current_user, branch_name)
-        unlock_artifacts(branch_name)
+        publish_event(branch_name)
         ServiceResponse.success(message: 'Branch was deleted')
       else
         ServiceResponse.error(
@@ -32,8 +32,10 @@ module Branches
 
     private
 
-    def unlock_artifacts(branch_name)
-      Ci::RefDeleteUnlockArtifactsWorker.perform_async(project.id, current_user.id, "#{::Gitlab::Git::BRANCH_REF_PREFIX}#{branch_name}")
+    def publish_event(branch_name)
+      ref = "#{::Gitlab::Git::BRANCH_REF_PREFIX}#{branch_name}"
+      event = Repositories::BranchDeletedEvent.new(data: { project_id: project.id, user_id: current_user.id, ref: ref })
+      Gitlab::EventStore.publish(event)
     end
   end
 end

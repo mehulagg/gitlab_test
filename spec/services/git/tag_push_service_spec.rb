@@ -61,31 +61,45 @@ RSpec.describe Git::TagPushService do
     end
   end
 
+  it 'publishes a domain event' do
+    event = double(:event)
+
+    expect(::Git::TagPushedEvent)
+      .to receive(:new)
+      .with(data: { project_id: project.id, user_id: user.id, params: instance_of(Hash) })
+      .and_return(event)
+
+    expect(Gitlab::EventStore).to receive(:publish).with(event)
+
+    service.execute
+  end
+
   describe 'artifacts' do
-    context 'create tag' do
+    context 'when creating tag' do
       let(:oldrev) { blankrev }
 
-      it 'does nothing' do
-        expect(::Ci::RefDeleteUnlockArtifactsWorker).not_to receive(:perform_async)
+      it 'does not unlock artifacts', :sidekiq_inline do
+        expect(::Ci::UnlockArtifactsService).not_to receive(:new)
 
         service.execute
       end
     end
 
-    context 'update tag' do
-      it 'does nothing' do
-        expect(::Ci::RefDeleteUnlockArtifactsWorker).not_to receive(:perform_async)
+    context 'when updating tag' do
+      it 'does not unlock artifacts', :sidekiq_inline do
+        expect(::Ci::UnlockArtifactsService).not_to receive(:new)
 
         service.execute
       end
     end
 
-    context 'delete tag' do
+    context 'when deleting tag' do
       let(:newrev) { blankrev }
 
-      it 'unlocks artifacts' do
-        expect(::Ci::RefDeleteUnlockArtifactsWorker)
-          .to receive(:perform_async).with(project.id, user.id, "refs/tags/#{tag}")
+      it 'unlocks artifacts through Ci::UnlockArtifactsWorker subscriber', :sidekiq_inline do
+        create(:ci_ref, project: project, ref_path: 'refs/tags/v1.1.0')
+
+        expect(Ci::UnlockArtifactsService).to receive(:new).with(project, user).and_call_original
 
         service.execute
       end

@@ -29,7 +29,9 @@ module Git
       perform_housekeeping
 
       stop_environments
-      unlock_artifacts
+
+      event = Git::BranchPushedEvent.new(data: { project_id: project.id, user_id: current_user.id, params: params })
+      Gitlab::EventStore.publish(event)
 
       true
     end
@@ -59,12 +61,6 @@ module Git
       return unless removing_branch?
 
       Ci::StopEnvironmentsService.new(project, current_user).execute(branch_name)
-    end
-
-    def unlock_artifacts
-      return unless removing_branch?
-
-      Ci::RefDeleteUnlockArtifactsWorker.perform_async(project.id, current_user.id, ref)
     end
 
     def execute_related_hooks

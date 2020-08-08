@@ -640,16 +640,16 @@ RSpec.describe Git::BranchPushService, services: true do
     context 'create branch' do
       let(:oldrev) { blankrev }
 
-      it 'does nothing' do
-        expect(::Ci::RefDeleteUnlockArtifactsWorker).not_to receive(:perform_async)
+      it 'does not unlock artifacts', :sidekiq_inline do
+        expect(::Ci::UnlockArtifactsService).not_to receive(:new)
 
         execute_service(project, user, oldrev: oldrev, newrev: newrev, ref: ref)
       end
     end
 
     context 'update branch' do
-      it 'does nothing' do
-        expect(::Ci::RefDeleteUnlockArtifactsWorker).not_to receive(:perform_async)
+      it 'does not unlock artifacts', :sidekiq_inline do
+        expect(::Ci::UnlockArtifactsService).not_to receive(:new)
 
         execute_service(project, user, oldrev: oldrev, newrev: newrev, ref: ref)
       end
@@ -657,13 +657,47 @@ RSpec.describe Git::BranchPushService, services: true do
 
     context 'delete branch' do
       let(:newrev) { blankrev }
+      let!(:ci_ref) { create(:ci_ref, project: project, ref_path: ref)}
 
-      it 'unlocks artifacts' do
-        expect(::Ci::RefDeleteUnlockArtifactsWorker)
-          .to receive(:perform_async).with(project.id, user.id, "refs/heads/#{branch}")
+      it 'unlocks artifacts through Ci::UnlockArtifactsWorker', :sidekiq_inline do
+        expect(::Ci::UnlockArtifactsService)
+          .to receive(:new)
+          .with(project, user).and_call_original
 
         execute_service(project, user, oldrev: oldrev, newrev: newrev, ref: ref)
       end
+    end
+  end
+
+  describe 'Git::BranchPushedEvent' do
+    let(:service_params) do
+      {
+        change: { oldrev: oldrev, newrev: newrev, ref: ref },
+        push_options: {}
+      }
+    end
+
+    let(:event_data) do
+      { project_id: project.id, user_id: user.id, params: service_params }
+    end
+
+    it 'is published' do
+      event = double(:event)
+
+      expect(Git::BranchPushedEvent)
+        .to receive(:new)
+        .with(data: event_data)
+        .and_return(event)
+
+      expect(Gitlab::EventStore).to receive(:publish).with(event)
+
+      execute_service(project, user, oldrev: oldrev, newrev: newrev, ref: ref)
+    end
+
+    it 'is received by the subscribers' do
+      expect(Ci::UnlockArtifactsWorker).to receive(:perform_async).with('Git::BranchPushedEvent', event_data)
+
+      execute_service(project, user, oldrev: oldrev, newrev: newrev, ref: ref)
     end
   end
 

@@ -18,7 +18,7 @@ module Tags
           .new(project, current_user, tag: tag_name)
           .execute
 
-        unlock_artifacts(tag_name)
+        publish_event(tag_name)
 
         success('Tag was removed')
       else
@@ -38,8 +38,10 @@ module Tags
 
     private
 
-    def unlock_artifacts(tag_name)
-      Ci::RefDeleteUnlockArtifactsWorker.perform_async(project.id, current_user.id, "#{::Gitlab::Git::TAG_REF_PREFIX}#{tag_name}")
+    def publish_event(tag_name)
+      ref = "#{::Gitlab::Git::TAG_REF_PREFIX}#{tag_name}"
+      event = Repositories::TagDeletedEvent.new(data: { project_id: project.id, user_id: current_user.id, ref: ref })
+      Gitlab::EventStore.publish(event)
     end
   end
 end

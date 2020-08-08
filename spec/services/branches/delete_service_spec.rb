@@ -10,10 +10,6 @@ RSpec.describe Branches::DeleteService do
   subject(:service) { described_class.new(project, user) }
 
   shared_examples 'a deleted branch' do |branch_name|
-    before do
-      allow(Ci::RefDeleteUnlockArtifactsWorker).to receive(:perform_async)
-    end
-
     it 'removes the branch' do
       expect(branch_exists?(branch_name)).to be true
 
@@ -23,8 +19,23 @@ RSpec.describe Branches::DeleteService do
       expect(branch_exists?(branch_name)).to be false
     end
 
-    it 'calls the RefDeleteUnlockArtifactsWorker' do
-      expect(Ci::RefDeleteUnlockArtifactsWorker).to receive(:perform_async).with(project.id, user.id, "refs/heads/#{branch_name}")
+    it 'publishes a domain event' do
+      event = double(:event)
+
+      expect(::Repositories::BranchDeletedEvent)
+        .to receive(:new)
+        .with(data: { project_id: project.id, user_id: user.id, ref: "refs/heads/#{branch_name}" })
+        .and_return(event)
+
+      expect(Gitlab::EventStore).to receive(:publish).with(event)
+
+      service.execute(branch_name)
+    end
+
+    it 'unlocks artifacts through Ci::UnlockArtifactsWorker subscriber', :sidekiq_inline do
+      create(:ci_ref, project: project, ref_path: "refs/heads/#{branch_name}")
+
+      expect(Ci::UnlockArtifactsService).to receive(:new).with(project, user).and_call_original
 
       service.execute(branch_name)
     end

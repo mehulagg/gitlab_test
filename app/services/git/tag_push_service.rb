@@ -10,21 +10,10 @@ module Git
       project.repository.before_push_tag
       TagHooksService.new(project, current_user, params).execute
 
-      unlock_artifacts
+      event = Git::TagPushedEvent.new(data: { project_id: project.id, user_id: current_user.id, params: params })
+      Gitlab::EventStore.publish(event)
 
       true
-    end
-
-    private
-
-    def unlock_artifacts
-      return unless removing_tag?
-
-      Ci::RefDeleteUnlockArtifactsWorker.perform_async(project.id, current_user.id, ref)
-    end
-
-    def removing_tag?
-      Gitlab::Git.blank_ref?(newrev)
     end
   end
 end

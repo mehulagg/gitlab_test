@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
+  # TODO: deprecate this worker. Turn it into no-op.
   class RefDeleteUnlockArtifactsWorker
     include ApplicationWorker
     include PipelineBackgroundQueue

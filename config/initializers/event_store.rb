@@ -14,4 +14,11 @@ Gitlab::EventStore.instance.tap do |store|
   # Example 3: Subscribe to multiple events using the same worker
   #
   #   store.subscribe UnlockArtifactsWorker, to: [BranchDeletedEvent, TagDeletedEvent]
+
+  store.subscribe Ci::UnlockArtifactsWorker, to: [
+    Git::BranchPushedEvent,
+    Git::TagPushedEvent,
+    Repositories::BranchDeletedEvent,
+    Repositories::TagDeletedEvent
+  ]
 end
