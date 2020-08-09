@@ -230,7 +230,7 @@ module Gitlab
         return unless has_basic_credentials?(current_request)
 
         _username, password = user_name_and_password(current_request)
-        PersonalAccessToken.find_by_token(password)
+        PersonalAccessToken.find_by_token(password) || raise(UnauthorizedError)
       end
 
       def parsed_oauth_token
