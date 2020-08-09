@@ -1,0 +1,5 @@
+---
+title: Remove obsoleted :approval_rule_name_index_for_code_owners index
+merge_request: 39004
+author:
+type: other
