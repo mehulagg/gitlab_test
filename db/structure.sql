@@ -19437,6 +19437,8 @@ CREATE UNIQUE INDEX index_design_user_mentions_on_note_id ON public.design_user_
 
 CREATE UNIQUE INDEX index_diff_note_positions_on_note_id_and_diff_type ON public.diff_note_positions USING btree (note_id, diff_type);
 
+CREATE INDEX index_diff_notes_on_author_id_and_created_at ON public.notes USING btree (author_id, created_at) WHERE ((type)::text = 'DiffNote'::text);
+
 CREATE INDEX index_draft_notes_on_author_id ON public.draft_notes USING btree (author_id);
 
 CREATE INDEX index_draft_notes_on_discussion_id ON public.draft_notes USING btree (discussion_id);
