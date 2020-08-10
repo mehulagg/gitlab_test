@@ -2,7 +2,7 @@
 import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import Mousetrap from 'mousetrap';
-import { GlIcon, GlButton, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
+import { GlIcon, GlButton, GlTooltipDirective } from '@gitlab/ui';
 import DashboardHeader from './dashboard_header.vue';
 import DashboardPanel from './dashboard_panel.vue';
 import { s__ } from '~/locale';
@@ -43,7 +43,6 @@ export default {
     LinksSection,
   },
   directives: {
-    GlModal: GlModalDirective,
     GlTooltip: GlTooltipDirective,
     TrackEvent: TrackEventDirective,
   },

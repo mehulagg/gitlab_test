@@ -39,7 +39,7 @@ RSpec.describe EnvironmentsHelper do
         'environment-state' => environment.state,
         'custom-metrics-path' => project_prometheus_metrics_path(project),
         'validate-query-path' => validate_query_project_prometheus_metrics_path(project),
-        'custom-metrics-available' => 'true',
+        'can-manage-custom-metrics' => 'true',
         'alerts-endpoint' => project_prometheus_alerts_path(project, environment_id: environment.id, format: :json),
         'prometheus-alerts-available' => 'true',
         'custom-dashboard-base-path' => Gitlab::Metrics::Dashboard::RepoDashboardFinder::DASHBOARD_ROOT,
@@ -122,8 +122,8 @@ RSpec.describe EnvironmentsHelper do
     end
   end
 
-  describe '#custom_metrics_available?' do
-    subject { helper.custom_metrics_available?(project) }
+  describe '#can_manage_metrics?' do
+    subject { helper.can_manage_metrics?(project) }
 
     before do
       project.add_maintainer(user)

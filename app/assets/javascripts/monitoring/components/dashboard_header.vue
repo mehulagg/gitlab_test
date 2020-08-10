@@ -115,7 +115,7 @@ export default {
       'operationsSettingsPath',
       'currentDashboard',
       'addDashboardDocumentationPath',
-      'canManageCustomMetrics',
+      'canManageMetrics',
       'canAccessOperationsSettings',
     ]),
     ...mapGetters('monitoringDashboard', ['selectedDashboard', 'filteredEnvironments']),
@@ -130,7 +130,7 @@ export default {
     },
     addingMetricsAvailable() {
       return (
-        this.canManageCustomMetrics &&
+        this.canManageMetrics &&
         !this.shouldShowEmptyState &&
         // Custom metrics only avaialble on system dashboards because
         // they are stored in the database. This can be improved. See:

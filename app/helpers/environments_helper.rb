@@ -17,7 +17,7 @@ module EnvironmentsHelper
     }
   end
 
-  def can_manage_custom_metrics?(project)
+  def can_manage_metrics?(project)
     can?(current_user, :admin_project, project)
   end
 
@@ -60,7 +60,7 @@ module EnvironmentsHelper
       'external-dashboard-url'      => project.metrics_setting_external_dashboard_url,
       'custom-metrics-path'         => project_prometheus_metrics_path(project),
       'validate-query-path'         => validate_query_project_prometheus_metrics_path(project),
-      'can-manage-custom-metrics'   => "#{can_manage_custom_metrics?(project)}",
+      'can-manage-metrics'          => "#{can_manage_metrics?(project)}",
       'prometheus-alerts-available' => "#{can?(current_user, :read_prometheus_alerts, project)}",
       'dashboard-timezone'          => project.metrics_setting_dashboard_timezone.to_s.upcase
     }

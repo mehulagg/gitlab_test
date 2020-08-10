@@ -1,9 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
+import Tracking from '~/tracking';
 import { createStore } from '~/monitoring/stores';
 import * as types from '~/monitoring/stores/mutation_types';
-import { GlDeprecatedDropdownItem, GlSearchBoxByType, GlLoadingIcon, GlButton } from '@gitlab/ui';
+import { GlDeprecatedDropdownItem, GlSearchBoxByType, GlLoadingIcon, GlModal } from '@gitlab/ui';
 import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
 import RefreshButton from '~/monitoring/components/refresh_button.vue';
+import CustomMetricsFormFields from '~/custom_metrics/components/custom_metrics_form_fields.vue';
 import DashboardHeader from '~/monitoring/components/dashboard_header.vue';
 import DashboardsDropdown from '~/monitoring/components/dashboards_dropdown.vue';
 import DuplicateDashboardModal from '~/monitoring/components/duplicate_dashboard_modal.vue';
@@ -454,7 +456,7 @@ describe('Dashboard header', () => {
 
     it('is not rendered when custom metrics are not available', () => {
       store.state.monitoringDashboard.emptyState = false;
-      store.state.monitoringDashboard.canManageCustomMetrics = false;
+      store.state.monitoringDashboard.canManageMetrics = false;
 
       createShallowWrapper();
 
@@ -467,7 +469,7 @@ describe('Dashboard header', () => {
 
     it('is not rendered when displaying empty state', () => {
       store.state.monitoringDashboard.emptyState = true;
-      store.state.monitoringDashboard.canManageCustomMetrics = true;
+      store.state.monitoringDashboard.canManageMetrics = true;
 
       createShallowWrapper();
 
@@ -475,6 +477,58 @@ describe('Dashboard header', () => {
 
       return wrapper.vm.$nextTick(() => {
         expect(findAddMetricButton().exists()).toBe(false);
+      });
+    });
+
+    describe('is rendered', () => {
+      let origPage;
+      beforeEach(done => {
+        store.state.monitoringDashboard.canManageMetrics = true;
+
+        jest.spyOn(Tracking, 'event').mockReturnValue();
+        createShallowWrapper({
+          hasMetrics: true,
+          customMetricsPath: '/endpoint',
+        });
+        setupStoreWithData(store);
+
+        origPage = document.body.dataset.page;
+        document.body.dataset.page = 'projects:environments:metrics';
+
+        wrapper.vm.$nextTick(done);
+      });
+
+      afterEach(() => {
+        document.body.dataset.page = origPage;
+      });
+
+      it('uses modal for custom metrics form', () => {
+        expect(wrapper.find(GlModal).exists()).toBe(true);
+        expect(wrapper.find(GlModal).attributes().modalid).toBe('addMetric');
+      });
+
+      it('adding new metric is tracked', done => {
+        const submitButton = wrapper.find({ ref: 'submitCustomMetricsFormBtn' }).vm;
+
+        wrapper.vm.$nextTick(() => {
+          submitButton.$el.click();
+          wrapper.vm.$nextTick(() => {
+            expect(Tracking.event).toHaveBeenCalledWith(
+              document.body.dataset.page,
+              'click_button',
+              {
+                label: 'add_new_metric',
+                property: 'modal',
+                value: undefined,
+              },
+            );
+            done();
+          });
+        });
+      });
+
+      it('renders custom metrics form fields', () => {
+        expect(wrapper.find(CustomMetricsFormFields).exists()).toBe(true);
       });
     });
 
@@ -491,7 +545,7 @@ describe('Dashboard header', () => {
 
       beforeEach(() => {
         store.state.monitoringDashboard.emptyState = false;
-        store.state.monitoringDashboard.canManageCustomMetrics = true;
+        store.state.monitoringDashboard.canManageMetrics = true;
 
         createShallowWrapper();
       });

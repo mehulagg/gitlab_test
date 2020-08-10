@@ -89,7 +89,7 @@ export default () => ({
   /**
    * Flag that denotes if the user can update custom metrics
    */
-  canManageCustomMetrics: false,
+  canManageMetrics: false,
   /**
    * Flag that denotes if the currently logged user can access
    * the project Settings -> Operations

@@ -1,7 +1,6 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import Tracking from '~/tracking';
 import { ESC_KEY, ESC_KEY_IE11 } from '~/lib/utils/keys';
-import { GlModal, GlButton } from '@gitlab/ui';
+import { GlButton } from '@gitlab/ui';
 import { objectToQuery } from '~/lib/utils/url_utility';
 import VueDraggable from 'vuedraggable';
 import MockAdapter from 'axios-mock-adapter';
@@ -10,7 +9,6 @@ import { dashboardEmptyStates, metricStates } from '~/monitoring/constants';
 import Dashboard from '~/monitoring/components/dashboard.vue';
 
 import DashboardHeader from '~/monitoring/components/dashboard_header.vue';
-import CustomMetricsFormFields from '~/custom_metrics/components/custom_metrics_form_fields.vue';
 import EmptyState from '~/monitoring/components/empty_state.vue';
 import GroupEmptyState from '~/monitoring/components/group_empty_state.vue';
 import DashboardPanel from '~/monitoring/components/dashboard_panel.vue';
@@ -959,75 +957,6 @@ describe('Dashboard', () => {
       const dashboardPanel = getDashboardPanel();
 
       expect(dashboardPanel.exists()).toBe(true);
-    });
-  });
-
-  describe('add custom metrics', () => {
-    const findAddMetricButton = () => findDashboardHeader().find({ ref: 'addMetricBtn' });
-
-    describe('when not available', () => {
-      beforeEach(() => {
-        createShallowWrapper({
-          hasMetrics: true,
-          customMetricsPath: '/endpoint',
-        });
-      });
-      it('does not render add button on the dashboard', () => {
-        expect(findAddMetricButton().exists()).toBe(false);
-      });
-    });
-
-    describe('when available', () => {
-      let origPage;
-      beforeEach(done => {
-        jest.spyOn(Tracking, 'event').mockReturnValue();
-        createShallowWrapper({
-          hasMetrics: true,
-          customMetricsPath: '/endpoint',
-        });
-        setupStoreWithData(store);
-
-        origPage = document.body.dataset.page;
-        document.body.dataset.page = 'projects:environments:metrics';
-
-        wrapper.vm.$nextTick(done);
-      });
-      afterEach(() => {
-        document.body.dataset.page = origPage;
-      });
-
-      it('renders add button on the dashboard', () => {
-        expect(findAddMetricButton()).toBeDefined();
-      });
-
-      it('uses modal for custom metrics form', () => {
-        expect(wrapper.find(GlModal).exists()).toBe(true);
-        expect(wrapper.find(GlModal).attributes().modalid).toBe('addMetric');
-      });
-      it('adding new metric is tracked', done => {
-        const submitButton = wrapper
-          .find(DashboardHeader)
-          .find({ ref: 'submitCustomMetricsFormBtn' }).vm;
-        wrapper.vm.$nextTick(() => {
-          submitButton.$el.click();
-          wrapper.vm.$nextTick(() => {
-            expect(Tracking.event).toHaveBeenCalledWith(
-              document.body.dataset.page,
-              'click_button',
-              {
-                label: 'add_new_metric',
-                property: 'modal',
-                value: undefined,
-              },
-            );
-            done();
-          });
-        });
-      });
-
-      it('renders custom metrics form fields', () => {
-        expect(wrapper.find(CustomMetricsFormFields).exists()).toBe(true);
-      });
     });
   });
 });

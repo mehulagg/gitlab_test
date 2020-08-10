@@ -32,7 +32,7 @@ export const stateAndPropsFromDataset = (dataset = {}) => {
     currentEnvironmentName,
     customDashboardBasePath,
     addDashboardDocumentationPath,
-    canManageCustomMetrics,
+    canManageMetrics,
     canAccessOperationsSettings,
     ...dataProps
   } = dataset;
@@ -55,7 +55,7 @@ export const stateAndPropsFromDataset = (dataset = {}) => {
       currentEnvironmentName,
       customDashboardBasePath,
       addDashboardDocumentationPath,
-      canManageCustomMetrics: parseBoolean(canManageCustomMetrics),
+      canManageMetrics: parseBoolean(canManageMetrics),
       canAccessOperationsSettings,
     },
     dataProps,
