@@ -66,7 +66,7 @@ RSpec.describe 'Login' do
         it 'correctly renders tabs and panes' do
           subject
 
-          expect(page.all('.nav-tabs a[data-toggle="tab"]').length).to be(3)
+          expect(page.all('.nav-tabs a[data-toggle="tab"]').length).to be(2)
 
           ensure_one_active_tab
           ensure_one_active_pane

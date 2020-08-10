@@ -25,12 +25,10 @@ module QA
         view 'app/views/devise/shared/_tabs_ldap.html.haml' do
           element :ldap_tab
           element :standard_tab
-          element :register_tab
         end
 
         view 'app/views/devise/shared/_tabs_normal.html.haml' do
           element :sign_in_tab
-          element :register_tab
         end
 
         view 'app/helpers/auth_helper.rb' do
@@ -125,9 +123,9 @@ module QA
           click_element :sign_in_tab
         end
 
-        def switch_to_register_tab
+        def go_to_signup_page
           set_initial_password_if_present
-          click_element :register_tab
+          click_element :register_link
         end
 
         def switch_to_ldap_tab

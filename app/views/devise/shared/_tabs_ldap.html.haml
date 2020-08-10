@@ -1,5 +1,4 @@
 - show_password_form = local_assigns.fetch(:show_password_form, password_authentication_enabled_for_web?)
-- render_signup_link = local_assigns.fetch(:render_signup_link, true)
 
 %ul.nav-links.new-session-tabs.nav-tabs.nav{ class: ('custom-provider-tabs' if any_form_based_providers_enabled?) }
   - if crowd_enabled?
@@ -15,6 +14,3 @@
   - if show_password_form
     %li.nav-item
       = link_to _('Standard'), '#login-pane', class: 'nav-link', data: { toggle: 'tab', qa_selector: 'standard_tab' }
-  - if render_signup_link && allow_signup?
-    %li.nav-item
-      = link_to 'Register', '#register-pane', class: 'nav-link', data: { toggle: 'tab', qa_selector: 'register_tab' }

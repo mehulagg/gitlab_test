@@ -28,4 +28,4 @@
 - if render_signup_link && allow_signup?
   %p.light.mt-2
     = _("Don't have an account yet?")
-    = link_to _("Register now"), new_registration_path(:user)
+    = link_to _("Register now"), new_registration_path(:user), qa_selector: 'register_link'

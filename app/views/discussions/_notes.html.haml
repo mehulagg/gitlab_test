@@ -40,7 +40,7 @@
     - elsif !current_user
       .disabled-comment.text-center
         Please
-        = link_to "register", new_session_path(:user, redirect_to_referer: 'yes')
+        = link_to "register", new_user_registration_path(redirect_to_referer: 'yes')
         or
         = link_to "sign in", new_session_path(:user, redirect_to_referer: 'yes')
         to reply

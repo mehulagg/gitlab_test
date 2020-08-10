@@ -3,6 +3,9 @@
 #signin-container
   - if any_form_based_providers_enabled?
     = render 'devise/shared/tabs_ldap'
+  - else
+    = render 'devise/shared/tabs_normal', render_signup_link: false
+
   .tab-content
     - if password_authentication_enabled_for_web? || ldap_sign_in_enabled? || crowd_enabled?
       = render 'devise/shared/signin_box'

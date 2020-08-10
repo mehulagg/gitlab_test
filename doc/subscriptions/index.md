@@ -93,7 +93,7 @@ If you have LDAP integration enabled, anyone in the configured domain can sign u
 To subscribe to GitLab.com:
 
 1. Create a user account for yourself using our
-   [sign up page](https://gitlab.com/users/sign_in#register-pane).
+   [sign up page](https://gitlab.com/users/sign_up).
 1. Create a [group](../user/group/index.md). GitLab groups help assemble related
    projects together allowing you to grant members access to several projects
    at once. A group is not required if you plan on having projects inside a personal
