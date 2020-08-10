@@ -73,5 +73,40 @@ RSpec.describe NetworkPolicies::DeployResourceService do
         expect(subject.message).not_to be_nil
       end
     end
+
+    context 'with non standard network policy' do
+      let(:policy) do
+        Gitlab::Kubernetes::CiliumNetworkPolicy.new(
+          name: 'policy',
+          namespace: 'another',
+          resource_version: '101',
+          selector: { matchLabels: { role: 'db' } },
+          ingress: [{ endpointFrom: [{ matchLabels: { project: 'myproject' } }] }]
+        )
+      end
+
+      it 'creates resource in the deployment namespace and return success response with a policy' do
+        namespaced_policy = policy.generate
+        namespaced_policy[:metadata][:namespace] = environment.deployment_namespace
+
+        expect(kubeclient).to receive(:create_cilium_network_policy).with(namespaced_policy) { policy.generate }
+        expect(subject).to be_success
+        expect(subject.payload.as_json).to eq(policy.as_json)
+      end
+
+      context 'with resource_name' do
+        let(:service) { NetworkPolicies::DeployResourceService.new(policy: policy, environment: environment, resource_name: 'policy2') }
+
+        it 'updates resource in the deployment namespace and returns success response with a policy' do
+          namespaced_policy = policy.generate
+          namespaced_policy[:metadata][:namespace] = environment.deployment_namespace
+          namespaced_policy[:metadata][:name] = 'policy2'
+
+          expect(kubeclient).to receive(:update_cilium_network_policy).with(namespaced_policy) { policy.generate }
+          expect(subject).to be_success
+          expect(subject.payload.as_json).to eq(policy.as_json)
+        end
+      end
+    end
   end
 end
