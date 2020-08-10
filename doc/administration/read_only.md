@@ -33,7 +33,7 @@ The only thing you'll need to do is shutting down Sidekiq and Puma (or Unicorn):
 
 ```sh
 gitlab-ctl stop sidekiq
-gitlab-ctl stop unicorn
+gitlab-ctl stop puma  # or unicorn
 ```
 
 When you're ready to revert this, you can do so with
