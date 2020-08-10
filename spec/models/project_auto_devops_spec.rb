@@ -15,50 +15,65 @@ RSpec.describe ProjectAutoDevops do
   it { is_expected.to respond_to(:updated_at) }
 
   describe '#predefined_variables' do
+    subject { auto_devops.predefined_variables }
+
     let(:auto_devops) { build_stubbed(:project_auto_devops, project: project) }
+
+    it { is_expected.to include(key: 'AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED', value: '1') }
 
     context 'when deploy_strategy is manual' do
       let(:auto_devops) { build_stubbed(:project_auto_devops, :manual_deployment, project: project) }
-      let(:expected_variables) do
-        [
-          { key: 'INCREMENTAL_ROLLOUT_MODE', value: 'manual' },
-          { key: 'STAGING_ENABLED', value: '1' },
-          { key: 'INCREMENTAL_ROLLOUT_ENABLED', value: '1' },
-          { key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1' }
-        ]
-      end
 
-      it { expect(auto_devops.predefined_variables).to include(*expected_variables) }
+      it do
+        is_expected.to include(
+          { key: 'INCREMENTAL_ROLLOUT_ENABLED', value: '1' },
+          { key: 'INCREMENTAL_ROLLOUT_MODE', value: 'manual' },
+          { key: 'STAGING_ENABLED', value: '1' }
+        )
+      end
     end
 
     context 'when deploy_strategy is continuous' do
       let(:auto_devops) { build_stubbed(:project_auto_devops, :continuous_deployment, project: project) }
 
-      it { expect(auto_devops.predefined_variables).to include(key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1') }
-
       it do
-        expect(auto_devops.predefined_variables.map { |var| var[:key] })
-          .not_to include("STAGING_ENABLED", "INCREMENTAL_ROLLOUT_ENABLED")
+        expect(subject.map { |v| v[:key] }).not_to include(
+          'INCREMENTAL_ROLLOUT_ENABLED',
+          'INCREMENTAL_ROLLOUT_MODE',
+          'STAGING_ENABLED'
+        )
       end
     end
 
     context 'when deploy_strategy is timed_incremental' do
       let(:auto_devops) { build_stubbed(:project_auto_devops, :timed_incremental_deployment, project: project) }
 
-      it { expect(auto_devops.predefined_variables).to include(key: 'INCREMENTAL_ROLLOUT_MODE', value: 'timed') }
-
-      it { expect(auto_devops.predefined_variables).to include(key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1') }
+      it { is_expected.to include(key: 'INCREMENTAL_ROLLOUT_MODE', value: 'timed') }
 
       it do
-        expect(auto_devops.predefined_variables.map { |var| var[:key] })
-          .not_to include("STAGING_ENABLED", "INCREMENTAL_ROLLOUT_ENABLED")
+        expect(subject.map { |v| v[:key] }).not_to include(
+          'INCREMENTAL_ROLLOUT_ENABLED',
+          'STAGING_ENABLED'
+        )
       end
     end
 
-    context 'when auto-devops is explicitly disabled' do
-      let(:auto_devops) { build_stubbed(:project_auto_devops, :disabled, project: project) }
+    context 'when auto-devops is explicitly enabled' do
+      let(:auto_devops) { build_stubbed(:project_auto_devops, enabled: true, project: project) }
 
-      it { expect(auto_devops.predefined_variables.to_hash).to be_empty }
+      it { is_expected.to include(key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1') }
+    end
+
+    context 'when auto-devops is not explicitly enabled' do
+      let(:auto_devops) { build_stubbed(:project_auto_devops, :manual_deployment, :disabled, project: project) }
+
+      it { is_expected.not_to include(key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1') }
+    end
+
+    context 'when cloud native buildpacks are disabled' do
+      let(:auto_devops) { build_stubbed(:project_auto_devops, project: project, cnb_enabled: false) }
+
+      it { is_expected.not_to include(key: 'AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED', value: '1') }
     end
   end
 

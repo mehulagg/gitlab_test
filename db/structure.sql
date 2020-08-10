@@ -14161,7 +14161,8 @@ CREATE TABLE public.project_auto_devops (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     enabled boolean,
-    deploy_strategy integer DEFAULT 0 NOT NULL
+    deploy_strategy integer DEFAULT 0 NOT NULL,
+    cnb_enabled boolean DEFAULT true NOT NULL
 );
 
 CREATE SEQUENCE public.project_auto_devops_id_seq

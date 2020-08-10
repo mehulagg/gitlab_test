@@ -17,6 +17,7 @@ class ProjectAutoDevops < ApplicationRecord
   def predefined_variables
     Gitlab::Ci::Variables::Collection.new.tap do |variables|
       variables.append(key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1') if enabled?
+      variables.append(key: 'AUTO_DEVOPS_BUILD_IMAGE_CNB_ENABLED', value: '1') if cnb_enabled?
       variables.concat(deployment_strategy_default_variables)
     end
   end
