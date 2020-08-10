@@ -23,11 +23,14 @@ class DiffNote < Note
 
   before_validation :set_line_code, if: :on_text?, unless: :importing?
   after_save :keep_around_commits, unless: :importing?
+  after_create :count_event, unless: :importing?
 
   NoteDiffFileCreationError = Class.new(StandardError)
 
   DIFF_LINE_NOT_FOUND_MESSAGE = "Failed to find diff line for: %{file_path}, old_line: %{old_line}, new_line: %{new_line}"
   DIFF_FILE_NOT_FOUND_MESSAGE = "Failed to find diff file"
+
+  TRACKING_FEATURE_FLAG = :track_diff_notes
 
   after_commit :create_diff_file, on: :create
 
@@ -186,5 +189,12 @@ class DiffNote < Note
 
   def repository
     noteable.respond_to?(:repository) ? noteable.repository : project.repository
+  end
+
+  def count_event
+    return unless Feature.enabled?(TRACKING_FEATURE_FLAG)
+
+    tracking_class = Gitlab::UsageDataCounters::TrackUniqueActions
+    tracking_class.track_action(action: tracking_class::DIFF_NOTE_ACTION, type: :created, author_id: self.author_id)
   end
 end

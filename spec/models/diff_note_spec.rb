@@ -530,4 +530,34 @@ RSpec.describe DiffNote do
       expect(subject.on_image?).to be_truthy
     end
   end
+
+  describe '#after_create count_event', :clean_gitlab_redis_shared_state do
+    let(:counter_class) { Gitlab::UsageDataCounters::TrackUniqueActions }
+    let(:tracking_params) do
+      { event_action: counter_class::DIFF_NOTE_ACTION, date_from: Date.yesterday, date_to: Date.today }
+    end
+
+    before do
+      stub_feature_flags(DiffNote::TRACKING_FEATURE_FLAG => feature_flag, counter_class::FEATURE_FLAG => true)
+    end
+
+    context 'when the feature is turned on' do
+      let(:feature_flag) { true }
+
+      it 'counts the event' do
+        expect { create(:diff_note_on_merge_request) }
+          .to change { counter_class.count_unique(tracking_params) }
+          .by(1)
+      end
+    end
+
+    context 'when the feature is turned off' do
+      let(:feature_flag) { false }
+
+      it 'does not count the event' do
+        expect { create(:diff_note_on_merge_request) }
+          .not_to change { counter_class.count_unique(tracking_params) }
+      end
+    end
+  end
 end

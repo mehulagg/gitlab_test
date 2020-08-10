@@ -496,6 +496,7 @@ module Gitlab
           if time_period.present?
             h[:merge_requests_users] = merge_requests_users(time_period)
             h.merge!(action_monthly_active_users(time_period))
+            h.merge!(diff_note_user_count(time_period))
           end
         end
       end
@@ -635,6 +636,23 @@ module Gitlab
           action_monthly_active_users_design_management: design_count,
           action_monthly_active_users_wiki_repo: wiki_count
         }
+      end
+
+      def diff_note_user_count(time_period)
+        return {} unless Feature.enabled?(DiffNote::TRACKING_FEATURE_FLAG)
+        return {} unless Feature.enabled?(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG)
+
+        counter = Gitlab::UsageDataCounters::TrackUniqueActions
+
+        diff_note_count = redis_usage_data do
+          counter.count_unique(
+            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::DIFF_NOTE_ACTION,
+            date_from: time_period[:created_at].first,
+            date_to: time_period[:created_at].last
+          )
+        end
+
+        { diff_note_user_count: diff_note_count }
       end
 
       private

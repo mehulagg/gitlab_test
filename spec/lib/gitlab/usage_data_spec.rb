@@ -954,6 +954,43 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
+  describe '#diff_note_user_count', :clean_gitlab_redis_shared_state do
+    let(:time_period) { { created_at: 2.days.ago..time } }
+    let(:time) { Time.zone.now }
+
+    before do
+      stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => feature_flag, DiffNote::TRACKING_FEATURE_FLAG => feature_flag)
+    end
+
+    context 'when the feature flag is enabled' do
+      let(:feature_flag) { true }
+
+      before do
+        counter = Gitlab::UsageDataCounters::TrackUniqueActions
+        counter.track_action(action: counter::DIFF_NOTE_ACTION, type: :created, author_id: 4, time: time - 3.days)
+        counter.track_action(action: counter::DIFF_NOTE_ACTION, type: :created, author_id: 5, time: time - 3.days)
+        counter.track_action(action: counter::DIFF_NOTE_ACTION, type: :created, author_id: 3)
+        counter.track_action(action: counter::DIFF_NOTE_ACTION, type: :created, author_id: 2)
+      end
+
+      it 'returns the distinct count of user actions within the specified time period' do
+        expect(described_class.diff_note_user_count(time_period)).to eq(
+          {
+            diff_note_user_count: 2
+          }
+        )
+      end
+    end
+
+    context 'when the feature flag is disabled' do
+      let(:feature_flag) { false }
+
+      it 'returns an empty hash' do
+        expect(described_class.action_monthly_active_users(time_period)).to eq({})
+      end
+    end
+  end
+
   describe '.analytics_unique_visits_data' do
     subject { described_class.analytics_unique_visits_data }
 

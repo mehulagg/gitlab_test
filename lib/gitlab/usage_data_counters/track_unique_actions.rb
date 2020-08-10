@@ -9,6 +9,7 @@ module Gitlab
       WIKI_ACTION = :wiki_action
       DESIGN_ACTION = :design_action
       PUSH_ACTION = :project_action
+      DIFF_NOTE_ACTION = :diff_note_action
 
       ACTION_TRANSFORMATIONS = HashWithIndifferentAccess.new({
         wiki: {
@@ -23,6 +24,9 @@ module Gitlab
         },
         project: {
           pushed: PUSH_ACTION
+        },
+        diff_note: {
+          created: DIFF_NOTE_ACTION
         }
       }).freeze
 
@@ -35,6 +39,16 @@ module Gitlab
 
           transformed_target = transform_target(event_target)
           transformed_action = transform_action(event_action, transformed_target)
+          target_key = key(transformed_action, time)
+
+          Gitlab::Redis::HLL.add(key: target_key, value: author_id, expiry: KEY_EXPIRY_LENGTH)
+        end
+
+        def track_action(action:, type:, author_id:, time: Time.zone.now)
+          return unless Gitlab::CurrentSettings.usage_ping_enabled
+          return unless Feature.enabled?(FEATURE_FLAG)
+
+          transformed_action = transform_action(action, type)
           target_key = key(transformed_action, time)
 
           Gitlab::Redis::HLL.add(key: target_key, value: author_id, expiry: KEY_EXPIRY_LENGTH)
