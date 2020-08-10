@@ -105,20 +105,18 @@ module Projects
 
       project.leave_pool_repository
 
-      Project.transaction do
-        log_destroy_event
-        trash_relation_repositories!
-        trash_project_repositories!
+      log_destroy_event
+      trash_relation_repositories!
+      trash_project_repositories!
 
-        # Rails attempts to load all related records into memory before
-        # destroying: https://github.com/rails/rails/issues/22510
-        # This ensures we delete records in batches.
-        #
-        # Exclude container repositories because its before_destroy would be
-        # called multiple times, and it doesn't destroy any database records.
-        project.destroy_dependent_associations_in_batches(exclude: [:container_repositories, :snippets])
-        project.destroy!
-      end
+      # Rails attempts to load all related records into memory before
+      # destroying: https://github.com/rails/rails/issues/22510
+      # This ensures we delete records in batches.
+      #
+      # Exclude container repositories because its before_destroy would be
+      # called multiple times, and it doesn't destroy any database records.
+      project.destroy_dependent_associations_in_batches(exclude: [:container_repositories, :snippets])
+      project.destroy!
     end
 
     def log_destroy_event
