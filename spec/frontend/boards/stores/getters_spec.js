@@ -1,4 +1,5 @@
 import getters from '~/boards/stores/getters';
+import { inactiveId } from '~/boards/constants';
 
 describe('Boards - Getters', () => {
   describe('getLabelToggleState', () => {
@@ -30,7 +31,7 @@ describe('Boards - Getters', () => {
 
     it('returns false when activeId is equal to 0', () => {
       const state = {
-        activeId: 0,
+        activeId: inactiveId,
       };
 
       expect(getters.isSidebarOpen(state)).toBe(false);

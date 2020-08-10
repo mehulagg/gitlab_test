@@ -2,7 +2,7 @@
 import { mapState, mapActions, mapGetters } from 'vuex';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { GlDrawer } from '@gitlab/ui';
-import { sidebarTypes } from '~/boards/constants';
+import { ISSUABLE } from '~/boards/constants';
 import { contentTop } from '~/lib/utils/common_utils';
 
 export default {
@@ -18,7 +18,7 @@ export default {
       return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
     },
     showSidebar() {
-      return this.isSwimlanesOn && this.sidebarType === sidebarTypes.issuable;
+      return this.isSwimlanesOn && this.sidebarType === ISSUABLE;
     },
   },
   methods: {

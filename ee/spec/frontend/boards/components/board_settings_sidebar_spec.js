@@ -8,7 +8,7 @@ import BoardSettingsWipLimit from 'ee_component/boards/components/board_settings
 import BoardSettingsListTypes from 'ee_component/boards/components/board_settings_list_types.vue';
 import boardsStore from '~/boards/stores/boards_store';
 import getters from '~/boards/stores/getters';
-import { sidebarTypes } from '~/boards/constants';
+import { LIST } from '~/boards/constants';
 
 const localVue = createLocalVue();
 
@@ -26,7 +26,7 @@ describe('ee/BoardSettingsSidebar', () => {
     storeActions = actions;
 
     const store = new Vuex.Store({
-      state: { sidebarType: sidebarTypes.list, activeId: listId },
+      state: { sidebarType: LIST, activeId: listId },
       getters,
       actions: storeActions,
     });

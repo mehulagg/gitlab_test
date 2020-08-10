@@ -6,7 +6,7 @@ import sidebarEventHub from '~/sidebar/event_hub';
 import boardsStore from '../stores/boards_store';
 import { mapActions, mapState } from 'vuex';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
-import { sidebarTypes } from '~/boards/constants';
+import { ISSUABLE } from '~/boards/constants';
 
 export default {
   name: 'BoardsIssueCard',
@@ -86,7 +86,7 @@ export default {
     },
     showIssue(e) {
       if (this.isSwimlanesOn) {
-        this.setActiveId({ id: this.issue.id, sidebarType: sidebarTypes.issuable });
+        this.setActiveId({ id: this.issue.id, sidebarType: ISSUABLE });
         return;
       }
 

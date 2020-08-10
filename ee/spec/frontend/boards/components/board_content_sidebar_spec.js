@@ -3,7 +3,7 @@ import { GlDrawer } from '@gitlab/ui';
 import BoardContentSidebar from 'ee_component/boards/components/board_content_sidebar.vue';
 import store from '~/boards/stores';
 import waitForPromises from 'helpers/wait_for_promises';
-import { sidebarTypes } from '~/boards/constants';
+import { ISSUABLE } from '~/boards/constants';
 
 describe('ee/BoardContentSidebar', () => {
   let wrapper;
@@ -22,7 +22,7 @@ describe('ee/BoardContentSidebar', () => {
 
   beforeEach(() => {
     storeCopy = store;
-    storeCopy.state.sidebarType = sidebarTypes.issuable;
+    storeCopy.state.sidebarType = ISSUABLE;
     storeCopy.state.activeId = 1;
   });
 

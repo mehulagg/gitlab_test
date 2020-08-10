@@ -10,7 +10,7 @@ import getters from '~/boards/stores/getters';
 import realActions from '~/boards/stores/actions';
 import mutations from '~/boards/stores/mutations';
 import sidebarEventHub from '~/sidebar/event_hub';
-import { inactiveId, sidebarTypes } from '~/boards/constants';
+import { inactiveId, LIST } from '~/boards/constants';
 
 const localVue = createLocalVue();
 
@@ -25,7 +25,7 @@ describe('BoardSettingsSidebar', () => {
   const listId = 1;
 
   const createComponent = (
-    state = { activeId: inactiveId, sidebarType: sidebarTypes.list },
+    state = { activeId: inactiveId, sidebarType: LIST },
     actions = {},
   ) => {
     storeActions = actions;
@@ -65,7 +65,7 @@ describe('BoardSettingsSidebar', () => {
       it('closes the sidebar', async () => {
         const spy = jest.fn();
         createComponent(
-          { activeId: inactiveId, sidebarType: sidebarTypes.list },
+          { activeId: inactiveId, sidebarType: LIST },
           // { unsetActiveId: spy },
         );
 
@@ -111,7 +111,7 @@ describe('BoardSettingsSidebar', () => {
       });
 
       it('renders GlDrawer with open false', () => {
-        createComponent({ activeId: 1, sidebarType: sidebarTypes.list });
+        createComponent({ activeId: 1, sidebarType: LIST });
 
         expect(findDrawer().props('open')).toBe(true);
       });
@@ -127,7 +127,7 @@ describe('BoardSettingsSidebar', () => {
           list_type: 'label',
         });
 
-        createComponent({ activeId: listId, sidebarType: sidebarTypes.list });
+        createComponent({ activeId: listId, sidebarType: LIST });
       });
 
       afterEach(() => {

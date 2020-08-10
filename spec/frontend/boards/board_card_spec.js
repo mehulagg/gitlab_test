@@ -19,7 +19,7 @@ import boardCard from '~/boards/components/board_card.vue';
 import issueCardInner from '~/boards/components/issue_card_inner.vue';
 import userAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import { listObj, boardsMockInterceptor, setMockEndpoints } from './mock_data';
-import { sidebarTypes } from '~/boards/constants';
+import { ISSUABLE } from '~/boards/constants';
 
 describe('Board card', () => {
   let wrapper;
@@ -259,7 +259,7 @@ describe('Board card', () => {
 
           expect(store.dispatch).toHaveBeenCalledWith('setActiveId', {
             id: 1,
-            sidebarType: sidebarTypes.issuable,
+            sidebarType: ISSUABLE,
           });
         });
 

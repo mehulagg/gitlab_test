@@ -5,7 +5,7 @@ import { __ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
 import eventHub from '~/sidebar/event_hub';
 import { isScopedLabel } from '~/lib/utils/common_utils';
-import { inactiveId, sidebarTypes } from '~/boards/constants';
+import { LIST } from '~/boards/constants';
 
 // NOTE: need to revisit how we handle headerHeight, because we have so many different header and footer options.
 export default {
@@ -43,7 +43,7 @@ export default {
       return this.$options.labelListText;
     },
     showSidebar() {
-      return this.sidebarType === sidebarTypes.list;
+      return this.sidebarType === LIST;
     },
   },
   created() {
