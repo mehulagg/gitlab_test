@@ -5,6 +5,9 @@ The configuration for doing so depends on your desired outcome.
 
 ## Repository read-only
 
+NOTE: **Note:**
+This section isn't needed if Unicorn/Puma is stopped because the internal API won't be reachable.
+
 The first thing you'll want to accomplish is to ensure that no changes can be made to your repositories.
 Open up rails console with `gitlab-rails console` and execute the following command:
 
