@@ -8,7 +8,7 @@ class DropApprovalRuleNameIndexForCodeOwnersIndex < ActiveRecord::Migration[6.0]
   disable_ddl_transaction!
 
   def up
-    remove_concurrent_index :approval_merge_request_rules, :approval_rule_name_index_for_code_owners
+    remove_concurrent_index_by_name :approval_merge_request_rules, :approval_rule_name_index_for_code_owners
   end
 
   def down
