@@ -1,0 +1,5 @@
+---
+title: Add CiliumNetworkPolicies logic into controller
+merge_request: 39128
+author:
+type: changed

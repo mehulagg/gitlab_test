@@ -39,7 +39,7 @@ module Projects
       end
 
       def create
-        policy = Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest])
+        policy = params[:is_standard] ? Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest]) : Gitlab::Kubernetes::CiliumNetworkPolicy.from_yaml(params[:manifest])
         response = NetworkPolicies::DeployResourceService.new(
           policy: policy,
           environment: environment
@@ -49,7 +49,7 @@ module Projects
       end
 
       def update
-        policy = Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest])
+        policy = params[:is_standard] ? Gitlab::Kubernetes::NetworkPolicy.from_yaml(params[:manifest]) : Gitlab::Kubernetes::CiliumNetworkPolicy.from_yaml(params[:manifest])
         unless params[:enabled].nil?
           params[:enabled] ? policy.enable : policy.disable
         end
@@ -66,7 +66,8 @@ module Projects
       def destroy
         response = NetworkPolicies::DeleteResourceService.new(
           resource_name: params[:id],
-          environment: environment
+          environment: environment,
+          is_standard: params[:is_standard]
         ).execute
 
         respond_with_service_response(response)
@@ -93,11 +94,19 @@ module Projects
       end
 
       def respond_with_service_response(response)
-        payload = response.success? ? response.payload : { error: response.message }
+        payload = response.success? ? add_standard_policy_field(response.payload) : { error: response.message }
         respond_to do |format|
           format.json do
             render status: response.http_status, json: payload
           end
+        end
+      end
+
+      def add_standard_policy_field(payload)
+        if payload.is_a? Array
+          payload.map {|policy| policy.as_json.merge({ is_standard: policy.instance_of?(Gitlab::Kubernetes::NetworkPolicy) })}
+        else
+          payload.as_json.merge({ is_standard: payload.instance_of?(Gitlab::Kubernetes::NetworkPolicy) })
         end
       end
     end
