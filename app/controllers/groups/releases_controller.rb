@@ -3,20 +3,19 @@
 class Groups::ReleasesController < Groups::ApplicationController
   def index
     respond_to do |format|
-      format.json { render json: releases }
+      format.json do
+        render json: ::ReleaseSerializer.new.represent(releases, current_user: current_user)
+      end
     end
   end
 
   private
 
   def releases
-    projects_releases = []
-    group = Namespace.includes(projects: :releases).where.not(releases: { tag: nil }).find(@group.id) # rubocop: disable CodeReuse/ActiveRecord
-    group.projects.each do |project|
-      if Ability.allowed?(current_user, :read_release, project)
-        projects_releases = projects_releases.concat(project.releases)
-      end
-    end
-    projects_releases.sort_by { |release| release[:released_at] }.reverse!
+    ReleasesFinder
+      .new(@group, current_user, { include_subgroups: true })
+      .execute
+      .page(params[:page])
+      .per(30)
   end
 end
