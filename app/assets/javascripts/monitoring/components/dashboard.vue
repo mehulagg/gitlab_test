@@ -109,11 +109,6 @@ export default {
       type: String,
       required: true,
     },
-    customMetricsAvailable: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     customMetricsPath: {
       type: String,
       required: false,
@@ -407,7 +402,6 @@ export default {
       class="prometheus-graphs-header d-sm-flex flex-sm-wrap pt-2 pr-1 pb-0 pl-2 border-bottom bg-gray-light"
       :default-branch="defaultBranch"
       :rearrange-panels-available="rearrangePanelsAvailable"
-      :custom-metrics-available="customMetricsAvailable"
       :custom-metrics-path="customMetricsPath"
       :validate-query-path="validateQueryPath"
       :external-dashboard-url="externalDashboardUrl"

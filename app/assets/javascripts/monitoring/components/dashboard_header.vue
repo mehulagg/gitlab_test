@@ -70,11 +70,6 @@ export default {
       required: false,
       default: false,
     },
-    customMetricsAvailable: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     customMetricsPath: {
       type: String,
       required: false,
@@ -117,10 +112,11 @@ export default {
       'isUpdatingStarredValue',
       'dashboardTimezone',
       'projectPath',
-      'canAccessOperationsSettings',
       'operationsSettingsPath',
       'currentDashboard',
       'addDashboardDocumentationPath',
+      'canManageCustomMetrics',
+      'canAccessOperationsSettings',
     ]),
     ...mapGetters('monitoringDashboard', ['selectedDashboard', 'filteredEnvironments']),
     isOutOfTheBoxDashboard() {
@@ -134,7 +130,7 @@ export default {
     },
     addingMetricsAvailable() {
       return (
-        this.customMetricsAvailable &&
+        this.canManageCustomMetrics &&
         !this.shouldShowEmptyState &&
         // Custom metrics only avaialble on system dashboards because
         // they are stored in the database. This can be improved. See:

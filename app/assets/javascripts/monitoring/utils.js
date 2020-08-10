@@ -26,19 +26,19 @@ export const stateAndPropsFromDataset = (dataset = {}) => {
     dashboardsEndpoint,
     panelPreviewEndpoint,
     dashboardTimezone,
-    canAccessOperationsSettings,
     operationsSettingsPath,
     projectPath,
     logsPath,
     currentEnvironmentName,
     customDashboardBasePath,
     addDashboardDocumentationPath,
+    canManageCustomMetrics,
+    canAccessOperationsSettings,
     ...dataProps
   } = dataset;
 
   // HTML attributes are always strings, parse other types.
   dataProps.hasMetrics = parseBoolean(dataProps.hasMetrics);
-  dataProps.customMetricsAvailable = parseBoolean(dataProps.customMetricsAvailable);
   dataProps.prometheusAlertsAvailable = parseBoolean(dataProps.prometheusAlertsAvailable);
 
   return {
@@ -49,13 +49,14 @@ export const stateAndPropsFromDataset = (dataset = {}) => {
       dashboardsEndpoint,
       panelPreviewEndpoint,
       dashboardTimezone,
-      canAccessOperationsSettings,
       operationsSettingsPath,
       projectPath,
       logsPath,
       currentEnvironmentName,
       customDashboardBasePath,
       addDashboardDocumentationPath,
+      canManageCustomMetrics: parseBoolean(canManageCustomMetrics),
+      canAccessOperationsSettings,
     },
     dataProps,
   };

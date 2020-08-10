@@ -984,7 +984,6 @@ describe('Dashboard', () => {
         createShallowWrapper({
           hasMetrics: true,
           customMetricsPath: '/endpoint',
-          customMetricsAvailable: true,
         });
         setupStoreWithData(store);
 

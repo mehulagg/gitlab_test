@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import { createStore } from '~/monitoring/stores';
 import * as types from '~/monitoring/stores/mutation_types';
-import { GlDeprecatedDropdownItem, GlSearchBoxByType, GlLoadingIcon } from '@gitlab/ui';
+import { GlDeprecatedDropdownItem, GlSearchBoxByType, GlLoadingIcon, GlButton } from '@gitlab/ui';
 import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
 import RefreshButton from '~/monitoring/components/refresh_button.vue';
 import DashboardHeader from '~/monitoring/components/dashboard_header.vue';
@@ -454,10 +454,9 @@ describe('Dashboard header', () => {
 
     it('is not rendered when custom metrics are not available', () => {
       store.state.monitoringDashboard.emptyState = false;
+      store.state.monitoringDashboard.canManageCustomMetrics = false;
 
-      createShallowWrapper({
-        customMetricsAvailable: false,
-      });
+      createShallowWrapper();
 
       setupAllDashboards(store, dashboardGitResponse[0].path);
 
@@ -468,10 +467,9 @@ describe('Dashboard header', () => {
 
     it('is not rendered when displaying empty state', () => {
       store.state.monitoringDashboard.emptyState = true;
+      store.state.monitoringDashboard.canManageCustomMetrics = true;
 
-      createShallowWrapper({
-        customMetricsAvailable: true,
-      });
+      createShallowWrapper();
 
       setupAllDashboards(store, dashboardGitResponse[0].path);
 
@@ -493,10 +491,9 @@ describe('Dashboard header', () => {
 
       beforeEach(() => {
         store.state.monitoringDashboard.emptyState = false;
+        store.state.monitoringDashboard.canManageCustomMetrics = true;
 
-        createShallowWrapper({
-          customMetricsAvailable: true,
-        });
+        createShallowWrapper();
       });
 
       it.each(systemDashboards)('is rendered for system dashboards', dashboardPath => {
