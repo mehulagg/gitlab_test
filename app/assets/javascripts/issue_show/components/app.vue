@@ -15,10 +15,9 @@ import formComponent from './form.vue';
 import PinnedLinks from './pinned_links.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
-import commandPaletteEventHub from '~/command_palette/event_hub';
-import commandPaletteStore from '~/command_palette/store';
 import { registerCommands } from '~/command_palette/commands';
 import CommandToken from '~/command_palette/components/command_token.vue';
+import Api from '~/api';
 
 export default {
   components: {
@@ -176,6 +175,7 @@ export default {
       showForm: false,
       templatesRequested: false,
       isStickyHeaderShowing: false,
+      assignees: null,
     };
   },
   computed: {
@@ -241,7 +241,7 @@ export default {
   mounted() {
     console.log(__('issuable mounted'));
     // commandPaletteEventHub.$emit('registerCommands', this.availableTokens);
-    registerCommands({ commands: this.availableTokens });
+    registerCommands(this.availableTokens);
     // commandPaletteStore.registerCommands(this.availableTokens);
   },
   created() {
@@ -282,6 +282,11 @@ export default {
     window.removeEventListener('beforeunload', this.handleBeforeUnloadEvent);
   },
   methods: {
+    fetchAssignees(data) {
+      return Api.users(data, {}).then(response => {
+        this.assignees = response.data;
+      });
+    },
     handleBeforeUnloadEvent(e) {
       const event = e;
       if (this.showForm && this.issueChanged && !this.showRecaptcha) {

@@ -8,8 +8,8 @@ import {
 import CommandToken from './command_token.vue';
 import { __ } from '~/locale';
 import eventHub from '../event_hub';
-
 import Api from '~/api';
+import { mapState } from 'vuex';
 
 export default {
   name: 'CommandPalette',
@@ -19,6 +19,7 @@ export default {
     GlFilteredSearchSuggestion,
     GlLoadingIcon,
   },
+
   data() {
     return {
       isVisible: true, // false,
@@ -27,7 +28,9 @@ export default {
       availableTokens: [],
     };
   },
-
+  computed: {
+    ...mapState(['commands']),
+  },
   mounted() {
     console.log(__('command palette mounted'));
     this.registerKeyEventListener();
@@ -77,7 +80,7 @@ export default {
     <gl-filtered-search
       v-model="value"
       :placeholder="__('Command palette')"
-      :available-tokens="availableTokens"
+      :available-tokens="commands"
       @submit="submitCommand"
     />
   </div>
