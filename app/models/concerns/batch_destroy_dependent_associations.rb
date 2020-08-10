@@ -17,7 +17,7 @@ module BatchDestroyDependentAssociations
 
   def dependent_associations_to_destroy
     self.class.reflect_on_all_associations(:has_many).select do |assoc| 
-      assoc.options[:dependent] == :destroy || assoc.klass < FastDestroyAll
+      assoc.options[:dependent] == :destroy || assoc.klass.include?(FastDestroyAll)
     end
   end
 
@@ -36,7 +36,7 @@ module BatchDestroyDependentAssociations
   private
 
   def destroy_dependent_association_in_batches(batch)
-    if batch < FastDestroyAll
+    if batch.include? FastDestroyAll
       batch.fast_destroy_all
     else
       batch.destroy_all
