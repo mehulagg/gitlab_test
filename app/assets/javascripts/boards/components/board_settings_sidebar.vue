@@ -47,16 +47,13 @@ export default {
     },
   },
   created() {
-    eventHub.$on('sidebar.closeAll', this.closeSidebar);
+    eventHub.$on('sidebar.closeAll', this.unsetActiveId);
   },
   beforeDestroy() {
-    eventHub.$off('sidebar.closeAll', this.closeSidebar);
+    eventHub.$off('sidebar.closeAll', this.unsetActiveId);
   },
   methods: {
-    ...mapActions(['setActiveId']),
-    closeSidebar() {
-      this.setActiveId({ id: inactiveId });
-    },
+    ...mapActions(['unsetActiveId']),
     showScopedLabels(label) {
       return boardsStore.scopedLabels.enabled && isScopedLabel(label);
     },
@@ -70,7 +67,7 @@ export default {
     class="js-board-settings-sidebar"
     :open="isSidebarOpen"
     :header-height="$options.headerHeight"
-    @close="closeSidebar"
+    @close="unsetActiveId"
   >
     <template #header>{{ $options.listSettingsText }}</template>
     <template v-if="isSidebarOpen">

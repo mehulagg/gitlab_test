@@ -1,4 +1,5 @@
 import * as types from './mutation_types';
+import { inactiveId } from '../constants';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -12,6 +13,10 @@ export default {
 
   setActiveId({ commit }, { id, sidebarType }) {
     commit(types.SET_ACTIVE_ID, { id, sidebarType });
+  },
+
+  unsetActiveId({ dispatch }) {
+    dispatch('setActiveId', { id: inactiveId, sidebarType: '' });
   },
 
   fetchLists: () => {

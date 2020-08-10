@@ -2,10 +2,11 @@
 import { mapState, mapActions, mapGetters } from 'vuex';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { GlDrawer } from '@gitlab/ui';
-import { inactiveId, sidebarTypes } from '~/boards/constants';
+import { sidebarTypes } from '~/boards/constants';
+import { contentTop } from '~/lib/utils/common_utils';
 
 export default {
-  headerHeight: process.env.NODE_ENV === 'development' ? '75px' : '40px',
+  headerHeight: `${contentTop()}px`,
   components: {
     GlDrawer,
   },
@@ -21,10 +22,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['setActiveId']),
-    closeSidebar() {
-      this.setActiveId({ id: inactiveId });
-    },
+    ...mapActions(['unsetActiveId']),
   },
 };
 </script>
@@ -34,6 +32,6 @@ export default {
     v-if="showSidebar"
     :open="isSidebarOpen"
     :header-height="$options.headerHeight"
-    @close="closeSidebar"
+    @close="unsetActiveId"
   />
 </template>

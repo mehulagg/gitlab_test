@@ -7,6 +7,8 @@ import { GlDrawer, GlLabel } from '@gitlab/ui';
 import BoardSettingsSidebar from '~/boards/components/board_settings_sidebar.vue';
 import boardsStore from '~/boards/stores/boards_store';
 import getters from '~/boards/stores/getters';
+import realActions from '~/boards/stores/actions';
+import mutations from '~/boards/stores/mutations';
 import sidebarEventHub from '~/sidebar/event_hub';
 import { inactiveId, sidebarTypes } from '~/boards/constants';
 
@@ -31,7 +33,8 @@ describe('BoardSettingsSidebar', () => {
     const store = new Vuex.Store({
       state,
       getters,
-      actions: storeActions,
+      mutations,
+      actions: { ...realActions, ...storeActions },
     });
 
     wrapper = shallowMount(BoardSettingsSidebar, {
@@ -59,36 +62,28 @@ describe('BoardSettingsSidebar', () => {
     });
 
     describe('on close', () => {
-      it('calls closeSidebar', async () => {
+      it('closes the sidebar', async () => {
         const spy = jest.fn();
         createComponent(
           { activeId: inactiveId, sidebarType: sidebarTypes.list },
-          { setActiveId: spy },
+          // { unsetActiveId: spy },
         );
 
         findDrawer().vm.$emit('close');
 
         await wrapper.vm.$nextTick();
 
-        expect(storeActions.setActiveId).toHaveBeenCalledWith(
-          expect.anything(),
-          { id: inactiveId },
-          undefined,
-        );
+        expect(wrapper.find(GlDrawer).exists()).toBe(false);
       });
 
-      it('calls closeSidebar on sidebar.closeAll event', async () => {
-        createComponent({ activeId: inactiveId }, { setActiveId: jest.fn() });
+      it('closes the sidebar when emitting the correct event', async () => {
+        createComponent({ activeId: inactiveId });
 
         sidebarEventHub.$emit('sidebar.closeAll');
 
         await wrapper.vm.$nextTick();
 
-        expect(storeActions.setActiveId).toHaveBeenCalledWith(
-          expect.anything(),
-          { id: inactiveId },
-          undefined,
-        );
+        expect(wrapper.find(GlDrawer).exists()).toBe(false);
       });
     });
 
