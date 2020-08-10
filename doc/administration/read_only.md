@@ -40,7 +40,7 @@ When you're ready to revert this, you can do so with
 
 ```sh
 gitlab-ctl start sidekiq
-gitlab-ctl start unicorn
+gitlab-ctl stop puma  # or unicorn
 ```
 
 ### Database read-only
