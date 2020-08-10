@@ -13,12 +13,9 @@ export default {
   mixins: [glFeatureFlagMixin()],
   computed: {
     ...mapGetters(['isSidebarOpen']),
-    ...mapState(['isShowingEpicsSwimlanes', 'activeId', 'sidebarType']),
-    isSwimlanesOn() {
-      return this.glFeatures.boardsWithSwimlanes && this.isShowingEpicsSwimlanes;
-    },
+    ...mapState(['sidebarType']),
     showSidebar() {
-      return this.isSwimlanesOn && this.sidebarType === ISSUABLE;
+      return this.sidebarType === ISSUABLE;
     },
   },
   methods: {
