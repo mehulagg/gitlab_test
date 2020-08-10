@@ -9,7 +9,7 @@ The first thing you'll want to accomplish is to ensure that no changes can be ma
 Open up rails console with `gitlab-rails console` and execute the following command:
 
 ```rb
-Project.all.each { |project| project.update!(repository_read_only: true) }
+Project.all.find_each { |project| project.update!(repository_read_only: true) }
 ```
 
 When you're ready to revert this, you can do so with the following command:
