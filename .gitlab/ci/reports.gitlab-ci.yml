@@ -262,8 +262,10 @@ dependency_scanning:
     # Manually review new rules before upgrading the DAST image version
     name: "registry.gitlab.com/gitlab-org/security-products/dast:1.22.1"
   services:
-    
+    - name: "gitlab/gitlab-ee:nightly"
+      alias: gitlab    
   variables:
+    DAST_WEBSITE: "http://gitlab"
     DAST_USERNAME_FIELD: "user[login]"
     DAST_PASSWORD_FIELD: "user[password]"
     DAST_FULL_SCAN_ENABLED: "true"
@@ -278,7 +280,6 @@ dependency_scanning:
     # All Release rules that run in DAST jobs
     DAST_RELEASE_RULES: "0,2,3,6,7,10010,10011,10015,10017,10019,10020,10021,10023,10024,10025,10037,10040,10054,10055,10056,10098,10105,10202,20019,30001,30002,40003,40008,40009,40012,40014,40016,40017,40018,50000,50001,90011,90020,90022,90033"
   before_script:
-    - 'export DAST_WEBSITE="${DAST_WEBSITE:-$(cat environment_url.txt)}"'
     - 'export DAST_AUTH_URL="${DAST_WEBSITE}/users/sign_in"'
     - 'export DAST_PASSWORD="${REVIEW_APPS_ROOT_PASSWORD}"'
     # Below two lines can be removed in all jobs once https://gitlab.com/gitlab-org/gitlab/-/issues/230687 is fixed
