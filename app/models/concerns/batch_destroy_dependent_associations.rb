@@ -26,8 +26,8 @@ module BatchDestroyDependentAssociations
       next if exclude.include?(association.name)
 
       # rubocop:disable GitlabSecurity/PublicSend
-      public_send(association.name).find_in_batches(
-        batch_size: DEPENDENT_ASSOCIATIONS_BATCH_SIZE,
+      public_send(association.name).in_batches(
+        of: DEPENDENT_ASSOCIATIONS_BATCH_SIZE,
         &method(:destroy_dependent_association_in_batches)
       )
     end
@@ -36,10 +36,12 @@ module BatchDestroyDependentAssociations
   private
 
   def destroy_dependent_association_in_batches(batch)
-    if batch.include? FastDestroyAll
-      batch.fast_destroy_all
-    else
-      batch.destroy_all
-     end
+      pp batch.klass
+      if batch.klass.include? FastDestroyAll
+        batch.fast_destroy_all
+      else
+        batch.destroy_all
+      end
+    rescue FastDestroyAll::ForbiddenActionError
   end
 end
