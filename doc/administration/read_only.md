@@ -29,7 +29,7 @@ However, if you want to continue with the GitLab UI, then we'll need to take a f
 ### Shutting down GitLab UI
 
 By shutting down the GitLab UI, you'll effectively ensure that no changes can be made to GitLab.
-The only thing you'll need to do is shutting down sidekiq and unicorn:
+The only thing you'll need to do is shutting down Sidekiq and Puma (or Unicorn):
 
 ```sh
 gitlab-ctl stop sidekiq
