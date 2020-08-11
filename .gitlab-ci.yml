@@ -98,6 +98,7 @@ prepare-image:
   services:
     - docker:19.03.0-dind
   variables:
+    GIT_STRATEGY: none
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: "/certs"
     REVIEW_APPS_ROOT_TOKEN: "q_hWiFjwDXhyD-EboRey"
@@ -115,8 +116,7 @@ prepare-image:
       docker exec gitlab gitlab-rails runner "${RUBY_CMD}"
 
       apk add curl
-      curl https://gitlab.com/help
-      curl http://localhost:80/help
+      docker exec -it gitlab curl http://localhost:80
       'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
 
       docker stop gitlab
