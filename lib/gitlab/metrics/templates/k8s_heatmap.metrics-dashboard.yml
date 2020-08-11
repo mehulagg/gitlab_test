@@ -1,0 +1,20 @@
+# Only one dashboard should be defined per file
+# More info: https://docs.gitlab.com/ee/operations/metrics/dashboards/yaml.html
+dashboard: 'Heatmap Panel Example'
+
+# For more information about the required properties of panel_groups
+# please visit: https://docs.gitlab.com/ee/operations/metrics/dashboards/yaml.html#panel-group-panel_groups-properties
+panel_groups:
+  - group: 'Server Statistics'
+    panels:
+      - title: "Container CPU usage"
+        # More information about heatmap panel types can be found here:
+        # https://docs.gitlab.com/ee/operations/metrics/dashboards/panel_types.html#heatmaps
+        type: "heatmap"
+        metrics:
+            - query_range: 'sum(rate(container_cpu_usage_seconds_total[15m])) by (container)'
+              unit: 'Seconds'
+              label: "Container"
+              # Step defines the resolution width
+              # https://docs.gitlab.com/ee/operations/metrics/dashboards/yaml.html#metrics-metrics-properties
+              step: 3600
