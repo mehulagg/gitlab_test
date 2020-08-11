@@ -103,13 +103,12 @@ dast-prepare:
     RUBY_CMD: "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Token to disable sign-ups'); token.set_token('${REVIEW_APPS_ROOT_TOKEN}'); begin; token.save!; rescue(ActiveRecord::RecordNotUnique); end"
     COL: ":"
   script:
-    docker pull gitlab/gitlab-ee:nightly
-
-    echo "staring image"
-
-    docker run --detach --name gitlab --hostname gitlab --publish 443:443 --publish 80:80 --publish 22:22 gitlab/gitlab-ee:nightly
-
-    docker exec gitlab gitlab-rails runner $CMD
-
-    'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN${COL} ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"' ;
+    - |
+      docker pull gitlab/gitlab-ee:nightly
+      echo "docker run"
+      docker run --detach --name gitlab --hostname gitlab --publish 443:443 --publish 80:80 --publish 22:22 gitlab/gitlab-ee:nightly
+      echo "docker exec"
+      docker exec gitlab gitlab-rails runner $CMD
+      echo "curl"
+      'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN${COL} ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"' ;
 
