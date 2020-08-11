@@ -16,7 +16,8 @@ requirements, a single-node solution with
 many organizations .
 
 > - **Supported users (approximate):** 1,000
-> - **High Availability:** No
+> - **High Availability:** No. Follow the [3K reference architecture](3k_users.md)
+>   if you want an HA setup.
 
 | Users        | Configuration           | GCP            | AWS             | Azure          |
 |--------------|-------------------------|----------------|-----------------|----------------|
@@ -45,5 +46,5 @@ For this default reference architecture, to install GitLab use the standard
 NOTE: **Note:**
 You can also optionally configure GitLab to use an
 [external PostgreSQL service](../postgresql/external.md) or an
-[external object storage service](../high_availability/object_storage.md) for
+[external object storage service](../object_storage.md) for
 added performance and reliability at a reduced complexity cost.
