@@ -102,7 +102,6 @@ prepare-image:
     DOCKER_TLS_CERTDIR: "/certs"
     REVIEW_APPS_ROOT_TOKEN: "q_hWiFjwDXhyD-EboRey"
     RUBY_CMD: "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Token to disable sign-ups'); token.set_token('${REVIEW_APPS_ROOT_TOKEN}'); begin; token.save!; rescue(ActiveRecord::RecordNotUnique); end"
-    COL: ":"
   script:
     - |
       set -x
@@ -116,7 +115,9 @@ prepare-image:
       docker exec gitlab gitlab-rails runner "${RUBY_CMD}"
 
       apk add curl
-      'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN${COL} ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
+      curl https://gitlab.com/help
+      curl http://localhost:80/help
+      'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
 
       docker stop gitlab
       docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
