@@ -116,8 +116,8 @@ prepare-image:
       docker exec gitlab gitlab-rails runner "${RUBY_CMD}"
 
       apk add curl
-      docker exec -it gitlab curl http://localhost:80
-      'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
+      docker exec gitlab curl http://localhost:80
+      # 'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN: ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
 
       docker stop gitlab
       docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
