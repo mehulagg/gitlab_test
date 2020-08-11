@@ -6,7 +6,7 @@
             "type": "string",
             "default_value": "",
             "value": "",
-            "size": "medium",
+            "size": "MEDIUM",
             "description": "Analyzer image's registry prefix (or Name of the registry providing the analyzers' image)"
         },
         {
@@ -15,7 +15,7 @@
             "type": "string",
             "default_value": "",
             "value": "",
-            "size": "large",
+            "size": "LARGE",
             "description": "Comma-separated list of paths to be excluded from analyzer output. Patterns can be globs, file paths, or folder paths."
         },
         {
@@ -24,7 +24,7 @@
             "type": "string",
             "default_value": "",
             "value": "",
-            "size": "small",
+            "size": "SMALL",
             "description": "Analyzer image's tag"
         }
     ],
@@ -35,11 +35,7 @@
             "type": "string",
             "default_value": "",
             "value": "",
-<<<<<<< HEAD
-            "size": "small",
-=======
-            "size": "medium",
->>>>>>> cbd4f9768ce... refactor code
+            "size": "MEDIUM",
             "description": "Pipeline stage in which the scan jobs run"
         },
         {
@@ -48,7 +44,7 @@
             "type": "string",
             "default_value": "",
             "value": "",
-            "size": "small",
+            "size": "SMALL",
             "description": "Maximum depth of language and framework detection"
         }
     ],

@@ -86,7 +86,7 @@ RSpec.describe GitlabSchema.types['Project'] do
       expect(secure_analyzers_prefix['type']).to eq('string')
       expect(secure_analyzers_prefix['field']).to eq('SECURE_ANALYZERS_PREFIX')
       expect(secure_analyzers_prefix['label']).to eq('Image prefix')
-      expect(secure_analyzers_prefix['size']).to eq('medium')
+      expect(secure_analyzers_prefix['size']).to eq("MEDIUM")
       expect(secure_analyzers_prefix['defaultValue']).to eq('registry.gitlab.com/gitlab-org/security-products/analyzers')
       expect(secure_analyzers_prefix['value']).to eql("")
       expect(secure_analyzers_prefix['options']).to be_nil
@@ -98,7 +98,7 @@ RSpec.describe GitlabSchema.types['Project'] do
       expect(pipeline_stage['field']).to eq('stage')
       expect(pipeline_stage['label']).to eq('Stage')
       expect(pipeline_stage['defaultValue']).to eq('test')
-      expect(pipeline_stage['size']).to eq('medium')
+      expect(pipeline_stage['size']).to eq('MEDIUM')
       expect(pipeline_stage['value']).to eql("")
     end
 

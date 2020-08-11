@@ -29,7 +29,7 @@ module Types
         field :value, GraphQL::STRING_TYPE, null: true,
           description: 'Current value of the entity.'
 
-        field :size, GraphQL::STRING_TYPE, null: true,
+        field :size, ::Types::CiConfiguration::Sast::UiComponentSizeEnum, null: true,
           description: 'Size of the UI component.'
       end
     end
