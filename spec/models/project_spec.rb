@@ -2255,6 +2255,19 @@ RSpec.describe Project do
     end
   end
 
+  describe '#gitlab_ci_present?' do
+    let(:project) { create(:project, :repository) }
+
+    it 'returns true if .gitlab-ci.yml is present' do
+      create(:ci_pipeline, project: project, ref: project.default_branch, sha: project.commit.sha)
+      expect(project.gitlab_ci_present?).to be(true)
+    end
+
+    it 'returns false if .gitlab-ci.yml is absent' do
+      expect(project.gitlab_ci_present?).to be(false)
+    end
+  end
+
   describe '#latest_pipeline_for_ref' do
     let(:project) { create(:project, :repository) }
     let(:second_branch) { project.repository.branches[2] }

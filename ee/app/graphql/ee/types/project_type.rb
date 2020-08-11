@@ -22,6 +22,13 @@ module EE
               project.dast_scanner_profiles
             end
 
+        field :sast_ci_configuration, ::Types::CiConfiguration::Sast::Type, null: true,
+          calls_gitaly: true,
+          description: 'SAST CI configuration for the project',
+          resolve: -> (project, args, ctx) do
+            ::CiConfiguration::SastParserService.new(project).configuration
+          end
+
         field :vulnerabilities,
               ::Types::VulnerabilityType.connection_type,
               null: true,

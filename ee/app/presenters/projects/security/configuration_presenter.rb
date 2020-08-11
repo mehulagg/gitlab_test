@@ -86,10 +86,6 @@ module Projects
           !archived?
       end
 
-      def gitlab_ci_present?
-        latest_pipeline_for_ref.try(:config_path) == Gitlab::FileDetector::PATTERNS[:gitlab_ci]
-      end
-
       def features
         scans = scan_types.map do |scan_type|
           if scanner_enabled?(scan_type)

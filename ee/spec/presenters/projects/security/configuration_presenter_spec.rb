@@ -184,7 +184,10 @@ RSpec.describe Projects::Security::ConfigurationPresenter do
         end
 
         it 'expects the gitlab_ci_presence to be false if the file is absent' do
-          allow_any_instance_of(described_class).to receive(:latest_pipeline_for_ref).and_return(nil)
+          allow_next_instance_of(described_class) do |configuration_presenter|
+            allow(configuration_presenter).to receive(:gitlab_ci_present?).and_return(false)
+          end
+
           expect(subject[:gitlab_ci_present]).to eq(false)
         end
       end

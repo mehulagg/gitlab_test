@@ -940,6 +940,10 @@ class Project < ApplicationRecord
     latest_successful_build_for_ref(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
   end
 
+  def gitlab_ci_present?
+    latest_pipeline_for_ref.try(:config_path) == Gitlab::FileDetector::PATTERNS[:gitlab_ci]
+  end
+
   def latest_pipeline_for_ref(ref = default_branch)
     ref = ref.presence || default_branch
     sha = commit(ref)&.sha

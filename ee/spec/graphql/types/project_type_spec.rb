@@ -15,12 +15,98 @@ RSpec.describe GitlabSchema.types['Project'] do
 
   it 'includes the ee specific fields' do
     expected_fields = %w[
-      vulnerabilities vulnerability_scanners requirement_states_count
+      vulnerabilities sast_ci_configuration vulnerability_scanners requirement_states_count
       vulnerability_severities_count packages compliance_frameworks
       security_dashboard_path iterations
     ]
 
     expect(described_class).to include_graphql_fields(*expected_fields)
+  end
+
+  describe 'sast_ci_configuration' do
+    include_context 'read ci configuration for sast enabled project'
+    let_it_be(:query) do
+      %(
+        query {
+            project(fullPath: "#{project.full_path}") {
+                sastCiConfiguration {
+                  global {
+                    nodes {
+                      type
+                      options {
+                        nodes {
+                          label
+                          value
+                        }
+                      }
+                      field
+                      label
+                      defaultValue
+                      value
+                      size
+                    }
+                  }
+                  pipeline {
+                    nodes {
+                      type
+                      options {
+                        nodes {
+                          label
+                          value
+                        }
+                      }
+                      field
+                      label
+                      defaultValue
+                      value
+                      size
+                    }
+                  }
+                  analyzers {
+                    nodes {
+                      name
+                      label
+                      enabled
+                    }
+                  }
+                }
+              }
+        }
+      )
+    end
+
+    subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
+
+    before do
+      allow(::CiConfiguration::SastParserService).to receive(:SAST_TEMPLATE_PATH).and_return('spec/support/gitlab_stubs/sast_template.yml')
+    end
+
+    it "returns the project's sast configuration for global variables" do
+      secure_analyzers_prefix = subject.dig('data', 'project', 'sastCiConfiguration', 'global', 'nodes').first
+      expect(secure_analyzers_prefix['type']).to eq('string')
+      expect(secure_analyzers_prefix['field']).to eq('SECURE_ANALYZERS_PREFIX')
+      expect(secure_analyzers_prefix['label']).to eq('Image prefix')
+      expect(secure_analyzers_prefix['size']).to eq('medium')
+      expect(secure_analyzers_prefix['defaultValue']).to eq('registry.gitlab.com/gitlab-org/security-products/analyzers')
+      expect(secure_analyzers_prefix['value']).to eql("")
+      expect(secure_analyzers_prefix['options']).to be_nil
+    end
+
+    it "returns the project's sast configuration for pipeline variables" do
+      configuration = subject.dig('data', 'project', 'sastCiConfiguration', 'pipeline', 'nodes').first
+      expect(configuration['type']).to eq('string')
+      expect(configuration['field']).to eq('stage')
+      expect(configuration['label']).to eq('Stage')
+      expect(configuration['defaultValue']).to eq('test')
+      expect(configuration['value']).to eql("")
+    end
+
+    it "returns the project's sast configuration for analyzer variables" do
+      configuration = subject.dig('data', 'project', 'sastCiConfiguration', 'analyzers', 'nodes').first
+      expect(configuration['name']).to eq('brakeman')
+      expect(configuration['label']).to eq('Brakeman')
+      expect(configuration['enabled']).to eq(true)
+    end
   end
 
   describe 'security_scanners' do
@@ -45,7 +131,6 @@ RSpec.describe GitlabSchema.types['Project'] do
     subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
 
     before do
-      project.add_developer(user)
       create(:ci_build, :success, :sast, pipeline: pipeline)
       create(:ci_build, :success, :dast, pipeline: pipeline)
       create(:ci_build, :success, :license_scanning, pipeline: pipeline)
