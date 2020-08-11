@@ -117,7 +117,7 @@ prepare-image:
       docker stop gitlab
 
       docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-      docker commit $(docker ps -q) $CI_REGISTRY/gitlab-org/gitlab
+      docker commit $(docker ps -q) $CI_REGISTRY/gitlab-org/gitlab/gitlab-ee-nightly-dast:latest
       docker push $CI_REGISTRY/gitlab-org/gitlab/gitlab-ee-nightly-dast:latest
 
 #'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN${COL} ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
