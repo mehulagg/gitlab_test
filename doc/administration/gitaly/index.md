@@ -1058,14 +1058,6 @@ remote: GitLab: 401 Unauthorized
 You will need to sync your `gitlab-secrets.json` file with your Gitaly clients (GitLab
 app nodes).
 
-### Client side gRPC logs
-
-Gitaly uses the [gRPC](https://grpc.io/) RPC framework. The Ruby gRPC
-client has its own log file which may contain useful information when
-you are seeing Gitaly errors. You can control the log level of the
-gRPC client with the `GRPC_LOG_LEVEL` environment variable. The
-default level is `WARN`.
-
 You can run a gRPC trace with:
 
 ```shell
