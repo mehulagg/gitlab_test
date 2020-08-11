@@ -492,6 +492,8 @@ Learn how to contribute to GitLab with the following resources:
 | [Legal](legal/README.md)                                    | Contributor license agreements.          |
 | [Writing documentation](development/documentation/index.md) | How to contribute to GitLab Docs.        |
 
+<!-- Not a typo, for demo purposes only -->
+
 <div align="right">
   <a type="button" class="btn btn-default" href="#overview">
     Back to Overview <i class="fa fa-angle-double-up" aria-hidden="true"></i>
