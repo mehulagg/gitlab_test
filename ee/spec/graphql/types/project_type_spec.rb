@@ -93,19 +93,19 @@ RSpec.describe GitlabSchema.types['Project'] do
     end
 
     it "returns the project's sast configuration for pipeline variables" do
-      configuration = subject.dig('data', 'project', 'sastCiConfiguration', 'pipeline', 'nodes').first
-      expect(configuration['type']).to eq('string')
-      expect(configuration['field']).to eq('stage')
-      expect(configuration['label']).to eq('Stage')
-      expect(configuration['defaultValue']).to eq('test')
-      expect(configuration['value']).to eql("")
+      pipeline_stage = subject.dig('data', 'project', 'sastCiConfiguration', 'pipeline', 'nodes').first
+      expect(pipeline_stage['type']).to eq('string')
+      expect(pipeline_stage['field']).to eq('stage')
+      expect(pipeline_stage['label']).to eq('Stage')
+      expect(pipeline_stage['defaultValue']).to eq('test')
+      expect(pipeline_stage['value']).to eql("")
     end
 
     it "returns the project's sast configuration for analyzer variables" do
-      configuration = subject.dig('data', 'project', 'sastCiConfiguration', 'analyzers', 'nodes').first
-      expect(configuration['name']).to eq('brakeman')
-      expect(configuration['label']).to eq('Brakeman')
-      expect(configuration['enabled']).to eq(true)
+      analyzer = subject.dig('data', 'project', 'sastCiConfiguration', 'analyzers', 'nodes').first
+      expect(analyzer['name']).to eq('brakeman')
+      expect(analyzer['label']).to eq('Brakeman')
+      expect(analyzer['enabled']).to eq(true)
     end
   end
 
