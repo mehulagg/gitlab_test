@@ -108,7 +108,8 @@ dast-prepare:
       echo "docker run"
       docker run --detach --name gitlab --hostname gitlab --publish 443:443 --publish 80:80 --publish 22:22 gitlab/gitlab-ee:nightly
       echo "waiting until GitLab docker image has started"
-      timeout 240 docker logs -f gitlab #this waits for 240s 
+      timeout 240 docker logs -f gitlab || EXIT_CODE=$?
+      [ $EXIT_CODE -ne 143 ] && echo "Unexpected exit code $EXIT_CODE from docker logs" && return $EXIT_CODE
       echo "docker exec"
       docker exec gitlab gitlab-rails runner $CMD
       echo "curl"
