@@ -11,6 +11,10 @@ code_quality:
   needs: []
   script:
     - |
+      if [ "$CI_MERGE_REQUEST_EVENT_TYPE" = "merged_result" ]; then
+        git checkout $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+      fi
+    - |
       if ! docker info &>/dev/null; then
         if [ -z "$DOCKER_HOST" -a "$KUBERNETES_PORT" ]; then
           export DOCKER_HOST='tcp://localhost:2375'
