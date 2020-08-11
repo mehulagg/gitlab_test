@@ -35,7 +35,11 @@
             "type": "string",
             "default_value": "",
             "value": "",
+<<<<<<< HEAD
             "size": "small",
+=======
+            "size": "medium",
+>>>>>>> cbd4f9768ce... refactor code
             "description": "Pipeline stage in which the scan jobs run"
         },
         {

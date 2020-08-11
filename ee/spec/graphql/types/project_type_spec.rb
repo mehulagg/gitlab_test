@@ -98,6 +98,7 @@ RSpec.describe GitlabSchema.types['Project'] do
       expect(pipeline_stage['field']).to eq('stage')
       expect(pipeline_stage['label']).to eq('Stage')
       expect(pipeline_stage['defaultValue']).to eq('test')
+      expect(pipeline_stage['size']).to eq('medium')
       expect(pipeline_stage['value']).to eql("")
     end
 
