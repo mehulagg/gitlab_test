@@ -6,8 +6,4 @@ RSpec.shared_context 'read ci configuration for sast enabled project' do
   end
 
   let_it_be(:project) { create(:project, :repository) }
-
-  before do
-    allow_any_instance_of(Repository).to receive(:gitlab_ci_yml_for).and_return(gitlab_ci_yml_content)
-  end
 end

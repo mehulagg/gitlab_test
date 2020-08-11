@@ -25,6 +25,8 @@ RSpec.describe GitlabSchema.types['Project'] do
 
   describe 'sast_ci_configuration' do
     include_context 'read ci configuration for sast enabled project'
+    let(:error_message) { "This is an error for YamlProcessor." }
+
     let_it_be(:query) do
       %(
         query {
@@ -75,11 +77,11 @@ RSpec.describe GitlabSchema.types['Project'] do
       )
     end
 
-    subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
-
     before do
-      allow(::CiConfiguration::SastParserService).to receive(:SAST_TEMPLATE_PATH).and_return('spec/support/gitlab_stubs/sast_template.yml')
+      allow(project.repository).to receive(:blob_data_at).and_return(gitlab_ci_yml_content)
     end
+
+    subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
 
     it "returns the project's sast configuration for global variables" do
       secure_analyzers_prefix = subject.dig('data', 'project', 'sastCiConfiguration', 'global', 'nodes').first
@@ -88,7 +90,7 @@ RSpec.describe GitlabSchema.types['Project'] do
       expect(secure_analyzers_prefix['label']).to eq('Image prefix')
       expect(secure_analyzers_prefix['size']).to eq("MEDIUM")
       expect(secure_analyzers_prefix['defaultValue']).to eq('registry.gitlab.com/gitlab-org/security-products/analyzers')
-      expect(secure_analyzers_prefix['value']).to eql("")
+      expect(secure_analyzers_prefix['value']).to be_nil
       expect(secure_analyzers_prefix['options']).to be_nil
     end
 
@@ -99,7 +101,7 @@ RSpec.describe GitlabSchema.types['Project'] do
       expect(pipeline_stage['label']).to eq('Stage')
       expect(pipeline_stage['defaultValue']).to eq('test')
       expect(pipeline_stage['size']).to eq('MEDIUM')
-      expect(pipeline_stage['value']).to eql("")
+      expect(pipeline_stage['value']).to be_nil
     end
 
     it "returns the project's sast configuration for analyzer variables" do
@@ -107,6 +109,14 @@ RSpec.describe GitlabSchema.types['Project'] do
       expect(analyzer['name']).to eq('brakeman')
       expect(analyzer['label']).to eq('Brakeman')
       expect(analyzer['enabled']).to eq(true)
+    end
+
+    it 'returns an error if there is an exception in YamlProcessor' do
+      allow_next_instance_of(::Security::CiConfiguration::SastParserService) do |service|
+        allow(service).to receive(:configuration).and_raise(::Gitlab::Ci::YamlProcessor::ValidationError.new(error_message))
+      end
+
+      expect(subject["errors"].first["message"]).to eql(error_message)
     end
   end
 

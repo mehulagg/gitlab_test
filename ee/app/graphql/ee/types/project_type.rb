@@ -26,7 +26,11 @@ module EE
           calls_gitaly: true,
           description: 'SAST CI configuration for the project',
           resolve: -> (project, args, ctx) do
+<<<<<<< HEAD
             ::CiConfiguration::SastParserService.new(project).configuration
+=======
+            sast_ci_configuration(project)
+>>>>>>> 9a21be76808f7768dbd163d534773786357c17a0
           end
 
         field :vulnerabilities,
@@ -85,6 +89,12 @@ module EE
 
         def self.requirements_available?(project, user)
           ::Feature.enabled?(:requirements_management, project, default_enabled: true) && Ability.allowed?(user, :read_requirement, project)
+        end
+
+        def self.sast_ci_configuration(project)
+          ::Security::CiConfiguration::SastParserService.new(project).configuration
+        rescue ::Gitlab::Ci::YamlProcessor::ValidationError => ex
+          raise ::GraphQL::ExecutionError, ex.message
         end
       end
     end
