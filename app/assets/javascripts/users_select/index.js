@@ -7,7 +7,7 @@ import { escape, template, uniqBy } from 'lodash';
 import axios from '../lib/utils/axios_utils';
 import { s__, __, sprintf } from '../locale';
 import ModalStore from '../boards/stores/modal_store';
-import { parseBoolean } from '../lib/utils/common_utils';
+import { parseBoolean, spriteIcon } from '../lib/utils/common_utils';
 import {
   AJAX_USERS_SELECT_OPTIONS_MAP,
   AJAX_USERS_SELECT_PARAMS_MAP,
@@ -224,7 +224,9 @@ function UsersSelect(currentUser, els, options = {}) {
       });
     };
     collapsedAssigneeTemplate = template(
-      '<% if( avatar ) { %> <a class="author-link" href="/<%- username %>"> <img width="24" class="avatar avatar-inline s24" alt="" src="<%- avatar %>"> </a> <% } else { %> <i class="fa fa-user"></i> <% } %>',
+      `<% if( avatar ) { %> <a class="author-link" href="/<%- username %>"> <img width="24" class="avatar avatar-inline s24" alt="" src="<%- avatar %>"> </a> <% } else { %> ${spriteIcon(
+        'user',
+      )} <% } %>`,
     );
     assigneeTemplate = template(
       `<% if (username) { %> <a class="author-link bold" href="/<%- username %>"> <% if( avatar ) { %> <img width="32" class="avatar avatar-inline s32" alt="" src="<%- avatar %>"> <% } %> <span class="author"><%- name %></span> <span class="username"> @<%- username %> </span> </a> <% } else { %> <span class="no-value assign-yourself">

@@ -19,6 +19,7 @@ describe('Assignee component', () => {
     });
   };
 
+  const findUserIcon = _wrapper => _wrapper.find('[data-testid="user-icon"]');
   const findComponentTextNoUsers = () => wrapper.find('.assign-yourself');
   const findCollapsedChildren = () => wrapper.findAll('.sidebar-collapsed-icon > *');
 
