@@ -26,11 +26,7 @@ module EE
           calls_gitaly: true,
           description: 'SAST CI configuration for the project',
           resolve: -> (project, args, ctx) do
-<<<<<<< HEAD
-            ::CiConfiguration::SastParserService.new(project).configuration
-=======
             sast_ci_configuration(project)
->>>>>>> 9a21be76808f7768dbd163d534773786357c17a0
           end
 
         field :vulnerabilities,
