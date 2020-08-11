@@ -113,7 +113,7 @@ prepare-image:
       [ $EXIT_CODE -ne 143 ] && echo "Unexpected exit code $EXIT_CODE from docker logs" && return $EXIT_CODE
       # echo "${RUBY_CMD}" > ./create-token.sh
       # docker cp ./create-token.sh gitlab:/tmp
-      docker exec gitlab gitlab-rails runner ${RUBY_CMD}
+      docker exec gitlab gitlab-rails runner "${RUBY_CMD}"
 
       apk add curl
       'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN${COL} ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"'
