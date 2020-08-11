@@ -110,5 +110,5 @@ dast-prepare:
       echo "waiting until GitLab docker image has started"
       timeout 240 docker logs -f gitlab || EXIT_CODE=$?
       [ $EXIT_CODE -ne 143 ] && echo "Unexpected exit code $EXIT_CODE from docker logs" && return $EXIT_CODE
-      docker exec gitlab gitlab-rails runner ${RUBY_CMD}
+      docker exec gitlab gitlab-rails runner "${RUBY_CMD}"
       'curl  -vvv --show-error --request PUT --header "PRIVATE-TOKEN${COL} ${REVIEW_APPS_ROOT_TOKEN}" "http://gitlab/api/v4/application/settings?signup_enabled=false"' ;
