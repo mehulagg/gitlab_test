@@ -25,10 +25,19 @@ describe('GraphQL-powered burn charts', () => {
 
   const findBurnCharts = () => wrapper.find(BurnCharts);
 
-  it('renders without error', () => {
+  it('passes computed values to burn-charts component', () => {
     createComponent();
 
-    expect(findBurnCharts().exists()).toBe(true);
+    const { startDate, dueDate } = defaultProps;
+    const { openIssuesCount, openIssuesWeight, burnupScope } = wrapper.vm;
+
+    expect(findBurnCharts().props()).toEqual({
+      startDate,
+      dueDate,
+      openIssuesCount,
+      openIssuesWeight,
+      burnupScope,
+    });
   });
 
   // add some tests for this method because it is complex and error-prone
