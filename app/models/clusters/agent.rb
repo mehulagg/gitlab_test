@@ -16,5 +16,21 @@ module Clusters
         with: Gitlab::Regex.cluster_agent_name_regex,
         message: Gitlab::Regex.cluster_agent_name_regex_message
       }
+
+    validate :repository_has_matching_config_file
+
+    private
+
+    def repository_has_matching_config_file
+      repo = project&.repository
+      main_ref = repo&.root_ref
+
+      return if main_ref && repo.blob_at(main_ref, "agents/#{name}/config.yaml")
+
+      errors.add(
+        :configuration_setup,
+        s_("ClusterAgent|The file 'agents/%{name}/config.yaml' is missing from this repository") % { name: name }
+      )
+    end
   end
 end

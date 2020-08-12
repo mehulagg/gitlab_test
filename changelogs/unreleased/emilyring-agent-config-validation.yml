@@ -1,0 +1,5 @@
+---
+title: Added config file validation to cluster agents
+merge_request: 39377
+author:
+type: changed

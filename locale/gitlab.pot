@@ -5105,6 +5105,9 @@ msgstr ""
 msgid "Cluster type must be specificed for Stages::ClusterEndpointInserter"
 msgstr ""
 
+msgid "ClusterAgent|The file 'agents/%{name}/config.yaml' is missing from this repository"
+msgstr ""
+
 msgid "ClusterAgent|This feature is only available for premium plans"
 msgstr ""
 
