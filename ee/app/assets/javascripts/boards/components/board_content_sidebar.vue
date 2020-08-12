@@ -5,12 +5,14 @@ import { GlDrawer } from '@gitlab/ui';
 import { ISSUABLE } from '~/boards/constants';
 import { contentTop } from '~/lib/utils/common_utils';
 import EpicSelector from './sidebar/epic_selector.vue'
+import WeightInput from './sidebar/weight_input.vue'
 
 export default {
   headerHeight: `${contentTop()}px`,
   components: {
     GlDrawer,
     EpicSelector,
+    WeightInput,
   },
   mixins: [glFeatureFlagMixin()],
   computed: {
@@ -35,6 +37,7 @@ export default {
   >
     <template>
       <epic-selector />
+      <weight-input />
     </template>
   </gl-drawer>
 </template>
