@@ -1,14 +1,14 @@
 #import "ee_else_ce/boards/queries/board_list.fragment.graphql"
 
-query ProjectBoardEE($fullPath: ID!, $boardId: ID!) {
+query ProjectBoardEE($fullPath: ID!, $boardId: ID!, $issueFilters: BoardEpicIssueInput, $withLists: Boolean = true) {
   project(fullPath: $fullPath) {
     board(id: $boardId) {
-      lists {
+      lists @include(if: $withLists) {
         nodes {
           ...BoardListFragment
         }
       }
-      epics {
+      epics(issueFilters: $issueFilters) {
         nodes {
           id
           iid

@@ -16,6 +16,10 @@ export default {
     state.activeId = id;
   },
 
+  [mutationTypes.SET_FILTERS](state, filterParams) {
+    state.filterParams = filterParams;
+  },
+
   [mutationTypes.REQUEST_ADD_LIST]: () => {
     notImplemented();
   },

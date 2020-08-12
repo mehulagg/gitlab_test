@@ -34,12 +34,22 @@ describe('Board Store Mutations', () => {
   });
 
   describe('SET_ACTIVE_ID', () => {
-    it('updates aciveListId to be the value that is passed', () => {
+    it('updates activeListId to be the value that is passed', () => {
       const expectedId = 1;
 
       mutations.SET_ACTIVE_ID(state, expectedId);
 
       expect(state.activeId).toBe(expectedId);
+    });
+  });
+
+  describe('SET_FILTERS', () => {
+    it('updates filterParams to be the value that is passed', () => {
+      const filterParams = { labelName: 'label' };
+
+      mutations.SET_FILTERS(state, filterParams);
+
+      expect(state.filterParams).toBe(filterParams);
     });
   });
 
