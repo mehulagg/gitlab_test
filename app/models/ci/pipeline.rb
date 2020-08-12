@@ -83,6 +83,7 @@ module Ci
 
     has_many :daily_build_group_report_results, class_name: 'Ci::DailyBuildGroupReportResult', foreign_key: :last_pipeline_id
     has_many :latest_builds_report_results, through: :latest_builds, source: :report_results
+    has_many :pipeline_artifacts, class_name: 'Ci::PipelineArtifact', inverse_of: :pipeline, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
     accepts_nested_attributes_for :variables, reject_if: :persisted?
 
@@ -249,14 +250,6 @@ module Ci
 
         pipeline.run_after_commit { AutoDevops::DisableWorker.perform_async(pipeline.id) }
       end
-
-      after_transition any => [:success] do |pipeline|
-        next unless Gitlab::Ci::Features.keep_latest_artifacts_for_ref_enabled?(pipeline.project)
-
-        pipeline.run_after_commit do
-          Ci::PipelineSuccessUnlockArtifactsWorker.perform_async(pipeline.id)
-        end
-      end
     end
 
     scope :internal, -> { where(source: internal_sources) }
@@ -416,7 +409,7 @@ module Ci
 
     def legacy_stage(name)
       stage = Ci::LegacyStage.new(self, name: name)
-      stage unless stage.statuses_count.zero?
+      stage unless stage.statuses_count == 0
     end
 
     def ref_exists?
@@ -665,7 +658,7 @@ module Ci
     end
 
     def has_warnings?
-      number_of_warnings.positive?
+      number_of_warnings > 0
     end
 
     def number_of_warnings
@@ -828,7 +821,7 @@ module Ci
       return unless started_at
 
       seconds = (started_at - created_at).to_i
-      seconds unless seconds.zero?
+      seconds unless seconds == 0
     end
 
     def update_duration
@@ -919,12 +912,6 @@ module Ci
         latest_report_builds(Ci::JobArtifact.test_reports).preload(:project).find_each do |build|
           build.collect_test_reports!(test_reports)
         end
-      end
-    end
-
-    def test_reports_count
-      Rails.cache.fetch(['project', project.id, 'pipeline', id, 'test_reports_count'], force: false) do
-        test_reports.total_count
       end
     end
 

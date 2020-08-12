@@ -6,14 +6,17 @@ const _links = {
 export const mockPipelineInfo = {
   id: 1,
   ref: 'branch-name',
-  sha: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  sha: 'sha-baz',
   user: {
     name: 'foo',
   },
   project: {
     name: 'foo-project',
     web_url: 'foo-project-link',
+    commit_url: 'foo-commit-link',
+    pipeline_url: 'foo-pipeline-link',
   },
+  created_at: '2015-12-10',
 };
 
 export const mavenPackage = {
@@ -131,6 +134,18 @@ export const pypiPackage = {
   name: 'PyPiPackage',
   package_files: [],
   package_type: 'pypi',
+  project_id: 1,
+  tags: [],
+  updated_at: '2015-12-10',
+  version: '1.0.0',
+};
+
+export const composerPackage = {
+  created_at: '2015-12-10',
+  id: 5,
+  name: 'ComposerPackage',
+  package_files: [],
+  package_type: 'composer',
   project_id: 1,
   tags: [],
   updated_at: '2015-12-10',

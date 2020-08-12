@@ -5,18 +5,6 @@ module EE
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
-    READONLY_FEATURES_WHEN_ARCHIVED = %i[
-      board
-      issue_link
-      approvers
-      vulnerability_feedback
-      vulnerability
-      license_management
-      feature_flag
-      feature_flags_client
-      iteration
-    ].freeze
-
     prepended do
       with_scope :subject
       condition(:related_issues_disabled) { !@subject.feature_available?(:related_issues) }
@@ -73,6 +61,10 @@ module EE
       condition(:regulated_merge_request_approval_settings) do
         License.feature_available?(:admin_merge_request_approvers_rules) &&
           @subject.has_regulated_settings?
+      end
+
+      condition(:project_merge_request_analytics_available) do
+        @subject.feature_available?(:project_merge_request_analytics)
       end
 
       condition(:cannot_modify_approvers_rules) do
@@ -182,6 +174,10 @@ module EE
         @subject.feature_available?(:group_timelogs)
       end
 
+      condition(:over_storage_limit, scope: :subject) do
+        @subject.root_namespace.over_storage_limit?
+      end
+
       rule { visual_review_bot }.policy do
         prevent :read_note
         enable :create_note
@@ -243,7 +239,10 @@ module EE
         enable :read_vulnerability_scanner
       end
 
-      rule { on_demand_scans_enabled & can?(:developer_access) }.enable :read_on_demand_scans
+      rule { on_demand_scans_enabled & can?(:developer_access) }.policy do
+        enable :read_on_demand_scans
+        enable :create_on_demand_dast_scan
+      end
 
       rule { can?(:read_merge_request) & can?(:read_pipeline) }.enable :read_merge_train
 
@@ -336,14 +335,6 @@ module EE
 
       rule { ~admin & owner & owner_cannot_destroy_project }.prevent :remove_project
 
-      rule { archived }.policy do
-        prevent :modify_auto_fix_setting
-
-        READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
-          prevent(*::ProjectPolicy.create_update_admin_destroy(feature))
-        end
-      end
-
       condition(:needs_new_sso_session) do
         ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group)
       end
@@ -384,6 +375,9 @@ module EE
 
       rule { can?(:read_merge_request) & code_review_analytics_enabled }.enable :read_code_review_analytics
 
+      rule { reporter & project_merge_request_analytics_available }
+        .enable :read_project_merge_request_analytics
+
       rule { can?(:read_project) & requirements_available }.enable :read_requirement
 
       rule { requirements_available & reporter }.policy do
@@ -401,6 +395,14 @@ module EE
       rule { status_page_available & can?(:developer_access) }.enable :publish_status_page
 
       rule { public_project }.enable :view_embedded_analytics_report
+
+      rule { over_storage_limit }.policy do
+        prevent(*readonly_abilities)
+
+        readonly_features.each do |feature|
+          prevent(*create_update_admin(feature))
+        end
+      end
     end
 
     override :lookup_access_level!

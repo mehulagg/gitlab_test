@@ -52,7 +52,6 @@ const defaultFeatureFlags = {
   hasDurationChart: true,
   hasDurationChartMedian: true,
   hasPathNavigation: false,
-  hasFilterBar: false,
   hasCreateMultipleValueStreams: false,
 };
 
@@ -78,6 +77,7 @@ function createComponent({
   },
   shallow = true,
   withStageSelected = false,
+  withValueStreamSelected = true,
   featureFlags = {},
   props = {},
 } = {}) {
@@ -90,7 +90,6 @@ function createComponent({
       emptyStateSvgPath,
       noDataSvgPath,
       noAccessSvgPath,
-      baseStagesEndpoint: mockData.endpoints.baseStagesEndpoint,
       hideGroupDropDown,
       ...props,
     },
@@ -106,6 +105,10 @@ function createComponent({
       ...featureFlags,
     },
   });
+
+  if (withValueStreamSelected) {
+    comp.vm.$store.dispatch('receiveValueStreamsSuccess', mockData.valueStreams);
+  }
 
   if (withStageSelected) {
     comp.vm.$store.commit('SET_SELECTED_GROUP', {
@@ -179,7 +182,7 @@ describe('Cycle Analytics component', () => {
     expect(wrapper.find(FilterBar).exists()).toBe(flag);
   };
 
-  const displaysCreateValueStream = flag => {
+  const displaysValueStreamSelect = flag => {
     expect(wrapper.find(ValueStreamSelect).exists()).toBe(flag);
   };
 
@@ -188,7 +191,6 @@ describe('Cycle Analytics component', () => {
     wrapper = createComponent({
       featureFlags: {
         hasPathNavigation: true,
-        hasFilterBar: true,
       },
     });
   });
@@ -247,8 +249,8 @@ describe('Cycle Analytics component', () => {
         displaysPathNavigation(false);
       });
 
-      it('does not display the create multiple value streams button', () => {
-        displaysCreateValueStream(false);
+      it('does not display the value stream select component', () => {
+        displaysValueStreamSelect(false);
       });
 
       describe('hideGroupDropDown = true', () => {
@@ -276,8 +278,8 @@ describe('Cycle Analytics component', () => {
           });
         });
 
-        it('displays the create multiple value streams button', () => {
-          displaysCreateValueStream(true);
+        it('displays the value stream select component', () => {
+          displaysValueStreamSelect(true);
         });
       });
     });
@@ -290,7 +292,6 @@ describe('Cycle Analytics component', () => {
             withStageSelected: true,
             featureFlags: {
               hasPathNavigation: true,
-              hasFilterBar: true,
             },
           });
         });
@@ -344,6 +345,10 @@ describe('Cycle Analytics component', () => {
 
         it('displays the stage table', () => {
           displaysStageTable(true);
+        });
+
+        it('displays the filter bar', () => {
+          displaysFilterBar(true);
         });
 
         it('displays the add stage button', () => {
@@ -405,38 +410,6 @@ describe('Cycle Analytics component', () => {
           });
         });
 
-        describe('filter bar', () => {
-          describe('disabled', () => {
-            beforeEach(() => {
-              wrapper = createComponent({
-                withStageSelected: true,
-                featureFlags: {
-                  hasFilterBar: false,
-                },
-              });
-            });
-
-            it('does not display the filter bar', () => {
-              displaysFilterBar(false);
-            });
-          });
-
-          describe('enabled', () => {
-            beforeEach(() => {
-              wrapper = createComponent({
-                withStageSelected: true,
-                featureFlags: {
-                  hasFilterBar: true,
-                },
-              });
-            });
-
-            it('displays the filter bar', () => {
-              displaysFilterBar(true);
-            });
-          });
-        });
-
         describe('StageTable', () => {
           beforeEach(() => {
             mock = new MockAdapter(axios);
@@ -449,6 +422,7 @@ describe('Cycle Analytics component', () => {
                   StageNavItem,
                 },
               },
+              withValueStreamSelected: false,
               withStageSelected: true,
             });
           });
@@ -533,6 +507,7 @@ describe('Cycle Analytics component', () => {
           describe('enabled', () => {
             beforeEach(() => {
               wrapper = createComponent({
+                withValueStreamSelected: false,
                 withStageSelected: true,
                 pathNavigationEnabled: true,
               });
@@ -544,7 +519,7 @@ describe('Cycle Analytics component', () => {
               return waitForPromises();
             });
 
-            it('displays the path navigation', () => {
+            it('does not display the path navigation', () => {
               displaysPathNavigation(false);
             });
           });

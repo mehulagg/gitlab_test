@@ -20,6 +20,7 @@ RSpec.describe Gitlab::Danger::Teammate do
       'tz_offset_hours' => tz_offset_hours
     }
   end
+
   let(:capabilities) { ['reviewer backend'] }
   let(:projects) { { project => capabilities } }
   let(:role) { 'Engineer, Manage' }
@@ -192,12 +193,12 @@ RSpec.describe Gitlab::Danger::Teammate do
       context 'when author is given' do
         where(:tz_offset_hours, :author_offset, :diff_text) do
           -12 | -10 | "2 hours behind `@mario`"
-          -10 | -12 | "2 hours ahead `@mario`"
+          -10 | -12 | "2 hours ahead of `@mario`"
           -10 | 2 | "12 hours behind `@mario`"
           2 | 4 | "2 hours behind `@mario`"
-          4 | 2 | "2 hours ahead `@mario`"
+          4 | 2 | "2 hours ahead of `@mario`"
           2 | 3 | "1 hour behind `@mario`"
-          3 | 2 | "1 hour ahead `@mario`"
+          3 | 2 | "1 hour ahead of `@mario`"
           2 | 2 | "same timezone as `@mario`"
         end
 

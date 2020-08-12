@@ -1,9 +1,17 @@
 import { mount } from '@vue/test-utils';
-import { GlAlert, GlLoadingIcon, GlTable, GlAvatar } from '@gitlab/ui';
+import {
+  GlAlert,
+  GlLoadingIcon,
+  GlTable,
+  GlAvatar,
+  GlPagination,
+  GlSearchBoxByType,
+  GlTab,
+} from '@gitlab/ui';
 import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
 import IncidentsList from '~/incidents/components/incidents_list.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
-import { I18N } from '~/incidents/constants';
+import { I18N, INCIDENT_STATE_TABS } from '~/incidents/constants';
 import mockIncidents from '../mocks/incidents.json';
 
 jest.mock('~/lib/utils/url_utility', () => ({
@@ -22,8 +30,14 @@ describe('Incidents List', () => {
   const findAlert = () => wrapper.find(GlAlert);
   const findLoader = () => wrapper.find(GlLoadingIcon);
   const findTimeAgo = () => wrapper.findAll(TimeAgoTooltip);
+  const findDateColumnHeader = () =>
+    wrapper.find('[data-testid="incident-management-created-at-sort"]');
+  const findSearch = () => wrapper.find(GlSearchBoxByType);
   const findAssingees = () => wrapper.findAll('[data-testid="incident-assignees"]');
   const findCreateIncidentBtn = () => wrapper.find('[data-testid="createIncidentBtn"]');
+  const findClosedIcon = () => wrapper.findAll("[data-testid='incident-closed']");
+  const findPagination = () => wrapper.find(GlPagination);
+  const findStatusFilterTabs = () => wrapper.findAll(GlTab);
 
   function mountComponent({ data = { incidents: [] }, loading = false }) {
     wrapper = mount(IncidentsList, {
@@ -44,6 +58,7 @@ describe('Incidents List', () => {
         newIssuePath,
         incidentTemplateName,
         issuePath: '/project/isssues',
+        publishedAvailable: true,
       },
       stubs: {
         GlButton: true,
@@ -68,7 +83,7 @@ describe('Incidents List', () => {
 
   it('shows empty state', () => {
     mountComponent({
-      data: { incidents: [] },
+      data: { incidents: { list: [] } },
       loading: false,
     });
     expect(findTable().text()).toContain(I18N.noIncidents);
@@ -76,7 +91,7 @@ describe('Incidents List', () => {
 
   it('shows error state', () => {
     mountComponent({
-      data: { incidents: [], errored: true },
+      data: { incidents: { list: [] }, errored: true },
       loading: false,
     });
     expect(findTable().text()).toContain(I18N.noIncidents);
@@ -86,7 +101,7 @@ describe('Incidents List', () => {
   describe('Incident Management list', () => {
     beforeEach(() => {
       mountComponent({
-        data: { incidents: mockIncidents },
+        data: { incidents: { list: mockIncidents } },
         loading: false,
       });
     });
@@ -126,13 +141,19 @@ describe('Incidents List', () => {
           .trigger('click');
         expect(visitUrl).toHaveBeenCalledWith(joinPaths(`/project/isssues/`, mockIncidents[0].iid));
       });
+
+      it('renders a closed icon for closed incidents', () => {
+        expect(findClosedIcon().length).toBe(
+          mockIncidents.filter(({ state }) => state === 'closed').length,
+        );
+      });
     });
   });
 
   describe('Create Incident', () => {
     beforeEach(() => {
       mountComponent({
-        data: { incidents: [] },
+        data: { incidents: { list: [] } },
         loading: false,
       });
     });
@@ -145,6 +166,161 @@ describe('Incidents List', () => {
       findCreateIncidentBtn().vm.$emit('click');
       return wrapper.vm.$nextTick().then(() => {
         expect(findCreateIncidentBtn().attributes('loading')).toBe('true');
+      });
+    });
+  });
+
+  describe('Pagination', () => {
+    beforeEach(() => {
+      mountComponent({
+        data: {
+          incidents: {
+            list: mockIncidents,
+            pageInfo: { hasNextPage: true, hasPreviousPage: true },
+          },
+          errored: false,
+        },
+        loading: false,
+      });
+    });
+
+    it('should render pagination', () => {
+      expect(wrapper.find(GlPagination).exists()).toBe(true);
+    });
+
+    describe('prevPage', () => {
+      it('returns prevPage button', () => {
+        findPagination().vm.$emit('input', 3);
+
+        return wrapper.vm.$nextTick(() => {
+          expect(
+            findPagination()
+              .findAll('.page-item')
+              .at(0)
+              .text(),
+          ).toBe('Prev');
+        });
+      });
+
+      it('returns prevPage number', () => {
+        findPagination().vm.$emit('input', 3);
+
+        return wrapper.vm.$nextTick(() => {
+          expect(wrapper.vm.prevPage).toBe(2);
+        });
+      });
+
+      it('returns 0 when it is the first page', () => {
+        findPagination().vm.$emit('input', 1);
+
+        return wrapper.vm.$nextTick(() => {
+          expect(wrapper.vm.prevPage).toBe(0);
+        });
+      });
+    });
+
+    describe('nextPage', () => {
+      it('returns nextPage button', () => {
+        findPagination().vm.$emit('input', 3);
+
+        return wrapper.vm.$nextTick(() => {
+          expect(
+            findPagination()
+              .findAll('.page-item')
+              .at(1)
+              .text(),
+          ).toBe('Next');
+        });
+      });
+
+      it('returns nextPage number', () => {
+        mountComponent({
+          data: {
+            incidents: {
+              list: [...mockIncidents, ...mockIncidents, ...mockIncidents],
+              pageInfo: { hasNextPage: true, hasPreviousPage: true },
+            },
+            errored: false,
+          },
+          loading: false,
+        });
+        findPagination().vm.$emit('input', 1);
+
+        return wrapper.vm.$nextTick(() => {
+          expect(wrapper.vm.nextPage).toBe(2);
+        });
+      });
+
+      it('returns `null` when currentPage is already last page', () => {
+        findPagination().vm.$emit('input', 1);
+        return wrapper.vm.$nextTick(() => {
+          expect(wrapper.vm.nextPage).toBeNull();
+        });
+      });
+    });
+
+    describe('Search', () => {
+      beforeEach(() => {
+        mountComponent({
+          data: {
+            incidents: {
+              list: mockIncidents,
+              pageInfo: { hasNextPage: true, hasPreviousPage: true },
+            },
+            errored: false,
+          },
+          loading: false,
+        });
+      });
+
+      it('renders the search component for incidents', () => {
+        expect(findSearch().exists()).toBe(true);
+      });
+
+      it('sets the `searchTerm` graphql variable', () => {
+        const SEARCH_TERM = 'Simple Incident';
+
+        findSearch().vm.$emit('input', SEARCH_TERM);
+
+        expect(wrapper.vm.$data.searchTerm).toBe(SEARCH_TERM);
+      });
+    });
+
+    describe('State Filter Tabs', () => {
+      beforeEach(() => {
+        mountComponent({
+          data: { incidents: mockIncidents },
+          loading: false,
+          stubs: {
+            GlTab: true,
+          },
+        });
+      });
+
+      it('should display filter tabs', () => {
+        const tabs = findStatusFilterTabs().wrappers;
+
+        tabs.forEach((tab, i) => {
+          expect(tab.attributes('data-testid')).toContain(INCIDENT_STATE_TABS[i].state);
+        });
+      });
+    });
+  });
+
+  describe('sorting the incident list by column', () => {
+    beforeEach(() => {
+      mountComponent({
+        data: { incidents: mockIncidents },
+        loading: false,
+      });
+    });
+
+    it('updates sort with new direction and column key', () => {
+      expect(findDateColumnHeader().attributes('aria-sort')).toBe('descending');
+
+      findDateColumnHeader().trigger('click');
+      return wrapper.vm.$nextTick(() => {
+        expect(findDateColumnHeader().attributes('aria-sort')).toBe('ascending');
       });
     });
   });

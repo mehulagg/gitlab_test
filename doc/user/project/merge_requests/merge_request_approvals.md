@@ -1,4 +1,7 @@
 ---
+stage: Create
+group: Source Code
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 type: reference, concepts
 ---
 
@@ -55,6 +58,10 @@ be merged, and optionally which users should do the approving. Approvals can be 
 
 If no approval rules are defined, any user can approve a merge request, though the default
 minimum number of required approvers can still be set in the [project settings for merge request approvals](#merge-request-approvals-project-settings).
+
+NOTE: **Note:**
+On GitLab.com, you can add a group as an approver if you're a member of that group or the
+group is public.
 
 #### Eligible Approvers
 
@@ -116,7 +123,7 @@ Alternatively, you can **require**
 
 To add or edit the default merge request approval rule:
 
-1. Navigate to your project's **{settings}** **Settings > General** and expand **Merge request approvals**.
+1. Navigate to your project's **Settings > General** and expand **Merge request approvals**.
 
 1. Click **Add approval rule**, or **Edit**.
    - Add or change the **Rule name**.
@@ -230,7 +237,7 @@ or a [failed CI/CD pipeline](merge_when_pipeline_succeeds.md).
 ### Merge request approvals project settings
 
 The project settings for Merge request approvals are found by going to
-**{settings}** **Settings > General** and expanding **Merge request approvals**.
+**Settings > General** and expanding **Merge request approvals**.
 
 #### Prevent overriding default approvals
 

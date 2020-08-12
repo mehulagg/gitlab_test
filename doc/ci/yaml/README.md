@@ -104,36 +104,33 @@ The following table lists available parameters for jobs:
 | Keyword                                            | Description                                                                                                                                                                         |
 |:---------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`script`](#script)                                | Shell script which is executed by Runner.                                                                                                                                           |
-| [`image`](#image)                                  | Use Docker images. Also available: `image:name` and `image:entrypoint`.                                                                                                             |
-| [`services`](#services)                            | Use Docker services images. Also available: `services:name`, `services:alias`, `services:entrypoint`, and `services:command`.                                                       |
-| [`before_script`](#before_script-and-after_script) | Override a set of commands that are executed before job.                                                                                                                            |
 | [`after_script`](#before_script-and-after_script)  | Override a set of commands that are executed after job.                                                                                                                             |
-| [`stage`](#stage)                                  | Defines a job stage (default: `test`).                                                                                                                                              |
-| [`only`](#onlyexcept-basic)                        | Limit when jobs are created. Also available: [`only:refs`, `only:kubernetes`, `only:variables`, and `only:changes`](#onlyexcept-advanced).                                          |
-| [`except`](#onlyexcept-basic)                      | Limit when jobs are not created. Also available: [`except:refs`, `except:kubernetes`, `except:variables`, and `except:changes`](#onlyexcept-advanced).                              |
-| [`rules`](#rules)                                  | List of conditions to evaluate and determine selected attributes of a job, and whether or not it's created. May not be used alongside `only`/`except`.                             |
-| [`tags`](#tags)                                    | List of tags which are used to select Runner.                                                                                                                                       |
-| [`allow_failure`](#allow_failure)                  | Allow job to fail. Failed job does not contribute to commit status.                                                                                                                  |
-| [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                  |
-| [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, `environment:auto_stop_in` and `environment:action`. |
+| [`allow_failure`](#allow_failure)                  | Allow job to fail. Failed job does not contribute to commit status.                                                                                                                 |
+| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`. |
+| [`before_script`](#before_script-and-after_script) | Override a set of commands that are executed before job.                                                                                                                            |
 | [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, and `cache:policy`.                                     |
-| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, `artifacts:reports:codequality`, `artifacts:reports:junit`, `artifacts:reports:cobertura`, and `artifacts:reports:terraform`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_scanning`, `artifacts:reports:license_management` (removed in GitLab 13.0), `artifacts:reports:performance`, `artifacts:reports:load_performance`, and `artifacts:reports:metrics`. |
-| [`dependencies`](#dependencies)                    | Restrict which artifacts are passed to a specific job by providing a list of jobs to fetch artifacts from.                                                                          |
 | [`coverage`](#coverage)                            | Code coverage settings for a given job.                                                                                                                                             |
-| [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                             |
-| [`timeout`](#timeout)                              | Define a custom job-level timeout that takes precedence over the project-wide setting.                                                                                              |
-| [`parallel`](#parallel)                            | How many instances of a job should be run in parallel.                                                                                                                              |
-| [`trigger`](#trigger)                              | Defines a downstream pipeline trigger.                                                                                                                                              |
-| [`include`](#include)                              | Allows this job to include external YAML files. Also available: `include:local`, `include:file`, `include:template`, and `include:remote`.                                          |
+| [`dependencies`](#dependencies)                    | Restrict which artifacts are passed to a specific job by providing a list of jobs to fetch artifacts from.                                                                          |
+| [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, `environment:auto_stop_in` and `environment:action`. |
+| [`except`](#onlyexcept-basic)                      | Limit when jobs are not created. Also available: [`except:refs`, `except:kubernetes`, `except:variables`, and `except:changes`](#onlyexcept-advanced).                              |
 | [`extends`](#extends)                              | Configuration entries that this job is going to inherit from.                                                                                                                       |
-| [`pages`](#pages)                                  | Upload the result of a job to use with GitLab Pages.                                                                                                                                |
-| [`variables`](#variables)                          | Define job variables on a job level.                                                                                                                                                |
+| [`image`](#image)                                  | Use Docker images. Also available: `image:name` and `image:entrypoint`.                                                                                                             |
+| [`include`](#include)                              | Allows this job to include external YAML files. Also available: `include:local`, `include:file`, `include:template`, and `include:remote`.                                          |
 | [`interruptible`](#interruptible)                  | Defines if a job can be canceled when made redundant by a newer run.                                                                                                                |
+| [`only`](#onlyexcept-basic)                        | Limit when jobs are created. Also available: [`only:refs`, `only:kubernetes`, `only:variables`, and `only:changes`](#onlyexcept-advanced).                                          |
+| [`pages`](#pages)                                  | Upload the result of a job to use with GitLab Pages.                                                                                                                                |
+| [`parallel`](#parallel)                            | How many instances of a job should be run in parallel.                                                                                                                              |
+| [`release`](#release)                              | Instructs the Runner to generate a [Release](../../user/project/releases/index.md) object.                                                                                          |
 | [`resource_group`](#resource_group)                | Limit job concurrency.                                                                                                                                                              |
-| [`release`](#release) | Instructs the Runner to generate a [Release](../../user/project/releases/index.md) object. |
-
-NOTE: **Note:**
-Parameters `types` and `type` are [deprecated](#deprecated-parameters).
+| [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                             |
+| [`rules`](#rules)                                  | List of conditions to evaluate and determine selected attributes of a job, and whether or not it's created. May not be used alongside `only`/`except`.                              |
+| [`services`](#services)                            | Use Docker services images. Also available: `services:name`, `services:alias`, `services:entrypoint`, and `services:command`.                                                       |
+| [`stage`](#stage)                                  | Defines a job stage (default: `test`).                                                                                                                                              |
+| [`tags`](#tags)                                    | List of tags which are used to select Runner.                                                                                                                                       |
+| [`timeout`](#timeout)                              | Define a custom job-level timeout that takes precedence over the project-wide setting.                                                                                              |
+| [`trigger`](#trigger)                              | Defines a downstream pipeline trigger.                                                                                                                                              |
+| [`variables`](#variables)                          | Define job variables on a job level.                                                                                                                                                |
+| [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                  |
 
 ## Global parameters
 
@@ -344,11 +341,11 @@ have [duplicate pipelines](#differences-between-rules-and-onlyexcept).
 
 Useful workflow rules clauses:
 
-| Clause                                                                    | Details                                                                                       |
-|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `if: '$CI_PIPELINE_SOURCE == "merge_request_event"'`                      | Allow or block merge request pipelines.                                                        |
-| `if: '$CI_PIPELINE_SOURCE == "push"'`                                     | Allow or block both branch pipelines and tag pipelines.                                        |
-| `if: $CI_COMMIT_BEFORE_SHA == '0000000000000000000000000000000000000000'` | Allow or block pipeline creation when new branches are created or pushed with no commits. |
+| Clause                                                                     | Details                                                 |
+|----------------------------------------------------------------------------|---------------------------------------------------------|
+| `if: '$CI_PIPELINE_SOURCE == "merge_request_event"'`                       | Allow or block merge request pipelines.                 |
+| `if: '$CI_PIPELINE_SOURCE == "push"'`                                      | Allow or block both branch pipelines and tag pipelines. |
+| `if: '$CI_COMMIT_BEFORE_SHA == '0000000000000000000000000000000000000000'` | Allow or block pipeline creation when new branches are created or pushed with no commits. This will also skip tag and scheduled pipelines. See [common `rules:if` clauses](#common-if-clauses-for-rules) for examples on how to define these rules more strictly. |
 
 #### `workflow:rules` templates
 
@@ -831,6 +828,10 @@ $ tr a-z A-Z << END_TEXT # collapsed multi-line command
   FOUR FIVE SIX
 ```
 
+#### Custom collapsible sections
+
+See [custom collapsible sections](../pipelines/index.md#custom-collapsible-sections).
+
 ### `stage`
 
 `stage` is defined per-job and relies on [`stages`](#stages) which is defined
@@ -1250,11 +1251,15 @@ are permitted. Allowing only merge request pipelines, or only branch pipelines,
 eliminates duplicated pipelines. Alternatively, you can rewrite the rules to be
 stricter, or avoid using a final `when` (`always`, `on_success` or `delayed`).
 
+It is not possible to run a job for branch pipelines first, then only for merge request
+pipelines after the merge request is created (skipping the duplicate branch pipeline). See
+the [related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/201845) for more details.
+
 Also, we don't recommend mixing `only/except` jobs with `rules` jobs in the same pipeline.
 It may not cause YAML errors, but debugging the exact execution behavior can be complex
 due to the different default behaviors of `only/except` and `rules`.
 
-##### `rules:if`
+#### `rules:if`
 
 `rules:if` clauses determine whether or not jobs are added to a pipeline by evaluating
 a simple `if` statement. If the `if` statement is true, the job is either included
@@ -1297,23 +1302,25 @@ Some details regarding the logic that determines the `when` for the job:
 - You can define `when` once per rule, or once at the job-level, which applies to
   all rules. You can't mix `when` at the job-level with `when` in rules.
 
-For behavior similar to the [`only`/`except` keywords](#onlyexcept-basic), you can
-check the value of the `$CI_PIPELINE_SOURCE` variable.
+##### Common `if` clauses for `rules`
 
-| Value                         | Description                                                                                                                                                                                                                                                                                                                                           |
-|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `push`                        | For pipelines triggered by a `git push` event, including for branches and tags.                                                                                                                                                                                                                                                                       |
-| `web`                         | For pipelines created by using **Run pipeline** button in the GitLab UI, from the project's **CI/CD > Pipelines** section.                                                                                                                                                                                                                            |
-| `trigger`                     | For pipelines created by using a trigger token.                                                                                                                                                                                                                                                                                                       |
-| `schedule`                    | For [scheduled pipelines](../pipelines/schedules.md).                                                                                                                                                                                                                                                                                                 |
-| `api`                         | For pipelines triggered by the [pipelines API](../../api/pipelines.md#create-a-new-pipeline).                                                                                                                                                                                                                                                         |
-| `external`                    | When using CI services other than GitLab.                                                                                                                                                                                                                                                                                                             |
-| `pipeline`                   | For multi-project pipelines created by [using the API with `CI_JOB_TOKEN`](../triggers/README.md#when-used-with-multi-project-pipelines).                                                                                                                                                                                                             |
-| `chat`                        | For pipelines created by using a [GitLab ChatOps](../chatops/README.md) command.                                                                                                                                                                                                                                                                      |
-| `webide`                      | For pipelines created by using the [WebIDE](../../user/project/web_ide/index.md).                                                                                                                                                                                                                                                                     |
+For behavior similar to the [`only`/`except` keywords](#onlyexcept-basic), you can
+check the value of the `$CI_PIPELINE_SOURCE` variable:
+
+| Value                         | Description                                                                                                                                                                                                                      |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `api`                         | For pipelines triggered by the [pipelines API](../../api/pipelines.md#create-a-new-pipeline).                                                                                                                                    |
+| `chat`                        | For pipelines created by using a [GitLab ChatOps](../chatops/README.md) command.                                                                                                                                                 |
+| `external`                    | When using CI services other than GitLab.                                                                                                                                                                                        |
+| `external_pull_request_event` | When an external pull request on GitHub is created or updated. See [Pipelines for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests).                                            |
 | `merge_request_event`         | For pipelines created when a merge request is created or updated. Required to enable [merge request pipelines](../merge_request_pipelines/index.md), [merged results pipelines](../merge_request_pipelines/pipelines_for_merged_results/index.md), and [merge trains](../merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md). |
-| `external_pull_request_event` | When an external pull request on GitHub is created or updated. See [Pipelines for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests).                                                                                                                                                                 |
-| `parent_pipeline`             | For pipelines triggered by a [parent/child pipeline](../parent_child_pipelines.md) with `rules`, use this in the child pipeline configuration so that it can be triggered by the parent pipeline.                                                                                                                                                     |
+| `parent_pipeline`             | For pipelines triggered by a [parent/child pipeline](../parent_child_pipelines.md) with `rules`, use this in the child pipeline configuration so that it can be triggered by the parent pipeline.                                |
+| `pipeline`                    | For [multi-project pipelines](../multi_project_pipelines.md) created by [using the API with `CI_JOB_TOKEN`](../multi_project_pipelines.md#triggering-multi-project-pipelines-through-api), or the [`trigger`](#trigger) keyword. |
+| `push`                        | For pipelines triggered by a `git push` event, including for branches and tags.                                                                                                                                                  |
+| `schedule`                    | For [scheduled pipelines](../pipelines/schedules.md).                                                                                                                                                                            |
+| `trigger`                     | For pipelines created by using a [trigger token](../triggers/README.md#trigger-token).                                                                                                                                           |
+| `web`                         | For pipelines created by using **Run pipeline** button in the GitLab UI, from the project's **CI/CD > Pipelines** section.                                                                                                       |
+| `webide`                      | For pipelines created by using the [WebIDE](../../user/project/web_ide/index.md).                                                                                                                                                |
 
 For example:
 
@@ -1358,14 +1365,37 @@ Other commonly used variables for `if` clauses:
 - `if: '$CUSTOM_VARIABLE == "value1"'`: If the custom variable `CUSTOM_VARIABLE` is
   exactly `value1`.
 
-##### `rules:changes`
+To avoid running pipelines when a branch is created without any changes,
+check the value of `$CI_COMMIT_BEFORE_SHA`. It has a value of
+`0000000000000000000000000000000000000000`:
+
+- In branches with no commits.
+- In tag pipelines and scheduled pipelines. You should define rules very
+  narrowly if you don't want to skip these.
+
+To skip pipelines on all empty branches, but also tags and schedules:
+
+```yaml
+rules:
+  - if: $CI_COMMIT_BEFORE_SHA == '0000000000000000000000000000000000000000'
+    when: never
+```
+
+To skip branch pipelines when the branch is empty:
+
+```yaml
+rules:
+  - if: $CI_COMMIT_BRANCH && $CI_COMMIT_BEFORE_SHA != '0000000000000000000000000000000000000000'
+```
+
+#### `rules:changes`
 
 To determine if jobs should be added to a pipeline, `rules: changes` clauses check
 the files changed by Git push events.
 
 `rules: changes` works exactly the same way as [`only: changes` and `except: changes`](#onlychangesexceptchanges),
 accepting an array of paths. Similarly, it always returns true if there is no
-Git push event. It should only be used for branch pipelines or merge request pipelines.
+Git push event, for example, when a new tag is created. It should only be used for branch pipelines or merge request pipelines.
 
 For example:
 
@@ -1390,7 +1420,10 @@ In this example:
   to continue running even if the job is not triggered (`allow_failure: true`).
 - If `Dockerfile` has not changed, do not add job to any pipeline (same as `when: never`).
 
-##### `rules:exists`
+To implement a rule similar to [`except: changes`](#onlychangesexceptchanges),
+use `when: never`.
+
+#### `rules:exists`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/24021) in GitLab 12.4.
 
@@ -1424,7 +1457,7 @@ NOTE: **Note:**
 For performance reasons, using `exists` with patterns is limited to 10000
 checks. After the 10000th check, rules with patterned globs will always match.
 
-##### `rules:allow_failure`
+#### `rules:allow_failure`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30235) in GitLab 12.8.
 
@@ -1500,20 +1533,20 @@ There are a few rules that apply to the usage of job policy:
 
 In addition, `only` and `except` allow the use of special keywords:
 
-| **Value**                | **Description**                                                                                                                                                                        |
-|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `branches`               | When the Git reference for a pipeline is a branch.                                                                                                                                        |
-| `tags`                   | When the Git reference for a pipeline is a tag.                                                                                                                                           |
-| `api`                    | For pipelines triggered by the [pipelines API](../../api/pipelines.md#create-a-new-pipeline).                                                                                                         |
-| `external`               | When using CI services other than GitLab.                                                                                                                                              |
-| `pipelines`              | For multi-project pipelines created by using the API with `CI_JOB_TOKEN`.                                                                                                              |
-| `pushes`                 | For pipelines triggered by a `git push` event, including for branches and tags.                                                                                                        |
-| `schedules`              | For [scheduled pipelines](../pipelines/schedules.md).                                                                                                                                  |
-| `triggers`               | For pipelines created by using a trigger token.                                                                                                                                        |
-| `web`                    | For pipelines created by using **Run pipeline** button in the GitLab UI, from the project's **CI/CD > Pipelines** section.                                                             |
-| `merge_requests`         | For pipelines created when a merge request is created or updated. Enables [merge request pipelines](../merge_request_pipelines/index.md), [merged results pipelines](../merge_request_pipelines/pipelines_for_merged_results/index.md), and [merge trains](../merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md).                                                                  |
-| `external_pull_requests` | When an external pull request on GitHub is created or updated (See [Pipelines for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests)). |
-| `chat`                   | For pipelines created by using a [GitLab ChatOps](../chatops/README.md) command.                                                                                                       |
+| **Value**                | **Description**                                                                                                                                                                                                                  |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `api`                    | For pipelines triggered by the [pipelines API](../../api/pipelines.md#create-a-new-pipeline).                                                                                                                                    |
+| `branches`               | When the Git reference for a pipeline is a branch.                                                                                                                                                                               |
+| `chat`                   | For pipelines created by using a [GitLab ChatOps](../chatops/README.md) command.                                                                                                                                                 |
+| `external`               | When using CI services other than GitLab.                                                                                                                                                                                        |
+| `external_pull_requests` | When an external pull request on GitHub is created or updated (See [Pipelines for external pull requests](../ci_cd_for_external_repos/index.md#pipelines-for-external-pull-requests)).                                           |
+| `merge_requests`         | For pipelines created when a merge request is created or updated. Enables [merge request pipelines](../merge_request_pipelines/index.md), [merged results pipelines](../merge_request_pipelines/pipelines_for_merged_results/index.md), and [merge trains](../merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md). |
+| `pipelines`              | For [multi-project pipelines](../multi_project_pipelines.md) created by [using the API with `CI_JOB_TOKEN`](../multi_project_pipelines.md#triggering-multi-project-pipelines-through-api), or the [`trigger`](#trigger) keyword. |
+| `pushes`                 | For pipelines triggered by a `git push` event, including for branches and tags.                                                                                                                                                  |
+| `schedules`              | For [scheduled pipelines](../pipelines/schedules.md).                                                                                                                                                                            |
+| `tags`                   | When the Git reference for a pipeline is a tag.                                                                                                                                                                                  |
+| `triggers`               | For pipelines created by using a [trigger token](../triggers/README.md#trigger-token).                                                                                                                                           |
+| `web`                    | For pipelines created by using **Run pipeline** button in the GitLab UI, from the project's **CI/CD > Pipelines** section.                                                                                                       |
 
 In the example below, `job` will run only for refs that start with `issue-`,
 whereas all branches will be skipped:
@@ -1978,7 +2011,7 @@ This example creates four paths of execution:
     [infrastructure issue](https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/7541).
   - For self-managed instances, the limit is:
     - 10, if the `ci_plan_needs_size_limit` feature flag is disabled (default).
-    - 50, if the `ci_plan_needs_size_limit` feature flag is enabled. This limit [can be changed](#changing-the-needs-job-limit).
+    - 50, if the `ci_plan_needs_size_limit` feature flag is enabled. This limit [can be changed](#changing-the-needs-job-limit-core-only).
 - If `needs:` refers to a job that is marked as `parallel:`.
   the current job will depend on all parallel jobs created.
 - `needs:` is similar to `dependencies:` in that it needs to use jobs from prior stages,
@@ -1987,7 +2020,7 @@ This example creates four paths of execution:
 - Related to the above, stages must be explicitly defined for all jobs
   that have the keyword `needs:` or are referred to by one.
 
-##### Changing the `needs:` job limit
+##### Changing the `needs:` job limit **(CORE ONLY)**
 
 The maximum number of jobs that can be defined within `needs:` defaults to 10.
 
@@ -2061,7 +2094,7 @@ rspec:
 
 `needs` can be used to download artifacts from up to five jobs in pipelines on
 [other refs in the same project](#artifact-downloads-between-pipelines-in-the-same-project),
-or pipelines in different projects:
+or pipelines in different projects, groups and namespaces:
 
 ```yaml
 build_job:
@@ -2069,14 +2102,18 @@ build_job:
   script:
     - ls -lhR
   needs:
-    - project: group/project-name
+    - project: namespace/group/project-name
       job: build-1
       ref: master
       artifacts: true
 ```
 
 `build_job` will download the artifacts from the latest successful `build-1` job
-on the `master` branch in the `group/project-name` project.
+on the `master` branch in the `group/project-name` project. If the project is in the
+same group or namespace, you can omit them from the `project:` key. For example,
+`project: group/project-name` or `project: project-name`.
+
+The user running the pipeline must have at least `reporter` access to the group or project, or the group/project must have public visibility.
 
 ##### Artifact downloads between pipelines in the same project
 
@@ -2198,6 +2235,9 @@ failure.
     [manual actions](#whenmanual) below.
 1. `delayed` - execute job after a certain period (added in GitLab 11.14).
     Read about [delayed actions](#whendelayed) below.
+1. `never`:
+   - With [`rules`](#rules), don't execute job.
+   - With [`workflow:rules`](#workflowrules), don't run pipeline.
 
 For example:
 
@@ -3145,8 +3185,11 @@ stored on GitLab. If the expiry time is not defined, it defaults to the
 [instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration-core-only)
 (30 days by default).
 
-You can use the **Keep** button on the job page to override expiration and
-keep artifacts forever.
+To override the expiration date and protect artifacts from being automatically deleted:
+
+- Use the **Keep** button on the job page.
+- Set the value of `expire_in` to `never`. [Available](https://gitlab.com/gitlab-org/gitlab/-/issues/22761)
+  in GitLab 13.3 and later.
 
 After their expiry, artifacts are deleted hourly by default (via a cron job),
 and are not accessible anymore.
@@ -3161,6 +3204,7 @@ provided. Examples of valid values:
 - `6 mos 1 day`
 - `47 yrs 6 mos and 4d`
 - `3 weeks and 2 days`
+- `never`
 
 To expire artifacts 1 week after being uploaded:
 
@@ -3186,20 +3230,20 @@ These are the available report types:
 
 | Parameter                                                                                                                            | Description |
 |--------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| [`artifacts:reports:junit`](../pipelines/job_artifacts.md#artifactsreportsjunit)                                                     | The `junit` report collects JUnit XML files.                                     |
-| [`artifacts:reports:dotenv`](../pipelines/job_artifacts.md#artifactsreportsdotenv)                                                   | The `dotenv` report collects a set of environment variables.                     |
 | [`artifacts:reports:cobertura`](../pipelines/job_artifacts.md#artifactsreportscobertura)                                             | The `cobertura` report collects Cobertura coverage XML files.                    |
-| [`artifacts:reports:terraform`](../pipelines/job_artifacts.md#artifactsreportsterraform)                                             | The `terraform` report collects Terraform `tfplan.json` files.                   |
 | [`artifacts:reports:codequality`](../pipelines/job_artifacts.md#artifactsreportscodequality)                                         | The `codequality` report collects CodeQuality issues.                            |
-| [`artifacts:reports:sast`](../pipelines/job_artifacts.md#artifactsreportssast-ultimate) **(ULTIMATE)**                               | The `sast` report collects Static Application Security Testing vulnerabilities.  |
-| [`artifacts:reports:dependency_scanning`](../pipelines/job_artifacts.md#artifactsreportsdependency_scanning-ultimate) **(ULTIMATE)** | The `dependency_scanning` report collects Dependency Scanning vulnerabilities.   |
 | [`artifacts:reports:container_scanning`](../pipelines/job_artifacts.md#artifactsreportscontainer_scanning-ultimate) **(ULTIMATE)**   | The `container_scanning` report collects Container Scanning vulnerabilities.     |
 | [`artifacts:reports:dast`](../pipelines/job_artifacts.md#artifactsreportsdast-ultimate) **(ULTIMATE)**                               | The `dast` report collects Dynamic Application Security Testing vulnerabilities. |
+| [`artifacts:reports:dependency_scanning`](../pipelines/job_artifacts.md#artifactsreportsdependency_scanning-ultimate) **(ULTIMATE)** | The `dependency_scanning` report collects Dependency Scanning vulnerabilities.   |
+| [`artifacts:reports:dotenv`](../pipelines/job_artifacts.md#artifactsreportsdotenv)                                                   | The `dotenv` report collects a set of environment variables.                     |
+| [`artifacts:reports:junit`](../pipelines/job_artifacts.md#artifactsreportsjunit)                                                     | The `junit` report collects JUnit XML files.                                     |
 | [`artifacts:reports:license_management`](../pipelines/job_artifacts.md#artifactsreportslicense_management-ultimate) **(ULTIMATE)**   | The `license_management` report collects Licenses (*removed from GitLab 13.0*).  |
 | [`artifacts:reports:license_scanning`](../pipelines/job_artifacts.md#artifactsreportslicense_scanning-ultimate) **(ULTIMATE)**       | The `license_scanning` report collects Licenses.                                 |
-| [`artifacts:reports:performance`](../pipelines/job_artifacts.md#artifactsreportsperformance-premium) **(PREMIUM)**                   | The `performance` report collects Browser Performance metrics.                   |
 | [`artifacts:reports:load_performance`](../pipelines/job_artifacts.md#artifactsreportsload_performance-premium) **(PREMIUM)**         | The `load_performance` report collects load performance metrics.                 |
 | [`artifacts:reports:metrics`](../pipelines/job_artifacts.md#artifactsreportsmetrics-premium) **(PREMIUM)**                           | The `metrics` report collects Metrics.                                           |
+| [`artifacts:reports:performance`](../pipelines/job_artifacts.md#artifactsreportsperformance-premium) **(PREMIUM)**                   | The `performance` report collects Browser Performance metrics.                   |
+| [`artifacts:reports:sast`](../pipelines/job_artifacts.md#artifactsreportssast-ultimate) **(ULTIMATE)**                               | The `sast` report collects Static Application Security Testing vulnerabilities.  |
+| [`artifacts:reports:terraform`](../pipelines/job_artifacts.md#artifactsreportsterraform)                                             | The `terraform` report collects Terraform `tfplan.json` files.                   |
 
 #### `dependencies`
 
@@ -3444,10 +3488,6 @@ job split into three separate jobs.
 #### Parallel `matrix` jobs
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15356) in GitLab 13.3.
-> - It's deployed behind a feature flag, disabled by default.
-> - It's enabled on GitLab.com.
-> - It can't be enabled or disabled per-project.
-> - It's recommended for production use.
 
 `matrix:` allows you to configure different variables for jobs that are running in parallel.
 There can be from 2 to 50 jobs.
@@ -3870,22 +3910,43 @@ tags. These options cannot be used together, so choose one:
 - To create a release automatically when commits are pushed or merged to the default branch,
   using a new Git tag that is defined with variables:
 
+NOTE: **Note:**
+Environment variables set in `before_script` or `script` are not available for expanding
+in the same job. Read more about
+[potentially making variables available for expanding](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/6400).
+
   ```yaml
+  prepare_job:
+    stage: prepare                                              # This stage must run before the release stage
+    rules:
+      - if: $CI_COMMIT_TAG
+        when: never                                             # Do not run this job when a tag is created manually
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH             # Run this job when commits are pushed or merged to the default branch
+    script:
+      - echo "EXTRA_DESCRIPTION=some message" >> variables.env  # Generate the EXTRA_DESCRIPTION and TAG environment variables
+      - echo "TAG=v$(cat VERSION)" >> variables.env             # and append to the variables.env file
+    artifacts:
+      reports:
+        dotenv: variables.env                                   # Use artifacts:reports:dotenv to expose the variables to other jobs
+
   release_job:
     stage: release
     image: registry.gitlab.com/gitlab-org/release-cli:latest
+    needs:
+    - job: prepare_job
+      artifacts: true
     rules:
       - if: $CI_COMMIT_TAG
         when: never                                 # Do not run this job when a tag is created manually
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when commits are pushed or merged to the default branch
     script:
-      - echo 'running release_job'
+      - echo 'running release_job for $TAG'
     release:
-       name: 'Release $CI_COMMIT_SHA'
-       description: 'Created using the release-cli $EXTRA_DESCRIPTION' # $EXTRA_DESCRIPTION and the tag_name
-       tag_name: 'v${MAJOR}.${MINOR}.${REVISION}'                      # variables must be defined elsewhere
-       ref: '$CI_COMMIT_SHA'                                           # in the pipeline.
-       milestones:
+       name: 'Release $TAG'
+       description: 'Created using the release-cli $EXTRA_DESCRIPTION' # $EXTRA_DESCRIPTION and the $TAG
+       tag_name: '$TAG'                                                # variables must be defined elsewhere
+       ref: '$CI_COMMIT_SHA'                                           # in the pipeline. For example, in the
+       milestones:                                                     # prepare_job
          - 'm1'
          - 'm2'
          - 'm3'
@@ -4157,12 +4218,12 @@ Where `$REFSPECS` is a value provided to the Runner internally by GitLab.
 You can set the number for attempts the running job will try to execute each
 of the following stages:
 
-| Variable                          | Description                                                                                                                                                                                                                                                                                                        |
-|-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **GET_SOURCES_ATTEMPTS**          | Number of attempts to fetch sources running a job                                                                                                                                                                                                                                                                  |
-| **ARTIFACT_DOWNLOAD_ATTEMPTS**    | Number of attempts to download artifacts running a job                                                                                                                                                                                                                                                             |
-| **RESTORE_CACHE_ATTEMPTS**        | Number of attempts to restore the cache running a job                                                                                                                                                                                                                                                              |
+| Variable                          | Description                                            |
+|-----------------------------------|--------------------------------------------------------|
+| **ARTIFACT_DOWNLOAD_ATTEMPTS**    | Number of attempts to download artifacts running a job |
 | **EXECUTOR_JOB_SECTION_ATTEMPTS** | [Since GitLab 12.10](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4450), the number of attempts to run a section in a job after a [`No Such Container`](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4450) error ([Docker executor](https://docs.gitlab.com/runner/executors/docker.html) only). |
+| **GET_SOURCES_ATTEMPTS**          | Number of attempts to fetch sources running a job      |
+| **RESTORE_CACHE_ATTEMPTS**        | Number of attempts to restore the cache running a job  |
 
 The default is one single attempt.
 

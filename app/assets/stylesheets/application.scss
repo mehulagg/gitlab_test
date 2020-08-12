@@ -18,8 +18,8 @@
 // GitLab UI framework
 @import 'framework';
 
-// Font icons
-@import 'font-awesome';
+// Custom Fontawesome icons
+@import 'fontawesome_custom';
 
 // Page specific styles (issues, projects etc):
 @import 'pages/**/*';
@@ -50,4 +50,10 @@
 /* print styles */
 @media print {
   @import 'print';
+}
+
+/* Rules for overriding cloaking in startup-general.scss */
+.container-limited,
+.modal-dialog {
+  display: block;
 }

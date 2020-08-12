@@ -14,7 +14,7 @@ RSpec.describe Gitlab::Geo::GeoNodeStatusCheck do
     before do
       allow(Gitlab.config.geo.registry_replication).to receive(:enabled).and_return(true)
 
-      stub_feature_flags(geo_vulnerability_export_replication: false)
+      stub_feature_flags(geo_terraform_state_replication: false)
     end
 
     it 'prints messages for all verification checks' do

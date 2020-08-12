@@ -31,6 +31,7 @@ import {
   duplicateSystemDashboard,
   updateVariablesAndFetchData,
   fetchVariableMetricLabelValues,
+  fetchPanelPreview,
 } from '~/monitoring/stores/actions';
 import {
   gqClient,
@@ -1152,6 +1153,71 @@ describe('Monitoring store actions', () => {
           );
         },
       );
+    });
+  });
+
+  describe('fetchPanelPreview', () => {
+    const panelPreviewEndpoint = '/builder.json';
+    const mockYmlContent = 'mock yml content';
+
+    beforeEach(() => {
+      state.panelPreviewEndpoint = panelPreviewEndpoint;
+    });
+
+    it('should not commit or dispatch if payload is empty', () => {
+      testAction(fetchPanelPreview, '', state, [], []);
+    });
+
+    it('should store the panel and fetch metric results', () => {
+      const mockPanel = {
+        title: 'Go heap size',
+        type: 'area-chart',
+      };
+
+      mock
+        .onPost(panelPreviewEndpoint, { panel_yaml: mockYmlContent })
+        .reply(statusCodes.OK, mockPanel);
+
+      testAction(
+        fetchPanelPreview,
+        mockYmlContent,
+        state,
+        [
+          { type: types.SET_PANEL_PREVIEW_IS_SHOWN, payload: true },
+          { type: types.REQUEST_PANEL_PREVIEW, payload: mockYmlContent },
+          { type: types.RECEIVE_PANEL_PREVIEW_SUCCESS, payload: mockPanel },
+        ],
+        [{ type: 'fetchPanelPreviewMetrics' }],
+      );
+    });
+
+    it('should display a validation error when the backend cannot process the yml', () => {
+      const mockErrorMsg = 'Each "metric" must define one of :query or :query_range';
+
+      mock
+        .onPost(panelPreviewEndpoint, { panel_yaml: mockYmlContent })
+        .reply(statusCodes.UNPROCESSABLE_ENTITY, {
+          message: mockErrorMsg,
+        });
+
+      testAction(fetchPanelPreview, mockYmlContent, state, [
+        { type: types.SET_PANEL_PREVIEW_IS_SHOWN, payload: true },
+        { type: types.REQUEST_PANEL_PREVIEW, payload: mockYmlContent },
+        { type: types.RECEIVE_PANEL_PREVIEW_FAILURE, payload: mockErrorMsg },
+      ]);
+    });
+
+    it('should display a generic error when the backend fails', () => {
+      mock.onPost(panelPreviewEndpoint, { panel_yaml: mockYmlContent }).reply(500);
+
+      testAction(fetchPanelPreview, mockYmlContent, state, [
+        { type: types.SET_PANEL_PREVIEW_IS_SHOWN, payload: true },
+        { type: types.REQUEST_PANEL_PREVIEW, payload: mockYmlContent },
+        {
+          type: types.RECEIVE_PANEL_PREVIEW_FAILURE,
+          payload: 'Request failed with status code 500',
+        },
+      ]);
     });
   });
 });

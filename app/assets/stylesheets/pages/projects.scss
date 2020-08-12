@@ -143,8 +143,8 @@
 
 .group-home-panel,
 .project-home-panel {
-  padding-top: $gl-padding;
-  padding-bottom: $gl-padding;
+  margin-top: $gl-padding;
+  margin-bottom: $gl-padding;
 
   .home-panel-avatar {
     width: $home-panel-title-row-height;
@@ -159,7 +159,7 @@
     font-weight: bold;
 
     .icon {
-      font-size: $gl-font-size-large;
+      vertical-align: -1px;
     }
 
     .home-panel-topic-list {
@@ -222,12 +222,6 @@
   .home-panel-description {
     @include media-breakpoint-up(md) {
       font-size: $gl-font-size-large;
-    }
-  }
-
-  .notifications-btn {
-    .fa-bell {
-      margin-right: 0;
     }
   }
 }
@@ -831,7 +825,7 @@
 }
 
 .repository-language-bar-tooltip-share {
-  color: $gray-400;
+  color: $gray-200;
 }
 
 pre.light-well {

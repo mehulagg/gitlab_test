@@ -445,6 +445,7 @@
 .pipeline-tab-content {
   display: flex;
   width: 100%;
+  min-height: $dropdown-max-height-lg;
   background-color: $gray-light;
   padding: $gl-padding 0;
   overflow: auto;
@@ -809,7 +810,7 @@
 
   &.ci-status-icon-created,
   &.ci-status-icon-skipped {
-    @include mini-pipeline-graph-color($white, $gray-100, $gray-200, $gray-500, $gray-600, $gray-700);
+    @include mini-pipeline-graph-color($white, $gray-100, $gray-200, $gray-300, $gray-400, $gray-700);
   }
 }
 
@@ -1051,13 +1052,6 @@ button.mini-pipeline-graph-dropdown-toggle {
 
   .text-center {
     padding-top: 12px;
-  }
-
-  .header-action-buttons {
-    .btn,
-    a {
-      margin-left: 10px;
-    }
   }
 }
 

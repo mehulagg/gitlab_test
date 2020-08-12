@@ -61,7 +61,6 @@ RSpec.describe Project do
     it { is_expected.to have_one(:youtrack_service) }
     it { is_expected.to have_one(:custom_issue_tracker_service) }
     it { is_expected.to have_one(:bugzilla_service) }
-    it { is_expected.to have_one(:gitlab_issue_tracker_service) }
     it { is_expected.to have_one(:external_wiki_service) }
     it { is_expected.to have_one(:confluence_service) }
     it { is_expected.to have_one(:project_feature) }
@@ -123,6 +122,7 @@ RSpec.describe Project do
     it { is_expected.to have_many(:reviews).inverse_of(:project) }
     it { is_expected.to have_many(:packages).class_name('Packages::Package') }
     it { is_expected.to have_many(:package_files).class_name('Packages::PackageFile') }
+    it { is_expected.to have_many(:pipeline_artifacts) }
 
     it_behaves_like 'model with repository' do
       let_it_be(:container) { create(:project, :repository, path: 'somewhere') }
@@ -401,6 +401,7 @@ RSpec.describe Project do
         create(:project,
                pending_delete: true)
       end
+
       let(:new_project) do
         build(:project,
               name: project_pending_deletion.name,
@@ -2262,6 +2263,7 @@ RSpec.describe Project do
       create(:ci_empty_pipeline, project: project, sha: project.commit.id,
                                  ref: project.default_branch)
     end
+
     let!(:pipeline_for_second_branch) do
       create(:ci_empty_pipeline, project: project, sha: second_branch.target,
                                  ref: second_branch.name)
@@ -3529,6 +3531,7 @@ RSpec.describe Project do
           public: '\\1'
       MAP
     end
+
     let(:sha) { project.commit.id }
 
     context 'when there is a route map' do
@@ -4126,7 +4129,6 @@ RSpec.describe Project do
     end
 
     it 'removes the pages directory and marks the project as not having pages deployed' do
-      expect_any_instance_of(Projects::UpdatePagesConfigurationService).to receive(:execute)
       expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project).and_return(true)
       expect(PagesWorker).to receive(:perform_in).with(5.minutes, :remove, namespace.full_path, anything)
 
@@ -5146,6 +5148,7 @@ RSpec.describe Project do
         allow_collaboration: true
       )
     end
+
     let!(:merge_request) do
       create(
         :merge_request,
@@ -6200,38 +6203,40 @@ RSpec.describe Project do
 
     subject { project.has_packages?(package_type) }
 
-    shared_examples 'returning true examples' do
-      let!(:package) { create("#{package_type}_package", project: project) }
+    shared_examples 'has_package' do
+      context 'package of package_type exists' do
+        let!(:package) { create("#{package_type}_package", project: project) }
 
-      it { is_expected.to be true }
-    end
+        it { is_expected.to be true }
+      end
 
-    shared_examples 'returning false examples' do
-      it { is_expected.to be false }
+      context 'package of package_type does not exist' do
+        it { is_expected.to be false }
+      end
     end
 
     context 'with maven packages' do
-      it_behaves_like 'returning true examples' do
+      it_behaves_like 'has_package' do
         let(:package_type) { :maven }
       end
     end
 
     context 'with npm packages' do
-      it_behaves_like 'returning true examples' do
+      it_behaves_like 'has_package' do
         let(:package_type) { :npm }
       end
     end
 
     context 'with conan packages' do
-      it_behaves_like 'returning true examples' do
+      it_behaves_like 'has_package' do
         let(:package_type) { :conan }
       end
     end
 
-    context 'with no package type' do
-      it_behaves_like 'returning false examples' do
-        let(:package_type) { nil }
-      end
+    context 'calling has_package? with nil' do
+      let(:package_type) { nil }
+
+      it { is_expected.to be false }
     end
   end
 

@@ -29,13 +29,9 @@ module IncidentManagement
       AlertManagement::Alert.find_by_id(alert_id)
     end
 
-    def parsed_payload(alert)
-      Gitlab::Alerting::NotificationPayloadParser.call(alert.payload.to_h, alert.project)
-    end
-
     def create_issue_for(alert)
       IncidentManagement::CreateIssueService
-        .new(alert.project, parsed_payload(alert))
+        .new(alert.project, alert)
         .execute
     end
 

@@ -57,15 +57,15 @@ describe('Cycle analytics mutations', () => {
   });
 
   it.each`
-    mutation                                   | payload                       | expectedState
-    ${types.SET_FEATURE_FLAGS}                 | ${{ hasDurationChart: true }} | ${{ featureFlags: { hasDurationChart: true } }}
-    ${types.SET_SELECTED_GROUP}                | ${{ fullPath: 'cool-beans' }} | ${{ selectedGroup: { fullPath: 'cool-beans' }, selectedProjects: [] }}
-    ${types.SET_SELECTED_PROJECTS}             | ${selectedProjects}           | ${{ selectedProjects }}
-    ${types.SET_DATE_RANGE}                    | ${{ startDate, endDate }}     | ${{ startDate, endDate }}
-    ${types.SET_SELECTED_STAGE}                | ${{ id: 'first-stage' }}      | ${{ selectedStage: { id: 'first-stage' } }}
-    ${types.RECEIVE_CREATE_VALUE_STREAM_ERROR} | ${{ name: ['is required'] }}  | ${{ createValueStreamErrors: { name: ['is required'] }, isCreatingValueStream: false }}
-    ${types.RECEIVE_VALUE_STREAMS_SUCCESS}     | ${valueStreams}               | ${{ valueStreams, isLoadingValueStreams: false }}
-    ${types.SET_SELECTED_VALUE_STREAM}         | ${valueStreams[1].id}         | ${{ selectedValueStream: {} }}
+    mutation                                   | payload                                  | expectedState
+    ${types.SET_FEATURE_FLAGS}                 | ${{ hasDurationChart: true }}            | ${{ featureFlags: { hasDurationChart: true } }}
+    ${types.SET_SELECTED_GROUP}                | ${{ fullPath: 'cool-beans' }}            | ${{ selectedGroup: { fullPath: 'cool-beans' }, selectedProjects: [] }}
+    ${types.SET_SELECTED_PROJECTS}             | ${selectedProjects}                      | ${{ selectedProjects }}
+    ${types.SET_DATE_RANGE}                    | ${{ startDate, endDate }}                | ${{ startDate, endDate }}
+    ${types.SET_SELECTED_STAGE}                | ${{ id: 'first-stage' }}                 | ${{ selectedStage: { id: 'first-stage' } }}
+    ${types.RECEIVE_CREATE_VALUE_STREAM_ERROR} | ${{ errors: { name: ['is required'] } }} | ${{ createValueStreamErrors: { name: ['is required'] }, isCreatingValueStream: false }}
+    ${types.RECEIVE_VALUE_STREAMS_SUCCESS}     | ${valueStreams}                          | ${{ valueStreams, isLoadingValueStreams: false }}
+    ${types.SET_SELECTED_VALUE_STREAM}         | ${valueStreams[1].id}                    | ${{ selectedValueStream: {} }}
   `(
     '$mutation with payload $payload will update state with $expectedState',
     ({ mutation, payload, expectedState }) => {
@@ -75,6 +75,21 @@ describe('Cycle analytics mutations', () => {
       expect(state).toMatchObject(expectedState);
     },
   );
+
+  describe(`${types.RECEIVE_VALUE_STREAMS_SUCCESS}`, () => {
+    const dummyValueStream = { id: 3, name: 'A new value stream' };
+    const sorted = [dummyValueStream, valueStreams[0], valueStreams[1]];
+    it('will sort the value streams alphabetically', () => {
+      state = { valueStreams: [] };
+      mutations[types.RECEIVE_VALUE_STREAMS_SUCCESS](state, [
+        valueStreams[1],
+        valueStreams[0],
+        dummyValueStream,
+      ]);
+
+      expect(state.valueStreams).toEqual(sorted);
+    });
+  });
 
   describe('with value streams available', () => {
     it.each`

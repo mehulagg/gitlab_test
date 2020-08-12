@@ -28,6 +28,8 @@ RSpec.describe GitlabSchema.types['AlertManagementAlert'] do
       notes
       discussions
       metrics_dashboard_url
+      runbook
+      todos
     ]
 
     expect(described_class).to have_graphql_fields(*expected_fields)

@@ -126,6 +126,19 @@ If you're purchasing a subscription for an existing **Core** self-managed
 instance, ensure you're purchasing enough seats to
 [cover your users](../user/admin_area/index.md#administering-users).
 
+### Credit card declined
+
+If your credit card is declined when purchasing a GitLab subscription, possible reasons include:
+
+- The credit card details provided are incorrect.
+- The credit card account has insufficient funds.
+- You are using a virtual credit card and it has insufficient funds, or has expired.
+- The transaction exceeds the credit limit.
+- The transaction exceeds the credit card's maximum transaction amount.
+
+Check with your financial institution to confirm if any of these reasons apply. If they don't
+apply, contact [GitLab Support](https://support.gitlab.com/hc/en-us/requests/new?ticket_form_id=360000071293).
+
 ## Manage your GitLab account
 
 With the [Customers Portal](https://customers.gitlab.com/) you can:
@@ -254,7 +267,7 @@ The following table describes details of your subscription for groups:
 
 To view the status of your self-managed subscription, log in to the self-managed instance and go to the **License** page.
 
-  1. Go to **{admin}** **Admin Area**.
+  1. Go to **Admin Area**.
   1. From the left-hand menu, select **License**.
 
 ## Renew your subscription
@@ -386,8 +399,7 @@ You can view the exact JSON payload in the administration panel. To view the pay
 
 Seat Link is enabled by default.
 
-To disable this feature, go to
-**{admin}** **Admin Area > Settings > Metrics and profiling**, uncheck the **Enable Seat Link** checkbox > **Save changes**.
+To disable this feature, go to **Admin Area > Settings > Metrics and profiling**, uncheck the **Enable Seat Link** checkbox > **Save changes**.
 
 To disable Seat Link in an Omnibus GitLab installation, and prevent it from
 being configured in the future through the administration panel, set the following in
@@ -442,7 +454,7 @@ We recommend following these steps during renewal:
 1. Enter the number of [users over license](#users-over-license) in the second box for the user overage incurred in your previous subscription term.
 
    TIP: **Tip:**
-   You can find the _users over license_ in your instance's **Admin** dashboard by clicking on **{admin}** (**Admin Area**) in the top bar, or going to `/admin`.
+   You can find the _users over license_ in your instance's **Admin** dashboard by clicking on the **Admin Area** in the top bar, or going to `/admin`.
 
    The following table describes details of your admin dashboard and renewal terms:
 
@@ -519,8 +531,8 @@ CI pipeline minutes are the execution time for your [pipelines](../ci/pipelines/
 
 Quotas apply to:
 
-- Groups, where the minutes are shared across all members of the group, its subgroups, and nested projects. To view the group's usage, navigate to the group, then **{settings}** **Settings** > **Usage Quotas**.
-- Your personal account, where the minutes are available for your personal projects. To view and buy personal minutes, click your avatar, then **{settings}** **Settings** > **[Usage Quotas](https://gitlab.com/profile/usage_quotas#pipelines-quota-tab)**.
+- Groups, where the minutes are shared across all members of the group, its subgroups, and nested projects. To view the group's usage, navigate to the group, then **Settings > Usage Quotas**.
+- Your personal account, where the minutes are available for your personal projects. To view and buy personal minutes, click your avatar, then **Settings > [Usage Quotas](https://gitlab.com/profile/usage_quotas#pipelines-quota-tab)**.
 
 Only pipeline minutes for GitLab shared runners are restricted. If you have a specific runner set up for your projects, there is no limit to your build time on GitLab.com.
 
@@ -540,11 +552,11 @@ main quota. You can find pricing for additional CI/CD minutes in the [GitLab Cus
 
 To purchase additional minutes for your group on GitLab.com:
 
-1. From your group, go to **{settings}** **Settings > Usage Quotas**.
+1. From your group, go to **Settings > Usage Quotas**.
 1. Select **Buy additional minutes** and you will be directed to the Customers Portal.
 1. Locate the subscription card that's linked to your group on GitLab.com, click **Buy more CI minutes**, and complete the details about the transaction.
 1. Once we have processed your payment, the extra CI minutes will be synced to your group namespace.
-1. To confirm the available CI minutes, go to your group, then **{settings}** **Settings > Usage Quotas**.
+1. To confirm the available CI minutes, go to your group, then **Settings > Usage Quotas**.
 
    The **Additional minutes** displayed now includes the purchased additional CI minutes, plus any minutes rolled over from last month.
 

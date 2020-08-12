@@ -14,12 +14,15 @@ module Types
     mount_mutation Mutations::AwardEmojis::Add
     mount_mutation Mutations::AwardEmojis::Remove
     mount_mutation Mutations::AwardEmojis::Toggle
+    mount_mutation Mutations::Boards::Issues::IssueMoveList
     mount_mutation Mutations::Branches::Create, calls_gitaly: true
     mount_mutation Mutations::Commits::Create, calls_gitaly: true
     mount_mutation Mutations::Discussions::ToggleResolve
+    mount_mutation Mutations::Issues::SetAssignees
     mount_mutation Mutations::Issues::SetConfidential
     mount_mutation Mutations::Issues::SetLocked
     mount_mutation Mutations::Issues::SetDueDate
+    mount_mutation Mutations::Issues::SetSubscription
     mount_mutation Mutations::Issues::Update
     mount_mutation Mutations::MergeRequests::Create
     mount_mutation Mutations::MergeRequests::Update
@@ -55,6 +58,7 @@ module Types
     mount_mutation Mutations::JiraImport::ImportUsers
     mount_mutation Mutations::DesignManagement::Upload, calls_gitaly: true
     mount_mutation Mutations::DesignManagement::Delete, calls_gitaly: true
+    mount_mutation Mutations::DesignManagement::Move
     mount_mutation Mutations::ContainerExpirationPolicies::Update
   end
 end

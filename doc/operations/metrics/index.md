@@ -20,12 +20,12 @@ To view the metrics dashboard for an environment that has
 
 1. *If the metrics dashboard is only visible to project members,* sign in to
    GitLab as a member of a project. Learn more about [metrics dashboard visibility](#metrics-dashboard-visibility).
-1. In your project, navigate to **{cloud-gear}** **Operations > Metrics**.
+1. In your project, navigate to **Operations > Metrics**.
 
 GitLab displays the default metrics dashboard for the environment, like the
 following example:
 
-![Example of metrics dashboard](img/example-dashboard_v13_1.png)
+![Example of metrics dashboard](img/example-dashboard_v13_3.png)
 
 The top of the dashboard contains a navigation bar. From left to right, the
 navigation bar contains:
@@ -37,30 +37,34 @@ navigation bar contains:
 - **Range** - The time period of data to display.
 - **Refresh dashboard** **{retry}** - Reload the dashboard with current data.
 - **Set refresh rate** - Set a time frame for refreshing the data displayed.
-- **Star dashboard** **{star-o}** - Click to mark a dashboard as a favorite.
+- **More actions** **{ellipsis_v}** - More dashboard actions
+  - **Add metric** - Adds a [custom metric](#adding-custom-metrics). Only available on GitLab-defined dashboards.
+  ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34779) in GitLab 12.5.)
+  - **Edit dashboard YAML** - Edit the source YAML file of a custom dashboard. Only available on
+  [custom dashboards](dashboards/index.md).
+  ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34779) in GitLab 12.5.)
+  - **Duplicate current dashboard** - Save a [complete copy of a dashboard](dashboards/index.md#duplicate-a-gitlab-defined-dashboard). Only available on GitLab-defined dashboards.
+  - **Star dashboard** **{star-o}** - Click to mark a dashboard as a favorite.
   Starred dashboards display a solid star **{star}** button, and display first
   in the **Dashboard** dropdown list.
   ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/214582) in GitLab 13.0.)
-- **Edit dashboard** - Edit the source YAML file of a custom dashboard. Only available on
-  [custom dashboards](dashboards/index.md).
-  ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/34779) in GitLab 12.5.)
-- **Create dashboard** **{file-addition-solid}** - Create a
-  [new custom dashboard for your project](dashboards/index.md#add-a-new-dashboard-to-your-project).
-- **Metrics settings** **{settings}** - Configure the
+  - **Create new dashboard** - Create a [new custom dashboard for your project](dashboards/index.md#add-a-new-dashboard-to-your-project).
+  ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/228856) in GitLab 13.3.)
+- **Metrics settings** - Configure the
   [settings for this dashboard](dashboards/index.md#manage-the-metrics-dashboard-settings).
 
 ## Populate your metrics dashboard
 
 After [configuring Prometheus for a cluster](../../user/project/integrations/prometheus.md),
-you must also deploy code for the **{cloud-gear}** **Operations > Metrics** page
+you must also deploy code for the **Operations > Metrics** page
 to contain data. Setting up [Auto DevOps](../../topics/autodevops/index.md)
 helps quickly create a deployment:
 
-1. Navigate to your project's **{cloud-gear}** **Operations > Kubernetes** page.
+1. Navigate to your project's **Operations > Kubernetes** page.
 1. Ensure that, in addition to Prometheus, you also have Runner and Ingress
    installed.
 1. After installing Ingress, copy its endpoint.
-1. Navigate to your project's **{settings}** **Settings > CI/CD** page. In the
+1. Navigate to your project's **Settings > CI/CD** page. In the
    **Auto DevOps** section, select a deployment strategy and save your changes.
 1. On the same page, in the **Variables** section, add a variable named
    `KUBE_INGRESS_BASE_DOMAIN` with the value of the Ingress endpoint you
@@ -68,9 +72,9 @@ helps quickly create a deployment:
 1. Navigate to your project's **{rocket}** **CI/CD > Pipelines** page, and run a
    pipeline on any branch.
 1. When the pipeline has run successfully, graphs are available on the
-   **{cloud-gear}** **Operations > Metrics** page.
+   **Operations > Metrics** page.
 
-![Monitoring Dashboard](img/prometheus_monitoring_dashboard_v13_1.png)
+![Monitoring Dashboard](img/prometheus_monitoring_dashboard_v13_3.png)
 
 ## Customize your metrics dashboard
 

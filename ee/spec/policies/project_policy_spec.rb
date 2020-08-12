@@ -40,9 +40,11 @@ RSpec.describe ProjectPolicy do
     let(:additional_guest_permissions) do
       %i[read_issue_link]
     end
+
     let(:additional_reporter_permissions) do
       %i[read_software_license_policy admin_issue_link]
     end
+
     let(:additional_developer_permissions) do
       %i[
         admin_vulnerability_feedback read_project_security_dashboard read_feature_flag
@@ -50,9 +52,11 @@ RSpec.describe ProjectPolicy do
         admin_vulnerability_issue_link read_merge_train
       ]
     end
+
     let(:additional_maintainer_permissions) do
       %i[push_code_to_protected_branches admin_feature_flags_client modify_auto_fix_setting]
     end
+
     let(:auditor_permissions) do
       %i[
         download_code download_wiki_code read_project read_board read_list
@@ -649,7 +653,12 @@ RSpec.describe ProjectPolicy do
 
       context 'when repository is disabled' do
         before do
-          project.project_feature.update(repository_access_level: ProjectFeature::DISABLED)
+          project.project_feature.update!(
+            # Disable merge_requests and builds as well, since merge_requests and
+            # builds cannot have higher visibility than repository.
+            merge_requests_access_level: ProjectFeature::DISABLED,
+            builds_access_level: ProjectFeature::DISABLED,
+            repository_access_level: ProjectFeature::DISABLED)
         end
 
         it { is_expected.to be_disallowed(:read_feature_flag) }
@@ -669,7 +678,7 @@ RSpec.describe ProjectPolicy do
     end
   end
 
-  describe 'admin_license_management' do
+  describe 'admin_software_license_policy' do
     context 'without license scanning feature available' do
       before do
         stub_licensed_features(license_scanning: false)
@@ -1350,6 +1359,44 @@ RSpec.describe ProjectPolicy do
       end
 
       it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
+    end
+  end
+
+  context 'when project is readonly because the storage usage limit has been exceeded on the root namespace' do
+    let(:current_user) { owner }
+    let(:abilities) do
+      described_class.readonly_features.flat_map { |feature| described_class.create_update_admin(feature) } +
+        described_class.readonly_abilities
+    end
+
+    before do
+      allow(project.root_namespace).to receive(:over_storage_limit?).and_return(over_storage_limit)
+      allow(project).to receive(:design_management_enabled?).and_return(true)
+      stub_licensed_features(security_dashboard: true, license_scanning: true, feature_flags: true)
+    end
+
+    context 'when the group has exceeded its storage limit' do
+      let(:over_storage_limit) { true }
+
+      it { is_expected.to(be_disallowed(*abilities)) }
+    end
+
+    context 'when the group has not exceeded its storage limit' do
+      let(:over_storage_limit) { false }
+
+      # These are abilities that are not explicitly allowed by policies because most of them are not
+      # real abilities.  They are prevented due to the use of create_update_admin helper method.
+      let(:abilities_not_currently_enabled) do
+        %i[create_merge_request create_list update_list create_label update_label create_milestone
+           update_milestone update_wiki update_design admin_design update_note
+           update_pipeline_schedule admin_pipeline_schedule create_trigger update_trigger
+           admin_trigger create_pages admin_release request_access create_board update_board
+           create_issue_link update_issue_link create_approvers admin_approvers
+           admin_vulnerability_feedback update_vulnerability create_feature_flags_client
+           update_feature_flags_client update_iteration]
+      end
+
+      it { is_expected.to(be_allowed(*(abilities - abilities_not_currently_enabled))) }
     end
   end
 

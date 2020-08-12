@@ -59,6 +59,38 @@ Follow the [HA Gitaly epic](https://gitlab.com/groups/gitlab-org/-/epics/1489)
 for improvements including
 [horizontally distributing reads](https://gitlab.com/groups/gitlab-org/-/epics/2013).
 
+## Cluster or shard
+
+Gitaly supports multiple models of scaling:
+
+- Clustering using Gitaly Cluster, where each repository is stored on multiple Gitaly nodes in the
+  cluster. Read requests are distributed between repository replicas and write requests are
+  broadcast to repository replicas.
+- Sharding using [repository storage paths](../repository_storage_paths.md), where each repository
+  is stored on the assigned Gitaly node. All requests are routed to this node.
+
+| Cluster | Shard |
+|---|---|
+| ![Cluster example](img/cluster_example_v13_3.png) | ![Shard example](img/shard_example_v13_3.png) |
+
+Generally, Gitaly Cluster can replace sharded configurations, at the expense of additional storage
+needed to store each repository on multiple Gitaly nodes. The benefit of using Gitaly Cluster over
+sharding is:
+
+- Improved fault tolerance, because each Gitaly node has a copy of every repository.
+- Improved resource utilization, reducing the need for over-provisioning for shard-specific peak
+  loads, because read loads are distributed across replicas.
+- Manual rebalancing for performance is not required, because read loads are distributed across
+  replicas.
+- Simpler management, because all Gitaly nodes are identical.
+
+Under some workloads, CPU and memory requirements may require a large fleet of Gitaly nodes and it
+can be uneconomical to have one to one replication factor.
+
+A hybrid approach can be used in these instances, where each shard is configured as a smaller
+cluster. [Variable replication factor](https://gitlab.com/groups/gitlab-org/-/epics/3372) is planned
+to provide greater flexibility for extremely large GitLab instances.
+
 ## Requirements for configuring a Gitaly Cluster
 
 The minimum recommended configuration for a Gitaly Cluster requires:
@@ -142,6 +174,16 @@ database on the same PostgreSQL server if using
 [Geo](../geo/replication/index.md). The replication state is internal to each instance
 of GitLab and should not be replicated.
 
+These instructions help set up a single PostgreSQL database, which creates a single point of
+failure. For greater fault tolerance, the following options are available:
+
+- For non-Geo installations, use one of the fault-tolerant
+  [PostgreSQL setups](../postgresql/index.md).
+- For Geo instances, either:
+  - Set up a separate [PostgreSQL instance](https://www.postgresql.org/docs/11/high-availability.html).
+  - Use a cloud-managed PostgreSQL service. AWS
+     [Relational Database Service](https://aws.amazon.com/rds/)) is recommended.
+
 To complete this section you will need:
 
 - 1 Praefect node
@@ -187,6 +229,49 @@ node, using `psql` which is installed by Omnibus GitLab.
    ```
 
 The database used by Praefect is now configured.
+
+#### PgBouncer
+
+To reduce PostgreSQL resource consumption, you should set up and configure
+[PgBouncer](https://www.pgbouncer.org/) in front of the PostgreSQL instance. To do
+this, replace value of the `POSTGRESQL_SERVER_ADDRESS` with corresponding IP or host
+address of the PgBouncer instance.
+
+This documentation doesn't provide PgBouncer installation instructions,
+you can:
+
+- Find instructions on the [official website](https://www.pgbouncer.org/install.html).
+- Use a [Docker image](https://hub.docker.com/r/edoburu/pgbouncer/).
+
+In addition to base PgBouncer configuration options, set the following values:
+
+- The [Praefect PostgreSQL database](#postgresql) in the `[databases]` section:
+
+   ```ini
+   [databases]
+   * = host=POSTGRESQL_SERVER_ADDRESS port=5432 auth_user=praefect
+   ```
+
+- [`pool_mode`](https://www.pgbouncer.org/config.html#pool_mode)
+  and [`ignore_startup_parameters`](https://www.pgbouncer.org/config.html#ignore_startup_parameters)
+  in the `[pgbouncer]` section:
+
+   ```ini
+   [pgbouncer]
+   pool_mode = transaction
+   ignore_startup_parameters = extra_float_digits
+   ```
+
+The `praefect` user and its password should be included in the file (default is
+`userlist.txt`) used by PgBouncer if the [`auth_file`](https://www.pgbouncer.org/config.html#auth_file)
+configuration option is set.
+
+NOTE: **Note:**
+By default PgBouncer uses port `6432` to accept incoming
+connections. You can change it by setting the [`listen_port`](https://www.pgbouncer.org/config.html#listen_port)
+configuration option. We recommend setting it to the default port value (`5432`) used by
+PostgreSQL instances. Otherwise you should change the configuration parameter
+`praefect['database_port']` for each Praefect instance to the correct value.
 
 ### Praefect
 
@@ -951,34 +1036,76 @@ strategy in the future.
 
 Praefect recovers from a failing primary Gitaly node by promoting a healthy secondary as the new primary. To minimize data loss, Praefect elects the secondary with the least unreplicated writes from the primary. There can still be some unreplicated writes, leading to data loss.
 
-Praefect switches a virtual storage in to read-only mode after a failover event. This eases data recovery efforts by preventing new, possibly conflicting writes to the newly elected primary. This allows the administrator to attempt recovering the lost data before allowing new writes.
+### Read-only mode
 
-If you prefer write availability over consistency, this behavior can be turned off by setting `praefect['failover_read_only_after_failover'] = false` in `/etc/gitlab/gitlab.rb` and [reconfiguring Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+If the primary is not fully up to date, Praefect switches:
+
+- The virtual storage to read-only mode in GitLab 13.2 and earlier.
+- The affected repositories to read-only mode in
+  [GitLab 13.3](https://gitlab.com/gitlab-org/gitaly/-/issues/2862) and later.
+
+This can happen after failing over to an outdated secondary. Read-only mode eases data
+recovery efforts by preventing writes that may conflict with the unreplicated writes.
+
+To re-enable the repositories for writes, the administrator can attempt to
+[recover the missing data](#recover-missing-data) from an up-to-date replica. If
+recovering the data is not possible, the repository can be enabled for writes again by
+[accepting the data loss](#accept-data-loss).
 
 ### Checking for data loss
 
-The Praefect `dataloss` sub-command helps identify lost writes by checking for uncompleted replication jobs. This is useful for identifying possible data loss cases after a failover. This command must be executed on a Praefect node.
+The Praefect `dataloss` sub-command identifies replicas that are likely to be outdated. This is useful for identifying potential data loss after a failover.
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>]
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>] [-writable]
 ```
 
-If the virtual storage is not specified, every configured virtual storage is checked for data loss.
+- `-virtual-storage` specifies which virtual storage to check. Every configured virtual storage is checked if none is specified.
+- `-writable` specifies whether to report outdated replicas of writable repositories. Repository is writable if the primary has the latest changes. Secondaries might be temporarily outdated while they are waiting to replicate the latest changes. To reduce the noise, default behavior is to display outdated replicas of read-only repositories as they generally require administrator action.
 
 ```shell
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss
 ```
 
+The number of potentially unapplied changes to repositories are listed for each replica. Listed repositories might have the latest changes but it is not guaranteed. Only outdated replicas of read-only repositories are listed by default.
+
 ```shell
 Virtual storage: default
-  Current read-only primary: gitaly-2
-  Previous write-enabled primary: gitaly-1
-    Nodes with data loss from failing over from gitaly-1:
-      @hashed/2c/62/2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3.git: gitaly-0
-      @hashed/4b/22/4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a.git: gitaly-0, gitaly-2
+  Primary: gitaly-3
+  Outdated repositories:
+    @hashed/2c/62/2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3.git (read-only):
+      gitaly-2 is behind by 1 change or less
+      gitaly-3 is behind by 2 changes or less
 ```
 
-Currently `dataloss` only considers a repository up to date if it has been directly replicated to from the previous write-enabled primary. While reconciling from an up to date secondary can recover the data, this is not visible in the data loss report. This is due for improvement via [Gitaly#2866](https://gitlab.com/gitlab-org/gitaly/-/issues/2866).
+Set the `-writable` flag also list the outdated replicas of writable repositories.
+
+```shell
+Virtual storage: default
+  Primary: gitaly-3
+  Outdated repositories:
+    @hashed/2c/62/2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3.git (read-only):
+      gitaly-2 is behind by 1 change or less
+      gitaly-3 is behind by 2 changes or less
+    @hashed/4b/22/4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a.git (writable):
+      gitaly-2 is behind by 1 change or less
+```
+
+A confirmation is printed out when every repository is writable.
+
+```shell
+Virtual storage: default
+  Primary: gitaly-1
+  All repositories are writable!
+```
+
+With the `-writable` flag set, a confirmation is printed out if every replica is fully up to date.
+
+```shell
+Virtual storage: default
+  Primary: gitaly-1
+  All repositories are up to date!
+```
 
 NOTE: **Note:**
 `dataloss` is still in beta and the output format is subject to change.
@@ -988,28 +1115,40 @@ NOTE: **Note:**
 To check a project's repository checksums across on all Gitaly nodes, run the
 [replicas Rake task](../raketasks/praefect.md#replica-checksums) on the main GitLab node.
 
-### Recovering lost writes
+### Recover missing data
 
-The Praefect `reconcile` sub-command can be used to recover lost writes from the
-previous primary once it is back online. This is only possible when the virtual storage
-is still in read-only mode.
+The Praefect `reconcile` sub-command can be used to recover unreplicated changes from another replica. The source must be on a later generation than the target storage.
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -reference <previous-primary> -target <current-primary> -f
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -reference <up-to-date-storage> -target <outdated-storage> -f
 ```
 
-Refer to [Backend Node Recovery](#backend-node-recovery) section for more details on
-the `reconcile` sub-command.
+Refer to [Backend Node Recovery](#backend-node-recovery) section for more details on the `reconcile` sub-command.
 
-### Enabling Writes
+### Accept data loss
 
-Any data recovery attempts should have been made before enabling writes to eliminate
-any chance of conflicting writes. Virtual storage can be re-enabled for writes by using
-the Praefect `enable-writes` sub-command.
+Praefect provides the following subcommands to re-enable writes:
 
-```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml enable-writes -virtual-storage <virtual-storage>
-```
+- In GitLab 13.2 and earlier, `enable-writes` to re-enable virtual storage for writes
+  after data recovery attempts.
+
+   ```shell
+   sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml enable-writes -virtual-storage <virtual-storage>
+   ```
+
+- [In GitLab 13.3](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/2415) and
+  later, `accept-dataloss` to accept data loss and re-enable writes for repositories
+  after data recovery attempts have failed. Accepting data loss causes current version
+  of the repository on the authoritative storage to be considered latest. Other storages
+  are brought up to date with the authoritative storage by scheduling replication jobs.
+
+  ```shell
+  sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml accept-dataloss -virtual-storage <virtual-storage> -repository <relative-path> -authoritative-storage <storage-name>
+  ```
+
+CAUTION: **Caution:**
+`accept-dataloss` causes permanent data loss by overwriting other versions of the
+repository. Data recovery efforts must be performed before using it.
 
 ## Backend Node Recovery
 

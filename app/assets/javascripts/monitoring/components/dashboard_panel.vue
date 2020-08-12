@@ -2,6 +2,7 @@
 import { mapState } from 'vuex';
 import { pickBy } from 'lodash';
 import invalidUrl from '~/lib/utils/invalid_url';
+import { convertToFixedRange } from '~/lib/utils/datetime_range';
 import { relativePathToAbsolute, getBaseURL, visitUrl, isSafeURL } from '~/lib/utils/url_utility';
 import {
   GlResizeObserverDirective,
@@ -22,6 +23,7 @@ import MonitorEmptyChart from './charts/empty_chart.vue';
 import MonitorTimeSeriesChart from './charts/time_series.vue';
 import MonitorAnomalyChart from './charts/anomaly.vue';
 import MonitorSingleStatChart from './charts/single_stat.vue';
+import MonitorGaugeChart from './charts/gauge.vue';
 import MonitorHeatmapChart from './charts/heatmap.vue';
 import MonitorColumnChart from './charts/column.vue';
 import MonitorBarChart from './charts/bar.vue';
@@ -129,6 +131,15 @@ export default {
         return getters[`${this.namespace}/selectedDashboard`];
       },
     }),
+    fixedCurrentTimeRange() {
+      // convertToFixedRange throws an error if the time range
+      // is not properly set.
+      try {
+        return convertToFixedRange(this.timeRange);
+      } catch {
+        return {};
+      }
+    },
     title() {
       return this.graphData?.title || '';
     },
@@ -169,6 +180,9 @@ export default {
     basicChartComponent() {
       if (this.isPanelType(panelTypes.SINGLE_STAT)) {
         return MonitorSingleStatChart;
+      }
+      if (this.isPanelType(panelTypes.GAUGE_CHART)) {
+        return MonitorGaugeChart;
       }
       if (this.isPanelType(panelTypes.HEATMAP)) {
         return MonitorHeatmapChart;
@@ -215,7 +229,8 @@ export default {
       return (
         this.isPanelType(panelTypes.AREA_CHART) ||
         this.isPanelType(panelTypes.LINE_CHART) ||
-        this.isPanelType(panelTypes.SINGLE_STAT)
+        this.isPanelType(panelTypes.SINGLE_STAT) ||
+        this.isPanelType(panelTypes.GAUGE_CHART)
       );
     },
     editCustomMetricLink() {
@@ -463,6 +478,7 @@ export default {
       :thresholds="getGraphAlertValues(graphData.metrics)"
       :group-id="groupId"
       :timezone="dashboardTimezone"
+      :time-range="fixedCurrentTimeRange"
       v-bind="$attrs"
       v-on="$listeners"
       @datazoom="onDatazoom"

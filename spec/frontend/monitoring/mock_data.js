@@ -170,7 +170,7 @@ export const environmentData = [
 export const dashboardGitResponse = [
   {
     default: true,
-    display_name: 'Default',
+    display_name: 'Overview',
     can_edit: false,
     system_dashboard: true,
     out_of_the_box_dashboard: true,
@@ -209,7 +209,7 @@ export const selfMonitoringDashboardGitResponse = [
     default: true,
     display_name: 'Default',
     can_edit: false,
-    system_dashboard: false,
+    system_dashboard: true,
     out_of_the_box_dashboard: true,
     project_blob_path: null,
     path: 'config/prometheus/self_monitoring_default.yml',
@@ -342,6 +342,11 @@ export const mockNamespace = `${baseNamespace}/1`;
 export const mockNamespaces = [`${baseNamespace}/1`, `${baseNamespace}/2`];
 
 export const mockTimeRange = { duration: { seconds: 120 } };
+
+export const mockFixedTimeRange = {
+  start: '2020-06-17T19:59:08.659Z',
+  end: '2020-07-17T19:59:08.659Z',
+};
 
 export const mockNamespacedData = {
   mockDeploymentData: ['mockDeploymentData'],
@@ -611,10 +616,17 @@ export const storeVariables = [
 
 export const dashboardHeaderProps = {
   defaultBranch: 'master',
-  addDashboardDocumentationPath: 'https://path/to/docs',
   isRearrangingPanels: false,
   selectedTimeRange: {
     start: '2020-01-01T00:00:00.000Z',
     end: '2020-01-01T01:00:00.000Z',
   },
+};
+
+export const dashboardActionsMenuProps = {
+  defaultBranch: 'master',
+  addingMetricsAvailable: true,
+  customMetricsPath: 'https://path/to/customMetrics',
+  validateQueryPath: 'https://path/to/validateQuery',
+  isOotbDashboard: true,
 };

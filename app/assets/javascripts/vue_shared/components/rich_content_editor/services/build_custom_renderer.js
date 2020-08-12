@@ -3,14 +3,15 @@ import renderKramdownList from './renderers/render_kramdown_list';
 import renderKramdownText from './renderers/render_kramdown_text';
 import renderIdentifierInstanceText from './renderers/render_identifier_instance_text';
 import renderIdentifierParagraph from './renderers/render_identifier_paragraph';
-import renderEmbeddedRubyText from './renderers/render_embedded_ruby_text';
 import renderFontAwesomeHtmlInline from './renderers/render_font_awesome_html_inline';
+import renderSoftbreak from './renderers/render_softbreak';
 
 const htmlInlineRenderers = [renderFontAwesomeHtmlInline];
 const htmlBlockRenderers = [renderBlockHtml];
 const listRenderers = [renderKramdownList];
 const paragraphRenderers = [renderIdentifierParagraph];
-const textRenderers = [renderKramdownText, renderEmbeddedRubyText, renderIdentifierInstanceText];
+const textRenderers = [renderKramdownText, renderIdentifierInstanceText];
+const softbreakRenderers = [renderSoftbreak];
 
 const executeRenderer = (renderers, node, context) => {
   const availableRenderer = renderers.find(renderer => renderer.canRender(node, context));
@@ -29,7 +30,14 @@ const buildCustomRendererFunctions = (customRenderers, defaults) => {
 };
 
 const buildCustomHTMLRenderer = (
-  customRenderers = { htmlBlock: [], htmlInline: [], list: [], paragraph: [], text: [] },
+  customRenderers = {
+    htmlBlock: [],
+    htmlInline: [],
+    list: [],
+    paragraph: [],
+    text: [],
+    softbreak: [],
+  },
 ) => {
   const defaults = {
     htmlBlock(node, context) {
@@ -56,6 +64,11 @@ const buildCustomHTMLRenderer = (
       const allTextRenderers = [...customRenderers.text, ...textRenderers];
 
       return executeRenderer(allTextRenderers, node, context);
+    },
+    softbreak(node, context) {
+      const allSoftbreakRenderers = [...customRenderers.softbreak, ...softbreakRenderers];
+
+      return executeRenderer(allSoftbreakRenderers, node, context);
     },
   };
 

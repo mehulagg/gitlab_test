@@ -3,12 +3,13 @@
 module QA
   RSpec.describe 'Create' do
     context 'Gitaly' do
-      describe 'High Availability', :orchestrated, :gitaly_ha do
+      describe 'High Availability', :orchestrated, :gitaly_ha, quarantine: { issue: 'https://gitlab.com/gitlab-org/quality/pipeline-triage/-/issues/39#note_388590227', type: :stale } do
         let(:project) do
           Resource::Project.fabricate! do |project|
             project.name = 'gitaly_high_availability'
           end
         end
+
         let(:initial_file) { 'pushed_to_primary.txt' }
         let(:final_file) { 'committed_to_primary.txt' }
         let(:praefect_manager) { Service::PraefectManager.new }
@@ -40,8 +41,6 @@ module QA
             end
             expect(show).to have_file(initial_file)
           end
-
-          praefect_manager.enable_writes
 
           Resource::Repository::Commit.fabricate_via_api! do |commit|
             commit.project = project

@@ -50,8 +50,8 @@ module Types
           resolver: Resolvers::IssuesResolver
 
     field :milestones, Types::MilestoneType.connection_type, null: true,
-          description: 'Find milestones',
-          resolver: Resolvers::MilestoneResolver
+          description: 'Milestones of the group',
+          resolver: Resolvers::GroupMilestonesResolver
 
     field :boards,
           Types::BoardType.connection_type,

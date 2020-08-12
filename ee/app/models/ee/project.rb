@@ -57,6 +57,7 @@ module EE
       has_many :audit_events, as: :entity
       has_many :path_locks
       has_many :requirements, inverse_of: :project, class_name: 'RequirementsManagement::Requirement'
+      has_many :dast_scanner_profiles
 
       # the rationale behind vulnerabilities and vulnerability_findings can be found here:
       # https://gitlab.com/gitlab-org/gitlab/issues/10252#terminology
@@ -115,7 +116,6 @@ module EE
 
       scope :with_wiki_enabled, -> { with_feature_enabled(:wiki) }
       scope :within_shards, -> (shard_names) { where(repository_storage: Array(shard_names)) }
-      scope :outside_shards, -> (shard_names) { where.not(repository_storage: Array(shard_names)) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
       scope :verification_failed_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_wikis) }
       scope :for_plan_name, -> (name) { joins(namespace: { gitlab_subscription: :hosted_plan }).where(plans: { name: name }) }
@@ -143,12 +143,15 @@ module EE
       scope :with_slack_slash_commands_service, -> { joins(:slack_slash_commands_service) }
       scope :with_prometheus_service, -> { joins(:prometheus_service) }
       scope :aimed_for_deletion, -> (date) { where('marked_for_deletion_at <= ?', date).without_deleted }
+      scope :not_aimed_for_deletion, -> { where(marked_for_deletion_at: nil) }
       scope :with_repos_templates, -> { where(namespace_id: ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id) }
       scope :with_groups_level_repos_templates, -> { joins("INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id") }
       scope :with_designs, -> { where(id: ::DesignManagement::Design.select(:project_id).distinct) }
       scope :with_deleting_user, -> { includes(:deleting_user) }
       scope :with_compliance_framework_settings, -> { preload(:compliance_framework_setting) }
       scope :has_vulnerabilities, -> { joins(:vulnerabilities).group(:id) }
+      scope :has_vulnerability_statistics, -> { joins(:vulnerability_statistic) }
+      scope :with_vulnerability_statistics, -> { includes(:vulnerability_statistic) }
 
       scope :with_group_saml_provider, -> { preload(group: :saml_provider) }
 
@@ -232,9 +235,12 @@ module EE
       self.tracing_setting.try(:external_url)
     end
 
-    def latest_pipeline_with_security_reports
-      all_pipelines.newest_first(ref: default_branch).with_reports(::Ci::JobArtifact.security_reports).first ||
-        all_pipelines.newest_first(ref: default_branch).with_legacy_security_reports.first
+    def latest_pipeline_with_security_reports(only_successful: false)
+      pipeline_scope = all_pipelines.newest_first(ref: default_branch)
+      pipeline_scope = pipeline_scope.success if only_successful
+
+      pipeline_scope.with_reports(::Ci::JobArtifact.security_reports).first ||
+        pipeline_scope.with_legacy_security_reports.first
     end
 
     def latest_pipeline_with_reports(reports)
@@ -625,7 +631,7 @@ module EE
 
     def adjourned_deletion?
       feature_available?(:adjourned_deletion_for_projects_and_groups) &&
-        ::Gitlab::CurrentSettings.deletion_adjourned_period.positive? &&
+        ::Gitlab::CurrentSettings.deletion_adjourned_period > 0 &&
         group_deletion_mode_configured?
     end
 

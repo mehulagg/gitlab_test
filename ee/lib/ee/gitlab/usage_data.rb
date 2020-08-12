@@ -170,7 +170,7 @@ module EE
                 merge_requests_with_optional_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_optional, :merge_request_id),
                 merge_requests_with_required_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_required, :merge_request_id),
                 projects_mirrored_with_pipelines_enabled: count(::Project.mirrored_with_enabled_pipelines),
-                projects_reporting_ci_cd_back_to_github: count(::GithubService.without_defaults.active),
+                projects_reporting_ci_cd_back_to_github: count(::GithubService.active),
                 projects_with_packages: distinct_count(::Packages::Package, :project_id),
                 projects_with_tracing_enabled: count(ProjectTracingSetting),
                 status_page_projects: count(::StatusPage::ProjectSetting.enabled),
@@ -320,6 +320,8 @@ module EE
                                                                           finish: user_maximum_id)
           end
 
+          results.merge!(count_secure_pipelines(time_period))
+
           results[:"#{prefix}unique_users_all_secure_scanners"] = distinct_count(::Ci::Build.where(name: SECURE_PRODUCT_TYPES.keys).where(time_period), :user_id)
 
           # handle license rename https://gitlab.com/gitlab-org/gitlab/issues/8911
@@ -332,6 +334,27 @@ module EE
         # rubocop:enable CodeReuse/ActiveRecord
 
         private
+
+        # rubocop:disable CodeReuse/ActiveRecord
+        # rubocop: disable UsageData/LargeTable
+        def count_secure_pipelines(time_period)
+          return {} if time_period.blank?
+
+          start = ::Ci::Pipeline.minimum(:id)
+          finish = ::Ci::Pipeline.maximum(:id)
+          pipelines_with_secure_jobs = {}
+
+          ::Security::Scan.scan_types.each do |name, scan_type|
+            relation = ::Ci::Build.joins(:security_scans)
+                                .where(status: 'success', retried: [nil, false])
+                                .where('security_scans.scan_type = ?', scan_type)
+                                .where(time_period)
+            pipelines_with_secure_jobs["#{name}_pipeline".to_sym] = distinct_count(relation, :commit_id, start: start, finish: finish)
+          end
+
+          pipelines_with_secure_jobs
+        end
+        # rubocop: enabled UsageData/LargeTable
 
         def approval_merge_request_rule_minimum_id
           strong_memoize(:approval_merge_request_rule_minimum_id) do

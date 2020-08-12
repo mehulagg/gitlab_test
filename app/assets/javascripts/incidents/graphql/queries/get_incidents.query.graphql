@@ -1,10 +1,30 @@
-query getIncidents($projectPath: ID!, $labelNames: [String], $state: IssuableState) {
+query getIncidents(
+  $projectPath: ID!
+  $issueTypes: [IssueType!]
+  $sort: IssueSort
+  $state: IssuableState
+  $firstPageSize: Int
+  $lastPageSize: Int
+  $prevPageCursor: String = ""
+  $nextPageCursor: String = ""
+  $searchTerm: String
+) {
   project(fullPath: $projectPath) {
-    issues(state: $state, labelName: $labelNames) {
+    issues(
+      search: $searchTerm
+      state: $state
+      types: $issueTypes
+      sort: $sort
+      first: $firstPageSize
+      last: $lastPageSize
+      after: $nextPageCursor
+      before: $prevPageCursor
+    ) {
       nodes {
         iid
         title
         createdAt
+        state
         labels {
           nodes {
             title
@@ -19,6 +39,13 @@ query getIncidents($projectPath: ID!, $labelNames: [String], $state: IssuableSta
             webUrl
           }
         }
+        statusPagePublishedIncident
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        hasPreviousPage
+        startCursor
       }
     }
   }

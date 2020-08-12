@@ -9,6 +9,11 @@ You can only restore a backup to **exactly the same version and type (CE/EE)**
 of GitLab on which it was created. The best way to migrate your repositories
 from one server to another is through backup restore.
 
+CAUTION: **Warning:**
+GitLab will not backup items that are not stored on the
+filesystem. If using [object storage](../administration/object_storage.md),
+remember to enable backups with your object storage provider if desired.
+
 ## Requirements
 
 In order to be able to backup and restore, you need two essential tools
@@ -516,7 +521,7 @@ directory that you want to copy the tarballs to is the root of your mounted
 directory, just use `.` instead.
 
 NOTE: **Note:**
-Since file system performance may affect GitLab's overall performance, we do not recommend using EFS for storage. See the [relevant documentation](../administration/high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs) for more details.
+Since file system performance may affect GitLab's overall performance, we do not recommend using EFS for storage. See the [relevant documentation](../administration/nfs.md#avoid-using-awss-elastic-file-system-efs) for more details.
 
 For Omnibus GitLab packages:
 
@@ -717,7 +722,7 @@ sure these directories are empty before attempting a restore. Otherwise GitLab
 will attempt to move these directories before restoring the new data and this
 would cause an error.
 
-Read more on [configuring NFS mounts](../administration/high_availability/nfs.md)
+Read more on [configuring NFS mounts](../administration/nfs.md)
 
 ### Restore for installation from source
 

@@ -126,7 +126,7 @@ export default {
     state.isCreatingValueStream = true;
     state.createValueStreamErrors = {};
   },
-  [types.RECEIVE_CREATE_VALUE_STREAM_ERROR](state, errors = {}) {
+  [types.RECEIVE_CREATE_VALUE_STREAM_ERROR](state, { errors } = {}) {
     state.isCreatingValueStream = false;
     state.createValueStreamErrors = errors;
   },
@@ -147,6 +147,8 @@ export default {
   },
   [types.RECEIVE_VALUE_STREAMS_SUCCESS](state, data) {
     state.isLoadingValueStreams = false;
-    state.valueStreams = data;
+    state.valueStreams = data.sort(({ name: aName = '' }, { name: bName = '' }) => {
+      return aName.toUpperCase() > bName.toUpperCase() ? 1 : -1;
+    });
   },
 };

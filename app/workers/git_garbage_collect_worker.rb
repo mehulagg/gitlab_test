@@ -11,6 +11,7 @@ class GitGarbageCollectWorker # rubocop:disable Scalability/IdempotentWorker
   LEASE_TIMEOUT = 86400
 
   def perform(project_id, task = :gc, lease_key = nil, lease_uuid = nil)
+    lease_key ||= "git_gc:#{task}:#{project_id}"
     project = Project.find(project_id)
     active_uuid = get_lease_uuid(lease_key)
 
@@ -33,7 +34,10 @@ class GitGarbageCollectWorker # rubocop:disable Scalability/IdempotentWorker
     # Refresh the branch cache in case garbage collection caused a ref lookup to fail
     flush_ref_caches(project) if task == :gc
 
-    project.repository.expire_statistics_caches if task != :pack_refs
+    if task != :pack_refs
+      project.repository.expire_statistics_caches
+      Projects::UpdateStatisticsService.new(project, nil, statistics: [:repository_size, :lfs_objects_size]).execute
+    end
 
     # In case pack files are deleted, release libgit2 cache and open file
     # descriptors ASAP instead of waiting for Ruby garbage collection

@@ -67,12 +67,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
           resource :discover, only: [:show], controller: :discover
 
-          resources :vulnerability_findings, only: [:index] do
-            collection do
-              get :summary
-            end
-          end
-
           resources :scanned_resources, only: [:index]
 
           resources :vulnerabilities, only: [:show] do
@@ -89,6 +83,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         namespace :analytics do
           resources :code_reviews, only: [:index]
           resource :issues_analytics, only: [:show]
+          resource :merge_request_analytics, only: :show, constraints: -> (req) { Gitlab::Analytics.project_merge_request_analytics_enabled? }
         end
 
         resources :approvers, only: :destroy
@@ -102,7 +97,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           root 'on_demand_scans#index', as: 'on_demand_scans'
           scope :profiles do
             root 'dast_profiles#index', as: 'profiles'
-            resources :dast_site_profiles, only: [:new]
+            resources :dast_site_profiles, only: [:new, :edit]
           end
         end
 
@@ -111,6 +106,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             resources :issues, only: [:index]
           end
         end
+
+        resources :iterations, only: [:index, :show], constraints: { id: /\d+/ }
       end
       # End of the /-/ scope.
 

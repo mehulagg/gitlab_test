@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 To enable the GitLab Prometheus metrics:
 
 1. Log into GitLab as a user with [administrator permissions](../../../user/permissions.md).
-1. Navigate to **{admin}** **Admin Area > Settings > Metrics and profiling**.
+1. Navigate to **Admin Area > Settings > Metrics and profiling**.
 1. Find the **Metrics - Prometheus** section, and click **Enable Prometheus Metrics**.
 1. [Restart GitLab](../../restart_gitlab.md#omnibus-gitlab-restart) for the changes to take effect.
 
@@ -52,7 +52,6 @@ The following metrics are available:
 | `gitlab_sql_duration_seconds`                                  | Histogram |                   10.2 | SQL execution time, excluding `SCHEMA` operations and `BEGIN` / `COMMIT`                                  |                                                     |
 | `gitlab_ruby_threads_max_expected_threads`                     | Gauge |                       13.3 | Maximum number of threads expected to be running and performing application work                    |
 | `gitlab_ruby_threads_running_threads`                          | Gauge |                       13.3 | Number of running Ruby threads by name                    |
-| `gitlab_transaction_allocated_memory_bytes`                    | Histogram |                   10.2 | Allocated memory for all transactions (`gitlab_transaction_*` metrics)                                |                                                     |
 | `gitlab_transaction_cache_<key>_count_total`                   | Counter   |                   10.2 | Counter for total Rails cache calls (per key)                                                       |                                                     |
 | `gitlab_transaction_cache_<key>_duration_total`                | Counter   |                   10.2 | Counter for total time (seconds) spent in Rails cache calls (per key)                               |                                                     |
 | `gitlab_transaction_cache_count_total`                         | Counter   |                   10.2 | Counter for total Rails cache calls (aggregate)                                                     |                                                     |
@@ -97,8 +96,6 @@ The following metrics are available:
 | `gitlab_transaction_db_count_total`                            | Counter   |                   13.1 | Counter for total number of SQL calls                                                               | `controller`, `action`                              |
 | `gitlab_transaction_db_write_count_total`                      | Counter   |                   13.1 | Counter for total number of write SQL calls                                                         | `controller`, `action`                              |
 | `gitlab_transaction_db_cached_count_total`                     | Counter   |                   13.1 | Counter for total number of cached SQL calls                                                        | `controller`, `action`                              |
-| `http_redis_requests_duration_seconds`                         | Histogram |                   13.1 | Redis requests duration during web transactions                                                     | `controller`, `action`                              |
-| `http_redis_requests_total`                                    | Counter   |                   13.1 | Redis requests count during web transactions                                                        | `controller`, `action`                              |
 | `http_elasticsearch_requests_duration_seconds` **(STARTER)**   | Histogram |                   13.1 | Elasticsearch requests duration during web transactions                                             | `controller`, `action`                              |
 | `http_elasticsearch_requests_total` **(STARTER)**              | Counter   |                   13.1 | Elasticsearch requests count during web transactions                                                | `controller`, `action`                              |
 | `pipelines_created_total`                                      | Counter   |                    9.4 | Counter of pipelines created                                                                        |                                                     |

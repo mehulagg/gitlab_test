@@ -69,17 +69,21 @@ blog about it](https://about.gitlab.com/blog/2015/05/06/why-were-replacing-gitla
 ### Creating a simple `.gitlab-ci.yml` file
 
 NOTE: **Note:**
-`.gitlab-ci.yml` is a [YAML](https://en.wikipedia.org/wiki/YAML) file
-so you have to pay extra attention to indentation. Always use spaces, not tabs.
+A GitLab team member has made an [unofficial visual pipeline editor](https://unofficial.gitlab.tools/visual-pipelines/).
+There is a [plan to make it an official part of GitLab](https://gitlab.com/groups/gitlab-org/-/epics/4069)
+in the future, but it's available for anyone who wants to try it at the above link.
 
 You need to create a file named `.gitlab-ci.yml` in the root directory of your
-repository. Below is an example for a Ruby on Rails project.
+repository. This is a [YAML](https://en.wikipedia.org/wiki/YAML) file
+so you have to pay extra attention to indentation. Always use spaces, not tabs.
+
+Below is an example for a Ruby on Rails project:
 
 ```yaml
 image: "ruby:2.5"
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq sqlite3 libsqlite3-dev nodejs
+  - sudo apt-get update -qq && sudo apt-get install -y -qq sqlite3 libsqlite3-dev nodejs
   - ruby -v
   - which ruby
   - gem install bundler --no-document

@@ -86,13 +86,13 @@ export default {
       :img-css-classes="imgCssClasses"
       :img-src="avatarUrl(assignee)"
       :img-size="iconSize"
-      class="js-no-trigger"
+      class="js-no-trigger author-link"
       tooltip-placement="bottom"
       data-qa-selector="assignee_link"
     >
       <span class="js-assignee-tooltip">
         <span class="bold d-block">{{ __('Assignee') }}</span> {{ assignee.name }}
-        <span class="text-white-50">@{{ assignee.username }}</span>
+        <span v-if="assignee.username" class="text-white-50">@{{ assignee.username }}</span>
       </span>
     </user-avatar-link>
     <span

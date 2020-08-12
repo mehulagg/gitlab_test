@@ -71,7 +71,7 @@ module Types
             description: 'Number of events of this alert',
             method: :events
 
-      field :details,
+      field :details, # rubocop:disable Graphql/JSONType
             GraphQL::Types::JSON,
             null: true,
             description: 'Alert details'
@@ -94,8 +94,18 @@ module Types
       field :metrics_dashboard_url,
             GraphQL::STRING_TYPE,
             null: true,
-            description: 'URL for metrics embed for the alert',
-            resolve: -> (alert, _args, _context) { alert.present.metrics_dashboard_url }
+            description: 'URL for metrics embed for the alert'
+
+      field :runbook,
+            GraphQL::STRING_TYPE,
+            null: true,
+            description: 'Runbook for the alert as defined in alert details'
+
+      field :todos,
+            Types::TodoType.connection_type,
+            null: true,
+            description: 'Todos of the current user for the alert',
+            resolver: Resolvers::TodoResolver
 
       def notes
         object.ordered_notes

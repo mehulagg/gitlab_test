@@ -1,3 +1,10 @@
+---
+stage: Create
+group: Source Code
+info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers"
+type: reference, howto
+---
+
 # Project access tokens (Alpha) **(CORE ONLY)**
 
 CAUTION: **Warning:**
@@ -21,7 +28,7 @@ For examples of how you can use a project access token to authenticate with the 
 
 1. Log in to GitLab.
 1. Navigate to the project you would like to create an access token for.
-1. In the **{settings}** **Settings** menu choose **Access Tokens**.
+1. In the **Settings** menu choose **Access Tokens**.
 1. Choose a name and optional expiry date for the token.
 1. Choose the [desired scopes](#limiting-scopes-of-a-project-access-token).
 1. Click the **Create project access token** button.
@@ -44,7 +51,7 @@ see [Associated Records](../../profile/account/delete_account.md#associated-reco
 ## Revoking a project access token
 
 At any time, you can revoke any project access token by clicking the
-respective **Revoke** button in **{settings}** **Settings > Access Tokens**.
+respective **Revoke** button in **Settings > Access Tokens**.
 
 ## Limiting scopes of a project access token
 

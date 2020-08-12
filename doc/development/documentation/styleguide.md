@@ -13,6 +13,8 @@ For programmatic help adhering to the guidelines, see [Testing](index.md#testing
 See the GitLab handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines)
 that apply to all GitLab content, not just documentation.
 
+View [a list of recent style guide updates](https://gitlab.com/dashboard/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&label_name[]=tw-style&not[label_name][]=docs%3A%3Afix).
+
 ## Documentation is the single source of truth (SSOT)
 
 ### Why a single source of truth
@@ -261,29 +263,55 @@ because it’s friendly and easy to understand.
 
 ### Capitalization
 
-- Capitalize "G" and "L" in GitLab.
-- Use sentence case for:
-  - Titles.
-  - Labels.
-  - Menu items.
-  - Buttons.
-  - Headings. Don't capitalize other words in the title, unless
-    it refers to a product feature. For example:
-    - Capitalizing "issues" is acceptable in
-    `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
-- Use title case when referring to:
-  - [GitLab Features](https://about.gitlab.com/features/). For example, Issue Board,
-    Geo, and Runner.
-  - GitLab [product tiers](https://about.gitlab.com/pricing/). For example, GitLab Core
-    and GitLab Ultimate. (Tested in [`BadgeCapitalization.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/BadgeCapitalization.yml).)
-  - Third-party products. For example, Prometheus, Kubernetes, and Git.
-  - Methods or methodologies. For example, Continuous Integration, Continuous
-    Deployment, Scrum, and Agile.
-    (Tested in [`.markdownlint.json`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.markdownlint.json).)
+#### Headings
 
-    NOTE: **Note:**
-    Some features are also objects. For example, "GitLab's Merge Requests support X" and
-    "Create a new merge request for Z."
+Use sentence case. For example:
+
+- `# Use variables to configure pipelines`
+- `## Use the To-Do List`
+
+#### UI text
+
+When referring to specific user interface text, like a button label or menu item, use the same capitalization that is displayed in the UI.
+Standards for this content are listed in the [Pajamas Design System Content section](https://design.gitlab.com/content/punctuation/) and typically
+match what is called for in this Documentation Style Guide.
+
+If you think there is a mistake in the way the UI text is styled,
+create an issue or an MR to propose a change to the UI text.
+
+#### Feature names
+
+- **Feature names are typically lowercase**, like those describing actions and types of objects in GitLab. For example:
+  - epics
+  - issues
+  - issue weights
+  - merge requests
+  - milestones
+  - reorder issues
+  - runner, runners, shared runners
+- **Some features are capitalized**, typically nouns naming GitLab-specific capabilities or tools. For example:
+  - GitLab CI/CD
+  - Repository Mirroring
+  - Value Stream Analytics
+  - the To-Do List
+  - the Web IDE
+  - Geo
+  - GitLab Runner (see [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/233529) for details)
+
+Document any exceptions in this style guide. If you're not sure, ask a GitLab Technical Writer so that they can help decide and document the result.
+
+Do not match the capitalization of terms or phrases on the [Features page](https://about.gitlab.com/features/) or [features.yml](https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/features.yml) by default.
+
+#### Other terms
+
+Capitalize names of:
+
+- GitLab [product tiers](https://about.gitlab.com/pricing/). For example, GitLab Core
+  and GitLab Ultimate. (Tested in [`BadgeCapitalization.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/BadgeCapitalization.yml).)
+- Third-party organizations, software, and products. For example, Prometheus, Kubernetes, Git, and The Linux Foundation.
+- Methods or methodologies. For example, Continuous Integration, Continuous Deployment, Scrum, and Agile. (Tested in [`.markdownlint.json`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.markdownlint.json).)
+
+Follow the capitalization style listed at the [authoritative source](#links-to-external-documentation) for the entity, which may use non-standard case styles. For example: GitLab and npm.
 
 ### Language to avoid
 
@@ -807,8 +835,39 @@ Using the Markdown extension is necessary for the [`/help`](index.md#gitlab-help
 ### Links to external documentation
 
 When describing interactions with external software, it's often helpful to include links to external
-documentation. When possible, make sure that you are linking to an **authoritative** source.
+documentation. When possible, make sure that you're linking to an [**authoritative** source](#authoritative-sources).
 For example, if you're describing a feature in Microsoft's Active Directory, include a link to official Microsoft documentation.
+
+### Authoritative sources
+
+When citing external information, use sources that are written by the people who created
+the item or product in question. These sources are the most likely to
+be accurate and remain up to date.
+
+Examples of authoritative sources include:
+
+- Specifications, such as a [Request for Comments](https://www.ietf.org/standards/rfcs/) document
+from the Internet Engineering Task Force.
+- Official documentation for a product. For example, if you're setting up an interface with the
+Google OAuth 2 authorization server, include a link to Google's documentation.
+- Official documentation for a project. For example, if you're citing NodeJS functionality,
+refer directly to [NodeJS documentation](https://nodejs.org/en/docs/).
+- Books from an authoritative publisher.
+
+Examples of sources to avoid include:
+
+- Personal blog posts.
+- Wikipedia.
+- Non-trustworthy articles.
+- Discussions on forums such as Stack Overflow.
+- Documentation from a company that describes another company's product.
+
+While many of these sources to avoid can help you learn skills and or features, they can become
+obsolete quickly. Nobody is obliged to maintain any of these sites. Therefore, we should avoid using them as reference literature.
+
+NOTE: **Note:**
+Non-authoritative sources are acceptable only if there is no equivalent authoritative source.
+Even then, focus on non-authoritative sources that are extensively cited or peer-reviewed.
 
 ### Links requiring permissions
 
@@ -1286,21 +1345,20 @@ Which renders to:
 To maintain consistency through GitLab documentation, the following guides documentation authors
 on agreed styles and usage of terms.
 
-### Merge Requests (MRs)
+### Merge requests (MRs)
 
 Merge requests allow you to exchange changes you made to source code and collaborate
 with other people on the same project. You'll see this term used in the following ways:
 
-- If you're referring to the feature, use **Merge Request**.
-- In any other context, use **merge request**.
+- Use lowercase **merge requests** regardless of whether referring to the feature or individual merge requests.
 
-As noted in our corporate [Writing Style Guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines),
+As noted in the GitLab [Writing Style Guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines),
 if you use the **MR** acronym, expand it at least once per document page.
-For example, the first time you specify a MR, specify either _Merge Request (MR)_ or _merge request (MR)_.
+Typically, the first use would be phrased as _merge request (MR)_ with subsequent instances being _MR_.
 
 Examples:
 
-- "We prefer GitLab Merge Requests".
+- "We prefer GitLab merge requests".
 - "Open a merge request to fix a broken link".
 - "After you open a merge request (MR), submit your MR for review and approval".
 
@@ -1468,43 +1526,43 @@ GitLab Community Edition), don't split the product or feature name across lines.
 
 ### Product badges
 
-When a feature is available in EE-only tiers, add the corresponding tier according to the
-feature availability:
+When a feature is available in paid tiers, add the corresponding tier to the
+header or other page element according to the feature's availability:
 
-- For GitLab Core and GitLab.com Free: `**(CORE)**`.
-- For GitLab Starter and GitLab.com Bronze: `**(STARTER)**`.
-- For GitLab Premium and GitLab.com Silver: `**(PREMIUM)**`.
-- For GitLab Ultimate and GitLab.com Gold: `**(ULTIMATE)**`.
+| Tier in which feature is available                                     | Tier markup           |
+|:-----------------------------------------------------------------------|:----------------------|
+| GitLab Core and GitLab.com Free, and their higher tiers                | `**(CORE)**`          |
+| GitLab Starter and GitLab.com Bronze, and their higher tiers           | `**(STARTER)**`       |
+| GitLab Premium and GitLab.com Silver, and their higher tiers           | `**(PREMIUM)**`       |
+| GitLab Ultimate and GitLab.com Gold                                    | `**(ULTIMATE)**`      |
+| *Only* GitLab Core and higher tiers (no GitLab.com-based tiers)        | `**(CORE ONLY)**`     |
+| *Only* GitLab Starter and higher tiers (no GitLab.com-based tiers)     | `**(STARTER ONLY)**`  |
+| *Only* GitLab Premium and higher tiers (no GitLab.com-based tiers)     | `**(PREMIUM ONLY)**`  |
+| *Only* GitLab Ultimate (no GitLab.com-based tiers)                     | `**(ULTIMATE ONLY)**` |
+| *Only* GitLab.com Free and higher tiers (no self-managed instances)    | `**(FREE ONLY)**`     |
+| *Only* GitLab.com Bronze and higher tiers (no self-managed instances)  | `**(BRONZE ONLY)**`   |
+| *Only* GitLab.com Silver and higher tiers (no self-managed instances)  | `**(SILVER ONLY)**`   |
+| *Only* GitLab.com Gold (no self-managed instances)                     | `**(GOLD ONLY)**`     |
 
-To exclude GitLab.com tiers (when the feature is not available in GitLab.com), add the
-keyword "only":
+For clarity, all page title headers (H1s) must be have a tier markup for
+the lowest tier that has information on the documentation page.
 
-- For GitLab Core: `**(CORE ONLY)**`.
-- For GitLab Starter: `**(STARTER ONLY)**`.
-- For GitLab Premium: `**(PREMIUM ONLY)**`.
-- For GitLab Ultimate: `**(ULTIMATE ONLY)**`.
+If sections of a page apply to higher tier levels, they can be separately
+labeled with their own tier markup.
 
-For GitLab.com only tiers (when the feature is not available for self-managed instances):
+#### Product badge display behavior
 
-- For GitLab Free and higher tiers: `**(FREE ONLY)**`.
-- For GitLab Bronze and higher tiers: `**(BRONZE ONLY)**`.
-- For GitLab Silver and higher tiers: `**(SILVER ONLY)**`.
-- For GitLab Gold: `**(GOLD ONLY)**`.
+When using the tier markup with headers, the documentation page will
+display the full tier badge with the header line.
 
-The tier should be ideally added to headers, so that the full badge will be displayed.
-However, it can be also mentioned from paragraphs, list items, and table cells. For these cases,
-the tier mention will be represented by an orange info icon **(information)** that will show the tiers on hover.
+You can also use the tier markup with paragraphs, list items,
+and table cells. For these cases, the tier mention will be represented by an
+orange info icon **{information}** that will display the tiers when visitors
+point to the icon. For example:
 
-Use the lowest tier at the page level, even if higher-level tiers exist on the page. For example, you might have a page that is marked as Starter but a section badged as Premium.
-
-For example:
-
-- `**(STARTER)**` renders as **(STARTER)**
-- `**(STARTER ONLY)**` renders as **(STARTER ONLY)**
-- `**(SILVER ONLY)**` renders as **(SILVER ONLY)**
-
-The absence of tiers' mentions mean that the feature is available in GitLab Core,
-GitLab.com Free, and all higher tiers.
+- `**(STARTER)**` displays as **(STARTER)**
+- `**(STARTER ONLY)**` displays as **(STARTER ONLY)**
+- `**(SILVER ONLY)**` displays as **(SILVER ONLY)**
 
 #### How it works
 

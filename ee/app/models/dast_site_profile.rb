@@ -8,7 +8,15 @@ class DastSiteProfile < ApplicationRecord
   validates :project_id, :dast_site_id, presence: true
   validate :dast_site_project_id_fk
 
+  scope :with_dast_site, -> { includes(:dast_site) }
+
+  after_destroy :cleanup_dast_site
+
   private
+
+  def cleanup_dast_site
+    dast_site.destroy if dast_site.dast_site_profiles.empty?
+  end
 
   def dast_site_project_id_fk
     unless project_id == dast_site&.project_id

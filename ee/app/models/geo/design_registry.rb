@@ -40,10 +40,6 @@ class Geo::DesignRegistry < Geo::BaseRegistry
     end
   end
 
-  def self.registry_consistency_worker_enabled?
-    Feature.enabled?(:geo_design_registry_ssot_sync, default_enabled: true)
-  end
-
   def self.delete_for_model_ids(project_ids)
     # We only need to delete the registry entries here. The design
     # repository deletion should happen when a project is destroyed.
@@ -67,7 +63,9 @@ class Geo::DesignRegistry < Geo::BaseRegistry
   #
   # @param [String] query term that will search over :path, :name and :description
   def self.with_search_by_project(query)
-    where(project: Geo::Fdw::Project.search(query))
+    return all if query.empty?
+
+    where(project_id: ::Project.search(query).limit(1000).pluck_primary_key)
   end
 
   def self.search(params)

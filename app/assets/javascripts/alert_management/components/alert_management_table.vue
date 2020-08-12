@@ -168,7 +168,7 @@ export default {
         };
       },
       error() {
-        this.errored = true;
+        this.hasError = true;
       },
     },
     alertsCount: {
@@ -187,10 +187,9 @@ export default {
   data() {
     return {
       searchTerm: '',
-      errored: false,
+      hasError: false,
       errorMessage: '',
       isAlertDismissed: false,
-      isErrorAlertDismissed: false,
       sort: 'STARTED_AT_DESC',
       statusFilter: [],
       filteredByStatus: '',
@@ -203,15 +202,12 @@ export default {
   computed: {
     showNoAlertsMsg() {
       return (
-        !this.errored &&
+        !this.hasError &&
         !this.loading &&
         this.alertsCount?.all === 0 &&
         !this.searchTerm &&
         !this.isAlertDismissed
       );
-    },
-    showErrorMsg() {
-      return this.errored && !this.isErrorAlertDismissed;
     },
     loading() {
       return this.$apollo.queries.alerts.loading;
@@ -306,11 +302,11 @@ export default {
       };
     },
     handleAlertError(errorMessage) {
-      this.errored = true;
+      this.hasError = true;
       this.errorMessage = errorMessage;
     },
     dismissError() {
-      this.isErrorAlertDismissed = true;
+      this.hasError = false;
       this.errorMessage = '';
     },
   },
@@ -332,16 +328,14 @@ export default {
           </template>
         </gl-sprintf>
       </gl-alert>
-      <gl-alert
-        v-if="showErrorMsg"
-        variant="danger"
-        data-testid="alert-error"
-        @dismiss="dismissError"
-      >
+      <gl-alert v-if="hasError" variant="danger" data-testid="alert-error" @dismiss="dismissError">
         <p v-html="errorMessage || $options.i18n.errorMsg"></p>
       </gl-alert>
 
-      <gl-tabs content-class="gl-p-0" @input="filterAlertsByStatus">
+      <gl-tabs
+        content-class="gl-p-0 gl-border-b-solid gl-border-b-1 gl-border-gray-100"
+        @input="filterAlertsByStatus"
+      >
         <gl-tab v-for="tab in $options.statusTabs" :key="tab.status">
           <template slot="title">
             <span>{{ tab.title }}</span>

@@ -2,8 +2,6 @@
 
 module Gitlab
   module Database
-    include Gitlab::Metrics::Methods
-
     # Minimum PostgreSQL version requirement per documentation:
     # https://docs.gitlab.com/ee/install/requirements.html#postgresql-requirements
     MINIMUM_POSTGRES_VERSION = 11
@@ -50,10 +48,6 @@ module Gitlab
     # It does not include the default public schema
     EXTRA_SCHEMAS = [DYNAMIC_PARTITIONS_SCHEMA, STATIC_PARTITIONS_SCHEMA].freeze
 
-    define_histogram :gitlab_database_transaction_seconds do
-      docstring "Time spent in database transactions, in seconds"
-    end
-
     def self.config
       ActiveRecord::Base.configurations[Rails.env]
     end
@@ -80,7 +74,7 @@ module Gitlab
 
     # @deprecated
     def self.postgresql?
-      adapter_name.casecmp('postgresql').zero?
+      adapter_name.casecmp('postgresql') == 0
     end
 
     def self.read_only?
@@ -363,8 +357,11 @@ module Gitlab
     # observe_transaction_duration is called from ActiveRecordBaseTransactionMetrics.transaction and used to
     # record transaction durations.
     def self.observe_transaction_duration(duration_seconds)
-      labels = Gitlab::Metrics::Transaction.current&.labels || {}
-      gitlab_database_transaction_seconds.observe(labels, duration_seconds)
+      if current_transaction = ::Gitlab::Metrics::Transaction.current
+        current_transaction.observe(:gitlab_database_transaction_seconds, duration_seconds) do
+          docstring "Time spent in database transactions, in seconds"
+        end
+      end
     rescue Prometheus::Client::LabelSetValidator::LabelSetError => err
       # Ensure that errors in recording these metrics don't affect the operation of the application
       Rails.logger.error("Unable to observe database transaction duration: #{err}") # rubocop:disable Gitlab/RailsLogger
