@@ -4,11 +4,13 @@ import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { GlDrawer } from '@gitlab/ui';
 import { ISSUABLE } from '~/boards/constants';
 import { contentTop } from '~/lib/utils/common_utils';
+import EpicSelector from './sidebar/epic_selector.vue'
 
 export default {
   headerHeight: `${contentTop()}px`,
   components: {
     GlDrawer,
+    EpicSelector,
   },
   mixins: [glFeatureFlagMixin()],
   computed: {
@@ -32,6 +34,7 @@ export default {
     @close="unsetActiveId"
   >
     <template>
+      <epic-selector />
     </template>
   </gl-drawer>
 </template>
