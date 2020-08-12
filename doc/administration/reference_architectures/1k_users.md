@@ -16,8 +16,8 @@ requirements, a single-node solution with
 many organizations .
 
 > - **Supported users (approximate):** 1,000
-> - **High Availability:** No. Follow the [3K reference architecture](3k_users.md)
->   if you want an HA setup.
+> - **High Availability:** No. Refer to the [3,000 user reference architecture](3k_users.md)
+>   for a highly available configuration.
 
 | Users        | Configuration           | GCP            | AWS             | Azure          |
 |--------------|-------------------------|----------------|-----------------|----------------|

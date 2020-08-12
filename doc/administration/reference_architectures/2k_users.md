@@ -12,8 +12,8 @@ For a full list of reference architectures, see
 [Available reference architectures](index.md#available-reference-architectures).
 
 > - **Supported users (approximate):** 2,000
-> - **High Availability:** No. Follow the [3K reference architecture](3k_users.md)
->   if you want an HA setup.
+> - **High Availability:** No. Refer to the [3,000 user reference architecture](3k_users.md)
+>   for a highly available configuration.
 > - **Test requests per second (RPS) rates:** API: 40 RPS, Web: 4 RPS, Git: 4 RPS
 
 | Service                                  | Nodes  | Configuration           | GCP            | AWS          | Azure   |
