@@ -848,9 +848,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.158.0.tgz#300d416184a2b0e05f15a96547f726e1825b08a1"
   integrity sha512-5OJl+7TsXN9PJhY6/uwi+mTwmDZa9n/6119rf77orQ/joFYUypaYhBmy/1TcKVPsy5Zs6KCxE1kmGsfoXc1TYA==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/682218709/artifacts/raw/gitlab-ui.mrincon-dropdown-renders-for-null-text.tgz":
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/682222592/artifacts/raw/gitlab-ui.mrincon-dropdown-renders-for-null-text.tgz":
   version "18.6.2"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/682218709/artifacts/raw/gitlab-ui.mrincon-dropdown-renders-for-null-text.tgz#f5ff0524e5782c407c053eb0bca407d6a8fd3722"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/682222592/artifacts/raw/gitlab-ui.mrincon-dropdown-renders-for-null-text.tgz#1b9167630b24a76893d1c86648104f5bf49d52da"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
