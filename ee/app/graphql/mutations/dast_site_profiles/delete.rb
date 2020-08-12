@@ -19,6 +19,10 @@ module Mutations
 
       def resolve(full_path:, id:)
         project = authorized_find_project!(full_path: full_path)
+        # TODO: remove explicit coercion once compatibility layer is removed
+        id = ::Types::GlobalIDType[::DastSiteProfile].coerce_isolated_input(id)
+        raise_resource_not_available_error! unless Feature.enabled?(:security_on_demand_scans_feature_flag, project, default_enabled: true)
+
         dast_site_profile = find_dast_site_profile(project: project, global_id: id)
 
         return { errors: dast_site_profile.errors.full_messages } unless dast_site_profile.destroy
