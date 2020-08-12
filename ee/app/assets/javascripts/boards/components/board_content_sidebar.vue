@@ -30,5 +30,8 @@ export default {
     :open="isSidebarOpen"
     :header-height="$options.headerHeight"
     @close="unsetActiveId"
-  />
+  >
+    <template>
+    </template>
+  </gl-drawer>
 </template>
