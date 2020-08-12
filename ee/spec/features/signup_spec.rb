@@ -5,6 +5,14 @@ require 'spec_helper'
 RSpec.describe 'Signup on EE' do
   let(:user_attrs) { attributes_for(:user) }
 
+  def fill_in_signup_form
+    fill_in 'new_user_name', with: user_attrs[:name]
+    fill_in 'new_user_username', with: user_attrs[:username]
+    fill_in 'new_user_email', with: user_attrs[:email]
+    fill_in 'new_user_email_confirmation', with: user_attrs[:email]
+    fill_in 'new_user_password', with: user_attrs[:password]
+  end
+
   context 'for Gitlab.com' do
     before do
       expect(Gitlab).to receive(:com?).and_return(true).at_least(:once)
@@ -14,12 +22,8 @@ RSpec.describe 'Signup on EE' do
       it 'creates the user and sets the email_opted_in field truthy' do
         visit root_path
 
-        fill_in 'new_user_name',                with: user_attrs[:name]
-        fill_in 'new_user_username',            with: user_attrs[:username]
-        fill_in 'new_user_email',               with: user_attrs[:email]
-        fill_in 'new_user_email_confirmation',  with: user_attrs[:email]
-        fill_in 'new_user_password',            with: user_attrs[:password]
-        check   'new_user_email_opted_in'
+        fill_in_signup_form
+        check 'new_user_email_opted_in'
         click_button "Register"
 
         user = User.find_by_username!(user_attrs[:username])
@@ -34,11 +38,7 @@ RSpec.describe 'Signup on EE' do
       it 'creates the user and sets the email_opted_in field falsey' do
         visit root_path
 
-        fill_in 'new_user_name',                with: user_attrs[:name]
-        fill_in 'new_user_username',            with: user_attrs[:username]
-        fill_in 'new_user_email',               with: user_attrs[:email]
-        fill_in 'new_user_email_confirmation',  with: user_attrs[:email]
-        fill_in 'new_user_password',            with: user_attrs[:password]
+        fill_in_signup_form
         click_button "Register"
 
         user = User.find_by_username!(user_attrs[:username])
@@ -46,6 +46,31 @@ RSpec.describe 'Signup on EE' do
         expect(user.email_opted_in_ip).to be_blank
         expect(user.email_opted_in_source).to be_blank
         expect(user.email_opted_in_at).to be_nil
+      end
+    end
+
+    context 'after sign up' do
+      it 'redirects to step 2 of the signup process, sets the name and role and then redirects to the original requested url' do
+        visit root_path
+
+        fill_in_signup_form
+        click_button "Register"
+
+        visit new_project_path
+
+        expect(page).to have_current_path(users_sign_up_welcome_path)
+
+        select 'Software Developer', from: 'user_role'
+        click_button 'Get started!'
+        choose 'user_setup_for_company_true'
+        click_button 'Get started!'
+
+        user = User.find_by_username!(user_attrs[:username])
+
+        expect(user.software_developer_role?).to be_truthy
+        expect(user.setup_for_company).to be_truthy
+        expect(page).to have_current_path(new_project_path)
+        expect(page).to have_content("Welcome! You have signed up successfully.")
       end
     end
   end
@@ -60,11 +85,7 @@ RSpec.describe 'Signup on EE' do
 
       expect(page).not_to have_selector("[name='new_user_email_opted_in']")
 
-      fill_in 'new_user_name',                with: user_attrs[:name]
-      fill_in 'new_user_username',            with: user_attrs[:username]
-      fill_in 'new_user_email',               with: user_attrs[:email]
-      fill_in 'new_user_email_confirmation',  with: user_attrs[:email]
-      fill_in 'new_user_password',            with: user_attrs[:password]
+      fill_in_signup_form
       click_button "Register"
 
       user = User.find_by_username!(user_attrs[:username])
@@ -72,6 +93,29 @@ RSpec.describe 'Signup on EE' do
       expect(user.email_opted_in_ip).to be_blank
       expect(user.email_opted_in_source).to be_blank
       expect(user.email_opted_in_at).to be_nil
+    end
+
+    context 'after sign up' do
+      it 'redirects to step 2 of the signup process, sets the name and role and then redirects to the original requested url' do
+        visit root_path
+
+        fill_in_signup_form
+        click_button "Register"
+
+        visit new_project_path
+
+        expect(page).to have_current_path(users_sign_up_welcome_path)
+
+        select 'Software Developer', from: 'user_role'
+        click_button 'Get started!'
+
+        user = User.find_by_username!(user_attrs[:username])
+
+        expect(user.software_developer_role?).to be_truthy
+        expect(user.setup_for_company).to be_falsey
+        expect(page).to have_current_path(new_project_path)
+        expect(page).to have_content("Welcome! You have signed up successfully.")
+      end
     end
   end
 end
