@@ -39,7 +39,7 @@ module EE
     end
 
     override :project_and_environment_metrics_data
-    def project_and_environment_metrics_data(project, environment)
+    def project_and_environment_metrics_data(project, environment, _)
       ee_metrics_data = {}
 
       # overwrites project_metrics_data logs_path if environment is available

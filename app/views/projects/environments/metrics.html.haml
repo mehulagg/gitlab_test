@@ -1,4 +1,4 @@
 - page_title _("Metrics Dashboard"), @environment.name
 
 .prometheus-container
-  #prometheus-graphs{ data: metrics_data(@project, @environment) }
+  #prometheus-graphs{ data: metrics_data(@project, @environment, @datasource_gid) }

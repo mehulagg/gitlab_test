@@ -75,9 +75,10 @@ module Prometheus
       return cannot_proxy_response unless can_proxy?
       return no_prometheus_response unless can_query?
 
-      with_reactive_cache(*cache_key) do |result|
-        result
-      end
+      calculate_reactive_cache(nil, nil, method, path, params)
+      # with_reactive_cache(*cache_key) do |result|
+      #   result
+      # end
     end
 
     def calculate_reactive_cache(proxyable_class_name, proxyable_id, method, path, params)

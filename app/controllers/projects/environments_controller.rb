@@ -170,6 +170,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   end
 
   def metrics
+    @datasource_gid = params[:datasource_gid]
     respond_to do |format|
       format.html
       format.json do
@@ -229,7 +230,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
 
   def metrics_dashboard_params
     params
-      .permit(:embedded, :group, :title, :y_label, :dashboard_path, :environment, :sample_metrics, :embed_json)
+      .permit(:embedded, :group, :title, :y_label, :dashboard_path, :environment, :sample_metrics, :embed_json, :datasource_gid)
       .merge(dashboard_path: params[:dashboard], environment: environment)
   end
 

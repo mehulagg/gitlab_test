@@ -21,11 +21,11 @@ module EnvironmentsHelper
     can?(current_user, :admin_project, project)
   end
 
-  def metrics_data(project, environment)
+  def metrics_data(project, environment, datasource_gid=nil)
     metrics_data = {}
     metrics_data.merge!(project_metrics_data(project)) if project
     metrics_data.merge!(environment_metrics_data(environment, project)) if environment
-    metrics_data.merge!(project_and_environment_metrics_data(project, environment)) if project && environment
+    metrics_data.merge!(project_and_environment_metrics_data(project, environment, datasource_gid)) if project && environment
     metrics_data.merge!(static_metrics_data)
 
     metrics_data
@@ -89,10 +89,10 @@ module EnvironmentsHelper
     environment_metrics_path(environment)
   end
 
-  def project_and_environment_metrics_data(project, environment)
+  def project_and_environment_metrics_data(project, environment, datasource_gid)
     return {} unless project && environment
 
-    {
+    data = {
       'metrics-endpoint'     => additional_metrics_project_environment_path(project, environment, format: :json),
       'dashboard-endpoint'   => metrics_dashboard_project_environment_path(project, environment, format: :json),
       'deployments-endpoint' => project_environment_deployments_path(project, environment, format: :json),
@@ -101,6 +101,12 @@ module EnvironmentsHelper
       'can-access-operations-settings' => can?(current_user, :admin_operations, project).to_s,
       'panel-preview-endpoint' => project_metrics_dashboards_builder_path(project, format: :json)
     }
+
+    if datasource_gid
+      data['dashboard-endpoint'] = metrics_dashboard_project_environment_path(project, environment, datasource_gid: datasource_gid, format: :json)
+    end
+
+    data
   end
 
   def static_metrics_data

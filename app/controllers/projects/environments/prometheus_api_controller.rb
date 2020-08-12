@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Projects::Environments::PrometheusApiController < Projects::ApplicationController
-  include Metrics::Dashboard::PrometheusApiProxy
+  include ::Metrics::Dashboard::PrometheusApiProxy
 
   before_action :proxyable
 

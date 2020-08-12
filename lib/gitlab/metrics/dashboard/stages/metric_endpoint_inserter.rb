@@ -23,11 +23,19 @@ module Gitlab
                 identifier: metric[:id]
               )
             else
+              endpoint_params = {
+                proxy_path: query_type(metric),
+                query: query_for_metric(metric),
+              }
+
+              if params[:datasource_gid]
+                endpoint_params[:datasource_gid] = params[:datasource_gid]
+              end
+
               Gitlab::Routing.url_helpers.prometheus_api_project_environment_path(
                 project,
                 params[:environment],
-                proxy_path: query_type(metric),
-                query: query_for_metric(metric)
+                endpoint_params
               )
             end
           end
