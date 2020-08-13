@@ -68,6 +68,26 @@ module API
 
         accepted!
       end
+
+      namespace ':id/export/v2' do
+        get 'relation' do
+          relation = params[:relation].to_sym
+          page = params[:page]
+          per = params[:per]
+
+          result = Gitlab::ImportExport::V2::Project::Exporters::RelationExporter
+            .new(source: user_project, relation: relation, page: page, per: per)
+            .export
+
+          present result, with: Grape::Presenters::Presenter
+        end
+
+        get 'bundle' do
+
+        end
+
+        get ''
+      end
     end
   end
 end
