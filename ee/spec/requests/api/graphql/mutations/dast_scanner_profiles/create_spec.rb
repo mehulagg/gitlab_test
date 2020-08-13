@@ -23,6 +23,10 @@ RSpec.describe 'Creating a DAST Scanner Profile' do
     graphql_mutation_response(:dast_scanner_profile_create)
   end
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   context 'when a user does not have access to the project' do
     it_behaves_like 'a mutation that returns top-level errors',
                     errors: ['The resource that you are attempting to access does not ' \
@@ -65,6 +69,16 @@ RSpec.describe 'Creating a DAST Scanner Profile' do
     context 'when on demand scan feature is disabled' do
       before do
         stub_feature_flags(security_on_demand_scans_feature_flag: false)
+      end
+
+      it_behaves_like 'a mutation that returns top-level errors',
+                      errors: ['The resource that you are attempting to access does not ' \
+                               "exist or you don't have permission to perform this action"]
+    end
+
+    context 'when on demand scan licensed feature is not available' do
+      before do
+        stub_licensed_features(security_on_demand_scans: false)
       end
 
       it_behaves_like 'a mutation that returns top-level errors',
