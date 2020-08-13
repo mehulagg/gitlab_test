@@ -1,4 +1,3 @@
-import { isNumber, isString } from 'lodash';
 import { MTWPS_MERGE_STRATEGY, MT_MERGE_STRATEGY } from '~/vue_merge_request_widget/constants';
 import { __ } from '~/locale';
 import base from '~/vue_merge_request_widget/mixins/ready_to_merge';
@@ -48,15 +47,6 @@ export default {
         return __('Add to merge train');
       }
       return __('Merge when pipeline succeeds');
-    },
-    shouldRenderMergeTrainHelperText() {
-      return (
-        this.mr.pipeline &&
-        isNumber(this.mr.pipeline.id) &&
-        isString(this.mr.pipeline.path) &&
-        this.mr.preferredAutoMergeStrategy === MTWPS_MERGE_STRATEGY &&
-        !this.mr.autoMergeEnabled
-      );
     },
     shouldShowMergeImmediatelyDropdown() {
       if (this.mr.preferredAutoMergeStrategy === MT_MERGE_STRATEGY) {
