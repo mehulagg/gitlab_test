@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Gitlab::GitAccessWiki do
   let(:access) { described_class.new(user, project, 'web', authentication_abilities: authentication_abilities, redirected_path: redirected_path) }
-  let_it_be(:project) { create(:project, :wiki_repo) }
+  let_it_be(:project, reload: true) { create(:project, :wiki_repo) }
   let_it_be(:user) { create(:user) }
   let(:changes) { ['6f6d7e7ed 570e7b2ab refs/heads/master'] }
   let(:redirected_path) { nil }
