@@ -1,26 +1,17 @@
 <script>
 import { mapState } from 'vuex';
-import { GlTooltipDirective, GlLoadingIcon, GlEmptyState, GlSkeletonLoader } from '@gitlab/ui';
+import { GlTooltipDirective, GlLoadingIcon, GlEmptyState } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
 import StageEventList from './stage_event_list.vue';
 import StageTableHeader from './stage_table_header.vue';
 
-const MIN_TABLE_HEIGHT = 568;
-const SKELETON = {
-  HEIGHT: 320,
-  NAV_HEIGHT: 65,
-  NAV_WIDTH: 385,
-  NAV_Y_PADDING: 15,
-  NAV_X_PADDING: 5,
-  STAGE_X_POS: 415,
-};
+const MIN_TABLE_HEIGHT = 420;
 
 export default {
   name: 'StageTable',
   components: {
     GlLoadingIcon,
     GlEmptyState,
-    GlSkeletonLoader,
     StageEventList,
     StageTableHeader,
   },
@@ -100,60 +91,16 @@ export default {
       this.$set(this, 'stageNavHeight', this.$refs.stageNav.clientHeight);
     }
   },
-  skeletonConfig: SKELETON,
 };
 </script>
 <template>
   <div ref="stagePanel" class="stage-panel-container">
     <div
       v-if="isLoadingStageTable"
-      class="stage-panel-body gl-display-flex gl-flex-direction-column"
-      :style="{ 'min-height': 320, width: '100%' }"
+      class="gl-display-flex gl-justify-content-center gl-align-items-center"
+      :style="{ height: stageEventsHeight, width: '100%' }"
     >
-      <gl-skeleton-loader
-        :width="stageWidth"
-        :height="$options.skeletonConfig.HEIGHT"
-        preserve-aspect-ratio="xMinYMax meet"
-      >
-        <!-- LHS nav -->
-        <!-- TODO: cleanup -->
-        <rect
-          :width="$options.skeletonConfig.NAV_WIDTH"
-          :height="$options.skeletonConfig.NAV_HEIGHT"
-          :x="$options.skeletonConfig.NAV_X_PADDING"
-          :y="0"
-          rx="4"
-        />
-        <rect
-          :width="$options.skeletonConfig.NAV_WIDTH"
-          :height="$options.skeletonConfig.NAV_HEIGHT"
-          :x="$options.skeletonConfig.NAV_X_PADDING"
-          :y="80"
-          rx="4"
-        />
-        <rect
-          :width="$options.skeletonConfig.NAV_WIDTH"
-          :height="$options.skeletonConfig.NAV_HEIGHT"
-          :x="$options.skeletonConfig.NAV_X_PADDING"
-          :y="160"
-          rx="4"
-        />
-        <rect
-          :width="$options.skeletonConfig.NAV_WIDTH"
-          :height="$options.skeletonConfig.NAV_HEIGHT"
-          :x="$options.skeletonConfig.NAV_X_PADDING"
-          :y="240"
-          rx="4"
-        />
-        <!-- RHS pane -->
-        <rect
-          :width="stageWidth - $options.skeletonConfig.STAGE_X_POS"
-          :height="$options.skeletonConfig.HEIGHT - $options.skeletonConfig.NAV_Y_PADDING"
-          :x="$options.skeletonConfig.STAGE_X_POS - $options.skeletonConfig.NAV_Y_PADDING"
-          :y="0"
-          rx="4"
-        />
-      </gl-skeleton-loader>
+      <gl-loading-icon size="lg" />
     </div>
     <div v-else class="card stage-panel">
       <div class="card-header gl-border-b-0">
