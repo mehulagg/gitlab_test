@@ -3,59 +3,21 @@
 require 'spec_helper'
 
 RSpec.describe AlertManagement::AlertPresenter do
-  let_it_be(:project) { create(:project) }
+  let(:project) { build_stubbed(:project) }
 
-  let_it_be(:generic_payload) do
-    {
-      'title' => 'Alert title',
-      'start_time' => '2020-04-27T10:10:22.265949279Z',
-      'custom' => { 'param' => 73 },
-      'runbook' => 'https://runbook.com'
-    }
-  end
+  describe '.new' do
+    subject { described_class.new(alert) }
 
-  let_it_be(:alert) do
-    create(:alert_management_alert, :with_description, :with_host, :with_service, :with_monitoring_tool, project: project, payload: generic_payload)
-  end
+    context 'with generic alert' do
+      let(:alert) { build_stubbed(:alert_management_alert) }
 
-  let(:alert_url) { "http://localhost/#{project.full_path}/-/alert_management/#{alert.iid}/details" }
-
-  subject(:presenter) { described_class.new(alert) }
-
-  describe '#issue_description' do
-    let(:markdown_line_break) { '  ' }
-
-    it 'returns an alert issue description' do
-      expect(presenter.issue_description).to eq(
-        <<~MARKDOWN.chomp
-          #### Summary
-
-          **Start time:** #{presenter.start_time}#{markdown_line_break}
-          **Severity:** #{presenter.severity}#{markdown_line_break}
-          **Service:** #{alert.service}#{markdown_line_break}
-          **Monitoring tool:** #{alert.monitoring_tool}#{markdown_line_break}
-          **Hosts:** #{alert.hosts.join(' ')}#{markdown_line_break}
-          **Description:** #{alert.description}#{markdown_line_break}
-          **GitLab alert:** #{alert_url}
-
-          #### Alert Details
-
-          **custom.param:** 73#{markdown_line_break}
-          **runbook:** https://runbook.com
-        MARKDOWN
-      )
+      it { is_expected.to be_kind_of(AlertManagement::GenericAlertPresenter) }
     end
-  end
 
-  describe '#metrics_dashboard_url' do
-    it 'is not defined' do
-      expect(presenter.metrics_dashboard_url).to be_nil
-    end
-  end
+    context 'with prometheus alert' do
+      let(:alert) { build_stubbed(:alert_management_alert, :prometheus) }
 
-  describe '#runbook' do
-    it 'shows the runbook from the payload' do
-      expect(presenter.runbook).to eq('https://runbook.com')
+      it { is_expected.to be_kind_of(AlertManagement::PrometheusAlertPresenter) }
     end
   end
 end

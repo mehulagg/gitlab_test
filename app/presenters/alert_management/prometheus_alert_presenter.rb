@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AlertManagement
-  class PrometheusAlertPresenter < AlertManagement::AlertPresenter
+  class PrometheusAlertPresenter < AlertManagement::GenericAlertPresenter
     def runbook
       strong_memoize(:runbook) do
         payload&.dig('annotations', 'runbook')

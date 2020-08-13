@@ -118,7 +118,6 @@ module AlertManagement
     end
 
     delegate :iid, to: :issue, prefix: true, allow_nil: true
-    delegate :metrics_dashboard_url, :runbook, to: :present
 
     scope :for_iid, -> (iid) { where(iid: iid) }
     scope :for_status, -> (status) { where(status: status) }
@@ -194,12 +193,6 @@ module AlertManagement
       return unless project.has_active_services?(:alert_hooks)
 
       project.execute_services(hook_data, :alert_hooks)
-    end
-
-    def present
-      return super(presenter_class: AlertManagement::PrometheusAlertPresenter) if prometheus?
-
-      super
     end
 
     private
