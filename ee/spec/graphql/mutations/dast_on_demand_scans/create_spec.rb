@@ -110,7 +110,7 @@ RSpec.describe Mutations::DastOnDemandScans::Create do
           end
         end
 
-        context 'when on demand licensed feature is not available' do
+        context 'when on demand scan licensed feature is not available' do
           it 'raises an exception' do
             stub_licensed_features(security_on_demand_scans: false)
 
