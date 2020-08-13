@@ -258,6 +258,7 @@ RSpec.describe PostReceive do
         it 'calls SystemHooksService' do
           expect_next(SystemHooksService)
             .to receive(:execute_hooks).with(fake_hook_data, :repository_update_hooks)
+            .and_return(true)
 
           perform
         end
@@ -307,7 +308,7 @@ RSpec.describe PostReceive do
 
       let(:raw_repo) { double('RawRepo') }
 
-      it 'processes the changes on the master branch' do
+      it 'calls WikiPushService#process_changes' do
         expect_next(Git::WikiPushService).to receive(:process_changes)
 
         perform
