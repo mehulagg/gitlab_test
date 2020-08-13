@@ -31,8 +31,8 @@ RSpec.describe PostReceive do
         # silence hooks so we can isolate
         allow_next(Key).to receive(:post_create_hook).and_return(true)
 
-        expect_execution(Git::TagPushService)
-        expect_execution(Git::BranchPushService)
+        expect_next(Git::TagPushService).to receive(:execute).and_return(true)
+        expect_next(Git::BranchPushService).to receive(:execute).and_return(true)
       end
 
       context 'when DB is readonly' do
