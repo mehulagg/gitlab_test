@@ -8,6 +8,10 @@ RSpec.describe Ci::RunDastScanService do
   let(:branch) { project.default_branch }
   let(:target_url) { FFaker::Internet.uri(:http) }
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   describe '.ci_template' do
     it 'builds a hash' do
       expect(described_class.ci_template).to be_a(Hash)

@@ -9,6 +9,10 @@ RSpec.describe DastScannerProfiles::CreateService do
   let(:target_timeout) { 60 }
   let(:spider_timeout) { 600 }
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   describe '#execute' do
     subject do
       described_class.new(project, user).execute(
