@@ -27,6 +27,10 @@ RSpec.describe 'Creating a DAST Site Profile' do
     graphql_mutation_response(:dast_site_profile_update)
   end
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   subject { post_graphql_mutation(mutation, current_user: current_user) }
 
   context 'when a user does not have access to the project' do
@@ -114,15 +118,15 @@ RSpec.describe 'Creating a DAST Site Profile' do
                       errors: ['The resource that you are attempting to access does not ' \
                                'exist or you don\'t have permission to perform this action']
     end
-  end
 
-  context 'when on demand scan feature is disabled' do
-    before do
-      stub_feature_flags(security_on_demand_scans_feature_flag: false)
+    context 'when on demand scan feature is disabled' do
+      before do
+        stub_feature_flags(security_on_demand_scans_feature_flag: false)
+      end
+
+      it_behaves_like 'a mutation that returns top-level errors',
+                      errors: ['The resource that you are attempting to access does not ' \
+                               'exist or you don\'t have permission to perform this action']
     end
-
-    it_behaves_like 'a mutation that returns top-level errors',
-                    errors: ['The resource that you are attempting to access does not ' \
-                             'exist or you don\'t have permission to perform this action']
   end
 end
