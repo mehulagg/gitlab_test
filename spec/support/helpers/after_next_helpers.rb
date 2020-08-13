@@ -26,7 +26,7 @@ module AfterNextHelpers
 
     def run_condition(condition, asserted:)
       msg = asserted ? :to : :not_to
-      case level
+      case level.to_sym
       when :expect
         expect_next_instance_of(@klass, *args) { |instance| expect(instance).send(msg, condition) }
       when :allow
