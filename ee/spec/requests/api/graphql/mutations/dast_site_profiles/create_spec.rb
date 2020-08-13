@@ -25,6 +25,10 @@ RSpec.describe 'Creating a DAST Site Profile' do
     graphql_mutation_response(:dast_site_profile_create)
   end
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   context 'when on demand scan feature is not enabled' do
     it_behaves_like 'a mutation that returns top-level errors',
                     errors: ['The resource that you are attempting to access does not ' \
