@@ -31,7 +31,7 @@ module Projects
       private
 
       def ensure_sast_configuration_enabled!
-        not_found unless ::Feature.enabled?(:sast_configuration_ui, project, default_enabled: true)
+        not_found unless ::Feature.enabled?(:sast_configuration_ui, project)
       end
     end
   end
