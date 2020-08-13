@@ -157,7 +157,7 @@ RSpec.describe PostReceive do
         end
 
         it 'calls Git::ProcessRefChangesService' do
-          expect_execution(Git::ProcessRefChangesService)
+          expect_next(Git::ProcessRefChangesService).to receive(:execute).and_return(true)
 
           perform
         end
