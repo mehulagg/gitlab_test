@@ -50,6 +50,7 @@ For feature flags disabled by default, if they can be used by end users:
 - If the feature can be enabled/disabled for a single project, add the
   [by-project information](#features-enabled-by-project). Otherwise,
   do not say anything about it.
+- Say whether it can be enabled or disabled by project.
 - Say whether it's recommended for production use.
 - Document how to enable and disable it.
 - Add a warning to the user saying that the feature is disabled.
@@ -108,13 +109,12 @@ default:
 - If the feature can be enabled/disabled for a single project, add the
   [by-project information](#features-enabled-by-project). Otherwise,
   do not say anything about it.
+- Say whether it can be enabled or disabled by project.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
 - Add a warning to the user saying that the feature might be disabled.
 
-For example, for a feature initially deployed disabled by default, that became
-enabled by default, that is enabled on GitLab.com, and is ready for production
-use:
+For example, for a feature initially deployed disabled by default, that became enabled by default, that's enabled on GitLab.com, that cannot be enabled or disabled by project, and ready for production use:
 
 ````markdown
 # Feature Name
@@ -167,6 +167,7 @@ For features enabled by default:
 - If the feature can be enabled/disabled for a single project, add the
   [by-project information](#features-enabled-by-project). Otherwise,
   do not say anything about it.
+- Say whether it can be enabled or disabled by project.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
 - Add a warning to the user saying that the feature might be disabled.
