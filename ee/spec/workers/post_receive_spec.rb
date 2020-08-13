@@ -106,7 +106,7 @@ RSpec.describe PostReceive do
 
     context 'assuming calls to process_changes are successful' do
       before do
-        # We do this so that expect_next captures the right thing.
+        # We instantiate the wiki here so that expect_next(ProjectWiki) captures the right thing.
         project.wiki
 
         allow_next(Git::WikiPushService).to receive(:process_changes)
