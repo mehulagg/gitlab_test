@@ -16,10 +16,6 @@ RSpec.describe PostReceive do
   let(:project) { create(:project, :repository, :wiki_repo) }
 
   describe "#process_project_changes" do
-    before do
-      allow_next(Gitlab::GitPostReceive, to_receive: :identify, returning: project.owner)
-    end
-
     context 'after project changes hooks' do
       let(:fake_hook_data) { Hash.new(event_name: 'repository_update') }
 
