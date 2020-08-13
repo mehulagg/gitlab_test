@@ -555,6 +555,9 @@ Under **Admin Area > Integration > Elasticsearch zero-downtime reindexing**, cli
 NOTE: **Note:**
 Reindexing can be a lengthy process depending on the size of your Elasticsearch cluster.
 
+CAUTION: **Caution:**
+After the reindexing is completed, the original index deletion will be scheduled. You can cancel this action by pressing the cancel button. This feature was introduced in [13.3](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/38914)
+
 While the reindexing is running, you will be able to follow its progress under that same section.
 
 ## GitLab Elasticsearch Rake tasks
