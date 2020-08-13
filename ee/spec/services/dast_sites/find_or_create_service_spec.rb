@@ -7,6 +7,10 @@ RSpec.describe DastSites::FindOrCreateService do
   let(:project) { create(:project, :repository, creator: user) }
   let(:url) { FFaker::Internet.uri(:http) }
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   describe '#execute!' do
     subject { described_class.new(project, user).execute!(url: url) }
 

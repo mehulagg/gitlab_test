@@ -8,6 +8,10 @@ RSpec.describe DastSiteProfiles::CreateService do
   let(:name) { FFaker::Company.catch_phrase }
   let(:target_url) { FFaker::Internet.uri(:http) }
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   describe '#execute' do
     subject { described_class.new(project, user).execute(name: name, target_url: target_url) }
 

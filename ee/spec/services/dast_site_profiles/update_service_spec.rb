@@ -10,6 +10,10 @@ RSpec.describe DastSiteProfiles::UpdateService do
   let(:new_profile_name) { SecureRandom.hex }
   let(:new_target_url) { FFaker::Internet.uri(:https) }
 
+  before do
+    stub_licensed_features(security_on_demand_scans: true)
+  end
+
   describe '#execute' do
     subject do
       described_class.new(project, user).execute(
