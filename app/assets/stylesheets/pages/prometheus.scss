@@ -96,6 +96,15 @@
   padding: $gl-padding-8;
 }
 
+.prometheus-graph-tooltip-label {
+  div:nth-child(2) {
+    flex-shrink: 1;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    text-align: initial;
+  }
+}
+
 .prometheus-graph-embed {
   border: 1px solid $border-color;
   border-radius: $border-radius-default;

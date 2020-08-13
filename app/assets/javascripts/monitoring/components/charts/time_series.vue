@@ -420,16 +420,18 @@ export default {
         </template>
         <template slot="tooltipContent" :tooltip="tooltip">
           <div
-            v-for="(content, key) in tooltip.content"
-            :key="key"
-            class="d-flex justify-content-between"
+            v-for="(content, index) in tooltip.content"
+            :key="index"
+            class="d-flex justify-content-between gl-overflow-hidden"
+            :class="{ 'gl-mb-3': index !== tooltip.content.length - 1 }"
           >
-            <gl-chart-series-label :color="isMultiSeries ? content.color : ''">
+            <gl-chart-series-label
+              class="prometheus-graph-tooltip-label gl-overflow-hidden"
+              :color="isMultiSeries ? content.color : ''"
+            >
               {{ content.name }}
             </gl-chart-series-label>
-            <div class="gl-ml-7">
-              {{ content.value }}
-            </div>
+            <div class="gl-ml-7 gl-line-height-24">{{ content.value }}</div>
           </div>
         </template>
       </template>

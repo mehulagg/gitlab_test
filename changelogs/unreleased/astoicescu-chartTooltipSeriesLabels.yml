@@ -1,0 +1,5 @@
+---
+title: Fix series labels inside area and line chart tooltips
+merge_request: 39491
+author:
+type: changed
