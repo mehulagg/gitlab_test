@@ -506,3 +506,7 @@ Cop/PutGroupRoutesUnderScope:
   Include:
     - 'config/routes/group.rb'
     - 'ee/config/routes/group.rb'
+
+# WIP: To be created after approval
+RSpec/InstanceVariable:
+  Enabled: true
