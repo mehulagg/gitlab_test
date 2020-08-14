@@ -133,7 +133,7 @@ enabled in your account, you need to pass a
 [personal access token](../../profile/personal_access_tokens.md) instead
 of your password in order to login to GitLab's Container Registry.
 
-Credentials will need to be provided for authorization to any non-public registry. Only project
+Credentials must be provided for authorization to any non-public registry. Only project members may access private, GitLab hosted registries. 
  
 There are two ways to do authenticate:
 
