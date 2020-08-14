@@ -5,26 +5,14 @@ in production.
 
 ## Starting a Rails console session
 
-Troubleshooting and debugging your GitLab instance often requires a
-[Rails console](https://guides.rubyonrails.org/command_line.html#rails-console).
+Troubleshooting and debugging your GitLab instance often requires a Rails console.
+
+Your type of GitLab installation determines how
+[to start a rails console](../operations/railsconsole.md).
 See also:
 
 - [GitLab Rails Console Cheat Sheet](gitlab_rails_cheat_sheet.md).
 - [Navigating GitLab via Rails console](navigating_gitlab_via_rails_console.md).
-
-**For Omnibus installations**
-
-```shell
-sudo gitlab-rails console
-```
-
-**For installations from source**
-
-```shell
-sudo -u git -H bundle exec rails console -e production
-```
-
-Kubernetes: the console is in the task-runner pod, refer to our [Kubernetes cheat sheet](kubernetes_cheat_sheet.md#gitlab-specific-kubernetes-information) for details.
 
 ### Enabling Active Record logging
 

@@ -20,20 +20,10 @@ Rails experience is helpful to have but not a must.
 
 ## Starting a Rails console session
 
-Omnibus GitLab comes with a convenient wrapper command which automatically loads
-the production GitLab environment:
+Your type of GitLab installation determines how
+[to start a rails console](../operations/railsconsole.md).
 
-```shell
-sudo gitlab-rails console
-```
-
-For source installations, you'll have to instead run:
-
-```shell
-sudo -u git -H bundle exec rails console -e production
-```
-
-Further code examples will all take place inside the Rails console and also
+The following code examples will all take place inside the Rails console and also
 assume an Omnibus GitLab installation.
 
 ## Active Record objects
