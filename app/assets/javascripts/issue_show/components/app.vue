@@ -18,7 +18,7 @@ import RelatedIssues from 'ee/related_issues/components/related_issues_root.vue'
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
 
-import DesignManagement from '~/design_management_new/components/app.vue';
+import DesignManagement from '~/design_management/components/app.vue';
 
 export default {
   components: {

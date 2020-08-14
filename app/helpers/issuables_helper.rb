@@ -280,12 +280,6 @@ module IssuablesHelper
       initialDescriptionHtml: markdown_field(issuable, :description),
       initialDescriptionText: issuable.description,
       initialTaskStatus: issuable.task_status,
-      sentryIssuePresent: @issue.sentry_issue.present?,
-      issueLinkEndpoint: can?(current_user, :read_issue_link, @project) ? project_issue_links_path(@project, @issue) : '',
-      canAddRelatedIssues: can?(current_user, :admin_issue_link, @issue),
-      relatedIssuesHelpPath: help_page_path('user/project/issues/related_issues'),
-      issueIid: @issue.iid.to_s,
-      issuePath: project_issue_path(@project, @issue),
     }
     data.merge!(issue_only_initial_data(issuable))
     data.merge!(path_data(parent))
@@ -301,7 +295,12 @@ module IssuablesHelper
       hasClosingMergeRequest: issuable.merge_requests_count(current_user) != 0,
       zoomMeetingUrl: ZoomMeeting.canonical_meeting_url(issuable),
       sentryIssueIdentifier: SentryIssue.find_by(issue: issuable)&.sentry_issue_identifier, # rubocop:disable CodeReuse/ActiveRecord
-      design_management_enabled: @project&.design_management_enabled?
+      design_management_enabled: @project&.design_management_enabled?,
+      issueIid: issuable.iid.to_s,
+      issuePath: project_issue_path(@project, issuable),
+      canAddRelatedIssues: can?(current_user, :admin_issue_link, issuable),
+      issueLinkEndpoint: can?(current_user, :read_issue_link, @project) ? project_issue_links_path(@project, issuable) : '',
+      relatedIssuesHelpPath: help_page_path('user/project/issues/related_issues'),
     }
   end
 
