@@ -21,6 +21,7 @@ exceptions:
   - CLI
   - CNAME
   - CPU
+  - CORE
   - CSS
   - CSV
   - DNS
@@ -67,6 +68,7 @@ exceptions:
   - SSH
   - SSL
   - SSO
+  - SVG
   - SVN
   - TCP
   - TIP

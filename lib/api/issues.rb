@@ -55,6 +55,8 @@ module API
                  desc: 'Return issues ordered by `created_at` or `updated_at` fields.'
         optional :sort, type: String, values: %w[asc desc], default: 'desc',
                  desc: 'Return issues sorted in `asc` or `desc` order.'
+        optional :due_date, type: String, values: %w[0 overdue week month next_month_and_previous_two_weeks],
+                 desc: 'Return issues that have no due date (`0`), or whose due date is this week, this month, between two weeks ago and next month, or which are overdue. Accepts: `overdue`, `week`, `month`, `next_month_and_previous_two_weeks`, `0`'
 
         use :issues_stats_params
         use :pagination
@@ -107,7 +109,6 @@ module API
           with: Entities::Issue,
           with_labels_details: declared_params[:with_labels_details],
           current_user: current_user,
-          issuable_metadata: Gitlab::IssuableMetadata.new(current_user, issues).data,
           include_subscribed: false
         }
 
@@ -133,7 +134,6 @@ module API
           with: Entities::Issue,
           with_labels_details: declared_params[:with_labels_details],
           current_user: current_user,
-          issuable_metadata: Gitlab::IssuableMetadata.new(current_user, issues).data,
           include_subscribed: false,
           group: user_group
         }
@@ -170,7 +170,6 @@ module API
           with_labels_details: declared_params[:with_labels_details],
           current_user: current_user,
           project: user_project,
-          issuable_metadata: Gitlab::IssuableMetadata.new(current_user, issues).data,
           include_subscribed: false
         }
 

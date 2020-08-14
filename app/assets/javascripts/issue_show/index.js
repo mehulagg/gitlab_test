@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import issuableApp from './components/app.vue';
-import IssuableHeaderWarnings from './components/issuable_header_warnings.vue';
 import { parseIssuableData } from './utils/parse_data';
 import { store } from '~/notes/stores';
 import { createDesignManagement } from '~/design_management_new';

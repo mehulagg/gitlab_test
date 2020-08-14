@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_07_120740) do
+ActiveRecord::Schema.define(version: 2020_07_30_133800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -146,6 +146,8 @@ ActiveRecord::Schema.define(version: 2020_04_07_120740) do
     t.datetime_with_timezone "last_wiki_verification_ran_at"
     t.binary "repository_verification_checksum_mismatched"
     t.binary "wiki_verification_checksum_mismatched"
+    t.boolean "primary_repository_checksummed", default: false, null: false
+    t.boolean "primary_wiki_checksummed", default: false, null: false
     t.index ["last_repository_successful_sync_at"], name: "idx_project_registry_synced_repositories_partial", where: "((resync_repository = false) AND (repository_retry_count IS NULL) AND (repository_verification_checksum_sha IS NOT NULL))"
     t.index ["last_repository_successful_sync_at"], name: "index_project_registry_on_last_repository_successful_sync_at"
     t.index ["last_repository_synced_at"], name: "index_project_registry_on_last_repository_synced_at"
@@ -166,4 +168,16 @@ ActiveRecord::Schema.define(version: 2020_04_07_120740) do
     t.index ["wiki_verification_checksum_sha"], name: "idx_project_registry_on_wiki_checksum_sha_partial", where: "(wiki_verification_checksum_sha IS NULL)"
   end
 
+  create_table "terraform_state_registry", force: :cascade do |t|
+    t.datetime_with_timezone "retry_at"
+    t.datetime_with_timezone "last_synced_at"
+    t.datetime_with_timezone "created_at", null: false
+    t.bigint "terraform_state_id", null: false
+    t.integer "state", limit: 2, default: 0, null: false
+    t.integer "retry_count", limit: 2, default: 0
+    t.text "last_sync_failure"
+    t.index ["retry_at"], name: "index_terraform_state_registry_on_retry_at"
+    t.index ["state"], name: "index_terraform_state_registry_on_state"
+    t.index ["terraform_state_id"], name: "index_terraform_state_registry_on_terraform_state_id"
+  end
 end

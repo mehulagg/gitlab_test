@@ -12,7 +12,12 @@ import {
 import { shallowWrapperContainsSlotText } from 'helpers/vue_test_utils_helper';
 import { panelTypes, chartHeight } from '~/monitoring/constants';
 import TimeSeries from '~/monitoring/components/charts/time_series.vue';
-import { deploymentData, mockProjectDir, annotationsData } from '../../mock_data';
+import {
+  deploymentData,
+  mockProjectDir,
+  annotationsData,
+  mockFixedTimeRange,
+} from '../../mock_data';
 
 import { timeSeriesGraphData } from '../../graph_data';
 
@@ -42,6 +47,7 @@ describe('Time series component', () => {
         deploymentData,
         annotations: annotationsData,
         projectPath: `${TEST_HOST}${mockProjectDir}`,
+        timeRange: mockFixedTimeRange,
         ...props,
       },
       stubs: {
@@ -382,6 +388,25 @@ describe('Time series component', () => {
         });
 
         describe('chartOptions', () => {
+          describe('x-Axis bounds', () => {
+            it('is set to the time range bounds', () => {
+              expect(getChartOptions().xAxis).toMatchObject({
+                min: mockFixedTimeRange.start,
+                max: mockFixedTimeRange.end,
+              });
+            });
+
+            it('is not set if time range is not set or incorrectly set', () => {
+              wrapper.setProps({
+                timeRange: {},
+              });
+              return wrapper.vm.$nextTick(() => {
+                expect(getChartOptions().xAxis).not.toHaveProperty('min');
+                expect(getChartOptions().xAxis).not.toHaveProperty('max');
+              });
+            });
+          });
+
           describe('dataZoom', () => {
             it('renders with scroll handle icons', () => {
               expect(getChartOptions().dataZoom).toHaveLength(1);
@@ -527,8 +552,8 @@ describe('Time series component', () => {
             return formatter(date);
           };
 
-          it('x-axis is formatted correctly in AM/PM format', () => {
-            expect(useXAxisFormatter(mockDate)).toEqual('8:00 PM');
+          it('x-axis is formatted correctly in m/d h:MM TT format', () => {
+            expect(useXAxisFormatter(mockDate)).toEqual('5/26 8:00 PM');
           });
 
           describe('when in PT timezone', () => {
@@ -542,17 +567,17 @@ describe('Time series component', () => {
 
             it('by default, values are formatted in PT', () => {
               createWrapper();
-              expect(useXAxisFormatter(mockDate)).toEqual('1:00 PM');
+              expect(useXAxisFormatter(mockDate)).toEqual('5/26 1:00 PM');
             });
 
             it('when the chart uses local timezone, y-axis is formatted in PT', () => {
               createWrapper({ timezone: 'LOCAL' });
-              expect(useXAxisFormatter(mockDate)).toEqual('1:00 PM');
+              expect(useXAxisFormatter(mockDate)).toEqual('5/26 1:00 PM');
             });
 
             it('when the chart uses UTC, y-axis is formatted in UTC', () => {
               createWrapper({ timezone: 'UTC' });
-              expect(useXAxisFormatter(mockDate)).toEqual('8:00 PM');
+              expect(useXAxisFormatter(mockDate)).toEqual('5/26 8:00 PM');
             });
           });
         });

@@ -160,20 +160,6 @@ RSpec.describe PipelineSerializer do
           expect(recorded.count).to be_within(2).of(expected_queries)
           expect(recorded.cached_count).to eq(0)
         end
-
-        context 'with the :build_report_summary flag turned off' do
-          before do
-            stub_feature_flags(build_report_summary: false)
-          end
-
-          it 'verifies number of queries', :request_store do
-            recorded = ActiveRecord::QueryRecorder.new { subject }
-            expected_queries = Gitlab.ee? ? 43 : 40
-
-            expect(recorded.count).to be_within(2).of(expected_queries)
-            expect(recorded.cached_count).to eq(0)
-          end
-        end
       end
 
       context 'with different refs' do
@@ -195,19 +181,32 @@ RSpec.describe PipelineSerializer do
           expect(recorded.count).to be_within(2).of(expected_queries)
           expect(recorded.cached_count).to eq(0)
         end
+      end
 
-        context 'with the :build_report_summary flag turned off' do
-          before do
-            stub_feature_flags(build_report_summary: false)
-          end
+      context 'with triggered pipelines' do
+        let(:ref) { 'feature' }
 
-          it 'verifies number of queries', :request_store do
-            recorded = ActiveRecord::QueryRecorder.new { subject }
-            expected_queries = Gitlab.ee? ? 46 : 43
+        before do
+          pipeline_1 = create(:ci_pipeline)
+          build_1 = create(:ci_build, pipeline: pipeline_1)
+          create(:ci_sources_pipeline, source_job: build_1)
 
-            expect(recorded.count).to be_within(2).of(expected_queries)
-            expect(recorded.cached_count).to eq(0)
-          end
+          pipeline_2 = create(:ci_pipeline)
+          build_2 = create(:ci_build, pipeline: pipeline_2)
+          create(:ci_sources_pipeline, source_job: build_2)
+        end
+
+        it 'verifies number of queries', :request_store do
+          recorded = ActiveRecord::QueryRecorder.new { subject }
+
+          # 99 queries by default + 2 related to preloading
+          # :source_pipeline and :source_job
+          # Existing numbers are high and require performance optimization
+          # https://gitlab.com/gitlab-org/gitlab/-/issues/225156
+          expected_queries = Gitlab.ee? ? 95 : 86
+
+          expect(recorded.count).to be_within(2).of(expected_queries)
+          expect(recorded.cached_count).to eq(0)
         end
       end
 

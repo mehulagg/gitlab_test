@@ -223,18 +223,6 @@ RSpec.describe Gitlab::ImportExport::Project::TreeSaver do
         it { is_expected.not_to be_empty }
       end
 
-      context 'with services' do
-        let(:relation_name) { :services }
-
-        it 'saves the correct service type' do
-          expect(subject.first['type']).to eq('CustomIssueTrackerService')
-        end
-
-        it 'saves the properties for a service' do
-          expect(subject.first['properties']).to eq('one' => 'value')
-        end
-      end
-
       context 'with project_feature' do
         let(:relation_name) { :project_feature }
 
@@ -287,6 +275,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeSaver do
           File.join(shared.export_path, Gitlab::ImportExport.project_filename)
         end
       end
+
       let(:shared) { project.import_export_shared }
       let(:params) { {} }
 
@@ -453,7 +442,6 @@ RSpec.describe Gitlab::ImportExport::Project::TreeSaver do
     create(:resource_label_event, label: group_label, merge_request: merge_request)
 
     create(:event, :created, target: milestone, project: project, author: user)
-    create(:service, project: project, type: 'CustomIssueTrackerService', category: 'issue_tracker', properties: { one: 'value' })
 
     create(:project_custom_attribute, project: project)
     create(:project_custom_attribute, project: project)

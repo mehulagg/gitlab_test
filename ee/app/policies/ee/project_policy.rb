@@ -5,18 +5,6 @@ module EE
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
-    READONLY_FEATURES_WHEN_ARCHIVED = %i[
-      board
-      issue_link
-      approvers
-      vulnerability_feedback
-      vulnerability
-      license_management
-      feature_flag
-      feature_flags_client
-      iteration
-    ].freeze
-
     prepended do
       with_scope :subject
       condition(:related_issues_disabled) { !@subject.feature_available?(:related_issues) }
@@ -26,9 +14,6 @@ module EE
 
       with_scope :subject
       condition(:deploy_board_disabled) { !@subject.feature_available?(:deploy_board) }
-
-      with_scope :subject
-      condition(:packages_disabled) { !@subject.packages_enabled }
 
       with_scope :subject
       condition(:iterations_available) { @subject.feature_available?(:iterations) }
@@ -78,28 +63,20 @@ module EE
           @subject.has_regulated_settings?
       end
 
+      condition(:project_merge_request_analytics_available) do
+        @subject.feature_available?(:project_merge_request_analytics)
+      end
+
       condition(:cannot_modify_approvers_rules) do
-        if @subject.project_compliance_mr_approval_settings?
-          regulated_merge_request_approval_settings?
-        else
-          owner_cannot_modify_approvers_rules? && !admin?
-        end
+        regulated_merge_request_approval_settings?
       end
 
       condition(:cannot_modify_merge_request_author_setting) do
-        if @subject.project_compliance_mr_approval_settings?
-          regulated_merge_request_approval_settings?
-        else
-          owner_cannot_modify_merge_request_author_setting? && !admin?
-        end
+        regulated_merge_request_approval_settings?
       end
 
       condition(:cannot_modify_merge_request_committer_setting) do
-        if @subject.project_compliance_mr_approval_settings?
-          regulated_merge_request_approval_settings?
-        else
-          owner_cannot_modify_merge_request_committer_setting? && !admin?
-        end
+        regulated_merge_request_approval_settings?
       end
 
       with_scope :subject
@@ -197,6 +174,10 @@ module EE
         @subject.feature_available?(:group_timelogs)
       end
 
+      condition(:over_storage_limit, scope: :subject) do
+        @subject.root_namespace.over_storage_limit?
+      end
+
       rule { visual_review_bot }.policy do
         prevent :read_note
         enable :create_note
@@ -227,7 +208,6 @@ module EE
         enable :read_deploy_board
         enable :admin_issue_link
         enable :admin_epic_issue
-        enable :read_package
         enable :read_group_timelogs
       end
 
@@ -237,7 +217,6 @@ module EE
         enable :create_vulnerability_feedback
         enable :destroy_vulnerability_feedback
         enable :update_vulnerability_feedback
-        enable :create_package
         enable :read_feature_flag
         enable :create_feature_flag
         enable :update_feature_flag
@@ -253,8 +232,6 @@ module EE
         enable :admin_iteration
       end
 
-      rule { can?(:public_access) }.enable :read_package
-
       rule { can?(:read_project) & iterations_available }.enable :read_iteration
 
       rule { security_dashboard_enabled & can?(:developer_access) }.policy do
@@ -262,7 +239,10 @@ module EE
         enable :read_vulnerability_scanner
       end
 
-      rule { on_demand_scans_enabled & can?(:developer_access) }.enable :read_on_demand_scans
+      rule { on_demand_scans_enabled & can?(:developer_access) }.policy do
+        enable :read_on_demand_scans
+        enable :create_on_demand_dast_scan
+      end
 
       rule { can?(:read_merge_request) & can?(:read_pipeline) }.enable :read_merge_train
 
@@ -290,10 +270,6 @@ module EE
 
       rule { deploy_board_disabled & ~is_development }.prevent :read_deploy_board
 
-      rule { packages_disabled | repository_disabled }.policy do
-        prevent(*create_read_update_admin_destroy(:package))
-      end
-
       rule { feature_flags_disabled | repository_disabled }.policy do
         prevent(*create_read_update_admin_destroy(:feature_flag))
         prevent(:admin_feature_flags_user_lists)
@@ -303,7 +279,6 @@ module EE
         enable :push_code_to_protected_branches
         enable :admin_path_locks
         enable :update_approvers
-        enable :destroy_package
         enable :admin_feature_flags_client
         enable :modify_approvers_rules
         enable :modify_approvers_list
@@ -360,14 +335,6 @@ module EE
 
       rule { ~admin & owner & owner_cannot_destroy_project }.prevent :remove_project
 
-      rule { archived }.policy do
-        prevent :modify_auto_fix_setting
-
-        READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
-          prevent(*::ProjectPolicy.create_update_admin_destroy(feature))
-        end
-      end
-
       condition(:needs_new_sso_session) do
         ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group)
       end
@@ -408,6 +375,9 @@ module EE
 
       rule { can?(:read_merge_request) & code_review_analytics_enabled }.enable :read_code_review_analytics
 
+      rule { reporter & project_merge_request_analytics_available }
+        .enable :read_project_merge_request_analytics
+
       rule { can?(:read_project) & requirements_available }.enable :read_requirement
 
       rule { requirements_available & reporter }.policy do
@@ -425,6 +395,14 @@ module EE
       rule { status_page_available & can?(:developer_access) }.enable :publish_status_page
 
       rule { public_project }.enable :view_embedded_analytics_report
+
+      rule { over_storage_limit }.policy do
+        prevent(*readonly_abilities)
+
+        readonly_features.each do |feature|
+          prevent(*create_update_admin(feature))
+        end
+      end
     end
 
     override :lookup_access_level!

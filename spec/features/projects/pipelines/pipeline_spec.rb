@@ -111,7 +111,7 @@ RSpec.describe 'Pipeline', :js do
       end
 
       context 'when there is one related merge request' do
-        before do
+        let!(:merge_request) do
           create(:merge_request,
             source_project: project,
             source_branch: pipeline.ref)
@@ -123,7 +123,7 @@ RSpec.describe 'Pipeline', :js do
           within '.related-merge-requests' do
             expect(page).to have_content('1 related merge request: ')
             expect(page).to have_selector('.js-truncated-mr-list')
-            expect(page).to have_link('!1 My title 1')
+            expect(page).to have_link("#{merge_request.to_reference} #{merge_request.title}")
 
             expect(page).not_to have_selector('.js-full-mr-list')
             expect(page).not_to have_selector('.text-expander')
@@ -132,9 +132,17 @@ RSpec.describe 'Pipeline', :js do
       end
 
       context 'when there are two related merge requests' do
-        before do
-          create(:merge_request, source_project: project, source_branch: pipeline.ref)
-          create(:merge_request, source_project: project, source_branch: pipeline.ref, target_branch: 'fix')
+        let!(:merge_request1) do
+          create(:merge_request,
+            source_project: project,
+            source_branch: pipeline.ref)
+        end
+
+        let!(:merge_request2) do
+          create(:merge_request,
+            source_project: project,
+            source_branch: pipeline.ref,
+            target_branch: 'fix')
         end
 
         it 'links to the most recent related merge request' do
@@ -142,7 +150,7 @@ RSpec.describe 'Pipeline', :js do
 
           within '.related-merge-requests' do
             expect(page).to have_content('2 related merge requests: ')
-            expect(page).to have_link('!2 My title 3')
+            expect(page).to have_link("#{merge_request2.to_reference} #{merge_request2.title}")
             expect(page).to have_selector('.text-expander')
             expect(page).to have_selector('.js-full-mr-list', visible: false)
           end
@@ -354,7 +362,7 @@ RSpec.describe 'Pipeline', :js do
     end
 
     describe 'test tabs' do
-      let(:pipeline) { create(:ci_pipeline, :with_test_reports, project: project) }
+      let(:pipeline) { create(:ci_pipeline, :with_test_reports, :with_report_results, project: project) }
 
       before do
         visit_pipeline
@@ -363,19 +371,13 @@ RSpec.describe 'Pipeline', :js do
 
       context 'with test reports' do
         it 'shows badge counter in Tests tab' do
-          expect(pipeline.test_reports.total_count).to eq(4)
-          expect(page.find('.js-test-report-badge-counter').text).to eq(pipeline.test_reports.total_count.to_s)
+          expect(page.find('.js-test-report-badge-counter').text).to eq(pipeline.test_report_summary.total[:count].to_s)
         end
 
-        it 'does not call test_report.json endpoint by default', :js do
-          expect(page).to have_selector('.js-no-tests-to-show', visible: :all)
-        end
-
-        it 'does call test_report.json endpoint when tab is selected', :js do
+        it 'calls summary.json endpoint', :js do
           find('.js-tests-tab-link').click
-          wait_for_requests
 
-          expect(page).to have_content('Test suites')
+          expect(page).to have_content('Jobs')
           expect(page).to have_selector('.js-tests-detail', visible: :all)
         end
       end
@@ -398,7 +400,7 @@ RSpec.describe 'Pipeline', :js do
 
       context 'when retrying' do
         before do
-          find('.js-retry-button').click
+          find('[data-testid="retryButton"]').click
         end
 
         it 'does not show a "Retry" button', :sidekiq_might_not_need_inline do
@@ -900,7 +902,7 @@ RSpec.describe 'Pipeline', :js do
 
       context 'when retrying' do
         before do
-          find('.js-retry-button').click
+          find('[data-testid="retryButton"]').click
         end
 
         it 'does not show a "Retry" button', :sidekiq_might_not_need_inline do

@@ -30,20 +30,11 @@ module EE
         mount ::API::Ldap
         mount ::API::LdapGroupLinks
         mount ::API::License
+        mount ::API::PersonalAccessTokens
         mount ::API::ProjectMirror
         mount ::API::ProjectPushRule
-        mount ::API::NugetPackages
-        mount ::API::PypiPackages
-        mount ::API::ComposerPackages
-        mount ::API::ConanPackages
-        mount ::API::MavenPackages
-        mount ::API::NpmPackages
-        mount ::API::GoProxy
         mount ::API::MergeTrains
-        mount ::API::ProjectPackages
-        mount ::API::GroupPackages
         mount ::API::GroupHooks
-        mount ::API::PackageFiles
         mount ::API::Scim
         mount ::API::ManagedLicenses
         mount ::API::ProjectApprovals
@@ -51,14 +42,12 @@ module EE
         mount ::API::VulnerabilityFindings
         mount ::API::VulnerabilityIssueLinks
         mount ::API::VulnerabilityExports
-        mount ::API::MergeRequestApprovals
         mount ::API::MergeRequestApprovalRules
         mount ::API::ProjectAliases
         mount ::API::Dependencies
         mount ::API::VisualReviewDiscussions
         mount ::API::Analytics::CodeReviewAnalytics
         mount ::API::Analytics::GroupActivityAnalytics
-        mount ::API::Analytics::Reports
         mount ::API::ProtectedEnvironments
         mount ::API::ResourceWeightEvents
 

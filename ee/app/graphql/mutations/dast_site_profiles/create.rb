@@ -7,7 +7,7 @@ module Mutations
 
       graphql_name 'DastSiteProfileCreate'
 
-      field :id, GraphQL::ID_TYPE,
+      field :id, ::Types::GlobalIDType[::DastSiteProfile],
             null: true,
             description: 'ID of the site profile.'
 
@@ -29,9 +29,14 @@ module Mutations
         project = authorized_find!(full_path: full_path)
         raise_resource_not_available_error! unless Feature.enabled?(:security_on_demand_scans_feature_flag, project)
 
-        {
-          errors: ['Not implemented']
-        }
+        service = ::DastSiteProfiles::CreateService.new(project, current_user)
+        result = service.execute(name: profile_name, target_url: target_url)
+
+        if result.success?
+          { id: result.payload.to_global_id, errors: [] }
+        else
+          { errors: result.errors }
+        end
       end
 
       private

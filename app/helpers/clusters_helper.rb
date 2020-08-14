@@ -18,12 +18,20 @@ module ClustersHelper
 
   def js_clusters_list_data(path = nil)
     {
+      ancestor_help_path: help_page_path('user/group/clusters/index', anchor: 'cluster-precedence'),
       endpoint: path,
       img_tags: {
         aws: { path: image_path('illustrations/logos/amazon_eks.svg'), text: s_('ClusterIntegration|Amazon EKS') },
         default: { path: image_path('illustrations/logos/kubernetes.svg'), text: _('Kubernetes Cluster') },
         gcp: { path: image_path('illustrations/logos/google_gke.svg'), text: s_('ClusterIntegration|Google GKE') }
       }
+    }
+  end
+
+  def js_cluster_form_data(cluster, can_edit)
+    {
+      enabled: cluster.enabled?.to_s,
+      editable: can_edit.to_s
     }
   end
 

@@ -104,7 +104,7 @@ module ProjectsHelper
   end
 
   def remove_project_message(project)
-    _("You are going to remove %{project_full_name}. Removed project CANNOT be restored! Are you ABSOLUTELY sure?") %
+    _("You are going to delete %{project_full_name}. Deleted projects CANNOT be restored! Are you ABSOLUTELY sure?") %
       { project_full_name: project.full_name }
   end
 
@@ -400,7 +400,7 @@ module ProjectsHelper
     nav_tabs = [:home]
 
     unless project.empty_repo?
-      nav_tabs << [:files, :commits, :network, :graphs, :forks] if can?(current_user, :download_code, project)
+      nav_tabs += [:files, :commits, :network, :graphs, :forks] if can?(current_user, :download_code, project)
       nav_tabs << :releases if can?(current_user, :read_release, project)
     end
 
@@ -421,8 +421,8 @@ module ProjectsHelper
       nav_tabs << :operations
     end
 
-    if can?(current_user, :read_cycle_analytics, project)
-      nav_tabs << :cycle_analytics
+    if can_view_product_analytics?(current_user, project)
+      nav_tabs << :product_analytics
     end
 
     tab_ability_map.each do |tab, ability|
@@ -431,20 +431,34 @@ module ProjectsHelper
       end
     end
 
-    nav_tabs << external_nav_tabs(project)
+    apply_external_nav_tabs(nav_tabs, project)
 
-    nav_tabs.flatten
+    nav_tabs += package_nav_tabs(project, current_user)
+
+    nav_tabs
   end
 
-  def external_nav_tabs(project)
+  def package_nav_tabs(project, current_user)
     [].tap do |tabs|
-      tabs << :external_issue_tracker if project.external_issue_tracker
-      tabs << :external_wiki if project.external_wiki
+      if ::Gitlab.config.packages.enabled && can?(current_user, :read_package, project)
+        tabs << :packages
+      end
+    end
+  end
+
+  def apply_external_nav_tabs(nav_tabs, project)
+    nav_tabs << :external_issue_tracker if project.external_issue_tracker
+    nav_tabs << :external_wiki if project.external_wiki
+
+    if project.has_confluence?
+      nav_tabs.delete(:wiki)
+      nav_tabs << :confluence
     end
   end
 
   def tab_ability_map
     {
+      cycle_analytics:    :read_cycle_analytics,
       environments:       :read_environment,
       metrics_dashboards: :metrics_dashboard,
       milestones:         :read_milestone,
@@ -455,6 +469,7 @@ module ProjectsHelper
       serverless:         :read_cluster,
       error_tracking:     :read_sentry_issue,
       alert_management:   :read_alert_management_alert,
+      incidents:          :read_incidents,
       labels:             :read_label,
       issues:             :read_issue,
       project_members:    :read_project_member,
@@ -466,6 +481,11 @@ module ProjectsHelper
     [:read_environment, :read_cluster, :metrics_dashboard].any? do |ability|
       can?(current_user, ability, project)
     end
+  end
+
+  def can_view_product_analytics?(current_user, project)
+    Feature.enabled?(:product_analytics, project) &&
+      can?(current_user, :read_product_analytics, project)
   end
 
   def search_tab_ability_map
@@ -584,6 +604,7 @@ module ProjectsHelper
   def project_permissions_settings(project)
     feature = project.project_feature
     {
+      packagesEnabled: !!project.packages_enabled,
       visibilityLevel: project.visibility_level,
       requestAccessEnabled: !!project.request_access_enabled,
       issuesAccessLevel: feature.issues_access_level,
@@ -604,6 +625,8 @@ module ProjectsHelper
 
   def project_permissions_panel_data(project)
     {
+      packagesAvailable: ::Gitlab.config.packages.enabled,
+      packagesHelpPath: help_page_path('user/packages/index'),
       currentSettings: project_permissions_settings(project),
       canDisableEmails: can_disable_emails?(project, current_user),
       canChangeVisibilityLevel: can_change_visibility_level?(project, current_user),
@@ -719,9 +742,13 @@ module ProjectsHelper
       functions
       error_tracking
       alert_management
+      incidents
+      incident_management
       user
       gcp
       logs
+      product_analytics
+      metrics_dashboard
     ]
   end
 
@@ -748,11 +775,7 @@ module ProjectsHelper
   def project_access_token_available?(project)
     return false if ::Gitlab.com?
 
-    ::Feature.enabled?(:resource_access_token, project)
-  end
-
-  def render_service_desk_menu?
-    false
+    ::Feature.enabled?(:resource_access_token, project, default_enabled: true)
   end
 end
 

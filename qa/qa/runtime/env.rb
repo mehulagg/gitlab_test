@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'gitlab/qa'
+require 'uri'
 
 module QA
   module Runtime
@@ -23,12 +24,45 @@ module QA
         SUPPORTED_FEATURES
       end
 
-      def dot_com?
-        Runtime::Scenario.gitlab_address.include?(".com")
+      def address_matches?(*options)
+        return false unless Runtime::Scenario.attributes[:gitlab_address]
+
+        opts = {}
+        opts[:domain] = '.+'
+        opts[:tld] = '.com'
+
+        uri = URI(Runtime::Scenario.gitlab_address)
+
+        if options.any?
+          options.each do |option|
+            opts[:domain] = 'gitlab' if option == :production
+
+            if option.is_a?(Hash) && !option[:subdomain].nil?
+              opts.merge!(option)
+
+              opts[:subdomain] = case option[:subdomain]
+                                 when Array
+                                   "(#{option[:subdomain].join("|")})."
+                                 when Regexp
+                                   option[:subdomain]
+                                 else
+                                   "(#{option[:subdomain]})."
+                                 end
+            end
+          end
+        end
+
+        uri.host.match?(/^#{opts[:subdomain]}#{opts[:domain]}#{opts[:tld]}$/)
       end
+
+      alias_method :dot_com?, :address_matches?
 
       def additional_repository_storage
         ENV['QA_ADDITIONAL_REPOSITORY_STORAGE']
+      end
+
+      def non_cluster_repository_storage
+        ENV['QA_GITALY_NON_CLUSTER_STORAGE'] || 'gitaly'
       end
 
       def praefect_repository_storage
@@ -75,6 +109,10 @@ module QA
 
       def running_in_ci?
         ENV['CI'] || ENV['CI_SERVER']
+      end
+
+      def cluster_api_url
+        ENV['CLUSTER_API_URL']
       end
 
       def qa_cookies

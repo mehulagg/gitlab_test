@@ -1,3 +1,9 @@
+---
+stage: Monitor
+group: APM
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Distributed Tracing - development guidelines
 
 GitLab is instrumented for distributed tracing.
@@ -66,7 +72,7 @@ GITLAB_TRACING=opentracing://<driver>?<param_name>=<param_value>&<param_name_2>=
 In this example, we have the following hypothetical values:
 
 - `driver`: the driver. [GitLab supports
-  `jaeger`](../user/project/operations/tracing.md). In future, other
+  `jaeger`](../operations/tracing.md). In future, other
   tracing implementations may also be supported.
 - `param_name`, `param_value`: these are driver specific configuration values. Configuration
   parameters for Jaeger are documented [further on in this

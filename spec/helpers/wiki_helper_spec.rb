@@ -62,7 +62,7 @@ RSpec.describe WikiHelper do
       path = "/#{wiki.project.full_path}/-/wikis/pages?direction=#{direction}&sort=#{sort}"
 
       helper.link_to(path, type: 'button', class: classes, title: 'Sort direction') do
-        helper.sprite_icon("sort-#{icon_class}", size: 16)
+        helper.sprite_icon("sort-#{icon_class}")
       end
     end
 
@@ -102,6 +102,26 @@ RSpec.describe WikiHelper do
 
     it 'defaults to Title if a key is unknown' do
       expect(helper.wiki_sort_title('unknown')).to eq('Title')
+    end
+  end
+
+  describe '#wiki_page_tracking_context' do
+    let_it_be(:page) { create(:wiki_page, title: 'path/to/page 💩', content: '💩', format: :markdown) }
+
+    subject { helper.wiki_page_tracking_context(page) }
+
+    it 'returns the tracking context' do
+      expect(subject).to eq(
+        'wiki-format'               => :markdown,
+        'wiki-title-size'           => 9,
+        'wiki-content-size'         => 4,
+        'wiki-directory-nest-level' => 2
+      )
+    end
+
+    it 'returns a nest level of zero for toplevel files' do
+      expect(page).to receive(:path).and_return('page')
+      expect(subject).to include('wiki-directory-nest-level' => 0)
     end
   end
 end

@@ -58,6 +58,10 @@ RSpec.describe User do
 
     it { is_expected.to delegate_method(:job_title).to(:user_detail).allow_nil }
     it { is_expected.to delegate_method(:job_title=).to(:user_detail).with_arguments(:args).allow_nil }
+
+    it { is_expected.to delegate_method(:bio).to(:user_detail).allow_nil }
+    it { is_expected.to delegate_method(:bio=).to(:user_detail).with_arguments(:args).allow_nil }
+    it { is_expected.to delegate_method(:bio_html).to(:user_detail).allow_nil }
   end
 
   describe 'associations' do
@@ -72,6 +76,7 @@ RSpec.describe User do
     it { is_expected.to have_many(:groups) }
     it { is_expected.to have_many(:keys).dependent(:destroy) }
     it { is_expected.to have_many(:deploy_keys).dependent(:nullify) }
+    it { is_expected.to have_many(:group_deploy_keys) }
     it { is_expected.to have_many(:events).dependent(:delete_all) }
     it { is_expected.to have_many(:issues).dependent(:destroy) }
     it { is_expected.to have_many(:notes).dependent(:destroy) }
@@ -91,64 +96,28 @@ RSpec.describe User do
     it { is_expected.to have_many(:metrics_users_starred_dashboards).inverse_of(:user) }
     it { is_expected.to have_many(:reviews).inverse_of(:author) }
 
-    describe "#bio" do
-      it 'syncs bio with `user_details.bio` on create' do
+    describe "#user_detail" do
+      it 'does not persist `user_detail` by default' do
+        expect(create(:user).user_detail).not_to be_persisted
+      end
+
+      it 'creates `user_detail` when `bio` is given' do
+        user = create(:user, bio: 'my bio')
+
+        expect(user.user_detail).to be_persisted
+        expect(user.user_detail.bio).to eq('my bio')
+      end
+
+      it 'delegates `bio` to `user_detail`' do
         user = create(:user, bio: 'my bio')
 
         expect(user.bio).to eq(user.user_detail.bio)
       end
 
-      context 'when `migrate_bio_to_user_details` feature flag is off' do
-        before do
-          stub_feature_flags(migrate_bio_to_user_details: false)
-        end
-
-        it 'does not sync bio with `user_details.bio`' do
-          user = create(:user, bio: 'my bio')
-
-          expect(user.bio).to eq('my bio')
-          expect(user.user_detail.bio).to eq('')
-        end
-      end
-
-      it 'syncs bio with `user_details.bio` on update' do
+      it 'creates `user_detail` when `bio` is first updated' do
         user = create(:user)
 
-        user.update!(bio: 'my bio')
-
-        expect(user.bio).to eq(user.user_detail.bio)
-      end
-
-      context 'when `user_details` association already exists' do
-        let(:user) { create(:user) }
-
-        before do
-          create(:user_detail, user: user)
-        end
-
-        it 'syncs bio with `user_details.bio`' do
-          user.update!(bio: 'my bio')
-
-          expect(user.bio).to eq(user.user_detail.bio)
-        end
-
-        it 'falls back to "" when nil is given' do
-          user.update!(bio: nil)
-
-          expect(user.bio).to eq(nil)
-          expect(user.user_detail.bio).to eq('')
-        end
-
-        # very unlikely scenario
-        it 'truncates long bio when syncing to user_details' do
-          invalid_bio = 'a' * 256
-          truncated_bio = 'a' * 255
-
-          user.bio = invalid_bio
-          user.save(validate: false)
-
-          expect(user.user_detail.bio).to eq(truncated_bio)
-        end
+        expect { user.update(bio: 'my bio') }.to change { user.user_detail.persisted? }.from(false).to(true)
       end
     end
 
@@ -273,6 +242,22 @@ RSpec.describe User do
       it { is_expected.to validate_length_of(:last_name).is_at_most(127) }
     end
 
+    describe 'preferred_language' do
+      context 'when its value is nil in the database' do
+        let(:user) { build(:user, preferred_language: nil) }
+
+        it 'falls back to I18n.default_locale when empty in the database' do
+          expect(user.preferred_language).to eq I18n.default_locale.to_s
+        end
+
+        it 'falls back to english when I18n.default_locale is not an available language' do
+          I18n.default_locale = :kl
+
+          expect(user.preferred_language).to eq 'en'
+        end
+      end
+    end
+
     describe 'username' do
       it 'validates presence' do
         expect(subject).to validate_presence_of(:username)
@@ -336,8 +321,6 @@ RSpec.describe User do
     it { is_expected.to allow_value(0).for(:projects_limit) }
     it { is_expected.not_to allow_value(-1).for(:projects_limit) }
     it { is_expected.not_to allow_value(Gitlab::Database::MAX_INT_VALUE + 1).for(:projects_limit) }
-
-    it { is_expected.to validate_length_of(:bio).is_at_most(255) }
 
     it_behaves_like 'an object with email-formated attributes', :email do
       subject { build(:user) }
@@ -870,6 +853,24 @@ RSpec.describe User do
         it 'only includes user2' do
           expect(users).to contain_exactly(user2)
         end
+      end
+    end
+
+    describe '.with_personal_access_tokens_expired_today' do
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:expired_today) { create(:personal_access_token, user: user1, expires_at: Date.current) }
+
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:revoked_token) { create(:personal_access_token, user: user2, expires_at: Date.current, revoked: true) }
+
+      let_it_be(:user3) { create(:user) }
+      let_it_be(:impersonated_token) { create(:personal_access_token, user: user3, expires_at: Date.current, impersonation: true) }
+
+      let_it_be(:user4) { create(:user) }
+      let_it_be(:already_notified) { create(:personal_access_token, user: user4, expires_at: Date.current, after_expiry_notification_delivered: true) }
+
+      it 'returns users whose token has expired today' do
+        expect(described_class.with_personal_access_tokens_expired_today).to contain_exactly(user1)
       end
     end
 
@@ -3744,6 +3745,12 @@ RSpec.describe User do
         user.save!
 
         expect(user.namespace).not_to be_nil
+      end
+
+      it 'creates the namespace setting' do
+        user.save!
+
+        expect(user.namespace.namespace_settings).to be_persisted
       end
     end
 

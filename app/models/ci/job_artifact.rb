@@ -7,9 +7,14 @@ module Ci
     include UpdateProjectStatistics
     include UsageStatistics
     include Sortable
+    include IgnorableColumns
+    include Artifactable
+    include FileStoreMounter
     extend Gitlab::Ci::Model
 
     NotSupportedAdapterError = Class.new(StandardError)
+
+    ignore_columns :locked, remove_after: '2020-07-22', remove_with: '13.4'
 
     TEST_REPORT_FILE_TYPES = %w[junit].freeze
     COVERAGE_REPORT_FILE_TYPES = %w[cobertura].freeze
@@ -35,6 +40,7 @@ module Ci
       license_scanning: 'gl-license-scanning-report.json',
       performance: 'performance.json',
       browser_performance: 'browser-performance.json',
+      load_performance: 'load-performance.json',
       metrics: 'metrics.txt',
       lsif: 'lsif.json',
       dotenv: '.env',
@@ -75,6 +81,7 @@ module Ci
       license_scanning: :raw,
       performance: :raw,
       browser_performance: :raw,
+      load_performance: :raw,
       terraform: :raw,
       requirements: :raw,
       coverage_fuzzing: :raw
@@ -96,6 +103,7 @@ module Ci
       metrics
       performance
       browser_performance
+      load_performance
       sast
       secret_detection
       requirements
@@ -105,14 +113,10 @@ module Ci
 
     PLAN_LIMIT_PREFIX = 'ci_max_artifact_size_'
 
-    # This is required since we cannot add a default to the database
-    # https://gitlab.com/gitlab-org/gitlab/-/issues/215418
-    attribute :locked, :boolean, default: false
-
     belongs_to :project
     belongs_to :job, class_name: "Ci::Build", foreign_key: :job_id
 
-    mount_uploader :file, JobArtifactUploader
+    mount_file_store_uploader JobArtifactUploader
 
     validates :file_format, presence: true, unless: :trace?, on: :create
     validate :validate_supported_file_format!, on: :create
@@ -121,13 +125,10 @@ module Ci
 
     update_project_statistics project_statistics_name: :build_artifacts_size
 
-    after_save :update_file_store, if: :saved_change_to_file?
-
     scope :not_expired, -> { where('expire_at IS NULL OR expire_at > ?', Time.current) }
     scope :with_files_stored_locally, -> { where(file_store: ::JobArtifactUploader::Store::LOCAL) }
     scope :with_files_stored_remotely, -> { where(file_store: ::JobArtifactUploader::Store::REMOTE) }
     scope :for_sha, ->(sha, project_id) { joins(job: :pipeline).where(ci_pipelines: { sha: sha, project_id: project_id }) }
-    scope :for_ref, ->(ref, project_id) { joins(job: :pipeline).where(ci_pipelines: { ref: ref, project_id: project_id }) }
     scope :for_job_name, ->(name) { joins(:job).where(ci_builds: { name: name }) }
 
     scope :with_file_types, -> (file_types) do
@@ -164,8 +165,7 @@ module Ci
 
     scope :expired, -> (limit) { where('expire_at < ?', Time.current).limit(limit) }
     scope :downloadable, -> { where(file_type: DOWNLOADABLE_TYPES) }
-    scope :locked, -> { where(locked: true) }
-    scope :unlocked, -> { where(locked: [false, nil]) }
+    scope :unlocked, -> { joins(job: :pipeline).merge(::Ci::Pipeline.unlocked).order(expire_at: :desc) }
 
     scope :scoped_project, -> { where('ci_job_artifacts.project_id = projects.id') }
 
@@ -196,14 +196,9 @@ module Ci
       secret_detection: 21, ## EE-specific
       requirements: 22, ## EE-specific
       coverage_fuzzing: 23, ## EE-specific
-      browser_performance: 24 ## EE-specific
+      browser_performance: 24, ## EE-specific
+      load_performance: 25 ## EE-specific
     }
-
-    enum file_format: {
-      raw: 1,
-      zip: 2,
-      gzip: 3
-    }, _suffix: true
 
     # `file_location` indicates where actual files are stored.
     # Ideally, actual files should be stored in the same directory, and use the same
@@ -219,11 +214,6 @@ module Ci
       hashed_path: 2
     }
 
-    FILE_FORMAT_ADAPTERS = {
-      gzip: Gitlab::Ci::Build::Artifacts::Adapters::GzipStream,
-      raw: Gitlab::Ci::Build::Artifacts::Adapters::RawStream
-    }.freeze
-
     def validate_supported_file_format!
       return if Feature.disabled?(:drop_license_management_artifact, project, default_enabled: true)
 
@@ -238,10 +228,10 @@ module Ci
       end
     end
 
-    def update_file_store
-      # The file.object_store is set during `uploader.store!`
-      # which happens after object is inserted/updated
-      self.update_column(:file_store, file.object_store)
+    def self.associated_file_types_for(file_type)
+      return unless file_types.include?(file_type)
+
+      [file_type]
     end
 
     def self.total_size
@@ -277,7 +267,7 @@ module Ci
     def expire_in=(value)
       self.expire_at =
         if value
-          ChronicDuration.parse(value)&.seconds&.from_now
+          ::Gitlab::Ci::Build::Artifacts::ExpireInParser.new(value).seconds_from_now
         end
     end
 
@@ -296,16 +286,12 @@ module Ci
     end
 
     def self.max_artifact_size(type:, project:)
-      max_size = if Feature.enabled?(:ci_max_artifact_size_per_type, project, default_enabled: false)
-                   limit_name = "#{PLAN_LIMIT_PREFIX}#{type}"
+      limit_name = "#{PLAN_LIMIT_PREFIX}#{type}"
 
-                   project.actual_limits.limit_for(
-                     limit_name,
-                     alternate_limit: -> { project.closest_setting(:max_artifacts_size) }
-                   )
-                 else
-                   project.closest_setting(:max_artifacts_size)
-                 end
+      max_size = project.actual_limits.limit_for(
+        limit_name,
+        alternate_limit: -> { project.closest_setting(:max_artifacts_size) }
+      )
 
       max_size&.megabytes.to_i
     end

@@ -996,13 +996,14 @@ RSpec.describe User do
     end
   end
 
-  describe '#managed_free_namespaces' do
+  describe '#manageable_groups_eligible_for_subscription' do
     let_it_be(:user) { create(:user) }
     let_it_be(:licensed_group) { create(:group, gitlab_subscription: create(:gitlab_subscription, :bronze)) }
     let_it_be(:free_group_z) { create(:group, name: 'AZ', gitlab_subscription: create(:gitlab_subscription, :free)) }
     let_it_be(:free_group_a) { create(:group, name: 'AA', gitlab_subscription: create(:gitlab_subscription, :free)) }
+    let_it_be(:sub_group) { create(:group, name: 'SubGroup', parent: free_group_a) }
 
-    subject { user.managed_free_namespaces }
+    subject { user.manageable_groups_eligible_for_subscription }
 
     context 'user with no groups' do
       it { is_expected.to eq [] }
@@ -1047,6 +1048,62 @@ RSpec.describe User do
       end
 
       it { is_expected.to eq [free_group_a, free_group_z] }
+
+      it { is_expected.not_to include(sub_group) }
+    end
+  end
+
+  describe '#manageable_groups_eligible_for_trial' do
+    let_it_be(:user) { create :user }
+    let_it_be(:non_trialed_group_z) { create :group, name: 'Zeta', gitlab_subscription: create(:gitlab_subscription, :free) }
+    let_it_be(:non_trialed_group_a) { create :group, name: 'Alpha', gitlab_subscription: create(:gitlab_subscription, :free) }
+    let_it_be(:trialed_group) { create :group, name: 'Omitted', gitlab_subscription: create(:gitlab_subscription, :free, trial: true) }
+
+    subject { user.manageable_groups_eligible_for_trial }
+
+    context 'user with no groups' do
+      it { is_expected.to eq [] }
+    end
+
+    context 'owner of an already-trialed group' do
+      before do
+        trialed_group.add_owner(user)
+      end
+
+      it { is_expected.not_to include trialed_group }
+    end
+
+    context 'guest of a non-trialed group' do
+      before do
+        non_trialed_group_a.add_guest(user)
+      end
+
+      it { is_expected.not_to include non_trialed_group_a }
+    end
+
+    context 'developer of a non-trialed group' do
+      before do
+        non_trialed_group_a.add_developer(user)
+      end
+
+      it { is_expected.not_to include non_trialed_group_a }
+    end
+
+    context 'maintainer of a non-trialed group' do
+      before do
+        non_trialed_group_a.add_maintainer(user)
+      end
+
+      it { is_expected.to include non_trialed_group_a }
+    end
+
+    context 'owner of 2 non-trialed groups' do
+      before do
+        non_trialed_group_z.add_owner(user)
+        non_trialed_group_a.add_owner(user)
+      end
+
+      it { is_expected.to eq [non_trialed_group_a, non_trialed_group_z] }
     end
   end
 

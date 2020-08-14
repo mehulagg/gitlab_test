@@ -12,10 +12,11 @@ import RequirementsTabs from 'ee/requirements/components/requirements_tabs.vue';
 import RequirementsLoading from 'ee/requirements/components/requirements_loading.vue';
 import RequirementsEmptyState from 'ee/requirements/components/requirements_empty_state.vue';
 import RequirementItem from 'ee/requirements/components/requirement_item.vue';
-import RequirementForm from 'ee/requirements/components/requirement_form.vue';
 
 import createRequirement from 'ee/requirements/queries/createRequirement.mutation.graphql';
 import updateRequirement from 'ee/requirements/queries/updateRequirement.mutation.graphql';
+
+import { TEST_HOST } from 'helpers/test_constants';
 
 import {
   FilterState,
@@ -280,7 +281,7 @@ describe('RequirementsRoot', () => {
           wrapper.vm.updateUrl();
 
           expect(global.window.location.href).toBe(
-            `http://localhost/?page=2&next=${mockPageInfo.endCursor}&state=all&search=foo&sort=updated_asc&author_username%5B%5D=root&author_username%5B%5D=john.doe`,
+            `${TEST_HOST}/?page=2&next=${mockPageInfo.endCursor}&state=all&search=foo&sort=updated_asc&author_username%5B%5D=root&author_username%5B%5D=john.doe`,
           );
         });
       });
@@ -376,10 +377,11 @@ describe('RequirementsRoot', () => {
     });
 
     describe('handleEditRequirementClick', () => {
-      it('sets `showUpdateFormForRequirement` prop to value of passed param', () => {
-        wrapper.vm.handleEditRequirementClick('10');
+      it('sets `showEditForm` prop to `true` and `editedRequirement` to value of passed param', () => {
+        wrapper.vm.handleEditRequirementClick(mockRequirementsOpen[0]);
 
-        expect(wrapper.vm.showUpdateFormForRequirement).toBe('10');
+        expect(wrapper.vm.showEditForm).toBe(true);
+        expect(wrapper.vm.editedRequirement).toBe(mockRequirementsOpen[0]);
       });
     });
 
@@ -492,7 +494,7 @@ describe('RequirementsRoot', () => {
         );
       });
 
-      it('sets `showUpdateFormForRequirement` to `0` and `createRequirementRequestActive` prop to `false` when request is successful', () => {
+      it('sets `showEditForm` to `true`, `editedRequirement` to `null` and `createRequirementRequestActive` prop to `false` when request is successful', () => {
         jest.spyOn(wrapper.vm, 'updateRequirement').mockResolvedValue(mockUpdateMutationResult);
 
         return wrapper.vm
@@ -501,7 +503,8 @@ describe('RequirementsRoot', () => {
             title: 'foo',
           })
           .then(() => {
-            expect(wrapper.vm.showUpdateFormForRequirement).toBe(0);
+            expect(wrapper.vm.showEditForm).toBe(false);
+            expect(wrapper.vm.editedRequirement).toBe(null);
             expect(wrapper.vm.createRequirementRequestActive).toBe(false);
           });
       });
@@ -647,10 +650,11 @@ describe('RequirementsRoot', () => {
     });
 
     describe('handleUpdateRequirementCancel', () => {
-      it('sets `showUpdateFormForRequirement` prop to `0`', () => {
+      it('sets `showEditForm` prop to `false` and `editedRequirement` to `null`', () => {
         wrapper.vm.handleUpdateRequirementCancel();
 
-        expect(wrapper.vm.showUpdateFormForRequirement).toBe(0);
+        expect(wrapper.vm.showEditForm).toBe(false);
+        expect(wrapper.vm.editedRequirement).toBe(null);
       });
     });
 
@@ -664,7 +668,7 @@ describe('RequirementsRoot', () => {
         expect(wrapper.vm.prevPageCursor).toBe('');
         expect(wrapper.vm.nextPageCursor).toBe('');
         expect(global.window.location.href).toBe(
-          `http://localhost/?page=1&state=opened&search=foo&sort=created_desc&author_username%5B%5D=root&author_username%5B%5D=john.doe`,
+          `${TEST_HOST}/?page=1&state=opened&search=foo&sort=created_desc&author_username%5B%5D=root&author_username%5B%5D=john.doe`,
         );
       });
 
@@ -690,7 +694,7 @@ describe('RequirementsRoot', () => {
         expect(wrapper.vm.prevPageCursor).toBe('');
         expect(wrapper.vm.nextPageCursor).toBe('');
         expect(global.window.location.href).toBe(
-          `http://localhost/?page=1&state=opened&sort=updated_desc`,
+          `${TEST_HOST}/?page=1&state=opened&sort=updated_desc`,
         );
       });
     });
@@ -711,7 +715,7 @@ describe('RequirementsRoot', () => {
         expect(wrapper.vm.prevPageCursor).toBe('');
         expect(wrapper.vm.nextPageCursor).toBe(mockPageInfo.endCursor);
         expect(global.window.location.href).toBe(
-          `http://localhost/?page=2&state=opened&sort=created_desc&next=${mockPageInfo.endCursor}`,
+          `${TEST_HOST}/?page=2&state=opened&sort=created_desc&next=${mockPageInfo.endCursor}`,
         );
       });
 
@@ -730,7 +734,7 @@ describe('RequirementsRoot', () => {
         expect(wrapper.vm.prevPageCursor).toBe(mockPageInfo.startCursor);
         expect(wrapper.vm.nextPageCursor).toBe('');
         expect(global.window.location.href).toBe(
-          `http://localhost/?page=1&state=opened&sort=created_desc&prev=${mockPageInfo.startCursor}`,
+          `${TEST_HOST}/?page=1&state=opened&sort=created_desc&prev=${mockPageInfo.startCursor}`,
         );
       });
     });
@@ -763,6 +767,9 @@ describe('RequirementsRoot', () => {
           fetchAuthors: expect.any(Function),
         },
       ]);
+      expect(wrapper.find(FilteredSearchBarRoot).props('recentSearchesStorageKey')).toBe(
+        'requirements',
+      );
     });
 
     it('renders empty state when query results are empty', () => {
@@ -788,14 +795,12 @@ describe('RequirementsRoot', () => {
       wrapperLoading.destroy();
     });
 
-    it('renders requirement-form component when `showCreateForm` prop is `true`', () => {
-      wrapper.setData({
-        showCreateForm: true,
-      });
+    it('renders requirement-create-form component', () => {
+      expect(wrapper.contains('requirement-create-form-stub')).toBe(true);
+    });
 
-      return wrapper.vm.$nextTick(() => {
-        expect(wrapper.contains(RequirementForm)).toBe(true);
-      });
+    it('renders requirement-edit-form component', () => {
+      expect(wrapper.contains('requirement-edit-form-stub')).toBe(true);
     });
 
     it('does not render requirement-empty-state component when `showCreateForm` prop is `true`', () => {

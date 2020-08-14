@@ -14,16 +14,22 @@ module EE
     end
 
     def namespace_options_for_select(selected = nil)
-      groups = current_user.manageable_groups.map { |g| [g.name, g.id] }
-      users = [[current_user.namespace.name, current_user.namespace_id]]
-
       grouped_options = {
         'New' => [[_('Create group'), 0]],
-        'Groups' => groups,
-        'Users' => users
+        'Groups' => trial_group_namespaces.map { |n| [n.name, n.id] },
+        'Users' => trial_user_namespaces.map { |n| [n.name, n.id] }
       }
 
       grouped_options_for_select(grouped_options, selected, prompt: _('Please select'))
+    end
+
+    def trial_group_namespaces
+      current_user.manageable_groups_eligible_for_trial
+    end
+
+    def trial_user_namespaces
+      user_namespace = current_user.namespace
+      user_namespace.eligible_for_trial? ? [user_namespace] : []
     end
 
     def show_trial_errors?(namespace, service_result)

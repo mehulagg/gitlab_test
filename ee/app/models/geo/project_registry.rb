@@ -3,6 +3,7 @@
 class Geo::ProjectRegistry < Geo::BaseRegistry
   include ::Delay
   include ::EachBatch
+  include ::FromUnion
   include ::ShaAttribute
 
   MODEL_CLASS = ::Project
@@ -40,10 +41,6 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
 
   def self.pluck_project_key
     where(nil).pluck(:project_id)
-  end
-
-  def self.registry_consistency_worker_enabled?
-    Feature.enabled?(:geo_project_registry_ssot_sync)
   end
 
   def self.find_registry_differences(range)
@@ -107,7 +104,9 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   #
   # @param [String] query term that will search over :path, :name and :description
   def self.with_search(query)
-    where(project: Geo::Fdw::Project.search(query))
+    return all if query.empty?
+
+    where(project_id: ::Project.search(query).limit(1000).pluck_primary_key)
   end
 
   def self.synced(type)
@@ -176,28 +175,26 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
     end
   end
 
-  def self.registries_pending_verification
-    repositories_pending_verification.or(wikis_pending_verification)
-  end
-
-  def self.repositories_pending_verification
+  def self.repositories_checksummed_pending_verification
     repository_exists_on_primary =
-      Arel::Nodes::SqlLiteral.new("project_registry.repository_missing_on_primary IS NOT TRUE")
+      Arel::Nodes::SqlLiteral.new('project_registry.repository_missing_on_primary IS NOT TRUE')
 
-    arel_table[:repository_verification_checksum_sha].eq(nil)
-      .and(arel_table[:last_repository_verification_failure].eq(nil))
-      .and(arel_table[:resync_repository].eq(false))
-      .and(repository_exists_on_primary)
+    where(repository_exists_on_primary)
+      .where(last_repository_verification_failure: nil,
+             primary_repository_checksummed: true,
+             resync_repository: false,
+             repository_verification_checksum_sha: nil)
   end
 
-  def self.wikis_pending_verification
+  def self.wikis_checksummed_pending_verification
     wiki_exists_on_primary =
-      Arel::Nodes::SqlLiteral.new("project_registry.wiki_missing_on_primary IS NOT TRUE")
+      Arel::Nodes::SqlLiteral.new('project_registry.wiki_missing_on_primary IS NOT TRUE')
 
-    arel_table[:wiki_verification_checksum_sha].eq(nil)
-      .and(arel_table[:last_wiki_verification_failure].eq(nil))
-      .and(arel_table[:resync_wiki].eq(false))
-      .and(wiki_exists_on_primary)
+    where(wiki_exists_on_primary)
+      .where(last_wiki_verification_failure: nil,
+             primary_wiki_checksummed: true,
+             resync_wiki: false,
+             wiki_verification_checksum_sha: nil)
   end
 
   def self.flag_repositories_for_resync!
@@ -258,8 +255,9 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   #
   # @param [String] type must be one of the values in TYPES
   # @see REGISTRY_TYPES
-  def finish_sync!(type, missing_on_primary = false)
+  def finish_sync!(type, missing_on_primary = false, primary_checksummed = false)
     ensure_valid_type!(type)
+
     update!(
       # Indicate that the sync succeeded (but separately mark as synced atomically)
       "last_#{type}_successful_sync_at" => Time.current,
@@ -270,6 +268,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
       "#{type}_missing_on_primary" => missing_on_primary,
 
       # Indicate that repository verification needs to be done again
+      "primary_#{type}_checksummed" => primary_checksummed,
       "#{type}_verification_checksum_sha" => nil,
       "#{type}_checksum_mismatch" => false,
       "last_#{type}_verification_failure" => nil)
@@ -326,9 +325,11 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   end
 
   # Resets repository/wiki verification state. Is called when a Geo
-  # secondary node process a Geo::ResetChecksymEvent.
+  # secondary node process a Geo::ResetChecksumEvent.
   def reset_checksum!
     update!(
+      primary_repository_checksummed: true,
+      primary_wiki_checksummed: true,
       repository_verification_checksum_sha: nil,
       wiki_verification_checksum_sha: nil,
       repository_checksum_mismatch: false,

@@ -71,7 +71,7 @@ export default {
   >
     <template #left-primary>
       <router-link
-        class="gl-text-black-normal gl-font-weight-bold"
+        class="gl-text-body gl-font-weight-bold"
         data-testid="detailsLink"
         :to="{ name: 'details', params: { id: encodedItem } }"
       >
@@ -82,13 +82,13 @@ export default {
         :disabled="item.deleting"
         :text="item.location"
         :title="item.location"
-        css-class="btn-default btn-transparent btn-clipboard gl-text-gray-500"
+        css-class="btn-default btn-transparent btn-clipboard gl-text-gray-300"
       />
       <gl-icon
         v-if="item.failedDelete"
         v-gl-tooltip="{ title: $options.i18n.ASYNC_DELETE_IMAGE_ERROR_MESSAGE }"
         name="warning"
-        class="text-warning"
+        class="gl-text-orange-500"
       />
     </template>
     <template #left-secondary>

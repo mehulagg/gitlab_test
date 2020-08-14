@@ -1,7 +1,7 @@
 - access = note_max_access_for_user(note)
 - if note.has_special_role?(Note::SpecialRole::FIRST_TIME_CONTRIBUTOR)
   %span.note-role.note-role-special.has-tooltip{ title: _("This is the author's first Merge Request to this project.") }
-    = issuable_first_contribution_icon
+    = sprite_icon('first-contribution', css_class: 'gl-icon gl-vertical-align-top')
 - if access.nonzero?
   %span.note-role.user-access-role= Gitlab::Access.human_access(access)
 
@@ -45,7 +45,7 @@
 
   - if note_editable
     .note-actions-item
-      = button_tag title: 'Edit comment', class: 'note-action-button js-note-edit has-tooltip btn btn-transparent', data: { container: 'body' } do
+      = button_tag title: 'Edit comment', class: 'note-action-button js-note-edit has-tooltip btn btn-transparent', data: { container: 'body', qa_selector: 'edit_comment_button' } do
         %span.link-highlight
           = custom_icon('icon_pencil')
 

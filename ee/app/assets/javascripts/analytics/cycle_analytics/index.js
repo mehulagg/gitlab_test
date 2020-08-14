@@ -3,6 +3,9 @@ import CycleAnalytics from './components/base.vue';
 import createStore from './store';
 import { buildCycleAnalyticsInitialData } from '../shared/utils';
 import { parseBoolean } from '~/lib/utils/common_utils';
+import { GlToast } from '@gitlab/ui';
+
+Vue.use(GlToast);
 
 export default () => {
   const el = document.querySelector('#js-cycle-analytics-app');
@@ -13,8 +16,8 @@ export default () => {
     cycleAnalyticsScatterplotEnabled: hasDurationChart = false,
     cycleAnalyticsScatterplotMedianEnabled: hasDurationChartMedian = false,
     valueStreamAnalyticsPathNavigation: hasPathNavigation = false,
-    valueStreamAnalyticsFilterBar: hasFilterBar = false,
     valueStreamAnalyticsCreateMultipleValueStreams: hasCreateMultipleValueStreams = false,
+    analyticsSimilaritySearch: hasAnalyticsSimilaritySearch = false,
   } = gon?.features;
 
   store.dispatch('initializeCycleAnalytics', {
@@ -23,8 +26,8 @@ export default () => {
       hasDurationChart,
       hasDurationChartMedian,
       hasPathNavigation,
-      hasFilterBar,
       hasCreateMultipleValueStreams,
+      hasAnalyticsSimilaritySearch,
     },
   });
 

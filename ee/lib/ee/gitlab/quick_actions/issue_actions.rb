@@ -90,7 +90,7 @@ module EE
           execution_message do |iteration|
             _("Set the iteration to %{iteration_reference}.") % { iteration_reference: iteration.to_reference } if iteration
           end
-          params '*iteration:"iteration"'
+          params '*iteration:"iteration name"'
           types Issue
           condition do
             current_user.can?(:"admin_#{quick_action_target.to_ability_name}", project) &&
@@ -130,9 +130,9 @@ module EE
           end
 
           def find_iterations(project, params = {})
-            group_ids = project.group.self_and_ancestors.select(:id) if project.group
+            group_ids = project.group.self_and_ancestors.map(&:id) if project.group
 
-            ::IterationsFinder.new(params.merge(project_ids: [project.id], group_ids: group_ids)).execute
+            ::IterationsFinder.new(current_user, params.merge(project_ids: [project.id], group_ids: group_ids)).execute
           end
 
           desc _('Publish to status page')
@@ -142,8 +142,8 @@ module EE
             StatusPage::MarkForPublicationService.publishable?(project, current_user, quick_action_target)
           end
           command :publish do
-            if StatusPage.mark_for_publication(project, current_user, quick_action_target).success?
-              StatusPage.trigger_publish(project, current_user, quick_action_target, action: :init)
+            if ::Gitlab::StatusPage.mark_for_publication(project, current_user, quick_action_target).success?
+              ::Gitlab::StatusPage.trigger_publish(project, current_user, quick_action_target, action: :init)
               @execution_message[:publish] = _('Issue published on status page.')
             else
               @execution_message[:publish] = _('Failed to publish issue on status page.')

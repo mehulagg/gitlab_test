@@ -47,6 +47,20 @@ module Types
           null: false,
           description: 'Fields related to design management'
 
+    field :milestone, ::Types::MilestoneType,
+          null: true,
+          description: 'Find a milestone',
+          resolve: -> (_obj, args, _ctx) { GitlabSchema.find_by_gid(args[:id]) } do
+      argument :id, ::Types::GlobalIDType[Milestone],
+               required: true,
+               description: 'Find a milestone by its ID'
+    end
+
+    field :user, Types::UserType,
+          null: true,
+          description: 'Find a user',
+          resolver: Resolvers::UserResolver
+
     field :users, Types::UserType.connection_type,
           null: true,
           description: 'Find users',
@@ -55,11 +69,6 @@ module Types
     field :echo, GraphQL::STRING_TYPE, null: false,
           description: 'Text to echo back',
           resolver: Resolvers::EchoResolver
-
-    field :user, Types::UserType,
-          null: true,
-          description: 'Find a user',
-          resolver: Resolvers::UserResolver
 
     def design_management
       DesignManagementObject.new(nil)

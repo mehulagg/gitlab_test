@@ -281,8 +281,8 @@ export default {
       </board-delete>
       <div
         v-if="showBoardListAndBoardInfo"
-        class="issue-count-badge gl-pr-0 no-drag text-secondary"
-        :class="{ 'gl-display-none': !list.isExpanded && isSwimlanesHeader }"
+        class="issue-count-badge gl-display-inline-flex gl-pr-0 no-drag text-secondary"
+        :class="{ 'gl-display-none!': !list.isExpanded && isSwimlanesHeader }"
       >
         <span class="gl-display-inline-flex">
           <gl-tooltip :target="() => $refs.issueCount" :title="issuesTooltipLabel" />

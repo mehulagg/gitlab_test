@@ -2,29 +2,7 @@
 
 class ProjectPolicy < BasePolicy
   include CrudPolicyHelpers
-
-  READONLY_FEATURES_WHEN_ARCHIVED = %i[
-    issue
-    list
-    merge_request
-    label
-    milestone
-    snippet
-    wiki
-    design
-    note
-    pipeline
-    pipeline_schedule
-    build
-    trigger
-    environment
-    deployment
-    commit_status
-    container_image
-    pages
-    cluster
-    release
-  ].freeze
+  include ReadonlyAbilities
 
   desc "User is a project owner"
   condition :owner do
@@ -124,6 +102,11 @@ class ProjectPolicy < BasePolicy
   end
 
   with_scope :subject
+  condition(:moving_designs_disabled) do
+    !::Feature.enabled?(:reorder_designs, @subject)
+  end
+
+  with_scope :subject
   condition(:service_desk_enabled) { @subject.service_desk_enabled? }
 
   # We aren't checking `:read_issue` or `:read_merge_request` in this case
@@ -153,6 +136,9 @@ class ProjectPolicy < BasePolicy
   condition(:build_service_proxy_enabled) do
     ::Feature.enabled?(:build_service_proxy, @subject)
   end
+
+  with_scope :subject
+  condition(:packages_disabled) { !@subject.packages_enabled }
 
   features = %w[
     merge_requests
@@ -255,10 +241,13 @@ class ProjectPolicy < BasePolicy
     enable :read_merge_request
     enable :read_sentry_issue
     enable :update_sentry_issue
+    enable :read_incidents
     enable :read_prometheus
     enable :read_metrics_dashboard_annotation
     enable :metrics_dashboard
     enable :read_confidential_issues
+    enable :read_package
+    enable :read_product_analytics
   end
 
   # We define `:public_user_access` separately because there are cases in gitlab-ee
@@ -295,12 +284,17 @@ class ProjectPolicy < BasePolicy
     enable :read_metrics_user_starred_dashboard
   end
 
+  rule { packages_disabled | repository_disabled }.policy do
+    prevent(*create_read_update_admin_destroy(:package))
+  end
+
   rule { owner | admin | guest | group_member }.prevent :request_access
   rule { ~request_access_enabled }.prevent :request_access
 
   rule { can?(:developer_access) & can?(:create_issue) }.enable :import_issues
 
   rule { can?(:developer_access) }.policy do
+    enable :create_package
     enable :admin_board
     enable :admin_merge_request
     enable :admin_milestone
@@ -331,7 +325,10 @@ class ProjectPolicy < BasePolicy
     enable :read_alert_management_alert
     enable :update_alert_management_alert
     enable :create_design
+    enable :move_design
     enable :destroy_design
+    enable :read_terraform_state
+    enable :read_pod_logs
   end
 
   rule { can?(:developer_access) & user_confirmed? }.policy do
@@ -341,6 +338,7 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { can?(:maintainer_access) }.policy do
+    enable :destroy_package
     enable :admin_board
     enable :push_to_delete_protected_branch
     enable :update_snippet
@@ -370,7 +368,6 @@ class ProjectPolicy < BasePolicy
     enable :admin_operations
     enable :read_deploy_token
     enable :create_deploy_token
-    enable :read_pod_logs
     enable :destroy_deploy_token
     enable :read_prometheus_alerts
     enable :admin_terraform_state
@@ -392,16 +389,9 @@ class ProjectPolicy < BasePolicy
   rule { can?(:push_code) }.enable :admin_tag
 
   rule { archived }.policy do
-    prevent :push_code
-    prevent :push_to_delete_protected_branch
-    prevent :request_access
-    prevent :upload_file
-    prevent :resolve_note
-    prevent :create_merge_request_from
-    prevent :create_merge_request_in
-    prevent :award_emoji
+    prevent(*readonly_abilities)
 
-    READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
+    readonly_features.each do |feature|
       prevent(*create_update_admin_destroy(feature))
     end
   end
@@ -475,6 +465,7 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { can?(:public_access) }.policy do
+    enable :read_package
     enable :read_project
     enable :read_board
     enable :read_list
@@ -487,6 +478,8 @@ class ProjectPolicy < BasePolicy
     enable :read_note
     enable :read_pipeline
     enable :read_pipeline_schedule
+    enable :read_environment
+    enable :read_deployment
     enable :read_commit_status
     enable :read_container_image
     enable :download_code
@@ -559,6 +552,11 @@ class ProjectPolicy < BasePolicy
     prevent :read_design_activity
     prevent :create_design
     prevent :destroy_design
+    prevent :move_design
+  end
+
+  rule { moving_designs_disabled }.policy do
+    prevent :move_design
   end
 
   rule { read_package_registry_deploy_token }.policy do

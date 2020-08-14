@@ -86,6 +86,18 @@ RSpec.describe Issues::MoveService do
     end
   end
 
+  describe '#rewrite_related_vulnerability_issues' do
+    let(:user) { create(:user) }
+
+    let!(:vulnerabilities_issue_link) { create(:vulnerabilities_issue_link, issue: old_issue) }
+
+    it 'updates all vulnerability issue links with new issue' do
+      new_issue = move_service.execute(old_issue, new_project)
+
+      expect(vulnerabilities_issue_link.reload.issue).to eq(new_issue)
+    end
+  end
+
   describe '#rewrite_epic_issue' do
     context 'issue assigned to epic' do
       let!(:epic_issue) { create(:epic_issue, issue: old_issue) }
@@ -106,49 +118,6 @@ RSpec.describe Issues::MoveService do
         new_issue = move_service.execute(old_issue, new_project)
 
         expect(new_issue.epic_issue).to be_nil
-      end
-    end
-  end
-
-  context 'updating sent notifications' do
-    let!(:old_issue_notification_1) { create(:sent_notification, project: old_issue.project, noteable: old_issue) }
-    let!(:old_issue_notification_2) { create(:sent_notification, project: old_issue.project, noteable: old_issue) }
-    let!(:other_issue_notification) { create(:sent_notification, project: old_issue.project) }
-
-    context 'when issue is from service desk' do
-      before do
-        allow(old_issue).to receive(:from_service_desk?).and_return(true)
-      end
-
-      it 'updates moved issue sent notifications' do
-        new_issue = move_service.execute(old_issue, new_project)
-
-        old_issue_notification_1.reload
-        old_issue_notification_2.reload
-        expect(old_issue_notification_1.project_id).to eq(new_issue.project_id)
-        expect(old_issue_notification_1.noteable_id).to eq(new_issue.id)
-        expect(old_issue_notification_2.project_id).to eq(new_issue.project_id)
-        expect(old_issue_notification_2.noteable_id).to eq(new_issue.id)
-      end
-
-      it 'does not update other issues sent notifications' do
-        expect do
-          move_service.execute(old_issue, new_project)
-          other_issue_notification.reload
-        end.not_to change { other_issue_notification.noteable_id }
-      end
-    end
-
-    context 'when issue is not from service desk' do
-      it 'does not update sent notifications' do
-        move_service.execute(old_issue, new_project)
-
-        old_issue_notification_1.reload
-        old_issue_notification_2.reload
-        expect(old_issue_notification_1.project_id).to eq(old_issue.project_id)
-        expect(old_issue_notification_1.noteable_id).to eq(old_issue.id)
-        expect(old_issue_notification_2.project_id).to eq(old_issue.project_id)
-        expect(old_issue_notification_2.noteable_id).to eq(old_issue.id)
       end
     end
   end

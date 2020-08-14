@@ -89,13 +89,15 @@ export const getDayName = date =>
  * @example
  * dateFormat('2017-12-05','mmm d, yyyy h:MMtt Z' ) -> "Dec 5, 2017 12:00am GMT+0000"
  * @param {date} datetime
+ * @param {String} format
+ * @param {Boolean} UTC convert local time to UTC
  * @returns {String}
  */
-export const formatDate = (datetime, format = 'mmm d, yyyy h:MMtt Z') => {
+export const formatDate = (datetime, format = 'mmm d, yyyy h:MMtt Z', utc = false) => {
   if (isString(datetime) && datetime.match(/\d+-\d+\d+ /)) {
     throw new Error(__('Invalid date'));
   }
-  return dateFormat(datetime, format);
+  return dateFormat(datetime, format, utc);
 };
 
 /**
@@ -425,7 +427,6 @@ export const dayInQuarter = (date, quarter) => {
 window.gl = window.gl || {};
 window.gl.utils = {
   ...(window.gl.utils || {}),
-  getTimeago,
   localTimeAgo,
 };
 
@@ -687,4 +688,38 @@ export const approximateDuration = (seconds = 0) => {
     return n__('about 1 hour', 'about %d hours', seconds < ONE_HOUR_LIMIT ? 1 : hours);
   }
   return n__('1 day', '%d days', seconds < ONE_DAY_LIMIT ? 1 : days);
+};
+
+/**
+ * A utility function which helps creating a date object
+ * for a specific date. Accepts the year, month and day
+ * returning a date object for the given params.
+ *
+ * @param {Int} year the full year as a number i.e. 2020
+ * @param {Int} month the month index i.e. January => 0
+ * @param {Int} day the day as a number i.e. 23
+ *
+ * @return {Date} the date object from the params
+ */
+export const dateFromParams = (year, month, day) => {
+  const date = new Date();
+
+  date.setFullYear(year);
+  date.setMonth(month);
+  date.setDate(day);
+
+  return date;
+};
+
+/**
+ * A utility function which computes the difference in seconds
+ * between 2 dates.
+ *
+ * @param {Date} startDate the start sate
+ * @param {Date} endDate the end date
+ *
+ * @return {Int} the difference in seconds
+ */
+export const differenceInSeconds = (startDate, endDate) => {
+  return (endDate.getTime() - startDate.getTime()) / 1000;
 };

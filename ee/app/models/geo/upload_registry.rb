@@ -45,7 +45,7 @@ class Geo::UploadRegistry < Geo::BaseRegistry
   def self.with_search(query)
     return all if query.nil?
 
-    where(file_id: Geo::Fdw::Upload.search(query))
+    where(file_id: Upload.search(query).limit(1000).pluck_primary_key)
   end
 
   def self.with_status(status)
@@ -58,10 +58,6 @@ class Geo::UploadRegistry < Geo::BaseRegistry
     else
       all
     end
-  end
-
-  def self.replication_enabled?
-    FileUploader.object_store_enabled? ? Gitlab::Geo.current_node.sync_object_storage? : true
   end
 
   def file

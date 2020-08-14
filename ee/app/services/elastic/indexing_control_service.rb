@@ -28,6 +28,12 @@ module Elastic
       def resume_processing!(klass)
         new(klass).resume_processing!
       end
+
+      def queue_size
+        Elastic::IndexingControl::WORKERS.sum do |worker_class| # rubocop:disable CodeReuse/ActiveRecord
+          new(worker_class).queue_size
+        end
+      end
     end
 
     def add_to_waiting_queue!(args, context)
@@ -59,7 +65,7 @@ module Elastic
           remove_jobs_from_waiting_queue(redis, jobs_with_scores)
         end
 
-        redis.del(redis_set_key, redis_score_key) if queue_size.zero?
+        redis.del(redis_set_key, redis_score_key) if queue_size == 0
       end
     end
 

@@ -15,13 +15,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :requirements, only: [:index]
         end
 
-        resources :packages, only: [:index, :show, :destroy], module: :packages
-        resources :package_files, only: [], module: :packages do
-          member do
-            get :download
-          end
-        end
-
         resources :feature_flags, param: :iid do
           resources :feature_flag_issues, only: [:index, :create, :destroy], as: 'issues', path: 'issues'
         end
@@ -44,7 +37,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :subscriptions, only: [:create, :destroy]
 
-        resource :threat_monitoring, only: [:show], controller: :threat_monitoring
+        resource :threat_monitoring, only: [:show], controller: :threat_monitoring do
+          resources :policies, only: [:new], controller: :threat_monitoring
+        end
 
         resources :protected_environments, only: [:create, :update, :destroy], constraints: { id: /\d+/ } do
           collection do
@@ -67,16 +62,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
           resource :configuration, only: [:show], controller: :configuration do
             post :auto_fix, on: :collection
-            resource :sast, only: [:show], controller: :sast_configuration
+            resource :sast, only: [:show, :create], controller: :sast_configuration
           end
 
           resource :discover, only: [:show], controller: :discover
 
-          resources :vulnerability_findings, only: [:index] do
-            collection do
-              get :summary
-            end
-          end
+          resources :scanned_resources, only: [:index]
 
           resources :vulnerabilities, only: [:show] do
             member do
@@ -92,6 +83,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         namespace :analytics do
           resources :code_reviews, only: [:index]
           resource :issues_analytics, only: [:show]
+          resource :merge_request_analytics, only: :show, constraints: -> (req) { Gitlab::Analytics.project_merge_request_analytics_enabled? }
         end
 
         resources :approvers, only: :destroy
@@ -100,13 +92,22 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :vulnerability_feedback, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
         resources :dependencies, only: [:index]
         resources :licenses, only: [:index, :create, :update]
-        resources :on_demand_scans, only: [:index], controller: :on_demand_scans
+
+        scope :on_demand_scans do
+          root 'on_demand_scans#index', as: 'on_demand_scans'
+          scope :profiles do
+            root 'dast_profiles#index', as: 'profiles'
+            resources :dast_site_profiles, only: [:new, :edit]
+          end
+        end
 
         namespace :integrations do
           namespace :jira do
             resources :issues, only: [:index]
           end
         end
+
+        resources :iterations, only: [:index, :show], constraints: { id: /\d+/ }
       end
       # End of the /-/ scope.
 
@@ -121,9 +122,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       resource :tracing, only: [:show]
-
-      get '/service_desk' => 'service_desk#show', as: :service_desk
-      put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
       post '/restore' => '/projects#restore', as: :restore
 
@@ -140,6 +138,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
   end
 end
 
+# It's under /-/jira scope but cop is only checking /-/
+# rubocop: disable Cop/PutProjectRoutesUnderScope
 scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.new, as: :jira do
   scope path: '*namespace_id/:project_id',
         namespace_id: Gitlab::Jira::Dvcs::ENCODED_ROUTE_REGEX,
@@ -170,3 +170,4 @@ scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.n
     }
   end
 end
+# rubocop: enable Cop/PutProjectRoutesUnderScope

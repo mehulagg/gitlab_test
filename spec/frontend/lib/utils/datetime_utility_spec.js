@@ -1,5 +1,6 @@
 import { __, s__ } from '~/locale';
 import $ from 'jquery';
+import timezoneMock from 'timezone-mock';
 import '~/commons/bootstrap';
 import * as datetimeUtility from '~/lib/utils/datetime_utility';
 
@@ -85,6 +86,31 @@ describe('Date time utils', () => {
       expect(() => {
         datetimeUtility.formatDate('2016-07-23 00:00:00 UTC');
       }).toThrow(new Error('Invalid date'));
+    });
+
+    describe('convert local timezone to UTC with utc parameter', () => {
+      const midnightUTC = '2020-07-09';
+      const format = 'mmm d, yyyy';
+
+      beforeEach(() => {
+        timezoneMock.register('US/Pacific');
+      });
+
+      afterEach(() => {
+        timezoneMock.unregister();
+      });
+
+      it('defaults to false', () => {
+        const formattedDate = datetimeUtility.formatDate(midnightUTC, format);
+
+        expect(formattedDate).toBe('Jul 8, 2020');
+      });
+
+      it('converts local time to UTC if utc flag is true', () => {
+        const formattedDate = datetimeUtility.formatDate(midnightUTC, format, true);
+
+        expect(formattedDate).toBe('Jul 9, 2020');
+      });
     });
   });
 
@@ -600,5 +626,30 @@ describe('localTimeAgo', () => {
 
     expect(element.getAttribute('data-original-title')).toBe(dataOriginalTitle);
     expect(element.getAttribute('title')).toBe(title);
+  });
+});
+
+describe('dateFromParams', () => {
+  it('returns the expected date object', () => {
+    const expectedDate = new Date('2019-07-17T00:00:00.000Z');
+    const date = datetimeUtility.dateFromParams(2019, 6, 17);
+
+    expect(date.getYear()).toBe(expectedDate.getYear());
+    expect(date.getMonth()).toBe(expectedDate.getMonth());
+    expect(date.getDate()).toBe(expectedDate.getDate());
+  });
+});
+
+describe('differenceInSeconds', () => {
+  const startDateTime = new Date('2019-07-17T00:00:00.000Z');
+
+  it.each`
+    startDate                               | endDate                                 | expected
+    ${startDateTime}                        | ${new Date('2019-07-17T00:00:00.000Z')} | ${0}
+    ${startDateTime}                        | ${new Date('2019-07-17T12:00:00.000Z')} | ${43200}
+    ${startDateTime}                        | ${new Date('2019-07-18T00:00:00.000Z')} | ${86400}
+    ${new Date('2019-07-18T00:00:00.000Z')} | ${startDateTime}                        | ${-86400}
+  `('returns $expected for $endDate - $startDate', ({ startDate, endDate, expected }) => {
+    expect(datetimeUtility.differenceInSeconds(startDate, endDate)).toBe(expected);
   });
 });

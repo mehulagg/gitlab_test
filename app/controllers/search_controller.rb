@@ -6,7 +6,8 @@ class SearchController < ApplicationController
   include RendersCommits
 
   SCOPE_PRELOAD_METHOD = {
-    projects: :with_web_entity_associations
+    projects: :with_web_entity_associations,
+    issues: :with_web_entity_associations
   }.freeze
 
   around_action :allow_gitaly_ref_name_caching
@@ -50,6 +51,21 @@ class SearchController < ApplicationController
 
     render json: { count: count }
   end
+
+  # rubocop: disable CodeReuse/ActiveRecord
+  def autocomplete
+    term = params[:term]
+
+    if params[:project_id].present?
+      @project = Project.find_by(id: params[:project_id])
+      @project = nil unless can?(current_user, :read_project, @project)
+    end
+
+    @ref = params[:project_ref] if params[:project_ref].present?
+
+    render json: search_autocomplete_opts(term).to_json
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   private
 
@@ -97,5 +113,16 @@ class SearchController < ApplicationController
     return if params[:nav_source] != 'navbar'
 
     Gitlab::UsageDataCounters::SearchCounter.count(:navbar_searches)
+  end
+
+  def append_info_to_payload(payload)
+    super
+
+    # Merging to :metadata will ensure these are logged as top level keys
+    payload[:metadata] || {}
+    payload[:metadata]['meta.search.group_id'] = params[:group_id]
+    payload[:metadata]['meta.search.project_id'] = params[:project_id]
+    payload[:metadata]['meta.search.search'] = params[:search]
+    payload[:metadata]['meta.search.scope'] = params[:scope]
   end
 end

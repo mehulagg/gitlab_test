@@ -158,6 +158,8 @@ module Gitlab
     # Webpack dev server configuration is handled in initializers/static_files.rb
     config.webpack.dev_server.enabled = false
 
+    config.action_mailer.delivery_job = "ActionMailer::MailDeliveryJob"
+
     # Enable the asset pipeline
     config.assets.enabled = true
 
@@ -166,6 +168,8 @@ module Gitlab
     config.assets.paths << "#{config.root}/vendor/assets/fonts"
 
     config.assets.precompile << "application_dark.css"
+
+    config.assets.precompile << "startup/*.css"
 
     config.assets.precompile << "print.css"
     config.assets.precompile << "mailer.css"
@@ -189,6 +193,11 @@ module Gitlab
     config.assets.precompile << "icons.svg"
     config.assets.precompile << "icons.json"
     config.assets.precompile << "illustrations/*.svg"
+
+    # Import Fontawesome fonts
+    config.assets.paths << "#{config.root}/node_modules/font-awesome/fonts"
+    config.assets.precompile << "fontawesome-webfont.woff2"
+    config.assets.precompile << "fontawesome-webfont.woff"
 
     # Import css for xterm
     config.assets.paths << "#{config.root}/node_modules/xterm/src/"

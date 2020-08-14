@@ -9,15 +9,13 @@ RSpec.describe 'issuable list', :js do
   issuable_types = [:issue, :merge_request]
 
   before do
-    stub_feature_flags(vue_issuables_list: false)
-    # something is going on
     project.add_user(user, :developer)
     sign_in(user)
     issuable_types.each { |type| create_issuables(type) }
   end
 
   issuable_types.each do |issuable_type|
-    it "avoids N+1 database queries for #{issuable_type.to_s.humanize.pluralize}" do
+    it "avoids N+1 database queries for #{issuable_type.to_s.humanize.pluralize}", quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/231426' } do
       control_count = ActiveRecord::QueryRecorder.new { visit_issuable_list(issuable_type) }.count
 
       create_issuables(issuable_type)
@@ -30,7 +28,7 @@ RSpec.describe 'issuable list', :js do
 
       expect(first('.issuable-upvotes')).to have_content(1)
       expect(first('.issuable-downvotes')).to have_content(1)
-      expect(first('.fa-comments').find(:xpath, '..')).to have_content(2)
+      expect(first('.issuable-comments')).to have_content(2)
     end
 
     it 'sorts labels alphabetically' do

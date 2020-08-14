@@ -1,16 +1,25 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import { GlAlert, GlEmptyState, GlLoadingIcon, GlModalDirective as GlModal } from '@gitlab/ui';
+import {
+  GlAlert,
+  GlButton,
+  GlEmptyState,
+  GlLoadingIcon,
+  GlModalDirective as GlModal,
+} from '@gitlab/ui';
 import { s__, __ } from '~/locale';
-import states from '../constants/show';
+import { states, ADD_USER_MODAL_ID } from '../constants/show';
+import AddUserModal from './add_user_modal.vue';
 
 const commonTableClasses = ['gl-py-5', 'gl-border-b-1', 'gl-border-b-solid', 'gl-border-gray-100'];
 
 export default {
   components: {
     GlAlert,
+    GlButton,
     GlEmptyState,
     GlLoadingIcon,
+    AddUserModal,
   },
   directives: {
     GlModal,
@@ -22,6 +31,7 @@ export default {
     },
   },
   translations: {
+    addUserButtonLabel: s__('UserLists|Add Users'),
     emptyStateTitle: s__('UserLists|There are no users'),
     emptyStateDescription: s__(
       'UserLists|Define a set of users to be used within feature flag strategies',
@@ -29,6 +39,7 @@ export default {
     userIdLabel: s__('UserLists|User IDs'),
     userIdColumnHeader: s__('UserLists|User ID'),
     errorMessage: __('Something went wrong on our end. Please try again!'),
+    editButtonLabel: s__('UserLists|Edit'),
   },
   classes: {
     headerClasses: [
@@ -47,7 +58,7 @@ export default {
       'gl-align-items-center',
     ].join(' '),
   },
-  modalId: 'add-userids-modal',
+  ADD_USER_MODAL_ID,
   computed: {
     ...mapState(['userList', 'userIds', 'state']),
     name() {
@@ -62,12 +73,15 @@ export default {
     hasError() {
       return this.state === states.ERROR;
     },
+    editPath() {
+      return this.userList?.edit_path;
+    },
   },
   mounted() {
     this.fetchUserList();
   },
   methods: {
-    ...mapActions(['fetchUserList', 'dismissErrorAlert']),
+    ...mapActions(['fetchUserList', 'dismissErrorAlert', 'removeUserId', 'addUserIds']),
   },
 };
 </script>
@@ -76,12 +90,25 @@ export default {
     <gl-alert v-if="hasError" variant="danger" @dismiss="dismissErrorAlert">
       {{ $options.translations.errorMessage }}
     </gl-alert>
-    <gl-loading-icon v-if="isLoading" size="xl" class="mt-5" />
+    <gl-loading-icon v-if="isLoading" size="xl" class="gl-mt-6" />
     <div v-else>
+      <add-user-modal @addUsers="addUserIds" />
       <div :class="$options.classes.headerClasses">
         <div>
           <h3>{{ name }}</h3>
           <h4 class="gl-text-gray-700">{{ $options.translations.userIdLabel }}</h4>
+        </div>
+        <div class="gl-mt-6">
+          <gl-button v-if="editPath" :href="editPath" data-testid="edit-user-list" class="gl-mr-3">
+            {{ $options.translations.editButtonLabel }}
+          </gl-button>
+          <gl-button
+            v-gl-modal="$options.ADD_USER_MODAL_ID"
+            data-testid="add-users"
+            variant="success"
+          >
+            {{ $options.translations.addUserButtonLabel }}
+          </gl-button>
         </div>
       </div>
       <div v-if="hasUserIds">
@@ -95,6 +122,13 @@ export default {
           :class="$options.classes.tableRowClasses"
         >
           <span data-testid="user-id">{{ id }}</span>
+          <gl-button
+            category="secondary"
+            variant="danger"
+            icon="remove"
+            data-testid="delete-user-id"
+            @click="removeUserId(id)"
+          />
         </div>
       </div>
       <gl-empty-state

@@ -5,7 +5,7 @@ module Projects
     module Alerts
       class NotifyService < BaseService
         include Gitlab::Utils::StrongMemoize
-        include IncidentManagement::Settings
+        include ::IncidentManagement::Settings
 
         # This set of keys identifies a payload as a valid Prometheus
         # payload and thus processable by this service. See also
@@ -40,10 +40,6 @@ module Projects
 
         def valid_payload_size?
           Gitlab::Utils::DeepSize.new(params).valid?
-        end
-
-        def send_email?
-          incident_management_setting.send_email && firings.any?
         end
 
         def firings
@@ -125,6 +121,8 @@ module Projects
         end
 
         def send_alert_email
+          return unless firings.any?
+
           notification_service
             .async
             .prometheus_alerts_fired(project, firings)

@@ -40,6 +40,10 @@ class ProjectsController < Projects::ApplicationController
     push_frontend_feature_flag(:new_create_project_ui) if experiment_enabled?(:new_create_project_ui)
   end
 
+  before_action only: [:edit] do
+    push_frontend_feature_flag(:service_desk_custom_address, @project)
+  end
+
   layout :determine_layout
 
   def index
@@ -391,6 +395,8 @@ class ProjectsController < Projects::ApplicationController
       :initialize_with_readme,
       :autoclose_referenced_issues,
       :suggestion_commit_message,
+      :packages_enabled,
+      :service_desk_enabled,
 
       project_feature_attributes: %i[
         builds_access_level

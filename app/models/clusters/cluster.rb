@@ -133,6 +133,7 @@ module Clusters
 
     scope :with_enabled_modsecurity, -> { joins(:application_ingress).merge(::Clusters::Applications::Ingress.modsecurity_enabled) }
     scope :with_available_elasticstack, -> { joins(:application_elastic_stack).merge(::Clusters::Applications::ElasticStack.available) }
+    scope :with_available_cilium, -> { joins(:application_cilium).merge(::Clusters::Applications::Cilium.available) }
     scope :distinct_with_deployed_environments, -> { joins(:environments).merge(::Deployment.success).distinct }
     scope :preload_elasticstack, -> { preload(:application_elastic_stack) }
     scope :preload_environments, -> { preload(:environments) }
@@ -217,6 +218,24 @@ module Clusters
       provider&.status_name || connection_status.presence || :created
     end
 
+    def connection_error
+      with_reactive_cache do |data|
+        data[:connection_error]
+      end
+    end
+
+    def node_connection_error
+      with_reactive_cache do |data|
+        data[:node_connection_error]
+      end
+    end
+
+    def metrics_connection_error
+      with_reactive_cache do |data|
+        data[:metrics_connection_error]
+      end
+    end
+
     def connection_status
       with_reactive_cache do |data|
         data[:connection_status]
@@ -232,9 +251,7 @@ module Clusters
     def calculate_reactive_cache
       return unless enabled?
 
-      gitlab_kubernetes_nodes = Gitlab::Kubernetes::Node.new(self)
-
-      { connection_status: retrieve_connection_status, nodes: gitlab_kubernetes_nodes.all.presence }
+      connection_data.merge(Gitlab::Kubernetes::Node.new(self).all)
     end
 
     def persisted_applications
@@ -340,8 +357,8 @@ module Clusters
       end
     end
 
-    def local_tiller_enabled?
-      Feature.enabled?(:managed_apps_local_tiller, clusterable, default_enabled: true)
+    def prometheus_adapter
+      application_prometheus
     end
 
     private
@@ -390,9 +407,10 @@ module Clusters
       @instance_domain ||= Gitlab::CurrentSettings.auto_devops_domain
     end
 
-    def retrieve_connection_status
+    def connection_data
       result = ::Gitlab::Kubernetes::KubeClient.graceful_request(id) { kubeclient.core_client.discover }
-      result[:status]
+
+      { connection_status: result[:status], connection_error: result[:connection_error] }.compact
     end
 
     # To keep backward compatibility with AUTO_DEVOPS_DOMAIN

@@ -23,7 +23,7 @@ RSpec.describe EnvironmentsHelper do
         'metrics-dashboard-base-path' => environment_metrics_path(environment),
         'current-environment-name' => environment.name,
         'documentation-path' => help_page_path('administration/monitoring/prometheus/index.md'),
-        'add-dashboard-documentation-path' => help_page_path('user/project/integrations/prometheus.md', anchor: 'adding-a-new-dashboard-to-your-project'),
+        'add-dashboard-documentation-path' => help_page_path('operations/metrics/dashboards/index.md', anchor: 'add-a-new-dashboard-to-your-project'),
         'empty-getting-started-svg-path' => match_asset_path('/assets/illustrations/monitoring/getting_started.svg'),
         'empty-loading-svg-path' => match_asset_path('/assets/illustrations/monitoring/loading.svg'),
         'empty-no-data-svg-path' => match_asset_path('/assets/illustrations/monitoring/no_data.svg'),
@@ -42,9 +42,10 @@ RSpec.describe EnvironmentsHelper do
         'custom-metrics-available' => 'true',
         'alerts-endpoint' => project_prometheus_alerts_path(project, environment_id: environment.id, format: :json),
         'prometheus-alerts-available' => 'true',
-        'custom-dashboard-base-path' => Metrics::Dashboard::CustomDashboardService::DASHBOARD_ROOT,
+        'custom-dashboard-base-path' => Gitlab::Metrics::Dashboard::RepoDashboardFinder::DASHBOARD_ROOT,
         'operations-settings-path' => project_settings_operations_path(project),
-        'can-access-operations-settings' => 'true'
+        'can-access-operations-settings' => 'true',
+        'panel-preview-endpoint' => project_metrics_dashboards_builder_path(project, format: :json)
       )
     end
 
@@ -95,6 +96,30 @@ RSpec.describe EnvironmentsHelper do
 
       it { is_expected.to include('environment-state' => 'stopped') }
     end
+
+    context 'when request is from project scoped metrics path' do
+      let(:request) { double('request', path: path) }
+
+      before do
+        allow(helper).to receive(:request).and_return(request)
+      end
+
+      context '/:namespace/:project/-/metrics' do
+        let(:path) { project_metrics_dashboard_path(project) }
+
+        it 'uses correct path for metrics-dashboard-base-path' do
+          expect(metrics_data['metrics-dashboard-base-path']).to eq(project_metrics_dashboard_path(project))
+        end
+      end
+
+      context '/:namespace/:project/-/metrics/some_custom_dashboard.yml' do
+        let(:path) { "#{project_metrics_dashboard_path(project)}/some_custom_dashboard.yml" }
+
+        it 'uses correct path for metrics-dashboard-base-path' do
+          expect(metrics_data['metrics-dashboard-base-path']).to eq(project_metrics_dashboard_path(project))
+        end
+      end
+    end
   end
 
   describe '#custom_metrics_available?' do
@@ -112,6 +137,20 @@ RSpec.describe EnvironmentsHelper do
 
     it 'returns true' do
       expect(subject).to eq(true)
+    end
+  end
+
+  describe '#environment_logs_data' do
+    it 'returns logs data' do
+      expected_data = {
+        "environment-name": environment.name,
+        "environments-path": project_environments_path(project, format: :json),
+        "environment-id": environment.id,
+        "cluster-applications-documentation-path" => help_page_path('user/clusters/applications.md', anchor: 'elastic-stack'),
+        "clusters-path": project_clusters_path(project, format: :json)
+      }
+
+      expect(helper.environment_logs_data(project, environment)).to eq(expected_data)
     end
   end
 end

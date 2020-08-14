@@ -57,35 +57,13 @@ RSpec.describe MergeRequest do
     end
   end
 
-  describe 'locking' do
-    using RSpec::Parameterized::TableSyntax
-
-    where(:lock_version) do
-      [
-        [0],
-        ["0"]
-      ]
-    end
-
-    with_them do
-      it 'works when a merge request has a NULL lock_version' do
-        merge_request = create(:merge_request)
-
-        described_class.where(id: merge_request.id).update_all('lock_version = NULL')
-
-        merge_request.update!(lock_version: lock_version, title: 'locking test')
-
-        expect(merge_request.reload.title).to eq('locking test')
-      end
-    end
-  end
-
   describe '#squash_in_progress?' do
     let(:repo_path) do
       Gitlab::GitalyClient::StorageSettings.allow_disk_access do
         subject.source_project.repository.path
       end
     end
+
     let(:squash_path) { File.join(repo_path, "gitlab-worktree", "squash-#{subject.id}") }
 
     before do
@@ -197,6 +175,8 @@ RSpec.describe MergeRequest do
   end
 
   describe 'validation' do
+    subject { build_stubbed(:merge_request) }
+
     it { is_expected.to validate_presence_of(:target_branch) }
     it { is_expected.to validate_presence_of(:source_branch) }
 
@@ -268,24 +248,20 @@ RSpec.describe MergeRequest do
 
   describe 'callbacks' do
     describe '#ensure_merge_request_metrics' do
-      it 'creates metrics after saving' do
-        merge_request = create(:merge_request)
+      let(:merge_request) { create(:merge_request) }
 
+      it 'creates metrics after saving' do
         expect(merge_request.metrics).to be_persisted
         expect(MergeRequest::Metrics.count).to eq(1)
       end
 
       it 'does not duplicate metrics for a merge request' do
-        merge_request = create(:merge_request)
-
         merge_request.mark_as_merged!
 
         expect(MergeRequest::Metrics.count).to eq(1)
       end
 
       it 'does not create duplicated metrics records when MR is concurrently updated' do
-        merge_request = create(:merge_request)
-
         merge_request.metrics.destroy
 
         instance1 = MergeRequest.find(merge_request.id)
@@ -296,6 +272,27 @@ RSpec.describe MergeRequest do
 
         metrics_records = MergeRequest::Metrics.where(merge_request_id: merge_request.id)
         expect(metrics_records.size).to eq(1)
+      end
+
+      it 'syncs the `target_project_id` to the metrics record' do
+        project = create(:project)
+
+        merge_request.update!(target_project: project, state: :closed)
+
+        expect(merge_request.target_project_id).to eq(project.id)
+        expect(merge_request.target_project_id).to eq(merge_request.metrics.target_project_id)
+      end
+
+      context 'when metrics record already exists with NULL target_project_id' do
+        before do
+          merge_request.metrics.update_column(:target_project_id, nil)
+        end
+
+        it 'returns the metrics record' do
+          metrics_record = merge_request.ensure_metrics
+
+          expect(metrics_record).to be_persisted
+        end
       end
     end
   end
@@ -746,6 +743,7 @@ RSpec.describe MergeRequest do
     let!(:diff_note) do
       create(:diff_note_on_merge_request, project: project, noteable: merge_request)
     end
+
     let!(:draft_note) do
       create(:draft_note_on_text_diff, author: user, merge_request: merge_request)
     end
@@ -1112,8 +1110,8 @@ RSpec.describe MergeRequest do
     subject { build_stubbed(:merge_request) }
 
     [
-      'WIP ', 'WIP:', 'WIP: ', '[WIP]', '[WIP] ', ' [WIP] WIP [WIP] WIP: WIP ',
-      'Draft ', 'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
+      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', ' [WIP] WIP: [WIP] WIP:',
+      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
     ].each do |wip_prefix|
       it "detects the '#{wip_prefix}' prefix" do
         subject.title = "#{wip_prefix}#{subject.title}"
@@ -1132,6 +1130,18 @@ RSpec.describe MergeRequest do
       subject.title = "draft"
 
       expect(subject.work_in_progress?).to eq true
+    end
+
+    it 'does not detect WIP in the middle of the title' do
+      subject.title = 'Something with WIP in the middle'
+
+      expect(subject.work_in_progress?).to eq false
+    end
+
+    it 'does not detect Draft in the middle of the title' do
+      subject.title = 'Something with Draft in the middle'
+
+      expect(subject.work_in_progress?).to eq false
     end
 
     it "doesn't detect WIP for words starting with WIP" do
@@ -1153,8 +1163,8 @@ RSpec.describe MergeRequest do
     subject { build_stubbed(:merge_request) }
 
     [
-      'WIP ', 'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP [WIP] WIP: WIP ',
-      'Draft ', 'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
+      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP: [WIP] WIP:',
+      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
     ].each do |wip_prefix|
       it "removes the '#{wip_prefix}' prefix" do
         wipless_title = subject.title
@@ -1246,51 +1256,21 @@ RSpec.describe MergeRequest do
     let(:merge_request) { subject }
     let(:repository) { merge_request.source_project.repository }
 
-    context 'when memoize_source_branch_merge_request feature is enabled' do
-      before do
-        stub_feature_flags(memoize_source_branch_merge_request: true)
-      end
+    context 'when the source project is set' do
+      it 'memoizes the value and returns the result' do
+        expect(repository).to receive(:branch_exists?).once.with(merge_request.source_branch).and_return(true)
 
-      context 'when the source project is set' do
-        it 'memoizes the value and returns the result' do
-          expect(repository).to receive(:branch_exists?).once.with(merge_request.source_branch).and_return(true)
-
-          2.times { expect(merge_request.source_branch_exists?).to eq(true) }
-        end
-      end
-
-      context 'when the source project is not set' do
-        before do
-          merge_request.source_project = nil
-        end
-
-        it 'returns false' do
-          expect(merge_request.source_branch_exists?).to eq(false)
-        end
+        2.times { expect(merge_request.source_branch_exists?).to eq(true) }
       end
     end
 
-    context 'when memoize_source_branch_merge_request feature is disabled' do
+    context 'when the source project is not set' do
       before do
-        stub_feature_flags(memoize_source_branch_merge_request: false)
+        merge_request.source_project = nil
       end
 
-      context 'when the source project is set' do
-        it 'does not memoize the value and returns the result' do
-          expect(repository).to receive(:branch_exists?).twice.with(merge_request.source_branch).and_return(true)
-
-          2.times { expect(merge_request.source_branch_exists?).to eq(true) }
-        end
-      end
-
-      context 'when the source project is not set' do
-        before do
-          merge_request.source_project = nil
-        end
-
-        it 'returns false' do
-          expect(merge_request.source_branch_exists?).to eq(false)
-        end
+      it 'returns false' do
+        expect(merge_request.source_branch_exists?).to eq(false)
       end
     end
   end
@@ -2525,7 +2505,7 @@ RSpec.describe MergeRequest do
 
     context 'when working in progress' do
       before do
-        subject.title = 'WIP MR'
+        subject.title = '[Draft] MR'
       end
 
       it 'returns false' do
@@ -3735,6 +3715,7 @@ RSpec.describe MergeRequest do
              source_branch: 'fixes',
              target_project: target_project)
     end
+
     let(:user) { create(:user) }
 
     before do

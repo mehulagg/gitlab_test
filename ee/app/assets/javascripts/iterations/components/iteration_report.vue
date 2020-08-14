@@ -10,8 +10,9 @@ import {
 } from '@gitlab/ui';
 import { formatDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
-import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import IterationReportSummary from './iteration_report_summary.vue';
 import IterationForm from './iteration_form.vue';
+import IterationReportTabs from './iteration_report_tabs.vue';
 import query from '../queries/group_iteration.query.graphql';
 
 const iterationStates = {
@@ -30,14 +31,16 @@ export default {
     GlNewDropdown,
     GlNewDropdownItem,
     IterationForm,
+    IterationReportSummary,
+    IterationReportTabs,
   },
   apollo: {
-    group: {
+    namespace: {
       query,
       variables() {
         return {
-          groupPath: this.groupPath,
-          id: getIdFromGraphQLId(this.iterationId),
+          groupPath: this.fullPath,
+          iid: this.iterationIid,
         };
       },
       update(data) {
@@ -53,11 +56,11 @@ export default {
     },
   },
   props: {
-    groupPath: {
+    fullPath: {
       type: String,
       required: true,
     },
-    iterationId: {
+    iterationIid: {
       type: String,
       required: true,
     },
@@ -66,22 +69,27 @@ export default {
       required: false,
       default: false,
     },
+    previewMarkdownPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
       isEditing: false,
       error: '',
-      group: {
+      namespace: {
         iteration: {},
       },
     };
   },
   computed: {
     iteration() {
-      return this.group.iteration;
+      return this.namespace.iteration;
     },
     hasIteration() {
-      return !this.$apollo.queries.group.loading && this.iteration?.title;
+      return !this.$apollo.queries.namespace.loading && this.iteration?.title;
     },
     status() {
       switch (this.iteration.state) {
@@ -101,7 +109,7 @@ export default {
   },
   methods: {
     formatDate(date) {
-      return formatDate(date, 'mmm d, yyyy');
+      return formatDate(date, 'mmm d, yyyy', true);
     },
   },
 };
@@ -112,7 +120,7 @@ export default {
     <gl-alert v-if="error" variant="danger" @dismiss="error = ''">
       {{ error }}
     </gl-alert>
-    <gl-loading-icon v-if="$apollo.queries.group.loading" class="gl-py-5" size="lg" />
+    <gl-loading-icon v-if="$apollo.queries.namespace.loading" class="gl-py-5" size="lg" />
     <gl-empty-state
       v-else-if="!hasIteration"
       :title="__('Could not find iteration')"
@@ -120,16 +128,17 @@ export default {
     />
     <iteration-form
       v-else-if="isEditing"
-      :group-path="groupPath"
+      :group-path="fullPath"
       :is-editing="true"
       :iteration="iteration"
+      :preview-markdown-path="previewMarkdownPath"
       @updated="isEditing = false"
       @cancel="isEditing = false"
     />
     <template v-else>
       <div
         ref="topbar"
-        class="gl-display-flex gl-justify-items-center gl-align-items-center gl-py-3 gl-border-1 gl-border-b-solid gl-border-gray-200"
+        class="gl-display-flex gl-justify-items-center gl-align-items-center gl-py-3 gl-border-1 gl-border-b-solid gl-border-gray-100"
       >
         <gl-badge :variant="status.variant">
           {{ status.text }}
@@ -154,7 +163,9 @@ export default {
         </gl-new-dropdown>
       </div>
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
-      <div ref="description" v-html="iteration.description"></div>
+      <div ref="description" v-html="iteration.descriptionHtml"></div>
+      <iteration-report-summary :group-path="fullPath" :iteration-id="iteration.id" />
+      <iteration-report-tabs :group-path="fullPath" :iteration-id="iteration.id" />
     </template>
   </div>
 </template>

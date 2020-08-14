@@ -180,7 +180,7 @@ FactoryBot.define do
     end
 
     trait :license_management do
-      to_create { |instance| instance.save(validate: false) }
+      to_create { |instance| instance.save!(validate: false) }
 
       file_type { :license_management }
       file_format { :raw }
@@ -224,6 +224,16 @@ FactoryBot.define do
     trait :browser_performance do
       file_format { :raw }
       file_type { :browser_performance }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/trace/sample_trace'), 'text/plain')
+      end
+    end
+
+    trait :load_performance do
+      file_format { :raw }
+      file_type { :load_performance }
 
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(

@@ -5,8 +5,8 @@ import { GlEmptyState, GlLoadingIcon, GlTab, GlTabs } from '@gitlab/ui';
 describe('Iterations tabs', () => {
   let wrapper;
   const defaultProps = {
-    groupPath: 'gitlab-org',
-    iterationId: '3',
+    fullPath: 'gitlab-org',
+    iterationIid: '3',
   };
 
   const findTopbar = () => wrapper.find({ ref: 'topbar' });
@@ -18,7 +18,7 @@ describe('Iterations tabs', () => {
       propsData: props,
       mocks: {
         $apollo: {
-          queries: { group: { loading } },
+          queries: { namespace: { loading } },
         },
       },
       stubs: {
@@ -58,7 +58,8 @@ describe('Iterations tabs', () => {
   describe('item loaded', () => {
     const iteration = {
       title: 'June week 1',
-      description: 'The first week of June',
+      id: 'gid://gitlab/Iteration/2',
+      descriptionHtml: 'The first week of June',
       startDate: '2020-06-02',
       dueDate: '2020-06-08',
     };
@@ -69,7 +70,7 @@ describe('Iterations tabs', () => {
       });
 
       wrapper.setData({
-        group: {
+        namespace: {
           iteration,
         },
       });
@@ -88,7 +89,7 @@ describe('Iterations tabs', () => {
 
     it('shows title and description', () => {
       expect(findTitle().text()).toContain(iteration.title);
-      expect(findDescription().text()).toContain(iteration.description);
+      expect(findDescription().text()).toContain(iteration.descriptionHtml);
     });
   });
 });

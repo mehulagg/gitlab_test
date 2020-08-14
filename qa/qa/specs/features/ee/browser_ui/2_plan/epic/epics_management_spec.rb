@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Plan' do
+  RSpec.describe 'Plan' do
     describe 'Epics Management' do
       before do
         Flow::Login.sign_in
@@ -14,6 +14,17 @@ module QA
         end
 
         expect(page).to have_content(epic_title)
+      end
+
+      it 'creates a confidential epic' do
+        epic_title = 'Confidential epic created via GUI'
+        EE::Resource::Epic.fabricate_via_browser_ui! do |epic|
+          epic.title = epic_title
+          epic.confidential = true
+        end
+
+        expect(page).to have_content(epic_title)
+        expect(page).to have_content("This is a confidential epic.")
       end
 
       context 'Resources created via API' do

@@ -183,7 +183,7 @@
 
     .option-description,
     .option-disabled-reason {
-      margin-left: 30px;
+      margin-left: 20px;
       color: $project-option-descr-color;
       margin-top: -5px;
     }
@@ -347,7 +347,7 @@
 
   .btn-clipboard {
     background-color: $white;
-    border: 1px solid $gray-200;
+    border: 1px solid $gray-100;
   }
 
   .deploy-token-help-block {
@@ -366,7 +366,8 @@
   margin-top: 1em;
 }
 
-.ci-variable-table {
+.ci-variable-table,
+.deploy-freeze-table {
   table {
     thead {
       border-bottom: 1px solid $white-normal;

@@ -61,6 +61,14 @@ RSpec.shared_examples 'wiki controller actions' do
       expect(assigns(:sidebar_wiki_entries)).to be_nil
       expect(assigns(:sidebar_limited)).to be_nil
     end
+
+    context 'when the request is of non-html format' do
+      it 'returns a 404 error' do
+        get :pages, params: routing_params.merge(format: 'json')
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
   end
 
   describe 'GET #history' do
@@ -147,9 +155,18 @@ RSpec.shared_examples 'wiki controller actions' do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to render_template('shared/wikis/show')
         expect(assigns(:page).title).to eq(wiki_title)
         expect(assigns(:sidebar_wiki_entries)).to contain_exactly(an_instance_of(WikiPage))
         expect(assigns(:sidebar_limited)).to be(false)
+      end
+
+      it 'increases the page view counter' do
+        expect do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end.to change { Gitlab::UsageDataCounters::WikiPageCounter.read(:view) }.by(1)
       end
 
       context 'when page content encoding is invalid' do
@@ -159,6 +176,7 @@ RSpec.shared_examples 'wiki controller actions' do
           subject
 
           expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template('shared/wikis/show')
           expect(flash[:notice]).to eq(_('The content of this page is not encoded in UTF-8. Edits can only be made via the Git repository.'))
         end
       end
@@ -167,19 +185,37 @@ RSpec.shared_examples 'wiki controller actions' do
     context 'when the page does not exist' do
       let(:id) { 'does not exist' }
 
-      before do
-        subject
+      context 'when the user can create pages' do
+        before do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template('shared/wikis/edit')
+        end
+
+        it 'builds a new wiki page with the id as the title' do
+          expect(assigns(:page).title).to eq(id)
+        end
+
+        context 'when a random_title param is present' do
+          let(:random_title) { true }
+
+          it 'builds a new wiki page with no title' do
+            expect(assigns(:page).title).to be_empty
+          end
+        end
       end
 
-      it 'builds a new wiki page with the id as the title' do
-        expect(assigns(:page).title).to eq(id)
-      end
+      context 'when the user cannot create pages' do
+        before do
+          sign_out(:user)
+        end
 
-      context 'when a random_title param is present' do
-        let(:random_title) { true }
+        it 'shows the empty state' do
+          subject
 
-        it 'builds a new wiki page with no title' do
-          expect(assigns(:page).title).to be_empty
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template('shared/wikis/empty')
         end
       end
     end
@@ -195,6 +231,7 @@ RSpec.shared_examples 'wiki controller actions' do
         it 'delivers the file with the correct headers' do
           subject
 
+          expect(response).to have_gitlab_http_status(:ok)
           expect(response.headers['Content-Disposition']).to match(/^inline/)
           expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq('true')
           expect(response.cache_control[:public]).to be(false)
@@ -208,6 +245,7 @@ RSpec.shared_examples 'wiki controller actions' do
     it 'renders json in a correct format' do
       post :preview_markdown, params: routing_params.merge(id: 'page/path', text: '*Markdown* text')
 
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response.keys).to match_array(%w(body references))
     end
   end

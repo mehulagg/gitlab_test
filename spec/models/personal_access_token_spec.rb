@@ -165,6 +165,7 @@ RSpec.describe PersonalAccessToken do
       let_it_be(:revoked_token) { create(:personal_access_token, revoked: true) }
       let_it_be(:valid_token_and_notified) { create(:personal_access_token, expires_at: 2.days.from_now, expire_notification_delivered: true) }
       let_it_be(:valid_token) { create(:personal_access_token, expires_at: 2.days.from_now) }
+      let_it_be(:long_expiry_token) { create(:personal_access_token, expires_at: '999999-12-31'.to_date) }
 
       context 'in one day' do
         it "doesn't have any tokens" do
@@ -176,6 +177,18 @@ RSpec.describe PersonalAccessToken do
         it 'only includes a valid token' do
           expect(described_class.expiring_and_not_notified(3.days.from_now)).to contain_exactly(valid_token)
         end
+      end
+    end
+
+    describe '.expired_today_and_not_notified' do
+      let_it_be(:active) { create(:personal_access_token) }
+      let_it_be(:expired_yesterday) { create(:personal_access_token, expires_at: Date.yesterday) }
+      let_it_be(:revoked_token) { create(:personal_access_token, expires_at: Date.current, revoked: true) }
+      let_it_be(:expired_today) { create(:personal_access_token, expires_at: Date.current) }
+      let_it_be(:expired_today_and_notified) { create(:personal_access_token, expires_at: Date.current, after_expiry_notification_delivered: true) }
+
+      it 'returns tokens that have expired today' do
+        expect(described_class.expired_today_and_not_notified).to contain_exactly(expired_today)
       end
     end
 
