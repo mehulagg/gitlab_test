@@ -7,7 +7,9 @@ import IssuableHeaderWarnings from '~/vue_shared/components/issuable/issuable_he
 
 export default function initIssueableApp() {
   const issuableData = parseIssuableData();
-  const designManagmentData = issuableData.design_management_enabled ? createDesignManagement(issuableData) : {};
+  const designManagmentData = issuableData.design_management_enabled
+    ? createDesignManagement(issuableData)
+    : {};
 
   // eslint-disable-next-line no-new
   new Vue({

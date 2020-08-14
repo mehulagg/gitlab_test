@@ -14,7 +14,6 @@ import descriptionComponent from './description.vue';
 import editedComponent from './edited.vue';
 import formComponent from './form.vue';
 import PinnedLinks from './pinned_links.vue';
-import RelatedIssues from 'ee/related_issues/components/related_issues_root.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import { IssuableStatus, IssuableStatusText, IssuableType } from '../constants';
 
@@ -29,7 +28,7 @@ export default {
     editedComponent,
     formComponent,
     PinnedLinks,
-    RelatedIssues,
+    RelatedIssues: () => import('ee_component/related_issues/components/related_issues_root.vue'),
     DesignManagement,
   },
   mixins: [recaptchaModalImplementor, glFeatureFlagsMixin()],
@@ -457,7 +456,9 @@ export default {
               <p
                 class="gl-font-weight-bold gl-overflow-hidden gl-white-space-nowrap gl-text-overflow-ellipsis gl-my-0"
                 :title="state.titleText"
-              >{{ state.titleText }}</p>
+              >
+                {{ state.titleText }}
+              </p>
             </div>
           </div>
         </transition>
