@@ -23,15 +23,16 @@ and they will assist you with any issues you are having.
   ```shell
   gcloud auth login
   ```
+# Kubernetes dashboard
 
-- How to access Kubernetes dashboard:
+For minikube, you can use the following to access k8s dashboard:
 
-  ```shell
-  # for minikube:
-  minikube dashboard —url
-  # for non-local installations if access via Kubectl is configured:
-  kubectl proxy
-  ```
+```shell
+minikube dashboard —url
+```
+
+For non-local installations, assuming access via Kubectl is configured, you can access 
+kubectl proxy
 
 - How to SSH to a Kubernetes node and enter the container as root
   <https://github.com/kubernetes/kubernetes/issues/30656>:
