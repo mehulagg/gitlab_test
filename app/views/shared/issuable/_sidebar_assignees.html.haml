@@ -28,7 +28,8 @@
       issue_update: issuable_sidebar[:issuable_json_path],
       ability_name: issuable_type,
       null_user: true,
-      display: 'static' } }
+      display: 'static',
+      participants: issuable_sidebar[:participants] } }
 
   - dropdown_options = assignees_dropdown_options(issuable_type)
   - title = dropdown_options[:title]

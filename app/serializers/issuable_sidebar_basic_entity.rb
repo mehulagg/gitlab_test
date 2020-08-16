@@ -107,6 +107,10 @@ class IssuableSidebarBasicEntity < Grape::Entity
   expose :supports_milestone?, as: :supports_milestone
   expose :supports_severity?, as: :supports_severity
 
+  expose :participants, using: ::API::Entities::UserBasic do |issuable|
+    issuable.participants(current_user)
+  end
+
   private
 
   def current_user

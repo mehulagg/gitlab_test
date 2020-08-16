@@ -54,6 +54,7 @@ function UsersSelect(currentUser, els, options = {}) {
     options.authorId = $dropdown.data('authorId');
     const defaultLabel = $dropdown.data('defaultLabel');
     const issueURL = $dropdown.data('issueUpdate');
+    const participants = $dropdown.data('participants');
     const $selectbox = $dropdown.closest('.selectbox');
     const $assignToMeLink = $selectbox.next('.assign-to-me-link');
     let $block = $selectbox.closest('.block');
@@ -286,6 +287,16 @@ function UsersSelect(currentUser, els, options = {}) {
         let showDivider;
         if (term.length === 0) {
           showDivider = 0;
+          if (participants) {
+            users.forEach((user, index) => {
+              participants.forEach(participant => {
+                if (user.username === participant.username) {
+                  users.splice(index, 1);
+                  users.unshift(user);
+                }
+              });
+            });
+          }
           if (firstUser) {
             // Move current user to the front of the list
             for (index = 0, len = users.length; index < len; index += 1) {
