@@ -20,7 +20,7 @@ Merge Request Analytics allows GitLab users to:
 
 To access the chart, navigate to a projects's sidebar and select **Analytics > Merge Request**.
 
-The following visualizations and data are available - currently only covering **merged** merge requests for the past 12 months
+The following visualizations and data are available - currently only covering **merged** merge requests for the past 12 months.
 
 ### Throughput chart
 
