@@ -9,7 +9,12 @@ FactoryBot.define do
     status { 'pending' }
     add_attribute(:protected) { false }
 
-    project
+    # Project with minimal associations
+    # If additional associations like ci_cd_settings or statistics is necessary
+    # please assign a project explicitly like:
+    #
+    # create(:ci_pipeline, project: create(:project))
+    project factory: :bare_project
 
     # Persist merge request head_pipeline_id
     # on pipeline factories to avoid circular references

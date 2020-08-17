@@ -31,6 +31,10 @@ FactoryBot.define do
     pipeline factory: :ci_pipeline
     project { pipeline.project }
 
+    after(:build) do |build|
+      build.pipeline.project = build.project
+    end
+
     trait :degenerated do
       options { nil }
       yaml_variables { nil }

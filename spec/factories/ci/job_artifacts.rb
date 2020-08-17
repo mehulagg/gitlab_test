@@ -5,6 +5,12 @@ include ActionDispatch::TestProcess
 FactoryBot.define do
   factory :ci_job_artifact, class: 'Ci::JobArtifact' do
     job factory: :ci_build
+    project { job.pipeline.project }
+
+    after(:build) do |artifact|
+      artifact.job.project = artifact.project
+    end
+
     file_type { :archive }
     file_format { :zip }
 
@@ -14,10 +20,6 @@ FactoryBot.define do
 
     trait :remote_store do
       file_store { JobArtifactUploader::Store::REMOTE}
-    end
-
-    after :build do |artifact|
-      artifact.project ||= artifact.job.project
     end
 
     trait :raw do

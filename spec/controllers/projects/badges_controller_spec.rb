@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Projects::BadgesController do
-  let(:project) { pipeline.project }
-  let!(:pipeline) { create(:ci_empty_pipeline) }
+  let(:project) { create(:project) }
+  let!(:pipeline) { create(:ci_empty_pipeline, project: project) }
   let(:user) { create(:user) }
 
   shared_examples 'a badge resource' do |badge_type|

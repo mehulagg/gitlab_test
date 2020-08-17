@@ -64,7 +64,8 @@ RSpec.describe Admin::RunnersController do
       control_count = ActiveRecord::QueryRecorder.new { get :show, params: { id: runner.id } }.count
 
       new_project = create(:project)
-      create(:ci_build, runner: runner, project: new_project)
+      new_pipeline = create(:ci_pipeline, project: new_project)
+      create(:ci_build, runner: runner, pipeline: new_pipeline)
 
       # There is one additional query looking up subject.group in ProjectPolicy for the
       # needs_new_sso_session permission

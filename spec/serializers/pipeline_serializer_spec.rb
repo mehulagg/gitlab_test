@@ -187,13 +187,13 @@ RSpec.describe PipelineSerializer do
         let(:ref) { 'feature' }
 
         before do
-          pipeline_1 = create(:ci_pipeline)
+          pipeline_1 = create(:ci_pipeline, project: create(:project))
           build_1 = create(:ci_build, pipeline: pipeline_1)
-          create(:ci_sources_pipeline, source_job: build_1)
+          create(:ci_sources_pipeline, source_job: build_1, pipeline: create(:ci_empty_pipeline, project: create(:project)))
 
-          pipeline_2 = create(:ci_pipeline)
+          pipeline_2 = create(:ci_pipeline, project: create(:project))
           build_2 = create(:ci_build, pipeline: pipeline_2)
-          create(:ci_sources_pipeline, source_job: build_2)
+          create(:ci_sources_pipeline, source_job: build_2, pipeline: create(:ci_empty_pipeline, project: create(:project)))
         end
 
         it 'verifies number of queries', :request_store do

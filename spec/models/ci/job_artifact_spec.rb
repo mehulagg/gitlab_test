@@ -20,7 +20,7 @@ RSpec.describe Ci::JobArtifact do
   it_behaves_like 'having unique enum values'
 
   it_behaves_like 'UpdateProjectStatistics' do
-    subject { build(:ci_job_artifact, :archive, size: 107464) }
+    subject { build(:ci_job_artifact, :archive, size: 107464, project: create(:project)) }
   end
 
   describe '.not_expired' do

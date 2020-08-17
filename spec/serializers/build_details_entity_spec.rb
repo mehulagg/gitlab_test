@@ -12,8 +12,9 @@ RSpec.describe BuildDetailsEntity do
   end
 
   describe '#as_json' do
-    let(:project) { create(:project, :repository) }
-    let(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+
     let(:build) { create(:ci_build, :failed, pipeline: pipeline) }
     let(:request) { double('request', project: project) }
 
@@ -60,8 +61,8 @@ RSpec.describe BuildDetailsEntity do
       end
 
       context 'when merge request is from a fork' do
+        let(:project) { create(:project, :repository) }
         let(:forked_project) { fork_project(project) }
-
         let(:pipeline) { create(:ci_pipeline, project: forked_project) }
 
         before do
@@ -116,7 +117,7 @@ RSpec.describe BuildDetailsEntity do
     end
 
     context 'when the build has failed' do
-      let(:build) { create(:ci_build, :created) }
+      let(:build) { create(:ci_build, :created, pipeline: pipeline) }
 
       before do
         build.drop!(:unmet_prerequisites)
@@ -186,7 +187,7 @@ RSpec.describe BuildDetailsEntity do
     end
 
     context 'when the build has expired artifacts' do
-      let!(:build) { create(:ci_build, :artifacts, artifacts_expire_at: 7.days.ago) }
+      let!(:build) { create(:ci_build, :artifacts, pipeline: pipeline, artifacts_expire_at: 7.days.ago) }
 
       it 'does not expose any artifact actions path' do
         expect(subject[:artifact].keys).not_to include(:download_path, :browse_path, :keep_path)
@@ -212,7 +213,7 @@ RSpec.describe BuildDetailsEntity do
     end
 
     context 'when the build has archive type artifacts' do
-      let!(:build) { create(:ci_build, :artifacts, artifacts_expire_at: 7.days.from_now) }
+      let!(:build) { create(:ci_build, :artifacts, pipeline: pipeline, artifacts_expire_at: 7.days.from_now) }
       let!(:report) { create(:ci_job_artifact, :codequality, job: build) }
 
       it 'exposes artifact details' do

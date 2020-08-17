@@ -24,7 +24,8 @@ RSpec.describe BatchDestroyDependentAssociations do
 
   describe '#destroy_dependent_associations_in_batches' do
     let_it_be(:project) { create(:project) }
-    let_it_be(:build) { create(:ci_build, project: project) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:build) { create(:ci_build, pipeline: pipeline) }
     let_it_be(:notification_setting) { create(:notification_setting, project: project) }
     let!(:todos) { create(:todo, project: project) }
 

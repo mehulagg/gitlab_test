@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Ci::BuildRunnerPresenter do
+  let_it_be(:project) { create(:project, :repository) }
+
   let(:presenter) { described_class.new(build) }
   let(:archive) { { paths: ['sample.txt'] } }
 
@@ -162,7 +164,8 @@ RSpec.describe Ci::BuildRunnerPresenter do
   end
 
   describe '#git_depth' do
-    let(:build) { create(:ci_build) }
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+    let(:build) { create(:ci_build, pipeline: pipeline) }
 
     subject(:git_depth) { presenter.git_depth }
 
@@ -184,8 +187,8 @@ RSpec.describe Ci::BuildRunnerPresenter do
   describe '#refspecs' do
     subject { presenter.refspecs }
 
-    let(:build) { create(:ci_build) }
-    let(:pipeline) { build.pipeline }
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+    let(:build) { create(:ci_build, pipeline: pipeline) }
 
     it 'returns the correct refspecs' do
       is_expected.to contain_exactly("+refs/heads/#{build.ref}:refs/remotes/origin/#{build.ref}",
@@ -193,7 +196,7 @@ RSpec.describe Ci::BuildRunnerPresenter do
     end
 
     context 'when ref is tag' do
-      let(:build) { create(:ci_build, :tag) }
+      let(:build) { create(:ci_build, :tag, pipeline: pipeline) }
 
       it 'returns the correct refspecs' do
         is_expected.to contain_exactly("+refs/tags/#{build.ref}:refs/tags/#{build.ref}",
@@ -251,7 +254,6 @@ RSpec.describe Ci::BuildRunnerPresenter do
     end
 
     context 'when persistent pipeline ref exists' do
-      let(:project) { create(:project, :repository) }
       let(:sha) { project.repository.commit.sha }
       let(:pipeline) { create(:ci_pipeline, sha: sha, project: project) }
       let(:build) { create(:ci_build, pipeline: pipeline) }

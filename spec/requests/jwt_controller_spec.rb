@@ -47,9 +47,9 @@ RSpec.describe JwtController do
     end
 
     context 'using CI token' do
-      let(:user) { create(:user) }
-      let(:build) { create(:ci_build, :running, user: user) }
-      let(:project) { build.project }
+      let_it_be(:user) { create(:user) }
+      let(:project) { create(:project) }
+      let(:build) { create(:ci_build, :running, user: user, project: project) }
       let(:headers) { { authorization: credentials('gitlab-ci-token', build.token) } }
 
       context 'project with enabled CI' do

@@ -5,6 +5,24 @@ require_relative '../support/helpers/test_env'
 FactoryBot.define do
   PAGES_ACCESS_LEVEL_SCHEMA_VERSION ||= 20180423204600
 
+  # Project with minimal associations
+  #
+  # This factory avoids running ActiveRecord callbacks on Project model
+  # to optimize the time of its creation.
+  # It useful for the cases when additional associations like ci_cd_settings or
+  # statistics aren't necessary
+  factory :bare_project, class: 'Project' do
+    sequence(:name) { |n| "project#{n}" }
+    path { name.downcase.gsub(/\s/, '_') }
+    last_activity_at { Time.current }
+
+    association :namespace, factory: :namespace
+
+    before(:create) do |project|
+      project.extend(SkipCallbacks)
+    end
+  end
+
   # Project without repository
   #
   # Project does not have bare repository.

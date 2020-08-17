@@ -156,7 +156,7 @@ RSpec.describe PipelineDetailsEntity do
     end
 
     context 'when pipeline triggered other pipeline' do
-      let(:pipeline) { create(:ci_empty_pipeline) }
+      let(:pipeline) { create(:ci_empty_pipeline, project: create(:project)) }
       let(:build) { create(:ci_build, name: 'child', stage: 'test', pipeline: pipeline) }
       let(:bridge) { create(:ci_bridge, name: 'cross-project', stage: 'build', pipeline: pipeline) }
       let(:child_pipeline) { create(:ci_pipeline, project: pipeline.project) }

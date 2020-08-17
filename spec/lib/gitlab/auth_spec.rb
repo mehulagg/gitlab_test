@@ -154,8 +154,8 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching do
       let(:username) { 'gitlab-ci-token' }
 
       context 'for running build' do
-        let!(:build) { create(:ci_build, :running) }
-        let(:project) { build.project }
+        let_it_be(:project) { create(:project) }
+        let!(:build) { create(:ci_build, :running, project: project) }
 
         it 'recognises user-less build' do
           expect(subject).to eq(Gitlab::Auth::Result.new(nil, build.project, :ci, described_class.build_authentication_abilities))

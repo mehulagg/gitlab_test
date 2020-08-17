@@ -3,9 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe Ci::PlayManualStageService, '#execute' do
-  let(:current_user) { create(:user) }
-  let(:pipeline) { create(:ci_pipeline, user: current_user) }
-  let(:project) { pipeline.project }
+  let_it_be(:project) { create(:project) }
+  let_it_be(:current_user) { create(:user, maintainer_projects: [project]) }
+
+  let(:pipeline) { create(:ci_pipeline, user: current_user, project: project) }
   let(:service) { described_class.new(project, current_user, pipeline: pipeline) }
   let(:stage_status) { 'manual' }
 
@@ -17,7 +18,6 @@ RSpec.describe Ci::PlayManualStageService, '#execute' do
   end
 
   before do
-    project.add_maintainer(current_user)
     create_builds_for_stage(status: stage_status)
   end
 

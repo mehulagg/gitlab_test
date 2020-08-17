@@ -4,8 +4,8 @@ require 'spec_helper'
 
 RSpec.describe BuildFinishedWorker do
   let(:ci_runner) { create(:ci_runner) }
-  let(:build) { create(:ee_ci_build, :success, runner: ci_runner) }
-  let(:project) { build.project }
+  let(:project) { create(:project) }
+  let(:build) { create(:ee_ci_build, :success, project: project, runner: ci_runner) }
   let(:namespace) { project.shared_runners_limit_namespace }
 
   subject do

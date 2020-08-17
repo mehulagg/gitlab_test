@@ -8,7 +8,8 @@ RSpec.describe 'Admin Builds' do
   end
 
   describe 'GET /admin/builds' do
-    let(:pipeline) { create(:ci_pipeline) }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
 
     context 'All tab' do
       context 'when have jobs' do

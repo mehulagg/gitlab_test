@@ -27,11 +27,12 @@ RSpec.describe Gitlab::Auth do
   end
 
   describe '#build_access_token_check' do
-    subject { gl_auth.find_for_git_client('gitlab-ci-token', build.token, project: build.project, ip: '1.2.3.4') }
+    let(:project) { create(:project) }
+    let!(:build) { create(:ci_build, :running, user: user, project: project) }
+
+    subject { gl_auth.find_for_git_client('gitlab-ci-token', build.token, project: project, ip: '1.2.3.4') }
 
     context 'for running build' do
-      let!(:build) { create(:ci_build, :running, user: user) }
-
       it 'executes query using primary database' do
         expect(Ci::Build).to receive(:find_by_token).with(build.token).and_wrap_original do |m, *args|
           expect(::Gitlab::Database::LoadBalancing::Session.current.use_primary?).to eq(true)
