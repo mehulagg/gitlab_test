@@ -36,19 +36,17 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div class="gl-display-flex">
-      <h4 class="gl-mt-0">{{ s__('CycleAnalytics|Days to completion') }}</h4>
-      <stage-dropdown-filter
-        v-if="stages.length"
-        class="gl-ml-auto"
-        :stages="stages"
-        @selected="onDurationStageSelect"
-      />
-    </div>
-    <chart-skeleton-loader v-if="isLoading" size="md" class="gl-my-4 gl-py-4" />
+  <chart-skeleton-loader v-if="isLoading" size="md" class="gl-my-4 gl-py-4" />
+  <div v-else class="gl-display-flex gl-flex-direction-column">
+    <h4 class="gl-mt-0">{{ s__('CycleAnalytics|Days to completion') }}</h4>
+    <stage-dropdown-filter
+      v-if="stages.length"
+      class="gl-ml-auto"
+      :stages="stages"
+      @selected="onDurationStageSelect"
+    />
     <scatterplot
-      v-else-if="hasData"
+      v-if="hasData"
       :x-axis-title="s__('CycleAnalytics|Date')"
       :y-axis-title="s__('CycleAnalytics|Total days to completion')"
       :tooltip-date-format="$options.durationChartTooltipDateFormat"

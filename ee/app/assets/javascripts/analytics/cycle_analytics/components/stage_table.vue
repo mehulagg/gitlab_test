@@ -39,13 +39,9 @@ export default {
       'selectedStage',
       'currentStageEvents',
       'isLoading',
-      'isLoadingValueStreamData',
       'isLoadingStage',
       'isEmptyStage',
     ]),
-    isLoadingStageTable() {
-      return Boolean(this.isLoading || this.isLoadingValueStreamData);
-    },
     stageEventsHeight() {
       return `${this.stageNavHeight}px`;
     },
@@ -87,7 +83,7 @@ export default {
   },
   updated() {
     this.$set(this, 'stageWidth', this.$refs.stagePanel.clientWidth);
-    if (!this.isLoadingStageTable && this.$refs.stageNav) {
+    if (!this.isLoading && this.$refs.stageNav) {
       this.$set(this, 'stageNavHeight', this.$refs.stageNav.clientHeight);
     }
   },
@@ -96,7 +92,7 @@ export default {
 <template>
   <div ref="stagePanel" class="stage-panel-container">
     <div
-      v-if="isLoadingStageTable"
+      v-if="isLoading"
       class="gl-display-flex gl-justify-content-center gl-align-items-center"
       :style="{ height: stageEventsHeight, width: '100%' }"
     >

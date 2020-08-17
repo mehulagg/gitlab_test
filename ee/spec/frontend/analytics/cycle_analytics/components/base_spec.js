@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import store from 'ee/analytics/cycle_analytics/store';
 import Component from 'ee/analytics/cycle_analytics/components/base.vue';
-import { GlEmptyState, GlSkeletonLoading } from '@gitlab/ui';
+import { GlEmptyState } from '@gitlab/ui';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
@@ -46,7 +46,7 @@ const defaultStubs = {
   ValueStreamSelect: true,
   Metrics: true,
   ChartSkeletonLoader: true,
-  GlSkeletonLoading: true,
+  GlEmptyState: false,
 };
 
 const defaultFeatureFlags = {
@@ -79,6 +79,7 @@ function createComponent({
   shallow = true,
   withStageSelected = false,
   withValueStreamSelected = true,
+  withNoAccess = false,
   featureFlags = {},
   props = {},
 } = {}) {
@@ -107,7 +108,12 @@ function createComponent({
     },
   });
 
+  if (withNoAccess) {
+    comp.vm.$store.dispatch('setErrorCode', httpStatusCodes.FORBIDDEN);
+  }
+
   if (withValueStreamSelected) {
+    comp.vm.$store.dispatch('setSelectedGroup', { ...selectedGroup });
     comp.vm.$store.dispatch('receiveValueStreamsSuccess', mockData.valueStreams);
   }
 
@@ -264,11 +270,29 @@ describe('Cycle Analytics component', () => {
       describe('hasCreateMultipleValueStreams = true', () => {
         beforeEach(() => {
           mock = new MockAdapter(axios);
+          mock
+            .onGet(mockData.endpoints.baseStagesEndpoint)
+            .reply(200, mockData.allowedStages)
+            .onGet(mockData.endpoints.valueStreams)
+            .reply(200, mockData.valueStreams);
+          //   .onAny()
+          //   .reply(200, []);
           wrapper = createComponent({
             featureFlags: {
               hasCreateMultipleValueStreams: true,
             },
+            // withValueStreamSelected: true,
           });
+          return wrapper.vm.$nextTick();
+
+          // // mock = new MockAdapter(axios);
+          // wrapper = createComponent({
+          //   featureFlags: {
+          //     hasCreateMultipleValueStreams: true,
+          //   },
+          //   // withValueStreamSelected: true,
+          // });
+          // return wrapper.vm.$nextTick();
         });
 
         it('displays the value stream select component', () => {
@@ -445,7 +469,9 @@ describe('Cycle Analytics component', () => {
           mock = new MockAdapter(axios);
           mock.onAny().reply(httpStatusCodes.FORBIDDEN);
 
-          wrapper.vm.onGroupSelect(mockData.group);
+          wrapper = createComponent({
+            withNoAccess: true,
+          });
           return waitForPromises();
         });
 

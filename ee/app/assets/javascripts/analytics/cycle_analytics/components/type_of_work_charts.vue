@@ -62,8 +62,9 @@ export default {
 };
 </script>
 <template>
-  <div class="js-tasks-by-type-chart row">  
-    <div class="col-12">
+  <div class="js-tasks-by-type-chart row">
+    <chart-skeleton-loader v-if="isLoading" class="gl-my-4 gl-py-4" />
+    <div v-else class="col-12">
       <h3>{{ s__('CycleAnalytics|Type of work') }}</h3>
       <p>{{ summaryDescription }}</p>
       <tasks-by-type-filters
@@ -72,9 +73,8 @@ export default {
         :subject-filter="selectedSubjectFilter"
         @updateFilter="onUpdateFilter"
       />
-      <chart-skeleton-loader v-if="isLoading" class="gl-my-4 gl-py-4" />
       <tasks-by-type-chart
-        v-else-if="!isLoading && hasData"
+        v-if="!isLoading && hasData"
         :data="tasksByTypeChartData.data"
         :group-by="tasksByTypeChartData.groupBy"
         :series-names="tasksByTypeChartData.seriesNames"

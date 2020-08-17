@@ -35,7 +35,7 @@ describe('Cycle analytics mutations', () => {
     ${types.REQUEST_STAGE_DATA}                  | ${'isLoadingStage'}          | ${true}
     ${types.RECEIVE_STAGE_DATA_ERROR}            | ${'isEmptyStage'}            | ${true}
     ${types.RECEIVE_STAGE_DATA_ERROR}            | ${'isLoadingStage'}          | ${false}
-    ${types.REQUEST_CYCLE_ANALYTICS_DATA}        | ${'isLoading'}               | ${true}
+    ${types.REQUEST_VALUE_STREAM_DATA}           | ${'isLoading'}               | ${true}
     ${types.RECEIVE_GROUP_STAGES_ERROR}          | ${'stages'}                  | ${[]}
     ${types.REQUEST_GROUP_STAGES}                | ${'stages'}                  | ${[]}
     ${types.REQUEST_UPDATE_STAGE}                | ${'isLoading'}               | ${true}
@@ -106,9 +106,9 @@ describe('Cycle analytics mutations', () => {
     );
   });
 
-  describe(`${types.RECEIVE_CYCLE_ANALYTICS_DATA_SUCCESS}`, () => {
+  describe(`${types.RECEIVE_VALUE_STREAM_DATA_SUCCESS}`, () => {
     it('will set isLoading=false and errorCode=null', () => {
-      mutations[types.RECEIVE_CYCLE_ANALYTICS_DATA_SUCCESS](state, {
+      mutations[types.RECEIVE_VALUE_STREAM_DATA_SUCCESS](state, {
         stats: [],
         stages: [],
       });
@@ -132,11 +132,11 @@ describe('Cycle analytics mutations', () => {
     });
   });
 
-  describe(`${types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR}`, () => {
+  describe(`${types.RECEIVE_VALUE_STREAM_DATA_ERROR}`, () => {
     it('sets errorCode correctly', () => {
       const errorCode = 403;
 
-      mutations[types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR](state, errorCode);
+      mutations[types.RECEIVE_VALUE_STREAM_DATA_ERROR](state, errorCode);
 
       expect(state.isLoading).toBe(false);
       expect(state.errorCode).toBe(errorCode);

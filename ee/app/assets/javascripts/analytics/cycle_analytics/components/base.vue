@@ -88,8 +88,11 @@ export default {
       'pathNavigationData',
     ]),
     ...mapGetters('customStages', ['customStageFormActive']),
+    isLoadingValueStreamData() {
+      return Boolean(this.isLoading || this.isLoadingValueStreams);
+    },
     shouldRenderEmptyState() {
-      return !this.selectedGroup;
+      return Boolean(!this.shouldRenderNoAccess && !this.selectedGroup);
     },
     shouldDisplayFilters() {
       return this.selectedGroup && !this.errorCode;
@@ -106,12 +109,17 @@ export default {
     shouldDisplayFilterBar() {
       // TODO: After we remove instance VSA currentGroupPath will be always set
       // https://gitlab.com/gitlab-org/gitlab/-/issues/223735
-      return this.currentGroupPath;
+      return this.currentGroupPath && !this.errorCode;
     },
     shouldDisplayCreateMultipleValueStreams() {
       return Boolean(
-        this.featureFlags.hasCreateMultipleValueStreams && !this.isLoadingValueStreams,
+        this.featureFlags.hasCreateMultipleValueStreams &&
+          !this.isLoadingValueStreams &&
+          !this.hasNoAccessError,
       );
+    },
+    shouldRenderNoAccess() {
+      return Boolean(!this.isLoadingValueStreamData && this.hasNoAccessError);
     },
     hasDateRangeSet() {
       return this.startDate && this.endDate;
@@ -150,7 +158,6 @@ export default {
   methods: {
     ...mapActions([
       'fetchValueStreamData',
-      'fetchCycleAnalyticsData',
       'fetchStageData',
       'setSelectedGroup',
       'setSelectedProjects',
@@ -170,7 +177,7 @@ export default {
     ]),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
-      this.fetchCycleAnalyticsData();
+      this.fetchValueStreamData();
     },
     onProjectsSelect(projects) {
       this.setSelectedProjects(projects);
@@ -220,12 +227,12 @@ export default {
         class="gl-align-self-start gl-sm-align-self-start gl-mt-0 gl-sm-mt-5"
       />
     </div>
-    <div class="gl-max-w-full">
+    <div v-if="!shouldRenderNoAccess" class="gl-max-w-full">
       <div class="gl-mt-3 gl-py-2 gl-px-3 bg-gray-light border-top border-bottom">
         <div v-if="shouldDisplayPathNavigation" class="gl-w-full gl-pb-2">
           <path-navigation
             class="js-path-navigation"
-            :loading="isLoading"
+            :loading="isLoadingValueStreamData"
             :stages="pathNavigationData"
             :selected-stage="selectedStage"
             @selected="onStageSelect"
@@ -273,7 +280,18 @@ export default {
       </div>
     </div>
     <gl-empty-state
-      v-if="shouldRenderEmptyState"
+      v-if="shouldRenderNoAccess"
+      class="js-empty-state"
+      :title="__('You don’t have access to Value Stream Analytics for this group')"
+      :svg-path="noAccessSvgPath"
+      :description="
+        __(
+          'Only \'Reporter\' roles and above on tiers Premium / Silver and above can see Value Stream Analytics.',
+        )
+      "
+    />
+    <gl-empty-state
+      v-else-if="shouldRenderEmptyState"
       :title="__('Value Stream Analytics can help you determine your team’s velocity')"
       :description="
         __(

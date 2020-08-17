@@ -80,7 +80,7 @@ describe('Filters actions', () => {
       selectedMilestone: 'NEXT',
     };
 
-    it('dispatches the root/setSelectedFilters and root/fetchCycleAnalyticsData actions', () => {
+    it('dispatches the root/setSelectedFilters and root/fetchValueStreamData actions', () => {
       return testAction(
         actions.setFilters,
         nextFilters,
@@ -92,7 +92,7 @@ describe('Filters actions', () => {
             payload: nextFilters,
           },
           {
-            type: 'fetchCycleAnalyticsData',
+            type: 'fetchValueStreamData',
             payload: null,
           },
         ],
@@ -114,7 +114,7 @@ describe('Filters actions', () => {
             },
           },
           {
-            type: 'fetchCycleAnalyticsData',
+            type: 'fetchValueStreamData',
             payload: null,
           },
         ],

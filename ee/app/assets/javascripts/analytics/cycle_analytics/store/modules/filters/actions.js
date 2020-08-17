@@ -88,7 +88,7 @@ export const fetchAssignees = ({ commit, rootGetters }, query = '') => {
 export const setFilters = ({ dispatch }, nextFilters) => {
   return Promise.resolve()
     .then(() => dispatch('setSelectedFilters', nextFilters, { root: true }))
-    .then(() => dispatch('fetchCycleAnalyticsData', null, { root: true }));
+    .then(() => dispatch('fetchValueStreamData', null, { root: true }));
 };
 
 export const initialize = ({ dispatch, commit }, initialFilters) => {

@@ -152,12 +152,16 @@ export default {
     });
   },
   [types.REQUEST_VALUE_STREAM_DATA](state) {
-    state.isLoadingValueStreamData = true;
+    state.isLoading = true;
   },
   [types.RECEIVE_VALUE_STREAM_DATA_ERROR](state) {
-    state.isLoadingValueStreamData = false;
+    state.isLoading = false;
   },
   [types.RECEIVE_VALUE_STREAM_DATA_SUCCESS](state) {
-    state.isLoadingValueStreamData = false;
+    state.isLoading = false;
+  },
+  [types.SET_ERROR_CODE](state, errCode) {
+    state.errorCode = errCode;
+    state.isLoading = false;
   },
 };

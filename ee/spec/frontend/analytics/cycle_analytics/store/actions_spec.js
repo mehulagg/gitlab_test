@@ -38,6 +38,9 @@ const stageEndpoint = ({ stageId }) =>
 
 jest.mock('~/flash');
 
+let mockDispatch;
+let mockCommit;
+
 describe('Cycle analytics actions', () => {
   let state;
   let mock;
@@ -105,13 +108,13 @@ describe('Cycle analytics actions', () => {
   describe('setDateRange', () => {
     const payload = { startDate, endDate };
 
-    it('dispatches the fetchCycleAnalyticsData action', () => {
+    it('dispatches the fetchValueStreamData action', () => {
       return testAction(
         actions.setDateRange,
         payload,
         state,
         [{ type: types.SET_DATE_RANGE, payload: { startDate, endDate } }],
-        [{ type: 'fetchCycleAnalyticsData' }],
+        [{ type: 'fetchValueStreamData' }],
       );
     });
   });
@@ -221,146 +224,6 @@ describe('Cycle analytics actions', () => {
     it('will flash an error message', () => {
       actions.receiveStageDataError({ commit: () => {} });
       shouldFlashAMessage('There was an error fetching data for the selected stage');
-    });
-  });
-
-  describe('fetchCycleAnalyticsData', () => {
-    function mockFetchCycleAnalyticsAction(overrides = {}) {
-      const mocks = {
-        requestCycleAnalyticsData:
-          overrides.requestCycleAnalyticsData || jest.fn().mockResolvedValue(),
-        fetchStageMedianValues: overrides.fetchStageMedianValues || jest.fn().mockResolvedValue(),
-        fetchGroupStagesAndEvents:
-          overrides.fetchGroupStagesAndEvents || jest.fn().mockResolvedValue(),
-        receiveCycleAnalyticsDataSuccess:
-          overrides.receiveCycleAnalyticsDataSuccess || jest.fn().mockResolvedValue(),
-      };
-      return {
-        mocks,
-        mockDispatchContext: jest
-          .fn()
-          .mockImplementationOnce(mocks.requestCycleAnalyticsData)
-          .mockImplementationOnce(mocks.fetchGroupStagesAndEvents)
-          .mockImplementationOnce(mocks.fetchStageMedianValues)
-          .mockImplementationOnce(mocks.receiveCycleAnalyticsDataSuccess),
-      };
-    }
-
-    beforeEach(() => {
-      state = { ...state, selectedGroup, startDate, endDate };
-    });
-
-    it(`dispatches actions for required value stream analytics analytics data`, () => {
-      return testAction(
-        actions.fetchCycleAnalyticsData,
-        state,
-        null,
-        [],
-        [
-          { type: 'requestCycleAnalyticsData' },
-          { type: 'fetchValueStreams' },
-          { type: 'receiveCycleAnalyticsDataSuccess' },
-        ],
-      );
-    });
-
-    it(`displays an error if fetchStageMedianValues fails`, () => {
-      const { mockDispatchContext } = mockFetchCycleAnalyticsAction({
-        fetchStageMedianValues: actions.fetchStageMedianValues({
-          dispatch: jest
-            .fn()
-            .mockResolvedValueOnce()
-            .mockImplementation(actions.receiveStageMedianValuesError({ commit: () => {} })),
-          commit: () => {},
-          state: { ...state },
-          getters: {
-            ...getters,
-            activeStages,
-          },
-        }),
-      });
-
-      return actions
-        .fetchCycleAnalyticsData({
-          dispatch: mockDispatchContext,
-          state: {},
-          commit: () => {},
-        })
-        .then(() => {
-          shouldFlashAMessage('There was an error fetching median data for stages');
-        });
-    });
-
-    it(`displays an error if fetchGroupStagesAndEvents fails`, () => {
-      const { mockDispatchContext } = mockFetchCycleAnalyticsAction({
-        fetchGroupStagesAndEvents: actions.fetchGroupStagesAndEvents({
-          dispatch: jest
-            .fn()
-            .mockResolvedValueOnce()
-            .mockImplementation(actions.receiveGroupStagesError({ commit: () => {} })),
-          commit: () => {},
-          state: { ...state },
-          getters,
-        }),
-      });
-
-      return actions
-        .fetchCycleAnalyticsData({
-          dispatch: mockDispatchContext,
-          state: {},
-          commit: () => {},
-        })
-        .then(() => {
-          shouldFlashAMessage('There was an error fetching value stream analytics stages.');
-        });
-    });
-  });
-
-  describe('receiveCycleAnalyticsDataError', () => {
-    beforeEach(() => {});
-
-    it(`commits the ${types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR} mutation on a 403 response`, () => {
-      const response = { status: 403 };
-      return testAction(
-        actions.receiveCycleAnalyticsDataError,
-        { response },
-        state,
-        [
-          {
-            type: types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR,
-            payload: response.status,
-          },
-        ],
-        [],
-      );
-    });
-
-    it(`commits the ${types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR} mutation on a non 403 error response`, () => {
-      const response = { status: 500 };
-      return testAction(
-        actions.receiveCycleAnalyticsDataError,
-        { response },
-        state,
-        [
-          {
-            type: types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR,
-            payload: response.status,
-          },
-        ],
-        [],
-      );
-    });
-
-    it('will flash an error when the response is not 403', () => {
-      const response = { status: 500 };
-      actions.receiveCycleAnalyticsDataError(
-        {
-          commit: () => {},
-        },
-        { response },
-      );
-
-      shouldFlashAMessage(flashErrorMessage);
     });
   });
 
@@ -625,13 +488,13 @@ describe('Cycle analytics actions', () => {
       state = { selectedGroup };
     });
 
-    it('dispatches fetchCycleAnalyticsData', () => {
+    it('dispatches fetchValueStreamData', () => {
       return testAction(
         actions.receiveRemoveStageSuccess,
         stageId,
         state,
         [{ type: 'RECEIVE_REMOVE_STAGE_RESPONSE' }],
-        [{ type: 'fetchCycleAnalyticsData' }],
+        [{ type: 'fetchValueStreamData' }],
       );
     });
 
@@ -650,7 +513,6 @@ describe('Cycle analytics actions', () => {
   });
 
   describe('fetchStageMedianValues', () => {
-    let mockDispatch = jest.fn();
     const fetchMedianResponse = activeStages.map(({ slug: id }) => ({ events: [], id }));
 
     beforeEach(() => {
@@ -745,8 +607,6 @@ describe('Cycle analytics actions', () => {
   });
 
   describe('initializeCycleAnalytics', () => {
-    let mockDispatch;
-    let mockCommit;
     let store;
 
     const initialData = {
@@ -773,15 +633,25 @@ describe('Cycle analytics actions', () => {
 
       it('dispatches "initializeCycleAnalyticsSuccess"', () =>
         actions.initializeCycleAnalytics(store).then(() => {
-          expect(mockDispatch).not.toHaveBeenCalledWith('fetchCycleAnalyticsData');
+          expect(mockDispatch).not.toHaveBeenCalledWith('fetchValueStreamData');
           expect(mockDispatch).toHaveBeenCalledWith('initializeCycleAnalyticsSuccess');
         }));
     });
 
     describe('with initialData', () => {
-      it('dispatches "fetchCycleAnalyticsData" and "initializeCycleAnalyticsSuccess"', () =>
+      it('dispatches "fetchValueStreams" and "initializeCycleAnalyticsSuccess"', () =>
         actions.initializeCycleAnalytics(store, initialData).then(() => {
-          expect(mockDispatch).toHaveBeenCalledWith('fetchCycleAnalyticsData');
+          expect(mockDispatch).toHaveBeenCalledTimes(5);
+
+          // console.log('mockDispatch', mockDispatch.mock.calls);
+
+          expect(mockDispatch).toHaveBeenCalledWith('filters/initialize', {
+            ...initialData,
+            groupPath: selectedGroup.fullPath,
+          });
+          expect(mockDispatch).toHaveBeenCalledWith('durationChart/initialize');
+          expect(mockDispatch).toHaveBeenCalledWith('typeOfWork/initialize');
+          expect(mockDispatch).toHaveBeenCalledWith('fetchValueStreams');
           expect(mockDispatch).toHaveBeenCalledWith('initializeCycleAnalyticsSuccess');
         }));
 
@@ -978,9 +848,15 @@ describe('Cycle analytics actions', () => {
             { type: types.REQUEST_VALUE_STREAMS },
             {
               type: types.RECEIVE_VALUE_STREAMS_ERROR,
+              payload: resp,
             },
           ],
-          [],
+          [
+            {
+              type: 'setErrorCode',
+              payload: 404,
+            },
+          ],
         );
       });
     });
@@ -1029,22 +905,49 @@ describe('Cycle analytics actions', () => {
           hasCreateMultipleValueStreams: true,
         },
       };
-      mock = new MockAdapter(axios);
-      mock.onGet(endpoints.valueStreamData).reply(httpStatusCodes.OK, { stages: [], events: [] });
+
+      mockCommit = jest.fn();
+      mockDispatch = jest.fn().mockResolvedValue();
     });
 
-    it('dispatches fetchGroupStagesAndEvents, fetchStageMedianValues and durationChart/fetchDurationData', () => {
-      return testAction(
-        actions.fetchValueStreamData,
-        null,
-        state,
-        [],
-        [
-          { type: 'fetchGroupStagesAndEvents' },
-          { type: 'fetchStageMedianValues' },
-          { type: 'durationChart/fetchDurationData' },
-        ],
-      );
+    it('dispatches fetchGroupStagesAndEvents, fetchStageMedianValues, durationChart/fetchDurationData and typeOfWork/fetchTopRankedGroupLabels', () => {
+      return actions
+        .fetchValueStreamData({
+          state,
+          dispatch: mockDispatch,
+          commit: mockCommit,
+        })
+        .then(() => {
+          expect(mockDispatch).toHaveBeenCalledWith('fetchGroupStagesAndEvents');
+          expect(mockDispatch).toHaveBeenCalledWith('fetchStageMedianValues');
+          expect(mockDispatch).toHaveBeenCalledWith('durationChart/fetchDurationData');
+          expect(mockDispatch).toHaveBeenCalledWith('typeOfWork/fetchTopRankedGroupLabels');
+
+          expect(mockCommit).toHaveBeenCalledWith(types.REQUEST_VALUE_STREAM_DATA);
+          expect(mockCommit).toHaveBeenCalledWith(types.RECEIVE_VALUE_STREAM_DATA_SUCCESS);
+        });
+    });
+
+    describe('with a failing request', () => {
+      const response = { status: httpStatusCodes.BAD_REQUEST };
+      beforeEach(() => {
+        mockCommit = jest.fn();
+        mockDispatch = jest.fn().mockRejectedValue({ response });
+      });
+
+      it(`will commit ${types.RECEIVE_VALUE_STREAM_DATA_ERROR}`, () => {
+        return actions
+          .fetchValueStreamData({
+            state,
+            dispatch: mockDispatch,
+            commit: mockCommit,
+          })
+          .catch(() => {
+            expect(mockDispatch).toHaveBeenCalledWith('setErrorCode', httpStatusCodes.BAD_REQUEST);
+            expect(mockCommit).toHaveBeenCalledWith(types.REQUEST_VALUE_STREAM_DATA);
+            expect(mockCommit).toHaveBeenCalledWith(types.RECEIVE_VALUE_STREAM_DATA_ERROR);
+          });
+      });
     });
   });
 });
