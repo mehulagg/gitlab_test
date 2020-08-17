@@ -1064,11 +1064,11 @@ recovering the data is not possible, the repository can be enabled for writes ag
 The Praefect `dataloss` sub-command identifies replicas that are likely to be outdated. This is useful for identifying potential data loss after a failover.
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>] [-writable]
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>] [-partially-replicated]
 ```
 
 - `-virtual-storage` specifies which virtual storage to check. Every configured virtual storage is checked if none is specified.
-- `-writable` specifies whether to report outdated replicas of writable repositories. Repository is writable if the primary has the latest changes. Secondaries might be temporarily outdated while they are waiting to replicate the latest changes. To reduce the noise, default behavior is to display outdated replicas of read-only repositories as they generally require administrator action.
+- `-partially-replicated` specifies whether to report outdated replicas of writable repositories. Repository is writable if the primary has the latest changes. Secondaries might be temporarily outdated while they are waiting to replicate the latest changes. To reduce the noise, default behavior is to display outdated replicas of read-only repositories as they generally require administrator action.
 
 ```shell
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss
@@ -1085,7 +1085,7 @@ Virtual storage: default
       gitaly-3 is behind by 2 changes or less
 ```
 
-Set the `-writable` flag also list the outdated replicas of writable repositories.
+Set the `-partially-replicated` flag also list the outdated replicas of partially-replicated repositories.
 
 ```shell
 Virtual storage: default
@@ -1106,7 +1106,7 @@ Virtual storage: default
   All repositories are writable!
 ```
 
-With the `-writable` flag set, a confirmation is printed out if every replica is fully up to date.
+With the `-partially-replicated` flag set, a confirmation is printed out if every replica is fully up to date.
 
 ```shell
 Virtual storage: default
