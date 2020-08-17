@@ -49,7 +49,7 @@ Merge Request Analytics is disabled by default but can be enabled using the foll
 
 A GitLab administrator can:
 
-- Enabled this feature from GitLab 13.3 by running the follow in a Rails console:
+- Enable this feature from GitLab 13.3 by running the follow in a Rails console:
 
   ```ruby
   Feature.enable(:project_merge_request_analytics)
