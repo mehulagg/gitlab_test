@@ -32,7 +32,7 @@ class GitGarbageCollectWorker # rubocop:disable Scalability/IdempotentWorker
       cleanup_orphan_lfs_file_references(project)
     end
 
-    gitaly_call(task, project.repository.raw_repository)
+    gitaly_call(task, project)
 
     # Refresh the branch cache in case garbage collection caused a ref lookup to fail
     flush_ref_caches(project) if task == :gc
@@ -67,8 +67,9 @@ class GitGarbageCollectWorker # rubocop:disable Scalability/IdempotentWorker
     ::Gitlab::ExclusiveLease.get_uuid(key)
   end
 
-  ## `repository` has to be a Gitlab::Git::Repository
-  def gitaly_call(task, repository)
+  def gitaly_call(task, project)
+    repository = project.repository.raw_repository
+
     client = if task == :pack_refs
                Gitlab::GitalyClient::RefService.new(repository)
              else
@@ -77,7 +78,9 @@ class GitGarbageCollectWorker # rubocop:disable Scalability/IdempotentWorker
 
     case task
     when :gc
-      client.garbage_collect(bitmaps_enabled?)
+      prune = Feature.enabled?(:prune_on_gc, project)
+
+      client.garbage_collect(bitmaps_enabled?, prune: prune)
     when :full_repack
       client.repack_full(bitmaps_enabled?)
     when :incremental_repack
