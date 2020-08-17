@@ -1,0 +1,5 @@
+---
+title: Fix Elasticsearch zero-downtime reindexing UI
+merge_request: 39570
+author:
+type: fixed
