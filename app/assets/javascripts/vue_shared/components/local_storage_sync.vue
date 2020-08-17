@@ -22,13 +22,17 @@ export default {
     // On mount, trigger update if we actually have a localStorageValue
     const value = this.getValue();
 
-    if (value && this.value !== value) {
+    if (value !== null && this.value !== value) {
       this.$emit('input', value);
     }
   },
   methods: {
     getValue() {
       const rawValue = localStorage.getItem(this.storageKey);
+
+      if (!rawValue) {
+        return null;
+      }
 
       try {
         return JSON.parse(rawValue);

@@ -59,23 +59,30 @@ describe('Local Storage Sync', () => {
     });
   });
 
-  describe('localStorage has saved value', () => {
+  describe.each`
+    rawValue          | storedValue
+    ${'foo'}          | ${'foo'}
+    ${3}              | ${'3'}
+    ${true}           | ${'true'}
+    ${false}          | ${'false'}
+    ${['foo']}        | ${'["foo"]'}
+    ${{ foo: 'foo' }} | ${'{"foo":"foo"}'}
+  `('localStorage has saved value: %s', ({ rawValue, storedValue }) => {
     const storageKey = 'issue_list_order_by';
-    const savedValue = 'last_updated';
 
     beforeEach(() => {
-      localStorage.setItem(storageKey, savedValue);
+      localStorage.setItem(storageKey, storedValue);
     });
 
     it('emits input event with saved value', () => {
       createComponent({
         props: {
           storageKey,
-          value: 'ascending',
+          value: 'bar',
         },
       });
 
-      expect(wrapper.emitted('input')[0][0]).toBe(savedValue);
+      expect(wrapper.emitted('input')[0][0]).toEqual(rawValue);
     });
 
     it('does not overwrite localStorage with prop value', () => {
@@ -86,7 +93,7 @@ describe('Local Storage Sync', () => {
         },
       });
 
-      expect(localStorage.getItem(storageKey)).toBe(savedValue);
+      expect(localStorage.getItem(storageKey)).toEqual(storedValue);
     });
 
     it('updating the value updates localStorage', async () => {
@@ -97,18 +104,17 @@ describe('Local Storage Sync', () => {
         },
       });
 
-      const newValue = 'last_updated';
       wrapper.setProps({
-        value: newValue,
+        value: rawValue,
       });
 
       await wrapper.vm.$nextTick();
 
-      expect(localStorage.getItem(storageKey)).toBe(newValue);
+      expect(localStorage.getItem(storageKey)).toEqual(storedValue);
     });
   });
 
-  describe.each([true, false])('localStorage has saved value', hasSavedValue => {
+  describe.each([true, false])('localStorage has saved value', valueHasBeenStoredPreviously => {
     const storageKey = 'issue_list_order_by';
 
     it.each`
@@ -119,7 +125,7 @@ describe('Local Storage Sync', () => {
       ${{ foo: 'bar ' }}       | ${true}
       ${['newValue', 1, true]} | ${true}
     `('stores $newValue to localStorage', async ({ newValue, shouldBeParsed }) => {
-      if (hasSavedValue) {
+      if (valueHasBeenStoredPreviously) {
         localStorage.setItem(storageKey, newValue);
       }
 
