@@ -74,4 +74,11 @@ class CustomEnvironment extends JSDOMEnvironment {
   }
 }
 
+/**
+ * Workaround for jest 26 issues:
+ * https://github.com/facebook/jest/issues/9457#issuecomment-673377207
+ */
+delete CustomEnvironment.prototype.compileFunction;
+CustomEnvironment.prototype.getVmContext = null;
+
 module.exports = CustomEnvironment;
