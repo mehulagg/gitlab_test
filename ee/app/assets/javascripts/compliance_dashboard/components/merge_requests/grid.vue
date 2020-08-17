@@ -1,28 +1,27 @@
 <script>
 import { GlTooltipDirective } from '@gitlab/ui';
-import { isEmpty } from 'lodash';
 
 import { sprintf, __ } from '~/locale';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 
-import ApprovalStatus from './approval_status.vue';
 import Approvers from './approvers.vue';
-import MergeRequest from './merge_request.vue';
-import PipelineStatus from './pipeline_status.vue';
+import BranchDetails from './branch_details.vue';
 import GridColumnHeading from '../shared/grid_column_heading.vue';
+import MergeRequest from './merge_request.vue';
 import Pagination from '../shared/pagination.vue';
+import Status from './status.vue';
 
 export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
   components: {
-    ApprovalStatus,
     Approvers,
+    BranchDetails,
     GridColumnHeading,
     MergeRequest,
-    PipelineStatus,
     Pagination,
+    Status,
   },
   mixins: [timeagoMixin],
   props: {
@@ -48,8 +47,8 @@ export default {
     timeTooltip(mergedAt) {
       return this.tooltipTitle(mergedAt);
     },
-    hasStatus(status) {
-      return !isEmpty(status);
+    hasBranchDetails(mergeRequest) {
+      return mergeRequest.target_branch && mergeRequest.source_branch;
     },
   },
   strings: {
@@ -81,30 +80,32 @@ export default {
           :merge-request="mergeRequest"
         />
 
-        <div
-          :key="key(mergeRequest.id, $options.keyTypes.approvalStatus)"
-          class="gl-display-flex gl-align-items-center gl-justify-content-center gl-border-b-solid gl-border-b-1 gl-border-b-gray-100 gl-p-5"
-        >
-          <approval-status
-            v-if="hasStatus(mergeRequest.approval_status)"
-            :status="mergeRequest.approval_status"
-          />
-        </div>
-        <div
-          :key="key(mergeRequest.id, $options.keyTypes.pipeline)"
-          class="dashboard-pipeline gl-display-flex gl-align-items-center gl-justify-content-center gl-border-b-solid gl-border-b-1 gl-border-b-gray-100 gl-p-5"
-        >
-          <pipeline-status
-            v-if="hasStatus(mergeRequest.pipeline_status)"
-            :status="mergeRequest.pipeline_status"
-          />
-        </div>
+        <status
+          :key="key(mergeRequest.id, 'approval')"
+          :status="{ type: 'approval', data: mergeRequest.approval_status }"
+        />
+
+        <status
+          :key="key(mergeRequest.id, 'pipeline')"
+          :status="{ type: 'pipeline', data: mergeRequest.pipeline_status }"
+        />
 
         <div
           :key="key(mergeRequest.id, $options.keyTypes.updates)"
           class="gl-text-right gl-border-b-solid gl-border-b-1 gl-border-b-gray-100 gl-p-5 gl-relative"
         >
           <approvers :approvers="mergeRequest.approved_by_users" />
+          <branch-details
+            v-if="hasBranchDetails(mergeRequest)"
+            :source-branch="{
+              name: mergeRequest.source_branch,
+              uri: mergeRequest.source_branch_uri,
+            }"
+            :target-branch="{
+              name: mergeRequest.target_branch,
+              uri: mergeRequest.target_branch_uri,
+            }"
+          />
           <span class="gl-text-gray-700">
             <time v-gl-tooltip.bottom="timeTooltip(mergeRequest.merged_at)">{{
               timeAgoString(mergeRequest.merged_at)

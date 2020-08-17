@@ -401,6 +401,7 @@ RSpec.describe Project do
         create(:project,
                pending_delete: true)
       end
+
       let(:new_project) do
         build(:project,
               name: project_pending_deletion.name,
@@ -677,6 +678,12 @@ RSpec.describe Project do
           it 'returns full path to the project' do
             expect(project.to_reference_base(group)).to eq 'sample-namespace/sample-project'
           end
+        end
+      end
+
+      context 'when argument is a user' do
+        it 'returns full path to the project' do
+          expect(project.to_reference_base(owner)).to eq 'sample-namespace/sample-project'
         end
       end
     end
@@ -1083,6 +1090,30 @@ RSpec.describe Project do
     end
   end
 
+  describe '#default_owner' do
+    let_it_be(:owner)     { create(:user) }
+    let_it_be(:namespace) { create(:namespace, owner: owner) }
+
+    context 'the project does not have a group' do
+      let(:project) { build(:project, namespace: namespace) }
+
+      it 'is the namespace owner' do
+        expect(project.default_owner).to eq(owner)
+      end
+    end
+
+    context 'the project is in a group' do
+      let(:group)   { build(:group) }
+      let(:project) { build(:project, group: group, namespace: namespace) }
+
+      it 'is the group owner' do
+        allow(group).to receive(:default_owner).and_return(Object.new)
+
+        expect(project.default_owner).to eq(group.default_owner)
+      end
+    end
+  end
+
   describe '#external_wiki' do
     let(:project) { create(:project) }
 
@@ -1449,16 +1480,69 @@ RSpec.describe Project do
   end
 
   describe '#service_desk_address' do
-    let_it_be(:project) { create(:project, service_desk_enabled: true) }
+    let_it_be(:project, reload: true) { create(:project, service_desk_enabled: true) }
 
-    before do
-      allow(Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
-      allow(Gitlab.config.incoming_email).to receive(:enabled).and_return(true)
-      allow(Gitlab.config.incoming_email).to receive(:address).and_return("test+%{key}@mail.com")
+    subject { project.service_desk_address }
+
+    shared_examples 'with incoming email address' do
+      context 'when incoming email is enabled' do
+        before do
+          config = double(enabled: true, address: 'test+%{key}@mail.com')
+          allow(::Gitlab.config).to receive(:incoming_email).and_return(config)
+        end
+
+        it 'uses project full path as service desk address key' do
+          expect(project.service_desk_address).to eq("test+#{project.full_path_slug}-#{project.project_id}-issue-@mail.com")
+        end
+      end
+
+      context 'when incoming email is disabled' do
+        before do
+          config = double(enabled: false)
+          allow(::Gitlab.config).to receive(:incoming_email).and_return(config)
+        end
+
+        it 'uses project full path as service desk address key' do
+          expect(project.service_desk_address).to be_nil
+        end
+      end
     end
 
-    it 'uses project full path as service desk address key' do
-      expect(project.service_desk_address).to eq("test+#{project.full_path_slug}-#{project.project_id}-issue-@mail.com")
+    context 'when service_desk_email is disabled' do
+      before do
+        allow(::Gitlab::ServiceDeskEmail).to receive(:enabled?).and_return(false)
+      end
+
+      it_behaves_like 'with incoming email address'
+    end
+
+    context 'when service_desk_email is enabled' do
+      before do
+        config = double(enabled: true, address: 'foo+%{key}@bar.com')
+        allow(::Gitlab::ServiceDeskEmail).to receive(:config).and_return(config)
+      end
+
+      context 'when service_desk_custom_address flag is enabled' do
+        before do
+          stub_feature_flags(service_desk_custom_address: true)
+        end
+
+        it 'returns custom address when project_key is set' do
+          create(:service_desk_setting, project: project, project_key: 'key1')
+
+          expect(subject).to eq("foo+#{project.full_path_slug}-key1@bar.com")
+        end
+
+        it_behaves_like 'with incoming email address'
+      end
+
+      context 'when service_desk_custom_address flag is disabled' do
+        before do
+          stub_feature_flags(service_desk_custom_address: false)
+        end
+
+        it_behaves_like 'with incoming email address'
+      end
     end
   end
 
@@ -2262,6 +2346,7 @@ RSpec.describe Project do
       create(:ci_empty_pipeline, project: project, sha: project.commit.id,
                                  ref: project.default_branch)
     end
+
     let!(:pipeline_for_second_branch) do
       create(:ci_empty_pipeline, project: project, sha: second_branch.target,
                                  ref: second_branch.name)
@@ -3529,6 +3614,7 @@ RSpec.describe Project do
           public: '\\1'
       MAP
     end
+
     let(:sha) { project.commit.id }
 
     context 'when there is a route map' do
@@ -5145,6 +5231,7 @@ RSpec.describe Project do
         allow_collaboration: true
       )
     end
+
     let!(:merge_request) do
       create(
         :merge_request,
@@ -5492,6 +5579,32 @@ RSpec.describe Project do
       project = create(:project, namespace: group)
 
       expect(described_class.for_group(group)).to eq([project])
+    end
+  end
+
+  describe '.for_repository_storage' do
+    it 'returns the projects for a given repository storage' do
+      stub_storage_settings('test_second_storage' => {
+        'path' => TestEnv::SECOND_STORAGE_PATH,
+        'gitaly_address' => Gitlab.config.repositories.storages.default.gitaly_address
+      })
+      expected_project = create(:project, repository_storage: 'default')
+      create(:project, repository_storage: 'test_second_storage')
+
+      expect(described_class.for_repository_storage('default')).to eq([expected_project])
+    end
+  end
+
+  describe '.excluding_repository_storage' do
+    it 'returns the projects excluding the given repository storage' do
+      stub_storage_settings('test_second_storage' => {
+        'path' => TestEnv::SECOND_STORAGE_PATH,
+        'gitaly_address' => Gitlab.config.repositories.storages.default.gitaly_address
+      })
+      expected_project = create(:project, repository_storage: 'test_second_storage')
+      create(:project, repository_storage: 'default')
+
+      expect(described_class.excluding_repository_storage('default')).to eq([expected_project])
     end
   end
 

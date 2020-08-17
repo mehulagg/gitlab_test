@@ -8,7 +8,10 @@ import {
   GlButton,
   GlSprintf,
   GlAlert,
+  GlTooltipDirective,
 } from '@gitlab/ui';
+import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
+import { timeRanges } from '~/vue_shared/constants';
 import DashboardPanel from './dashboard_panel.vue';
 
 const initialYml = `title: Go heap size
@@ -30,6 +33,10 @@ export default {
     GlSprintf,
     GlAlert,
     DashboardPanel,
+    DateTimePicker,
+  },
+  directives: {
+    GlTooltip: GlTooltipDirective,
   },
   data() {
     return {
@@ -41,21 +48,43 @@ export default {
       'panelPreviewIsLoading',
       'panelPreviewError',
       'panelPreviewGraphData',
+      'panelPreviewTimeRange',
+      'panelPreviewIsShown',
       'projectPath',
       'addDashboardDocumentationPath',
     ]),
   },
   methods: {
-    ...mapActions('monitoringDashboard', ['fetchPanelPreview']),
+    ...mapActions('monitoringDashboard', [
+      'fetchPanelPreview',
+      'fetchPanelPreviewMetrics',
+      'setPanelPreviewTimeRange',
+    ]),
     onSubmit() {
       this.fetchPanelPreview(this.yml);
     },
+    onDateTimePickerInput(timeRange) {
+      this.setPanelPreviewTimeRange(timeRange);
+      // refetch data only if preview has been clicked
+      // and there are no errors
+      if (this.panelPreviewIsShown && !this.panelPreviewError) {
+        this.fetchPanelPreviewMetrics();
+      }
+    },
+    onRefresh() {
+      // refetch data only if preview has been clicked
+      // and there are no errors
+      if (this.panelPreviewIsShown && !this.panelPreviewError) {
+        this.fetchPanelPreviewMetrics();
+      }
+    },
   },
+  timeRanges,
 };
 </script>
 <template>
-  <div>
-    <div class="gl-display-flex gl-mx-n3">
+  <div class="prometheus-panel-builder">
+    <div class="gl-xs-flex-direction-column gl-display-flex gl-mx-n3">
       <gl-card class="gl-flex-grow-1 gl-flex-basis-0 gl-mx-3">
         <template #header>
           <h2 class="gl-font-size-h2 gl-my-3">{{ s__('Metrics|1. Define and preview panel') }}</h2>
@@ -76,6 +105,7 @@ export default {
                 variant="success"
                 category="secondary"
                 :data-clipboard-text="yml"
+                class="gl-xs-w-full gl-xs-mb-3"
                 @click="$toast.show(s__('Metrics|Panel YAML copied'))"
               >
                 {{ s__('Metrics|Copy YAML') }}
@@ -84,7 +114,7 @@ export default {
                 type="submit"
                 variant="success"
                 :disabled="panelPreviewIsLoading"
-                class="js-no-auto-disable"
+                class="js-no-auto-disable gl-xs-w-full"
               >
                 {{ s__('Metrics|Preview panel') }}
               </gl-button>
@@ -127,13 +157,19 @@ export default {
             <gl-button
               ref="viewDocumentationBtn"
               category="secondary"
+              class="gl-xs-w-full gl-xs-mb-3"
               variant="info"
               target="_blank"
               :href="addDashboardDocumentationPath"
             >
               {{ s__('Metrics|View documentation') }}
             </gl-button>
-            <gl-button ref="openRepositoryBtn" variant="success" :href="projectPath">
+            <gl-button
+              ref="openRepositoryBtn"
+              variant="success"
+              :href="projectPath"
+              class="gl-xs-w-full"
+            >
               {{ s__('Metrics|Open repository') }}
             </gl-button>
           </div>
@@ -144,7 +180,20 @@ export default {
     <gl-alert v-if="panelPreviewError" variant="warning" :dismissible="false">
       {{ panelPreviewError }}
     </gl-alert>
-
+    <date-time-picker
+      ref="dateTimePicker"
+      class="gl-flex-grow-1 preview-date-time-picker gl-xs-mb-3"
+      :value="panelPreviewTimeRange"
+      :options="$options.timeRanges"
+      @input="onDateTimePickerInput"
+    />
+    <gl-button
+      v-gl-tooltip
+      data-testid="previewRefreshButton"
+      icon="retry"
+      :title="s__('Metrics|Refresh Prometheus data')"
+      @click="onRefresh"
+    />
     <dashboard-panel :graph-data="panelPreviewGraphData" />
   </div>
 </template>

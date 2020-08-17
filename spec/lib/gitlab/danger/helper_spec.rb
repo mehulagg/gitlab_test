@@ -225,9 +225,17 @@ RSpec.describe Gitlab::Danger::Helper do
       'ee/spec/foo'     | [:backend]
       'ee/spec/foo/bar' | [:backend]
 
+      'spec/features/foo'                            | [:test]
+      'ee/spec/features/foo'                         | [:test]
+      'spec/support/shared_examples/features/foo'    | [:test]
+      'ee/spec/support/shared_examples/features/foo' | [:test]
+      'spec/support/shared_contexts/features/foo'    | [:test]
+      'ee/spec/support/shared_contexts/features/foo' | [:test]
+      'spec/support/helpers/features/foo'            | [:test]
+      'ee/spec/support/helpers/features/foo'         | [:test]
+
       'generator_templates/foo' | [:backend]
       'vendor/languages.yml'    | [:backend]
-      'vendor/licenses.csv'     | [:backend]
       'file_hooks/examples/'    | [:backend]
 
       'Gemfile'        | [:backend]

@@ -221,7 +221,7 @@ are listed in the descriptions of the relevant settings.
 | `default_project_visibility`             | string           | no                                   | What visibility level new projects receive. Can take `private`, `internal` and `public` as a parameter. Default is `private`. |
 | `default_projects_limit`                 | integer          | no                                   | Project limit per user. Default is `100000`. |
 | `default_snippet_visibility`             | string           | no                                   | What visibility level new snippets receive. Can take `private`, `internal` and `public` as a parameter. Default is `private`. |
-| `deletion_adjourned_period`              | integer          | no                                   | **(PREMIUM ONLY)** The number of days to wait before removing a project or group that is marked for deletion. Value must be between 0 and 90.
+| `deletion_adjourned_period`              | integer          | no                                   | **(PREMIUM ONLY)** The number of days to wait before deleting a project or group that is marked for deletion. Value must be between 0 and 90.
 | `diff_max_patch_bytes`                   | integer          | no                                   | Maximum diff patch size (Bytes). |
 | `disabled_oauth_sign_in_sources`         | array of strings | no                                   | Disabled OAuth sign-in sources. |
 | `dns_rebinding_protection_enabled`       | boolean          | no                                   | Enforce DNS rebinding attack protection. |
@@ -375,4 +375,4 @@ are listed in the descriptions of the relevant settings.
 | `user_show_add_ssh_key_message`          | boolean          | no                                   | When set to `false` disable the "You won't be able to pull or push project code via SSH" warning shown to users with no uploaded SSH key. |
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `web_ide_clientside_preview_enabled`     | boolean          | no                                   | Live Preview (allow live previews of JavaScript projects in the Web IDE using CodeSandbox Live Preview). |
-| `wiki_page_max_content_bytes`            | integer          | no                                   | Max wiki page content size in **bytes**. Default: 52428800 Bytes (50MB).|
+| `wiki_page_max_content_bytes`            | integer          | no                                   | Maximum wiki page content size in **bytes**. Default: 52428800 Bytes (50 MB). The minimum value is 1024 bytes. |

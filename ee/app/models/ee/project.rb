@@ -151,6 +151,7 @@ module EE
       scope :with_compliance_framework_settings, -> { preload(:compliance_framework_setting) }
       scope :has_vulnerabilities, -> { joins(:vulnerabilities).group(:id) }
       scope :has_vulnerability_statistics, -> { joins(:vulnerability_statistic) }
+      scope :with_vulnerability_statistics, -> { includes(:vulnerability_statistic) }
 
       scope :with_group_saml_provider, -> { preload(group: :saml_provider) }
 
@@ -582,13 +583,16 @@ module EE
     override :after_import
     def after_import
       super
-      repository.log_geo_updated_event
-      wiki.repository.log_geo_updated_event
-      design_repository.log_geo_updated_event
 
       # Index the wiki repository after import of non-forked projects only, the project repository is indexed
       # in ProjectImportState so ElasticSearch will get project repository changes when mirrors are updated
       ElasticCommitIndexerWorker.perform_async(id, nil, nil, true) if use_elasticsearch? && !forked?
+    end
+
+    def log_geo_updated_events
+      repository.log_geo_updated_event
+      wiki.repository.log_geo_updated_event
+      design_repository.log_geo_updated_event
     end
 
     override :import?
@@ -630,7 +634,7 @@ module EE
 
     def adjourned_deletion?
       feature_available?(:adjourned_deletion_for_projects_and_groups) &&
-        ::Gitlab::CurrentSettings.deletion_adjourned_period.positive? &&
+        ::Gitlab::CurrentSettings.deletion_adjourned_period > 0 &&
         group_deletion_mode_configured?
     end
 

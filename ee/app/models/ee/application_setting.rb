@@ -10,7 +10,7 @@ module EE
 
     prepended do
       EMAIL_ADDITIONAL_TEXT_CHARACTER_LIMIT = 10_000
-      INSTANCE_REVIEW_MIN_USERS = 100
+      INSTANCE_REVIEW_MIN_USERS = 50
       DEFAULT_NUMBER_OF_DAYS_BEFORE_REMOVAL = 7
 
       belongs_to :file_template_project, class_name: "Project"
@@ -239,7 +239,7 @@ module EE
       when Project
         elasticsearch_indexes_project?(scope)
       else
-        true # Use elasticsearch for the global scope, even when limiting is on
+        false # Never use elasticsearch for the global scope when limiting is on
       end
     end
 

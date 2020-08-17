@@ -7,8 +7,6 @@ type: reference, howto
 
 # Coverage Guided Fuzz Testing **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/3226) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.2 as an [Alpha feature](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha).
-
 GitLab allows you to add coverage-guided fuzz testing to your pipelines. This helps you discover
 bugs and potential security issues that other QA processes may miss. Coverage-guided fuzzing sends
 random inputs to an instrumented version of your application in an effort to cause unexpected
@@ -92,7 +90,7 @@ There are two types of jobs:
 
 Here's our current suggestion for configuring your fuzz target's timeout:
 
-- Set `COVERAGE_FUZZING_BRANCH` to the branch where you want to run long-running (async) fuzzing
+- Set `COVFUZZ_BRANCH` to the branch where you want to run long-running (async) fuzzing
   jobs. This is `master` by default.
 - Use regression or short-running fuzzing jobs for other branches or merge requests.
 
@@ -107,10 +105,11 @@ any option available in the underlying fuzzing engine.
 
 | Environment variable      | Description                                                        |
 |---------------------------|--------------------------------------------------------------------|
-| `COVERAGE_FUZZING_BRANCH` | The branch for long-running fuzzing jobs. The default is `master`. |
-| `CI_SEED_CORPUS`          | Path to a seed corpus directory. The default is empty.             |
+| `COVFUZZ_BRANCH`          | The branch for long-running fuzzing jobs. The default is `master`. |
+| `COVFUZZ_SEED_CORPUS`     | Path to a seed corpus directory. The default is empty.             |
+| `COVFUZZ_URL_PREFIX`      | Path to the `gitlab-cov-fuzz` repository cloned for use with an offline environment. You should only change this when using an offline environment. The default value is `https://gitlab.com/gitlab-org/security-products/analyzers/gitlab-cov-fuzz/-/raw`.  |
 
-The files in the seed corpus (`CI_SEED_CORPUS`), if provided, aren't updated unless you commit new
+The files in the seed corpus (`COVFUZZ_SEED_CORPUS`), if provided, aren't updated unless you commit new
 files to your Git repository. There's usually no need to frequently update the seed corpus. As part
 of the GitLab artifacts system, GitLab saves in a corpus directory the new test cases that every run
 generates. In any subsequent runs, GitLab also reuses the generated corpus together with the seed
@@ -160,6 +159,17 @@ Here's an example Coverage Fuzzing report:
 The `gitlab-cov-fuzz` command passes all arguments it receives to the underlying fuzzing engine. You
 can therefore use all the options available in that fuzzing engine. For more information on these
 options, see the underlying fuzzing engine's documentation.
+
+### Offline Environment
+
+To use coverage fuzzing in an offline environment, follow these steps:
+
+1. Clone [`gitlab-cov-fuzz`](https://gitlab.com/gitlab-org/security-products/analyzers/gitlab-cov-fuzz)
+   to a private repository that your offline GitLab instance can access.
+
+1. For each fuzzing step, set `COVFUZZ_URL_PREFIX` to `${NEW_URL_GITLAB_COV_FUZ}/-/raw`, where
+   `NEW_URL_GITLAB_COV_FUZ` is the URL of the private `gitlab-cov-fuzz` clone that you set up in the
+   first step.
 
 ### Glossary
 

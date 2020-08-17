@@ -104,7 +104,7 @@ module ProjectsHelper
   end
 
   def remove_project_message(project)
-    _("You are going to remove %{project_full_name}. Removed project CANNOT be restored! Are you ABSOLUTELY sure?") %
+    _("You are going to delete %{project_full_name}. Deleted projects CANNOT be restored! Are you ABSOLUTELY sure?") %
       { project_full_name: project.full_name }
   end
 
@@ -184,9 +184,8 @@ module ProjectsHelper
   end
 
   def autodeploy_flash_notice(branch_name)
-    translation = _("Branch <strong>%{branch_name}</strong> was created. To set up auto deploy, choose a GitLab CI Yaml template and commit your changes. %{link_to_autodeploy_doc}") %
-      { branch_name: truncate(sanitize(branch_name)), link_to_autodeploy_doc: link_to_autodeploy_doc }
-    translation.html_safe
+    html_escape(_("Branch %{branch_name} was created. To set up auto deploy, choose a GitLab CI Yaml template and commit your changes. %{link_to_autodeploy_doc}")) %
+      { branch_name: tag.strong(truncate(sanitize(branch_name))), link_to_autodeploy_doc: link_to_autodeploy_doc }
   end
 
   def project_list_cache_key(project, pipeline_status: true)
@@ -353,14 +352,14 @@ module ProjectsHelper
 
     description =
       if share_with_group && share_with_members
-        _("You can invite a new member to <strong>%{project_name}</strong> or invite another group.")
+        _("You can invite a new member to %{project_name} or invite another group.")
       elsif share_with_group
-        _("You can invite another group to <strong>%{project_name}</strong>.")
+        _("You can invite another group to %{project_name}.")
       elsif share_with_members
-        _("You can invite a new member to <strong>%{project_name}</strong>.")
+        _("You can invite a new member to %{project_name}.")
       end
 
-    description.html_safe % { project_name: project.name }
+    html_escape(description) % { project_name: tag.strong(project.name) }
   end
 
   def metrics_external_dashboard_url
@@ -748,6 +747,7 @@ module ProjectsHelper
       gcp
       logs
       product_analytics
+      metrics_dashboard
     ]
   end
 
@@ -774,7 +774,7 @@ module ProjectsHelper
   def project_access_token_available?(project)
     return false if ::Gitlab.com?
 
-    ::Feature.enabled?(:resource_access_token, project)
+    ::Feature.enabled?(:resource_access_token, project, default_enabled: true)
   end
 end
 

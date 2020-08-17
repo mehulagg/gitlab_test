@@ -161,6 +161,14 @@ RSpec.shared_examples 'wiki controller actions' do
         expect(assigns(:sidebar_limited)).to be(false)
       end
 
+      it 'increases the page view counter' do
+        expect do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end.to change { Gitlab::UsageDataCounters::WikiPageCounter.read(:view) }.by(1)
+      end
+
       context 'when page content encoding is invalid' do
         it 'sets flash error' do
           allow(controller).to receive(:valid_encoding?).and_return(false)
@@ -343,6 +351,44 @@ RSpec.shared_examples 'wiki controller actions' do
         subject
 
         expect(response).to render_template('shared/wikis/empty')
+      end
+    end
+  end
+
+  describe 'POST #create' do
+    let(:new_title) { 'New title' }
+    let(:new_content) { 'New content' }
+
+    subject do
+      post(:create,
+            params: routing_params.merge(
+              wiki: { title: new_title, content: new_content }
+            ))
+    end
+
+    context 'when page is valid' do
+      it 'creates the page' do
+        expect do
+          subject
+        end.to change { wiki.list_pages.size }.by 1
+
+        wiki_page = wiki.find_page(new_title)
+
+        expect(wiki_page.title).to eq new_title
+        expect(wiki_page.content).to eq new_content
+      end
+    end
+
+    context 'when page is not valid' do
+      let(:new_title) { '' }
+
+      it 'renders the edit state' do
+        expect do
+          subject
+        end.not_to change { wiki.list_pages.size }
+
+        expect(response).to render_template('shared/wikis/edit')
+        expect(flash[:alert]).to eq('Could not create wiki page')
       end
     end
   end

@@ -18,9 +18,12 @@ module QA
             view 'app/assets/javascripts/monitoring/components/dashboard_header.vue' do
               element :dashboards_filter_dropdown
               element :environments_dropdown
-              element :edit_dashboard_button
               element :range_picker_dropdown
+            end
+
+            view 'app/assets/javascripts/monitoring/components/dashboard_actions_menu.vue' do
               element :actions_menu_dropdown
+              element :edit_dashboard_button_enabled
             end
 
             view 'app/assets/javascripts/monitoring/components/duplicate_dashboard_form.vue' do
@@ -55,8 +58,10 @@ module QA
             end
 
             def has_edit_dashboard_enabled?
-              within_element :prometheus_graphs do
-                has_element? :edit_dashboard_button
+              click_element :actions_menu_dropdown
+
+              within_element :actions_menu_dropdown do
+                has_element? :edit_dashboard_button_enabled
               end
             end
 

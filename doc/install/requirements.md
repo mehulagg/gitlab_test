@@ -56,7 +56,8 @@ The minimum required Go version is 1.13.
 
 From GitLab 13.1:
 
-- Git 2.28.x and later [is required](https://gitlab.com/gitlab-org/gitaly/-/issues/2959).
+- Git 2.24.x and later is required.
+- Git 2.28.x and later [is recommended](https://gitlab.com/gitlab-org/gitaly/-/issues/2959).
 
 ### Node.js versions
 
@@ -155,10 +156,6 @@ If you're using [GitLab Geo](../administration/geo/replication/index.md):
 - We strongly recommend running Omnibus-managed instances as they are actively
   developed and tested. We aim to be compatible with most external (not managed
   by Omnibus) databases (for example, [AWS Relational Database Service (RDS)](https://aws.amazon.com/rds/)) but we don't guarantee compatibility.
-- You must also ensure the `postgres_fdw` extension is loaded into every
-  GitLab database. This extension
-  [can be enabled](https://www.postgresql.org/docs/11/sql-createextension.html)
-  using a PostgreSQL super user.
 
 ## Puma settings
 

@@ -16,15 +16,13 @@ GitLab offers solutions for handling incidents in your applications and services
 such as [setting up Prometheus alerts](#configure-prometheus-alerts),
 [displaying metrics](#embed-metrics-in-incidents-and-issues), and sending notifications.
 While no configuration is required to use the [manual features](#create-an-incident-manually)
-of incident management, both automation and [configuration](#configure-incidents-ultimate)
-of incident management are only available in
-[GitLab Ultimate and GitLab.com Gold](https://about.gitlab.com/pricing/).
+of incident management, some simple [configuration](#configure-incidents) is needed to automate incident creation.
 
 For users with at least Developer [permissions](../../user/permissions.md), the
 Incident Management list is available at **Operations > Incidents**
 in your project's sidebar. The list contains the following metrics:
 
-![Incident Management List](img/incident_list_v13_3.png)
+![Incident Management List](img/incident_list_sort_v13_3.png)
 
 - **Incident** - The description of the incident, which attempts to capture the
   most meaningful data.
@@ -32,6 +30,19 @@ in your project's sidebar. The list contains the following metrics:
   standard GitLab pattern of `X time ago`, but is supported by a granular date/time
   tooltip depending on the user's locale.
 - **Assignees** - The user assigned to the incident.
+- **Published** - Whether or not an incident is published to the
+  [Status Page](./status_page.md). **(ULTIMATE)**
+
+The Incident Management list displays incidents sorted by incident created date.
+([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/229534) to GitLab core in 13.3).)
+To see if a column is sortable, point your mouse at the header. Sortable columns
+display an arrow next to the column name.
+
+The Incident list supports a simple free text search, which filters on the
+**Title** and **Incident** fields.
+
+To filter incidents by their status, click **Open**, **Closed**, or **All**
+above the incident list.
 
 NOTE: **Note:**
 Incidents share the [Issues API](../../user/project/issues/index.md).
@@ -292,6 +303,21 @@ for information on how to appropriately configure your alerting rules. See
 [External Prometheus instances](../metrics/alerts.md#external-prometheus-instances)
 for information on setting up alerts for your self-managed Prometheus instance.
 
+### View an Alert's logs
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/217768) in GitLab 13.3.
+
+To view the logs for an alert:
+
+   1. Sign in as a user with Developer or higher [permissions](../../user/permissions.md).
+   1. Navigate to **{cloud-gear}** **Operations > Alerts**.
+   1. Click the alert you want to view.
+   1. Below the title of the alert, click the **Metrics** tab.
+   1. Click the [menu](../metrics/dashboards/index.md#chart-context-menu) of the metric chart to view options.
+   1. Click **View logs**.
+
+Read [View logs from metrics panel](#view-logs-from-metrics-panel) for additional information.
+
 ## Use cases for assigning alerts
 
 Consider a team formed by different sections of monitoring, collaborating on a
@@ -315,7 +341,7 @@ You can be alerted via a Slack message when a new alert has been received.
 
 See the [Slack Notifications Service docs](../../user/project/integrations/slack.md) for information on how to set this up.
 
-## Configure incidents **(ULTIMATE)**
+## Configure incidents
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/4925) in GitLab Ultimate 11.11.
 
@@ -325,7 +351,7 @@ to create issues when alerts are triggered:
 1. Navigate to **Settings > Operations > Incidents** and expand
    **Incidents**:
 
-   ![Incident Management Settings](img/incident_management_settings.png)
+   ![Incident Management Settings](img/incident_management_settings_v13_3.png)
 
 1. For GitLab versions 11.11 and greater, you can select the **Create an issue**
    checkbox to create an issue based on your own
@@ -353,7 +379,23 @@ sends these emails to [owners and maintainers](../../user/permissions.md) of the
 These emails contain details of the alert, and a link for more information.
 
 To send separate email notifications to users with
-[Developer permissions](../../user/permissions.md), see [Configure incidents](#configure-incidents-ultimate).
+[Developer permissions](../../user/permissions.md), see [Configure incidents](#configure-incidents).
+
+## Incident List
+
+Incidents in GitLab are aggregated in the Incident List, available at
+**Operations > Incidents**. This list displays all incidents in GitLab, with tabs
+to display open incidents, closed incidents, and all incidents:
+
+![Incident list](img/incident_list.png)
+
+The list displays the following attributes:
+
+- **Incident title**
+- **Date created** - in 'time ago' format.
+- **Assignees** - the avatar of the user assigned to the incident.
+- **Published** - Displays a green check mark (**{check-circle}**) if the incident is published
+  to a [Status Page](status_page.md).
 
 ## Create an incident manually
 
@@ -364,6 +406,8 @@ For users with at least Developer [permissions](../../user/permissions.md), to c
 - Navigate to **Operations > Incidents** and click **Create Incident**.
 - Create a new issue using the `incident` template available when creating it.
 - Create a new issue and assign the `incident` label to it.
+
+![Incident List Create](img/incident_list_create_v13_3.png)
 
 ## Configure PagerDuty integration
 
@@ -377,7 +421,7 @@ in both PagerDuty and GitLab:
 1. Navigate to **Settings > Operations > Incidents** and expand **Incidents**.
 1. Select the **PagerDuty integration** tab:
 
-   ![PagerDuty incidents integration](img/pagerduty_incidents_integration_13_3.png)
+   ![PagerDuty incidents integration](img/pagerduty_incidents_integration_v13_3.png)
 
 1. Activate the integration, and save the changes in GitLab.
 1. Copy the value of **Webhook URL** for use in a later step.

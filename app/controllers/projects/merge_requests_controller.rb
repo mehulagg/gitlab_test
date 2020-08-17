@@ -33,16 +33,16 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     push_frontend_feature_flag(:widget_visibility_polling, @project, default_enabled: true)
     push_frontend_feature_flag(:merge_ref_head_comments, @project, default_enabled: true)
     push_frontend_feature_flag(:mr_commit_neighbor_nav, @project, default_enabled: true)
-    push_frontend_feature_flag(:multiline_comments, @project)
+    push_frontend_feature_flag(:multiline_comments, @project, default_enabled: true)
     push_frontend_feature_flag(:file_identifier_hash)
     push_frontend_feature_flag(:batch_suggestions, @project, default_enabled: true)
     push_frontend_feature_flag(:auto_expand_collapsed_diffs, @project, default_enabled: true)
-    push_frontend_feature_flag(:hide_jump_to_next_unresolved_in_threads, @project)
+    push_frontend_feature_flag(:approvals_commented_by, @project, default_enabled: true)
+    push_frontend_feature_flag(:hide_jump_to_next_unresolved_in_threads, default_enabled: true)
   end
 
   before_action do
     push_frontend_feature_flag(:vue_issuable_sidebar, @project.group)
-    push_frontend_feature_flag(:junit_pipeline_view, @project.group)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show, :discussions]

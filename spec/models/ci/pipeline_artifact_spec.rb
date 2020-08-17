@@ -18,7 +18,7 @@ RSpec.describe Ci::PipelineArtifact, type: :model do
     it { is_expected.to validate_presence_of(:file_type) }
     it { is_expected.to validate_presence_of(:file_format) }
     it { is_expected.to validate_presence_of(:size) }
-    it { is_expected.to validate_uniqueness_of(:file_type).scoped_to([:pipeline_id]).ignoring_case_sensitivity }
+    it { is_expected.to validate_presence_of(:file) }
 
     context 'when attributes are valid' do
       it 'returns no errors' do
@@ -40,6 +40,36 @@ RSpec.describe Ci::PipelineArtifact, type: :model do
         coverage_report.size = 11.megabytes
 
         expect(coverage_report).to be_invalid
+      end
+    end
+  end
+
+  describe '#set_size' do
+    subject { create(:ci_pipeline_artifact) }
+
+    context 'when file is being created' do
+      it 'sets the size' do
+        expect(subject.size).to eq(85)
+      end
+    end
+
+    context 'when file is being updated' do
+      it 'updates the size' do
+        subject.update!(file: fixture_file_upload('spec/fixtures/dk.png'))
+
+        expect(subject.size).to eq(1062)
+      end
+    end
+  end
+
+  describe 'file is being stored' do
+    subject { create(:ci_pipeline_artifact) }
+
+    context 'when existing object has local store' do
+      it 'is stored locally' do
+        expect(subject.file_store).to be(ObjectStorage::Store::LOCAL)
+        expect(subject.file).to be_file_storage
+        expect(subject.file.object_store).to eq(ObjectStorage::Store::LOCAL)
       end
     end
   end

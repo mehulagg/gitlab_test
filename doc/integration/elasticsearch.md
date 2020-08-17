@@ -168,10 +168,7 @@ If you select `Limit namespaces and projects that can be indexed`, more options 
 You can select namespaces and projects to index exclusively. Please note that if the namespace is a group it will include
 any sub-groups and projects belonging to those sub-groups to be indexed as well.
 
-NOTE: **Note:**
-Elasticsearch only provides cross-group [code, commit, comment, and wiki](../user/search/advanced_global_search.md#overview) global search for indexed namespaces.
-
-In this particular scenario where only a subset of namespaces are indexed, a global search will provide code, commit, comment, and wiki scopes which return values from the subset of indexed namespaces. If you would like to perform a search against a namespace that is not indexed, you can select the group or project in the search filter. Additionally, it is possible to perform a global "basic search" by appending `&basic_search=true` to the URL in the browser bar. This search will use other data sources (that is PostgreSQL data and Git data) and the code, commit, comment, and wiki scopes will not be displayed.
+Elasticsearch only provides cross-group code/commit search (global) if all name-spaces are indexed. In this particular scenario where only a subset of namespaces are indexed, a global search will not provide a code or commit scope. This will be possible only in the scope of an indexed namespace. Currently there is no way to code/commit search in multiple indexed namespaces (when only a subset of namespaces has been indexed). For example if two groups are indexed, there is no way to run a single code search on both. You can only run a code search on the first group and then on the second.
 
 You can filter the selection dropdown by writing part of the namespace or project name you're interested in.
 
@@ -551,12 +548,16 @@ To trigger the re-index from `primary` index:
 
 ### Trigger the reindex via the Elasticsearch administration
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/34069) in [GitLab Starter](https://about.gitlab.com/pricing/) 13.2.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/34069) in [GitLab Starter](https://about.gitlab.com/pricing/) 13.2.
+> - A scheduled index deletion and the ability to cancel it was [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/38914) in GitLab Starter 13.3.
 
 Under **Admin Area > Integration > Elasticsearch zero-downtime reindexing**, click on **Trigger cluster reindexing**.
 
 NOTE: **Note:**
 Reindexing can be a lengthy process depending on the size of your Elasticsearch cluster.
+
+CAUTION: **Caution:**
+After the reindexing is completed, the original index will be scheduled to be deleted after 14 days. You can cancel this action by pressing the cancel button.
 
 While the reindexing is running, you will be able to follow its progress under that same section.
 
