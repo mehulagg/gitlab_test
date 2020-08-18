@@ -5,7 +5,8 @@ require 'spec_helper'
 RSpec.describe Mutations::Clusters::Agents::Create do
   subject(:mutation) { described_class.new(object: nil, context: context, field: nil) }
 
-  let(:project) { create(:project, :public, :repository) }
+  let(:project_name) { 'agent-graphql-test' }
+  let(:project) { create(:project, :custom_repo, files: ["agents/#{project_name}/config.yaml"]) }
   let(:user) { create(:user) }
   let(:context) do
     GraphQL::Query::Context.new(
@@ -18,7 +19,7 @@ RSpec.describe Mutations::Clusters::Agents::Create do
   specify { expect(described_class).to require_graphql_authorizations(:create_cluster) }
 
   describe '#resolve' do
-    subject { mutation.resolve(project_path: project.full_path, name: 'test-agent') }
+    subject { mutation.resolve(project_path: project.full_path, name: project_name) }
 
     context 'without project permissions' do
       it 'raises an error if the resource is not accessible to the user' do
@@ -44,16 +45,16 @@ RSpec.describe Mutations::Clusters::Agents::Create do
 
       it 'creates a new clusters_agent', :aggregate_failures do
         expect { subject }.to change { ::Clusters::Agent.count }.by(1)
-        expect(subject[:cluster_agent].name).to eq('test-agent')
+        expect(subject[:cluster_agent].name).to eq(project_name)
         expect(subject[:errors]).to eq([])
       end
 
       context 'invalid params' do
-        subject { mutation.resolve(project_path: project.full_path, name: '@bad_name!') }
+        subject { mutation.resolve(project_path: project.full_path, name: 'missing-file') }
 
-        it 'generates an error message when name is invalid', :aggregate_failures do
+        it 'generates an error message when config file is missing', :aggregate_failures do
           expect(subject[:clusters_agent]).to be_nil
-          expect(subject[:errors]).to eq(["Name can contain only lowercase letters, digits, and '-', but cannot start or end with '-'"])
+          expect(subject[:errors]).to eq(["The file 'agents/missing-file/config.yaml' is missing from this repository"])
         end
       end
     end
