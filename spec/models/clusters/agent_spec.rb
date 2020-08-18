@@ -35,7 +35,8 @@ RSpec.describe Clusters::Agent do
     describe 'config file validation' do
       context 'when project default branch is missing' do
         let(:empty_project) { create(:project) }
-        let(:subject) { ::Clusters::Agent.new(name: 'bad-project', project: empty_project) }
+
+        subject { build(:cluster_agent, project: empty_project) }
 
         it 'fails to create due to missing root_ref', :aggregate_failures do
           expect(subject.save).to be_falsey
@@ -44,14 +45,9 @@ RSpec.describe Clusters::Agent do
       end
 
       context 'when project config file is missing' do
-        before do
-          subject.project.repository.delete_file(
-            subject.project.creator,
-            "agents/#{subject.name}/config.yaml",
-            message: 'Remove config file',
-            branch_name: subject.project.repository.root_ref
-          )
-        end
+        let(:missing_file_project) { create(:project, :custom_repo, files: ['wrong_file.txt']) }
+
+        subject { build(:cluster_agent, project: missing_file_project) }
 
         it 'fails to update due to missing config file', :aggregate_failures do
           expect(subject.save).to be_falsey
