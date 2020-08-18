@@ -40,7 +40,7 @@ RSpec.describe Clusters::Agent do
 
         it 'fails to create due to missing root_ref', :aggregate_failures do
           expect(subject.save).to be_falsey
-          expect(subject.errors[:configuration_setup]).to eq(["The file 'agents/#{subject.name}/config.yaml' is missing from this repository"])
+          expect(subject.errors[:base]).to eq(["The file 'agents/#{subject.name}/config.yaml' is missing from this repository"])
         end
       end
 
@@ -51,7 +51,7 @@ RSpec.describe Clusters::Agent do
 
         it 'fails to create due to missing config file', :aggregate_failures do
           expect(subject.save).to be_falsey
-          expect(subject.errors[:configuration_setup]).to eq(["The file 'agents/#{subject.name}/config.yaml' is missing from this repository"])
+          expect(subject.errors[:base]).to eq(["The file 'agents/#{subject.name}/config.yaml' is missing from this repository"])
         end
       end
     end

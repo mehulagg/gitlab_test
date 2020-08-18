@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe 'Create a new cluster agent' do
   include GraphqlHelpers
 
-  let(:project) { create(:project, :public, :repository) }
   let(:project_name) { 'agent-test' }
+  let(:project) { create(:project, :custom_repo, files: ["agents/#{project_name}/config.yaml"]) }
   let(:current_user) { create(:user) }
 
   let(:mutation) do

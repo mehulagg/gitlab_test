@@ -5,7 +5,8 @@ require 'spec_helper'
 RSpec.describe Clusters::Agents::CreateService do
   subject(:service) { described_class.new(project, user) }
 
-  let(:project) { create(:project, :public, :repository) }
+  let(:project_name) { 'agent-service-test' }
+  let(:project) { create(:project, :custom_repo, files: ["agents/#{project_name}/config.yaml"]) }
   let(:user) { create(:user) }
   let(:license) { create(:license, plan: ::License::PREMIUM_PLAN) }
 
@@ -16,7 +17,7 @@ RSpec.describe Clusters::Agents::CreateService do
       end
 
       it 'returns missing plan error' do
-        expect(service.execute(name: 'without-license')).to eq({
+        expect(service.execute(name: project_name)).to eq({
           status: :error,
           message: 'This feature is only available for premium plans'
         })
@@ -29,7 +30,7 @@ RSpec.describe Clusters::Agents::CreateService do
       end
 
       it 'returns errors when user does not have permissions' do
-        expect(service.execute(name: 'missing-permissions')).to eq({
+        expect(service.execute(name: project_name)).to eq({
           status: :error,
           message: 'You have insufficient permissions to create a cluster agent for this project'
         })
@@ -43,20 +44,20 @@ RSpec.describe Clusters::Agents::CreateService do
       end
 
       it 'creates a new clusters_agent' do
-        expect { service.execute(name: 'with-license-and-user') }.to change { ::Clusters::Agent.count }.by(1)
+        expect { service.execute(name: project_name) }.to change { ::Clusters::Agent.count }.by(1)
       end
 
       it 'returns success status', :aggregate_failures do
-        result = service.execute(name: 'success')
+        result = service.execute(name: project_name)
 
         expect(result[:status]).to eq(:success)
         expect(result[:message]).to be_nil
       end
 
-      it 'generates an error message when name is invalid' do
-        expect(service.execute(name: '@bad_agent_name!')).to eq({
+      it 'generates an error message when config file is missing' do
+        expect(service.execute(name: 'missing-config-file')).to eq({
           status: :error,
-          message: ["Name can contain only lowercase letters, digits, and '-', but cannot start or end with '-'"]
+          message: ["The file 'agents/missing-config-file/config.yaml' is missing from this repository"]
         })
       end
     end

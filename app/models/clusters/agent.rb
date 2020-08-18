@@ -28,7 +28,7 @@ module Clusters
       return if main_ref && repo.blob_at(main_ref, "agents/#{name}/config.yaml")
 
       errors.add(
-        :configuration_setup,
+        :base,
         s_("ClusterAgent|The file 'agents/%{name}/config.yaml' is missing from this repository") % { name: name }
       )
     end
