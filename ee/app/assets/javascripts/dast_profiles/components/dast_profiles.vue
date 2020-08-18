@@ -4,6 +4,7 @@ import { GlButton, GlTab, GlTabs } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import ProfilesList from './dast_profiles_list.vue';
 import dastSiteProfilesQuery from '../graphql/dast_site_profiles.query.graphql';
+import dastScannerProfilesQuery from '../graphql/dast_scanner_profiles.query.graphql';
 import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
@@ -12,8 +13,27 @@ const profileTypes = [
     key: 'siteProfiles',
     query: dastSiteProfilesQuery,
     mutation: dastSiteProfilesDelete,
+    isEnabled: () => true || false, // feature flag?
     i18n: {
-      label: s__('DastProfiles|Site Profiles'),
+      title: s__('DastProfiles|Site Profiles'),
+      errorMessages: {
+        fetchNetworkError: s__(
+          'DastProfiles|Could not fetch site profiles. Please refresh the page, or try again later.',
+        ),
+        deletionNetworkError: s__(
+          'DastProfiles|Could not delete site profile. Please refresh the page, or try again later.',
+        ),
+        deletionBackendError: s__('DastProfiles|Could not delete site profiles:'),
+      },
+    },
+  },
+  {
+    key: 'scannerProfiles',
+    query: dastScannerProfilesQuery,
+    mutation: dastSiteProfilesDelete,
+    isEnabled: () => true || false, // feature flag?
+    i18n: {
+      title: s__('DastProfiles|Scanner Profiles'),
       errorMessages: {
         fetchNetworkError: s__(
           'DastProfiles|Could not fetch site profiles. Please refresh the page, or try again later.',
@@ -28,6 +48,7 @@ const profileTypes = [
 ];
 
 export default {
+  profileTypes,
   components: {
     GlButton,
     GlTab,
@@ -46,24 +67,32 @@ export default {
   },
   data() {
     return {
+      profiles: {
+        siteProfiles: [],
+        scannerProfiles: [],
+      },
       siteProfiles: [],
       siteProfilesPageInfo: {},
       errorMessage: '',
       errorDetails: [],
+      scannerProfiles: [],
+      scannerProfilesPageInfo: {},
     };
   },
   created() {
-    this.$apollo.addSmartQuery(
-      'siteProfiles',
-      this.queryFactory({
-        key: 'siteProfiles',
-        query: dastSiteProfilesQuery,
-        variables: {
-          fullPath: this.projectFullPath,
-          first: this.$options.profilesPerPage,
-        },
-      }),
-    );
+    this.$options.profileTypes.forEach(({ key, query }) => {
+      this.$apollo.addSmartQuery(
+        key,
+        this.queryFactory({
+          key,
+          query,
+          variables: {
+            fullPath: this.projectFullPath,
+            first: this.$options.profilesPerPage,
+          },
+        }),
+      );
+    });
   },
   methods: {
     // TODO - check if we can move this to computed somehow
@@ -77,15 +106,14 @@ export default {
       return {
         query,
         variables,
+        manual: true,
         result({ data, error }) {
           if (!error) {
-            this[`${key}PageInfo`] = data.project[key].pageInfo;
-          }
-        },
-        update(data) {
-          const siteProfileEdges = data?.project?.[key]?.edges ?? [];
+            const profileEdges = data?.project?.[key]?.edges ?? [];
 
-          return siteProfileEdges.map(({ node }) => node);
+            this[`${key}PageInfo`] = data.project[key].pageInfo;
+            this.profiles[key] = profileEdges.map(({ node }) => node);
+          }
         },
         error(error) {
           this.handleError({
@@ -116,7 +144,7 @@ export default {
       $apollo.queries[key]
         .fetchMore({
           variables: { after: siteProfilesPageInfo.endCursor },
-          updateQuery: cacheUtils.appendToPreviousResult,
+          updateQuery: cacheUtils.appendToPreviousResult(key),
         })
         .catch(error => {
           this.handleError({ exception: error, message: i18n.errorMessages.fetchNetworkError });
@@ -153,6 +181,7 @@ export default {
           ) {
             if (errors.length === 0) {
               cacheUtils.removeProfile({
+                key,
                 store,
                 queryBody: {
                   query: queryOptions.query,
@@ -219,20 +248,20 @@ export default {
     </header>
 
     <gl-tabs>
-      <gl-tab>
+      <gl-tab v-for="profileType in $options.profileTypes" :key="profileType.key">
         <template #title>
-          <span>{{ s__('DastProfiles|Site Profiles') }}</span>
+          <span>{{ profileType.i18n.title }}</span>
         </template>
 
         <profiles-list
           :error-message="errorMessage"
           :error-details="errorDetails"
-          :has-more-profiles-to-load="hasMoreProfiles('siteProfiles')"
-          :is-loading="isLoadingProfiles('siteProfiles')"
+          :has-more-profiles-to-load="hasMoreProfiles(profileType.key)"
+          :is-loading="isLoadingProfiles(profileType.key)"
           :profiles-per-page="$options.profilesPerPage"
-          :profiles="siteProfiles"
-          @loadMoreProfiles="fetchMoreProfiles('siteProfiles')"
-          @deleteProfile="id => deleteProfile('siteProfiles', id)"
+          :profiles="profiles[profileType.key]"
+          @loadMoreProfiles="fetchMoreProfiles(profileType.key)"
+          @deleteProfile="id => deleteProfile(profileType.key, id)"
         />
       </gl-tab>
     </gl-tabs>

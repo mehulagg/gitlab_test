@@ -2,16 +2,15 @@
  * Appends paginated results to existing ones
  * - to be used with $apollo.queries.x.fetchMore
  *
- * @param previousResult
- * @param fetchMoreResult
- * @returns {*}
+ * @param key
+ * @returns {function(*, {fetchMoreResult: *}): *}
  */
-export const appendToPreviousResult = (previousResult, { fetchMoreResult }) => {
+export const appendToPreviousResult = key => (previousResult, { fetchMoreResult }) => {
   const newResult = { ...fetchMoreResult };
-  const previousEdges = previousResult.project.siteProfiles.edges;
-  const newEdges = newResult.project.siteProfiles.edges;
+  const previousEdges = previousResult.project[key].edges;
+  const newEdges = newResult.project[key].edges;
 
-  newResult.project.siteProfiles.edges = [...previousEdges, ...newEdges];
+  newResult.project[key].edges = [...previousEdges, ...newEdges];
 
   return newResult;
 };
@@ -19,14 +18,15 @@ export const appendToPreviousResult = (previousResult, { fetchMoreResult }) => {
 /**
  * Removes profile with given id from the cache and writes the result to it
  *
+ * @param key
  * @param store
  * @param queryBody
  * @param profileToBeDeletedId
  */
-export const removeProfile = ({ store, queryBody, profileToBeDeletedId }) => {
+export const removeProfile = ({ key, store, queryBody, profileToBeDeletedId }) => {
   const data = store.readQuery(queryBody);
 
-  data.project.siteProfiles.edges = data.project.siteProfiles.edges.filter(({ node }) => {
+  data.project[key].edges = data.project[key].edges.filter(({ node }) => {
     return node.id !== profileToBeDeletedId;
   });
 
