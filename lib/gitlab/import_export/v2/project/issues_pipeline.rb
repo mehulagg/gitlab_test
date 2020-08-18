@@ -3,10 +3,16 @@
 module Gitlab::ImportExport::V2::Project
   class IssuesPipeline
     def self.execute(source: 'georgekoltsov/alfred-gitlab', target: Project.last)
-      Extractors::IssuesExtractor.new.extract(project: source)
+      # Extract
+      data = Extractors::IssuesExtractor.new.extract(project: source)
+
+      # Transformer
+      data = data
         .then { |data| Transformers::GraphqlCleanerTransformer.transform(data) }
         .then { |data| Transformers::UnderscorifyKeysTransformer.transform(data) }
-        .then { |data| Loaders::IssueLoader.load(data, target) }
+
+      # Load
+      Loaders::IssueLoader.load(data, target)
     end
   end
 end
