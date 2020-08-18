@@ -2,13 +2,13 @@
 
 require 'spec_helper'
 
-RSpec.describe Groups::LdapMembershipService do
+RSpec.describe Groups::RemoveNonLdapMembershipService do
   describe '#execute', :clean_gitlab_redis_shared_state do
     include ExclusiveLeaseHelpers
 
     let_it_be(:group) { create(:group) }
     let_it_be(:user) { create(:user) }
-    let(:lease_key) { "groups:ldap_membership:#{group.id}" }
+    let(:lease_key) { "groups:remove_non_ldap_membership:#{group.id}" }
 
     subject { described_class.new(group, user) }
 

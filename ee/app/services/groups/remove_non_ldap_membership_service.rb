@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Groups
-  class LdapMembershipService < Groups::BaseService
+  class RemoveNonLdapMembershipService < Groups::BaseService
     include ExclusiveLeaseGuard
 
     DEFAULT_LEASE_TIMEOUT = 1.hour.to_i
@@ -27,7 +27,7 @@ module Groups
 
     # Used by ExclusiveLeaseGuard
     def lease_key
-      "groups:ldap_membership:#{group.id}"
+      "groups:remove_non_ldap_membership:#{group.id}"
     end
 
     # Used by ExclusiveLeaseGuard
