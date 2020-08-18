@@ -7,6 +7,26 @@ import dastSiteProfilesQuery from '../graphql/dast_site_profiles.query.graphql';
 import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
+const profileTypes = [
+  {
+    key: 'siteProfiles',
+    query: dastSiteProfilesQuery,
+    mutation: dastSiteProfilesDelete,
+    i18n: {
+      label: s__('DastProfiles|Site Profiles'),
+      errorMessages: {
+        fetchNetworkError: s__(
+          'DastProfiles|Could not fetch site profiles. Please refresh the page, or try again later.',
+        ),
+        deletionNetworkError: s__(
+          'DastProfiles|Could not delete site profile. Please refresh the page, or try again later.',
+        ),
+        deletionBackendError: s__('DastProfiles|Could not delete site profiles:'),
+      },
+    },
+  },
+];
+
 export default {
   components: {
     GlButton,
@@ -32,21 +52,38 @@ export default {
       errorDetails: [],
     };
   },
-  apollo: {
-    siteProfiles() {
-      return {
+  created() {
+    this.$apollo.addSmartQuery(
+      'siteProfiles',
+      this.queryFactory({
+        key: 'siteProfiles',
         query: dastSiteProfilesQuery,
         variables: {
           fullPath: this.projectFullPath,
           first: this.$options.profilesPerPage,
         },
+      }),
+    );
+  },
+  methods: {
+    // TODO - check if we can move this to computed somehow
+    hasMoreProfiles(key) {
+      return this[`${key}PageInfo`].hasNextPage;
+    },
+    isLoadingProfiles(key) {
+      return this.$apollo.queries[key].loading;
+    },
+    queryFactory({ key, query, variables }) {
+      return {
+        query,
+        variables,
         result({ data, error }) {
           if (!error) {
-            this.siteProfilesPageInfo = data.project.siteProfiles.pageInfo;
+            this[`${key}PageInfo`] = data.project[key].pageInfo;
           }
         },
         update(data) {
-          const siteProfileEdges = data?.project?.siteProfiles?.edges ?? [];
+          const siteProfileEdges = data?.project?.[key]?.edges ?? [];
 
           return siteProfileEdges.map(({ node }) => node);
         },
@@ -58,16 +95,6 @@ export default {
         },
       };
     },
-  },
-  computed: {
-    hasMoreSiteProfiles() {
-      return this.siteProfilesPageInfo.hasNextPage;
-    },
-    isLoadingSiteProfiles() {
-      return this.$apollo.queries.siteProfiles.loading;
-    },
-  },
-  methods: {
     handleError({ exception, message = '', details = [] }) {
       Sentry.captureException(exception);
       this.errorMessage = message;
@@ -77,7 +104,7 @@ export default {
       this.errorMessage = '';
       this.errorDetails = [];
     },
-    fetchMoreProfiles() {
+    fetchMoreProfiles(key) {
       const {
         $apollo,
         siteProfilesPageInfo,
@@ -86,7 +113,7 @@ export default {
 
       this.resetErrors();
 
-      $apollo.queries.siteProfiles
+      $apollo.queries[key]
         .fetchMore({
           variables: { after: siteProfilesPageInfo.endCursor },
           updateQuery: cacheUtils.appendToPreviousResult,
@@ -95,14 +122,14 @@ export default {
           this.handleError({ exception: error, message: i18n.errorMessages.fetchNetworkError });
         });
     },
-    deleteSiteProfile(profileToBeDeletedId) {
+    deleteProfile(key, profileToBeDeletedId) {
       const {
         projectFullPath,
         handleError,
         $options: { i18n },
         $apollo: {
           queries: {
-            siteProfiles: { options: siteProfilesQueryOptions },
+            [key]: { options: queryOptions },
           },
         },
       } = this;
@@ -128,8 +155,8 @@ export default {
               cacheUtils.removeProfile({
                 store,
                 queryBody: {
-                  query: siteProfilesQueryOptions.query,
-                  variables: siteProfilesQueryOptions.variables,
+                  query: queryOptions.query,
+                  variables: queryOptions.variables,
                 },
                 profileToBeDeletedId,
               });
@@ -199,12 +226,12 @@ export default {
         <profiles-list
           :error-message="errorMessage"
           :error-details="errorDetails"
-          :has-more-profiles-to-load="hasMoreSiteProfiles"
-          :is-loading="isLoadingSiteProfiles"
+          :has-more-profiles-to-load="hasMoreProfiles('siteProfiles')"
+          :is-loading="isLoadingProfiles('siteProfiles')"
           :profiles-per-page="$options.profilesPerPage"
           :profiles="siteProfiles"
-          @loadMoreProfiles="fetchMoreProfiles"
-          @deleteProfile="deleteSiteProfile"
+          @loadMoreProfiles="fetchMoreProfiles('siteProfiles')"
+          @deleteProfile="id => deleteProfile('siteProfiles', id)"
         />
       </gl-tab>
     </gl-tabs>
