@@ -190,6 +190,15 @@ In the Vue docs the Data function/object is defined as follow
 - It's okay to maintain existing implementations using such approach but not to add new ones. Whenever there are changes in the components which use such implementations, it's also advised to migrate them to a pure object model either in a follow up issue or within the same MR if it doesn't bloat the MR size.
 - You can add business logic to helpers or utils, so you can test them separately from your component.
 
+##### Why
+
+Beside the official recomendation from the vue docs here are some examples on why having a JavaScript class is a problem for maintainability on a huge codebase:
+
+- Once a class is created is easy to extend it in a way that can infringe vue reactivity and vue best practices
+- Using a class adds another layer of abstraction, making the component API and its inner workings less clear
+- Testing with the class becomes harder, since the class is instantiated by the component data function is harder to 'manage' component and class separately
+- Adding OOP to a functional codebase adds yet another way of writing code, reducing consistency and clarity
+
 ## Style guide
 
 Please refer to the Vue section of our [style guide](style/vue.md)
