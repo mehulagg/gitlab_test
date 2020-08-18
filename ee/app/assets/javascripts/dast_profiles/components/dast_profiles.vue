@@ -167,6 +167,7 @@ export default {
               });
             }
           },
+          // @TODO: make this dynamic
           optimisticResponse: cacheUtils.dastSiteProfilesDeleteResponse(),
         })
         .catch(error => {

@@ -24,6 +24,7 @@ describe('EE - DastProfiles', () => {
           },
         },
         mutate: jest.fn().mockResolvedValue(),
+        addSmartQuery: jest.fn(),
       },
     };
 
