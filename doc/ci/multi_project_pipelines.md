@@ -155,6 +155,9 @@ Use:
 GitLab will use a commit that is currently on the HEAD of the branch when
 creating a downstream pipeline.
 
+Be aware that if specifying [protected branches](https://docs.gitlab.com/ee/user/project/protected_branches.html#using-the-allowed-to-merge-and-allowed-to-push-settings), users need to be allowed to push
+in order to trigger downstream pipelines.
+
 ### Passing variables to a downstream pipeline
 
 Sometimes you might want to pass variables to a downstream pipeline.
