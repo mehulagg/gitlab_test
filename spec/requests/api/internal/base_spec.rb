@@ -1207,6 +1207,74 @@ RSpec.describe API::Internal::Base do
     end
   end
 
+  describe 'GET /internal/two_factor_config' do
+    it 'returns an error message when the key does not exist' do
+      post api('/internal/two_factor_config'),
+           params: {
+             secret_token: secret_token,
+             key_id: non_existing_record_id
+           }
+
+      expect(json_response['success']).to be_falsey
+      expect(json_response['message']).to eq('Could not find the given key')
+    end
+
+    it 'returns an error message when the key is a deploy key' do
+      deploy_key = create(:deploy_key)
+
+      post api('/internal/two_factor_config'),
+           params: {
+             secret_token: secret_token,
+             key_id: deploy_key.id
+           }
+
+      expect(json_response['success']).to be_falsey
+      expect(json_response['message']).to eq('Deploy keys cannot be used for Two Factor')
+    end
+
+    it 'returns 404 not found' do
+      key_without_user = create(:key, user: nil)
+
+      get api('/internal/two_factor_config'),
+           params: {
+             secret_token: secret_token,
+             key_id: key_without_user.id
+           }
+
+      expect(json_response['error']).to eq('404 Not Found')
+    end
+
+    context 'when two-factor is enabled' do
+      it 'returns user two factor config' do
+        allow_any_instance_of(User).to receive(:two_factor_enabled?).and_return(true)
+
+        post api('/internal/two_factor_config'),
+             params: {
+               secret_token: secret_token,
+               key_id: key.id
+             }
+
+        expect(json_response['success']).to be_truthy
+        expect(json_response['two_factor_enable']).to be_truthy
+      end
+    end
+
+    context 'when two-factor is not enabled' do
+      it 'returns an error message' do
+        allow_any_instance_of(User).to receive(:two_factor_enabled?).and_return(false)
+
+        post api('/internal/two_factor_config'),
+             params: {
+               secret_token: secret_token,
+               key_id: key.id
+             }
+
+        expect(json_response['success']).to be_truthy
+        expect(json_response['two_factor_config']).to be_falsey
+      end
+    end
+  end
+
   def gl_repository_for(container)
     case container
     when ProjectWiki

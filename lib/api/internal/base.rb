@@ -267,6 +267,33 @@ module API
 
           present response, with: Entities::InternalPostReceive::Response
         end
+
+        post '/two_factor_config' do
+          status 200
+
+          actor.update_last_used_at!
+          user = actor.user
+
+          if params[:key_id]
+            unless actor.key
+              break { success: false, message: 'Could not find the given key' }
+            end
+
+            if actor.key.is_a?(DeployKey)
+              break { success: false, message: 'Deploy keys cannot be used for Two Factor' }
+            end
+
+            unless user
+              break { success: false, message: 'Could not find a user for the given key' }
+            end
+          end
+
+          {
+            success: true,
+            user: user.username,
+            two_factor_enable: user.two_factor_enabled?
+          }
+        end
       end
     end
   end
