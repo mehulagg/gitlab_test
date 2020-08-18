@@ -95,6 +95,7 @@ gem 'graphql', '~> 1.10.5'
 gem 'graphiql-rails', '~> 1.4.10'
 gem 'apollo_upload_server', '~> 2.0.0.beta3'
 gem 'graphql-docs', '~> 1.6.0', group: [:development, :test]
+gem 'graphql-client'
 
 # Disable strong_params so that Mash does not respond to :permitted?
 gem 'hashie-forbidden_attributes'
