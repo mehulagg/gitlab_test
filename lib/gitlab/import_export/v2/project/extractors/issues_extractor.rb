@@ -90,8 +90,8 @@ module Gitlab::ImportExport::V2::Project::Extractors
       }
     GRAPHQL
 
-    def extract
-      ::Gitlab::ImportExport::V2::Project::Graphql::Client.query(IssuesQuery, variables: { project: 'georgekoltsov/alfred-gitlab' })
+    def extract(project:)
+      ::Gitlab::ImportExport::V2::Project::Graphql::Client.query(IssuesQuery, variables: { project: project })
     end
   end
 end
