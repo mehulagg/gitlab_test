@@ -12,4 +12,4 @@
       = s_("License|Your instance has exceeded your subscription's number of licensed users by %{extra_users_count}. You can continue to add more users and we'll include the overage in your next bill.").html_safe % {extra_users_count: current_license_overage}
   .gl-alert-actions
     = link_to _('Learn more'), 'https://docs.gitlab.com/ee/subscriptions', class: 'btn btn-info gl-alert-action', target: '_blank'
-    = link_to _('Contact support'), 'https://about.gitlab.com/support/#contact-support', class: 'btn btn-info btn-secondary gl-button', target: '_blank'
+    = link_to _('Contact support'), 'https://about.gitlab.com/support/#contact-support', class: 'btn btn-info gl-button btn-info-secondary', target: '_blank'
