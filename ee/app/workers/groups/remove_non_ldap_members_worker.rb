@@ -16,8 +16,10 @@ module Groups
       return if group.unlock_membership_to_ldap
       return unless can?(owner, :admin_group_member, group)
 
+      owners = group.owners
+
       group.users_with_descendants.non_ldap.find_each do |user|
-        next if group.owned_by? user
+        next if owners.include? user
 
         member = GroupMembersFinder.new(group, user).execute.first
         Members::DestroyService.new(owner).execute(member)
