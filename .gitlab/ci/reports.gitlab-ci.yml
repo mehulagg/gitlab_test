@@ -251,7 +251,7 @@ dependency_scanning:
 #     - create_project_for_user $USERID
 #     - USERID=$(create_user "user14")
 #     - create_project_for_user $USERID
-.dast_conf:
+.dast_conf: 
   tags:
     - prm
   # For scheduling dast job
