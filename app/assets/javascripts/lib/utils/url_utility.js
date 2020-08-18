@@ -417,3 +417,15 @@ export function getHTTPProtocol(url) {
   const protocol = url.split(':');
   return protocol.length > 1 ? protocol[0] : undefined;
 }
+
+export function getURLOrigin(url) {
+  if(!url) {
+    return window.location.origin;
+  }
+
+  try {
+    return new URL(url).origin;
+  } catch(e) {
+    return null;
+  }
+};
