@@ -49,7 +49,7 @@ RSpec.describe Clusters::Agent do
 
         subject { build(:cluster_agent, project: missing_file_project) }
 
-        it 'fails to update due to missing config file', :aggregate_failures do
+        it 'fails to create due to missing config file', :aggregate_failures do
           expect(subject.save).to be_falsey
           expect(subject.errors[:configuration_setup]).to eq(["The file 'agents/#{subject.name}/config.yaml' is missing from this repository"])
         end
