@@ -6,7 +6,7 @@ import MergeRequestAnalyticsApp from './components/app.vue';
 Vue.use(VueApollo);
 
 const apolloProvider = new VueApollo({
-  defaultClient: createDefaultClient(),
+  defaultClient: createDefaultClient({}, { batchRequests: false }),
 });
 
 export default () => {

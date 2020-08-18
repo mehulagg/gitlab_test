@@ -2,6 +2,7 @@ import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createUploadLink } from 'apollo-upload-client';
 import { ApolloLink } from 'apollo-link';
+import { HttpLink } from 'apollo-link-http';
 import { BatchHttpLink } from 'apollo-link-batch-http';
 import csrf from '~/lib/utils/csrf';
 
@@ -13,7 +14,7 @@ export const fetchPolicies = {
   CACHE_ONLY: 'cache-only',
 };
 
-export default (resolvers = {}, config = {}) => {
+export default (resolvers = {}, config = { batchRequests: true }) => {
   let uri = `${gon.relative_url_root || ''}/api/graphql`;
 
   if (config.baseUrl) {
@@ -32,12 +33,16 @@ export default (resolvers = {}, config = {}) => {
     credentials: 'same-origin',
   };
 
+  const httpLink = config.batchRequests
+    ? new BatchHttpLink(httpOptions)
+    : new HttpLink(httpOptions);
+
   return new ApolloClient({
     typeDefs: config.typeDefs,
     link: ApolloLink.split(
       operation => operation.getContext().hasUpload || operation.getContext().isSingleRequest,
       createUploadLink(httpOptions),
-      new BatchHttpLink(httpOptions),
+      httpLink,
     ),
     cache: new InMemoryCache({
       ...config.cacheConfig,
