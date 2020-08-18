@@ -91,7 +91,9 @@ module Gitlab::ImportExport::V2::Project::Extractors
     GRAPHQL
 
     def extract(project:)
-      ::Gitlab::ImportExport::V2::Project::Graphql::Client.query(IssuesQuery, variables: { project: project })
+      ::Gitlab::ImportExport::V2::Project::Graphql::Client
+        .query(IssuesQuery, variables: { project: project })
+        .original_hash
     end
   end
 end
