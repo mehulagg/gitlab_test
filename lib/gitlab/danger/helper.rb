@@ -141,7 +141,6 @@ module Gitlab
           \.nvmrc |
           \.prettierignore |
           \.prettierrc |
-          \.scss-lint.yml |
           \.stylelintrc |
           \.haml-lint.yml |
           \.haml-lint_todo.yml |

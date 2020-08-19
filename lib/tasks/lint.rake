@@ -31,7 +31,6 @@ unless Rails.env.production?
       tasks = %w[
         config_lint
         lint:haml
-        scss_lint
         gettext:lint
         lint:static_verification
         gitlab:sidekiq:all_queues_yml:check

@@ -375,7 +375,6 @@ group :development, :test do
   gem 'rubocop-performance', '~> 1.5.2'
   gem 'rubocop-rspec', '~> 1.37.0'
 
-  gem 'scss_lint', '~> 0.56.0', require: false
   gem 'haml_lint', '~> 0.34.0', require: false
   gem 'simplecov', '~> 0.18.5', require: false
   gem 'simplecov-cobertura', '~> 1.3.1', require: false
