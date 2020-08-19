@@ -158,6 +158,7 @@ export default {
         class="diff-line-num old_line"
       />
       <td :class="parallelViewLeftLineType" class="line-coverage left-side"></td>
+      <!-- eslint-disable vue/no-v-html -->
       <td
         :id="line.left.line_code"
         :class="parallelViewLeftLineType"
@@ -165,6 +166,7 @@ export default {
         @mousedown="handleParallelLineMouseDown"
         v-html="line.left.rich_text"
       ></td>
+      <!-- eslint-enable vue/no-v-html -->
     </template>
     <template v-else>
       <td class="diff-line-num old_line empty-cell"></td>
@@ -190,6 +192,7 @@ export default {
         :class="[line.right.type, coverageState.class, { hll: isHighlighted }]"
         class="line-coverage right-side"
       ></td>
+      <!-- eslint-disable vue/no-v-html -->
       <td
         :id="line.right.line_code"
         :class="[
@@ -202,6 +205,7 @@ export default {
         @mousedown="handleParallelLineMouseDown"
         v-html="line.right.rich_text"
       ></td>
+      <!-- eslint-enable vue/no-v-html -->
     </template>
     <template v-else>
       <td class="diff-line-num old_line empty-cell"></td>

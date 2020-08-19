@@ -66,6 +66,8 @@ export default {
     :cancel-title="__('Cancel')"
     @ok.prevent="submit"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <p v-html="message"></p>
+    <!-- eslint-enable vue/no-v-html -->
   </gl-modal-vuex>
 </template>

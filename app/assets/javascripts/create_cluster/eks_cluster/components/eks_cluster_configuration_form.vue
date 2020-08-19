@@ -320,7 +320,9 @@ export default {
     <h4>
       {{ s__('ClusterIntegration|Enter the details for your Amazon EKS Kubernetes cluster') }}
     </h4>
+    <!-- eslint-disable vue/no-v-html -->
     <div class="mb-3" v-html="kubernetesIntegrationHelpText"></div>
+    <!-- eslint-enable vue/no-v-html -->
     <div class="form-group">
       <label class="label-bold" for="eks-cluster-name">{{
         s__('ClusterIntegration|Kubernetes cluster name')
@@ -370,7 +372,9 @@ export default {
         :error-message="s__('ClusterIntegration|Could not load IAM roles')"
         @input="setRole({ role: $event })"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="roleDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-role">{{ s__('ClusterIntegration|Region') }}</label>
@@ -388,7 +392,9 @@ export default {
         :error-message="s__('ClusterIntegration|Could not load regions from your AWS account')"
         @input="setRegionAndFetchVpcsAndKeyPairs($event)"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="regionsDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-key-pair">{{
@@ -410,7 +416,9 @@ export default {
         :error-message="s__('ClusterIntegration|Could not load Key Pairs')"
         @input="setKeyPair({ keyPair: $event })"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="keyPairDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-vpc">{{ s__('ClusterIntegration|VPC') }}</label>
@@ -430,7 +438,9 @@ export default {
         :error-message="s__('ClusterIntegration|Could not load VPCs for the selected region')"
         @input="setVpcAndFetchSubnets($event)"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="vpcDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-role">{{ s__('ClusterIntegration|Subnets') }}</label>
@@ -451,7 +461,9 @@ export default {
         :error-message="subnetValidationErrorText"
         @input="setSubnet({ subnet: $event })"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="subnetDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-security-group">{{
@@ -475,7 +487,9 @@ export default {
         "
         @input="setSecurityGroup({ securityGroup: $event })"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="securityGroupDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-instance-type">{{
@@ -495,7 +509,9 @@ export default {
         :error-message="s__('ClusterIntegration|Could not load instance types')"
         @input="setInstanceType({ instanceType: $event })"
       />
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="instanceTypesDropdownHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <label class="label-bold" for="eks-node-count">{{
@@ -516,7 +532,9 @@ export default {
         @input="setGitlabManagedCluster({ gitlabManagedCluster: $event })"
         >{{ s__('ClusterIntegration|GitLab-managed cluster') }}</gl-form-checkbox
       >
+      <!-- eslint-disable vue/no-v-html -->
       <p class="form-text text-muted" v-html="gitlabManagedHelpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="form-group">
       <loading-button

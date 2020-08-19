@@ -63,7 +63,9 @@ export default {
       </a>
     </div>
     <div class="blob-content">
+      <!-- eslint-disable vue/no-v-html -->
       <pre class="code highlight"><code id="blob-code-content" v-html="content"></code></pre>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
   </div>
 </template>

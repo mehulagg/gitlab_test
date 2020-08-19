@@ -71,6 +71,7 @@ export default {
 
 <template>
   <div class="gl-mb-5 ide-commit-options">
+    <!-- eslint-disable vue/no-v-html -->
     <radio-group
       :value="$options.commitToCurrentBranch"
       :disabled="!canPushToBranch"
@@ -82,6 +83,7 @@ export default {
         v-html="commitToCurrentBranchText"
       ></span>
     </radio-group>
+    <!-- eslint-enable vue/no-v-html -->
     <template v-if="!emptyRepo">
       <radio-group
         :value="$options.commitToNewBranch"

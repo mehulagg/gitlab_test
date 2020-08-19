@@ -126,7 +126,9 @@ export default {
 </script>
 <template>
   <div class="d-flex flex-column">
+    <!-- eslint-disable vue/no-v-html -->
     <p class="pt-3 js-subtitle-text" v-html="subtitleText"></p>
+    <!-- eslint-enable vue/no-v-html -->
     <form v-if="showForm" class="js-quick-submit" @submit.prevent="submitForm">
       <tag-field />
       <gl-form-group>

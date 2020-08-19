@@ -85,6 +85,7 @@ export default {
 };
 </script>
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <gl-modal
     ok-variant="danger"
     cancel-variant="light"
@@ -95,4 +96,5 @@ export default {
   >
     {{ warningText }} <span v-html="customAppWarningText"></span>
   </gl-modal>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

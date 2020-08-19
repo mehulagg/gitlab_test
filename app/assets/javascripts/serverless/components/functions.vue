@@ -91,9 +91,15 @@ export default {
             }}
           </p>
           <ul>
+            <!-- eslint-disable vue/no-v-html -->
             <li v-html="noServerlessConfigFile"></li>
+            <!-- eslint-enable vue/no-v-html -->
+            <!-- eslint-disable vue/no-v-html -->
             <li v-html="noGitlabYamlConfigured"></li>
+            <!-- eslint-enable vue/no-v-html -->
+            <!-- eslint-disable vue/no-v-html -->
             <li v-html="mismatchedServerlessFunctions"></li>
+            <!-- eslint-enable vue/no-v-html -->
             <li>{{ s__('Serverless|The deploy job has not finished.') }}</li>
           </ul>
 

@@ -16,7 +16,9 @@ export default {
     <div class="gl-mr-3 gl-ml-3">
       <div class="text-content text-center">
         <h4>{{ __('All changes are committed') }}</h4>
+        <!-- eslint-disable vue/no-v-html -->
         <p v-html="lastCommitMsg"></p>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </div>
   </div>

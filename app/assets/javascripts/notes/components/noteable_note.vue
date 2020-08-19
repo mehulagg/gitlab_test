@@ -370,6 +370,7 @@ export default {
     </div>
     <div class="timeline-content">
       <div class="note-header">
+        <!-- eslint-disable vue/no-v-html -->
         <note-header
           v-once
           :author="author"
@@ -381,6 +382,7 @@ export default {
           <span v-if="commit" v-html="actionText"></span>
           <span v-else-if="note.created_at" class="d-none d-sm-inline">&middot;</span>
         </note-header>
+        <!-- eslint-enable vue/no-v-html -->
         <note-actions
           :author="author"
           :author-id="author.id"

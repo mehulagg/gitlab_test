@@ -83,7 +83,9 @@ export default {
   >
     <div slot="body">
       <p>{{ __('We want to be sure it is you, please confirm you are not a robot.') }}</p>
+      <!-- eslint-disable vue/no-v-html -->
       <div ref="recaptcha" v-html="html"></div>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
   </deprecated-modal>
 </template>

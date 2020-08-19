@@ -109,7 +109,9 @@ export default {
       <evidence-block v-if="hasEvidence && shouldShowEvidence" :release="release" />
 
       <div ref="gfm-content" class="card-text gl-mt-3">
+        <!-- eslint-disable vue/no-v-html -->
         <div class="md" v-html="release.descriptionHtml"></div>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </div>
 

@@ -57,7 +57,9 @@ export default {
           {{ __('Start Web Terminal') }}
         </button>
       </p>
+      <!-- eslint-disable vue/no-v-html -->
       <div v-if="!isValid && message" class="bs-callout text-left" v-html="message"></div>
+      <!-- eslint-enable vue/no-v-html -->
       <p v-else>
         <a
           v-if="helpPath"

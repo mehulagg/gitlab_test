@@ -150,7 +150,9 @@ export default {
           :src="group.avatar_url"
           shape="rect"
         />
+        <!-- eslint-disable vue/no-v-html -->
         <div class="js-group-path align-middle" v-html="formatGroupPath(group.full_name)"></div>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </gl-dropdown-item>
     <gl-dropdown-item v-show="noResultsAvailable" class="gl-pointer-events-none text-secondary">{{

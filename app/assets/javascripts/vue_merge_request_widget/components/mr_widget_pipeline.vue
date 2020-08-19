@@ -179,12 +179,14 @@ export default {
               </template>
               <template v-if="showSourceBranch">
                 {{ s__('Pipeline|on') }}
+                <!-- eslint-disable vue/no-v-html -->
                 <tooltip-on-truncate
                   :title="sourceBranch"
                   truncate-target="child"
                   class="label-branch label-truncate gl-font-weight-normal"
                   v-html="sourceBranchLink"
                 />
+                <!-- eslint-enable vue/no-v-html -->
               </template>
             </div>
             <div v-if="pipeline.coverage" class="coverage" data-testid="pipeline-coverage">

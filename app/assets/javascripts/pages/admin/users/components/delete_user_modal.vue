@@ -107,8 +107,12 @@ export default {
 <template>
   <gl-modal ref="modal" modal-id="delete-user-modal" :title="modalTitle" kind="danger">
     <template>
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="text"></p>
+      <!-- eslint-enable vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="confirmationTextLabel"></p>
+      <!-- eslint-enable vue/no-v-html -->
       <form ref="form" :action="deleteUserUrl" method="post" @submit.prevent>
         <input ref="method" type="hidden" name="_method" value="delete" />
         <input :value="csrfToken" type="hidden" name="authenticity_token" />

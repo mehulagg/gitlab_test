@@ -124,7 +124,9 @@ Once deleted, it cannot be undone or recovered.`),
     @submit="onSubmit"
   >
     <template #body="props">
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="props.text"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </template>
   </deprecated-modal>
 </template>

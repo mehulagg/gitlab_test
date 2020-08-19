@@ -218,7 +218,9 @@ export default {
           </div>
 
           <callout v-if="shouldRenderHeaderCallout">
+            <!-- eslint-disable vue/no-v-html -->
             <div v-html="job.callout_message"></div>
+            <!-- eslint-enable vue/no-v-html -->
           </callout>
         </header>
         <!-- EO Header Section -->

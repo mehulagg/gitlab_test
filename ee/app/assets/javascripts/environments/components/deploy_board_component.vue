@@ -111,12 +111,14 @@ export default {
   <div class="js-deploy-board deploy-board">
     <gl-loading-icon v-if="isLoading" class="loading-icon" />
     <template v-else>
+      <!-- eslint-disable vue/no-v-html -->
       <div v-if="hasLegacyAppLabel" class="bs-callout bs-callout-warning mb-0 mt-0">
         <span v-html="legacyLabelWarningMessage"></span>
         <gl-link target="_blank" :href="deployBoardsHelpPath">
           <strong>{{ __('More Information') }}</strong>
         </gl-link>
       </div>
+      <!-- eslint-enable vue/no-v-html -->
 
       <div v-if="canRenderDeployBoard" class="deploy-board-information p-3">
         <div class="deploy-board-information">
@@ -180,7 +182,9 @@ export default {
       </div>
 
       <div v-if="canRenderEmptyState" class="deploy-board-empty">
+        <!-- eslint-disable vue/no-v-html -->
         <section class="deploy-board-empty-state-svg" v-html="deployBoardSvg"></section>
+        <!-- eslint-enable vue/no-v-html -->
 
         <section class="deploy-board-empty-state-text">
           <span class="deploy-board-empty-state-title d-flex">{{

@@ -137,7 +137,9 @@ export default {
   <welcome-page v-if="activeTab === null" :panels="availablePanels" />
   <div v-else class="row">
     <div class="col-lg-3">
+      <!-- eslint-disable vue/no-v-html -->
       <div class="text-center" v-html="activePanel.illustration"></div>
+      <!-- eslint-enable vue/no-v-html -->
       <h4>{{ activePanel.title }}</h4>
       <p>{{ activePanel.description }}</p>
     </div>

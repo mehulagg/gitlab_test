@@ -329,7 +329,9 @@ export default {
         </gl-sprintf>
       </gl-alert>
       <gl-alert v-if="hasError" variant="danger" data-testid="alert-error" @dismiss="dismissError">
+        <!-- eslint-disable vue/no-v-html -->
         <p v-html="errorMessage || $options.i18n.errorMsg"></p>
+        <!-- eslint-enable vue/no-v-html -->
       </gl-alert>
 
       <gl-tabs

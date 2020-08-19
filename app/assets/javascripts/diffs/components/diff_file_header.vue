@@ -161,6 +161,7 @@ export default {
     class="js-file-title file-title file-title-flex-parent"
     @click.self="handleToggleFile"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <div class="file-header-content">
       <icon
         v-if="collapsible"
@@ -216,12 +217,14 @@ export default {
 
       <span v-if="isUsingLfs" class="label label-lfs gl-mr-2"> {{ __('LFS') }} </span>
     </div>
+    <!-- eslint-enable vue/no-v-html -->
 
     <div
       v-if="!diffFile.submodule && addMergeRequestButtons"
       class="file-actions d-none d-sm-flex align-items-center flex-wrap"
     >
       <diff-stats :added-lines="diffFile.added_lines" :removed-lines="diffFile.removed_lines" />
+      <!-- eslint-disable vue/no-v-html -->
       <div class="btn-group" role="group">
         <template v-if="diffFile.blob && diffFile.blob.readable_text">
           <span v-gl-tooltip.hover :title="s__('MergeRequests|Toggle comments for this file')">
@@ -306,6 +309,7 @@ export default {
           <icon name="external-link" />
         </a>
       </div>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
   </div>
 </template>

@@ -93,10 +93,12 @@ export default {
 
     <div v-once class="prepend-top-20 append-bottom-20">
       <img :src="gitlabLogoPath" class="gitlab-slack-logo" />
+      <!-- eslint-disable vue/no-v-html -->
       <div
         class="gitlab-slack-double-headed-arrow inline prepend-left-20 append-right-20"
         v-html="doubleHeadedArrowSvg"
       ></div>
+      <!-- eslint-enable vue/no-v-html -->
       <img :src="slackLogoPath" class="gitlab-slack-logo" />
     </div>
 
@@ -144,7 +146,9 @@ export default {
           >/gitlab &lt;project-alias&gt; issue show &lt;id&gt;</code
         >
         <span>
+          <!-- eslint-disable vue/no-v-html -->
           <div class="gitlab-slack-right-arrow inline gl-mr-2" v-html="arrowRightSvg"></div>
+          <!-- eslint-enable vue/no-v-html -->
           Shows the issue with id <strong>&lt;id&gt;</strong>
         </span>
 

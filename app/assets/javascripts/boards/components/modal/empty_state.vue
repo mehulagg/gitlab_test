@@ -52,7 +52,9 @@ export default {
       <div class="col-12 col-md-6 order-md-first">
         <div class="text-content">
           <h4>{{ contents.title }}</h4>
+          <!-- eslint-disable vue/no-v-html -->
           <p v-html="contents.content"></p>
+          <!-- eslint-enable vue/no-v-html -->
           <a v-if="activeTab === 'all'" :href="newIssuePath" class="btn btn-success btn-inverted">{{
             __('New issue')
           }}</a>

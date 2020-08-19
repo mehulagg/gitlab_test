@@ -131,7 +131,9 @@ export default {
     <div class="col-12">
       <div class="text-content">
         <h4>{{ message }}</h4>
+        <!-- eslint-disable vue/no-v-html -->
         <p v-html="subMessage"></p>
+        <!-- eslint-enable vue/no-v-html -->
         <div class="text-center">
           <div
             v-if="!hasFiltersApplied"

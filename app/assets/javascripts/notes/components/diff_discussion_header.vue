@@ -104,6 +104,7 @@ export default {
       />
     </div>
     <div class="timeline-content w-100">
+      <!-- eslint-disable vue/no-v-html -->
       <note-header
         :author="author"
         :created-at="firstNote.created_at"
@@ -114,6 +115,7 @@ export default {
       >
         <span v-html="headerText"></span>
       </note-header>
+      <!-- eslint-enable vue/no-v-html -->
       <note-edited-text
         v-if="discussion.resolved"
         :edited-at="discussion.resolved_at"

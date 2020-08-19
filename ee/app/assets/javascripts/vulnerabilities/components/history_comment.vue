@@ -154,7 +154,9 @@ export default {
     icon-class="timeline-icon m-0"
     class="m-3"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <div v-html="comment.note"></div>
+    <!-- eslint-enable vue/no-v-html -->
 
     <template #right-content>
       <gl-button

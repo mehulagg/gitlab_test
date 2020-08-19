@@ -155,6 +155,7 @@ export default {
 
 <template>
   <div :class="{ 'collapse-after-update': collapsedAfterUpdate }" class="block weight">
+    <!-- eslint-disable vue/no-v-html -->
     <div
       v-tooltip
       :title="tooltipTitle"
@@ -168,6 +169,7 @@ export default {
       <gl-loading-icon v-if="fetching" class="js-weight-collapsed-loading-icon" />
       <span v-else class="js-weight-collapsed-weight-label" v-html="collapsedWeightLabel"></span>
     </div>
+    <!-- eslint-enable vue/no-v-html -->
     <div class="title hide-collapsed">
       {{ s__('Sidebar|Weight') }}
       <gl-loading-icon v-if="fetching || loading" :inline="true" class="js-weight-loading-icon" />

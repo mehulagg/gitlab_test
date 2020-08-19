@@ -72,7 +72,9 @@ export default {
     <p>{{ s__('Environments|Are you sure you want to stop this environment?') }}</p>
 
     <div v-if="!environment.has_stop_action" class="warning_message">
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="noStopActionMessage"></p>
+      <!-- eslint-enable vue/no-v-html -->
       <a
         href="https://docs.gitlab.com/ee/ci/environments.html#stopping-an-environment"
         target="_blank"

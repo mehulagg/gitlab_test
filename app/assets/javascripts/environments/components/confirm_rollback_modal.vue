@@ -103,6 +103,8 @@ export default {
     ok-variant="danger"
     @ok="onOk"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <p v-html="modalText"></p>
+    <!-- eslint-enable vue/no-v-html -->
   </gl-modal>
 </template>

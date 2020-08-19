@@ -88,6 +88,7 @@ export default {
 };
 </script>
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="issuable-note-warning">
     <icon v-if="!isLockedAndConfidential" :name="warningIcon" :size="16" class="icon inline" />
 
@@ -110,4 +111,5 @@ export default {
       <gl-link :href="lockedNoteableDocsPath" target="_blank">{{ __('Learn more') }}</gl-link>
     </span>
   </div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

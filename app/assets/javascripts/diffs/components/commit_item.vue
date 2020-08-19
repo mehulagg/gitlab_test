@@ -141,6 +141,7 @@ export default {
       />
     </div>
     <div class="commit-detail flex-list">
+      <!-- eslint-disable vue/no-v-html -->
       <div class="commit-content qa-commit-content">
         <a
           :href="commit.commit_url"
@@ -177,8 +178,11 @@ export default {
           v-html="commitDescription"
         ></pre>
       </div>
+      <!-- eslint-enable vue/no-v-html -->
       <div class="commit-actions flex-row d-none d-sm-flex">
+        <!-- eslint-disable vue/no-v-html -->
         <div v-if="commit.signature_html" v-html="commit.signature_html"></div>
+        <!-- eslint-enable vue/no-v-html -->
         <commit-pipeline-status
           v-if="commit.pipeline_status_path"
           :endpoint="commit.pipeline_status_path"

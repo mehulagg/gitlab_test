@@ -40,6 +40,7 @@ export default {
       <div class="svg-content svg-250"><img :src="changesEmptyStateIllustration" /></div>
     </div>
     <div class="col-12">
+      <!-- eslint-disable vue/no-v-html -->
       <div class="text-content text-center">
         <span v-html="emptyStateText"></span>
         <div class="text-center">
@@ -48,6 +49,7 @@ export default {
           }}</gl-button>
         </div>
       </div>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
   </div>
 </template>

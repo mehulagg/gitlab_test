@@ -294,6 +294,7 @@ export default {
           >
         </div>
 
+        <!-- eslint-disable vue/no-v-html -->
         <div class="issuable-info">
           <span class="js-ref-path gl-mr-4 mr-sm-0">
             <span
@@ -380,6 +381,7 @@ export default {
             >{{ label.name }}</gl-label
           >
         </div>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
 
       <!-- Issuable meta -->

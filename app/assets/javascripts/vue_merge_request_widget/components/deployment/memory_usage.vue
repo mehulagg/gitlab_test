@@ -158,11 +158,13 @@ export default {
       <i class="fa fa-spinner fa-spin usage-info-load-spinner" aria-hidden="true"> </i
       >{{ s__('mrWidget|Loading deployment statistics') }}
     </p>
+    <!-- eslint-disable vue/no-v-html -->
     <p
       v-if="shouldShowMemoryGraph"
       class="usage-info js-usage-info"
       v-html="memoryChangeMessage"
     ></p>
+    <!-- eslint-enable vue/no-v-html -->
     <p v-if="shouldShowLoadFailure" class="usage-info js-usage-info usage-info-failed">
       {{ s__('mrWidget|Failed to load deployment statistics') }}
     </p>

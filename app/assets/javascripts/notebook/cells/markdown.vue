@@ -165,7 +165,9 @@ export default {
 <template>
   <div class="cell text-cell">
     <prompt />
+    <!-- eslint-disable vue/no-v-html -->
     <div class="markdown" v-html="markdown"></div>
+    <!-- eslint-enable vue/no-v-html -->
   </div>
 </template>
 

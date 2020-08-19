@@ -84,7 +84,9 @@ export default {
       <div v-else-if="latestPipeline.yamlError" class="bs-callout bs-callout-danger">
         <p class="gl-mb-0">{{ __('Found errors in your .gitlab-ci.yml:') }}</p>
         <p class="gl-mb-0 break-word">{{ latestPipeline.yamlError }}</p>
+        <!-- eslint-disable vue/no-v-html -->
         <p class="gl-mb-0" v-html="ciLintText"></p>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
       <tabs v-else class="ide-pipeline-list">
         <tab :active="!pipelineFailed">

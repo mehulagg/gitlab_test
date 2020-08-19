@@ -99,7 +99,9 @@ export default {
     :compact="true"
   >
     <template v-if="currentState.slottedDescription" #description>
+      <!-- eslint-disable vue/no-v-html -->
       <div v-html="currentState.slottedDescription"></div>
+      <!-- eslint-enable vue/no-v-html -->
     </template>
   </gl-empty-state>
 </template>

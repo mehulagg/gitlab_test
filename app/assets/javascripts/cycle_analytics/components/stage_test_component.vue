@@ -42,6 +42,7 @@ export default {
     <ul class="stage-event-list">
       <li v-for="(build, i) in items" :key="i" class="stage-event-item item-build-component">
         <div class="item-details">
+          <!-- eslint-disable vue/no-v-html -->
           <h5 class="item-title">
             <span class="icon-build-status" v-html="iconBuildStatus"> </span>
             <a :href="build.url" class="item-build-name"> {{ build.name }} </a> &middot;
@@ -51,6 +52,7 @@ export default {
             <span class="icon-branch" v-html="iconBranch"> </span>
             <a :href="build.commitUrl" class="commit-sha"> {{ build.shortSha }} </a>
           </h5>
+          <!-- eslint-enable vue/no-v-html -->
           <span>
             <a :href="build.url" class="issue-date"> {{ build.date }} </a>
           </span>

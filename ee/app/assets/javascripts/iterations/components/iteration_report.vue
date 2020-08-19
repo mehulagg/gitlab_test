@@ -163,7 +163,9 @@ export default {
         </gl-new-dropdown>
       </div>
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
+      <!-- eslint-disable vue/no-v-html -->
       <div ref="description" v-html="iteration.descriptionHtml"></div>
+      <!-- eslint-enable vue/no-v-html -->
       <iteration-report-summary :group-path="fullPath" :iteration-id="iteration.id" />
       <iteration-report-tabs :group-path="fullPath" :iteration-id="iteration.id" />
     </template>

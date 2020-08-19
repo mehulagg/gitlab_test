@@ -118,9 +118,11 @@ export default {
               {{ group.permission }}
             </span>
           </div>
+          <!-- eslint-disable vue/no-v-html -->
           <div v-if="group.description" class="description">
             <span v-html="group.markdown_description"> </span>
           </div>
+          <!-- eslint-enable vue/no-v-html -->
         </div>
         <div class="gl-display-flex gl-flex-shrink-0">
           <gl-button

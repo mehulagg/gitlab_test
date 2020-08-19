@@ -110,9 +110,11 @@ export default {
       <template v-if="mr.rebaseInProgress || isMakingRequest">
         <span class="bold">{{ __('Rebase in progress') }}</span>
       </template>
+      <!-- eslint-disable vue/no-v-html -->
       <template v-if="!mr.rebaseInProgress && !mr.canPushToSourceBranch">
         <span class="bold" v-html="fastForwardMergeText"></span>
       </template>
+      <!-- eslint-enable vue/no-v-html -->
       <template v-if="!mr.rebaseInProgress && mr.canPushToSourceBranch && !isMakingRequest">
         <div
           class="accept-merge-holder clearfix js-toggle-container accept-action media space-children"

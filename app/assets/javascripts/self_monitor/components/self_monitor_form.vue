@@ -129,7 +129,9 @@ export default {
     </div>
     <div class="settings-content">
       <form name="self-monitoring-form">
+        <!-- eslint-disable vue/no-v-html -->
         <p ref="selfMonitoringFormText" v-html="selfMonitoringFormText"></p>
+        <!-- eslint-enable vue/no-v-html -->
         <gl-form-group :label="$options.formLabels.createProject" label-for="self-monitor-toggle">
           <gl-toggle
             v-model="selfMonitorEnabled"

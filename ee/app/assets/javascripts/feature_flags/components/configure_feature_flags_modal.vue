@@ -149,7 +149,9 @@ export default {
     <template #modal-title>
       {{ $options.modalTitle }}
     </template>
+    <!-- eslint-disable vue/no-v-html -->
     <p v-html="helpText"></p>
+    <!-- eslint-enable vue/no-v-html -->
     <callout category="warning">
       <gl-sprintf
         :message="

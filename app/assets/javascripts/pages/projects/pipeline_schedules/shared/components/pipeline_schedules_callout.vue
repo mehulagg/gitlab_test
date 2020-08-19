@@ -35,7 +35,9 @@ export default {
       <button id="dismiss-callout-btn" class="btn btn-default close" @click="dismissCallout">
         <i aria-hidden="true" class="fa fa-times"> </i>
       </button>
+      <!-- eslint-disable vue/no-v-html -->
       <div class="svg-container" v-html="illustrationSvg"></div>
+      <!-- eslint-enable vue/no-v-html -->
       <div class="user-callout-copy">
         <h4>{{ __('Scheduling Pipelines') }}</h4>
         <p>

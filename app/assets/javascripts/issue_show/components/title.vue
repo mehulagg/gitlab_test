@@ -65,6 +65,7 @@ export default {
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="title-container">
     <h2
       :class="{
@@ -88,4 +89,5 @@ export default {
       v-html="pencilIcon"
     ></button>
   </div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

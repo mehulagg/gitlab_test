@@ -126,6 +126,7 @@ export default {
       </div>
 
       <div v-gl-tooltip :title="s__('Job|Scroll to bottom')" class="controllers-buttons">
+        <!-- eslint-disable vue/no-v-html -->
         <gl-deprecated-button
           :disabled="isScrollBottomDisabled"
           class="js-scroll-bottom btn-scroll btn-transparent btn-blank"
@@ -134,6 +135,7 @@ export default {
           @click="handleScrollToBottom"
           v-html="$options.scrollDown"
         />
+        <!-- eslint-enable vue/no-v-html -->
       </div>
       <!-- eo scroll buttons -->
     </div>

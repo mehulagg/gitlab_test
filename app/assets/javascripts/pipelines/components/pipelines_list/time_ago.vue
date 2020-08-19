@@ -58,9 +58,11 @@ export default {
   <div class="table-section section-15 pipelines-time-ago">
     <div class="table-mobile-header" role="rowheader">{{ s__('Pipeline|Duration') }}</div>
     <div class="table-mobile-content">
+      <!-- eslint-disable vue/no-v-html -->
       <p v-if="hasDuration" class="duration">
         <span v-html="iconTimerSvg"> </span> {{ durationFormatted }}
       </p>
+      <!-- eslint-enable vue/no-v-html -->
 
       <p v-if="hasFinishedTime" class="finished-at d-none d-sm-none d-md-block">
         <i class="fa fa-calendar" aria-hidden="true"> </i>

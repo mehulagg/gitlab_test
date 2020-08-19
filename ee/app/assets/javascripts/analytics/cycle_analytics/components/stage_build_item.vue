@@ -49,6 +49,7 @@ export default {
         <template v-if="!withBuildStatus">
           <user-avatar-image :img-src="author.avatarUrl" />
         </template>
+        <!-- eslint-disable vue/no-v-html -->
         <h5 class="item-title">
           <template v-if="withBuildStatus">
             <span class="icon-build-status" v-html="iconBuildStatus"></span>
@@ -60,6 +61,7 @@ export default {
           <span class="icon-branch" v-html="iconBranch"></span>
           <gl-link :href="commitUrl" class="commit-sha">{{ shortSha }}</gl-link>
         </h5>
+        <!-- eslint-enable vue/no-v-html -->
         <span v-if="withBuildStatus">
           <gl-link :href="url" class="issue-date">{{ date }}</gl-link>
         </span>

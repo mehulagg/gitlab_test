@@ -42,6 +42,7 @@ export default {
         <div class="item-details">
           <!-- FIXME: Pass an alt attribute here for accessibility -->
           <user-avatar-image :img-src="build.author.avatarUrl" />
+          <!-- eslint-disable vue/no-v-html -->
           <h5 class="item-title">
             <a :href="build.url" class="pipeline-id"> #{{ build.id }} </a>
             <icon :size="16" name="fork" />
@@ -49,6 +50,7 @@ export default {
             <span class="icon-branch" v-html="iconBranch"> </span>
             <a :href="build.commitUrl" class="commit-sha"> {{ build.shortSha }} </a>
           </h5>
+          <!-- eslint-enable vue/no-v-html -->
           <span>
             <a :href="build.url" class="build-date"> {{ build.date }} </a> {{ s__('ByAuthor|by') }}
             <a :href="build.author.webUrl" class="issue-author-link"> {{ build.author.name }} </a>

@@ -61,10 +61,12 @@ export default {
     :ok-title="action"
     @ok="submit"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <form ref="form" :action="url" method="post">
       <span v-html="content"></span>
       <input ref="method" type="hidden" name="_method" :value="method" />
       <input :value="csrfToken" type="hidden" name="authenticity_token" />
     </form>
+    <!-- eslint-enable vue/no-v-html -->
   </gl-modal>
 </template>

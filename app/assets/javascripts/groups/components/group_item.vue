@@ -146,9 +146,11 @@ export default {
               {{ group.permission }}
             </span>
           </div>
+          <!-- eslint-disable vue/no-v-html -->
           <div v-if="group.description" class="description">
             <span v-html="group.description"> </span>
           </div>
+          <!-- eslint-enable vue/no-v-html -->
         </div>
         <div v-if="isGroupPendingRemoval">
           <gl-badge variant="warning">{{ __('pending removal') }}</gl-badge>

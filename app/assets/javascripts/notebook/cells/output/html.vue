@@ -36,6 +36,8 @@ export default {
 <template>
   <div class="output">
     <prompt type="Out" :count="count" :show-output="showOutput" />
+    <!-- eslint-disable vue/no-v-html -->
     <div v-html="sanitizedOutput"></div>
+    <!-- eslint-enable vue/no-v-html -->
   </div>
 </template>

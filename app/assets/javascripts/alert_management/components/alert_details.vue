@@ -210,7 +210,9 @@ export default {
 <template>
   <div>
     <gl-alert v-if="showErrorMsg" variant="danger" @dismiss="dismissError">
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="sidebarErrorMessage || $options.i18n.errorMsg"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </gl-alert>
     <gl-alert
       v-if="createIssueError"

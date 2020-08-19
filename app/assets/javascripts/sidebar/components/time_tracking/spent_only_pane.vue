@@ -26,5 +26,7 @@ export default {
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="time-tracking-spend-only-pane" v-html="timeSpent"></div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

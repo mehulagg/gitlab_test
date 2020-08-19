@@ -43,7 +43,9 @@ export default {
   >
     <template #description>
       <div>
+        <!-- eslint-disable vue/no-v-html -->
         <p v-html="linkText"></p>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </template>
   </gl-empty-state>

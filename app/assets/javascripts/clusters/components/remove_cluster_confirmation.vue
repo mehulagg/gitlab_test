@@ -131,6 +131,7 @@ export default {
       :title="modalTitle"
       kind="danger"
     >
+      <!-- eslint-disable vue/no-v-html -->
       <template>
         <p>{{ warningMessage }}</p>
         <div v-if="confirmCleanup">
@@ -173,6 +174,7 @@ export default {
           )
         }}</span>
       </template>
+      <!-- eslint-enable vue/no-v-html -->
       <template #modal-footer>
         <gl-deprecated-button variant="secondary" @click="handleCancel">{{
           s__('Cancel')

@@ -39,6 +39,7 @@ export default {
 };
 </script>
 
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <span v-if="hasFullPipelineText">
     <span v-html="pipelineText"></span>
@@ -48,3 +49,4 @@ export default {
 
   <span v-else v-html="pipelineText"></span>
 </template>
+<!-- eslint-enable vue/no-v-html -->

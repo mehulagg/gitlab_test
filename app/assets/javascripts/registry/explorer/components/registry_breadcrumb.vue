@@ -38,17 +38,21 @@ export default {
 
 <template>
   <ul>
+    <!-- eslint-disable vue/no-v-html -->
     <li
       v-for="(crumb, index) in rootCrumbs"
       :key="index"
       :class="crumb.className"
       v-html="crumb.innerHTML"
     ></li>
+    <!-- eslint-enable vue/no-v-html -->
     <li v-if="!isRootRoute">
       <router-link ref="rootRouteLink" :to="rootRoute.path">
         {{ rootRoute.meta.nameGenerator(rootRoute) }}
       </router-link>
+      <!-- eslint-disable vue/no-v-html -->
       <component :is="divider.tagName" :class="divider.classList" v-html="divider.innerHTML" />
+      <!-- eslint-enable vue/no-v-html -->
     </li>
     <li>
       <component :is="lastCrumb.tagName" ref="lastCrumb" :class="lastCrumb.className">

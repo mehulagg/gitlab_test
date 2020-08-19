@@ -61,7 +61,9 @@ export default {
     footer-primary-button-variant="danger"
     @submit="emitSubmit($event)"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <p v-html="modalText"></p>
+    <!-- eslint-enable vue/no-v-html -->
 
     <p v-if="pipeline">
       <ci-icon

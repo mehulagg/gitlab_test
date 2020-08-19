@@ -88,7 +88,9 @@ export default {
           >
             <td :class="line.type" class="diff-line-num old_line">{{ line.old_line }}</td>
             <td :class="line.type" class="diff-line-num new_line">{{ line.new_line }}</td>
+            <!-- eslint-disable vue/no-v-html -->
             <td :class="line.type" class="line_content" v-html="trimChar(line.rich_text)"></td>
+            <!-- eslint-enable vue/no-v-html -->
           </tr>
         </template>
         <tr v-if="!hasTruncatedDiffLines" class="line_holder line-holder-placeholder">

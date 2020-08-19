@@ -23,5 +23,7 @@ export default {
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="alert alert-danger" v-html="alertMessage"></div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

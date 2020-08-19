@@ -165,7 +165,9 @@ export default {
       </gl-carousel-slide>
     </gl-carousel>
     <div class="discover-footer d-flex flex-nowrap flex-row justify-content-between mx-auto my-0">
+      <!-- eslint-disable vue/no-v-html -->
       <p class="gl-text-gray-900 text-left mb-5" v-html="$options.i18n.discoverPlanCaption"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="discover-buttons d-flex flex-nowrap flex-row justify-content-between mx-auto my-0">
       <gl-button

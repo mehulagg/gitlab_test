@@ -99,7 +99,9 @@ export default {
       icon-name="cancel"
       icon-class="ci-status-icon-pending"
     >
+      <!-- eslint-disable vue/no-v-html -->
       <div v-if="feedback.created_at" v-html="eventText"></div>
+      <!-- eslint-enable vue/no-v-html -->
     </event-item>
     <template v-if="commentDetails && !isCommentingOnDismissal">
       <hr class="my-3" />

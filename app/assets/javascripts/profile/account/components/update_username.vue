@@ -108,6 +108,7 @@ Please update your Git repository remotes as soon as possible.`),
     >
       {{ $options.buttonText }}
     </button>
+    <!-- eslint-disable vue/no-v-html -->
     <gl-modal
       :id="$options.modalId"
       :header-title-text="s__('Profiles|Change username') + '?'"
@@ -117,5 +118,6 @@ Please update your Git repository remotes as soon as possible.`),
     >
       <span v-html="modalText"></span>
     </gl-modal>
+    <!-- eslint-enable vue/no-v-html -->
   </div>
 </template>

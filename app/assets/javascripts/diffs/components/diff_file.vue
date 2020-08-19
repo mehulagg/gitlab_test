@@ -184,6 +184,7 @@ export default {
       @showForkMessage="showForkMessage"
     />
 
+    <!-- eslint-disable vue/no-v-html -->
     <div v-if="forkMessageVisible" class="js-file-fork-suggestion-section file-fork-suggestion">
       <span class="file-fork-suggestion-note" v-html="forkMessage"></span>
       <a
@@ -199,11 +200,14 @@ export default {
         {{ __('Cancel') }}
       </button>
     </div>
+    <!-- eslint-enable vue/no-v-html -->
     <gl-loading-icon v-if="showLoadingIcon" class="diff-content loading" />
     <template v-else>
       <div :id="`diff-content-${file.file_hash}`">
         <div v-if="errorMessage" class="diff-viewer">
+          <!-- eslint-disable vue/no-v-html -->
           <div class="nothing-here-block" v-html="errorMessage"></div>
+          <!-- eslint-enable vue/no-v-html -->
         </div>
         <template v-else>
           <div v-show="isCollapsed" class="nothing-here-block diff-collapsed">

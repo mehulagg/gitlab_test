@@ -26,6 +26,7 @@ export default {
 };
 </script>
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <gl-modal
     id="modal-license-delete-confirmation"
     :header-title-text="s__('LicenseCompliance|Remove license?')"
@@ -36,4 +37,5 @@ export default {
   >
     <span v-if="currentLicenseInModal" v-html="confirmationText"></span>
   </gl-modal>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

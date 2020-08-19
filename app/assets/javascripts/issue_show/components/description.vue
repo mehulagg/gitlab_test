@@ -134,6 +134,7 @@ export default {
     }"
     class="description"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <div
       ref="gfm-content"
       :class="{
@@ -143,6 +144,7 @@ export default {
       class="md"
       v-html="descriptionHtml"
     ></div>
+    <!-- eslint-enable vue/no-v-html -->
     <textarea
       v-if="descriptionText"
       ref="textarea"

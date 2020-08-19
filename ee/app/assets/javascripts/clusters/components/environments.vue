@@ -97,7 +97,9 @@ export default {
       :primary-button-link="clustersHelpPath"
       :primary-button-text="__('Learn more about deploying to a cluster')"
     >
+      <!-- eslint-disable vue/no-v-html -->
       <div slot="description" v-html="tableEmptyStateText"></div>
+      <!-- eslint-enable vue/no-v-html -->
     </gl-empty-state>
 
     <gl-table
@@ -152,6 +154,7 @@ export default {
         </div>
 
         <!-- Empty state -->
+        <!-- eslint-disable vue/no-v-html -->
         <div v-else class="deployments-empty d-flex">
           <icon
             name="warning"
@@ -160,6 +163,7 @@ export default {
           />
           <span v-html="deploymentsEmptyStateText"></span>
         </div>
+        <!-- eslint-enable vue/no-v-html -->
       </template>
 
       <!-- column: Last updated -->

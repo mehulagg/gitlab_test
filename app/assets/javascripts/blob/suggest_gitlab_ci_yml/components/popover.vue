@@ -108,6 +108,7 @@ export default {
     container="viewport"
     :css-classes="['suggest-gitlab-ci-yml', 'ml-4']"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <template #title>
       <span v-html="suggestTitle"></span>
       <span class="ml-auto">
@@ -124,6 +125,7 @@ export default {
         />
       </span>
     </template>
+    <!-- eslint-enable vue/no-v-html -->
 
     <gl-sprintf :message="suggestContent" />
     <div class="mt-3">

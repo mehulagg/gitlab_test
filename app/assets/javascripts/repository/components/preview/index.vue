@@ -58,7 +58,9 @@ export default {
     </div>
     <div class="blob-viewer" data-qa-selector="blob_viewer_content">
       <gl-loading-icon v-if="loading > 0" size="md" color="dark" class="my-4 mx-auto" />
+      <!-- eslint-disable vue/no-v-html -->
       <div v-else-if="readme" ref="readme" v-html="readme.html"></div>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
   </article>
 </template>

@@ -133,6 +133,7 @@ export default {
       :class="[line.type, coverageState.class, { hll: isHighlighted }]"
       class="line-coverage"
     ></td>
+    <!-- eslint-disable vue/no-v-html -->
     <td
       :class="[
         line.type,
@@ -143,5 +144,6 @@ export default {
       class="line_content with-coverage"
       v-html="line.rich_text"
     ></td>
+    <!-- eslint-enable vue/no-v-html -->
   </tr>
 </template>

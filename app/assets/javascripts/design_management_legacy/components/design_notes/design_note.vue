@@ -88,6 +88,7 @@ export default {
       :img-size="40"
     />
     <div class="d-flex justify-content-between">
+      <!-- eslint-disable vue/no-v-html -->
       <div>
         <a
           v-once
@@ -110,6 +111,7 @@ export default {
           </template>
         </span>
       </div>
+      <!-- eslint-enable vue/no-v-html -->
       <div class="gl-display-flex">
         <slot name="resolveDiscussion"></slot>
         <button
@@ -125,11 +127,13 @@ export default {
       </div>
     </div>
     <template v-if="!isEditing">
+      <!-- eslint-disable vue/no-v-html -->
       <div
         class="note-text js-note-text md"
         data-qa-selector="note_content"
         v-html="note.bodyHtml"
       ></div>
+      <!-- eslint-enable vue/no-v-html -->
       <slot name="resolvedStatus"></slot>
     </template>
     <apollo-mutation

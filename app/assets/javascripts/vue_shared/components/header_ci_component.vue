@@ -85,6 +85,7 @@ export default {
 
       {{ __('by') }}
 
+      <!-- eslint-disable vue/no-v-html -->
       <template v-if="user">
         <gl-link
           v-gl-tooltip
@@ -103,6 +104,7 @@ export default {
         </gl-link>
         <span v-if="user.status_tooltip_html" v-html="user.status_tooltip_html"></span>
       </template>
+      <!-- eslint-enable vue/no-v-html -->
     </section>
 
     <section v-if="$slots.default" data-testid="headerButtons" class="gl-display-flex">

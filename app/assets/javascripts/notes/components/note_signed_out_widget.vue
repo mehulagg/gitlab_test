@@ -30,5 +30,7 @@ export default {
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="disabled-comment text-center" v-html="signedOutText"></div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

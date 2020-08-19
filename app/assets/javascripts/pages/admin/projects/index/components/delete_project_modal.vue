@@ -93,8 +93,12 @@ export default {
     @cancel="onCancel"
   >
     <template #body="props">
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="props.text"></p>
+      <!-- eslint-enable vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="confirmationTextLabel"></p>
+      <!-- eslint-enable vue/no-v-html -->
       <form ref="form" :action="deleteProjectUrl" method="post">
         <input ref="method" type="hidden" name="_method" value="delete" />
         <input :value="csrfToken" type="hidden" name="authenticity_token" />

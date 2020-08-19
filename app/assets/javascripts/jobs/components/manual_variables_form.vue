@@ -173,7 +173,9 @@ export default {
       </div>
     </div>
     <div class="d-flex gl-mt-3 justify-content-center">
+      <!-- eslint-disable vue/no-v-html -->
       <p class="text-muted" v-html="helpText"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </div>
     <div class="d-flex justify-content-center">
       <gl-deprecated-button variant="primary" @click="triggerManualJob(variables)">

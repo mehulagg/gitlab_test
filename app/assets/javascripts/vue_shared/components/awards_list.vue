@@ -148,6 +148,7 @@ export default {
 </script>
 
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="awards js-awards-block">
     <button
       v-for="awardList in groupedAwards"
@@ -190,4 +191,5 @@ export default {
       </button>
     </div>
   </div>
+  <!-- eslint-enable vue/no-v-html -->
 </template>

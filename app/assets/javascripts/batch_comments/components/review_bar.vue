@@ -64,7 +64,9 @@ export default {
       ok-variant="danger qa-modal-delete-pending-comments"
       @ok="discardReview"
     >
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="$options.text"></p>
+      <!-- eslint-enable vue/no-v-html -->
     </gl-modal>
   </div>
 </template>

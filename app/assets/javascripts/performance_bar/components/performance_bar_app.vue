@@ -122,6 +122,7 @@ export default {
       class="d-flex container-fluid container-limited"
       data-qa-selector="performance_bar"
     >
+      <!-- eslint-disable vue/no-v-html -->
       <div id="peek-view-host" class="view">
         <span
           v-if="hasHost"
@@ -132,6 +133,7 @@ export default {
           {{ currentRequest.details.host.hostname }}
         </span>
       </div>
+      <!-- eslint-enable vue/no-v-html -->
       <detailed-metric
         v-for="metric in $options.detailedMetrics"
         :key="metric.metric"

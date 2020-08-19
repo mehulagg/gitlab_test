@@ -179,6 +179,7 @@ export default {
         name="user[status][emoji]"
       />
       <div ref="userStatusForm" class="form-group position-relative m-0">
+        <!-- eslint-disable vue/no-v-html -->
         <div class="input-group">
           <span class="input-group-prepend">
             <button
@@ -227,6 +228,7 @@ export default {
             </button>
           </span>
         </div>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </div>
   </gl-modal>

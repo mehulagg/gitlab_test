@@ -14,5 +14,7 @@ export default {
 };
 </script>
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <markdown-field-view ref="content" v-html="content" />
+  <!-- eslint-enable vue/no-v-html -->
 </template>

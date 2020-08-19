@@ -133,7 +133,9 @@ export default {
       @addToBatch="addSuggestionToBatch"
       @removeFromBatch="removeSuggestionFromBatch"
     />
+    <!-- eslint-disable vue/no-v-html -->
     <div v-else class="note-text md" v-html="note.note_html"></div>
+    <!-- eslint-enable vue/no-v-html -->
     <note-form
       v-if="isEditing"
       ref="noteForm"

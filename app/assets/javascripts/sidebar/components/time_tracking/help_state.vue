@@ -37,8 +37,12 @@ export default {
     <div class="time-tracking-info">
       <h4>{{ __('Track time with quick actions') }}</h4>
       <p>{{ __('Quick actions can be used in the issues description and comment boxes.') }}</p>
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="estimateText"></p>
+      <!-- eslint-enable vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="spendText"></p>
+      <!-- eslint-enable vue/no-v-html -->
       <a :href="href" class="btn btn-default learn-more-button"> {{ __('Learn more') }} </a>
     </div>
   </div>

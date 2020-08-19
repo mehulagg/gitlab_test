@@ -86,13 +86,17 @@ Once you confirm %{deleteAccount}, it cannot be undone or recovered.`),
     @submit="onSubmit"
   >
     <template #body="props">
+      <!-- eslint-disable vue/no-v-html -->
       <p v-html="props.text"></p>
+      <!-- eslint-enable vue/no-v-html -->
 
       <form ref="form" :action="actionUrl" method="post">
         <input type="hidden" name="_method" value="delete" />
         <input :value="csrfToken" type="hidden" name="authenticity_token" />
 
+        <!-- eslint-disable vue/no-v-html -->
         <p id="input-label" v-html="inputLabel"></p>
+        <!-- eslint-enable vue/no-v-html -->
 
         <input
           v-if="confirmWithPassword"

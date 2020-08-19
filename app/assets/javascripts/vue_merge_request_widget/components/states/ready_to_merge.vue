@@ -323,6 +323,7 @@ export default {
               class="dropdown-menu dropdown-menu-right"
               role="menu"
             >
+              <!-- eslint-disable vue/no-v-html -->
               <li>
                 <a
                   class="auto_merge_enabled qa-merge-when-pipeline-succeeds-option"
@@ -335,6 +336,8 @@ export default {
                   </span>
                 </a>
               </li>
+              <!-- eslint-enable vue/no-v-html -->
+              <!-- eslint-disable vue/no-v-html -->
               <li>
                 <merge-immediately-confirmation-dialog
                   ref="confirmationDialog"
@@ -353,6 +356,7 @@ export default {
                   </span>
                 </a>
               </li>
+              <!-- eslint-enable vue/no-v-html -->
             </ul>
           </span>
           <div class="media-body-wrap space-children">
@@ -397,10 +401,12 @@ export default {
             </template>
           </div>
         </div>
+        <!-- eslint-disable vue/no-v-html -->
         <div v-if="mr.isSHAMismatch" class="d-flex align-items-center mt-2 js-sha-mismatch">
           <gl-icon name="warning-solid" class="text-warning mr-1" />
           <span class="text-warning" v-html="shaMismatchLink"></span>
         </div>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </div>
     <merge-train-helper-text

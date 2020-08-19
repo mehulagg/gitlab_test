@@ -110,6 +110,8 @@ export default {
 <template>
   <div ref="markdownPreview" class="md-previewer">
     <gl-skeleton-loading v-if="isLoading" />
+    <!-- eslint-disable vue/no-v-html -->
     <div v-else class="md" v-html="previewContent"></div>
+    <!-- eslint-enable vue/no-v-html -->
   </div>
 </template>

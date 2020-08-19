@@ -36,7 +36,9 @@ export default {
         class="blank-state blank-state-link experiment-new-project-page-blank-state"
         @click="track('click_tab', { label: panel.name })"
       >
+        <!-- eslint-disable vue/no-v-html -->
         <div class="blank-state-icon" v-html="panel.illustration"></div>
+        <!-- eslint-enable vue/no-v-html -->
         <div class="blank-state-body gl-pl-4!">
           <h3 class="blank-state-title experiment-new-project-page-blank-state-title">
             {{ panel.title }}

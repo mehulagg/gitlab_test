@@ -115,6 +115,8 @@ export default {
 <template>
   <div>
     <div class="flash-container js-suggestions-flash"></div>
+    <!-- eslint-disable vue/no-v-html -->
     <div v-show="isRendered" ref="container" class="md" v-html="noteHtml"></div>
+    <!-- eslint-enable vue/no-v-html -->
   </div>
 </template>

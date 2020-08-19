@@ -38,7 +38,9 @@ export default {
       <icon name="comment" />
     </div>
     <div class="timeline-content">
+      <!-- eslint-disable vue/no-v-html -->
       <div ref="timelineContent" v-html="timelineContent"></div>
+      <!-- eslint-enable vue/no-v-html -->
       <div class="discussion-filter-actions mt-2">
         <gl-button ref="showAllActivity" variant="default" @click="selectFilter(0)">
           {{ __('Show all activity') }}

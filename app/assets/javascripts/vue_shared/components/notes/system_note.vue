@@ -100,9 +100,12 @@ export default {
     :class="{ target: isTargetNote, 'pr-0': shouldShowDescriptionVersion }"
     class="note system-note note-wrapper"
   >
+    <!-- eslint-disable vue/no-v-html -->
     <div class="timeline-icon" v-html="iconHtml"></div>
+    <!-- eslint-enable vue/no-v-html -->
     <div class="timeline-content">
       <div class="note-header">
+        <!-- eslint-disable vue/no-v-html -->
         <note-header :author="note.author" :created-at="note.created_at" :note-id="note.id">
           <span v-html="actionTextHtml"></span>
           <template v-if="canSeeDescriptionVersion" slot="extra-controls">
@@ -113,13 +116,16 @@ export default {
             </button>
           </template>
         </note-header>
+        <!-- eslint-enable vue/no-v-html -->
       </div>
       <div class="note-body">
+        <!-- eslint-disable vue/no-v-html -->
         <div
           :class="{ 'system-note-commit-list': hasMoreCommits, 'hide-shade': expanded }"
           class="note-text md"
           v-html="note.note_html"
         ></div>
+        <!-- eslint-enable vue/no-v-html -->
         <div v-if="hasMoreCommits" class="flex-list">
           <div class="system-note-commit-list-toggler flex-row" @click="expanded = !expanded">
             <icon :name="toggleIcon" :size="8" class="gl-mr-2" />
@@ -130,7 +136,9 @@ export default {
           <pre v-if="isLoadingDescriptionVersion" class="loading-state">
             <gl-skeleton-loading />
           </pre>
+          <!-- eslint-disable vue/no-v-html -->
           <pre v-else class="wrapper mt-2" v-html="descriptionVersion"></pre>
+          <!-- eslint-enable vue/no-v-html -->
           <gl-deprecated-button
             v-if="displayDeleteButton"
             ref="deleteDescriptionVersionButton"
