@@ -10,10 +10,16 @@ For broader information about the documentation, see the [Documentation guidelin
 
 For programmatic help adhering to the guidelines, see [Testing](index.md#testing).
 
-See the GitLab handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines)
-that apply to all GitLab content, not just documentation.
+## Using this guide
 
-View [a list of recent style guide updates](https://gitlab.com/dashboard/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&label_name[]=tw-style&not[label_name][]=docs%3A%3Afix).
+When working on documentation, you can reference this guide for a variety of formatting and word usage rules.
+
+You can also view [a list of recent style guide updates](https://gitlab.com/dashboard/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&label_name[]=tw-style&not[label_name][]=docs%3A%3Afix).
+
+If you can't find what you need:
+* See the GitLab handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content, not just documentation.
+* Reference the [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/) and [Google Developer Documentation Style Guide](https://developers.google.com/style). Mention the result from each guide to the Technical Writing Style Committee. (See following bullet.)
+* Mention `@tw-style` in an issue or merge request, or if you have access to the GitLab Slack workspace, use `#docs-process`.
 
 ## Documentation is the single source of truth (SSOT)
 
