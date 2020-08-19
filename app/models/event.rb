@@ -101,6 +101,14 @@ class Event < ApplicationRecord
   scope :for_wiki_meta, ->(meta) { where(target_type: 'WikiPage::Meta', target_id: meta.id) }
   scope :created_at, ->(time) { where(created_at: time) }
 
+  scope :contributions, -> do
+    # Update Gitlab::ContributionsCalendar#activity_dates if this changes
+    where("action = ? OR (target_type IN (?) AND action IN (?)) OR (target_type = ? AND action = ?)",
+          actions[:pushed],
+          %w(MergeRequest Issue), [actions[:created], actions[:closed], actions[:merged]],
+          "Note", actions[:commented])
+  end
+
   # Authors are required as they're used to display who pushed data.
   #
   # We're just validating the presence of the ID here as foreign key constraints
@@ -127,14 +135,6 @@ class Event < ApplicationRecord
       else
         Event
       end
-    end
-
-    # Update Gitlab::ContributionsCalendar#activity_dates if this changes
-    def contributions
-      where("action = ? OR (target_type IN (?) AND action IN (?)) OR (target_type = ? AND action = ?)",
-            actions[:pushed],
-            %w(MergeRequest Issue), [actions[:created], actions[:closed], actions[:merged]],
-            "Note", actions[:commented])
     end
 
     def limit_recent(limit = 20, offset = nil)

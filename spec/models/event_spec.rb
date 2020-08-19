@@ -3,6 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe Event do
+  let_it_be(:user) { create(:user) }
+  let_it_be(:project) { create(:project, creator: user) }
+
+  before do
+    FactoryBot.set_factory_default(:user, user)
+    FactoryBot.set_factory_default(:project, project)
+  end
+
   describe "Associations" do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:target) }
@@ -132,6 +140,47 @@ RSpec.describe Event do
       it 'can find a given event' do
         expect(described_class.for_fingerprint(with_fingerprint.fingerprint))
           .to contain_exactly(with_fingerprint)
+      end
+    end
+
+    describe '.contributions' do
+      it 'includes push events, comments, issue/mr state changes' do
+        issue = create(:issue)
+        mr = create(:merge_request)
+        design = create(:design)
+
+        # Push events
+        push_event = create_push_event(project, user)
+
+        # State changes on issues, mrs, designs
+        created_issue_event = create(:event, :created, target: issue)
+        closed_issue_event = create(:event, :closed, target: issue)
+        created_mr_event = create(:event, :created, target: mr)
+        closed_mr_event = create(:event, :closed, target: mr)
+        merged_mr_event = create(:event, :merged, target: mr)
+        issue_note_event = create(:event, :commented, target: create(:note, noteable: issue))
+        design_event = create(:design_event, target: design)
+        wiki_page_event = create(:wiki_page_event)
+
+        mr_note_event = create(:event, :commented, target: create(:note, noteable: mr))
+        design_note_event = create(:event, :commented, target: create(:note, noteable: design))
+
+        contributions = described_class.contributions
+
+        expect(contributions).to contain_exactly(
+          push_event,
+          closed_issue_event,
+          created_issue_event,
+          closed_mr_event,
+          created_mr_event,
+          merged_mr_event,
+          issue_note_event,
+          mr_note_event,
+          design_note_event,
+          design_event
+        )
+
+        expect(contributions).not_to include(wiki_page_event)
       end
     end
   end
