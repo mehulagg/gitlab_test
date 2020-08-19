@@ -11,11 +11,10 @@ import consts from '../../stores/modules/commit/constants';
 export default {
   components: {
     Actions,
-    LoadingButton,
     CommitMessageField,
     SuccessMessage,
     GlModal,
-    GLButton,
+    GlButton,
   },
   data() {
     return {
@@ -145,7 +144,11 @@ export default {
             :label="commitButtonText"
             class="float-left qa-commit-button"
             @click="commit"
-          />
+            category="primary"
+          >           
+            
+            {{ __('Commit') }}
+          </gl-button>
           <button
             v-if="!discardDraftButtonDisabled"
             type="button"
