@@ -1,3 +1,5 @@
+$design-pin-diameter: 28px;
+
 .layout-page.design-detail-layout {
   max-height: 100vh;
 }
@@ -23,12 +25,15 @@
 
   .badge.badge-pill {
     display: flex;
-    height: 28px;
-    width: 28px;
-    background-color: $blue-400;
+    height: $design-pin-diameter;
+    width: $design-pin-diameter;
+    box-sizing: content-box;
+    background-color: $purple-400;
     color: $white;
-    border: $white 1px solid;
+    font-weight: $gl-font-weight-bold;
     border-radius: 50%;
+    z-index: 1;
+    padding: 0;
 
     &.resolved {
       background-color: $gray-500;
@@ -37,6 +42,22 @@
 
   .design-detail-overlay-add-comment {
     cursor: crosshair;
+  }
+
+  /**
+   * Design pin that overlays the design
+   */
+  .frame .badge.badge-pill {
+    box-shadow: 0 2px 4px $t-gray-a-24;
+    border: $white 2px solid;
+    transition: transform 350ms cubic-bezier(0, 1, 1, 1);
+    will-change: transform;
+    transform-origin: 0 0;
+    transform: translate(-50%, -50%);
+
+    &:hover {
+      transform: scale(1.2) translate(-50%, -50%);
+    }
   }
 }
 
@@ -105,8 +126,8 @@
       border-left: 1px solid $gray-100;
       position: absolute;
       left: 28px;
-      top: -18px;
-      height: 18px;
+      top: -17px;
+      height: 17px;
     }
 
     .design-note {

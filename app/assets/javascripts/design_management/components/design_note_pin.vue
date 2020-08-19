@@ -47,7 +47,7 @@ export default {
       'btn-transparent comment-indicator': isNewNote,
       'js-image-badge badge badge-pill': !isNewNote,
     }"
-    class="design-pin gl-absolute gl-display-flex gl-align-items-center gl-justify-content-center gl-p-0"
+    class="design-pin gl-absolute gl-display-flex gl-align-items-center gl-justify-content-center gl-font-lg"
     type="button"
     @mousedown="$emit('mousedown', $event)"
     @mouseup="$emit('mouseup', $event)"
