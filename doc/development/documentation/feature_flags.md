@@ -143,7 +143,7 @@ For features enabled by default:
 
 - Say it's enabled by default.
 - Say whether it's enabled on GitLab.com.
-- Say whether it can be enabled or disabled by project.
+- Say whether it can be enabled by project.
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
 
