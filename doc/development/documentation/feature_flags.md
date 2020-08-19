@@ -147,7 +147,7 @@ For features enabled by default:
 - Say whether it's recommended for production use.
 - Document how to disable and enable it.
 
-For example, for a feature enabled by default, enabled on GitLab.com, cannot be enabled or disabled by project, and ready for production use:
+For example, for a feature enabled by default, enabled on GitLab.com, cannot be enabled by project, and ready for production use:
 
 ````markdown
 # Feature Name
