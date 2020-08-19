@@ -1,8 +1,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex';
 import { n__, __ } from '~/locale';
-import { GlModal } from '@gitlab/ui';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
+import { GlModal, GlButton } from '@gitlab/ui';
 import CommitMessageField from './message_field.vue';
 import Actions from './actions.vue';
 import SuccessMessage from './success_message.vue';
@@ -16,6 +15,7 @@ export default {
     CommitMessageField,
     SuccessMessage,
     GlModal,
+    GLButton,
   },
   data() {
     return {
@@ -140,10 +140,10 @@ export default {
         />
         <div class="clearfix gl-mt-5">
           <actions />
-          <loading-button
+          <gl-button
             :loading="submitCommitLoading"
             :label="commitButtonText"
-            container-class="btn btn-success btn-sm float-left qa-commit-button"
+            class="float-left qa-commit-button"
             @click="commit"
           />
           <button
